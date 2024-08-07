@@ -60,133 +60,133 @@ class Boards extends Table
 		$this->name = 'boards';
 
 		$this->columns = [
-			new Column(
+			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_cat' => new Column(
 				name: 'id_cat',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'child_level' => new Column(
 				name: 'child_level',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_parent' => new Column(
 				name: 'id_parent',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'board_order' => new Column(
 				name: 'board_order',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_last_msg' => new Column(
 				name: 'id_last_msg',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_msg_updated' => new Column(
 				name: 'id_msg_updated',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'member_groups' => new Column(
 				name: 'member_groups',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '-1,0',
 			),
-			new Column(
+			'id_profile' => new Column(
 				name: 'id_profile',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'name' => new Column(
 				name: 'name',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'description' => new Column(
 				name: 'description',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'num_topics' => new Column(
 				name: 'num_topics',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'num_posts' => new Column(
 				name: 'num_posts',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'count_posts' => new Column(
 				name: 'count_posts',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_theme' => new Column(
 				name: 'id_theme',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'override_theme' => new Column(
 				name: 'override_theme',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'unapproved_posts' => new Column(
 				name: 'unapproved_posts',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'unapproved_topics' => new Column(
 				name: 'unapproved_topics',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'redirect' => new Column(
 				name: 'redirect',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'deny_member_groups' => new Column(
 				name: 'deny_member_groups',
 				type: 'varchar',
 				size: 255,
@@ -196,13 +196,13 @@ class Boards extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_board',
 				],
 			),
-			new DbIndex(
+			'idx_categories' => new DbIndex(
 				name: 'idx_categories',
 				type: 'unique',
 				columns: [
@@ -210,19 +210,19 @@ class Boards extends Table
 					'id_board',
 				],
 			),
-			new DbIndex(
+			'idx_id_parent' => new DbIndex(
 				name: 'idx_id_parent',
 				columns: [
 					'id_parent',
 				],
 			),
-			new DbIndex(
+			'idx_id_msg_updated' => new DbIndex(
 				name: 'idx_id_msg_updated',
 				columns: [
 					'id_msg_updated',
 				],
 			),
-			new DbIndex(
+			'idx_member_groups' => new DbIndex(
 				name: 'idx_member_groups',
 				columns: [
 					'member_groups(48)',

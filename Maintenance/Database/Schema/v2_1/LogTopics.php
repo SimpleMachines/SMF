@@ -47,26 +47,26 @@ class LogTopics extends Table
 		$this->name = 'log_topics';
 
 		$this->columns = [
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'id_msg' => new Column(
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'unwatched' => new Column(
 				name: 'unwatched',
 				type: 'tinyint',
 				not_null: true,
@@ -75,14 +75,14 @@ class LogTopics extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_member',
 					'id_topic',
 				],
 			),
-			new DbIndex(
+			'idx_id_topic' => new DbIndex(
 				name: 'idx_id_topic',
 				columns: [
 					'id_topic',

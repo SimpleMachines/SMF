@@ -47,13 +47,13 @@ class LogSearchTopics extends Table
 		$this->name = 'log_search_topics';
 
 		$this->columns = [
-			new Column(
+			'id_search' => new Column(
 				name: 'id_search',
 				type: 'tinyint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
@@ -62,7 +62,7 @@ class LogSearchTopics extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_search',

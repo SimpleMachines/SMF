@@ -47,111 +47,111 @@ class LogPackages extends Table
 		$this->name = 'log_packages';
 
 		$this->columns = [
-			new Column(
+			'id_install' => new Column(
 				name: 'id_install',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'filename' => new Column(
 				name: 'filename',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'package_id' => new Column(
 				name: 'package_id',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'name' => new Column(
 				name: 'name',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'version' => new Column(
 				name: 'version',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'id_member_installed' => new Column(
 				name: 'id_member_installed',
 				type: 'mediumint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'member_installed' => new Column(
 				name: 'member_installed',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'time_installed' => new Column(
 				name: 'time_installed',
 				type: 'mediumint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member_removed' => new Column(
 				name: 'id_member_removed',
 				type: 'mediumint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'member_removed' => new Column(
 				name: 'member_removed',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'time_removed' => new Column(
 				name: 'time_removed',
 				type: 'mediumint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'install_state' => new Column(
 				name: 'install_state',
 				type: 'mediumint',
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'failed_steps' => new Column(
 				name: 'failed_steps',
 				type: 'text',
 				not_null: true,
 				default: false,
 			),
-			new Column(
+			'themes_installed' => new Column(
 				name: 'themes_installed',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'db_changes' => new Column(
 				name: 'db_changes',
 				type: 'text',
 				not_null: true,
 				default: false,
 			),
-			new Column(
+			'credits' => new Column(
 				name: 'credits',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'sha256_hash' => new Column(
 				name: 'sha256_hash',
 				type: 'text',
 				not_null: false,
@@ -160,19 +160,19 @@ class LogPackages extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_install',
 				],
 			),
-			new DbIndex(
+			'filename' => new DbIndex(
 				name: 'filename',
 				columns: [
 					'filename',
 				],
 			),
-			new DbIndex(
+			'id_hash' => new DbIndex(
 				name: 'id_hash',
 				columns: [
 					'id_hash',

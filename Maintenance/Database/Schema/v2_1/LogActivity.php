@@ -47,40 +47,40 @@ class LogActivity extends Table
 		$this->name = 'log_activity';
 
 		$this->columns = [
-			new Column(
+			'date' => new Column(
 				name: 'date',
 				type: 'date',
 				not_null: true,
 			),
-			new Column(
+			'hits' => new Column(
 				name: 'hits',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'topics' => new Column(
 				name: 'topics',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'posts' => new Column(
 				name: 'posts',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'registers' => new Column(
 				name: 'registers',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'most_on' => new Column(
 				name: 'most_on',
 				type: 'smallint',
 				unsigned: true,
@@ -90,7 +90,7 @@ class LogActivity extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'date',

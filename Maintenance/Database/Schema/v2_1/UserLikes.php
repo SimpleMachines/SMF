@@ -47,25 +47,25 @@ class UserLikes extends Table
 		$this->name = 'user_likes';
 
 		$this->columns = [
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'content_type' => new Column(
 				name: 'content_type',
 				type: 'char',
 				size: 6,
 				default: '',
 			),
-			new Column(
+			'content_id' => new Column(
 				name: 'content_id',
 				type: 'int',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'like_time' => new Column(
 				name: 'like_time',
 				type: 'int',
 				unsigned: true,
@@ -75,7 +75,7 @@ class UserLikes extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'content_id',
@@ -83,14 +83,14 @@ class UserLikes extends Table
 					'id_member',
 				],
 			),
-			new DbIndex(
+			'content' => new DbIndex(
 				name: 'content',
 				columns: [
 					'content_id',
 					'content_type',
 				],
 			),
-			new DbIndex(
+			'liker' => new DbIndex(
 				name: 'liker',
 				columns: [
 					'id_member',

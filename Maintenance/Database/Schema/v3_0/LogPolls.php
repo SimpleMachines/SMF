@@ -47,21 +47,21 @@ class LogPolls extends Table
 		$this->name = 'log_polls';
 
 		$this->columns = [
-			new Column(
+			'id_poll' => new Column(
 				name: 'id_poll',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_choice' => new Column(
 				name: 'id_choice',
 				type: 'tinyint',
 				unsigned: true,
@@ -71,7 +71,7 @@ class LogPolls extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'idx_id_poll' => new DbIndex(
 				name: 'idx_id_poll',
 				columns: [
 					'id_poll',

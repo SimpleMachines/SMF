@@ -113,34 +113,34 @@ class MessageIcons extends Table
 		$this->name = 'message_icons';
 
 		$this->columns = [
-			new Column(
+			'id_icon' => new Column(
 				name: 'id_icon',
 				type: 'smallint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'title' => new Column(
 				name: 'title',
 				type: 'varchar',
 				size: 80,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'filename' => new Column(
 				name: 'filename',
 				type: 'varchar',
 				size: 80,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'icon_order' => new Column(
 				name: 'icon_order',
 				type: 'smallint',
 				unsigned: true,
@@ -150,13 +150,13 @@ class MessageIcons extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_icon',
 				],
 			),
-			new DbIndex(
+			'idx_id_board' => new DbIndex(
 				name: 'idx_id_board',
 				columns: [
 					'id_board',

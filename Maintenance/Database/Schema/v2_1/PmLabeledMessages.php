@@ -47,13 +47,13 @@ class PmLabeledMessages extends Table
 		$this->name = 'pm_labeled_messages';
 
 		$this->columns = [
-			new Column(
+			'id_label' => new Column(
 				name: 'id_label',
 				type: 'int',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'id_pm' => new Column(
 				name: 'id_pm',
 				type: 'int',
 				unsigned: true,
@@ -62,7 +62,7 @@ class PmLabeledMessages extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_label',

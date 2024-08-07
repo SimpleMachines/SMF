@@ -47,32 +47,32 @@ class LogBanned extends Table
 		$this->name = 'log_banned';
 
 		$this->columns = [
-			new Column(
+			'id_ban_log' => new Column(
 				name: 'id_ban_log',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'ip' => new Column(
 				name: 'ip',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'email' => new Column(
 				name: 'email',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'log_time' => new Column(
 				name: 'log_time',
 				type: 'int',
 				unsigned: true,
@@ -82,13 +82,13 @@ class LogBanned extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_ban_log',
 				],
 			),
-			new DbIndex(
+			'idx_log_time' => new DbIndex(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',

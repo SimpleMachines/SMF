@@ -47,26 +47,26 @@ class PollChoices extends Table
 		$this->name = 'poll_choices';
 
 		$this->columns = [
-			new Column(
+			'id_poll' => new Column(
 				name: 'id_poll',
 				type: 'mediumint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'id_choice' => new Column(
 				name: 'id_choice',
 				type: 'tinyint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'label' => new Column(
 				name: 'label',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'votes' => new Column(
 				name: 'votes',
 				type: 'smallint',
 				unsigned: true,
@@ -76,7 +76,7 @@ class PollChoices extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_poll',

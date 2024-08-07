@@ -47,34 +47,34 @@ class LogSpiderHits extends Table
 		$this->name = 'log_spider_hits';
 
 		$this->columns = [
-			new Column(
+			'id_hit' => new Column(
 				name: 'id_hit',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_spider' => new Column(
 				name: 'id_spider',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'log_time' => new Column(
 				name: 'log_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'url' => new Column(
 				name: 'url',
 				type: 'varchar',
 				size: 1024,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'processed' => new Column(
 				name: 'processed',
 				type: 'tinyint',
 				not_null: true,
@@ -83,13 +83,13 @@ class LogSpiderHits extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_hit',
 				],
 			),
-			new DbIndex(
+			'idx_processed' => new DbIndex(
 				name: 'idx_processed',
 				columns: [
 					'processed',

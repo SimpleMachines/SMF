@@ -46,21 +46,21 @@ class ApprovalQueue extends Table
 		$this->name = 'approval_queue';
 
 		$this->columns = [
-			new Column(
+			'id_msg' => new Column(
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_attach' => new Column(
 				name: 'id_attach',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_event' => new Column(
 				name: 'id_event',
 				type: 'smallint',
 				unsigned: true,

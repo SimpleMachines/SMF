@@ -47,43 +47,43 @@ class LogReportedComments extends Table
 		$this->name = 'log_reported_comments';
 
 		$this->columns = [
-			new Column(
+			'id_comment' => new Column(
 				name: 'id_comment',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_report' => new Column(
 				name: 'id_report',
 				type: 'mediumint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				not_null: true,
 			),
-			new Column(
+			'membername' => new Column(
 				name: 'membername',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'member_ip' => new Column(
 				name: 'member_ip',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'comment' => new Column(
 				name: 'comment',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'time_sent' => new Column(
 				name: 'time_sent',
 				type: 'int',
 				not_null: true,
@@ -91,25 +91,25 @@ class LogReportedComments extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_comment',
 				],
 			),
-			new DbIndex(
+			'idx_id_report' => new DbIndex(
 				name: 'idx_id_report',
 				columns: [
 					'id_report',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new DbIndex(
+			'idx_time_sent' => new DbIndex(
 				name: 'idx_time_sent',
 				columns: [
 					'time_sent',

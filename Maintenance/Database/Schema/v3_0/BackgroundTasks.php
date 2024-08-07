@@ -47,32 +47,32 @@ class BackgroundTasks extends Table
 		$this->name = 'background_tasks';
 
 		$this->columns = [
-			new Column(
+			'id_task' => new Column(
 				name: 'id_task',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'task_file' => new Column(
 				name: 'task_file',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'task_class' => new Column(
 				name: 'task_class',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'task_data' => new Column(
 				name: 'task_data',
 				type: 'mediumtext',
 				not_null: true,
 			),
-			new Column(
+			'claimed_time' => new Column(
 				name: 'claimed_time',
 				type: 'int',
 				unsigned: true,
@@ -82,7 +82,7 @@ class BackgroundTasks extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_task',

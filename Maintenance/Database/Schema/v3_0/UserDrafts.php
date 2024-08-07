@@ -47,91 +47,91 @@ class UserDrafts extends Table
 		$this->name = 'user_drafts';
 
 		$this->columns = [
-			new Column(
+			'id_draft' => new Column(
 				name: 'id_draft',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_reply' => new Column(
 				name: 'id_reply',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'type' => new Column(
 				name: 'type',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'poster_time' => new Column(
 				name: 'poster_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'subject' => new Column(
 				name: 'subject',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'smileys_enabled' => new Column(
 				name: 'smileys_enabled',
 				type: 'tinyint',
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'body' => new Column(
 				name: 'body',
 				type: 'mediumtext',
 				not_null: true,
 			),
-			new Column(
+			'icon' => new Column(
 				name: 'icon',
 				type: 'varchar',
 				size: 16,
 				not_null: true,
 				default: 'xx',
 			),
-			new Column(
+			'locked' => new Column(
 				name: 'locked',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'is_sticky' => new Column(
 				name: 'is_sticky',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'to_list' => new Column(
 				name: 'to_list',
 				type: 'varchar',
 				size: 255,
@@ -141,13 +141,13 @@ class UserDrafts extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_draft',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				type: 'unique',
 				columns: [

@@ -25,10 +25,34 @@ class Ipv6Base extends MigrationBase
 {
 	public function getTotalItems(string $table, string $col): int
 	{
-		$request = $this->query('', '
-			SELECT COUNT(DISTINCT member_ip)
-			FROM {db_prefix}members
-		');
+		$request = $this->query(
+			'',
+			'
+			SELECT COUNT(DISTINCT {raw:col})
+			FROM {db_prefix}{raw:table}',
+			[
+				'col' => $col . '_old',
+				'table' => $table,
+			],
+		);
+
+		// failed? We may have not renamed yet.
+		if ($request === false) {
+			$request = $this->query(
+				'',
+				'
+			SELECT COUNT(DISTINCT {raw:col})
+			FROM {db_prefix}{raw:table}',
+				[
+					'col' => $col,
+					'table' => $table,
+				],
+			);
+		}
+
+		if ($request === false) {
+			return 0;
+		}
 
 		list($items) = Db::$db->fetch_row($request);
 
@@ -134,7 +158,7 @@ class Ipv6Base extends MigrationBase
 		}
 
 		// Add columns to ban_items
-		if ($start <= 0) {
+		if ($start >= 0) {
 			// Does the old IP exist?
 			foreach ($table->columns as $column) {
 				if ($column->name === $col && !isset($existing_structure['columns'][$col . '_old'])
@@ -152,19 +176,19 @@ class Ipv6Base extends MigrationBase
 			$this->handleTimeout(++$start);
 		}
 
-		if ($start <= 1) {
-			if ($column->name === $col && isset($existing_structure['columns'][$col . '_old']) && !isset($existing_structure['columns'][$col])) {
-				$table->addColumn($column);
+		if ($start >= 1 || !isset($existing_structure['columns'][$col])) {
+			if (isset($existing_structure['columns'][$col . '_old']) && !isset($existing_structure['columns'][$col])) {
+				$table->addColumn($table->columns[$col]);
 			}
 
 			$this->handleTimeout(++$start);
 		}
 
 		// Make sure our temp index exists.
-		if ($start <= 2) {
+		if ($start >= 2) {
 			if (!isset($existing_structure['indexes']['temp_old_' . $col])) {
 				$this->query('', '
-					CREATE INDEX {db_prefix}temp_old_{raw:col} ON {db_prefix}{raw:table} ({raw:col_old})
+					CREATE INDEX {db_prefix}temp_old_{raw:col} ON {db_prefix}{raw:table} ({raw:col}_old)
 				', [
 					'table' => $table->name,
 					'col' => $col,
@@ -175,10 +199,10 @@ class Ipv6Base extends MigrationBase
 		}
 
 		// Initialize new ip column.
-		if ($start <= 3) {
+		if ($start >= 3) {
 				$this->query('', '
 					UPDATE {db_prefix}{raw:table}
-					SET {raw:col_old) = {empty}
+					SET {raw:col} = {empty}
 				', [
 					'table' => $table->name,
 					'col' => $col,
@@ -187,7 +211,7 @@ class Ipv6Base extends MigrationBase
 			$this->handleTimeout(++$start);
 		}
 
-		if ($start <= 4) {
+		if ($start >= 4) {
 			$is_done = false;
 
 			while (!$is_done) {
@@ -199,7 +223,7 @@ class Ipv6Base extends MigrationBase
 		}
 
 		// Remove the temporary ip indexes.
-		if ($start <= 5) {
+		if ($start >= 5) {
 			if (isset($existing_structure['indexes']['temp_old_' . $col])) {
 				$this->query('', '
 					DROP INDEX {db_prefix}temp_old_{raw:col} ON {db_prefix}{raw:table}
@@ -213,7 +237,7 @@ class Ipv6Base extends MigrationBase
 		}
 
 		// Remove the old member columns.
-		if ($start <= 6) {
+		if ($start >= 6) {
 			if (isset($existing_structure['columns'][$col . '_old'])) {
 				$this->query('', '
 					ALTER TABLE {db_prefix}{raw:table}

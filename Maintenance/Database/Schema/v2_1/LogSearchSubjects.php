@@ -47,13 +47,13 @@ class LogSearchSubjects extends Table
 		$this->name = 'log_search_subjects';
 
 		$this->columns = [
-			new Column(
+			'word' => new Column(
 				name: 'word',
 				type: 'varchar',
 				size: 20,
 				default: '',
 			),
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
@@ -62,14 +62,14 @@ class LogSearchSubjects extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'word',
 					'id_topic',
 				],
 			),
-			new DbIndex(
+			'idx_id_topic' => new DbIndex(
 				name: 'idx_id_topic',
 				columns: [
 					'id_topic',

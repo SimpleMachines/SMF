@@ -158,50 +158,50 @@ class ScheduledTasks extends Table
 		$this->name = 'scheduled_tasks';
 
 		$this->columns = [
-			new Column(
+			'id_task' => new Column(
 				name: 'id_task',
 				type: 'smallint',
 				auto: true,
 			),
-			new Column(
+			'next_time' => new Column(
 				name: 'next_time',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'time_offset' => new Column(
 				name: 'time_offset',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'time_regularity' => new Column(
 				name: 'time_regularity',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'time_unit' => new Column(
 				name: 'time_unit',
 				type: 'varchar',
 				size: 1,
 				not_null: true,
 				default: 'h',
 			),
-			new Column(
+			'disabled' => new Column(
 				name: 'disabled',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'task' => new Column(
 				name: 'task',
 				type: 'varchar',
 				size: 24,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'callable' => new Column(
 				name: 'callable',
 				type: 'varchar',
 				size: 60,
@@ -211,25 +211,25 @@ class ScheduledTasks extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_task',
 				],
 			),
-			new DbIndex(
+			'idx_next_time' => new DbIndex(
 				name: 'idx_next_time',
 				columns: [
 					'next_time',
 				],
 			),
-			new DbIndex(
+			'idx_disabled' => new DbIndex(
 				name: 'idx_disabled',
 				columns: [
 					'disabled',
 				],
 			),
-			new DbIndex(
+			'idx_task' => new DbIndex(
 				name: 'idx_task',
 				type: 'unique',
 				columns: [

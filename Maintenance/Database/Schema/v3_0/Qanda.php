@@ -47,27 +47,27 @@ class Qanda extends Table
 		$this->name = 'qanda';
 
 		$this->columns = [
-			new Column(
+			'id_question' => new Column(
 				name: 'id_question',
 				type: 'smallint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'lngfile' => new Column(
 				name: 'lngfile',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'question' => new Column(
 				name: 'question',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'answers' => new Column(
 				name: 'answers',
 				type: 'text',
 				not_null: true,
@@ -75,13 +75,13 @@ class Qanda extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_question',
 				],
 			),
-			new DbIndex(
+			'idx_lngfile' => new DbIndex(
 				name: 'idx_lngfile',
 				columns: [
 					'lngfile',

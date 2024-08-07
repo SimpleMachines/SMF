@@ -47,20 +47,20 @@ class PmLabels extends Table
 		$this->name = 'pm_labels';
 
 		$this->columns = [
-			new Column(
+			'id_label' => new Column(
 				name: 'id_label',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'name' => new Column(
 				name: 'name',
 				type: 'varchar',
 				size: 30,
@@ -70,7 +70,7 @@ class PmLabels extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_label',

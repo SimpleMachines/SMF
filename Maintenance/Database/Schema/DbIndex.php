@@ -41,7 +41,7 @@ class DbIndex
 	 *
 	 * Allowed values: 'primary', 'unique', or null for a normal index.
 	 */
-	public ?string $type;
+	public ?string $type = null;
 
 	/**
 	 * @var ?string

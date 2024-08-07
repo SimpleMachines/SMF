@@ -47,13 +47,13 @@ class ModeratorGroups extends Table
 		$this->name = 'moderator_groups';
 
 		$this->columns = [
-			new Column(
+			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'id_group' => new Column(
 				name: 'id_group',
 				type: 'smallint',
 				unsigned: true,
@@ -62,7 +62,7 @@ class ModeratorGroups extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_board',

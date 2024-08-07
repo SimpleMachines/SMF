@@ -47,47 +47,47 @@ class PmRecipients extends Table
 		$this->name = 'pm_recipients';
 
 		$this->columns = [
-			new Column(
+			'id_pm' => new Column(
 				name: 'id_pm',
 				type: 'int',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'bcc' => new Column(
 				name: 'bcc',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'is_read' => new Column(
 				name: 'is_read',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'is_new' => new Column(
 				name: 'is_new',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'deleted' => new Column(
 				name: 'deleted',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'in_inbox' => new Column(
 				name: 'in_inbox',
 				type: 'tinyint',
 				not_null: true,
@@ -96,14 +96,14 @@ class PmRecipients extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_pm',
 					'id_member',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				type: 'unique',
 				columns: [

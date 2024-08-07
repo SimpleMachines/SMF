@@ -47,20 +47,20 @@ class LogMemberNotices extends Table
 		$this->name = 'log_member_notices';
 
 		$this->columns = [
-			new Column(
+			'id_notice' => new Column(
 				name: 'id_notice',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'subject' => new Column(
 				name: 'subject',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'body' => new Column(
 				name: 'body',
 				type: 'text',
 				not_null: true,
@@ -68,7 +68,7 @@ class LogMemberNotices extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_notice',

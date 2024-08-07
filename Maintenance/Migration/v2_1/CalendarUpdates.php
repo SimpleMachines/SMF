@@ -258,14 +258,14 @@ class CalendarUpdates extends MigrationBase
 			DELETE FROM {db_prefix}calendar_holidays WHERE title in ({array_string:titles})
 		',
 			[
-				'titles' => array_unique(array_keys($this->holidays)),
+				'titles' => array_unique(array_column($this->holidays, 0)),
 			],
 		);
 
 		Db::$db->insert(
 			'ignore',
 			'{db_prefix}calendar_holidays',
-			['event_date' => 'date', 'title' => 'string-60'],
+			['title' => 'string-60', 'event_date' => 'date'],
 			$this->holidays,
 			['id_holiday'],
 		);

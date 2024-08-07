@@ -66,25 +66,14 @@ class Ipv6LogFloodControl extends Ipv6Base
 
 		if ($start <= 1) {
 			// Add the new floodcontrol ip column
-			foreach ($table->indexes as $idx) {
-				if ($idx->type === 'primary') {
-					$table->dropIndex($idx);
-				}
-			}
+			$table->dropIndex($table->indexes['primary']);
 
 			// Modify log_type size
-			foreach ($table->columns as $col) {
-				if ($col->name === 'ip' || $col->name === 'log_type') {
-					$table->alterColumn($col);
-				}
-			}
+			$table->alterColumn($table->columns['ip']);
+			$table->alterColumn($table->columns['log_type']);
 
 			// Create primary key for floodcontrol
-			foreach ($table->indexes as $idx) {
-				if ($idx->type === 'primary') {
-					$table->addIndex($idx);
-				}
-			}
+			$table->addIndex($table->indexes['primary']);
 
 			$this->handleTimeout(++$start);
 		}

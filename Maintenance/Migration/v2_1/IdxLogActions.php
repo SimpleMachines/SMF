@@ -53,10 +53,11 @@ class IdxLogActions extends MigrationBase
 
 		// Updating log_actions
 		if ($start <= 0) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'id_topic_id_log' && !isset($existing_structure['indexes']['id_topic_id_log'])) {
-					$table->addIndex($idx);
-				}
+			if (!isset($existing_structure['indexes']['id_topic_id_log'])) {
+				// Make it match 2.1, even if wrong.
+				$idx = $table->indexes['idx_id_topic_id_log'];
+				$idx->name = 'id_topic_id_log';
+				$table->addIndex($idx);
 			}
 
 			$this->handleTimeout(++$start);

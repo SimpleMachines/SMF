@@ -47,41 +47,41 @@ class Smileys extends Table
 		$this->name = 'smileys';
 
 		$this->columns = [
-			new Column(
+			'id_smiley' => new Column(
 				name: 'id_smiley',
 				type: 'smallint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'code' => new Column(
 				name: 'code',
 				type: 'varchar',
 				size: 30,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'description' => new Column(
 				name: 'description',
 				type: 'varchar',
 				size: 80,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'smiley_row' => new Column(
 				name: 'smiley_row',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'smiley_order' => new Column(
 				name: 'smiley_order',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'hidden' => new Column(
 				name: 'hidden',
 				type: 'tinyint',
 				unsigned: true,
@@ -91,7 +91,7 @@ class Smileys extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_smiley',

@@ -48,11 +48,10 @@ class LogOnlineURL extends MigrationBase
 		$table = new \SMF\Maintenance\Database\Schema\v2_1\LogOnline();
 		$existing_structure = $table->getCurrentStructure();
 
-		if ($existing_structure['columns']['url'] !== 'varchar' || (int) $existing_structure['columns']['url']['size'] !== 2048) {
-			$table->alterColumn(
-				$table->columns['url'],
-				'url',
-			);
+		foreach ($table->columns as $column) {
+			if ($column->name === 'url' && ($existing_structure['columns']['url'] !== 'varchar' || (int) $existing_structure['columns']['url']['size'] !== 2048)) {
+				$table->alterColumn($column);
+			}
 		}
 
 		return true;

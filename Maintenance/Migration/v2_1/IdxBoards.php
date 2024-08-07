@@ -54,21 +54,17 @@ class IdxBoards extends MigrationBase
 
 		// Change index for table scheduled_tasks
 		if ($start <= 0) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_member_groups' && isset($existing_structure['indexes']['idx_member_groups'])) {
-					$table->dropIndex($idx);
-				}
+			if (isset($existing_structure['indexes']['idx_member_groups'])) {
+				$table->dropIndex($table->indexes['idx_member_groups']);
 			}
 
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 1) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_member_groups' && !isset($existing_structure['indexes']['idx_member_groups'])) {
-					$idx->columns[0] = 'member_groups varchar_pattern_ops';
-					$table->addIndex($idx);
-				}
+			if (!isset($existing_structure['indexes']['idx_member_groups'])) {
+				$idx = $table->indexes['idx_member_groups'];
+				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
 			}
 
 			$this->handleTimeout(++$start);

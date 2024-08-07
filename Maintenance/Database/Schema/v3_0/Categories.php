@@ -55,31 +55,31 @@ class Categories extends Table
 		$this->name = 'categories';
 
 		$this->columns = [
-			new Column(
+			'id_cat' => new Column(
 				name: 'id_cat',
 				type: 'tinyint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'cat_order' => new Column(
 				name: 'cat_order',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'name' => new Column(
 				name: 'name',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'description' => new Column(
 				name: 'description',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'can_collapse' => new Column(
 				name: 'can_collapse',
 				type: 'tinyint',
 				not_null: true,
@@ -88,7 +88,7 @@ class Categories extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_cat',

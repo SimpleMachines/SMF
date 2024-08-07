@@ -80,39 +80,39 @@ class AdminInfoFiles extends Table
 		$this->name = 'admin_info_files';
 
 		$this->columns = [
-			new Column(
+			'id_file' => new Column(
 				name: 'id_file',
 				type: 'tinyint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'filename' => new Column(
 				name: 'filename',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'path' => new Column(
 				name: 'path',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'parameters' => new Column(
 				name: 'parameters',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'data' => new Column(
 				name: 'data',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'filetype' => new Column(
 				name: 'filetype',
 				type: 'varchar',
 				size: 255,
@@ -122,13 +122,13 @@ class AdminInfoFiles extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_file',
 				],
 			),
-			new DbIndex(
+			'idx_filename' => new DbIndex(
 				name: 'idx_filename',
 				columns: [
 					'filename(30)',

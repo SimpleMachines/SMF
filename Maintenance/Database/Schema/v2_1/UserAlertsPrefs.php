@@ -193,19 +193,19 @@ class UserAlertsPrefs extends Table
 		$this->name = 'user_alerts_prefs';
 
 		$this->columns = [
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'alert_pref' => new Column(
 				name: 'alert_pref',
 				type: 'varchar',
 				size: 32,
 				default: '',
 			),
-			new Column(
+			'alert_value' => new Column(
 				name: 'alert_value',
 				type: 'tinyint',
 				not_null: true,
@@ -214,7 +214,7 @@ class UserAlertsPrefs extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_member',

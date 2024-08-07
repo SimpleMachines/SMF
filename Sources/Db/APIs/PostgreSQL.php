@@ -1352,7 +1352,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach ($index_info['columns'] as &$c) {
 			$c = preg_replace('~\s+(\(\d+\))~', '', $c);
-		}
+
+			// Optimized search on the index.
+			if (!empty($parameters['varchar_pattern_ops']) && $parameters['varchar_pattern_ops'] == $c) {
+				$c .= ' varchar_pattern_ops';
+			}
 
 		$columns = implode(',', $index_info['columns']);
 

@@ -399,121 +399,125 @@ class Calendar extends Table
 		$this->name = 'calendar';
 
 		$this->columns = [
-			new Column(
+			'id_event' => new Column(
 				name: 'id_event',
 				type: 'smallint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'title' => new Column(
 				name: 'title',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'start_date' => new Column(
 				name: 'start_date',
 				type: 'date',
 				not_null: true,
 				default: '1004-01-01',
 			),
-			new Column(
+			'end_date' => new Column(
 				name: 'end_date',
 				type: 'date',
 				not_null: true,
 				default: '1004-01-01',
 			),
-			new Column(
+			'start_time' => new Column(
 				name: 'start_time',
 				type: 'time',
 			),
-			new Column(
+			'end_time' => new Column(
+				name: 'end_time',
+				type: 'time',
+			),
+			'timezone' => new Column(
 				name: 'timezone',
 				type: 'varchar',
 				size: 80,
 			),
-			new Column(
+			'location' => new Column(
 				name: 'location',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'duration' => new Column(
 				name: 'duration',
 				type: 'varchar',
 				size: 32,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'rrule' => new Column(
 				name: 'rrule',
 				type: 'varchar',
 				size: 1024,
 				not_null: true,
 				default: 'FREQ=YEARLY;COUNT=1',
 			),
-			new Column(
+			'rdates' => new Column(
 				name: 'rdates',
 				type: 'text',
 				not_null: true,
-				default: '',
+				default: null,
 			),
-			new Column(
+			'exdates' => new Column(
 				name: 'exdates',
 				type: 'text',
 				not_null: true,
-				default: '',
+				default: null,
 			),
-			new Column(
+			'adjustments' => new Column(
 				name: 'adjustments',
 				type: 'json',
 				not_null: true,
 			),
-			new Column(
+			'sequence' => new Column(
 				name: 'sequence',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'uid' => new Column(
 				name: 'uid',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'type' => new Column(
 				name: 'type',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'enabled' => new Column(
 				name: 'enabled',
 				type: 'tinyint',
 				unsigned: true,
@@ -523,25 +527,25 @@ class Calendar extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_event',
 				],
 			),
-			new DbIndex(
+			'idx_start_date' => new DbIndex(
 				name: 'idx_start_date',
 				columns: [
 					'start_date',
 				],
 			),
-			new DbIndex(
+			'idx_end_date' => new DbIndex(
 				name: 'idx_end_date',
 				columns: [
 					'end_date',
 				],
 			),
-			new DbIndex(
+			'idx_topic' => new DbIndex(
 				name: 'idx_topic',
 				columns: [
 					'id_topic',

@@ -107,6 +107,11 @@ class RecurringEvents extends MigrationBase
 			}
 			$format = rtrim('P' . $format, 'PT');
 
+			// TODO: Fix it right.
+			if ((int) $end->format('Y') > 9999) {
+				$end->setDate(9999, (int) $end->format('m'), (int) $end->format('d'));
+			}
+
 			$updates[$row['id_event']] = [
 				'id_event' => $row['id_event'],
 				'duration' => $duration->format($format),

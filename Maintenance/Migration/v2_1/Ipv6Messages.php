@@ -62,25 +62,13 @@ class Ipv6Messages extends Ipv6Base
 		$start = Maintenance::getCurrentStart();
 
 		if ($start <= 7) {
-			$existing_structure = $table->getCurrentStructure();
-
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_ip_index') {
-					$table->addIndex($idx);
-				}
-			}
+			$table->addIndex($table->indexes['idx_ip_index']);
 
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 8) {
-			$existing_structure = $table->getCurrentStructure();
-
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_related_ip') {
-					$table->addIndex($idx);
-				}
-			}
+			$table->addIndex($table->indexes['idx_related_ip']);
 
 			$this->handleTimeout(++$start);
 		}

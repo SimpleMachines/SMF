@@ -54,10 +54,8 @@ class IdxLogPackages extends MigrationBase
 
 		// Change index for table log_packages
 		if ($start <= 0) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'log_packages_filename' && isset($existing_structure['indexes']['log_packages_filename'])) {
-					$table->addIndex($idx);
-				}
+			if (isset($existing_structure['indexes']['log_packages_filename'])) {
+				$table->dropIndex($table->indexes['log_packages_filename']);
 			}
 
 			$this->handleTimeout(++$start);
@@ -65,11 +63,9 @@ class IdxLogPackages extends MigrationBase
 
 		// Change index for table log_packages
 		if ($start <= 1) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'log_packages_filename' && !isset($existing_structure['indexes']['log_packages_filename'])) {
-					$idx->columns[0] .= ' varchar_pattern_ops';
-					$table->addIndex($idx);
-				}
+			if (!isset($existing_structure['indexes']['log_packages_filename'])) {
+				$idx = $table->indexes['log_packages_filename'];
+				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
 			}
 
 			$this->handleTimeout(++$start);

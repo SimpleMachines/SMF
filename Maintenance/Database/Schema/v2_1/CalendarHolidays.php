@@ -584,19 +584,19 @@ class CalendarHolidays extends Table
 		$this->name = 'calendar_holidays';
 
 		$this->columns = [
-			new Column(
+			'id_holiday' => new Column(
 				name: 'id_holiday',
 				type: 'smallint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'event_date' => new Column(
 				name: 'event_date',
 				type: 'date',
 				not_null: true,
 				default: '1004-01-01',
 			),
-			new Column(
+			'title' => new Column(
 				name: 'title',
 				type: 'varchar',
 				size: 255,
@@ -606,13 +606,13 @@ class CalendarHolidays extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_holiday',
 				],
 			),
-			new DbIndex(
+			'idx_event_date' => new DbIndex(
 				name: 'idx_event_date',
 				columns: [
 					'event_date',

@@ -20,7 +20,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class BoardPermissionsViews extends MigrationBase
+class BoardPermissionsView extends MigrationBase
 {
 	/*******************
 	 * Public properties

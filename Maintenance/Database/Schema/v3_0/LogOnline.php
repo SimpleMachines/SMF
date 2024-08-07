@@ -47,38 +47,38 @@ class LogOnline extends Table
 		$this->name = 'log_online';
 
 		$this->columns = [
-			new Column(
+			'session' => new Column(
 				name: 'session',
 				type: 'varchar',
 				size: 128,
 				default: '',
 			),
-			new Column(
+			'log_time' => new Column(
 				name: 'log_time',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_spider' => new Column(
 				name: 'id_spider',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'ip' => new Column(
 				name: 'ip',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'url' => new Column(
 				name: 'url',
 				type: 'varchar',
 				size: 2048,
@@ -88,19 +88,19 @@ class LogOnline extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'session',
 				],
 			),
-			new DbIndex(
+			'idx_log_time' => new DbIndex(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',

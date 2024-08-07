@@ -47,67 +47,67 @@ class LogActions extends Table
 		$this->name = 'log_actions';
 
 		$this->columns = [
-			new Column(
+			'id_action' => new Column(
 				name: 'id_action',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_log' => new Column(
 				name: 'id_log',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'log_time' => new Column(
 				name: 'log_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'ip' => new Column(
 				name: 'ip',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'action' => new Column(
 				name: 'action',
 				type: 'varchar',
 				size: 30,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_msg' => new Column(
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'extra' => new Column(
 				name: 'extra',
 				type: 'text',
 				not_null: true,
@@ -115,43 +115,43 @@ class LogActions extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_action',
 				],
 			),
-			new DbIndex(
+			'idx_id_log' => new DbIndex(
 				name: 'idx_id_log',
 				columns: [
 					'id_log',
 				],
 			),
-			new DbIndex(
+			'idx_log_time' => new DbIndex(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new DbIndex(
+			'idx_id_board' => new DbIndex(
 				name: 'idx_id_board',
 				columns: [
 					'id_board',
 				],
 			),
-			new DbIndex(
+			'idx_id_msg' => new DbIndex(
 				name: 'idx_id_msg',
 				columns: [
 					'id_msg',
 				],
 			),
-			new DbIndex(
+			'idx_id_topic_id_log' => new DbIndex(
 				name: 'idx_id_topic_id_log',
 				columns: [
 					'id_topic',

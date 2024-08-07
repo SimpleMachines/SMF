@@ -1318,6 +1318,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach ($index_info['columns'] as &$c) {
 			$c = trim($c);
+
+			// Can't find it, can't fix it.
+			if (!isset($cols[$c])) {
+				continue;
+			}
+
 			$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? $cols[$c]['size'] : null;
 			list($type, $size) = $this->calculate_type($cols[$c]['type'], (int) $cols[$c]['size']);
 
@@ -1394,11 +1400,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function calculate_type(string $type_name, ?int $type_size = null, bool $reverse = false): array
+	public function calculate_type(?string $type_name, ?int $type_size = null, bool $reverse = false): array
 	{
 		// MySQL is actually the generic baseline.
 
-		$type_name = strtolower($type_name);
+		$type_name = strtolower($type_name ?? '');
 
 		// Generic => Specific.
 		if (!$reverse) {

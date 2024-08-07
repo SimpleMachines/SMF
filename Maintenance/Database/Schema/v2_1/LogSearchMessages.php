@@ -47,13 +47,13 @@ class LogSearchMessages extends Table
 		$this->name = 'log_search_messages';
 
 		$this->columns = [
-			new Column(
+			'id_search' => new Column(
 				name: 'id_search',
 				type: 'tinyint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'id_msg' => new Column(
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
@@ -62,7 +62,7 @@ class LogSearchMessages extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_search',

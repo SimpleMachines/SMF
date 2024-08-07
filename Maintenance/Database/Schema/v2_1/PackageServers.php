@@ -58,41 +58,41 @@ class PackageServers extends Table
 		$this->name = 'package_servers';
 
 		$this->columns = [
-			new Column(
+			'id_server' => new Column(
 				name: 'id_server',
 				type: 'smallint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'name' => new Column(
 				name: 'name',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'url' => new Column(
 				name: 'url',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'validation_url' => new Column(
 				name: 'validation_url',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'extra' => new Column(
 				name: 'extra',
 				type: 'text',
 			),
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_server',

@@ -46,35 +46,35 @@ class LogDigest extends Table
 		$this->name = 'log_digest';
 
 		$this->columns = [
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_msg' => new Column(
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'note_type' => new Column(
 				name: 'note_type',
 				type: 'varchar',
 				size: 10,
 				not_null: true,
 				default: 'post',
 			),
-			new Column(
+			'daily' => new Column(
 				name: 'daily',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'exclude' => new Column(
 				name: 'exclude',
 				type: 'mediumint',
 				unsigned: true,

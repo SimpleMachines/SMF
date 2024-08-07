@@ -52,10 +52,8 @@ class IdxAttachments extends MigrationBase
 		$existing_structure = $table->getCurrentStructure();
 
 		if ($start <= 0) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_id_thumb' && !isset($existing_structure['indexes']['idx_id_thumb'])) {
-					$table->dropIndex($idx);
-				}
+			if (!isset($existing_structure['indexes']['idx_id_thumb'])) {
+				$table->addIndex($table->indexes['idx_id_thumb']);
 			}
 
 			$this->handleTimeout(++$start);

@@ -47,103 +47,103 @@ class Attachments extends Table
 		$this->name = 'attachments';
 
 		$this->columns = [
-			new Column(
+			'id_attach' => new Column(
 				name: 'id_attach',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_thumb' => new Column(
 				name: 'id_thumb',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_msg' => new Column(
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_folder' => new Column(
 				name: 'id_folder',
 				type: 'tinyint',
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'attachment_type' => new Column(
 				name: 'attachment_type',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'filename' => new Column(
 				name: 'filename',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'file_hash' => new Column(
 				name: 'file_hash',
 				type: 'varchar',
 				size: 40,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'fileext' => new Column(
 				name: 'fileext',
 				type: 'varchar',
 				size: 8,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'size' => new Column(
 				name: 'size',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'downloads' => new Column(
 				name: 'downloads',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'width' => new Column(
 				name: 'width',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'height' => new Column(
 				name: 'height',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'mime_type' => new Column(
 				name: 'mime_type',
 				type: 'varchar',
 				size: 128,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'approved' => new Column(
 				name: 'approved',
 				type: 'tinyint',
 				not_null: true,
@@ -152,13 +152,13 @@ class Attachments extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_attach',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				type: 'unique',
 				columns: [
@@ -166,19 +166,19 @@ class Attachments extends Table
 					'id_attach',
 				],
 			),
-			new DbIndex(
+			'idx_id_msg' => new DbIndex(
 				name: 'idx_id_msg',
 				columns: [
 					'id_msg',
 				],
 			),
-			new DbIndex(
+			'idx_attachment_type' => new DbIndex(
 				name: 'idx_attachment_type',
 				columns: [
 					'attachment_type',
 				],
 			),
-			new DbIndex(
+			'idx_id_thumb' => new DbIndex(
 				name: 'idx_id_thumb',
 				columns: [
 					'id_thumb',

@@ -100,8 +100,8 @@ abstract class Table
 
 		return Db::$db->create_table(
 			'{db_prefix}' . $this->name,
-			array_map('get_object_vars', $this->columns),
-			array_map('get_object_vars', $this->indexes),
+			array_map('get_object_vars', array_values($this->columns)),
+			array_map('get_object_vars', array_values($this->indexes)),
 			$parameters,
 			$if_exists,
 		);
@@ -198,12 +198,12 @@ abstract class Table
 	 *    If 'update', index is updated.
 	 * @return bool Whether or not the operation was successful.
 	 */
-	public function addIndex(DbIndex $index, string $if_exists = 'update'): bool
+	public function addIndex(DbIndex $index, string $if_exists = 'update', array $parameters = []): bool
 	{
 		return Db::$db->add_index(
 			'{db_prefix}' . $this->name,
 			get_object_vars($index),
-			[],
+			$parameters,
 			$if_exists,
 		);
 	}

@@ -47,67 +47,67 @@ class BanGroups extends Table
 		$this->name = 'ban_groups';
 
 		$this->columns = [
-			new Column(
+			'id_ban_group' => new Column(
 				name: 'id_ban_group',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'name' => new Column(
 				name: 'name',
 				type: 'varchar',
 				size: 20,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'ban_time' => new Column(
 				name: 'ban_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'expire_time' => new Column(
 				name: 'expire_time',
 				type: 'int',
 				unsigned: true,
 			),
-			new Column(
+			'cannot_access' => new Column(
 				name: 'cannot_access',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'cannot_register' => new Column(
 				name: 'cannot_register',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'cannot_post' => new Column(
 				name: 'cannot_post',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'cannot_login' => new Column(
 				name: 'cannot_login',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'reason' => new Column(
 				name: 'reason',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'notes' => new Column(
 				name: 'notes',
 				type: 'text',
 				not_null: true,
@@ -115,7 +115,7 @@ class BanGroups extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_ban_group',

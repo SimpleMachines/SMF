@@ -47,21 +47,21 @@ class Sessions extends Table
 		$this->name = 'sessions';
 
 		$this->columns = [
-			new Column(
+			'session_id' => new Column(
 				name: 'session_id',
 				type: 'varchar',
 				size: 128,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'last_update' => new Column(
 				name: 'last_update',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'data' => new Column(
 				name: 'data',
 				type: 'text',
 				not_null: true,
@@ -69,7 +69,7 @@ class Sessions extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'session_id',

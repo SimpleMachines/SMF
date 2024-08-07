@@ -77,21 +77,13 @@ class IdxMessages extends MigrationBase
 		}
 
 		if ($start <= 2) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_likes' && isset($existing_structure['indexes']['idx_likes'])) {
-					$table->dropIndex($oldIdx);
-				}
-			}
+			$table->dropIndex($table->indexes['idx_likes']);
 
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 3) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_likes') {
-					$table->addIndex($oldIdx);
-				}
-			}
+			$table->addIndex($table->indexes['idx_likes']);
 
 			$this->handleTimeout(++$start);
 		}
@@ -99,7 +91,7 @@ class IdxMessages extends MigrationBase
 		// Updating messages drop old ipIndex
 		if ($start <= 4) {
 			$oldIdx = new DbIndex(['member_ip'], 'index', 'ipIndex');
-			$table->dropIndex($idx);
+			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);
 		}
@@ -107,7 +99,7 @@ class IdxMessages extends MigrationBase
 		// Updating messages drop old ip_index
 		if ($start <= 5) {
 			$oldIdx = new DbIndex(['member_ip'], 'index', 'ip_index');
-			$table->dropIndex($idx);
+			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);
 		}
@@ -115,7 +107,7 @@ class IdxMessages extends MigrationBase
 		// Updating messages drop old related_ip
 		if ($start <= 6) {
 			$oldIdx = new DbIndex(['member_ip'], 'index', 'related_ip');
-			$table->dropIndex($idx);
+			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);
 		}
@@ -123,7 +115,7 @@ class IdxMessages extends MigrationBase
 		// Updating messages drop old topic ix
 		if ($start <= 7) {
 			$oldIdx = new DbIndex(['id_topic'], 'index', 'topic');
-			$table->dropIndex($idx);
+			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);
 		}
@@ -131,7 +123,7 @@ class IdxMessages extends MigrationBase
 		// Updating messages drop another old topic ix
 		if ($start <= 8) {
 			$oldIdx = new DbIndex(['id_topic'], 'index', 'id_topic');
-			$table->dropIndex($idx);
+			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);
 		}
@@ -139,7 +131,7 @@ class IdxMessages extends MigrationBase
 		// Updating messages drop another old topic ix
 		if ($start <= 9) {
 			$oldIdx = new DbIndex(['approved'], 'index', 'approved');
-			$table->dropIndex($idx);
+			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);
 		}
@@ -147,7 +139,7 @@ class IdxMessages extends MigrationBase
 		// Updating messages drop another old topic ix
 		if ($start <= 10) {
 			$oldIdx = new DbIndex(['approved'], 'index', 'idx_approved');
-			$table->dropIndex($idx);
+			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);
 		}
@@ -155,7 +147,7 @@ class IdxMessages extends MigrationBase
 		// Updating messages drop id_board ix
 		if ($start <= 11) {
 			$oldIdx = new DbIndex(['id_board'], 'index', 'id_board');
-			$table->dropIndex($idx);
+			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);
 		}
@@ -163,18 +155,14 @@ class IdxMessages extends MigrationBase
 		// Updating messages drop id_board ix alt name
 		if ($start <= 12) {
 			$oldIdx = new DbIndex(['id_board'], 'index', 'idx_id_board');
-			$table->dropIndex($idx);
+			$table->dropIndex($oldIdx);
 
 			$this->handleTimeout(++$start);
 		}
 
 		// Updating messages add new id_board ix
 		if ($start <= 12) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_id_board') {
-					$table->addIndex($idx);
-				}
-			}
+			$table->addIndex($table->indexes['idx_id_board']);
 
 			$this->handleTimeout(++$start);
 		}

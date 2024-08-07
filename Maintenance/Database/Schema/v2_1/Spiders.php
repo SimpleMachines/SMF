@@ -157,27 +157,27 @@ class Spiders extends Table
 		$this->name = 'spiders';
 
 		$this->columns = [
-			new Column(
+			'id_spider' => new Column(
 				name: 'id_spider',
 				type: 'smallint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'spider_name' => new Column(
 				name: 'spider_name',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'user_agent' => new Column(
 				name: 'user_agent',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'ip_info' => new Column(
 				name: 'ip_info',
 				type: 'varchar',
 				size: 255,

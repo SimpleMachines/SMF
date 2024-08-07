@@ -64,12 +64,12 @@ class PermissionProfiles extends Table
 		$this->name = 'permission_profiles';
 
 		$this->columns = [
-			new Column(
+			'id_profile' => new Column(
 				name: 'id_profile',
 				type: 'smallint',
 				auto: true,
 			),
-			new Column(
+			'profile_name' => new Column(
 				name: 'profile_name',
 				type: 'varchar',
 				size: 255,
@@ -79,7 +79,7 @@ class PermissionProfiles extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_profile',

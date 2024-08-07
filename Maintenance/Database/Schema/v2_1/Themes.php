@@ -103,24 +103,24 @@ class Themes extends Table
 		$this->name = 'themes';
 
 		$this->columns = [
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				default: 0,
 			),
-			new Column(
+			'id_theme' => new Column(
 				name: 'id_theme',
 				type: 'tinyint',
 				unsigned: true,
 				default: 1,
 			),
-			new Column(
+			'variable' => new Column(
 				name: 'variable',
 				type: 'varchar',
 				size: 255,
 				default: '',
 			),
-			new Column(
+			'value' => new Column(
 				name: 'value',
 				type: 'text',
 				not_null: true,
@@ -128,7 +128,7 @@ class Themes extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_theme',
@@ -136,7 +136,7 @@ class Themes extends Table
 					'variable(30)',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',

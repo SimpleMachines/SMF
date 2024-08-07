@@ -132,125 +132,125 @@ class CustomFields extends Table
 		$this->name = 'custom_fields';
 
 		$this->columns = [
-			new Column(
+			'id_field' => new Column(
 				name: 'id_field',
 				type: 'smallint',
 				auto: true,
 			),
-			new Column(
+			'col_name' => new Column(
 				name: 'col_name',
 				type: 'varchar',
 				size: 12,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'field_name' => new Column(
 				name: 'field_name',
 				type: 'varchar',
 				size: 40,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'field_desc' => new Column(
 				name: 'field_desc',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'field_type' => new Column(
 				name: 'field_type',
 				type: 'varchar',
 				size: 8,
 				not_null: true,
 				default: 'text',
 			),
-			new Column(
+			'field_length' => new Column(
 				name: 'field_length',
 				type: 'smallint',
 				not_null: true,
 				default: 255,
 			),
-			new Column(
+			'field_options' => new Column(
 				name: 'field_options',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'field_order' => new Column(
 				name: 'field_order',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'mask' => new Column(
 				name: 'mask',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'show_reg' => new Column(
 				name: 'show_reg',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'show_display' => new Column(
 				name: 'show_display',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'show_mlist' => new Column(
 				name: 'show_mlist',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'show_profile' => new Column(
 				name: 'show_profile',
 				type: 'varchar',
 				size: 20,
 				not_null: true,
 				default: 'forumprofile',
 			),
-			new Column(
+			'private' => new Column(
 				name: 'private',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'active' => new Column(
 				name: 'active',
 				type: 'tinyint',
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'bbc' => new Column(
 				name: 'bbc',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'can_search' => new Column(
 				name: 'can_search',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'default_value' => new Column(
 				name: 'default_value',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'enclose' => new Column(
 				name: 'enclose',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'placement' => new Column(
 				name: 'placement',
 				type: 'tinyint',
 				not_null: true,
@@ -259,13 +259,13 @@ class CustomFields extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_field',
 				],
 			),
-			new DbIndex(
+			'idx_col_name' => new DbIndex(
 				name: 'idx_col_name',
 				type: 'unique',
 				columns: [

@@ -47,55 +47,55 @@ class MailQueue extends Table
 		$this->name = 'mail_queue';
 
 		$this->columns = [
-			new Column(
+			'id_mail' => new Column(
 				name: 'id_mail',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'time_sent' => new Column(
 				name: 'time_sent',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'recipient' => new Column(
 				name: 'recipient',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'body' => new Column(
 				name: 'body',
 				type: 'mediumtext',
 				not_null: true,
 			),
-			new Column(
+			'subject' => new Column(
 				name: 'subject',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'headers' => new Column(
 				name: 'headers',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'send_html' => new Column(
 				name: 'send_html',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'priority' => new Column(
 				name: 'priority',
 				type: 'tinyint',
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'private' => new Column(
 				name: 'private',
 				type: 'tinyint',
 				not_null: true,
@@ -104,19 +104,19 @@ class MailQueue extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_mail',
 				],
 			),
-			new DbIndex(
+			'idx_time_sent' => new DbIndex(
 				name: 'idx_time_sent',
 				columns: [
 					'time_sent',
 				],
 			),
-			new DbIndex(
+			'idx_mail_priority' => new DbIndex(
 				name: 'idx_mail_priority',
 				columns: [
 					'priority',

@@ -54,22 +54,16 @@ class IdxScheduledTasks extends MigrationBase
 
 		// Change index for table scheduled_tasks
 		if ($start <= 0) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_task' && isset($existing_structure['indexes']['idx_task'])) {
-					$table->dropIndex($idx);
-				}
+			if (isset($existing_structure['indexes']['idx_task'])) {
+				$table->dropIndex($table->indexes['idx_task']);
 			}
 
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 1) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_task' && !isset($existing_structure['indexes']['idx_task'])) {
-					$idx->columns[0] .= ' varchar_pattern_ops';
-					$table->addIndex($idx);
-				}
-			}
+			$idx = $table->indexes['idx_task'];
+			$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
 
 			$this->handleTimeout(++$start);
 		}

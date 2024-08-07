@@ -56,113 +56,113 @@ class Topics extends Table
 		$this->name = 'topics';
 
 		$this->columns = [
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'is_sticky' => new Column(
 				name: 'is_sticky',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_first_msg' => new Column(
 				name: 'id_first_msg',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_last_msg' => new Column(
 				name: 'id_last_msg',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member_started' => new Column(
 				name: 'id_member_started',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member_updated' => new Column(
 				name: 'id_member_updated',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_poll' => new Column(
 				name: 'id_poll',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_previous_board' => new Column(
 				name: 'id_previous_board',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_previous_topic' => new Column(
 				name: 'id_previous_topic',
 				type: 'mediumint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'num_replies' => new Column(
 				name: 'num_replies',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'num_views' => new Column(
 				name: 'num_views',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'locked' => new Column(
 				name: 'locked',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'redirect_expires' => new Column(
 				name: 'redirect_expires',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_redirect_topic' => new Column(
 				name: 'id_redirect_topic',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'unapproved_posts' => new Column(
 				name: 'unapproved_posts',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'approved' => new Column(
 				name: 'approved',
 				type: 'tinyint',
 				not_null: true,
@@ -171,13 +171,13 @@ class Topics extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_topic',
 				],
 			),
-			new DbIndex(
+			'idx_last_message' => new DbIndex(
 				name: 'idx_last_message',
 				type: 'unique',
 				columns: [
@@ -185,7 +185,7 @@ class Topics extends Table
 					'id_board',
 				],
 			),
-			new DbIndex(
+			'idx_first_message' => new DbIndex(
 				name: 'idx_first_message',
 				type: 'unique',
 				columns: [
@@ -193,7 +193,7 @@ class Topics extends Table
 					'id_board',
 				],
 			),
-			new DbIndex(
+			'idx_poll' => new DbIndex(
 				name: 'idx_poll',
 				type: 'unique',
 				columns: [
@@ -201,26 +201,26 @@ class Topics extends Table
 					'id_topic',
 				],
 			),
-			new DbIndex(
+			'idx_is_sticky' => new DbIndex(
 				name: 'idx_is_sticky',
 				columns: [
 					'is_sticky',
 				],
 			),
-			new DbIndex(
+			'idx_approved' => new DbIndex(
 				name: 'idx_approved',
 				columns: [
 					'approved',
 				],
 			),
-			new DbIndex(
+			'idx_member_started' => new DbIndex(
 				name: 'idx_member_started',
 				columns: [
 					'id_member_started',
 					'id_board',
 				],
 			),
-			new DbIndex(
+			'idx_last_message_sticky' => new DbIndex(
 				name: 'idx_last_message_sticky',
 				columns: [
 					'id_board',
@@ -228,7 +228,7 @@ class Topics extends Table
 					'id_last_msg',
 				],
 			),
-			new DbIndex(
+			'idx_board_news' => new DbIndex(
 				name: 'idx_board_news',
 				columns: [
 					'id_board',

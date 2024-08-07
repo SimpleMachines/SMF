@@ -47,29 +47,29 @@ class MemberLogins extends Table
 		$this->name = 'member_logins';
 
 		$this->columns = [
-			new Column(
+			'id_login' => new Column(
 				name: 'id_login',
 				type: 'int',
 				auto: true,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'time' => new Column(
 				name: 'time',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'ip' => new Column(
 				name: 'ip',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'ip2' => new Column(
 				name: 'ip2',
 				type: 'inet',
 				size: 16,
@@ -77,19 +77,19 @@ class MemberLogins extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_login',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new DbIndex(
+			'idx_time' => new DbIndex(
 				name: 'idx_time',
 				columns: [
 					'time',

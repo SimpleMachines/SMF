@@ -47,43 +47,43 @@ class PmRules extends Table
 		$this->name = 'pm_rules';
 
 		$this->columns = [
-			new Column(
+			'id_rule' => new Column(
 				name: 'id_rule',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'rule_name' => new Column(
 				name: 'rule_name',
 				type: 'varchar',
 				size: 60,
 				not_null: true,
 			),
-			new Column(
+			'criteria' => new Column(
 				name: 'criteria',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'actions' => new Column(
 				name: 'actions',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'delete_pm' => new Column(
 				name: 'delete_pm',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'is_or' => new Column(
 				name: 'is_or',
 				type: 'tinyint',
 				unsigned: true,
@@ -93,19 +93,19 @@ class PmRules extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_rule',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new DbIndex(
+			'idx_delete_pm' => new DbIndex(
 				name: 'idx_delete_pm',
 				columns: [
 					'delete_pm',

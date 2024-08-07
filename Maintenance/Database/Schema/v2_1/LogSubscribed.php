@@ -47,67 +47,67 @@ class LogSubscribed extends Table
 		$this->name = 'log_subscribed';
 
 		$this->columns = [
-			new Column(
+			'id_sublog' => new Column(
 				name: 'id_sublog',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_subscribe' => new Column(
 				name: 'id_subscribe',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'old_id_group' => new Column(
 				name: 'old_id_group',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'start_time' => new Column(
 				name: 'start_time',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'end_time' => new Column(
 				name: 'end_time',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'status' => new Column(
 				name: 'status',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'payments_pending' => new Column(
 				name: 'payments_pending',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'pending_details' => new Column(
 				name: 'pending_details',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'reminder_sent' => new Column(
 				name: 'reminder_sent',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'vendor_ref' => new Column(
 				name: 'vendor_ref',
 				type: 'varchar',
 				size: 255,
@@ -117,37 +117,37 @@ class LogSubscribed extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_sublog',
 				],
 			),
-			new DbIndex(
+			'idx_end_time' => new DbIndex(
 				name: 'idx_end_time',
 				columns: [
 					'end_time',
 				],
 			),
-			new DbIndex(
+			'idx_reminder_sent' => new DbIndex(
 				name: 'idx_reminder_sent',
 				columns: [
 					'reminder_sent',
 				],
 			),
-			new DbIndex(
+			'idx_payments_pending' => new DbIndex(
 				name: 'idx_payments_pending',
 				columns: [
 					'payments_pending',
 				],
 			),
-			new DbIndex(
+			'idx_status' => new DbIndex(
 				name: 'idx_status',
 				columns: [
 					'status',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',

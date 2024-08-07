@@ -47,33 +47,33 @@ class LogSearchResults extends Table
 		$this->name = 'log_search_results';
 
 		$this->columns = [
-			new Column(
+			'id_search' => new Column(
 				name: 'id_search',
 				type: 'tinyint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'id_msg' => new Column(
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'relevance' => new Column(
 				name: 'relevance',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'num_matches' => new Column(
 				name: 'num_matches',
 				type: 'smallint',
 				unsigned: true,
@@ -83,7 +83,7 @@ class LogSearchResults extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_search',

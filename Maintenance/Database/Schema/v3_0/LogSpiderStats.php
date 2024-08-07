@@ -47,26 +47,26 @@ class LogSpiderStats extends Table
 		$this->name = 'log_spider_stats';
 
 		$this->columns = [
-			new Column(
+			'id_spider' => new Column(
 				name: 'id_spider',
 				type: 'smallint',
 				unsigned: true,
 				default: 0,
 			),
-			new Column(
+			'page_hits' => new Column(
 				name: 'page_hits',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'last_seen' => new Column(
 				name: 'last_seen',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'stat_date' => new Column(
 				name: 'stat_date',
 				type: 'date',
 				default: '1004-01-01',
@@ -74,7 +74,7 @@ class LogSpiderStats extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'stat_date',

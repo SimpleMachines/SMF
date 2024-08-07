@@ -120,10 +120,8 @@ class IdxMembers extends MigrationBase
 
 		// Updating members active_real_name (drop)
 		if ($start <= 5) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_active_real_name' && isset($existing_structure['indexes']['idx_active_real_name'])) {
-					$table->dropIndex($idx);
-				}
+			if (isset($existing_structure['indexes']['idx_active_real_name'])) {
+				$table->dropIndex($table->indexes['idx_active_real_name']);
 			}
 
 			$this->handleTimeout(++$start);
@@ -131,24 +129,16 @@ class IdxMembers extends MigrationBase
 
 		// Updating members active_real_name (add)
 		if ($start <= 6) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_active_real_name') {
-					$table->addIndex($idx);
-				}
-			}
+			$table->addIndex($table->indexes['idx_active_real_name']);
 
 			$this->handleTimeout(++$start);
 		}
 
 		// Updating members email_address
 		if ($start <= 7) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_email_address') {
-					if (Config::$db_type === POSTGRE_TITLE) {
-						$idx->columns[0] .= ' varchar_pattern_ops';
-					}
-					$table->addIndex($idx);
-				}
+			if (Config::$db_type === POSTGRE_TITLE) {
+				$idx = $table->indexes['idx_email_address'];
+				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
 			}
 
 			$this->handleTimeout(++$start);
@@ -164,13 +154,9 @@ class IdxMembers extends MigrationBase
 
 		// Change index for table members
 		if ($start <= 9) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_lngfile') {
-					if (Config::$db_type === POSTGRE_TITLE) {
-						$idx->columns[0] .= ' varchar_pattern_ops';
-					}
-					$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore');
-				}
+			if (Config::$db_type === POSTGRE_TITLE) {
+				$idx = $table->indexes['idx_lngfile'];
+				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
 			}
 
 			$this->handleTimeout(++$start);
@@ -178,13 +164,9 @@ class IdxMembers extends MigrationBase
 
 		// Change index for table members
 		if ($start <= 10) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_member_name') {
-					if (Config::$db_type === POSTGRE_TITLE) {
-						$idx->columns[0] .= ' varchar_pattern_ops';
-					}
-					$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore');
-				}
+			if (Config::$db_type === POSTGRE_TITLE) {
+				$idx = $table->indexes['idx_member_name'];
+				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
 			}
 
 			$this->handleTimeout(++$start);
@@ -192,13 +174,9 @@ class IdxMembers extends MigrationBase
 
 		// Change index for table members
 		if ($start <= 11) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_real_name') {
-					if (Config::$db_type === POSTGRE_TITLE) {
-						$idx->columns[0] .= ' varchar_pattern_ops';
-					}
-					$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore');
-				}
+			if (Config::$db_type === POSTGRE_TITLE) {
+				$idx = $table->indexes['idx_real_name'];
+				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
 			}
 
 			$this->handleTimeout(++$start);

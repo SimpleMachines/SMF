@@ -58,9 +58,14 @@ class MembersTimezone extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		$table = new \SMF\Maintenance\Database\Schema\v2_1\Members();
-		$new_col = $table->columns['timezone'];
+		$existing_structure = $table->getCurrentStructure();
 
-		$table->addColumn($new_col);
+		foreach ($table->columns as $column) {
+			if ($column->name === 'timezone' && !isset($existing_structure['columns'][$column->name])
+			) {
+				$table->addColumn($column);
+			}
+		}
 
 		return true;
 	}

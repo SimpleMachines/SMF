@@ -61,119 +61,119 @@ class Messages extends Table
 		$this->name = 'messages';
 
 		$this->columns = [
-			new Column(
+			'id_msg' => new Column(
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'poster_time' => new Column(
 				name: 'poster_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_msg_modified' => new Column(
 				name: 'id_msg_modified',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'subject' => new Column(
 				name: 'subject',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'poster_name' => new Column(
 				name: 'poster_name',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'poster_email' => new Column(
 				name: 'poster_email',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'poster_ip' => new Column(
 				name: 'poster_ip',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'smileys_enabled' => new Column(
 				name: 'smileys_enabled',
 				type: 'tinyint',
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'modified_time' => new Column(
 				name: 'modified_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'modified_name' => new Column(
 				name: 'modified_name',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'modified_reason' => new Column(
 				name: 'modified_reason',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'body' => new Column(
 				name: 'body',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'icon' => new Column(
 				name: 'icon',
 				type: 'varchar',
 				size: 16,
 				not_null: true,
 				default: 'xx',
 			),
-			new Column(
+			'approved' => new Column(
 				name: 'approved',
 				type: 'tinyint',
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'likes' => new Column(
 				name: 'likes',
 				type: 'smallint',
 				unsigned: true,
@@ -183,13 +183,13 @@ class Messages extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_msg',
 				],
 			),
-			new DbIndex(
+			'idx_id_board' => new DbIndex(
 				name: 'idx_id_board',
 				type: 'unique',
 				columns: [
@@ -198,7 +198,7 @@ class Messages extends Table
 					'approved',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				type: 'unique',
 				columns: [
@@ -206,28 +206,28 @@ class Messages extends Table
 					'id_msg',
 				],
 			),
-			new DbIndex(
+			'idx_ip_index' => new DbIndex(
 				name: 'idx_ip_index',
 				columns: [
 					'poster_ip',
 					'id_topic',
 				],
 			),
-			new DbIndex(
+			'idx_participation' => new DbIndex(
 				name: 'idx_participation',
 				columns: [
 					'id_member',
 					'id_topic',
 				],
 			),
-			new DbIndex(
+			'idx_show_posts' => new DbIndex(
 				name: 'idx_show_posts',
 				columns: [
 					'id_member',
 					'id_board',
 				],
 			),
-			new DbIndex(
+			'idx_id_member_msg' => new DbIndex(
 				name: 'idx_id_member_msg',
 				columns: [
 					'id_member',
@@ -235,7 +235,7 @@ class Messages extends Table
 					'id_msg',
 				],
 			),
-			new DbIndex(
+			'idx_current_topic' => new DbIndex(
 				name: 'idx_current_topic',
 				columns: [
 					'id_topic',
@@ -244,7 +244,7 @@ class Messages extends Table
 					'approved',
 				],
 			),
-			new DbIndex(
+			'idx_related_ip' => new DbIndex(
 				name: 'idx_related_ip',
 				columns: [
 					'id_member',
@@ -252,7 +252,7 @@ class Messages extends Table
 					'id_msg',
 				],
 			),
-			new DbIndex(
+			'idx_likes' => new DbIndex(
 				name: 'idx_likes',
 				columns: [
 					'likes',

@@ -47,20 +47,20 @@ class SmileyFiles extends Table
 		$this->name = 'smiley_files';
 
 		$this->columns = [
-			new Column(
+			'id_smiley' => new Column(
 				name: 'id_smiley',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'smiley_set' => new Column(
 				name: 'smiley_set',
 				type: 'varchar',
 				size: 48,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'filename' => new Column(
 				name: 'filename',
 				type: 'varchar',
 				size: 48,
@@ -70,7 +70,7 @@ class SmileyFiles extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_smiley',

@@ -47,313 +47,313 @@ class Members extends Table
 		$this->name = 'members';
 
 		$this->columns = [
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'member_name' => new Column(
 				name: 'member_name',
 				type: 'varchar',
 				size: 80,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'date_registered' => new Column(
 				name: 'date_registered',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'posts' => new Column(
 				name: 'posts',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_group' => new Column(
 				name: 'id_group',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'lngfile' => new Column(
 				name: 'lngfile',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'last_login' => new Column(
 				name: 'last_login',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'real_name' => new Column(
 				name: 'real_name',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'instant_messages' => new Column(
 				name: 'instant_messages',
 				type: 'smallint',
 				not_null: true,
 			),
-			new Column(
+			'unread_messages' => new Column(
 				name: 'unread_messages',
 				type: 'smallint',
 				not_null: true,
 			),
-			new Column(
+			'new_pm' => new Column(
 				name: 'new_pm',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'alerts' => new Column(
 				name: 'alerts',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'buddy_list' => new Column(
 				name: 'buddy_list',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'pm_ignore_list' => new Column(
 				name: 'pm_ignore_list',
 				type: 'text',
 			),
-			new Column(
+			'pm_prefs' => new Column(
 				name: 'pm_prefs',
 				type: 'mediumint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'mod_prefs' => new Column(
 				name: 'mod_prefs',
 				type: 'varchar',
 				size: 20,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'passwd' => new Column(
 				name: 'passwd',
 				type: 'varchar',
 				size: 64,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'email_address' => new Column(
 				name: 'email_address',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'personal_text' => new Column(
 				name: 'personal_text',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'birthdate' => new Column(
 				name: 'birthdate',
 				type: 'date',
 				not_null: true,
 				default: '1004-01-01',
 			),
-			new Column(
+			'website_title' => new Column(
 				name: 'website_title',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'website_url' => new Column(
 				name: 'website_url',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'show_online' => new Column(
 				name: 'show_online',
 				type: 'tinyint',
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'time_format' => new Column(
 				name: 'time_format',
 				type: 'varchar',
 				size: 80,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'signature' => new Column(
 				name: 'signature',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'time_offset' => new Column(
 				name: 'time_offset',
 				type: 'float',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'avatar' => new Column(
 				name: 'avatar',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'usertitle' => new Column(
 				name: 'usertitle',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'member_ip' => new Column(
 				name: 'member_ip',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'member_ip2' => new Column(
 				name: 'member_ip2',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'secret_question' => new Column(
 				name: 'secret_question',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'secret_answer' => new Column(
 				name: 'secret_answer',
 				type: 'varchar',
 				size: 64,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'id_theme' => new Column(
 				name: 'id_theme',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'is_activated' => new Column(
 				name: 'is_activated',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'validation_code' => new Column(
 				name: 'validation_code',
 				type: 'varchar',
 				size: 10,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'id_msg_last_visit' => new Column(
 				name: 'id_msg_last_visit',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'additional_groups' => new Column(
 				name: 'additional_groups',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'smiley_set' => new Column(
 				name: 'smiley_set',
 				type: 'varchar',
 				size: 48,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'id_post_group' => new Column(
 				name: 'id_post_group',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'total_time_logged_in' => new Column(
 				name: 'total_time_logged_in',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'password_salt' => new Column(
 				name: 'password_salt',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'ignore_boards' => new Column(
 				name: 'ignore_boards',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'warning' => new Column(
 				name: 'warning',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'passwd_flood' => new Column(
 				name: 'passwd_flood',
 				type: 'varchar',
 				size: 12,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'pm_receive_from' => new Column(
 				name: 'pm_receive_from',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'timezone' => new Column(
 				name: 'timezone',
 				type: 'varchar',
 				size: 80,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'tfa_secret' => new Column(
 				name: 'tfa_secret',
 				type: 'varchar',
 				size: 24,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'tfa_backup' => new Column(
 				name: 'tfa_backup',
 				type: 'varchar',
 				size: 64,
@@ -363,91 +363,91 @@ class Members extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_member',
 				],
 			),
-			new DbIndex(
+			'idx_member_name' => new DbIndex(
 				name: 'idx_member_name',
 				columns: [
 					'member_name',
 				],
 			),
-			new DbIndex(
+			'idx_real_name' => new DbIndex(
 				name: 'idx_real_name',
 				columns: [
 					'real_name',
 				],
 			),
-			new DbIndex(
+			'idx_email_address' => new DbIndex(
 				name: 'idx_email_address',
 				columns: [
 					'email_address',
 				],
 			),
-			new DbIndex(
+			'idx_date_registered' => new DbIndex(
 				name: 'idx_date_registered',
 				columns: [
 					'date_registered',
 				],
 			),
-			new DbIndex(
+			'idx_id_group' => new DbIndex(
 				name: 'idx_id_group',
 				columns: [
 					'id_group',
 				],
 			),
-			new DbIndex(
+			'idx_birthdate' => new DbIndex(
 				name: 'idx_birthdate',
 				columns: [
 					'birthdate',
 				],
 			),
-			new DbIndex(
+			'idx_posts' => new DbIndex(
 				name: 'idx_posts',
 				columns: [
 					'posts',
 				],
 			),
-			new DbIndex(
+			'idx_last_login' => new DbIndex(
 				name: 'idx_last_login',
 				columns: [
 					'last_login',
 				],
 			),
-			new DbIndex(
+			'idx_lngfile' => new DbIndex(
 				name: 'idx_lngfile',
 				columns: [
 					'lngfile(30)',
 				],
 			),
-			new DbIndex(
+			'idx_id_post_group' => new DbIndex(
 				name: 'idx_id_post_group',
 				columns: [
 					'id_post_group',
 				],
 			),
-			new DbIndex(
+			'idx_warning' => new DbIndex(
 				name: 'idx_warning',
 				columns: [
 					'warning',
 				],
 			),
-			new DbIndex(
+			'idx_total_time_logged_in' => new DbIndex(
 				name: 'idx_total_time_logged_in',
 				columns: [
 					'total_time_logged_in',
 				],
 			),
-			new DbIndex(
+			'idx_id_theme' => new DbIndex(
 				name: 'idx_id_theme',
 				columns: [
 					'id_theme',
 				],
 			),
-			new DbIndex(
+			'idx_active_real_name' => new DbIndex(
 				name: 'idx_active_real_name',
 				columns: [
 					'is_activated',

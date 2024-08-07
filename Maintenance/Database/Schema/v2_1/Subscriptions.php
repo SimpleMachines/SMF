@@ -47,76 +47,76 @@ class Subscriptions extends Table
 		$this->name = 'subscriptions';
 
 		$this->columns = [
-			new Column(
+			'id_subscribe' => new Column(
 				name: 'id_subscribe',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'name' => new Column(
 				name: 'name',
 				type: 'varchar',
 				size: 60,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'description' => new Column(
 				name: 'description',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'cost' => new Column(
 				name: 'cost',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'length' => new Column(
 				name: 'length',
 				type: 'varchar',
 				size: 6,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'id_group' => new Column(
 				name: 'id_group',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'add_groups' => new Column(
 				name: 'add_groups',
 				type: 'varchar',
 				size: 40,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'active' => new Column(
 				name: 'active',
 				type: 'tinyint',
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'repeatable' => new Column(
 				name: 'repeatable',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'allow_partial' => new Column(
 				name: 'allow_partial',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'reminder' => new Column(
 				name: 'reminder',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'email_complete' => new Column(
 				name: 'email_complete',
 				type: 'text',
 				not_null: true,
@@ -124,13 +124,13 @@ class Subscriptions extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_subscribe',
 				],
 			),
-			new DbIndex(
+			'idx_active' => new DbIndex(
 				name: 'idx_active',
 				columns: [
 					'active',

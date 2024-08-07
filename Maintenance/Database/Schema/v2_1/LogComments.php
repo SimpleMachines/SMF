@@ -47,67 +47,67 @@ class LogComments extends Table
 		$this->name = 'log_comments';
 
 		$this->columns = [
-			new Column(
+			'id_comment' => new Column(
 				name: 'id_comment',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'member_name' => new Column(
 				name: 'member_name',
 				type: 'varchar',
 				size: 80,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'comment_type' => new Column(
 				name: 'comment_type',
 				type: 'varchar',
 				size: 8,
 				not_null: true,
 				default: 'warning',
 			),
-			new Column(
+			'id_recipient' => new Column(
 				name: 'id_recipient',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'recipient_name' => new Column(
 				name: 'recipient_name',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'log_time' => new Column(
 				name: 'log_time',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_notice' => new Column(
 				name: 'id_notice',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'counter' => new Column(
 				name: 'counter',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'body' => new Column(
 				name: 'body',
 				type: 'text',
 				not_null: true,
@@ -115,25 +115,25 @@ class LogComments extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_comment',
 				],
 			),
-			new DbIndex(
+			'idx_id_recipient' => new DbIndex(
 				name: 'idx_id_recipient',
 				columns: [
 					'id_recipient',
 				],
 			),
-			new DbIndex(
+			'idx_log_time' => new DbIndex(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',
 				],
 			),
-			new DbIndex(
+			'idx_comment_type' => new DbIndex(
 				name: 'idx_comment_type',
 				columns: [
 					'comment_type(8)',

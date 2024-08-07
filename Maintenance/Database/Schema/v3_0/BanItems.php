@@ -47,51 +47,51 @@ class BanItems extends Table
 		$this->name = 'ban_items';
 
 		$this->columns = [
-			new Column(
+			'id_ban' => new Column(
 				name: 'id_ban',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_ban_group' => new Column(
 				name: 'id_ban_group',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'ip_low' => new Column(
 				name: 'ip_low',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'ip_high' => new Column(
 				name: 'ip_high',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'hostname' => new Column(
 				name: 'hostname',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'email_address' => new Column(
 				name: 'email_address',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'hits' => new Column(
 				name: 'hits',
 				type: 'mediumint',
 				unsigned: true,
@@ -101,19 +101,19 @@ class BanItems extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_ban',
 				],
 			),
-			new DbIndex(
+			'idx_id_ban_group' => new DbIndex(
 				name: 'idx_id_ban_group',
 				columns: [
 					'id_ban_group',
 				],
 			),
-			new DbIndex(
+			'idx_id_ban_ip' => new DbIndex(
 				name: 'idx_id_ban_ip',
 				columns: [
 					'ip_low',

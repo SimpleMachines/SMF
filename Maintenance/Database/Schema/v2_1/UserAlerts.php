@@ -47,69 +47,69 @@ class UserAlerts extends Table
 		$this->name = 'user_alerts';
 
 		$this->columns = [
-			new Column(
+			'id_alert' => new Column(
 				name: 'id_alert',
 				type: 'int',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'alert_time' => new Column(
 				name: 'alert_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member_started' => new Column(
 				name: 'id_member_started',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'member_name' => new Column(
 				name: 'member_name',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'content_type' => new Column(
 				name: 'content_type',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'content_id' => new Column(
 				name: 'content_id',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'content_action' => new Column(
 				name: 'content_action',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'is_read' => new Column(
 				name: 'is_read',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'extra' => new Column(
 				name: 'extra',
 				type: 'text',
 				not_null: true,
@@ -117,19 +117,19 @@ class UserAlerts extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_alert',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new DbIndex(
+			'idx_alert_time' => new DbIndex(
 				name: 'idx_alert_time',
 				columns: [
 					'alert_time',

@@ -47,70 +47,70 @@ class LogErrors extends Table
 		$this->name = 'log_errors';
 
 		$this->columns = [
-			new Column(
+			'id_error' => new Column(
 				name: 'id_error',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'log_time' => new Column(
 				name: 'log_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'ip' => new Column(
 				name: 'ip',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'url' => new Column(
 				name: 'url',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'message' => new Column(
 				name: 'message',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'session' => new Column(
 				name: 'session',
 				type: 'varchar',
 				size: 128,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'error_type' => new Column(
 				name: 'error_type',
 				type: 'char',
 				size: 15,
 				not_null: true,
 				default: 'general',
 			),
-			new Column(
+			'file' => new Column(
 				name: 'file',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'line' => new Column(
 				name: 'line',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'backtrace' => new Column(
 				name: 'backtrace',
 				type: 'varchar',
 				size: 10000,
@@ -120,25 +120,25 @@ class LogErrors extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_error',
 				],
 			),
-			new DbIndex(
+			'idx_log_time' => new DbIndex(
 				name: 'idx_log_time',
 				columns: [
 					'log_time',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new DbIndex(
+			'idx_ip' => new DbIndex(
 				name: 'idx_ip',
 				columns: [
 					'ip',

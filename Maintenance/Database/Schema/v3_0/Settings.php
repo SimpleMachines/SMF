@@ -864,13 +864,13 @@ class Settings extends Table
 		$this->name = 'settings';
 
 		$this->columns = [
-			new Column(
+			'variable' => new Column(
 				name: 'variable',
 				type: 'varchar',
 				size: 255,
 				default: '',
 			),
-			new Column(
+			'value' => new Column(
 				name: 'value',
 				type: 'text',
 				not_null: true,
@@ -878,7 +878,7 @@ class Settings extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'variable(30)',

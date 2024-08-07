@@ -47,24 +47,24 @@ class LogScheduledTasks extends Table
 		$this->name = 'log_scheduled_tasks';
 
 		$this->columns = [
-			new Column(
+			'id_log' => new Column(
 				name: 'id_log',
 				type: 'mediumint',
 				auto: true,
 			),
-			new Column(
+			'id_task' => new Column(
 				name: 'id_task',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'time_run' => new Column(
 				name: 'time_run',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'time_taken' => new Column(
 				name: 'time_taken',
 				type: 'float',
 				not_null: true,
@@ -73,7 +73,7 @@ class LogScheduledTasks extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_log',

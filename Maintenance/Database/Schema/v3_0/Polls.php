@@ -47,82 +47,82 @@ class Polls extends Table
 		$this->name = 'polls';
 
 		$this->columns = [
-			new Column(
+			'id_poll' => new Column(
 				name: 'id_poll',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'question' => new Column(
 				name: 'question',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'voting_locked' => new Column(
 				name: 'voting_locked',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'max_votes' => new Column(
 				name: 'max_votes',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 1,
 			),
-			new Column(
+			'expire_time' => new Column(
 				name: 'expire_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'hide_results' => new Column(
 				name: 'hide_results',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'change_vote' => new Column(
 				name: 'change_vote',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'guest_vote' => new Column(
 				name: 'guest_vote',
 				type: 'tinyint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'num_guest_voters' => new Column(
 				name: 'num_guest_voters',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'reset_poll' => new Column(
 				name: 'reset_poll',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'poster_name' => new Column(
 				name: 'poster_name',
 				type: 'varchar',
 				size: 255,
@@ -132,7 +132,7 @@ class Polls extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_poll',

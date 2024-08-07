@@ -47,19 +47,19 @@ class LogFloodcontrol extends Table
 		$this->name = 'log_floodcontrol';
 
 		$this->columns = [
-			new Column(
+			'ip' => new Column(
 				name: 'ip',
 				type: 'inet',
 				size: 16,
 			),
-			new Column(
+			'log_time' => new Column(
 				name: 'log_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'log_type' => new Column(
 				name: 'log_type',
 				type: 'varchar',
 				size: 30,
@@ -68,20 +68,20 @@ class LogFloodcontrol extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'ip',
 					'log_type',
 				],
 			),
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_request',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',

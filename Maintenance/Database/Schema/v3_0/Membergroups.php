@@ -120,70 +120,70 @@ class Membergroups extends Table
 		$this->name = 'membergroups';
 
 		$this->columns = [
-			new Column(
+			'id_group' => new Column(
 				name: 'id_group',
 				type: 'smallint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'group_name' => new Column(
 				name: 'group_name',
 				type: 'varchar',
 				size: 80,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'description' => new Column(
 				name: 'description',
 				type: 'text',
 				not_null: true,
 			),
-			new Column(
+			'online_color' => new Column(
 				name: 'online_color',
 				type: 'varchar',
 				size: 20,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'min_posts' => new Column(
 				name: 'min_posts',
 				type: 'mediumint',
 				not_null: true,
 				default: -1,
 			),
-			new Column(
+			'max_messages' => new Column(
 				name: 'max_messages',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'icons' => new Column(
 				name: 'icons',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'group_type' => new Column(
 				name: 'group_type',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'hidden' => new Column(
 				name: 'hidden',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_parent' => new Column(
 				name: 'id_parent',
 				type: 'smallint',
 				not_null: true,
 				default: -2,
 			),
-			new Column(
+			'tfa_required' => new Column(
 				name: 'tfa_required',
 				type: 'tinyint',
 				not_null: true,
@@ -192,13 +192,13 @@ class Membergroups extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_group',
 				],
 			),
-			new DbIndex(
+			'idx_min_posts' => new DbIndex(
 				name: 'idx_min_posts',
 				columns: [
 					'min_posts',

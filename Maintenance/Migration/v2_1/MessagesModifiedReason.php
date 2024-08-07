@@ -58,9 +58,14 @@ class MessagesModifiedReason extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		$table = new \SMF\Maintenance\Database\Schema\v2_1\Messages();
-		$new_col = $table->columns['modified_reason'];
+		$existing_structure = $table->getCurrentStructure();
 
-		$table->addColumn($new_col);
+		foreach ($table->columns as $column) {
+			if ($column->name === 'modified_reason' && !isset($existing_structure['columns'][$column->name])
+			) {
+				$table->addColumn($column);
+			}
+		}
 
 		return true;
 	}

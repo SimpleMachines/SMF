@@ -54,21 +54,17 @@ class IdxLogComments extends MigrationBase
 
 		// Change index for table scheduled_tasks
 		if ($start <= 0) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_comment_type' && isset($existing_structure['indexes']['idx_comment_type'])) {
-					$table->dropIndex($idx);
-				}
+			if (isset($existing_structure['indexes']['idx_comment_type'])) {
+				$table->dropIndex($table->indexes['idx_comment_type']);
 			}
 
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 1) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'idx_comment_type' && !isset($existing_structure['indexes']['idx_comment_type'])) {
-					$idx->columns[0] = 'comment_type varchar_pattern_ops';
-					$table->addIndex($idx);
-				}
+			if (!isset($existing_structure['indexes']['idx_comment_type'])) {
+				$idx = $table->indexes['idx_comment_type'];
+				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
 			}
 
 			$this->handleTimeout(++$start);

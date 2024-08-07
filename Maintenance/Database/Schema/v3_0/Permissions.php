@@ -252,18 +252,18 @@ class Permissions extends Table
 		$this->name = 'permissions';
 
 		$this->columns = [
-			new Column(
+			'id_group' => new Column(
 				name: 'id_group',
 				type: 'smallint',
 				default: 0,
 			),
-			new Column(
+			'permission' => new Column(
 				name: 'permission',
 				type: 'varchar',
 				size: 30,
 				default: '',
 			),
-			new Column(
+			'add_deny' => new Column(
 				name: 'add_deny',
 				type: 'tinyint',
 				not_null: true,
@@ -272,7 +272,7 @@ class Permissions extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_group',

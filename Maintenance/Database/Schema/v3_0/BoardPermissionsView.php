@@ -63,19 +63,19 @@ class BoardPermissionsView extends Table
 		$this->name = 'board_permissions_view';
 
 		$this->columns = [
-			new Column(
+			'id_group' => new Column(
 				name: 'id_group',
 				type: 'smallint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 			),
-			new Column(
+			'deny' => new Column(
 				name: 'deny',
 				type: 'smallint',
 				not_null: true,
@@ -83,7 +83,7 @@ class BoardPermissionsView extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_group',

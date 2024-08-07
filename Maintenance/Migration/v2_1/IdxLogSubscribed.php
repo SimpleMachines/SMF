@@ -53,10 +53,8 @@ class IdxLogSubscribed extends MigrationBase
 
 		// Updating log_actions
 		if ($start <= 0) {
-			foreach ($table->indexes as $idx) {
-				if ($idx->name === 'status' && !isset($existing_structure['indexes']['status'])) {
-					$table->addIndex($idx);
-				}
+			if (!isset($existing_structure['indexes']['status'])) {
+				$table->addIndex($table->indexes['status']);
 			}
 
 			$this->handleTimeout(++$start);

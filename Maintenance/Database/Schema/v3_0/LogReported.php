@@ -47,84 +47,84 @@ class LogReported extends Table
 		$this->name = 'log_reported';
 
 		$this->columns = [
-			new Column(
+			'id_report' => new Column(
 				name: 'id_report',
 				type: 'mediumint',
 				unsigned: true,
 				auto: true,
 			),
-			new Column(
+			'id_msg' => new Column(
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'membername' => new Column(
 				name: 'membername',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'subject' => new Column(
 				name: 'subject',
 				type: 'varchar',
 				size: 255,
 				not_null: true,
 				default: '',
 			),
-			new Column(
+			'body' => new Column(
 				name: 'body',
 				type: 'mediumtext',
 				not_null: true,
 			),
-			new Column(
+			'time_started' => new Column(
 				name: 'time_started',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'time_updated' => new Column(
 				name: 'time_updated',
 				type: 'int',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'num_reports' => new Column(
 				name: 'num_reports',
 				type: 'mediumint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'closed' => new Column(
 				name: 'closed',
 				type: 'tinyint',
 				not_null: true,
 				default: 0,
 			),
-			new Column(
+			'ignore_all' => new Column(
 				name: 'ignore_all',
 				type: 'tinyint',
 				not_null: true,
@@ -133,37 +133,37 @@ class LogReported extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'id_report',
 				],
 			),
-			new DbIndex(
+			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
 					'id_member',
 				],
 			),
-			new DbIndex(
+			'idx_id_topic' => new DbIndex(
 				name: 'idx_id_topic',
 				columns: [
 					'id_topic',
 				],
 			),
-			new DbIndex(
+			'idx_closed' => new DbIndex(
 				name: 'idx_closed',
 				columns: [
 					'closed',
 				],
 			),
-			new DbIndex(
+			'idx_time_started' => new DbIndex(
 				name: 'idx_time_started',
 				columns: [
 					'time_started',
 				],
 			),
-			new DbIndex(
+			'idx_id_msg' => new DbIndex(
 				name: 'idx_id_msg',
 				columns: [
 					'id_msg',

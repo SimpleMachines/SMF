@@ -47,28 +47,28 @@ class Mentions extends Table
 		$this->name = 'mentions';
 
 		$this->columns = [
-			new Column(
+			'content_id' => new Column(
 				name: 'content_id',
 				type: 'int',
 				default: 0,
 			),
-			new Column(
+			'content_type' => new Column(
 				name: 'content_type',
 				type: 'varchar',
 				size: 10,
 				default: '',
 			),
-			new Column(
+			'id_mentioned' => new Column(
 				name: 'id_mentioned',
 				type: 'int',
 			),
-			new Column(
+			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
 			),
-			new Column(
+			'time' => new Column(
 				name: 'time',
 				type: 'int',
 				not_null: true,
@@ -76,7 +76,7 @@ class Mentions extends Table
 		];
 
 		$this->indexes = [
-			new DbIndex(
+			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
 					'content_id',
@@ -84,14 +84,14 @@ class Mentions extends Table
 					'id_mentioned',
 				],
 			),
-			new DbIndex(
+			'content' => new DbIndex(
 				name: 'content',
 				columns: [
 					'content_id',
 					'content_type',
 				],
 			),
-			new DbIndex(
+			'mentionee' => new DbIndex(
 				name: 'mentionee',
 				columns: [
 					'id_member',
