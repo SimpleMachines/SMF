@@ -83,7 +83,7 @@ class BoardPermissionsViews extends MigrationBase
 			$request = $this->query('', '
 				SELECT id_board, mg.id_group, 0
 				FROM {db_prefix}boards b
-				JOIN {$db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.member_groups) != 0)');
+				JOIN {db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.member_groups) != 0)');
 
 			while ($row = Db::$db->fetch_row($request)) {
 				$inserts[] = $row;

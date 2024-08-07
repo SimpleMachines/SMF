@@ -188,7 +188,7 @@ class ThemeSettings extends MigrationBase
 			$this->query(
 				'',
 				'DELETE FROM {db_prefix}themes
-				WHERE variable NOT IN ({array_int:removed_settings});',
+				WHERE variable IN ({array_string:removed_settings})',
 				[
 					'removed_settings' => $this->removedThemeSettings,
 				],

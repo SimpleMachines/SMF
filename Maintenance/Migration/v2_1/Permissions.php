@@ -115,7 +115,7 @@ class Permissions extends MigrationBase
 
 		$this->query(
 			'',
-			'DELETE FROM {$db_prefix}permissions
+			'DELETE FROM {db_prefix}permissions
 			WHERE permission IN ({array_string:removedPermissions})',
 			[
 				'removedPermissions' => $this->removedPermissions,
@@ -126,7 +126,7 @@ class Permissions extends MigrationBase
 
 		$this->query(
 			'',
-			'DELETE FROM {$db_prefix}board_permissions
+			'DELETE FROM {db_prefix}board_permissions
 			WHERE permission IN ({array_string:removedBoardPermissions})',
 			[
 				'removedBoardPermissions' => $this->removedBoardPermissions,
@@ -138,7 +138,7 @@ class Permissions extends MigrationBase
 		foreach ($this->renamedPermissions as $old => $new) {
 			$this->query(
 				'',
-				'UPDATE {$db_prefix}permissions
+				'UPDATE {db_prefix}permissions
 				SET permission = {string:new}
 				WHERE permission = {string:old}',
 				[
@@ -317,7 +317,7 @@ class Permissions extends MigrationBase
 				AND permission IN ({array_string:illegal_board_perms})',
 			[
 				'guests' => -1,
-				'illegal_board_perms' => self::$illegalGuestBoardPermissions,
+				'illegal_board_perms' => $this->illegalGuestBoardPermissions,
 			],
 		);
 
@@ -330,7 +330,7 @@ class Permissions extends MigrationBase
 				AND permission IN ({array_string:illegal_perms})',
 			[
 				'guests' => -1,
-				'illegal_perms' => self::$illegalGuestPermissions,
+				'illegal_perms' => $this->illegalGuestPermissions,
 			],
 		);
 

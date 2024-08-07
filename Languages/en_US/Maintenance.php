@@ -22,7 +22,7 @@ $txt['still_writable'] = 'Your forum directory is still writable. It is a good i
 $txt['delete_tool'] = 'Click here to delete this {SCRIPT} file now.';
 $txt['delete_tool_maybe'] = '<em>(does not work on all servers.)</em>';
 $txt['error_message_click'] = 'Click here';
-$txt['error_message_try_again'] = 'Click here to try again.';
+$txt['error_message_try_again'] = 'Try again.';
 
 // Errors and warnings.
 $txt['critical_error'] = 'Critical Error!';
@@ -321,7 +321,6 @@ $txt['db_populate_tables'] = 'Created {0, number, integer} tables.';
 $txt['db_populate_insert_dups'] = 'Ignored {0, number, integer} duplicated inserts.';
 $txt['db_populate_table_dups'] = 'Ignored {0, number, integer} duplicated tables.';
 $txt['congratulations'] = 'Congratulations, the installation process is complete!';
-$txt['error_message_try_again'] = 'to try this step again.';
 $txt['error_message_bad_try_again'] = 'to try installing anyway, but note that this is <em>strongly</em> discouraged.';
 $txt['user_settings_skip'] = 'Skip';
 $txt['user_settings_skip_sure'] = 'Are you sure you wish to skip admin account creation?';

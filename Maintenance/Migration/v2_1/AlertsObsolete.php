@@ -84,7 +84,7 @@ class AlertsObsolete extends MigrationBase
 			'UPDATE {db_prefix}user_alerts
 			SET content_id = id_member_started
 			WHERE content_type = {literal:member}
-				AND content_action LIKE {string:content_action',
+				AND content_action LIKE {string:content_action}',
 			['content_action' => 'register_%'],
 		);
 
@@ -96,7 +96,7 @@ class AlertsObsolete extends MigrationBase
 			SET content_id = {literal:topic},
 				content_action = {literal:unapproved_topic}
 			WHERE content_type = {literal:unapproved}
-				AND content_action = {string:content_action',
+				AND content_action = {string:content_action}',
 			['content_action' => 'topic'],
 		);
 
@@ -108,7 +108,7 @@ class AlertsObsolete extends MigrationBase
 			SET content_id = {literal:topic},
 				content_action = {literal:unapproved_reply}
 			WHERE content_type = {literal:unapproved}
-				AND content_action = {string:content_action',
+				AND content_action = {string:content_action}',
 			['content_action' => 'reply'],
 		);
 
@@ -120,7 +120,7 @@ class AlertsObsolete extends MigrationBase
 			SET content_id = {literal:topic},
 				content_action = {literal:unapproved_post}
 			WHERE content_type = {literal:unapproved}
-				AND content_action = {string:content_action',
+				AND content_action = {string:content_action}',
 			['content_action' => 'post'],
 		);
 
@@ -129,7 +129,7 @@ class AlertsObsolete extends MigrationBase
 		$this->query(
 			'',
 			'UPDATE {db_prefix}user_alerts AS a
-			JOIN {$db_prefix}attachments AS f
+			JOIN {db_prefix}attachments AS f
 				ON (f.id_attach = a.content_id)
 			SET
 				a.content_type = {literal:msg},

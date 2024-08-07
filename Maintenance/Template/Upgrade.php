@@ -514,6 +514,7 @@ class Upgrade implements TemplateInterface
 
 		// Continue please!
 		Maintenance::$context['continue'] = true;
+		Maintenance::$context['try_again'] = true;
 
 		// Pour me a cup of javascript.
 		echo '
@@ -540,7 +541,7 @@ class Upgrade implements TemplateInterface
 									response.json().then(function(json) {
 										if (json.success != true) {
 											document.getElementById("errorbox").style.display = "";
-											document.getElementById("contbutt").disabled = 0;
+											document.getElementById("try_again").style.display = "";
 											document.getElementById("upform").action = document.getElementById("upform").action
 												.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 												.replace(/start=\d+/, "start=" + iCurrentStart);
@@ -560,7 +561,7 @@ class Upgrade implements TemplateInterface
 										// Hold up, we caught a error.
 										if (true == json.data.failed) {
 											document.getElementById("errorbox").style.display = "";
-											document.getElementById("contbutt").disabled = 0;
+											document.getElementById("try_again").style.display = "";
 											document.getElementById("upform").action = document.getElementById("upform").action
 												.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 												.replace(/start=\d+/, "start=" + iCurrentStart);
@@ -603,7 +604,7 @@ class Upgrade implements TemplateInterface
 												document.getElementById("current_substep").innerHTML = sNextSubStepName;
 											}
 											document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
-											document.getElementById("contbutt").disabled = 0;
+											document.getElementById("try_again").style.display = "";
 											document.getElementById("upform").action = document.getElementById("upform").action
 												.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 												.replace(/start=\d+/, "start=" + iCurrentStart);
@@ -620,7 +621,7 @@ class Upgrade implements TemplateInterface
 												document.getElementById("current_substep").innerHTML = sNextSubStepName;
 											}
 											document.getElementById("errorbox").getElementsByTagName("span")[0].outerHTML = msg;
-											document.getElementById("contbutt").disabled = 0;
+											document.getElementById("try_again").style.display = "";
 											document.getElementById("upform").action = document.getElementById("upform").action
 												.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 												.replace(/start=\d+/, "start=" + iCurrentStart);
@@ -636,7 +637,7 @@ class Upgrade implements TemplateInterface
 										document.getElementById("current_substep").innerHTML = sNextSubStepName;
 									}
 									document.getElementById("errorbox").getElementsByTagName("span")[0].innerText =  error;
-									document.getElementById("contbutt").disabled = 0;
+									document.getElementById("try_again").style.display = "";
 									document.getElementById("upform").action = document.getElementById("upform").action
 										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
 										.replace(/start=\d+/, "start=" + iCurrentStart);
@@ -646,6 +647,7 @@ class Upgrade implements TemplateInterface
 
 						// Lets try to let the browser handle this.
 						window.addEventListener("load", (event) => {
+							document.getElementById("try_again").style.display = "none";
 							document.getElementById("contbutt").disabled = 1;
 							getNextMigration();
 						});

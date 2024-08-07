@@ -17,7 +17,6 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class MembergroupIcon extends MigrationBase
@@ -48,16 +47,14 @@ class MembergroupIcon extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		if (Maintenance::getCurrentStart() === 0) {
-			$table = new \SMF\Maintenance\Database\Schema\v2_1\Membergroups();
-			$existing_structure = $table->getCurrentStructure();
+		$table = new \SMF\Maintenance\Database\Schema\v2_1\Membergroups();
+		$existing_structure = $table->getCurrentStructure();
 
-			if (isset($existing_structure['columns']['stars'])) {
-				foreach ($table->columns as $column) {
-					if ($column->name === 'icons') {
-						$table->alterColumn($column, 'stars');
-						break;
-					}
+		if (isset($existing_structure['columns']['stars'])) {
+			foreach ($table->columns as $column) {
+				if ($column->name === 'icons') {
+					$table->alterColumn($column, 'stars');
+					break;
 				}
 			}
 		}
@@ -72,6 +69,12 @@ class MembergroupIcon extends MigrationBase
 				'blank' => '',
 			],
 		);
+
+		if ($request === false) {
+			$db_error_message = Db::$db->error(Db::$db_connection);
+
+			throw new \Exception($$db_error_message ?? 'icons columns is invalid');
+		}
 
 		$toMove = [];
 		$toChange = [];

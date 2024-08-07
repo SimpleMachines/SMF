@@ -255,7 +255,7 @@ class CalendarUpdates extends MigrationBase
 		$this->query(
 			'',
 			'
-			DELETE FROM {$db_prefix}calendar_holidays WHERE title in ({array_string:titles})
+			DELETE FROM {db_prefix}calendar_holidays WHERE title in ({array_string:titles})
 		',
 			[
 				'titles' => array_unique(array_keys($this->holidays)),

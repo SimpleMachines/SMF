@@ -44,7 +44,7 @@ class Column
 	 * Size of the column.
 	 * Only applicable to some data types.
 	 */
-	public ?int $size;
+	public ?int $size = null;
 
 	/**
 	 * @var ?bool

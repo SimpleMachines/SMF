@@ -85,7 +85,7 @@ class FixDates extends MigrationBase
 		} elseif (Maintenance::getCurrentStart() < 2) {
 			$this->query(
 				'',
-				'UPDATE {$db_prefix}calendar
+				'UPDATE {db_prefix}calendar
 				SET end_date = DATE(CONCAT(1004, {literal:-}, MONTH(end_date), {literal:-}, DAY(end_date)))
 				WHERE YEAR(end_date) < 1004',
 				[],
@@ -105,7 +105,7 @@ class FixDates extends MigrationBase
 		} elseif (Maintenance::getCurrentStart() < 3) {
 			$this->query(
 				'',
-				'UPDATE {$db_prefix}calendar_holidays
+				'UPDATE {db_prefix}calendar_holidays
 				SET event_date = DATE(CONCAT(1004, {literal:-}, MONTH(event_date), {literal:-}, DAY(event_date)))
 				WHERE YEAR(event_date) < 1004',
 				[],
@@ -125,7 +125,7 @@ class FixDates extends MigrationBase
 		} elseif (Maintenance::getCurrentStart() < 4) {
 			$this->query(
 				'',
-				'UPDATE {$db_prefix}log_spider_stats
+				'UPDATE {db_prefix}log_spider_stats
 				SET stat_date = DATE(CONCAT(1004, {literal:-}, MONTH(stat_date), {literal:-}, DAY(stat_date)))
 				WHERE YEAR(stat_date) < 1004',
 				[],
@@ -145,7 +145,7 @@ class FixDates extends MigrationBase
 		} elseif (Maintenance::getCurrentStart() < 5) {
 			$this->query(
 				'',
-				'UPDATE {$db_prefix}members
+				'UPDATE {db_prefix}members
 				SET birthdate = DATE(CONCAT(IF(YEAR(birthdate) < 1004, 1004, YEAR(birthdate)), {literal:-}, IF(MONTH(birthdate) < 1, 1, MONTH(birthdate)), {literal:-}, IF(DAY(birthdate) < 1, 1, DAY(birthdate))))
 				WHERE YEAR(birthdate) < 1004 OR MONTH(birthdate) < 1 OR DAY(birthdate) < 1',
 				[],
@@ -157,7 +157,7 @@ class FixDates extends MigrationBase
 		if (Maintenance::getCurrentStart() < 6 && $is_pgsql) {
 			$this->query(
 				'',
-				'UPDATE {$db_prefix}members
+				'UPDATE {db_prefix}members
 				SET birthdate = concat_ws({literal:-}, CASE WHEN EXTRACT(YEAR FROM birthdate) < 1004 THEN 1004 END, CASE WHEN EXTRACT(MONTH FROM birthdate) < 1 THEN 1 ELSE EXTRACT(MONTH FROM birthdate) END, CASE WHEN EXTRACT(DAY FROM birthdate) < 1 THEN 1 ELSE EXTRACT(DAY FROM birthdate) END)::date
 				WHERE EXTRACT(YEAR FROM birthdate) < 1004 OR EXTRACT(MONTH FROM birthdate) < 1 OR EXTRACT(DAY FROM birthdate) < 1',
 				[],

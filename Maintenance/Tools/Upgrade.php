@@ -1114,6 +1114,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 			// Increase our current substep by 1.
 			Maintenance::setCurrentSubStep();
+			Maintenance::setCurrentStart(0);
 
 			// If this is JSON to keep it nice for the user do one table at a time anyway!
 			if (Maintenance::isJson()) {

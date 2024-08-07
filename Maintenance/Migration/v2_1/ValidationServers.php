@@ -97,7 +97,7 @@ class ValidationServers extends MigrationBase
 		// Ensure The Simple Machines Customize Site is https
 		$this->query(
 			'',
-			'UPDATE {$db_prefix}{raw:table_name}
+			'UPDATE {db_prefix}{raw:table_name}
 			SET url = {string:current_url}
 			WHERE url = {string:old_url}',
 			[
@@ -110,7 +110,7 @@ class ValidationServers extends MigrationBase
 		// Add validation to Simple Machines Customize Site
 		$this->query(
 			'',
-			'UPDATE {$db_prefix}{raw:table_name}
+			'UPDATE {db_prefix}{raw:table_name}
 			SET url = {string:validation_url}
 			WHERE url = {string:custom_site}',
 			[

@@ -52,7 +52,7 @@ class AdminInfoFiles extends MigrationBase
 	{
 		$this->query(
 			'',
-			'DELETE FROM {$db_prefix}admin_info_files
+			'DELETE FROM {db_prefix}admin_info_files
 			WHERE filename IN ({array_string:old_files})
 				AND path = {string:old_path}',
 			[
