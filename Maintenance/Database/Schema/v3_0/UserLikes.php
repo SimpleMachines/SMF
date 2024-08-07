@@ -48,25 +48,25 @@ class UserLikes extends Table
 
 		$this->columns = [
 		'id_member' => new Column(
-				name: :'id_member',
+				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				default: 0,
 			),
 		'content_type' => new Column(
-				name: :'content_type',
+				name: 'content_type',
 				type: 'char',
 				size: 6,
 				default: '',
 			),
 		'content_id' => new Column(
-				name: :'content_id',
+				name: 'content_id',
 				type: 'int',
 				unsigned: true,
 				default: 0,
 			),
 		'like_time' => new Column(
-				name: :'like_time',
+				name: 'like_time',
 				type: 'int',
 				unsigned: true,
 				not_null: true,
