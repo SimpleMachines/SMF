@@ -1551,7 +1551,7 @@ class Alert implements \ArrayAccess
 				WHERE id_alert IN ({array_int:alerts})
 					AND id_member = {int:member}',
 				[
-					'member' => $$memID,
+					'member' => $memID,
 					'alerts' => $deletes,
 				],
 			);
