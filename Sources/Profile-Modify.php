@@ -2309,8 +2309,10 @@ function alert_mark($memID, $toMark, $read = 0)
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}user_alerts
 		SET is_read = {int:read}
-		WHERE id_alert IN({array_int:toMark})',
+		WHERE id_alert IN({array_int:toMark})
+			AND id_member = {int:memID}',
 		array(
+			'memID' => $memID,
 			'read' => $read == 1 ? time() : 0,
 			'toMark' => $toMark,
 		)
@@ -2343,8 +2345,10 @@ function alert_delete($toDelete, $memID = false)
 
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}user_alerts
-		WHERE id_alert IN({array_int:toDelete})',
+		WHERE id_alert IN({array_int:toDelete})
+			AND id_member = {int:memID}',
 		array(
+			'memID' => $memID,
 			'toDelete' => $toDelete,
 		)
 	);
@@ -2523,8 +2527,10 @@ function alert_count($memID, $unread = false)
 	{
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}user_alerts
-			WHERE id_alert IN ({array_int:alerts})',
+			WHERE id_alert IN ({array_int:alerts})
+				AND id_member = {int:member}',
 			array(
+				'member' => $memID,
 				'alerts' => $deletes,
 			)
 		);
