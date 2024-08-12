@@ -26,7 +26,7 @@ You can email us using the standard security@ for our main website, (Simple Mach
 ## The process
 When we receive your report, it will be validated with our team.  This includes testing the vulnerabilities.  We don't require a Proof of Concept script/tool, but we do welcome them as they can improve the ability to validate the report and test against the patches.
 
-Once validated, our team will work on patching.  We offer to let the reports receive the beta versions of the patch file that will go out, however, more minor vulnerabilities tend to be fixed in public repositories.
+Once validated, our team will work on patching.  We offer to let the reporters receive the beta versions of the patch file that will go out; however, more minor vulnerabilities tend to be fixed in public repositories.
 
 Due to our small team size and because we are all volunteers, we do not have timelines we can give beyond estimates.  With a small team, it takes a bit of coordination to ensure we have enough members around to do the release process, have a backup person should something happen during the release process, and have additional members verify that everything is being updated on various pages.
 
