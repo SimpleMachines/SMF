@@ -981,8 +981,10 @@ class Alert implements \ArrayAccess
 			'',
 			'UPDATE {db_prefix}user_alerts
 			SET is_read = {int:read}
-			WHERE id_alert IN ({array_int:to_mark})',
+			WHERE id_alert IN ({array_int:to_mark})
+				AND id_member IN ({array_int:members})',
 			[
+				'members' => $members,
 				'read' => $time,
 				'to_mark' => $to_mark,
 			],
@@ -1097,8 +1099,10 @@ class Alert implements \ArrayAccess
 		Db::$db->query(
 			'',
 			'DELETE FROM {db_prefix}user_alerts
-			WHERE id_alert IN ({array_int:ids})',
+			WHERE id_alert IN ({array_int:ids})
+				AND id_member IN ({array_int:members}',
 			[
+				'members' => $members,
 				'ids' => $ids,
 			],
 		);
@@ -1544,8 +1548,10 @@ class Alert implements \ArrayAccess
 			Db::$db->query(
 				'',
 				'DELETE FROM {db_prefix}user_alerts
-				WHERE id_alert IN ({array_int:alerts})',
+				WHERE id_alert IN ({array_int:alerts})
+					AND id_member = {int:member}',
 				[
+					'member' => $memID,
 					'alerts' => $deletes,
 				],
 			);
