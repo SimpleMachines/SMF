@@ -327,12 +327,16 @@ function cleanRequest()
 
 				// Otherwise, we've got an IP!
 				$_SERVER['BAN_CHECK_IP'] = trim($ip);
+				$_SERVER['REMOTE_ADDR'] = trim($ip);
 				break;
 			}
 		}
 		// Otherwise just use the only one.
 		elseif (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER[$proxyIPheader]) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0)
+		{
 			$_SERVER['BAN_CHECK_IP'] = $_SERVER[$proxyIPheader];
+			$_SERVER['REMOTE_ADDR'] = $_SERVER[$proxyIPheader];
+		}
 		elseif (!isValidIPv6($_SERVER[$proxyIPheader]) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0)
 		{
 			$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '\1', $_SERVER[$proxyIPheader]);
