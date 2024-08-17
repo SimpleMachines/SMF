@@ -127,6 +127,7 @@ $txt['caching_information'] = 'SMF supports caching through the use of accelerat
 	<li>SQLite3</li>
 	<li>PostgreSQL</li>
 	<li>Zend Platform/Performance Suite (Not Zend Optimizer)</li>
+	<li>Redis</li>
 </ul>
 Caching will work best if you have PHP compiled with one of the above optimizers, or have memcached available. If you do not have any optimizer installed SMF will do file based caching.';
 $txt['detected_no_caching'] = 'SMF has not been able to detect a compatible accelerator on your server. File based caching can be used instead.';
@@ -151,6 +152,18 @@ $txt['cache_sqlite_settings'] = 'SQLite3 database caching settings';
 $txt['cache_memcached_settings'] = 'Memcache/Memcached settings';
 $txt['cache_memcached_servers'] = 'Memcache/Memcached servers';
 $txt['cache_memcached_servers_subtext'] = 'Example: 127.0.0.1:11211,127.0.0.2';
+$txt['cache_rediscache_settings'] = 'Redis settings';
+
+$txt['pooling_rediscache'] = 'Pooling';
+$txt['unixsocket_rediscache'] = 'Unixsocket Enable';
+$txt['unixsocketdata_rediscache'] = 'Unixsocket';
+$txt['url_rediscache'] = 'Url';
+$txt['port_rediscache'] = 'Port';
+$txt['timeout_rediscache'] = 'Timeout';
+$txt['auth_rediscache'] = 'Auth Enable';
+$txt['username_rediscache'] = 'Username';
+$txt['password_rediscache'] = 'Password';
+$txt['dbindex_rediscache'] = 'DB index';
 
 $txt['loadavg_warning'] = 'Please note: the settings below are to be edited with care. Setting any of them too low may render your forum <strong>unusable</strong>! The current load average is <strong>%01.2f</strong>';
 $txt['loadavg_enable'] = 'Enable load balancing by load averages';
