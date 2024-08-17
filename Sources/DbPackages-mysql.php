@@ -224,8 +224,11 @@ function smf_db_create_table($table_name, $columns, $indexes = array(), $paramet
 	}
 
 	$table_query .= ') ENGINE=' . $parameters['engine'];
-	if (!empty($db_character_set) && $db_character_set == 'utf8')
+	if (!empty($db_character_set) && $db_character_set == 'utf8' && !$smcFunc['db_mb4'])
 		$table_query .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+
+	if (!empty($db_character_set) && $db_character_set == 'utf8' && $smcFunc['db_mb4'])
+		$table_query .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci';
 
 	// Create the table!
 	$smcFunc['db_query']('', $table_query,
