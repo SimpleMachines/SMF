@@ -24,14 +24,11 @@ spl_autoload_register(function ($class) {
 	static $hook_value = '';
 
 	static $class_map = [
-		// Some special cases.
-		'ReCaptcha\\' => 'ReCaptcha/',
-		'MatthiasMullie\\Minify\\' => 'minify/src/',
-		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
-
 		// In general, the SMF namespace maps to $sourcedir.
 		'SMF\\' => '',
 	];
+
+	require_once __DIR__ . '/Libs/autoload.php';
 
 	// Ensure $sourcedir is set to something valid.
 	if (class_exists(Config::class, false) && isset(Config::$sourcedir)) {
