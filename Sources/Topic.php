@@ -1389,6 +1389,21 @@ class Topic implements \ArrayAccess
 		Attachment::remove($attachmentQuery, 'messages');
 
 		// Delete anything related to the topic.
+		// Do this first because we need the message IDs...
+		Db::$db->query(
+			'',
+			'DELETE FROM {db_prefix}user_reacts
+			WHERE content_type={string:msg}
+			AND content_id IN
+				(SELECT id_msg
+				FROM {db_prefix}messages
+				WHERE id_topic IN ({array_int:topics})
+				)',
+			[
+				'msg' => 'msg',
+				'topics' => $topics,
+			]
+		);
 		Db::$db->query(
 			'',
 			'DELETE FROM {db_prefix}messages
