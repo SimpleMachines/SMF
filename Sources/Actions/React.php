@@ -35,6 +35,7 @@ use SMF\Utils;
 class React implements ActionInterface
 {
 	use ActionTrait;
+	use ReactionTrait;
 
 	/*******************
 	 * Public properties
@@ -164,7 +165,7 @@ class React implements ActionInterface
 	];
 
 	/**
-	 * @var int
+	 * 	@var int
 	 *
 	 * The topic ID. Used for liking messages.
 	 */
@@ -189,10 +190,15 @@ class React implements ActionInterface
 
 	/**
 	 * @var int
-	 * 
+	 *
 	 * The ID of the selected reaction. Should match an entry in the reactions table.
 	 */
 	protected int $id_react = 0;
+
+	/** @var array
+	 *
+	 * An array of available reactions
+	 */
 
 	/****************
 	 * Public methods
@@ -276,6 +282,7 @@ class React implements ActionInterface
 		$this->content = (int) ($_GET['react'] ?? 0);
 		$this->js = isset($_GET['js']);
 		$this->extra = $_GET['extra'] ?? false;
+		$this->id_react = $_GET['id_react'] ?? 0;
 
 		// We do not want to output debug information here.
 		if ($this->js) {
@@ -305,6 +312,13 @@ class React implements ActionInterface
 
 		if ($this->type == '' || $this->content <= 0) {
 			$this->error = 'cannot_';
+
+			return;
+		}
+
+		// Is this a valid reaction ID?
+		if ($this->id_react != 0 && in_array($this->id_react, $this->getReactions()))	{
+			$this->error = 'invalid_reaction';
 
 			return;
 		}
@@ -367,7 +381,7 @@ class React implements ActionInterface
 			 *
 			 * See also issueReact() for further notes.
 			 */
-			$can_like = IntegrationHook::call('integrate_valid_reacts', [$this->type, $this->content, $this->subaction, $this->js, $this->extra]);
+			$can_react = IntegrationHook::call('integrate_valid_reacts', [$this->type, $this->content, $this->subaction, $this->js, $this->extra]);
 
 			$found = false;
 
@@ -400,8 +414,8 @@ class React implements ActionInterface
 			}
 		}
 
-		// Is the user able to like this?
-		// Viewing a list of likes doesn't require this permission.
+		// Is the user able to react to this?
+		// Viewing a list of reactions doesn't require this permission.
 		if ($this->subaction != 'view' && isset($this->valid_reacts['can_react']) && is_string($this->valid_reacts['can_react'])) {
 			$this->error = $this->valid_reacts['can_react'];
 

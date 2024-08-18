@@ -834,6 +834,7 @@ $txt['you_reactions_count'] = '{num, plural,
 	one {You and <a href="{url}"># other person</a> reacted to this.}
 	other {You and <a href="{url}"># other people</a> reacted to this.}
 }';
+$txt['invalid_reaction'] = 'Invalid reaction ID';
 
 $txt['report_to_mod'] = 'Report to moderator';
 $txt['report_profile'] = 'Report profile of {member_name}';
