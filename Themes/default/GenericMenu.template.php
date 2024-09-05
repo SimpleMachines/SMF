@@ -22,7 +22,7 @@ function template_generic_menu_dropdown_above()
 {
 	// Which menu are we rendering?
 	Utils::$context['cur_menu_id'] = isset(Utils::$context['cur_menu_id']) ? Utils::$context['cur_menu_id'] + 1 : 1;
-	$menu_context = &Utils::$context['menu_data_' . Utils::$context['cur_menu_id']];
+	$menu_context = Utils::$context['menu_data_' . Utils::$context['cur_menu_id']];
 	$menu_label = isset(Utils::$context['admin_menu_name']) ? Lang::$txt['admin_center'] : (isset(Utils::$context['moderation_menu_name']) ? Lang::$txt['moderation_center'] : '');
 
 	// Load the menu
@@ -56,8 +56,7 @@ function template_generic_menu_dropdown_above()
 	echo '
 				<div id="admin_content">';
 
-	// It's possible that some pages have their own tabs they wanna force...
-// 	if (!empty(Utils::$context['tabs']))
+	// It's possible that some pages have their own tabs they wanna show.
 	template_generic_menu_tabs($menu_context);
 }
 
@@ -75,7 +74,7 @@ function template_generic_menu_dropdown_below()
  *
  * @param array $menu_context An array of menu information
  */
-function template_generic_menu(&$menu_context, $menu_label)
+function template_generic_menu($menu_context, $menu_label)
 {
 	echo '
 				<ul class="dropmenu dropdown_menu_', Utils::$context['cur_menu_id'], '">';
@@ -99,11 +98,6 @@ function template_generic_menu(&$menu_context, $menu_label)
 							<li', !empty($area['subsections']) && empty($area['hide_subsections']) ? ' class="subsections"' : '', '>
 								<a class="', $area['icon_class'], !empty($area['selected']) ? ' chosen ' : '', '" href="', (isset($area['url']) ? $area['url'] : $menu_context['base_url'] . ';area=' . $i), $menu_context['extra_parameters'], '">', $area['icon'], $area['label'], !empty($area['amt']) ? ' <span class="amt">' . $area['amt'] . '</span>' : '', '</a>';
 
-			// Is this the current area, or just some area?
-			if (!empty($area['selected']) && empty(Utils::$context['tabs']))
-				Utils::$context['tabs'] = isset($area['subsections']) ? $area['subsections'] : array();
-
-			// Are there any subsections?
 			if (!empty($area['subsections']) && empty($area['hide_subsections']))
 			{
 				echo '
@@ -146,9 +140,9 @@ function template_generic_menu(&$menu_context, $menu_label)
  *
  * @param array $menu_context An array of menu context data
  */
-function template_generic_menu_tabs(&$menu_context)
+function template_generic_menu_tabs($menu_context)
 {
-	// Handy shortcut.
+	$tabs = Utils::$context['tabs'] ?? $menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'] ?? [];
 	$tab_context = $menu_context['tab_data'];
 
 	if (!empty($tab_context['title']))
@@ -158,9 +152,9 @@ function template_generic_menu_tabs(&$menu_context)
 						<h3 class="catbg">';
 
 		// Exactly how many tabs do we have?
-		if (!empty(Utils::$context['tabs']))
+		if (!empty($tabs))
 		{
-			foreach (Utils::$context['tabs'] as $id => $tab)
+			foreach ($tabs as $id => $tab)
 			{
 				// Can this not be accessed?
 				if (!empty($tab['disabled']))
@@ -169,47 +163,21 @@ function template_generic_menu_tabs(&$menu_context)
 					continue;
 				}
 
-				// Did this not even exist - or do we not have a label?
+				// Ensure that this tab exists.
 				if (!isset($tab_context['tabs'][$id]))
 					$tab_context['tabs'][$id] = array('label' => $tab['label']);
-				elseif (!isset($tab_context['tabs'][$id]['label']))
-					$tab_context['tabs'][$id]['label'] = $tab['label'];
 
-				// Has a custom URL defined in the main admin structure?
-				if (isset($tab['url']) && !isset($tab_context['tabs'][$id]['url']))
-					$tab_context['tabs'][$id]['url'] = $tab['url'];
-
-				// Any additional parameters for the url?
-				if (isset($tab['add_params']) && !isset($tab_context['tabs'][$id]['add_params']))
-					$tab_context['tabs'][$id]['add_params'] = $tab['add_params'];
+				$tab_context['tabs'][$id] = array_replace($tab_context['tabs'][$id], $tab);
 
 				// Has it been deemed selected?
-				if (!empty($tab['is_selected']))
-					$tab_context['tabs'][$id]['is_selected'] = true;
-
-				// Does it have its own help?
-				if (!empty($tab['help']))
-					$tab_context['tabs'][$id]['help'] = $tab['help'];
-
-				// Is this the last one?
-				if (!empty($tab['is_last']) && !isset($tab_context['override_last']))
-					$tab_context['tabs'][$id]['is_last'] = true;
-			}
-
-			// Find the selected tab
-			foreach ($tab_context['tabs'] as $sa => $tab)
-			{
-				if (!empty($tab['is_selected']) || (isset($menu_context['current_subsection']) && $menu_context['current_subsection'] == $sa))
+				if (!empty($tab['is_selected']) || (!empty($tab_context['tabs'][$id]['selected']) && empty($selected_tab)))
 				{
-					$selected_tab = $tab;
-					$tab_context['tabs'][$sa]['is_selected'] = true;
+					$tab_context['tabs'][$id]['is_selected'] = true;
+					$selected_tab = $tab_context['tabs'][$id];
 				}
 			}
 		}
 
-		// Show an icon and/or a help item?
-		if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class']) || !empty($selected_tab['icon']) || !empty($tab_context['icon']) || !empty($selected_tab['help']) || !empty($tab_context['help']))
-		{
 			if (!empty($selected_tab['icon_class']) || !empty($tab_context['icon_class']))
 				echo '
 								<span class="', !empty($selected_tab['icon_class']) ? $selected_tab['icon_class'] : $tab_context['icon_class'], ' icon"></span>';
@@ -221,13 +189,8 @@ function template_generic_menu_tabs(&$menu_context)
 				echo '
 								<a href="', Config::$scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>';
 
-			echo $tab_context['title'];
-		}
-		else
 			echo '
-								', $tab_context['title'];
-
-		echo '
+								', $tab_context['title'], '
 						</h3>';
 
 		// The function is in Admin.template.php, but since this template is used elsewhere too better check if the function is available
@@ -246,7 +209,7 @@ function template_generic_menu_tabs(&$menu_context)
 					</p>';
 
 	// Print out all the items in this tab (if any).
-	if (!empty(Utils::$context['tabs']))
+	if (!empty($tabs))
 	{
 		// The admin tabs.
 		echo '
