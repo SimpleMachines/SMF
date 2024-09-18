@@ -19,8 +19,6 @@ use SMF\Utils;
 
 /**
  * Represents a full, two-way diff between two strings.
- *
- * @todo Add ability to use diffs in the package manager.
  */
 class FullDiff extends Diff
 {
@@ -550,6 +548,9 @@ class FullDiff extends Diff
 	 * header line immediately followed by the corresponding "to" header line.
 	 * This information is used to indicate the correct file operations to
 	 * perform when applying the diff to files.
+	 *
+	 * @see \SMF\PackageManager\PackageUtils::parseDiff() for more information
+	 *    on how to generate raw diffs for use in SMF's package manager.
 	 *
 	 * @param string $raw_diff The raw diff.
 	 * @throws \ValueError if $raw_diff does not contain valid raw diff data.
