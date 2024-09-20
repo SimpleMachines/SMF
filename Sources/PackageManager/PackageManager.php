@@ -1430,7 +1430,7 @@ class PackageManager
 			return;
 		}
 
-		$min_version = preg_replace('/^(\d+\.\d+).*/', '$1.dev.0', SMF_VERSION);
+		$lowest_found_version = $min_version = preg_replace('/^(\d+\.\d+).*/', '$1', SMF_VERSION);
 
 		$request = Db::$db->query(
 			'',
@@ -1446,15 +1446,15 @@ class PackageManager
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$row['smf_version'] = strtr(strtolower($row['smf_version']), ' ', '.');
 
-			if (version_compare($row['smf_version'], $min_version, '<')) {
-				break;
+			if (version_compare($row['smf_version'], $lowest_found_version, '<')) {
+				$lowest_found_version = $row['smf_version'];
 			}
 		}
 
 		Db::$db->free_result($request);
 
 		Config::updateSettingsFile([
-			'backward_compatibility' => version_compare($row['smf_version'], $min_version, '<'),
+			'backward_compatibility' => (int) version_compare($lowest_found_version, $min_version, '<'),
 		]);
 	}
 
