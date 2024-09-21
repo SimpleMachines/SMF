@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Diff\EditDiff;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -250,9 +251,9 @@ class Registration implements ActionInterface
 			}
 		}
 
-		$agreement_lang = !empty(Utils::$context['current_agreement']) ? Utils::$context['current_agreement'] : 'en_US';
+		Utils::$context['current_agreement'] = !empty(Utils::$context['current_agreement']) ? Utils::$context['current_agreement'] : 'en_US';
 
-		$agreement_file = Config::$languagesdir . '/' . $agreement_lang . '/agreement.txt';
+		$agreement_file = Config::$languagesdir . '/' . Utils::$context['current_agreement'] . '/agreement.txt';
 
 		Utils::$context['agreement'] = file_exists($agreement_file) ? str_replace("\r", '', file_get_contents($agreement_file)) : '';
 
@@ -270,7 +271,17 @@ class Registration implements ActionInterface
 			if (Config::safeFileWrite($agreement_file, $_POST['agreement'], $backup_file)) {
 				Utils::$context['saved_successful'] = true;
 
-				$agreement_settings['agreement_updated_' . $agreement_lang] = time();
+				$agreement_settings['agreement_updated_' . Utils::$context['current_agreement']] = time();
+
+				// Record the diff showing what changed.
+				$diff = new EditDiff($_POST['agreement'], Utils::$context['agreement'], 'now', User::$me->id, User::$me->name, '');
+
+				$edit_history = (array) Utils::jsonDecode(Config::$modSettings['agreement_history_' . Utils::$context['current_agreement']] ?? '[]', true);
+				usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
+
+				array_unshift($edit_history, $diff->export());
+
+				$agreement_settings['agreement_history_' . Utils::$context['current_agreement']] = json_encode($edit_history);
 
 				// Writing it counts as agreeing to it, right?
 				Db::$db->insert(
@@ -293,7 +304,39 @@ class Registration implements ActionInterface
 			}
 		}
 
-		Utils::$context['agreement_info'] = Lang::getTxt('admin_agreement_info', ['datetime' => empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? Lang::getTxt('never', file: 'General') : Time::create('@' . Config::$modSettings['agreement_updated_' . $agreement_lang])->format()]);
+		Utils::$context['agreement_info'] = Lang::getTxt(
+			'admin_agreement_info',
+			[
+				'datetime' =>
+					empty(Config::$modSettings['agreement_updated_' . Utils::$context['current_agreement']])
+					? Lang::getTxt('never', file: 'General')
+					: Time::create('@' . Config::$modSettings['agreement_updated_' . Utils::$context['current_agreement']])->format(),
+			],
+			file: 'Admin',
+		);
+
+		if (!empty(Config::$modSettings['agreement_history_' . Utils::$context['current_agreement']])) {
+			$edit_history = (array) Utils::jsonDecode(Config::$modSettings['agreement_history_' . Utils::$context['current_agreement']] ?? '[]', true);
+			usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
+
+			foreach ($edit_history as $diff_data) {
+				$diff = new EditDiff();
+
+				try {
+					$diff->import($diff_data);
+				} catch (\Throwable $e) {
+					break;
+				}
+
+				Utils::$context['agreement_history'][$diff->label1] = Lang::getTxt(
+					'edit_history_linktext',
+					[
+						'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+						'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown') . ')' : $diff->name,
+					],
+				);
+			}
+		}
 
 		Utils::$context['agreement'] = Utils::htmlspecialchars(Utils::$context['agreement']);
 
@@ -333,23 +376,30 @@ class Registration implements ActionInterface
 		Utils::$context['privacy_policy'] = empty(Config::$modSettings['policy_' . Utils::$context['current_policy_lang']]) ? '' : Config::$modSettings['policy_' . Utils::$context['current_policy_lang']];
 
 		if (isset($_POST['policy'])) {
+			$_POST['policy'] = Utils::normalizeSpaces(Utils::normalize($_POST['policy']));
+		}
+
+		if (isset($_POST['policy']) && $_POST['policy'] != Utils::$context['privacy_policy']) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-regp');
-
-			// Make sure there are no creepy-crawlies in it.
-			$policy_text = Utils::normalizeSpaces(Utils::htmlspecialchars($_POST['policy']));
 
 			$policy_updated_lang = Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']] ?? 0;
 
 			$policy_settings = [
-				'policy_' . Utils::$context['current_policy_lang'] => $policy_text,
+				'policy_' . Utils::$context['current_policy_lang'] => $_POST['policy'],
 			];
 
-			if (isset(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']], Config::$modSettings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]])) {
-				$policy_settings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]] = Utils::$context['privacy_policy'];
-			}
-
 			$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = time();
+
+			// Record the diff showing what changed.
+			$diff = new EditDiff($_POST['policy'], Utils::$context['privacy_policy'], 'now', User::$me->id, User::$me->name, '');
+
+			$edit_history = (array) Utils::jsonDecode(Config::$modSettings['policy_history_' . Utils::$context['current_policy_lang']] ?? '[]', true);
+			usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
+
+			array_unshift($edit_history, $diff->export());
+
+			$policy_settings['policy_history_' . Utils::$context['current_policy_lang']] = json_encode($edit_history);
 
 			// Writing it counts as agreeing to it, right?
 			Db::$db->insert(
@@ -364,13 +414,11 @@ class Registration implements ActionInterface
 
 			Logging::logAction('policy_accepted', ['applicator' => User::$me->id], 'user');
 
-			if (Utils::$context['privacy_policy'] !== $policy_text) {
-				Utils::$context['saved_successful'] = true;
-			}
-
 			Config::updateModSettings($policy_settings);
 
-			Utils::$context['privacy_policy'] = $policy_text;
+			Utils::$context['privacy_policy'] = $_POST['policy'];
+
+			Utils::$context['saved_successful'] = true;
 		}
 
 		Utils::$context['privacy_policy_info'] = Lang::getTxt(
@@ -380,6 +428,30 @@ class Registration implements ActionInterface
 			],
 			file: 'Admin',
 		);
+
+		if (!empty(Config::$modSettings['policy_history_' . Utils::$context['current_policy_lang']])) {
+			$edit_history = (array) Utils::jsonDecode(Config::$modSettings['policy_history_' . Utils::$context['current_policy_lang']] ?? '[]', true);
+			usort($edit_history, fn($a, $b) => $b[0] <=> $a[0]);
+
+			foreach ($edit_history as $diff_data) {
+				$diff = new EditDiff();
+
+				try {
+					$diff->import($diff_data);
+				} catch (\Throwable $e) {
+					break;
+				}
+
+				Utils::$context['privacy_policy_history'][$diff->label1] = Lang::getTxt(
+					'edit_history_linktext',
+					[
+						'time' => (new Time($diff->time1))->setTimezone(User::getTimezone())->format(),
+						'member' => $diff->name === '' ? '(' . Lang::getTxt('unknown', file: 'General') . ')' : $diff->name,
+					],
+					file: 'General',
+				);
+			}
+		}
 
 		Utils::$context['sub_template'] = 'edit_privacy_policy';
 		Utils::$context['page_title'] = Lang::getTxt('privacy_policy', file: 'General');

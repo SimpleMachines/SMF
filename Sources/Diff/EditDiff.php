@@ -32,7 +32,6 @@ namespace SMF\Diff;
  *       to include the crc32c is to detect and protect against cases where the
  *       text was changed by external processes (e.g. the admin using SQL to
  *       alter message content).
- * @todo Use the same approach to record the edit history of the privacy policy.
  */
 class EditDiff extends Diff
 {
