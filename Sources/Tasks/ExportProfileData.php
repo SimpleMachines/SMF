@@ -1678,25 +1678,9 @@ class ExportProfileData extends BackgroundTask
 		else {
 			if (!empty(Config::$modSettings['minimize_files']) && (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS'))) {
 				// Include, not require, because minimization is nice to have but not vital here.
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$vendordir, 'minify', 'src', 'Exception.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$vendordir, 'minify', 'src', 'Exceptions', 'BasicException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$vendordir, 'minify', 'src', 'Exceptions', 'FileImportException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$vendordir, 'minify', 'src', 'Exceptions', 'IOException.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$vendordir, 'minify', 'src', 'Minify.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$vendordir, 'minify', 'path-converter', 'src', 'Converter.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$vendordir, 'minify', 'src', 'CSS.php']);
-
-				include_once implode(DIRECTORY_SEPARATOR, [Config::$vendordir, 'minify', 'src', 'JS.php']);
-
-				if (!class_exists('MatthiasMullie\\Minify\\CSS') || !class_exists('MatthiasMullie\\Minify\\JS')) {
-					Config::$modSettings['minimize_files'] = false;
-				}
+				include Config::$vendordir . '/autoload.php';
+			} else {
+				Config::$modSettings['minimize_files'] = false;
 			}
 		}
 
