@@ -1526,7 +1526,6 @@ class ACP implements ActionInterface, Routable
 		);
 
 		$ignore_sources = [
-			Config::$vendordir . '/*',
 			Config::$sourcedir . '/Tasks/*',
 		];
 
