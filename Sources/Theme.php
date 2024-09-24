@@ -200,7 +200,7 @@ class Theme
 			}
 			// The theme is the forum's default.
 			else {
-				$id = Config::$modSettings['theme_guests'] ?? 1;
+				$id = (int) Config::$modSettings['theme_guests'] ?? 1;
 			}
 
 			// Sometimes the user can choose their own theme.
@@ -228,7 +228,7 @@ class Theme
 				$themes = explode(',', Config::$modSettings['enableThemes']);
 
 				if (!in_array($id, $themes)) {
-					$id = Config::$modSettings['theme_guests'];
+					$id = (int) Config::$modSettings['theme_guests'];
 				} else {
 					$id = (int) $id;
 				}
