@@ -1523,7 +1523,6 @@ class ACP implements ActionInterface
 		);
 
 		$ignore_sources = [
-			Config::$vendordir . '/*',
 			Config::$sourcedir . '/Tasks/*',
 		];
 
