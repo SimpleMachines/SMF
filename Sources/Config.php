@@ -1697,6 +1697,14 @@ class Config
 
 					if (!empty($setting_def['raw_default']) && $setting_def['default'] !== '') {
 						$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote($setting_def['default'], '~'));
+
+						if (str_contains($setting_def['default'], 'dirname(__FILE__)')) {
+							$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('dirname(__FILE__)', '__DIR__', $setting_def['default']), '~'));
+						}
+
+						if (str_contains($setting_def['default'], '__DIR__')) {
+							$var_pattern[] = preg_replace('/\s+/', '\s+', preg_quote(str_replace('__DIR__', 'dirname(__FILE__)', $setting_def['default']), '~'));
+						}
 					}
 
 					$var_pattern = array_unique($var_pattern);
