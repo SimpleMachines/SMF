@@ -2089,7 +2089,7 @@ class BBCodeParser
 
 		// Remove line breaks inserted before & after the actual code in php < 8.3
 		$buffer = preg_replace('/^(<span\s[^>]*>)<br \/>/', '$1', $buffer);
-		$buffer = preg_replace('/<br \/>(<span\s[^>]*>)<br \/>$/', '$1', $buffer);
+		$buffer = preg_replace('/<br \/>(<\/span[^>]*>)<br \/>$/', '$1', $buffer);
 
 		return strtr($buffer, ['\'' => '&#039;']);
 	}
