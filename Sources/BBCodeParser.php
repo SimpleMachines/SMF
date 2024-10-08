@@ -2077,7 +2077,7 @@ class BBCodeParser
 
 		$oldlevel = error_reporting(0);
 
-		$buffer = str_replace(["\n", "\r"], '', @highlight_string($code, true));
+		$buffer = str_replace(["\n", "\r"], ['<br />', ''], @highlight_string($code, true));
 
 		error_reporting($oldlevel);
 
