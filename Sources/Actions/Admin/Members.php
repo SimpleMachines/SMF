@@ -1524,11 +1524,11 @@ class Members implements ActionInterface
 			];
 
 			if (in_array($row['member_ip'], $ips)) {
-				$duplicate_members[$row['member_ip']][] = $member_context;
+				$duplicate_members[$row['member_ip']->__toString()][] = $member_context;
 			}
 
 			if ($row['member_ip'] != $row['member_ip2'] && in_array($row['member_ip2'], $ips)) {
-				$duplicate_members[$row['member_ip2']][] = $member_context;
+			    $duplicate_members[$row['member_ip2']->__toString()][] = $member_context;
 			}
 		}
 		Db::$db->free_result($request);
@@ -1561,7 +1561,7 @@ class Members implements ActionInterface
 
 			$had_ips[$row['poster_ip']][] = $row['id_member'];
 
-			$duplicate_members[$row['poster_ip']][] = [
+			$duplicate_members[$row['poster_ip']->__toString()][] = [
 				'id' => $row['id_member'],
 				'name' => $row['member_name'],
 				'email' => $row['email_address'],
@@ -1575,12 +1575,12 @@ class Members implements ActionInterface
 		// Now we have all the duplicate members, stick them with their respective member in the list.
 		if (!empty($duplicate_members)) {
 			foreach ($members as $key => $member) {
-				if (isset($duplicate_members[$member['member_ip']])) {
-					$members[$key]['duplicate_members'] = $duplicate_members[$member['member_ip']];
+				if (isset($duplicate_members[$member['member_ip']->__toString()])) {
+					$members[$key]['duplicate_members'] = $duplicate_members[$member['member_ip']->__toString()];
 				}
 
-				if ($member['member_ip'] != $member['member_ip2'] && isset($duplicate_members[$member['member_ip2']])) {
-					$members[$key]['duplicate_members'] = array_merge($member['duplicate_members'], $duplicate_members[$member['member_ip2']]);
+				if ($member['member_ip'] != $member['member_ip2'] && isset($duplicate_members[$member['member_ip2']->__toString()])) {
+					$members[$key]['duplicate_members'] = array_merge($member['duplicate_members'], $duplicate_members[$member['member_ip2']->__toString()]);
 				}
 
 				// Check we don't have lots of the same member.
