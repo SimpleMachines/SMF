@@ -2077,7 +2077,7 @@ class BBCodeParser
 
 		$oldlevel = error_reporting(0);
 
-		$buffer = str_replace(["\n", "\r"], '', @highlight_string($code, true));
+		$buffer = str_replace(["\n", "\r"], ['<br />', ''], @highlight_string($code, true));
 
 		error_reporting($oldlevel);
 
@@ -2086,6 +2086,10 @@ class BBCodeParser
 
 		// PHP 8.3 changed the returned HTML.
 		$buffer = preg_replace('/^(<pre>)?<code[^>]*>|<\/code>(<\/pre>)?$/', '', $buffer);
+
+		// Remove line breaks inserted before & after the actual code in php < 8.3
+		$buffer = preg_replace('/^(<span\s[^>]*>)<br \/>/', '$1', $buffer);
+		$buffer = preg_replace('/<br \/>(<\/span[^>]*>)<br \/>$/', '$1', $buffer);
 
 		return strtr($buffer, ['\'' => '&#039;']);
 	}
