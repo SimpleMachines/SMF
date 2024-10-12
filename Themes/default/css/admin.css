@@ -80,24 +80,25 @@ legend {
 	line-height: 1.7em;
 }
 
-/* Cleaned this up a bit for less clutter.
-/* Admin and moderation could generally do with a clean up everywhere.
+/* The update warning. */
+#update_section {
+	margin: 6px 0;
+}
 /* Live news from smorg and support information. */
-#live_news, #support_info {
-	width: 70%;
-}
-#support_info {
-	width: 30%;
-	padding-left: 6px;
-}
 #admin_main_section {
+	display: grid;
+	gap: .25em .5em;
+	grid-template-columns: 1fr 30%;
 	overflow: auto;
+
+	@media screen and (max-width: 991px) {
+		grid-template-columns: 1fr;
+	}
 }
-#admin_main_section .windowbg {
-	padding: 6px 0;
-	border-radius: 0;
-	height: 12em;
-	overflow: auto;
+#live_news, #support_info {
+	.windowbg {
+		height: 12.5em;
+	}
 }
 #smfAnnouncements dt,
 #smfAnnouncements dd {
@@ -109,48 +110,59 @@ legend {
 	padding: 4px 6px 2px 6px;
 }
 #smfAnnouncements dt a {
-	font-weight: bold;
 	display: block;
+	font-weight: bold;
 }
 #smfAnnouncements dd {
 	margin: 0;
 	padding: 6px 12px;
 }
-
-fieldset.admin_group {
-	display: grid;
-	gap: 1em;
-	grid: auto / repeat(auto-fill, minmax(8em, 1fr));
-	padding-block: 0.75em;
-	padding-inline: 0.5em;
-}
-fieldset.admin_group legend {
-	background: var(--window-bg);
-	border-color: var(--window-border-color);
-	border-radius: var(--window-border-radius);
-	border-style: var(--window-border-style);
-	border-width: var(--window-border-width);
-	box-shadow: var(--window-box-shadow);
-	padding: 1px 5px;
-}
-fieldset.admin_group a {
-	align-items: center;
+.admin_areas {
+	--window-padding-block: 0;
+	--window-padding-inline: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 0.25em;
-	justify-content: flex-start;
+	gap: .75em;
+	grid-column: 1/-1;
+	margin-block: 0 .5em;
+	padding-block: 0.75em;
+	padding-inline: .5em;
+}
+.admin_areas .section {
+	border: none;
+	display: grid;
+	gap: .75em 1em;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	margin: -.75em 0 0;
+	padding: .25em 0;
+}
+.admin_areas a {
+	align-items: center;
+	border-radius: .2em;
+	color: var(--body-link-color);
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: auto 1fr;
+	gap: .25em;
+	justify-content: center;
 	text-align: center;
+	text-decoration: none;
 }
-fieldset.admin_group > :not(span) {
-	font-size: 0.9em;
+.admin_areas a:is(:hover, :focus, :focus-visible) > :not(.text-label) {
+	background: var(--window-bg_hover);
 }
-fieldset.admin_group .inactive {
+.admin_areas a > .text-label {
+	align-self: flex-start;
+	font-size: .75em;
+}
+.admin_areas a.inactive > :not(.text-label) {
 	opacity: 0.4;
 }
-
-/* The update warning. */
-#update_section {
-	margin: 6px 0;
+.admin_areas a > :not(.text-label) {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	min-height: 100px;
 }
 
 /* The icons. */
@@ -159,107 +171,6 @@ fieldset.admin_group .inactive {
 	display: block;
 	width: 32px;
 	height: 32px;
-}
-.large_admin_menu_icon::before {
-	background: url(../images/icons/admin_sprite.png) no-repeat -5px -47px;
-	margin: 0 auto;
-	display: block;
-	content: '';
-	width: 32px;
-	height: 32px;
-}
-.large_admin_menu_icon.attachment::before {
-	background-position: -5px -5px;
-}
-.large_admin_menu_icon.ban::before {
-	background-position: -47px -5px;
-}
-.large_admin_menu_icon.boards::before {
-	background-position: -89px -5px;
-}
-.large_admin_menu_icon.calendar::before {
-	background-position: -131px -5px;
-}
-.large_admin_menu_icon.current_theme::before {
-	background-position: -173px -5px;
-}
-.large_admin_menu_icon.default::before {
-	background-position: -5px -47px;
-}
-.large_admin_menu_icon.engines::before {
-	background-position: -47px -47px;
-}
-.large_admin_menu_icon.exit::before {
-	background-position: -89px -47px;
-}
-.large_admin_menu_icon.features::before {
-	background-position: -131px -47px;
-}
-.large_admin_menu_icon.languages::before {
-	background-position: -173px -47px;
-}
-.large_admin_menu_icon.logs::before {
-	background-position: -5px -89px;
-}
-.large_admin_menu_icon.mail::before {
-	background-position: -47px -89px;
-}
-.large_admin_menu_icon.maintain::before {
-	background-position: -89px -89px;
-}
-.large_admin_menu_icon.membergroups::before {
-	background-position: -131px -89px;
-}
-.large_admin_menu_icon.members::before {
-	background-position: -173px -89px;
-}
-.large_admin_menu_icon.modifications::before {
-	background-position: -5px -131px;
-}
-.large_admin_menu_icon.news::before {
-	background-position: -47px -131px;
-}
-.large_admin_menu_icon.packages::before {
-	background-position: -89px -131px;
-}
-.large_admin_menu_icon.paid::before {
-	background-position: -131px -131px;
-}
-.large_admin_menu_icon.permissions::before {
-	background-position: -173px -131px;
-}
-.large_admin_menu_icon.posts::before {
-	background-position: -5px -173px;
-}
-.large_admin_menu_icon.regcenter::before {
-	background-position: -47px -173px;
-}
-.large_admin_menu_icon.reports::before {
-	background-position: -89px -173px;
-}
-.large_admin_menu_icon.scheduled::before {
-	background-position: -131px -173px;
-}
-.large_admin_menu_icon.search::before {
-	background-position: -173px -173px;
-}
-.large_admin_menu_icon.security::before {
-	background-position: -215px -5px;
-}
-.large_admin_menu_icon.server::before {
-	background-position: -215px -47px;
-}
-.large_admin_menu_icon.smiley::before {
-	background-position: -215px -89px;
-}
-.large_admin_menu_icon.support::before {
-	background-position: -215px -131px;
-}
-.large_admin_menu_icon.themes::before {
-	background-position: -215px -173px;
-}
-.large_admin_menu_icon.warning::before {
-	background-position: -5px -215px;
 }
 
 /* Styles for the support and credits page.
@@ -356,11 +267,6 @@ pre.file_content {
 /* Styles for the manage boards section. */
 #manage_boards {
 	overflow: auto;
-}
-.roundframe .windowbg {
-	border: 0;
-	padding: 0;
-	background: none;
 }
 #manage_boards li.windowbg {
 	--window-border-radius: 0;
@@ -564,14 +470,6 @@ ul.moderation_notes li {
 #report_buttons {
 	min-height: 2.4em;
 	padding: 3px 0;
-}
-#report_filter fieldset {
-	display: flex;
-	flex-flow: wrap;
-	gap: 0 1em;
-}
-.report_result {
-	margin: 1ex 0 !important;
 }
 #support_credits .sub_bar {
 	padding: 6px 0px 5px 0px;
