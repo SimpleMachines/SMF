@@ -1,44 +1,38 @@
-/**
- * @package Theme Customs
- * @author Diego Andrés <diegoandres_cortes@outlook.com>
- * @copyright Copyright (c) 2023, SMF Tricks
- * @license MIT
- */
-
-/* Replace SMF Icons */
+/* SMF Icons */
 .main_icons {
 	display: inline-flex;
-}
-.main_icons::before,
-.large_admin_menu_icon::before {
 	font-family: "Font Awesome 6 Free";
-	display: inline-block;
-    font-style: normal;
+	font-size: 1em;
+	-webkit-font-smoothing: antialiased;
+	font-style: normal;
     font-variant: normal;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
 	font-weight: 900;
+	text-rendering: auto;
+	width: auto;
+}
+.main_icons::before {
+	display: inline-block;
 	background: none !important;
 	width: auto;
 	height: auto;
-	font-size: 1em;
 	margin: 0;
 	vertical-align: top;
 }
-.main_icons.medium_icon::before {
-	font-size: 1.25em;
+.main_icons.medium {
+	font-size: 1.5em;
+}
+.main_icons.large {
+	font-size: 2.5em;
+}
+.main_icons.regular {
+	font-weight: 400;
 }
 /* Menu Icons Adjustment */
 .dropmenu .main_icons::before, #profile_menu .main_icons::before, .dropmenu img {
 	margin: 0;
 	vertical-align: middle;
 }
-/* Bigger Icons */
-.large_admin_menu_icon::before {
-	font-size: 2.5em;
-	width: auto !important;
-	height: auto !important;
-}
+
 /* Remove height and width? */
 h3.profile_hd::before,
 .main_icons.profile_hd::before {
@@ -66,12 +60,11 @@ h3.profile_hd::before,
 /* Check */
 .main_icons.check::before,
 .main_icons.valid::before,
-.fa-solve_topic::before {
-	content: "\f00c";
+.main_icons.solve::before {
+	content: "\f058";
 }
 /* Invalid */
 .main_icons.invalid::before,
-.fa-warn_button::before,
 .main_icons.warn_button::before {
 	content: "\f071";
 }
@@ -100,13 +93,11 @@ h3.profile_hd::before,
 /* Boards */
 .main_icons.boards::before,
 .large_admin_menu_icon.boards::before,
-.fa-forum::before,
 .main_icons.menu_tpforum::before {
 	content: "\f07c";
 }
 /* General */
-.main_icons.general::before,
-.fa-forum_stats::before  {
+.main_icons.general::before {
 	content: "\f200";
 }
 /* Features */
@@ -114,18 +105,15 @@ h3.profile_hd::before,
 	content: "\f03a";
 }
 /* Security */
-.main_icons.security::before,
-.large_admin_menu_icon.security::before {
+.main_icons.security::before {
 	content: "\f544";
 }
 /* Posters */
 .main_icons.posters::before {
 	content: "\f091";
 }
-/* Replies */
-/* Im On */
-.main_icons.replies::before,
-.main_icons.topics_replies::before {
+/* Comment */
+.main_icons.comment::before {
 	content: "\f4ad";
 }
 /* History */
@@ -137,8 +125,7 @@ h3.profile_hd::before,
 	content: "\f253";
 }
 /* Scheduled */
-.main_icons.scheduled::before,
-.large_admin_menu_icon.scheduled::before {
+.main_icons.scheduled::before {
 	content: "\f017";
 }
 /* Last Post */
@@ -151,8 +138,6 @@ h3.profile_hd::before,
 }
 /* Membergroups */
 .main_icons.membergroups::before,
-.large_admin_menu_icon.membergroups::before,
-.fa-team::before,
 .main_icons.team::before {
 	content: "\f509";
 }
@@ -190,8 +175,7 @@ h3.profile_hd::before,
 	content: "\f35a";
 }
 /* Mail */
-.main_icons.mail::before,
-.large_admin_menu_icon.mail::before {
+.main_icons.mail::before {
 	content: "\f0e0";
 }
 /* Mail New */
@@ -221,27 +205,23 @@ h3.profile_hd::before,
 	content: "\f067";
 }
 /* Warning */
-.main_icons.warning::before,
-.large_admin_menu_icon.warning::before {
+.main_icons.warning::before {
 	content: "\f637";
 }
 /* Themes */
 .main_icons.themes::before,
-.fa-features::before,
-.large_admin_menu_icon.themes::before {
+.main_icons.features::before {
 	content: "\f5fd";
 }
 /* Support */
-.main_icons.support::before,
-.large_admin_menu_icon.support::before {
+.main_icons.support::before {
 	content: "\f1cd";
 }
 /* Likes */
 .main_icons.liked::before,
 .main_icons.liked_users::before,
 .main_icons.liked_messages::before,
-.main_icons.like::before,
-.fa-like::before {
+.main_icons.like::before {
 	content: "\f164";
 }
 /* Unlike */
@@ -251,12 +231,12 @@ h3.profile_hd::before,
 	content: "\f165";
 }
 /* Current Theme */
-.main_icons.current_theme::before,
-.large_admin_menu_icon.current_theme::before {
+.main_icons.current_theme::before {
 	content: "\f53f";
 }
 /* Stats */
-.main_icons.stats::before {
+.main_icons.stats::before,
+.main_icons.forum_stats::before {
 	content: "\f080";
 }
 /* Right Arrow */
@@ -273,32 +253,26 @@ h3.profile_hd::before,
 	content: "\f118";
 }
 /* Server */
-.main_icons.server::before,
-.large_admin_menu_icon.server::before {
+.main_icons.server::before {
 	content: "\f233";
 }
 /* Ban */
-.main_icons.ban::before,
-.large_admin_menu_icon.ban::before {
+.main_icons.ban::before {
 	content: "\f05e";
 }
 /* Ignore */
-.fa-frenemy::before,
-.fa-ignore::before,
 .main_icons.ignore::before,
 .main_icons.frenemy::before,
 .main_icons.disable::before {
 	content: "\f506";
 }
 /* Posts */
-.main_icons.posts::before,
-.large_admin_menu_icon.posts::before {
+.main_icons.posts::before {
 	content: "\f0c5";
 }
 /* Sort */
-.main_icons.sort_down::before,
-.main_icons.sort_up::before {
-	margin: 0 8px;
+.main_icons.sort::before {
+	content: "\f0dc";
 }
 /* Sort Down */
 .main_icons.sort_down::before {
@@ -325,19 +299,15 @@ h3.profile_hd::before,
 	content: "\f127";
 }
 /* Permissions */
-.main_icons.permissions::before,
-.large_admin_menu_icon.permissions::before {
+.main_icons.permissions::before {
 	content: "\f084";
 }
 /* Paid */
-.main_icons.paid::before,
-.large_admin_menu_icon.paid::before,
-.fa-paid::before {
+.main_icons.paid::before {
 	content: "\f155";
 }
 /* Packages */
-.main_icons.packages::before,
-.large_admin_menu_icon.packages::before {
+.main_icons.packages::before {
 	content: "\f466";
 }
 /* Filter */
@@ -349,13 +319,11 @@ h3.profile_hd::before,
 	content: "\f362";
 }
 /* Reports */
-.main_icons.reports::before,
-.large_admin_menu_icon.reports::before {
+.main_icons.reports::before {
 	content: "\f573";
 }
 /* News */
-.main_icons.news::before,
-.large_admin_menu_icon.news::before  {
+.main_icons.news::before  {
 	content: "\f1ea";
 }
 /* Hide Popup */
@@ -367,13 +335,11 @@ h3.profile_hd::before,
 	content: "\f55a";
 }
 /* Modifications */
-.main_icons.modifications::before,
-.large_admin_menu_icon.modifications::before {
+.main_icons.modifications::before {
 	content: "\f12e";
 }
 /* Maintain */
-.main_icons.maintain::before,
-.large_admin_menu_icon.maintain::before {
+.main_icons.maintain::before {
 	content: "\f0ad";
 }
 /* Administration */
@@ -381,8 +347,7 @@ h3.profile_hd::before,
 	content: "\f552";
 }
 /* Attachment */
-.main_icons.attachment::before,
-.large_admin_menu_icon.attachment::before {
+.main_icons.attachment::before {
 	content: "\f0c6";
 }
 /* Error & Report */
@@ -391,8 +356,7 @@ h3.profile_hd::before,
 	content: "\f024";
 }
 /* Languages */
-.main_icons.languages::before,
-.large_admin_menu_icon.languages::before {
+.main_icons.languages::before {
 	content: "\f1ab";
 }
 /* Members Request */
@@ -408,14 +372,11 @@ h3.profile_hd::before,
 	content: "\f21b";
 }
 /* Logs */
-.main_icons.logs::before,
-.large_admin_menu_icon.logs::before {
+.main_icons.logs::before {
 	content: "\f46d";
 }
 /* Features */
-.main_icons.features::before,
-.fa-tasksmanager::before,
-.large_admin_menu_icon.features::before {
+.main_icons.features::before {
 	content: "\f0ae";
 }
 /* Settings */
@@ -447,254 +408,215 @@ h3.profile_hd::before,
 	content: "\f103";
 }
 /* Mark All Read */
-.fa-markread::before,
-.fa-readall::before,
-.fa-read_button::before,
-.fa-mark_read_short::before,
-.fa-mark_as_read::before,
 .main_icons.read_button::before,
+.main_icons.mark_read_short::before,
+.main_icons.mark_as_read::before,
 .main_icons.markread::before {
 	content: "\f560";
 }
 /* Mark Selected */
-.fa-markselectread::before,
-.fa-quick_mod_markread::before,
-.fa-TopicSolved_mark_solved::before {
-	content: "\f058";
+.main_icons.markselected::before {
+	content: "\f00c";
 }
-/* Not Read */
-.fa-mark_unread::before,
-.fa-unread_button::before,
-.fa-unsolve_topic::before,
-.fa-TopicSolved_mark_unsolved::before,
+/* All Unread */
+.main_icons.unread::before,
+.main_icons.unread_topics_all::before {
+	content: "\f0ae";
+}
+/* Mark Not Read */
+.main_icons.mark_unread::before,
+.main_icons.markunread::before,
 .main_icons.unread_button::before {
-	content: "\f00d";
+	content: "\f070";
 }
 /* Send Topic */
-.main_icons.send::before,
-.fa-send::before {
+.main_icons.send::before {
 	content: "\f1d8";
 }
 /* Unnotify */
-.fa-unnotify::before {
+.main_icons.unnotify::before {
 	content: "\f1f6";
 }
 /* New Poll */
-.fa-post_poll::before,
-.fa-new_poll::before,
-.fa-add_poll::before,
-.main_icons.poll::before {
+.main_icons.poll::before,
+.main_icons.new_poll::before,
+.main_icons.add_poll::before {
 	content: "\f682";
 }
 /* Delete */
-.fa-remove_poll::before,
-.fa-delete::before,
-.fa-remove_topic::before,
-.fa-remove_button::before,
-.fa-collections_remove::before,
-.main_icons.remove_button::before,
 .main_icons.delete::before,
-.main_icons.collections_remove::before {
+.main_icons.remove_topic::before,
+.main_icons.remove_button::before {
 	content: "\f2ed";
 }
 /* Restore */
-.fa-restore_topic::before,
-.fa-restore_button::before,
+.main_icons.restore::before,
 .main_icons.restore_button::before {
 	content: "\f829";
 }
 /* New Topic */
-.fa-new_topic::before,
 .main_icons.newtopic::before,
+.main_icons.new_topic::before,
 .main_icons.newpm::before {
 	content: "\2b";
 }
 /* Move Topic */
-.fa-move::before,
-.fa-move_topic::before,
-.main_icons.move::before {
+.main_icons.move::before,
+.main_icons.move_topic::before {
 	content: "\f0b2";
 }
 /* Sticky Topic */
-.fa-set_sticky::before,
-.fa-set_nonsticky::before,
-.main_icons.sticky::before {
+.main_icons.sticky::before,
+.main_icons.set_sticky::before {
 	content: "\f08d";
 }
 /* Lock Topic */
-.fa-set_lock::before,
-.main_icons.lock::before {
+.main_icons.lock::before,
+.main_icons.set_lock::before {
 	content: "\f023";
 }
 /* Unlock Topic */
-.fa-set_unlock::before,
 .main_icons.unlock::before,
+.main_icons.set_unlock::before,
 .main_icons.post_moderation_allow::before {
 	content: "\f3c1";
 }
 /* Merge Topic */
-.fa-merge::before,
 .main_icons.merge::before {
 	content: "\f248";
 }
 /* Link Calendar */
-.fa-calendar_link::before {
+.main_icons.calendar_link::before {
 	content: "\f274";
 }
 /* Members */
-.fa-view_all_members::before,
-.fa-mlist::before,
-.fa-people::before,
 .main_icons.mlist::before,
-.main_icons.people::before {
+.main_icons.people::before,
+.main_icons.online_users::before,
+.main_icons.view_all_members::before {
 	content: "\f0c0";
 }
 /* Find Member */
-.fa-mlist_search::before {
+.main_icons.user_search::before,
+.main_icons.mlist_search::before {
 	content: "\f4fc";
 }
 /* Calendar */
-.fa-calendar::before,
-.fa-calendar_upcoming::before,
 .main_icons.calendar::before,
-.large_admin_menu_icon.calendar::before {
+.main_icons.calendar_upcoming::before {
 	content: "\f073";
 }
 /* Post Event */
-.fa-calendar_post_event::before {
+.main_icons.post_event::before {
 	content: "\f783";
 }
 /* Register */
 .main_icons.main_icons.regcenter::before,
-.main_icons.signup::before,
-.large_admin_menu_icon.regcenter::before,
-.fa-register::before,
-.fa-signup::before {
+.main_icons.signup::before {
 	content: "\f234";
 }
 /* Login */
 .main_icons.login {
 	width: auto;
 }
-.fa-login::before,
 .main_icons.login::before {
 	content: "\f2f6";
 }
 /* Logout */
 .main_icons.logout::before,
-.fa-logout::before,
-.main_icons.exit::before, 
-.large_admin_menu_icon.exit::before {
+.main_icons.exit::before {
 	content: "\f2f5";
 }
 /* Notifications */
-.fa-notifications::before,
-.fa-alerts::before,
-.fa-mail::before,
-.fa-notify::before,
+.main_icons.notifications::before,
 .main_icons.notify::before,
 .main_icons.alerts::before {
 	content: "\f0f3";
 }
-/* Pokes */
-.fa-pokes::before,
-.fa-poke::before,
-.main_icons.poke::before {
-	content: "\f0a4";
+/* Notifications Off */
+.main_icons.notify-off::before {
+	content: "\f1f6";
+}
+/* Notifications Email */
+.main_icons.notify-email::before {
+	content: "\e4e8";
 }
 /* Posts */
-.fa-posts::before {
+.main_icons.posts::before,
+.main_icons.replies::before {
 	content: "\f086";
 }
 /* Drafts */
-.main_icons.drafts::before,
-.fa-drafts::before {
+.main_icons.drafts::before {
 	content: "\f044";
 }
 /* Details */
-.fa-details::before,
 .main_icons.details::before {
 	content: "\f05a";
 }
 /* Reply */
-.fa-reply_button::before,
+.main_icons.reply::before,
 .main_icons.reply_button::before {
 	content: "\f3e5";
 }
 /* Reply to all */
-.fa-reply_all_button::before,
+.main_icons.reply_all::before,
 .main_icons.reply_all_button::before {
 	content: "\f122";
 }
+/* Print */
+.main_icons.print::before {
+	content: "\f02f";
+}
 /* Quote */
-.fa-quote::before,
 .main_icons.quote::before {
 	content: "\f10e";
 }
 /* Quote Selected */
-.fa-quote_selected::before,
 .main_icons.quote_selected::before {
 	content: "\f10d";
 }
 /* Edit */
-.fa-quick_edit_button::before,
-.fa-modify_button::before,
 .main_icons.quick_edit_button::before,
-.main_icons.modify_button::before,
-.main_icons.collections_edit::before {
+.main_icons.modify_button::before {
 	content: "\f303";
 }
 /* Approve */
-.fa-approve_button::before,
-.fa-approve::before,
 .main_icons.approve::before,
 .main_icons.approve_button::before {
 	content: "\f14a";
 }
-/* Disapprove */
-.fa-unapprove_button::before,
+/* Unapprove */
 .main_icons.unapprove_button::before {
 	content: "\f057";
 }
 /* Split */
-.fa-split_button::before,
 .main_icons.split_button::before {
 	content: "\f0db";
 }
 
-/* Community */
-.fa-community::before,
-.main_icons.fa-community::before {
-	content: "\f022";
-}
 /* FA Nav */
-.fa-portal::before,
 .main_icons.home::before {
 	content: "\f015";
 }
 /* Help */
-.fa-help::before,
 .main_icons.help::before {
 	content: "\f128";
 }
 /* Admin */
-.fa-admin::before,
 .main_icons.admin::before {
 	content: "\f085";
 }
 /* Mod */
-.fa-moderate::before,
 .main_icons.moderate::before {
 	content: "\f7d9";
 }
 /* Profile */
 .main_icons.profile::before,
-.main_icons.members::before,
-.large_admin_menu_icon.members::before {
+.main_icons.members::before {
 	content: "\f007";
 }
 /* PM */
-.fa-pm::before,
 .main_icons.personal_message::before,
 .main_icons.inbox::before {
 	content: "\f0e0";
@@ -703,31 +625,34 @@ h3.profile_hd::before,
 .main_icons.more::before {
 	content: "\f142";
 }
-/* Shop */
-.main_icons.shop::before,
-.fa-shop::before {
-	content: "\f07a";
-}
-/* Store */
-.fa-store::before,
-.main_icons.store::before {
-	content: "\f54e";
-}
 /* Info Center icons */
-.fa-recent_posts::before,
 .main_icons.recent_posts::before {
 	content: "\f550";
 }
-.fa-online_users::before {
+.main_icons.online_users::before {
 	content: "\f500";
 }
 /* Profile Account */
-.fa-maintain::before {
+.main_icons.account::before {
 	content: "\f505";
 }
 /* Profile Details */
-.fa-members::before {
+.main_icons.profile_details::before {
 	content: "\f2c2";
+}
+
+/** MODS **/
+/* Community */
+.main_icons.fa-community::before {
+	content: "\f022";
+}
+/* Shop */
+.main_icons.shop::before {
+	content: "\f07a";
+}
+/* Store */
+.main_icons.store::before {
+	content: "\f54e";
 }
 /* Optimus */
 .main_icons.optimus::before,
@@ -743,9 +668,7 @@ h3.profile_hd::before,
 }
 .main_icons.collections_save::before,
 .fa-collections_save::before,
-.main_icons.bookmarks::before,
-.fa-sticky::before,
-.main_icons.sticky::before {
+.main_icons.bookmarks::before {
 	content: "\f02e";
 }
 .main_icons.collections_bookmark::before,
@@ -753,29 +676,27 @@ h3.profile_hd::before,
 	content: "\f518";
 }
 /* Quiz */
-.main_icons.quiz::before,
-.fa-quiz::before {
+.main_icons.quiz::before {
 	content: "\f559";
 }
 /* Affiliates */
-.main_icons.affiliates::before,
-.fa-affiliates::before {
+.main_icons.affiliates::before {
 	content: "\f0ac";
 }
 /* Gallery */
-.main_icons.media::before,
-.fa-media::before,
-.main_icons.gallery::before,
-.fa-gallery::before {
+.main_icons.media::before
+.main_icons.gallery::before {
 	content: "\f87c";
 }
 /* Arcade */
-.main_icons.arcade::before,
-.fa-arcade::before {
+.main_icons.arcade::before {
 	content: "\f11b";
 }
 /* Battle */
-.main_icons.battle::before,
-.fa-battle::before {
+.main_icons.battle::before {
 	content: "\f66d";
+}
+/* Pokes */
+.main_icons.poke::before {
+	content: "\f0a4";
 }
