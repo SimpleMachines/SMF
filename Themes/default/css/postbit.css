@@ -19,26 +19,27 @@
 	white-space: pre;
 }
 /* poster and postarea + moderation area underneath */
-.post_wrapper::after {
+.post_container::after {
 	content: "";
 	display: block;
 	clear: both;
 }
-.post_wrapper {
+.post_container {
 	display: grid;
 	grid: 1fr / var(--poster-width) 1fr;
 }
 /* poster details and list of items */
 .poster {
+	align-content: flex-start;
 	background: var(--poster-bg);
-	display: flex;
-	flex-direction: column;
+	display: grid;
 	font-size: var(--poster-font-size);
-	gap: .25em .75em;
+	gap: .25em 1.5em;
 	grid-row: var(--poster-grid-row);
 	hyphens: auto;
 	overflow-wrap: break-word;
 	padding: .5em;
+	text-align: center;
 	word-wrap: break-word;
 	width: var(--poster-width);
 }
@@ -57,36 +58,27 @@
 .poster img {
 	vertical-align: middle;
 }
-
-/* User info list (posts, group, etc) */
-.user_info {
-	display: flex;
-	flex-direction: column;
-	gap: .25em .75em;
-	justify-content: center;
-	text-align: center;
-}
-.user_info li.membergroup {
+.poster .membergroup {
 	font-weight: 700;
 }
-.user_info li.warning a img {
+.poster .warning a img {
 	vertical-align: bottom;
 	padding: 0 .25em;
 }
-.user_info .profile_icons,
-.user_info .im_icons ol {
+.poster .profile_icons,
+.poster  .im_icons {
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
 	gap: .25em .75em;
 	justify-content: center;
 }
-.user_info .profile_icons a,
-.user_info .im_icons a {
+.poster .profile_icons a,
+.poster .im_icons a {
 	display: inline-flex;
 }
-.user_info img.avatar {
-	max-width: 100%;
+.poster img.avatar {
+	--avatar-size: auto;
 	object-fit: scale-down;
 }
 
@@ -108,6 +100,7 @@
 .keyinfo {
 	align-items: center;
 	display: grid;
+	gap: .75em;
 	grid: auto auto / 1fr auto;
 }
 .keyinfo .postinfo {
@@ -138,14 +131,14 @@
 .keyinfo .page_number {
 	font-size: .9em;
 	font-weight: 700;
-	grid-row: 1/3;
+	grid-row: 1/4;
 	line-height: 1.5em;
-}
-.keyinfo h5.subject_title {
-	font-size: 1em;
 }
 #reason::before {
 	content: " - ";
+}
+.subject_title {
+	grid-column: 1/3;
 }
 .subject_title a {
 	font-size: 0.9em;
@@ -153,6 +146,9 @@
 }
 .subject_hidden a {
 	display: none;
+}
+.subject_title input {
+	width: 100%;
 }
 
 /* Post or message */
@@ -188,6 +184,18 @@
 }
 
 /* Signatures */
-.post_wrapper .signature {
+.post_container .signature {
 	padding: 1em .75em;
+}
+
+/* Quick Edit */
+input.quickModifyMargin {
+	margin-block: .5em;
+	width: 100%;
+}
+#quick_edit_body_container textarea {
+	margin-block: .75em;
+	min-height: 150px;
+	padding: .75em;
+	width: 100%;
 }

@@ -422,7 +422,7 @@ function template_single_post($message)
 				<div class="', $message['css_class'], '" id="msg' . $message['id'] . '">
 					', $message['id'] != Utils::$context['first_message'] ? '
 					' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
-					<div class="post_wrapper">';
+					<div class="post_container">';
 
 	// Show information about the poster of this message.
 	echo '
@@ -432,16 +432,14 @@ function template_single_post($message)
 	if (!empty($message['custom_fields']['above_member']))
 	{
 		echo '
-							<div class="custom_fields_above_member">
-								<ul class="nolist">';
+							<il class="custom_fields_above_member">';
 
 		foreach ($message['custom_fields']['above_member'] as $custom)
 			echo '
-									<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 		echo '
-								</ul>
-							</div>';
+							</ul>';
 	}
 
 	echo '
@@ -470,153 +468,147 @@ function template_single_post($message)
 
 	// Begin display of user info
 	echo '
-							</h4>
-							<ul class="user_info">';
+							</h4>';
 
 	// Show the member's custom title, if they have one.
 	if (!empty($message['member']['title']))
 		echo '
-								<li class="title">', $message['member']['title'], '</li>';
+							<div class="title">', $message['member']['title'], '</div>';
 
 	// Show the member's primary group (like 'Administrator') if they have one.
 	if (!empty($message['member']['group']))
 		echo '
-								<li class="membergroup">', $message['member']['group'], '</li>';
+							<div class="membergroup">', $message['member']['group'], '</div>';
 
 	// Show the user's avatar.
 	if (!empty(Config::$modSettings['show_user_images']) && empty(Theme::$current->options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
-								<li class="avatar">
-									<a href="', $message['member']['href'], '">', $message['member']['avatar']['image'], '</a>
-								</li>';
+							<div class="avatar">
+								<a href="', $message['member']['href'], '">', $message['member']['avatar']['image'], '</a>
+							</div>';
 
 	// Are there any custom fields below the avatar?
 	if (!empty($message['custom_fields']['below_avatar']))
 		foreach ($message['custom_fields']['below_avatar'] as $custom)
 			echo '
-								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+							<div class="custom ', $custom['col_name'], '">', $custom['value'], '</div>';
 
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'])
 	{
 		// Show the post group icons
 		echo '
-								<li class="icons">', $message['member']['group_icons'], '</li>';
+							<div class="icons">', $message['member']['group_icons'], '</div>';
 
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
 		if ((empty(Config::$modSettings['hide_post_group']) || empty($message['member']['group'])) && !empty($message['member']['post_group']))
 			echo '
-								<li class="postgroup">', $message['member']['post_group'], '</li>';
+							<div class="postgroup">', $message['member']['post_group'], '</div>';
 
 		// Show how many posts they have made.
 		if (!isset(Utils::$context['disabled_fields']['posts']))
 			echo '
-								<li class="postcount">', Lang::getTxt('member_postcount_num', [$message['member']['posts']]), '</li>';
+							<div class="postcount">', Lang::getTxt('member_postcount_num', [$message['member']['posts']]), '</div>';
 
 		// Show their personal text?
 		if (!empty(Config::$modSettings['show_blurb']) && !empty($message['member']['blurb']))
 			echo '
-								<li class="blurb">', $message['member']['blurb'], '</li>';
+							<div class="blurb">', $message['member']['blurb'], '</div>';
 
 		// Any custom fields to show as icons?
 		if (!empty($message['custom_fields']['icons']))
 		{
 			echo '
-								<li class="im_icons">
-									<ol>';
+							<ol class="im_icons">';
 
 			foreach ($message['custom_fields']['icons'] as $custom)
 				echo '
-										<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 			echo '
-									</ol>
-								</li>';
+							</ol>';
 		}
 
 		// Show the website and email address buttons.
 		if ($message['member']['show_profile_buttons'])
 		{
 			echo '
-								<li class="profile">
-									<ol class="profile_icons">';
+							<ol class="profile_icons">';
 
 			// Don't show an icon if they haven't specified a website.
 			if (!empty($message['member']['website']['url']) && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
+								<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'])
 				echo '
-										<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
+								<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
 
 			// Show the email if necessary
 			if (!empty($message['member']['email']) && $message['member']['show_email'])
 				echo '
-										<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
+								<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
 
 			echo '
-									</ol>
-								</li><!-- .profile -->';
+							</ol><!-- .profile_icons -->';
 		}
 
 		// Any custom fields for standard placement?
 		if (!empty($message['custom_fields']['standard']))
 			foreach ($message['custom_fields']['standard'] as $custom)
 				echo '
-								<li class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</li>';
+							<div class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</div>';
 	}
 	// Otherwise, show the guest's email.
 	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
 		echo '
-								<li class="email">
-									<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a>
-								</li>';
+							<div class="email">
+								<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a>
+							</div>';
 
 	// Show the IP to this user for this post - because you can moderate?
 	if (!empty(Utils::$context['can_moderate_forum']) && !empty($message['member']['ip']))
 		echo '
-								<li class="poster_ip">
-									<a href="', Config::$scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" data-hover="', $message['member']['ip'], '" class="show_on_hover"><span>', Lang::$txt['show_ip'], '</span></a> <a href="', Config::$scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
-								</li>';
+							<div class="poster_ip">
+								<a href="', Config::$scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" data-hover="', $message['member']['ip'], '" class="show_on_hover"><span>', Lang::$txt['show_ip'], '</span></a> <a href="', Config::$scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
+							</div>';
 
 	// Or, should we show it because this is you?
 	elseif ($message['can_see_ip'])
 		echo '
-								<li class="poster_ip">
-									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help show_on_hover" data-hover="', $message['member']['ip'], '"><span>', Lang::$txt['show_ip'], '</span></a>
-								</li>';
+							<div class="poster_ip">
+								<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help show_on_hover" data-hover="', $message['member']['ip'], '"><span>', Lang::$txt['show_ip'], '</span></a>
+							</div>';
 
 	// Okay, are you at least logged in? Then we can show something about why IPs are logged...
 	elseif (!User::$me->is_guest)
 		echo '
-								<li class="poster_ip">
+							<div class="poster_ip">
 									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::$txt['logged'], '</a>
-								</li>';
+							</div>';
 
 	// Otherwise, you see NOTHING!
 	else
 		echo '
-								<li class="poster_ip">', Lang::$txt['logged'], '</li>';
+							<div class="poster_ip">', Lang::$txt['logged'], '</div>';
 
 	// Are we showing the warning status?
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'] && $message['member']['can_see_warning'])
 		echo '
-								<li class="warning">
-									', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span> ', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::$txt['warn_' . $message['member']['warning_status']], '</span>
-								</li>';
+							<div class="warning">
+								', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span> ', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::$txt['warn_' . $message['member']['warning_status']], '</span>
+							</div>';
 
 	// Are there any custom fields to show at the bottom of the poster info?
 	if (!empty($message['custom_fields']['bottom_poster']))
 		foreach ($message['custom_fields']['bottom_poster'] as $custom)
 			echo '
-								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+							<div class="custom ', $custom['col_name'], '">', $custom['value'], '</div>';
 
 	// Poster info ends.
 	echo '
-							</ul>
 						</div><!-- .poster -->
 						<div class="postarea">
 							<div class="keyinfo">';
@@ -845,7 +837,7 @@ function template_single_post($message)
 
 	echo '
 						</div><!-- .moderatorbar -->
-					</div><!-- .post_wrapper -->
+					</div><!-- .post_container -->
 				</div><!-- $message[css_class] -->
 				<hr class="post_separator">';
 }
