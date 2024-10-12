@@ -99,11 +99,11 @@ function template_main()
 		foreach ($category['boards'] as $board)
 		{
 			echo '
-				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
+				<div id="board_', $board['id'], '" class="board_container ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
 					<div class="board_icon">
 						', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
 					</div>
-					<div class="info">
+					<div class="board_info">
 						', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
 					</div><!-- .info -->';
 
@@ -115,7 +115,7 @@ function template_main()
 
 			// Show the last post if there is one.
 			echo'
-					<div class="lastpost">
+					<div class="board_lastpost">
 						', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
 					</div>';
 
@@ -175,7 +175,7 @@ function template_bi_redirect_icon($board)
 function template_bi_board_info($board)
 {
 	echo '
-		<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
+		<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">
 			', $board['name'], '
 		</a>';
 
@@ -202,7 +202,8 @@ function template_bi_board_stats($board)
 {
 	echo '
 		<p>
-			', Lang::getTxt('number_of_posts', [$board->posts]), '<br>', Lang::getTxt('number_of_topics', [$board->topics]), '
+			<span>', Lang::getTxt('number_of_posts', [$board->posts]), '</span>
+			<span>', Lang::getTxt('number_of_topics', [$board->topics]), '</span>
 		</p>';
 }
 
@@ -215,7 +216,7 @@ function template_bi_redirect_stats($board)
 {
 	echo '
 		<p>
-			', Lang::getTxt('number_of_redirects', [$board->posts]), '
+			<span>', Lang::getTxt('number_of_redirects', [$board->posts]), '</span>
 		</p>';
 }
 
@@ -227,26 +228,18 @@ function template_bi_redirect_stats($board)
  */
 function template_bi_board_lastpost($board)
 {
-	if (!empty($board['last_post']['id']))
-	{
-		if (!empty($board['last_post']['member']['avatar']))
-		echo '
-					<span class="board_avatar"><a href="', $board['last_post']['member']['href'], '"><img class="avatar" src="', $board['last_post']['member']['avatar']['href'], '" alt=""></a></span>';
-		else
-		echo '
-					<span class="board_avatar"><a href="#"></a></span>';
-
-		echo '
-					<p class="board_lastpost">';
-		echo '
-		<span>
-		' . $board['last_post']['link'] .'
-		</span>
-		<span class="postby">
-		' . $board['last_post']['member']['link'] . ' : '. timeformat($board['last_post']['timestamp']). '
-		</span>';
-		echo ' </p>';
+	if (empty($board['last_post']['id'])) {
+		return;
 	}
+
+	echo '
+		', ($board['last_post']['member']['id'] ? '<a href="' . $board['last_post']['member']['href'] . '">' : ''), '
+			<img class="avatar" src="', $board['last_post']['member']['avatar']['href'], '" alt="">
+		', ($board['last_post']['member']['id'] ? '</a>' : ''), '
+		
+		<p>
+			<span>',  $board['last_post']['link'], ', ', Lang::getTxt('last_post_updated', ['time' => $board['last_post']['time'], 'member_link' => $board['last_post']['member']['link']]), '</span>
+		</p>';
 }
 
 /**
@@ -278,7 +271,7 @@ function template_bi_board_children($board)
 		}
 
 		echo '
-			<div id="board_', $board['id'], '_children" class="children">
+			<div id="board_', $board['id'], '_children" class="board_children">
 				<p>',
 				Lang::getTxt(
 					'sub_boards_list',

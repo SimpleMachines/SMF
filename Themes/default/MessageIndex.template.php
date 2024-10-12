@@ -80,11 +80,11 @@ function template_main()
 		foreach (Utils::$context['boards'] as $board)
 		{
 			echo '
-		<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
+		<div id="board_', $board['id'], '" class="board_container ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
 			<div class="board_icon">
 				', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
 			</div>
-			<div class="info">
+			<div class="board_info">
 				', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
 			</div><!-- .info -->';
 
@@ -96,7 +96,7 @@ function template_main()
 
 			// Show the last post if there is one.
 			echo '
-			<div class="lastpost">
+			<div class="board_lastpost">
 				', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
 			</div>';
 
@@ -197,96 +197,99 @@ function template_main()
 		foreach (Utils::$context['topics'] as $topic)
 		{
 			echo '
-				<div class="', $topic['css_class'], '">
-					<div class="board_icon">
-						<img src="', $topic['first_post']['icon_url'], '" alt="">
-						', $topic['is_posted_in'] ? '<span class="main_icons profile_sm"></span>' : '', '
-					</div>
-					<div class="info', !empty(Utils::$context['can_quick_mod']) ? '' : ' info_qmod', '">
-						<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
+			<div class="topic_container ', $topic['css_class'], '">
+				<div class="topic_icon">
+					<img src="', $topic['first_post']['icon_url'], '" alt="">
+					', $topic['is_posted_in'] ? '<span class="main_icons profile_sm"></span>' : '', '
+				</div>
+				<div class="topic_info', !empty(Utils::$context['can_quick_mod']) ? '' : ' info_qmod', '">
+					<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
 
 			// Now we handle the icons
 			echo '
-							<div class="icons floatright">';
+						<div class="icons floatright">';
 
 			if ($topic['is_watched'])
 				echo '
-								<span class="main_icons watch" title="', Lang::$txt['watching_this_topic'], '"></span>';
+							<span class="main_icons watch" title="', Lang::$txt['watching_this_topic'], '"></span>';
 
 			if ($topic['is_locked'])
 				echo '
-								<span class="main_icons lock"></span>';
+							<span class="main_icons lock"></span>';
 
 			if ($topic['is_sticky'])
 				echo '
-								<span class="main_icons sticky"></span>';
+							<span class="main_icons sticky"></span>';
 
 			if ($topic['is_redirect'])
 				echo '
-								<span class="main_icons move"></span>';
+							<span class="main_icons move"></span>';
 
 			if ($topic['is_poll'])
 				echo '
-								<span class="main_icons poll"></span>';
+							<span class="main_icons poll"></span>';
 
 			echo '
-							</div>';
+						</div>';
 
 			echo '
-							<div class="message_index_title">
-								', $topic['new'] && User::$me->is_logged ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
-								<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
-									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''), '</span>
-								</span>
-							</div>
-							<p class="floatleft">
-								', Lang::getTxt('started_by_member', ['member' => $topic['first_post']['member']['link']]), '
-							</p>
-							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">' . $topic['pages'] . '</span>' : '', '
-						</div><!-- #topic_[first_post][id] -->
-					</div><!-- .info -->
-					<div class="board_stats centertext">
-						<p>', Lang::getTxt('number_of_replies', [$topic['replies']]), '<br>', Lang::getTxt('number_of_views', [$topic['views']]), '</p>
-					</div>
-					<div class="lastpost">
-						<p>', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '</p>
-					</div>';
+						<div class="message_index_title">
+							', $topic['new'] && User::$me->is_logged ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
+							<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
+								<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''), '</span>
+							</span>
+						</div>
+						<p class="floatleft">
+							', Lang::getTxt('started_by_member', ['member' => $topic['first_post']['member']['link']]), '
+						</p>
+						', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">' . $topic['pages'] . '</span>' : '', '
+					</div><!-- #topic_[first_post][id] -->
+				</div><!-- .info -->
+				<div class="topic_stats centertext">
+					<p>', Lang::getTxt('number_of_replies', [$topic['replies']]), '<br>', Lang::getTxt('number_of_views', [$topic['views']]), '</p>
+				</div>
+				<div class="topic_lastpost">
+					<p>', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '</p>
+				</div>';
 
 			// Show the quick moderation options?
 			if (!empty(Utils::$context['can_quick_mod']))
 			{
 				echo '
-					<div class="moderation">';
+				<div class="topic_moderation">';
 
 				if (Theme::$current->options['display_quick_mod'] == 1)
 					echo '
-						<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
+					<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
 				else
 				{
 					// Check permissions on each and show only the ones they are allowed to use.
 					if ($topic['quick_mod']['remove'])
-						echo '<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=remove;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', Lang::$txt['remove_topic'], '"></span></a>';
+						echo '
+						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=remove;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', Lang::$txt['remove_topic'], '"></span></a>';
 
 					if ($topic['quick_mod']['lock'])
-						echo '<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=lock;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', $topic['is_locked'] ? Lang::$txt['set_unlock'] : Lang::$txt['set_lock'], '"></span></a>';
+						echo '
+						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=lock;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', $topic['is_locked'] ? Lang::$txt['set_unlock'] : Lang::$txt['set_lock'], '"></span></a>';
 
 					if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
-						echo '<br>';
+						echo '
+						<br>';
 
 					if ($topic['quick_mod']['sticky'])
-						echo '<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', $topic['is_sticky'] ? Lang::$txt['set_nonsticky'] : Lang::$txt['set_sticky'], '"></span></a>';
+						echo '
+						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', $topic['is_sticky'] ? Lang::$txt['set_nonsticky'] : Lang::$txt['set_sticky'], '"></span></a>';
 
 					if ($topic['quick_mod']['move'])
-						echo '<a href="', Config::$scripturl, '?action=movetopic;current_board=', Utils::$context['current_board'], ';board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';topic=', $topic['id'], '.0"><span class="main_icons move" title="', Lang::$txt['move_topic'], '"></span></a>';
+						echo '
+						<a href="', Config::$scripturl, '?action=movetopic;current_board=', Utils::$context['current_board'], ';board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';topic=', $topic['id'], '.0"><span class="main_icons move" title="', Lang::$txt['move_topic'], '"></span></a>';
 				}
 				echo '
-					</div><!-- .moderation -->';
+				</div><!-- .moderation -->';
 			}
 			echo '
-				</div><!-- $topic[css_class] -->';
+			</div><!-- #topic_container.$topic[css_class] -->';
 		}
-		echo '
-			</div><!-- #topic_container -->';
 
 		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && !empty(Utils::$context['topics']))
 		{
@@ -419,7 +422,7 @@ function template_bi_redirect_icon($board)
 function template_bi_board_info($board)
 {
 	echo '
-		<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
+		<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">
 			', $board['name'], '
 		</a>';
 
@@ -446,7 +449,8 @@ function template_bi_board_stats($board)
 {
 	echo '
 		<p>
-			', Lang::getTxt('number_of_posts', [$board->posts]), '<br>', Lang::getTxt('number_of_topics', [$board->topics]), '
+			<span>', Lang::getTxt('number_of_posts', [$board->posts]), '</span>
+			<span>', Lang::getTxt('number_of_topics', [$board->topics]), '</span>
 		</p>';
 }
 
@@ -459,7 +463,7 @@ function template_bi_redirect_stats($board)
 {
 	echo '
 		<p>
-			', Lang::getTxt('number_of_redirects', [$board->posts]), '
+			<span>', Lang::getTxt('number_of_redirects', [$board->posts]), '</span>
 		</p>';
 }
 
@@ -471,26 +475,18 @@ function template_bi_redirect_stats($board)
  */
 function template_bi_board_lastpost($board)
 {
-	if (!empty($board['last_post']['id']))
-	{
-		if (!empty($board['last_post']['member']['avatar']))
-		echo '
-					<span class="board_avatar"><a href="', $board['last_post']['member']['href'], '"><img class="avatar" src="', $board['last_post']['member']['avatar']['href'], '" alt=""></a></span>';
-		else
-		echo '
-					<span class="board_avatar"><a href="#"></a></span>';
-
-		echo '
-					<p class="board_lastpost">';
-		echo '
-		<span>
-		' . $board['last_post']['link'] .'
-		</span>
-		<span class="postby">
-		' . $board['last_post']['member']['link'] . ' : '. timeformat($board['last_post']['timestamp']). '
-		</span>';
-		echo ' </p>';
+	if (empty($board['last_post']['id'])) {
+		return;
 	}
+
+	echo '
+		', ($board['last_post']['member']['id'] ? '<a href="' . $board['last_post']['member']['href'] . '">' : ''), '
+			<img class="avatar" src="', $board['last_post']['member']['avatar']['href'], '" alt="">
+		', ($board['last_post']['member']['id'] ? '</a>' : ''), '
+		
+		<p>
+			<span>',  $board['last_post']['link'], ', ', Lang::getTxt('last_post_updated', ['time' => $board['last_post']['time'], 'member_link' => $board['last_post']['member']['link']]), '</span>
+		</p>';
 }
 
 /**
@@ -522,7 +518,7 @@ function template_bi_board_children($board)
 		}
 
 		echo '
-			<div id="board_', $board['id'], '_children" class="children">
+			<div id="board_', $board['id'], '_children" class="board_children">
 				<p>',
 				Lang::getTxt(
 					'sub_boards_list',
