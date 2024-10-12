@@ -283,10 +283,9 @@ span.hidelink {
 	overflow-wrap: break-word;
 }
 
-/* At less than 1024px wide, #main_grid needs all the space it can get */
-@media (max-width: 1023px) {
-	#month_grid {
-		display: none;
+@media (max-width: 991px) {
+	#calendar {
+		--calendar-grid: auto / 1fr;
 	}
 }
 

@@ -2467,34 +2467,8 @@ h1.forumtitle span#siteslogan {
 #post_event span.label {
 	display: inline-block;
 	margin: 0 0.5em 0 2px;
-	min-width: 60px;
+	min-width: 150px;
 }
-
-.event_options {
-	line-height: 25px;
-	display: flex;
-	flex-flow: row wrap;
-}
-.event_options div {
-	min-height: 25px;
-	margin-bottom: 5px;
-	flex: 1 0 auto;
-}
-.event_options_left {
-	box-sizing: border-box;
-	width: 55%;
-	min-width: 238px;
-}
-.event_options_right {
-	box-sizing: border-box;
-	width: 45%;
-	min-width: 270px;
-}
-.event_options_left div,
-.event_options_right div {
-	white-space: nowrap;
-}
-
 #post_event #event_main input {
 	margin: 0;
 }
@@ -2520,6 +2494,21 @@ h1.forumtitle span#siteslogan {
 }
 #post_event input[type="text"][disabled] {
 	color: transparent;
+}
+.event_options {
+	display: flex;
+	flex-direction: column;
+	line-height: 25px;
+}
+.event_options div {
+	box-sizing: border-box;
+	flex: 1 0 auto;
+	margin-bottom: 5px;
+	min-height: 25px;
+}
+.event_options_left div,
+.event_options_right div {
+	white-space: nowrap;
 }
 #tz {
 	max-width: 100%;
