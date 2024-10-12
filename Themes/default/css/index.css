@@ -1902,7 +1902,7 @@ html[lang="el-GR"] .buttonlist > li > :is(a, button) {
 /* Styles for the general looks of the theme.
 ------------------------------------------------------- */
 /* Set maximum width limit for content */
-#top_section .inner_wrap, #wrapper, #header .inner_wrap, #footer .inner_wrap, #main_menu .inner_wrap {
+.content-wrapper {
 	max-width: var(--wrapper-width);
 	margin: 0 auto;
 	width: 90%;
@@ -1932,7 +1932,7 @@ strong[id^='child_list_']::after {
 	min-height: var(--header-height);
 	padding: .5em .2em;
 }
-#header .inner_wrap {
+#header .content-wrapper {
 	align-items: center;
 	display: flex;
 	justify-content: space-between;
@@ -1970,36 +1970,7 @@ h1.forumtitle span#siteslogan {
 /* Even guests need to be aligned */
 .welcome {
 	line-height: 2.5em;
-}
-/*
-/* The user info, news, etc.*/
-#upper_section {
-	padding: 0px;
-}
-#inner_section {
-	padding: 0px;
-	border-radius: 6px 6px 0 0;
-}
-#inner_section::after {
-	content: "";
-	display: block;
-	clear: both;
-}
-/* The upper_section, float the two each way */
-#inner_wrap {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 12px;
-}
-ul li.greeting {
-	font-weight: bold;
-}
-/* The login form. */
-#guest_form {
-	overflow: hidden;
-	font-size: 0.9em;
-	margin-left: -2px;
+	padding: 0 10px;
 }
 
 /* News section. */
@@ -2254,7 +2225,7 @@ ul li.greeting {
 	text-decoration: var(--footer-link-text-decoration_focus);
 	text-shadow: var(--footer-link-text-shadow_focus);
 }
-#footer .inner_wrap {
+#footer .content-wrapper {
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;

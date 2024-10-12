@@ -238,7 +238,7 @@ function template_body_above()
 	// Header
 	echo '
 	<header id="header">
-		<div class="inner_wrap">
+		<div class="content-wrapper">
 			<h1 class="forumtitle">
 				<a id="top" href="', Config::$scripturl, '">
 					', empty(Utils::$context['header_logo_url_html_safe']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '
@@ -395,7 +395,7 @@ function template_body_above()
 
 	// Wrapper
 	echo '
-	<div id="wrapper">';
+	<div class="content-wrapper">';
 
 	theme_linktree();
 
@@ -413,13 +413,13 @@ function template_body_below()
 	echo '
 			</div><!-- #main_content_section -->
 		</div><!-- #content_section -->
-	</div><!-- #wrapper -->
+	</div><!-- .content-wrapper -->
 </div><!-- #footerfix -->';
 
 	// Show the footer with copyright, terms and help links.
 	echo '
 	<footer id="footer">
-		<div class="inner_wrap">';
+		<div class="content-wrapper">';
 
 	// There is now a global "Go to top" link at the right.
 	echo '
@@ -528,7 +528,7 @@ function template_menu()
 {
 	echo '
 	<nav id="main_menu" aria-label="', Lang::$txt['mobile_user_menu'], '">
-		<div class="inner_wrap">
+		<div class="content-wrapper">
 			<a class="mobile_user_menu">
 				<span class="main_icons navigation"></span>
 				<span class="text_menu">', Lang::$txt['mobile_user_menu'], '</span>
