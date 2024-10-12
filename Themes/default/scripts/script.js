@@ -1702,8 +1702,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			item.classList.add('visible');
 		});
 
-		document.addEventListener('click', () => {
-			item.classList.remove('visible');
+		document.addEventListener('click', e => {
+			if (!item.contains(e.target)) {
+				item.classList.remove('visible');
+			}
 		});
 	}
 
