@@ -294,8 +294,7 @@
 	--calendar-today-color:                           #fff;
 
 	/** Attachments **/
-	--attachments-border-color:                       hsl(var(--primary-color-hue), 15%, 22%);
-	--attachments-box-shadow:                         0 1px 0 hsl(0, 0%, 0%) inset;
+	--attachments-bg:                                 hsl(var(--primary-color-hue), 20%, 11%);
 
 	/** Signature **/
 	--signature-border-color:                         hsl(var(--primary-color-hue), 15%, 22%);
