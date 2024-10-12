@@ -23,9 +23,8 @@
 	--input-accent-color:                             var(--primary-color-600);
 	--input-bg:                                       hsl(var(--primary-color-hue), 18%, 12%);
 	--input-bg_disabled:                              hsl(var(--primary-color-hue), 12%, 9%);
-	/** @todo **/
-	/* --input-bg_invalid:                               hsl(0, 24%, 20%);
-	--input-bg_valid:                                 hsl(101, 8%, 39%); */
+	--input-bg_invalid:                               hsl(0, 24%, 20%);
+	--input-bg_valid:                                 hsl(101, 8%, 39%);
 	--input-border-color:                             var(--primary-color-700);
 	--input-border-color_disabled:                    #818181;
 	--input-border-color_focus:                       var(--primary-color-900);
@@ -144,6 +143,17 @@
 	--buttonlist-link-color_active:                   #333;
 	--buttonlist-link-color_active_hover:             #000;
 	--buttonlist-link-color_hover:                    var(--primary-color-50);
+
+	/** Page Link **/
+	--pages-link-bg:                                  hsl(var(--primary-color-hue), 20%, 14%);
+	--pages-link-bg_active:                           var(--primary-color-600);
+	--pages-link-bg_active_focus:                     var(--pages-link-bg_active);
+	--pages-link-bg_active_hover:                     var(--pages-link-bg_active);
+	--pages-link-bg_focus:                            var(--pages-link-bg_hover);
+	--pages-link-bg_hover:                            hsl(var(--primary-color-hue), 20%, 17%);
+	--pages-link-color:                               var(--buttonlist-link-color);
+	--pages-link-color_active:                        #fff;
+	--pages-link-color_hover:                         var(--primary-color-50);
 
 	/** Category Bar **/
 	--catbar-bg:                                      var(--primary-color-900);

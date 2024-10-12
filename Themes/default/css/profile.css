@@ -49,9 +49,8 @@
 	padding: 0;
 }
 #basicinfo img.avatar, dl.settings img.avatar {
+	--avatar-size: 160px;
 	display: block;
-	max-width: 160px;
-	height: auto !important;
 	margin-inline: auto;
 }
 #basicinfo #userstatus {

@@ -263,8 +263,7 @@ function template_results()
 		<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::$txt['search_adjust_query'], '</a>';
 
 		// Was anything even found?
-		if (!empty(Utils::$context['topics']))
-		{
+		if (!empty(Utils::$context['topics'])) {
 			echo '
 		<div class="floatright">
 			<span class="padding">', Lang::$txt['search_order'], '</span>

@@ -188,7 +188,6 @@ function template_view_package()
 				<tbody>';
 
 		$i = 1;
-		$j = 1;
 		$action_num = 1;
 		$js_operations = array();
 		foreach (Utils::$context['actions'] as $packageaction)
@@ -197,7 +196,7 @@ function template_view_package()
 			$js_operations[$action_num] = isset($packageaction['failed']) ? $packageaction['failed'] : 0;
 
 			echo '
-					<tr class="bg ', $i % 2 == 0 ? 'even' : 'odd', '">
+					<tr class="windowbg">
 						<td>', isset($packageaction['operations']) ? '<img id="operation_img_' . $action_num . '" src="' . Theme::$current->settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '</td>
 						<td style="width: 30px;">', $i++, '.</td>
 						<td style="width: 23%;">', $packageaction['type'], '</td>
@@ -221,7 +220,7 @@ function template_view_package()
 					$operation_text = $operation['position'] == 'replace' ? 'operation_replace' : ($operation['position'] == 'before' ? 'operation_after' : 'operation_before');
 
 					echo '
-								<tr class="bg ', $operation_num % 2 == 0 ? 'even' : 'odd', '">
+								<tr class="windowbg">
 									<td class="righttext">
 										<a href="', Config::$scripturl, '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty(Utils::$context['install_id']) ? ';install_id=' . Utils::$context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);">
 											<span class="main_icons package_ops"></span>
@@ -287,7 +286,7 @@ function template_view_package()
 				foreach ($theme['actions'] as $action)
 				{
 					echo '
-					<tr class="bg ', $j++ % 2 == 0 ? 'even' : 'odd', '">
+					<tr class="windowbg">
 						<td colspan="2">', isset($packageaction['operations']) ?
 							'<img id="operation_img_' . $action_num . '" src="' . Theme::$current->settings['images_url'] . '/selected_open.png" alt="*" style="display: none;">' : '', '
 							<input type="checkbox" name="theme_changes[]" value="', !empty($action['value']) ? $action['value'] : '', '" id="dummy_theme_', $id, '"', (!empty($action['not_mod']) ? '' : ' disabled'), !empty(Utils::$context['themes_locked']) ? ' checked' : '', ' class="floatright">

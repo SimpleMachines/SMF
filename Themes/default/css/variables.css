@@ -33,9 +33,9 @@
 	--body-bg:                                        hsl(var(--primary-color-hue), 45%, 95%);
 	--body-color:                                     #292929;
 	--body-font-family:                               "Segoe UI", "Helvetica Neue", "Nimbus Sans L", Arial, "Liberation Sans", sans-serif;
-	--body-font-size:                                 0.6889rem + 0.5682vw;
+	--body-font-size:                                 0.7841rem + 0.4545vw;
 	--body-font-size-max:                             1.125rem;
-	--body-font-size-min:                             0.8125rem;
+	--body-font-size-min:                             0.875rem;
 
 	/** Body Links **/
 	--body-link-color:                                hsl(var(--primary-color-hue), 75%, 33%);
@@ -53,6 +53,7 @@
 
 	/** Avatar General **/
 	--avatar-border-radius:                           50%;
+	--avatar-size:                                    50px;
 
 	/** Selection **/
 	--selection-bg:                                   var(--primary-color-200);
@@ -310,7 +311,7 @@
 	--sectionhead-title-color:                        inherit;
 	--sectionhead-title-color_focus:                  inherit;
 	--sectionhead-title-color_hover:                  inherit;
-	--sectionhead-title-font-size:                    1.5em;
+	--sectionhead-title-font-size:                    1.25em;
 	--sectionhead-title-font-weight:                  normal;
 	--sectionhead-title-font-weight_focus:            normal;
 	--sectionhead-title-font-weight_hover:            normal;
@@ -323,7 +324,7 @@
 	--sectionhead-title-text-shadow_hover:            none;
 	/** Section Head Text **/
 	--sectionhead-text-color:                         hsl(0, 0%, 58%);
-	--sectionhead-text-font-size:                     1em;
+	--sectionhead-text-font-size:                     .8em;
 	--sectionhead-text-font-weight:                   normal;
 	/** Section Head Link **/
 	--sectionhead-link-color:                         var(--body-link-color);
@@ -398,7 +399,7 @@
 	--topinfo-cursor_active:                          pointer;
 	--topinfo-cursor_focus:                           pointer;
 	--topinfo-cursor_hover:                           pointer;
-	--topinfo-font-size:                              1.25em;
+	--topinfo-font-size:                              .95em;
 	--topinfo-font-weight:                            400;
 	--topinfo-font-weight_active:                     400;
 	--topinfo-font-weight_focus:                      var(--topinfo-font-weight_hover);
@@ -422,8 +423,7 @@
 	--topinfo-avatar-border-style:                    solid;
 	--topinfo-avatar-border-width:                    0;
 	--topinfo-avatar-box-shadow:                      none;
-	--topinfo-avatar-height:                          calc(var(--topinfo-height) * 0.6);
-	--topinfo-avatar-width:                           var(--topinfo-avatar-height);
+	--topinfo-avatar-size:                            calc(var(--topinfo-height) * 0.6);
 
 	/** Top Menu **/
 	--topmenu-bg:                                     hsl(0, 0%, 100%);
@@ -443,7 +443,7 @@
 	--topmenu-color:                                  inherit;
 	--topmenu-color_focus:                            var(--topmenu-color_hover);
 	--topmenu-color_hover:                            inherit;
-	--topmenu-font-size:                              1em;
+	--topmenu-font-size:                              .95em;
 	--topmenu-font-weight:                            400;
 	--topmenu-height:                                 22em;
 	--topmenu-line-height:                            1;
@@ -512,9 +512,8 @@
 	--genericnoti-gap:                                0.25em 1em;
 	--genericnoti-height:                             var(--genericnoti-avatar-height);
 	/** Generic Noti Avatar **/
-	--genericnoti-avatar-height:                      2.5em;
-	--genericnoti-avatar-width:                       var(--genericnoti-avatar-height);
 	--genericnoti-avatar-object-fit:                  scale-down;
+	--genericnoti-avatar-size:                        2.5em;
 	/** Generic Noti Icon **/
 	--genericnoti-icon-color:                         var(--primary-color-700);
 	/** Generic Noti Link **/
@@ -560,6 +559,7 @@
 	/** Nav **/
 	--nav-bg:                                         var(--primary-color-700);
 	--nav-border-color:                               hsl(var(--primary-color-hue), 16%, 81%);
+	--nav-border-radius:                              0;
 	--nav-border-style:                               solid;
 	--nav-border-width:                               2px 0;
 	--nav-height:                                     55px;
@@ -650,8 +650,8 @@
 	/** Dropmenu n level links **/
 	--dropmenu-an-bg:                                 transparent;
 	--dropmenu-an-bg_active:                          var(--dropmenu-an-bg_hover);
-	--dropmenu-an-bg_active_hover:                    var(--dropmenu-an-bg_active);
 	--dropmenu-an-bg_active_focus:                    var(--dropmenu-an-bg_active);
+	--dropmenu-an-bg_active_hover:                    var(--dropmenu-an-bg_active);
 	--dropmenu-an-bg_focus:                           var(--dropmenu-an-bg_hover);
 	--dropmenu-an-bg_hover:                           hsl(var(--primary-color-hue), 36%, 91%);
 	--dropmenu-an-border-color:                       transparent;
@@ -817,7 +817,7 @@
 	--buttonlist-link-color_focus:                    var(--buttonlist-link-color_hover);
 	--buttonlist-link-color_hover:                    var(--primary-color-900);
 	--buttonlist-link-cursor:                         pointer;
-	--buttonlist-link-font-size:                      0.9em;
+	--buttonlist-link-font-size:                      0.8em;
 	--buttonlist-link-font-weight:                    400;
 	--buttonlist-link-font-weight_active:             var(--buttonlist-link-font-weight);
 	--buttonlist-link-font-weight_focus:              var(--buttonlist-link-font-weight_hover);
@@ -837,7 +837,7 @@
 	--buttonlist-link-text-transform:                 normal;
 
 	/** Paage Section **/
-	--pagesection-bg:                                 transparent;
+	--pagesection-bg:                                 var(--window-bg);
 	--pagesection-border-color:                       transparent;
 	--pagesection-border-radius:                      0;
 	--pagesection-border-style:                       solid;
@@ -853,12 +853,12 @@
 	--pages-border-width:                             0;
 	--pages-box-shadow:                               none;
 	/** Page Link **/
-	--pages-link-bg:                                  var(--buttonlist-link-bg);
-	--pages-link-bg_active:                           var(--buttonlist-link-bg_active);
-	--pages-link-bg_active_focus:                     var(--buttonlist-link-bg_active_focus);
-	--pages-link-bg_active_hover:                     var(--buttonlist-link-bg_active_hover);
-	--pages-link-bg_focus:                            var(--buttonlist-link-bg_focus);
-	--pages-link-bg_hover:                            var(--buttonlist-link-bg_hover);
+	--pages-link-bg:                                  hsl(var(--primary-color-hue), 20%, 95%);
+	--pages-link-bg_active:                           var(--primary-color-600);
+	--pages-link-bg_active_focus:                     var(--pages-link-bg_active);
+	--pages-link-bg_active_hover:                     var(--pages-link-bg_active);
+	--pages-link-bg_focus:                            var(--pages-link-bg_hover);
+	--pages-link-bg_hover:                            var(--primary-color-100);
 	--pages-link-border-color:                        transparent;
 	--pages-link-border-color_active:                 var(--pages-link-border-color_active);
 	--pages-link-border-color_focus:                  var(--pages-link-border-color_focus);
@@ -877,13 +877,13 @@
 	--pages-link-box-shadow_focus:                    var(--pages-link-box-shadow);
 	--pages-link-box-shadow_hover:                    var(--pages-link-box-shadow);
 	--pages-link-color:                               var(--buttonlist-link-color);
-	--pages-link-color_active:                        var(--buttonlist-link-color_active);
-	--pages-link-color_ative_focus:                   var(--buttonlist-link-color_active_focus);
-	--pages-link-color_active_hover:                  var(--buttonlist-link-color_active_hover);
-	--pages-link-color_focus:                         var(--buttonlist-link-color_focus);
-	--pages-link-color_hover:                         var(--buttonlist-link-color_hover);
+	--pages-link-color_active:                        #fff;
+	--pages-link-color_ative_focus:                   var(--pages-link-color_active);
+	--pages-link-color_active_hover:                  var(--pages-link-color_active);
+	--pages-link-color_focus:                         var(--pages-link-color_hover);
+	--pages-link-color_hover:                         var(--primary-color-700);
 	--pages-link-cursor:                              pointer;
-	--pages-link-font-size:                           0.9em;
+	--pages-link-font-size:                           .8em;
 	--pages-link-font-weight:                         400;
 	--pages-link-font-weight_active:                  700;
 	--pages-link-font-weight_focus:                   var(--pages-link-font-weight_hover);

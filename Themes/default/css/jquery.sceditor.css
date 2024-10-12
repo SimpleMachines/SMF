@@ -8,6 +8,7 @@
  * SCEditor is licensed under the MIT license:
  *	https://opensource.org/licenses/mit-license.php
  */
+
 .sceditor-grip {
 	background: var(--roundframe-bg);
 	border-color: var(--roundframe-border-color);
@@ -268,6 +269,7 @@ body.sceditor-maximize {
 	margin: 0.4em 0.2em;
 }
 .sceditor-toolbar {
+	align-items: baseline;
 	display: flex;
 	flex-wrap: wrap;
 }

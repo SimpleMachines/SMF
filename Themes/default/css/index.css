@@ -12,6 +12,7 @@ body {
 	flex-direction: column;
 	font-family: var(--body-font-family);
 	font-size: clamp(var(--body-font-size-min), var(--body-font-size), var(--body-font-size-max));
+	line-height: 1.2;
 	margin: 0;
 	min-height: 100dvh;
 	padding: 0;
@@ -64,6 +65,8 @@ abbr {
 }
 img.avatar {
 	border-radius: var(--avatar-border-radius);
+	height: var(--avatar-size);
+	width: var(--avatar-size);
 }
 input, select, textarea {
 	accent-color:var(--input-accent-color);
@@ -150,7 +153,7 @@ input[type="number"][size="6"] {
 	width: calc(6ch + 2em + var(--input-padding-inline));
 }
 /* Buttons styling */
-button, .button, a.button, input[type="button"] {
+.button, a.button, input[type="button"] {
 	align-items: center;
 	background: var(--button-bg);
 	border-color: var(--button-border-color);
@@ -174,7 +177,7 @@ button, .button, a.button, input[type="button"] {
 	text-transform: var(--button-text-transform);
 	user-select: none;
 }
-button:hover, .button:hover, input[type="button"]:hover {
+.button:hover, input[type="button"]:hover {
 	background: var(--button-bg_hover);
 	border-color: var(--button-border-color_hover);
 	border-radius: var(--button-border-radius_hover);
@@ -185,7 +188,7 @@ button:hover, .button:hover, input[type="button"]:hover {
 	text-decoration: var(--button-text-decoration_hover);
 	text-shadow: var(--button-text-shadow_hover);
 }
-button:focus, .button:focus, input[type="button"]:focus {
+.button:focus, input[type="button"]:focus {
 	background: var(--button-bg_focus);
 	border-color: var(--button-border-color_focus);
 	border-radius: var(--button-border-radius_focus);
@@ -196,7 +199,7 @@ button:focus, .button:focus, input[type="button"]:focus {
 	text-decoration: var(--button-text-decoration_focus);
 	text-shadow: var(--button-text-shadow_focus);
 }
-button.active, .button.active, input[type="button"].active {
+.button.active, input[type="button"].active {
 	background: var(--button-bg_active);
 	border-color: var(--button-border-color_active);
 	border-radius: var(--button-border-radius_active);
@@ -207,10 +210,10 @@ button.active, .button.active, input[type="button"].active {
 	text-decoration: var(--button-text-decoration_active);
 	text-shadow: var(--button-text-shadow_active);
 }
-button.active:is(:hover, :focus, :focus-visible), .button.active:is(:hover, :focus, :focus-visible), input[type="button"].active:is(:hover, :focus, :focus-visible) {
+.button.active:is(:hover, :focus, :focus-visible), input[type="button"].active:is(:hover, :focus, :focus-visible) {
 	color: var(--button-color_active_hover);
 }
-button:focus-visible, .button:focus-visible, input[type="button"]:focus-visible {
+.button:focus-visible, input[type="button"]:focus-visible {
 	outline: var(--button-outline);
 	outline-offset: var(--button-outline-offset);
 }
@@ -265,7 +268,8 @@ fieldset legend {
 	border-style: var(--fieldset-legend-border-style);
 	border-width: var(--fieldset-legend-border-width);
 	box-shadow: var(--fieldset-legend-box-shadow);
-	font-weight: bold;
+	font-size: var(--fieldset-legend-font-size);
+	font-weight: var(--fieldset-legend-font-weight);
 	color: var(--fieldset-legend-color);
 }
 /* Details tag */
@@ -347,8 +351,7 @@ hr {
 	align-items: center;
 }
 #likes .avatar {
-	height: 5em;
-	width: 5em;
+	--avatar-size: 5em;
 	margin: 0 10px 0 0;
 }
 #likes li .like_profile {
@@ -430,7 +433,7 @@ hr {
 .clear_right {
 	clear: inline-end;
 }
-.reset, button.reset {
+.reset {
 	all: unset;
 	outline: revert;
 }
@@ -628,6 +631,9 @@ blockquote cite::before {
 .bbc_table {
 	font: inherit;
 	color: inherit;
+}
+.centertext .bbc_table {
+    margin: auto;
 }
 .bbc_table td {
 	color: inherit;
@@ -887,10 +893,6 @@ table.table_grid td {
 	display: block;
 	clear: both;
 }
-img.sort, .sort {
-	margin-bottom: -4px;
-	margin-left: 4px;
-}
 
 /* table_grid styles for Profile > Show Permissions. */
 #permissions table.table_grid td {
@@ -1055,13 +1057,12 @@ img.sort, .sort {
 	text-shadow: var(--topinfo-text-shadow_active);
 }
 #top_info > li > a img.avatar {
+	--avatar-size: var(--topinfo-avatar-size);
 	background: var(--topinfo-avatar-bg);
 	border-color: var(--topinfo-avatar-border-color);
 	border-style: var(--topinfo-avatar-border-style);
 	border-width: var(--topinfo-avatar-border-width);
 	box-shadow: var(--topinfo-avatar-box-shadow);
-	height: var(--topinfo-avatar-height);
-	width: var(--topinfo-avatar-width);
 }
 #profile_menu_top::after {
 	font-size: 0.5em;
@@ -1069,6 +1070,20 @@ img.sort, .sort {
 }
 #top_info > li:where(.button_login, .button_signup) > a {
     font-size: .75em;
+}
+#top_info > li:is(.welcome) {
+	font-size: .8em;
+}
+#top_info > li.welcome > a {
+	background: none;
+	border: none;
+	color: var(--body-link-color);
+	margin: 0;
+	padding: 0;
+}
+#top_info > li.welcome > a:is(:hover, :focus, :focus-visible) {
+	color: var(--body-link-color_hover);
+	text-decoration: underline
 }
 #top_info .amt {
 	inset-inline-end: 0;
@@ -1115,10 +1130,13 @@ img.sort, .sort {
 	display: block;
 }
 @media (hover) {
-	.top_menu.scrollable {
+	.top_menu.scrollable .body {
 		max-height: var(--topmenu-height);
 		overflow: auto;
 	}
+}
+#pm_menu, #alerts_menu, #profile_menu {
+	top: 100% !important;
 }
 /* User information. */
 .top_menu .header {
@@ -1151,8 +1169,7 @@ img.sort, .sort {
 	display: flex;
 }
 #profile_menu img.avatar {
-	height: 3em;
-	width: 3em;
+	--avatar-size: 3em;
 }
 .profile_user_info {
 	display: grid;
@@ -1190,6 +1207,7 @@ ol.profile_user_links {
 	border-radius: var(--profilelinks-item-border-radius);
 	border-style: var(--profilelinks-item-border-style);
 	border-width: var(--profilelinks-item-border-width);
+	box-shadow: var(--profilelinks-item-box-shadow);
 	color: var(--profilelinks-item-color);
 	display: flex;
 	font-family: var(--profilelinks-item-font-family);
@@ -1207,6 +1225,7 @@ ol.profile_user_links {
 	background: var(--profilelinks-item-bg_hover);
 	border-color: var(--profilelinks-item-border-color_hover);
 	border-width: var(--profilelinks-item-border-width_hover);
+	box-shadow: var(--profilelinks-item-box-shadow_hover);
 	color: var(--profilelinks-item-color_hover);
 	font-weight: var(--profilelinks-item-font-weight_hover);
 	text-decoration: var(--profilelinks-item-text-decoration_hover);
@@ -1217,6 +1236,7 @@ ol.profile_user_links {
 	background: var(--profilelinks-item-bg_focus);
 	border-color: var(--profilelinks-item-border-color_focus);
 	border-width: var(--profilelinks-item-border-width_focus);
+	box-shadow: var(--profilelinks-item-box-shadow_focus);
 	color: var(--profilelinks-item-color_focus);
 	font-weight: var(--profilelinks-item-font-weight_focus);
 	text-decoration: var(--profilelinks-item-text-decoration_focus);
@@ -1261,6 +1281,7 @@ ol.profile_user_links {
 	color: var(--genericnoti-color);
 	display: grid;
 	font-size: var(--genericnoti-font-size);
+	font-weight: 400;
 	gap: var(--genericnoti-gap);
 	grid-template-columns: auto 1fr;
 	grid-template-rows: auto auto;
@@ -1270,11 +1291,13 @@ ol.profile_user_links {
 .generic_notification:hover {
 	background: var(--genericnoti-bg_hover);
 	color: var(--genericnoti-color_hover);
+	font-weight: inherit;
 	text-decoration: none;
 }
 .generic_notification:is(:focus, :focus-within, :focus-visible) {
 	background: var(--genericnoti-bg_focus);
 	color: var(--genericnoti-color_focus);
+	font-weight: inherit;
 }
 a.generic_notification .details,
 .generic_notification .details a {
@@ -1295,9 +1318,8 @@ a.generic_notification:hover .details,
 	position: relative;
 }
 .generic_notification img.avatar {
-	height: var(--genericnoti-avatar-height);
+	--avatar-size: var(--genericnoti-avatar-size);
 	object-fit: var(--genericnoti-avatar-object-fit);
-	width: var(--genericnoti-avatar-width);
 }
 .generic_notification span.main_icons {
 	color: var(--genericnoti-icon-color);
@@ -1314,6 +1336,7 @@ nav#main_menu {
 	align-items: center;
 	background: var(--nav-bg);
 	border-color: var(--nav-border-color);
+	border-radius: var(--nav-border-radius);
 	border-style: var(--nav-border-style);
 	border-width: var(--nav-border-width);
 	display: flex;
@@ -1383,6 +1406,7 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 .dropmenu {
 	align-items: center;
 	display: flex;
+	flex-wrap: wrap;
 	gap: .5em;
 	user-select: none;
 }
@@ -1572,6 +1596,7 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 .buttonlist, .buttonlistend, .buttonrow, .pagelinks, .pagesection {
 	align-items: baseline;
 	display: flex;
+	flex-wrap: wrap;
 	gap: 0.5em;
 }
 /* Items in mobile menu must be vertical. */
@@ -1597,7 +1622,7 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 .buttonlist > li {
 	position: relative;
 }
-.buttonlist > li > a,
+.buttonlist > li > :is(a, button),
 .buttonlist > li.inline_mod_check {
 	align-items: center;
 	display: inline-flex;
@@ -1620,7 +1645,7 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 	text-shadow: var(--buttonlist-link-text-shadow);
 	text-transform: var(--buttonlist-link-text-transform);
 }
-.buttonlist > li > a:hover,
+.buttonlist > li > :is(a, button):hover,
 .buttonlist > li.inline_mod_check:hover {
 	background: var(--buttonlist-link-bg_hover);
 	border-color: var(--buttonlist-link-border-color_hover);
@@ -1632,8 +1657,8 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 	text-decoration: var(--buttonlist-link-text-decoration_hover);
 	text-shadow: var(--buttonlist-link-text-shadow_hover);
 }
-.buttonlist > li > a:focus,
-.buttonlist > li:has(.top_menu.visible) > a,
+.buttonlist > li > :is(a, button):focus,
+.buttonlist > li:has(.top_menu.visible) > :is(a, button):not(.active),
 .buttonlist > li.inline_mod_check:is(:focus, :focus-within) {
 	background: var(--buttonlist-link-bg_focus);
 	border-color: var(--buttonlist-link-border-color_focus);
@@ -1645,7 +1670,7 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 	text-decoration: var(--buttonlist-link-text-decoration_focus);
 	text-shadow: var(--buttonlist-link-text-shadow_focus);
 }
-.buttonlist > li > a.active {
+.buttonlist > li > :is(a, button).active {
 	background: var(--buttonlist-link-bg_active);
 	border-color: var(--buttonlist-link-border-color_active);
 	border-radius: var(--buttonlist-link-border-radius_active);
@@ -1656,30 +1681,33 @@ nav:where(#genericmenu, #adm_submenus) a:is(:focus, :focus-visible, :focus-withi
 	text-decoration: var(--buttonlist-link-text-decoration_active);
 	text-shadow: var(--buttonlist-link-text-shadow_active);
 }
-.buttonlist > li > a.active:hover {
+.buttonlist > li > :is(a, button).active:hover {
 	background: var(--buttonlist-link-bg_active_hover);
 	color: var(--buttonlist-link-color_active_hover);
 }
-.buttonlist > li > a.active:focus {
+.buttonlist > li > :is(a, button).active:focus {
 	background: var(--buttonlist-link-bg_active_focus);
 	color: var(--buttonlist-link-color_active_focus);
 }
-.buttonlist > li > a:focus-visible,
+.buttonlist > li > :is(a, button):focus-visible,
 .buttonlist > li.inline_mod_check:focus-visible {
 	outline: var(--buttonlist-link-outline);
 	outline-offset: var(--buttonlist-link-outline-offset);
 }
-.buttonlist > li > a.sub_buttons::after {
+.buttonlist > li > :is(a, button).sub_buttons::after {
 	font-family: "Font Awesome 6 Free";
 	content: "\f078";
 	font-size: 0.6em;
 	font-weight: 700;
 	height: 0.6em;
 }
-.buttonlist > li:has(.top_menu.visible) > a.sub_buttons::after {
+.buttonlist > li:has(.top_menu.visible) > :is(a, button).sub_buttons::after {
 	content: "\f077";
 }
-html[lang="el-GR"] .buttonlist > li > a {
+.buttonlist > li > input[type="checkbox"] {
+	height: 1em;
+}
+html[lang="el-GR"] .buttonlist > li > :is(a, button) {
 	text-transform: capitalize;
 }
 #mobile_action,
@@ -1697,16 +1725,16 @@ html[lang="el-GR"] .buttonlist > li > a {
 	padding-inline: 0.25em;
 }
 .buttonlist .dropmenu li a {
-	--dropmenu-an-font-size: 0.9em;
 	align-items: flex-start;
 	flex-direction: column;
 	justify-content: center;
+	padding-block: .5em;
 }
-.buttonlist .dropmenu li a span:has(+ span) {
+.buttonlist .dropmenu li a span.text-label:has(+ span) {
 	font-weight: 700;
 }
-.buttonlist .dropmenu li a span ~ span {
-	font-size: 0.75em;
+.buttonlist .dropmenu li a span.text-label + span {
+	font-size: .9em;
 }
 .buttonlist .overview {
 	display: grid;
@@ -1760,10 +1788,10 @@ html[lang="el-GR"] .buttonlist > li > a {
 	box-shadow: var(--pagesection-box-shadow);
 	clear: both;
 	color: var(--pagesection-color);
-	margin-block: .25em;
+	margin-block: .25em 0;
 	margin-inline: auto;
-	padding-block: 0;
-	padding-inline: 0;
+	padding-block: .25em;
+	padding-inline: .5em;
 }
 .pagelinks {
 	align-items: center;
@@ -1775,7 +1803,7 @@ html[lang="el-GR"] .buttonlist > li > a {
 	box-shadow: var(--pages-box-shadow);
 	display: flex;
 	flex-wrap: wrap;
-	gap: .2em;
+	gap: .5em;
 	user-select: none;
 }
 .pagelinks a.nav_page,
@@ -1796,7 +1824,7 @@ html[lang="el-GR"] .buttonlist > li > a {
 	justify-content: center;
 	line-height: var(--pages-link-line-height);
 	min-height: var(--pages-link-height);
-	padding: .6em .75em;
+	padding: .25em .6em;
 	text-decoration: var(--pages-link-text-decoration);
 	text-shadow: var(--pages-link-text-shadow);
 	text-transform: var(--pages-link-text-transform);
@@ -1846,35 +1874,46 @@ html[lang="el-GR"] .buttonlist > li > a {
 	outline: var(--pages-link-outline);
 	outline-offset: var(--pages-link-outline-offset);
 }
-.pages::after, .jump_to::after, .code::after,
-strong[id^='child_list_']::after {
-	content: ": ";
-}
 .expand_pages {
 	font-weight: bold;
 	cursor: pointer;
 }
+.pagination_container {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: .25em;
+}
+.pagination_container .pages {
+	display: none;
+}
+.pagesection:not(:has(.buttonlist)) .pagelinks {
+	flex: 1;
+}
+.pagesection > div:has(> label) {
+	align-items: center;
+	display: flex;
+	gap: .25em;
+}
+.pagesection > div:has(> label) input[type="checkbox"] {
+	height: auto;
+}
 
 /* Styles for the general looks of the theme.
 ------------------------------------------------------- */
-
-/* Box-shadow only on this one. */
-#wrapper {
-	clear: both;
-	border-radius: 8px;
-}
-
 /* Set maximum width limit for content */
 #top_section .inner_wrap, #wrapper, #header .inner_wrap, #footer .inner_wrap, #main_menu .inner_wrap {
 	max-width: var(--wrapper-width);
 	margin: 0 auto;
 	width: 90%;
 }
-
+.jump_to::after, .code::after,
+strong[id^='child_list_']::after {
+	content: ": ";
+}
 .notice {
 	font-weight: bold;
 }
-
 #languages_form, #search_form {
 	padding: 5px 0;
 }
@@ -1908,8 +1947,7 @@ strong[id^='child_list_']::after {
 h1.forumtitle {
 	align-items: center;
 	color: var(--forumtitle-color);
-	display: inline-grid;
-	flex: 1;
+	flex: 1 0 auto;
 	gap: .2em;
 	font-family: var(--forumtitle-font-family);
 	font-size: var(--forumtitle-font-size);
@@ -1931,7 +1969,6 @@ h1.forumtitle span#siteslogan {
 
 /* Even guests need to be aligned */
 .welcome {
-	padding: 0 10px;
 	line-height: 2.5em;
 }
 /*
@@ -1977,9 +2014,9 @@ ul li.greeting {
 	display: grid;
 	font-size: var(--newsfader-font-size);
 	grid-template-columns: auto 1fr;
-	height: var(--newsfader-height);
 	margin-block: .5em 1em;
 	max-height: calc(var(--newsfader-height) * 1.25);
+	min-height: var(--newsfader-height);
 	overflow: hidden;
 }
 .news_section .icon {
@@ -2002,12 +2039,10 @@ ul li.greeting {
 	overflow: hidden;
 	padding: .8em;
 }
-.news_section .sy-pager {
-	overflow: auto;
-}
 .news_section .sy-slides-wrap {
 	max-height: calc(var(--newsfader-height) * 1.25);
 	overflow: auto;
+	overscroll-behavior: contain;
 }
 .news_section .sy-pager {
 	align-items: flex-end;
@@ -2025,6 +2060,7 @@ ul li.greeting {
 }
 .news_section .sy-pager li a {
 	background: var(--newsfader-pager-bg);
+	border-radius: var(--newsfader-pager-border-radius);
 }
 .news_section .sy-pager li.sy-active a {
 	background: var(--newsfader-pager-bg_active);
@@ -2043,9 +2079,10 @@ ul li.greeting {
 	z-index: 0;
 }
 .random_news {
-	display: grid;
+	display: flex;
 	gap: .25em;
-	padding-inline: .75em;
+	padding-block: .75em;
+	padding-inline: .25em;
 	text-align: start;
 }
 .random_news h2 {
@@ -2095,6 +2132,7 @@ ul li.greeting {
 .navigate_section li {
 	align-items: center;
 	display: flex;
+	flex-wrap: wrap;
 	gap: .25em .15em;
 }
 .navigate_section a {
@@ -2336,6 +2374,9 @@ ul li.greeting {
 }
 .quickbuttons > li:has(.top_menu.visible) > a.sub_buttons::after {
 	content: "\f077";
+}
+.quickbuttons > li > input[type="checkbox"] {
+	height: 1em;
 }
 /* Drop part of QuickButtons */
 .quickoptions ul {
@@ -3130,6 +3171,7 @@ dl.addrules dt.floatleft {
 	height: auto;
 	inset: 0;
 	margin: 0;
+	overscroll-behavior: contain;
 	padding: 0;
 	position: fixed;
 	width: 100%;
@@ -3196,7 +3238,7 @@ dl.addrules dt.floatleft {
 }
 
 /* Windowbg */
-.generic_list_wrapper, .windowbg, .approvebg, .approvebg2 {
+.generic_list_wrapper, .windowbg, .approvebg, .approvebg2, .windowbg:is(.odd) {
 	background: var(--window-bg);
 	border-color: var(--window-border-color);
 	border-radius: var(--window-border-radius);
@@ -3210,7 +3252,7 @@ dl.addrules dt.floatleft {
 	margin-inline: var(--window-margin-inline);
 	overflow: auto;
 }
-:nth-child(even of .windowbg), .bg.even {
+:nth-child(even of .windowbg), .windowbg:is(.even) {
 	background: var(--window-even-bg);
 }
 /* Special treatment for #forumposts area */
@@ -3236,7 +3278,7 @@ tr.windowbg {
 tr.windowbg:hover {
 	background: var(--window-bg_hover);
 }
-tr.windowbg:nth-of-type(odd):hover {
+tr.windowbg:nth-of-type(even):hover {
 	background: var(--window-even-bg_hover);
 }
 td.windowbg {
@@ -3919,6 +3961,7 @@ ul.post_options li {
 	padding-inline: .25em;
 }
 
+/* Like button */
 .smflikebutton {
 	margin-top: 4px;
 }
@@ -4418,10 +4461,10 @@ h3.profile_hd::before,
 }
 
 /* Topic/Board follow-alert menu */
-.dropmenu .viewport .overview strong {
+.notify_dropdown strong {
 	font-size: 1.1em;
 }
-.dropmenu .viewport .overview a {
+.notify_dropdown a {
 	display: block;
 	padding: 0.5em;
 	text-decoration: none;
@@ -4431,7 +4474,7 @@ h3.profile_hd::before,
 .notify_dropdown a:hover, .notify_dropdown a:focus {
 	border-color: var(--border_color);
 }
-.dropmenu .viewport .overview span {
+.notify_dropdown span {
 	font-size: 0.9em;
 }
 
@@ -4745,6 +4788,7 @@ input:checked + .slider:before {
 	font-weight: 700;
 	font-family: "Font Awesome 6 Free";
 }
+
 /* Fade-in animation */
 @keyframes fadeIn {
     from {
@@ -4754,7 +4798,6 @@ input:checked + .slider:before {
         opacity: 1;
     }
 }
-
 /* Fade-out animation */
 @keyframes fadeOut {
     from {
@@ -4764,12 +4807,10 @@ input:checked + .slider:before {
         opacity: 0;
     }
 }
-
 /* Apply fade-in and fade-out animations */
 .fade-in {
     animation: fadeIn 0.3s ease forwards;
 }
-
 .fade-out {
     animation: fadeOut 0.3s ease forwards;
 }
