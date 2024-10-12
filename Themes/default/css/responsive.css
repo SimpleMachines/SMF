@@ -1,5 +1,5 @@
 /* Some very big stuff? Dunno... */
-@media (min-width: 856px) and (max-width: 1024px) {
+@media (min-width: 992px) and (max-width: 1024px) {
 	#alerts .alert_time {
 		display: none;
 	}
@@ -10,13 +10,7 @@
 
 /* Still not enough data or people to test this... */
 /* This needs more data and this range is probably for iPad Air (alike) tablets... */
-@media (min-width: 721px) and (max-width: 855px) {
-	.lastpost {
-		margin: 0 0 0 20px;
-	}
-	.board_stats {
-		display: none;
-	}
+@media (min-width: 721px) and (max-width: 991px) {
 	#alerts .alert_time {
 		display: none;
 	}
@@ -25,19 +19,26 @@
 	}
 }
 
-@media (max-width: 855px) {
-	#profile_menu_top .textmenu,
-	#pm_menu_top .textmenu,
-	#alerts_menu_top .textmenu {
-		display: none;
-	}
-	#pm_menu_top .main_icons,
-	#alerts_menu_top .main_icons {
-		display: inline-block;
-	}
+@media (max-width: 991px) {
 	#member_list .ip, #member_list .last_active, #member_list .user_name {
 		display: none !important;
 	}
+	.board_container {
+		grid-template-columns: 50px 1fr auto 34%;
+	}
+	#topic_header,
+	.topic_container {
+		grid-template-columns: auto 1fr auto 34% auto;
+	}
+	.board_stats,
+	.topic_stats {
+		display: none;
+	}
+	.board_info,
+	.topic_info {
+		grid-column: info/stats;
+	}
+}
 
 @media (min-width: 720px) and (max-width: 799px) {
 	#top_info .welcome {
@@ -50,16 +51,10 @@
 	#event_title {
 		padding: 0;
 	}
-	#evtitle {
-		width: 98%;
-	}
 	.event_options_left, .event_options_right {
 		display: block;
 		max-width: unset;
 		width: unset;
-	}
-	#event_title input[type="text"] {
-		width: 100%;
 	}
 	#post_event #event_board select {
 		width: calc(100% - 90px);
@@ -67,7 +62,7 @@
 	}
 }
 
-@media screen and (min-width: 721px) {
+@media screen and (min-width: 768px) {
 	#mobile_action,
 	#mobile_moderation {
 		display: none !important;
@@ -75,7 +70,7 @@
 }
 
 /* We have shared things... */
-@media screen and (max-width: 720px) {
+@media screen and (max-width: 767px) {
 	/* Remove some content from the hooks table */
 	#list_integration_hooks th#header_list_integration_hooks_function_name, #list_integration_hooks td.function_name,
 	#list_integration_hooks th#header_list_integration_hooks_remove, #list_integration_hooks td.remove {
@@ -109,19 +104,20 @@
 	.mobile_buttons {
 		display: inline-flex;
 	}
-}
-
-@media (min-width: 720px) and (max-width: 799px) {
-	#top_info .welcome {
-		display: none;
+	/* Hide me */
+	#search_form,	 #message_index_jump_to, .nextlinks, #display_jump_to,
+	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
+	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
+	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
+	#main_content_section .navigate_section, .time,
+	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
+	#header_custom_profile_fields_placement, #custom_profile_fields .active, #custom_profile_fields .field_type, #custom_profile_fields .placement {
+		display: none !important;
 	}
-}
-
-/* We have shared things... */
-@media screen and (max-width: 720px) {
-	/* Remove some content from the hooks table */
-	#list_integration_hooks th#header_list_integration_hooks_function_name, #list_integration_hooks td.function_name,
-	#list_integration_hooks th#header_list_integration_hooks_remove, #list_integration_hooks td.remove {
+	/* Generic Lists */
+	#topic_notification_list .last_post, #topic_notification_list .started_by,
+	#request_list .time_applied, #file_list .date, #ban_list .notes, #ban_list .reason, #ban_log .email,
+	#mail_queue .priority, #attachments .posted {
 		display: none;
 	}
 
@@ -162,65 +158,78 @@
 	}
 
 	/* General */
-	.action_home {
-		width: 100% !important;
-	}
-	#wrapper, #top_section .inner_wrap, #header .inner_wrap, #footer .inner_wrap, #main_menu .inner_wrap {
+	.content-wrapper {
 		width: 100%;
 	}
 	nav#main_menu,
 	.navigate_section,
-	#content_section {
+	#content_section,
+	#footer {
 		padding-inline: .5em;
 	}
 	.navigate_section {
 		margin-inline: .5em;
 	}
-	#boardindex_table .stats {
-		display: none;
-	}
 	.login {
 		width: 100%;
-	}
-	#inner_wrap {
-		flex-flow: row wrap;
-	}
-	#inner_wrap .user,
-	#inner_wrap .news {
-		width: auto;
-		max-width: initial;
 	}
 	#languages_form {
 		padding-right: 10px;
 	}
 
 	/* BoardIndex */
-	.board_stats {
+	.board_container {
+		grid-template-areas: "icon info"
+							 "icon lastpost";
+		grid-template-columns: auto 1fr;
+	}
+	.board_info {
+		grid-column: info/lastpost;
+	}
+	.board_icon {
+		font-size: .85em;
+		grid-row: initial !important;
+	}
+	.board_lastpost,
+	.board_children {
+		grid-column: icon/lastpost;
+	}
+	.board_lastpost img.avatar {
+		height: 20px;
+		width: 20px;
+	}
+	/* MessageIndex */
+	#topic_header,
+	.topic_container {
+		grid-template-areas: "info moderation"
+							 "lastpost lastpost";
+		grid-template-columns: 1fr auto;
+	}
+	.topic_icon {
 		display: none;
 	}
-	.info {
-		width: calc(100% - 65px);
+	.topic_info {
+		grid-column: info-start/info-end;
 	}
-	.lastpost {
-		width: 100%;
-		padding: 0;
-		display: block;
-		min-height: 2em;
+	.topic_info .pagelinks {
+		font-size: 1em;
 	}
-	.up_contain .lastpost {
-		background: var(--children_bg_color);
-		border-top: var(--border_width) var(--border_style) var(--border_color);
-		min-height: initial;
+	.topic_info .started_by,
+	.topic_info .pagelinks {
+		float: none;
 	}
-	.lastpost p {
-		margin: 5px;
+	.topic_lastpost img.avatar {
+		height: 20px;
+		width: 20px;
 	}
-	.board_lastpost {
-		padding: 0px 0px 0px 0px;
+	.topic_moderation {
+		align-self: flex-start;
+		width: auto;
 	}
-	span.postby {
-		display: inline-block;
+	.topic_moderation .main_icons {
+		display: none;
 	}
+
 	/* Stats Center */
 	#ic_recentposts {
 		margin: 0;
@@ -231,17 +240,8 @@
 	}
 
 	/* MessageIndex */
-	#messageindex .board_icon, #messageindex .lastpost {
-		display: none;
-	}
-	#messageindex .info {
-		padding: 8px 10px;
-	}
 	.moderation a {
 		padding: 3px;
-	}
-	#topic_container .moderation .main_icons {
-		display: none;
 	}
 	/* Unread */
 	#unread .board_icon, #unread .lastpost, #unreadreplies .board_icon, #unreadreplies .lastpost {
@@ -252,66 +252,40 @@
 	}
 
 	/* Display (Topics) */
+	.post_container {
+		grid-template-columns: 1fr;
+	}
 	.poster {
-		float: none;
+		display: grid;
+		grid-template-areas: "avatar other";
+		grid-template-columns: auto 1fr;
+		justify-items: flex-start;
+		padding: .75em 1.25em;
 		width: auto;
-		position: relative;
 	}
-	.postarea {
-		margin: 0;
-	}
-	.inner {
-		padding: 1em 2px;
-	}
-	.moderatorbar {
-		margin: 0;
-	}
-	.keyinfo {
-		padding-top: 5px;
-		margin-top: 5px;
-		clear: both;
-	}
-	.keyinfo .postinfo {
-		font-weight: normal;
-	}
-	.keyinfo .postinfo .smalltext,
-	.keyinfo .page_number {
-		opacity: 0.6;
-	}
-	.keyinfo .postinfo a.smalltext:hover {
-		opacity: 1;
+	.postarea, .moderatorbar {
+		grid-column: initial;
 	}
 	img.icon, #forumposts .catbg img {
 		display: none;
 	}
-	.poster h4 {
-		display: inline-block;
-	}
-	.user_info {
-		display: inline;
-	}
-	.user_info li,
-	.custom_fields_above_member {
+	.poster > :not(h4, .title, .avatar, .membergroup) {
 		display: none;
 	}
-	.user_info li.title,
-	.user_info li.membergroup {
-		display: inline-block;
-		font-weight: normal;
+	.poster .avatar {
+		align-self: center;
+		grid-area: avatar;
+		grid-row: 1/4;
 	}
-	.user_info li::before {
-		content: "·";
-		padding: 0 1ch 0 0.5ch;
+	.poster .avatar img.avatar {
+		height: 50px;
+		width: 50px;
 	}
-	.like_count,
-	.smflikebutton:last-child {
-		margin-bottom: 8px;
+	.poster :not(.avatar) {
+		grid-column: avatar-end/other;
 	}
 	.button.mobile {
 		margin: 0 0 5px 0;
-	}
-	.pagelinks {
-		margin: 0;
 	}
 
 	/* Profile */
@@ -324,11 +298,8 @@
 	#creator dd {
 		width: 65%;
 	}
-	#basicinfo, #detailedinfo {
-		width: 100%;
-	}
-	#basicinfo {
-		margin: 0 0 5px 0; /* For UX */
+	#profileview {
+		grid-template-columns: 1fr;
 	}
 	/* Buddies & Ignore List */
 	#edit_buddies .buddy_custom_fields {
@@ -399,24 +370,6 @@
 	input#searchfor, input#userspec {
 		width: 75%;
 	}
-	/* Hide me */
-	#inner_wrap.hide_720, #inner_wrap time, #inner_wrap .news,
-	#search_form,	 #message_index_jump_to, .nextlinks, #display_jump_to,
-	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
-	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
-	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
-	#main_content_section .navigate_section, .time,
-	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
-	#header_custom_profile_fields_placement, #custom_profile_fields .active, #custom_profile_fields .field_type, #custom_profile_fields .placement {
-		display: none !important;
-	}
-	/* Generic Lists */
-	#topic_notification_list .last_post, #topic_notification_list .started_by,
-	#request_list .time_applied, #file_list .date, #ban_list .notes, #ban_list .reason, #ban_log .email,
-	#mail_queue .priority, #attachments .posted {
-		display: none;
-	}
-
 	/* Admin */
 	.admin_search {
 		float: none;
@@ -449,7 +402,7 @@
 }
 
 /* Mobile Menus */
-@media (min-width: 561px) {
+@media (min-width: 577px) {
 	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_container {
 		all: unset;
 		display: block !important;
@@ -467,7 +420,9 @@
 		display: none;
 	}
 }
-@media (max-width: 560px) {
+
+
+@media (max-width: 576px) {
 	a.mobile_user_menu,
 	nav:where(#genericmenu, #adm_submenus) a {
 		display: block;
@@ -506,24 +461,8 @@
 	.dropmenu li > ul {
 		position: static;
 	}
-}
 
-@media (min-width: 481px) and (max-width: 560px) {
-	/* Calendar */
-	#event_time_options {
-/* 		width: 40%; */
-	}
-	#event_title, #event_board {
-/* 		width: 100%; */
-	}
-	#evtitle {
-/* 		width: 98%; */
-	}
-}
-
-/* Entry level phones */
-@media (max-width: 480px) {
-	#header .inner_wrap {
+	#header .content-wrapper {
 		flex-direction: column;
 		flex-wrap: wrap;
 	}
@@ -540,24 +479,23 @@
 		display: none;
 	}
 	#pm_menu, #alerts_menu, #profile_menu {
-		min-width: initial;
-		width: 25em;
-		max-width: calc(100vw - 17px);
+		margin-inline: auto;
+		inset-inline: -100%;
+		width: calc(100dvw - 1.5em);
 	}
-	#footer {
-		padding-inline: 0.5em;
-	}
-	#footer .inner_wrap {
+	#footer .content-wrapper {
+		flex-direction: column;
 		justify-content: center;
+		text-align: center;
 	}
 	
 	/* MessageIndex */
-	#main_content_section .pagelinks {
-		display: block;
+	.topic_info .started_by,
+	.topic_info .pagelinks {
+		float: none;
 	}
-	#main_content_section .pagesection {
-		margin: 5px 0;
-		padding: 0;
+	.topic_info .pagelinks {
+		margin-block: .2em;
 	}
 	#topic_icons p {
 		display: block;
@@ -571,12 +509,17 @@
 		width: 100%;
 	}
 
-	/* Display (Topic View) */
-	.subject_title input {
-		width: 90%;
+	/* BoardIndex */
+	.board_container {
+		grid-template-columns: 35px 1fr;
 	}
+	.board_icon {
+		font-size: .75em;
+	}
+
+	/* Display (Topic View) */
 	#quickreply_options .roundframe {
-		padding: 8px 10px 12px 10px;
+		padding-inline: .5em;
 	}
 
 	/* Post Section */
@@ -719,12 +662,6 @@
 		padding: 0;
 		margin: 0 0 5px 0;
 	}
-	fieldset.admin_group a {
-		width: 50%;
-		float: left;
-		margin: 0 0 5px 0;
-	}
-
 	.error_info, #fatal_error {
 		width: 100% !important;
 		padding: 0 !important;
