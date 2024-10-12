@@ -1396,14 +1396,14 @@
 	--calendar-th-bg:                                 var(--titlebar-bg);
 
 	/** Attachments **/
-	--attachments-bg:                                 transparent;
-	--attachments-border-color:                       hsl(0, 0%, 75%);
-	--attachments-border-radius:                      0;
+	--attachments-bg:                                 hsl(var(--primary-color-hue), 45%, 97%);
+	--attachments-border-color:                       var(--window-border-color);
+	--attachments-border-radius:                      1px;
 	--attachments-border-style:                       solid;
-	--attachments-border-width:                       1px 0 0;
-	--attachments-box-shadow:                         0 1px 0 hsl(0, 0%, 100%) inset;
-	--attachments-font-size:                          0.9em;
-	--attachments-line-height:                        1.4em;
+	--attachments-border-width:                       0;
+	--attachments-box-shadow:                         var(--window-box-shadow);
+	--attachments-font-size:                          .9em;
+	--attachments-line-height:                        1.5;
 
 	/** Signature **/
 	--signature-bg:                                   transparent;

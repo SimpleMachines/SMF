@@ -1,52 +1,62 @@
-:root {
-
-	--post_attachments_area_border_color: hsl(0, 0%, 93%);;
-	--post_attachments_area_border_style: dotted;
-	--post_attachments_area_border_width: 1px;
-	--post_attachments_area_hover_border_color: hsl(207, 31%, 48%);
-
-}
-
-/* For the revamped attachments UI introduced in 2.1.4 */
-
 /* Stuff common to both Display.template.php and Post.template.php */
 .attachments {
-	padding: 12px 0 0 0;
-	display: flex;
-	flex-flow: row wrap;
+	background: var(--attachments-bg);
+	border-color: var(--attachments-border-color);
+	border-radius: var(--attachments-border-radius);
+	border-style: var(--attachments-border-style);
+	border-width: var(--attachments-border-width);
+	box-shadow: var(--attachments-box-shadow);
+	display: grid;
+	font-size: var(--attachments-font-size);
+	gap: .75em .5em;
+	grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+	line-height: var(--attachments-line-height);
+	padding-block: 1em .25em;
+	padding-inline: .25em;
 }
 .attached {
-	padding: 0 6px 8px 6px;
-	max-width: 100%;
-	display: flex;
-	flex-flow: column;
-	justify-content: center;
-	align-items: center;
-	vertical-align: initial;
+	align-items: flex-end;
+	align-self: flex-end;
+	display: grid;
+	grid-template-rows: auto 1fr;
+	padding: .25em .5em;
+	position: relative;
 }
 .attachments_top {
-	margin: 0 auto;
-	text-align: center;
-	flex: 1 1 auto;
+	align-items: flex-end;
 	display: flex;
-	flex-flow: column;
+	margin-inline: auto;
+	height: 125px;
 	justify-content: center;
+	overflow: hidden;
+	padding-block: 0 .5em;
+	width: 100%;
+}
+.attachments_top :is(a, img) {
+	height: 100%;
+	width: 100%;
+}
+.attachments_top img {
+	object-fit: contain;
 }
 .attachments_bot {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	max-width: 100%;
 }
 .attachments_bot a,
 .attachments_bot .name,
 .attachments_info .name {
 	white-space: nowrap;
 }
+.attachments hr {
+	clear: both;
+	margin: 12px 0;
+}
 
 /* Stuff unique to Post.template.php */
 div#post_attachments_area.roundframe {
+	--roundframe-border-width: 0 1px 1px;
 	--roundframe-border-color: var(--input-border-color);
-	border-top: none;
 	overflow: visible;
 	padding: 0;
 }
@@ -55,30 +65,18 @@ div#post_attachments_area.roundframe {
 #post_attachments_area #attachment_previews {
 	padding: initial;
 }
-#post_attachments_area #postAttachment .attachments {
-	padding: 0;
-	border-top: none;
-	box-shadow: none;
-}
-#post_attachments_area #postAttachment .attached {
-	border-right: var(--post_attachments_area_border_width) vaR(--post_attachments_area_border_style) var(--post_attachments_area_border_color);
-	border-top: var(--post_attachments_area_border_width) vaR(--post_attachments_area_border_style) var(--post_attachments_area_border_color);
-	padding-top: 9px;
-	width: 200px;
-	position: relative;
-}
 #post_attachments_area #postAttachment input {
 	line-height: initial;
 }
 #post_attachments_area #postAttachment .attached input[type="checkbox"] {
 	position: absolute;
-	right: 0;
+	inset-inline-end: 0;
 	top: 0;
 }
 #post_attachments_area .attachment_spacer {
 	display: flex;
-	flex-flow: column;
 	flex: 1 1 200px;
+	flex-flow: column;
 	min-width: 200px;
 	order: 9999;
 }
@@ -97,27 +95,33 @@ div#post_attachments_area.roundframe {
 	margin: 0 2ch;
 }
 #post_attachments_area .dz-image-preview {
+	align-items: center;
 	flex: 1 0 auto;
 	display: flex;
 	flex-flow: column;
-	align-items: center;
 	justify-content: center;
-	position: relative;
 	margin: 0;
+	position: relative;
 }
 #post_attachments_area .dz-image-preview .attachment_preview_wrapper {
-	flex: 1 0 auto;
-	display: flex;
-	flex-flow: column;
 	align-items: center;
+	display: flex;
+	flex: 1 0 auto;
+	flex-flow: column;
 	justify-content: center;
-	width: 200px;
 	padding: 5px;
+	width: 200px;
 }
 #post_attachments_area .dz-image-preview:not(.errorbox) .attachment_preview_wrapper {
 	position: relative;
 }
 #post_attachments_area #attachment_previews {
+	background: var(--attachments-bg);
+	border-color: var(--attachments-border-color);
+	border-radius: var(--attachments-border-radius);
+	border-style: var(--attachments-border-style);
+	border-width: var(--attachments-border-width);
+	box-shadow: var(--attachments-box-shadow);
 	display: none;
 	flex-flow: row wrap;
 	justify-content: space-evenly;
@@ -134,48 +138,53 @@ div#post_attachments_area.roundframe {
 	display: none;
 }
 #post_attachments_area #attachment_previews .attach-preview {
-	flex: 1 1 auto;
 	display: flex;
+	flex: 1 1 auto;
 	justify-content: center;
 	margin: 0.5em 0;
-	min-height: 75px;
 	max-height: 200px;
+	min-height: 75px;
 	width: auto;
 }
 #post_attachments_area #attachment_previews .attach-preview img {
 	object-fit: contain;
 }
 #post_attachments_area #attachment_previews .attachment_info {
+	flex: initial;
+	max-width: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	max-width: 100%;
-	flex: initial;
 	width: auto;
 }
 #post_attachments_area #attachment_previews .attachment_info span:not(:first-child)::before {
-	display: block;
 	content: "";
+	display: block;
 }
 #post_attachments_area #attachment_previews .attach-ui {
-	position: absolute;
-	right: 5px;
-	top: 5px;
 	border-radius: 4px;
-	padding: 0.5ch;
-	min-height: initial;
-	margin: 0;
 	box-shadow: none;
+	inset-inline-end: 5px;
+	margin: 0;
+	min-height: initial;
+	padding: 0.5ch;
+	position: absolute;
+	top: 5px;
 	z-index: 2;
 }
+#post_attachments_area #attachment_previews .attach-ui a {
+	font-weight: 700;
+	margin-inline: .25em;
+	text-decoration: none;
+}
 #post_attachments_area .attached_BBC_width_height {
-	display: none;
 	clear: both;
+	display: none;
 }
 #post_attachments_area .attached_BBC_width,
 #post_attachments_area .attached_BBC_height {
-	padding: 5px 0;
-	margin: 0;
 	display: block;
+	margin: 0;
+	padding: 5px 0;
 }
 #post_attachments_area #attachment_upload {
 	border: 2px dashed transparent;
@@ -183,7 +192,7 @@ div#post_attachments_area.roundframe {
 	min-height: initial;
 }
 #post_attachments_area #attachment_upload.dz-drag-hover {
-	border-color: var(--post_attachments_area_hover_border_color);
+	border-color: var(--input-border-color);
 }
 #post_attachments_area .dz-clickable {
 	cursor: pointer;
@@ -196,10 +205,10 @@ div#post_attachments_area.roundframe {
 }
 #post_attachments_area #max_files_progress {
 	display: none;
-	border-radius: 0 0 7px 7px;
-	border-left: none;
-	border-right: none;
-	border-bottom: none;
+	border-radius: var(--roundframe-border-radius);
+	border-start-end-radius: 0;
+	border-start-start-radius: 0;
+	border-width: 1px 0 0;
 }
 #post_attachments_area #max_files_progress_text {
 	display: none;

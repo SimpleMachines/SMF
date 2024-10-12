@@ -3765,24 +3765,6 @@ div#pollmoderation {
 img.smiley {
 	vertical-align: bottom;
 }
-
-.attachments {
-	padding: 12px 0 0 0;
-}
-.attached {
-	padding: 0 6px 8px 6px;
-	max-width: 100%;
-	display: inline-block;
-	vertical-align: top;
-}
-.attachments_top {
-	margin: 0 auto;
-	text-align: center;
-}
-.attachments hr {
-	clear: both;
-	margin: 12px 0;
-}
 .show_on_hover:hover span {
 	display:none;
 }
@@ -3943,28 +3925,15 @@ ul.post_options li {
 	line-height: var(--signature-line-height);
 	word-break: break-all;
 }
-.attachments,
+/* Custom fields above and below the signature */
 .custom_fields_above_signature,
 .custom_fields_below_signature {
-	width: 100%;
-	overflow: auto;
 	clear: inline-end;
-	padding: 12px 0 3px 0;
-	line-height: 1.4em;
 	font-size: 0.9em;
-}
-/* Attachments */
-.attachments {
-	background: var(--attachments-bg);
-	border-color: var(--attachments-border-color);
-	border-radius: var(--attachments-border-radius);
-	border-style: var(--attachments-border-style);
-	border-width: var(--attachments-border-width);
-	box-shadow: var(--attachments-box-shadow);
-	font-size: var(--attachments-font-size);
-	line-height: var(--attachments-line-height);
-	padding-block: 1em .25em;
-	padding-inline: .25em;
+	line-height: 1.4em;
+	overflow: auto;
+	padding: 12px 0 3px 0;
+	width: 100%;
 }
 
 /* Like button */
