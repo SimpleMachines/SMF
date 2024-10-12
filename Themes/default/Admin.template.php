@@ -73,33 +73,39 @@ function template_admin()
 									</div><!-- #version_details -->
 								</div><!-- .windowbg -->
 							</div><!-- #support_info -->
-						</div><!-- #admin_main_section -->';
+						</div><!-- #admin_main_section -->
+						<div class="admin_areas">';
 
 	foreach (Utils::$context[Utils::$context['admin_menu_name']]['sections'] as $area_id => $area)
 	{
 		echo '
-						<fieldset id="group_', $area_id, '" class="windowbg admin_group">
-							<legend>', $area['title'], '</legend>';
+							<strong>', $area['title'], '</strong>
+							<div class="section" id="group_', $area_id, '">';
 
 		foreach ($area['areas'] as $item_id => $item)
 		{
 			// No point showing the 'home' page here, we're already on it!
-			if ($area_id == 'forum' && $item_id == 'index')
+			if ($area_id == 'forum' && $item_id == 'index') {
 				continue;
+			}
 
 			$url = isset($item['url']) ? $item['url'] : Config::$scripturl . '?action=admin;area=' . $item_id . (!empty(Utils::$context[Utils::$context['admin_menu_name']]['extra_parameters']) ? Utils::$context[Utils::$context['admin_menu_name']]['extra_parameters'] : '');
 
-			if (!empty($item['icon_file']))
-				echo '
-							<a href="', $url, '" class="admin_group', !empty($item['inactive']) ? ' inactive' : '', '"><img class="large_admin_menu_icon_file" src="', $item['icon_file'], '" alt="">', $item['label'], '</a>';
-			else
-				echo '
-							<a href="', $url, '"><span class="large_', $item['icon_class'], !empty($item['inactive']) ? ' inactive' : '', '"></span>', $item['label'], '</a>';
+			echo '
+									<a href="', $url, '"', !empty($item['inactive']) ? ' class="inactive"' : '', '>
+										<span class="windowbg">
+											', !empty($item['icon_file']) ? '<img class="large_admin_menu_icon_file" src="' . $item['icon_file'] . '" alt="">' : '<span class="main_icons ' . $item['icon_class'] . ' large"></span>', '
+										</span>
+										<span class="text-label">', $item['label'], '</span>
+									</a>';
 		}
 
 		echo '
-						</fieldset>';
+							</div>';
 	}
+
+	echo '
+						</div><!-- .admin_areas -->';
 
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.
 	if (empty(Config::$modSettings['disable_smf_js']))
