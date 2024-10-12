@@ -166,6 +166,7 @@
 	font-size: 0.65em;
 	font-weight: var(--titlebar-font-weight);
 	overflow: hidden;
+	text-align: center;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
