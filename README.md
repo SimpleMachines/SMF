@@ -11,10 +11,11 @@ Contributions to documentation are licensed under [CC-by-SA 3](https://creativec
 
 Feel free to fork this repository and make your desired changes.
 
-Please see the [Developer's Certificate of Origin](https://github.com/SimpleMachines/SMF2.1/blob/master/DCO.txt) in the repository:
+Please see the [Developer's Certificate of Origin](https://github.com/SimpleMachines/SMF3.0/blob/master/DCO.txt) in the repository:
 by signing off your contributions, you acknowledge that you can and do license your submissions under the license of the project.
 
 ## Branches organization:
+* ***release-3.0*** - is the branch where updates for version 3.0 are applied
 * ***release-2.1*** - is the branch where updates for version 2.1 are applied
 
 ## How to contribute:
@@ -26,11 +27,11 @@ by signing off your contributions, you acknowledge that you can and do license y
 * send a pull request to us.
 
 ## How to submit a pull request:
-* If you want to send a bug fix for version 2.1, send it to the branch ***release-2.1***
+* If you want to send a bug fix for version 3.0, send it to the branch ***release-3.0***
 
 ## Security matters:
 
-Lastly, if you have a security issue you would like to notify us about regarding SMF - not just for 2.1, but for any version -
+Lastly, if you have a security issue you would like to notify us about regarding SMF for any version -
 please file a [security report](https://www.simplemachines.org/about/smf/security.php) on our website: https://www.simplemachines.org/about/smf/security.php
 
-This will enable the team to review it and prepare patches as appropriate before exploits are widely known, which helps keep everyone safe.
+For further information regarding our security policy, see SECURITY.md

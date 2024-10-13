@@ -682,7 +682,7 @@ class Config
 				 * Path to the cache directory for the file-based cache system.
 				 */
 				END,
-			'default' => 'dirname(__FILE__) . \'/cache\'',
+			'default' => '__DIR__ . \'/cache\'',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -745,7 +745,7 @@ class Config
 				 * The absolute path to the forum's folder. (not just '.'!)
 				 */
 				END,
-			'default' => 'dirname(__FILE__)',
+			'default' => '__DIR__',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -757,7 +757,7 @@ class Config
 				 * Path to the Sources directory.
 				 */
 				END,
-			'default' => 'dirname(__FILE__) . \'/Sources\'',
+			'default' => '__DIR__ . \'/Sources\'',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -769,7 +769,7 @@ class Config
 				 * Path to the Packages directory.
 				 */
 				END,
-			'default' => 'dirname(__FILE__) . \'/Packages\'',
+			'default' => '__DIR__ . \'/Packages\'',
 			'raw_default' => true,
 			'type' => 'string',
 		],
@@ -920,7 +920,7 @@ class Config
 						'__DIR__' => var_export(dirname(SMF_SETTINGS_FILE), true),
 					]);
 
-					self::${$var} = eval($default . ';');
+					self::${$var} = eval('return ' . $default . ';');
 				} else {
 					self::${$var} = $def['default'];
 				}
