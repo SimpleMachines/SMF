@@ -200,7 +200,7 @@ class JavaScriptModify implements ActionInterface
 			];
 
 			// Only consider marking as editing if they have edited the subject, modify reason, message or icon.
-			if (
+			$is_new_edit =
 				(
 					isset($_POST['subject'])
 					&& $_POST['subject'] != $row['subject']
@@ -216,8 +216,9 @@ class JavaScriptModify implements ActionInterface
 				|| (
 					isset($_POST['modify_reason'])
 					&& $_POST['modify_reason'] != $row['modified_reason']
-				)
-			) {
+				);
+
+			if ($is_new_edit) {
 				// And even then only if the time has passed...
 				if (
 					time() - $row['poster_time'] > Config::$modSettings['edit_wait_time']
@@ -228,10 +229,8 @@ class JavaScriptModify implements ActionInterface
 					$msgOptions['modify_reason'] = $_POST['modify_reason'] ?? '';
 				}
 			}
-			// If nothing was changed there's no need to add an entry to the moderation log.
-			else {
-				$moderationAction = false;
-			}
+
+			IntegrationHook::call('integrate_jsmodify', [$row, &$is_new_edit, &$msgOptions, &$topicOptions, &$posterOptions]);
 
 			Msg::modify($msgOptions, $topicOptions, $posterOptions);
 
@@ -243,7 +242,7 @@ class JavaScriptModify implements ActionInterface
 			}
 
 			// Changing the first subject updates other subjects to 'Re: new_subject'.
-			if (isset($_POST['subject'], $_REQUEST['change_all_subjects'])   && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (User::$me->allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && User::$me->allowedTo('modify_replies')))) {
+			if (isset($_POST['subject'], $_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (User::$me->allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && User::$me->allowedTo('modify_replies')))) {
 				// Get the proper (default language) response prefix first.
 				if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
 					if (Lang::$default === User::$me->language) {
@@ -270,7 +269,7 @@ class JavaScriptModify implements ActionInterface
 				);
 			}
 
-			if (!empty($moderationAction)) {
+			if (!empty($moderationAction) && $is_new_edit) {
 				Logging::logAction('modify', ['topic' => Topic::$topic_id, 'message' => $row['id_msg'], 'member' => $row['id_member'], 'board' => Board::$info->id]);
 			}
 		}
