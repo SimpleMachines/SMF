@@ -516,10 +516,6 @@ class Utf8String implements \Stringable
 		$disallowed[] = '[' . implode('', [
 			// Soft Hyphen.
 			'\x{AD}',
-			// Khmer Vowel Inherent AQ and Khmer Vowel Inherent AA.
-			// Unicode Standard ch. 16 says: "they are insufficient for [their]
-			// purpose and should be considered errors in the encoding."
-			'\x{17B4}-\x{17B5}',
 			// Invisible math characters.
 			'\x{2061}-\x{2064}',
 			// Deprecated formatting characters.
