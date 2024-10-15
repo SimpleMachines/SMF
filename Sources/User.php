@@ -3365,10 +3365,10 @@ class User implements \ArrayAccess
 			],
 		);
 
-		// Delete anything they liked.
+		// Delete anything they reacted to.
 		Db::$db->query(
 			'',
-			'DELETE FROM {db_prefix}user_likes
+			'DELETE FROM {db_prefix}user_reacts
 			WHERE id_member IN ({array_int:users})',
 			[
 				'users' => $users,

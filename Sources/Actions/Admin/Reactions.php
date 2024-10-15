@@ -1,0 +1,384 @@
+<?php
+
+/**
+ * This file takes care of managing reactions
+ *
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2024 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 1
+ */
+
+declare(strict_types = 1);
+
+namespace SMF\Actions\Admin;
+
+use SMF\ActionInterface;
+use SMF\ActionTrait;
+use SMF\ReactionTrait;
+use SMF\Cache\CacheApi;
+use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
+use SMF\ErrorHandler;
+use SMF\IntegrationHook;
+use SMF\ItemList;
+use SMF\Lang;
+use SMF\Logging;
+use SMF\Menu;
+use SMF\SecurityToken;
+use SMF\Theme;
+use SMF\User;
+use SMF\Utils;
+
+/**
+ * This class handles everything related to managing reactions.
+ */
+class Reactions implements ActionInterface
+{
+
+	use ActionTrait;
+	use ReactionTrait;
+
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 * @var string
+	 * Our default subaction
+	 */
+	public string $subaction = 'settings';
+
+
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/** @var array
+	 * Available subactions
+	 */
+	public static array $subactions = [
+		'edit' => 'editreactions',
+		'settings' => 'settings',
+	];
+
+	/***********************
+	 * Public methods
+	 ***********************/
+
+	/**
+	 * Handles modifying reactions settings
+	 */
+	public static function settings(): void
+	{
+		$config_vars = self::getConfigVars();
+
+		// Setup the basics of the settings template.
+		Utils::$context['sub_template'] = 'show_settings';
+		Utils::$context['page_title'] = Lang::$txt['reactions_settings'];
+
+		if (isset($_REQUEST['save'])) {
+			User::$me->checkSession();
+			SecurityToken::validate('admin-mr');
+			IntegrationHook::call('integrate_save_reactions_settings');
+
+			// Yeppers, saving this...
+			ACP::saveDBSettings($config_vars);
+
+			$_SESSION['adm-save'] = true;
+			Utils::redirectexit('action=admin;area=managereactions;sa=settings');
+		}
+
+		// Finish up the form...
+		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=managereactions;save;sa=settings';
+		Utils::$context['settings_title'] = Lang::$txt['reactions_settings'];
+
+		// We need this for the in-line permissions
+		SecurityToken::create('admin-mr');
+
+		ACP::prepareDBSettingContext($config_vars);
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Gets the configuration variables for the settings sub-action.
+	 *
+	 * @return array $config_vars for the settings sub-action.
+	 */
+	public static function getConfigVars(): array
+	{
+		$config_vars = [
+			['check', 'enable_reacts'],
+			['permissions', 'reactions_react'],
+		];
+
+		IntegrationHook::call('integrate_reactions_settings', [&$config_vars]);
+
+		return $config_vars;
+	}
+
+	/**
+	 * Dispatcher to whichever sub-action method is necessary.
+	 */
+	public function execute(): void
+	{
+		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+
+		if (!empty($call)) {
+			call_user_func($call);
+		}
+	}
+
+	/**
+	 * Handle adding, deleting and editing reactions
+	 */
+	public function editreactions(): void
+	{
+		// Make sure we select the right menu item
+		Menu::$loaded['admin']['currentsubsection'] = 'editreactions';
+
+		// Get the reactions. If we're updating things then we'll overwrite this later
+		$reactions = $this->getReactions();
+
+		// They must have submitted a form.
+		if (isset($_POST['reacts_save']) || isset($_POST['reacts_delete'])) {
+			User::$me->checkSession();
+			SecurityToken::validate('admin-mre');
+
+			// This will indicate whether we need to update the reactions cache later...
+			$do_update = false;
+
+			// Anything to delete?
+			if (isset($_POST['reacts_delete']) && isset($_POST['delete_reacts'])) {
+				$do_update = true;
+				$deleted = [];
+
+				foreach ($_POST['delete_reacts'] as $to_delete) {
+					$deleted[] = (int)  $to_delete;
+				}
+
+				// Now to do the actual deleting
+				Db::$db->query('', '
+					DELETE FROM {db_prefix}reactions
+					WHERE id_reaction IN ({array_int:deleted})',
+					[
+						'deleted' => $deleted,
+					]
+				);
+
+				// Are there any posts that used these reactions?
+				$get_reacted_posts = Db::$db->query('', '
+					SELECT id_msg, COUNT (id_react) AS num_reacts
+					FROM {db_prefix}reactions
+					WHERE id_reaction IN ({array_int:deleted})
+					GROUP BY id_msg',
+					[
+						'deleted' => $deleted,
+					]
+				);
+
+				// Update the number of reactions for the affected post(s)
+				// Did we find anything?
+				if (Db::$db->num_rows($get_reacted_posts) > 0) {
+					while ($reacted_post = $get_reacted_posts->fetchAssoc()) {
+						Db::$db->query('', '
+						UPDATE {db_prefix}messages
+						SET reactions = reactions-{int:deleted}
+						WHERE id_msg = {int:msg}',
+							[
+								'deleted' => $reacted_post['num_reacts'],
+								'msg' => $reacted_post['id_msg'],
+							]
+						);
+					}
+				}
+			} // Updating things?
+			elseif (isset($_POST['reacts'])) {
+				// Adding things?
+				if (isset($_POST['reacts_add'])) {
+					foreach ($_POST['reacts_add'] as $new_react) {
+						// No funny stuff now..
+						$new_react = trim($new_react);
+						if (!empty($new_react)) {
+							$add[] = [$new_react];
+						}
+					}
+
+					if (!empty($add)) {
+						$do_update = true;
+
+						// Insert the new reactions
+						Db::$db->insert('', '{db_prefix}reactions', ['name' => 'string'], $add, []);
+					}
+				}
+
+				// Updating things...
+				$updates = [];
+				foreach ($_POST['reacts'] as $id => $name) {
+					// Again, no funny stuff...
+					$name = trim($name);
+
+					// Did they update this one? Ignore empty ones for now
+					if ($reactions[$id] != $name && !empty($name)) {
+						$updates[] = [$id, $name];
+					}
+				}
+
+				// Anything to update?
+				if (!empty($updates)) {
+					$do_update = true;
+					// Do the update
+					Db::$db->insert('replace', '{db_prefix}reactions', ['id_reaction' => 'int',  'name' => 'string'], $updates, ['id_reaction']);
+				}
+			}
+
+			// If we updated anything, re-cache everything
+			if ($do_update) {
+				// Re-cache the reactions and update the reactions variable so the form will show the changes
+				CacheApi::put('reactions', null);
+				$reactions = $this->getReactions();
+				CacheApi::put('reactions', $reactions, 480);
+			}
+		}
+
+		// Set up the form now...
+
+		// Create our token
+		SecurityToken::create('admin-mre');
+
+		// Set up our list. Use a special function for the get_items so we can output things in input fields...
+		$listOptions = [
+			'id' => 'reactions_list',
+			'title' => Lang::$txt['reactions'],
+			'no_items_label' => Lang::$txt['no_reactions'],
+			'base_href' => Config::$scripturl . '?action=admin;area=managereactions;sa=edit',
+			'get_items' => [
+				'function' => function (int $start, int $items_per_page, string $sort_by) use ($reactions): array {
+					$items = [];
+					foreach ($reactions as $id => $name) {
+						$items[] = [
+							'id' => $id,
+							'name' => $name,
+						];
+					}
+					return $items;
+				},
+			],
+			'get_count' => [
+				'value' => count($reactions),
+			],
+			'columns' =>
+				[
+					'name' =>
+						[
+							'header' => [
+								'value' => Lang::$txt['reactions_name'],
+							],
+							'data' => [
+								'function' => function ($rowData) {
+									return '<input type="text" name="reacts[' . $rowData['id'] . ']" value="' . $rowData['name']. '">';
+								}
+							],
+						],
+					'check' => [
+						'header' => [
+							'value' => '<input type="checkbox" onclick="invertAll(this, this.form);">',
+							'class' => 'centercol',
+						],
+						'data' => [
+							'function' => function ($rowData) {
+								return '<input type="checkbox" name="delete_reacts[]" value="' . $rowData['id'] . '">';
+							},
+							'class' => 'centercol',
+						]
+					]
+				]
+		];
+
+		// Add a row for a blank field to add a reaction, and a link to add another blank field.
+		$listOptions['additional_rows'] = [
+			[
+				'position' => 'below_table_data',
+				'value' => '<input type="text" name="reacts_add[]">'
+			],
+			[
+				// Clicking this magic button adds a new row...
+				'position' => 'below_table_data',
+				'value' => '<button type="button" class="button" onclick="addrow()">' . Lang::$txt['reacts_add'] . '</button>'
+			],
+			[
+				// And last but not least our input buttons
+				'position' => 'below_table_data',
+				'value' => '<input type="submit" name="reacts_save" value="' . Lang::$txt['reacts_save'] . '" class="button">
+							<input type="submit" name="reacts_delete" value="' . Lang::$txt['reacts_delete'] . '" data-confirm="' . Lang::$txt['reacts_delete_confirm'] . '" class="button you_sure">'
+			]
+		];
+
+		// And some inline JS to handle adding another row
+		$listOptions['javascript'] = '
+			function addrow() {
+				reacts_table = document.getElementById(\'reactions_list\');
+				new_row = document.getElementById(\'reactions_list\').insertRow(reacts_table.rows.length);
+				new_row.insertCell(0).innerHTML = \'<input type="text" name="reacts_add[]">\';
+				new_row.insertCell(1).innerHTML = \'\';
+			}';
+
+		// Now that we have our list options set up, have some fun...
+		$listOptions['form'] = [
+			'href' => Config::$scripturl . '?action=admin;area=managereactions;sa=edit;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+			'name' => 'list_reactions',
+			'token' => 'admin-mre',
+		];
+
+		new ItemList($listOptions);
+
+		Utils::$context['page_title'] = Lang::$txt['reactions_manage'];
+		Utils::$context['sub_template'] = 'show_list';
+		Utils::$context['default_list'] = 'reactions_list';
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Constructor. Protected to force instantiation via self::load().
+	 */
+	protected function __construct()
+	{
+		// Load up our language and set up the menu.
+		Lang::load('ManageReactions');
+
+		// Setup the admin tabs.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['reactions'],
+			'help' => 'manage_reactions',
+			'description' => Lang::$txt['admin_manage_reactions'],
+			'tabs' => [
+				'settings' => [
+					'description' => Lang::$txt['reaction_settings_explain'],
+				],
+				'edit' => [
+					'description' => Lang::$txt['manage_reactions_desc'],
+					'disabled' => !Config::$modSettings['enable_reacts'],
+				],
+			],
+		];
+
+		Utils::$context['last_tab'] = Config::$modSettings['enable_reacts'] ? 'edit' : 'settings';
+
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
+			$this->subaction = $_REQUEST['sa'];
+		}
+
+		Utils::$context['sub_action'] = &$this->subaction;
+	}
+}
+?>

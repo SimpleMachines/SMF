@@ -89,6 +89,7 @@ class Find implements ActionInterface
 		[__NAMESPACE__ . '\\Server::exportConfigVars', 'area=serversettings;sa=export'],
 		[__NAMESPACE__ . '\\Server::loadBalancingConfigVars', 'area=serversettings;sa=loads'],
 		[__NAMESPACE__ . '\\Languages::getConfigVars', 'area=languages;sa=settings'],
+		[__NAMESPACE__ . '\\Reactions::getConfigVars', 'area=reactions;sa=settings'],
 		[__NAMESPACE__ . '\\Registration::getConfigVars', 'area=regcenter;sa=settings'],
 		[__NAMESPACE__ . '\\SearchEngines::getConfigVars', 'area=sengines;sa=settings'],
 		[__NAMESPACE__ . '\\Subscriptions::getConfigVars', 'area=paidsubscribe;sa=settings'],

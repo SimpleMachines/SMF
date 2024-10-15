@@ -608,26 +608,26 @@ class Stats implements ActionInterface
 			CacheApi::put('stats_total_time_members', $temp2, 480);
 		}
 
-		// Likes.
-		if (!empty(Config::$modSettings['enable_likes'])) {
+		// Reactions.
+		if (!empty(Config::$modSettings['enable_reacts'])) {
 			// Liked messages top 10.
-			Utils::$context['stats_blocks']['liked_messages'] = [];
-			$max_liked_message = 1;
-			$liked_messages = Db::$db->query(
+			Utils::$context['stats_blocks']['reacted_messages'] = [];
+			$max_reacted_message = 1;
+			$reacted_messages = Db::$db->query(
 				'',
-				'SELECT m.id_msg, m.subject, m.likes, m.id_board, m.id_topic, t.approved
+				'SELECT m.id_msg, m.subject, m.reacts, m.id_board, m.id_topic, t.approved
 				FROM (
-					SELECT n.id_msg, n.subject, n.likes, n.id_board, n.id_topic
+					SELECT n.id_msg, n.subject, n.reacts, n.id_board, n.id_topic
 					FROM {db_prefix}messages as n
-					ORDER BY n.likes DESC
+					ORDER BY n.reacts DESC
 					LIMIT 1000
 				) AS m
 					INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 						AND b.id_board != {int:recycle_board}' : '') . ')
-				WHERE m.likes > 0 AND {query_see_board}' . (Config::$modSettings['postmod_active'] ? '
+				WHERE m.reacts > 0 AND {query_see_board}' . (Config::$modSettings['postmod_active'] ? '
 					AND t.approved = {int:is_approved}' : '') . '
-				ORDER BY m.likes DESC
+				ORDER BY m.reacts DESC
 				LIMIT 10',
 				[
 					'recycle_board' => Config::$modSettings['recycle_board'],
@@ -635,35 +635,35 @@ class Stats implements ActionInterface
 				],
 			);
 
-			while ($row_liked_message = Db::$db->fetch_assoc($liked_messages)) {
-				Lang::censorText($row_liked_message['subject']);
+			while ($row_reacted_message = Db::$db->fetch_assoc($reacted_messages)) {
+				Lang::censorText($row_reacted_message['subject']);
 
-				Utils::$context['stats_blocks']['liked_messages'][] = [
-					'id' => $row_liked_message['id_topic'],
-					'subject' => $row_liked_message['subject'],
-					'num' => $row_liked_message['likes'],
-					'href' => Config::$scripturl . '?msg=' . $row_liked_message['id_msg'],
-					'link' => '<a href="' . Config::$scripturl . '?msg=' . $row_liked_message['id_msg'] . '">' . $row_liked_message['subject'] . '</a>',
+				Utils::$context['stats_blocks']['reacted_messages'][] = [
+					'id' => $row_reacted_message['id_topic'],
+					'subject' => $row_reacted_message['subject'],
+					'num' => $row_reacted_message['reacts'],
+					'href' => Config::$scripturl . '?msg=' . $row_reacted_message['id_msg'],
+					'link' => '<a href="' . Config::$scripturl . '?msg=' . $row_reacted_message['id_msg'] . '">' . $row_reacted_message['subject'] . '</a>',
 				];
 
-				if ($max_liked_message < $row_liked_message['likes']) {
-					$max_liked_message = $row_liked_message['likes'];
+				if ($max_reacted_message < $row_reacted_message['reacts']) {
+					$max_reacted_message = $row_reacted_message['reacts'];
 				}
 			}
-			Db::$db->free_result($liked_messages);
+			Db::$db->free_result($reacted_messages);
 
-			foreach (Utils::$context['stats_blocks']['liked_messages'] as $i => $liked_messages) {
-				Utils::$context['stats_blocks']['liked_messages'][$i]['percent'] = round(($liked_messages['num'] * 100) / $max_liked_message);
+			foreach (Utils::$context['stats_blocks']['reacted_messages'] as $i => $reacted_messages) {
+				Utils::$context['stats_blocks']['reacted_messages'][$i]['percent'] = round(($reacted_messages['num'] * 100) / $max_reacted_message);
 			}
 
-			// Liked users top 10.
-			Utils::$context['stats_blocks']['liked_users'] = [];
-			$max_liked_users = 1;
-			$liked_users = Db::$db->query(
+			// Reacted users top 10.
+			Utils::$context['stats_blocks']['reacted_users'] = [];
+			$max_reacted_users = 1;
+			$reacted_users = Db::$db->query(
 				'',
-				'SELECT m.id_member AS liked_user, COUNT(l.content_id) AS count, mem.real_name
-				FROM {db_prefix}user_likes AS l
-					INNER JOIN {db_prefix}messages AS m ON (l.content_id = m.id_msg)
+				'SELECT m.id_member AS reacted_user, COUNT(r.content_id) AS count, mem.real_name
+				FROM {db_prefix}user_reacts AS r
+					INNER JOIN {db_prefix}messages AS m ON (r.content_id = m.id_msg)
 					INNER JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
 				WHERE content_type = {literal:msg}
 					AND m.id_member > {int:zero}
@@ -676,24 +676,24 @@ class Stats implements ActionInterface
 				],
 			);
 
-			while ($row_liked_users = Db::$db->fetch_assoc($liked_users)) {
-				Utils::$context['stats_blocks']['liked_users'][] = [
-					'id' => $row_liked_users['liked_user'],
-					'num' => $row_liked_users['count'],
-					'href' => Config::$scripturl . '?action=profile;u=' . $row_liked_users['liked_user'],
-					'name' => $row_liked_users['real_name'],
-					'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row_liked_users['liked_user'] . '">' . $row_liked_users['real_name'] . '</a>',
+			while ($row_reacted_users = Db::$db->fetch_assoc($reacted_users)) {
+				Utils::$context['stats_blocks']['reacted_users'][] = [
+					'id' => $row_reacted_users['reacted_user'],
+					'num' => $row_reacted_users['count'],
+					'href' => Config::$scripturl . '?action=profile;u=' . $row_reacted_users['reacted_user'],
+					'name' => $row_reacted_users['real_name'],
+					'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row_reacted_users['reacted_user'] . '">' . $row_reacted_users['real_name'] . '</a>',
 				];
 
-				if ($max_liked_users < $row_liked_users['count']) {
-					$max_liked_users = $row_liked_users['count'];
+				if ($max_reacted_users < $row_reacted_users['count']) {
+					$max_reacted_users = $row_reacted_users['count'];
 				}
 			}
 
-			Db::$db->free_result($liked_users);
+			Db::$db->free_result($reacted_users);
 
-			foreach (Utils::$context['stats_blocks']['liked_users'] as $i => $liked_users) {
-				Utils::$context['stats_blocks']['liked_users'][$i]['percent'] = round(($liked_users['num'] * 100) / $max_liked_users);
+			foreach (Utils::$context['stats_blocks']['reacted_users'] as $i => $reacted_users) {
+				Utils::$context['stats_blocks']['reacted_users'][$i]['percent'] = round(($reacted_users['num'] * 100) / $max_reacted_users);
 			}
 		}
 

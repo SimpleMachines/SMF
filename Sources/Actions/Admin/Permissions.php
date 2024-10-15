@@ -129,7 +129,7 @@ class Permissions implements ActionInterface
 			'member_admin',
 			'profile',
 			'profile_account',
-			'likes',
+			'reactions',
 			'mentions',
 			'bbc',
 		],
@@ -341,8 +341,8 @@ class Permissions implements ActionInterface
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'never_guests' => true,
 		],
-		'likes_like' => [
-			'view_group' => 'likes',
+		'reactions_react' => [
+			'view_group' => 'reactions',
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_STANDARD,
 			'never_guests' => true,
@@ -1675,9 +1675,9 @@ class Permissions implements ActionInterface
 			self::$permissions['post_attachment']['hidden'] = true;
 		}
 
-		// If likes are disabled, disable the related permission.
-		if (empty(Config::$modSettings['enable_likes'])) {
-			self::$permissions['likes_like']['hidden'] = true;
+		// If reactions are disabled, disable the related permission.
+		if (empty(Config::$modSettings['enable_reacts'])) {
+			self::$permissions['reactions_react']['hidden'] = true;
 		}
 
 		// If mentions are disabled, disable the related permission.
