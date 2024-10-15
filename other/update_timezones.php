@@ -76,7 +76,7 @@ define('SMF_VERSION', 'does not matter');
 define('SMF_SOFTWARE_YEAR', 'whatever');
 define('SMF_USER_AGENT', 'SMF');
 
-require_once '../Sources/Autoloader.php';
+require_once '../vendor/autoload.php';
 
 $updater = new TimezoneUpdater();
 $updater->execute();

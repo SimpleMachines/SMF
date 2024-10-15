@@ -6,6 +6,11 @@
             "type": "vcs"
         }
     ],
+	"autoload": {
+		"psr-4": {
+			"SMF\\": "Sources/"
+		}
+	},
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
@@ -20,5 +25,10 @@
         "platform": {
             "php": "8.0.0"
         }
+    },
+    "require": {
+        "google/recaptcha": "^1.3",
+        "matthiasmullie/minify": "^1.3",
+        "paragonie/random_compat": ">=2"
     }
 }
