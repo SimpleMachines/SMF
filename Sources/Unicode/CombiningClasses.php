@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -306,6 +306,7 @@ function utf8_combining_classes()
 		"\xE0\xA1\x99" => 220,
 		"\xE0\xA1\x9A" => 220,
 		"\xE0\xA1\x9B" => 220,
+		"\xE0\xA2\x97" => 230,
 		"\xE0\xA2\x98" => 230,
 		"\xE0\xA2\x99" => 220,
 		"\xE0\xA2\x9A" => 220,
@@ -751,6 +752,11 @@ function utf8_combining_classes()
 		"\xF0\x90\xB4\xA5" => 230,
 		"\xF0\x90\xB4\xA6" => 230,
 		"\xF0\x90\xB4\xA7" => 230,
+		"\xF0\x90\xB5\xA9" => 230,
+		"\xF0\x90\xB5\xAA" => 230,
+		"\xF0\x90\xB5\xAB" => 230,
+		"\xF0\x90\xB5\xAC" => 230,
+		"\xF0\x90\xB5\xAD" => 230,
 		"\xF0\x90\xBA\xAB" => 230,
 		"\xF0\x90\xBA\xAC" => 230,
 		"\xF0\x90\xBB\xBD" => 220,
@@ -803,6 +809,9 @@ function utf8_combining_classes()
 		"\xF0\x91\x8D\xB2" => 230,
 		"\xF0\x91\x8D\xB3" => 230,
 		"\xF0\x91\x8D\xB4" => 230,
+		"\xF0\x91\x8F\x8E" => 9,
+		"\xF0\x91\x8F\x8F" => 9,
+		"\xF0\x91\x8F\x90" => 9,
 		"\xF0\x91\x91\x82" => 9,
 		"\xF0\x91\x91\x86" => 7,
 		"\xF0\x91\x91\x9E" => 230,
@@ -830,6 +839,7 @@ function utf8_combining_classes()
 		"\xF0\x91\xB6\x97" => 9,
 		"\xF0\x91\xBD\x81" => 9,
 		"\xF0\x91\xBD\x82" => 9,
+		"\xF0\x96\x84\xAF" => 9,
 		"\xF0\x96\xAB\xB0" => 1,
 		"\xF0\x96\xAB\xB1" => 1,
 		"\xF0\x96\xAB\xB2" => 1,
@@ -933,6 +943,8 @@ function utf8_combining_classes()
 		"\xF0\x9E\x93\xAD" => 232,
 		"\xF0\x9E\x93\xAE" => 220,
 		"\xF0\x9E\x93\xAF" => 230,
+		"\xF0\x9E\x97\xAE" => 230,
+		"\xF0\x9E\x97\xAF" => 220,
 		"\xF0\x9E\xA3\x90" => 220,
 		"\xF0\x9E\xA3\x91" => 220,
 		"\xF0\x9E\xA3\x92" => 220,

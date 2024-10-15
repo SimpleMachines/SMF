@@ -104,7 +104,7 @@ function utf8_regex_properties()
 			'\x{0859}-\x{085B}' .
 			'\x{0888}' .
 			'\x{0890}-\x{0891}' .
-			'\x{0898}-\x{089F}' .
+			'\x{0897}-\x{089F}' .
 			'\x{08C9}' .
 			'\x{08CA}-\x{08E1}' .
 			'\x{08E2}' .
@@ -385,8 +385,11 @@ function utf8_regex_properties()
 			'\x{10A3F}' .
 			'\x{10AE5}-\x{10AE6}' .
 			'\x{10D24}-\x{10D27}' .
+			'\x{10D4E}' .
+			'\x{10D69}-\x{10D6D}' .
+			'\x{10D6F}' .
 			'\x{10EAB}-\x{10EAC}' .
-			'\x{10EFD}-\x{10EFF}' .
+			'\x{10EFC}-\x{10EFF}' .
 			'\x{10F46}-\x{10F50}' .
 			'\x{10F82}-\x{10F85}' .
 			'\x{11001}' .
@@ -419,6 +422,11 @@ function utf8_regex_properties()
 			'\x{11340}' .
 			'\x{11366}-\x{1136C}' .
 			'\x{11370}-\x{11374}' .
+			'\x{113BB}-\x{113C0}' .
+			'\x{113CE}' .
+			'\x{113D0}' .
+			'\x{113D2}' .
+			'\x{113E1}-\x{113E2}' .
 			'\x{11438}-\x{1143F}' .
 			'\x{11442}-\x{11444}' .
 			'\x{11446}' .
@@ -438,7 +446,8 @@ function utf8_regex_properties()
 			'\x{116AD}' .
 			'\x{116B0}-\x{116B5}' .
 			'\x{116B7}' .
-			'\x{1171D}-\x{1171F}' .
+			'\x{1171D}' .
+			'\x{1171F}' .
 			'\x{11722}-\x{11725}' .
 			'\x{11727}-\x{1172B}' .
 			'\x{1182F}-\x{11837}' .
@@ -477,12 +486,17 @@ function utf8_regex_properties()
 			'\x{11F36}-\x{11F3A}' .
 			'\x{11F40}' .
 			'\x{11F42}' .
+			'\x{11F5A}' .
 			'\x{13430}-\x{1343F}' .
 			'\x{13440}' .
 			'\x{13447}-\x{13455}' .
+			'\x{1611E}-\x{16129}' .
+			'\x{1612D}-\x{1612F}' .
 			'\x{16AF0}-\x{16AF4}' .
 			'\x{16B30}-\x{16B36}' .
 			'\x{16B40}-\x{16B43}' .
+			'\x{16D40}-\x{16D42}' .
+			'\x{16D6B}-\x{16D6C}' .
 			'\x{16F4F}' .
 			'\x{16F8F}-\x{16F92}' .
 			'\x{16F93}-\x{16F9F}' .
@@ -521,6 +535,7 @@ function utf8_regex_properties()
 			'\x{1E2EC}-\x{1E2EF}' .
 			'\x{1E4EB}' .
 			'\x{1E4EC}-\x{1E4EF}' .
+			'\x{1E5EE}-\x{1E5EF}' .
 			'\x{1E8D0}-\x{1E8D6}' .
 			'\x{1E944}-\x{1E94A}' .
 			'\x{1E94B}' .
@@ -551,7 +566,7 @@ function utf8_regex_properties()
 			'\x{085F}' .
 			'\x{086B}-\x{086F}' .
 			'\x{088F}' .
-			'\x{0892}-\x{0897}' .
+			'\x{0892}-\x{0896}' .
 			'\x{0984}' .
 			'\x{098D}-\x{098E}' .
 			'\x{0991}-\x{0992}' .
@@ -743,12 +758,11 @@ function utf8_regex_properties()
 			'\x{1A9A}-\x{1A9F}' .
 			'\x{1AAE}-\x{1AAF}' .
 			'\x{1ACF}-\x{1AFF}' .
-			'\x{1B4D}-\x{1B4F}' .
-			'\x{1B7F}' .
+			'\x{1B4D}' .
 			'\x{1BF4}-\x{1BFB}' .
 			'\x{1C38}-\x{1C3A}' .
 			'\x{1C4A}-\x{1C4C}' .
-			'\x{1C89}-\x{1C8F}' .
+			'\x{1C8B}-\x{1C8F}' .
 			'\x{1CBB}-\x{1CBC}' .
 			'\x{1CC8}-\x{1CCF}' .
 			'\x{1CFB}-\x{1CFF}' .
@@ -775,7 +789,7 @@ function utf8_regex_properties()
 			'\x{20C1}-\x{20CF}' .
 			'\x{20F1}-\x{20FF}' .
 			'\x{218C}-\x{218F}' .
-			'\x{2427}-\x{243F}' .
+			'\x{242A}-\x{243F}' .
 			'\x{244B}-\x{245F}' .
 			'\x{2B74}-\x{2B75}' .
 			'\x{2B96}' .
@@ -803,16 +817,16 @@ function utf8_regex_properties()
 			'\x{3100}-\x{3104}' .
 			'\x{3130}' .
 			'\x{318F}' .
-			'\x{31E4}-\x{31EE}' .
+			'\x{31E6}-\x{31EE}' .
 			'\x{321F}' .
 			'\x{A48D}-\x{A48F}' .
 			'\x{A4C7}-\x{A4CF}' .
 			'\x{A62C}-\x{A63F}' .
 			'\x{A6F8}-\x{A6FF}' .
-			'\x{A7CB}-\x{A7CF}' .
+			'\x{A7CE}-\x{A7CF}' .
 			'\x{A7D2}' .
 			'\x{A7D4}' .
-			'\x{A7DA}-\x{A7F1}' .
+			'\x{A7DD}-\x{A7F1}' .
 			'\x{A82D}-\x{A82F}' .
 			'\x{A83A}-\x{A83F}' .
 			'\x{A878}-\x{A87F}' .
@@ -902,7 +916,8 @@ function utf8_regex_properties()
 			'\x{105A2}' .
 			'\x{105B2}' .
 			'\x{105BA}' .
-			'\x{105BD}-\x{105FF}' .
+			'\x{105BD}-\x{105BF}' .
+			'\x{105F4}-\x{105FF}' .
 			'\x{10737}-\x{1073F}' .
 			'\x{10756}-\x{1075F}' .
 			'\x{10768}-\x{1077F}' .
@@ -945,11 +960,15 @@ function utf8_regex_properties()
 			'\x{10CB3}-\x{10CBF}' .
 			'\x{10CF3}-\x{10CF9}' .
 			'\x{10D28}-\x{10D2F}' .
-			'\x{10D3A}-\x{10E5F}' .
+			'\x{10D3A}-\x{10D3F}' .
+			'\x{10D66}-\x{10D68}' .
+			'\x{10D86}-\x{10D8D}' .
+			'\x{10D90}-\x{10E5F}' .
 			'\x{10E7F}' .
 			'\x{10EAA}' .
 			'\x{10EAE}-\x{10EAF}' .
-			'\x{10EB2}-\x{10EFC}' .
+			'\x{10EB2}-\x{10EC1}' .
+			'\x{10EC5}-\x{10EFB}' .
 			'\x{10F28}-\x{10F2F}' .
 			'\x{10F5A}-\x{10F6F}' .
 			'\x{10F8A}-\x{10FAF}' .
@@ -989,7 +1008,18 @@ function utf8_regex_properties()
 			'\x{11358}-\x{1135C}' .
 			'\x{11364}-\x{11365}' .
 			'\x{1136D}-\x{1136F}' .
-			'\x{11375}-\x{113FF}' .
+			'\x{11375}-\x{1137F}' .
+			'\x{1138A}' .
+			'\x{1138C}-\x{1138D}' .
+			'\x{1138F}' .
+			'\x{113B6}' .
+			'\x{113C1}' .
+			'\x{113C3}-\x{113C4}' .
+			'\x{113C6}' .
+			'\x{113CB}' .
+			'\x{113D6}' .
+			'\x{113D9}-\x{113E0}' .
+			'\x{113E3}-\x{113FF}' .
 			'\x{1145C}' .
 			'\x{11462}-\x{1147F}' .
 			'\x{114C8}-\x{114CF}' .
@@ -1000,7 +1030,8 @@ function utf8_regex_properties()
 			'\x{1165A}-\x{1165F}' .
 			'\x{1166D}-\x{1167F}' .
 			'\x{116BA}-\x{116BF}' .
-			'\x{116CA}-\x{116FF}' .
+			'\x{116CA}-\x{116CF}' .
+			'\x{116E4}-\x{116FF}' .
 			'\x{1171B}-\x{1171C}' .
 			'\x{1172C}-\x{1172F}' .
 			'\x{11747}-\x{117FF}' .
@@ -1020,7 +1051,9 @@ function utf8_regex_properties()
 			'\x{11A48}-\x{11A4F}' .
 			'\x{11AA3}-\x{11AAF}' .
 			'\x{11AF9}-\x{11AFF}' .
-			'\x{11B0A}-\x{11BFF}' .
+			'\x{11B0A}-\x{11BBF}' .
+			'\x{11BE2}-\x{11BEF}' .
+			'\x{11BFA}-\x{11BFF}' .
 			'\x{11C09}' .
 			'\x{11C37}' .
 			'\x{11C46}-\x{11C4F}' .
@@ -1044,7 +1077,7 @@ function utf8_regex_properties()
 			'\x{11EF9}-\x{11EFF}' .
 			'\x{11F11}' .
 			'\x{11F3B}-\x{11F3D}' .
-			'\x{11F5A}-\x{11FAF}' .
+			'\x{11F5B}-\x{11FAF}' .
 			'\x{11FB1}-\x{11FBF}' .
 			'\x{11FF2}-\x{11FFE}' .
 			'\x{1239A}-\x{123FF}' .
@@ -1052,8 +1085,10 @@ function utf8_regex_properties()
 			'\x{12475}-\x{1247F}' .
 			'\x{12544}-\x{12F8F}' .
 			'\x{12FF3}-\x{12FFF}' .
-			'\x{13456}-\x{143FF}' .
-			'\x{14647}-\x{167FF}' .
+			'\x{13456}-\x{1345F}' .
+			'\x{143FB}-\x{143FF}' .
+			'\x{14647}-\x{160FF}' .
+			'\x{1613A}-\x{167FF}' .
 			'\x{16A39}-\x{16A3F}' .
 			'\x{16A5F}' .
 			'\x{16A6A}-\x{16A6D}' .
@@ -1065,7 +1100,8 @@ function utf8_regex_properties()
 			'\x{16B5A}' .
 			'\x{16B62}' .
 			'\x{16B78}-\x{16B7C}' .
-			'\x{16B90}-\x{16E3F}' .
+			'\x{16B90}-\x{16D3F}' .
+			'\x{16D7A}-\x{16E3F}' .
 			'\x{16E9B}-\x{16EFF}' .
 			'\x{16F4B}-\x{16F4E}' .
 			'\x{16F88}-\x{16F8E}' .
@@ -1073,7 +1109,7 @@ function utf8_regex_properties()
 			'\x{16FE5}-\x{16FEF}' .
 			'\x{16FF2}-\x{16FFF}' .
 			'\x{187F8}-\x{187FF}' .
-			'\x{18CD6}-\x{18CFF}' .
+			'\x{18CD6}-\x{18CFE}' .
 			'\x{18D09}-\x{1AFEF}' .
 			'\x{1AFF4}' .
 			'\x{1AFFC}' .
@@ -1088,7 +1124,9 @@ function utf8_regex_properties()
 			'\x{1BC7D}-\x{1BC7F}' .
 			'\x{1BC89}-\x{1BC8F}' .
 			'\x{1BC9A}-\x{1BC9B}' .
-			'\x{1BCA4}-\x{1CEFF}' .
+			'\x{1BCA4}-\x{1CBFF}' .
+			'\x{1CCFA}-\x{1CCFF}' .
+			'\x{1CEB4}-\x{1CEFF}' .
 			'\x{1CF2E}-\x{1CF2F}' .
 			'\x{1CF47}-\x{1CF4F}' .
 			'\x{1CFC4}-\x{1CFFF}' .
@@ -1139,7 +1177,9 @@ function utf8_regex_properties()
 			'\x{1E2AF}-\x{1E2BF}' .
 			'\x{1E2FA}-\x{1E2FE}' .
 			'\x{1E300}-\x{1E4CF}' .
-			'\x{1E4FA}-\x{1E7DF}' .
+			'\x{1E4FA}-\x{1E5CF}' .
+			'\x{1E5FB}-\x{1E5FE}' .
+			'\x{1E600}-\x{1E7DF}' .
 			'\x{1E7E7}' .
 			'\x{1E7EC}' .
 			'\x{1E7EF}' .
@@ -1209,18 +1249,17 @@ function utf8_regex_properties()
 			'\x{1F85A}-\x{1F85F}' .
 			'\x{1F888}-\x{1F88F}' .
 			'\x{1F8AE}-\x{1F8AF}' .
-			'\x{1F8B2}-\x{1F8FF}' .
+			'\x{1F8BC}-\x{1F8BF}' .
+			'\x{1F8C2}-\x{1F8FF}' .
 			'\x{1FA54}-\x{1FA5F}' .
 			'\x{1FA6E}-\x{1FA6F}' .
 			'\x{1FA7D}-\x{1FA7F}' .
-			'\x{1FA89}-\x{1FA8F}' .
-			'\x{1FABE}' .
-			'\x{1FAC6}-\x{1FACD}' .
-			'\x{1FADC}-\x{1FADF}' .
-			'\x{1FAE9}-\x{1FAEF}' .
+			'\x{1FA8A}-\x{1FA8E}' .
+			'\x{1FAC7}-\x{1FACD}' .
+			'\x{1FADD}-\x{1FADE}' .
+			'\x{1FAEA}-\x{1FAEF}' .
 			'\x{1FAF9}-\x{1FAFF}' .
 			'\x{1FB93}' .
-			'\x{1FBCB}-\x{1FBEF}' .
 			'\x{1FBFA}-\x{1FFFF}' .
 			'\x{2A6E0}-\x{2A6FF}' .
 			'\x{2B73A}-\x{2B73F}' .
@@ -1651,6 +1690,8 @@ function utf8_regex_properties()
 			'\x{1FA80}-\x{1FA82}' .
 			'\x{1FA83}-\x{1FA86}' .
 			'\x{1FA87}-\x{1FA88}' .
+			'\x{1FA89}' .
+			'\x{1FA8F}' .
 			'\x{1FA90}-\x{1FA95}' .
 			'\x{1FA96}-\x{1FAA8}' .
 			'\x{1FAA9}-\x{1FAAC}' .
@@ -1658,15 +1699,20 @@ function utf8_regex_properties()
 			'\x{1FAB0}-\x{1FAB6}' .
 			'\x{1FAB7}-\x{1FABA}' .
 			'\x{1FABB}-\x{1FABD}' .
+			'\x{1FABE}' .
 			'\x{1FABF}' .
 			'\x{1FAC0}-\x{1FAC2}' .
 			'\x{1FAC3}-\x{1FAC5}' .
+			'\x{1FAC6}' .
 			'\x{1FACE}-\x{1FACF}' .
 			'\x{1FAD0}-\x{1FAD6}' .
 			'\x{1FAD7}-\x{1FAD9}' .
 			'\x{1FADA}-\x{1FADB}' .
+			'\x{1FADC}' .
+			'\x{1FADF}' .
 			'\x{1FAE0}-\x{1FAE7}' .
 			'\x{1FAE8}' .
+			'\x{1FAE9}' .
 			'\x{1FAF0}-\x{1FAF6}' .
 			'\x{1FAF7}-\x{1FAF8}',
 		'Emoji_Modifier' =>
@@ -1683,7 +1729,7 @@ function utf8_regex_properties()
 			'\x{16FE4}' .
 			'\x{17000}-\x{187F7}' .
 			'\x{18800}-\x{18CD5}' .
-			'\x{18D00}-\x{18D08}' .
+			'\x{18CFF}-\x{18D08}' .
 			'\x{1B170}-\x{1B2FB}' .
 			'\x{20000}-\x{2A6DF}' .
 			'\x{2A700}-\x{2B739}' .
@@ -1905,6 +1951,8 @@ function utf8_regex_variation_selectors()
 			'\x{1F6E9}' .
 			'\x{1F6F0}' .
 			'\x{1F6F3}',
+		'\x{FE03}\x{FE06}' =>
+			'\x{13338}',
 		'\x{FE02}' =>
 			'\x{13117}' .
 			'\x{13139}' .
@@ -1931,6 +1979,7 @@ function utf8_regex_variation_selectors()
 			'\x{13385}' .
 			'\x{133AF}-\x{133B0}' .
 			'\x{133BF}' .
+			'\x{133DB}' .
 			'\x{133DD}' .
 			'\x{13419}' .
 			'\x{1342C}' .
@@ -1961,6 +2010,8 @@ function utf8_regex_variation_selectors()
 			'\x{1D4A9}-\x{1D4AC}' .
 			'\x{211B}' .
 			'\x{1D4AE}-\x{1D4B5}' .
+			'\x{2018}-\x{2019}' .
+			'\x{201C}-\x{201D}' .
 			'\x{3001}-\x{3002}' .
 			'\x{FF01}' .
 			'\x{FF0C}' .
@@ -1968,7 +2019,8 @@ function utf8_regex_variation_selectors()
 			'\x{FF1A}-\x{FF1B}' .
 			'\x{FF1F}' .
 			'\x{13093}' .
-			'\x{130A9}' .
+			'\x{13132}' .
+			'\x{13139}' .
 			'\x{13187}' .
 			'\x{131B1}' .
 			'\x{131EE}' .
@@ -1981,6 +2033,7 @@ function utf8_regex_variation_selectors()
 			'\x{1331B}' .
 			'\x{13321}-\x{13322}' .
 			'\x{13331}' .
+			'\x{133E8}' .
 			'\x{13419}' .
 			'\x{3B9D}' .
 			'\x{3EB8}' .
@@ -2099,6 +2152,8 @@ function utf8_regex_variation_selectors()
 			'\x{1D4A9}-\x{1D4AC}' .
 			'\x{211B}' .
 			'\x{1D4AE}-\x{1D4B5}' .
+			'\x{2018}-\x{2019}' .
+			'\x{201C}-\x{201D}' .
 			'\x{3001}-\x{3002}' .
 			'\x{FF01}' .
 			'\x{FF0C}' .
@@ -2129,7 +2184,7 @@ function utf8_regex_variation_selectors()
 			'\x{10AC5}-\x{10AC6}' .
 			'\x{10AD6}-\x{10AD7}' .
 			'\x{10AE1}' .
-			'\x{13091}-\x{13092}' .
+			'\x{13091}' .
 			'\x{1310F}' .
 			'\x{1311C}' .
 			'\x{13121}' .
@@ -2139,7 +2194,9 @@ function utf8_regex_variation_selectors()
 			'\x{131B1}' .
 			'\x{131B8}-\x{131B9}' .
 			'\x{131CB}' .
+			'\x{131E0}' .
 			'\x{131F9}-\x{131FA}' .
+			'\x{1327B}' .
 			'\x{1327F}' .
 			'\x{13285}' .
 			'\x{1328C}' .
@@ -2150,13 +2207,14 @@ function utf8_regex_variation_selectors()
 			'\x{13307}' .
 			'\x{1331B}' .
 			'\x{13322}' .
-			'\x{1333B}-\x{1333C}' .
+			'\x{1333C}' .
 			'\x{13377}-\x{13378}' .
 			'\x{13399}-\x{1339A}' .
 			'\x{133D3}' .
+			'\x{133E5}' .
+			'\x{133E7}' .
 			'\x{133F2}' .
 			'\x{133F5}-\x{133F6}' .
-			'\x{13403}' .
 			'\x{13416}' .
 			'\x{13419}-\x{1341A}' .
 			'\x{13423}' .
@@ -3110,7 +3168,8 @@ function utf8_regex_joining_type()
 				'\x{08A0}-\x{08A9}' .
 				'\x{08AF}-\x{08B0}' .
 				'\x{08B3}-\x{08B8}' .
-				'\x{08BA}-\x{08C8}',
+				'\x{08BA}-\x{08C8}' .
+				'\x{10EC3}-\x{10EC4}',
 			'Right_Joining' =>
 				'\x{0622}-\x{0625}' .
 				'\x{0627}' .
@@ -3137,7 +3196,8 @@ function utf8_regex_joining_type()
 				'\x{08AA}-\x{08AC}' .
 				'\x{08AE}' .
 				'\x{08B1}-\x{08B2}' .
-				'\x{08B9}',
+				'\x{08B9}' .
+				'\x{10EC2}',
 			'Transparent' =>
 				'\x{0610}-\x{061A}' .
 				'\x{061C}' .
@@ -3148,11 +3208,27 @@ function utf8_regex_joining_type()
 				'\x{06DF}-\x{06E4}' .
 				'\x{06E7}-\x{06E8}' .
 				'\x{06EA}-\x{06ED}' .
-				'\x{0898}-\x{089F}' .
+				'\x{0897}-\x{089F}' .
 				'\x{08CA}-\x{08E1}' .
 				'\x{08E3}-\x{0902}' .
 				'\x{102E0}' .
-				'\x{10EFD}-\x{10EFF}',
+				'\x{10EFC}-\x{10EFF}',
+		),
+		'Mongolian' => array(
+			'Join_Causing' =>
+				'\x{180A}',
+			'Dual_Joining' =>
+				'\x{1807}' .
+				'\x{1820}-\x{1842}' .
+				'\x{1843}' .
+				'\x{1844}-\x{1878}' .
+				'\x{1887}-\x{18A8}' .
+				'\x{18AA}',
+			'Transparent' =>
+				'\x{180B}-\x{180D}' .
+				'\x{180F}' .
+				'\x{1885}-\x{1886}' .
+				'\x{18A9}',
 		),
 		'Syriac' => array(
 			'Join_Causing' =>
@@ -3186,6 +3262,15 @@ function utf8_regex_joining_type()
 				'\x{0711}' .
 				'\x{0730}-\x{074A}',
 		),
+		'Adlam' => array(
+			'Join_Causing' =>
+				'\x{0640}',
+			'Dual_Joining' =>
+				'\x{1E900}-\x{1E943}',
+			'Transparent' =>
+				'\x{1E944}-\x{1E94A}' .
+				'\x{1E94B}',
+		),
 		'Tirhuta' => array(
 			'Dual_Joining' =>
 				'\x{A840}-\x{A871}' .
@@ -3197,15 +3282,6 @@ function utf8_regex_joining_type()
 				'\x{114BF}-\x{114C0}' .
 				'\x{114C2}-\x{114C3}',
 		),
-		'Adlam' => array(
-			'Join_Causing' =>
-				'\x{0640}',
-			'Dual_Joining' =>
-				'\x{1E900}-\x{1E943}',
-			'Transparent' =>
-				'\x{1E944}-\x{1E94A}' .
-				'\x{1E94B}',
-		),
 		'Nko' => array(
 			'Join_Causing' =>
 				'\x{07FA}',
@@ -3214,6 +3290,12 @@ function utf8_regex_joining_type()
 			'Transparent' =>
 				'\x{07EB}-\x{07F3}' .
 				'\x{07FD}',
+		),
+		'Phags_Pa' => array(
+			'Dual_Joining' =>
+				'\x{A840}-\x{A871}',
+			'Left_Joining' =>
+				'\x{A872}',
 		),
 		'Hanifi_Rohingya' => array(
 			'Join_Causing' =>
@@ -3313,28 +3395,6 @@ function utf8_regex_joining_type()
 			'Transparent' =>
 				'\x{10F82}-\x{10F85}',
 		),
-		'Mongolian' => array(
-			'Join_Causing' =>
-				'\x{180A}',
-			'Dual_Joining' =>
-				'\x{1807}' .
-				'\x{1820}-\x{1842}' .
-				'\x{1843}' .
-				'\x{1844}-\x{1878}' .
-				'\x{1887}-\x{18A8}' .
-				'\x{18AA}',
-			'Transparent' =>
-				'\x{180B}-\x{180D}' .
-				'\x{180F}' .
-				'\x{1885}-\x{1886}' .
-				'\x{18A9}',
-		),
-		'Phags_Pa' => array(
-			'Dual_Joining' =>
-				'\x{A840}-\x{A871}',
-			'Left_Joining' =>
-				'\x{A872}',
-		),
 		'Chorasmian' => array(
 			'Dual_Joining' =>
 				'\x{10FB0}' .
@@ -3374,6 +3434,7 @@ function utf8_regex_indic()
 	return array(
 		'Devanagari' => array(
 			'All' =>
+				'\x{02BC}' .
 				'\x{0900}-\x{0952}' .
 				'\x{0955}-\x{0966}' .
 				'\x{0966}-\x{096A}' .
@@ -3394,6 +3455,7 @@ function utf8_regex_indic()
 				'\x{A8F3}-\x{A8FF}' .
 				'\x{11B00}-\x{11B09}',
 			'Letter' =>
+				'\x{02BC}' .
 				'\x{0904}-\x{0939}' .
 				'\x{093D}' .
 				'\x{0950}' .
@@ -3577,6 +3639,7 @@ function utf8_regex_indic()
 		),
 		'Bengali' => array(
 			'All' =>
+				'\x{02BC}' .
 				'\x{0951}-\x{0952}' .
 				'\x{0964}-\x{0965}' .
 				'\x{0980}-\x{0983}' .
@@ -3609,6 +3672,7 @@ function utf8_regex_indic()
 				'\x{1CF7}' .
 				'\x{A8F1}',
 			'Letter' =>
+				'\x{02BC}' .
 				'\x{0980}' .
 				'\x{0985}-\x{098C}' .
 				'\x{098F}-\x{0990}' .
@@ -3796,14 +3860,13 @@ function utf8_regex_indic()
 				'\x{0CDD}-\x{0CDE}' .
 				'\x{0CE0}-\x{0CE3}' .
 				'\x{0CE6}' .
-				'\x{0CE6}-\x{0CE8}' .
-				'\x{0CE8}-\x{0CEA}' .
-				'\x{0CEA}-\x{0CEC}' .
-				'\x{0CEC}-\x{0CEE}' .
-				'\x{0CEE}-\x{0CEF}' .
+				'\x{0CE6}-\x{0CE9}' .
+				'\x{0CE9}-\x{0CEC}' .
+				'\x{0CEC}-\x{0CEF}' .
+				'\x{0CEF}' .
 				'\x{0CF1}-\x{0CF3}' .
 				'\x{1CD0}' .
-				'\x{1CD2}' .
+				'\x{1CD2}-\x{1CD3}' .
 				'\x{1CDA}' .
 				'\x{1CF2}' .
 				'\x{1CF4}' .
@@ -4176,6 +4239,7 @@ function utf8_regex_indic()
 				'\x{0968}' .
 				'\x{096C}' .
 				'\x{0970}' .
+				'\x{2E31}' .
 				'\x{A836}' .
 				'\x{A838}-\x{A839}' .
 				'\x{A839}' .
@@ -4198,45 +4262,6 @@ function utf8_regex_indic()
 				'\x{110B3}-\x{110B6}' .
 				'\x{110B7}-\x{110B8}' .
 				'\x{110C2}',
-		),
-		'Nandinagari' => array(
-			'All' =>
-				'\x{0964}-\x{0965}' .
-				'\x{0CE7}' .
-				'\x{0CE9}' .
-				'\x{0CEB}' .
-				'\x{0CED}' .
-				'\x{0CEF}' .
-				'\x{1CE9}' .
-				'\x{1CF2}' .
-				'\x{1CFA}' .
-				'\x{A83A}' .
-				'\x{A83C}' .
-				'\x{119A0}-\x{119A7}' .
-				'\x{119AA}-\x{119D7}' .
-				'\x{119DA}-\x{119E4}',
-			'Letter' =>
-				'\x{1CE9}' .
-				'\x{1CF2}' .
-				'\x{1CFA}' .
-				'\x{119A0}-\x{119A7}' .
-				'\x{119AA}-\x{119D0}' .
-				'\x{119E1}' .
-				'\x{119E3}',
-			'Nonspacing_Combining_Mark' =>
-				'\x{119E0}',
-			'Nonspacing_Mark' =>
-				'\x{119D4}-\x{119D7}' .
-				'\x{119DA}-\x{119DB}' .
-				'\x{119E0}',
-			'Virama' =>
-				'\x{119E0}',
-			'Vowel_Dependent' =>
-				'\x{119D1}-\x{119D3}' .
-				'\x{119D4}-\x{119D7}' .
-				'\x{119DA}-\x{119DB}' .
-				'\x{119DC}-\x{119DD}' .
-				'\x{119E4}',
 		),
 		'Khojki' => array(
 			'All' =>
@@ -4268,6 +4293,44 @@ function utf8_regex_indic()
 				'\x{1122F}-\x{11231}' .
 				'\x{11232}-\x{11233}' .
 				'\x{11241}',
+		),
+		'Nandinagari' => array(
+			'All' =>
+				'\x{0964}-\x{0965}' .
+				'\x{0CE7}' .
+				'\x{0CEA}' .
+				'\x{0CED}' .
+				'\x{0CF0}' .
+				'\x{1CE9}' .
+				'\x{1CF2}' .
+				'\x{1CFA}' .
+				'\x{A83A}' .
+				'\x{A83C}' .
+				'\x{119A0}-\x{119A7}' .
+				'\x{119AA}-\x{119D7}' .
+				'\x{119DA}-\x{119E4}',
+			'Letter' =>
+				'\x{1CE9}' .
+				'\x{1CF2}' .
+				'\x{1CFA}' .
+				'\x{119A0}-\x{119A7}' .
+				'\x{119AA}-\x{119D0}' .
+				'\x{119E1}' .
+				'\x{119E3}',
+			'Nonspacing_Combining_Mark' =>
+				'\x{119E0}',
+			'Nonspacing_Mark' =>
+				'\x{119D4}-\x{119D7}' .
+				'\x{119DA}-\x{119DB}' .
+				'\x{119E0}',
+			'Virama' =>
+				'\x{119E0}',
+			'Vowel_Dependent' =>
+				'\x{119D1}-\x{119D3}' .
+				'\x{119D4}-\x{119D7}' .
+				'\x{119DA}-\x{119DB}' .
+				'\x{119DC}-\x{119DD}' .
+				'\x{119E4}',
 		),
 		'Takri' => array(
 			'All' =>
@@ -4352,7 +4415,7 @@ function utf8_regex_indic()
 		'Balinese' => array(
 			'All' =>
 				'\x{1B00}-\x{1B4C}' .
-				'\x{1B50}-\x{1B7E}',
+				'\x{1B4E}-\x{1B7F}',
 			'Letter' =>
 				'\x{1B05}-\x{1B33}' .
 				'\x{1B45}-\x{1B4C}',
