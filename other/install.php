@@ -43,7 +43,7 @@ if (!defined('TIME_START')) {
 define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');
 define('SMF_SETTINGS_BACKUP_FILE', __DIR__ . '/Settings_bak.php');
 
-$GLOBALS['required_php_version'] = '8.0.0';
+$GLOBALS['required_php_version'] = '8.3.0';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">
