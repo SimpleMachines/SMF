@@ -1,56 +1,40 @@
-var fails = [];
+const tributeRemoteSearch = (query, callback) => {
+  const URL = smf_scripturl + '?action=suggest;' + smf_session_var + '=' + smf_session_id + ';xml';
 
-var atwhoConfig = {
-	at: '@',
-	data: [],
-	show_the_at: true,
-	startWithSpace: true,
-	limit: 10,
-	callbacks: {
-		remoteFilter: function (query, callback) {
-			if (typeof query == 'undefined' || query.length < 2 || query.length > 60)
-				return;
+  xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        const xmlDoc = xhr.responseXML;
+        const items = xmlDoc.getElementsByTagName('item');
+        const users = [];
 
-			for (i in fails)
-				if (query.substr(0, fails[i].length) == fails[i])
-					return;
+        for (let i = 0; i < items.length; i++) {
+          users.push({ key: items[i].id, value: items[i].textContent });
+        }
 
-			$.ajax({
-				url: smf_scripturl + '?action=suggest;' + smf_session_var + '=' + smf_session_id + ';xml',
-				method: 'GET',
-				headers: {
-					"X-SMF-AJAX": 1
-				},
-				xhrFields: {
-					withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false
-				},
-				data: {
-					search: query,
-					suggest_type: 'member'
-				},
-				success: function (data) {
-					var members = $(data).find('smf > items > item');
-					if (members.length == 0)
-						fails[fails.length] = query;
-
-					var callbackArray = [];
-					$.each(members, function (index, item) {
-						callbackArray[callbackArray.length] = {
-							name: $(item).text()
-						};
-					});
-
-					callback(callbackArray);
-				}
-			});
-		}
-	}
+        callback(users);
+      } else if (xhr.status === 403) {
+        callback([]);
+      }
+    }
+  };
+  xhr.open('GET', URL + ';suggest_type=member;search=' + query, true);
+  xhr.setRequestHeader('X-SMF-AJAX', '1');
+  xhr.withCredentials =
+    typeof allow_xhjr_credentials !== 'undefined' ? allow_xhjr_credentials : false;
+  xhr.send();
 };
-$(function()
-{
-	$('textarea[name=message]').atwho(atwhoConfig);
-	$('.sceditor-container').find('textarea').atwho(atwhoConfig);
-	var iframe = $('.sceditor-container').find('iframe')[0];
-	if (typeof iframe != 'undefined')
-		$(iframe.contentDocument.body).atwho(atwhoConfig);
-});
+
+const tributeConfig = {
+  values: function (query, callback) {
+    tributeRemoteSearch(query, (users) => callback(users));
+  },
+  lookup: 'value',
+  menuItemLimit: 10,
+  noMatchTemplate: function () {
+    return '<span style:"visibility: hidden;"></span>';
+  },
+};
+
+const tribute = new Tribute(tributeConfig);

@@ -3881,50 +3881,6 @@ p.information img {
 .topic_pages::after {
 	content: " \00bb"
 }
-/* Mentions */
-.atwho-view {
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: none;
-	margin-top: 18px;
-	background: #fff;
-	border: 1px solid #ddd;
-	border-radius: 3px;
-	box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-	min-width: 120px;
-	z-index: 11110 !important;
-}
-.atwho-view .cur {
-	background: #3366ff;
-	color: #fff;
-}
-.atwho-view .cur small {
-	color: #fff;
-}
-.atwho-view strong {
-	color: #3366ff;
-}
-.atwho-view .cur strong {
-	color: #fff;
-	font-weight: bold;
-}
-.atwho-view ul {
-	list-style: none;
-	padding: 0;
-	margin: auto;
-}
-.atwho-view ul li {
-	display: block;
-	padding: 5px 10px;
-	border-bottom: 1px solid #ddd;
-	cursor: pointer;
-}
-.atwho-view small {
-	font-size: smaller;
-	color: #777;
-	font-weight: normal;
-}
 /* On/Off Icons (User) */
 .on, .off {
 	display: inline-block;

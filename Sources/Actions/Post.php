@@ -347,8 +347,8 @@ class Post implements ActionInterface
 
 		// Mentions
 		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention')) {
-			Theme::loadJavaScriptFile('jquery.caret.min.js', ['defer' => true], 'smf_caret');
-			Theme::loadJavaScriptFile('jquery.atwho.min.js', ['defer' => true], 'smf_atwho');
+			Theme::loadCSSFile('tribute.css', ['minimize' => true], 'smf_tribute');
+			Theme::loadJavaScriptFile('tribute.js', ['defer' => true, 'minimize' => true], 'smf_tribute');
 			Theme::loadJavaScriptFile('mentions.js', ['defer' => true, 'minimize' => true], 'smf_mentions');
 		}
 
