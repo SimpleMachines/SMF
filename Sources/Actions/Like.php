@@ -203,7 +203,7 @@ class Like implements ActionInterface
 		// Make sure the user can see and like your content.
 		$this->check();
 
-		if (is_string($this->error)) {
+		if (\is_string($this->error)) {
 			$this->respond();
 
 			return;
@@ -222,9 +222,9 @@ class Like implements ActionInterface
 
 			// Call the appropriate method.
 			if (method_exists($this, self::$subactions[$this->subaction])) {
-				call_user_func([$this, self::$subactions[$this->subaction]]);
+				\call_user_func([$this, self::$subactions[$this->subaction]]);
 			} else {
-				call_user_func(self::$subactions[$this->subaction]);
+				\call_user_func(self::$subactions[$this->subaction]);
 			}
 		}
 
@@ -394,7 +394,7 @@ class Like implements ActionInterface
 
 		// Is the user able to like this?
 		// Viewing a list of likes doesn't require this permission.
-		if ($this->subaction != 'view' && isset($this->valid_likes['can_like']) && is_string($this->valid_likes['can_like'])) {
+		if ($this->subaction != 'view' && isset($this->valid_likes['can_like']) && \is_string($this->valid_likes['can_like'])) {
 			$this->error = $this->valid_likes['can_like'];
 
 			return;
@@ -601,7 +601,7 @@ class Like implements ActionInterface
 			$call = Utils::getCallable($this->valid_likes['callback']);
 
 			if (!empty($call)) {
-				call_user_func_array($call, [$this]);
+				\call_user_func_array($call, [$this]);
 			}
 		}
 
@@ -663,7 +663,7 @@ class Like implements ActionInterface
 		$members = array_keys(Utils::$context['likers']);
 		$loaded = User::load($members);
 
-		if (count($loaded) != count($members)) {
+		if (\count($loaded) != \count($members)) {
 			$members = array_diff($members, array_map(fn ($member) => $member->id, $loaded));
 
 			foreach ($members as $not_loaded) {
@@ -682,7 +682,7 @@ class Like implements ActionInterface
 			Utils::$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? Time::create('@' . $dummy['timestamp'])->format() : '';
 		}
 
-		Utils::$context['page_title'] = strip_tags(Lang::getTxt('likes_count', ['num' => count(Utils::$context['likers'])]));
+		Utils::$context['page_title'] = strip_tags(Lang::getTxt('likes_count', ['num' => \count(Utils::$context['likers'])]));
 
 		// Lastly, setting up for display.
 		Theme::loadTemplate('Likes');
@@ -748,7 +748,7 @@ class Like implements ActionInterface
 		// These fine gentlemen all share the same template.
 		$generic = ['delete', 'insert', 'count'];
 
-		if (in_array($this->subaction, $generic)) {
+		if (\in_array($this->subaction, $generic)) {
 			Utils::$context['sub_template'] = 'generic';
 			Utils::$context['data'] = Lang::$txt['like_' . $this->data] ?? $this->data;
 		}

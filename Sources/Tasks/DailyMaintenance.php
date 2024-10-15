@@ -135,7 +135,7 @@ class DailyMaintenance extends ScheduledTask
 			$export_files = glob(rtrim(Config::$modSettings['export_dir'], '/\\') . DIRECTORY_SEPARATOR . '*');
 
 			foreach ($export_files as $export_file) {
-				if (!in_array(basename($export_file), ['index.php', '.htaccess']) && filemtime($export_file) <= $expiry_date) {
+				if (!\in_array(basename($export_file), ['index.php', '.htaccess']) && filemtime($export_file) <= $expiry_date) {
 					@unlink($export_file);
 				}
 			}

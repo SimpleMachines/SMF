@@ -171,7 +171,7 @@ abstract class CacheApi
 	 */
 	public function setPrefix(string $prefix = ''): bool
 	{
-		if (!is_string($prefix)) {
+		if (!\is_string($prefix)) {
 			$prefix = '';
 		}
 
@@ -314,13 +314,13 @@ abstract class CacheApi
 	 */
 	public function getImplementationClassKeyName(): string
 	{
-		$class_name = get_class($this);
+		$class_name = \get_class($this);
 
 		if ($position = strrpos($class_name, '\\')) {
 			return substr($class_name, $position + 1);
 		}
 
-		return get_class($this);
+		return \get_class($this);
 	}
 
 	/***********************
@@ -353,11 +353,11 @@ abstract class CacheApi
 		}
 
 		// Not overriding this and we have a cacheAPI, send it back.
-		if (empty($overrideCache) && is_object(self::$loadedApi)) {
+		if (empty($overrideCache) && \is_object(self::$loadedApi)) {
 			return self::$loadedApi;
 		}
 
-		if (is_null(self::$loadedApi)) {
+		if (\is_null(self::$loadedApi)) {
 			self::$loadedApi = false;
 		}
 
@@ -495,12 +495,12 @@ abstract class CacheApi
 			4. The cached item has a custom expiration condition evaluating to true.
 			5. The expire time set in the cache item has passed (needed for Zend).
 		*/
-		if (empty(self::$enable) || self::$enable < $level || !is_array($cache_block = self::get($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time())) {
+		if (empty(self::$enable) || self::$enable < $level || !\is_array($cache_block = self::get($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time())) {
 			if (!empty($file) && is_file(Config::$sourcedir . '/' . $file)) {
 				require_once Config::$sourcedir . '/' . $file;
 			}
 
-			$cache_block = call_user_func_array($function, $params);
+			$cache_block = \call_user_func_array($function, $params);
 
 			if (!empty(self::$enable) && self::$enable >= $level) {
 				self::put($key, $cache_block, $cache_block['expires'] - time());
@@ -588,7 +588,7 @@ abstract class CacheApi
 
 		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
-			self::$hits[self::$count_hits]['s'] = isset($value) ? strlen((string) $value) : 0;
+			self::$hits[self::$count_hits]['s'] = isset($value) ? \strlen((string) $value) : 0;
 
 			if (empty($value)) {
 				self::$count_misses++;
@@ -617,7 +617,7 @@ abstract class CacheApi
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([CacheApi::class, 'exportStatic'])) {
+if (\is_callable([CacheApi::class, 'exportStatic'])) {
 	CacheApi::exportStatic();
 }
 

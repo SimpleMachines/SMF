@@ -330,7 +330,7 @@ class RecurrenceIterator implements \Iterator
 	) {
 		$this->rrule = $rrule;
 
-		$this->type = isset($type) && in_array($type, range(0, 2)) ? $type : ($this->rrule->until_type ?? self::TYPE_ABSOLUTE);
+		$this->type = isset($type) && \in_array($type, range(0, 2)) ? $type : ($this->rrule->until_type ?? self::TYPE_ABSOLUTE);
 
 		$this->dtstart = $this->type === self::TYPE_ABSOLUTE ? \DateTimeImmutable::createFromInterface($dtstart) : \DateTime::createFromInterface($dtstart);
 		$this->view_start = $this->type === self::TYPE_ABSOLUTE ? \DateTimeImmutable::createFromInterface($view_start ?? $this->dtstart) : \DateTime::createFromInterface($view_start ?? $this->dtstart);
@@ -523,12 +523,12 @@ class RecurrenceIterator implements \Iterator
 
 		$string = (clone $date)->setTimezone(new \DateTimeZone('UTC'))->format($this->record_format);
 
-		if (in_array($string, $this->occurrences)) {
+		if (\in_array($string, $this->occurrences)) {
 			return;
 		}
 
 		// Re-adding a date that was previously removed.
-		if (in_array($string, $this->exdates)) {
+		if (\in_array($string, $this->exdates)) {
 			$this->exdates = array_values(array_diff($this->exdates, [$string]));
 		}
 		// Adding a new date.
@@ -571,7 +571,7 @@ class RecurrenceIterator implements \Iterator
 			}
 		}
 
-		if (!$is_rdate && !in_array($string, $this->exdates)) {
+		if (!$is_rdate && !\in_array($string, $this->exdates)) {
 			$this->exdates[] = $string;
 		}
 
@@ -586,7 +586,7 @@ class RecurrenceIterator implements \Iterator
 	 */
 	public function dateOccurs(\DateTimeInterface $date): bool
 	{
-		return in_array((clone $date)->setTimezone(new \DateTimeZone('UTC'))->format($this->record_format), $this->occurrences);
+		return \in_array((clone $date)->setTimezone(new \DateTimeZone('UTC'))->format($this->record_format), $this->occurrences);
 	}
 
 	/**
@@ -776,7 +776,7 @@ class RecurrenceIterator implements \Iterator
 	{
 		$interval_string = 'P';
 
-		if (in_array($this->rrule->freq, ['HOURLY', 'MINUTELY', 'SECONDLY'])) {
+		if (\in_array($this->rrule->freq, ['HOURLY', 'MINUTELY', 'SECONDLY'])) {
 			$interval_string .= 'T';
 		}
 
@@ -803,7 +803,7 @@ class RecurrenceIterator implements \Iterator
 		$string = (clone $occurrence)->setTimezone(new \DateTimeZone('UTC'))->format($this->record_format);
 
 		// If it is already in the array, don't add it.
-		if (in_array($string, $this->occurrences)) {
+		if (\in_array($string, $this->occurrences)) {
 			return false;
 		}
 
@@ -817,7 +817,7 @@ class RecurrenceIterator implements \Iterator
 		}
 
 		// If we don't need to truncate the array, return true now.
-		if ($this->max_occurrences >= count($this->occurrences)) {
+		if ($this->max_occurrences >= \count($this->occurrences)) {
 			return true;
 		}
 
@@ -825,7 +825,7 @@ class RecurrenceIterator implements \Iterator
 		array_splice($this->occurrences, $this->max_occurrences);
 
 		// Is this occurrence still in the array?
-		return in_array($string, $this->occurrences);
+		return \in_array($string, $this->occurrences);
 	}
 
 	/**
@@ -848,7 +848,7 @@ class RecurrenceIterator implements \Iterator
 			$current <= $this->limit_after
 			&& (
 				!empty($this->rrule->bysetpos)
-				|| count($this->occurrences) < $max
+				|| \count($this->occurrences) < $max
 			)
 		) {
 			if ($current < $this->view_start) {
@@ -899,7 +899,7 @@ class RecurrenceIterator implements \Iterator
 			fn ($occurrence) => $view_start <= $occurrence && $view_end >= $occurrence,
 		));
 
-		if ($this->max_occurrences < count($this->occurrences)) {
+		if ($this->max_occurrences < \count($this->occurrences)) {
 			array_splice($this->occurrences, $this->max_occurrences);
 		}
 	}
@@ -931,7 +931,7 @@ class RecurrenceIterator implements \Iterator
 				(int) $this->view_start->format('d'),
 			);
 
-			while (!in_array(strtoupper(substr($current->format('D'), 0, 2)), $weekdays)) {
+			while (!\in_array(strtoupper(substr($current->format('D'), 0, 2)), $weekdays)) {
 				$current->modify('-1 day');
 			}
 
@@ -944,7 +944,7 @@ class RecurrenceIterator implements \Iterator
 				continue;
 			}
 
-			if (!empty($this->rrule->{$prop}) && count($this->rrule->{$prop}) > 1) {
+			if (!empty($this->rrule->{$prop}) && \count($this->rrule->{$prop}) > 1) {
 				return;
 			}
 		}
@@ -1093,7 +1093,7 @@ class RecurrenceIterator implements \Iterator
 					break;
 			 }
 
-			$valid &= in_array($current_value, $allowed_values);
+			$valid &= \in_array($current_value, $allowed_values);
 		}
 
 		return (bool) $valid;
@@ -1170,7 +1170,7 @@ class RecurrenceIterator implements \Iterator
 
 		foreach ($groups as $group_key => $strings) {
 			foreach ($bysetpos as $setpos) {
-				$occurrences = array_merge($occurrences, array_slice($strings, $setpos, 1));
+				$occurrences = array_merge($occurrences, \array_slice($strings, $setpos, 1));
 			}
 		}
 
@@ -1408,7 +1408,7 @@ class RecurrenceIterator implements \Iterator
 
 		if ($this->frequency_interval->m === 1) {
 			$upperlimit->add($this->frequency_interval);
-		} elseif (!empty($this->rrule->bymonth) && in_array((($upperlimit->format('m') + 1) % 12), $this->rrule->bymonth)) {
+		} elseif (!empty($this->rrule->bymonth) && \in_array((($upperlimit->format('m') + 1) % 12), $this->rrule->bymonth)) {
 			$upperlimit->modify('last day of ' . $upperlimit->format('F H:i:s e'));
 			$upperlimit->modify('+ 1 day');
 		} else {
@@ -1460,7 +1460,7 @@ class RecurrenceIterator implements \Iterator
 					}
 				}
 
-				if ($key === count($expansion_values) - 1) {
+				if ($key === \count($expansion_values) - 1) {
 					break;
 				}
 			}
@@ -1489,7 +1489,7 @@ class RecurrenceIterator implements \Iterator
 					}
 				}
 
-				if ($key === count($expansion_values) - 1) {
+				if ($key === \count($expansion_values) - 1) {
 					break;
 				}
 			}
@@ -1517,7 +1517,7 @@ class RecurrenceIterator implements \Iterator
 			}
 
 			$key++;
-			$key %= count($expansion_values);
+			$key %= \count($expansion_values);
 			$i++;
 		}
 	}
@@ -1622,7 +1622,7 @@ class RecurrenceIterator implements \Iterator
 			}
 
 			$key++;
-			$key %= count($expansion_values);
+			$key %= \count($expansion_values);
 		}
 	}
 

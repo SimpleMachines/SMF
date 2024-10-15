@@ -327,9 +327,9 @@ class PM implements \ArrayAccess
 
 		$label_ids = array_diff(array_keys($labels), [-1]);
 
-		$href = Config::$scripturl . '?action=pm;f=' . $this->folder . (Utils::$context['current_label_id'] != -1 && !empty($label_ids) && in_array(Utils::$context['current_label_id'], $label_ids) ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmid=' . $this->id . '#msg' . $this->id;
+		$href = Config::$scripturl . '?action=pm;f=' . $this->folder . (Utils::$context['current_label_id'] != -1 && !empty($label_ids) && \in_array(Utils::$context['current_label_id'], $label_ids) ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmid=' . $this->id . '#msg' . $this->id;
 
-		$number_recipients = count($recipients['to']);
+		$number_recipients = \count($recipients['to']);
 
 		$this->formatted = [
 			'id' => $this->id,
@@ -342,10 +342,10 @@ class PM implements \ArrayAccess
 			'recipients' => $recipients,
 			'number_recipients' => $number_recipients,
 			'labels' => $labels,
-			'fully_labeled' => count($labels) == count(Label::$loaded),
+			'fully_labeled' => \count($labels) == \count(Label::$loaded),
 			'is_replied_to' => $is_replied_to,
 			'is_unread' => $is_unread,
-			'is_selected' => !empty($temp_pm_selected) && in_array($this->id, $temp_pm_selected),
+			'is_selected' => !empty($temp_pm_selected) && \in_array($this->id, $temp_pm_selected),
 			'is_message_author' => $this->member_from == User::$me->id,
 			'is_head' => $this->id === $this->head,
 			'href' => $href,
@@ -509,7 +509,7 @@ class PM implements \ArrayAccess
 		Received::loadByPm($ids);
 
 		// Asked for single PM that has already been loaded? Just yield and return.
-		if (count($ids) === 1 && isset(self::$loaded[reset($ids)])) {
+		if (\count($ids) === 1 && isset(self::$loaded[reset($ids)])) {
 			yield self::$loaded[reset($ids)];
 
 			return;
@@ -527,7 +527,7 @@ class PM implements \ArrayAccess
 
 		$order = $query_customizations['order'] ?? [];
 		$group = $query_customizations['group'] ?? [];
-		$limit = $query_customizations['limit'] ?? count($ids);
+		$limit = $query_customizations['limit'] ?? \count($ids);
 		$params = $query_customizations['params'] ?? [];
 
 		// There will never be an ID 0, but SMF doesn't like empty arrays when you tell it to expect an array of integers...
@@ -702,7 +702,7 @@ class PM implements \ArrayAccess
 			}
 
 			if (isset($pm)) {
-				if ($pm->member_from != User::$me->id && ($_REQUEST['u'] == 'all' || in_array($pm->member_from, $_REQUEST['u']))) {
+				if ($pm->member_from != User::$me->id && ($_REQUEST['u'] == 'all' || \in_array($pm->member_from, $_REQUEST['u']))) {
 					Utils::$context['recipients']['to'][$pm->member_from] = [
 						'id' => $pm->member_from,
 						'name' => Utils::htmlspecialchars($pm->from_name),
@@ -742,7 +742,7 @@ class PM implements \ArrayAccess
 						LIMIT {int:limit}',
 						[
 							'member_list' => $_REQUEST['u'],
-							'limit' => count($_REQUEST['u']),
+							'limit' => \count($_REQUEST['u']),
 						],
 					);
 
@@ -898,7 +898,7 @@ class PM implements \ArrayAccess
 			// First, let's see if there's user ID's given.
 			$recipientList[$recipientType] = [];
 
-			if (!empty($_POST['recipient_' . $recipientType]) && is_array($_POST['recipient_' . $recipientType])) {
+			if (!empty($_POST['recipient_' . $recipientType]) && \is_array($_POST['recipient_' . $recipientType])) {
 				foreach ($_POST['recipient_' . $recipientType] as $recipient) {
 					$recipientList[$recipientType][] = (int) $recipient;
 				}
@@ -914,7 +914,7 @@ class PM implements \ArrayAccess
 				$namedRecipientList[$recipientType] = array_unique(array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $recipientString))));
 
 				foreach ($namedRecipientList[$recipientType] as $index => $recipient) {
-					if (strlen(trim($recipient)) > 0) {
+					if (\strlen(trim($recipient)) > 0) {
 						$namedRecipientList[$recipientType][$index] = Utils::htmlspecialchars(Utils::strtolower(trim($recipient)));
 					} else {
 						unset($namedRecipientList[$recipientType][$index]);
@@ -934,7 +934,7 @@ class PM implements \ArrayAccess
 							Utils::strtolower($member['email']),
 						];
 
-						if (count(array_intersect($testNames, $namedRecipientList[$recipientType])) !== 0) {
+						if (\count(array_intersect($testNames, $namedRecipientList[$recipientType])) !== 0) {
 							$recipientList[$recipientType][] = $member['id'];
 
 							// Get rid of this username, since we found it.
@@ -1071,7 +1071,7 @@ class PM implements \ArrayAccess
 		}
 
 		// Before we send the PM, let's make sure we don't have an abuse of numbers.
-		if (!empty(Config::$modSettings['max_pm_recipients']) && count($recipientList['to']) + count($recipientList['bcc']) > Config::$modSettings['max_pm_recipients'] && !User::$me->allowedTo(['moderate_forum', 'send_mail', 'admin_forum'])) {
+		if (!empty(Config::$modSettings['max_pm_recipients']) && \count($recipientList['to']) + \count($recipientList['bcc']) > Config::$modSettings['max_pm_recipients'] && !User::$me->allowedTo(['moderate_forum', 'send_mail', 'admin_forum'])) {
 			Utils::$context['send_log'] = [
 				'sent' => [],
 				'failed' => [Lang::getTxt('pm_too_many_recipients', [Config::$modSettings['max_pm_recipients']])],
@@ -1174,7 +1174,7 @@ class PM implements \ArrayAccess
 		}
 
 		// Make sure is an array
-		if (!is_array($recipients)) {
+		if (!\is_array($recipients)) {
 			$recipients = [$recipients];
 		}
 
@@ -1268,7 +1268,7 @@ class PM implements \ArrayAccess
 					)
 					|| (
 						$criterium['t'] == 'gid'
-						&& in_array($criterium['v'], User::$me->groups)
+						&& \in_array($criterium['v'], User::$me->groups)
 					)
 					|| (
 						$criterium['t'] == 'sub'
@@ -1331,7 +1331,7 @@ class PM implements \ArrayAccess
 				'buddies_only' => 2,
 				'admins_only' => 3,
 				'recipients' => $all_to,
-				'count_recipients' => count($all_to),
+				'count_recipients' => \count($all_to),
 				'from_id' => $from['id'],
 			],
 		);
@@ -1358,7 +1358,7 @@ class PM implements \ArrayAccess
 			$message_limit = -1;
 
 			// For each group see whether they've gone over their limit - assuming they're not an admin.
-			if (!in_array(1, $groups)) {
+			if (!\in_array(1, $groups)) {
 				foreach ($groups as $id) {
 					if (isset(self::$message_limit_cache[$id]) && $message_limit != 0 && $message_limit < self::$message_limit_cache[$id]) {
 						$message_limit = self::$message_limit_cache[$id];
@@ -1374,7 +1374,7 @@ class PM implements \ArrayAccess
 				}
 
 				// Do they have any of the allowed groups?
-				if (count(array_intersect($pmReadGroups['allowed'], $groups)) == 0 || count(array_intersect($pmReadGroups['denied'], $groups)) != 0) {
+				if (\count(array_intersect($pmReadGroups['allowed'], $groups)) == 0 || \count(array_intersect($pmReadGroups['denied'], $groups)) != 0) {
 					$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']]);
 
 					unset($all_to[array_search($row['id_member'], $all_to)]);
@@ -1501,9 +1501,9 @@ class PM implements \ArrayAccess
 			$to_list = [];
 
 			foreach ($all_to as $to) {
-				$insertRows[] = [$id_pm, $to, in_array($to, $recipients['bcc']) ? 1 : 0, isset($deletes[$to]) ? 1 : 0, 1];
+				$insertRows[] = [$id_pm, $to, \in_array($to, $recipients['bcc']) ? 1 : 0, isset($deletes[$to]) ? 1 : 0, 1];
 
-				if (!in_array($to, $recipients['bcc'])) {
+				if (!\in_array($to, $recipients['bcc'])) {
 					$to_list[] = $to;
 				}
 			}
@@ -1521,7 +1521,7 @@ class PM implements \ArrayAccess
 
 		$to_names = [];
 
-		if (count($to_list) > 1) {
+		if (\count($to_list) > 1) {
 			$request = Db::$db->query(
 				'',
 				'SELECT real_name
@@ -1621,12 +1621,12 @@ class PM implements \ArrayAccess
 			$owner = [User::$me->id];
 		} elseif (empty($owner)) {
 			return;
-		} elseif (!is_array($owner)) {
+		} elseif (!\is_array($owner)) {
 			$owner = [$owner];
 		}
 
 		if ($personal_messages !== null) {
-			if (empty($personal_messages) || !is_array($personal_messages)) {
+			if (empty($personal_messages) || !\is_array($personal_messages)) {
 				return;
 			}
 
@@ -2058,7 +2058,7 @@ class PM implements \ArrayAccess
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				$recipientType = in_array($row['id_member'], $recipient_ids['bcc']) ? 'bcc' : 'to';
+				$recipientType = \in_array($row['id_member'], $recipient_ids['bcc']) ? 'bcc' : 'to';
 
 				Utils::$context['recipients'][$recipientType][] = [
 					'id' => $row['id_member'],
@@ -2157,7 +2157,7 @@ class PM implements \ArrayAccess
 			}
 
 			// If it's not a minor error flag it as such.
-			if (!in_array($error_type, ['new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject'])) {
+			if (!\in_array($error_type, ['new_reply', 'not_approved', 'new_replies', 'old_topic', 'need_qr_verification', 'no_subject'])) {
 				Utils::$context['error_type'] = 'serious';
 			}
 		}

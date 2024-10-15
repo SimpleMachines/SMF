@@ -251,7 +251,7 @@ class Lang
 			}
 
 			// Fall back to English if none of the preferred languages can be found.
-			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en_US', [$lang, self::$default])) {
+			if (empty(Config::$modSettings['disable_language_fallback']) && !\in_array('en_US', [$lang, self::$default])) {
 				foreach (self::$dirs as $dir) {
 					$attempts[] = [$dir, $template, 'en_US'];
 				}
@@ -527,12 +527,12 @@ class Lang
 	public static function getTxt(string|array $txt_key, array $args = [], string $var = 'txt'): string
 	{
 		// Validate $var.
-		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
+		if (!\in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
 			throw new \ValueError();
 		}
 
 		// Don't waste time when getting a simple string.
-		if ($args === [] && is_string($txt_key)) {
+		if ($args === [] && \is_string($txt_key)) {
 			return self::${$var}[$txt_key] ?? '';
 		}
 
@@ -551,7 +551,7 @@ class Lang
 			}
 		}
 
-		if (!is_scalar($target)) {
+		if (!\is_scalar($target)) {
 			throw new \ValueError();
 		}
 
@@ -562,8 +562,8 @@ class Lang
 		// Workaround for a CrowdIn limitation that won't allow translators to
 		// change offset values in strings.
 		if (
-			count($txt_key) === 0
-			&& in_array($txt_key[0], ['ordinal_last', 'ordinal_spellout_last'])
+			\count($txt_key) === 0
+			&& \in_array($txt_key[0], ['ordinal_last', 'ordinal_spellout_last'])
 			&& isset(self::$txt['ordinal_last_offset'])
 		) {
 			$target = str_replace(
@@ -592,7 +592,7 @@ class Lang
 	{
 		static $censor_vulgar = null, $censor_proper;
 
-		if ((!empty(Theme::$current->options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !is_string($text) || trim($text) === '') {
+		if ((!empty(Theme::$current->options['show_no_censored']) && !empty(Config::$modSettings['allow_no_censored']) && !$force) || empty(Config::$modSettings['censor_vulgar']) || !\is_string($text) || trim($text) === '') {
 			return $text;
 		}
 
@@ -712,7 +712,7 @@ class Lang
 		}
 
 		// If we have a pattern for this exact number of items, use it.
-		$args = array_merge(['list_pattern_part' => count($list)], $list);
+		$args = array_merge(['list_pattern_part' => \count($list)], $list);
 		$sentence_list = self::formatText(self::$txt['sentence_list_pattern'][$type], $args);
 
 		// Otherwise, build the list normally.
@@ -722,7 +722,7 @@ class Lang
 			$sentence_list = self::formatText(self::$txt['sentence_list_pattern'][$type], $args);
 
 			// Then iteratively prepend items using the "middle" pattern.
-			while (count($list) > 1) {
+			while (\count($list) > 1) {
 				$args = ['list_pattern_part' => 'middle', array_pop($list), $sentence_list];
 				$sentence_list = self::formatText(self::$txt['sentence_list_pattern'][$type], $args);
 			}
@@ -752,7 +752,7 @@ class Lang
 			throw new \ValueError();
 		}
 
-		if (is_string($number)) {
+		if (\is_string($number)) {
 			$number = $number + 0;
 		}
 
@@ -770,7 +770,7 @@ class Lang
 			}
 		}
 
-		$skeleton = is_int($number) ? 'integer' : ':: .' . str_repeat('0', $decimals ?? 2);
+		$skeleton = \is_int($number) ? 'integer' : ':: .' . str_repeat('0', $decimals ?? 2);
 
 		return MessageFormatter::formatMessage('{0, number, ' . $skeleton . '}', [$number]);
 	}
@@ -820,7 +820,7 @@ class Lang
 		// Already a locale?
 		// Note: we can't just do in_array($lang, self::LANG_TO_LOCALE) because
 		// new language packs added after 2.1 won't be in self::LANG_TO_LOCALE.
-		if (strlen($lang) === 2 || substr($lang, 2, 1) === '_') {
+		if (\strlen($lang) === 2 || substr($lang, 2, 1) === '_') {
 			return $lang;
 		}
 
@@ -885,7 +885,7 @@ class Lang
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Lang::class, 'exportStatic'])) {
+if (\is_callable([Lang::class, 'exportStatic'])) {
 	Lang::exportStatic();
 }
 

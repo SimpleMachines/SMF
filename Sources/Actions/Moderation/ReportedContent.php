@@ -122,7 +122,7 @@ class ReportedContent implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -281,7 +281,7 @@ class ReportedContent implements ActionInterface
 		// Parameters are slightly different depending on what we're doing here...
 		if ($this->type == 'members') {
 			// Find their ID in the serialized action string...
-			$user_id_length = strlen((string) Utils::$context['report']['user']['id']);
+			$user_id_length = \strlen((string) Utils::$context['report']['user']['id']);
 			$member = 's:6:"member";s:' . $user_id_length . ':"' . Utils::$context['report']['user']['id'] . '";}';
 
 			$params = [
@@ -625,7 +625,7 @@ class ReportedContent implements ActionInterface
 		// area=reported{type}
 		$this->type = substr($_GET['area'], 8);
 
-		if (!in_array($this->type, self::$types)) {
+		if (!\in_array($this->type, self::$types)) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -694,7 +694,7 @@ class ReportedContent implements ActionInterface
 			'',
 			'UPDATE {db_prefix}log_reported
 			SET  {raw:action} = {string:value}
-			' . (is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') . '
+			' . (\is_array($report_id) ? 'WHERE id_report IN ({array_int:id_report})' : 'WHERE id_report = {int:id_report}') . '
 				' . $board_query,
 			[
 				'action' => $action,
@@ -762,7 +762,7 @@ class ReportedContent implements ActionInterface
 		}
 
 		// See if any report alerts need to be cleaned up upon close/ignore
-		if (in_array($log_report, ['close', 'ignore', 'close_user', 'ignore_user'])) {
+		if (\in_array($log_report, ['close', 'ignore', 'close_user', 'ignore_user'])) {
 			$this->clearReportAlerts($log_report, $extra);
 		}
 
@@ -1342,7 +1342,7 @@ class ReportedContent implements ActionInterface
 					'javascript' => 'data-confirm="' . Lang::$txt['mc_reportedp_delete_confirm'] . '"',
 					'class' => 'you_sure',
 					'icon' => 'delete',
-					'show' => !$report['closed'] && (is_array($this->remove_any_boards) && in_array($report['topic']['id_board'], $this->remove_any_boards)),
+					'show' => !$report['closed'] && (\is_array($this->remove_any_boards) && \in_array($report['topic']['id_board'], $this->remove_any_boards)),
 				];
 			}
 

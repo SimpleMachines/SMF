@@ -22,7 +22,7 @@ use SMF\Lang;
 use SMF\Utils;
 use SQLite3;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 

@@ -993,7 +993,7 @@ class BBCodeParser
 	public function parse(string $message, bool $smileys = true, string|int $cache_id = '', array $parse_tags = []): string
 	{
 		// Don't waste cycles
-		if (strval($message) === '') {
+		if (\strval($message) === '') {
 			return '';
 		}
 
@@ -1027,7 +1027,7 @@ class BBCodeParser
 		IntegrationHook::call('integrate_pre_parsebbc', [&$this->message, &$this->smileys, &$cache_id, &$this->parse_tags, &$this->cache_key_extras]);
 
 		// If no cache id was given, make a generic one.
-		$cache_id = strval($cache_id) !== '' ? $cache_id : 'str' . substr(md5($this->message), 0, 7);
+		$cache_id = \strval($cache_id) !== '' ? $cache_id : 'str' . substr(md5($this->message), 0, 7);
 
 		// Use a unique identifier key for this combination of string and settings.
 		$cache_key = 'parse:' . $cache_id . '-' . md5(json_encode([
@@ -1144,7 +1144,7 @@ class BBCodeParser
 			$search_parts = [];
 			$smileys_path = Utils::htmlspecialchars($this->smileys_url . '/' . rawurlencode($this->smiley_set) . '/');
 
-			for ($i = 0, $n = count($smileysfrom); $i < $n; $i++) {
+			for ($i = 0, $n = \count($smileysfrom); $i < $n; $i++) {
 				$special_chars = Utils::htmlspecialchars($smileysfrom[$i], ENT_QUOTES);
 
 				$smiley_code = '<img src="' . $smileys_path . $smileysto[$i] . '" alt="' . strtr($special_chars, [':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;']) . '" title="' . strtr(Utils::htmlspecialchars($smileysdescs[$i]), [':' => '&#58;', '(' => '&#40;', ')' => '&#41;', '$' => '&#36;', '[' => '&#091;']) . '" class="smiley">';
@@ -1216,7 +1216,7 @@ class BBCodeParser
 			$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			// Only mess with stuff outside [code] tags.
-			for ($i = 0, $n = count($parts); $i < $n; $i++) {
+			for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 				// Value of 2 means we're inside the tag.
 				if ($i % 4 == 2) {
 					$parts[$i] = strip_tags($parts[$i]);
@@ -1250,7 +1250,7 @@ class BBCodeParser
 			foreach ($matches[1] as $k => $possible_code) {
 				$possible_code = Utils::htmlspecialcharsDecode($possible_code);
 
-				if (in_array($possible_code, $smiley_codes)) {
+				if (\in_array($possible_code, $smiley_codes)) {
 					$matches[1][$k] = '-[]-smf_smily_start#|#' . $possible_code . '-[]-smf_smily_end#|#';
 				} else {
 					$matches[1][$k] = $matches[0][$k];
@@ -1383,7 +1383,7 @@ class BBCodeParser
 				}
 
 				// Preserve some tags stripping the styling.
-				if (in_array($matches[2], ['a', 'font', 'td'])) {
+				if (\in_array($matches[2], ['a', 'font', 'td'])) {
 					$replacement .= $precedingStyle . $afterStyle;
 					$curCloseTags = '</' . $matches[2] . '>' . $curCloseTags;
 				}
@@ -1404,7 +1404,7 @@ class BBCodeParser
 			// Closing tag.
 			elseif (preg_match('~</([A-Za-z]+)>~', $part, $matches) === 1) {
 				// Is this the element that we've been waiting for to be closed?
-				if (!empty($stack) && strtolower((string) $matches[1]) === $stack[count($stack) - 1]['element']) {
+				if (!empty($stack) && strtolower((string) $matches[1]) === $stack[\count($stack) - 1]['element']) {
 					$byebyeTag = array_pop($stack);
 					$replacement .= $byebyeTag['closeTags'];
 				}
@@ -1441,15 +1441,15 @@ class BBCodeParser
 				$end_pos = strpos($string, '</' . $matches[1] . '>', $start_pos);
 
 				// Remove the align from that tag so it's never checked again.
-				$tag = substr($string, $start_pos, strlen((string) $matches[0]));
-				$content = substr($string, $start_pos + strlen((string) $matches[0]), $end_pos - $start_pos - strlen((string) $matches[0]));
+				$tag = substr($string, $start_pos, \strlen((string) $matches[0]));
+				$content = substr($string, $start_pos + \strlen((string) $matches[0]), $end_pos - $start_pos - \strlen((string) $matches[0]));
 				$tag = str_replace($matches[2], '', $tag);
 
 				// Put the tags back into the body.
 				$string = substr($string, 0, $start_pos) . $tag . '[' . $matches[3] . ']' . $content . '[/' . $matches[3] . ']' . substr($string, $end_pos);
 			} else {
 				// Just get rid of this evil tag.
-				$string = substr($string, 0, $start_pos) . substr($string, $start_pos + strlen((string) $matches[0]));
+				$string = substr($string, 0, $start_pos) . substr($string, $start_pos + \strlen((string) $matches[0]));
 			}
 		}
 
@@ -1470,7 +1470,7 @@ class BBCodeParser
 			$start_pos_test = $start_pos + 4;
 			$start_font_tag_stack = 0;
 
-			while ($start_pos_test < strlen($string)) {
+			while ($start_pos_test < \strlen($string)) {
 				// Where is the next starting font?
 				$next_start_pos = strpos($lower_text, '<font', $start_pos_test);
 				$next_end_pos = strpos($lower_text, '</font>', $start_pos_test);
@@ -1526,7 +1526,7 @@ class BBCodeParser
 			}
 
 			// Remove the tag so it's never checked again.
-			$content = substr($string, $start_pos + strlen((string) $matches[0]), $end_pos - $start_pos - strlen((string) $matches[0]));
+			$content = substr($string, $start_pos + \strlen((string) $matches[0]), $end_pos - $start_pos - \strlen((string) $matches[0]));
 
 			// Put the tags back into the body.
 			$string = substr($string, 0, $start_pos) . $before . $content . $after . substr($string, $end_pos + 7);
@@ -1537,7 +1537,7 @@ class BBCodeParser
 			Sapi::resetTimeout();
 		}
 
-		if (count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
+		if (\count($parts = preg_split('~<(/?)(li|ol|ul)([^>]*)>~i', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
 			// A toggle that determines whether we're directly under a <ol> or <ul>.
 			$inList = false;
 
@@ -1557,7 +1557,7 @@ class BBCodeParser
 			];
 
 			// $i: text, $i + 1: '/', $i + 2: tag, $i + 3: tail.
-			for ($i = 0, $numParts = count($parts) - 1; $i < $numParts; $i += 4) {
+			for ($i = 0, $numParts = \count($parts) - 1; $i < $numParts; $i += 4) {
 				$tag = strtolower($parts[$i + 2]);
 				$is_opening_tag = $parts[$i + 1] === '';
 
@@ -1574,7 +1574,7 @@ class BBCodeParser
 									str_repeat("\t", $listDepth) . '[li]',
 									'',
 								]);
-								$numParts = count($parts) - 1;
+								$numParts = \count($parts) - 1;
 
 								// The inlist status changes a bit.
 								$inList = false;
@@ -1655,7 +1655,7 @@ class BBCodeParser
 										'', // $i + 3
 										'', // $i + 4
 									]);
-									$numParts = count($parts) - 1;
+									$numParts = \count($parts) - 1;
 
 									// Now that we've closed the li, we're in list space.
 									$inList = true;
@@ -1699,7 +1699,7 @@ class BBCodeParser
 						'', // No tail.
 					]);
 
-					$numParts = count($parts) - 1;
+					$numParts = \count($parts) - 1;
 				}
 			}
 
@@ -1724,7 +1724,7 @@ class BBCodeParser
 				break;
 			}
 
-			$end_pos = $start_pos + strlen((string) $matches[0]);
+			$end_pos = $start_pos + \strlen((string) $matches[0]);
 
 			$params = '';
 			$src = '';
@@ -1732,7 +1732,7 @@ class BBCodeParser
 			$attrs = self::fetchTagAttributes((string) $matches[1]);
 
 			foreach ($attrs as $attrib => $value) {
-				if (in_array($attrib, ['width', 'height'])) {
+				if (\in_array($attrib, ['width', 'height'])) {
 					$params .= ' ' . $attrib . '=' . (int) $value;
 				} elseif ($attrib == 'alt' && trim($value) != '') {
 					$params .= ' alt=' . trim($value);
@@ -1747,7 +1747,7 @@ class BBCodeParser
 				$src = new Url($src);
 
 				// Attempt to fix the path in case it's not present.
-				if (in_array($src->scheme, ['http', 'https']) && isset($src->host)) {
+				if (\in_array($src->scheme, ['http', 'https']) && isset($src->host)) {
 					$base_url = ($src->scheme ?? 'http') . '://' . $src->host . (empty($src->port) ? '' : ':' . $src->port);
 
 					if (str_starts_with((string) $src, '/')) {
@@ -1909,7 +1909,7 @@ class BBCodeParser
 				break;
 			}
 
-			$end_pos = $start_pos + strlen((string) $matches[0]);
+			$end_pos = $start_pos + \strlen((string) $matches[0]);
 
 			$tag_type = 'url';
 			$href = '';
@@ -1922,7 +1922,7 @@ class BBCodeParser
 					$our_url = new Url(Config::$boardurl);
 
 					// Are we dealing with an FTP link?
-					if (in_array($href->scheme, ['ftp', 'ftps'])) {
+					if (\in_array($href->scheme, ['ftp', 'ftps'])) {
 						$tag_type = 'ftp';
 					}
 					// Or is this a link to an email address?
@@ -1931,7 +1931,7 @@ class BBCodeParser
 						$href = $href->path;
 					}
 					// No http(s), so attempt to fix this potential relative URL.
-					elseif (!in_array($href->scheme, ['http', 'https']) && isset($our_url->host)) {
+					elseif (!\in_array($href->scheme, ['http', 'https']) && isset($our_url->host)) {
 						$base_url = ($our_url->scheme ?? 'http') . '://' . $our_url->host . (empty($our_url->port) ? '' : ':' . $our_url->port);
 
 						if (str_starts_with((string) $href, '/')) {
@@ -2045,7 +2045,7 @@ class BBCodeParser
 		$allowed_tags = [];
 
 		foreach ($temp as $tag) {
-			if (!in_array($tag['tag'], $disabled_tags)) {
+			if (!\in_array($tag['tag'], $disabled_tags)) {
 				$allowed_tags[] = $tag['tag'];
 			}
 		}
@@ -2120,13 +2120,13 @@ class BBCodeParser
 
 		// windows 1252 / iso equivalents
 		$findchars_iso = [
-			chr(130),
-			chr(132),
-			chr(133),
-			chr(145),
-			chr(146),
-			chr(147),
-			chr(148),
+			\chr(130),
+			\chr(132),
+			\chr(133),
+			\chr(145),
+			\chr(146),
+			\chr(147),
+			\chr(148),
 		];
 
 		// safe replacements
@@ -2165,7 +2165,7 @@ class BBCodeParser
 
 		self::load();
 
-		$cache_id = (is_string($cache_id) || is_int($cache_id)) && strlen($cache_id) === strspn($cache_id, '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_') ? (string) $cache_id : '';
+		$cache_id = (\is_string($cache_id) || \is_int($cache_id)) && \strlen($cache_id) === strspn($cache_id, '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_') ? (string) $cache_id : '';
 
 		$for_print = self::$parser->for_print;
 		self::$parser->for_print = $smileys === 'print';
@@ -2213,7 +2213,7 @@ class BBCodeParser
 			$temp = [];
 
 			// Reverse order because mods typically append to the array.
-			for ($i = count(self::$codes) - 1; $i >= 0; $i--) {
+			for ($i = \count(self::$codes) - 1; $i >= 0; $i--) {
 				$value = self::$codes[$i];
 
 				// Since validation functions may be closures, and
@@ -2222,7 +2222,7 @@ class BBCodeParser
 
 				$serialized = serialize($value);
 
-				if (!in_array($serialized, $temp)) {
+				if (!\in_array($serialized, $temp)) {
 					$temp[] = $serialized;
 				} else {
 					unset(self::$codes[$i]);
@@ -2260,7 +2260,7 @@ class BBCodeParser
 		$current_attachment = Attachment::parseAttachBBC($attach_id);
 
 		// parseAttachBBC will return a string (Lang::$txt key) rather than dying with a fatal_error. Up to you to decide what to do.
-		if (is_string($current_attachment)) {
+		if (\is_string($current_attachment)) {
 			$data = '<span style="display:inline-block" class="errorbox">' . (!empty(Lang::$txt[$current_attachment]) ? Lang::$txt[$current_attachment] : $current_attachment) . '</span>';
 
 			return;
@@ -2344,7 +2344,7 @@ class BBCodeParser
 	public static function codeValidate(array &$tag, array|string &$data, array $disabled, array $params): void
 	{
 		if (!isset($disabled['code'])) {
-			$code = is_array($data) ? $data[0] : $data;
+			$code = \is_array($data) ? $data[0] : $data;
 
 			$add_begin = (
 				is_array($data)
@@ -2360,7 +2360,7 @@ class BBCodeParser
 
 			$php_parts = preg_split('~(&lt;\?php|\?&gt;)~', $code, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-			for ($php_i = 0, $php_n = count($php_parts); $php_i < $php_n; $php_i++) {
+			for ($php_i = 0, $php_n = \count($php_parts); $php_i < $php_n; $php_i++) {
 				// Do PHP code coloring?
 				if ($php_parts[$php_i] != '&lt;?php') {
 					continue;
@@ -2368,7 +2368,7 @@ class BBCodeParser
 
 				$php_string = '';
 
-				while ($php_i + 1 < count($php_parts) && $php_parts[$php_i] != '?&gt;') {
+				while ($php_i + 1 < \count($php_parts) && $php_parts[$php_i] != '?&gt;') {
 					$php_string .= $php_parts[$php_i];
 					$php_parts[$php_i++] = '';
 				}
@@ -2389,7 +2389,7 @@ class BBCodeParser
 				$code = preg_replace(['/^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)/', '/\?&gt;((?:\s*<\/(font|span)>)*)$/m'], '$1', $code, 2);
 			}
 
-			if (is_array($data)) {
+			if (\is_array($data)) {
 				$data[0] = $code;
 			} else {
 				$data = $code;
@@ -2641,7 +2641,7 @@ class BBCodeParser
 
 			// Failsafe.
 			if ($this->pos === false || $this->last_pos > $this->pos) {
-				$this->pos = strlen($this->message) + 1;
+				$this->pos = \strlen($this->message) + 1;
 			}
 
 			// Can't have a one letter smiley, URL, or email! (Sorry.)
@@ -2664,14 +2664,14 @@ class BBCodeParser
 					$this->message = substr($this->message, 0, $this->last_pos) . $data . substr($this->message, $this->pos);
 
 					// Since we changed it, look again in case we added or removed a tag.  But we don't want to skip any.
-					$old_pos = strlen($data) + $this->last_pos;
+					$old_pos = \strlen($data) + $this->last_pos;
 					$this->pos = strpos($this->message, '[', $this->last_pos);
 					$this->pos = $this->pos === false ? $old_pos : min($this->pos, $old_pos);
 				}
 			}
 
 			// Are we there yet?  Are we there yet?
-			if ($this->pos >= strlen($this->message) - 1) {
+			if ($this->pos >= \strlen($this->message) - 1) {
 				break;
 			}
 
@@ -2688,7 +2688,7 @@ class BBCodeParser
 				continue;
 			}
 
-			$this->inside = empty($this->open_tags) ? null : $this->open_tags[count($this->open_tags) - 1];
+			$this->inside = empty($this->open_tags) ? null : $this->open_tags[\count($this->open_tags) - 1];
 
 			// What tag do we have?
 			list($tag, $params) = $this->detectTag($tag_character);
@@ -2703,7 +2703,7 @@ class BBCodeParser
 					array_pop($this->open_tags);
 
 					$this->message = substr($this->message, 0, $this->pos) . "\n" . $this->inside['after'] . "\n" . substr($this->message, $this->pos);
-					$this->pos += strlen($this->inside['after']) - 1 + 2;
+					$this->pos += \strlen($this->inside['after']) - 1 + 2;
 				}
 
 				continue;
@@ -2725,7 +2725,7 @@ class BBCodeParser
 			}
 
 			// Can't read past the end of the message
-			$this->pos1 = min(strlen($this->message), $this->pos1);
+			$this->pos1 = min(\strlen($this->message), $this->pos1);
 
 			$this->transformToHtml($tag, $params);
 		}
@@ -2739,7 +2739,7 @@ class BBCodeParser
 		if ($this->smileys === true) {
 			$message_parts = explode("\n", $this->message);
 
-			for ($i = 0, $n = count($message_parts); $i < $n; $i += 2) {
+			for ($i = 0, $n = \count($message_parts); $i < $n; $i += 2) {
 				$message_parts[$i] = $this->parseSmileys($message_parts[$i]);
 			}
 
@@ -2782,7 +2782,7 @@ class BBCodeParser
 				$this->disabled[trim($tag)] = true;
 			}
 
-			if (in_array('color', $this->disabled)) {
+			if (\in_array('color', $this->disabled)) {
 				$this->disabled = array_merge(
 					$this->disabled,
 					[
@@ -2797,15 +2797,15 @@ class BBCodeParser
 		}
 
 		if (!empty($this->parse_tags)) {
-			if (!in_array('email', $this->parse_tags)) {
+			if (!\in_array('email', $this->parse_tags)) {
 				$this->disabled['email'] = true;
 			}
 
-			if (!in_array('url', $this->parse_tags)) {
+			if (!\in_array('url', $this->parse_tags)) {
 				$this->disabled['url'] = true;
 			}
 
-			if (!in_array('iurl', $this->parse_tags)) {
+			if (!\in_array('iurl', $this->parse_tags)) {
 				$this->disabled['iurl'] = true;
 			}
 		}
@@ -2943,7 +2943,7 @@ class BBCodeParser
 			}
 
 			// If we are not doing every tag only do ones we are interested in.
-			if (empty($this->parse_tags) || in_array($code['tag'], $this->parse_tags)) {
+			if (empty($this->parse_tags) || \in_array($code['tag'], $this->parse_tags)) {
 				$this->bbc_codes[substr($code['tag'], 0, 1)][] = $code;
 			}
 		}
@@ -3077,7 +3077,7 @@ class BBCodeParser
 		$look_for = strtolower(substr($this->message, $this->pos + 2, $pos2 - $this->pos - 2));
 
 		// A closing tag that doesn't match any open tags? Skip it.
-		if (!in_array($look_for, array_map(function ($tag) { return $tag['tag']; }, $this->open_tags))) {
+		if (!\in_array($look_for, array_map(function ($tag) { return $tag['tag']; }, $this->open_tags))) {
 			return;
 		}
 
@@ -3099,7 +3099,7 @@ class BBCodeParser
 				}
 
 				// The idea is, if we are LOOKING for a block level tag, we can close them on the way.
-				if (strlen($look_for) > 0 && isset($this->bbc_codes[$look_for[0]])) {
+				if (\strlen($look_for) > 0 && isset($this->bbc_codes[$look_for[0]])) {
 					foreach ($this->bbc_codes[$look_for[0]] as $temp) {
 						if ($temp['tag'] == $look_for) {
 							$block_level = !empty($temp['block_level']);
@@ -3147,7 +3147,7 @@ class BBCodeParser
 
 		foreach ($to_close as $tag) {
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $tag['after'] . "\n" . substr($this->message, $pos2 + 1);
-			$this->pos += strlen($tag['after']) + 2;
+			$this->pos += \strlen($tag['after']) + 2;
 			$pos2 = $this->pos - 1;
 
 			// See the comment at the end of the big loop - just eating whitespace ;).
@@ -3163,7 +3163,7 @@ class BBCodeParser
 			}
 
 			if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($this->message, $this->pos), $matches) != 0) {
-				$this->message = substr($this->message, 0, $this->pos) . substr($this->message, $this->pos + strlen($matches[0]));
+				$this->message = substr($this->message, 0, $this->pos) . substr($this->message, $this->pos + \strlen($matches[0]));
 			}
 		}
 
@@ -3185,7 +3185,7 @@ class BBCodeParser
 		$params = [];
 
 		foreach ($this->bbc_codes[$tag_character] as $possible) {
-			$pt_strlen = strlen($possible['tag']);
+			$pt_strlen = \strlen($possible['tag']);
 
 			// Not a match?
 			if (strtolower(substr($this->message, $this->pos + 1, $pt_strlen)) != $possible['tag']) {
@@ -3223,7 +3223,7 @@ class BBCodeParser
 			// No parameters, so does the next character match what we expect?
 			elseif (isset($possible['type'])) {
 				// Do we need an equal sign?
-				if (in_array($possible['type'], ['unparsed_equals', 'unparsed_commas', 'unparsed_commas_content', 'unparsed_equals_content', 'parsed_equals']) && $next_c != '=') {
+				if (\in_array($possible['type'], ['unparsed_equals', 'unparsed_commas', 'unparsed_commas_content', 'unparsed_equals_content', 'parsed_equals']) && $next_c != '=') {
 					continue;
 				}
 
@@ -3243,16 +3243,16 @@ class BBCodeParser
 			}
 
 			// Check allowed tree?
-			if (isset($possible['require_parents']) && ($this->inside === null || !in_array($this->inside['tag'], $possible['require_parents']))) {
+			if (isset($possible['require_parents']) && ($this->inside === null || !\in_array($this->inside['tag'], $possible['require_parents']))) {
 				continue;
 			}
 
-			if (isset($this->inside['require_children']) && !in_array($possible['tag'], (array) $this->inside['require_children'])) {
+			if (isset($this->inside['require_children']) && !\in_array($possible['tag'], (array) $this->inside['require_children'])) {
 				continue;
 			}
 
 			// If this is in the list of disallowed child tags, don't parse it.
-			if (isset($this->inside['disallow_children']) && in_array($possible['tag'], (array) $this->inside['disallow_children'])) {
+			if (isset($this->inside['disallow_children']) && \in_array($possible['tag'], (array) $this->inside['disallow_children'])) {
 				continue;
 			}
 
@@ -3296,8 +3296,8 @@ class BBCodeParser
 				// Progressively append more blobs until we find our parameters or run out of blobs
 				$blob_counter = 1;
 
-				while ($blob_counter <= count($blobs)) {
-					$given_param_string = implode(']', array_slice($blobs, 0, $blob_counter++));
+				while ($blob_counter <= \count($blobs)) {
+					$given_param_string = implode(']', \array_slice($blobs, 0, $blob_counter++));
 
 					$given_params = preg_split('~\s(?=(' . $splitters . '))~i', $given_param_string);
 					sort($given_params, SORT_STRING);
@@ -3316,7 +3316,7 @@ class BBCodeParser
 
 				$params = [];
 
-				for ($i = 1, $n = count($matches); $i < $n; $i += 2) {
+				for ($i = 1, $n = \count($matches); $i < $n; $i += 2) {
 					$key = strtok(ltrim($matches[$i]), '=');
 
 					if ($key === false) {
@@ -3364,7 +3364,7 @@ class BBCodeParser
 					$tag['content'] = strtr($tag['content'], $params);
 				}
 
-				$this->pos1 += strlen($given_param_string);
+				$this->pos1 += \strlen($given_param_string);
 			} else {
 				$tag = $possible;
 				$params = [];
@@ -3381,7 +3381,7 @@ class BBCodeParser
 	 */
 	protected function parseItemCode(): void
 	{
-		if ($this->message[$this->pos + 1] == '0' && !in_array($this->message[$this->pos - 1], [';', ' ', "\t", "\n", '>'])) {
+		if ($this->message[$this->pos + 1] == '0' && !\in_array($this->message[$this->pos - 1], [';', ' ', "\t", "\n", '>'])) {
 			return;
 		}
 
@@ -3421,7 +3421,7 @@ class BBCodeParser
 
 		$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $this->pos + 3);
 
-		$this->pos += strlen($html) - 1 + 2;
+		$this->pos += \strlen($html) - 1 + 2;
 
 		// Next, find the next break (if any.)  If there's more itemcode after it, keep it going - otherwise close!
 		$pos2 = strpos($this->message, '<br>', $this->pos);
@@ -3432,13 +3432,13 @@ class BBCodeParser
 
 			$this->message = substr($this->message, 0, $pos2) . (!empty($matches[0]) && str_ends_with($matches[0], '[') ? '[/li]' : '[/li][/list]') . substr($this->message, $pos2);
 
-			$this->open_tags[count($this->open_tags) - 2]['after'] = '</ul>';
+			$this->open_tags[\count($this->open_tags) - 2]['after'] = '</ul>';
 		}
 		// Tell the [list] that it needs to close specially.
 		else {
 			// Move the li over, because we're not sure what we'll hit.
-			$this->open_tags[count($this->open_tags) - 1]['after'] = '';
-			$this->open_tags[count($this->open_tags) - 2]['after'] = '</li></ul>';
+			$this->open_tags[\count($this->open_tags) - 1]['after'] = '';
+			$this->open_tags[\count($this->open_tags) - 2]['after'] = '</li></ul>';
 		}
 	}
 
@@ -3470,17 +3470,17 @@ class BBCodeParser
 	 */
 	protected function closeInlineTags(): void
 	{
-		$n = count($this->open_tags) - 1;
+		$n = \count($this->open_tags) - 1;
 
 		while (empty($this->open_tags[$n]['block_level']) && $n >= 0) {
 			$n--;
 		}
 
 		// Close all the non block level tags so this tag isn't surrounded by them.
-		for ($i = count($this->open_tags) - 1; $i > $n; $i--) {
+		for ($i = \count($this->open_tags) - 1; $i > $n; $i--) {
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $this->open_tags[$i]['after'] . "\n" . substr($this->message, $this->pos);
 
-			$ot_strlen = strlen($this->open_tags[$i]['after']);
+			$ot_strlen = \strlen($this->open_tags[$i]['after']);
 			$this->pos += $ot_strlen + 2;
 			$this->pos1 += $ot_strlen + 2;
 
@@ -3496,7 +3496,7 @@ class BBCodeParser
 			}
 
 			if (!empty($whitespace_regex) && preg_match('~' . $whitespace_regex . '~', substr($this->message, $this->pos), $matches) != 0) {
-				$this->message = substr($this->message, 0, $this->pos) . substr($this->message, $this->pos + strlen($matches[0]));
+				$this->message = substr($this->message, 0, $this->pos) . substr($this->message, $this->pos + \strlen($matches[0]));
 			}
 
 			array_pop($this->open_tags);
@@ -3524,10 +3524,10 @@ class BBCodeParser
 		}
 
 		// We use this a lot.
-		$tag_strlen = strlen($tag['tag']);
+		$tag_strlen = \strlen($tag['tag']);
 
 		// Set the validation method to something we can call.
-		if (isset($tag['validate']) && is_string($tag['validate'])) {
+		if (isset($tag['validate']) && \is_string($tag['validate'])) {
 			$tag['validate'] = Utils::getCallable($tag['validate']);
 		}
 
@@ -3539,12 +3539,12 @@ class BBCodeParser
 			$data = null;
 
 			if (isset($tag['validate'])) {
-				call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
+				\call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
 			}
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $tag['before'] . "\n" . substr($this->message, $this->pos1);
 
-			$this->pos += strlen($tag['before']) - 1 + 2;
+			$this->pos += \strlen($tag['before']) - 1 + 2;
 		}
 		// Don't parse the content, just skip it.
 		elseif ($tag['type'] == 'unparsed_content') {
@@ -3561,14 +3561,14 @@ class BBCodeParser
 			}
 
 			if (isset($tag['validate'])) {
-				call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
+				\call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
 			}
 
 			$html = strtr($tag['content'], ['$1' => $data]);
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + 3 + $tag_strlen);
 
-			$this->pos += strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + 2;
 			$this->last_pos = $this->pos + 1;
 		}
 		// Don't parse the content, just skip it.
@@ -3615,14 +3615,14 @@ class BBCodeParser
 
 			// Validation for my parking, please!
 			if (isset($tag['validate'])) {
-				call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
+				\call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
 			}
 
 			$html = strtr($tag['content'], ['$1' => $data[0], '$2' => $data[1]]);
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos3 + 3 + $tag_strlen);
 
-			$this->pos += strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + 2;
 		}
 		// A closed tag, with no content or value.
 		elseif ($tag['type'] == 'closed') {
@@ -3632,12 +3632,12 @@ class BBCodeParser
 			$data = null;
 
 			if (isset($tag['validate'])) {
-				call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
+				\call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
 			}
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $tag['content'] . "\n" . substr($this->message, $pos2 + 1);
 
-			$this->pos += strlen($tag['content']) - 1 + 2;
+			$this->pos += \strlen($tag['content']) - 1 + 2;
 		}
 		// This one is sorta ugly... :/.  Unfortunately, it's needed for flash.
 		elseif ($tag['type'] == 'unparsed_commas_content') {
@@ -3658,7 +3658,7 @@ class BBCodeParser
 			$data[0] = substr($this->message, $pos2 + 1, $pos3 - $pos2 - 1);
 
 			if (isset($tag['validate'])) {
-				call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
+				\call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
 			}
 
 			$html = $tag['content'];
@@ -3669,7 +3669,7 @@ class BBCodeParser
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos3 + 3 + $tag_strlen);
 
-			$this->pos += strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + 2;
 		}
 		// This has parsed content, and a csv value which is unparsed.
 		elseif ($tag['type'] == 'unparsed_commas') {
@@ -3682,7 +3682,7 @@ class BBCodeParser
 			$data = explode(',', substr($this->message, $this->pos1, $pos2 - $this->pos1));
 
 			if (isset($tag['validate'])) {
-				call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
+				\call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
 			}
 
 			// Fix after, for disabled code mainly.
@@ -3701,7 +3701,7 @@ class BBCodeParser
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + 1);
 
-			$this->pos += strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + 2;
 		}
 		// A tag set to a value, parsed or not.
 		elseif ($tag['type'] == 'unparsed_equals' || $tag['type'] == 'parsed_equals') {
@@ -3748,7 +3748,7 @@ class BBCodeParser
 
 			// Validation for my parking, please!
 			if (isset($tag['validate'])) {
-				call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
+				\call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
 			}
 
 			// For parsed content, we must recurse to avoid security problems.
@@ -3773,7 +3773,7 @@ class BBCodeParser
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)));
 
-			$this->pos += strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + 2;
 		}
 
 		// If this is block level, eat any breaks after it.
@@ -3783,7 +3783,7 @@ class BBCodeParser
 
 		// Are we trimming outside this tag?
 		if (!empty($tag['trim']) && $tag['trim'] != 'outside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($this->message, $this->pos + 1), $matches) != 0) {
-			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, $this->pos + 1 + strlen($matches[0]));
+			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, $this->pos + 1 + \strlen($matches[0]));
 		}
 	}
 
@@ -3801,7 +3801,7 @@ class BBCodeParser
 		$key = $value = '';
 		$tag_state = 0; // 0 = key, 1 = attribute with no string, 2 = attribute with string
 
-		for ($i = 0; $i < strlen($string); $i++) {
+		for ($i = 0; $i < \strlen($string); $i++) {
 			// We're either moving from the key to the attribute or we're in a string and this is fine.
 			if ($string[$i] == '=') {
 				if ($tag_state == 0) {
@@ -3859,7 +3859,7 @@ class BBCodeParser
 	protected function legalise(string $string): string
 	{
 		// Don't care about the texts that are too short.
-		if (strlen($string) < 3) {
+		if (\strlen($string) < 3) {
 			return $string;
 		}
 
@@ -3888,7 +3888,7 @@ class BBCodeParser
 		$align_tags = array_intersect($align_tags, array_keys($valid_tags));
 
 		// These keep track of where we are!
-		if (!empty($align_tags) && count($matches = preg_split('~(\[/?(?:' . implode('|', $align_tags) . ')\])~', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
+		if (!empty($align_tags) && \count($matches = preg_split('~(\[/?(?:' . implode('|', $align_tags) . ')\])~', $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
 			// The first one is never a tag.
 			$is_tag = false;
 
@@ -3933,15 +3933,15 @@ class BBCodeParser
 
 		$lastlen = 0;
 
-		while (strlen($string) !== $lastlen) {
-			$lastlen = strlen($string = preg_replace($back_to_back_pattern, '', $string));
+		while (\strlen($string) !== $lastlen) {
+			$lastlen = \strlen($string = preg_replace($back_to_back_pattern, '', $string));
 		}
 
 		// Need to sort the tags by name length.
 		uksort(
 			$valid_tags,
 			function ($a, $b) {
-				return strlen($a) < strlen($b) ? 1 : -1;
+				return \strlen($a) < \strlen($b) ? 1 : -1;
 			},
 		);
 
@@ -3952,7 +3952,7 @@ class BBCodeParser
 		];
 
 		// These keep track of where we are!
-		if (count($parts = preg_split(sprintf('~(\[)(/?)(%1$s)((?:[\s=][^\]\[]*)?\])~', implode('|', array_keys($valid_tags))), $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
+		if (\count($parts = preg_split(sprintf('~(\[)(/?)(%1$s)((?:[\s=][^\]\[]*)?\])~', implode('|', array_keys($valid_tags))), $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
 			// Start outside [nobbc] or [code] blocks.
 			$in_code = false;
 			$in_nobbc = false;
@@ -3967,12 +3967,12 @@ class BBCodeParser
 			$competing_elements = [];
 
 			// $i: text, $i + 1: '[', $i + 2: '/', $i + 3: tag, $i + 4: tag tail.
-			for ($i = 0, $n = count($parts) - 1; $i < $n; $i += 5) {
+			for ($i = 0, $n = \count($parts) - 1; $i < $n; $i += 5) {
 				$tag = $parts[$i + 3];
 				$is_opening_tag = $parts[$i + 2] === '';
 				$is_closing_tag = $parts[$i + 2] === '/';
-				$is_block_level_tag = isset($valid_tags[$tag]) && $valid_tags[$tag] && !in_array($tag, $self_closing_tags);
-				$is_competing_tag = in_array($tag, $competing_tags);
+				$is_block_level_tag = isset($valid_tags[$tag]) && $valid_tags[$tag] && !\in_array($tag, $self_closing_tags);
+				$is_competing_tag = \in_array($tag, $competing_tags);
 
 				// Check if this might be one of those cleaned out tags.
 				if ($tag === '') {
@@ -4052,7 +4052,7 @@ class BBCodeParser
 						$block_elements[] = $tag;
 					}
 					// Inline opening tag.
-					elseif (!in_array($tag, $self_closing_tags)) {
+					elseif (!\in_array($tag, $self_closing_tags)) {
 						// Can't have two opening elements with the same contents!
 						if (isset($inline_elements[$element_content])) {
 							// Get rid of this tag.
@@ -4061,7 +4061,7 @@ class BBCodeParser
 							// Now try to find the corresponding closing tag.
 							$cur_level = 1;
 
-							for ($j = $i + 5, $m = count($parts) - 1; $j < $m; $j += 5) {
+							for ($j = $i + 5, $m = \count($parts) - 1; $j < $m; $j += 5) {
 								// Find the tags with the same tagname
 								if ($parts[$j + 3] === $tag) {
 									// If it's an opening tag, increase the level.
@@ -4090,7 +4090,7 @@ class BBCodeParser
 
 								$competing_elements[$tag][] = $parts[$i + 4];
 
-								if (count($competing_elements[$tag]) > 1) {
+								if (\count($competing_elements[$tag]) > 1) {
 									$parts[$i] .= '[/' . $tag . ']';
 								}
 							}
@@ -4121,7 +4121,7 @@ class BBCodeParser
 							}
 
 							// Apparently the closing tag was not found on the stack.
-							if (!is_string($element) || $element !== $tag) {
+							if (!\is_string($element) || $element !== $tag) {
 								// Get rid of this particular closing tag, it was never opened.
 								$parts[$i + 1] = substr($parts[$i + 1], 0, -1);
 								$parts[$i + 2] = $parts[$i + 3] = $parts[$i + 4] = '';
@@ -4147,7 +4147,7 @@ class BBCodeParser
 					// Inline tag.
 					else {
 						// Are we expecting this tag to end?
-						if (in_array($tag, $inline_elements)) {
+						if (\in_array($tag, $inline_elements)) {
 							foreach (array_reverse($inline_elements, true) as $tag_content_to_be_closed => $tag_to_be_closed) {
 								// Closing it one way or the other.
 								unset($inline_elements[$tag_content_to_be_closed]);
@@ -4164,8 +4164,8 @@ class BBCodeParser
 							if ($is_competing_tag && !empty($competing_elements[$tag])) {
 								array_pop($competing_elements[$tag]);
 
-								if (count($competing_elements[$tag]) > 0) {
-									$parts[$i + 5] = '[' . $tag . $competing_elements[$tag][count($competing_elements[$tag]) - 1] . $parts[$i + 5];
+								if (\count($competing_elements[$tag]) > 0) {
+									$parts[$i + 5] = '[' . $tag . $competing_elements[$tag][\count($competing_elements[$tag]) - 1] . $parts[$i + 5];
 								}
 							}
 						}
@@ -4201,8 +4201,8 @@ class BBCodeParser
 		// Final clean up of back-to-back tags.
 		$lastlen = 0;
 
-		while (strlen($string) !== $lastlen) {
-			$lastlen = strlen($string = preg_replace($back_to_back_pattern, '', $string));
+		while (\strlen($string) !== $lastlen) {
+			$lastlen = \strlen($string = preg_replace($back_to_back_pattern, '', $string));
 		}
 
 		return $string;

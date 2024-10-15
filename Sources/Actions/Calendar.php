@@ -87,7 +87,7 @@ class Calendar implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -244,9 +244,9 @@ class Calendar implements ActionInterface
 		// Load all the context information needed to show the calendar grid.
 		$calendarOptions = [
 			'start_day' => !empty(Theme::$current->options['calendar_start_day']) ? Theme::$current->options['calendar_start_day'] : 0,
-			'show_birthdays' => in_array(Config::$modSettings['cal_showbdays'], [1, 2]),
-			'show_events' => in_array(Config::$modSettings['cal_showevents'], [1, 2]),
-			'show_holidays' => in_array(Config::$modSettings['cal_showholidays'], [1, 2]),
+			'show_birthdays' => \in_array(Config::$modSettings['cal_showbdays'], [1, 2]),
+			'show_events' => \in_array(Config::$modSettings['cal_showevents'], [1, 2]),
+			'show_holidays' => \in_array(Config::$modSettings['cal_showholidays'], [1, 2]),
 			'show_week_num' => true,
 			'short_day_titles' => !empty(Config::$modSettings['cal_short_days']),
 			'short_month_titles' => !empty(Config::$modSettings['cal_short_months']),
@@ -408,7 +408,7 @@ class Calendar implements ActionInterface
 			User::$me->checkSession();
 
 			// Validate the post...
-			if (!in_array($_POST['link_to'] ?? '', ['board', 'topic'])) {
+			if (!\in_array($_POST['link_to'] ?? '', ['board', 'topic'])) {
 				self::validateEventPost();
 			}
 
@@ -418,7 +418,7 @@ class Calendar implements ActionInterface
 			}
 
 			// New - and directing?
-			if (in_array($_POST['link_to'] ?? '', ['board', 'topic']) || empty(Config::$modSettings['cal_allow_unlinked'])) {
+			if (\in_array($_POST['link_to'] ?? '', ['board', 'topic']) || empty(Config::$modSettings['cal_allow_unlinked'])) {
 				$_REQUEST['calendar'] = 1;
 
 				if (empty($_POST['topic'])) {
@@ -560,7 +560,7 @@ class Calendar implements ActionInterface
 		} else {
 			// Load the list of boards and categories in the context.
 			$boardListOptions = [
-				'included_boards' => in_array(0, $boards) ? null : $boards,
+				'included_boards' => \in_array(0, $boards) ? null : $boards,
 				'not_redirection' => true,
 				'use_permissions' => true,
 				'selected_board' => Config::$modSettings['cal_defaultboard'],
@@ -578,7 +578,7 @@ class Calendar implements ActionInterface
 		];
 
 		Theme::loadTemplate('EventEditor');
-		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));
+		Theme::addJavaScriptVar('monthly_byday_items', (string) (\count(Utils::$context['event']->byday_items) - 1));
 		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 	}
 
@@ -661,7 +661,7 @@ class Calendar implements ActionInterface
 				$event = $occurrence->getParentEvent();
 
 				// Skip if we already exported the full event.
-				if (in_array($event->uid, $full_event_uids)) {
+				if (\in_array($event->uid, $full_event_uids)) {
 					continue;
 				}
 
@@ -693,7 +693,7 @@ class Calendar implements ActionInterface
 		// RFC 5545 requires "\r\n", not just "\n".
 		$file['content'] = implode("\r\n", $file['content']);
 
-		$file['size'] = strlen($file['content']);
+		$file['size'] = \strlen($file['content']);
 
 		// Send it.
 		Utils::emitFile($file);
@@ -827,7 +827,7 @@ class Calendar implements ActionInterface
 		}
 
 		foreach ($occurrences as $mday => $array) {
-			$occurrences[$mday][count($array) - 1]['is_last'] = true;
+			$occurrences[$mday][\count($array) - 1]['is_last'] = true;
 		}
 
 		ksort($occurrences);
@@ -1259,7 +1259,7 @@ class Calendar implements ActionInterface
 
 		foreach ($calendarGrid['events'] as $date => $date_events) {
 			foreach ($date_events as $event_key => $event_val) {
-				if (in_array($event_val['id'] . ' ' . $event_val['start']->format('c'), $temp)) {
+				if (\in_array($event_val['id'] . ' ' . $event_val['start']->format('c'), $temp)) {
 					unset($calendarGrid['events'][$date][$event_key]);
 
 					if (empty($calendarGrid['events'][$date])) {
@@ -1403,11 +1403,11 @@ class Calendar implements ActionInterface
 		}
 
 		// Mark the last item so that a list separator can be used in the template.
-		for ($i = 0, $n = count($return_data['calendar_birthdays']); $i < $n; $i++) {
+		for ($i = 0, $n = \count($return_data['calendar_birthdays']); $i < $n; $i++) {
 			$return_data['calendar_birthdays'][$i]['is_last'] = !isset($return_data['calendar_birthdays'][$i + 1]);
 		}
 
-		for ($i = 0, $n = count($return_data['calendar_events']); $i < $n; $i++) {
+		for ($i = 0, $n = \count($return_data['calendar_events']); $i < $n; $i++) {
 			$return_data['calendar_events'][$i]['is_last'] = !isset($return_data['calendar_events'][$i + 1]);
 		}
 

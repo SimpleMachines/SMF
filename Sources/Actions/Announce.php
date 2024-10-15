@@ -79,7 +79,7 @@ class Announce implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -147,7 +147,7 @@ class Announce implements ActionInterface
 
 		// Make sure all membergroups are integers and can access the board of the announcement.
 		foreach ($_POST['who'] as $id => $mg) {
-			$_POST['who'][$id] = in_array((int) $mg, $groups) ? (int) $mg : 0;
+			$_POST['who'][$id] = \in_array((int) $mg, $groups) ? (int) $mg : 0;
 		}
 
 		// Get the topic subject and censor it.

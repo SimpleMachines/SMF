@@ -214,7 +214,7 @@ class EventOccurrence implements \ArrayAccess
 		$filecontents[] = 'RECURRENCE-ID' . (isset($this->adjustment) && $this->adjustment->affects_future ? ';RANGE=THISANDFUTURE' : '') . ($this->allday ? ';VALUE=DATE' : '') . ':' . $this->id;
 
 		$filecontents[] = 'DTSTAMP:' . date('Ymd\\THis\\Z', $this->modified_time ?? time());
-		$filecontents[] = 'DTSTART' . ($this->allday ? ';VALUE=DATE' : (!in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis' . (in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
+		$filecontents[] = 'DTSTART' . ($this->allday ? ';VALUE=DATE' : (!\in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis' . (\in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
 		$filecontents[] = 'DURATION:' . (string) $this->duration;
 
 		$filecontents[] = 'END:VEVENT';
@@ -482,7 +482,7 @@ class EventOccurrence implements \ArrayAccess
 	 */
 	public function __isset(string $prop): bool
 	{
-		if (in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
+		if (\in_array($prop, ['year', 'month', 'day', 'hour', 'minute', 'second'])) {
 			$prop = 'start_' . $prop;
 		}
 

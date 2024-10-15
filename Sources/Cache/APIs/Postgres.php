@@ -20,7 +20,7 @@ use SMF\Cache\CacheApiInterface;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -109,7 +109,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 		);
 
 		foreach ($stmtnames as $idx => $stmtname) {
-			if (!in_array($stmtname, $arr)) {
+			if (!\in_array($stmtname, $arr)) {
 				pg_prepare($this->db_connection, $stmtname, $queries[$idx]);
 			}
 		}

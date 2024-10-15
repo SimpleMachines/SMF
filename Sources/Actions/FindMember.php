@@ -78,7 +78,7 @@ class FindMember implements ActionInterface
 			$_REQUEST['search'] = Utils::htmlspecialchars($_REQUEST['search'], ENT_QUOTES);
 
 			Utils::$context['results'] = User::find([$_REQUEST['search']], true, Utils::$context['buddy_search']);
-			$total_results = count(Utils::$context['results']);
+			$total_results = \count(Utils::$context['results']);
 
 			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=findmember;search=' . Utils::$context['last_search'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';input=' . Utils::$context['input_box_name'] . (Utils::$context['quote_results'] ? ';quote=1' : '') . (Utils::$context['buddy_search'] ? ';buddies' : ''), $_REQUEST['start'], $total_results, 7);
 
@@ -96,7 +96,7 @@ class FindMember implements ActionInterface
 				'num_pages' => floor(($total_results - 1) / 7) + 1,
 			];
 
-			Utils::$context['results'] = array_slice(Utils::$context['results'], $_REQUEST['start'], 7);
+			Utils::$context['results'] = \array_slice(Utils::$context['results'], $_REQUEST['start'], 7);
 		} else {
 			Utils::$context['links']['up'] = Config::$scripturl . '?action=pm;sa=send' . (empty($_REQUEST['u']) ? '' : ';u=' . $_REQUEST['u']);
 		}

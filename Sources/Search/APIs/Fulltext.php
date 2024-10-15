@@ -80,7 +80,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	public function __construct()
 	{
 		// Is this database supported?
-		if (!in_array(Config::$db_type, $this->supported_databases)) {
+		if (!\in_array(Config::$db_type, $this->supported_databases)) {
 			$this->is_supported = false;
 
 			return;
@@ -127,7 +127,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		if (
 			!isset($this->size)
 			&& isset(Utils::$context['table_info']['index_length'])
-			&& is_int(Utils::$context['table_info']['index_length'])
+			&& \is_int(Utils::$context['table_info']['index_length'])
 		) {
 			$this->size = Utils::$context['table_info']['index_length'];
 		}
@@ -204,8 +204,8 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	 */
 	public function searchSort(string $a, string $b): int
 	{
-		$x = Utils::entityStrlen($a) - (in_array($a, $this->excludedWords) ? 1000 : 0);
-		$y = Utils::entityStrlen($b) - (in_array($b, $this->excludedWords) ? 1000 : 0);
+		$x = Utils::entityStrlen($a) - (\in_array($a, $this->excludedWords) ? 1000 : 0);
+		$y = Utils::entityStrlen($b) - (\in_array($b, $this->excludedWords) ? 1000 : 0);
 
 		return $x < $y ? 1 : ($x > $y ? -1 : 0);
 	}
@@ -220,20 +220,20 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		if (empty(Config::$modSettings['search_force_index'])) {
 			// A boolean capable search engine and not forced to only use an index, we may use a non indexed search
 			// this is harder on the server so we are restrictive here
-			if (count($subwords) > 1 && preg_match('~[.:@$]~', $word)) {
+			if (\count($subwords) > 1 && preg_match('~[.:@$]~', $word)) {
 				// using special characters that a full index would ignore and the remaining words are short which would also be ignored
 				if ((Utils::entityStrlen(current($subwords)) < $this->min_word_length) && (Utils::entityStrlen(next($subwords)) < $this->min_word_length)) {
 					$wordsSearch['words'][] = trim($word, '/*- ');
-					$wordsSearch['complex_words'][] = count($subwords) === 1 ? $word : '"' . $word . '"';
+					$wordsSearch['complex_words'][] = \count($subwords) === 1 ? $word : '"' . $word . '"';
 				}
 			} elseif (Utils::entityStrlen(trim($word, '/*- ')) < $this->min_word_length) {
 				// short words have feelings too
 				$wordsSearch['words'][] = trim($word, '/*- ');
-				$wordsSearch['complex_words'][] = count($subwords) === 1 ? $word : '"' . $word . '"';
+				$wordsSearch['complex_words'][] = \count($subwords) === 1 ? $word : '"' . $word . '"';
 			}
 		}
 
-		$fulltextWord = count($subwords) === 1 ? $word : '"' . $word . '"';
+		$fulltextWord = \count($subwords) === 1 ? $word : '"' . $word . '"';
 		$wordsSearch['indexed_words'][] = $fulltextWord;
 
 		if ($isExcluded) {
@@ -264,7 +264,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 
 		if (empty(Config::$modSettings['search_simple_fulltext'])) {
 			foreach ($words['words'] as $regularWord) {
-				if (in_array($regularWord, $query_params['excluded_words'])) {
+				if (\in_array($regularWord, $query_params['excluded_words'])) {
 					$query_where[] = 'm.body NOT ' . $this->query_match_type . ' {string:complex_body_' . $count . '}';
 				} else {
 					$query_where[] = 'm.body ' . $this->query_match_type . ' {string:complex_body_' . $count . '}';
@@ -346,12 +346,12 @@ class Fulltext extends SearchApi implements SearchApiInterface
 
 				foreach ($words['indexed_words'] as $fulltextWord) {
 					$query_params['boolean_match'] .= ($row != 0 ? '&' : '');
-					$query_params['boolean_match'] .= (in_array($fulltextWord, $query_params['excluded_index_words']) ? '!' : '') . $fulltextWord . ' ';
+					$query_params['boolean_match'] .= (\in_array($fulltextWord, $query_params['excluded_index_words']) ? '!' : '') . $fulltextWord . ' ';
 					$row++;
 				}
 			} else {
 				foreach ($words['indexed_words'] as $fulltextWord) {
-					$query_params['boolean_match'] .= (in_array($fulltextWord, $query_params['excluded_index_words']) ? '-' : '+') . $fulltextWord . ' ';
+					$query_params['boolean_match'] .= (\in_array($fulltextWord, $query_params['excluded_index_words']) ? '-' : '+') . $fulltextWord . ' ';
 				}
 			}
 
@@ -580,7 +580,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 				}
 				Db::$db->free_result($request);
 
-				if (is_array(Utils::$context['fulltext_index'])) {
+				if (\is_array(Utils::$context['fulltext_index'])) {
 					Utils::$context['fulltext_index'] = array_unique(Utils::$context['fulltext_index']);
 				}
 			}

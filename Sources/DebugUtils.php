@@ -43,7 +43,7 @@ class DebugUtils
 		$min_indent = PHP_INT_MAX;
 
 		foreach ($matches[0] as $match) {
-			$min_indent = min($min_indent, strlen($match));
+			$min_indent = min($min_indent, \strlen($match));
 		}
 
 		if ($min_indent != PHP_INT_MAX) {

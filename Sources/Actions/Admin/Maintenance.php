@@ -138,7 +138,7 @@ class Maintenance implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 
 		// Any special activity?
@@ -146,7 +146,7 @@ class Maintenance implements ActionInterface
 			$call = method_exists($this, self::$subactions[$this->subaction]['activities'][$this->activity]) ? [$this, self::$subactions[$this->subaction]['activities'][$this->activity]] : Utils::getCallable(self::$subactions[$this->subaction]['activities'][$this->activity]);
 
 			if (!empty($call)) {
-				call_user_func($call);
+				\call_user_func($call);
 			}
 		}
 
@@ -159,7 +159,7 @@ class Maintenance implements ActionInterface
 	 */
 	public function routine(): void
 	{
-		if (isset($_GET['done']) && in_array($_GET['done'], ['recount', 'rebuild_settings'])) {
+		if (isset($_GET['done']) && \in_array($_GET['done'], ['recount', 'rebuild_settings'])) {
 			Utils::$context['maintenance_finished'] = Lang::$txt['maintain_' . $_GET['done']];
 		}
 	}
@@ -956,7 +956,7 @@ class Maintenance implements ActionInterface
 		}
 
 		// If there aren't any tables then I believe that would mean the world has exploded...
-		Utils::$context['num_tables'] = count($tables);
+		Utils::$context['num_tables'] = \count($tables);
 
 		if (Utils::$context['num_tables'] == 0) {
 			ErrorHandler::fatal('You appear to be running SMF in a flat file mode... fantastic!', false);
@@ -1004,7 +1004,7 @@ class Maintenance implements ActionInterface
 
 		// Number of tables, etc...
 		Utils::$context['database_numb_tables'] = Lang::getTxt('database_numb_tables', [Utils::$context['num_tables']]);
-		Utils::$context['num_tables_optimized'] = count($_SESSION['optimized_tables']);
+		Utils::$context['num_tables_optimized'] = \count($_SESSION['optimized_tables']);
 		Utils::$context['optimized_tables'] = $_SESSION['optimized_tables'];
 		unset($_SESSION['optimized_tables']);
 	}
@@ -1080,7 +1080,7 @@ class Maintenance implements ActionInterface
 			'smileys',
 			'themes',
 		];
-		Utils::$context['num_tables'] = count($tables);
+		Utils::$context['num_tables'] = \count($tables);
 
 		// Loop through all tables that need converting.
 		for (; Utils::$context['table'] < Utils::$context['num_tables']; Utils::$context['table']++) {
@@ -1149,7 +1149,7 @@ class Maintenance implements ActionInterface
 
 			while ($row = Db::$db->fetch_assoc($request)) {
 				if ($row['Key_name'] === 'PRIMARY') {
-					if ((empty($primary_key) || $row['Seq_in_index'] == 1) && !in_array(strtolower($row['Column_name']), $columns)) {
+					if ((empty($primary_key) || $row['Seq_in_index'] == 1) && !\in_array(strtolower($row['Column_name']), $columns)) {
 						$primary_key = $row['Column_name'];
 					}
 
@@ -1379,9 +1379,9 @@ class Maintenance implements ActionInterface
 			Utils::$context['sub_template'] = 'convert_msgbody';
 
 			if (!empty($id_msg_exceeding)) {
-				if (count($id_msg_exceeding) > 100) {
-					$query_msg = array_slice($id_msg_exceeding, 0, 100);
-					Utils::$context['exceeding_messages_morethan'] = Lang::getTxt('exceeding_messages_morethan', [count($id_msg_exceeding) - 100]);
+				if (\count($id_msg_exceeding) > 100) {
+					$query_msg = \array_slice($id_msg_exceeding, 0, 100);
+					Utils::$context['exceeding_messages_morethan'] = Lang::getTxt('exceeding_messages_morethan', [\count($id_msg_exceeding) - 100]);
 				} else {
 					$query_msg = $id_msg_exceeding;
 				}
@@ -1464,7 +1464,7 @@ class Maintenance implements ActionInterface
 			// Need to get all groups then work out which (if any) we avoid.
 			foreach (Group::loadSimple(Group::LOAD_BOTH, [Group::GUEST, Group::MOD]) as $group) {
 				// Avoid this one?
-				if (!in_array($group->id, $groups)) {
+				if (!\in_array($group->id, $groups)) {
 					// Post group?
 					if ($group->min_posts != -1) {
 						$where .= ' AND mem.id_post_group != {int:id_post_group_' . $group->id . '}';
@@ -1477,7 +1477,7 @@ class Maintenance implements ActionInterface
 			}
 
 			// If we have ungrouped unselected we need to avoid those guys.
-			if (!in_array(0, $groups)) {
+			if (!\in_array(0, $groups)) {
 				$where .= ' AND (mem.id_group != 0 OR mem.additional_groups != {string:blank_add_groups})';
 				$where_vars['blank_add_groups'] = '';
 			}
@@ -1494,7 +1494,7 @@ class Maintenance implements ActionInterface
 			$members = [];
 
 			while ($row = Db::$db->fetch_assoc($request)) {
-				if (!$row['is_mod'] || !in_array(3, $groups)) {
+				if (!$row['is_mod'] || !\in_array(3, $groups)) {
 					$members[] = $row['id_member'];
 				}
 			}
@@ -1856,7 +1856,7 @@ class Maintenance implements ActionInterface
 		Db::$db->free_result($request);
 
 		// If we have old drafts, remove them
-		if (count($drafts) > 0) {
+		if (\count($drafts) > 0) {
 			Draft::delete($drafts, false);
 		}
 	}
@@ -1936,7 +1936,7 @@ class Maintenance implements ActionInterface
 				'value' => array_reduce(
 					$filtered_hooks,
 					function ($accumulator, $functions) {
-						return $accumulator + count($functions);
+						return $accumulator + \count($functions);
 					},
 					0,
 				),
@@ -2134,7 +2134,7 @@ class Maintenance implements ActionInterface
 
 		array_multisort($sort_array, $sort_types[$sort][1], $temp_data);
 
-		return array_slice($temp_data, $start, $per_page, true);
+		return \array_slice($temp_data, $start, $per_page, true);
 	}
 
 	/**
@@ -2356,7 +2356,7 @@ class Maintenance implements ActionInterface
 	 */
 	protected static function getFileRecursive(string $dirname): array
 	{
-		return \iterator_to_array(
+		return iterator_to_array(
 			new \RecursiveIteratorIterator(
 				new \RecursiveCallbackFilterIterator(
 					new \RecursiveDirectoryIterator($dirname, \FilesystemIterator::UNIX_PATHS),

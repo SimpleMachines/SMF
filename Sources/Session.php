@@ -207,9 +207,9 @@ class Session implements \SessionHandlerInterface
 		// @todo Set the session cookie path?
 
 		// If it's already been started... probably best to skip this.
-		if ((ini_get('session.auto_start') == 1 && !empty(Config::$modSettings['databaseSession_enable'])) || session_id() == '') {
+		if ((\ini_get('session.auto_start') == 1 && !empty(Config::$modSettings['databaseSession_enable'])) || session_id() == '') {
 			// Attempt to end the already-started session.
-			if (ini_get('session.auto_start') == 1) {
+			if (\ini_get('session.auto_start') == 1) {
 				session_write_close();
 			}
 
@@ -225,14 +225,14 @@ class Session implements \SessionHandlerInterface
 			if (!empty(Config::$modSettings['databaseSession_enable'])) {
 				@ini_set('session.serialize_handler', 'php_serialize');
 
-				if (ini_get('session.serialize_handler') != 'php_serialize') {
+				if (\ini_get('session.serialize_handler') != 'php_serialize') {
 					@ini_set('session.serialize_handler', 'php');
 				}
 
 				session_set_save_handler(new self(), true);
 
 				@ini_set('session.gc_probability', '1');
-			} elseif (ini_get('session.gc_maxlifetime') <= 1440 && !empty(Config::$modSettings['databaseSession_lifetime'])) {
+			} elseif (\ini_get('session.gc_maxlifetime') <= 1440 && !empty(Config::$modSettings['databaseSession_lifetime'])) {
 				@ini_set('session.gc_maxlifetime', max(Config::$modSettings['databaseSession_lifetime'], 60));
 			}
 

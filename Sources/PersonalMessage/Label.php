@@ -265,7 +265,7 @@ class Label implements \ArrayAccess
 			// Deleting an existing label?
 			elseif (isset($_POST['delete'], $_POST['delete_label'])) {
 				foreach ($_POST['delete_label'] as $label => $dummy) {
-					if (array_key_exists($label, $the_labels)) {
+					if (\array_key_exists($label, $the_labels)) {
 						unset($the_labels[$label]);
 						$labels_to_remove[] = $label;
 					}
@@ -381,7 +381,7 @@ class Label implements \ArrayAccess
 				// Move these back to the inbox if necessary.
 				if (!empty($stranded_messages)) {
 					// We now have more messages in the inbox.
-					Label::$loaded[-1]['messages'] += count($stranded_messages);
+					Label::$loaded[-1]['messages'] += \count($stranded_messages);
 					Db::$db->query(
 						'',
 						'UPDATE {db_prefix}pm_recipients
@@ -400,7 +400,7 @@ class Label implements \ArrayAccess
 				foreach (Rule::$loaded as $k => $rule) {
 					// Each action...
 					foreach ($rule->actions as $k2 => $action) {
-						if ($action['t'] != 'lab' || !in_array($action['v'], $labels_to_remove)) {
+						if ($action['t'] != 'lab' || !\in_array($action['v'], $labels_to_remove)) {
 							continue;
 						}
 

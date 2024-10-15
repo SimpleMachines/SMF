@@ -267,7 +267,7 @@ class Utils
 
 					// Code points that are guaranteed never to be characters.
 					|| ($num >= 0xFDD0 && $num <= 0xFDEF)
-					|| (in_array($num % 0x10000, [0xFFFE, 0xFFFF]))
+					|| (\in_array($num % 0x10000, [0xFFFE, 0xFFFF]))
 
 					// Out of range.
 					|| $num > 0x10FFFF
@@ -308,11 +308,11 @@ class Utils
 
 		// What substitute character should we use?
 		if (isset($substitute)) {
-			$substitute = strval($substitute);
+			$substitute = \strval($substitute);
 		} elseif (!empty(Utils::$context['utf8'])) {
 			// Raw UTF-8 bytes for U+FFFD.
 			$substitute = "\xEF\xBF\xBD";
-		} elseif (!empty(Utils::$context['character_set']) && is_callable('mb_decode_numericentity')) {
+		} elseif (!empty(Utils::$context['character_set']) && \is_callable('mb_decode_numericentity')) {
 			// Get whatever the default replacement character is for this encoding.
 			$substitute = mb_decode_numericentity('&#xFFFD;', [0xFFFD, 0xFFFD, 0, 0xFFFF], Utils::$context['character_set']);
 		} else {
@@ -322,12 +322,12 @@ class Utils
 		// Fix any invalid byte sequences.
 		if (!empty(Utils::$context['character_set'])) {
 			// For UTF-8, this preg_match test is much faster than mb_check_encoding.
-			$malformed = !empty(Utils::$context['utf8']) ? @preg_match('//u', $string) === false && preg_last_error() === PREG_BAD_UTF8_ERROR : (!is_callable('mb_check_encoding') || !mb_check_encoding($string, Utils::$context['character_set']));
+			$malformed = !empty(Utils::$context['utf8']) ? @preg_match('//u', $string) === false && preg_last_error() === PREG_BAD_UTF8_ERROR : (!\is_callable('mb_check_encoding') || !mb_check_encoding($string, Utils::$context['character_set']));
 
 			if ($malformed) {
 				// mb_convert_encoding will replace invalid byte sequences with our substitute.
-				if (is_callable('mb_convert_encoding')) {
-					if (!is_callable('mb_ord')) {
+				if (\is_callable('mb_convert_encoding')) {
+					if (!\is_callable('mb_ord')) {
 						require_once Config::$sourcedir . '/Subs-Compat.php';
 					}
 
@@ -419,7 +419,7 @@ class Utils
 	{
 		$string = self::normalize($string);
 
-		return self::fixUtf8mb4(self::sanitizeEntities(\htmlspecialchars($string, $flags, $encoding)));
+		return self::fixUtf8mb4(self::sanitizeEntities(htmlspecialchars($string, $flags, $encoding)));
 	}
 
 	/**
@@ -437,7 +437,7 @@ class Utils
 	{
 		static $level = 0;
 
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return self::htmlspecialchars((string) $var, $flags, $encoding);
 		}
 
@@ -521,7 +521,7 @@ class Utils
 		static $level = 0;
 
 		// Remove spaces (32), tabs (9), returns (13, 10, and 11), nulls (0), and hard spaces. (160)
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return self::htmlTrim($var);
 		}
 
@@ -549,7 +549,7 @@ class Utils
 	 */
 	public static function entityStrlen(string $string): int
 	{
-		return strlen((string) preg_replace('~' . self::ENT_LIST . '|\X~u', '_', self::sanitizeEntities($string)));
+		return \strlen((string) preg_replace('~' . self::ENT_LIST . '|\X~u', '_', self::sanitizeEntities($string)));
 	}
 
 	/**
@@ -565,26 +565,26 @@ class Utils
 	{
 		$haystack_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-		if (strlen($needle) === 1) {
-			$result = array_search($needle, array_slice($haystack_arr, $offset));
+		if (\strlen($needle) === 1) {
+			$result = array_search($needle, \array_slice($haystack_arr, $offset));
 
-			return is_int($result) ? $result + $offset : false;
+			return \is_int($result) ? $result + $offset : false;
 		}
 
 		$needle_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-		$needle_size = count($needle_arr);
+		$needle_size = \count($needle_arr);
 
-		$result = array_search($needle_arr[0], array_slice($haystack_arr, $offset));
+		$result = array_search($needle_arr[0], \array_slice($haystack_arr, $offset));
 
 		while ((int) $result === $result) {
 			$offset += $result;
 
-			if (array_slice($haystack_arr, $offset, $needle_size) === $needle_arr) {
+			if (\array_slice($haystack_arr, $offset, $needle_size) === $needle_arr) {
 				return $offset;
 			}
 
-			$result = array_search($needle_arr[0], array_slice($haystack_arr, ++$offset));
+			$result = array_search($needle_arr[0], \array_slice($haystack_arr, ++$offset));
 		}
 
 		return false;
@@ -603,7 +603,7 @@ class Utils
 	{
 		$ent_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-		return $length === null ? implode('', array_slice($ent_arr, $offset)) : implode('', array_slice($ent_arr, $offset, $length));
+		return $length === null ? implode('', \array_slice($ent_arr, $offset)) : implode('', \array_slice($ent_arr, $offset, $length));
 	}
 
 	/**
@@ -652,7 +652,7 @@ class Utils
 	{
 		$string = self::sanitizeEntities($string);
 
-		while (is_string($string) && strlen($string) > $length) {
+		while (\is_string($string) && \strlen($string) > $length) {
 			$string = preg_replace('~(?:' . self::ENT_LIST . '|\X)$~u', '', $string);
 		}
 
@@ -861,8 +861,8 @@ class Utils
 		static $regexes = [];
 
 		// If it's not an array, there's not much to do. ;)
-		if (!is_array($strings)) {
-			return preg_quote(@strval($strings), $delim);
+		if (!\is_array($strings)) {
+			return preg_quote(@\strval($strings), $delim);
 		}
 
 		$regex_key = md5(json_encode([$strings, $delim, $return_array]));
@@ -886,7 +886,7 @@ class Utils
 			// No first character? That's no good.
 			if ($first === '') {
 				// A nested array? Really? Ugh. Fine.
-				if (is_array($string) && $depth < 20) {
+				if (\is_array($string) && $depth < 20) {
 					foreach ($string as $str) {
 						$trie = $add_string_to_trie($str, $trie);
 					}
@@ -937,7 +937,7 @@ class Utils
 				} else {
 					$sub_regex = $trie_to_regex($value, $delim);
 
-					if (count(array_keys($value)) == 1) {
+					if (\count(array_keys($value)) == 1) {
 						$new_key_array = explode('(?' . '>', $sub_regex);
 						$new_key .= $new_key_array[0];
 					} else {
@@ -948,7 +948,7 @@ class Utils
 				if ($depth > 1) {
 					$regex[$new_key] = $key_regex . $sub_regex;
 				} else {
-					if (($length += strlen($key_regex . $sub_regex) + 1) < $max_length || empty($regex)) {
+					if (($length += \strlen($key_regex . $sub_regex) + 1) < $max_length || empty($regex)) {
 						$regex[$new_key] = $key_regex . $sub_regex;
 						unset($trie[$key]);
 					} else {
@@ -1073,7 +1073,7 @@ class Utils
 	 */
 	public static function stripslashesRecursive(string|array $var, int $level = 0): array|string
 	{
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return stripslashes($var);
 		}
 
@@ -1099,7 +1099,7 @@ class Utils
 	 */
 	public static function urldecodeRecursive(string|array $var, int $level = 0): array|string
 	{
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return urldecode($var);
 		}
 
@@ -1124,7 +1124,7 @@ class Utils
 	 */
 	public static function escapestringRecursive(array|string $var): array|string
 	{
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return Db::$db->escape_string($var);
 		}
 
@@ -1149,7 +1149,7 @@ class Utils
 	 */
 	public static function unescapestringRecursive(array|string $var): array|string
 	{
-		if (!is_array($var)) {
+		if (!\is_array($var)) {
 			return Db::$db->unescape_string($var);
 		}
 
@@ -1195,7 +1195,7 @@ class Utils
 			array_walk_recursive(
 				$temp,
 				function (&$value) use ($param_length) {
-					$value = self::truncate(strval($value), (int) $param_length);
+					$value = self::truncate(\strval($value), (int) $param_length);
 				},
 			);
 
@@ -1221,7 +1221,7 @@ class Utils
 		array_walk_recursive(
 			$array,
 			function ($value, $key) use (&$length) {
-				$length += strlen((string) $value);
+				$length += \strlen((string) $value);
 			},
 		);
 
@@ -1341,13 +1341,13 @@ class Utils
 	public static function safeSerialize(mixed $value): string
 	{
 		// Make sure we use the byte count for strings even when strlen() is overloaded by mb_strlen()
-		if (function_exists('mb_internal_encoding')
-			&& (((int) ini_get('mbstring.func_overload')) & 2)) {
+		if (\function_exists('mb_internal_encoding')
+			&& (((int) \ini_get('mbstring.func_overload')) & 2)) {
 			$mb_int_enc = mb_internal_encoding();
 			mb_internal_encoding('ASCII');
 		}
 
-		switch (gettype($value)) {
+		switch (\gettype($value)) {
 			case 'NULL':
 				$out = 'N;';
 				break;
@@ -1365,7 +1365,7 @@ class Utils
 				break;
 
 			case 'string':
-				$out = 's:' . strlen($value) . ':"' . $value . '";';
+				$out = 's:' . \strlen($value) . ':"' . $value . '";';
 				break;
 
 			case 'array':
@@ -1375,7 +1375,7 @@ class Utils
 				array_walk_recursive(
 					$value,
 					function ($v) use (&$contains_invalid) {
-						if (is_object($v) || is_resource($v)) {
+						if (\is_object($v) || \is_resource($v)) {
 							$contains_invalid = true;
 						}
 					},
@@ -1390,7 +1390,7 @@ class Utils
 						$out .= self::safeSerialize($k) . self::safeSerialize($v);
 					}
 
-					$out = 'a:' . count($value) . ':{' . $out . '}';
+					$out = 'a:' . \count($value) . ':{' . $out . '}';
 				}
 				break;
 
@@ -1418,14 +1418,14 @@ class Utils
 	public static function safeUnserialize(string $str): mixed
 	{
 		// Make sure we use the byte count for strings even when strlen() is overloaded by mb_strlen()
-		if (function_exists('mb_internal_encoding')
-			&& (((int) ini_get('mbstring.func_overload')) & 0x02)) {
+		if (\function_exists('mb_internal_encoding')
+			&& (((int) \ini_get('mbstring.func_overload')) & 0x02)) {
 			$mb_int_enc = mb_internal_encoding();
 			mb_internal_encoding('ASCII');
 		}
 
 		// Input is not a string.
-		if (empty($str) || !is_string($str)) {
+		if (empty($str) || !\is_string($str)) {
 			$out = false;
 		}
 		// The substrings 'O:' and 'C:' are used to serialize objects.
@@ -1504,18 +1504,18 @@ class Utils
 					case 2:
 						if ($type == '}') {
 							// Array size is less than expected.
-							if (count($list) < end($expected)) {
+							if (\count($list) < end($expected)) {
 								return false;
 							}
 
 							unset($list);
-							$list = &$stack[count($stack) - 1];
+							$list = &$stack[\count($stack) - 1];
 							array_pop($stack);
 
 							// Go to terminal state if we're at the end of the root array.
 							array_pop($expected);
 
-							if (count($expected) == 0) {
+							if (\count($expected) == 0) {
 								$state = 1;
 							}
 
@@ -1524,7 +1524,7 @@ class Utils
 
 						if ($type == 'i' || $type == 's') {
 							// Array size exceeds expected length.
-							if (count($list) >= end($expected)) {
+							if (\count($list) >= end($expected)) {
 								return false;
 							}
 
@@ -1610,8 +1610,8 @@ class Utils
 	 */
 	public static function getMimeType(string $data, bool $is_path = false): string|false
 	{
-		$finfo_loaded = extension_loaded('fileinfo');
-		$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
+		$finfo_loaded = \extension_loaded('fileinfo');
+		$exif_loaded = \extension_loaded('exif') && \function_exists('image_type_to_mime_type');
 
 		// Oh well. We tried.
 		if (!$finfo_loaded && !$exif_loaded) {
@@ -1761,14 +1761,14 @@ class Utils
 		}
 
 		// Do we want to send an embedded thumbnail image?
-		if ($show_thumb && $file instanceof Attachment && $file->embedded_thumb && function_exists('exif_thumbnail')) {
+		if ($show_thumb && $file instanceof Attachment && $file->embedded_thumb && \function_exists('exif_thumbnail')) {
 			$thumb = [
 				'content' => exif_thumbnail($file->path, $width, $height, $type),
 				'filename' => $file->filename ?? null,
 				'mtime' => $file->mtime ?? null,
 				'disposition' => $file->disposition ?? 'attachment',
 			];
-			$thumb['size'] = strlen($thumb['content']);
+			$thumb['size'] = \strlen($thumb['content']);
 			$thumb['width'] = $width;
 			$thumb['height'] = $height;
 			$thumb['etag'] = sha1($thumb['content']);
@@ -1781,7 +1781,7 @@ class Utils
 		// We always need a file size.
 		if (!isset($file['size'])) {
 			if (isset($file['content'])) {
-				$file['size'] = strlen($file['content']);
+				$file['size'] = \strlen($file['content']);
 			} elseif (isset($file['path']) && file_exists($file['path'])) {
 				$file['size'] = filesize($file['path']);
 			} else {
@@ -1813,7 +1813,7 @@ class Utils
 		}
 
 		// Start a new output buffer.
-		$output_already_compressed = @ini_get('zlib.output_compression') > 0 || @ini_get('output_handler') == 'ob_gzhandler';
+		$output_already_compressed = @\ini_get('zlib.output_compression') > 0 || @\ini_get('output_handler') == 'ob_gzhandler';
 		$ob_handler = !$output_already_compressed && !empty(Config::$modSettings['enableCompressedOutput']) ? 'ob_gzhandler' : null;
 		ob_start($ob_handler);
 
@@ -1842,8 +1842,8 @@ class Utils
 			list($a, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
 			list($range) = explode(',', $range, 2);
 			list($range, $range_end) = explode('-', $range);
-			$range = intval($range);
-			$range_end = !$range_end ? $file['size'] - 1 : intval($range_end);
+			$range = \intval($range);
+			$range_end = !$range_end ? $file['size'] - 1 : \intval($range_end);
 			$length = $range_end - $range + 1;
 
 			self::sendHttpStatus(206);
@@ -1873,8 +1873,8 @@ class Utils
 					$buffer = substr($file['content'], $offset, $chunksize);
 					echo $buffer;
 					flush();
-					$bytes_sent += strlen($buffer);
-					$offset += strlen($buffer);
+					$bytes_sent += \strlen($buffer);
+					$offset += \strlen($buffer);
 				}
 			} else {
 				$fp = fopen($file['path'], 'rb');
@@ -1885,13 +1885,13 @@ class Utils
 					$buffer = fread($fp, $chunksize);
 					echo $buffer;
 					flush();
-					$bytes_sent += strlen($buffer);
+					$bytes_sent += \strlen($buffer);
 				}
 				fclose($fp);
 			}
 		} else {
 			// Since we don't do output compression for files this large...
-			if (!is_null($ob_handler) && $file['size'] > 4194304) {
+			if (!\is_null($ob_handler) && $file['size'] > 4194304) {
 				header_remove('Content-Encoding');
 
 				while (@ob_get_level() > 0) {
@@ -2010,7 +2010,7 @@ class Utils
 		}
 
 		// Put the session ID in.
-		if (defined('SID') && SID != '') {
+		if (\defined('SID') && SID != '') {
 			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\??/', Config::$scripturl . '?' . SID . ';', $setLocation);
 		}
 		// Keep that debug in their for template debugging!
@@ -2022,14 +2022,14 @@ class Utils
 			!empty(Config::$modSettings['queryless_urls'])
 			&& (
 				!Sapi::isCGI()
-				|| ini_get('cgi.fix_pathinfo') == 1
+				|| \ini_get('cgi.fix_pathinfo') == 1
 				|| @get_cfg_var('cgi.fix_pathinfo') == 1
 			)
 			&& (
 				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
 			)
 		) {
-			if (defined('SID') && SID != '') {
+			if (\defined('SID') && SID != '') {
 				$setLocation = preg_replace_callback(
 					'~^' . preg_quote(Config::$scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
 					function ($m) {
@@ -2126,7 +2126,7 @@ class Utils
 			// Start up the session URL fixer.
 			ob_start('SMF\\QueryString::ob_sessrewrite');
 
-			if (!empty(Theme::$current->settings['output_buffers']) && is_string(Theme::$current->settings['output_buffers'])) {
+			if (!empty(Theme::$current->settings['output_buffers']) && \is_string(Theme::$current->settings['output_buffers'])) {
 				$buffers = explode(',', Theme::$current->settings['output_buffers']);
 			} elseif (!empty(Theme::$current->settings['output_buffers'])) {
 				$buffers = Theme::$current->settings['output_buffers'];
@@ -2216,12 +2216,12 @@ class Utils
 
 		// An array? should be a "callable" array IE array(object/class, valid_callable).
 		// A closure? should be a callable one.
-		if (is_array($input) || $input instanceof \Closure) {
-			return is_callable($input) ? $input : false;
+		if (\is_array($input) || $input instanceof \Closure) {
+			return \is_callable($input) ? $input : false;
 		}
 
 		// No full objects, sorry! pass a method or a property instead!
-		if (is_object($input)) {
+		if (\is_object($input)) {
 			return false;
 		}
 
@@ -2276,7 +2276,7 @@ class Utils
 		}
 
 		// Right, we got what we need, time to do some checks.
-		if (!is_callable($callable, false, $callable_name) && $ignore_errors) {
+		if (!\is_callable($callable, false, $callable_name) && $ignore_errors) {
 			// We can't call this helper, but we want to silently ignore this.
 			if ($ignore_errors) {
 				return false;
@@ -2378,7 +2378,7 @@ class Utils
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Utils::class, 'exportStatic'])) {
+if (\is_callable([Utils::class, 'exportStatic'])) {
 	Utils::exportStatic();
 }
 

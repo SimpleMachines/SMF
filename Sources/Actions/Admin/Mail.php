@@ -90,7 +90,7 @@ class Mail implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -281,7 +281,7 @@ class Mail implements ActionInterface
 		$i = 0;
 
 		foreach (self::$processedBirthdayEmails as $index => $email) {
-			$is_last = ++$i == count(self::$processedBirthdayEmails);
+			$is_last = ++$i == \count(self::$processedBirthdayEmails);
 
 			Utils::$context['settings_insert_above'] .= '
 				' . $index . ': {
@@ -407,8 +407,8 @@ class Mail implements ActionInterface
 			'',
 
 			['select', 'birthday_email', $emails, 'value' => ['subject' => $subject, 'body' => $body], 'javascript' => 'onchange="fetch_birthday_preview()"'],
-			'birthday_subject' => ['var_message', 'birthday_subject', 'var_message' => self::$processedBirthdayEmails[empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3],
-			'birthday_body' => ['var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)],
+			'birthday_subject' => ['var_message', 'birthday_subject', 'var_message' => self::$processedBirthdayEmails[empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => \strlen($subject) + 3],
+			'birthday_body' => ['var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(\strlen($body) / 25)],
 		];
 
 		IntegrationHook::call('integrate_modify_mail_settings', [&$config_vars]);

@@ -126,7 +126,7 @@ class Security
 				return true;
 			}
 
-			if (!in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
+			if (!\in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
 				$_SESSION['forms'][] = (int) $_REQUEST['seqnum'];
 
 				return true;
@@ -144,12 +144,12 @@ class Security
 		if ($action == 'register') {
 			Utils::$context['form_sequence_number'] = 0;
 
-			while (empty(Utils::$context['form_sequence_number']) || in_array(Utils::$context['form_sequence_number'], $_SESSION['forms'])) {
+			while (empty(Utils::$context['form_sequence_number']) || \in_array(Utils::$context['form_sequence_number'], $_SESSION['forms'])) {
 				Utils::$context['form_sequence_number'] = random_int(1, 16000000);
 			}
 		}
 		// Don't check, just free the stack number.
-		elseif ($action == 'free' && isset($_REQUEST['seqnum']) && in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
+		elseif ($action == 'free' && isset($_REQUEST['seqnum']) && \in_array($_REQUEST['seqnum'], $_SESSION['forms'])) {
 			$_SESSION['forms'] = array_diff($_SESSION['forms'], [$_REQUEST['seqnum']]);
 		}
 		// Bail out if $action is unknown.
@@ -345,9 +345,9 @@ class Security
 	{
 		$option = 'SAMEORIGIN';
 
-		if (is_null($override) && !empty(Config::$modSettings['frame_security'])) {
+		if (\is_null($override) && !empty(Config::$modSettings['frame_security'])) {
 			$option = Config::$modSettings['frame_security'];
-		} elseif (in_array($override, ['SAMEORIGIN', 'DENY'])) {
+		} elseif (\in_array($override, ['SAMEORIGIN', 'DENY'])) {
 			$option = $override;
 		}
 

@@ -183,7 +183,7 @@ class Time extends \DateTime implements \ArrayAccess
 			self::$user_tz = new \DateTimeZone(User::getTimezone());
 		}
 
-		if (is_string($timezone) && ($timezone = @timezone_open($timezone)) === false) {
+		if (\is_string($timezone) && ($timezone = @timezone_open($timezone)) === false) {
 			unset($timezone);
 		}
 
@@ -283,7 +283,7 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
-				if ($value instanceof \DateTimeZone || (is_string($value) && in_array($value, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)))) {
+				if ($value instanceof \DateTimeZone || (\is_string($value) && \in_array($value, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)))) {
 					$this->setTimezone($value);
 				}
 				break;
@@ -501,7 +501,7 @@ class Time extends \DateTime implements \ArrayAccess
 		$placeholders = [];
 		$complex = false;
 
-		for ($i = 0; $i < count($parts); $i++) {
+		for ($i = 0; $i < \count($parts); $i++) {
 			// Parts that are not strftime formats.
 			if ($i % 2 === 0 || !isset(self::FORMAT_EQUIVALENTS[$parts[$i]])) {
 				if ($parts[$i] === '') {
@@ -514,7 +514,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$parts[$i] = $placeholder;
 			}
 			// Parts that need localized strings.
-			elseif (in_array($parts[$i], ['a', 'A', 'b', 'B'])) {
+			elseif (\in_array($parts[$i], ['a', 'A', 'b', 'B'])) {
 				switch ($parts[$i]) {
 					case 'a':
 						$min = 0;
@@ -565,7 +565,7 @@ class Time extends \DateTime implements \ArrayAccess
 				}
 
 				$parts[$i] = $txt_strings_exist ? $placeholder : self::FORMAT_EQUIVALENTS[$parts[$i]];
-			} elseif (in_array($parts[$i], ['p', 'P'])) {
+			} elseif (\in_array($parts[$i], ['p', 'P'])) {
 				if (!isset(Lang::$txt['time_am']) || !isset(Lang::$txt['time_pm'])) {
 					continue;
 				}
@@ -589,7 +589,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$parts[$i] = $placeholder;
 			}
 			// Parts that will need further processing.
-			elseif (in_array($parts[$i], ['j', 'C', 'U', 'W', 'G', 'g', 'e', 'l'])) {
+			elseif (\in_array($parts[$i], ['j', 'C', 'U', 'W', 'G', 'g', 'e', 'l'])) {
 				$complex = true;
 
 				switch ($parts[$i]) {
@@ -693,7 +693,7 @@ class Time extends \DateTime implements \ArrayAccess
 	{
 		if ($timezone instanceof \DateTimeZone) {
 			date_timezone_set($this, $timezone);
-		} elseif (in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
+		} elseif (\in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
 			date_timezone_set($this, new \DateTimeZone($timezone));
 		} else {
 			throw new \ValueError();
@@ -1023,7 +1023,7 @@ class Time extends \DateTime implements \ArrayAccess
 		$date = new self('@' . $log_time);
 		$date->setTimezone(new \DateTimeZone($tzid));
 
-		return is_bool($show_today) ? $date->format(null, $show_today) : $date->format($show_today);
+		return \is_bool($show_today) ? $date->format(null, $show_today) : $date->format($show_today);
 	}
 
 	/**

@@ -101,7 +101,7 @@ class Subscriptions implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -150,7 +150,7 @@ class Subscriptions implements ActionInterface
 			],
 			'get_count' => [
 				'function' => function () {
-					return count(self::$all);
+					return \count(self::$all);
 				},
 			],
 			'no_items_label' => Lang::$txt['paid_none_yet'],
@@ -583,7 +583,7 @@ class Subscriptions implements ActionInterface
 			$isRepeatable = isset($_POST['repeatable']) ? 1 : 0;
 			$allowpartial = isset($_POST['allow_partial']) ? 1 : 0;
 			$reminder = isset($_POST['reminder']) ? (int) $_POST['reminder'] : 0;
-			$emailComplete = strlen($_POST['emailcomplete']) > 10 ? trim($_POST['emailcomplete']) : '';
+			$emailComplete = \strlen($_POST['emailcomplete']) > 10 ? trim($_POST['emailcomplete']) : '';
 			$_POST['prim_group'] = !empty($_POST['prim_group']) ? (int) $_POST['prim_group'] : 0;
 
 			// Cleanup text fields
@@ -1326,7 +1326,7 @@ class Subscriptions implements ActionInterface
 			// If the currency is set to something different then we need to set it to other for this to work and set it back shortly.
 			Config::$modSettings['paid_currency'] = !empty(Config::$modSettings['paid_currency_code']) ? Config::$modSettings['paid_currency_code'] : '';
 
-			if (!empty(Config::$modSettings['paid_currency_code']) && !in_array(Config::$modSettings['paid_currency_code'], ['usd', 'eur', 'gbp', 'cad', 'aud'])) {
+			if (!empty(Config::$modSettings['paid_currency_code']) && !\in_array(Config::$modSettings['paid_currency_code'], ['usd', 'eur', 'gbp', 'cad', 'aud'])) {
 				Config::$modSettings['paid_currency'] = 'other';
 			}
 
@@ -1866,15 +1866,15 @@ class Subscriptions implements ActionInterface
 		$existingGroups = explode(',', $additional_groups);
 
 		foreach ($existingGroups as $key => $group) {
-			if (empty($group) || (in_array($group, $removals) && !in_array($group, $allowed))) {
+			if (empty($group) || (\in_array($group, $removals) && !\in_array($group, $allowed))) {
 				unset($existingGroups[$key]);
 			}
 		}
 
 		// Finally, do something with the current primary group.
-		if (in_array($id_group, $removals)) {
+		if (\in_array($id_group, $removals)) {
 			// If this primary group is actually allowed keep it.
-			if (in_array($id_group, $allowed)) {
+			if (\in_array($id_group, $allowed)) {
 				$existingGroups[] = $id_group;
 			}
 
@@ -1951,7 +1951,7 @@ class Subscriptions implements ActionInterface
 	public static function reapply(array $users): void
 	{
 		// Make it an array.
-		if (!is_array($users)) {
+		if (!\is_array($users)) {
 			$users = [$users];
 		}
 

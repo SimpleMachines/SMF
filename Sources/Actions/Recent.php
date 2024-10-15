@@ -300,7 +300,7 @@ class Recent implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'board_list' => $_REQUEST['boards'],
-					'limit' => count($_REQUEST['boards']),
+					'limit' => \count($_REQUEST['boards']),
 					'empty' => '',
 				],
 			);
@@ -394,7 +394,7 @@ class Recent implements ActionInterface
 	 */
 	protected function getCatName(): void
 	{
-		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
+		if (!empty($_REQUEST['c']) && \is_array($_REQUEST['c']) && \count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
 				'',
 				'SELECT name
@@ -490,7 +490,7 @@ class Recent implements ActionInterface
 				'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)',
 			],
 			'order' => ['m.id_msg DESC'],
-			'limit' => count($this->messages),
+			'limit' => \count($this->messages),
 			'params' => [],
 		];
 
@@ -577,7 +577,7 @@ class Recent implements ActionInterface
 			}
 		}
 
-		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
+		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 		foreach (Utils::$context['posts'] as $counter => $dummy) {
 			// Some posts - the first posts - can't just be deleted.

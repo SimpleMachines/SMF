@@ -155,7 +155,7 @@ class Sapi
 	 */
 	public static function supportsIsoCaseFolding(): bool
 	{
-		return ord(strtolower(chr(138))) === 154;
+		return \ord(strtolower(\chr(138))) === 154;
 	}
 
 	/**
@@ -226,7 +226,7 @@ class Sapi
 	public static function setMemoryLimit(string $needed, bool $in_use = false): bool
 	{
 		// Everything in bytes.
-		$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
+		$memory_current = self::memoryReturnBytes(\ini_get('memory_limit'));
 		$memory_needed = self::memoryReturnBytes($needed);
 
 		// Should we account for how much is currently being used?
@@ -237,7 +237,7 @@ class Sapi
 		// If more is needed, request it.
 		if ($memory_current < $memory_needed) {
 			@ini_set('memory_limit', ceil($memory_needed / 1048576) . 'M');
-			$memory_current = self::memoryReturnBytes(ini_get('memory_limit'));
+			$memory_current = self::memoryReturnBytes(\ini_get('memory_limit'));
 		}
 
 		$memory_current = max($memory_current, self::memoryReturnBytes(get_cfg_var('memory_limit')));
@@ -254,13 +254,13 @@ class Sapi
 	 */
 	public static function memoryReturnBytes(string $val): int
 	{
-		if (is_integer($val)) {
+		if (\is_integer($val)) {
 			return (int) $val;
 		}
 
 		// Separate the number from the designator.
 		$val = trim($val);
-		$num = intval(substr($val, 0, strlen($val) - 1));
+		$num = \intval(substr($val, 0, \strlen($val) - 1));
 		$last = strtolower(substr($val, -1));
 
 		// Convert to bytes.
@@ -310,7 +310,7 @@ class Sapi
 	 */
 	public static function resetTimeout()
 	{
-		if (self::isSoftware(self::SERVER_APACHE) && function_exists('apache_reset_timeout')) {
+		if (self::isSoftware(self::SERVER_APACHE) && \function_exists('apache_reset_timeout')) {
 			try {
 				apache_reset_timeout();
 			} catch (\Exception $e) {

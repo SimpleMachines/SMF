@@ -164,7 +164,7 @@ abstract class Notify
 		$members = array_map('intval', (array) $members);
 
 		if (!empty($prefs)) {
-			$prefs = is_array($prefs) ? $prefs : (array) $prefs;
+			$prefs = \is_array($prefs) ? $prefs : (array) $prefs;
 		}
 
 		$result = [];
@@ -212,7 +212,7 @@ abstract class Notify
 	 */
 	public static function setNotifyPrefs(int $memID, array $prefs = []): void
 	{
-		if (empty($prefs) || !is_int($memID)) {
+		if (empty($prefs) || !\is_int($memID)) {
 			return;
 		}
 
@@ -290,7 +290,7 @@ abstract class Notify
 		Db::$db->free_result($request);
 
 		// What token are we expecting?
-		$expected_token = Notify::createUnsubscribeToken((int) self::$member_info['id'], self::$member_info['email'], $type, in_array($type, ['board', 'topic']) && !empty($$type) ? $$type : 0);
+		$expected_token = Notify::createUnsubscribeToken((int) self::$member_info['id'], self::$member_info['email'], $type, \in_array($type, ['board', 'topic']) && !empty($$type) ? $$type : 0);
 
 		// Don't do anything if the token they gave is wrong
 		if ($_REQUEST['token'] !== $expected_token) {

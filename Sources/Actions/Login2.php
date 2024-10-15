@@ -93,7 +93,7 @@ class Login2 implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -256,7 +256,7 @@ class Login2 implements ActionInterface
 		}
 
 		// Are we using any sort of integration to validate the login?
-		if (in_array('retry', IntegrationHook::call('integrate_validate_login', [$_POST['user'], $_POST['passwrd'] ?? null, Config::$modSettings['cookieTime']]), true)) {
+		if (\in_array('retry', IntegrationHook::call('integrate_validate_login', [$_POST['user'], $_POST['passwrd'] ?? null, Config::$modSettings['cookieTime']]), true)) {
 			Utils::$context['login_errors'] = [Lang::$txt['incorrect_password']];
 
 			return;
@@ -297,7 +297,7 @@ class Login2 implements ActionInterface
 		}
 
 		// Correct password, but they've got no salt. Fix it!
-		if (strlen(User::$profiles[User::$my_id]['password_salt']) < 32) {
+		if (\strlen(User::$profiles[User::$my_id]['password_salt']) < 32) {
 			User::$profiles[User::$my_id]['password_salt'] = bin2hex(random_bytes(16));
 
 			User::updateMemberData(User::$profiles[User::$my_id]['id_member'], ['password_salt' => User::$profiles[User::$my_id]['password_salt']]);
@@ -493,7 +493,7 @@ class Login2 implements ActionInterface
 		$other_passwords = [];
 
 		// SMF 1.1 and 2.0 password styles.
-		if (strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
+		if (\strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
 			// Maybe they are using a hash from before the password fix.
 			// This is also valid for SMF 1.1 to 2.0 style of hashing, changed to bcrypt in SMF 2.1
 			$other_passwords[] = sha1(strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']));
@@ -501,12 +501,12 @@ class Login2 implements ActionInterface
 			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
 			if (Utils::$context['character_set'] == 'UTF-8' && !empty(Config::$modSettings['previousCharacterSet']) && Config::$modSettings['previousCharacterSet'] != 'utf8') {
 				// Try iconv first, for no particular reason.
-				if (function_exists('iconv')) {
+				if (\function_exists('iconv')) {
 					$other_passwords['iconv'] = sha1(strtolower(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], User::$profiles[User::$my_id]['member_name'])) . Utils::htmlspecialcharsDecode(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $_POST['passwrd'])));
 				}
 
 				// Say it aint so, iconv failed!
-				if (empty($other_passwords['iconv']) && function_exists('mb_convert_encoding')) {
+				if (empty($other_passwords['iconv']) && \function_exists('mb_convert_encoding')) {
 					$other_passwords[] = sha1(strtolower(mb_convert_encoding(User::$profiles[User::$my_id]['member_name'], 'UTF-8', Config::$modSettings['previousCharacterSet'])) . Utils::htmlspecialcharsDecode(mb_convert_encoding($_POST['passwrd'], 'UTF-8', Config::$modSettings['previousCharacterSet'])));
 				}
 			}
@@ -515,7 +515,7 @@ class Login2 implements ActionInterface
 		// None of the below cases will be used most of the time (because the salt is normally set.)
 		if (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] == '') {
 			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x, IkonBoard, and none at all.
-			switch (strlen(User::$profiles[User::$my_id]['passwd'])) {
+			switch (\strlen(User::$profiles[User::$my_id]['passwd'])) {
 				case 13:
 					$other_passwords[] = crypt($_POST['passwrd'], substr($_POST['passwrd'], 0, 2));
 					$other_passwords[] = crypt($_POST['passwrd'], substr(User::$profiles[User::$my_id]['passwd'], 0, 2));
@@ -554,7 +554,7 @@ class Login2 implements ActionInterface
 		}
 		// If the salt is set let's try some other options
 		elseif (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] != '') {
-			switch (strlen(User::$profiles[User::$my_id]['passwd'])) {
+			switch (\strlen(User::$profiles[User::$my_id]['passwd'])) {
 				case 32:
 					// MyBB
 					$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
@@ -588,7 +588,7 @@ class Login2 implements ActionInterface
 		IntegrationHook::call('integrate_other_passwords', [&$other_passwords]);
 
 		// Whichever encryption it was using, let's make it use SMF's now ;).
-		if (in_array(User::$profiles[User::$my_id]['passwd'], $other_passwords)) {
+		if (\in_array(User::$profiles[User::$my_id]['passwd'], $other_passwords)) {
 			User::$profiles[User::$my_id]['passwd'] = Security::hashPassword(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']));
 			User::$profiles[User::$my_id]['password_salt'] = bin2hex(random_bytes(16));
 
@@ -626,7 +626,7 @@ class Login2 implements ActionInterface
 	protected function phpBB3_password_check(string $passwd, string $passwd_hash): ?string
 	{
 		// Too long or too short?
-		if (strlen($passwd_hash) != 34) {
+		if (\strlen($passwd_hash) != 34) {
 			return null;
 		}
 
@@ -648,11 +648,11 @@ class Login2 implements ActionInterface
 		$i = 0;
 
 		while ($i < 16) {
-			$value = ord($hash[$i++]);
+			$value = \ord($hash[$i++]);
 			$output .= $range[$value & 0x3f];
 
 			if ($i < 16) {
-				$value |= ord($hash[$i]) << 8;
+				$value |= \ord($hash[$i]) << 8;
 			}
 
 			$output .= $range[($value >> 6) & 0x3f];
@@ -662,7 +662,7 @@ class Login2 implements ActionInterface
 			}
 
 			if ($i < 16) {
-				$value |= ord($hash[$i]) << 16;
+				$value |= \ord($hash[$i]) << 16;
 			}
 
 			$output .= $range[($value >> 12) & 0x3f];

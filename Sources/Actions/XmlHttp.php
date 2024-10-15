@@ -84,7 +84,7 @@ class XmlHttp implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -138,11 +138,11 @@ class XmlHttp implements ActionInterface
 
 		Utils::$context['sub_template'] = 'generic_xml';
 
-		if (!isset($_POST['item']) || !in_array($_POST['item'], $items)) {
+		if (!isset($_POST['item']) || !\in_array($_POST['item'], $items)) {
 			return false;
 		}
 
-		call_user_func([$this, $_POST['item']]);
+		\call_user_func([$this, $_POST['item']]);
 
 		return null;
 	}

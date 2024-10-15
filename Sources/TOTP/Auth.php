@@ -146,7 +146,7 @@ class Auth
 	 */
 	public function setLookup(array $lookup): self
 	{
-		if (!is_array($lookup)) {
+		if (!\is_array($lookup)) {
 			throw new \InvalidArgumentException('Lookup value must be an array');
 		}
 		$this->lookup = $lookup;
@@ -226,7 +226,7 @@ class Auth
 	 */
 	public function validateCode(string $code, ?string $initKey = null, ?string $timestamp = null, ?string $range = null): bool
 	{
-		if (strlen($code) !== $this->getCodeLength()) {
+		if (\strlen($code) !== $this->getCodeLength()) {
 			throw new \InvalidArgumentException('Incorrect code length');
 		}
 
@@ -280,7 +280,7 @@ class Auth
 		$code = '';
 
 		for ($i = 0; $i < $length; $i++) {
-			$code .= $lookup[random_int(0, strlen($lookup) - 1)];
+			$code .= $lookup[random_int(0, \strlen($lookup) - 1)];
 		}
 
 		return $code;
@@ -304,13 +304,13 @@ class Auth
 	 */
 	public function truncateHash(string $hash): string
 	{
-		$offset = ord($hash[19]) & 0xf;
+		$offset = \ord($hash[19]) & 0xf;
 
 		return (string) ((
-			((ord($hash[$offset + 0]) & 0x7f) << 24) |
-			((ord($hash[$offset + 1]) & 0xff) << 16) |
-			((ord($hash[$offset + 2]) & 0xff) << 8) |
-			(ord($hash[$offset + 3]) & 0xff)
+			((\ord($hash[$offset + 0]) & 0x7f) << 24) |
+			((\ord($hash[$offset + 1]) & 0xff) << 16) |
+			((\ord($hash[$offset + 2]) & 0xff) << 8) |
+			(\ord($hash[$offset + 3]) & 0xff)
 		) % pow(10, $this->getCodeLength()));
 	}
 
@@ -334,14 +334,14 @@ class Auth
 		$length = 0;
 		$binary = '';
 
-		for ($i = 0; $i < strlen($hash); $i++) {
+		for ($i = 0; $i < \strlen($hash); $i++) {
 			$buffer = $buffer << 5;
 			$buffer += $lookup[$hash[$i]];
 			$length += 5;
 
 			if ($length >= 8) {
 				$length -= 8;
-				$binary .= chr(($buffer & (0xFF << $length)) >> $length);
+				$binary .= \chr(($buffer & (0xFF << $length)) >> $length);
 			}
 		}
 

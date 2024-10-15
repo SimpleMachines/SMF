@@ -214,7 +214,7 @@ class Mentions
 			[
 				'ids' => array_keys($existing_mentions),
 				'names' => $possible_names,
-				'count' => count($possible_names),
+				'count' => \count($possible_names),
 			],
 		);
 		$members = [];
@@ -287,12 +287,12 @@ class Mentions
 			}
 
 			for ($i = $depth; $i > 0; $i--) {
-				if (count($matches[count($matches) - $i]) > 60) {
+				if (\count($matches[\count($matches) - $i]) > 60) {
 					$depth--;
 
 					continue;
 				}
-				$matches[count($matches) - $i][] = $char;
+				$matches[\count($matches) - $i][] = $char;
 			}
 		}
 
@@ -307,10 +307,10 @@ class Mentions
 		foreach ($matches as $match) {
 			// '[^\p{L}\p{M}\p{N}_]' is the Unicode equivalent of '[^\w]'
 			$match = preg_split('/([^\p{L}\p{M}\p{N}_])/u', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
-			$count = count($match);
+			$count = \count($match);
 
 			for ($i = 1; $i <= $count; $i++) {
-				$names[] = Utils::htmlspecialchars(Utils::htmlTrim(implode('', array_slice($match, 0, $i))));
+				$names[] = Utils::htmlspecialchars(Utils::htmlTrim(implode('', \array_slice($match, 0, $i))));
 			}
 		}
 
@@ -440,7 +440,7 @@ class Mentions
 			LIMIT {int:count}',
 			[
 				'msgs' => array_unique($id_msgs),
-				'count' => count(array_unique($id_msgs)),
+				'count' => \count(array_unique($id_msgs)),
 			],
 		);
 
@@ -470,7 +470,7 @@ class Mentions
 
 			// Exclude everything with unparsed content.
 			foreach (BBCodeParser::getCodes() as $code) {
-				if (!empty($code['type']) && in_array($code['type'], ['unparsed_content', 'unparsed_commas_content', 'unparsed_equals_content'])) {
+				if (!empty($code['type']) && \in_array($code['type'], ['unparsed_content', 'unparsed_commas_content', 'unparsed_equals_content'])) {
 					$excluded_bbc[] = $code['tag'];
 				}
 			}

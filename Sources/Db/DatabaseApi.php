@@ -538,7 +538,7 @@ abstract class DatabaseApi
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([DatabaseApi::class, 'exportStatic'])) {
+if (\is_callable([DatabaseApi::class, 'exportStatic'])) {
 	DatabaseApi::exportStatic();
 }
 

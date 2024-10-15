@@ -18,7 +18,7 @@ namespace SMF\Cache\APIs;
 use SMF\Cache\CacheApi;
 use SMF\Cache\CacheApiInterface;
 
-if (!defined('SMF')) {
+if (!\defined('SMF')) {
 	die('No direct access...');
 }
 
@@ -34,7 +34,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	 */
 	public function isSupported(bool $test = false): bool
 	{
-		$supported = function_exists('apcu_fetch') && function_exists('apcu_store');
+		$supported = \function_exists('apcu_fetch') && \function_exists('apcu_store');
 
 		if ($test) {
 			return $supported;

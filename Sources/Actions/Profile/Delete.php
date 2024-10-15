@@ -92,7 +92,7 @@ class Delete implements ActionInterface
 		User::$me->checkSession();
 
 		// Too often, people remove/delete their own only account.
-		if (in_array(1, Profile::$member->groups)) {
+		if (\in_array(1, Profile::$member->groups)) {
 			// Are you allowed to administrate the forum, as they are?
 			User::$me->isAllowedTo('admin_forum');
 
@@ -161,7 +161,7 @@ class Delete implements ActionInterface
 				}
 
 				// Next, delete the posts, if requested.
-				if (in_array($_POST['remove_type'], ['posts', 'topics'])) {
+				if (\in_array($_POST['remove_type'], ['posts', 'topics'])) {
 					$extra = empty($_POST['perma_delete']) ? ' AND t.id_board != {int:recycle_board}' : '';
 
 					$recycle_board = empty(Config::$modSettings['recycle_board']) ? 0 : Config::$modSettings['recycle_board'];

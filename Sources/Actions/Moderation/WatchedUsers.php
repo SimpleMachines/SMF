@@ -47,11 +47,11 @@ class WatchedUsers implements ActionInterface
 	{
 		// First off - are we deleting?
 		if (!empty($_REQUEST['delete'])) {
-			User::$me->checkSession(!is_array($_REQUEST['delete']) ? 'get' : 'post');
+			User::$me->checkSession(!\is_array($_REQUEST['delete']) ? 'get' : 'post');
 
 			$toDelete = [];
 
-			if (!is_array($_REQUEST['delete'])) {
+			if (!\is_array($_REQUEST['delete'])) {
 				$toDelete[] = (int) $_REQUEST['delete'];
 			} else {
 				foreach ($_REQUEST['delete'] as $did) {
@@ -435,7 +435,7 @@ class WatchedUsers implements ActionInterface
 				'body' => BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']),
 				'poster_time' => Time::create('@' . $row['poster_time'])->format(),
 				'approved' => $row['approved'],
-				'can_delete' => $delete_boards == [0] || in_array($row['id_board'], $delete_boards),
+				'can_delete' => $delete_boards == [0] || \in_array($row['id_board'], $delete_boards),
 			];
 		}
 		Db::$db->free_result($request);

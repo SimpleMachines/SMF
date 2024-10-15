@@ -154,7 +154,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 */
 	protected function buildPostData(array|string $post_data): string
 	{
-		if (is_array($post_data)) {
+		if (\is_array($post_data)) {
 			// Drop ones with leading @'s since those can be used to send files
 			// and we don't support that.
 			foreach ($post_data as $name => $value) {

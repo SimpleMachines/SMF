@@ -613,7 +613,7 @@ class Main implements ActionInterface
 				$password = Utils::htmlspecialcharsDecode($password);
 
 				// Does the integration want to check passwords?
-				$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', [Profile::$member->username, $password, false]), true);
+				$good_password = \in_array(true, IntegrationHook::call('integrate_verify_password', [Profile::$member->username, $password, false]), true);
 
 				// Bad password!!!
 				if (!$good_password && !Security::hashVerifyPassword(Profile::$member->username, $password, Profile::$member->passwd)) {
@@ -621,7 +621,7 @@ class Main implements ActionInterface
 				}
 
 				// Warn other elements not to jump the gun and do custom changes!
-				if (in_array('bad_password', Profile::$member->save_errors)) {
+				if (\in_array('bad_password', Profile::$member->save_errors)) {
 					Utils::$context['password_auth_failed'] = true;
 				}
 			}
@@ -657,7 +657,7 @@ class Main implements ActionInterface
 					$msg = $gm_action->change_type;
 				}
 
-				$force_redirect = !in_array($menu->current_area, ['account', 'forumprofile', 'theme']);
+				$force_redirect = !\in_array($menu->current_area, ['account', 'forumprofile', 'theme']);
 
 				Profile::$member->save();
 			}
@@ -680,7 +680,7 @@ class Main implements ActionInterface
 
 		// Is it valid?
 		if (!empty($call)) {
-			call_user_func($call, Profile::$member->id);
+			\call_user_func($call, Profile::$member->id);
 		}
 
 		// Set the page title if it's not already set...
@@ -764,11 +764,11 @@ class Main implements ActionInterface
 		array_walk_recursive(
 			$this->profile_areas,
 			function (&$value, $key) {
-				if (in_array($key, ['title', 'label'])) {
+				if (\in_array($key, ['title', 'label'])) {
 					$value = Lang::$txt[$value] ?? $value;
 				}
 
-				if (is_string($value)) {
+				if (\is_string($value)) {
 					$value = strtr($value, [
 						'{scripturl}' => Config::$scripturl,
 						'{boardurl}' => Config::$boardurl,
@@ -791,7 +791,7 @@ class Main implements ActionInterface
 
 		$this->profile_areas['info']['areas']['viewwarning']['enabled'] = Config::$modSettings['warning_settings'][0] == 1 && Profile::$member->warning;
 
-		$this->profile_areas['edit_profile']['areas']['account']['enabled'] = User::$me->is_admin || (Profile::$member->group_id != 1 && !in_array(1, Profile::$member->additional_groups));
+		$this->profile_areas['edit_profile']['areas']['account']['enabled'] = User::$me->is_admin || (Profile::$member->group_id != 1 && !\in_array(1, Profile::$member->additional_groups));
 
 		$this->profile_areas['edit_profile']['areas']['tfasetup']['enabled'] = !empty(Config::$modSettings['tfa_mode']);
 
@@ -809,7 +809,7 @@ class Main implements ActionInterface
 
 		$this->profile_areas['profile_action']['areas']['issuewarning']['enabled'] = Config::$modSettings['warning_settings'][0] == 1;
 
-		$this->profile_areas['profile_action']['areas']['banuser']['enabled'] = Profile::$member->group_id != 1 && !in_array(1, Profile::$member->additional_groups);
+		$this->profile_areas['profile_action']['areas']['banuser']['enabled'] = Profile::$member->group_id != 1 && !\in_array(1, Profile::$member->additional_groups);
 
 		$this->profile_areas['profile_action']['areas']['subscriptions']['enabled'] = !empty(Config::$modSettings['paid_enabled']) && Utils::$context['subs_available'];
 
@@ -911,7 +911,7 @@ class Main implements ActionInterface
 
 						$token_name = $area['token'] !== true ? str_replace('%u', (string) Profile::$member->id, $area['token']) : 'profile-u' . Profile::$member->id;
 
-						$token_type = isset($area['token_type']) && in_array($area['token_type'], ['request', 'post', 'get']) ? $area['token_type'] : 'post';
+						$token_type = isset($area['token_type']) && \in_array($area['token_type'], ['request', 'post', 'get']) ? $area['token_type'] : 'post';
 					}
 
 					// Does this require session validating?
@@ -959,7 +959,7 @@ class Main implements ActionInterface
 		}
 
 		// All the subactions that require a user password in order to validate.
-		$this->check_password = User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area, Utils::$context['password_areas']);
+		$this->check_password = User::$me->is_owner && \in_array(Menu::$loaded['profile']->current_area, Utils::$context['password_areas']);
 
 		Utils::$context['require_password'] = $this->check_password;
 	}

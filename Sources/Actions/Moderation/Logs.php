@@ -224,7 +224,7 @@ class Logs implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -360,7 +360,7 @@ class Logs implements ActionInterface
 			$row['extra'] = Utils::jsonDecode($row['extra'], true);
 
 			// Corrupt?
-			$row['extra'] = is_array($row['extra']) ? $row['extra'] : [];
+			$row['extra'] = \is_array($row['extra']) ? $row['extra'] : [];
 
 			// Add on some of the column stuff info
 			if (!empty($row['id_board'])) {
@@ -469,7 +469,7 @@ class Logs implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'board_list' => array_keys($boards),
-					'limit' => count(array_keys($boards)),
+					'limit' => \count(array_keys($boards)),
 				],
 			);
 
@@ -498,7 +498,7 @@ class Logs implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'topic_list' => array_keys($topics),
-					'limit' => count(array_keys($topics)),
+					'limit' => \count(array_keys($topics)),
 				],
 			);
 
@@ -534,7 +534,7 @@ class Logs implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'message_list' => array_keys($messages),
-					'limit' => count(array_keys($messages)),
+					'limit' => \count(array_keys($messages)),
 				],
 			);
 
@@ -568,7 +568,7 @@ class Logs implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'member_list' => array_keys($members),
-					'limit' => count(array_keys($members)),
+					'limit' => \count(array_keys($members)),
 				],
 			);
 
@@ -597,7 +597,7 @@ class Logs implements ActionInterface
 
 			// Mark up any deleted members, topics and boards.
 			foreach (['board', 'board_from', 'board_to', 'member', 'topic', 'new_topic'] as $type) {
-				if (in_array($type, ['topic', 'new_topic']) && !empty($entry['extra']['subject'])) {
+				if (\in_array($type, ['topic', 'new_topic']) && !empty($entry['extra']['subject'])) {
 					$entries[$k]['extra'][$type] = $entry['extra']['subject'];
 				} elseif (!empty($entry['extra'][$type]) && is_numeric($entry['extra'][$type])) {
 					$entries[$k]['extra'][$type] = Lang::getTxt('modlog_id', [$entry['extra'][$type]]);
@@ -635,7 +635,7 @@ class Logs implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		if (!empty($_REQUEST['action']) && in_array($_REQUEST['action'], self::$actions)) {
+		if (!empty($_REQUEST['action']) && \in_array($_REQUEST['action'], self::$actions)) {
 			$this->action = $_REQUEST['action'];
 		}
 

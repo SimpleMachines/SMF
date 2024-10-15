@@ -209,7 +209,7 @@ class Server implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -241,7 +241,7 @@ class Server implements ActionInterface
 			IntegrationHook::call('integrate_save_general_settings');
 
 			foreach ($config_vars as $config_var) {
-				if (is_array($config_var) && isset($config_var[3]) && $config_var[3] == 'text' && !empty($_POST[$config_var[0]])) {
+				if (\is_array($config_var) && isset($config_var[3]) && $config_var[3] == 'text' && !empty($_POST[$config_var[0]])) {
 					$_POST[$config_var[0]] = Utils::normalize($_POST[$config_var[0]]);
 				}
 			}
@@ -491,7 +491,7 @@ class Server implements ActionInterface
 
 			IntegrationHook::call('integrate_save_cache_settings');
 
-			if (is_callable([CacheApi::$loadedApi, 'cleanCache']) && ((int) $_POST['cache_enable'] < CacheApi::$enable || $_POST['cache_accelerator'] != CacheApi::$accelerator)) {
+			if (\is_callable([CacheApi::$loadedApi, 'cleanCache']) && ((int) $_POST['cache_enable'] < CacheApi::$enable || $_POST['cache_accelerator'] != CacheApi::$accelerator)) {
 				CacheApi::clean();
 			}
 
@@ -559,7 +559,7 @@ class Server implements ActionInterface
 				$export_files = glob($prev_export_dir . DIRECTORY_SEPARATOR . '*');
 
 				foreach ($export_files as $export_file) {
-					if (!in_array(basename($export_file), ['index.php', '.htaccess'])) {
+					if (!\in_array(basename($export_file), ['index.php', '.htaccess'])) {
 						rename($export_file, Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR . basename($export_file));
 					}
 				}
@@ -966,7 +966,7 @@ class Server implements ActionInterface
 		// Maybe we have some additional settings from the selected accelerator.
 		if (!empty($detectedCacheApis)) {
 			foreach ($detectedCacheApis as $class_name_txt_key => $cache_api) {
-				if (is_callable([$cache_api, 'cacheSettings'])) {
+				if (\is_callable([$cache_api, 'cacheSettings'])) {
 					$cache_api->cacheSettings($config_vars);
 				}
 			}
@@ -997,7 +997,7 @@ class Server implements ActionInterface
 			they report obviously insane values, it's not possible to track disk
 			usage correctly.
 		 */
-		self::$diskspace_disabled = (!function_exists('disk_free_space') || !function_exists('disk_total_space') || intval(@disk_total_space(file_exists(Config::$modSettings['export_dir']) ? Config::$modSettings['export_dir'] : Config::$boarddir)) < 1440);
+		self::$diskspace_disabled = (!\function_exists('disk_free_space') || !\function_exists('disk_total_space') || \intval(@disk_total_space(file_exists(Config::$modSettings['export_dir']) ? Config::$modSettings['export_dir'] : Config::$boarddir)) < 1440);
 
 		$config_vars = [
 			['text', 'export_dir', 40],
@@ -1123,7 +1123,7 @@ class Server implements ActionInterface
 		Utils::$context['config_vars'] = [];
 
 		foreach ($config_vars as $identifier => $config_var) {
-			if (!is_array($config_var) || !isset($config_var[1])) {
+			if (!\is_array($config_var) || !isset($config_var[1])) {
 				Utils::$context['config_vars'][] = $config_var;
 			} else {
 				// Set the subtext in case it's part of the label.
@@ -1140,8 +1140,8 @@ class Server implements ActionInterface
 					'label' => $config_var[1],
 					'help' => $config_var[5] ?? '',
 					'type' => $config_var[3],
-					'size' => !empty($config_var[4]) && !is_array($config_var[4]) ? $config_var[4] : 0,
-					'data' => isset($config_var[4]) && is_array($config_var[4]) && $config_var[3] != 'select' ? $config_var[4] : [],
+					'size' => !empty($config_var[4]) && !\is_array($config_var[4]) ? $config_var[4] : 0,
+					'data' => isset($config_var[4]) && \is_array($config_var[4]) && $config_var[3] != 'select' ? $config_var[4] : [],
 					'name' => $config_var[0],
 					'value' => $config_var[2] == 'file' ? Utils::htmlspecialchars((string) Config::${$config_var[0]}) : (isset(Config::$modSettings[$config_var[0]]) ? Utils::htmlspecialchars(Config::$modSettings[$config_var[0]]) : (in_array($config_var[3], ['int', 'float']) ? 0 : '')),
 					'disabled' => !empty(Utils::$context['settings_not_writable']) || !empty($config_var['disabled']),
@@ -1171,11 +1171,11 @@ class Server implements ActionInterface
 				}
 
 				// If this is a select box handle any data.
-				if (!empty($config_var[4]) && is_array($config_var[4])) {
+				if (!empty($config_var[4]) && \is_array($config_var[4])) {
 					// If it's associative
 					$config_values = array_values($config_var[4]);
 
-					if (isset($config_values[0]) && is_array($config_values[0])) {
+					if (isset($config_values[0]) && \is_array($config_values[0])) {
 						Utils::$context['config_vars'][$config_var[0]]['data'] = $config_var[4];
 					} else {
 						foreach ($config_var[4] as $key => $item) {

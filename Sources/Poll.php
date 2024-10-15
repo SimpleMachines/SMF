@@ -379,7 +379,7 @@ class Poll implements \ArrayAccess
 			'lock' => $this->permissions['allow_lock_poll'],
 			'edit' => $this->permissions['allow_edit_poll'],
 			'remove' => $this->permissions['can_remove_poll'],
-			'allowed_warning' => $this->max_votes > 1 ? Lang::getTxt('poll_options_limit', [min(count($this->choices), $this->max_votes)]) : '',
+			'allowed_warning' => $this->max_votes > 1 ? Lang::getTxt('poll_options_limit', [min(\count($this->choices), $this->max_votes)]) : '',
 			'is_expired' => !empty($this->expire_time) && $this->expire_time < time(),
 			'expire_time' => !empty($this->expire_time) ? Time::create('@' . $this->expire_time)->format() : 0,
 			'expiration' => empty($this->expire_time) ? '' : ceil($this->expire_time <= time() ? -1 : ($this->expire_time - time()) / (3600 * 24)),
@@ -536,7 +536,7 @@ class Poll implements \ArrayAccess
 			unset($choice_props['id_poll']);
 		}
 
-		$choice_props['id'] = (int) ($choice_props['id'] ?? count($this->choices));
+		$choice_props['id'] = (int) ($choice_props['id'] ?? \count($this->choices));
 		$choice_props['poll'] = (int) ($choice_props['poll'] ?? ($this->id ?? 0));
 		$choice_props['votes'] = (int) ($choice_props['votes'] ?? 0);
 		$choice_props['new'] = !empty($choice_props['new']);
@@ -730,11 +730,11 @@ class Poll implements \ArrayAccess
 				return;
 			}
 
-			settype($value, gettype($this->{$prop}));
+			settype($value, \gettype($this->{$prop}));
 			$this->{$prop} = $value;
-		} elseif (array_key_exists($prop, $this->prop_aliases)) {
+		} elseif (\array_key_exists($prop, $this->prop_aliases)) {
 			// Can't unset a virtual property.
-			if (is_null($value)) {
+			if (\is_null($value)) {
 				return;
 			}
 
@@ -761,7 +761,7 @@ class Poll implements \ArrayAccess
 				if ($real_prop == 'id') {
 					$this->{$real_prop} = (int) $value;
 				} else {
-					settype($value, gettype($this->{$real_prop}));
+					settype($value, \gettype($this->{$real_prop}));
 					$this->{$real_prop} = $value;
 				}
 			}
@@ -1014,7 +1014,7 @@ class Poll implements \ArrayAccess
 		}
 
 		// Too many options checked!
-		if (count($_REQUEST['options']) > $poll->max_votes) {
+		if (\count($_REQUEST['options']) > $poll->max_votes) {
 			ErrorHandler::fatalLang('poll_too_many_votes', false, [$poll->max_votes]);
 		}
 
@@ -1029,7 +1029,7 @@ class Poll implements \ArrayAccess
 		}
 
 		// If it's a guest don't let them vote again.
-		if (User::$me->is_guest && count($choices) > 0) {
+		if (User::$me->is_guest && \count($choices) > 0) {
 			// Time is stored in case the poll is reset later, plus what they voted for.
 			$_COOKIE['guest_poll_vote'] = empty($_COOKIE['guest_poll_vote']) ? '' : $_COOKIE['guest_poll_vote'];
 
@@ -1175,11 +1175,11 @@ class Poll implements \ArrayAccess
 			do {
 				$poll->addChoice([
 					'id' => empty($poll->choices) ? 0 : max(array_keys($poll->choices)) + 1,
-					'number' => count($poll->choices),
+					'number' => \count($poll->choices),
 					'label' => '',
 					'votes' => -1,
 				], true);
-			} while (count($poll->choices) < 2);
+			} while (\count($poll->choices) < 2);
 		}
 
 		// Basic theme info...
@@ -1614,11 +1614,11 @@ class Poll implements \ArrayAccess
 		Db::$db->free_result($request);
 
 		$this->voters = array_unique(array_column($votes, 'id_member'));
-		$this->total_voters = count($this->voters) + $this->num_guest_voters;
+		$this->total_voters = \count($this->voters) + $this->num_guest_voters;
 
 		// Did you vote, and what did you vote for?
 		if (!User::$me->is_guest) {
-			$this->has_voted = in_array(User::$me->id, $this->voters);
+			$this->has_voted = \in_array(User::$me->id, $this->voters);
 
 			foreach ($votes as $vote) {
 				if ($vote['id_member'] != User::$me->id) {
@@ -1658,7 +1658,7 @@ class Poll implements \ArrayAccess
 					unset($guestvoted[0], $guestvoted[1]);
 
 					foreach ($this->choices as $choice => $details) {
-						$details->voted_this = in_array($choice, $guestvoted);
+						$details->voted_this = \in_array($choice, $guestvoted);
 						$this->has_voted |= $details->voted_this;
 					}
 				}
@@ -1689,7 +1689,7 @@ class Poll implements \ArrayAccess
 				$this->params['is_approved'] = 1;
 			}
 
-			if ($options & self::CHECK_ACCESS && !in_array(0, ($boardsAllowed = User::$me->boardsAllowedTo('poll_view')))) {
+			if ($options & self::CHECK_ACCESS && !\in_array(0, ($boardsAllowed = User::$me->boardsAllowedTo('poll_view')))) {
 				$this->where[] = 't.id_board IN ({array_int:boards_allowed_see})';
 				$this->params['boards_allowed_see'] = $boardsAllowed;
 			}
@@ -1835,7 +1835,7 @@ class Poll implements \ArrayAccess
 
 		if (isset(Board::$info->id)) {
 			$groupsAllowedVote = User::groupsAllowedTo('poll_vote', Board::$info->id);
-			self::$guest_vote_enabled = in_array(-1, $groupsAllowedVote['allowed']);
+			self::$guest_vote_enabled = \in_array(-1, $groupsAllowedVote['allowed']);
 		}
 
 		return self::$guest_vote_enabled;
@@ -1860,9 +1860,9 @@ class Poll implements \ArrayAccess
 		}
 
 		// What are you going to vote between with one choice?!?
-		if (count($_POST['options']) < 2) {
+		if (\count($_POST['options']) < 2) {
 			$errors[] = 'poll_few';
-		} elseif (count($_POST['options']) > 256) {
+		} elseif (\count($_POST['options']) > 256) {
 			$errors[] = 'poll_many';
 		}
 
@@ -1871,7 +1871,7 @@ class Poll implements \ArrayAccess
 		}
 
 		// Make sure these things are all sane.
-		$_POST['poll_max_votes'] = min(max((int) ($_POST['poll_max_votes'] ?? 1), 1), count($_POST['options'] ?? []));
+		$_POST['poll_max_votes'] = min(max((int) ($_POST['poll_max_votes'] ?? 1), 1), \count($_POST['options'] ?? []));
 		$_POST['poll_expire'] = min(max((int) ($_POST['poll_expire'] ?? 0), 0), 9999);
 		$_POST['poll_hide'] = (int) ($_POST['poll_hide'] ?? 0);
 		$_POST['poll_change_vote'] = (int) !empty($_POST['poll_change_vote']);

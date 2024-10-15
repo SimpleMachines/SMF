@@ -365,7 +365,7 @@ class Group implements \ArrayAccess
 		self::$loaded[$this->id] = $this;
 
 		// Some special cases.
-		if (in_array($this->id, [self::GUEST, self::REGULAR])) {
+		if (\in_array($this->id, [self::GUEST, self::REGULAR])) {
 			if (empty($this->name)) {
 				if ($this->id === self::GUEST || !isset(Lang::$txt['announce_regular_members'])) {
 					Lang::load('Admin');
@@ -399,7 +399,7 @@ class Group implements \ArrayAccess
 	public function __set(string $prop, mixed $value): void
 	{
 		// Special handling for the icons.
-		if ($prop === 'icons' && is_string($value)) {
+		if ($prop === 'icons' && \is_string($value)) {
 			$prop = 'raw_icons';
 
 			if (preg_match('/^\d+#/', $value)) {
@@ -957,7 +957,7 @@ class Group implements \ArrayAccess
 			}
 		}
 
-		if (!in_array($type, ['auto', 'only_additional', 'only_primary', 'force_primary'])) {
+		if (!\in_array($type, ['auto', 'only_additional', 'only_primary', 'force_primary'])) {
 			Lang::load('Errors');
 			trigger_error(Lang::getTxt('add_members_to_group_invalid_type', [$type]), E_USER_WARNING);
 		}
@@ -971,7 +971,7 @@ class Group implements \ArrayAccess
 		}
 
 		// Some groups just don't like explicitly having members.
-		if (in_array($this->id, [self::GUEST, self::REGULAR, self::MOD])) {
+		if (\in_array($this->id, [self::GUEST, self::REGULAR, self::MOD])) {
 			return false;
 		}
 
@@ -1028,7 +1028,7 @@ class Group implements \ArrayAccess
 				}
 			}
 			// They're already in this group.
-			elseif (in_array($this->id, User::$loaded[$id_member]->groups)) {
+			elseif (\in_array($this->id, User::$loaded[$id_member]->groups)) {
 				continue;
 			}
 			// They have a different primary group.
@@ -1157,7 +1157,7 @@ class Group implements \ArrayAccess
 			}
 		}
 
-		if (in_array($this->id, [self::GUEST, self::REGULAR, self::MOD])) {
+		if (\in_array($this->id, [self::GUEST, self::REGULAR, self::MOD])) {
 			return false;
 		}
 
@@ -1209,7 +1209,7 @@ class Group implements \ArrayAccess
 				$remove_primary[] = $member;
 			}
 
-			if (in_array($this->id, User::$loaded[$member]->additional_groups)) {
+			if (\in_array($this->id, User::$loaded[$member]->additional_groups)) {
 				$remove_additional[] = $member;
 			}
 		}
@@ -1572,7 +1572,7 @@ class Group implements \ArrayAccess
 			$prop = $access == 'allow' ? 'member_groups' : 'deny_groups';
 
 			foreach (Board::$loaded as $board) {
-				if (in_array($board->id, $board_ids)) {
+				if (\in_array($board->id, $board_ids)) {
 					$board->{$prop} = array_unique(array_merge($board->{$prop}, [$this->id]));
 				} else {
 					$board->{$prop} = array_diff($board->{$prop}, [$this->id]);
@@ -1698,19 +1698,19 @@ class Group implements \ArrayAccess
 		// If we are including normal groups, do we want guests and regular members?
 		if ($include & self::LOAD_NORMAL) {
 			// Do we want the guest group?
-			if (!in_array(self::GUEST, $exclude)) {
+			if (!\in_array(self::GUEST, $exclude)) {
 				$loaded = array_merge($loaded, self::load(-1));
 			}
 
 			// Do we want the regular members group?
-			if (!in_array(self::REGULAR, $exclude)) {
+			if (!\in_array(self::REGULAR, $exclude)) {
 				$loaded = array_merge($loaded, self::load(0));
 			}
 		}
 
 		// Finally, exclude any groups we don't want.
 		foreach ($exclude as $id) {
-			if (!is_int($id) || $id <= 0) {
+			if (!\is_int($id) || $id <= 0) {
 				continue;
 			}
 
@@ -1826,7 +1826,7 @@ class Group implements \ArrayAccess
 
 			$group = self::$loaded[$row['id_group']];
 			$group->moderator_ids[] = $row['id_member'];
-			$group->can_moderate = $group->can_moderate || in_array(User::$me->id, $group->moderator_ids);
+			$group->can_moderate = $group->can_moderate || \in_array(User::$me->id, $group->moderator_ids);
 
 			$mod_ids[] = $row['id_member'];
 		}
@@ -1892,7 +1892,7 @@ class Group implements \ArrayAccess
 		if (!empty($moderator_group)) {
 			// If we're in a board, only count the moderators for that board.
 			if (isset(Board::$info)) {
-				self::$loaded[self::MOD]->num_members = count(Board::$info->moderators);
+				self::$loaded[self::MOD]->num_members = \count(Board::$info->moderators);
 			}
 			// Outside a board, count the moderators for all boards.
 			else {
@@ -2386,7 +2386,7 @@ class Group implements \ArrayAccess
 	 */
 	protected static function isModeratorGroup(self $group): bool
 	{
-		return count($group->getBoardsCanModerate()) > 0;
+		return \count($group->getBoardsCanModerate()) > 0;
 	}
 
 	/**
@@ -2507,7 +2507,7 @@ class Group implements \ArrayAccess
 	 */
 	protected static function canLeave(self $group): bool
 	{
-		return $group->id !== self::ADMIN && !in_array($group->id, self::getUnassignable());
+		return $group->id !== self::ADMIN && !\in_array($group->id, self::getUnassignable());
 	}
 
 	/**

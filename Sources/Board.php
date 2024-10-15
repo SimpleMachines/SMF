@@ -458,15 +458,15 @@ class Board implements \ArrayAccess
 	 */
 	public function __set(string $prop, mixed $value): void
 	{
-		if (in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups'])) {
-			if (!is_array($value)) {
+		if (\in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups'])) {
+			if (!\is_array($value)) {
 				$value = explode(',', $value);
 			}
 
 			$value = array_map('intval', array_filter($value, 'strlen'));
 
 			// Special handling for access for board manager groups.
-			if (!empty(Config::$modSettings['board_manager_groups']) && in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups']) && is_array($value)) {
+			if (!empty(Config::$modSettings['board_manager_groups']) && \in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups']) && \is_array($value)) {
 				$board_manager_groups = array_map('intval', array_filter(explode(',', Config::$modSettings['board_manager_groups']), 'strlen'));
 
 				if (($this->prop_aliases[$prop] ?? $prop) === 'deny_groups') {
@@ -839,7 +839,7 @@ class Board implements \ArrayAccess
 				continue;
 			}
 
-			$board->order += (1 + count($child_list));
+			$board->order += (1 + \count($child_list));
 			$affected_boards[] = $board->id;
 		}
 
@@ -1202,7 +1202,7 @@ class Board implements \ArrayAccess
 				);
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					if (in_array($row['id_parent'], $boards)) {
+					if (\in_array($row['id_parent'], $boards)) {
 						$boards[] = $row['id_board'];
 					}
 				}
@@ -1309,7 +1309,7 @@ class Board implements \ArrayAccess
 	public static function markBoardsRead(int|array $boards, bool $unread = false): void
 	{
 		// Force $boards to be an array.
-		if (!is_array($boards)) {
+		if (!\is_array($boards)) {
 			$boards = [$boards];
 		} else {
 			$boards = array_unique($boards);
@@ -1554,7 +1554,7 @@ class Board implements \ArrayAccess
 							'invalid_groups' => [Group::ADMIN, Group::MOD],
 							'moderator_group_list' => $moderator_groups,
 						],
-						'limit' => count($moderator_groups),
+						'limit' => \count($moderator_groups),
 					];
 
 					foreach (Group::load([], $query_customizations) as $group) {
@@ -1564,7 +1564,7 @@ class Board implements \ArrayAccess
 			}
 
 			if (isset($boardOptions['moderators'])) {
-				if (!is_array($boardOptions['moderators'])) {
+				if (!\is_array($boardOptions['moderators'])) {
 					$boardOptions['moderators'] = array_filter(explode(',', $boardOptions['moderators']), 'strlen');
 				}
 
@@ -1572,7 +1572,7 @@ class Board implements \ArrayAccess
 			}
 
 			if (isset($boardOptions['moderator_groups'])) {
-				if (!is_array($boardOptions['moderator_groups'])) {
+				if (!\is_array($boardOptions['moderator_groups'])) {
 					$boardOptions['moderator_groups'] = array_filter(explode(',', $boardOptions['moderator_groups']), 'strlen');
 				}
 
@@ -1634,7 +1634,7 @@ class Board implements \ArrayAccess
 			trigger_error(Lang::$txt['create_board_missing_options'], E_USER_ERROR);
 		}
 
-		if (in_array($boardOptions['move_to'], ['child', 'before', 'after']) && !isset($boardOptions['target_board'])) {
+		if (\in_array($boardOptions['move_to'], ['child', 'before', 'after']) && !isset($boardOptions['target_board'])) {
 			Lang::load('Errors');
 			trigger_error(Lang::$txt['move_board_no_target'], E_USER_ERROR);
 		}
@@ -1973,9 +1973,9 @@ class Board implements \ArrayAccess
 			if (!empty($boards[$board])) {
 				$ordered[$board] = $boards[$board];
 
-				if (is_array($ordered[$board]) && !empty($ordered[$board]['children'])) {
+				if (\is_array($ordered[$board]) && !empty($ordered[$board]['children'])) {
 					self::sort($ordered[$board]['children']);
-				} elseif (is_object($ordered[$board]) && !empty($ordered[$board]->children)) {
+				} elseif (\is_object($ordered[$board]) && !empty($ordered[$board]->children)) {
 					Board::sort($ordered[$board]->children);
 				}
 			}
@@ -2184,7 +2184,7 @@ class Board implements \ArrayAccess
 	public static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int $limit = 0): \Generator
 	{
 		// If we only want some child boards, use a CTE query for improved performance.
-		if (!empty($params['id_parent']) && in_array('b.id_parent != 0', $where) && Db::$db->cte_support()) {
+		if (!empty($params['id_parent']) && \in_array('b.id_parent != 0', $where) && Db::$db->cte_support()) {
 			// Ensure we include all the necessary fields for the CTE query.
 			preg_match_all('/\bb\.(\w+)/', implode(', ', $selects), $matches);
 
@@ -2218,13 +2218,13 @@ class Board implements \ArrayAccess
 			$cte_where1 = ['b.id_board = {int:id_parent}'];
 			$cte_where2 = [];
 
-			if (in_array('{query_see_board}', $where)) {
+			if (\in_array('{query_see_board}', $where)) {
 				array_unshift($cte_where1, '{query_see_board}');
 				$cte_where2[] = '{query_see_board}';
 				$where = array_diff($where, ['{query_see_board}']);
 			}
 
-			if (in_array('b.child_level BETWEEN {int:child_level} AND {int:max_child_level}', $where)) {
+			if (\in_array('b.child_level BETWEEN {int:child_level} AND {int:max_child_level}', $where)) {
 				$cte_where2[] = 'b.child_level BETWEEN {int:child_level} AND {int:max_child_level}';
 				$where = array_diff($where, ['b.child_level BETWEEN {int:child_level} AND {int:max_child_level}']);
 			}
@@ -2596,9 +2596,9 @@ class Board implements \ArrayAccess
 			return;
 		}
 
-		if (count(array_intersect(User::$me->groups, $this->member_groups)) == 0) {
+		if (\count(array_intersect(User::$me->groups, $this->member_groups)) == 0) {
 			$this->error = 'access';
-		} elseif (!empty(Config::$modSettings['deny_boards_access']) && count(array_intersect(User::$me->groups, $this->deny_groups)) != 0) {
+		} elseif (!empty(Config::$modSettings['deny_boards_access']) && \count(array_intersect(User::$me->groups, $this->deny_groups)) != 0) {
 			$this->error = 'access';
 		}
 	}
@@ -2667,7 +2667,7 @@ class Board implements \ArrayAccess
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Board::class, 'exportStatic'])) {
+if (\is_callable([Board::class, 'exportStatic'])) {
 	Board::exportStatic();
 }
 

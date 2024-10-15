@@ -37,14 +37,14 @@ trait BackwardCompatibility
 
 		self::load();
 
-		if (is_string($sa)) {
+		if (\is_string($sa)) {
 			// make sure it's a supported subaction
-			if (array_key_exists($sa, self::$subactions)) {
+			if (\array_key_exists($sa, self::$subactions)) {
 				self::$obj->subaction = $sa;
 			}
 		}
 
-		if (is_string($activity)) {
+		if (\is_string($activity)) {
 			self::$obj->activity = $activity;
 		}
 

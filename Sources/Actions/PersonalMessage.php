@@ -292,7 +292,7 @@ class PersonalMessage implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -370,7 +370,7 @@ class PersonalMessage implements ActionInterface
 			$_REQUEST['pm_action'] = 'delete';
 		}
 
-		if (isset($_REQUEST['pm_action']) && $_REQUEST['pm_action'] != '' && !empty($_REQUEST['pms']) && is_array($_REQUEST['pms'])) {
+		if (isset($_REQUEST['pm_action']) && $_REQUEST['pm_action'] != '' && !empty($_REQUEST['pms']) && \is_array($_REQUEST['pms'])) {
 			foreach ($_REQUEST['pms'] as $pm) {
 				$_REQUEST['pm_actions'][(int) $pm] = $_REQUEST['pm_action'];
 			}
@@ -424,7 +424,7 @@ class PersonalMessage implements ActionInterface
 				$action = substr($action, 4);
 			}
 
-			if (isset($type) && in_array($type, ['add', 'rem']) && ($action == '-1' || (int) $action > 0)) {
+			if (isset($type) && \in_array($type, ['add', 'rem']) && ($action == '-1' || (int) $action > 0)) {
 				$to_label[(int) $pm] = (int) $action;
 				$label_type[(int) $pm] = $type;
 			}
@@ -449,7 +449,7 @@ class PersonalMessage implements ActionInterface
 		// Back to the folder.
 		$_SESSION['pm_selected'] = array_keys($to_label);
 
-		Utils::redirectexit($this->current_label_redirect . (count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), count($to_label) == 1 && BrowserDetector::isBrowser('ie'));
+		Utils::redirectexit($this->current_label_redirect . (\count($to_label) == 1 ? '#msg' . $_SESSION['pm_selected'][0] : ''), \count($to_label) == 1 && BrowserDetector::isBrowser('ie'));
 	}
 
 	/**
@@ -543,7 +543,7 @@ class PersonalMessage implements ActionInterface
 			Db::$db->free_result($request);
 
 			// How many admins in total?
-			Utils::$context['admin_count'] = count(Utils::$context['admins']);
+			Utils::$context['admin_count'] = \count(Utils::$context['admins']);
 		}
 		// Otherwise, let's get down to the sending stuff.
 		else {
@@ -785,11 +785,11 @@ class PersonalMessage implements ActionInterface
 		array_walk_recursive(
 			$this->pm_areas,
 			function (&$value, $key) {
-				if (in_array($key, ['title', 'label'])) {
+				if (\in_array($key, ['title', 'label'])) {
 					$value = Lang::$txt[$value] ?? $value;
 				}
 
-				if (is_string($value)) {
+				if (\is_string($value)) {
 					$value = strtr($value, [
 						'{scripturl}' => Config::$scripturl,
 						'{boardurl}' => Config::$boardurl,

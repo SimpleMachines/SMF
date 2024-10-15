@@ -61,7 +61,7 @@ class RemoveOldDrafts extends ScheduledTask
 		Db::$db->free_result($request);
 
 		// If we have old ones, remove them.
-		if (count($drafts) > 0) {
+		if (\count($drafts) > 0) {
 			Draft::delete($drafts, false);
 		}
 

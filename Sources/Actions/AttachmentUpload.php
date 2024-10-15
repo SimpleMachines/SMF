@@ -138,7 +138,7 @@ class AttachmentUpload implements ActionInterface
 
 		$this->_sa = !empty($_REQUEST['sa']) ? Utils::htmlspecialchars(Utils::htmlTrim($_REQUEST['sa'])) : false;
 
-		if ($this->_canPostAttachment && $this->_sa && in_array($this->_sa, $this->_subActions)) {
+		if ($this->_canPostAttachment && $this->_sa && \in_array($this->_sa, $this->_subActions)) {
 			$this->{$this->_sa}();
 		}
 		// Just send a generic message.
@@ -229,7 +229,7 @@ class AttachmentUpload implements ActionInterface
 
 		// If this isn't a new post, check the current attachments.
 		if (isset($_REQUEST['msg'])) {
-			Utils::$context['attachments']['quantity'] = count(Utils::$context['current_attachments']);
+			Utils::$context['attachments']['quantity'] = \count(Utils::$context['current_attachments']);
 
 			foreach (Utils::$context['current_attachments'] as $attachment) {
 				Utils::$context['attachments']['total_size'] += $attachment['size'];
@@ -237,7 +237,7 @@ class AttachmentUpload implements ActionInterface
 		}
 
 		// A bit of house keeping first.
-		if (!empty($_SESSION['temp_attachments']) && count($_SESSION['temp_attachments']) == 1) {
+		if (!empty($_SESSION['temp_attachments']) && \count($_SESSION['temp_attachments']) == 1) {
 			unset($_SESSION['temp_attachments']);
 		}
 
@@ -444,10 +444,10 @@ class AttachmentUpload implements ActionInterface
 				foreach ($attachment['errors'] as $error) {
 					$attachmentOptions['errors'][] = Lang::getTxt('attach_warning', $attachment);
 
-					if (!is_array($error)) {
+					if (!\is_array($error)) {
 						$attachmentOptions['errors'][] = Lang::$txt[$error];
 
-						if (in_array($error, $log_these)) {
+						if (\in_array($error, $log_these)) {
 							ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 						}
 					} else {
@@ -503,7 +503,7 @@ class AttachmentUpload implements ActionInterface
 			// Is there any generic errors? made some sense out of them!
 			if ($this->_generalErrors) {
 				foreach ($this->_generalErrors as $k => $v) {
-					$this->_generalErrors[$k] = (is_array($v) ? Lang::getTxt($v[0], (array) $v[1]) : Lang::$txt[$v]);
+					$this->_generalErrors[$k] = (\is_array($v) ? Lang::getTxt($v[0], (array) $v[1]) : Lang::$txt[$v]);
 				}
 			}
 

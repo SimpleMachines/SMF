@@ -82,7 +82,7 @@ class SubsPackage
 		}
 
 		// Too short for magic numbers? No fortune cookie for you!
-		if (strlen($data) < 2) {
+		if (\strlen($data) < 2) {
 			return false;
 		}
 
@@ -130,7 +130,7 @@ class SubsPackage
 		Lang::load('Packages');
 
 		// This function sorta needs gzinflate!
-		if (!function_exists('gzinflate')) {
+		if (!\function_exists('gzinflate')) {
 			ErrorHandler::fatalLang('package_no_lib', 'critical', ['package_no_zlib', 'package_no_package_manager']);
 		}
 
@@ -163,15 +163,15 @@ class SubsPackage
 			}
 		}
 
-		$crc = unpack('Vcrc32/Visize', substr($data, strlen($data) - 8, 8));
-		$data = @gzinflate(substr($data, $offset, strlen($data) - 8 - $offset));
+		$crc = unpack('Vcrc32/Visize', substr($data, \strlen($data) - 8, 8));
+		$data = @gzinflate(substr($data, $offset, \strlen($data) - 8 - $offset));
 
 		// smf_crc32 and crc32 may not return the same results, so we accept either.
 		if ($crc['crc32'] != self::smf_crc32($data) && $crc['crc32'] != crc32($data)) {
 			return false;
 		}
 
-		$blocks = strlen($data) / 512 - 1;
+		$blocks = \strlen($data) / 512 - 1;
 		$offset = 0;
 
 		$return = [];
@@ -188,7 +188,7 @@ class SubsPackage
 			}
 
 			foreach ($current as $k => $v) {
-				if (in_array($k, $octdec)) {
+				if (\in_array($k, $octdec)) {
 					$current[$k] = octdec(trim($v));
 				} else {
 					$current[$k] = trim($v);
@@ -202,11 +202,11 @@ class SubsPackage
 			$checksum = 256;
 
 			for ($i = 0; $i < 148; $i++) {
-				$checksum += ord($header[$i]);
+				$checksum += \ord($header[$i]);
 			}
 
 			for ($i = 156; $i < 512; $i++) {
-				$checksum += ord($header[$i]);
+				$checksum += \ord($header[$i]);
 			}
 
 			if ($current['checksum'] != $checksum) {
@@ -258,7 +258,7 @@ class SubsPackage
 				}
 
 				// Looking for restricted files?
-				if ($files_to_extract !== null && !in_array($current['filename'], $files_to_extract)) {
+				if ($files_to_extract !== null && !\in_array($current['filename'], $files_to_extract)) {
 					continue;
 				}
 
@@ -416,7 +416,7 @@ class SubsPackage
 				}
 
 				// Oh, another file? Fine. You don't like this file, do you?  I know how it is.  Yeah... just go away.  No, don't apologize. I know this file's just not *good enough* for you.
-				if ($single_file || ($files_to_extract !== null && !in_array($file_info['filename'], $files_to_extract))) {
+				if ($single_file || ($files_to_extract !== null && !\in_array($file_info['filename'], $files_to_extract))) {
 					continue;
 				}
 
@@ -502,7 +502,7 @@ class SubsPackage
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Already found this? If so don't add it twice!
-			if (in_array($row['package_id'], $found)) {
+			if (\in_array($row['package_id'], $found)) {
 				continue;
 			}
 
@@ -743,7 +743,7 @@ class SubsPackage
 					$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['ftp_path']));
 				}
 
-				if (!in_array($_POST['ftp_path'], ['', '/'])) {
+				if (!\in_array($_POST['ftp_path'], ['', '/'])) {
 					$ftp_root = strtr(Config::$boarddir, [$_POST['ftp_path'] => '']);
 
 					if (str_ends_with($ftp_root, '/') && ($_POST['ftp_path'] == '' || str_starts_with($_POST['ftp_path'], '/'))) {
@@ -860,7 +860,7 @@ class SubsPackage
 			}
 
 			// Are we wanting to change the permission?
-			if ($do_change && isset($_POST['restore_files']) && in_array($file, $_POST['restore_files'])) {
+			if ($do_change && isset($_POST['restore_files']) && \in_array($file, $_POST['restore_files'])) {
 				// Use FTP if we have it.
 				if (!empty(self::$package_ftp)) {
 					$ftp_file = strtr($file, [$_SESSION['pack_ftp']['root'] => '']);
@@ -908,7 +908,7 @@ class SubsPackage
 			foreach ($files as $k => $file) {
 				// If this file doesn't exist, then we actually want to look at the directory, no?
 				if (!file_exists($file)) {
-					$file = dirname($file);
+					$file = \dirname($file);
 				}
 
 				Utils::makeWritable($file);
@@ -941,7 +941,7 @@ class SubsPackage
 			foreach ($files as $k => $file) {
 				// This looks odd, but it's an attempt to work around PHP suExec.
 				if (!file_exists($file)) {
-					self::mktree(dirname($file), 0755);
+					self::mktree(\dirname($file), 0755);
 					@touch($file);
 				}
 
@@ -965,7 +965,7 @@ class SubsPackage
 
 				// This looks odd, but it's an attempt to work around PHP suExec.
 				if (!file_exists($file)) {
-					self::mktree(dirname($file), 0755);
+					self::mktree(\dirname($file), 0755);
 					self::$package_ftp->create_file($ftp_file);
 					self::$package_ftp->chmod($ftp_file, 0755);
 				}
@@ -974,8 +974,8 @@ class SubsPackage
 					self::$package_ftp->chmod($ftp_file, 0777);
 				}
 
-				if (!@is_writable(dirname($file))) {
-					self::$package_ftp->chmod(dirname($ftp_file), 0777);
+				if (!@is_writable(\dirname($file))) {
+					self::$package_ftp->chmod(\dirname($ftp_file), 0777);
 				}
 
 				if (@is_writable($file)) {
@@ -1043,7 +1043,7 @@ class SubsPackage
 			Utils::$context['sub_template'] = 'ftp_required';
 			Utils::obExit();
 		} else {
-			if (!in_array($_POST['ftp_path'], ['', '/'])) {
+			if (!\in_array($_POST['ftp_path'], ['', '/'])) {
 				$ftp_root = strtr(Config::$boarddir, [$_POST['ftp_path'] => '']);
 
 				if (str_ends_with($ftp_root, '/') && ($_POST['ftp_path'] == '' || $_POST['ftp_path'][0] == '/')) {
@@ -1161,7 +1161,7 @@ class SubsPackage
 		foreach ($actions as $action) {
 			$actionType = $action->name();
 
-			if (in_array($actionType, ['readme', 'code', 'database', 'modification', 'redirect', 'license'])) {
+			if (\in_array($actionType, ['readme', 'code', 'database', 'modification', 'redirect', 'license'])) {
 				// Allow for translated readme and license files.
 				if ($actionType == 'readme' || $actionType == 'license') {
 					$type = $actionType . 's';
@@ -1197,7 +1197,7 @@ class SubsPackage
 
 				// @todo Make sure the file actually exists?  Might not work when testing?
 				if ($action->exists('@type') && $action->fetch('@type') == 'inline') {
-					$filename = self::$temp_path . '$auto_' . $temp_auto++ . (in_array($actionType, ['readme', 'redirect', 'license']) ? '.txt' : ($actionType == 'code' || $actionType == 'database' ? '.php' : '.mod'));
+					$filename = self::$temp_path . '$auto_' . $temp_auto++ . (\in_array($actionType, ['readme', 'redirect', 'license']) ? '.txt' : ($actionType == 'code' || $actionType == 'database' ? '.php' : '.mod'));
 					self::package_put_contents($filename, $action->fetch('.'));
 					$filename = strtr($filename, [self::$temp_path => '']);
 				} else {
@@ -1272,7 +1272,7 @@ class SubsPackage
 				$return[] = [
 					'type' => 'error',
 				];
-			} elseif (in_array($actionType, ['require-file', 'remove-file', 'require-dir', 'remove-dir', 'move-file', 'move-dir', 'create-file', 'create-dir'])) {
+			} elseif (\in_array($actionType, ['require-file', 'remove-file', 'require-dir', 'remove-dir', 'move-file', 'move-dir', 'create-file', 'create-dir'])) {
 				$this_action = &$return[];
 				$this_action = [
 					'type' => $actionType,
@@ -1303,8 +1303,8 @@ class SubsPackage
 					if (!self::mktree($this_action['destination'], false)) {
 						$temp = $this_action['destination'];
 
-						while (!file_exists($temp) && strlen($temp) > 1) {
-							$temp = dirname($temp);
+						while (!file_exists($temp) && \strlen($temp) > 1) {
+							$temp = \dirname($temp);
 						}
 
 						$return[] = [
@@ -1313,11 +1313,11 @@ class SubsPackage
 						];
 					}
 				} elseif ($actionType == 'create-file') {
-					if (!self::mktree(dirname($this_action['destination']), false)) {
-						$temp = dirname($this_action['destination']);
+					if (!self::mktree(\dirname($this_action['destination']), false)) {
+						$temp = \dirname($this_action['destination']);
 
-						while (!file_exists($temp) && strlen($temp) > 1) {
-							$temp = dirname($temp);
+						while (!file_exists($temp) && \strlen($temp) > 1) {
+							$temp = \dirname($temp);
 						}
 
 						$return[] = [
@@ -1326,7 +1326,7 @@ class SubsPackage
 						];
 					}
 
-					if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(dirname($this_action['destination'])))) {
+					if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(\dirname($this_action['destination'])))) {
 						$return[] = [
 							'type' => 'chmod',
 							'filename' => $this_action['destination'],
@@ -1336,8 +1336,8 @@ class SubsPackage
 					if (!self::mktree($this_action['destination'], false)) {
 						$temp = $this_action['destination'];
 
-						while (!file_exists($temp) && strlen($temp) > 1) {
-							$temp = dirname($temp);
+						while (!file_exists($temp) && \strlen($temp) > 1) {
+							$temp = \dirname($temp);
 						}
 
 						$return[] = [
@@ -1350,11 +1350,11 @@ class SubsPackage
 						$this_action['theme_action'] = $action->fetch('@theme');
 					}
 
-					if (!self::mktree(dirname($this_action['destination']), false)) {
-						$temp = dirname($this_action['destination']);
+					if (!self::mktree(\dirname($this_action['destination']), false)) {
+						$temp = \dirname($this_action['destination']);
 
-						while (!file_exists($temp) && strlen($temp) > 1) {
-							$temp = dirname($temp);
+						while (!file_exists($temp) && \strlen($temp) > 1) {
+							$temp = \dirname($temp);
 						}
 
 						$return[] = [
@@ -1363,18 +1363,18 @@ class SubsPackage
 						];
 					}
 
-					if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(dirname($this_action['destination'])))) {
+					if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(\dirname($this_action['destination'])))) {
 						$return[] = [
 							'type' => 'chmod',
 							'filename' => $this_action['destination'],
 						];
 					}
 				} elseif ($actionType == 'move-dir' || $actionType == 'move-file') {
-					if (!self::mktree(dirname($this_action['destination']), false)) {
-						$temp = dirname($this_action['destination']);
+					if (!self::mktree(\dirname($this_action['destination']), false)) {
+						$temp = \dirname($this_action['destination']);
 
-						while (!file_exists($temp) && strlen($temp) > 1) {
-							$temp = dirname($temp);
+						while (!file_exists($temp) && \strlen($temp) > 1) {
+							$temp = \dirname($temp);
 						}
 
 						$return[] = [
@@ -1383,7 +1383,7 @@ class SubsPackage
 						];
 					}
 
-					if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(dirname($this_action['destination'])))) {
+					if (!is_writable($this_action['destination']) && (file_exists($this_action['destination']) || !is_writable(\dirname($this_action['destination'])))) {
 						$return[] = [
 							'type' => 'chmod',
 							'filename' => $this_action['destination'],
@@ -1428,7 +1428,7 @@ class SubsPackage
 		$not_done = [['type' => '!']];
 
 		foreach ($return as $action) {
-			if (in_array($action['type'], ['modification', 'code', 'database', 'redirect', 'hook', 'credits'])) {
+			if (\in_array($action['type'], ['modification', 'code', 'database', 'redirect', 'hook', 'credits'])) {
 				$not_done[] = $action;
 			}
 
@@ -1437,8 +1437,8 @@ class SubsPackage
 					$failure |= !self::mktree($action['destination'], 0777);
 				}
 			} elseif ($action['type'] == 'create-file') {
-				if (!self::mktree(dirname($action['destination']), 0755) || !is_writable(dirname($action['destination']))) {
-					$failure |= !self::mktree(dirname($action['destination']), 0777);
+				if (!self::mktree(\dirname($action['destination']), 0755) || !is_writable(\dirname($action['destination']))) {
+					$failure |= !self::mktree(\dirname($action['destination']), 0777);
 				}
 
 				// Create an empty file.
@@ -1457,8 +1457,8 @@ class SubsPackage
 					}
 				}
 			} elseif ($action['type'] == 'require-file') {
-				if (!self::mktree(dirname($action['destination']), 0755) || !is_writable(dirname($action['destination']))) {
-					$failure |= !self::mktree(dirname($action['destination']), 0777);
+				if (!self::mktree(\dirname($action['destination']), 0755) || !is_writable(\dirname($action['destination']))) {
+					$failure |= !self::mktree(\dirname($action['destination']), 0777);
 				}
 
 				self::package_put_contents($action['destination'], self::package_get_contents($action['source']), $testing_only);
@@ -1468,8 +1468,8 @@ class SubsPackage
 				// Any other theme files?
 				if (!empty(Utils::$context['theme_copies']) && !empty(Utils::$context['theme_copies'][$action['type']][$action['destination']])) {
 					foreach (Utils::$context['theme_copies'][$action['type']][$action['destination']] as $theme_destination) {
-						if (!self::mktree(dirname($theme_destination), 0755) || !is_writable(dirname($theme_destination))) {
-							$failure |= !self::mktree(dirname($theme_destination), 0777);
+						if (!self::mktree(\dirname($theme_destination), 0755) || !is_writable(\dirname($theme_destination))) {
+							$failure |= !self::mktree(\dirname($theme_destination), 0777);
 						}
 
 						self::package_put_contents($theme_destination, self::package_get_contents($action['source']), $testing_only);
@@ -1478,8 +1478,8 @@ class SubsPackage
 					}
 				}
 			} elseif ($action['type'] == 'move-file') {
-				if (!self::mktree(dirname($action['destination']), 0755) || !is_writable(dirname($action['destination']))) {
-					$failure |= !self::mktree(dirname($action['destination']), 0777);
+				if (!self::mktree(\dirname($action['destination']), 0755) || !is_writable(\dirname($action['destination']))) {
+					$failure |= !self::mktree(\dirname($action['destination']), 0777);
 				}
 
 				$failure |= !rename($action['source'], $action['destination']);
@@ -1586,7 +1586,7 @@ class SubsPackage
 		$versions = explode(',', str_replace([' ', '2.0rc1-1'], ['', '2.0rc1.1'], strtolower($versions)));
 
 		// Perhaps we do accept anything?
-		if (in_array('all', $versions)) {
+		if (\in_array('all', $versions)) {
 			return true;
 		}
 
@@ -1709,7 +1709,7 @@ class SubsPackage
 			$dirs['$package'] = self::$temp_path;
 		}
 
-		if (strlen($path) == 0) {
+		if (\strlen($path) == 0) {
 			Lang::load('Errors');
 			trigger_error(Lang::$txt['parse_path_filename_required'], E_USER_ERROR);
 		}
@@ -1746,7 +1746,7 @@ class SubsPackage
 		}
 
 		while ($entryname = readdir($current_dir)) {
-			if (in_array($entryname, ['.', '..'])) {
+			if (\in_array($entryname, ['.', '..'])) {
 				continue;
 			}
 
@@ -1817,15 +1817,15 @@ class SubsPackage
 		}
 
 		// Is this an invalid path and/or we can't make the directory?
-		if ($strPath == dirname($strPath) || !self::mktree(dirname($strPath), $mode)) {
+		if ($strPath == \dirname($strPath) || !self::mktree(\dirname($strPath), $mode)) {
 			return false;
 		}
 
-		if (!is_writable(dirname($strPath)) && $mode !== false) {
+		if (!is_writable(\dirname($strPath)) && $mode !== false) {
 			if (isset(self::$package_ftp)) {
-				self::$package_ftp->chmod(dirname(strtr($strPath, [$_SESSION['pack_ftp']['root'] => ''])), $mode);
+				self::$package_ftp->chmod(\dirname(strtr($strPath, [$_SESSION['pack_ftp']['root'] => ''])), $mode);
 			} else {
-				Utils::makeWritable(dirname($strPath), $mode);
+				Utils::makeWritable(\dirname($strPath), $mode);
 			}
 		}
 
@@ -1834,7 +1834,7 @@ class SubsPackage
 		}
 
 		if ($mode === false) {
-			$test = @opendir(dirname($strPath));
+			$test = @opendir(\dirname($strPath));
 
 			if ($test) {
 				closedir($test);
@@ -1881,7 +1881,7 @@ class SubsPackage
 		}
 
 		while ($entryname = readdir($current_dir)) {
-			if (in_array($entryname, ['.', '..'])) {
+			if (\in_array($entryname, ['.', '..'])) {
 				continue;
 			}
 
@@ -2017,7 +2017,7 @@ class SubsPackage
 				// For every template, do we want it? Yea, no, maybe?
 				foreach ($template_changes[1] as $index => $template_file) {
 					// What, it exists and we haven't already got it?! Lordy, get it in!
-					if (file_exists($theme['theme_dir'] . '/' . $template_file) && (!isset($template_changes[$id]) || !in_array($template_file, $template_changes[$id]))) {
+					if (file_exists($theme['theme_dir'] . '/' . $template_file) && (!isset($template_changes[$id]) || !\in_array($template_file, $template_changes[$id]))) {
 						// Now let's add it to the "todo" list.
 						$custom_themes_add[$long_changes[1][$index]][$id] = $theme['theme_dir'] . '/' . $template_file;
 					}
@@ -2046,7 +2046,7 @@ class SubsPackage
 				}
 
 				// Doesn't exist - give an error or what?
-				if (!file_exists($working_file) && (!$file->exists('@error') || !in_array(trim($file->fetch('@error')), ['ignore', 'skip']))) {
+				if (!file_exists($working_file) && (!$file->exists('@error') || !\in_array(trim($file->fetch('@error')), ['ignore', 'skip']))) {
 					$actions[] = [
 						'type' => 'missing',
 						'filename' => $working_file,
@@ -2088,7 +2088,7 @@ class SubsPackage
 					// Convert operation to an array.
 					$actual_operation = [
 						'searches' => [],
-						'error' => $operation->exists('@error') && in_array(trim($operation->fetch('@error')), ['ignore', 'fatal', 'required']) ? trim($operation->fetch('@error')) : 'fatal',
+						'error' => $operation->exists('@error') && \in_array(trim($operation->fetch('@error')), ['ignore', 'fatal', 'required']) ? trim($operation->fetch('@error')) : 'fatal',
 					];
 
 					// The 'add' parameter is used for all searches in this operation.
@@ -2099,7 +2099,7 @@ class SubsPackage
 
 					foreach ($searches as $i => $search) {
 						$actual_operation['searches'][] = [
-							'position' => $search->exists('@position') && in_array(trim($search->fetch('@position')), ['before', 'after', 'replace', 'end']) ? trim($search->fetch('@position')) : 'replace',
+							'position' => $search->exists('@position') && \in_array(trim($search->fetch('@position')), ['before', 'after', 'replace', 'end']) ? trim($search->fetch('@position')) : 'replace',
 							'is_reg_exp' => $search->exists('@regexp') && trim($search->fetch('@regexp')) === 'true',
 							'loose_whitespace' => $search->exists('@whitespace') && trim($search->fetch('@whitespace')) === 'loose',
 							'search' => $search->fetch('.'),
@@ -2160,7 +2160,7 @@ class SubsPackage
 					}
 
 					// Sort the search list so the replaces come before the add before/after's.
-					if (count($actual_operation['searches']) !== 1) {
+					if (\count($actual_operation['searches']) !== 1) {
 						$replacements = [];
 
 						foreach ($actual_operation['searches'] as $i => $search) {
@@ -2279,7 +2279,7 @@ class SubsPackage
 
 				self::package_chmod($working_file);
 
-				if ((file_exists($working_file) && !is_writable($working_file)) || (!file_exists($working_file) && !is_writable(dirname($working_file)))) {
+				if ((file_exists($working_file) && !is_writable($working_file)) || (!file_exists($working_file) && !is_writable(\dirname($working_file)))) {
 					$actions[] = [
 						'type' => 'chmod',
 						'filename' => $working_file,
@@ -2293,7 +2293,7 @@ class SubsPackage
 				if (!$testing && !empty(Config::$modSettings['package_make_backups']) && file_exists($working_file)) {
 					// No, no, not Settings.php!
 					if (basename($working_file) == basename(SMF_SETTINGS_FILE)) {
-						@copy($working_file, dirname($working_file) . '/' . basename(SMF_SETTINGS_BACKUP_FILE));
+						@copy($working_file, \dirname($working_file) . '/' . basename(SMF_SETTINGS_BACKUP_FILE));
 					} else {
 						@copy($working_file, $working_file . '~');
 					}
@@ -2354,7 +2354,7 @@ class SubsPackage
 			$counter++;
 
 			// Get rid of the old stuff.
-			$temp_file = substr_replace($temp_file, '', strpos($temp_file, $code_match[0]), strlen($code_match[0]));
+			$temp_file = substr_replace($temp_file, '', strpos($temp_file, $code_match[0]), \strlen($code_match[0]));
 
 			// No interest to us?
 			if ($code_match[1] != 'edit file' && $code_match[1] != 'file') {
@@ -2402,12 +2402,12 @@ class SubsPackage
 				// Now, for each file do we need to edit it?
 				foreach ($template_changes[1] as $pos => $template_file) {
 					// It does? Add it to the list darlin'.
-					if (file_exists($theme['theme_dir'] . '/' . $template_file) && (!isset($template_changes[$id][$pos]) || !in_array($template_file, (array) $template_changes[$id][$pos]))) {
+					if (file_exists($theme['theme_dir'] . '/' . $template_file) && (!isset($template_changes[$id][$pos]) || !\in_array($template_file, (array) $template_changes[$id][$pos]))) {
 						// Actually add it to the mod file too, so we can see that it will work ;)
 						if (!empty($temp_changes[$pos]['changes'])) {
 							$file .= "\n\n" . '<edit file>' . "\n" . $theme['theme_dir'] . '/' . $template_file . "\n" . '</edit file>' . "\n\n" . implode("\n\n", $temp_changes[$pos]['changes']);
 							$theme_id_ref[$counter] = $id;
-							$counter += 1 + count($temp_changes[$pos]['changes']);
+							$counter += 1 + \count($temp_changes[$pos]['changes']);
 						}
 					}
 				}
@@ -2441,7 +2441,7 @@ class SubsPackage
 
 					if (!$testing && !empty(Config::$modSettings['package_make_backups']) && file_exists($working_file)) {
 						if (basename($working_file) == basename(SMF_SETTINGS_FILE)) {
-							@copy($working_file, dirname($working_file) . '/' . basename(SMF_SETTINGS_BACKUP_FILE));
+							@copy($working_file, \dirname($working_file) . '/' . basename(SMF_SETTINGS_BACKUP_FILE));
 						} else {
 							@copy($working_file, $working_file . '~');
 						}
@@ -2578,7 +2578,7 @@ class SubsPackage
 			}
 
 			// Get rid of the old tag.
-			$file = substr_replace($file, '', strpos($file, $code_match[0]), strlen($code_match[0]));
+			$file = substr_replace($file, '', strpos($file, $code_match[0]), \strlen($code_match[0]));
 		}
 
 		// Backup the old file.
@@ -2594,7 +2594,7 @@ class SubsPackage
 
 			if (!$testing && !empty(Config::$modSettings['package_make_backups']) && file_exists($working_file)) {
 				if (basename($working_file) == basename(SMF_SETTINGS_FILE)) {
-					@copy($working_file, dirname($working_file) . '/' . basename(SMF_SETTINGS_BACKUP_FILE));
+					@copy($working_file, \dirname($working_file) . '/' . basename(SMF_SETTINGS_BACKUP_FILE));
 				} else {
 					@copy($working_file, $working_file . '~');
 				}
@@ -2707,7 +2707,7 @@ class SubsPackage
 			fclose($fp);
 		}
 
-		return strlen($data);
+		return \strlen($data);
 	}
 
 	/**
@@ -2764,7 +2764,7 @@ class SubsPackage
 		// Bypass directories when doing so - no data to write & the fopen will crash.
 		foreach (self::$package_cache as $filename => $data) {
 			if (!is_dir($filename)) {
-				$fp = fopen($filename, in_array(substr($filename, -3), $text_filetypes) ? 'w' : 'wb');
+				$fp = fopen($filename, \in_array(substr($filename, -3), $text_filetypes) ? 'w' : 'wb');
 				fwrite($fp, $data);
 				fclose($fp);
 			}
@@ -2798,7 +2798,7 @@ class SubsPackage
 					$subTraverseLimit = 2;
 
 					while (!file_exists($chmod_file) && $subTraverseLimit) {
-						$chmod_file = dirname($chmod_file);
+						$chmod_file = \dirname($chmod_file);
 						$subTraverseLimit--;
 					}
 
@@ -2807,9 +2807,9 @@ class SubsPackage
 				} else {
 					// This looks odd, but it's an attempt to work around PHP suExec.
 					if (!file_exists($chmod_file) && $perm_state == 'writable') {
-						$file_permissions = @fileperms(dirname($chmod_file));
+						$file_permissions = @fileperms(\dirname($chmod_file));
 
-						self::mktree(dirname($chmod_file), 0755);
+						self::mktree(\dirname($chmod_file), 0755);
 						@touch($chmod_file);
 						Utils::makeWritable($chmod_file, 0755);
 					} else {
@@ -2852,9 +2852,9 @@ class SubsPackage
 
 			// This looks odd, but it's an attempt to work around PHP suExec.
 			if (!file_exists($filename) && $perm_state == 'writable') {
-				$file_permissions = @fileperms(dirname($filename));
+				$file_permissions = @fileperms(\dirname($filename));
 
-				self::mktree(dirname($filename), 0755);
+				self::mktree(\dirname($filename), 0755);
 				self::$package_ftp->create_file($ftp_file);
 				self::$package_ftp->chmod($ftp_file, 0755);
 			} else {
@@ -2868,8 +2868,8 @@ class SubsPackage
 					self::$package_ftp->chmod($ftp_file, 0777);
 				}
 
-				if (!@is_writable(dirname($filename))) {
-					self::$package_ftp->chmod(dirname($ftp_file), 0777);
+				if (!@is_writable(\dirname($filename))) {
+					self::$package_ftp->chmod(\dirname($ftp_file), 0777);
 				}
 			}
 
@@ -2900,16 +2900,16 @@ class SubsPackage
 		#[\SensitiveParameter]
 		string $pass,
 	): string {
-		$n = strlen($pass);
+		$n = \strlen($pass);
 
 		$salt = session_id();
 
-		while (strlen($salt) < $n) {
+		while (\strlen($salt) < $n) {
 			$salt .= session_id();
 		}
 
 		for ($i = 0; $i < $n; $i++) {
-			$pass[$i] = chr(ord($pass[$i]) ^ (ord($salt[$i]) - 32));
+			$pass[$i] = \chr(\ord($pass[$i]) ^ (\ord($salt[$i]) - 32));
 		}
 
 		return $pass;
@@ -3170,7 +3170,7 @@ class SubsPackage
 
 			$parsed_data = Utils::jsonDecode($results, true);
 
-			if (is_array($parsed_data) && isset($parsed_data['data']) && is_array($parsed_data['data'])) {
+			if (\is_array($parsed_data) && isset($parsed_data['data']) && \is_array($parsed_data['data'])) {
 				foreach ($parsed_data['data'] as $sha256_hash => $status) {
 					if ((string) $status === 'blacklist') {
 						Utils::$context['package_blacklist_found'] = true;
@@ -3472,7 +3472,7 @@ class SubsPackage
 	{
 		require_once Config::$sourcedir . '/Subs-Compat.php';
 
-		return \smf_crc32($number);
+		return smf_crc32($number);
 	}
 }
 

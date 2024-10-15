@@ -175,7 +175,7 @@ class Find implements ActionInterface
 			$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 			if (!empty($call)) {
-				call_user_func($call);
+				\call_user_func($call);
 			}
 		}
 	}
@@ -229,11 +229,11 @@ class Find implements ActionInterface
 
 		foreach ($this->settings_search as $setting_area) {
 			// Get a list of their variables.
-			$config_vars = call_user_func($setting_area[0], true);
+			$config_vars = \call_user_func($setting_area[0], true);
 
 			foreach ($config_vars as $var) {
-				if (!empty($var[1]) && !in_array($var[0], ['permissions', 'switch', 'desc'])) {
-					$search_data['settings'][] = [$var[(isset($var[2]) && in_array($var[2], ['file', 'db'])) ? 0 : 1], $setting_area[1], 'alttxt' => (isset($var[2]) && in_array($var[2], ['file', 'db'])) || isset($var[3]) ? (in_array($var[2], ['file', 'db']) ? $var[1] : $var[3]) : ''];
+				if (!empty($var[1]) && !\in_array($var[0], ['permissions', 'switch', 'desc'])) {
+					$search_data['settings'][] = [$var[(isset($var[2]) && \in_array($var[2], ['file', 'db'])) ? 0 : 1], $setting_area[1], 'alttxt' => (isset($var[2]) && \in_array($var[2], ['file', 'db'])) || isset($var[3]) ? (\in_array($var[2], ['file', 'db']) ? $var[1] : $var[3]) : ''];
 				}
 			}
 		}
@@ -248,7 +248,7 @@ class Find implements ActionInterface
 			foreach ($data as $item) {
 				$found = false;
 
-				if (!is_array($item[0])) {
+				if (!\is_array($item[0])) {
 					$item[0] = [$item[0]];
 				}
 

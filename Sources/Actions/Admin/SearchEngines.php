@@ -94,7 +94,7 @@ class SearchEngines implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -398,7 +398,7 @@ class SearchEngines implements ActionInterface
 			$urls = Who::determineActions($urls, 'whospider_');
 
 			foreach ($urls as $k => $new_url) {
-				if (is_array($new_url)) {
+				if (\is_array($new_url)) {
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = Lang::$txt[$new_url['label']];
 
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
@@ -432,7 +432,7 @@ class SearchEngines implements ActionInterface
 		}
 
 		// User pressed the 'remove selection button'.
-		if (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && is_array($_POST['remove'])) {
+		if (!empty($_POST['removeSpiders']) && !empty($_POST['remove']) && \is_array($_POST['remove'])) {
 			User::$me->checkSession();
 			SecurityToken::validate('admin-ser');
 

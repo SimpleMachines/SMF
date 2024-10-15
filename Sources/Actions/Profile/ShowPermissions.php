@@ -80,7 +80,7 @@ class ShowPermissions implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (!$row['is_mod'] && !Profile::$member->can_manage_boards && count(array_intersect(Profile::$member->groups, explode(',', $row['member_groups']))) === 0) {
+			if (!$row['is_mod'] && !Profile::$member->can_manage_boards && \count(array_intersect(Profile::$member->groups, explode(',', $row['member_groups']))) === 0) {
 				Utils::$context['no_access_boards'][] = [
 					'id' => $row['id_board'],
 					'name' => $row['name'],
@@ -101,7 +101,7 @@ class ShowPermissions implements ActionInterface
 		Board::sort(Utils::$context['boards']);
 
 		if (!empty(Utils::$context['no_access_boards'])) {
-			Utils::$context['no_access_boards'][count(Utils::$context['no_access_boards']) - 1]['is_last'] = true;
+			Utils::$context['no_access_boards'][\count(Utils::$context['no_access_boards']) - 1]['is_last'] = true;
 		}
 
 		Profile::$member->formatted['permissions'] = [
@@ -140,7 +140,7 @@ class ShowPermissions implements ActionInterface
 			}
 
 			// Permissions that end with _own or _any consist of two parts.
-			if (in_array(substr($row['permission'], -4), ['_own', '_any']) && isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)])) {
+			if (\in_array(substr($row['permission'], -4), ['_own', '_any']) && isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)])) {
 				$name = Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . Lang::$txt['permissionname_' . $row['permission']];
 			} else {
 				$name = Lang::$txt['permissionname_' . $row['permission']];
@@ -204,7 +204,7 @@ class ShowPermissions implements ActionInterface
 
 			// The name of the permission using the format 'permission name' - 'own/any topic/event/etc.'.
 			if (
-				in_array(substr($row['permission'], -4), ['_own', '_any'])
+				\in_array(substr($row['permission'], -4), ['_own', '_any'])
 				&& isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)])
 			) {
 				$name = Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . Lang::$txt['permissionname_' . $row['permission']];

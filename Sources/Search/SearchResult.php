@@ -297,7 +297,7 @@ class SearchResult extends \SMF\Msg
 		}
 
 		// Do we have quote tag enabled?
-		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
+		$quote_enabled = empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC']));
 
 		// Reference the main color class.
 		$colorClass = 'windowbg';
@@ -321,8 +321,8 @@ class SearchResult extends \SMF\Msg
 			'posted_in' => !empty(SearchApi::$loadedApi->participants[$this->id_topic]),
 			'views' => $this->num_views,
 			'replies' => $this->num_replies,
-			'can_reply' => in_array($this->id_board, self::$boards_can['post_reply_any']) || in_array(0, self::$boards_can['post_reply_any']),
-			'can_quote' => (in_array($this->id_board, self::$boards_can['post_reply_any']) || in_array(0, self::$boards_can['post_reply_any'])) && $quote_enabled,
+			'can_reply' => \in_array($this->id_board, self::$boards_can['post_reply_any']) || \in_array(0, self::$boards_can['post_reply_any']),
+			'can_quote' => (\in_array($this->id_board, self::$boards_can['post_reply_any']) || \in_array(0, self::$boards_can['post_reply_any'])) && $quote_enabled,
 			'first_post' => [
 				'id' => $this->first_msg,
 				'time' => Time::create('@' . $this->first_poster_time)->format(),
@@ -464,7 +464,7 @@ class SearchResult extends \SMF\Msg
 			'is_approved' => 1,
 			'current_member' => User::$me->id,
 			'approve_boards' => !empty(Config::$modSettings['postmod_active']) ? User::$me->mod_cache['ap'] : [],
-			'limit' => count($ids),
+			'limit' => \count($ids),
 		];
 
 		if (!empty($ids)) {
@@ -501,7 +501,7 @@ class SearchResult extends \SMF\Msg
 		// Don't mess with the content of HTML tags.
 		$parts = preg_split('~(<[^>]+>)~', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			$highlighted .= $i % 2 === 0 ? preg_replace('~' . $words . '~iu', '<mark class="highlight">$0</mark>', $parts[$i]) : $parts[$i];
 		}
 
@@ -539,11 +539,11 @@ class SearchResult extends \SMF\Msg
 
 		// How's about some quick moderation?
 		if (!empty(Theme::$current->options['display_quick_mod'])) {
-			Utils::$context['can_lock'] = in_array(0, self::$boards_can['lock_any']);
-			Utils::$context['can_sticky'] = in_array(0, self::$boards_can['make_sticky']);
-			Utils::$context['can_move'] = in_array(0, self::$boards_can['move_any']);
-			Utils::$context['can_remove'] = in_array(0, self::$boards_can['remove_any']);
-			Utils::$context['can_merge'] = in_array(0, self::$boards_can['merge_any']);
+			Utils::$context['can_lock'] = \in_array(0, self::$boards_can['lock_any']);
+			Utils::$context['can_sticky'] = \in_array(0, self::$boards_can['make_sticky']);
+			Utils::$context['can_move'] = \in_array(0, self::$boards_can['move_any']);
+			Utils::$context['can_remove'] = \in_array(0, self::$boards_can['remove_any']);
+			Utils::$context['can_merge'] = \in_array(0, self::$boards_can['merge_any']);
 		}
 	}
 }

@@ -241,7 +241,7 @@ class Credits implements ActionInterface
 		];
 
 		// Give the translators some credit for their hard work.
-		if (!is_array(Lang::$txt['translation_credits'])) {
+		if (!\is_array(Lang::$txt['translation_credits'])) {
 			Lang::$txt['translation_credits'] = array_filter(array_map('trim', explode(',', Lang::$txt['translation_credits'])));
 		}
 

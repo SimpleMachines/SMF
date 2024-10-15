@@ -43,7 +43,7 @@ spl_autoload_register(function ($class) {
 	}
 
 	// Do any third-party scripts want in on the fun?
-	if (!defined('SMF_INSTALLING') && class_exists(Config::class, false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
+	if (!\defined('SMF_INSTALLING') && class_exists(Config::class, false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
 		if (!class_exists(IntegrationHook::class, false) && is_file($sourcedir . '/IntegrationHook.php')) {
 			require_once $sourcedir . '/IntegrationHook.php';
 		}
@@ -56,7 +56,7 @@ spl_autoload_register(function ($class) {
 
 	foreach ($class_map as $prefix => $dirname) {
 		// Does the class use the namespace prefix?
-		$len = strlen($prefix);
+		$len = \strlen($prefix);
 
 		if (strncmp($prefix, $class, $len) !== 0) {
 			continue;

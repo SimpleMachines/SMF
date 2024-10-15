@@ -94,11 +94,11 @@ class Logging
 		IntegrationHook::call('integrate_log_types', [&$log_types, &$always_log]);
 
 		foreach ($logs as $log) {
-			if (!isset($log_types[$log['log_type']]) && (empty(Config::$modSettings[$log['log_type'] . 'log_enabled']) || !in_array($log['action'], $always_log))) {
+			if (!isset($log_types[$log['log_type']]) && (empty(Config::$modSettings[$log['log_type'] . 'log_enabled']) || !\in_array($log['action'], $always_log))) {
 				continue;
 			}
 
-			if (!is_array($log['extra'])) {
+			if (!\is_array($log['extra'])) {
 				Lang::load('Errors');
 				trigger_error(Lang::getTxt('logActions_not_array', [$log['action']]), E_USER_NOTICE);
 			}
@@ -128,7 +128,7 @@ class Logging
 
 			// @todo cache this?
 			// Is there an associated report on this?
-			if (in_array($log['action'], ['move', 'remove', 'split', 'merge'])) {
+			if (\in_array($log['action'], ['move', 'remove', 'split', 'merge'])) {
 				$request = Db::$db->query(
 					'',
 					'SELECT id_report
@@ -387,7 +387,7 @@ class Logging
 
 			case 'postgroups':
 				// Parameter two is the updated columns: we should check to see if we base groups off any of these.
-				if ($parameter2 !== null && !in_array('posts', $parameter2)) {
+				if ($parameter2 !== null && !\in_array('posts', $parameter2)) {
 					return;
 				}
 
@@ -433,7 +433,7 @@ class Logging
 					SET id_post_group = CASE ' . $conditions . '
 					ELSE 0
 					END' . ($parameter1 != null ? '
-					WHERE ' . (is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
+					WHERE ' . (\is_array($parameter1) ? 'id_member IN ({array_int:members})' : 'id_member = {int:members}') : ''),
 					[
 						'members' => $parameter1,
 					],
@@ -616,7 +616,7 @@ class Logging
 		}
 
 		// Not allowed sort method? Bang! Error!
-		elseif (!in_array($membersOnlineOptions['sort'], $allowed_sort_options)) {
+		elseif (!\in_array($membersOnlineOptions['sort'], $allowed_sort_options)) {
 			Lang::load('Errors');
 			trigger_error(Lang::$txt['get_members_online_stats_invalid_sort'], E_USER_NOTICE);
 		}
@@ -692,7 +692,7 @@ class Logging
 			}
 
 			// Buddies get counted and highlighted.
-			$is_buddy = in_array($row['id_member'], User::$me->buddies);
+			$is_buddy = \in_array($row['id_member'], User::$me->buddies);
 
 			if ($is_buddy) {
 				$membersOnlineStats['num_buddies']++;
@@ -770,7 +770,7 @@ class Logging
 		ksort($membersOnlineStats['online_groups']);
 
 		// Hidden and non-hidden members make up all online members.
-		$membersOnlineStats['num_users_online'] = count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset(Config::$modSettings['show_spider_online']) && Config::$modSettings['show_spider_online'] > 1 ? count($spider_finds) : 0);
+		$membersOnlineStats['num_users_online'] = \count($membersOnlineStats['users_online']) + $membersOnlineStats['num_users_hidden'] - (isset(Config::$modSettings['show_spider_online']) && Config::$modSettings['show_spider_online'] > 1 ? \count($spider_finds) : 0);
 
 		IntegrationHook::call('integrate_online_stats', [&$membersOnlineStats]);
 
@@ -802,7 +802,7 @@ class Logging
 		$files = get_included_files();
 		$total_size = 0;
 
-		for ($i = 0, $n = count($files); $i < $n; $i++) {
+		for ($i = 0, $n = \count($files); $i < $n; $i++) {
 			if (file_exists($files[$i])) {
 				$total_size += filesize($files[$i]);
 			}
@@ -815,7 +815,7 @@ class Logging
 		if (!empty(Db::$cache)) {
 			foreach (Db::$cache as $q => $query_data) {
 				if (!empty($query_data['w'])) {
-					$warnings += count($query_data['w']);
+					$warnings += \count($query_data['w']);
 				}
 			}
 
@@ -837,49 +837,49 @@ class Logging
 			Lang::getTxt(
 				'debug_templates',
 				[
-					'num' => count(Utils::$context['debug']['templates']),
+					'num' => \count(Utils::$context['debug']['templates']),
 					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['templates']) . '</em>)',
 				],
 			),
 			Lang::getTxt(
 				'debug_subtemplates',
 				[
-					'num' => count(Utils::$context['debug']['sub_templates']),
+					'num' => \count(Utils::$context['debug']['sub_templates']),
 					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['sub_templates']) . '</em>)',
 				],
 			),
 			Lang::getTxt(
 				'debug_language_files',
 				[
-					'num' => count(Utils::$context['debug']['language_files']),
+					'num' => \count(Utils::$context['debug']['language_files']),
 					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['language_files']) . '</em>)',
 				],
 			),
 			Lang::getTxt(
 				'debug_stylesheets',
 				[
-					'num' => count(Utils::$context['debug']['sheets']),
+					'num' => \count(Utils::$context['debug']['sheets']),
 					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['sheets']) . '</em>)',
 				],
 			),
 			Lang::getTxt(
 				'debug_hooks',
 				[
-					'num' => count(Utils::$context['debug']['hooks'] ?? []),
+					'num' => \count(Utils::$context['debug']['hooks'] ?? []),
 					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']) . '</em></span>)',
 				],
 			),
 			Lang::getTxt(
 				'debug_files_included',
 				[
-					'num' => count($files),
+					'num' => \count($files),
 					'size' => round($total_size / 1024),
 					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_include_info" style="display: none;"><em>' . implode('</em>, <em>', $files) . '</em></span>)',
 				],
 			),
 		];
 
-		if (function_exists('memory_get_peak_usage')) {
+		if (\function_exists('memory_get_peak_usage')) {
 			$debug_info[] = Lang::getTxt('debug_memory_use', ['size' => ceil(memory_get_peak_usage() / 1024)]);
 		}
 

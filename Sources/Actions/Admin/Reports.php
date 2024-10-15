@@ -181,7 +181,7 @@ class Reports implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 
 		// Finish the tables before exiting - this is to help the templates a little more.
@@ -320,7 +320,7 @@ class Reports implements ActionInterface
 		$inc = [];
 
 		if (isset($_REQUEST['groups'])) {
-			if (!is_array($_REQUEST['groups'])) {
+			if (!\is_array($_REQUEST['groups'])) {
 				$inc = explode(',', $_REQUEST['groups']);
 			}
 
@@ -341,15 +341,15 @@ class Reports implements ActionInterface
 		Board::getModeratorGroups($loaded_ids);
 
 		foreach ($group_data as $group) {
-			if ($group->parent === Group::NONE && ($inc == [] || in_array($group->id, $inc))) {
+			if ($group->parent === Group::NONE && ($inc == [] || \in_array($group->id, $inc))) {
 				$groups[$group->id] = $group->name;
 
 				foreach (Board::$loaded as $board) {
 					if (!isset($data[$board->id])) {
 						$data[$board->id] = ['col' => $board->name];
-					} elseif (in_array($group->id, $board->member_groups)) {
+					} elseif (\in_array($group->id, $board->member_groups)) {
 						$data[$board->id][$group->id] = '&#x2705;';
-					} elseif (in_array($group->id, $board->deny_groups)) {
+					} elseif (\in_array($group->id, $board->deny_groups)) {
 						$data[$board->id][$group->id] = '&#x1F6AB;';
 					}
 				}
@@ -377,7 +377,7 @@ class Reports implements ActionInterface
 		$inc = [];
 
 		if (isset($_REQUEST['groups'])) {
-			if (!is_array($_REQUEST['groups'])) {
+			if (!\is_array($_REQUEST['groups'])) {
 				$inc = explode(',', $_REQUEST['groups']);
 			}
 
@@ -409,12 +409,12 @@ class Reports implements ActionInterface
 		$data = [];
 
 		foreach ($group_data as $group) {
-			if ($group->parent === Group::NONE && ($inc == [] || in_array($group->id, $inc))) {
+			if ($group->parent === Group::NONE && ($inc == [] || \in_array($group->id, $inc))) {
 				$groups[$group->id] = $group->name;
 
 				foreach ($group->permissions['board_profiles'] as $id_profile => $board_profile) {
 					foreach ($board_profile as $permission => $add_deny) {
-						if (in_array($permission, $disabled_permissions)) {
+						if (\in_array($permission, $disabled_permissions)) {
 							continue;
 						}
 
@@ -479,7 +479,7 @@ class Reports implements ActionInterface
 		$inc = [];
 
 		if (isset($_REQUEST['groups'])) {
-			if (!is_array($_REQUEST['groups'])) {
+			if (!\is_array($_REQUEST['groups'])) {
 				$inc = explode(',', $_REQUEST['groups']);
 			}
 
@@ -513,11 +513,11 @@ class Reports implements ActionInterface
 		IntegrationHook::call('integrate_reports_groupperm', [&$disabled_permissions]);
 
 		foreach ($group_data as $group) {
-			if ($group->parent === Group::NONE && ($inc == [] || in_array($group->id, $inc))) {
+			if ($group->parent === Group::NONE && ($inc == [] || \in_array($group->id, $inc))) {
 				$groups[$group->id] = $group->name;
 
 				foreach ($group->permissions['general'] as $permission => $add_deny) {
-					if (in_array($permission, $disabled_permissions)) {
+					if (\in_array($permission, $disabled_permissions)) {
 						continue;
 					}
 
@@ -559,7 +559,7 @@ class Reports implements ActionInterface
 		$allStaff = array_unique($allStaff);
 
 		// This is a bit of a cop out - but we're protecting their forum, really!
-		if (count($allStaff) > 300) {
+		if (\count($allStaff) > 300) {
 			ErrorHandler::fatalLang('report_error_too_many_staff');
 		}
 
@@ -666,7 +666,7 @@ class Reports implements ActionInterface
 		$is_first = 0;
 
 		foreach (self::$subactions as $k => $func) {
-			if (!is_string($func)) {
+			if (!\is_string($func)) {
 				continue;
 			}
 
@@ -858,7 +858,7 @@ class Reports implements ActionInterface
 		// Loop through each table counting up some basic values, to help with the templating.
 		foreach ($this->tables as $id => $table) {
 			$this->tables[$id]['id'] = $id;
-			$this->tables[$id]['row_count'] = count($table['data']);
+			$this->tables[$id]['row_count'] = \count($table['data']);
 
 			$this->tables[$id]['column_count'] = array_reduce(
 				$table['data'],

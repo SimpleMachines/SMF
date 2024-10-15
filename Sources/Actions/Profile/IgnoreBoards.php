@@ -102,7 +102,7 @@ class IgnoreBoards implements ActionInterface
 			$temp_boards = array_merge($temp_boards, array_values($category['boards']));
 		}
 
-		$max_boards = max(2, ceil(count($temp_boards) / 2));
+		$max_boards = max(2, ceil(\count($temp_boards) / 2));
 
 		// Now, alternate them so they can be shown left and right ;).
 		Utils::$context['board_columns'] = [];

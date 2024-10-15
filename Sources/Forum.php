@@ -226,7 +226,7 @@ class Forum
 		// Check if compressed output is enabled, supported, and not already being done.
 		if (!empty(Config::$modSettings['enableCompressedOutput']) && !headers_sent()) {
 			// If zlib is being used, turn off output compression.
-			if (ini_get('zlib.output_compression') >= 1 || ini_get('output_handler') == 'ob_gzhandler') {
+			if (\ini_get('zlib.output_compression') >= 1 || \ini_get('output_handler') == 'ob_gzhandler') {
 				Config::$modSettings['enableCompressedOutput'] = '0';
 			} else {
 				ob_end_clean();
@@ -261,7 +261,7 @@ class Forum
 	public function execute(): void
 	{
 		// What function shall we execute? (done like this for memory's sake.)
-		call_user_func($this->main());
+		\call_user_func($this->main());
 
 		// Call obExit specially; we're coming from the main area ;).
 		Utils::obExit(null, null, true);
@@ -360,7 +360,7 @@ class Forum
 		// Is the forum in maintenance mode? (doesn't apply to administrators.)
 		if (!empty(Config::$maintenance) && !User::$me->allowedTo('admin_forum')) {
 			// You can only login.... otherwise, you're getting the "maintenance mode" display.
-			if (isset($_REQUEST['action']) && (in_array($_REQUEST['action'], ['login2', 'logintfa', 'logout']))) {
+			if (isset($_REQUEST['action']) && (\in_array($_REQUEST['action'], ['login2', 'logintfa', 'logout']))) {
 				return self::$actions[$_REQUEST['action']][1];
 			}
 
@@ -369,7 +369,7 @@ class Forum
 		}
 
 		// If guest access is off, a guest can only do one of the very few following actions.
-		if (empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], self::$guest_access_actions))) {
+		if (empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && (!isset($_REQUEST['action']) || !\in_array($_REQUEST['action'], self::$guest_access_actions))) {
 			User::$me->kickIfGuest(null, false);
 		} elseif (empty($_REQUEST['action'])) {
 			// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.

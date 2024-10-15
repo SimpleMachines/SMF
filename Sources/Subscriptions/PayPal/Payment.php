@@ -52,11 +52,11 @@ class Payment
 		}
 
 		// Are we testing?
-		if (!empty(Config::$modSettings['paidsubs_test']) && strtolower(Config::$modSettings['paypal_sandbox_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', strtolower(Config::$modSettings['paypal_additional_emails']))))) {
+		if (!empty(Config::$modSettings['paidsubs_test']) && strtolower(Config::$modSettings['paypal_sandbox_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !\in_array(strtolower($_POST['business']), explode(',', strtolower(Config::$modSettings['paypal_additional_emails']))))) {
 			return false;
 		}
 
-		return !(strtolower(Config::$modSettings['paypal_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', Config::$modSettings['paypal_additional_emails']))));
+		return !(strtolower(Config::$modSettings['paypal_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !\in_array(strtolower($_POST['business']), explode(',', Config::$modSettings['paypal_additional_emails']))));
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Payment
 		}
 
 		// Can we use curl?
-		if (function_exists('curl_init') && $curl = curl_init((!empty(Config::$modSettings['paidsubs_test']) ? 'https://www.sandbox.' : 'https://www.') . 'paypal.com/cgi-bin/webscr')) {
+		if (\function_exists('curl_init') && $curl = curl_init((!empty(Config::$modSettings['paidsubs_test']) ? 'https://www.sandbox.' : 'https://www.') . 'paypal.com/cgi-bin/webscr')) {
 			// Set the post data.
 			curl_setopt($curl, CURLOPT_POST, true);
 			curl_setopt($curl, CURLOPT_POSTFIELDS, $requestString);
@@ -115,7 +115,7 @@ class Payment
 			$header = 'POST /cgi-bin/webscr HTTP/1.1' . "\r\n";
 			$header .= 'content-type: application/x-www-form-urlencoded' . "\r\n";
 			$header .= 'Host: www.' . (!empty(Config::$modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com' . "\r\n";
-			$header .= 'content-length: ' . strlen($requestString) . "\r\n";
+			$header .= 'content-length: ' . \strlen($requestString) . "\r\n";
 			$header .= 'connection: close' . "\r\n\r\n";
 
 			// Open the connection.
@@ -152,7 +152,7 @@ class Payment
 		}
 
 		// Check that this is intended for us.
-		if (strtolower(Config::$modSettings['paypal_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !in_array(strtolower($_POST['business']), explode(',', strtolower(Config::$modSettings['paypal_additional_emails']))))) {
+		if (strtolower(Config::$modSettings['paypal_email']) != strtolower($_POST['business']) && (empty(Config::$modSettings['paypal_additional_emails']) || !\in_array(strtolower($_POST['business']), explode(',', strtolower(Config::$modSettings['paypal_additional_emails']))))) {
 			exit;
 		}
 

@@ -308,7 +308,7 @@ class Msg implements \ArrayAccess
 			'body' => $this->body ?? '',
 			'new' => empty($this->is_read),
 			'first_new' => isset(Utils::$context['start_from']) && Utils::$context['start_from'] == $counter,
-			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && in_array($this->id_member, User::$me->ignoreusers),
+			'is_ignored' => !empty(Config::$modSettings['enable_buddylist']) && !empty(Theme::$current->options['posts_apply_ignore_list']) && \in_array($this->id_member, User::$me->ignoreusers),
 		];
 
 		// Are we showing the icon?
@@ -472,7 +472,7 @@ class Msg implements \ArrayAccess
 		if (!empty(Config::$modSettings['enable_likes'])) {
 			$this->formatted['likes'] = [
 				'count' => $this->likes,
-				'you' => in_array($this->id, Utils::$context['my_likes'] ?? []),
+				'you' => \in_array($this->id, Utils::$context['my_likes'] ?? []),
 			];
 
 			if ($format_options['do_permissions']) {
@@ -705,7 +705,7 @@ class Msg implements \ArrayAccess
 		// Replace code BBC with placeholders. We'll restore them at the end.
 		$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
 			if ($i % 4 == 2) {
 				$code_tag = $parts[$i - 1] . $parts[$i] . $parts[$i + 1];
@@ -873,7 +873,7 @@ class Msg implements \ArrayAccess
 			$tags = [];
 
 			foreach (BBCodeParser::getCodes() as $code) {
-				if (!in_array($code['tag'], $allowed_empty)) {
+				if (!\in_array($code['tag'], $allowed_empty)) {
 					$tags[] = $code['tag'];
 				}
 			}
@@ -918,7 +918,7 @@ class Msg implements \ArrayAccess
 		$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		// We're going to unparse only the stuff outside [code]...
-		for ($i = 0, $n = count($parts); $i < $n; $i++) {
+		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			// If $i is a multiple of four (0, 4, 8, ...) then it's not a code section...
 			if ($i % 4 == 2) {
 				$code_tag = $parts[$i - 1] . $parts[$i] . $parts[$i + 1];
@@ -1094,7 +1094,7 @@ class Msg implements \ArrayAccess
 			$found = false;
 
 			foreach ($protocols as $protocol) {
-				$found = strncasecmp($replace, $protocol . '://', strlen($protocol) + 3) === 0;
+				$found = strncasecmp($replace, $protocol . '://', \strlen($protocol) + 3) === 0;
 
 				if ($found) {
 					break;
@@ -1103,7 +1103,7 @@ class Msg implements \ArrayAccess
 
 			$current_protocol = strtolower(Url::create($replace)->scheme ?? '');
 
-			if (in_array($current_protocol, $forbidden_protocols)) {
+			if (\in_array($current_protocol, $forbidden_protocols)) {
 				$replace = 'about:invalid';
 			} elseif (!$found && $protocols[0] == 'http') {
 				// A path
@@ -1740,7 +1740,7 @@ class Msg implements \ArrayAccess
 		IntegrationHook::call('integrate_modify_post', [&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts]);
 
 		foreach ($messages_columns as $var => $val) {
-			$messages_columns[$var] = $var . ' = {' . (in_array($var, $messageInts) ? 'int' : 'string') . ':var_' . $var . '}';
+			$messages_columns[$var] = $var . ' = {' . (\in_array($var, $messageInts) ? 'int' : 'string') . ':var_' . $var . '}';
 			$update_parameters['var_' . $var] = $val;
 		}
 
@@ -1885,7 +1885,7 @@ class Msg implements \ArrayAccess
 	public static function approve(array|int $msgs, bool $approve = true, bool $notify = true): bool
 	{
 		// @TODO: $msgs = (array) $msgs;
-		if (!is_array($msgs)) {
+		if (!\is_array($msgs)) {
 			$msgs = [$msgs];
 		}
 
@@ -2179,7 +2179,7 @@ class Msg implements \ArrayAccess
 	public static function clearApprovalAlerts(array $content_ids, string $content_action): void
 	{
 		// Some data hygiene...
-		if (!is_array($content_ids)) {
+		if (!\is_array($content_ids)) {
 			return;
 		}
 
@@ -2189,7 +2189,7 @@ class Msg implements \ArrayAccess
 			return;
 		}
 
-		if (!in_array($content_action, ['unapproved_post', 'unapproved_topic'])) {
+		if (!\in_array($content_action, ['unapproved_post', 'unapproved_topic'])) {
 			return;
 		}
 
@@ -2231,7 +2231,7 @@ class Msg implements \ArrayAccess
 		}
 
 		// @TODO: $setboards = (array) $setboards;
-		if (!is_array($setboards)) {
+		if (!\is_array($setboards)) {
 			$setboards = [$setboards];
 		}
 
@@ -2402,11 +2402,11 @@ class Msg implements \ArrayAccess
 		if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id) {
 			$delete_any = User::$me->boardsAllowedTo('delete_any');
 
-			if (!in_array(0, $delete_any) && !in_array($row['id_board'], $delete_any)) {
+			if (!\in_array(0, $delete_any) && !\in_array($row['id_board'], $delete_any)) {
 				$delete_own = User::$me->boardsAllowedTo('delete_own');
-				$delete_own = in_array(0, $delete_own) || in_array($row['id_board'], $delete_own);
+				$delete_own = \in_array(0, $delete_own) || \in_array($row['id_board'], $delete_own);
 				$delete_replies = User::$me->boardsAllowedTo('delete_replies');
-				$delete_replies = in_array(0, $delete_replies) || in_array($row['id_board'], $delete_replies);
+				$delete_replies = \in_array(0, $delete_replies) || \in_array($row['id_board'], $delete_replies);
 
 				if ($row['id_member'] == User::$me->id) {
 					if (!$delete_own) {
@@ -2430,10 +2430,10 @@ class Msg implements \ArrayAccess
 			}
 
 			// Can't delete an unapproved message, if you can't see it!
-			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !(in_array(0, $delete_any) || in_array($row['id_board'], $delete_any))) {
+			if (Config::$modSettings['postmod_active'] && !$row['approved'] && $row['id_member'] != User::$me->id && !(\in_array(0, $delete_any) || \in_array($row['id_board'], $delete_any))) {
 				$approve_posts = User::$me->boardsAllowedTo('approve_posts');
 
-				if (!in_array(0, $approve_posts) && !in_array($row['id_board'], $approve_posts)) {
+				if (!\in_array(0, $approve_posts) && !\in_array($row['id_board'], $approve_posts)) {
 					return false;
 				}
 			}
@@ -2464,11 +2464,11 @@ class Msg implements \ArrayAccess
 		if ($row['id_first_msg'] == $message) {
 			if (empty(Board::$info->id) || $row['id_board'] != Board::$info->id) {
 				$remove_any = User::$me->boardsAllowedTo('remove_any');
-				$remove_any = in_array(0, $remove_any) || in_array($row['id_board'], $remove_any);
+				$remove_any = \in_array(0, $remove_any) || \in_array($row['id_board'], $remove_any);
 
 				if (!$remove_any) {
 					$remove_own = User::$me->boardsAllowedTo('remove_own');
-					$remove_own = in_array(0, $remove_own) || in_array($row['id_board'], $remove_own);
+					$remove_own = \in_array(0, $remove_own) || \in_array($row['id_board'], $remove_own);
 				}
 
 				if ($row['id_member'] != User::$me->id && !$remove_any) {

@@ -63,17 +63,17 @@ class LzwCompression
 
 	public function decompress(string $data, int &$datLen): string|bool
 	{
-		$stLen = strlen($data);
+		$stLen = \strlen($data);
 		$datLen = 0;
 		$ret = '';
 
 		$this->LZWCommand($data, true);
 
 		while (($iIndex = $this->LZWCommand($data, false)) >= 0) {
-			$ret .= chr($iIndex);
+			$ret .= \chr($iIndex);
 		}
 
-		$datLen = $stLen - strlen($data);
+		$datLen = $stLen - \strlen($data);
 
 		if ($iIndex != -2) {
 			return false;
@@ -85,7 +85,7 @@ class LzwCompression
 	public function LZWCommand(string &$data, int|bool $bInit): int
 	{
 		if ($bInit) {
-			$this->SetCodeSize = ord($data[0]);
+			$this->SetCodeSize = \ord($data[0]);
 			$data = substr($data, 1);
 
 			$this->CodeSize = $this->SetCodeSize + 1;
@@ -226,12 +226,12 @@ class LzwCompression
 			$this->Buf[0] = $this->Buf[$this->LastByte - 2];
 			$this->Buf[1] = $this->Buf[$this->LastByte - 1];
 
-			$count = ord($data[0]);
+			$count = \ord($data[0]);
 			$data = substr($data, 1);
 
 			if ($count) {
 				for ($i = 0; $i < $count; $i++) {
-					$this->Buf[2 + $i] = ord($data[$i]);
+					$this->Buf[2 + $i] = \ord($data[$i]);
 				}
 
 				$data = substr($data, $count);
@@ -247,7 +247,7 @@ class LzwCompression
 		$iRet = 0;
 
 		for ($i = $this->CurBit, $j = 0; $j < $this->CodeSize; $i++, $j++) {
-			$iRet |= (($this->Buf[intval($i / 8)] & (1 << ($i % 8))) != 0) << $j;
+			$iRet |= (($this->Buf[\intval($i / 8)] & (1 << ($i % 8))) != 0) << $j;
 		}
 
 		$this->CurBit += $this->CodeSize;

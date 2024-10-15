@@ -412,7 +412,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'date_registered' => [
 				'type' => 'date',
-				'value' => empty($this->date_registered) || !is_int($this->date_registered) ? Lang::$txt['not_applicable'] : Time::strftime('%Y-%m-%d', $this->date_registered),
+				'value' => empty($this->date_registered) || !\is_int($this->date_registered) ? Lang::$txt['not_applicable'] : Time::strftime('%Y-%m-%d', $this->date_registered),
 				'label' => Lang::$txt['date_registered'],
 				'log_change' => true,
 				'permission' => 'moderate_forum',
@@ -828,7 +828,7 @@ class Profile extends User implements \ArrayAccess
 				'input_validate' => function (&$value) {
 					$smiley_sets = explode(',', Config::$modSettings['smiley_sets_known']);
 
-					if (!in_array($value, $smiley_sets) && $value != 'none') {
+					if (!\in_array($value, $smiley_sets) && $value != 'none') {
 						$value = '';
 					}
 
@@ -995,7 +995,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			// Is it specifically disabled?
-			if (in_array($key, $disabled_fields) || (isset($field['link_with']) && in_array($field['link_with'], $disabled_fields))) {
+			if (\in_array($key, $disabled_fields) || (isset($field['link_with']) && \in_array($field['link_with'], $disabled_fields))) {
 				unset($this->standard_fields[$key]);
 			}
 		}
@@ -1019,7 +1019,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			// Skip custom fields that don't belong in the area we are viewing.
-			if (!in_array($area, ['summary', $cf_def['show_profile']])) {
+			if (!\in_array($area, ['summary', $cf_def['show_profile']])) {
 				continue;
 			}
 
@@ -1060,7 +1060,7 @@ class Profile extends User implements \ArrayAccess
 			if (isset($_POST['customfield'], $_POST['customfield'][$cf_def['col_name']])) {
 				$value = Utils::htmlspecialchars($_POST['customfield'][$cf_def['col_name']]);
 
-				if (in_array($cf_def['field_type'], ['select', 'radio'])) {
+				if (\in_array($cf_def['field_type'], ['select', 'radio'])) {
 					$value = $cf_def['field_options'][$value] ?? '';
 				}
 			}
@@ -1169,7 +1169,7 @@ class Profile extends User implements \ArrayAccess
 
 		Utils::$context['member']['options'] = $this->data['options'] ?? [];
 
-		if (isset($_POST['options']) && is_array($_POST['options'])) {
+		if (isset($_POST['options']) && \is_array($_POST['options'])) {
 			foreach ($_POST['options'] as $k => $v) {
 				Utils::$context['member']['options'][$k] = $v;
 			}
@@ -1384,7 +1384,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			$group->is_primary = $this->data['id_group'] == $group->id;
-			$group->is_additional = in_array($group->id, $this->additional_groups);
+			$group->is_additional = \in_array($group->id, $this->additional_groups);
 		}
 
 		// For the templates.
@@ -1425,7 +1425,7 @@ class Profile extends User implements \ArrayAccess
 
 		// First check for any linked sets.
 		foreach ($this->standard_fields as $key => $field) {
-			if (isset($field['link_with']) && in_array($field['link_with'], $fields)) {
+			if (isset($field['link_with']) && \in_array($field['link_with'], $fields)) {
 				$fields[] = $key;
 			}
 		}
@@ -1439,7 +1439,7 @@ class Profile extends User implements \ArrayAccess
 				$cur_field = &$this->standard_fields[$field];
 
 				// Does it have a preload and does that preload succeed?
-				if (isset($cur_field['preload']) && !call_user_func(...((array) $cur_field['preload']))) {
+				if (isset($cur_field['preload']) && !\call_user_func(...((array) $cur_field['preload']))) {
 					continue;
 				}
 
@@ -1536,7 +1536,7 @@ class Profile extends User implements \ArrayAccess
 		// This allows variables to call activities when they save.
 		Utils::$context['profile_execute_on_save'] = [];
 
-		if (User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area, ['account', 'forumprofile', 'theme'])) {
+		if (User::$me->is_owner && \in_array(Menu::$loaded['profile']->current_area, ['account', 'forumprofile', 'theme'])) {
 			Utils::$context['profile_execute_on_save']['reload_user'] = [__CLASS__ . '::reloadUser', Profile::$member->id];
 		}
 
@@ -1638,7 +1638,7 @@ class Profile extends User implements \ArrayAccess
 		// Do we have any post save functions to execute?
 		if (!empty(Utils::$context['profile_execute_on_save'])) {
 			foreach (Utils::$context['profile_execute_on_save'] as $saveFunc) {
-				call_user_func(...((array) $saveFunc));
+				\call_user_func(...((array) $saveFunc));
 			}
 		}
 
@@ -1703,7 +1703,7 @@ class Profile extends User implements \ArrayAccess
 		$unassignable = Group::getUnassignable();
 
 		// The account page allows you to change your id_group - but not to a protected group!
-		if (!empty($unassignable) && in_array($value, $unassignable) && !in_array($value, $this->groups)) {
+		if (!empty($unassignable) && \in_array($value, $unassignable) && !\in_array($value, $this->groups)) {
 			$value = $this->data['id_group'];
 		}
 
@@ -1725,7 +1725,7 @@ class Profile extends User implements \ArrayAccess
 
 		// Make sure there is always an admin.
 		if ($this->is_admin) {
-			$stillAdmin = $value == 1 || in_array(1, $additional_groups);
+			$stillAdmin = $value == 1 || \in_array(1, $additional_groups);
 
 			// If they would no longer be an admin, look for another...
 			if (!$stillAdmin) {
@@ -1806,7 +1806,7 @@ class Profile extends User implements \ArrayAccess
 				break;
 		}
 
-		if (is_string($result)) {
+		if (\is_string($result)) {
 			return $result;
 		}
 
@@ -2022,7 +2022,7 @@ class Profile extends User implements \ArrayAccess
 						if (($width == -1 && $sig_limits[5]) || ($height == -1 && $sig_limits[6])) {
 							$sizes = Image::getSizeExternal($matches[7][$key]);
 
-							if (is_array($sizes)) {
+							if (\is_array($sizes)) {
 								// Too wide?
 								if ($sizes[0] > $sig_limits[5] && $sig_limits[5]) {
 									$width = $sig_limits[5];
@@ -2066,7 +2066,7 @@ class Profile extends User implements \ArrayAccess
 					Lang::$txt['profile_error_signature_disabled_bbc'] = Lang::getTxt(
 						'profile_error_signature_disabled_bbc',
 						[
-							'num_disabled_tags' => count($disabledTags),
+							'num_disabled_tags' => \count($disabledTags),
 							'list_disabled_tags' => Lang::sentenceList($disabledTags),
 						],
 					);
@@ -2141,7 +2141,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			// Make sure there are no evil characters in the input.
-			$_POST[$key] = Utils::sanitizeChars(Utils::normalize($_POST[$key]), in_array($key, ['member_name', 'real_name']) ? 1 : 0);
+			$_POST[$key] = Utils::sanitizeChars(Utils::normalize($_POST[$key]), \in_array($key, ['member_name', 'real_name']) ? 1 : 0);
 
 			// What gets updated?
 			$db_key = $field['save_key'] ?? $key;
@@ -2272,7 +2272,7 @@ class Profile extends User implements \ArrayAccess
 			$_POST['brd'] = [];
 		}
 
-		if (!is_array($_POST['brd'])) {
+		if (!\is_array($_POST['brd'])) {
 			$_POST['brd'] = [$_POST['brd']];
 		}
 
@@ -2333,7 +2333,7 @@ class Profile extends User implements \ArrayAccess
 				}
 
 				// Owners can only modify levels 0 and 2.
-				if (!in_array($cf_def['private'], [0, 2])) {
+				if (!\in_array($cf_def['private'], [0, 2])) {
 					continue;
 				}
 			}
@@ -2408,7 +2408,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			// If they tried to set a bad value, report the error.
-			if (is_string($mask_error)) {
+			if (\is_string($mask_error)) {
 				$this->cf_save_errors[] = $mask_error;
 			}
 			// Did it change?
@@ -2464,7 +2464,7 @@ class Profile extends User implements \ArrayAccess
 		// Now that the hook is done, we can set deletes to just the value we need.
 		$this->new_cf_data['deletes'] = array_map(fn ($del) => $del['variable'], $deletes);
 
-		if (!empty($hook_errors) && is_array($hook_errors)) {
+		if (!empty($hook_errors) && \is_array($hook_errors)) {
 			$this->cf_save_errors = array_merge($this->cf_save_errors, $hook_errors);
 		}
 
@@ -2488,7 +2488,7 @@ class Profile extends User implements \ArrayAccess
 				continue;
 			}
 
-			if (count(array_intersect(array_keys($_POST[$key]), self::RESERVED_VARS)) != 0) {
+			if (\count(array_intersect(array_keys($_POST[$key]), self::RESERVED_VARS)) != 0) {
 				ErrorHandler::fatalLang('no_access', false);
 			}
 		}
@@ -2496,7 +2496,7 @@ class Profile extends User implements \ArrayAccess
 		self::loadCustomFieldDefinitions();
 
 		// These are the theme changes...
-		if (isset($_POST['options']) && is_array($_POST['options'])) {
+		if (isset($_POST['options']) && \is_array($_POST['options'])) {
 			foreach ($_POST['options'] as $opt => $val) {
 				if (isset(self::$custom_field_definitions[$opt])) {
 					continue;
@@ -2515,13 +2515,13 @@ class Profile extends User implements \ArrayAccess
 				$this->new_options['updates'][] = [
 					$id_theme,
 					$opt,
-					is_array($val) ? implode(',', $val) : $val,
+					\is_array($val) ? implode(',', $val) : $val,
 					$this->id,
 				];
 			}
 		}
 
-		if (isset($_POST['default_options']) && is_array($_POST['default_options'])) {
+		if (isset($_POST['default_options']) && \is_array($_POST['default_options'])) {
 			foreach ($_POST['default_options'] as $opt => $val) {
 				if (isset(self::$custom_field_definitions[$opt])) {
 					continue;
@@ -2540,7 +2540,7 @@ class Profile extends User implements \ArrayAccess
 				$this->new_options['updates'][] = [
 					1,
 					$opt,
-					is_array($val) ? implode(',', $val) : $val,
+					\is_array($val) ? implode(',', $val) : $val,
 					$this->id,
 				];
 
@@ -2572,7 +2572,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		while ($line = $dir->read()) {
-			if (in_array($line, ['.', '..', 'blank.png', 'index.php'])) {
+			if (\in_array($line, ['.', '..', 'blank.png', 'index.php'])) {
 				continue;
 			}
 
@@ -2591,7 +2591,7 @@ class Profile extends User implements \ArrayAccess
 		if ($level == 0) {
 			$result[] = [
 				'filename' => 'blank.png',
-				'checked' => in_array(Utils::$context['member']['avatar']['server_pic'], ['', 'blank.png']),
+				'checked' => \in_array(Utils::$context['member']['avatar']['server_pic'], ['', 'blank.png']),
 				'name' => Lang::$txt['no_pic'],
 				'is_dir' => false,
 			];
@@ -2614,7 +2614,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		foreach ($files as $line) {
-			$filename = substr($line, 0, (strlen($line) - strlen(strrchr($line, '.'))));
+			$filename = substr($line, 0, (\strlen($line) - \strlen(strrchr($line, '.'))));
 			$extension = substr(strrchr($line, '.'), 1);
 
 			// Make sure it is an image.
@@ -2720,7 +2720,7 @@ class Profile extends User implements \ArrayAccess
 		$url = str_replace(' ', '%20', $url);
 
 		// External URL is too long.
-		if (strlen($url) > 255) {
+		if (\strlen($url) > 255) {
 			return 'bad_avatar_url_too_long';
 		}
 
@@ -3030,7 +3030,7 @@ class Profile extends User implements \ArrayAccess
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Profile::class, 'exportStatic'])) {
+if (\is_callable([Profile::class, 'exportStatic'])) {
 	Profile::exportStatic();
 }
 

@@ -111,7 +111,7 @@ class TopicSplit implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -929,7 +929,7 @@ class TopicSplit implements ActionInterface
 		/** @var \SMF\Search\SearchApiInterface $searchAPI */
 		$searchAPI = SearchApi::load();
 
-		if (is_callable([$searchAPI, 'topicSplit'])) {
+		if (\is_callable([$searchAPI, 'topicSplit'])) {
 			$searchAPI->topicSplit($split2_ID_TOPIC, $splitMessages);
 		}
 

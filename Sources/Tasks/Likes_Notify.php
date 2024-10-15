@@ -61,7 +61,7 @@ class Likes_Notify extends BackgroundTask
 				$ignored_members = explode(',', $row['pm_ignore_list']);
 
 				// If the user is in group 1 anywhere, they can see everything anyway.
-				if (in_array(1, $groups) || count(array_intersect($allowed, $groups)) != 0) {
+				if (\in_array(1, $groups) || \count(array_intersect($allowed, $groups)) != 0) {
 					$author = $row['id_member'];
 				}
 			}
@@ -89,7 +89,7 @@ class Likes_Notify extends BackgroundTask
 		}
 
 		// If the person who sent the notification is on this person's ignore list, do nothing.
-		if (!empty($ignored_members) && in_array($this->_details['sender_id'], $ignored_members)) {
+		if (!empty($ignored_members) && \in_array($this->_details['sender_id'], $ignored_members)) {
 			return true;
 		}
 

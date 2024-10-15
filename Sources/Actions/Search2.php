@@ -162,10 +162,10 @@ class Search2 implements ActionInterface
 			$started = $output['first_post']['member']['id'] == User::$me->id;
 
 			$output['quick_mod'] = [
-				'lock' => in_array(0, SearchResult::$boards_can['lock_any']) || in_array($output['board']['id'], SearchResult::$boards_can['lock_any']) || ($started && (in_array(0, SearchResult::$boards_can['lock_own']) || in_array($output['board']['id'], SearchResult::$boards_can['lock_own']))),
-				'sticky' => (in_array(0, SearchResult::$boards_can['make_sticky']) || in_array($output['board']['id'], SearchResult::$boards_can['make_sticky'])),
-				'move' => in_array(0, SearchResult::$boards_can['move_any']) || in_array($output['board']['id'], SearchResult::$boards_can['move_any']) || ($started && (in_array(0, SearchResult::$boards_can['move_own']) || in_array($output['board']['id'], SearchResult::$boards_can['move_own']))),
-				'remove' => in_array(0, SearchResult::$boards_can['remove_any']) || in_array($output['board']['id'], SearchResult::$boards_can['remove_any']) || ($started && (in_array(0, SearchResult::$boards_can['remove_own']) || in_array($output['board']['id'], SearchResult::$boards_can['remove_own']))),
+				'lock' => \in_array(0, SearchResult::$boards_can['lock_any']) || \in_array($output['board']['id'], SearchResult::$boards_can['lock_any']) || ($started && (\in_array(0, SearchResult::$boards_can['lock_own']) || \in_array($output['board']['id'], SearchResult::$boards_can['lock_own']))),
+				'sticky' => (\in_array(0, SearchResult::$boards_can['make_sticky']) || \in_array($output['board']['id'], SearchResult::$boards_can['make_sticky'])),
+				'move' => \in_array(0, SearchResult::$boards_can['move_any']) || \in_array($output['board']['id'], SearchResult::$boards_can['move_any']) || ($started && (\in_array(0, SearchResult::$boards_can['move_own']) || \in_array($output['board']['id'], SearchResult::$boards_can['move_own']))),
+				'remove' => \in_array(0, SearchResult::$boards_can['remove_any']) || \in_array($output['board']['id'], SearchResult::$boards_can['remove_any']) || ($started && (\in_array(0, SearchResult::$boards_can['remove_own']) || \in_array($output['board']['id'], SearchResult::$boards_can['remove_own']))),
 				'restore' => Utils::$context['can_restore_perm'] && (Config::$modSettings['recycle_board'] == $output['board']['id']),
 			];
 
@@ -173,7 +173,7 @@ class Search2 implements ActionInterface
 			Utils::$context['can_sticky'] |= $output['quick_mod']['sticky'];
 			Utils::$context['can_move'] |= $output['quick_mod']['move'];
 			Utils::$context['can_remove'] |= $output['quick_mod']['remove'];
-			Utils::$context['can_merge'] |= in_array($output['board']['id'], SearchResult::$boards_can['merge_any']);
+			Utils::$context['can_merge'] |= \in_array($output['board']['id'], SearchResult::$boards_can['merge_any']);
 			Utils::$context['can_restore'] |= $output['quick_mod']['restore'];
 			Utils::$context['can_markread'] = User::$me->is_logged;
 
@@ -428,7 +428,7 @@ class Search2 implements ActionInterface
 			[
 				'message_list' => $this->messages,
 				'no_member' => 0,
-				'limit' => count(SearchApi::$loadedApi->results),
+				'limit' => \count(SearchApi::$loadedApi->results),
 			],
 		);
 

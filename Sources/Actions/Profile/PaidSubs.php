@@ -173,7 +173,7 @@ class PaidSubs implements ActionInterface
 		}
 
 		// If this is confirmation then it's simpler...
-		if (isset($_GET['confirm'], $_POST['sub_id'])   && is_array($_POST['sub_id'])) {
+		if (isset($_GET['confirm'], $_POST['sub_id'])   && \is_array($_POST['sub_id'])) {
 			// Hopefully just one.
 			foreach ($_POST['sub_id'] as $k => $v) {
 				$id_sub = (int) $k;
@@ -253,7 +253,7 @@ class PaidSubs implements ActionInterface
 				}
 
 				// Don't get silly.
-				if (count($current_pending) > 9) {
+				if (\count($current_pending) > 9) {
 					$current_pending = [];
 				}
 
@@ -266,7 +266,7 @@ class PaidSubs implements ActionInterface
 					}
 				}
 
-				if (!in_array($new_data, $current_pending)) {
+				if (!\in_array($new_data, $current_pending)) {
 					$current_pending[] = $new_data;
 
 					Db::$db->query(

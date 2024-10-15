@@ -163,7 +163,7 @@ class Cookie
 		$this->custom_data = $custom_data ?? [];
 
 		// Special case for the login and TFA cookies.
-		if (in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
+		if (\in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
 			$this->member = (int) ($this->custom_data[0] ?? User::$me->id);
 			$this->hash = $this->custom_data[1] ?? self::encrypt(User::$me->passwd, User::$me->password_salt);
 
@@ -200,7 +200,7 @@ class Cookie
 	 */
 	public function set(): bool
 	{
-		if (in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
+		if (\in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
 			$data = [
 				$this->member,
 				$this->hash,
@@ -212,7 +212,7 @@ class Cookie
 			$data = array_merge($data, (array) $this->custom_data);
 
 			$value = Utils::jsonEncode($data, JSON_FORCE_OBJECT);
-		} elseif (!is_scalar($this->custom_data)) {
+		} elseif (!\is_scalar($this->custom_data)) {
 			$value = Utils::jsonEncode($this->custom_data, JSON_FORCE_OBJECT);
 		} else {
 			$value = $this->custom_data;

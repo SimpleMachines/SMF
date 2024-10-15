@@ -89,7 +89,7 @@ class Membergroups implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -389,7 +389,7 @@ class Membergroups implements ActionInterface
 				);
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					if (empty($illegal_permissions) || !in_array($row['permission'], $illegal_permissions)) {
+					if (empty($illegal_permissions) || !\in_array($row['permission'], $illegal_permissions)) {
 						$inserts[] = [$id_group, $row['permission'], $row['add_deny']];
 					}
 				}
@@ -466,7 +466,7 @@ class Membergroups implements ActionInterface
 			}
 
 			// Make sure all boards selected are stored in a proper array.
-			$accesses = empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? [] : $_POST['boardaccess'];
+			$accesses = empty($_POST['boardaccess']) || !\is_array($_POST['boardaccess']) ? [] : $_POST['boardaccess'];
 
 			$changed_boards['allow'] = [];
 			$changed_boards['deny'] = [];
@@ -649,7 +649,7 @@ class Membergroups implements ActionInterface
 		// People who can manage boards are a bit special.
 		$board_managers = User::groupsAllowedTo('manage_boards', null);
 
-		Utils::$context['can_manage_boards'] = in_array($group->id, $board_managers['allowed']);
+		Utils::$context['can_manage_boards'] = \in_array($group->id, $board_managers['allowed']);
 
 		// Can this group moderate any boards?
 		Utils::$context['is_moderator_group'] = $group->is_moderator_group;
@@ -667,7 +667,7 @@ class Membergroups implements ActionInterface
 				$ext = pathinfo(Theme::$current->settings['default_theme_dir'] . '/images/membericons/' . $value, PATHINFO_EXTENSION);
 
 				// If the extension is not empty, and it is valid.
-				if (!empty($ext) && in_array($ext, $imageExts)) {
+				if (!empty($ext) && \in_array($ext, $imageExts)) {
 					Utils::$context['possible_icons'][] = $value;
 				}
 			}
@@ -703,7 +703,7 @@ class Membergroups implements ActionInterface
 			$group->set([
 				'max_messages' => isset($_POST['max_messages']) ? (int) $_POST['max_messages'] : 0,
 				'min_posts' => isset($_POST['min_posts']) && isset($_POST['group_type']) && $_POST['group_type'] == -1 && $group->id > Group::MOD ? abs($_POST['min_posts']) : ($group->id == Group::NEWBIE ? 0 : -1),
-				'icons' => (empty($_POST['icon_count']) || $_POST['icon_count'] < 0 || !in_array($_POST['icon_image'], Utils::$context['possible_icons'])) ? '' : min((int) $_POST['icon_count'], 99) . '#' . $_POST['icon_image'],
+				'icons' => (empty($_POST['icon_count']) || $_POST['icon_count'] < 0 || !\in_array($_POST['icon_image'], Utils::$context['possible_icons'])) ? '' : min((int) $_POST['icon_count'], 99) . '#' . $_POST['icon_image'],
 				'name' => Utils::htmlspecialchars($_POST['group_name']),
 				'description' => isset($_POST['group_desc']) && ($group->id == Group::ADMIN || (isset($_POST['group_type']) && $_POST['group_type'] != -1)) ? Utils::htmlTrim(Utils::sanitizeChars(Utils::normalize($_POST['group_desc']))) : '',
 				'type' => !isset($_POST['group_type']) || $_POST['group_type'] < Group::TYPE_PRIVATE || $_POST['group_type'] > Group::TYPE_FREE || ($_POST['group_type'] == Group::TYPE_PROTECTED && !User::$me->allowedTo('admin_forum')) ? Group::TYPE_PRIVATE : (int) $_POST['group_type'],
@@ -753,7 +753,7 @@ class Membergroups implements ActionInterface
 			$group->save();
 
 			// Time to update the boards this membergroup has access to.
-			$group->updateBoardAccess(empty($_POST['boardaccess']) || !is_array($_POST['boardaccess']) ? [] : $_POST['boardaccess']);
+			$group->updateBoardAccess(empty($_POST['boardaccess']) || !\is_array($_POST['boardaccess']) ? [] : $_POST['boardaccess']);
 
 			// Let's check whether our "show group membership" setting is correct.
 			$request = Db::$db->query(
@@ -797,7 +797,7 @@ class Membergroups implements ActionInterface
 		$group->moderator_list = empty($group->moderators) ? '' : '&quot;' . implode('&quot;, &quot;', $group->moderators) . '&quot;';
 
 		if (!empty($group->moderators)) {
-			list($group->last_moderator_id) = array_slice(array_keys($group->moderators), -1);
+			list($group->last_moderator_id) = \array_slice(array_keys($group->moderators), -1);
 		}
 
 		Utils::$context['group'] = $group;
