@@ -5,6 +5,7 @@
 !/Languages/en_US/
 /Languages/en_US/agreement.txt
 Settings.php
+!Sources/Db/Schema/*/Settings.php
 Settings_bak.php
 Settings_org.php
 db_last_error.php

@@ -437,6 +437,12 @@ abstract class DatabaseApi
 	 */
 	protected function prefixReservedTables(): void
 	{
+		if (defined('SMF_INSTALLING')) {
+			$this->reservedTables = [];
+
+			return;
+		}
+
 		// Reset $reservedTables to default.
 		$class_vars = get_class_vars(__CLASS__);
 		$this->reservedTables = $class_vars['reservedTables'];

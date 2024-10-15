@@ -1318,6 +1318,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach ($index_info['columns'] as &$c) {
 			$c = trim($c);
+
+			// Can't find it, can't fix it.
+			if (!isset($cols[$c])) {
+				continue;
+			}
+
 			$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? $cols[$c]['size'] : null;
 			list($type, $size) = $this->calculate_type($cols[$c]['type'], (int) $cols[$c]['size']);
 
@@ -1394,11 +1400,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function calculate_type(string $type_name, ?int $type_size = null, bool $reverse = false): array
+	public function calculate_type(?string $type_name, ?int $type_size = null, bool $reverse = false): array
 	{
 		// MySQL is actually the generic baseline.
 
-		$type_name = strtolower($type_name);
+		$type_name = strtolower($type_name ?? '');
 
 		// Generic => Specific.
 		if (!$reverse) {
@@ -1577,7 +1583,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// First - no way do we touch SMF tables.
-		if (in_array(strtolower($short_table_name), $this->reservedTables)) {
+		if (!defined('SMF_INSTALLING') && in_array(strtolower($short_table_name), $this->reservedTables)) {
 			return false;
 		}
 
@@ -1749,7 +1755,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// God no - dropping one of these = bad.
-		if (in_array(strtolower($short_table_name), $this->reservedTables)) {
+		if (!defined('SMF_INSTALLING') && in_array(strtolower($short_table_name), $this->reservedTables)) {
 			return false;
 		}
 
@@ -2435,7 +2441,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Sort out the size... and stuff...
 		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-		list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
+		list($type, $size) = $this->calculate_type($column['type'], $column['size'] === null ? null : (int) $column['size']);
 
 		// Allow unsigned integers (mysql only)
 		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column['unsigned']) ? 'unsigned ' : '';
