@@ -361,11 +361,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		// Inserting data as a single row can be done as a single array.
-		if (!is_array($data[array_rand($data)])) {
-			$data = [$data];
-		}
-
 		// Create the mold for a single row insert.
 		$insertData = '(';
 

@@ -387,10 +387,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Force method to lower case
 		$method = strtolower($method);
 
-		if (!is_array($data[array_rand($data)])) {
-			$data = [$data];
-		}
-
 		// Replace the prefix holder with the actual prefix.
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 

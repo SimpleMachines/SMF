@@ -76,7 +76,7 @@ interface DatabaseApiInterface
 	 * @param string $method INSERT or REPLACE.
 	 * @param string $table The table (only used for Postgres).
 	 * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs.
-	 * @param array $data The data to insert.
+	 * @param array[][] $data The data to insert, left rows right columns.
 	 * @param array $keys The keys for the table, needs to be not empty on replace mode.
 	 * @param object $connection = null The connection (if null, $db_connection is used).
 	 * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array.
