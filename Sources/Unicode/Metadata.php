@@ -15,6 +15,6 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 if (!defined('SMF_UNICODE_VERSION'))
-	define('SMF_UNICODE_VERSION', '15.1.0.0');
+	define('SMF_UNICODE_VERSION', '16.0.0.0');
 
 ?>

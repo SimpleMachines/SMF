@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -139,11 +139,18 @@ function utf8_regex_quick_check()
 			'\x{11127}' .
 			'\x{1133E}' .
 			'\x{11357}' .
+			'\x{113B8}' .
+			'\x{113BB}' .
+			'\x{113C2}' .
+			'\x{113C5}' .
+			'\x{113C7}-\x{113C9}' .
 			'\x{114B0}' .
 			'\x{114BA}' .
 			'\x{114BD}' .
 			'\x{115AF}' .
-			'\x{11930}',
+			'\x{11930}' .
+			'\x{1611E}-\x{16129}' .
+			'\x{16D67}-\x{16D68}',
 		'NFKC_QC' =>
 			'\x{00A0}' .
 			'\x{00A8}' .
@@ -332,6 +339,7 @@ function utf8_regex_quick_check()
 			'\x{10781}-\x{10785}' .
 			'\x{10787}-\x{107B0}' .
 			'\x{107B2}-\x{107BA}' .
+			'\x{1CCD6}-\x{1CCF9}' .
 			'\x{1D15E}-\x{1D164}' .
 			'\x{1D1BB}-\x{1D1C0}' .
 			'\x{1D400}-\x{1D454}' .
@@ -437,11 +445,18 @@ function utf8_regex_quick_check()
 			'\x{11127}' .
 			'\x{1133E}' .
 			'\x{11357}' .
+			'\x{113B8}' .
+			'\x{113BB}' .
+			'\x{113C2}' .
+			'\x{113C5}' .
+			'\x{113C7}-\x{113C9}' .
 			'\x{114B0}' .
 			'\x{114BA}' .
 			'\x{114BD}' .
 			'\x{115AF}' .
-			'\x{11930}',
+			'\x{11930}' .
+			'\x{1611E}-\x{16129}' .
+			'\x{16D67}-\x{16D68}',
 		'NFD_QC' =>
 			'\x{00C0}-\x{00C5}' .
 			'\x{00C7}-\x{00CF}' .
@@ -663,15 +678,25 @@ function utf8_regex_quick_check()
 			'\x{FB40}-\x{FB41}' .
 			'\x{FB43}-\x{FB44}' .
 			'\x{FB46}-\x{FB4E}' .
+			'\x{105C9}' .
+			'\x{105E4}' .
 			'\x{1109A}' .
 			'\x{1109C}' .
 			'\x{110AB}' .
 			'\x{1112E}-\x{1112F}' .
 			'\x{1134B}-\x{1134C}' .
+			'\x{11383}' .
+			'\x{11385}' .
+			'\x{1138E}' .
+			'\x{11391}' .
+			'\x{113C5}' .
+			'\x{113C7}-\x{113C8}' .
 			'\x{114BB}-\x{114BC}' .
 			'\x{114BE}' .
 			'\x{115BA}-\x{115BB}' .
 			'\x{11938}' .
+			'\x{16121}-\x{16128}' .
+			'\x{16D68}-\x{16D6A}' .
 			'\x{1D15E}-\x{1D164}' .
 			'\x{1D1BB}-\x{1D1C0}' .
 			'\x{2F800}-\x{2FA1D}',
@@ -993,6 +1018,8 @@ function utf8_regex_quick_check()
 			'\x{FFDA}-\x{FFDC}' .
 			'\x{FFE0}-\x{FFE6}' .
 			'\x{FFE8}-\x{FFEE}' .
+			'\x{105C9}' .
+			'\x{105E4}' .
 			'\x{10781}-\x{10785}' .
 			'\x{10787}-\x{107B0}' .
 			'\x{107B2}-\x{107BA}' .
@@ -1001,10 +1028,19 @@ function utf8_regex_quick_check()
 			'\x{110AB}' .
 			'\x{1112E}-\x{1112F}' .
 			'\x{1134B}-\x{1134C}' .
+			'\x{11383}' .
+			'\x{11385}' .
+			'\x{1138E}' .
+			'\x{11391}' .
+			'\x{113C5}' .
+			'\x{113C7}-\x{113C8}' .
 			'\x{114BB}-\x{114BC}' .
 			'\x{114BE}' .
 			'\x{115BA}-\x{115BB}' .
 			'\x{11938}' .
+			'\x{16121}-\x{16128}' .
+			'\x{16D68}-\x{16D6A}' .
+			'\x{1CCD6}-\x{1CCF9}' .
 			'\x{1D15E}-\x{1D164}' .
 			'\x{1D1BB}-\x{1D1C0}' .
 			'\x{1D400}-\x{1D454}' .
@@ -1395,7 +1431,7 @@ function utf8_regex_quick_check()
 			'\x{13F8}-\x{13FD}' .
 			'\x{17B4}-\x{17B5}' .
 			'\x{180B}-\x{180F}' .
-			'\x{1C80}-\x{1C88}' .
+			'\x{1C80}-\x{1C89}' .
 			'\x{1C90}-\x{1CBA}' .
 			'\x{1CBD}-\x{1CBF}' .
 			'\x{1D2C}-\x{1D2E}' .
@@ -1782,9 +1818,12 @@ function utf8_regex_quick_check()
 			'\x{A7C2}' .
 			'\x{A7C4}-\x{A7C7}' .
 			'\x{A7C9}' .
+			'\x{A7CB}-\x{A7CC}' .
 			'\x{A7D0}' .
 			'\x{A7D6}' .
 			'\x{A7D8}' .
+			'\x{A7DA}' .
+			'\x{A7DC}' .
 			'\x{A7F2}-\x{A7F5}' .
 			'\x{A7F8}-\x{A7F9}' .
 			'\x{AB5C}-\x{AB5F}' .
@@ -1839,9 +1878,11 @@ function utf8_regex_quick_check()
 			'\x{10787}-\x{107B0}' .
 			'\x{107B2}-\x{107BA}' .
 			'\x{10C80}-\x{10CB2}' .
+			'\x{10D50}-\x{10D65}' .
 			'\x{118A0}-\x{118BF}' .
 			'\x{16E40}-\x{16E5F}' .
 			'\x{1BCA0}-\x{1BCA3}' .
+			'\x{1CCD6}-\x{1CCF9}' .
 			'\x{1D15E}-\x{1D164}' .
 			'\x{1D173}-\x{1D17A}' .
 			'\x{1D1BB}-\x{1D1C0}' .
