@@ -73,33 +73,39 @@ function template_admin()
 									</div><!-- #version_details -->
 								</div><!-- .windowbg -->
 							</div><!-- #support_info -->
-						</div><!-- #admin_main_section -->';
+						</div><!-- #admin_main_section -->
+						<div class="admin_areas">';
 
 	foreach (Utils::$context[Utils::$context['admin_menu_name']]['sections'] as $area_id => $area)
 	{
 		echo '
-						<fieldset id="group_', $area_id, '" class="windowbg admin_group">
-							<legend>', $area['title'], '</legend>';
+							<strong>', $area['title'], '</strong>
+							<div class="section" id="group_', $area_id, '">';
 
 		foreach ($area['areas'] as $item_id => $item)
 		{
 			// No point showing the 'home' page here, we're already on it!
-			if ($area_id == 'forum' && $item_id == 'index')
+			if ($area_id == 'forum' && $item_id == 'index') {
 				continue;
+			}
 
 			$url = isset($item['url']) ? $item['url'] : Config::$scripturl . '?action=admin;area=' . $item_id . (!empty(Utils::$context[Utils::$context['admin_menu_name']]['extra_parameters']) ? Utils::$context[Utils::$context['admin_menu_name']]['extra_parameters'] : '');
 
-			if (!empty($item['icon_file']))
-				echo '
-							<a href="', $url, '" class="admin_group', !empty($item['inactive']) ? ' inactive' : '', '"><img class="large_admin_menu_icon_file" src="', $item['icon_file'], '" alt="">', $item['label'], '</a>';
-			else
-				echo '
-							<a href="', $url, '"><span class="large_', $item['icon_class'], !empty($item['inactive']) ? ' inactive' : '', '"></span>', $item['label'], '</a>';
+			echo '
+									<a href="', $url, '"', !empty($item['inactive']) ? ' class="inactive"' : '', '>
+										<span class="windowbg">
+											', !empty($item['icon_file']) ? '<img class="large_admin_menu_icon_file" src="' . $item['icon_file'] . '" alt="">' : '<span class="main_icons ' . $item['icon_class'] . ' large"></span>', '
+										</span>
+										<span class="text-label">', $item['label'], '</span>
+									</a>';
 		}
 
 		echo '
-						</fieldset>';
+							</div>';
 	}
+
+	echo '
+						</div><!-- .admin_areas -->';
 
 	// The below functions include all the scripts needed from the simplemachines.org site. The language and format are passed for internationalization.
 	if (empty(Config::$modSettings['disable_smf_js']))
@@ -111,7 +117,6 @@ function template_admin()
 	echo '
 					<script>
 						var oAdminIndex = new smf_AdminIndex({
-							sSelf: \'oAdminCenter\',
 
 							bLoadAnnouncements: true,
 							sAnnouncementTemplate: ', Utils::escapeJavaScript('
@@ -743,7 +748,7 @@ function template_not_done()
 							document.forms.autoSubmit.cont.value = "', Lang::$txt['not_done_continue'], ' (" + countdown + ")";
 							countdown--;
 
-							setTimeout("doAutoSubmit();", 1000);
+							setTimeout(doAutoSubmit, 1000);
 						}
 					</script>';
 }
@@ -766,9 +771,6 @@ function template_show_settings()
 
 	if (!empty(Utils::$context['settings_insert_above']))
 		echo Utils::$context['settings_insert_above'];
-
-	echo '
-						<form id="admin_form_wrapper" action="', Utils::$context['post_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '"', !empty(Utils::$context['force_form_onsubmit']) ? ' onsubmit="' . Utils::$context['force_form_onsubmit'] . '"' : '', '>';
 
 	// Is there a custom title?
 	if (isset(Utils::$context['settings_title']))
@@ -822,52 +824,35 @@ function template_show_settings()
 		}
 	);
 
-	// Now actually loop through all the variables.
-	$is_open = false;
+	echo '
+						<form id="admin_form_wrapper" action="', Utils::$context['post_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '"', !empty(Utils::$context['force_form_onsubmit']) ? ' onsubmit="' . Utils::$context['force_form_onsubmit'] . '"' : '', ' class="windowbg noup settings-grid">';
+
 	foreach (Utils::$context['config_vars'] as $config_var)
 	{
 		// Is it a title or a description?
 		if (is_array($config_var) && ($config_var['type'] == 'title' || $config_var['type'] == 'desc'))
 		{
-			// Not a list yet?
-			if ($is_open)
-			{
-				$is_open = false;
-				echo '
-									</dl>
-							</div>';
-			}
-
 			// A title?
 			if ($config_var['type'] == 'title')
 			{
 				echo '
-							<div class="cat_bar">
-								<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
+							<div class="title_bar">
+								<h4 class="', $config_var['class'] ?? 'titlebg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
 									', ($config_var['help'] ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . Lang::$txt['help'] . '"></span></a>' : ''), '
 									', $config_var['label'], '
-								</h3>
+								</h4>
 							</div>';
 			}
 			// A description?
 			else
 			{
 				echo '
-							<div class="information noup">
+							<p class="descbox">
 								', $config_var['label'], '
-							</div>';
+							</p>';
 			}
 
 			continue;
-		}
-
-		// Not a list yet?
-		if (!$is_open)
-		{
-			$is_open = true;
-			echo '
-							<div class="windowbg noup">
-								<dl class="settings">';
 		}
 
 		// Hang about? Are you pulling my leg - a callback?!
@@ -885,15 +870,15 @@ function template_show_settings()
 			if (in_array($config_var['type'], array('message', 'warning')))
 			{
 				echo '
-									<dd', $config_var['type'] == 'warning' ? ' class="alert"' : '', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>
+									<div', $config_var['type'] == 'warning' ? ' class="alert"' : '', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>
 										', $config_var['label'], '
-									</dd>';
+									</div>';
 			}
 			// Otherwise it's an input box of some kind.
 			else
 			{
 				echo '
-									<dt', is_array($config_var) && !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>';
+									<div', is_array($config_var) && !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>';
 
 				// Some quick helpers...
 				$javascript = $config_var['javascript'];
@@ -910,8 +895,8 @@ function template_show_settings()
 
 				echo '
 										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label', ($config_var['type'] == 'boards' || $config_var['type'] == 'permissions' ? '' : ' for="' . $config_var['name'] . '"'), '>', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . Lang::$txt['admin_confirm_password'] . '</em>' : ''), '</span>
-									</dt>
-									<dd', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>',
+									</div>
+									<div', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>',
 										$config_var['preinput'];
 
 				// Show a check box.
@@ -1026,7 +1011,7 @@ function template_show_settings()
 
 				echo isset($config_var['postinput']) ? '
 											' . $config_var['postinput'] : '', '
-									</dd>';
+									</div>';
 			}
 		}
 		else
@@ -1034,29 +1019,18 @@ function template_show_settings()
 			// Just show a separator.
 			if ($config_var == '')
 				echo '
-								</dl>
-								<hr>
-								<dl class="settings">';
+								<hr>';
 			else
 				echo '
-									<dt>
+									<p>
 										<strong>' . $config_var . '</strong>
-									</dt>
-									<dd></dd>';
+									</p>';
 		}
 	}
-
-	if ($is_open)
-		echo '
-								</dl>';
 
 	if (empty(Utils::$context['settings_save_dont_show']))
 		echo '
 								<input type="submit" value="', Lang::$txt['save'], '"', (!empty(Utils::$context['save_disabled']) ? ' disabled' : ''), (!empty(Utils::$context['settings_save_onclick']) ? ' onclick="' . Utils::$context['settings_save_onclick'] . '"' : ''), ' class="button">';
-
-	if ($is_open)
-		echo '
-							</div><!-- .windowbg -->';
 
 	// At least one token has to be used!
 	if (isset(Utils::$context['admin-ssc_token']))
@@ -1367,12 +1341,12 @@ function template_admin_search_results()
 {
 	echo '
 						<div id="section_header" class="cat_bar">
-							', template_admin_quick_search(), '
 							<h3 class="catbg">
 								<span id="quick_search_results">
 									', Lang::getTxt('admin_search_results_desc', Utils::$context), '
 								</span>
 							</h3>
+							', template_admin_quick_search(), '
 						</div><!-- #section_header -->
 						<div class="windowbg generic_list_wrapper">';
 
@@ -1565,7 +1539,7 @@ function template_repair_boards()
 							document.forms.recount_form.recount_now.value = "', Lang::$txt['errors_recount_now'], ' (" + countdown + ")";
 							countdown--;
 
-							setTimeout("doAutoSubmit();", 1000);
+							setTimeout(doAutoSubmit, 1000);
 						}
 					</script>';
 	}

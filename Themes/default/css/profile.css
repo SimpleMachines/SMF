@@ -1,0 +1,242 @@
+/* Styles for the profile section.
+------------------------------------------------- */
+#profileview {
+	display: grid;
+	grid: auto / var(--basicinfo-width) 1fr;
+	padding: 0;
+}
+/* The basic user info */
+#basicinfo {
+	background: var(--basicinfo-bg);
+	border-color: var(--basicinfo-border-color);
+	border-radius: var(--basicinfo-border-radius);
+	border-style: var(--basicinfo-border-style);
+	border-width: var(--basicinfo-border-width);
+	box-shadow: var(--basicinfo-box-shadow);
+	display: flex;
+	flex-direction: column;
+	gap: .25em 0;
+	padding: .75em 1em;
+	text-align: center;
+}
+#basicinfo h4 {
+	font-size: 1.4em;
+	font-weight: normal;
+	hyphens: auto;
+	overflow-wrap: break-word;
+	word-wrap: break-word; /* IE fallback */
+}
+#basicinfo h4 span.position {
+	display: block;
+	font-size: 0.65em;
+}
+#basicinfo ul {
+	list-style-type: none;
+}
+#basicinfo .icon_fields {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5em;
+	justify-content: center;
+	margin-bottom: 1em;
+}
+#basicinfo .icon_fields img {
+	display: block;
+}
+#basicinfo .icon_fields li {
+	margin: 0;
+	padding: 0;
+}
+#basicinfo img.avatar, dl.settings img.avatar {
+	--avatar-size: 160px;
+	display: block;
+	margin-inline: auto;
+}
+#basicinfo #userstatus {
+	display: block;
+}
+/* More detailes user info */
+#detailedinfo {
+	background: var(--detailedinfo-bg);
+	border-color: var(--detailedinfo-border-color);
+	border-radius: var(--detailedinfo-border-radius);
+	border-style: var(--detailedinfo-border-style);
+	border-width: var(--detailedinfo-border-width);
+	box-shadow: var(--detailedinfo-box-shadow);
+	display: flex;
+	flex-direction: column;
+	gap: .75em 0;
+	padding: .75em 1em;
+}
+#detailedinfo dl, #tracking dl {
+	clear: right;
+	overflow: auto;
+	margin: 0 0 18px 0;
+	padding: 0 0 15px 0;
+	border-bottom: var(--detailedinfo-border-color) solid 1px;
+}
+#detailedinfo dt, #tracking dt {
+	width: 35%;
+	margin: 0 0 3px 0;
+	font-weight: 700;
+}
+#detailedinfo dd, #tracking dd {
+	width: 65%;
+	float: left;
+	margin: 0 0 3px 0;
+}
+#detailedinfo .noborder {
+	border-bottom: 0;
+}
+#detailedinfo dt.clear {
+	width: 100%;
+}
+#detailedinfo .signature {
+	padding-block: 1em 0;
+	padding-inline: .5em;
+}
+
+#personal_picture {
+	display: block;
+	margin-bottom: 4px;
+}
+#avatar_upload {
+	overflow: auto;
+}
+#smileypr {
+	margin-inline: 1em 0;
+}
+#current_avatar {
+	margin-block: 1em 0;
+}
+
+/* Activity by time */
+#statspanel {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25em;
+}
+#statspanel > .title_bar {
+	margin-block: 0.25em 0;
+}
+.activity_stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
+	justify-content: center;
+	margin: 10px 0;
+}
+.activity_stats li {
+	text-align: center;
+}
+.activity_stats li span {
+	background: var(--window-bg);
+	border-color: var(--window-border-color);
+	border-style: var(--window-border-style);
+	border-width: 1px 0;
+	display: block;
+	font-size: 0.8em;
+}
+.activity_stats li .generic_bar {
+	height: 100px;
+	margin-inline: auto;
+}
+.activity_stats li .generic_bar span {
+	position: absolute;
+	top: -1000em;
+	left: -1000em;
+}
+.profile_pie {
+	background: url(../images/stats_pie.png);
+	background-size: auto 20px;
+	float: left;
+	height: 20px;
+	width: 20px;
+	margin: 0 12px 0 0;
+	text-indent: -1000em;
+}
+
+
+#creator dt {
+	width: 40%;
+}
+#creator dd {
+	width: 55%;
+	margin: 0 0 10px 2px;
+}
+.centericon {
+	vertical-align: middle;
+}
+.sizefix {
+	width: 16px;
+	height: 16px;
+}
+
+.boardslist > ul > li {
+	margin: 12px;
+}
+.boardslist > ul > li > ul {
+	columns: 2 250px;
+}
+.boardslist > ul > li > ul > li {
+	break-inside: avoid;
+	display: inline-block;
+	vertical-align: top;
+	width: 100%;
+}
+.boardslist a {
+	font-weight: bold;
+	border-bottom: var(--border_width) var(--border_style) var(--border_color);
+	display: block;
+	margin-bottom: 0.5em;
+}
+.boardslist a:hover {
+	text-decoration: none;
+	border-bottom: var(--border_width) var(--border_style) var(--border_color);
+}
+.boardslist label {
+	display: inline-block;
+	text-indent: -3ch;
+	margin: 0 3ch;
+}
+
+#theme_settings {
+	overflow: auto;
+	margin: 0;
+	padding: 0;
+}
+#theme_settings li {
+	margin: 10px 0;
+	padding: 0;
+}
+
+/* Paid Subscriptions */
+#paid_subscription {
+	width: 100%;
+}
+#paid_subscription dl.settings {
+	margin-bottom: 0;
+}
+#paid_subscription dl.settings dd, #paid_subscription dl.settings dt {
+	margin-bottom: 4px;
+}
+/* Pick theme */
+#pick_theme .windowbg {
+	display: grid;
+	grid: auto / 1fr auto;
+	gap: .5em;
+}
+#pick_theme .windowbg > :nth-child(3n+2) {
+	display: flex;
+	flex-flow: column;
+	gap: .5em;
+}
+#pick_theme .windowbg > :nth-child(3n+1) {
+	grid-column: 1 / 3;
+}
+
+/* Signature preview */
+#preview_signature, #preview_signature_display {
+	width: 100%;
+	overflow: hidden;
+}

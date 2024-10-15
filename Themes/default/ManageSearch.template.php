@@ -331,7 +331,7 @@ function template_create_index_progress()
 			document.forms.autoSubmit.b.value = "', Lang::$txt['search_create_index_continue'], ' (" + countdown + ")";
 			countdown--;
 
-			setTimeout("doAutoSubmit();", 1000);
+			setTimeout(doAutoSubmit, 1000);
 		}
 	</script>';
 

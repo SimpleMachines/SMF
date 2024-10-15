@@ -511,8 +511,7 @@ function template_set_settings()
 				</dl>';
 
 	// Do we allow theme variants?
-	if (!empty(Utils::$context['theme_variants']))
-	{
+	if (!empty(Utils::$context['theme_variants'])) {
 		echo '
 				<div class="title_bar">
 					<h3 class="titlebg config_hd">
@@ -542,6 +541,38 @@ function template_set_settings()
 					</dd>
 				</dl>
 				<img src="', Utils::$context['theme_variants'][Utils::$context['default_variant']]['thumbnail'], '" id="variant_preview" alt="">';
+	}
+
+	// Color modes for the theme?
+	if (!empty(Theme::$current->settings['has_dark_mode'])) {
+		echo '
+				<div class="title_bar">
+					<h3 class="titlebg config_hd">
+						', Lang::$txt['theme_colormodes'], '
+					</h3>
+				</div>
+				<dl class="settings">
+					<dt>
+						<label for="colormode">', Lang::$txt['theme_colormode_default'], '</label>
+					</dt>
+					<dd>
+						<select id="colormode" name="options[default_colormode]">';
+
+		foreach (Theme::$current->settings['theme_colormodes'] as $mode)
+			echo '
+							<option value="', $mode, '"', Theme::$current->settings['default_colormode'] == $mode ? ' selected' : '', '>', Lang::$txt['colormode_' . $mode], '</option>';
+
+		echo '
+						</select>
+					</dd>
+					<dt>
+						<label for="disable_user_mode">', Lang::$txt['theme_colormode_user_disable'], '</label>
+					</dt>
+					<dd>
+						<input type="hidden" name="options[disable_user_mode]" value="0">
+						<input type="checkbox" name="options[disable_user_mode]" id="disable_user_mode"', !empty(Utils::$context['theme_settings']['disable_user_mode']) ? ' checked' : '', ' value="1">
+					</dd>
+				</dl>';
 	}
 
 	echo '
@@ -690,65 +721,68 @@ function template_set_settings()
 function template_pick()
 {
 	echo '
-	<div id="pick_theme">
-		<form action="', Config::$scripturl, '?action=theme;sa=pick" method="post" accept-charset="', Utils::$context['character_set'], '">';
+	<form action="', Config::$scripturl, '?action=theme;sa=pick" method="post" accept-charset="', Utils::$context['character_set'], '" name="creator" id="pick_theme">';
 
-	// Just go through each theme and show its information - thumbnail, etc.
-	foreach (Utils::$context['available_themes'] as $theme)
+	for ($i = 0; $i < 2; $i++)
 	{
 		echo '
-			<div class="cat_bar">
-				<h3 class="catbg">
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::$txt[$i == 0 ? 'current_theme' : 'theme_pick'], '</h3>
+		</div>
+		<div class="windowbg">';
+
+		// Just go through each theme and show its information - thumbnail, etc.
+		foreach (Utils::$context['available_themes'] as $theme)
+		{
+			if (($theme['selected'] && $i == 0) || (!$theme['selected'] && $i == 1))
+			{
+				echo '
+			<div class="title_bar">
+				<h3 class="titlebg">
 					', $theme['name'], '
 				</h3>
 			</div>
-			<div class="windowbg', $theme['selected'] ? ' selected' : '', '">
-				<div class="flow_hidden">
-					<div class="floatright">
-						<a href="', Config::$scripturl, '?action=theme;sa=pick;u=', Utils::$context['current_member'], ';theme=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" id="theme_thumb_preview_', $theme['id'], '" title="', Lang::$txt['theme_preview'], '">
-							<img src="', $theme['thumbnail_href'], '" id="theme_thumb_', $theme['id'], '" alt="" class="padding theme_thumbnail">
-						</a>
-					</div>
-					<p>', $theme['description'], '</p>';
+			<div>
+				<small><i>', $theme['description'], '</i></small>';
 
-		if (!empty($theme['variants']))
-		{
-			echo '
-					<label for="variant', $theme['id'], '"><strong>', $theme['pick_label'], '</strong></label>:
-					<select id="variant', $theme['id'], '" name="vrt[', $theme['id'], ']" onchange="changeVariant(', $theme['id'], ', this);">';
+				if (!empty($theme['variants']))
+				{
+					echo '
+				<label><strong>', $theme['pick_label'], '</strong>
+					<select data-theme-id="', $theme['id'], '" name="vrt[', $theme['id'], ']">';
 
-			foreach ($theme['variants'] as $key => $variant)
+					foreach ($theme['variants'] as $key => $variant)
+						echo '
+						<option value="', $key, '"', $theme['selected_variant'] == $key ? ' selected' : '', ' data-url="', $variant['thumbnail'], '">', $variant['label'], '</option>';
+
+					echo '
+					</select>
+				</label>';
+				}
+
 				echo '
-						<option value="', $key, '"', $theme['selected_variant'] == $key ? ' selected' : '', '>', $variant['label'], '</option>';
-
-			echo '
-					</select>';
-		}
-
-		echo '
-					<br>
-					<p>
-						<em class="smalltext">', $theme['num_users'], ' ', ($theme['num_users'] == 1 ? Lang::$txt['theme_user'] : Lang::$txt['theme_users']), '</em>
-					</p>
-					<br>
-					<ul>
-						<li class="lower_padding">
-							<input type="submit" name="save[', $theme['id'], ']" value="', Lang::$txt['theme_set'], '" class="button">
-						</li>
-						<li>
-							<a class="button" href="', Config::$scripturl, '?action=theme;sa=pick;theme=', $theme['id'], '" id="theme_preview_', $theme['id'], '">', Lang::$txt['theme_preview'], '</a>
-						</li>
-					</ul>
+				<div>
+					<input type="submit" name="save[', $theme['id'], ']" value="', Lang::$txt['theme_set'], '" class="button">
+					<a class="button" href="', Config::$scripturl, '?action=theme;sa=pick;theme=', $theme['id'], '" id="theme_preview_', $theme['id'], '">', Lang::$txt['theme_preview'], '</a>
 				</div>
+			</div>
+			<div>
+				<a href="', Config::$scripturl, '?action=theme;sa=pick;u=', Utils::$context['current_member'], ';theme=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" id="theme_thumb_preview_', $theme['id'], '" title="', Lang::$txt['theme_preview'], '">
+					<img src="', $theme['thumbnail_href'], '" id="theme_thumb_', $theme['id'], '" alt="" class="padding theme_thumbnail">
+				</a>
 			</div>';
+			}
 		}
 
 		echo '
-			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-			<input type="hidden" name="', Utils::$context['pick-th_token_var'], '" value="', Utils::$context['pick-th_token'], '">
-			<input type="hidden" name="u" value="', Utils::$context['current_member'], '">
-		</form>
-	</div><!-- #pick_theme -->';
+		</div>
+		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+		<input type="hidden" name="', Utils::$context['pick-th_token_var'], '" value="', Utils::$context['pick-th_token'], '">
+		<input type="hidden" name="u" value="', Utils::$context['current_member'], '">';
+	}
+
+	echo '
+	</form><!-- #pick_theme -->';
 }
 
 /**

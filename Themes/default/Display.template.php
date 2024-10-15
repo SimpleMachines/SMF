@@ -37,7 +37,7 @@ function template_main()
 
 	// Show new topic info here?
 	echo '
-		<div id="display_head" class="information">
+		<div id="display_head">
 			<h2 class="display_title">
 				<span id="top_subject">', Utils::$context['subject'], '</span>', (Utils::$context['is_locked']) ? ' <span class="main_icons lock"></span>' : '', (Utils::$context['is_sticky']) ? ' <span class="main_icons sticky"></span>' : '', '
 			</h2>
@@ -45,7 +45,7 @@ function template_main()
 
 	// Next - Prev
 	echo '
-			<span class="nextlinks floatright">', Utils::$context['previous_next'], '</span>';
+			<span class="nextlinks">', Utils::$context['previous_next'], '</span>';
 
 	if (!empty(Theme::$current->settings['display_who_viewing']))
 	{
@@ -186,12 +186,12 @@ function template_main()
 	// Show the page index... "Pages: [1]".
 	echo '
 		<div class="pagesection top">
-			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
-			', Utils::$context['menu_separator'], '
 			<div class="pagelinks floatleft">
 				<a href="#bot" class="button">', Lang::$txt['go_down'], '</a>
 				', Utils::$context['page_index'], '
-			</div>';
+			</div>
+			', Utils::$context['menu_separator'], '
+			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '';
 
 	// Mobile action - moderation buttons (top)
 	if (!empty(Utils::$context['normal_buttons']))
@@ -223,12 +223,12 @@ function template_main()
 	// Show the page index... "Pages: [1]".
 	echo '
 		<div class="pagesection">
-			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
-			', Utils::$context['menu_separator'], '
 			<div class="pagelinks floatleft">
 				<a href="#main_content_section" class="button" id="bot">', Lang::$txt['go_up'], '</a>
 				', Utils::$context['page_index'], '
-			</div>';
+			</div>
+			', Utils::$context['menu_separator'], '
+			', template_button_strip(Utils::$context['normal_buttons'], 'right'), '';
 
 	// Mobile action - moderation buttons (bottom)
 	if (!empty(Utils::$context['normal_buttons']))
@@ -292,7 +292,6 @@ function template_main()
 	{
 		echo '
 			var oInTopicModeration = new InTopicModeration({
-				sSelf: \'oInTopicModeration\',
 				sCheckboxContainerMask: \'in_topic_mod_check_\',
 				aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
 				sSessionId: smf_session_id,
@@ -318,7 +317,6 @@ function template_main()
 		// Add it to the mobile button strip as well
 		echo '
 			var oInTopicModerationMobile = new InTopicModeration({
-				sSelf: \'oInTopicModerationMobile\',
 				sCheckboxContainerMask: \'in_topic_mod_check_\',
 				aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
 				sSessionId: smf_session_id,
@@ -350,25 +348,10 @@ function template_main()
 					sClassName: \'quick_edit\',
 					bShowModify: ', Config::$modSettings['show_modify'] ? 'true' : 'false', ',
 					iTopicId: ', Utils::$context['current_topic'], ',
-					sTemplateBodyEdit: ', Utils::escapeJavaScript('
-						<div id="quick_edit_body_container">
-							<div id="error_box" class="error"></div>
-							<textarea class="editor" name="message" rows="12" tabindex="' . Utils::$context['tabindex']++ . '">%body%</textarea><br>
-							<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
-							<input type="hidden" name="topic" value="' . Utils::$context['current_topic'] . '">
-							<input type="hidden" name="msg" value="%msg_id%">
-							<div class="righttext quickModifyMargin">
-								<input type="submit" name="post" value="' . Lang::$txt['save'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\');" accesskey="s" class="button">' . (Utils::$context['show_spellchecking'] ? ' <input type="button" value="' . Lang::$txt['spell_check'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="spellCheck(\'quickModForm\', \'message\');" class="button">' : '') . ' <input type="submit" name="cancel" value="' . Lang::$txt['modify_cancel'] . '" tabindex="' . Utils::$context['tabindex']++ . '" onclick="return oQuickModify.modifyCancel();" class="button">
-							</div>
-						</div>'), ',
-					sTemplateSubjectEdit: ', Utils::escapeJavaScript('<input type="text" name="subject" value="%subject%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '">'), ',
-					sTemplateBodyNormal: ', Utils::escapeJavaScript('%body%'), ',
-					sTemplateSubjectNormal: ', Utils::escapeJavaScript('<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.msg%msg_id%#msg%msg_id%" rel="nofollow">%subject%</a>'), ',
-					sTemplateTopSubject: ', Utils::escapeJavaScript('%subject%'), ',
-					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::$txt['reason_for_edit'] . ': <input type="text" name="modify_reason" value="%modify_reason%" size="80" maxlength="80" tabindex="' . Utils::$context['tabindex']++ . '" class="quickModifyMargin">'), ',
-					sTemplateReasonNormal: ', Utils::escapeJavaScript('%modify_text'), ',
-					sErrorBorderStyle: ', Utils::escapeJavaScript('1px solid red'), (Utils::$context['can_reply']) ? ',
-					sFormRemoveAccessKeys: \'postmodify\'' : '', '
+					sSaveButtonText: ', Utils::escapeJavaScript(Lang::$txt['save']), ',
+					sCancelButtonText: ', Utils::escapeJavaScript(Lang::$txt['modify_cancel']), ',
+					sTemplateReasonEdit: ', Utils::escapeJavaScript(Lang::$txt['reason_for_edit']) . ',
+					sErrorBorderStyle: ', Utils::escapeJavaScript('1px solid red'), '
 				});
 
 				aJumpTo[aJumpTo.length] = new JumpTo({
@@ -439,7 +422,7 @@ function template_single_post($message)
 				<div class="', $message['css_class'], '" id="msg' . $message['id'] . '">
 					', $message['id'] != Utils::$context['first_message'] ? '
 					' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
-					<div class="post_wrapper">';
+					<div class="post_container">';
 
 	// Show information about the poster of this message.
 	echo '
@@ -449,16 +432,14 @@ function template_single_post($message)
 	if (!empty($message['custom_fields']['above_member']))
 	{
 		echo '
-							<div class="custom_fields_above_member">
-								<ul class="nolist">';
+							<il class="custom_fields_above_member">';
 
 		foreach ($message['custom_fields']['above_member'] as $custom)
 			echo '
-									<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 		echo '
-								</ul>
-							</div>';
+							</ul>';
 	}
 
 	echo '
@@ -487,153 +468,147 @@ function template_single_post($message)
 
 	// Begin display of user info
 	echo '
-							</h4>
-							<ul class="user_info">';
+							</h4>';
 
 	// Show the member's custom title, if they have one.
 	if (!empty($message['member']['title']))
 		echo '
-								<li class="title">', $message['member']['title'], '</li>';
+							<div class="title">', $message['member']['title'], '</div>';
 
 	// Show the member's primary group (like 'Administrator') if they have one.
 	if (!empty($message['member']['group']))
 		echo '
-								<li class="membergroup">', $message['member']['group'], '</li>';
+							<div class="membergroup">', $message['member']['group'], '</div>';
 
 	// Show the user's avatar.
 	if (!empty(Config::$modSettings['show_user_images']) && empty(Theme::$current->options['show_no_avatars']) && !empty($message['member']['avatar']['image']))
 		echo '
-								<li class="avatar">
-									<a href="', $message['member']['href'], '">', $message['member']['avatar']['image'], '</a>
-								</li>';
+							<div class="avatar">
+								<a href="', $message['member']['href'], '">', $message['member']['avatar']['image'], '</a>
+							</div>';
 
 	// Are there any custom fields below the avatar?
 	if (!empty($message['custom_fields']['below_avatar']))
 		foreach ($message['custom_fields']['below_avatar'] as $custom)
 			echo '
-								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+							<div class="custom ', $custom['col_name'], '">', $custom['value'], '</div>';
 
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'])
 	{
 		// Show the post group icons
 		echo '
-								<li class="icons">', $message['member']['group_icons'], '</li>';
+							<div class="icons">', $message['member']['group_icons'], '</div>';
 
 		// Show the post group if and only if they have no other group or the option is on, and they are in a post group.
 		if ((empty(Config::$modSettings['hide_post_group']) || empty($message['member']['group'])) && !empty($message['member']['post_group']))
 			echo '
-								<li class="postgroup">', $message['member']['post_group'], '</li>';
+							<div class="postgroup">', $message['member']['post_group'], '</div>';
 
 		// Show how many posts they have made.
 		if (!isset(Utils::$context['disabled_fields']['posts']))
 			echo '
-								<li class="postcount">', Lang::getTxt('member_postcount_num', [$message['member']['posts']]), '</li>';
+							<div class="postcount">', Lang::getTxt('member_postcount_num', [$message['member']['posts']]), '</div>';
 
 		// Show their personal text?
 		if (!empty(Config::$modSettings['show_blurb']) && !empty($message['member']['blurb']))
 			echo '
-								<li class="blurb">', $message['member']['blurb'], '</li>';
+							<div class="blurb">', $message['member']['blurb'], '</div>';
 
 		// Any custom fields to show as icons?
 		if (!empty($message['custom_fields']['icons']))
 		{
 			echo '
-								<li class="im_icons">
-									<ol>';
+							<ol class="im_icons">';
 
 			foreach ($message['custom_fields']['icons'] as $custom)
 				echo '
-										<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
 
 			echo '
-									</ol>
-								</li>';
+							</ol>';
 		}
 
 		// Show the website and email address buttons.
 		if ($message['member']['show_profile_buttons'])
 		{
 			echo '
-								<li class="profile">
-									<ol class="profile_icons">';
+							<ol class="profile_icons">';
 
 			// Don't show an icon if they haven't specified a website.
 			if (!empty($message['member']['website']['url']) && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-										<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
+								<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'])
 				echo '
-										<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
+								<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
 
 			// Show the email if necessary
 			if (!empty($message['member']['email']) && $message['member']['show_email'])
 				echo '
-										<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
+								<li class="email"><a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
 
 			echo '
-									</ol>
-								</li><!-- .profile -->';
+							</ol><!-- .profile_icons -->';
 		}
 
 		// Any custom fields for standard placement?
 		if (!empty($message['custom_fields']['standard']))
 			foreach ($message['custom_fields']['standard'] as $custom)
 				echo '
-								<li class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</li>';
+							<div class="custom ', $custom['col_name'], '">', $custom['title'], ': ', $custom['value'], '</div>';
 	}
 	// Otherwise, show the guest's email.
 	elseif (!empty($message['member']['email']) && $message['member']['show_email'])
 		echo '
-								<li class="email">
-									<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a>
-								</li>';
+							<div class="email">
+								<a href="mailto:' . $message['member']['email'] . '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a>
+							</div>';
 
 	// Show the IP to this user for this post - because you can moderate?
 	if (!empty(Utils::$context['can_moderate_forum']) && !empty($message['member']['ip']))
 		echo '
-								<li class="poster_ip">
-									<a href="', Config::$scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" data-hover="', $message['member']['ip'], '" class="show_on_hover"><span>', Lang::$txt['show_ip'], '</span></a> <a href="', Config::$scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
-								</li>';
+							<div class="poster_ip">
+								<a href="', Config::$scripturl, '?action=', !empty($message['member']['is_guest']) ? 'trackip' : 'profile;area=tracking;sa=ip;u=' . $message['member']['id'], ';searchip=', $message['member']['ip'], '" data-hover="', $message['member']['ip'], '" class="show_on_hover"><span>', Lang::$txt['show_ip'], '</span></a> <a href="', Config::$scripturl, '?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);" class="help">(?)</a>
+							</div>';
 
 	// Or, should we show it because this is you?
 	elseif ($message['can_see_ip'])
 		echo '
-								<li class="poster_ip">
-									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help show_on_hover" data-hover="', $message['member']['ip'], '"><span>', Lang::$txt['show_ip'], '</span></a>
-								</li>';
+							<div class="poster_ip">
+								<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help show_on_hover" data-hover="', $message['member']['ip'], '"><span>', Lang::$txt['show_ip'], '</span></a>
+							</div>';
 
 	// Okay, are you at least logged in? Then we can show something about why IPs are logged...
 	elseif (!User::$me->is_guest)
 		echo '
-								<li class="poster_ip">
+							<div class="poster_ip">
 									<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::$txt['logged'], '</a>
-								</li>';
+							</div>';
 
 	// Otherwise, you see NOTHING!
 	else
 		echo '
-								<li class="poster_ip">', Lang::$txt['logged'], '</li>';
+							<div class="poster_ip">', Lang::$txt['logged'], '</div>';
 
 	// Are we showing the warning status?
 	// Don't show these things for guests.
 	if (!$message['member']['is_guest'] && $message['member']['can_see_warning'])
 		echo '
-								<li class="warning">
-									', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span> ', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::$txt['warn_' . $message['member']['warning_status']], '</span>
-								</li>';
+							<div class="warning">
+								', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span> ', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::$txt['warn_' . $message['member']['warning_status']], '</span>
+							</div>';
 
 	// Are there any custom fields to show at the bottom of the poster info?
 	if (!empty($message['custom_fields']['bottom_poster']))
 		foreach ($message['custom_fields']['bottom_poster'] as $custom)
 			echo '
-								<li class="custom ', $custom['col_name'], '">', $custom['value'], '</li>';
+							<div class="custom ', $custom['col_name'], '">', $custom['value'], '</div>';
 
 	// Poster info ends.
 	echo '
-							</ul>
 						</div><!-- .poster -->
 						<div class="postarea">
 							<div class="keyinfo">';
@@ -645,18 +620,18 @@ function template_single_post($message)
 								</div>';
 
 	echo '
-								', !empty($message['counter']) ? '<span class="page_number floatright">#' . $message['counter'] . '</span>' : '', '
 								<div class="postinfo">
 									<span class="messageicon" ', ($message['icon_url'] === Theme::$current->settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
 										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
 									</span>
-									<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? Lang::getTxt('reply_number', [$message['counter']]) : '', $message['subject'], '" class="smalltext">', $message['time'], '</a>
-									<span class="spacer"></span>';
+									<span class="date smalltext">
+										<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? Lang::getTxt('reply_number', [$message['counter']]) : '', $message['subject'], '">', $message['time'], '</a>
+									</span>';
 
 	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
 	// Because we insert into it through AJAX and we don't want to stop themers moving it around if they so wish so they can put it where they want it.
 	echo '
-									<span class="smalltext modified floatright', !empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']) ? ' mvisible' : '', '" id="modified_', $message['id'], '">';
+									<span class="smalltext modified', !empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']) ? ' mvisible' : '', '" id="modified_', $message['id'], '">';
 
 	if (!empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']))
 		echo
@@ -665,6 +640,7 @@ function template_single_post($message)
 	echo '
 									</span>
 								</div>
+								', !empty($message['counter']) ? '<span class="page_number">#' . $message['counter'] . '</span>' : '', '
 								<div id="msg_', $message['id'], '_quick_mod"', $ignoring ? ' style="display:none;"' : '', '></div>
 							</div><!-- .keyinfo -->';
 
@@ -780,7 +756,7 @@ function template_single_post($message)
 	if (!empty(Config::$modSettings['enable_likes']))
 	{
 		echo '
-								<ul class="floatleft">';
+								<ul class="likes">';
 
 		if (!empty($message['likes']['can_like']))
 		{
@@ -861,7 +837,7 @@ function template_single_post($message)
 
 	echo '
 						</div><!-- .moderatorbar -->
-					</div><!-- .post_wrapper -->
+					</div><!-- .post_container -->
 				</div><!-- $message[css_class] -->
 				<hr class="post_separator">';
 }
@@ -919,7 +895,7 @@ function template_quickreply()
 								', Lang::$txt['name'], '
 							</dt>
 							<dd>
-								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" tabindex="', Utils::$context['tabindex']++, '" required>
+								<input type="text" name="guestname" size="25" value="', Utils::$context['name'], '" required>
 							</dd>';
 
 		if (empty(Config::$modSettings['guest_post_no_email']))
@@ -929,7 +905,7 @@ function template_quickreply()
 								', Lang::$txt['email'], '
 							</dt>
 							<dd>
-								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" tabindex="', Utils::$context['tabindex']++, '" required>
+								<input type="email" name="email" size="25" value="', Utils::$context['email'], '" required>
 							</dd>';
 		}
 
@@ -974,7 +950,6 @@ function template_quickreply()
 		echo '
 		<script>
 			var oDraftAutoSave = new smf_DraftAutoSave({
-				sSelf: \'oDraftAutoSave\',
 				sLastNote: \'draft_lastautosave\',
 				sLastID: \'id_draft\',', !empty(Utils::$context['post_box_name']) ? '
 				sSceditorID: \'' . Utils::$context['post_box_name'] . '\',' : '', '
@@ -1006,7 +981,6 @@ function template_quickreply()
 				bIsFull: true
 			});
 			var oEditorID = "', Utils::$context['post_box_name'], '";
-			var oEditorObject = oEditorHandle_', Utils::$context['post_box_name'], ';
 			var oJumpAnchor = "quickreply_anchor";
 		</script>';
 }

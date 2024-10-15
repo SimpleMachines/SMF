@@ -142,7 +142,6 @@ function template_email_members()
 	</script>
 	<script>
 		var oMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oMemberSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'members\',
@@ -156,7 +155,6 @@ function template_email_members()
 			aListItems: []
 		});
 		var oExcludeMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oExcludeMemberSuggest\',
 			sSessionId: \'', Utils::$context['session_id'], '\',
 			sSessionVar: \'', Utils::$context['session_var'], '\',
 			sSuggestId: \'exclude_members\',
@@ -218,7 +216,7 @@ function template_email_members_compose()
 						<label', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' for="subject" id="caption_subject">', Lang::$txt['subject'], '</label>
 					</dt>
 					<dd id="pm_subject">
-						<input type="text" id="subject" name="subject" value="', Utils::$context['subject'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="84"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
+						<input type="text" id="subject" name="subject" value="', Utils::$context['subject'], '" size="80" maxlength="84"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
 					</dd>
 				</dl>
 				<div id="bbcBox_message"></div>';
@@ -299,8 +297,6 @@ function template_email_members_compose()
 
 						return false;
 					}
-					else
-						return submitThisOnce(document.forms.newsmodify);
 				}
 				function onDocSent(XMLDoc)
 				{

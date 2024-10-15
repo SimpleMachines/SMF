@@ -25,13 +25,9 @@ function template_main()
 		<div class="cat_bar">
 			<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 		</div>
-		<div class="roundframe">
-			<div class="title_bar">
-				<h4 class="titlebg">
-					<span class="main_icons general"></span> ', Lang::$txt['general_stats'], '
-				</h4>
-			</div>
-			<dl class="stats half_content">
+		<div class="roundframe csscolumn">
+			<div class="csscolumn columnspan">
+			<dl class="stats">
 				<dt>', Lang::$txt['total_members'], '</dt>
 				<dd>', Utils::$context['show_member_list'] ? '<a href="' . Config::$scripturl . '?action=mlist">' . Utils::$context['num_members'] . '</a>' : Utils::$context['num_members'], '</dd>
 				<dt>', Lang::$txt['total_posts'], '</dt>
@@ -54,7 +50,7 @@ function template_main()
 
 	echo '
 			</dl>
-			<dl class="stats half_content">
+			<dl class="stats">
 				<dt>', Lang::$txt['average_members'], '</dt>
 				<dd>', Utils::$context['average_members'], '</dd>
 				<dt>', Lang::$txt['average_posts'], '</dt>
@@ -87,12 +83,13 @@ function template_main()
 				<dd>', Utils::$context['average_hits'], '</dd>';
 
 	echo '
-			</dl>';
+			</dl>
+				</div>';
 
 	foreach (Utils::$context['stats_blocks'] as $name => $block)
 	{
 		echo '
-			<div class="half_content">
+			<div>
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span class="main_icons ', $name, '"></span> ', Lang::$txt['top_' . $name], '
@@ -122,12 +119,11 @@ function template_main()
 
 		echo '
 				</dl>
-			</div><!-- .half_content -->';
+				</div>';
 	}
 
 	echo '
 		</div><!-- .roundframe -->
-		<br class="clear">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="main_icons history"></span>', Lang::$txt['forum_history'], '

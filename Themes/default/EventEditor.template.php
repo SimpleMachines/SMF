@@ -226,7 +226,7 @@ function template_event_new()
 								<label>', Lang::$txt['location'], '</label>
 							</dt>
 							<dd>
-								<input type="text" name="event_location" id="event_location" maxlength="255" value="', Utils::$context['event']->selected_occurrence->location, '">
+								<textarea name="event_location" id="event_location" maxlength="255">', Utils::$context['event']->selected_occurrence->location, '"</textarea>
 							</dd>
 						</dl>';
 
@@ -717,9 +717,9 @@ function template_linked_events()
 			}
 		}
 
-		if (!empty($event['location'])) {
+		if ($event['location'] != '') {
 			echo '
-							<br>', $event['location'];
+							<br>', nl2br($event['location']);
 		}
 
 		$rrule_description = $event->getParentEvent()->recurrence_iterator->getRRule()->getDescription($event);

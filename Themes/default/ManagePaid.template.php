@@ -329,15 +329,13 @@ function template_modify_user_subscription()
 	</form>
 	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
-			sSelf: \'oAddMemberSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'name_subscriber\',
 			sControlId: \'name_control\',
 			sSearchType: \'member\',
 			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
-			bItemList: false
-			});
+		});
 	</script>';
 
 	if (!empty(Utils::$context['pending_payments']))

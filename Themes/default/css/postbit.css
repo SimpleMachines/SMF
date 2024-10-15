@@ -1,0 +1,201 @@
+/* Styles for the postbit and "lookalike" sections.
+------------------------------------------------- */
+/* On to the posts */
+#forumposts {
+	clear: both;
+	margin-block: .5em 0;
+}
+#forumposts .cat_bar {
+	margin-block: 0 .2em;
+}
+/* Topic information */
+#forumposts .catbg img {
+	margin: 0 4px -2px 0;
+}
+#forumposts .catbg span {
+	font-size: 0.818em;
+	font-weight: normal;
+	padding: 2px 0;
+	white-space: pre;
+}
+/* poster and postarea + moderation area underneath */
+.post_container::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+.post_container {
+	display: grid;
+	grid: 1fr / var(--poster-width) 1fr;
+}
+/* poster details and list of items */
+.poster {
+	align-content: flex-start;
+	background: var(--poster-bg);
+	display: grid;
+	font-size: var(--poster-font-size);
+	gap: .25em 1.5em;
+	grid-row: var(--poster-grid-row);
+	hyphens: auto;
+	overflow-wrap: break-word;
+	padding: .5em;
+	text-align: center;
+	word-wrap: break-word;
+	width: var(--poster-width);
+}
+.poster h4 {
+	background: var(--poster-title-bg);
+	font-size: var(--poster-title-font-size);
+	font-weight: var(--poster-title-font-weight);
+	text-align: center;
+}
+.poster h4,
+.poster h4 a {
+	color: var(--poster-title-color);
+	text-decoration: var(--poster-title-text-decoration);
+	text-shadow: var(--poster-title-text-shadow);
+}
+.poster img {
+	vertical-align: middle;
+}
+.poster .membergroup {
+	font-weight: 700;
+}
+.poster .warning a img {
+	vertical-align: bottom;
+	padding: 0 .25em;
+}
+.poster .profile_icons,
+.poster  .im_icons {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: .25em .75em;
+	justify-content: center;
+}
+.poster .profile_icons a,
+.poster .im_icons a {
+	display: inline-flex;
+}
+.poster img.avatar {
+	--avatar-size: auto;
+	object-fit: scale-down;
+}
+
+/* The post area */
+.postarea {
+	display: flex;
+	flex-direction: column;
+	padding: .5em;
+}
+.postarea, .moderatorbar {
+	grid-column: 2/-1;
+	min-width: 0;
+}
+.postarea div.flow_hidden {
+	width: 100%;
+}
+
+/* Subject, date and post details */
+.keyinfo {
+	align-items: center;
+	display: grid;
+	gap: .75em;
+	grid: auto auto / 1fr auto;
+}
+.keyinfo .postinfo {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: .75em;
+	grid-column: 1/3;
+	grid-row: 2/3;
+	min-height: 1.5em;
+}
+#pmFolder .keyinfo .postinfo {
+	align-items: flex-start;
+	flex-direction: column;
+	gap: .2em;
+	justify-content: center;
+}
+.keyinfo .postinfo .date {
+	flex-grow: 1;
+}
+.keyinfo .postinfo .messageicon img {
+	vertical-align: middle;
+}
+.keyinfo .postinfo .modified {
+	font-size: 0.75em;
+	padding-inline: 1em;
+}
+.keyinfo .page_number {
+	font-size: .9em;
+	font-weight: 700;
+	grid-row: 1/4;
+	line-height: 1.5em;
+}
+#reason::before {
+	content: " - ";
+}
+.subject_title {
+	grid-column: 1/3;
+}
+.subject_title a {
+	font-size: 0.9em;
+	font-weight: bold;
+}
+.subject_hidden a {
+	display: none;
+}
+.subject_title input {
+	width: 100%;
+}
+
+/* Post or message */
+.postarea .post {
+	flex-grow: 1;
+}
+.postarea .post .inner {
+	background: var(--post-inner-bg);
+	border-color: var(--post-inner-border-color);
+	border-radius: var(--post-inner-border-radius);
+	border-style: var(--post-inner-border-style);
+	border-width: var(--post-inner-border-width);
+	box-shadow: var(--post-inner-box-shadow);
+	margin-block: .5em 0;
+	min-height: var(--post-inner-height);
+	overflow-wrap: break-word;
+	padding: 1.25em .5em;
+	word-wrap: break-word;
+}
+
+.under_message {
+	align-items: baseline;
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	overflow: visible;
+}
+.under_message .likes {
+	padding-inline: .75em;
+}
+.under_message .quickbuttons {
+	flex-grow: 1;
+}
+
+/* Signatures */
+.post_container .signature {
+	padding: 1em .75em;
+}
+
+/* Quick Edit */
+input.quickModifyMargin {
+	margin-block: .5em;
+	width: 100%;
+}
+#quick_edit_body_container textarea {
+	margin-block: .75em;
+	min-height: 150px;
+	padding: .75em;
+	width: 100%;
+}

@@ -721,6 +721,7 @@ class PersonalMessage implements ActionInterface
 	protected function __construct()
 	{
 		Lang::load('PersonalMessage+Drafts');
+		Theme::loadCSSFile('postbit.css', ['minimize' => true], 'smf_post');
 
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('PersonalMessage');

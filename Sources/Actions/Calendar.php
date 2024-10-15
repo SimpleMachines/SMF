@@ -112,7 +112,7 @@ class Calendar implements ActionInterface
 
 		// This is gonna be needed...
 		Theme::loadTemplate('Calendar');
-		Theme::loadCSSFile('calendar.css', ['force_current' => false, 'validate' => true, 'rtl' => 'calendar.rtl.css'], 'smf_calendar');
+		Theme::loadCSSFile('calendar.css', ['force_current' => false, 'validate' => true], 'smf_calendar');
 		Theme::loadJavaScriptFile('calendar.js', ['defer' => true], 'smf_calendar');
 
 		// Did they specify an individual event ID? If so, let's splice the year/month in to what we would otherwise be doing.
@@ -722,6 +722,8 @@ class Calendar implements ActionInterface
 		$bcd = !isset($_REQUEST['rb']) && !isset($_REQUEST['omfg']) && !isset($_REQUEST['time']);
 
 		Theme::loadTemplate('Calendar');
+		Theme::loadCSSFile('calendar.css', ['force_current' => false, 'validate' => true], 'smf_calendar');
+		Theme::loadJavaScriptFile('calendar.js', ['defer' => true], 'smf_calendar');
 
 		if ($bcd) {
 			Utils::$context['sub_template'] = 'bcd';

@@ -21,31 +21,30 @@ use SMF\Utils;
 function template_report_type()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=reports" method="post" accept-charset="', Utils::$context['character_set'], '">
-			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['generate_reports_type'], '</h3>
-			</div>
-			<div class="windowbg">
-				<dl class="settings">';
+		<div class="cat_bar">
+			<h3 class="catbg">', Lang::$txt['generate_reports_type'], '</h3>
+		</div>
+		<form action="', Config::$scripturl, '" method="get" accept-charset="', Utils::$context['character_set'], '" class="windowbg option_form">';
 
 	// Go through each type of report they can run.
 	foreach (Utils::$context['report_types'] as $type)
 	{
+		echo '
+			<label>
+				<input type="radio" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', '>
+				<b>', $type['title'], '</b>';
+
 		if (isset($type['description']))
 			echo '
-					<dt>', $type['description'], '</dt>';
+				<p>', $type['description'], '</p>';
 
 		echo '
-					<dd>
-						<input type="radio" id="rt_', $type['id'], '" name="rt" value="', $type['id'], '"', $type['is_first'] ? ' checked' : '', '>
-						<strong><label for="rt_', $type['id'], '">', $type['title'], '</label></strong>
-					</dd>';
+			</label><br>';
 	}
 	echo '
-				</dl>
-				<input type="submit" name="continue" value="', Lang::$txt['generate_reports_continue'], '" class="button">
-				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-			</div><!-- .windowbg -->
+			<input type="submit" value="', Lang::$txt['generate_reports_continue'], '" class="button">
+			<input type="hidden" name="action" value="admin">
+			<input type="hidden" name="area" value="reports">
 		</form>';
 }
 

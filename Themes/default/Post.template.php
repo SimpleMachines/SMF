@@ -26,11 +26,6 @@ function template_main()
 	echo '
 		<script>';
 
-	// When using Go Back due to fatal_error, allow the form to be re-submitted with changes.
-	if (BrowserDetector::isBrowser('is_firefox'))
-		echo '
-			window.addEventListener("pageshow", reActivate, false);';
-
 	// Start with message icons - and any missing from this theme.
 	echo '
 			var icon_urls = {';
@@ -41,28 +36,6 @@ function template_main()
 
 	echo '
 			};';
-
-	// If this is a poll - use some javascript to ensure the user doesn't create a poll with illegal option combinations.
-	if (Utils::$context['make_poll'])
-		echo '
-			var pollOptionNum = 0, pollTabIndex;
-			var pollOptionId = ', Utils::$context['last_choice_id'], ';
-			function addPollOption()
-			{
-				if (pollOptionNum == 0)
-				{
-					for (var i = 0, n = document.forms.postmodify.elements.length; i < n; i++)
-						if (document.forms.postmodify.elements[i].id.substr(0, 8) == \'options-\')
-						{
-							pollOptionNum++;
-							pollTabIndex = document.forms.postmodify.elements[i].tabIndex;
-						}
-				}
-				pollOptionNum++
-				pollOptionId++
-
-				setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" >', strtr(Lang::getTxt('option_number', [999]), ['999' => '\' + pollOptionNum + \'']), '</label></dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p>\');
-			}';
 
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
 	if (Utils::$context['make_event'])
@@ -164,10 +137,10 @@ function template_main()
 					<div id="edit_poll">
 						<fieldset id="poll_main">
 							<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::$txt['poll_question'], '</span></legend>
-							<dl class="settings poll_options">
+							<dl class="settings poll_options" data-more-txt="', Lang::$txt['poll_add_option'], '" data-option-txt="', Lang::$txt['option'], '">
 								<dt>', Lang::$txt['poll_question'], '</dt>
 								<dd>
-									<input type="text" name="question" value="', isset(Utils::$context['question']) ? Utils::$context['question'] : '', '" tabindex="', Utils::$context['tabindex']++, '" size="80">
+									<input type="text" name="question" value="', isset(Utils::$context['question']) ? Utils::$context['question'] : '', '" size="80">
 								</dd>';
 
 		// Loop through all the choices and print them out.
@@ -177,13 +150,11 @@ function template_main()
 									<label for="options-', $choice['id'], '">', Lang::getTxt('option_number', [$choice['number']]), '</label>
 								</dt>
 								<dd>
-									<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="255">
+									<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" size="80" maxlength="255">
 								</dd>';
 
 		echo '
-								<p id="pollMoreOptions"></p>
 							</dl>
-							<strong><a href="javascript:addPollOption(); void(0);">(', Lang::$txt['poll_add_option'], ')</a></strong>
 						</fieldset>
 						<fieldset id="poll_options">
 							<legend>', Lang::$txt['poll_options'], '</legend>
@@ -196,7 +167,7 @@ function template_main()
 								</dd>
 								<dt>
 									<label for="poll_expire">', Lang::$txt['poll_run'], '</label><br>
-									<em class="smalltext">', Lang::$txt['poll_run_limit'], '</em>
+									<small><i>', Lang::$txt['poll_run_limit'], '</i></small>
 								</dt>
 								<dd>
 									<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll_options']['expire'] ?? 0), '" onchange="pollOptions();">
@@ -250,7 +221,8 @@ function template_main()
 
 		if (Utils::$context['can_post_attachment'])
 			echo '
-										<input type="file" multiple="multiple" name="attachment[]" id="attachment1">';
+										<input type="file" multiple="multiple" name="attachment[]" id="attachment1">
+										<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">(', Lang::$txt['clean_attach'], ')</a>';
 
 		if (!empty(Config::$modSettings['attachmentSizeLimit']))
 			echo '
@@ -409,8 +381,9 @@ function template_main()
 		echo '
 					<div id="post_draft_options_header" class="title_bar">
 						<h4 class="titlebg">
-							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::$txt['drafts_show'], '</a></strong>
+							 <a href="#" id="postDraftExpandLink">', Lang::$txt['drafts_show'], '</a>
 						</h4>
+						<span id="postDraftExpand" class="toggle_up" style="display: none;"></span>
 					</div>
 					<div id="post_draft_options">
 						<dl class="settings">
@@ -777,7 +750,7 @@ function template_quotefast()
 			window.opener.onReceiveOpener(quote);
 
 			window.focus();
-			setTimeout("window.close();", 400);';
+			setTimeout(function() { window.close(); }, 400);';
 	}
 	echo '
 		</script>
@@ -876,7 +849,7 @@ function template_announcement_send()
 			document.forms.autoSubmit.b.value = "', Lang::$txt['announce_continue'], ' (" + countdown + ")";
 			countdown--;
 
-			setTimeout("doAutoSubmit();", 1000);
+			setTimeout(doAutoSubmit, 1000);
 		}
 	</script>';
 }
@@ -976,7 +949,7 @@ function template_post_header()
 				}
 			}
 
-			echo ' tabindex="', Utils::$context['tabindex']++, '">';
+			echo '>';
 		}
 		// textarea
 		elseif ($pf['input']['type'] === 'textarea')
@@ -1003,7 +976,7 @@ function template_post_header()
 				}
 			}
 
-			echo ' tabindex="', Utils::$context['tabindex']++, '">', !empty($pf['input']['attributes']['value']) ? $pf['input']['attributes']['value'] : '', '</textarea>';
+			echo '>', !empty($pf['input']['attributes']['value']) ? $pf['input']['attributes']['value'] : '', '</textarea>';
 		}
 		// Select menus are more complicated
 		elseif ($pf['input']['type'] === 'select' && is_array($pf['input']['options']))
@@ -1029,7 +1002,7 @@ function template_post_header()
 				}
 			}
 
-			echo ' tabindex="', Utils::$context['tabindex']++, '">';
+			echo '>';
 
 			// The options
 			foreach ($pf['input']['options'] as $optlabel => $option)
@@ -1136,7 +1109,7 @@ function template_post_header()
 						echo ' ', $attribute, '="', $value, '"';
 				}
 
-				echo ' tabindex="', Utils::$context['tabindex']++, '"> ', isset($option['label']) ? $option['label'] : $optlabel, '</label>';
+				echo '> ', isset($option['label']) ? $option['label'] : $optlabel, '</label>';
 			}
 
 			echo '
