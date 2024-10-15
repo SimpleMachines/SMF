@@ -334,7 +334,7 @@ function AnnouncementsNotify()
 
 	require_once($sourcedir . '/Subs-Notify.php');
 
-	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
+	if (isset($_REQUEST['u']) && $_REQUEST['u'] > 0 && isset($_REQUEST['token']))
 	{
 		$member_info = getMemberWithToken('announcements');
 		$skipCheckSession = true;
@@ -381,6 +381,103 @@ function AnnouncementsNotify()
 	// Show a confirmation message.
 	$context['sub_template'] = 'notify_pref_changed';
 	$context['notify_success_msg'] = sprintf($txt['notify_announcements' . (!empty($mode) ? '_subscribed' : '_unsubscribed')], $member_info['email']);
+}
+
+/**
+ * Disable an account if they unsubscribe/delete account.
+ * Accessed via ?action=unsubscribe.
+ */
+function Unsubscribe()
+{
+	global $scripturl, $txt, $user_info, $context, $smcFunc, $sourcedir, $modSettings;
+
+	require_once($sourcedir . '/Subs-Notify.php');
+
+	// Logged in? Just delete your account.
+	if (!$user_info['is_guest'])
+		redirectexit('action=profile;area=notification');
+
+	loadTemplate('Notify');
+	$context['page_title'] = $txt['unsubscribe'];
+
+	if (isset($_REQUEST['u']) && $_REQUEST['u'] > 0 && isset($_REQUEST['token']))
+	{
+		$member_info = getMemberWithToken('unsubscribe');
+
+		if (isset($_POST['notify']))
+		{
+			validateToken('unsubscribe');
+
+			// Get all notifications preferences.
+			$notifyPrefs = getNotifyPrefs($member_info['id'], '', true);
+
+			if (!empty($notifyPrefs[$member_info['id']]))
+			{
+				// 0 = None, 1 = Alert, 2 = Email, 3 = Alert + Email
+				foreach ($notifyPrefs[$member_info['id']] as $pref_key => &$pref_value)
+					if ($pref_key != 'alert_timeout' && $pref_value > 0)
+						$pref_value = $pref_value == 2 ? 0 : 1;
+
+				setNotifyPrefs($member_info['id'], $notifyPrefs[$member_info['id']]); 
+			}
+
+			$context['sub_template'] = 'unsubscribe_success';
+			$context['success_msg'] = $txt['unsubscribe_success_done'];
+		}
+		else
+		{
+			createToken('unsubscribe');
+			$context['sub_template'] = 'unsubscribe_confirm';
+			$context['token'] = $smcFunc['htmlspecialchars']($_REQUEST['token']);
+			$context['user_id'] = $member_info['id'];
+		}
+
+		return;
+	}
+
+	// A request has been received, lookup the member and send a request.
+	if (isset($_POST['email']))
+	{
+		checkSession('post');
+		validateToken('unsubscribe');
+
+		// Lookup the member.
+		$request = $smcFunc['db_query']('', '
+			SELECT id_member, email_address
+			FROM {db_prefix}members
+			WHERE email_address = {string:email}',
+			array(
+				'email' => $_POST['email']
+		));
+
+		// Regardless, we pretend it was succesful, so we don't leak member data.
+		if ($smcFunc['db_num_rows']($request) > 0)
+		{
+			$user_settings = $smcFunc['db_fetch_assoc']($request);
+			$smcFunc['db_free_result']($request);
+
+			$token = createUnsubscribeToken($user_settings['id_member'], $user_settings['email_address'], 'unsubscribe');
+
+			require_once($sourcedir . '/Subs-Post.php');
+
+			// Send them a email (yes) with a token to unsubscribe.
+			sendmail(
+				$user_settings['email_address'],
+				$txt['unsubscribe_email_subject'],
+				sprintf($txt['unsubscribe_email_body'], $scripturl . '?action=unsubscribe;u=' . $user_settings['id_member'] . ';token=' . $token) . "\n\n" . sprintf($txt['regards_team'], $context['forum_name'])
+			);
+		}
+
+		$context['sub_template'] = 'unsubscribe_success';
+		$context['success_msg'] = $txt['unsubscribe_success_request'];		
+	}
+	else
+	{
+		// Default email address if provided with one.
+		$context['email_address'] = isset($_GET['email']) ? $smcFunc['htmlspecialchars'](urldecode($_GET['email'])) : '';
+		$context['sub_template'] = 'unsubscribe_request';
+		createToken('unsubscribe');
+	}
 }
 
 ?>
