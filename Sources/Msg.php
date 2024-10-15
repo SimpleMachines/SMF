@@ -1641,10 +1641,6 @@ class Msg implements \ArrayAccess
 	{
 		$searchAPI = SearchApi::load();
 
-		$topicOptions['poll'] = isset($topicOptions['poll']) ? (int) $topicOptions['poll'] : null;
-		$topicOptions['lock_mode'] = $topicOptions['lock_mode'] ?? null;
-		$topicOptions['sticky_mode'] = $topicOptions['sticky_mode'] ?? null;
-
 		// This is longer than it has to be, but makes it so we only set/change what we have to.
 		$messages_columns = [];
 
@@ -1732,12 +1728,33 @@ class Msg implements \ArrayAccess
 				unset($msgOptions['mentioned_members'][User::$me->id]);
 			}
 		}
+		$topic_columns = [];
+		$topic_parameters = [
+			'id_topic' => $topicOptions['id'],
+		];
+		$possible_topic_columns = [
+			'sticky_mode' => ['int' => 'is_sticky'],
+			'lock_mode' => ['int' => 'locked'],
+			'poll' =>  ['int' => 'id_poll']
+		];
 
 		// This allows mods to skip sending notifications if they don't want to.
 		$msgOptions['send_notifications'] = isset($msgOptions['send_notifications']) ? (bool) $msgOptions['send_notifications'] : true;
 
 		// Maybe a mod wants to make some changes?
-		IntegrationHook::call('integrate_modify_post', [&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts]);
+		IntegrationHook::call('integrate_modify_post', [&$messages_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions, &$messageInts, &$possible_topic_columns]);
+
+		foreach ($possible_topic_columns as $var => [$type, $column]) {
+			if (isset($topicOptions[$var])) {
+				// Are we restricting the length?
+				if (strpos($type, 'string-') !== false) {
+					$topic_columns[$column] = $column . ' = ' . sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . ') ', $column);
+				} else {
+					$topic_columns[$column] = $column . ' = {' . $type . ':' . $column . '} ';
+				}
+				$topic_parameters[$column] = $topicOptions[$var];
+			}
+		}
 
 		foreach ($messages_columns as $var => $val) {
 			$messages_columns[$var] = $var . ' = {' . (in_array($var, $messageInts) ? 'int' : 'string') . ':var_' . $var . '}';
@@ -1761,24 +1778,16 @@ class Msg implements \ArrayAccess
 			$update_parameters,
 		);
 
-		// Lock and or sticky the post.
-		if ($topicOptions['sticky_mode'] !== null || $topicOptions['lock_mode'] !== null || $topicOptions['poll'] !== null) {
+		// Change the topic.
+		if ($topic_columns !== []) {
 			Db::$db->query(
 				'',
 				'UPDATE {db_prefix}topics
-				SET
-					is_sticky = {raw:is_sticky},
-					locked = {raw:locked},
-					id_poll = {raw:id_poll}
+				SET ' . implode(', ', $topic_columns) . '
 				WHERE id_topic = {int:id_topic}',
-				[
-					'is_sticky' => $topicOptions['sticky_mode'] === null ? 'is_sticky' : (int) $topicOptions['sticky_mode'],
-					'locked' => $topicOptions['lock_mode'] === null ? 'locked' : (int) $topicOptions['lock_mode'],
-					'id_poll' => $topicOptions['poll'] === null ? 'id_poll' : (int) $topicOptions['poll'],
-					'id_topic' => $topicOptions['id'],
-				],
+				$topic_parameters,
 			);
-		}
+	}
 
 		// Mark the edited post as read.
 		if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest) {
