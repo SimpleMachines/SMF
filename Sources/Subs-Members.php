@@ -74,7 +74,7 @@ function deleteMembers($users, $check_not_admin = false)
 
 	// Get their names for logging purposes.
 	$request = $smcFunc['db_query']('', '
-		SELECT id_member, member_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
+		SELECT id_member, member_name, email_address, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
 		FROM {db_prefix}members
 		WHERE id_member IN ({array_int:user_list})
 		LIMIT {int:limit}',
@@ -86,11 +86,13 @@ function deleteMembers($users, $check_not_admin = false)
 	);
 	$admins = array();
 	$user_log_details = array();
+	$emails = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if ($row['is_admin'])
 			$admins[] = $row['id_member'];
 		$user_log_details[$row['id_member']] = array($row['id_member'], $row['member_name']);
+		$emails[] = $row['email_address'];
 	}
 	$smcFunc['db_free_result']($request);
 
@@ -192,6 +194,26 @@ function deleteMembers($users, $check_not_admin = false)
 
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}log_errors
+		SET id_member = {int:guest_id}
+		WHERE id_member IN ({array_int:users})',
+		array(
+			'guest_id' => 0,
+			'users' => $users,
+		)
+	);
+
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}log_reported
+		SET id_member = {int:guest_id}
+		WHERE id_member IN ({array_int:users})',
+		array(
+			'guest_id' => 0,
+			'users' => $users,
+		)
+	);
+
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}log_reported_comments
 		SET id_member = {int:guest_id}
 		WHERE id_member IN ({array_int:users})',
 		array(
@@ -305,6 +327,15 @@ function deleteMembers($users, $check_not_admin = false)
 		)
 	);
 
+	// Remove any emails we may have queued to send.
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}mail_queue
+		WHERE recipient IN ({array_string:emails})',
+		array(
+			'emails' => $emails,
+		)
+	);
+
 	// Make their votes appear as guest votes - at least it keeps the totals right.
 	// @todo Consider adding back in cookie protection.
 	$smcFunc['db_query']('', '
@@ -334,6 +365,15 @@ function deleteMembers($users, $check_not_admin = false)
 	// They no longer exist, so we don't know who it was sent to.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}pm_recipients
+		WHERE id_member IN ({array_int:users})',
+		array(
+			'users' => $users,
+		)
+	);
+
+	// They no longer exist, so you can't have any rules.
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}pm_rules
 		WHERE id_member IN ({array_int:users})',
 		array(
 			'users' => $users,
@@ -372,6 +412,40 @@ function deleteMembers($users, $check_not_admin = false)
 	// Remove individual theme settings.
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}themes
+		WHERE id_member IN ({array_int:users})',
+		array(
+			'users' => $users,
+		)
+	);
+
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}member_logins
+		WHERE id_member IN ({array_int:users})',
+		array(
+			'users' => $users,
+		)
+	);
+
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}user_alerts
+		SET id_member = {int:guest_id}
+		WHERE id_member IN ({array_int:users})',
+		array(
+			'guest_id' => 0,
+			'users' => $users,
+		)
+	);
+	$smcFunc['db_query']('', '
+		UPDATE {db_prefix}user_alerts
+		SET id_member_started = {int:guest_id}
+		WHERE id_member_started IN ({array_int:users})',
+		array(
+			'guest_id' => 0,
+			'users' => $users,
+		)
+	);
+	$smcFunc['db_query']('', '
+		DELETE FROM {db_prefix}user_alerts_prefs
 		WHERE id_member IN ({array_int:users})',
 		array(
 			'users' => $users,
