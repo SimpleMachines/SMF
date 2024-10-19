@@ -2267,7 +2267,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'parameters' => array(
 					'author' => array('match' => '([^<>]{1,192}?)'),
 					'link' => array('match' => '(?:board=\d+;)?((?:topic|threadid)=[\dmsg#\./]{1,40}(?:;start=[\dmsg#\./]{1,40})?|msg=\d+?|action=profile;u=\d+)'),
-					'date' => array('match' => '(\d+)', 'validate' => 'timeformat'),
+					'date' => array('match' => '(\d{1,18})', 'validate' => 'timeformat'),
 				),
 				'before' => '<blockquote><cite><a href="' . $scripturl . '?{link}">' . $txt['quote_from'] . ': {author} ' . $txt['search_on'] . ' {date}</a></cite>',
 				'after' => '</blockquote>',
@@ -2386,7 +2386,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				'content' => '$1',
 				'validate' => function(&$tag, &$data, $disabled)
 				{
-					if (is_numeric($data))
+					if (preg_match('~^\d{1,18}$~', $data) === 1)
 						$data = timeformat($data);
 
 					$tag['content'] = '<span class="bbc_time">$1</span>';
