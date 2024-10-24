@@ -249,7 +249,7 @@ $txt['error_session_timeout'] = 'Your session timed out while posting. Please tr
 $txt['error_no_to'] = 'No recipients specified.';
 $txt['error_bad_to'] = 'One or more \'to\'-recipients could not be found.';
 $txt['error_bad_bcc'] = 'One or more \'bcc\'-recipients could not be found.';
-$txt['error_form_already_submitted'] = 'You have already submitted this post!  You might have accidentally double clicked or tried to refresh the page.';
+$txt['error_form_already_submitted'] = 'You have already submitted this post! You might have accidentally double clicked or tried to refresh the page.';
 $txt['error_poll_few'] = 'You must have at least two choices!';
 $txt['error_poll_many'] = 'You must have no more than 256 choices.';
 $txt['error_need_qr_verification'] = 'Please complete the verification section below to complete your post.';
@@ -487,7 +487,7 @@ $txt['user_not_loaded'] = 'loadMemberContext(): member id \'%d\' not previously 
 
 // logActions() errors
 $txt['logActions_not_array'] = 'logActions(): data is not an array with action \'%s\'';
-$txt['logActions_topic_not_numeric']  = 'logActions(): data\'s topic is not a number';
+$txt['logActions_topic_not_numeric'] = 'logActions(): data\'s topic is not a number';
 $txt['logActions_message_not_numeric'] = 'logActions(): data\'s message is not a number';
 $txt['logActions_member_not_numeric'] = 'logActions(): data\'s member is not a number';
 $txt['logActions_board_not_numeric'] = 'logActions(): data\'s board is not a number';
