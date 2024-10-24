@@ -31,6 +31,9 @@ declare(strict_types=1);
  * 1. Define some constants we need.
  */
 
+use SMF\Config;
+use SMF\IntegrationHook;
+
 if (!defined('SMF')) {
 	define('SMF', 1);
 }

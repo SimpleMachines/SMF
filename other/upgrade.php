@@ -184,7 +184,7 @@ foreach ([
 }
 
 // Fire up the autoloader, SMF\Config, and SMF\Utils.
-require_once $sourcedir . '/Autoloader.php';
+require_once 'vendor/autoload.php';
 Config::load();
 Utils::load();
 
@@ -784,7 +784,7 @@ function loadEssentialData()
 		Config::updateSettingsFile($changes);
 	}
 
-	require_once Config::$sourcedir . '/Autoloader.php';
+	require_once Config::$vendordir . '/autoload.php';
 
 	if (class_exists('SMF\\Db\\APIs\\' . Db::getClass(Config::$db_type))) {
 		// Make the connection...

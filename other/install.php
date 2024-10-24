@@ -53,7 +53,7 @@ if (!defined('SMF')) {
 }
 
 // Let's pull in useful classes
-require_once 'Sources/Autoloader.php';
+require_once 'vendor/autoload.php';
 
 // Get the current settings, without affecting global namespace.
 Config::$backward_compatibility = false;
