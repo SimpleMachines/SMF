@@ -1944,7 +1944,7 @@ class TimezoneUpdater
 					$time = $entry_start->format('Y-m-d\TH:i:sO');
 					$offset = $std_offset;
 					$isdst = false;
-					$abbr = sprintf($entry['format'], 'S');
+					$abbr = $entry['format'] === '%z' ? sprintf("%+03d", strtr($offset, [':00' => '', ':' => ''])) : sprintf($entry['format'], 'S');
 					$save = 0;
 					$unadjusted_date_string = $unadjusted_date_strings['entry_start'];
 
@@ -1982,7 +1982,7 @@ class TimezoneUpdater
 					$time = $entry_start->format('Y-m-d\TH:i:sO');
 					$offset = $std_offset + $rules_offset;
 					$isdst = true;
-					$abbr = sprintf($entry['format'], 'D');
+					$abbr = $entry['format'] === '%z' ? sprintf("%+03d", strtr($offset, [':00' => '', ':' => ''])) : sprintf($entry['format'], 'D');
 					$save = $rules_offset;
 					$unadjusted_date_string = $unadjusted_date_strings['entry_start'];
 
@@ -2108,7 +2108,7 @@ class TimezoneUpdater
 						$time = $transition_date->format('Y-m-d\TH:i:sO');
 						$offset = $std_offset + $save_offset;
 						$isdst = $save_offset != 0;
-						$abbr = sprintf($entry['format'], $info['letter'] === '-' ? '' : $info['letter']);
+						$abbr = $entry['format'] === '%z' ? sprintf("%+03d", strtr($offset, [':00' => '', ':' => ''])) : (sprintf($entry['format'], $info['letter'] === '-' ? '' : $info['letter']));
 						$save = $save_offset;
 						$unadjusted_date_string = $info['unadjusted_date_string'];
 
@@ -2514,7 +2514,7 @@ class TimezoneUpdater
 	 */
 	private function rewrite_date_string(string $date_string): string
 	{
-		$month = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec';
+		$month = 'Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sept?(?:ember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?';
 		$weekday = 'Sun|Mon|Tue|Wed|Thu|Fri|Sat';
 
 		$replacements = array(
