@@ -401,6 +401,7 @@ function smf_main()
 		'unread' => array('Recent.php', 'UnreadTopics'),
 		'unreadreplies' => array('Recent.php', 'UnreadTopics'),
 		'uploadAttach' => array('Attachments.php', 'Attachments::call#'),
+		'unsubscribe' => array('Notify.php', 'Unsubscribe'),
 		'verificationcode' => array('Register.php', 'VerificationCode'),
 		'viewprofile' => array('Profile.php', 'ModifyProfile'),
 		'vote' => array('Poll.php', 'Vote'),
