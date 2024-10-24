@@ -25,21 +25,24 @@ spl_autoload_register(function ($class) {
 
 	static $class_map = [
 		// Some special cases.
-		'ReCaptcha\\' => 'ReCaptcha/',
-		'MatthiasMullie\\Minify\\' => 'minify/src/',
-		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'ReCaptcha\\' => '{$sourcedir}/ReCaptcha/',
+		'MatthiasMullie\\Minify\\' => '{$sourcedir}/minify/src/',
+		'MatthiasMullie\\PathConverter\\' => '{$sourcedir}/minify/path-converter/src/',
+		'SMF\\Maintenance' => '{$boarddir}/Maintenance/',
 
 		// In general, the SMF namespace maps to $sourcedir.
-		'SMF\\' => '',
+		'SMF\\' => '{$sourcedir}/',
 	];
 
-	// Ensure $sourcedir is set to something valid.
-	if (class_exists(Config::class, false) && isset(Config::$sourcedir)) {
-		$sourcedir = Config::$sourcedir;
-	}
+	// Ensure the directories are set to something valid.
+	foreach (['sourcedir', 'boarddir'] as $var) {
+		if (class_exists(Config::class, false) && isset(Config::${$var})) {
+			${$var} = Config::${$var};
+		}
 
-	if (empty($sourcedir) || !is_dir($sourcedir)) {
-		$sourcedir = __DIR__;
+		if (empty(${$var}) || !is_dir(${$var})) {
+			${$var} = $var === 'sourcedir' ? __DIR__ : dirname($_SERVER['SCRIPT_FILENAME'] ?? $sourcedir);
+		}
 	}
 
 	// Do any third-party scripts want in on the fun?
@@ -65,6 +68,17 @@ spl_autoload_register(function ($class) {
 		// Get the relative class name.
 		$relative_class = substr($class, $len);
 
+		// For historical reaons, assume that relative dirs are relative to $sourcedir.
+		if (!str_starts_with($dirname, '{$')) {
+			$dirname = '{$sourcedir}/' . $dirname;
+		}
+
+		// Resolve $dirname.
+		$dirname = strtr($dirname, [
+			'{$sourcedir}' => realpath($sourcedir),
+			'{$boarddir}' => realpath($boarddir),
+		]);
+
 		// Replace the namespace prefix with the base directory, replace namespace
 		// separators with directory separators in the relative class name, append
 		// with .php
@@ -76,7 +90,7 @@ spl_autoload_register(function ($class) {
 		}
 
 		// If the file exists, require it.
-		if (file_exists($filename = $sourcedir . '/' . $filename)) {
+		if (file_exists($filename)) {
 			require $filename;
 
 			return;

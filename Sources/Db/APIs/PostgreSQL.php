@@ -1352,6 +1352,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach ($index_info['columns'] as &$c) {
 			$c = preg_replace('~\s+(\(\d+\))~', '', $c);
+
+			// Optimized search on the index.
+			if (!empty($parameters['varchar_pattern_ops']) && $parameters['varchar_pattern_ops'] == $c) {
+				$c .= ' varchar_pattern_ops';
+			}
 		}
 
 		$columns = implode(',', $index_info['columns']);
@@ -1661,7 +1666,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// First - no way do we touch SMF tables.
-		if (in_array(strtolower($short_table_name), $this->reservedTables)) {
+		if (!defined('SMF_INSTALLING') && in_array(strtolower($short_table_name), $this->reservedTables)) {
 			return false;
 		}
 
@@ -1853,7 +1858,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// God no - dropping one of these = bad.
-		if (in_array(strtolower($table_name), $this->reservedTables)) {
+		if (!defined('SMF_INSTALLING') && in_array(strtolower($table_name), $this->reservedTables)) {
 			return false;
 		}
 
