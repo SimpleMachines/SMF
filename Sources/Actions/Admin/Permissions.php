@@ -942,7 +942,7 @@ class Permissions implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -972,7 +972,7 @@ class Permissions implements ActionInterface
 		$this->setGroupsContext();
 
 		// We can modify any permission set, except for the ones we can't.
-		Utils::$context['can_modify'] = empty($_REQUEST['pid']) || !in_array((int) $_REQUEST['pid'], self::PROFILE_UNMODIFIABLE);
+		Utils::$context['can_modify'] = empty($_REQUEST['pid']) || !\in_array((int) $_REQUEST['pid'], self::PROFILE_UNMODIFIABLE);
 
 		// Load the proper template.
 		Utils::$context['sub_template'] = 'permission_index';
@@ -1082,7 +1082,7 @@ class Permissions implements ActionInterface
 		$_REQUEST['pid'] = (int) ($_REQUEST['pid'] ?? 0);
 
 		// Sorry, but that one can't be modified.
-		if (in_array($_REQUEST['pid'], self::PROFILE_UNMODIFIABLE)) {
+		if (\in_array($_REQUEST['pid'], self::PROFILE_UNMODIFIABLE)) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -1154,7 +1154,7 @@ class Permissions implements ActionInterface
 		}
 
 		// No, you can't modify this permission profile.
-		if (in_array($_GET['pid'], self::PROFILE_UNMODIFIABLE)) {
+		if (\in_array($_GET['pid'], self::PROFILE_UNMODIFIABLE)) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -1174,9 +1174,9 @@ class Permissions implements ActionInterface
 		];
 
 		// Prepare all permissions that were set or denied for addition to the DB.
-		if (isset($_POST['perm']) && is_array($_POST['perm'])) {
+		if (isset($_POST['perm']) && \is_array($_POST['perm'])) {
 			foreach ($_POST['perm'] as $scope => $perm_array) {
-				if (!is_array($perm_array)) {
+				if (!\is_array($perm_array)) {
 					continue;
 				}
 
@@ -1186,7 +1186,7 @@ class Permissions implements ActionInterface
 					}
 
 					// Don't allow people to escalate themselves!
-					if (in_array($permission, $illegal_permissions)) {
+					if (\in_array($permission, $illegal_permissions)) {
 						continue;
 					}
 
@@ -1214,7 +1214,7 @@ class Permissions implements ActionInterface
 		self::removeIllegalBBCHtmlPermission();
 
 		// Ensure Config::$modSettings['board_manager_groups'] is up to date.
-		if (!in_array('manage_boards', $illegal_permissions)) {
+		if (!\in_array('manage_boards', $illegal_permissions)) {
 			self::updateBoardManagers();
 		}
 
@@ -1375,14 +1375,14 @@ class Permissions implements ActionInterface
 
 		foreach (Utils::$context['profiles'] as $id => $profile) {
 			// Can't rename the special ones.
-			Utils::$context['profiles'][$id]['can_rename'] = !in_array($id, self::PROFILE_PREDEFINED);
+			Utils::$context['profiles'][$id]['can_rename'] = !\in_array($id, self::PROFILE_PREDEFINED);
 
 			if (Utils::$context['profiles'][$id]['can_rename']) {
 				Utils::$context['can_rename_something'] = true;
 			}
 
 			// You can only delete it if you can rename it AND it's not in use.
-			Utils::$context['profiles'][$id]['can_delete'] = !in_array($id, self::PROFILE_PREDEFINED) && empty($profile['in_use']);
+			Utils::$context['profiles'][$id]['can_delete'] = !\in_array($id, self::PROFILE_PREDEFINED) && empty($profile['in_use']);
 		}
 
 		SecurityToken::create('admin-mpp');
@@ -1462,7 +1462,7 @@ class Permissions implements ActionInterface
 		}
 
 		// If we're saving the changes then do just that - save them.
-		if (!empty($_POST['save_changes']) && !in_array(Utils::$context['current_profile'], self::PROFILE_UNMODIFIABLE)) {
+		if (!empty($_POST['save_changes']) && !\in_array(Utils::$context['current_profile'], self::PROFILE_UNMODIFIABLE)) {
 			SecurityToken::validate('admin-mppm');
 
 			// First, are we saving a new value for enabled post moderation?
@@ -1613,7 +1613,7 @@ class Permissions implements ActionInterface
 		IntegrationHook::call('integrate_permissions_list', [&self::$permissions]);
 
 		// In case a mod screwed things up...
-		if (!in_array('html', Utils::$context['restricted_bbc'])) {
+		if (!\in_array('html', Utils::$context['restricted_bbc'])) {
 			Utils::$context['restricted_bbc'][] = 'html';
 		}
 
@@ -1777,11 +1777,11 @@ class Permissions implements ActionInterface
 		// Make sure we're not granting someone too many permissions!
 		foreach (['global', 'board'] as $scope) {
 			foreach ($group_levels[$scope][$level] as $k => $permission) {
-				if (in_array($permission, self::$illegal ?? [])) {
+				if (\in_array($permission, self::$illegal ?? [])) {
 					unset($group_levels[$scope][$level][$k]);
 				}
 
-				if (in_array($group, self::$excluded[$permission] ?? [])) {
+				if (\in_array($group, self::$excluded[$permission] ?? [])) {
 					unset($group_levels[$scope][$level][$k]);
 				}
 			}
@@ -1850,7 +1850,7 @@ class Permissions implements ActionInterface
 			self::removeIllegalBBCHtmlPermission();
 		}
 		// Setting profile permissions for a specific group.
-		elseif ($profile !== 'null' && $group !== 'null' && !in_array($profile, self::PROFILE_UNMODIFIABLE)) {
+		elseif ($profile !== 'null' && $group !== 'null' && !\in_array($profile, self::PROFILE_UNMODIFIABLE)) {
 			$group = (int) $group;
 			$profile = (int) $profile;
 
@@ -1884,7 +1884,7 @@ class Permissions implements ActionInterface
 			}
 		}
 		// Setting profile permissions for all groups.
-		elseif ($profile !== 'null' && $group === 'null' && !in_array($profile, self::PROFILE_UNMODIFIABLE)) {
+		elseif ($profile !== 'null' && $group === 'null' && !\in_array($profile, self::PROFILE_UNMODIFIABLE)) {
 			$profile = (int) $profile;
 
 			Db::$db->query(
@@ -1953,7 +1953,7 @@ class Permissions implements ActionInterface
 		}
 
 		// Make sure Config::$modSettings['board_manager_groups'] is up to date.
-		if (!in_array('manage_boards', self::$illegal)) {
+		if (!\in_array('manage_boards', self::$illegal)) {
 			self::updateBoardManagers();
 		}
 	}
@@ -2027,7 +2027,7 @@ class Permissions implements ActionInterface
 		self::loadIllegalGuestPermissions();
 
 		// Only special people can have this permission
-		if (in_array('bbc_html', $permissions)) {
+		if (\in_array('bbc_html', $permissions)) {
 			self::loadIllegalBBCHtmlGroups();
 		}
 
@@ -2035,7 +2035,7 @@ class Permissions implements ActionInterface
 		$non_guest_perms = array_intersect(str_replace(['_any', '_own'], '', $permissions), self::$never_guests);
 
 		foreach ($non_guest_perms as $permission) {
-			if (!isset(self::$excluded[$permission]) || !in_array(-1, self::$excluded[$permission])) {
+			if (!isset(self::$excluded[$permission]) || !\in_array(-1, self::$excluded[$permission])) {
 				self::$excluded[$permission][] = -1;
 			}
 		}
@@ -2046,7 +2046,7 @@ class Permissions implements ActionInterface
 			$excluded_groups = array_filter(
 				(array) $excluded_groups,
 				function ($v) {
-					return is_int($v) || is_string($v) && (string) intval($v) === $v;
+					return \is_int($v) || \is_string($v) && (string) \intval($v) === $v;
 				},
 			);
 
@@ -2111,7 +2111,7 @@ class Permissions implements ActionInterface
 		// Check they can't do certain things.
 		self::loadIllegalPermissions();
 
-		if (in_array('bbc_html', $permissions)) {
+		if (\in_array('bbc_html', $permissions)) {
 			self::loadIllegalBBCHtmlGroups();
 		}
 
@@ -2123,11 +2123,11 @@ class Permissions implements ActionInterface
 			}
 
 			foreach ($_POST[$permission] as $id_group => $value) {
-				if ($value == 'on' && !empty(Utils::$context['excluded_permissions'][$permission]) && in_array($id_group, Utils::$context['excluded_permissions'][$permission])) {
+				if ($value == 'on' && !empty(Utils::$context['excluded_permissions'][$permission]) && \in_array($id_group, Utils::$context['excluded_permissions'][$permission])) {
 					continue;
 				}
 
-				if (in_array($value, ['on', 'deny']) && (empty(self::$illegal) || !in_array($permission, self::$illegal))) {
+				if (\in_array($value, ['on', 'deny']) && (empty(self::$illegal) || !\in_array($permission, self::$illegal))) {
 					$insert_rows[] = [(int) $id_group, $permission, $value == 'on' ? 1 : 0];
 				}
 			}
@@ -2160,7 +2160,7 @@ class Permissions implements ActionInterface
 		self::updateChildPermissions([], -1);
 
 		// Make sure Config::$modSettings['board_manager_groups'] is up to date.
-		if (!in_array('manage_boards', self::$illegal)) {
+		if (!\in_array('manage_boards', self::$illegal)) {
 			self::updateBoardManagers();
 		}
 
@@ -2189,7 +2189,7 @@ class Permissions implements ActionInterface
 			Utils::$context['profiles'][$row['id_profile']] = [
 				'id' => $row['id_profile'],
 				'name' => Lang::$txt['permissions_profile_' . $row['profile_name']] ?? $row['profile_name'],
-				'can_modify' => !in_array($row['id_profile'], self::PROFILE_UNMODIFIABLE),
+				'can_modify' => !\in_array($row['id_profile'], self::PROFILE_UNMODIFIABLE),
 				'unformatted_name' => $row['profile_name'],
 			];
 		}
@@ -2465,7 +2465,7 @@ class Permissions implements ActionInterface
 	protected function quickSetPredefined(): void
 	{
 		// Make sure it's a predefined permission set we expect.
-		if (!in_array($_POST['predefined'], ['restrict', 'standard', 'moderator', 'maintenance'])) {
+		if (!\in_array($_POST['predefined'], ['restrict', 'standard', 'moderator', 'maintenance'])) {
 			Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 		}
 
@@ -2523,11 +2523,11 @@ class Permissions implements ActionInterface
 			foreach ($_POST['group'] as $group_id) {
 				foreach ($target_perm as $perm => $add_deny) {
 					// No dodgy permissions please!
-					if (in_array($perm, self::$illegal)) {
+					if (\in_array($perm, self::$illegal)) {
 						continue;
 					}
 
-					if (in_array($group_id, self::$excluded[$perm] ?? [])) {
+					if (\in_array($group_id, self::$excluded[$perm] ?? [])) {
 						continue;
 					}
 
@@ -2587,7 +2587,7 @@ class Permissions implements ActionInterface
 		foreach ($_POST['group'] as $group_id) {
 			foreach ($target_perm as $perm => $add_deny) {
 				// Are these for guests?
-				if ($group_id == -1 && in_array($perm, self::$never_guests)) {
+				if ($group_id == -1 && \in_array($perm, self::$never_guests)) {
 					continue;
 				}
 
@@ -2636,7 +2636,7 @@ class Permissions implements ActionInterface
 		list($scope, $permission) = explode('/', $_POST['permissions']);
 
 		// Check whether our input is within expected range.
-		if (!in_array($_POST['add_remove'], ['add', 'clear', 'deny']) || !in_array($scope, ['global', 'board'])) {
+		if (!\in_array($_POST['add_remove'], ['add', 'clear', 'deny']) || !\in_array($scope, ['global', 'board'])) {
 			Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 		}
 
@@ -2682,11 +2682,11 @@ class Permissions implements ActionInterface
 			$perm_change = [];
 
 			foreach ($_POST['group'] as $groupID) {
-				if (isset(self::$excluded[$permission]) && in_array($groupID, self::$excluded[$permission])) {
+				if (isset(self::$excluded[$permission]) && \in_array($groupID, self::$excluded[$permission])) {
 					continue;
 				}
 
-				if ($scope == 'global' && $groupID != 1 && $groupID != 3 && !in_array($permission, self::$illegal)) {
+				if ($scope == 'global' && $groupID != 1 && $groupID != 3 && !\in_array($permission, self::$illegal)) {
 					$perm_change[] = [$permission, $groupID, $add_deny];
 				} elseif ($scope != 'global') {
 					$perm_change[] = [$permission, $groupID, $pid, $add_deny];
@@ -2880,11 +2880,11 @@ class Permissions implements ActionInterface
 						$cur_perm = &Utils::$context['permissions'][$scope]['columns'][$position][$group_name]['permissions'][$perm['id']];
 
 						if ($perm['has_own_any']) {
-							$cur_perm['any']['select'] = in_array($perm['id'] . '_any', $this->allowed_denied[$scope]['allowed']) ? 'on' : (in_array($perm['id'] . '_any', $this->allowed_denied[$scope]['denied']) ? 'deny' : 'off');
+							$cur_perm['any']['select'] = \in_array($perm['id'] . '_any', $this->allowed_denied[$scope]['allowed']) ? 'on' : (\in_array($perm['id'] . '_any', $this->allowed_denied[$scope]['denied']) ? 'deny' : 'off');
 
-							$cur_perm['own']['select'] = in_array($perm['id'] . '_own', $this->allowed_denied[$scope]['allowed']) ? 'on' : (in_array($perm['id'] . '_own', $this->allowed_denied[$scope]['denied']) ? 'deny' : 'off');
+							$cur_perm['own']['select'] = \in_array($perm['id'] . '_own', $this->allowed_denied[$scope]['allowed']) ? 'on' : (\in_array($perm['id'] . '_own', $this->allowed_denied[$scope]['denied']) ? 'deny' : 'off');
 						} else {
-							$cur_perm['select'] = in_array($perm['id'], $this->allowed_denied[$scope]['denied']) ? 'deny' : (in_array($perm['id'], $this->allowed_denied[$scope]['allowed']) ? 'on' : 'off');
+							$cur_perm['select'] = \in_array($perm['id'], $this->allowed_denied[$scope]['denied']) ? 'deny' : (\in_array($perm['id'], $this->allowed_denied[$scope]['allowed']) ? 'on' : 'off');
 						}
 
 						// Keep the last value if it's hidden.
@@ -2975,7 +2975,7 @@ class Permissions implements ActionInterface
 
 		// This should already have been done, but just in case...
 		foreach ($give_perms['global'] as $k => $v) {
-			if (in_array($v[1], $illegal_permissions)) {
+			if (\in_array($v[1], $illegal_permissions)) {
 				unset($give_perms['global'][$k]);
 			}
 		}
@@ -3019,7 +3019,7 @@ class Permissions implements ActionInterface
 
 		// This should already have been done, but just in case...
 		foreach ($give_perms['board'] as $k => $v) {
-			if (in_array($v[1], $illegal_permissions)) {
+			if (\in_array($v[1], $illegal_permissions)) {
 				unset($give_perms['board'][$k]);
 			}
 		}
@@ -3125,7 +3125,7 @@ class Permissions implements ActionInterface
 
 			$value = Utils::htmlspecialchars($value);
 
-			if (trim($value) != '' && !in_array($id, self::PROFILE_PREDEFINED)) {
+			if (trim($value) != '' && !\in_array($id, self::PROFILE_PREDEFINED)) {
 				Db::$db->query(
 					'',
 					'UPDATE {db_prefix}permission_profiles
@@ -3158,7 +3158,7 @@ class Permissions implements ActionInterface
 		$profiles = [];
 
 		foreach (array_map('intval', $_POST['delete_profile']) as $profile) {
-			if ($profile > 0 && !in_array($profile, self::PROFILE_PREDEFINED)) {
+			if ($profile > 0 && !\in_array($profile, self::PROFILE_PREDEFINED)) {
 				$profiles[] = $profile;
 			}
 		}
@@ -3226,7 +3226,7 @@ class Permissions implements ActionInterface
 			}
 
 			foreach ($groups as $group) {
-				$position = (int) (!in_array($group, self::$left_permission_groups));
+				$position = (int) (!\in_array($group, self::$left_permission_groups));
 
 				Utils::$context['permissions'][$scope]['columns'][$position][$group] = [
 					'type' => $scope,
@@ -3243,13 +3243,13 @@ class Permissions implements ActionInterface
 		foreach (self::getPermissions() as $permission => $perm_info) {
 			// If this permission shouldn't be given to certain groups (e.g. guests), don't.
 			foreach ([$permission, $perm_info['generic_name']] as $perm) {
-				if (isset(Utils::$context['group']['id']) && in_array(Utils::$context['group']['id'], self::$excluded[$perm] ?? [])) {
+				if (isset(Utils::$context['group']['id']) && \in_array(Utils::$context['group']['id'], self::$excluded[$perm] ?? [])) {
 					continue 2;
 				}
 			}
 
 			// What column should this be located in?
-			$position = (int) (!in_array($perm_info['view_group'], self::$left_permission_groups));
+			$position = (int) (!\in_array($perm_info['view_group'], self::$left_permission_groups));
 
 			// For legibility reasons...
 			$view_group_perms = &Utils::$context['permissions'][$perm_info['scope']]['columns'][$position][$perm_info['view_group']]['permissions'];
@@ -3326,7 +3326,7 @@ class Permissions implements ActionInterface
 
 		// Also add this info to self::$excluded to make life easier for everyone
 		foreach (self::$never_guests as $permission) {
-			if (empty(self::$excluded[$permission]) || !in_array($permission, self::$excluded[$permission])) {
+			if (empty(self::$excluded[$permission]) || !\in_array($permission, self::$excluded[$permission])) {
 				self::$excluded[$permission][] = -1;
 			}
 		}
@@ -3468,9 +3468,9 @@ class Permissions implements ActionInterface
 							'own_any' => $perm_info[0] ? substr($id, -3) : null,
 							'view_group' => $perm_info[1],
 							'scope' => $scope === 'board' ? 'board' : 'global',
-							'hidden' => in_array($permission, $hidden_permissions),
+							'hidden' => \in_array($permission, $hidden_permissions),
 							'label' => 'permissionname_' . $permission,
-							'never_guests' => in_array($permission, self::$never_guests),
+							'never_guests' => \in_array($permission, self::$never_guests),
 						];
 					}
 				}
@@ -3570,7 +3570,7 @@ class Permissions implements ActionInterface
 
 			// Did the hook remove a permission from self::$never_guests?
 			foreach (self::$permissions as $permission => $perm_info) {
-				if (!in_array($perm_info['generic_name'], self::$never_guests)) {
+				if (!\in_array($perm_info['generic_name'], self::$never_guests)) {
 					self::$permissions[$permission]['never_guests'] = false;
 				}
 			}

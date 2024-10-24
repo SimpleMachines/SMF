@@ -89,7 +89,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	public function __construct()
 	{
 		// Is this database supported?
-		if (!in_array(Config::$db_type, $this->supported_databases)) {
+		if (!\in_array(Config::$db_type, $this->supported_databases)) {
 			$this->is_supported = false;
 
 			return;
@@ -225,8 +225,8 @@ class Custom extends SearchApi implements SearchApiInterface
 	 */
 	public function searchSort(string $a, string $b): int
 	{
-		$x = strlen($a) - (in_array($a, $this->excludedWords) ? 1000 : 0);
-		$y = strlen($b) - (in_array($b, $this->excludedWords) ? 1000 : 0);
+		$x = \strlen($a) - (\in_array($a, $this->excludedWords) ? 1000 : 0);
+		$y = \strlen($b) - (\in_array($b, $this->excludedWords) ? 1000 : 0);
 
 		return $y < $x ? 1 : ($y > $x ? -1 : 0);
 	}
@@ -243,12 +243,12 @@ class Custom extends SearchApi implements SearchApiInterface
 		}
 
 		// Excluded phrases don't benefit from being split into subwords.
-		if (count($subwords) > 1 && $isExcluded) {
+		if (\count($subwords) > 1 && $isExcluded) {
 			return;
 		}
 
 		foreach ($subwords as $subword) {
-			if (Utils::entityStrlen((string) $subword) >= $this->min_word_length && !in_array($subword, $this->blacklisted_words)) {
+			if (Utils::entityStrlen((string) $subword) >= $this->min_word_length && !\in_array($subword, $this->blacklisted_words)) {
 				$wordsSearch['indexed_words'][] = $subword;
 
 				if ($isExcluded) {
@@ -278,7 +278,7 @@ class Custom extends SearchApi implements SearchApiInterface
 		$count = 0;
 
 		foreach ($words['words'] as $regularWord) {
-			if (in_array($regularWord, $query_params['excluded_words'])) {
+			if (\in_array($regularWord, $query_params['excluded_words'])) {
 				$query_where[] = 'm.body NOT ' . $this->query_match_type . ' {string:complex_body_' . $count . '}';
 			} else {
 				$query_where[] = 'm.body ' . $this->query_match_type . ' {string:complex_body_' . $count . '}';
@@ -344,7 +344,7 @@ class Custom extends SearchApi implements SearchApiInterface
 		foreach ($words['indexed_words'] as $indexedWord) {
 			$numTables++;
 
-			if (in_array($indexedWord, $query_params['excluded_index_words'])) {
+			if (\in_array($indexedWord, $query_params['excluded_index_words'])) {
 				$query_left_join[] = '{db_prefix}log_search_words AS lsw' . $numTables . ' ON (lsw' . $numTables . '.id_word = ' . $indexedWord . ' AND lsw' . $numTables . '.id_msg = m.id_msg)';
 				$query_where[] = '(lsw' . $numTables . '.id_word IS NULL)';
 			} else {
@@ -895,7 +895,7 @@ class Custom extends SearchApi implements SearchApiInterface
 			$total = 0;
 
 			for ($i = 0; $i < $bytes_per_word; $i++) {
-				$total += $possible_chars[ord($encrypted[$i])] * pow(63, $i);
+				$total += $possible_chars[\ord($encrypted[$i])] * pow(63, $i);
 			}
 
 			$returned_ints[] = $bytes_per_word == 4 ? min($total, 16777215) : $total;

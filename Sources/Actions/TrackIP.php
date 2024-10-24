@@ -91,7 +91,7 @@ class TrackIP implements ActionInterface
 			Utils::$context['ip'] = IP::ip2range(trim($_REQUEST['searchip']));
 		}
 
-		if (count(Utils::$context['ip']) !== 2) {
+		if (\count(Utils::$context['ip']) !== 2) {
 			ErrorHandler::fatalLang('invalid_tracking_ip', false);
 		}
 

@@ -424,7 +424,7 @@ class Topic implements \ArrayAccess
 			$boards_allowed = array_diff(User::$me->boardsAllowedTo('post_new'), [Board::$info->id]);
 
 			// You can't move this unless you have permission to start new topics on at least one other board.
-			$this->permissions['can_move'] = count($boards_allowed) > 1;
+			$this->permissions['can_move'] = \count($boards_allowed) > 1;
 		}
 
 		// If a topic is locked, you can't remove it unless it's yours and you locked it or you can lock_any
@@ -444,7 +444,7 @@ class Topic implements \ArrayAccess
 		// Handle approval flags...
 		$this->permissions['can_reply_approved'] = $this->permissions['can_reply'];
 		$this->permissions['can_reply'] |= $this->permissions['can_reply_unapproved'];
-		$this->permissions['can_quote'] = $this->permissions['can_reply'] && (empty(Config::$modSettings['disabledBBC']) || !in_array('quote', explode(',', Config::$modSettings['disabledBBC'])));
+		$this->permissions['can_quote'] = $this->permissions['can_reply'] && (empty(Config::$modSettings['disabledBBC']) || !\in_array('quote', explode(',', Config::$modSettings['disabledBBC'])));
 		$this->permissions['can_mark_unread'] = !User::$me->is_guest;
 		$this->permissions['can_unwatch'] = !User::$me->is_guest;
 		$this->permissions['can_set_notify'] = !User::$me->is_guest;
@@ -750,7 +750,7 @@ class Topic implements \ArrayAccess
 	 */
 	public static function approve(array|int $topics, bool $approve = true): bool
 	{
-		if (!is_array($topics)) {
+		if (!\is_array($topics)) {
 			$topics = [$topics];
 		}
 
@@ -881,10 +881,10 @@ class Topic implements \ArrayAccess
 		$log_topics = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$log_topics[] = [$row['id_topic'], $row['id_member'], $row['id_msg'], (is_null($row['unwatched']) ? 0 : $row['unwatched'])];
+			$log_topics[] = [$row['id_topic'], $row['id_member'], $row['id_msg'], (\is_null($row['unwatched']) ? 0 : $row['unwatched'])];
 
 			// Prevent queries from getting too big. Taking some steam off.
-			if (count($log_topics) > 500) {
+			if (\count($log_topics) > 500) {
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}log_topics',
@@ -1203,7 +1203,7 @@ class Topic implements \ArrayAccess
 				[
 					'recycle_board' => $recycle_board,
 					'topics' => $topics,
-					'limit' => count($topics),
+					'limit' => \count($topics),
 				],
 			);
 
@@ -1344,7 +1344,7 @@ class Topic implements \ArrayAccess
 			[
 				'no_poll' => 0,
 				'topics' => $topics,
-				'limit' => count($topics),
+				'limit' => \count($topics),
 			],
 		);
 		$polls = [];
@@ -1573,7 +1573,7 @@ class Topic implements \ArrayAccess
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Topic::class, 'exportStatic'])) {
+if (\is_callable([Topic::class, 'exportStatic'])) {
 	Topic::exportStatic();
 }
 

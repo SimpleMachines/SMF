@@ -239,7 +239,7 @@ class SendDigests extends ScheduledTask
 
 				foreach ($types['topic'] as $id => $board) {
 					foreach ($board['lines'] as $topic) {
-						if (in_array($mid, $topic['members'])) {
+						if (\in_array($mid, $topic['members'])) {
 							if (!$titled) {
 								$email['body'] .= "\n" . $langtxt[$lang]['new_topics'] . ':' . "\n" . '-----------------------------------------------';
 								$titled = true;
@@ -261,7 +261,7 @@ class SendDigests extends ScheduledTask
 
 				foreach ($types['reply'] as $id => $board) {
 					foreach ($board['lines'] as $topic) {
-						if (in_array($mid, $topic['members'])) {
+						if (\in_array($mid, $topic['members'])) {
 							if (!$titled) {
 								$email['body'] .= "\n" . $langtxt[$lang]['new_replies'] . ':' . "\n" . '-----------------------------------------------';
 								$titled = true;
@@ -288,7 +288,7 @@ class SendDigests extends ScheduledTask
 
 					foreach ($type as $id => $board) {
 						foreach ($board['lines'] as $topic) {
-							if (in_array($mid, $topic['members'])) {
+							if (\in_array($mid, $topic['members'])) {
 								if (!$titled) {
 									$email['body'] .= "\n" . $langtxt[$lang]['mod_actions'] . ':' . "\n" . '-----------------------------------------------';
 									$titled = true;

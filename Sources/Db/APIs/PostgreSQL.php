@@ -201,7 +201,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		if (str_contains($db_string, 'GROUP BY') && !str_contains($db_string, 'ORDER BY') && preg_match('~^\s+SELECT~i', $db_string)) {
 			// Add before LIMIT
 			if ($pos = strpos($db_string, 'LIMIT ')) {
-				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, strlen($db_string));
+				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, \strlen($db_string));
 			} else {
 				// Append it.
 				$db_string .= "\n\t\t\tORDER BY null";
@@ -267,7 +267,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$fail = true;
 			}
 
-			if (!empty($fail) && function_exists('log_error')) {
+			if (!empty($fail) && \function_exists('log_error')) {
 				$this->error_backtrace('No direct access...', 'No direct access...' . "\n" . $db_string, E_USER_ERROR, __FILE__, __LINE__);
 			}
 		}
@@ -295,7 +295,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			if (!empty($_SESSION['debug_redirect'])) {
 				self::$cache = array_merge($_SESSION['debug_redirect'], self::$cache);
-				self::$count = count(self::$cache) + 1;
+				self::$count = \count(self::$cache) + 1;
 				$_SESSION['debug_redirect'] = [];
 			}
 
@@ -387,7 +387,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Force method to lower case
 		$method = strtolower($method);
 
-		if (!is_array($data[array_rand($data)])) {
+		if (!\is_array($data[array_rand($data)])) {
 			$data = [$data];
 		}
 
@@ -406,7 +406,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				);
 			}
 
-			if (count(array_intersect_key($columns, array_flip($keys))) !== count($keys)) {
+			if (\count(array_intersect_key($columns, array_flip($keys))) !== \count($keys)) {
 				$this->error_backtrace(
 					'Primary Key field missing in insert call',
 					'Change the method of db insert to insert or add the pk field to the columns array',
@@ -427,7 +427,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			foreach ($columns as $columnName => $type) {
 				// Check pk field.
-				if (in_array($columnName, $keys)) {
+				if (\in_array($columnName, $keys)) {
 					$key_str .= ($count_pk > 0 ? ',' : '');
 					$key_str .= $columnName;
 					$count_pk++;
@@ -451,7 +451,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$with_returning = false;
 
 		// Let's build the returning string. (MySQL allows this only in normal mode)
-		if (!empty($keys) && (count($keys) > 0) && $returnmode > 0) {
+		if (!empty($keys) && (\count($keys) > 0) && $returnmode > 0) {
 			// We only take the first key.
 			$returning = ' RETURNING ' . $keys[0];
 			$with_returning = true;
@@ -665,12 +665,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$type = strtoupper($type);
 
-		if (in_array($type, ['BEGIN', 'ROLLBACK', 'COMMIT'])) {
+		if (\in_array($type, ['BEGIN', 'ROLLBACK', 'COMMIT'])) {
 			$this->inTransaction = $type === 'BEGIN';
 
 			$return = @pg_query($connection ?? $this->connection, $type);
 
-			if (is_bool($return)) {
+			if (\is_bool($return)) {
 				return $return;
 			}
 
@@ -730,7 +730,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function is_resource(mixed $result): bool
 	{
-		return is_resource($result);
+		return \is_resource($result);
 	}
 
 	/**
@@ -799,7 +799,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function custom_order(string $field, array $array_values, bool $desc = false): string
 	{
 		$return = 'CASE ' . $field . ' ';
-		$count = count($array_values);
+		$count = \count($array_values);
 		$then = ($desc ? ' THEN -' : ' THEN ');
 
 		for ($i = 0; $i < $count; $i++) {
@@ -1034,7 +1034,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$this->free_result($result);
 
 		// Take off the last comma.
-		$schema_create = substr($schema_create, 0, -strlen($crlf) - 1);
+		$schema_create = substr($schema_create, 0, -\strlen($crlf) - 1);
 
 		$result = $this->query(
 			'',
@@ -1128,7 +1128,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function allow_persistent(): bool
 	{
-		$value = ini_get('pgsql.allow_persistent');
+		$value = \ini_get('pgsql.allow_persistent');
 
 		return (bool) (strtolower($value) == 'on' || strtolower($value) == 'true' || $value == '1');
 	}
@@ -1213,7 +1213,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$supported_types = ['custom', 'fulltext'];
 
-		return in_array($search_type, $supported_types);
+		return \in_array($search_type, $supported_types);
 	}
 
 	/**
@@ -1327,7 +1327,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// If there's more attributes they need to be done via a change on PostgreSQL.
 		unset($column_info['type'], $column_info['size']);
 
-		if (count($column_info) != 1) {
+		if (\count($column_info) != 1) {
 			return $this->change_column($table_name, $column_info['name'], $column_info);
 		}
 
@@ -1498,7 +1498,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$column_info['name'] = $old_column;
 		}
 
-		if (!array_key_exists('default', $column_info) && array_key_exists('default', $old_info) && empty($column_info['drop_default'])) {
+		if (!\array_key_exists('default', $column_info) && \array_key_exists('default', $old_info) && empty($column_info['drop_default'])) {
 			$column_info['default'] = $old_info['default'];
 		}
 
@@ -1518,13 +1518,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$column_info['size'] = $old_info['size'];
 		}
 
-		if (!isset($column_info['unsigned']) || !in_array($column_info['type'], ['int', 'tinyint', 'smallint', 'mediumint', 'bigint'])) {
+		if (!isset($column_info['unsigned']) || !\in_array($column_info['type'], ['int', 'tinyint', 'smallint', 'mediumint', 'bigint'])) {
 			$column_info['unsigned'] = '';
 		}
 
 		// If truly unspecified, make that clear, otherwise, might be confused with NULL...
 		// (Unspecified = no default whatsoever = column is not nullable with a value of null...)
-		if (($column_info['not_null'] === true) && !$column_info['drop_default'] && array_key_exists('default', $column_info) && is_null($column_info['default'])) {
+		if (($column_info['not_null'] === true) && !$column_info['drop_default'] && \array_key_exists('default', $column_info) && \is_null($column_info['default'])) {
 			unset($column_info['default']);
 		}
 
@@ -1601,14 +1601,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Different default?
 		// Just go ahead & honor the setting.  Type changes above introduce defaults that we might need to override here...
-		if (!$column_info['drop_default'] && array_key_exists('default', $column_info)) {
+		if (!$column_info['drop_default'] && \array_key_exists('default', $column_info)) {
 			// Fix the default.
 			$default = '';
 
-			if (is_null($column_info['default'])) {
+			if (\is_null($column_info['default'])) {
 				$default = 'NULL';
 			} elseif (isset($column_info['default']) && is_numeric($column_info['default'])) {
-				$default = strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']);
+				$default = strpos($column_info['default'], '.') ? \floatval($column_info['default']) : \intval($column_info['default']);
 			} else {
 				$default = '\'' . $this->escape_string($column_info['default']) . '\'';
 			}
@@ -1661,7 +1661,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// First - no way do we touch SMF tables.
-		if (in_array(strtolower($short_table_name), $this->reservedTables)) {
+		if (\in_array(strtolower($short_table_name), $this->reservedTables)) {
 			return false;
 		}
 
@@ -1671,7 +1671,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// This... my friends... is a function in a half - let's start by checking if the table exists!
 		$tables = $this->list_tables($database);
 
-		if (in_array($full_table_name, $tables)) {
+		if (\in_array($full_table_name, $tables)) {
 			// This is a sad day... drop the table? If not, return false (error) by default.
 			if ($if_exists == 'overwrite') {
 				$this->drop_table($table_name);
@@ -1853,14 +1853,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// God no - dropping one of these = bad.
-		if (in_array(strtolower($table_name), $this->reservedTables)) {
+		if (\in_array(strtolower($table_name), $this->reservedTables)) {
 			return false;
 		}
 
 		// Does it exist?
 		$tables = $this->list_tables($database);
 
-		if (in_array($full_table_name, $tables)) {
+		if (\in_array($full_table_name, $tables)) {
 			// We can then drop the table.
 			$this->transaction('begin');
 
@@ -2169,7 +2169,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// For backward compatibility.
-		if (!is_object(self::$db_connection)) {
+		if (!\is_object(self::$db_connection)) {
 			self::$db_connection = $this->connection;
 		}
 
@@ -2195,7 +2195,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	protected function initiate(string $user, string $passwd, array $options = []): void
 	{
 		// We are not going to make it very far without this.
-		if (!function_exists('pg_pconnect')) {
+		if (!\function_exists('pg_pconnect')) {
 			ErrorHandler::displayDbError();
 		}
 
@@ -2245,7 +2245,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	protected function replacement__callback(array $matches): string
 	{
-		if (!is_object($this->temp_connection)) {
+		if (!\is_object($this->temp_connection)) {
 			ErrorHandler::displayDbError();
 		}
 
@@ -2288,7 +2288,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				return sprintf('\'%1$s\'', pg_escape_string($this->connection, (string) $replacement));
 
 			case 'array_int':
-				if (is_array($replacement)) {
+				if (\is_array($replacement)) {
 					if (empty($replacement)) {
 						$this->error_backtrace('Database error, given array of integer values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 					}
@@ -2309,7 +2309,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 
 			case 'array_string':
-				if (is_array($replacement)) {
+				if (\is_array($replacement)) {
 					if (empty($replacement)) {
 						$this->error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 					}
@@ -2374,7 +2374,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 				$uuid = @Uuid::createFromString($replacement, false);
 
-				if (in_array($replacement, [(string) $uuid, $uuid->getShortForm(), $uuid->getBinary()])) {
+				if (\in_array($replacement, [(string) $uuid, $uuid->getShortForm(), $uuid->getBinary()])) {
 					return sprintf('\'%1$s\'::uuid', (string) $uuid);
 				}
 
@@ -2393,10 +2393,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 				}
 
-				return sprintf('\'%1$s\'::inet', pg_escape_string($this->connection, strval($ip)));
+				return sprintf('\'%1$s\'::inet', pg_escape_string($this->connection, \strval($ip)));
 
 			case 'array_inet':
-				if (is_array($replacement)) {
+				if (\is_array($replacement)) {
 					if (empty($replacement)) {
 						$this->error_backtrace('Database error, given array of IPv4 or IPv6 values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 					}
@@ -2412,7 +2412,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 							$this->error_backtrace('Wrong value type sent to the database. IPv4 or IPv6 expected.(' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 						}
 
-						$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($this->connection, strval($ip)));
+						$replacement[$key] = sprintf('\'%1$s\'::inet', pg_escape_string($this->connection, \strval($ip)));
 					}
 
 					return implode(', ', $replacement);
@@ -2465,11 +2465,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Is always a critical error.
-		if (function_exists('log_error')) {
+		if (\function_exists('log_error')) {
 			ErrorHandler::log($log_message, 'critical', $file, $line);
 		}
 
-		if (function_exists('fatal_error')) {
+		if (\function_exists('fatal_error')) {
 			ErrorHandler::fatal($error_message, $error_type);
 
 			// Cannot continue...

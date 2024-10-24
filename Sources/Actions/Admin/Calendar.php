@@ -91,7 +91,7 @@ class Calendar implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -294,7 +294,7 @@ class Calendar implements ActionInterface
 		Utils::$context['event']->selected_occurrence->fixTimezone();
 
 		Theme::loadTemplate('EventEditor');
-		Theme::addJavaScriptVar('monthly_byday_items', count(Utils::$context['event']->byday_items) - 1);
+		Theme::addJavaScriptVar('monthly_byday_items', \count(Utils::$context['event']->byday_items) - 1);
 		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 	}
 
@@ -420,7 +420,7 @@ class Calendar implements ActionInterface
 					'value' => Utils::$context['calendar_subscriptions'],
 				],
 				'get_count' => [
-					'value' => count(Utils::$context['calendar_subscriptions']),
+					'value' => \count(Utils::$context['calendar_subscriptions']),
 				],
 				'no_items_label' => Lang::$txt['none'],
 				'columns' => [

@@ -163,7 +163,7 @@ class Logs implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction][1]) ? [$this, self::$subactions[$this->subaction][1]] : Utils::getCallable(self::$subactions[$this->subaction][1]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -253,7 +253,7 @@ class Logs implements ActionInterface
 				$vals = [];
 
 				foreach ($config_vars as $config_var) {
-					if (!is_array($config_var) || !in_array($config_var[1], self::$prune_toggle)) {
+					if (!\is_array($config_var) || !\in_array($config_var[1], self::$prune_toggle)) {
 						continue;
 					}
 
@@ -285,7 +285,7 @@ class Logs implements ActionInterface
 				Config::$modSettings[self::$prune_toggle[$key]] = $value;
 			}
 		} else {
-			$defaults = array_pad([30, 180, 180, 180, 30, 0], count(self::$prune_toggle), 0);
+			$defaults = array_pad([30, 180, 180, 180, 30, 0], \count(self::$prune_toggle), 0);
 
 			foreach (array_combine(self::$prune_toggle, $defaults) as $setting => $default) {
 				Config::$modSettings[$setting] = $default;

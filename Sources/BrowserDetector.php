@@ -133,7 +133,7 @@ class BrowserDetector
 			$this->_browsers['possibly_robot'] = !empty(User::$me->possibly_robot);
 
 			// Robots shouldn't be logging in or registering.  So, they aren't a bot.  Better to be wrong than sorry (or people won't be able to log in!), anyway.
-			if ((isset($_REQUEST['action']) && in_array($_REQUEST['action'], ['login', 'login2', 'register', 'signup'])) || !User::$me->is_guest) {
+			if ((isset($_REQUEST['action']) && \in_array($_REQUEST['action'], ['login', 'login2', 'register', 'signup'])) || !User::$me->is_guest) {
 				$this->_browsers['possibly_robot'] = false;
 			}
 		} else {
@@ -489,7 +489,7 @@ class BrowserDetector
 			$active = array_reverse(array_keys($this->_browsers, true));
 
 			foreach ($active as $browser) {
-				if (array_key_exists($browser, $browser_priority)) {
+				if (\array_key_exists($browser, $browser_priority)) {
 					Utils::$context['browser_body_id'] = $browser_priority[$browser];
 					break;
 				}

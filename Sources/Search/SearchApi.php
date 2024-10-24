@@ -496,7 +496,7 @@ abstract class SearchApi implements SearchApiInterface
 			$id_searchs[] = $row['id_search'];
 		}
 
-		if (count($id_searchs) < 1) {
+		if (\count($id_searchs) < 1) {
 			return;
 		}
 
@@ -711,7 +711,7 @@ abstract class SearchApi implements SearchApiInterface
 				[
 					'current_member' => User::$me->id,
 					'topic_list' => array_keys($this->participants),
-					'limit' => count($this->participants),
+					'limit' => \count($this->participants),
 				],
 			);
 
@@ -794,7 +794,7 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	public function getLabel(): string
 	{
-		return 'search_index_' . strtolower(substr(strrchr(get_class($this), '\\'), 1));
+		return 'search_index_' . strtolower(substr(strrchr(\get_class($this), '\\'), 1));
 	}
 
 	/**
@@ -802,7 +802,7 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	public function getDescription(): string
 	{
-		return 'search_index_' . strtolower(substr(strrchr(get_class($this), '\\'), 1)) . '_desc';
+		return 'search_index_' . strtolower(substr(strrchr(\get_class($this), '\\'), 1)) . '_desc';
 	}
 
 	/***********************
@@ -1159,7 +1159,7 @@ abstract class SearchApi implements SearchApiInterface
 		// .. first, we check for things like -"some words", but not "-some words".
 		foreach ($matches[1] as $index => $word) {
 			if ($word === '-') {
-				if (($word = trim($phraseArray[$index], '-_\' ')) !== '' && !in_array($word, $this->blacklisted_words)) {
+				if (($word = trim($phraseArray[$index], '-_\' ')) !== '' && !\in_array($word, $this->blacklisted_words)) {
 					$this->excludedWords[] = $word;
 				}
 
@@ -1188,7 +1188,7 @@ abstract class SearchApi implements SearchApiInterface
 				unset($this->searchArray[$index]);
 			}
 			// Skip blacklisted words. Make sure to note we skipped them in case we end up with nothing.
-			elseif (in_array($this->searchArray[$index], $this->blacklisted_words)) {
+			elseif (\in_array($this->searchArray[$index], $this->blacklisted_words)) {
 				$foundBlackListedWords = true;
 				unset($this->searchArray[$index]);
 			}
@@ -1199,7 +1199,7 @@ abstract class SearchApi implements SearchApiInterface
 			}
 		}
 
-		$this->searchArray = array_slice(array_unique($this->searchArray), 0, 10);
+		$this->searchArray = \array_slice(array_unique($this->searchArray), 0, 10);
 
 		foreach ($this->searchArray as $word) {
 			$this->marked[$word] = '<mark class="highlight">' . $word . '</mark>';
@@ -1252,13 +1252,13 @@ abstract class SearchApi implements SearchApiInterface
 			}
 
 			foreach ($orParts[$orIndex] as $word) {
-				$is_excluded = in_array($word, $this->excludedWords);
+				$is_excluded = \in_array($word, $this->excludedWords);
 
 				$this->searchWords[$orIndex]['all_words'][] = $word;
 
 				$subjectWords = Utils::extractWords($word, 2);
 
-				if (!$is_excluded || count($subjectWords) === 1) {
+				if (!$is_excluded || \count($subjectWords) === 1) {
 					$this->searchWords[$orIndex]['subject_words'] = array_merge($this->searchWords[$orIndex]['subject_words'], $subjectWords);
 
 					if ($is_excluded) {
@@ -1286,9 +1286,9 @@ abstract class SearchApi implements SearchApiInterface
 			}
 
 			// Make sure we aren't searching for too many indexed words.
-			$this->searchWords[$orIndex]['indexed_words'] = array_slice($this->searchWords[$orIndex]['indexed_words'], 0, 7);
-			$this->searchWords[$orIndex]['subject_words'] = array_slice($this->searchWords[$orIndex]['subject_words'], 0, 7);
-			$this->searchWords[$orIndex]['words'] = array_slice($this->searchWords[$orIndex]['words'], 0, 4);
+			$this->searchWords[$orIndex]['indexed_words'] = \array_slice($this->searchWords[$orIndex]['indexed_words'], 0, 7);
+			$this->searchWords[$orIndex]['subject_words'] = \array_slice($this->searchWords[$orIndex]['subject_words'], 0, 7);
+			$this->searchWords[$orIndex]['words'] = \array_slice($this->searchWords[$orIndex]['words'], 0, 4);
 		}
 	}
 
@@ -1357,10 +1357,10 @@ abstract class SearchApi implements SearchApiInterface
 			preg_match_all('~"([^"]+)"~', $userString, $matches);
 			$possible_users = array_merge($matches[1], explode(',', preg_replace('~"[^"]+"~', '', $userString)));
 
-			for ($k = 0, $n = count($possible_users); $k < $n; $k++) {
+			for ($k = 0, $n = \count($possible_users); $k < $n; $k++) {
 				$possible_users[$k] = trim($possible_users[$k]);
 
-				if (strlen($possible_users[$k]) == 0) {
+				if (\strlen($possible_users[$k]) == 0) {
 					unset($possible_users[$k]);
 				}
 			}
@@ -1429,12 +1429,12 @@ abstract class SearchApi implements SearchApiInterface
 	protected function setBoardQuery(): void
 	{
 		// If the boards were passed by URL (params=), temporarily put them back in $_REQUEST.
-		if (!empty($this->params['brd']) && is_array($this->params['brd'])) {
+		if (!empty($this->params['brd']) && \is_array($this->params['brd'])) {
 			$_REQUEST['brd'] = $this->params['brd'];
 		}
 
 		// Ensure that brd is an array.
-		if ((!empty($_REQUEST['brd']) && !is_array($_REQUEST['brd'])) || (!empty($_REQUEST['search_selection']) && $_REQUEST['search_selection'] == 'board')) {
+		if ((!empty($_REQUEST['brd']) && !\is_array($_REQUEST['brd'])) || (!empty($_REQUEST['search_selection']) && $_REQUEST['search_selection'] == 'board')) {
 			if (!empty($_REQUEST['brd'])) {
 				$_REQUEST['brd'] = str_contains($_REQUEST['brd'], ',') ? explode(',', $_REQUEST['brd']) : [$_REQUEST['brd']];
 			} else {
@@ -1509,7 +1509,7 @@ abstract class SearchApi implements SearchApiInterface
 			}
 		}
 
-		if (count($this->params['brd']) != 0) {
+		if (\count($this->params['brd']) != 0) {
 			foreach ($this->params['brd'] as $k => $v) {
 				$this->params['brd'][$k] = (int) $v;
 			}
@@ -1529,9 +1529,9 @@ abstract class SearchApi implements SearchApiInterface
 
 			Db::$db->free_result($request);
 
-			if (count($this->params['brd']) == $num_boards) {
+			if (\count($this->params['brd']) == $num_boards) {
 				$this->boardQuery = '';
-			} elseif (count($this->params['brd']) == $num_boards - 1 && !empty(Config::$modSettings['recycle_board']) && !in_array(Config::$modSettings['recycle_board'], $this->params['brd'])) {
+			} elseif (\count($this->params['brd']) == $num_boards - 1 && !empty(Config::$modSettings['recycle_board']) && !\in_array(Config::$modSettings['recycle_board'], $this->params['brd'])) {
 				$this->boardQuery = '!= ' . Config::$modSettings['recycle_board'];
 			} else {
 				$this->boardQuery = 'IN (' . implode(', ', $this->params['brd']) . ')';
@@ -1552,7 +1552,7 @@ abstract class SearchApi implements SearchApiInterface
 			list($this->params['sort'], $this->params['sort_dir']) = array_pad(explode('|', $_REQUEST['sort']), 2, '');
 		}
 
-		$this->params['sort'] = !empty($this->params['sort']) && in_array($this->params['sort'], $this->sort_columns) ? $this->params['sort'] : 'relevance';
+		$this->params['sort'] = !empty($this->params['sort']) && \in_array($this->params['sort'], $this->sort_columns) ? $this->params['sort'] : 'relevance';
 
 		if (!empty($this->params['topic']) && $this->params['sort'] === 'num_replies') {
 			$this->params['sort'] = 'id_msg';
@@ -1596,7 +1596,7 @@ abstract class SearchApi implements SearchApiInterface
 			foreach ($words['subject_words'] as $subjectWord) {
 				$numTables++;
 
-				if (in_array($subjectWord, $this->excludedSubjectWords)) {
+				if (\in_array($subjectWord, $this->excludedSubjectWords)) {
 					$subject_query['left_join'][] = '{db_prefix}log_search_subjects AS subj' . $numTables . ' ON (subj' . $numTables . '.word ' . (empty(Config::$modSettings['search_match_words']) ? 'LIKE {string:subject_words_' . $numTables . '_wild}' : '= {string:subject_words_' . $numTables . '}') . ' AND subj' . $numTables . '.id_topic = t.id_topic)';
 
 					$subject_query['where'][] = '(subj' . $numTables . '.word IS NULL)';
@@ -1713,7 +1713,7 @@ abstract class SearchApi implements SearchApiInterface
 					}
 				}
 				Db::$db->free_result($ignoreRequest);
-				$numSubjectResults = count($inserts);
+				$numSubjectResults = \count($inserts);
 			} else {
 				$numSubjectResults += Db::$db->affected_rows();
 			}
@@ -1864,7 +1864,7 @@ abstract class SearchApi implements SearchApiInterface
 				foreach ($words['subject_words'] as $subjectWord) {
 					$numTables++;
 
-					if (in_array($subjectWord, $this->excludedSubjectWords)) {
+					if (\in_array($subjectWord, $this->excludedSubjectWords)) {
 						if (($subject_query['from'] != '{db_prefix}messages AS m') && !$excluded) {
 							$subject_query['inner_join']['m'] = '{db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)';
 							$excluded = true;
@@ -1983,7 +1983,7 @@ abstract class SearchApi implements SearchApiInterface
 					}
 					Db::$db->free_result($ignoreRequest);
 
-					$numSubjectResults = count($inserts);
+					$numSubjectResults = \count($inserts);
 				} else {
 					$numSubjectResults += Db::$db->affected_rows();
 				}
@@ -2089,7 +2089,7 @@ abstract class SearchApi implements SearchApiInterface
 						}
 						Db::$db->free_result($ignoreRequest);
 
-						$indexedResults = count($inserts);
+						$indexedResults = \count($inserts);
 					} else {
 						$indexedResults += Db::$db->affected_rows();
 					}
@@ -2137,7 +2137,7 @@ abstract class SearchApi implements SearchApiInterface
 				$where = [];
 
 				foreach ($words['all_words'] as $regularWord) {
-					if (in_array($regularWord, $this->excludedWords)) {
+					if (\in_array($regularWord, $this->excludedWords)) {
 						$where[] = 'm.subject NOT ' . $this->query_match_type . ' {string:all_word_body_' . $count . '}';
 						$where[] = 'm.body NOT ' . $this->query_match_type . ' {string:all_word_body_' . $count . '}';
 					} else {
@@ -2152,12 +2152,12 @@ abstract class SearchApi implements SearchApiInterface
 				}
 
 				if (!empty($where)) {
-					$orWhere[] = count($where) > 1 ? '(' . implode(' AND ', $where) . ')' : $where[0];
+					$orWhere[] = \count($where) > 1 ? '(' . implode(' AND ', $where) . ')' : $where[0];
 				}
 			}
 
 			if (!empty($orWhere)) {
-				$main_query['where'][] = count($orWhere) > 1 ? '(' . implode(' OR ', $orWhere) . ')' : $orWhere[0];
+				$main_query['where'][] = \count($orWhere) > 1 ? '(' . implode(' OR ', $orWhere) . ')' : $orWhere[0];
 			}
 
 			if (!empty($this->userQuery)) {
@@ -2261,7 +2261,7 @@ abstract class SearchApi implements SearchApiInterface
 					);
 				}
 
-				$_SESSION['search_cache']['num_results'] += count($inserts);
+				$_SESSION['search_cache']['num_results'] += \count($inserts);
 			} else {
 				$_SESSION['search_cache']['num_results'] = Db::$db->affected_rows();
 			}
@@ -2338,7 +2338,7 @@ abstract class SearchApi implements SearchApiInterface
 					);
 				}
 
-				$_SESSION['search_cache']['num_results'] += count($inserts);
+				$_SESSION['search_cache']['num_results'] += \count($inserts);
 			} else {
 				$_SESSION['search_cache']['num_results'] += Db::$db->affected_rows();
 			}
@@ -2349,7 +2349,7 @@ abstract class SearchApi implements SearchApiInterface
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([SearchApi::class, 'exportStatic'])) {
+if (\is_callable([SearchApi::class, 'exportStatic'])) {
 	SearchApi::exportStatic();
 }
 

@@ -64,7 +64,7 @@ class Mail
 		$mail_result = true;
 
 		// If the recipient list isn't an array, make it one.
-		$to_array = is_array($to) ? $to : [$to];
+		$to_array = \is_array($to) ? $to : [$to];
 
 		// Make sure we actually have email addresses to send this to
 		foreach ($to_array as $k => $v) {
@@ -132,7 +132,7 @@ class Mail
 		$headers .= 'X-Mailer: SMF' . $line_break;
 
 		// Pass this to the integration before we start modifying the output -- it'll make it easier later.
-		if (in_array(false, IntegrationHook::call('integrate_outgoing_email', [&$subject, &$message, &$headers, &$to_array]), true)) {
+		if (\in_array(false, IntegrationHook::call('integrate_outgoing_email', [&$subject, &$message, &$headers, &$to_array]), true)) {
 			return false;
 		}
 
@@ -318,7 +318,7 @@ class Mail
 
 		foreach ($to_array as $to) {
 			// Will this insert go over MySQL's limit?
-			$this_insert_len = strlen($to) + strlen($message) + strlen($headers) + 700;
+			$this_insert_len = \strlen($to) + \strlen($message) + \strlen($headers) + 700;
 
 			// Insert limit of 1M (just under the safety) is reached?
 			if ($this_insert_len + $cur_insert_len > 1000000) {
@@ -474,7 +474,7 @@ class Mail
 		}
 
 		// Don't believe we have any left?
-		if (count($ids) < $number) {
+		if (\count($ids) < $number) {
 			// Only update the setting if no-one else has beaten us to it.
 			Db::$db->query(
 				'',
@@ -646,13 +646,13 @@ class Mail
 				$string = preg_replace_callback(
 					'~&#(\d{3,8});~',
 					function ($m) {
-						return chr((int) "{$m[1]}");
+						return \chr((int) "{$m[1]}");
 					},
 					$string,
 				);
 			} else {
 				// Try to convert the string to UTF-8.
-				if (!Utils::$context['utf8'] && function_exists('iconv')) {
+				if (!Utils::$context['utf8'] && \function_exists('iconv')) {
 					$newstring = @iconv(Utils::$context['character_set'], 'UTF-8', $string);
 
 					if ($newstring) {
@@ -668,8 +668,8 @@ class Mail
 		}
 
 		// Convert all special characters to HTML entities...just for Hotmail :-\
-		if ($hotmail_fix && (Utils::$context['utf8'] || function_exists('iconv') || Utils::$context['character_set'] === 'ISO-8859-1')) {
-			if (!Utils::$context['utf8'] && function_exists('iconv')) {
+		if ($hotmail_fix && (Utils::$context['utf8'] || \function_exists('iconv') || Utils::$context['character_set'] === 'ISO-8859-1')) {
+			if (!Utils::$context['utf8'] && \function_exists('iconv')) {
 				$newstring = @iconv(Utils::$context['character_set'], 'UTF-8', $string);
 
 				if ($newstring) {
@@ -680,20 +680,20 @@ class Mail
 			$entityConvert = function ($m) {
 				$c = $m[1];
 
-				if (strlen($c) === 1 && ord($c[0]) <= 0x7F) {
+				if (\strlen($c) === 1 && \ord($c[0]) <= 0x7F) {
 					return $c;
 				}
 
-				if (strlen($c) === 2 && ord($c[0]) >= 0xC0 && ord($c[0]) <= 0xDF) {
-					return '&#' . (((ord($c[0]) ^ 0xC0) << 6) + (ord($c[1]) ^ 0x80)) . ';';
+				if (\strlen($c) === 2 && \ord($c[0]) >= 0xC0 && \ord($c[0]) <= 0xDF) {
+					return '&#' . (((\ord($c[0]) ^ 0xC0) << 6) + (\ord($c[1]) ^ 0x80)) . ';';
 				}
 
-				if (strlen($c) === 3 && ord($c[0]) >= 0xE0 && ord($c[0]) <= 0xEF) {
-					return '&#' . (((ord($c[0]) ^ 0xE0) << 12) + ((ord($c[1]) ^ 0x80) << 6) + (ord($c[2]) ^ 0x80)) . ';';
+				if (\strlen($c) === 3 && \ord($c[0]) >= 0xE0 && \ord($c[0]) <= 0xEF) {
+					return '&#' . (((\ord($c[0]) ^ 0xE0) << 12) + ((\ord($c[1]) ^ 0x80) << 6) + (\ord($c[2]) ^ 0x80)) . ';';
 				}
 
-				if (strlen($c) === 4 && ord($c[0]) >= 0xF0 && ord($c[0]) <= 0xF7) {
-					return '&#' . (((ord($c[0]) ^ 0xF0) << 18) + ((ord($c[1]) ^ 0x80) << 12) + ((ord($c[2]) ^ 0x80) << 6) + (ord($c[3]) ^ 0x80)) . ';';
+				if (\strlen($c) === 4 && \ord($c[0]) >= 0xF0 && \ord($c[0]) <= 0xF7) {
+					return '&#' . (((\ord($c[0]) ^ 0xF0) << 18) + ((\ord($c[1]) ^ 0x80) << 12) + ((\ord($c[2]) ^ 0x80) << 6) + (\ord($c[3]) ^ 0x80)) . ';';
 				}
 
 				return '';
@@ -794,9 +794,9 @@ class Mail
 		// Can't rely on $_SERVER['SERVER_NAME'] because it can be spoofed on Apache
 		if (empty($helo)) {
 			// See if we can get the domain name from the host itself
-			if (function_exists('gethostname')) {
+			if (\function_exists('gethostname')) {
 				$helo = gethostname();
-			} elseif (function_exists('php_uname')) {
+			} elseif (\function_exists('php_uname')) {
 				$helo = php_uname('n');
 			}
 
@@ -819,7 +819,7 @@ class Mail
 				$helo = substr($helo, 4);
 			}
 
-			if (!function_exists('idn_to_ascii')) {
+			if (!\function_exists('idn_to_ascii')) {
 				require_once Config::$sourcedir . '/Subs-Compat.php';
 			}
 
@@ -827,7 +827,7 @@ class Mail
 		}
 
 		// SMTP = 1, SMTP - STARTTLS = 2
-		if (in_array(Config::$modSettings['mail_type'], [1, 2]) && Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '') {
+		if (\in_array(Config::$modSettings['mail_type'], [1, 2]) && Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '') {
 			// EHLO could be understood to mean encrypted hello...
 			if (self::serverParse('EHLO ' . $helo, $socket, null, $response) == '250') {
 				// Are we using STARTTLS and does the server support STARTTLS?
@@ -840,7 +840,7 @@ class Mail
 					// php 5.6+ fix
 					$crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
 
-					if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
+					if (\defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
 						$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
 						$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
 					}
@@ -906,7 +906,7 @@ class Mail
 			}
 			fputs($socket, 'Subject: ' . $subject . "\r\n");
 
-			if (strlen($mail_to) > 0) {
+			if (\strlen($mail_to) > 0) {
 				fputs($socket, 'To: <' . $mail_to . '>' . "\r\n");
 			}
 			fputs($socket, $headers . "\r\n\r\n");
@@ -973,7 +973,7 @@ class Mail
 			 * 450 - DNS Routing issues
 			 * 451 - cPanel "Temporary local problem - please try later"
 			 */
-			if ($response_code < 500 && !in_array($response_code, [450, 451])) {
+			if ($response_code < 500 && !\in_array($response_code, [450, 451])) {
 				ErrorHandler::log(Lang::getTxt('smtp_error', [$server_response]));
 			}
 
@@ -1005,7 +1005,7 @@ class Mail
 
 		// It must be an array - it must!
 		// @TODO: $topics = (array) $topics;
-		if (!is_array($topics)) {
+		if (!\is_array($topics)) {
 			$topics = [$topics];
 		}
 

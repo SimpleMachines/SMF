@@ -230,7 +230,7 @@ class Main implements ActionInterface
 		$call = method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -381,11 +381,11 @@ class Main implements ActionInterface
 		array_walk_recursive(
 			$this->moderation_areas,
 			function (&$value, $key) {
-				if (in_array($key, ['title', 'label'])) {
+				if (\in_array($key, ['title', 'label'])) {
 					$value = Lang::$txt[$value] ?? $value;
 				}
 
-				if (is_string($value)) {
+				if (\is_string($value)) {
 						$value = strtr($value, [
 							'{scripturl}' => Config::$scripturl,
 							'{boardurl}' => Config::$boardurl,

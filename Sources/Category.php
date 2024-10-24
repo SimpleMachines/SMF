@@ -542,7 +542,7 @@ class Category implements \ArrayAccess
 			}
 		}
 		// Make sure the safe category is really safe.
-		elseif (in_array($moveBoardsTo, $categories)) {
+		elseif (\in_array($moveBoardsTo, $categories)) {
 			Lang::load('Errors');
 			trigger_error(Lang::$txt['cannot_move_to_deleted_category'], E_USER_ERROR);
 		}
@@ -594,9 +594,9 @@ class Category implements \ArrayAccess
 			if (!empty($categories[$cat])) {
 				$ordered[$cat] = $categories[$cat];
 
-				if (is_array($ordered[$cat]) && !empty($ordered[$cat]['boards'])) {
+				if (\is_array($ordered[$cat]) && !empty($ordered[$cat]['boards'])) {
 					Board::sort($ordered[$cat]['boards']);
-				} elseif (is_object($ordered[$cat]) && !empty($ordered[$cat]->children)) {
+				} elseif (\is_object($ordered[$cat]) && !empty($ordered[$cat]->children)) {
 					Board::sort($ordered[$cat]->children);
 				}
 			}
@@ -632,7 +632,7 @@ class Category implements \ArrayAccess
 		);
 
 		foreach (Db::$db->fetch_all($request) as $row) {
-			if (!in_array($row['id_cat'], self::$tree_order['cats'])) {
+			if (!\in_array($row['id_cat'], self::$tree_order['cats'])) {
 				self::$tree_order['cats'][] = $row['id_cat'];
 			}
 
@@ -822,7 +822,7 @@ class Category implements \ArrayAccess
 		$this->set($props);
 		self::$loaded[$this->id] = $this;
 
-		if (count(self::$loaded) > 1) {
+		if (\count(self::$loaded) > 1) {
 			uasort(
 				self::$loaded,
 				function ($a, $b) {
@@ -888,7 +888,7 @@ class Category implements \ArrayAccess
 }
 
 // Export properties to global namespace for backward compatibility.
-if (is_callable([Category::class, 'exportStatic'])) {
+if (\is_callable([Category::class, 'exportStatic'])) {
 	Category::exportStatic();
 }
 

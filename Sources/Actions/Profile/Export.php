@@ -204,7 +204,7 @@ class Export implements ActionInterface
 					}
 
 					if (!isset($latest[$datatype])) {
-						$latest[$datatype] = is_callable($datatype_settings['latest']) ? $datatype_settings['latest'](Utils::$context['id_member']) : $datatype_settings['latest'];
+						$latest[$datatype] = \is_callable($datatype_settings['latest']) ? $datatype_settings['latest'](Utils::$context['id_member']) : $datatype_settings['latest'];
 					}
 
 					if ($latest[$datatype] > $progress[$datatype]) {
@@ -220,7 +220,7 @@ class Export implements ActionInterface
 					$exportbasename = basename($exportfilepath);
 
 					$part = substr($exportbasename, 0, strcspn($exportbasename, '_'));
-					$suffix = count($exportfilepaths) == 1 ? '' : '_' . $part;
+					$suffix = \count($exportfilepaths) == 1 ? '' : '_' . $part;
 
 					$size = filesize($exportfilepath) / 1024;
 					$units = ['KB', 'MB', 'GB', 'TB'];
@@ -278,11 +278,11 @@ class Export implements ActionInterface
 					$start[$datatype] = !empty($start[$datatype]) ? $start[$datatype] : 0;
 
 					if (!isset($latest[$datatype])) {
-						$latest[$datatype] = is_callable($datatype_settings['latest']) ? $datatype_settings['latest'](Utils::$context['id_member']) : $datatype_settings['latest'];
+						$latest[$datatype] = \is_callable($datatype_settings['latest']) ? $datatype_settings['latest'](Utils::$context['id_member']) : $datatype_settings['latest'];
 					}
 
 					if (!isset($total[$datatype])) {
-						$total[$datatype] = is_callable($datatype_settings['total']) ? $datatype_settings['total'](Utils::$context['id_member']) : $datatype_settings['total'];
+						$total[$datatype] = \is_callable($datatype_settings['total']) ? $datatype_settings['total'](Utils::$context['id_member']) : $datatype_settings['total'];
 					}
 				}
 			}

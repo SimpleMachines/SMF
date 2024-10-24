@@ -124,7 +124,7 @@ class File
 				}
 				// Otherwise, this is background...
 				else {
-					$bmp .= chr($background_color);
+					$bmp .= \chr($background_color);
 				}
 			}
 		}
@@ -160,7 +160,7 @@ class File
 		}
 
 		// Here's the data itself!
-		$out .= pack('N', strlen($bmp));
+		$out .= pack('N', \strlen($bmp));
 		$tmp = 'IDAT' . $bmp;
 		$out .= $tmp . pack('N', smf_crc32($tmp));
 
@@ -172,7 +172,7 @@ class File
 }
 
 // 64-bit only functions?
-if (!function_exists('smf_crc32')) {
+if (!\function_exists('smf_crc32')) {
 	require_once Config::$sourcedir . '/Subs-Compat.php';
 }
 

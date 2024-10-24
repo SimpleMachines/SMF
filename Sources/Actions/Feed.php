@@ -305,7 +305,7 @@ class Feed implements ActionInterface
 				$_GET['c'][$i] = (int) $c;
 			}
 
-			if (count($_GET['c']) == 1) {
+			if (\count($_GET['c']) == 1) {
 				$request = Db::$db->query(
 					'',
 					'SELECT name
@@ -368,7 +368,7 @@ class Feed implements ActionInterface
 				LIMIT {int:limit}',
 				[
 					'board_list' => $_GET['boards'],
-					'limit' => count($_GET['boards']),
+					'limit' => \count($_GET['boards']),
 				],
 			);
 
@@ -480,13 +480,13 @@ class Feed implements ActionInterface
 
 		if (empty($this->data)) {
 			// Should we call one of this class's own methods, or something added by a mod?
-			if (is_callable([$this, self::$subactions[$this->subaction]])) {
+			if (\is_callable([$this, self::$subactions[$this->subaction]])) {
 				$call = [$this, self::$subactions[$this->subaction]];
 			} else {
 				$call = Utils::getCallable(self::$subactions[$this->subaction]);
 			}
 
-			$this->data = !empty($call) ? call_user_func($call, $this->format) : [];
+			$this->data = !empty($call) ? \call_user_func($call, $this->format) : [];
 
 			if (
 				!empty(CacheApi::$enable)
@@ -511,12 +511,12 @@ class Feed implements ActionInterface
 		$filename[] = $this->metadata['title'];
 		$filename[] = $this->subaction;
 
-		if (in_array($this->subaction, ['profile', 'posts', 'personal_messages'])) {
+		if (\in_array($this->subaction, ['profile', 'posts', 'personal_messages'])) {
 			$filename[] = 'u=' . $this->member;
 		}
 
 		if (!empty($this->boards)) {
-			if (count($this->boards) > 1) {
+			if (\count($this->boards) > 1) {
 				$filename[] = 'boards=' . implode(',', $this->boards);
 			} else {
 				$filename[] = 'board=' . reset($this->boards);
@@ -1905,7 +1905,7 @@ class Feed implements ActionInterface
 
 		$data = [];
 
-		$show_all = !empty(User::$me->is_admin) || defined('EXPORTING');
+		$show_all = !empty(User::$me->is_admin) || \defined('EXPORTING');
 
 		$query_this_message_board = str_replace(['{query_see_board}', 'b.'], ['{query_see_message_board}', 'm.'], $this->query_this_board);
 
@@ -2681,7 +2681,7 @@ class Feed implements ActionInterface
 		$namespaces['smf']['smf'] = sprintf($namespaces['smf']['smf'], $subaction);
 
 		// These sub-actions need the SMF namespace in other feed formats.
-		if (in_array($subaction, ['profile', 'posts', 'personal_messages'])) {
+		if (\in_array($subaction, ['profile', 'posts', 'personal_messages'])) {
 			$namespaces['rss']['smf'] = $namespaces['smf']['smf'];
 			$namespaces['rss2']['smf'] = $namespaces['smf']['smf'];
 			$namespaces['atom']['smf'] = $namespaces['smf']['smf'];
@@ -2728,7 +2728,7 @@ class Feed implements ActionInterface
 			}
 		}
 
-		$i = in_array($format, ['atom', 'smf']) ? 1 : 2;
+		$i = \in_array($format, ['atom', 'smf']) ? 1 : 2;
 
 		$extraFeedTags_string = '';
 
@@ -2901,7 +2901,7 @@ class Feed implements ActionInterface
 		}
 		// Looks like we need to do it the hard way.
 		else {
-			for ($pos = 0, $n = strlen($data); $pos < $n; null) {
+			for ($pos = 0, $n = \strlen($data); $pos < $n; null) {
 				$positions = [
 					strpos($data, ']]>', $pos),
 					strpos($data, '<', $pos),
@@ -3031,7 +3031,7 @@ class Feed implements ActionInterface
 	protected function checkEnabled(): void
 	{
 		// Users can always export their own profile data.
-		if (in_array($this->subaction, ['profile', 'posts', 'personal_messages']) && $this->member == User::$me->id && !User::$me->is_guest) {
+		if (\in_array($this->subaction, ['profile', 'posts', 'personal_messages']) && $this->member == User::$me->id && !User::$me->is_guest) {
 			return;
 		}
 
@@ -3075,7 +3075,7 @@ class Feed implements ActionInterface
 				continue;
 			}
 
-			$forceCdata = in_array($key, $forceCdataKeys);
+			$forceCdata = \in_array($key, $forceCdataKeys);
 			$ns = !empty($nsKeys[$key]) ? $nsKeys[$key] : '';
 
 			// First let's indent!
@@ -3097,7 +3097,7 @@ class Feed implements ActionInterface
 				Utils::$context['feed']['items'] .= '>';
 
 				// The element's value.
-				if (is_array($val)) {
+				if (\is_array($val)) {
 					// An array.  Dump it, and then indent the tag.
 					self::dumpTags($val, $i + 1, $format, $forceCdataKeys, $nsKeys);
 					Utils::$context['feed']['items'] .= "\n" . str_repeat("\t", $i);
@@ -3136,7 +3136,7 @@ class Feed implements ActionInterface
 			empty(Config::$modSettings['queryless_urls'])
 			|| (
 				Sapi::isCGI()
-				&& ini_get('cgi.fix_pathinfo') == 0
+				&& \ini_get('cgi.fix_pathinfo') == 0
 				&& @get_cfg_var('cgi.fix_pathinfo') == 0
 			)
 			|| (

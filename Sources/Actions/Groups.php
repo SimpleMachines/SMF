@@ -124,7 +124,7 @@ class Groups implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -244,7 +244,7 @@ class Groups implements ActionInterface
 		$_REQUEST['group'] = isset($_REQUEST['group']) ? (int) $_REQUEST['group'] : 0;
 
 		// No browsing of guests, membergroup 0 or moderators.
-		if (in_array($_REQUEST['group'], [-1, 0, 3])) {
+		if (\in_array($_REQUEST['group'], [-1, 0, 3])) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
 
@@ -280,7 +280,7 @@ class Groups implements ActionInterface
 		}
 
 		// Removing member from group?
-		if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && is_array($_REQUEST['rem']) && $group->assignable) {
+		if (isset($_POST['remove']) && !empty($_REQUEST['rem']) && \is_array($_REQUEST['rem']) && $group->assignable) {
 			User::$me->checkSession();
 			SecurityToken::validate('mod-mgm');
 
@@ -304,7 +304,7 @@ class Groups implements ActionInterface
 			foreach ($member_names as $index => $member_name) {
 				$member_names[$index] = trim(Utils::strtolower($member_names[$index]));
 
-				if (strlen($member_names[$index]) == 0) {
+				if (\strlen($member_names[$index]) == 0) {
 					unset($member_names[$index]);
 				}
 			}
@@ -802,7 +802,7 @@ class Groups implements ActionInterface
 		Db::$db->free_result($request);
 
 		// If there are more than $limit members, add a 'more' link.
-		if ($limit !== null && count($members) > $limit) {
+		if ($limit !== null && \count($members) > $limit) {
 			array_pop($members);
 
 			return true;

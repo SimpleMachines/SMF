@@ -221,7 +221,7 @@ class RRule implements \Stringable
 		}
 
 		// Parse the RRule into an associative array.
-		parse_str(strtr($rrule, ';', substr(ini_get('arg_separator.input'), 0, 1)), $rrule);
+		parse_str(strtr($rrule, ';', substr(\ini_get('arg_separator.input'), 0, 1)), $rrule);
 
 		// Set initial values of properties.
 		foreach ($rrule as $prop => $value) {
@@ -231,7 +231,7 @@ class RRule implements \Stringable
 				case 'freq':
 					$value = strtoupper($value);
 
-					if (!in_array($value, self::FREQUENCIES)) {
+					if (!\in_array($value, self::FREQUENCIES)) {
 						continue 2;
 					}
 
@@ -240,7 +240,7 @@ class RRule implements \Stringable
 				case 'wkst':
 					$value = strtoupper($value);
 
-					if (!in_array($value, self::WEEKDAYS)) {
+					if (!\in_array($value, self::WEEKDAYS)) {
 						continue 2;
 					}
 
@@ -252,7 +252,7 @@ class RRule implements \Stringable
 							if (str_contains($value_part, 'TZID')) {
 								$tzid = str_replace('TZID=', '', $value_part);
 
-								if (in_array($tzid, self::UTC_SYNONYMS)) {
+								if (\in_array($tzid, self::UTC_SYNONYMS)) {
 									$tzid = 'UTC';
 								}
 
@@ -316,7 +316,7 @@ class RRule implements \Stringable
 						explode(',', $value),
 						function ($v) {
 							// Simple case.
-							if (in_array($v, self::WEEKDAYS)) {
+							if (\in_array($v, self::WEEKDAYS)) {
 								return true;
 							}
 
@@ -385,7 +385,7 @@ class RRule implements \Stringable
 		}
 
 		// BYYEARDAY never applies with these frequencies.
-		if (in_array($this->freq, ['DAILY', 'WEEKLY', 'MONTHLY'])) {
+		if (\in_array($this->freq, ['DAILY', 'WEEKLY', 'MONTHLY'])) {
 			unset($this->byyearday);
 		}
 
@@ -399,13 +399,13 @@ class RRule implements \Stringable
 			!empty($this->byday)
 			&& (
 				// Can't have integer modifiers with frequencies besides these.
-				!in_array($this->freq, ['MONTHLY', 'YEARLY'])
+				!\in_array($this->freq, ['MONTHLY', 'YEARLY'])
 				//  Can't have integer modifiers in combination with BYWEEKNO.
 				|| isset($this->byweekno)
 			)
 		) {
 			foreach ($this->byday as $value) {
-				if (!in_array($value, self::WEEKDAYS)) {
+				if (!\in_array($value, self::WEEKDAYS)) {
 					unset($this->byday);
 					break;
 				}
@@ -477,7 +477,7 @@ class RRule implements \Stringable
 						// Skip if default.
 						$value === 'MO'
 						// Skip if irrelevant.
-						|| !in_array($this->freq, ['WEEKLY', 'YEARLY'])
+						|| !\in_array($this->freq, ['WEEKLY', 'YEARLY'])
 						|| ($this->freq === 'WEEKLY' && empty($this->byday))
 						|| ($this->freq === 'YEARLY' && empty($this->byweekno))
 					) {
@@ -513,7 +513,7 @@ class RRule implements \Stringable
 					break;
 			}
 
-			if (isset($value) && strlen($value) > 0) {
+			if (isset($value) && \strlen($value) > 0) {
 				$rrule[] = $part . '=' . $value;
 			}
 		}
@@ -547,7 +547,7 @@ class RRule implements \Stringable
 		// When the repetition ends.
 		if (isset($this->until)) {
 			if (
-				!in_array($this->freq, ['HOURLY', 'MINUTELY', 'SECONDLY'])
+				!\in_array($this->freq, ['HOURLY', 'MINUTELY', 'SECONDLY'])
 				&& empty($this->byhour)
 				&& empty($this->byminute)
 				&& empty($this->bysecond)
@@ -632,12 +632,12 @@ class RRule implements \Stringable
 			&& empty($bysecond)
 		) {
 			if (!empty($this->byday)) {
-				$days_long_or_short = count($this->byday) > 3 ? 'days_short' : 'days';
+				$days_long_or_short = \count($this->byday) > 3 ? 'days_short' : 'days';
 
 				$day_names = [];
 
 				foreach ($this->byday as $day) {
-					if (in_array($day, self::WEEKDAYS)) {
+					if (\in_array($day, self::WEEKDAYS)) {
 						$day_names[] = Lang::$txt[$days_long_or_short][(array_search($day, self::WEEKDAYS) + 1) % 7];
 					} else {
 						$desc_byday = 'calendar_rrule_desc_byday';
@@ -681,7 +681,7 @@ class RRule implements \Stringable
 			'calendar_rrule_desc_bysetpos',
 			[
 				'ordinal_list' => Lang::sentenceList($ordinals),
-				'count' => count($this->bysetpos),
+				'count' => \count($this->bysetpos),
 				'rrule_description' => implode(' ', $description),
 			],
 		);
@@ -705,12 +705,12 @@ class RRule implements \Stringable
 
 		$desc_byday = ($this->freq === 'YEARLY' && empty($this->byweekno)) || $this->freq === 'MONTHLY' ? 'calendar_rrule_desc_byday_every' : 'calendar_rrule_desc_byday';
 
-		$days_long_or_short = count($this->byday) > 3 ? 'days_short' : 'days';
+		$days_long_or_short = \count($this->byday) > 3 ? 'days_short' : 'days';
 
 		$day_names = [];
 
 		foreach ($this->byday as $day) {
-			if (in_array($day, self::WEEKDAYS)) {
+			if (\in_array($day, self::WEEKDAYS)) {
 				$day_names[] = Lang::$txt[$days_long_or_short][(array_search($day, self::WEEKDAYS) + 1) % 7];
 			} else {
 				$desc_byday = 'calendar_rrule_desc_byday';
@@ -800,7 +800,7 @@ class RRule implements \Stringable
 		}
 
 		$ordinals = array_map(fn ($n) => Lang::getTxt('ordinal_spellout', [$n]), $this->byweekno);
-		$description['byweekno'] = Lang::getTxt('calendar_rrule_desc_byweekno', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)]);
+		$description['byweekno'] = Lang::getTxt('calendar_rrule_desc_byweekno', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => \count($ordinals)]);
 	}
 
 	/**
@@ -820,7 +820,7 @@ class RRule implements \Stringable
 		}
 
 		$ordinals = array_map(fn ($n) => Lang::getTxt('ordinal_spellout', [$n]), $this->byyearday);
-		$description['byeyarday'] = Lang::getTxt('calendar_rrule_desc_byyearday', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)]);
+		$description['byeyarday'] = Lang::getTxt('calendar_rrule_desc_byyearday', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => \count($ordinals)]);
 	}
 
 	/**
@@ -841,13 +841,13 @@ class RRule implements \Stringable
 
 		// Special cases for when we have both day names and month days.
 		if (
-			count($this->byday ?? []) >= 1
+			\count($this->byday ?? []) >= 1
 			&& array_intersect($this->byday, self::WEEKDAYS) === $this->byday
 		) {
-			$days_long_or_short = count($this->byday) > 3 ? 'days_short' : 'days';
+			$days_long_or_short = \count($this->byday) > 3 ? 'days_short' : 'days';
 
 			// "Friday the 13th"
-			if (count($this->bymonthday) === 1 && count($this->byday) === 1) {
+			if (\count($this->bymonthday) === 1 && \count($this->byday) === 1) {
 				$named_monthday = Lang::getTxt(
 					'calendar_rrule_desc_named_monthday',
 					[
@@ -881,7 +881,7 @@ class RRule implements \Stringable
 					$day_names[] = Lang::$txt[$days_long_or_short][(array_search($day_abbrev, self::WEEKDAYS) + 1) % 7];
 				}
 
-				$ordinal_form = max(array_map('abs', $this->bymonthday)) < 10 && count($this->bymonthday) <= 3 ? 'ordinal_spellout' : 'ordinal';
+				$ordinal_form = max(array_map('abs', $this->bymonthday)) < 10 && \count($this->bymonthday) <= 3 ? 'ordinal_spellout' : 'ordinal';
 
 				$ordinals = array_map(fn ($n) => Lang::getTxt($n < 0 ? $ordinal_form . '_last' : $ordinal_form, [abs($n)]), $this->bymonthday);
 
@@ -902,7 +902,7 @@ class RRule implements \Stringable
 		// Normal case.
 		else {
 			$ordinals = array_map(fn ($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)]), $this->bymonthday);
-			$description['bymonthday'] = Lang::getTxt('calendar_rrule_desc_bymonthday', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)]);
+			$description['bymonthday'] = Lang::getTxt('calendar_rrule_desc_bymonthday', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => \count($ordinals)]);
 		}
 	}
 

@@ -49,7 +49,7 @@ class HelpAdmin implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		if (!isset($_GET['help']) || !is_string($_GET['help'])) {
+		if (!isset($_GET['help']) || !\is_string($_GET['help'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 

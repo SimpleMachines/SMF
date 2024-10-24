@@ -121,7 +121,7 @@ class Post2 extends Post
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -369,7 +369,7 @@ class Post2 extends Post
 				// If there was an initial error just show that message.
 				if ($attachID == 'initial_error') {
 					$attach_errors[] = '<dt>' . Lang::$txt['attach_no_upload'] . '</dt>';
-					$attach_errors[] = '<dd>' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</dd>';
+					$attach_errors[] = '<dd>' . (\is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</dd>';
 
 					unset($_SESSION['temp_attachments']);
 
@@ -407,10 +407,10 @@ class Post2 extends Post
 					$log_these = ['attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file'];
 
 					foreach ($attachmentOptions['errors'] as $error) {
-						if (!is_array($error)) {
+						if (!\is_array($error)) {
 							$attach_errors[] = '<dd>' . Lang::$txt[$error] . '</dd>';
 
-							if (in_array($error, $log_these)) {
+							if (\in_array($error, $log_these)) {
 								ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 							}
 						} else {
@@ -747,9 +747,9 @@ class Post2 extends Post
 					if (
 						(
 							isset($_SESSION['temp_attachments']['post']['files'], $attachment['name'])
-							&& in_array($attachment['name'], $_SESSION['temp_attachments']['post']['files'])
+							&& \in_array($attachment['name'], $_SESSION['temp_attachments']['post']['files'])
 						)
-						|| in_array($attachID, $keep_temp)
+						|| \in_array($attachID, $keep_temp)
 						|| !str_contains($attachID, 'post_tmp_' . User::$me->id)
 					) {
 						continue;

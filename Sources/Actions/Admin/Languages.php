@@ -84,7 +84,7 @@ class Languages implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -362,7 +362,7 @@ class Languages implements ActionInterface
 			// Mark those which are now writable as such.
 			foreach (Utils::$context['files'] as $type => $data) {
 				foreach ($data as $k => $file) {
-					if (!$file['writable'] && !in_array($file['destination'], Utils::$context['still_not_writable'])) {
+					if (!$file['writable'] && !\in_array($file['destination'], Utils::$context['still_not_writable'])) {
 						Utils::$context['files'][$type][$k]['writable'] = true;
 					}
 				}
@@ -730,7 +730,7 @@ class Languages implements ActionInterface
 
 		// Check we have themes with a path and a name - just in case - and add the path.
 		foreach ($themes as $id => $data) {
-			if (count($data) != 2) {
+			if (\count($data) != 2) {
 				unset($themes[$id]);
 			} elseif (is_dir($data['theme_dir'] . '/languages')) {
 				$lang_dirs[$id] = $data['theme_dir'] . '/languages';
@@ -930,7 +930,7 @@ class Languages implements ActionInterface
 
 			if (!empty($_POST['edit'])) {
 				foreach ($_POST['edit'] as $k => $v) {
-					if (is_string($v)) {
+					if (\is_string($v)) {
 						// Only try to save if 'edit' was specified and if the string has changed
 						if (
 							$v == 'edit'
@@ -949,7 +949,7 @@ class Languages implements ActionInterface
 								'string' => $this->cleanLangString($_POST['entry'][$k], false),
 							];
 						}
-					} elseif (is_array($v)) {
+					} elseif (\is_array($v)) {
 						foreach ($v as $subk => $subv) {
 							if (
 								$subv == 'edit'
@@ -980,7 +980,7 @@ class Languages implements ActionInterface
 
 			// How many strings will PHP let us edit at once?
 			// Each string needs 3 inputs, and there are 5 others in the form.
-			Utils::$context['max_inputs'] = floor(ini_get('max_input_vars') / 3) - 5;
+			Utils::$context['max_inputs'] = floor(\ini_get('max_input_vars') / 3) - 5;
 
 			// Do we want to override the helptxt for certain types of text variables?
 			$special_groups = [
@@ -995,7 +995,7 @@ class Languages implements ActionInterface
 				foreach ($allows_add_remove[$file_id]['add'] as $var_group) {
 					$group = !empty($special_groups[$file_id][$var_group]) ? $special_groups[$file_id][$var_group] : $var_group;
 
-					if (in_array($var_group, $allows_add_remove[$file_id]['add'])) {
+					if (\in_array($var_group, $allows_add_remove[$file_id]['add'])) {
 						Utils::$context['can_add_lang_entry'][$group] = true;
 					}
 				}
@@ -1018,7 +1018,7 @@ class Languages implements ActionInterface
 					$entries[$matches[2] . (isset($matches[3]) ? '[' . $matches[3] . ']' : '')] = [
 						'type' => $matches[1],
 						'group' => !empty($special_groups[$file_id][$matches[1]]) ? $special_groups[$file_id][$matches[1]] : $matches[1],
-						'can_remove' => isset($allows_add_remove[$file_id]['remove']) && in_array($matches[1], $allows_add_remove[$file_id]['remove']),
+						'can_remove' => isset($allows_add_remove[$file_id]['remove']) && \in_array($matches[1], $allows_add_remove[$file_id]['remove']),
 						'key' => $matches[2],
 						'subkey' => $matches[3],
 						'full' => $matches[0],
@@ -1034,7 +1034,7 @@ class Languages implements ActionInterface
 
 			foreach ($entries as $entryKey => $entryValue) {
 				// Ignore some things we set separately.
-				if (in_array($entryKey, array_keys($primary_settings))) {
+				if (\in_array($entryKey, array_keys($primary_settings))) {
 					continue;
 				}
 
@@ -1136,7 +1136,7 @@ class Languages implements ActionInterface
 							$save_cache['enabled'] = true;
 						}
 						// Should we remove this one?
-						elseif (isset($remove_strings[$entryKey]) && in_array($subKey, $remove_strings[$entryKey]) && $entryValue['can_remove']) {
+						elseif (isset($remove_strings[$entryKey]) && \in_array($subKey, $remove_strings[$entryKey]) && $entryValue['can_remove']) {
 							$save_cache['enabled'] = true;
 						}
 						// Just keep this one as it is
@@ -1216,7 +1216,7 @@ class Languages implements ActionInterface
 					}
 
 					// Remove this entry only if it is allowed
-					if (isset($remove_strings[$entryValue['key']]) && in_array($entryValue['subkey'], $remove_strings[$entryValue['key']]) && $entryValue['can_remove']) {
+					if (isset($remove_strings[$entryValue['key']]) && \in_array($entryValue['subkey'], $remove_strings[$entryValue['key']]) && $entryValue['can_remove']) {
 						$entryValue['entry'] = '\'\'';
 
 						$final_saves[$entryKey] = [
@@ -1231,7 +1231,7 @@ class Languages implements ActionInterface
 						'key' => $entryValue['key'],
 						'subkey' => $entryValue['subkey'],
 						'value' => $editing_string,
-						'rows' => strlen($editing_string) / 38 + substr_count($editing_string, "\n") + 1,
+						'rows' => \strlen($editing_string) / 38 + substr_count($editing_string, "\n") + 1,
 						'can_remove' => $entryValue['can_remove'],
 					];
 				}
@@ -1254,7 +1254,7 @@ class Languages implements ActionInterface
 					}
 
 					// Remove this entry only if it is allowed
-					if (in_array($entryValue['key'], $remove_strings) && $entryValue['can_remove']) {
+					if (\in_array($entryValue['key'], $remove_strings) && $entryValue['can_remove']) {
 						$entryValue['entry'] = '\'\'';
 
 						$final_saves[$entryKey] = [
@@ -1269,7 +1269,7 @@ class Languages implements ActionInterface
 						'key' => $entryValue['key'],
 						'subkey' => null,
 						'value' => $editing_string,
-						'rows' => (int) (strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
+						'rows' => (int) (\strlen($editing_string) / 38) + substr_count($editing_string, "\n") + 1,
 						'can_remove' => $entryValue['can_remove'],
 					];
 				}
@@ -1281,7 +1281,7 @@ class Languages implements ActionInterface
 
 				foreach ($add_strings as $string_key => $string_val) {
 					// Adding a normal string
-					if (isset($string_val['string']) && is_string($string_val['string'])) {
+					if (isset($string_val['string']) && \is_string($string_val['string'])) {
 						$type = $special_types[$string_val['group']] ?? $string_val['group'];
 
 						if (empty(Utils::$context['can_add_lang_entry'][$type])) {
@@ -1523,7 +1523,7 @@ class Languages implements ActionInterface
 	 */
 	public static function list_getNumLanguages(): int
 	{
-		return count(Lang::get());
+		return \count(Lang::get());
 	}
 
 	/**
@@ -1659,7 +1659,7 @@ class Languages implements ActionInterface
 			// We'll revert it back to an entity when saving.
 			$string = str_replace('&apos;', "\\'", $string);
 
-			for ($i = 0; $i < strlen($string); $i++) {
+			for ($i = 0; $i < \strlen($string); $i++) {
 				// Handle escapes first.
 				if ($string[$i] == '\\') {
 					// Toggle the escape.
@@ -1726,7 +1726,7 @@ class Languages implements ActionInterface
 						$new_string .= '{%' . $matches[1] . '%}';
 
 						// We're not going to reparse this.
-						$i += strlen($matches[1]) - 1;
+						$i += \strlen($matches[1]) - 1;
 					}
 
 					continue;
@@ -1754,7 +1754,7 @@ class Languages implements ActionInterface
 			// This is for deciding whether to HTML a quote.
 			$in_html = false;
 
-			for ($i = 0; $i < strlen($string); $i++) {
+			for ($i = 0; $i < \strlen($string); $i++) {
 				// We don't do parsed strings apart from for breaks.
 				if ($in_string == 2) {
 					$in_string = 0;
@@ -1780,7 +1780,7 @@ class Languages implements ActionInterface
 						}
 
 						$new_string .= $matches[1];
-						$i += strlen($matches[1]) + 3;
+						$i += \strlen($matches[1]) + 3;
 						$in_string = 0;
 					}
 

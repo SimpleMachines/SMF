@@ -164,16 +164,16 @@ trait DynamicPropertyHelper
 	 */
 	protected function customPropertySet(mixed $prop, mixed $value): void
 	{
-		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases)) {
+		if (!empty($this->prop_aliases) && \array_key_exists($prop, $this->prop_aliases)) {
 			// Can't unset a virtual property.
-			if (is_null($value)) {
+			if (\is_null($value)) {
 				return;
 			}
 
 			$real_prop = $this->prop_aliases[$prop];
 
 			// Callable properties can't be set.
-			if (is_callable($real_prop)) {
+			if (\is_callable($real_prop)) {
 				return;
 			}
 
@@ -185,7 +185,7 @@ trait DynamicPropertyHelper
 			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
-				if (is_object($this->{$real_prop[0]})) {
+				if (\is_object($this->{$real_prop[0]})) {
 					$this->{$real_prop[0]}->{$real_prop[1]} = $value;
 				} else {
 					$this->{$real_prop[0]}[$real_prop[1]] = $value;
@@ -207,12 +207,12 @@ trait DynamicPropertyHelper
 	 */
 	protected function customPropertyGet(mixed $prop): mixed
 	{
-		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases)) {
+		if (!empty($this->prop_aliases) && \array_key_exists($prop, $this->prop_aliases)) {
 			$real_prop = $this->prop_aliases[$prop];
 
 			// Callable properties are calculated dynamically.
-			if (str_contains($real_prop, '::') && is_callable($real_prop)) {
-				return call_user_func($real_prop, $this);
+			if (str_contains($real_prop, '::') && \is_callable($real_prop)) {
+				return \call_user_func($real_prop, $this);
 			}
 
 			if (($not = str_starts_with($real_prop, '!'))) {
@@ -222,7 +222,7 @@ trait DynamicPropertyHelper
 			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
-				if (is_object($this->{$real_prop[0]})) {
+				if (\is_object($this->{$real_prop[0]})) {
 					$value = $this->{$real_prop[0]}->{$real_prop[1]};
 				} else {
 					$value = $this->{$real_prop[0]}[$real_prop[1]];
@@ -248,18 +248,18 @@ trait DynamicPropertyHelper
 	 */
 	protected function customPropertyIsset(mixed $prop): bool
 	{
-		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases)) {
+		if (!empty($this->prop_aliases) && \array_key_exists($prop, $this->prop_aliases)) {
 			$real_prop = ltrim($this->prop_aliases[$prop], '!');
 
 			// A callable property is set if it returns a non-null value.
-			if (str_contains($real_prop, '::') && is_callable($real_prop)) {
-				return call_user_func($real_prop, $this) !== null;
+			if (str_contains($real_prop, '::') && \is_callable($real_prop)) {
+				return \call_user_func($real_prop, $this) !== null;
 			}
 
 			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
-				if (is_object($this->{$real_prop[0]})) {
+				if (\is_object($this->{$real_prop[0]})) {
 					return isset($this->{$real_prop[0]}->{$real_prop[1]});
 				}
 
@@ -283,7 +283,7 @@ trait DynamicPropertyHelper
 	 */
 	protected function customPropertyUnset(mixed $prop): void
 	{
-		if (!empty($this->prop_aliases) && array_key_exists($prop, $this->prop_aliases)) {
+		if (!empty($this->prop_aliases) && \array_key_exists($prop, $this->prop_aliases)) {
 			// Can't unset a virtual property.
 			return;
 		}

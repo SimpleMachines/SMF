@@ -55,7 +55,7 @@ class RemoveTopicRedirects extends ScheduledTask
 		Db::$db->free_result($request);
 
 		// Zap, you're gone.
-		if (count($topics) > 0) {
+		if (\count($topics) > 0) {
 			Topic::remove($topics, false, true);
 		}
 

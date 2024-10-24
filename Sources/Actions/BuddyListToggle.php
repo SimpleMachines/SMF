@@ -63,7 +63,7 @@ class BuddyListToggle implements ActionInterface
 		}
 
 		// Remove if it's already there...
-		if (in_array($this->userReceiver, User::$me->buddies)) {
+		if (\in_array($this->userReceiver, User::$me->buddies)) {
 			User::$me->buddies = array_diff(User::$me->buddies, [$this->userReceiver]);
 		}
 		// ...or add if it's not and if it's not you.

@@ -110,7 +110,7 @@ class BuddyIgnoreLists implements ActionInterface
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
-			call_user_func($call);
+			\call_user_func($call);
 		}
 	}
 
@@ -166,7 +166,7 @@ class BuddyIgnoreLists implements ActionInterface
 			foreach ($new_buddies as $k => $dummy) {
 				$new_buddies[$k] = strtr(trim($new_buddies[$k]), ['\'' => '&#039;']);
 
-				if (strlen($new_buddies[$k]) == 0 || in_array($new_buddies[$k], [Profile::$member->data['member_name'], Profile::$member->data['real_name']])) {
+				if (\strlen($new_buddies[$k]) == 0 || \in_array($new_buddies[$k], [Profile::$member->data['member_name'], Profile::$member->data['real_name']])) {
 					unset($new_buddies[$k]);
 				}
 			}
@@ -185,7 +185,7 @@ class BuddyIgnoreLists implements ActionInterface
 					LIMIT {int:count_new_buddies}',
 					[
 						'new_buddies' => $new_buddies,
-						'count_new_buddies' => count($new_buddies),
+						'count_new_buddies' => \count($new_buddies),
 					],
 				);
 
@@ -193,7 +193,7 @@ class BuddyIgnoreLists implements ActionInterface
 				while ($row = Db::$db->fetch_assoc($request)) {
 					$_SESSION['prf-save'] = true;
 
-					if (in_array($row['id_member'], $buddiesArray)) {
+					if (\in_array($row['id_member'], $buddiesArray)) {
 						continue;
 					}
 
@@ -253,7 +253,7 @@ class BuddyIgnoreLists implements ActionInterface
 				LIMIT {int:buddy_list_count}',
 				[
 					'buddy_list' => $buddiesArray,
-					'buddy_list_count' => count(explode(',', Profile::$member->data['buddy_list'])),
+					'buddy_list_count' => \count(explode(',', Profile::$member->data['buddy_list'])),
 				],
 			);
 
@@ -263,7 +263,7 @@ class BuddyIgnoreLists implements ActionInterface
 			Db::$db->free_result($result);
 		}
 
-		Utils::$context['buddy_count'] = count($buddies);
+		Utils::$context['buddy_count'] = \count($buddies);
 
 		// Load all the members up.
 		User::load($buddies, User::LOAD_BY_ID, 'profile');
@@ -377,7 +377,7 @@ class BuddyIgnoreLists implements ActionInterface
 			foreach ($new_entries as $k => $dummy) {
 				$new_entries[$k] = strtr(trim($new_entries[$k]), ['\'' => '&#039;']);
 
-				if (strlen($new_entries[$k]) == 0 || in_array($new_entries[$k], [Profile::$member->data['member_name'], Profile::$member->data['real_name']])) {
+				if (\strlen($new_entries[$k]) == 0 || \in_array($new_entries[$k], [Profile::$member->data['member_name'], Profile::$member->data['real_name']])) {
 					unset($new_entries[$k]);
 				}
 			}
@@ -394,7 +394,7 @@ class BuddyIgnoreLists implements ActionInterface
 					LIMIT {int:count_new_entries}',
 					[
 						'new_entries' => $new_entries,
-						'count_new_entries' => count($new_entries),
+						'count_new_entries' => \count($new_entries),
 					],
 				);
 
@@ -402,7 +402,7 @@ class BuddyIgnoreLists implements ActionInterface
 				while ($row = Db::$db->fetch_assoc($request)) {
 					$_SESSION['prf-save'] = true;
 
-					if (in_array($row['id_member'], $ignoreArray)) {
+					if (\in_array($row['id_member'], $ignoreArray)) {
 						continue;
 					}
 
@@ -432,7 +432,7 @@ class BuddyIgnoreLists implements ActionInterface
 				LIMIT {int:ignore_list_count}',
 				[
 					'ignore_list' => $ignoreArray,
-					'ignore_list_count' => count(explode(',', Profile::$member->data['pm_ignore_list'])),
+					'ignore_list_count' => \count(explode(',', Profile::$member->data['pm_ignore_list'])),
 				],
 			);
 
@@ -442,7 +442,7 @@ class BuddyIgnoreLists implements ActionInterface
 			Db::$db->free_result($result);
 		}
 
-		Utils::$context['ignore_count'] = count($ignored);
+		Utils::$context['ignore_count'] = \count($ignored);
 
 		// Load all the members up.
 		User::load($ignored, User::LOAD_BY_ID, 'profile');

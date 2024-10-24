@@ -92,11 +92,11 @@ class AutoSuggest implements ActionInterface
 		Utils::$context['sub_template'] = 'generic_xml';
 
 		if (method_exists($this, self::$suggest_types[$this->suggest_type])) {
-			Utils::$context['xml_data'] = call_user_func([$this, self::$suggest_types[$this->suggest_type]]);
-		} elseif (function_exists('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type])) {
-			Utils::$context['xml_data'] = call_user_func('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type]);
-		} elseif (function_exists('AutoSuggest_Search_' . $this->suggest_type)) {
-			Utils::$context['xml_data'] = call_user_func('AutoSuggest_Search_' . $this->suggest_type);
+			Utils::$context['xml_data'] = \call_user_func([$this, self::$suggest_types[$this->suggest_type]]);
+		} elseif (\function_exists('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type])) {
+			Utils::$context['xml_data'] = \call_user_func('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type]);
+		} elseif (\function_exists('AutoSuggest_Search_' . $this->suggest_type)) {
+			Utils::$context['xml_data'] = \call_user_func('AutoSuggest_Search_' . $this->suggest_type);
 		}
 	}
 
@@ -281,7 +281,7 @@ class AutoSuggest implements ActionInterface
 	{
 		IntegrationHook::call('integrate_autosuggest', [&self::$suggest_types]);
 
-		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || function_exists('AutoSuggest_Search_' . self::$suggest_types[$suggest_type]) || function_exists('AutoSuggest_Search_' . $suggest_type));
+		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || \function_exists('AutoSuggest_Search_' . self::$suggest_types[$suggest_type]) || \function_exists('AutoSuggest_Search_' . $suggest_type));
 	}
 
 	/**

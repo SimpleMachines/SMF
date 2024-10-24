@@ -24,8 +24,8 @@ use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
 
 // IMAGETYPE_AVIF was added in PHP 8.1
-if (!defined('IMAGETYPE_AVIF')) {
-	define('IMAGETYPE_AVIF', 19);
+if (!\defined('IMAGETYPE_AVIF')) {
+	\define('IMAGETYPE_AVIF', 19);
 }
 
 /**
@@ -217,7 +217,7 @@ class Image
 				$this->original = $source;
 
 				// Fetch the raw image data from the URL. On failure, bail out.
-				if (!is_string($source = WebFetchApi::fetch($source))) {
+				if (!\is_string($source = WebFetchApi::fetch($source))) {
 					return;
 				}
 			}
@@ -237,7 +237,7 @@ class Image
 		$mime_type = Utils::getMimeType($this->source, true);
 
 		// Not an image? Error and bail out.
-		if (!is_string($mime_type) || strpos($mime_type, 'image/') !== 0) {
+		if (!\is_string($mime_type) || strpos($mime_type, 'image/') !== 0) {
 			if ($this->is_temp) {
 				@unlink($this->source);
 			}
@@ -313,7 +313,7 @@ class Image
 		}
 
 		// We don't need to create a thumbnail if one is already embedded.
-		if (function_exists('exif_thumbnail') && exif_thumbnail($this->source) !== false) {
+		if (\function_exists('exif_thumbnail') && exif_thumbnail($this->source) !== false) {
 			return false;
 		}
 
@@ -373,7 +373,7 @@ class Image
 
 		// If we're working on a temporary file, just replace it.
 		// Otherwise, update the file extension.
-		$destination = empty($this->pathinfo['extension']) ? $source : substr($source, 0, -(strlen($this->pathinfo['extension']) + 1)) . image_type_to_extension($preferred_type);
+		$destination = empty($this->pathinfo['extension']) ? $source : substr($source, 0, -(\strlen($this->pathinfo['extension']) + 1)) . image_type_to_extension($preferred_type);
 
 		if (!@rename($source . '.tmp', $destination)) {
 			return false;
@@ -414,12 +414,12 @@ class Image
 	public function resize(string $destination, int $max_width, int $max_height, int &$preferred_type = 0): bool
 	{
 		// Check whether the destination directory exists.
-		if (!is_dir(dirname($destination))) {
+		if (!is_dir(\dirname($destination))) {
 			return false;
 		}
 
 		// Ensure the destination is writable.
-		if (!Utils::makeWritable(file_exists($destination) ? $destination : dirname($destination))) {
+		if (!Utils::makeWritable(file_exists($destination) ? $destination : \dirname($destination))) {
 			return false;
 		}
 
@@ -434,17 +434,17 @@ class Image
 		}
 
 		// Nothing to do without GD or Imagick.
-		if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+		if (!\extension_loaded('gd') && !\extension_loaded('imagick')) {
 			return false;
 		}
 
 		// Is this image currently in a supported format?
-		if (!in_array($this->type, self::getSupportedFormats())) {
+		if (!\in_array($this->type, self::getSupportedFormats())) {
 			return false;
 		}
 
 		// What destination format do we want?
-		if ($preferred_type === 0 || !in_array($preferred_type, self::$supported)) {
+		if ($preferred_type === 0 || !\in_array($preferred_type, self::$supported)) {
 			$preferred_type = $this->type ?? self::DEFAULT_IMAGETYPE;
 		}
 
@@ -452,11 +452,11 @@ class Image
 		$max_height = (int) round($max_height);
 
 		// Do the job using ImageMagick.
-		if (extension_loaded('imagick') && isset(self::IMAGETYPE_TO_IMAGICK[$preferred_type])) {
+		if (\extension_loaded('imagick') && isset(self::IMAGETYPE_TO_IMAGICK[$preferred_type])) {
 			$success = $this->resizeUsingImagick($destination, $max_width, $max_height, $preferred_type);
 		}
 		// Do the job using GD.
-		elseif (extension_loaded('gd')) {
+		elseif (\extension_loaded('gd')) {
 			$success = $this->resizeUsingGD($destination, $max_width, $max_height, $preferred_type);
 		}
 
@@ -535,13 +535,13 @@ class Image
 		if (!isset(self::$supported)) {
 			self::$supported = [];
 
-			if (extension_loaded('imagick')) {
+			if (\extension_loaded('imagick')) {
 				foreach (self::getImageTypes() as $name => $int) {
 					if (isset(self::IMAGETYPE_TO_IMAGICK[$int])) {
 						self::$supported[$name] = $int;
 					}
 				}
-			} elseif (extension_loaded('gd')) {
+			} elseif (\extension_loaded('gd')) {
 				foreach (self::getImageTypes() as $name => $int) {
 					if (imagetypes() & $int) {
 						self::$supported[$name] = $int;
@@ -634,7 +634,7 @@ class Image
 			return false;
 		}
 
-		@fwrite($fh, $fd, strlen($fd));
+		@fwrite($fh, $fd, \strlen($fd));
 		@fflush($fh);
 		@fclose($fh);
 
@@ -779,14 +779,14 @@ class Image
 		}
 
 		// First try exif_imagetype().
-		if (function_exists('exif_imagetype') && ($type = exif_imagetype($this->source)) !== false) {
+		if (\function_exists('exif_imagetype') && ($type = exif_imagetype($this->source)) !== false) {
 			$this->type = $type;
 
 			return;
 		}
 
 		// Next try getimagesize().
-		if (function_exists('getimagesize') && ($sizes = @getimagesize($this->source)) !== false) {
+		if (\function_exists('getimagesize') && ($sizes = @getimagesize($this->source)) !== false) {
 			list($this->width, $this->height, $this->type) = $sizes;
 
 			return;
@@ -816,7 +816,7 @@ class Image
 	 */
 	protected function checkForEmbeddedThumb(): void
 	{
-		$this->embedded_thumb = $this->mime_type !== 'image/svg+xml' && function_exists('exif_read_data') && @exif_read_data($this->source, 'THUMBNAIL') !== false;
+		$this->embedded_thumb = $this->mime_type !== 'image/svg+xml' && \function_exists('exif_read_data') && @exif_read_data($this->source, 'THUMBNAIL') !== false;
 	}
 
 	/**
@@ -832,7 +832,7 @@ class Image
 		}
 
 		// First try exif_read_data().
-		if (function_exists('exif_read_data') && ($exif_data = @exif_read_data($this->source)) !== false) {
+		if (\function_exists('exif_read_data') && ($exif_data = @exif_read_data($this->source)) !== false) {
 			if (isset($exif_data['Orientation'])) {
 				$this->orientation = $exif_data['Orientation'];
 			}
@@ -846,7 +846,7 @@ class Image
 		}
 
 		// Next try ImageMagick.
-		if (extension_loaded('imagick')) {
+		if (\extension_loaded('imagick')) {
 			$imagick = new \Imagick($this->source);
 
 			try {
@@ -864,7 +864,7 @@ class Image
 		}
 
 		// Finally, try getimagesize(). This can't tell us orientation.
-		if (function_exists('getimagesize') && ($sizes = @getimagesize($this->source)) !== false) {
+		if (\function_exists('getimagesize') && ($sizes = @getimagesize($this->source)) !== false) {
 			list($this->width, $this->height, $this->type) = $sizes;
 		}
 	}
@@ -1122,7 +1122,7 @@ class Image
 		$imagesave = 'image' . strtolower(substr(array_search($preferred_type, self::$supported), 10));
 
 		// Do the functions exist?
-		if (!function_exists($imagecreatefrom) || !function_exists($imagesave)) {
+		if (!\function_exists($imagecreatefrom) || !\function_exists($imagesave)) {
 			return false;
 		}
 
@@ -1157,7 +1157,7 @@ class Image
 			if ($preferred_type == IMAGETYPE_PNG) {
 				imagealphablending($dst_img, false);
 
-				if (function_exists('imagesavealpha')) {
+				if (\function_exists('imagesavealpha')) {
 					imagesavealpha($dst_img, true);
 				}
 			}
@@ -1185,7 +1185,7 @@ class Image
 					break;
 			}
 
-			if (in_array($this->orientation, [2, 4, 5, 7])) {
+			if (\in_array($this->orientation, [2, 4, 5, 7])) {
 				imageflip($dst_img, IMG_FLIP_HORIZONTAL);
 			}
 		}
@@ -1246,7 +1246,7 @@ class Image
 					break;
 			}
 
-			if (in_array($this->orientation, [2, 4, 5, 7])) {
+			if (\in_array($this->orientation, [2, 4, 5, 7])) {
 				$imagick->flopImage();
 			}
 		}

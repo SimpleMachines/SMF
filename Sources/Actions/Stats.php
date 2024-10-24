@@ -188,7 +188,7 @@ class Stats implements ActionInterface
 		// Let's calculate gender stats only every four minutes.
 		$disabled_fields = isset(Config::$modSettings['disabled_profile_fields']) ? explode(',', Config::$modSettings['disabled_profile_fields']) : [];
 
-		if (!in_array('gender', $disabled_fields)) {
+		if (!\in_array('gender', $disabled_fields)) {
 			if ((Utils::$context['gender'] = CacheApi::get('stats_gender', 240)) == null) {
 				$result = Db::$db->query(
 					'',
@@ -564,7 +564,7 @@ class Stats implements ActionInterface
 		while ($row_members = Db::$db->fetch_assoc($members_result)) {
 			$temp2[] = (int) $row_members['id_member'];
 
-			if (count(Utils::$context['stats_blocks']['time_online']) >= 10) {
+			if (\count(Utils::$context['stats_blocks']['time_online']) >= 10) {
 				continue;
 			}
 
@@ -711,7 +711,7 @@ class Stats implements ActionInterface
 
 		while ($row_months = Db::$db->fetch_assoc($months_result)) {
 			$ID_MONTH = $row_months['stats_year'] . sprintf('%02d', $row_months['stats_month']);
-			$expanded = !empty($_SESSION['expanded_stats'][$row_months['stats_year']]) && in_array($row_months['stats_month'], $_SESSION['expanded_stats'][$row_months['stats_year']]);
+			$expanded = !empty($_SESSION['expanded_stats'][$row_months['stats_year']]) && \in_array($row_months['stats_month'], $_SESSION['expanded_stats'][$row_months['stats_year']]);
 
 			if (!isset(Utils::$context['yearly'][$row_months['stats_year']])) {
 				Utils::$context['yearly'][$row_months['stats_year']] = [

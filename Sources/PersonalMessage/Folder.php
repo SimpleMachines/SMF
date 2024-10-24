@@ -485,7 +485,7 @@ class Folder
 		// Get the PMs.
 		$query_customizations = [
 			'order' => ['pm.id_pm' . ($this->descending ? ' DESC' : ' ASC')],
-			'limit' => count(array_keys($conversation->pms)),
+			'limit' => \count(array_keys($conversation->pms)),
 		];
 
 		if (!$this->is_inbox) {

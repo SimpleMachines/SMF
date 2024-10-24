@@ -110,12 +110,12 @@ class Home implements ActionInterface
 			}
 
 			if (method_exists($this, $block['func'])) {
-				call_user_func([$this, $block['func']]);
+				\call_user_func([$this, $block['func']]);
 			} else {
 				$call = Utils::getCallable($block['func']);
 
 				if (!empty($call)) {
-					call_user_func($call);
+					\call_user_func($call);
 				}
 			}
 
@@ -539,7 +539,7 @@ class Home implements ActionInterface
 		foreach ($valid_blocks as $k => $func) {
 			$func = 'ModBlock' . $func;
 
-			if (is_callable($func)) {
+			if (\is_callable($func)) {
 				Utils::$context['mod_blocks'][] = $func();
 			}
 		}

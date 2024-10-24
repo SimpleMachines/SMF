@@ -37,7 +37,7 @@ class GenericTask extends BackgroundTask
 
 		// Perform the task.
 		if (!empty($callable_task)) {
-			call_user_func_array($callable_task, $args);
+			\call_user_func_array($callable_task, $args);
 		}
 
 		return true;

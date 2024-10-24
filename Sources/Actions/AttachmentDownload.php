@@ -107,7 +107,7 @@ class AttachmentDownload implements ActionInterface
 			$request = null;
 			IntegrationHook::call('integrate_download_request', [&$request]);
 
-			if (!is_null($request) && Db::$db->is_resource($request)) {
+			if (!\is_null($request) && Db::$db->is_resource($request)) {
 				// No attachment has been found.
 				if (Db::$db->num_rows($request) == 0) {
 					Utils::sendHttpStatus(404, 'File Not Found');
@@ -181,7 +181,7 @@ class AttachmentDownload implements ActionInterface
 					!empty($file->msg)
 					&& (
 						empty($file->board)
-						|| ($boards_allowed !== [0] && !in_array($file->board, $boards_allowed))
+						|| ($boards_allowed !== [0] && !\in_array($file->board, $boards_allowed))
 					)
 				)
 			)
@@ -261,8 +261,8 @@ class AttachmentDownload implements ActionInterface
 			list($a, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
 			list($range) = explode(',', $range, 2);
 			list($range, $range_end) = explode('-', $range);
-			$range = intval($range);
-			$range_end = !$range_end ? $file->size - 1 : intval($range_end);
+			$range = \intval($range);
+			$range_end = !$range_end ? $file->size - 1 : \intval($range_end);
 			$length = $range_end - $range + 1;
 		}
 

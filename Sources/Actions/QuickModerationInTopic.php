@@ -160,7 +160,7 @@ class QuickModerationInTopic implements ActionInterface
 				'current_member' => User::$me->id,
 				'current_topic' => Topic::$topic_id,
 				'message_list' => $this->messages,
-				'limit' => count($this->messages),
+				'limit' => \count($this->messages),
 			],
 		);
 		$message_info = [];

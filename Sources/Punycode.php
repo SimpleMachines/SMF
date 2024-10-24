@@ -187,7 +187,7 @@ class Punycode
 					break;
 
 				case self::IDNA_ERROR_EMPTY_LABEL:
-					$parts_count = count($parts);
+					$parts_count = \count($parts);
 
 					if ($parts_count === 1 || $p !== $parts_count - 1) {
 						return false;
@@ -202,7 +202,7 @@ class Punycode
 		$output = implode('.', $parts);
 
 		// IDNA_ERROR_DOMAIN_NAME_TOO_LONG
-		if (strlen(rtrim($output, '.')) > 253) {
+		if (\strlen(rtrim($output, '.')) > 253) {
 			return false;
 		}
 
@@ -222,7 +222,7 @@ class Punycode
 		$n = static::INITIAL_N;
 		$bias = static::INITIAL_BIAS;
 		$delta = 0;
-		$h = $b = count($codePoints['basic']);
+		$h = $b = \count($codePoints['basic']);
 
 		$output = '';
 
@@ -304,7 +304,7 @@ class Punycode
 
 		foreach ($parts as $p => &$part) {
 			if (str_starts_with($part, static::PREFIX)) {
-				$part = substr($part, strlen(static::PREFIX));
+				$part = substr($part, \strlen(static::PREFIX));
 				$part = $this->decodePart($part);
 
 				if ($part === false) {
@@ -314,7 +314,7 @@ class Punycode
 
 			if ($this->validateLabel($part, false) !== 0) {
 				if ($part === '') {
-					$parts_count = count($parts);
+					$parts_count = \count($parts);
 
 					if ($parts_count === 1 || $p !== $parts_count - 1) {
 						return false;
@@ -350,8 +350,8 @@ class Punycode
 			$pos = 0;
 		}
 
-		$outputLength = strlen($output);
-		$inputLength = strlen($input);
+		$outputLength = \strlen($output);
+		$inputLength = \strlen($input);
 
 		while ($pos < $inputLength) {
 			$oldi = $i;
@@ -470,21 +470,21 @@ class Punycode
 	 */
 	protected function charToCodePoint(string $char): int
 	{
-		$code = ord($char[0]);
+		$code = \ord($char[0]);
 
 		if ($code < 128) {
 			return $code;
 		}
 
 		if ($code < 224) {
-			return (($code - 192) * 64) + (ord($char[1]) - 128);
+			return (($code - 192) * 64) + (\ord($char[1]) - 128);
 		}
 
 		if ($code < 240) {
-			return (($code - 224) * 4096) + ((ord($char[1]) - 128) * 64) + (ord($char[2]) - 128);
+			return (($code - 224) * 4096) + ((\ord($char[1]) - 128) * 64) + (\ord($char[2]) - 128);
 		}
 
-		return (($code - 240) * 262144) + ((ord($char[1]) - 128) * 4096) + ((ord($char[2]) - 128) * 64) + (ord($char[3]) - 128);
+		return (($code - 240) * 262144) + ((\ord($char[1]) - 128) * 4096) + ((\ord($char[2]) - 128) * 64) + (\ord($char[3]) - 128);
 	}
 
 	/**
@@ -496,18 +496,18 @@ class Punycode
 	protected function codePointToChar(int $code): string
 	{
 		if ($code <= 0x7F) {
-			return chr($code);
+			return \chr($code);
 		}
 
 		if ($code <= 0x7FF) {
-			return chr(($code >> 6) + 192) . chr(($code & 63) + 128);
+			return \chr(($code >> 6) + 192) . \chr(($code & 63) + 128);
 		}
 
 		if ($code <= 0xFFFF) {
-			return chr(($code >> 12) + 224) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
+			return \chr(($code >> 12) + 224) . \chr((($code >> 6) & 63) + 128) . \chr(($code & 63) + 128);
 		}
 
-		return chr(($code >> 18) + 240) . chr((($code >> 12) & 63) + 128) . chr((($code >> 6) & 63) + 128) . chr(($code & 63) + 128);
+		return \chr(($code >> 18) + 240) . \chr((($code >> 12) & 63) + 128) . \chr((($code >> 6) & 63) + 128) . \chr(($code & 63) + 128);
 	}
 
 	/**
@@ -554,7 +554,7 @@ class Punycode
 	 */
 	protected function validateLabel(string $label, bool $toPunycode = true): int
 	{
-		$length = strlen($label);
+		$length = \strlen($label);
 
 		if ($length === 0) {
 			return self::IDNA_ERROR_EMPTY_LABEL;
