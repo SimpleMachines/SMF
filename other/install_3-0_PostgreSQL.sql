@@ -1201,7 +1201,7 @@ CREATE TABLE {$db_prefix}messages (
 	body text NOT NULL,
 	icon varchar(16) NOT NULL DEFAULT 'xx',
 	approved smallint NOT NULL DEFAULT '1',
-	likes smallint NOT NULL DEFAULT '0',
+	reactions smallint NOT NULL DEFAULT '0',
 	version varchar(5) NOT NULL DEFAULT '',
 	PRIMARY KEY (id_msg)
 );
@@ -1218,7 +1218,7 @@ CREATE INDEX {$db_prefix}messages_show_posts ON {$db_prefix}messages (id_member,
 CREATE INDEX {$db_prefix}messages_id_member_msg ON {$db_prefix}messages (id_member, approved, id_msg);
 CREATE INDEX {$db_prefix}messages_current_topic ON {$db_prefix}messages (id_topic, id_msg, id_member, approved);
 CREATE INDEX {$db_prefix}messages_related_ip ON {$db_prefix}messages (id_member, poster_ip, id_msg);
-CREATE INDEX {$db_prefix}messages_likes ON {$db_prefix}messages (likes);
+CREATE INDEX {$db_prefix}messages_reactions ON {$db_prefix}messages (reactions);
 #
 # Table structure for table `moderators`
 #
@@ -1454,6 +1454,22 @@ CREATE TABLE {$db_prefix}qanda (
 #
 
 CREATE INDEX {$db_prefix}qanda_lngfile ON {$db_prefix}qanda (lngfile varchar_pattern_ops);
+
+#
+# Sequence for table `reactions`
+#
+
+CREATE SEQUENCE {$db_prefix}reactions_seq START WITH 0;
+
+#
+# Table structure for table `reactions`
+#
+
+CREATE TABLE {$db_prefix}reactions (
+	id_reaction smallint DEFAULT nextval('{$db_prefix}reactions_seq'),
+	name varchar(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id_reaction)
+);
 
 #
 # Sequence for table `scheduled_tasks`
@@ -1727,23 +1743,24 @@ CREATE TABLE {$db_prefix}user_drafts (
 CREATE UNIQUE INDEX {$db_prefix}user_drafts_id_member ON {$db_prefix}user_drafts (id_member, id_draft, type);
 
 #
-# Table structure for table `user_likes`
+# Table structure for table `user_reacts`
 #
 
-CREATE TABLE {$db_prefix}user_likes (
+CREATE TABLE {$db_prefix}user_reacts (
 	id_member int NOT NULL DEFAULT '0',
+	id_reaction smallint NOT NULL DEFAULT '0',
 	content_type char(6) DEFAULT '',
 	content_id int NOT NULL DEFAULT '0',
-	like_time int NOT NULL DEFAULT '0',
+	react_time int NOT NULL DEFAULT '0',
 	PRIMARY KEY (content_id, content_type, id_member)
 );
 
 #
-# Indexes for table `user_likes`
+# Indexes for table `user_reacts`
 #
 
-CREATE INDEX {$db_prefix}user_likes_content ON {$db_prefix}user_likes (content_id, content_type);
-CREATE INDEX {$db_prefix}user_likes_liker ON {$db_prefix}user_likes (id_member);
+CREATE INDEX {$db_prefix}user_reacts_content ON {$db_prefix}user_reacts (content_id, content_type);
+CREATE INDEX {$db_prefix}user_reacts_reactor ON {$db_prefix}user_reacts (id_member);
 
 #
 # Table structure for `mentions`
@@ -2297,6 +2314,14 @@ VALUES (-1, 'search_posts'),
 # --------------------------------------------------------
 
 #
+# Dumping data for table `reactions`
+#
+
+INSERT INTO {$db_prefix}reactions
+	(id_reaction, name)
+VALUES (1, 'like');
+
+#
 # Dumping data for table `scheduled_tasks`
 #
 
@@ -2642,7 +2667,7 @@ VALUES (0, 'alert_timeout', 10),
 	(0, 'member_report', 3),
 	(0, 'member_report_reply', 3),
 	(0, 'msg_auto_notify', 0),
-	(0, 'msg_like', 1),
+	(0, 'msg_react', 1),
 	(0, 'msg_mention', 1),
 	(0, 'msg_notify_pref', 1),
 	(0, 'msg_notify_type', 1),
