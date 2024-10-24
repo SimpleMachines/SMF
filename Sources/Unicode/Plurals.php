@@ -297,6 +297,12 @@ function plurals(): array
 				'other' => fn ($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
+		'csw' => [
+			'cardinal' => [
+				'one' => fn ($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0,1]),
+				'other' => fn ($n, $i, $v, $w, $f, $t, $c) => true,
+			],
+		],
 		'cy' => [
 			'cardinal' => [
 				'zero' => fn ($n, $i, $v, $w, $f, $t, $c) => $n == 0,
@@ -906,6 +912,17 @@ function plurals(): array
 				'other' => fn ($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 		],
+		'lld' => [
+			'cardinal' => [
+				'one' => fn ($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
+				'many' => fn ($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0,1,2,3,4,5]),
+				'other' => fn ($n, $i, $v, $w, $f, $t, $c) => true,
+			],
+			'ordinal' => [
+				'many' => fn ($n, $i, $v, $w, $f, $t, $c) => in_array($n, [11,8,80,800]),
+				'other' => fn ($n, $i, $v, $w, $f, $t, $c) => true,
+			],
+		],
 		'ln' => [
 			'cardinal' => [
 				'one' => fn ($n, $i, $v, $w, $f, $t, $c) => in_array($n, [0,1]),
@@ -1305,6 +1322,7 @@ function plurals(): array
 		'scn' => [
 			'cardinal' => [
 				'one' => fn ($n, $i, $v, $w, $f, $t, $c) => $i == 1 && $v == 0,
+				'many' => fn ($n, $i, $v, $w, $f, $t, $c) => $c == 0 && $i != 0 && $i % 1000000 == 0 && $v == 0 or !in_array($c, [0,1,2,3,4,5]),
 				'other' => fn ($n, $i, $v, $w, $f, $t, $c) => true,
 			],
 			'ordinal' => [
