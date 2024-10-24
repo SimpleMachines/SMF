@@ -337,7 +337,7 @@ CREATE TABLE {$db_prefix}calendar (
 	duration varchar(32) NOT NULL DEFAULT '',
 	rrule varchar(1024) NOT NULL DEFAULT 'FREQ=YEARLY;COUNT=1',
 	rdates text NOT NULL,
-	exdates text NOT NULL,
+	exdates text NOT NULL DEFAULT '',
 	adjustments jsonb DEFAULT NULL,
 	sequence smallint NOT NULL DEFAULT '0',
 	uid VARCHAR(255) NOT NULL DEFAULT '',

@@ -182,6 +182,7 @@ if (in_array('end_time', $cols)) {
 			'name' => 'exdates',
 			'type' => 'text',
 			'null' => false,
+			'default' => '',
 		],
 	);
 	Db::$db->add_column(
