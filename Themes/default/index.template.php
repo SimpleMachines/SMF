@@ -14,7 +14,6 @@ use SMF\Config;
 use SMF\Lang;
 use SMF\IntegrationHook;
 use SMF\Theme;
-use SMF\Time;
 use SMF\Utils;
 use SMF\User;
 
@@ -48,22 +47,61 @@ use SMF\User;
  */
 function template_init()
 {
-	/* $context, $options and $txt may be available for use, but may not be fully populated yet. */
+	/*
+	 * Utils::$context, Theme::$current->$options and Lang::$txt may
+	 * be available for use, but might not be fully populated yet.
+	 */
 
-	// The version this template/theme is for. This should probably be the version of SMF it was created for.
-	Theme::$current->settings['theme_version'] = '2.1';
+	/*
+	 * The version this template/theme is for. This should
+	 * be the version of the forum it was created for.
+	 */
+	Theme::$current->settings['theme_version'] = '3.0';
+
+	/*
+	 * Whether this theme requires the optional theme strings
+	 * file to be loaded. (ThemeStrings.[language].php)
+	 *
+	 * Note that this is the only language file that is not theme
+	 * dependant and does not live in `/Languages`, but rather, a
+	 * dedicated `/languages` folder with the theme files.
+	 */
+    Theme::$current->settings['require_theme_strings'] = false;
+
+	/*
+	 * Whether this theme supports a dark mode.
+	 *
+	 * Set this to `false` to disable.
+	 * 
+	 * A not so trivial note:
+	 * A 'dark' theme with dark mode is exactly the same as a 'light'
+	 * theme with dark mode. This means the index.css file should
+	 * always contain the light colors.
+	 */
+	Theme::$current->settings['has_dark_mode'] = true;
+
+	/*
+	 * Define the theme variants. Each variant has its own CSS file.
+	 *
+	 * Example:
+	 * - index_red.css is loaded when the user selects the `red` variant.
+	 * 
+	 * Additionally, a variants.css file is always loaded as well, in
+	 * case you'd rather keep the styles in a single file or they're minimal.
+	 */
+	Theme::$current->settings['theme_variants'] = [];
 
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
 	Theme::$current->settings['avatars_on_indexes'] = false;
 
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last post on the board index.
-	Theme::$current->settings['avatars_on_boardIndex'] = false;
+	Theme::$current->settings['avatars_on_boardIndex'] = true;
 
 	// Set the following variable to true if this theme wants to display the login and register buttons in the main forum menu.
 	Theme::$current->settings['login_main_menu'] = false;
 
 	// This defines the formatting for the page indexes used throughout the forum.
-	Theme::$current->settings['page_index'] = array(
+	Theme::$current->settings['page_index'] = [
 		'extra_before' => '<span class="pages">' . Lang::$txt['pages'] . '</span>',
 		'previous_page' => '<span class="main_icons previous_page"></span>',
 		'current_page' => '<span class="current_page">%1$d</span> ',
@@ -71,12 +109,12 @@ function template_init()
 		'expand_pages' => '<span class="expand_pages" onclick="expandPages(this, {LINK}, {FIRST_PAGE}, {LAST_PAGE}, {PER_PAGE});"> ... </span>',
 		'next_page' => '<span class="main_icons next_page"></span>',
 		'extra_after' => '',
-	);
+	];
 
 	// Allow css/js files to be disabled for this specific theme.
 	// Add the identifier as an array key. IE array('smf_script'); Some external files might not add identifiers, on those cases SMF uses its filename as reference.
 	if (!isset(Theme::$current->settings['disable_files']))
-		Theme::$current->settings['disable_files'] = array();
+		Theme::$current->settings['disable_files'] = [];
 }
 
 /**
@@ -86,7 +124,7 @@ function template_html_above()
 {
 	// Show right to left, the language code, and the character set for ease of translating.
 	echo '<!DOCTYPE html>
-<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '', '>
+<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '',!empty(Theme::$current->settings['theme_variants']) ? ' data-variant=' . (Utils::$context['theme_variant'] ?: 'default') . '' : '', !empty(Theme::$current->settings['has_dark_mode']) ? ' data-mode=' . (Utils::$context['theme_colormode'] ?: 'light') . '' : '', '>
 <head>
 	<meta charset="', Utils::$context['character_set'], '">';
 
@@ -197,257 +235,169 @@ function template_html_above()
  */
 function template_body_above()
 {
-	// Wrapper div now echoes permanently for better layout options. h1 a is now target for "Go up" links.
+	// Header
 	echo '
-	<div id="top_section">
-		<div class="inner_wrap">';
+	<header id="header">
+		<div class="content-wrapper">
+			<h1 class="forumtitle">
+				<a id="top" href="', Config::$scripturl, '">
+					', empty(Utils::$context['header_logo_url_html_safe']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '
+				</a>
+				', empty(Theme::$current->settings['site_slogan']) ? '' : '<span id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</span>', '
+			</h1>';
 
+    //User Panel
 	// If the user is logged in, display some things that might be useful.
-	if (User::$me->is_logged)
-	{
-		// Firstly, the user's menu
+	echo '
+			<div class="user_panel">';
+
+	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['languages']) && count(Utils::$context['languages']) > 1) {
 		echo '
-			<ul class="floatleft" id="top_info">
-				<li>
-					<a href="', Config::$scripturl, '?action=profile"', !empty(Utils::$context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top">';
+				<form id="languages_form" method="get">
+					<select id="language_select" name="language" onchange="this.form.submit()">';
 
-		if (!empty(User::$me->avatar))
-			echo User::$me->avatar['image'];
+		foreach (Utils::$context['languages'] as $language)
+			echo '
+						<option value="', $language['filename'], '"', isset(User::$me->language) && User::$me->language == $language['filename'] ? ' selected="selected"' : '', '>
+							', str_replace('-utf8', '', $language['name']), '
+						</option>';
 
-		echo '<span class="textmenu">', User::$me->name, '</span></a>
-					<div id="profile_menu" class="top_menu"></div>
-				</li>';
+		echo '
+					</select>
+					<noscript>
+						<input type="submit" value="', Lang::$txt['quick_mod_go'], '">
+					</noscript>
+				</form>';
+	}
 
-		// Secondly, PMs if we're doing them
+	echo '
+				<ul id="top_info">';
+
+	if (User::$me->is_logged) {
+		// PMs if we're doing them
 		if (Utils::$context['allow_pm'])
 			echo '
-				<li>
-					<a href="', Config::$scripturl, '?action=pm"', !empty(Utils::$context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top">
-						<span class="main_icons inbox"></span>
-						<span class="textmenu">', Lang::$txt['pm_short'], '</span>', !empty(User::$me->unread_messages) ? '
-						<span class="amt">' . User::$me->unread_messages . '</span>' : '', '
-					</a>
-					<div id="pm_menu" class="top_menu scrollable"></div>
-				</li>';
+					<li>
+						<a href="', Config::$scripturl, '?action=pm"', !empty(Utils::$context['self_pm']) ? ' class="active"' : '', ' id="pm_menu_top" title="', Lang::$txt['pm_short'], '">
+							<span class="main_icons inbox"></span>
+							<span class="text-label">', Lang::$txt['pm_short'], '</span>
+							', !empty(User::$me->unread_messages) ? '
+							<span class="amt">' . User::$me->unread_messages . '</span>' : '', '
+						</a>
+						<div id="pm_menu" class="top_menu scrollable"></div>
+					</li>';
 
-		// Thirdly, alerts
+		// Alerts
 		echo '
-				<li>
-					<a href="', Config::$scripturl, '?action=profile;area=showalerts;u=', User::$me->id, '"', !empty(Utils::$context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top">
-						<span class="main_icons alerts"></span>
-						<span class="textmenu">', Lang::$txt['alerts'], '</span>', !empty(User::$me->alerts) ? '
-						<span class="amt">' . User::$me->alerts . '</span>' : '', '
-					</a>
-					<div id="alerts_menu" class="top_menu scrollable"></div>
-				</li>';
+					<li>
+						<a href="', Config::$scripturl, '?action=profile;area=showalerts;u=', User::$me->id, '"', !empty(Utils::$context['self_alerts']) ? ' class="active"' : '', ' id="alerts_menu_top" title="', Lang::$txt['alerts'], '">
+							<span class="main_icons alerts"></span>
+							<span class="text-label">', Lang::$txt['alerts'], '</span>
+						', !empty(User::$me->alerts) ? '
+							<span class="amt">' . User::$me->alerts . '</span>' : '', '
+						</a>
+						<div id="alerts_menu" class="top_menu scrollable"></div>
+					</li>';
+
+		// The user's menu
+		echo '
+					<li>
+						<a href="', Config::$scripturl, '?action=profile"', !empty(Utils::$context['self_profile']) ? ' class="active"' : '', ' id="profile_menu_top" title="', Lang::$txt['profile'], '">
+							', User::$me->avatar['image'], '
+							<span class="text-label">', User::$me->name, '</span>
+						</a>
+						<div id="profile_menu" class="top_menu"></div>
+					</li>';
 
 		// A logout button for people without JavaScript.
 		if (empty(Theme::$current->settings['login_main_menu']))
 			echo '
-				<li id="nojs_logout">
-					<a href="', Config::$scripturl, '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['logout'], '</a>
-					<script>document.getElementById("nojs_logout").style.display = "none";</script>
-				</li>';
-
-		// And now we're done.
-		echo '
-			</ul>';
+					<li class="button_logout" id="nojs_logout">
+						<a href="', Config::$scripturl, '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::$txt['logout'], '">
+							<span class="main_icons logout"></span>
+							<span class="text-label">', Lang::$txt['logout'], '</span>
+						</a>
+						<script>document.getElementById("nojs_logout").style.display = "none";</script>
+					</li>';
 	}
 	// Otherwise they're a guest. Ask them to either register or login.
-	elseif (empty(Config::$maintenance))
-	{
+	elseif (empty(Config::$maintenance)) {
 		// Some people like to do things the old-fashioned way.
-		if (!empty(Theme::$current->settings['login_main_menu']))
-		{
+		if (!empty(Theme::$current->settings['login_main_menu'])) {
 			echo '
-			<ul class="floatleft">
-				<li class="welcome">', Lang::getTxt(
-					Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
-					[
-						'forum_name' => Utils::$context['forum_name_html_safe'],
-						'login_url' => Config::$scripturl . '?action=login',
-						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
-						'register_url' => Config::$scripturl . '?action=signup',
-					],
-				), '</li>
-			</ul>';
+					<li class="welcome">
+						', Lang::getTxt(
+							Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
+							[
+								'forum_name' => Utils::$context['forum_name_html_safe'],
+								'login_url' => Config::$scripturl . '?action=login',
+								'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
+								'register_url' => Config::$scripturl . '?action=signup',
+							],
+						), '
+					</li>';
 		}
 		else
 		{
 			echo '
-			<ul class="floatleft" id="top_info">
-				<li class="welcome">
+					<li class="welcome">
 					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']]), '
-				</li>
-				<li class="button_login">
-					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');">
-						<span class="main_icons login"></span>
-						<span class="textmenu">', Lang::$txt['login'], '</span>
-					</a>
-				</li>';
+					</li>
+					<li class="button_login">
+						<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');">
+							<span class="main_icons login"></span>
+							<span class="textmenu">', Lang::$txt['login'], '</span>
+						</a>
+					</li>';
 
 			if (Utils::$context['can_register'])
 				echo '
-				<li class="button_signup">
-					<a href="', Config::$scripturl, '?action=signup" class="', Utils::$context['current_action'] == 'signup' ? 'active' : 'open','">
-						<span class="main_icons regcenter"></span>
-						<span class="textmenu">', Lang::$txt['register'], '</span>
-					</a>
-				</li>';
-
-			echo '
-			</ul>';
+					<li class="button_signup">
+						<a href="', Config::$scripturl, '?action=signup" class="', Utils::$context['current_action'] == 'signup' ? 'active' : 'open','" title="', Lang::$txt['register'], '">
+							<span class="main_icons signup"></span>
+							<span class="text-label">', Lang::$txt['register'], '</span>
+						</a>
+					</li>';
 		}
 	}
 	else
 		// In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
-			<ul class="floatleft welcome">
-				<li>', Lang::getTxt(
-					'welcome_guest',
-					[
-						'forum_name' => Utils::$context['forum_name_html_safe'],
-						'login_url' => Config::$scripturl . '?action=login',
-						'onclick' => 'return true;',
-					],
-				), '</li>
-			</ul>';
-
-	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['languages']) && count(Utils::$context['languages']) > 1)
-	{
-		echo '
-			<form id="languages_form" method="get" class="floatright">
-				<select id="language_select" name="language" onchange="this.form.submit()">';
-
-		foreach (Utils::$context['languages'] as $language)
-			echo '
-					<option value="', $language['filename'], '"', isset(User::$me->language) && User::$me->language == $language['filename'] ? ' selected="selected"' : '', '>', str_replace('-utf8', '', $language['name']), '</option>';
-
-		echo '
-				</select>
-				<noscript>
-					<input type="submit" value="', Lang::$txt['quick_mod_go'], '">
-				</noscript>
-			</form>';
-	}
-
-	if (Utils::$context['allow_search'])
-	{
-		echo '
-			<form id="search_form" class="floatright" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<input type="search" name="search" value="">&nbsp;';
-
-		// Using the quick search dropdown?
-		$selected = !empty(Utils::$context['current_topic']) ? 'current_topic' : (!empty(Utils::$context['current_board']) ? 'current_board' : 'all');
-
-		echo '
-				<select name="search_selection">
-					<option value="all"', ($selected == 'all' ? ' selected' : ''), '>', Lang::$txt['search_entireforum'], ' </option>';
-
-		// Can't limit it to a specific topic if we are not in one
-		if (!empty(Utils::$context['current_topic']))
-			echo '
-					<option value="topic"', ($selected == 'current_topic' ? ' selected' : ''), '>', Lang::$txt['search_thistopic'], '</option>';
-
-		// Can't limit it to a specific board if we are not in one
-		if (!empty(Utils::$context['current_board']))
-			echo '
-					<option value="board"', ($selected == 'current_board' ? ' selected' : ''), '>', Lang::$txt['search_thisboard'], '</option>';
-
-		// Can't search for members if we can't see the memberlist
-		if (!empty(Utils::$context['allow_memberlist']))
-			echo '
-					<option value="members"', ($selected == 'members' ? ' selected' : ''), '>', Lang::$txt['search_members'], ' </option>';
-
-		echo '
-				</select>';
-
-		// Search within current topic?
-		if (!empty(Utils::$context['current_topic']))
-			echo '
-				<input type="hidden" name="sd_topic" value="', Utils::$context['current_topic'], '">';
-
-		// If we're on a certain board, limit it to this board ;).
-		elseif (!empty(Utils::$context['current_board']))
-			echo '
-				<input type="hidden" name="sd_brd" value="', Utils::$context['current_board'], '">';
-
-		echo '
-				<input type="submit" name="search2" value="', Lang::$txt['search'], '" class="button">
-				<input type="hidden" name="advanced" value="0">
-			</form>';
-	}
+					<li>
+						', Lang::getTxt(
+							'welcome_guest',
+							[
+								'forum_name' => Utils::$context['forum_name_html_safe'],
+								'login_url' => Config::$scripturl . '?action=login',
+								'onclick' => 'return true;',
+							],
+						), '
+					</li>';
 
 	echo '
-		</div><!-- .inner_wrap -->
-	</div><!-- #top_section -->';
-
-	echo '
-	<div id="header">
-		<h1 class="forumtitle">
-			<a id="top" href="', Config::$scripturl, '">', empty(Utils::$context['header_logo_url_html_safe']) ? Utils::$context['forum_name_html_safe'] : '<img src="' . Utils::$context['header_logo_url_html_safe'] . '" alt="' . Utils::$context['forum_name_html_safe'] . '">', '</a>
-		</h1>';
-
-	echo '
-		', empty(Theme::$current->settings['site_slogan']) ? '<img id="smflogo" src="' . Theme::$current->settings['images_url'] . '/smflogo.svg" alt="Simple Machines Forum" title="Simple Machines Forum">' : '<div id="siteslogan">' . Theme::$current->settings['site_slogan'] . '</div>', '';
-
-	echo '
-	</div>
-	<div id="wrapper">
-		<div id="upper_section">
-			<div id="inner_section">
-				<div id="inner_wrap"', !User::$me->is_logged ? ' class="hide_720"' : '', '>
-					<div class="user">
-						<time datetime="', Time::gmstrftime('%FT%TZ'), '">', Utils::$context['current_time'], '</time>';
-
-	if (User::$me->is_logged)
-		echo '
-						<ul class="unread_links">
-							<li>
-								<a href="', Config::$scripturl, '?action=unread" title="', Lang::$txt['unread_since_visit'], '">', Lang::$txt['view_unread_category'], '</a>
-							</li>
-							<li>
-								<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::$txt['show_unread_replies'], '">', Lang::$txt['unread_replies'], '</a>
-							</li>
-						</ul>';
-
-	echo '
-					</div>';
+				</ul>';
 
 	// Show a random news item? (or you could pick one from news_lines...)
 	if (!empty(Theme::$current->settings['enable_news']) && !empty(Utils::$context['random_news_line']))
 		echo '
-					<div class="news">
-						<h2>', Lang::$txt['news'], ': </h2>
-						<p>', Utils::$context['random_news_line'], '</p>
-					</div>';
-
-	echo '
+				<div class="random_news">
+					<h2>', Lang::$txt['news'], ': </h2>
+					<p>', Utils::$context['random_news_line'], '</p>
 				</div>';
 
-	// Show the menu here, according to the menu sub template, followed by the navigation tree.
-	// Load mobile menu here
+		echo '
+			</div>
+		</div>
+	</header>';
+
+	// Show the menu here
+	template_menu();
+
+	// Wrapper
 	echo '
-				<a class="mobile_user_menu">
-					<span class="menu_icon"></span>
-					<span class="text_menu">', Lang::$txt['mobile_user_menu'], '</span>
-				</a>
-				<div id="main_menu">
-					<div id="mobile_user_menu" class="popup_container">
-						<div class="popup_window description">
-							<div class="popup_heading">', Lang::$txt['mobile_user_menu'], '
-								<a href="javascript:void(0);" class="main_icons hide_popup"></a>
-							</div>
-							', template_menu(), '
-						</div>
-					</div>
-				</div>';
+	<div class="content-wrapper">';
 
 	theme_linktree();
-
-	echo '
-			</div><!-- #inner_section -->
-		</div><!-- #upper_section -->';
 
 	// The main content should go here.
 	echo '
@@ -463,19 +413,25 @@ function template_body_below()
 	echo '
 			</div><!-- #main_content_section -->
 		</div><!-- #content_section -->
-	</div><!-- #wrapper -->
+	</div><!-- .content-wrapper -->
 </div><!-- #footerfix -->';
 
 	// Show the footer with copyright, terms and help links.
 	echo '
-	<div id="footer">
-		<div class="inner_wrap">';
+	<footer id="footer">
+		<div class="content-wrapper">';
 
 	// There is now a global "Go to top" link at the right.
 	echo '
 		<ul>
-			<li class="floatright"><a href="', Config::$scripturl, '?action=help">', Lang::$txt['help'], '</a> ', (!empty(Config::$modSettings['requireAgreement'])) ? '| <a href="' . Config::$scripturl . '?action=agreement">' . Lang::$txt['terms_and_rules'] . '</a>' : '', ' | <a href="#top_section">', Lang::$txt['go_up'], ' &#9650;</a></li>
 			<li class="copyright">', Theme::copyright(), '</li>
+		</ul>
+		<ul>
+			<li class="helplinks">
+				<a href="', Config::$scripturl, '?action=help">', Lang::$txt['help'], ' <i class="fa-solid fa-circle-question"></i></a>', (!empty(Config::$modSettings['requireAgreement'])) ? '
+				<a href="' . Config::$scripturl . '?action=agreement">' . Lang::$txt['terms_and_rules'] . ' <i class="fa-solid fa-list-ul"></i></a>' : '', '
+				<a href="#header">', Lang::$txt['go_up'], ' &#9650;</a>
+			</li>
 		</ul>';
 
 	// Show the load time?
@@ -491,7 +447,7 @@ function template_body_below()
 
 	echo '
 		</div>
-	</div><!-- #footer -->';
+	</footer><!-- #footer -->';
 
 }
 
@@ -500,7 +456,7 @@ function template_body_below()
  */
 function template_html_below()
 {
-	// Load in any javascript that could be deferred to the end of the page
+	// Load in any javascipt that could be deferred to the end of the page
 	Theme::template_javascript(true);
 
 	echo '
@@ -522,7 +478,7 @@ function theme_linktree($force_show = false)
 		return;
 
 	echo '
-				<div class="navigate_section">
+				<nav aria-label="', Lang::$txt['breadcrumb'], '" class="navigate_section">
 					<ul>';
 
 	// Each tree item has a URL and name. Some may have extra_before and extra_after.
@@ -536,7 +492,7 @@ function theme_linktree($force_show = false)
 		// Picked a better looking HTML entity, and added support for RTL plus a span for styling.
 		if ($link_num != 0)
 			echo '
-							<span class="dividers">', Utils::$context['right_to_left'] ? ' &#9668; ' : ' &#9658; ', '</span>';
+					     <span class="dividers"><i class="fa-solid fa-angle-', Utils::$context['right_to_left'] ? 'left' : 'right', '"></i></span>';
 
 		// Show something before the link?
 		if (isset($tree['extra_before']))
@@ -560,7 +516,7 @@ function theme_linktree($force_show = false)
 
 	echo '
 					</ul>
-				</div><!-- .navigate_section -->';
+				</nav><!-- .navigate_section -->';
 
 	$shown_linktree = true;
 }
@@ -571,7 +527,18 @@ function theme_linktree($force_show = false)
 function template_menu()
 {
 	echo '
-					<ul class="dropmenu menu_nav">';
+	<nav id="main_menu" aria-label="', Lang::$txt['mobile_user_menu'], '">
+		<div class="content-wrapper">
+			<a class="mobile_user_menu">
+				<span class="main_icons navigation"></span>
+				<span class="text_menu">', Lang::$txt['mobile_user_menu'], '</span>
+			</a>
+			<div id="mobile_user_menu" class="popup_container">
+				<div class="popup_window description">
+					<div class="popup_heading">', Lang::$txt['mobile_user_menu'], '
+						<a href="javascript:void(0);" class="main_icons hide_popup"></a>
+					</div>
+					<ul class="dropmenu">';
 
 	// Note: Menu markup has been cleaned up to remove unnecessary spans and classes.
 	foreach (Utils::$context['menu_buttons'] as $act => $button)
@@ -579,7 +546,11 @@ function template_menu()
 		echo '
 						<li class="button_', $act, '', !empty($button['sub_buttons']) ? ' subsections"' : '"', '>
 							<a', $button['active_button'] ? ' class="active"' : '', ' href="', $button['href'], '"', isset($button['target']) ? ' target="' . $button['target'] . '"' : '', isset($button['onclick']) ? ' onclick="' . $button['onclick'] . '"' : '', '>
-								', $button['icon'], '<span class="textmenu">', $button['title'], !empty($button['amt']) ? ' <span class="amt">' . $button['amt'] . '</span>' : '', '</span>
+								', $button['icon'], '
+								<span class="textmenu">
+									', $button['title'], '
+								</span>
+								', !empty($button['amt']) ? '<span class="amt">' . $button['amt'] . '</span>' : '', '
 							</a>';
 
 		// 2nd level menus
@@ -625,6 +596,24 @@ function template_menu()
 
 	echo '
 					</ul><!-- .menu_nav -->';
+
+	// Unread buttons
+	if (User::$me->is_logged) {
+		echo '
+					<ul class="dropmenu">
+						<li>
+							<a href="', Config::$scripturl, '?action=unread" title="', Lang::$txt['unread_since_visit'], '">', Lang::$txt['view_unread_category'], '</a>
+						</li>
+						<li>
+							<a href="', Config::$scripturl, '?action=unreadreplies" title="', Lang::$txt['show_unread_replies'], '">', Lang::$txt['unread_replies'], '</a>
+						</li>
+					</ul>';
+	}
+        echo '
+				</div>
+			</div>
+ 		</div>
+	</nav>';
 }
 
 /**
@@ -650,30 +639,42 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 				$value['id'] = $key;
 
 			$button = '
-				<a class="button button_strip_' . $key . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" ' . (!empty($value['url']) ? 'href="' . $value['url'] . '"' : '') . ' ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>'.(!empty($value['icon']) ? '<span class="main_icons '.$value['icon'].'"></span>' : '').'' . Lang::$txt[$value['text']] . '</a>';
+			<li>
+				<a class="button_strip_' . $key . (!empty($value['sub_buttons']) ? ' sub_buttons' : '') . (!empty($value['active']) ? ' active' : '') . (isset($value['class']) ? ' ' . $value['class'] : '') . '" href="' . (!empty($value['url']) ? $value['url'] : 'javascript:void(0)') . '" ' . (isset($value['custom']) ? ' ' . $value['custom'] : '') . '>
+					' . (!empty($value['icon']) ? '<span class="main_icons ' . $value['icon'] . '"></span>' : '') . '
+					<span class="text-label">' . Lang::$txt[$value['text']] . '</span>
+				</a>';
 
 			if (!empty($value['sub_buttons']))
 			{
 				$button .= '
-					<div class="top_menu dropmenu ' . $key . '_dropdown">
-						<div class="viewport">
-							<div class="overview">';
+				<div class="top_menu ' . $key . '_dropdown">
+					<div class="viewport dropmenu">
+						<ul class="overview">';
 				foreach ($value['sub_buttons'] as $element)
 				{
 					if (isset($element['test']) && empty(Utils::$context[$element['test']]))
 						continue;
 
 					$button .= '
-								<a href="' . $element['url'] . '"><strong>' . Lang::$txt[$element['text']] . '</strong>';
+							<li>
+								<a href="' . $element['url'] . '">
+									<span>' . Lang::$txt[$element['text']] . '</span>';
 					if (isset(Lang::$txt[$element['text'] . '_desc']))
-						$button .= '<br><span>' . Lang::$txt[$element['text'] . '_desc'] . '</span>';
-					$button .= '</a>';
+						$button .= '
+									<span>' . Lang::$txt[$element['text'] . '_desc'] . '</span>';
+					$button .= '
+								</a>
+							</li>';
 				}
 				$button .= '
-							</div><!-- .overview -->
-						</div><!-- .viewport -->
-					</div><!-- .top_menu -->';
+						</ul><!-- .overview -->
+					</div><!-- .viewport -->
+				</div><!-- .top_menu -->';
 			}
+
+			$button .= '
+			</li>';
 
 			$buttons[] = $button;
 		}
@@ -684,9 +685,9 @@ function template_button_strip($button_strip, $direction = '', $strip_options = 
 		return;
 
 	echo '
-		<div class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : ''), '>
+		<ul class="buttonlist', !empty($direction) ? ' float' . $direction : '', '"', (empty($buttons) ? ' style="display: none;"' : ''), (!empty($strip_options['id']) ? ' id="' . $strip_options['id'] . '"' : ''), '>
 			', implode('', $buttons), '
-		</div>';
+		</ul>';
 }
 
 /**
@@ -740,7 +741,7 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 		else
 			$html .= '
 				<a href="' . (!empty($li['href']) ? $li['href'] : 'javascript:void(0);') . '"' . (!empty($li['javascript']) ? ' ' . $li['javascript'] : '') . '>
-					' . (!empty($li['icon']) ? '<span class="main_icons ' . $li['icon'] . '"></span>' : '') . (!empty($li['label']) ? $li['label'] : '') . '
+					' . (!empty($li['icon']) ? '<span class="main_icons ' . $li['icon'] . '"></span>' : '') . (!empty($li['label']) ? '<span class="text-label">' . $li['label'] . '</span>' : '') . '
 				</a>';
 
 		$html .= '
@@ -755,8 +756,11 @@ function template_quickbuttons($list_items, $list_class = null, $output_method =
 		if ($key == 'more')
 		{
 			$output .= '
-			<li class="post_options">
-				<a href="javascript:void(0);">' . Lang::$txt['post_options'] . '</a>
+			<li class="quickoptions">
+				<a href="javascript:void(0);">
+					<span class="main_icons more"></span>
+					<span class="text-label">' . Lang::$txt['post_options'] . '</span>
+				</a>
 				<ul>';
 
 			foreach ($li as $subli)

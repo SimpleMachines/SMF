@@ -1,9 +1,5 @@
 /* Some very big stuff? Dunno... */
-@media (min-width: 856px) and (max-width: 1024px) {
-	.lastpost {
-		width: 20%;
-		margin: 3px 0 0 5px;
-	}
+@media (min-width: 992px) and (max-width: 1024px) {
 	#alerts .alert_time {
 		display: none;
 	}
@@ -14,13 +10,7 @@
 
 /* Still not enough data or people to test this... */
 /* This needs more data and this range is probably for iPad Air (alike) tablets... */
-@media (min-width: 721px) and (max-width: 855px) {
-	.lastpost {
-		margin: 0 0 0 20px;
-	}
-	.board_stats {
-		display: none;
-	}
+@media (min-width: 721px) and (max-width: 991px) {
 	#alerts .alert_time {
 		display: none;
 	}
@@ -29,22 +19,61 @@
 	}
 }
 
-@media (max-width: 855px) {
-	#profile_menu_top .textmenu,
-	#pm_menu_top .textmenu,
-	#alerts_menu_top .textmenu {
-		display: none;
-	}
-	#pm_menu_top .main_icons,
-	#alerts_menu_top .main_icons {
-		display: inline-block;
-	}
+@media (max-width: 991px) {
 	#member_list .ip, #member_list .last_active, #member_list .user_name {
 		display: none !important;
 	}
+	.board_container {
+		grid-template-columns: 50px 1fr auto 34%;
+	}
+	#topic_header,
+	.topic_container {
+		grid-template-columns: auto 1fr auto 34% auto;
+	}
+	.board_stats,
+	.topic_stats {
+		display: none;
+	}
+	.board_info,
+	.topic_info {
+		grid-column: info/stats;
+	}
+}
 
-	/* New Mobile Action/Mod Pop (Test) */
-	.moderationbuttons_check {
+@media (min-width: 720px) and (max-width: 799px) {
+	#top_info .welcome {
+		display: none;
+	}
+	/* Calendar */
+	#event_time_options {
+		width: 44%;
+	}
+	#event_title {
+		padding: 0;
+	}
+	.event_options_left, .event_options_right {
+		display: block;
+		max-width: unset;
+		width: unset;
+	}
+	#post_event #event_board select {
+		width: calc(100% - 90px);
+		max-width: unset;
+	}
+}
+
+@media screen and (min-width: 768px) {
+	#mobile_action,
+	#mobile_moderation {
+		display: none !important;
+	}
+}
+
+/* We have shared things... */
+@media screen and (max-width: 767px) {
+	/* Remove some content from the hooks table */
+	#list_integration_hooks th#header_list_integration_hooks_function_name, #list_integration_hooks td.function_name,
+	#list_integration_hooks th#header_list_integration_hooks_remove, #list_integration_hooks td.remove {
 		display: none;
 	}
 	.moderationbuttons_mobile_check {
@@ -63,54 +92,38 @@
 		height: auto;
 	}
 	#mobile_action .notify_dropdown {
-		top: 0 !important;
-		left: 0 !important;
+		top: 0.25em;
 		position: relative;
-	}
-	#mobile_action .top_menu {
-		padding: 0;
-		margin: 0 auto;
-	}
-	#mobile_action .notify_dropdown a {
-		border-bottom: 1px solid #999;
-	}
-	#mobile_action .notify_dropdown a:last-of-type {
-		border-bottom: none;
-	}
-	#mobile_action .notify_dropdown span {
-		display: none;
-	}
-	.mobile_buttons {
-		margin: 5px 0;
-	}
-	.mobile_buttons .button {
-		margin: 0;
 	}
 	.pagesection .buttonlist, #moderationbuttons {
 		display: none;
 	}
+	.buttonlist > li, .buttonlist > li > a {
+		width: 100%;
+	}
 	.mobile_buttons {
-		display: block;
+		display: inline-flex;
 	}
-}
-
-@media (min-width: 720px) and (max-width: 799px) {
-	#top_info .welcome {
-		display: none;
+	/* Hide me */
+	#search_form,	 #message_index_jump_to, .nextlinks, #display_jump_to,
+	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
+	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
+	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
+	#main_content_section .navigate_section, .time,
+	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
+	#header_custom_profile_fields_placement, #custom_profile_fields .active, #custom_profile_fields .field_type, #custom_profile_fields .placement {
+		display: none !important;
 	}
-}
-
-/* We have shared things... */
-@media screen and (max-width: 720px) {
-	/* Remove some content from the hooks table */
-	#list_integration_hooks th#header_list_integration_hooks_function_name, #list_integration_hooks td.function_name,
-	#list_integration_hooks th#header_list_integration_hooks_remove, #list_integration_hooks td.remove {
+	/* Generic Lists */
+	#topic_notification_list .last_post, #topic_notification_list .started_by,
+	#request_list .time_applied, #file_list .date, #ban_list .notes, #ban_list .reason, #ban_log .email,
+	#mail_queue .priority, #attachments .posted {
 		display: none;
 	}
 
 	/* Stuff */
 	#top_info {
-		padding: 5px;
+		padding: 1px;
 	}
 	.infolinks {
 		display: inline-block;
@@ -145,64 +158,78 @@
 	}
 
 	/* General */
-	.action_home {
-		width: 100% !important;
-	}
-	#wrapper {
-		border-left: 0;
-		border-right: 0;
-		border-radius: 0;
-	}
-	#footer {
-		padding: 10px;
-	}
-	#top_section .inner_wrap, #wrapper, #header, #footer .inner_wrap {
+	.content-wrapper {
 		width: 100%;
 	}
-	#upper_section, #inner_section, #content_section {
-		border-radius: 0;
+	nav#main_menu,
+	.navigate_section,
+	#content_section,
+	#footer {
+		padding-inline: .5em;
 	}
-	#boardindex_table .stats {
-		display: none;
+	.navigate_section {
+		margin-inline: .5em;
 	}
 	.login {
 		width: 100%;
-	}
-	#inner_wrap {
-		flex-flow: row wrap;
-	}
-	#inner_wrap .user,
-	#inner_wrap .news {
-		width: auto;
-		max-width: initial;
 	}
 	#languages_form {
 		padding-right: 10px;
 	}
 
 	/* BoardIndex */
-	.board_stats {
+	.board_container {
+		grid-template-areas: "icon info"
+							 "icon lastpost";
+		grid-template-columns: auto 1fr;
+	}
+	.board_info {
+		grid-column: info/lastpost;
+	}
+	.board_icon {
+		font-size: .85em;
+		grid-row: initial !important;
+	}
+	.board_lastpost,
+	.board_children {
+		grid-column: icon/lastpost;
+	}
+	.board_lastpost img.avatar {
+		height: 20px;
+		width: 20px;
+	}
+	/* MessageIndex */
+	#topic_header,
+	.topic_container {
+		grid-template-areas: "info moderation"
+							 "lastpost lastpost";
+		grid-template-columns: 1fr auto;
+	}
+	.topic_icon {
 		display: none;
 	}
-	.info {
-		width: calc(100% - 65px);
+	.topic_info {
+		grid-column: info-start/info-end;
 	}
-	.lastpost {
-		width: 100%;
-		padding: 0;
-		display: block;
-		min-height: 2em;
+	.topic_info .pagelinks {
+		font-size: 1em;
 	}
-	.up_contain .lastpost {
-		border-top: 1px solid #ddd;
-		min-height: initial;
+	.topic_info .started_by,
+	.topic_info .pagelinks {
+		float: none;
 	}
-	.lastpost p {
-		margin: 5px;
+	.topic_lastpost img.avatar {
+		height: 20px;
+		width: 20px;
 	}
-	span.postby {
-		display: inline-block;
+	.topic_moderation {
+		align-self: flex-start;
+		width: auto;
 	}
+	.topic_moderation .main_icons {
+		display: none;
+	}
+
 	/* Stats Center */
 	#ic_recentposts {
 		margin: 0;
@@ -213,21 +240,8 @@
 	}
 
 	/* MessageIndex */
-	#messageindex .board_icon, #messageindex .lastpost {
-		display: none;
-	}
-	#messageindex .info {
-		padding: 8px 10px;
-	}
-	.info_block {
-		display: block;
-		width: 95%;
-	}
 	.moderation a {
 		padding: 3px;
-	}
-	#topic_container .moderation .main_icons {
-		display: none;
 	}
 	/* Unread */
 	#unread .board_icon, #unread .lastpost, #unreadreplies .board_icon, #unreadreplies .lastpost {
@@ -238,66 +252,40 @@
 	}
 
 	/* Display (Topics) */
+	.post_container {
+		grid-template-columns: 1fr;
+	}
 	.poster {
-		float: none;
+		display: grid;
+		grid-template-areas: "avatar other";
+		grid-template-columns: auto 1fr;
+		justify-items: flex-start;
+		padding: .75em 1.25em;
 		width: auto;
-		position: relative;
 	}
-	.postarea {
-		margin: 0;
-	}
-	.inner {
-		padding: 1em 2px;
-	}
-	.moderatorbar {
-		margin: 0;
-	}
-	.keyinfo {
-		padding-top: 5px;
-		margin-top: 5px;
-		clear: both;
-	}
-	.keyinfo .postinfo {
-		font-weight: normal;
-	}
-	.keyinfo .postinfo .smalltext,
-	.keyinfo .page_number {
-		opacity: 0.6;
-	}
-	.keyinfo .postinfo a.smalltext:hover {
-		opacity: 1;
+	.postarea, .moderatorbar {
+		grid-column: initial;
 	}
 	img.icon, #forumposts .catbg img {
 		display: none;
 	}
-	.poster h4 {
-		display: inline-block;
-	}
-	.user_info {
-		display: inline;
-	}
-	.user_info li,
-	.custom_fields_above_member {
+	.poster > :not(h4, .title, .avatar, .membergroup) {
 		display: none;
 	}
-	.user_info li.title,
-	.user_info li.membergroup {
-		display: inline-block;
-		font-weight: normal;
+	.poster .avatar {
+		align-self: center;
+		grid-area: avatar;
+		grid-row: 1/4;
 	}
-	.user_info li::before {
-		content: "·";
-		padding: 0 1ch 0 0.5ch;
+	.poster .avatar img.avatar {
+		height: 50px;
+		width: 50px;
 	}
-	.like_count,
-	.smflikebutton:last-child {
-		margin-bottom: 8px;
+	.poster :not(.avatar) {
+		grid-column: avatar-end/other;
 	}
 	.button.mobile {
 		margin: 0 0 5px 0;
-	}
-	.pagelinks {
-		margin: 0;
 	}
 
 	/* Profile */
@@ -310,11 +298,8 @@
 	#creator dd {
 		width: 65%;
 	}
-	#basicinfo, #detailedinfo {
-		width: 100%;
-	}
-	#basicinfo {
-		margin: 0 0 5px 0; /* For UX */
+	#profileview {
+		grid-template-columns: 1fr;
 	}
 	/* Buddies & Ignore List */
 	#edit_buddies .buddy_custom_fields {
@@ -385,24 +370,6 @@
 	input#searchfor, input#userspec {
 		width: 75%;
 	}
-	/* Hide me */
-	#inner_wrap.hide_720, #inner_wrap time, #inner_wrap .news,
-	#search_form, #smflogo, #message_index_jump_to, .nextlinks, #display_jump_to,
-	#siteslogan, th.id_group, th.registered, th.posts, th.reg_group, th.reg_date, td.reg_group, td.reg_date,
-	td.id_group, td.registered, td.posts:not(.unique), td.statsbar.posts,
-	#approve_list .ip, #approve_list .date_registered, #group_members .date_registered,
-	#main_content_section .navigate_section, .time,
-	#header_custom_profile_fields_field_type, #header_custom_profile_fields_active,
-	#header_custom_profile_fields_placement, #custom_profile_fields .active, #custom_profile_fields .field_type, #custom_profile_fields .placement {
-		display: none !important;
-	}
-	/* Generic Lists */
-	#topic_notification_list .last_post, #topic_notification_list .started_by,
-	#request_list .time_applied, #file_list .date, #ban_list .notes, #ban_list .reason, #ban_log .email,
-	#mail_queue .priority, #attachments .posted {
-		display: none;
-	}
-
 	/* Admin */
 	.admin_search {
 		float: none;
@@ -434,152 +401,76 @@
 	}
 }
 
-/* Tricky menu */
-@media (min-width: 561px) {
-	#mobile_user_menu.popup_container {
+/* Mobile Menus */
+@media (min-width: 577px) {
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_container {
+		all: unset;
 		display: block !important;
 	}
-	div[id^="mobile_generic_menu_"].popup_container {
-		display: block !important;
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_window {
+		all: unset;
 	}
-	#main_menu .popup_window,
-	#genericmenu .popup_window,
-	#adm_submenus .popup_window {
-		box-shadow: none;
-		border-width: 0;
-		background: none;
+	nav#main_menu .popup_window {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--dropmenu-a1-gap);
+		justify-content: space-between;
+	}
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_heading {
+		display: none;
 	}
 }
-@media (max-width: 560px) {
-	/* This is general */
-	#main_menu .popup_container,
-	#genericmenu .popup_container,
-	#adm_submenus .popup_container {
-		display: none;
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: 5;
-	}
-	#main_menu .popup_heading,
-	#genericmenu .popup_heading,
-	#adm_submenus .popup_heading {
+
+
+@media (max-width: 576px) {
+	a.mobile_user_menu,
+	nav:where(#genericmenu, #adm_submenus) a {
 		display: block;
 	}
-	#main_menu {
-		margin: 0;
+	nav:where(#main_menu, #genericmenu, #adm_submenus) .popup_container {
+		--popup-heading-border-width: 0;
+		display: none;
 	}
-	.popup_window,
-	#main_menu .popup_window,
-	#genericmenu .popup_window,
-	#adm_submenus .popup_window {
-		top: 15%;
+	nav#main_menu .popup_container {
+		--popup-window-bg: var(--nav-bg);
+		--popup-heading-bg: var(--nav-bg);
+		--popup-heading-color: var(--mobilenav-color);
+	}
+	nav:where(#genericmenu, #adm_submenus) .popup_container {
+		--popup-window-bg: var(--genericmenu-bg);
+		--popup-heading-bg: var(--genericmenu-bg);
+		--popup-heading-color: var(--mobilegeneric-color);
+	}
+	.popup_window {
 		width: 95vw;
 		min-height: auto;
 		max-height: 90vh;
 		overflow-x: hidden;
 		overflow-y: scroll;
 	}
-	#adm_submenus {
-		padding: 0;
+	.dropmenu {
+		flex-direction: column;
 	}
-	#adm_submenus .dropmenu li {
-		float: left;
-		margin: 0;
-	}
-	.generic_menu {
-		display: none;
-	}
-	#mobile_user_menu .dropmenu,
-	div[id^="mobile_generic_menu_"] .generic_menu {
-		display: block;
-	}
-	a.mobile_user_menu,
-	a[class^="mobile_generic_menu_"] {
-		display: flex;
-		align-items: center;
-		margin: 0 0 4px 0;
-	}
-	a[class^="mobile_generic_menu_"] {
-		margin: 8px 0;
-	}
-	.menu_icon {
-		display: inline-block;
-		background: url(../images/icons/menu.svg) no-repeat;
-		height: 24px;
-		width: 24px;
-	}
-	.dropmenu li, .dropmenu li:hover,
-	.dropmenu li a, .dropmenu li a:hover,
-	.dropmenu li a.active, .dropmenu li a.active:hover, .dropmenu li:hover a.active,
-	.dropmenu li ul, .dropmenu li li, .dropmenu li li a {
+	.dropmenu li {
 		width: 100%;
-		padding: 0;
-		margin: 0;
-		border-left: 0;
-		border-right: 0;
-	}
-	.dropmenu li a, .dropmenu li a:hover {
-		text-indent: 10px;
-		border-radius: 0;
-		padding: 5px 0 !important;
-	}
-	.dropmenu li li li a,
-	.dropmenu li li li a:hover {
-		padding: 5px 24px !important;
-	}
-	.dropmenu li a, .dropmenu li:hover a,
-	.dropmenu li a.active, .dropmenu li a.active:hover,
-	.dropmenu ul li a:hover, .dropmenu li li a:hover,
-	.dropmenu ul li li:hover, .dropmenu li ul,
-	.dropmenu li li:hover ul, .dropmenu li li ul {
-		border-left: 0;
-		border-right: 0;
-	}
-	.dropmenu ul li a {
-		width: auto !important;
 	}
 	.dropmenu li.subsections > a::after {
-		position: absolute;
-		padding: 5px 0;
-		right: 10px;
-		font: 83.33%/150% Arial, sans-serif;
-		content: "\25bc" !important;
+		display: block;
+		content: "\25bc";
 	}
-	.dropmenu li ul,
-	.dropmenu li li:hover ul, .dropmenu li li ul {
-		position: relative;
-		border-radius: 0;
-		left: 0;
-		box-shadow: none;
+	.dropmenu li > ul {
+		position: static;
 	}
-	/* 3rd level menu tests */
-	.dropmenu li ul ul {
-		margin: 0 !important;
-	}
-}
 
-@media (min-width: 481px) and (max-width: 560px) {
-	/* Calendar */
-	#event_time_options {
-/* 		width: 40%; */
+	#header .content-wrapper {
+		flex-direction: column;
+		flex-wrap: wrap;
 	}
-	#event_title, #event_board {
-/* 		width: 100%; */
+	h1.forumtitle {
+		margin-inline: auto;
 	}
-	#evtitle {
-/* 		width: 98%; */
-	}
-}
-
-/* Entry level phones */
-@media (max-width: 480px) {
-	h1.forumtitle a, h1.forumtitle {
-		padding: 5px 0 0 4px;
-		max-width: 300px;
-		margin: 10px 0;
+	.user_panel {
+		justify-content: center;
 	}
 	.board_moderators {
 		display: none;
@@ -588,65 +479,47 @@
 		display: none;
 	}
 	#pm_menu, #alerts_menu, #profile_menu {
-		min-width: initial;
-		width: 25em;
-		max-width: calc(100vw - 17px);
+		margin-inline: auto;
+		inset-inline: -100%;
+		width: calc(100dvw - 1.5em);
 	}
-	#footer {
+	#footer .content-wrapper {
+		flex-direction: column;
+		justify-content: center;
 		text-align: center;
 	}
-	#footer ul {
-		width: 100%;
-		float: none;
-	}
-	#footer li {
-		display: block;
-		float: none;
-	}
+	
 	/* MessageIndex */
-	#main_content_section .pagelinks {
-		display: block;
+	.topic_info .started_by,
+	.topic_info .pagelinks {
+		float: none;
 	}
-	#main_content_section .pagesection {
-		margin: 5px 0;
-		padding: 0;
+	.topic_info .pagelinks {
+		margin-block: .2em;
 	}
 	#topic_icons p {
 		display: block;
 		width: 100%;
 	}
-	/* some new stuff for far better UX */
-	.mobile_subject {
-		position: relative;
-	}
 	fieldset {
 		max-width: 100%;
 		min-width: unset;
 	}
-	/* Register Page */
-	#registration .button {
-		font-size: 0.67em;
-	}
-	dl.register_form, dl.register_form dt, dl.register_form dd {
-		float: none;
-		width: 100%;
-	}
-	/* Login Page */
-	.login dt, .login dd {
-		float: none;
-		width: 100%;
-		text-align: left;
-	}
-	.login #ajax_loginuser, .login #ajax_loginpass, .login #loginuser, .login #loginpass, .login select {
+	.login input[type=text], .login select {
 		width: 100%;
 	}
 
-	/* Display (Topic View) */
-	.subject_title input {
-		width: 90%;
+	/* BoardIndex */
+	.board_container {
+		grid-template-columns: 35px 1fr;
 	}
+	.board_icon {
+		font-size: .75em;
+	}
+
+	/* Display (Topic View) */
 	#quickreply_options .roundframe {
-		padding: 8px 10px 12px 10px;
+		padding-inline: .5em;
 	}
 
 	/* Post Section */
@@ -789,12 +662,6 @@
 		padding: 0;
 		margin: 0 0 5px 0;
 	}
-	fieldset.admin_group a {
-		width: 50%;
-		float: left;
-		margin: 0 0 5px 0;
-	}
-
 	.error_info, #fatal_error {
 		width: 100% !important;
 		padding: 0 !important;
@@ -848,9 +715,4 @@
 	.inlineblock_480 {
 		display: inline-block;
 	}
-}
-
-/* iPhone Tests */
-@media (max-width: 320px) {
-
 }

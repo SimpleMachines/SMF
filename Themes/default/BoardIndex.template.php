@@ -34,14 +34,17 @@ function template_newsfader()
 	if (!empty(Theme::$current->settings['show_newsfader']) && !empty(Utils::$context['news_lines']))
 	{
 		echo '
-		<ul id="smf_slider" class="roundframe">';
+		<div class="news_section">
+			<div class="icon"><i class="fa-solid fa-exclamation"></i></div>
+			<ul id="smf_slider">';
 
 		foreach (Utils::$context['news_lines'] as $news)
 			echo '
-			<li>', $news, '</li>';
+				<li>', $news, '</li>';
 
 		echo '
-		</ul>
+			</ul>
+		</div>
 		<script>
 			jQuery("#smf_slider").slippry({
 				pause: ', Theme::$current->settings['newsfader_time'], ',
@@ -74,16 +77,17 @@ function template_main()
 		echo '
 		<div class="main_container">
 			<div class="cat_bar ', $category['is_collapsed'] ? 'collapsed' : '', '" id="category_', $category['id'], '">
-				<h3 class="catbg">';
+				<h3 class="catbg">
+					', $category['link'], '
+				</h3>';
 
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-					<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', ' floatright" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? Lang::$txt['hide_category'] : Lang::$txt['show_category'], '" style="display: none;"></span>';
+				<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', '" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? Lang::$txt['hide_category'] : Lang::$txt['show_category'], '" style="display: none;"></span>';
 
 		echo '
-					', $category['link'], '
-				</h3>', !empty($category['description']) ? '
+				', !empty($category['description']) ? '
 				<div class="desc">' . $category['description'] . '</div>' : '', '
 			</div>
 			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="' . $category['css_class'] . '"') : ''), $category['is_collapsed'] ? ' style="display: none;"' : '', '>';
@@ -95,11 +99,11 @@ function template_main()
 		foreach ($category['boards'] as $board)
 		{
 			echo '
-				<div id="board_', $board['id'], '" class="up_contain ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
+				<div id="board_', $board['id'], '" class="board_container ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
 					<div class="board_icon">
 						', function_exists('template_bi_' . $board['type'] . '_icon') ? call_user_func('template_bi_' . $board['type'] . '_icon', $board) : template_bi_board_icon($board), '
 					</div>
-					<div class="info">
+					<div class="board_info">
 						', function_exists('template_bi_' . $board['type'] . '_info') ? call_user_func('template_bi_' . $board['type'] . '_info', $board) : template_bi_board_info($board), '
 					</div><!-- .info -->';
 
@@ -111,7 +115,7 @@ function template_main()
 
 			// Show the last post if there is one.
 			echo'
-					<div class="lastpost">
+					<div class="board_lastpost">
 						', function_exists('template_bi_' . $board['type'] . '_lastpost') ? call_user_func('template_bi_' . $board['type'] . '_lastpost', $board) : template_bi_board_lastpost($board), '
 					</div>';
 
@@ -171,7 +175,7 @@ function template_bi_redirect_icon($board)
 function template_bi_board_info($board)
 {
 	echo '
-		<a class="subject mobile_subject" href="', $board['href'], '" id="b', $board['id'], '">
+		<a class="subject" href="', $board['href'], '" id="b', $board['id'], '">
 			', $board['name'], '
 		</a>';
 
@@ -198,7 +202,8 @@ function template_bi_board_stats($board)
 {
 	echo '
 		<p>
-			', Lang::getTxt('number_of_posts', [$board->posts]), '<br>', Lang::getTxt('number_of_topics', [$board->topics]), '
+			<span>', Lang::getTxt('number_of_posts', [$board->posts]), '</span>
+			<span>', Lang::getTxt('number_of_topics', [$board->topics]), '</span>
 		</p>';
 }
 
@@ -211,7 +216,7 @@ function template_bi_redirect_stats($board)
 {
 	echo '
 		<p>
-			', Lang::getTxt('number_of_redirects', [$board->posts]), '
+			<span>', Lang::getTxt('number_of_redirects', [$board->posts]), '</span>
 		</p>';
 }
 
@@ -223,9 +228,18 @@ function template_bi_redirect_stats($board)
  */
 function template_bi_board_lastpost($board)
 {
-	if (!empty($board['last_post']['id']))
-		echo '
-			<p>', $board['last_post']['last_post_message'], '</p>';
+	if (empty($board['last_post']['id'])) {
+		return;
+	}
+
+	echo '
+		', ($board['last_post']['member']['id'] ? '<a href="' . $board['last_post']['member']['href'] . '">' : ''), '
+			<img class="avatar" src="', $board['last_post']['member']['avatar']['href'], '" alt="">
+		', ($board['last_post']['member']['id'] ? '</a>' : ''), '
+		
+		<p>
+			<span>',  $board['last_post']['link'], ', ', Lang::getTxt('last_post_updated', ['time' => $board['last_post']['time'], 'member_link' => $board['last_post']['member']['link']]), '</span>
+		</p>';
 }
 
 /**
@@ -257,7 +271,7 @@ function template_bi_board_children($board)
 		}
 
 		echo '
-			<div id="board_', $board['id'], '_children" class="children">
+			<div id="board_', $board['id'], '_children" class="board_children">
 				<p>',
 				Lang::getTxt(
 					'sub_boards_list',
@@ -290,19 +304,22 @@ function template_info_center()
 
 	// Here's where the "Info Center" starts...
 	echo '
-	<div class="roundframe" id="info_center">
+	<div id="info_center">
 		<div class="title_bar">
 			<h3 class="titlebg">
-				<span class="toggle_up floatright" id="upshrink_ic" title="', Lang::$txt['hide_infocenter'], '" style="display: none;"></span>
 				<a href="#" id="upshrink_link">', Lang::getTxt('info_center_title', ['forum_name' => Utils::$context['forum_name_html_safe']]), '</a>
 			</h3>
+			<span class="toggle_up" id="upshrink_ic" title="', Lang::$txt['hide_infocenter'], '" style="display: none;"></span>
 		</div>
 		<div id="upshrink_stats"', empty(Theme::$current->options['collapse_header_ic']) ? '' : ' style="display: none;"', '>';
 
 	foreach (Utils::$context['info_center'] as $block)
 	{
 		$func = 'template_ic_block_' . $block['tpl'];
-		$func();
+		echo '
+			<div class="info_block">
+				', $func(), '
+			</div>';
 	}
 
 	echo '
@@ -353,11 +370,10 @@ function template_ic_block_recent()
 {
 	// This is the "Recent Posts" bar.
 	echo '
-			<div class="sub_bar">
-				<h4 class="subbg">
-					<a href="', Config::$scripturl, '?action=recent"><span class="main_icons recent_posts"></span> ', Lang::$txt['recent_posts'], '</a>
-				</h4>
-			</div>
+		<div class="info_block_icon">
+			<a href="', Config::$scripturl, '?action=recent"><span class="main_icons recent_posts"></span></a>
+		</div>
+		<div class="info_block_information">
 			<div id="recent_posts_content">';
 
 	// Only show one post.
@@ -373,8 +389,8 @@ function template_ic_block_recent()
 	elseif (!empty(Utils::$context['latest_posts']))
 	{
 		echo '
-				<table id="ic_recentposts">
-					<tr class="windowbg">
+				<table class="table_grid" id="ic_recentposts">
+					<tr class="roundframe">
 						<th class="recentpost">', Lang::$txt['message'], '</th>
 						<th class="recentposter">', Lang::$txt['author'], '</th>
 						<th class="recentboard">', Lang::$txt['board'], '</th>
@@ -387,7 +403,7 @@ function template_ic_block_recent()
 		foreach (Utils::$context['latest_posts'] as $post)
 			echo '
 					<tr class="windowbg">
-						<td class="recentpost"><strong>', $post['link'], '</strong></td>
+						<td class="recentpost">', $post['link'], '</td>
 						<td class="recentposter">', $post['member']['link'], '</td>
 						<td class="recentboard">', $post['board']['link'], '</td>
 						<td class="recenttime">', $post['time'], '</td>
@@ -396,7 +412,8 @@ function template_ic_block_recent()
 				</table>';
 	}
 	echo '
-			</div><!-- #recent_posts_content -->';
+			</div><!-- #recent_posts_content -->
+    	</div>';
 }
 
 /**
@@ -406,11 +423,10 @@ function template_ic_block_calendar()
 {
 	// Show information about events, birthdays, and holidays on the calendar.
 	echo '
-			<div class="sub_bar">
-				<h4 class="subbg">
-					<a href="', Config::$scripturl, '?action=calendar' . '"><span class="main_icons calendar"></span> ', Utils::$context['calendar_only_today'] ? Lang::$txt['calendar_today'] : Lang::$txt['calendar_upcoming'], '</a>
-				</h4>
-			</div>';
+		<div class="info_block_icon">
+			<a href="', Config::$scripturl, '?action=calendar' . '"><span class="main_icons calendar"></span> ', '</a>
+		</div>
+		<div class="info_block_information">';
 
 	// Holidays like "Christmas", "Chanukah", and "We Love [Unknown] Day" :P
 	if (!empty(Utils::$context['calendar_holidays'])) {
@@ -457,6 +473,9 @@ function template_ic_block_calendar()
 		echo '
 			</p>';
 	}
+
+	echo'
+		</div>';
 }
 
 /**
@@ -466,16 +485,16 @@ function template_ic_block_stats()
 {
 	// Show statistical style information...
 	echo '
-			<div class="sub_bar">
-				<h4 class="subbg">
-					', Utils::$context['show_stats'] ? '<a href="' . Config::$scripturl . '?action=stats" title="' . Lang::$txt['more_stats'] . '">' : '', '<span class="main_icons stats"></span> ', Lang::$txt['forum_stats'], Utils::$context['show_stats'] ? '</a>' : '', '
-				</h4>
-			</div>
+		<div class="info_block_icon">
+			', Utils::$context['show_stats'] ? '<a href="' . Config::$scripturl . '?action=stats" title="' . Lang::$txt['more_stats'] . '">' : '', '<span class="main_icons stats"></span> ', Utils::$context['show_stats'] ? '</a>' : '', '
+		</div>
+		<div class="info_block_information">
 			<p class="inline">
-				', Utils::$context['common_stats']['boardindex_total_posts'], !empty(Theme::$current->settings['show_latest_member']) ? ' - ' . Lang::$txt['latest_member'] . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
+				', Utils::$context['common_stats']['boardindex_total_posts'], '', !empty(Theme::$current->settings['show_latest_member']) ? ' - ' . Lang::$txt['latest_member'] . ': <strong> ' . Utils::$context['common_stats']['latest_member']['link'] . '</strong>' : '', '<br>
 				', (!empty(Utils::$context['latest_post']) ? Lang::$txt['latest_post'] . ': <strong>&quot;' . Utils::$context['latest_post']['link'] . '&quot;</strong>  (' . Utils::$context['latest_post']['time'] . ')<br>' : ''), '
 				<a href="', Config::$scripturl, '?action=recent">', Lang::$txt['recent_view'], '</a>
-			</p>';
+			</p>
+		</div>';
 }
 
 /**
@@ -485,11 +504,10 @@ function template_ic_block_online()
 {
 	// "Users online" - in order of activity.
 	echo '
-			<div class="sub_bar">
-				<h4 class="subbg">
-					', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<span class="main_icons people"></span> ', Lang::$txt['online_users'], '', Utils::$context['show_who'] ? '</a>' : '', '
-				</h4>
-			</div>
+        <div class="info_block_icon">
+			', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<span class="main_icons people"></span> ', Utils::$context['show_who'] ? '</a>' : '', '
+		</div>
+		<div class="info_block_information">
 			<p class="inline">
 				', Utils::$context['show_who'] ? '<a href="' . Config::$scripturl . '?action=who">' : '', '<strong>', Lang::$txt['online'], ': </strong>', Lang::getTxt('number_of_guests', [Utils::$context['num_guests']]), ', ', Lang::getTxt('number_of_members', [Utils::$context['num_users_online']]);
 
@@ -528,7 +546,8 @@ function template_ic_block_online()
 	}
 
 	echo '
-			</p>';
+			</p>
+		</div>';
 }
 
 ?>

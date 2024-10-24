@@ -63,6 +63,7 @@ $txt['theme_global_description'] = 'This is the default theme, which means your 
 
 $txt['theme_url_config'] = 'Theme URLs and Configuration';
 $txt['theme_variants'] = 'Theme Variants';
+$txt['theme_colormodes'] = 'Theme Color Modes';
 $txt['theme_options'] = 'Theme Options and Preferences';
 $txt['actual_theme_name'] = 'This theme’s name: ';
 $txt['actual_theme_dir'] = 'This theme’s directory: ';
@@ -71,6 +72,7 @@ $txt['actual_images_url'] = 'This theme’s images URL: ';
 $txt['current_theme_style'] = 'This theme’s style: ';
 
 $txt['theme_variants_default'] = 'Default theme variant';
+$txt['variant_default'] = 'Default';
 $txt['theme_variants_user_disable'] = 'Disable user variant selection';
 
 $txt['site_slogan'] = 'Site slogan';
@@ -164,5 +166,15 @@ $txt['themeadmin_themelist_link'] = 'Show the list of themes';
 // Open Graph
 $txt['og_image'] = 'Open Graph image';
 $txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="https://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
+
+
+// Theme Mode (dark, light, system, etc)
+$txt['theme_pick_colormode'] = 'Select Color Mode';
+$txt['theme_colormode_default'] = 'Default color mode';
+$txt['theme_colormode_user_disable'] = 'Disable user color mode selection';
+$txt['colormode_light'] = 'Light';
+$txt['colormode_dark'] = 'Dark';
+$txt['colormode_system'] = 'System Default';
+
 
 ?>

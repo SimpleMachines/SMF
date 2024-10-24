@@ -12,7 +12,7 @@ function smf_DraftAutoSave(oOptions)
 	this.sCheckDraft = '';
 
 	// slight delay on autosave init to allow sceditor to create the iframe
-	setTimeout('addLoadEvent(' + this.opt.sSelf + '.init())', 4000);
+	window.addEventListener("load", this.init.bind(this));
 }
 
 // Start our self calling routine
@@ -24,26 +24,23 @@ smf_DraftAutoSave.prototype.init = function ()
 		var oIframe = document.getElementsByTagName('iframe')[0];
 		var oIframeWindow = oIframe.contentWindow || oIframe.contentDocument;
 		// start the autosave timer
-		this.interval_id = window.setInterval(this.opt.sSelf + '.draft' + (this.bPM ? 'PM' : '') + 'Save();', this.opt.iFreq);
+		this.interval_id = setInterval(this.bPM ? this.draftPMSave.bind(this) : this.draftSave.bind(this), this.opt.iFreq);
 
-		// Set up window focus and blur events
-		var instanceRef = this;
-		this.oDraftHandle.onblur = function (oEvent) {return instanceRef.draftBlur(oEvent, true);};
-		this.oDraftHandle.onfocus = function (oEvent) {return instanceRef.draftFocus(oEvent, true);};
+		this.oDraftHandle.onblur = this.draftBlur.bind(this, true);
+		this.oDraftHandle.onfocus = this.draftFocus.bind(this, true);
 
 		// If we found the iframe window, set body focus/blur events for it
 		if (oIframeWindow.document)
 		{
 			var oIframeDoc = oIframeWindow.document;
-			// @todo oDraftAutoSave should use the this.opt.sSelf name not hardcoded
-			oIframeDoc.body.onblur = function (oEvent) {return parent.oDraftAutoSave.draftBlur(oEvent, false);};
-			oIframeDoc.body.onfocus = function (oEvent) {return parent.oDraftAutoSave.draftFocus(oEvent, false);};
+			oIframeDoc.body.onblur = this.draftBlur.bind(this, false);
+			oIframeDoc.body.onfocus = this.draftFocus.bind(this, false);
 		};
 	}
 }
 
 // Moved away from the page, where did you go? ... till you return we pause autosaving
-smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
+smf_DraftAutoSave.prototype.draftBlur = function(source)
 {
 	var e = $('#' + this.opt.sSceditorID).get(0);
 	if (sceditor.instance(e).inSourceMode() == source)
@@ -61,13 +58,13 @@ smf_DraftAutoSave.prototype.draftBlur = function(oEvent, source)
 }
 
 // Since you're back we resume the autosave timer
-smf_DraftAutoSave.prototype.draftFocus = function(oEvent, source)
+smf_DraftAutoSave.prototype.draftFocus = function(source)
 {
 	var e = $('#' + this.opt.sSceditorID).get(0);
 	if (sceditor.instance(e).inSourceMode() == source)
 	{
 		if (this.interval_id == "")
-			this.interval_id = window.setInterval(this.opt.sSelf + '.draft' + (this.bPM ? 'PM' : '') + 'Save();', this.opt.iFreq);
+			this.interval_id = setInterval(this.bPM ? this.draftPMSave.bind(this) : this.draftSave.bind(this), this.opt.iFreq);
 	}
 }
 

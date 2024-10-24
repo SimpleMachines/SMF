@@ -1,0 +1,322 @@
+:root[data-mode="dark"],
+:root[data-mode="system"] {
+
+	/* Body */
+	--body-bg:                                        hsl(var(--primary-color-hue), 45%, 6%);
+	--body-color:                                     #eaeaea;
+
+	/** Body Links **/
+	--body-link-color:                                hsl(var(--primary-color-hue), 55%, 82%);
+	--body-link-color_hover:                          hsl(var(--primary-color-hue), 80%, 88%);
+
+	/** Strong **/
+	--strong-color:                                   #e8e8e8;
+
+	/** Horizontal Rule **/
+	--horizontalrule-bg:                              hsl(var(--primary-color-hue), 25%, 12%);
+	--horizontalrule-box-shadow:                      0 1px 0 #444444 inset;
+
+	/** Heading Reset **/
+	--heading-color:                                  #d6d6d6;
+
+	/** Inputs, Select and Textarea **/
+	--input-accent-color:                             var(--primary-color-600);
+	--input-bg:                                       hsl(var(--primary-color-hue), 18%, 12%);
+	--input-bg_disabled:                              hsl(var(--primary-color-hue), 12%, 9%);
+	--input-bg_invalid:                               hsl(0, 24%, 20%);
+	--input-bg_valid:                                 hsl(101, 8%, 39%);
+	--input-border-color:                             var(--primary-color-700);
+	--input-border-color_disabled:                    #818181;
+	--input-border-color_focus:                       var(--primary-color-900);
+	--input-border-color_hover:                       var(--primary-color-800);
+	--input-box-shadow_hover:                         1px 1px 2px -1px rgba(255, 255, 255, 0.1) inset;
+	--input-color:                                    #eeeeee;
+	--input-color_disabled:                           #818181;
+	--input-color_focus:                              #ffffff;
+	--input-color_hover:                              #ffffff;
+
+	/** Button **/
+	--button-bg:                                      hsl(var(--primary-color-hue), 20%, 12%);
+	--button-bg_hover:                                hsl(var(--primary-color-hue), 25%, 10%);
+	--button-border-color:                            hsl(0, 0%, 25%) hsl(0, 0%, 18%) hsl(0, 0%, 14%) hsl(0, 0%, 25%);
+	--button-border-color_hover:                      hsl(0, 0%, 14%) hsl(0, 0%, 25%) hsl(0, 0%, 25%) hsl(0, 0%, 18%);
+	--button-color:                                   #f3f3f3;
+	--button-color_active:                            var(--primary-color-100);
+	--button-color_hover:                             var(--primary-color-200);
+
+	/** Fieldset **/
+	--fieldset-border-color:                          hsl(0, 0%, 25%);
+	--fieldset-legend-color:                          hsl(0, 0%, 90%);
+
+	/** Header **/
+	--header-bg:                                      hsl(var(--primary-color-hue), 25%, 9%);
+
+	/** Forum Title **/
+	--forumtitle-color:                               hsl(213, 38%, 75%);
+
+	/** Footer **/
+	--footer-bg:                                      var(--primary-color-900);
+	--footer-color:                                   hsl(0, 0%, 96%);
+
+	/** Navigate Section **/
+	--navigatesection-bg:                             hsl(var(--primary-color-hue), 26%, 11%);
+	--navigatesection-border-color:                   hsl(0, 0%, 15%);
+	--navigatesection-box-shadow:                     0px 0px 1px 1px rgb(0, 0, 0) inset;
+
+	/* Breadcrumb */
+	--breadcrumb-color:                               hsl(0, 0%, 78%);
+	/** Breadcrumb Divider **/
+	--breadcrumb-divider-color:                       hsl(206, 55%, 75%);
+	/** Breadcrumb Link **/
+	--breadcrumb-link-color:                          var(--primary-color-100);
+	--breadcrumb-link-color_active:                   hsl(213, 58%, 75%);
+	--breadcrumb-link-color_hover:                    var(--primary-color-300);
+
+	/** Section Head **/
+	--sectionhead-color:                              #e2e2e2;
+
+	/** Section Head Text **/
+	--sectionhead-text-color:                         hsl(0, 0%, 86%);
+
+	/* News Fader */
+	--newsfader-bg:                                   hsl(var(--primary-color-hue), 35%, 11%);
+	--newsfader-box-shadow:                           0 2px 2px rgba(255, 255, 255, 0.1);
+	/** News Fader Icon **/
+	--newsfader-icon-bg:                              hsl(var(--primary-color-hue), 35%, 15%);
+	--newsfader-icon-color:                           var(--primary-color-100);
+	/** News Fader Pager **/
+	--newsfader-pager-bg:                             var(--primary-color-400);
+	--newsfader-pager-bg_active:                      var(--primary-color-50);
+	--newsfader-pager-border-color:                   var(--newsfader-icon-bg);
+
+	/** Top Info **/
+	--topinfo-bg_active:                              var(--primary-color-600);
+	--topinfo-bg_focus:                               var(--primary-color-500);
+	--topinfo-border-color_active:                    var(--topmenu-border-color);
+	--topinfo-border-color_focus:                     var(--primary-color-800);
+	--topinfo-border-color_hover:                     transparent transparent var(--primary-color-50);
+	--topinfo-color:                                  var(--primary-color-300);
+	--topinfo-color_active:                           var(--primary-color-900);
+	--topinfo-color_focus:                            white;
+	--topinfo-color_hover:                            var(--primary-color-200);
+
+	/** Top Menu **/
+	--topmenu-bg:                                     hsl(var(--primary-color-hue), 22%, 10%);
+	--topmenu-box-shadow:                             3px 3px 4px rgba(0, 0, 0, 0.3), 0px -1px 1px -1px rgba(0, 0, 0, 0.2);
+	/** Top Menu Header **/
+	--topmenu-header-bg:                              hsl(var(--primary-color-hue), 25%, 8%);
+	--topmenu-header-border-color:                    var(--primary-color-900);
+
+	/** Nav **/
+	--nav-bg:                                         var(--primary-color-900);
+	--nav-border-color:                               hsl(var(--primary-color-hue), 22%, 25%);
+
+	/** Generic Menu **/
+	--genericmenu-bg:                                 hsl(var(--primary-color-hue), 32%, 16%);
+	/** Dropmenu first level links **/
+	--dropmenu-a1-bg_active:                          hsl(var(--primary-color-hue), 22%, 11%);
+	--dropmenu-a1-bg_hover:                           hsl(var(--primary-color-hue), 22%, 11%);
+	--dropmenu-a1-color:                              #fff;
+	--dropmenu-a1-color_active:                       var(--primary-color-50);
+	--dropmenu-a1-color_hover:                        #e3e3e3;
+	/** Dropmenu n level links **/
+	--dropmenu-an-bg_active:                          var(--dropmenu-an-bg_hover);
+	--dropmenu-an-bg_active_hover:                    var(--dropmenu-an-bg_active);
+	--dropmenu-an-bg_active_focus:                    var(--dropmenu-an-bg_active);
+	--dropmenu-an-bg_focus:                           var(--dropmenu-an-bg_hover);
+	--dropmenu-an-bg_hover:                           hsl(var(--primary-color-hue), 18%, 20%);
+	--dropmenu-an-border-color_active:                var(--dropmenu-a1-border-color_hover);
+	--dropmenu-an-border-color_focus:                 var(--dropmenu-a1-border-color_hover);
+	--dropmenu-an-color:                              #eeeeee;
+	--dropmenu-an-color_active:                       hsl(var(--primary-color-hue), 75%, 92%);
+	--dropmenu-an-color_focus:                        var(--dropmenu-a1-color_hover);
+	--dropmenu-an-color_hover:                        #ffffff;
+
+	/** Buttonlist Link **/
+	--buttonlist-link-bg:                             hsl(var(--primary-color-hue), 20%, 18%);
+	--buttonlist-link-bg_active:                      var(--secondary-color-900);
+	--buttonlist-link-bg_active_focus:                var(--buttonlist-link-bg_active_hover);
+	--buttonlist-link-bg_active_hover:                var(--secondary-color-700);
+	--buttonlist-link-bg_focus:                       var(--buttonlist-link-bg_hover);
+	--buttonlist-link-bg_hover:                       hsl(var(--primary-color-hue), 20%, 13%);
+	--buttonlist-link-color:                          #f5f5f5;
+	--buttonlist-link-color_active:                   #333;
+	--buttonlist-link-color_active_hover:             #000;
+	--buttonlist-link-color_hover:                    var(--primary-color-50);
+
+	/** Page Link **/
+	--pages-link-bg:                                  hsl(var(--primary-color-hue), 20%, 14%);
+	--pages-link-bg_active:                           var(--primary-color-600);
+	--pages-link-bg_active_focus:                     var(--pages-link-bg_active);
+	--pages-link-bg_active_hover:                     var(--pages-link-bg_active);
+	--pages-link-bg_focus:                            var(--pages-link-bg_hover);
+	--pages-link-bg_hover:                            hsl(var(--primary-color-hue), 20%, 17%);
+	--pages-link-color:                               var(--buttonlist-link-color);
+	--pages-link-color_active:                        #fff;
+	--pages-link-color_hover:                         var(--primary-color-50);
+
+	/** Category Bar **/
+	--catbar-bg:                                      var(--primary-color-900);
+
+	/* Title Bar */
+	--titlebar-bg:                                    hsl(var(--primary-color-hue), 30%, 9%);
+	--titlebar-color:                                 #e8e8e8;
+	/** Titlebg **/
+	--titlebg-color:                                  #e8e8e8;
+
+	/** Sub bar **/
+	--subbar-bg:                                      #333;
+	--subbar-color:                                   #fff;
+
+	/** Windowbg **/
+	--window-bg:                                      hsl(var(--primary-color-hue), 22%, 10%);
+	--window-bg_hover:                                var(--primary-color-900);
+	--window-border-color:                            hsl(var(--primary-color-hue), 25%, 25%);
+	/** Windowbg alternate **/
+	--window-even-bg:                                 hsl(var(--primary-color-hue), 22%, 8%);
+	--window-target-bg:                               hsl(var(--primary-color-hue), 10%, 20%);
+	/** Approvepost and Approvetopic **/
+	--window-approvetopic-bg:                         #432b2b;
+	--window-approvepost-bg:                          #432b2b;
+	/** Lockedbg **/
+	--window-locked-bg:                               hsl(22, 12%, 15%);
+	/** Stickybg **/
+	--window-sticky-bg:                               hsl(209, 30%, 22%);
+	--window-stickylocked-bg:                         hsl(22, 2%, 25%);
+	/** Approvebg **/
+	--approve-bg:                                     #432b2b;
+	--approve-color:                                  inherit;
+	--approve2-bg:                                    #422727;
+
+	/** Roundframe **/
+	--roundframe-bg:                                  hsl(var(--primary-color-hue), 20%, 8%);
+	--roundframe-border-color:                        hsl(var(--primary-color-hue), 30%, 12%);
+
+	/** Information Area **/
+	--information-bg:                                 hsl(var(--primary-color-hue), 30%, 12%);
+	--information-border-color:                       hsl(var(--primary-color-hue), 30%, 25%);
+
+	/** Errorbox **/
+	--errorbox-bg:                                    #503030;
+	--errorbox-border-color:                          #3e0f0f;
+	--errorbox-color:                                 #f8d8db;
+
+	/** Infobox (Success) **/
+	--infobox-bg:                                     #385238;
+	--infobox-border-color:                           #0f3e0f;
+	--infobox-color:                                  #d1e7dd;
+
+	/** Noticebox **/
+	--noticebox-bg:                                   #524e38;
+	--noticebox-border-color:                         #3e330f;
+	--noticebox-color:                                #fff3cd;
+
+	/** Desc Box **/
+	--descbox-border-color:                           hsl(0, 0%, 17%);
+	--descbox-border-style:                           solid;
+	--descbox-border-width:                           1px;
+
+	/** Code Block **/
+	--code-bg:                                        hsl(0, 0%, 9%);
+	--code-border-color:                              hsl(0, 0%, 17%) hsl(0, 0%, 13%) hsl(0, 0%, 33%);
+	/** Code Header **/
+	--code-header-color:                              hsl(0, 0%, 80%);
+
+	/** Quote Block **/
+	--quote-bg:                                       hsl(var(--primary-color-hue), 15%, 20%);
+	--quote-border-color:                             hsl(var(--primary-color-hue), 17%, 25%) hsl(var(--primary-color-hue), 12%, 35%);
+	/** Alternate Quote **/
+	--quote-alternate-bg:                             hsl(var(--primary-color-hue), 12%, 19%);
+	/** Quote Cite **/
+	--quote-cite-border-color:                        hsla(0, 0%, 100%, 0.1);
+	--quote-cite-color:                               #fafafa;
+	/** Quote Header **/
+	--quote-header-color:                             hsl(0, 0%, 85%);
+
+	/** Auto Suggest Control **/
+	--autosuggest-border-color:                       hsl(0, 0%, 45%);
+	/** Auto Suggest Item **/
+	--autosuggest-item-bg:                            hsl(0, 0%, 28%);
+	--autosuggest-item-bg_hover:                      hsl(0, 0%, 11%);
+	--autosuggest-item-color:                         hsl(0, 0%, 87%);
+	--autosuggest-item-color_hover:                   hsl(0, 0%, 97%);
+
+	/* Mentions */
+	--mentions-bg:                                    hsl(0, 0%, 18%);
+	--mentions-border-color:                          hsl(0, 0%, 0%);
+	--mentions-box-shadow:                            0 0 5px rgba(255, 255, 255, 0.1);
+	/** Mentions Item **/
+	--mentions-item-bg:                               hsl(0, 0%, 18%);
+	--mentions-item-bg_current:                       hsl(225, 100%, 60%);
+	--mentions-item-color:                            hsl(0, 0%, 85%);
+	--mentions-item-color_current:                    hsl(0, 0%, 100%);
+
+	/** AJAX Notification Bar **/
+	--ajaxinprogress-bg:                              hsl(0, 0%, 15%);
+	--ajaxinprogress-border-style:                    hsl(0, 0%, 0%);
+
+	/** ToolTips **/
+	--tooltip-bg:                                     hsl(0, 0%, 16%);
+	--tooltip-border-color:                           hsl(0, 0%, 10%);
+	--tooltip-box-shadow:                             1px 2px 4px rgba(255, 255, 255, 0.2), 0 0px 10px rgba(255, 255, 255, 0.05) inset;
+	--tooltip-color:                                  #eaeaea;
+
+	/** Info Center Block **/
+	--infoblock-box-shadow:                           0px 2px 0px hsl(var(--primary-color-hue), 12%, 25%);
+	/** Info Center Icon **/
+	--infoblock-icon-bg:                              hsl(var(--primary-color-hue), 9%, 15%);
+
+	/** Generic Bar **/
+	--genericbar-bg:                                  hsl(0, 0%, 15%);
+	--genericbar-border-color:                        hsl(0, 0%, 3%);
+	--genericbar-color:                               hsla(0, 0%, 100%, 0.6);
+	--genericbar-text-shadow:                         1px 1px hsla(0, 0%, 0%, 0.4);
+	/** Inner Generic Bar **/
+	--genericbar-inner-bg:                            hsl(var(--primary-color-hue), 25%, 19%);
+	--genericbar-inner-box-shadow:                    2px -6px 6px 2px hsla(0, 0%, 0%, 0.2) inset;
+	--genericbar-inner-box-shadow_vertical:           -6px 2px 6px 2px hsla(0, 0%, 0%, 0.2) inset;
+	--genericbar-inner-color:                         hsla(0, 0%, 100%, 0.8);
+
+	/** Poster **/
+	--poster-bg:                                      hsla(0, 0%, 15%, 35%);
+
+	/** Post Inner **/
+	--post-inner-border-color:                        hsl(0, 0%, 30%);
+	--post-inner-box-shadow:                          0 1px 0 hsl(0, 0%, 5%) inset;
+
+	/** Calendar Events **/
+	--calendar-birthday-color:                        hsl(284, 90%, 85%);
+	--calendar-days-bg_hover:                         var(--primary-color-500);
+	--calendar-disabled-bg:                           #1b1b1b;
+	--calendar-event-color:                           hsl(120, 90%, 85%);
+	--calendar-holiday-color:                         hsl(var(--primary-color-hue), 100%, 75%);
+	--calendar-today-bg:                              var(--primary-color-500);
+	--calendar-today-color:                           #fff;
+
+	/** Attachments **/
+	--attachments-bg:                                 hsl(var(--primary-color-hue), 20%, 11%);
+
+	/** Signature **/
+	--signature-border-color:                         hsl(var(--primary-color-hue), 15%, 22%);
+	--signature-box-shadow:                           0 1px 0 hsl(0, 0%, 0%) inset;
+
+	/** Basic Info **/
+	--basicinfo-bg:                                   hsla(0, 0%, 20%, 0.2);
+
+	/** Detailed Info **/
+	--detailedinfo-border-color:                      hsl(var(--primary-color-hue), 15%, 18%);
+
+	/** Popup Container **/
+	--popup-bg:                                       hsla(var(--primary-color-hue), 15%, 12%, 75%);
+	/** Popup Window **/
+	--popup-window-bg:                                hsl(var(--primary-color-hue), 42%, 18%);
+	--popup-window-border-color:                      var(--primary-color-700);
+	/** Popup Heading **/
+	--popup-heading-bg:                               hsl(var(--primary-color-hue), 35%, 15%);
+	--popup-heading-border-color:                     var(--primary-color-500);
+	--popup-heading-color:                            var(--primary-color-50);
+
+	/** SCEditor Group **/
+	/* --sceditor-group-bg:                              #323232; */
+	--sceditor-group-border-color:                    var(--primary-color-300);
+}

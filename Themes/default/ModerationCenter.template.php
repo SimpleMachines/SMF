@@ -48,9 +48,9 @@ function template_group_requests_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="group_requests_toggle" class="', !empty(Utils::$context['admin_prefs']['mcgr']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcgr']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
 				<a href="', Config::$scripturl, '?action=groups;sa=requests" id="group_requests_link">', Lang::$txt['mc_group_requests'], '</a>
 			</h3>
+			<span id="group_requests_toggle" class="', !empty(Utils::$context['admin_prefs']['mcgr']) ? 'toggle_down' : 'toggle_up', '" title="', empty(Utils::$context['admin_prefs']['mcgr']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
 		</div>
 		<div class="windowbg" id="group_requests_panel">
 			<ul>';
@@ -113,9 +113,9 @@ function template_watched_users()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="watched_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcwu']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
 				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', Lang::$txt['mc_watched_users'], '</a>
 			</h3>
+			<span id="watched_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', '" title="', empty(Utils::$context['admin_prefs']['mcwu']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
 		</div>
 		<div class="windowbg" id="watched_users_panel">
 			<ul>';
@@ -178,9 +178,9 @@ function template_reported_posts_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="reported_posts_toggle" class="', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcrp']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
 				<a href="', Config::$scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', Lang::$txt['mc_recent_reports'], '</a>
 			</h3>
+			<span id="reported_posts_toggle" class="', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', '" title="', empty(Utils::$context['admin_prefs']['mcrp']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
 		</div>
 		<div class="windowbg" id="reported_posts_panel">
 			<ul>';
@@ -243,9 +243,9 @@ function template_reported_users_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="reported_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcur']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
-				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', Lang::$txt['mc_recent_user_reports'], '</a>
+			<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', Lang::$txt['mc_recent_user_reports'], '</a>
 			</h3>
+			<span id="reported_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', '" title="', empty(Utils::$context['admin_prefs']['mcur']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
 		</div>
 		<div class="windowbg" id="reported_users_panel">
 			<ul>';
@@ -377,7 +377,8 @@ function template_unapproved_posts()
 	else
 	{
 		echo '
-			<div class="pagesection">';
+			<div class="pagesection">
+				<div class="pagelinks">', Utils::$context['page_index'], '</div>';
 
 		if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 			echo '
@@ -388,7 +389,6 @@ function template_unapproved_posts()
 				</ul>';
 
 		echo '
-				<div class="pagelinks">', Utils::$context['page_index'], '</div>
 			</div>';
 
 	}
@@ -433,6 +433,10 @@ function template_unapproved_posts()
 	echo '
 			<div class="pagesection">';
 
+	if (!empty(Utils::$context['unapproved_items']))
+		echo '
+				<div class="pagelinks">', Utils::$context['page_index'], '</div>';
+
 	if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 		echo '
 				<div class="floatright">
@@ -446,10 +450,6 @@ function template_unapproved_posts()
 						<input type="submit" name="mc_go" value="', Lang::$txt['go'], '" class="button">
 					</noscript>
 				</div>';
-
-	if (!empty(Utils::$context['unapproved_items']))
-		echo '
-				<div class="pagelinks">', Utils::$context['page_index'], '</div>';
 
 	echo '
 			</div><!-- .pagesection -->

@@ -149,8 +149,8 @@ function template_show_upcoming_list($grid_name)
 						echo ' ', $event['tz_abbrev'], '</time>';
 				}
 
-				if (!empty($event['location']))
-					echo '<br>', $event['location'];
+				if ($event['location'] != '')
+					echo '<br>', nl2br($event['location']);
 
 				// If the first occurrence is not visible on the current page,
 				// we mention it in the RRULE description.
@@ -308,7 +308,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 	if (empty($calendar_data['disable_day_titles']))
 	{
 		echo '
-				<tr>';
+				<tr class="title_bar">';
 
 		// If we're showing week links, there's an extra column ahead of the week links, so let's think ahead and be prepared!
 		if ($show_week_links === true)
@@ -611,7 +611,7 @@ function template_show_week_grid($grid_name)
 		// The main table grid for $this week.
 		echo '
 				<table class="table_grid calendar_week">
-					<tr>
+					<tr class="title_bar">
 						<th class="days" scope="col">', Lang::$txt['calendar_day'], '</th>';
 		if (!empty($calendar_data['show_events']))
 			echo '
@@ -816,25 +816,23 @@ function template_calendar_top($calendar_data)
 {
 	echo '
 		<div class="calendar_top roundframe', empty($calendar_data['disable_title']) ? ' noup' : '', '">
-			<div id="calendar_viewselector" class="buttonrow floatleft">
+			<div id="calendar_viewselector" class="buttonrow">
 				<a href="', Config::$scripturl, '?action=calendar;viewlist;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewlist' ? ' active' : '', '">', Lang::$txt['calendar_list'], '</a>
 				<a href="', Config::$scripturl, '?action=calendar;viewmonth;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewmonth' ? ' active' : '', '">', Lang::$txt['calendar_month'], '</a>
 				<a href="', Config::$scripturl, '?action=calendar;viewweek;year=', Utils::$context['current_year'], ';month=', Utils::$context['current_month'], ';day=', Utils::$context['current_day'], '" class="button', Utils::$context['calendar_view'] == 'viewweek' ? ' active' : '', '">', Lang::$txt['calendar_week'], '</a>
 			</div>
-			', template_button_strip(Utils::$context['calendar_buttons'], 'right');
-
-	echo '
 			<form action="', Config::$scripturl, '?action=calendar;', Utils::$context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<input type="date" name="start_date" id="start_date" value="', $calendar_data['iso_start_date'], '" tabindex="', Utils::$context['tabindex']++, '" class="date_input start" data-type="date">';
+				<input type="date" name="start_date" id="start_date" value="', $calendar_data['iso_start_date'], '" class="date_input start" data-type="date">';
 
 	if (!empty($calendar_data['end_date']))
 		echo '
 				<span>', Utils::strtolower(Lang::$txt['to']), '</span>
-				<input type="date" name="end_date" id="end_date" value="', $calendar_data['iso_end_date'], '" tabindex="', Utils::$context['tabindex']++, '" class="date_input end" data-type="date">';
+				<input type="date" name="end_date" id="end_date" value="', $calendar_data['iso_end_date'], '" class="date_input end" data-type="date">';
 
 	echo '
 				<input type="submit" class="button" style="float:none" id="view_button" value="', Lang::$txt['view'], '">
 			</form>
+			', template_button_strip(Utils::$context['calendar_buttons'], 'right'), '
 		</div><!-- .calendar_top -->';
 }
 
@@ -844,7 +842,7 @@ function template_calendar_top($calendar_data)
 function template_event_post()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', Utils::$context['character_set'], '" onsubmit="submitonce(this);">';
+		<form action="', Config::$scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', Utils::$context['character_set'], '">';
 
 	if (!empty(Utils::$context['event']->new))
 		echo '
@@ -905,101 +903,32 @@ function template_event_post()
  */
 function template_bcd()
 {
-	$alt = false;
-
 	echo '
-		<table class="table_grid" style="margin: 0 auto 0 auto; border: 1px solid #ccc;">
-			<tr>
-				<th class="windowbg" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;" colspan="6">BCD Clock</th>
-			</tr>
-			<tr class="windowbg">';
+			<div class="cat_bar">
+				<h3 class="catbg">BCD Clock</h3>
+			</div>
+			<div class="roundframe noup">
+				<ul id="geek-clock" class="bcd">';
 
 	foreach (Utils::$context['clockicons'] as $t => $v)
 	{
 		echo '
-				<td style="padding-', $alt ? 'right' : 'left', ': 1.5em;">';
+					<ul>';
 
 		foreach ($v as $i)
 			echo '
-					<img src="', Utils::$context['offimg'], '" alt="" id="', $t, '_', $i, '"><br>';
+						<li data-e="', $t, '" data-v="', $i, '">';
 
 		echo '
-				</td>';
-
-		$alt = !$alt;
-	}
-	echo '
-			</tr>
-			<tr class="windowbg" style="border-top: 1px solid #ccc; text-align: center;">
-				<td colspan="6">
-					<a href="', Config::$scripturl, '?action=clock;rb">Are you hardcore?</a>
-				</td>
-			</tr>
-		</table>
-
-		<script>
-			var icons = new Object();';
-
-	foreach (Utils::$context['clockicons'] as $t => $v)
-	{
-		foreach ($v as $i)
-			echo '
-			icons[\'', $t, '_', $i, '\'] = document.getElementById(\'', $t, '_', $i, '\');';
+					</ul>';
 	}
 
 	echo '
-			function update()
-			{
-				// Get the current time
-				var time = new Date();
-				var hour = time.getHours();
-				var min = time.getMinutes();
-				var sec = time.getSeconds();
-
-				// Break it up into individual digits
-				var h1 = parseInt(hour / 10);
-				var h2 = hour % 10;
-				var m1 = parseInt(min / 10);
-				var m2 = min % 10;
-				var s1 = parseInt(sec / 10);
-				var s2 = sec % 10;
-
-				// For each digit figure out which ones to turn off and which ones to turn on
-				var turnon = new Array();';
-
-	foreach (Utils::$context['clockicons'] as $t => $v)
-	{
-		foreach ($v as $i)
-			echo '
-				if (', $t, ' >= ', $i, ')
-				{
-					turnon.push("', $t, '_', $i, '");
-					', $t, ' -= ', $i, ';
-				}';
-	}
-
-	echo '
-				for (var i in icons)
-					if (!in_array(i, turnon))
-						icons[i].src = "', Utils::$context['offimg'], '";
-					else
-						icons[i].src = "', Utils::$context['onimg'], '";
-
-				window.setTimeout("update();", 500);
-			}
-			// Checks for variable in theArray.
-			function in_array(variable, theArray)
-			{
-				for (var i = 0; i < theArray.length; i++)
-				{
-					if (theArray[i] == variable)
-						return true;
-				}
-				return false;
-			}
-
-			update();
-		</script>';
+				</ul>
+				<div class="centertext">
+					<a href="', Config::$scripturl, '?action=clock;rb" class="button">Are you hardcore?</a>
+				</div>
+			</div>';
 }
 
 /**
@@ -1007,94 +936,32 @@ function template_bcd()
  */
 function template_hms()
 {
-	$alt = false;
-
 	echo '
-		<table class="table_grid" style="margin: 0 auto 0 auto; border: 1px solid #ccc;">
-			<tr>
-				<th class="windowbg" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;">Binary Clock</th>
-			</tr>';
+			<div class="cat_bar">
+				<h3 class="catbg">Binary Clock</h3>
+			</div>
+			<div class="roundframe noup">
+				<ul id="geek-clock" class="hms">';
 
 	foreach (Utils::$context['clockicons'] as $t => $v)
 	{
 		echo '
-			<tr class="windowbg">
-				<td>';
+					<ul>';
 
 		foreach ($v as $i)
 			echo '
-					<img src="', Utils::$context['offimg'], '" alt="" id="', $t, '_', $i, '" style="padding: 2px;">';
+						<li data-e="', $t, '" data-v="', $i, '">';
 
 		echo '
-				</td>
-			</tr>';
-
-		$alt = !$alt;
-	}
-	echo '
-			<tr class="windowbg" style="border-top: 1px solid #ccc; text-align: center;">
-				<td>
-					<a href="', Config::$scripturl, '?action=clock">Too tough for you?</a>
-				</td>
-			</tr>
-		</table>';
-
-	echo '
-		<script>
-			var icons = new Object();';
-
-	foreach (Utils::$context['clockicons'] as $t => $v)
-	{
-		foreach ($v as $i)
-			echo '
-			icons[\'', $t, '_', $i, '\'] = document.getElementById(\'', $t, '_', $i, '\');';
+					</ul>';
 	}
 
 	echo '
-			function update()
-			{
-				// Get the current time
-				var time = new Date();
-				var h = time.getHours();
-				var m = time.getMinutes();
-				var s = time.getSeconds();
-
-				// For each digit figure out which ones to turn off and which ones to turn on
-				var turnon = new Array();';
-
-	foreach (Utils::$context['clockicons'] as $t => $v)
-	{
-		foreach ($v as $i)
-			echo '
-				if (', $t, ' >= ', $i, ')
-				{
-					turnon.push("', $t, '_', $i, '");
-					', $t, ' -= ', $i, ';
-				}';
-	}
-
-	echo '
-				for (var i in icons)
-					if (!in_array(i, turnon))
-						icons[i].src = "', Utils::$context['offimg'], '";
-					else
-						icons[i].src = "', Utils::$context['onimg'], '";
-
-				window.setTimeout("update();", 500);
-			}
-			// Checks for variable in theArray.
-			function in_array(variable, theArray)
-			{
-				for (var i = 0; i < theArray.length; i++)
-				{
-					if (theArray[i] == variable)
-						return true;
-				}
-				return false;
-			}
-
-			update();
-		</script>';
+				</ul>
+				<div class="centertext">
+					<a href="', Config::$scripturl, '?action=clock" class="button">Too tough for you?</a>
+				</div>
+			</div>';
 }
 
 /**
@@ -1102,92 +969,29 @@ function template_hms()
  */
 function template_omfg()
 {
-	$alt = false;
-
 	echo '
-		<table class="table_grid" style="margin: 0 auto 0 auto; border: 1px solid #ccc;">
-			<tr>
-				<th class="windowbg" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;">OMFG Binary Clock</th>
-			</tr>';
+			<div class="cat_bar">
+				<h3 class="catbg">OMFG Binary Clock</h3>
+			</div>
+			<div class="roundframe noup">
+				<ul id="geek-clock" class="omfg">';
 
 	foreach (Utils::$context['clockicons'] as $t => $v)
 	{
 		echo '
-			<tr class="windowbg">
-				<td>';
+					<ul>';
 
 		foreach ($v as $i)
 			echo '
-					<img src="', Utils::$context['offimg'], '" alt="" id="', $t, '_', $i, '" style="padding: 2px;">';
+						<li data-e="', $t, '" data-v="', $i, '">';
 
 		echo '
-				</td>
-			</tr>';
-
-		$alt = !$alt;
+					</ul>';
 	}
 
 	echo '
-		</table>
-		<script>
-			var icons = new Object();';
-
-	foreach (Utils::$context['clockicons'] as $t => $v)
-	{
-		foreach ($v as $i)
-			echo '
-			icons[\'', $t, '_', $i, '\'] = document.getElementById(\'', $t, '_', $i, '\');';
-	}
-
-	echo '
-			function update()
-			{
-				// Get the current time
-				var time = new Date();
-				var month = time.getMonth() + 1;
-				var day = time.getDate();
-				var year = time.getFullYear();
-				year = year % 100;
-				var hour = time.getHours();
-				var min = time.getMinutes();
-				var sec = time.getSeconds();
-
-				// For each digit figure out which ones to turn off and which ones to turn on
-				var turnon = new Array();';
-
-	foreach (Utils::$context['clockicons'] as $t => $v)
-	{
-		foreach ($v as $i)
-			echo '
-				if (', $t, ' >= ', $i, ')
-				{
-					turnon.push("', $t, '_', $i, '");
-					', $t, ' -= ', $i, ';
-				}';
-	}
-
-	echo '
-				for (var i in icons)
-					if (!in_array(i, turnon))
-						icons[i].src = "', Utils::$context['offimg'], '";
-					else
-						icons[i].src = "', Utils::$context['onimg'], '";
-
-				window.setTimeout("update();", 500);
-			}
-			// Checks for variable in theArray.
-			function in_array(variable, theArray)
-			{
-				for (var i = 0; i < theArray.length; i++)
-				{
-					if (theArray[i] == variable)
-						return true;
-				}
-				return false;
-			}
-
-			update();
-		</script>';
+				</ul>
+			</div>';
 }
 
 /**
@@ -1195,33 +999,29 @@ function template_omfg()
  */
 function template_thetime()
 {
-	$alt = false;
-
 	echo '
-		<table class="table_grid" style="margin: 0 auto 0 auto; border: 1px solid #ccc;">
-			<tr>
-				<th class="windowbg" style="font-weight: bold; text-align: center; border-bottom: 1px solid #ccc;">The time you requested</th>
-			</tr>';
+			<div class="cat_bar">
+				<h3 class="catbg">OMFG Binary Clock</h3>
+			</div>
+			<div class="roundframe noup">
+				<ul id="geek-time">';
 
-	foreach (Utils::$context['clockicons'] as $v)
+	foreach (Utils::$context['clockicons'] as $t => $v)
 	{
 		echo '
-			<tr class="windowbg">
-				<td>';
+					<ul>';
 
 		foreach ($v as $i)
 			echo '
-					<img src="', $i ? Utils::$context['onimg'] : Utils::$context['offimg'], '" alt="" style="padding: 2px;">';
+						<li', $i ? ' style="background: currentColor"' : '', '>';
 
 		echo '
-				</td>
-			</tr>';
-
-		$alt = !$alt;
+					</ul>';
 	}
 
 	echo '
-		</table>';
+				</ul>
+			</div>';
 }
 
 ?>

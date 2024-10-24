@@ -912,6 +912,7 @@ class Display implements ActionInterface
 	{
 		// Load the proper template.
 		Theme::loadTemplate('Display');
+		Theme::loadCSSFile('postbit.css', ['minimize' => true], 'smf_post');
 		Theme::loadCSSFile('attachments.css', ['minimize' => true, 'order_pos' => 450], 'smf_attachments');
 
 		// Set a canonical URL for this page.

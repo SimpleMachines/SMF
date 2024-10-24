@@ -68,7 +68,7 @@ function template_main()
 		foreach ($category['boards'] as $board)
 		{
 			echo '
-					<li', !empty(Config::$modSettings['recycle_board']) && !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] == $board['id'] ? ' id="recycle_board"' : ' ', ' class="windowbg', $board['is_redirect'] ? ' redirect_board' : '', '" style="padding-' . (Utils::$context['right_to_left'] ? 'right' : 'left') . ': ', 5 + 30 * $board['child_level'], 'px;">
+					<li', !empty(Config::$modSettings['recycle_board']) && !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] == $board['id'] ? ' id="recycle_board"' : ' ', ' class="windowbg', $board['is_redirect'] ? ' redirect_board' : '', '" style="padding-inline-start: ', 10 + 30 * $board['child_level'], 'px;">
 						<span class="floatleft"><a', $board['move'] ? ' class="red"' : '', ' href="', Config::$scripturl, '?board=', $board['id'], '.0">', $board['name'], '</a>', !empty(Config::$modSettings['recycle_board']) && !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] == $board['id'] ? $recycle_board : '', $board['is_redirect'] ? $redirect_board : '', '</span>
 						<span class="floatright">
 							', Utils::$context['can_manage_permissions'] ? '<a href="' . Config::$scripturl . '?action=admin;area=permissions;sa=index;pid=' . $board['permission_profile'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" class="button">' . Lang::$txt['mboards_permissions'] . '</a>' : '', '
@@ -80,7 +80,7 @@ function template_main()
 			if (!empty($board['move_links']))
 			{
 				echo '
-					<li class="windowbg" style="padding-', Utils::$context['right_to_left'] ? 'right' : 'left', ': ', 5 + 30 * $board['move_links'][0]['child_level'], 'px;">';
+					<li class="windowbg" style="padding-inline-start: ', 10 + 30 * $board['move_links'][0]['child_level'], 'px;">';
 
 				foreach ($board['move_links'] as $link)
 					echo '
@@ -146,7 +146,7 @@ function template_modify_category()
 						<span class="smalltext">', Lang::$txt['name_on_display'], '</span>
 					</dt>
 					<dd>
-						<input type="text" name="cat_name" value="', Utils::$context['category']['editable_name'], '" size="30" tabindex="', Utils::$context['tabindex']++, '">
+						<input type="text" name="cat_name" value="', Utils::$context['category']['editable_name'], '" size="30">
 					</dd>
 					<dt>
 						<strong>', Lang::$txt['mboards_description'], '</strong><br>
@@ -160,7 +160,7 @@ function template_modify_category()
 						<span class="smalltext">', Lang::$txt['collapse_desc'], '</span>
 					</dt>
 					<dd>
-						<input type="checkbox" name="collapse"', Utils::$context['category']['can_collapse'] ? ' checked' : '', ' tabindex="', Utils::$context['tabindex']++, '">
+						<input type="checkbox" name="collapse"', Utils::$context['category']['can_collapse'] ? ' checked' : '', '>
 					</dd>';
 
 	// Show any category settings added by mods using the 'integrate_edit_category' hook.
@@ -185,10 +185,10 @@ function template_modify_category()
 
 	if (isset(Utils::$context['category']['is_new']))
 		echo '
-				<input type="submit" name="add" value="', Lang::$txt['mboards_add_cat_button'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">';
+				<input type="submit" name="add" value="', Lang::$txt['mboards_add_cat_button'], '" onclick="return !isEmptyText(this.form.cat_name);" class="button">';
 	else
 		echo '
-				<input type="submit" name="edit" value="', Lang::$txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">
+				<input type="submit" name="edit" value="', Lang::$txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" class="button">
 				<input type="submit" name="delete" value="', Lang::$txt['mboards_delete_cat'], '" data-confirm="', Lang::$txt['cat_delete_confirm'], '" class="button you_sure">';
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -604,7 +604,6 @@ function template_modify_board()
 
 	<script>
 		var oModeratorSuggest = new smc_AutoSuggest({
-			sSelf: \'oModeratorSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'moderators\',
@@ -629,7 +628,6 @@ function template_modify_board()
 		});
 
 		var oModeratorGroupSuggest = new smc_AutoSuggest({
-			sSelf: \'oModeratorGroupSuggest\',
 			sSessionId: smf_session_id,
 			sSessionVar: smf_session_var,
 			sSuggestId: \'moderator_groups\',

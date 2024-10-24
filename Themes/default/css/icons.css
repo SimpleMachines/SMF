@@ -1,0 +1,702 @@
+/* SMF Icons */
+.main_icons {
+	display: inline-flex;
+	font-family: "Font Awesome 6 Free";
+	font-size: 1em;
+	-webkit-font-smoothing: antialiased;
+	font-style: normal;
+    font-variant: normal;
+	font-weight: 900;
+	text-rendering: auto;
+	width: auto;
+}
+.main_icons::before {
+	display: inline-block;
+	background: none !important;
+	width: auto;
+	height: auto;
+	margin: 0;
+	vertical-align: top;
+}
+.main_icons.medium {
+	font-size: 1.5em;
+}
+.main_icons.large {
+	font-size: 2.5em;
+}
+.main_icons.regular {
+	font-weight: 400;
+}
+/* Menu Icons Adjustment */
+.dropmenu .main_icons::before, #profile_menu .main_icons::before, .dropmenu img {
+	margin: 0;
+	vertical-align: middle;
+}
+
+/* Remove height and width? */
+h3.profile_hd::before,
+.main_icons.profile_hd::before {
+	width: auto;
+	height: auto;
+}
+/* don't center these icons.... */
+.main_icons.centericon {
+	vertical-align: top;
+}
+/* Navigation */
+.main_icons.navigation::before {
+	content: "\f0c9";
+}
+/* Search */
+.main_icons.search::before,
+.large_admin_menu_icon.search::before {
+	content: "\f002";
+}
+/* Seach Engines */
+.main_icons.engines::before,
+.large_admin_menu_icon.engines::before {
+	content: "\f00e";
+}
+/* Check */
+.main_icons.check::before,
+.main_icons.valid::before,
+.main_icons.solve::before {
+	content: "\f058";
+}
+/* Invalid */
+.main_icons.invalid::before,
+.main_icons.warn_button::before {
+	content: "\f071";
+}
+/* Gender 1 */
+.main_icons.gender_1::before {
+	content: "\f222";
+}
+/* Gender 2 */
+.main_icons.gender_2::before {
+	content: "\f221";
+}
+/* Watch */
+.main_icons.watch::before,
+.main_icons.topics_views::before,
+.main_icons.views::before {
+	content: "\f06e";
+}
+/* Next Page */
+.main_icons.next_page::before {
+	content: "\f061";
+}
+/* Previous Page */
+.main_icons.previous_page::before {
+	content: "\f060";
+}
+/* Boards */
+.main_icons.boards::before,
+.large_admin_menu_icon.boards::before,
+.main_icons.menu_tpforum::before {
+	content: "\f07c";
+}
+/* General */
+.main_icons.general::before {
+	content: "\f200";
+}
+/* Features */
+.main_icons.features::before {
+	content: "\f03a";
+}
+/* Security */
+.main_icons.security::before {
+	content: "\f544";
+}
+/* Posters */
+.main_icons.posters::before {
+	content: "\f091";
+}
+/* Comment */
+.main_icons.comment::before {
+	content: "\f4ad";
+}
+/* History */
+.main_icons.history::before {
+	content: "\f1da";
+}
+/* Time Online */
+.main_icons.time_online::before {
+	content: "\f253";
+}
+/* Scheduled */
+.main_icons.scheduled::before {
+	content: "\f017";
+}
+/* Last Post */
+.main_icons.last_post::before {
+	content: "\f051";
+}
+/* Starters */
+.main_icons.starters::before {
+	content: "\f507";
+}
+/* Membergroups */
+.main_icons.membergroups::before,
+.main_icons.team::before {
+	content: "\f509";
+}
+/* Www */
+.main_icons.www::before {
+	content: "\f57d";
+}
+/* Switch */
+.main_icons.switch::before {
+	content: "\f074";
+}
+/* Replied */
+.main_icons.replied::before {
+	content: "\f4fd";
+}
+/* Send */
+.main_icons.send::before {
+	content: "\f14d";
+}
+/*  Im On */
+.main_icons.profile_sm::before,
+.main_icons.im_on::before {
+	content: "\f4ff";
+}
+/* Im Off */
+.main_icons.im_off::before {
+	content: "\f27a";
+}
+/* Split DeSelect */
+.main_icons.split_desel::before {
+	content: "\f359";
+}
+/* Split Select */
+.main_icons.split_sel::before {
+	content: "\f35a";
+}
+/* Mail */
+.main_icons.mail::before {
+	content: "\f0e0";
+}
+/* Mail New */
+.main_icons.mail_new::before {
+	content: "\f658";
+}
+/* Warning Statuses */
+.main_icons.warning_mute::before,
+.main_icons.warning_moderate::before,
+.main_icons.warning_watch::before {
+	content: "\f06a";
+}
+/* Drafts */
+.main_icons.drafts::before {
+	content: "\f3a1";
+}
+/* Calendar Export */
+.main_icons.calendar_export::before {
+	content: "\f271";
+}
+/* Calendar Modify */
+.main_icons.calendar_modify::before {
+	content: "\f784";
+}
+/* Plus */
+.main_icons.plus::before {
+	content: "\f067";
+}
+/* Warning */
+.main_icons.warning::before {
+	content: "\f637";
+}
+/* Themes */
+.main_icons.themes::before,
+.main_icons.features::before {
+	content: "\f5fd";
+}
+/* Support */
+.main_icons.support::before {
+	content: "\f1cd";
+}
+/* Likes */
+.main_icons.liked::before,
+.main_icons.liked_users::before,
+.main_icons.liked_messages::before,
+.main_icons.like::before {
+	content: "\f164";
+}
+/* Unlike */
+.main_icons.unliked::before,
+.main_icons.unlike::before,
+.fa-unlike::before {
+	content: "\f165";
+}
+/* Current Theme */
+.main_icons.current_theme::before {
+	content: "\f53f";
+}
+/* Stats */
+.main_icons.stats::before,
+.main_icons.forum_stats::before {
+	content: "\f080";
+}
+/* Right Arrow */
+.main_icons.right_arrow::before {
+	content: "\f152";
+}
+/* Left Arrow */
+.main_icons.left_arrow::before {
+	content: "\f153";
+}
+/* Smiley */
+.main_icons.smiley::before,
+.large_admin_menu_icon.smiley::before {
+	content: "\f118";
+}
+/* Server */
+.main_icons.server::before {
+	content: "\f233";
+}
+/* Ban */
+.main_icons.ban::before {
+	content: "\f05e";
+}
+/* Ignore */
+.main_icons.ignore::before,
+.main_icons.frenemy::before,
+.main_icons.disable::before {
+	content: "\f506";
+}
+/* Posts */
+.main_icons.posts::before {
+	content: "\f0c5";
+}
+/* Sort */
+.main_icons.sort::before {
+	content: "\f0dc";
+}
+/* Sort Down */
+.main_icons.sort_down::before {
+	content: "\f160";
+}
+/* Sort Up */
+.main_icons.sort_up::before {
+	content: "\f161";
+}
+/* Sent */
+.main_icons.sent::before {
+	content: "\f064";
+}
+/* Post Moderation Moderate */
+.main_icons.post_moderation_moderate::before {
+	content: "\f6e3";
+}
+/* Post Moderation Deny */
+.main_icons.post_moderation_deny::before {
+	content: "\f502";
+}
+/* Post Moderation Attach */
+.main_icons.post_moderation_attach::before {
+	content: "\f127";
+}
+/* Permissions */
+.main_icons.permissions::before {
+	content: "\f084";
+}
+/* Paid */
+.main_icons.paid::before {
+	content: "\f155";
+}
+/* Packages */
+.main_icons.packages::before {
+	content: "\f466";
+}
+/* Filter */
+.main_icons.filter::before {
+	content: "\f0b0";
+}
+/* Package_ops */
+.main_icons.package_ops::before {
+	content: "\f362";
+}
+/* Reports */
+.main_icons.reports::before {
+	content: "\f573";
+}
+/* News */
+.main_icons.news::before  {
+	content: "\f1ea";
+}
+/* Hide Popup */
+.main_icons.hide_popup::before {
+	content: "\f056";
+}
+/* Prune */
+.main_icons.prune::before {
+	content: "\f55a";
+}
+/* Modifications */
+.main_icons.modifications::before {
+	content: "\f12e";
+}
+/* Maintain */
+.main_icons.maintain::before {
+	content: "\f0ad";
+}
+/* Administration */
+.main_icons.administration::before {
+	content: "\f552";
+}
+/* Attachment */
+.main_icons.attachment::before {
+	content: "\f0c6";
+}
+/* Error & Report */
+.main_icons.error::before,
+.main_icons.report::before {
+	content: "\f024";
+}
+/* Languages */
+.main_icons.languages::before {
+	content: "\f1ab";
+}
+/* Members Request */
+.main_icons.members_request::before {
+	content: "\f508";
+}
+/* Members Delete */
+.main_icons.members_delete::before {
+	content: "\f503";
+}
+/* Members Watched */
+.main_icons.members_watched::before {
+	content: "\f21b";
+}
+/* Logs */
+.main_icons.logs::before {
+	content: "\f46d";
+}
+/* Features */
+.main_icons.features::before {
+	content: "\f0ae";
+}
+/* Settings */
+.main_icons.settings::before {
+	content: "\f1de";
+}
+/* Enable */
+.main_icons.enable::before {
+	content: "\f205";
+}
+/* Close */
+.main_icons.close::before {
+	content: "\f410";
+}
+/* Folder */
+.main_icons.folder::before {
+	content: "\f07b";
+}
+/* Select Here */
+.main_icons.select_here::before {
+	content: "\f101";
+}
+/* Select Above */
+.main_icons.select_above::before {
+	content: "\f102";
+}
+/* Select Below */
+.main_icons.select_below::before {
+	content: "\f103";
+}
+/* Mark All Read */
+.main_icons.read_button::before,
+.main_icons.mark_read_short::before,
+.main_icons.mark_as_read::before,
+.main_icons.markread::before {
+	content: "\f560";
+}
+/* Mark Selected */
+.main_icons.markselected::before {
+	content: "\f00c";
+}
+/* All Unread */
+.main_icons.unread::before,
+.main_icons.unread_topics_all::before {
+	content: "\f0ae";
+}
+/* Mark Not Read */
+.main_icons.mark_unread::before,
+.main_icons.markunread::before,
+.main_icons.unread_button::before {
+	content: "\f070";
+}
+/* Send Topic */
+.main_icons.send::before {
+	content: "\f1d8";
+}
+/* Unnotify */
+.main_icons.unnotify::before {
+	content: "\f1f6";
+}
+/* New Poll */
+.main_icons.poll::before,
+.main_icons.new_poll::before,
+.main_icons.add_poll::before {
+	content: "\f682";
+}
+/* Delete */
+.main_icons.delete::before,
+.main_icons.remove_topic::before,
+.main_icons.remove_button::before {
+	content: "\f2ed";
+}
+/* Restore */
+.main_icons.restore::before,
+.main_icons.restore_button::before {
+	content: "\f829";
+}
+/* New Topic */
+.main_icons.newtopic::before,
+.main_icons.new_topic::before,
+.main_icons.newpm::before {
+	content: "\2b";
+}
+/* Move Topic */
+.main_icons.move::before,
+.main_icons.move_topic::before {
+	content: "\f0b2";
+}
+/* Sticky Topic */
+.main_icons.sticky::before,
+.main_icons.set_sticky::before {
+	content: "\f08d";
+}
+/* Lock Topic */
+.main_icons.lock::before,
+.main_icons.set_lock::before {
+	content: "\f023";
+}
+/* Unlock Topic */
+.main_icons.unlock::before,
+.main_icons.set_unlock::before,
+.main_icons.post_moderation_allow::before {
+	content: "\f3c1";
+}
+/* Merge Topic */
+.main_icons.merge::before {
+	content: "\f248";
+}
+/* Link Calendar */
+.main_icons.calendar_link::before {
+	content: "\f274";
+}
+/* Members */
+.main_icons.mlist::before,
+.main_icons.people::before,
+.main_icons.online_users::before,
+.main_icons.view_all_members::before {
+	content: "\f0c0";
+}
+/* Find Member */
+.main_icons.user_search::before,
+.main_icons.mlist_search::before {
+	content: "\f4fc";
+}
+/* Calendar */
+.main_icons.calendar::before,
+.main_icons.calendar_upcoming::before {
+	content: "\f073";
+}
+/* Post Event */
+.main_icons.post_event::before {
+	content: "\f783";
+}
+/* Register */
+.main_icons.main_icons.regcenter::before,
+.main_icons.signup::before {
+	content: "\f234";
+}
+/* Login */
+.main_icons.login {
+	width: auto;
+}
+.main_icons.login::before {
+	content: "\f2f6";
+}
+/* Logout */
+.main_icons.logout::before,
+.main_icons.exit::before {
+	content: "\f2f5";
+}
+/* Notifications */
+.main_icons.notifications::before,
+.main_icons.notify::before,
+.main_icons.alerts::before {
+	content: "\f0f3";
+}
+/* Notifications Off */
+.main_icons.notify-off::before {
+	content: "\f1f6";
+}
+/* Notifications Email */
+.main_icons.notify-email::before {
+	content: "\e4e8";
+}
+/* Posts */
+.main_icons.posts::before,
+.main_icons.replies::before {
+	content: "\f086";
+}
+/* Drafts */
+.main_icons.drafts::before {
+	content: "\f044";
+}
+/* Details */
+.main_icons.details::before {
+	content: "\f05a";
+}
+/* Reply */
+.main_icons.reply::before,
+.main_icons.reply_button::before {
+	content: "\f3e5";
+}
+/* Reply to all */
+.main_icons.reply_all::before,
+.main_icons.reply_all_button::before {
+	content: "\f122";
+}
+/* Print */
+.main_icons.print::before {
+	content: "\f02f";
+}
+/* Quote */
+.main_icons.quote::before {
+	content: "\f10e";
+}
+/* Quote Selected */
+.main_icons.quote_selected::before {
+	content: "\f10d";
+}
+/* Edit */
+.main_icons.quick_edit_button::before,
+.main_icons.modify_button::before {
+	content: "\f303";
+}
+/* Approve */
+.main_icons.approve::before,
+.main_icons.approve_button::before {
+	content: "\f14a";
+}
+/* Unapprove */
+.main_icons.unapprove_button::before {
+	content: "\f057";
+}
+/* Split */
+.main_icons.split_button::before {
+	content: "\f0db";
+}
+
+/* FA Nav */
+.main_icons.home::before {
+	content: "\f015";
+}
+/* Help */
+.main_icons.help::before {
+	content: "\f128";
+}
+/* Admin */
+.main_icons.admin::before {
+	content: "\f085";
+}
+/* Mod */
+.main_icons.moderate::before {
+	content: "\f7d9";
+}
+/* Profile */
+.main_icons.profile::before,
+.main_icons.members::before {
+	content: "\f007";
+}
+/* PM */
+.main_icons.personal_message::before,
+.main_icons.inbox::before {
+	content: "\f0e0";
+}
+/* More */
+.main_icons.more::before {
+	content: "\f142";
+}
+/* Info Center icons */
+.main_icons.recent_posts::before {
+	content: "\f550";
+}
+.main_icons.online_users::before {
+	content: "\f500";
+}
+/* Profile Account */
+.main_icons.account::before {
+	content: "\f505";
+}
+/* Profile Details */
+.main_icons.profile_details::before {
+	content: "\f2c2";
+}
+
+/** MODS **/
+/* Community */
+.main_icons.fa-community::before {
+	content: "\f022";
+}
+/* Shop */
+.main_icons.shop::before {
+	content: "\f07a";
+}
+/* Store */
+.main_icons.store::before {
+	content: "\f54e";
+}
+/* Optimus */
+.main_icons.optimus::before,
+.large_admin_menu_icon.optimus::before,
+.fa-optimus::before {
+	content: "\f0e8";
+	background: none !important;
+}
+/* Topic Collections */
+.main_icons.collections::before,
+.fa-collections::before {
+	content: "\e0bb";
+}
+.main_icons.collections_save::before,
+.fa-collections_save::before,
+.main_icons.bookmarks::before {
+	content: "\f02e";
+}
+.main_icons.collections_bookmark::before,
+.fa-collections_bookmark::before {
+	content: "\f518";
+}
+/* Quiz */
+.main_icons.quiz::before {
+	content: "\f559";
+}
+/* Affiliates */
+.main_icons.affiliates::before {
+	content: "\f0ac";
+}
+/* Gallery */
+.main_icons.media::before
+.main_icons.gallery::before {
+	content: "\f87c";
+}
+/* Arcade */
+.main_icons.arcade::before {
+	content: "\f11b";
+}
+/* Battle */
+.main_icons.battle::before {
+	content: "\f66d";
+}
+/* Pokes */
+.main_icons.poke::before {
+	content: "\f0a4";
+}
