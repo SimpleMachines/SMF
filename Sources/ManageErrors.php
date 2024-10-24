@@ -180,7 +180,7 @@ function ViewErrorLog()
 			'time' => timeformat($row['log_time']),
 			'timestamp' => $row['log_time'],
 			'url' => array(
-				'html' => $smcFunc['htmlspecialchars'](strpos($row['url'], 'cron.php') === false ? (substr($row['url'], 0, 1) == '?' ? $scripturl : '') . $row['url'] : $row['url']),
+				'html' => $smcFunc['htmlspecialchars'](strpos($row['url'], 'cron.php') === false && !(strpos($row['url'], 'https://') === 0) && !(strpos($row['url'], 'http://') === 0) ? ($row['url'][0] == '?' ? $scripturl : '') . $row['url'] : $row['url']),
 				'href' => base64_encode($smcFunc['db_escape_wildcard_string']($row['url']))
 			),
 			'message' => array(
