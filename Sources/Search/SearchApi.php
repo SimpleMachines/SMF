@@ -660,7 +660,8 @@ abstract class SearchApi implements SearchApiInterface
 			'
 			SELECT ' . (empty($this->params['topic']) ? 'lsr.id_topic' : $this->params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
 			FROM {db_prefix}log_search_results AS lsr' . ($this->params['sort'] == 'num_replies' || !empty($approve_query) ? '
-				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
+				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = lsr.id_msg)
+				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
 			WHERE lsr.id_search = {int:id_search}' . $approve_query . '
 			ORDER BY {raw:sort} {raw:sort_dir}
 			LIMIT {int:start}, {int:max}',
@@ -1768,6 +1769,9 @@ abstract class SearchApi implements SearchApiInterface
 			],
 		];
 
+		// Most searches are at the topic-level, and do not list message-level results.
+		// Message-level results are displayed when doing searches within topics
+		// and when showing complete results ("Show results as messages" option).
 		if (empty($this->params['topic']) && empty($this->params['show_complete'])) {
 			$main_query['select']['id_topic'] = 't.id_topic';
 			$main_query['select']['id_msg'] = 'MAX(m.id_msg) AS id_msg';
@@ -1778,6 +1782,7 @@ abstract class SearchApi implements SearchApiInterface
 			$main_query['group_by'][] = 't.id_topic';
 		} else {
 			// This is outrageous!
+			// Note we're stuffing id_msg in an id_topic column to get past the db contraint.
 			$main_query['select']['id_topic'] = 'm.id_msg AS id_topic';
 			$main_query['select']['id_msg'] = 'm.id_msg';
 			$main_query['select']['num_matches'] = '1 AS num_matches';
