@@ -1304,6 +1304,9 @@ function PlushSearch2()
 					),
 				);
 
+				// Most searches are at the topic-level, and do not list message-level results.
+				// Message-level results are displayed when doing searches within topics
+				// and when showing complete results ("Show results as messages" option).
 				if (empty($search_params['topic']) && empty($search_params['show_complete']))
 				{
 					$main_query['select']['id_topic'] = 't.id_topic';
@@ -1317,6 +1320,7 @@ function PlushSearch2()
 				else
 				{
 					// This is outrageous!
+					// Note we're stuffing id_msg in an id_topic column to get past the db contraint.
 					$main_query['select']['id_topic'] = 'm.id_msg AS id_topic';
 					$main_query['select']['id_msg'] = 'm.id_msg';
 					$main_query['select']['num_matches'] = '1 AS num_matches';
