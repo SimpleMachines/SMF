@@ -29,14 +29,6 @@ use SMF\Db\DatabaseApi as Db;
  * instance of the BBCodeParser class. However, if you need more control over
  * the parser, you can always instantiate a new one.
  *
- * The recommended way to get a list of supported BBCodes is:
- *
- *     $codes = BBCodeParser::getCodes();
- *
- * Calling the getCodes() method is better than reading BBCodeParser::$codes
- * directly, because the results of the method will include any BBC added by
- * mods, whereas BBCodeParser::$codes will not.
- *
  * The following integration hooks are called during object construction:
  *
  *     integrate_bbc_codes            (Used to add or modify BBC)
@@ -154,19 +146,147 @@ class BBCodeParser
 	 */
 	public bool $for_print = false;
 
-	/**************************
-	 * Public static properties
-	 **************************/
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var ?string
+	 *
+	 * Regular expression to match all BBCode tags.
+	 */
+	protected ?string $alltags_regex = null;
+
+	/**
+	 * @var ?string
+	 *
+	 * Regular expression to match smileys.
+	 */
+	protected ?string $smiley_preg_search = null;
+
+	/**
+	 * @var array
+	 *
+	 * Replacement values for smileys.
+	 */
+	protected array $smiley_preg_replacements = [];
+
+	/**
+	 * @var array
+	 *
+	 * Holds any extra info that should be used in the cache_key.
+	 *
+	 * Data can be added to this variable using the integrate_pre_parsebbc hook.
+	 *
+	 * This is important if your mod can cause the same input string to produce
+	 * different output strings in different situations. For example, if your
+	 * mod adds a BBCode that shows different output to guests vs. members, then
+	 * you need to add information to this variable in order to distinguish the
+	 * guest version vs. the member version of the output.
+	 */
+	private array $cache_key_extras = [];
+
+	/**
+	 * @var array
+	 *
+	 * Version of self::$codes used for internal processing.
+	 */
+	private array $bbc_codes = [];
+
+	/**
+	 * @var array
+	 *
+	 * Copies of $this->bbc_codes for different locales.
+	 */
+	private array $bbc_lang_locales = [];
+
+	/**
+	 * @var string
+	 *
+	 * URL of this host/domain. Needed for the YouTube BBCode.
+	 */
+	private string $hosturl;
+
+	/**
+	 * @var string
+	 *
+	 * The string in which to parse BBCode.
+	 */
+	private string $message = '';
+
+	/**
+	 * @var array
+	 *
+	 * BBCode tags that are currently open at any given step of processing
+	 * $this->message.
+	 */
+	private array $open_tags = [];
+
+	/**
+	 * @var ?array
+	 *
+	 * The last item of $this->open_tags.
+	 */
+	private ?array $inside = null;
+
+	/**
+	 * @var int|bool
+	 *
+	 * Current position in $this->message.
+	 */
+	private int|bool $pos = -1;
+
+	/**
+	 * @var ?int
+	 *
+	 * Position where current BBCode tag ends.
+	 */
+	private ?int $pos1 = null;
+
+	/**
+	 * @var int
+	 *
+	 * Previous value of $this->pos.
+	 */
+	private ?int $last_pos = null;
+
+	/**
+	 * @var array
+	 *
+	 * Placeholders used to protect certain strings from processing.
+	 */
+	private array $placeholders = [];
+
+	/**
+	 * @var int
+	 *
+	 * How many placeholders we have created.
+	 */
+	private int $placeholders_counter = 0;
+
+	/**
+	 * @var string
+	 *
+	 * The sprintf format used to create placeholders.
+	 * Uses private use Unicode characters to prevent conflicts.
+	 */
+	private string $placeholder_template = "\u{E03C}" . '%1$s' . "\u{E03E}";
+
+	/**
+	 * @var array
+	 *
+	 * Holds parsed messages.
+	 */
+	private array $results = [];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var array
 	 *
 	 * Definitions of supported BBCodes.
-	 *
-	 * NOTE: Although BBCodeParser::$codes is public in order to allow maximum
-	 * flexibility, you should call the BBCodeParser::getCodes() method if you
-	 * want to read this list. Calling the method will ensure that any BBCodes
-	 * added by modifications are included in the returned array.
 	 *
 	 * The BBCode definitions are formatted as an array, with keys as follows:
 	 *
@@ -256,7 +376,7 @@ class BBCodeParser
 	 *	parsed_tags_allowed: An array restricting what BBC can be in the
 	 *	  parsed_equals parameter, if desired.
 	 */
-	public static array $codes = [
+	protected static array $codes = [
 		[
 			'tag' => 'abbr',
 			'type' => 'unparsed_equals',
@@ -753,7 +873,7 @@ class BBCodeParser
 	 *
 	 * Itemcodes are an alternative syntax for creating lists.
 	 */
-	public static array $itemcodes = [
+	protected static array $itemcodes = [
 		'*' => 'disc',
 		'@' => 'disc',
 		'+' => 'square',
@@ -763,139 +883,6 @@ class BBCodeParser
 		'O' => 'circle',
 		'0' => 'circle',
 	];
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	/**
-	 * @var ?string
-	 *
-	 * Regular expression to match all BBCode tags.
-	 */
-	protected ?string $alltags_regex = null;
-
-	/**
-	 * @var ?string
-	 *
-	 * Regular expression to match smileys.
-	 */
-	protected ?string $smiley_preg_search = null;
-
-	/**
-	 * @var array
-	 *
-	 * Replacement values for smileys.
-	 */
-	protected array $smiley_preg_replacements = [];
-
-	/**
-	 * @var array
-	 *
-	 * Holds any extra info that should be used in the cache_key.
-	 *
-	 * Data can be added to this variable using the integrate_pre_parsebbc hook.
-	 *
-	 * This is important if your mod can cause the same input string to produce
-	 * different output strings in different situations. For example, if your
-	 * mod adds a BBCode that shows different output to guests vs. members, then
-	 * you need to add information to this variable in order to distinguish the
-	 * guest version vs. the member version of the output.
-	 */
-	private array $cache_key_extras = [];
-
-	/**
-	 * @var array
-	 *
-	 * Version of self::$codes used for internal processing.
-	 */
-	private array $bbc_codes = [];
-
-	/**
-	 * @var array
-	 *
-	 * Copies of $this->bbc_codes for different locales.
-	 */
-	private array $bbc_lang_locales = [];
-
-	/**
-	 * @var string
-	 *
-	 * URL of this host/domain. Needed for the YouTube BBCode.
-	 */
-	private string $hosturl;
-
-	/**
-	 * @var string
-	 *
-	 * The string in which to parse BBCode.
-	 */
-	private string $message = '';
-
-	/**
-	 * @var array
-	 *
-	 * BBCode tags that are currently open at any given step of processing
-	 * $this->message.
-	 */
-	private array $open_tags = [];
-
-	/**
-	 * @var ?array
-	 *
-	 * The last item of $this->open_tags.
-	 */
-	private ?array $inside = null;
-
-	/**
-	 * @var int|bool
-	 *
-	 * Current position in $this->message.
-	 */
-	private int|bool $pos = -1;
-
-	/**
-	 * @var ?int
-	 *
-	 * Position where current BBCode tag ends.
-	 */
-	private ?int $pos1 = null;
-
-	/**
-	 * @var int
-	 *
-	 * Previous value of $this->pos.
-	 */
-	private ?int $last_pos = null;
-
-	/**
-	 * @var array
-	 *
-	 * Placeholders used to protect certain strings from processing.
-	 */
-	private array $placeholders = [];
-
-	/**
-	 * @var int
-	 *
-	 * How many placeholders we have created.
-	 */
-	private int $placeholders_counter = 0;
-
-	/**
-	 * @var string
-	 *
-	 * The sprintf format used to create placeholders.
-	 * Uses private use Unicode characters to prevent conflicts.
-	 */
-	private string $placeholder_template = "\u{E03C}" . '%1$s' . "\u{E03E}";
-
-	/**
-	 * @var array
-	 *
-	 * Holds parsed messages.
-	 */
-	private array $results = [];
 
 	/**
 	 * @var bool
@@ -923,9 +910,7 @@ class BBCodeParser
 	 */
 	public function __construct()
 	{
-		/**********************
-		 * Set up localization.
-		 **********************/
+		// Set up localization.
 		if (!empty(Utils::$context['utf8'])) {
 			$this->utf8 = true;
 			$this->encoding = 'UTF-8';
@@ -942,25 +927,18 @@ class BBCodeParser
 		$this->time_offset = User::$me->time_offset ?? 0;
 		$this->time_format = User::$me->time_format ?? Time::getTimeFormat();
 
-		/************************
-		 * Set up BBCode parsing.
-		 ************************/
+		// Set up BBCode parsing.
 		$this->enable_bbc = !empty(Config::$modSettings['enableBBC']);
 		$this->enable_post_html = !empty(Config::$modSettings['enablePostHTML']);
 
-		// Let mods add new BBC without hassle.
 		self::integrateBBC();
 
 		usort(
 			self::$codes,
-			function ($a, $b) {
-				return strcmp($a['tag'], $b['tag']);
-			},
+			fn ($a, $b) => $a['tag'] <=> $b['tag'],
 		);
 
-		/*************************
-		 * Set up smileys parsing.
-		 *************************/
+		// Set up smileys parsing.
 		$this->custom_smileys_enabled = !empty(Config::$modSettings['smiley_enable']);
 		$this->smileys_url = Config::$modSettings['smileys_url'];
 		$this->smiley_set = !empty(User::$me->smiley_set) ? User::$me->smiley_set : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none');
@@ -971,9 +949,7 @@ class BBCodeParser
 			IntegrationHook::call('integrate_smileys', [&$this->smiley_preg_search, &$this->smiley_preg_replacements]);
 		}
 
-		/************************
-		 * Allow method chaining.
-		 ************************/
+		// Allow method chaining.
 		return $this;
 	}
 
@@ -1178,9 +1154,7 @@ class BBCodeParser
 		// Replace away!
 		return preg_replace_callback(
 			$this->smiley_preg_search,
-			function ($matches) {
-				return $this->smiley_preg_replacements[$matches[1]];
-			},
+			fn ($matches) => $this->smiley_preg_replacements[$matches[1]],
 			$message,
 		);
 	}
@@ -2063,9 +2037,9 @@ class BBCodeParser
 	/**
 	 * Highlight any code.
 	 *
-	 * Uses PHP's highlight_string() to highlight PHP syntax
-	 * does special handling to keep the tabs in the code available.
-	 * used to parse PHP code from inside [code] and [php] tags.
+	 * Uses PHP's highlight_string() to highlight PHP syntax.
+	 * Does special handling to keep the tabs in the code available.
+	 * Used to parse PHP code from inside [code] and [php] tags.
 	 *
 	 * @param string $code The code.
 	 * @return string The code with highlighted HTML.
@@ -2199,43 +2173,9 @@ class BBCodeParser
 		return self::load()->unparse($string);
 	}
 
-	/**
-	 * Wrapper for the integrate_bbc_codes hook.
-	 * Prevents duplication in self::$codes.
-	 */
-	public static function integrateBBC(): void
-	{
-		// Only do this once.
-		if (self::$integrate_bbc_codes_done !== true) {
-			IntegrationHook::call('integrate_bbc_codes', [&self::$codes, &Autolinker::$no_autolink_tags]);
-
-			// Prevent duplicates.
-			$temp = [];
-
-			// Reverse order because mods typically append to the array.
-			for ($i = count(self::$codes) - 1; $i >= 0; $i--) {
-				$value = self::$codes[$i];
-
-				// Since validation functions may be closures, and
-				// closures cannot be serialized, leave that part out.
-				unset($value['validate']);
-
-				$serialized = serialize($value);
-
-				if (!in_array($serialized, $temp)) {
-					$temp[] = $serialized;
-				} else {
-					unset(self::$codes[$i]);
-				}
-			}
-
-			self::$integrate_bbc_codes_done = true;
-		}
-	}
-
-	/****************************
+	/*
 	 * BBCode validation methods.
-	 ****************************/
+	 */
 
 	/**
 	 * Validation method for the attach BBCode.
@@ -2893,13 +2833,9 @@ class BBCodeParser
 		$codes[] = [
 			'tag' => 'cowsay',
 			'parameters' => [
-				'e' => ['optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function ($eyes) {
-					return Utils::entitySubstr($eyes . 'oo', 0, 2);
-				},
+				'e' => ['optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => fn ($eyes) => Utils::entitySubstr($eyes . 'oo', 0, 2),
 				],
-				't' => ['optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => function ($tongue) {
-					return Utils::entitySubstr($tongue . '  ', 0, 2);
-				},
+				't' => ['optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => fn ($tongue) => Utils::entitySubstr($tongue . '  ', 0, 2),
 				],
 			],
 			'before' => '<pre data-e="{e}" data-t="{t}"><div>',
@@ -3940,9 +3876,7 @@ class BBCodeParser
 		// Need to sort the tags by name length.
 		uksort(
 			$valid_tags,
-			function ($a, $b) {
-				return strlen($a) < strlen($b) ? 1 : -1;
-			},
+			fn ($a, $b) => strlen($a) <=> strlen($b),
 		);
 
 		// These inline tags can compete with each other regarding style.
@@ -4232,6 +4166,45 @@ class BBCodeParser
 
 		foreach ($to_reset as $var) {
 			$this->{$var} = $class_vars[$var];
+		}
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Wrapper for the integrate_bbc_codes hook.
+	 * Prevents duplication in self::$codes.
+	 */
+	private static function integrateBBC(): void
+	{
+		// Only do this once.
+		if (self::$integrate_bbc_codes_done !== true) {
+			IntegrationHook::call('integrate_bbc_codes', [&self::$codes, &Autolinker::$no_autolink_tags]);
+
+			// Prevent duplicates.
+			$temp = [];
+
+			// Reverse order because mods typically append to the array.
+			for ($i = count(self::$codes) - 1; $i >= 0; $i--) {
+				$value = self::$codes[$i];
+
+				// Closures cannot be serialized, but they can be reflected.
+				if (($value['validate'] ?? null) instanceof \Closure) {
+					$value['validate'] = (string) new ReflectionFunction($value['validate']);
+				}
+
+				$serialized = serialize($value);
+
+				if (!in_array($serialized, $temp)) {
+					$temp[] = $serialized;
+				} else {
+					unset(self::$codes[$i]);
+				}
+			}
+
+			self::$integrate_bbc_codes_done = true;
 		}
 	}
 }

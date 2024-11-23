@@ -173,7 +173,7 @@ class ExportDownload implements ActionInterface
 
 		$this->export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 
-		$this->idhash = hash_hmac('sha1', Utils::$context['id_member'], Config::getAuthSecret());
+		$this->idhash = hash_hmac('sha1', (string) Utils::$context['id_member'], Config::getAuthSecret());
 		$this->dltoken = hash_hmac('sha1', $this->idhash, Config::getAuthSecret());
 
 		$this->part = isset($_GET['part']) ? (int) $_GET['part'] : 1;

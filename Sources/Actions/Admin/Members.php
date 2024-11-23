@@ -1519,16 +1519,16 @@ class Members implements ActionInterface
 				'name' => $row['member_name'],
 				'email' => $row['email_address'],
 				'is_banned' => $row['is_activated'] >= User::BANNED,
-				'ip' => $row['member_ip'],
-				'ip2' => $row['member_ip2'],
+				'ip' => (string) $row['member_ip'],
+				'ip2' => (string) $row['member_ip2'],
 			];
 
-			if (in_array($row['member_ip'], $ips)) {
-				$duplicate_members[$row['member_ip']][] = $member_context;
+			if (in_array((string) $row['member_ip'], $ips)) {
+				$duplicate_members[(string) $row['member_ip']][] = $member_context;
 			}
 
-			if ($row['member_ip'] != $row['member_ip2'] && in_array($row['member_ip2'], $ips)) {
-				$duplicate_members[$row['member_ip2']][] = $member_context;
+			if ((string) $row['member_ip'] != (string) $row['member_ip2'] && in_array((string) $row['member_ip2'], $ips)) {
+				$duplicate_members[(string) $row['member_ip2']][] = $member_context;
 			}
 		}
 		Db::$db->free_result($request);
@@ -1555,19 +1555,19 @@ class Members implements ActionInterface
 			$row['poster_ip'] = new IP($row['poster_ip']);
 
 			// Don't collect lots of the same.
-			if (isset($had_ips[$row['poster_ip']]) && in_array($row['id_member'], $had_ips[$row['poster_ip']])) {
+			if (isset($had_ips[(string) $row['poster_ip']]) && in_array((string) $row['id_member'], $had_ips[(string) $row['poster_ip']])) {
 				continue;
 			}
 
-			$had_ips[$row['poster_ip']][] = $row['id_member'];
+			$had_ips[(string) $row['poster_ip']][] = $row['id_member'];
 
-			$duplicate_members[$row['poster_ip']][] = [
+			$duplicate_members[(string) $row['poster_ip']][] = [
 				'id' => $row['id_member'],
 				'name' => $row['member_name'],
 				'email' => $row['email_address'],
 				'is_banned' => $row['is_activated'] >= User::BANNED,
-				'ip' => $row['poster_ip'],
-				'ip2' => $row['poster_ip'],
+				'ip' => (string) $row['poster_ip'],
+				'ip2' => (string) $row['poster_ip'],
 			];
 		}
 		Db::$db->free_result($request);
@@ -1575,12 +1575,12 @@ class Members implements ActionInterface
 		// Now we have all the duplicate members, stick them with their respective member in the list.
 		if (!empty($duplicate_members)) {
 			foreach ($members as $key => $member) {
-				if (isset($duplicate_members[$member['member_ip']])) {
-					$members[$key]['duplicate_members'] = $duplicate_members[$member['member_ip']];
+				if (isset($duplicate_members[(string) $member['member_ip']])) {
+					$members[$key]['duplicate_members'] = $duplicate_members[(string) $member['member_ip']];
 				}
 
-				if ($member['member_ip'] != $member['member_ip2'] && isset($duplicate_members[$member['member_ip2']])) {
-					$members[$key]['duplicate_members'] = array_merge($member['duplicate_members'], $duplicate_members[$member['member_ip2']]);
+				if ($member['member_ip'] != $member['member_ip2'] && isset($duplicate_members[(string) $member['member_ip2']])) {
+					$members[$key]['duplicate_members'] = array_merge($member['duplicate_members'], $duplicate_members[(string) $member['member_ip2']]);
 				}
 
 				// Check we don't have lots of the same member.

@@ -25,13 +25,6 @@ class Autolinker
 	 **************************/
 
 	/**
-	 * @var string
-	 *
-	 * Characters to exclude from a detected URL if they appear at the end.
-	 */
-	public static string $excluded_trailing_chars = '!;:.,?';
-
-	/**
 	 * @var array
 	 *
 	 * Brackets and quotation marks are problematic at the end of an IRI.
@@ -80,7 +73,8 @@ class Autolinker
 	 *
 	 * URI schemes that require some sort of special handling.
 	 *
-	 * Mods can add to this list using the integrate_autolinker_schemes hook.
+	 * Mods can add to this list using the integrate_autolinker_schemes hook in
+	 * Autolinker::__construct().
 	 */
 	public static array $schemes = [
 		// Schemes whose URI definitions require a domain name in the
@@ -122,7 +116,8 @@ class Autolinker
 	 *
 	 * BBCodes whose content should be skipped when autolinking URLs.
 	 *
-	 * Mods can add to this list using the integrate_bbc_codes hook.
+	 * Mods can add to this list using the integrate_bbc_codes hook in
+	 * BBCodeParser::integrateBBC()
 	 */
 	public static array $no_autolink_tags = [
 		'url',
@@ -145,7 +140,8 @@ class Autolinker
 	 *
 	 * BBCodes in which to fix URL strings.
 	 *
-	 * Mods can add to this list using the integrate_autolinker_fix_tags hook.
+	 * Mods can add to this list using the integrate_autolinker_fix_tags hook in
+	 * Autolinker::fixUrlsInBBC().
 	 */
 	public static array $tags_to_fix = [
 		'url',
@@ -282,8 +278,10 @@ class Autolinker
 			self::$integrate_autolinker_schemes_done = true;
 		}
 
-		// For historical reasons, integrate_bbc_hook is used to give mods access to $no_autolink_tags.
-		BBCodeParser::integrateBBC();
+		// For historical reasons, the integrate_bbc_codes hook is used to give
+		// mods access to Autolinker::$no_autolink_tags. The easiest way to
+		// trigger a call to that hook is to call BBCodeParser::getCodes().
+		BBCodeParser::getCodes();
 	}
 
 	/**
@@ -790,9 +788,9 @@ class Autolinker
 		foreach ($regexes as $key => $value) {
 			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript($key) . ', new RegExp(' . Utils::escapeJavaScript($value) . ', "giu"));';
 
-			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('paste_' . $key) . ', new RegExp(' . Utils::escapeJavaScript('(?<=^|\s|<br>)' . $value . '(?=$|\s|<br>|[' . self::$excluded_trailing_chars . '])') . ', "giu"));';
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('paste_' . $key) . ', new RegExp(' . Utils::escapeJavaScript('(?<=^|\s|<br>)' . $value . '(?=$|\s|<br>|\p{Po})') . ', "giu"));';
 
-			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($value . '(?=[' . self::$excluded_trailing_chars . preg_quote(implode('', array_merge(array_keys(self::$balanced_pairs), self::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($value . '(?=[\p{Po}' . preg_quote(implode('', array_merge(array_keys(self::$balanced_pairs), self::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
 		}
 
 		$js[] = 'const autolinker_balanced_pairs = new Map();';
@@ -976,26 +974,24 @@ class Autolinker
 
 		$pcre_subroutines['bracket_quote'] = '[' . $bracket_quote_chars . ']|&' . Utils::buildRegex($bracket_quote_entities, '~');
 		$pcre_subroutines['allowed_entities'] = '&(?!' . Utils::buildRegex(array_merge($bracket_quote_entities, ['lt;', 'gt;']), '~') . ')';
-		$pcre_subroutines['excluded_lookahead'] = '(?![' . self::$excluded_trailing_chars . ']*(?P>space_lookahead))';
+		$pcre_subroutines['excluded_lookahead'] = '(?!\p{Po}*(?P>space_lookahead))';
 
 		foreach (['path', 'query', 'fragment'] as $part) {
 			switch ($part) {
 				case 'path':
-					$part_disallowed_chars = '\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '/#&';
-					$part_excluded_trailing_chars = str_replace('?', '', self::$excluded_trailing_chars);
+					$part_excluded_trailing_chars = '[^\P{Po}?/#&]';
 					break;
 
 				case 'query':
-					$part_disallowed_chars = '\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '#&';
-					$part_excluded_trailing_chars = self::$excluded_trailing_chars;
+					$part_excluded_trailing_chars = '[^\P{Po}#&]';
 					break;
 
 				default:
-					$part_disallowed_chars = '\s<>' . $bracket_quote_chars . self::$excluded_trailing_chars . '&';
-					$part_excluded_trailing_chars = self::$excluded_trailing_chars;
+					$part_excluded_trailing_chars = '[^\P{Po}&]';
 					break;
 			}
-			$pcre_subroutines[$part . '_allowed'] = '[^' . $part_disallowed_chars . ']|(?P>allowed_entities)|[' . $part_excluded_trailing_chars . '](?P>excluded_lookahead)';
+
+			$pcre_subroutines[$part . '_allowed'] = '[^\s<>' . $bracket_quote_chars . '\p{Po}]|(?P>allowed_entities)|' . $part_excluded_trailing_chars . '(?P>excluded_lookahead)';
 
 			$balanced_construct_regex = [];
 
@@ -1238,12 +1234,12 @@ class Autolinker
 			'(?:' . $ipv6 . ')',
 		]) . ')';
 		$authority = '(?:' . $user_info . '@)?' . $host . '(?::\d+)?';
-		$excluded_lookahead = '(?![' . self::$excluded_trailing_chars . ']*' . $space_lookahead . ')';
-		$end = '(?=' . $not_domain_label_char . '|[' . self::$excluded_trailing_chars . ']*' . $space_lookahead . '|$)';
+		$excluded_lookahead = '(?!\p{Po}*' . $space_lookahead . ')';
+		$end = '(?=' . $not_domain_label_char . '|\p{Po}*' . $space_lookahead . '|$)';
 
 		$allowed_entities = '&(?![lg]t;)';
 
-		$path_allowed = '[^\s<>' . self::$excluded_trailing_chars . '\/#&]|(?:' . $allowed_entities . ')|[' . str_replace('?', '', self::$excluded_trailing_chars) . ']' . $excluded_lookahead;
+		$path_allowed = '[^\s<>\p{Po}]|(?:' . $allowed_entities . ')|[^\P{Po}?/#&]' . $excluded_lookahead;
 
 		$path_component =
 			'(?:' .
@@ -1271,11 +1267,11 @@ class Autolinker
 			'(?:' .
 				'\?' .
 				'(?:' .
-					'[^\s<>' . self::$excluded_trailing_chars . '#&]' .
+					'[^\s<>\p{Po}]' .
 					'|' .
 					'(?:' . $allowed_entities . ')' .
 					'|' .
-					'[' . self::$excluded_trailing_chars . ']' . $excluded_lookahead .
+					'[^\P{Po}#&]' . $excluded_lookahead .
 				')+' .
 			')?';
 
@@ -1283,11 +1279,11 @@ class Autolinker
 			'(?:' .
 				'#' .
 				'(?:' .
-					'[^\s<>' . self::$excluded_trailing_chars . '&]' .
+					'[^\s<>\p{Po}]' .
 					'|' .
 					'(?:' . $allowed_entities . ')' .
 					'|' .
-					'[' . self::$excluded_trailing_chars . ']' . $excluded_lookahead . '' .
+					'[^\P{Po}&]' . $excluded_lookahead . '' .
 				')+' .
 			')?';
 

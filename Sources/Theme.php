@@ -380,7 +380,7 @@ class Theme
 		}
 		// Cause an error otherwise.
 		elseif ($template_name != 'Errors' && $template_name != 'index' && $fatal) {
-			ErrorHandler::fatalLang('theme_template_error', 'template', [(string) $template_name]);
+			ErrorHandler::fatalLang('theme_template_error', 'template', ['template_name' => (string) $template_name, 'type' => 'file']);
 		} elseif ($fatal) {
 			die(ErrorHandler::log(Lang::formatText(Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} template file.', ['template_name' => (string) $template_name, 'type' => 'file']), 'template'));
 		} else {
@@ -416,7 +416,7 @@ class Theme
 		if (function_exists($theme_function)) {
 			$theme_function();
 		} elseif ($fatal === false) {
-			ErrorHandler::fatalLang('theme_template_error', 'template', [(string) $sub_template_name]);
+			ErrorHandler::fatalLang('theme_template_error', 'template', ['template_name' => (string) $sub_template_name, 'type' => 'sub']);
 		} elseif ($fatal !== 'ignore') {
 			die(ErrorHandler::log(Lang::formatText(Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} sub-template.', ['template_name' => (string) $sub_template_name, 'type' => 'sub']), 'template'));
 		}

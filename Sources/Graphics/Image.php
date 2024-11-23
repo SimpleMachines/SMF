@@ -959,16 +959,16 @@ class Image
 			$vb_height = $matches[3];
 
 			// No dimensions given, so use viewBox dimensions.
-			if (!empty($width) && !empty($height)) {
+			if (!isset($width) && !isset($height)) {
 				$width = $vb_width;
 				$height = $vb_height;
 			}
 			// Width but no height, so calculate height.
-			elseif (!empty($width)) {
+			elseif (isset($width)) {
 				$height = $width * $vb_height / $vb_width;
 			}
 			// Height but no width, so calculate width.
-			elseif (!empty($height)) {
+			elseif (isset($height)) {
 				$width = $height * $vb_width / $vb_height;
 			}
 		}
@@ -979,8 +979,8 @@ class Image
 			$height = INF;
 		}
 
-		$this->width = round($width);
-		$this->height = round($height);
+		$this->width = round((float) $width);
+		$this->height = round((float) $height);
 	}
 
 	/**

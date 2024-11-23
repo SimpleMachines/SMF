@@ -27,11 +27,11 @@ class IntegrationHook
 	 *******************/
 
 	/**
-	 * @var array
+	 * @var string
 	 *
 	 * The name of this integration hook.
 	 */
-	public array $name;
+	public string $name;
 
 	/**
 	 * @var bool
@@ -75,17 +75,19 @@ class IntegrationHook
 			return;
 		}
 
+		$this->name = $name;
+
 		$this->ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
 		if (!empty(Config::$db_show_debug)) {
-			Utils::$context['debug']['hooks'][] = $name;
+			Utils::$context['debug']['hooks'][] = $this->name;
 		}
 
-		if (empty(Config::$modSettings[$name])) {
+		if (empty(Config::$modSettings[$this->name])) {
 			return;
 		}
 
-		$func_strings = explode(',', Config::$modSettings[$name]);
+		$func_strings = explode(',', Config::$modSettings[$this->name]);
 
 		// Loop through each one to get the callable for it.
 		foreach ($func_strings as $func_string) {

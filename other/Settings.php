@@ -173,7 +173,7 @@ $cache_memcached = '';
  *
  * Path to the cache directory for the file-based cache system.
  */
-$cachedir = dirname(__FILE__) . '/cache';
+$cachedir = __DIR__ . '/cache';
 
 ########## Image Proxy ##########
 /**
@@ -202,25 +202,25 @@ $image_proxy_maxsize = 5192;
  *
  * The absolute path to the forum's folder. (not just '.'!)
  */
-$boarddir = dirname(__FILE__);
+$boarddir = __DIR__;
 /**
  * @var string
  *
  * Path to the Sources directory.
  */
-$sourcedir = dirname(__FILE__) . '/Sources';
+$sourcedir = __DIR__ . '/Sources';
 /**
  * @var string
  *
  * Path to the Packages directory.
  */
-$packagesdir = dirname(__FILE__) . '/Packages';
+$packagesdir = __DIR__ . '/Packages';
 /**
  * @var string
  *
  * Path to the language directory.
  */
-$languagesdir = dirname(__FILE__) . '/Languages';
+$languagesdir = __DIR__ . '/Languages';
 
 ######### Modification Support #########
 /**
@@ -242,7 +242,7 @@ $backward_compatibility = 0;
  */
 $db_character_set = 'utf8';
 
-if (file_exists(dirname(__FILE__) . '/install.php'))
+if (file_exists(__DIR__ . '/install.php'))
 {
 	$secure = false;
 	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')

@@ -525,9 +525,9 @@ class MessageFormatter
 		$skeleton = preg_replace_callback_array(
 			[
 				'/(?<=\s|^)(EE?)((?:\+[!?])?)(0+)(?=\s|$)/' => function ($matches) {
-					$long_form = $matches[0] === 'EE' ? 'engineering' : 'scientific';
+					$long_form = $matches[1] === 'EE' ? 'engineering' : 'scientific';
 
-					switch ($matches[1]) {
+					switch ($matches[2]) {
 						case '+!':
 							$long_form .= '/sign-always';
 							break;
@@ -540,6 +540,8 @@ class MessageFormatter
 					if (strlen($matches[3]) > 1) {
 						$long_form .= '/*' . str_repeat('e', strlen($matches[3]));
 					}
+
+					return $long_form;
 				},
 				'/(?<=\s|^)0+(?=\s|$)/' => fn ($matches) => 'integer-width/*' . $matches[0],
 			],

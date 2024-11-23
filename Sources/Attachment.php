@@ -373,8 +373,8 @@ class Attachment implements \ArrayAccess
 			$this->thumb = $id;
 
 			// For SVGs, we don't need to calculate thumbnail size precisely.
-			$this->thumb_width = min($this->width, !empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 1000);
-			$this->thumb_height = min($this->height, !empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 1000);
+			$this->thumb_width = min($this->width, !empty(Config::$modSettings['attachmentThumbWidth']) ? (int) Config::$modSettings['attachmentThumbWidth'] : 1000);
+			$this->thumb_height = min($this->height, !empty(Config::$modSettings['attachmentThumbHeight']) ? (int) Config::$modSettings['attachmentThumbHeight'] : 1000);
 
 			// Must set the thumbnail's CSS dimensions manually.
 			Theme::addInlineCss('img#thumb_' . $this->thumb . ':not(.original_size) {width: ' . $this->thumb_width . 'px; height: ' . $this->thumb_height . 'px;}');

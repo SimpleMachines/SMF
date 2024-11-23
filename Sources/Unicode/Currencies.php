@@ -682,6 +682,10 @@ function currencies(): array
 			'digits' => 2,
 			'rounding' => 0,
 		],
+		'ZWG' => [
+			'digits' => 2,
+			'rounding' => 0,
+		],
 	];
 }
 
@@ -1469,6 +1473,7 @@ function country_currencies(): array
 		],
 		'ZW' => [
 			'USD',
+			'ZWG',
 		],
 	];
 }

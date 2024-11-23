@@ -1267,7 +1267,7 @@ class ExportProfileData extends BackgroundTask
 
 		// Determine which files, if any, are ready to be transformed.
 		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
-		$idhash = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret());
+		$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
 		$new_exportfiles = [];
