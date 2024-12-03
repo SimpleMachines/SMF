@@ -459,12 +459,21 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		else
 			unset($alerts[$id_alert]['visible']);
 
+		// For developer convenience.
+		$alert = &$alerts[$id_alert];
+
+		// If we loaded the sender's profile, we may as well use it.
+		$sender_id = !empty($alert['sender_id']) ? $alert['sender_id'] : 0;
+		if (isset($user_profile[$sender_id]))
+			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
+
+		// If requested, include the sender's avatar data.
+		if ($with_avatar && !empty($senders[$sender_id]))
+			$alert['sender'] = $senders[$sender_id];
+
 		// Did a mod already take care of this one?
 		if (!empty($alerts[$id_alert]['text']))
 			continue;
-
-		// For developer convenience.
-		$alert = &$alerts[$id_alert];
 
 		// The info in extra might outdated if the topic was moved, the message's subject was changed, etc.
 		if (!empty($alert['content_data']))
@@ -518,15 +527,6 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 			if (isset($user_profile[$alert['extra']['user_id']]))
 				$alert['extra']['user_name'] = $user_profile[$alert['extra']['user_id']]['real_name'];
 		}
-
-		// If we loaded the sender's profile, we may as well use it.
-		$sender_id = !empty($alert['sender_id']) ? $alert['sender_id'] : 0;
-		if (isset($user_profile[$sender_id]))
-			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
-
-		// If requested, include the sender's avatar data.
-		if ($with_avatar && !empty($senders[$sender_id]))
-			$alert['sender'] = $senders[$sender_id];
 
 		// Next, build the message strings.
 		foreach ($formats as $msg_type => $format_info)
