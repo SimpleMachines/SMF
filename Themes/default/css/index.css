@@ -4309,55 +4309,6 @@ p.information img {
 .topic_pages::after {
 	content: " \00bb"
 }
-/* Mentions */
-.atwho-view {
-	background: var(--mentions-bg);
-	border-color: var(--mentions-border-color);
-	border-radius: var(--mentions-border-radius);
-	border-style: var(--mentions-border-style);
-	border-width: var(--mentions-border-width);
-	box-shadow: var(--mentions-box-shadow);
-	display: none;
-	margin-block: 1.5em .25em;
-	margin-inline: 0;
-	min-width: var(--mentions-width);
-	padding: 0;
-	position: absolute;
-	top: 0;
-	z-index: 11110 !important;
-}
-.atwho-view ul {
-	list-style: none;
-	margin: auto;
-	padding: 0;
-}
-.atwho-view li {
-	background: var(--mentions-item-bg);
-	border-color: var(--mentions-item-border-color);
-	border-radius: var(--mentions-item-border-radius);
-	border-style: var(--mentions-item-border-style);
-	border-width: var(--mentions-item-border-width);
-	box-shadow: var(--mentions-item-box-shadow);
-	color: var(--mentions-item-color);
-	cursor: var(--mentions-item-cursor);
-	font-size: var(--mentions-item-font-size);
-	font-weight: var(--mentions-item-font-weight);
-	margin: 0;
-	padding: .2em .25em;
-}
-.atwho-view li:last-child {
-	--mentions-item-border-width: 0;
-}
-.atwho-view .cur {
-	background: var(--mentions-item-bg_current);
-	color: var(--mentions-item-color_current);
-	font-size: var(--mentions-item-font-size_current);
-	font-weight: var(--mentions-item-font-weight_current);
-}
-.atwho-view li strong {
-	color: inherit;
-}
-
 /* On/Off Icons (User) */
 .on, .off {
 	border-radius: var(--userstatus-border-radius);

@@ -1105,8 +1105,9 @@ class Display implements ActionInterface, Routable
 
 		// Mentions
 		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention')) {
-			Theme::loadJavaScriptFile('jquery.atwho.min.js', ['defer' => true], 'smf_atwho');
-			Theme::loadJavaScriptFile('jquery.caret.min.js', ['defer' => true], 'smf_caret');
+			Theme::loadJavaScriptFile('caret.js', ['defer' => true, 'minimize' => true], 'smf_caret');
+			Theme::loadCSSFile('atwho.css', ['minimize' => true], 'smf_atwho');
+			Theme::loadJavaScriptFile('atwho.js', ['defer' => true, 'minimize' => true], 'smf_atwho');
 			Theme::loadJavaScriptFile('mentions.js', ['defer' => true, 'minimize' => true], 'smf_mentions');
 		}
 
@@ -1314,8 +1315,7 @@ class Display implements ActionInterface, Routable
 	 */
 	protected function loadEditor(): void
 	{
-		// Now create the editor.
-		new Editor([
+		$editorOptions = [
 			'id' => 'quickReply',
 			'value' => '',
 			'labels' => [
@@ -1323,9 +1323,17 @@ class Display implements ActionInterface, Routable
 			],
 			// We do HTML preview here.
 			'preview_type' => Editor::PREVIEW_HTML,
-			// This is required
+			// This is a required field.
 			'required' => true,
-		]);
+			// SCEditor plugins.
+			'plugins' => [],
+		];
+
+		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention')) {
+			$editorOptions['plugins'][] = 'mentions';
+		}
+
+		new Editor($editorOptions);
 
 		Utils::$context['attached'] = '';
 		Utils::$context['make_poll'] = isset($_REQUEST['poll']);
