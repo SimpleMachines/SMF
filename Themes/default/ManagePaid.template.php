@@ -211,12 +211,6 @@ function template_delete_subscription()
  */
 function template_modify_user_subscription()
 {
-	// Some quickly stolen javascript from Post, could do with being more efficient :)
-	echo '
-	<script>
-		var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-	</script>';
-
 	echo '
 	<form action="', Config::$scripturl, '?action=admin;area=paidsubscribe;sa=modifyuser;sid=', Utils::$context['sub_id'], ';lid=', Utils::$context['log_id'], '" method="post">
 		<div class="cat_bar">
@@ -258,7 +252,7 @@ function template_modify_user_subscription()
 			</dl>
 			<fieldset>
 				<legend>', Lang::getTxt('start_date_and_time', file: 'ManagePaid'), '</legend>
-				<select name="year" id="year" onchange="generateDays();">';
+				<select name="year" id="year">';
 
 	// Show a list of all the years we allow...
 	for ($year = 2005; $year <= 2030; $year++)
@@ -267,7 +261,7 @@ function template_modify_user_subscription()
 
 	echo '
 				</select>
-				<select name="month" id="month" onchange="generateDays();">';
+				<select name="month" id="month">';
 
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
@@ -292,7 +286,7 @@ function template_modify_user_subscription()
 			</fieldset>
 			<fieldset>
 				<legend>', Lang::getTxt('end_date_and_time', file: 'ManagePaid'), '</legend>
-				<select name="yearend" id="yearend" onchange="generateDays(\'end\');">';
+				<select name="yearend" id="yearend">';
 
 	// Show a list of all the years we allow...
 	for ($year = 2005; $year <= 2030; $year++)
@@ -301,7 +295,7 @@ function template_modify_user_subscription()
 
 	echo '
 				</select>
-				<select name="monthend" id="monthend" onchange="generateDays(\'end\');">';
+				<select name="monthend" id="monthend">';
 
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
@@ -337,6 +331,10 @@ function template_modify_user_subscription()
 			sSearchType: \'member\',
 			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 		});
+		document.getElementById("year").addEventListener("change", generateDays);
+		document.getElementById("month").addEventListener("change", generateDays);
+		document.getElementById("yearend").addEventListener("change", generateDays.bind(null, "end"));
+		document.getElementById("monthend").addEventListener("change", generateDays.bind(null, "end"));
 	</script>';
 
 	if (!empty(Utils::$context['pending_payments']))

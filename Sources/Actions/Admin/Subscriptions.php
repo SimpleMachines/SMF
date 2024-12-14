@@ -886,6 +886,7 @@ class Subscriptions implements ActionInterface
 		// Setup the template.
 		Utils::$context['sub_template'] = 'modify_user_subscription';
 		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['action_type'] . '_subscriber', file: 'ManagePaid');
+		Theme::loadJavaScriptFile('paidsubs.js', ['defer' => true, 'minimize' => true], 'smf_paidsubs');
 
 		// If we haven't been passed the subscription ID get it.
 		if (Utils::$context['log_id'] && !Utils::$context['sub_id']) {

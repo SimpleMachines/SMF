@@ -225,7 +225,7 @@ class Display implements ActionInterface, Routable
 				'label' => Lang::getTxt('quick_edit', file: 'General'),
 				'class' => 'quick_edit',
 				'id' => 'modify_button_' . $output['id'],
-				'custom' => 'onclick="oQuickModify.modifyMsg(\'' . $output['id'] . '\', \'' . !empty(Config::$modSettings['toggle_subject']) . '\')"',
+				'custom' => 'hidden',
 				'icon' => 'quick_edit_button',
 				'show' => $output['can_modify'],
 			],
@@ -1098,7 +1098,7 @@ class Display implements ActionInterface, Routable
 		}
 
 		// topic.js
-		Theme::loadJavaScriptFile('topic.js', ['defer' => false, 'minimize' => true], 'smf_topic');
+		Theme::loadJavaScriptFile('topic.js', ['defer' => true, 'minimize' => true], 'smf_topic');
 
 		// quotedText.js
 		Theme::loadJavaScriptFile('quotedText.js', ['defer' => true, 'minimize' => true], 'smf_quotedText');

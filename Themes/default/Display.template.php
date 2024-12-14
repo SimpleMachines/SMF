@@ -208,7 +208,7 @@ function template_main()
 	// Show the topic information - icon, subject, etc.
 	echo '
 		<div id="forumposts">
-			<form action="', Config::$scripturl, '?action=quickmod2;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="UTF-8" name="quickModForm" id="quickModForm" onsubmit="return oQuickModify.bInEditMode ? oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\') : false">';
+			<form action="', Config::$scripturl, '?action=quickmod2;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="UTF-8" id="quickModForm">';
 
 	Utils::$context['ignoredMsgs'] = array();
 	Utils::$context['removableMessageIDs'] = array();
@@ -287,63 +287,62 @@ function template_main()
 		</div>';
 
 	echo '
-		<script>';
+		<script>
+			window.addEventListener("DOMContentLoaded", function() {';
 
 	if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && Utils::$context['can_remove_post'])
 	{
 		echo '
-			var oInTopicModeration = new InTopicModeration({
-				sCheckboxContainerMask: \'in_topic_mod_check_\',
-				aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
-				sSessionId: smf_session_id,
-				sSessionVar: smf_session_var,
-				sButtonStrip: \'moderationbuttons\',
-				sButtonStripDisplay: \'moderationbuttons_strip\',
-				bUseImageButton: false,
-				bCanRemove: ', Utils::$context['can_remove_post'] ? 'true' : 'false', ',
-				sRemoveButtonLabel: \'', Lang::getTxt('quickmod_delete_selected', file: 'General'), '\',
-				sRemoveButtonImage: \'delete_selected.png\',
-				sRemoveButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
-				bCanRestore: ', Utils::$context['can_restore_msg'] ? 'true' : 'false', ',
-				sRestoreButtonLabel: \'', Lang::getTxt('quick_mod_restore', file: 'General'), '\',
-				sRestoreButtonImage: \'restore_selected.png\',
-				sRestoreButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
-				bCanSplit: ', Utils::$context['can_split'] ? 'true' : 'false', ',
-				sSplitButtonLabel: \'', Lang::getTxt('quickmod_split_selected', file: 'General'), '\',
-				sSplitButtonImage: \'split_selected.png\',
-				sSplitButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
-				sFormId: \'quickModForm\'
-			});';
+				var oInTopicModeration = new InTopicModeration({
+					sCheckboxContainerMask: \'in_topic_mod_check_\',
+					aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
+					sSessionId: smf_session_id,
+					sSessionVar: smf_session_var,
+					sButtonStrip: \'moderationbuttons\',
+					sButtonStripDisplay: \'moderationbuttons_strip\',
+					bUseImageButton: false,
+					bCanRemove: ', Utils::$context['can_remove_post'] ? 'true' : 'false', ',
+					sRemoveButtonLabel: \'', Lang::$txt['quickmod_delete_selected'], '\',
+					sRemoveButtonImage: \'delete_selected.png\',
+					sRemoveButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					bCanRestore: ', Utils::$context['can_restore_msg'] ? 'true' : 'false', ',
+					sRestoreButtonLabel: \'', Lang::$txt['quick_mod_restore'], '\',
+					sRestoreButtonImage: \'restore_selected.png\',
+					sRestoreButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					bCanSplit: ', Utils::$context['can_split'] ? 'true' : 'false', ',
+					sSplitButtonLabel: \'', Lang::$txt['quickmod_split_selected'], '\',
+					sSplitButtonImage: \'split_selected.png\',
+					sSplitButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					sFormId: \'quickModForm\'
+				});';
 
 		// Add it to the mobile button strip as well
 		echo '
-			var oInTopicModerationMobile = new InTopicModeration({
-				sCheckboxContainerMask: \'in_topic_mod_check_\',
-				aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
-				sSessionId: smf_session_id,
-				sSessionVar: smf_session_var,
-				sButtonStrip: \'moderationbuttons_mobile\',
-				sButtonStripDisplay: \'moderationbuttons_strip_mobile\',
-				bUseImageButton: false,
-				bCanRemove: ', Utils::$context['can_remove_post'] ? 'true' : 'false', ',
-				sRemoveButtonLabel: \'', Lang::getTxt('quickmod_delete_selected', file: 'General'), '\',
-				sRemoveButtonImage: \'delete_selected.png\',
-				sRemoveButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
-				bCanRestore: ', Utils::$context['can_restore_msg'] ? 'true' : 'false', ',
-				sRestoreButtonLabel: \'', Lang::getTxt('quick_mod_restore', file: 'General'), '\',
-				sRestoreButtonImage: \'restore_selected.png\',
-				sRestoreButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
-				bCanSplit: ', Utils::$context['can_split'] ? 'true' : 'false', ',
-				sSplitButtonLabel: \'', Lang::getTxt('quickmod_split_selected', file: 'General'), '\',
-				sSplitButtonImage: \'split_selected.png\',
-				sSplitButtonConfirm: \'', Lang::getTxt('quickmod_confirm', file: 'General'), '\',
-				sFormId: \'quickModForm\'
-			});';
+				var oInTopicModerationMobile = new InTopicModeration({
+					sCheckboxContainerMask: \'in_topic_mod_check_\',
+					aMessageIds: [\'', implode('\', \'', Utils::$context['removableMessageIDs']), '\'],
+					sSessionId: smf_session_id,
+					sSessionVar: smf_session_var,
+					sButtonStrip: \'moderationbuttons_mobile\',
+					sButtonStripDisplay: \'moderationbuttons_strip_mobile\',
+					bUseImageButton: false,
+					bCanRemove: ', Utils::$context['can_remove_post'] ? 'true' : 'false', ',
+					sRemoveButtonLabel: \'', Lang::$txt['quickmod_delete_selected'], '\',
+					sRemoveButtonImage: \'delete_selected.png\',
+					sRemoveButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					bCanRestore: ', Utils::$context['can_restore_msg'] ? 'true' : 'false', ',
+					sRestoreButtonLabel: \'', Lang::$txt['quick_mod_restore'], '\',
+					sRestoreButtonImage: \'restore_selected.png\',
+					sRestoreButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					bCanSplit: ', Utils::$context['can_split'] ? 'true' : 'false', ',
+					sSplitButtonLabel: \'', Lang::$txt['quickmod_split_selected'], '\',
+					sSplitButtonImage: \'split_selected.png\',
+					sSplitButtonConfirm: \'', Lang::$txt['quickmod_confirm'], '\',
+					sFormId: \'quickModForm\'
+				});';
 	}
 
 	echo '
-			if (\'XMLHttpRequest\' in window)
-			{
 				var oQuickModify = new QuickModify({
 					sScriptUrl: smf_scripturl,
 					sClassName: \'quick_edit\',
@@ -388,14 +387,14 @@ function template_main()
 					sItemBorderHover: "1px dotted gray",
 					sItemBackground: "transparent",
 					sItemBackgroundHover: "#e0e0f0"
-				});
-			}';
+				});';
 
 	if (!empty(Utils::$context['ignoredMsgs']))
 		echo '
-			ignore_toggles([', implode(', ', Utils::$context['ignoredMsgs']), '], ', Utils::escapeJavaScript(Lang::getTxt('show_ignore_user_post', file: 'General')), ');';
+				ignore_toggles([', implode(', ', Utils::$context['ignoredMsgs']), '], ', Utils::escapeJavaScript(Lang::$txt['show_ignore_user_post']), ');';
 
 	echo '
+			});
 		</script>';
 }
 
@@ -970,21 +969,22 @@ function template_quickreply()
 
 	echo '
 		<script>
-			var oQuickReply = new QuickReply({
-				bDefaultCollapsed: false,
-				iTopicId: ', Utils::$context['current_topic'], ',
-				iStart: ', Utils::$context['start'], ',
-				sScriptUrl: smf_scripturl,
-				sImagesUrl: smf_images_url,
-				sContainerId: "quickreply_options",
-				sImageId: "quickReplyExpand",
-				sClassCollapsed: "toggle_up",
-				sClassExpanded: "toggle_down",
-				sJumpAnchor: "quickreply_anchor",
-				bIsFull: true
+			window.addEventListener("DOMContentLoaded", function() {
+				var oQuickReply = new QuickReply({
+					bDefaultCollapsed: false,
+					iTopicId: ', Utils::$context['current_topic'], ',
+					iStart: ', Utils::$context['start'], ',
+					sScriptUrl: smf_scripturl,
+					sImagesUrl: smf_images_url,
+					sContainerId: "quickreply_options",
+					sImageId: "quickReplyExpand",
+					sClassCollapsed: "toggle_up",
+					sClassExpanded: "toggle_down",
+					sJumpAnchor: "quickreply_anchor",
+					bIsFull: true
+				});
 			});
 			var oEditorID = "', Utils::$context['post_box_name'], '";
-			var oJumpAnchor = "quickreply_anchor";
 		</script>';
 }
 

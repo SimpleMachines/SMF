@@ -725,7 +725,7 @@ function template_not_done()
 							<form action="', Config::$scripturl, Utils::$context['continue_get_data'], '" method="post" accept-charset="UTF-8" name="autoSubmit" id="autoSubmit">';
 
 	// Do we have a token?
-	if (isset(Utils::$context['not_done_token']) && isset(Utils::$context[Utils::$context['not_done_token'] . '_token'], Utils::$context[Utils::$context['not_done_token'] . '_token_var']))
+	if (isset(Utils::$context['not_done_token'], Utils::$context[Utils::$context['not_done_token'] . '_token'], Utils::$context[Utils::$context['not_done_token'] . '_token_var']))
 		echo '
 							<input type="hidden" name="', Utils::$context[Utils::$context['not_done_token'] . '_token_var'], '" value="', Utils::$context[Utils::$context['not_done_token'] . '_token'], '">';
 
@@ -735,21 +735,7 @@ function template_not_done()
 							</form>
 						</div><!-- .windowbg -->
 					<script>
-						var countdown = ', Utils::$context['continue_countdown'], ';
-						doAutoSubmit();
-
-						function doAutoSubmit()
-						{
-							if (countdown == 0)
-								document.forms.autoSubmit.submit();
-							else if (countdown == -1)
-								return;
-
-							document.forms.autoSubmit.cont.value = "', Lang::getTxt('not_done_continue', file: 'Admin'), ' (" + countdown + ")";
-							countdown--;
-
-							setTimeout(doAutoSubmit, 1000);
-						}
+						doAutoSubmit(', Utils::$context['continue_countdown'], ', ', Lang::$txt['not_done_continue'], ');
 					</script>';
 }
 
@@ -1532,21 +1518,7 @@ function template_repair_boards()
 	{
 		echo '
 					<script>
-						var countdown = 5;
-						doAutoSubmit();
-
-						function doAutoSubmit()
-						{
-							if (countdown == 0)
-								document.forms.recount_form.submit();
-							else if (countdown == -1)
-								return;
-
-							document.forms.recount_form.recount_now.value = "', Lang::getTxt('errors_recount_now', file: 'Admin'), ' (" + countdown + ")";
-							countdown--;
-
-							setTimeout(doAutoSubmit, 1000);
-						}
+						doAutoSubmit(5, ', Utils::escapeJavaScript(Lang::$txt['errors_recount_now']), ', "recount_form", "recount_now");
 					</script>';
 	}
 }

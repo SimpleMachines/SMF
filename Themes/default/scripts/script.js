@@ -1509,35 +1509,6 @@ function expandThumb(thumbID)
 	return false;
 }
 
-function generateDays(offset)
-{
-	// Work around JavaScript's lack of support for default values...
-	offset = typeof(offset) != 'undefined' ? offset : '';
-
-	var days = 0, selected = 0;
-	var dayElement = document.getElementById("day" + offset), yearElement = document.getElementById("year" + offset), monthElement = document.getElementById("month" + offset);
-
-	var monthLength = [
-		31, 28, 31, 30,
-		31, 30, 31, 31,
-		30, 31, 30, 31
-	];
-	if (yearElement.options[yearElement.selectedIndex].value % 4 == 0)
-		monthLength[1] = 29;
-
-	selected = dayElement.selectedIndex;
-	while (dayElement.options.length)
-		dayElement.options[0] = null;
-
-	days = monthLength[monthElement.value - 1];
-
-	for (i = 1; i <= days; i++)
-		dayElement.options[dayElement.length] = new Option(i, i);
-
-	if (selected < days)
-		dayElement.selectedIndex = selected;
-}
-
 function initSearch()
 {
 	if (document.forms.searchform.search.value.indexOf("%u") != -1)
@@ -2016,4 +1987,33 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 	}
 
 	location.hash = '#' + this.opts.sPreviewSectionContainerID;
+}
+
+function doAutoSubmit(countdown, txtMessage, formName = 'autoSubmit', fieldName = 'cont') {
+	const form = document.forms[formName];
+
+	// Ensure the form exists
+	if (!form) {
+		console.error('Form with name "' + formName + '" not found.');
+		return;
+	}
+
+	// Handle the countdown completion
+	if (countdown <= 0) {
+		form.submit();
+		return;
+	}
+
+	// Update the field if it exists
+	const contField = form.elements[fieldName];
+	if (contField) {
+		contField.value = txtMessage + ' (' + countdown + ')';
+	} else {
+		console.warn('Field "' + fieldName + '" not found in form "' + formName + '".');
+	}
+
+	// Schedule the next countdown tick
+	setTimeout(() => {
+		doAutoSubmit(countdown - 1, txtMessage, formName, fieldName);
+	}, 1000);
 }
