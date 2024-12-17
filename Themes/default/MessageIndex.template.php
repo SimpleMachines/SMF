@@ -203,12 +203,11 @@ function template_main()
 					<img src="', $topic['first_post']['icon_url'], '" alt="">
 					', $topic['is_posted_in'] ? '<span class="main_icons profile_sm"></span>' : '', '
 				</div>
-				<div class="topic_info', !empty(Utils::$context['can_quick_mod']) ? '' : ' info_qmod', '">
-					<div ', (!empty($topic['quick_mod']['modify']) ? 'id="topic_' . $topic['first_post']['id'] . '"  ondblclick="oQuickModifyTopic.modify_topic(\'' . $topic['id'] . '\', \'' . $topic['first_post']['id'] . '\');"' : ''), '>';
+				<div', !empty($topic['quick_mod']['modify']) ? ' data-msg-id="' . $topic['first_post']['id'] . '"' : '', '>';
 
 			// Now we handle the icons
 			echo '
-						<div class="icons floatright">';
+						<div id="icons', $topic['first_post']['id'], '" class="icons floatright">';
 
 			if ($topic['is_watched'])
 				echo '
@@ -237,7 +236,7 @@ function template_main()
 						<div class="message_index_title">
 							', $topic['new'] && User::$me->is_logged ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
 							<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
-								<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''), '</span>
+								<span id="msg', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''), '</span>
 							</span>
 						</div>
 						<p class="floatleft">
@@ -349,10 +348,12 @@ function template_main()
 	// Show breadcrumbs at the bottom too.
 	theme_linktree();
 
+	echo '
+	<script>
+		window.addEventListener("DOMContentLoaded", function() {';
+
 	if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && !empty(Utils::$context['topics']) && Utils::$context['can_move'])
 		echo '
-	<script>
-		if (typeof(window.XMLHttpRequest) != "undefined")
 			aJumpTo[aJumpTo.length] = new JumpTo({
 				sContainerId: "quick_mod_jump_to",
 				sClassName: "qaction",
@@ -367,15 +368,15 @@ function template_main()
 				bNoRedirect: true,
 				bDisabled: true,
 				sCustomName: "move_to"
-			});
-	</script>';
+			});';
 
 	// Javascript for inline editing.
 	echo '
-	<script>
-		var oQuickModifyTopic = new QuickModifyTopic({
-			aHidePrefixes: Array("lockicon", "stickyicon", "pages", "newicon"),
-			bMouseOnDiv: false,
+			var oQuickModifyTopic = new QuickModifyTopic({
+				aHidePrefixes: ["icons", "msg", "pages", "newicon"],
+				bMouseOnDiv: false,
+				sTopicContainer: "topic_container",
+			});
 		});
 	</script>';
 
