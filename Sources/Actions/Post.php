@@ -18,7 +18,6 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Attachment;
-use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Calendar\Event;
@@ -30,6 +29,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Poll;
 use SMF\Security;
 use SMF\Theme;
@@ -453,7 +453,11 @@ class Post implements ActionInterface
 			// Censor, BBC, ...
 			Lang::censorText($row['body']);
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
 
 			IntegrationHook::call('integrate_getTopic_previous_post', [&$row]);
 
@@ -953,7 +957,11 @@ class Post implements ActionInterface
 			Msg::preparsecode(Utils::$context['preview_message']);
 
 			// Do all bulletin board code tags, with or without smileys.
-			Utils::$context['preview_message'] = BBCodeParser::load()->parse(Utils::$context['preview_message'], !isset($_REQUEST['ns']));
+			Utils::$context['preview_message'] = Parser::transform(
+				string: Utils::$context['preview_message'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | (isset($_REQUEST['ns']) ? Parser::INPUT_SMILEYS : 0),
+			);
+
 			Lang::censorText(Utils::$context['preview_message']);
 
 			if ($this->form_subject != '') {

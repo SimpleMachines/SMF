@@ -18,7 +18,6 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Autolinker;
-use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -28,6 +27,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Time;
 use SMF\Topic;
 use SMF\User;
@@ -137,7 +137,12 @@ class JavaScriptModify implements ActionInterface
 
 				Msg::preparsecode($_POST['message']);
 
-				if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '') {
+				$temp = Parser::transform(
+					string: $row['body'],
+					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+				);
+
+				if (Utils::htmlTrim(strip_tags($temp, implode('', Utils::$context['allowed_html_tags']))) === '') {
 					$post_errors[] = 'no_message';
 					unset($_POST['message']);
 				}
@@ -200,7 +205,7 @@ class JavaScriptModify implements ActionInterface
 			];
 
 			// Only consider marking as editing if they have edited the subject, modify reason, message or icon.
-			if (
+			$is_new_edit =
 				(
 					isset($_POST['subject'])
 					&& $_POST['subject'] != $row['subject']
@@ -216,8 +221,9 @@ class JavaScriptModify implements ActionInterface
 				|| (
 					isset($_POST['modify_reason'])
 					&& $_POST['modify_reason'] != $row['modified_reason']
-				)
-			) {
+				);
+
+			if ($is_new_edit) {
 				// And even then only if the time has passed...
 				if (
 					time() - $row['poster_time'] > Config::$modSettings['edit_wait_time']
@@ -228,10 +234,8 @@ class JavaScriptModify implements ActionInterface
 					$msgOptions['modify_reason'] = $_POST['modify_reason'] ?? '';
 				}
 			}
-			// If nothing was changed there's no need to add an entry to the moderation log.
-			else {
-				$moderationAction = false;
-			}
+
+			IntegrationHook::call('integrate_jsmodify', [$row, &$is_new_edit, &$msgOptions, &$topicOptions, &$posterOptions]);
 
 			Msg::modify($msgOptions, $topicOptions, $posterOptions);
 
@@ -243,7 +247,7 @@ class JavaScriptModify implements ActionInterface
 			}
 
 			// Changing the first subject updates other subjects to 'Re: new_subject'.
-			if (isset($_POST['subject'], $_REQUEST['change_all_subjects'])   && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (User::$me->allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && User::$me->allowedTo('modify_replies')))) {
+			if (isset($_POST['subject'], $_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (User::$me->allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && User::$me->allowedTo('modify_replies')))) {
 				// Get the proper (default language) response prefix first.
 				if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
 					if (Lang::$default === User::$me->language) {
@@ -270,7 +274,7 @@ class JavaScriptModify implements ActionInterface
 				);
 			}
 
-			if (!empty($moderationAction)) {
+			if (!empty($moderationAction) && $is_new_edit) {
 				Logging::logAction('modify', ['topic' => Topic::$topic_id, 'message' => $row['id_msg'], 'member' => $row['id_member'], 'board' => Board::$info->id]);
 			}
 		}
@@ -295,7 +299,13 @@ class JavaScriptModify implements ActionInterface
 				Lang::censorText(Utils::$context['message']['subject']);
 				Lang::censorText(Utils::$context['message']['body']);
 
-				Utils::$context['message']['body'] = BBCodeParser::load()->parse(Utils::$context['message']['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
+				Utils::$context['message']['body'] = Parser::transform(
+					string: Utils::$context['message']['body'],
+					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+					options: ['cache_id' => (int) $row['id_msg']],
+				);
+
+				Utils::$context['message']['body'] = Utils::adjustHeadingLevels(Utils::$context['message']['body'], null);
 			}
 			// Topic?
 			elseif (empty($post_errors)) {

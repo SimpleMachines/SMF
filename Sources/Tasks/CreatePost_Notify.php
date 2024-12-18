@@ -17,13 +17,13 @@ namespace SMF\Tasks;
 
 use SMF\Actions\Notify;
 use SMF\Alert;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Mentions;
+use SMF\Parser;
 use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
@@ -557,10 +557,11 @@ class CreatePost_Notify extends BackgroundTask
 			$localization = implode('|', [$member_data['lngfile'], $member_data['time_offset'], $member_data['time_format']]);
 
 			if (empty($parsed_message[$localization])) {
-				$bbcparser = new BBCodeParser();
-				$bbcparser->time_offset = $member_data['time_offset'];
-				$bbcparser->time_format = $member_data['time_format'];
-				$bbcparser->smiley_set = $member_data['smiley_set'];
+				// Use the target member's localization settings.
+				Parser::$time_offset = $member_data['time_offset'];
+				Parser::$time_format = $member_data['time_format'];
+				Parser::$smiley_set = $member_data['smiley_set'];
+				Parser::$locale = Lang::$txt['lang_locale'];
 
 				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
 				$parsed_message[$localization]['body'] = $msgOptions['body'];
@@ -569,7 +570,36 @@ class CreatePost_Notify extends BackgroundTask
 				Lang::censorText($parsed_message[$localization]['body']);
 
 				$parsed_message[$localization]['subject'] = Utils::htmlspecialcharsDecode($parsed_message[$localization]['subject']);
-				$parsed_message[$localization]['body'] = trim(Utils::htmlspecialcharsDecode(strip_tags(strtr($bbcparser->parse($parsed_message[$localization]['body'], false), ['<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#39;' => '\'', '</tr>' => "\n", '</td>' => "\t", '<hr>' => "\n---------------------------------------------------------------\n"]))));
+
+				$parsed_message[$localization]['body'] = strtr(
+					Parser::transform(
+						$parsed_message[$localization]['body'],
+						Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+					),
+					[
+						'<br>' => "\n",
+						'</div>' => "\n",
+						'</li>' => "\n",
+						'&#91;' => '[',
+						'&#93;' => ']',
+						'&#39;' => '\'',
+						'</tr>' => "\n",
+						'</td>' => "\t",
+						'<hr>' => "\n" . str_repeat('-', 63) . "\n",
+					],
+				);
+
+				$parsed_message[$localization]['body'] = trim(Utils::htmlspecialcharsDecode(strip_tags($parsed_message[$localization]['body'])));
+
+				// Go back to the default localization settings.
+				if (!isset(User::$me)) {
+					User::setMe(0);
+				}
+
+				Parser::$time_offset = User::$me->time_offset;
+				Parser::$time_format = User::$me->$time_format;
+				Parser::$smiley_set = (!empty(User::$me->smiley_set) ? User::$me->smiley_set : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none'));
+				Parser::$locale = Lang::getLocaleFromLanguageName(User::$me->$language);
 			}
 
 			// Bitwise check: Receiving an alert?

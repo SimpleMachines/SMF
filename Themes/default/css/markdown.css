@@ -1,0 +1,105 @@
+.inner p,
+.inner blockquote,
+.inner ul,
+.inner ol,
+.inner li,
+.inner table,
+.list_posts p,
+.list_posts blockquote,
+.list_posts ul,
+.list_posts ol,
+.list_posts li,
+.list_posts table,
+#preview_body p,
+#preview_body blockquote,
+#preview_body ul,
+#preview_body ol,
+#preview_body li,
+#preview_body table {
+	margin-top: 1.1em;
+	margin-bottom: 1.1em;
+}
+
+/* No margin-top on the first block element */
+.inner p:first-child,
+.inner ul:first-child,
+.inner ol:first-child,
+.inner li:first-child,
+.inner table:first-child,
+.list_posts p:first-child,
+.list_posts ul:first-child,
+.list_posts ol:first-child,
+.list_posts li:first-child,
+.list_posts table:first-child,
+#preview_body p:first-child,
+#preview_body ul:first-child,
+#preview_body ol:first-child,
+#preview_body li:first-child,
+#preview_body table:first-child,
+blockquote cite:first-child + p,
+blockquote cite:first-child + ul,
+blockquote cite:first-child + ol,
+blockquote cite:first-child + ul > li:first-child,
+blockquote cite:first-child + ol > li:first-child,
+blockquote cite:first-child + table {
+	margin-top: 0;
+}
+
+/* No margin-bottom on the last block element */
+.inner p:last-child,
+.inner ul:last-child,
+.inner ol:last-child,
+.inner li:last-child,
+.inner table:last-child,
+.list_posts p:last-child,
+.list_posts ul:last-child,
+.list_posts ol:last-child,
+.list_posts li:last-child,
+.list_posts table:last-child,
+#preview_body p:last-child,
+#preview_body ul:last-child,
+#preview_body ol:last-child,
+#preview_body li:last-child,
+#preview_body table:last-child,
+blockquote p:last-child,
+blockquote ul:last-child,
+blockquote ol:last-child,
+blockquote ul:last-child > li:last-child,
+blockquote ol:last-child > li:last-child,
+blockquote table:last-child {
+	margin-bottom: 0;
+}
+
+/* No margin-top on blocks immediately following a float */
+.bbc_float + p,
+.bbc_float + * > p:first-child,
+.bbc_float + blockquote,
+.bbc_float + ul,
+.bbc_float + ol,
+.bbc_float + ul > li:first-child,
+.bbc_float + ol > li:first-child,
+.bbc_float + table {
+	margin-top: 0;
+}
+
+/* No margin-top on blocks immediately following a blank line created by hard line breaks. */
+.inner br + br + p,
+.inner br + br + ul,
+.inner br + br + ol,
+.inner br + br + ul > li:first-child,
+.inner br + br + ol > li:first-child,
+.inner br + br + table,
+.list_posts br + br + p,
+.list_posts br + br + ul,
+.list_posts br + br + ol,
+.list_posts br + br + ul > li:first-child,
+.list_posts br + br + ol > li:first-child,
+.list_posts br + br + table,
+#preview_body br + br + p,
+#preview_body br + br + ul,
+#preview_body br + br + ol,
+#preview_body br + br + ul > li:first-child,
+#preview_body br + br + ol > li:first-child,
+#preview_body br + br + table {
+	margin-top: 0;
+}

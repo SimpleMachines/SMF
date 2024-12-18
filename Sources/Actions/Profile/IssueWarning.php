@@ -17,13 +17,13 @@ namespace SMF\Actions\Profile;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\PersonalMessage\PM;
 use SMF\Profile;
 use SMF\Time;
@@ -537,7 +537,7 @@ class IssueWarning implements ActionInterface
 
 		if (!empty($_POST['warn_body'])) {
 			Msg::preparsecode($warning_body, false, !empty(Config::$modSettings['autoLinkUrls']));
-			$warning_body = BBCodeParser::load()->parse($warning_body);
+			$warning_body = Parser::transform($warning_body);
 		}
 
 		// Try to remember some bits.

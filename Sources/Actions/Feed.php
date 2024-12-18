@@ -19,7 +19,6 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\Autolinker;
-use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
@@ -29,6 +28,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
+use SMF\Parser;
 use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
@@ -778,7 +778,11 @@ class Feed implements ActionInterface
 				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), ["\n" => '<br>']) . '...';
 			}
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
 
 			Lang::censorText($row['body']);
 			Lang::censorText($row['subject']);
@@ -1218,7 +1222,11 @@ class Feed implements ActionInterface
 				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), ["\n" => '<br>']) . '...';
 			}
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
 
 			Lang::censorText($row['body']);
 			Lang::censorText($row['subject']);
@@ -1982,7 +1990,11 @@ class Feed implements ActionInterface
 			}
 
 			// If using our own format, we want both the raw and the parsed content.
-			$row[$this->format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']);
+			$row[$this->format === 'smf' ? 'body_html' : 'body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
 
 			// Do we want to include any attachments?
 			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments'])) {
@@ -2433,7 +2445,7 @@ class Feed implements ActionInterface
 			}
 
 			// If using our own format, we want both the raw and the parsed content.
-			$row[$this->format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body']);
+			$row[$this->format === 'smf' ? 'body_html' : 'body'] = Parser::transform($row['body']);
 
 			$recipients = array_combine(explode(',', $row['id_members_to']), explode($separator, $row['to_names']));
 

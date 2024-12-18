@@ -21,7 +21,6 @@ use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\MessageIndex;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -33,6 +32,7 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\PackageManager\SubsPackage;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -1622,7 +1622,7 @@ class Smileys implements ActionInterface
 
 				if (!empty($action['parse_bbc'])) {
 					Msg::preparsecode(Utils::$context[$type]);
-					Utils::$context[$type] = BBCodeParser::load()->parse(Utils::$context[$type]);
+					Utils::$context[$type] = Parser::transform(Utils::$context[$type]);
 				} else {
 					Utils::$context[$type] = nl2br(Utils::$context[$type]);
 				}
@@ -1671,7 +1671,7 @@ class Smileys implements ActionInterface
 			Utils::$context['is_installed'] = false;
 			Utils::$context['package_name'] = $smileyInfo['name'];
 
-			loadTemplate('Packages');
+			Theme::loadTemplate('Packages');
 		}
 		// Do the actual install
 		else {
@@ -2248,7 +2248,7 @@ class Smileys implements ActionInterface
 		User::$me->isAllowedTo('manage_smileys');
 
 		Lang::load('ManageSmileys');
-		loadTemplate('ManageSmileys');
+		Theme::loadTemplate('ManageSmileys');
 
 		// If customized smileys is disabled don't show the setting page
 		if (empty(Config::$modSettings['smiley_enable'])) {

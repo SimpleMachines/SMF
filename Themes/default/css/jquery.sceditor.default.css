@@ -7,6 +7,7 @@ html, p, code::before, table {
 	color: #111;
 	line-height: 1.25;
 	overflow: visible;
+	tab-size: 4ch;
 }
 html {
 	height: 100%;
@@ -69,6 +70,12 @@ code::before, code {
 	text-align: left;
 }
 
+span.phpcode, font[face=monospace] {
+	background-color: rgba(127, 127, 127, 0.25);
+	padding: 0 0.2ch;
+	display: inline;
+}
+
 blockquote {
 	margin: 0 0 8px 0;
 	padding: 6px 10px;
@@ -99,8 +106,27 @@ blockquote br:last-child {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	padding: 0;
-	margin: 0;
+	font-weight: bold;
+	margin: 0.5em 0;
+	line-height: normal;
+}
+h1 {
+	font-size: 2rem;
+}
+h2 {
+	font-size: 1.8rem;
+}
+h3 {
+	font-size: 1.6rem;
+}
+h4 {
+	font-size: 1.4rem;
+}
+h5 {
+	font-size: 1.2rem;
+}
+h6 {
+	font-size: 1rem;
 }
 
 /* Make sure images stay within bounds */

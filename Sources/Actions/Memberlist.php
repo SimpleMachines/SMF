@@ -17,13 +17,13 @@ namespace SMF\Actions;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -732,7 +732,10 @@ class Memberlist implements ActionInterface
 					}
 
 					if ($column['bbc'] && !empty(Utils::$context['members'][$member]['options'][$key])) {
-						Utils::$context['members'][$member]['options'][$key] = strip_tags(BBCodeParser::load()->parse(Utils::$context['members'][$member]['options'][$key]));
+						Utils::$context['members'][$member]['options'][$key] = Parser::transform(
+							string: Utils::$context['members'][$member]['options'][$key],
+							output_type: Parser::OUTPUT_TEXT,
+						);
 					} elseif ($column['type'] == 'check') {
 						Utils::$context['members'][$member]['options'][$key] = Utils::$context['members'][$member]['options'][$key] == 0 ? Lang::$txt['no'] : Lang::$txt['yes'];
 					}

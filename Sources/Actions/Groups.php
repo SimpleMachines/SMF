@@ -16,7 +16,6 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\Actions\Moderation\Main as ModCenter;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -26,6 +25,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -734,7 +734,11 @@ class Groups implements ActionInterface
 
 			Utils::$context['can_moderate'] |= $group->can_moderate;
 
-			$group->description = BBCodeParser::load()->parse($group->description, false, '', Utils::$context['description_allowed_tags']);
+			$group->description = Parser::transform(
+				string: $group->description,
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+				options: ['parse_tags' => Utils::$context['description_allowed_tags']],
+			);
 
 			$groups[$group->id] = $group;
 			$group_ids[] = $group->id;

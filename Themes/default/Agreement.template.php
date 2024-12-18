@@ -47,7 +47,7 @@ function template_main()
 
 		echo '
 		<div class="windowbg noup">
-			', Utils::$context['agreement'], '
+			', Utils::adjustHeadingLevels(Utils::$context['agreement'], 3), '
 		</div>';
 	}
 
@@ -75,7 +75,7 @@ function template_main()
 
 		echo '
 		<div class="windowbg noup">
-			', Utils::$context['privacy_policy'], '
+			', Utils::adjustHeadingLevels(Utils::$context['privacy_policy'], 3), '
 		</div>';
 	}
 

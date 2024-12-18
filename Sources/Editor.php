@@ -216,8 +216,6 @@ class Editor implements \ArrayAccess
 		$this->id = (string) ($options['id'] ?? 'message');
 
 		$this->value = strtr((string) ($options['value'] ?? ''), [
-			// Tabs are not shown in SCEditor; replace with spaces.
-			"\t" => '    ',
 			// The [#] item code for creating list items causes issues with
 			// SCEditor, but [+] is a safe equivalent.
 			'[#]' => '[+]',
@@ -589,6 +587,11 @@ class Editor implements \ArrayAccess
 				'description' => Lang::$editortxt['code'],
 			],
 			[
+				'image' => 'tt',
+				'code' => 'tt',
+				'description' => Lang::$editortxt['tt'],
+			],
+			[
 				'code' => 'quote',
 				'description' => Lang::$editortxt['insert_quote'],
 			],
@@ -604,6 +607,11 @@ class Editor implements \ArrayAccess
 			[
 				'code' => 'horizontalrule',
 				'description' => Lang::$editortxt['insert_horizontal_rule'],
+			],
+			[
+				'image' => 'heading',
+				'code' => 'heading',
+				'description' => Lang::$editortxt['heading'],
 			],
 			[],
 			[

@@ -19,7 +19,6 @@ use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
 use SMF\Attachment;
-use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -30,6 +29,7 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -379,13 +379,19 @@ class Posts implements ActionInterface
 				$can_delete = false;
 			}
 
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['last_smileys'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
+
 			Utils::$context['unapproved_items'][] = [
 				'id' => $row['id_msg'],
 				'counter' => Utils::$context['start'] + $i,
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
 				'subject' => $row['subject'],
-				'body' => BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], (int) $row['id_msg']),
+				'body' => $row['body'],
 				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'poster' => [
 					'id' => $row['id_member'],
@@ -777,6 +783,8 @@ class Posts implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
+			$row['body'] = Parser::transform($row['body']);
+
 			$unapproved_items[] = [
 				'id' => $row['id_attach'],
 				'filename' => $row['filename'],
@@ -791,7 +799,7 @@ class Posts implements ActionInterface
 				'message' => [
 					'id' => $row['id_msg'],
 					'subject' => $row['subject'],
-					'body' => BBCodeParser::load()->parse($row['body']),
+					'body' => $row['body'],
 					'time' => Time::create('@' . $row['poster_time'])->format(),
 					'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				],

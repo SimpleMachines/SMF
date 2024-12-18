@@ -11,6 +11,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
+	tab-size: 4ch;
 }
 ::selection {
 	text-shadow: none;
@@ -93,7 +94,7 @@ textarea {
 }
 
 /* Use a consistent monospace font everywhere */
-.monospace, .bbc_code, .phpcode, pre {
+.monospace, .bbc_code, .bbc_tt, .phpcode, pre {
 	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
 }
 
@@ -395,6 +396,11 @@ blockquote cite::before {
 .expand_code {
 	max-height: none;
 }
+/* Inline code */
+.bbc_tt {
+	background-color: rgba(127, 127, 127, 0.15);
+	padding: 0 0.2ch;
+}
 /* Styling for BBC tags */
 .bbc_link {
 	border-bottom: 1px solid #a8b6cf;
@@ -412,11 +418,15 @@ blockquote cite::before {
 .bbc_table {
 	font: inherit;
 	color: inherit;
+	border: 1px solid #ddd;
+	border-collapse: collapse;
 }
+.bbc_table th,
 .bbc_table td {
-	font: inherit;
 	color: inherit;
 	vertical-align: top;
+	padding: 4px 8px;
+	border: 1px solid #ddd;
 }
 .bbc_list {
 	text-align: left;
@@ -448,6 +458,30 @@ blockquote cite::before {
 	max-height: none;
 	max-width: 100%;
 }
+.bbc_h1, .bbc_h2, .bbc_h3, .bbc_h4, .bbc_h5, .bbc_h6 {
+	font-weight: bold;
+	margin: 0.5em 0;
+	line-height: normal;
+}
+.bbc_h1 {
+	font-size: 2em;
+}
+.bbc_h2 {
+	font-size: 1.8em;
+}
+.bbc_h3 {
+	font-size: 1.6em;
+}
+.bbc_h4 {
+	font-size: 1.4em;
+}
+.bbc_h5 {
+	font-size: 1.2em;
+}
+.bbc_h6 {
+	font-size: 1em;
+}
+
 /* No image should have a border when linked. */
 a img {
 	border: 0;
@@ -1468,7 +1502,7 @@ ul li.greeting {
 	margin: 1em 0 2em;
 }
 #post_event .roundframe {
-	padding: 12px 12%;
+	padding: 12px 8%;
 	overflow: auto;
 }
 #post_event fieldset {
@@ -3535,7 +3569,7 @@ img.smiley {
 }
 #quickreply_options .roundframe {
 	margin: 0;
-	padding: 8px 10% 12px 10%;
+	padding: 8px 8% 12px;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
@@ -3545,8 +3579,7 @@ img.smiley {
 }
 /* Styles for edit post section */
 form#postmodify .roundframe {
-	padding: 12px 12%;
-	margin: 12px 0 0 0;
+	padding: 12px 8%;
 }
 #post_header {
 	padding: 6px;

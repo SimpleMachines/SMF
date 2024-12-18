@@ -1255,7 +1255,7 @@ class RecurrenceIterator implements \Iterator
 
 						foreach ($this->rrule->{$prop} as $value) {
 							if ($value != $current_value) {
-								$temp = \DateTime::createFromFormat('Y z H:i:s e', $temp->format('Y ') . ($value - 1) . $temp->format(' H:i:s e'));
+								$temp = \DateTime::createFromFormat('Y z H:i:s e', $temp->format('Y ') . ($value > 0 ? $value - 1 : $value + ((bool) $temp->format('L') && $value >= -306 ? 366 : 365)) . $temp->format(' H:i:s e'));
 
 								yield $temp;
 

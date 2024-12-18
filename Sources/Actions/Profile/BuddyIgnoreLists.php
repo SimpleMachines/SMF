@@ -17,13 +17,13 @@ namespace SMF\Actions\Profile;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
@@ -295,7 +295,11 @@ class BuddyIgnoreLists implements ActionInterface
 					}
 
 					if ($column['bbc'] && !empty(Utils::$context['buddies'][$buddy]['options'][$key])) {
-						Utils::$context['buddies'][$buddy]['options'][$key] = strip_tags(BBCodeParser::load()->parse(Utils::$context['buddies'][$buddy]['options'][$key]));
+						Utils::$context['buddies'][$buddy]['options'][$key] = Parser::transform(
+							string: Utils::$context['buddies'][$buddy]['options'][$key],
+							output_type: Parser::OUTPUT_TEXT,
+							options: ['hard_breaks' => 0],
+						);
 					} elseif ($column['type'] == 'check') {
 						Utils::$context['buddies'][$buddy]['options'][$key] = Utils::$context['buddies'][$buddy]['options'][$key] == 0 ? Lang::$txt['no'] : Lang::$txt['yes'];
 					}

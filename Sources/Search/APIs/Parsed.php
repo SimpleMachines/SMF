@@ -16,12 +16,12 @@ declare(strict_types=1);
 namespace SMF\Search\APIs;
 
 use SMF\Autolinker;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Sapi;
 use SMF\Search\SearchApi;
 use SMF\Search\SearchApiInterface;
@@ -100,13 +100,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 * The size of the index.
 	 */
 	private int $size;
-
-	/**
-	 * @var BBCodeParser
-	 *
-	 * Special BBCodeParser for $this->prepareString()
-	 */
-	private BBCodeParser $bbcparser;
 
 	/****************
 	 * Public methods
@@ -310,8 +303,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 			}
 		} else {
 			foreach (
-				array_values(array_intersect_key($this->wildcard_words, array_flip($words['all_words'])))
-				as $key => $wildcard_word
+				array_values(array_intersect_key($this->wildcard_words, array_flip($words['all_words']))) as $key => $wildcard_word
 			) {
 				$wildcard_word = !empty($this->params['ignore_accents']) ? $this->removeAccents($wildcard_word) : $this->escapeAccents($wildcard_word);
 
@@ -1018,18 +1010,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 */
 	protected function prepareString(string $string): string
 	{
-		if (!isset($this->bbcparser)) {
-			// BBCodeParser complains if User::$me is not set.
-			if (!isset(User::$me)) {
-				User::setMe(0);
-			}
-
-			$this->bbcparser = new BBCodeParser();
-
-			// Leave out anything that would be skipped for printing.
-			$this->bbcparser->for_print = true;
-		}
-
 		// Disable image proxy because we want the original URLs.
 		$image_proxy_enabled = Config::$image_proxy_enabled ?? false;
 		Config::$image_proxy_enabled = false;
@@ -1044,8 +1024,18 @@ class Parsed extends SearchApi implements SearchApiInterface
 		$images = $_GET['images'] ?? null;
 		unset($_GET['images']);
 
-		// Parse the BBCode.
-		$string = $this->bbcparser->parse($string, false);
+		// Parse the BBCode and Markdown.
+		$string = Parser::transform(
+			string: $string,
+			input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+			output_type: Parser::OUTPUT_TEXT,
+			options: [
+				'for_print' => true,
+				'preg_replace' => [
+					'/<[^>]+>/' => fn ($matches) => $matches[0] . ' ',
+				],
+			],
+		);
 
 		// Put stuff back the way we found it.
 		Config::$image_proxy_enabled = $image_proxy_enabled;
@@ -1054,9 +1044,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 		if (isset($images)) {
 			$_GET['images'] = $images;
 		}
-
-		// Remove HTML.
-		$string = strip_tags(is_string($string) ? preg_replace('/<[^>]+>/', '$0 ', $string) : '');
 
 		// Decode 4-byte Unicode characters.
 		$string = mb_decode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');

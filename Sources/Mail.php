@@ -117,6 +117,9 @@ class Mail
 			$message = preg_replace('~(' . preg_quote(Config::$scripturl, '~') . '(?:[?/][\w\-_%\.,\?&;=#]+)?)~', '<a href="$1">$1</a>', $message);
 		}
 
+		// Use real tabs.
+		$message = strtr($message, [Utils::TAB_SUBSTITUTE => $send_html ? '<span style="white-space: pre-wrap;">' . "\t" . '</span>' : "\t"]);
+
 		list(, $from_name) = self::mimespecialchars(addcslashes($from !== null ? $from : Utils::$context['forum_name'], '<>()\'\\"'), true, $hotmail_fix, $line_break);
 		list(, $subject) = self::mimespecialchars($subject, true, $hotmail_fix, $line_break);
 

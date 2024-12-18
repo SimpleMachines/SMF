@@ -17,10 +17,10 @@ namespace SMF\Actions;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Parser;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -148,7 +148,10 @@ class Agreement implements ActionInterface
 
 			if (!empty(Utils::$context['agreement_file'])) {
 				$cache_id = strtr(Utils::$context['agreement_file'], [Config::$languagesdir => '', '.txt' => '', '.' => '_']);
-				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Utils::$context['agreement_file']), true, $cache_id);
+				Utils::$context['agreement'] = Parser::transform(
+					string: file_get_contents(Utils::$context['agreement_file']),
+					options: ['cache_id' => $cache_id, 'hard_breaks' => 0],
+				);
 			} elseif (Utils::$context['can_accept_agreement']) {
 				ErrorHandler::fatalLang('error_no_agreement', false);
 			}
@@ -157,9 +160,15 @@ class Agreement implements ActionInterface
 		if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_privacy_policy']) {
 			// Have we got a localized policy?
 			if (!empty(Config::$modSettings['policy_' . User::$me->language])) {
-				Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . User::$me->language]);
+				Utils::$context['privacy_policy'] = Parser::transform(
+					string: Config::$modSettings['policy_' . User::$me->language],
+					options: ['hard_breaks' => 0],
+				);
 			} elseif (!empty(Config::$modSettings['policy_' . Lang::$default])) {
-				Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Lang::$default]);
+				Utils::$context['privacy_policy'] = Parser::transform(
+					string: Config::$modSettings['policy_' . Lang::$default],
+					options: ['hard_breaks' => 0],
+				);
 			}
 			// Then I guess we've got nothing
 			elseif (Utils::$context['can_accept_privacy_policy']) {

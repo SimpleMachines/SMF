@@ -687,7 +687,7 @@ function template_single_post($message)
 								</div>';
 	echo '
 								<div class="inner" data-msgid="', $message['id'], '" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>
-									', $message['body'], '
+									', Utils::adjustHeadingLevels($message['body'], 4), '
 								</div>
 							</div><!-- .post -->';
 

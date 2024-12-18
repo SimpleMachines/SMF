@@ -33,6 +33,7 @@ $editortxt['cols'] = 'Cols:';
 $editortxt['insert_table'] = 'Insert a table';
 $editortxt['insert_horizontal_rule'] = 'Insert a horizontal rule';
 $editortxt['code'] = 'Code';
+$editortxt['tt'] = 'Inline code';
 $editortxt['insert_quote'] = 'Insert a Quote';
 $editortxt['width'] = 'Width (optional):';
 $editortxt['height'] = 'Height (optional):';
@@ -60,5 +61,6 @@ $editortxt['float_left'] = 'Float left';
 $editortxt['float_right'] = 'Float right';
 $editortxt['maximize'] = 'Maximize';
 $editortxt['dateformat'] = 'month/day/year';
+$editortxt['heading'] = 'Heading';
 
 ?>

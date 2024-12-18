@@ -15,12 +15,12 @@ declare(strict_types=1);
 
 namespace SMF\PersonalMessage;
 
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -272,7 +272,10 @@ class DraftPM extends Draft
 			Lang::censorText($row['subject']);
 
 			// BBC-ilize the message.
-			$row['body'] = BBCodeParser::load()->parse($row['body'], true, 'draft' . $row['id_draft']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				options: ['cache_id' => 'draft' . $row['id_draft']],
+			);
 
 			// Have they provide who this will go to?
 			$recipients = [

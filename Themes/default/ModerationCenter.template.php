@@ -329,7 +329,7 @@ function template_notes()
 		foreach (Utils::$context['notes'] as $note)
 			echo '
 						<li class="smalltext">
-							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . Utils::$context['mod-modnote-del_token_var'] . '=' . Utils::$context['mod-modnote-del_token'] . '" data-confirm="' . Lang::$txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="main_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '
+							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . Utils::$context['mod-modnote-del_token_var'] . '=' . Utils::$context['mod-modnote-del_token'] . '" data-confirm="' . Lang::$txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="main_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', Utils::adjustHeadingLevels($note['text'], 4), '
 						</li>';
 
 		echo '
@@ -424,7 +424,7 @@ function template_unapproved_posts()
 					<span class="smalltext">', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => $item['time'], 'member_link' => '<strong>' . $item['poster']['link'] . '</strong>'])), '</span>
 				</div>
 				<div class="list_posts">
-					<div class="post">', $item['body'], '</div>
+					<div class="post">', Utils::adjustHeadingLevels($item['body'], 5), '</div>
 				</div>
 				', template_quickbuttons($quickbuttons, 'unapproved_posts'), '
 			</div><!-- .windowbg -->';
@@ -546,7 +546,7 @@ function template_show_notice()
 					<strong>', Lang::$txt['show_notice_text'], '</strong>
 				</dt>
 				<dd>
-					', Utils::$context['notice_body'], '
+					', Utils::adjustHeadingLevels(Utils::$context['notice_body'], 3), '
 				</dd>
 			</dl>
 		</div>

@@ -1117,7 +1117,7 @@ class Profile extends User implements \ArrayAccess
 
 			// Parse BBCode
 			if ($cf_def['bbc']) {
-				$output_html = BBCodeParser::load()->parse($output_html);
+				$output_html = Utils::adjustHeadingLevels(Parser::transform($output_html), null);
 			} elseif ($cf_def['field_type'] == 'textarea') {
 				// Allow for newlines at least
 				$output_html = strtr($output_html, ["\n" => '<br>']);
@@ -1350,7 +1350,15 @@ class Profile extends User implements \ArrayAccess
 
 			Lang::censorText($signature);
 
-			Utils::$context['member']['signature_preview'] = BBCodeParser::load()->parse($signature, true, 'sig' . $this->id, BBCodeParser::getSigTags());
+			Utils::$context['member']['signature_preview'] = Parser::transform(
+				string: $signature,
+				options: [
+					'cache_id' => 'sig' . $this->id,
+					'parse_tags' => Parser::getSigTags(),
+				],
+			);
+
+			Utils::$context['member']['signature_preview'] = Utils::adjustHeadingLevels(Utils::$context['member']['signature_preview'], null);
 
 			Utils::$context['member']['signature'] = $_POST['signature'];
 		}
@@ -1926,8 +1934,8 @@ class Profile extends User implements \ArrayAccess
 				return 'signature_max_image_count';
 			}
 
-			// What about too many smileys!
-			$smiley_parsed = BBCodeParser::load()->parseSmileys($unparsed_signature);
+			// What about too many smileys?
+			$smiley_parsed = Parser::transform($unparsed_signature, Parser::INPUT_SMILEYS);
 
 			$smiley_count = substr_count(strtolower($smiley_parsed), '<img') - substr_count(strtolower($unparsed_signature), '<img');
 

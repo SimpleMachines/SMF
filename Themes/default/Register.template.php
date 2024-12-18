@@ -30,7 +30,7 @@ function template_registration_agreement()
 				<h3 class="catbg">', Lang::$txt['registration_agreement'], '</h3>
 			</div>
 			<div class="roundframe">
-				<div>', Utils::$context['agreement'], '</div>
+				<div>', Utils::adjustHeadingLevels(Utils::$context['agreement'], 3), '</div>
 			</div>';
 
 	if (!empty(Utils::$context['privacy_policy']))
@@ -39,7 +39,7 @@ function template_registration_agreement()
 				<h3 class="catbg">', Lang::$txt['privacy_policy'], '</h3>
 			</div>
 			<div class="roundframe">
-				<div>', Utils::$context['privacy_policy'], '</div>
+				<div>', Utils::adjustHeadingLevels(Utils::$context['privacy_policy'], 3), '</div>
 			</div>';
 
 		echo '

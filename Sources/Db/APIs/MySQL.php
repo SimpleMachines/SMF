@@ -468,30 +468,30 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				}
 				// the inserted value already exists we need to find the pk
 				else {
-					$where_string = '';
+					$where_string = [];
 
-					$count2 = count($keys);
-
-					for ($x = 0; $x < $count2; $x++) {
-						$keyPos = array_search($keys[$x], array_keys($columns));
-
-						$where_string .= $keys[$x] . ' = ' . $data[$i][$keyPos];
-
-						if (($x + 1) < $count2) {
-							$where_string .= ' AND ';
+					foreach ($columns as $column_name => $type) {
+						if (str_contains($type, 'string-')) {
+							$where_string[] = $column_name . ' = ' . sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . ')', $column_name);
+						} else {
+							$where_string[] = $column_name . ' = ' . sprintf('{%1$s:%2$s}', $type, $column_name);
 						}
 					}
 
+					$where_string = implode(' AND ', $where_string);
+
 					$request = $this->query(
 						'',
-						'SELECT `' . $keys[0] . '` FROM ' . $table . '
-						WHERE ' . $where_string . ' LIMIT 1',
-						[],
+						'SELECT ' . $keys[0] . '
+						FROM ' . $table . '
+						WHERE ' . $where_string . '
+						LIMIT 1',
+						array_combine($indexed_columns, $data[$i]),
 					);
 
 					if ($request !== false && $this->num_rows($request) == 1) {
 						$row = $this->fetch_assoc($request);
-						$ai = $row[$keys[0]];
+						$ai = (int) $row[$keys[0]];
 					}
 				}
 

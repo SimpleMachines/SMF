@@ -117,7 +117,7 @@ class Autolinker
 	 * BBCodes whose content should be skipped when autolinking URLs.
 	 *
 	 * Mods can add to this list using the integrate_bbc_codes hook in
-	 * BBCodeParser::integrateBBC()
+	 * Parsers\BBCodeParser::integrateBBC()
 	 */
 	public static array $no_autolink_tags = [
 		'url',
@@ -280,8 +280,8 @@ class Autolinker
 
 		// For historical reasons, the integrate_bbc_codes hook is used to give
 		// mods access to Autolinker::$no_autolink_tags. The easiest way to
-		// trigger a call to that hook is to call BBCodeParser::getCodes().
-		BBCodeParser::getCodes();
+		// trigger a call to that hook is to call Parser::getBBCodes().
+		Parser::getBBCodes();
 	}
 
 	/**
@@ -785,12 +785,15 @@ class Autolinker
 		$regexes = self::load()->getJavaScriptUrlRegexes();
 		$regexes['email'] = self::load()->getJavaScriptEmailRegex();
 
+		// Don't autolink if the URL is inside a Markdown link construct.
+		$md_lookbehind = !empty(Config::$modSettings['enableMarkdown']) ? '(?<!\[[^\]]*\](?:\(|:[ \t\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]*\n?[ \t\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]*))' : '';
+
 		foreach ($regexes as $key => $value) {
-			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript($key) . ', new RegExp(' . Utils::escapeJavaScript($value) . ', "giu"));';
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript($key) . ', new RegExp(' . Utils::escapeJavaScript($md_lookbehind . $value) . ', "giu"));';
 
 			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('paste_' . $key) . ', new RegExp(' . Utils::escapeJavaScript('(?<=^|\s|<br>)' . $value . '(?=$|\s|<br>|\p{Po})') . ', "giu"));';
 
-			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($value . '(?=[\p{Po}' . preg_quote(implode('', array_merge(array_keys(self::$balanced_pairs), self::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
+			$js[] = 'autolinker_regexes.set(' . Utils::escapeJavaScript('keypress_' . $key) . ', new RegExp(' . Utils::escapeJavaScript($md_lookbehind . $value . '(?=[\p{Po}' . preg_quote(implode('', array_merge(array_keys(self::$balanced_pairs), self::$balanced_pairs)), '/') . ']*\s$)') . ', "giu"));';
 		}
 
 		$js[] = 'const autolinker_balanced_pairs = new Map();';

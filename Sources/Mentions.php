@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file contains core of the code for Mentions
  *
@@ -469,7 +470,7 @@ class Mentions
 			$excluded_bbc = ['quote'];
 
 			// Exclude everything with unparsed content.
-			foreach (BBCodeParser::getCodes() as $code) {
+			foreach (Parser::getBBCodes() as $code) {
 				if (!empty($code['type']) && in_array($code['type'], ['unparsed_content', 'unparsed_commas_content', 'unparsed_equals_content'])) {
 					$excluded_bbc[] = $code['tag'];
 				}

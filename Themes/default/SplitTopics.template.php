@@ -108,7 +108,7 @@ function template_select()
 							', Lang::getTxt('post_by_member', $message), '
 							<em>', $message['time'], '</em>
 						</div>
-						<div class="post">', $message['body'], '</div>
+						<div class="post">', Utils::adjustHeadingLevels($message['body'], 3), '</div>
 					</li>';
 
 	echo '
@@ -137,7 +137,7 @@ function template_select()
 							', Lang::getTxt('post_by_member', $message), '
 							<em>', $message['time'], '</em>
 						</div>
-						<div class="post">', $message['body'], '</div>
+						<div class="post">', Utils::adjustHeadingLevels($message['body'], 3), '</div>
 					</li>';
 
 	echo '

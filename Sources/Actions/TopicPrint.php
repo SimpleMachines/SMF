@@ -18,12 +18,12 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Attachment;
-use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Parser;
 use SMF\Poll;
 use SMF\Theme;
 use SMF\Time;
@@ -96,14 +96,7 @@ class TopicPrint implements ActionInterface
 			Utils::$context['poll'] = $poll->format(['no_buttons' => true]);
 		}
 
-		// We want a separate BBCodeParser instance for this, not the reusable one
-		// that would be returned by BBCodeParser::load().
-		$bbcparser = new BBCodeParser();
-
-		// Set the BBCodeParser to print mode.
-		$bbcparser->for_print = true;
-
-		// Lets "output" all that info.
+		// Let's output all that info.
 		Theme::loadTemplate('Printpage');
 		Utils::$context['template_layers'] = ['print'];
 		Utils::$context['board_name'] = Board::$info->name;
@@ -138,12 +131,14 @@ class TopicPrint implements ActionInterface
 			Lang::censorText($row['subject']);
 			Lang::censorText($row['body']);
 
+			$row['body'] = Parser::transform($row['body'], options: ['for_print' => true]);
+
 			Utils::$context['posts'][] = [
 				'subject' => $row['subject'],
 				'member' => $row['poster_name'],
 				'time' => Time::create('@' . $row['poster_time'])->format(null, false),
 				'timestamp' => $row['poster_time'],
-				'body' => $bbcparser->parse($row['body']),
+				'body' => $row['body'],
 				'id_msg' => $row['id_msg'],
 			];
 

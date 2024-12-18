@@ -19,7 +19,6 @@ use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
 use SMF\Alert;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -30,6 +29,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -265,7 +265,7 @@ class ReportedContent implements ActionInterface
 					'href' => Config::$scripturl . '?action=profile;u=' . $report['id_author'],
 				],
 				'subject' => $report['subject'],
-				'body' => BBCodeParser::load()->parse($report['body']),
+				'body' => Parser::transform($report['body']),
 			];
 		}
 
@@ -929,6 +929,7 @@ class ReportedContent implements ActionInterface
 				];
 			} else {
 				$report_boards_ids[] = $row['id_board'];
+
 				$extraDetails = [
 					'topic' => [
 						'id' => $row['id_topic'],
@@ -943,7 +944,7 @@ class ReportedContent implements ActionInterface
 						'href' => Config::$scripturl . '?action=profile;u=' . $row['id_author'],
 					],
 					'subject' => $row['subject'],
-					'body' => BBCodeParser::load()->parse($row['body']),
+					'body' => Parser::transform($row['body']),
 				];
 			}
 
@@ -1137,7 +1138,7 @@ class ReportedContent implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$report['mod_comments'][] = [
 				'id' => $row['id_comment'],
-				'message' => BBCodeParser::load()->parse($row['body']),
+				'message' => Parser::transform($row['body']),
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'can_edit' => User::$me->allowedTo('admin_forum') || ((User::$me->id == $row['id_member'])),
 				'member' => [

@@ -18,7 +18,6 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\Actions\Admin\News;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -27,6 +26,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
@@ -167,7 +167,7 @@ class XmlHttp implements ActionInterface
 				'identifier' => 'parsedNews',
 				'children' => [
 					[
-						'value' => BBCodeParser::load()->parse($news),
+						'value' => Utils::adjustHeadingLevels(Parser::transform($news), null),
 					],
 				],
 			],
@@ -237,9 +237,21 @@ class XmlHttp implements ActionInterface
 
 			Lang::censorText($current_signature);
 
-			$allowedTags = BBCodeParser::getSigTags();
+			$allowedTags = Parser::getSigTags();
 
-			$current_signature = !empty($current_signature) ? BBCodeParser::load()->parse($current_signature, true, 'sig' . $user, $allowedTags) : Lang::$txt['no_signature_set'];
+			if (empty($current_signature)) {
+				$current_signature = Lang::$txt['no_signature_set'];
+			} else {
+				$current_signature = Parser::transform(
+					string: $current_signature,
+					options: [
+						'cache_id' => 'sig' . $user,
+						'parse_tags' => $allowedTags,
+					],
+				);
+
+				$current_signature = Utils::adjustHeadingLevels($current_signature, null);
+			}
 
 			$preview_signature = !empty($_POST['signature']) ? Utils::htmlspecialchars($_POST['signature']) : Lang::$txt['no_signature_preview'];
 
@@ -251,7 +263,15 @@ class XmlHttp implements ActionInterface
 
 			Lang::censorText($preview_signature);
 
-			$preview_signature = BBCodeParser::load()->parse($preview_signature, true, 'sig' . $user, $allowedTags);
+			$preview_signature = Parser::transform(
+				string: $preview_signature,
+				options: [
+					'cache_id' => 'sig' . $user,
+					'parse_tags' => $allowedTags,
+				],
+			);
+
+			$preview_signature = Utils::adjustHeadingLevels($preview_signature, null);
 		} elseif (!$can_change) {
 			if ($is_owner) {
 				$errors[] = ['value' => Lang::$txt['cannot_profile_extra_own'], 'attributes' => ['type' => 'error']];
@@ -354,7 +374,8 @@ class XmlHttp implements ActionInterface
 			if (!empty($_POST['body'])) {
 				Msg::preparsecode($warning_body, false, !empty(Config::$modSettings['autoLinkUrls']));
 
-				$warning_body = BBCodeParser::load()->parse($warning_body);
+				$warning_body = Parser::transform($warning_body);
+				$warning_body = Utils::adjustHeadingLevels($warning_body, null);
 			}
 
 			Utils::$context['preview_message'] = $warning_body;

@@ -879,14 +879,22 @@ class Board implements \ArrayAccess
 			}
 
 			if (!isset(self::$parsed_descriptions[$this->id])) {
-				self::$parsed_descriptions[$this->id] = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
+				self::$parsed_descriptions[$this->id] = Parser::transform(
+					string: self::$parsed_descriptions[$this->id],
+					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+					options: ['parse_tags' => Utils::$context['description_allowed_tags']],
+				);
 
 				CacheApi::put('parsed_boards_descriptions', self::$parsed_descriptions, 864000);
 			}
 
 			$this->description = self::$parsed_descriptions[$this->id];
 		} else {
-			$this->description = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
+			$this->description = Parser::transform(
+				string: $this->description,
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+				options: ['parse_tags' => Utils::$context['description_allowed_tags']],
+			);
 		}
 	}
 

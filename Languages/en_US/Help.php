@@ -337,6 +337,10 @@ $helptxt['enablePostHTML'] = 'This will allow the posting of some basic HTML tag
 		<li>&lt;pre&gt;, &lt;blockquote&gt;</li>
 	</ul>';
 
+$helptxt['enableMarkdown'] = 'Enabling this setting will allow your members to use Markdown throughout the forum, providing them with an alternative syntax to format their posts.<br><br>Note that, unlike pure Markdown, SMF’s implementation does not allow authors to embed raw HTML into their posts except as permitted by the "Enable basic HTML in posts" setting.';
+$helptxt['collapse_blank_lines'] = 'Enabling this setting will remove unnecessary blank lines in post content, resulting in more consistent formatting in the output. Leave it disabled to preserve the blank lines.<br><br>This feature is only available when Markdown support is enabled.';
+$helptxt['collapse_single_breaks'] = 'Enabling this setting will remove single line breaks inside paragraphs, resulting in more consistent formatting in the output. Leave it disabled to preserve the line breaks.<br><br>Even when this feature is enabled, authors can still force line breaks to happen by using the [br] BBCode or by ending the line with a backslash character or with two or more spaces.<br><br>This feature is only available when Markdown support is enabled.';
+
 $helptxt['themes_manage'] = 'Here you can install new themes and select which themes your users can choose from, the default theme that new users and guests will use, as well as other theme selection settings.';
 $helptxt['theme_install'] = 'This allows you to install new themes. You can do this from an existing directory, by uploading an archive for the theme, or by copying the default theme.<br><br>Note that the archive or directory must have a <pre>theme_info.xml</pre> definition file.';
 $helptxt['xmlnews_enable'] = 'Allows people to link to <a href="{scripturl}?action=.xml;sa=news" target="_blank" rel="noopener">Recent news</a>

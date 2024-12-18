@@ -586,9 +586,10 @@ $txt['manageposts_topics'] = 'topics';
 $txt['manageposts_settings'] = 'Post Settings';
 $txt['manageposts_settings_description'] = 'Here you can set everything related to posts and posting.';
 
-$txt['manageposts_bbc_settings'] = 'Bulletin Board Code';
-$txt['manageposts_bbc_settings_description'] = 'Bulletin board code can be used to add markup to forum messages. For example, to highlight the word "house" you can type [b]house[/b]. All Bulletin board code tags are surrounded by square brackets ("[" and "]").';
+$txt['manageposts_bbc_settings'] = 'Bulletin Board Code &amp; Markdown';
+$txt['manageposts_bbc_settings_description'] = 'Bulletin board code and Markdown can be used to add markup to forum messages. For example, to highlight the word "house" you can type [b]house[/b] (using BBC) or **house** (using Markdown). All bulletin board code tags are surrounded by square brackets ("[" and "]"). <a href="https://commonmark.org/help/" target="_blank">Markdown syntax</a> is a little more complicated, but not too hard.';
 $txt['manageposts_bbc_settings_title'] = 'Bulletin Board Code settings';
+$txt['manageposts_markdown_settings_title'] = 'Markdown settings';
 
 $txt['manageposts_topic_settings'] = 'Topic Settings';
 $txt['manageposts_topic_settings_description'] = 'Here you can set all settings involving topics.';
@@ -629,6 +630,10 @@ $txt['bbcTagsToUse'] = 'Enabled BBC tags';
 $txt['enabled_bbc_select'] = 'Select the tags which are allowed to be used';
 $txt['enabled_bbc_select_all'] = 'Select all tags';
 $txt['groups_can_use'] = 'Membergroups allowed to use {0}';
+
+$txt['enableMarkdown'] = 'Enable Markdown';
+$txt['collapse_blank_lines'] = 'Collapse extra blank lines';
+$txt['collapse_single_breaks'] = 'Clean up line breaks inside paragraphs';
 
 $txt['enableParticipation'] = 'Enable participation icons';
 $txt['oldTopicDays'] = 'Time before topic is warned as old on reply';

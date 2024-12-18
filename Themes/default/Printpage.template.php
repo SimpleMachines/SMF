@@ -182,7 +182,7 @@ function template_main()
 				<div>', Lang::getTxt('posted_by_member_time', $post), '</div>
 			</div>
 			<div class="postbody">
-				', $post['body'];
+				', Utils::adjustHeadingLevels($post['body'], 2);
 
 		// Show attachment images
 		if (isset($_GET['images']) && !empty(Utils::$context['printattach'][$post['id_msg']]))

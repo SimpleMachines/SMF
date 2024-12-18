@@ -24,6 +24,7 @@ use SMF\Calendar\Birthday;
 use SMF\Calendar\Event;
 use SMF\Calendar\EventOccurrence;
 use SMF\Calendar\Holiday;
+use SMF\Calendar\VTimeZone;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -626,14 +627,16 @@ class Calendar implements ActionInterface
 				&& ($occurrence = $event->getOccurrence($_REQUEST['recurrenceid'])) !== false
 			) {
 				$file['content'][] = $occurrence->export();
+				$file['content'][] = VTimeZone::load($occurrence->tzid)->export($occurrence->start, $occurrence->end);
 			} else {
 				$file['content'][] = $event->export();
+				$file['content'][] = VTimeZone::load($event->tzid)->export($event->start, $event->end);
 			}
 
 			$file['filename'] = $event->title . '.ics';
 			$file['mtime'] = $event->modified_time;
 		} else {
-			$this->authenticateForExport();
+			$user = $this->authenticateForExport();
 
 			// Get all the visible events within a date range.
 			if (isset($_REQUEST['start_date'])) {
@@ -656,8 +659,16 @@ class Calendar implements ActionInterface
 			$high_date = (clone $low_date)->add($duration);
 
 			$full_event_uids = [];
+			$tzids = [];
 
-			foreach (Event::getOccurrencesInRange($low_date->format('Y-m-d'), $high_date->format('Y-m-d'), true) as $occurrence) {
+			$query_customizations['where'] = [
+				'cal.start_date <= {date:high_date}',
+				'cal.end_date >= {date:low_date}',
+				'type = {int:type}',
+				'cal.id_board IN (' . implode(',', $this->getBoardsForExport($user)) . ')',
+			];
+
+			foreach (Event::getOccurrencesInRange($low_date->format('Y-m-d'), $high_date->format('Y-m-d'), false, $query_customizations) as $occurrence) {
 				$event = $occurrence->getParentEvent();
 
 				// Skip if we already exported the full event.
@@ -674,15 +685,39 @@ class Calendar implements ActionInterface
 						&& $event->getRecurrenceEnd() <= $high_date
 					)
 				) {
+					if (!isset($tzids[$event->tzid])) {
+						$tzids[$event->tzid] = [
+							'min' => $event->start,
+							'max' => $event->end,
+						];
+					}
+
+					$tzids[$event->tzid]['min'] = $tzids[$event->tzid]['min'] > $event->start ? $event->start : $tzids[$event->tzid]['min'];
+					$tzids[$event->tzid]['max'] = $tzids[$event->tzid]['max'] < $event->end ? $event->end : $tzids[$event->tzid]['max'];
+
 					$file['content'][] = $event->export();
 					$full_event_ids[] = $event->uid;
 				}
 				// Otherwise, export just this occurrence.
 				else {
+					if (!isset($tzids[$occurrence->tzid])) {
+						$tzids[$occurrence->tzid] = [
+							'min' => $occurrence->start,
+							'max' => $occurrence->end,
+						];
+					}
+
+					$tzids[$occurrence->tzid]['min'] = $tzids[$occurrence->tzid]['min'] > $occurrence->start ? $occurrence->start : $tzids[$occurrence->tzid]['min'];
+					$tzids[$occurrence->tzid]['max'] = $tzids[$occurrence->tzid]['max'] < $occurrence->end ? $occurrence->end : $tzids[$occurrence->tzid]['max'];
+
 					$file['content'][] = $occurrence->export();
 				}
 
 				$file['mtime'] = max($file['mtime'], $event->modified_time);
+			}
+
+			foreach ($tzids as $tzid => $range) {
+				$file['content'][] = VTimeZone::load($tzid)->export($range['min'], $range['max']);
 			}
 
 			$file['filename'] = implode(' ', [Utils::$context['forum_name'], Lang::$txt['events'], $low_date->format('Y-m-d'), $high_date->format('Y-m-d')]) . '.ics';
@@ -778,7 +813,7 @@ class Calendar implements ActionInterface
 		$birthdays = [];
 		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
-		foreach(Birthday::getOccurrencesInRange($low_date, $high_date) as $occurrence) {
+		foreach (Birthday::getOccurrencesInRange($low_date, $high_date) as $occurrence) {
 			$birthdays[$occurrence->start->format('Y-m-d')][$occurrence->member] = $occurrence;
 		}
 
@@ -847,7 +882,7 @@ class Calendar implements ActionInterface
 		$holidays = [];
 		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
-		foreach(Holiday::getOccurrencesInRange($low_date, $high_date) as $occurrence) {
+		foreach (Holiday::getOccurrencesInRange($low_date, $high_date) as $occurrence) {
 			$holidays[$occurrence->start->format('Y-m-d')][] = $occurrence;
 		}
 
@@ -1697,23 +1732,47 @@ class Calendar implements ActionInterface
 
 	/**
 	 * Validates the guest-supplided user ID and token combination, and loads
-	 * the requested user if the token is valid.
+	 * and returns the requested user if the token is valid. Otherwise, returns
+	 * the current user.
 	 *
-	 * Does nothing if the user is already logged in.
+	 * @return SMF\User whose permissions should be used for exporting events.
 	 */
-	protected function authenticateForExport(): void
+	protected function authenticateForExport(): User
 	{
-		if (!User::$me->is_guest) {
-			return;
-		}
-
-		if (!empty($_REQUEST['u']) && isset($_REQUEST['token'])) {
+		if (User::$me->is_guest && !empty($_REQUEST['u']) && isset($_REQUEST['token'])) {
 			$user = current(User::load((int) $_REQUEST['u']));
 
 			if (($user instanceof User) && $_REQUEST['token'] === $this->createToken($user)) {
-				User::setMe($user->id);
+				return $user;
 			}
 		}
+
+		return User::$me;
+	}
+
+	/**
+	 * Gets the board IDs for boards where the passed user wants to see events.
+	 *
+	 * @param User $user The user whose permissions should be used.
+	 * @return array An array of board IDs.
+	 */
+	protected function getBoardsForExport(User $user): array
+	{
+		$request = Db::$db->query(
+			'',
+			'SELECT b.id_board
+			FROM {db_prefix}boards as b
+			WHERE ' . $user->query_wanna_see_board,
+			[],
+		);
+
+		$board_ids = array_map(fn ($row) => $row['id_board'], Db::$db->fetch_all($request));
+
+		Db::$db->free_result($request);
+
+		$board_ids[] = 0;
+
+		return $board_ids;
 	}
 }
 

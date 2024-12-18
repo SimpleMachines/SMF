@@ -977,7 +977,7 @@ function template_send()
 			</div>
 			<div class="windowbg noup">
 				<div class="post" id="preview_body">
-					', empty(Utils::$context['preview_message']) ? '<br>' : Utils::$context['preview_message'], '
+					', empty(Utils::$context['preview_message']) ? '<br>' : Utils::adjustHeadingLevels(Utils::$context['preview_message'], 3), '
 				</div>
 			</div>
 			<br class="clear">
@@ -1249,7 +1249,7 @@ function template_send()
 				', Lang::getTxt('pm_from', ['member' => Utils::$context['quoted_message']['member']['link']]), '
 			</div>
 			<hr>
-			', Utils::$context['quoted_message']['body'], '
+			', Utils::adjustHeadingLevels(Utils::$context['quoted_message']['body'], 3), '
 		</div>
 		<br class="clear">';
 
@@ -1917,9 +1917,9 @@ function template_showPMDrafts()
 		<div class="windowbg">
 			<div class="page_number floatright"> #', $draft['counter'], '</div>
 			<div class="topic_details">
-				<h5>
+				<h4>
 					<strong>', $draft['subject'], '</strong>
-				</h5>
+				</h4>
 				<div class="smalltext">
 					<div class="recipient_to">', Lang::getTxt('pm_to', ['list' => implode(Lang::$txt['sentence_list_separator'] . ' ', $draft['recipients']['to'])]), '</div>';
 
@@ -1934,7 +1934,7 @@ function template_showPMDrafts()
 				</div>
 			</div>
 			<div class="list_posts">
-				', $draft['body'], '
+				', Utils::adjustHeadingLevels($draft['body'], 4), '
 			</div>';
 
 			// Draft buttons

@@ -69,12 +69,19 @@
 
 namespace SMF;
 
+use SMF\Calendar\RRule;
 use SMF\WebFetch\WebFetchApi;
 
-define('SMF', 'derp');
-define('SMF_VERSION', 'does not matter');
-define('SMF_SOFTWARE_YEAR', 'whatever');
+define('SMF', basename(__FILE__));
 define('SMF_USER_AGENT', 'SMF');
+
+$index = file_get_contents('../index.php');
+
+preg_match('/define\(\'SMF_VERSION\', \'([^\']+)\'\);/', $index, $matches);
+define('SMF_VERSION', $matches[1]);
+
+preg_match('/define\(\'SMF_SOFTWARE_YEAR\', \'([^\']+)\'\);/', $index, $matches);
+define('SMF_SOFTWARE_YEAR', $matches[1]);
 
 require_once '../Sources/Autoloader.php';
 
@@ -124,12 +131,17 @@ class TimezoneUpdater
 	 *
 	 * To support 32-bit PHP builds, use '1901-12-13 20:45:52 UTC'
 	 */
-	public const DATE_MIN = '-292277022657-01-27 08:29:52 UTC';
+	public const DATE_MIN = '1582-10-15 00:00:00 UTC';
+
+	/**
+	 * Used in places where a date in the next year or so is required.
+	 */
+	public const DATE_SOON = 'January 1 + 2 years UTC';
 
 	/**
 	 * Used in places where a latest date is required.
 	 */
-	public const DATE_MAX = 'January 1 + 2 years UTC';
+	public const DATE_MAX = 'January 1 + 100 years UTC';
 
 	// End of settings
 	/*************************************************************************/
@@ -203,6 +215,8 @@ class TimezoneUpdater
 		$this->fetchTzdbUpdates();
 		$this->updateTimezoneClass();
 		$this->updateTimezonesLangfile();
+
+		$this->buildVTimeZoneClasses();
 
 		// Changed in unexpected ways?
 		if (!empty($this->tz_data['changed']['wtf'])) {
@@ -595,7 +609,7 @@ class TimezoneUpdater
 		// Go one year at a time to avoid false positives on places that simply
 		// started or stopped using DST and that are covered by existing metazones
 		// both before and after they changed their DST practices.
-		for ($year = date_create(self::DATE_MAX . ' - 7 years')->format('Y'); $year <= date_create(self::DATE_MAX)->format('Y'); $year++) {
+		for ($year = date_create(self::DATE_SOON . ' - 7 years')->format('Y'); $year <= date_create(self::DATE_SOON)->format('Y'); $year++) {
 			$start_date = new \DateTimeImmutable($year . '-01-01T00:00:00+0000');
 			$end_date = new \DateTimeImmutable(($year + 1) . '-01-01T00:00:00+0000');
 
@@ -1857,7 +1871,7 @@ class TimezoneUpdater
 					$time = $entry_start->format('Y-m-d\TH:i:sO');
 					$offset = $std_offset;
 					$isdst = false;
-					$abbr = $entry['format'] === '%z' ? sprintf("%+03d", strtr($offset, [':00' => '', ':' => ''])) : sprintf($entry['format'], 'S');
+					$abbr = $entry['format'] === '%z' ? sprintf('%+03d', strtr($offset, [':00' => '', ':' => ''])) : sprintf($entry['format'], 'S');
 					$save = 0;
 					$unadjusted_date_string = $unadjusted_date_strings['entry_start'];
 
@@ -1895,7 +1909,7 @@ class TimezoneUpdater
 					$time = $entry_start->format('Y-m-d\TH:i:sO');
 					$offset = $std_offset + $rules_offset;
 					$isdst = true;
-					$abbr = $entry['format'] === '%z' ? sprintf("%+03d", strtr($offset, [':00' => '', ':' => ''])) : sprintf($entry['format'], 'D');
+					$abbr = $entry['format'] === '%z' ? sprintf('%+03d', strtr($offset, [':00' => '', ':' => ''])) : sprintf($entry['format'], 'D');
 					$save = $rules_offset;
 					$unadjusted_date_string = $unadjusted_date_strings['entry_start'];
 
@@ -1972,6 +1986,8 @@ class TimezoneUpdater
 							'at_suffix' => $entry['from_suffix'],
 							'unadjusted_date_string' => $unadjusted_date_strings['entry_start'],
 							'adjusted_date_string' => $entry_start->format('Y-m-d\TH:i:sO'),
+							'rrule' => $rule_transitions[$unadjusted_date_strings['entry_start']]['rrule'] ?? null,
+							'dtstart' => $rule_transitions[$unadjusted_date_strings['entry_start']]['dtstart'] ?? null,
 						];
 
 						ksort($rule_transitions);
@@ -2008,9 +2024,35 @@ class TimezoneUpdater
 						$time = $transition_date->format('Y-m-d\TH:i:sO');
 						$offset = $std_offset + $save_offset;
 						$isdst = $save_offset != 0;
-						$abbr = $entry['format'] === '%z' ? sprintf("%+03d", strtr($offset, [':00' => '', ':' => ''])) : (sprintf($entry['format'], $info['letter'] === '-' ? '' : $info['letter']));
+						$abbr = $entry['format'] === '%z' ? sprintf('%+03d', strtr($offset, [':00' => '', ':' => ''])) : (sprintf($entry['format'], $info['letter'] === '-' ? '' : $info['letter']));
 						$save = $save_offset;
 						$unadjusted_date_string = $info['unadjusted_date_string'];
+						$rrule = $info['rrule'] ?? null;
+
+						if (isset($info['dtstart'])) {
+							$dtstart = new \DateTime($info['dtstart'], $utc);
+
+							switch ($info['at_suffix']) {
+								case 'u':
+								case 'g':
+								case 'z':
+									$dtstart->add($this->offsetToDateInterval($prev_save));
+									$dtstart->add($this->offsetToDateInterval($prev_std_offset));
+									$dtstart = $dtstart->format('Ymd\THis');
+									break;
+
+								case 's':
+									$dtstart->add($this->offsetToDateInterval($prev_save));
+									$dtstart = $dtstart->format('Ymd\THis');
+									break;
+
+								default:
+									$dtstart = $info['dtstart'];
+									break;
+							}
+						} else {
+							$dtstart = null;
+						}
 
 						// Some abbr values use '+00/+01' instead of sprintf formats.
 						if (str_contains($abbr, '/')) {
@@ -2051,6 +2093,11 @@ class TimezoneUpdater
 
 						// Create the new transition.
 						$this->transitions[$tzid][$ts] = compact('ts', 'time', 'offset', 'isdst', 'abbr');
+
+						if (isset($rrule)) {
+							$this->transitions[$tzid][$ts]['rrule'] = $rrule;
+							$this->transitions[$tzid][$ts]['dtstart'] = $dtstart;
+						}
 					}
 				}
 
@@ -2242,6 +2289,8 @@ class TimezoneUpdater
 						'save' => $rule['save'],
 						'at_suffix' => $rule['at_suffix'],
 						'unadjusted_date_string' => $transition_date->format('Y-m-d\TH:i:s'),
+						'dtstart' => $year_to > $year_from ? $this->buildRecurrenceRuleStart($rule) : null,
+						'rrule' => $year_to > $year_from ? $this->buildRecurrenceRule($rule) . $this->buildRecurrenceRuleUntil($rule) : null,
 					];
 				}
 			}
@@ -2535,6 +2584,409 @@ class TimezoneUpdater
 		}
 
 		return $generated;
+	}
+
+	/**
+	 * Builds the SMF\Calendar\VTimeZone class and sub-classes.
+	 */
+	private function buildVTimeZoneClasses(): void
+	{
+		if (!file_exists(Config::$sourcedir . '/Calendar/VTimeZones')) {
+			mkdir(Config::$sourcedir . '/Calendar/VTimeZones');
+		}
+
+		$this->buildZones();
+
+		$canonical_links = [];
+
+		foreach ($this->zones as $tzid => $zone) {
+			if (isset($zone['canonical'])) {
+				$canonical_links[$tzid] = $zone['canonical'];
+				continue;
+			}
+
+			$components = [];
+
+			$known_dtstarts = [];
+
+			foreach ($this->transitions[$tzid] as $transition_num => $transition) {
+				$prev_transition = $this->transitions[$tzid][$transition_num - 1] ?? null;
+
+				// Skip entries for Local Mean Time.
+				if (
+					($transition['offset'] % 900 !== 0 && empty($components))
+					|| !isset($prev_transition)
+				) {
+					continue;
+				}
+
+				$component = [
+					'type' => $transition['isdst'] ? 'DAYLIGHT' : 'STANDARD',
+					'DTSTART' => null,
+					'RRULE' => null,
+					'TZNAME' => !is_numeric($transition['abbr']) ? $transition['abbr'] : null,
+					'TZOFFSETFROM' => sprintf('%+03d', (int) ($prev_transition['offset'] < 0 ? ceil($prev_transition['offset'] / 3600) : floor($prev_transition['offset'] / 3600))) . sprintf('%02d', (int) abs($prev_transition['offset'] / 60) % 60) . (abs($prev_transition['offset']) % 60 !== 0 ? sprintf('%02d', (int) abs($prev_transition['offset']) % 60) : ''),
+					'TZOFFSETTO' => sprintf('%+03d', (int) ($transition['offset'] < 0 ? ceil($transition['offset'] / 3600) : floor($transition['offset'] / 3600))) . sprintf('%02d', (int) abs($transition['offset'] / 60) % 60) . (abs($transition['offset']) % 60 !== 0 ? sprintf('%02d', (int) abs($transition['offset']) % 60) : ''),
+				];
+
+				if (!isset($component['TZNAME'])) {
+					// Offsets from UTC are propertly written like 'UTC-07' or
+					// 'UTC+1030'. In contrast, 'GMT' is merely the name of a
+					// time zone with a UTC offset of zero. So 'GMT' can be used
+					// as the TZNAME for UTC+00, but for everything else the
+					// correct notation is the UTC offset. This is all the more
+					// true since the signs are flipped in time zone names like
+					// 'Etc/GMT-5', whose offset is actually UTC+05.
+					if ((int) $component['TZOFFSETTO'] === 0 && substr($component['TZOFFSETTO'], 0, 1) === '+') {
+						$component['TZNAME'] = 'GMT';
+					} else {
+						$component['TZNAME'] = 'UTC' . $component['TZOFFSETTO'];
+
+						while (
+							strlen($component['TZNAME']) > 6
+							&& str_ends_with($component['TZNAME'], '00')
+						) {
+							$component['TZNAME'] = substr($component['TZNAME'], 0, -2);
+						}
+					}
+				}
+
+				if (!isset($transition['rrule'])) {
+					$dtstart = new \DateTime('@' . $transition['ts']);
+					$dtstart->setTimestamp((int) $dtstart->format('U') + $prev_transition['offset']);
+					$component['DTSTART'] = $dtstart->format('Ymd\THis');
+				} elseif (!in_array($transition['dtstart'], $known_dtstarts)) {
+					$known_dtstarts[] = $transition['dtstart'];
+					$component['DTSTART'] = $transition['dtstart'];
+					$component['RRULE'] = $transition['rrule'];
+				}
+
+				// Filter out any missing values.
+				$component = array_filter($component, fn ($arg) => isset($arg));
+
+				if (isset($component['DTSTART'])) {
+					$components[] = $component;
+				}
+			}
+
+			if (!file_exists(dirname(Config::$sourcedir . '/Calendar/VTimeZones/' . $tzid))) {
+				mkdir(dirname(Config::$sourcedir . '/Calendar/VTimeZones/' . $tzid));
+			}
+
+			$class_name = strtr($tzid, ['+' => '', '-' => '_']);
+
+			$old_hash = file_exists(Config::$sourcedir . '/Calendar/VTimeZones/' . $class_name . '.php') ? sha1_file(Config::$sourcedir . '/Calendar/VTimeZones/' . $class_name . '.php') : null;
+
+			file_put_contents(
+				Config::$sourcedir . '/Calendar/VTimeZones/' . $class_name . '.php',
+				preg_replace('/^\h+$/m', '', implode("\n", [
+					'<' . '?php',
+					'',
+					'/**',
+					' * Simple Machines Forum (SMF)',
+					' *',
+					' * @package SMF',
+					' * @author Simple Machines https://www.simplemachines.org',
+					' * @copyright ' . SMF_SOFTWARE_YEAR . ' Simple Machines and individual contributors',
+					' * @license https://www.simplemachines.org/about/smf/license.php BSD',
+					' *',
+					' * @version ' . SMF_VERSION,
+					' */',
+					'',
+					'declare(strict_types=1);',
+					'',
+					'namespace SMF\\Calendar\\VTimeZones\\' . str_replace('/', '\\', dirname($tzid)) . ';',
+					'',
+					'/**',
+					' * ' . $tzid,
+					' */',
+					'class ' . basename($class_name) . ' extends \\SMF\\Calendar\\VTimeZone',
+					'{',
+					"\t" . implode("\n\t", [
+						'/*******************',
+						' * Public properties',
+						' *******************/',
+						'',
+						'/**',
+						' * @var string',
+						' *',
+						' * Time zone identifier.',
+						' */',
+						'public string $tzid = ' . Config::varExport($tzid) . ';',
+						'',
+						'/**',
+						' * @var array',
+						' *',
+						' * Data for the VTIMEZONE components.',
+						' *',
+						' * Developers: Do not update the data in this array manually. Instead,',
+						' * run "php -f other/update_timezones.php" on the command line.',
+						' */',
+						'public array $components = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($components)) . ';',
+					]),
+					'}',
+					'',
+					'?' . '>',
+				])),
+			);
+
+			$new_hash = sha1_file(Config::$sourcedir . '/Calendar/VTimeZones/' . $class_name . '.php');
+
+			if ($old_hash !== $new_hash) {
+				$this->files_updated = true;
+			}
+		}
+
+		// Update the list of canonical links in the base class.
+		ksort($canonical_links);
+
+		$canonical_links = preg_replace('/^(?!\[)/m', "\t", Config::varExport($canonical_links));
+
+		$old_hash = file_exists(Config::$sourcedir . '/Calendar/VTimeZone.php') ? sha1_file(Config::$sourcedir . '/Calendar/VTimeZone.php') : null;
+
+		file_put_contents(
+			Config::$sourcedir . '/Calendar/VTimeZone.php',
+			preg_replace(
+				[
+					'/public const CANONICAL_LINKS = \[[^\]]*\];/',
+					'/^\h+$/m',
+				],
+				[
+					'public const CANONICAL_LINKS = ' . $canonical_links . ';',
+					'',
+				],
+				file_get_contents(Config::$sourcedir . '/Calendar/VTimeZone.php'),
+			),
+		);
+
+		$new_hash = sha1_file(Config::$sourcedir . '/Calendar/VTimeZone.php');
+
+		if ($old_hash !== $new_hash) {
+			$this->files_updated = true;
+		}
+	}
+
+	/**
+	 * Builds an iCalendar recurrence rule based on TZDB rule data.
+	 *
+	 * @param array $rule One line from a TZDB rule.
+	 * @return string An iCalendar recurrence rule.
+	 */
+	private function buildRecurrenceRule(array $rule): string
+	{
+		// 2001 was not a leap year, so it will give us typical values.
+		$in_month = new \DateTime('2001-' . $rule['in'] . '-01');
+
+		$rrule = [
+			'FREQ' => 'YEARLY',
+			'BYMONTH' => [(int) $in_month->format('m')],
+		];
+
+		// Figure out the values for the RRULE and DTSTART.
+		if (str_contains($rule['on'], '>=') || str_contains($rule['on'], '<=')) {
+			if (str_contains($rule['on'], '>=')) {
+				list($day_name, $month_day) = explode('>=', $rule['on']);
+				$byday_max_month_day = 22;
+				$byday_remainder = 1;
+				$bymonthday_limit = (int) $in_month->format('t') - 6;
+				$bymonthday_increment = 1;
+			} else {
+				list($day_name, $month_day) = explode('<=', $rule['on']);
+				$byday_max_month_day = (int) $in_month->format('t');
+				$byday_remainder = 0;
+				$bymonthday_limit = 7;
+				$bymonthday_increment = -1;
+			}
+
+			if ($month_day <= $byday_max_month_day && $month_day % 7 === $byday_remainder) {
+				$rrule['BYDAY'] = [(($month_day - ($month_day % 7)) / 7 + $byday_remainder) . strtoupper(substr($day_name, 0, 2))];
+			} else {
+				$rrule['BYDAY'] = [strtoupper(substr($day_name, 0, 2))];
+
+				if (($month_day <=> $bymonthday_limit) !== $bymonthday_increment) {
+					for ($i = 0; $i < 7; $i++) {
+						$rrule['BYMONTHDAY'][] = $month_day + ($i * $bymonthday_increment);
+					}
+
+					sort($rrule['BYMONTHDAY']);
+				} else {
+					unset($rrule['BYMONTH']);
+
+					$rrule['BYYEARDAY'] = [];
+
+					$d = new \DateTime($rule['from'] . '-' . $rule['in'] . '-' . sprintf('%02d', $month_day));
+
+					for ($i = 0; $i < 7; $i++) {
+						// In normal years, day 60 and day -306 are both Mar 1, but in
+						// leap years Feb 29 is day 60 while day -306 is Mar 1. It is
+						// safe to list both 60 and -306 in normal years (the duplicate
+						// will be silently ignored), but it is important to give both
+						// for the sake of leap years.
+						$comp_day_60 = ((int) $d->format('z') + 1 <=> 60);
+
+						// Before day 61.
+						if ($comp_day_60 < 1) {
+							$rrule['BYYEARDAY'][] = (int) $d->format('z') + 1;
+						}
+
+						// After day 59.
+						if ($comp_day_60 > -1) {
+							$rrule['BYYEARDAY'][] = (int) $d->format('z') - 365;
+						}
+
+						$d->modify(sprintf('%+d day', $bymonthday_increment));
+					}
+
+					usort(
+						$rrule['BYYEARDAY'],
+						fn ($a, $b) => ($a < 0) === ($b < 0) ? $a <=> $b : $b <=> $a,
+					);
+
+					$rrule['BYSETPOS'] = [1];
+				}
+			}
+		} elseif (str_starts_with($rule['on'], 'last')) {
+			$rrule['BYDAY'] = '-1' . strtoupper(substr($rule['on'], 4, 2));
+		} else {
+			$rrule['BYMONTHDAY'][] = (int) $rule['on'];
+		}
+
+		// Finalize the RRULE.
+		foreach ($rrule as $part => $value) {
+			$rrule[$part] = $part . '=' . implode(',', (array) $value);
+		}
+
+		return implode(';', $rrule);
+	}
+
+	/**
+	 * Returns the start date (in local time) for an iCalendar recurrence rule
+	 * based on TZDB rule data.
+	 *
+	 * @param array $rule One line from a TZDB rule.
+	 * @return string A date string in iCalendar format ('Ymd\THis').
+	 */
+	private function buildRecurrenceRuleStart(array $rule): string
+	{
+		// Figure out the date component.
+		if (str_contains($rule['on'], '>=') || str_contains($rule['on'], '<=')) {
+			if (str_contains($rule['on'], '>=')) {
+				list($day_name, $month_day) = explode('>=', $rule['on']);
+				$bymonthday_increment = 1;
+			} else {
+				list($day_name, $month_day) = explode('<=', $rule['on']);
+				$bymonthday_increment = -1;
+			}
+
+			$dtstart = new \DateTime($rule['from'] . '-' . $rule['in'] . '-' . sprintf('%02d', $month_day));
+
+			while (strtoupper(substr($day_name, 0, 2)) !== strtoupper(substr($dtstart->format('D'), 0, 2))) {
+				$dtstart->modify(sprintf('%+d day', $bymonthday_increment));
+			}
+		} elseif (str_starts_with($rule['on'], 'last')) {
+			$dtstart = new \DateTime($rule['from'] . '-' . $rule['in'] . '-01');
+			$dtstart->modify('+1 month');
+
+			do {
+				$dtstart->modify('-1 day');
+			} while (strtoupper(substr($rule['on'], 4, 2)) !== strtoupper(substr($dtstart->format('D'), 0, 2)));
+		} else {
+			$dtstart = new \DateTime($rule['from'] . '-' . $rule['in'] . '-' . sprintf('%02d', (int) $rule['on']));
+		}
+
+		// Add the time component.
+		if ($rule['at'] === '-') {
+			$rule['at'] = '0';
+		}
+
+		$dtstart->add($this->offsetToDateInterval($rule['at']));
+
+		return $dtstart->format('Ymd\THis');
+	}
+
+	/**
+	 * Returns the until date (in local time) for an iCalendar recurrence rule
+	 * based on TZDB rule data.
+	 *
+	 * @param array $rule One line from a TZDB rule.
+	 * @return string A date string in iCalendar format ('Ymd\THis'), or an
+	 *    empty string if the rule doesn't have an expiry date.
+	 */
+	private function buildRecurrenceRuleUntil(array $rule): string
+	{
+		if ($rule['to'] === 'max') {
+			return '';
+		}
+
+		if ($rule['to'] === 'only') {
+			return ';UNTIL=' . $this->buildRecurrenceRuleStart($rule);
+		}
+
+		// Figure out the date component.
+		if (str_contains($rule['on'], '>=') || str_contains($rule['on'], '<=')) {
+			if (str_contains($rule['on'], '>=')) {
+				list($day_name, $month_day) = explode('>=', $rule['on']);
+				$bymonthday_increment = 1;
+			} else {
+				list($day_name, $month_day) = explode('<=', $rule['on']);
+				$bymonthday_increment = -1;
+			}
+
+			$until = new \DateTime($rule['to'] . '-' . $rule['in'] . '-' . sprintf('%02d', $month_day));
+
+			while (strtoupper(substr($day_name, 0, 2)) !== strtoupper(substr($until->format('D'), 0, 2))) {
+				$until->modify(sprintf('%+d day', $bymonthday_increment));
+			}
+		} elseif (str_starts_with($rule['on'], 'last')) {
+			$until = new \DateTime($rule['to'] . '-' . $rule['in'] . '-01');
+			$until->modify('+1 month');
+
+			do {
+				$until->modify('-1 day');
+			} while (strtoupper(substr($rule['on'], 4, 2)) !== strtoupper(substr($until->format('D'), 0, 2)));
+		} else {
+			$until = new \DateTime($rule['to'] . '-' . $rule['in'] . '-' . sprintf('%02d', (int) $rule['on']));
+		}
+
+		// Add the time component.
+		if ($rule['at'] === '-') {
+			$rule['at'] = '0';
+		}
+
+		$until->add($this->offsetToDateInterval($rule['at']));
+
+		return ';UNTIL=' . $until->format('Ymd\THis');
+	}
+
+	/**
+	 * Given an offset value such as '+3:00' or '-05:23:37', returns a
+	 * \DateInterval that corresponds to the indicated amount of time.
+	 *
+	 * The offset value is always assumed to begin with hours, then minutes,
+	 * then seconds, with missing values filled in by zeros. For example,
+	 * passing '+3' will be interpreted as '+03:00:00'.
+	 *
+	 * @param string $offset The offset value as a string.
+	 * @return \DateInterval for the indicated amount of time.
+	 */
+	private function offsetToDateInterval(string $offset): \DateInterval
+	{
+		$duration = 'PT';
+
+		foreach (
+			array_combine(
+				['H', 'M', 'S'],
+				array_pad(explode(':', $offset), 3, '00'),
+			)
+			as $unit => $value
+		) {
+			$duration .= abs((int) $value) . $unit;
+		}
+
+		$interval = new \DateInterval($duration);
+		$interval->invert = (int) (substr($offset, 0, 1) === '-');
+
+		return $interval;
 	}
 }
 

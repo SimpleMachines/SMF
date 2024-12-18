@@ -83,7 +83,7 @@ function template_main()
 					</h3>
 				</div>
 				<div id="preview_body" class="windowbg">
-					', empty(Utils::$context['preview_message']) ? '<br>' : Utils::$context['preview_message'], '
+					', empty(Utils::$context['preview_message']) ? '<br>' : Utils::adjustHeadingLevels(Utils::$context['preview_message'], 4), '
 				</div>
 			</div>
 			<br>';
@@ -603,7 +603,7 @@ function template_main()
 					</div>';
 
 			echo '
-					<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', $post['message'], '</div>';
+					<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', Utils::adjustHeadingLevels($post['message'], 5), '</div>';
 
 			if (Utils::$context['can_quote'])
 				echo '

@@ -93,7 +93,7 @@ function template_view_package()
 			<h3 class="catbg">', Lang::$txt['package_' . (Utils::$context['uninstalling'] ? 'un' : '') . 'install_readme'], '</h3>
 		</div>
 		<div class="windowbg">
-			', Utils::$context['package_readme'], '
+			', Utils::adjustHeadingLevels(Utils::$context['package_readme'], 3), '
 			<span class="floatright">', Lang::$txt['package_available_readme_language'], '
 				<select name="readme_language" id="readme_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=', Utils::$context['uninstalling'] ? 'uninstall' : 'install', ';package=', Utils::$context['filename'], ';license=\' + this.options[this.selectedIndex].value + \';readme=\' + get_selected(\'readme_language\'));">';
 
@@ -116,7 +116,7 @@ function template_view_package()
 			<h3 class="catbg">', Lang::$txt['package_install_license'], '</h3>
 		</div>
 		<div class="windowbg">
-			', Utils::$context['package_license'], '
+			', Utils::adjustHeadingLevels(Utils::$context['package_license'], 3), '
 			<span class="floatright">', Lang::$txt['package_available_license_language'], '
 				<select name="license_language" id="license_language" onchange="if (this.options[this.selectedIndex].value) window.location.href = smf_prepareScriptUrl(smf_scripturl + \'', '?action=admin;area=packages;sa=install', ';package=', Utils::$context['filename'], ';readme=\' + this.options[this.selectedIndex].value + \';license=\' + get_selected(\'license_language\'));">';
 

@@ -17,13 +17,13 @@ namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IP;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -318,11 +318,11 @@ class ErrorLog implements ActionInterface
 			} elseif ($this->filter['variable'] == 'url') {
 				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((str_starts_with($this->filter['value']['sql'], '?') ? Config::$scripturl : '') . $this->filter['value']['sql']), ['\\_' => '_']) . '\'';
 			} elseif ($this->filter['variable'] == 'message') {
-				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => '&nbsp;&nbsp;&nbsp;', '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
+				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => Utils::TAB_SUBSTITUTE, '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
 
 				Utils::$context['filter']['value']['html'] = preg_replace('~&amp;lt;span class=&amp;quot;remove&amp;quot;&amp;gt;(.+?)&amp;lt;/span&amp;gt;~', '$1', Utils::$context['filter']['value']['html']);
 			} elseif ($this->filter['variable'] == 'error_type') {
-				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => '&nbsp;&nbsp;&nbsp;', '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
+				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => Utils::TAB_SUBSTITUTE, '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
 			} else {
 				Utils::$context['filter']['value']['html'] = &$this->filter['value']['sql'];
 			}
@@ -430,7 +430,7 @@ class ErrorLog implements ActionInterface
 			ErrorHandler::fatalLang('error_bad_line');
 		}
 
-		$file_data = explode('<br />', BBCodeParser::highlightPhpCode(Utils::htmlspecialchars(file_get_contents($file))));
+		$file_data = explode('<br />', Parser::highlightPhpCode(Utils::htmlspecialchars(file_get_contents($file))));
 
 		// We don't want to slice off too many so lets make sure we stop at the last one
 		$max = min($max, max(array_keys($file_data)));

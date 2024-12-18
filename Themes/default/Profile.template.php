@@ -355,7 +355,7 @@ function template_summary()
 		echo '
 				<dt>', Lang::$txt['profile_warning_level'], '</dt>
 				<dd>
-					<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=', (Utils::$context['can_issue_warning'] && !User::$me->is_owner ? 'issuewarning' : 'viewwarning'), '">', Lang::formatTxt('{0, number, :: percent}', [Utils::$context['member']['warning']]), '</a>';
+					<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=', (Utils::$context['can_issue_warning'] && !User::$me->is_owner ? 'issuewarning' : 'viewwarning'), '">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), '</a>';
 
 		// Can we provide information on what this means?
 		if (!empty(Utils::$context['warning_status']))
@@ -503,9 +503,9 @@ function template_showPosts()
 		<div class="', $post['css_class'], '">
 			<div class="page_number floatright"> #', $post['counter'], '</div>
 			<div class="topic_details">
-				<h5>
+				<h4>
 					<strong><a href="', Config::$scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', Config::$scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong>
-				</h5>
+				</h4>
 				<span class="smalltext">', $post['time'], '</span>
 			</div>';
 
@@ -518,7 +518,7 @@ function template_showPosts()
 			echo '
 			<div class="post">
 				<div class="inner">
-					', $post['body'], '
+					', Utils::adjustHeadingLevels($post['body'], 4), '
 				</div>
 			</div><!-- .post -->';
 
@@ -668,7 +668,7 @@ function template_showDrafts()
 		<div class="windowbg">
 			<div class="page_number floatright"> #', $draft['counter'], '</div>
 			<div class="topic_details">
-				<h5>
+				<h4>
 					<strong><a href="', Config::$scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
 
 			if (!empty($draft['sticky']))
@@ -680,11 +680,11 @@ function template_showDrafts()
 					<span class="main_icons lock" title="', Lang::$txt['locked_topic'], '"></span>';
 
 			echo '
-				</h5>
+				</h4>
 				<span class="smalltext">', Lang::getTxt('draft_saved_on', ['date' => $draft['time']]), '</span>
 			</div><!-- .topic_details -->
 			<div class="list_posts">
-				', $draft['body'], '
+				', Utils::adjustHeadingLevels($draft['body'], 4), '
 			</div>
 			<div class="floatright">';
 
@@ -2425,7 +2425,7 @@ function template_issueWarning()
 						<strong>', Lang::$txt['preview'], '</strong>
 					</dt>
 					<dd id="body_preview">
-						', !empty(Utils::$context['warning_data']['body_preview']) ? Utils::$context['warning_data']['body_preview'] : '', '
+						', !empty(Utils::$context['warning_data']['body_preview']) ? Utils::adjustHeadingLevels(Utils::$context['warning_data']['body_preview'], 3) : '', '
 					</dd>
 				</dl>
 				<hr>

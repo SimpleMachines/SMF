@@ -522,13 +522,19 @@ class ServerSideIncludes
 				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
 			}
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
+
+			$row['body'] = strtr($row['body'], [Utils::TAB_SUBSTITUTE => '<span style="white-space: pre-wrap;">' . "\t" . '</span>']);
 
 			// Censor it!
 			Lang::censorText($row['subject']);
 			Lang::censorText($row['body']);
 
-			$preview = strip_tags(strtr($row['body'], ['<br>' => '&#10;']));
+			$preview = strip_tags(strtr($row['body'], ['<br>' => '&#10;', '<p>' => '', '</p>' => '&#10;&#10;']));
 
 			// Build the array.
 			$posts[$row['id_msg']] = [
@@ -702,7 +708,18 @@ class ServerSideIncludes
 		$posts = [];
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], $row['id_msg']), ['<br>' => '&#10;']));
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				output_type: Parser::OUTPUT_TEXT,
+				options: [
+					'cache_id' => (int) $row['id_msg'],
+					'str_replace' => [
+						'<br>' => '&#10;',
+						Utils::TAB_SUBSTITUTE => '&#9;',
+					],
+				],
+			);
 
 			if (Utils::entityStrlen($row['body']) > 128) {
 				$row['body'] = Utils::entitySubstr($row['body'], 0, 128) . '...';
@@ -2239,7 +2256,13 @@ class ServerSideIncludes
 				$row['body'] .= '...';
 			}
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], (bool) $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
+
+			$row['body'] = strtr($row['body'], [Utils::TAB_SUBSTITUTE => '<span style="white-space: pre-wrap;">' . "\t" . '</span>']);
 
 			if (!empty($recycle_board) && $row['id_board'] == $recycle_board) {
 				$row['icon'] = 'recycled';
@@ -2308,7 +2331,7 @@ class ServerSideIncludes
 						<a href="', $news['href'], '">', $news['subject'], '</a>
 					</h3>
 					<div class="news_timestamp">', $news['time'], ' ', Lang::$txt['by'], ' ', $news['poster']['link'], '</div>
-					<div class="news_body" style="padding: 2ex 0;">', $news['body'], '</div>
+					<div class="news_body" style="padding: 2ex 0;">', Utils::adjustHeadingLevels($news['body'], 3), '</div>
 					', $news['link'], $news['locked'] ? '' : ' | ' . $news['comment_link'], '';
 
 			// Is there any likes to show?

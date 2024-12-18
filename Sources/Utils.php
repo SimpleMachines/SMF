@@ -41,15 +41,198 @@ class Utils
 	 *****************/
 
 	/**
-	 * Regular expression to match named entities for HTML special characters
-	 * and any numeric entities.
+	 * Regular expression to match all named HTML entities and numeric entities.
 	 */
-	public const ENT_LIST = '&(?' . '>nbsp|quot|gt|lt|a(?' . '>pos|mp)|#(?' . '>\d+|x[0-9a-fA-F]+));';
+	public const ENT_LIST = '&(?' . '>A(?' . '>acute|breve|grave|tilde|Elig|lpha' .
+		'|macr|ring|scr|uml|fr|nd|c(?' . '>irc|y)|o(?' . '>gon|pf))|B(?' . '>rev' .
+		'e|arv|opf|scr|cy|fr|e(?' . '>cause|ta))|C(?' . '>ircle(?' . '>Times|Plu' .
+		's|Dot)|ross|Hcy|dot|scr|fr|hi|up(?' . '>Cap|)|a(?' . '>cute|p(?' . '>it' .
+		'alDifferentialD|))|c(?' . '>onint|aron|edil|irc)|e(?' . '>nterDot|dilla' .
+		')|o(?' . '>product|lon(?' . '>e|)|n(?' . '>tourIntegral|gruent)))|D(?' .
+		'>Dotrahd|elta|Jcy|Scy|Zcy|fr|a(?' . '>gger|shv|rr)|c(?' . '>aron|y)|i(?' .
+		'>fferentialD|acritical(?' . '>DoubleAcute|Acute|Tilde))|o(?' . '>tDot|u' .
+		'ble(?' . '>ContourIntegral|RightTee|UpArrow|Dot|L(?' . '>ongRightArrow|' .
+		'eftArrow))|pf|wn(?' . '>Arrow(?' . '>UpArrow|Bar)|Breve|Right(?' . '>Te' .
+		'eVector|VectorBar)|arrow|Left(?' . '>RightVector|TeeVector|VectorBar)|T' .
+		'ee(?' . '>Arrow|)))|s(?' . '>trok|cr))|E(?' . '>psilon|acute|grave|xist' .
+		's|qual|dot|sim|uml|NG|TH|fr|ta|c(?' . '>aron|irc|y)|m(?' . '>acr|pty(?' .
+		'>VerySmallSquare|SmallSquare))|o(?' . '>gon|pf))|F(?' . '>illedSmallSqu' .
+		'are|cy|fr|o(?' . '>uriertrf|pf))|G(?' . '>reater(?' . '>Greater|Tilde)|' .
+		'breve|amma(?' . '>d|)|Jcy|dot|opf|scr|fr|c(?' . '>edil|irc|y)|g)|H(?' .
+		'>ilbertSpace|umpEqual|ARDcy|strok|circ|fr|a(?' . '>cek|t)|o(?' . '>rizo' .
+		'ntalLine|pf))|I(?' . '>acute|grave|tilde|Jlig|Ecy|Ocy|dot|fr|c(?' . '>i' .
+		'rc|y)|m(?' . '>plies|a(?' . '>ginaryI|cr))|n(?' . '>visibleTimes|t(?' .
+		'>egral|))|o(?' . '>gon|pf|ta)|u(?' . '>kcy|ml))|J(?' . '>ukcy|opf|fr|c(' .
+		'?' . '>irc|y)|s(?' . '>ercy|cr))|K(?' . '>appa|Hcy|Jcy|opf|scr|fr|c(?' .
+		'>edil|y))|L(?' . '>midot|Jcy|fr|a(?' . '>cute|mbda|ng|rr)|c(?' . '>aron' .
+		'|edil|y)|e(?' . '>ft(?' . '>RightVector|VectorBar|ArrowBar|Floor|Do(?' .
+		'>ubleBracket|wn(?' . '>TeeVector|VectorBar))|Up(?' . '>DownVector|TeeVe' .
+		'ctor|VectorBar)|T(?' . '>riangle(?' . '>Equal|Bar)|ee(?' . '>Vector|Arr' .
+		'ow)))|ss(?' . '>Tilde|Less))|l|o(?' . '>werRightArrow|ng(?' . '>LeftRig' .
+		'htArrow|RightArrow)|pf)|s(?' . '>trok|h))|M(?' . '>inusPlus|opf|ap|cy|f' .
+		'r|e(?' . '>diumSpace|llintrf)|u)|N(?' . '>ewLine|acute|tilde|Jcy|scr|fr' .
+		'|c(?' . '>aron|edil|y)|o(?' . '>Break|t(?' . '>RightTriangle(?' . '>Equ' .
+		'al|Bar)|Precedes(?' . '>SlantEqual|Equal)|Greater(?' . '>FullEqual|Grea' .
+		'ter|Less)|Nested(?' . '>GreaterGreater|LessLess)|Equal|Tilde|Le(?' . '>' .
+		'ftTriangleBar|ss(?' . '>Equal|))|C(?' . '>ongruent|upCap)|S(?' . '>quar' .
+		'eSu(?' . '>perset(?' . '>Equal|)|bset(?' . '>Equal|))|u(?' . '>persetEq' .
+		'ual|bsetEqual|cceeds(?' . '>SlantEqual|Equal|Tilde|)))|))|u)|O(?' . '>p' .
+		'enCurly(?' . '>DoubleQuote|Quote)|acute|dblac|grave|Elig|opf|uml|ver(?' .
+		'>Parenthesis|Brac(?' . '>ket|e))|fr|ti(?' . '>lde|mes)|c(?' . '>irc|y)|' .
+		'm(?' . '>icron|acr|ega)|r|s(?' . '>lash|cr))|P(?' . '>cy|fr|hi|i|r(?' .
+		'>ecedesSlantEqual|ime|)|s(?' . '>cr|i))|Q(?' . '>scr|fr)|R(?' . '>uleDe' .
+		'layed|everse(?' . '>UpEquilibrium|Element)|ight(?' . '>VectorBar|Ceilin' .
+		'g|Floor|Do(?' . '>ubleBracket|wn(?' . '>TeeVector|Vector(?' . '>Bar|)))' .
+		'|Up(?' . '>DownVector|TeeVector|Vector(?' . '>Bar|))|A(?' . '>ngleBrack' .
+		'et|rrowBar)|T(?' . '>eeVector|riangle(?' . '>Equal|Bar)))|fr|ho|a(?' .
+		'>cute|rrtl|ng)|c(?' . '>aron|edil|y)|o(?' . '>undImplies|pf))|S(?' . '>' .
+		'OFTcy|acute|igma|opf|scr|tar|fr|H(?' . '>CHcy|cy)|c(?' . '>aron|edil|ir' .
+		'c|y|)|q(?' . '>uare(?' . '>Su(?' . '>persetEqual|bsetEqual)|)|rt)|u(?' .
+		'>cceeds(?' . '>Equal|Tilde)|pset|b(?' . '>setEqual|)))|T(?' . '>ildeFul' .
+		'lEqual|ripleDot|HORN|opf|fr|S(?' . '>Hcy|cy)|a(?' . '>b|u)|c(?' . '>aro' .
+		'n|edil|y)|h(?' . '>eta|i(?' . '>ckSpace|nSpace))|s(?' . '>trok|cr))|U(?' .
+		'>dblac|grave|tilde|macr|ring|scr|uml|br(?' . '>eve|cy)|fr|a(?' . '>cute' .
+		'|rr(?' . '>ocir|))|c(?' . '>irc|y)|n(?' . '>ionPlus|der(?' . '>Parenthe' .
+		'sis|Brace))|o(?' . '>gon|pf)|p(?' . '>perRightArrow|DownArrow|downarrow' .
+		'|ArrowBar|TeeArrow|silon))|V(?' . '>vdash|Dash|dash(?' . '>l|)|bar|opf|' .
+		'scr|cy|er(?' . '>ticalSeparator|bar)|fr)|W(?' . '>circ|opf|scr|fr)|X(?' .
+		'>opf|scr|fr|i)|Y(?' . '>acute|Acy|Icy|Ucy|opf|scr|uml|fr|c(?' . '>irc|y' .
+		'))|Z(?' . '>acute|Hcy|dot|opf|scr|fr|c(?' . '>aron|y)|e(?' . '>roWidthS' .
+		'pace|ta))|a(?' . '>acute|breve|grave|tilde|elig|ring|uml|c(?' . '>irc|E' .
+		'|d|y|)|f(?' . '>r|)|l(?' . '>eph|pha)|m(?' . '>a(?' . '>cr|lg)|p)|n(?' .
+		'>d(?' . '>slope|and|d|v|)|g(?' . '>zarr|msd(?' . '>a(?' . '>a|b|c|d|e|f' .
+		'|g|h)|)|sph|le|rt(?' . '>vb(?' . '>d|)|)|e))|o(?' . '>gon|pf)|p(?' . '>' .
+		'acir|prox|id|os|E|e)|s(?' . '>cr|t)|w(?' . '>conint|int))|b(?' . '>karo' .
+		'w|rvbar|dquo|Not|brk(?' . '>tbrk|)|fr|ig(?' . '>triangle(?' . '>down|up' .
+		')|sqcup|uplus|c(?' . '>irc|ap|up)|o(?' . '>times|plus))|a(?' . '>ck(?' .
+		'>epsilon|prime|simeq)|r(?' . '>vee|wed))|c(?' . '>ong|y)|e(?' . '>mptyv' .
+		'|t(?' . '>ween|a|h))|l(?' . '>ock|a(?' . '>cktriangle(?' . '>right|down' .
+		'|left|)|nk)|k(?' . '>34|1(?' . '>2|4)))|n(?' . '>ot|e(?' . '>quiv|))|o(' .
+		'?' . '>wtie|pf|x(?' . '>minus|plus|box|D(?' . '>L|R|l|r)|H(?' . '>D|U|d' .
+		'|u|)|U(?' . '>L|R|l|r)|V(?' . '>H|L|R|h|l|r|)|d(?' . '>L|R|l|r)|h(?' .
+		'>D|U|d|u)|u(?' . '>L|R|l|r)|v(?' . '>H|L|R|h|l|r|)))|s(?' . '>emi|cr|im' .
+		'|ol(?' . '>hsub|b|))|u(?' . '>ll|mp(?' . '>E|)))|c(?' . '>ylcty|lubs|td' .
+		'ot|dot|fr|ir(?' . '>fnint|scir|mid|E|c(?' . '>eq|)|)|a(?' . '>cute|ret|' .
+		'p(?' . '>brcup|and|dot|c(?' . '>ap|up)|s|))|c(?' . '>edil|irc|ups(?' .
+		'>sm|)|a(?' . '>ron|ps))|e(?' . '>mptyv|nt)|h(?' . '>eck|cy|i)|o(?' . '>' .
+		'ngdot|lon(?' . '>eq|)|m(?' . '>ma(?' . '>t|)|p(?' . '>lexes|fn|))|p(?' .
+		'>f|y(?' . '>sr|)))|r(?' . '>arr|oss)|s(?' . '>cr|u(?' . '>b(?' . '>e|)|' .
+		'p(?' . '>e|)))|u(?' . '>larrp|darr(?' . '>l|r)|esc|p(?' . '>brcap|dot|o' .
+		'r|c(?' . '>ap|up)|s|)|r(?' . '>vearrowleft|arr(?' . '>m|)|ren|ly(?' .
+		'>eqprec|wedge|vee)))|w(?' . '>conint|int))|d(?' . '>bkarow|dotseq|wangl' .
+		'e|lcrop|harl|tdot|Har|jcy|a(?' . '>gger|leth|shv|rr)|c(?' . '>aron|y)|e' .
+		'(?' . '>mptyv|lta|g)|f(?' . '>isht|r)|i(?' . '>amond(?' . '>suit|)|sin|' .
+		'v(?' . '>ide|onx))|o(?' . '>ublebarwedge|wndownarrows|llar|pf|t(?' . '>' .
+		'eqdot|))|r(?' . '>bkarow|c(?' . '>orn|rop))|s(?' . '>trok|ol|c(?' . '>r' .
+		'|y))|z(?' . '>igrarr|cy))|e(?' . '>rarr|dot|fr|a(?' . '>cute|ster)|c(?' .
+		'>aron|ir(?' . '>c|)|y)|g(?' . '>rave|s(?' . '>dot|)|)|l(?' . '>inters|l' .
+		'|s(?' . '>dot|)|)|m(?' . '>acr|pty|sp(?' . '>1(?' . '>3|4)|))|n(?' . '>' .
+		'sp|g)|o(?' . '>gon|pf)|p(?' . '>lus|ar(?' . '>sl|)|si)|q(?' . '>vparsl|' .
+		'colon|u(?' . '>ivDD|als|est))|s(?' . '>dot|cr|im)|t(?' . '>a|h)|u(?' .
+		'>ml|ro)|x(?' . '>cl|p(?' . '>onentiale|ectation)))|f(?' . '>allingdotse' .
+		'q|partint|emale|ilig|jlig|nof|scr|cy|f(?' . '>ilig|l(?' . '>lig|ig)|r)|' .
+		'l(?' . '>lig|tns|at)|o(?' . '>pf|r(?' . '>all|kv))|r(?' . '>own|a(?' .
+		'>sl|c(?' . '>45|78|1(?' . '>3|4|5|6|8)|2(?' . '>3|5)|3(?' . '>4|5|8)|5(' .
+		'?' . '>6|8)))))|g(?' . '>vertneqq|breve|imel|rave|dot|jcy|opf|El|fr|a(?' .
+		'>cute|mma(?' . '>d|)|p)|c(?' . '>irc|y)|e(?' . '>qq|s(?' . '>dot(?' .
+		'>o(?' . '>l|)|)|cc|l(?' . '>es|)|)|)|g|l(?' . '>E|a|j|)|n(?' . '>sim|ap' .
+		'|e(?' . '>qq|))|s(?' . '>cr|im(?' . '>e|l))|t(?' . '>quest|lPar|c(?' .
+		'>ir|c)|r(?' . '>eqless|arr|dot)|))|h(?' . '>circ|Arr|fr|a(?' . '>irsp|l' .
+		'f|r(?' . '>dcy|r(?' . '>cir|w|)))|e(?' . '>arts|llip|rcon)|o(?' . '>mth' .
+		't|rbar|arr|pf)|s(?' . '>trok|cr)|y(?' . '>bull|phen))|i(?' . '>acute|gr' .
+		'ave|quest|tilde|jlig|prod|fr|c(?' . '>irc|y|)|e(?' . '>xcl|cy)|i(?' .
+		'>iint|nfin|ota)|m(?' . '>ped|of|a(?' . '>gline|cr))|n(?' . '>care|odot|' .
+		'fin(?' . '>tie|)|t(?' . '>larhk|cal))|o(?' . '>gon|cy|pf|ta)|s(?' . '>c' .
+		'r|in(?' . '>dot|E|s(?' . '>v|)|v))|u(?' . '>kcy|ml))|j(?' . '>math|ukcy' .
+		'|opf|fr|c(?' . '>irc|y)|s(?' . '>ercy|cr))|k(?' . '>green|appa|hcy|jcy|' .
+		'opf|scr|fr|c(?' . '>edil|y))|l(?' . '>vertneqq|Barr|Har|jcy|par(?' . '>' .
+		'lt|)|gE|ur(?' . '>dshar|uhar)|A(?' . '>tail|arr)|E|a(?' . '>emptyv|cute' .
+		'|gran|mbda|quo|ng(?' . '>le|d)|rr(?' . '>bfs|sim|fs|hk|lp|pl|tl|)|p|t(?' .
+		'>ail|e(?' . '>s|)|))|b(?' . '>arr|brk|r(?' . '>ac(?' . '>e|k)|k(?' . '>' .
+		'sl(?' . '>d|u)|e)))|c(?' . '>aron|e(?' . '>dil|il)|y)|d(?' . '>ca|sh|r(' .
+		'?' . '>ushar|dhar))|e(?' . '>ft(?' . '>rightharpoons|harpoon(?' . '>dow' .
+		'n|up))|q|s(?' . '>dot(?' . '>o(?' . '>r|)|)|cc|g(?' . '>es|)|s(?' . '>d' .
+		'ot|gtr|eq(?' . '>qgtr|gtr))|))|f(?' . '>isht|r)|h(?' . '>arul|blk)|l(?' .
+		'>corner|hard|arr|tri|)|m(?' . '>idot|oust)|n(?' . '>sim|ap|e(?' . '>qq|' .
+		'))|o(?' . '>oparrowright|ngleftarrow|times|a(?' . '>ng|rr)|p(?' . '>lus' .
+		'|ar|f)|w(?' . '>ast|bar)|z(?' . '>enge|f))|r(?' . '>hard|arr|tri|m)|s(?' .
+		'>aquo|trok|cr|im(?' . '>e|g))|t(?' . '>quest|hree|imes|larr|c(?' . '>ir' .
+		'|c)|r(?' . '>Par|i)|))|m(?' . '>DDot|dash|lcp|scr|fr|ho|a(?' . '>rker|c' .
+		'r|l(?' . '>tese|e)|p)|c(?' . '>omma|y)|i(?' . '>cro|nus(?' . '>d(?' .
+		'>u|)|)|d(?' . '>cir|))|o(?' . '>dels|pf)|u(?' . '>map|))|n(?' . '>dash|' .
+		'jcy|fr|is(?' . '>d|)|G(?' . '>g|t)|L(?' . '>eftarrow|l|t(?' . '>v|))|V(' .
+		'?' . '>Dash|dash)|a(?' . '>cute|bla|tur(?' . '>als|)|ng|p(?' . '>prox|i' .
+		'd|os|E))|b(?' . '>ump(?' . '>e|)|sp)|c(?' . '>edil|ong(?' . '>dot|)|up|' .
+		'a(?' . '>ron|p)|y)|e(?' . '>arhk|xist|Arr|dot|sim)|g(?' . '>sim|tr|e(?' .
+		'>q|s))|h(?' . '>Arr|par)|l(?' . '>sim|tri(?' . '>e|)|dr|E|e(?' . '>ft(?' .
+		'>rightarrow|arrow)|s))|o(?' . '>pf|t(?' . '>niv(?' . '>a|b|c)|in(?' .
+		'>dot|E|v(?' . '>b|c)|)|))|p(?' . '>olint|ar(?' . '>allel|sl|t)|r)|r(?' .
+		'>Arr|arr(?' . '>c|w|))|s(?' . '>hortmid|ime|cr|u(?' . '>b(?' . '>E|)|p(' .
+		'?' . '>set(?' . '>eqq|)|)))|t(?' . '>riangleright|ilde|lg)|u(?' . '>m(?' .
+		'>ero|sp|)|)|v(?' . '>infin|Dash|Harr|dash|sim|ap|g(?' . '>e|t)|l(?' .
+		'>Arr|e|t(?' . '>rie|))|r(?' . '>trie|Arr))|w(?' . '>near|Arr|ar(?' . '>' .
+		'row|hk)))|o(?' . '>elig|hbar|vbar|opf|uml|ti(?' . '>mesas|lde)|S|a(?' .
+		'>cute|st)|c(?' . '>ir(?' . '>c|)|y)|d(?' . '>blac|sold|ash|iv)|f(?' .
+		'>cir|r)|g(?' . '>rave|on|t)|l(?' . '>arr|ine|c(?' . '>ross|ir)|t)|m(?' .
+		'>acr|ega|i(?' . '>cron|nus|d))|p(?' . '>erp|ar)|r(?' . '>slope|igof|arr' .
+		'|or|d(?' . '>erof|f|m|)|v|)|s(?' . '>lash|ol))|p(?' . '>uncsp|ar(?' .
+		'>a|s(?' . '>im|l)|t)|cy|er(?' . '>tenk|cnt|iod|mil|p)|fr|h(?' . '>one|i' .
+		')|i(?' . '>tchfork|v|)|l(?' . '>anck(?' . '>h|)|us(?' . '>acir|cir|sim|' .
+		'two|mn|d(?' . '>o|u)|e|))|o(?' . '>intint|und|pf)|r(?' . '>urel|ime(?' .
+		'>s|)|ec(?' . '>approx|sim|eq|n(?' . '>approx|eqq|sim)|)|E|o(?' . '>d|f(' .
+		'?' . '>alar|line|surf)|p))|s(?' . '>cr|i))|q(?' . '>prime|opf|scr|fr|u(' .
+		'?' . '>atint|est|ot))|r(?' . '>uluhar|moust|nmid|rarr|Har|lm|A(?' . '>t' .
+		'ail|arr)|a(?' . '>emptyv|quo|ng(?' . '>d|e)|rr(?' . '>bfs|sim|ap|fs|hk|' .
+		'pl|tl|c|w)|c(?' . '>ute|e)|t(?' . '>ail|io(?' . '>nals|)))|b(?' . '>brk' .
+		'|rk(?' . '>sl(?' . '>d|u)|e))|c(?' . '>aron|edil|ub|y)|d(?' . '>ldhar|q' .
+		'uo|ca|sh)|e(?' . '>aline|ct|g)|f(?' . '>isht|r)|h(?' . '>ar(?' . '>d|u(' .
+		'?' . '>l|))|o(?' . '>v|))|i(?' . '>singdotseq|ghtleft(?' . '>harpoons|a' .
+		'rrows)|ng)|o(?' . '>times|a(?' . '>ng|rr)|p(?' . '>lus|ar|f))|p(?' . '>' .
+		'polint|ar(?' . '>gt|))|s(?' . '>aquo|cr|h|q(?' . '>uo|b))|t(?' . '>hree' .
+		'|imes|ri(?' . '>ltri|))|x)|s(?' . '>padesuit|acute|bquo|rarr|zlig|dot(?' .
+		'>b|e|)|fr|c(?' . '>polint|aron|edil|irc|E|n(?' . '>sim|E)|y)|e(?' . '>a' .
+		'rhk|swar|Arr|ct|mi|xt)|h(?' . '>ortparallel|arp|c(?' . '>hcy|y)|y)|i(?' .
+		'>gma(?' . '>v|)|m(?' . '>plus|rarr|dot|eq|ne|g(?' . '>E|)|l(?' . '>E|)|' .
+		'))|m(?' . '>eparsl|ashp|ile|t(?' . '>e(?' . '>s|)|))|o(?' . '>ftcy|pf|l' .
+		'(?' . '>b(?' . '>ar|)|))|q(?' . '>uarf|su(?' . '>pset|b)|c(?' . '>ap(?' .
+		'>s|)|up(?' . '>s|)))|s(?' . '>etmn|cr)|t(?' . '>raight(?' . '>epsilon|p' .
+		'hi)|ar(?' . '>f|))|u(?' . '>cc(?' . '>curlyeq|napprox|approx|)|ng|b(?' .
+		'>edot|mult|plus|rarr|dot|E|s(?' . '>etneq(?' . '>q|)|im|u(?' . '>b|p))|' .
+		')|m|p(?' . '>larr|mult|plus|hs(?' . '>ol|ub)|nE|1|2|3|d(?' . '>sub|ot)|' .
+		'e(?' . '>dot|)|s(?' . '>et(?' . '>eqq|neq)|im|u(?' . '>b|p))|))|w(?' .
+		'>nwar|Arr|ar(?' . '>hk|r)))|t(?' . '>woheadrightarrow|elrec|prime|fr|a(' .
+		'?' . '>rget|u)|c(?' . '>aron|edil|y)|h(?' . '>orn|e(?' . '>re4|ta(?' .
+		'>sym|)))|i(?' . '>mes(?' . '>b(?' . '>ar|)|d|)|nt)|o(?' . '>ea|p(?' .
+		'>bot|cir|f(?' . '>ork|)))|r(?' . '>pezium|ade|i(?' . '>angle(?' . '>dow' .
+		'n|q|)|minus|plus|time|dot|sb))|s(?' . '>trok|hcy|c(?' . '>r|y)))|u(?' .
+		'>wangle|grave|macr|Har|scr|uml|br(?' . '>eve|cy)|a(?' . '>cute|rr)|c(?' .
+		'>irc|y)|d(?' . '>blac|arr|har)|f(?' . '>isht|r)|h(?' . '>arl|blk)|l(?' .
+		'>tri|c(?' . '>orner|rop))|o(?' . '>gon|pf)|p(?' . '>uparrows|si(?' . '>' .
+		'h|))|r(?' . '>ing|tri|c(?' . '>orner|rop))|t(?' . '>ilde|dot))|v(?' .
+		'>zigzag|dash|nsub|rtri|Bar(?' . '>v|)|opf|cy|fr|a(?' . '>ngrt|r(?' . '>' .
+		'triangleleft|supsetneqq|kappa))|e(?' . '>llip|rt|e(?' . '>bar|eq))|s(?' .
+		'>cr|u(?' . '>pne|bn(?' . '>E|e))))|w(?' . '>circ|opf|scr|ed(?' . '>bar|' .
+		'geq)|fr|p|r)|x(?' . '>wedge|hArr|lArr|map|nis|scr|vee|fr|i|o(?' . '>dot' .
+		'|pf))|y(?' . '>icy|opf|scr|ac(?' . '>ute|y)|en|fr|c(?' . '>irc|y)|u(?' .
+		'>cy|ml))|z(?' . '>igrarr|acute|dot|eta|hcy|opf|scr|fr|c(?' . '>aron|y)|' .
+		'w(?' . '>nj|j))|#(?' . '>\d+|x[0-9a-fA-F]+));';
 
 	/**
 	 * Regular expression to match all forms of the non-breaking space entity.
 	 */
 	public const ENT_NBSP = '&(?' . '>nbsp|#(?' . '>x0*A0|0*160));';
+
+	/**
+	 * @var string
+	 *
+	 * Used to force the browser not to collapse tabs.
+	 *
+	 * This will normally be replaced in the final output with a real tab
+	 * character wrapped in a span with "white-space: pre-wrap" applied to it.
+	 * But if this substitute string somehow makes it into the final output,
+	 * it will still look like an appropriately sized string of white space.
+	 */
+	public const TAB_SUBSTITUTE = "\u{200B}\u{2007}\u{2007}\u{2007}\u{2007}\u{200B}";
 
 	/**************************
 	 * Public static properties
@@ -100,7 +283,7 @@ class Utils
 		// Even when enabled, they'll only work in old posts and not new ones.
 		'legacy_bbc' => [
 			'acronym', 'bdo', 'black', 'blue', 'flash', 'ftp', 'glow',
-			'green', 'move', 'red', 'shadow', 'tt', 'white',
+			'green', 'move', 'red', 'shadow', 'white',
 		],
 		// Define a list of BBC tags that require permissions to use.
 		'restricted_bbc' => [
@@ -1004,6 +1187,50 @@ class Utils
 		$regexes[$regex_key] = $regex;
 
 		return $regex;
+	}
+
+	/**
+	 * Adjusts the heading levels of h1-h6 elements in a string in order to
+	 * fit the needs of a particular location in the output HTML.
+	 *
+	 * For example, setting $modifier to 1 will change h1 into h2, h5 into h6,
+	 * etc.
+	 *
+	 * If the adjusted tag for the heading would be invalid (e.g. h7 or h0),
+	 * then the tag will be changed to a simple div.
+	 *
+	 * Any attributes of the adjusted elements will be preserved unchanged.
+	 * For example, `<h1 class="bbc_h1">` might become `<h5 class="bbc_h1">`.
+	 *
+	 * As a general rule, this method should be called from theme templates
+	 * rather than source files, since only the template really knows what level
+	 * of adjustment is necessary.
+	 *
+	 * @param mixed $str The string in which to adjust heading levels.
+	 *    If a non-string value is given, it will be returned unchanged.
+	 * @param ?int $modifier The amount by which to adjust heading levels.
+	 *    If null, all headings will be converted to div elements. Default: 0.
+	 * @return mixed The adjusted version of $str.
+	 */
+	public static function adjustHeadingLevels(mixed $str, ?int $modifier = 0): mixed
+	{
+		if (!is_string($str)) {
+			return $str;
+		}
+
+		return preg_replace_callback(
+			'/<(\/?)h(\d)([^>]*)>/u',
+			function ($matches) use ($modifier) {
+				$l = (int) $matches[2] + (int) $modifier;
+
+				if (!is_null($modifier) && $l >= 1 && $l <= 6) {
+					return '<' . $matches[1] . 'h' . $l . $matches[3] . '>';
+				}
+
+				return '<' . $matches[1] . 'div' . $matches[3] . '>';
+			},
+			$str,
+		);
 	}
 
 	/**
@@ -2125,6 +2352,9 @@ class Utils
 
 			// Start up the session URL fixer.
 			ob_start('SMF\\QueryString::ob_sessrewrite');
+
+			// Force the browser not to collapse tabs inside posts, etc.
+			ob_start(fn ($buffer) => strtr($buffer, [self::TAB_SUBSTITUTE => '<span style="white-space: pre-wrap;">' . "\t" . '</span>']));
 
 			if (!empty(Theme::$current->settings['output_buffers']) && is_string(Theme::$current->settings['output_buffers'])) {
 				$buffers = explode(',', Theme::$current->settings['output_buffers']);

@@ -201,8 +201,8 @@ if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.
     while ($row = Db::$db->fetch_assoc($request))
     {
         $inserts[] = array(
-            'name' => Utils::htmlspecialchars(strip_tags(SMF\BBCodeParser::load()->unparse($row['name']))),
-            'description' => Utils::htmlspecialchars(strip_tags(SMF\BBCodeParser::load()->unparse($row['description']))),
+            'name' => Utils::htmlspecialchars(strip_tags(SMF\Parser::transform($row['name'], SMF\Parser::OUTPUT_BBC))),
+            'description' => Utils::htmlspecialchars(strip_tags(SMF\Parser::transform($row['description'], SMF\Parser::OUTPUT_BBC))),
             'id' => $row['id'],
         );
     }

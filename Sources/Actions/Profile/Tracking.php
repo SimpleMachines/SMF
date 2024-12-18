@@ -18,7 +18,6 @@ namespace SMF\Actions\Profile;
 use SMF\ActionInterface;
 use SMF\Actions\TrackIP;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -26,6 +25,7 @@ use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\Profile;
 use SMF\Time;
 use SMF\User;
@@ -745,8 +745,8 @@ class Tracking implements ActionInterface
 				'member_link' => Lang::$txt['trackEdit_deleted_member'],
 				'action' => $row['action'],
 				'action_text' => $action_text,
-				'before' => !empty($extra['previous']) ? ($parse_bbc ? BBCodeParser::load()->parse($extra['previous']) : $extra['previous']) : '',
-				'after' => !empty($extra['new']) ? ($parse_bbc ? BBCodeParser::load()->parse($extra['new']) : $extra['new']) : '',
+				'before' => !empty($extra['previous']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['previous']), null) : $extra['previous']) : '',
+				'after' => !empty($extra['new']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['new']), null) : $extra['new']) : '',
 				'time' => Time::create('@' . $row['log_time'])->format(),
 			];
 		}

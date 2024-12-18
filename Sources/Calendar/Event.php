@@ -834,6 +834,15 @@ class Event implements \ArrayAccess
 			$filecontents[] = 'EXDATE' . ($this->allday ? ';VALUE=DATE' : '') . ':' . implode(",\r\n ", $this->recurrence_iterator->getExDates());
 		}
 
+		if ($this instanceof Holiday) {
+			$filecontents[] = 'CATEGORIES:Holidays';
+			$filecontents[] = 'TRANSP:TRANSPARENT';
+		} elseif ($this instanceof Birthday) {
+			$filecontents[] = 'TRANSP:TRANSPARENT';
+		} else {
+			$filecontents[] = 'TRANSP:OPAQUE';
+		}
+
 		$filecontents[] = 'END:VEVENT';
 
 		// Fit all lines within iCalendar's line width restraint.

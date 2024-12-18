@@ -62,7 +62,6 @@ class Forum
 		'dlattach' => ['', 'SMF\\Actions\\AttachmentDownload::call'],
 		'editpoll' => ['', 'SMF\\Poll::edit'],
 		'editpoll2' => ['', 'SMF\\Poll::edit2'],
-		'findmember' => ['', 'SMF\\Actions\\FindMember::call'],
 		'groups' => ['', 'SMF\\Actions\\Groups::call'],
 		'help' => ['', 'SMF\\Actions\\Help::call'],
 		'helpadmin' => ['', 'SMF\\Actions\\HelpAdmin::call'],

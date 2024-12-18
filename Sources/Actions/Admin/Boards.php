@@ -18,7 +18,6 @@ namespace SMF\Actions\Admin;
 use SMF\ActionInterface;
 use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
@@ -28,6 +27,7 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
@@ -366,7 +366,7 @@ class Boards implements ActionInterface
 
 			// Try to get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
 			$catOptions['cat_name'] = Utils::htmlspecialchars(strip_tags($_POST['cat_name']));
-			$catOptions['cat_desc'] = Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($_POST['cat_desc'])));
+			$catOptions['cat_desc'] = Utils::htmlspecialchars(strip_tags(Parser::transform($_POST['cat_desc'], Parser::OUTPUT_BBC)));
 			$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
 			if (isset($_POST['add'])) {
@@ -677,7 +677,7 @@ class Boards implements ActionInterface
 
 			// Try to get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
 			$boardOptions['board_name'] = Utils::htmlspecialchars(strip_tags($_POST['board_name']));
-			$boardOptions['board_description'] = Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($_POST['desc'])));
+			$boardOptions['board_description'] = Utils::htmlspecialchars(strip_tags(Parser::transform($_POST['desc'], Parser::OUTPUT_BBC)));
 
 			$boardOptions['moderator_string'] = $_POST['moderators'];
 

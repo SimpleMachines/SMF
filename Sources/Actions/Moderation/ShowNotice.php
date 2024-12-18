@@ -17,10 +17,10 @@ namespace SMF\Actions\Moderation;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BBCodeParser;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Parser;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -59,7 +59,10 @@ class ShowNotice implements ActionInterface
 		list(Utils::$context['notice_body'], Utils::$context['notice_subject']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		Utils::$context['notice_body'] = BBCodeParser::load()->parse(Utils::$context['notice_body'], false);
+		Utils::$context['notice_body'] = Parser::transform(
+			string: Utils::$context['notice_body'],
+			input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+		);
 	}
 
 	/******************

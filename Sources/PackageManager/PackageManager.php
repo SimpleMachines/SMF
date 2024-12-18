@@ -13,7 +13,6 @@
 
 namespace SMF\PackageManager;
 
-use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -24,6 +23,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Sapi;
 use SMF\Security;
 use SMF\Theme;
@@ -434,7 +434,7 @@ class PackageManager
 				if (!empty($action['parse_bbc'])) {
 					Utils::$context[$type] = preg_replace('~\[[/]?html\]~i', '', Utils::$context[$type]);
 					Msg::preparsecode(Utils::$context[$type]);
-					Utils::$context[$type] = BBCodeParser::load()->parse(Utils::$context[$type]);
+					Utils::$context[$type] = Parser::transform(Utils::$context[$type]);
 				} else {
 					Utils::$context[$type] = nl2br(Utils::$context[$type]);
 				}
@@ -1188,7 +1188,7 @@ class PackageManager
 					if (!empty($action['parse_bbc'])) {
 						Utils::$context['redirect_text'] = preg_replace('~\[[/]?html\]~i', '', Utils::$context['redirect_text']);
 						Msg::preparsecode(Utils::$context['redirect_text']);
-						Utils::$context['redirect_text'] = BBCodeParser::load()->parse(Utils::$context['redirect_text']);
+						Utils::$context['redirect_text'] = Parser::transform(Utils::$context['redirect_text']);
 					}
 
 					// Parse out a couple of common urls.
@@ -1536,7 +1536,7 @@ class PackageManager
 			}
 
 			if (strtolower(strrchr($_REQUEST['file'], '.')) == '.php') {
-				Utils::$context['filedata'] = BBCodeParser::highlightPhpCode(Utils::$context['filedata']);
+				Utils::$context['filedata'] = Parser::highlightPhpCode(Utils::$context['filedata']);
 			}
 		}
 	}
@@ -1869,8 +1869,8 @@ class PackageManager
 
 		// Let's do some formatting...
 		$operation_text = Utils::$context['operations']['position'] == 'replace' ? 'operation_replace' : (Utils::$context['operations']['position'] == 'before' ? 'operation_after' : 'operation_before');
-		Utils::$context['operations']['search'] = BBCodeParser::load()->parse('[code=' . Lang::$txt['operation_find'] . ']' . (Utils::$context['operations']['position'] == 'end' ? '?&gt;' : Utils::$context['operations']['search']) . '[/code]');
-		Utils::$context['operations']['replace'] = BBCodeParser::load()->parse('[code=' . Lang::$txt[$operation_text] . ']' . Utils::$context['operations']['replace'] . '[/code]');
+		Utils::$context['operations']['search'] = Parser::transform('[code=' . Lang::$txt['operation_find'] . ']' . (Utils::$context['operations']['position'] == 'end' ? '?&gt;' : Utils::$context['operations']['search']) . '[/code]');
+		Utils::$context['operations']['replace'] = Parser::transform('[code=' . Lang::$txt[$operation_text] . ']' . Utils::$context['operations']['replace'] . '[/code]');
 
 		// No layers
 		Utils::$context['template_layers'] = [];
@@ -2776,7 +2776,7 @@ class PackageManager
 					if ($package['description'] == '') {
 						$package['description'] = Lang::$txt['package_no_description'];
 					} else {
-						$package['description'] = BBCodeParser::load()->parse(preg_replace('~\[[/]?html\]~i', '', Utils::htmlspecialchars($package['description'])));
+						$package['description'] = Utils::adjustHeadingLevels(Parser::transform(preg_replace('~\[[/]?html\]~i', '', Utils::htmlspecialchars($package['description']))), null);
 					}
 
 					$package['is_installed'] = isset($installed_mods[$package['id']]);

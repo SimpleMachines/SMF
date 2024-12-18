@@ -67,7 +67,7 @@ function template_reported_posts()
 				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)]), '
 			</div>
 			<hr>
-			', $report['body'], '
+			', Utils::adjustHeadingLevels($report['body'], 5), '
 			<br>';
 
 		// Reported post options
@@ -81,7 +81,7 @@ function template_reported_posts()
 	if (empty(Utils::$context['reports']))
 		echo '
 		<div class="windowbg">
-			<p class="centertext">', Lang::$txt['mc_reportedp_none_found'], '</p>
+			<div class="centertext">', Lang::$txt['mc_reportedp_none_found'], '</div>
 		</div>';
 
 	echo '
@@ -216,7 +216,7 @@ function template_viewmodreport()
 				</h3>
 			</div><!-- .title_bar -->
 			<div class="windowbg">
-				', Utils::$context['report']['body'], '
+				', Utils::adjustHeadingLevels(Utils::$context['report']['body'], 3), '
 			</div>
 			<br>
 			<div class="cat_bar">
@@ -226,7 +226,7 @@ function template_viewmodreport()
 	foreach (Utils::$context['report']['comments'] as $comment)
 		echo '
 			<div class="windowbg">
-				<p class="smalltext">
+				<div class="smalltext">
 					', Lang::getTxt(
 						'mc_modreport_whoreported_data',
 						[
@@ -234,8 +234,8 @@ function template_viewmodreport()
 							'datetime' => $comment['time'],
 						],
 					), '
-				</p>
-				<p>', $comment['message'], '</p>
+				</div>
+				<div>', Utils::adjustHeadingLevels($comment['message'], null), '</div>
 			</div>';
 
 	echo '
@@ -248,7 +248,7 @@ function template_viewmodreport()
 	if (empty(Utils::$context['report']['mod_comments']))
 		echo '
 				<div class="information">
-					<p class="centertext">', Lang::$txt['mc_modreport_no_mod_comment'], '</p>
+					<div class="centertext">', Lang::$txt['mc_modreport_no_mod_comment'], '</div>
 				</div>';
 
 	foreach (Utils::$context['report']['mod_comments'] as $comment)
@@ -262,7 +262,7 @@ function template_viewmodreport()
 
 		echo '
 				<div class="windowbg">
-					<p>', $comment['message'], '</p>
+					<div>', Utils::adjustHeadingLevels($comment['message'], null), '</div>
 				</div>';
 	}
 
@@ -442,7 +442,7 @@ function template_reported_members()
 	if (empty(Utils::$context['reports']))
 		echo '
 		<div class="windowbg">
-			<p class="centertext">', Lang::$txt['mc_reportedp_none_found'], '</p>
+			<div class="centertext">', Lang::$txt['mc_reportedp_none_found'], '</div>
 		</div>';
 
 	echo '
@@ -511,7 +511,7 @@ function template_viewmemberreport()
 	foreach (Utils::$context['report']['comments'] as $comment)
 		echo '
 			<div class="windowbg">
-				<p class="smalltext">
+				<div class="smalltext">
 					', Lang::getTxt(
 						'mc_modreport_whoreported_data',
 						[
@@ -519,8 +519,8 @@ function template_viewmemberreport()
 							'datetime' => $comment['time'],
 						],
 					), '
-				</p>
-				<p>', $comment['message'], '</p>
+				</div>
+				<div>', Utils::adjustHeadingLevels($comment['message'], null), '</div>
 			</div>';
 
 	echo '
@@ -533,7 +533,7 @@ function template_viewmemberreport()
 	if (empty(Utils::$context['report']['mod_comments']))
 		echo '
 				<div class="information">
-					<p class="centertext">', Lang::$txt['mc_modreport_no_mod_comment'], '</p>
+					<div class="centertext">', Lang::$txt['mc_modreport_no_mod_comment'], '</div>
 				</div>';
 
 	foreach (Utils::$context['report']['mod_comments'] as $comment)
@@ -545,7 +545,7 @@ function template_viewmemberreport()
 
 		echo '
 				<div class="windowbg">
-					<p>', $comment['message'], '</p>
+					<div>', Utils::adjustHeadingLevels($comment['message'], null), '</div>
 				</div>';
 	}
 

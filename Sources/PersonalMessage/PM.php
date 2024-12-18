@@ -19,7 +19,6 @@ use SMF\Actions\Notify;
 use SMF\Actions\PersonalMessage as PMAction;
 use SMF\ArrayAccessHelper;
 use SMF\Autolinker;
-use SMF\BBCodeParser;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -31,6 +30,7 @@ use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
@@ -402,7 +402,10 @@ class PM implements \ArrayAccess
 		}
 
 		// Run BBC interpreter on the message.
-		$this->formatted['body'] = BBCodeParser::load()->parse($this->formatted['body'], true, 'pm' . $this->id);
+		$this->formatted['body'] = Parser::transform(
+			string: $this->formatted['body'],
+			options: ['cache_id' => 'pm' . $this->id],
+		);
 
 		return $this->formatted;
 	}
@@ -533,7 +536,7 @@ class PM implements \ArrayAccess
 		// There will never be an ID 0, but SMF doesn't like empty arrays when you tell it to expect an array of integers...
 		$params['ids'] = empty($ids) ? [0] : array_filter(array_unique(array_map('intval', $ids)));
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$id = (int) $row['id_pm'];
 
 			yield (new self($id, $row));
@@ -1001,7 +1004,12 @@ class PM implements \ArrayAccess
 			Msg::preparsecode($message);
 
 			// Make sure there's still some content left without the tags.
-			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse(Utils::htmlspecialchars($message, ENT_QUOTES), false), '<img>')) === '' && (!User::$me->allowedTo('bbc_html') || !str_contains($message, '[html]'))) {
+			$temp = Parser::transform(
+				string: Utils::htmlspecialchars($message, ENT_QUOTES),
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+			);
+
+			if (Utils::htmlTrim(strip_tags($temp, '<img>')) === '' && (!User::$me->allowedTo('bbc_html') || !str_contains($message, '[html]'))) {
 				$post_errors[] = 'no_message';
 			}
 		}
@@ -1029,7 +1037,7 @@ class PM implements \ArrayAccess
 			Msg::preparsecode(Utils::$context['preview_message'], true);
 
 			// Parse out the BBC if it is enabled.
-			Utils::$context['preview_message'] = BBCodeParser::load()->parse(Utils::$context['preview_message']);
+			Utils::$context['preview_message'] = Parser::transform(Utils::$context['preview_message']);
 
 			// Censor, as always.
 			Lang::censorText(Utils::$context['preview_subject']);
@@ -1569,7 +1577,22 @@ class PM implements \ArrayAccess
 
 					Lang::censorText($notification_texts[$lang]['body']);
 
-					$notification_texts[$lang]['body'] = trim(Utils::htmlspecialcharsDecode(strip_tags(strtr(BBCodeParser::load()->parse(Utils::htmlspecialchars($notification_texts[$lang]['body']), false), ['<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']']))));
+					$notification_texts[$lang]['body'] = Parser::transform(
+						string: Utils::htmlspecialchars($notification_texts[$lang]['body']),
+						input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+						output_type: Parser::OUTPUT_TEXT,
+						options: [
+							'text_replacements' => [
+								'<br>' => "\n",
+								'</div>' => "\n",
+								'</li>' => "\n",
+								'&#91;' => '[',
+								'&#93;' => ']',
+							],
+						],
+					);
+
+					$notification_texts[$lang]['body'] = trim(Utils::htmlspecialcharsDecode($notification_texts[$lang]['body']));
 				} else {
 					$notification_texts[$lang]['body'] = '';
 				}
@@ -2111,6 +2134,11 @@ class PM implements \ArrayAccess
 			Lang::censorText($row_quoted['subject']);
 			Lang::censorText($row_quoted['body']);
 
+			$row_quoted['body'] = Parser::transform(
+				string: $row_quoted['body'],
+				options: ['cache_id' => 'pm' . $row_quoted['id_pm']],
+			);
+
 			Utils::$context['quoted_message'] = [
 				'id' => $row_quoted['id_pm'],
 				'pm_head' => $row_quoted['pm_head'],
@@ -2124,7 +2152,7 @@ class PM implements \ArrayAccess
 				'subject' => $row_quoted['subject'],
 				'time' => Time::create('@' . $row_quoted['msgtime'])->format(),
 				'timestamp' => $row_quoted['msgtime'],
-				'body' => BBCodeParser::load()->parse($row_quoted['body'], true, 'pm' . $row_quoted['id_pm']),
+				'body' => $row_quoted['body'],
 			];
 		}
 

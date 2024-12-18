@@ -217,6 +217,15 @@ class EventOccurrence implements \ArrayAccess
 		$filecontents[] = 'DTSTART' . ($this->allday ? ';VALUE=DATE' : (!in_array($this->tz, RRule::UTC_SYNONYMS) ? ';TZID=' . $this->tz : '')) . ':' . $this->start->format('Ymd' . ($this->allday ? '' : '\\THis' . (in_array($this->tz, RRule::UTC_SYNONYMS) ? '\\Z' : '')));
 		$filecontents[] = 'DURATION:' . (string) $this->duration;
 
+		if ($this->getParentEvent() instanceof Holiday) {
+			$filecontents[] = 'CATEGORIES:Holidays';
+			$filecontents[] = 'TRANSP:TRANSPARENT';
+		} elseif ($this->getParentEvent() instanceof Birthday) {
+			$filecontents[] = 'TRANSP:TRANSPARENT';
+		} else {
+			$filecontents[] = 'TRANSP:OPAQUE';
+		}
+
 		$filecontents[] = 'END:VEVENT';
 
 		foreach ($filecontents as $line_num => $line) {

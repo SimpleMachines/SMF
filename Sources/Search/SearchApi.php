@@ -17,13 +17,13 @@ namespace SMF\Search;
 
 use SMF\Actions\Search;
 use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PackageManager\SubsPackage;
+use SMF\Parser;
 use SMF\User;
 use SMF\Utils;
 
@@ -1016,7 +1016,7 @@ abstract class SearchApi implements SearchApiInterface
 		// Blacklist the BBC tags.
 		$this->blacklisted_words = array_unique(array_merge(
 			$this->blacklisted_words,
-			array_map(fn ($code) => $code['tag'], BBCodeParser::getCodes()),
+			array_map(fn ($code) => $code['tag'], Parser::getBBCodes()),
 		));
 
 		IntegrationHook::call('integrate_search_blacklisted_words', [&$this->blacklisted_words]);

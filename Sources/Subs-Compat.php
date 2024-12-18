@@ -57,11 +57,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Activate
 	 * Begin
 	 * Actions\Admin\ACP
-	 * */
+	 */
 	function AdminMain()
 	{
 		return Actions\Admin\ACP::call();
@@ -108,9 +106,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\ACP
-	 *
 	 * Begin
 	 * Actions\Admin\AntiSpam
 	 */
@@ -120,9 +115,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\AntiSpam
-	 *
 	 * Begin
 	 * Actions\Admin\Attachments
 	 */
@@ -192,9 +184,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Attachments
-	 *
 	 * Begin
 	 * Actions\Admin\Bans
 	 */
@@ -234,9 +223,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Bans
-	 *
 	 * Begin
 	 * Actions\Admin\Boards
 	 */
@@ -251,9 +237,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Boards
-	 *
 	 * Begin
 	 * Actions\Admin\Calendar
 	 */
@@ -278,9 +261,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Calendar
-	 *
 	 * Begin
 	 * Actions\Admin\EndSession
 	 */
@@ -290,9 +270,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\EndSession
-	 *
 	 * Begin
 	 * Actions\Admin\ErrorLog
 	 */
@@ -302,9 +279,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\ErrorLog
-	 *
 	 * Begin
 	 * Actions\Admin\Features
 	 */
@@ -359,9 +333,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Features
-	 *
 	 * Begin
 	 * Actions\Admin\Find
 	 */
@@ -371,9 +342,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Find
-	 *
 	 * Begin
 	 * Actions\Admin\Home
 	 */
@@ -383,9 +351,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Home
-	 *
 	 * Begin
 	 * Actions\Admin\Languages
 	 */
@@ -420,9 +385,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Languages
-	 *
 	 * Begin
 	 * Actions\Admin\Logs
 	 */
@@ -432,9 +394,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Logs
-	 *
 	 * Begin
 	 * Actions\Admin\Mail
 	 */
@@ -469,9 +428,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Mail
-	 *
 	 * Begin
 	 * Actions\Admin\Maintenance
 	 */
@@ -608,9 +564,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Maintainence
-	 *
 	 * Begin
 	 * Actions\Admin\Membergroups
 	 */
@@ -645,9 +598,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Membergoups
-	 *
 	 * Begin
 	 * Actions\Admin\Members
 	 */
@@ -677,9 +627,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Members
-	 *
 	 * Begin
 	 * Actions\Admin\Mods
 	 */
@@ -689,9 +636,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Mods
-	 *
 	 * Begin
 	 * Actions\Admin\News
 	 */
@@ -731,9 +675,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\News
-	 *
 	 * Begin
 	 * Actions\Admin\Permissions
 	 */
@@ -828,9 +769,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Permissions
-	 *
 	 * Begin
 	 * Actions\Admin\Post
 	 */
@@ -855,9 +793,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Posts
-	 *
 	 * Begin
 	 * Actions\Admin\Registration
 	 */
@@ -892,9 +827,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Registration
-	 *
 	 * Begin
 	 * Actions\Admin\RepairBoards
 	 */
@@ -904,9 +836,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\RepairBoards
-	 *
 	 * Begin
 	 * Actions\Admin\Reports
 	 */
@@ -941,9 +870,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Reports
-	 *
 	 * Begin
 	 * Actions\Admin\Search
 	 */
@@ -973,9 +899,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Search
-	 *
 	 * Begin
 	 * Actions\Admin\SearchEngines
 	 */
@@ -1020,9 +943,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\SearchEngine
-	 *
 	 * Begin
 	 * Actions\Admin\Server
 	 */
@@ -1087,9 +1007,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Server
-	 *
 	 * Begin
 	 * Actions\Admin\Smileys
 	 */
@@ -1129,9 +1046,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Smileys
-	 *
 	 * Begin
 	 * Actions\Admin\Subscriptions
 	 */
@@ -1196,9 +1110,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Subscriptions
-	 *
 	 * Begin
 	 * Actions\Admin\Task
 	 */
@@ -1228,9 +1139,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Tasks
-	 *
 	 * Begin
 	 * Actions\Admin\Themes
 	 */
@@ -1280,9 +1188,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Themes
-	 *
 	 * Begin
 	 * Actions\Admin\Warnings
 	 */
@@ -1292,9 +1197,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Admin\Warnings
-	 *
 	 * Begin
 	 * Actions\Moderation\EndSession
 	 */
@@ -1304,9 +1206,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Moderation\EndSession
-	 *
 	 * Begin
 	 * Actions\Moderation\Home
 	 */
@@ -1316,9 +1215,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Moderation\Home
-	 *
 	 * Begin
 	 * Actions\Moderation\Logs
 	 */
@@ -1328,9 +1224,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Moderation\Logs
-	 *
 	 * Begin
 	 * Actions\Moderation\Main
 	 */
@@ -1345,9 +1238,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Moderation\Main
-	 *
 	 * Begin
 	 * Actions\Moderation\Posts
 	 */
@@ -1377,9 +1267,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Moderation\Posts
-	 *
 	 * Begin
 	 * Actions\Moderation\ReportedContent
 	 */
@@ -1424,9 +1311,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Moderation\ReportedContent
-	 *
 	 * Begin
 	 * Actions\Moderation\ShowNotice
 	 */
@@ -1436,9 +1320,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Moderation\ShowNotice
-	 *
 	 * Begin
 	 * Actions\Moderation\Warnings
 	 */
@@ -1463,9 +1344,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Moderation\Warnings
-	 *
 	 * Begin
 	 * Actions\Moderation\WatchedUsers
 	 */
@@ -1475,9 +1353,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Moderation\WatchedUsers
-	 *
 	 * Begin
 	 * Actions\Profile\Account
 	 */
@@ -1487,9 +1362,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\Account
-	 *
 	 * Begin
 	 * Actions\Profile\Activate
 	 */
@@ -1499,9 +1371,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\Activate
-	 *
 	 * Begin
 	 * Actions\Profile\AlertsPopup
 	 */
@@ -1511,9 +1380,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\AlertsPopup
-	 *
 	 * Begin
 	 * Actions\Profile\BuddyIgnoreLists
 	 */
@@ -1543,9 +1409,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\BuddyIgnoreLists
-	 *
 	 * Begin
 	 * Actions\Profile\Delete
 	 */
@@ -1560,9 +1423,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\Delete
-	 *
 	 * Begin
 	 * Actions\Profile\Export
 	 */
@@ -1582,9 +1442,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\Export
-	 *
 	 * Begin
 	 * Actions\Profile\ExportAttachment
 	 */
@@ -1594,9 +1451,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\ExportAttachment
-	 *
 	 * Begin
 	 * Actions\Profile\ExportDownload
 	 */
@@ -1606,9 +1460,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\ExportDownload
-	 *
 	 * Begin
 	 * Actions\Profile\ForumProfile
 	 */
@@ -1618,9 +1469,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\ForumProfile
-	 *
 	 * Begin
 	 * Actions\Profile\GroupMembership
 	 */
@@ -1635,9 +1483,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\GroupMembership
-	 *
 	 * Begin
 	 * Actions\Profile\IgnoreBoards
 	 */
@@ -1647,9 +1492,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\IgnoreBoards
-	 *
 	 * Begin
 	 * Actions\Profile\IssueWarning
 	 */
@@ -1662,9 +1504,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\IssueWarning
-	 *
 	 * Begin
 	 * Actions\Profile\Main
 	 */
@@ -1674,9 +1513,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\Main
-	 *
 	 * Begin
 	 * Actions\Profile\Notification
 	 */
@@ -1728,9 +1564,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\Notification
-	 *
 	 * Begin
 	 * Actions\Profile\PaidSubs
 	 */
@@ -1740,9 +1573,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\PaidSubs
-	 *
 	 * Begin
 	 * Actions\Profile\Popup
 	 */
@@ -1752,9 +1582,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\Popup
-	 *
 	 * Begin
 	 * Actions\Profile\ShowAlerts
 	 */
@@ -1767,9 +1594,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\ShowAlerts
-	 *
 	 * Begin
 	 * Actions\Profile\ShowPermissions
 	 */
@@ -1782,9 +1606,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\ShowPermissions
-	 *
 	 * Begin
 	 * Actions\Profile\ShowPost
 	 */
@@ -1804,9 +1625,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\ShowPosts
-	 *
 	 * Begin
 	 * Actions\Profile\StatPanel
 	 */
@@ -1816,9 +1634,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\StatPanel
-	 *
 	 * Begin
 	 * Actions\Profile\Summary
 	 */
@@ -1828,9 +1643,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\Summary
-	 *
 	 * Begin
 	 * Actions\Profile\TFADisable
 	 */
@@ -1840,9 +1652,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\TFDADisable
-	 *
 	 * Begin
 	 * Actions\Profile\TFASetup
 	 */
@@ -1852,9 +1661,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\TFASetup
-	 *
 	 * Begin
 	 * Actions\Profile\ThemeOptions
 	 */
@@ -1864,9 +1670,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\ThemeOptions
-	 *
 	 * Begin
 	 * Actions\Profile\Tracking
 	 */
@@ -1900,9 +1703,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\Tracking
-	 *
 	 * Begin
 	 * Actions\Profile\ViewWarning
 	 */
@@ -1912,9 +1712,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Profile\ViewWarning
-	 *
 	 * Begin
 	 * Actions\Agreement
 	 */
@@ -1934,9 +1731,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Agreement
-	 *
 	 * Begin
 	 * Actions\AgreementAccept
 	 */
@@ -1946,9 +1740,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\AgreementAccept
-	 *
 	 * Begin
 	 * Actions\Announce
 	 */
@@ -1968,9 +1759,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Announce
-	 *
 	 * Begin
 	 * Actions\AttachmentApprove
 	 */
@@ -1980,9 +1768,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\AttachmentApprove
-	 *
 	 * Begin
 	 * Actions\AttachmentDownload
 	 */
@@ -1992,9 +1777,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\AttachementDownload
-	 *
 	 * Begin
 	 * Actions\AutoSuggest
 	 */
@@ -2023,9 +1805,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\AutoSuggest
-	 *
 	 * Begin
 	 * Actions\BoardIndex
 	 */
@@ -2045,9 +1824,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\BoardIndex
-	 *
 	 * Begin
 	 * Actions\BuddyListToggle
 	 */
@@ -2057,9 +1833,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\BuddyListToggle
-	 *
 	 * Begin
 	 * Actions\Calendar
 	 */
@@ -2173,9 +1946,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Calendar
-	 *
 	 * Begin
 	 * Actions\CoppaForm
 	 */
@@ -2185,9 +1955,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\CoppaForm
-	 *
 	 * Begin
 	 * Actions\Credits
 	 */
@@ -2197,9 +1964,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Credits
-	 *
 	 * Begin
 	 * Actions\Display
 	 */
@@ -2209,9 +1973,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Display
-	 *
 	 * Begin
 	 * Actions\DisplayAdminFile
 	 */
@@ -2221,9 +1982,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\DisplayAdminFile
-	 *
 	 * Begin
 	 * Actions\Feed
 	 */
@@ -2243,9 +2001,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Feed
-	 *
 	 * Begin
 	 * Actions\FindMember
 	 * @deprecated
@@ -2256,9 +2011,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\FindMember
-	 *
 	 * Begin
 	 * Actions\Groups
 	 */
@@ -2288,9 +2040,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Groups
-	 *
 	 * Begin
 	 * Actions\Help
 	 */
@@ -2305,9 +2054,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Help
-	 *
 	 * Begin
 	 * Actions\HelpAdmin
 	 */
@@ -2317,9 +2063,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\HelpAdmin
-	 *
 	 * Begin
 	 * Actions\JavaScriptModify
 	 */
@@ -2329,9 +2072,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\JavaScriptModify
-	 *
 	 * Begin
 	 * Actions\Login
 	 */
@@ -2341,9 +2081,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Login
-	 *
 	 * Begin
 	 * Actions\Login2
 	 */
@@ -2374,9 +2111,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Login2
-	 *
 	 * Begin
 	 * Actions\LoginTFA
 	 */
@@ -2386,9 +2120,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\LoginTFA
-	 *
 	 * Begin
 	 * Actions\Logout
 	 */
@@ -2398,9 +2129,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Logout
-	 *
 	 * Begin
 	 * Actions\Memberlist
 	 */
@@ -2430,9 +2158,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Memberlist
-	 *
 	 * Begin
 	 * Actions\MessageIndex
 	 */
@@ -2452,9 +2177,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\MessageIndex
-	 *
 	 * Begin
 	 * Actions\MsgDelete
 	 */
@@ -2464,9 +2186,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\MsgDelete
-	 *
 	 * Begin
 	 * Actions\Notify
 	 */
@@ -2496,9 +2215,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Notify
-	 *
 	 * Begin
 	 * Actions\NotifyAnnouncements
 	 */
@@ -2508,9 +2224,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\NotifyAnnouncements
-	 *
 	 * Begin
 	 * Actions\NotifyBoard
 	 */
@@ -2520,9 +2233,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\NotifyBoard
-	 *
 	 * Begin
 	 * Actions\NotifyTopic
 	 */
@@ -2532,9 +2242,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\NotifyTopic
-	 *
 	 * Begin
 	 * Actions\PersonalMessage
 	 */
@@ -2614,9 +2321,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\PersonalMessage
-	 *
 	 * Begin
 	 * Actions\Post
 	 */
@@ -2626,9 +2330,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Post
-	 *
 	 * Begin
 	 * Actions\Post2
 	 */
@@ -2638,9 +2339,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Post2
-	 *
 	 * Begin
 	 * Actions\QuickModeration
 	 */
@@ -2650,9 +2348,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\QuickModeration
-	 *
 	 * Begin
 	 * Actions\QuickModerationInTopic
 	 */
@@ -2662,9 +2357,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\QuickModerationInTopic
-	 *
 	 * Begin
 	 * Actions\QuoteFast
 	 */
@@ -2674,9 +2366,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\QuoteFast
-	 *
 	 * Begin
 	 * Actions\Recent
 	 */
@@ -2691,9 +2380,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Recent
-	 *
 	 * Begin
 	 * Actions\Register
 	 */
@@ -2703,9 +2389,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Register
-	 *
 	 * Begin
 	 * Actions\Register2
 	 */
@@ -2720,9 +2403,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Register2
-	 *
 	 * Begin
 	 * Actions\Reminder
 	 */
@@ -2732,9 +2412,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Reminder
-	 *
 	 * Begin
 	 * Actions\ReportToMod
 	 */
@@ -2759,9 +2436,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\ReportToMod
-	 *
 	 * Begin
 	 * Actions\RequestMembers
 	 */
@@ -2771,9 +2445,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\RequestMembers
-	 *
 	 * Begin
 	 * Actions\Search
 	 */
@@ -2783,9 +2454,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Search
-	 *
 	 * Begin
 	 * Actions\Search2
 	 */
@@ -2795,9 +2463,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Search2
-	 *
 	 * Begin
 	 * Actions\SendActivation
 	 */
@@ -2807,9 +2472,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\SendActivation
-	 *
 	 * Begin
 	 * Actions\SmStats
 	 */
@@ -2819,9 +2481,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\SmStats
-	 *
 	 * Begin
 	 * Actions\Stats
 	 */
@@ -2831,9 +2490,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Stats
-	 *
 	 * Begin
 	 * Actions\TopicMerge
 	 */
@@ -2858,9 +2514,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\TopicMerge
-	 *
 	 * Begin
 	 * Actions\TopicMove
 	 */
@@ -2870,9 +2523,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\TopicMove
-	 *
 	 * Begin
 	 * Actions\TopicMove2
 	 */
@@ -2887,9 +2537,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\TopicMove2
-	 *
 	 * Begin
 	 * Actions\TopicPrint
 	 */
@@ -2899,9 +2546,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\TopicPrint
-	 *
 	 * Begin
 	 * Actions\TopicRemove
 	 */
@@ -2921,9 +2565,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\TopicRemove
-	 *
 	 * Begin
 	 * Actions\TopicRestore
 	 */
@@ -2933,9 +2574,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\TopicRestore
-	 *
 	 * Begin
 	 * Actions\TopicSplit
 	 */
@@ -2970,9 +2608,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\TopicSplit
-	 *
 	 * Begin
 	 * Actions\TrackIP
 	 */
@@ -2983,9 +2618,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\TrackIP
-	 *
 	 * Begin
 	 * Actions\Unread
 	 */
@@ -2995,9 +2627,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Unread
-	 *
 	 * Begin
 	 * Actions\VerificationCode
 	 */
@@ -3007,9 +2636,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\VerificationCode
-	 *
 	 * Begin
 	 * Actions\ViewQUery
 	 */
@@ -3019,9 +2645,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\ViewQUery
-	 *
 	 * Begin
 	 * Actions\Who
 	 */
@@ -3036,9 +2659,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\Who
-	 *
 	 * Begin
 	 * Actions\XmlHttp
 	 */
@@ -3063,10 +2683,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Actions\XmlHttp
-	 * End Actions\*
-	 *
 	 * Begin
 	 * Cache\CacheApi
 	 */
@@ -3101,9 +2717,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Cache\CacheApi
-	 *
 	 * Begin
 	 * Db\DatabaseApi
 	 */
@@ -3118,9 +2731,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Db\DatabaseApi
-	 *
 	 * Begin
 	 * Graphics\Image
 	 */
@@ -3211,9 +2821,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Graphics\Image
-	 *
 	 * Begin
 	 * Packagemanager\SubsPackage
 	 */
@@ -3413,9 +3020,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * PackageManager\SubsPackage
-	 *
 	 * Begin
 	 * PersonalMessage\DraftPM
 	 */
@@ -3430,9 +3034,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * PersonalMessage\DraftPM
-	 *
 	 * Begin
 	 * PersonalMessage\PM
 	 */
@@ -3498,9 +3099,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * PersonalMessage\PM
-	 *
 	 * Begin
 	 * PersonalMessage\Rule
 	 */
@@ -3525,9 +3123,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * PersonalMessage\Rule
-	 *
 	 * Begin
 	 * Search\SearchApi
 	 */
@@ -3542,9 +3137,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Search\SearchApi
-	 *
 	 * Begin
 	 * Search\SearchResult
 	 */
@@ -3554,9 +3146,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Search\SearchResult
-	 *
 	 * Begin
 	 * Unicode\Utf8String
 	 * @see SMF\BackwardCompatibility
@@ -3627,9 +3216,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * Unicode\Utf8String
-	 *
 	 * Begin
 	 * WebFetch\WebFetchApi
 	 */
@@ -3639,9 +3225,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * WebFetch\WebFetchApi
-	 *
 	 * Begin
 	 * SMF\Alert
 	 */
@@ -3681,9 +3264,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Alert
-	 *
 	 * Begin
 	 * SMF\Attachment
 	 */
@@ -3788,50 +3368,61 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Attachment
-	 *
 	 * Begin
-	 * SMF\BBCodeParser
+	 * SMF\Parsers\BBCodeParser
 	 */
 	function get_signature_allowed_bbc_tags(): array
 	{
-		return SMF\BBCodeParser::getSigTags();
+		return SMF\Parser::getSigTags();
 	}
 
 	function highlight_php_code(string $code): string
 	{
-		return SMF\BBCodeParser::highlightPhpCode($code);
+		return SMF\Parser::highlightPhpCode($code);
 	}
 
 	function sanitizeMSCutPaste(string $string): string
 	{
-		return SMF\BBCodeParser::sanitizeMSCutPaste($string);
+		return SMF\Parser::sanitizeMSCutPaste($string);
 	}
 
 	function parse_bbc(
 		string|bool $message,
-		bool $smileys = true,
+		bool|string $smileys = true,
 		string $cache_id = '',
 		array $parse_tags = [],
 	): string|array {
-		return SMF\BBCodeParser::backcompatParseBbc(
-			$message,
-			$smileys,
-			$cache_id,
-			$parse_tags,
+		if ($message === false) {
+			return SMF\Parser::getBBCodes();
+		}
+
+		return SMF\Parser::transform(
+			string: $message,
+			input_types: SMF\Parser::INPUT_BBC | SMF\Parser::INPUT_MARKDOWN | (!empty($smileys) ? SMF\Parser::INPUT_SMILEYS : 0),
+			options: [
+				'cache_id' => $cache_id,
+				'parse_tags' => $parse_tags,
+				'for_print' => $smileys === 'print',
+			],
 		);
 	}
 
 	function parseSmileys(string &$message): void
 	{
-		SMF\BBCodeParser::backcompatParseSmileys($message);
+		$message = SMF\Parser::transform($message, SMF\Parser::INPUT_SMILEYS);
+	}
+
+	function html_to_bbc(string $string): string
+	{
+		// We want to ignore Markdown in this backward compatibility function.
+		return SMF\Parser::transform(
+			string: $string,
+			input_types: SMF\Parser::INPUT_BBC | SMF\Parser::INPUT_SMILEYS,
+			output_type: SMF\Parser::OUTPUT_BBC,
+		);
 	}
 
 	/**
-	 * End
-	 * SMF\BBCodeParser
-	 *
 	 * Begin
 	 * SMF\Board
 	 */
@@ -3906,9 +3497,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Board
-	 *
 	 * Begin
 	 * SMF\BrowserDetector
 	 */
@@ -3923,9 +3511,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\BrowserDetector
-	 *
 	 * Begin
 	 * SMF\Category
 	 */
@@ -3965,9 +3550,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Category
-	 *
 	 * Begin
 	 * SMF\Cookie
 	 */
@@ -4014,9 +3596,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Cookie
-	 *
 	 * Begin
 	 * SMF\Draft
 	 */
@@ -4036,9 +3615,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Draft
-	 *
 	 * Begin
 	 * SMF\Editor
 	 */
@@ -4053,9 +3629,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Editor
-	 *
 	 * Begin
 	 * SMF\ErrorHandler
 	 */
@@ -4104,9 +3677,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\ErrorHandler
-	 *
 	 * Begin
 	 * SMF\Event
 	 */
@@ -4126,9 +3696,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Event
-	 *
 	 * Begin
 	 * SMF\Group
 	 */
@@ -4170,9 +3737,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Group
-	 *
 	 * Begin
 	 * SMF\IntegrationHook
 	 */
@@ -4214,9 +3778,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\IntegrationHook
-	 *
 	 * Begin
 	 * SMF\IP
 	 */
@@ -4267,9 +3828,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\IP
-	 *
 	 * Begin
 	 * SMF\ItemList
 	 */
@@ -4279,9 +3837,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\ItemList
-	 *
 	 * Begin
 	 * SMF\Lang
 	 */
@@ -4320,9 +3875,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Lang
-	 *
 	 * Begin
 	 * SMF\Logging
 	 */
@@ -4367,9 +3919,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Logging
-	 *
 	 * Begin
 	 * SMF\Mail
 	 */
@@ -4470,9 +4019,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Mail
-	 *
 	 * Begin
 	 * SMF\Menu
 	 */
@@ -4487,9 +4033,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Menu
-	 *
 	 * Begin
 	 * SMF\Msg
 	 */
@@ -4557,9 +4100,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Msg
-	 *
 	 * Begin
 	 * SMF\PageIndex
 	 */
@@ -4582,9 +4122,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\PageIndex
-	 *
 	 * Begin
 	 * SMF\Poll
 	 */
@@ -4619,9 +4156,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Poll
-	 *
 	 * Begin
 	 * SMF\Profile
 	 */
@@ -4710,9 +4244,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Profile
-	 *
 	 * Begin
 	 * SMF\QueryString
 	 */
@@ -4737,9 +4268,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\QueryString
-	 *
 	 * Begin
 	 * SMF\Sapi
 	 */
@@ -4752,9 +4280,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return Sapi::memoryReturnBytes($val);
 	}
 	/**
-	 * End
-	 * SMF\Sapi
-	 *
 	 * Begin
 	 * SMF\Security
 	 */
@@ -4809,9 +4334,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Security
-	 *
 	 * Begin
 	 * SMF\SecurityToken
 	 */
@@ -4831,9 +4353,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\SecurityToken
-	 *
 	 * BEgin
 	 * SMF\ServerSideIncludes
 	 */
@@ -5093,9 +4612,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\ServerSideIncludes
-	 *
 	 * Begin
 	 * SMF\Session
 	 */
@@ -5105,9 +4621,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Session
-	 *
 	 * Begin
 	 * SMF\TaskRunner
 	 */
@@ -5117,9 +4630,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\TaskRunner
-	 *
 	 * Begin
 	 * SMF\Theme
 	 */
@@ -5229,9 +4739,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Theme
-	 *
 	 * Begin
 	 * SMF\Time
 	 */
@@ -5267,9 +4774,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Time
-	 *
 	 * Begin
 	 * SMF\TimeZone
 	 */
@@ -5299,9 +4803,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\TimeZone
-	 *
 	 * Begin
 	 * SMF\Topic
 	 */
@@ -5340,9 +4841,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Topic
-	 *
 	 * Begin
 	 * SMF\Url
 	 */
@@ -5412,9 +4910,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Url
-	 *
 	 * Begin
 	 * SMF\User
 	 */
@@ -5574,9 +5069,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\User
-	 *
 	 * Begin
 	 * SMF\Utils
 	 */
@@ -5771,9 +5263,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * End
-	 * SMF\Utils
-	 *
 	 * Begin
 	 * SMF\Verifier
 	 */
@@ -5781,11 +5270,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	{
 		return SMF\Verifier::create($options, $do_test);
 	}
-
-	/*
-	 * End
-	 * BackwardCompatibility function map
-	 */
 }
 
 /***************************

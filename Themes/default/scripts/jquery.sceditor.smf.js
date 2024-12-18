@@ -576,13 +576,21 @@
 	var isPatched = false;
 
 	sceditor.create = function (textarea, options) {
+		textarea.value = textarea.value.replaceAll(/\t/, '[tab]');
+
 		// Call the original create function
 		createFn(textarea, options);
+
+		textarea.value = textarea.value.replaceAll(/\[tab\]/, '\t');
 
 		// Constructor isn't exposed so get reference to it when
 		// creating the first instance and extend it then
 		var instance = sceditor.instance(textarea);
 		if (!isPatched && instance) {
+			const wysiwygEditor = instance.getContentAreaContainer();
+			const editorContainer = wysiwygEditor.parentElement;
+			const sourceEditor = editorContainer.querySelector("textarea");
+
 			sceditor.utils.extend(instance.constructor.prototype, extensionMethods);
 			window.addEventListener('beforeunload', instance.updateOriginal, false);
 
@@ -591,9 +599,26 @@
 			 * toolbars and tons of smilies play havoc with this.
 			 * Only resize the text areas instead.
 			 */
-			document.querySelector(".sceditor-container").removeAttribute("style");
-			document.querySelector(".sceditor-container textarea").style.height = options.height;
-			document.querySelector(".sceditor-container textarea").style.flexBasis = options.height;
+			editorContainer.removeAttribute("style");
+			sourceEditor.style.height = options.height;
+			sourceEditor.style.flexBasis = options.height;
+
+			// Override these functions in order to convince SCEditor not to
+			// delete tabs. Supporting Markdown means we need to keep them.
+			const getSourceVal = instance.getSourceEditorValue;
+			const setSourceVal = instance.setSourceEditorValue;
+
+			instance.getSourceEditorValue = function (filter) {
+				if (filter !== false) {
+					sourceEditor.value = sourceEditor.value.replaceAll(/\t/, '[tab]');
+				}
+
+				return getSourceVal(filter);
+			};
+
+			instance.setSourceEditorValue = function (value) {
+				setSourceVal(value.replaceAll(/\[tab\]/, '\t'));
+			};
 
 			isPatched = true;
 		}
@@ -852,6 +877,83 @@ sceditor.command.set(
 );
 
 sceditor.command.set(
+	'heading', {
+		_dropDown: function (editor, caller, callback) {
+			var	content = document.createElement('div');
+
+			for (var i = 1; i <= 6; i++) {
+				let opt = document.createElement('a');
+				opt.href = '#',
+				opt.dataset.tag = 'h' + i;
+				opt.innerText = 'H' + i;
+				opt.style.display = 'block';
+				opt.classList.add('bbc_h' + i);
+				content.appendChild(opt);
+			}
+
+			if (!editor.sourceMode()) {
+				let opt = document.createElement('a');
+				opt.href = '#',
+				opt.dataset.tag = '';
+				opt.innerText = "\u2014";
+				opt.style.display = 'block';
+				content.appendChild(opt);
+			}
+
+			for (const elem of content.querySelectorAll("a")) {
+				elem.addEventListener("click", function (e) {
+					callback(elem.dataset.tag);
+					editor.closeDropDown(true);
+					e.preventDefault();
+				});
+			}
+
+			editor.createDropDown(caller, 'heading-picker', content);
+		},
+		state: function (parent, firstBlock) {
+			return sceditor.dom.closest(this.currentNode(), 'h1, h2, h3, h4, h5, h6') ? 1 : 0;
+		},
+		txtExec: function (caller) {
+			var editor = this;
+
+			editor.commands.heading._dropDown(editor, caller, function (tag) {
+				let caretPos = editor.sourceEditorCaret().start;
+
+				if (tag.match(/h[1-6]/)) {
+					editor.insert('[' + tag + ']', '[/' + tag + ']');
+					editor.toggleSourceMode();
+					editor.toggleSourceMode();
+					editor.sourceEditorCaret({start: caretPos, end: caretPos});
+				}
+			});
+		},
+		exec: function (caller) {
+			var editor = this;
+
+			editor.commands.heading._dropDown(editor, caller, function (tag) {
+				const rangeHelper = editor.getRangeHelper()
+				const container = rangeHelper.parentNode().parentNode;
+				const containerParent = container.parentNode;
+				const content = container.innerHTML;
+
+				if (
+					container.nodeType === Node.ELEMENT_NODE
+					&& container.nodeName.match(/H[1-6]/)
+				) {
+					let newElement = document.createElement(tag.match(/h[1-6]/) ? tag : 'p');
+					newElement.innerHTML = content;
+					container.replaceWith(newElement);
+					containerParent.normalize();
+					rangeHelper.selectOuterText(0, content.length);
+				} else if (tag.match(/h[1-6]/)) {
+					editor.insert('[' + tag + ']', '[/' + tag + ']');
+				}
+			});
+		},
+	}
+);
+
+sceditor.command.set(
 	'maximize', {
 		shortcut: ''
 	}
@@ -932,6 +1034,60 @@ sceditor.command.set(
 				}
 			);
 		}
+	}
+);
+
+sceditor.command.set(
+	'tt', {
+		state: function (parent, firstBlock) {
+			if (this.inSourceMode()) {
+				return 0;
+			}
+
+			let currNode = sceditor.dom.closest(this.currentNode(), 'font');
+
+			if (!currNode) {
+				return 0;
+			}
+
+			let font = currNode.getAttribute('face');
+
+			return (font === 'monospace') ? 1 : 0;
+		},
+		exec: function(caller) {
+			let currNode = sceditor.dom.closest(this.currentNode(), 'font');
+
+			if (!currNode) {
+				this.execCommand('fontname', 'monospace');
+			} else {
+				let font = currNode.getAttribute('face');
+
+				if (font === 'monospace') {
+					this.execCommand('removeFormat');
+				} else {
+					this.execCommand('fontname', 'monospace');
+				}
+			}
+		},
+		txtExec: function(caller) {
+			this.insert('[tt]', '[/tt]');
+		}
+	}
+);
+
+// This pseudo-BBCode exists solely to convince SCEditor not to delete tab characters.
+sceditor.formats.bbcode.set(
+	'tab', {
+		tags: {
+			span: {
+				class: 'tab'
+			}
+		},
+		allowsEmpty: true,
+		isSelfClosing: true,
+		isInline: true,
+		format: '\t',
+		html: '<span style="white-space: pre-wrap;" class="tab">\t</span>'
 	}
 );
 
@@ -1400,9 +1556,26 @@ sceditor.formats.bbcode.set(
 
 sceditor.formats.bbcode.set(
 	'php', {
-		isInline: false,
-		format: "[php]{0}[/php]",
-		html: '<code class="php">{0}</code>'
+		tags: {
+			span: {
+				'class': 'phpcode'
+			}
+		},
+		isInline: true,
+		format: '[php]{0}[/php]',
+		html: '<span class="phpcode">{0}</span>'
+	}
+);
+
+sceditor.formats.bbcode.set(
+	'tt', {
+		tags: {
+			font: {
+				'face': 'monospace'
+			}
+		},
+		format: '[tt]{0}[/tt]',
+		html: '<font face="monospace">{0}</font>'
 	}
 );
 
@@ -1414,9 +1587,6 @@ sceditor.formats.bbcode.set(
 		isInline: false,
 		allowedChildren: ['#', '#newline'],
 		format: function (element, content) {
-			if ($(element).hasClass('php'))
-				return '[php]' + content.replace('&#91;', '[') + '[/php]';
-
 			var
 				dom = sceditor.dom,
 				attr = dom.attr,
@@ -1509,6 +1679,11 @@ sceditor.formats.bbcode.set(
 			// Strip all quotes
 			font = font.replace(/['"]/g, '');
 
+			// To make [tt] work, we need to add an exception to the [font] BBC.
+			if (font === 'monospace') {
+				return content;
+			}
+
 			return '[font=' + font + ']' + content + '[/font]';
 		}
 	}
@@ -1584,5 +1759,72 @@ sceditor.formats.bbcode.set(
 				return content;
 		},
 		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube-nocookie.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" loading="lazy" allowfullscreen></iframe></div></div>'
+	}
+);
+
+sceditor.formats.bbcode.set(
+	'h1', {
+		tags: {
+			h1: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h1]{0}[/h1]',
+		html: '<h1>{0}</h1>'
+	}
+);
+sceditor.formats.bbcode.set(
+	'h2', {
+		tags: {
+			h2: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h2]{0}[/h2]',
+		html: '<h2>{0}</h2>'
+	}
+);
+sceditor.formats.bbcode.set(
+	'h3', {
+		tags: {
+			h3: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h3]{0}[/h3]',
+		html: '<h3>{0}</h3>'
+	}
+);
+sceditor.formats.bbcode.set(
+	'h4', {
+		tags: {
+			h4: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h4]{0}[/h4]',
+		html: '<h4>{0}</h4>'
+	}
+);
+sceditor.formats.bbcode.set(
+	'h5', {
+		tags: {
+			h5: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h5]{0}[/h5]',
+		html: '<h5>{0}</h5>'
+	}
+);
+sceditor.formats.bbcode.set(
+	'h6', {
+		tags: {
+			h6: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h6]{0}[/h6]',
+		html: '<h6>{0}</h6>'
 	}
 );
