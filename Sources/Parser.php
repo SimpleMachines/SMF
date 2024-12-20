@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Cache\CacheApi;
-use SMF\Parsers\BBcodeParser;
+use SMF\Parsers\BBCodeParser;
 use SMF\Parsers\MarkdownParser;
 use SMF\Parsers\SmileyParser;
 

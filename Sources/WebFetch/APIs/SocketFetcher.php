@@ -84,16 +84,16 @@ class SocketFetcher extends WebFetchApi
 	 */
 	public $response = [];
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
 	/**
 	 * @var bool
 	 *
 	 * Whether to keep the socket connection open after the initial request.
 	 */
-	private bool $keep_alive;
+	public bool $keep_alive = false;
+
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var bool

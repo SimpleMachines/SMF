@@ -61,6 +61,17 @@ abstract class WebFetchApi implements WebFetchApiInterface
 		'https' => ['SocketFetcher', 'CurlFetcher'],
 	];
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * Fetchers that still have an open connection after the initial request.
+	 */
+	private static array $still_alive = [];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -121,14 +132,35 @@ abstract class WebFetchApi implements WebFetchApiInterface
 			$data = false;
 		}
 
-		foreach (self::$scheme_handlers[$url->scheme] as $class) {
-			$class = __NAMESPACE__ . '\\APIs\\' . $class;
+		if (isset(self::$still_alive[(string) $url])) {
+			$fetcher = self::$still_alive[(string) $url];
+			$fetcher->request($url, $post_data);
+		} else {
+			foreach (self::$scheme_handlers[$url->scheme] as $class) {
+				// Get an instance of the desired class.
+				$class = __NAMESPACE__ . '\\APIs\\' . $class;
 
-			$fetcher = new $class();
-			$fetcher->request($url);
+				$fetcher = new $class();
 
-			if ($fetcher->result('success')) {
-				break;
+				// Do we want to keep this connection alive, and can we do so?
+				if ($keep_alive && property_exists($fetcher, 'keep_alive')) {
+					$fetcher->keep_alive = $keep_alive;
+					self::$still_alive[(string) $url] = $fetcher;
+				}
+
+				// Make the request.
+				$fetcher->request($url, $post_data);
+
+				// If keep_alive was turned off during the request, we don't
+				// need to maintain this instance after we're done the request.
+				if (!($fetcher->keep_alive ?? false)) {
+					unset(self::$still_alive[(string) $url]);
+				}
+
+				// If the request worked, we can stop looping.
+				if ($fetcher->result('success')) {
+					break;
+				}
 			}
 		}
 
