@@ -379,7 +379,7 @@ blockquote cite::before {
 	margin: 1px 0 6px 0;
 	padding: 3px 12px;
 	overflow: auto;
-	white-space: nowrap;
+	white-space: pre;
 	max-height: 25em;
 }
 /* The "Quote:" and "Code:" header parts... */

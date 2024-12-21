@@ -429,7 +429,7 @@ class WatchedUsers implements ActionInterface
 
 			$row['body'] = Parser::transform(
 				string: $row['body'],
-				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['last_smileys'] ? Parser::INPUT_SMILEYS : 0),
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
 				options: ['cache_id' => (int) $row['id_msg']],
 			);
 

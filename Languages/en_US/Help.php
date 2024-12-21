@@ -228,7 +228,7 @@ $helptxt['trackStats'] = 'Stats:<br>This will allow users to see the latest post
 $helptxt['titlesEnable'] = 'Switching Custom Titles on will allow members with the relevant permission to create a special title for themselves.
 		This will be shown underneath the name.<br><em>For example:</em><br>Jeff<br>Cool Guy';
 $helptxt['onlineEnable'] = 'This will show an image to indicate whether the member is online or offline';
-$helptxt['todayMod'] = 'This will show &quot;Today&quot; or &quot;Yesterday&quot; instead of the date.<br><br>
+$helptxt['todayMod'] = 'This will show &quot;Yesterday&quot;, &quot;Today&quot;, or &quot;Tomorrow&quot; instead of the date.<br><br>
 		<strong>Examples:</strong><br><br>
 		<ul class="normallist">
 			<li>
@@ -236,7 +236,7 @@ $helptxt['todayMod'] = 'This will show &quot;Today&quot; or &quot;Yesterday&quot
 			October 3, 2009 at 12:59:18 am</li>
 			<li><strong>Only Today</strong><br>
 			Today at 12:59:18 am</li>
-			<li><strong>Today &amp; Yesterday</strong><br>
+			<li><strong>Yesterday, Today, &amp; Tomorrow</strong><br>
 			Yesterday at 09:36:55 pm</li>
 		</ul>';
 $helptxt['disableCustomPerPage'] = 'Check this setting to stop users from customizing the amount of messages and topics to display per page on the Message Index and Topic Display page respectively.';

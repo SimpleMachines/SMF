@@ -191,7 +191,7 @@ class MarkdownParser extends Parser
 				// or
 				'|' .
 				// Non-space, non-control characters.
-				'[^\s\p{Cc}]+' .
+				'[^\s\p{Cc}]+?' .
 			')' .
 		')';
 
@@ -397,7 +397,7 @@ class MarkdownParser extends Parser
 			'interrupts_p' => true,
 			'marker_pattern' => '/^((?P<bullet>[*+-])|(?P<number>\d+)(?P<num_punct>[.)]))\h+/u',
 			'opener_test' => 'testOpensListItem',
-			'continue_test' => 'testContinuesListItem',
+			'continue_test' => false,
 			'closer_test' => 'testClosesListItem',
 			'add' => 'addListItem',
 			'append' => null,
@@ -1226,12 +1226,16 @@ class MarkdownParser extends Parser
 			return true;
 		}
 
+		if ($this->in_code === 2) {
+			return false;
+		}
+
 		if ($this->testIsBlank($line_info) && $this->in_code === 1) {
 			return true;
 		}
 
 		if ($line_info['indent'] < 4) {
-			$this->in_code = $this->in_code === 1 ? 0 : $this->in_code;
+			$this->in_code = 0;
 
 			return false;
 		}
@@ -1248,7 +1252,7 @@ class MarkdownParser extends Parser
 					&& $open_block['properties']['indent'] >= $line_info['indent']
 				)
 			) {
-				$this->in_code = $this->in_code === 1 ? 0 : $this->in_code;
+				$this->in_code = 0;
 
 				return false;
 			}
@@ -1392,21 +1396,6 @@ class MarkdownParser extends Parser
 			|| Utils::htmlTrim($this->line_info[$line_info['linenum'] - 1]['string'] ?? '') === ''
 			// The number 1 can interrupt paragraphs.
 			|| $matches['number'] === '1'
-		);
-	}
-
-	/**
-	 * Tests whether a line is part of a list item.
-	 *
-	 * @param array $line_info Info about the current line.
-	 * @return bool Whether this line is part of a list item.
-	 */
-	protected function testContinuesListItem(array $line_info, int $last_container, int $o): bool
-	{
-		return (bool) (
-			$this->open[$o]['type'] === 'list_item'
-			&& $this->open[$o - 1]['type'] === 'list'
-			&& $line_info['indent'] >= $this->open[$o]['properties']['indent']
 		);
 	}
 
@@ -1826,6 +1815,21 @@ class MarkdownParser extends Parser
 		$num_punct = ($matches['num_punct'] ?? '') !== '' ? $matches['num_punct'] : null;
 
 		$indent = $line_info['indent'] + mb_strlen($marker) + strspn($line_info['content'], ' ', strlen($marker));
+
+		// Check for nested lists.
+		if (
+			$this->open[$last_container]['type'] === 'list'
+			&& $line_info['indent'] >= $this->open[$last_container]['properties']['indent']
+		) {
+			// Close the open paragraph (or whatever) inside the open list item.
+			while ($this->open[$o]['type'] !== 'list_item') {
+				$this->getMethod($this->block_types[$this->open[$o]['type']]['close'] ?? 'closeBlock')($o);
+				$o--;
+			}
+
+			// Consider the open list item to be our container.
+			$last_container = $o;
+		}
 
 		// If this list item doesn't match the existing list's type,
 		// exit the existing list so we can start a new one.
@@ -2475,8 +2479,41 @@ class MarkdownParser extends Parser
 						}
 
 						// We need more info to make decisions about this run of delimiter chars.
-						$prev_char = html_entity_decode($chars[$start - 1] ?? ' ');
-						$next_char = html_entity_decode($chars[$i + 1] ?? ' ');
+						if (isset($chars[$start - 1])) {
+							$prev_char = $chars[$start - 1];
+						} elseif (!isset($content[$c - 1])) {
+							$prev_char = ' ';
+						} else {
+							$temp = $content[$c - 1];
+
+							while (isset($temp[array_key_last($temp)]['content'])) {
+								$temp = $temp[array_key_last($temp)]['content'];
+							}
+
+							if (is_string(end($temp['content']))) {
+								$prev_char = mb_substr(end($temp['content']), -1);
+							} else {
+								$prev_char = ' ';
+							}
+						}
+
+						if (isset($chars[$i + 1])) {
+							$next_char = $chars[$i + 1];
+						} elseif (!isset($content[$c + 1])) {
+							$next_char = ' ';
+						} else {
+							$temp = $content[$c + 1];
+
+							while (isset($temp[0]['content'])) {
+								$temp = $temp[0]['content'];
+							}
+
+							if (is_string(reset($temp['content']))) {
+								$next_char = mb_substr(reset($temp['content']), 0, 1);
+							} else {
+								$next_char = ' ';
+							}
+						}
 
 						$prev_is_space = preg_match('/\s/u', $prev_char);
 						$prev_is_punct = $prev_is_space ? false : preg_match('/\pP/u', $prev_char);
@@ -2660,10 +2697,8 @@ class MarkdownParser extends Parser
 
 			$str = implode('', array_slice($chars, $delim['properties']['position'], $i - $delim['properties']['position'])) . ']' . mb_substr(implode('', $chars), $i + 1);
 
-			$prefix = $delim['type'] === '![' ? '!' : '';
-
 			// Inline link/image?
-			if (preg_match('~^' . $prefix . self::REGEX_LINK_INLINE . '~u', $str, $matches)) {
+			if (preg_match('~^' . self::REGEX_LINK_INLINE . '~u', $str, $matches)) {
 				$this->parseEmphasis($content, $c);
 
 				$text = array_slice($content, $c + 1);
@@ -2693,7 +2728,7 @@ class MarkdownParser extends Parser
 				self::REGEX_LINK_REF_COLLAPSED,
 				self::REGEX_LINK_REF_SHORTCUT,
 			] as $regex) {
-				if (preg_match('~' . $prefix . $regex . '~u', $str, $matches)) {
+				if (preg_match('~' . $regex . '~u', $str, $matches)) {
 					break;
 				}
 			}
@@ -3256,6 +3291,8 @@ class MarkdownParser extends Parser
 	 */
 	protected function renderList(array $element): void
 	{
+		static $nesting_level = 0;
+
 		switch ($this->output_type) {
 			case self::OUTPUT_BBC:
 				if ($element['content'] === []) {
@@ -3270,7 +3307,10 @@ class MarkdownParser extends Parser
 					return;
 				}
 
-				$style_type = $element['properties']['ordered'] ? 'decimal' : 'disc';
+				$ordered_styles = ['decimal', 'lower-roman', 'lower-alpha'];
+				$unordered_styles = ['disc', 'circle', 'square'];
+
+				$style_type = $element['properties']['ordered'] ? $ordered_styles[$nesting_level % 3] : $unordered_styles[$nesting_level % 3];
 
 				foreach (BBCodeParser::getCodes() as $code) {
 					if (
@@ -3297,7 +3337,9 @@ class MarkdownParser extends Parser
 		$this->rendered .= "\n";
 
 		foreach ($element['content'] as $content_element) {
+			$nesting_level++;
 			$this->render($content_element);
+			$nesting_level--;
 		}
 
 		switch ($this->output_type) {

@@ -118,7 +118,7 @@ class Mail
 		}
 
 		// Use real tabs.
-		$message = strtr($message, [Utils::TAB_SUBSTITUTE => $send_html ? '<span style="white-space: pre-wrap;">' . "\t" . '</span>' : "\t"]);
+		$message = strtr($message, [Utils::TAB_SUBSTITUTE => $send_html ? '<span style="white-space: pre;">' . "\t" . '</span>' : "\t"]);
 
 		list(, $from_name) = self::mimespecialchars(addcslashes($from !== null ? $from : Utils::$context['forum_name'], '<>()\'\\"'), true, $hotmail_fix, $line_break);
 		list(, $subject) = self::mimespecialchars($subject, true, $hotmail_fix, $line_break);

@@ -959,7 +959,7 @@ class Post implements ActionInterface
 			// Do all bulletin board code tags, with or without smileys.
 			Utils::$context['preview_message'] = Parser::transform(
 				string: Utils::$context['preview_message'],
-				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | (isset($_REQUEST['ns']) ? Parser::INPUT_SMILEYS : 0),
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | (!isset($_REQUEST['ns']) ? Parser::INPUT_SMILEYS : 0),
 			);
 
 			Lang::censorText(Utils::$context['preview_message']);

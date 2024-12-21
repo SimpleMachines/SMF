@@ -528,7 +528,7 @@ class ServerSideIncludes
 				options: ['cache_id' => (int) $row['id_msg']],
 			);
 
-			$row['body'] = strtr($row['body'], [Utils::TAB_SUBSTITUTE => '<span style="white-space: pre-wrap;">' . "\t" . '</span>']);
+			$row['body'] = strtr($row['body'], [Utils::TAB_SUBSTITUTE => '<span style="white-space: pre;">' . "\t" . '</span>']);
 
 			// Censor it!
 			Lang::censorText($row['subject']);
@@ -2262,7 +2262,7 @@ class ServerSideIncludes
 				options: ['cache_id' => (int) $row['id_msg']],
 			);
 
-			$row['body'] = strtr($row['body'], [Utils::TAB_SUBSTITUTE => '<span style="white-space: pre-wrap;">' . "\t" . '</span>']);
+			$row['body'] = strtr($row['body'], [Utils::TAB_SUBSTITUTE => '<span style="white-space: pre;">' . "\t" . '</span>']);
 
 			if (!empty($recycle_board) && $row['id_board'] == $recycle_board) {
 				$row['icon'] = 'recycled';

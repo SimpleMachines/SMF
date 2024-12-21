@@ -1940,11 +1940,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		Actions\Calendar::removeHolidays($holiday_ids);
 	}
 
-	function convertDateToEnglish(string $date): string
-	{
-		return Actions\Calendar::convertDateToEnglish($date);
-	}
-
 	/**
 	 * Begin
 	 * Actions\CoppaForm
@@ -4764,13 +4759,24 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function timeformat(int $log_time, bool|string $show_today = true, ?string $tzid = null): string
 	{
-		return SMF\Time::timeformat($log_time, $show_today, $tzid);
+		// For backward compatibility, replace empty values with the user's time
+		// zone and replace anything invalid with the forum's default time zone.
+		$tzid = empty($tzid) ? SMF\User::getTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? SMF\Config::$modSettings['default_timezone'] : $tzid);
+
+		$date = new SMF\Time('@' . $log_time, $tzid);
+
+		return is_bool($show_today) ? $date->format(null, $show_today) : $date->format($show_today);
+	}
+
+	function convertDateToEnglish(string $date): string
+	{
+		return SMF\Time::convertToEnglish($date);
 	}
 
 	/** @deprecated since 2.1 */
 	function forum_time(bool $use_user_offset = true, ?int $timestamp = null): int
 	{
-		return SMF\Time::forumTime($use_user_offset, $timestamp);
+		return !isset($timestamp) ? time() : (int) $timestamp;
 	}
 
 	/**

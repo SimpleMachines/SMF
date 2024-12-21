@@ -1087,7 +1087,7 @@ sceditor.formats.bbcode.set(
 		isSelfClosing: true,
 		isInline: true,
 		format: '\t',
-		html: '<span style="white-space: pre-wrap;" class="tab">\t</span>'
+		html: '<span style="white-space: pre;" class="tab">\t</span>'
 	}
 );
 
@@ -1598,7 +1598,7 @@ sceditor.formats.bbcode.set(
 		html: function (element, attrs, content) {
 			var from = attrs.defaultattr ? ' data-title="' + attrs.defaultattr + '"'  : '';
 
-			return '<code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;') + '</code>'
+			return '<code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;').replaceAll(/\[tab\]/, '<span style="white-space: pre;" class="tab">\t</span>') + '</code>'
 		}
 	}
 );

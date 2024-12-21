@@ -151,6 +151,13 @@ class Time extends \DateTime implements \ArrayAccess
 	 */
 	protected static array $today;
 
+	/**
+	 * @var string
+	 *
+	 * Regular expression to match all keywords recognized by PHP's date parser.
+	 */
+	protected static string $parsable_words_regex;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -187,12 +194,26 @@ class Time extends \DateTime implements \ArrayAccess
 			unset($timezone);
 		}
 
-		parent::__construct($datetime, $timezone ?? self::$user_tz);
+		$datetime = self::sanitize($datetime);
 
-		// If $datetime was a Unix timestamp, force the time zone to be the one we were told to use.
-		// Honestly, it's a mystery why the \DateTime class doesn't do this itself already...
-		if (str_starts_with($datetime, '@')) {
+		if (
+			// If $datetime was a Unix timestamp, set the time zone to the one
+			// we were told to use. Honestly, it's a mystery why the \DateTime
+			// class doesn't do this itself already...
+			str_starts_with($datetime, '@')
+			// In some versions of PHP, unexpected results may be produced if
+			// $datetime contains the special 'now' or 'ago' keywords and also
+			// contains a time zone ID string (e.g. 'now Europe/Paris'), but
+			// that time zone ID string is different than the one in $timezone.
+			// In order to avoid problems, we use two steps when the 'now' or
+			// 'ago' keywords are present.
+			|| str_contains($datetime, 'now')
+			|| str_contains($datetime, 'ago')
+		) {
+			parent::__construct($datetime);
 			$this->setTimezone($timezone ?? self::$user_tz);
+		} else {
+			parent::__construct($datetime, $timezone ?? self::$user_tz);
 		}
 	}
 
@@ -464,28 +485,38 @@ class Time extends \DateTime implements \ArrayAccess
 			$format = strtr($format, self::FORMAT_SHORT_FORMS);
 		}
 
-		// Today and Yesterday?
-		$prefix = '';
-
-		if ($relative && Config::$modSettings['todayMod'] >= 1) {
+		// Yesterday, today, or tomorrow?
+		if (!$relative) {
+			$prefix = '';
+		} else {
 			$tzid = date_format($this, 'e');
 
 			if (!isset(self::$today[$tzid])) {
 				self::$today[$tzid] = strtotime('today ' . $tzid);
 			}
 
-			// Tomorrow? We don't support the future. ;)
-			if ($this->getTimestamp() >= self::$today[$tzid] + 86400) {
-				$prefix = '';
+			// The future.
+			if ($this->getTimestamp() >= self::$today[$tzid] + 172800) {
+				$relative_day = null;
+			}
+			// Tomorrow.
+			elseif ($this->getTimestamp() >= self::$today[$tzid] + 86400) {
+				$relative_day = Config::$modSettings['todayMod'] > 1 ? 'tomorrow' : null;
 			}
 			// Today.
 			elseif ($this->getTimestamp() >= self::$today[$tzid]) {
-				$prefix = Lang::$txt['today'] ?? '';
+				$relative_day = Config::$modSettings['todayMod'] >= 1 ? 'today' : null;
 			}
 			// Yesterday.
-			elseif (Config::$modSettings['todayMod'] > 1 && $this->getTimestamp() >= self::$today[$tzid] - 86400) {
-				$prefix = Lang::$txt['yesterday'] ?? '';
+			elseif ($this->getTimestamp() >= self::$today[$tzid] - 86400) {
+				$relative_day = Config::$modSettings['todayMod'] > 1 ? 'yesterday' : null;
 			}
+			// The past.
+			else {
+				$relative_day = null;
+			}
+
+			$prefix = Lang::$txt[$relative_day] ?? '';
 		}
 
 		$format = !empty($prefix) ? self::getTimeFormat($format) : $format;
@@ -799,6 +830,19 @@ class Time extends \DateTime implements \ArrayAccess
 	}
 
 	/**
+	 * Like self::strftime(), but always uses the current user's time zone and
+	 * preferred time format.
+	 *
+	 * @param int|string|null $timestamp A Unix timestamp.
+	 *     If null or invalid, defaults to the current time.
+	 * @return string A formatted time string.
+	 */
+	public static function stringFromUnix(int|string|null $timestamp = null): string
+	{
+		return self::create('@' . (is_numeric($timestamp) ? $timestamp : time()))->format();
+	}
+
+	/**
 	 * Returns a strftime format or DateTime format for showing dates.
 	 *
 	 * Returned string will be based on the current user's preferred strftime
@@ -999,44 +1043,144 @@ class Time extends \DateTime implements \ArrayAccess
 	}
 
 	/**
-	 * Backward compatibility wrapper for the format method.
+	 * Removes text that the date parser wouldn't recognize.
 	 *
-	 * @param int|string $log_time A timestamp.
-	 * @param bool|string $show_today Whether to show "Today"/"Yesterday" or
-	 *    just a date. If a string is specified, that is used to temporarily
-	 *    override the date format.
-	 * @param string $tzid Time zone identifier string of the time zone to use.
-	 *    If empty, the user's time zone will be used.
-	 *    If set to a valid time zone identifier, that will be used.
-	 *    Otherwise, the value of Config::$modSettings['default_timezone'] will
-	 *    be used.
-	 * @return string A formatted time string
+	 * @param string $datetime A date/time string that needs to be parsed.
+	 * @return string Sanitized version of $datetime.
 	 */
-	public static function timeformat(int|string $log_time, bool|string $show_today = true, ?string $tzid = null): string
+	public static function sanitize(string $datetime): string
 	{
-		$log_time = (int) $log_time;
+		self::setParsableWordsRegex();
 
-		// For backward compatibility, replace empty values with the user's time
-		// zone and replace anything invalid with the forum's default time zone.
-		$tzid = empty($tzid) ? User::getTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? Config::$modSettings['default_timezone'] : $tzid);
+		// Remove HTML.
+		$datetime = strip_tags($datetime);
 
-		$date = new self('@' . $log_time);
-		$date->setTimezone(new \DateTimeZone($tzid));
+		// Parsing fails when AM/PM is not separated from the time by a space.
+		$datetime = preg_replace_callback_array(
+			[
+				'/(\s\d?\d)([ap]\.?m\.?)/i' => fn ($matches) => $matches[1] . ':00 ' . $matches[2],
+				'/(:\d\d)([ap]\.?m\.?)/i' => fn ($matches) => $matches[1] . ' ' . $matches[2],
+			],
+			$datetime,
+		);
 
-		return is_bool($show_today) ? $date->format(null, $show_today) : $date->format($show_today);
+		// Protect the parsable strings.
+		$placeholders = [];
+
+		$datetime = preg_replace_callback(
+			[
+				'~(GMT)?[+\-](0?\d|1[0-2]):?([0-5]\d)~i',
+				'~\b' . self::$parsable_words_regex . '\b~iu',
+				'~[ap]\.?m\.?~i',
+				'~\d+(st|nd|rd|th)~i',
+				'~(\b|d+)[TW]\d+~i',
+				'~[.:+\-/@]~',
+				'~\d+~',
+			],
+			function ($matches) use (&$placeholders) {
+				$char = mb_chr(0xE000 + count($placeholders));
+				$placeholders[$char] = $matches[0];
+
+				return $char;
+			},
+			$datetime,
+		);
+
+		// Remove unparsable strings.
+		$datetime = preg_replace('~[^\s' . implode('', array_keys($placeholders)) . ']~u', '', $datetime);
+
+		// Restore the parsable strings.
+		$datetime = strtr($datetime, $placeholders);
+
+		// Clean up white space.
+		$datetime = trim(Utils::normalizeSpaces($datetime, true, true, ['collapse_hspace' => true, 'replace_tabs' => true, 'no_breaks' => true]));
+
+		return $datetime;
 	}
 
 	/**
-	 * Backward compatibility method.
+	 * Helper function to convert a date string to English so that date_parse()
+	 * can parse it correctly.
 	 *
-	 * @deprecated since 2.1
-	 * @param bool $use_user_offset This parameter is deprecated and ignored.
-	 * @param int $timestamp A timestamp (null to use current time).
-	 * @return int Seconds since the Unix epoch.
+	 * @param string $date A localized date string.
+	 * @return string English date string.
 	 */
-	public static function forumTime(bool $use_user_offset = true, ?int $timestamp = null): int
+	public static function convertToEnglish(string $date): string
 	{
-		return !isset($timestamp) ? time() : (int) $timestamp;
+		self::setParsableWordsRegex();
+
+		// Preserve any existing parseable words, such as time zone identifiers.
+		$placeholders = [];
+
+		$date = preg_replace_callback(
+			'~\b' . self::$parsable_words_regex . '\b~iu',
+			function ($matches) use (&$placeholders) {
+				$char = mb_chr(0xE000 + count($placeholders));
+				$placeholders[$char] = $matches[0];
+
+				return $char;
+			},
+			$date,
+		);
+
+		// Build an array of regular expressions to translate the current language strings to English.
+		$replacements = array_combine(
+			array_map(fn ($arg) => '~' . $arg . '~iu', Lang::$txt['months_titles']),
+			[
+				'January', 'February', 'March', 'April', 'May', 'June',
+				'July', 'August', 'September', 'October', 'November', 'December',
+			],
+		);
+
+		$replacements += array_combine(
+			array_map(fn ($arg) => '~' . $arg . '~iu', Lang::$txt['months_short']),
+			['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+		);
+
+		$replacements += array_combine(
+			array_map(fn ($arg) => '~' . $arg . '~iu', Lang::$txt['days']),
+			['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+		);
+
+		$replacements += array_combine(
+			array_map(fn ($arg) => '~' . $arg . '~iu', Lang::$txt['days_short']),
+			['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+		);
+
+		// Find all possible variants of AM and PM for this language.
+		$replacements['~' . Lang::$txt['time_am'] . '~iu'] = 'AM';
+		$replacements['~' . Lang::$txt['time_pm'] . '~iu'] = 'PM';
+
+		if (($am = self::strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false) {
+			$replacements['~' . $am . '~iu'] = 'AM';
+			$replacements['~' . self::strftime('%p', strtotime('23:00:00')) . '~iu'] = 'PM';
+		}
+
+		if (($am = self::strftime('%P', strtotime('01:00:00'))) !== 'P' && $am !== false) {
+			$replacements['~' . $am . '~iu'] = 'AM';
+			$replacements['~' . self::strftime('%P', strtotime('23:00:00')) . '~iu'] = 'PM';
+		}
+
+		// Find this language's equivalents for today, yesterday, and tomorrow.
+		// In theory, it would be nice to do the same for other keywords used by
+		// PHP's date parser, but that would get very complicated very quickly.
+		foreach (['today', 'yesterday', 'tomorrow'] as $word) {
+			$translated_word = preg_replace('~\X*<strong>(\X*?)</strong>\X*~u', '$1', Lang::$txt[$word]);
+			$replacements['~\b' . $translated_word . '\b~iu'] = $word;
+		}
+
+		// Wrap the replacement strings in closures.
+		foreach ($replacements as $pattern => $replacement) {
+			$replacements[$pattern] = fn ($matches) => $replacement;
+		}
+
+		// Translate.
+		$date = preg_replace_callback_array($replacements, $date);
+
+		// Restore the preserved words.
+		$date = strtr($date, $placeholders);
+
+		return $date;
 	}
 
 	/*************************
@@ -1285,6 +1429,44 @@ class Time extends \DateTime implements \ArrayAccess
 		self::$formats[$orig_format][$type] = trim($format);
 
 		return self::$formats[$orig_format][$type];
+	}
+
+	/**
+	 * Builds a regex to match words that the date parser recognizes and saves
+	 * it in self::$parsable_words_regex.
+	 */
+	protected static function setParsableWordsRegex(): void
+	{
+		self::$parsable_words_regex = self::$parsable_words_regex ?? Utils::buildRegex(
+			array_merge(
+				// Time zone abbreviations.
+				array_filter(array_keys(\DateTimeZone::listAbbreviations()), fn ($a) => !is_numeric($a)),
+				// Time zone identifiers.
+				\DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC),
+				// Recognized key words.
+				[
+					'january', 'february', 'march', 'april', 'may', 'june',
+					'july', 'august', 'september', 'october', 'november',
+					'december', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul',
+					'aug', 'sep', 'sept', 'oct', 'nov', 'dec', 'I', 'II', 'III',
+					'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII',
+					'sunday', 'monday', 'tuesday', 'wednesday', 'thursday',
+					'friday', 'saturday', 'sun', 'mon', 'tue', 'wed', 'thu',
+					'fri', 'sat', 'first', 'second', 'third', 'fourth', 'fifth',
+					'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh',
+					'twelfth', 'next', 'last', 'previous', 'this', 'ms', 'µs',
+					'msec', 'millisecond', 'µsec', 'microsecond', 'usec', 'sec',
+					'second', 'min', 'minute', 'hour', 'day', 'week',
+					'fortnight', 'forthnight', 'month', 'year', 'msecs',
+					'milliseconds', 'µsecs', 'microseconds', 'usecs', 'secs',
+					'seconds', 'mins', 'minutes', 'hours', 'days', 'weeks',
+					'fortnights', 'forthnights', 'months', 'years', 'yesterday',
+					'midnight', 'today', 'now', 'noon', 'tomorrow', 'back',
+					'front', 'of', 'ago',
+				],
+			),
+			'~',
+		);
 	}
 }
 

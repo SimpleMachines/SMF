@@ -591,6 +591,7 @@ $txt['template_parse_errmsg'] = 'Unfortunately more information is not available
 
 $txt['today'] = '<strong>Today</strong> at ';
 $txt['yesterday'] = '<strong>Yesterday</strong> at ';
+$txt['tomorrow'] = '<strong>Tomorrow</strong> at ';
 $txt['new_poll'] = 'New poll';
 $txt['poll_question'] = 'Question';
 $txt['poll_vote'] = 'Submit Vote';

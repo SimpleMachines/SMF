@@ -738,15 +738,13 @@ class Msg implements \ArrayAccess
 		}
 
 		// Replace code BBC with placeholders. We'll restore them at the end.
-		$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split('/(\[code(?:=[^\]]+)?\](?:[^\[]|\[(?!\/code\])|(?R))*\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		for ($i = 0, $n = count($parts); $i < $n; $i++) {
-			// It goes 0 = outside, 1 = begin tag, 2 = inside, 3 = close tag, repeat.
-			if ($i % 4 == 2) {
-				$code_tag = $parts[$i - 1] . $parts[$i] . $parts[$i + 1];
-				$substitute = $parts[$i - 1] . $i . $parts[$i + 1];
-				$code_tags[$substitute] = $code_tag;
-				$parts[$i] = $i;
+			if ($i % 2 == 1) {
+				$substitute = md5($parts[$i]);
+				$code_tags[$substitute] = $parts[$i];
+				$parts[$i] = $substitute;
 			}
 		}
 
@@ -950,16 +948,14 @@ class Msg implements \ArrayAccess
 		// Any hooks want to work here?
 		IntegrationHook::call('integrate_unpreparsecode', [&$message]);
 
-		$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
-
 		// We're going to unparse only the stuff outside [code]...
+		$parts = preg_split('/(\[code(?:=[^\]]+)?\](?:[^\[]|\[(?!\/code\])|(?R))*\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
+
 		for ($i = 0, $n = count($parts); $i < $n; $i++) {
-			// If $i is a multiple of four (0, 4, 8, ...) then it's not a code section...
-			if ($i % 4 == 2) {
-				$code_tag = $parts[$i - 1] . $parts[$i] . $parts[$i + 1];
-				$substitute = $parts[$i - 1] . $i . $parts[$i + 1];
-				$code_tags[$substitute] = $code_tag;
-				$parts[$i] = $i;
+			if ($i % 2 == 1) {
+				$substitute = md5($parts[$i]);
+				$code_tags[$substitute] = $parts[$i];
+				$parts[$i] = $substitute;
 			}
 		}
 

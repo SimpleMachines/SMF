@@ -58,7 +58,7 @@ code {
 	position: relative;
 	background: #eee;
 	border: 1px solid #aaa;
-	white-space: pre;
+	white-space: pre-wrap;
 	padding: .25em;
 	display: block;
 }

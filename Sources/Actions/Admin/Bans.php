@@ -947,7 +947,7 @@ class Bans implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return Time::timeformat($rowData['log_time']);
+							return Time::stringFromUnix($rowData['log_time']);
 						},
 					],
 					'sort' => [

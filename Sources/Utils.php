@@ -228,7 +228,7 @@ class Utils
 	 * Used to force the browser not to collapse tabs.
 	 *
 	 * This will normally be replaced in the final output with a real tab
-	 * character wrapped in a span with "white-space: pre-wrap" applied to it.
+	 * character wrapped in a span with "white-space: pre" applied to it.
 	 * But if this substitute string somehow makes it into the final output,
 	 * it will still look like an appropriately sized string of white space.
 	 */
@@ -2354,7 +2354,7 @@ class Utils
 			ob_start('SMF\\QueryString::ob_sessrewrite');
 
 			// Force the browser not to collapse tabs inside posts, etc.
-			ob_start(fn ($buffer) => strtr($buffer, [self::TAB_SUBSTITUTE => '<span style="white-space: pre-wrap;">' . "\t" . '</span>']));
+			ob_start(fn ($buffer) => strtr($buffer, [self::TAB_SUBSTITUTE => '<span style="white-space: pre;">' . "\t" . '</span>']));
 
 			if (!empty(Theme::$current->settings['output_buffers']) && is_string(Theme::$current->settings['output_buffers'])) {
 				$buffers = explode(',', Theme::$current->settings['output_buffers']);

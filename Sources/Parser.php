@@ -371,22 +371,21 @@ abstract class Parser
 
 		$oldlevel = error_reporting(0);
 
-		$buffer = str_replace(["\n", "\r"], '', @highlight_string($code, true));
+		$buffer = @highlight_string($code, true);
 
 		error_reporting($oldlevel);
 
-		$buffer = preg_replace_callback_array(
+		return preg_replace_callback_array(
 			[
-				'~(?:' . Utils::TAB_SUBSTITUTE . ')+~u' => fn ($matches) => '<span style="white-space: pre-wrap;">' . strtr($matches[0], [Utils::TAB_SUBSTITUTE => "\t"]) . '</span>',
-				'~<span style="color: #[0-9a-fA-F]{6}">(<span style="white-space: pre-wrap;">\h*</span>)</span>~' => fn ($matches) => $matches[1],
+				'~(?:' . Utils::TAB_SUBSTITUTE . ')+~u' => fn ($matches) => '<span style="white-space: pre;">' . strtr($matches[0], [Utils::TAB_SUBSTITUTE => "\t"]) . '</span>',
+				'~<span style="color: #[0-9a-fA-F]{6}">(<span style="white-space: pre;">\h*</span>)</span>~' => fn ($matches) => $matches[1],
+				'~\R~' => fn ($matches) => '<br>',
+				'/\'/' => fn ($matches) => '&#039;',
+				// PHP 8.3 changed the returned HTML.
+				'/^(<pre>)?<code[^>]*>|<\/code>(<\/pre>)?$/' => fn ($matches) => '',
 			],
 			$buffer,
 		);
-
-		// PHP 8.3 changed the returned HTML.
-		$buffer = preg_replace('/^(<pre>)?<code[^>]*>|<\/code>(<\/pre>)?$/', '', $buffer);
-
-		return strtr($buffer, ['\'' => '&#039;']);
 	}
 
 	/**
@@ -526,6 +525,7 @@ abstract class Parser
 			$this->disabled['iurl'] = true;
 			$this->disabled['email'] = true;
 			$this->disabled['flash'] = true;
+			$this->disabled['youtube'] = true;
 
 			// @todo Change maybe?
 			if (!isset($_GET['images'])) {
@@ -628,10 +628,13 @@ abstract class Parser
 
 		// Parse the BBCode.
 		if ($input_types & self::INPUT_BBC) {
-			$string = BBcodeParser::load(!empty($options['for_print']))->parse($string, $options['cache_id'], $options['parse_tags']);
+			$string = BBcodeParser::load(!empty($options['for_print']))->parse($string, !empty($input_types & self::INPUT_SMILEYS), $options['cache_id'], $options['parse_tags']);
+
+			// BBCodeParser calls the SmileyParser internally; don't repeat.
+			$input_types &= ~self::INPUT_SMILEYS;
 		}
 
-		// Parse the smileys.
+		// Parse the smileys, if we haven't already.
 		if ($input_types & self::INPUT_SMILEYS) {
 			$string = SmileyParser::load()->parse($string);
 		}

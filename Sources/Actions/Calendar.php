@@ -171,7 +171,7 @@ class Calendar implements ActionInterface
 
 		// Need a start date for all views
 		if (!empty($_REQUEST['start_date'])) {
-			$start_parsed = date_parse(str_replace(',', '', self::convertDateToEnglish($_REQUEST['start_date'])));
+			$start_parsed = date_parse(str_replace(',', '', Time::convertToEnglish($_REQUEST['start_date'])));
 
 			if (empty($start_parsed['error_count']) && empty($start_parsed['warning_count'])) {
 				$_REQUEST['year'] = $start_parsed['year'];
@@ -187,7 +187,7 @@ class Calendar implements ActionInterface
 
 		// Need an end date for the list view
 		if (!empty($_REQUEST['end_date'])) {
-			$end_parsed = date_parse(str_replace(',', '', self::convertDateToEnglish($_REQUEST['end_date'])));
+			$end_parsed = date_parse(str_replace(',', '', Time::convertToEnglish($_REQUEST['end_date'])));
 
 			if (empty($end_parsed['error_count']) && empty($end_parsed['warning_count'])) {
 				$_REQUEST['end_year'] = $end_parsed['year'];
@@ -1486,7 +1486,7 @@ class Calendar implements ActionInterface
 		if (!isset($_POST['deleteevent'])) {
 			// The 2.1 way
 			if (isset($_POST['start_date'])) {
-				$d = date_parse(str_replace(',', '', self::convertDateToEnglish($_POST['start_date'])));
+				$d = date_parse(str_replace(',', '', Time::convertToEnglish($_POST['start_date'])));
 
 				if (!empty($d['error_count']) || !empty($d['warning_count'])) {
 					ErrorHandler::fatalLang('invalid_date', false);
@@ -1500,7 +1500,7 @@ class Calendar implements ActionInterface
 					ErrorHandler::fatalLang('event_month_missing', false);
 				}
 			} elseif (isset($_POST['start_datetime'])) {
-				$d = date_parse(str_replace(',', '', self::convertDateToEnglish($_POST['start_datetime'])));
+				$d = date_parse(str_replace(',', '', Time::convertToEnglish($_POST['start_datetime'])));
 
 				if (!empty($d['error_count']) || !empty($d['warning_count'])) {
 					ErrorHandler::fatalLang('invalid_date', false);
@@ -1622,50 +1622,6 @@ class Calendar implements ActionInterface
 		foreach ($holiday_ids as $holiday_id) {
 			Holiday::remove($holiday_id);
 		}
-	}
-
-	/**
-	 * Helper function to convert date string to english
-	 * so that date_parse can parse the date
-	 *
-	 * @param string $date A localized date string
-	 * @return string English date string
-	 */
-	public static function convertDateToEnglish(string $date): string
-	{
-		if (User::$me->language == 'english') {
-			return $date;
-		}
-
-		$replacements = array_combine(array_map('strtolower', Lang::$txt['months_titles']), [
-			'January', 'February', 'March', 'April', 'May', 'June',
-			'July', 'August', 'September', 'October', 'November', 'December',
-		]);
-		$replacements += array_combine(array_map('strtolower', Lang::$txt['months_short']), [
-			'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-			'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-		]);
-		$replacements += array_combine(array_map('strtolower', Lang::$txt['days']), [
-			'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
-		]);
-		$replacements += array_combine(array_map('strtolower', Lang::$txt['days_short']), [
-			'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat',
-		]);
-		// Find all possible variants of AM and PM for this language.
-		$replacements[strtolower(Lang::$txt['time_am'])] = 'AM';
-		$replacements[strtolower(Lang::$txt['time_pm'])] = 'PM';
-
-		if (($am = Time::strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false) {
-			$replacements[strtolower($am)] = 'AM';
-			$replacements[strtolower(Time::strftime('%p', strtotime('23:00:00')))] = 'PM';
-		}
-
-		if (($am = Time::strftime('%P', strtotime('01:00:00'))) !== 'P' && $am !== false) {
-			$replacements[strtolower($am)] = 'AM';
-			$replacements[strtolower(Time::strftime('%P', strtotime('23:00:00')))] = 'PM';
-		}
-
-		return strtr(strtolower($date), $replacements);
 	}
 
 	/******************

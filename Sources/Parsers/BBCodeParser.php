@@ -45,6 +45,13 @@ class BBCodeParser extends Parser
 	protected ?string $alltags_regex = null;
 
 	/**
+	 * @var bool
+	 *
+	 * Whether smileys should be parsed while we are parsing BBCode.
+	 */
+	protected bool $smileys = true;
+
+	/**
 	 * @var array
 	 *
 	 * Version of self::$codes used for internal processing.
@@ -619,7 +626,7 @@ class BBCodeParser extends Parser
 			'parameters' => [
 				'author' => ['match' => '([^<>]{1,192}?)'],
 				'link' => ['match' => '(?:board=\d+;)?((?:topic|threadid)=[\dmsg#\./]{1,40}(?:;start=[\dmsg#\./]{1,40})?|msg=\d+?|action=profile;u=\d+)'],
-				'date' => ['match' => '(\d+)', 'validate' => 'SMF\\Time::timeformat'],
+				'date' => ['match' => '(\d+)', 'validate' => 'SMF\\Time::stringFromUnix'],
 			],
 			'before' => '<blockquote><cite><a href="{scripturl}?{link}">{txt_quote_from}: {author} {txt_search_on} {date}</a></cite>',
 			'after' => '</blockquote>',
@@ -824,6 +831,7 @@ class BBCodeParser extends Parser
 	 * Parse bulletin board code in a string.
 	 *
 	 * @param string|bool $message The string to parse.
+	 * @param bool $smileys Whether to parse smileys. Default: true.
 	 * @param string|int $cache_id The cache ID.
 	 *    If $cache_id is left empty, an ID will be generated automatically.
 	 *    Manually specifying a ID is helpful in cases when an integration hook
@@ -832,7 +840,7 @@ class BBCodeParser extends Parser
 	 * @param array $parse_tags If set, only parses these tags rather than all of them.
 	 * @return string The parsed string.
 	 */
-	public function parse(string $message, string|int $cache_id = '', array $parse_tags = []): string
+	public function parse(string $message, bool $smileys = true, string|int $cache_id = '', array $parse_tags = []): string
 	{
 		// Don't waste cycles
 		if (strval($message) === '') {
@@ -843,6 +851,7 @@ class BBCodeParser extends Parser
 		$this->resetRuntimeProperties();
 
 		$this->message = $message;
+		$this->smileys = $smileys;
 		$this->parse_tags = $parse_tags;
 
 		$this->setDisabled();
@@ -857,6 +866,10 @@ class BBCodeParser extends Parser
 		}
 
 		if (!self::$enable_bbc) {
+			if ($this->smileys === true) {
+				$this->message = SmileyParser::load()->parse($this->message);
+			}
+
 			$this->message = $this->fixHtml($this->message);
 
 			return $this->message;
@@ -1863,7 +1876,7 @@ class BBCodeParser extends Parser
 			// Fix the PHP code stuff...
 			$code = str_replace("<pre style=\"display: inline;\">\t</pre>", "\t", implode('', $php_parts));
 
-			$code = str_replace("\t", "<span style=\"white-space: pre-wrap;\">\t</span>", $code);
+			$code = str_replace("\t", "<span style=\"white-space: pre;\">\t</span>", $code);
 
 			if ($add_begin) {
 				$code = preg_replace(['/^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)/', '/\?&gt;((?:\s*<\/(font|span)>)*)$/m'], '$1', $code, 2);
@@ -2215,7 +2228,20 @@ class BBCodeParser extends Parser
 			$this->message .= "\n" . $tag['after'] . "\n";
 		}
 
-		$this->message = strtr($this->message, ["\n" => '']);
+		// Parse the smileys within the parts where it can be done safely.
+		if ($this->smileys === true) {
+			$message_parts = explode("\n", $this->message);
+
+			for ($i = 0, $n = count($message_parts); $i < $n; $i += 2) {
+				$message_parts[$i] = SmileyParser::load()->parse($message_parts[$i]);
+			}
+
+			$this->message = implode('', $message_parts);
+		}
+		// No smileys, just get rid of the markers.
+		else {
+			$this->message = strtr($this->message, ["\n" => '']);
+		}
 
 		// Transform the first table row into a table header and wrap the rest
 		// in table body tags.
