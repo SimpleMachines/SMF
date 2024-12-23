@@ -479,40 +479,47 @@ function theme_linktree($force_show = false)
 		return;
 
 	echo '
-				<nav aria-label="', Lang::$txt['breadcrumb'], '" class="navigate_section">
-					<ul>';
+		<nav aria-label="', Lang::$txt['breadcrumb'], '" class="navigate_section">
+			<ul itemscope itemtype="https://schema.org/BreadcrumbList">';
 
 	// Each tree item has a URL and name. Some may have extra_before and extra_after.
-	foreach (Utils::$context['linktree'] as $link_num => $tree)
-	{
+	foreach (Utils::$context['linktree'] as $link_num => $tree) {
 		echo '
-						<li', ($link_num == count(Utils::$context['linktree']) - 1) ? ' class="last"' : '', '>';
+				<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
 
-		// Don't show a separator for the first one.
-		// Better here. Always points to the next level when the linktree breaks to a second line.
-		// Picked a better looking HTML entity, and added support for RTL plus a span for styling.
-		if ($link_num != 0)
+		// Add a divider for items after the first one.
+		if ($link_num != 0) {
 			echo '
-					     <span class="dividers"><i class="fa-solid fa-angle-', Utils::$context['right_to_left'] ? 'left' : 'right', '"></i></span>';
+					<span class="dividers"><i class="fa-solid fa-angle-', Utils::$context['right_to_left'] ? 'left' : 'right', '"></i></span>';
+		}
 
 		// Show something before the link?
-		if (isset($tree['extra_before']))
+		if (isset($tree['extra_before'])) {
 			echo $tree['extra_before'], ' ';
+		}
 
-		// Show the link, including a URL if it should have one.
-		if (isset($tree['url']))
+		// Show the link or just the name, with Microdata for structured data.
+		if (isset($tree['url'])) {
 			echo '
-							<a href="' . $tree['url'] . '"><span>' . $tree['name'] . '</span></a>';
-		else
+					<a itemprop="item" href="' . $tree['url'] . '">
+						<span itemprop="name">' . $tree['name'] . '</span>
+					</a>';
+		} else {
 			echo '
-							<span>' . $tree['name'] . '</span>';
+					<span itemprop="name">' . $tree['name'] . '</span>';
+		}
 
-		// Show something after the link...?
-		if (isset($tree['extra_after']))
+		// Add the position of the breadcrumb.
+		echo '
+					<meta itemprop="position" content="' . ($link_num + 1) . '" />';
+
+		// Show something after the link.
+		if (isset($tree['extra_after'])) {
 			echo ' ', $tree['extra_after'];
+		}
 
 		echo '
-						</li>';
+				</li>';
 	}
 
 	echo '

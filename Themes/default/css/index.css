@@ -2165,7 +2165,7 @@ h1.forumtitle span#siteslogan {
 	text-decoration: var(--breadcrumb-link-text-decoration_focus);
 	text-shadow: var(--breadcrumb-link-text-shadow_focus);
 }
-.navigate_section li:is(.last, :last-child):not(:first-child) > a {
+.navigate_section li:last-child:not(:first-child) > a {
 	color: var(--breadcrumb-link-color_active);
 	font-weight: var(--breadcrumb-link-font-weight_active);
 	text-decoration: var(--breadcrumb-link-text-decoration_active);
