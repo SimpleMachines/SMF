@@ -844,7 +844,7 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 
 				foreach ($columns as $column_name => $type)
 				{
-					if (str_contains($type, 'string-'))
+					if (strpos($type, 'string-') !== false)
 						$where_string[] = $column_name . ' = ' . sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . ')', $column_name);
 					else
 						$where_string[] = $column_name . ' = ' . sprintf('{%1$s:%2$s}', $type, $column_name);
