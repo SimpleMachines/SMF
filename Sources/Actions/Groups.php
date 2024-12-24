@@ -724,7 +724,7 @@ class Groups implements ActionInterface
 		}
 
 		$temp = Group::load([], $query_customizations);
-		Group::loadModeratorsBatch(array_map(fn ($group) => $group->id, $temp));
+		Group::loadModeratorsBatch(array_map(fn($group) => $group->id, $temp));
 
 		foreach ($temp as $group) {
 			// We only list the groups they can see.

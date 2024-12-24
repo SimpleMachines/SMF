@@ -349,7 +349,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 							$possible_matches[$msg] = array_intersect(
 								$possible_matches[$msg],
-								array_map(fn ($wordnum) => $wordnum - 1, $wordnums),
+								array_map(fn($wordnum) => $wordnum - 1, $wordnums),
 							);
 
 							foreach ($possible_matches[$msg] as $key => $wordnum) {
@@ -772,7 +772,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		Db::$db->free_result($request);
 
-		$stopwords = array_map(fn ($w) => Utils::normalize(Utils::entityDecode($w, true)), $stopwords);
+		$stopwords = array_map(fn($w) => Utils::normalize(Utils::entityDecode($w, true)), $stopwords);
 
 		Config::updateModSettings([
 			'search_stopwords_parsed' => implode(',', $stopwords),
@@ -821,7 +821,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		IntegrationHook::call('integrate_search_blacklisted_words', [&$this->blacklisted_words]);
 
-		$this->blacklisted_words = array_map(fn ($w) => $this->prepareString($w), $this->blacklisted_words);
+		$this->blacklisted_words = array_map(fn($w) => $this->prepareString($w), $this->blacklisted_words);
 	}
 
 	/**
@@ -1032,7 +1032,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 			options: [
 				'for_print' => true,
 				'preg_replace' => [
-					'/<[^>]+>/' => fn ($matches) => $matches[0] . ' ',
+					'/<[^>]+>/' => fn($matches) => $matches[0] . ' ',
 				],
 			],
 		);
@@ -1220,7 +1220,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		$string = preg_replace_callback(
 			'/[\p{Mn}]/u',
-			fn ($matches) => mb_encode_numericentity($matches[0], [0, 0xFFFFFF, 0, 0x10FFFF], 'UTF-8'),
+			fn($matches) => mb_encode_numericentity($matches[0], [0, 0xFFFFFF, 0, 0x10FFFF], 'UTF-8'),
 			$string,
 		);
 

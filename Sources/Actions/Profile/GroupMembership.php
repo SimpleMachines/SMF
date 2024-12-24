@@ -351,7 +351,7 @@ class GroupMembership implements ActionInterface
 		if (isset($new_group_id)) {
 			$can_edit_primary = Profile::$member->current_and_assignable_groups[$new_group_id]->can_be_primary;
 		} else {
-			$possible_primary_groups = array_filter(Profile::$member->current_and_assignable_groups, fn ($group) => !empty($group->can_be_primary));
+			$possible_primary_groups = array_filter(Profile::$member->current_and_assignable_groups, fn($group) => !empty($group->can_be_primary));
 
 			$can_edit_primary = !empty($possible_primary_groups);
 		}

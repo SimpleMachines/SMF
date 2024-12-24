@@ -35,7 +35,7 @@ return (new PhpCsFixer\Config())
         new \SMF\Fixer\Whitespace\closing_tag_fixer(),
     ])
 	->setRules([
-		'@PSR12' => true,
+		'@PER-CS2.0' => true,
 
 		// A custom fixer for us to apply our line endings.
         'SMF/closing_tag_fixer' => true,

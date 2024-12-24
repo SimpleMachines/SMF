@@ -524,7 +524,7 @@ class Alert implements \ArrayAccess
 
 			// Update the keys in self::$loaded.
 			self::$loaded = array_combine(
-				array_map(fn ($alert) => $alert->id, self::$loaded),
+				array_map(fn($alert) => $alert->id, self::$loaded),
 				self::$loaded,
 			);
 
@@ -712,13 +712,13 @@ class Alert implements \ArrayAccess
 
 		// Update the keys in self::$loaded.
 		self::$loaded = array_combine(
-			array_map(fn ($alert) => $alert->id, self::$loaded),
+			array_map(fn($alert) => $alert->id, self::$loaded),
 			self::$loaded,
 		);
 
 		// Update the keys in $created.
 		$created = array_combine(
-			array_map(fn ($alert) => $alert->id, $created),
+			array_map(fn($alert) => $alert->id, $created),
 			$created,
 		);
 

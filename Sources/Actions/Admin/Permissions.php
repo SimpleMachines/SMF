@@ -2010,7 +2010,7 @@ class Permissions implements ActionInterface
 			Group::load([], $query_customizations),
 		);
 
-		Group::loadPermissionsBatch(array_map(fn ($group) => $group->id, $groups), 0);
+		Group::loadPermissionsBatch(array_map(fn($group) => $group->id, $groups), 0);
 
 		foreach ($permissions as $permission) {
 			foreach ($groups as $group) {
@@ -2221,7 +2221,7 @@ class Permissions implements ActionInterface
 			$child_groups = array_merge($child_groups, array_keys($parent_group->children));
 		}
 
-		$parents = array_map(fn ($parent_group) => $parent_group->id, $parent_groups);
+		$parents = array_map(fn($parent_group) => $parent_group->id, $parent_groups);
 
 		// Not a sausage, or a child?
 		if (empty($children)) {

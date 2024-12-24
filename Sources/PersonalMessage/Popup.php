@@ -55,7 +55,7 @@ class Popup
 	public function show(): void
 	{
 		// So are we loading stuff?
-		$pms = array_map(fn ($unread) => $unread->id, Received::loadUnread());
+		$pms = array_map(fn($unread) => $unread->id, Received::loadUnread());
 
 		if (!empty($pms)) {
 			// Just quickly, it's possible that the number of PMs can get out of sync.

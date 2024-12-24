@@ -1766,7 +1766,7 @@ class Msg implements \ArrayAccess
 		$possible_topic_columns = [
 			'sticky_mode' => ['int' => 'is_sticky'],
 			'lock_mode' => ['int' => 'locked'],
-			'poll' =>  ['int' => 'id_poll']
+			'poll' =>  ['int' => 'id_poll'],
 		];
 
 		// This allows mods to skip sending notifications if they don't want to.

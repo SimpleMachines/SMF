@@ -18,7 +18,6 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
@@ -69,7 +68,7 @@ class QuoteFast implements ActionInterface
 			],
 			'where' => [
 				'{query_see_message_board}',
-				'm.id_msg IN ({array_int:message_list})'
+				'm.id_msg IN ({array_int:message_list})',
 			],
 			'order' => [],
 			'params' => [

@@ -339,7 +339,7 @@ class Logging
 				if ($parameter2 !== null) {
 					$parameter1 = (int) $parameter1;
 					$parameter2 = array_map(
-						fn ($word) => Utils::truncate($word, 20),
+						fn($word) => Utils::truncate($word, 20),
 						Utils::extractWords($parameter2, 2),
 					);
 

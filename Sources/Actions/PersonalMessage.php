@@ -387,7 +387,7 @@ class PersonalMessage implements ActionInterface
 
 		// Don't do labels unless we're in the inbox.
 		if ($this->folder !== 'inbox') {
-			$_REQUEST['pm_actions'] = array_filter($_REQUEST['pm_actions'], fn ($action) => $action === 'delete');
+			$_REQUEST['pm_actions'] = array_filter($_REQUEST['pm_actions'], fn($action) => $action === 'delete');
 		}
 
 		// If we are in conversation, we may need to apply this to every PM in the conversation.

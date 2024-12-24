@@ -145,7 +145,7 @@ class Holiday extends Event
 			'id' => $id,
 		];
 
-		foreach(self::queryData($selects, $params, [], $where) as $row) {
+		foreach (self::queryData($selects, $params, [], $where) as $row) {
 			$id = (int) $row['id_event'];
 			$row['use_permissions'] = false;
 
@@ -221,7 +221,7 @@ class Holiday extends Event
 			$params['easter'] = ['EASTER_W', 'EASTER_E'];
 		}
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$id = (int) $row['id_event'];
 			$row['use_permissions'] = false;
 
@@ -252,7 +252,7 @@ class Holiday extends Event
 		$limit = implode(', ', [$start, $items_per_page]);
 		$params = ['type' => self::TYPE_HOLIDAY];
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$id = (int) $row['id_event'];
 			$row['use_permissions'] = false;
 

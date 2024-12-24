@@ -1592,7 +1592,7 @@ class UpdateUnicode extends BackgroundTask
 			if (($identical = array_search($class_string, $this->funcs['utf8_regex_variation_selectors']['data'])) !== false) {
 				unset(
 					$this->funcs['utf8_regex_variation_selectors']['data'][$identical],
-					$this->funcs['utf8_regex_variation_selectors']['data'][$variation_selector]
+					$this->funcs['utf8_regex_variation_selectors']['data'][$variation_selector],
 				);
 
 				$compound_selector = [$identical, $variation_selector];
@@ -2173,7 +2173,7 @@ class UpdateUnicode extends BackgroundTask
 						$step = 1;
 					}
 
-					$rule = preg_replace_callback('/(\d+)\.\.(\d+)/', fn ($matches) => implode(',', range($matches[1], $matches[2], $step)), $rule);
+					$rule = preg_replace_callback('/(\d+)\.\.(\d+)/', fn($matches) => implode(',', range($matches[1], $matches[2], $step)), $rule);
 
 					$rule = str_replace('=in_array', 'in_array', preg_replace('/(\$[nivwftc](?: % \d+)?) ([!=])= ((?:\d+,\s*)+\d+)/', '$2in_array($1, [$3])', $rule));
 

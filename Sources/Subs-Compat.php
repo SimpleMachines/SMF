@@ -823,7 +823,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function ModifyRegistrationSettings(bool $return_config = false): ?array
 	{
-		return Actions\Admin\Registration::subActionProvider(sa:'settings', return_config: $return_config);
+		return Actions\Admin\Registration::subActionProvider(sa: 'settings', return_config: $return_config);
 	}
 
 	/**
@@ -5119,7 +5119,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		}
 
 		return array_map(
-			fn ($word) => Utils::truncate($word, $max_length),
+			fn($word) => Utils::truncate($word, $max_length),
 			Utils::extractWords($string, 2),
 		);
 	}

@@ -754,7 +754,7 @@ class TaskRunner
 			$GLOBALS['_POST'],
 			$GLOBALS['_REQUEST'],
 			$GLOBALS['_COOKIE'],
-			$GLOBALS['_FILES']
+			$GLOBALS['_FILES'],
 		);
 	}
 

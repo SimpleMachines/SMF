@@ -702,8 +702,8 @@ class Utf8String implements \Stringable
 			}
 
 			for ($i = 0; $i < count($chars); $i++) {
-				$substring_before = implode('', array_slice(array_map(fn ($char) => $char['char'], $chars), 0, $i));
-				$substring_after = implode('', array_slice(array_map(fn ($char) => $char['char'], $chars), $i));
+				$substring_before = implode('', array_slice(array_map(fn($char) => $char['char'], $chars), 0, $i));
+				$substring_after = implode('', array_slice(array_map(fn($char) => $char['char'], $chars), $i));
 
 				// Do not break within CRLF.
 				if ($chars[$i]['char'] === "\r" && isset($chars[$i + 1]) && $chars[$i + 1]['char'] === "\n") {

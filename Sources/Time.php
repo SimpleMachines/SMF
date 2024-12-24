@@ -983,7 +983,7 @@ class Time extends \DateTime implements \ArrayAccess
 
 			$time_format = preg_replace_callback(
 				'/(?<!\\\\)[' . implode('', array_keys($substitutions)) . ']/',
-				fn ($m) => $substitutions[$m],
+				fn($m) => $substitutions[$m],
 				$time_format,
 			);
 
@@ -1058,8 +1058,8 @@ class Time extends \DateTime implements \ArrayAccess
 		// Parsing fails when AM/PM is not separated from the time by a space.
 		$datetime = preg_replace_callback_array(
 			[
-				'/(\s\d?\d)([ap]\.?m\.?)/i' => fn ($matches) => $matches[1] . ':00 ' . $matches[2],
-				'/(:\d\d)([ap]\.?m\.?)/i' => fn ($matches) => $matches[1] . ' ' . $matches[2],
+				'/(\s\d?\d)([ap]\.?m\.?)/i' => fn($matches) => $matches[1] . ':00 ' . $matches[2],
+				'/(:\d\d)([ap]\.?m\.?)/i' => fn($matches) => $matches[1] . ' ' . $matches[2],
 			],
 			$datetime,
 		);
@@ -1125,7 +1125,7 @@ class Time extends \DateTime implements \ArrayAccess
 
 		// Build an array of regular expressions to translate the current language strings to English.
 		$replacements = array_combine(
-			array_map(fn ($arg) => '~' . $arg . '~iu', Lang::$txt['months_titles']),
+			array_map(fn($arg) => '~' . $arg . '~iu', Lang::$txt['months_titles']),
 			[
 				'January', 'February', 'March', 'April', 'May', 'June',
 				'July', 'August', 'September', 'October', 'November', 'December',
@@ -1133,17 +1133,17 @@ class Time extends \DateTime implements \ArrayAccess
 		);
 
 		$replacements += array_combine(
-			array_map(fn ($arg) => '~' . $arg . '~iu', Lang::$txt['months_short']),
+			array_map(fn($arg) => '~' . $arg . '~iu', Lang::$txt['months_short']),
 			['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 		);
 
 		$replacements += array_combine(
-			array_map(fn ($arg) => '~' . $arg . '~iu', Lang::$txt['days']),
+			array_map(fn($arg) => '~' . $arg . '~iu', Lang::$txt['days']),
 			['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 		);
 
 		$replacements += array_combine(
-			array_map(fn ($arg) => '~' . $arg . '~iu', Lang::$txt['days_short']),
+			array_map(fn($arg) => '~' . $arg . '~iu', Lang::$txt['days_short']),
 			['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 		);
 
@@ -1171,7 +1171,7 @@ class Time extends \DateTime implements \ArrayAccess
 
 		// Wrap the replacement strings in closures.
 		foreach ($replacements as $pattern => $replacement) {
-			$replacements[$pattern] = fn ($matches) => $replacement;
+			$replacements[$pattern] = fn($matches) => $replacement;
 		}
 
 		// Translate.
@@ -1390,7 +1390,7 @@ class Time extends \DateTime implements \ArrayAccess
 		// Make any necessary substitutions in the format.
 		$format = preg_replace_callback(
 			'/(?<!\\\\)[' . implode('', array_keys($specifications)) . ']/',
-			fn ($m) => $specifications[$m],
+			fn($m) => $specifications[$m],
 			$format,
 		);
 
@@ -1440,7 +1440,7 @@ class Time extends \DateTime implements \ArrayAccess
 		self::$parsable_words_regex = self::$parsable_words_regex ?? Utils::buildRegex(
 			array_merge(
 				// Time zone abbreviations.
-				array_filter(array_keys(\DateTimeZone::listAbbreviations()), fn ($a) => !is_numeric($a)),
+				array_filter(array_keys(\DateTimeZone::listAbbreviations()), fn($a) => !is_numeric($a)),
 				// Time zone identifiers.
 				\DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC),
 				// Recognized key words.

@@ -94,7 +94,7 @@ class Announce implements ActionInterface
 		Utils::$context['groups'] = Group::load($groups);
 
 		// Count the members in each group.
-		$groups_to_count = array_map(fn ($group) => $group->id, Utils::$context['groups']);
+		$groups_to_count = array_map(fn($group) => $group->id, Utils::$context['groups']);
 
 		// Counting all the regular members could be a performance hit on large forums,
 		// so don't do that for anyone without high level permissions.

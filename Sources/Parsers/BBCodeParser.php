@@ -823,7 +823,7 @@ class BBCodeParser extends Parser
 
 		usort(
 			self::$codes,
-			fn ($a, $b) => $a['tag'] <=> $b['tag'],
+			fn($a, $b) => $a['tag'] <=> $b['tag'],
 		);
 	}
 
@@ -2247,7 +2247,7 @@ class BBCodeParser extends Parser
 		// in table body tags.
 		$this->message = preg_replace_callback(
 			'/<table class="bbc_table"><tr>(\X*?)<\/tr>(\X*?)<\/table>/u',
-			fn ($matches) => '<table class="bbc_table"><thead><tr>' . preg_replace('~(</?)td(>)~', '$1th$2', $matches[1]) . '</tr></thead><tbody>' . $matches[2] . '</tbody></table>',
+			fn($matches) => '<table class="bbc_table"><thead><tr>' . preg_replace('~(</?)td(>)~', '$1th$2', $matches[1]) . '</tr></thead><tbody>' . $matches[2] . '</tbody></table>',
 			$this->message,
 		);
 
@@ -2306,9 +2306,9 @@ class BBCodeParser extends Parser
 		$codes[] = [
 			'tag' => 'cowsay',
 			'parameters' => [
-				'e' => ['optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => fn ($eyes) => Utils::entitySubstr($eyes . 'oo', 0, 2),
+				'e' => ['optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => fn($eyes) => Utils::entitySubstr($eyes . 'oo', 0, 2),
 				],
-				't' => ['optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => fn ($tongue) => Utils::entitySubstr($tongue . '  ', 0, 2),
+				't' => ['optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => fn($tongue) => Utils::entitySubstr($tongue . '  ', 0, 2),
 				],
 			],
 			'before' => '<pre data-e="{e}" data-t="{t}"><div>',
@@ -3341,7 +3341,7 @@ class BBCodeParser extends Parser
 		// Need to sort the tags by name length.
 		uksort(
 			$valid_tags,
-			fn ($a, $b) => strlen($a) <=> strlen($b),
+			fn($a, $b) => strlen($a) <=> strlen($b),
 		);
 
 		// These inline tags can compete with each other regarding style.

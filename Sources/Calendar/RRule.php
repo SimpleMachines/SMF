@@ -290,7 +290,7 @@ class RRule implements \Stringable
 					$value = array_filter(
 						array_map('intval', explode(',', $value)),
 						// 60 is allowed because of leap seconds.
-						fn ($v) => $v >= 0 && $v <= 60,
+						fn($v) => $v >= 0 && $v <= 60,
 					);
 					sort($value);
 					break;
@@ -298,7 +298,7 @@ class RRule implements \Stringable
 				case 'byminute':
 					$value = array_filter(
 						array_map('intval', explode(',', $value)),
-						fn ($v) => $v >= 0 && $v < 60,
+						fn($v) => $v >= 0 && $v < 60,
 					);
 					sort($value);
 					break;
@@ -306,7 +306,7 @@ class RRule implements \Stringable
 				case 'byhour':
 					$value = array_filter(
 						array_map('intval', explode(',', $value)),
-						fn ($v) => $v >= 0 && $v < 24,
+						fn($v) => $v >= 0 && $v < 24,
 					);
 					sort($value);
 					break;
@@ -329,7 +329,7 @@ class RRule implements \Stringable
 				case 'bymonthday':
 					$value = array_filter(
 						array_map('intval', explode(',', $value)),
-						fn ($v) => $v >= -31 && $v <= 31 && $v !== 0,
+						fn($v) => $v >= -31 && $v <= 31 && $v !== 0,
 					);
 					usort(
 						$value,
@@ -346,21 +346,21 @@ class RRule implements \Stringable
 					$value = array_filter(
 						array_map('intval', explode(',', $value)),
 						// 366 allowed because of leap years.
-						fn ($v) => $v >= -366 && $v <= 366 && $v !== 0,
+						fn($v) => $v >= -366 && $v <= 366 && $v !== 0,
 					);
 					break;
 
 				case 'byweekno':
 					$value = array_filter(
 						array_map('intval', explode(',', $value)),
-						fn ($v) => $v >= -53 && $v <= 53 && $v !== 0,
+						fn($v) => $v >= -53 && $v <= 53 && $v !== 0,
 					);
 					break;
 
 				case 'bymonth':
 					$value = array_filter(
 						array_map('intval', explode(',', $value)),
-						fn ($v) => $v >= 1 && $v <= 12,
+						fn($v) => $v >= 1 && $v <= 12,
 					);
 					break;
 
@@ -675,7 +675,7 @@ class RRule implements \Stringable
 			$description[] = '<q>' . $this->getDescriptionNormal($start) . '</q>';
 		}
 
-		$ordinals = array_map(fn ($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)]), $this->bysetpos);
+		$ordinals = array_map(fn($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)]), $this->bysetpos);
 
 		return (isset($frequency_interval) ? $frequency_interval . ' ' : '') . Lang::getTxt(
 			'calendar_rrule_desc_bysetpos',
@@ -799,7 +799,7 @@ class RRule implements \Stringable
 			unset($description['frequency_interval']);
 		}
 
-		$ordinals = array_map(fn ($n) => Lang::getTxt('ordinal_spellout', [$n]), $this->byweekno);
+		$ordinals = array_map(fn($n) => Lang::getTxt('ordinal_spellout', [$n]), $this->byweekno);
 		$description['byweekno'] = Lang::getTxt('calendar_rrule_desc_byweekno', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)]);
 	}
 
@@ -819,7 +819,7 @@ class RRule implements \Stringable
 			unset($description['frequency_interval']);
 		}
 
-		$ordinals = array_map(fn ($n) => Lang::getTxt('ordinal_spellout', [$n]), $this->byyearday);
+		$ordinals = array_map(fn($n) => Lang::getTxt('ordinal_spellout', [$n]), $this->byyearday);
 		$description['byeyarday'] = Lang::getTxt('calendar_rrule_desc_byyearday', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)]);
 	}
 
@@ -883,7 +883,7 @@ class RRule implements \Stringable
 
 				$ordinal_form = max(array_map('abs', $this->bymonthday)) < 10 && count($this->bymonthday) <= 3 ? 'ordinal_spellout' : 'ordinal';
 
-				$ordinals = array_map(fn ($n) => Lang::getTxt($n < 0 ? $ordinal_form . '_last' : $ordinal_form, [abs($n)]), $this->bymonthday);
+				$ordinals = array_map(fn($n) => Lang::getTxt($n < 0 ? $ordinal_form . '_last' : $ordinal_form, [abs($n)]), $this->bymonthday);
 
 				$description['byday'] = Lang::getTxt(
 					'calendar_rrule_desc_byday',
@@ -901,7 +901,7 @@ class RRule implements \Stringable
 		}
 		// Normal case.
 		else {
-			$ordinals = array_map(fn ($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)]), $this->bymonthday);
+			$ordinals = array_map(fn($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)]), $this->bymonthday);
 			$description['bymonthday'] = Lang::getTxt('calendar_rrule_desc_bymonthday', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)]);
 		}
 	}

@@ -4307,7 +4307,7 @@ class User implements \ArrayAccess
 	{
 		$loaded = self::load($users, $type, $dataset);
 
-		return array_map(fn ($user) => $user->id, $loaded);
+		return array_map(fn($user) => $user->id, $loaded);
 	}
 
 	/**

@@ -388,7 +388,7 @@ class IP implements \Stringable
 		}
 
 		// Make sure the low one really is lower than the high one.
-		usort($range, fn ($a, $b) => inet_pton($a) <=> inet_pton($b));
+		usort($range, fn($a, $b) => inet_pton($a) <=> inet_pton($b));
 
 		// Return instances of this class, not just plain strings.
 		$low = new self($range[0]);

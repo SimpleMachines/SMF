@@ -449,9 +449,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
-	{
-	}
+	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void {}
 
 	/**
 	 * {@inheritDoc}
@@ -464,16 +462,12 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
-	{
-	}
+	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void {}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
-	{
-	}
+	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void {}
 
 	/**
 	 * {@inheritDoc}
@@ -531,44 +525,32 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function topicsRemoved(array $topics): void
-	{
-	}
+	public function topicsRemoved(array $topics): void {}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function topicMerge(int $id_topic, array $topics, array $affected_msgs, ?string $subject): void
-	{
-	}
+	public function topicMerge(int $id_topic, array $topics, array $affected_msgs, ?string $subject): void {}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function topicSplit(int $id_topic, array $affected_msgs): void
-	{
-	}
+	public function topicSplit(int $id_topic, array $affected_msgs): void {}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function topicsMoved(array $topics, int $board_to): void
-	{
-	}
+	public function topicsMoved(array $topics, int $board_to): void {}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function formContext(): void
-	{
-	}
+	public function formContext(): void {}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function resultsContext(): void
-	{
-	}
+	public function resultsContext(): void {}
 
 	/**
 	 * {@inheritDoc}
@@ -1016,7 +998,7 @@ abstract class SearchApi implements SearchApiInterface
 		// Blacklist the BBC tags.
 		$this->blacklisted_words = array_unique(array_merge(
 			$this->blacklisted_words,
-			array_map(fn ($code) => $code['tag'], Parser::getBBCodes()),
+			array_map(fn($code) => $code['tag'], Parser::getBBCodes()),
 		));
 
 		IntegrationHook::call('integrate_search_blacklisted_words', [&$this->blacklisted_words]);

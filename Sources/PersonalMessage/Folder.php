@@ -480,7 +480,7 @@ class Folder
 		Utils::$context['current_pm'] = $conversation->latest;
 
 		// The templates need some profile data for the senders.
-		User::load(array_map(fn ($pm) => $pm['sender'], $conversation->pms));
+		User::load(array_map(fn($pm) => $pm['sender'], $conversation->pms));
 
 		// Get the PMs.
 		$query_customizations = [

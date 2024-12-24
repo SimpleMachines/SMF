@@ -264,9 +264,7 @@ abstract class CacheApi
 	 *
 	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
 	 */
-	public function cacheSettings(array &$config_vars): void
-	{
-	}
+	public function cacheSettings(array &$config_vars): void {}
 
 	/**
 	 * Gets the latest version of SMF this is compatible with.
@@ -303,9 +301,7 @@ abstract class CacheApi
 	 * exp. clean up old data or do optimization
 	 *
 	 */
-	public function housekeeping(): void
-	{
-	}
+	public function housekeeping(): void {}
 
 	/**
 	 * Gets the class identifier of the current caching API implementation.

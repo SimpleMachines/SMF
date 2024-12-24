@@ -522,7 +522,7 @@ class Attachment implements \ArrayAccess
 			foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props) {
 				$id = (int) $props['id_attach'];
 
-				$props = array_filter($props, fn ($prop) => !is_null($prop));
+				$props = array_filter($props, fn($prop) => !is_null($prop));
 
 				$loaded[$id] = new self($id, $props);
 			}
@@ -592,7 +592,7 @@ class Attachment implements \ArrayAccess
 		foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props) {
 			$id = (int) $props['id_attach'];
 
-			$props = array_filter($props, fn ($prop) => !is_null($prop));
+			$props = array_filter($props, fn($prop) => !is_null($prop));
 
 			// Don't reload unnecessarily.
 			if (isset(self::$loaded[$id])) {
@@ -652,7 +652,7 @@ class Attachment implements \ArrayAccess
 		foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props) {
 			$id = (int) $props['id_attach'];
 
-			$props = array_filter($props, fn ($prop) => !is_null($prop));
+			$props = array_filter($props, fn($prop) => !is_null($prop));
 
 			// Don't reload unnecessarily.
 			if (isset(self::$loaded[$id])) {

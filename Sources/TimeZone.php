@@ -2052,7 +2052,7 @@ class TimeZone extends \DateTimeZone
 					$alt['ts'] = is_int($alt['ts']) ? $alt['ts'] : strtotime($alt['ts']);
 				}
 
-				usort(self::$fallbacks[$tzid], fn ($a, $b) => $a['ts'] > $b['ts']);
+				usort(self::$fallbacks[$tzid], fn($a, $b) => $a['ts'] > $b['ts']);
 
 				foreach (self::$fallbacks[$tzid] as $alt) {
 					if ($when < $alt['ts']) {

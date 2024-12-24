@@ -359,7 +359,7 @@ class Reports implements ActionInterface
 		$this->setKeys('rows', $groups);
 		$this->newTable(Lang::$txt['gr_type_board_access'], '&mdash;', 'all', '100', 'center', '200', 'left');
 		$this->addData($groups);
-		uasort($data, fn ($a, $b) => $a['col'] <=> $b['col']);
+		uasort($data, fn($a, $b) => $a['col'] <=> $b['col']);
 
 		foreach ($data as $d) {
 			$this->addData($d);
@@ -391,7 +391,7 @@ class Reports implements ActionInterface
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
 			[Group::ADMIN],
 		);
-		Group::loadPermissionsBatch(array_map(fn ($group) => $group->id, $group_data), null, true);
+		Group::loadPermissionsBatch(array_map(fn($group) => $group->id, $group_data), null, true);
 
 		// Certain permissions should not really be shown.
 		$disabled_permissions = [];
@@ -434,7 +434,7 @@ class Reports implements ActionInterface
 			$this->newTable(Utils::$context['profiles'][$id_profile]['name'], '&mdash;', 'all', '100', 'center', '200', 'left');
 
 			$this->addData($groups);
-			uasort($board_profile_data, fn ($a, $b) => $a['col'] <=> $b['col']);
+			uasort($board_profile_data, fn($a, $b) => $a['col'] <=> $b['col']);
 
 			foreach ($board_profile_data as $d) {
 				$this->addData($d);
@@ -494,7 +494,7 @@ class Reports implements ActionInterface
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
 			[Group::ADMIN, Group::MOD],
 		);
-		Group::loadPermissionsBatch(array_map(fn ($group) => $group->id, $group_data), 0);
+		Group::loadPermissionsBatch(array_map(fn($group) => $group->id, $group_data), 0);
 
 		// Certain permissions should not really be shown.
 		$disabled_permissions = [];
@@ -537,7 +537,7 @@ class Reports implements ActionInterface
 		$this->setKeys('rows', $groups);
 		$this->newTable(Lang::$txt['gr_type_group_perms'], '&mdash;', 'all', '100', 'center', '200', 'left');
 		$this->addData($groups);
-		uasort($data, fn ($a, $b) => $a['col'] <=> $b['col']);
+		uasort($data, fn($a, $b) => $a['col'] <=> $b['col']);
 
 		foreach ($data as $d) {
 			$this->addData($d);
@@ -862,7 +862,7 @@ class Reports implements ActionInterface
 
 			$this->tables[$id]['column_count'] = array_reduce(
 				$table['data'],
-				fn (int $accumulator, $data): int => max($accumulator, count($data)),
+				fn(int $accumulator, $data): int => max($accumulator, count($data)),
 				0,
 			);
 

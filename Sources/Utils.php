@@ -2354,7 +2354,7 @@ class Utils
 			ob_start('SMF\\QueryString::ob_sessrewrite');
 
 			// Force the browser not to collapse tabs inside posts, etc.
-			ob_start(fn ($buffer) => strtr($buffer, [self::TAB_SUBSTITUTE => '<span style="white-space: pre;">' . "\t" . '</span>']));
+			ob_start(fn($buffer) => strtr($buffer, [self::TAB_SUBSTITUTE => '<span style="white-space: pre;">' . "\t" . '</span>']));
 
 			if (!empty(Theme::$current->settings['output_buffers']) && is_string(Theme::$current->settings['output_buffers'])) {
 				$buffers = explode(',', Theme::$current->settings['output_buffers']);

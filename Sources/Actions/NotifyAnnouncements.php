@@ -41,9 +41,7 @@ class NotifyAnnouncements extends Notify
 	/**
 	 * This does nothing for announcements.
 	 */
-	protected function setId(): void
-	{
-	}
+	protected function setId(): void {}
 
 	/**
 	 * Converts $_GET['sa'] to $_GET['mode'].

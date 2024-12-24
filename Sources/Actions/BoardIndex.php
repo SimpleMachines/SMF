@@ -359,7 +359,7 @@ class BoardIndex implements ActionInterface
 
 		// Find all boards and categories, as well as related information.
 		foreach (Board::queryData($selects, $params, $joins, $where, $order) as $row_board) {
-			$row_board = array_filter($row_board, fn ($prop) => !is_null($prop));
+			$row_board = array_filter($row_board, fn($prop) => !is_null($prop));
 
 			$parent = Board::$loaded[$row_board['id_parent']] ?? null;
 

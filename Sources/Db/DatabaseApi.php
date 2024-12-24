@@ -377,9 +377,7 @@ abstract class DatabaseApi
 	/**
 	 * Dummy method for backward compatibility.
 	 */
-	public static function extend(): void
-	{
-	}
+	public static function extend(): void {}
 
 	/******************
 	 * Internal methods

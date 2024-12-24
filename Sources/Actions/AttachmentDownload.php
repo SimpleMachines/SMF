@@ -161,8 +161,7 @@ class AttachmentDownload implements ActionInterface
 		}
 
 		// No access if you don't have permission to see this attachment.
-		if
-		(
+		if (
 			// This was from SMF or a hook didn't claim it.
 			(
 				empty($file->source)

@@ -896,7 +896,7 @@ class RecurrenceIterator implements \Iterator
 
 		$this->occurrences = array_values(array_filter(
 			$this->occurrences,
-			fn ($occurrence) => $view_start <= $occurrence && $view_end >= $occurrence,
+			fn($occurrence) => $view_start <= $occurrence && $view_end >= $occurrence,
 		));
 
 		if ($this->max_occurrences < count($this->occurrences)) {
@@ -923,7 +923,7 @@ class RecurrenceIterator implements \Iterator
 
 		// Special handling for WEEKLY.
 		if ($this->rrule->freq === 'WEEKLY') {
-			$weekdays = !empty($this->rrule->byday) ? array_map(fn ($weekday) => substr($weekday, -2), $this->rrule->byday) : [strtoupper(substr($current->format('D'), 0, 2))];
+			$weekdays = !empty($this->rrule->byday) ? array_map(fn($weekday) => substr($weekday, -2), $this->rrule->byday) : [strtoupper(substr($current->format('D'), 0, 2))];
 
 			$current->setDate(
 				(int) $this->view_start->format('Y'),
@@ -1162,7 +1162,7 @@ class RecurrenceIterator implements \Iterator
 		// BYSETPOS starts with an index of 1, not 0, for positive values,
 		// so we have to adjust it.
 		$bysetpos = array_map(
-			fn ($setpos) => $setpos < 0 ? (int) $setpos : (int) $setpos - 1,
+			fn($setpos) => $setpos < 0 ? (int) $setpos : (int) $setpos - 1,
 			$this->rrule->bysetpos,
 		);
 

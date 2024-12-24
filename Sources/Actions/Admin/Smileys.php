@@ -250,7 +250,7 @@ class Smileys implements ActionInterface
 					}
 
 					self::$smiley_sets[$_POST['smiley_sets_path']] = [
-						'id' => max(array_map(fn ($set) => $set['id'], self::$smiley_sets)) + 1,
+						'id' => max(array_map(fn($set) => $set['id'], self::$smiley_sets)) + 1,
 						'raw_path' => $_POST['smiley_sets_path'],
 						'raw_name' => $_POST['smiley_sets_name'],
 						'path' => Utils::htmlspecialchars($_POST['smiley_sets_path']),
@@ -407,7 +407,7 @@ class Smileys implements ActionInterface
 				// Creating a new set, but there are no available directories.
 				// Therefore, show the UI for making a new directory.
 				if (Utils::$context['current_set']['is_new']) {
-					Utils::$context['make_new'] = array_filter(Utils::$context['smiley_set_dirs'], fn ($dir) => $dir['selectable']) === [];
+					Utils::$context['make_new'] = array_filter(Utils::$context['smiley_set_dirs'], fn($dir) => $dir['selectable']) === [];
 				}
 			}
 		}
@@ -595,7 +595,7 @@ class Smileys implements ActionInterface
 
 			// Uploading just one smiley for all of them?
 			if (isset($_POST['sameall'], $_FILES['uploadSmiley']['name'])   && $_FILES['uploadSmiley']['name'] != '') {
-				$filename_array = array_merge($filename_array, $this->moveImageIntoPlace($_FILES['uploadSmiley']['name'], $_FILES['uploadSmiley']['tmp_name'], array_map(fn ($set) => $set['raw_path'], self::$smiley_sets)));
+				$filename_array = array_merge($filename_array, $this->moveImageIntoPlace($_FILES['uploadSmiley']['name'], $_FILES['uploadSmiley']['tmp_name'], array_map(fn($set) => $set['raw_path'], self::$smiley_sets)));
 			}
 			// What about uploading several files?
 			elseif ($_POST['method'] != 'existing') {
@@ -2058,7 +2058,7 @@ class Smileys implements ActionInterface
 			'',
 
 			// array('select', 'smiley_sets_default', self::$smiley_sets),
-			['select', 'smiley_sets_default', array_map(fn ($set) => $set['raw_name'], self::$smiley_sets)],
+			['select', 'smiley_sets_default', array_map(fn($set) => $set['raw_name'], self::$smiley_sets)],
 			['check', 'smiley_sets_enable'],
 			['check', 'smiley_enable', 'subtext' => Lang::$txt['smileys_enable_note']],
 			['text', 'smileys_url', 40],

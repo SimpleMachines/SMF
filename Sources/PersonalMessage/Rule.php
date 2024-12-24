@@ -458,7 +458,7 @@ class Rule implements \ArrayAccess
 		Utils::$context['groups'] = [];
 
 		$groups = Group::loadSimple();
-		Group::loadModeratorsBatch(array_map(fn ($group) => $group->id, $groups));
+		Group::loadModeratorsBatch(array_map(fn($group) => $group->id, $groups));
 
 		foreach ($groups as $group) {
 			if ($group->hidden === Group::INVISIBLE && !$group->can_moderate) {

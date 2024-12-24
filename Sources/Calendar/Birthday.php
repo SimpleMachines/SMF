@@ -66,9 +66,7 @@ class Birthday extends Event
 	/**
 	 * Not applicable. Birthday info is updated via the user's profile.
 	 */
-	public function save(): void
-	{
-	}
+	public function save(): void {}
 
 	/**
 	 * Sets custom properties.
@@ -143,7 +141,7 @@ class Birthday extends Event
 			'id' => $id,
 		];
 
-		foreach(self::queryData($selects, $params, [], $where) as $row) {
+		foreach (self::queryData($selects, $params, [], $where) as $row) {
 			// Add a value to the ID in order to avoid conflicts with regular events.
 			$id = self::ID_MODIFIER + (int) $row['id_member'];
 
@@ -224,7 +222,7 @@ class Birthday extends Event
 				break;
 		}
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			// Add a value to the ID in order to avoid conflicts with regular events.
 			$id = self::ID_MODIFIER + (int) $row['id_member'];
 
@@ -268,9 +266,7 @@ class Birthday extends Event
 	 *
 	 * @param array $eventOptions Event data ('title', 'start_date', etc.)
 	 */
-	public static function create(array $eventOptions): void
-	{
-	}
+	public static function create(array $eventOptions): void {}
 
 	/**
 	 * Not applicable. Birthday info is updated via the user's profile.
@@ -278,18 +274,14 @@ class Birthday extends Event
 	 * @param int $id The ID of the event
 	 * @param array $eventOptions An array of event information.
 	 */
-	public static function modify(int $id, array &$eventOptions): void
-	{
-	}
+	public static function modify(int $id, array &$eventOptions): void {}
 
 	/**
 	 * Not applicable. Birthday info is updated via the user's profile.
 	 *
 	 * @param int $id The event's ID.
 	 */
-	public static function remove(int $id): void
-	{
-	}
+	public static function remove(int $id): void {}
 
 	/**
 	 * Not applicable. Birthday info is updated via the user's profile.
@@ -297,9 +289,7 @@ class Birthday extends Event
 	 * @param array $eventOptions An array of optional time and date parameters
 	 *    (span, start_year, end_month, etc., etc.)
 	 */
-	public static function setRequestedStartAndDuration(array &$eventOptions): void
-	{
-	}
+	public static function setRequestedStartAndDuration(array &$eventOptions): void {}
 
 	/*************************
 	 * Internal static methods
@@ -364,18 +354,14 @@ class Birthday extends Event
 	 * @param array $eventOptions An array of optional time and date parameters
 	 *    (span, start_year, end_month, etc., etc.)
 	 */
-	protected static function setRequestedRRule(array &$eventOptions): void
-	{
-	}
+	protected static function setRequestedRRule(array &$eventOptions): void {}
 
 	/**
 	 * Not applicable. Birthday info is updated via the user's profile.
 	 *
 	 * @param Event $event An event that is being created or modified.
 	 */
-	protected static function setRequestedRDatesAndExDates(Event $event): void
-	{
-	}
+	protected static function setRequestedRDatesAndExDates(Event $event): void {}
 
 	/**
 	 * Not applicable. Birthday info is updated via the user's profile.

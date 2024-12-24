@@ -51,11 +51,11 @@ class TimeInterval extends \DateInterval implements \Stringable
 		// Clean up $matches.
 		$matches = array_map(
 			// Quick way to cast to int or float without extra logic.
-			fn ($v) => $v + 0,
+			fn($v) => $v + 0,
 			// Filter out the stuff we don't need.
 			array_filter(
 				$matches,
-				fn ($v, $k) => !is_int($k) && $v !== '',
+				fn($v, $k) => !is_int($k) && $v !== '',
 				ARRAY_FILTER_USE_BOTH,
 			),
 		);
@@ -180,7 +180,7 @@ class TimeInterval extends \DateInterval implements \Stringable
 		}
 
 		if (!empty($this->f)) {
-			$string = preg_replace_callback('/\d+(?=S)/', fn ($m) => $m[0] + $this->f, $string);
+			$string = preg_replace_callback('/\d+(?=S)/', fn($m) => $m[0] + $this->f, $string);
 		}
 
 		return $string;

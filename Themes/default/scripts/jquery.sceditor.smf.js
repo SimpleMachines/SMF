@@ -544,8 +544,8 @@
 				url[0] = '//' + url[0];
 			}
 
-			// Wrap the URL in BBC tags.
-			editor.insert('[' + bbc_tag + '="' + url[0] + '"]', '[/' + bbc_tag + ']');
+			// Insert the URL.
+			editor.wysiwygEditorInsertHtml('<a data-type="' + bbc_tag + '" href="' + url[0] + '">' + url[0] + '</a>');
 		}
 
 		// Helper for this.signalKeydownEvent.

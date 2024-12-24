@@ -143,7 +143,7 @@ class SmileyParser extends Parser
 			if ($i % 2 === 0) {
 				$parts[$i] = preg_replace_callback(
 					$this->smiley_preg_search,
-					fn ($matches) => $this->smiley_preg_replacements[$matches[1]],
+					fn($matches) => $this->smiley_preg_replacements[$matches[1]],
 					$parts[$i],
 				);
 			}
@@ -160,11 +160,11 @@ class SmileyParser extends Parser
 	 */
 	public function unparse(string $string): string
 	{
-		$smiley_codes = array_map(fn ($smiley) => $smiley['code'], self::loadData(''));
+		$smiley_codes = array_map(fn($smiley) => $smiley['code'], self::loadData(''));
 
 		return preg_replace_callback(
 			'~(\h?)<img\b[^>]+alt="([^"]+)"[^>]+class="smiley"[^>]*>(\h?)~i',
-			fn ($match) => in_array(html_entity_decode($match[2]), $smiley_codes) ? $match[1] . html_entity_decode($match[2]) . $match[3] : $match[0],
+			fn($match) => in_array(html_entity_decode($match[2]), $smiley_codes) ? $match[1] . html_entity_decode($match[2]) . $match[3] : $match[0],
 			$string,
 		);
 	}

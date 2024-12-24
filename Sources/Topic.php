@@ -543,7 +543,7 @@ class Topic implements \ArrayAccess
 	public function getLinkedEvents(): array
 	{
 		if (!isset($this->events)) {
-			foreach(Event::load($this->id, true) as $event) {
+			foreach (Event::load($this->id, true) as $event) {
 				$this->events[] = $event->id;
 			}
 		}

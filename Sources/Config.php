@@ -2560,7 +2560,7 @@ class Config
 				'',
 				preg_replace_callback(
 					'/[\r\n\t]+/',
-					fn ($m) => '\' . "' . strtr($m[0], ["\r" => '\r', "\n" => '\n', "\t" => '\t']) . '" . \'',
+					fn($m) => '\' . "' . strtr($m[0], ["\r" => '\r', "\n" => '\n', "\t" => '\t']) . '" . \'',
 					var_export($var, true),
 				),
 			);
@@ -2678,8 +2678,7 @@ class Config
 			 * 	0: not in a comment
 			 *	1: in a single line comment
 			 *	2: in a multi-line comment
-			 */
-			elseif ($one_char == '#' || $two_char == '//') {
+			 */ elseif ($one_char == '#' || $two_char == '//') {
 				$in_comment = !empty($in_string) ? 0 : (empty($in_comment) ? 1 : $in_comment);
 
 				if ($in_comment == 1) {

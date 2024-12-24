@@ -1959,7 +1959,7 @@ class ServerSideIncludes
 		];
 		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
 
-		$return['calendar_holidays'] = array_map(fn ($h) => $h->title, $return['calendar_holidays']);
+		$return['calendar_holidays'] = array_map(fn($h) => $h->title, $return['calendar_holidays']);
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
@@ -2047,7 +2047,7 @@ class ServerSideIncludes
 		];
 		$return = CacheApi::quickGet('calendar_index_offset_' . User::$me->time_offset, 'Actions/Calendar.php', 'SMF\\Actions\\Calendar::cache_getRecentEvents', [$eventOptions]);
 
-		$return['calendar_holidays'] = array_map(fn ($h) => $h->title, $return['calendar_holidays']);
+		$return['calendar_holidays'] = array_map(fn($h) => $h->title, $return['calendar_holidays']);
 
 		// The self::todaysCalendar variants all use the same hook and just pass on $eventOptions so the hooked code can distinguish different cases if necessary
 		IntegrationHook::call('integrate_ssi_calendar', [&$return, $eventOptions]);
