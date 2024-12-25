@@ -4062,20 +4062,20 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 		$setLocation = $scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 
 	// Put the session ID in.
-	if (defined('SID') && SID != '')
-		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', $scripturl . '?' . SID . ';', $setLocation);
+	if (session_id() != '')
+		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(session_id(), '/') . ')\\??/', $scripturl . '?' . session_id() . ';', $setLocation);
 	// Keep that debug in their for template debugging!
 	elseif (isset($_GET['debug']))
 		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\\??/', $scripturl . '?debug;', $setLocation);
 
 	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']) || !empty($context['server']['is_litespeed'])))
 	{
-		if (defined('SID') && SID != '')
+		if (session_id() != '')
 			$setLocation = preg_replace_callback(
-				'~^' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
+				'~^' . preg_quote($scripturl, '~') . '\?(?:' . session_id() . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
 				function($m) use ($scripturl)
 				{
-					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "$m[2]" : "");
+					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . session_id() . (isset($m[2]) ? "$m[2]" : "");
 				},
 				$setLocation
 			);
