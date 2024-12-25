@@ -293,7 +293,7 @@ class Msg implements \ArrayAccess
 			'id' => $this->id,
 			'topic' => $this->id_topic,
 			'board' => $format_options['load_board'] ? Board::init($this->id_board) : $this->id_board,
-			'href' => Config::$scripturl . '?msg=' . $this->id . (!empty($format_options['url_params']) ? ';' . implode(';', $format_options['url_params']) : ''),
+			'href' => Config::$scripturl . '?topic=' . $this->id_topic . '.msg' . $this->id . '#msg' . $this->id . (!empty($format_options['url_params']) ? ';' . implode(';', $format_options['url_params']) : ''),
 			'subject' => ($this->subject ?? '') != '' ? $this->subject : Lang::$txt['no_subject'],
 			'time' => Time::create('@' . $this->poster_time)->format(),
 			'timestamp' => $this->poster_time,
