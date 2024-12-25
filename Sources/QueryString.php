@@ -648,14 +648,14 @@ function ob_sessrewrite($buffer)
 {
 	global $scripturl, $modSettings, $context;
 
-	// If $scripturl is set to nothing, or the SID is not defined (SSI?) just quit.
-	if ($scripturl == '' || !defined('SID'))
+	// If $scripturl is set to nothing, or the session ID is not defined (SSI?) just quit.
+	if ($scripturl == '' || session_id() === false)
 		return $buffer;
 
 	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().  This doesn't work below PHP 4.3.0, because it makes the output buffer bigger.
 	// @todo smflib
-	if (empty($_COOKIE) && SID != '' && !isBrowser('possibly_robot'))
-		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', '"' . $scripturl . '?' . SID . '&amp;', $buffer);
+	if (empty($_COOKIE) && session_id() != '' && !isBrowser('possibly_robot'))
+		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(session_id(), '/') . ')\\??/', '"' . $scripturl . '?' . session_id() . '&amp;', $buffer);
 	// Debugging templates, are we?
 	elseif (isset($_GET['debug']))
 		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '\\??/', '"' . $scripturl . '?debug;', $buffer);
@@ -664,14 +664,14 @@ function ob_sessrewrite($buffer)
 	if (!empty($modSettings['queryless_urls']) && (!$context['server']['is_cgi'] || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && ($context['server']['is_apache'] || $context['server']['is_lighttpd'] || $context['server']['is_litespeed']))
 	{
 		// Let's do something special for session ids!
-		if (defined('SID') && SID != '')
+		if (session_id() != '')
 			$buffer = preg_replace_callback(
-				'~"' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
+				'~"' . preg_quote($scripturl, '~') . '\?(?:' . session_id() . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
 				function($m)
 				{
 					global $scripturl;
 
-					return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . SID . (isset($m[2]) ? $m[2] : "") . '"';
+					return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . session_id() . (isset($m[2]) ? $m[2] : "") . '"';
 				},
 				$buffer
 			);
