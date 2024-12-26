@@ -2109,7 +2109,7 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 	foreach ($filtered_hooks as $hook => $functions)
 		foreach ($functions as $rawFunc)
 		{
-			$hookParsedData = parse_integration_hook($hook, $rawFunc, $function_list);
+			$hookParsedData = parse_integration_hook($hook, $rawFunc);
 
 			// Handle hooks pointing outside the sources directory.
 			$absPath_clean =  rtrim($hookParsedData['absPath'], '!');
@@ -2168,10 +2168,9 @@ function get_integration_hooks()
  *
  * @param string $hook
  * @param string $rawData A string as it was saved to the DB.
- * @param array $functionList A list of functions found on previously parsed files
  * @return array everything found in the string itself
  */
-function parse_integration_hook(string $hook, string $rawData, array $functionList)
+function parse_integration_hook(string $hook, string $rawData)
 {
 	global $boarddir, $settings, $sourcedir;
 
@@ -2230,16 +2229,6 @@ function parse_integration_hook(string $hook, string $rawData, array $functionLi
 		$hookData['call'] = $hookData['pureFunc'] = $modFunc;
 
 	$hookData['call'] = ltrim($hookData['call'], '\\');
-
-	// One last chance, perhaps the file was included in another way
-	if ($hookData['absPath'] === '' && isset($functionList[$hookData['call']]))
-	{
-		$hookData['absPath'] = strtr(strtr(trim($functionList[$hookData['call']]), [
-			'$boarddir' => $boarddir,
-			'$sourcedir' => $sourcedir,
-			'$themedir' => $settings['theme_dir'] ?? ''
-		]), '\\', '/');
-	}
 
 	return $hookData;
 }
