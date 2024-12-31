@@ -4065,21 +4065,24 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	if ($add)
 		$setLocation = $scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 
+	// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
+	$sid = defined('SID') ? @constant('SID') : null;
+
 	// Put the session ID in.
-	if (session_id() != '')
-		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(session_id(), '/') . ')\\??/', $scripturl . '?' . session_id() . ';', $setLocation);
+	if (isset($sid) && $sid != '')
+		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote($sid, '/') . ')\\??/', $scripturl . '?' . $sid . ';', $setLocation);
 	// Keep that debug in their for template debugging!
 	elseif (isset($_GET['debug']))
 		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\\??/', $scripturl . '?debug;', $setLocation);
 
 	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']) || !empty($context['server']['is_litespeed'])))
 	{
-		if (session_id() != '')
+		if (isset($sid) && $sid != '')
 			$setLocation = preg_replace_callback(
-				'~^' . preg_quote($scripturl, '~') . '\?(?:' . session_id() . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
+				'~^' . preg_quote($scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
 				function($m) use ($scripturl)
 				{
-					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . session_id() . (isset($m[2]) ? "$m[2]" : "");
+					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . $sid . (isset($m[2]) ? "$m[2]" : "");
 				},
 				$setLocation
 			);
