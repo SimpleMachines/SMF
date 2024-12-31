@@ -716,6 +716,8 @@ function timeformat($log_time, $show_today = true, $tzid = null)
 	global $context, $user_info, $txt, $modSettings;
 	static $today;
 
+	$log_time = min(max($log_time, PHP_INT_MIN), PHP_INT_MAX);
+
 	// Ensure required values are set
 	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
 
@@ -912,6 +914,8 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 
 	if (!isset($tzid))
 		$tzid = date_default_timezone_get();
+
+	$timestamp = min(max($timestamp, PHP_INT_MIN), PHP_INT_MAX);
 
 	// A few substitutions to make life easier.
 	$format = strtr($format, array(
