@@ -570,6 +570,7 @@ $helptxt['show_spider_online'] = 'This setting allows you to select whether spid
 			As above except only Administrators can see spider status - to all other users spiders appear as guests.
 		</li>
 	</ul>';
+$helptxt['robots_txt'] = 'The robots.txt file is used to implement the <a href="https://www.rfc-editor.org/rfc/rfc9309.html" class="bbc_link">Robots Exclusion Protocol</a>, a standard used by websites to indicate to search engine spiders and other web robots which portions of the website they are allowed to visit. This file is typically located in your website’s root directory.<br><br>SMF adds some rules to this file in order to guide spiders away from URLs that they should not bother to crawl. This improves efficiency and reduces server load when a spider is crawling your forum.';
 
 $helptxt['birthday_email'] = 'Choose the index of the birthday email message to use. A preview will be shown in the Email Subject and Email Body fields.<br><strong>Note:</strong> Selecting this setting does not automatically enable birthday emails. To enable birthday emails use the <a href="{scripturl}?action=admin;area=scheduledtasks;{session_var}={session_id}" target="_blank" rel="noopener">Scheduled Tasks</a> page and enable the birthday email task.';
 $helptxt['pm_bcc'] = 'When sending a personal message you can choose to add a recipient as BCC (Blind Carbon Copy). BCC recipients do not have their identities revealed to the other recipients of the message.';

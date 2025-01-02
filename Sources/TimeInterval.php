@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -228,6 +228,71 @@ class TimeInterval extends \DateInterval implements \Stringable
 		}
 
 		return implode(' ', $result);
+	}
+
+	/**
+	 * Formats the interval as a human-readable string in the current user's
+	 * language.
+	 *
+	 * @param array $format_chars Properties to include in the output.
+	 *    Allowed values in this array: 'y', 'm', 'd', 'h', 'i', 's', 'f', 'a'.
+	 *    Note that when 'f' is included, it will always be combined with 's' in
+	 *    order to produce a single float value in the output.
+	 * @return string A human-readable string.
+	 */
+	public function localize(array $format_chars = ['y', 'm', 'd']): string
+	{
+		$result = [];
+
+		$txt_keys = [
+			'y' => 'number_of_years',
+			'm' => 'number_of_months',
+			'd' => 'number_of_days',
+			'a' => 'number_of_days',
+			'h' => 'number_of_hours',
+			'i' => 'number_of_minutes',
+			's' => 'number_of_seconds',
+			'f' => 'number_of_seconds',
+		];
+
+		foreach ($format_chars as $c) {
+			// Don't include a bunch of useless "0 <unit>" substrings.
+			if (empty($this->{$c}) || !isset($txt_keys[$c])) {
+				continue;
+			}
+
+			switch ($c) {
+				case 'f':
+					if (!in_array('s', $format_chars)) {
+						$result[] = Lang::getTxt($txt_keys[$c], [(float) $this->s + (float) $this->f]);
+					}
+					break;
+
+				case 's':
+					if (in_array('f', $format_chars)) {
+						$result[] = Lang::getTxt($txt_keys[$c], [(float) $this->s + (float) $this->f]);
+					} else {
+						$result[] = Lang::getTxt($txt_keys[$c], [$this->s]);
+					}
+					break;
+
+				default:
+					$result[] = Lang::getTxt($txt_keys[$c], [$this->{$c}]);
+					break;
+			}
+		}
+
+		// If all requested properties were empty, output a single "0 <unit>"
+		// for the smallest unit requested.
+		if (empty($result)) {
+			foreach ($txt_keys as $c => $k) {
+				if (in_array($c, $format_chars)) {
+					$result = [Lang::getTxt($txt_keys[$c], [0])];
+				}
+			}
+		}
+
+		return Lang::sentenceList($result);
 	}
 
 	/**

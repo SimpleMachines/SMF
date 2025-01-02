@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -2236,9 +2236,12 @@ class Utils
 			$setLocation = Config::$scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 		}
 
+		// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
+		$sid = defined('SID') ? @constant('SID') : null;
+
 		// Put the session ID in.
-		if (defined('SID') && SID != '') {
-			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\??/', Config::$scripturl . '?' . SID . ';', $setLocation);
+		if (isset($sid) && $sid != '') {
+			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote($sid, '/') . ')\??/', Config::$scripturl . '?' . $sid . ';', $setLocation);
 		}
 		// Keep that debug in their for template debugging!
 		elseif (isset($_GET['debug'])) {
@@ -2256,11 +2259,11 @@ class Utils
 				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
 			)
 		) {
-			if (defined('SID') && SID != '') {
+			if (isset($sid) && $sid != '') {
 				$setLocation = preg_replace_callback(
-					'~^' . preg_quote(Config::$scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
+					'~^' . preg_quote(Config::$scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
 					function ($m) {
-						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "{$m[2]}" : '');
+						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . $sid . (isset($m[2]) ? "{$m[2]}" : '');
 					},
 					$setLocation,
 				);
@@ -2347,7 +2350,6 @@ class Utils
 						],
 					);
 				}
-
 			}
 
 			// Start up the session URL fixer.
@@ -2385,7 +2387,7 @@ class Utils
 		}
 
 		if ($do_footer) {
-			Theme::loadSubTemplate(Utils::$context['sub_template'] ?? 'main');
+			Theme::loadSubTemplates();
 
 			// Anything special to put out?
 			if (!empty(Utils::$context['insert_after_template']) && !isset($_REQUEST['xml'])) {
@@ -2397,6 +2399,7 @@ class Utils
 				$footer_done = true;
 				Theme::template_footer();
 
+				// Add $db_show_debug = true; to Settings.php if you want to show the debugging information.
 				// (since this is just debugging... it's okay that it's after </html>.)
 				if (!isset($_REQUEST['xml'])) {
 					Logging::displayDebug();

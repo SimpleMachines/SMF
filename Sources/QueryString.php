@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -414,14 +414,17 @@ class QueryString
 	 */
 	public static function ob_sessrewrite(string $buffer): string
 	{
+		// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
+		$sid = defined('SID') ? @constant('SID') : null;
+
 		// If Config::$scripturl is set to nothing, or the SID is not defined (SSI?) just quit.
-		if (Config::$scripturl == '' || !defined('SID')) {
+		if (Config::$scripturl == '' || !isset($sid)) {
 			return $buffer;
 		}
 
 		// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().
-		if (empty($_COOKIE) && SID != '' && !BrowserDetector::isBrowser('possibly_robot')) {
-			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\??/', '"' . Config::$scripturl . '?' . SID . '&amp;', $buffer);
+		if (empty($_COOKIE) && $sid != '' && !BrowserDetector::isBrowser('possibly_robot')) {
+			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote($sid, '/') . ')\??/', '"' . Config::$scripturl . '?' . $sid . '&amp;', $buffer);
 		}
 		// Debugging templates, are we?
 		elseif (isset($_GET['debug'])) {
@@ -441,11 +444,11 @@ class QueryString
 			)
 		) {
 			// Let's do something special for session ids!
-			if (defined('SID') && SID != '') {
+			if ($sid != '') {
 				$buffer = preg_replace_callback(
-					'~"' . preg_quote(Config::$scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
+					'~"' . preg_quote(Config::$scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
 					function ($m) {
-						return '"' . Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . SID . ($m[2] ?? '') . '"';
+						return '"' . Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . $sid . ($m[2] ?? '') . '"';
 					},
 					$buffer,
 				);

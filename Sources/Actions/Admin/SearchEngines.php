@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -30,6 +30,7 @@ use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 
@@ -637,6 +638,7 @@ class SearchEngines implements ActionInterface
 			ACP::saveDBSettings($config_vars);
 
 			self::recacheSpiderNames();
+			self::addRobotsTxtRules();
 
 			$_SESSION['adm-save'] = true;
 			Utils::redirectexit('action=admin;area=sengines;sa=settings');
@@ -793,6 +795,25 @@ class SearchEngines implements ActionInterface
 		self::$javascript_function .= '
 			}
 			disableFields();';
+
+		// Now the setting for robots.txt.
+		$config_vars[] = '';
+
+		if (empty(Config::$modSettings['robots_txt'])) {
+			$post_input = '<button class="button floatnone" onclick="document.getElementById(\'robots_txt\').value = ' . Utils::escapeJavaScript(self::detectRobotsTxt()) . '; return false;">' . Lang::getTxt('robots_txt_auto') . '</button>';
+		} elseif (!is_writable(Config::$modSettings['robots_txt'])) {
+			$invalid = true;
+			$post_input = '<br><span class="error">' . Lang::$txt['robots_txt_not_writable'] . '</span>';
+		}
+
+		$config_vars[] = [
+			'text',
+			'robots_txt',
+			'subtext' => Lang::$txt['robots_txt_info'],
+			'size' => 45,
+			'invalid' => $invalid ?? false,
+			'postinput' => $post_input ?? '',
+		];
 
 		IntegrationHook::call('integrate_modify_search_engine_settings', [&$config_vars]);
 
@@ -1099,6 +1120,177 @@ class SearchEngines implements ActionInterface
 		}
 
 		Utils::$context['sub_action'] = &$this->subaction;
+	}
+
+	/**
+	 * Finds and returns the file path to robots.txt, or else the file path
+	 * where it should be created if it doesn't already exist.
+	 *
+	 * @return string The path to robots.txt.
+	 */
+	protected static function detectRobotsTxt(): string
+	{
+		// First try $_SERVER['CONTEXT_DOCUMENT_ROOT'], then try $_SERVER['DOCUMENT_ROOT'].
+		foreach (['CONTEXT_DOCUMENT_ROOT', 'DOCUMENT_ROOT'] as $var) {
+			if (
+				isset($_SERVER[$var])
+				&& str_starts_with(
+					strtr(Config::$boarddir, ['/' => DIRECTORY_SEPARATOR]),
+					strtr($_SERVER[$var], ['/' => DIRECTORY_SEPARATOR]),
+				)
+			) {
+				return rtrim(strtr($_SERVER[$var], ['/' => DIRECTORY_SEPARATOR]), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'robots.txt';
+			}
+
+		}
+
+		// If the server has an odd configuration, try to figure out the path ourselves.
+		$path_from_boarddir = strtr(Config::$boarddir, ['/' => DIRECTORY_SEPARATOR]);
+		$path_from_boardurl = strtr(Url::create(Config::$boardurl)->path, ['/' => DIRECTORY_SEPARATOR]);
+
+		// Walk up the path until we find the document root.
+		while (
+			// Stop if we find robots.txt
+			!file_exists($path_from_boarddir . DIRECTORY_SEPARATOR . 'robots.txt')
+			// Stop if the URL path and the filesystem path diverge.
+			&& basename($path_from_boarddir) === basename($path_from_boardurl)
+			// Stop if we get to the root of the path according to the URL.
+			&& dirname($path_from_boardurl) !== $path_from_boardurl
+		) {
+			$path_from_boarddir = dirname($path_from_boarddir);
+			$path_from_boardurl = dirname($path_from_boardurl);
+		}
+
+		return $path_from_boarddir . DIRECTORY_SEPARATOR . 'robots.txt';
+	}
+
+	/**
+	 * Checks whether robots.txt is writable and, if so, adds some rules to it
+	 * for SMF purposes.
+	 */
+	protected static function addRobotsTxtRules(): void
+	{
+		// Can we write to the file?
+		if (
+			(Config::$modSettings['robots_txt'] ?? '') === ''
+			|| (
+				is_file(Config::$modSettings['robots_txt'])
+				&& !Utils::makeWritable(Config::$modSettings['robots_txt'])
+			)
+			|| (
+				!file_exists(Config::$modSettings['robots_txt'])
+				&& !Utils::makeWritable(dirname(Config::$modSettings['robots_txt']))
+			)
+		) {
+			return;
+		}
+
+		// Define the rules we want to include.
+		$rules = [
+			'*' => [
+				'allow' => [],
+				'disallow' => [
+					Url::create(Config::$scripturl)->path . '?msg=',
+					'*PHPSESSID=',
+					'*;topicseen',
+				],
+			],
+		];
+
+		IntegrationHook::call('integrate_robots_txt_rules', [&$rules]);
+
+		// Build the new file content.
+		$new_content = [];
+
+		if (is_file(Config::$modSettings['robots_txt'])) {
+			$hash = md5_file(Config::$modSettings['robots_txt']);
+
+			$current_user_agent = '';
+
+			// Keep all existing content and filter out anything in $rules that already exists.
+			foreach (file(Config::$modSettings['robots_txt']) as $line) {
+				// Found a new user agent line.
+				if (preg_match('/^user-agent:\h*([^\n]+)/i', $line, $matches)) {
+					$prev_user_agent = $current_user_agent;
+					$current_user_agent = $matches[1];
+
+					// Append any new rules for the previous user agent.
+					if (isset($rules[$prev_user_agent])) {
+						foreach ($rules[$prev_user_agent] as $type => $patterns) {
+							foreach ($patterns as $pattern) {
+								$new_content[] = ucfirst($type) . ': ' . $pattern . "\n";
+							}
+						}
+					}
+
+					// Don't do the same rules twice.
+					unset($rules[$prev_user_agent]);
+				}
+
+				// Append this line.
+				$new_content[] = $line;
+
+				// Filter out anything in $rules that already exists.
+				if (preg_match('/^((?:dis)?allow):\h*([^\n]+)/i', $line, $matches)) {
+					$type = strtolower($matches[1]);
+					$pattern = $matches[2];
+
+					$rules[$current_user_agent][$type] = array_diff(
+						$rules[$current_user_agent][$type],
+						[$pattern],
+					);
+				}
+			}
+		}
+
+		// Filter out empty $rules.
+		foreach ($rules as $user_agent => $rule_parts) {
+			foreach ($rule_parts as $type => $patterns) {
+				if ($rules[$user_agent][$type] === []) {
+					unset($rules[$user_agent][$type]);
+				}
+			}
+
+			if ($rules[$user_agent] === []) {
+				unset($rules[$user_agent]);
+			}
+		}
+
+		// Append the new rules.
+		foreach ($rules as $user_agent => $rule_parts) {
+			$new_content[] = "\n";
+			$new_content[] = 'User-agent: ' . $user_agent . "\n";
+
+			foreach ($rule_parts as $type => $patterns) {
+				foreach ($patterns as $pattern) {
+					$new_content[] = ucfirst($type) . ': ' . $pattern . "\n";
+				}
+			}
+		}
+
+		// Finalize the content.
+		$new_content = trim(implode('', $new_content)) . "\n";
+
+		// If nothing changed, bail out.
+		if (isset($hash) && md5($new_content) === $hash) {
+			return;
+		}
+
+		// Where should we save the backup file?
+		if (Utils::makeWritable(dirname(Config::$modSettings['robots_txt']))) {
+			$backup_file = preg_replace('/\.txt$/', '.' . (date_create('now UTC')->format('Ymd\THis\Z')) . '.txt', Config::$modSettings['robots_txt']);
+		} elseif (Utils::makeWritable(Config::$boarddir)) {
+			$backup_file = Config::$boarddir . DIRECTORY_SEPARATOR . 'robots.' . (date_create('now UTC')->format('Ymd\THis\Z')) . '.txt';
+		} else {
+			$backup_file = null;
+		}
+
+		// Write the new content to disk.
+		Config::safeFileWrite(
+			file: Config::$modSettings['robots_txt'],
+			data: $new_content,
+			backup_file: $backup_file,
+		);
 	}
 }
 

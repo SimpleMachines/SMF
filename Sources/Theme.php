@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -391,39 +391,82 @@ class Theme
 	}
 
 	/**
+	 * Loads sub-templates into the current theme context.
+	 *
+	 * This method loads each sub-template in the `sub_templates` array. If it is
+	 * not defined, loads a single sub-template specified by `sub_template` or
+	 * falls back to loading the `main` template.
+	 */
+	public static function loadSubTemplates(): void
+	{
+		if (isset(Utils::$context['sub_templates'])) {
+			foreach (Utils::$context['sub_templates'] as $sub_template) {
+				self::loadSubTemplate($sub_template);
+			}
+		} else {
+			self::loadSubTemplate(Utils::$context['sub_template'] ?? 'main');
+		}
+	}
+
+	/**
 	 * Loads a sub-template.
 	 *
-	 * 	- Loads the sub template specified by sub_template_name, which must be
-	 *    in an already-loaded template.
+	 * This function attempts to load and execute a sub-template by constructing its function name
+	 * and calling it dynamically. If the sub-template cannot be loaded, it handles errors based
+	 * on the `$fatal` parameter.
 	 *
-	 *  - If ?debug is in the query string, shows administrators a marker after
-	 *    every sub template for debugging purposes.
+	 * - Sub-template function names must follow the format `template_{name}`.
+	 * - When debugging is enabled, administrators can see markers after each loaded sub-template.
 	 *
-	 * @todo get rid of reading $_REQUEST directly
-	 *
-	 * @param string $sub_template_name The name of the sub-template to load
-	 * @param bool|string $fatal Whether to die with an error if the sub-template can't be loaded
+	 * @param string|array $sub_template_name The name of the sub-template to load.
+	 *                                         If an array is provided, the first element is the name,
+	 *                                         and the second element is an array of parameters to pass to the sub-template.
+	 * @param bool|string $fatal              Specifies error handling behavior:
+	 *                                        - `false` (default): Logs and handles the error.
+	 *                                        - `true`: Dies with an error message.
+	 *                                        - `'ignore'`: Silently ignore any errors.
 	 */
-	public static function loadSubTemplate(string $sub_template_name, bool|string $fatal = false): void
+	public static function loadSubTemplate(string|array $sub_template_name, bool|string $fatal = false): void
 	{
+		$template_name = is_array($sub_template_name) ? $sub_template_name[0] : $sub_template_name;
+
+		// Add the sub-template to the debug context if debugging is enabled.
 		if (!empty(Config::$db_show_debug)) {
-			Utils::$context['debug']['sub_templates'][] = $sub_template_name;
+			Utils::$context['debug']['sub_templates'][] = $template_name;
 		}
 
-		// Figure out what the template function is named.
-		$theme_function = 'template_' . $sub_template_name;
-
-		if (function_exists($theme_function)) {
-			$theme_function();
-		} elseif ($fatal === false) {
-			ErrorHandler::fatalLang('theme_template_error', 'template', ['template_name' => (string) $sub_template_name, 'type' => 'sub']);
-		} elseif ($fatal !== 'ignore') {
-			die(ErrorHandler::log(Lang::formatText(Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} sub-template.', ['template_name' => (string) $sub_template_name, 'type' => 'sub']), 'template'));
+		// Determine the template function name and any associated parameters.
+		if (is_array($sub_template_name)) {
+			$theme_function = 'template_' . $sub_template_name[0];
+			$function_params = $sub_template_name[1] ?? [];
+		} else {
+			$theme_function = 'template_' . $sub_template_name;
+			$function_params = [];
 		}
 
-		// Are we showing debugging for templates?  Just make sure not to do it before the doctype...
-		if (isset(User::$me) && User::$me->allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($sub_template_name, ['init', 'main_below']) && ob_get_length() > 0 && !isset($_REQUEST['xml'])) {
-			echo "\n" . '<div class="noticebox">---- ', $sub_template_name, ' ends ----</div>';
+		// Attempt to call the sub-template function.
+		if (is_callable($theme_function)) {
+			call_user_func_array($theme_function, $function_params);
+		} else {
+			// Handle errors based on the $fatal parameter.
+			if ($fatal === false) {
+				ErrorHandler::fatalLang(
+					'theme_template_error',
+					'template',
+					['template_name' => $template_name, 'type' => 'sub']
+				);
+			} elseif ($fatal !== 'ignore') {
+				$error_message = Lang::formatText(
+					Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} sub-template.',
+					['template_name' => $template_name, 'type' => 'sub']
+				);
+				die(ErrorHandler::log($error_message, 'template'));
+			}
+		}
+
+		// Show debug markers for administrators if enabled.
+		if (isset(User::$me) && User::$me->allowedTo('admin_forum') && isset($_REQUEST['debug']) && !in_array($template_name, ['init', 'html_below']) && ob_get_length() > 0 && !isset($_REQUEST['xml'])) {
+			echo "\n" . '<div class="noticebox">---- ', $template_name, ' ends ----</div>';
 		}
 	}
 
@@ -1290,18 +1333,12 @@ class Theme
 
 		header('content-type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 
-		// We need to splice this in after the body layer, or after the main layer for older stuff.
+		// We need to splice this in after the body layer.
 		if (Utils::$context['in_maintenance'] && User::$me->is_admin) {
 			$position = array_search('body', Utils::$context['template_layers']);
 
-			if ($position === false) {
-				$position = array_search('main', Utils::$context['template_layers']);
-			}
-
 			if ($position !== false) {
-				$before = array_slice(Utils::$context['template_layers'], 0, $position + 1);
-				$after = array_slice(Utils::$context['template_layers'], $position + 1);
-				Utils::$context['template_layers'] = array_merge($before, ['maint_warning'], $after);
+				array_splice(Utils::$context['template_layers'], $position + 1, 0, ['maint_warning']);
 			}
 		}
 

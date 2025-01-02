@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -195,6 +195,10 @@ class Time extends \DateTime implements \ArrayAccess
 		}
 
 		$datetime = self::sanitize($datetime);
+
+		if (str_starts_with($datetime, '@')) {
+			$datetime = '@' . min(max((int) ltrim($datetime, '@'), PHP_INT_MIN), PHP_INT_MAX);
+		}
 
 		if (
 			// If $datetime was a Unix timestamp, set the time zone to the one

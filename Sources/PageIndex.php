@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -202,17 +202,25 @@ class PageIndex implements \Stringable
 	 *    "url;start=offset". Default: false.
 	 * @param bool $show_prevnext Whether the Previous and Next links should be
 	 *    shown. Default: true.
+	 * @param array $template_overrides Array of template strings to override defaults.
+	 *    Supported keys: extra_before, previous_page, current_page, page, 
+	 *    expand_pages, next_page, extra_after.
 	 */
-	public function __construct(string $base_url, int &$start, int $max_value, int $num_per_page, bool $short_format = false, bool $show_prevnext = true)
-	{
+	public function __construct(
+		string $base_url, 
+		int &$start, 
+		int $max_value, 
+		int $num_per_page, 
+		bool $short_format = false, 
+		bool $show_prevnext = true,
+		array $template_overrides = []
+	) {
 		$this->base_url = $base_url;
 		$this->max_value = $max_value;
 		$this->num_per_page = $num_per_page;
 		$this->short_format = $short_format;
 		$this->show_prevnext = $show_prevnext;
 		$this->start = $start = $this->fixStart($start);
-
-		$this->extra_before = str_replace('{txt_pages}', Lang::$txt['pages'], $this->extra_before);
 
 		if (isset(Theme::$current->settings['page_index'])) {
 			foreach (Theme::$current->settings['page_index'] as $key => $value) {
@@ -224,6 +232,26 @@ class PageIndex implements \Stringable
 
 		if (!isset(Utils::$context['current_page'])) {
 			Utils::$context['current_page'] = $this->start / $this->num_per_page;
+		}
+
+		$this->setTemplateOverrides($template_overrides);
+
+		$this->extra_before = str_replace('{txt_pages}', Lang::$txt['pages'], $this->extra_before);
+	}
+
+	/**
+	 * Sets template overrides.
+	 *
+	 * @param array $template_overrides Array of template strings to override defaults.
+	 *    Supported keys: extra_before, previous_page, current_page, page, 
+	 *    expand_pages, next_page, extra_after.
+	 */
+	public function setTemplateOverrides(array $template_overrides = []): void
+	{
+		foreach ($template_overrides as $key => $value) {
+			if (property_exists($this, $key)) {
+				$this->{$key} = $value;
+			}
 		}
 	}
 
@@ -276,11 +304,32 @@ class PageIndex implements \Stringable
 	/**
 	 * Static wrapper for constructor.
 	 *
+	 * @param string $base_url The basic URL to be used for each link.
+	 * @param int &$start The start position, by reference. If this is not a
+	 *    multiple of the number of items per page, it is sanitized to be so and
+	 *    the value will persist upon the function's return.
+	 * @param int $max_value The total number of items you are paginating for.
+	 * @param int $num_per_page The number of items to be displayed on a given
+	 *    page. $start will be forced to be a multiple of this value.
+	 * @param bool $short_format Whether to use "url.offset" instead of
+	 *    "url;start=offset". Default: false.
+	 * @param bool $show_prevnext Whether the Previous and Next links should be
+	 *    shown. Default: true.
+	 * @param array $template_overrides Array of template strings to override defaults.
+	 *    Supported keys: extra_before, previous_page, current_page, page, 
+	 *    expand_pages, next_page, extra_after.
 	 * @return self An instance of this class.
 	 */
-	public static function load(string $base_url, int &$start, int $max_value, int $num_per_page, bool $short_format = false, bool $show_prevnext = true): self
-	{
-		return new self($base_url, $start, $max_value, $num_per_page, $short_format, $show_prevnext);
+	public static function load(
+		string $base_url, 
+		int &$start, 
+		int $max_value, 
+		int $num_per_page, 
+		bool $short_format = false, 
+		bool $show_prevnext = true,
+		array $template_overrides = []
+	): self {
+		return new self($base_url, $start, $max_value, $num_per_page, $short_format, $show_prevnext, $template_overrides);
 	}
 
 	/******************
