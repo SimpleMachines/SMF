@@ -2236,15 +2236,8 @@ class Utils
 			$setLocation = Config::$scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 		}
 
-		// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
-		$sid = defined('SID') ? @constant('SID') : null;
-
-		// Put the session ID in.
-		if (isset($sid) && $sid != '') {
-			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote($sid, '/') . ')\??/', Config::$scripturl . '?' . $sid . ';', $setLocation);
-		}
 		// Keep that debug in their for template debugging!
-		elseif (isset($_GET['debug'])) {
+		if (isset($_GET['debug'])) {
 			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '\??/', Config::$scripturl . '?debug;', $setLocation);
 		}
 
@@ -2259,23 +2252,13 @@ class Utils
 				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
 			)
 		) {
-			if (isset($sid) && $sid != '') {
-				$setLocation = preg_replace_callback(
-					'~^' . preg_quote(Config::$scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
-					function ($m) {
-						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . $sid . (isset($m[2]) ? "{$m[2]}" : '');
-					},
-					$setLocation,
-				);
-			} else {
-				$setLocation = preg_replace_callback(
-					'~^' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
-					function ($m) {
-						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . (isset($m[2]) ? "{$m[2]}" : '');
-					},
-					$setLocation,
-				);
-			}
+			$setLocation = preg_replace_callback(
+				'~^' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
+				function ($m) {
+					return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . (isset($m[2]) ? "{$m[2]}" : '');
+				},
+				$setLocation,
+			);
 		}
 
 		// The request was from ajax/xhr/other api call, append ajax ot the url.
