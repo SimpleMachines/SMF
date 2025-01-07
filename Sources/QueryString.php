@@ -631,7 +631,7 @@ function htmltrim__recursive($var, $level = 0)
 }
 
 /**
- * Rewrite URLs to include the session ID.
+ * Handles rewriting URLs for the queryless URLs option.
  * What it does:
  * - handles rewriting URLs for the queryless URLs option.
  * - can be turned off entirely by setting $scripturl to an empty
