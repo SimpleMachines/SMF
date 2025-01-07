@@ -174,7 +174,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	{
 		global $smcFunc;
 
-		// Don't both writing the session if cookies are diabled; no way to retrieve it later
+		// Don't bother writing the session if cookies are diabled; no way to retrieve it later
 		if (empty($_COOKIE))
 			return true;
 
