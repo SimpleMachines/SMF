@@ -2262,7 +2262,7 @@ class Utils
 			if (isset($sid) && $sid != '') {
 				$setLocation = preg_replace_callback(
 					'~^' . preg_quote(Config::$scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
-					function ($m) {
+					function ($m) use ($sid) {
 						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . $sid . (isset($m[2]) ? "{$m[2]}" : '');
 					},
 					$setLocation,
