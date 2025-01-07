@@ -96,6 +96,11 @@ class Session implements \SessionHandlerInterface
 	 */
 	public function write(string $session_id, string $data): bool
 	{
+
+		// Don't both writing the session if cookies are diabled
+		if (empty($_COOKIE))
+			return true;
+
 		if (preg_match('~^[A-Za-z0-9,-]{16,64}$~', $session_id) == 0) {
 			return false;
 		}
