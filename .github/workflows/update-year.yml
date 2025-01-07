@@ -26,6 +26,6 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         commit-message: Update year to ${{ env.CURRENT_YEAR }}
-        branch: update-year-${{ env.CURRENT_YEAR }}
+        branch: 2.1/update-year-${{ env.CURRENT_YEAR }}
         title: "[2.1] Update year to ${{ env.CURRENT_YEAR }}"
         body: This PR updates the year to ${{ env.CURRENT_YEAR }} in SSI.php, proxy.php, cron.php, and index.php.
