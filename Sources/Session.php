@@ -97,7 +97,7 @@ class Session implements \SessionHandlerInterface
 	public function write(string $session_id, string $data): bool
 	{
 
-		// Don't both writing the session if cookies are diabled
+		// Don't bother writing the session if cookies are diabled
 		if (empty($_COOKIE))
 			return true;
 
