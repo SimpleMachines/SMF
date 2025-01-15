@@ -13,7 +13,7 @@
 
 define('SMF_VERSION', '2.1.5');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2024');
+define('SMF_SOFTWARE_YEAR', '2025');
 define('DB_SCRIPT_VERSION', '2-1');
 define('SMF_INSTALLING', 1);
 
