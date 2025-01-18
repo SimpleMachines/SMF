@@ -75,6 +75,8 @@ class Search implements ActionInterface
 			'name' => Lang::$txt['search'],
 		];
 
+		Utils::$context['robot_no_index'] = true;
+
 		Utils::$context['search_string_limit'] = SearchApi::MAX_LENGTH;
 
 		Utils::$context['require_verification'] = User::$me->is_guest && !empty(Config::$modSettings['search_enable_captcha']) && empty($_SESSION['ss_vv_passed']);

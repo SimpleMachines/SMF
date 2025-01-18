@@ -240,7 +240,7 @@ class Utf8String implements \Stringable
 		// Greek conditional casing, part 1: Fix lowercase sigma.
 		// Note that this rule doesn't depend on $txt['lang_locale'].
 		if ($case !== 'upper' && str_contains($this->string, 'ς') || str_contains($this->string, 'σ')) {
-			require_once $sourcedir . '/Unicode/RegularExpressions.php';
+			require_once Config::$sourcedir . '/Unicode/RegularExpressions.php';
 
 			$prop_classes = utf8_regex_properties();
 

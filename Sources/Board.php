@@ -880,7 +880,7 @@ class Board implements \ArrayAccess
 
 			if (!isset(self::$parsed_descriptions[$this->id])) {
 				self::$parsed_descriptions[$this->id] = Parser::transform(
-					string: self::$parsed_descriptions[$this->id],
+					string: $this->description,
 					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
 					options: ['parse_tags' => Utils::$context['description_allowed_tags']],
 				);

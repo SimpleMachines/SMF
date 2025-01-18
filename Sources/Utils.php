@@ -2428,94 +2428,82 @@ class Utils
 	}
 
 	/**
-	 * Parses $input to find some sort of callable.
+	 * Parses the given input to determine if it represents a callable entity.
 	 *
-	 * If a method is found, it looks for a "#" which indicates SMF should
-	 * create a new instance of the given class.
+	 * This method supports various formats of callables, including closures,
+	 * callable arrays, static methods, and class methods with optional
+	 * instance creation.
 	 *
-	 * ADD MORE HERE.
+	 * - If a class method is specified with a "#", it attempts to create
+	 *   a new instance of the class.
+	 * - If a static method is specified, it validates the method is callable.
+	 * - If input is a closure or callable array, it checks its validity.
+	 * - Plain functions are validated as callable.
+	 * - Objects themselves are not accepted as callables.
 	 *
-	 * @param mixed $input Input to parse to find a callable.
-	 * @return mixed Either a callable, or false on failure.
+	 * @param string|array $input Input to parse as a callable.
+	 * @param bool|null $ignore_errors Optional. Whether to suppress errors if the callable is invalid. Defaults to the value of `Utils::$context['ignore_hook_errors']`.
+	 *
+	 * @return callable|false Returns the callable if valid, or false on failure.
 	 */
-	public static function getCallable(mixed $input, ?bool $ignore_errors = null): mixed
+	public static function getCallable(string|array $input, ?bool $ignore_errors = null): callable|false
 	{
 		$ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
-		// Really?
-		if (empty($input)) {
-			return false;
-		}
-
-		// An array? should be a "callable" array IE array(object/class, valid_callable).
-		// A closure? should be a callable one.
-		if (is_array($input) || $input instanceof \Closure) {
+		if (is_array($input)) {
 			return is_callable($input) ? $input : false;
 		}
 
-		// No full objects, sorry! pass a method or a property instead!
-		if (is_object($input)) {
-			return false;
-		}
-
-		// Stay vitaminized my friends...
+		// Sanitize and trim the input.
 		$input = Utils::htmlspecialchars(Utils::htmlTrim($input));
 
-		// Is there a file to load?
+		// Attempt to load a file, if applicable.
 		$input = self::loadFile($input);
 
-		// Loaded file failed
+		// Abort if file loading fails.
 		if (empty($input)) {
 			return false;
 		}
 
-		// Found a method.
+		// Process static or instance method callables.
 		if (str_contains($input, '::')) {
 			list($class, $method) = explode('::', $input);
 
-			// Check if a new object will be created.
+			// Handle instance creation for methods with "#".
 			if (str_contains($method, '#')) {
 				if (!isset(Utils::$context['instances'])) {
 					Utils::$context['instances'] = [];
 				}
 
-				// Need to remove the # thing.
+				// Remove the "#" and ensure an instance exists.
 				$method = str_replace('#', '', $method);
 
-				// Don't need to create a new instance for every method.
 				if (empty(Utils::$context['instances'][$class]) || !(Utils::$context['instances'][$class] instanceof $class)) {
 					Utils::$context['instances'][$class] = new $class();
 
-					// Add another one to the list.
+					// Optionally track instance creation for debugging.
 					if (!empty(Config::$db_show_debug)) {
-						if (!isset(Utils::$context['debug']['instances'])) {
-							Utils::$context['debug']['instances'] = [];
-						}
-
 						Utils::$context['debug']['instances'][$class] = $class;
 					}
 				}
 
 				$callable = [Utils::$context['instances'][$class], $method];
-			}
-			// Right then. This is a call to a static method.
-			else {
+			} else {
+				// Static method reference.
 				$callable = [$class, $method];
 			}
-		}
-		// Nope! just a plain regular function.
-		else {
+		} else {
+			// Treat as a plain function.
 			$callable = $input;
 		}
 
-		// Right, we got what we need, time to do some checks.
-		if (!is_callable($callable, false, $callable_name) && $ignore_errors) {
-			// We can't call this helper, but we want to silently ignore this.
+		// Validate the callable.
+		if (!is_callable($callable, false, $callable_name)) {
 			if ($ignore_errors) {
 				return false;
 			}
 
-			// Gotta tell everybody.
+			// Log error for invalid callables.
 			Lang::load('Errors');
 			ErrorHandler::log(Lang::getTxt('sub_action_fail', [$callable_name]), 'general');
 
@@ -2553,7 +2541,7 @@ class Utils
 	 *
 	 * Checks for a '|' symbol and tries to load a file with the info given.
 	 *
-	 * The string should be format as follows: 'path/to/file.php|whatever'.
+	 * The string should be formatted as follows: 'path/to/file.php|whatever'.
 	 *
 	 * You can use the following wildcards in the path:
 	 *  - $boarddir

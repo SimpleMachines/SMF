@@ -1185,14 +1185,30 @@ class SearchEngines implements ActionInterface
 			return;
 		}
 
+		$boardpath = Url::create(Config::$boardurl)->path;
+		$scriptpath = Url::create(Config::$scripturl)->path;
+
 		// Define the rules we want to include.
 		$rules = [
 			'*' => [
 				'allow' => [],
 				'disallow' => [
-					Url::create(Config::$scripturl)->path . '?msg=',
-					'*PHPSESSID=',
-					'*;topicseen',
+					// Frequenty occurring non-canonical URLs (both normal and queryless)
+					$boardpath . '/*PHPSESSID=',
+					$boardpath . '/*;topicseen',
+					$boardpath . '/*.msg',
+					$boardpath . '/*.new',
+					$boardpath . '/*.from',
+					// Actions that always set Utils::$context['robot_no_index'] to true.
+					$scriptpath . '?action=admin',
+					$scriptpath . '?action=credits',
+					$scriptpath . '?action=moderate',
+					$scriptpath . '?action=post',
+					$scriptpath . '?action=printpage',
+					$scriptpath . '?action=reminder',
+					$scriptpath . '?action=reporttm',
+					$scriptpath . '?action=search',
+					$scriptpath . '?action=who',
 				],
 			],
 		];
@@ -1205,40 +1221,62 @@ class SearchEngines implements ActionInterface
 		if (is_file(Config::$modSettings['robots_txt'])) {
 			$hash = md5_file(Config::$modSettings['robots_txt']);
 
+			$user_agents_in_group = [];
 			$current_user_agent = '';
+			$insert = false;
 
 			// Keep all existing content and filter out anything in $rules that already exists.
 			foreach (file(Config::$modSettings['robots_txt']) as $line) {
 				// Found a new user agent line.
-				if (preg_match('/^user-agent:\h*([^\n]+)/i', $line, $matches)) {
-					$prev_user_agent = $current_user_agent;
+				if (preg_match('/^\h*user-agent:\h*([^\n]+)/i', $line, $matches)) {
+					$user_agents_in_group[] = $matches[1];
 					$current_user_agent = $matches[1];
 
-					// Append any new rules for the previous user agent.
-					if (isset($rules[$prev_user_agent])) {
-						foreach ($rules[$prev_user_agent] as $type => $patterns) {
+					if ($insert === null) {
+						$insert = true;
+					}
+				} elseif (preg_match('/^\h*($|#)/i', $line)) {
+					$insert = true;
+				} else {
+					$insert = null;
+				}
+
+				// Insert our rules before comments, blank lines, or the start
+				// of a new user agent group, but only if user agent that these
+				// rules are for was the only one in its group.
+				if (!empty($insert) && count($user_agents_in_group) === 1) {
+					foreach ($user_agents_in_group as $user_agent) {
+						if (!isset($rules[$user_agent])) {
+							continue;
+						}
+
+						foreach ($rules[$user_agent] as $type => $patterns) {
 							foreach ($patterns as $pattern) {
 								$new_content[] = ucfirst($type) . ': ' . $pattern . "\n";
 							}
 						}
+
+						// Don't do the same rules twice.
+						unset($rules[$user_agent]);
 					}
 
-					// Don't do the same rules twice.
-					unset($rules[$prev_user_agent]);
+					$insert = false;
 				}
 
 				// Append this line.
 				$new_content[] = $line;
 
 				// Filter out anything in $rules that already exists.
-				if (preg_match('/^((?:dis)?allow):\h*([^\n]+)/i', $line, $matches)) {
+				if (preg_match('/^\h*((?:dis)?allow)\h*:\h*([^\n]+)/i', $line, $matches)) {
 					$type = strtolower($matches[1]);
 					$pattern = $matches[2];
 
-					$rules[$current_user_agent][$type] = array_diff(
-						$rules[$current_user_agent][$type],
-						[$pattern],
-					);
+					if (isset($rules[$current_user_agent][$type])) {
+						$rules[$current_user_agent][$type] = array_diff(
+							$rules[$current_user_agent][$type],
+							[$pattern],
+						);
+					}
 				}
 			}
 		}
@@ -1256,7 +1294,24 @@ class SearchEngines implements ActionInterface
 			}
 		}
 
-		// Append the new rules.
+		// If the last group is empty, add an explict allow rule to it.
+		for ($i = array_key_last($new_content); $i > 0; $i--) {
+			if (preg_match('/^((?:dis)?allow):/i', $new_content[$i])) {
+				break;
+			}
+
+			if (preg_match('/^user-agent:/i', $new_content[$i])) {
+				do {
+					$i++;
+				} while (!empty($new_content[$i]));
+
+				array_splice($new_content, $i, 0, ["Allow: *\n"]);
+
+				break;
+			}
+		}
+
+		// Append any new rules that haven't already been inserted.
 		foreach ($rules as $user_agent => $rule_parts) {
 			$new_content[] = "\n";
 			$new_content[] = 'User-agent: ' . $user_agent . "\n";
