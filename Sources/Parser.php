@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -355,6 +355,16 @@ abstract class Parser
 	}
 
 	/**
+	 * Gets a regular expression to match all known BBC tags.
+	 *
+	 * @return string Regular expression to match all BBCode tags.
+	 */
+	public static function getBBCodeTagsRegex(): string
+	{
+		return BBcodeParser::load()->getAllTagsRegex();
+	}
+
+	/**
 	 * Highlight any code.
 	 *
 	 * Uses PHP's highlight_string() to highlight PHP syntax.
@@ -377,12 +387,12 @@ abstract class Parser
 
 		return preg_replace_callback_array(
 			[
-				'~(?:' . Utils::TAB_SUBSTITUTE . ')+~u' => fn ($matches) => '<span style="white-space: pre;">' . strtr($matches[0], [Utils::TAB_SUBSTITUTE => "\t"]) . '</span>',
-				'~<span style="color: #[0-9a-fA-F]{6}">(<span style="white-space: pre;">\h*</span>)</span>~' => fn ($matches) => $matches[1],
-				'~\R~' => fn ($matches) => '<br>',
-				'/\'/' => fn ($matches) => '&#039;',
+				'~(?:' . Utils::TAB_SUBSTITUTE . ')+~u' => fn($matches) => '<span style="white-space: pre;">' . strtr($matches[0], [Utils::TAB_SUBSTITUTE => "\t"]) . '</span>',
+				'~<span style="color: #[0-9a-fA-F]{6}">(<span style="white-space: pre;">\h*</span>)</span>~' => fn($matches) => $matches[1],
+				'~\R~' => fn($matches) => '<br>',
+				'/\'/' => fn($matches) => '&#039;',
 				// PHP 8.3 changed the returned HTML.
-				'/^(<pre>)?<code[^>]*>|<\/code>(<\/pre>)?$/' => fn ($matches) => '',
+				'/^(<pre>)?<code[^>]*>|<\/code>(<\/pre>)?$/' => fn($matches) => '',
 			],
 			$buffer,
 		);

@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -94,7 +94,7 @@ class Announce implements ActionInterface
 		Utils::$context['groups'] = Group::load($groups);
 
 		// Count the members in each group.
-		$groups_to_count = array_map(fn ($group) => $group->id, Utils::$context['groups']);
+		$groups_to_count = array_map(fn($group) => $group->id, Utils::$context['groups']);
 
 		// Counting all the regular members could be a performance hit on large forums,
 		// so don't do that for anyone without high level permissions.

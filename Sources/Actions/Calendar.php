@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -776,12 +776,12 @@ class Calendar implements ActionInterface
 			$time = getdate($_REQUEST['time'] == 'now' ? time() : (int) $_REQUEST['time']);
 			Utils::$context['linktree'][] = ['url' => Config::$scripturl . '?action=calendar;sa=clock;time=' . $_REQUEST['time'], 'name' => 'Requested Time'];
 			Utils::$context['clockicons'] = [
-				'year' => array_fill_keys(array_map(fn ($p) => 2 ** $p, range(6, 0)), false),
-				'mon' => array_fill_keys(array_map(fn ($p) => 2 ** $p, range(3, 0)), false),
-				'mday' => array_fill_keys(array_map(fn ($p) => 2 ** $p, range(4, 0)), false),
-				'hours' => array_fill_keys(array_map(fn ($p) => 2 ** $p, range(5, 0)), false),
-				'minutes' => array_fill_keys(array_map(fn ($p) => 2 ** $p, range(5, 0)), false),
-				'seconds' => array_fill_keys(array_map(fn ($p) => 2 ** $p, range(5, 0)), false),
+				'year' => array_fill_keys(array_map(fn($p) => 2 ** $p, range(6, 0)), false),
+				'mon' => array_fill_keys(array_map(fn($p) => 2 ** $p, range(3, 0)), false),
+				'mday' => array_fill_keys(array_map(fn($p) => 2 ** $p, range(4, 0)), false),
+				'hours' => array_fill_keys(array_map(fn($p) => 2 ** $p, range(5, 0)), false),
+				'minutes' => array_fill_keys(array_map(fn($p) => 2 ** $p, range(5, 0)), false),
+				'seconds' => array_fill_keys(array_map(fn($p) => 2 ** $p, range(5, 0)), false),
 			];
 
 			foreach (Utils::$context['clockicons'] as $t => $vs) {
@@ -1722,7 +1722,7 @@ class Calendar implements ActionInterface
 			[],
 		);
 
-		$board_ids = array_map(fn ($row) => $row['id_board'], Db::$db->fetch_all($request));
+		$board_ids = array_map(fn($row) => $row['id_board'], Db::$db->fetch_all($request));
 
 		Db::$db->free_result($request);
 

@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -891,12 +891,12 @@ class RecurrenceIterator implements \Iterator
 		$this->limitBySetPos();
 
 		// Final cleanup.
-		$view_start = $this->view_start->format($this->record_format);
-		$view_end = $this->view_end->format($this->record_format);
+		$view_start = (clone $this->view_start)->setTimezone(new \DateTimeZone('UTC'))->format($this->record_format);
+		$view_end = (clone $this->view_end)->setTimezone(new \DateTimeZone('UTC'))->format($this->record_format);
 
 		$this->occurrences = array_values(array_filter(
 			$this->occurrences,
-			fn ($occurrence) => $view_start <= $occurrence && $view_end >= $occurrence,
+			fn($occurrence) => $view_start <= $occurrence && $view_end >= $occurrence,
 		));
 
 		if ($this->max_occurrences < count($this->occurrences)) {
@@ -923,7 +923,7 @@ class RecurrenceIterator implements \Iterator
 
 		// Special handling for WEEKLY.
 		if ($this->rrule->freq === 'WEEKLY') {
-			$weekdays = !empty($this->rrule->byday) ? array_map(fn ($weekday) => substr($weekday, -2), $this->rrule->byday) : [strtoupper(substr($current->format('D'), 0, 2))];
+			$weekdays = !empty($this->rrule->byday) ? array_map(fn($weekday) => substr($weekday, -2), $this->rrule->byday) : [strtoupper(substr($current->format('D'), 0, 2))];
 
 			$current->setDate(
 				(int) $this->view_start->format('Y'),
@@ -1162,7 +1162,7 @@ class RecurrenceIterator implements \Iterator
 		// BYSETPOS starts with an index of 1, not 0, for positive values,
 		// so we have to adjust it.
 		$bysetpos = array_map(
-			fn ($setpos) => $setpos < 0 ? (int) $setpos : (int) $setpos - 1,
+			fn($setpos) => $setpos < 0 ? (int) $setpos : (int) $setpos - 1,
 			$this->rrule->bysetpos,
 		);
 

@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -339,7 +339,7 @@ class Logging
 				if ($parameter2 !== null) {
 					$parameter1 = (int) $parameter1;
 					$parameter2 = array_map(
-						fn ($word) => Utils::truncate($word, 20),
+						fn($word) => Utils::truncate($word, 20),
 						Utils::extractWords($parameter2, 2),
 					);
 

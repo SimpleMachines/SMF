@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -690,7 +690,7 @@ class React implements ActionInterface
 		$loaded = User::load($members);
 
 		if (count($loaded) != count($members)) {
-			$members = array_diff($members, array_map(fn ($member) => $member->id, $loaded));
+			$members = array_diff($members, array_map(fn($member) => $member->id, $loaded));
 
 			foreach ($members as $not_loaded) {
 				unset(Utils::$context['reactors'][$not_loaded]);

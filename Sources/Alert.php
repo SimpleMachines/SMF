@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -524,7 +524,7 @@ class Alert implements \ArrayAccess
 
 			// Update the keys in self::$loaded.
 			self::$loaded = array_combine(
-				array_map(fn ($alert) => $alert->id, self::$loaded),
+				array_map(fn($alert) => $alert->id, self::$loaded),
 				self::$loaded,
 			);
 
@@ -712,13 +712,13 @@ class Alert implements \ArrayAccess
 
 		// Update the keys in self::$loaded.
 		self::$loaded = array_combine(
-			array_map(fn ($alert) => $alert->id, self::$loaded),
+			array_map(fn($alert) => $alert->id, self::$loaded),
 			self::$loaded,
 		);
 
 		// Update the keys in $created.
 		$created = array_combine(
-			array_map(fn ($alert) => $alert->id, $created),
+			array_map(fn($alert) => $alert->id, $created),
 			$created,
 		);
 

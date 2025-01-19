@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -71,7 +71,7 @@ class DebugUtils
 
 		return preg_replace_callback(
 			'/"[^"]+"(?(?=\s*:)(*MARK:KEY)|(*MARK:STRING))|\b(?:true|false|null)\b(*MARK:NULL)|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?(*MARK:NUMBER)/',
-			fn (array $matches): string => '<span style=\'color:' . $colors[$matches['MARK']] . '\'>' . $matches[0] . '</span>',
+			fn(array $matches): string => '<span style=\'color:' . $colors[$matches['MARK']] . '\'>' . $matches[0] . '</span>',
 			str_replace(['<', '>', '&'], ['&lt;', '&gt;', '&amp;'], $string),
 		) ?? $string;
 	}
@@ -97,7 +97,7 @@ class DebugUtils
 
 		return preg_replace_callback(
 			'/(["\'])?(?(1)(?:(?!\1).)*+\1(*MARK:STRING)|(?:\b' . $keyword_regex . '\b(*MARK:KEY)|--.*$|\/\*[\s\S]*?\*\/(*MARK:COMMENT)|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?(*MARK:NUMBER)|[!=%\/*-,;:<>](*MARK:OPERATOR)|\w+\((?:[^)(]+|(?R))*\)(*MARK:FUNCTION)))/',
-			fn (array $matches): string => '<span style=\'color:' . $colors[$matches['MARK']] . '\'>' . $matches[0] . '</span>',
+			fn(array $matches): string => '<span style=\'color:' . $colors[$matches['MARK']] . '\'>' . $matches[0] . '</span>',
 			$string,
 		) ?? $string;
 	}

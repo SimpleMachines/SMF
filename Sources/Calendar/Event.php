@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -1619,7 +1619,7 @@ class Event implements \ArrayAccess
 
 		IntegrationHook::call('integrate_query_event', [&$selects, &$params, &$joins, &$where, &$order, &$group, &$limit]);
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			// If the attached topic is not approved then for the moment pretend it doesn't exist.
 			if (!empty($row['id_first_msg']) && Config::$modSettings['postmod_active'] && !$row['approved']) {
 				continue;
@@ -1720,7 +1720,7 @@ class Event implements \ArrayAccess
 
 		IntegrationHook::call('integrate_query_event', [&$selects, &$params, &$joins, &$where, &$order, &$group, &$limit]);
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			// If the attached topic is not approved then for the moment pretend it doesn't exist.
 			if (!empty($row['id_first_msg']) && Config::$modSettings['postmod_active'] && !$row['approved']) {
 				continue;
@@ -2140,7 +2140,7 @@ class Event implements \ArrayAccess
 			'tz_abbrev',
 		];
 
-		foreach($eventOptions as $key => $value) {
+		foreach ($eventOptions as $key => $value) {
 			if (is_null($value) || in_array($key, $scalars)) {
 				unset($eventOptions[$key]);
 			}
@@ -2599,7 +2599,7 @@ class Event implements \ArrayAccess
 
 			// If string input was given, override individually defined options with it.
 			if (isset($datetime_string)) {
-				$datetime_string_parsed = date_parse(str_replace(',', '', Calendar::convertDateToEnglish($datetime_string)));
+				$datetime_string_parsed = date_parse(str_replace(',', '', Time::convertToEnglish($datetime_string)));
 
 				if (is_array($datetime_string_parsed) && empty($datetime_string_parsed['error_count']) && empty($datetime_string_parsed['warning_count'])) {
 					$datetime_string_parsed = array_filter(

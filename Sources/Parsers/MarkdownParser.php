@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 1
@@ -773,60 +773,60 @@ class MarkdownParser extends Parser
 		if ($from_bbcode_parser) {
 			$input_replacements = [
 				// Protect the content of certain tags.
-				'/(<code\b[^>]*>)((?>\X(?!<code\b[^>]*>)|(?R))*)(<\/code>)/ui' => fn ($m) => $m[1] . ($this->placeholders[$m[2]] = md5($m[2])) . $m[3],
+				'/(<code\b[^>]*>)((?>\X(?!<code\b[^>]*>)|(?R))*)(<\/code>)/ui' => fn($m) => $m[1] . ($this->placeholders[$m[2]] = md5($m[2])) . $m[3],
 
-				'/(<pre\b[^>]*>)((?>\X(?!<pre\b[^>]*>)|(?R))*)(<\/pre>)/ui' => fn ($m) => $m[1] . ($this->placeholders[$m[2]] = md5($m[2])) . $m[3],
+				'/(<pre\b[^>]*>)((?>\X(?!<pre\b[^>]*>)|(?R))*)(<\/pre>)/ui' => fn($m) => $m[1] . ($this->placeholders[$m[2]] = md5($m[2])) . $m[3],
 
-				'/(<div\b[^>]*\bclass="[^"]*\bbbc_html\b[^>]*>)((?>\X(?!<div\b[^>]*\bclass="[^"]*\bbbc_html\b[^>]*>)|(?R))*)(<\/div>)/ui' => fn ($m) => $m[1] . ($this->placeholders[$m[2]] = md5($m[2])) . $m[3],
+				'/(<div\b[^>]*\bclass="[^"]*\bbbc_html\b[^>]*>)((?>\X(?!<div\b[^>]*\bclass="[^"]*\bbbc_html\b[^>]*>)|(?R))*)(<\/div>)/ui' => fn($m) => $m[1] . ($this->placeholders[$m[2]] = md5($m[2])) . $m[3],
 
-				'/<div\b[^>]*\bclass="[^"]*\bmeaction\b[^>]*>\h*\K\*/ui' => fn ($m) => '&#42;',
+				'/<div\b[^>]*\bclass="[^"]*\bmeaction\b[^>]*>\h*\K\*/ui' => fn($m) => '&#42;',
 
 				// Restore tabs.
-				'/' . preg_quote(Utils::TAB_SUBSTITUTE, '/') . '/ui' => fn ($m) => "\t",
+				'/' . preg_quote(Utils::TAB_SUBSTITUTE, '/') . '/ui' => fn($m) => "\t",
 
 				// Decode &nbsp; entities to regular spaces.
-				'/&(nbsp|#(x0*A0|0*160));/ui' => fn ($m) => ' ',
+				'/&(nbsp|#(x0*A0|0*160));/ui' => fn($m) => ' ',
 
 				// Restore line breaks.
-				'/<br\s*\/?>/ui' => fn ($m) => "\n",
+				'/<br\s*\/?>/ui' => fn($m) => "\n",
 
 				// Decode &gt; entities at the start of lines.
-				'/^\h*\K&(gt|#(x0*3C|0*60));/uim' => fn ($m) => '>',
+				'/^\h*\K&(gt|#(x0*3C|0*60));/uim' => fn($m) => '>',
 
 				// Decode square bracket entities.
-				'/^&#(x0*5B|0*91);/ui' => fn ($m) => '[',
-				'/^&#(x0*5D|0*93);/ui' => fn ($m) => ']',
+				'/^&#(x0*5B|0*91);/ui' => fn($m) => '[',
+				'/^&#(x0*5D|0*93);/ui' => fn($m) => ']',
 
 				// Replace EN QUAD chars with canonically equivalent EN SPACE chars.
 				// We do this because we use EN QUAD for special purposes.
-				'/\x{2000}/u' => fn ($m) => "\u{2002}",
+				'/\x{2000}/u' => fn($m) => "\u{2002}",
 
 				// Insert two line breaks after certain tags, if they are not followed by another tag.
-				'/<((?>div class="(?>inline-block|justifytext|centertext|bbc_float|righttext|lefttext)|blockquote|\/cite))\b[^>]*>(?!(?:\n\n|\s*(?:<|$)))/uim' => fn ($m) => $m[0] . "\n\n",
+				'/<((?>div class="(?>inline-block|justifytext|centertext|bbc_float|righttext|lefttext)|blockquote|\/cite))\b[^>]*>(?!(?:\n\n|\s*(?:<|$)))/uim' => fn($m) => $m[0] . "\n\n",
 
 				// Insert two line breaks after certain other tags, always.
-				'/<((?>marquee|\/h[1-6]|li|t(?>d|h)))\b[^>]*>(?!\n\n)/uim' => fn ($m) => $m[0] . "\n\n",
+				'/<((?>marquee|\/h[1-6]|li|t(?>d|h)))\b[^>]*>(?!\n\n)/uim' => fn($m) => $m[0] . "\n\n",
 
 				// Insert one line break before certain tags.
-				'/(^|[^>])\h*\K<\/((?>blockquote|marquee|div|h[1-6]|li|t(?>d|h)))>/uim' => fn ($m) => "\n" . $m[0],
+				'/(^|[^>])\h*\K<\/((?>blockquote|marquee|div|h[1-6]|li|t(?>d|h)))>/uim' => fn($m) => "\n" . $m[0],
 			];
 		} else {
 			$input_replacements = [
 				// Restore tabs.
-				'/' . preg_quote(Utils::TAB_SUBSTITUTE, '/') . '/ui' => fn ($m) => "\t",
+				'/' . preg_quote(Utils::TAB_SUBSTITUTE, '/') . '/ui' => fn($m) => "\t",
 
 				// Decode &nbsp; entities to regular spaces.
-				'/&(nbsp|#(x0*A0|0*160));/ui' => fn ($m) => ' ',
+				'/&(nbsp|#(x0*A0|0*160));/ui' => fn($m) => ' ',
 
 				// Restore line breaks.
-				'/<br\s*\/?>/ui' => fn ($m) => "\n",
+				'/<br\s*\/?>/ui' => fn($m) => "\n",
 
 				// Decode &gt; entities at the start of lines.
-				'/^\h*\K&(gt|#(x0*3C|0*60));/uim' => fn ($m) => '>',
+				'/^\h*\K&(gt|#(x0*3C|0*60));/uim' => fn($m) => '>',
 
 				// Replace EN QUAD chars with canonically equivalent EN SPACE chars.
 				// We do this because we use EN QUAD for special purposes.
-				'/\x{2000}/u' => fn ($m) => "\u{2002}",
+				'/\x{2000}/u' => fn($m) => "\u{2002}",
 			];
 		}
 
@@ -845,20 +845,20 @@ class MarkdownParser extends Parser
 		if ($this->output_type === self::OUTPUT_HTML) {
 			// Align output with the expected output of the BBCodeParser.
 			$output_replacements = [
-				'/\x{2000}{1,4}/u' => fn ($m) => Utils::TAB_SUBSTITUTE,
-				'/  /' => fn ($m) => " \u{A0}",
+				'/\x{2000}{1,4}/u' => fn($m) => Utils::TAB_SUBSTITUTE,
+				'/  /' => fn($m) => " \u{A0}",
 			];
 		} else {
 			// Restore tabs.
 			$output_replacements = [
-				'/\x{2000}{1,4}/u' => fn ($m) => "\t",
+				'/\x{2000}{1,4}/u' => fn($m) => "\t",
 			];
 		}
 
 		// If the supplied string came from the BBCodeParser, we could end up
 		// with paragraph elements inside heading elements. Fix them.
 		if ($from_bbcode_parser && $this->output_type !== self::OUTPUT_BBC) {
-			$output_replacements['/<(h[1-6])([^>]*)>\s*<p>(\X*?)<\/p>\s*<\/\1>/u'] = fn ($m) => '<' . $m[1] . $m[2] . '>' . strtr($m[3], ['<p>' => '', '</p>' => '<br><br>']) . '</' . $m[1] . '>';
+			$output_replacements['/<(h[1-6])([^>]*)>\s*<p>(\X*?)<\/p>\s*<\/\1>/u'] = fn($m) => '<' . $m[1] . $m[2] . '>' . strtr($m[3], ['<p>' => '', '</p>' => '<br><br>']) . '</' . $m[1] . '>';
 		}
 
 		$this->rendered = preg_replace_callback_array($output_replacements, $this->rendered);
@@ -1014,7 +1014,7 @@ class MarkdownParser extends Parser
 					$line_info['string'] = str_repeat(' ', $line_info['indent']);
 					$line_info['string'] .= preg_replace_callback(
 						$this->block_types[$line_info['type']]['marker_pattern'],
-						fn ($matches) => str_repeat(' ', mb_strlen($matches[0])),
+						fn($matches) => str_repeat(' ', mb_strlen($matches[0])),
 						$line_info['content'],
 					);
 
@@ -1088,7 +1088,7 @@ class MarkdownParser extends Parser
 		// Always prefer the type that matches the most distant ancestor block.
 		$line_info['possible_types'] = array_unique(array_merge(
 			array_intersect(
-				array_map(fn ($open_block) => $open_block['type'], $this->open),
+				array_map(fn($open_block) => $open_block['type'], $this->open),
 				$line_info['possible_types'],
 			),
 			$line_info['possible_types'],
@@ -2375,7 +2375,7 @@ class MarkdownParser extends Parser
 		$this->amalgamateStrings($new_content);
 
 		// Filter out empty strings and return.
-		return array_values(array_filter($new_content, fn ($arg) => $arg !== ''));
+		return array_values(array_filter($new_content, fn($arg) => $arg !== ''));
 	}
 
 	/**
@@ -2929,7 +2929,7 @@ class MarkdownParser extends Parser
 			}
 		}
 
-		$content = array_values(array_filter($content, fn ($arg) => $arg !== ''));
+		$content = array_values(array_filter($content, fn($arg) => $arg !== ''));
 	}
 
 	/**
@@ -3020,7 +3020,9 @@ class MarkdownParser extends Parser
 	 */
 	protected function amalgamateStrings(array &$content): void
 	{
-		for ($i = 0; $i < count($content); $i++) {
+		$content = array_values($content);
+
+		for ($i = 0; $i <= array_key_last($content); $i++) {
 			if (!isset($content[$i]) || !is_string($content[$i])) {
 				continue;
 			}

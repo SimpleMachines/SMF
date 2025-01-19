@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -724,7 +724,7 @@ class Groups implements ActionInterface
 		}
 
 		$temp = Group::load([], $query_customizations);
-		Group::loadModeratorsBatch(array_map(fn ($group) => $group->id, $temp));
+		Group::loadModeratorsBatch(array_map(fn($group) => $group->id, $temp));
 
 		foreach ($temp as $group) {
 			// We only list the groups they can see.

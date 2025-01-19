@@ -180,4 +180,9 @@ $txt['spider_stats_select_month'] = 'Jump to Month';
 $txt['spider_stats_page_hits'] = 'Page Hits';
 $txt['spider_stats_no_entries'] = 'There are currently no spider statistics available.';
 
+$txt['robots_txt'] = 'Add SMF rules to robots.txt';
+$txt['robots_txt_info'] = 'Enter the path to your robots.txt file so that SMF can append rules to it.';
+$txt['robots_txt_auto'] = 'Detect path';
+$txt['robots_txt_not_writable'] = 'The robots.txt file is not writable.';
+
 ?>

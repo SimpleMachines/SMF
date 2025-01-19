@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -522,7 +522,7 @@ class Profile extends User implements \ArrayAccess
 			'lngfile' => [
 				'type' => 'select',
 				'options' => function () {
-					return array_map(fn ($lang) => $lang['name'], Lang::get());
+					return array_map(fn($lang) => $lang['name'], Lang::get());
 				},
 				'label' => Lang::$txt['preferred_language'],
 				'permission' => 'profile_identity',
@@ -793,7 +793,7 @@ class Profile extends User implements \ArrayAccess
 
 							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]]));
 
-							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn ($v) => $v != $set);
+							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn($v) => $v != $set);
 						}
 					}
 
@@ -2470,7 +2470,7 @@ class Profile extends User implements \ArrayAccess
 		]);
 
 		// Now that the hook is done, we can set deletes to just the value we need.
-		$this->new_cf_data['deletes'] = array_map(fn ($del) => $del['variable'], $deletes);
+		$this->new_cf_data['deletes'] = array_map(fn($del) => $del['variable'], $deletes);
 
 		if (!empty($hook_errors) && is_array($hook_errors)) {
 			$this->cf_save_errors = array_merge($this->cf_save_errors, $hook_errors);

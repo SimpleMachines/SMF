@@ -3,7 +3,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -544,8 +544,8 @@
 				url[0] = '//' + url[0];
 			}
 
-			// Wrap the URL in BBC tags.
-			editor.insert('[' + bbc_tag + '="' + url[0] + '"]', '[/' + bbc_tag + ']');
+			// Insert the URL.
+			editor.wysiwygEditorInsertHtml('<a data-type="' + bbc_tag + '" href="' + url[0] + '">' + url[0] + '</a>');
 		}
 
 		// Helper for this.signalKeydownEvent.

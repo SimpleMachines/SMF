@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -35,7 +35,7 @@ return (new PhpCsFixer\Config())
         new \SMF\Fixer\Whitespace\closing_tag_fixer(),
     ])
 	->setRules([
-		'@PSR12' => true,
+		'@PER-CS2.0' => true,
 
 		// A custom fixer for us to apply our line endings.
         'SMF/closing_tag_fixer' => true,

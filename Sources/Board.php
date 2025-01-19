@@ -5,7 +5,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 3.0 Alpha 2
@@ -670,7 +670,7 @@ class Board implements \ArrayAccess
 				'insert',
 				'{db_prefix}moderators',
 				['id_board' => 'int', 'id_member' => 'int'],
-				array_map(fn ($mod) => [$this->id, $mod], $this->moderators),
+				array_map(fn($mod) => [$this->id, $mod], $this->moderators),
 				['id_board', 'id_member'],
 			);
 		}
@@ -690,7 +690,7 @@ class Board implements \ArrayAccess
 				'insert',
 				'{db_prefix}moderator_groups',
 				['id_board' => 'int', 'id_group' => 'int'],
-				array_map(fn ($mod) => [$this->id, $mod], $this->moderator_groups),
+				array_map(fn($mod) => [$this->id, $mod], $this->moderator_groups),
 				['id_board', 'id_group'],
 			);
 		}
@@ -880,7 +880,7 @@ class Board implements \ArrayAccess
 
 			if (!isset(self::$parsed_descriptions[$this->id])) {
 				self::$parsed_descriptions[$this->id] = Parser::transform(
-					string: self::$parsed_descriptions[$this->id],
+					string: $this->description,
 					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
 					options: ['parse_tags' => Utils::$context['description_allowed_tags']],
 				);
