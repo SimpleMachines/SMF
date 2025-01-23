@@ -1030,6 +1030,25 @@ class Utils
 			mb_internal_encoding($string_encoding);
 		}
 
+		// Optimizing is faster when we sort by length.
+		usort($strings, fn($a, $b) => mb_strlen($a) <=> mb_strlen($b));
+
+		// Can we trim common characters from the end?
+		$trailing = '';
+
+		while (mb_strlen(reset($strings)) > 1) {
+			$last_char = mb_substr(reset($strings), -1);
+
+			foreach ($strings as $string_num => $string) {
+				if (!str_ends_with($string, $last_char)) {
+					break 2;
+				}
+			}
+
+			$strings = array_map(fn($string) => mb_substr($string, 0, -1), $strings);
+			$trailing = $last_char . $trailing;
+		}
+
 		// This recursive closure creates the trie from the strings.
 		$add_string_to_trie = function (string $string, array $trie) use (&$add_string_to_trie) {
 			static $depth = 0;
@@ -1145,8 +1164,16 @@ class Utils
 			while (!empty($trie)) {
 				$regex[] = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
 			}
+
+			if ($trailing !== '') {
+				$regex = array_map(fn($r) => '(?' . '>' . $r . $trailing . ')', $regex);
+			}
 		} else {
 			$regex = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
+
+			if ($trailing !== '') {
+				$regex = '(?' . '>' . $regex . $trailing . ')';
+			}
 		}
 
 		// Restore PHP's internal character encoding to whatever it was originally.
