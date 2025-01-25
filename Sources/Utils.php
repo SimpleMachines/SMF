@@ -2362,7 +2362,7 @@ class Utils
 					&& !(Forum::getCurrentAction()?->getOutputType() instanceof OutputTypes\Xml)
 					&& !isset($_REQUEST['xml'])
 				) {
-					Logging::displayDebug();
+					Debug\DebugUtils::displayDebug();
 				}
 			}
 		}

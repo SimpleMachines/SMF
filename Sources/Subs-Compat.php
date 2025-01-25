@@ -8097,7 +8097,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function displayDebug(): void
 	{
-		SMF\Logging::displayDebug();
+		SMF\Debug\DebugUtils::displayDebug();
 	}
 
 	/****************

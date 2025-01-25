@@ -20,7 +20,7 @@ use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\DebugUtils;
+use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
