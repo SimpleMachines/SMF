@@ -26,6 +26,8 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\Profile;
 use SMF\Theme;
@@ -71,6 +73,26 @@ class XmlHttp implements ActionInterface
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return true;
+	}
 
 	/**
 	 * The main handler and designator for AJAX stuff - jumpto, message icons and previews

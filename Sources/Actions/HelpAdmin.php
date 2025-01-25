@@ -37,6 +37,21 @@ class HelpAdmin implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Show some of the more detailed help to give the admin an idea...
 	 * It shows a popup for administrative or user help.

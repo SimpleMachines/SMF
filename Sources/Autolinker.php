@@ -986,15 +986,15 @@ class Autolinker
 		foreach (['path', 'query', 'fragment'] as $part) {
 			switch ($part) {
 				case 'path':
-					$part_excluded_trailing_chars = '[^\P{Po}?/#&]';
+					$part_excluded_trailing_chars = '[^\P{Po}?/#&"]';
 					break;
 
 				case 'query':
-					$part_excluded_trailing_chars = '[^\P{Po}#&]';
+					$part_excluded_trailing_chars = '[^\P{Po}#&"]';
 					break;
 
 				default:
-					$part_excluded_trailing_chars = '[^\P{Po}&]';
+					$part_excluded_trailing_chars = '[^\P{Po}&"]';
 					break;
 			}
 

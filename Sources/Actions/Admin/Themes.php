@@ -1328,9 +1328,9 @@ class Themes implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// PickTheme() has been migrated to SMF\Theme::pickTheme()
+		// PickTheme() has been migrated to SMF\Actions\ThemeChooser::call()
 		if (isset($_GET['sa']) && $_GET['sa'] === 'pick') {
-			Utils::redirectexit('action=theme;sa=pick' . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
+			Utils::redirectexit('action=themechooser' . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
 		}
 		// Everything in this file should be accessed via the ACP, not the 'theme' action.
 		elseif ($_REQUEST['action'] === 'theme') {

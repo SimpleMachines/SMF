@@ -23,6 +23,8 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Profile;
 use SMF\Sapi;
 use SMF\Security;
@@ -542,6 +544,26 @@ class Main implements ActionInterface
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return isset($_GET['area']) && !in_array($_GET['area'], ['popup', 'alerts_popup', 'download', 'dlattach']);
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_GET['area']) && in_array($_GET['area'], ['popup', 'alerts_popup']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_GET['area']) && in_array($_GET['area'], ['popup', 'alerts_popup']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return isset($_GET['area']) && ($_GET['area'] == 'popup' || $_GET['area'] == 'alerts_popup');
+	}
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.

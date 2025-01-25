@@ -88,6 +88,20 @@ class Activate implements ActionInterface
 				]);
 			}
 
+			// Inform the user that their account has been approved.
+			if (in_array($prev_is_activated, [User::UNAPPROVED, User::NEED_COPPA])) {
+				$replacements = [
+					'NAME' => Profile::$member->name,
+					'USERNAME' => Profile::$member->username,
+					'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id,
+					'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
+				];
+
+				$emaildata = Mail::loadEmailTemplate('admin_approve_accept', $replacements, Profile::$member->language);
+
+				Mail::send(Profile::$member->email, $emaildata['subject'], $emaildata['body'], null, 'accapp' . Profile::$member->id, $emaildata['is_html'], 0);
+			}
+
 			// Make sure we update the stats too.
 			Logging::updateStats('member', false);
 		}

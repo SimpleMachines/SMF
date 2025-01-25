@@ -80,7 +80,7 @@ function template_main()
 
 	echo '
 						</select>
-						<span class="smalltext pick_theme"><a href="', Config::$scripturl, '?action=theme;sa=pick;u=-1;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="button floatnone">', Lang::$txt['theme_select'], '</a></span>
+						<span class="smalltext pick_theme"><a href="', Config::$scripturl, '?action=themechooser;u=-1;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="button floatnone">', Lang::$txt['theme_select'], '</a></span>
 					</dd>
 					<dt>
 						<label for="theme_reset">', Lang::$txt['theme_reset'], '</label>
@@ -97,7 +97,7 @@ function template_main()
 
 	echo '
 						</select>
-						<span class="smalltext pick_theme"><a href="', Config::$scripturl, '?action=theme;sa=pick;u=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="button floatnone">', Lang::$txt['theme_select'], '</a></span>
+						<span class="smalltext pick_theme"><a href="', Config::$scripturl, '?action=themechooser;u=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="button floatnone">', Lang::$txt['theme_select'], '</a></span>
 					</dd>
 				</dl>
 				<input type="submit" name="save" value="' . Lang::$txt['save'] . '" class="button">
@@ -691,7 +691,7 @@ function template_pick()
 {
 	echo '
 	<div id="pick_theme">
-		<form action="', Config::$scripturl, '?action=theme;sa=pick" method="post" accept-charset="', Utils::$context['character_set'], '">';
+		<form action="', Config::$scripturl, '?action=themechooser" method="post" accept-charset="', Utils::$context['character_set'], '">';
 
 	// Just go through each theme and show its information - thumbnail, etc.
 	foreach (Utils::$context['available_themes'] as $theme)
@@ -705,7 +705,7 @@ function template_pick()
 			<div class="windowbg', $theme['selected'] ? ' selected' : '', '">
 				<div class="flow_hidden">
 					<div class="floatright">
-						<a href="', Config::$scripturl, '?action=theme;sa=pick;u=', Utils::$context['current_member'], ';theme=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" id="theme_thumb_preview_', $theme['id'], '" title="', Lang::$txt['theme_preview'], '">
+						<a href="', Config::$scripturl, '?action=themechooser;u=', Utils::$context['current_member'], ';theme=', $theme['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" id="theme_thumb_preview_', $theme['id'], '" title="', Lang::$txt['theme_preview'], '">
 							<img src="', $theme['thumbnail_href'], '" id="theme_thumb_', $theme['id'], '" alt="" class="padding theme_thumbnail">
 						</a>
 					</div>
@@ -736,7 +736,7 @@ function template_pick()
 							<input type="submit" name="save[', $theme['id'], ']" value="', Lang::$txt['theme_set'], '" class="button">
 						</li>
 						<li>
-							<a class="button" href="', Config::$scripturl, '?action=theme;sa=pick;theme=', $theme['id'], '" id="theme_preview_', $theme['id'], '">', Lang::$txt['theme_preview'], '</a>
+							<a class="button" href="', Config::$scripturl, '?action=themechooser;theme=', $theme['id'], '" id="theme_preview_', $theme['id'], '">', Lang::$txt['theme_preview'], '</a>
 						</li>
 					</ul>
 				</div>

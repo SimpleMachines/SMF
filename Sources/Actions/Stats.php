@@ -23,6 +23,8 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -38,6 +40,16 @@ class Stats implements ActionInterface
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['xml']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
 
 	/**
 	 * Display some useful/interesting board statistics.
@@ -83,6 +95,7 @@ class Stats implements ActionInterface
 				Utils::obExit(false);
 			}
 
+			Theme::loadTemplate('Xml');
 			Utils::$context['sub_template'] = 'stats';
 			Utils::$context['yearly'] = [];
 

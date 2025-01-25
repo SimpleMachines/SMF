@@ -670,11 +670,34 @@ class Utf8String implements \Stringable
 		// Normalize the whitespace.
 		$this->string = Utils::normalizeSpaces($this->string, true, true, ['replace_tabs' => true, 'collapse_hspace' => true]);
 
-		// We'll need these one way or another.
 		require_once __DIR__ . '/RegularExpressions.php';
 		$prop_classes = utf8_regex_properties();
 
 		// Split into words, with Unicode awareness.
+		$words = $this->semanticSplit();
+
+		foreach ($words as $key => $word) {
+			$word = Utils::htmlTrim($word);
+
+			// Filter out punctuation marks, etc.
+			if (preg_replace('/[^\w' . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Emoji_Modifier'] . ']/u', '', $word) === '') {
+				unset($words[$key]);
+			}
+		}
+
+		// Restore the original version of the string.
+		$this->string = $original_string;
+
+		return $words;
+	}
+
+	/**
+	 * Splits the string into parts using the Unicode word break algorithm.
+	 *
+	 * @return array The parts of the string.
+	 */
+	public function semanticSplit(): array
+	{
 		// Prefer IntlBreakIterator if it is available.
 		if (class_exists('IntlBreakIterator')) {
 			$break_iterator = \IntlBreakIterator::createWordInstance(Lang::getLocaleFromLanguageName(Config::$language));
@@ -700,6 +723,9 @@ class Utf8String implements \Stringable
 					'break_after' => false,
 				];
 			}
+
+			require_once __DIR__ . '/RegularExpressions.php';
+			$prop_classes = utf8_regex_properties();
 
 			for ($i = 0; $i < count($chars); $i++) {
 				$substring_before = implode('', array_slice(array_map(fn($char) => $char['char'], $chars), 0, $i));
@@ -952,18 +978,6 @@ class Utf8String implements \Stringable
 				}
 			}
 		}
-
-		foreach ($words as $key => $word) {
-			$word = Utils::htmlTrim($word);
-
-			// Filter out punctuation marks, etc.
-			if (preg_replace('/[^\w' . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Emoji_Modifier'] . ']/u', '', $word) === '') {
-				unset($words[$key]);
-			}
-		}
-
-		// Restore the original version of the string.
-		$this->string = $original_string;
 
 		return $words;
 	}

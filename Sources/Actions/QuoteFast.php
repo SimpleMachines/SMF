@@ -21,6 +21,8 @@ use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -41,6 +43,11 @@ class QuoteFast implements ActionInterface
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
+	}
 
 	/**
 	 * Does the job.
@@ -93,6 +100,7 @@ class QuoteFast implements ActionInterface
 		$can_view_post = $row['approved'] || ($row['id_member'] != 0 && $row['id_member'] == User::$me->id) || User::$me->allowedTo('approve_posts', $row['id_board']);
 
 		if ($can_view_post) {
+			Theme::loadTemplate('Xml');
 			// Remove special formatting we don't want anymore.
 			$body = Msg::un_preparsecode($row['body']);
 			$subject = $row['subject'];

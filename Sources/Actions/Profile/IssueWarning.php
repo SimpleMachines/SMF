@@ -23,9 +23,12 @@ use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\PersonalMessage\PM;
 use SMF\Profile;
+use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
@@ -53,6 +56,16 @@ class IssueWarning implements ActionInterface
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['preview']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['preview']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
 
 	/**
 	 * Does the job.
@@ -527,6 +540,7 @@ class IssueWarning implements ActionInterface
 	 */
 	protected function preview(): void
 	{
+		Theme::loadTemplate('Xml');
 		$warning_body = !empty($_POST['warn_body']) ? trim(Lang::censorText($_POST['warn_body'])) : '';
 
 		Utils::$context['preview_subject'] = !empty($_POST['warn_sub']) ? trim(Utils::htmlspecialchars($_POST['warn_sub'])) : '';

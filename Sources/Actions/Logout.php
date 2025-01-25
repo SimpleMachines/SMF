@@ -34,6 +34,11 @@ class Logout extends Login2
 	 * Public methods
 	 ****************/
 
+	public function canShowInMaintenanceMode(): bool
+	{
+		return false;
+	}
+
 	/**
 	 * Logs the current user out of their account.
 	 *

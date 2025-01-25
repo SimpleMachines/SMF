@@ -64,31 +64,9 @@ class Theme
 	/**
 	 * @var array
 	 *
-	 * Actions that can be accessed without accepting to the registration
-	 * agreement and privacy policy.
-	 */
-	public array $agreement_actions = [
-		'agreement' => true,
-		'acceptagreement' => true,
-		'login2' => true,
-		'logintfa' => true,
-		'logout' => true,
-		'pm' => ['sa' => ['popup']],
-		'profile' => ['area' => ['popup', 'alerts_popup']],
-		'xmlhttp' => true,
-		'.xml' => true,
-	];
-
-	/**
-	 * @var array
-	 *
 	 * Actions that do not require loading the index template.
 	 */
-	public array $simpleActions = [
-		'findmember',
-		'helpadmin',
-		'printpage',
-	];
+	public array $simpleActions = [];
 
 	/**
 	 * @var array
@@ -96,9 +74,7 @@ class Theme
 	 * Areas that do not require loading the index template.
 	 * Parent action => array of areas
 	 */
-	public array $simpleAreas = [
-		'profile' => ['popup', 'alerts_popup'],
-	];
+	public array $simpleAreas = [];
 
 	/**
 	 * @var array
@@ -106,36 +82,21 @@ class Theme
 	 * Subactions that do not require loading the index template.
 	 * Parent action => array of subactions
 	 */
-	public array $simpleSubActions = [
-		'pm' => ['popup'],
-		'signup' => ['usernamecheck'],
-	];
+	public array $simpleSubActions = [];
 
 	/**
 	 * @var array
 	 *
 	 * Extra URL params that ask for XML output instead of HTML.
 	 */
-	public array $extraParams = [
-		'preview',
-		'splitjs',
-	];
+	public array $extraParams = [];
 
 	/**
 	 * @var array
 	 *
 	 * Actions that specifically use XML output.
 	 */
-	public array $xmlActions = [
-		'quotefast',
-		'jsmodify',
-		'xmlhttp',
-		'post2',
-		'suggest',
-		'stats',
-		'notifytopic',
-		'notifyboard',
-	];
+	public array $xmlActions = [];
 
 	/**************************
 	 * Public static properties
@@ -453,13 +414,14 @@ class Theme
 				ErrorHandler::fatalLang(
 					'theme_template_error',
 					'template',
-					['template_name' => $template_name, 'type' => 'sub']
+					['template_name' => $template_name, 'type' => 'sub'],
 				);
 			} elseif ($fatal !== 'ignore') {
 				$error_message = Lang::formatText(
 					Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} sub-template.',
-					['template_name' => $template_name, 'type' => 'sub']
+					['template_name' => $template_name, 'type' => 'sub'],
 				);
+
 				die(ErrorHandler::log($error_message, 'template'));
 			}
 		}
@@ -1241,8 +1203,6 @@ class Theme
 			$current_action = 'signup';
 		} elseif (Utils::$context['current_action'] == 'login2' || (User::$me->is_guest && Utils::$context['current_action'] == 'reminder')) {
 			$current_action = 'login';
-		} elseif (Utils::$context['current_action'] == 'groups' && Utils::$context['allow_moderation_center'] && User::$me->mod_cache['gq'] != '0=1') {
-			$current_action = 'moderate';
 		}
 
 		// There are certain exceptions to the above where we don't want anything on the menu highlighted.
@@ -1331,7 +1291,9 @@ class Theme
 			}
 		}
 
-		header('content-type: text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html') . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+		$content_type = Forum::getCurrentAction()?->getOutputType()->getMimeType() ?? 'text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html');
+
+		header('Content-Type: ' . $content_type . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 
 		// We need to splice this in after the body layer.
 		if (Utils::$context['in_maintenance'] && User::$me->is_admin) {
@@ -1856,75 +1818,6 @@ class Theme
 	}
 
 	/**
-	 * Sets an option via JavaScript.
-	 * - sets a theme option without outputting anything.
-	 * - can be used with JavaScript, via a dummy image... (which doesn't require
-	 * the page to reload.)
-	 * - requires someone who is logged in.
-	 * - accessed via ?action=jsoption;var=variable;val=value;session_var=sess_id.
-	 * - does not log access to the Who's Online log. (in index.php..)
-	 */
-	public static function setJavaScript(): void
-	{
-		// Check the session id.
-		User::$me->checkSession('get');
-
-		if (!isset(self::$current)) {
-			self::load();
-		}
-
-		// This good-for-nothing pixel is being used to keep the session alive.
-		if (empty($_GET['var']) || !isset($_GET['val'])) {
-			Utils::redirectexit(self::$current->settings['images_url'] . '/blank.png');
-		}
-
-		// Sorry, guests can't go any further than this.
-		if (User::$me->is_guest || User::$me->id == 0) {
-			Utils::obExit(false);
-		}
-
-		// Can't change reserved vars.
-		if (in_array(strtolower($_GET['var']), self::$reservedVars)) {
-			Utils::redirectexit(self::$current->settings['images_url'] . '/blank.png');
-		}
-
-		// Use a specific theme?
-		if (isset($_GET['th']) || isset($_GET['id'])) {
-			// Invalidate the current themes cache too.
-			CacheApi::put('theme_settings-' . self::$current->settings['theme_id'] . ':' . User::$me->id, null, 60);
-
-			self::$current->settings['theme_id'] = isset($_GET['th']) ? (int) $_GET['th'] : (int) $_GET['id'];
-		}
-
-		// If this is the admin preferences the passed value will just be an element of it.
-		if ($_GET['var'] == 'admin_preferences') {
-			self::$current->options['admin_preferences'] = !empty(self::$current->options['admin_preferences']) ? Utils::jsonDecode(self::$current->options['admin_preferences'], true) : [];
-
-			// New thingy...
-			if (isset($_GET['admin_key']) && strlen($_GET['admin_key']) < 5) {
-				self::$current->options['admin_preferences'][$_GET['admin_key']] = $_GET['val'];
-			}
-
-			// Change the value to be something nice,
-			$_GET['val'] = Utils::jsonEncode(self::$current->options['admin_preferences']);
-		}
-
-		// Update the option.
-		Db::$db->insert(
-			'replace',
-			'{db_prefix}themes',
-			['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
-			[self::$current->settings['theme_id'], User::$me->id, $_GET['var'], is_array($_GET['val']) ? implode(',', $_GET['val']) : $_GET['val']],
-			['id_theme', 'id_member', 'variable'],
-		);
-
-		CacheApi::put('theme_settings-' . self::$current->settings['theme_id'] . ':' . User::$me->id, null, 60);
-
-		// Don't output anything...
-		Utils::redirectexit(self::$current->settings['images_url'] . '/blank.png');
-	}
-
-	/**
 	 * Possibly the simplest and best example of how to use the template system.
 	 *
 	 *  - Allows the theme to take care of actions.
@@ -1965,324 +1858,6 @@ class Theme
 		if (isset(self::$current->settings['catch_action']['sub_template'])) {
 			Utils::$context['sub_template'] = self::$current->settings['catch_action']['sub_template'];
 		}
-	}
-
-	/**
-	 * Redirects ?action=theme to the correct location.
-	 */
-	public static function dispatch(): void
-	{
-		// If any sub-action besides 'pick' was requested, redirect to admin.
-		if (!isset($_REQUEST['sa']) || $_REQUEST['sa'] !== 'pick') {
-			Utils::redirectexit('action=admin;area=theme' . (isset($_REQUEST['sa']) ? ';sa=' . $_REQUEST['sa'] : '') . (isset($_REQUEST['u']) ? ';u=' . $_REQUEST['u'] : ''));
-		}
-
-		self::pickTheme();
-	}
-
-	/**
-	 * Shows an interface to allow a member to choose a new theme.
-	 *
-	 * - uses the Themes template. (pick sub template.)
-	 * - accessed with ?action=theme;sa=pick.
-	 */
-	public static function pickTheme(): void
-	{
-		User::$me->kickIfGuest();
-
-		$_REQUEST['u'] = !isset($_REQUEST['u']) ? User::$me->id : (int) $_REQUEST['u'];
-
-		// Only admins can change default values.
-		if (in_array($_REQUEST['u'], [-1, 0])) {
-			User::$me->isAllowedTo('admin_forum');
-		}
-		// Is the ability to change themes enabled overall?
-		elseif (empty(Config::$modSettings['theme_allow'])) {
-			Utils::redirectexit('action=profile;area=theme;u=' . $_REQUEST['u']);
-		}
-		// Does the current user have permission to change themes for the specified user?
-		else {
-			User::$me->isAllowedTo('profile_extra' . ($_REQUEST['u'] === User::$me->id ? '_own' : '_any'));
-		}
-
-		Lang::load('Profile');
-		Lang::load('Themes');
-		Lang::load('ThemeStrings');
-		self::loadTemplate('Themes');
-
-		// Build the link tree.
-		Utils::$context['linktree'][] = [
-			'url' => Config::$scripturl . '?action=theme;sa=pick;u=' . $_REQUEST['u'],
-			'name' => Lang::$txt['theme_pick'],
-		];
-		Utils::$context['default_theme_id'] = Config::$modSettings['theme_default'];
-		$_SESSION['id_theme'] = 0;
-
-		// Have we made a decision, or are we just browsing?
-		if (isset($_POST['save'])) {
-			User::$me->checkSession();
-			SecurityToken::validate('pick-th');
-
-			$id_theme = (int) key($_POST['save']);
-
-			if (isset($_POST['vrt'][$id_theme])) {
-				$variant = $_POST['vrt'][$id_theme];
-			}
-
-			// -1 means we are setting the forum's default theme.
-			if ($_REQUEST['u'] === -1) {
-				Config::updateModSettings(['theme_guests' => $id_theme]);
-				Utils::redirectexit('action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
-			}
-			// 0 means we are resetting everyone's theme.
-			elseif ($_REQUEST['u'] === 0) {
-				User::updateMemberData(null, ['id_theme' => $id_theme]);
-				Utils::redirectexit('action=admin;area=theme;sa=admin;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
-			}
-			// Setting a particular user's theme.
-			elseif (self::canPickTheme($_REQUEST['u'], $id_theme)) {
-				// An identifier of zero means that the user wants the forum default theme.
-				User::updateMemberData($_REQUEST['u'], ['id_theme' => $id_theme]);
-
-				if (!empty($variant)) {
-					// Set the identifier to the forum default.
-					if (isset($id_theme) && $id_theme == 0) {
-						$id_theme = Config::$modSettings['theme_guests'];
-					}
-
-					Db::$db->insert(
-						'replace',
-						'{db_prefix}themes',
-						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
-						[$id_theme, $_REQUEST['u'], 'theme_variant', $variant],
-						['id_theme', 'id_member', 'variable'],
-					);
-					CacheApi::put('theme_settings-' . $id_theme . ':' . $_REQUEST['u'], null, 90);
-
-					if (User::$me->id == $_REQUEST['u']) {
-						$_SESSION['id_variant'] = 0;
-					}
-				}
-
-				Utils::redirectexit('action=profile;area=theme;u=' . $_REQUEST['u']);
-			}
-		}
-
-		// Figure out who the member of the minute is, and what theme they've chosen.
-		Utils::$context['current_member'] = $_REQUEST['u'];
-
-		if (Utils::$context['current_member'] === User::$me->id) {
-			Utils::$context['current_theme'] = User::$me->theme;
-		} else {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_theme
-				FROM {db_prefix}members
-				WHERE id_member = {int:current_member}
-				LIMIT 1',
-				[
-					'current_member' => Utils::$context['current_member'],
-				],
-			);
-			list(Utils::$context['current_theme']) = Db::$db->fetch_row($request);
-			Db::$db->free_result($request);
-		}
-
-		// Get the theme name and descriptions.
-		Utils::$context['available_themes'] = [];
-
-		if (!empty(Config::$modSettings['knownThemes'])) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_theme, variable, value
-				FROM {db_prefix}themes
-				WHERE variable IN ({literal:name}, {literal:theme_url}, {literal:theme_dir}, {literal:images_url}, {literal:disable_user_variant})' . (!User::$me->allowedTo('admin_forum') ? '
-					AND id_theme IN ({array_int:known_themes})' : '') . '
-					AND id_theme != {int:default_theme}
-					AND id_member = {int:no_member}
-					AND id_theme IN ({array_int:enable_themes})',
-				[
-					'default_theme' => 0,
-					'no_member' => 0,
-					'known_themes' => explode(',', Config::$modSettings['knownThemes']),
-					'enable_themes' => explode(',', Config::$modSettings['enableThemes']),
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				if (!isset(Utils::$context['available_themes'][$row['id_theme']])) {
-					Utils::$context['available_themes'][$row['id_theme']] = [
-						'id' => $row['id_theme'],
-						'selected' => Utils::$context['current_theme'] == $row['id_theme'],
-						'num_users' => 0,
-					];
-				}
-				Utils::$context['available_themes'][$row['id_theme']][$row['variable']] = $row['value'];
-			}
-			Db::$db->free_result($request);
-		}
-
-		// Okay, this is a complicated problem: the default theme is 1, but they aren't allowed to access 1!
-		if (!isset(Utils::$context['available_themes'][Config::$modSettings['theme_guests']])) {
-			Utils::$context['available_themes'][0] = [
-				'num_users' => 0,
-			];
-			$guest_theme = 0;
-		} else {
-			$guest_theme = Config::$modSettings['theme_guests'];
-		}
-
-		$request = Db::$db->query(
-			'',
-			'SELECT id_theme, COUNT(*) AS the_count
-			FROM {db_prefix}members
-			GROUP BY id_theme
-			ORDER BY id_theme DESC',
-			[
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			// Figure out which theme it is they are REALLY using.
-			if (!empty(Config::$modSettings['knownThemes']) && !in_array($row['id_theme'], explode(',', Config::$modSettings['knownThemes']))) {
-				$row['id_theme'] = $guest_theme;
-			} elseif (empty(Config::$modSettings['theme_allow'])) {
-				$row['id_theme'] = $guest_theme;
-			}
-
-			if (isset(Utils::$context['available_themes'][$row['id_theme']])) {
-				Utils::$context['available_themes'][$row['id_theme']]['num_users'] += $row['the_count'];
-			} else {
-				Utils::$context['available_themes'][$guest_theme]['num_users'] += $row['the_count'];
-			}
-		}
-		Db::$db->free_result($request);
-
-		// Get any member variant preferences.
-		$variant_preferences = [];
-
-		if (Utils::$context['current_member'] > 0) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_theme, value
-				FROM {db_prefix}themes
-				WHERE variable = {string:theme_variant}
-					AND id_member IN ({array_int:id_member})
-				ORDER BY id_member ASC',
-				[
-					'theme_variant' => 'theme_variant',
-					'id_member' => isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'pick' ? [-1, Utils::$context['current_member']] : [-1],
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$variant_preferences[$row['id_theme']] = $row['value'];
-			}
-			Db::$db->free_result($request);
-		}
-
-		// Save the setting first.
-		$current_images_url = self::$current->settings['images_url'];
-		$current_theme_variants = !empty(self::$current->settings['theme_variants']) ? self::$current->settings['theme_variants'] : [];
-
-		$current_lang_dirs = Lang::$dirs;
-		$current_thumbnail = Lang::$txt['theme_thumbnail_href'];
-		$current_description = Lang::$txt['theme_description'];
-
-		foreach (Utils::$context['available_themes'] as $id_theme => $theme_data) {
-			// Don't try to load the forum or board default theme's data... it doesn't have any!
-			if ($id_theme == 0) {
-				continue;
-			}
-
-			// The thumbnail needs the correct path.
-			self::$current->settings['images_url'] = &$theme_data['images_url'];
-
-			Lang::addDirs([$theme_data['theme_dir'] . '/languages']);
-			Lang::load('Settings', '', false, true);
-
-			if (empty(Lang::$txt['theme_thumbnail_href'])) {
-				Lang::$txt['theme_thumbnail_href'] = $theme_data['images_url'] . '/thumbnail.png';
-			}
-
-			if (empty(Lang::$txt['theme_description'])) {
-				Lang::$txt['theme_description'] = '';
-			}
-
-			Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Lang::getTxt('theme_thumbnail_href', self::$current->settings);
-
-			Utils::$context['available_themes'][$id_theme]['description'] = Lang::$txt['theme_description'];
-
-			// Are there any variants?
-			Utils::$context['available_themes'][$id_theme]['variants'] = [];
-
-			if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || User::$me->allowedTo('admin_forum'))) {
-				$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
-
-				if (preg_match('~((?:SMF\\\\)?Theme::\$current(?:->|_)|\$)settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches)) {
-					self::$current->settings['theme_variants'] = [];
-
-					// Fill settings up.
-					eval(($matches[1] === '$' ? 'global $settings; ' : 'use SMF\\Theme; ') . $matches[0]);
-
-					if (!empty(self::$current->settings['theme_variants'])) {
-						foreach (self::$current->settings['theme_variants'] as $variant) {
-							Utils::$context['available_themes'][$id_theme]['variants'][$variant] = [
-								'label' => Lang::$txt['variant_' . $variant] ?? $variant,
-								'thumbnail' => file_exists($theme_data['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $theme_data['images_url'] . '/thumbnail_' . $variant . '.png' : (file_exists($theme_data['theme_dir'] . '/images/thumbnail.png') ? $theme_data['images_url'] . '/thumbnail.png' : ''),
-							];
-						}
-
-						Utils::$context['available_themes'][$id_theme]['selected_variant'] = $_GET['vrt'] ?? (!empty($variant_preferences[$id_theme]) ? $variant_preferences[$id_theme] : (!empty(self::$current->settings['default_variant']) ? self::$current->settings['default_variant'] : self::$current->settings['theme_variants'][0]));
-
-						if (!isset(Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'])) {
-							Utils::$context['available_themes'][$id_theme]['selected_variant'] = self::$current->settings['theme_variants'][0];
-						}
-
-						Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'];
-
-						// Allow themes to override the text.
-						Utils::$context['available_themes'][$id_theme]['pick_label'] = Lang::$txt['variant_pick'] ?? Lang::$txt['theme_pick_variant'];
-					}
-				}
-			}
-
-			// Restore language stuff.
-			Lang::$dirs = $current_lang_dirs;
-			Lang::$txt['theme_thumbnail_href'] = $current_thumbnail;
-			Lang::$txt['theme_description'] = $current_description;
-		}
-
-		self::addJavaScriptVar(
-			'oThemeVariants',
-			Utils::jsonEncode(array_map(
-				function ($theme) {
-					return $theme['variants'];
-				},
-				Utils::$context['available_themes'],
-			)),
-		);
-		self::loadJavaScriptFile('profile.js', ['defer' => false, 'minimize' => true], 'smf_profile');
-		self::$current->settings['images_url'] = $current_images_url;
-		self::$current->settings['theme_variants'] = $current_theme_variants;
-
-		// As long as we're not doing the default theme...
-		if ($_REQUEST['u'] >= 0) {
-			if ($guest_theme != 0) {
-				Utils::$context['available_themes'][0] = Utils::$context['available_themes'][$guest_theme];
-			}
-
-			Utils::$context['available_themes'][0]['id'] = 0;
-			Utils::$context['available_themes'][0]['name'] = Lang::$txt['theme_forum_default'];
-			Utils::$context['available_themes'][0]['selected'] = Utils::$context['current_theme'] == 0;
-			Utils::$context['available_themes'][0]['description'] = Lang::$txt['theme_global_description'];
-		}
-
-		ksort(Utils::$context['available_themes']);
-
-		Utils::$context['page_title'] = Lang::$txt['theme_pick'];
-		Utils::$context['sub_template'] = 'pick';
-		SecurityToken::create('pick-th');
 	}
 
 	/******************
@@ -2525,7 +2100,7 @@ class Theme
 		// 4a. View or accept the agreement and/or policy
 		// 4b. Login or logout
 		// 4c. Get a feed (RSS, ATOM, etc.)
-		if (!empty(User::$me->id) && empty(User::$me->is_admin) && SMF != 'SSI' && !isset($_REQUEST['xml']) && !QueryString::isFilteredRequest($this->agreement_actions, 'action')) {
+		if (!empty(User::$me->id) && empty(User::$me->is_admin) && SMF != 'SSI' && !isset($_REQUEST['xml']) && Forum::getCurrentAction()?->isAgreementAction() !== true) {
 			$can_accept_agreement = !empty(Config::$modSettings['requireAgreement']) && Agreement::canRequireAgreement();
 
 			$can_accept_privacy_policy = !empty(Config::$modSettings['requirePolicyAgreement']) && Agreement::canRequirePrivacyPolicy();
@@ -2661,13 +2236,14 @@ class Theme
 		// This allows sticking some HTML on the page output - useful for controls.
 		Utils::$context['insert_after_template'] = '';
 
+		// Deprecated: Implement ActionInterface::isSimpleAction() instead of this hook.
 		IntegrationHook::call('integrate_simple_actions', [&$this->simpleActions, &$this->simpleAreas, &$this->simpleSubActions, &$this->extraParams, &$this->xmlActions]);
 
 		Utils::$context['simple_action'] = (
-			in_array(Utils::$context['current_action'], $this->simpleActions)
+			(Forum::getCurrentAction())?->isSimpleAction() === true
+			|| in_array(Utils::$context['current_action'], $this->simpleActions)
 			|| (
 				isset($this->simpleAreas[Utils::$context['current_action']], $_REQUEST['area'])
-
 				&& in_array($_REQUEST['area'], $this->simpleAreas[Utils::$context['current_action']])
 			)
 			|| (
@@ -2677,24 +2253,27 @@ class Theme
 		);
 
 		// See if there is any extra param to check.
-		$requiresXML = false;
+		$requires_xml = false;
 
 		foreach ($this->extraParams as $key => $extra) {
 			if (isset($_REQUEST[$extra])) {
-				$requiresXML = true;
+				$requires_xml = true;
+
+				break;
 			}
 		}
 
 		// Output is fully XML, so no need for the index template.
-		if (isset($_REQUEST['xml']) && (in_array(Utils::$context['current_action'], $this->xmlActions) || $requiresXML)) {
-			Lang::load('General+Modifications+ThemeStrings');
+		if (isset($_REQUEST['xml']) && (in_array(Utils::$context['current_action'], $this->xmlActions) || $requires_xml)) {
 			self::loadTemplate('Xml');
 			Utils::$context['template_layers'] = [];
 		}
 
+		// Attempt to load language files.
+		Lang::load('General+ThemeStrings+Modifications', '', false);
+
 		// These actions don't require the index template at all.
-		elseif (!empty(Utils::$context['simple_action'])) {
-			Lang::load('General+Modifications+ThemeStrings');
+		if (!empty(Utils::$context['simple_action'])) {
 			Utils::$context['template_layers'] = [];
 		} else {
 			// Custom templates to load, or just default?
@@ -2708,9 +2287,6 @@ class Theme
 			foreach ($templates as $template) {
 				self::loadTemplate($template);
 			}
-
-			// ...and attempt to load their associated language files.
-			Lang::load('General+ThemeStrings+Modifications', '', false);
 
 			// Custom template layers?
 			if (isset($this->settings['theme_layers'])) {
@@ -2905,43 +2481,6 @@ class Theme
 	/*************************
 	 * Internal static methods
 	 *************************/
-
-	/**
-	 * Determines if a user can change their theme to the one specified.
-	 *
-	 * @param int $id_member
-	 * @param int $id_theme
-	 * @return bool
-	 */
-	protected static function canPickTheme(int $id_member, int $id_theme): bool
-	{
-		return
-			// The selected theme is enabled.
-			(
-				in_array($id_theme, explode(',', Config::$modSettings['enableThemes']))
-				|| $id_theme == 0
-			)
-			// And...
-			&& (
-				// Current user is an admin.
-				User::$me->allowedTo('admin_forum')
-				// Or...
-				|| (
-					// The option to choose themes is enabled.
-					!empty(Config::$modSettings['theme_allow'])
-					// And current user is allowed to change profile extras of the specified user.
-					&& User::$me->allowedTo(User::$me->id == $id_member ? 'profile_extra_own' : 'profile_extra_any')
-					// And the selected theme is known. (0 means forum default.)
-					&& in_array(
-						$id_theme,
-						array_merge(
-							[0],
-							explode(',', Config::$modSettings['knownThemes']),
-						),
-					)
-				)
-			);
-	}
 
 	/**
 	 * Load the template/language file using require

@@ -203,17 +203,17 @@ class PageIndex implements \Stringable
 	 * @param bool $show_prevnext Whether the Previous and Next links should be
 	 *    shown. Default: true.
 	 * @param array $template_overrides Array of template strings to override defaults.
-	 *    Supported keys: extra_before, previous_page, current_page, page, 
+	 *    Supported keys: extra_before, previous_page, current_page, page,
 	 *    expand_pages, next_page, extra_after.
 	 */
 	public function __construct(
-		string $base_url, 
-		int &$start, 
-		int $max_value, 
-		int $num_per_page, 
-		bool $short_format = false, 
+		string $base_url,
+		int &$start,
+		int $max_value,
+		int $num_per_page,
+		bool $short_format = false,
 		bool $show_prevnext = true,
-		array $template_overrides = []
+		array $template_overrides = [],
 	) {
 		$this->base_url = $base_url;
 		$this->max_value = $max_value;
@@ -243,7 +243,7 @@ class PageIndex implements \Stringable
 	 * Sets template overrides.
 	 *
 	 * @param array $template_overrides Array of template strings to override defaults.
-	 *    Supported keys: extra_before, previous_page, current_page, page, 
+	 *    Supported keys: extra_before, previous_page, current_page, page,
 	 *    expand_pages, next_page, extra_after.
 	 */
 	public function setTemplateOverrides(array $template_overrides = []): void
@@ -316,18 +316,18 @@ class PageIndex implements \Stringable
 	 * @param bool $show_prevnext Whether the Previous and Next links should be
 	 *    shown. Default: true.
 	 * @param array $template_overrides Array of template strings to override defaults.
-	 *    Supported keys: extra_before, previous_page, current_page, page, 
+	 *    Supported keys: extra_before, previous_page, current_page, page,
 	 *    expand_pages, next_page, extra_after.
 	 * @return self An instance of this class.
 	 */
 	public static function load(
-		string $base_url, 
-		int &$start, 
-		int $max_value, 
-		int $num_per_page, 
-		bool $short_format = false, 
+		string $base_url,
+		int &$start,
+		int $max_value,
+		int $num_per_page,
+		bool $short_format = false,
 		bool $show_prevnext = true,
-		array $template_overrides = []
+		array $template_overrides = [],
 	): self {
 		return new self($base_url, $start, $max_value, $num_per_page, $short_format, $show_prevnext, $template_overrides);
 	}

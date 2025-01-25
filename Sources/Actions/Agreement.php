@@ -38,6 +38,11 @@ class Agreement implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isAgreementAction(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Shows the registration agreement and privacy policy.
 	 *

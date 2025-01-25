@@ -25,6 +25,8 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\PersonalMessage\{
 	Conversation,
 	DraftPM,
@@ -261,6 +263,26 @@ class PersonalMessage implements ActionInterface
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return isset($_GET['sa']) && $_GET['sa'] != 'popup';
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_GET['sa']) && $_GET['sa'] == 'popup' || isset($_REQUEST['preview']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['preview']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return isset($_GET['sa']) && $_GET['sa'] == 'popup';
+	}
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
@@ -721,10 +743,7 @@ class PersonalMessage implements ActionInterface
 	protected function __construct()
 	{
 		Lang::load('PersonalMessage+Drafts');
-
-		if (!isset($_REQUEST['xml'])) {
-			Theme::loadTemplate('PersonalMessage');
-		}
+		Theme::loadTemplate(isset($_REQUEST['xml']) ? 'Xml' : 'PersonalMessage');
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];

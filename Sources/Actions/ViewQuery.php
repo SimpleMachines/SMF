@@ -38,6 +38,16 @@ class ViewQuery implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Show the database queries for debugging.
 	 *

@@ -314,7 +314,8 @@ class Registration implements ActionInterface
 			// Make sure there are no creepy-crawlies in it.
 			$policy_text = Utils::normalizeSpaces(Utils::htmlspecialchars($_POST['policy']));
 
-			$policy_updated_lang = Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']] ??
+			$policy_updated_lang = Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']] ?? 0;
+
 			$policy_settings = [
 				'policy_' . Utils::$context['current_policy_lang'] => $policy_text,
 			];

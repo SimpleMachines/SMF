@@ -32,6 +32,16 @@ class SmStats implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
 	/**
 	 * Sends stats to simplemachines.org when requested, but only if enabled!
 	 *

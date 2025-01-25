@@ -611,11 +611,11 @@ function template_group_members()
 	echo '
 						<th class="last_active"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=active', Utils::$context['sort_by'] == 'active' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['membergroups_members_last_active'], Utils::$context['sort_by'] == 'active' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
 						<th class="date_registered"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=registered', Utils::$context['sort_by'] == 'registered' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['date_registered'], Utils::$context['sort_by'] == 'registered' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
-						<th class="posts"', empty(Utils::$context['group']['assignable']) ? ' colspan="2"' : '', '>
+						<th class="posts"', empty(Utils::$context['can_add_remove']) ? ' colspan="2"' : '', '>
 							<a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=posts', Utils::$context['sort_by'] == 'posts' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['posts'], Utils::$context['sort_by'] == 'posts' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 						</th>';
 
-	if (!empty(Utils::$context['group']['assignable']))
+	if (!empty(Utils::$context['can_add_remove']))
 		echo '
 						<th class="quick_moderation" style="width: 4%"><input type="checkbox" onclick="invertAll(this, this.form);"></th>';
 
@@ -645,9 +645,9 @@ function template_group_members()
 		echo '
 						<td class="last_active">', $member['last_login'], '</td>
 						<td class="date_registered">', $member['registered'], '</td>
-						<td class="posts"', empty(Utils::$context['group']['assignable']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
+						<td class="posts"', empty(Utils::$context['can_add_remove']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
 
-		if (!empty(Utils::$context['group']['assignable']))
+		if (!empty(Utils::$context['can_add_remove']))
 			echo '
 						<td class="quick_moderation" style="width: 4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" ', (User::$me->id == $member['id'] && Utils::$context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . Lang::$txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
 
@@ -659,7 +659,7 @@ function template_group_members()
 				</tbody>
 			</table>';
 
-	if (!empty(Utils::$context['group']['assignable']))
+	if (!empty(Utils::$context['can_add_remove']))
 		echo '
 			<div class="floatright">
 				<input type="submit" name="remove" value="', Lang::$txt['membergroups_members_remove'], '" class="button ">
@@ -671,7 +671,7 @@ function template_group_members()
 			</div>
 			<br>';
 
-	if (!empty(Utils::$context['group']['assignable']))
+	if (!empty(Utils::$context['can_add_remove']))
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['membergroups_members_add_title'], '</h3>
@@ -694,7 +694,7 @@ function template_group_members()
 			<input type="hidden" name="', Utils::$context['mod-mgm_token_var'], '" value="', Utils::$context['mod-mgm_token'], '">
 		</form>';
 
-	if (!empty(Utils::$context['group']['assignable']))
+	if (!empty(Utils::$context['can_add_remove']))
 		echo '
 	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({

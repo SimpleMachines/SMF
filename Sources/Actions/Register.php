@@ -20,6 +20,8 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\Profile;
 use SMF\SecurityToken;
@@ -70,6 +72,21 @@ class Register implements ActionInterface
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_GET['sa']) && $_GET['sa'] == 'usernamecheck';
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_GET['sa']) && $_GET['sa'] == 'usernamecheck' ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
