@@ -1928,8 +1928,6 @@ class Features implements ActionInterface
 				'profile' => [
 					'description' => Lang::$txt['custom_profile_desc'],
 				],
-				'likes' => [
-				],
 				'mentions' => [
 				],
 				'alerts' => [
