@@ -1,6 +1,6 @@
 <?php
 
-// Version 3.0 Alpha 1; ManageReactions
+// Version 3.0 Alpha 2; ManageReactions
 $txt['reactions'] = 'Reactions';
 $txt['no_reactions'] = 'No reactions yet.';
 $txt['reactions_name'] = 'Reaction Name';
