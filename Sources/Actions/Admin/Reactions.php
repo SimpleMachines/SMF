@@ -339,7 +339,7 @@ class Reactions implements ActionInterface
 
 		new ItemList($listOptions);
 
-		Utils::$context['page_title'] = Lang::$txt['reactions_manage'];
+		Utils::$context['page_title'] = Lang::$txt['manage_reactions'];
 		Utils::$context['sub_template'] = 'show_list';
 		Utils::$context['default_list'] = 'reactions_list';
 	}
