@@ -215,7 +215,7 @@ class Forum
 		],
 		'reacts' => [
 			'', Actions\React::class,
-		]
+		],
 		'recent' => [
 			'', Actions\Recent::class,
 		],
