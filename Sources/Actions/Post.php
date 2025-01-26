@@ -352,10 +352,12 @@ class Post implements ActionInterface, Routable
 
 		// Load the drafts.js file
 		if (Utils::$context['drafts_autosave']) {
-			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
+			Theme::loadJavaScriptFile('sceditor.plugins.drafts.js', ['defer' => true, 'minimize' => true], 'smf_drafts');
 		}
 
+		Theme::loadCSSFile('attachments.css', ['minimize' => true, 'order_pos' => 450], 'smf_attachments');
 		Theme::loadJavaScriptFile('post.js', ['defer' => true, 'minimize' => true], 'smf_post');
+		Theme::loadJavaScriptFile('sceditor.plugins.quote-fast.js', ['defer' => true, 'minimize' => true], 'smf_quote_fast');
 		Theme::loadJavaScriptFile('quotedText.js', ['defer' => true, 'minimize' => true], 'smf_quotedText');
 
 		// Knowing the current board ID might be handy.
@@ -1607,50 +1609,6 @@ class Post implements ActionInterface, Routable
 		});');
 			}
 		}
-
-		// File Upload.
-		if (Utils::$context['can_post_attachment']) {
-			$acceptedFiles = empty(Utils::$context['allowed_extensions']) ? '' : implode(',', array_map(
-				function ($val) {
-					return !empty($val) ? ('.' . Utils::htmlTrim($val)) : '';
-				},
-				explode(',', Utils::$context['allowed_extensions']),
-			));
-
-			Theme::loadJavaScriptFile('dropzone.min.js', ['defer' => true], 'smf_dropzone');
-			Theme::loadJavaScriptFile('smf_fileUpload.js', ['defer' => true, 'minimize' => true], 'smf_fileUpload');
-			Theme::addInlineJavaScript('
-		$(function() {
-			smf_fileUpload({
-				dictDefaultMessage : ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone', file: 'Post')) . ',
-				dictFallbackMessage : ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone_no', file: 'Post')) . ',
-				dictCancelUpload : ' . Utils::escapeJavaScript(Lang::getTxt('modify_cancel', file: 'General')) . ',
-				genericError: ' . Utils::escapeJavaScript(Lang::getTxt('attach_php_error', file: 'Post')) . ',
-				text_attachDropzoneLabel: ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone', file: 'Post')) . ',
-				text_attachLimitNag: ' . Utils::escapeJavaScript(Lang::getTxt('attach_limit_nag', file: 'Post')) . ',
-				text_attachLeft: ' . Utils::escapeJavaScript(Lang::getTxt('attachments_left', file: 'Post')) . ',
-				text_deleteAttach: ' . Utils::escapeJavaScript(Lang::getTxt('attached_file_delete', file: 'Post')) . ',
-				text_attachDeleted: ' . Utils::escapeJavaScript(Lang::getTxt('attached_file_deleted', file: 'Post')) . ',
-				text_insertBBC: ' . Utils::escapeJavaScript(Lang::getTxt('attached_insert_bbc', file: 'Post')) . ',
-				text_attachUploaded: ' . Utils::escapeJavaScript(Lang::getTxt('attached_file_uploaded', file: 'Post')) . ',
-				text_attach_unlimited: ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_unlimited', file: 'Post')) . ',
-				text_totalMaxSize: ' . Utils::escapeJavaScript(Lang::getTxt('attach_max_total_file_size_current', file: 'Post')) . ',
-				text_max_size_progress: ' . Utils::escapeJavaScript('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::getTxt('megabyte', file: 'General') : Lang::getTxt('kilobyte', file: 'General')) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::getTxt('megabyte', file: 'General') : Lang::getTxt('kilobyte', file: 'General'))) . ',
-				dictMaxFilesExceeded: ' . Utils::escapeJavaScript(Lang::getTxt('more_attachments_error', file: 'Post')) . ',
-				dictInvalidFileType: ' . Utils::escapeJavaScript(Lang::getTxt('cant_upload_type', Utils::$context, file: 'Post')) . ',
-				dictFileTooBig: ' . Utils::escapeJavaScript(Lang::getTxt('file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)], file: 'Post')) . ',
-				acceptedFiles: ' . Utils::escapeJavaScript($acceptedFiles) . ',
-				thumbnailWidth: ' . (!empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 'null') . ',
-				thumbnailHeight: ' . (!empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 'null') . ',
-				limitMultiFileUploadSize:' . round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
-				maxFileAmount: ' . (!empty(Utils::$context['num_allowed_attachments']) ? Utils::$context['num_allowed_attachments'] : 'null') . ',
-				maxTotalSize: ' . (!empty(Config::$modSettings['attachmentPostLimit']) ? Config::$modSettings['attachmentPostLimit'] : '0') . ',
-				maxFilesize: ' . (!empty(Config::$modSettings['attachmentSizeLimit']) ? Config::$modSettings['attachmentSizeLimit'] : '0') . ',
-			});
-		});', true);
-		}
-
-		Theme::loadCSSFile('attachments.css', ['minimize' => true, 'order_pos' => 450], 'smf_attachments');
 	}
 
 	/**
@@ -1782,11 +1740,78 @@ class Post implements ActionInterface, Routable
 			// This is a required field.
 			'required' => true,
 			// SCEditor plugins.
-			'plugins' => [],
+			'plugins' => ['quoteFast', 'messagePreview'],
+			// SCEditor options.
+			'options' => [
+				'quoteFastOptions' => [
+					'sPostContainerId' => 'recent',
+					'sQuickButtonsSelector' => '.quickbuttons',
+					'iChildNum' => 1,
+					'sJumpAnchor' => 'postmodify',
+				],
+			],
 		];
 
 		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention')) {
 			$editorOptions['plugins'][] = 'mentions';
+		}
+
+		if (Utils::$context['drafts_autosave']) {
+			$editorOptions['plugins'][] = 'drafts';
+			$editorOptions['plugins'][] = 'messageDrafts';
+			$editorOptions['options']['draftOptions'] = [
+				'sLastNote' => 'draft_lastautosave',
+				'sLastID' => 'id_draft',
+				'sQueryParams' => 'action=post2;board=' . Utils::$context['current_board'],
+				'iFreq' => empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000,
+			];
+		}
+
+		if (Utils::$context['can_post_attachment']) {
+			Theme::loadJavaScriptFile('dropzone.min.js', ['defer' => true], 'smf_dropzone');
+			Theme::loadJavaScriptFile('smf_fileUpload.js', ['defer' => true, 'minimize' => true], 'smf_fileUpload');
+
+			$editorOptions['plugins'][] = 'fileUpload';
+			$editorOptions['options']['fileUploadOptions'] = [
+				'dictDefaultMessage' => Lang::$txt['attach_drop_zone'],
+				'dictFallbackMessage' => Lang::$txt['attach_drop_zone_no'],
+				'dictCancelUpload' => Lang::$txt['modify_cancel'],
+				'genericError' => Lang::$txt['attach_php_error'],
+				'text_attachDropzoneLabel' => Lang::$txt['attach_drop_zone'],
+				'text_attachLimitNag' => Lang::$txt['attach_limit_nag'],
+				'text_attachLeft' => Lang::$txt['attachments_left'],
+				'text_deleteAttach' => Lang::$txt['attached_file_delete'],
+				'text_attachDeleted' => Lang::$txt['attached_file_deleted'],
+				'text_insertBBC' => Lang::$txt['attached_insert_bbc'],
+				'text_attachUploaded' => Lang::$txt['attached_file_uploaded'],
+				'text_attach_unlimited' => Lang::$txt['attach_drop_unlimited'],
+				'text_totalMaxSize' => Lang::$txt['attach_max_total_file_size_current'],
+				'text_max_size_progress' => '{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']),
+				'dictMaxFilesExceeded' => Lang::$txt['more_attachments_error'],
+				'dictInvalidFileType' => Lang::getTxt('cant_upload_type', Utils::$context),
+				'dictFileTooBig' => Lang::getTxt(
+					'file_too_big',
+					[Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)],
+				),
+				'acceptedFiles' => implode(
+					',',
+					array_map(
+						fn($val) => !empty($val) ? ('.' . Utils::htmlTrim($val)) : '',
+						explode(',', Utils::$context['allowed_extensions']),
+					),
+				),
+				'thumbnailWidth' => !empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : null,
+				'thumbnailHeight' => !empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : null,
+				'limitMultiFileUploadSize' => round(
+					max(
+						Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024),
+						0,
+					),
+				) * 1024,
+				'maxFileAmount' => !empty(Utils::$context['num_allowed_attachments']) ? Utils::$context['num_allowed_attachments'] : null,
+				'maxTotalSize' => !empty(Config::$modSettings['attachmentPostLimit']) ? Config::$modSettings['attachmentPostLimit'] : 0,
+				'maxFilesize' => !empty(Config::$modSettings['attachmentSizeLimit']) ? Config::$modSettings['attachmentSizeLimit'] : 0,
+			];
 		}
 
 		new Editor($editorOptions);

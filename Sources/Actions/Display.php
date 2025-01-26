@@ -209,7 +209,6 @@ class Display implements ActionInterface, Routable
 			'quote' => [
 				'label' => Lang::getTxt('quote_action', file: 'General'),
 				'href' => Config::$scripturl . '?action=post;quote=' . $output['id'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';last_msg=' . Topic::$info->id_last_msg,
-				'javascript' => 'onclick="return oQuickReply.quote(' . $output['id'] . ');"',
 				'icon' => 'quote',
 				'show' => Utils::$context['can_quote'],
 			],
@@ -1089,7 +1088,7 @@ class Display implements ActionInterface, Routable
 
 		// Load the drafts js file.
 		if (!empty(Topic::$info->permissions['drafts_autosave'])) {
-			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
+			Theme::loadJavaScriptFile('sceditor.plugins.drafts.js', ['defer' => true, 'minimize' => true], 'smf_drafts');
 		}
 
 		// Spellcheck
@@ -1097,10 +1096,8 @@ class Display implements ActionInterface, Routable
 			Theme::loadJavaScriptFile('spellcheck.js', ['defer' => false, 'minimize' => true], 'smf_spellcheck');
 		}
 
-		// topic.js
 		Theme::loadJavaScriptFile('topic.js', ['defer' => true, 'minimize' => true], 'smf_topic');
-
-		// quotedText.js
+		Theme::loadJavaScriptFile('sceditor.plugins.quote-fast.js', ['defer' => true, 'minimize' => true], 'smf_quote_fast');
 		Theme::loadJavaScriptFile('quotedText.js', ['defer' => true, 'minimize' => true], 'smf_quotedText');
 
 		// Mentions
@@ -1326,11 +1323,31 @@ class Display implements ActionInterface, Routable
 			// This is a required field.
 			'required' => true,
 			// SCEditor plugins.
-			'plugins' => [],
+			'plugins' => ['quoteFast'],
+			// SCEditor options.
+			'options' => [
+				'quoteFastOptions' => [
+					'sPostContainerId' => 'forumposts',
+					'sQuickButtonsSelector' => '.quickbuttons',
+					'iChildNum' => 0,
+					'sJumpAnchor' => 'quickreply_anchor',
+				],
+			],
 		];
 
 		if (!empty(Config::$modSettings['enable_mentions']) && User::$me->allowedTo('mention')) {
 			$editorOptions['plugins'][] = 'mentions';
+		}
+
+		if (!empty(Topic::$info->permissions['drafts_autosave'])) {
+			$editorOptions['plugins'][] = 'drafts';
+			$editorOptions['plugins'][] = 'messageDrafts';
+			$editorOptions['options']['draftOptions'] = [
+				'sLastNote' => 'draft_lastautosave',
+				'sLastID' => 'id_draft',
+				'sQueryParams' => 'action=post2;board=' . Utils::$context['current_board'],
+				'iFreq' => empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000,
+			];
 		}
 
 		new Editor($editorOptions);

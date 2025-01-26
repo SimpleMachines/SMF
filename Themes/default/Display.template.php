@@ -207,8 +207,8 @@ function template_main()
 
 	// Show the topic information - icon, subject, etc.
 	echo '
-		<div id="forumposts">
-			<form action="', Config::$scripturl, '?action=quickmod2;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="UTF-8" id="quickModForm">';
+		<form action="', Config::$scripturl, '?action=quickmod2;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="UTF-8" id="quickModForm">
+			<div id="forumposts">';
 
 	Utils::$context['ignoredMsgs'] = array();
 	Utils::$context['removableMessageIDs'] = array();
@@ -218,8 +218,8 @@ function template_main()
 		template_single_post($message);
 
 	echo '
-			</form>
-		</div><!-- #forumposts -->';
+			</div><!-- #forumposts -->
+		</form>';
 
 	// Show the page index... "Pages: [1]".
 	echo '
@@ -947,45 +947,11 @@ function template_quickreply()
 		</div><!-- #quickreply -->
 		<br class="clear">';
 
-	// Draft autosave available and the user has it enabled?
-	if (!empty(Utils::$context['drafts_autosave']))
-		echo '
-		<script>
-			var oDraftAutoSave = new smf_DraftAutoSave({
-				sLastNote: \'draft_lastautosave\',
-				sLastID: \'id_draft\',', !empty(Utils::$context['post_box_name']) ? '
-				sSceditorID: \'' . Utils::$context['post_box_name'] . '\',' : '', '
-				sType: \'', 'quick', '\',
-				iBoard: ', (empty(Utils::$context['current_board']) ? 0 : Utils::$context['current_board']), ',
-				iFreq: ', (empty(Config::$modSettings['masterAutoSaveDraftsDelay']) ? 60000 : Config::$modSettings['masterAutoSaveDraftsDelay'] * 1000), '
-			});
-		</script>';
-
 	if (Utils::$context['show_spellchecking'])
 		echo '
 		<form action="', Config::$scripturl, '?action=spellcheck" method="post" accept-charset="UTF-8" name="spell_form" id="spell_form" target="spellWindow">
 			<input type="hidden" name="spellstring" value="">
 		</form>';
-
-	echo '
-		<script>
-			window.addEventListener("DOMContentLoaded", function() {
-				var oQuickReply = new QuickReply({
-					bDefaultCollapsed: false,
-					iTopicId: ', Utils::$context['current_topic'], ',
-					iStart: ', Utils::$context['start'], ',
-					sScriptUrl: smf_scripturl,
-					sImagesUrl: smf_images_url,
-					sContainerId: "quickreply_options",
-					sImageId: "quickReplyExpand",
-					sClassCollapsed: "toggle_up",
-					sClassExpanded: "toggle_down",
-					sJumpAnchor: "quickreply_anchor",
-					bIsFull: true
-				});
-			});
-			var oEditorID = "', Utils::$context['post_box_name'], '";
-		</script>';
 }
 
 ?>

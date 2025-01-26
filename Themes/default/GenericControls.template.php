@@ -42,7 +42,7 @@ function template_control_richedit(string $editor_id, null|bool|string $smiley_c
 		<textarea class="editor" name="', $editor_id, '" id="', $editor_id, '" cols="600" style="width: ', $editor_context['width'], '; height: ', $editor_context['height'], ';', isset(Utils::$context['post_error']['no_message']) || isset(Utils::$context['post_error']['long_message']) ? 'border: 1px solid red;' : '', '"', !empty(Utils::$context['editor']['required']) ? ' required' : '', '>', $editor_context['value'], '</textarea>
 		<script>
 			document.addEventListener("DOMContentLoaded", function () {
-				var textarea = document.getElementById("', $editor_id, '"), options = ', json_encode($editor_context['sce_options'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ';
+				var textarea = document.getElementById("', $editor_id, '"), options = ', $editor_context, ';
 				sceditor.create(textarea, options, ' . Utils::escapeJavaScript($bbc_container) . ', ' . Utils::escapeJavaScript($smiley_container) . ');
 			});
 		</script>';
@@ -90,18 +90,7 @@ function template_control_richedit_buttons(string $editor_id): void
 		<span class="righttext padding" style="display: block">
 			<span id="throbber" style="display:none"><img src="', Theme::$current->settings['images_url'], '/loading_sm.gif" alt="" class="centericon"></span>
 			<span id="draft_lastautosave"></span>
-		</span>
-		<script>
-			var oDraftAutoSave = new smf_DraftAutoSave({
-				sLastNote: \'draft_lastautosave\',
-				sLastID: \'id_draft\',
-				sSceditorID: \'', $editor_id, '\',
-				sType: \'post\',
-				bPM: ', isset(Utils::$context['drafts_type']) && Utils::$context['drafts_type'] === 'pm' ? 'true' : 'false', ',
-				iBoard: ', (Utils::$context['current_board'] ?? 0), ',
-				iFreq: ', Utils::$context['drafts_autosave_frequency'], '
-			});
-		</script>';
+		</span>';
 }
 
 /**

@@ -698,7 +698,7 @@ class Editor implements \ArrayAccess, \Stringable
 		Theme::loadCSSFile('jquery.sceditor.theme.css', ['force_current' => true, 'validate' => true], 'smf_jquery_sceditor_theme');
 
 		Theme::loadJavaScriptFile('jquery.sceditor.bbcode.min.js', [], 'smf_sceditor_bbcode');
-		Theme::loadJavaScriptFile('jquery.sceditor.smf.js', ['minimize' => true], 'smf_sceditor_smf');
+		Theme::loadJavaScriptFile('sceditor.plugins.smf.js', ['minimize' => true], 'smf_sceditor_smf_plugin');
 
 		Theme::addInlineJavaScript(
 			'
@@ -945,6 +945,11 @@ class Editor implements \ArrayAccess, \Stringable
 	{
 		if (!isset($editorOptions['plugins'])) {
 			$editorOptions['plugins'] = [];
+		}
+
+		if ($this->preview_type == self::PREVIEW_XML) {
+			$editorOptions['plugins'][] = 'xmlPreview';
+			Theme::loadJavaScriptFile('sceditor.plugins.xml-preview.js', ['minimize' => true], 'smf_xml_preview');
 		}
 
 		if (!empty(Config::$modSettings['autoLinkUrls']) && empty($editorOptions['disable_url_autolinking'])) {

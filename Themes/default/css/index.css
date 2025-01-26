@@ -3846,16 +3846,6 @@ ul.post_options li {
 #post_settings, #postAttachment, #postAttachment2, #attachment_previews {
 	padding: 10px 0;
 }
-#postAttachment dd, #postAttachment2 dd {
-	margin: 4px 0;
-}
-#postAttachment dd {
-	width: 45%;
-	float: left;
-}
-#postAttachment dt, #postAttachment2 dt {
-	font-weight: bold;
-}
 
 /* Drafts Options/List */
 #post_draft_options {
@@ -4496,69 +4486,6 @@ h3.profile_hd::before,
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-}
-
-.dz-image-preview {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: 12px;
-}
-#attachment_previews {
-    display: none;
-}
-#attachment_previews div.descbox > div,
-#attachment_previews div.errorbox > div,
-#attachment_previews div.infobox > div {
-	padding: 10px;
-}
-#attachment_previews .attach-preview {
-	flex: 0 0 auto;
-	width: 170px;
-}
-#attachment_previews .attachment_info {
-	flex: 1 1 auto;
-	width: 250px;
-}
-#attachment_previews .attach-ui {
-	min-height: 36px;
-	padding: 10px 0;
-	float: right;
-}
-input[name="attachBBC"] {
-	width: 100%;
-	margin-top: 10px;
-}
-.attachment_info .progress_bar, .attachment_info .attached_BBC, a#attach_cancel_all, a#attach_upload_all, .attach-ui {
-	display: none;
-}
-.attachment_info .progress_bar {
-	margin: 6px 0;
-}
-.attached_BBC_width_height label {
-	min-width: 100px;
-	display: inline-block;
-}
-.attached_BBC_width, .attached_BBC_height {
-	margin: 10px 1em 0 0;
-	display: inline-block;
-}
-.attachment_info input[type="number"] {
-	width: 5em;
-}
-#attachment_upload {
-	min-height: 50px;
-}
-#drop_zone_ui {
-	display: none;
-}
-#total_progress {
-	width: 50%;
-	display: none;
-}
-#max_files_progress, #max_files_progress_text {
-	display: none;
 }
 
 /* Two-Factor Auth code container */

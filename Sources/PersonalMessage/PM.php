@@ -595,7 +595,7 @@ class PM implements \ArrayAccess
 		Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 
 		if (Utils::$context['drafts_autosave']) {
-			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
+			Theme::loadJavaScriptFile('sceditor.plugins.drafts.js', ['defer' => true, 'minimize' => true], 'smf_drafts');
 		}
 
 		Utils::$context['sub_template'] = 'send';
@@ -794,7 +794,7 @@ class PM implements \ArrayAccess
 		}
 
 		// Now create the editor.
-		new Editor([
+		$editorOptions = [
 			'id' => 'message',
 			'value' => Utils::$context['message'],
 			'height' => '175px',
@@ -802,9 +802,41 @@ class PM implements \ArrayAccess
 			'labels' => [
 				'post_button' => Lang::getTxt('send_message', file: 'General'),
 			],
+			// We do XML preview here.
 			'preview_type' => Editor::PREVIEW_XML,
+			// This is a required field.
 			'required' => true,
-		]);
+			// SCEditor plugins.
+			'plugins' => [],
+			// SCEditor options.
+			'options' => [
+				'previewOptions' => [
+					'sPreviewSectionContainerID' => 'preview_section',
+					'sPreviewSubjectContainerID' => 'preview_subject',
+					'sPreviewBodyContainerID' => 'preview_body',
+					'sErrorsContainerID' => 'errors',
+					'sErrorsSeriousContainerID' => 'error_serious',
+					'sErrorsListContainerID' => 'error_list',
+					'sCaptionContainerID' => 'caption_%ID%',
+					'sTxtPreviewTitle' => Utils::escapeJavaScript(Lang::$txt['preview_title']),
+					'sTxtPreviewFetch' => Utils::escapeJavaScript(Lang::$txt['preview_fetch']),
+					'sUrl' => Config::$scripturl . '?action=pm;sa=send2;preview;xml',
+				],
+			],
+		];
+
+		if (Utils::$context['drafts_autosave']) {
+			$editorOptions['plugins'][] = 'drafts';
+			$editorOptions['plugins'][] = 'pmDrafts';
+			$editorOptions['options']['draftOptions'] = [
+				'sLastNote' => 'draft_lastautosave',
+				'sLastID' => 'id_draft',
+				'sQueryParams' => 'action=pm;sa=send2;xml',
+				'iFreq' => empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000,
+			];
+		}
+
+		new Editor($editorOptions);
 
 		Utils::$context['bcc_value'] = '';
 
@@ -2180,8 +2212,7 @@ class PM implements \ArrayAccess
 			}
 		}
 
-		// Create it...
-		new Editor([
+		$editorOptions = [
 			'id' => 'message',
 			'value' => Utils::$context['message'],
 			'width' => '90%',
@@ -2189,8 +2220,41 @@ class PM implements \ArrayAccess
 			'labels' => [
 				'post_button' => Lang::getTxt('send_message', file: 'General'),
 			],
+			// We do XML preview here.
 			'preview_type' => Editor::PREVIEW_XML,
-		]);
+			// This is a required field.
+			'required' => true,
+			// SCEditor plugins.
+			'plugins' => [],
+			// SCEditor options.
+			'options' => [
+				'previewOptions' => [
+					'sPreviewSectionContainerID' => 'preview_section',
+					'sPreviewSubjectContainerID' => 'preview_subject',
+					'sPreviewBodyContainerID' => 'preview_body',
+					'sErrorsContainerID' => 'errors',
+					'sErrorsSeriousContainerID' => 'error_serious',
+					'sErrorsListContainerID' => 'error_list',
+					'sCaptionContainerID' => 'caption_%ID%',
+					'sTxtPreviewTitle' => Utils::escapeJavaScript(Lang::$txt['preview_title']),
+					'sTxtPreviewFetch' => Utils::escapeJavaScript(Lang::$txt['preview_fetch']),
+					'sUrl' => Config::$scripturl . '?action=pm;sa=send2;preview;xml',
+				],
+			],
+		];
+
+		if (Utils::$context['drafts_autosave']) {
+			$editorOptions['plugins'][] = 'drafts';
+			$editorOptions['plugins'][] = 'pmDrafts';
+			$editorOptions['options']['draftOptions'] = [
+				'sLastNote' => 'draft_lastautosave',
+				'sLastID' => 'id_draft',
+				'sQueryParams' => 'action=pm;sa=send2;xml',
+				'iFreq' => empty(Config::$modSettings['drafts_autosave_frequency']) ? 60000 : Config::$modSettings['drafts_autosave_frequency'] * 1000,
+			];
+		}
+
+		new Editor($editorOptions);
 
 		// Check whether we need to show the code again.
 		Utils::$context['require_verification'] = !User::$me->is_admin && !empty(Config::$modSettings['pm_posts_verification']) && User::$me->posts < Config::$modSettings['pm_posts_verification'];

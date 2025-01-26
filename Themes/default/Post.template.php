@@ -428,8 +428,7 @@ function template_main()
 
 	$newPostsHTML = '
 		<span id="new_replies"></span>
-		<div class="windowbg">
-			<div id="msg%PostID%">
+		<div class="windowbg" id="msg%PostID%">
 			<h5 class="floatleft">
 				' . Lang::getTxt('posted_by_member_time', ['member' => '%PosterName%', 'time' => '%PostTime%'], file: 'General') . '&nbsp;&#187; <span class="new_posts" id="image_new_%PostID%">' . Lang::getTxt('new', file: 'General') . '</span>
 			</h5>
@@ -440,8 +439,8 @@ function template_main()
 	if (Utils::$context['can_quote'])
 		$newPostsHTML .= '
 			<ul class="quickbuttons sf-js-enabled sf-arrows" id="msg_%PostID%_quote" style="touch-action: pan-y;">
-				<li id="post_modify">
-					<a href="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="main_icons quote"></span>' . Lang::getTxt('quote', file: 'General') . '</a>
+				<li>
+					<a href="#" class="quote_button"><span class="main_icons quote"></span>' . Lang::$txt['quote'] . '</a>
 				</li>
 			</ul>';
 
@@ -552,34 +551,32 @@ function template_main()
 				$ignored_posts[] = $ignoring = $post['id'];
 
 			echo '
-			<div class="windowbg">
-				<div id="msg', $post['id'], '">
-					<div>
-						<h5 class="floatleft">
-							', Lang::getTxt('posted_by_member_time', ['member' => $post['poster'], 'time' => $post['time']], file: 'General'), '
-						</h5>
-					</div>';
+			<div class="windowbg" id="msg', $post['id'], '">
+				<div>
+					<h5 class="floatleft">
+						', Lang::getTxt('posted_by_member_time', ['member' => $post['poster'], 'time' => $post['time']]), '
+					</h5>
+				</div>';
 
 			if ($ignoring)
 				echo '
-					<div id="msg_', $post['id'], '_ignored_prompt" class="smalltext">
-						', Lang::getTxt('ignoring_user', file: 'General'), '
-						<a href="#" id="msg_', $post['id'], '_ignored_link" style="display: none;">', Lang::getTxt('show_ignore_user_post', file: 'General'), '</a>
-					</div>';
+				<div id="msg_', $post['id'], '_ignored_prompt" class="smalltext">
+					', Lang::$txt['ignoring_user'], '
+					<a href="#" id="msg_', $post['id'], '_ignored_link" style="display: none;">', Lang::$txt['show_ignore_user_post'], '</a>
+				</div>';
 
 			echo '
-					<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', Utils::adjustHeadingLevels($post['message'], 5), '</div>';
+				<div class="list_posts smalltext" id="msg_', $post['id'], '_body" data-msgid="', $post['id'], '">', Utils::adjustHeadingLevels($post['message'], 5), '</div>';
 
 			if (Utils::$context['can_quote'])
 				echo '
-					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', Lang::getTxt('quote_selected_action', file: 'General'), '</a></li>
-						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="main_icons quote"></span>', Lang::getTxt('quote', file: 'General'), '</a></li>
-					</ul>';
+				<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
+					<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', Lang::$txt['quote_selected_action'], '</a></li>
+					<li><a href="#"><span class="main_icons quote"></span>', Lang::$txt['quote'], '</a></li>
+				</ul>';
 
 			echo '
-				</div><!-- #msg[id] -->
-			</div><!-- .windowbg -->';
+			</div><!-- #msg[id] -->';
 		}
 
 		echo '
@@ -608,18 +605,6 @@ function template_main()
 		}
 
 		echo '
-			function insertQuoteFast(messageid)
-			{
-				var e = document.getElementById("', Utils::$context['post_box_name'], '");
-				sceditor.instance(e).insertQuoteFast(messageid);
-
-				return true;
-			}
-			function onReceiveOpener(text)
-			{
-				var e = document.getElementById("', Utils::$context['post_box_name'], '");
-				sceditor.instance(e).insert(text);
-			}
 		</script>';
 	}
 }

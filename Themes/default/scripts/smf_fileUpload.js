@@ -1,4 +1,5 @@
 function smf_fileUpload(oOptions) {
+	const editor = this;
 
 	var previewNode = document.querySelector('#au-template');
 		previewNode.id = '';
@@ -199,11 +200,7 @@ function smf_fileUpload(oOptions) {
 						w = _innerElement.find('input[name="attached_BBC_width"]').val();
 						h = _innerElement.find('input[name="attached_BBC_height"]').val();
 
-						// Get the editor stuff.
-						var e = $('#' + oEditorID).get(0);
-						var oEditor = sceditor.instance(e);
-
-						oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h), ' ');
+						editor.insert(myDropzone.options.smf_insertBBC(response, w, h), ' ');
 					})
 					.appendTo(_innerElement.find('.attach-ui'));
 			}
@@ -235,11 +232,7 @@ function smf_fileUpload(oOptions) {
 						w = _innerElement.find('input[name="attached_BBC_width"]').val();
 						h = _innerElement.find('input[name="attached_BBC_height"]').val();
 
-						// Get the editor stuff.
-						var e = $('#' + oEditorID).get(0);
-						var oEditor = sceditor.instance(e);
-
-						oEditor.insert(myDropzone.options.smf_insertBBC(response, w, h), '');
+						editor.insert(myDropzone.options.smf_insertBBC(response, w, h), '');
 
 						attached_BBC_width_height.hide();
 					})
@@ -257,11 +250,7 @@ function smf_fileUpload(oOptions) {
 					.on('click', function (e) {
 						e.preventDefault();
 
-						// Get the editor stuff.
-						var e = $('#' + oEditorID).get(0);
-						var oEditor = sceditor.instance(e);
-
-						oEditor.insert(myDropzone.options.smf_insertBBC(response, null, null), ' ');
+						editor.insert(myDropzone.options.smf_insertBBC(response, null, null), ' ');
 					})
 					.appendTo(_innerElement.find('.attach-ui'));
 			}
@@ -357,11 +346,7 @@ function smf_fileUpload(oOptions) {
 					// Remove BBC from the post text, if present.
 					var attachBbcRegex = new RegExp('\\[attach[^\\]]+id=' + attachmentId + '[^\\]]*\\][^\\[\\]]*\\[/attach\\]', 'g');
 
-					var e = $('#' + oEditorID).get(0);
-					var oEditor = sceditor.instance(e);
-					var newEditorVal = oEditor.val().replace(attachBbcRegex, '');
-
-					oEditor.val(newEditorVal);
+					editor.val(newEditorVal);
 				});
 
 				if (!isNewTemplate)
@@ -670,5 +655,20 @@ function smf_fileUpload(oOptions) {
 			// This file is "completed".
 			myDropzone.emit("complete", mock);
 		});
+	}
+}
+
+if (typeof sceditor !== 'undefined') {
+	sceditor.plugins.fileUpload = function() {
+		let base = this,
+			editor;
+
+		base.init = function () {
+			editor = this;
+		};
+
+		base.signalReady = function() {
+			smf_fileUpload.call(editor, editor.opts.fileUploadOptions);
+		};
 	}
 }
