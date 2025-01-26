@@ -783,8 +783,10 @@ $txt['board_perms_ignore'] = 'Ignore';
 $txt['board_perms_deny'] = 'Deny';
 $txt['all_boards_in_cat'] = 'All boards in this category';
 
+$txt['reactions'] = 'Reactions';
 $txt['reacts_react'] = 'Membergroups allowed to react to posts';
-$txt['reactions_manage'] = 'Reactions';
+$txt['reactions_settings'] = 'Reactions Settings';
+$txt['manage_reactions'] = 'Manage Reactions';
 $txt['manage_reactions_desc'] = 'This area allows you to manage reactions';
 
 $txt['mention'] = 'Membergroups allowed to mention users';
