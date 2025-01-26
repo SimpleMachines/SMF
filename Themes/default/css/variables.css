@@ -157,7 +157,7 @@
 
 	/** Fieldset **/
 	--fieldset-bg:                                    transparent;
-	--fieldset-border-color:                          hsl(0, 0%, 93%);
+	--fieldset-border-color:                          hsl(0, 0%, 86.7%);
 	--fieldset-border-radius:                         0.25em;
 	--fieldset-border-style:                          solid;
 	--fieldset-border-width:                          1px;
@@ -173,9 +173,9 @@
 
 	/** Details **/
 	--details-bg:                                     transparent;
-	--details-bg_open:                                var(--roundframe-bg);
+	--details-bg_open:                                transparent;
 	--details-bg:                                     transparent;
-	--details-border-color:                           var(--roundframe-border-color);
+	--details-border-color:                           transparent;
 	--details-border-radius:                          0;
 	--details-border-style:                           solid;
 	--details-border-width:                           1px 0;
@@ -184,7 +184,7 @@
 	/** Details Summary **/
 	--details-summary-bg:                             transparent;
 	--details-summary-bg_open:                        transparent;
-	--details-summary-border-color:                   var(--roundframe-border-color);
+	--details-summary-border-color:                   transparent;
 	--details-summary-border-radius:                  0.25em;
 	--details-summary-border-style:                   solid;
 	--details-summary-border-width:                   1px;

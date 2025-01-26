@@ -18,14 +18,6 @@ use SMF\Utils;
 use SMF\User;
 
 /**
- * The top part of the outer layer of the boardindex
- */
-function template_boardindex_outer_above()
-{
-	template_newsfader();
-}
-
-/**
  * This shows the newsfader
  */
 function template_newsfader()
@@ -59,10 +51,10 @@ function template_newsfader()
 /**
  * This actually displays the board index
  */
-function template_main()
+function template_boardindex()
 {
 	echo '
-	<div id="boardindex_table" class="boardindex_table">';
+	<div id="boardindex_table">';
 
 	/* Each category in categories is made up of:
 	id, href, link, name, is_collapsed (is it collapsed?), can_collapse (is it okay if it is?),
@@ -75,28 +67,49 @@ function template_main()
 			continue;
 
 		echo '
-		<div class="main_container">
-			<div class="cat_bar ', $category['is_collapsed'] ? 'collapsed' : '', '" id="category_', $category['id'], '">
-				<h3 class="catbg">
-					', $category['link'], '
-				</h3>';
+		<div class="cat_bar ', $category['is_collapsed'] ? 'collapsed' : '', '" id="category_', $category['id'], '">
+			<h3 class="catbg">
+				', $category['link'], '
+			</h3>';
 
 		// If this category even can collapse, show a link to collapse it.
 		if ($category['can_collapse'])
 			echo '
-				<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', '" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? Lang::$txt['hide_category'] : Lang::$txt['show_category'], '" style="display: none;"></span>';
+			<span id="category_', $category['id'], '_upshrink" class="', $category['is_collapsed'] ? 'toggle_down' : 'toggle_up', '" data-collapsed="', (int) $category['is_collapsed'], '" title="', !$category['is_collapsed'] ? Lang::$txt['hide_category'] : Lang::$txt['show_category'], '" style="display: none;"></span>';
 
 		echo '
-				', !empty($category['description']) ? '
-				<div class="desc">' . $category['description'] . '</div>' : '', '
-			</div>
-			<div id="category_', $category['id'], '_boards" ', (!empty($category['css_class']) ? ('class="' . $category['css_class'] . '"') : ''), $category['is_collapsed'] ? ' style="display: none;"' : '', '>';
+			', !empty($category['description']) ? '
+			<div class="desc">' . $category['description'] . '</div>' : '', '
+		</div>
+		<div id="category_', $category['id'], '_boards" class="boards_container ', $category['css_class'], '"', $category['is_collapsed'] ? ' style="display: none;"' : '', '>';
 
+		template_list_boards($category['boards']);
+
+		echo '
+		</div><!-- .boards_container -->';
+	}
+
+	echo '
+	</div><!-- #boardindex_table -->';
+
+	// Show the mark all as read button?
+	if (User::$me->is_logged && !empty(Utils::$context['categories']))
+		echo '
+	<div class="mark_read">
+		', template_button_strip(Utils::$context['mark_read_button'], 'right'), '
+	</div>';
+}
+
+/**
+ * This actually displays the board index
+ */
+function template_list_boards(array $boards): void
+{
 		/* Each board in each category's boards has:
 		new (is it new?), id, name, description, moderators (see below), link_moderators (just a list.),
 		children (see below.), link_children (easier to use.), children_new (are they new?),
 		topics (# of), posts (# of), link, href, and last_post. (see below.) */
-		foreach ($category['boards'] as $board)
+		foreach ($boards as $board)
 		{
 			echo '
 				<div id="board_', $board['id'], '" class="board_container ', (!empty($board['css_class']) ? $board['css_class'] : ''), '">
@@ -128,21 +141,6 @@ function template_main()
 			echo '
 				</div><!-- #board_[id] -->';
 		}
-
-		echo '
-			</div><!-- #category_[id]_boards -->
-		</div><!-- .main_container -->';
-	}
-
-	echo '
-	</div><!-- #boardindex_table -->';
-
-	// Show the mark all as read button?
-	if (User::$me->is_logged && !empty(Utils::$context['categories']))
-		echo '
-	<div class="mark_read">
-		', template_button_strip(Utils::$context['mark_read_button'], 'right'), '
-	</div>';
 }
 
 /**
@@ -182,7 +180,7 @@ function template_bi_board_info($board)
 	// Has it outstanding posts for approval?
 	if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics']))
 		echo '
-		<a href="', Config::$scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('unapproved_posts', $board, file: 'General'), '" class="moderation_link amt">!</a>';
+		<a href="', Config::$scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('unapproved_posts', ['unapproved_topics' => $board['unapproved_topics'], 'unapproved_posts' => $board['unapproved_posts']]), '" class="moderation_link amt">!</a>';
 
 	echo '
 		<div class="board_description">', $board['description'], '</div>';
@@ -265,7 +263,7 @@ function template_bi_board_children($board)
 
 			// Has it posts awaiting approval?
 			if ($child['can_approve_posts'] && ($child['unapproved_posts'] || $child['unapproved_topics']))
-				$child['link'] .= ' <a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=' . ($child['unapproved_topics'] > 0 ? 'topics' : 'posts') . ';brd=' . $child['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" title="' . Lang::getTxt('unapproved_posts', $child, file: 'General') . '" class="moderation_link amt">!</a>';
+				$child['link'] .= ' <a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=' . ($child['unapproved_topics'] > 0 ? 'topics' : 'posts') . ';brd=' . $child['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" title="' . Lang::getTxt('unapproved_posts', ['unapproved_topics' => $board['unapproved_topics'], 'unapproved_posts' => $board['unapproved_posts']]) . '" class="moderation_link amt">!</a>';
 
 			$children[] = $child['new'] ? '<span class="strong">' . $child['link'] . '</span>' : '<span>' . $child['link'] . '</span>';
 		}
@@ -285,14 +283,6 @@ function template_bi_board_children($board)
 				'</p>
 			</div>';
 	}
-}
-
-/**
- * The lower part of the outer layer of the board index
- */
-function template_boardindex_outer_below()
-{
-	template_info_center();
 }
 
 /**

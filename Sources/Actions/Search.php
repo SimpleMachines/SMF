@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
+use SMF\Board;
 use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -64,6 +65,7 @@ class Search implements ActionInterface, Routable
 		// Don't load this in XML mode.
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Search');
+			Theme::loadTemplate('GenericControls');
 			Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 		}
 
@@ -168,91 +170,18 @@ class Search implements ActionInterface, Routable
 			}
 		}
 
-		// Find all the boards this user is allowed to see.
-		$request = Db::$db->query(
-			'order_by_board_order',
-			'SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
-			FROM {db_prefix}boards AS b
-				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
-			WHERE {query_see_board}
-				AND redirect = {string:empty_string}',
-			[
-				'empty_string' => '',
-			],
-		);
-		Utils::$context['num_boards'] = Db::$db->num_rows($request);
-		Utils::$context['boards_check_all'] = true;
-		Utils::$context['categories'] = [];
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			// This category hasn't been set up yet..
-			if (!isset(Utils::$context['categories'][$row['id_cat']])) {
-				Utils::$context['categories'][$row['id_cat']] = [
-					'id' => $row['id_cat'],
-					'name' => $row['cat_name'],
-					'boards' => [],
-				];
-			}
-
-			$is_recycle_board = !empty(Config::$modSettings['recycle_enable']) && $row['id_board'] == Config::$modSettings['recycle_board'];
-
-			// Set this board up, and let the template know when it's a child.  (indent them..)
-			Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']] = [
-				'id' => $row['id_board'],
-				'name' => $row['name'],
-				'child_level' => $row['child_level'],
-			];
-
-			// If user selected some particular boards, is this one of them?
-			if (!empty(Utils::$context['search_params']['brd'])) {
-				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] = in_array($row['id_board'], Utils::$context['search_params']['brd']);
-			}
-			// User didn't select any boards, so select all except ignored and recycle boards.
-			else {
-				Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] = !$is_recycle_board && !in_array($row['id_board'], User::$me->ignoreboards);
-			}
-
-			// If a board wasn't checked that probably should have been ensure the board selection is selected, yo!
-			if (!Utils::$context['categories'][$row['id_cat']]['boards'][$row['id_board']]['selected'] && !$is_recycle_board) {
-				Utils::$context['boards_check_all'] = false;
-			}
+		// If user selected some particular boards, is this one of them?
+		if (!empty(Utils::$context['search_params']['brd'])) {
+			$boards = Utils::$context['search_params']['brd'];
 		}
-		Db::$db->free_result($request);
-
-		Category::sort(Utils::$context['categories']);
-
-		// Now, let's sort the list of categories into the boards for templates that like that.
-		$temp_boards = [];
-
-		foreach (Utils::$context['categories'] as $category) {
-			$temp_boards[] = [
-				'name' => $category['name'],
-				'child_ids' => array_keys($category['boards']),
-			];
-			$temp_boards = array_merge($temp_boards, array_values($category['boards']));
-
-			// Include a list of boards per category for easy toggling.
-			Utils::$context['categories'][$category['id']]['child_ids'] = array_keys($category['boards']);
+		// User didn't select any boards, so select all except ignored and recycle boards.
+		elseif (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board'])) {
+			$boards = array_merge(User::$me->ignoreboards, [(int) Config::$modSettings['recycle_board']]);
+		} else {
+			$boards = User::$me->ignoreboards;
 		}
 
-		$max_boards = ceil(count($temp_boards) / 2);
-
-		if ($max_boards == 1) {
-			$max_boards = 2;
-		}
-
-		// Now, alternate them so they can be shown left and right ;).
-		Utils::$context['board_columns'] = [];
-
-		for ($i = 0; $i < $max_boards; $i++) {
-			Utils::$context['board_columns'][] = $temp_boards[$i];
-
-			if (isset($temp_boards[$i + $max_boards])) {
-				Utils::$context['board_columns'][] = $temp_boards[$i + $max_boards];
-			} else {
-				Utils::$context['board_columns'][] = [];
-			}
-		}
+		Utils::$context['categories'] = Board::getUserVisibleBoards($boards);
 
 		if (!empty($_REQUEST['topic'])) {
 			Utils::$context['search_params']['topic'] = (int) $_REQUEST['topic'];

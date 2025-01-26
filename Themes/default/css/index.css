@@ -254,7 +254,7 @@ fieldset {
 	box-shadow: var(--fieldset-box-shadow);
 	margin-block: 0 .5em;
 	margin-inline: 0;
-	padding: 1.5em;
+	padding: .5em;
 }
 fieldset legend {
 	background: var(--fieldset-legend-bg);
@@ -266,6 +266,7 @@ fieldset legend {
 	font-size: var(--fieldset-legend-font-size);
 	font-weight: var(--fieldset-legend-font-weight);
 	color: var(--fieldset-legend-color);
+	margin: 0 .5em;
 }
 /* Details tag */
 details {
@@ -819,27 +820,20 @@ a.moderation_link {
 /* Lists with settings use these a lot.
 ------------------------------------------------------- */
 dl.settings {
-	clear: right;
-	overflow: auto;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
 	margin: 0 0 10px 0;
+	grid-gap: 6px 0;
 	padding: 5px;
 }
 dl.settings dt {
-	width: 56%;
-	float: left;
-	margin: 0 0 10px 0;
-	clear: both;
+	grid-column: 1;
 }
 dl.settings dt.windowbg {
-	width: 98%;
-	float: left;
-	margin: 0 0 3px 0;
-	padding: 0 0 5px 0;
-	clear: both;
+	grid-column: 1 / 2;
 }
 dl.settings dd {
-	width: 42%;
-	float: right;
+	grid-column: 2;
 	margin: 0 0 3px 0;
 }
 dl.settings img {
@@ -2190,18 +2184,18 @@ h1.forumtitle span#siteslogan {
 	padding: 0 .4em;
 }
 /* Match the heading */
-.navigate_section:has(+ div#content_section #display_head) {
+.navigate_section:has(+ #main_content_section #display_head) {
 	--navigatesection-border-width: 1px 1px 0;
 	margin-bottom: 0;
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
 }
-.navigate_section:has(+ div#content_section #display_head) li:is(.last, :last-child) > *:not(span.dividers) {
+.navigate_section:has(+ #main_content_section #display_head) li:is(.last, :last-child) > *:not(span.dividers) {
 	display: none;
 }
 
 /* The content section */
-#content_section {
+#main_content_section {
 	background: var(--contentsection-bg);
 	border-color: var(--contentsection-border-color);
 	border-radius: var(--contentsection-border-radius);
@@ -2270,9 +2264,6 @@ h1.forumtitle span#siteslogan {
 #footer li.copyright {
 	display: block;
 	font-family: Verdana, sans-serif; /* Copyright must be Verdana! */
-}
-#footerfix {
-	flex: 1 0 auto;
 }
 
 /* The posting icons */
@@ -3063,44 +3054,17 @@ dl.addrules dt.floatleft {
 
 /* Styles for the search section.
 ------------------------------------------------- */
-#searchform fieldset {
-	text-align: left;
-	padding: 0;
-	border: none;
-}
-#searchform .roundframe {
-	--roundframe-border-radius: 0;
-	margin-block: 0;
-	padding: 2em;
-}
-#searchform .alt {
-	border-top: 0;
-	border-bottom-left-radius: 7px;
-	border-bottom-right-radius: 7px;
-}
 #searchform p.clear {
 	clear: both;
 }
-#advanced_search {
-	text-align: center !important;
-}
 #advanced_search dl#search_options {
-	margin: 0 auto;
-	width: 600px;
-	padding-top: 12px;
-	overflow: hidden;
+	grid-template-columns: 1fr 2fr;
+	grid-gap: 6px 0;
+	align-items: baseline;
 }
 #advanced_search dt {
-	padding: 2px;
-	text-align: right;
-	width: 20%;
-}
-#advanced_search dd {
-	width: 75%;
-	float: left;
-	padding: 2px;
-	margin: 0 0 0 6px;
-	text-align: left;
+	text-align: end;
+	margin: 0 1em;
 }
 #search_results {
 	margin-bottom: 5px;
@@ -3284,24 +3248,26 @@ td.windowbg {
 	background: var(--window-target-bg);
 }
 /* Nobody wants locked topics to stand out much. */
-.windowbg.locked {
-	background: var(--window-locked-bg);
+.topic_container.locked {
+	background: repeating-linear-gradient(
+		-45deg,
+		transparent,
+		transparent 10px,
+		color-mix(in srgb, currentColor 5%, transparent) 10px,
+		color-mix(in srgb, currentColor 5%, transparent) 20px
+	);
 }
-/* Sticky topics get a different background */
-.windowbg.sticky {
-	background: var(--window-sticky-bg);
-}
-/* Locked AND sticky are a bit more technical */
-.windowbg.sticky.locked {
-	background: var(--window-stickylocked-bg);
+/* Sticky topics get a different background-color */
+.topic_container.sticky {
+	background-color: var(--window-sticky-bg);
 }
 /* Awaiting approval is a bit special, topics first */
-.windowbg.approvetopic {
-	background: var(--window-approvetopic-bg);
+.topic_container.approvetopic {
+	background-color: var(--window-approvetopic-bg);
 }
 /* Unapproved posts in approved topics */
-.windowbg.approvepost {
-	background: var(--window-approvepost-bg);
+.topic_container.approvepost {
+	background-color: var(--window-approvepost-bg);
 }
 /* Colors for background of posts requiring approval */
 .approvebg, .approvebg2 {
@@ -3355,8 +3321,27 @@ div#manage_boards dl dd textarea[name=desc] {
 	margin-top: 1ex;
 }
 
+.boardslist ul {
+	padding-inline: 3ch 0;
+}
+.boardslist fieldset {
+	margin: 12px;
+}
+.boardslist fieldset > ul {
+	columns: 2 250px;
+}
+.boardslist fieldset > ul > li {
+	break-inside: avoid;
+	display: inline-block;
+	vertical-align: top;
+	width: 100%;
+}
+
 /* BoardIndex */
-/* This place covers board places (boardindex/messageindex) */
+.boards_container {
+	display: grid;
+	grid-template-columns: 70px 1fr 12% 28%;
+}
 .board_container {
 	--window-border-width: 0 1px 1px;
 	align-items: center;
@@ -3365,23 +3350,16 @@ div#manage_boards dl dd textarea[name=desc] {
 	border-style: var(--window-border-style);
 	border-width: var(--window-border-width);
 	display: grid;
-	gap: 0 .75em;
-	grid-template-areas: "icon info stats lastpost";
-	grid-template-columns: 70px 1fr 12% 28%;
-	padding-inline: .75em;
+	gap: .5em;
+	grid-column: span 4;
+	grid-template-columns: subgrid;
+	padding: .5em;
 }
 .board_container:first-child {
 	--window-border-width: 1px;
 }
-.board_container > :where(div) {
-	padding-block: .5em;
-}
 .board_icon {
-	grid-area: icon;
 	text-align: center;
-}
-.board_icon:has(~ .board_children) {
-	grid-row: span 2;
 }
 .board_icon a {
 	display: inline;
@@ -3416,7 +3394,6 @@ div#manage_boards dl dd textarea[name=desc] {
 	content: "\f0a9";
 }
 .board_info {
-	grid-area: info;
 	overflow-wrap: break-word;
 }
 .board_info .subject {
@@ -3435,7 +3412,6 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 .board_stats {
 	font-size: .8em;
-	grid-area: stats;
 	text-align: end;
 }
 .board_stats p {
@@ -3449,21 +3425,13 @@ div#manage_boards dl dd textarea[name=desc] {
 	display: flex;
 	font-size: 0.9em;
 	gap: .75em;
-	grid-area: lastpost;
-}
-.board_lastpost:not(:has(> p)) {
-	display: none;
 }
 .board_lastpost img.avatar {
 	--avatar-size: 35px;
 }
-.boardindex_table .main_container {
-	margin-bottom: 20px;
-}
 .board_children {
 	font-size: .9em;
-	grid-column: info/lastpost;
-	padding-block-start: 0;
+	grid-column: -3 / 2;
 }
 .board_children span::after {
 	content: ", ";
@@ -3570,9 +3538,6 @@ div#manage_boards dl dd textarea[name=desc] {
 }
 
 /* MessageIndex */
-#messageindex {
-	margin-block: 0.5em;
-}
 #description_board, .filter_row {
 	padding: 8px 10px;
 	border-radius: 6px 6px 0 0;
@@ -3586,51 +3551,32 @@ div#manage_boards dl dd textarea[name=desc] {
 	content: " - ";
 }
 /* Topic list */
+#topic_container {
+	display: grid;
+	gap: 0 1em;
+	grid-template-columns: 2em 1fr 10% 28% auto;
+}
 #topic_header,
 .topic_container {
 	display: grid;
-	font-size: .9em;
-	gap: .25em .75em;
-	grid-template-areas: "icon info stats lastpost moderation";
-	grid-template-columns: auto 1fr 10% 28% auto;
-	padding-inline: .75em;
-}
-#topic_header {
-	margin: 0;
+	grid-column: span 5;
+	grid-template-columns: subgrid;
+	padding: .25em 1em;
 }
 .topic_container {
-	--window-margin-inline: 0;
-	--window-padding-block: .25em;
-	--window-padding-inline: 0;
+	--window-border-width: 0 1px 1px;
 	align-items: center;
-}
-#topic_header > :where(div),
-.topic_container > :where(div) {
-	padding-block: .15em;
+	background: var(--window-bg);
+	border-color: var(--window-border-color);
+	border-style: var(--window-border-style);
+	border-width: var(--window-border-width);
 }
 .topic_icon {
 	align-items: center;
 	display: flex;
 	flex-direction: column;
-	grid-area: icon;
 }
-.topic_info {
-	grid-area: info;
-}
-.topic_stats {
-	grid-area: stats;
-}
-.topic_lastpost {
-	grid-area: lastpost;
-}
-.topic_moderation {
-	display: inline-block;
-	grid-area: moderation;
-	text-align: center;
-	vertical-align: middle;
-	width: 35px;
-}
-.icon img, .moderation input {
+.icon img {
 	margin-top: 15px;
 }
 .topic_info {
@@ -3648,15 +3594,6 @@ div#manage_boards dl dd textarea[name=desc] {
 .topic_info .pagelinks {
 	float: inline-end;
 	font-size: .85em;
-}
-.topic_stats {
-	text-align: end;
-}
-.topic_stats p {
-	border: none;
-	text-align: right;
-	font-size: .8em;
-	font-weight: 400;
 }
 .topic_lastpost {
 	align-items: center;

@@ -204,4 +204,99 @@ function template_control_verification(int|string $verify_id, string $display_ty
 		return true;
 }
 
+/**
+ * Renders a UI for choosing boards within categories.
+ *
+ * This function outputs a set of fieldsets representing categories, 
+ * each containing a nested list of boards. Boards can be selected using checkboxes. 
+ * The function also handles the display of child boards in a hierarchical structure 
+ * and adds JavaScript functionality to enable selecting or deselecting all boards within a category.
+ *
+ * @param array $categories An array of categories, each containing:
+ *                          - 'name': The name of the category.
+ *                          - 'boards': An array of boards with:
+ *                              - 'id': The unique identifier for the board.
+ *                              - 'name': The display name of the board.
+ *                              - 'selected': Whether the board is selected (boolean).
+ *                              - 'child_level': The hierarchical level of the board (integer).
+ */
+function template_choose_boards(array $categories): void
+{
+	foreach ($categories as $category)
+	{
+		echo '
+				<fieldset>
+					<legend>
+						', $category['name'], '
+					</legend>
+						<ul>';
+
+		for ($i = 0, $n = count($category['boards']); $i < $n; $i++)
+		{
+			echo '
+							<li>
+							<label>
+							<input type="checkbox" name="brd[]" value="', $category['boards'][$i]['id'], '"', $category['boards'][$i]['selected'] ? ' checked' : '', '>
+								', $category['boards'][$i]['name'], '
+							</label>';
+
+			// Nest child boards inside another list.
+			$curr_child_level = $category['boards'][$i]['child_level'];
+			$next_child_level = $category['boards'][$i + 1]['child_level'] ?? 0;
+
+			if ($next_child_level > $curr_child_level)
+			{
+				echo '
+								<ul>';
+			}
+			else
+			{
+				// Close child board lists until we reach a common level
+				// with the next board.
+				while ($next_child_level < $curr_child_level--)
+				{
+					echo '
+									</li>
+								</ul>';
+				}
+
+				echo '</li>';
+			}
+		}
+
+		echo '
+						</ul>
+							</fieldset>';
+	}
+
+	echo '
+			<script>
+				for (const div of document.forms.searchform)
+					if (div.nodeName == "FIELDSET")
+					{
+						let allChecked = true;
+						for (let o of div.elements)
+							if (o.nodeName == "INPUT" && o.type == "checkbox")
+								allChecked &= o.checked;
+
+						var
+							a = document.createElement("legend"),
+							b = document.createElement("input"),
+							c = document.createElement("label");
+						b.type = "checkbox";
+						b.checked = allChecked;
+						c.appendChild(b);
+						c.appendChild(document.createTextNode(div.firstElementChild.textContent));
+						a.appendChild(c);
+						div.firstElementChild.replaceWith(a);
+						b.addEventListener("click", function(els)
+						{
+							for (const o of els)
+								if (o.nodeName == "INPUT" && o.type == "checkbox")
+									o.checked = this.checked;
+						}.bind(b, div.elements));
+					}
+			</script>';
+}
+
 ?>

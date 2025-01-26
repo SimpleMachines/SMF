@@ -53,7 +53,7 @@ function template_main()
 					<strong><label for="searchfor">', Lang::getTxt('search_for', file: 'General'), '</label></strong>
 				</dt>
 				<dd>
-					<input type="search" name="search" id="searchfor" ', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">';
+					<input autofocus type="search" name="search" id="searchfor" ', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">';
 
 	if (empty(Config::$modSettings['search_simple_fulltext']))
 		echo '
@@ -141,112 +141,23 @@ function template_main()
 			<p>
 				', Lang::getTxt('search_specific_topic', ['topic' => Utils::$context['search_topic']['link']], file: 'Search'), '
 			</p>
-			<input type="hidden" name="topic" value="', Utils::$context['search_topic']['id'], '">
-			<input type="submit" name="b_search" value="', Lang::getTxt('search', file: 'General'), '" class="button">';
-
-	echo '
-		</div>';
+			<input type="hidden" name="topic" value="', Utils::$context['search_topic']['id'], '">';
 
 	if (empty(Utils::$context['search_params']['topic']))
 	{
 		echo '
-		<fieldset class="flow_hidden">
-			<div class="roundframe alt">
-				<div class="title_bar">
-					<h4 class="titlebg">
-						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
-						<a href="#" id="advanced_panel_link">', Lang::getTxt('choose_board', file: 'Search'), '</a>
-					</h4>
-				</div>
-				<div class="flow_auto boardslist" id="advanced_panel_div"', Utils::$context['boards_check_all'] ? ' style="display: none;"' : '', '>
-					<ul>';
+			<details class="boardslist">
+				<summary>', Lang::$txt['choose_board'], '</summary>';
 
-		foreach (Utils::$context['categories'] as $category)
-		{
-			echo '
-						<li>
-							<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'searchform\'); return false;">', $category['name'], '</a>
-							<ul>';
-
-			$cat_boards = array_values($category['boards']);
-			foreach ($cat_boards as $key => $board)
-			{
-				echo '
-								<li>
-									<label for="brd', $board['id'], '">
-										<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '>
-										', $board['name'], '
-									</label>';
-
-				// Nest child boards inside another list.
-				$curr_child_level = $board['child_level'];
-				$next_child_level = $cat_boards[$key + 1]['child_level'] ?? 0;
-
-				if ($next_child_level > $curr_child_level)
-				{
-					echo '
-									<ul style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
-				}
-				else
-				{
-					// Close child board lists until we reach a common level
-					// with the next board.
-					while ($next_child_level < $curr_child_level--)
-					{
-						echo '
-										</li>
-									</ul>';
-					}
-
-					echo '
-								</li>';
-				}
-			}
-
-			echo '
-							</ul>
-						</li>';
-		}
+		template_choose_boards(Utils::$context['categories']);
 
 		echo '
-					</ul>
-				</div><!-- #advanced_panel_div -->
-				<br class="clear">
-				<div class="padding">
-					<input type="checkbox" name="all" id="check_all" value=""', Utils::$context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
-					<label for="check_all"><em>', Lang::getTxt('check_all', file: 'General'), '</em></label>
-					<input type="submit" name="b_search" value="', Lang::getTxt('search', file: 'General'), '" class="button floatright">
-				</div>
-			</div><!-- .roundframe -->
-		</fieldset>';
-
-		echo '
-		<script>
-			var oAdvancedPanelToggle = new smc_Toggle({
-				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', Utils::$context['boards_check_all'] ? 'true' : 'false', ',
-				aSwappableContainers: [
-					\'advanced_panel_div\'
-				],
-				aSwapImages: [
-					{
-						sId: \'advanced_panel_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
-					}
-				],
-				aSwapLinks: [
-					{
-						sId: \'advanced_panel_link\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('choose_board', file: 'Search')), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('choose_board', file: 'Search')), '
-					}
-				]
-			});
-		</script>';
+			</details>';
 	}
 
 	echo '
+			<input type="submit" name="b_search" value="', Lang::$txt['search'], '" class="button floatright">
+		</div>
 	</form>
 	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({

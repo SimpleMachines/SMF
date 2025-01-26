@@ -57,8 +57,11 @@ class BoardIndex implements ActionInterface, Routable
 	public function execute(): void
 	{
 		Theme::loadTemplate('BoardIndex');
-		Utils::$context['template_layers'][] = 'boardindex_outer';
-
+		Utils::$context['sub_templates'] = [
+			'newsfader',
+			'boardindex',
+			'info_center',
+		];
 		Utils::$context['page_title'] = Lang::getTxt('forum_index', ['forum_name' => Utils::$context['forum_name']], file: 'General');
 
 		// Set a canonical URL for this page.

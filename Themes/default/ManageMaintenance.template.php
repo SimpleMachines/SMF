@@ -312,32 +312,6 @@ function template_maintain_topics()
 		', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
 	</div>';
 
-	// Bit of javascript for showing which boards to prune in an otherwise hidden list.
-	echo '
-	<script>
-		var rotSwap = false;
-		function swapRot()
-		{
-			rotSwap = !rotSwap;
-
-			// Toggle icon
-			document.getElementById("rotIcon").src = smf_images_url + (rotSwap ? "/selected_open.png" : "/selected.png");
-			setInnerHTML(document.getElementById("rotText"), rotSwap ? ', Utils::escapeJavaScript(Lang::getTxt('maintain_old_choose', file: 'ManageMaintenance')), ' : ', Utils::escapeJavaScript(Lang::getTxt('maintain_old_all', file: 'ManageMaintenance')), ');
-
-			// Toggle panel
-			$("#rotPanel").slideToggle(300);
-
-			// Toggle checkboxes
-			var rotPanel = document.getElementById(\'rotPanel\');
-			var oBoardCheckBoxes = rotPanel.getElementsByTagName(\'input\');
-			for (var i = 0; i < oBoardCheckBoxes.length; i++)
-			{
-				if (oBoardCheckBoxes[i].type.toLowerCase() == "checkbox")
-					oBoardCheckBoxes[i].checked = !rotSwap;
-			}
-		}
-	</script>';
-
 	echo '
 	<div id="manage_maintenance">
 		<div class="cat_bar">
@@ -360,45 +334,14 @@ function template_maintain_topics()
 					<p>
 						<label for="delete_old_not_sticky"><input type="checkbox" name="delete_old_not_sticky" id="delete_old_not_sticky" checked> ', Lang::getTxt('maintain_old_are_not_stickied', file: 'ManageMaintenance'), '</label><br>
 					</p>
-					<p>
-						<a href="#rotLink" onclick="swapRot();"><img src="', Theme::$current->settings['images_url'], '/selected.png" alt="+" id="rotIcon"></a> <a href="#rotLink" onclick="swapRot();" id="rotText" style="font-weight: bold;">', Lang::getTxt('maintain_old_all', file: 'ManageMaintenance'), '</a>
-					</p>
-					<div style="display: none;" id="rotPanel" class="flow_hidden">
-						<div class="floatleft" style="width: 49%">';
+					<details class="boardslist">
+						<summary>', Lang::$txt['maintain_old_choose'], '</summary>';
 
-	// This is the "middle" of the list.
-	$middle = ceil(count(Utils::$context['categories']) / 2);
-
-	$i = 0;
-	foreach (Utils::$context['categories'] as $category)
-	{
-		echo '
-							<fieldset>
-								<legend>', $category['name'], '</legend>
-								<ul>';
-
-		// Display a checkbox with every board.
-		foreach ($category['boards'] as $board)
-			echo '
-									<li style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'] * 1.5, 'em;">
-										<label for="boards_', $board['id'], '"><input type="checkbox" name="boards[', $board['id'], ']" id="boards_', $board['id'], '" checked>', $board['name'], '</label>
-									</li>';
+		template_choose_boards(Utils::$context['categories']);
 
 		echo '
-								</ul>
-							</fieldset>';
-
-		// Increase $i, and check if we're at the middle yet.
-		if (++$i == $middle)
-			echo '
-						</div><!-- .floatleft -->
-						<div class="floatright" style="width: 49%;">';
-	}
-
-	echo '
-						</div>
-					</div><!-- #rotPanel -->
-					<input type="submit" value="', Lang::getTxt('maintain_old_remove', file: 'ManageMaintenance'), '" data-confirm="', Lang::getTxt('maintain_old_confirm', file: 'ManageMaintenance'), '" class="button you_sure">
+					</details>
+					<input type="submit" value="', Lang::$txt['maintain_old_remove'], '" data-confirm="', Lang::$txt['maintain_old_confirm'], '" class="button you_sure">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
 				</form>

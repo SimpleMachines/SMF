@@ -2190,60 +2190,9 @@ function template_ignoreboards()
 			</h3>
 		</div>
 		<p class="information">', Lang::getTxt('ignoreboards_info', file: 'Profile'), '</p>
-		<div class="windowbg">
-			<div class="flow_hidden boardslist">
-				<ul>';
+		<div class="windowbg boardslist">';
 
-	foreach (Utils::$context['categories'] as $category)
-	{
-		echo '
-					<li>
-						<a href="javascript:void(0);" onclick="selectBoards([', implode(', ', $category['child_ids']), '], \'creator\'); return false;">', $category['name'], '</a>
-						<ul>';
-
-		$cat_boards = array_values($category['boards']);
-		foreach ($cat_boards as $key => $board)
-		{
-			echo '
-							<li>
-								<label for="brd', $board['id'], '">
-									<input type="checkbox" id="brd', $board['id'], '" name="brd[', $board['id'], ']" value="', $board['id'], '"', $board['selected'] ? ' checked' : '', '>
-									', $board['name'], '
-								</label>';
-
-			// Nest child boards inside another list.
-			$curr_child_level = $board['child_level'];
-			$next_child_level = $cat_boards[$key + 1]['child_level'] ?? 0;
-
-			if ($next_child_level > $curr_child_level)
-			{
-				echo '
-								<ul style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': 2.5ch;">';
-			}
-			else
-			{
-				// Close child board lists until we reach a common level
-				// with the next board.
-				while ($next_child_level < $curr_child_level--)
-				{
-					echo '
-									</li>
-								</ul>';
-				}
-
-				echo '
-							</li>';
-			}
-		}
-
-		echo '
-						</ul>
-					</li>';
-	}
-
-	echo '
-				</ul>
-			</div><!-- .flow_hidden boardslist -->';
+	template_choose_boards(Utils::$context['categories']);
 
 	// Show the standard "Save Settings" profile button.
 	template_profile_save();

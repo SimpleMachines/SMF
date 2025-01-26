@@ -172,34 +172,6 @@
 	height: 16px;
 }
 
-.boardslist > ul > li {
-	margin: 12px;
-}
-.boardslist > ul > li > ul {
-	columns: 2 250px;
-}
-.boardslist > ul > li > ul > li {
-	break-inside: avoid;
-	display: inline-block;
-	vertical-align: top;
-	width: 100%;
-}
-.boardslist a {
-	font-weight: bold;
-	border-bottom: var(--border_width) var(--border_style) var(--border_color);
-	display: block;
-	margin-bottom: 0.5em;
-}
-.boardslist a:hover {
-	text-decoration: none;
-	border-bottom: var(--border_width) var(--border_style) var(--border_color);
-}
-.boardslist label {
-	display: inline-block;
-	text-indent: -3ch;
-	margin: 0 3ch;
-}
-
 #theme_settings {
 	overflow: auto;
 	margin: 0;

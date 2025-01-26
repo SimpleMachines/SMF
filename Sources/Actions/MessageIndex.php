@@ -258,7 +258,7 @@ class MessageIndex implements ActionInterface, Routable
 	public static function buildTopicContext(array $row): void
 	{
 		// Reference the main color class.
-		$colorClass = 'windowbg';
+		$colorClass = '';
 
 		// Does the theme support message previews?
 		if (!empty(Config::$modSettings['preview_characters'])) {
@@ -311,9 +311,14 @@ class MessageIndex implements ActionInterface, Routable
 
 		// Decide how many pages the topic should have.
 		if ($row['num_replies'] + 1 > Utils::$context['messages_per_page']) {
+			$templateOverrides = [
+				'extra_before' => '',
+				'current_page' => '',
+			];
+
 			// We can't pass start by reference.
 			$start = -1;
-			$pages = new PageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, (int) Utils::$context['messages_per_page'], true, false);
+			$pages = new PageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, (int) Utils::$context['messages_per_page'], true, false, $templateOverrides);
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages']) {
@@ -350,7 +355,7 @@ class MessageIndex implements ActionInterface, Routable
 
 		// Is this topic pending approval, or does it have any posts pending approval?
 		if (!empty($row['unapproved_posts']) && User::$me->allowedTo('approve_posts')) {
-			$colorClass .= (!$row['approved'] ? ' approvetopic' : ' approvepost');
+			$colorClass .= !$row['approved'] ? ' approvetopic' : ' approvepost';
 		}
 
 		// Sticky topics should get a different color, too.
@@ -938,15 +943,11 @@ class MessageIndex implements ActionInterface, Routable
 	{
 		// If we can view unapproved messages and there are some build up a list.
 		if (User::$me->allowedTo('approve_posts') && (Board::$info->unapproved_topics || Board::$info->unapproved_posts)) {
-			$untopics = Board::$info->unapproved_topics ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=topics;brd=' . Board::$info->id . '">' . Board::$info->unapproved_topics . '</a>' : 0;
-
-			$unposts = Board::$info->unapproved_posts ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=posts;brd=' . Board::$info->id . '">' . (Board::$info->unapproved_posts - Board::$info->unapproved_topics) . '</a>' : 0;
-
 			Utils::$context['unapproved_posts_message'] = Lang::getTxt(
 				'there_are_unapproved_topics',
 				[
-					'topics' => $untopics,
-					'posts' => $unposts,
+					'topics' => Board::$info->unapproved_topics,
+					'posts' => Board::$info->unapproved_posts - Board::$info->unapproved_topics,
 					'url' => Config::$scripturl . '?action=moderate;area=postmod;sa=' . (Board::$info->unapproved_topics ? 'topics' : 'posts') . ';brd=' . Board::$info->id,
 				],
 				file: 'General',
@@ -963,6 +964,7 @@ class MessageIndex implements ActionInterface, Routable
 	 */
 	protected function setupTemplate(): void
 	{
+		Theme::loadTemplate('BoardIndex');
 		Theme::loadTemplate('MessageIndex');
 
 		// Javascript for inline editing.

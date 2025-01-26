@@ -102,7 +102,7 @@ function template_init()
 
 	// This defines the formatting for the page indexes used throughout the forum.
 	Theme::$current->settings['page_index'] = [
-		'extra_before' => '<span class="pages">' . Lang::getTxt('pages', file: 'General') . '</span>',
+		'extra_before' => '<span class="pages">{txt_pages}</span>',
 		'previous_page' => '<span class="main_icons previous_page"></span>',
 		'current_page' => '<span class="current_page">%1$d</span> ',
 		'page' => '<a class="nav_page" href="{URL}">%2$s</a> ',
@@ -224,10 +224,26 @@ function template_html_above()
 	echo Utils::$context['html_headers'];
 
 	echo '
-</head>
-<body id="', Utils::$context['browser_body_id'], '" class="action_', !empty(Utils::$context['current_action']) ? Utils::$context['current_action'] : (!empty(Utils::$context['current_board']) ?
-		'messageindex' : (!empty(Utils::$context['current_topic']) ? 'display' : 'home')), !empty(Utils::$context['current_board']) ? ' board_' . Utils::$context['current_board'] : '', '">
-<div id="footerfix">';
+</head>';
+
+	// Determine the class attribute value.
+	$actionClass = 'home';
+
+	if (!empty(Utils::$context['current_action'])) {
+		$actionClass = 'action_' . Utils::$context['current_action'];
+	} elseif (!empty(Utils::$context['current_board'])) {
+		$actionClass = 'action_messageindex';
+	} elseif (!empty(Utils::$context['current_topic'])) {
+		$actionClass = 'action_display';
+	}
+
+	$boardClass = '';
+	if (!empty(Utils::$context['current_board'])) {
+		$boardClass = ' board_' . Utils::$context['current_board'];
+	}
+
+	echo '
+<body id="', Utils::$context['browser_body_id'], '" class="', $actionClass . $boardClass, '">';
 }
 
 /**
@@ -401,8 +417,7 @@ function template_body_above()
 
 	// The main content should go here.
 	echo '
-		<div id="content_section">
-			<div id="main_content_section">';
+		<main id="main_content_section">';
 }
 
 /**
@@ -411,10 +426,8 @@ function template_body_above()
 function template_body_below()
 {
 	echo '
-			</div><!-- #main_content_section -->
-		</div><!-- #content_section -->
-	</div><!-- .content-wrapper -->
-</div><!-- #footerfix -->';
+		</main><!-- #main_content_section -->
+	</div><!-- .content-wrapper -->';
 
 	// Show the footer with copyright, terms and help links.
 	echo '
