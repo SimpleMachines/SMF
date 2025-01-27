@@ -1953,7 +1953,7 @@ class PM implements \ArrayAccess
 	{
 		$latest = self::getRecent('pm.id_pm', true, 1);
 
-		return reset($latest);
+		return (int) reset($latest);
 	}
 
 	/**

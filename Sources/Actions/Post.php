@@ -247,6 +247,7 @@ class Post implements ActionInterface
 		$this->setBoards();
 
 		if (isset($_REQUEST['xml'])) {
+			Theme::loadTemplate('Xml');
 			Utils::$context['sub_template'] = 'post';
 
 			// Just in case of an earlier error...

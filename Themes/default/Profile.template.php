@@ -3074,7 +3074,7 @@ function template_profile_theme_pick()
 								<strong>', Lang::$txt['current_theme'], '</strong>
 							</dt>
 							<dd>
-								', Utils::$context['member']['theme']['name'], ' <a class="button" href="', Config::$scripturl, '?action=theme;sa=pick;u=', Utils::$context['id_member'], '">', Lang::$txt['change'], '</a>
+								', Utils::$context['member']['theme']['name'], ' <a class="button" href="', Config::$scripturl, '?action=themechooser;u=', Utils::$context['id_member'], '">', Lang::$txt['change'], '</a>
 							</dd>';
 }
 

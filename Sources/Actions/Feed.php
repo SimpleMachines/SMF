@@ -251,6 +251,16 @@ class Feed implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Constructor.
 	 *

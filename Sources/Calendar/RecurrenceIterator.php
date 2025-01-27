@@ -891,8 +891,8 @@ class RecurrenceIterator implements \Iterator
 		$this->limitBySetPos();
 
 		// Final cleanup.
-		$view_start = $this->view_start->format($this->record_format);
-		$view_end = $this->view_end->format($this->record_format);
+		$view_start = (clone $this->view_start)->setTimezone(new \DateTimeZone('UTC'))->format($this->record_format);
+		$view_end = (clone $this->view_end)->setTimezone(new \DateTimeZone('UTC'))->format($this->record_format);
 
 		$this->occurrences = array_values(array_filter(
 			$this->occurrences,

@@ -45,7 +45,7 @@ function template_recent()
 			<div class="page_number floatright"> #', $post['counter'], '</div>
 			<div class="topic_details">
 				<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
-				<span class="smalltext">', Lang::getTxt('last_post_member_date',  ['member' => $post['poster']['link'], '' => str_contains($post['time'], Lang::$txt['today']) ? 'today' : (str_contains($post['time'], Lang::$txt['yesterday']) ? 'yesterday' : 'other'), 'date' => $post['time']]), '</span>
+				<span class="smalltext">', Lang::getTxt('last_post_member_date',  ['member' => $post['poster']['link'], 'relative' => str_contains($post['time'], Lang::$txt['today']) ? 'today' : (str_contains($post['time'], Lang::$txt['yesterday']) ? 'yesterday' : 'other'), 'date' => $post['time']]), '</span>
 			</div>
 			<div class="list_posts">', $post['body'], '</div>';
 

@@ -79,6 +79,11 @@ class Reminder implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
 	 */

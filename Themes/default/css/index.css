@@ -2913,6 +2913,10 @@ dl.addrules dt.floatleft {
 	width: 480px;
 	padding: 0 6px 6px 6px;
 }
+.popup_window.large {
+	min-width: 80%;
+	top: 7vh;
+}
 .popup_heading {
 	padding: 10px 8px;
 	color: #bf6900;
@@ -2920,13 +2924,16 @@ dl.addrules dt.floatleft {
 .popup_content {
 	color: #222;
 	line-height: 1.6em;
-	max-height: 30em;
+	max-height: 65vh;
 	overflow: auto;
 	padding: 10px 8px;
 	border: 1px solid #bbb;
 	border-bottom: 1px solid #ddd;
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+.popup_window.large .popup_content {
+	max-height: 80vh;
 }
 #main_menu .popup_heading,
 #genericmenu .popup_heading,
@@ -3503,7 +3510,7 @@ img.avatar {
 	align-items: flex-start;
 	font-weight: normal;
 }
-#reason::before {
+.lastedit.reason::before {
 	content: " - ";
 }
 .subject_title a {

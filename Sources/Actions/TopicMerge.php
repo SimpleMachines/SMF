@@ -972,8 +972,7 @@ class TopicMerge implements ActionInterface
 		$searchAPI = SearchApi::load();
 
 		if (is_callable([$searchAPI, 'topicMerge'])) {
-			// todo: undefined method
-			$searchAPI->topicMerge($id_topic, $this->topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : [Utils::$context['response_prefix'], $target_subject]);
+			$searchAPI->topicMerge($id_topic, $this->topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : Utils::$context['response_prefix'] . $target_subject);
 		}
 
 		// Merging is the sort of thing an external CMS might want to know about

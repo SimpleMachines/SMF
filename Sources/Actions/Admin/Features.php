@@ -1865,7 +1865,7 @@ class Features implements ActionInterface
 	public static function modifyReactionsSettings($return_config = false): ?array
 	{
 		if (!empty($return_config)) {
-			return self::reactionsConfigVars();
+			return Reactions::getConfigVars();
 		}
 
 		self::load();
@@ -1927,8 +1927,6 @@ class Features implements ActionInterface
 				],
 				'profile' => [
 					'description' => Lang::$txt['custom_profile_desc'],
-				],
-				'likes' => [
 				],
 				'mentions' => [
 				],

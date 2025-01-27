@@ -37,6 +37,11 @@ class CoppaForm implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Display the contact information for the forum, as well a form to fill in.
 	 */

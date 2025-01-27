@@ -10,7 +10,7 @@
  * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types = 1);
@@ -141,6 +141,9 @@ class Reactions implements ActionInterface
 	 */
 	public function editreactions(): void
 	{
+		// Load the language file
+		Lang::load('ManageReactions');
+
 		// Make sure we select the right menu item
 		Menu::$loaded['admin']['currentsubsection'] = 'editreactions';
 
@@ -339,7 +342,7 @@ class Reactions implements ActionInterface
 
 		new ItemList($listOptions);
 
-		Utils::$context['page_title'] = Lang::$txt['reactions_manage'];
+		Utils::$context['page_title'] = Lang::$txt['manage_reactions'];
 		Utils::$context['sub_template'] = 'show_list';
 		Utils::$context['default_list'] = 'reactions_list';
 	}

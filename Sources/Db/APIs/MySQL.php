@@ -148,7 +148,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
-		if (str_contains($db_string, 'GROUP BY') && str_contains($db_string, 'ORDER BY') && preg_match('~^\s+SELECT~i', $db_string)) {
+		if (str_contains($db_string, 'GROUP BY') && !str_contains($db_string, 'ORDER BY') && preg_match('~^\s+SELECT~i', $db_string)) {
 			// Add before LIMIT
 			if ($pos = strpos($db_string, 'LIMIT ')) {
 				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, strlen($db_string));

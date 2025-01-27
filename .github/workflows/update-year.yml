@@ -1,0 +1,51 @@
+name: Update Year
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-year:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set current year environment variable
+      run: echo "CURRENT_YEAR=$(date +'%Y')" >> $GITHUB_ENV
+
+    - name: Check if version tag matches any pre-release
+      run: |
+        str=$(grep -oP "define\('SMF_VERSION', '[^']+" index.php)
+        re='[0-9]+\.[0-9]+ ?[A-Za-z]+';
+        tag=`echo $str | grep -oP "[0-9]+\.[0-9]+"`
+        if [[ $str =~ $re ]]; then
+          echo "PRE_RELEASE=true" >> $GITHUB_ENV
+        else
+          echo "PRE_RELEASE=false" >> $GITHUB_ENV
+        fi
+        echo "TAG=$tag" >> $GITHUB_ENV
+
+    - name: Update year in Sources/
+      if: env.PRE_RELEASE == 'true'
+      run: |
+        shopt -s globstar
+        for file in Sources/**/*.php Themes/default/*.php; do
+          sed -i "s/@copyright [0-9]\{4\}/@copyright ${{ env.CURRENT_YEAR }}/" $file
+        done
+
+    - name: Update year in PHP files 
+      run: |
+        for file in SSI.php proxy.php cron.php index.php other/*.php; do
+          sed -i "s/@copyright [0-9]\{4\}/@copyright ${{ env.CURRENT_YEAR }}/" $file
+          sed -i "s/define('SMF_SOFTWARE_YEAR', '[0-9]\{4\}');/define('SMF_SOFTWARE_YEAR', '${{ env.CURRENT_YEAR }}');/" $file
+        done
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v7
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: Update year to ${{ env.CURRENT_YEAR }}
+        branch: ${{ env.TAG }}/update-year-${{ env.CURRENT_YEAR }}
+        title: "[${{ env.TAG }}] Update year to ${{ env.CURRENT_YEAR }}"
+        body: This commit updates `SMF_SOFTWARE_YEAR` to ${{ env.CURRENT_YEAR }}. This action was performed by a bot.

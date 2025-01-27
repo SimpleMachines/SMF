@@ -72,14 +72,11 @@ class Sapi
 	 */
 	public static function isSoftware(string|array $server): bool
 	{
-		$servers = (array) $server;
-
-		foreach ($servers as $server) {
-			if (
-				isset($_SERVER['SERVER_SOFTWARE'])
-				&& strpos($_SERVER['SERVER_SOFTWARE'], self::$server_software[$server] ?? $server) !== false
-			) {
-				return true;
+		if (isset($_SERVER['SERVER_SOFTWARE'])) {
+			foreach ((array) $server as $serv) {
+				if (preg_match('~' . (self::$server_software[$serv] ?? $serv) . '~i', $_SERVER['SERVER_SOFTWARE'])) {
+					return true;
+				}
 			}
 		}
 

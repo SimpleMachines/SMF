@@ -2599,7 +2599,7 @@ class Event implements \ArrayAccess
 
 			// If string input was given, override individually defined options with it.
 			if (isset($datetime_string)) {
-				$datetime_string_parsed = date_parse(str_replace(',', '', Calendar::convertDateToEnglish($datetime_string)));
+				$datetime_string_parsed = date_parse(str_replace(',', '', Time::convertToEnglish($datetime_string)));
 
 				if (is_array($datetime_string_parsed) && empty($datetime_string_parsed['error_count']) && empty($datetime_string_parsed['warning_count'])) {
 					$datetime_string_parsed = array_filter(

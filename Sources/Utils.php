@@ -999,11 +999,27 @@ class Utils
 	}
 
 	/**
+	 * Splits a string into its words, symbols, punctuation, and whitespace.
+	 *
+	 * E.g.: 'A red fox! 🦊' --> ['A', ' ', 'red', ' ', 'fox', '!', ' ', '🦊']
+	 *
+	 * @param string $string The string to split into semantic components.
+	 * @return array An array of strings.
+	 */
+	public static function semanticSplit(string $string): array
+	{
+		return Unicode\Utf8String::create($string)->semanticSplit();
+	}
+
+	/**
 	 * Extracts all the words in a string.
 	 *
-	 * Emoji characters count as words. Punctuation and other symbols do not.
+	 * Emoji characters count as words and are retained in the result.
+	 * Whitespace, punctuation, and other symbols are discarded.
 	 *
-	 * @param string $string The strings to extract words from.
+	 * E.g.: 'A red fox! 🦊' --> ['A', 'red', 'fox', '🦊']
+	 *
+	 * @param string $string The string to extract words from.
 	 * @param int $level See documentation for self:sanitizeChars().
 	 *      Default: 0.
 	 * @return array An array of strings.
@@ -2400,17 +2416,24 @@ class Utils
 				Theme::template_footer();
 
 				// Add $db_show_debug = true; to Settings.php if you want to show the debugging information.
-				// (since this is just debugging... it's okay that it's after </html>.)
-				if (!isset($_REQUEST['xml'])) {
+				if (Forum::getCurrentAction()?->isSimpleAction() === false
+					|| (
+						Forum::getCurrentAction() === null
+						&& !isset($_REQUEST['xml'])
+					)
+				) {
 					Logging::displayDebug();
 				}
 			}
 		}
 
 		// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-		if (
-			!QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')
-			&& !isset($_REQUEST['xml'])
+		if (Forum::getCurrentAction()?->canBeLogged() === true
+			|| (
+				Forum::getCurrentAction() === null
+				&& !QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')
+				&& !isset($_REQUEST['xml'])
+			)
 		) {
 			$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 		}
@@ -2441,16 +2464,16 @@ class Utils
 	 * - Plain functions are validated as callable.
 	 * - Objects themselves are not accepted as callables.
 	 *
-	 * @param string|array $input Input to parse as a callable.
+	 * @param string|callable $input Input to parse as a callable.
 	 * @param bool|null $ignore_errors Optional. Whether to suppress errors if the callable is invalid. Defaults to the value of `Utils::$context['ignore_hook_errors']`.
 	 *
 	 * @return callable|false Returns the callable if valid, or false on failure.
 	 */
-	public static function getCallable(string|array $input, ?bool $ignore_errors = null): callable|false
+	public static function getCallable(string|callable $input, ?bool $ignore_errors = null): callable|false
 	{
 		$ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
-		if (is_array($input)) {
+		if (!is_string($input)) {
 			return is_callable($input) ? $input : false;
 		}
 

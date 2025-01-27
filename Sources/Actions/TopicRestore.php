@@ -238,7 +238,7 @@ class TopicRestore implements ActionInterface
 					);
 
 					while ($member = Db::$db->fetch_assoc($request2)) {
-						User::updateMemberData($member['id_member'], ['posts' => 'posts + ' . $member['post_count']]);
+						User::updateMemberData((int) $member['id_member'], ['posts' => 'posts + ' . $member['post_count']]);
 					}
 					Db::$db->free_result($request2);
 				}

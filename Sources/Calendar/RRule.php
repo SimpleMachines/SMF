@@ -513,7 +513,7 @@ class RRule implements \Stringable
 					break;
 			}
 
-			if (isset($value) && strlen($value) > 0) {
+			if (isset($value) && strlen((string) $value) > 0) {
 				$rrule[] = $part . '=' . $value;
 			}
 		}

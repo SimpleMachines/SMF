@@ -34,6 +34,11 @@ class DisplayAdminFile implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
 	/**
 	 * Do the job.
 	 */

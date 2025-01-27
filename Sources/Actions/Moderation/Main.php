@@ -154,13 +154,13 @@ class Main implements ActionInterface
 			'areas' => [
 				'groups' => [
 					'label' => 'mc_group_requests',
-					'function' => '\\SMF\\Actions\\Groups::call',
+					'function' => __NAMESPACE__ . '\\Groups::call',
 					'icon' => 'members_request',
 					'custom_url' => '{scripturl}?action=moderate;area=groups;sa=requests',
 				],
 				'viewgroups' => [
 					'label' => 'mc_view_groups',
-					'function' => '\\SMF\\Actions\\Groups::call',
+					'function' => __NAMESPACE__ . '\\Groups::call',
 					'icon' => 'membergroups',
 				],
 			],

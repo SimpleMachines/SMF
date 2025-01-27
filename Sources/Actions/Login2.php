@@ -68,6 +68,26 @@ class Login2 implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function canShowInMaintenanceMode(): bool
+	{
+		return true;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['ajax']);
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Actually logs you in.
 	 *

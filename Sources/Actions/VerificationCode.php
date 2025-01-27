@@ -55,6 +55,16 @@ class VerificationCode implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
 	/**
 	 * Do the job.
 	 */

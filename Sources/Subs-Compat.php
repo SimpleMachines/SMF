@@ -3428,7 +3428,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function MarkRead(): void
 	{
-		SMF\Board::markRead();
+		SMF\Actions\MarkRead::call();
 	}
 
 	function markBoardsRead(int|array $boards, bool $unread = false): void
@@ -4127,27 +4127,27 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function Vote(): void
 	{
-		SMF\Poll::vote();
+		SMF\Actions\PollVote::call();
 	}
 
 	function LockVoting(): void
 	{
-		SMF\Poll::lock();
+		SMF\Actions\PollLock::call();
 	}
 
 	function EditPoll(): void
 	{
-		SMF\Poll::edit();
+		SMF\Actions\PollEdit::call();
 	}
 
 	function EditPoll2(): void
 	{
-		SMF\Poll::edit2();
+		SMF\Actions\PollEdit2::call();
 	}
 
 	function RemovePoll(): void
 	{
-		SMF\Poll::remove();
+		SMF\Actions\PollRemove::call();
 	}
 
 	/**
@@ -4720,7 +4720,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function SetJavaScript(): void
 	{
-		SMF\Theme::setJavaScript();
+		SMF\Actions\ThemeSetOption::call();
 	}
 
 	function WrapAction(): void
@@ -4730,7 +4730,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	function PickTheme(): void
 	{
-		SMF\Theme::pickTheme();
+		SMF\Actions\ThemeChooser::call();
 	}
 
 	/**
@@ -4814,12 +4814,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function LockTopic(): void
 	{
-		SMF\Topic::lock();
+		SMF\Actions\TopicLock::call();
 	}
 
 	function Sticky(): void
 	{
-		SMF\Topic::sticky();
+		SMF\Actions\TopicSticky::call();
 	}
 
 	function approveTopics(array $topics, bool $approve = true): bool

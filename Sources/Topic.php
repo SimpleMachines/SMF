@@ -585,164 +585,135 @@ class Topic implements \ArrayAccess
 	}
 
 	/**
-	 * Locks a topic... either by way of a moderator or the topic starter.
-	 * What this does:
-	 *  - locks a topic, toggles between locked/unlocked/admin locked.
-	 *  - only admins can unlock topics locked by other admins.
-	 *  - requires the lock_own or lock_any permission.
-	 *  - logs the action to the moderator log.
-	 *  - returns to the topic after it is done.
-	 *  - it is accessed via ?action=lock.
+	 * Sets the locked state for one or more topics.
+	 *
+	 * Doesn't check permissions.
+	 * Logs the action and sends notifications.
+	 *
+	 * @param array|int $topics Array of topic IDs.
+	 * @param int $level 0 = unlocked, 1 = user locked, 2 = moderator locked.
+	 * @return array IDs of topics that were changed.
 	 */
-	public static function lock(): void
+	public static function lock(array|int $topics, int $level): array
 	{
-		// Just quit if there's no topic to lock.
-		if (empty(self::$topic_id)) {
-			ErrorHandler::fatalLang('not_a_topic', false);
+		if (empty($topics)) {
+			return [];
 		}
 
-		User::$me->checkSession('get');
+		$topics = (array) $topics;
 
-		// Find out who started the topic - in case User Topic Locking is enabled.
+		// Get the topics that we need to change.
 		$request = Db::$db->query(
 			'',
-			'SELECT id_member_started, locked
+			'SELECT id_topic AS topic, id_board AS board
 			FROM {db_prefix}topics
-			WHERE id_topic = {int:current_topic}
-			LIMIT 1',
+			WHERE id_topic IN ({array_int:topics})
+				AND locked != {int:level}',
 			[
-				'current_topic' => self::$topic_id,
+				'topics' => $topics,
+				'level' => $level,
 			],
 		);
-		list($starter, $locked) = Db::$db->fetch_row($request);
+		$rows = Db::$db->fetch_all($request);
 		Db::$db->free_result($request);
 
-		// Can you lock topics here, mister?
-		$user_lock = !User::$me->allowedTo('lock_any');
-
-		if ($user_lock && $starter == User::$me->id) {
-			User::$me->isAllowedTo('lock_own');
-		} else {
-			User::$me->isAllowedTo('lock_any');
+		// If no changes are needed, we're done.
+		if (empty($rows)) {
+			return [];
 		}
 
-		// Another moderator got the job done first?
-		if (isset($_GET['sa']) && $_GET['sa'] == 'unlock' && $locked == '0') {
-			ErrorHandler::fatalLang('error_topic_locked_already', false);
-		} elseif (isset($_GET['sa']) && $_GET['sa'] == 'lock' && ($locked == '1' || $locked == '2')) {
-			ErrorHandler::fatalLang('error_topic_unlocked_already', false);
-		}
-
-		// Locking with high privileges.
-		if ($locked == '0' && !$user_lock) {
-			$locked = '1';
-		}
-		// Locking with low privileges.
-		elseif ($locked == '0') {
-			$locked = '2';
-		}
-		// Unlocking - make sure you don't unlock what you can't.
-		elseif ($locked == '2' || ($locked == '1' && !$user_lock)) {
-			$locked = '0';
-		}
-		// You cannot unlock this!
-		else {
-			ErrorHandler::fatalLang('locked_by_admin', 'user');
-		}
-
-		// Actually lock the topic in the database with the new value.
+		// Update the lock state of the topics.
 		Db::$db->query(
 			'',
 			'UPDATE {db_prefix}topics
-			SET locked = {int:locked}
-			WHERE id_topic = {int:current_topic}',
+			SET locked = {int:level}
+			WHERE id_topic IN ({array_int:topics})',
 			[
-				'current_topic' => self::$topic_id,
-				'locked' => $locked,
+				'topics' => $topics,
+				'level' => $level,
 			],
 		);
 
-		// If they are allowed a "moderator" permission, log it in the moderator log.
-		if (!$user_lock) {
-			Logging::logAction($locked ? 'lock' : 'unlock', ['topic' => self::$topic_id, 'board' => Board::$info->id]);
+		foreach ($rows as $row) {
+			// If they are allowed a "moderator" permission, log it in the moderator log.
+			if (User::$me->allowedTo('lock_any', (int) $row['board'])) {
+				Logging::logAction(empty($level) ? 'unlock' : 'lock', $row);
+			}
+
+			// Notify people that this topic has been locked or unlocked.
+			Mail::sendNotifications((int) $row['topic'], empty($level) ? 'unlock' : 'lock');
 		}
 
-		// Notify people that this topic has been locked?
-		Mail::sendNotifications(self::$topic_id, empty($locked) ? 'unlock' : 'lock');
-
-		// Back to the topic!
-		Utils::redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
+		return array_map(fn($row) => (int) $row['topic'], $rows);
 	}
 
 	/**
-	 * Sticky a topic.
-	 * Can't be done by topic starters - that would be annoying!
-	 * What this does:
-	 *  - stickies a topic - toggles between sticky and normal.
-	 *  - requires the make_sticky permission.
-	 *  - adds an entry to the moderator log.
-	 *  - when done, sends the user back to the topic.
-	 *  - accessed via ?action=sticky.
+	 * Sets the sticky state for one or more topics.
+	 *
+	 * Doesn't check permissions.
+	 * Logs the action and sends notifications.
+	 *
+	 * @param array|int $topics Array of topic IDs.
+	 * @param bool $sticky_state True to sticky or false to unsticky.
+	 * @return array IDs of topics that were changed.
 	 */
-	public static function sticky(): void
+	public static function sticky(array|int $topics, bool $sticky_state): array
 	{
-		// Make sure the user can sticky it, and they are stickying *something*.
-		User::$me->isAllowedTo('make_sticky');
-
-		// You can't sticky a board or something!
-		if (empty(self::$topic_id)) {
-			ErrorHandler::fatalLang('not_a_topic', false);
+		if (empty($topics)) {
+			return [];
 		}
 
-		User::$me->checkSession('get');
+		$topics = (array) $topics;
 
-		// Is this topic already stickied, or no?
+		// Get the topics that we need to change.
 		$request = Db::$db->query(
 			'',
-			'SELECT is_sticky
+			'SELECT id_topic AS topic, id_board AS board
 			FROM {db_prefix}topics
-			WHERE id_topic = {int:current_topic}
-			LIMIT 1',
+			WHERE id_topic IN ({array_int:topics})
+				AND is_sticky = {int:state}',
 			[
-				'current_topic' => self::$topic_id,
+				'topics' => $topics,
+				'state' => (int) !$sticky_state,
 			],
 		);
-		list($is_sticky) = Db::$db->fetch_row($request);
+		$rows = Db::$db->fetch_all($request);
 		Db::$db->free_result($request);
 
-		// Another moderator got the job done first?
-		if (isset($_GET['sa']) && $_GET['sa'] == 'nonsticky' && $is_sticky == '0') {
-			ErrorHandler::fatalLang('error_topic_nonsticky_already', false);
-		} elseif (isset($_GET['sa']) && $_GET['sa'] == 'sticky' && $is_sticky == '1') {
-			ErrorHandler::fatalLang('error_topic_sticky_already', false);
+		// If no changes are needed, we're done.
+		if (empty($rows)) {
+			return [];
 		}
 
 		// Toggle the sticky value.... pretty simple ;).
 		Db::$db->query(
 			'',
 			'UPDATE {db_prefix}topics
-			SET is_sticky = {int:is_sticky}
-			WHERE id_topic = {int:current_topic}',
+			SET is_sticky = {int:state}
+			WHERE id_topic IN ({array_int:topics})',
 			[
-				'current_topic' => self::$topic_id,
-				'is_sticky' => empty($is_sticky) ? 1 : 0,
+				'topics' => array_map(fn($row) => (int) $row['topic'], $rows),
+				'state' => (int) $sticky_state,
 			],
 		);
 
-		// Log this sticky action - always a moderator thing.
-		Logging::logAction(empty($is_sticky) ? 'sticky' : 'unsticky', ['topic' => self::$topic_id, 'board' => Board::$info->id]);
+		foreach ($rows as $row) {
+			// Log this sticky action - always a moderator thing.
+			Logging::logAction($sticky_state ? 'sticky' : 'unsticky', $row);
 
-		// Notify people that this topic has been stickied?
-		if (empty($is_sticky)) {
-			Mail::sendNotifications(self::$topic_id, 'sticky');
+			// Notify people that this topic has been stickied?
+			if ($sticky_state) {
+				Mail::sendNotifications((int) $row['topic'], 'sticky');
+			}
 		}
 
-		// Take them back to the now stickied topic.
-		Utils::redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
+		return array_map(fn($row) => (int) $row['topic'], $rows);
 	}
 
 	/**
 	 * Approves or unapproves topics.
+	 *
+	 * Doesn't check permissions.
 	 *
 	 * @param array|int $topics Array of topic ids.
 	 * @param bool $approve Whether to approve the topics. If false, unapproves them instead.
@@ -750,9 +721,7 @@ class Topic implements \ArrayAccess
 	 */
 	public static function approve(array|int $topics, bool $approve = true): bool
 	{
-		if (!is_array($topics)) {
-			$topics = [$topics];
-		}
+		$topics = (array) $topics;
 
 		if (empty($topics)) {
 			return false;
@@ -783,13 +752,16 @@ class Topic implements \ArrayAccess
 	}
 
 	/**
-	 * Moves one or more topics to a specific board. (doesn't check permissions.)
-	 * Determines the source boards for the supplied topics
-	 * Handles the moving of mark_read data
-	 * Updates the posts count of the affected boards
+	 * Moves one or more topics to a specific board.
 	 *
-	 * @param array|int $topics The ID of a single topic to move or an array containing the IDs of multiple topics to move
-	 * @param int $toBoard The ID of the board to move the topics to
+	 * Doesn't check permissions.
+	 * Determines the source boards for the supplied topics.
+	 * Handles the moving of mark_read data.
+	 * Updates the posts count of the affected boards.
+	 *
+	 * @param array|int $topics The ID of a single topic to move or an array
+	 *    containing the IDs of multiple topics to move.
+	 * @param int $toBoard The ID of the board to move the topics to.
 	 */
 	public static function move(array|int $topics, int $toBoard): void
 	{

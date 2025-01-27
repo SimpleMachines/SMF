@@ -647,7 +647,8 @@ class Unread implements ActionInterface
 					'current_member' => User::$me->id,
 				],
 			);
-			list($this->earliest_msg) = Db::$db->fetch_row($request);
+			list($earliest_msg) = Db::$db->fetch_row($request);
+			$this->earliest_msg = (int) $earliest_msg;
 			Db::$db->free_result($request);
 		} else {
 			$request = Db::$db->query(
@@ -660,7 +661,8 @@ class Unread implements ActionInterface
 					'current_member' => User::$me->id,
 				],
 			);
-			list($this->earliest_msg) = Db::$db->fetch_row($request);
+			list($earliest_msg) = Db::$db->fetch_row($request);
+			$this->earliest_msg = (int) $earliest_msg;
 			Db::$db->free_result($request);
 		}
 
@@ -670,7 +672,7 @@ class Unread implements ActionInterface
 		} else {
 			// Using caching, when possible, to ignore the below slow query.
 			if (isset($_SESSION['cached_log_time']) && $_SESSION['cached_log_time'][0] + 45 > time()) {
-				$earliest_msg2 = $_SESSION['cached_log_time'][1];
+				$earliest_msg2 = (int) $_SESSION['cached_log_time'][1];
 			} else {
 				// This query is pretty slow, but it's needed to ensure nothing crucial is ignored.
 				$request = Db::$db->query(
@@ -683,6 +685,7 @@ class Unread implements ActionInterface
 					],
 				);
 				list($earliest_msg2) = Db::$db->fetch_row($request);
+				$earliest_msg2 = (int) $earliest_msg2;
 				Db::$db->free_result($request);
 
 				// In theory this could be zero, if the first ever post is unread, so fudge it ;)

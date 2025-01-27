@@ -27,7 +27,10 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Parser;
+use SMF\Theme;
 use SMF\Time;
 use SMF\Topic;
 use SMF\User;
@@ -45,6 +48,16 @@ class JavaScriptModify implements ActionInterface
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
+	}
 
 	/**
 	 * Does the job.
@@ -280,6 +293,7 @@ class JavaScriptModify implements ActionInterface
 		}
 
 		if (isset($_REQUEST['xml'])) {
+			Theme::loadTemplate('Xml');
 			Utils::$context['sub_template'] = 'modifydone';
 
 			if (empty($post_errors) && isset($msgOptions['subject'], $msgOptions['body'])) {

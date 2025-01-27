@@ -29,6 +29,81 @@ trait ActionTrait
 	 */
 	protected static self $obj;
 
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Determines whether this action allows access if guest access is restricted.
+	 *
+	 * @return bool True if access is allowed, false otherwise.
+	 */
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * Determines whether this action allows access in maintenance mode.
+	 *
+	 * @return bool True if access is allowed, false otherwise.
+	 */
+	public function canShowInMaintenanceMode(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * Determines whether this action can be logged in the online log.
+	 *
+	 * @return bool
+	 */
+	public function canBeLogged(): bool
+	{
+		return true;
+	}
+
+	/**
+	 * Determines whether this is a simple action.
+	 *
+	 * @return bool
+	 */
+	public function isSimpleAction(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * Gets the output type for this action.
+	 *
+	 * @return OutputTypeInterface
+	 */
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Html();
+	}
+
+	/**
+	 * Determines whether this action can be accessed without accepting
+	 * the registration agreement and privacy policy.
+	 *
+	 * @return bool
+	 */
+	public function isAgreementAction(): bool
+	{
+		return false;
+	}
+
+	/**
+	 * Determines whether debugging info should be shown.
+	 *
+	 * @return bool
+	 */
+	public function canShowDebuggingInfo(): bool
+	{
+		return true;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/

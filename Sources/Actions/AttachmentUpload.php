@@ -21,6 +21,8 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\User;
 use SMF\Utils;
 
@@ -107,6 +109,21 @@ class AttachmentUpload implements ActionInterface
 	 * @var string|bool The current sub-action, or false if there isn't one
 	 */
 	protected $_sa = false;
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
+	}
 
 	/**
 	 * Attachments constructor.

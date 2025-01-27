@@ -784,7 +784,7 @@ class Boards implements ActionInterface
 	/**
 	 * Used to retrieve data for modifying a board category.
 	 */
-	public function modifyCat(): void
+	public static function modifyCat(): void
 	{
 		// Get some information about the boards and the cats.
 		Category::getTree();
@@ -793,7 +793,7 @@ class Boards implements ActionInterface
 		$allowed_sa = ['add', 'modify', 'cut'];
 
 		// Check our input.
-		$_POST['id'] = empty($_POST['id']) ? array_keys((array) Board::$info) : (int) $_POST['id'];
+		$_POST['id'] = empty($_POST['id']) ? array_keys((array) current(Board::$loaded)) : (int) $_POST['id'];
 		$_POST['id'] = substr($_POST['id'][1], 0, 3);
 
 		// Select the stuff we need from the DB.
@@ -930,6 +930,11 @@ class Boards implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		// Special handling for modifycat.
+		if (($_REQUEST['action'] ?? '') === 'modifycat') {
+			self::modifyCat();
+		}
+
 		// Everything's gonna need this.
 		Lang::load('ManageBoards');
 
@@ -954,12 +959,6 @@ class Boards implements ActionInterface
 		// Default to sub action 'main' or 'settings' depending on permissions.
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('manage_boards') ? 'main' : 'settings');
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	// code...
 }
 
 ?>

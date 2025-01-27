@@ -344,7 +344,8 @@ class Recent implements ActionInterface
 					'current_board' => Board::$info->id,
 				],
 			);
-			list($this->total_posts, $redirect) = Db::$db->fetch_row($request);
+			list($total_posts, $redirect) = Db::$db->fetch_row($request);
+			$this->total_posts = (int) $total_posts;
 			Db::$db->free_result($request);
 
 			// If this is a redirection board, don't bother counting topics here...
