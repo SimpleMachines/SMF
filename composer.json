@@ -1,24 +1,119 @@
 {
-    "name": "simplemachines/smf",
-    "repositories": [
-        {
-            "url": "https://github.com/SimpleMachines/BuildTools.git",
-            "type": "vcs"
-        }
+    "name": "mezzio/mezzio-skeleton",
+    "description": "Laminas mezzio skeleton. Begin developing PSR-15 middleware applications in seconds!",
+    "type": "project",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "mezzio",
+        "skeleton",
+        "middleware",
+        "psr",
+        "psr-7",
+        "psr-11",
+        "psr-15"
     ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "require-dev": {
-        "simplemachines/build-tools": "dev-release-3.0",
-        "friendsofphp/php-cs-fixer": "^3.40"
-    },
-    "scripts": {
-        "lint": "php-cs-fixer --quiet check --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\") || php-cs-fixer check --diff --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\")",
-        "lint-fix": "php-cs-fixer fix -v --config .php-cs-fixer.dist.php --path-mode=intersection $(git diff --name-only \"*.php\")"
+    "homepage": "https://mezzio.dev",
+    "support": {
+        "docs": "https://docs.mezzio.dev/mezzio/",
+        "issues": "https://github.com/mezzio/mezzio-skeleton/issues",
+        "source": "https://github.com/mezzio/mezzio-skeleton",
+        "rss": "https://github.com/mezzio/mezzio-skeleton/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
     },
     "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/package-versions-deprecated": true,
+            "laminas/laminas-component-installer": true
+        },
         "platform": {
-            "php": "8.0.0"
+            "php": "8.1.99"
         }
+    },
+    "extra": {
+        "laminas": {
+            "component-whitelist": [
+                "mezzio/mezzio",
+                "mezzio/mezzio-helpers",
+                "mezzio/mezzio-router",
+                "laminas/laminas-httphandlerrunner",
+                "mezzio/mezzio-fastroute",
+                "mezzio/mezzio-laminasviewrenderer"
+            ]
+        }
+    },
+    "require": {
+        "php": "~8.1.0 || ~8.2.0 || ~8.3.0",
+        "composer/package-versions-deprecated": "^1.10.99",
+        "laminas/laminas-component-installer": "^2.6 || ^3.0",
+        "laminas/laminas-config-aggregator": "^1.6",
+        "laminas/laminas-diactoros": "^3.0.0",
+        "laminas/laminas-stdlib": "^3.6",
+        "mezzio/mezzio": "^3.7",
+        "mezzio/mezzio-helpers": "^5.7",
+        "laminas/laminas-servicemanager": "^3.22",
+        "mezzio/mezzio-fastroute": "^3.11.0",
+        "mezzio/mezzio-laminasviewrenderer": "^2.15"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~2.5.0",
+        "laminas/laminas-development-mode": "^3.12.0",
+        "mezzio/mezzio-tooling": "^2.9",
+        "phpunit/phpunit": "^10.5.5",
+        "psalm/plugin-phpunit": "^0.18.4",
+        "roave/security-advisories": "dev-master",
+        "vimeo/psalm": "^5.18",
+        "filp/whoops": "^2.15.4"
+    },
+    "autoload": {
+		"files": [
+			"src/SMF/src/Subs-Compat.php"
+		],
+        "psr-4": {
+            "SMF\\": "src/SMF/src/"
+        }
+    },
+    "autoload-dev": {
+		"files": [
+			"src/SMF/src/Subs-Compat.php"
+		],
+        "psr-4": {
+            "SMFTest\\": "test/SMFTest/"
+        }
+    },
+    "scripts": {
+        "post-create-project-cmd": [
+            "@development-enable"
+        ],
+        "post-install-cmd": "@clear-config-cache",
+        "post-update-cmd": "@clear-config-cache",
+        "development-disable": "laminas-development-mode disable",
+        "development-enable": "laminas-development-mode enable",
+        "development-status": "laminas-development-mode status",
+        "mezzio": "laminas --ansi",
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "clear-config-cache": "php bin/clear-config-cache.php",
+        "enable-codestandard": "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run",
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "php -S 0.0.0.0:8080 -t public/"
+        ],
+        "static-analysis": "psalm --stats",
+        "static-analysis-update-baseline": "psalm --stats --update-baseline",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "scripts-descriptions": {
+        "clear-config-cache": "Clears merged config cache. Required for config changes to be applied.",
+        "static-analysis": "Run static analysis tool Psalm.",
+        "static-analysis-update-baseline": "Run static analysis tool Psalm and update baseline."
     }
 }
