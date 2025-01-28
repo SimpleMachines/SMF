@@ -22,6 +22,8 @@
         "chat": "https://laminas.dev/chat",
         "forum": "https://discourse.laminas.dev"
     },
+	"minimum-stability": "dev",
+    "prefer-stable": true,
     "config": {
         "sort-packages": true,
         "allow-plugins": {
@@ -30,7 +32,7 @@
             "laminas/laminas-component-installer": true
         },
         "platform": {
-            "php": "8.1.99"
+            "php": "8.3.99"
         }
     },
     "extra": {
@@ -45,28 +47,39 @@
             ]
         }
     },
+	"repositories": [
+        {
+            "type": "path",
+            "url": "../../Github/axleus-org/*",
+            "options": {
+                "symlink": true,
+                "versions": "dev-master"
+            }
+        }
+    ],
     "require": {
-        "php": "~8.1.0 || ~8.2.0 || ~8.3.0",
+        "php": "~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0",
+        "axleus/axleus-db": "dev-master",
         "composer/package-versions-deprecated": "^1.10.99",
         "laminas/laminas-component-installer": "^2.6 || ^3.0",
         "laminas/laminas-config-aggregator": "^1.6",
         "laminas/laminas-diactoros": "^3.0.0",
+        "laminas/laminas-servicemanager": "^3.22",
         "laminas/laminas-stdlib": "^3.6",
         "mezzio/mezzio": "^3.7",
-        "mezzio/mezzio-helpers": "^5.7",
-        "laminas/laminas-servicemanager": "^3.22",
         "mezzio/mezzio-fastroute": "^3.11.0",
+        "mezzio/mezzio-helpers": "^5.7",
         "mezzio/mezzio-laminasviewrenderer": "^2.15"
     },
     "require-dev": {
+        "filp/whoops": "^2.15.4",
         "laminas/laminas-coding-standard": "~2.5.0",
         "laminas/laminas-development-mode": "^3.12.0",
         "mezzio/mezzio-tooling": "^2.9",
         "phpunit/phpunit": "^10.5.5",
         "psalm/plugin-phpunit": "^0.18.4",
         "roave/security-advisories": "dev-master",
-        "vimeo/psalm": "^5.18",
-        "filp/whoops": "^2.15.4"
+        "vimeo/psalm": "^5.18"
     },
     "autoload": {
 		"files": [

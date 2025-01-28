@@ -1,35 +1,69 @@
 <?php
 
-declare(strict_types=1);
+	declare(strict_types=1);
 
-// phpcs:disable PSR12.Files.FileHeader.IncorrectOrder
+	// phpcs:disable PSR12.Files.FileHeader.IncorrectOrder
 
-/**
- * Development-only configuration.
- *
- * Put settings you want enabled when under development mode in this file, and
- * check it into your repository.
- *
- * Developers on your team will then automatically enable them by calling on
- * `composer development-enable`.
- */
+	/**
+	* Development-only configuration.
+	*
+	* Put settings you want enabled when under development mode in this file, and
+	* check it into your repository.
+	*
+	* Developers on your team will then automatically enable them by calling on
+	* `composer development-enable`.
+	*/
 
-use Mezzio\Container;
-use Mezzio\Middleware\ErrorResponseGenerator;
+	use Mezzio\Container;
+	use Mezzio\Middleware\ErrorResponseGenerator;
 
-return [
-    'dependencies' => [
-        'factories' => [
-            ErrorResponseGenerator::class => Container\WhoopsErrorResponseGeneratorFactory::class,
-            'Mezzio\Whoops'               => Container\WhoopsFactory::class,
-            'Mezzio\WhoopsPageHandler'    => Container\WhoopsPageHandlerFactory::class,
-        ],
-    ],
-    'whoops'       => [
-        'json_exceptions' => [
-            'display'    => true,
-            'show_trace' => true,
-            'ajax_only'  => true,
-        ],
-    ],
-];
+	return [
+		'dependencies' => [
+			'factories' => [
+				ErrorResponseGenerator::class => Container\WhoopsErrorResponseGeneratorFactory::class,
+				'Mezzio\Whoops'               => Container\WhoopsFactory::class,
+				'Mezzio\WhoopsPageHandler'    => Container\WhoopsPageHandlerFactory::class,
+			],
+		],
+		'whoops'       => [
+			'json_exceptions' => [
+				'display'    => true,
+				'show_trace' => true,
+				'ajax_only'  => true,
+			],
+		],
+		'maintenance'           => 0,
+		'mtitle'                => 'Maintenance Mode',
+		'mmessage'              => 'The forum is in maintenance mode. Please try again later.',
+		'mbname'                => 'My Community',
+		'language'              => '',
+		'boardurl'              => 'http://simple-machines.local',
+		'cookiename'            => 'SMFCookie101',
+		'auth_secret'           => '',
+		'db_type'               => 'mysql',
+		'db_port'               => 3306,
+		'db_server'             => 'localhost',
+		'db_name'               => 'smf',
+		'db_user'               => 'root',
+		'db_passwd'             => '',
+		'db_character_set'      => 'utf8',
+		'db_prefix'             => 'smf_',
+		'db_persist'            => false,
+		'db_error_send'         => false,
+		'db_mb4'                => null,
+		'ssi_db_user'           => '',
+		'ssi_db_passwd'         => '',
+		'cache_accelerator'     => '',
+		'cache_enable'          => 0,
+		'cache_memcached'       => '',
+		'cachedir'              => 'C:/htdocs/smf-mezzio.local/data/cache',
+		'image_proxy_enabled'   => false,
+		'image_proxy_secret'    => '5948b69425a7c3dbea43',
+		'image_proxy_maxsize'   => 5192,
+		'boarddir'              => 'C:/htdocs/smf-mezzio.local',
+		'sourcedir'             => 'C:/htdocs/smf-mezzio.local/src/SMF/src',
+		'packagesdir'           => 'C:/htdocs/smf-mezzio.local/src/SMF/Packages',
+		'languagedir'           => 'C:/htdocs/smf-mezzio.local/src/SMF/languages',
+		'backward_compatiblity' => 0,
+	];
+	// phpcs:enable

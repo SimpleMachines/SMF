@@ -8,6 +8,8 @@ if (PHP_SAPI === 'cli-server' && $_SERVER['SCRIPT_FILENAME'] !== __FILE__) {
 }
 
 chdir(dirname(__DIR__));
+
+require 'config/env.php';// SMF ENV constants
 require 'vendor/autoload.php';
 
 /**
@@ -24,7 +26,7 @@ require 'vendor/autoload.php';
     // Execute programmatic/declarative middleware pipeline and routing
     // configuration statements
     (require 'config/pipeline.php')($app, $factory, $container);
-    (require 'config/routes.php')($app, $factory, $container);
+   // (require 'config/routes.php')($app, $factory, $container);
 
     $app->run();
 })();

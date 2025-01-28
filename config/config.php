@@ -13,6 +13,7 @@ $cacheConfig = [
 ];
 
 $aggregator = new ConfigAggregator([
+    \Laminas\Db\ConfigProvider::class,
     \Mezzio\Tooling\ConfigProvider::class,
     \Mezzio\LaminasView\ConfigProvider::class,
     \Mezzio\Helper\ConfigProvider::class,
@@ -30,7 +31,7 @@ $aggregator = new ConfigAggregator([
         : function (): array {
             return [];
         },
-
+    \Axleus\Db\ConfigProvider::class,
     // Default App module config
     SMF\ConfigProvider::class,
 

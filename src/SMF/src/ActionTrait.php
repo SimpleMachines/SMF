@@ -137,7 +137,7 @@ trait ActionTrait
 	/**
 	 * Constructor. Protected to force instantiation via self::load().
 	 */
-	protected function __construct() {}
-}
+	public function __construct() {}
+	}
 
 ?>
