@@ -45,11 +45,11 @@ class ConfigProvider
 				User::class                    => Container\UserFactory::class,
 			],
 			'invokables' => [
-				Handler\PingHandler::class => Handler\PingHandler::class,
-				Handler\BoardIndexHandler::class => Handler\BoardIndexHandler::class,
+				Handler\PingHandler::class         => Handler\PingHandler::class,
+				Handler\BoardIndexHandler::class   => Handler\BoardIndexHandler::class,
 				Handler\MessageIndexHandler::class => Handler\MessageIndexHandler::class,
-				Handler\DisplayHandler::class => Handler\DisplayHandler::class,
-				Theme::class => Theme::class,
+				Handler\DisplayHandler::class      => Handler\DisplayHandler::class,
+				Theme::class                       => Theme::class,
 			],
 		];
 	}
