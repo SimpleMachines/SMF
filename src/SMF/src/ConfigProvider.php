@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use Mezzio\Application;
+use Mezzio\Helper\BodyParams\BodyParamsMiddleware;
 use Mezzio\Container\ApplicationConfigInjectionDelegator;
 
 /**
@@ -49,6 +50,7 @@ class ConfigProvider
 				Handler\BoardIndexHandler::class   => Handler\BoardIndexHandler::class,
 				Handler\MessageIndexHandler::class => Handler\MessageIndexHandler::class,
 				Handler\DisplayHandler::class      => Handler\DisplayHandler::class,
+				Handler\UtilityHandler::class      => Handler\UtilityHandler::class,
 				Theme::class                       => Theme::class,
 			],
 		];
@@ -79,6 +81,12 @@ class ConfigProvider
 				'path'       => '/ping',
 				'middleware' => Handler\PingHandler::class,
 				'name'       => 'api.ping',
+				'allowed_methods' => ['GET'],
+			],
+			[
+				'path'       => '/utility/{action:[a-zA-Z0-9_-]+}',
+				'middleware' => Handler\UtilityHandler::class,
+				'name'       => 'util',
 				'allowed_methods' => ['GET'],
 			],
 		];

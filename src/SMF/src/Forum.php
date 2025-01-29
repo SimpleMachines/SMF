@@ -98,9 +98,9 @@ class Forum
 			'', Actions\Calendar::class,
 		],
 		// Deprecated; is now a sub-action
-		'clock' => [
-			'', Actions\Calendar::class,
-		],
+		// 'clock' => [
+		// 	'', Actions\Calendar::class,
+		// ],
 		'coppa' => [
 			'', Actions\CoppaForm::class,
 		],
@@ -174,9 +174,9 @@ class Forum
 			'', Actions\Moderation\Main::class,
 		],
 		// Deprecated; is now a sub-action
-		'modifycat' => [
-			'', Actions\Admin\Boards::class,
-		],
+		// 'modifycat' => [
+		// 	'', Actions\Admin\Boards::class,
+		// ],
 		'movetopic' => [
 			'', Actions\TopicMove::class,
 		],
@@ -268,9 +268,9 @@ class Forum
 			'', Actions\TopicSticky::class,
 		],
 		// Deprecated; will be redirected to the correct location.
-		'theme' => [
-			'', Actions\Admin\Themes::class,
-		],
+		// 'theme' => [
+		// 	'', Actions\Admin\Themes::class,
+		// ],
 		'themechooser' => [
 			'', Actions\ThemeChooser::class,
 		],
