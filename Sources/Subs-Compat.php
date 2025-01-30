@@ -3376,11 +3376,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return SMF\Parser::highlightPhpCode($code);
 	}
 
-	function sanitizeMSCutPaste(string $string): string
-	{
-		return SMF\Parser::sanitizeMSCutPaste($string);
-	}
-
 	function parse_bbc(
 		string|bool $message,
 		bool|string $smileys = true,
@@ -5275,6 +5270,67 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function create_control_verification(array &$options, bool $do_test = false): bool|array
 	{
 		return SMF\Verifier::create($options, $do_test);
+	}
+
+	/*
+	 * Begin deprecated functions that don't live anywhere else.
+	 */
+
+	/**
+	 * Microsoft uses their own character set Code Page 1252 (CP1252), which is
+	 * a superset of ISO 8859-1, defining several characters between DEC 128 and
+	 * 159 that are not normally displayable. This converts the popular ones
+	 * that appear from a cut and paste from Windows.
+	 *
+	 * @deprecated 3.0
+	 *
+	 * @param string $string The string.
+	 * @return string The sanitized string.
+	 */
+	function sanitizeMSCutPaste(string $string): string
+	{
+		if (empty($string)) {
+			return $string;
+		}
+
+		// UTF-8 occurrences of MS special characters.
+		$findchars_utf8 = [
+			"\xe2\x80\x9a",	// single low-9 quotation mark, U+201A
+			"\xe2\x80\x9e",	// double low-9 quotation mark, U+201E
+			"\xe2\x80\xa6",	// horizontal ellipsis, U+2026
+			"\xe2\x80\x98",	// left single curly quote, U+2018
+			"\xe2\x80\x99",	// right single curly quote, U+2019
+			"\xe2\x80\x9c",	// left double curly quote, U+201C
+			"\xe2\x80\x9d",	// right double curly quote, U+201D
+		];
+
+		// windows 1252 / iso equivalents
+		$findchars_iso = [
+			chr(130),
+			chr(132),
+			chr(133),
+			chr(145),
+			chr(146),
+			chr(147),
+			chr(148),
+		];
+
+		// safe replacements
+		$replacechars = [
+			',',	// &sbquo;
+			',,',	// &bdquo;
+			'...',	// &hellip;
+			"'",	// &lsquo;
+			"'",	// &rsquo;
+			'"',	// &ldquo;
+			'"',	// &rdquo;
+		];
+
+		$encoding = (!empty(Utils::$context['utf8']) ? 'UTF-8' : (!empty(SMF\Config::$modSettings['global_character_set']) ? SMF\Config::$modSettings['global_character_set'] : (!empty(SMF\Lang::$txt['lang_character_set']) ? SMF\Lang::$txt['lang_character_set'] : 'UTF-8')));
+
+		$string = str_replace($encoding === 'UTF-8' ? $findchars_utf8 : $findchars_iso, $replacechars, $string);
+
+		return $string;
 	}
 }
 

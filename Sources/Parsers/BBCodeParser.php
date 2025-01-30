@@ -864,9 +864,6 @@ class BBCodeParser extends Parser
 		$this->setDisabled();
 		$this->setBbcCodes();
 
-		// Clean up any cut/paste issues we may have
-		$this->message = self::sanitizeMSCutPaste($this->message);
-
 		// If the load average is too high, don't parse the BBC.
 		if ($this->highLoadAverage()) {
 			return $this->message;
