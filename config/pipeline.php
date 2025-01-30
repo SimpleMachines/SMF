@@ -14,6 +14,7 @@ use Mezzio\Router\Middleware\ImplicitOptionsMiddleware;
 use Mezzio\Router\Middleware\MethodNotAllowedMiddleware;
 use Mezzio\Router\Middleware\RouteMiddleware;
 use Psr\Container\ContainerInterface;
+use SMF\Middleware\InitMiddleware;
 
 /**
  * Setup middleware pipeline:
@@ -29,6 +30,7 @@ return function (Application $app, MiddlewareFactory $factory, ContainerInterfac
     // - bootstrapping
     // - pre-conditions
     // - modifications to outgoing responses
+	$app->pipe(InitMiddleware::class);
     //
     // Piped Middleware may be either callables or service names. Middleware may
     // also be passed as an array; each item in the array must resolve to
@@ -59,6 +61,7 @@ return function (Application $app, MiddlewareFactory $factory, ContainerInterfac
 
     // Seed the UrlHelper with the routing results:
     $app->pipe(UrlHelperMiddleware::class);
+
 
     // Add more middleware here that needs to introspect the routing results; this
     // might include:

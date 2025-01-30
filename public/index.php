@@ -9,7 +9,6 @@ if (PHP_SAPI === 'cli-server' && $_SERVER['SCRIPT_FILENAME'] !== __FILE__) {
 
 chdir(dirname(__DIR__));
 
-require 'config/env.php';// SMF ENV constants
 require 'vendor/autoload.php';
 
 /**
@@ -19,6 +18,9 @@ require 'vendor/autoload.php';
     /** @var \Psr\Container\ContainerInterface $container */
     $container = require 'config/container.php';
 
+	// making sure SMF's bullshit config is handled early
+	$config = $container->get(\SMF\Config::class);
+	$config::getDbLastError();
     /** @var \Mezzio\Application $app */
     $app = $container->get(\Mezzio\Application::class);
     $factory = $container->get(\Mezzio\MiddlewareFactory::class);

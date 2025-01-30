@@ -18,6 +18,7 @@ use const JSON_PRETTY_PRINT;
 
 final class UtilityHandler implements RequestHandlerInterface
 {
+	private const BASE_NAMEPACE = 'SMF\\Actions\\';
 	private const ACTION_DIRECTORIES = ['Admin', 'Moderation', 'Profile'];
 	private const ACTION_DIR_PATTERN = __DIR__ . '/../Actions/%s/*.php';
 	private const ACTION_PATTERN = __DIR__ . '/../Actions/*.php';
@@ -41,7 +42,7 @@ final class UtilityHandler implements RequestHandlerInterface
 			while ($iterator->valid()) {
 				$className = $iterator->current()->getBasename('.php');
 				$subactions = function() use ($directory, $className) {
-					$fqcn = 'SMF\\Actions\\' . $directory . '\\' . $className;
+					$fqcn = self::BASE_NAMEPACE . $directory . '\\' . $className;
 					return isset($fqcn::$subactions) ? $fqcn::$subactions : [];
 				};
 				$data['directories'][$directory][$className] = $subactions();
@@ -53,8 +54,8 @@ final class UtilityHandler implements RequestHandlerInterface
 
 		while ($iterator->valid()) {
 			$className = $iterator->current()->getBasename('.php');
-			$subactions = function() use ( $className) {
-				$fqcn = 'SMF\\Actions\\' . $className;
+			$subactions = function() use ($className) {
+				$fqcn = self::BASE_NAMEPACE . $className;
 				return isset($fqcn::$subactions) ? $fqcn::$subactions : [];
 			};
 

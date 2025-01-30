@@ -874,7 +874,10 @@ class Config
 	/***********************
 	 * Public static methods
 	 ***********************/
-
+	public function __construct()
+	{
+		// This class is not meant to be instantiated.
+	}
 	/**
 	 * Loads properties directly from Settings.php.
 	 */

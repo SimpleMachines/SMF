@@ -72,6 +72,9 @@
         "mezzio/mezzio-laminasviewrenderer": "^2.15"
     },
     "require-dev": {
+        "axleus/axleus-configmanager": "dev-master",
+        "axleus/axleus-core": "dev-master",
+        "axleus/axleus-tooling": "dev-master",
         "filp/whoops": "^2.15.4",
         "laminas/laminas-coding-standard": "~2.5.0",
         "laminas/laminas-development-mode": "^3.12.0",
@@ -83,6 +86,7 @@
     },
     "autoload": {
 		"files": [
+			"config/env.php",
 			"src/SMF/src/Subs-Compat.php"
 		],
         "psr-4": {

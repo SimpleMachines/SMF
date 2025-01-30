@@ -36,22 +36,27 @@ class ConfigProvider
 	public function getDependencies(): array
 	{
 		return [
+			'aliases'    => [
+				Db\DatabaseApiInterface::class => Db\DatabaseApi::class,
+			],
 			'delegators' => [
 				Application::class => [ // allow routes and pipeline definitions from configuration
 					ApplicationConfigInjectionDelegator::class,
 				],
 			],
 			'factories'  => [
-				Handler\HomePageHandler::class => Handler\HomePageHandlerFactory::class,
-				User::class                    => Container\UserFactory::class,
+				Config::class                    => Container\ConfigFactory::class,
+				Db\DatabaseApi::class            => Container\DatabaseApiFactory::class,
+				Handler\BoardIndexHandler::class => Handler\Container\BoardIndexHandlerFactory::class,
+				Handler\HomePageHandler::class   => Handler\HomePageHandlerFactory::class,
+				Theme::class					 => Container\ThemeFactory::class,
+			    User::class                      => Container\UserFactory::class,
 			],
 			'invokables' => [
 				Handler\PingHandler::class         => Handler\PingHandler::class,
-				Handler\BoardIndexHandler::class   => Handler\BoardIndexHandler::class,
 				Handler\MessageIndexHandler::class => Handler\MessageIndexHandler::class,
 				Handler\DisplayHandler::class      => Handler\DisplayHandler::class,
 				Handler\UtilityHandler::class      => Handler\UtilityHandler::class,
-				Theme::class                       => Theme::class,
 			],
 		];
 	}

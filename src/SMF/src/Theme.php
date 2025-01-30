@@ -15,11 +15,15 @@ declare(strict_types=1);
 
 namespace SMF;
 
+use Mezzio\Template\TemplateRendererInterface;
 use SMF\Actions\Agreement;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\WebFetch\WebFetchApi;
+
+use function ob_start;
+use function ob_end_clean;
 
 /**
  * Represents a loaded theme. Also provides many theme-related static methods.
@@ -34,7 +38,7 @@ use SMF\WebFetch\WebFetchApi;
  * The data previously available via the deprecated global $options array is
  * now available via SMF\Theme::$current->options.
  */
-class Theme
+class Theme implements TemplateRendererInterface
 {
 	/*******************
 	 * Public properties
@@ -140,6 +144,37 @@ class Theme
 		'theme_url',
 		'name',
 	];
+
+	public function __invoke()
+	{
+		return new self();
+	}
+
+	public function render(
+		string $name,
+		$params = [],
+		array|string $style_sheets = [],
+		bool $fatal = true
+	): string
+	{
+		//ob_start();
+		// Load the template.
+		self::loadTemplate($name, $style_sheets, $fatal);
+		self::template_header();
+		self::loadSubTemplate(Utils::$context['sub_template'] ?? 'main');
+		self::template_footer();
+		if (! isset($_REQUEST['xml'])) {
+			Logging::displayDebug();
+		}
+
+		// Return the rendered template.
+		return ob_get_clean();
+	}
+
+	public function addPath(string $path, ?string $namespace = null): void {}
+	public function getPaths(): array { return []; }
+	public function addDefaultParam(string $templateName, string $param, mixed $value): void {}
+
 
 	/***********************
 	 * Public static methods
@@ -1870,7 +1905,7 @@ class Theme
 	 * @param int $id The ID of the theme to load.
 	 * @param int $member The ID of the member whose theme preferences we want.
 	 */
-	protected function __construct(int $id = 0, int $member = -1)
+	public function __construct(int $id = 0, int $member = -1)
 	{
 		$this->id = $id;
 

@@ -13,6 +13,14 @@ $cacheConfig = [
 ];
 
 $aggregator = new ConfigAggregator([
+    \Axleus\Tooling\ConfigProvider::class,
+    \Axleus\Admin\ConfigProvider::class,
+    \Axleus\ConfigManager\ConfigProvider::class,
+    \Axleus\UserManager\ConfigProvider::class,
+    \Axleus\Filter\ConfigProvider::class,
+    \Axleus\Message\ConfigProvider::class,
+    \Axleus\Mailer\ConfigProvider::class,
+    \Axleus\Validator\ConfigProvider::class,
     \Laminas\Db\ConfigProvider::class,
     \Mezzio\Tooling\ConfigProvider::class,
     \Mezzio\LaminasView\ConfigProvider::class,
