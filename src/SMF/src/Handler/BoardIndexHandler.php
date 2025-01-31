@@ -181,9 +181,14 @@ class BoardIndexHandler implements RequestHandlerInterface
 		// Allow mods to add additional buttons here
 		IntegrationHook::call('integrate_mark_read_button');
 
-		$sent = \headers_sent($file, $line);
+		//$sent = \headers_sent($file, $line);
 
-		return new HtmlResponse($this->theme->render('BoardIndex', ['minimize'], 'index'));
+		return new HtmlResponse(
+			$this->theme->render(
+				name: 'BoardIndex',
+				style_sheets: 'index'
+			)
+		);
 	}
 
 	/**
