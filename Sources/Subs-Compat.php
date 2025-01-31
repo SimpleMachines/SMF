@@ -3817,6 +3817,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return $ip->expand();
 	}
 
+	function matchIPtoCIDR(string $ip_address, string $cidr_address): bool
+	{
+		return (new SMF\IP($ip_address))->matchtoCIDR($cidr_address);
+	}
+
 	/**
 	 * Begin
 	 * SMF\ItemList
@@ -4250,11 +4255,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function ob_sessrewrite(string $buffer): string
 	{
 		return SMF\QueryString::ob_sessrewrite($buffer);
-	}
-
-	function matchIPtoCIDR(string $ip_address, string $cidr_address): bool
-	{
-		return SMF\QueryString::matchIPtoCIDR($ip_address, $cidr_address);
 	}
 
 	/**
