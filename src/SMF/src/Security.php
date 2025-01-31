@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF;
 
+use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -235,6 +236,100 @@ class Security
 		}
 
 		// They haven't posted within the limit.
+		return false;
+	}
+
+	/**
+	 * Checks for the existence and security status of specific files and directories
+	 * required for the proper functioning of the system. Ensures that security measures
+	 * are applied and generates a list of warnings for any issues detected.
+	 *
+	 * Warnings include:
+	 * - Missing or insecure critical files (e.g., install.php, upgrade.php).
+	 * - Directories not properly secured (e.g., cache directory).
+	 * - Missing legal agreement or policy documents.
+	 * - Missing authentication secrets.
+	 *
+	 * @return bool|array Returns an array of warnings if any security risks are detected,
+	 *    or false if the user lacks the necessary permissions or is a guest.
+	 */
+	public static function checkSecurityFiles(): bool|array
+	{
+		if (User::$me->allowedTo('admin_forum') && !User::$me->is_guest) {
+			$security_files = [
+				'install.php',
+				'upgrade.php',
+				'convert.php',
+				'repair_paths.php',
+				'repair_settings.php',
+				'Settings.php~',
+				'Settings_bak.php~',
+			];
+
+			// Add your own files.
+			IntegrationHook::call('integrate_security_files', [&$security_files]);
+
+			// Filter out missing security files
+			$security_files = array_filter($security_files, function ($file) {
+				return file_exists(Config::$boarddir . '/' . $file);
+			});
+
+			// Determine attachment upload directory path
+			$path = (
+				!empty(Config::$modSettings['currentAttachmentUploadDir'])
+				? Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']]
+				: Config::$modSettings['attachmentUploadDir']
+			);
+
+			// Secure directories
+			self::secureDirectory($path, true);
+			self::secureDirectory(Config::$cachedir);
+
+			// Check for required files
+			$agreement = (
+				!empty(Config::$modSettings['requireAgreement'])
+				&& !file_exists(Config::$languagesdir . '/en_US/agreement.txt')
+			);
+			$policy_agreement = (
+				!empty(Config::$modSettings['requirePolicyAgreement'])
+				&& empty(Config::$modSettings['policy_' . Lang::$default])
+			);
+
+			// Compile warnings
+			$warnings = [];
+
+			foreach ($security_files as $security_file) {
+				$warnings['file'][] = ['not_removed', [
+					'filename' => $security_file,
+				]];
+
+				if (in_array($security_file, ['Settings.php~', 'Settings_bak.php~'])) {
+					$warnings['file'][] = ['not_removed_extra', [
+						'backup_filename' => $security_file,
+						'filename' => substr($security_file, 0, -1),
+					]];
+				}
+			}
+
+			if (!empty(CacheApi::$enable) && !is_writable(Config::$cachedir)) {
+				$warnings[] = ['cache_writable'];
+			}
+
+			if ($agreement) {
+				$warnings[] = ['agreement_missing'];
+			}
+
+			if ($policy_agreement) {
+				$warnings[] = ['policy_agreement_missing'];
+			}
+
+			if (!empty(Utils::$context['auth_secret_missing'])) {
+				$warnings[] = ['auth_secret_missing'];
+			}
+
+			return $warnings;
+		}
+
 		return false;
 	}
 

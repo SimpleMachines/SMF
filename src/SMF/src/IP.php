@@ -206,6 +206,53 @@ class IP implements \Stringable
 		return $this->host;
 	}
 
+	/**
+	 * Detect if a IP is in a CIDR address.
+	 *
+	 * @param string $cidr_address CIDR address to verify.
+	 * @return bool Whether the IP matches the CIDR.
+	 */
+	public function matchToCIDR(string $cidr_address): bool
+	{
+		list($cidr_network, $cidr_subnetmask) = preg_split('~/~', $cidr_address);
+
+		$ip_address = $this->ip;
+
+		// v6?
+		if ((str_contains($cidr_network, ':'))) {
+			if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) || !filter_var($cidr_network, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+				return false;
+			}
+
+			$ip_address = inet_pton($ip_address);
+			$cidr_network = inet_pton($cidr_network);
+			$binMask = str_repeat('f', (int) $cidr_subnetmask / 4);
+
+			switch ($cidr_subnetmask % 4) {
+				case 0:
+					break;
+
+				case 1:
+					$binMask .= '8';
+					break;
+
+				case 2:
+					$binMask .= 'c';
+					break;
+
+				case 3:
+					$binMask .= 'e';
+					break;
+			}
+			$binMask = str_pad($binMask, 32, '0');
+			$binMask = pack('H*', $binMask);
+
+			return ($ip_address & $binMask) == $cidr_network;
+		}
+
+		return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
