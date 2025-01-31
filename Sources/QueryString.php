@@ -342,6 +342,9 @@ class QueryString
 		// Should we redirect to HTTPS?
 		self::sslRedirect();
 
+		// Should we redirect because of an incorrectly added/removed 'www.'?
+		self::wwwRedirect();
+
 		// Make sure HTTP_USER_AGENT is set.
 		$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? Utils::htmlspecialchars(Db::$db->unescape_string($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : '';
 
@@ -548,6 +551,31 @@ class QueryString
 			}
 
 			Utils::redirectexit(strtr($_SERVER['REQUEST_URL'], ['http://' => 'https://']) . (str_contains($_SERVER['REQUEST_URL'], '?') ? ';' : '?') . 'sslRedirect');
+		}
+	}
+
+	/**
+	 * Checks if $_SERVER['REQUEST_URL'] is incorrect due to an added/removed
+	 * 'www.', and redirects if necessary.
+	 */
+	protected static function wwwRedirect(): void
+	{
+		if (SMF == 'SSI') {
+			return;
+		}
+
+		$requested_host = Url::create($_SERVER['REQUEST_URL'])->host;
+		$canonical_host = Url::create(Config::$boardurl)->host;
+
+		if ($requested_host === $canonical_host) {
+			return;
+		}
+
+		if (
+			$canonical_host === 'www.' . $requested_host
+			|| 'www.' . $canonical_host === $requested_host
+		) {
+			Utils::redirectexit(strtr($_SERVER['REQUEST_URL'], [$requested_host => $canonical_host]), false, true);
 		}
 	}
 

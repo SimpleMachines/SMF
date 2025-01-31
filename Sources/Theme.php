@@ -2022,28 +2022,17 @@ class Theme
 				}
 			}
 
-			// Hmm... check #2 - is it just different by a www?  Send them to the correct place!!
-			if (empty($do_fix) && strtr($detected_url, ['://' => '://www.']) == Config::$boardurl && (empty($_GET) || count($_GET) == 1) && SMF != 'SSI') {
-				// Okay, this seems weird, but we don't want an endless loop - this will make $_GET not empty ;).
-				if (empty($_GET)) {
-					Utils::redirectexit('wwwRedirect');
-				} else {
-					$k = key($_GET);
-					$v = current($_GET);
-
-					if ($k != 'wwwRedirect') {
-						Utils::redirectexit('wwwRedirect;' . $k . '=' . $v);
-					}
-				}
-			}
-
-			// #3 is just a check for SSL...
+			// #2 is just a check for SSL...
 			if (strtr($detected_url, ['https://' => 'http://']) == Config::$boardurl) {
 				$do_fix = true;
 			}
 
-			// Okay, #4 - perhaps it's an IP address?  We're gonna want to use that one, then. (assuming it's the IP or something...)
+			// Okay, #3 - perhaps it's an IP address?  We're gonna want to use that one, then. (assuming it's the IP or something...)
 			if (!empty($do_fix) || preg_match('~^http[s]?://(?:[\d\.:]+|\[[\d:]+\](?::\d+)?)(?:$|/)~', $detected_url) == 1) {
+				$do_fix = true;
+			}
+
+			if (!empty($do_fix)) {
 				// Caching is good ;).
 				$oldurl = Config::$boardurl;
 
