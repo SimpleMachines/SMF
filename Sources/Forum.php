@@ -620,6 +620,9 @@ class Forum
 	 */
 	protected function main(): void
 	{
+		// If the user needs to accept the agreement or privacy policy, redirect now.
+		$this->requireAgreement();
+
 		// If we are in a topic and don't have permission to approve it then duck out now.
 		if (!empty(Topic::$topic_id) && empty(Board::$info->cur_topic_approved) && !User::$me->allowedTo('approve_posts') && (User::$me->id != Board::$info->cur_topic_starter || User::$me->is_guest)) {
 			ErrorHandler::fatalLang('not_a_topic', false);
@@ -638,6 +641,36 @@ class Forum
 
 		// Make sure that our scheduled tasks have been running as intended.
 		Config::checkCron();
+	}
+
+	/**
+	 * If necessary, redirect to the agreement or privacy policy so that we can
+	 * force the user to accept the current version.
+	 */
+	protected function requireAgreement(): void
+	{
+		// Perhaps we've changed the agreement or privacy policy?
+		// Only redirect if all of the following conditions are met:
+		if (
+			// They're not a guest.
+			!empty(User::$me->id)
+			// They're not an admin.
+			&& empty(User::$me->is_admin)
+			// This isn't a called from SSI.
+			&& SMF != 'SSI'
+			// This isn't an XML request.
+			&& !isset($_REQUEST['xml'])
+			// They're trying to do an action that requires accepting the agreement and/or policy.
+			&& self::$current_action?->isAgreementAction() !== true
+			&& (
+				// They haven't accepted the latest version of the agreement.
+				Actions\Agreement::canRequireAgreement()
+				// Or they haven't accepted the latest version of the privacy policy.
+				|| Actions\Agreement::canRequirePrivacyPolicy()
+			)
+		) {
+			Utils::redirectexit('action=agreement');
+		}
 	}
 
 	/**

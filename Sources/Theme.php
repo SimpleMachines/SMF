@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use SMF\Actions\Agreement;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -1888,7 +1887,6 @@ class Theme
 	 */
 	protected function initialize(): void
 	{
-		$this->requireAgreement();
 		$this->fixUrl();
 
 		// Create User::$me if it is missing (e.g., an error very early in the login process).
@@ -1991,31 +1989,6 @@ class Theme
 
 		// We are ready to go.
 		Utils::$context['theme_loaded'] = true;
-	}
-
-	/**
-	 * If necessary, redirect to the agreement or privacy policy so that we can
-	 * force the user to accept the current version.
-	 */
-	protected function requireAgreement(): void
-	{
-		// Perhaps we've changed the agreement or privacy policy? Only redirect if:
-		// 1. They're not a guest or admin
-		// 2. This isn't called from SSI
-		// 3. This isn't an XML request
-		// 4. They're not trying to do any of the following actions:
-		// 4a. View or accept the agreement and/or policy
-		// 4b. Login or logout
-		// 4c. Get a feed (RSS, ATOM, etc.)
-		if (!empty(User::$me->id) && empty(User::$me->is_admin) && SMF != 'SSI' && !isset($_REQUEST['xml']) && Forum::getCurrentAction()?->isAgreementAction() !== true) {
-			$can_accept_agreement = !empty(Config::$modSettings['requireAgreement']) && Agreement::canRequireAgreement();
-
-			$can_accept_privacy_policy = !empty(Config::$modSettings['requirePolicyAgreement']) && Agreement::canRequirePrivacyPolicy();
-
-			if ($can_accept_agreement || $can_accept_privacy_policy) {
-				Utils::redirectexit('action=agreement');
-			}
-		}
 	}
 
 	/**
