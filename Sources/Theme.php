@@ -1305,6 +1305,7 @@ class Theme
 
 		// Add security warning if security issues are detected
 		Utils::$context['warnings'] = Security::checkSecurityFiles();
+
 		if (Utils::$context['warnings']) {
 			$layers[] = 'security_warning';
 		}
@@ -1888,7 +1889,6 @@ class Theme
 	protected function initialize(): void
 	{
 		$this->requireAgreement();
-		$this->sslRedirect();
 		$this->fixUrl();
 
 		// Create User::$me if it is missing (e.g., an error very early in the login process).
@@ -2015,22 +2015,6 @@ class Theme
 			if ($can_accept_agreement || $can_accept_privacy_policy) {
 				Utils::redirectexit('action=agreement');
 			}
-		}
-	}
-
-	/**
-	 * Check to see if we're forcing SSL, and redirect if necessary.
-	 */
-	protected function sslRedirect(): void
-	{
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance)
-			&& !Sapi::httpsOn() && SMF != 'SSI') {
-			if (isset($_GET['sslRedirect'])) {
-				Lang::load('Errors');
-				ErrorHandler::fatalLang('login_ssl_required', false);
-			}
-
-			Utils::redirectexit(strtr($_SERVER['REQUEST_URL'], ['http://' => 'https://']) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');
 		}
 	}
 

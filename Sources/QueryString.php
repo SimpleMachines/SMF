@@ -339,7 +339,10 @@ class QueryString
 			$_SERVER['REQUEST_URL'] = $_SERVER['REQUEST_URI'];
 		}
 
-		// And make sure HTTP_USER_AGENT is set.
+		// Should we redirect to HTTPS?
+		self::sslRedirect();
+
+		// Make sure HTTP_USER_AGENT is set.
 		$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? Utils::htmlspecialchars(Db::$db->unescape_string($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : '';
 
 		// Some final checking.
@@ -470,6 +473,10 @@ class QueryString
 		return $buffer;
 	}
 
+	/*************************
+	 * Internal static methods
+	 *************************/
+
 	/**
 	 * Handles redirecting 'index.php?msg=123' links to the canonical URL.
 	 */
@@ -523,6 +530,27 @@ class QueryString
 			Utils::redirectexit($redirect_url);
 		}
 	}
+
+	/**
+	 * Checks to see if we're forcing SSL, and redirects if necessary.
+	 */
+	protected static function sslRedirect(): void
+	{
+		if (
+			!empty(Config::$modSettings['force_ssl'])
+			&& empty(Config::$maintenance)
+			&& !Sapi::httpsOn()
+			&& SMF != 'SSI'
+		) {
+			if (isset($_GET['sslRedirect'])) {
+				Lang::load('Errors');
+				ErrorHandler::fatalLang('login_ssl_required', false);
+			}
+
+			Utils::redirectexit(strtr($_SERVER['REQUEST_URL'], ['http://' => 'https://']) . (str_contains($_SERVER['REQUEST_URL'], '?') ? ';' : '?') . 'sslRedirect');
+		}
+	}
+
 }
 
 ?>
