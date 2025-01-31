@@ -1996,76 +1996,28 @@ class Theme
 	 */
 	protected function fixUrl(): void
 	{
-		// Check to see if they're accessing it from the wrong place.
-		if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME'])) {
-			$detected_url = Sapi::httpsOn() ? 'https://' : 'http://';
+		if (!isset(Utils::$context['canonical_boardurl'])) {
+			return;
+		}
 
-			$detected_url .= empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
+		// Fix the theme urls...
+		$this->settings['theme_url'] = strtr($this->settings['theme_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		$this->settings['default_theme_url'] = strtr($this->settings['default_theme_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		$this->settings['actual_theme_url'] = strtr($this->settings['actual_theme_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		$this->settings['images_url'] = strtr($this->settings['images_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		$this->settings['default_images_url'] = strtr($this->settings['default_images_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		$this->settings['actual_images_url'] = strtr($this->settings['actual_images_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
 
-			$temp = preg_replace('~/' . basename(Config::$scripturl) . '(/.+)?$~', '', strtr(dirname($_SERVER['PHP_SELF']), '\\', '/'));
-
-			if ($temp != '/') {
-				$detected_url .= $temp;
+		// Clean up after Board::load().
+		if (isset(Board::$info->moderators)) {
+			foreach (Board::$info->moderators as $k => $dummy) {
+				Board::$info->moderators[$k]['href'] = strtr($dummy['href'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+				Board::$info->moderators[$k]['link'] = strtr($dummy['link'], ['"' . Utils::$context['canonical_boardurl'] => '"' . Config::$boardurl]);
 			}
 		}
 
-		if (isset($detected_url) && $detected_url != Config::$boardurl) {
-			// Try #1 - check if it's in a list of alias addresses.
-			if (!empty(Config::$modSettings['forum_alias_urls'])) {
-				$aliases = explode(',', Config::$modSettings['forum_alias_urls']);
-
-				foreach ($aliases as $alias) {
-					// Rip off all the boring parts, spaces, etc.
-					if ($detected_url == trim($alias) || strtr($detected_url, ['http://' => '', 'https://' => '']) == trim($alias)) {
-						$do_fix = true;
-					}
-				}
-			}
-
-			// #2 is just a check for SSL...
-			if (strtr($detected_url, ['https://' => 'http://']) == Config::$boardurl) {
-				$do_fix = true;
-			}
-
-			// Okay, #3 - perhaps it's an IP address?  We're gonna want to use that one, then. (assuming it's the IP or something...)
-			if (!empty($do_fix) || preg_match('~^http[s]?://(?:[\d\.:]+|\[[\d:]+\](?::\d+)?)(?:$|/)~', $detected_url) == 1) {
-				$do_fix = true;
-			}
-
-			if (!empty($do_fix)) {
-				// Caching is good ;).
-				$oldurl = Config::$boardurl;
-
-				// Fix Config::$boardurl and Config::$scripturl.
-				Config::$boardurl = $detected_url;
-				Config::$scripturl = strtr(Config::$scripturl, [$oldurl => Config::$boardurl]);
-				$_SERVER['REQUEST_URL'] = strtr($_SERVER['REQUEST_URL'], [$oldurl => Config::$boardurl]);
-
-				// Fix the theme urls...
-				$this->settings['theme_url'] = strtr($this->settings['theme_url'], [$oldurl => Config::$boardurl]);
-				$this->settings['default_theme_url'] = strtr($this->settings['default_theme_url'], [$oldurl => Config::$boardurl]);
-				$this->settings['actual_theme_url'] = strtr($this->settings['actual_theme_url'], [$oldurl => Config::$boardurl]);
-				$this->settings['images_url'] = strtr($this->settings['images_url'], [$oldurl => Config::$boardurl]);
-				$this->settings['default_images_url'] = strtr($this->settings['default_images_url'], [$oldurl => Config::$boardurl]);
-				$this->settings['actual_images_url'] = strtr($this->settings['actual_images_url'], [$oldurl => Config::$boardurl]);
-
-				// And just a few mod settings :).
-				Config::$modSettings['smileys_url'] = strtr(Config::$modSettings['smileys_url'], [$oldurl => Config::$boardurl]);
-				Config::$modSettings['avatar_url'] = strtr(Config::$modSettings['avatar_url'], [$oldurl => Config::$boardurl]);
-				Config::$modSettings['custom_avatar_url'] = strtr(Config::$modSettings['custom_avatar_url'], [$oldurl => Config::$boardurl]);
-
-				// Clean up after Board::load().
-				if (isset(Board::$info->moderators)) {
-					foreach (Board::$info->moderators as $k => $dummy) {
-						Board::$info->moderators[$k]['href'] = strtr($dummy['href'], [$oldurl => Config::$boardurl]);
-						Board::$info->moderators[$k]['link'] = strtr($dummy['link'], ['"' . $oldurl => '"' . Config::$boardurl]);
-					}
-				}
-
-				foreach (Utils::$context['linktree'] as $k => $dummy) {
-					Utils::$context['linktree'][$k]['url'] = strtr($dummy['url'], [$oldurl => Config::$boardurl]);
-				}
-			}
+		foreach (Utils::$context['linktree'] as $k => $dummy) {
+			Utils::$context['linktree'][$k]['url'] = strtr($dummy['url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
 		}
 	}
 

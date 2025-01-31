@@ -345,6 +345,9 @@ class QueryString
 		// Should we redirect because of an incorrectly added/removed 'www.'?
 		self::wwwRedirect();
 
+		// If the user got here using an unexpected but valid URL, fix it.
+		self::fixUrl();
+
 		// Make sure HTTP_USER_AGENT is set.
 		$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? Utils::htmlspecialchars(Db::$db->unescape_string($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : '';
 
@@ -579,6 +582,65 @@ class QueryString
 		}
 	}
 
+	/**
+	 * If the user got here using an unexpected but valid URL, fix it.
+	 */
+	protected static function fixUrl(): void
+	{
+		if (SMF == 'SSI') {
+			return;
+		}
+
+		if (str_starts_with($_SERVER['REQUEST_URL'], Config::$boardurl)) {
+			return;
+		}
+
+		$requested_url = Url::create($_SERVER['REQUEST_URL']);
+		$canonical_url = Url::create(Config::$boardurl);
+
+		// Is the requested URL a known alias of the canonical forum URL?
+		if (!empty(Config::$modSettings['forum_alias_urls'])) {
+			$aliases = explode(',', Config::$modSettings['forum_alias_urls']);
+
+			foreach ($aliases as $alias) {
+				$alias = Sapi::httpsOn() ? strtr($alias, 'http://', 'https://') : strtr($alias, 'https://', 'http://');
+
+				if (str_starts_with($_SERVER['REQUEST_URL'], $alias)) {
+					$new_url = $alias;
+				}
+			}
+		}
+
+		// Is the requested URL using a raw IP address instead of a domain name?
+		if (!isset($new_url) && IP::create($requested_url->host)->isValid()) {
+			$new_url = strtr(Config::$boardurl, [$canonical_url->host, $requested_url->host]);
+		}
+
+		if (
+			// If the scheme is incorrect, adjust it.
+			$requested_url->scheme !== $canonical_url->scheme
+			// But don't downgrade a canonical HTTPS scheme to HTTP.
+			&& $canonical_url->scheme !== 'https'
+		) {
+			$new_url = strtr($new_url ?? Config::$boardurl, [$canonical_url->scheme . '://', $requested_url->scheme . '://']);
+		}
+
+		// Change our internal settings to use the requested URL.
+		if (isset($new_url)) {
+			// The theme will need to know about this change.
+			Utils::$context['canonical_boardurl'] = Config::$boardurl;
+
+			// Fix Config::$boardurl and Config::$scripturl.
+			Config::$boardurl = $new_url;
+			Config::$scripturl = strtr(Config::$scripturl, [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+			$_SERVER['REQUEST_URL'] = strtr($_SERVER['REQUEST_URL'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+
+			// And just a few mod settings :).
+			Config::$modSettings['smileys_url'] = strtr(Config::$modSettings['smileys_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+			Config::$modSettings['avatar_url'] = strtr(Config::$modSettings['avatar_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+			Config::$modSettings['custom_avatar_url'] = strtr(Config::$modSettings['custom_avatar_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		}
+	}
 }
 
 ?>
