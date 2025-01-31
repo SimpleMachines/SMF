@@ -183,7 +183,7 @@ class BoardIndexHandler implements RequestHandlerInterface
 
 		$sent = \headers_sent($file, $line);
 
-		return new HtmlResponse($this->theme->render('BoardIndex', [], 'index.css'));
+		return new HtmlResponse($this->theme->render('BoardIndex', ['minimize'], 'index'));
 	}
 
 	/**

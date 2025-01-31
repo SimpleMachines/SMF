@@ -567,6 +567,8 @@ class Theme implements TemplateRendererInterface
 			Utils::$context['css_files'][$id] = ['fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime];
 		}
 
+		//$debug = Utils::$context;
+
 		if (!empty(Utils::$context['right_to_left']) && !empty($params['rtl'])) {
 			self::loadCSSFile($params['rtl'], array_diff_key($params, ['rtl' => 0]));
 		}
@@ -2341,7 +2343,7 @@ class Theme implements TemplateRendererInterface
 	protected function loadCss(): void
 	{
 		// And of course, let's load the default CSS file.
-		self::loadCSSFile('index.css', ['minimize' => true, 'order_pos' => 1], 'smf_index');
+		self::loadCSSFile('index.css', ['minimize' => false, 'order_pos' => 1], 'smf_index');
 
 		if (!empty(Config::$modSettings['enableMarkdown'])) {
 			self::loadCSSFile('markdown.css', ['minimize' => true, 'order_pos' => 2], 'smf_markdown');
