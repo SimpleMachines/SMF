@@ -520,7 +520,7 @@ class Lang
 	 *    array will be used as a sub-key to drill down into deeper levels of
 	 *    the overall array.
 	 * @param array $args Arguments to substitute into the Lang::$txt string.
-	 * @param array $var Name of the array to search in. Default: 'txt'.
+	 * @param string $var Name of the array to search in. Default: 'txt'.
 	 *    Other possible values are 'helptxt', 'editortxt', and 'tztxt'.
 	 * @return string The string to display to the user.
 	 */
@@ -742,8 +742,8 @@ class Lang
 	 * current locale to format the number.
 	 *
 	 * @param int|float|string $number A number.
-	 * @param int $decimals If set, will use the specified number of decimal
-	 *    places. Otherwise it's automatically determined.
+	 * @param int|null $decimals If set, will use the specified number of decimal
+	 *    places. Otherwise, it's automatically determined.
 	 * @return string A formatted number
 	 */
 	public static function numberFormat(int|float|string $number, ?int $decimals = null): string

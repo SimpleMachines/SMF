@@ -1295,129 +1295,36 @@ class Theme
 
 		header('Content-Type: ' . $content_type . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 
-		// We need to splice this in after the body layer.
+		// Collect layers to be added
+		$layers = [];
+
+		// Add maintenance warning if in maintenance mode and user is admin
 		if (Utils::$context['in_maintenance'] && User::$me->is_admin) {
+			$layers[] = 'maint_warning';
+		}
+
+		// Add security warning if security issues are detected
+		Utils::$context['warnings'] = Security::checkSecurityFiles();
+		if (Utils::$context['warnings']) {
+			$layers[] = 'security_warning';
+		}
+
+		// Inform user if they are banned from posting
+		if (isset($_SESSION['ban']['cannot_post'])) {
+			$layers[] = 'banned_warning';
+		}
+
+		// Insert all collected layers after the 'body' layer
+		if ($layers != []) {
 			$position = array_search('body', Utils::$context['template_layers']);
 
 			if ($position !== false) {
-				array_splice(Utils::$context['template_layers'], $position + 1, 0, ['maint_warning']);
+				array_splice(Utils::$context['template_layers'], $position + 1, 0, $layers);
 			}
 		}
 
-		$checked_securityFiles = false;
-		$showed_banned = false;
-
 		foreach (Utils::$context['template_layers'] as $layer) {
 			self::loadSubTemplate($layer . '_above', true);
-
-			// May seem contrived, but this is done in case the body and main layer aren't there...
-			if (in_array($layer, ['body', 'main']) && User::$me->allowedTo('admin_forum') && !User::$me->is_guest && !$checked_securityFiles) {
-				$checked_securityFiles = true;
-
-				$securityFiles = ['install.php', 'upgrade.php', 'convert.php', 'repair_paths.php', 'repair_settings.php', 'Settings.php~', 'Settings_bak.php~'];
-
-				// Add your own files.
-				IntegrationHook::call('integrate_security_files', [&$securityFiles]);
-
-				foreach ($securityFiles as $i => $securityFile) {
-					if (!file_exists(Config::$boarddir . '/' . $securityFile)) {
-						unset($securityFiles[$i]);
-					}
-				}
-
-				// We are already checking so many files...just few more doesn't make any difference! :P
-				if (!empty(Config::$modSettings['currentAttachmentUploadDir'])) {
-					$path = Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']];
-				} else {
-					$path = Config::$modSettings['attachmentUploadDir'];
-				}
-
-				Security::secureDirectory($path, true);
-				Security::secureDirectory(Config::$cachedir);
-
-				// If agreement is enabled, at least the english version shall exist
-				if (!empty(Config::$modSettings['requireAgreement'])) {
-					$agreement = !file_exists(Config::$languagesdir . '/en_US/agreement.txt');
-				}
-
-				// If privacy policy is enabled, at least the default language version shall exist
-				if (!empty(Config::$modSettings['requirePolicyAgreement'])) {
-					$policy_agreement = empty(Config::$modSettings['policy_' . Lang::$default]);
-				}
-
-				if (
-					!empty($securityFiles)
-					|| (
-						!empty(CacheApi::$enable)
-						&& !is_writable(Config::$cachedir)
-					)
-					|| !empty($agreement)
-					|| !empty($policy_agreement)
-					|| !empty(Utils::$context['auth_secret_missing'])) {
-					echo '
-			<div class="errorbox">
-				<p class="alert">!!</p>
-				<h3>', empty($securityFiles) && empty(Utils::$context['auth_secret_missing']) ? Lang::$txt['generic_warning'] : Lang::$txt['security_risk'], '</h3>
-				<p>';
-
-					foreach ($securityFiles as $securityFile) {
-						echo '
-					', Lang::$txt['not_removed'], '<strong>', $securityFile, '</strong>!<br>';
-
-						if ($securityFile == 'Settings.php~' || $securityFile == 'Settings_bak.php~') {
-							echo '
-					', Lang::getTxt('not_removed_extra', ['backup_filename' => $securityFile, 'filename' => substr($securityFile, 0, -1)]), '<br>';
-						}
-					}
-
-					if (!empty(CacheApi::$enable) && !is_writable(Config::$cachedir)) {
-						echo '
-					<strong>', Lang::$txt['cache_writable'], '</strong><br>';
-					}
-
-					if (!empty($agreement)) {
-						echo '
-					<strong>', Lang::$txt['agreement_missing'], '</strong><br>';
-					}
-
-					if (!empty($policy_agreement)) {
-						echo '
-					<strong>', Lang::$txt['policy_agreement_missing'], '</strong><br>';
-					}
-
-					if (!empty(Utils::$context['auth_secret_missing'])) {
-						echo '
-					<strong>', Lang::$txt['auth_secret_missing'], '</strong><br>';
-					}
-
-					echo '
-				</p>
-			</div>';
-				}
-			}
-			// If the user is banned from posting inform them of it.
-			elseif (in_array($layer, ['main', 'body']) && isset($_SESSION['ban']['cannot_post']) && !$showed_banned) {
-				$showed_banned = true;
-				echo '
-					<div class="windowbg alert" style="margin: 2ex; padding: 2ex; border: 2px dashed red;">
-						', Lang::getTxt('you_are_post_banned', ['name' => User::$me->is_guest ? Lang::$txt['guest_title'] : User::$me->name]);
-
-				if (!empty($_SESSION['ban']['cannot_post']['reason'])) {
-					echo '
-						<div style="padding-left: 4ex; padding-top: 1ex;">', $_SESSION['ban']['cannot_post']['reason'], '</div>';
-				}
-
-				if (!empty($_SESSION['ban']['expire_time'])) {
-					echo '
-						<div>', Lang::getTxt('your_ban_expires', ['datetime' => Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]), '</div>';
-				} else {
-					echo '
-						<div>', Lang::$txt['your_ban_expires_never'], '</div>';
-				}
-
-				echo '
-					</div>';
-			}
 		}
 	}
 

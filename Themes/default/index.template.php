@@ -807,4 +807,79 @@ function template_maint_warning_below()
 
 }
 
+/**
+ * The upper part of the security warning box
+ */
+function template_security_warning_above()
+{
+	echo '
+	<div class="errorbox">
+		<p class="alert">!!</p>
+		<h3>', !isset(Utils::$context['warnings']['file']) && empty(Utils::$context['auth_secret_missing'])
+		? Lang::$txt['generic_warning']
+		: Lang::$txt['security_risk'], '</h3>';
+
+	foreach (Utils::$context['warnings']['file'] as $security_file) {
+		echo '
+		<p>', Lang::getTxt($security_file[0], $security_file[1]), '</p>';
+	}
+
+	for ($i = 0, $n = count(Utils::$context['warnings']) - 1; $i < $n; $i++) {
+		if (is_string(Utils::$context['warnings'][$i])) {
+			echo '
+		<p>' . Utils::$context['warnings'][$i] . '</p>';
+		} else {
+			echo '
+		<p>', Lang::getTxt(Utils::$context['warnings'][$i][0], Utils::$context['warnings'][$i][1] ?? []), '</p>';
+		}
+	}
+
+	echo '
+	</div>';
+}
+
+/**
+ * The lower part of the security warning box.
+ */
+function template_security_warning_below()
+{
+
+}
+
+/**
+ * The upper part of the ban warning box
+ */
+function template_banned_warning_above()
+{
+	echo '
+	<div class="noticebox">';
+
+	echo '
+		<p>', Lang::getTxt('you_are_post_banned', ['name' => User::$me->is_guest ? Lang::$txt['guest_title'] : User::$me->name]), '</p>';
+
+	if (!empty($_SESSION['ban']['cannot_post']['reason'])) {
+		echo '
+		<p>', $_SESSION['ban']['cannot_post']['reason'], '</p>';
+	}
+
+	if (!empty($_SESSION['ban']['expire_time'])) {
+		echo '
+		<p>', Lang::getTxt('your_ban_expires', ['datetime' => Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]), '</p>';
+	} else {
+		echo '
+		<p>', Lang::$txt['your_ban_expires_never'], '</p>';
+	}
+
+	echo '
+	</div>';
+}
+
+/**
+ * The lower part of the ban warning box.
+ */
+function template_banned_warning_below()
+{
+
+}
+
 ?>
