@@ -723,9 +723,9 @@ class Forum
 				if (($fallback_action = Utils::getCallable($fallback_action)) !== false) {
 					return $fallback_action;
 				}
-
-				ErrorHandler::fatalLang('not_found', false, [], 404);
 			}
+
+			ErrorHandler::fatalLang('not_found', false, [], 404);
 		}
 
 		// Otherwise, it was set - so let's go to that action.
