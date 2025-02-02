@@ -305,7 +305,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function fetch_row(object $result): array|false|null
 	{
-		return mysqli_fetch_row($result);
+		$row = mysqli_fetch_row($result);
+
+		if (is_array($row)) {
+			foreach ($row as $key => $value) {
+				$row[$key] = is_string($value) ? $this->restore_mb4($value) : $value;
+			}
+		}
+
+		return $row;
 	}
 
 	/**
@@ -313,7 +321,16 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function fetch_assoc(object $result): array|false|null
 	{
-		return mysqli_fetch_assoc($result);
+		$row = mysqli_fetch_assoc($result);
+
+		if (is_array($row)) {
+			foreach ($row as $key => $value) {
+				$row[$key] = is_string($value) ? $this->restore_mb4($value) : $value;
+			}
+		}
+
+		return $row;
+
 	}
 
 	/**
@@ -323,7 +340,19 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$return = mysqli_fetch_all($request, MYSQLI_ASSOC);
 
-		return !empty($return) ? $return : [];
+		if (empty($return)) {
+			return [];
+		}
+
+		foreach ($return as $row_num => $row) {
+			if (is_array($row)) {
+				foreach ($row as $key => $value) {
+					$return[$row_num][$key] = is_string($value) ? $this->restore_mb4($value) : $value;
+				}
+			}
+		}
+
+		return $return;
 	}
 
 	/**
@@ -2538,6 +2567,17 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Now just put it together!
 		return '`' . $column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['not_null']) ? 'NOT NULL' : '') . ' ' . $default;
+	}
+
+	/**
+	 * Converts entities for four-byte UTF-8 characters back to characters.
+	 *
+	 * @param string $string A UTF-8 string.
+	 * @return string A UTF-8 string.
+	 */
+	protected function restore_mb4(string $string): string
+	{
+		return str_contains($string, '&') ? mb_decode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8') : $string;
 	}
 }
 
