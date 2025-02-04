@@ -16,9 +16,11 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\ErrorHandler;
+use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -33,8 +35,9 @@ use SMF\Utils;
  *  - when done, sends the user back to the topic.
  *  - accessed via ?action=sticky.
  */
-class TopicSticky implements ActionInterface
+class TopicSticky implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/****************

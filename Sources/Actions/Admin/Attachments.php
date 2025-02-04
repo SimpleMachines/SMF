@@ -2563,44 +2563,6 @@ class Attachments implements ActionInterface
 		return ['ok', false, $num_files];
 	}
 
-	/**
-	 * Backward compatibility wrapper for the attachments sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function manageAttachmentSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::attachConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'attachments';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the avatars sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function manageAvatarSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::avatarConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'avatars';
-		self::$obj->execute();
-
-		return null;
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

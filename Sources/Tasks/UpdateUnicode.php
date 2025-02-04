@@ -635,9 +635,11 @@ class UpdateUnicode extends BackgroundTask
 							'claimed_time' => 'int',
 						],
 						[
-							'SMF\\Tasks\\Update_Unicode',
-							'',
-							time() - MAX_CLAIM_THRESHOLD,
+							[
+								'SMF\\Tasks\\Update_Unicode',
+								'',
+								time() - MAX_CLAIM_THRESHOLD,
+							],
 						],
 						['id_task'],
 					);
@@ -747,9 +749,11 @@ class UpdateUnicode extends BackgroundTask
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\UpdateSpoofDetectorNames',
-						json_encode(['last_member_id' => 0]),
-						0,
+						[
+							'SMF\\Tasks\\UpdateSpoofDetectorNames',
+							json_encode(['last_member_id' => 0]),
+							0,
+						],
 					],
 					['id_task'],
 				);

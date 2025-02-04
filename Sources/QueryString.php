@@ -22,6 +22,113 @@ use SMF\Db\DatabaseApi as Db;
  */
 class QueryString
 {
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * Maps elements that could appear at the start of a virtual route path to
+	 * the names of classes that can fully parse the route.
+	 *
+	 * Classes listed in this array must implement the Routable interface.
+	 *
+	 * MOD AUTHORS: To add a new route parser to this list for a custom action
+	 * or content type, use the integrate_parse_route hook in self::parseRoute().
+	 */
+	public static array $route_parsers = [
+		'about:unknown'			=> Actions\Like::class,
+		'acceptagreement'		=> Actions\AgreementAccept::class,
+		'activate'				=> Actions\Activate::class,
+		'admin'					=> Actions\Admin\Main::class,
+		'agreement'				=> Actions\Agreement::class,
+		'announce'				=> Actions\Announce::class,
+		'attachapprove'			=> Actions\AttachmentApprove::class,
+		'board'					=> Board::class,
+		'boardindex'			=> Actions\BoardIndex::class,
+		'boards'				=> Board::class,
+		'buddy'					=> Actions\BuddyListToggle::class,
+		'calendar'				=> Actions\Calendar::class,
+		'clock'					=> Actions\Calendar::class,
+		'coppa'					=> Actions\CoppaForm::class,
+		'credits'				=> Actions\Credits::class,
+		'deletemsg'				=> Actions\MsgDelete::class,
+		'display'				=> Actions\Display::class,
+		'dlattach'				=> Actions\AttachmentDownload::class,
+		'editpoll'				=> Actions\PollEdit::class,
+		'editpoll2'				=> Actions\PollEdit2::class,
+		'feed'					=> Actions\Feed::class,
+		'groups'				=> Actions\Groups::class,
+		'help'					=> Actions\Help::class,
+		'helpadmin'				=> Actions\HelpAdmin::class,
+		'jsmodify'				=> Actions\JavaScriptModify::class,
+		'jsoption'				=> Actions\ThemeSetOption::class,
+		'likes'					=> Actions\Like::class,
+		'lock'					=> Actions\TopicLock::class,
+		'lockvoting'			=> Actions\PollLock::class,
+		'login'					=> Actions\Login::class,
+		'login2'				=> Actions\Login2::class,
+		'logintfa'				=> Actions\LoginTFA::class,
+		'logout'				=> Actions\Logout::class,
+		'markasread'			=> Actions\MarkRead::class,
+		'mergetopics'			=> Actions\TopicMerge::class,
+		'messageindex'			=> Actions\MessageIndex::class,
+		'mlist'					=> Actions\Memberlist::class,
+		'members'				=> Actions\Profile\Main::class,
+		'member'				=> Actions\Profile\Main::class,
+		'moderate'				=> Actions\Moderation\Main::class,
+		'modifycat'				=> Actions\Admin\Main::class,
+		'movetopic'				=> Actions\TopicMove::class,
+		'movetopic2'			=> Actions\TopicMove2::class,
+		'msg'					=> Msg::class,
+		'msgs'					=> Msg::class,
+		'notifyannouncements'	=> Actions\NotifyAnnouncements::class,
+		'notifyboard'			=> Actions\NotifyBoard::class,
+		'notifytopic'			=> Actions\NotifyTopic::class,
+		'pm'					=> Actions\PersonalMessage::class,
+		'post'					=> Actions\Post::class,
+		'post2'					=> Actions\Post2::class,
+		'printpage'				=> Actions\TopicPrint::class,
+		'profile'				=> Actions\Profile\Main::class,
+		'quickmod'				=> Actions\QuickModeration::class,
+		'quickmod2'				=> Actions\QuickModerationInTopic::class,
+		'quotefast'				=> Actions\QuoteFast::class,
+		'recent'				=> Actions\Recent::class,
+		'reminder'				=> Actions\Reminder::class,
+		'removepoll'			=> Actions\PollRemove::class,
+		'removetopic2'			=> Actions\TopicRemove::class,
+		'reporttm'				=> Actions\ReportToMod::class,
+		'restoretopic'			=> Actions\TopicRestore::class,
+		'search'				=> Actions\Search::class,
+		'search2'				=> Actions\Search2::class,
+		'sendactivation'		=> Actions\SendActivation::class,
+		'signup'				=> Actions\Register::class,
+		'signup2'				=> Actions\Register2::class,
+		'smstats'				=> Actions\SmStats::class,
+		'splittopics'			=> Actions\TopicSplit::class,
+		'stats'					=> Actions\Stats::class,
+		'sticky'				=> Actions\TopicSticky::class,
+		'suggest'				=> Actions\AutoSuggest::class,
+		'termsofservice'		=> Actions\Agreement::class,
+		'themechooser'			=> Actions\ThemeChooser::class,
+		'topic'					=> Topic::class,
+		'topics'				=> Topic::class,
+		'trackip'				=> Actions\TrackIP::class,
+		'unread'				=> Actions\Unread::class,
+		'unreadreplies'			=> Actions\UnreadReplies::class,
+		'uploadAttach'			=> Actions\AttachmentUpload::class,
+		'users'					=> Actions\Profile\Main::class,
+		'user'					=> Actions\Profile\Main::class,
+		'verificationcode'		=> Actions\VerificationCode::class,
+		'viewprofile'			=> Actions\Profile\Main::class,
+		'viewquery'				=> Actions\ViewQuery::class,
+		'viewsmfile'			=> Actions\DisplayAdminFile::class,
+		'vote'					=> Actions\PollVote::class,
+		'who'					=> Actions\Who::class,
+		'xmlhttp'				=> Actions\XmlHttp::class,
+	];
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -81,7 +188,6 @@ class QueryString
 			$_SERVER['QUERY_STRING'] = str_starts_with($_SERVER['QUERY_STRING'], 'url=/') ? $_SERVER['REDIRECT_QUERY_STRING'] : $_SERVER['QUERY_STRING'];
 
 			// Replace ';' with '&' and '&something&' with '&something=&'.  (this is done for compatibility...)
-			// @todo smflib
 			parse_str(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr($_SERVER['QUERY_STRING'], [';?' => '&', ';' => '&', '%00' => '', "\0" => ''])), $_GET);
 		} elseif (str_contains(ini_get('arg_separator.input'), ';')) {
 			// Search engines will send action=profile%3Bu=1, which confuses PHP.
@@ -107,23 +213,8 @@ class QueryString
 			}
 		}
 
-		// There's no query string, but there is a URL... try to get the data from there.
-		if (!empty($_SERVER['REQUEST_URI'])) {
-			// Remove the .html, assuming there is one.
-			if (substr($_SERVER['REQUEST_URI'], (int) strrpos($_SERVER['REQUEST_URI'], '.'), 4) == '.htm') {
-				$request = substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'], '.'));
-			} else {
-				$request = $_SERVER['REQUEST_URI'];
-			}
-
-			// @todo smflib.
-			// Replace 'index.php/a,b,c/d/e,f' with 'a=b,c&d=&e=f' and parse it into $_GET.
-			if (str_contains($request, basename(Config::$scripturl) . '/')) {
-				parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', substr($request, strpos($request, basename(Config::$scripturl)) + strlen(basename(Config::$scripturl)))), '/', '&')), 1), $temp);
-
-				$_GET += $temp;
-			}
-		}
+		// Are we using routing (a.k.a. queryless/friendly/pretty URLs)?
+		$_GET = self::parseRoute($_SERVER['PATH_INFO'] ?? '', $_GET);
 
 		// Add entities to GET.  This is kinda like the slashes on everything else.
 		$_GET = Utils::htmlspecialcharsRecursive($_GET);
@@ -401,16 +492,193 @@ class QueryString
 	}
 
 	/**
-	 * Rewrite URLs to include the session ID.
+	 * Rewrites URLs for the queryless URLs option.
 	 *
-	 * What it does:
-	 * - rewrites the URLs outputted to have the session ID, if the user
-	 *   is not accepting cookies and is using a standard web browser.
-	 * - handles rewriting URLs for the queryless URLs option.
-	 * - can be turned off entirely by setting Config::$scripturl to an empty
-	 *   string, ''. (it wouldn't work well like that anyway.)
-	 * - because of bugs in certain builds of PHP, does not function in
-	 *   versions lower than 4.3.0 - please upgrade if this hurts you.
+	 * MOD AUTHORS: If your mod implements an alternative form of pretty URLs,
+	 * the 'integrate_rewrite_as_queryless' hook inside this method will be of
+	 * interest to you.
+	 *
+	 * @param string $buffer A string that might contain URLs.
+	 * @return string Modified version of $buffer.
+	 */
+	public static function rewriteAsQueryless(string $buffer): string
+	{
+		// Give mods a chance to rewrite the buffer before we do anything to it.
+		IntegrationHook::call('integrate_rewrite_as_queryless', [&$buffer]);
+
+		// If Config::$scripturl doesn't appear anywhere, there's nothing to do.
+		if (!str_contains($buffer, Config::$scripturl)) {
+			return $buffer;
+		}
+
+		// Do we want full queryless URLs?
+		if (
+			!empty(Config::$modSettings['queryless_urls'])
+			&& (
+				!Sapi::isCGI()
+				|| ini_get('cgi.fix_pathinfo') == 1
+				|| @get_cfg_var('cgi.fix_pathinfo') == 1
+			)
+			&& Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
+		) {
+			$buffer = preg_replace_callback(
+				'~' . Autolinker::load()->getUrlRegex() . '~u',
+				function (array $matches) {
+					if (
+						// Don't change external URLs.
+						!str_starts_with($matches[0], Config::$scripturl)
+						// Never change ?action=admin, just in case something
+						// goes wrong and the admin needs to be able to navigate
+						// to the admin control panel to fix it.
+						|| str_contains($matches[0], 'action=admin')
+					) {
+						return $matches[0];
+					}
+
+					$url = new Url($matches[0]);
+
+					// Convert query to route.
+					if (!empty($url->query)) {
+						$matches[0] = str_replace('?' . $url->query, QueryString::buildRoute($url->query), $matches[0]);
+					}
+
+					// Remove '/index.php'.
+					if (!empty(Config::$modSettings['hide_index_php'])) {
+						$matches[0] = str_replace(Config::$scripturl, Config::$boardurl, $matches[0]);
+					}
+
+					return str_replace('/#', '#', $matches[0]);
+				},
+				$buffer,
+			);
+		}
+		// Not doing queryless URLs, but admin still wants to hide index.php.
+		elseif (!empty(Config::$modSettings['hide_index_php'])) {
+			$buffer = preg_replace_callback(
+				'~' . Autolinker::load()->getUrlRegex() . '~u',
+				function (array $matches) {
+					// Don't change external URLs.
+					if (!str_starts_with($matches[0], Config::$scripturl)) {
+						return $matches[0];
+					}
+
+					return str_replace(
+						[
+							Config::$scripturl,
+							'/#',
+						],
+						[
+							Config::$boardurl . '/',
+							'#',
+						],
+						$matches[0],
+					);
+				},
+				$buffer,
+			);
+		}
+
+		return $buffer;
+	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array|string $params URL query, as a string or array of parameters.
+	 * @return string A routing path plus any remaining URL query string.
+	 */
+	public static function buildRoute(array|string $params): string
+	{
+		if (is_string($params)) {
+			$params = strtr(ltrim($params, '?'), ';', '&');
+			parse_str($params, $temp);
+
+			$params = $temp;
+		}
+
+		$route = [];
+
+		if (isset($params['action'])) {
+			$route_base = $params['action'];
+		} elseif (isset($params['board'])) {
+			$route_base = 'boards';
+		} elseif (isset($params['topic'])) {
+			$route_base = 'topics';
+		} elseif (isset($params['msg'])) {
+			$route_base = 'msgs';
+		}
+
+		if (
+			isset($route_base, self::$route_parsers[$route_base])
+			&& method_exists(self::$route_parsers[$route_base], 'buildRoute')
+		) {
+			extract(call_user_func(self::$route_parsers[$route_base] . '::buildRoute', $params));
+		}
+
+		$route = !empty($route) ? '/' . implode('/', $route) : '';
+
+		$query = [];
+
+		foreach ($params as $key => $value) {
+			$query[] = $key . ((string) $value !== '' ? '=' . $value : '');
+		}
+
+		$query = !empty($query) ? '?' . implode(';', $query) : '';
+
+		return $route . (!empty($query) ? '/' . $query : '');
+	}
+
+	/**
+	 * Updates an array of URL parameters based on a routing path.
+	 *
+	 * MOD AUTHORS: If your mod implements an alternative form of pretty URLs,
+	 * or if you just want to add something to the list of known route parsers,
+	 * the 'integrate_parse_route' hook inside this method will be of interest
+	 * to you.
+	 *
+	 * @param string $path A virtual path. Typically $_SERVER['PATH_INFO'].
+	 * @param array $params Existing URL query parameters. Typically $_GET.
+	 * @return array Updated copy of $params.
+	 */
+	public static function parseRoute(string $path, array $params): array
+	{
+		// Give mods a chance to parse the route before we do anything to it.
+		// This hook can also be used add new route parsers to self::$route_parsers.
+		IntegrationHook::call('integrate_parse_route', [&$path, &$params]);
+
+		if (!str_starts_with($path, '/')) {
+			return $params;
+		}
+
+		// The pre-3.0 form of queryless URLs appended a fake file extension.
+		if (str_ends_with($path, '.html') || str_ends_with($path, '.htm')) {
+			$path = substr($path, 0, strrpos($path, '.'));
+		}
+
+		$new_params = [];
+
+		$route = explode('/', trim($path, '/'));
+
+		if (isset(self::$route_parsers[$route[0]])) {
+			$new_params = call_user_func(self::$route_parsers[$route[0]] . '::parseRoute', $route);
+		} else {
+			// Maintain support for the pre-3.0 form of queryless URLs.
+			parse_str(substr(preg_replace('/&(\w+)(?=&|$)/', '&$1=', strtr(preg_replace('~/([^,/]+),~', '/$1=', $path), '/', '&')), 1), $new_params);
+		}
+
+		// Existing values in $params always takes precedence over routing.
+		// This is because $params is typically a copy of $_GET, and we want
+		// the real $_GET parameters to take precedence.
+		foreach ($params as $key => $value) {
+			$new_params[$key] = $value;
+		}
+
+		return $new_params;
+	}
+
+	/**
+	 * Rewrite URLs to include the session ID, if the user is not accepting
+	 * cookies and is using a standard web browser.
 	 *
 	 * @param string $buffer The unmodified output buffer.
 	 * @return string The modified buffer.
@@ -432,38 +700,6 @@ class QueryString
 		// Debugging templates, are we?
 		elseif (isset($_GET['debug'])) {
 			$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote(Config::$scripturl, '/') . '\??/', '"' . Config::$scripturl . '?debug;', $buffer);
-		}
-
-		// More work needed if using "queryless" URLS.
-		if (
-			!empty(Config::$modSettings['queryless_urls'])
-			&& (
-				!Sapi::isCGI()
-				|| ini_get('cgi.fix_pathinfo') == 1
-				|| @get_cfg_var('cgi.fix_pathinfo') == 1
-			)
-			&& (
-				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
-			)
-		) {
-			// Let's do something special for session ids!
-			if ($sid != '') {
-				$buffer = preg_replace_callback(
-					'~"' . preg_quote(Config::$scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
-					function ($m) {
-						return '"' . Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . $sid . ($m[2] ?? '') . '"';
-					},
-					$buffer,
-				);
-			} else {
-				$buffer = preg_replace_callback(
-					'~"' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
-					function ($m) {
-						return '"' . Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . ($m[2] ?? '') . '"';
-					},
-					$buffer,
-				);
-			}
 		}
 
 		// Return the changed buffer.

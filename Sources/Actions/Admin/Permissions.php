@@ -3062,7 +3062,9 @@ class Permissions implements ActionInterface
 				'profile_name' => 'string',
 			],
 			[
-				$_POST['profile_name'],
+				[
+					$_POST['profile_name'],
+				],
 			],
 			['id_profile'],
 			1,

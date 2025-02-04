@@ -30,6 +30,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\TimeInterval;
@@ -42,10 +43,9 @@ use SMF\Utils;
  * This class has only one real task, showing the calendar.
  * Original module by Aaron O'Neil - aaron@mud-master.com
  */
-class Calendar implements ActionInterface
+class Calendar implements ActionInterface, Routable
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -323,7 +323,7 @@ class Calendar implements ActionInterface
 		if (Utils::$context['can_post']) {
 			Utils::$context['calendar_buttons']['post_event'] = [
 				'text' => 'calendar_post_event',
-				'url' => Config::$scripturl . '?action=calendar;sa=post;month=' . Utils::$context['current_month'] . ';year=' . Utils::$context['current_year'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+				'url' => Config::$scripturl . '?action=calendar;sa=post;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			];
 		}
 
@@ -850,7 +850,7 @@ class Calendar implements ActionInterface
 		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
 		foreach (Event::getOccurrencesInRange($low_date, $high_date, $use_permissions) as $occurrence) {
-			$cal_date = new Time($occurrence->start_date_local, $tz);
+			$cal_date = new Time($occurrence->start->format('Y-m-d'), $tz);
 
 			while (
 				$cal_date->getTimestamp() < $occurrence->end->getTimestamp()
@@ -1613,15 +1613,112 @@ class Calendar implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for Holiday::remove().
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @param array $holiday_ids An array of IDs of holidays to delete.
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function removeHolidays(array $holiday_ids): void
+	public static function buildRoute(array $params): array
 	{
-		foreach ($holiday_ids as $holiday_id) {
-			Holiday::remove($holiday_id);
+		$route[] = $params['action'];
+		unset($params['action']);
+
+		if (isset($params['sa'], self::$subactions[$params['sa']])) {
+			if ($params['sa'] === 'post') {
+				if (isset($params['eventid'])) {
+					$route[] = 'events';
+					$route[] = $params['eventid'];
+					unset($params['eventid']);
+
+					if (isset($params['recurrenceid'])) {
+						$route[] = $params['recurrenceid'];
+						unset($params['recurrenceid']);
+					}
+				}
+			}
+
+			$route[] = $params['sa'];
+
+			if ($params['sa'] === 'clock') {
+				if (isset($params['omfg'])) {
+					$route[] = 'omfg';
+					unset($params['omfg']);
+				} elseif (isset($params['rb'])) {
+					$route[] = 'rb';
+					unset($params['rb']);
+				} elseif (isset($params['bcd'])) {
+					$route[] = 'bcd';
+					unset($params['bcd']);
+				}
+			}
+
+			unset($params['sa']);
+		} elseif (isset($params['year'])) {
+			$route[] = sprintf('%04d', $params['year']);
+			$route[] = sprintf('%02d', $params['month'] ?? 1);
+			$route[] = sprintf('%02d', $params['day'] ?? 1);
+			unset($params['year'], $params['month'], $params['day']);
+		} elseif (isset($params['event'])) {
+			$route[] = 'events';
+			$route[] = $params['event'];
+			unset($params['event']);
 		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		if ($route[0] === 'clock') {
+			array_unshift($route, 'calendar');
+		}
+
+		$params['action'] = array_shift($route);
+
+		if (!empty($route)) {
+			if (in_array($route[0], self::$subactions)) {
+				$params['sa'] = array_shift($route);
+
+				if ($params['sa'] === 'clock' && in_array($route[0] ?? null, ['bcd', 'rb', 'omfg'])) {
+					$params[$route[0]] = true;
+				}
+			} elseif (is_numeric($route[0])) {
+				$params['year'] = array_shift($route);
+
+				if (!empty($route)) {
+					$params['month'] = array_shift($route);
+
+					if (!empty($route)) {
+						$params['day'] = array_shift($route);
+					}
+				}
+			} elseif ($route[0] === 'events') {
+				array_shift($route);
+				$params['event'] = array_shift($route);
+
+				if (!empty($route)) {
+					if (!in_array($route[0], self::$subactions)) {
+						$params['recurrenceid'] = array_shift($route);
+					}
+
+					if (!empty($route) && in_array($route[0], self::$subactions)) {
+						$params['sa'] = array_shift($route);
+						$params['eventid'] = $params['event'];
+					}
+				}
+			}
+		}
+
+		return $params;
 	}
 
 	/******************

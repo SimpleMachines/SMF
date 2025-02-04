@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Actions\Admin\Permissions;
+use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -388,6 +389,11 @@ class Group implements \ArrayAccess
 		// Set initial value for $this->can_moderate.
 		// This might change when $this->loadModerators() is called.
 		$this->can_moderate = User::$me->allowedTo('manage_membergroups');
+
+		// Create the slug for this group.
+		if (isset($this->name)) {
+			Slug::create($this->name, 'group', $this->id);
+		}
 	}
 
 	/**
@@ -551,6 +557,9 @@ class Group implements \ArrayAccess
 		Config::updateModSettings([
 			'settings_updated' => time(),
 		]);
+
+		// Remove any cached slug string for the group.
+		CacheApi::put('slug_type-group_id-' . $this->id, null, 0);
 
 		// Log the edit.
 		Logging::logAction('edited_group', ['group' => $this->name], 'admin');

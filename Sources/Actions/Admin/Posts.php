@@ -433,63 +433,6 @@ class Posts implements ActionInterface
 		return $config_vars;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the posts sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyPostSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::postConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'posts';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the topics sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyTopicSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::topicConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'topics';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the drafts sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyDraftSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::draftConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'drafts';
-		self::$obj->execute();
-
-		return null;
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

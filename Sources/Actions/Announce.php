@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\BrowserDetector;
@@ -27,6 +28,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -35,10 +37,10 @@ use SMF\Utils;
 /**
  * This class handles sending announcements about topics.
  */
-class Announce implements ActionInterface
+class Announce implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

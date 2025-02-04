@@ -1467,14 +1467,16 @@ class PM implements \ArrayAccess
 				'version' => 'string-5',
 			],
 			[
-				$pm_head,
-				$from['id'],
-				($store_outbox ? 0 : 1),
-				$from['username'],
-				time(),
-				$htmlsubject,
-				$htmlmessage,
-				preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION),
+				[
+					$pm_head,
+					$from['id'],
+					($store_outbox ? 0 : 1),
+					$from['username'],
+					time(),
+					$htmlsubject,
+					$htmlmessage,
+					preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION),
+				],
 			],
 			['id_pm'],
 			1,
@@ -2220,32 +2222,6 @@ class PM implements \ArrayAccess
 
 		// Acquire a new form sequence number.
 		Security::checkSubmitOnce('register');
-	}
-
-	/**
-	 * Backward compatibility wrapper around the non-static canAccess() method.
-	 *
-	 * Check if the PM is available to the current user.
-	 *
-	 * @param int $pmID The ID of the PM
-	 * @param string $folders Which folders this is valid for - can be 'inbox', 'outbox' or 'in_or_outbox'
-	 * @return bool Whether the PM is accessible in that folder for the current user
-	 */
-	public static function isAccessible(int $pmID, string $folders = 'both'): bool
-	{
-		if ($folders === 'in_or_outbox') {
-			$folders = 'both';
-		}
-
-		if ($folders === 'outbox') {
-			$folders = 'sent';
-		}
-
-		if (!isset(self::$loaded[$pmID])) {
-			self::load($pmID);
-		}
-
-		return self::$loaded[$pmID]->canAccess($folders);
 	}
 
 	/*************************

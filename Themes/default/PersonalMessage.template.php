@@ -63,11 +63,11 @@ function template_pm_popup()
 		<div class="pm_bar">
 			<div class="pm_sending block">
 				', Utils::$context['can_send_pm'] ? '<a href="' . Config::$scripturl . '?action=pm;sa=send">' . Lang::$txt['pm_new_short'] . '</a>' : '', '
-				', Utils::$context['can_draft'] ? ' | <a href="' . Config::$scripturl . '?action=pm;sa=showpmdrafts">' . Lang::$txt['pm_drafts_short'] . '</a>' : '', '
+				', Utils::$context['can_draft'] ? ' | <a href="' . Config::$scripturl . '?action=pm;f=drafts">' . Lang::$txt['pm_drafts_short'] . '</a>' : '', '
 				<a href="', Config::$scripturl, '?action=pm;sa=settings" class="floatright">', Lang::$txt['pm_settings_short'], '</a>
 			</div>
 			<div class="pm_mailbox centertext">
-				<a href="', Config::$scripturl, '?action=pm" class="button">', Lang::$txt['inbox'], '</a>
+				<a href="', Config::$scripturl, '?action=pm;f=inbox" class="button">', Lang::$txt['inbox'], '</a>
 				<a href="', Config::$scripturl, '?action=pm;f=sent" class="button">', Lang::$txt['sent_items'], '</a>
 			</div>
 		</div>

@@ -526,12 +526,24 @@ class Warnings implements ActionInterface
 						'',
 						'{db_prefix}log_comments',
 						[
-							'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'id_recipient' => 'int',
-							'recipient_name' => 'string-255', 'body' => 'string-65535', 'log_time' => 'int',
+							'id_member' => 'int',
+							'member_name' => 'string',
+							'comment_type' => 'string',
+							'id_recipient' => 'int',
+							'recipient_name' => 'string-255',
+							'body' => 'string-65535',
+							'log_time' => 'int',
 						],
 						[
-							User::$me->id, User::$me->name, 'warntpl', $recipient_id,
-							$_POST['template_title'], $_POST['template_body'], time(),
+							[
+								User::$me->id,
+								User::$me->name,
+								'warntpl',
+								$recipient_id,
+								$_POST['template_title'],
+								$_POST['template_body'],
+								time(),
+							],
 						],
 						['id_comment'],
 					);

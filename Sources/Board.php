@@ -21,15 +21,12 @@ use SMF\Db\DatabaseApi as Db;
 /**
  * This class loads information about the current board, as well as other boards
  * when needed. It also handles low-level tasks for managing boards, such as
- * creating, deleting, and modifying them, as well as minor tasks relating to
- * boards, such as marking them read.
+ * creating, deleting, and modifying them.
  *
  * Implements the \ArrayAccess interface to ease backward compatibility with the
  * deprecated global $board_info variable.
- *
- * @todo Refactor MessageIndex.php into an extension of this class.
  */
-class Board implements \ArrayAccess
+class Board implements \ArrayAccess, Routable
 {
 	use BackwardCompatibility;
 	use ArrayAccessHelper;
@@ -1867,6 +1864,98 @@ class Board implements \ArrayAccess
 	}
 
 	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route = [];
+
+		$params['board'] = $params['board'] ?? (string) self::$id ?? null;
+
+		if (isset($params['board'])) {
+			$route[] = 'boards';
+
+			if (str_contains($params['board'], '.')) {
+				$params['start'] = $params['start'] ?? substr($params['board'], strrpos($params['board'], '.') + 1);
+				$params['board'] = substr($params['board'], 0, strrpos($params['board'], '.'));
+			}
+
+			if (isset(Slug::$known['board'][(int) $params['board']])) {
+				$slug = (string) Slug::$known['board'][(int) $params['board']];
+			} elseif (($slug = Slug::getCached('board', (int) $params['board'])) === '') {
+				$board = current(self::load((int) $params['board']));
+
+				if ($board instanceof self) {
+					$slug = (string) new Slug($board->name, 'board', $board->id, 60);
+				} else {
+					$slug = '';
+				}
+			}
+
+			$route[] = $slug . (str_ends_with($slug, '-' . $params['board']) ? '' : ($slug !== '' ? '-' : '') . $params['board']);
+
+			if (!empty($params['start'])) {
+				$route[] = $params['start'];
+			}
+
+			unset($params['board'], $params['start']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		if (isset($route[1])) {
+			$params['action'] = 'messageindex';
+			array_shift($route);
+
+			preg_match('/^(\X*?)(\d+(?:\.\d+)?)$/u', array_shift($route), $matches);
+
+			$board = $matches[2];
+
+			if (str_contains($board, '.')) {
+				list($params['board'], $params['start']) = explode('.', $board);
+			} else {
+				$params['board'] = $board;
+			}
+
+			Slug::setRequested(rtrim($matches[1], '-'), 'board', (int) $params['board']);
+
+			// Either an action suffix or a start value.
+			// This accounts for both 'boards/ID/START' and '/boards/ID/ACTION'
+			if (!empty($route)) {
+				if (isset(QueryString::$route_parsers[reset($route)])) {
+					$params = array_merge(
+						$params,
+						call_user_func(
+							[QueryString::$route_parsers[reset($route)], 'parseRoute'],
+							$route,
+							$params,
+						),
+					);
+				} elseif (!isset($params['start'])) {
+					$params['start'] = array_shift($route);
+				}
+			}
+		}
+
+		return $params;
+	}
+
+	/**
 	 * Generator that runs queries about board data and yields the result rows.
 	 *
 	 * @param array $selects Table columns to select.
@@ -2092,6 +2181,11 @@ class Board implements \ArrayAccess
 		// Plug this board into its category.
 		if (!empty($this->cat) && $this->child_level == 0) {
 			$this->cat->children[$this->id] = $this;
+		}
+
+		// Create the slug for this board.
+		if (isset($this->name)) {
+			Slug::create($this->name, 'board', $this->id, 60);
 		}
 	}
 

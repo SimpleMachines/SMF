@@ -16,9 +16,11 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -32,8 +34,9 @@ use SMF\Utils;
  * - accessed via ?action=jsoption;var=variable;val=value;session_var=sess_id.
  * - does not log access to the Who's Online log. (in index.php..)
  */
-class ThemeSetOption implements ActionInterface
+class ThemeSetOption implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
@@ -104,10 +107,12 @@ class ThemeSetOption implements ActionInterface
 				'value' => 'string-65534',
 			],
 			[
-				Theme::$current->settings['theme_id'],
-				User::$me->id,
-				$_GET['var'],
-				is_array($_GET['val']) ? implode(',', $_GET['val']) : $_GET['val'],
+				[
+					Theme::$current->settings['theme_id'],
+					User::$me->id,
+					$_GET['var'],
+					is_array($_GET['val']) ? implode(',', $_GET['val']) : $_GET['val'],
+				],
 			],
 			[
 				'id_theme',

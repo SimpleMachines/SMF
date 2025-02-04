@@ -1416,10 +1416,14 @@ class Attachment implements \ArrayAccess
 				'',
 				'{db_prefix}approval_queue',
 				[
-					'id_attach' => 'int', 'id_msg' => 'int',
+					'id_attach' => 'int',
+					'id_msg' => 'int',
 				],
 				[
-					$attachmentOptions['id'], (int) $attachmentOptions['post'],
+					[
+						$attachmentOptions['id'],
+						(int) $attachmentOptions['post'],
+					],
 				],
 				[],
 			);
@@ -1434,9 +1438,11 @@ class Attachment implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\CreateAttachment_Notify',
-					Utils::jsonEncode(['id' => $attachmentOptions['id']]),
-					0,
+					[
+						'SMF\\Tasks\\CreateAttachment_Notify',
+						Utils::jsonEncode(['id' => $attachmentOptions['id']]),
+						0,
+					],
 				],
 				[
 					'id_task',
@@ -1501,17 +1507,19 @@ class Attachment implements \ArrayAccess
 						'approved' => 'int',
 					],
 					[
-						Config::$modSettings['currentAttachmentUploadDir'],
-						(int) $attachmentOptions['post'],
-						3,
-						$thumb->pathinfo['basename'],
-						self::createHash($thumb->source),
-						$thumb_ext,
-						$thumb->filesize,
-						$thumb->width,
-						$thumb->height,
-						$thumb->mime_type,
-						(int) $attachmentOptions['approved'],
+						[
+							Config::$modSettings['currentAttachmentUploadDir'],
+							(int) $attachmentOptions['post'],
+							3,
+							$thumb->pathinfo['basename'],
+							self::createHash($thumb->source),
+							$thumb_ext,
+							$thumb->filesize,
+							$thumb->width,
+							$thumb->height,
+							$thumb->mime_type,
+							(int) $attachmentOptions['approved'],
+						],
 					],
 					['id_attach'],
 					1,
@@ -2099,16 +2107,18 @@ class Attachment implements \ArrayAccess
 									'mime_type' => 'string',
 								],
 								[
-									$id_folder_thumb,
-									$id_msg,
-									3,
-									$thumb->pathinfo['basename'],
-									self::createHash($thumb->source),
-									$thumb->filesize,
-									$thumb->width,
-									$thumb->height,
-									$thumb_ext,
-									$thumb->mime_type,
+									[
+										$id_folder_thumb,
+										$id_msg,
+										3,
+										$thumb->pathinfo['basename'],
+										self::createHash($thumb->source),
+										$thumb->filesize,
+										$thumb->width,
+										$thumb->height,
+										$thumb_ext,
+										$thumb->mime_type,
+									],
 								],
 								['id_attach'],
 								1,
@@ -2302,38 +2312,6 @@ class Attachment implements \ArrayAccess
 		self::load($id, self::APPROVED_ANY, self::TYPE_ANY);
 
 		return self::$loaded[$id]->path;
-	}
-
-	/**
-	 * Backward compatibility only.
-	 *
-	 * New code should use Attachment::getFilePath() or Attachment::createHash()
-	 * to get whichever type of output is desired for a given situation.
-	 *
-	 *
-	 *
-	 * Get an attachment's encrypted filename. If $new is true, won't check for
-	 * file existence.
-	 *
-	 * This currently returns the hash if new, and the full filename otherwise,
-	 * which is very messy. And of course everything that calls this function
-	 * relies on that behavior and works around it. :P
-	 *
-	 * @param string $filename The name of the file. (Ignored.)
-	 * @param int $attachment_id The ID of the attachment.
-	 * @param ?string $dir Which directory it should be in. (Ignored.)
-	 * @param bool $new Whether this is a new attachment.
-	 * @param string $file_hash The file hash.  (Ignored.)
-	 * @return string A hash or the path to the file.
-	 */
-	public static function getAttachmentFilename(string $filename, int $attachment_id, ?string $dir = null, bool $new = false, string $file_hash = ''): string
-	{
-		// Just make up a nice hash...
-		if ($new || empty($attachment_id)) {
-			return self::createHash();
-		}
-
-		return self::getFilePath($attachment_id);
 	}
 
 	/******************

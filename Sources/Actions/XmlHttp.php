@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\Actions\Admin\News;
 use SMF\ActionTrait;
 use SMF\Board;
@@ -30,6 +31,7 @@ use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\Profile;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -37,10 +39,10 @@ use SMF\Utils;
 /**
  * Handles XML-based interaction (mainly XMLhttp)
  */
-class XmlHttp implements ActionInterface
+class XmlHttp implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

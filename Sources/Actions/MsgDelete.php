@@ -23,6 +23,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -30,7 +31,7 @@ use SMF\Utils;
 /**
  * This action handles the deletion of posts.
  */
-class MsgDelete implements ActionInterface
+class MsgDelete implements ActionInterface, Routable
 {
 	use ActionTrait;
 
@@ -110,6 +111,59 @@ class MsgDelete implements ActionInterface
 		} else {
 			Utils::redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 		}
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		if (!isset($params['msg'])) {
+			return ['route' => [], 'params' => $params];
+		}
+
+		if (!isset($params['topic'])) {
+			$params['topic'] = Msg::load($params['msg'])->id_topic;
+		}
+
+		$route[] = $params['action'];
+		$route[] = $params['topic'];
+		$route[] = $params['msg'];
+
+		unset($params['topic'], $params['action'], $params['msg']);
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params['action'] = array_shift($route);
+
+		if (!empty($route)) {
+			$params['topic'] = array_shift($route);
+		}
+
+		if (!empty($route)) {
+			$params['msg'] = array_shift($route);
+		}
+
+		return $params;
 	}
 }
 

@@ -16,18 +16,21 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
+use SMF\Routable;
 use SMF\User;
 use SMF\Utils;
 
 /**
  * Allows the moderator to approve or reject attachments.
  */
-class AttachmentApprove implements ActionInterface
+class AttachmentApprove implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************

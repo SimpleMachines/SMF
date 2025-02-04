@@ -2036,27 +2036,27 @@ function DeleteUpgrade()
 		&& is_dir($current_settings['tasksdir'])
 		&& basename($current_settings['tasksdir']) !== 'Tasks'
 		&& is_writable($current_settings['tasksdir'])
-		&& is_writable(dirname($current_settings['tasksdir']))
+		&& is_writable($current_settings['sourcedir'])
 	) {
 		// Do 'tasks' and 'Tasks' both exist?
 		if (
-			!empty(fileinode(realpath(dirname($current_settings['tasksdir']) . '/tasks')))
-			&& !empty(fileinode(realpath(dirname($current_settings['tasksdir']) . '/Tasks')))
-			&& fileinode(realpath($current_settings['tasksdir'])) !== fileinode(realpath(dirname($current_settings['tasksdir']) . '/Tasks'))
+			!empty(fileinode(realpath($current_settings['sourcedir'] . '/tasks')))
+			&& !empty(fileinode(realpath($current_settings['sourcedir'] . '/Tasks')))
+			&& fileinode(realpath($current_settings['tasksdir'])) !== fileinode(realpath($current_settings['sourcedir'] . '/Tasks'))
 		) {
 			// Move everything in 'Tasks' to 'tasks'.
-			foreach (glob(realpath(dirname($current_settings['tasksdir']) . '/Tasks') . DIRECTORY_SEPARATOR . '*') as $path) {
+			foreach (glob(realpath($current_settings['sourcedir'] . '/Tasks') . DIRECTORY_SEPARATOR . '*') as $path) {
 				rename($path, realpath($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . basename($path));
 			}
 
 			// Now delete 'Tasks'.
-			rmdir(realpath(dirname($current_settings['tasksdir']) . '/Tasks'));
+			rmdir(realpath($current_settings['sourcedir'] . '/Tasks'));
 		}
 
 		// Rename 'tasks' to 'Tasks'.
 		// Do this in two steps to make sure it works on case insensitive file systems.
-		rename($current_settings['tasksdir'], dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks_temp');
-		rename(dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks_temp', dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks');
+		rename($current_settings['tasksdir'], $current_settings['sourcedir'] . DIRECTORY_SEPARATOR . 'Tasks_temp');
+		rename($current_settings['sourcedir'] . DIRECTORY_SEPARATOR . 'Tasks_temp', $current_settings['sourcedir'] . DIRECTORY_SEPARATOR . 'Tasks');
 	}
 
 	// Are we in maintenance mode?
@@ -2114,12 +2114,28 @@ function DeleteUpgrade()
 		'',
 		'{db_prefix}log_actions',
 		[
-			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'inet', 'action' => 'string',
-			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
+			'log_time' => 'int',
+			'id_log' => 'int',
+			'id_member' => 'int',
+			'ip' => 'inet',
+			'action' => 'string',
+			'id_board' => 'int',
+			'id_topic' => 'int',
+			'id_msg' => 'int',
+			'extra' => 'string-65534',
 		],
 		[
-			time(), 3, User::$me->id, User::$me->ip, 'upgrade',
-			0, 0, 0, json_encode(['version' => SMF_FULL_VERSION, 'member' => User::$me->id]),
+			[
+				time(),
+				3,
+				User::$me->id,
+				User::$me->ip,
+				'upgrade',
+				0,
+				0,
+				0,
+				json_encode(['version' => SMF_FULL_VERSION, 'member' => User::$me->id]),
+			],
 		],
 		['id_action'],
 	);
@@ -2157,9 +2173,11 @@ function addBackgroundTasks()
 			'claimed_time' => 'int',
 		],
 		[
-			'SMF\\Tasks\\UpdateSpoofDetectorNames',
-			json_encode(['last_member_id' => 0]),
-			0,
+			[
+				'SMF\\Tasks\\UpdateSpoofDetectorNames',
+				json_encode(['last_member_id' => 0]),
+				0,
+			],
 		],
 		['id_task'],
 	);

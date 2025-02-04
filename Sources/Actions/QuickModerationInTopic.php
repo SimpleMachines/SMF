@@ -16,12 +16,14 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -32,8 +34,9 @@ use SMF\Utils;
  * Only deals with actions that work on individual messages, such as deleting,
  * restoring, and splitting into a new topic.
  */
-class QuickModerationInTopic implements ActionInterface
+class QuickModerationInTopic implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************

@@ -16,16 +16,19 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\Actions\Admin\ACP;
 use SMF\ActionTrait;
 use SMF\Config;
+use SMF\Routable;
 use SMF\User;
 
 /**
  * Lets simplemachines.org gather statistics if, and only if, the admin allows.
  */
-class SmStats implements ActionInterface
+class SmStats implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************

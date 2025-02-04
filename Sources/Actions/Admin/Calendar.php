@@ -365,12 +365,14 @@ class Calendar implements ActionInterface
 								'task' => 'string-24',
 							],
 							[
-								'next_time' => 0,
-								'time_offset' => 0,
-								'time_regularity' => 1,
-								'time_unit' => 'd',
-								'disabled' => 0,
-								'task' => 'fetch_calendar_subs',
+								[
+									'next_time' => 0,
+									'time_offset' => 0,
+									'time_regularity' => 1,
+									'time_unit' => 'd',
+									'disabled' => 0,
+									'task' => 'fetch_calendar_subs',
+								],
 							],
 							['id_task'],
 						);

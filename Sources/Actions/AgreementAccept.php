@@ -49,8 +49,20 @@ class AgreementAccept extends Agreement
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}themes',
-					['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
-					[User::$me->id, 1, 'agreement_accepted', time()],
+					[
+						'id_member' => 'int',
+						'id_theme' => 'int',
+						'variable' => 'string',
+						'value' => 'string',
+					],
+					[
+						[
+							User::$me->id,
+							1,
+							'agreement_accepted',
+							time(),
+						],
+					],
 					['id_member', 'id_theme', 'variable'],
 				);
 
@@ -61,8 +73,20 @@ class AgreementAccept extends Agreement
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}themes',
-					['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
-					[User::$me->id, 1, 'policy_accepted', time()],
+					[
+						'id_member' => 'int',
+						'id_theme' => 'int',
+						'variable' => 'string',
+						'value' => 'string',
+					],
+					[
+						[
+							User::$me->id,
+							1,
+							'policy_accepted',
+							time(),
+						],
+					],
 					['id_member', 'id_theme', 'variable'],
 				);
 

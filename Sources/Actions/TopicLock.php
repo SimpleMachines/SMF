@@ -16,10 +16,12 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
+use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -35,8 +37,9 @@ use SMF\Utils;
  *  - returns to the topic after it is done.
  *  - it is accessed via ?action=lock.
  */
-class TopicLock implements ActionInterface
+class TopicLock implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/****************

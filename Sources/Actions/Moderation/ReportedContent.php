@@ -1254,9 +1254,11 @@ class ReportedContent implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\' . $prefix . 'ReportReply_Notify',
-					Utils::jsonEncode($data),
-					0,
+					[
+						'SMF\\Tasks\\' . $prefix . 'ReportReply_Notify',
+						Utils::jsonEncode($data),
+						0,
+					],
 				],
 				['id_task'],
 			);

@@ -236,32 +236,6 @@ class Delete implements ActionInterface
 		}
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Backward compatibility wrapper for the delete method.
-	 *
-	 * @param int $memID The ID of the user.
-	 */
-	public static function deleteAccount2(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$saving = Utils::$context['completed_save'];
-		Utils::$context['completed_save'] = true;
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
-
-		Utils::$context['completed_save'] = $saving;
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

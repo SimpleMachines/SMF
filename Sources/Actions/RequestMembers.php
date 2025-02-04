@@ -16,8 +16,10 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Routable;
 use SMF\User;
 use SMF\Utils;
 
@@ -29,8 +31,9 @@ use SMF\Utils;
  * @deprecated 3.0 The requestmembers action wasn't used even in SMF 2.0!
  * @todo This is 100% obsolete, but was never officially deprecated. Remove?
  */
-class RequestMembers implements ActionInterface
+class RequestMembers implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Attachment;
@@ -31,6 +32,7 @@ use SMF\Lang;
 use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
@@ -51,8 +53,9 @@ use SMF\Verifier;
  * Although this class is not accessed using an ?action=... URL query, it
  * behaves like an action in every other way.
  */
-class Display implements ActionInterface
+class Display implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -271,6 +274,23 @@ class Display implements ActionInterface
 		IntegrationHook::call('integrate_prepare_display_context', [&$output, $message, $counter]);
 
 		return $output;
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		return Topic::buildRoute($params);
 	}
 
 	/******************
@@ -569,8 +589,18 @@ class Display implements ActionInterface
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}log_boards',
-					['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
-					[Config::$modSettings['maxMsgID'], User::$me->id, Board::$info->id],
+					[
+						'id_msg' => 'int',
+						'id_member' => 'int',
+						'id_board' => 'int',
+					],
+					[
+						[
+							Config::$modSettings['maxMsgID'],
+							User::$me->id,
+							Board::$info->id,
+						],
+					],
 					['id_member', 'id_board'],
 				);
 			}

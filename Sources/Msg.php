@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Actions\Moderation\ReportedContent;
+use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
@@ -26,7 +27,7 @@ use SMF\Search\SearchApi;
  * including sending emails, pms, blocking spam, preparsing posts, spell
  * checking, and the post box.
  */
-class Msg implements \ArrayAccess
+class Msg implements \ArrayAccess, Routable
 {
 	use ArrayAccessHelper;
 
@@ -380,13 +381,8 @@ class Msg implements \ArrayAccess
 			// Is this user the message author?
 			$this->formatted['is_message_author'] = $this->id_member == User::$me->id && !User::$me->is_guest;
 
-			// Load the author's data, if not already loaded.
-			if (!empty($this->id_member) && !isset(User::$loaded[$this->id_member])) {
-				User::load($this->id_member);
-			}
-
-			// If it couldn't load, or the user was a guest.... someday may be done with a guest table.
-			if (empty($this->id_member) || !isset(User::$loaded[$this->id_member])) {
+			// If the user was a guest...
+			if (empty($this->id_member)) {
 				$this->formatted['member'] = [
 					'name' => $this->poster_name,
 					'username' => $this->poster_name,
@@ -398,7 +394,7 @@ class Msg implements \ArrayAccess
 					'is_guest' => true,
 				];
 			} else {
-				$this->formatted['member'] = User::$loaded[$this->id_member]->format(true);
+				$this->formatted['member'] = current(User::load($this->id_member))->format(true);
 
 				// Define this here to make things a bit more readable
 				$can_view_warning = User::$me->is_mod || User::$me->allowedTo('moderate_forum') || User::$me->allowedTo('view_warning_any') || ($this->id_member == User::$me->id && User::$me->allowedTo('view_warning_own'));
@@ -1486,7 +1482,9 @@ class Msg implements \ArrayAccess
 					'id_msg' => 'int',
 				],
 				[
-					$msgOptions['id'],
+					[
+						$msgOptions['id'],
+					],
 				],
 				[],
 			);
@@ -1499,14 +1497,16 @@ class Msg implements \ArrayAccess
 					'task_data' => 'string',
 					'claimed_time' => 'int'],
 				[
-					'SMF\\Tasks\\ApprovePost_Notify',
-					Utils::jsonEncode([
-						'msgOptions' => $msgOptions,
-						'topicOptions' => $topicOptions,
-						'posterOptions' => $posterOptions,
-						'type' => $new_topic ? 'topic' : 'post',
-					]),
-					0,
+					[
+						'SMF\\Tasks\\ApprovePost_Notify',
+						Utils::jsonEncode([
+							'msgOptions' => $msgOptions,
+							'topicOptions' => $topicOptions,
+							'posterOptions' => $posterOptions,
+							'type' => $new_topic ? 'topic' : 'post',
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);
@@ -1536,8 +1536,18 @@ class Msg implements \ArrayAccess
 				Db::$db->insert(
 					'ignore',
 					'{db_prefix}log_topics',
-					['id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int'],
-					[$topicOptions['id'], $posterOptions['id'], $msgOptions['id']],
+					[
+						'id_topic' => 'int',
+						'id_member' => 'int',
+						'id_msg' => 'int',
+					],
+					[
+						[
+							$topicOptions['id'],
+							$posterOptions['id'],
+							$msgOptions['id'],
+						],
+					],
 					['id_topic', 'id_member'],
 				);
 			}
@@ -1553,13 +1563,15 @@ class Msg implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\ApproveReply_Notify',
-					Utils::jsonEncode([
-						'msgOptions' => $msgOptions,
-						'topicOptions' => $topicOptions,
-						'posterOptions' => $posterOptions,
-					]),
-					0,
+					[
+						'SMF\\Tasks\\ApproveReply_Notify',
+						Utils::jsonEncode([
+							'msgOptions' => $msgOptions,
+							'topicOptions' => $topicOptions,
+							'posterOptions' => $posterOptions,
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);
@@ -1618,14 +1630,16 @@ class Msg implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\CreatePost_Notify',
-					Utils::jsonEncode([
-						'msgOptions' => $msgOptions,
-						'topicOptions' => $topicOptions,
-						'posterOptions' => $posterOptions,
-						'type' => $new_topic ? 'topic' : 'reply',
-					]),
-					0,
+					[
+						'SMF\\Tasks\\CreatePost_Notify',
+						Utils::jsonEncode([
+							'msgOptions' => $msgOptions,
+							'topicOptions' => $topicOptions,
+							'posterOptions' => $posterOptions,
+							'type' => $new_topic ? 'topic' : 'reply',
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);
@@ -1708,6 +1722,14 @@ class Msg implements \ArrayAccess
 		// Update search api
 		if ($searchAPI->supportsMethod('postRemoved')) {
 			$searchAPI->postRemoved((int) $msgOptions['id']);
+		}
+
+		// If this is the first post of a topic, remove any cached slug string for the topic.
+		if (
+			!empty($topicOptions['id'])
+			&& ($msgOptions['id'] ?? NAN) === ($topicOptions['first_msg'] ?? NAN)
+		) {
+			CacheApi::put('slug_type-topic_id-' . $topicOptions['id'], null, 0);
 		}
 
 		// Anyone quoted or mentioned?
@@ -1820,8 +1842,18 @@ class Msg implements \ArrayAccess
 				Db::$db->insert(
 					'ignore',
 					'{db_prefix}log_topics',
-					['id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int'],
-					[$topicOptions['id'], User::$me->id, Config::$modSettings['maxMsgID']],
+					[
+						'id_topic' => 'int',
+						'id_member' => 'int',
+						'id_msg' => 'int',
+					],
+					[
+						[
+							$topicOptions['id'],
+							User::$me->id,
+							Config::$modSettings['maxMsgID'],
+						],
+					],
 					['id_topic', 'id_member'],
 				);
 			}
@@ -1852,14 +1884,16 @@ class Msg implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\CreatePost_Notify',
-					Utils::jsonEncode([
-						'msgOptions' => $msgOptions,
-						'topicOptions' => $topicOptions,
-						'posterOptions' => $posterOptions,
-						'type' => 'edit',
-					]),
-					0,
+					[
+						'SMF\\Tasks\\CreatePost_Notify',
+						Utils::jsonEncode([
+							'msgOptions' => $msgOptions,
+							'topicOptions' => $topicOptions,
+							'posterOptions' => $posterOptions,
+							'type' => 'edit',
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);
@@ -2618,12 +2652,26 @@ class Msg implements \ArrayAccess
 					'',
 					'{db_prefix}topics',
 					[
-						'id_board' => 'int', 'id_member_started' => 'int', 'id_member_updated' => 'int', 'id_first_msg' => 'int',
-						'id_last_msg' => 'int', 'unapproved_posts' => 'int', 'approved' => 'int', 'id_previous_topic' => 'int',
+						'id_board' => 'int',
+						'id_member_started' => 'int',
+						'id_member_updated' => 'int',
+						'id_first_msg' => 'int',
+						'id_last_msg' => 'int',
+						'unapproved_posts' => 'int',
+						'approved' => 'int',
+						'id_previous_topic' => 'int',
 					],
 					[
-						Config::$modSettings['recycle_board'], $row['id_member'], $row['id_member'], $message,
-						$message, 0, 1, $row['id_topic'],
+						[
+							Config::$modSettings['recycle_board'],
+							$row['id_member'],
+							$row['id_member'],
+							$message,
+							$message,
+							0,
+							1,
+							$row['id_topic'],
+						],
 					],
 					['id_topic'],
 					1,
@@ -2671,8 +2719,20 @@ class Msg implements \ArrayAccess
 					Db::$db->insert(
 						'replace',
 						'{db_prefix}log_topics',
-						['id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'],
-						[$topicID, User::$me->id, Config::$modSettings['maxMsgID'], 0],
+						[
+							'id_topic' => 'int',
+							'id_member' => 'int',
+							'id_msg' => 'int',
+							'unwatched' => 'int',
+						],
+						[
+							[
+								$topicID,
+								User::$me->id,
+								Config::$modSettings['maxMsgID'],
+								0,
+							],
+						],
 						['id_topic', 'id_member'],
 					);
 				}
@@ -2682,8 +2742,18 @@ class Msg implements \ArrayAccess
 					Db::$db->insert(
 						'replace',
 						'{db_prefix}log_boards',
-						['id_board' => 'int', 'id_member' => 'int', 'id_msg' => 'int'],
-						[Config::$modSettings['recycle_board'], User::$me->id, Config::$modSettings['maxMsgID']],
+						[
+							'id_board' => 'int',
+							'id_member' => 'int',
+							'id_msg' => 'int',
+						],
+						[
+							[
+								Config::$modSettings['recycle_board'],
+								User::$me->id,
+								Config::$modSettings['maxMsgID'],
+							],
+						],
 						['id_board', 'id_member'],
 					);
 				}
@@ -2825,6 +2895,44 @@ class Msg implements \ArrayAccess
 		}
 
 		return false;
+	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route = [];
+
+		if (isset($params['msg'])) {
+			$route[] = 'msgs';
+			$route[] = $params['msg'];
+			unset($params['msg']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		if (count($route) >= 2) {
+			array_shift($route);
+			$params['msg'] = array_shift($route);
+		}
+
+		return $params;
 	}
 
 	/*************************

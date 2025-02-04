@@ -168,11 +168,22 @@ class Home implements ActionInterface
 					'',
 					'{db_prefix}log_comments',
 					[
-						'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
-						'body' => 'string', 'log_time' => 'int',
+						'id_member' => 'int',
+						'member_name' => 'string',
+						'comment_type' => 'string',
+						'recipient_name' => 'string',
+						'body' => 'string',
+						'log_time' => 'int',
 					],
 					[
-						User::$me->id, User::$me->name, 'modnote', '', $_POST['new_note'], time(),
+						[
+							User::$me->id,
+							User::$me->name,
+							'modnote',
+							'',
+							$_POST['new_note'],
+							time(),
+						],
 					],
 					['id_comment'],
 				);

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Autolinker;
 use SMF\Board;
@@ -30,6 +31,7 @@ use SMF\Msg;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Topic;
@@ -41,8 +43,9 @@ use SMF\Utils;
  *
  * Called via '?action=jsmodify' by script.js and topic.js
  */
-class JavaScriptModify implements ActionInterface
+class JavaScriptModify implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************

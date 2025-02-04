@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -24,6 +25,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -33,10 +35,10 @@ use SMF\Utils;
  * This class contains the methods for displaying and searching in the
  * members list.
  */
-class Memberlist implements ActionInterface
+class Memberlist implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -807,6 +809,51 @@ class Memberlist implements ActionInterface
 		Db::$db->free_result($request);
 
 		return $cpf;
+	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		if (!isset($params['sa'])) {
+			$params['sa'] = 'all';
+		}
+
+		$route = self::buildActionRoute($params);
+
+		if (isset($params['start'])) {
+			if ($params['start'] > 0) {
+				$route[] = $params['start'];
+			}
+
+			unset($params['start']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params = array_merge($params, self::parseActionRoute($route));
+
+		if (!empty($route)) {
+			$params['start'] = array_shift($route);
+		}
+
+		return $params;
 	}
 
 	/******************

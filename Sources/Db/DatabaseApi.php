@@ -372,11 +372,6 @@ abstract class DatabaseApi
 		return $class;
 	}
 
-	/**
-	 * Dummy method for backward compatibility.
-	 */
-	public static function extend(): void {}
-
 	/******************
 	 * Internal methods
 	 ******************/

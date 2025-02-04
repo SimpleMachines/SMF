@@ -14,6 +14,7 @@
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -24,7 +25,9 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\SecurityToken;
+use SMF\Slug;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -32,10 +35,10 @@ use SMF\Utils;
 /**
  * Shows group info.
  */
-class Groups implements ActionInterface
+class Groups implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -425,6 +428,64 @@ class Groups implements ActionInterface
 		}
 
 		return false;
+	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route[] = $params['action'];
+		unset($params['action']);
+
+		if (($params['sa'] ?? '') === 'members' && isset($params['group'])) {
+			if (isset(Slug::$known['group'][(int) $params['group']])) {
+				$slug = (string) Slug::$known['group'][(int) $params['group']];
+			} elseif (($slug = Slug::getCached('group', (int) $params['group'])) === '') {
+				$group = current(Group::load((int) $params['group']));
+
+				if ($group instanceof Group) {
+					$slug = (string) new Slug($group->name, 'group', $group->id);
+				} else {
+					$slug = '';
+				}
+			}
+
+			$route[] = $slug . (str_ends_with($slug, '-' . $params['group']) ? '' : ($slug !== '' ? '-' : '') . $params['group']);
+
+			unset($params['sa'], $params['group']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params['action'] = array_shift($route);
+
+		if (!empty($route)) {
+			$params['sa'] = 'members';
+
+			preg_match('/^(\X*?)(\d+)$/u', array_shift($route), $matches);
+
+			$params['group'] = $matches[2];
+
+			Slug::setRequested(rtrim($matches[1], '-'), 'group', (int) $params['group']);
+		}
+
+		return $params;
 	}
 
 	/******************

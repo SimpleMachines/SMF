@@ -13,6 +13,7 @@
 
 namespace SMF\Actions\Moderation;
 
+use SMF\ActionRouter;
 use SMF\Actions\Groups as ViewGroups;
 use SMF\ActionTrait;
 use SMF\Config;
@@ -34,6 +35,7 @@ use SMF\Utils;
  */
 class Groups extends ViewGroups
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -334,9 +336,11 @@ class Groups extends ViewGroups
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\GroupAct_Notify',
-						$data,
-						0,
+						[
+							'SMF\\Tasks\\GroupAct_Notify',
+							$data,
+							0,
+						],
 					],
 					[],
 				);
@@ -581,6 +585,57 @@ class Groups extends ViewGroups
 		Db::$db->free_result($request);
 
 		return $group_requests;
+	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		if (
+			($params['area'] ?? '') === 'viewgroups'
+			&& ($params['sa'] ?? '') === 'members'
+			&& isset($params['group'])
+		) {
+			$route[] = $params['action'];
+			$route[] = $params['area'];
+			$route[] = $params['group'];
+
+			unset($params['action'], $params['area'], $params['sa'], $params['group']);
+		} else {
+			$route = self::buildActionRoute($params);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		if (($route[1] ?? '') === 'viewgroups') {
+			$params['action'] = $route[0];
+			$params['area'] = $route[1];
+
+			if (isset($route[2])) {
+				$params['sa'] = 'members';
+				$params['group'] = $route[2];
+			}
+		} else {
+			$params = self::parseActionRoute($route);
+		}
+
+		return $params;
 	}
 
 	/******************

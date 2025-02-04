@@ -1797,15 +1797,17 @@ class Event implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\EventNew_Notify',
-					Utils::jsonEncode([
-						'event_title' => $event->title,
-						'event_id' => $event->id,
-						'sender_id' => $event->member,
-						'sender_name' => $event->member == User::$me->id ? User::$me->name : '',
-						'time' => time(),
-					]),
-					0,
+					[
+						'SMF\\Tasks\\EventNew_Notify',
+						Utils::jsonEncode([
+							'event_title' => $event->title,
+							'event_id' => $event->id,
+							'sender_id' => $event->member,
+							'sender_name' => $event->member == User::$me->id ? User::$me->name : '',
+							'time' => time(),
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);

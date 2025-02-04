@@ -1421,8 +1421,24 @@ class User implements \ArrayAccess
 			Db::$db->insert(
 				$do_delete ? 'ignore' : 'replace',
 				'{db_prefix}log_online',
-				['session' => 'string', 'id_member' => 'int', 'id_spider' => 'int', 'log_time' => 'int', 'ip' => 'inet', 'url' => 'string'],
-				[$session_id, $this->id, empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), $this->ip, $encoded_get],
+				[
+					'session' => 'string',
+					'id_member' => 'int',
+					'id_spider' => 'int',
+					'log_time' => 'int',
+					'ip' => 'inet',
+					'url' => 'string',
+				],
+				[
+					[
+						$session_id,
+						$this->id,
+						empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'],
+						time(),
+						$this->ip,
+						$encoded_get,
+					],
+				],
 				['session'],
 			);
 		}
@@ -4284,226 +4300,21 @@ class User implements \ArrayAccess
 			Db::$db->insert(
 				'insert',
 				'{db_prefix}log_spider_hits',
-				['id_spider' => 'int', 'log_time' => 'int', 'url' => 'string'],
-				[$_SESSION['id_robot'], time(), $url],
+				[
+					'id_spider' => 'int',
+					'log_time' => 'int',
+					'url' => 'string',
+				],
+				[
+					[
+						$_SESSION['id_robot'],
+						time(),
+						$url,
+					],
+				],
 				[],
 			);
 		}
-	}
-
-	/**
-	 * Wrapper around User::load() that returns the IDs of the loaded users.
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param int|string|array $users Users specified by ID, name, or email address.
-	 * @param int $type Whether $users contains IDs, names, or email addresses.
-	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param string $dataset What kind of data to load: 'profile', 'normal',
-	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
-	 * @return array The IDs of the loaded members.
-	 */
-	public static function loadMemberData(int|string|array $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
-	{
-		$loaded = self::load($users, $type, $dataset);
-
-		return array_map(fn($user) => $user->id, $loaded);
-	}
-
-	/**
-	 * Alias of User::load().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 */
-	public static function loadUserSettings(): void
-	{
-		self::load();
-	}
-
-	/**
-	 * Static wrapper around User::$me->loadPermissions.
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 */
-	public static function loadMyPermissions(): void
-	{
-		self::$me->loadPermissions();
-	}
-
-	/**
-	 * Static wrapper around User::$loaded[$id]->format().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param int $id The ID of a user.
-	 * @param bool $display_custom_fields Whether or not to display custom
-	 *    profile fields.
-	 * @return bool|array The loaded data, or false on error.
-	 */
-	public static function loadMemberContext(int $id, bool $display_custom_fields = false): bool|array
-	{
-		// The old procedural version of this function returned false if asked
-		// to work on a guest. Since it is possible that old mods might rely on
-		// that behaviour, we replicate it here.
-		if (empty($id)) {
-			return false;
-		}
-
-		// If the user's data is not already loaded, load it now.
-		if (!isset(self::$loaded[$id])) {
-			self::load((array) $id, self::LOAD_BY_ID, 'profile');
-		}
-
-		return self::$loaded[$id]->format($display_custom_fields);
-	}
-
-	/**
-	 * Static wrapper around User::$me->kickIfGuest().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string $message The message to display to the guest.
-	 */
-	public static function is_not_guest(string $message = ''): void
-	{
-		self::$me->kickIfGuest($message);
-	}
-
-	/**
-	 * Static wrapper around User::$me->kickIfBanned().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param bool $force_check Whether to force a recheck.
-	 */
-	public static function is_not_banned(bool $force_check = false): void
-	{
-		self::$me->kickIfBanned($force_check);
-	}
-
-	/**
-	 * Static wrapper around User::$me->adjustPermissions().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 */
-	public static function banPermissions(): void
-	{
-		self::$me->adjustPermissions();
-	}
-
-	/**
-	 * Static wrapper around User::$me->logBan().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param array $ban_ids The IDs of the bans.
-	 * @param string $email The email address associated with the user that
-	 *    triggered this hit. If not set, use the current user's email address.
-	 */
-	public static function log_ban(array $ban_ids = [], ?string $email = null): void
-	{
-		self::$me->logBan($ban_ids, $email);
-	}
-
-	/**
-	 * Static wrapper around User::$me->validateSession().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string $type What type of session this is.
-	 * @param bool $force If true, require a password even if we normally wouldn't.
-	 * @return string|null Returns 'session_verify_fail' if verification failed,
-	 *    or null if it passed.
-	 */
-	public static function sessionValidate(string $type = 'admin', bool $force = false): ?string
-	{
-		return self::$me->validateSession($type, $force);
-	}
-
-	/**
-	 * Static wrapper around User::$me->checkSession().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string $type The type of check (post, get, request).
-	 * @param string $from_action The action this is coming from.
-	 * @param bool $is_fatal Whether to die with a fatal error if the check fails.
-	 * @return string The error message, or '' if everything was fine.
-	 */
-	public static function sessionCheck(string $type = 'post', string $from_action = '', bool $is_fatal = true): string
-	{
-		return self::$me->checkSession($type, $from_action, $is_fatal);
-	}
-
-	/**
-	 * Static wrapper around User::$me->allowedTo().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string|array $permission A single permission to check or an array
-	 *    of permissions to check.
-	 * @param int|array $boards The ID of a board or an array of board IDs if we
-	 *    want to check board-level permissions
-	 * @param bool $any Whether to check for permission on at least one board
-	 *    instead of all the passed boards.
-	 * @return bool Whether the user has the specified permission.
-	 */
-	public static function hasPermission(string|array $permission, int|array|null $boards = null, bool $any = false): bool
-	{
-		// You're never allowed to do something if your data hasn't been loaded yet!
-		if (!isset(self::$me)) {
-			return false;
-		}
-
-		return self::$me->allowedTo($permission, $boards, $any);
-	}
-
-	/**
-	 * Static wrapper around User::$me->isAllowedTo().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string|array $permission A single permission to check or an array
-	 *    of permissions to check.
-	 * @param int|array $boards The ID of a board or an array of board IDs if we
-	 *    want to check board-level permissions
-	 * @param bool $any Whether to check for permission on at least one board
-	 *    instead of all the passed boards.
-	 * @return bool Whether the user has the specified permission.
-	 */
-	public static function mustHavePermission(string|array $permission, int|array|null $boards = null, bool $any = false): bool
-	{
-		// You're never allowed to do something if your data hasn't been loaded yet!
-		if (!isset(self::$me)) {
-			return false;
-		}
-
-		self::$me->isAllowedTo($permission, $boards, $any);
-
-		// If we get here, the user is allowed.
-		return true;
-	}
-
-	/**
-	 * Static wrapper around User::$me->boardsAllowedTo().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string|array $permission A single permission to check or an array
-	 *    of permissions to check.
-	 * @param bool $check_access Whether to check only the boards the user has
-	 *    access to.
-	 * @return array|bool An array of board IDs if $simple is true. Otherwise, an
-	 *    array containing 'permission' => array(id, id, id...) pairs.
-	 */
-	public static function hasPermissionInBoards(string|array $permission, bool $check_access = true, bool $simple = true): array|bool
-	{
-		// You're never allowed to do something if your data hasn't been loaded yet!
-		if (!isset(self::$me)) {
-			return false;
-		}
-
-		return self::$me->boardsAllowedTo($permission, $check_access, $simple);
 	}
 
 	/******************
