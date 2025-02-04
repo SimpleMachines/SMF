@@ -890,6 +890,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$this->free_result($request);
 		}
 
+		// If no results were returned, the database doesn't exist yet.
+		// Therefore, assume that it will be utf8 once it is created.
+		if (!isset($detected)) {
+			return 'utf8';
+		}
+
 		return strtolower($detected['server_encoding']);
 	}
 
