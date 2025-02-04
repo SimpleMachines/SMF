@@ -591,12 +591,46 @@ class QueryString
 			return;
 		}
 
+		$canonical_url = Url::create(Config::$boardurl);
+
+		// Check to see if they're accessing it from the wrong place.
+		if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME'])) {
+			$requested_url = Sapi::httpsOn() ? 'https://' : 'http://';
+
+			if (!empty($_SERVER['HTTP_HOST'])) {
+				$requested_url .= $_SERVER['HTTP_HOST'];
+			} else {
+				$requested_url .= $_SERVER['SERVER_NAME'];
+
+				if (!empty($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 80) {
+					$requested_url .= ':' . $_SERVER['SERVER_PORT'];
+				}
+			}
+
+			$_SERVER['REQUEST_URL'] = preg_replace(
+				'/^' .
+				preg_quote(
+					$canonical_url->scheme .
+					'://' .
+					$canonical_url->host .
+					(
+						!empty($canonical_url->port) && $canonical_url->port !== 80
+						? ':' . $canonical_url->port
+						: ''
+					),
+					'/',
+				) .
+				'/u',
+				$requested_url,
+				$_SERVER['REQUEST_URL'],
+			);
+		}
+
 		if (str_starts_with($_SERVER['REQUEST_URL'], Config::$boardurl)) {
 			return;
 		}
 
 		$requested_url = Url::create($_SERVER['REQUEST_URL']);
-		$canonical_url = Url::create(Config::$boardurl);
 
 		// Is the requested URL a known alias of the canonical forum URL?
 		if (!empty(Config::$modSettings['forum_alias_urls'])) {
@@ -611,9 +645,15 @@ class QueryString
 			}
 		}
 
-		// Is the requested URL using a raw IP address instead of a domain name?
-		if (!isset($new_url) && IP::create($requested_url->host)->isValid()) {
-			$new_url = strtr(Config::$boardurl, [$canonical_url->host, $requested_url->host]);
+		// Is the requested URL using localhost or an IP address instead of a domain name?
+		if (
+			!isset($new_url)
+			&& (
+				$requested_url->host === 'localhost'
+				|| IP::create($requested_url->host)->isValid()
+			)
+		) {
+			$new_url = strtr(Config::$boardurl, [$canonical_url->host => $requested_url->host]);
 		}
 
 		if (
