@@ -939,7 +939,7 @@ class ExportProfileData extends BackgroundTask
 				'insert',
 				'{db_prefix}background_tasks',
 				['task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
-				$this->next_task,
+				[$this->next_task],
 				[],
 			);
 		}

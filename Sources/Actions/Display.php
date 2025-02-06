@@ -496,10 +496,18 @@ class Display implements ActionInterface, Routable
 					Topic::$info->new_from == 0 ? 'ignore' : 'replace',
 					'{db_prefix}log_topics',
 					[
-						'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
+						'id_member' => 'int',
+						'id_topic' => 'int',
+						'id_msg' => 'int',
+						'unwatched' => 'int',
 					],
 					[
-						User::$me->id, Topic::$info->id, $mark_at_msg, Topic::$info->unwatched,
+						[
+							User::$me->id,
+							Topic::$info->id,
+							$mark_at_msg,
+							Topic::$info->unwatched,
+						],
 					],
 					['id_member', 'id_topic'],
 				);

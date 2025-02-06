@@ -290,7 +290,7 @@ if (empty(Config::$modSettings['pm_spam_settings']))
 		INSERT IGNORE INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('pm_spam_settings', 'Config::$modSettings[pm_spam_settings]')");
+			('pm_spam_settings', '" . Config::$modSettings['pm_spam_settings'] . "')");
 }
 upgrade_query("
 	DELETE FROM {$db_prefix}settings
