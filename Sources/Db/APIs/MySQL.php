@@ -914,7 +914,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// If no results were returned, the database doesn't exist yet.
 		// Therefore, assume that it will be utf8mb4 once it is created.
-		if (!isset($detected)) {
+		if (!isset($detected[0]['DEFAULT_CHARACTER_SET_NAME'])) {
 			return 'utf8mb4';
 		}
 

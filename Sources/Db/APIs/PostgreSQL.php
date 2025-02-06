@@ -892,7 +892,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// If no results were returned, the database doesn't exist yet.
 		// Therefore, assume that it will be utf8 once it is created.
-		if (!isset($detected)) {
+		if (!isset($detected['server_encoding'])) {
 			return 'utf8';
 		}
 
