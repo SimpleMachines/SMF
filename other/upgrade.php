@@ -3764,6 +3764,10 @@ function ConvertUtf8(): bool
 		// Do we need to do each column individually?
 		if ($convert_columns_individually) {
 			foreach ($structure['columns'] as $c => $column) {
+				if (!isset($column['charset'])) {
+					continue;
+				}
+
 				if ($column['charset'] !== ($charset_maps[$lang_charset] ?? null)) {
 					// First, convert the column to binary.
 					Db::$db->query(
