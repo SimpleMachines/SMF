@@ -3758,7 +3758,7 @@ function ConvertUtf8(): bool
 		}
 
 		if ($command_line && ($table_charset !== 'utf8mb4' || $convert_columns_individually)) {
-			echo 'Converting table ' . $table_info['Name'] . ' to utf8mb4...';
+			echo 'Converting table ' . $structure['name'] . ' to utf8mb4...';
 		}
 
 		// Do we need to do each column individually?
