@@ -3803,7 +3803,7 @@ function ConvertUtf8(): bool
 							$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
 						}
 					} else {
-						for ($i = 0; $i < 0xFF; $i++) {
+						for ($i = 0; $i <= 0xFF; $i++) {
 							$from = '0x' . strtoupper(dechex($i));
 							$to = '0x' . strtoupper(bin2hex(mb_convert_encoding(chr($i), 'UTF-8', $from_charset)));
 
