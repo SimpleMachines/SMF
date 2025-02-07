@@ -504,7 +504,8 @@ class Display implements ActionInterface, Routable
 					[
 						[
 							User::$me->id,
-							Topic::$info->id, $mark_at_msg,
+							Topic::$info->id,
+							$mark_at_msg,
 							Topic::$info->unwatched,
 						],
 					],

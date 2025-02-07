@@ -27,6 +27,7 @@ use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 
@@ -232,7 +233,7 @@ class ErrorLog implements ActionInterface
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
 				'url' => [
-					'html' => Utils::htmlspecialchars(!str_contains($row['url'], 'cron.php') ? (str_starts_with($row['url'], '?') ? Config::$scripturl : '') . $row['url'] : $row['url']),
+					'html' => Utils::htmlspecialchars((Url::create($row['url'])->isValid() ? '' : Config::$boardurl) . $row['url']),
 					'href' => base64_encode(Db::$db->escape_wildcard_string($row['url'])),
 				],
 				'message' => [

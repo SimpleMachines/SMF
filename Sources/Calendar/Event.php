@@ -721,7 +721,7 @@ class Event implements \ArrayAccess
 				'',
 				'{db_prefix}calendar',
 				$columns,
-				$params,
+				[$params],
 				['id_event'],
 				1,
 			);

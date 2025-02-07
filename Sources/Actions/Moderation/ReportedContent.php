@@ -1208,10 +1208,15 @@ class ReportedContent implements ActionInterface
 			'',
 			'{db_prefix}log_comments',
 			[
-				'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
-				'id_notice' => 'int', 'body' => 'string', 'log_time' => 'int',
+				'id_member' => 'int',
+				'member_name' => 'string',
+				'comment_type' => 'string',
+				'recipient_name' => 'string',
+				'id_notice' => 'int',
+				'body' => 'string',
+				'log_time' => 'int',
 			],
-			$data,
+			[$data],
 			['id_comment'],
 			1,
 		);

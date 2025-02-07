@@ -1426,8 +1426,8 @@ if (!isset(Config::$modSettings['censor_vulgar']) || !isset(Config::$modSettings
 		INSERT IGNORE INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('censor_vulgar', 'Config::$modSettings[censor_vulgar]'),
-			('censor_proper', 'Config::$modSettings[censor_proper]')");
+			('censor_vulgar', '" . Config::$modSettings['censor_vulgar'] . "'),
+			('censor_proper', '" . Config::$modSettings['censor_proper'] . "')");
 
 	upgrade_query("
 		DROP TABLE IF EXISTS {$db_prefix}censor");

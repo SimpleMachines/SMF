@@ -2561,7 +2561,7 @@ class Smileys implements ActionInterface
 				[
 					'code' => 'string-30', 'description' => 'string-80', 'smiley_row' => 'int', 'smiley_order' => 'int',
 				],
-				$new_smiley['info'],
+				[$new_smiley['info']],
 				['id_smiley'],
 				1,
 			);

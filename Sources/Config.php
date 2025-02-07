@@ -895,8 +895,23 @@ class Config
 	 */
 	public static function set(array $settings): void
 	{
+		self::getSettingsDefs();
+
 		foreach ($settings as $var => $val) {
 			if (property_exists(__CLASS__, $var)) {
+				// Try to ensure the type is correct.
+				if (
+					isset(self::$settings_defs[$var])
+					&& !in_array(gettype($val), (array) self::$settings_defs[$var]['type'])
+				) {
+					foreach (['boolean', 'integer', 'double', 'string', 'array', 'NULL'] as $to_type) {
+						if (in_array($to_type, (array) self::$settings_defs[$var]['type'])) {
+							settype($val, $to_type);
+							break;
+						}
+					}
+				}
+
 				self::${$var} = $val;
 			} else {
 				self::$custom[$var] = $val;
@@ -904,9 +919,7 @@ class Config
 		}
 
 		// Anything missing?
-		$class_vars = get_class_vars(__CLASS__);
-
-		foreach ($class_vars['settings_defs'] as $var => $def) {
+		foreach (self::$settings_defs as $var => $def) {
 			if (is_string($var) && property_exists(__CLASS__, $var) && !isset(self::${$var})) {
 				if (!empty($def['raw_default'])) {
 					$default = strtr($def['default'], [

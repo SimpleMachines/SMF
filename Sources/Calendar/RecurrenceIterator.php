@@ -1255,7 +1255,11 @@ class RecurrenceIterator implements \Iterator
 
 						foreach ($this->rrule->{$prop} as $value) {
 							if ($value != $current_value) {
-								$temp = \DateTime::createFromFormat('Y z H:i:s e', $temp->format('Y ') . ($value > 0 ? $value - 1 : $value + ((bool) $temp->format('L') && $value >= -306 ? 366 : 365)) . $temp->format(' H:i:s e'));
+								try {
+									$temp = \DateTime::createFromFormat('Y z H:i:s e', $temp->format('Y ') . ($value > 0 ? $value - 1 : $value + ((bool) $temp->format('L') && $value >= -306 ? 366 : 365)) . $temp->format(' H:i:s e'));
+								} catch (\Throwable $e) {
+									$temp = \DateTime::createFromFormat('Y z H:i:s P', $temp->format('Y ') . ($value > 0 ? $value - 1 : $value + ((bool) $temp->format('L') && $value >= -306 ? 366 : 365)) . $temp->format(' H:i:s P'));
+								}
 
 								yield $temp;
 
@@ -1312,13 +1316,22 @@ class RecurrenceIterator implements \Iterator
 
 							// Move temp to start of week.
 							$temp->modify('+ 1 day');
-							$temp->modify('previous ' . self::WEEKDAY_NAMES[$this->rrule->wkst] . ' ' . $temp->format('H:i:s e'));
+
+							try {
+								$temp->modify('previous ' . self::WEEKDAY_NAMES[$this->rrule->wkst] . ' ' . $temp->format('H:i:s e'));
+							} catch (\Throwable $e) {
+								$temp->modify('previous ' . self::WEEKDAY_NAMES[$this->rrule->wkst] . ' ' . $temp->format('H:i:s P'));
+							}
 
 							$temp_value = strtoupper(substr($temp->format('D'), 0, 2));
 
 							foreach ($this->sortWeekdays($this->rrule->byday) as $value) {
 								if ($value != $temp_value) {
-									$temp->modify('next ' . self::WEEKDAY_NAMES[$value] . ' ' . $temp->format('H:i:s e'));
+									try {
+										$temp->modify('next ' . self::WEEKDAY_NAMES[$value] . ' ' . $temp->format('H:i:s e'));
+									} catch (\Throwable $e) {
+										$temp->modify('next ' . self::WEEKDAY_NAMES[$value] . ' ' . $temp->format('H:i:s P'));
+									}
 								}
 
 								if (self::calculateWeekNum($temp, $this->rrule->wkst) === $weeknum) {
@@ -1334,7 +1347,11 @@ class RecurrenceIterator implements \Iterator
 						else {
 							foreach ($this->rrule->byday as $value) {
 								if ($value != $current_value) {
-									$temp->modify('next ' . self::WEEKDAY_NAMES[$value] . ' ' . $temp->format('H:i:s e'));
+									try {
+										$temp->modify('next ' . self::WEEKDAY_NAMES[$value] . ' ' . $temp->format('H:i:s e'));
+									} catch (\Throwable $e) {
+										$temp->modify('next ' . self::WEEKDAY_NAMES[$value] . ' ' . $temp->format('H:i:s P'));
+									}
 
 									yield $temp;
 
@@ -1409,11 +1426,21 @@ class RecurrenceIterator implements \Iterator
 		if ($this->frequency_interval->m === 1) {
 			$upperlimit->add($this->frequency_interval);
 		} elseif (!empty($this->rrule->bymonth) && in_array((($upperlimit->format('m') + 1) % 12), $this->rrule->bymonth)) {
-			$upperlimit->modify('last day of ' . $upperlimit->format('F H:i:s e'));
+			try {
+				$upperlimit->modify('last day of ' . $upperlimit->format('F H:i:s e'));
+			} catch (\Throwable $e) {
+				$upperlimit->modify('last day of ' . $upperlimit->format('F H:i:s P'));
+			}
+
 			$upperlimit->modify('+ 1 day');
 		} else {
 			$upperlimit->setDate((int) $upperlimit->format('Y'), (int) $upperlimit->format('m'), 1);
-			$upperlimit->modify('last day of ' . $upperlimit->format('F H:i:s e'));
+
+			try {
+				$upperlimit->modify('last day of ' . $upperlimit->format('F H:i:s e'));
+			} catch (\Throwable $e) {
+				$upperlimit->modify('last day of ' . $upperlimit->format('F H:i:s P'));
+			}
 		}
 
 		$expansion_values = $this->sortWeekdays($expansion_values);
@@ -1443,7 +1470,11 @@ class RecurrenceIterator implements \Iterator
 				$temp->modify('- 1 day');
 
 				// Go to first occurrence of the weekday in the month.
-				$temp->modify('next ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
+				try {
+					$temp->modify('next ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
+				} catch (\Throwable $e) {
+					$temp->modify('next ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s P'));
+				}
 
 				// Move forward to the requested occurrence.
 				if ($expansion_values[$key]['modifier'] > 1) {
@@ -1472,7 +1503,11 @@ class RecurrenceIterator implements \Iterator
 				$temp->setDate((int) $temp->format('Y'), (int) $temp->format('m') + 1, 1);
 
 				// Go to last occurrence of the weekday in the month.
-				$temp->modify('previous ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
+				try {
+					$temp->modify('previous ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
+				} catch (\Throwable $e) {
+					$temp->modify('previous ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s P'));
+				}
 
 				// Move backward to the requested occurrence.
 				if ($expansion_values[$key]['modifier'] < -1) {
@@ -1562,7 +1597,11 @@ class RecurrenceIterator implements \Iterator
 				$temp->modify('- 1 day');
 
 				// Go to first occurrence of the weekday in the year.
-				$temp->modify('next ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
+				try {
+					$temp->modify('next ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
+				} catch (\Throwable $e) {
+					$temp->modify('next ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s P'));
+				}
 
 				// Move forward to the requested occurrence.
 				if ($expansion_values[$key]['modifier'] > 1) {
@@ -1588,7 +1627,11 @@ class RecurrenceIterator implements \Iterator
 				$temp->modify('+ 1 day');
 
 				// Go to last occurrence of the weekday in the year.
-				$temp->modify('previous ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
+				try {
+					$temp->modify('previous ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
+				} catch (\Throwable $e) {
+					$temp->modify('previous ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s P'));
+				}
 
 				// Move backward to the requested occurrence.
 				if ($expansion_values[$key]['modifier'] < -1) {
@@ -1608,7 +1651,11 @@ class RecurrenceIterator implements \Iterator
 			// No modifier means every matching weekday.
 			// E.g.: 'TH' means every Thursday.
 			else {
-				$temp->modify('next ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
+				try {
+					$temp->modify('next ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s e'));
+				} catch (\Throwable $e) {
+					$temp->modify('next ' . self::WEEKDAY_NAMES[$expansion_values[$key]['weekday']] . ' ' . $temp->format('H:i:s P'));
+				}
 
 				if ($temp <= $upperlimit) {
 					yield $temp;
