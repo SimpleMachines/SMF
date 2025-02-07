@@ -3780,7 +3780,7 @@ function ConvertUtf8(): bool
 							'type' => strtr($column['type'], ['text' => 'blob', 'char' => 'binary']),
 							'size' => !empty($column['size']) ? '(' . $column['size'] . ')' : '',
 							'not_null' => $column['not_null'] ? 'NOT NULL' : 'NULL',
-							'default' => !isset($column['default']) || str_contains($column['type'], 'text') ? '' : 'DEFAULT=' . Db::$db->escape_string($column['default']),
+							'default' => !isset($column['default']) || str_contains($column['type'], 'text') ? '' : 'DEFAULT=\'' . Db::$db->escape_string($column['default']) . '\'',
 						]
 					);
 
@@ -3848,7 +3848,7 @@ function ConvertUtf8(): bool
 						'type' => $column['type'],
 						'size' => !empty($column['size']) ? '(' . $column['size'] . ')' : '',
 						'not_null' => $column['not_null'] ? 'NOT NULL' : '',
-						'default' => !isset($column['default']) ? '' : 'DEFAULT=' . Db::$db->escape_string($column['default']),
+						'default' => !isset($column['default']) ? '' : 'DEFAULT=\'' . Db::$db->escape_string($column['default']) . '\'',
 					]
 				);
 			}
