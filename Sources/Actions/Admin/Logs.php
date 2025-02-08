@@ -23,6 +23,8 @@ use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -30,73 +32,15 @@ use SMF\Utils;
 /**
  * Dispatcher to show various kinds of logs.
  */
-class Logs implements ActionInterface
+class Logs implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'errorlog';
 
 	/**************************
 	 * Public static properties
 	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * These are the logs they can load.
-	 *
-	 * Format: 'sa' => array('file', 'function', 'disabled' => 'setting_to_check')
-	 */
-	public static array $subactions = [
-		'errorlog' => [
-			'',
-			'errorlog',
-			// At runtime, will be set to empty(Config::$modSettings['enableErrorLogging'])
-			'disabled' => 'enableErrorLogging',
-		],
-		'adminlog' => [
-			'',
-			'adminlog',
-			// At runtime, will be set to empty(Config::$modSettings['adminlog_enabled'])
-			'disabled' => 'adminlog_enabled',
-		],
-		'modlog' => [
-			'',
-			'modlog',
-			// At runtime, will be set to empty(Config::$modSettings['modlog_enabled'])
-			'disabled' => 'modlog_enabled',
-		],
-		'banlog' => [
-			'',
-			'banlog',
-		],
-		'spiderlog' => [
-			'',
-			'spiderlog',
-			// At runtime, will be set to empty(Config::$modSettings['spider_mode'])
-			'disabled' => 'spider_mode',
-		],
-		'tasklog' => [
-			'',
-			'tasklog',
-		],
-		'settings' => [
-			'',
-			'settings',
-		],
-	];
 
 	/**
 	 * @var array
@@ -156,15 +100,12 @@ class Logs implements ActionInterface
 			],
 		];
 
-		if (!empty(self::$subactions[$this->subaction][0])) {
-			require_once Config::$sourcedir . '/' . self::$subactions[$this->subaction][0];
-		}
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][1]) ? [$this, self::$subactions[$this->subaction][1]] : Utils::getCallable(self::$subactions[$this->subaction][1]);
+		// @todo Is this context variable necessary?
+		Utils::$context['sub_action'] = $this->sub_action;
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -368,20 +309,40 @@ class Logs implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		foreach (self::$subactions as &$subaction) {
-			if (isset($subaction['disabled'])) {
-				$subaction['disabled'] = empty(Config::$modSettings[$subaction['disabled']]);
-			}
+		if (!empty(Config::$modSettings['enableErrorLogging'])) {
+			$this->addSubAction('errorlog', [$this, 'errorlog']);
 		}
 
-		IntegrationHook::call('integrate_manage_logs', [&self::$subactions]);
+		if (!empty(Config::$modSettings['adminlog_enabled'])) {
+			$this->addSubAction('adminlog', [$this, 'adminlog']);
+		}
+
+		if (!empty(Config::$modSettings['modlog_enabled'])) {
+			$this->addSubAction('modlog', [$this, 'modlog']);
+		}
+
+		$this->addSubAction('banlog', [$this, 'banlog']);
+
+		if (!empty(Config::$modSettings['spider_mode'])) {
+			$this->addSubAction('spiderlog', [$this, 'spiderlog']);
+		}
+
+		$this->addSubAction('tasklog', [$this, 'tasklog']);
+		$this->addSubAction('settings', [$this, 'settings']);
+
+		$sub_actions = [];
+		IntegrationHook::call('integrate_manage_logs', [&$sub_actions]);
+
+		foreach ($sub_actions as $sa => $arr) {
+			if (!isset($arr['disabled']) || ($arr['disabled'] === false || !empty(Config::$modSettings[$arr['disabled']]))) {
+				$this->addSubAction($sa, method_exists($this, $arr[1]) ? [$this, $arr[1]] : $arr[1]);
+			}
+		}
 
 		// By default, error log should be shown in descending order.
 		if (!isset($_REQUEST['sa'])) {
 			$_REQUEST['desc'] = true;
 		}
-
-		$this->subaction = isset($_REQUEST['sa'], self::$subactions[$_REQUEST['sa']])   && empty(self::$subactions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 	}
 }
 

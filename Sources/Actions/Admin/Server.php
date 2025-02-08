@@ -26,6 +26,8 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -82,10 +84,10 @@ use SMF\Utils;
  *  - PLUS you can override label and help parameters by forcing their keys in the array, for example:
  *  	array('text', 'invalidlabel', 3, 'label' => 'Actual Label')
  */
-class Server implements ActionInterface
+class Server implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*****************
@@ -104,38 +106,6 @@ class Server implements ActionInterface
 		'loadavg_userstats' => 10.0,
 		'loadavg_bbc' => 30.0,
 		'loadavg_forum' => 40.0,
-	];
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'general';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'general' => 'general',
-		'database' => 'database',
-		'cookie' => 'cookie',
-		'security' => 'security',
-		'cache' => 'cache',
-		'export' => 'export',
-		'loads' => 'loadBalancing',
-		'phpinfo' => 'phpinfo',
 	];
 
 	/**
@@ -185,11 +155,15 @@ class Server implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		IntegrationHook::call('integrate_server_settings', [&$this->sub_actions]);
+
 		// This is just to keep the database password more secure.
 		User::$me->isAllowedTo('admin_forum');
 
 		Utils::$context['page_title'] = Lang::$txt['admin_server_settings'];
 		Utils::$context['sub_template'] = 'show_settings';
+
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
 
 		// Warn the user if there's any relevant information regarding Settings.php.
 		self::checkSettingsFileWriteSafe();
@@ -203,14 +177,10 @@ class Server implements ActionInterface
 		}
 
 		Utils::$context['settings_not_writable'] = self::$settings_not_writable;
-		Utils::$context['sub_action'] = $this->subaction;
+		Utils::$context['sub_action'] = $this->sub_action;
 
 		// Call the right method for this sub-action.
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -1224,6 +1194,15 @@ class Server implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('general', [$this, 'general']);
+		$this->addSubAction('database', [$this, 'database']);
+		$this->addSubAction('cookie', [$this, 'cookie']);
+		$this->addSubAction('security', [$this, 'security']);
+		$this->addSubAction('cache', [$this, 'cache']);
+		$this->addSubAction('export', [$this, 'export']);
+		$this->addSubAction('loads', [$this, 'loadBalancing']);
+		$this->addSubAction('phpinfo', [$this, 'phpinfo']);
+
 		Lang::load('ManageSettings');
 
 		// Load up all the tabs...
@@ -1232,12 +1211,6 @@ class Server implements ActionInterface
 			'help' => 'serversettings',
 			'description' => Lang::$txt['admin_basic_settings'],
 		];
-
-		IntegrationHook::call('integrate_server_settings', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
 	}
 
 	/**

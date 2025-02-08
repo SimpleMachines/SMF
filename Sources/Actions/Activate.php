@@ -25,6 +25,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
@@ -34,35 +36,11 @@ use SMF\Utils;
 /**
  * Activates a user's account.
  */
-class Activate implements ActionInterface, Routable
+class Activate implements ActionInterface, ProvidesSubActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The sub-action to call.
-	 */
-	public string $subaction = '';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'activate' => 'activate',
-		'resend' => 'resend',
-	];
+	use ProvidesSubActionTrait;
 
 	/*********************
 	 * Internal properties
@@ -106,17 +84,15 @@ class Activate implements ActionInterface, Routable
 			return;
 		}
 
-		if (empty($this->subaction)) {
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
+		if (empty($this->sub_action)) {
 			$this->showResendRequest();
 
 			return;
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -234,6 +210,9 @@ class Activate implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('activate', [$this, 'activate']);
+		$this->addSubAction('resend', [$this, 'resend']);
+
 		// Logged in users should not bother to activate their accounts
 		if (!empty(User::$me->id)) {
 			Utils::redirectexit('action=profile');
@@ -258,10 +237,6 @@ class Activate implements ActionInterface, Routable
 		// If a validation code was provided, they are trying to activate.
 		if (!empty($_REQUEST['code'])) {
 			$_REQUEST['sa'] = 'activate';
-		}
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
 		}
 	}
 

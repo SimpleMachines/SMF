@@ -38,33 +38,6 @@ class Groups extends ViewGroups
 	use ActionRouter;
 	use ActionTrait;
 
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'index';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'index' => 'index',
-		'members' => 'members',
-		'requests' => 'requests',
-	];
-
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -96,11 +69,7 @@ class Groups extends ViewGroups
 		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ManageMembergroups');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -647,11 +616,11 @@ class Groups extends ViewGroups
 	 */
 	protected function __construct()
 	{
-		IntegrationHook::call('integrate_manage_groups', [&self::$subactions]);
+		$this->addSubAction('index', [$this, 'index']);
+		$this->addSubAction('members', [$this, 'members']);
+		$this->addSubAction('requests', [$this, 'requests']);
 
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
-		}
+		IntegrationHook::call('integrate_manage_groups', [&$this->sub_actions);
 	}
 }
 

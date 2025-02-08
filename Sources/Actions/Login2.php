@@ -24,6 +24,8 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Routable;
 use SMF\Sapi;
 use SMF\Security;
@@ -35,37 +37,11 @@ use SMF\Utils;
 /**
  * Validates the submitted credentials and logs the user in if they pass.
  */
-class Login2 implements ActionInterface, Routable
+class Login2 implements ActionInterface, ProvidesSubActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'main';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'main' => 'main',
-		'salt' => 'updateSalt',
-		'check' => 'checkCookie',
-	];
+	use ProvidesSubActionTrait;
 
 	/****************
 	 * Public methods
@@ -113,11 +89,7 @@ class Login2 implements ActionInterface, Routable
 
 		self::checkAjax();
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -454,9 +426,9 @@ class Login2 implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
-		}
+		$this->addSubAction('main', [$this, 'main']);
+		$this->addSubAction('salt', [$this, 'updateSalt']);
+		$this->addSubAction('check', [$this, 'checkCookie']);
 	}
 
 	/**

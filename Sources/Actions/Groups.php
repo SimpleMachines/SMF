@@ -25,6 +25,8 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Parser;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Routable;
 use SMF\SecurityToken;
 use SMF\Slug;
@@ -35,37 +37,12 @@ use SMF\Utils;
 /**
  * Shows group info.
  */
-class Groups implements ActionInterface, Routable
+class Groups implements ActionInterface, ProvidesSubActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
-
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'index';
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'index' => 'index',
-		'members' => 'members',
-	];
 
 	/*********************
 	 * Internal properties
@@ -92,21 +69,18 @@ class Groups implements ActionInterface, Routable
 	{
 		User::$me->isAllowedTo('view_mlist');
 
+		IntegrationHook::call('integrate_manage_groups', [&$this->sub_actions]);
+
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
 		// Get the template stuff up and running.
 		Lang::load('ManageMembers');
 		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ManageMembergroups');
 
-		Utils::$context['linktree'][] = [
-			'url' => Config::$scripturl . $this->action_url,
-			'name' => Lang::$txt['groups'],
-		];
+		// If needed, set the mod center menu.
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
-		if (!empty($call)) {
-			call_user_func($call);
-		}
 	}
 
 	/**
@@ -497,11 +471,9 @@ class Groups implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		IntegrationHook::call('integrate_manage_groups', [&self::$subactions]);
-
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
-		}
+		$this->addSubAction('index', [$this, 'index']);
+		$this->addSubAction('members', [$this, 'members']);
+		$this->addSubAction('requests', [$this, 'requests']);
 	}
 }
 

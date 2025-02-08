@@ -25,6 +25,8 @@ use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\Profile;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Routable;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -35,21 +37,15 @@ use SMF\Verifier;
 /**
  * Shows the registration form.
  */
-class Register implements ActionInterface, Routable
+class Register implements ActionInterface, ProvidesSubActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
+	use ProvidesSubActionTrait;
 
 	/*******************
 	 * Public properties
 	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The sub-action to call.
-	 */
-	public string $subaction = 'show';
 
 	/**
 	 * @var array
@@ -57,20 +53,6 @@ class Register implements ActionInterface, Routable
 	 * Errors encountered while trying to register.
 	 */
 	public array $errors = [];
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'show' => 'show',
-		'usernamecheck' => 'checkUsername',
-	];
 
 	/****************
 	 * Public methods
@@ -96,11 +78,7 @@ class Register implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 	}
 
 	/**
@@ -367,9 +345,8 @@ class Register implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
-			$this->subaction = $_GET['sa'];
-		}
+		$this->addSubAction('show', [$this, 'show']);
+		$this->addSubAction('usernamecheck', [$this, 'checkUsername']);
 	}
 }
 

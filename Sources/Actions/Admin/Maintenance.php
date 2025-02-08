@@ -31,6 +31,8 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
@@ -42,23 +44,15 @@ use SMF\Utils;
 /**
  * Forum maintenance. Important stuff.
  */
-class Maintenance implements ActionInterface
+class Maintenance implements ActionInterface, ProvidesSubActionInterface
 {
 	use ActionTrait;
-
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
 	 *******************/
-
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'routine';
 
 	/**
 	 * @var string
@@ -135,15 +129,11 @@ class Maintenance implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction($_REQUEST['sa'] ?? null);
 
 		// Any special activity?
 		if (!empty($this->activity)) {
-			$call = method_exists($this, self::$subactions[$this->subaction]['activities'][$this->activity]) ? [$this, self::$subactions[$this->subaction]['activities'][$this->activity]] : Utils::getCallable(self::$subactions[$this->subaction]['activities'][$this->activity]);
+			$call = method_exists($this, self::$subactions[$this->sub_action]['activities'][$this->activity]) ? [$this, self::$subactions[$this->sub_action]['activities'][$this->activity]] : Utils::getCallable(self::$subactions[$this->sub_action]['activities'][$this->activity]);
 
 			if (!empty($call)) {
 				call_user_func($call);
@@ -2307,19 +2297,19 @@ class Maintenance implements ActionInterface
 
 		IntegrationHook::call('integrate_manage_maintenance', [&self::$subactions]);
 
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
+		foreach (self::$subactions as $sa => $arr) {
+			$this->addSubAction($sa, method_exists($this, $arr['function']) ? [$this, $arr['function']] : $arr['function']);
 		}
 
 		// Doing something special?
-		if (isset($_REQUEST['activity'], self::$subactions[$this->subaction]['activities'][$_REQUEST['activity']])) {
+		if (isset($_REQUEST['activity'], self::$subactions[$this->sub_action]['activities'][$_REQUEST['activity']])) {
 			$this->activity = $_REQUEST['activity'];
 		}
 
 		// Set a few things.
 		Utils::$context['page_title'] = Lang::$txt['maintain_title'];
-		Utils::$context['sub_action'] = $this->subaction;
-		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
+		Utils::$context['sub_action'] = $this->sub_action;
+		Utils::$context['sub_template'] = self::$subactions[$this->sub_action]['template'] ?? '';
 	}
 
 	/**

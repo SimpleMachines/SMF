@@ -40,6 +40,8 @@ use SMF\PersonalMessage\{
 	Search,
 };
 use SMF\Profile;
+use SMF\ProvidesSubActionInterface;
+use SMF\ProvidesSubActionTrait;
 use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
@@ -50,10 +52,11 @@ use SMF\Utils;
  * messages. It allows viewing, sending, deleting, and marking personal
  * messages.
  */
-class PersonalMessage implements ActionInterface, Routable
+class PersonalMessage implements ActionInterface, ProvidesSubActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
+	use ProvidesSubActionTrait;
 	use BackwardCompatibility;
 
 	/*****************
@@ -162,13 +165,6 @@ class PersonalMessage implements ActionInterface, Routable
 		],
 	];
 
-	/**
-	 * @var string
-	 *
-	 * The requested sub-action.
-	 * This should be set by the constructor.
-	 */
-	public string $subaction = 'show';
 
 	/**
 	 * @var string
@@ -229,28 +225,6 @@ class PersonalMessage implements ActionInterface, Routable
 	 * Public static properties
 	 **************************/
 
-	/**
-	 * @var array
-	 *
-	 * Available sub-actions.
-	 */
-	public static array $subactions = [
-		'show' => 'show',
-		'popup' => 'popup',
-		'showpmdrafts' => 'drafts',
-		'send' => 'send',
-		'send2' => 'send2',
-		'search' => 'search',
-		'search2' => 'search2',
-		'pmactions' => 'applyActions',
-		'removeall2' => 'removeAll',
-		'prune' => 'prune',
-		'report' => 'report',
-		'manlabels' => 'labels',
-		'manrules' => 'rules',
-		'settings' => 'settings',
-	];
-
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -303,21 +277,19 @@ class PersonalMessage implements ActionInterface, Routable
 			Received::setNotNew();
 		}
 
+		$this->findRequestedSubAction($_REQUEST['sa'] ?? null);
+
 		// No menu in AJAX requests or the popup.
-		if (!isset($_REQUEST['xml']) && $this->subaction !== 'popup') {
-			if ($this->subaction === 'show') {
+		if (!isset($_REQUEST['xml']) && $this->sub_action !== 'popup') {
+			if ($this->sub_action === 'show') {
 				$this->createMenu($this->current_label_id == -1 ? $this->folder : 'label' . $this->current_label_id);
 			} else {
-				$this->createMenu($this->subaction);
+				$this->createMenu($this->sub_action);
 			}
 		}
 
 		// Now let's get on with the main job...
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
-
-		if (!empty($call)) {
-			call_user_func($call);
-		}
+		$this->callSubAction();
 	}
 
 	/**
@@ -803,16 +775,27 @@ class PersonalMessage implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
+		$this->addSubAction('show', [$this, 'show']);
+		$this->addSubAction('popup', [$this, 'popup']);
+		$this->addSubAction('showpmdrafts', [$this, 'drafts']);
+		$this->addSubAction('send', [$this, 'send']);
+		$this->addSubAction('send2', [$this, 'send2']);
+		$this->addSubAction('search', [$this, 'search']);
+		$this->addSubAction('search2', [$this, 'search2']);
+		$this->addSubAction('pmactions', [$this, 'applyActions']);
+		$this->addSubAction('removeall2', [$this, 'removeAll']);
+		$this->addSubAction('prune', [$this, 'prune']);
+		$this->addSubAction('report', [$this, 'report']);
+		$this->addSubAction('manlabels', [$this, 'labels']);
+		$this->addSubAction('manrules', [$this, 'rules']);
+		$this->addSubAction('settings', [$this, 'settings']);
+
 		Lang::load('PersonalMessage+Drafts');
 		Theme::loadTemplate(isset($_REQUEST['xml']) ? 'Xml' : 'PersonalMessage');
 
 		if (!isset($_REQUEST['sa']) && ($_REQUEST['f'] ?? '') === 'drafts') {
 			$_REQUEST['sa'] = 'showpmdrafts';
 			unset($_REQUEST['f']);
-		}
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
 		}
 
 		if (isset($_REQUEST['f']) && $_REQUEST['f'] === 'sent') {
