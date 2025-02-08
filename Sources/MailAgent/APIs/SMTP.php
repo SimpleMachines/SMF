@@ -18,8 +18,8 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\MailAgent\MailAgent;
 use SMF\MailAgent\MailAgentInterface;
-use SMF\Url;
 use SMF\Sapi;
+use SMF\Url;
 
 /**
  * Sends mail via SMTP
