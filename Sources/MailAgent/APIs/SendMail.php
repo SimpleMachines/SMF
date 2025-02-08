@@ -18,7 +18,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\MailAgent\MailAgent;
 use SMF\MailAgent\MailAgentInterface;
-use SMF\Utils;
+use SMF\Sapi;
 
 /**
  * Sends mail via SendMail
@@ -89,8 +89,8 @@ class SendMail extends MailAgent implements MailAgentInterface
 		restore_error_handler();
 
 		// Wait, wait, I'm still sending here!
-		Utils::sapiSetTimeLimit();
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit();
+		Sapi::resetTimeout();
 
 		return $mail_result;
 	}
