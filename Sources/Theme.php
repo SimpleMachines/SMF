@@ -1290,7 +1290,7 @@ class Theme
 			}
 		}
 
-		$content_type = Forum::getCurrentAction()?->getOutputType()->getMimeType() ?? 'text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html');
+		$content_type = Forum::getCurrentAction()?->getOutputType()->getMimeType() ?? (isset($_REQUEST['xml']) ? 'application/xml' : 'text/html');
 
 		header('Content-Type: ' . $content_type . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 
