@@ -140,6 +140,117 @@ class Theme
 		'name',
 	];
 
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Sets a bunch of Utils::$context variables, loads templates and language
+	 * files, and does other stuff that is required to use the theme for output.
+	 */
+	public function initialize(): void
+	{
+		$this->fixUrl();
+
+		// Create User::$me if it is missing (e.g., an error very early in the login process).
+		if (!isset(User::$me)) {
+			User::load();
+		}
+
+		$this->fixSmileySet();
+
+		// Some basic information...
+		if (!isset(Utils::$context['html_headers'])) {
+			Utils::$context['html_headers'] = '';
+		}
+
+		if (!isset(Utils::$context['javascript_files'])) {
+			Utils::$context['javascript_files'] = [];
+		}
+
+		if (!isset(Utils::$context['css_files'])) {
+			Utils::$context['css_files'] = [];
+		}
+
+		if (!isset(Utils::$context['css_header'])) {
+			Utils::$context['css_header'] = [];
+		}
+
+		if (!isset(Utils::$context['javascript_inline'])) {
+			Utils::$context['javascript_inline'] = ['standard' => [], 'defer' => []];
+		}
+
+		if (!isset(Utils::$context['javascript_vars'])) {
+			Utils::$context['javascript_vars'] = [];
+		}
+
+		Utils::$context['login_url'] = Config::$scripturl . '?action=login2';
+		Utils::$context['menu_separator'] = !empty($this->settings['use_image_buttons']) ? ' ' : ' | ';
+		Utils::$context['session_var'] = $_SESSION['session_var'];
+		Utils::$context['session_id'] = $_SESSION['session_value'];
+		Utils::$context['forum_name'] = Config::$mbname;
+		Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
+		Utils::$context['header_logo_url_html_safe'] = empty($this->settings['header_logo_url']) ? '' : Utils::htmlspecialchars($this->settings['header_logo_url']);
+		Utils::$context['current_action'] = isset($_REQUEST['action']) ? Utils::htmlspecialchars($_REQUEST['action']) : null;
+		Utils::$context['current_subaction'] = $_REQUEST['sa'] ?? null;
+		Utils::$context['can_register'] = empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] != 3;
+
+		if (isset(Config::$modSettings['load_average'])) {
+			Utils::$context['load_average'] = Config::$modSettings['load_average'];
+		}
+
+		$this->loadTemplatesAndLangFiles();
+
+		// Allow overriding the forum's default time/number formats.
+		if (empty(User::$profiles[User::$me->id]['time_format']) && !empty(Lang::$txt['time_format'])) {
+			User::$me->time_format = Lang::$txt['time_format'];
+		}
+
+		// Set the character set from the template.
+		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
+		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
+
+		// Guests may still need a name.
+		if (User::$me->is_guest && empty(User::$me->name)) {
+			User::$me->name = Lang::$txt['guest_title'];
+		}
+
+		// Any theme-related strings that need to be loaded?
+		Lang::load('ThemeStrings', '', false);
+
+		// Make a special URL for the language.
+		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
+
+		$this->loadCss();
+
+		$this->loadVariant();
+
+		Utils::$context['tabindex'] = 1;
+
+		$this->loadJavaScript();
+
+		$this->setupLinktree();
+
+		// Any files to include at this point?
+		if (!empty(Config::$modSettings['integrate_theme_include'])) {
+			$theme_includes = explode(',', Config::$modSettings['integrate_theme_include']);
+
+			foreach ($theme_includes as $include) {
+				$include = strtr(trim($include), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $this->settings['theme_dir']]);
+
+				if (file_exists($include)) {
+					require_once $include;
+				}
+			}
+		}
+
+		// Call load theme integration functions.
+		IntegrationHook::call('integrate_load_theme');
+
+		// We are ready to go.
+		Utils::$context['theme_loaded'] = true;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -1879,116 +1990,6 @@ class Theme
 		if ($this->settings['theme_dir'] != $this->settings['default_theme_dir']) {
 			$this->settings['template_dirs'][] = $this->settings['default_theme_dir'];
 		}
-	}
-
-	/**
-	 * Sets a bunch of Utils::$context variables, loads templates and language
-	 * files, and does other stuff that is required to use the theme for output.
-	 */
-	protected function initialize(): void
-	{
-		$this->fixUrl();
-
-		// Create User::$me if it is missing (e.g., an error very early in the login process).
-		if (!isset(User::$me)) {
-			User::load();
-		}
-
-		$this->fixSmileySet();
-
-		// Some basic information...
-		if (!isset(Utils::$context['html_headers'])) {
-			Utils::$context['html_headers'] = '';
-		}
-
-		if (!isset(Utils::$context['javascript_files'])) {
-			Utils::$context['javascript_files'] = [];
-		}
-
-		if (!isset(Utils::$context['css_files'])) {
-			Utils::$context['css_files'] = [];
-		}
-
-		if (!isset(Utils::$context['css_header'])) {
-			Utils::$context['css_header'] = [];
-		}
-
-		if (!isset(Utils::$context['javascript_inline'])) {
-			Utils::$context['javascript_inline'] = ['standard' => [], 'defer' => []];
-		}
-
-		if (!isset(Utils::$context['javascript_vars'])) {
-			Utils::$context['javascript_vars'] = [];
-		}
-
-		Utils::$context['login_url'] = Config::$scripturl . '?action=login2';
-		Utils::$context['menu_separator'] = !empty($this->settings['use_image_buttons']) ? ' ' : ' | ';
-		Utils::$context['session_var'] = $_SESSION['session_var'];
-		Utils::$context['session_id'] = $_SESSION['session_value'];
-		Utils::$context['forum_name'] = Config::$mbname;
-		Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
-		Utils::$context['header_logo_url_html_safe'] = empty($this->settings['header_logo_url']) ? '' : Utils::htmlspecialchars($this->settings['header_logo_url']);
-		Utils::$context['current_action'] = isset($_REQUEST['action']) ? Utils::htmlspecialchars($_REQUEST['action']) : null;
-		Utils::$context['current_subaction'] = $_REQUEST['sa'] ?? null;
-		Utils::$context['can_register'] = empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] != 3;
-
-		if (isset(Config::$modSettings['load_average'])) {
-			Utils::$context['load_average'] = Config::$modSettings['load_average'];
-		}
-
-		// Detect the browser. This is separated out because it's also used in attachment downloads
-		BrowserDetector::call();
-
-		$this->loadTemplatesAndLangFiles();
-
-		// Allow overriding the forum's default time/number formats.
-		if (empty(User::$profiles[User::$me->id]['time_format']) && !empty(Lang::$txt['time_format'])) {
-			User::$me->time_format = Lang::$txt['time_format'];
-		}
-
-		// Set the character set from the template.
-		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
-
-		// Guests may still need a name.
-		if (User::$me->is_guest && empty(User::$me->name)) {
-			User::$me->name = Lang::$txt['guest_title'];
-		}
-
-		// Any theme-related strings that need to be loaded?
-		Lang::load('ThemeStrings', '', false);
-
-		// Make a special URL for the language.
-		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
-
-		$this->loadCss();
-
-		$this->loadVariant();
-
-		Utils::$context['tabindex'] = 1;
-
-		$this->loadJavaScript();
-
-		$this->setupLinktree();
-
-		// Any files to include at this point?
-		if (!empty(Config::$modSettings['integrate_theme_include'])) {
-			$theme_includes = explode(',', Config::$modSettings['integrate_theme_include']);
-
-			foreach ($theme_includes as $include) {
-				$include = strtr(trim($include), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $this->settings['theme_dir']]);
-
-				if (file_exists($include)) {
-					require_once $include;
-				}
-			}
-		}
-
-		// Call load theme integration functions.
-		IntegrationHook::call('integrate_load_theme');
-
-		// We are ready to go.
-		Utils::$context['theme_loaded'] = true;
 	}
 
 	/**
