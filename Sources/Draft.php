@@ -183,24 +183,39 @@ class Draft
 				foreach ($draft_info as $key => $value) {
 					switch ($key) {
 						case 'id_draft':
-							$this->id = $value;
+							$this->id = (int) $value;
 							break;
 
 						case 'id_topic':
 						case 'id_board':
 						case 'id_member':
+							$this->{substr($key, 3)} = (int) $value;
+							break;
+
 						case 'is_sticky':
-							$this->{substr($key, 3)} = $value;
+							$this->sticky = !empty($value);
 							break;
 
 						case 'id_reply':
-							$this->reply_to = $value;
+							$this->reply_to = (int) $value;
 							break;
 
 						case 'to_list':
 							$recipientsList = Utils::jsonDecode($draft_info['to_list'], true);
 							$this->recipients['to'] = $recipientsList['to'] ?? [];
 							$this->recipients['bcc'] = $recipientsList['bcc'] ?? [];
+							break;
+						
+						// These have to be ints
+						case 'type':
+						case 'poster_time':
+							$this->type = (int) $value;
+							break;
+
+						// Boolean values
+						case 'smileys_enabled':
+						case 'locked':
+							$this->$key = !empty($value);
 							break;
 
 						default:
