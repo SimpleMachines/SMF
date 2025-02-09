@@ -83,6 +83,9 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('ModerationCenter');
+		Theme::loadTemplate('ModerationCenter');
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -860,9 +863,6 @@ class Posts implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('ModerationCenter');
-		Theme::loadTemplate('ModerationCenter');
-
 		IntegrationHook::call('integrate_post_moderation', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {

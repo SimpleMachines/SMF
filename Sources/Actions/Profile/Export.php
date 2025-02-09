@@ -113,6 +113,8 @@ class Export implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !Utils::makeWritable(Config::$modSettings['export_dir'])) {
 			self::createDir();
 		}
@@ -441,9 +443,9 @@ class Export implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Sets up some stuff we need.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		if (!isset(Utils::$context['token_check'])) {
 			Utils::$context['token_check'] = 'profile-ex' . Utils::$context['id_member'];

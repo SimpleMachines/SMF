@@ -59,14 +59,14 @@ class UnreadReplies extends Unread
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial stuff.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// 'all' is never applicable for this action.
 		unset($_GET['all']);
 
-		parent::__construct();
+		parent::init();
 
 		Utils::$context['page_title'] = Lang::$txt['unread_replies'];
 		$this->linktree_name = Lang::$txt['unread_replies'];

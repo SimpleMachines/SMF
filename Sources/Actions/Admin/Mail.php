@@ -88,6 +88,22 @@ class Mail implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// You need to be an admin to edit settings!
+		User::$me->isAllowedTo('admin_forum');
+
+		Lang::load('Help');
+		Lang::load('ManageMail');
+
+		Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
+		Utils::$context['sub_template'] = 'show_settings';
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['mailqueue_title'],
+			'help' => '',
+			'description' => Lang::$txt['mailqueue_desc'],
+		];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -535,15 +551,6 @@ class Mail implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// You need to be an admin to edit settings!
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('Help');
-		Lang::load('ManageMail');
-
-		Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
-		Utils::$context['sub_template'] = 'show_settings';
-
 		IntegrationHook::call('integrate_manage_mail', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -551,13 +558,6 @@ class Mail implements ActionInterface
 		}
 
 		Utils::$context['sub_action'] = $this->subaction;
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['mailqueue_title'],
-			'help' => '',
-			'description' => Lang::$txt['mailqueue_desc'],
-		];
 	}
 
 	/**

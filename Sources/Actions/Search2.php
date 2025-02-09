@@ -84,6 +84,18 @@ class Search2 implements ActionInterface, Routable
 		// Are you allowed?
 		User::$me->isAllowedTo('search_posts');
 
+		// Maximum length of the string.
+		Utils::$context['search_string_limit'] = SearchApi::MAX_LENGTH;
+
+		// Number of pages hard maximum - normally not set at all.
+		Config::$modSettings['search_max_results'] = empty(Config::$modSettings['search_max_results']) ? 200 * Config::$modSettings['search_results_per_page'] : (int) Config::$modSettings['search_max_results'];
+
+		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % Config::$modSettings['search_results_per_page']) : 0;
+
+		Lang::load('Search');
+
+		Utils::$context['robot_no_index'] = true;
+
 		// Load up the search API we are going to use.
 		SearchApi::load();
 		SearchApi::$loadedApi->initializeSearch();
@@ -237,24 +249,6 @@ class Search2 implements ActionInterface, Routable
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Maximum length of the string.
-		Utils::$context['search_string_limit'] = SearchApi::MAX_LENGTH;
-
-		// Number of pages hard maximum - normally not set at all.
-		Config::$modSettings['search_max_results'] = empty(Config::$modSettings['search_max_results']) ? 200 * Config::$modSettings['search_results_per_page'] : (int) Config::$modSettings['search_max_results'];
-
-		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % Config::$modSettings['search_results_per_page']) : 0;
-
-		Lang::load('Search');
-
-		Utils::$context['robot_no_index'] = true;
-	}
 
 	/**
 	 * If coming from the quick search box and trying to search on members,

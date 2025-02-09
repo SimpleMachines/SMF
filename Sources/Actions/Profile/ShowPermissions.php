@@ -44,6 +44,10 @@ class ShowPermissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('ManagePermissions');
+		Lang::load('Admin');
+		Theme::loadTemplate('ManageMembers');
+
 		// Verify if the user has sufficient permissions.
 		User::$me->isAllowedTo('manage_permissions');
 
@@ -248,10 +252,6 @@ class ShowPermissions implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('ManagePermissions');
-		Lang::load('Admin');
-		Theme::loadTemplate('ManageMembers');
-
 		if (!isset(Profile::$member)) {
 			Profile::load();
 		}

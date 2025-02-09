@@ -39,6 +39,9 @@ class AlertsPopup implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Load the Alerts language file.
+		Lang::load('Alerts');
+
 		// We do not want to output debug information here.
 		Config::$db_show_debug = false;
 
@@ -56,19 +59,6 @@ class AlertsPopup implements ActionInterface
 			// Now fetch me my unread alerts, pronto!
 			Utils::$context['unread_alerts'] = Alert::fetch(User::$me->id, false, !empty($counter) ? User::$me->alerts - $counter : $limit, 0, !isset($_REQUEST['counter']));
 		}
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Load the Alerts language file.
-		Lang::load('Alerts');
 	}
 }
 

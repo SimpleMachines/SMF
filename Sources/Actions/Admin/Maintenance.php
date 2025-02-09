@@ -135,6 +135,30 @@ class Maintenance implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// You absolutely must be an admin by here!
+		User::$me->isAllowedTo('admin_forum');
+
+		// Need something to talk about?
+		Lang::load('ManageMaintenance');
+		Theme::loadTemplate('ManageMaintenance');
+
+		// This uses admin tabs - as it should!
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['maintain_title'],
+			'description' => Lang::$txt['maintain_info'],
+			'tabs' => [
+				'routine' => [],
+				'database' => [],
+				'members' => [],
+				'topics' => [],
+			],
+		];
+
+		// Set a few things.
+		Utils::$context['page_title'] = Lang::$txt['maintain_title'];
+		Utils::$context['sub_action'] = $this->subaction;
+		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
+
 		$call = method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
 
 		if (!empty($call)) {
@@ -2286,25 +2310,6 @@ class Maintenance implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// You absolutely must be an admin by here!
-		User::$me->isAllowedTo('admin_forum');
-
-		// Need something to talk about?
-		Lang::load('ManageMaintenance');
-		Theme::loadTemplate('ManageMaintenance');
-
-		// This uses admin tabs - as it should!
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['maintain_title'],
-			'description' => Lang::$txt['maintain_info'],
-			'tabs' => [
-				'routine' => [],
-				'database' => [],
-				'members' => [],
-				'topics' => [],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_maintenance', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -2315,11 +2320,6 @@ class Maintenance implements ActionInterface
 		if (isset($_REQUEST['activity'], self::$subactions[$this->subaction]['activities'][$_REQUEST['activity']])) {
 			$this->activity = $_REQUEST['activity'];
 		}
-
-		// Set a few things.
-		Utils::$context['page_title'] = Lang::$txt['maintain_title'];
-		Utils::$context['sub_action'] = $this->subaction;
-		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
 	}
 
 	/**

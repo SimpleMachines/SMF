@@ -107,6 +107,14 @@ class ErrorLog implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Templates, etc...
+		Lang::load('ManageMaintenance');
+		Theme::loadTemplate('Errors');
+
+		foreach ($this->filters as &$filter) {
+			$filter['txt'] = Lang::$txt[$filter['txt']];
+		}
+
 		// Check for the administrative permission to do this.
 		User::$me->isAllowedTo('admin_forum');
 
@@ -487,20 +495,6 @@ class ErrorLog implements ActionInterface
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Templates, etc...
-		Lang::load('ManageMaintenance');
-		Theme::loadTemplate('Errors');
-
-		foreach ($this->filters as &$filter) {
-			$filter['txt'] = Lang::$txt[$filter['txt']];
-		}
-	}
 
 	/**
 	 * Delete all or some of the errors in the error log.

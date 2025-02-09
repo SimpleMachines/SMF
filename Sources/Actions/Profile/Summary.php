@@ -53,8 +53,14 @@ class Summary implements ActionInterface
 			'icon_class' => 'main_icons profile_hd',
 		];
 
+		// Expand the warning settings.
+		list(Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
+
 		// Set up the stuff and load the user.
 		Utils::$context += [
+			'disabled_fields' => isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : [],
+			'signature_enabled' => substr(Config::$modSettings['signature_settings'], 0, 1) == 1,
+			'can_see_ip' => User::$me->allowedTo('moderate_forum'),
 			'page_title' => Lang::getTxt('profile_of_username', Profile::$member->formatted),
 			'can_send_pm' => User::$me->allowedTo('pm_send'),
 			'can_have_buddy' => User::$me->allowedTo('profile_extra_own') && !empty(Config::$modSettings['enable_buddylist']),
@@ -243,18 +249,6 @@ class Summary implements ActionInterface
 		if (!isset(Profile::$member)) {
 			Profile::load();
 		}
-
-		// Are there things we don't show?
-		Utils::$context['disabled_fields'] = isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : [];
-
-		// Is the signature even enabled on this forum?
-		Utils::$context['signature_enabled'] = substr(Config::$modSettings['signature_settings'], 0, 1) == 1;
-
-		// Expand the warning settings.
-		list(Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
-
-		// Can the viewer see this member's IP address?
-		Utils::$context['can_see_ip'] = User::$me->allowedTo('moderate_forum');
 	}
 }
 

@@ -119,6 +119,34 @@ class ReportedContent implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		if (!in_array($this->type, self::$types)) {
+			ErrorHandler::fatalLang('no_access', false);
+		}
+
+		Utils::$context['report_type'] = $this->type;
+
+		Lang::load('ModerationCenter');
+		Theme::loadTemplate('ReportedContent');
+
+		// Do we need to show a confirmation message?
+		Utils::$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : [];
+		unset($_SESSION['rc_confirmation']);
+
+		// Set up the comforting bits...
+		Utils::$context['page_title'] = Lang::$txt['mc_reported_' . $this->type];
+
+		// Put the open and closed options into tabs, because we can...
+		Menu::$loaded['moderate']->tab_data = [
+			'title' => Lang::$txt['mc_reported_' . $this->type],
+			'help' => '',
+			'description' => Lang::$txt['mc_reported_' . $this->type . '_desc'],
+		];
+
+		// This comes under the umbrella of moderating posts.
+		if ($this->type == 'members' || User::$me->mod_cache['bq'] == '0=1') {
+			User::$me->isAllowedTo('moderate_forum');
+		}
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -624,34 +652,6 @@ class ReportedContent implements ActionInterface
 		// First order of business - what are these reports about?
 		// area=reported{type}
 		$this->type = substr($_GET['area'], 8);
-
-		if (!in_array($this->type, self::$types)) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		Utils::$context['report_type'] = $this->type;
-
-		Lang::load('ModerationCenter');
-		Theme::loadTemplate('ReportedContent');
-
-		// Do we need to show a confirmation message?
-		Utils::$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : [];
-		unset($_SESSION['rc_confirmation']);
-
-		// Set up the comforting bits...
-		Utils::$context['page_title'] = Lang::$txt['mc_reported_' . $this->type];
-
-		// Put the open and closed options into tabs, because we can...
-		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_reported_' . $this->type],
-			'help' => '',
-			'description' => Lang::$txt['mc_reported_' . $this->type . '_desc'],
-		];
-
-		// This comes under the umbrella of moderating posts.
-		if ($this->type == 'members' || User::$me->mod_cache['bq'] == '0=1') {
-			User::$me->isAllowedTo('moderate_forum');
-		}
 
 		// Go ahead and add your own sub-actions.
 		IntegrationHook::call('integrate_reported_' . $this->type, [&self::$subactions]);

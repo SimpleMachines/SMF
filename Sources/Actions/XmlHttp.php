@@ -101,6 +101,8 @@ class XmlHttp implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('Xml');
+
 		if (!isset($this->subaction)) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
@@ -419,8 +421,6 @@ class XmlHttp implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		Theme::loadTemplate('Xml');
-
 		// Easy adding of sub actions.
 		IntegrationHook::call('integrate_XMLhttpMain_subActions', [&self::$subactions]);
 

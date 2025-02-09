@@ -235,6 +235,33 @@ class News implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('ManageNews');
+
+		// Create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['news_title'],
+			'help' => 'edit_news',
+			'description' => Lang::$txt['admin_news_desc'],
+			'tabs' => [
+				'editnews' => [
+				],
+				'mailingmembers' => [
+					'description' => Lang::$txt['news_mailing_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['news_settings_desc'],
+				],
+			],
+		];
+
+		// Force the right area...
+		if (str_starts_with($this->subaction, 'mailing')) {
+			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
+		}
+
+		// Insert dynamic values into the list options.
+		$this->setListOptions();
+
 		// Have you got the proper permissions?
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -1221,37 +1248,10 @@ class News implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Theme::loadTemplate('ManageNews');
-
-		// Create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['news_title'],
-			'help' => 'edit_news',
-			'description' => Lang::$txt['admin_news_desc'],
-			'tabs' => [
-				'editnews' => [
-				],
-				'mailingmembers' => [
-					'description' => Lang::$txt['news_mailing_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['news_settings_desc'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_news', [&self::$subactions]);
 
 		// Default to sub action 'main' or 'settings' depending on permissions.
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('edit_news') ? 'editnews' : (User::$me->allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
-
-		// Force the right area...
-		if (str_starts_with($this->subaction, 'mailing')) {
-			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
-		}
-
-		// Insert dynamic values into the list options.
-		$this->setListOptions();
 	}
 
 	/**

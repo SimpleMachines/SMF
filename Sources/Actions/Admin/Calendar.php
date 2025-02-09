@@ -86,6 +86,30 @@ class Calendar implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Everything's gonna need this.
+		Lang::load('Calendar+ManageCalendar');
+
+		// Set up the two tabs here...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['manage_calendar'],
+			'help' => 'calendar',
+			'description' => Lang::$txt['calendar_settings_desc'],
+		];
+
+		if (!empty(Config::$modSettings['cal_enabled'])) {
+			Menu::$loaded['admin']->tab_data['tabs'] = [
+				'holidays' => [
+					'description' => Lang::$txt['manage_holidays_desc'],
+				],
+				'import' => [
+					'description' => Lang::$txt['calendar_import_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['calendar_settings_desc'],
+				],
+			];
+		}
+
 		User::$me->isAllowedTo('admin_forum');
 
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
@@ -634,33 +658,9 @@ class Calendar implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Everything's gonna need this.
-		Lang::load('Calendar+ManageCalendar');
-
 		if (empty(Config::$modSettings['cal_enabled'])) {
-			unset(self::$subactions['holidays'], self::$subactions['editholiday']);
+			unset(self::$subactions['holidays'], self::$subactions['editholiday'], self::$subactions['import']);
 			$this->subaction = 'settings';
-		}
-
-		// Set up the two tabs here...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['manage_calendar'],
-			'help' => 'calendar',
-			'description' => Lang::$txt['calendar_settings_desc'],
-		];
-
-		if (!empty(Config::$modSettings['cal_enabled'])) {
-			Menu::$loaded['admin']->tab_data['tabs'] = [
-				'holidays' => [
-					'description' => Lang::$txt['manage_holidays_desc'],
-				],
-				'import' => [
-					'description' => Lang::$txt['calendar_import_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['calendar_settings_desc'],
-				],
-			];
 		}
 
 		IntegrationHook::call('integrate_manage_calendar', [&self::$subactions]);

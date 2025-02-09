@@ -572,11 +572,49 @@ class Main implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		// Don't reload this as we may have processed error strings.
+		if (empty(Profile::$member->save_errors)) {
+			Lang::load('Profile+Drafts');
+		}
+
+		Theme::loadTemplate('Profile');
+
+		// No profile can be found.
+		if (!isset(Profile::$member->id) || Profile::$member->id == 0) {
+			ErrorHandler::fatalLang('no_access', false);
+		}
+
+		// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
+		// And we care about what the current user can do, not what the user whose profile it is.
+		if (User::$me->mod_cache['gq'] != '0=1') {
+			User::$me->permissions[] = 'approve_group_requests';
+		}
+
+		// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
+		Utils::$context['subs_available'] = false;
+
+		if (!empty(Config::$modSettings['paid_enabled'])) {
+			$get_active_subs = Db::$db->query(
+				'',
+				'SELECT COUNT(*)
+				FROM {db_prefix}subscriptions
+				WHERE active = {int:active}',
+				[
+					'active' => 1,
+				],
+			);
+			list($num_subs) = Db::$db->fetch_row($get_active_subs);
+			Db::$db->free_result($get_active_subs);
+
+			Utils::$context['subs_available'] = !empty($num_subs);
+		}
+
 		// Is there an updated message to show?
 		if (isset($_GET['updated'])) {
 			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
 		}
 
+		$this->setProfileAreas();
 		$menu = $this->createMenu();
 
 		$this->securityChecks();
@@ -808,47 +846,8 @@ class Main implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		// Don't reload this as we may have processed error strings.
-		if (empty(Profile::$member->save_errors)) {
-			Lang::load('Profile+Drafts');
-		}
-
-		Theme::loadTemplate('Profile');
-
 		// Load the data of the member whose profile we are viewing.
 		Profile::load();
-
-		// No profile can be found.
-		if (!isset(Profile::$member->id) || Profile::$member->id == 0) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
-		// And we care about what the current user can do, not what the user whose profile it is.
-		if (User::$me->mod_cache['gq'] != '0=1') {
-			User::$me->permissions[] = 'approve_group_requests';
-		}
-
-		// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
-		Utils::$context['subs_available'] = false;
-
-		if (!empty(Config::$modSettings['paid_enabled'])) {
-			$get_active_subs = Db::$db->query(
-				'',
-				'SELECT COUNT(*)
-				FROM {db_prefix}subscriptions
-				WHERE active = {int:active}',
-				[
-					'active' => 1,
-				],
-			);
-			list($num_subs) = Db::$db->fetch_row($get_active_subs);
-			Db::$db->free_result($get_active_subs);
-
-			Utils::$context['subs_available'] = !empty($num_subs);
-		}
-
-		$this->setProfileAreas();
 	}
 
 	/**

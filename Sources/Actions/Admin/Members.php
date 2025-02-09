@@ -138,6 +138,81 @@ class Members implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Load the essentials.
+		Lang::load('ManageMembers');
+		Theme::loadTemplate('ManageMembers');
+
+		// Fetch our activation counts.
+		$this->getActivationCounts();
+
+		// For the page header... do we show activation?
+		$this->show_activate = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1) || !empty($this->awaiting_activation);
+
+		// What about approval?
+		$this->show_approve = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 2) || !empty($this->awaiting_approval) || !empty(Config::$modSettings['approveAccountDeletion']);
+
+		// Setup the admin tabs.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['admin_members'],
+			'help' => 'view_members',
+			'description' => Lang::$txt['admin_members_list'],
+			'tabs' => [],
+		];
+
+		Utils::$context['tabs'] = [
+			'viewmembers' => [
+				'label' => Lang::$txt['view_all_members'],
+				'description' => Lang::$txt['admin_members_list'],
+				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=all',
+				'selected_actions' => ['all'],
+			],
+			'search' => [
+				'label' => Lang::$txt['mlist_search'],
+				'description' => Lang::$txt['admin_members_list'],
+				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=search',
+				'selected_actions' => ['search', 'query'],
+			],
+		];
+		Utils::$context['last_tab'] = 'search';
+
+		// Do we have approvals
+		if ($this->show_approve) {
+			Utils::$context['tabs']['approve'] = [
+				'label' => Lang::getTxt('admin_browse_awaiting_approval', [$this->awaiting_approval]),
+				'description' => Lang::$txt['admin_browse_approve_desc'],
+				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
+			];
+			Utils::$context['last_tab'] = 'approve';
+		}
+
+		// Do we have activations to show?
+		if ($this->show_activate) {
+			Utils::$context['tabs']['activate'] = [
+				'label' => Lang::getTxt('admin_browse_awaiting_activate', [$this->awaiting_activation]),
+				'description' => Lang::$txt['admin_browse_activate_desc'],
+				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
+			];
+			Utils::$context['last_tab'] = 'activate';
+		}
+
+		// Set the last tab.
+		Utils::$context['tabs'][Utils::$context['last_tab']]['is_last'] = true;
+
+		// Find the active tab.
+		if (isset(Utils::$context['tabs'][$this->subaction])) {
+			Utils::$context['tabs'][$this->subaction]['is_selected'] = true;
+		} elseif (isset($this->subaction)) {
+			foreach (Utils::$context['tabs'] as $id_tab => $tab_data) {
+				if (!empty($tab_data['selected_actions']) && in_array($this->subaction, $tab_data['selected_actions'])) {
+					Utils::$context['tabs'][$id_tab]['is_selected'] = true;
+				}
+			}
+		}
+
+		Utils::$context['membergroups'] = &$this->membergroups;
+		Utils::$context['postgroups'] = &$this->postgroups;
+		Utils::$context['current_filter'] = &$this->current_filter;
+
 		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
@@ -1342,63 +1417,6 @@ class Members implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Load the essentials.
-		Lang::load('ManageMembers');
-		Theme::loadTemplate('ManageMembers');
-
-		// Fetch our activation counts.
-		$this->getActivationCounts();
-
-		// For the page header... do we show activation?
-		$this->show_activate = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1) || !empty($this->awaiting_activation);
-
-		// What about approval?
-		$this->show_approve = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 2) || !empty($this->awaiting_approval) || !empty(Config::$modSettings['approveAccountDeletion']);
-
-		// Setup the admin tabs.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['admin_members'],
-			'help' => 'view_members',
-			'description' => Lang::$txt['admin_members_list'],
-			'tabs' => [],
-		];
-
-		Utils::$context['tabs'] = [
-			'viewmembers' => [
-				'label' => Lang::$txt['view_all_members'],
-				'description' => Lang::$txt['admin_members_list'],
-				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=all',
-				'selected_actions' => ['all'],
-			],
-			'search' => [
-				'label' => Lang::$txt['mlist_search'],
-				'description' => Lang::$txt['admin_members_list'],
-				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=search',
-				'selected_actions' => ['search', 'query'],
-			],
-		];
-		Utils::$context['last_tab'] = 'search';
-
-		// Do we have approvals
-		if ($this->show_approve) {
-			Utils::$context['tabs']['approve'] = [
-				'label' => Lang::getTxt('admin_browse_awaiting_approval', [$this->awaiting_approval]),
-				'description' => Lang::$txt['admin_browse_approve_desc'],
-				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
-			];
-			Utils::$context['last_tab'] = 'approve';
-		}
-
-		// Do we have activations to show?
-		if ($this->show_activate) {
-			Utils::$context['tabs']['activate'] = [
-				'label' => Lang::getTxt('admin_browse_awaiting_activate', [$this->awaiting_activation]),
-				'description' => Lang::$txt['admin_browse_activate_desc'],
-				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
-			];
-			Utils::$context['last_tab'] = 'activate';
-		}
-
 		// Call our hook now, letting customizations add to the subActions and/or modify Utils::$context as needed.
 		IntegrationHook::call('integrate_manage_members', [&self::$subactions]);
 
@@ -1408,24 +1426,6 @@ class Members implements ActionInterface
 
 		// We know the sub action, now we know what you're allowed to do.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
-
-		// Set the last tab.
-		Utils::$context['tabs'][Utils::$context['last_tab']]['is_last'] = true;
-
-		// Find the active tab.
-		if (isset(Utils::$context['tabs'][$this->subaction])) {
-			Utils::$context['tabs'][$this->subaction]['is_selected'] = true;
-		} elseif (isset($this->subaction)) {
-			foreach (Utils::$context['tabs'] as $id_tab => $tab_data) {
-				if (!empty($tab_data['selected_actions']) && in_array($this->subaction, $tab_data['selected_actions'])) {
-					Utils::$context['tabs'][$id_tab]['is_selected'] = true;
-				}
-			}
-		}
-
-		Utils::$context['membergroups'] = &$this->membergroups;
-		Utils::$context['postgroups'] = &$this->postgroups;
-		Utils::$context['current_filter'] = &$this->current_filter;
 	}
 
 	/**

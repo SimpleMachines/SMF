@@ -68,6 +68,22 @@ class Mods implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('Help');
+		Lang::load('ManageSettings');
+
+		Utils::$context['page_title'] = Lang::$txt['admin_modifications'];
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['admin_modifications'],
+			'help' => 'modsettings',
+			'description' => Lang::$txt['modification_settings_desc'],
+			'tabs' => [
+				'general' => [
+				],
+			],
+		];
+
 		// You need to be an admin to edit settings!
 		User::$me->isAllowedTo('admin_forum');
 
@@ -154,22 +170,6 @@ class Mods implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('Help');
-		Lang::load('ManageSettings');
-
-		Utils::$context['page_title'] = Lang::$txt['admin_modifications'];
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['admin_modifications'],
-			'help' => 'modsettings',
-			'description' => Lang::$txt['modification_settings_desc'],
-			'tabs' => [
-				'general' => [
-				],
-			],
-		];
-
 		// Make it easier for mods to add new areas.
 		IntegrationHook::call('integrate_modify_modifications', [&self::$subactions]);
 

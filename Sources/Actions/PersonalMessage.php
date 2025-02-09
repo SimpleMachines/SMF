@@ -291,6 +291,45 @@ class PersonalMessage implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Lang::load('PersonalMessage+Drafts');
+		Theme::loadTemplate(isset($_REQUEST['xml']) ? 'Xml' : 'PersonalMessage');
+
+		$this->buildLimitBar();
+
+		Label::load();
+
+		// Some stuff for the labels...
+		$this->current_label_id = isset($_REQUEST['l']) && isset(Label::$loaded[$_REQUEST['l']]) ? (int) $_REQUEST['l'] : -1;
+		$this->current_label = Label::$loaded[$this->current_label_id]['name'];
+
+		// This is convenient.  Do you know how annoying it is to do this every time?!
+		$this->current_label_redirect = 'action=pm;f=' . $this->folder . (isset($_GET['start']) ? ';start=' . $_GET['start'] : '') . (isset($_REQUEST['l']) ? ';l=' . $_REQUEST['l'] : '');
+
+		// A previous message was sent successfully? Show a small indication.
+		if (isset($_GET['done']) && ($_GET['done'] == 'sent')) {
+			Utils::$context['pm_sent'] = true;
+		}
+
+		// Some context stuff for the templates.
+		Utils::$context['display_mode'] = &$this->mode;
+		Utils::$context['folder'] = &$this->folder;
+		Utils::$context['currently_using_labels'] = !empty(Label::$loaded);
+		Utils::$context['current_label_id'] = &$this->current_label_id;
+		Utils::$context['current_label'] = &$this->current_label;
+		Utils::$context['can_issue_warning'] = User::$me->allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1;
+		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
+
+		// Are PM drafts enabled?
+		Utils::$context['drafts_type'] = 'pm';
+		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_pm_enabled']) && User::$me->allowedTo('pm_draft');
+		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
+
+		// Build the linktree for all the actions...
+		Utils::$context['linktree'][] = [
+			'url' => Config::$scripturl . '?action=pm',
+			'name' => Lang::$txt['personal_messages'],
+		];
+
 		// No guests!
 		User::$me->kickIfGuest();
 
@@ -803,9 +842,6 @@ class PersonalMessage implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		Lang::load('PersonalMessage+Drafts');
-		Theme::loadTemplate(isset($_REQUEST['xml']) ? 'Xml' : 'PersonalMessage');
-
 		if (!isset($_REQUEST['sa']) && ($_REQUEST['f'] ?? '') === 'drafts') {
 			$_REQUEST['sa'] = 'showpmdrafts';
 			unset($_REQUEST['f']);
@@ -819,44 +855,8 @@ class PersonalMessage implements ActionInterface, Routable
 			$this->folder = 'sent';
 		}
 
-		$this->buildLimitBar();
-
-		Label::load();
-
-		// Some stuff for the labels...
-		$this->current_label_id = isset($_REQUEST['l']) && isset(Label::$loaded[$_REQUEST['l']]) ? (int) $_REQUEST['l'] : -1;
-		$this->current_label = Label::$loaded[$this->current_label_id]['name'];
-
-		// This is convenient.  Do you know how annoying it is to do this every time?!
-		$this->current_label_redirect = 'action=pm;f=' . $this->folder . (isset($_GET['start']) ? ';start=' . $_GET['start'] : '') . (isset($_REQUEST['l']) ? ';l=' . $_REQUEST['l'] : '');
-
 		// Preferences...
 		$this->mode = User::$me->pm_prefs & 3;
-
-		// A previous message was sent successfully? Show a small indication.
-		if (isset($_GET['done']) && ($_GET['done'] == 'sent')) {
-			Utils::$context['pm_sent'] = true;
-		}
-
-		// Some context stuff for the templates.
-		Utils::$context['display_mode'] = &$this->mode;
-		Utils::$context['folder'] = &$this->folder;
-		Utils::$context['currently_using_labels'] = !empty(Label::$loaded);
-		Utils::$context['current_label_id'] = &$this->current_label_id;
-		Utils::$context['current_label'] = &$this->current_label;
-		Utils::$context['can_issue_warning'] = User::$me->allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1;
-		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
-
-		// Are PM drafts enabled?
-		Utils::$context['drafts_type'] = 'pm';
-		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_pm_enabled']) && User::$me->allowedTo('pm_draft');
-		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
-
-		// Build the linktree for all the actions...
-		Utils::$context['linktree'][] = [
-			'url' => Config::$scripturl . '?action=pm',
-			'name' => Lang::$txt['personal_messages'],
-		];
 	}
 
 	/**

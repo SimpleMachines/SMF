@@ -221,6 +221,11 @@ class Logs implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('Admin+Modlog');
+
+		// If we're coming from a search, set those variables.
+		$this->setupSearch();
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -654,15 +659,10 @@ class Logs implements ActionInterface
 
 		$this->can_delete = User::$me->allowedTo('admin_forum');
 
-		Lang::load('Admin+Modlog');
-
 		// Setup the direction stuff...
 		if (!empty($_REQUEST['sort']) && isset(self::$sort_types[$_REQUEST['sort']])) {
 			$this->sort = $_REQUEST['sort'];
 		}
-
-		// If we're coming from a search, set those variables.
-		$this->setupSearch();
 	}
 
 	/**

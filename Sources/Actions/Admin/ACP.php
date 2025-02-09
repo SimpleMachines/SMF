@@ -741,6 +741,8 @@ class ACP implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		// Make sure the administrator has a valid session...
 		User::$me->validateSession();
 
@@ -1859,9 +1861,9 @@ class ACP implements ActionInterface, Routable
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial setup.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// Load the language and templates....
 		Lang::load('Admin');

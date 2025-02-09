@@ -78,6 +78,19 @@ class Announce implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('announce_topic');
+
+		User::$me->validateSession();
+
+		if (empty(Topic::$topic_id)) {
+			ErrorHandler::fatalLang('topic_gone', false);
+		}
+
+		Lang::load('Post');
+		Theme::loadTemplate('Post');
+
+		Utils::$context['page_title'] = Lang::$txt['announce_topic'];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -285,19 +298,6 @@ class Announce implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('announce_topic');
-
-		User::$me->validateSession();
-
-		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('topic_gone', false);
-		}
-
-		Lang::load('Post');
-		Theme::loadTemplate('Post');
-
-		Utils::$context['page_title'] = Lang::$txt['announce_topic'];
-
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
 		}

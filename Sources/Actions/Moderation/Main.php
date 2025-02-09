@@ -224,6 +224,20 @@ class Main implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		// Don't run this twice... and don't conflict with the admin bar.
+		if (!isset(Utils::$context['admin_area'])) {
+			self::checkAccessPermissions();
+
+			// Load the language, and the template.
+			Lang::load('ModerationCenter');
+			Theme::loadTemplate(false, 'admin');
+
+			Utils::$context['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : [];
+			Utils::$context['robot_no_index'] = true;
+
+			$this->setModerationAreas();
+		}
+
 		$this->createMenu();
 
 		if (isset(Menu::$loaded['moderate']->include_data['file'])) {
@@ -406,28 +420,6 @@ class Main implements ActionInterface, Routable
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Don't run this twice... and don't conflict with the admin bar.
-		if (isset(Utils::$context['admin_area'])) {
-			return;
-		}
-
-		self::checkAccessPermissions();
-
-		// Load the language, and the template.
-		Lang::load('ModerationCenter');
-		Theme::loadTemplate(false, 'admin');
-
-		Utils::$context['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : [];
-		Utils::$context['robot_no_index'] = true;
-
-		$this->setModerationAreas();
-	}
 
 	/**
 	 * Sets any dynamic values in $this->moderation_areas.

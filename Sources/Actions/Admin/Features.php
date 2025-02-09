@@ -88,6 +88,8 @@ class Features implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		// You need to be an admin to edit settings!
 		User::$me->isAllowedTo('admin_forum');
 
@@ -1883,6 +1885,18 @@ class Features implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		IntegrationHook::call('integrate_modify_features', [&self::$subactions]);
+
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
+			$this->subaction = $_REQUEST['sa'];
+		}
+	}
+
+	/**
+	 * Does some initial setup.
+	 */
+	protected function init()
+	{
 		Lang::load('Help');
 		Lang::load('ManageSettings');
 
@@ -1917,12 +1931,6 @@ class Features implements ActionInterface
 				],
 			],
 		];
-
-		IntegrationHook::call('integrate_modify_features', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
 	}
 
 	/**
