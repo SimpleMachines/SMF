@@ -634,8 +634,18 @@ class Post2 extends Post
 			Db::$db->insert(
 				'ignore',
 				'{db_prefix}log_notify',
-				['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'],
-				[User::$me->id, Topic::$topic_id, 0],
+				[
+					'id_member' => 'int',
+					'id_topic' => 'int',
+					'id_board' => 'int',
+				],
+				[
+					[
+						User::$me->id,
+						Topic::$topic_id,
+						0,
+					],
+				],
 				['id_member', 'id_topic', 'id_board'],
 			);
 		} elseif (!$newTopic) {

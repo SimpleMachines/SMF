@@ -299,13 +299,15 @@ class PaidSubs implements ActionInterface
 						'vendor_ref' => 'string-255',
 					],
 					[
-						Utils::$context['sub']['id'],
-						Profile::$member->id,
-						0,
-						0,
-						Utils::jsonEncode([$new_data]),
-						time(),
-						'',
+						[
+							Utils::$context['sub']['id'],
+							Profile::$member->id,
+							0,
+							0,
+							Utils::jsonEncode([$new_data]),
+							time(),
+							'',
+						],
 					],
 					['id_sublog'],
 				);

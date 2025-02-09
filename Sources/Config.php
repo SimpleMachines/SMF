@@ -240,12 +240,6 @@ class Config
 	 * @var string
 	 */
 	public static string $languagesdir;
-	/**
-	 * @var string
-	 *
-	 * Path to the tasks directory.
-	 */
-	public static string $tasksdir;
 
 	######### Modification Support #########
 	/**
@@ -901,8 +895,23 @@ class Config
 	 */
 	public static function set(array $settings): void
 	{
+		self::getSettingsDefs();
+
 		foreach ($settings as $var => $val) {
 			if (property_exists(__CLASS__, $var)) {
+				// Try to ensure the type is correct.
+				if (
+					isset(self::$settings_defs[$var])
+					&& !in_array(gettype($val), (array) self::$settings_defs[$var]['type'])
+				) {
+					foreach (['boolean', 'integer', 'double', 'string', 'array', 'NULL'] as $to_type) {
+						if (in_array($to_type, (array) self::$settings_defs[$var]['type'])) {
+							settype($val, $to_type);
+							break;
+						}
+					}
+				}
+
 				self::${$var} = $val;
 			} else {
 				self::$custom[$var] = $val;
@@ -910,9 +919,7 @@ class Config
 		}
 
 		// Anything missing?
-		$class_vars = get_class_vars(__CLASS__);
-
-		foreach ($class_vars['settings_defs'] as $var => $def) {
+		foreach (self::$settings_defs as $var => $def) {
 			if (is_string($var) && property_exists(__CLASS__, $var) && !isset(self::${$var})) {
 				if (!empty($def['raw_default'])) {
 					$default = strtr($def['default'], [
@@ -945,9 +952,6 @@ class Config
 		if ((empty(self::$sourcedir) || !is_dir(realpath(self::$sourcedir))) && is_dir(self::$boarddir . '/Sources')) {
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
-
-		// As of 3.0, this is no longer changeable.
-		self::$tasksdir = self::$sourcedir . '/Tasks';
 
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
 			self::$packagesdir = self::$boarddir . '/Packages';
@@ -984,17 +988,8 @@ class Config
 			$GLOBALS['modSettings'] = &self::$modSettings;
 			$GLOBALS['scripturl'] = &self::$scripturl;
 
-			eval('function reloadSettings() { return ' . __CLASS__ . '::reloadModSettings(); }');
-			eval('function updateSettings(...$args) { return ' . __CLASS__ . '::updateModSettings(...$args); }');
-			eval('function get_auth_secret() { return ' . __CLASS__ . '::getAuthSecret(); }');
-			eval('function get_settings_defs() { return ' . __CLASS__ . '::getSettingsDefs(); }');
-			eval('function updateSettingsFile(...$args) { return ' . __CLASS__ . '::updateSettingsFile(...$args); }');
-			eval('function safe_file_write(...$args) { return ' . __CLASS__ . '::safeFileWrite(...$args); }');
-			eval('function smf_var_export(...$args) { return ' . __CLASS__ . '::varExport(...$args); }');
-			eval('function updateDbLastError(...$args) { return ' . __CLASS__ . '::updateDbLastError(...$args); }');
-			eval('function sm_temp_dir() { return ' . __CLASS__ . '::getTempDir(); }');
-			eval('function smf_seed_generator() { return ' . __CLASS__ . '::generateSeed(); }');
-			eval('function check_cron() {return ' . __CLASS__ . '::checkCron(); }');
+			// The path to the tasks dir was a separate setting before 3.0.
+			$GLOBALS['tasksdir'] = self::$sourcedir . '/Tasks';
 
 			self::$exported = true;
 		}

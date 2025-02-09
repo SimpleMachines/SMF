@@ -21,6 +21,8 @@ use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -29,7 +31,7 @@ use SMF\Utils;
  * Shows popup help for the admin (and moderators sometimes) to describe
  * complex settings and such.
  */
-class HelpAdmin implements ActionInterface
+class HelpAdmin implements ActionInterface, Routable
 {
 	use ActionTrait;
 
@@ -125,7 +127,26 @@ class HelpAdmin implements ActionInterface
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						(isset($_SERVER['SERVER_SOFTWARE']) && (str_contains($_SERVER['SERVER_SOFTWARE'], 'Apache') || str_contains($_SERVER['SERVER_SOFTWARE'], 'lighttpd')) ? 'supported' : 'unsupported'),
+						Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED]) && (!Sapi::isCGI() || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) ? 'supported' : 'unsupported',
+					],
+				);
+				break;
+
+			case 'hide_index_php':
+				Utils::$context['help_text'] = Lang::formatText(
+					Utils::$context['help_text'],
+					[
+						Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED]) ? 'auto' : 'manual',
+						'htaccess_code' => <<<'END'
+							# Start SMF queryless URLs
+							RewriteEngine On
+							RewriteCond %{REQUEST_FILENAME} !-d
+							RewriteCond %{REQUEST_FILENAME} !-f
+							RewriteCond %{REQUEST_URI} !\bindex\.php\b [NC]
+							RewriteRule ^(.*) ./index\.php/$1
+							# End SMF queryless URLs
+
+							END,
 					],
 				);
 				break;
@@ -149,6 +170,42 @@ class HelpAdmin implements ActionInterface
 		// Don't show any template layers, just the popup sub template.
 		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'popup';
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route[] = $params['action'];
+		$route[] = $params['help'];
+		unset($params['action'], $params['help']);
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params['action'] = array_shift($route);
+		$params['help'] = array_shift($route);
+
+		return $params;
 	}
 }
 

@@ -696,12 +696,14 @@ class Parsed extends SearchApi implements SearchApiInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\GenericTask',
-					Utils::jsonEncode([
-						'callable' => __METHOD__,
-						'start_id' => ($last_id ?? 0) + 1,
-					]),
-					0,
+					[
+						'SMF\\Tasks\\GenericTask',
+						Utils::jsonEncode([
+							'callable' => __METHOD__,
+							'start_id' => ($last_id ?? 0) + 1,
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);

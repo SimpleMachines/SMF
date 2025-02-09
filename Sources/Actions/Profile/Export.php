@@ -315,9 +315,11 @@ class Export implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\ExportProfileData',
-					$data,
-					0,
+					[
+						'SMF\\Tasks\\ExportProfileData',
+						$data,
+						0,
+					],
 				],
 				[],
 			);

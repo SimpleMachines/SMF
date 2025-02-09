@@ -16,11 +16,13 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
@@ -40,8 +42,9 @@ use SMF\Utils;
  * Uses Post language file.
  * Uses Poll template, main sub-template.
  */
-class PollEdit implements ActionInterface
+class PollEdit implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/****************

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Cache\CacheApi;
@@ -27,6 +28,7 @@ use SMF\Lang;
 use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -35,8 +37,9 @@ use SMF\Utils;
 /**
  * Finds and retrieves information about recently posted messages.
  */
-class Recent implements ActionInterface
+class Recent implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/*****************

@@ -1215,139 +1215,6 @@ class Server implements ActionInterface
 		return !self::$settings_backup_fail;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the general sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyGeneralSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::generalConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'general';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the database sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyDatabaseSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::databaseConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'database';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the cookie sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyCookieSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::cookieConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'cookie';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the security sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyGeneralSecuritySettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::securityConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'security';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the cache sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyCacheSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::cacheConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'cache';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the export sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyExportSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::exportConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'export';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the loads sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyLoadBalancingSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::loadBalancingConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'loads';
-		self::$obj->execute();
-
-		return null;
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1558,8 +1425,16 @@ class Server implements ActionInterface
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}settings',
-					['variable' => 'string', 'value' => 'string'],
-					['sm_stats_key', $ID[1]],
+					[
+						'variable' => 'string',
+						'value' => 'string',
+					],
+					[
+						[
+							'sm_stats_key',
+							$ID[1],
+						],
+					],
 					['variable'],
 				);
 

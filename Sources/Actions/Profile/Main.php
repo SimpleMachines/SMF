@@ -26,9 +26,11 @@ use SMF\Menu;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\Profile;
+use SMF\Routable;
 use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
+use SMF\Slug;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -38,7 +40,7 @@ use SMF\Utils;
  * It also allows the user to change some of their or another's preferences,
  * and such things.
  */
-class Main implements ActionInterface
+class Main implements ActionInterface, Routable
 {
 	use ActionTrait;
 
@@ -716,13 +718,85 @@ class Main implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Backward compatibility wrapper.
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function modifyProfile(array $post_errors = []): void
+	public static function buildRoute(array $params): array
 	{
-		self::load();
-		Profile::$member->save_errors = $post_errors;
-		self::$obj->execute();
+		$params['u'] = $params['u'] ?? User::$me->id;
+
+		if (!empty($params['u'])) {
+			$route[] = 'members';
+
+			if (isset(Slug::$known['member'][(int) $params['u']])) {
+				$slug = (string) Slug::$known['member'][(int) $params['u']];
+			} elseif (($slug = Slug::getCached('member', (int) $params['u'])) === '') {
+				$member = current(User::load((int) $params['u']));
+
+				if ($member instanceof User) {
+					$slug = (string) new Slug($member->name, 'member', $member->id);
+				} else {
+					$slug = '';
+				}
+			}
+
+			$route[] = $slug . (str_ends_with($slug, '-' . $params['u']) ? '' : ($slug !== '' ? '-' : '') . $params['u']);
+
+			unset($params['action'], $params['u']);
+
+			if (isset($params['area'])) {
+				if ($params['area'] !== 'index') {
+					$route[] = $params['area'];
+				}
+
+				unset($params['area']);
+
+				if (isset($params['sa'])) {
+					$route[] = $params['sa'];
+					unset($params['sa']);
+				}
+			}
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		// If they tried to go to /members/ without giving a member ID,
+		// redirect them to the member list.
+		if (!isset($route[1])) {
+			Utils::redirectexit('action=mlist');
+		}
+
+		$params['action'] = 'profile';
+
+		preg_match('/^(\X*?)(\d+)$/u', $route[1] ?? User::$me->id, $matches);
+
+		$params['u'] = $matches[2];
+
+		Slug::setRequested(rtrim($matches[1], '-'), 'member', (int) $params['u']);
+
+		if (isset($route[2])) {
+			$params['area'] = $route[2];
+
+			if (isset($route[3])) {
+				$params['sa'] = $route[3];
+			}
+		}
+
+		return $params;
 	}
 
 	/******************

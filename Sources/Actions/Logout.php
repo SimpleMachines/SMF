@@ -155,6 +155,23 @@ class Logout extends Login2
 	{
 		self::load()->execute($internal, $redirect);
 	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route[] = $params['action'];
+		unset($params['action'], $params['u']);
+
+		return ['route' => $route, 'params' => $params];
+	}
+
 }
 
 ?>

@@ -1208,10 +1208,15 @@ class ReportedContent implements ActionInterface
 			'',
 			'{db_prefix}log_comments',
 			[
-				'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
-				'id_notice' => 'int', 'body' => 'string', 'log_time' => 'int',
+				'id_member' => 'int',
+				'member_name' => 'string',
+				'comment_type' => 'string',
+				'recipient_name' => 'string',
+				'id_notice' => 'int',
+				'body' => 'string',
+				'log_time' => 'int',
 			],
-			$data,
+			[$data],
 			['id_comment'],
 			1,
 		);
@@ -1254,9 +1259,11 @@ class ReportedContent implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\' . $prefix . 'ReportReply_Notify',
-					Utils::jsonEncode($data),
-					0,
+					[
+						'SMF\\Tasks\\' . $prefix . 'ReportReply_Notify',
+						Utils::jsonEncode($data),
+						0,
+					],
 				],
 				['id_task'],
 			);

@@ -218,9 +218,11 @@ class Security
 				'log_type' => 'string',
 			],
 			[
-				User::$me->ip,
-				time(),
-				$error_type,
+				[
+					User::$me->ip,
+					time(),
+					$error_type,
+				],
 			],
 			['ip', 'log_type'],
 		);
@@ -614,14 +616,6 @@ class Security
 				header('Access-Control-Allow-Credentials: true');
 			}
 		}
-	}
-
-	/**
-	 * Backward compatibility wrapper for User::$me->kickIfGuest().
-	 */
-	public static function kickGuest(): void
-	{
-		User::$me->kickIfGuest(null, false);
 	}
 }
 

@@ -735,9 +735,11 @@ class Url implements \Stringable
 						'claimed_time' => 'int',
 					],
 					[
-						UpdateTldRegex::class,
-						'',
-						0,
+						[
+							UpdateTldRegex::class,
+							'',
+							0,
+						],
 					],
 					[],
 				);

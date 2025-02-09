@@ -16,18 +16,21 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
+use SMF\Routable;
 use SMF\Sapi;
 use SMF\Utils;
 
 /**
  * Get one of the admin information files from Simple Machines.
  */
-class DisplayAdminFile implements ActionInterface
+class DisplayAdminFile implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************

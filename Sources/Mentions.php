@@ -99,8 +99,22 @@ class Mentions
 			Db::$db->insert(
 				'ignore',
 				'{db_prefix}mentions',
-				['content_id' => 'int', 'content_type' => 'string', 'id_member' => 'int', 'id_mentioned' => 'int', 'time' => 'int'],
-				[(int) $content_id, $content_type, $id_member, $member['id'], time()],
+				[
+					'content_id' => 'int',
+					'content_type' => 'string',
+					'id_member' => 'int',
+					'id_mentioned' => 'int',
+					'time' => 'int',
+				],
+				[
+					[
+						(int) $content_id,
+						$content_type,
+						$id_member,
+						$member['id'],
+						time(),
+					],
+				],
 				['content_id', 'content_type', 'id_mentioned'],
 			);
 		}

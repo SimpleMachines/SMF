@@ -126,8 +126,16 @@ class Features implements ActionInterface
 
 			IntegrationHook::call('integrate_save_basic_settings');
 
+			if (!empty($_POST['hide_index_php']) && !empty($_POST['queryless_urls'])) {
+				$_POST['hide_index_php'] = $this->addRewriteRule();
+
+				if (empty($_POST['hide_index_php'])) {
+					$htaccess_failed = true;
+				}
+			}
+
 			ACP::saveDBSettings($config_vars);
-			$_SESSION['adm-save'] = true;
+			$_SESSION['adm-save'] = !empty($htaccess_failed) ? Lang::$txt['queryless_hidden_index_htaccess'] : true;
 
 			// Do a bit of housekeeping
 			if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != Config::$modSettings['minimize_files']) {
@@ -1325,18 +1333,48 @@ class Features implements ActionInterface
 					'',
 					'{db_prefix}custom_fields',
 					[
-						'col_name' => 'string', 'field_name' => 'string', 'field_desc' => 'string',
-						'field_type' => 'string', 'field_length' => 'string', 'field_options' => 'string', 'field_order' => 'int',
-						'show_reg' => 'int', 'show_display' => 'int', 'show_mlist' => 'int', 'show_profile' => 'string',
-						'private' => 'int', 'active' => 'int', 'default_value' => 'string', 'can_search' => 'int',
-						'bbc' => 'int', 'mask' => 'string', 'enclose' => 'string', 'placement' => 'int',
+						'col_name' => 'string',
+						'field_name' => 'string',
+						'field_desc' => 'string',
+						'field_type' => 'string',
+						'field_length' => 'string',
+						'field_options' => 'string',
+						'field_order' => 'int',
+						'show_reg' => 'int',
+						'show_display' => 'int',
+						'show_mlist' => 'int',
+						'show_profile' => 'string',
+						'private' => 'int',
+						'active' => 'int',
+						'default_value' => 'string',
+						'can_search' => 'int',
+						'bbc' => 'int',
+						'mask' => 'string',
+						'enclose' => 'string',
+						'placement' => 'int',
 					],
 					[
-						$col_name, $_POST['field_name'], $_POST['field_desc'],
-						$_POST['field_type'], $field_length, $field_options, $new_order,
-						$show_reg, $show_display, $show_mlist, $show_profile,
-						$private, $active, $default, $can_search,
-						$bbc, $mask, $enclose, $placement,
+						[
+							$col_name,
+							$_POST['field_name'],
+							$_POST['field_desc'],
+							$_POST['field_type'],
+							$field_length,
+							$field_options,
+							$new_order,
+							$show_reg,
+							$show_display,
+							$show_mlist,
+							$show_profile,
+							$private,
+							$active,
+							$default,
+							$can_search,
+							$bbc,
+							$mask,
+							$enclose,
+							$placement,
+						],
 					],
 					['id_field'],
 				);
@@ -1563,8 +1601,20 @@ class Features implements ActionInterface
 			'',
 
 			// SEO stuff
-			['check', 'queryless_urls', 'subtext' => '<strong>' . Lang::$txt['queryless_urls_note'] . '</strong>'],
-			['text', 'meta_keywords', 'subtext' => Lang::$txt['meta_keywords_note'], 'size' => 50],
+			[
+				'check',
+				'queryless_urls',
+				'subtext' => '<strong>' . Lang::$txt['queryless_urls_note'] . '</strong>',
+				'disabled' => !Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED]),
+			],
+			[
+				'check',
+				'hide_index_php',
+				'subtext' => !Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED]) || (function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get_modules())) ? '<strong>' . Lang::$txt['hide_index_php_manual'] . '</strong>' : '',
+				// Disable only if we know for sure that it won't work.
+				'disabled' => function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get_modules()),
+			],
+			['check', 'use_ascii_slugs'],
 			'',
 
 			// Time zone and formatting.
@@ -1824,120 +1874,6 @@ class Features implements ActionInterface
 		return (int) $numProfileFields;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the basic sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyBasicSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::basicConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'basic';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the bbc sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyBBCSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::bbcConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'bbc';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the layout sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyLayoutSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::layoutConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'layout';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the sig sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifySignatureSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::sigConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'sig';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the likes sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyLikesSettings($return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::likesConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'likes';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the mentions sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyMentionsSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::mentionsConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'mentions';
-		self::$obj->execute();
-
-		return null;
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -2040,6 +1976,68 @@ class Features implements ActionInterface
 		Db::$db->free_result($result);
 
 		return (int) $order_count;
+	}
+
+	/**
+	 * Adds a rewrite rule to .htaccess to support queryless URLs that don't
+	 * include the index.php component of the path.
+	 *
+	 * Includes safety checks to see whether the rule is aleady present or not
+	 * and whether we can successfully add the rule.
+	 *
+	 * Note that the rule will be added the first time the admin enables both
+	 * the queryless_urls setting and the hide_index_php setting, but will not
+	 * be removed if the admin later disables either of those settings. This
+	 * ensures that external links pointing to queryless URLs without the
+	 * index.php component will still resolve after either setting is disabled.
+	 *
+	 * @return bool Whether the rewrite rule is now enabled.
+	 */
+	protected function addRewriteRule(): bool
+	{
+		if (
+			// Can't do this if we are not on a server that uses .htaccess.
+			!Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED])
+			// Can't do this if mod_rewrite is disabled.
+			|| (
+				function_exists('apache_get_modules')
+				&& !in_array('mod_rewrite', apache_get_modules())
+			)
+		) {
+			return false;
+		}
+
+		$file = Config::$boarddir . DIRECTORY_SEPARATOR . '.htaccess';
+
+		$before = '# Start SMF queryless URLs' . "\n";
+
+		$rule = <<<END
+			RewriteEngine On
+			RewriteCond %{REQUEST_FILENAME} !-d
+			RewriteCond %{REQUEST_FILENAME} !-f
+			RewriteCond %{REQUEST_URI} !\bindex\.php\b [NC]
+			RewriteRule ^(.*) ./index\.php/$1
+
+			END;
+
+		$after = '# End SMF queryless URLs' . "\n";
+
+		$content = is_file($file) && is_readable($file) ? file_get_contents($file) : '';
+
+		// Don't add duplicate copies of the rule.
+		if (str_contains($content, $rule)) {
+			return true;
+		}
+
+		// Add the rule.
+		$new_content = ltrim(rtrim($content) . "\n\n") . $before . $rule . $after;
+
+		// Write to disk.
+		return Config::safeFileWrite(
+			file: $file,
+			data: $new_content,
+			backup_file: is_file($file) ? $file . '_' . (date_create('now UTC')->format('Ymd\THis\Z')) : null,
+		);
 	}
 }
 

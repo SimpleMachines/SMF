@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\Board;
@@ -31,6 +32,7 @@ use SMF\Lang;
 use SMF\Msg;
 use SMF\Parser;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
@@ -43,10 +45,10 @@ use SMF\Verifier;
 /**
  * This class handles posting and modifying replies and new topics.
  */
-class Post implements ActionInterface
+class Post implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*****************
@@ -381,15 +383,85 @@ class Post implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Backward compatibility wrapper.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * Needed to allow old mods to pass $post_errors as a function parameter.
+	 * @param array $params URL query parameters.
+	 * @param bool $append If true, the action route will be appended to the
+	 *    topic or board route indicated by the topic or board params.
+	 *    Default: false.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function post(array $post_errors = []): void
+	public static function buildRoute(array $params): array
 	{
-		self::load();
-		self::$obj->errors = (array) $post_errors;
-		self::$obj->execute();
+		if (isset($params['topic'])) {
+			extract(Topic::buildRoute($params));
+		} elseif (isset($params['board'])) {
+			extract(Board::buildRoute($params));
+		}
+
+		$route = array_merge($route ?? [], self::buildActionRoute($params));
+
+		if (isset($params['msg'])) {
+			$route[] = $params['msg'];
+			unset($params['msg']);
+		}
+
+		if (isset($params['calendar'])) {
+			$route[] = 'calendar';
+			unset($params['calendar']);
+
+			if (isset($params['eventid'])) {
+				$route[] = 'events';
+				$route[] = $params['eventid'];
+				unset($params['eventid']);
+
+
+				if (isset($params['recurrenceid'])) {
+					$route[] = $params['recurrenceid'];
+					unset($params['recurrenceid']);
+				}
+			}
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params['action'] = array_shift($route);
+
+		if (!empty($route) && in_array($route[0], self::$subactions)) {
+			$params['sa'] = array_shift($route);
+		}
+
+		if (!empty($route) && is_numeric($route[0])) {
+			$params['msg'] = array_shift($route);
+		}
+
+		if (!empty($route) && $route[0] === 'calendar') {
+			array_shift($route);
+			$params['calendar'] = true;
+
+			if (!empty($route) && $route[0] === 'events') {
+				array_shift($route);
+				$params['eventid'] = array_shift($route);
+
+				if (!empty($route)) {
+					$params['recurrenceid'] = array_shift($route);
+				}
+			}
+		}
+
+		return $params;
 	}
 
 	/******************

@@ -1129,7 +1129,7 @@ class Time extends \DateTime implements \ArrayAccess
 
 		// Build an array of regular expressions to translate the current language strings to English.
 		$replacements = array_combine(
-			array_map(fn($arg) => '~' . $arg . '~iu', Lang::$txt['months_titles']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['months_titles']),
 			[
 				'January', 'February', 'March', 'April', 'May', 'June',
 				'July', 'August', 'September', 'October', 'November', 'December',
@@ -1137,32 +1137,32 @@ class Time extends \DateTime implements \ArrayAccess
 		);
 
 		$replacements += array_combine(
-			array_map(fn($arg) => '~' . $arg . '~iu', Lang::$txt['months_short']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['months_short']),
 			['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 		);
 
 		$replacements += array_combine(
-			array_map(fn($arg) => '~' . $arg . '~iu', Lang::$txt['days']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['days']),
 			['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 		);
 
 		$replacements += array_combine(
-			array_map(fn($arg) => '~' . $arg . '~iu', Lang::$txt['days_short']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['days_short']),
 			['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 		);
 
 		// Find all possible variants of AM and PM for this language.
-		$replacements['~' . Lang::$txt['time_am'] . '~iu'] = 'AM';
-		$replacements['~' . Lang::$txt['time_pm'] . '~iu'] = 'PM';
+		$replacements['~' . preg_quote(Lang::$txt['time_am'], '~') . '~iu'] = 'AM';
+		$replacements['~' . preg_quote(Lang::$txt['time_pm'], '~') . '~iu'] = 'PM';
 
 		if (($am = self::strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false) {
-			$replacements['~' . $am . '~iu'] = 'AM';
-			$replacements['~' . self::strftime('%p', strtotime('23:00:00')) . '~iu'] = 'PM';
+			$replacements['~' . preg_quote($am, '~') . '~iu'] = 'AM';
+			$replacements['~' . preg_quote(self::strftime('%p', strtotime('23:00:00')), '~') . '~iu'] = 'PM';
 		}
 
 		if (($am = self::strftime('%P', strtotime('01:00:00'))) !== 'P' && $am !== false) {
-			$replacements['~' . $am . '~iu'] = 'AM';
-			$replacements['~' . self::strftime('%P', strtotime('23:00:00')) . '~iu'] = 'PM';
+			$replacements['~' . preg_quote($am, '~') . '~iu'] = 'AM';
+			$replacements['~' . preg_quote(self::strftime('%P', strtotime('23:00:00')), '~') . '~iu'] = 'PM';
 		}
 
 		// Find this language's equivalents for today, yesterday, and tomorrow.
@@ -1170,11 +1170,18 @@ class Time extends \DateTime implements \ArrayAccess
 		// PHP's date parser, but that would get very complicated very quickly.
 		foreach (['today', 'yesterday', 'tomorrow'] as $word) {
 			$translated_word = preg_replace('~\X*<strong>(\X*?)</strong>\X*~u', '$1', Lang::$txt[$word]);
-			$replacements['~\b' . $translated_word . '\b~iu'] = $word;
+			$replacements['~\b' . preg_quote($translated_word, '~') . '\b~iu'] = $word;
 		}
 
-		// Wrap the replacement strings in closures.
+		// Finalize.
 		foreach ($replacements as $pattern => $replacement) {
+			// Filter out empty patterns.
+			if (preg_match('/^~\s*~iu$/', $pattern)) {
+				unset($replacements[$pattern]);
+				continue;
+			}
+
+			// Wrap the replacement strings in closures.
 			$replacements[$pattern] = fn($matches) => $replacement;
 		}
 

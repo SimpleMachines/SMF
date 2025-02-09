@@ -16,12 +16,14 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Routable;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -31,8 +33,9 @@ use SMF\Utils;
 /**
  * Handle sending out reminders, and checking the secret answer and question.
  */
-class Reminder implements ActionInterface
+class Reminder implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************

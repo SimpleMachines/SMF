@@ -352,7 +352,7 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 
 	// Load the help page content (we just want the text to show)
 	$.ajax({
-		url: desktopURL + ';ajax',
+		url: desktopURL + (desktopURL.includes('?') ? ';' : '?') + 'ajax',
 		headers: {
 			'X-SMF-AJAX': 1
 		},
@@ -426,7 +426,7 @@ smc_PopupMenu.prototype.open = function (sItem)
 		this.opt.menus[sItem].menuObj.html('<div class="loading">' + (typeof(ajax_notification_text) != null ? ajax_notification_text : '') + '</div>');
 
 		$.ajax({
-			url: this.opt.menus[sItem].sUrl + ';ajax',
+			url: this.opt.menus[sItem].sUrl + (this.opt.menus[sItem].sUrl.includes('?') ? ';' : '?') + 'ajax',
 			headers: {
 				'X-SMF-AJAX': 1
 			},

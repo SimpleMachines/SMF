@@ -248,7 +248,7 @@ if (isset(Config::$modSettings['smfVersion']) && Config::$modSettings['smfVersio
 Db::$db->insert('ignore',
 	'{db_prefix}themes',
 	array('id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-255'),
-	array(1, 'forum_width', '90%'),
+	array([1, 'forum_width', '90%']),
 	array('id_theme', 'variable')
 );
 ---}
@@ -814,7 +814,7 @@ if (empty(Config::$modSettings['dont_repeat_buddylists']))
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
-		array('enable_buddylist', '1'),
+		array(['enable_buddylist', '1']),
 		array('variable', 'value')
 	);
 
@@ -822,7 +822,7 @@ if (empty(Config::$modSettings['dont_repeat_buddylists']))
 	Db::$db->insert('replace',
 		'{db_prefix}themes',
 		array('id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-255'),
-		array(-1, 1, 'posts_apply_ignore_list', '1'),
+		array([-1, 1, 'posts_apply_ignore_list', '1']),
 		array('id_member', 'id_theme', 'variable', 'value')
 	);
 
@@ -830,7 +830,7 @@ if (empty(Config::$modSettings['dont_repeat_buddylists']))
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
-		array('dont_repeat_buddylists', '1'),
+		array(['dont_repeat_buddylists', '1']),
 		array('variable', 'value')
 	);
 }
@@ -844,7 +844,7 @@ if (!empty(Config::$modSettings['dont_repeat_buddylists']) && !isset(Config::$mo
 		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string-255', 'value' => 'string-255'),
-			array('enable_buddylist', Config::$modSettings['enable_buddylists']),
+			array(['enable_buddylist', Config::$modSettings['enable_buddylists']]),
 			array('variable', 'value')
 		);
 	}
@@ -854,7 +854,7 @@ if (!empty(Config::$modSettings['dont_repeat_buddylists']) && !isset(Config::$mo
 		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string-255', 'value' => 'string-255'),
-			array('enable_buddylist', '1'),
+			array(['enable_buddylist', '1']),
 			array('variable', 'value')
 		);
 	}
@@ -877,7 +877,7 @@ if (!isset(Config::$modSettings['attachment_image_reencode']))
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
-		array('attachment_image_reencode', '1'),
+		array(['attachment_image_reencode', '1']),
 		array('variable', 'value')
 	);
 }
@@ -887,7 +887,7 @@ if (!isset(Config::$modSettings['attachment_image_paranoid']))
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
-		array('attachment_image_paranoid', '0'),
+		array(['attachment_image_paranoid', '0']),
 		array('variable', 'value')
 	);
 }
@@ -897,7 +897,7 @@ if (!isset(Config::$modSettings['avatar_reencode']))
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
-		array('avatar_reencode', '1'),
+		array(['avatar_reencode', '1']),
 		array('variable', 'value')
 	);
 }
@@ -907,7 +907,7 @@ if (!isset(Config::$modSettings['avatar_paranoid']))
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
-		array('avatar_paranoid', '0'),
+		array(['avatar_paranoid', '0']),
 		array('variable', 'value')
 	);
 }
@@ -922,7 +922,7 @@ if (!isset(Config::$modSettings['attachment_thumb_png']))
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
-		array('attachment_thumb_png', '1'),
+		array(['attachment_thumb_png', '1']),
 		array('variable', 'value')
 	);
 }
@@ -970,7 +970,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('knownThemes', $known_themes),
+			array(['knownThemes', $known_themes]),
 			array('variable')
 		);
 
@@ -995,7 +995,7 @@ if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 			Db::$db->insert('replace',
 				'{db_prefix}settings',
 				array('variable' => 'string', 'value' => 'string'),
-				array('theme_guests', 0),
+				array(['theme_guests', 0]),
 				array('variable')
 			);
 		}
@@ -1029,7 +1029,7 @@ if (empty(Config::$modSettings['dont_repeat_smileys_20']) && empty(Config::$modS
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
-		array('installed_new_smiley_sets_20', '1'),
+		array(['installed_new_smiley_sets_20', '1']),
 		array('variable')
 	);
 }
@@ -1249,7 +1249,7 @@ if (!isset(Config::$modSettings['cal_maxyear']) || Config::$modSettings['cal_max
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string-255', 'value' => 'string-255'),
-		array('cal_maxyear', '2030'),
+		array(['cal_maxyear', '2030']),
 		array('variable', 'value')
 	);
 }

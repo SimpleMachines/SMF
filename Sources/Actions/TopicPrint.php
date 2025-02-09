@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\Board;
@@ -25,6 +26,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Parser;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Topic;
@@ -36,8 +38,9 @@ use SMF\Utils;
  *
  * @todo Rewrite to use Msg::get() in order to reduce memory load?
  */
-class TopicPrint implements ActionInterface
+class TopicPrint implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/****************

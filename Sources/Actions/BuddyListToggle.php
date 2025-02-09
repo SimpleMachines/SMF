@@ -16,10 +16,12 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
+use SMF\Routable;
 use SMF\User;
 use SMF\Utils;
 
@@ -29,8 +31,9 @@ use SMF\Utils;
  * Called by ?action=buddy;u=x;session_id=y.
  * Redirects to ?action=profile;u=x.
  */
-class BuddyListToggle implements ActionInterface
+class BuddyListToggle implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -81,14 +84,16 @@ class BuddyListToggle implements ActionInterface
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\Buddy_Notify',
-						Utils::jsonEncode([
-							'receiver_id' => $this->userReceiver,
-							'id_member' => User::$me->id,
-							'member_name' => User::$me->username,
-							'time' => time(),
-						]),
-						0,
+						[
+							'SMF\\Tasks\\Buddy_Notify',
+							Utils::jsonEncode([
+								'receiver_id' => $this->userReceiver,
+								'id_member' => User::$me->id,
+								'member_name' => User::$me->username,
+								'time' => time(),
+							]),
+							0,
+						],
 					],
 					['id_task'],
 				);

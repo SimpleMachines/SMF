@@ -978,3 +978,23 @@ INSERT IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('spoofdetector
 ALTER TABLE {$db_prefix}log_packages
 ADD COLUMN smf_version VARCHAR(5) NOT NULL DEFAULT '';
 ---#
+
+/******************************************************************************/
+--- Updating Settings
+/******************************************************************************/
+
+---# Update mail_type
+UPDATE {$db_prefix}settings
+SET value =
+	CASE
+		WHEN value = 0
+			THEN 'SendMail'
+		WHEN value = 1
+			THEN 'SMTP'
+		WHEN value = 2
+			THEN 'SMTPTLS'
+		ELSE
+			value
+		END
+WHERE variable = 'mail_type'
+	AND value IN (0,1,2);

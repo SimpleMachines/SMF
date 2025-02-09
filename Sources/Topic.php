@@ -28,7 +28,7 @@ use SMF\Search\SearchApi;
  * This class's static methods also takes care of certain actions on topics:
  * lock/unlock a topic, sticky/unsticky it, etc.
  */
-class Topic implements \ArrayAccess
+class Topic implements \ArrayAccess, Routable
 {
 	use BackwardCompatibility;
 	use ArrayAccessHelper;
@@ -375,9 +375,19 @@ class Topic implements \ArrayAccess
 	 */
 	public function __construct(int $id, array $props = [])
 	{
-		self::$loaded[$id] = $this;
 		$this->id = $id;
 		$this->set($props);
+
+		// If the topic is constructed before User::$me is set, the properties
+		// passed in $props are probably not what they will be later.
+		if (isset(User::$me)) {
+			self::$loaded[$id] = $this;
+		}
+
+		// Create the slug for this topic.
+		if (isset($this->subject)) {
+			Slug::create($this->subject, 'topic', $id);
+		}
 	}
 
 	/**
@@ -571,17 +581,19 @@ class Topic implements \ArrayAccess
 			$id = self::$topic_id;
 		}
 
-		if (!isset(self::$loaded[$id])) {
-			new self($id);
-
-			self::$loaded[$id]->loadTopicInfo();
-
-			if (!empty(self::$topic_id) && $id === self::$topic_id) {
-				self::$info = self::$loaded[$id];
-			}
+		if (isset(self::$loaded[$id])) {
+			$obj = self::$loaded[$id];
+		} else {
+			// The constructor will take care of adding the new instance to self::$loaded.
+			$obj = new self($id);
+			$obj->loadTopicInfo();
 		}
 
-		return self::$loaded[$id];
+		if (isset(self::$loaded[$id]) && !empty(self::$topic_id) && $id === self::$topic_id) {
+			self::$info = self::$loaded[$id];
+		}
+
+		return $obj;
 	}
 
 	/**
@@ -1083,8 +1095,18 @@ class Topic implements \ArrayAccess
 			Db::$db->insert(
 				'replace',
 				'{db_prefix}log_boards',
-				['id_board' => 'int', 'id_member' => 'int', 'id_msg' => 'int'],
-				[$toBoard, User::$me->id, Config::$modSettings['maxMsgID']],
+				[
+					'id_board' => 'int',
+					'id_member' => 'int',
+					'id_msg' => 'int',
+				],
+				[
+					[
+						$toBoard,
+						User::$me->id,
+						Config::$modSettings['maxMsgID'],
+					],
+				],
 				['id_board', 'id_member'],
 			);
 		}
@@ -1429,14 +1451,95 @@ class Topic implements \ArrayAccess
 	}
 
 	/**
-	 * Backward compatibility wrapper for the getLikedMsgs method.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @param int $topic The topic ID to fetch the info from.
-	 * @return array An array of IDs of messages in the specified topic that the current user likes
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function prepareLikesContext(int $topic): array
+	public static function buildRoute(array $params): array
 	{
-		return self::load($topic)->getLikedMsgs();
+		$route = [];
+
+		$params['topic'] = $params['topic'] ?? (string) self::$id ?? null;
+
+		if (isset($params['topic'])) {
+			$route[] = 'topics';
+
+			if (str_contains($params['topic'], '.')) {
+				$params['start'] = $params['start'] ?? substr($params['topic'], strrpos($params['topic'], '.') + 1);
+				$params['topic'] = substr($params['topic'], 0, strrpos($params['topic'], '.'));
+			}
+
+			if (isset(Slug::$known['topic'][(int) $params['topic']])) {
+				$slug = (string) Slug::$known['topic'][(int) $params['topic']];
+			} elseif (($slug = Slug::getCached('topic', (int) $params['topic'])) === '') {
+				$topic = self::load((int) $params['topic']);
+				$msg = $topic instanceof self ? current(Msg::load($topic->id_first_msg)) : false;
+
+				if ($msg instanceof Msg) {
+					$slug = (string) new Slug($msg->subject, 'topic', $topic->id);
+				} else {
+					$slug = '';
+				}
+			}
+
+			$route[] = $slug . (str_ends_with($slug, '-' . $params['topic']) ? '' : ($slug !== '' ? '-' : '') . $params['topic']);
+
+			if (!empty($params['start'])) {
+				$route[] = $params['start'];
+			}
+
+			unset($params['topic'], $params['start']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		if (isset($route[1])) {
+			$params['action'] = 'display';
+			array_shift($route);
+
+			preg_match('/^(\X*?)(\d+(?:\.(?:new|msg\d+|from\d+|\d+))?)$/u', array_shift($route), $matches);
+
+			$topic = $matches[2];
+
+			if (str_contains($topic, '.')) {
+				list($params['topic'], $params['start']) = explode('.', $topic);
+			} else {
+				$params['topic'] = $topic;
+			}
+
+			Slug::setRequested(rtrim($matches[1], '-'), 'topic', (int) $params['topic']);
+
+			// Either an action suffix or a start value.
+			if (!empty($route)) {
+				if (isset(QueryString::$route_parsers[reset($route)])) {
+					$params = array_merge(
+						$params,
+						call_user_func(
+							[QueryString::$route_parsers[reset($route)], 'parseRoute'],
+							$route,
+							$params,
+						),
+					);
+				} elseif (!isset($params['start'])) {
+					$params['start'] = array_shift($route);
+				}
+			}
+		}
+
+		return $params;
 	}
 
 	/******************
@@ -1473,7 +1576,7 @@ class Topic implements \ArrayAccess
 		];
 
 		// What's new to this user?
-		if (User::$me->is_guest) {
+		if (!isset(User::$me) || User::$me->is_guest) {
 			$topic_selects[] = 't.id_last_msg + 1 AS new_from';
 		} else {
 			$topic_selects[] = 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from';
@@ -1511,12 +1614,18 @@ class Topic implements \ArrayAccess
 		// A few tweaks and extras.
 		$this->started_time = Time::create('@' . $this->started_timestamp)->format();
 		$this->unwatched = $this->unwatched ?? 0;
-		$this->is_poll = (bool) ($this->id_poll > 0 && Config::$modSettings['pollMode'] == '1' && User::$me->allowedTo('poll_view'));
+		$this->is_poll = (bool) ($this->id_poll > 0 && Config::$modSettings['pollMode'] == '1' && isset(User::$me) && User::$me->allowedTo('poll_view'));
 
-		$this->real_num_replies = $this->num_replies + (Config::$modSettings['postmod_active'] && User::$me->allowedTo('approve_posts') ? $this->unapproved_posts - ($this->is_approved ? 0 : 1) : 0);
+		$this->real_num_replies = $this->num_replies + (Config::$modSettings['postmod_active'] && isset(User::$me) && User::$me->allowedTo('approve_posts') ? $this->unapproved_posts - ($this->is_approved ? 0 : 1) : 0);
 
 		// If this topic has unapproved posts, we need to work out how many posts the user can see, for page indexing.
-		if (Config::$modSettings['postmod_active'] && $this->unapproved_posts && !User::$me->is_guest && !User::$me->allowedTo('approve_posts')) {
+		if (
+			Config::$modSettings['postmod_active']
+			&& $this->unapproved_posts
+			&& isset(User::$me)
+			&& !User::$me->is_guest
+			&& !User::$me->allowedTo('approve_posts')
+		) {
 			$request = Db::$db->query(
 				'',
 				'SELECT COUNT(id_member) AS my_unapproved_posts
@@ -1533,14 +1642,16 @@ class Topic implements \ArrayAccess
 			Db::$db->free_result($request);
 
 			$this->total_visible_posts = $this->num_replies + $myUnapprovedPosts + ($this->is_approved ? 1 : 0);
-		} elseif (User::$me->is_guest) {
+		} elseif (!isset(User::$me) || User::$me->is_guest) {
 			$this->total_visible_posts = $this->num_replies + ($this->is_approved ? 1 : 0);
 		} else {
 			$this->total_visible_posts = $this->num_replies + $this->unapproved_posts + ($this->is_approved ? 1 : 0);
 		}
 
 		// Did this user start the topic or not?
-		User::$me->started = User::$me->id == $this->id_member_started && !User::$me->is_guest;
+		if (isset(User::$me)) {
+			User::$me->started = User::$me->id == $this->id_member_started && !User::$me->is_guest;
+		}
 	}
 }
 

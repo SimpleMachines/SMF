@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Cache\CacheApi;
@@ -27,6 +28,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Topic;
 use SMF\User;
@@ -35,8 +37,9 @@ use SMF\Utils;
 /**
  * This action handles moving topics from one board to another board.
  */
-class TopicMove2 implements ActionInterface
+class TopicMove2 implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/****************

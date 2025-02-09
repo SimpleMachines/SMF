@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\Autolinker;
@@ -29,6 +30,7 @@ use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
@@ -61,8 +63,9 @@ use SMF\Utils;
  *
  * Uses Stats, Profile, Post, and PersonalMessage language files.
  */
-class Feed implements ActionInterface
+class Feed implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*****************
@@ -2966,6 +2969,79 @@ class Feed implements ActionInterface
 		$cdata .= ']]>';
 
 		return strtr($cdata, ['<![CDATA[]]>' => '']);
+	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		if (!isset($params['sa'])) {
+			$params['sa'] = get_class_vars(self::class)['subaction'];
+		}
+
+		// First do the normal stuff.
+		$route = self::buildActionRoute($params);
+
+		// Now do the custom stuff.
+		$route[] = $params['type'] ?? get_class_vars(self::class)['format'];
+		unset($params['type']);
+
+		if (isset($params['board'])) {
+			$route[] = 'boards';
+			$route[] = $params['board'];
+			unset($params['board']);
+		} elseif (isset($params['boards'])) {
+			$route[] = 'boards';
+			$route[] = $params['boards'];
+			unset($params['boards']);
+		} elseif (isset($params['c'])) {
+			$route[] = 'categories';
+			$route[] = $params['c'];
+			unset($params['c']);
+		} elseif (isset($params['u'])) {
+			$route[] = 'members';
+			$route[] = $params['u'];
+			unset($params['u']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params = array_merge($params, self::parseActionRoute($route));
+		$params['type'] = array_shift($route);
+
+		if (count($route) >= 2) {
+			switch (array_shift($route)) {
+				case 'members':
+					$params['u'] = array_shift($route);
+					break;
+
+				case 'categories':
+					$params['c'] = array_shift($route);
+					break;
+
+				default:
+					$params['board' . (str_contains(current($route), ',') ? 's' : '')] = array_shift($route);
+					break;
+			}
+		}
+
+		return $params;
 	}
 
 	/******************

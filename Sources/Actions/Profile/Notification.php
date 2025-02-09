@@ -976,18 +976,6 @@ class Notification implements ActionInterface
 		return $notification_boards;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the changeNotifications method.
-	 *
-	 * @param int $memID The ID of the member.
-	 */
-	public static function makeNotificationChanges(int $memID): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->changeNotifications();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/

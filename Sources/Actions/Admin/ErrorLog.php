@@ -27,6 +27,7 @@ use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 
@@ -232,7 +233,7 @@ class ErrorLog implements ActionInterface
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
 				'url' => [
-					'html' => Utils::htmlspecialchars(!str_contains($row['url'], 'cron.php') ? (str_starts_with($row['url'], '?') ? Config::$scripturl : '') . $row['url'] : $row['url']),
+					'html' => Utils::htmlspecialchars((Url::create($row['url'])->isValid() ? '' : Config::$boardurl) . $row['url']),
 					'href' => base64_encode(Db::$db->escape_wildcard_string($row['url'])),
 				],
 				'message' => [
@@ -430,7 +431,7 @@ class ErrorLog implements ActionInterface
 			ErrorHandler::fatalLang('error_bad_line');
 		}
 
-		$file_data = explode('<br />', Parser::highlightPhpCode(Utils::htmlspecialchars(file_get_contents($file))));
+		$file_data = preg_split('~\R|<br(\s*/)?>~', Parser::highlightPhpCode(Utils::htmlspecialchars(file_get_contents($file))));
 
 		// We don't want to slice off too many so lets make sure we stop at the last one
 		$max = min($max, max(array_keys($file_data)));

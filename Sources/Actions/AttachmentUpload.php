@@ -14,6 +14,7 @@
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\Config;
@@ -23,14 +24,16 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
+use SMF\Routable;
 use SMF\User;
 use SMF\Utils;
 
 /**
  * This class handles adding/deleting attachments
  */
-class AttachmentUpload implements ActionInterface
+class AttachmentUpload implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/**

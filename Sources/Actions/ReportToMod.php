@@ -16,12 +16,14 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
@@ -31,10 +33,10 @@ use SMF\Utils;
 /**
  * Deals with reporting posts or profiles to mods and admins.
  */
-class ReportToMod implements ActionInterface
+class ReportToMod implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*****************
@@ -295,34 +297,6 @@ class ReportToMod implements ActionInterface
 		}
 	}
 
-	/**
-	 * Backward compatibility wrapper for the reportMsg() method.
-	 * In theory, no modifications should ever have called this, but...
-	 */
-	public static function reportPost(int $msg, string $reason): void
-	{
-		$_POST['msg'] = (int) $msg;
-		$_POST['comment'] = Utils::htmlspecialcharsDecode((string) $reason);
-
-		self::load();
-		self::$obj->subaction = 'submit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the reportMember() method.
-	 * In theory, no modifications should ever have called this, but...
-	 */
-	public static function reportUser(int $id_member, string $reason): void
-	{
-		$_POST['u'] = (int) $id_member;
-		$_POST['comment'] = Utils::htmlspecialcharsDecode((string) $reason);
-
-		self::load();
-		self::$obj->subaction = 'submit';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -437,13 +411,32 @@ class ReportToMod implements ActionInterface
 				'',
 				'{db_prefix}log_reported',
 				[
-					'id_msg' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'id_member' => 'int', 'membername' => 'string',
-					'subject' => 'string', 'body' => 'string', 'time_started' => 'int', 'time_updated' => 'int',
-					'num_reports' => 'int', 'closed' => 'int',
+					'id_msg' => 'int',
+					'id_topic' => 'int',
+					'id_board' => 'int',
+					'id_member' => 'int',
+					'membername' => 'string',
+					'subject' => 'string',
+					'body' => 'string',
+					'time_started' => 'int',
+					'time_updated' => 'int',
+					'num_reports' => 'int',
+					'closed' => 'int',
 				],
 				[
-					$msg, $message['id_topic'], $message['id_board'], $message['id_poster'], $message['real_name'],
-					$message['subject'], $message['body'], time(), time(), 1, 0,
+					[
+						$msg,
+						$message['id_topic'],
+						$message['id_board'],
+						$message['id_poster'],
+						$message['real_name'],
+						$message['subject'],
+						$message['body'],
+						time(),
+						time(),
+						1,
+						0,
+					],
 				],
 				['id_report'],
 				1,
@@ -456,12 +449,22 @@ class ReportToMod implements ActionInterface
 				'',
 				'{db_prefix}log_reported_comments',
 				[
-					'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string',
-					'member_ip' => 'inet', 'comment' => 'string', 'time_sent' => 'int',
+					'id_report' => 'int',
+					'id_member' => 'int',
+					'membername' => 'string',
+					'member_ip' => 'inet',
+					'comment' => 'string',
+					'time_sent' => 'int',
 				],
 				[
-					$id_report, User::$me->id, User::$me->name,
-					User::$me->ip, Utils::htmlspecialchars($this->comment), time(),
+					[
+						$id_report,
+						User::$me->id,
+						User::$me->name,
+						User::$me->ip,
+						Utils::htmlspecialchars($this->comment),
+						time(),
+					],
 				],
 				['id_comment'],
 				1,
@@ -477,18 +480,20 @@ class ReportToMod implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\MsgReport_Notify',
-					Utils::jsonEncode([
-						'report_id' => $id_report,
-						'msg_id' => $msg,
-						'topic_id' => $message['id_topic'],
-						'board_id' => $message['id_board'],
-						'sender_id' => User::$me->id,
-						'sender_name' => User::$me->name,
-						'time' => time(),
-						'comment_id' => $id_comment,
-					]),
-					0,
+					[
+						'SMF\\Tasks\\MsgReport_Notify',
+						Utils::jsonEncode([
+							'report_id' => $id_report,
+							'msg_id' => $msg,
+							'topic_id' => $message['id_topic'],
+							'board_id' => $message['id_board'],
+							'sender_id' => User::$me->id,
+							'sender_name' => User::$me->name,
+							'time' => time(),
+							'comment_id' => $id_comment,
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);
@@ -575,13 +580,32 @@ class ReportToMod implements ActionInterface
 				'',
 				'{db_prefix}log_reported',
 				[
-					'id_msg' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'id_member' => 'int', 'membername' => 'string',
-					'subject' => 'string', 'body' => 'string', 'time_started' => 'int', 'time_updated' => 'int',
-					'num_reports' => 'int', 'closed' => 'int',
+					'id_msg' => 'int',
+					'id_topic' => 'int',
+					'id_board' => 'int',
+					'id_member' => 'int',
+					'membername' => 'string',
+					'subject' => 'string',
+					'body' => 'string',
+					'time_started' => 'int',
+					'time_updated' => 'int',
+					'num_reports' => 'int',
+					'closed' => 'int',
 				],
 				[
-					0, 0, 0, $user['id_member'], $user_name,
-					'', '', time(), time(), 1, 0,
+					[
+						0,
+						0,
+						0,
+						$user['id_member'],
+						$user_name,
+						'',
+						'',
+						time(),
+						time(),
+						1,
+						0,
+					],
 				],
 				['id_report'],
 				1,
@@ -594,12 +618,22 @@ class ReportToMod implements ActionInterface
 				'',
 				'{db_prefix}log_reported_comments',
 				[
-					'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string',
-					'member_ip' => 'inet', 'comment' => 'string', 'time_sent' => 'int',
+					'id_report' => 'int',
+					'id_member' => 'int',
+					'membername' => 'string',
+					'member_ip' => 'inet',
+					'comment' => 'string',
+					'time_sent' => 'int',
 				],
 				[
-					$id_report, User::$me->id, User::$me->name,
-					User::$me->ip, Utils::htmlspecialchars($this->comment), time(),
+					[
+						$id_report,
+						User::$me->id,
+						User::$me->name,
+						User::$me->ip,
+						Utils::htmlspecialchars($this->comment),
+						time(),
+					],
 				],
 				['id_comment'],
 			);
@@ -614,17 +648,19 @@ class ReportToMod implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\MemberReport_Notify',
-					Utils::jsonEncode([
-						'report_id' => $id_report,
-						'user_id' => $user['id_member'],
-						'user_name' => $user_name,
-						'sender_id' => User::$me->id,
-						'sender_name' => User::$me->name,
-						'comment' => Utils::htmlspecialchars($this->comment),
-						'time' => time(),
-					]),
-					0,
+					[
+						'SMF\\Tasks\\MemberReport_Notify',
+						Utils::jsonEncode([
+							'report_id' => $id_report,
+							'user_id' => $user['id_member'],
+							'user_name' => $user_name,
+							'sender_id' => User::$me->id,
+							'sender_name' => User::$me->name,
+							'comment' => Utils::htmlspecialchars($this->comment),
+							'time' => time(),
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);

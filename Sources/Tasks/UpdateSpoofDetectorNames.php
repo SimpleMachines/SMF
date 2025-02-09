@@ -131,9 +131,11 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 				'claimed_time' => 'int',
 			],
 			[
-				get_class($this),
-				json_encode($this->_details),
-				0,
+				[
+					get_class($this),
+					json_encode($this->_details),
+					0,
+				],
 			],
 			[],
 		);

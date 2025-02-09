@@ -524,18 +524,6 @@ class Cookie
 
 		list(self::$default_domain, self::$default_path) = self::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 	}
-
-	/**
-	 * Backward compatibility wrapper for the set() method.
-	 */
-	public static function setcookie(string $name, string $value = '', int $expires = 0, string $path = '', string $domain = '', ?bool $secure = null, bool $httponly = true, ?string $samesite = null): void
-	{
-		$data = Utils::jsonDecode($value);
-
-		$cookie = new self($name, $data, $expires, $domain, $path, $secure, $httponly, $samesite);
-
-		$cookie->set();
-	}
 }
 
 ?>

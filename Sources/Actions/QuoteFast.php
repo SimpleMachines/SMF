@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\IntegrationHook;
@@ -23,6 +24,7 @@ use SMF\Lang;
 use SMF\Msg;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -36,8 +38,9 @@ use SMF\Utils;
  *   internationalization reasons.
  * - accessed with ?action=quotefast.
  */
-class QuoteFast implements ActionInterface
+class QuoteFast implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
