@@ -107,12 +107,12 @@ class Post2 extends Post
 
 	public function isSimpleAction(): bool
 	{
-		return isset($_REQUEST['preview']);
+		return isset($_REQUEST['xml']);
 	}
 
 	public function getOutputType(): OutputTypeInterface
 	{
-		return isset($_REQUEST['preview']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
 	}
 
 	/**
