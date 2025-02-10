@@ -556,7 +556,7 @@ class Board implements \ArrayAccess, Routable
 				'',
 				'{db_prefix}boards',
 				$columns,
-				$params,
+				[$params],
 				['id_board'],
 				1,
 			);

@@ -464,7 +464,7 @@ class Group implements \ArrayAccess
 				'',
 				'{db_prefix}membergroups',
 				$columns,
-				$params,
+				[$params],
 				['id_group'],
 				1,
 			);

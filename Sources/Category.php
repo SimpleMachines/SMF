@@ -495,7 +495,7 @@ class Category implements \ArrayAccess
 			'',
 			'{db_prefix}categories',
 			$cat_columns,
-			$cat_parameters,
+			[$cat_parameters],
 			['id_cat'],
 			1,
 		);

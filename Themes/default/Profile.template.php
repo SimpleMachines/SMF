@@ -347,56 +347,7 @@ function template_summary()
 	}
 
 	echo '
-			<dl class="settings noborder">';
-
-	// Can they view/issue a warning?
-	if (Utils::$context['can_view_warning'] && Utils::$context['member']['warning'])
-	{
-		echo '
-				<dt>', Lang::$txt['profile_warning_level'], '</dt>
-				<dd>
-					<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=', (Utils::$context['can_issue_warning'] && !User::$me->is_owner ? 'issuewarning' : 'viewwarning'), '">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), '</a>';
-
-		// Can we provide information on what this means?
-		if (!empty(Utils::$context['warning_status']))
-			echo '
-					<span class="smalltext">(', Utils::$context['warning_status'], ')</span>';
-
-		echo '
-				</dd>';
-	}
-
-	// Is this member requiring activation and/or banned?
-	if (!empty(Utils::$context['activate_message']) || !empty(Utils::$context['member']['bans']))
-	{
-		// If the person looking at the summary has permission, and the account isn't activated, give the viewer the ability to do it themselves.
-		if (!empty(Utils::$context['activate_message']))
-			echo '
-				<dt class="clear">
-					<span class="alert">', Utils::$context['activate_message'], '</span> (<a href="', Utils::$context['activate_link'], '">', Utils::$context['activate_link_text'], '</a>)
-				</dt>';
-
-		// If the current member is banned, show a message and possibly a link to the ban.
-		if (!empty(Utils::$context['member']['bans']))
-		{
-			echo '
-				<dt class="clear">
-					<span class="alert">', Lang::$txt['user_is_banned'], '</span>&nbsp;<a href="#" onclick="document.getElementById(\'ban_info\').classList.toggle(\'hidden\');return false;">' . Lang::$txt['view_ban'] . '</a>
-				</dt>
-				<dt class="clear hidden" id="ban_info">
-					<strong>', Lang::$txt['user_banned_by_following'], '</strong>';
-
-			foreach (Utils::$context['member']['bans'] as $ban)
-				echo '
-					<br>
-					<span class="smalltext">', $ban['explanation'], '</span>';
-
-			echo '
-				</dt>';
-		}
-	}
-
-	echo '
+			<dl class="settings">
 				<dt>', Lang::$txt['date_registered'], '</dt>
 				<dd>', Utils::$context['member']['registered'], '</dd>';
 
@@ -471,6 +422,84 @@ function template_summary()
 				<ul class="nolist">', $fields, '
 				</ul>
 			</div>';
+	}
+
+	if (
+		(Utils::$context['can_view_warning'] && Utils::$context['member']['warning'])
+		|| !empty(Utils::$context['activate_message'])
+		|| !empty(Utils::$context['member']['bans'])
+	) {
+		echo '
+			<dl class="settings">';
+
+		// Can they view/issue a warning?
+		if (Utils::$context['can_view_warning'] && Utils::$context['member']['warning'])
+		{
+			echo '
+					<dt>', Lang::$txt['profile_warning_level'], '</dt>
+					<dd>
+						<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=', (Utils::$context['can_issue_warning'] && !User::$me->is_owner ? 'issuewarning' : 'viewwarning'), '">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), '</a>';
+
+			// Can we provide information on what this means?
+			if (!empty(Utils::$context['warning_status']))
+				echo '
+						<span class="smalltext">(', Utils::$context['warning_status'], ')</span>';
+
+			echo '
+					</dd>';
+		}
+
+		// Is this member requiring activation and/or banned?
+		if (!empty(Utils::$context['activate_message']) || !empty(Utils::$context['member']['bans']))
+		{
+			// If the person looking at the summary has permission, and the account isn't activated, give the viewer the ability to do it themselves.
+			if (!empty(Utils::$context['activate_message']))
+				echo '
+					<dt>
+						<span class="alert">', Utils::$context['activate_message'], '</span>
+					</dt>
+					<dd>
+						<a href="', Utils::$context['activate_link'], '" class="button">', Utils::$context['activate_link_text'], '</a>
+					</dd>';
+
+				if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+					echo '
+					<dt></dt>
+					<dd>
+						' . Lang::$txt['deleteAccount_anonymize_forced'] . '
+					</dd>';
+				} elseif (Utils::$context['activate_type'] % User::BANNED == User::REQUESTED_DELETE) {
+					echo '
+					<dt>
+						<label>' . Lang::$txt['deleteAccount_anonymize'] . '</label>
+					</dt>
+					<dd>
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"', !empty(Config::$modSettings['always_anonymize_deleted_accounts']) ? ' checked disabled' : '', '>
+					</dd>';
+				}
+
+			// If the current member is banned, show a message and possibly a link to the ban.
+			if (!empty(Utils::$context['member']['bans']))
+			{
+				echo '
+					<dt class="clear">
+						<span class="alert">', Lang::$txt['user_is_banned'], '</span>&nbsp;<a href="#" onclick="document.getElementById(\'ban_info\').classList.toggle(\'hidden\');return false;">' . Lang::$txt['view_ban'] . '</a>
+					</dt>
+					<dt class="clear hidden" id="ban_info">
+						<strong>', Lang::$txt['user_banned_by_following'], '</strong>';
+
+				foreach (Utils::$context['member']['bans'] as $ban)
+					echo '
+						<br>
+						<span class="smalltext">', $ban['explanation'], '</span>';
+
+				echo '
+					</dt>';
+			}
+		}
+
+		echo '
+			</dl>';
 	}
 
 	echo '
@@ -2560,42 +2589,59 @@ function template_deleteAccount()
 	// If they are deleting their account AND the admin needs to approve it - give them another piece of info ;)
 	if (Utils::$context['needs_approval'])
 		echo '
-				<div class="errorbox">', Lang::$txt['deleteAccount_approval'], '</div>';
+				<div class="noticebox">', Lang::$txt['deleteAccount_approval'], '</div>';
 
 	// If the user is deleting their own account warn them first - and require a password!
 	if (User::$me->is_owner)
 	{
 		echo '
-				<div class="alert">', Lang::$txt['own_profile_confirm'], '</div>
-				<div>
+				<div class="errorbox">', Lang::$txt['own_profile_confirm'], '</div>
+				<fieldset>';
+
+		if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+			echo '
+					' . Lang::$txt['deleteAccount_anonymize_forced'];
+		} else {
+			echo '
+					<label for="anonymize">
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ', Lang::$txt['deleteAccount_anonymize'], '
+					</label>';
+		}
+
+		echo '
+				</fieldset>
+				<fieldset>
+					<legend>', Lang::$txt['required_security_reasons'], '</legend>
 					<strong', (isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : ''), '>', Lang::$txt['current_password'], '</strong>
 					<input type="password" name="oldpasswrd" size="20">
-					<input type="submit" value="', Lang::$txt['yes'], '" class="button">';
+				</fieldset>
+				<input type="submit" value="', Lang::$txt['delete'], '" class="button floatright">';
 
 		if (!empty(Utils::$context['token_check']))
 			echo '
-					<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
+				<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
 
 		echo '
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="u" value="', Utils::$context['id_member'], '">
-					<input type="hidden" name="sa" value="', Utils::$context['menu_item_selected'], '">
-				</div>';
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+				<input type="hidden" name="u" value="', Utils::$context['id_member'], '">
+				<input type="hidden" name="sa" value="', Utils::$context['menu_item_selected'], '">';
 	}
 	// Otherwise an admin doesn't need to enter a password - but they still get a warning - plus the option to delete lovely posts!
 	else
 	{
 		echo '
-				<div class="alert">', Lang::$txt['deleteAccount_warning'], '</div>';
+				<div class="errorbox">', Lang::$txt['deleteAccount_warning'], '</div>';
 
 		// Only actually give these options if they are kind of important.
 		if (Utils::$context['can_delete_posts'])
 		{
 			echo '
-				<div>
+				<fieldset>
 					<label for="deleteVotes">
 						<input type="checkbox" name="deleteVotes" id="deleteVotes" value="1"> ', Lang::$txt['deleteAccount_votes'], '
-					</label><br>
+					</label>
+				</fieldset>
+				<fieldset>
 					<label for="deletePosts">
 						<input type="checkbox" name="deletePosts" id="deletePosts" value="1"> ', Lang::$txt['deleteAccount_posts'], '
 					</label>
@@ -2607,18 +2653,33 @@ function template_deleteAccount()
 			if (Utils::$context['show_perma_delete'])
 				echo '
 					<br>
-					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1">', Lang::$txt['deleteAccount_permanent'], '</label>';
+					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1"> ', Lang::$txt['deleteAccount_permanent'], '</label>';
 
 			echo '
-				</div>';
+				</fieldset>';
 		}
 
 		echo '
+				<fieldset>
+					<label for="deleteAccount">
+						<input type="checkbox" name="deleteAccount" id="deleteAccount" value="1" onclick="if (this.checked) return confirm(\'', Lang::$txt['deleteAccount_confirm'], '\');"> ', Lang::$txt['deleteAccount_member'], '
+					</label>
+					<br>';
+
+		if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+			echo '
+					' . Lang::$txt['deleteAccount_anonymize_forced'];
+		} else {
+			echo '
+					<label for="anonymize">
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ', Lang::$txt['deleteAccount_anonymize'], '
+					</label>';
+		}
+
+		echo '
+				</fieldset>
 				<div>
-					<label for="deleteAccount"><input type="checkbox" name="deleteAccount" id="deleteAccount" value="1" onclick="if (this.checked) return confirm(\'', Lang::$txt['deleteAccount_confirm'], '\');"> ', Lang::$txt['deleteAccount_member'], '</label>
-				</div>
-				<div>
-					<input type="submit" value="', Lang::$txt['delete'], '" class="button">';
+					<input type="submit" value="', Lang::$txt['delete'], '" class="button floatright">';
 
 		if (!empty(Utils::$context['token_check']))
 			echo '

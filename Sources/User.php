@@ -106,12 +106,14 @@ class User implements \ArrayAccess
 	public const UNAPPROVED = 3;
 	public const REQUESTED_DELETE = 4;
 	public const NEED_COPPA = 5;
+	public const REQUESTED_DELETE_ANONYMIZE = 6;
 	public const BANNED = 10;
 	public const ACTIVATED_BANNED = 11;
 	public const UNVALIDATED_BANNED = 12;
 	public const UNAPPROVED_BANNED = 13;
 	public const REQUESTED_DELETE_BANNED = 14;
 	public const NEED_COPPA_BANNED = 15;
+	public const REQUESTED_DELETE_ANONYMIZE_BANNED = 16;
 
 	/*******************
 	 * Public properties
@@ -3185,10 +3187,15 @@ class User implements \ArrayAccess
 	 *     ban entries, theme settings, moderator positions, poll and votes.
 	 *   - updates member statistics afterwards.
 	 *
-	 * @param int|array $users The ID of a user or an array of user IDs
-	 * @param bool $check_not_admin Whether to verify that the users aren't admins
+	 * @param int|array $users The ID of a user or an array of user IDs.
+	 * @param bool $check_not_admin Whether to verify the users aren't admins.
+	 *    Default: false.
+	 * @param bool $anonymize If true, force anonymization of all deleted users.
+	 *    If false, deleted users will be anonymized only if they requested it
+	 *    or Config::$modSettings['always_anonymize_deleted_accounts'] is true.
+	 *    Default: false.
 	 */
-	public static function delete(int|array $users, bool $check_not_admin = false): void
+	public static function delete(int|array $users, bool $check_not_admin = false, bool $anonymize = false): void
 	{
 		// Try give us a while to sort this out...
 		Sapi::setTimeLimit();
@@ -3200,7 +3207,7 @@ class User implements \ArrayAccess
 		$users = array_unique((array) $users);
 
 		// Make sure there's no void user in here.
-		$users = array_diff($users, [0]);
+		$users = array_filter(array_map('intval', $users), fn($user) => $user > 0);
 
 		// How many are they deleting?
 		if (empty($users)) {
@@ -3230,7 +3237,9 @@ class User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'SELECT id_member, member_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
+			'SELECT
+				id_member, member_name, is_activated,
+				CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:user_list})
 			LIMIT {int:limit}',
@@ -3246,7 +3255,7 @@ class User implements \ArrayAccess
 				$admins[] = $row['id_member'];
 			}
 
-			$user_log_details[$row['id_member']] = [$row['id_member'], $row['member_name']];
+			$user_log_details[$row['id_member']] = $row;
 		}
 		Db::$db->free_result($request);
 
@@ -3276,15 +3285,29 @@ class User implements \ArrayAccess
 				'action' => 'delete_member',
 				'log_type' => 'admin',
 				'extra' => [
-					'member' => $user[0],
-					'name' => $user[1],
+					'member' => $user['id_member'],
+					'name' => $user['member_name'],
 					'member_acted' => self::$me->name,
 				],
 			];
 
 			// Remove any cached data if enabled.
 			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2) {
-				CacheApi::put('user_settings-' . $user[0], null, 60);
+				CacheApi::put('user_settings-' . $user['id_member'], null, 60);
+			}
+		}
+
+		// Anonymize?
+		foreach ($user_log_details as $user) {
+			if (
+				// Anonymize all users if we were told to do that.
+				$anonymize
+				// Anonymize all users if the global setting to do so is enabled.
+				|| !empty(Config::$modSettings['always_anonymize_deleted_accounts'])
+				// Otherwise, only anonymize users who requested it.
+				|| $user['is_activated'] % User::BANNED === User::REQUESTED_DELETE_ANONYMIZE
+			) {
+				self::anonymize((int) $user['id_member']);
 			}
 		}
 
@@ -3292,12 +3315,10 @@ class User implements \ArrayAccess
 		Db::$db->query(
 			'',
 			'UPDATE {db_prefix}messages
-			SET id_member = {int:guest_id}' . (!empty(Config::$modSettings['deleteMembersRemovesEmail']) ? ',
-				poster_email = {string:blank_email}' : '') . '
+			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
 			[
 				'guest_id' => 0,
-				'blank_email' => '',
 				'users' => $users,
 			],
 		);
@@ -5410,6 +5431,175 @@ class User implements \ArrayAccess
 		}
 
 		return 'https://secure.gravatar.com/avatar/' . md5(Utils::strtolower($email_address)) . '?' . implode('&', $url_params);
+	}
+
+	/**
+	 * Anonymizes the specified member's personally identifying information.
+	 *
+	 * @param int $member The ID of the member to anonymize.
+	 */
+	protected static function anonymize(int $member): void
+	{
+		$anonymous_name = Utils::strtolower(Lang::$txt['user']) . '_' . substr(Uuid::create(5, 'member=' . $member)->getShortForm(true), 0, 8);
+
+		$anonymous_email = Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid';
+
+		// Anonymize the member's posts.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
+			SET poster_name = {string:anonymous_name},
+				poster_email = {string:anonymous_email},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'anonymous_email' => Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid',
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their name in the modified_name field of posts.
+		Db::$db->update_from(
+			table: [
+				'name' => '{db_prefix}messages',
+				'alias' => 'm',
+			],
+			from_tables: [
+				[
+					'name' => '{db_prefix}members',
+					'alias' => 'mem',
+					'condition' => 'm.modified_name = mem.real_name',
+				],
+			],
+			set: 'm.modified_name = {string:anonymous_name}',
+			where: 'mem.id_member = {int:member}',
+			db_values: [
+				'anonymous_name' => $anonymous_name,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their name in mentions within posts.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
+			SET body = REGEXP_REPLACE(body, {string:regex}, {string:anonymous_name})
+			WHERE id_msg IN (
+				SELECT DISTINCT content_id
+				FROM {db_prefix}mentions
+				WHERE content_type = {string:msg}
+					AND id_mentioned = {int:member}
+			)',
+			[
+				'regex' => '\\[member=' . $member . '\\][^\\[]+\\[/member\\]',
+				'anonymous_name' => $anonymous_name,
+				'member' => $member,
+				'msg' => 'msg',
+			],
+		);
+
+		// Anonymize their log comments, whether sent or received.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_comments
+			SET member_name = {string:anonymous_name},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_comments
+			SET recipient_name = {string:anonymous_name},
+				id_recipient = {int:guest_id}
+			WHERE id_recipient = {int:member}
+				AND comment_type != {string:warntpl}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+				'warntpl' => 'warntpl',
+			],
+		);
+
+		// Anonymize their logged group request actions.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_group_requests
+			SET member_name_acted = {string:anonymous_name},
+				id_member_acted = {int:guest_id}
+			WHERE id_member_acted = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their logged package actions.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_packages
+			SET member_installed = {string:anonymous_name},
+				id_member_installed = {int:guest_id}
+			WHERE id_member_installed = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_packages
+			SET member_removed = {string:anonymous_name},
+				id_member_removed = {int:guest_id}
+			WHERE id_member_removed = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize reports about them.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_reported
+			SET membername = {string:anonymous_name},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their comments on reports.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_reported_comments
+			SET membername = {string:anonymous_name},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Do any mods want to anonymize some custom content?
+		IntegrationHook::call('integrate_anonymize', [$member]);
 	}
 }
 

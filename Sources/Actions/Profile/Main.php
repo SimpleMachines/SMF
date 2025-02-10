@@ -509,8 +509,7 @@ class Main implements ActionInterface, Routable
 					],
 				],
 				'activateaccount' => [
-					'file' => 'Profile-Actions.php',
-					'function' => 'activateAccount',
+					'function' => __NAMESPACE__ . '\\Activate::call',
 					'icon' => 'regcenter',
 					'sc' => 'get',
 					'token' => 'profile-aa%u',

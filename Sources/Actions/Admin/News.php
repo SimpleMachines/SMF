@@ -951,7 +951,7 @@ class News implements ActionInterface
 				$cleanMemberName = empty($_POST['send_html']) || Utils::$context['send_pm'] ? Utils::htmlspecialcharsDecode($row['real_name']) : $row['real_name'];
 
 				if (!empty($include_unsubscribe)) {
-					$token = Notify::createUnsubscribeToken($row['id_member'], $row['email_address'], 'announcements');
+					$token = Notify::createUnsubscribeToken((int) $row['id_member'], $row['email_address'], 'announcements');
 
 					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token]);
 				} else {

@@ -727,7 +727,7 @@ class Login2 implements ActionInterface, Routable
 			ErrorHandler::fatalLang('still_awaiting_approval', 'user');
 		}
 		// Awaiting deletion, changed their mind?
-		elseif ($activation_status == User::REQUESTED_DELETE) {
+		elseif (in_array($activation_status, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 			if (isset($_REQUEST['undelete'])) {
 				User::updateMemberData(User::$profiles[User::$my_id]['id_member'], ['is_activated' => User::$profiles[User::$my_id]['is_activated'] >= User::BANNED ? User::ACTIVATED_BANNED : User::ACTIVATED]);
 

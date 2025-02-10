@@ -1393,7 +1393,7 @@ class Attachment implements \ArrayAccess
 			'',
 			'{db_prefix}attachments',
 			$attachmentColumns,
-			$attachmentValues,
+			[$attachmentValues],
 			['id_attach'],
 			1,
 		);

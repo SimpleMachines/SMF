@@ -1303,7 +1303,7 @@ class Msg implements \ArrayAccess, Routable
 			'',
 			'{db_prefix}messages',
 			$message_columns,
-			$message_parameters,
+			[$message_parameters],
 			['id_msg'],
 			1,
 		);
@@ -1352,7 +1352,7 @@ class Msg implements \ArrayAccess, Routable
 				'',
 				'{db_prefix}topics',
 				$topic_columns,
-				$topic_parameters,
+				[$topic_parameters],
 				['id_topic'],
 				1,
 			);

@@ -127,6 +127,7 @@ class Members implements ActionInterface
 		'browse' => ['browse', 'moderate_forum'],
 		'search' => ['search', 'moderate_forum'],
 		'query' => ['view', 'moderate_forum'],
+		'settings' => ['settings', 'admin_forum'],
 	];
 
 	/****************
@@ -168,7 +169,7 @@ class Members implements ActionInterface
 
 			if (!empty($delete)) {
 				// Delete all the selected members.
-				User::delete($delete, true);
+				User::delete($delete, true, !empty($_POST['anonymize']));
 			}
 		}
 
@@ -619,6 +620,16 @@ class Members implements ActionInterface
 			],
 		];
 
+		if (empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+			array_unshift(
+				$listOptions['additional_rows'],
+				[
+					'position' => 'below_table_data',
+					'value' => '<label class="floatright">' . Lang::$txt['admin_delete_anonymize'] . ' <input type="checkbox" name="anonymize" id="anonymize" value="1"></label>',
+				],
+			);
+		}
+
 		// Without enough permissions, don't show 'delete members' checkboxes.
 		if (!User::$me->allowedTo('profile_remove_any')) {
 			unset($listOptions['cols']['check'], $listOptions['form'], $listOptions['additional_rows']);
@@ -676,7 +687,7 @@ class Members implements ActionInterface
 		}
 
 		// Allowed filters are those we can have, in theory.
-		$allowed_filters = $browse_type == 'approve' ? [User::UNAPPROVED, User::REQUESTED_DELETE, User::NEED_COPPA] : [User::NOT_ACTIVATED, User::UNVALIDATED];
+		$allowed_filters = $browse_type == 'approve' ? [User::UNAPPROVED, User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE, User::NEED_COPPA] : [User::NOT_ACTIVATED, User::UNVALIDATED];
 
 		$this->current_filter = isset($_REQUEST['filter']) && in_array($_REQUEST['filter'], $allowed_filters) && !empty($this->activation_numbers[$_REQUEST['filter']]) ? (int) $_REQUEST['filter'] : -1;
 
@@ -722,7 +733,7 @@ class Members implements ActionInterface
 		// Determine which actions we should allow on this page.
 		if ($browse_type == 'approve') {
 			// If we are approving deleted accounts we have a slightly different list... actually a mirror ;)
-			if ($this->current_filter == 4) {
+			if (in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 				$allowed_actions = [
 					'reject' => Lang::$txt['admin_browse_w_approve_deletion'],
 					'ok' => Lang::$txt['admin_browse_w_reject'],
@@ -766,7 +777,7 @@ class Members implements ActionInterface
 				var message = "";';
 
 		// We have special messages for approving deletion of accounts - it's surprisingly logical - honest.
-		if ($this->current_filter == User::REQUESTED_DELETE) {
+		if (in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 			$javascript .= '
 				if (document.forms.postForm.todo.value.indexOf("reject") != -1)
 					message = "' . Lang::$txt['admin_browse_w_delete'] . '";
@@ -891,16 +902,16 @@ class Members implements ActionInterface
 				],
 				'date_registered' => [
 					'header' => [
-						'value' => $this->current_filter == User::REQUESTED_DELETE ? Lang::$txt['viewmembers_online'] : Lang::$txt['date_registered'],
+						'value' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? Lang::$txt['viewmembers_online'] : Lang::$txt['date_registered'],
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return Time::create('@' . $rowData[$this->current_filter == User::REQUESTED_DELETE ? 'last_login' : 'date_registered'])->format();
+							return Time::create('@' . $rowData[in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'last_login' : 'date_registered'])->format();
 						},
 					],
 					'sort' => [
-						'default' => $this->current_filter == User::REQUESTED_DELETE ? 'mem.last_login DESC' : 'date_registered DESC',
-						'reverse' => $this->current_filter == User::REQUESTED_DELETE ? 'mem.last_login' : 'date_registered',
+						'default' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'mem.last_login DESC' : 'date_registered DESC',
+						'reverse' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'mem.last_login' : 'date_registered',
 					],
 				],
 				'duplicates' => [
@@ -966,6 +977,16 @@ class Members implements ActionInterface
 				],
 			],
 		];
+
+		if ($this->current_filter == User::REQUESTED_DELETE && empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+			array_unshift(
+				$listOptions['additional_rows'],
+				[
+					'position' => 'below_table_data',
+					'value' => '<label class="floatright">' . Lang::$txt['admin_delete_anonymize'] . ' <input type="checkbox" name="anonymize" id="anonymize" value="1"></label>',
+				],
+			);
+		}
 
 		// Pick what column to actually include if we're showing duplicates.
 		if ($show_duplicates) {
@@ -1179,7 +1200,7 @@ class Members implements ActionInterface
 		}
 		// Are we rejecting them?
 		elseif ($_POST['todo'] == 'reject' || $_POST['todo'] == 'rejectemail') {
-			User::delete($members);
+			User::delete($members, false, !empty($_POST['anonymize']));
 
 			// Send email telling them they aren't welcome?
 			if ($_POST['todo'] == 'rejectemail') {
@@ -1196,7 +1217,7 @@ class Members implements ActionInterface
 		}
 		// A simple delete?
 		elseif ($_POST['todo'] == 'delete' || $_POST['todo'] == 'deleteemail') {
-			User::delete($members);
+			User::delete($members, false, !empty($_POST['anonymize']));
 
 			// Send email telling them they aren't welcome?
 			if ($_POST['todo'] == 'deleteemail') {
@@ -1252,9 +1273,55 @@ class Members implements ActionInterface
 		Utils::redirectexit('action=admin;area=viewmembers;sa=browse;type=' . $_REQUEST['type'] . ';sort=' . $_REQUEST['sort'] . ';filter=' . $current_filter . ';start=' . $_REQUEST['start']);
 	}
 
+	/**
+	 * Handles settings dealing with membership.
+	 *
+	 * Accessed by ?action=admin;area=viewmembers;sa=settings.
+	 * Requires the admin_forum permission.
+	 */
+	public function settings(): void
+	{
+		$config_vars = self::getConfigVars();
+
+		// Setup the template
+		Utils::$context['sub_template'] = 'show_settings';
+		Utils::$context['page_title'] = Lang::$txt['admin_members'];
+
+		if (isset($_GET['save'])) {
+			User::$me->checkSession();
+
+			IntegrationHook::call('integrate_save_members_settings');
+
+			ACP::saveDBSettings($config_vars);
+			$_SESSION['adm-save'] = true;
+			Utils::redirectexit('action=admin;area=viewmembers;sa=settings');
+		}
+
+		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=viewmembers;save;sa=settings';
+		Utils::$context['settings_title'] = Lang::$txt['settings'];
+
+		ACP::prepareDBSettingContext($config_vars);
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
+
+	/**
+	 * Gets the configuration variables for this admin area.
+	 *
+	 * @return array $config_vars for the member settings area.
+	 */
+	public static function getConfigVars(): array
+	{
+		$config_vars = [
+			['check', 'always_anonymize_deleted_accounts', 'subtext' => Lang::$txt['always_anonymize_deleted_accounts_desc']],
+		];
+
+		IntegrationHook::call('integrate_modify_members_settings', [&$config_vars]);
+
+		return $config_vars;
+	}
 
 	/**
 	 * Callback for SMF\ItemList().
@@ -1377,7 +1444,6 @@ class Members implements ActionInterface
 				'selected_actions' => ['search', 'query'],
 			],
 		];
-		Utils::$context['last_tab'] = 'search';
 
 		// Do we have approvals
 		if ($this->show_approve) {
@@ -1386,7 +1452,6 @@ class Members implements ActionInterface
 				'description' => Lang::$txt['admin_browse_approve_desc'],
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
 			];
-			Utils::$context['last_tab'] = 'approve';
 		}
 
 		// Do we have activations to show?
@@ -1396,8 +1461,14 @@ class Members implements ActionInterface
 				'description' => Lang::$txt['admin_browse_activate_desc'],
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
 			];
-			Utils::$context['last_tab'] = 'activate';
 		}
+
+		// Miscellaneous settings related to membership.
+		Utils::$context['tabs']['settings'] = [
+			'label' => Lang::$txt['settings'],
+			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=settings',
+		];
+		Utils::$context['last_tab'] = 'settings';
 
 		// Call our hook now, letting customizations add to the subActions and/or modify Utils::$context as needed.
 		IntegrationHook::call('integrate_manage_members', [&self::$subactions]);
@@ -1453,7 +1524,7 @@ class Members implements ActionInterface
 		foreach ($this->activation_numbers as $activation_type => $total_members) {
 			if (in_array($activation_type, [User::NOT_ACTIVATED, User::UNVALIDATED])) {
 				$this->awaiting_activation += $total_members;
-			} elseif (in_array($activation_type, [User::UNAPPROVED, User::REQUESTED_DELETE, User::NEED_COPPA])) {
+			} elseif (in_array($activation_type, [User::UNAPPROVED, User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE, User::NEED_COPPA])) {
 				$this->awaiting_approval += $total_members;
 			}
 		}

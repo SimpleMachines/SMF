@@ -1495,7 +1495,7 @@ class Maintenance implements ActionInterface
 			}
 			Db::$db->free_result($request);
 
-			User::delete($members);
+			User::delete($members, false, !empty($_POST['anonymize']));
 		}
 
 		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_members'];

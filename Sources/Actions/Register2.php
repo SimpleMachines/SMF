@@ -734,7 +734,7 @@ class Register2 extends Register
 			'',
 			'{db_prefix}members',
 			$column_names,
-			$values,
+			[$values],
 			['id_member'],
 			1,
 		);

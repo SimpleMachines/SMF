@@ -274,7 +274,7 @@ class Logging
 						FROM {db_prefix}members
 						WHERE is_activated IN ({array_int:activation_status})',
 						[
-							'activation_status' => [User::UNAPPROVED, User::REQUESTED_DELETE, User::NEED_COPPA],
+							'activation_status' => [User::UNAPPROVED, User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE, User::NEED_COPPA],
 						],
 					);
 

@@ -128,6 +128,7 @@ $txt['admin_browse_filter_type_2'] = 'Unactivated email changes';
 $txt['admin_browse_filter_type_3'] = 'Unapproved new accounts';
 $txt['admin_browse_filter_type_4'] = 'Unapproved account deletions';
 $txt['admin_browse_filter_type_5'] = 'Unapproved underage accounts';
+$txt['admin_browse_filter_type_6'] = 'Unapproved account deletions with anonymization';
 
 $txt['admin_browse_outstanding'] = 'Outstanding Members';
 $txt['admin_browse_outstanding_days'] = 'With all members who registered longer than {input} {number, plural,
