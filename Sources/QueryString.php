@@ -873,7 +873,13 @@ class QueryString
 			$aliases = explode(',', Config::$modSettings['forum_alias_urls']);
 
 			foreach ($aliases as $alias) {
-				$alias = Sapi::httpsOn() ? strtr($alias, 'http://', 'https://') : strtr($alias, 'https://', 'http://');
+				$alias = trim($alias);
+
+				if (!preg_match('~^[A-Za-z][0-9A-Za-z+\-.]*://~', $alias)) {
+					$alias = (Sapi::httpsOn() ? 'https://' : 'http://') . ltrim($alias, ':/');
+				}
+
+				$alias = Sapi::httpsOn() ? strtr($alias, ['http://' => 'https://']) : strtr($alias, ['https://' => 'http://']);
 
 				if (str_starts_with($_SERVER['REQUEST_URL'], $alias)) {
 					$new_url = $alias;
