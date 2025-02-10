@@ -3770,18 +3770,12 @@ function ConvertUtf8(): bool
 
 				if ($column['charset'] !== ($charset_maps[$lang_charset] ?? null)) {
 					// First, convert the column to binary.
-					Db::$db->query(
-						'',
-						'ALTER TABLE {identifier:table}
-						MODIFY {identifier:column} {raw:type}{raw:size} {raw:not_null} {raw:default}',
+					Db::$db->change_column(
+						$table,
+						$column['name'],
 						[
-							'table' => $table,
-							'column' => $column['name'],
 							'type' => strtr($column['type'], ['text' => 'blob', 'char' => 'binary']),
-							'size' => !empty($column['size']) ? '(' . $column['size'] . ')' : '',
-							'not_null' => $column['not_null'] ? 'NOT NULL' : 'NULL',
-							'default' => !isset($column['default']) || str_contains($column['type'], 'text') ? '' : 'DEFAULT=\'' . Db::$db->escape_string($column['default']) . '\'',
-						]
+						],
 					);
 
 					// Which encoding should we be converting from?
@@ -3838,18 +3832,12 @@ function ConvertUtf8(): bool
 
 			// Convert each column from binary back to text.
 			foreach ($structure['columns'] as $c => $column) {
-				Db::$db->query(
-					'',
-					'ALTER TABLE {identifier:table}
-					MODIFY {identifier:column} {raw:type}{raw:size} {raw:not_null} {raw:default}',
+				Db::$db->change_column(
+					$table,
+					$column['name'],
 					[
-						'table' => $table,
-						'column' => $column['name'],
-						'type' => $column['type'],
-						'size' => !empty($column['size']) ? '(' . $column['size'] . ')' : '',
-						'not_null' => $column['not_null'] ? 'NOT NULL' : '',
-						'default' => !isset($column['default']) ? '' : 'DEFAULT=\'' . Db::$db->escape_string($column['default']) . '\'',
-					]
+						'type' =>$column['type'],
+					],
 				);
 			}
 		} else {
