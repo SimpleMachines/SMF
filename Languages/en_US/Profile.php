@@ -220,6 +220,8 @@ $txt['deleteAccount_votes'] = 'Remove poll votes made by this member';
 $txt['deleteAccount_confirm'] = 'Are you completely sure you want to delete this account?';
 $txt['deleteAccount_approval'] = 'Please note that the forum moderators will have to approve this account’s deletion before it will be removed.';
 $txt['deleteAccount_permanent'] = 'Permanently delete topics/posts instead of recycling them?';
+$txt['deleteAccount_anonymize'] = 'Anonymize personally identifying information when account is deleted';
+$txt['deleteAccount_anonymize_forced'] = 'All personally identifying information will be anonymized when account is deleted.';
 
 $txt['profile_of_username'] = 'Profile of {name}';
 $txt['profileInfo'] = 'Profile Info';
@@ -318,6 +320,7 @@ $txt['account_activate_method_2'] = 'Account requires reactivation after email c
 $txt['account_activate_method_3'] = 'Account is not approved';
 $txt['account_activate_method_4'] = 'Account is awaiting approval for deletion';
 $txt['account_activate_method_5'] = 'Account is an &quot;under age&quot; account awaiting approval';
+$txt['account_activate_method_6'] = 'Account is awaiting approval for anonymization and deletion';
 $txt['account_not_activated'] = 'Account is currently not activated';
 $txt['account_activate'] = 'activate';
 $txt['account_approve'] = 'approve';

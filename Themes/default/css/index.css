@@ -2394,7 +2394,7 @@ dl {
 	float: left;
 	margin: 0 0 3px 0;
 }
-#detailedinfo .noborder {
+#detailedinfo dl.settings:last-of-type {
 	border-bottom: 0;
 }
 #detailedinfo dt.clear {

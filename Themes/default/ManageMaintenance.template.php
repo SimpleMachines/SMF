@@ -284,7 +284,7 @@ function template_maintain_members()
 		</div>
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=members;activity=purgeinactive" method="post" accept-charset="', Utils::$context['character_set'], '" id="membersForm">
-				<p>
+				<div class="padding">
 					<a id="membersLink"></a>',
 					Lang::getTxt(
 						'maintain_members_since',
@@ -293,10 +293,24 @@ function template_maintain_members()
 							'input_number' => '<input type="number" name="maxdays" value="30" size="3">',
 						],
 					), '
-				</p>
-				<p>
+				</div>
+				<div class="padding">';
+
+	if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+		echo '
+					' . Lang::$txt['deleteAccount_anonymize_forced'];
+	} else {
+		echo '
+					<label for="anonymize">
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ' . Lang::$txt['deleteAccount_anonymize'] . '
+					</label>';
+	}
+
+	echo '
+				</div>
+				<div class="padding">
 					<a href="#membersLink" onclick="swapMembers();"><img src="', Theme::$current->settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', Lang::$txt['maintain_members_all'], '</a>
-				</p>
+				</div>
 				<div style="display: none;" id="membersPanel">';
 
 	foreach (Utils::$context['membergroups'] as $group)

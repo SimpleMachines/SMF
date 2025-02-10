@@ -77,6 +77,8 @@ $helptxt['view_members'] = '
 		</li>
 	</ul>';
 
+$helptxt['always_anonymize_deleted_accounts'] = 'Anonymization replaces the member’s name and email address with placeholders in post authorship data, moderation and administration logs, etc. It also replaces any mentions of the member’s name in the body text of posts.<br><br>However, anonymization will <strong>not</strong> remove any plain text occurrences of the member’s name in the body text of forum posts, nor will it remove the member’s name in the sender or recipient lines of personal messages that the member has exchanged with others.';
+
 $helptxt['ban_members'] = '<strong>Ban Members</strong><br>
 	SMF provides the ability to &quot;ban&quot; users, which can be a useful course of action against users that have
 	violated the trust of the forum	by spamming or trolling, etc. This allows you to exclude users that are detrimental

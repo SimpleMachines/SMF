@@ -436,6 +436,10 @@ class ACP implements ActionInterface, Routable
 						'search' => [
 							'label' => 'mlist_search',
 						],
+						'settings' => [
+							'label' => 'settings',
+							'permission' => 'admin_forum',
+						],
 					],
 				],
 				'membergroups' => [
