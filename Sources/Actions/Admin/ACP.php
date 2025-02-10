@@ -28,8 +28,6 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
-use SMF\OutputTypeInterface;
-use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\Routable;
 use SMF\SecurityToken;
@@ -721,16 +719,6 @@ class ACP implements ActionInterface, Routable
 	/****************
 	 * Public methods
 	 ****************/
-
-	public function isSimpleAction(): bool
-	{
-		return isset($_REQUEST['preview']);
-	}
-
-	public function getOutputType(): OutputTypeInterface
-	{
-		return isset($_REQUEST['preview']) ? new OutputTypes\Xml() : new OutputTypes\Html();
-	}
 
 	/**
 	 * The main admin handling function.
