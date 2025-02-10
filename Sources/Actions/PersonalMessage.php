@@ -273,12 +273,12 @@ class PersonalMessage implements ActionInterface, Routable
 
 	public function isSimpleAction(): bool
 	{
-		return isset($_GET['sa']) && $_GET['sa'] == 'popup' || isset($_REQUEST['preview']);
+		return isset($_GET['sa']) && $_GET['sa'] == 'popup' || isset($_REQUEST['xml']);
 	}
 
 	public function getOutputType(): OutputTypeInterface
 	{
-		return isset($_REQUEST['preview']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
 	}
 
 	public function isAgreementAction(): bool
