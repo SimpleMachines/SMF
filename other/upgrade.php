@@ -1777,6 +1777,10 @@ function DatabaseChanges()
 	$upcontext['empty_error'] = !empty($_SESSION['empty_error']);
 	$upcontext['reprocess_attachments'] = !empty($_SESSION['reprocess_attachments']);
 
+	if (Config::$db_type == 'mysql') {
+		convertToInnoDb();
+	}
+
 	// All possible files.
 	// Name, < version, insert_on_complete
 	// Last entry in array indicates whether to use sql_mode of STRICT or not.
@@ -1933,10 +1937,6 @@ function DatabaseChanges()
 			WHERE id_event = {int:id_event}',
 			$calendar_update,
 		);
-	}
-
-	if (Config::$db_type == 'mysql') {
-		convertToInnoDb();
 	}
 
 	// So the template knows we're done.
