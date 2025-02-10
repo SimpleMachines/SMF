@@ -477,6 +477,13 @@ class Folder
 
 		$conversation = new Conversation($id);
 
+		// Empty conversation?
+		if (empty($conversation->pms) || empty($conversation->latest)) {
+			PM::$getter = [];
+
+			return [];
+		}
+
 		Utils::$context['current_pm'] = $conversation->latest;
 
 		// The templates need some profile data for the senders.
