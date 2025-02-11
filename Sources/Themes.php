@@ -1425,6 +1425,8 @@ function InstallDir()
 {
 	global $themedir, $themeurl, $context;
 
+	$_REQUEST['theme_dir'] = rtrim($_REQUEST['theme_dir'], '\\/');
+
 	// Cannot use the theme dir as a theme dir.
 	if (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath($themedir))
 		fatal_lang_error('theme_install_invalid_dir', false);
