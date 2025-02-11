@@ -1320,8 +1320,6 @@ function checkLogin()
 					$groups[$k] = (int) $v;
 				}
 
-				$sha_passwd = sha1(strtolower($name) . $_REQUEST['passwrd']);
-
 				// We don't use "-utf8" anymore...
 				$user_language = str_ireplace('-utf8', '', $user_language);
 			} else {
@@ -1348,15 +1346,31 @@ function checkLogin()
 		}
 
 		// Didn't get anywhere?
-		if (!$disable_security && (empty($sha_passwd) || (!empty($password) ? $password : '') != $sha_passwd) && !Security::hashVerifyPassword((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : '')) && empty($upcontext['username_incorrect'])) {
-			// MD5?
-			$md5pass = hash_hmac('md5', $_REQUEST['passwrd'], strtolower($_POST['user']));
-
-			if ($md5pass != $password) {
-				$upcontext['password_failed'] = true;
-				// Disable the hashing this time.
-				$upcontext['disable_login_hashing'] = true;
-			}
+		if (
+			!$disable_security
+			&& empty($upcontext['username_incorrect'])
+			// 3.0 style
+			&& !Security::hashVerifyPassword(
+				$_REQUEST['passwrd'],
+				$password ?? '',
+			)
+			// 2.1 style
+			&& !Security::hashVerifyPassword(
+				Utils::strtolower(!empty($name) ? $name : '') . $_REQUEST['passwrd'],
+				$password ?? '',
+			)
+			// 2.0 style
+			&& (
+				sha1(strtolower($name ?? '') . $_REQUEST['passwrd']) !== ($password ?? '')
+			)
+			// 1.x style
+			&& (
+				hash_hmac('md5', $_REQUEST['passwrd'], strtolower($_POST['user'])) !== ($password ?? '')
+			)
+		) {
+			$upcontext['password_failed'] = true;
+			// Disable the hashing this time.
+			$upcontext['disable_login_hashing'] = true;
 		}
 
 		if ((empty($upcontext['password_failed']) && !empty($name)) || $disable_security) {

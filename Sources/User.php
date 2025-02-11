@@ -2123,7 +2123,7 @@ class User implements \ArrayAccess
 			$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', [$this->username, $_POST[$type . '_pass'], false]), true);
 
 			// Password correct?
-			if ($good_password || Security::hashVerifyPassword($this->username, $_POST[$type . '_pass'], $this->passwd)) {
+			if ($good_password || Security::hashVerifyPassword($_POST[$type . '_pass'], $this->passwd)) {
 				$_SESSION[$type . '_time'] = time();
 
 				unset($_SESSION['request_referer']);

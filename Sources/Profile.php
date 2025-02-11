@@ -613,7 +613,7 @@ class Profile extends User implements \ArrayAccess
 					}
 
 					// Set up the new password variable... ready for storage.
-					$value = Security::hashPassword($this->username, Utils::htmlspecialcharsDecode($value));
+					$value = Security::hashPassword(Utils::htmlspecialcharsDecode($value));
 
 					return true;
 				},
@@ -726,7 +726,7 @@ class Profile extends User implements \ArrayAccess
 				'value' => '',
 				'permission' => 'profile_password',
 				'input_validate' => function (&$value) {
-					$value = $value != '' ? Security::hashPassword($this->username, $value) : '';
+					$value = $value != '' ? Security::hashPassword($value) : '';
 
 					return true;
 				},
@@ -2999,16 +2999,16 @@ class Profile extends User implements \ArrayAccess
 
 		// Generate a random password.
 		$new_password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(random_bytes(18))), 0, 18), 6));
-		$new_password_sha1 = Security::hashPassword($username ?? $this->username, $new_password);
+		$new_password_hashed = Security::hashPassword($new_password);
 
 		// Do some checks on the username if needed.
 		if ($username !== null) {
 			User::validateUsername($this->id, $username);
 
 			// Update the database...
-			User::updateMemberData($this->id, ['member_name' => $username, 'passwd' => $new_password_sha1]);
+			User::updateMemberData($this->id, ['member_name' => $username, 'passwd' => $new_password_hashed]);
 		} else {
-			User::updateMemberData($this->id, ['passwd' => $new_password_sha1]);
+			User::updateMemberData($this->id, ['passwd' => $new_password_hashed]);
 		}
 
 		IntegrationHook::call('integrate_reset_pass', [$this->username, $username, $new_password]);

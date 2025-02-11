@@ -185,7 +185,7 @@ class Register2 extends Register
 		}
 
 		if (isset($_POST['secret_answer']) && $_POST['secret_answer'] != '') {
-			$_POST['secret_answer'] = Security::hashPassword($_POST['user'], $_POST['secret_answer']);
+			$_POST['secret_answer'] = Security::hashPassword($_POST['secret_answer']);
 		}
 
 		// Maybe you want set the displayed name during registration
@@ -613,7 +613,7 @@ class Register2 extends Register
 		$reg_options['register_vars'] = [
 			'member_name' => $reg_options['username'],
 			'email_address' => $reg_options['email'],
-			'passwd' => Security::hashPassword($reg_options['username'], $reg_options['password']),
+			'passwd' => Security::hashPassword($reg_options['password']),
 			'password_salt' => bin2hex(random_bytes(16)),
 			'posts' => 0,
 			'date_registered' => time(),

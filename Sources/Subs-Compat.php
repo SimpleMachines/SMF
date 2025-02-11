@@ -8824,29 +8824,29 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 ********************/
 
 	/**
-	 * Hashes username with password
+	 * Hashes the user's password
 	 *
-	 * @param string $username The username
+	 * @param string $username The username. Ignored since 3.0.
 	 * @param string $password The unhashed password
 	 * @param int $cost The cost
 	 * @return string The hashed password
 	 */
 	function hash_password(string $username, string $password, ?int $cost = null): string
 	{
-		return SMF\Security::hashPassword($username, $password, $cost);
+		return SMF\Security::hashPassword($password, $cost);
 	}
 
 	/**
-	 * Verifies a raw SMF password against the bcrypt'd string
+	 * Verifies a raw SMF password against the encrypted string
 	 *
-	 * @param string $username The username
+	 * @param string $username The username. Ignored since 3.0.
 	 * @param string $password The password
 	 * @param string $hash The hashed string
 	 * @return bool Whether the hashed password matches the string
 	 */
 	function hash_verify_password(string $username, string $password, string $hash): bool
 	{
-		return SMF\Security::hashVerifyPassword($username, $password, $hash);
+		return SMF\Security::hashVerifyPassword($password, $hash);
 	}
 
 	/**

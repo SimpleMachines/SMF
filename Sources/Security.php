@@ -28,33 +28,29 @@ class Security
 	 ***********************/
 
 	/**
-	 * Hashes username with password
+	 * Hashes the user's password
 	 *
-	 * @param string $username The username
 	 * @param string $password The unhashed password
 	 * @param int $cost The cost
 	 * @return string The hashed password
 	 */
-	public static function hashPassword(string $username, string $password, ?int $cost = null): string
+	public static function hashPassword(string $password, ?int $cost = null): string
 	{
 		$cost = empty($cost) ? (empty(Config::$modSettings['bcrypt_hash_cost']) ? 10 : Config::$modSettings['bcrypt_hash_cost']) : $cost;
 
-		return password_hash(Utils::strtolower($username) . $password, PASSWORD_BCRYPT, [
-			'cost' => $cost,
-		]);
+		return password_hash($password, PASSWORD_BCRYPT, ['cost' => $cost]);
 	}
 
 	/**
-	 * Verifies a raw SMF password against the bcrypt'd string
+	 * Verifies a raw SMF password against the encrypted string
 	 *
-	 * @param string $username The username
 	 * @param string $password The password
 	 * @param string $hash The hashed string
 	 * @return bool Whether the hashed password matches the string
 	 */
-	public static function hashVerifyPassword(string $username, string $password, string $hash): bool
+	public static function hashVerifyPassword(string $password, string $hash): bool
 	{
-		return password_verify(Utils::strtolower($username) . $password, $hash);
+		return password_verify($password, $hash);
 	}
 
 	/**
@@ -69,7 +65,7 @@ class Security
 
 		do {
 			$timeStart = microtime(true);
-			self::hashPassword('test', 'thisisatestpassword', $cost);
+			self::hashPassword('thisisatestpassword', $cost);
 			$timeTaken = microtime(true) - $timeStart;
 			$cost++;
 		} while ($timeTaken < $hashTime);
