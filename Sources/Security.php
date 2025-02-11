@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use ZxcvbnPhp\Zxcvbn;
 
 /**
  * A collection of miscellaneous methods related to forum security.
@@ -99,6 +100,16 @@ class Security
 	}
 
 	/**
+	 * Gets the minimum required password length.
+	 *
+	 * @return int The minimum required password length.
+	 */
+	public static function minimumPasswordLength(): int
+	{
+		return empty(Config::$modSettings['password_strength']) ? 6 : 8;
+	}
+
+	/**
 	 * Checks whether a password meets the current forum rules.
 	 *
 	 * Called when registering and when choosing a new password in the profile.
@@ -117,7 +128,7 @@ class Security
 	public static function validatePassword(string $password, string $username, array $restrict_in = []): ?string
 	{
 		// Perform basic requirements first.
-		if (Utils::entityStrlen($password) < (empty(Config::$modSettings['password_strength']) ? 4 : 8)) {
+		if (Utils::entityStrlen($password) < self::minimumPasswordLength()) {
 			return 'short';
 		}
 
@@ -130,37 +141,79 @@ class Security
 			return $pass_error;
 		}
 
-		// Is this enough?
-		if (empty(Config::$modSettings['password_strength'])) {
-			return null;
-		}
-
-		// Otherwise, perform the medium strength test - checking if password appears in the restricted string.
-		if (preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in))) {
+		if (
+			// Check if password appears in the restricted strings.
+			preg_match('~\b' . preg_quote($password, '~') . '\b~u', implode(' ', $restrict_in))
+			// Check if password appears in the username.
+			|| preg_match('~\b' . preg_quote($password, '~') . '\b~iu', $username)
+			// Check if username appears in the password.
+			|| preg_match('~\b' . preg_quote($username, '~') . '\b~iu', $password)
+		) {
 			return 'restricted_words';
 		}
 
-		if (Utils::entityStrpos($password, $username) !== false) {
-			return 'restricted_words';
+		// Use zxcvbn to assess the password's strength.
+		$zxcvbn = new Zxcvbn();
+		$strength = $zxcvbn->passwordStrength($password, array_merge([$username], $restrict_in));
+
+		if ((int) $strength['score'] < (Config::$modSettings['password_strength'] ?? 0) + 2) {
+			Lang::load('Errors');
+
+			// List of known feedback strings from zxcvbn mapped to Lang::$txt keys.
+			$feedback_strings = [
+				'This is a top-10 common password' => 'top_10',
+				'This is a top-100 common password' => 'top_100',
+				'This is a very common password' => 'very_common',
+				'This is similar to a commonly used password' => 'similar_to_common',
+				'A word by itself is easy to guess' => 'single_word',
+				'Use a few words, avoid common phrases' => 'use_a_few_words',
+				'No need for symbols, digits, or uppercase letters' => 'simple_is_fine',
+				'Add another word or two. Uncommon words are better.' => 'add_more_words',
+				'Recent years are easy to guess' => 'recent_years',
+				'Avoid recent years' => 'avoid_recent_years',
+				'Avoid years that are associated with you' => 'avoid_personal_years',
+				'Dates are often easy to guess' => 'dates_are_easy',
+				'Avoid dates and years that are associated with you' => 'avoid_personal_dates_and_years',
+				'Straight rows of keys are easy to guess' => 'straight_rows',
+				'Short keyboard patterns are easy to guess' => 'short_patterns',
+				'Use a longer keyboard pattern with more turns' => 'use_longer_pattern',
+				'Sequences like abc or 6543 are easy to guess' => 'sequences',
+				'Avoid sequences' => 'avoid_sequences',
+				'Reversed words aren\'t much harder to guess' => 'reversed_words',
+				'Repeats like "aaa" are easy to guess' => 'repeated_chars',
+				'Repeats like "abcabcabc" are only slightly harder to guess than "abc"' => 'repeated_strings',
+				'Avoid repeated words and characters' => 'avoid_repeated',
+				'Predictable substitutions like \'@\' instead of \'a\' don\'t help very much' => 'l33t_useless',
+				'Names and surnames by themselves are easy to guess' => 'names',
+				'Common names and surnames are easy to guess' => 'common_names',
+				'Capitalization doesn\'t help very much' => 'caps_useless',
+				'All-uppercase is almost as easy to guess as all-lowercase' => 'all_caps_useless',
+			];
+
+			$feedback = [];
+
+			if (isset($strength['feedback']['warning'], $feedback_strings[$strength['feedback']['warning']])) {
+				$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$strength['feedback']['warning']]);
+			}
+
+			if (!empty($strength['feedback']['suggestions'])) {
+				foreach ($strength['feedback']['suggestions'] as $suggestion) {
+					if (isset($feedback_strings[$suggestion])) {
+						$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$suggestion]);
+					}
+				}
+			}
+
+			if (!empty($feedback)) {
+				return implode('<br>', $feedback);
+			}
+
+			// Generic error message.
+			return 'weak';
 		}
 
-		// If just medium, we're done.
-		if (Config::$modSettings['password_strength'] == 1) {
-			return null;
-		}
-
-		// Check for both numbers and letters.
-		$good = preg_match('~\p{N}~u', $password) && preg_match('~\p{L}~u', $password);
-
-		// If there are any letters from bicameral scripts (Latin, Greek, etc.),
-		// check that there are both lowercase and uppercase letters present.
-		// Note: If the password only contains letters from a unicameral script
-		// (Arabic, Thai, etc.), this requirement is not applicable.
-		if (Utils::strtoupper($password) !== ($lower_password = Utils::strtolower($password))) {
-			$good &= $password !== $lower_password;
-		}
-
-		return $good ? null : 'chars';
+		// If we get here, the password is strong enough.
+		return null;
 	}
 
 	/**

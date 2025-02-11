@@ -242,14 +242,16 @@ class Reminder implements ActionInterface, Routable
 		$this->loadMember();
 
 		// Is the password actually valid?
-		$passwordError = Security::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
+		$password_error = Security::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
 
 		// What - it's not?
-		if ($passwordError != null) {
-			if ($passwordError == 'short') {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false, [empty(Config::$modSettings['password_strength']) ? 4 : 8]);
+		if ($password_error != null) {
+			if ($password_error == 'short') {
+				ErrorHandler::fatalLang('profile_error_password_short', false, [Security::minimumPasswordLength()]);
 			} else {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false);
+				Lang::load('Errors');
+
+				ErrorHandler::fatalLang((isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'profile_error_password_' : '') . $password_error, false);
 			}
 		}
 
@@ -380,14 +382,16 @@ class Reminder implements ActionInterface, Routable
 		}
 
 		// Make sure they have a strong enough password.
-		$passwordError = Security::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
+		$password_error = Security::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
 
 		// Invalid?
-		if ($passwordError != null) {
-			if ($passwordError == 'short') {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false, [empty(Config::$modSettings['password_strength']) ? 4 : 8]);
+		if ($password_error != null) {
+			if ($password_error == 'short') {
+				ErrorHandler::fatalLang('profile_error_password_' . $password_error, false, [Security::minimumPasswordLength()]);
 			} else {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false);
+				Lang::load('Errors');
+
+				ErrorHandler::fatalLang((isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'profile_error_password_' : '') . $password_error, false);
 			}
 		}
 

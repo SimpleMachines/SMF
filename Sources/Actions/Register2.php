@@ -518,10 +518,16 @@ class Register2 extends Register
 
 			// Password isn't legal?
 			if ($password_error != null) {
-				$error_code = ['lang', 'profile_error_password_' . $password_error, false];
+				Lang::load('Errors');
+
+				if (isset(Lang::$txt['profile_error_password_' . $password_error])) {
+					$error_code = ['lang', 'profile_error_password_' . $password_error, false];
+				} else {
+					$error_code = ['done', $password_error, false];
+				}
 
 				if ($password_error == 'short') {
-					$error_code[] = [empty(Config::$modSettings['password_strength']) ? 4 : 8];
+					$error_code[] = Security::minimumPasswordLength();
 				}
 
 				$reg_errors[] = $error_code;

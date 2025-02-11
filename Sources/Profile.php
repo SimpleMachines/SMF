@@ -605,11 +605,13 @@ class Profile extends User implements \ArrayAccess
 					}
 
 					// Let's get the validation function into play...
-					$passwordErrors = Security::validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, [$this->name, User::$me->username, User::$me->name, User::$me->email]);
+					$password_error = Security::validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, [$this->name, User::$me->username, User::$me->name, User::$me->email]);
 
 					// Were there errors?
-					if ($passwordErrors != null) {
-						return 'password_' . $passwordErrors;
+					if ($password_error != null) {
+						Lang::load('Errors');
+
+						return (isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'password_' : '') . $password_error;
 					}
 
 					// Set up the new password variable... ready for storage.
