@@ -1867,13 +1867,6 @@ function list_integration_hooks()
 	foreach ($hooks as $hook => $functions)
 		$hooks_filters[] = '<option' . ($current_filter == $hook ? ' selected ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
 
-	if (!empty($hooks_filters))
-		$context['insert_after_template'] .= '
-		<script>
-			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
-		</script>';
-
 	if (!empty($_REQUEST['do']) && isset($_REQUEST['hook']) && isset($_REQUEST['function']))
 	{
 		checkSession('request');
@@ -2018,6 +2011,15 @@ function list_integration_hooks()
 					<li><span class="main_icons posts"></span> ' . $txt['hooks_disable_legend_temp'] . '</li>
 					<li><span class="main_icons error"></span> ' . $txt['hooks_disable_legend_temp_missing'] . '</li>
 				</ul>'
+			),
+			array(
+				'position' => 'above_column_headers',
+				'value' => '
+				<select onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));">
+					<option value="">' . $txt['hooks_reset_filter'] . '</option>
+					' . implode('', $hooks_filters) . '
+				</select>',
+				'class' => 'floatright',
 			),
 		),
 	);
