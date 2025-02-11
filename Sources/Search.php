@@ -1282,6 +1282,7 @@ function PlushSearch2()
 					'select' => array(
 						'id_search' => $_SESSION['search_cache']['id_search'],
 						'relevance' => '0',
+						'id_topic' => 't.id_topic',
 					),
 					'weights' => array(),
 					'from' => '{db_prefix}topics AS t',
@@ -1306,7 +1307,6 @@ function PlushSearch2()
 
 				if (empty($search_params['topic']) && empty($search_params['show_complete']))
 				{
-					$main_query['select']['id_topic'] = 't.id_topic';
 					$main_query['select']['id_msg'] = 'MAX(m.id_msg) AS id_msg';
 					$main_query['select']['num_matches'] = 'COUNT(*) AS num_matches';
 
@@ -1316,8 +1316,6 @@ function PlushSearch2()
 				}
 				else
 				{
-					// This is outrageous!
-					$main_query['select']['id_topic'] = 'm.id_msg AS id_topic';
 					$main_query['select']['id_msg'] = 'm.id_msg';
 					$main_query['select']['num_matches'] = '1 AS num_matches';
 
@@ -1849,7 +1847,7 @@ function PlushSearch2()
 		// *** Retrieve the results to be shown on the page
 		$participants = array();
 		$request = $smcFunc['db_search_query']('', '
-			SELECT ' . (empty($search_params['topic']) ? 'lsr.id_topic' : $search_params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
+			SELECT lsr.id_topic, lsr.id_msg, lsr.relevance, lsr.num_matches
 			FROM {db_prefix}log_search_results AS lsr' . ($search_params['sort'] == 'num_replies' || !empty($approve_query) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
 			WHERE lsr.id_search = {int:id_search}' . $approve_query . '
