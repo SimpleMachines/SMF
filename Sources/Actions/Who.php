@@ -109,6 +109,10 @@ class Who implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		// Load the 'Who' template.
+		Theme::loadTemplate('Who');
+		Lang::load('Who');
+
 		// Permissions, permissions, permissions.
 		User::$me->isAllowedTo('who_view');
 
@@ -635,20 +639,6 @@ class Who implements ActionInterface, Routable
 		}
 
 		return $data;
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Load the 'Who' template.
-		Theme::loadTemplate('Who');
-		Lang::load('Who');
 	}
 }
 

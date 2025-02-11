@@ -430,7 +430,16 @@ class QueryString
 			$_SERVER['REQUEST_URL'] = $_SERVER['REQUEST_URI'];
 		}
 
-		// And make sure HTTP_USER_AGENT is set.
+		// Should we redirect to HTTPS?
+		self::sslRedirect();
+
+		// Should we redirect because of an incorrectly added/removed 'www.'?
+		self::wwwRedirect();
+
+		// If the user got here using an unexpected but valid URL, fix it.
+		self::fixUrl();
+
+		// Make sure HTTP_USER_AGENT is set.
 		$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? Utils::htmlspecialchars(Db::$db->unescape_string($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : '';
 
 		// Some final checking.
@@ -706,6 +715,10 @@ class QueryString
 		return $buffer;
 	}
 
+	/*************************
+	 * Internal static methods
+	 *************************/
+
 	/**
 	 * Handles redirecting 'index.php?msg=123' links to the canonical URL.
 	 */
@@ -757,6 +770,157 @@ class QueryString
 			$redirect_url .= '#msg' . $_REQUEST['msg'];
 
 			Utils::redirectexit($redirect_url);
+		}
+	}
+
+	/**
+	 * Checks to see if we're forcing SSL, and redirects if necessary.
+	 */
+	protected static function sslRedirect(): void
+	{
+		if (
+			!empty(Config::$modSettings['force_ssl'])
+			&& empty(Config::$maintenance)
+			&& !Sapi::httpsOn()
+			&& SMF != 'SSI'
+		) {
+			if (isset($_GET['sslRedirect'])) {
+				Lang::load('Errors');
+				ErrorHandler::fatalLang('login_ssl_required', false);
+			}
+
+			Utils::redirectexit(strtr($_SERVER['REQUEST_URL'], ['http://' => 'https://']) . (str_contains($_SERVER['REQUEST_URL'], '?') ? ';' : '?') . 'sslRedirect');
+		}
+	}
+
+	/**
+	 * Checks if $_SERVER['REQUEST_URL'] is incorrect due to an added/removed
+	 * 'www.', and redirects if necessary.
+	 */
+	protected static function wwwRedirect(): void
+	{
+		if (SMF == 'SSI') {
+			return;
+		}
+
+		$requested_host = Url::create($_SERVER['REQUEST_URL'])->host;
+		$canonical_host = Url::create(Config::$boardurl)->host;
+
+		if ($requested_host === $canonical_host) {
+			return;
+		}
+
+		if (
+			$canonical_host === 'www.' . $requested_host
+			|| 'www.' . $canonical_host === $requested_host
+		) {
+			Utils::redirectexit(strtr($_SERVER['REQUEST_URL'], [$requested_host => $canonical_host]), false, true);
+		}
+	}
+
+	/**
+	 * If the user got here using an unexpected but valid URL, fix it.
+	 */
+	protected static function fixUrl(): void
+	{
+		if (SMF == 'SSI') {
+			return;
+		}
+
+		$canonical_url = Url::create(Config::$boardurl);
+
+		// Check to see if they're accessing it from the wrong place.
+		if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME'])) {
+			$requested_url = Sapi::httpsOn() ? 'https://' : 'http://';
+
+			if (!empty($_SERVER['HTTP_HOST'])) {
+				$requested_url .= $_SERVER['HTTP_HOST'];
+			} else {
+				$requested_url .= $_SERVER['SERVER_NAME'];
+
+				if (!empty($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 80) {
+					$requested_url .= ':' . $_SERVER['SERVER_PORT'];
+				}
+			}
+
+			$_SERVER['REQUEST_URL'] = preg_replace(
+				'/^' .
+				preg_quote(
+					$canonical_url->scheme .
+					'://' .
+					$canonical_url->host .
+					(
+						!empty($canonical_url->port) && $canonical_url->port !== 80
+						? ':' . $canonical_url->port
+						: ''
+					),
+					'/',
+				) .
+				'/u',
+				$requested_url,
+				$_SERVER['REQUEST_URL'],
+			);
+		}
+
+		if (str_starts_with($_SERVER['REQUEST_URL'], Config::$boardurl)) {
+			return;
+		}
+
+		$requested_url = Url::create($_SERVER['REQUEST_URL']);
+
+		// Is the requested URL a known alias of the canonical forum URL?
+		if (!empty(Config::$modSettings['forum_alias_urls'])) {
+			$aliases = explode(',', Config::$modSettings['forum_alias_urls']);
+
+			foreach ($aliases as $alias) {
+				$alias = trim($alias);
+
+				if (!preg_match('~^[A-Za-z][0-9A-Za-z+\-.]*://~', $alias)) {
+					$alias = (Sapi::httpsOn() ? 'https://' : 'http://') . ltrim($alias, ':/');
+				}
+
+				$alias = Sapi::httpsOn() ? strtr($alias, ['http://' => 'https://']) : strtr($alias, ['https://' => 'http://']);
+
+				if (str_starts_with($_SERVER['REQUEST_URL'], $alias)) {
+					$new_url = $alias;
+				}
+			}
+		}
+
+		// Is the requested URL using localhost or an IP address instead of a domain name?
+		if (
+			!isset($new_url)
+			&& (
+				$requested_url->host === 'localhost'
+				|| IP::create($requested_url->host)->isValid()
+			)
+		) {
+			$new_url = strtr(Config::$boardurl, [$canonical_url->host => $requested_url->host]);
+		}
+
+		if (
+			// If the scheme is incorrect, adjust it.
+			$requested_url->scheme !== $canonical_url->scheme
+			// But don't downgrade a canonical HTTPS scheme to HTTP.
+			&& $canonical_url->scheme !== 'https'
+		) {
+			$new_url = strtr($new_url ?? Config::$boardurl, [$canonical_url->scheme . '://', $requested_url->scheme . '://']);
+		}
+
+		// Change our internal settings to use the requested URL.
+		if (isset($new_url)) {
+			// The theme will need to know about this change.
+			Utils::$context['canonical_boardurl'] = Config::$boardurl;
+
+			// Fix Config::$boardurl and Config::$scripturl.
+			Config::$boardurl = $new_url;
+			Config::$scripturl = strtr(Config::$scripturl, [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+			$_SERVER['REQUEST_URL'] = strtr($_SERVER['REQUEST_URL'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+
+			// And just a few mod settings :).
+			Config::$modSettings['smileys_url'] = strtr(Config::$modSettings['smileys_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+			Config::$modSettings['avatar_url'] = strtr(Config::$modSettings['avatar_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+			Config::$modSettings['custom_avatar_url'] = strtr(Config::$modSettings['custom_avatar_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
 		}
 	}
 }

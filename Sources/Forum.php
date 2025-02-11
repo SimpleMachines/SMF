@@ -446,6 +446,7 @@ class Forum
 	public function execute(): void
 	{
 		$this->init();
+
 		$requested_action = $_REQUEST['action'] ?? null;
 		$current_action = $this->findAction($requested_action);
 
@@ -457,33 +458,7 @@ class Forum
 			IntegrationHook::call('integrate_init_action', [$action]);
 		}
 
-		$this->main();
-
-		// Is the forum in maintenance mode? (doesn't apply to administrators.)
-		if (
-			!empty(Config::$maintenance)
-			&& !User::$me->allowedTo('admin_forum')
-			&& self::$current_action?->canShowInMaintenanceMode() === false
-		) {
-			// Don't even try it, sonny.
-			self::inMaintenance();
-		}
-
-		// If guest access is off, a guest can only do one of a few actions.
-		if (
-			empty(Config::$modSettings['allow_guestAccess'])
-			&& User::$me->is_guest
-			&& (
-				self::$current_action?->isRestrictedGuestAccessAllowed() === false
-				|| (
-					!isset($_REQUEST['action'])
-					|| !in_array($_REQUEST['action'] ?? '', self::$guest_access_actions)
-					&& self::$current_action?->isRestrictedGuestAccessAllowed() === null
-				)
-			)
-		) {
-			User::$me->kickIfGuest(null, false);
-		}
+		$this->preflight();
 
 		if (isset($action)) {
 			$action->execute();
@@ -599,13 +574,13 @@ class Forum
 		// Load the current user's permissions.
 		User::$me->loadPermissions();
 
-		// Attachments don't require the entire theme to be loaded.
-		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'dlattach' && empty(Config::$maintenance)) {
-			BrowserDetector::call();
-		}
+		// Analyze the user agent string.
+		BrowserDetector::call();
+
 		// Load the current theme.  (note that ?theme=1 will also work, may be used for guest theming.)
-		else {
-			Theme::load();
+		// Attachments don't require the entire theme to be loaded.
+		if (($_REQUEST['action'] ?? '') !== 'dlattach' || empty(Config::$maintenance)) {
+			Theme::load(0, false);
 		}
 
 		// Check if the user should be disallowed access.
@@ -613,20 +588,36 @@ class Forum
 	}
 
 	/**
-	 * The main forum loader.
-	 *
-	 * This method handles the main forum logic, such as checking permissions,
-	 * logging user activity, and tracking forum statistics.
+	 * Runs various checks that are required before calling the action.
 	 */
-	protected function main(): void
+	protected function preflight(): void
 	{
+		Theme::$current->initialize();
+
+		// If the user needs to accept the agreement or privacy policy, redirect now.
+		$this->requireAgreement();
+
 		// If we are in a topic and don't have permission to approve it then duck out now.
-		if (!empty(Topic::$topic_id) && empty(Board::$info->cur_topic_approved) && !User::$me->allowedTo('approve_posts') && (User::$me->id != Board::$info->cur_topic_starter || User::$me->is_guest)) {
+		if (
+			!empty(Topic::$topic_id)
+			&& empty(Board::$info->cur_topic_approved)
+			&& !User::$me->allowedTo('approve_posts')
+			&& (
+				User::$me->id != Board::$info->cur_topic_starter
+				|| User::$me->is_guest
+			)
+		) {
 			ErrorHandler::fatalLang('not_a_topic', false);
 		}
 
 		// Don't log if this is an attachment, avatar, toggle of editor buttons, theme option, XML feed, popup, etc.
-		if (self::$current_action?->canBeLogged() === true || (self::$current_action === null && !QueryString::isFilteredRequest(self::$unlogged_actions, 'action'))) {
+		if (
+			self::$current_action?->canBeLogged() === true
+			|| (
+				self::$current_action === null
+				&& !QueryString::isFilteredRequest(self::$unlogged_actions, 'action')
+			)
+		) {
 			// Log this user as online.
 			User::$me->logOnline();
 
@@ -638,6 +629,61 @@ class Forum
 
 		// Make sure that our scheduled tasks have been running as intended.
 		Config::checkCron();
+
+		// Is the forum in maintenance mode? (doesn't apply to administrators.)
+		if (
+			!empty(Config::$maintenance)
+			&& !User::$me->allowedTo('admin_forum')
+			&& self::$current_action?->canShowInMaintenanceMode() === false
+		) {
+			// Don't even try it, sonny.
+			self::inMaintenance();
+		}
+
+		// If guest access is off, a guest can only do one of a few actions.
+		if (
+			empty(Config::$modSettings['allow_guestAccess'])
+			&& User::$me->is_guest
+			&& (
+				self::$current_action?->isRestrictedGuestAccessAllowed() !== true
+				&& (
+					!isset($_REQUEST['action'])
+					|| !in_array($_REQUEST['action'], self::$guest_access_actions)
+				)
+			)
+		) {
+			User::$me->kickIfGuest(null, false);
+		}
+	}
+
+	/**
+	 * If necessary, redirect to the agreement or privacy policy so that we can
+	 * force the user to accept the current version.
+	 */
+	protected function requireAgreement(): void
+	{
+		// Perhaps we've changed the agreement or privacy policy?
+		// Only redirect if all of the following conditions are met:
+		if (
+			// They're not a guest.
+			!empty(User::$me->id)
+			// They're not an admin.
+			&& empty(User::$me->is_admin)
+			// This isn't a called from SSI.
+			&& SMF != 'SSI'
+			// This isn't an XML request.
+			&& !isset($_REQUEST['xml'])
+			// They're trying to do an action that requires accepting the agreement and/or policy.
+			&& self::$current_action?->isAgreementAction() !== true
+			&& (
+				// They haven't accepted the latest version of the agreement.
+				Actions\Agreement::canRequireAgreement()
+				// Or they haven't accepted the latest version of the privacy policy.
+				|| Actions\Agreement::canRequirePrivacyPolicy()
+			)
+		) {
+			Utils::redirectexit('action=agreement');
+		}
 	}
 
 	/**
@@ -690,9 +736,9 @@ class Forum
 				if (($fallback_action = Utils::getCallable($fallback_action)) !== false) {
 					return $fallback_action;
 				}
-
-				ErrorHandler::fatalLang('not_found', false, [], 404);
 			}
+
+			ErrorHandler::fatalLang('not_found', false, [], 404);
 		}
 
 		// Otherwise, it was set - so let's go to that action.

@@ -215,6 +215,8 @@ class Unread implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		$this->getBoards();
 		$this->setSortMethod();
 		$this->getCatName();
@@ -244,9 +246,9 @@ class Unread implements ActionInterface, Routable
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial stuff.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// Guests can't have unread things, we don't know anything about them.
 		User::$me->kickIfGuest();

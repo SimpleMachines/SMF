@@ -112,6 +112,9 @@ class ReportToMod implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Utils::$context['robot_no_index'] = true;
+		Utils::$context['comment_body'] = '';
+
 		// No guests!
 		User::$me->kickIfGuest();
 
@@ -306,9 +309,6 @@ class ReportToMod implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		Utils::$context['robot_no_index'] = true;
-		Utils::$context['comment_body'] = '';
-
 		if (isset($_POST['comment'])) {
 			$this->comment = trim(Utils::normalizeSpaces(Utils::sanitizeChars(Utils::normalize($_POST['comment']), 0), true, true));
 		}

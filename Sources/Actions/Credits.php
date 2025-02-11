@@ -58,6 +58,9 @@ class Credits implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		// Don't blink. Don't even blink. Blink and you're dead.
+		Lang::load('Who');
+
 		// Discourage robots from indexing this page.
 		Utils::$context['robot_no_index'] = true;
 
@@ -419,19 +422,6 @@ class Credits implements ActionInterface, Routable
 		self::load();
 		self::$obj->in_admin = $in_admin;
 		self::$obj->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Don't blink. Don't even blink. Blink and you're dead.
-		Lang::load('Who');
 	}
 }
 

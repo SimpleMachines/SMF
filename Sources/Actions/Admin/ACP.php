@@ -28,8 +28,6 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
-use SMF\OutputTypeInterface;
-use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\Routable;
 use SMF\SecurityToken;
@@ -726,16 +724,6 @@ class ACP implements ActionInterface, Routable
 	 * Public methods
 	 ****************/
 
-	public function isSimpleAction(): bool
-	{
-		return isset($_REQUEST['preview']);
-	}
-
-	public function getOutputType(): OutputTypeInterface
-	{
-		return isset($_REQUEST['preview']) ? new OutputTypes\Xml() : new OutputTypes\Html();
-	}
-
 	/**
 	 * The main admin handling function.
 	 *
@@ -745,6 +733,8 @@ class ACP implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		// Make sure the administrator has a valid session...
 		User::$me->validateSession();
 
@@ -1863,9 +1853,9 @@ class ACP implements ActionInterface, Routable
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial setup.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// Load the language and templates....
 		Lang::load('Admin');

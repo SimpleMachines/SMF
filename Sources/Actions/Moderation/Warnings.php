@@ -749,12 +749,6 @@ class Warnings implements ActionInterface
 			}
 		}
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	// code...
 }
 
 ?>

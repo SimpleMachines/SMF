@@ -142,6 +142,22 @@ class MessageIndex implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		if (empty(Board::$info->id)) {
+			ErrorHandler::fatalLang('no_board', false);
+		}
+
+		$this->checkRedirect();
+		$this->preventPrefetch();
+
+		$this->setSortMethod();
+		$this->setPaginationAndLinks();
+
+		$this->setModerators();
+		$this->setUnapprovedPostsMessage();
+
+		$this->setupTemplate();
+		$this->setRobotNoIndex();
+
 		$this->buildTopicList();
 		$this->buildChildBoardIndex();
 
@@ -461,30 +477,6 @@ class MessageIndex implements ActionInterface, Routable
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Prepares to show the message index.
-	 *
-	 * Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		if (empty(Board::$info->id)) {
-			ErrorHandler::fatalLang('no_board', false);
-		}
-
-		$this->checkRedirect();
-		$this->preventPrefetch();
-
-		$this->setSortMethod();
-		$this->setPaginationAndLinks();
-
-		$this->setModerators();
-		$this->setUnapprovedPostsMessage();
-
-		$this->setupTemplate();
-		$this->setRobotNoIndex();
-	}
 
 	/**
 	 * Redirects to the target URL for this board, if applicable.

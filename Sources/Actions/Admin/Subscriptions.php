@@ -95,6 +95,30 @@ class Subscriptions implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Load the required language and template.
+		Lang::load('ManagePaid');
+		Theme::loadTemplate('ManagePaid');
+
+		Utils::$context['page_title'] = Lang::$txt['paid_subscriptions'];
+
+		// Tabs for browsing the different subscription functions.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['paid_subscriptions'],
+			'help' => '',
+			'description' => Lang::$txt['paid_subscriptions_desc'],
+		];
+
+		if (!empty(Config::$modSettings['paid_enabled']) && !empty(Config::$modSettings['paid_currency_symbol'])) {
+			Menu::$loaded['admin']->tab_data['tabs'] = [
+				'view' => [
+					'description' => Lang::$txt['paid_subs_view_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['paid_subs_settings_desc'],
+				],
+			];
+		}
+
 		// Make sure you can do this.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -2237,32 +2261,10 @@ class Subscriptions implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Load the required language and template.
-		Lang::load('ManagePaid');
-		Theme::loadTemplate('ManagePaid');
-
-		Utils::$context['page_title'] = Lang::$txt['paid_subscriptions'];
-
-		// Tabs for browsing the different subscription functions.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['paid_subscriptions'],
-			'help' => '',
-			'description' => Lang::$txt['paid_subscriptions_desc'],
-		];
-
 		// If not enabled or not fully configured yet, only show the settings.
 		if (empty(Config::$modSettings['paid_enabled']) || empty(Config::$modSettings['paid_currency_symbol'])) {
 			self::$subactions = array_intersect_key(self::$subactions, ['settings' => true]);
 			$this->subaction = 'settings';
-		} else {
-			Menu::$loaded['admin']->tab_data['tabs'] = [
-				'view' => [
-					'description' => Lang::$txt['paid_subs_view_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['paid_subs_settings_desc'],
-				],
-			];
 		}
 
 		IntegrationHook::call('integrate_manage_subscriptions', [&self::$subactions]);

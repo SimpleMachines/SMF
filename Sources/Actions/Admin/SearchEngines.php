@@ -92,6 +92,22 @@ class SearchEngines implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('admin_forum');
+
+		Lang::load('Search');
+		Theme::loadTemplate('ManageSearch');
+
+		Utils::$context['page_title'] = Lang::$txt['search_engines'];
+
+		// Tab data might already be set if this was called from Logs::execute().
+		if (empty(Menu::$loaded['admin']->tab_data)) {
+			// Some more tab data.
+			Menu::$loaded['admin']->tab_data = [
+				'title' => Lang::$txt['search_engines'],
+				'description' => Lang::$txt['search_engines_description'],
+			];
+		}
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -1105,25 +1121,9 @@ class SearchEngines implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('Search');
-		Theme::loadTemplate('ManageSearch');
-
 		if (empty(Config::$modSettings['spider_mode'])) {
 			self::$subactions = array_intersect_key(self::$subactions, ['settings' => true]);
 			$this->subaction = 'settings';
-		}
-
-		Utils::$context['page_title'] = Lang::$txt['search_engines'];
-
-		// Tab data might already be set if this was called from Logs::execute().
-		if (empty(Menu::$loaded['admin']->tab_data)) {
-			// Some more tab data.
-			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['search_engines'],
-				'description' => Lang::$txt['search_engines_description'],
-			];
 		}
 
 		IntegrationHook::call('integrate_manage_search_engines', [&self::$subactions]);

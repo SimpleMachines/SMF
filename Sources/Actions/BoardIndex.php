@@ -56,6 +56,35 @@ class BoardIndex implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Lang::load('Calendar');
+
+		Theme::loadTemplate('BoardIndex');
+		Utils::$context['template_layers'][] = 'boardindex_outer';
+
+		Utils::$context['page_title'] = Lang::getTxt('forum_index', ['forum_name' => Utils::$context['forum_name']]);
+
+		// Set a canonical URL for this page.
+		Utils::$context['canonical_url'] = Config::$scripturl;
+
+		// Do not let search engines index anything if there is a random thing in $_GET.
+		if (!empty($_GET)) {
+			Utils::$context['robot_no_index'] = true;
+		}
+
+		// Replace the collapse and expand default alts.
+		Theme::addJavaScriptVar('smf_expandAlt', Lang::$txt['show_category'], true);
+		Theme::addJavaScriptVar('smf_collapseAlt', Lang::$txt['hide_category'], true);
+
+		if (!empty(Theme::$current->settings['show_newsfader'])) {
+			Theme::loadJavaScriptFile('slippry.min.js', [], 'smf_jquery_slippry');
+			Theme::loadCSSFile('slider.min.css', [], 'smf_jquery_slider');
+		}
+
+		// Set a few minor things.
+		Utils::$context['show_stats'] = User::$me->allowedTo('view_stats') && !empty(Config::$modSettings['trackStats']);
+		Utils::$context['show_buddies'] = !empty(User::$me->buddies);
+		Utils::$context['show_who'] = User::$me->allowedTo('who_view') && !empty(Config::$modSettings['who_enabled']);
+
 		// Retrieve the categories and boards.
 		$boardIndexOptions = [
 			'include_categories' => true,
@@ -610,47 +639,6 @@ class BoardIndex implements ActionInterface, Routable
 		unset($params['action']);
 
 		return ['route' => $route, 'params' => $params];
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Prepares to show the board index.
-	 *
-	 * Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		Lang::load('Calendar');
-
-		Theme::loadTemplate('BoardIndex');
-		Utils::$context['template_layers'][] = 'boardindex_outer';
-
-		Utils::$context['page_title'] = Lang::getTxt('forum_index', ['forum_name' => Utils::$context['forum_name']]);
-
-		// Set a canonical URL for this page.
-		Utils::$context['canonical_url'] = Config::$scripturl;
-
-		// Do not let search engines index anything if there is a random thing in $_GET.
-		if (!empty($_GET)) {
-			Utils::$context['robot_no_index'] = true;
-		}
-
-		// Replace the collapse and expand default alts.
-		Theme::addJavaScriptVar('smf_expandAlt', Lang::$txt['show_category'], true);
-		Theme::addJavaScriptVar('smf_collapseAlt', Lang::$txt['hide_category'], true);
-
-		if (!empty(Theme::$current->settings['show_newsfader'])) {
-			Theme::loadJavaScriptFile('slippry.min.js', [], 'smf_jquery_slippry');
-			Theme::loadCSSFile('slider.min.css', [], 'smf_jquery_slider');
-		}
-
-		// Set a few minor things.
-		Utils::$context['show_stats'] = User::$me->allowedTo('view_stats') && !empty(Config::$modSettings['trackStats']);
-		Utils::$context['show_buddies'] = !empty(User::$me->buddies);
-		Utils::$context['show_who'] = User::$me->allowedTo('who_view') && !empty(Config::$modSettings['who_enabled']);
 	}
 
 	/*************************

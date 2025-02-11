@@ -91,6 +91,8 @@ class Attachments implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -2568,9 +2570,9 @@ class Attachments implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial setup.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// You have to be able to moderate the forum to do this.
 		User::$me->isAllowedTo('manage_attachments');

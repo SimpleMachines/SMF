@@ -73,6 +73,33 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Make sure you can be here.
+		User::$me->isAllowedTo('admin_forum');
+		Lang::load('Drafts');
+
+		Utils::$context['page_title'] = Lang::$txt['manageposts_title'];
+
+		// Tabs for browsing the different post functions.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['manageposts_title'],
+			'help' => 'posts_and_topics',
+			'description' => Lang::$txt['manageposts_description'],
+			'tabs' => [
+				'posts' => [
+					'description' => Lang::$txt['manageposts_settings_description'],
+				],
+				'censor' => [
+					'description' => Lang::$txt['admin_censored_desc'],
+				],
+				'topics' => [
+					'description' => Lang::$txt['manageposts_topic_settings_description'],
+				],
+				'drafts' => [
+					'description' => Lang::$txt['managedrafts_settings_description'],
+				],
+			],
+		];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -442,33 +469,6 @@ class Posts implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Make sure you can be here.
-		User::$me->isAllowedTo('admin_forum');
-		Lang::load('Drafts');
-
-		Utils::$context['page_title'] = Lang::$txt['manageposts_title'];
-
-		// Tabs for browsing the different post functions.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['manageposts_title'],
-			'help' => 'posts_and_topics',
-			'description' => Lang::$txt['manageposts_description'],
-			'tabs' => [
-				'posts' => [
-					'description' => Lang::$txt['manageposts_settings_description'],
-				],
-				'censor' => [
-					'description' => Lang::$txt['admin_censored_desc'],
-				],
-				'topics' => [
-					'description' => Lang::$txt['manageposts_topic_settings_description'],
-				],
-				'drafts' => [
-					'description' => Lang::$txt['managedrafts_settings_description'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_posts', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {

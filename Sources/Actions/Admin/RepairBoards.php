@@ -781,6 +781,22 @@ class RepairBoards implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Print out the top of the webpage.
+		Utils::$context['page_title'] = Lang::$txt['admin_repair'];
+		Utils::$context['sub_template'] = 'repair_boards';
+		Menu::$loaded['admin']['current_subsection'] = 'general';
+
+		// Load the language file.
+		Lang::load('ManageMaintenance');
+
+		// Make sure the tabs stay nice.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['maintain_title'],
+			'help' => '',
+			'description' => Lang::$txt['maintain_info'],
+			'tabs' => [],
+		];
+
 		User::$me->isAllowedTo('admin_forum');
 
 		// Try to secure more memory.
@@ -850,28 +866,6 @@ class RepairBoards implements ActionInterface
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Print out the top of the webpage.
-		Utils::$context['page_title'] = Lang::$txt['admin_repair'];
-		Utils::$context['sub_template'] = 'repair_boards';
-		Menu::$loaded['admin']['current_subsection'] = 'general';
-
-		// Load the language file.
-		Lang::load('ManageMaintenance');
-
-		// Make sure the tabs stay nice.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['maintain_title'],
-			'help' => '',
-			'description' => Lang::$txt['maintain_info'],
-			'tabs' => [],
-		];
-	}
 
 	/**
 	 * Checks for errors in steps, until 5 seconds have passed.

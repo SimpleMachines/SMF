@@ -92,6 +92,12 @@ class Reminder implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Lang::load('Profile');
+		Theme::loadTemplate('Reminder');
+
+		Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
+		Utils::$context['robot_no_index'] = true;
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -403,12 +409,6 @@ class Reminder implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		Lang::load('Profile');
-		Theme::loadTemplate('Reminder');
-
-		Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
-		Utils::$context['robot_no_index'] = true;
-
 		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
 			$this->subaction = $_GET['sa'];
 		}

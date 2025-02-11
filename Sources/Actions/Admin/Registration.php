@@ -82,6 +82,34 @@ class Registration implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Loading, always loading.
+		Lang::load('Login');
+		Theme::loadTemplate('Register');
+
+		// Next create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['registration_center'],
+			'help' => 'registrations',
+			'description' => Lang::$txt['admin_settings_desc'],
+			'tabs' => [
+				'register' => [
+					'description' => Lang::$txt['admin_register_desc'],
+				],
+				'agreement' => [
+					'description' => Lang::$txt['registration_agreement_desc'],
+				],
+				'policy' => [
+					'description' => Lang::$txt['privacy_policy_desc'],
+				],
+				'reservednames' => [
+					'description' => Lang::$txt['admin_reserved_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['admin_settings_desc'],
+				],
+			],
+		];
+
 		// Must have sufficient permissions.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -509,34 +537,6 @@ class Registration implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Loading, always loading.
-		Lang::load('Login');
-		Theme::loadTemplate('Register');
-
-		// Next create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['registration_center'],
-			'help' => 'registrations',
-			'description' => Lang::$txt['admin_settings_desc'],
-			'tabs' => [
-				'register' => [
-					'description' => Lang::$txt['admin_register_desc'],
-				],
-				'agreement' => [
-					'description' => Lang::$txt['registration_agreement_desc'],
-				],
-				'policy' => [
-					'description' => Lang::$txt['privacy_policy_desc'],
-				],
-				'reservednames' => [
-					'description' => Lang::$txt['admin_reserved_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['admin_settings_desc'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_registrations', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
