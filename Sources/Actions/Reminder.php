@@ -242,7 +242,7 @@ class Reminder implements ActionInterface, Routable
 		$this->loadMember();
 
 		// Is the password actually valid?
-		$passwordError = User::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
+		$passwordError = Security::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
 
 		// What - it's not?
 		if ($passwordError != null) {
@@ -380,7 +380,7 @@ class Reminder implements ActionInterface, Routable
 		}
 
 		// Make sure they have a strong enough password.
-		$passwordError = User::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
+		$passwordError = Security::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
 
 		// Invalid?
 		if ($passwordError != null) {

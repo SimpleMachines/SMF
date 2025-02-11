@@ -563,7 +563,7 @@ class Profile extends User implements \ArrayAccess
 							&& $_POST['passwrd1'] != ''
 							&& isset($_POST['passwrd2'])
 							&& $_POST['passwrd1'] == $_POST['passwrd2']
-							&& User::validatePassword(Utils::htmlspecialcharsDecode($_POST['passwrd1']), $value, [$this->name, User::$me->username, User::$me->name, User::$me->email]) == null
+							&& Security::validatePassword(Utils::htmlspecialcharsDecode($_POST['passwrd1']), $value, [$this->name, User::$me->username, User::$me->name, User::$me->email]) == null
 						) {
 							$reset_password = false;
 						}
@@ -605,7 +605,7 @@ class Profile extends User implements \ArrayAccess
 					}
 
 					// Let's get the validation function into play...
-					$passwordErrors = User::validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, [$this->name, User::$me->username, User::$me->name, User::$me->email]);
+					$passwordErrors = Security::validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, [$this->name, User::$me->username, User::$me->name, User::$me->email]);
 
 					// Were there errors?
 					if ($passwordErrors != null) {

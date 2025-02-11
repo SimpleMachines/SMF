@@ -514,7 +514,7 @@ class Register2 extends Register
 
 		// Now perform hard password validation as required.
 		if (!empty($reg_options['check_password_strength']) && $reg_options['password'] != '') {
-			$password_error = User::validatePassword($reg_options['password'], $reg_options['username'], [$reg_options['email']]);
+			$password_error = Security::validatePassword($reg_options['password'], $reg_options['username'], [$reg_options['email']]);
 
 			// Password isn't legal?
 			if ($password_error != null) {

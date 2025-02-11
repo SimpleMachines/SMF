@@ -8824,6 +8824,23 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 ********************/
 
 	/**
+	 * Checks whether a password meets the current forum rules
+	 * - called when registering/choosing a password.
+	 * - checks the password obeys the current forum settings for password strength.
+	 * - if password checking is enabled, will check that none of the words in restrict_in appear in the password.
+	 * - returns an error identifier if the password is invalid, or null.
+	 *
+	 * @param string $password The desired password
+	 * @param string $username The username
+	 * @param array $restrict_in An array of restricted strings that cannot be part of the password (email address, username, etc.)
+	 * @return null|string Null if valid or a string indicating what the problem was
+	 */
+	function validatePassword(string $password, string $username, array $restrict_in = []): ?string
+	{
+		return SMF\Security::validatePassword($password, $username, $restrict_in);
+	}
+
+	/**
 	 * Generate a random validation code.
 	 *
 	 * @return string A random validation code
@@ -10367,23 +10384,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function deleteMembers(int|array $users, bool $check_not_admin = false): void
 	{
 		SMF\User::delete($users, $check_not_admin);
-	}
-
-	/**
-	 * Checks whether a password meets the current forum rules
-	 * - called when registering/choosing a password.
-	 * - checks the password obeys the current forum settings for password strength.
-	 * - if password checking is enabled, will check that none of the words in restrict_in appear in the password.
-	 * - returns an error identifier if the password is invalid, or null.
-	 *
-	 * @param string $password The desired password
-	 * @param string $username The username
-	 * @param array $restrict_in An array of restricted strings that cannot be part of the password (email address, username, etc.)
-	 * @return null|string Null if valid or a string indicating what the problem was
-	 */
-	function validatePassword(string $password, string $username, array $restrict_in = []): ?string
-	{
-		return SMF\User::validatePassword($password, $username, $restrict_in);
 	}
 
 	/**
