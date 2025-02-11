@@ -150,7 +150,7 @@ class Reminder implements ActionInterface, Routable
 		// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
 		if (empty($this->member->secret_question) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email')) {
 			// Randomly generate a validation code with a max length of 10 chars.
-			$code = User::generateValidationCode();
+			$code = Security::generateValidationCode();
 
 			$replacements = [
 				'REALNAME' => $this->member->name,

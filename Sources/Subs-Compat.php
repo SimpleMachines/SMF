@@ -8824,6 +8824,16 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 ********************/
 
 	/**
+	 * Generate a random validation code.
+	 *
+	 * @return string A random validation code
+	 */
+	function generateValidationCode(): string
+	{
+		return SMF\Security::generateValidationCode();
+	}
+
+	/**
 	 * Hashes the user's password
 	 *
 	 * @param string $username The username. Ignored since 3.0.
@@ -10498,16 +10508,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $profile_id = 1,
 	): array {
 		return SMF\User::getGroupsWithPermissions($general_permissions, $board_permissions, $profile_id);
-	}
-
-	/**
-	 * Generate a random validation code.
-	 *
-	 * @return string A random validation code
-	 */
-	function generateValidationCode(): string
-	{
-		return SMF\User::generateValidationCode();
 	}
 
 	/**

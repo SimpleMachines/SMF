@@ -4259,16 +4259,6 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Generate a random validation code.
-	 *
-	 * @return string A random validation code
-	 */
-	public static function generateValidationCode(): string
-	{
-		return bin2hex(random_bytes(5));
-	}
-
-	/**
 	 * Log the spider presence online.
 	 */
 	public static function logSpider(): void

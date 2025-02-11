@@ -494,12 +494,12 @@ class Register2 extends Register
 		$validation_code = '';
 
 		if ($reg_options['require'] == 'activation') {
-			$validation_code = User::generateValidationCode();
+			$validation_code = Security::generateValidationCode();
 		}
 
 		// If you haven't put in a password generate one.
 		if ($reg_options['interface'] == 'admin' && $reg_options['password'] == '') {
-			$reg_options['password'] = User::generateValidationCode();
+			$reg_options['password'] = Security::generatePassword();
 			$reg_options['password_check'] = $reg_options['password'];
 		}
 		// Does the first password match the second?

@@ -460,7 +460,7 @@ class Profile extends User implements \ArrayAccess
 
 					// Do they need to revalidate? If so schedule the function!
 					if ($isValid === true && !empty(Config::$modSettings['send_validation_onChange']) && !User::$me->allowedTo('moderate_forum')) {
-						$this->new_data['validation_code'] = User::generateValidationCode();
+						$this->new_data['validation_code'] = Security::generateValidationCode();
 
 						$this->new_data['is_activated'] = User::UNVALIDATED;
 
@@ -2998,7 +2998,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Generate a random password.
-		$new_password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(random_bytes(18))), 0, 18), 6));
+		$new_password = Security::generatePassword();
 		$new_password_hashed = Security::hashPassword($new_password);
 
 		// Do some checks on the username if needed.

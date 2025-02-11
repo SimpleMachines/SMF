@@ -74,6 +74,31 @@ class Security
 	}
 
 	/**
+	 * Generates a random password.
+	 *
+	 * @return string A random password.
+	 */
+	public static function generatePassword(): string
+	{
+		$password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(random_bytes(18))), 0, 18), 6));
+
+		// Maybe a mod wants to do something different?
+		IntegrationHook::call('integrate_generate_password', [&$password]);
+
+		return $password;
+	}
+
+	/**
+	 * Generate a random validation code.
+	 *
+	 * @return string A random validation code
+	 */
+	public static function generateValidationCode(): string
+	{
+		return bin2hex(random_bytes(5));
+	}
+
+	/**
 	 * Check if a specific confirm parameter was given.
 	 *
 	 * @param string $action The action we want to check against.
