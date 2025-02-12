@@ -230,7 +230,10 @@ class Category implements \ArrayAccess
 				self::$parsed_descriptions[$this->id] = Parser::transform(
 					string: $this->description,
 					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
-					options: ['parse_tags' => Utils::$context['description_allowed_tags']],
+					options: [
+						'parse_tags' => Utils::$context['description_allowed_tags'],
+						'no_paragraphs' => true,
+					],
 				);
 
 				CacheApi::put('parsed_category_descriptions', self::$parsed_descriptions, 864000);
@@ -241,7 +244,10 @@ class Category implements \ArrayAccess
 			$this->description = Parser::transform(
 				string: $this->description,
 				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
-				options: ['parse_tags' => Utils::$context['description_allowed_tags']],
+				options: [
+					'parse_tags' => Utils::$context['description_allowed_tags'],
+					'no_paragraphs' => true,
+				],
 			);
 		}
 	}
