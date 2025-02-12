@@ -1544,7 +1544,7 @@ class Profile extends User implements \ArrayAccess
 		// This allows variables to call activities when they save.
 		Utils::$context['profile_execute_on_save'] = [];
 
-		if (User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area, ['account', 'forumprofile', 'theme'])) {
+		if (User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area ?? null, ['account', 'forumprofile', 'theme'])) {
 			Utils::$context['profile_execute_on_save']['reload_user'] = [__CLASS__ . '::reloadUser', Profile::$member->id];
 		}
 
@@ -1555,7 +1555,7 @@ class Profile extends User implements \ArrayAccess
 		$this->prepareToSaveCustomFields($_REQUEST['sa'] ?? null);
 
 		// Give hooks some access to the save data.
-		IntegrationHook::call('integrate_profile_save', [&Profile::$member->new_data, &Profile::$member->save_errors, Profile::$member->id, Profile::$member->data, Menu::$loaded['profile']->current_area]);
+		IntegrationHook::call('integrate_profile_save', [&Profile::$member->new_data, &Profile::$member->save_errors, Profile::$member->id, Profile::$member->data, Menu::$loaded['profile']->current_area ?? null]);
 
 		// There was a problem. Let them try again.
 		if (!empty($this->save_errors)) {
