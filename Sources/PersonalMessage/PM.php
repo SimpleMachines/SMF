@@ -433,12 +433,12 @@ class PM implements \ArrayAccess
 
 		if ($this->member_from === User::$me->id) {
 			$valid_for['sent'] = !$this->deleted_by_sender;
-		} else {
-			foreach ($this->received as $received) {
-				if ($received->member === User::$me->id) {
-					$valid_for['inbox'] = !$received->deleted;
-					break;
-				}
+		}
+
+		foreach ($this->received as $received) {
+			if ($received->member === User::$me->id) {
+				$valid_for['inbox'] = !$received->deleted;
+				break;
 			}
 		}
 

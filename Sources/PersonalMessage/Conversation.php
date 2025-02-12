@@ -125,7 +125,10 @@ class Conversation
 			}
 
 			// If the current user deleted this PM, skip it.
-			if (($from_me && !empty($row['deleted_by_sender'])) || ($to_me && !empty($row['deleted']))) {
+			$visible_in_inbox = $to_me && empty($row['deleted']);
+			$visible_in_sent = $from_me && empty($row['deleted_by_sender']);
+
+			if (!$visible_in_inbox && !$visible_in_sent) {
 				continue;
 			}
 
