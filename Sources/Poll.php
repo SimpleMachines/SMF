@@ -365,7 +365,7 @@ class Poll implements \ArrayAccess
 		$this->formatted = [
 			'id' => $this->id ?? 0,
 			'image' => 'normal_' . (empty($this->voting_locked) ? 'poll' : 'locked_poll'),
-			'question' => Parser::transform($this->question),
+			'question' => Parser::transform($this->question, options: ['no_paragraphs' => true]),
 			'max_votes' => $this->max_votes,
 			'total_votes' => $this->total_voters,
 			'guest_vote' => $this->guest_vote,
@@ -422,7 +422,7 @@ class Poll implements \ArrayAccess
 			$bar = round(($option->votes * 100) / $divisor, $precision);
 			$barWide = $bar == 0 ? 1 : floor(($bar * 8) / 3);
 
-			$label = Parser::transform($option->label);
+			$label = Parser::transform($option->label, options: ['no_paragraphs' => true]);
 
 			// Now add it to the poll's contextual theme data.
 			$this->formatted['choices'][$i] = [

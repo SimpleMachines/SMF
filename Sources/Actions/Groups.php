@@ -352,7 +352,10 @@ class Groups implements ActionInterface, Routable
 			$group->description = Parser::transform(
 				string: $group->description,
 				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
-				options: ['parse_tags' => Utils::$context['description_allowed_tags']],
+				options: [
+					'parse_tags' => Utils::$context['description_allowed_tags'],
+					'no_paragraphs' => true,
+				],
 			);
 
 			$groups[$group->id] = $group;
