@@ -203,7 +203,7 @@ class Register implements ActionInterface, Routable
 		if (!empty(Config::$modSettings['requireAgreement'])) {
 			// Have we got a localized one?
 			if (file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt')) {
-				Utils::$context['privacy_policy'] = Parser::transform(
+				Utils::$context['agreement'] = Parser::transform(
 					string: file_get_contents(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt'),
 					options: [
 						'cache_id' => 'agreement_' . User::$me->language,
@@ -211,7 +211,7 @@ class Register implements ActionInterface, Routable
 					],
 				);
 			} elseif (file_exists(Config::$languagesdir . '/en_US/agreement.txt')) {
-				Utils::$context['privacy_policy'] = Parser::transform(
+				Utils::$context['agreement'] = Parser::transform(
 					string: file_get_contents(Config::$languagesdir . '/en_US/agreement.txt'),
 					options: [
 						'cache_id' => 'agreement',

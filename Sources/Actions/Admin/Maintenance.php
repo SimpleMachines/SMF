@@ -135,6 +135,30 @@ class Maintenance implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// You absolutely must be an admin by here!
+		User::$me->isAllowedTo('admin_forum');
+
+		// Need something to talk about?
+		Lang::load('ManageMaintenance');
+		Theme::loadTemplate('ManageMaintenance');
+
+		// This uses admin tabs - as it should!
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['maintain_title'],
+			'description' => Lang::$txt['maintain_info'],
+			'tabs' => [
+				'routine' => [],
+				'database' => [],
+				'members' => [],
+				'topics' => [],
+			],
+		];
+
+		// Set a few things.
+		Utils::$context['page_title'] = Lang::$txt['maintain_title'];
+		Utils::$context['sub_action'] = $this->subaction;
+		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
+
 		$call = method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
 
 		if (!empty($call)) {
@@ -1885,14 +1909,6 @@ class Maintenance implements ActionInterface
 			$hooks_filters[] = '<option' . ($current_filter == $hook ? ' selected ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
 		}
 
-		if (!empty($hooks_filters)) {
-			Utils::$context['insert_after_template'] .= '
-			<script>
-				var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-				hook_name_header.innerHTML += ' . Utils::escapeJavaScript('<select style="margin-left:15px;" onchange="window.location=(\'' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . Lang::$txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
-			</script>';
-		}
-
 		if (!empty($_REQUEST['do']) && isset($_REQUEST['hook'], $_REQUEST['function'])) {
 			User::$me->checkSession('request');
 			SecurityToken::validate('admin-hook', 'request');
@@ -2027,6 +2043,15 @@ class Maintenance implements ActionInterface
 						<li><span class="main_icons posts"></span> ' . Lang::$txt['hooks_disable_legend_temp'] . '</li>
 						<li><span class="main_icons error"></span> ' . Lang::$txt['hooks_disable_legend_temp_missing'] . '</li>
 					</ul>',
+				],
+				[
+					'position' => 'above_column_headers',
+					'value' => '
+					<select onchange="window.location=(\'' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));">
+						<option value="">' . Lang::$txt['hooks_reset_filter'] . '</option>
+						' . implode('', $hooks_filters) . '
+					</select>',
+					'class' => 'floatright',
 				],
 			],
 		];
@@ -2281,25 +2306,6 @@ class Maintenance implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// You absolutely must be an admin by here!
-		User::$me->isAllowedTo('admin_forum');
-
-		// Need something to talk about?
-		Lang::load('ManageMaintenance');
-		Theme::loadTemplate('ManageMaintenance');
-
-		// This uses admin tabs - as it should!
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['maintain_title'],
-			'description' => Lang::$txt['maintain_info'],
-			'tabs' => [
-				'routine' => [],
-				'database' => [],
-				'members' => [],
-				'topics' => [],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_maintenance', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -2310,11 +2316,6 @@ class Maintenance implements ActionInterface
 		if (isset($_REQUEST['activity'], self::$subactions[$this->subaction]['activities'][$_REQUEST['activity']])) {
 			$this->activity = $_REQUEST['activity'];
 		}
-
-		// Set a few things.
-		Utils::$context['page_title'] = Lang::$txt['maintain_title'];
-		Utils::$context['sub_action'] = $this->subaction;
-		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
 	}
 
 	/**

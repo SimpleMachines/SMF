@@ -109,6 +109,10 @@ class Display implements ActionInterface, Routable
 	/**
 	 * Does the heavy lifting to show the posts in this topic.
 	 *
+	 * - Handles any redirects we might need to do.
+	 * - Loads topic info.
+	 * - Loads permissions.
+	 * - Prepares stuff for the templates.
 	 * - Sets up anti-spam verification and old topic warnings.
 	 * - Gets the list of users viewing the topic.
 	 * - Loads events and polls attached to the topic.
@@ -119,6 +123,33 @@ class Display implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		// What are you gonna display if this is empty?!
+		if (empty(Topic::$topic_id)) {
+			ErrorHandler::fatalLang('no_board', false);
+		}
+
+		$this->checkPrevNextRedirect();
+		$this->preventPrefetch();
+
+		// Load the topic info.
+		Topic::load();
+
+		$this->incrementNumViews();
+		$this->checkMovedMergedRedirect();
+
+		$this->setStart();
+		$this->setPaginationAndLinks();
+		$this->setRobotNoIndex();
+
+		$this->setModerators();
+		$this->setUnapprovedPostsMessage();
+
+		// Now set all the wonderful, wonderful permissions... like moderation ones...
+		foreach (Topic::$info->doPermissions() as $perm => $val) {
+			Utils::$context[$perm] = &Topic::$info->permissions[$perm];
+		}
+
+		$this->setupTemplate();
 		$this->setupVerification();
 		$this->setOldTopicWarning();
 		$this->getWhoViewing();
@@ -296,45 +327,6 @@ class Display implements ActionInterface, Routable
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via load().
-	 *
-	 * - Handles any redirects we might need to do.
-	 * - Loads topic info.
-	 * - Loads permissions.
-	 * - Prepares most of the stuff for the templates.
-	 */
-	protected function __construct()
-	{
-		// What are you gonna display if this is empty?!
-		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('no_board', false);
-		}
-
-		$this->checkPrevNextRedirect();
-		$this->preventPrefetch();
-
-		// Load the topic info.
-		Topic::load();
-
-		$this->incrementNumViews();
-		$this->checkMovedMergedRedirect();
-
-		$this->setStart();
-		$this->setPaginationAndLinks();
-		$this->setRobotNoIndex();
-
-		$this->setModerators();
-		$this->setUnapprovedPostsMessage();
-
-		// Now set all the wonderful, wonderful permissions... like moderation ones...
-		foreach (Topic::$info->doPermissions() as $perm => $val) {
-			Utils::$context[$perm] = &Topic::$info->permissions[$perm];
-		}
-
-		$this->setupTemplate();
-	}
 
 	/**
 	 * Redirect to the previous or next topic, if requested in the URL params.

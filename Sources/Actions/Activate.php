@@ -96,6 +96,9 @@ class Activate implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Lang::load('Login');
+		Theme::loadTemplate('Login');
+
 		if (!isset($this->member)) {
 			if (empty($_REQUEST['u']) && empty($_POST['user'])) {
 				$this->showResendRequest();
@@ -238,9 +241,6 @@ class Activate implements ActionInterface, Routable
 		if (!empty(User::$me->id)) {
 			Utils::redirectexit('action=profile');
 		}
-
-		Lang::load('Login');
-		Theme::loadTemplate('Login');
 
 		// We can't activate anyone without knowing whom to activate.
 		if (empty($_REQUEST['u']) && empty($_POST['user'])) {

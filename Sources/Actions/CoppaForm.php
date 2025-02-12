@@ -48,6 +48,14 @@ class CoppaForm implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Lang::load('Login');
+		Theme::loadTemplate('Register');
+
+		// No User ID??
+		if (!isset($_GET['member'])) {
+			ErrorHandler::fatalLang('no_access', false);
+		}
+
 		// Get the user details...
 		$request = Db::$db->query(
 			'',
@@ -184,24 +192,6 @@ class CoppaForm implements ActionInterface, Routable
 		}
 
 		return $params;
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		Lang::load('Login');
-		Theme::loadTemplate('Register');
-
-		// No User ID??
-		if (!isset($_GET['member'])) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
 	}
 }
 

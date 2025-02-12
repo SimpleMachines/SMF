@@ -114,6 +114,34 @@ class Recent implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Utils::$context['posts'] = [];
+
+		Theme::loadTemplate('Recent');
+		Utils::$context['page_title'] = Lang::$txt['recent_posts'];
+		Utils::$context['sub_template'] = 'recent';
+
+		Utils::$context['is_redirect'] = false;
+
+		// Limit the start value to 90 or less.
+		Utils::$context['start'] = min(self::PER_PAGE * (self::PAGES - 1), (int) ($_REQUEST['start'] ?? 0));
+		// Also make it an even multiple of our posts per page value.
+		Utils::$context['start'] -= Utils::$context['start'] % self::PER_PAGE;
+
+		// Convert $_REQUEST['boards'] to an array of integers.
+		if (!empty($_REQUEST['boards'])) {
+			$_REQUEST['boards'] = array_map('intval', explode(',', $_REQUEST['boards']));
+		}
+
+		// Board requests takes precedence over category requests.
+		if (!empty($_REQUEST['boards']) || !empty(Board::$info->id)) {
+			unset($_REQUEST['c']);
+		}
+
+		// Convert $_REQUEST['c'] to an array of integers.
+		if (!empty($_REQUEST['c'])) {
+			$_REQUEST['c'] = array_map('intval', explode(',', $_REQUEST['c']));
+		}
+
 		$this->getBoards();
 		$this->getCatName();
 
@@ -210,34 +238,6 @@ class Recent implements ActionInterface, Routable
 	protected function __construct()
 	{
 		$this->action_url = Config::$scripturl . '?action=recent';
-
-		Utils::$context['posts'] = [];
-
-		Theme::loadTemplate('Recent');
-		Utils::$context['page_title'] = Lang::$txt['recent_posts'];
-		Utils::$context['sub_template'] = 'recent';
-
-		Utils::$context['is_redirect'] = false;
-
-		// Limit the start value to 90 or less.
-		Utils::$context['start'] = min(self::PER_PAGE * (self::PAGES - 1), (int) ($_REQUEST['start'] ?? 0));
-		// Also make it an even multiple of our posts per page value.
-		Utils::$context['start'] -= Utils::$context['start'] % self::PER_PAGE;
-
-		// Convert $_REQUEST['boards'] to an array of integers.
-		if (!empty($_REQUEST['boards'])) {
-			$_REQUEST['boards'] = array_map('intval', explode(',', $_REQUEST['boards']));
-		}
-
-		// Board requests takes precedence over category requests.
-		if (!empty($_REQUEST['boards']) || !empty(Board::$info->id)) {
-			unset($_REQUEST['c']);
-		}
-
-		// Convert $_REQUEST['c'] to an array of integers.
-		if (!empty($_REQUEST['c'])) {
-			$_REQUEST['c'] = array_map('intval', explode(',', $_REQUEST['c']));
-		}
 	}
 
 	/**

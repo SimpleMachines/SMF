@@ -57,6 +57,12 @@ class QuoteFast implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Lang::load('Post');
+
+		if (!isset($_REQUEST['xml'])) {
+			Theme::loadTemplate('Post');
+		}
+
 		$query_customizations = [
 			'selects' => [
 				'COALESCE(mem.real_name, m.poster_name) AS poster_name',
@@ -167,22 +173,6 @@ class QuoteFast implements ActionInterface, Routable
 		}
 
 		IntegrationHook::call('integrate_quotefast', [$row]);
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		Lang::load('Post');
-
-		if (!isset($_REQUEST['xml'])) {
-			Theme::loadTemplate('Post');
-		}
 	}
 }
 

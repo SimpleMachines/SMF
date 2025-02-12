@@ -287,7 +287,13 @@ class Feed implements ActionInterface, Routable
 
 		// Bail out if feeds are disabled.
 		$this->checkEnabled();
+	}
 
+	/**
+	 * Fetches the data based on the sub-action, builds the XML, and emits it.
+	 */
+	public function execute(): void
+	{
 		// The feed metadata and query are a bit more complicated...
 		Lang::load('Stats');
 
@@ -451,13 +457,7 @@ class Feed implements ActionInterface, Routable
 		foreach ($this->metadata as $key => $value) {
 			$this->metadata[$key] = strip_tags($value);
 		}
-	}
 
-	/**
-	 * Fetches the data based on the sub-action, builds the XML, and emits it.
-	 */
-	public function execute(): void
-	{
 		$this->getData();
 		$this->xml = self::build($this->format, $this->data, $this->metadata, $this->subaction);
 		$this->emit();

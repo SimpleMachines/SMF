@@ -84,6 +84,12 @@ class Home implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('ModerationCenter');
+		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
+
+		Utils::$context['page_title'] = Lang::$txt['moderation_center'];
+		Utils::$context['sub_template'] = 'moderation_center';
+
 		// Normally this will already have been done, but just in case...
 		Main::checkAccessPermissions();
 
@@ -131,18 +137,6 @@ class Home implements ActionInterface
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		Theme::loadTemplate('ModerationCenter');
-		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
-
-		Utils::$context['page_title'] = Lang::$txt['moderation_center'];
-		Utils::$context['sub_template'] = 'moderation_center';
-	}
 
 	/**
 	 * Show an area for the moderator to type into.

@@ -93,6 +93,30 @@ class Boards implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Special handling for modifycat.
+		if (($_REQUEST['action'] ?? '') === 'modifycat') {
+			self::modifyCat();
+		}
+
+		// Everything's gonna need this.
+		Lang::load('ManageBoards');
+
+		// Create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['boards_and_cats'],
+			'help' => 'manage_boards',
+			'description' => Lang::$txt['boards_and_cats_desc'],
+			'tabs' => [
+				'main' => [
+				],
+				'newcat' => [
+				],
+				'settings' => [
+					'description' => Lang::$txt['mboards_settings_desc'],
+				],
+			],
+		];
+
 		// Have you got the proper permissions?
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -930,30 +954,6 @@ class Boards implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Special handling for modifycat.
-		if (($_REQUEST['action'] ?? '') === 'modifycat') {
-			self::modifyCat();
-		}
-
-		// Everything's gonna need this.
-		Lang::load('ManageBoards');
-
-		// Create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['boards_and_cats'],
-			'help' => 'manage_boards',
-			'description' => Lang::$txt['boards_and_cats_desc'],
-			'tabs' => [
-				'main' => [
-				],
-				'newcat' => [
-				],
-				'settings' => [
-					'description' => Lang::$txt['mboards_settings_desc'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_boards', [&self::$subactions]);
 
 		// Default to sub action 'main' or 'settings' depending on permissions.

@@ -166,6 +166,59 @@ class Smileys implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('manage_smileys');
+
+		Lang::load('ManageSmileys');
+		Theme::loadTemplate('ManageSmileys');
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['smileys_manage'],
+			'help' => 'smileys',
+			'description' => Lang::$txt['smiley_settings_explain'],
+			'tabs' => [
+				'editsets' => [
+					'description' => Lang::$txt['smiley_editsets_explain'],
+				],
+				'addsmiley' => [
+					'description' => Lang::$txt['smiley_addsmiley_explain'],
+				],
+				'editsmileys' => [
+					'description' => Lang::$txt['smiley_editsmileys_explain'],
+				],
+				'setorder' => [
+					'description' => Lang::$txt['smiley_setorder_explain'],
+				],
+				'editicons' => [
+					'description' => Lang::$txt['icons_edit_icons_explain'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['smiley_settings_explain'],
+				],
+			],
+		];
+
+		// Some settings may not be enabled, disallow these from the tabs as appropriate.
+		if (empty(Config::$modSettings['messageIcons_enable'])) {
+			Menu::$loaded['admin']->tab_data['tabs']['editicons']['disabled'] = true;
+		}
+
+		if (empty(Config::$modSettings['smiley_enable'])) {
+			Menu::$loaded['admin']->tab_data['tabs']['addsmiley']['disabled'] = true;
+			Menu::$loaded['admin']->tab_data['tabs']['editsmileys']['disabled'] = true;
+			Menu::$loaded['admin']->tab_data['tabs']['setorder']['disabled'] = true;
+		}
+
+		Utils::$context['sub_action'] = &$this->subaction;
+
+		Utils::$context['page_title'] = Lang::$txt['smileys_manage'];
+		Utils::$context['sub_template'] = $this->subaction;
+
+		self::findSmileysDir();
+		self::getKnownSmileySets();
+
+		Utils::$context['smiley_sets'] = &self::$smiley_sets;
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -2273,11 +2326,6 @@ class Smileys implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('manage_smileys');
-
-		Lang::load('ManageSmileys');
-		Theme::loadTemplate('ManageSmileys');
-
 		// If customized smileys is disabled don't show the setting page
 		if (empty(Config::$modSettings['smiley_enable'])) {
 			unset(self::$subactions['addsmiley'], self::$subactions['editsmileys'], self::$subactions['setorder'], self::$subactions['modifysmiley']);
@@ -2287,59 +2335,11 @@ class Smileys implements ActionInterface
 			unset(self::$subactions['editicon'], self::$subactions['editicons']);
 		}
 
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['smileys_manage'],
-			'help' => 'smileys',
-			'description' => Lang::$txt['smiley_settings_explain'],
-			'tabs' => [
-				'editsets' => [
-					'description' => Lang::$txt['smiley_editsets_explain'],
-				],
-				'addsmiley' => [
-					'description' => Lang::$txt['smiley_addsmiley_explain'],
-				],
-				'editsmileys' => [
-					'description' => Lang::$txt['smiley_editsmileys_explain'],
-				],
-				'setorder' => [
-					'description' => Lang::$txt['smiley_setorder_explain'],
-				],
-				'editicons' => [
-					'description' => Lang::$txt['icons_edit_icons_explain'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['smiley_settings_explain'],
-				],
-			],
-		];
-
-		// Some settings may not be enabled, disallow these from the tabs as appropriate.
-		if (empty(Config::$modSettings['messageIcons_enable'])) {
-			Menu::$loaded['admin']->tab_data['tabs']['editicons']['disabled'] = true;
-		}
-
-		if (empty(Config::$modSettings['smiley_enable'])) {
-			Menu::$loaded['admin']->tab_data['tabs']['addsmiley']['disabled'] = true;
-			Menu::$loaded['admin']->tab_data['tabs']['editsmileys']['disabled'] = true;
-			Menu::$loaded['admin']->tab_data['tabs']['setorder']['disabled'] = true;
-		}
-
 		IntegrationHook::call('integrate_manage_smileys', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
 		}
-
-		Utils::$context['sub_action'] = &$this->subaction;
-
-		Utils::$context['page_title'] = Lang::$txt['smileys_manage'];
-		Utils::$context['sub_template'] = $this->subaction;
-
-		self::findSmileysDir();
-		self::getKnownSmileySets();
-
-		Utils::$context['smiley_sets'] = &self::$smiley_sets;
 	}
 
 	/**

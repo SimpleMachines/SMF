@@ -85,6 +85,14 @@ class Calendar implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Lang::load('Calendar');
+
+		// Some global template resources.
+		Utils::$context['calendar_resources'] = [
+			'min_year' => Config::$modSettings['cal_minyear'],
+			'max_year' => Config::$modSettings['cal_maxyear'],
+		];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -1730,8 +1738,6 @@ class Calendar implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		Lang::load('Calendar');
-
 		if ($_GET['action'] === 'clock') {
 			$this->subaction = 'clock';
 		} elseif (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
@@ -1762,12 +1768,6 @@ class Calendar implements ActionInterface, Routable
 		else {
 			User::$me->isAllowedTo('calendar_view');
 		}
-
-		// Some global template resources.
-		Utils::$context['calendar_resources'] = [
-			'min_year' => Config::$modSettings['cal_minyear'],
-			'max_year' => Config::$modSettings['cal_maxyear'],
-		];
 	}
 
 	/**

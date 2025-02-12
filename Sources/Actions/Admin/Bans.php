@@ -85,6 +85,8 @@ class Bans implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		User::$me->isAllowedTo('manage_bans');
 
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
@@ -1468,9 +1470,9 @@ class Bans implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial setup.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		Theme::loadTemplate('ManageBans');
 

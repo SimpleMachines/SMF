@@ -360,6 +360,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null
+	{
+		return pg_fetch_object($result, null, $class, $args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function free_result(object $result): bool
 	{
 		return pg_free_result($result);

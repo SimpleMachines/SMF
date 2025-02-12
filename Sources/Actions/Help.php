@@ -73,6 +73,9 @@ class Help implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('Help');
+		Lang::load('Manual');
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -132,10 +135,6 @@ class Help implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		Theme::loadTemplate('Help');
-		Lang::load('Manual');
-
-		// CRUD $subactions as needed.
 		IntegrationHook::call('integrate_manage_help', [&self::$subactions]);
 
 		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {

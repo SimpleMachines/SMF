@@ -353,6 +353,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null
+	{
+		return mysqli_fetch_object($result, $class, $args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function free_result(object $result): bool
 	{
 		mysqli_free_result($result);

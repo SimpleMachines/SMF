@@ -185,6 +185,15 @@ class Server implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('ManageSettings');
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['admin_server_settings'],
+			'help' => 'serversettings',
+			'description' => Lang::$txt['admin_basic_settings'],
+		];
+
 		// This is just to keep the database password more secure.
 		User::$me->isAllowedTo('admin_forum');
 
@@ -1224,15 +1233,6 @@ class Server implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('ManageSettings');
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['admin_server_settings'],
-			'help' => 'serversettings',
-			'description' => Lang::$txt['admin_basic_settings'],
-		];
-
 		IntegrationHook::call('integrate_server_settings', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {

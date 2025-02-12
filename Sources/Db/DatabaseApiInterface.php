@@ -66,6 +66,16 @@ interface DatabaseApiInterface
 	public function fetch_all(object $request): array;
 
 	/**
+	 * Fetches all rows from a result as an object.
+	 *
+	 * @param object $result A query result resource.
+	 * @param string $class The name of the class to instantiate, set the properties of and return. If not specified, a stdClass object is returned.
+	 * @param array $args An optional array of parameters to pass to the constructor for class objects.
+	 * @return object|false|null Returns an object representing the fetched row, where each property represents the name of the result set's column, null if there are no more rows in the result set, or false on failure.
+	 */
+	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null;
+
+	/**
 	 * Frees the memory and data associated with the query result.
 	 */
 	public function free_result(object $result): bool;

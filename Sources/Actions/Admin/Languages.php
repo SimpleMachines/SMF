@@ -81,6 +81,18 @@ class Languages implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('ManageLanguages');
+		Lang::load('ManageSettings');
+
+		Utils::$context['page_title'] = Lang::$txt['edit_languages'];
+		Utils::$context['sub_template'] = 'show_settings';
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['language_configuration'],
+			'description' => Lang::$txt['language_description'],
+		];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -1622,18 +1634,6 @@ class Languages implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Theme::loadTemplate('ManageLanguages');
-		Lang::load('ManageSettings');
-
-		Utils::$context['page_title'] = Lang::$txt['edit_languages'];
-		Utils::$context['sub_template'] = 'show_settings';
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['language_configuration'],
-			'description' => Lang::$txt['language_description'],
-		];
-
 		IntegrationHook::call('integrate_manage_languages', [&self::$subactions]);
 
 		// By default we're managing languages.
