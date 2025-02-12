@@ -769,6 +769,7 @@ class PersonalMessage implements ActionInterface, Routable
 		if (isset($_REQUEST['save'])) {
 			User::$me->checkSession();
 			Profile::$member->save();
+			Utils::redirectexit('action=pm;sa=settings');
 		}
 
 		Profile::$member->setupContext(['pm_prefs']);
