@@ -109,6 +109,18 @@ class Popup implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Finalize various string values.
+		array_walk_recursive(
+			$this->profile_items,
+			function (&$value, $key) {
+				if ($key === 'title') {
+					$value = Lang::$txt[$value] ?? $value;
+				}
+
+				$value = strtr($value, ['{scripturl}' => Config::$scripturl]);
+			},
+		);
+
 		// We do not want to output debug information here.
 		Config::$db_show_debug = false;
 
@@ -125,28 +137,6 @@ class Popup implements ActionInterface
 				Utils::$context['profile_items'][] = $item;
 			}
 		}
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Finalize various string values.
-		array_walk_recursive(
-			$this->profile_items,
-			function (&$value, $key) {
-				if ($key === 'title') {
-					$value = Lang::$txt[$value] ?? $value;
-				}
-
-				$value = strtr($value, ['{scripturl}' => Config::$scripturl]);
-			},
-		);
 	}
 }
 

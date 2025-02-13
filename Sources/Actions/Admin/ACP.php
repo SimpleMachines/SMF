@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\Actions\MessageIndex;
 use SMF\Actions\Notify;
 use SMF\ActionTrait;
@@ -27,9 +28,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
-use SMF\OutputTypeInterface;
-use SMF\OutputTypes;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
@@ -39,8 +39,9 @@ use SMF\Utils;
 /**
  * This class, unpredictable as this might be, handles basic administration.
  */
-class ACP implements ActionInterface
+class ACP implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -449,6 +450,10 @@ class ACP implements ActionInterface
 						'search' => [
 							'label' => 'mlist_search',
 						],
+						'settings' => [
+							'label' => 'settings',
+							'permission' => 'admin_forum',
+						],
 					],
 				],
 				'membergroups' => [
@@ -733,16 +738,6 @@ class ACP implements ActionInterface
 	 * Public methods
 	 ****************/
 
-	public function isSimpleAction(): bool
-	{
-		return isset($_REQUEST['preview']);
-	}
-
-	public function getOutputType(): OutputTypeInterface
-	{
-		return isset($_REQUEST['preview']) ? new OutputTypes\Xml() : new OutputTypes\Html();
-	}
-
 	/**
 	 * The main admin handling function.
 	 *
@@ -752,6 +747,8 @@ class ACP implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		// Make sure the administrator has a valid session...
 		User::$me->validateSession();
 
@@ -1585,12 +1582,12 @@ class ACP implements ActionInterface
 
 		// Load all the files in the tasks directory.
 		if (!empty($versionOptions['include_tasks'])) {
-			$tasks_dir = dir(Config::$tasksdir);
+			$tasks_dir = dir(Config::$sourcedir . '/Tasks');
 
 			while ($entry = $tasks_dir->read()) {
-				if (str_ends_with($entry, '.php') && !is_dir(Config::$tasksdir . '/' . $entry) && $entry !== 'index.php') {
+				if (str_ends_with($entry, '.php') && !is_dir(Config::$sourcedir . '/Tasks/' . $entry) && $entry !== 'index.php') {
 					// Read the first 4k from the file.... enough for the header.
-					$fp = fopen(Config::$tasksdir . '/' . $entry, 'rb');
+					$fp = fopen(Config::$sourcedir . '/Tasks/' . $entry, 'rb');
 					$header = fread($fp, 4096);
 					fclose($fp);
 
@@ -1709,8 +1706,20 @@ class ACP implements ActionInterface
 		Db::$db->insert(
 			'replace',
 			'{db_prefix}themes',
-			['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
-			[User::$me->id, 1, 'admin_preferences', Theme::$current->options['admin_preferences']],
+			[
+				'id_member' => 'int',
+				'id_theme' => 'int',
+				'variable' => 'string-255',
+				'value' => 'string-65534',
+			],
+			[
+				[
+					User::$me->id,
+					1,
+					'admin_preferences',
+					Theme::$current->options['admin_preferences'],
+				],
+			],
 			['id_member', 'id_theme', 'variable'],
 		);
 
@@ -1858,9 +1867,9 @@ class ACP implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial setup.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// Load the language and templates....
 		Lang::load('Admin');

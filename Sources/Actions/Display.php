@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Attachment;
@@ -31,6 +32,7 @@ use SMF\Lang;
 use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
@@ -51,8 +53,9 @@ use SMF\Verifier;
  * Although this class is not accessed using an ?action=... URL query, it
  * behaves like an action in every other way.
  */
-class Display implements ActionInterface
+class Display implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -106,6 +109,10 @@ class Display implements ActionInterface
 	/**
 	 * Does the heavy lifting to show the posts in this topic.
 	 *
+	 * - Handles any redirects we might need to do.
+	 * - Loads topic info.
+	 * - Loads permissions.
+	 * - Prepares stuff for the templates.
 	 * - Sets up anti-spam verification and old topic warnings.
 	 * - Gets the list of users viewing the topic.
 	 * - Loads events and polls attached to the topic.
@@ -116,6 +123,33 @@ class Display implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// What are you gonna display if this is empty?!
+		if (empty(Topic::$topic_id)) {
+			ErrorHandler::fatalLang('no_board', false);
+		}
+
+		$this->checkPrevNextRedirect();
+		$this->preventPrefetch();
+
+		// Load the topic info.
+		Topic::load();
+
+		$this->incrementNumViews();
+		$this->checkMovedMergedRedirect();
+
+		$this->setStart();
+		$this->setPaginationAndLinks();
+		$this->setRobotNoIndex();
+
+		$this->setModerators();
+		$this->setUnapprovedPostsMessage();
+
+		// Now set all the wonderful, wonderful permissions... like moderation ones...
+		foreach (Topic::$info->doPermissions() as $perm => $val) {
+			Utils::$context[$perm] = &Topic::$info->permissions[$perm];
+		}
+
+		$this->setupTemplate();
 		$this->setupVerification();
 		$this->setOldTopicWarning();
 		$this->getWhoViewing();
@@ -273,48 +307,26 @@ class Display implements ActionInterface
 		return $output;
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		return Topic::buildRoute($params);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via load().
-	 *
-	 * - Handles any redirects we might need to do.
-	 * - Loads topic info.
-	 * - Loads permissions.
-	 * - Prepares most of the stuff for the templates.
-	 */
-	protected function __construct()
-	{
-		// What are you gonna display if this is empty?!
-		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('no_board', false);
-		}
-
-		$this->checkPrevNextRedirect();
-		$this->preventPrefetch();
-
-		// Load the topic info.
-		Topic::load();
-
-		$this->incrementNumViews();
-		$this->checkMovedMergedRedirect();
-
-		$this->setStart();
-		$this->setPaginationAndLinks();
-		$this->setRobotNoIndex();
-
-		$this->setModerators();
-		$this->setUnapprovedPostsMessage();
-
-		// Now set all the wonderful, wonderful permissions... like moderation ones...
-		foreach (Topic::$info->doPermissions() as $perm => $val) {
-			Utils::$context[$perm] = &Topic::$info->permissions[$perm];
-		}
-
-		$this->setupTemplate();
-	}
 
 	/**
 	 * Redirect to the previous or next topic, if requested in the URL params.
@@ -476,10 +488,18 @@ class Display implements ActionInterface
 					Topic::$info->new_from == 0 ? 'ignore' : 'replace',
 					'{db_prefix}log_topics',
 					[
-						'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
+						'id_member' => 'int',
+						'id_topic' => 'int',
+						'id_msg' => 'int',
+						'unwatched' => 'int',
 					],
 					[
-						User::$me->id, Topic::$info->id, $mark_at_msg, Topic::$info->unwatched,
+						[
+							User::$me->id,
+							Topic::$info->id,
+							$mark_at_msg,
+							Topic::$info->unwatched,
+						],
 					],
 					['id_member', 'id_topic'],
 				);
@@ -569,8 +589,18 @@ class Display implements ActionInterface
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}log_boards',
-					['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
-					[Config::$modSettings['maxMsgID'], User::$me->id, Board::$info->id],
+					[
+						'id_msg' => 'int',
+						'id_member' => 'int',
+						'id_board' => 'int',
+					],
+					[
+						[
+							Config::$modSettings['maxMsgID'],
+							User::$me->id,
+							Board::$info->id,
+						],
+					],
 					['id_member', 'id_board'],
 				);
 			}

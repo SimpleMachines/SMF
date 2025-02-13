@@ -127,8 +127,18 @@ class PollChoice implements \ArrayAccess
 		Db::$db->insert(
 			'',
 			'{db_prefix}poll_choices',
-			['id_poll' => 'int', 'id_choice' => 'int', 'label' => 'string-255'],
-			[$this->poll, $this->id, $this->label],
+			[
+				'id_poll' => 'int',
+				'id_choice' => 'int',
+				'label' => 'string-255',
+			],
+			[
+				[
+					$this->poll,
+					$this->id,
+					$this->label,
+				],
+			],
 			[],
 		);
 	}

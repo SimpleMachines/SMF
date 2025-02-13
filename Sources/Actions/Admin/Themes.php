@@ -100,6 +100,38 @@ class Themes implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('admin_forum');
+
+		// Load the important language files...
+		Lang::load('Admin');
+		Lang::load('Themes');
+		Lang::load('ThemeStrings');
+		Lang::load('Drafts');
+
+		// Default the page title to Theme Administration by default.
+		Utils::$context['page_title'] = Lang::$txt['themeadmin_title'];
+
+		if (!empty(Utils::$context['admin_menu_name'])) {
+			Menu::$loaded['admin']->tab_data = [
+				'title' => Lang::$txt['themeadmin_title'],
+				'description' => Lang::$txt['themeadmin_description'],
+				'tabs' => [
+					'admin' => [
+						'description' => Lang::$txt['themeadmin_admin_desc'],
+					],
+					'list' => [
+						'description' => Lang::$txt['themeadmin_list_desc'],
+					],
+					'reset' => [
+						'description' => Lang::$txt['themeadmin_reset_desc'],
+					],
+					'edit' => [
+						'description' => Lang::$txt['themeadmin_edit_desc'],
+					],
+				],
+			];
+		}
+
 		// Whatever they decide to do, clean the minify cache.
 		Theme::deleteAllMinified();
 
@@ -1337,39 +1369,6 @@ class Themes implements ActionInterface
 			Utils::redirectexit('action=admin;area=theme;' . (isset($_GET['sa']) ? ';sa=' . $_GET['sa'] : '') . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
 		}
 
-		User::$me->isAllowedTo('admin_forum');
-
-		// Load the important language files...
-		Lang::load('Admin');
-		Lang::load('Themes');
-		Lang::load('ThemeStrings');
-		Lang::load('Drafts');
-
-		// Default the page title to Theme Administration by default.
-		Utils::$context['page_title'] = Lang::$txt['themeadmin_title'];
-
-		if (!empty(Utils::$context['admin_menu_name'])) {
-			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['themeadmin_title'],
-				'description' => Lang::$txt['themeadmin_description'],
-				'tabs' => [
-					'admin' => [
-						'description' => Lang::$txt['themeadmin_admin_desc'],
-					],
-					'list' => [
-						'description' => Lang::$txt['themeadmin_list_desc'],
-					],
-					'reset' => [
-						'description' => Lang::$txt['themeadmin_reset_desc'],
-					],
-					'edit' => [
-						'description' => Lang::$txt['themeadmin_edit_desc'],
-					],
-				],
-			];
-		}
-
-		// CRUD self::$subactions as needed.
 		IntegrationHook::call('integrate_manage_themes', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -1585,6 +1584,8 @@ class Themes implements ActionInterface
 	 */
 	protected function installDir(): array
 	{
+		$_REQUEST['theme_dir'] = rtrim($_REQUEST['theme_dir'], '\\/');
+
 		// Cannot use the theme dir as a theme dir.
 		if (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath(Utils::$context['themedir'])) {
 			ErrorHandler::fatalLang('theme_install_invalid_dir', false);
@@ -2149,7 +2150,7 @@ class Themes implements ActionInterface
 					if (filetype($path . '/' . $object) == 'dir') {
 						$this->deltree($path . '/' . $object);
 					} else {
-						unlink($path . '/' . $object);
+						@unlink($path . '/' . $object);
 					}
 				}
 			}
@@ -2157,7 +2158,7 @@ class Themes implements ActionInterface
 
 		reset($objects);
 
-		return rmdir($path);
+		return @rmdir($path);
 	}
 
 	/**

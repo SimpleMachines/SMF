@@ -251,35 +251,6 @@ class GroupMembership implements ActionInterface
 		Profile::$member->new_data['id_group'] = $new_primary;
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Backward compatibility wrapper for the save method.
-	 *
-	 * @param int $memID The ID of the user.
-	 * @return string The type of change that was made.
-	 */
-	public static function groupMembership2(int $memID): string
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$saving = Utils::$context['completed_save'];
-		Utils::$context['completed_save'] = true;
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
-
-		Utils::$context['completed_save'] = $saving;
-
-		return self::$obj->change_type;
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -404,15 +375,17 @@ class GroupMembership implements ActionInterface
 				'act_reason' => 'string',
 			],
 			[
-				Profile::$member->id,
-				$new_group_id,
-				time(),
-				$_POST['reason'],
-				0,
-				0,
-				'',
-				0,
-				'',
+				[
+					Profile::$member->id,
+					$new_group_id,
+					time(),
+					$_POST['reason'],
+					0,
+					0,
+					'',
+					0,
+					'',
+				],
 			],
 			['id_request'],
 		);
@@ -437,9 +410,11 @@ class GroupMembership implements ActionInterface
 				'claimed_time' => 'int',
 			],
 			[
-				'SMF\\Tasks\\GroupReq_Notify',
-				$data,
-				0,
+				[
+					'SMF\\Tasks\\GroupReq_Notify',
+					$data,
+					0,
+				],
 			],
 			[],
 		);

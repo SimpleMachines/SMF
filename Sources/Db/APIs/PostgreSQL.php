@@ -208,14 +208,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
+		// Inject the values passed to this function.
 		if (empty($db_values['security_override']) && (!empty($db_values) || str_contains($db_string, '{db_prefix}'))) {
-			$this->temp_values = $db_values;
-			$this->temp_connection = $connection;
-
-			// Inject the values passed to this function.
-			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', [$this, 'replacement__callback'], $db_string);
-
-			unset($this->temp_values, $this->temp_connection);
+			$db_string = $this->quote($db_string, $db_values, $connection);
 		}
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
@@ -365,6 +360,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null
+	{
+		return pg_fetch_object($result, null, $class, $args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function free_result(object $result): bool
 	{
 		return pg_free_result($result);
@@ -387,8 +390,21 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Force method to lower case
 		$method = strtolower($method);
 
-		if (!is_array($data[array_rand($data)])) {
-			$data = [$data];
+		// Ensure that $data is a multidimensional array.
+		if (array_filter($data, fn($dataRow) => is_array($dataRow)) !== $data) {
+			// If backward compatibility mode is enabled, quietly clean up after
+			// old mods that did the wrong thing. Otherwise, trigger an error.
+			if (!empty(Config::$backward_compatibility)) {
+				$data = [$data];
+			} else {
+				$this->error_backtrace(
+					'Invalid data structure sent to the database.',
+					'',
+					E_USER_ERROR,
+					__FILE__,
+					__LINE__,
+				);
+			}
 		}
 
 		// Replace the prefix holder with the actual prefix.

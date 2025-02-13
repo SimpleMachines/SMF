@@ -112,7 +112,7 @@ class TFASetup implements ActionInterface
 
 		if (empty(Utils::$context['password_auth_failed']) && $valid_code) {
 			$backup = bin2hex(random_bytes(8));
-			$backup_encrypted = Security::hashPassword(User::$me->username, $backup);
+			$backup_encrypted = Security::hashPassword($backup);
 
 			User::updateMemberData(Profile::$member->id, [
 				'tfa_secret' => $_SESSION['tfa_secret'],

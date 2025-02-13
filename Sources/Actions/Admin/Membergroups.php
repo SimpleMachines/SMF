@@ -83,6 +83,17 @@ class Membergroups implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Language and template stuff, the usual.
+		Lang::load('ManageMembers');
+		Theme::loadTemplate('ManageMembergroups');
+
+		// Setup the admin tabs.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['membergroups_title'],
+			'help' => 'membergroups',
+			'description' => Lang::$txt['membergroups_description'],
+		];
+
 		// Do the permission check, you might not be allowed here.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -332,12 +343,22 @@ class Membergroups implements ActionInterface
 				'',
 				'{db_prefix}membergroups',
 				[
-					'description' => 'string', 'group_name' => 'string-80', 'min_posts' => 'int',
-					'icons' => 'string', 'online_color' => 'string', 'group_type' => 'int',
+					'description' => 'string',
+					'group_name' => 'string-80',
+					'min_posts' => 'int',
+					'icons' => 'string',
+					'online_color' => 'string',
+					'group_type' => 'int',
 				],
 				[
-					'', Utils::htmlspecialchars($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
-					'1#icon.png', '', $_POST['group_type'],
+					[
+						'',
+						Utils::htmlspecialchars($_POST['group_name'], ENT_QUOTES),
+						($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
+						'1#icon.png',
+						'',
+						$_POST['group_type'],
+					],
 				],
 				['id_group'],
 				1,
@@ -959,17 +980,6 @@ class Membergroups implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Language and template stuff, the usual.
-		Lang::load('ManageMembers');
-		Theme::loadTemplate('ManageMembergroups');
-
-		// Setup the admin tabs.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['membergroups_title'],
-			'help' => 'membergroups',
-			'description' => Lang::$txt['membergroups_description'],
-		];
-
 		IntegrationHook::call('integrate_manage_membergroups', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {

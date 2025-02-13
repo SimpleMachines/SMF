@@ -92,6 +92,22 @@ class SearchEngines implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('admin_forum');
+
+		Lang::load('Search');
+		Theme::loadTemplate('ManageSearch');
+
+		Utils::$context['page_title'] = Lang::$txt['search_engines'];
+
+		// Tab data might already be set if this was called from Logs::execute().
+		if (empty(Menu::$loaded['admin']->tab_data)) {
+			// Some more tab data.
+			Menu::$loaded['admin']->tab_data = [
+				'title' => Lang::$txt['search_engines'],
+				'description' => Lang::$txt['search_engines_description'],
+			];
+		}
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -711,10 +727,16 @@ class SearchEngines implements ActionInterface
 					'insert',
 					'{db_prefix}spiders',
 					[
-						'spider_name' => 'string', 'user_agent' => 'string', 'ip_info' => 'string',
+						'spider_name' => 'string',
+						'user_agent' => 'string',
+						'ip_info' => 'string',
 					],
 					[
-						$_POST['spider_name'], $_POST['spider_agent'], $ips,
+						[
+							$_POST['spider_name'],
+							$_POST['spider_agent'],
+							$ips,
+						],
 					],
 					['id_spider'],
 				);
@@ -806,14 +828,21 @@ class SearchEngines implements ActionInterface
 			$post_input = '<br><span class="error">' . Lang::$txt['robots_txt_not_writable'] . '</span>';
 		}
 
-		$config_vars[] = [
-			'text',
-			'robots_txt',
-			'subtext' => Lang::$txt['robots_txt_info'],
-			'size' => 45,
-			'invalid' => $invalid ?? false,
-			'postinput' => $post_input ?? '',
-		];
+		$config_vars = array_merge($config_vars, [
+			[
+				'text',
+				'robots_txt',
+				'subtext' => Lang::$txt['robots_txt_info'],
+				'size' => 45,
+				'invalid' => $invalid ?? false,
+				'postinput' => $post_input ?? '',
+			],
+			[
+				'large_text',
+				'meta_keywords',
+				'subtext' => Lang::$txt['meta_keywords_note'],
+			],
+		]);
 
 		IntegrationHook::call('integrate_modify_search_engine_settings', [&$config_vars]);
 
@@ -1092,25 +1121,9 @@ class SearchEngines implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('Search');
-		Theme::loadTemplate('ManageSearch');
-
 		if (empty(Config::$modSettings['spider_mode'])) {
 			self::$subactions = array_intersect_key(self::$subactions, ['settings' => true]);
 			$this->subaction = 'settings';
-		}
-
-		Utils::$context['page_title'] = Lang::$txt['search_engines'];
-
-		// Tab data might already be set if this was called from Logs::execute().
-		if (empty(Menu::$loaded['admin']->tab_data)) {
-			// Some more tab data.
-			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['search_engines'],
-				'description' => Lang::$txt['search_engines_description'],
-			];
 		}
 
 		IntegrationHook::call('integrate_manage_search_engines', [&self::$subactions]);
@@ -1199,7 +1212,7 @@ class SearchEngines implements ActionInterface
 					$boardpath . '/*.msg',
 					$boardpath . '/*.new',
 					$boardpath . '/*.from',
-					// Actions that always set Utils::$context['robot_no_index'] to true.
+					// Normal URLs of actions that always set Utils::$context['robot_no_index'] to true
 					$scriptpath . '?action=admin',
 					$scriptpath . '?action=credits',
 					$scriptpath . '?action=moderate',
@@ -1209,6 +1222,15 @@ class SearchEngines implements ActionInterface
 					$scriptpath . '?action=reporttm',
 					$scriptpath . '?action=search',
 					$scriptpath . '?action=who',
+					// Queryless URLs of actions that always set Utils::$context['robot_no_index'] to true
+					$boardpath . '/*/credits',
+					$boardpath . '/*/moderate',
+					$boardpath . '/*/post',
+					$boardpath . '/*/printpage',
+					$boardpath . '/*/reminder',
+					$boardpath . '/*/reporttm',
+					$boardpath . '/*/search',
+					$boardpath . '/*/who',
 				],
 			],
 		];

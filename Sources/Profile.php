@@ -460,7 +460,7 @@ class Profile extends User implements \ArrayAccess
 
 					// Do they need to revalidate? If so schedule the function!
 					if ($isValid === true && !empty(Config::$modSettings['send_validation_onChange']) && !User::$me->allowedTo('moderate_forum')) {
-						$this->new_data['validation_code'] = User::generateValidationCode();
+						$this->new_data['validation_code'] = Security::generateValidationCode();
 
 						$this->new_data['is_activated'] = User::UNVALIDATED;
 
@@ -563,7 +563,7 @@ class Profile extends User implements \ArrayAccess
 							&& $_POST['passwrd1'] != ''
 							&& isset($_POST['passwrd2'])
 							&& $_POST['passwrd1'] == $_POST['passwrd2']
-							&& User::validatePassword(Utils::htmlspecialcharsDecode($_POST['passwrd1']), $value, [$this->name, User::$me->username, User::$me->name, User::$me->email]) == null
+							&& Security::validatePassword(Utils::htmlspecialcharsDecode($_POST['passwrd1']), $value, [$this->name, User::$me->username, User::$me->name, User::$me->email]) == null
 						) {
 							$reset_password = false;
 						}
@@ -605,15 +605,17 @@ class Profile extends User implements \ArrayAccess
 					}
 
 					// Let's get the validation function into play...
-					$passwordErrors = User::validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, [$this->name, User::$me->username, User::$me->name, User::$me->email]);
+					$password_error = Security::validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, [$this->name, User::$me->username, User::$me->name, User::$me->email]);
 
 					// Were there errors?
-					if ($passwordErrors != null) {
-						return 'password_' . $passwordErrors;
+					if ($password_error != null) {
+						Lang::load('Errors');
+
+						return (isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'password_' : '') . $password_error;
 					}
 
 					// Set up the new password variable... ready for storage.
-					$value = Security::hashPassword($this->username, Utils::htmlspecialcharsDecode($value));
+					$value = Security::hashPassword(Utils::htmlspecialcharsDecode($value));
 
 					return true;
 				},
@@ -726,7 +728,7 @@ class Profile extends User implements \ArrayAccess
 				'value' => '',
 				'permission' => 'profile_password',
 				'input_validate' => function (&$value) {
-					$value = $value != '' ? Security::hashPassword($this->username, $value) : '';
+					$value = $value != '' ? Security::hashPassword($value) : '';
 
 					return true;
 				},
@@ -1544,7 +1546,7 @@ class Profile extends User implements \ArrayAccess
 		// This allows variables to call activities when they save.
 		Utils::$context['profile_execute_on_save'] = [];
 
-		if (User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area, ['account', 'forumprofile', 'theme'])) {
+		if (User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area ?? null, ['account', 'forumprofile', 'theme'])) {
 			Utils::$context['profile_execute_on_save']['reload_user'] = [__CLASS__ . '::reloadUser', Profile::$member->id];
 		}
 
@@ -1555,7 +1557,7 @@ class Profile extends User implements \ArrayAccess
 		$this->prepareToSaveCustomFields($_REQUEST['sa'] ?? null);
 
 		// Give hooks some access to the save data.
-		IntegrationHook::call('integrate_profile_save', [&Profile::$member->new_data, &Profile::$member->save_errors, Profile::$member->id, Profile::$member->data, Menu::$loaded['profile']->current_area]);
+		IntegrationHook::call('integrate_profile_save', [&Profile::$member->new_data, &Profile::$member->save_errors, Profile::$member->id, Profile::$member->data, Menu::$loaded['profile']->current_area ?? null]);
 
 		// There was a problem. Let them try again.
 		if (!empty($this->save_errors)) {
@@ -1655,6 +1657,7 @@ class Profile extends User implements \ArrayAccess
 
 		// Invalidate any cached data.
 		CacheApi::put('member_data-profile-' . $this->id, null, 0);
+		CacheApi::put('slug_type-member_id-' . $this->id, null, 0);
 	}
 
 	/**
@@ -2127,6 +2130,9 @@ class Profile extends User implements \ArrayAccess
 
 		// Is this the profile of the user himself or herself?
 		parent::$me->is_owner = $this->id === parent::$me->id;
+
+		// Create the slug for this member.
+		Slug::create($this->name, 'member', $this->id);
 
 		// Backward compatibility.
 		self::$cur_profile = &self::$member->data;
@@ -2884,16 +2890,18 @@ class Profile extends User implements \ArrayAccess
 				'id_folder' => 'int',
 			],
 			[
-				$this->id,
-				1,
-				$image->pathinfo['basename'],
-				'',
-				$image->pathinfo['extension'],
-				filesize($image->source),
-				$image->width,
-				$image->height,
-				$image->mime_type,
-				$id_folder,
+				[
+					$this->id,
+					1,
+					$image->pathinfo['basename'],
+					'',
+					$image->pathinfo['extension'],
+					filesize($image->source),
+					$image->width,
+					$image->height,
+					$image->mime_type,
+					$id_folder,
+				],
 			],
 			['id_attach'],
 			1,
@@ -2992,17 +3000,17 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Generate a random password.
-		$new_password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(random_bytes(18))), 0, 18), 6));
-		$new_password_sha1 = Security::hashPassword($username ?? $this->username, $new_password);
+		$new_password = Security::generatePassword();
+		$new_password_hashed = Security::hashPassword($new_password);
 
 		// Do some checks on the username if needed.
 		if ($username !== null) {
 			User::validateUsername($this->id, $username);
 
 			// Update the database...
-			User::updateMemberData($this->id, ['member_name' => $username, 'passwd' => $new_password_sha1]);
+			User::updateMemberData($this->id, ['member_name' => $username, 'passwd' => $new_password_hashed]);
 		} else {
-			User::updateMemberData($this->id, ['passwd' => $new_password_sha1]);
+			User::updateMemberData($this->id, ['passwd' => $new_password_hashed]);
 		}
 
 		IntegrationHook::call('integrate_reset_pass', [$this->username, $username, $new_password]);

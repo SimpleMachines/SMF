@@ -132,7 +132,7 @@ function template_main()
 		else
 		{
 			echo '
-					<form action="', Config::$scripturl, '?action=vote;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], ';poll=', Utils::$context['poll']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">';
+					<form action="', Config::$scripturl, '?action=vote;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="', Utils::$context['character_set'], '">';
 
 			// Show a warning if they are allowed more than one option.
 			if (Utils::$context['poll']['allowed_warning'])

@@ -45,6 +45,23 @@ class WatchedUsers implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Some important context!
+		Utils::$context['page_title'] = Lang::$txt['mc_watched_users_title'];
+		Utils::$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
+		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+
+		Theme::loadTemplate('ModerationCenter');
+
+		// Get some key settings!
+		Config::$modSettings['warning_watch'] = empty(Config::$modSettings['warning_watch']) ? 1 : Config::$modSettings['warning_watch'];
+
+		// Put some pretty tabs on cause we're gonna be doing hot stuff here...
+		Menu::$loaded['moderate']->tab_data = [
+			'title' => Lang::$txt['mc_watched_users_title'],
+			'help' => '',
+			'description' => Lang::$txt['mc_watched_users_desc'],
+		];
+
 		// First off - are we deleting?
 		if (!empty($_REQUEST['delete'])) {
 			User::$me->checkSession(!is_array($_REQUEST['delete']) ? 'get' : 'post');
@@ -447,33 +464,6 @@ class WatchedUsers implements ActionInterface
 		Db::$db->free_result($request);
 
 		return $member_posts;
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Some important context!
-		Utils::$context['page_title'] = Lang::$txt['mc_watched_users_title'];
-		Utils::$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
-		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
-
-		Theme::loadTemplate('ModerationCenter');
-
-		// Get some key settings!
-		Config::$modSettings['warning_watch'] = empty(Config::$modSettings['warning_watch']) ? 1 : Config::$modSettings['warning_watch'];
-
-		// Put some pretty tabs on cause we're gonna be doing hot stuff here...
-		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_watched_users_title'],
-			'help' => '',
-			'description' => Lang::$txt['mc_watched_users_desc'],
-		];
 	}
 }
 

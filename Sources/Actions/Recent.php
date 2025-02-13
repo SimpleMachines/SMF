@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Cache\CacheApi;
@@ -27,6 +28,8 @@ use SMF\Lang;
 use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Parser;
+use SMF\Routable;
+use SMF\Slug;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -35,8 +38,9 @@ use SMF\Utils;
 /**
  * Finds and retrieves information about recently posted messages.
  */
-class Recent implements ActionInterface
+class Recent implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/*****************
@@ -111,6 +115,34 @@ class Recent implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Utils::$context['posts'] = [];
+
+		Theme::loadTemplate('Recent');
+		Utils::$context['page_title'] = Lang::$txt['recent_posts'];
+		Utils::$context['sub_template'] = 'recent';
+
+		Utils::$context['is_redirect'] = false;
+
+		// Limit the start value to 90 or less.
+		Utils::$context['start'] = min(self::PER_PAGE * (self::PAGES - 1), (int) ($_REQUEST['start'] ?? 0));
+		// Also make it an even multiple of our posts per page value.
+		Utils::$context['start'] -= Utils::$context['start'] % self::PER_PAGE;
+
+		// Convert $_REQUEST['boards'] to an array of integers.
+		if (!empty($_REQUEST['boards'])) {
+			$_REQUEST['boards'] = array_map('intval', explode(',', $_REQUEST['boards']));
+		}
+
+		// Board requests takes precedence over category requests.
+		if (!empty($_REQUEST['boards']) || !empty(Board::$info->id)) {
+			unset($_REQUEST['c']);
+		}
+
+		// Convert $_REQUEST['c'] to an array of integers.
+		if (!empty($_REQUEST['c'])) {
+			$_REQUEST['c'] = array_map('intval', explode(',', $_REQUEST['c']));
+		}
+
 		$this->getBoards();
 		$this->getCatName();
 
@@ -207,34 +239,6 @@ class Recent implements ActionInterface
 	protected function __construct()
 	{
 		$this->action_url = Config::$scripturl . '?action=recent';
-
-		Utils::$context['posts'] = [];
-
-		Theme::loadTemplate('Recent');
-		Utils::$context['page_title'] = Lang::$txt['recent_posts'];
-		Utils::$context['sub_template'] = 'recent';
-
-		Utils::$context['is_redirect'] = false;
-
-		// Limit the start value to 90 or less.
-		Utils::$context['start'] = min(self::PER_PAGE * (self::PAGES - 1), (int) ($_REQUEST['start'] ?? 0));
-		// Also make it an even multiple of our posts per page value.
-		Utils::$context['start'] -= Utils::$context['start'] % self::PER_PAGE;
-
-		// Convert $_REQUEST['boards'] to an array of integers.
-		if (!empty($_REQUEST['boards'])) {
-			$_REQUEST['boards'] = array_map('intval', explode(',', $_REQUEST['boards']));
-		}
-
-		// Board requests takes precedence over category requests.
-		if (!empty($_REQUEST['boards']) || !empty(Board::$info->id)) {
-			unset($_REQUEST['c']);
-		}
-
-		// Convert $_REQUEST['c'] to an array of integers.
-		if (!empty($_REQUEST['c'])) {
-			$_REQUEST['c'] = array_map('intval', explode(',', $_REQUEST['c']));
-		}
 	}
 
 	/**
@@ -251,7 +255,7 @@ class Recent implements ActionInterface
 			$boards = [];
 			$request = Db::$db->query(
 				'',
-				'SELECT b.id_board, b.num_posts
+				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_cat IN ({array_int:category_list})
 					AND b.redirect = {string:empty}' . (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? '
@@ -267,6 +271,10 @@ class Recent implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($request)) {
 				$boards[] = $row['id_board'];
 				$this->total_posts += $row['num_posts'];
+
+				if (!isset(Slug::$known['board'][(int) $row['id_board']])) {
+					Slug::create($row['name'], 'board', (int) $row['id_board'], 60);
+				}
 			}
 			Db::$db->free_result($request);
 
@@ -296,7 +304,7 @@ class Recent implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'SELECT b.id_board, b.num_posts
+				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_board IN ({array_int:board_list})
 					AND b.redirect = {string:empty}
@@ -313,6 +321,10 @@ class Recent implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($request)) {
 				$boards[] = $row['id_board'];
 				$this->total_posts += $row['num_posts'];
+
+				if (!isset(Slug::$known['board'][(int) $row['id_board']])) {
+					Slug::create($row['name'], 'board', (int) $row['id_board'], 60);
+				}
 			}
 			Db::$db->free_result($request);
 
@@ -378,17 +390,24 @@ class Recent implements ActionInterface
 			$query_these_boards_params = $this->query_parameters;
 			unset($query_these_boards_params['max_id_msg']);
 
+			$this->total_posts = 0;
+
 			$get_num_posts = Db::$db->query(
 				'',
-				'SELECT COALESCE(SUM(b.num_posts), 0)
+				'SELECT b.id_board, b.name, b.num_posts
 				FROM {db_prefix}boards AS b
 				WHERE ' . $query_these_boards . '
 					AND b.redirect = {string:empty}',
 				array_merge($query_these_boards_params, ['empty' => '']),
 			);
 
-			list($total_posts) = Db::$db->fetch_row($get_num_posts);
-			$this->total_posts = (int) $total_posts;
+			while ($row = Db::$db->fetch_assoc($get_num_posts)) {
+				$this->total_posts += $row['num_posts'];
+
+				if (!isset(Slug::$known['board'][(int) $row['id_board']])) {
+					Slug::create($row['name'], 'board', (int) $row['id_board'], 60);
+				}
+			}
 
 			Db::$db->free_result($get_num_posts);
 		}

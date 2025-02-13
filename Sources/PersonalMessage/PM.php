@@ -433,12 +433,12 @@ class PM implements \ArrayAccess
 
 		if ($this->member_from === User::$me->id) {
 			$valid_for['sent'] = !$this->deleted_by_sender;
-		} else {
-			foreach ($this->received as $received) {
-				if ($received->member === User::$me->id) {
-					$valid_for['inbox'] = !$received->deleted;
-					break;
-				}
+		}
+
+		foreach ($this->received as $received) {
+			if ($received->member === User::$me->id) {
+				$valid_for['inbox'] = !$received->deleted;
+				break;
 			}
 		}
 
@@ -1404,7 +1404,7 @@ class PM implements \ArrayAccess
 			if (
 				$row['is_activated'] >= User::BANNED
 				|| (
-					$row['is_activated'] == User::REQUESTED_DELETE
+					in_array((int) $row['is_activated'], [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])
 					&& !User::$me->allowedTo('moderate_forum')
 				)
 			) {
@@ -1467,14 +1467,16 @@ class PM implements \ArrayAccess
 				'version' => 'string-5',
 			],
 			[
-				$pm_head,
-				$from['id'],
-				($store_outbox ? 0 : 1),
-				$from['username'],
-				time(),
-				$htmlsubject,
-				$htmlmessage,
-				preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION),
+				[
+					$pm_head,
+					$from['id'],
+					($store_outbox ? 0 : 1),
+					$from['username'],
+					time(),
+					$htmlsubject,
+					$htmlmessage,
+					preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION),
+				],
 			],
 			['id_pm'],
 			1,
@@ -1698,9 +1700,9 @@ class PM implements \ArrayAccess
 			// ...And update the statistics accordingly - now including unread messages!.
 			while ($row = Db::$db->fetch_assoc($request)) {
 				if ($row['is_read']) {
-					User::updateMemberData($row['id_member'], ['instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages']]);
+					User::updateMemberData((int) $row['id_member'], ['instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages']]);
 				} else {
-					User::updateMemberData($row['id_member'], ['instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages'], 'unread_messages' => $where == '' ? 0 : 'unread_messages - ' . $row['num_deleted_messages']]);
+					User::updateMemberData((int) $row['id_member'], ['instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages'], 'unread_messages' => $where == '' ? 0 : 'unread_messages - ' . $row['num_deleted_messages']]);
 				}
 
 				// If this is the current member we need to make their message count correct.
@@ -1935,7 +1937,7 @@ class PM implements \ArrayAccess
 
 			// Need to store all this.
 			CacheApi::put('labelCounts:' . $owner, Utils::$context['labels'], 720);
-			User::updateMemberData($owner, ['unread_messages' => $total_unread]);
+			User::updateMemberData((int) $owner, ['unread_messages' => $total_unread]);
 
 			// If it was for the current member, reflect this in User::$me as well.
 			if ($owner == User::$me->id) {
@@ -2220,32 +2222,6 @@ class PM implements \ArrayAccess
 
 		// Acquire a new form sequence number.
 		Security::checkSubmitOnce('register');
-	}
-
-	/**
-	 * Backward compatibility wrapper around the non-static canAccess() method.
-	 *
-	 * Check if the PM is available to the current user.
-	 *
-	 * @param int $pmID The ID of the PM
-	 * @param string $folders Which folders this is valid for - can be 'inbox', 'outbox' or 'in_or_outbox'
-	 * @return bool Whether the PM is accessible in that folder for the current user
-	 */
-	public static function isAccessible(int $pmID, string $folders = 'both'): bool
-	{
-		if ($folders === 'in_or_outbox') {
-			$folders = 'both';
-		}
-
-		if ($folders === 'outbox') {
-			$folders = 'sent';
-		}
-
-		if (!isset(self::$loaded[$pmID])) {
-			self::load($pmID);
-		}
-
-		return self::$loaded[$pmID]->canAccess($folders);
 	}
 
 	/*************************

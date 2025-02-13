@@ -664,10 +664,12 @@ class TaskRunner
 						'claimed_time' => 'int',
 					],
 					[
-						'',
-						$task_details['task_class'],
-						json_encode($task_details['task_data']),
-						0,
+						[
+							'',
+							$task_details['task_class'],
+							json_encode($task_details['task_data']),
+							0,
+						],
 					],
 					[],
 				);

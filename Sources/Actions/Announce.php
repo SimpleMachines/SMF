@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\BrowserDetector;
@@ -27,6 +28,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -35,10 +37,10 @@ use SMF\Utils;
 /**
  * This class handles sending announcements about topics.
  */
-class Announce implements ActionInterface
+class Announce implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -76,6 +78,19 @@ class Announce implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('announce_topic');
+
+		User::$me->validateSession();
+
+		if (empty(Topic::$topic_id)) {
+			ErrorHandler::fatalLang('topic_gone', false);
+		}
+
+		Lang::load('Post');
+		Theme::loadTemplate('Post');
+
+		Utils::$context['page_title'] = Lang::$txt['announce_topic'];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -283,19 +298,6 @@ class Announce implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('announce_topic');
-
-		User::$me->validateSession();
-
-		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('topic_gone', false);
-		}
-
-		Lang::load('Post');
-		Theme::loadTemplate('Post');
-
-		Utils::$context['page_title'] = Lang::$txt['announce_topic'];
-
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
 		}

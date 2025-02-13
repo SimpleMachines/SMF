@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Cache\CacheApi;
@@ -26,6 +27,7 @@ use SMF\Lang;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\ReactionTrait;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -34,8 +36,9 @@ use SMF\Utils;
 /**
  * Handles liking posts and displaying the list of who liked a post.
  */
-class React implements ActionInterface
+class React implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 	use ReactionTrait;
 
@@ -511,11 +514,12 @@ class React implements ActionInterface
 				'id_react' => 'int',
 			],
 			[
-				$content,
-				$type,
-				$user['id'],
-				$time,
-				$id,
+				[
+					$content,
+					$type,
+					$user['id'],
+					$time,
+				],
 			],
 			[
 				'content_id',
@@ -538,15 +542,17 @@ class React implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\Reacts_Notify',
-					Utils::jsonEncode([
-						'content_id' => $content,
-						'content_type' => $type,
-						'sender_id' => $user['id'],
-						'sender_name' => $user['name'],
-						'time' => $time,
-					]),
-					0,
+					[
+						'SMF\\Tasks\\Reacts_Notify',
+						Utils::jsonEncode([
+							'content_id' => $content,
+							'content_type' => $type,
+							'sender_id' => $user['id'],
+							'sender_name' => $user['name'],
+							'time' => $time,
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);

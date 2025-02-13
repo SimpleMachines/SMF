@@ -1320,8 +1320,6 @@ function checkLogin()
 					$groups[$k] = (int) $v;
 				}
 
-				$sha_passwd = sha1(strtolower($name) . $_REQUEST['passwrd']);
-
 				// We don't use "-utf8" anymore...
 				$user_language = str_ireplace('-utf8', '', $user_language);
 			} else {
@@ -1348,15 +1346,31 @@ function checkLogin()
 		}
 
 		// Didn't get anywhere?
-		if (!$disable_security && (empty($sha_passwd) || (!empty($password) ? $password : '') != $sha_passwd) && !Security::hashVerifyPassword((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : '')) && empty($upcontext['username_incorrect'])) {
-			// MD5?
-			$md5pass = hash_hmac('md5', $_REQUEST['passwrd'], strtolower($_POST['user']));
-
-			if ($md5pass != $password) {
-				$upcontext['password_failed'] = true;
-				// Disable the hashing this time.
-				$upcontext['disable_login_hashing'] = true;
-			}
+		if (
+			!$disable_security
+			&& empty($upcontext['username_incorrect'])
+			// 3.0 style
+			&& !Security::hashVerifyPassword(
+				$_REQUEST['passwrd'],
+				$password ?? '',
+			)
+			// 2.1 style
+			&& !Security::hashVerifyPassword(
+				Utils::strtolower(!empty($name) ? $name : '') . $_REQUEST['passwrd'],
+				$password ?? '',
+			)
+			// 2.0 style
+			&& (
+				sha1(strtolower($name ?? '') . $_REQUEST['passwrd']) !== ($password ?? '')
+			)
+			// 1.x style
+			&& (
+				hash_hmac('md5', $_REQUEST['passwrd'], strtolower($_POST['user'])) !== ($password ?? '')
+			)
+		) {
+			$upcontext['password_failed'] = true;
+			// Disable the hashing this time.
+			$upcontext['disable_login_hashing'] = true;
 		}
 
 		if ((empty($upcontext['password_failed']) && !empty($name)) || $disable_security) {
@@ -1504,7 +1518,9 @@ function UpgradeOptions()
 				'replace',
 				Config::$db_prefix . 'settings',
 				['variable' => 'string', 'value' => 'string'],
-				['enable_sm_stats', 1],
+				[
+					['enable_sm_stats', 1],
+				],
 				['variable'],
 			);
 		}
@@ -1889,7 +1905,9 @@ function DatabaseChanges()
 						'replace',
 						Config::$db_prefix . 'settings',
 						['variable' => 'string', 'value' => 'string'],
-						['smfVersion', $file[2]],
+						[
+							['smfVersion', $file[2]],
+						],
 						['variable'],
 					);
 
@@ -2005,27 +2023,27 @@ function DeleteUpgrade()
 		&& is_dir($current_settings['tasksdir'])
 		&& basename($current_settings['tasksdir']) !== 'Tasks'
 		&& is_writable($current_settings['tasksdir'])
-		&& is_writable(dirname($current_settings['tasksdir']))
+		&& is_writable($current_settings['sourcedir'])
 	) {
 		// Do 'tasks' and 'Tasks' both exist?
 		if (
-			!empty(fileinode(realpath(dirname($current_settings['tasksdir']) . '/tasks')))
-			&& !empty(fileinode(realpath(dirname($current_settings['tasksdir']) . '/Tasks')))
-			&& fileinode(realpath($current_settings['tasksdir'])) !== fileinode(realpath(dirname($current_settings['tasksdir']) . '/Tasks'))
+			!empty(fileinode(realpath($current_settings['sourcedir'] . '/tasks')))
+			&& !empty(fileinode(realpath($current_settings['sourcedir'] . '/Tasks')))
+			&& fileinode(realpath($current_settings['tasksdir'])) !== fileinode(realpath($current_settings['sourcedir'] . '/Tasks'))
 		) {
 			// Move everything in 'Tasks' to 'tasks'.
-			foreach (glob(realpath(dirname($current_settings['tasksdir']) . '/Tasks') . DIRECTORY_SEPARATOR . '*') as $path) {
+			foreach (glob(realpath($current_settings['sourcedir'] . '/Tasks') . DIRECTORY_SEPARATOR . '*') as $path) {
 				rename($path, realpath($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . basename($path));
 			}
 
 			// Now delete 'Tasks'.
-			rmdir(realpath(dirname($current_settings['tasksdir']) . '/Tasks'));
+			rmdir(realpath($current_settings['sourcedir'] . '/Tasks'));
 		}
 
 		// Rename 'tasks' to 'Tasks'.
 		// Do this in two steps to make sure it works on case insensitive file systems.
-		rename($current_settings['tasksdir'], dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks_temp');
-		rename(dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks_temp', dirname($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . 'Tasks');
+		rename($current_settings['tasksdir'], $current_settings['sourcedir'] . DIRECTORY_SEPARATOR . 'Tasks_temp');
+		rename($current_settings['sourcedir'] . DIRECTORY_SEPARATOR . 'Tasks_temp', $current_settings['sourcedir'] . DIRECTORY_SEPARATOR . 'Tasks');
 	}
 
 	// Are we in maintenance mode?
@@ -2083,12 +2101,28 @@ function DeleteUpgrade()
 		'',
 		'{db_prefix}log_actions',
 		[
-			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'inet', 'action' => 'string',
-			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
+			'log_time' => 'int',
+			'id_log' => 'int',
+			'id_member' => 'int',
+			'ip' => 'inet',
+			'action' => 'string',
+			'id_board' => 'int',
+			'id_topic' => 'int',
+			'id_msg' => 'int',
+			'extra' => 'string-65534',
 		],
 		[
-			time(), 3, User::$me->id, User::$me->ip, 'upgrade',
-			0, 0, 0, json_encode(['version' => SMF_FULL_VERSION, 'member' => User::$me->id]),
+			[
+				time(),
+				3,
+				User::$me->id,
+				User::$me->ip,
+				'upgrade',
+				0,
+				0,
+				0,
+				json_encode(['version' => SMF_FULL_VERSION, 'member' => User::$me->id]),
+			],
 		],
 		['id_action'],
 	);
@@ -2126,9 +2160,11 @@ function addBackgroundTasks()
 			'claimed_time' => 'int',
 		],
 		[
-			'SMF\\Tasks\\UpdateSpoofDetectorNames',
-			json_encode(['last_member_id' => 0]),
-			0,
+			[
+				'SMF\\Tasks\\UpdateSpoofDetectorNames',
+				json_encode(['last_member_id' => 0]),
+				0,
+			],
 		],
 		['id_task'],
 	);
@@ -2369,7 +2405,7 @@ function parse_sql($filename)
 	// Count the total number of steps within this file - for progress.
 	$file_steps = substr_count(implode('', $lines), '---#');
 	$upcontext['total_items'] = substr_count(implode('', $lines), '--- ');
-	$upcontext['debug_items'] = $file_substrsteps;
+	$upcontext['debug_items'] = $file_steps;
 	$upcontext['current_item_num'] = 0;
 	$upcontext['current_item_name'] = '';
 	$upcontext['current_debug_item_num'] = 0;
@@ -3169,7 +3205,9 @@ function ConvertUtf8()
 			'replace',
 			'{db_prefix}settings',
 			['variable' => 'string', 'value' => 'string'],
-			[['global_character_set', 'UTF-8']],
+			[
+				['global_character_set', 'UTF-8'],
+			],
 			['variable'],
 		);
 
@@ -3293,8 +3331,16 @@ function ConvertUtf8()
 		Db::$db->insert(
 			'replace',
 			'{db_prefix}settings',
-			['variable' => 'string', 'value' => 'string'],
-			['db_search_index', ''],
+			[
+				'variable' => 'string',
+				'value' => 'string',
+			],
+			[
+				[
+					'db_search_index',
+					'',
+				],
+			],
 			['variable'],
 		);
 	}
@@ -3657,7 +3703,10 @@ function ConvertUtf8()
 		'replace',
 		'{db_prefix}settings',
 		['variable' => 'string', 'value' => 'string'],
-		[['global_character_set', 'UTF-8'], ['previousCharacterSet', $prev_charset]],
+		[
+			['global_character_set', 'UTF-8'],
+			['previousCharacterSet', $prev_charset],
+		],
 		['variable'],
 	);
 
@@ -4030,7 +4079,7 @@ function serialize_to_json()
 
 function Cleanup()
 {
-	global $command_line, $upcontext, $support_js, $txt;
+	global $command_line, $upcontext, $support_js;
 
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'cleanup_xml' : 'cleanup';
 	$upcontext['page_title'] = Lang::$txt['upgrade_step_cleanup'];
@@ -4048,7 +4097,7 @@ function Cleanup()
 	$upcontext['steps_count'] = count($cleanupSteps);
 	$upcontext['cur_substep_num'] = ((int) $_GET['substep']) ?? 0;
 	$upcontext['cur_substep'] = $cleanupSteps[$upcontext['cur_substep_num']] ?? $cleanupSteps[0];
-	$upcontext['cur_substep_name'] = $txt['upgrade_step_cleanup_' . $upcontext['cur_substep']] ?? $txt['upgrade_step_cleanup'];
+	$upcontext['cur_substep_name'] = Lang::$txt['upgrade_step_cleanup_' . $upcontext['cur_substep']] ?? Lang::$txt['upgrade_step_cleanup'];
 	$upcontext['step_progress'] = (int) (($upcontext['cur_substep_num'] / $upcontext['steps_count']) * 100);
 
 	foreach ($cleanupSteps as $id => $substep) {
@@ -4064,7 +4113,7 @@ function Cleanup()
 	// Dubstep.
 	for ($substep = $upcontext['cur_substep_num']; $substep < $upcontext['steps_count']; $substep++) {
 		$upcontext['step_progress'] = (int) (($substep / $upcontext['steps_count']) * 100);
-		$upcontext['cur_substep_name'] = $txt['upgrade_step_cleanup_' . $cleanupSteps[$substep]] ?? $txt['upgrade_step_cleanup'];
+		$upcontext['cur_substep_name'] = Lang::$txt['upgrade_step_cleanup_' . $cleanupSteps[$substep]] ?? Lang::$txt['upgrade_step_cleanup'];
 		$upcontext['cur_substep_num'] = $substep + 1;
 
 		if ($command_line) {
@@ -4155,7 +4204,7 @@ function CleanupAgreements()
 		}
 
 		// Skip anything not agreements.
-		if (str_starts_with($entry, 'agreements.') || !str_ends_with($entry, '.txt')) {
+		if (!str_starts_with($entry, 'agreements.') || !str_ends_with($entry, '.txt')) {
 			continue;
 		}
 

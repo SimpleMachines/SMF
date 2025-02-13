@@ -85,6 +85,8 @@ class Bans implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		User::$me->isAllowedTo('manage_bans');
 
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
@@ -1468,9 +1470,9 @@ class Bans implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial setup.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		Theme::loadTemplate('ManageBans');
 
@@ -2309,12 +2311,28 @@ class Bans implements ActionInterface
 			'',
 			'{db_prefix}ban_groups',
 			[
-				'name' => 'string-20', 'ban_time' => 'int', 'expire_time' => 'raw', 'cannot_access' => 'int', 'cannot_register' => 'int',
-				'cannot_post' => 'int', 'cannot_login' => 'int', 'reason' => 'string-255', 'notes' => 'string-65534',
+				'name' => 'string-20',
+				'ban_time' => 'int',
+				'expire_time' => 'raw',
+				'cannot_access' => 'int',
+				'cannot_register' => 'int',
+				'cannot_post' => 'int',
+				'cannot_login' => 'int',
+				'reason' => 'string-255',
+				'notes' => 'string-65534',
 			],
 			[
-				$ban_info['name'], time(), $ban_info['db_expiration'], $ban_info['cannot']['access'], $ban_info['cannot']['register'],
-				$ban_info['cannot']['post'], $ban_info['cannot']['login'], $ban_info['reason'], $ban_info['notes'],
+				[
+					$ban_info['name'],
+					time(),
+					$ban_info['db_expiration'],
+					$ban_info['cannot']['access'],
+					$ban_info['cannot']['register'],
+					$ban_info['cannot']['post'],
+					$ban_info['cannot']['login'],
+					$ban_info['reason'],
+					$ban_info['notes'],
+				],
 			],
 			['id_ban_group'],
 			1,

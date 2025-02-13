@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Category;
@@ -26,6 +27,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Parser;
+use SMF\Routable;
+use SMF\Slug;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -37,8 +40,9 @@ use SMF\Utils;
  * Although this class is not accessed using an ?action=... URL query, it
  * behaves like an action in every other way.
  */
-class MessageIndex implements ActionInterface
+class MessageIndex implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -138,6 +142,22 @@ class MessageIndex implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		if (empty(Board::$info->id)) {
+			ErrorHandler::fatalLang('no_board', false);
+		}
+
+		$this->checkRedirect();
+		$this->preventPrefetch();
+
+		$this->setSortMethod();
+		$this->setPaginationAndLinks();
+
+		$this->setModerators();
+		$this->setUnapprovedPostsMessage();
+
+		$this->setupTemplate();
+		$this->setRobotNoIndex();
+
 		$this->buildTopicList();
 		$this->buildChildBoardIndex();
 
@@ -344,6 +364,26 @@ class MessageIndex implements ActionInterface
 			$colorClass .= ' locked';
 		}
 
+		// Ensure the slug for the topic has been set.
+		if (
+			!empty($row['id_topic'])
+			&& ($row['first_subject'] ?? '') !== ''
+			&& !isset(Slug::$known['topic'][(int) $row['id_topic']])
+		) {
+			Slug::create($row['first_subject'], 'topic', (int) $row['id_topic']);
+		}
+
+		// Ensure the slugs for the first and last posters have been set.
+		foreach (['first', 'last'] as $fl) {
+			if (
+				!empty($row[$fl . '_id_member'])
+				&& ($row[$fl . '_display_name'] ?? '') !== ''
+				&& !isset(Slug::$known['member'][(int) $row[$fl . '_id_member']])
+			) {
+				Slug::create($row[$fl . '_display_name'], 'member', (int) $row[$fl . '_id_member']);
+			}
+		}
+
 		// 'Print' the topic info.
 		Utils::$context['topics'][$row['id_topic']] = array_merge($row, [
 			'id' => $row['id_topic'],
@@ -421,33 +461,22 @@ class MessageIndex implements ActionInterface
 		}
 	}
 
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		return Board::buildRoute($params);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Prepares to show the message index.
-	 *
-	 * Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		if (empty(Board::$info->id)) {
-			ErrorHandler::fatalLang('no_board', false);
-		}
-
-		$this->checkRedirect();
-		$this->preventPrefetch();
-
-		$this->setSortMethod();
-		$this->setPaginationAndLinks();
-
-		$this->setModerators();
-		$this->setUnapprovedPostsMessage();
-
-		$this->setupTemplate();
-		$this->setRobotNoIndex();
-	}
 
 	/**
 	 * Redirects to the target URL for this board, if applicable.
@@ -707,8 +736,18 @@ class MessageIndex implements ActionInterface
 			Db::$db->insert(
 				'replace',
 				'{db_prefix}log_boards',
-				['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
-				[Config::$modSettings['maxMsgID'], User::$me->id, Board::$info->id],
+				[
+					'id_msg' => 'int',
+					'id_member' => 'int',
+					'id_board' => 'int',
+				],
+				[
+					[
+						Config::$modSettings['maxMsgID'],
+						User::$me->id,
+						Board::$info->id,
+					],
+				],
 				['id_member', 'id_board'],
 			);
 

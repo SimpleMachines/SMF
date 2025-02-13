@@ -21,6 +21,7 @@ $finder = (new PhpCsFixer\Finder())
 		'Sources/minify',
 		'Sources/random_compat',
 		'Sources/ReCaptcha',
+		'Sources/ZxcvbnPhp',
 		'Themes',
 	])
 	// Skip all index.php files and ssi_example.php.

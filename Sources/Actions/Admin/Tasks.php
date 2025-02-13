@@ -78,6 +78,32 @@ class Tasks implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('admin_forum');
+
+		Lang::load('ManageScheduledTasks');
+		Theme::loadTemplate('ManageScheduledTasks');
+
+		// Tab data might already be set if this was called from Logs::execute().
+		if (empty(Menu::$loaded['admin']->tab_data)) {
+			// Now for the lovely tabs. That we all love.
+			Menu::$loaded['admin']->tab_data = [
+				'title' => Lang::$txt['scheduled_tasks_title'],
+				'help' => '',
+				'description' => Lang::$txt['maintain_info'],
+				'tabs' => [
+					'tasks' => [
+						'description' => Lang::$txt['maintain_tasks_desc'],
+					],
+					'tasklog' => [
+						'description' => Lang::$txt['scheduled_log_desc'],
+					],
+					'settings' => [
+						'description' => Lang::$txt['scheduled_tasks_settings_desc'],
+					],
+				],
+			];
+		}
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -646,32 +672,6 @@ class Tasks implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('ManageScheduledTasks');
-		Theme::loadTemplate('ManageScheduledTasks');
-
-		// Tab data might already be set if this was called from Logs::execute().
-		if (empty(Menu::$loaded['admin']->tab_data)) {
-			// Now for the lovely tabs. That we all love.
-			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['scheduled_tasks_title'],
-				'help' => '',
-				'description' => Lang::$txt['maintain_info'],
-				'tabs' => [
-					'tasks' => [
-						'description' => Lang::$txt['maintain_tasks_desc'],
-					],
-					'tasklog' => [
-						'description' => Lang::$txt['scheduled_log_desc'],
-					],
-					'settings' => [
-						'description' => Lang::$txt['scheduled_tasks_settings_desc'],
-					],
-				],
-			];
-		}
-
 		IntegrationHook::call('integrate_manage_scheduled_tasks', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {

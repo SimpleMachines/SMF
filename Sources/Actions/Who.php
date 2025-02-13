@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -24,6 +25,7 @@ use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -39,8 +41,9 @@ use SMF\Utils;
  * Uses Who template, main sub-template
  * Uses Who language file.
  */
-class Who implements ActionInterface
+class Who implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -106,6 +109,10 @@ class Who implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Load the 'Who' template.
+		Theme::loadTemplate('Who');
+		Lang::load('Who');
+
 		// Permissions, permissions, permissions.
 		User::$me->isAllowedTo('who_view');
 
@@ -632,20 +639,6 @@ class Who implements ActionInterface
 		}
 
 		return $data;
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Load the 'Who' template.
-		Theme::loadTemplate('Who');
-		Lang::load('Who');
 	}
 }
 

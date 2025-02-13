@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -23,6 +24,7 @@ use SMF\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -30,8 +32,9 @@ use SMF\Utils;
 /**
  * Provides a way to view database queries. Used for debugging.
  */
-class ViewQuery implements ActionInterface
+class ViewQuery implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************

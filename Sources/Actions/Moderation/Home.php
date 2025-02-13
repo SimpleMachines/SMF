@@ -84,6 +84,12 @@ class Home implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('ModerationCenter');
+		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
+
+		Utils::$context['page_title'] = Lang::$txt['moderation_center'];
+		Utils::$context['sub_template'] = 'moderation_center';
+
 		// Normally this will already have been done, but just in case...
 		Main::checkAccessPermissions();
 
@@ -133,18 +139,6 @@ class Home implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		Theme::loadTemplate('ModerationCenter');
-		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
-
-		Utils::$context['page_title'] = Lang::$txt['moderation_center'];
-		Utils::$context['sub_template'] = 'moderation_center';
-	}
-
-	/**
 	 * Show an area for the moderator to type into.
 	 */
 	protected function notes(): void
@@ -168,11 +162,22 @@ class Home implements ActionInterface
 					'',
 					'{db_prefix}log_comments',
 					[
-						'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
-						'body' => 'string', 'log_time' => 'int',
+						'id_member' => 'int',
+						'member_name' => 'string',
+						'comment_type' => 'string',
+						'recipient_name' => 'string',
+						'body' => 'string',
+						'log_time' => 'int',
 					],
 					[
-						User::$me->id, User::$me->name, 'modnote', '', $_POST['new_note'], time(),
+						[
+							User::$me->id,
+							User::$me->name,
+							'modnote',
+							'',
+							$_POST['new_note'],
+							time(),
+						],
 					],
 					['id_comment'],
 				);

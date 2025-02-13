@@ -74,6 +74,29 @@ class Search implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('admin_forum');
+
+		Lang::load('Search');
+		Theme::loadTemplate('ManageSearch');
+
+		// Create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['manage_search'],
+			'help' => 'search',
+			'description' => Lang::$txt['search_settings_desc'],
+			'tabs' => [
+				'weights' => [
+					'description' => Lang::$txt['search_weights_desc'],
+				],
+				'method' => [
+					'description' => Lang::$txt['search_method_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['search_settings_desc'],
+				],
+			],
+		];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -359,29 +382,6 @@ class Search implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('Search');
-		Theme::loadTemplate('ManageSearch');
-
-		// Create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['manage_search'],
-			'help' => 'search',
-			'description' => Lang::$txt['search_settings_desc'],
-			'tabs' => [
-				'weights' => [
-					'description' => Lang::$txt['search_weights_desc'],
-				],
-				'method' => [
-					'description' => Lang::$txt['search_method_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['search_settings_desc'],
-				],
-			],
-		];
-
 		// Load any apis.
 		Utils::$context['search_apis'] = SearchApi::detect();
 

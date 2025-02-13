@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Cookie;
@@ -23,6 +24,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
@@ -33,8 +35,9 @@ use SMF\Utils;
 /**
  * Validates the submitted credentials and logs the user in if they pass.
  */
-class Login2 implements ActionInterface
+class Login2 implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -300,7 +303,7 @@ class Login2 implements ActionInterface
 		User::$my_id = (reset($loaded))->id;
 
 		// Bad password! Thought you could fool the database?!
-		if (!Security::hashVerifyPassword(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd'])) {
+		if (!Security::hashVerifyPassword(Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd'])) {
 			// If the forum was recently upgraded, password might be encrypted
 			// using a different algorithm. If so, fix it. Otherwise, bail out.
 			if (!$this->checkPasswordFallbacks()) {
@@ -512,6 +515,11 @@ class Login2 implements ActionInterface
 		// Maybe we were too hasty... let's try some other authentication methods.
 		$other_passwords = [];
 
+		// SMF 2.1 prepended the username before the password.
+		if (Security::hashVerifyPassword(Utils::strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd'])) {
+			$other_passwords[] = User::$profiles[User::$my_id]['passwd'];
+		}
+
 		// SMF 1.1 and 2.0 password styles.
 		if (strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
 			// Maybe they are using a hash from before the password fix.
@@ -609,7 +617,7 @@ class Login2 implements ActionInterface
 
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array(User::$profiles[User::$my_id]['passwd'], $other_passwords)) {
-			User::$profiles[User::$my_id]['passwd'] = Security::hashPassword(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']));
+			User::$profiles[User::$my_id]['passwd'] = Security::hashPassword(Utils::htmlspecialcharsDecode($_POST['passwrd']));
 			User::$profiles[User::$my_id]['password_salt'] = bin2hex(random_bytes(16));
 
 			// Update the password and set up the hash.
@@ -724,7 +732,7 @@ class Login2 implements ActionInterface
 			ErrorHandler::fatalLang('still_awaiting_approval', 'user');
 		}
 		// Awaiting deletion, changed their mind?
-		elseif ($activation_status == User::REQUESTED_DELETE) {
+		elseif (in_array($activation_status, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 			if (isset($_REQUEST['undelete'])) {
 				User::updateMemberData(User::$profiles[User::$my_id]['id_member'], ['is_activated' => User::$profiles[User::$my_id]['is_activated'] >= User::BANNED ? User::ACTIVATED_BANNED : User::ACTIVATED]);
 
@@ -807,10 +815,18 @@ class Login2 implements ActionInterface
 				'insert',
 				'{db_prefix}member_logins',
 				[
-					'id_member' => 'int', 'time' => 'int', 'ip' => 'inet', 'ip2' => 'inet',
+					'id_member' => 'int',
+					'time' => 'int',
+					'ip' => 'inet',
+					'ip2' => 'inet',
 				],
 				[
-					User::$me->id, time(), User::$me->ip, User::$me->ip2,
+					[
+						User::$me->id,
+						time(),
+						User::$me->ip,
+						User::$me->ip2,
+					],
 				],
 				[
 					'id_member', 'time',

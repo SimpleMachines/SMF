@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Autolinker;
 use SMF\Board;
@@ -33,6 +34,7 @@ use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\PageIndex;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\Time;
@@ -43,10 +45,10 @@ use SMF\Utils;
 /**
  * Handles splitting of topics.
  */
-class TopicSplit implements ActionInterface
+class TopicSplit implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -776,15 +778,17 @@ class TopicSplit implements ActionInterface
 				'is_sticky' => 'int',
 			],
 			[
-				(int) $id_board,
-				$split2_firstMem,
-				$split2_lastMem,
-				0,
-				0,
-				$split2_replies,
-				$split2_unapprovedposts,
-				(int) $split2_approved,
-				0,
+				[
+					(int) $id_board,
+					$split2_firstMem,
+					$split2_lastMem,
+					0,
+					0,
+					$split2_replies,
+					$split2_unapprovedposts,
+					(int) $split2_approved,
+					0,
+				],
 			],
 			['id_topic'],
 			1,

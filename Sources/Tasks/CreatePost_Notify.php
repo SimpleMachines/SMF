@@ -321,9 +321,19 @@ class CreatePost_Notify extends BackgroundTask
 				'',
 				'{db_prefix}log_digest',
 				[
-					'id_topic' => 'int', 'id_msg' => 'int', 'note_type' => 'string', 'exclude' => 'int',
+					'id_topic' => 'int',
+					'id_msg' => 'int',
+					'note_type' => 'string',
+					'exclude' => 'int',
 				],
-				[$topicOptions['id'], $msgOptions['id'], $type, $posterOptions['id']],
+				[
+					[
+						$topicOptions['id'],
+						$msgOptions['id'],
+						$type,
+						$posterOptions['id'],
+					],
+				],
 				[],
 			);
 		}
@@ -351,9 +361,11 @@ class CreatePost_Notify extends BackgroundTask
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\CreatePost_Notify',
-						Utils::jsonEncode($new_details),
-						max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),
+						[
+							'SMF\\Tasks\\CreatePost_Notify',
+							Utils::jsonEncode($new_details),
+							max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),
+						],
 					],
 					['id_task'],
 				);

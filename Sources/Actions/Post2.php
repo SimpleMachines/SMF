@@ -107,12 +107,12 @@ class Post2 extends Post
 
 	public function isSimpleAction(): bool
 	{
-		return isset($_REQUEST['preview']);
+		return isset($_REQUEST['xml']);
 	}
 
 	public function getOutputType(): OutputTypeInterface
 	{
-		return isset($_REQUEST['preview']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
 	}
 
 	/**
@@ -634,8 +634,18 @@ class Post2 extends Post
 			Db::$db->insert(
 				'ignore',
 				'{db_prefix}log_notify',
-				['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'],
-				[User::$me->id, Topic::$topic_id, 0],
+				[
+					'id_member' => 'int',
+					'id_topic' => 'int',
+					'id_board' => 'int',
+				],
+				[
+					[
+						User::$me->id,
+						Topic::$topic_id,
+						0,
+					],
+				],
 				['id_member', 'id_topic', 'id_board'],
 			);
 		} elseif (!$newTopic) {

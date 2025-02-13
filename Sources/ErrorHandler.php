@@ -194,11 +194,15 @@ class ErrorHandler
 		// Windows style slashes don't play well, lets convert them to the UNIX style.
 		$file = str_replace('\\', '/', $file);
 
-		// Find the best query string we can...
-		$query_string = empty($_SERVER['QUERY_STRING']) ? (empty($_SERVER['REQUEST_URL']) ? '' : str_replace(Config::$scripturl, '', $_SERVER['REQUEST_URL'])) : $_SERVER['QUERY_STRING'];
+		// Find the best path and query string we can...
+		if (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
+			$query_string = substr($_SERVER['REQUEST_URL'], strlen(Config::$boardurl));
+		} else {
+			$query_string = ($_SERVER['REQUEST_URL'] ?? '');
+		}
 
 		// Don't log the session hash in the url twice, it's a waste.
-		$query_string = Utils::htmlspecialchars((SMF == 'SSI' || SMF == 'BACKGROUND' ? '' : '?') . preg_replace(['~;sesc=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], [';sesc', ''], $query_string));
+		$query_string = Utils::htmlspecialchars(preg_replace(['~([?&;]sesc)=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], ['$1', ''], $query_string));
 
 		// Just so we know what board error messages are from.
 		if (isset($_POST['board']) && !isset($_GET['board'])) {
@@ -241,7 +245,18 @@ class ErrorHandler
 		$backtrace = Utils::jsonEncode($backtrace);
 
 		// Don't log the same error countless times, as we can get in a cycle of depression...
-		$error_info = [User::$me->id ?? User::$my_id ?? 0, time(), User::$me->ip ?? $_SERVER['REMOTE_ADDR'] ?? '', $query_string, $error_message, (string) (User::$sc ?? ''), $error_type, $file, $line, $backtrace];
+		$error_info = [
+			User::$me->id ?? User::$my_id ?? 0,
+			time(),
+			User::$me->ip ?? $_SERVER['REMOTE_ADDR'] ?? '',
+			$query_string,
+			$error_message,
+			(string) (User::$sc ?? ''),
+			$error_type,
+			$file,
+			$line,
+			$backtrace,
+		];
 
 		if (empty($last_error) || $last_error != $error_info) {
 			// Insert the error into the database.

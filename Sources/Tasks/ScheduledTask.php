@@ -56,9 +56,11 @@ abstract class ScheduledTask extends BackgroundTask
 				'time_taken' => 'float',
 			],
 			[
-				$this->_details['id_scheduled_task'],
-				time(),
-				round(microtime(true) - TIME_START, 3),
+				[
+					$this->_details['id_scheduled_task'],
+					time(),
+					round(microtime(true) - TIME_START, 3),
+				],
 			],
 			[],
 		);

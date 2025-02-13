@@ -185,7 +185,7 @@ class Register2 extends Register
 		}
 
 		if (isset($_POST['secret_answer']) && $_POST['secret_answer'] != '') {
-			$_POST['secret_answer'] = Security::hashPassword($_POST['user'], $_POST['secret_answer']);
+			$_POST['secret_answer'] = Security::hashPassword($_POST['secret_answer']);
 		}
 
 		// Maybe you want set the displayed name during registration
@@ -494,12 +494,12 @@ class Register2 extends Register
 		$validation_code = '';
 
 		if ($reg_options['require'] == 'activation') {
-			$validation_code = User::generateValidationCode();
+			$validation_code = Security::generateValidationCode();
 		}
 
 		// If you haven't put in a password generate one.
 		if ($reg_options['interface'] == 'admin' && $reg_options['password'] == '') {
-			$reg_options['password'] = User::generateValidationCode();
+			$reg_options['password'] = Security::generatePassword();
 			$reg_options['password_check'] = $reg_options['password'];
 		}
 		// Does the first password match the second?
@@ -514,14 +514,20 @@ class Register2 extends Register
 
 		// Now perform hard password validation as required.
 		if (!empty($reg_options['check_password_strength']) && $reg_options['password'] != '') {
-			$password_error = User::validatePassword($reg_options['password'], $reg_options['username'], [$reg_options['email']]);
+			$password_error = Security::validatePassword($reg_options['password'], $reg_options['username'], [$reg_options['email']]);
 
 			// Password isn't legal?
 			if ($password_error != null) {
-				$error_code = ['lang', 'profile_error_password_' . $password_error, false];
+				Lang::load('Errors');
+
+				if (isset(Lang::$txt['profile_error_password_' . $password_error])) {
+					$error_code = ['lang', 'profile_error_password_' . $password_error, false];
+				} else {
+					$error_code = ['done', $password_error, false];
+				}
 
 				if ($password_error == 'short') {
-					$error_code[] = [empty(Config::$modSettings['password_strength']) ? 4 : 8];
+					$error_code[] = Security::minimumPasswordLength();
 				}
 
 				$reg_errors[] = $error_code;
@@ -613,7 +619,7 @@ class Register2 extends Register
 		$reg_options['register_vars'] = [
 			'member_name' => $reg_options['username'],
 			'email_address' => $reg_options['email'],
-			'passwd' => Security::hashPassword($reg_options['username'], $reg_options['password']),
+			'passwd' => Security::hashPassword($reg_options['password']),
 			'password_salt' => bin2hex(random_bytes(16)),
 			'posts' => 0,
 			'date_registered' => time(),
@@ -734,7 +740,7 @@ class Register2 extends Register
 			'',
 			'{db_prefix}members',
 			$column_names,
-			$values,
+			[$values],
 			['id_member'],
 			1,
 		);

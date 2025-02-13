@@ -16,8 +16,10 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -26,8 +28,9 @@ use SMF\Utils;
  * Despite the name, which is what it is for historical reasons, this action
  * doesn't actually send anything. It just shows a message for a guest.
  */
-class SendActivation implements ActionInterface
+class SendActivation implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************

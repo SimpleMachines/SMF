@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -25,6 +26,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -33,8 +35,9 @@ use SMF\Utils;
 /**
  * Provides a display for forum statistics.
  */
-class Stats implements ActionInterface
+class Stats implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************

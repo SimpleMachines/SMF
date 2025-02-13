@@ -781,6 +781,22 @@ class RepairBoards implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Print out the top of the webpage.
+		Utils::$context['page_title'] = Lang::$txt['admin_repair'];
+		Utils::$context['sub_template'] = 'repair_boards';
+		Menu::$loaded['admin']['current_subsection'] = 'general';
+
+		// Load the language file.
+		Lang::load('ManageMaintenance');
+
+		// Make sure the tabs stay nice.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['maintain_title'],
+			'help' => '',
+			'description' => Lang::$txt['maintain_info'],
+			'tabs' => [],
+		];
+
 		User::$me->isAllowedTo('admin_forum');
 
 		// Try to secure more memory.
@@ -850,28 +866,6 @@ class RepairBoards implements ActionInterface
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Print out the top of the webpage.
-		Utils::$context['page_title'] = Lang::$txt['admin_repair'];
-		Utils::$context['sub_template'] = 'repair_boards';
-		Menu::$loaded['admin']['current_subsection'] = 'general';
-
-		// Load the language file.
-		Lang::load('ManageMaintenance');
-
-		// Make sure the tabs stay nice.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['maintain_title'],
-			'help' => '',
-			'description' => Lang::$txt['maintain_info'],
-			'tabs' => [],
-		];
-	}
 
 	/**
 	 * Checks for errors in steps, until 5 seconds have passed.
@@ -1230,8 +1224,18 @@ class RepairBoards implements ActionInterface
 			$this->salvage_category = Db::$db->insert(
 				'',
 				'{db_prefix}categories',
-				['name' => 'string-255', 'cat_order' => 'int', 'description' => 'string-255'],
-				[Lang::$txt['salvaged_category_name'], -1, Lang::$txt['salvaged_category_description']],
+				[
+					'name' => 'string-255',
+					'cat_order' => 'int',
+					'description' => 'string-255',
+				],
+				[
+					[
+						Lang::$txt['salvaged_category_name'],
+						-1,
+						Lang::$txt['salvaged_category_description'],
+					],
+				],
 				['id_cat'],
 				1,
 			);
@@ -1265,8 +1269,24 @@ class RepairBoards implements ActionInterface
 			$this->salvage_board = Db::$db->insert(
 				'',
 				'{db_prefix}boards',
-				['name' => 'string-255', 'description' => 'string-255', 'id_cat' => 'int', 'member_groups' => 'string', 'board_order' => 'int', 'redirect' => 'string'],
-				[Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $this->salvage_category, '1', -1, ''],
+				[
+					'name' => 'string-255',
+					'description' => 'string-255',
+					'id_cat' => 'int',
+					'member_groups' => 'string',
+					'board_order' => 'int',
+					'redirect' => 'string',
+				],
+				[
+					[
+						Lang::$txt['salvaged_board_name'],
+						Lang::$txt['salvaged_board_description'],
+						$this->salvage_category,
+						'1',
+						-1,
+						'',
+					],
+				],
 				['id_board'],
 				1,
 			);
@@ -1329,12 +1349,14 @@ class RepairBoards implements ActionInterface
 				'num_replies' => 'int',
 			],
 			[
-				$row['id_board'],
-				$memberStartedID,
-				$memberUpdatedID,
-				$row['myid_first_msg'],
-				$row['myid_last_msg'],
-				$row['my_num_replies'],
+				[
+					$row['id_board'],
+					$memberStartedID,
+					$memberUpdatedID,
+					$row['myid_first_msg'],
+					$row['myid_last_msg'],
+					$row['my_num_replies'],
+				],
 			],
 			['id_topic'],
 			1,
@@ -1414,18 +1436,20 @@ class RepairBoards implements ActionInterface
 					'approved' => 'int',
 				],
 				[
-					$row['id_board'],
-					0,
-					time(),
-					$row['id_poster'],
-					Lang::$txt['salvaged_poll_topic_name'],
-					$row['poster_name'],
-					Lang::$txt['salvaged_poll_topic_name'],
-					'127.0.0.1',
-					1,
-					Lang::$txt['salvaged_poll_message_body'],
-					'xx',
-					1,
+					[
+						$row['id_board'],
+						0,
+						time(),
+						$row['id_poster'],
+						Lang::$txt['salvaged_poll_topic_name'],
+						$row['poster_name'],
+						Lang::$txt['salvaged_poll_topic_name'],
+						'127.0.0.1',
+						1,
+						Lang::$txt['salvaged_poll_message_body'],
+						'xx',
+						1,
+					],
 				],
 				['id_msg'],
 				1,
@@ -1444,13 +1468,15 @@ class RepairBoards implements ActionInterface
 					'num_replies' => 'int',
 				],
 				[
-					$row['id_board'],
-					$row['id_poll'],
-					$row['id_poster'],
-					$row['id_poster'],
-					$newMessageID,
-					$newMessageID,
-					0,
+					[
+						$row['id_board'],
+						$row['id_poll'],
+						$row['id_poster'],
+						$row['id_poster'],
+						$newMessageID,
+						$newMessageID,
+						0,
+					],
 				],
 				['id_topic'],
 				1,
@@ -1489,18 +1515,20 @@ class RepairBoards implements ActionInterface
 				'poster_name' => 'string-255',
 			],
 			[
-				$row['id_poll'],
-				Lang::$txt['salvaged_poll_question'],
-				1,
-				0,
-				0,
-				0,
-				0,
-				0,
-				0,
-				0,
-				$row['id_poster'],
-				$row['poster_name'],
+				[
+					$row['id_poll'],
+					Lang::$txt['salvaged_poll_question'],
+					1,
+					0,
+					0,
+					0,
+					0,
+					0,
+					0,
+					0,
+					$row['id_poster'],
+					$row['poster_name'],
+				],
 			],
 			[],
 		);
@@ -1539,18 +1567,20 @@ class RepairBoards implements ActionInterface
 				'approved' => 'int',
 			],
 			[
-				$row['id_board'],
-				0,
-				time(),
-				$row['id_member'],
-				Lang::$txt['salvaged_poll_topic_name'],
-				$row['poster_name'],
-				'',
-				'127.0.0.1',
-				1,
-				Lang::$txt['salvaged_poll_message_body'],
-				'xx',
-				1,
+				[
+					$row['id_board'],
+					0,
+					time(),
+					$row['id_member'],
+					Lang::$txt['salvaged_poll_topic_name'],
+					$row['poster_name'],
+					'',
+					'127.0.0.1',
+					1,
+					Lang::$txt['salvaged_poll_message_body'],
+					'xx',
+					1,
+				],
 			],
 			['id_msg'],
 			1,
@@ -1569,13 +1599,15 @@ class RepairBoards implements ActionInterface
 				'num_replies' => 'int',
 			],
 			[
-				$row['id_board'],
-				$row['id_poll'],
-				$row['id_member'],
-				$row['id_member'],
-				$newMessageID,
-				$newMessageID,
-				0,
+				[
+					$row['id_board'],
+					$row['id_poll'],
+					$row['id_member'],
+					$row['id_member'],
+					$newMessageID,
+					$newMessageID,
+					0,
+				],
 			],
 			['id_topic'],
 			1,
@@ -1747,8 +1779,24 @@ class RepairBoards implements ActionInterface
 		$newBoardID = Db::$db->insert(
 			'',
 			'{db_prefix}boards',
-			['id_cat' => 'int', 'name' => 'string', 'description' => 'string', 'num_topics' => 'int', 'num_posts' => 'int', 'member_groups' => 'string'],
-			[$this->salvage_category, Lang::$txt['salvaged_board_name'], Lang::$txt['salvaged_board_description'], $row['my_num_topics'], $row['my_num_posts'], '1'],
+			[
+				'id_cat' => 'int',
+				'name' => 'string',
+				'description' => 'string',
+				'num_topics' => 'int',
+				'num_posts' => 'int',
+				'member_groups' => 'string',
+			],
+			[
+				[
+					$this->salvage_category,
+					Lang::$txt['salvaged_board_name'],
+					Lang::$txt['salvaged_board_description'],
+					$row['my_num_topics'],
+					$row['my_num_posts'],
+					'1',
+				],
+			],
 			['id_board'],
 			1,
 		);

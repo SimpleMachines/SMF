@@ -158,14 +158,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
+		// Inject the values passed to this function.
 		if (empty($db_values['security_override']) && (!empty($db_values) || str_contains($db_string, '{db_prefix}'))) {
-			$this->temp_values = $db_values;
-			$this->temp_connection = $connection;
-
-			// Inject the values passed to this function.
-			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', [$this, 'replacement__callback'], $db_string);
-
-			unset($this->temp_values, $this->temp_connection);
+			$db_string = $this->quote($db_string, $db_values, $connection);
 		}
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
@@ -324,6 +319,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null
+	{
+		return mysqli_fetch_object($result, $class, $args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function free_result(object $result): bool
 	{
 		mysqli_free_result($result);
@@ -361,9 +364,21 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		// Inserting data as a single row can be done as a single array.
-		if (!is_array($data[array_rand($data)])) {
-			$data = [$data];
+		// Ensure that $data is a multidimensional array.
+		if (array_filter($data, fn($dataRow) => is_array($dataRow)) !== $data) {
+			// If backward compatibility mode is enabled, quietly clean up after
+			// old mods that did the wrong thing. Otherwise, trigger an error.
+			if (!empty(Config::$backward_compatibility)) {
+				$data = [$data];
+			} else {
+				$this->error_backtrace(
+					'Invalid data structure sent to the database.',
+					'',
+					E_USER_ERROR,
+					__FILE__,
+					__LINE__,
+				);
+			}
 		}
 
 		// Create the mold for a single row insert.
@@ -1438,6 +1453,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$type_size = null;
 		}
 
+		// We can't have a zero size, remove it.
+		if ($type_size === 0) {
+			$type_size = null;
+		}
+
 		return [$type_name, $type_size];
 	}
 
@@ -1801,9 +1821,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		return [
 			'name' => $parsed_table_name,
-			'columns' => $this->list_columns($table_name, true),
-			'indexes' => $this->list_indexes($table_name, true),
-			'engine' => $row['Engine'],
+			'columns' => is_null($row) ? [] : $this->list_columns($table_name, true),
+			'indexes' => is_null($row) ? [] : $this->list_indexes($table_name, true),
+			'engine' => is_null($row) ? '' : $row['Engine'],
 		];
 	}
 

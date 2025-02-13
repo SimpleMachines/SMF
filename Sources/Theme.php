@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF;
 
-use SMF\Actions\Agreement;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
@@ -141,6 +140,117 @@ class Theme
 		'name',
 	];
 
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Sets a bunch of Utils::$context variables, loads templates and language
+	 * files, and does other stuff that is required to use the theme for output.
+	 */
+	public function initialize(): void
+	{
+		$this->fixUrl();
+
+		// Create User::$me if it is missing (e.g., an error very early in the login process).
+		if (!isset(User::$me)) {
+			User::load();
+		}
+
+		$this->fixSmileySet();
+
+		// Some basic information...
+		if (!isset(Utils::$context['html_headers'])) {
+			Utils::$context['html_headers'] = '';
+		}
+
+		if (!isset(Utils::$context['javascript_files'])) {
+			Utils::$context['javascript_files'] = [];
+		}
+
+		if (!isset(Utils::$context['css_files'])) {
+			Utils::$context['css_files'] = [];
+		}
+
+		if (!isset(Utils::$context['css_header'])) {
+			Utils::$context['css_header'] = [];
+		}
+
+		if (!isset(Utils::$context['javascript_inline'])) {
+			Utils::$context['javascript_inline'] = ['standard' => [], 'defer' => []];
+		}
+
+		if (!isset(Utils::$context['javascript_vars'])) {
+			Utils::$context['javascript_vars'] = [];
+		}
+
+		Utils::$context['login_url'] = Config::$scripturl . '?action=login2';
+		Utils::$context['menu_separator'] = !empty($this->settings['use_image_buttons']) ? ' ' : ' | ';
+		Utils::$context['session_var'] = $_SESSION['session_var'];
+		Utils::$context['session_id'] = $_SESSION['session_value'];
+		Utils::$context['forum_name'] = Config::$mbname;
+		Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
+		Utils::$context['header_logo_url_html_safe'] = empty($this->settings['header_logo_url']) ? '' : Utils::htmlspecialchars($this->settings['header_logo_url']);
+		Utils::$context['current_action'] = isset($_REQUEST['action']) ? Utils::htmlspecialchars($_REQUEST['action']) : null;
+		Utils::$context['current_subaction'] = $_REQUEST['sa'] ?? null;
+		Utils::$context['can_register'] = empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] != 3;
+
+		if (isset(Config::$modSettings['load_average'])) {
+			Utils::$context['load_average'] = Config::$modSettings['load_average'];
+		}
+
+		$this->loadTemplatesAndLangFiles();
+
+		// Allow overriding the forum's default time/number formats.
+		if (empty(User::$profiles[User::$me->id]['time_format']) && !empty(Lang::$txt['time_format'])) {
+			User::$me->time_format = Lang::$txt['time_format'];
+		}
+
+		// Set the character set from the template.
+		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
+		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
+
+		// Guests may still need a name.
+		if (User::$me->is_guest && empty(User::$me->name)) {
+			User::$me->name = Lang::$txt['guest_title'];
+		}
+
+		// Any theme-related strings that need to be loaded?
+		Lang::load('ThemeStrings', '', false);
+
+		// Make a special URL for the language.
+		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
+
+		$this->loadCss();
+
+		$this->loadVariant();
+
+		Utils::$context['tabindex'] = 1;
+
+		$this->loadJavaScript();
+
+		$this->setupLinktree();
+
+		// Any files to include at this point?
+		if (!empty(Config::$modSettings['integrate_theme_include'])) {
+			$theme_includes = explode(',', Config::$modSettings['integrate_theme_include']);
+
+			foreach ($theme_includes as $include) {
+				$include = strtr(trim($include), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $this->settings['theme_dir']]);
+
+				if (file_exists($include)) {
+					require_once $include;
+				}
+			}
+		}
+
+		// Call load theme integration functions.
+		IntegrationHook::call('integrate_load_theme');
+
+		// We are ready to go.
+		Utils::$context['theme_loaded'] = true;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -161,7 +271,7 @@ class Theme
 			}
 			// The theme is the forum's default.
 			else {
-				$id = Config::$modSettings['theme_guests'] ?? 1;
+				$id = (int) Config::$modSettings['theme_guests'] ?? 1;
 			}
 
 			// Sometimes the user can choose their own theme.
@@ -189,7 +299,7 @@ class Theme
 				$themes = explode(',', Config::$modSettings['enableThemes']);
 
 				if (!in_array($id, $themes)) {
-					$id = Config::$modSettings['theme_guests'];
+					$id = (int) Config::$modSettings['theme_guests'];
 				} else {
 					$id = (int) $id;
 				}
@@ -1291,7 +1401,7 @@ class Theme
 			}
 		}
 
-		$content_type = Forum::getCurrentAction()?->getOutputType()->getMimeType() ?? 'text/' . (isset($_REQUEST['xml']) ? 'xml' : 'html');
+		$content_type = Forum::getCurrentAction()?->getOutputType()->getMimeType() ?? (isset($_REQUEST['xml']) ? 'application/xml' : 'text/html');
 
 		header('Content-Type: ' . $content_type . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
 
@@ -1305,6 +1415,7 @@ class Theme
 
 		// Add security warning if security issues are detected
 		Utils::$context['warnings'] = Security::checkSecurityFiles();
+
 		if (Utils::$context['warnings']) {
 			$layers[] = 'security_warning';
 		}
@@ -1882,244 +1993,32 @@ class Theme
 	}
 
 	/**
-	 * Sets a bunch of Utils::$context variables, loads templates and language
-	 * files, and does other stuff that is required to use the theme for output.
-	 */
-	protected function initialize(): void
-	{
-		$this->requireAgreement();
-		$this->sslRedirect();
-		$this->fixUrl();
-
-		// Create User::$me if it is missing (e.g., an error very early in the login process).
-		if (!isset(User::$me)) {
-			User::load();
-		}
-
-		$this->fixSmileySet();
-
-		// Some basic information...
-		if (!isset(Utils::$context['html_headers'])) {
-			Utils::$context['html_headers'] = '';
-		}
-
-		if (!isset(Utils::$context['javascript_files'])) {
-			Utils::$context['javascript_files'] = [];
-		}
-
-		if (!isset(Utils::$context['css_files'])) {
-			Utils::$context['css_files'] = [];
-		}
-
-		if (!isset(Utils::$context['css_header'])) {
-			Utils::$context['css_header'] = [];
-		}
-
-		if (!isset(Utils::$context['javascript_inline'])) {
-			Utils::$context['javascript_inline'] = ['standard' => [], 'defer' => []];
-		}
-
-		if (!isset(Utils::$context['javascript_vars'])) {
-			Utils::$context['javascript_vars'] = [];
-		}
-
-		Utils::$context['login_url'] = Config::$scripturl . '?action=login2';
-		Utils::$context['menu_separator'] = !empty($this->settings['use_image_buttons']) ? ' ' : ' | ';
-		Utils::$context['session_var'] = $_SESSION['session_var'];
-		Utils::$context['session_id'] = $_SESSION['session_value'];
-		Utils::$context['forum_name'] = Config::$mbname;
-		Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
-		Utils::$context['header_logo_url_html_safe'] = empty($this->settings['header_logo_url']) ? '' : Utils::htmlspecialchars($this->settings['header_logo_url']);
-		Utils::$context['current_action'] = isset($_REQUEST['action']) ? Utils::htmlspecialchars($_REQUEST['action']) : null;
-		Utils::$context['current_subaction'] = $_REQUEST['sa'] ?? null;
-		Utils::$context['can_register'] = empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] != 3;
-
-		if (isset(Config::$modSettings['load_average'])) {
-			Utils::$context['load_average'] = Config::$modSettings['load_average'];
-		}
-
-		// Detect the browser. This is separated out because it's also used in attachment downloads
-		BrowserDetector::call();
-
-		$this->loadTemplatesAndLangFiles();
-
-		// Allow overriding the forum's default time/number formats.
-		if (empty(User::$profiles[User::$me->id]['time_format']) && !empty(Lang::$txt['time_format'])) {
-			User::$me->time_format = Lang::$txt['time_format'];
-		}
-
-		// Set the character set from the template.
-		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
-
-		// Guests may still need a name.
-		if (User::$me->is_guest && empty(User::$me->name)) {
-			User::$me->name = Lang::$txt['guest_title'];
-		}
-
-		// Any theme-related strings that need to be loaded?
-		Lang::load('ThemeStrings', '', false);
-
-		// Make a special URL for the language.
-		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
-
-		$this->loadCss();
-
-		$this->loadVariant();
-
-		Utils::$context['tabindex'] = 1;
-
-		$this->loadJavaScript();
-
-		$this->setupLinktree();
-
-		// Any files to include at this point?
-		if (!empty(Config::$modSettings['integrate_theme_include'])) {
-			$theme_includes = explode(',', Config::$modSettings['integrate_theme_include']);
-
-			foreach ($theme_includes as $include) {
-				$include = strtr(trim($include), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => $this->settings['theme_dir']]);
-
-				if (file_exists($include)) {
-					require_once $include;
-				}
-			}
-		}
-
-		// Call load theme integration functions.
-		IntegrationHook::call('integrate_load_theme');
-
-		// We are ready to go.
-		Utils::$context['theme_loaded'] = true;
-	}
-
-	/**
-	 * If necessary, redirect to the agreement or privacy policy so that we can
-	 * force the user to accept the current version.
-	 */
-	protected function requireAgreement(): void
-	{
-		// Perhaps we've changed the agreement or privacy policy? Only redirect if:
-		// 1. They're not a guest or admin
-		// 2. This isn't called from SSI
-		// 3. This isn't an XML request
-		// 4. They're not trying to do any of the following actions:
-		// 4a. View or accept the agreement and/or policy
-		// 4b. Login or logout
-		// 4c. Get a feed (RSS, ATOM, etc.)
-		if (!empty(User::$me->id) && empty(User::$me->is_admin) && SMF != 'SSI' && !isset($_REQUEST['xml']) && Forum::getCurrentAction()?->isAgreementAction() !== true) {
-			$can_accept_agreement = !empty(Config::$modSettings['requireAgreement']) && Agreement::canRequireAgreement();
-
-			$can_accept_privacy_policy = !empty(Config::$modSettings['requirePolicyAgreement']) && Agreement::canRequirePrivacyPolicy();
-
-			if ($can_accept_agreement || $can_accept_privacy_policy) {
-				Utils::redirectexit('action=agreement');
-			}
-		}
-	}
-
-	/**
-	 * Check to see if we're forcing SSL, and redirect if necessary.
-	 */
-	protected function sslRedirect(): void
-	{
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance)
-			&& !Sapi::httpsOn() && SMF != 'SSI') {
-			if (isset($_GET['sslRedirect'])) {
-				Lang::load('Errors');
-				ErrorHandler::fatalLang('login_ssl_required', false);
-			}
-
-			Utils::redirectexit(strtr($_SERVER['REQUEST_URL'], ['http://' => 'https://']) . (strpos($_SERVER['REQUEST_URL'], '?') > 0 ? ';' : '?') . 'sslRedirect');
-		}
-	}
-
-	/**
 	 * If the user got here using an unexpected URL, fix it.
 	 */
 	protected function fixUrl(): void
 	{
-		// Check to see if they're accessing it from the wrong place.
-		if (isset($_SERVER['HTTP_HOST']) || isset($_SERVER['SERVER_NAME'])) {
-			$detected_url = Sapi::httpsOn() ? 'https://' : 'http://';
+		if (!isset(Utils::$context['canonical_boardurl'])) {
+			return;
+		}
 
-			$detected_url .= empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
+		// Fix the theme urls...
+		$this->settings['theme_url'] = strtr($this->settings['theme_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		$this->settings['default_theme_url'] = strtr($this->settings['default_theme_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		$this->settings['actual_theme_url'] = strtr($this->settings['actual_theme_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		$this->settings['images_url'] = strtr($this->settings['images_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		$this->settings['default_images_url'] = strtr($this->settings['default_images_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+		$this->settings['actual_images_url'] = strtr($this->settings['actual_images_url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
 
-			$temp = preg_replace('~/' . basename(Config::$scripturl) . '(/.+)?$~', '', strtr(dirname($_SERVER['PHP_SELF']), '\\', '/'));
-
-			if ($temp != '/') {
-				$detected_url .= $temp;
+		// Clean up after Board::load().
+		if (isset(Board::$info->moderators)) {
+			foreach (Board::$info->moderators as $k => $dummy) {
+				Board::$info->moderators[$k]['href'] = strtr($dummy['href'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
+				Board::$info->moderators[$k]['link'] = strtr($dummy['link'], ['"' . Utils::$context['canonical_boardurl'] => '"' . Config::$boardurl]);
 			}
 		}
 
-		if (isset($detected_url) && $detected_url != Config::$boardurl) {
-			// Try #1 - check if it's in a list of alias addresses.
-			if (!empty(Config::$modSettings['forum_alias_urls'])) {
-				$aliases = explode(',', Config::$modSettings['forum_alias_urls']);
-
-				foreach ($aliases as $alias) {
-					// Rip off all the boring parts, spaces, etc.
-					if ($detected_url == trim($alias) || strtr($detected_url, ['http://' => '', 'https://' => '']) == trim($alias)) {
-						$do_fix = true;
-					}
-				}
-			}
-
-			// Hmm... check #2 - is it just different by a www?  Send them to the correct place!!
-			if (empty($do_fix) && strtr($detected_url, ['://' => '://www.']) == Config::$boardurl && (empty($_GET) || count($_GET) == 1) && SMF != 'SSI') {
-				// Okay, this seems weird, but we don't want an endless loop - this will make $_GET not empty ;).
-				if (empty($_GET)) {
-					Utils::redirectexit('wwwRedirect');
-				} else {
-					$k = key($_GET);
-					$v = current($_GET);
-
-					if ($k != 'wwwRedirect') {
-						Utils::redirectexit('wwwRedirect;' . $k . '=' . $v);
-					}
-				}
-			}
-
-			// #3 is just a check for SSL...
-			if (strtr($detected_url, ['https://' => 'http://']) == Config::$boardurl) {
-				$do_fix = true;
-			}
-
-			// Okay, #4 - perhaps it's an IP address?  We're gonna want to use that one, then. (assuming it's the IP or something...)
-			if (!empty($do_fix) || preg_match('~^http[s]?://(?:[\d\.:]+|\[[\d:]+\](?::\d+)?)(?:$|/)~', $detected_url) == 1) {
-				// Caching is good ;).
-				$oldurl = Config::$boardurl;
-
-				// Fix Config::$boardurl and Config::$scripturl.
-				Config::$boardurl = $detected_url;
-				Config::$scripturl = strtr(Config::$scripturl, [$oldurl => Config::$boardurl]);
-				$_SERVER['REQUEST_URL'] = strtr($_SERVER['REQUEST_URL'], [$oldurl => Config::$boardurl]);
-
-				// Fix the theme urls...
-				$this->settings['theme_url'] = strtr($this->settings['theme_url'], [$oldurl => Config::$boardurl]);
-				$this->settings['default_theme_url'] = strtr($this->settings['default_theme_url'], [$oldurl => Config::$boardurl]);
-				$this->settings['actual_theme_url'] = strtr($this->settings['actual_theme_url'], [$oldurl => Config::$boardurl]);
-				$this->settings['images_url'] = strtr($this->settings['images_url'], [$oldurl => Config::$boardurl]);
-				$this->settings['default_images_url'] = strtr($this->settings['default_images_url'], [$oldurl => Config::$boardurl]);
-				$this->settings['actual_images_url'] = strtr($this->settings['actual_images_url'], [$oldurl => Config::$boardurl]);
-
-				// And just a few mod settings :).
-				Config::$modSettings['smileys_url'] = strtr(Config::$modSettings['smileys_url'], [$oldurl => Config::$boardurl]);
-				Config::$modSettings['avatar_url'] = strtr(Config::$modSettings['avatar_url'], [$oldurl => Config::$boardurl]);
-				Config::$modSettings['custom_avatar_url'] = strtr(Config::$modSettings['custom_avatar_url'], [$oldurl => Config::$boardurl]);
-
-				// Clean up after Board::load().
-				if (isset(Board::$info->moderators)) {
-					foreach (Board::$info->moderators as $k => $dummy) {
-						Board::$info->moderators[$k]['href'] = strtr($dummy['href'], [$oldurl => Config::$boardurl]);
-						Board::$info->moderators[$k]['link'] = strtr($dummy['link'], ['"' . $oldurl => '"' . Config::$boardurl]);
-					}
-				}
-
-				foreach (Utils::$context['linktree'] as $k => $dummy) {
-					Utils::$context['linktree'][$k]['url'] = strtr($dummy['url'], [$oldurl => Config::$boardurl]);
-				}
-			}
+		foreach (Utils::$context['linktree'] as $k => $dummy) {
+			Utils::$context['linktree'][$k]['url'] = strtr($dummy['url'], [Utils::$context['canonical_boardurl'] => Config::$boardurl]);
 		}
 	}
 

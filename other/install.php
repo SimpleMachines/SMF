@@ -1699,7 +1699,7 @@ function AdminAccount()
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
 
-			$_POST['password1'] = Security::hashPassword($_POST['username'], $_POST['password1']);
+			$_POST['password1'] = Security::hashPassword($_POST['password1']);
 
 			$incontext['member_id'] = Db::$db->insert(
 				'',
@@ -1729,28 +1729,30 @@ function AdminAccount()
 					'ignore_boards' => 'string',
 				],
 				[
-					$_POST['username'],
-					$_POST['username'],
-					$_POST['password1'],
-					$_POST['email'],
-					1,
-					0,
-					time(),
-					$incontext['member_salt'],
-					'',
-					'',
-					'',
-					$ip,
-					$ip,
-					'',
-					'',
-					'',
-					'',
-					'',
-					'',
-					'',
-					'',
-					'',
+					[
+						$_POST['username'],
+						$_POST['username'],
+						$_POST['password1'],
+						$_POST['email'],
+						1,
+						0,
+						time(),
+						$incontext['member_salt'],
+						'',
+						'',
+						'',
+						$ip,
+						$ip,
+						'',
+						'',
+						'',
+						'',
+						'',
+						'',
+						'',
+						'',
+						'',
+					],
 				],
 				['id_member'],
 				1,
@@ -1800,8 +1802,20 @@ function DeleteInstall()
 	Db::$db->insert(
 		'ignore',
 		'{db_prefix}log_activity',
-		['date' => 'date', 'topics' => 'int', 'posts' => 'int', 'registers' => 'int'],
-		[Time::strftime('%Y-%m-%d', time()), 1, 1, (!empty($incontext['member_id']) ? 1 : 0)],
+		[
+			'date' => 'date',
+			'topics' => 'int',
+			'posts' => 'int',
+			'registers' => 'int',
+		],
+		[
+			[
+				Time::strftime('%Y-%m-%d', time()),
+				1,
+				1,
+				!empty($incontext['member_id']) ? 1 : 0,
+			],
+		],
 		['date'],
 	);
 
@@ -1853,10 +1867,16 @@ function DeleteInstall()
 			'replace',
 			'{db_prefix}sessions',
 			[
-				'session_id' => 'string', 'last_update' => 'int', 'data' => 'string',
+				'session_id' => 'string',
+				'last_update' => 'int',
+				'data' => 'string',
 			],
 			[
-				session_id(), time(), 'USER_AGENT|s:' . strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
+				[
+					session_id(),
+					time(),
+					'USER_AGENT|s:' . strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
+				],
 			],
 			['session_id'],
 		);

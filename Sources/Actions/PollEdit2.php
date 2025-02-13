@@ -16,10 +16,12 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\ErrorHandler;
 use SMF\Logging;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Topic;
 use SMF\User;
@@ -38,8 +40,9 @@ use SMF\Utils;
  * Upon successful completion of action will direct user back to topic.
  * Accessed via ?action=editpoll2.
  */
-class PollEdit2 implements ActionInterface
+class PollEdit2 implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/****************

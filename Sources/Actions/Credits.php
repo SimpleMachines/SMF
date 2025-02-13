@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -23,6 +24,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -31,8 +33,9 @@ use SMF\Utils;
  * This action prepares credit and copyright information for the credits page
  * and the admin page.
  */
-class Credits implements ActionInterface
+class Credits implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -55,6 +58,9 @@ class Credits implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Don't blink. Don't even blink. Blink and you're dead.
+		Lang::load('Who');
+
 		// Discourage robots from indexing this page.
 		Utils::$context['robot_no_index'] = true;
 
@@ -416,19 +422,6 @@ class Credits implements ActionInterface
 		self::load();
 		self::$obj->in_admin = $in_admin;
 		self::$obj->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Don't blink. Don't even blink. Blink and you're dead.
-		Lang::load('Who');
 	}
 }
 

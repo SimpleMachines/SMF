@@ -95,6 +95,30 @@ class Subscriptions implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Load the required language and template.
+		Lang::load('ManagePaid');
+		Theme::loadTemplate('ManagePaid');
+
+		Utils::$context['page_title'] = Lang::$txt['paid_subscriptions'];
+
+		// Tabs for browsing the different subscription functions.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['paid_subscriptions'],
+			'help' => '',
+			'description' => Lang::$txt['paid_subscriptions_desc'],
+		];
+
+		if (!empty(Config::$modSettings['paid_enabled']) && !empty(Config::$modSettings['paid_currency_symbol'])) {
+			Menu::$loaded['admin']->tab_data['tabs'] = [
+				'view' => [
+					'description' => Lang::$txt['paid_subs_view_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['paid_subs_settings_desc'],
+				],
+			];
+		}
+
 		// Make sure you can do this.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -660,14 +684,32 @@ class Subscriptions implements ActionInterface
 					'',
 					'{db_prefix}subscriptions',
 					[
-						'name' => 'string-60', 'description' => 'string-255', 'active' => 'int', 'length' => 'string-4', 'cost' => 'string',
-						'id_group' => 'int', 'add_groups' => 'string-40', 'repeatable' => 'int', 'allow_partial' => 'int', 'email_complete' => 'string',
+						'name' => 'string-60',
+						'description' => 'string-255',
+						'active' => 'int',
+						'length' => 'string-4',
+						'cost' => 'string',
+						'id_group' => 'int',
+						'add_groups' => 'string-40',
+						'repeatable' => 'int',
+						'allow_partial' => 'int',
+						'email_complete' => 'string',
 						'reminder' => 'int',
 					],
 					[
-						$_POST['name'], $_POST['desc'], $isActive, $span, $cost,
-						$_POST['prim_group'], $addgroups, $isRepeatable, $allowpartial, $emailComplete,
-						$reminder,
+						[
+							$_POST['name'],
+							$_POST['desc'],
+							$isActive,
+							$span,
+							$cost,
+							$_POST['prim_group'],
+							$addgroups,
+							$isRepeatable,
+							$allowpartial,
+							$emailComplete,
+							$reminder,
+						],
 					],
 					['id_subscribe'],
 					1,
@@ -953,12 +995,24 @@ class Subscriptions implements ActionInterface
 						'',
 						'{db_prefix}log_subscribed',
 						[
-							'id_subscribe' => 'int', 'id_member' => 'int', 'old_id_group' => 'int', 'start_time' => 'int',
-							'end_time' => 'int', 'status' => 'int', 'pending_details' => 'string-65534',
+							'id_subscribe' => 'int',
+							'id_member' => 'int',
+							'old_id_group' => 'int',
+							'start_time' => 'int',
+							'end_time' => 'int',
+							'status' => 'int',
+							'pending_details' => 'string-65534',
 						],
 						[
-							Utils::$context['sub_id'], $id_member, $id_group, $starttime,
-							$endtime, $status, Utils::jsonEncode([]),
+							[
+								Utils::$context['sub_id'],
+								$id_member,
+								$id_group,
+								$starttime,
+								$endtime,
+								$status,
+								Utils::jsonEncode([]),
+							],
 						],
 						['id_sublog'],
 					);
@@ -1766,12 +1820,24 @@ class Subscriptions implements ActionInterface
 			'',
 			'{db_prefix}log_subscribed',
 			[
-				'id_subscribe' => 'int', 'id_member' => 'int', 'old_id_group' => 'int', 'start_time' => 'int',
-				'end_time' => 'int', 'status' => 'int', 'pending_details' => 'string',
+				'id_subscribe' => 'int',
+				'id_member' => 'int',
+				'old_id_group' => 'int',
+				'start_time' => 'int',
+				'end_time' => 'int',
+				'status' => 'int',
+				'pending_details' => 'string',
 			],
 			[
-				$id_subscribe, $id_member, $old_id_group, $starttime,
-				$endtime, 1, '',
+				[
+					$id_subscribe,
+					$id_member,
+					$old_id_group,
+					$starttime,
+					$endtime,
+					1,
+					'',
+				],
 			],
 			['id_sublog'],
 		);
@@ -2195,32 +2261,10 @@ class Subscriptions implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Load the required language and template.
-		Lang::load('ManagePaid');
-		Theme::loadTemplate('ManagePaid');
-
-		Utils::$context['page_title'] = Lang::$txt['paid_subscriptions'];
-
-		// Tabs for browsing the different subscription functions.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['paid_subscriptions'],
-			'help' => '',
-			'description' => Lang::$txt['paid_subscriptions_desc'],
-		];
-
 		// If not enabled or not fully configured yet, only show the settings.
 		if (empty(Config::$modSettings['paid_enabled']) || empty(Config::$modSettings['paid_currency_symbol'])) {
 			self::$subactions = array_intersect_key(self::$subactions, ['settings' => true]);
 			$this->subaction = 'settings';
-		} else {
-			Menu::$loaded['admin']->tab_data['tabs'] = [
-				'view' => [
-					'description' => Lang::$txt['paid_subs_view_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['paid_subs_settings_desc'],
-				],
-			];
 		}
 
 		IntegrationHook::call('integrate_manage_subscriptions', [&self::$subactions]);

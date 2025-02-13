@@ -902,9 +902,11 @@ class Utils
 	 *    Default: false.
 	 * @param string $form A Unicode normalization form: 'c', 'd', 'kc', 'kd',
 	 *    or 'kc_casefold'.
+	 * @param bool $mb4 If true, always decode 4-byte UTF-8 characters.
+	 *      Default: false.
 	 * @return string The normalized string.
 	 */
-	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c'): string
+	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c', bool $mb4 = false): string
 	{
 		// Convert numeric entities to characters, except special ones.
 		if (str_contains($string, '&#')) {
@@ -922,14 +924,18 @@ class Utils
 
 		// Use optimized function for compatibility casefolding.
 		if ($form === 'kc_casefold') {
-			$string = (string) Unicode\Utf8String::create($string)->normalize('kc_casefold');
+			if ($case === 'fold') {
+				$string = (string) Unicode\Utf8String::create($string)->normalize('kc_casefold');
+			} else {
+				$string = (string) Unicode\Utf8String::create($string)->normalize('kc_casefold')->convertCase($case, $simple);
+			}
 		}
 		// Everything else.
 		else {
 			$string = (string) Unicode\Utf8String::create($string)->convertCase($case, $simple)->normalize($form);
 		}
 
-		return self::fixUtf8mb4($string);
+		return $mb4 ? $string : self::fixUtf8mb4($string);
 	}
 
 	/**
@@ -1030,7 +1036,7 @@ class Utils
 	}
 
 	/**
-	 * Creates optimized regular expressions from an array of strings.
+	 * Creates optimized regular expressions from arrays of strings.
 	 *
 	 * An optimized regex built using this function will be much faster than a
 	 * simple regex built using `implode('|', $strings)` --- anywhere from
@@ -2252,51 +2258,38 @@ class Utils
 			$setLocation = Config::$scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 		}
 
-		// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
-		$sid = defined('SID') ? @constant('SID') : null;
+		if (str_contains($setLocation, Config::$scripturl)) {
+			// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
+			$sid = defined('SID') ? @constant('SID') : null;
 
-		// Put the session ID in.
-		if (isset($sid) && $sid != '') {
-			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote($sid, '/') . ')\??/', Config::$scripturl . '?' . $sid . ';', $setLocation);
-		}
-		// Keep that debug in their for template debugging!
-		elseif (isset($_GET['debug'])) {
-			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '\??/', Config::$scripturl . '?debug;', $setLocation);
-		}
+			// Put the session ID in.
+			if (isset($sid) && $sid != '' && !preg_match("/[;?]{$sid}/", $setLocation)) {
+				$insert = (str_contains($setLocation, '?') ? ';' : '?') . $sid;
 
-		if (
-			!empty(Config::$modSettings['queryless_urls'])
-			&& (
-				!Sapi::isCGI()
-				|| ini_get('cgi.fix_pathinfo') == 1
-				|| @get_cfg_var('cgi.fix_pathinfo') == 1
-			)
-			&& (
-				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
-			)
-		) {
-			if (isset($sid) && $sid != '') {
-				$setLocation = preg_replace_callback(
-					'~^' . preg_quote(Config::$scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
-					function ($m) {
-						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . $sid . (isset($m[2]) ? "{$m[2]}" : '');
-					},
-					$setLocation,
-				);
-			} else {
-				$setLocation = preg_replace_callback(
-					'~^' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
-					function ($m) {
-						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . (isset($m[2]) ? "{$m[2]}" : '');
-					},
-					$setLocation,
-				);
+				if (str_contains($setLocation, '#')) {
+					$setLocation = str_replace('#', $insert . '#', $setLocation);
+				} else {
+					$setLocation .= $insert;
+				}
 			}
-		}
+			// Keep that debug in there for template debugging!
+			elseif (isset($_GET['debug']) && !preg_match('/[;?]debug\b/', $setLocation)) {
+				$insert = (str_contains($setLocation, '?') ? ';' : '?') . 'debug';
 
-		// The request was from ajax/xhr/other api call, append ajax ot the url.
-		if (!empty(Utils::$context['from_ajax'])) {
-			$setLocation .= (strpos($setLocation, '?') ? ';' : '?') . 'ajax';
+				if (str_contains($setLocation, '#')) {
+					$setLocation = str_replace('#', $insert . '#', $setLocation);
+				} else {
+					$setLocation .= $insert;
+				}
+			}
+
+			// Rewrite as a queryless URL?
+			$setLocation = QueryString::rewriteAsQueryless($setLocation);
+
+			// The request was from ajax/xhr/other api call, append ajax to the url.
+			if (!empty(Utils::$context['from_ajax'])) {
+				$setLocation .= (str_contains($setLocation, '?') ? ';' : '?') . 'ajax';
+			}
 		}
 
 		// Maybe integrations want to change where we are heading?
@@ -2371,6 +2364,9 @@ class Utils
 			// Start up the session URL fixer.
 			ob_start('SMF\\QueryString::ob_sessrewrite');
 
+			// More work needed if using "queryless" URLS.
+			ob_start('SMF\\QueryString::rewriteAsQueryless');
+
 			// Force the browser not to collapse tabs inside posts, etc.
 			ob_start(fn($buffer) => strtr($buffer, [self::TAB_SUBSTITUTE => '<span style="white-space: pre;">' . "\t" . '</span>']));
 
@@ -2428,11 +2424,15 @@ class Utils
 		}
 
 		// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-		if (Forum::getCurrentAction()?->canBeLogged() === true
-			|| (
-				Forum::getCurrentAction() === null
-				&& !QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')
-				&& !isset($_REQUEST['xml'])
+		if (
+			isset($_SERVER['REQUEST_URL'])
+			&& (
+				Forum::getCurrentAction()?->canBeLogged() === true
+				|| (
+					Forum::getCurrentAction() === null
+					&& !QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')
+					&& !isset($_REQUEST['xml'])
+				)
 			)
 		) {
 			$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];

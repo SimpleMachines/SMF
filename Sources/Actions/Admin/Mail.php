@@ -23,6 +23,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\MailAgent\MailAgent;
 use SMF\Menu;
 use SMF\Sapi;
 use SMF\Theme;
@@ -87,6 +88,22 @@ class Mail implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// You need to be an admin to edit settings!
+		User::$me->isAllowedTo('admin_forum');
+
+		Lang::load('Help');
+		Lang::load('ManageMail');
+
+		Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
+		Utils::$context['sub_template'] = 'show_settings';
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['mailqueue_title'],
+			'help' => '',
+			'description' => Lang::$txt['mailqueue_desc'],
+		];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -392,24 +409,38 @@ class Mail implements ActionInterface
 			$emails[$index] = $index;
 		}
 
+		$detected_apis = MailAgent::detect();
+		$apis_names = [];
+
+		foreach ($detected_apis as $class_name => $agent) {
+			$class_name_txt_key = strtolower($agent->getImplementationClassKeyName());
+
+			$apis_names[$class_name] = Lang::$txt[$class_name_txt_key . '_mailagent'] ?? $class_name;
+		}
+
+		if (empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '') {
+			Config::$modSettings['mail_type'] = MailAgent::APIS_DEFAULT;
+		}
+
 		$config_vars = [
 			// Mail queue stuff, this rocks ;)
 			['int', 'mail_limit', 'subtext' => Lang::$txt['zero_to_disable']],
 			['int', 'mail_quantity'],
 			'',
 
-			// SMTP stuff.
-			['select', 'mail_type', [Lang::$txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS']],
-			['text', 'smtp_host'],
-			['text', 'smtp_port'],
-			['text', 'smtp_username'],
-			['password', 'smtp_password'],
-			'',
-
 			['select', 'birthday_email', $emails, 'value' => ['subject' => $subject, 'body' => $body], 'javascript' => 'onchange="fetch_birthday_preview()"'],
 			'birthday_subject' => ['var_message', 'birthday_subject', 'var_message' => self::$processedBirthdayEmails[empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3],
 			'birthday_body' => ['var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)],
+			'',
+
+			['select', 'mail_type', $apis_names],
 		];
+
+		foreach ($detected_apis as $class_name => $agent) {
+			if (is_callable([$agent, 'agentSettings'])) {
+				$agent->agentSettings($config_vars);
+			}
+		}
 
 		IntegrationHook::call('integrate_modify_mail_settings', [&$config_vars]);
 
@@ -520,15 +551,6 @@ class Mail implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// You need to be an admin to edit settings!
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('Help');
-		Lang::load('ManageMail');
-
-		Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
-		Utils::$context['sub_template'] = 'show_settings';
-
 		IntegrationHook::call('integrate_manage_mail', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -536,13 +558,6 @@ class Mail implements ActionInterface
 		}
 
 		Utils::$context['sub_action'] = $this->subaction;
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['mailqueue_title'],
-			'help' => '',
-			'description' => Lang::$txt['mailqueue_desc'],
-		];
 	}
 
 	/**

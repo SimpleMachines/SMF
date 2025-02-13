@@ -74,6 +74,7 @@ class Find implements ActionInterface
 		[__NAMESPACE__ . '\\Boards::getConfigVars', 'area=manageboards;sa=settings'],
 		[__NAMESPACE__ . '\\Mail::getConfigVars', 'area=mailqueue;sa=settings'],
 		[__NAMESPACE__ . '\\News::getConfigVars', 'area=news;sa=settings'],
+		[__NAMESPACE__ . '\\Members::getConfigVars', 'area=viewmembers;sa=settings'],
 		[__NAMESPACE__ . '\\Membergroups::getConfigVars', 'area=membergroups;sa=settings'],
 		[__NAMESPACE__ . '\\Permissions::getConfigVars', 'area=permissions;sa=settings'],
 		[__NAMESPACE__ . '\\Posts::postConfigVars', 'area=postsettings;sa=posts'],

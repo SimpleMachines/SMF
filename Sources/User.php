@@ -106,12 +106,14 @@ class User implements \ArrayAccess
 	public const UNAPPROVED = 3;
 	public const REQUESTED_DELETE = 4;
 	public const NEED_COPPA = 5;
+	public const REQUESTED_DELETE_ANONYMIZE = 6;
 	public const BANNED = 10;
 	public const ACTIVATED_BANNED = 11;
 	public const UNVALIDATED_BANNED = 12;
 	public const UNAPPROVED_BANNED = 13;
 	public const REQUESTED_DELETE_BANNED = 14;
 	public const NEED_COPPA_BANNED = 15;
+	public const REQUESTED_DELETE_ANONYMIZE_BANNED = 16;
 
 	/*******************
 	 * Public properties
@@ -1421,8 +1423,24 @@ class User implements \ArrayAccess
 			Db::$db->insert(
 				$do_delete ? 'ignore' : 'replace',
 				'{db_prefix}log_online',
-				['session' => 'string', 'id_member' => 'int', 'id_spider' => 'int', 'log_time' => 'int', 'ip' => 'inet', 'url' => 'string'],
-				[$session_id, $this->id, empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), $this->ip, $encoded_get],
+				[
+					'session' => 'string',
+					'id_member' => 'int',
+					'id_spider' => 'int',
+					'log_time' => 'int',
+					'ip' => 'inet',
+					'url' => 'string',
+				],
+				[
+					[
+						$session_id,
+						$this->id,
+						empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'],
+						time(),
+						$this->ip,
+						$encoded_get,
+					],
+				],
 				['session'],
 			);
 		}
@@ -2105,7 +2123,7 @@ class User implements \ArrayAccess
 			$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', [$this->username, $_POST[$type . '_pass'], false]), true);
 
 			// Password correct?
-			if ($good_password || Security::hashVerifyPassword($this->username, $_POST[$type . '_pass'], $this->passwd)) {
+			if ($good_password || Security::hashVerifyPassword($_POST[$type . '_pass'], $this->passwd)) {
 				$_SESSION[$type . '_time'] = time();
 
 				unset($_SESSION['request_referer']);
@@ -3169,10 +3187,15 @@ class User implements \ArrayAccess
 	 *     ban entries, theme settings, moderator positions, poll and votes.
 	 *   - updates member statistics afterwards.
 	 *
-	 * @param int|array $users The ID of a user or an array of user IDs
-	 * @param bool $check_not_admin Whether to verify that the users aren't admins
+	 * @param int|array $users The ID of a user or an array of user IDs.
+	 * @param bool $check_not_admin Whether to verify the users aren't admins.
+	 *    Default: false.
+	 * @param bool $anonymize If true, force anonymization of all deleted users.
+	 *    If false, deleted users will be anonymized only if they requested it
+	 *    or Config::$modSettings['always_anonymize_deleted_accounts'] is true.
+	 *    Default: false.
 	 */
-	public static function delete(int|array $users, bool $check_not_admin = false): void
+	public static function delete(int|array $users, bool $check_not_admin = false, bool $anonymize = false): void
 	{
 		// Try give us a while to sort this out...
 		Sapi::setTimeLimit();
@@ -3184,7 +3207,7 @@ class User implements \ArrayAccess
 		$users = array_unique((array) $users);
 
 		// Make sure there's no void user in here.
-		$users = array_diff($users, [0]);
+		$users = array_filter(array_map('intval', $users), fn($user) => $user > 0);
 
 		// How many are they deleting?
 		if (empty($users)) {
@@ -3214,7 +3237,9 @@ class User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'SELECT id_member, member_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
+			'SELECT
+				id_member, member_name, is_activated,
+				CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:user_list})
 			LIMIT {int:limit}',
@@ -3230,7 +3255,7 @@ class User implements \ArrayAccess
 				$admins[] = $row['id_member'];
 			}
 
-			$user_log_details[$row['id_member']] = [$row['id_member'], $row['member_name']];
+			$user_log_details[$row['id_member']] = $row;
 		}
 		Db::$db->free_result($request);
 
@@ -3260,15 +3285,29 @@ class User implements \ArrayAccess
 				'action' => 'delete_member',
 				'log_type' => 'admin',
 				'extra' => [
-					'member' => $user[0],
-					'name' => $user[1],
+					'member' => $user['id_member'],
+					'name' => $user['member_name'],
 					'member_acted' => self::$me->name,
 				],
 			];
 
 			// Remove any cached data if enabled.
 			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2) {
-				CacheApi::put('user_settings-' . $user[0], null, 60);
+				CacheApi::put('user_settings-' . $user['id_member'], null, 60);
+			}
+		}
+
+		// Anonymize?
+		foreach ($user_log_details as $user) {
+			if (
+				// Anonymize all users if we were told to do that.
+				$anonymize
+				// Anonymize all users if the global setting to do so is enabled.
+				|| !empty(Config::$modSettings['always_anonymize_deleted_accounts'])
+				// Otherwise, only anonymize users who requested it.
+				|| $user['is_activated'] % User::BANNED === User::REQUESTED_DELETE_ANONYMIZE
+			) {
+				self::anonymize((int) $user['id_member']);
 			}
 		}
 
@@ -3276,12 +3315,10 @@ class User implements \ArrayAccess
 		Db::$db->query(
 			'',
 			'UPDATE {db_prefix}messages
-			SET id_member = {int:guest_id}' . (!empty(Config::$modSettings['deleteMembersRemovesEmail']) ? ',
-				poster_email = {string:blank_email}' : '') . '
+			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
 			[
 				'guest_id' => 0,
-				'blank_email' => '',
 				'users' => $users,
 			],
 		);
@@ -3598,71 +3635,6 @@ class User implements \ArrayAccess
 		Logging::updateStats('member');
 
 		Logging::logActions($log_changes);
-	}
-
-	/**
-	 * Checks whether a password meets the current forum rules.
-	 *
-	 * Called when registering and when choosing a new password in the profile.
-	 *
-	 * If password checking is enabled, will check that none of the words in
-	 * $restrict_in appear in the password.
-	 *
-	 * Returns an error identifier if the password is invalid, or null if valid.
-	 *
-	 * @param string $password The desired password.
-	 * @param string $username The username.
-	 * @param array $restrict_in An array of restricted strings that cannot be
-	 *    part of the password (email address, username, etc.)
-	 * @return null|string Null if valid or a string indicating the problem.
-	 */
-	public static function validatePassword(string $password, string $username, array $restrict_in = []): ?string
-	{
-		// Perform basic requirements first.
-		if (Utils::entityStrlen($password) < (empty(Config::$modSettings['password_strength']) ? 4 : 8)) {
-			return 'short';
-		}
-
-		// Maybe we need some more fancy password checks.
-		$pass_error = '';
-
-		IntegrationHook::call('integrate_validatePassword', [$password, $username, $restrict_in, &$pass_error]);
-
-		if (!empty($pass_error)) {
-			return $pass_error;
-		}
-
-		// Is this enough?
-		if (empty(Config::$modSettings['password_strength'])) {
-			return null;
-		}
-
-		// Otherwise, perform the medium strength test - checking if password appears in the restricted string.
-		if (preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in))) {
-			return 'restricted_words';
-		}
-
-		if (Utils::entityStrpos($password, $username) !== false) {
-			return 'restricted_words';
-		}
-
-		// If just medium, we're done.
-		if (Config::$modSettings['password_strength'] == 1) {
-			return null;
-		}
-
-		// Check for both numbers and letters.
-		$good = preg_match('~\p{N}~u', $password) && preg_match('~\p{L}~u', $password);
-
-		// If there are any letters from bicameral scripts (Latin, Greek, etc.),
-		// check that there are both lowercase and uppercase letters present.
-		// Note: If the password only contains letters from a unicameral script
-		// (Arabic, Thai, etc.), this requirement is not applicable.
-		if (Utils::strtoupper($password) !== ($lower_password = Utils::strtolower($password))) {
-			$good &= $password !== $lower_password;
-		}
-
-		return $good ? null : 'chars';
 	}
 
 	/**
@@ -4222,16 +4194,6 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Generate a random validation code.
-	 *
-	 * @return string A random validation code
-	 */
-	public static function generateValidationCode(): string
-	{
-		return bin2hex(random_bytes(5));
-	}
-
-	/**
 	 * Log the spider presence online.
 	 */
 	public static function logSpider(): void
@@ -4284,226 +4246,21 @@ class User implements \ArrayAccess
 			Db::$db->insert(
 				'insert',
 				'{db_prefix}log_spider_hits',
-				['id_spider' => 'int', 'log_time' => 'int', 'url' => 'string'],
-				[$_SESSION['id_robot'], time(), $url],
+				[
+					'id_spider' => 'int',
+					'log_time' => 'int',
+					'url' => 'string',
+				],
+				[
+					[
+						$_SESSION['id_robot'],
+						time(),
+						$url,
+					],
+				],
 				[],
 			);
 		}
-	}
-
-	/**
-	 * Wrapper around User::load() that returns the IDs of the loaded users.
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param int|string|array $users Users specified by ID, name, or email address.
-	 * @param int $type Whether $users contains IDs, names, or email addresses.
-	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param string $dataset What kind of data to load: 'profile', 'normal',
-	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
-	 * @return array The IDs of the loaded members.
-	 */
-	public static function loadMemberData(int|string|array $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
-	{
-		$loaded = self::load($users, $type, $dataset);
-
-		return array_map(fn($user) => $user->id, $loaded);
-	}
-
-	/**
-	 * Alias of User::load().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 */
-	public static function loadUserSettings(): void
-	{
-		self::load();
-	}
-
-	/**
-	 * Static wrapper around User::$me->loadPermissions.
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 */
-	public static function loadMyPermissions(): void
-	{
-		self::$me->loadPermissions();
-	}
-
-	/**
-	 * Static wrapper around User::$loaded[$id]->format().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param int $id The ID of a user.
-	 * @param bool $display_custom_fields Whether or not to display custom
-	 *    profile fields.
-	 * @return bool|array The loaded data, or false on error.
-	 */
-	public static function loadMemberContext(int $id, bool $display_custom_fields = false): bool|array
-	{
-		// The old procedural version of this function returned false if asked
-		// to work on a guest. Since it is possible that old mods might rely on
-		// that behaviour, we replicate it here.
-		if (empty($id)) {
-			return false;
-		}
-
-		// If the user's data is not already loaded, load it now.
-		if (!isset(self::$loaded[$id])) {
-			self::load((array) $id, self::LOAD_BY_ID, 'profile');
-		}
-
-		return self::$loaded[$id]->format($display_custom_fields);
-	}
-
-	/**
-	 * Static wrapper around User::$me->kickIfGuest().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string $message The message to display to the guest.
-	 */
-	public static function is_not_guest(string $message = ''): void
-	{
-		self::$me->kickIfGuest($message);
-	}
-
-	/**
-	 * Static wrapper around User::$me->kickIfBanned().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param bool $force_check Whether to force a recheck.
-	 */
-	public static function is_not_banned(bool $force_check = false): void
-	{
-		self::$me->kickIfBanned($force_check);
-	}
-
-	/**
-	 * Static wrapper around User::$me->adjustPermissions().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 */
-	public static function banPermissions(): void
-	{
-		self::$me->adjustPermissions();
-	}
-
-	/**
-	 * Static wrapper around User::$me->logBan().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param array $ban_ids The IDs of the bans.
-	 * @param string $email The email address associated with the user that
-	 *    triggered this hit. If not set, use the current user's email address.
-	 */
-	public static function log_ban(array $ban_ids = [], ?string $email = null): void
-	{
-		self::$me->logBan($ban_ids, $email);
-	}
-
-	/**
-	 * Static wrapper around User::$me->validateSession().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string $type What type of session this is.
-	 * @param bool $force If true, require a password even if we normally wouldn't.
-	 * @return string|null Returns 'session_verify_fail' if verification failed,
-	 *    or null if it passed.
-	 */
-	public static function sessionValidate(string $type = 'admin', bool $force = false): ?string
-	{
-		return self::$me->validateSession($type, $force);
-	}
-
-	/**
-	 * Static wrapper around User::$me->checkSession().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string $type The type of check (post, get, request).
-	 * @param string $from_action The action this is coming from.
-	 * @param bool $is_fatal Whether to die with a fatal error if the check fails.
-	 * @return string The error message, or '' if everything was fine.
-	 */
-	public static function sessionCheck(string $type = 'post', string $from_action = '', bool $is_fatal = true): string
-	{
-		return self::$me->checkSession($type, $from_action, $is_fatal);
-	}
-
-	/**
-	 * Static wrapper around User::$me->allowedTo().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string|array $permission A single permission to check or an array
-	 *    of permissions to check.
-	 * @param int|array $boards The ID of a board or an array of board IDs if we
-	 *    want to check board-level permissions
-	 * @param bool $any Whether to check for permission on at least one board
-	 *    instead of all the passed boards.
-	 * @return bool Whether the user has the specified permission.
-	 */
-	public static function hasPermission(string|array $permission, int|array|null $boards = null, bool $any = false): bool
-	{
-		// You're never allowed to do something if your data hasn't been loaded yet!
-		if (!isset(self::$me)) {
-			return false;
-		}
-
-		return self::$me->allowedTo($permission, $boards, $any);
-	}
-
-	/**
-	 * Static wrapper around User::$me->isAllowedTo().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string|array $permission A single permission to check or an array
-	 *    of permissions to check.
-	 * @param int|array $boards The ID of a board or an array of board IDs if we
-	 *    want to check board-level permissions
-	 * @param bool $any Whether to check for permission on at least one board
-	 *    instead of all the passed boards.
-	 * @return bool Whether the user has the specified permission.
-	 */
-	public static function mustHavePermission(string|array $permission, int|array|null $boards = null, bool $any = false): bool
-	{
-		// You're never allowed to do something if your data hasn't been loaded yet!
-		if (!isset(self::$me)) {
-			return false;
-		}
-
-		self::$me->isAllowedTo($permission, $boards, $any);
-
-		// If we get here, the user is allowed.
-		return true;
-	}
-
-	/**
-	 * Static wrapper around User::$me->boardsAllowedTo().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string|array $permission A single permission to check or an array
-	 *    of permissions to check.
-	 * @param bool $check_access Whether to check only the boards the user has
-	 *    access to.
-	 * @return array|bool An array of board IDs if $simple is true. Otherwise, an
-	 *    array containing 'permission' => array(id, id, id...) pairs.
-	 */
-	public static function hasPermissionInBoards(string|array $permission, bool $check_access = true, bool $simple = true): array|bool
-	{
-		// You're never allowed to do something if your data hasn't been loaded yet!
-		if (!isset(self::$me)) {
-			return false;
-		}
-
-		return self::$me->boardsAllowedTo($permission, $check_access, $simple);
 	}
 
 	/******************
@@ -5599,6 +5356,175 @@ class User implements \ArrayAccess
 		}
 
 		return 'https://secure.gravatar.com/avatar/' . md5(Utils::strtolower($email_address)) . '?' . implode('&', $url_params);
+	}
+
+	/**
+	 * Anonymizes the specified member's personally identifying information.
+	 *
+	 * @param int $member The ID of the member to anonymize.
+	 */
+	protected static function anonymize(int $member): void
+	{
+		$anonymous_name = Utils::strtolower(Lang::$txt['user']) . '_' . substr(Uuid::create(5, 'member=' . $member)->getShortForm(true), 0, 8);
+
+		$anonymous_email = Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid';
+
+		// Anonymize the member's posts.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
+			SET poster_name = {string:anonymous_name},
+				poster_email = {string:anonymous_email},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'anonymous_email' => Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid',
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their name in the modified_name field of posts.
+		Db::$db->update_from(
+			table: [
+				'name' => '{db_prefix}messages',
+				'alias' => 'm',
+			],
+			from_tables: [
+				[
+					'name' => '{db_prefix}members',
+					'alias' => 'mem',
+					'condition' => 'm.modified_name = mem.real_name',
+				],
+			],
+			set: 'm.modified_name = {string:anonymous_name}',
+			where: 'mem.id_member = {int:member}',
+			db_values: [
+				'anonymous_name' => $anonymous_name,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their name in mentions within posts.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
+			SET body = REGEXP_REPLACE(body, {string:regex}, {string:anonymous_name})
+			WHERE id_msg IN (
+				SELECT DISTINCT content_id
+				FROM {db_prefix}mentions
+				WHERE content_type = {string:msg}
+					AND id_mentioned = {int:member}
+			)',
+			[
+				'regex' => '\\[member=' . $member . '\\][^\\[]+\\[/member\\]',
+				'anonymous_name' => $anonymous_name,
+				'member' => $member,
+				'msg' => 'msg',
+			],
+		);
+
+		// Anonymize their log comments, whether sent or received.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_comments
+			SET member_name = {string:anonymous_name},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_comments
+			SET recipient_name = {string:anonymous_name},
+				id_recipient = {int:guest_id}
+			WHERE id_recipient = {int:member}
+				AND comment_type != {string:warntpl}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+				'warntpl' => 'warntpl',
+			],
+		);
+
+		// Anonymize their logged group request actions.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_group_requests
+			SET member_name_acted = {string:anonymous_name},
+				id_member_acted = {int:guest_id}
+			WHERE id_member_acted = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their logged package actions.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_packages
+			SET member_installed = {string:anonymous_name},
+				id_member_installed = {int:guest_id}
+			WHERE id_member_installed = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_packages
+			SET member_removed = {string:anonymous_name},
+				id_member_removed = {int:guest_id}
+			WHERE id_member_removed = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize reports about them.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_reported
+			SET membername = {string:anonymous_name},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their comments on reports.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_reported_comments
+			SET membername = {string:anonymous_name},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Do any mods want to anonymize some custom content?
+		IntegrationHook::call('integrate_anonymize', [$member]);
 	}
 }
 

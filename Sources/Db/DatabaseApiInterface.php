@@ -66,21 +66,38 @@ interface DatabaseApiInterface
 	public function fetch_all(object $request): array;
 
 	/**
+	 * Fetches all rows from a result as an object.
+	 *
+	 * @param object $result A query result resource.
+	 * @param string $class The name of the class to instantiate, set the properties of and return. If not specified, a stdClass object is returned.
+	 * @param array $args An optional array of parameters to pass to the constructor for class objects.
+	 * @return object|false|null Returns an object representing the fetched row, where each property represents the name of the result set's column, null if there are no more rows in the result set, or false on failure.
+	 */
+	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null;
+
+	/**
 	 * Frees the memory and data associated with the query result.
 	 */
 	public function free_result(object $result): bool;
 
 	/**
-	 * Gets the ID of the most recently inserted row.
+	 * Inserts one or more rows of data into a database table and optionally
+	 * returns the resulting IDs.
 	 *
 	 * @param string $method INSERT or REPLACE.
 	 * @param string $table The table (only used for Postgres).
-	 * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs.
-	 * @param array $data The data to insert.
-	 * @param array $keys The keys for the table, needs to be not empty on replace mode.
-	 * @param object $connection = null The connection (if null, $db_connection is used).
-	 * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array.
-	 * @return int The ID of the most recently inserted row.
+	 * @param array $columns Array of the columns we're inserting the data into.
+	 *    Should contain 'column' => 'datatype' pairs.
+	 * @param array $data Rows of data to insert. Each element of $data must
+	 *    be an array of values corresponding to $columns.
+	 * @param array $keys The keys for the table. Must not empty in replace mode.
+	 * @param int $returnmode 0 = nothing, 1 = last row ID, 2 = all row IDs.
+	 *    Default: 0.
+	 * @param object $connection The connection to use.
+	 *    If null, $db_connection is used.
+	 * @return int|array|null Null if $returnmode is 0, the ID of the most
+	 *    recently inserted row if $returnmode is 1, or the IDS of all the
+	 *    inserted rows if $returnmode is 2.
 	 */
 	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null;
 

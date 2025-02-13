@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
@@ -24,6 +25,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -31,8 +33,9 @@ use SMF\Utils;
 /**
  * Finds and retrieves information about new posts and topics.
  */
-class Unread implements ActionInterface
+class Unread implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/*******************
@@ -212,6 +215,8 @@ class Unread implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		$this->getBoards();
 		$this->setSortMethod();
 		$this->getCatName();
@@ -241,9 +246,9 @@ class Unread implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial stuff.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// Guests can't have unread things, we don't know anything about them.
 		User::$me->kickIfGuest();

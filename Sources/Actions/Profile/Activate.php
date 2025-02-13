@@ -47,7 +47,12 @@ class Activate implements ActionInterface
 			&& Profile::$member->is_activated != User::ACTIVATED
 		) {
 			// If we are approving the deletion of an account, we do something special ;)
-			if (Profile::$member->is_activated == User::REQUESTED_DELETE) {
+			if (
+				Profile::$member->is_activated == User::REQUESTED_DELETE
+				|| Profile::$member->is_activated == User::REQUESTED_DELETE_ANONYMIZE
+				|| Profile::$member->is_activated == User::REQUESTED_DELETE_BANNED
+				|| Profile::$member->is_activated == User::REQUESTED_DELETE_ANONYMIZE_BANNED
+			) {
 				User::delete(Utils::$context['id_member']);
 				Utils::redirectexit();
 			}
@@ -76,9 +81,11 @@ class Activate implements ActionInterface
 					[
 						User::UNAPPROVED,
 						User::REQUESTED_DELETE,
+						User::REQUESTED_DELETE_ANONYMIZE,
 						User::NEED_COPPA,
 						User::UNAPPROVED_BANNED,
 						User::REQUESTED_DELETE_BANNED,
+						User::REQUESTED_DELETE_ANONYMIZE_BANNED,
 						User::NEED_COPPA_BANNED,
 					],
 				)

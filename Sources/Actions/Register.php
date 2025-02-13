@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
@@ -24,6 +25,7 @@ use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\Profile;
+use SMF\Routable;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -33,8 +35,9 @@ use SMF\Verifier;
 /**
  * Shows the registration form.
  */
-class Register implements ActionInterface
+class Register implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -200,7 +203,7 @@ class Register implements ActionInterface
 		if (!empty(Config::$modSettings['requireAgreement'])) {
 			// Have we got a localized one?
 			if (file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt')) {
-				Utils::$context['privacy_policy'] = Parser::transform(
+				Utils::$context['agreement'] = Parser::transform(
 					string: file_get_contents(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt'),
 					options: [
 						'cache_id' => 'agreement_' . User::$me->language,
@@ -208,7 +211,7 @@ class Register implements ActionInterface
 					],
 				);
 			} elseif (file_exists(Config::$languagesdir . '/en_US/agreement.txt')) {
-				Utils::$context['privacy_policy'] = Parser::transform(
+				Utils::$context['agreement'] = Parser::transform(
 					string: file_get_contents(Config::$languagesdir . '/en_US/agreement.txt'),
 					options: [
 						'cache_id' => 'agreement',
@@ -353,23 +356,6 @@ class Register implements ActionInterface
 		$errors = User::validateUsername(0, Utils::$context['checked_username'], true);
 
 		Utils::$context['valid_username'] = empty($errors);
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Backward compatibility wrapper for show sub-action.
-	 *
-	 * @param array $reg_errors Holds information about any errors that occurred.
-	 */
-	public static function register(array $reg_errors = []): void
-	{
-		self::load();
-		self::$obj->subaction = 'show';
-		self::$obj->errors = (array) $reg_errors;
-		self::$obj->execute();
 	}
 
 	/******************

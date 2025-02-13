@@ -16,10 +16,12 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -29,8 +31,9 @@ use SMF\Utils;
  *
  * TrueType fonts supplied by www.LarabieFonts.com.
  */
-class VerificationCode implements ActionInterface
+class VerificationCode implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\Actions\Profile\BackwardCompatibility;
 use SMF\ActionTrait;
 use SMF\Config;
@@ -27,6 +28,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\Profile\Tracking;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -35,10 +37,10 @@ use SMF\Utils;
 /**
  * Rename here and in the exportStatic call at the end of the file.
  */
-class TrackIP implements ActionInterface
+class TrackIP implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

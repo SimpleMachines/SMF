@@ -937,6 +937,33 @@ class Permissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('ManagePermissions+ManageMembers');
+		Theme::loadTemplate('ManagePermissions');
+
+		// Create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['permissions_title'],
+			'help' => 'permissions',
+			'description' => '',
+			'tabs' => [
+				'index' => [
+					'description' => Lang::$txt['permissions_groups'],
+				],
+				'board' => [
+					'description' => Lang::$txt['permission_by_board_desc'],
+				],
+				'profiles' => [
+					'description' => Lang::$txt['permissions_profiles_desc'],
+				],
+				'postmod' => [
+					'description' => Lang::$txt['permissions_post_moderation_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['permission_settings_desc'],
+				],
+			],
+		];
+
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
 		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
@@ -2375,33 +2402,6 @@ class Permissions implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('ManagePermissions+ManageMembers');
-		Theme::loadTemplate('ManagePermissions');
-
-		// Create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['permissions_title'],
-			'help' => 'permissions',
-			'description' => '',
-			'tabs' => [
-				'index' => [
-					'description' => Lang::$txt['permissions_groups'],
-				],
-				'board' => [
-					'description' => Lang::$txt['permission_by_board_desc'],
-				],
-				'profiles' => [
-					'description' => Lang::$txt['permissions_profiles_desc'],
-				],
-				'postmod' => [
-					'description' => Lang::$txt['permissions_post_moderation_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['permission_settings_desc'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_permissions', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -3062,7 +3062,9 @@ class Permissions implements ActionInterface
 				'profile_name' => 'string',
 			],
 			[
-				$_POST['profile_name'],
+				[
+					$_POST['profile_name'],
+				],
 			],
 			['id_profile'],
 			1,

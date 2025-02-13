@@ -77,6 +77,8 @@ $helptxt['view_members'] = '
 		</li>
 	</ul>';
 
+$helptxt['always_anonymize_deleted_accounts'] = 'Anonymization replaces the member’s name and email address with placeholders in post authorship data, moderation and administration logs, etc. It also replaces any mentions of the member’s name in the body text of posts.<br><br>However, anonymization will <strong>not</strong> remove any plain text occurrences of the member’s name in the body text of forum posts, nor will it remove the member’s name in the sender or recipient lines of personal messages that the member has exchanged with others.';
+
 $helptxt['ban_members'] = '<strong>Ban Members</strong><br>
 	SMF provides the ability to &quot;ban&quot; users, which can be a useful course of action against users that have
 	violated the trust of the forum	by spamming or trolling, etc. This allows you to exclude users that are detrimental
@@ -408,10 +410,23 @@ $helptxt['db_persist'] = 'This keeps the connection active to increase performan
 If this option is disabled, you may need to enable the mysqli.allow_persistent or pgsql.allow_persistent setting in your php.ini file.';
 $helptxt['ssi_db_user'] = 'Optional setting to use a different database user and password when you are using SSI.php.';
 
-$helptxt['queryless_urls'] = 'This changes the format of URLs a little so search engines will like them better. They will look like index.php/topic,1.0.html.<br><br>{0, select,
-	supported {This feature will work on your server.}
-	other {This feature will not work on your server.}
+$helptxt['queryless_urls'] = 'This changes the format of URLs that point to pages within your forum to be more friendly to humans.<br><br>
+{0, select,
+	supported {This feature is supported on your server.}
+	other {This feature is not supported on your server.}
 }';
+$helptxt['hide_index_php'] = 'Enabling this feature will hide the <code class="bbc_tt">index.php</code> portion of URLs that point to pages within your forum. URLs that point to pages outside of your forum will be unaffected.<br><br>
+This feature will only work correctly if <strong><u>both</u></strong> of the following are true:
+<ol class="bbc_list" style="list-style-type: decimal">
+<li>The feature is enabled in SMF itself.</li>
+<li>Your underlying server software is configured to support this feature.</li>
+</ol>
+<br>
+{0, select,
+	auto {When you enable this feature, SMF will attempt to automatically configure your server to support it as well. However, if this attempt fails, you will need to configure your server manually.<br><br>To do so, find or create file named <code class="bbc_tt">.htaccess</code> in your forum’s base directory and then paste the following text into it.<br><br><code class="bbc_code">{htaccess_code}</code>}
+	other {<strong>You must manually configure your server to support this feature.</strong> Configuring your server to support this feature cannot be done from within SMF. You will need to use your server configuration software to do so.}
+}';
+$helptxt['use_ascii_slugs'] = 'Enabling this setting will cause non-ASCII characters in friendly URLs to be replaced with approximately equivalent ASCII characters. If this setting is disabled, non-ASCII letters and numbers will be left unchanged.';
 $helptxt['minimize_files'] = 'This option will minimize the CSS and JavaScript files used by your forum, reducing the request calls to your server and speeding up load times for your users.<br><br>You should normally leave this option enabled. The only time you might want to disable it temporarily is while you are in the process of altering the CSS or JavaScript files used on your site (for example, when editing your theme files or developing a modification).';
 $helptxt['boardindex_max_depth'] = 'This setting controls how many sub-board levels SMF will check when looking for new posts in sub-boards. It also affects which boards are included when the "Count sub-board’s posts in parent’s totals" option is enabled.<br><br>For example, if this is set to 1, a sub-board will only be marked "new" on the index page if the sub-board itself contains a new post. If it is set to 2, the sub-board will be marked "new" if there is a new post in the sub-board or in a sub-sub-board. If it is set to 10, the sub-board will be marked "new" if there is a new post in the sub-board, a sub-sub-board, a sub-sub-sub-board, etc., up to 10 levels deep.<br><br>Large, active forums may want to set this value to a low number in order to conserve server resources.';
 $helptxt['countChildPosts'] = 'Checking this setting means that posts and topics in a board’s sub-board will count toward its totals on the index page.<br><br>This means that a parent board with no posts in it will not show "0" if there are any posts in its sub-boards.';
@@ -451,12 +466,13 @@ $helptxt['send_validation_onChange'] = 'When this setting is checked all members
 $helptxt['approveAccountDeletion'] = 'When this setting is checked, any user request to delete his own account has to be approved by an administrator';
 
 $helptxt['send_welcomeEmail'] = 'When this setting is enabled all new members will be sent an email welcoming them to your community';
-$helptxt['password_strength'] = 'This setting determines the strength required for passwords selected by your forum users. The stronger the password, the harder it should be to compromise member’s accounts.
-	Its possible settings are:
+$helptxt['password_strength'] = 'This setting determines the strength required for passwords selected by your forum users. The stronger the password, the harder it should be to compromise member’s accounts. Passwords are evaluated using the <a href="https://github.com/bjeavons/zxcvbn-php" class="bbc_link" target="_blank" rel="noopener">zxcvbn library</a> and checked for other requirements.
+	<br><br>
+	Possible values are:
 	<ul class="normallist">
-		<li><strong>Low:</strong> The password must be at least four characters long.</li>
-		<li><strong>Medium:</strong> The password must be at least eight characters long, and cannot be part of a user’s name or email address.</li>
-		<li><strong>High:</strong> As for medium, except the password must also contain a mixture of upper and lower case letters, and at least one number.</li>
+		<li><strong>Low:</strong> The password must be at least six characters long, it must not contain the user’s name or email address, and it must earn a zxcvbn score of at least 2.</li>
+		<li><strong>Medium:</strong> As for low, except the password must be at least eight characters long and it must earn a zxcvbn score of at least 3.</li>
+		<li><strong>High:</strong> As for medium, except it must earn a zxcvbn score of 4.</li>
 	</ul>';
 $helptxt['enable_password_conversion'] = 'By enabling this setting, SMF will attempt to detect passwords stored in other formats and convert them to the format SMF uses. Typically this is used for forums converted to SMF, but may have other uses as well. Disabling this prevents a user from logging in using their password after a conversion and they would need to reset their password.';
 
@@ -477,7 +493,7 @@ $helptxt['coppaType'] = 'If age restrictions are enabled, then this setting will
 $helptxt['coppaPost'] = 'The contact boxes are required so that forms granting permission for underage registration can be sent to the forum administrator. These details will be shown to all new minors, and are required for parent/guardian approval. At the very least a postal address or fax number must be provided.';
 
 $helptxt['allow_hideOnline'] = 'With this setting enabled all members will be able to hide their online status from other users (except administrators). Note that disabling this setting will not change any existing member’s status - it just stops them from hiding themselves in the future.';
-$helptxt['meta_keywords'] = 'These keywords are sent in the output of every page to indicate to search engines (etc) the key content of your site. They should be a comma separated list of words, and should not use HTML.';
+$helptxt['meta_keywords'] = 'These keywords are sent in the output of every page to indicate to search engines, etc., the key content of your site. They should be a comma separated list of words, and should not use HTML.<br><br>Nearly all modern search engines ignore keywords. Unless you have a specific reason to use them, you should leave this setting empty.';
 
 $helptxt['latest_themes'] = 'This area shows a few of the latest and most popular themes from <a href="https://www.simplemachines.org/" target="_blank" rel="noopener">www.simplemachines.org</a>. It may not show up properly if your computer cannot find <a href="https://www.simplemachines.org/" target="_blank" rel="noopener">www.simplemachines.org</a>, though.';
 

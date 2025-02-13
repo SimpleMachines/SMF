@@ -16,20 +16,22 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Utils;
 
 /**
  * This class has the important job of taking care of help messages and the help center.
  */
-class Help implements ActionInterface
+class Help implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -71,6 +73,9 @@ class Help implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('Help');
+		Lang::load('Manual');
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -114,19 +119,6 @@ class Help implements ActionInterface
 		Utils::$context['sub_template'] = 'manual';
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Backward compatibility wrapper for the index sub-action.
-	 */
-	public static function HelpIndex(): void
-	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
-	}
 
 	/******************
 	 * Internal methods
@@ -143,10 +135,6 @@ class Help implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Theme::loadTemplate('Help');
-		Lang::load('Manual');
-
-		// CRUD $subactions as needed.
 		IntegrationHook::call('integrate_manage_help', [&self::$subactions]);
 
 		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {

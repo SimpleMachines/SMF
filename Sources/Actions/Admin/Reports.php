@@ -149,6 +149,43 @@ class Reports implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Only admins, only EVER admins!
+		User::$me->isAllowedTo('admin_forum');
+
+		// Let's get our things running...
+		Theme::loadTemplate('Reports');
+		Lang::load('Reports');
+		Theme::loadJavaScriptFile('reports.js', ['defer' => true, 'minimize' => true], 'smf_reports');
+
+		Utils::$context['page_title'] = Lang::$txt['generate_reports'];
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['generate_reports'],
+			'help' => '',
+			'description' => Lang::$txt['generate_reports_desc'],
+		];
+
+		$is_first = 0;
+
+		foreach (self::$subactions as $k => $func) {
+			if (!is_string($func)) {
+				continue;
+			}
+
+			$this->report_types[$k] = [
+				'id' => $k,
+				'title' => Lang::$txt['gr_type_' . $k] ?? $k,
+				'description' => Lang::$txt['gr_type_desc_' . $k] ?? null,
+				'function' => $func,
+				'is_first' => $is_first++ == 0,
+			];
+		}
+
+		Utils::$context['report_types'] = &$this->report_types;
+		Utils::$context['sub_template'] = &$this->sub_template;
+		Utils::$context['tables'] = &$this->tables;
+
 		if (empty($this->subaction)) {
 			$this->sub_template = 'report_type';
 
@@ -641,47 +678,10 @@ class Reports implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Only admins, only EVER admins!
-		User::$me->isAllowedTo('admin_forum');
-
-		// Let's get our things running...
-		Theme::loadTemplate('Reports');
-		Lang::load('Reports');
-		Theme::loadJavaScriptFile('reports.js', ['defer' => true, 'minimize' => true], 'smf_reports');
-
-		Utils::$context['page_title'] = Lang::$txt['generate_reports'];
-
 		// For backward compatibility...
 		Utils::$context['report_types'] = &self::$subactions;
 
 		IntegrationHook::call('integrate_report_types', [&self::$subactions]);
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['generate_reports'],
-			'help' => '',
-			'description' => Lang::$txt['generate_reports_desc'],
-		];
-
-		$is_first = 0;
-
-		foreach (self::$subactions as $k => $func) {
-			if (!is_string($func)) {
-				continue;
-			}
-
-			$this->report_types[$k] = [
-				'id' => $k,
-				'title' => Lang::$txt['gr_type_' . $k] ?? $k,
-				'description' => Lang::$txt['gr_type_desc_' . $k] ?? null,
-				'function' => $func,
-				'is_first' => $is_first++ == 0,
-			];
-		}
-
-		Utils::$context['report_types'] = &$this->report_types;
-		Utils::$context['sub_template'] = &$this->sub_template;
-		Utils::$context['tables'] = &$this->tables;
 
 		if (!empty($_REQUEST['rt']) && isset(self::$subactions[$_REQUEST['rt']])) {
 			$this->subaction = $_REQUEST['rt'];

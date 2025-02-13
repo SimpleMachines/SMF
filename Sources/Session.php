@@ -114,9 +114,11 @@ class Session implements \SessionHandlerInterface
 				'last_update' => 'int',
 			],
 			[
-				$session_id,
-				$data,
-				time(),
+				[
+					$session_id,
+					$data,
+					time(),
+				],
 			],
 			['session_id'],
 		);
@@ -257,54 +259,6 @@ class Session implements \SessionHandlerInterface
 		}
 
 		User::$sc = $_SESSION['session_value'];
-	}
-
-	/**
-	 * Backward compatibility wrapper for the open method.
-	 */
-	public static function sessionOpen(string $path, string $name): bool
-	{
-		return (new self())->open($path, $name);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the close method.
-	 */
-	public static function sessionClose(): bool
-	{
-		return (new self())->close();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the read method.
-	 */
-	public static function sessionRead(string $session_id): string
-	{
-		return (string) (new self())->read($session_id);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the write method.
-	 */
-	public static function sessionWrite(string $session_id, string $data): bool
-	{
-		return (new self())->write($session_id, $data);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the destroy method.
-	 */
-	public static function sessionDestroy(string $session_id): bool
-	{
-		return (new self())->destroy($session_id);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the gc method.
-	 */
-	public static function sessionGC(int $max_lifetime): int|false
-	{
-		return (new self())->gc($max_lifetime);
 	}
 }
 
