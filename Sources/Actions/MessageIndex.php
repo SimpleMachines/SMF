@@ -572,6 +572,7 @@ class MessageIndex implements ActionInterface, Routable
 			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d', $start, Board::$info->total_topics, (int) Utils::$context['maxindex'], true);
 		}
 
+		$_REQUEST['start'] = $start;
 		Utils::$context['start'] = &$_REQUEST['start'];
 
 		$can_show_all = !empty(Config::$modSettings['enableAllMessages']) && Utils::$context['maxindex'] > Config::$modSettings['enableAllMessages'];
@@ -610,13 +611,11 @@ class MessageIndex implements ActionInterface, Routable
 		}
 
 		// Calculate the fastest way to get the topics.
-		$start = (int) $_REQUEST['start'];
-
-		if ($start > (Board::$info->total_topics - 1) / 2) {
+		if ($_REQUEST['start'] > (Board::$info->total_topics - 1) / 2) {
 			$this->ascending = !$this->ascending;
 			$fake_ascending = true;
-			Utils::$context['maxindex'] = Board::$info->total_topics < $start + Utils::$context['maxindex'] + 1 ? Board::$info->total_topics - $start : Utils::$context['maxindex'];
-			$start = Board::$info->total_topics < $start + Utils::$context['maxindex'] + 1 ? 0 : Board::$info->total_topics - $start - Utils::$context['maxindex'];
+			Utils::$context['maxindex'] = Board::$info->total_topics < $_REQUEST['start'] + Utils::$context['maxindex'] + 1 ? Board::$info->total_topics - $_REQUEST['start'] : Utils::$context['maxindex'];
+			$_REQUEST['start'] = Board::$info->total_topics < $_REQUEST['start'] + Utils::$context['maxindex'] + 1 ? 0 : Board::$info->total_topics - $_REQUEST['start'] - Utils::$context['maxindex'];
 		} else {
 			$fake_ascending = false;
 		}
@@ -631,7 +630,7 @@ class MessageIndex implements ActionInterface, Routable
 			'topic_list' => $topic_ids,
 			'is_approved' => 1,
 			'find_set_topics' => implode(',', $topic_ids),
-			'start' => $start,
+			'start' => $_REQUEST['start'],
 			'maxindex' => Utils::$context['maxindex'],
 		];
 
