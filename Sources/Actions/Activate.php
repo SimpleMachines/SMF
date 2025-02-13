@@ -291,7 +291,7 @@ class Activate implements ActionInterface, Routable
 		if (
 			!empty($_POST['new_email'])
 			&& !empty($_REQUEST['passwd'])
-			&& Security::hashVerifyPassword($this->member->username, $_REQUEST['passwd'], $this->member->passwd)
+			&& Security::hashVerifyPassword($_REQUEST['passwd'], $this->member->passwd)
 			&& (
 				$this->member->is_activated == User::NOT_ACTIVATED
 				|| $this->member->is_activated == User::UNVALIDATED

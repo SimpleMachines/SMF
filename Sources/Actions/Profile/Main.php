@@ -677,7 +677,7 @@ class Main implements ActionInterface, Routable
 				$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', [Profile::$member->username, $password, false]), true);
 
 				// Bad password!!!
-				if (!$good_password && !Security::hashVerifyPassword(Profile::$member->username, $password, Profile::$member->passwd)) {
+				if (!$good_password && !Security::hashVerifyPassword($password, Profile::$member->passwd)) {
 					Profile::$member->save_errors[] = 'bad_password';
 				}
 

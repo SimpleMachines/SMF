@@ -466,12 +466,13 @@ $helptxt['send_validation_onChange'] = 'When this setting is checked all members
 $helptxt['approveAccountDeletion'] = 'When this setting is checked, any user request to delete his own account has to be approved by an administrator';
 
 $helptxt['send_welcomeEmail'] = 'When this setting is enabled all new members will be sent an email welcoming them to your community';
-$helptxt['password_strength'] = 'This setting determines the strength required for passwords selected by your forum users. The stronger the password, the harder it should be to compromise member’s accounts.
-	Its possible settings are:
+$helptxt['password_strength'] = 'This setting determines the strength required for passwords selected by your forum users. The stronger the password, the harder it should be to compromise member’s accounts. Passwords are evaluated using the <a href="https://github.com/bjeavons/zxcvbn-php" class="bbc_link" target="_blank" rel="noopener">zxcvbn library</a> and checked for other requirements.
+	<br><br>
+	Possible values are:
 	<ul class="normallist">
-		<li><strong>Low:</strong> The password must be at least four characters long.</li>
-		<li><strong>Medium:</strong> The password must be at least eight characters long, and cannot be part of a user’s name or email address.</li>
-		<li><strong>High:</strong> As for medium, except the password must also contain a mixture of upper and lower case letters, and at least one number.</li>
+		<li><strong>Low:</strong> The password must be at least six characters long, it must not contain the user’s name or email address, and it must earn a zxcvbn score of at least 2.</li>
+		<li><strong>Medium:</strong> As for low, except the password must be at least eight characters long and it must earn a zxcvbn score of at least 3.</li>
+		<li><strong>High:</strong> As for medium, except it must earn a zxcvbn score of 4.</li>
 	</ul>';
 $helptxt['enable_password_conversion'] = 'By enabling this setting, SMF will attempt to detect passwords stored in other formats and convert them to the format SMF uses. Typically this is used for forums converted to SMF, but may have other uses as well. Disabling this prevents a user from logging in using their password after a conversion and they would need to reset their password.';
 

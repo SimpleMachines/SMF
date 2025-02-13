@@ -8824,29 +8824,56 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 ********************/
 
 	/**
-	 * Hashes username with password
+	 * Checks whether a password meets the current forum rules
+	 * - called when registering/choosing a password.
+	 * - checks the password obeys the current forum settings for password strength.
+	 * - if password checking is enabled, will check that none of the words in restrict_in appear in the password.
+	 * - returns an error identifier if the password is invalid, or null.
 	 *
+	 * @param string $password The desired password
 	 * @param string $username The username
+	 * @param array $restrict_in An array of restricted strings that cannot be part of the password (email address, username, etc.)
+	 * @return null|string Null if valid or a string indicating what the problem was
+	 */
+	function validatePassword(string $password, string $username, array $restrict_in = []): ?string
+	{
+		return SMF\Security::validatePassword($password, $username, $restrict_in);
+	}
+
+	/**
+	 * Generate a random validation code.
+	 *
+	 * @return string A random validation code
+	 */
+	function generateValidationCode(): string
+	{
+		return SMF\Security::generateValidationCode();
+	}
+
+	/**
+	 * Hashes the user's password
+	 *
+	 * @param string $username The username. Ignored since 3.0.
 	 * @param string $password The unhashed password
 	 * @param int $cost The cost
 	 * @return string The hashed password
 	 */
 	function hash_password(string $username, string $password, ?int $cost = null): string
 	{
-		return SMF\Security::hashPassword($username, $password, $cost);
+		return SMF\Security::hashPassword($password, $cost);
 	}
 
 	/**
-	 * Verifies a raw SMF password against the bcrypt'd string
+	 * Verifies a raw SMF password against the encrypted string
 	 *
-	 * @param string $username The username
+	 * @param string $username The username. Ignored since 3.0.
 	 * @param string $password The password
 	 * @param string $hash The hashed string
 	 * @return bool Whether the hashed password matches the string
 	 */
 	function hash_verify_password(string $username, string $password, string $hash): bool
 	{
-		return SMF\Security::hashVerifyPassword($username, $password, $hash);
+		return SMF\Security::hashVerifyPassword($password, $hash);
 	}
 
 	/**
@@ -10360,23 +10387,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * Checks whether a password meets the current forum rules
-	 * - called when registering/choosing a password.
-	 * - checks the password obeys the current forum settings for password strength.
-	 * - if password checking is enabled, will check that none of the words in restrict_in appear in the password.
-	 * - returns an error identifier if the password is invalid, or null.
-	 *
-	 * @param string $password The desired password
-	 * @param string $username The username
-	 * @param array $restrict_in An array of restricted strings that cannot be part of the password (email address, username, etc.)
-	 * @return null|string Null if valid or a string indicating what the problem was
-	 */
-	function validatePassword(string $password, string $username, array $restrict_in = []): ?string
-	{
-		return SMF\User::validatePassword($password, $username, $restrict_in);
-	}
-
-	/**
 	 * Checks a username obeys a load of rules
 	 *
 	 * @param int $memID The ID of the member
@@ -10498,16 +10508,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $profile_id = 1,
 	): array {
 		return SMF\User::getGroupsWithPermissions($general_permissions, $board_permissions, $profile_id);
-	}
-
-	/**
-	 * Generate a random validation code.
-	 *
-	 * @return string A random validation code
-	 */
-	function generateValidationCode(): string
-	{
-		return SMF\User::generateValidationCode();
 	}
 
 	/**

@@ -2123,7 +2123,7 @@ class User implements \ArrayAccess
 			$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', [$this->username, $_POST[$type . '_pass'], false]), true);
 
 			// Password correct?
-			if ($good_password || Security::hashVerifyPassword($this->username, $_POST[$type . '_pass'], $this->passwd)) {
+			if ($good_password || Security::hashVerifyPassword($_POST[$type . '_pass'], $this->passwd)) {
 				$_SESSION[$type . '_time'] = time();
 
 				unset($_SESSION['request_referer']);
@@ -3638,71 +3638,6 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Checks whether a password meets the current forum rules.
-	 *
-	 * Called when registering and when choosing a new password in the profile.
-	 *
-	 * If password checking is enabled, will check that none of the words in
-	 * $restrict_in appear in the password.
-	 *
-	 * Returns an error identifier if the password is invalid, or null if valid.
-	 *
-	 * @param string $password The desired password.
-	 * @param string $username The username.
-	 * @param array $restrict_in An array of restricted strings that cannot be
-	 *    part of the password (email address, username, etc.)
-	 * @return null|string Null if valid or a string indicating the problem.
-	 */
-	public static function validatePassword(string $password, string $username, array $restrict_in = []): ?string
-	{
-		// Perform basic requirements first.
-		if (Utils::entityStrlen($password) < (empty(Config::$modSettings['password_strength']) ? 4 : 8)) {
-			return 'short';
-		}
-
-		// Maybe we need some more fancy password checks.
-		$pass_error = '';
-
-		IntegrationHook::call('integrate_validatePassword', [$password, $username, $restrict_in, &$pass_error]);
-
-		if (!empty($pass_error)) {
-			return $pass_error;
-		}
-
-		// Is this enough?
-		if (empty(Config::$modSettings['password_strength'])) {
-			return null;
-		}
-
-		// Otherwise, perform the medium strength test - checking if password appears in the restricted string.
-		if (preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in))) {
-			return 'restricted_words';
-		}
-
-		if (Utils::entityStrpos($password, $username) !== false) {
-			return 'restricted_words';
-		}
-
-		// If just medium, we're done.
-		if (Config::$modSettings['password_strength'] == 1) {
-			return null;
-		}
-
-		// Check for both numbers and letters.
-		$good = preg_match('~\p{N}~u', $password) && preg_match('~\p{L}~u', $password);
-
-		// If there are any letters from bicameral scripts (Latin, Greek, etc.),
-		// check that there are both lowercase and uppercase letters present.
-		// Note: If the password only contains letters from a unicameral script
-		// (Arabic, Thai, etc.), this requirement is not applicable.
-		if (Utils::strtoupper($password) !== ($lower_password = Utils::strtolower($password))) {
-			$good &= $password !== $lower_password;
-		}
-
-		return $good ? null : 'chars';
-	}
-
-	/**
 	 * Checks whether a username obeys a load of rules.
 	 *
 	 * @param string $username The username to validate.
@@ -4256,16 +4191,6 @@ class User implements \ArrayAccess
 		}
 
 		return $member_groups;
-	}
-
-	/**
-	 * Generate a random validation code.
-	 *
-	 * @return string A random validation code
-	 */
-	public static function generateValidationCode(): string
-	{
-		return bin2hex(random_bytes(5));
 	}
 
 	/**

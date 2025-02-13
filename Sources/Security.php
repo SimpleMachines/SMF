@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use ZxcvbnPhp\Zxcvbn;
 
 /**
  * A collection of miscellaneous methods related to forum security.
@@ -28,33 +29,29 @@ class Security
 	 ***********************/
 
 	/**
-	 * Hashes username with password
+	 * Hashes the user's password
 	 *
-	 * @param string $username The username
 	 * @param string $password The unhashed password
 	 * @param int $cost The cost
 	 * @return string The hashed password
 	 */
-	public static function hashPassword(string $username, string $password, ?int $cost = null): string
+	public static function hashPassword(string $password, ?int $cost = null): string
 	{
 		$cost = empty($cost) ? (empty(Config::$modSettings['bcrypt_hash_cost']) ? 10 : Config::$modSettings['bcrypt_hash_cost']) : $cost;
 
-		return password_hash(Utils::strtolower($username) . $password, PASSWORD_BCRYPT, [
-			'cost' => $cost,
-		]);
+		return password_hash($password, PASSWORD_BCRYPT, ['cost' => $cost]);
 	}
 
 	/**
-	 * Verifies a raw SMF password against the bcrypt'd string
+	 * Verifies a raw SMF password against the encrypted string
 	 *
-	 * @param string $username The username
 	 * @param string $password The password
 	 * @param string $hash The hashed string
 	 * @return bool Whether the hashed password matches the string
 	 */
-	public static function hashVerifyPassword(string $username, string $password, string $hash): bool
+	public static function hashVerifyPassword(string $password, string $hash): bool
 	{
-		return password_verify(Utils::strtolower($username) . $password, $hash);
+		return password_verify($password, $hash);
 	}
 
 	/**
@@ -69,12 +66,154 @@ class Security
 
 		do {
 			$timeStart = microtime(true);
-			self::hashPassword('test', 'thisisatestpassword', $cost);
+			self::hashPassword('thisisatestpassword', $cost);
 			$timeTaken = microtime(true) - $timeStart;
 			$cost++;
 		} while ($timeTaken < $hashTime);
 
 		return $cost;
+	}
+
+	/**
+	 * Generates a random password.
+	 *
+	 * @return string A random password.
+	 */
+	public static function generatePassword(): string
+	{
+		$password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(random_bytes(18))), 0, 18), 6));
+
+		// Maybe a mod wants to do something different?
+		IntegrationHook::call('integrate_generate_password', [&$password]);
+
+		return $password;
+	}
+
+	/**
+	 * Generate a random validation code.
+	 *
+	 * @return string A random validation code
+	 */
+	public static function generateValidationCode(): string
+	{
+		return bin2hex(random_bytes(5));
+	}
+
+	/**
+	 * Gets the minimum required password length.
+	 *
+	 * @return int The minimum required password length.
+	 */
+	public static function minimumPasswordLength(): int
+	{
+		return empty(Config::$modSettings['password_strength']) ? 6 : 8;
+	}
+
+	/**
+	 * Checks whether a password meets the current forum rules.
+	 *
+	 * Called when registering and when choosing a new password in the profile.
+	 *
+	 * If password checking is enabled, will check that none of the words in
+	 * $restrict_in appear in the password.
+	 *
+	 * Returns an error identifier if the password is invalid, or null if valid.
+	 *
+	 * @param string $password The desired password.
+	 * @param string $username The username.
+	 * @param array $restrict_in An array of restricted strings that cannot be
+	 *    part of the password (email address, username, etc.)
+	 * @return null|string Null if valid or a string indicating the problem.
+	 */
+	public static function validatePassword(string $password, string $username, array $restrict_in = []): ?string
+	{
+		// Perform basic requirements first.
+		if (Utils::entityStrlen($password) < self::minimumPasswordLength()) {
+			return 'short';
+		}
+
+		// Maybe we need some more fancy password checks.
+		$pass_error = '';
+
+		IntegrationHook::call('integrate_validatePassword', [$password, $username, $restrict_in, &$pass_error]);
+
+		if (!empty($pass_error)) {
+			return $pass_error;
+		}
+
+		if (
+			// Check if password appears in the restricted strings.
+			preg_match('~\b' . preg_quote($password, '~') . '\b~u', implode(' ', $restrict_in))
+			// Check if password appears in the username.
+			|| preg_match('~\b' . preg_quote($password, '~') . '\b~iu', $username)
+			// Check if username appears in the password.
+			|| preg_match('~\b' . preg_quote($username, '~') . '\b~iu', $password)
+		) {
+			return 'restricted_words';
+		}
+
+		// Use zxcvbn to assess the password's strength.
+		$zxcvbn = new Zxcvbn();
+		$strength = $zxcvbn->passwordStrength($password, array_merge([$username], $restrict_in));
+
+		if ((int) $strength['score'] < (Config::$modSettings['password_strength'] ?? 0) + 2) {
+			Lang::load('Errors');
+
+			// List of known feedback strings from zxcvbn mapped to Lang::$txt keys.
+			$feedback_strings = [
+				'This is a top-10 common password' => 'top_10',
+				'This is a top-100 common password' => 'top_100',
+				'This is a very common password' => 'very_common',
+				'This is similar to a commonly used password' => 'similar_to_common',
+				'A word by itself is easy to guess' => 'single_word',
+				'Use a few words, avoid common phrases' => 'use_a_few_words',
+				'No need for symbols, digits, or uppercase letters' => 'simple_is_fine',
+				'Add another word or two. Uncommon words are better.' => 'add_more_words',
+				'Recent years are easy to guess' => 'recent_years',
+				'Avoid recent years' => 'avoid_recent_years',
+				'Avoid years that are associated with you' => 'avoid_personal_years',
+				'Dates are often easy to guess' => 'dates_are_easy',
+				'Avoid dates and years that are associated with you' => 'avoid_personal_dates_and_years',
+				'Straight rows of keys are easy to guess' => 'straight_rows',
+				'Short keyboard patterns are easy to guess' => 'short_patterns',
+				'Use a longer keyboard pattern with more turns' => 'use_longer_pattern',
+				'Sequences like abc or 6543 are easy to guess' => 'sequences',
+				'Avoid sequences' => 'avoid_sequences',
+				'Reversed words aren\'t much harder to guess' => 'reversed_words',
+				'Repeats like "aaa" are easy to guess' => 'repeated_chars',
+				'Repeats like "abcabcabc" are only slightly harder to guess than "abc"' => 'repeated_strings',
+				'Avoid repeated words and characters' => 'avoid_repeated',
+				'Predictable substitutions like \'@\' instead of \'a\' don\'t help very much' => 'l33t_useless',
+				'Names and surnames by themselves are easy to guess' => 'names',
+				'Common names and surnames are easy to guess' => 'common_names',
+				'Capitalization doesn\'t help very much' => 'caps_useless',
+				'All-uppercase is almost as easy to guess as all-lowercase' => 'all_caps_useless',
+			];
+
+			$feedback = [];
+
+			if (isset($strength['feedback']['warning'], $feedback_strings[$strength['feedback']['warning']])) {
+				$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$strength['feedback']['warning']]);
+			}
+
+			if (!empty($strength['feedback']['suggestions'])) {
+				foreach ($strength['feedback']['suggestions'] as $suggestion) {
+					if (isset($feedback_strings[$suggestion])) {
+						$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$suggestion]);
+					}
+				}
+			}
+
+			if (!empty($feedback)) {
+				return implode('<br>', $feedback);
+			}
+
+			// Generic error message.
+			return 'weak';
+		}
+
+		// If we get here, the password is strong enough.
+		return null;
 	}
 
 	/**

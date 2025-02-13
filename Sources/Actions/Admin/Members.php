@@ -28,6 +28,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Menu;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -1245,7 +1246,7 @@ class Members implements ActionInterface
 			// We have to do this for each member I'm afraid.
 			foreach ($member_info as $member) {
 				// Generate a random activation code.
-				$validation_code = User::generateValidationCode();
+				$validation_code = Security::generateValidationCode();
 
 				// Set these members for activation - I know this includes two id_member checks but it's safer than bodging $condition ;).
 				Db::$db->query(
