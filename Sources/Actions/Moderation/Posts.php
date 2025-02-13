@@ -304,6 +304,11 @@ class Posts implements ActionInterface
 
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), Utils::$context['start'], Utils::$context['current_view'] == 'topics' ? (int) Utils::$context['total_unapproved_topics'] : (int) Utils::$context['total_unapproved_posts'], $limit);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
+
 		// We have enough to make some pretty tabs!
 		$menu = Menu::$loaded['moderate'];
 		$menu->tab_data = [

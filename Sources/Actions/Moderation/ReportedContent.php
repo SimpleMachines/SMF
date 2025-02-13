@@ -165,13 +165,18 @@ class ReportedContent implements ActionInterface
 
 		// Call the right template.
 		Utils::$context['sub_template'] = 'reported_' . $this->type;
-		Utils::$context['start'] = (int) isset($_GET['start']) ? $_GET['start'] : 0;
+		Utils::$context['start'] = (int) ($_GET['start'] ?? 0);
 
 		// Before anything, we need to know just how many reports do we have.
 		$total_reports = $this->countReports(Utils::$context['view_closed']);
 
 		// So, that means we can have pagination, yes?
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=show', Utils::$context['start'], $total_reports, 10);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Get the reports at once!
 		Utils::$context['reports'] = $this->getReports(Utils::$context['view_closed']);
@@ -216,13 +221,18 @@ class ReportedContent implements ActionInterface
 
 		// Call the right template.
 		Utils::$context['sub_template'] = 'reported_' . $this->type;
-		Utils::$context['start'] = (int) isset($_GET['start']) ? $_GET['start'] : 0;
+		Utils::$context['start'] = (int) ($_GET['start'] ?? 0);
 
 		// Before anything, we need to know just how many reports do we have.
 		$total_reports = $this->countReports(Utils::$context['view_closed']);
 
 		// So, that means we can have pagination, yes?
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=closed', Utils::$context['start'], $total_reports, 10);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Get the reports at once!
 		Utils::$context['reports'] = $this->getReports(Utils::$context['view_closed']);
