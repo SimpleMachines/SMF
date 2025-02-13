@@ -1611,6 +1611,11 @@ class Topic implements \ArrayAccess, Routable
 		// Censor the title...
 		Lang::censorText($this->subject);
 
+		// Create the slug for this topic.
+		if (isset($this->subject)) {
+			Slug::create($this->subject, 'topic', $this->id);
+		}
+
 		// A few tweaks and extras.
 		$this->started_time = Time::create('@' . $this->started_timestamp)->format();
 		$this->unwatched = $this->unwatched ?? 0;
