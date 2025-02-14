@@ -297,41 +297,6 @@ class PageIndex implements \Stringable
 		return $pageindex;
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @param string $base_url The basic URL to be used for each link.
-	 * @param int &$start The start position, by reference. If this is not a
-	 *    multiple of the number of items per page, it is sanitized to be so and
-	 *    the value will persist upon the function's return.
-	 * @param int $max_value The total number of items you are paginating for.
-	 * @param int $num_per_page The number of items to be displayed on a given
-	 *    page. $start will be forced to be a multiple of this value.
-	 * @param bool $short_format Whether to use "url.offset" instead of
-	 *    "url;start=offset". Default: false.
-	 * @param bool $show_prevnext Whether the Previous and Next links should be
-	 *    shown. Default: true.
-	 * @param array $template_overrides Array of template strings to override defaults.
-	 *    Supported keys: extra_before, previous_page, current_page, page,
-	 *    expand_pages, next_page, extra_after.
-	 * @return self An instance of this class.
-	 */
-	public static function load(
-		string $base_url,
-		int &$start,
-		int $max_value,
-		int $num_per_page,
-		bool $short_format = false,
-		bool $show_prevnext = true,
-		array $template_overrides = [],
-	): self {
-		return new self($base_url, $start, $max_value, $num_per_page, $short_format, $show_prevnext, $template_overrides);
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
