@@ -980,6 +980,15 @@ ADD COLUMN smf_version VARCHAR(5) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
+--- Improving search results storage
+/******************************************************************************/
+
+---# Updating primary key for log_search_results table
+ALTER TABLE {$db_prefix}log_search_results DROP PRIMARY KEY;
+ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
+---#
+
+/******************************************************************************/
 --- Updating Settings
 /******************************************************************************/
 
