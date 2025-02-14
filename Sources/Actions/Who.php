@@ -228,6 +228,11 @@ class Who implements ActionInterface, Routable
 		Utils::$context['start'] = (int) $_REQUEST['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=who;sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';asc' : '') . ';show=' . Utils::$context['show_by'], Utils::$context['start'], $totalMembers, (int) Config::$modSettings['defaultMaxMembers']);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
+
 		// Look for people online, provided they don't mind if you see they are.
 		Utils::$context['members'] = [];
 		$member_ids = [];

@@ -8506,7 +8506,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param string $base_url The basic URL to be used for each link.
 	 * @param int &$start The start position, by reference. If this is not a multiple of the number of items per page, it is sanitized to be so and the value will persist upon the function's return.
-	 * @param int $max_value The total number of items you are paginating for.
+	 * @param int $num_items The total number of items you are paginating for.
 	 * @param int $num_per_page The number of items to be displayed on a given page. $start will be forced to be a multiple of this value.
 	 * @param bool $short_format Whether a ;start=x component should be introduced into the URL automatically (see above)
 	 * @param bool $show_prevnext Whether the Previous and Next links should be shown (should be on only when navigating the list)
@@ -8516,19 +8516,19 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function constructPageIndex(
 		string $base_url,
 		int &$start,
-		int $max_value,
+		int $num_items,
 		int $num_per_page,
 		bool $short_format = false,
 		bool $show_prevnext = true,
 	): string {
-		return (string) SMF\PageIndex::load(
+		return (string) (new SMF\PageIndex(
 			$base_url,
 			$start,
-			$max_value,
+			$num_items,
 			$num_per_page,
 			$short_format,
 			$show_prevnext,
-		);
+		));
 	}
 
 	/****************

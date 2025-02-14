@@ -857,9 +857,10 @@ class Display implements ActionInterface, Routable
 		Utils::$context['start'] = (int) $_REQUEST['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', Utils::$context['start'], Topic::$info->total_visible_posts, (int) Utils::$context['messages_per_page'], true);
 
-		// SMF has a logic issue where we don't get the proper start in our query, quick fix.
-		// @ TODO; Properly fix this, remove this and load a topic with ?topic=123.msg456
-		$_REQUEST['start'] = Utils::$context['start'];
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
+		}
 
 		// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireless..)
 		Utils::$context['page_info'] = [

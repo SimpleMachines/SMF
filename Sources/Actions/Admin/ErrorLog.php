@@ -188,6 +188,11 @@ class ErrorLog implements ActionInterface
 		$start = (int) $_GET['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . (isset($this->filter) ? $this->filter['href'] : ''), $start, (int) $num_errors, (int) Config::$modSettings['defaultMaxListItems']);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
+
 		Utils::$context['start'] = $_GET['start'];
 
 		// Update the error count

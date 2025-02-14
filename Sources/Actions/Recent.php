@@ -635,6 +635,11 @@ class Recent implements ActionInterface, Routable
 
 		Utils::$context['page_index'] = new PageIndex($this->action_url, Utils::$context['start'], $total, self::PER_PAGE, !empty(Board::$info->id));
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(!empty(Board::$info->id) ? sprintf($this->action_url, Utils::$context['start']) : $this->action_url . ';start=' . Utils::$context['start']);
+		}
+
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / self::PER_PAGE);
 
 		Utils::$context['links'] = [
