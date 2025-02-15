@@ -213,6 +213,9 @@ class QueryString
 			}
 		}
 
+		// Let mods add new route parsers to self::$route_parsers.
+		IntegrationHook::call('integrate_route_parsers');
+
 		// Are we using routing (a.k.a. queryless/friendly/pretty URLs)?
 		$_GET = self::parseRoute($_SERVER['PATH_INFO'] ?? '', $_GET);
 
@@ -651,10 +654,6 @@ class QueryString
 	 */
 	public static function parseRoute(string $path, array $params): array
 	{
-		// Give mods a chance to parse the route before we do anything to it.
-		// This hook can also be used add new route parsers to self::$route_parsers.
-		IntegrationHook::call('integrate_parse_route', [&$path, &$params]);
-
 		if (!str_starts_with($path, '/')) {
 			return $params;
 		}
