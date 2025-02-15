@@ -35,7 +35,7 @@ class QueryString
 	 * Classes listed in this array must implement the Routable interface.
 	 *
 	 * MOD AUTHORS: To add a new route parser to this list for a custom action
-	 * or content type, use the integrate_parse_route hook in self::parseRoute().
+	 * or content type, use the integrate_route_parsers hook.
 	 */
 	public static array $route_parsers = [
 		'about:unknown'			=> Actions\Like::class,
