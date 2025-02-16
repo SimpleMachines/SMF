@@ -620,6 +620,8 @@ class QueryString
 			$route_base = 'msgs';
 		}
 
+		IntegrationHook::call('integrate_build_route', [&$route_base, $params]);
+
 		if (
 			isset($route_base, self::$route_parsers[$route_base])
 			&& method_exists(self::$route_parsers[$route_base], 'buildRoute')
