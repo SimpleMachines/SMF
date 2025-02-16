@@ -3749,7 +3749,10 @@ function ConvertUtf8(): bool
 			// Probably don't need to if they're just different versions of Unicode.
 			|| (
 				$table_is_unicode
-				&& ($charset_maps[$lang_charset] ?? null) === 'utf8'
+				&& (
+					!isset($charset_maps[$lang_charset])
+					|| $charset_maps[$lang_charset] === 'utf8'
+				)
 			)
 		);
 
