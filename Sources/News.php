@@ -17,6 +17,6 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\Actions\\Feed');
+require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
 
 ?>

@@ -17,8 +17,6 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('SMF\\Mail');
-class_exists('SMF\\TaskRunner');
-class_exists('SMF\\Theme');
+require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
 
 ?>
