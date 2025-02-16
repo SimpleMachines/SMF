@@ -645,11 +645,6 @@ class QueryString
 	/**
 	 * Updates an array of URL parameters based on a routing path.
 	 *
-	 * MOD AUTHORS: If your mod implements an alternative form of pretty URLs,
-	 * or if you just want to add something to the list of known route parsers,
-	 * the 'integrate_parse_route' hook inside this method will be of interest
-	 * to you.
-	 *
 	 * @param string $path A virtual path. Typically $_SERVER['PATH_INFO'].
 	 * @param array $params Existing URL query parameters. Typically $_GET.
 	 * @return array Updated copy of $params.
