@@ -17,9 +17,6 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('\\SMF\\Actions\\Profile\\Activate');
-class_exists('\\SMF\\Actions\\Profile\\Delete');
-class_exists('\\SMF\\Actions\\Profile\\IssueWarning');
-class_exists('\\SMF\\Actions\\Profile\\PaidSubs');
+require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
 
 ?>

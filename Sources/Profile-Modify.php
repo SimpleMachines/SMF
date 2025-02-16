@@ -17,16 +17,6 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('\\SMF\\Alert');
-class_exists('\\SMF\\Profile');
-class_exists('\\SMF\\Actions\\Profile\\Account');
-class_exists('\\SMF\\Actions\\Profile\\BuddyIgnoreLists');
-class_exists('\\SMF\\Actions\\Profile\\ForumProfile');
-class_exists('\\SMF\\Actions\\Profile\\GroupMembership');
-class_exists('\\SMF\\Actions\\Profile\\IgnoreBoards');
-class_exists('\\SMF\\Actions\\Profile\\Notification');
-class_exists('\\SMF\\Actions\\Profile\\TFADisable');
-class_exists('\\SMF\\Actions\\Profile\\TFASetup');
-class_exists('\\SMF\\Actions\\Profile\\ThemeOptions');
+require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
 
 ?>
