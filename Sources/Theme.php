@@ -215,9 +215,6 @@ class Theme
 			User::$me->name = Lang::$txt['guest_title'];
 		}
 
-		// Any theme-related strings that need to be loaded?
-		Lang::load('ThemeStrings', '', false);
-
 		// Make a special URL for the language.
 		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
 
