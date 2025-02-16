@@ -941,7 +941,7 @@ function WelcomeLogin()
 	}
 
 	// We don't need "-utf8" files anymore...
-	$upcontext['language'] = str_ireplace('-utf8', '', $upcontext['language']);
+	$upcontext['language'] = str_ireplace('-utf8', '', $upcontext['language'] ?? $upcontext['lang'] ?? Config::$language);
 
 	if (!$check) {
 		// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
