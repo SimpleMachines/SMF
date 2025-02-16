@@ -556,7 +556,7 @@ CREATE TABLE {$db_prefix}log_search_results (
 	id_msg INT UNSIGNED NOT NULL DEFAULT '0',
 	relevance SMALLINT UNSIGNED NOT NULL DEFAULT '0',
 	num_matches SMALLINT UNSIGNED NOT NULL DEFAULT '0',
-	PRIMARY KEY (id_search, id_topic)
+	PRIMARY KEY (id_search, id_topic, id_msg)
 ) ENGINE={$engine};
 
 #
