@@ -579,8 +579,8 @@ class Forum
 
 		// Load the current theme.  (note that ?theme=1 will also work, may be used for guest theming.)
 		// Attachments don't require the entire theme to be loaded.
-		if (($_REQUEST['action'] ?? '') !== 'dlattach' || empty(Config::$maintenance)) {
-			Theme::load(0, false);
+		if (($_REQUEST['action'] ?? '') !== 'dlattach' || !empty(Config::$maintenance)) {
+			Theme::load();
 		}
 
 		// Check if the user should be disallowed access.
@@ -592,8 +592,6 @@ class Forum
 	 */
 	protected function preflight(): void
 	{
-		Theme::$current->initialize();
-
 		// If the user needs to accept the agreement or privacy policy, redirect now.
 		$this->requireAgreement();
 

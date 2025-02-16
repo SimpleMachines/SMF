@@ -28,6 +28,7 @@ spl_autoload_register(function ($class) {
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'ZxcvbnPhp\\' => 'ZxcvbnPhp/',
 
 		// In general, the SMF namespace maps to $sourcedir.
 		'SMF\\' => '',

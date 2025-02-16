@@ -376,9 +376,14 @@ class Folder
 		}
 
 		// Set up the page index.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . Utils::$context['sort_by'] . ($this->descending ? ';desc' : ''), $_GET['start'], $max_messages, $this->per_page);
-
 		Utils::$context['start'] = $_GET['start'];
+
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . Utils::$context['sort_by'] . ($this->descending ? ';desc' : ''), Utils::$context['start'], $max_messages, $this->per_page);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Determine the navigation context.
 		Utils::$context['links'] = [
@@ -476,13 +481,6 @@ class Folder
 		}
 
 		$conversation = new Conversation($id);
-
-		// Empty conversation?
-		if (empty($conversation->pms) || empty($conversation->latest)) {
-			PM::$getter = [];
-
-			return [];
-		}
 
 		Utils::$context['current_pm'] = $conversation->latest;
 

@@ -8506,7 +8506,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param string $base_url The basic URL to be used for each link.
 	 * @param int &$start The start position, by reference. If this is not a multiple of the number of items per page, it is sanitized to be so and the value will persist upon the function's return.
-	 * @param int $max_value The total number of items you are paginating for.
+	 * @param int $num_items The total number of items you are paginating for.
 	 * @param int $num_per_page The number of items to be displayed on a given page. $start will be forced to be a multiple of this value.
 	 * @param bool $short_format Whether a ;start=x component should be introduced into the URL automatically (see above)
 	 * @param bool $show_prevnext Whether the Previous and Next links should be shown (should be on only when navigating the list)
@@ -8516,19 +8516,19 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function constructPageIndex(
 		string $base_url,
 		int &$start,
-		int $max_value,
+		int $num_items,
 		int $num_per_page,
 		bool $short_format = false,
 		bool $show_prevnext = true,
 	): string {
-		return (string) SMF\PageIndex::load(
+		return (string) (new SMF\PageIndex(
 			$base_url,
 			$start,
-			$max_value,
+			$num_items,
 			$num_per_page,
 			$short_format,
 			$show_prevnext,
-		);
+		));
 	}
 
 	/****************
@@ -8824,29 +8824,56 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 ********************/
 
 	/**
-	 * Hashes username with password
+	 * Checks whether a password meets the current forum rules
+	 * - called when registering/choosing a password.
+	 * - checks the password obeys the current forum settings for password strength.
+	 * - if password checking is enabled, will check that none of the words in restrict_in appear in the password.
+	 * - returns an error identifier if the password is invalid, or null.
 	 *
+	 * @param string $password The desired password
 	 * @param string $username The username
+	 * @param array $restrict_in An array of restricted strings that cannot be part of the password (email address, username, etc.)
+	 * @return null|string Null if valid or a string indicating what the problem was
+	 */
+	function validatePassword(string $password, string $username, array $restrict_in = []): ?string
+	{
+		return SMF\Security::validatePassword($password, $username, $restrict_in);
+	}
+
+	/**
+	 * Generate a random validation code.
+	 *
+	 * @return string A random validation code
+	 */
+	function generateValidationCode(): string
+	{
+		return SMF\Security::generateValidationCode();
+	}
+
+	/**
+	 * Hashes the user's password
+	 *
+	 * @param string $username The username. Ignored since 3.0.
 	 * @param string $password The unhashed password
 	 * @param int $cost The cost
 	 * @return string The hashed password
 	 */
 	function hash_password(string $username, string $password, ?int $cost = null): string
 	{
-		return SMF\Security::hashPassword($username, $password, $cost);
+		return SMF\Security::hashPassword($password, $cost);
 	}
 
 	/**
-	 * Verifies a raw SMF password against the bcrypt'd string
+	 * Verifies a raw SMF password against the encrypted string
 	 *
-	 * @param string $username The username
+	 * @param string $username The username. Ignored since 3.0.
 	 * @param string $password The password
 	 * @param string $hash The hashed string
 	 * @return bool Whether the hashed password matches the string
 	 */
 	function hash_verify_password(string $username, string $password, string $hash): bool
 	{
-		return SMF\Security::hashVerifyPassword($username, $password, $hash);
+		return SMF\Security::hashVerifyPassword($password, $hash);
 	}
 
 	/**
@@ -10360,23 +10387,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * Checks whether a password meets the current forum rules
-	 * - called when registering/choosing a password.
-	 * - checks the password obeys the current forum settings for password strength.
-	 * - if password checking is enabled, will check that none of the words in restrict_in appear in the password.
-	 * - returns an error identifier if the password is invalid, or null.
-	 *
-	 * @param string $password The desired password
-	 * @param string $username The username
-	 * @param array $restrict_in An array of restricted strings that cannot be part of the password (email address, username, etc.)
-	 * @return null|string Null if valid or a string indicating what the problem was
-	 */
-	function validatePassword(string $password, string $username, array $restrict_in = []): ?string
-	{
-		return SMF\User::validatePassword($password, $username, $restrict_in);
-	}
-
-	/**
 	 * Checks a username obeys a load of rules
 	 *
 	 * @param int $memID The ID of the member
@@ -10498,16 +10508,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		int $profile_id = 1,
 	): array {
 		return SMF\User::getGroupsWithPermissions($general_permissions, $board_permissions, $profile_id);
-	}
-
-	/**
-	 * Generate a random validation code.
-	 *
-	 * @return string A random validation code
-	 */
-	function generateValidationCode(): string
-	{
-		return SMF\User::generateValidationCode();
 	}
 
 	/**

@@ -1678,7 +1678,7 @@ function AdminAccount()
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
 
-			$_POST['password1'] = Security::hashPassword($_POST['username'], $_POST['password1']);
+			$_POST['password1'] = Security::hashPassword($_POST['password1']);
 
 			$incontext['member_id'] = Db::$db->insert(
 				'',

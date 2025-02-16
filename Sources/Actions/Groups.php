@@ -286,7 +286,14 @@ class Groups implements ActionInterface, Routable
 		Utils::$context['total_members'] = $group->countMembers();
 
 		// Create the page index.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . $this->action_url . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . Utils::$context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $_REQUEST['start'], Utils::$context['total_members'], Config::$modSettings['defaultMaxMembers']);
+		$start = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . $this->action_url . ';sa=members;group=' . $_REQUEST['group'] . ';sort=' . Utils::$context['sort_by'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $start, Utils::$context['total_members'], Config::$modSettings['defaultMaxMembers']);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
+
 		Utils::$context['total_members'] = Lang::numberFormat(Utils::$context['total_members']);
 		Utils::$context['start'] = $_REQUEST['start'];
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
@@ -352,7 +359,10 @@ class Groups implements ActionInterface, Routable
 			$group->description = Parser::transform(
 				string: $group->description,
 				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
-				options: ['parse_tags' => Utils::$context['description_allowed_tags']],
+				options: [
+					'parse_tags' => Utils::$context['description_allowed_tags'],
+					'no_paragraphs' => true,
+				],
 			);
 
 			$groups[$group->id] = $group;

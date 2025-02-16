@@ -168,9 +168,9 @@ $txt['loadavg_disabled_osx'] = 'Load balancing support is not available on OS:X.
 $txt['loadavg_disabled_conf'] = 'Load balancing support is disabled by your host configuration.';
 
 $txt['setting_password_strength'] = 'Required strength for user passwords';
-$txt['setting_password_strength_low'] = 'Low - 4 character minimum';
-$txt['setting_password_strength_medium'] = 'Medium - cannot contain username';
-$txt['setting_password_strength_high'] = 'High - mixture of different characters';
+$txt['setting_password_strength_low'] = 'Low';
+$txt['setting_password_strength_medium'] = 'Medium';
+$txt['setting_password_strength_high'] = 'High';
 $txt['setting_enable_password_conversion'] = 'Allow password hash conversion';
 
 $txt['antispam_Settings'] = 'Anti-Spam Verification';

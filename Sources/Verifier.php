@@ -626,7 +626,7 @@ class Verifier implements \ArrayAccess
 
 			$this->questions[] = [
 				'id' => $q,
-				'q' => Utils::adjustHeadingLevels(Parser::transform($row['question']), null),
+				'q' => Utils::adjustHeadingLevels(Parser::transform($row['question'], options: ['no_paragraphs' => true]), null),
 				'is_error' => !empty($incorrectQuestions) && in_array($q, $incorrectQuestions),
 				// Remember a previous submission?
 				'a' => isset($_REQUEST[$this->id . '_vv'], $_REQUEST[$this->id . '_vv']['q'], $_REQUEST[$this->id . '_vv']['q'][$q]) ? Utils::htmlspecialchars($_REQUEST[$this->id . '_vv']['q'][$q]) : '',

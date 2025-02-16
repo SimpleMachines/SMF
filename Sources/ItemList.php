@@ -356,13 +356,21 @@ class ItemList implements \ArrayAccess
 			return;
 		}
 
+		$start = $this->start;
+
 		$this->page_index = new PageIndex(
 			$this->options['base_href'] . (empty($this->sort) ? '' : ';' . $this->options['request_vars']['sort'] . '=' . $this->sort['id'] . ($this->sort['desc'] ? ';' . $this->options['request_vars']['desc'] : '')) . ($this->start_var_name != 'start' ? ';' . $this->start_var_name . '=%1$d' : ''),
-			$this->start,
+			$start,
 			$this->total_num_items,
 			$this->items_per_page,
 			$this->start_var_name != 'start',
 		);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($this->start != $start) {
+			Utils::redirectexit($this->start_var_name != 'start' ? sprintf($this->page_index->base_url, $start) : $this->page_index->base_url . ';start=' . $start);
+		}
+
 	}
 
 	/**

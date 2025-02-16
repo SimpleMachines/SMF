@@ -29,6 +29,7 @@ use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Parser;
 use SMF\Routable;
+use SMF\Slug;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -254,7 +255,7 @@ class Recent implements ActionInterface, Routable
 			$boards = [];
 			$request = Db::$db->query(
 				'',
-				'SELECT b.id_board, b.num_posts
+				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_cat IN ({array_int:category_list})
 					AND b.redirect = {string:empty}' . (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? '
@@ -270,6 +271,10 @@ class Recent implements ActionInterface, Routable
 			while ($row = Db::$db->fetch_assoc($request)) {
 				$boards[] = $row['id_board'];
 				$this->total_posts += $row['num_posts'];
+
+				if (!isset(Slug::$known['board'][(int) $row['id_board']])) {
+					Slug::create($row['name'], 'board', (int) $row['id_board'], 60);
+				}
 			}
 			Db::$db->free_result($request);
 
@@ -299,7 +304,7 @@ class Recent implements ActionInterface, Routable
 
 			$request = Db::$db->query(
 				'',
-				'SELECT b.id_board, b.num_posts
+				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_board IN ({array_int:board_list})
 					AND b.redirect = {string:empty}
@@ -316,6 +321,10 @@ class Recent implements ActionInterface, Routable
 			while ($row = Db::$db->fetch_assoc($request)) {
 				$boards[] = $row['id_board'];
 				$this->total_posts += $row['num_posts'];
+
+				if (!isset(Slug::$known['board'][(int) $row['id_board']])) {
+					Slug::create($row['name'], 'board', (int) $row['id_board'], 60);
+				}
 			}
 			Db::$db->free_result($request);
 
@@ -381,17 +390,24 @@ class Recent implements ActionInterface, Routable
 			$query_these_boards_params = $this->query_parameters;
 			unset($query_these_boards_params['max_id_msg']);
 
+			$this->total_posts = 0;
+
 			$get_num_posts = Db::$db->query(
 				'',
-				'SELECT COALESCE(SUM(b.num_posts), 0)
+				'SELECT b.id_board, b.name, b.num_posts
 				FROM {db_prefix}boards AS b
 				WHERE ' . $query_these_boards . '
 					AND b.redirect = {string:empty}',
 				array_merge($query_these_boards_params, ['empty' => '']),
 			);
 
-			list($total_posts) = Db::$db->fetch_row($get_num_posts);
-			$this->total_posts = (int) $total_posts;
+			while ($row = Db::$db->fetch_assoc($get_num_posts)) {
+				$this->total_posts += $row['num_posts'];
+
+				if (!isset(Slug::$known['board'][(int) $row['id_board']])) {
+					Slug::create($row['name'], 'board', (int) $row['id_board'], 60);
+				}
+			}
 
 			Db::$db->free_result($get_num_posts);
 		}
@@ -618,6 +634,11 @@ class Recent implements ActionInterface, Routable
 		];
 
 		Utils::$context['page_index'] = new PageIndex($this->action_url, Utils::$context['start'], $total, self::PER_PAGE, !empty(Board::$info->id));
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(!empty(Board::$info->id) ? sprintf($this->action_url, Utils::$context['start']) : $this->action_url . ';start=' . Utils::$context['start']);
+		}
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / self::PER_PAGE);
 

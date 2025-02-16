@@ -237,7 +237,13 @@ class TopicMerge implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		// Make the page list.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], (int) $topiccount, (int) Config::$modSettings['defaultMaxTopics'], true);
+		$start = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $start, (int) $topiccount, (int) Config::$modSettings['defaultMaxTopics'], true);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != $start) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+		}
 
 		// Get the topic's subject.
 		$request = Db::$db->query(

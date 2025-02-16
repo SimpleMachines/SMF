@@ -86,7 +86,12 @@ class LoginTFA extends Login2
 
 			$backup = $_POST['tfa_backup'];
 
-			if (Security::hashVerifyPassword($member['member_name'], $backup, $member['tfa_backup'])) {
+			if (
+				// 3.0
+				Security::hashVerifyPassword($backup, $member['tfa_backup'])
+				// 2.1
+				|| Security::hashVerifyPassword(Utils::strtolower($member['member_name']) . $backup, $member['tfa_backup'])
+			) {
 				// Get rid of their current TFA settings
 				User::updateMemberData($member['id_member'], [
 					'tfa_secret' => '',

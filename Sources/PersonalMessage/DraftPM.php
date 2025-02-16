@@ -158,7 +158,7 @@ class DraftPM extends Draft
 	public static function showInProfile(int $memID = -1): void
 	{
 		// init
-		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+		Utils::$context['start'] = (int) ($_REQUEST['start'] ?? 0);
 
 		// If just deleting a draft, do it and then redirect back.
 		if (!empty($_REQUEST['delete'])) {
@@ -221,6 +221,11 @@ class DraftPM extends Draft
 		// Make sure the starting place makes sense and construct our friend the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=pm;sa=showpmdrafts', Utils::$context['start'], $msgCount, $maxIndex);
 		Utils::$context['current_page'] = Utils::$context['start'] / $maxIndex;
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Reverse the query if we're past 50% of the total for better performance.
 		$start = Utils::$context['start'];

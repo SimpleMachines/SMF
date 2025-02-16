@@ -303,7 +303,7 @@ class Login2 implements ActionInterface, Routable
 		User::$my_id = (reset($loaded))->id;
 
 		// Bad password! Thought you could fool the database?!
-		if (!Security::hashVerifyPassword(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd'])) {
+		if (!Security::hashVerifyPassword(Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd'])) {
 			// If the forum was recently upgraded, password might be encrypted
 			// using a different algorithm. If so, fix it. Otherwise, bail out.
 			if (!$this->checkPasswordFallbacks()) {
@@ -515,6 +515,11 @@ class Login2 implements ActionInterface, Routable
 		// Maybe we were too hasty... let's try some other authentication methods.
 		$other_passwords = [];
 
+		// SMF 2.1 prepended the username before the password.
+		if (Security::hashVerifyPassword(Utils::strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd'])) {
+			$other_passwords[] = User::$profiles[User::$my_id]['passwd'];
+		}
+
 		// SMF 1.1 and 2.0 password styles.
 		if (strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
 			// Maybe they are using a hash from before the password fix.
@@ -612,7 +617,7 @@ class Login2 implements ActionInterface, Routable
 
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array(User::$profiles[User::$my_id]['passwd'], $other_passwords)) {
-			User::$profiles[User::$my_id]['passwd'] = Security::hashPassword(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']));
+			User::$profiles[User::$my_id]['passwd'] = Security::hashPassword(Utils::htmlspecialcharsDecode($_POST['passwrd']));
 			User::$profiles[User::$my_id]['password_salt'] = bin2hex(random_bytes(16));
 
 			// Update the password and set up the hash.

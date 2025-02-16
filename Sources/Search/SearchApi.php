@@ -640,7 +640,7 @@ abstract class SearchApi implements SearchApiInterface
 		$request = Db::$db->search_query(
 			'',
 			'
-			SELECT ' . (empty($this->params['topic']) ? 'lsr.id_topic' : $this->params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
+			SELECT lsr.id_topic, lsr.id_msg, lsr.relevance, lsr.num_matches
 			FROM {db_prefix}log_search_results AS lsr' . ($this->params['sort'] == 'num_replies' || !empty($approve_query) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
 			WHERE lsr.id_search = {int:id_search}' . $approve_query . '
@@ -1728,6 +1728,7 @@ abstract class SearchApi implements SearchApiInterface
 			'select' => [
 				'id_search' => $_SESSION['search_cache']['id_search'],
 				'relevance' => '0',
+				'id_topic' => 't.id_topic',
 			],
 			'weights' => [],
 			'from' => '{db_prefix}topics AS t',
@@ -1751,7 +1752,6 @@ abstract class SearchApi implements SearchApiInterface
 		];
 
 		if (empty($this->params['topic']) && empty($this->params['show_complete'])) {
-			$main_query['select']['id_topic'] = 't.id_topic';
 			$main_query['select']['id_msg'] = 'MAX(m.id_msg) AS id_msg';
 			$main_query['select']['num_matches'] = 'COUNT(*) AS num_matches';
 
@@ -1759,8 +1759,6 @@ abstract class SearchApi implements SearchApiInterface
 
 			$main_query['group_by'][] = 't.id_topic';
 		} else {
-			// This is outrageous!
-			$main_query['select']['id_topic'] = 'm.id_msg AS id_topic';
 			$main_query['select']['id_msg'] = 'm.id_msg';
 			$main_query['select']['num_matches'] = '1 AS num_matches';
 

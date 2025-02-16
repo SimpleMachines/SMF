@@ -363,6 +363,11 @@ class Search2 implements ActionInterface, Routable
 		$start = (int) $_REQUEST['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $start, $this->num_results, (int) Config::$modSettings['search_results_per_page'], false);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
+
 		Utils::$context['key_words'] = SearchApi::$loadedApi->searchArray;
 
 		// Setup the default topic icons... for checking they exist and the like!

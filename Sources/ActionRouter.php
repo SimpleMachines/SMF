@@ -59,13 +59,11 @@ trait ActionRouter
 	 */
 	public static function parseRoute(array $route, array $params = []): array
 	{
-		$params = array_merge($params, self::parseActionRoute($route));
-
-		return $params;
+		return array_merge($params, self::parseActionRoute($route));
 	}
 
 	/************************
-	 * Interal static methods
+	 * Internal static methods
 	 ************************/
 
 	/**
@@ -84,6 +82,8 @@ trait ActionRouter
 	 */
 	protected static function buildActionRoute(array &$params): array
 	{
+		$route = [];
+
 		if (str_starts_with(self::class, 'SMF\\Actions')) {
 			if (!isset($params['action'])) {
 				foreach (Forum::$actions as $action => $info) {
@@ -131,7 +131,7 @@ trait ActionRouter
 	 * For all other actions, the second element of the route path is mapped to
 	 * the 'sa' parameter.
 	 *
-	 * The route is passed by reference and route path elements are removed from
+	 * The route passed by reference and route path elements are removed from
 	 * the route when recognized. This lets wrapper methods continue parsing the
 	 * remainder of the route without worrying about duplicate elements.
 	 *

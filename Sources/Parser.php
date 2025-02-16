@@ -160,6 +160,7 @@ abstract class Parser
 		'parse_tags' => [],
 		'for_print' => false,
 		'hard_breaks' => null,
+		'no_paragraphs' => false,
 		'str_replace' => [],
 		'preg_replace' => [],
 	];
@@ -317,6 +318,11 @@ abstract class Parser
 
 		// Do the job.
 		self::$results[$cache_key] = $handlers[$output_type]($string, $input_types, $options);
+
+		// Change paragraphs back to breaks if that option was given.
+		if ($options['no_paragraphs']) {
+			self::$results[$cache_key] = preg_replace(['~<p>(.*?)</p>~u', '~<br>$~u'], ['$1<br>', ''], self::$results[$cache_key]);
+		}
 
 		// Cache the output if it took some time...
 		if (!empty(CacheApi::$enable) && microtime(true) - $cache_t > pow(50, -CacheApi::$enable)) {

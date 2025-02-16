@@ -330,6 +330,11 @@ class Search
 			false,
 		);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
+
 		Utils::$context['sub_template'] = 'search_results';
 
 		// If mods want access to the general context values, let them do that now.

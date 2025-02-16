@@ -862,6 +862,15 @@ ADD COLUMN IF NOT EXISTS smf_version VARCHAR(5) NOT NULL DEFAULT '';
 ---#
 
 /******************************************************************************/
+--- Improving search results storage
+/******************************************************************************/
+
+---# Improving search results storage
+ALTER TABLE {$db_prefix}log_search_results DROP PRIMARY KEY;
+ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
+---#
+
+/******************************************************************************/
 --- Updating Settings
 /******************************************************************************/
 

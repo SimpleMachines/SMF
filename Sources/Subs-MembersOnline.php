@@ -17,4 +17,6 @@ if (!defined('SMF')) {
 	die('No direct access...');
 }
 
+require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
+
 ?>

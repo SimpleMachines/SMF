@@ -13,6 +13,7 @@
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\User;
@@ -2752,7 +2753,7 @@ function template_error_message()
 		foreach (Utils::$context['post_errors'] as $error)
 		{
 			if ($error == 'password_short') {
-				$error_message = Lang::getTxt('profile_error_' . $error, [empty(Config::$modSettings['password_strength']) ? 4 : 8]);
+				$error_message = Lang::getTxt('profile_error_' . $error, [Security::minimumPasswordLength()]);
 			} else {
 				$error_message = isset(Lang::$txt['profile_error_' . $error]) ? Lang::getTxt('profile_error_' . $error) : $error;
 			}

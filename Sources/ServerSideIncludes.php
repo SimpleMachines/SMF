@@ -2530,7 +2530,7 @@ class ServerSideIncludes
 		list($pass, $user, $active) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return Security::hashVerifyPassword($user, $password, $pass) && $active == User::ACTIVATED;
+		return Security::hashVerifyPassword($password, $pass) && $active == User::ACTIVATED;
 	}
 
 	/**

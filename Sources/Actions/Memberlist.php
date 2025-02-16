@@ -350,6 +350,11 @@ class Memberlist implements ActionInterface, Routable
 		// Construct the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $start, (int) Utils::$context['num_members'], (int) Config::$modSettings['defaultMaxMembers']);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (is_numeric($_REQUEST['start']) && $_REQUEST['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
+
 		// Send the data to the template.
 		Utils::$context['start'] = $start + 1;
 		Utils::$context['end'] = min($start + Config::$modSettings['defaultMaxMembers'], Utils::$context['num_members']);
@@ -596,6 +601,11 @@ class Memberlist implements ActionInterface, Routable
 			Db::$db->free_result($request);
 
 			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sa=search;search=' . urlencode($_POST['search']) . ';fields=' . implode(',', $_POST['fields']), $start, $numResults, (int) Config::$modSettings['defaultMaxMembers']);
+
+			// If the supplied start value was invalid, redirect to the correct one.
+			if ($_REQUEST['start'] != $start) {
+				Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+			}
 
 			$custom_fields_qry = '';
 
