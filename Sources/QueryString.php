@@ -778,6 +778,7 @@ class QueryString
 			!empty(Config::$modSettings['force_ssl'])
 			&& empty(Config::$maintenance)
 			&& !Sapi::httpsOn()
+			&& str_starts_with($_SERVER['REQUEST_URL'] ?? '', 'http://')
 			&& SMF != 'SSI'
 		) {
 			if (isset($_GET['sslRedirect'])) {
