@@ -3790,7 +3790,7 @@ function ConvertUtf8(): bool
 					} else {
 						for ($i = 0; $i <= 0xFF; $i++) {
 							$from = '0x' . strtoupper(dechex($i));
-							$to = '0x' . strtoupper(bin2hex(mb_convert_encoding(chr($i), 'UTF-8', $from_charset)));
+							$to = '0x' . strtoupper(bin2hex(mb_convert_encoding(chr($i), 'UTF-8', $from_charset === 'utf8mb3' ? 'UTF-8' : $from_charset)));
 
 							if ($from !== $to) {
 								$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
