@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -23,19 +25,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Verifier implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'create' => 'create_control_verification',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -148,6 +138,13 @@ class Verifier implements \ArrayAccess
 	 */
 	public int $tracking = 0;
 
+	/**
+	 * @var string
+	 *
+	 *
+	 */
+	public ?string $override_range;
+
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -213,18 +210,20 @@ class Verifier implements \ArrayAccess
 			$this->can_recaptcha = self::$loaded[$this->id]->can_recaptcha;
 			$this->empty_field = self::$loaded[$this->id]->empty_field;
 			$this->max_errors = self::$loaded[$this->id]->max_errors;
+			$this->override_range = self::$loaded[$this->id]->override_range;
 		} else {
 			$this->show_visual = !empty($options['override_visual']) || (!empty(Config::$modSettings['visual_verification_type']) && !isset($options['override_visual']));
 			$this->image_href = Config::$scripturl . '?action=verificationcode;vid=' . $this->id . ';rand=' . bin2hex(random_bytes(16));
 			$this->text_value = '';
-			$this->number_questions = $options['override_qs'] ?? (!empty(Config::$modSettings['qa_verification_number']) ? Config::$modSettings['qa_verification_number'] : 0);
+			$this->number_questions = $options['override_qs'] ?? (!empty(Config::$modSettings['qa_verification_number']) ? (int) Config::$modSettings['qa_verification_number'] : 0);
 			$this->questions = [];
 			$this->can_recaptcha = !empty(Config::$modSettings['recaptcha_enabled']) && !empty(Config::$modSettings['recaptcha_site_key']) && !empty(Config::$modSettings['recaptcha_secret_key']);
 			$this->empty_field = empty($options['no_empty_field']);
 			$this->max_errors = $options['max_errors'] ?? 3;
+			$this->override_range = $options['override_range'] ?? '';
 		}
 
-		$this->init($this->show_visual);
+		$this->init();
 
 		// Is there actually going to be anything?
 		if (empty($this->show_visual) && empty($this->number_questions) && empty($this->can_recaptcha)) {
@@ -285,22 +284,22 @@ class Verifier implements \ArrayAccess
 				Utils::$context['visual_verification_id'] = $this->id;
 
 				$this->result = true;
+			} else {
+				// If they passed the test, make a note.
+				if ($do_test) {
+					$_SESSION[$this->id . '_vv']['did_pass'] = true;
+				}
 
-				return;
+				// Say that everything went well, chaps.
+				$this->result = true;
 			}
-
-			// If they passed the test, make a note.
-			if ($do_test) {
-				$_SESSION[$this->id . '_vv']['did_pass'] = true;
-			}
-
-			// Say that everything went well, chaps.
-			$this->result = true;
 		}
 
-		Utils::$context['require_verification'] = $this->result;
-		Utils::$context['visual_verification'] = $this->result;
-		Utils::$context['visual_verification_id'] = $this->id;
+		if (empty($this->errors)) {
+			Utils::$context['require_verification'] = $this->result;
+			Utils::$context['visual_verification'] = $this->result;
+			Utils::$context['visual_verification_id'] = $this->id;
+		}
 	}
 
 	/***********************
@@ -314,7 +313,7 @@ class Verifier implements \ArrayAccess
 	 * @param bool $do_test Whether to check to see if the user entered the code correctly.
 	 * @return bool|array False if there's nothing to show, true if everything went well, or an array containing error indicators if the test failed.
 	 */
-	public static function create(&$options, $do_test = false)
+	public static function create(array &$options, bool $do_test = false): bool|array
 	{
 		$obj = new self($options, $do_test);
 
@@ -565,7 +564,7 @@ class Verifier implements \ArrayAccess
 		// Generating a new image.
 		if ($this->show_visual) {
 			// Are we overriding the range?
-			$character_range = !empty($options['override_range']) ? $options['override_range'] : Utils::$context['standard_captcha_range'];
+			$character_range = !empty($this->override_range) ? $this->override_range : Utils::$context['standard_captcha_range'];
 
 			for ($i = 0; $i < 6; $i++) {
 				$_SESSION[$this->id . '_vv']['code'] .= $character_range[array_rand($character_range)];
@@ -627,7 +626,7 @@ class Verifier implements \ArrayAccess
 
 			$this->questions[] = [
 				'id' => $q,
-				'q' => BBCodeParser::load()->parse($row['question']),
+				'q' => Utils::adjustHeadingLevels(Parser::transform($row['question'], options: ['no_paragraphs' => true]), null),
 				'is_error' => !empty($incorrectQuestions) && in_array($q, $incorrectQuestions),
 				// Remember a previous submission?
 				'a' => isset($_REQUEST[$this->id . '_vv'], $_REQUEST[$this->id . '_vv']['q'], $_REQUEST[$this->id . '_vv']['q'][$q]) ? Utils::htmlspecialchars($_REQUEST[$this->id . '_vv']['q'][$q]) : '',
@@ -636,11 +635,6 @@ class Verifier implements \ArrayAccess
 			$_SESSION[$this->id . '_vv']['q'][] = $q;
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Verifier::exportStatic')) {
-	Verifier::exportStatic();
 }
 
 ?>

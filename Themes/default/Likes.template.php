@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Config;
@@ -72,7 +72,7 @@ function template_like()
 	{
 		Utils::$context['some_likes'] = true;
 		$count = Utils::$context['data']['count'];
-		$base = 'likes_';
+		$base = 'likes_count';
 
 		if (Utils::$context['data']['already_liked'])
 		{
@@ -80,10 +80,8 @@ function template_like()
 			$count--;
 		}
 
-		$base .= (isset(Lang::$txt[$base . $count])) ? $count : 'n';
-
 		echo '
-		<li class="like_count smalltext">', sprintf(Lang::$txt[$base], Config::$scripturl . '?action=likes;sa=view;ltype=' . Utils::$context['data']['type'] . ';js=1;like=' . Utils::$context['data']['id_content'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::numberFormat($count)), '</li>';
+		<li class="like_count smalltext">', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=' . Utils::$context['data']['type'] . ';js=1;like=' . Utils::$context['data']['id_content'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count]), '</li>';
 	}
 
 	echo '

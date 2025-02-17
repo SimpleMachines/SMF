@@ -5,18 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Moderation;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -27,6 +29,7 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -39,24 +42,9 @@ use SMF\Utils;
  */
 class Posts implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'PostModerationMain',
-			'approveAllData' => 'approveAllData',
-			'list_getUnapprovedAttachments' => 'list_getUnapprovedAttachments',
-			'list_getNumUnapprovedAttachments' => 'list_getNumUnapprovedAttachments',
-			'unapprovedPosts' => 'UnapprovedPosts',
-			'unapprovedAttachments' => 'UnapprovedAttachments',
-			'approveMessage' => 'ApproveMessage',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -86,18 +74,6 @@ class Posts implements ActionInterface
 		'approve' => 'approve',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -107,6 +83,9 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('ModerationCenter');
+		Theme::loadTemplate('ModerationCenter');
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -278,9 +257,9 @@ class Posts implements ActionInterface
 			// If we have anything left we can actually do the approving (etc).
 			if (!empty($toAction)) {
 				if ($curAction == 'approve') {
-					approveMessages($toAction, $details, Utils::$context['current_view']);
+					self::approveMessages($toAction, $details, Utils::$context['current_view']);
 				} else {
-					removeMessages($toAction, $details, Utils::$context['current_view']);
+					self::removeMessages($toAction, $details, Utils::$context['current_view']);
 				}
 			}
 		}
@@ -318,12 +297,17 @@ class Posts implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Limit to how many? (obey the user setting)
-		$limit = !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		$limit = (int) (!empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages']);
 
 		// Must have a start value.
 		Utils::$context['start'] = $_GET['start'] ?? 0;
 
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), Utils::$context['start'], Utils::$context['current_view'] == 'topics' ? Utils::$context['total_unapproved_topics'] : Utils::$context['total_unapproved_posts'], $limit);
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), Utils::$context['start'], Utils::$context['current_view'] == 'topics' ? (int) Utils::$context['total_unapproved_topics'] : (int) Utils::$context['total_unapproved_posts'], $limit);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// We have enough to make some pretty tabs!
 		$menu = Menu::$loaded['moderate'];
@@ -403,13 +387,19 @@ class Posts implements ActionInterface
 				$can_delete = false;
 			}
 
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['last_smileys'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
+
 			Utils::$context['unapproved_items'][] = [
 				'id' => $row['id_msg'],
 				'counter' => Utils::$context['start'] + $i,
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>',
 				'subject' => $row['subject'],
-				'body' => BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']),
+				'body' => $row['body'],
 				'time' => Time::create('@' . $row['poster_time'])->format(),
 				'poster' => [
 					'id' => $row['id_member'],
@@ -709,28 +699,6 @@ class Posts implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * This is a helper function - basically approve everything!
 	 */
 	public static function approveAllData(): void
@@ -790,7 +758,7 @@ class Posts implements ActionInterface
 	 * @param string $approve_query Additional restrictions based on the boards the approver can see
 	 * @return array An array of information about the unapproved attachments
 	 */
-	public static function list_getUnapprovedAttachments($start, $items_per_page, $sort, $approve_query): array
+	public static function list_getUnapprovedAttachments(int $start, int $items_per_page, string $sort, string $approve_query): array
 	{
 		// Get all unapproved attachments.
 		$unapproved_items = [];
@@ -823,6 +791,8 @@ class Posts implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
+			$row['body'] = Parser::transform($row['body']);
+
 			$unapproved_items[] = [
 				'id' => $row['id_attach'],
 				'filename' => $row['filename'],
@@ -837,7 +807,7 @@ class Posts implements ActionInterface
 				'message' => [
 					'id' => $row['id_msg'],
 					'subject' => $row['subject'],
-					'body' => BBCodeParser::load()->parse($row['body']),
+					'body' => $row['body'],
 					'time' => Time::create('@' . $row['poster_time'])->format(),
 					'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 				],
@@ -866,7 +836,7 @@ class Posts implements ActionInterface
 	 * @param string $approve_query Additional restrictions based on the boards the approver can see
 	 * @return int The number of unapproved attachments
 	 */
-	public static function list_getNumUnapprovedAttachments($approve_query): int
+	public static function list_getNumUnapprovedAttachments(string $approve_query): int
 	{
 		// How many unapproved attachments in total?
 		$request = Db::$db->query(
@@ -886,37 +856,7 @@ class Posts implements ActionInterface
 		list($total_unapproved_attachments) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $total_unapproved_attachments;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the replies sub-action.
-	 */
-	public static function unapprovedPosts(): void
-	{
-		self::load();
-		self::$obj->subaction = 'replies';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the attachments sub-action.
-	 */
-	public static function unapprovedAttachments(): void
-	{
-		self::load();
-		self::$obj->subaction = 'attachments';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the approve sub-action.
-	 */
-	public static function approveMessage(): void
-	{
-		self::load();
-		self::$obj->subaction = 'approve';
-		self::$obj->execute();
+		return (int) $total_unapproved_attachments;
 	}
 
 	/******************
@@ -928,9 +868,6 @@ class Posts implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('ModerationCenter');
-		Theme::loadTemplate('ModerationCenter');
-
 		IntegrationHook::call('integrate_post_moderation', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -945,7 +882,7 @@ class Posts implements ActionInterface
 	 * @param array $messageDetails An array of information about each message, for the log
 	 * @param string $current_view What type of unapproved items we're approving - can be 'topics' or 'replies'
 	 */
-	protected function approveMessages($messages, $messageDetails, $current_view = 'replies'): void
+	protected function approveMessages(array $messages, array $messageDetails, string $current_view = 'replies'): void
 	{
 		if ($current_view == 'topics') {
 			Topic::approve($messages);
@@ -971,7 +908,7 @@ class Posts implements ActionInterface
 	 * @param array $messageDetails An array of information about the messages for the log
 	 * @param string $current_view What type of item we're removing - can be 'topics' or 'replies'
 	 */
-	protected function removeMessages($messages, $messageDetails, $current_view = 'replies'): void
+	protected function removeMessages(array $messages, array $messageDetails, string $current_view = 'replies'): void
 	{
 		// @todo something's not right, Msg::remove() checks permissions, Topic::remove() doesn't
 		if ($current_view == 'topics') {
@@ -1004,11 +941,6 @@ class Posts implements ActionInterface
 			}
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Posts::exportStatic')) {
-	Posts::exportStatic();
 }
 
 ?>

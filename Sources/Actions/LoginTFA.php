@@ -5,19 +5,21 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\Theme;
 use SMF\TOTP\Auth as Tfa;
@@ -29,31 +31,6 @@ use SMF\Utils;
  */
 class LoginTFA extends Login2
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'LoginTFA',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -83,7 +60,7 @@ class LoginTFA extends Login2
 
 		if (!empty($_POST['tfa_code']) && empty($_POST['tfa_backup'])) {
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 				ErrorHandler::fatalLang('login_ssl_required', false);
 			}
 
@@ -103,13 +80,18 @@ class LoginTFA extends Login2
 			}
 		} elseif (!empty($_POST['tfa_backup'])) {
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 				ErrorHandler::fatalLang('login_ssl_required', false);
 			}
 
 			$backup = $_POST['tfa_backup'];
 
-			if (Security::hashVerifyPassword($member['member_name'], $backup, $member['tfa_backup'])) {
+			if (
+				// 3.0
+				Security::hashVerifyPassword($backup, $member['tfa_backup'])
+				// 2.1
+				|| Security::hashVerifyPassword(Utils::strtolower($member['member_name']) . $backup, $member['tfa_backup'])
+			) {
 				// Get rid of their current TFA settings
 				User::updateMemberData($member['id_member'], [
 					'tfa_secret' => '',
@@ -134,48 +116,6 @@ class LoginTFA extends Login2
 		Utils::$context['page_title'] = Lang::$txt['login'];
 		Utils::$context['tfa_url'] = Config::$scripturl . '?action=logintfa';
 	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\LoginTFA::exportStatic')) {
-	LoginTFA::exportStatic();
 }
 
 ?>

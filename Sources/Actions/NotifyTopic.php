@@ -5,15 +5,16 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -24,21 +25,8 @@ use SMF\Utils;
 /**
  * Toggles email notification preferences for topics.
  */
-class NotifyTopic extends Notify implements ActionInterface
+class NotifyTopic extends Notify
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'TopicNotify',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -50,59 +38,14 @@ class NotifyTopic extends Notify implements ActionInterface
 	 */
 	public string $type = 'topic';
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-
-	/**
 	 * For board and topic, make sure we have the necessary ID.
 	 */
-	protected function setId()
+	protected function setId(): void
 	{
 		if (empty(Topic::$topic_id)) {
 			ErrorHandler::fatalLang('not_a_topic', false);
@@ -116,7 +59,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	 *
 	 * sa=on/off is used for email subscribe/unsubscribe links.
 	 */
-	protected function saToMode()
+	protected function saToMode(): void
 	{
 		if (!isset($_GET['mode']) && isset($_GET['sa'])) {
 			$_GET['mode'] = $_GET['sa'] == 'on' ? 3 : -1;
@@ -127,7 +70,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	/**
 	 * Sets any additional data needed for the ask template.
 	 */
-	protected function askTemplateData()
+	protected function askTemplateData(): void
 	{
 		Utils::$context[$this->type . '_href'] = Config::$scripturl . '?' . $this->type . '=' . $this->id . '.' . ($_REQUEST['start'] ?? 0);
 		Utils::$context['start'] = $_REQUEST['start'] ?? 0;
@@ -136,7 +79,7 @@ class NotifyTopic extends Notify implements ActionInterface
 	/**
 	 * Updates the notification preference in the database.
 	 */
-	protected function changePref()
+	protected function changePref(): void
 	{
 		$this->setAlertPref();
 
@@ -149,7 +92,7 @@ class NotifyTopic extends Notify implements ActionInterface
 			[
 				'column' => 'id_' . $this->type,
 				'id' => $this->id,
-				'member' => $this->member_info['id'],
+				'member' => self::$member_info['id'],
 			],
 		);
 		$log = Db::$db->fetch_assoc($request);
@@ -158,7 +101,7 @@ class NotifyTopic extends Notify implements ActionInterface
 		if (empty($log)) {
 			$insert = true;
 			$log = [
-				'id_member' => $this->member_info['id'],
+				'id_member' => self::$member_info['id'],
 				'id_topic' => $this->id,
 				'id_msg' => 0,
 				'unwatched' => (int) ($this->mode === parent::MODE_IGNORE),
@@ -184,15 +127,10 @@ class NotifyTopic extends Notify implements ActionInterface
 	/**
 	 * Gets the success message to display.
 	 */
-	protected function getSuccessMsg()
+	protected function getSuccessMsg(): string
 	{
-		return sprintf(Lang::$txt['notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed')], $this->member_info['email']);
+		return Lang::getTxt('notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed'), self::$member_info);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\NotifyTopic::exportStatic')) {
-	NotifyTopic::exportStatic();
 }
 
 ?>

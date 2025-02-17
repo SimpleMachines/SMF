@@ -5,18 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\TrackIP;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -24,6 +25,7 @@ use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\Profile;
 use SMF\Time;
 use SMF\User;
@@ -34,30 +36,9 @@ use SMF\Utils;
  */
 class Tracking implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'tracking',
-			'list_getUserErrors' => 'list_getUserErrors',
-			'list_getUserErrorCount' => 'list_getUserErrorCount',
-			'list_getProfileEdits' => 'list_getProfileEdits',
-			'list_getProfileEditCount' => 'list_getProfileEditCount',
-			'list_getGroupRequests' => 'list_getGroupRequests',
-			'list_getGroupRequestsCount' => 'list_getGroupRequestsCount',
-			'list_getLogins' => 'list_getLogins',
-			'list_getLoginCount' => 'list_getLoginCount',
-			'trackActivity' => 'trackActivity',
-			'trackEdits' => 'trackEdits',
-			'trackGroupReq' => 'trackGroupReq',
-			'trackLogins' => 'TrackLogins',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -113,18 +94,6 @@ class Tracking implements ActionInterface
 		],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -138,7 +107,7 @@ class Tracking implements ActionInterface
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		// This is only here for backward compatiblity in case a mod needs it.
+		// This is only here for backward compatibility in case a mod needs it.
 		Utils::$context['tracking_area'] = &$this->subaction;
 
 		// Create the tabs for the template.
@@ -154,7 +123,7 @@ class Tracking implements ActionInterface
 		}
 
 		// Set a page title.
-		Utils::$context['page_title'] = Lang::$txt['trackUser'] . ' - ' . Lang::$txt[self::$subactions[$this->subaction][1]] . ' - ' . Profile::$member->name;
+		Utils::$context['page_title'] = Lang::getTxt('trackUser_page_title', ['name' => Profile::$member->name, 'subaction' => Lang::$txt[self::$subactions[$this->subaction][1]]]);
 
 		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
@@ -185,7 +154,7 @@ class Tracking implements ActionInterface
 		// Set the options for the list component.
 		$list_options = [
 			'id' => 'track_user_list',
-			'title' => Lang::$txt['errors_by'] . ' ' . Utils::$context['member']['name'],
+			'title' => Lang::getTxt('errors_by', Utils::$context['member']),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['no_errors_from_user'],
 			'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=user;u=' . Profile::$member->id,
@@ -337,8 +306,11 @@ class Tracking implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Find other users that might use the same IP.
-		$ips = array_unique($ips);
+		$ips = array_filter(array_unique($ips), function ($ip) {
+			return !empty($ip);
+		});
 		Utils::$context['members_in_range'] = [];
+
 
 		if (!empty($ips)) {
 			// Get member ID's which are in messages...
@@ -510,7 +482,7 @@ class Tracking implements ActionInterface
 		// Set the options for the error lists.
 		$list_options = [
 			'id' => 'request_list',
-			'title' => sprintf(Lang::$txt['trackGroupRequests_title'], Utils::$context['member']['name']),
+			'title' => Lang::getTxt('trackGroupRequests_title', Utils::$context['member']),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['requested_none'],
 			'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=groupreq;u=' . Profile::$member->id,
@@ -642,28 +614,6 @@ class Tracking implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets all of the errors generated by a user's actions. Callback for the list in track_activity
 	 *
 	 * @param int $start Which item to start with (for pagination purposes)
@@ -673,7 +623,7 @@ class Tracking implements ActionInterface
 	 * @param array $where_vars An array of parameters for $where
 	 * @return array An array of information about the error messages
 	 */
-	public static function list_getUserErrors($start, $items_per_page, $sort, $where, $where_vars = []): array
+	public static function list_getUserErrors(int $start, int $items_per_page, string $sort, string $where, array $where_vars = []): array
 	{
 		// Get a list of error messages from this ip (range).
 		$error_messages = [];
@@ -718,7 +668,7 @@ class Tracking implements ActionInterface
 	 * @param array $where_vars The parameters for $where
 	 * @return int Number of user errors
 	 */
-	public static function list_getUserErrorCount($where, $where_vars = []): int
+	public static function list_getUserErrorCount(string $where, array $where_vars = []): int
 	{
 		$request = Db::$db->query(
 			'',
@@ -795,8 +745,8 @@ class Tracking implements ActionInterface
 				'member_link' => Lang::$txt['trackEdit_deleted_member'],
 				'action' => $row['action'],
 				'action_text' => $action_text,
-				'before' => !empty($extra['previous']) ? ($parse_bbc ? BBCodeParser::load()->parse($extra['previous']) : $extra['previous']) : '',
-				'after' => !empty($extra['new']) ? ($parse_bbc ? BBCodeParser::load()->parse($extra['new']) : $extra['new']) : '',
+				'before' => !empty($extra['previous']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['previous']), null) : $extra['previous']) : '',
+				'after' => !empty($extra['new']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['new']), null) : $extra['new']) : '',
 				'time' => Time::create('@' . $row['log_time'])->format(),
 			];
 		}
@@ -902,12 +852,25 @@ class Tracking implements ActionInterface
 
 				case 1:
 					$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
-					$this_req['outcome'] = sprintf(Lang::$txt['outcome_approved'], $member_link, Time::create('@' . $row['time_acted'])->format());
+					$this_req['outcome'] = Lang::getTxt(
+						'outcome_approved',
+						[
+							'member_link' => $member_link,
+							'datetime' => Time::create('@' . $row['time_acted'])->format(),
+						],
+					);
 					break;
 
 				case 2:
 					$member_link = empty($row['id_member_acted']) ? $row['act_name'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_acted'] . '">' . $row['act_name'] . '</a>';
-					$this_req['outcome'] = sprintf(!empty($row['act_reason']) ? Lang::$txt['outcome_refused_reason'] : Lang::$txt['outcome_refused'], $member_link, Time::create('@' . $row['time_acted'])->format(), $row['act_reason']);
+					$this_req['outcome'] = Lang::getTxt(
+						!empty($row['act_reason']) ? 'outcome_refused_reason' : 'outcome_refused',
+						[
+							'member_link' => $member_link,
+							'datetime' => Time::create('@' . $row['time_acted'])->format(),
+							'reason' => $row['act_reason'],
+						],
+					);
 					break;
 			}
 
@@ -1001,78 +964,6 @@ class Tracking implements ActionInterface
 		return (int) $count;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the activity sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 */
-	public static function trackActivity(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'activity';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the edits sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 */
-	public static function trackEdits(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'edits';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the groupreq sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 */
-	public static function trackGroupReq(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'groupreq';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the logins sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 */
-	public static function trackLogins(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'logins';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1111,11 +1002,6 @@ class Tracking implements ActionInterface
 			$this->subaction = array_key_first(self::$subactions);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Tracking::exportStatic')) {
-	Tracking::exportStatic();
 }
 
 ?>

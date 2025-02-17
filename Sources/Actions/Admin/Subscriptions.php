@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -35,30 +38,9 @@ use SMF\Utils;
  */
 class Subscriptions implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManagePaidSubscriptions',
-			'getSubs' => 'loadSubscriptions',
-			'add' => 'addSubscription',
-			'remove' => 'removeSubscription',
-			'reapply' => 'reapplySubscriptions',
-			'loadPaymentGateways' => 'loadPaymentGateways',
-			'list_getSubscribedUserCount' => 'list_getSubscribedUserCount',
-			'list_getSubscribedUsers' => 'list_getSubscribedUsers',
-			'viewSubscriptions' => 'ViewSubscriptions',
-			'viewSubscribedUsers' => 'ViewSubscribedUsers',
-			'modifySubscription' => 'ModifySubscription',
-			'modifyUserSubscription' => 'ModifyUserSubscription',
-			'modifySubscriptionSettings' => 'ModifySubscriptionSettings',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -104,18 +86,6 @@ class Subscriptions implements ActionInterface
 
 	// code...
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -125,6 +95,30 @@ class Subscriptions implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Load the required language and template.
+		Lang::load('ManagePaid');
+		Theme::loadTemplate('ManagePaid');
+
+		Utils::$context['page_title'] = Lang::$txt['paid_subscriptions'];
+
+		// Tabs for browsing the different subscription functions.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['paid_subscriptions'],
+			'help' => '',
+			'description' => Lang::$txt['paid_subscriptions_desc'],
+		];
+
+		if (!empty(Config::$modSettings['paid_enabled']) && !empty(Config::$modSettings['paid_currency_symbol'])) {
+			Menu::$loaded['admin']->tab_data['tabs'] = [
+				'view' => [
+					'description' => Lang::$txt['paid_subs_view_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['paid_subs_settings_desc'],
+				],
+			];
+		}
+
 		// Make sure you can do this.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -144,7 +138,7 @@ class Subscriptions implements ActionInterface
 	{
 		// Not made the settings yet?
 		if (empty(Config::$modSettings['paid_currency_symbol'])) {
-			ErrorHandler::fatalLang('paid_not_set_currency', false, Config::$scripturl . '?action=admin;area=paidsubscribe;sa=settings');
+			ErrorHandler::fatalLang('paid_not_set_currency', false, ['url' => Config::$scripturl . '?action=admin;area=paidsubscribe;sa=settings']);
 		}
 
 		// Some basic stuff.
@@ -335,7 +329,7 @@ class Subscriptions implements ActionInterface
 
 		$listOptions = [
 			'id' => 'subscribed_users_list',
-			'title' => sprintf(Lang::$txt['view_users_subscribed'], $row['name']),
+			'title' => Lang::getTxt('view_users_subscribed', $row),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=paidsubscribe;sa=viewsub;sid=' . Utils::$context['sub_id'],
 			'default_sort_col' => 'name',
@@ -623,7 +617,7 @@ class Subscriptions implements ActionInterface
 
 			// Is this a fixed one?
 			if ($_POST['duration_type'] == 'fixed') {
-				$_POST['span_value'] = !empty($_POST['span_value']) && is_numeric($_POST['span_value']) ? ceil($_POST['span_value']) : 0;
+				$_POST['span_value'] = !empty($_POST['span_value']) && is_numeric($_POST['span_value']) ? ceil((int) $_POST['span_value']) : 0;
 
 				// There are sanity check limits on these things.
 				$limits = [
@@ -690,14 +684,32 @@ class Subscriptions implements ActionInterface
 					'',
 					'{db_prefix}subscriptions',
 					[
-						'name' => 'string-60', 'description' => 'string-255', 'active' => 'int', 'length' => 'string-4', 'cost' => 'string',
-						'id_group' => 'int', 'add_groups' => 'string-40', 'repeatable' => 'int', 'allow_partial' => 'int', 'email_complete' => 'string',
+						'name' => 'string-60',
+						'description' => 'string-255',
+						'active' => 'int',
+						'length' => 'string-4',
+						'cost' => 'string',
+						'id_group' => 'int',
+						'add_groups' => 'string-40',
+						'repeatable' => 'int',
+						'allow_partial' => 'int',
+						'email_complete' => 'string',
 						'reminder' => 'int',
 					],
 					[
-						$_POST['name'], $_POST['desc'], $isActive, $span, $cost,
-						$_POST['prim_group'], $addgroups, $isRepeatable, $allowpartial, $emailComplete,
-						$reminder,
+						[
+							$_POST['name'],
+							$_POST['desc'],
+							$isActive,
+							$span,
+							$cost,
+							$_POST['prim_group'],
+							$addgroups,
+							$isRepeatable,
+							$allowpartial,
+							$emailComplete,
+							$reminder,
+						],
 					],
 					['id_subscribe'],
 					1,
@@ -914,9 +926,23 @@ class Subscriptions implements ActionInterface
 			User::$me->checkSession();
 
 			// Work out the dates...
-			$starttime = mktime($_POST['hour'], $_POST['minute'], 0, $_POST['month'], $_POST['day'], $_POST['year']);
+			$starttime = mktime(
+				(int) $_POST['hour'],
+				(int) $_POST['minute'],
+				0,
+				(int) $_POST['month'],
+				(int) $_POST['day'],
+				(int) $_POST['year'],
+			);
 
-			$endtime = mktime($_POST['hourend'], $_POST['minuteend'], 0, $_POST['monthend'], $_POST['dayend'], $_POST['yearend']);
+			$endtime = mktime(
+				(int) $_POST['hourend'],
+				(int) $_POST['minuteend'],
+				0,
+				(int) $_POST['monthend'],
+				(int) $_POST['dayend'],
+				(int) $_POST['yearend'],
+			);
 
 			// Status.
 			$status = $_POST['status'];
@@ -939,6 +965,8 @@ class Subscriptions implements ActionInterface
 					ErrorHandler::fatalLang('error_member_not_found');
 				}
 				list($id_member, $id_group) = Db::$db->fetch_row($request);
+				$id_member = (int) $id_member;
+				$id_group = (int) $id_group;
 				Db::$db->free_result($request);
 
 				// Ensure the member doesn't already have a subscription!
@@ -961,18 +989,30 @@ class Subscriptions implements ActionInterface
 
 				// Actually put the subscription in place.
 				if ($status == 1) {
-					self::add(Utils::$context['sub_id'], $id_member, 0, $starttime, $endtime);
+					self::add((int) Utils::$context['sub_id'], $id_member, 0, $starttime, $endtime);
 				} else {
 					Db::$db->insert(
 						'',
 						'{db_prefix}log_subscribed',
 						[
-							'id_subscribe' => 'int', 'id_member' => 'int', 'old_id_group' => 'int', 'start_time' => 'int',
-							'end_time' => 'int', 'status' => 'int', 'pending_details' => 'string-65534',
+							'id_subscribe' => 'int',
+							'id_member' => 'int',
+							'old_id_group' => 'int',
+							'start_time' => 'int',
+							'end_time' => 'int',
+							'status' => 'int',
+							'pending_details' => 'string-65534',
 						],
 						[
-							Utils::$context['sub_id'], $id_member, $id_group, $starttime,
-							$endtime, $status, Utils::jsonEncode([]),
+							[
+								Utils::$context['sub_id'],
+								$id_member,
+								$id_group,
+								$starttime,
+								$endtime,
+								$status,
+								Utils::jsonEncode([]),
+							],
 						],
 						['id_sublog'],
 					);
@@ -1181,19 +1221,19 @@ class Subscriptions implements ActionInterface
 			Utils::$context['sub'] = [
 				'id' => 0,
 				'start' => [
-					'year' => (int) Time::strftime('%Y', $row['start_time']),
-					'month' => (int) Time::strftime('%m', $row['start_time']),
-					'day' => (int) Time::strftime('%d', $row['start_time']),
-					'hour' => (int) Time::strftime('%H', $row['start_time']),
-					'min' => (int) Time::strftime('%M', $row['start_time']) < 10 ? '0' . (int) Time::strftime('%M', $row['start_time']) : (int) Time::strftime('%M', $row['start_time']),
+					'year' => (int) Time::strftime('%Y', (int) $row['start_time']),
+					'month' => (int) Time::strftime('%m', (int) $row['start_time']),
+					'day' => (int) Time::strftime('%d', (int) $row['start_time']),
+					'hour' => (int) Time::strftime('%H', (int) $row['start_time']),
+					'min' => (int) Time::strftime('%M', (int) $row['start_time']),
 					'last_day' => 0,
 				],
 				'end' => [
-					'year' => (int) Time::strftime('%Y', $row['end_time']),
-					'month' => (int) Time::strftime('%m', $row['end_time']),
-					'day' => (int) Time::strftime('%d', $row['end_time']),
-					'hour' => (int) Time::strftime('%H', $row['end_time']),
-					'min' => (int) Time::strftime('%M', $row['end_time']) < 10 ? '0' . (int) Time::strftime('%M', $row['end_time']) : (int) Time::strftime('%M', $row['end_time']),
+					'year' => (int) Time::strftime('%Y', (int) $row['end_time']),
+					'month' => (int) Time::strftime('%m', (int) $row['end_time']),
+					'day' => (int) Time::strftime('%d', (int) $row['end_time']),
+					'hour' => (int) Time::strftime('%H', (int) $row['end_time']),
+					'min' => (int) Time::strftime('%M', (int) $row['end_time']),
 					'last_day' => 0,
 				],
 				'status' => $row['status'],
@@ -1221,7 +1261,7 @@ class Subscriptions implements ActionInterface
 		if (empty(Config::$modSettings['paid_enabled'])) {
 			Utils::$context['settings_title'] = Lang::$txt['paid_subscriptions'];
 		} else {
-			Utils::$context['settings_message'] = sprintf(Lang::$txt['paid_note'], Config::$boardurl);
+			Utils::$context['settings_message'] = Lang::getTxt('paid_note', ['boardurl' => Config::$boardurl]);
 			Menu::$loaded['admin']['current_subsection'] = 'settings';
 			Utils::$context['settings_title'] = Lang::$txt['settings'];
 
@@ -1328,28 +1368,6 @@ class Subscriptions implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets the configuration variables for this admin area.
@@ -1592,10 +1610,10 @@ class Subscriptions implements ActionInterface
 	 * @param int $forceStartTime If set, forces the subscription to start at the specified time
 	 * @param int $forceEndTime If set, forces the subscription to end at the specified time
 	 */
-	public static function add($id_subscribe, $id_member, $renewal = 0, $forceStartTime = 0, $forceEndTime = 0): void
+	public static function add(int $id_subscribe, int $id_member, int|string $renewal = 0, int $forceStartTime = 0, int $forceEndTime = 0): void
 	{
 		// Take the easy way out...
-		getSubs();
+		self::getSubs();
 
 		// Exists, yes?
 		if (!isset(self::$all[$id_subscribe])) {
@@ -1631,7 +1649,7 @@ class Subscriptions implements ActionInterface
 			}
 		}
 
-		// Firstly, see whether it exists, and is active. If so then this is meerly an extension.
+		// Firstly, see whether it exists, and is active. If so then this is merely an extension.
 		$request = Db::$db->query(
 			'',
 			'SELECT id_sublog, end_time, start_time
@@ -1741,7 +1759,7 @@ class Subscriptions implements ActionInterface
 			],
 		);
 
-		// Now log the subscription - maybe we have a dorment subscription we can restore?
+		// Now log the subscription - maybe we have a dormant subscription we can restore?
 		$request = Db::$db->query(
 			'',
 			'SELECT id_sublog, end_time, start_time
@@ -1802,12 +1820,24 @@ class Subscriptions implements ActionInterface
 			'',
 			'{db_prefix}log_subscribed',
 			[
-				'id_subscribe' => 'int', 'id_member' => 'int', 'old_id_group' => 'int', 'start_time' => 'int',
-				'end_time' => 'int', 'status' => 'int', 'pending_details' => 'string',
+				'id_subscribe' => 'int',
+				'id_member' => 'int',
+				'old_id_group' => 'int',
+				'start_time' => 'int',
+				'end_time' => 'int',
+				'status' => 'int',
+				'pending_details' => 'string',
 			],
 			[
-				$id_subscribe, $id_member, $old_id_group, $starttime,
-				$endtime, 1, '',
+				[
+					$id_subscribe,
+					$id_member,
+					$old_id_group,
+					$starttime,
+					$endtime,
+					1,
+					'',
+				],
 			],
 			['id_sublog'],
 		);
@@ -1820,7 +1850,7 @@ class Subscriptions implements ActionInterface
 	 * @param int $id_member The ID of the member
 	 * @param bool $delete Whether to delete the subscription or just disable it
 	 */
-	public static function remove($id_subscribe, $id_member, $delete = false): void
+	public static function remove(int $id_subscribe, int $id_member, bool $delete = false): void
 	{
 		self::getSubs();
 
@@ -1984,7 +2014,7 @@ class Subscriptions implements ActionInterface
 	 *
 	 * @param array $users An array of user IDs
 	 */
-	public static function reapply($users): void
+	public static function reapply(array $users): void
 	{
 		// Make it an array.
 		if (!is_array($users)) {
@@ -2115,7 +2145,7 @@ class Subscriptions implements ActionInterface
 					$header = fread($fp, 4096);
 					fclose($fp);
 
-					if (strpos($header, '// SMF Payment Gateway: ' . strtolower($matches[1])) !== false) {
+					if (str_contains($header, '// SMF Payment Gateway: ' . strtolower($matches[1]))) {
 						require_once Config::$sourcedir . '/' . $file;
 
 						$gateways[] = [
@@ -2145,7 +2175,7 @@ class Subscriptions implements ActionInterface
 	 * @param array $search_vars An array of variables for the search string
 	 * @return int The number of subscribed users matching the given parameters
 	 */
-	public static function list_getSubscribedUserCount($id_sub, $search_string, $search_vars = []): int
+	public static function list_getSubscribedUserCount(int $id_sub, string $search_string, array $search_vars = []): int
 	{
 		// Get the total amount of users.
 		$request = Db::$db->query(
@@ -2164,7 +2194,7 @@ class Subscriptions implements ActionInterface
 		list($memberCount) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $memberCount;
+		return (int) $memberCount;
 	}
 
 	/**
@@ -2180,7 +2210,7 @@ class Subscriptions implements ActionInterface
 	 * @param array $search_vars The variables for the search string
 	 * @return array An array of information about the subscribed users matching the given parameters
 	 */
-	public static function list_getSubscribedUsers($start, $items_per_page, $sort, $id_sub, $search_string, $search_vars = []): array
+	public static function list_getSubscribedUsers(int $start, int $items_per_page, string $sort, int $id_sub, string $search_string, array $search_vars = []): array
 	{
 		$subscribers = [];
 
@@ -2222,63 +2252,6 @@ class Subscriptions implements ActionInterface
 		return $subscribers;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the view sub-action.
-	 */
-	public static function viewSubscriptions(): void
-	{
-		self::load();
-		self::$obj->subaction = 'view';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the viewsub sub-action.
-	 */
-	public static function viewSubscribedUsers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'viewsub';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the modify sub-action.
-	 */
-	public static function modifySubscription(): void
-	{
-		self::load();
-		self::$obj->subaction = 'modify';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the modifyuser sub-action.
-	 */
-	public static function modifyUserSubscription(): void
-	{
-		self::load();
-		self::$obj->subaction = 'modifyuser';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifySubscriptionSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -2288,32 +2261,10 @@ class Subscriptions implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Load the required language and template.
-		Lang::load('ManagePaid');
-		Theme::loadTemplate('ManagePaid');
-
-		Utils::$context['page_title'] = Lang::$txt['paid_subscriptions'];
-
-		// Tabs for browsing the different subscription functions.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['paid_subscriptions'],
-			'help' => '',
-			'description' => Lang::$txt['paid_subscriptions_desc'],
-		];
-
 		// If not enabled or not fully configured yet, only show the settings.
 		if (empty(Config::$modSettings['paid_enabled']) || empty(Config::$modSettings['paid_currency_symbol'])) {
 			self::$subactions = array_intersect_key(self::$subactions, ['settings' => true]);
 			$this->subaction = 'settings';
-		} else {
-			Menu::$loaded['admin']->tab_data['tabs'] = [
-				'view' => [
-					'description' => Lang::$txt['paid_subs_view_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['paid_subs_settings_desc'],
-				],
-			];
 		}
 
 		IntegrationHook::call('integrate_manage_subscriptions', [&self::$subactions]);
@@ -2322,11 +2273,6 @@ class Subscriptions implements ActionInterface
 			$this->subaction = $_REQUEST['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Subscriptions::exportStatic')) {
-	Subscriptions::exportStatic();
 }
 
 ?>

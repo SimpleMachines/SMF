@@ -5,17 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Who;
-use SMF\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -27,6 +30,7 @@ use SMF\Menu;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 
@@ -35,37 +39,9 @@ use SMF\Utils;
  */
 class SearchEngines implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'SearchEngines',
-			'consolidateSpiderStats' => 'consolidateSpiderStats',
-			'list_getSpiders' => 'list_getSpiders',
-			'list_getNumSpiders' => 'list_getNumSpiders',
-			'list_getSpiderLogs' => 'list_getSpiderLogs',
-			'list_getNumSpiderLogs' => 'list_getNumSpiderLogs',
-			'list_getSpiderStats' => 'list_getSpiderStats',
-			'list_getNumSpiderStats' => 'list_getNumSpiderStats',
-			'recacheSpiderNames' => 'recacheSpiderNames',
-			'spiderStats' => 'SpiderStats',
-			'spiderLogs' => 'SpiderLogs',
-			'viewSpiders' => 'ViewSpiders',
-			'manageSearchEngineSettings' => 'ManageSearchEngineSettings',
-			'editSpider' => 'EditSpider',
-		],
-	];
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
 
 	/*******************
 	 * Public properties
@@ -96,23 +72,9 @@ class SearchEngines implements ActionInterface
 		'editspiders' => 'edit',
 	];
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/**
 	 * @var string
@@ -130,6 +92,22 @@ class SearchEngines implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('admin_forum');
+
+		Lang::load('Search');
+		Theme::loadTemplate('ManageSearch');
+
+		Utils::$context['page_title'] = Lang::$txt['search_engines'];
+
+		// Tab data might already be set if this was called from Logs::execute().
+		if (empty(Menu::$loaded['admin']->tab_data)) {
+			// Some more tab data.
+			Menu::$loaded['admin']->tab_data = [
+				'title' => Lang::$txt['search_engines'],
+				'description' => Lang::$txt['search_engines_description'],
+			];
+		}
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -155,7 +133,7 @@ class SearchEngines implements ActionInterface
 
 			$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
-			// Delete the entires.
+			// Delete the entries.
 			Db::$db->query(
 				'',
 				'DELETE FROM {db_prefix}log_spider_stats
@@ -177,6 +155,9 @@ class SearchEngines implements ActionInterface
 
 		list($min_date, $max_date) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
+
+		$min_date = (string) $min_date;
+		$max_date = (string) $max_date;
 
 		$min_year = (int) substr($min_date, 0, 4);
 		$max_year = (int) substr($max_date, 0, 4);
@@ -328,7 +309,7 @@ class SearchEngines implements ActionInterface
 			if (!empty($_POST['delete_entries']) && isset($_POST['older'])) {
 				$deleteTime = time() - (((int) $_POST['older']) * 24 * 60 * 60);
 
-				// Delete the entires.
+				// Delete the entries.
 				Db::$db->query(
 					'',
 					'DELETE FROM {db_prefix}log_spider_hits
@@ -439,7 +420,8 @@ class SearchEngines implements ActionInterface
 
 					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['class'] = $new_url['class'];
 				} else {
-					Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
+					// @TODO: Indirect modification of overloaded element of SMF\ItemList has no effect in
+					@Utils::$context['spider_logs']['rows'][$k]['data']['viewing']['value'] = $new_url;
 				}
 			}
 		}
@@ -634,7 +616,7 @@ class SearchEngines implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		// Set up a message.
-		Utils::$context['settings_message'] = sprintf(Lang::$txt['spider_settings_desc'], Config::$scripturl . '?action=admin;area=logs;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+		Utils::$context['settings_message'] = Lang::getTxt('spider_settings_desc', ['url' => Config::$scripturl . '?action=admin;area=logs;sa=settings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]);
 
 		// We need to load the groups for the spider group thingy.
 		$request = Db::$db->query(
@@ -672,6 +654,7 @@ class SearchEngines implements ActionInterface
 			ACP::saveDBSettings($config_vars);
 
 			self::recacheSpiderNames();
+			self::addRobotsTxtRules();
 
 			$_SESSION['adm-save'] = true;
 			Utils::redirectexit('action=admin;area=sengines;sa=settings');
@@ -744,10 +727,16 @@ class SearchEngines implements ActionInterface
 					'insert',
 					'{db_prefix}spiders',
 					[
-						'spider_name' => 'string', 'user_agent' => 'string', 'ip_info' => 'string',
+						'spider_name' => 'string',
+						'user_agent' => 'string',
+						'ip_info' => 'string',
 					],
 					[
-						$_POST['spider_name'], $_POST['spider_agent'], $ips,
+						[
+							$_POST['spider_name'],
+							$_POST['spider_agent'],
+							$ips,
+						],
 					],
 					['id_spider'],
 				);
@@ -798,28 +787,6 @@ class SearchEngines implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for this admin area.
 	 *
 	 * @return array $config_vars for the news area.
@@ -850,6 +817,32 @@ class SearchEngines implements ActionInterface
 		self::$javascript_function .= '
 			}
 			disableFields();';
+
+		// Now the setting for robots.txt.
+		$config_vars[] = '';
+
+		if (empty(Config::$modSettings['robots_txt'])) {
+			$post_input = '<button class="button floatnone" onclick="document.getElementById(\'robots_txt\').value = ' . Utils::escapeJavaScript(self::detectRobotsTxt()) . '; return false;">' . Lang::getTxt('robots_txt_auto') . '</button>';
+		} elseif (!is_writable(Config::$modSettings['robots_txt'])) {
+			$invalid = true;
+			$post_input = '<br><span class="error">' . Lang::$txt['robots_txt_not_writable'] . '</span>';
+		}
+
+		$config_vars = array_merge($config_vars, [
+			[
+				'text',
+				'robots_txt',
+				'subtext' => Lang::$txt['robots_txt_info'],
+				'size' => 45,
+				'invalid' => $invalid ?? false,
+				'postinput' => $post_input ?? '',
+			],
+			[
+				'large_text',
+				'meta_keywords',
+				'subtext' => Lang::$txt['meta_keywords_note'],
+			],
+		]);
 
 		IntegrationHook::call('integrate_modify_search_engine_settings', [&$config_vars]);
 
@@ -942,7 +935,7 @@ class SearchEngines implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array of information about known spiders
 	 */
-	public static function list_getSpiders($start, $items_per_page, $sort): array
+	public static function list_getSpiders(int $start, int $items_per_page, string $sort): array
 	{
 		$spiders = [];
 
@@ -984,7 +977,7 @@ class SearchEngines implements ActionInterface
 		list($numSpiders) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $numSpiders;
+		return (int) $numSpiders;
 	}
 
 	/**
@@ -995,7 +988,7 @@ class SearchEngines implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array of spider log data
 	 */
-	public static function list_getSpiderLogs($start, $items_per_page, $sort): array
+	public static function list_getSpiderLogs(int $start, int $items_per_page, string $sort): array
 	{
 		$spider_logs = [];
 
@@ -1038,7 +1031,7 @@ class SearchEngines implements ActionInterface
 		list($numLogs) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $numLogs;
+		return (int) $numLogs;
 	}
 
 	/**
@@ -1050,7 +1043,7 @@ class SearchEngines implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array of spider statistics info
 	 */
-	public static function list_getSpiderStats($start, $items_per_page, $sort): array
+	public static function list_getSpiderStats(int $start, int $items_per_page, string $sort): array
 	{
 		$spider_stats = [];
 
@@ -1094,7 +1087,7 @@ class SearchEngines implements ActionInterface
 		list($numStats) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $numStats;
+		return (int) $numStats;
 	}
 
 	/**
@@ -1119,63 +1112,6 @@ class SearchEngines implements ActionInterface
 		Config::updateModSettings(['spider_name_cache' => Utils::jsonEncode($spiders)]);
 	}
 
-	/**
-	 * Backward compatibility wrapper for the stats sub-action.
-	 */
-	public static function spiderStats(): void
-	{
-		self::load();
-		self::$obj->subaction = 'stats';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the logs sub-action.
-	 */
-	public static function spiderLogs(): void
-	{
-		self::load();
-		self::$obj->subaction = 'logs';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the spiders sub-action.
-	 */
-	public static function viewSpiders(): void
-	{
-		self::load();
-		self::$obj->subaction = 'spiders';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function manageSearchEngineSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the editspiders sub-action.
-	 */
-	public static function editSpider(): void
-	{
-		self::load();
-		self::$obj->subaction = 'editspiders';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1185,25 +1121,9 @@ class SearchEngines implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('Search');
-		Theme::loadTemplate('ManageSearch');
-
 		if (empty(Config::$modSettings['spider_mode'])) {
 			self::$subactions = array_intersect_key(self::$subactions, ['settings' => true]);
 			$this->subaction = 'settings';
-		}
-
-		Utils::$context['page_title'] = Lang::$txt['search_engines'];
-
-		// Tab data might already be set if this was called from Logs::execute().
-		if (empty(Menu::$loaded['admin']->tab_data)) {
-			// Some more tab data.
-			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['search_engines'],
-				'description' => Lang::$txt['search_engines_description'],
-			];
 		}
 
 		IntegrationHook::call('integrate_manage_search_engines', [&self::$subactions]);
@@ -1214,11 +1134,241 @@ class SearchEngines implements ActionInterface
 
 		Utils::$context['sub_action'] = &$this->subaction;
 	}
-}
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SearchEngines::exportStatic')) {
-	SearchEngines::exportStatic();
+	/**
+	 * Finds and returns the file path to robots.txt, or else the file path
+	 * where it should be created if it doesn't already exist.
+	 *
+	 * @return string The path to robots.txt.
+	 */
+	protected static function detectRobotsTxt(): string
+	{
+		// First try $_SERVER['CONTEXT_DOCUMENT_ROOT'], then try $_SERVER['DOCUMENT_ROOT'].
+		foreach (['CONTEXT_DOCUMENT_ROOT', 'DOCUMENT_ROOT'] as $var) {
+			if (
+				isset($_SERVER[$var])
+				&& str_starts_with(
+					strtr(Config::$boarddir, ['/' => DIRECTORY_SEPARATOR]),
+					strtr($_SERVER[$var], ['/' => DIRECTORY_SEPARATOR]),
+				)
+			) {
+				return rtrim(strtr($_SERVER[$var], ['/' => DIRECTORY_SEPARATOR]), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'robots.txt';
+			}
+
+		}
+
+		// If the server has an odd configuration, try to figure out the path ourselves.
+		$path_from_boarddir = strtr(Config::$boarddir, ['/' => DIRECTORY_SEPARATOR]);
+		$path_from_boardurl = strtr(Url::create(Config::$boardurl)->path, ['/' => DIRECTORY_SEPARATOR]);
+
+		// Walk up the path until we find the document root.
+		while (
+			// Stop if we find robots.txt
+			!file_exists($path_from_boarddir . DIRECTORY_SEPARATOR . 'robots.txt')
+			// Stop if the URL path and the filesystem path diverge.
+			&& basename($path_from_boarddir) === basename($path_from_boardurl)
+			// Stop if we get to the root of the path according to the URL.
+			&& dirname($path_from_boardurl) !== $path_from_boardurl
+		) {
+			$path_from_boarddir = dirname($path_from_boarddir);
+			$path_from_boardurl = dirname($path_from_boardurl);
+		}
+
+		return $path_from_boarddir . DIRECTORY_SEPARATOR . 'robots.txt';
+	}
+
+	/**
+	 * Checks whether robots.txt is writable and, if so, adds some rules to it
+	 * for SMF purposes.
+	 */
+	protected static function addRobotsTxtRules(): void
+	{
+		// Can we write to the file?
+		if (
+			(Config::$modSettings['robots_txt'] ?? '') === ''
+			|| (
+				is_file(Config::$modSettings['robots_txt'])
+				&& !Utils::makeWritable(Config::$modSettings['robots_txt'])
+			)
+			|| (
+				!file_exists(Config::$modSettings['robots_txt'])
+				&& !Utils::makeWritable(dirname(Config::$modSettings['robots_txt']))
+			)
+		) {
+			return;
+		}
+
+		$boardpath = Url::create(Config::$boardurl)->path;
+		$scriptpath = Url::create(Config::$scripturl)->path;
+
+		// Define the rules we want to include.
+		$rules = [
+			'*' => [
+				'allow' => [],
+				'disallow' => [
+					// Frequenty occurring non-canonical URLs (both normal and queryless)
+					$boardpath . '/*PHPSESSID=',
+					$boardpath . '/*;topicseen',
+					$boardpath . '/*.msg',
+					$boardpath . '/*.new',
+					$boardpath . '/*.from',
+					// Normal URLs of actions that always set Utils::$context['robot_no_index'] to true
+					$scriptpath . '?action=admin',
+					$scriptpath . '?action=credits',
+					$scriptpath . '?action=moderate',
+					$scriptpath . '?action=post',
+					$scriptpath . '?action=printpage',
+					$scriptpath . '?action=reminder',
+					$scriptpath . '?action=reporttm',
+					$scriptpath . '?action=search',
+					$scriptpath . '?action=who',
+					// Queryless URLs of actions that always set Utils::$context['robot_no_index'] to true
+					$boardpath . '/*/credits',
+					$boardpath . '/*/moderate',
+					$boardpath . '/*/post',
+					$boardpath . '/*/printpage',
+					$boardpath . '/*/reminder',
+					$boardpath . '/*/reporttm',
+					$boardpath . '/*/search',
+					$boardpath . '/*/who',
+				],
+			],
+		];
+
+		IntegrationHook::call('integrate_robots_txt_rules', [&$rules]);
+
+		// Build the new file content.
+		$new_content = [];
+
+		if (is_file(Config::$modSettings['robots_txt'])) {
+			$hash = md5_file(Config::$modSettings['robots_txt']);
+
+			$user_agents_in_group = [];
+			$current_user_agent = '';
+			$insert = false;
+
+			// Keep all existing content and filter out anything in $rules that already exists.
+			foreach (file(Config::$modSettings['robots_txt']) as $line) {
+				// Found a new user agent line.
+				if (preg_match('/^\h*user-agent:\h*([^\n]+)/i', $line, $matches)) {
+					$user_agents_in_group[] = $matches[1];
+					$current_user_agent = $matches[1];
+
+					if ($insert === null) {
+						$insert = true;
+					}
+				} elseif (preg_match('/^\h*($|#)/i', $line)) {
+					$insert = true;
+				} else {
+					$insert = null;
+				}
+
+				// Insert our rules before comments, blank lines, or the start
+				// of a new user agent group, but only if user agent that these
+				// rules are for was the only one in its group.
+				if (!empty($insert) && count($user_agents_in_group) === 1) {
+					foreach ($user_agents_in_group as $user_agent) {
+						if (!isset($rules[$user_agent])) {
+							continue;
+						}
+
+						foreach ($rules[$user_agent] as $type => $patterns) {
+							foreach ($patterns as $pattern) {
+								$new_content[] = ucfirst($type) . ': ' . $pattern . "\n";
+							}
+						}
+
+						// Don't do the same rules twice.
+						unset($rules[$user_agent]);
+					}
+
+					$insert = false;
+				}
+
+				// Append this line.
+				$new_content[] = $line;
+
+				// Filter out anything in $rules that already exists.
+				if (preg_match('/^\h*((?:dis)?allow)\h*:\h*([^\n]+)/i', $line, $matches)) {
+					$type = strtolower($matches[1]);
+					$pattern = $matches[2];
+
+					if (isset($rules[$current_user_agent][$type])) {
+						$rules[$current_user_agent][$type] = array_diff(
+							$rules[$current_user_agent][$type],
+							[$pattern],
+						);
+					}
+				}
+			}
+		}
+
+		// Filter out empty $rules.
+		foreach ($rules as $user_agent => $rule_parts) {
+			foreach ($rule_parts as $type => $patterns) {
+				if ($rules[$user_agent][$type] === []) {
+					unset($rules[$user_agent][$type]);
+				}
+			}
+
+			if ($rules[$user_agent] === []) {
+				unset($rules[$user_agent]);
+			}
+		}
+
+		// If the last group is empty, add an explict allow rule to it.
+		for ($i = array_key_last($new_content); $i > 0; $i--) {
+			if (preg_match('/^((?:dis)?allow):/i', $new_content[$i])) {
+				break;
+			}
+
+			if (preg_match('/^user-agent:/i', $new_content[$i])) {
+				do {
+					$i++;
+				} while (!empty($new_content[$i]));
+
+				array_splice($new_content, $i, 0, ["Allow: *\n"]);
+
+				break;
+			}
+		}
+
+		// Append any new rules that haven't already been inserted.
+		foreach ($rules as $user_agent => $rule_parts) {
+			$new_content[] = "\n";
+			$new_content[] = 'User-agent: ' . $user_agent . "\n";
+
+			foreach ($rule_parts as $type => $patterns) {
+				foreach ($patterns as $pattern) {
+					$new_content[] = ucfirst($type) . ': ' . $pattern . "\n";
+				}
+			}
+		}
+
+		// Finalize the content.
+		$new_content = trim(implode('', $new_content)) . "\n";
+
+		// If nothing changed, bail out.
+		if (isset($hash) && md5($new_content) === $hash) {
+			return;
+		}
+
+		// Where should we save the backup file?
+		if (Utils::makeWritable(dirname(Config::$modSettings['robots_txt']))) {
+			$backup_file = preg_replace('/\.txt$/', '.' . (date_create('now UTC')->format('Ymd\THis\Z')) . '.txt', Config::$modSettings['robots_txt']);
+		} elseif (Utils::makeWritable(Config::$boarddir)) {
+			$backup_file = Config::$boarddir . DIRECTORY_SEPARATOR . 'robots.' . (date_create('now UTC')->format('Ymd\THis\Z')) . '.txt';
+		} else {
+			$backup_file = null;
+		}
+
+		// Write the new content to disk.
+		Config::safeFileWrite(
+			file: Config::$modSettings['robots_txt'],
+			data: $new_content,
+			backup_file: $backup_file,
+		);
+	}
 }
 
 ?>

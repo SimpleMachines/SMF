@@ -5,28 +5,30 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\QueryString;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\User;
 use SMF\Utils;
+use SMF\Uuid;
 use SMF\WebFetch\WebFetchApi;
 
 // Version information...
-define('SMF_VERSION', '3.0 Alpha 1');
+define('SMF_VERSION', '3.0 Alpha 2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2024');
-define('SMF_LANG_VERSION', '3.0 Alpha 1');
+define('SMF_SOFTWARE_YEAR', '2025');
+define('SMF_LANG_VERSION', '3.0 Alpha 2');
 define('SMF_INSTALLING', 1);
 
 define('JQUERY_VERSION', '3.6.3');
@@ -55,11 +57,11 @@ $databases = [
 		'name' => 'MySQL',
 		'version' => '8.0.35',
 		'version_check' => function () {
-			if (!function_exists('mysqli_fetch_row')) {
-				return false;
+			if (Db::$db->title !== MYSQL_TITLE) {
+				return '';
 			}
 
-			return mysqli_fetch_row(mysqli_query(Db::$db_connection, 'SELECT VERSION();'))[0];
+			return Db::$db->get_version();
 		},
 		'alter_support' => true,
 	],
@@ -67,12 +69,11 @@ $databases = [
 		'name' => 'PostgreSQL',
 		'version' => '12.17',
 		'version_check' => function () {
-			if (!function_exists('pg_version')) {
-				return false;
+			if (Db::$db->title !== POSTGRE_TITLE) {
+				return '';
 			}
-			$version = pg_version();
 
-			return $version['client'];
+			return Db::$db->get_version();
 		},
 		'always_has_db' => true,
 	],
@@ -117,13 +118,14 @@ $upcontext['inactive_timeout'] = 10;
 // All the steps in detail.
 // Number,Name,Function,Progress Weight.
 $upcontext['steps'] = [
-	0 => [1, 'upgrade_step_login', 'WelcomeLogin', 2],
-	1 => [2, 'upgrade_step_options', 'UpgradeOptions', 2],
+	0 => [1, 'upgrade_step_login', 'WelcomeLogin', 1],
+	1 => [2, 'upgrade_step_options', 'UpgradeOptions', 1],
 	2 => [3, 'upgrade_step_backup', 'BackupDatabase', 10],
 	3 => [4, 'upgrade_step_database', 'DatabaseChanges', 50],
 	4 => [5, 'upgrade_step_convertjson', 'serialize_to_json', 10],
 	5 => [6, 'upgrade_step_convertutf', 'ConvertUtf8', 20],
-	6 => [7, 'upgrade_step_delete', 'DeleteUpgrade', 1],
+	6 => [7, 'upgrade_step_cleanup', 'Cleanup', 2],
+	7 => [8, 'upgrade_step_delete', 'DeleteUpgrade', 1],
 ];
 // Just to remember which one has files in it.
 $upcontext['database_step'] = 3;
@@ -144,7 +146,7 @@ if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && empty($_SERVER['REMO
 		}
 
 		if (preg_match('~^--path=(.+)$~', $_SERVER['argv'][$i], $match) != 0) {
-			$upgrade_path = realpath(substr($match[1], -1) == '/' ? substr($match[1], 0, -1) : $match[1]);
+			$upgrade_path = realpath(str_ends_with($match[1], '/') ? substr($match[1], 0, -1) : $match[1]);
 		}
 
 		// Cases where we do php other/upgrade.php --path=./
@@ -293,7 +295,7 @@ if (!isset(Config::$modSettings['rand_seed'])) {
 }
 
 // This is needed in case someone invokes the upgrader using https when upgrading an http forum
-if (Config::httpsOn()) {
+if (Sapi::httpsOn()) {
 	$settings['default_theme_url'] = strtr($settings['default_theme_url'], ['http://' => 'https://']);
 }
 
@@ -320,7 +322,7 @@ else {
 	$upcontext['rid'] = mt_rand(0, 5000);
 	$upcontext['upgrade_status'] = [
 		'curstep' => 0,
-		'lang' => $upcontext['lang'] ?? basename(Config::$language, '.lng'),
+		'lang' => $upcontext['lang'] ?? Lang::getLocaleFromLanguageName(Config::$language),
 		'rid' => $upcontext['rid'],
 		'pass' => 0,
 		'debug' => 0,
@@ -416,7 +418,7 @@ function upgradeExit($fallThrough = false)
 				debug_print_backtrace();
 			}
 
-			printf("\n" . Lang::$txt['error_unexpected_template_call'], $upcontext['sub_template'] ?? '');
+			echo "\n" . Lang::getTxt('error_unexpected_template_call', ['sub_template' => $upcontext['sub_template'] ?? '']);
 			flush();
 
 			die();
@@ -430,7 +432,7 @@ function upgradeExit($fallThrough = false)
 			$upcontext['get_data'] = [];
 
 			foreach ($_GET as $k => $v) {
-				if (substr($k, 0, 3) != 'amp' && !in_array($k, ['xml', 'substep', 'lang', 'data', 'step', 'filecount'])) {
+				if (!str_starts_with($k, 'amp') && !in_array($k, ['xml', 'substep', 'lang', 'data', 'step', 'filecount'])) {
 					$upcontext['get_data'][$k] = $v;
 				}
 			}
@@ -451,7 +453,7 @@ function upgradeExit($fallThrough = false)
 			if (is_callable('template_' . $upcontext['sub_template'])) {
 				call_user_func('template_' . $upcontext['sub_template']);
 			} else {
-				die(sprintf(Lang::$txt['error_invalid_template'], $upcontext['sub_template']));
+				die(Lang::getTxt('error_invalid_template', $upcontext));
 			}
 		}
 
@@ -476,11 +478,11 @@ function upgradeExit($fallThrough = false)
 		$seconds = intval($active % 60);
 
 		if ($hours > 0) {
-			echo "\n" . '', sprintf(Lang::$txt['upgrade_completed_time_hms'], $hours, $minutes, $seconds), '' . "\n";
+			echo "\n" . '', Lang::getTxt('upgrade_completed_time_hms', ['h' => $hours, 'm' => $minutes, 's' => $seconds]), '' . "\n";
 		} elseif ($minutes > 0) {
-			echo "\n" . '', sprintf(Lang::$txt['upgrade_completed_time_ms'], $minutes, $seconds), '' . "\n";
+			echo "\n" . '', Lang::getTxt('upgrade_completed_time_ms', ['m' => $minutes, 's' => $seconds]), '' . "\n";
 		} elseif ($seconds > 0) {
-			echo "\n" . '', sprintf(Lang::$txt['upgrade_completed_time_s'], $seconds), '' . "\n";
+			echo "\n" . '', Lang::getTxt('upgrade_completed_time_s', ['s' => $seconds]), '' . "\n";
 		}
 	}
 
@@ -501,7 +503,7 @@ function findSettingsFile()
 		$index_contents = file_get_contents($upgrade_path . '/index.php');
 
 		// The standard path.
-		if (strpos($index_contents, "define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');") !== false) {
+		if (str_contains($index_contents, "define('SMF_SETTINGS_FILE', __DIR__ . '/Settings.php');")) {
 			$settingsFile = $upgrade_path . '/Settings.php';
 		}
 		// A custom path defined in a simple string.
@@ -536,25 +538,30 @@ function load_lang_file()
 
 	static $lang_dir = '', $detected_languages = [], $loaded_langfile = '';
 
-	// Do we know where to look for the language files, or shall we just guess for now?
-	$temp = isset(Config::$modSettings['theme_dir']) ? Config::$modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';
-
-	if ($lang_dir != $temp) {
-		$lang_dir = $temp;
-		$detected_languages = [];
+	if (isset(Config::$language)) {
+		$current_language = Lang::getLocaleFromLanguageName(Config::$language);
 	}
 
-	// Override the language file?
 	if (isset($upcontext['language'])) {
-		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['language'] . '.php';
-	} elseif (isset($upcontext['lang'])) {
-		$_SESSION['upgrader_langfile'] = 'Install.' . $upcontext['lang'] . '.php';
-	} elseif (isset(Config::$language)) {
-		$_SESSION['upgrader_langfile'] = 'Install.' . Config::$language . '.php';
+		$locale = Lang::getLocaleFromLanguageName($upcontext['language']);
+		$upcontext['language'] = $locale ?? $upcontext['language'];
+	}
+
+	$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
+
+	// Override the language file?
+	if (isset($upcontext['language']) && file_exists($lang_dir . '/' . $upcontext['language'] . '/Install.php')) {
+		$_SESSION['upgrader_lang'] = $upcontext['language'];
+	} elseif (isset($upcontext['lang']) && file_exists($lang_dir . '/' . $upcontext['lang'] . '/Install.php')) {
+		$_SESSION['upgrader_lang'] = $upcontext['lang'];
+	} elseif (isset($current_language) && file_exists($lang_dir . '/' . $current_language . '/Install.php')) {
+		$_SESSION['upgrader_lang'] = $current_language;
+	} else {
+		$_SESSION['upgrader_lang'] = 'en_US';
 	}
 
 	// Avoid pointless repetition
-	if (isset($_SESSION['upgrader_langfile']) && $loaded_langfile == $lang_dir . '/' . $_SESSION['upgrader_langfile']) {
+	if (isset($_SESSION['upgrader_lang']) && $loaded_langfile == $lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Install.php') {
 		return;
 	}
 
@@ -566,28 +573,58 @@ function load_lang_file()
 			$dir = dir($lang_dir);
 
 			while ($entry = $dir->read()) {
-				// Skip any old '-utf8' language files that might be lying around
-				if (strpos($entry, '-utf8') !== false) {
+				// We can't have periods.
+				if (str_contains($entry, '.')) {
 					continue;
 				}
 
-				if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php') {
-					$detected_languages[$entry] = ucfirst(substr($entry, 8, strlen($entry) - 12));
+				if (!is_dir($lang_dir . '/' . $entry) || !file_exists($lang_dir . '/' . $entry . '/' . 'Install.php') || !file_exists($lang_dir . '/' . $entry . '/' . 'General.php')) {
+					continue;
 				}
+
+				// Get the line we need.
+				$fp = @fopen($lang_dir . '/' . $entry . '/' . 'General.php', 'r');
+
+				// Yay!
+				if ($fp) {
+					while (($line = fgets($fp)) !== false) {
+						if (!str_contains($line, '$txt[\'native_name\']')) {
+							continue;
+						}
+
+						preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
+
+						// Set the language's name.
+						if (!empty($matchNative) && !empty($matchNative[1])) {
+							// Don't mislabel the language if the translator missed this one.
+							if ($entry !== 'en_US' && $matchNative[1] === 'English (US)') {
+								break;
+							}
+
+							$langName = Utils::htmlspecialcharsDecode($matchNative[1]);
+							break;
+						}
+					}
+
+					fclose($fp);
+				}
+
+				$detected_languages[$entry] = $langName ?? $entry;
 			}
 			$dir->close();
 		}
-		// Our guess was wrong, but that's fine. We'll try again after Config::$modSettings['theme_dir'] is defined.
-		elseif (!isset(Config::$modSettings['theme_dir'])) {
+		// Our guess was wrong, but that's fine. We'll try again after Config::$languagesdir is defined.
+		elseif (!isset(Config::$languagesdir)) {
 			// Define a few essential strings for now.
 			Lang::$txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
-			Lang::$txt['error_sourcefile_missing'] = 'Unable to find the Sources/%1$s file. Please make sure it was uploaded properly, and then try again.';
+			Lang::$txt['error_sourcefile_missing'] = 'Unable to find the Sources/{file} file. Please make sure it was uploaded properly, and then try again.';
 
-			Lang::$txt['warning_lang_old'] = 'The language files for your selected language, %1$s, have not been updated to the latest version. Upgrade will continue with the forum default, %2$s.';
-			Lang::$txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, %1$s. Upgrade will continue with the forum default, %2$s.';
+			Lang::$txt['warning_lang_old'] = 'The language files for your selected language, {user_language}, have not been updated to the latest version. Upgrade will continue with the forum default, {default_language}.';
+			Lang::$txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, {user_language}. Upgrade will continue with the forum default, {default_language}.';
 
 			return;
 		}
+
 	}
 
 	// Didn't find any, show an error message!
@@ -660,13 +697,13 @@ function load_lang_file()
 	}
 
 	// Make sure it exists. If it doesn't, reset it.
-	if (!isset($_SESSION['upgrader_langfile']) || preg_match('~[^\w.-]~', $_SESSION['upgrader_langfile']) === 1 || !file_exists($lang_dir . '/' . $_SESSION['upgrader_langfile'])) {
+	if (!isset($_SESSION['upgrader_lang']) || preg_match('~^[A-Za-z0-9_-]+$~', $_SESSION['upgrader_lang']) === 1 || !file_exists($lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Install.php')) {
 		// Use the first one...
-		list($_SESSION['upgrader_langfile']) = array_keys($detected_languages);
+		list($_SESSION['upgrader_lang']) = array_keys($detected_languages);
 
 		// If we have English and some other language, use the other language.
-		if ($_SESSION['upgrader_langfile'] == 'Install.english.php' && count($detected_languages) > 1) {
-			list(, $_SESSION['upgrader_langfile']) = array_keys($detected_languages);
+		if ($_SESSION['upgrader_lang'] == 'en_US' && count($detected_languages) > 1) {
+			list(, $_SESSION['upgrader_lang']) = array_keys($detected_languages);
 		}
 	}
 
@@ -674,10 +711,10 @@ function load_lang_file()
 	Lang::addDirs($lang_dir);
 
 	// And now load the language files.
-	Lang::load('index+Install', preg_replace('~^Install\.|\.php$~', '', $_SESSION['upgrader_langfile']));
+	Lang::load('General+Install', $_SESSION['upgrader_lang']);
 
 	// Remember what we've done
-	$loaded_langfile = $lang_dir . '/' . $_SESSION['upgrader_langfile'];
+	$loaded_langfile = $lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Install.php';
 }
 
 // Used to direct the user to another location.
@@ -803,7 +840,7 @@ function loadEssentialData()
 		}
 		Db::$db->free_result($request);
 	} else {
-		return die(sprintf(Lang::$txt['error_sourcefile_missing'], 'Db/APIs/' . Db::getClass(Config::$db_type) . '.php'));
+		return die(Lang::getTxt('error_sourcefile_missing', ['file' => 'Db/APIs/' . Db::getClass(Config::$db_type) . '.php']));
 	}
 
 	// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
@@ -867,7 +904,7 @@ function initialize_inputs()
 		deleteFile($upgrade_path . '/Sources/DumpDatabase.php');
 		deleteFile($upgrade_path . '/Sources/LockTopic.php');
 
-		header('location: http' . (Config::httpsOn() ? 's' : '') . '://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
+		header('location: http' . (Sapi::httpsOn() ? 's' : '') . '://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/Themes/default/images/blank.png');
 
 		exit;
 	}
@@ -932,7 +969,7 @@ function WelcomeLogin()
 	}
 
 	if (!db_version_check()) {
-		return throw_error(sprintf(Lang::$txt['error_db_too_low'], $databases[Config::$db_type]['name']));
+		return throw_error(Lang::getTxt('error_db_too_low', $databases[Config::$db_type]));
 	}
 
 	// CREATE
@@ -946,7 +983,7 @@ function WelcomeLogin()
 
 	// Sorry... we need CREATE, ALTER and DROP
 	if (!$create || !$alter || !$drop) {
-		return throw_error(sprintf(Lang::$txt['error_db_privileges'], $databases[Config::$db_type]['name']));
+		return throw_error(Lang::getTxt('error_db_privileges', $databases[Config::$db_type]));
 	}
 
 	// Do a quick version spot check.
@@ -983,7 +1020,7 @@ function WelcomeLogin()
 
 	// Are we good now?
 	if (!is_writable($custom_av_dir)) {
-		return throw_error(sprintf(Lang::$txt['error_dir_not_writable'], $custom_av_dir));
+		return throw_error(Lang::getTxt('error_dir_not_writable', ['dir' => $custom_av_dir]));
 	}
 
 	if ($need_settings_update) {
@@ -1008,17 +1045,28 @@ function WelcomeLogin()
 
 	quickFileWritable($cachedir_temp . '/db_last_error.php');
 
-	if (!file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')) {
-		return throw_error(sprintf(Lang::$txt['error_lang_index_missing'], $upcontext['language'], $upgradeurl));
+	$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
+
+	if (!file_exists($lang_dir . '/' . $upcontext['language'] . '/General.php')) {
+		return throw_error(Lang::getTxt('error_lang_general_missing', ['lang' => $upcontext['language'], 'url' => $upgradeurl]));
 	}
 
 	if (!isset($_GET['skiplang'])) {
-		$temp = substr(@implode('', @file(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')), 0, 4096);
-		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
+		$temp = substr(@implode('', @file($lang_dir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
+
+		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
-			return throw_error(sprintf(Lang::$txt['error_upgrade_old_lang_files'], $upcontext['language'], $upgradeurl));
+			return throw_error(Lang::getTxt('error_upgrade_old_lang_files', ['lang' => $upcontext['language'], 'url' => $upgradeurl]));
 		}
+	}
+
+	// Do we need to update our Settings file with the new language locale?
+	$current_language = Config::$language;
+	$new_locale = Lang::getLocaleFromLanguageName($current_language);
+
+	if ($new_locale !== null) {
+		Config::updateSettingsFile(['language' => $new_locale]);
 	}
 
 	if (!makeFilesWritable($writable_files)) {
@@ -1026,7 +1074,7 @@ function WelcomeLogin()
 	}
 
 	// Check agreement.txt. (it may not exist, in which case $boarddir must be writable.)
-	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$boarddir) || file_exists(Config::$boarddir . '/agreement.txt')) && !is_writable(Config::$boarddir . '/agreement.txt')) {
+	if (isset(Config::$modSettings['agreement']) && (!is_writable($lang_dir) || file_exists($lang_dir . '/en_US/agreement.txt')) && !is_writable($lang_dir . '/en_US/agreement.txt')) {
 		return throw_error(Lang::$txt['error_agreement_not_writable']);
 	}
 
@@ -1040,11 +1088,11 @@ function WelcomeLogin()
 	// We're going to check that their board dir setting is right in case they've been moving stuff around.
 	if (strtr(Config::$boarddir, ['/' => '', '\\' => '']) != strtr($upgrade_path, ['/' => '', '\\' => ''])) {
 		$upcontext['warning'] = '
-			' . sprintf(Lang::$txt['upgrade_forumdir_settings'], Config::$boarddir, $upgrade_path) . '<br>
+			' . Lang::getTxt('upgrade_forumdir_settings', ['boarddir' => Config::$boarddir, 'upgrade_path' => $upgrade_path]) . '<br>
 			<ul>
-				<li>' . Lang::$txt['upgrade_forumdir'] . '  ' . Config::$boarddir . '</li>
-				<li>' . Lang::$txt['upgrade_sourcedir'] . '  ' . Config::$boarddir . '</li>
-				<li>' . Lang::$txt['upgrade_cachedir'] . '  ' . $cachedir_temp . '</li>
+				<li>' . Lang::getTxt('upgrade_forumdir', [Config::$boarddir]) . '</li>
+				<li>' . Lang::getTxt('upgrade_sourcedir', [Config::$sourcedir]) . '</li>
+				<li>' . Lang::getTxt('upgrade_cachedir', [$cachedir_temp]) . '</li>
 			</ul>
 			' . Lang::$txt['upgrade_incorrect_settings'] . '';
 	}
@@ -1272,8 +1320,6 @@ function checkLogin()
 					$groups[$k] = (int) $v;
 				}
 
-				$sha_passwd = sha1(strtolower($name) . $_REQUEST['passwrd']);
-
 				// We don't use "-utf8" anymore...
 				$user_language = str_ireplace('-utf8', '', $user_language);
 			} else {
@@ -1300,15 +1346,31 @@ function checkLogin()
 		}
 
 		// Didn't get anywhere?
-		if (!$disable_security && (empty($sha_passwd) || (!empty($password) ? $password : '') != $sha_passwd) && !Security::hashVerifyPassword((!empty($name) ? $name : ''), $_REQUEST['passwrd'], (!empty($password) ? $password : '')) && empty($upcontext['username_incorrect'])) {
-			// MD5?
-			$md5pass = hash_hmac('md5', $_REQUEST['passwrd'], strtolower($_POST['user']));
-
-			if ($md5pass != $password) {
-				$upcontext['password_failed'] = true;
-				// Disable the hashing this time.
-				$upcontext['disable_login_hashing'] = true;
-			}
+		if (
+			!$disable_security
+			&& empty($upcontext['username_incorrect'])
+			// 3.0 style
+			&& !Security::hashVerifyPassword(
+				$_REQUEST['passwrd'],
+				$password ?? '',
+			)
+			// 2.1 style
+			&& !Security::hashVerifyPassword(
+				Utils::strtolower(!empty($name) ? $name : '') . $_REQUEST['passwrd'],
+				$password ?? '',
+			)
+			// 2.0 style
+			&& (
+				sha1(strtolower($name ?? '') . $_REQUEST['passwrd']) !== ($password ?? '')
+			)
+			// 1.x style
+			&& (
+				hash_hmac('md5', $_REQUEST['passwrd'], strtolower($_POST['user'])) !== ($password ?? '')
+			)
+		) {
+			$upcontext['password_failed'] = true;
+			// Disable the hashing this time.
+			$upcontext['disable_login_hashing'] = true;
 		}
 
 		if ((empty($upcontext['password_failed']) && !empty($name)) || $disable_security) {
@@ -1346,16 +1408,18 @@ function checkLogin()
 			// This basically is used to match the GET variables to Settings.php.
 			$upcontext['upgrade_status']['pass'] = $upcontext['user']['pass'];
 
+			$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
+
 			// Set the language to that of the user?
-			if (isset($user_language) && $user_language != $upcontext['language'] && file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . basename($user_language, '.lng') . '.php')) {
+			if (isset($user_language) && $user_language != $upcontext['language'] && file_exists($lang_dir . '/' . $upcontext['language'] . '/General.php')) {
 				$user_language = basename($user_language, '.lng');
-				$temp = substr(@implode('', @file(Config::$modSettings['theme_dir'] . '/languages/index.' . $user_language . '.php')), 0, 4096);
-				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
+				$temp = substr(@implode('', @file($lang_dir . '/' . $upcontext['language'] . '/General.php')), 0, 4096);
+				preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
 				if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
-					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_old'], $user_language, $upcontext['language']);
-				} elseif (!file_exists(Config::$modSettings['theme_dir'] . '/languages/Install.' . $user_language . '.php')) {
-					$upcontext['upgrade_options_warning'] = sprintf(Lang::$txt['warning_lang_missing'], $user_language, $upcontext['language']);
+					$upcontext['upgrade_options_warning'] = Lang::getTxt('warning_lang_old', ['user_language' => $user_language, 'default_language' => $upcontext['language']]);
+				} elseif (!file_exists($lang_dir . '/' . $user_language . '/Install.php')) {
+					$upcontext['upgrade_options_warning'] = Lang::getTxt('warning_lang_missing', ['user_language' => $user_language, 'default_language' => $upcontext['language']]);
 				} else {
 					// Set this as the new language.
 					$upcontext['language'] = $user_language;
@@ -1407,7 +1471,7 @@ function UpgradeOptions()
 	setSqlMode(false);
 
 	// Firstly, if they're enabling SM stat collection just do it.
-	if (!empty($_POST['stats']) && substr(Config::$boardurl, 0, 16) != 'http://localhost' && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
+	if (!empty($_POST['stats']) && !str_starts_with(Config::$boardurl, 'http://localhost') && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
 		$upcontext['allow_sm_stats'] = true;
 
 		// Don't register if we still have a key.
@@ -1454,7 +1518,9 @@ function UpgradeOptions()
 				'replace',
 				Config::$db_prefix . 'settings',
 				['variable' => 'string', 'value' => 'string'],
-				['enable_sm_stats', 1],
+				[
+					['enable_sm_stats', 1],
+				],
 				['variable'],
 			);
 		}
@@ -1505,8 +1571,10 @@ function UpgradeOptions()
 		Config::updateModSettings(['force_ssl' => '1']);
 	}
 
+	$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
+
 	// If we're overriding the language follow it through.
-	if (isset($upcontext['lang']) && file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['lang'] . '.php')) {
+	if (isset($upcontext['lang']) && file_exists($lang_dir . '/' . $upcontext['lang'] . '/General.php')) {
 		$changes['language'] = $upcontext['lang'];
 	}
 
@@ -1529,15 +1597,15 @@ function UpgradeOptions()
 	}
 
 	// Fix some old paths.
-	if (substr(Config::$boarddir, 0, 1) == '.') {
+	if (str_starts_with(Config::$boarddir, '.')) {
 		$changes['boarddir'] = fixRelativePath(Config::$boarddir);
 	}
 
-	if (substr(Config::$sourcedir, 0, 1) == '.') {
+	if (str_starts_with(Config::$sourcedir, '.')) {
 		$changes['sourcedir'] = fixRelativePath(Config::$sourcedir);
 	}
 
-	if (empty(Config::$cachedir) || substr(Config::$cachedir, 0, 1) == '.') {
+	if (empty(Config::$cachedir) || str_starts_with(Config::$cachedir, '.')) {
 		$changes['cachedir'] = fixRelativePath(Config::$boarddir) . '/cache';
 	}
 
@@ -1553,7 +1621,7 @@ function UpgradeOptions()
 
 	// If they have a "host:port" setup for the host, split that into separate values
 	// You should never have a : in the hostname if you're not on MySQL, but better safe than sorry
-	if (strpos(Config::$db_server, ':') !== false && Config::$db_type == 'mysql') {
+	if (str_contains(Config::$db_server, ':') && Config::$db_type == 'mysql') {
 		list(Config::$db_server, Config::$db_port) = explode(':', Config::$db_server);
 
 		$changes['db_server'] = Config::$db_server;
@@ -1578,9 +1646,9 @@ function UpgradeOptions()
 		$changes['packagesdir'] = fixRelativePath(Config::$boarddir) . '/Packages';
 	}
 
-	// Add support for $tasksdir var.
-	if (empty(Config::$tasksdir)) {
-		$changes['tasksdir'] = fixRelativePath(Config::$sourcedir) . '/Tasks';
+	// Languages have moved!
+	if (empty(Config::$languagesdir)) {
+		$changes['languagesdir'] = fixRelativePath(Config::$boarddir) . '/Languages';
 	}
 
 	// Make sure we fix the language as well.
@@ -1643,7 +1711,7 @@ function BackupDatabase()
 	$table_names = [];
 
 	foreach ($tables as $table) {
-		if (substr($table, 0, 7) !== 'backup_') {
+		if (!str_starts_with($table, 'backup_')) {
 			$table_names[] = $table;
 		}
 	}
@@ -1837,7 +1905,9 @@ function DatabaseChanges()
 						'replace',
 						Config::$db_prefix . 'settings',
 						['variable' => 'string', 'value' => 'string'],
-						['smfVersion', $file[2]],
+						[
+							['smfVersion', $file[2]],
+						],
 						['variable'],
 					);
 
@@ -1868,6 +1938,32 @@ function DatabaseChanges()
 
 	$_GET['substep'] = 0;
 
+	// Set the UID column for calendar events.
+	$calendar_updates = [];
+	$request = Db::$db->query(
+		'',
+		'SELECT id_event, uid
+		FROM {db_prefix}calendar',
+		[],
+	);
+
+	while ($row = Db::$db->fetch_assoc($request)) {
+		if ($row['uid'] === '') {
+			$calendar_updates[] = ['id_event' => $row['id_event'], 'uid' => (string) new Uuid()];
+		}
+	}
+	Db::$db->free_result($request);
+
+	foreach ($calendar_updates as $calendar_update) {
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}calendar
+			SET uid = {string:uid}
+			WHERE id_event = {int:id_event}',
+			$calendar_update,
+		);
+	}
+
 	// So the template knows we're done.
 	if (!$support_js) {
 		$upcontext['changes_complete'] = true;
@@ -1875,7 +1971,7 @@ function DatabaseChanges()
 		return true;
 	}
 
-	return false;
+	return $did_not_do === 0;
 }
 
 // Different versions of the files use different sql_modes
@@ -1913,39 +2009,41 @@ function DeleteUpgrade()
 	$endl = $command_line ? "\n" : '<br>' . "\n";
 
 	$changes = [
-		'language' => (substr(Config::$language, -4) == '.lng' ? substr(Config::$language, 0, -4) : Config::$language),
+		'language' => (str_ends_with(Config::$language, '.lng') ? substr(Config::$language, 0, -4) : Config::$language),
 		'db_error_send' => true,
 		'upgradeData' => null,
 	];
 
+	clearstatcache();
+	$current_settings = Config::getCurrentSettings(filemtime(SMF_SETTINGS_FILE));
+
 	// Fix case of Tasks directory.
 	if (
-		is_dir(Config::$tasksdir)
-		&& basename(Config::$tasksdir) !== 'Tasks'
-		&& is_writable(Config::$tasksdir)
-		&& is_writable(dirname(Config::$tasksdir))
+		isset($current_settings['tasksdir'])
+		&& is_dir($current_settings['tasksdir'])
+		&& basename($current_settings['tasksdir']) !== 'Tasks'
+		&& is_writable($current_settings['tasksdir'])
+		&& is_writable($current_settings['sourcedir'])
 	) {
 		// Do 'tasks' and 'Tasks' both exist?
 		if (
-			!empty(fileinode(realpath(dirname(Config::$tasksdir) . '/tasks')))
-			&& !empty(fileinode(realpath(dirname(Config::$tasksdir) . '/Tasks')))
-			&& fileinode(realpath(Config::$tasksdir)) !== fileinode(realpath(dirname(Config::$tasksdir) . '/Tasks'))
+			!empty(fileinode(realpath($current_settings['sourcedir'] . '/tasks')))
+			&& !empty(fileinode(realpath($current_settings['sourcedir'] . '/Tasks')))
+			&& fileinode(realpath($current_settings['tasksdir'])) !== fileinode(realpath($current_settings['sourcedir'] . '/Tasks'))
 		) {
 			// Move everything in 'Tasks' to 'tasks'.
-			foreach (glob(realpath(dirname(Config::$tasksdir) . '/Tasks') . DIRECTORY_SEPARATOR . '*') as $path) {
-				rename($path, realpath(Config::$tasksdir) . DIRECTORY_SEPARATOR . basename($path));
+			foreach (glob(realpath($current_settings['sourcedir'] . '/Tasks') . DIRECTORY_SEPARATOR . '*') as $path) {
+				rename($path, realpath($current_settings['tasksdir']) . DIRECTORY_SEPARATOR . basename($path));
 			}
 
 			// Now delete 'Tasks'.
-			rmdir(realpath(dirname(Config::$tasksdir) . '/Tasks'));
+			rmdir(realpath($current_settings['sourcedir'] . '/Tasks'));
 		}
 
 		// Rename 'tasks' to 'Tasks'.
 		// Do this in two steps to make sure it works on case insensitive file systems.
-		rename(Config::$tasksdir, dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks_temp');
-		rename(dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks_temp', dirname(Config::$tasksdir) . DIRECTORY_SEPARATOR . 'Tasks');
-
-		$changes['tasksdir'] = dirname(Config::$tasksdir) . '/Tasks';
+		rename($current_settings['tasksdir'], $current_settings['sourcedir'] . DIRECTORY_SEPARATOR . 'Tasks_temp');
+		rename($current_settings['sourcedir'] . DIRECTORY_SEPARATOR . 'Tasks_temp', $current_settings['sourcedir'] . DIRECTORY_SEPARATOR . 'Tasks');
 	}
 
 	// Are we in maintenance mode?
@@ -1979,10 +2077,13 @@ function DeleteUpgrade()
 		(new TaskRunner())->runScheduledTasks(['fetchSMfiles']); // Now go get those files!
 
 		// This is needed in case someone invokes the upgrader using https when upgrading an http forum
-		if (Config::httpsOn()) {
+		if (Sapi::httpsOn()) {
 			$settings['default_theme_url'] = strtr($settings['default_theme_url'], ['http://' => 'https://']);
 		}
 	}
+
+	// Queue any post-upgrade background tasks that we should run.
+	addBackgroundTasks();
 
 	// Log what we've done.
 	if (!isset(User::$me)) {
@@ -2000,12 +2101,28 @@ function DeleteUpgrade()
 		'',
 		'{db_prefix}log_actions',
 		[
-			'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'inet', 'action' => 'string',
-			'id_board' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'extra' => 'string-65534',
+			'log_time' => 'int',
+			'id_log' => 'int',
+			'id_member' => 'int',
+			'ip' => 'inet',
+			'action' => 'string',
+			'id_board' => 'int',
+			'id_topic' => 'int',
+			'id_msg' => 'int',
+			'extra' => 'string-65534',
 		],
 		[
-			time(), 3, User::$me->id, User::$me->ip, 'upgrade',
-			0, 0, 0, json_encode(['version' => SMF_FULL_VERSION, 'member' => User::$me->id]),
+			[
+				time(),
+				3,
+				User::$me->id,
+				User::$me->ip,
+				'upgrade',
+				0,
+				0,
+				0,
+				json_encode(['version' => SMF_FULL_VERSION, 'member' => User::$me->id]),
+			],
 		],
 		['id_action'],
 	);
@@ -2029,6 +2146,28 @@ function DeleteUpgrade()
 	$_GET['substep'] = 0;
 
 	return false;
+}
+
+// Queues background tasks that we want to run soon after upgrading.
+function addBackgroundTasks()
+{
+	Db::$db->insert(
+		'insert',
+		'{db_prefix}background_tasks',
+		[
+			'task_class' => 'string',
+			'task_data' => 'string',
+			'claimed_time' => 'int',
+		],
+		[
+			[
+				'SMF\\Tasks\\UpdateSpoofDetectorNames',
+				json_encode(['last_member_id' => 0]),
+				0,
+			],
+		],
+		['id_task'],
+	);
 }
 
 // Just like the built in one, but setup for CLI to not use themes.
@@ -2060,7 +2199,7 @@ function cli_scheduled_fetchSMfiles()
 
 	foreach ($js_files as $ID_FILE => $file) {
 		// Create the url
-		$server = empty($file['path']) || substr($file['path'], 0, 7) != 'http://' ? 'https://www.simplemachines.org' : '';
+		$server = empty($file['path']) || !str_starts_with($file['path'], 'http://') ? 'https://www.simplemachines.org' : '';
 		$url = $server . (!empty($file['path']) ? $file['path'] : $file['path']) . $file['filename'] . (!empty($file['parameters']) ? '?' . $file['parameters'] : '');
 
 		// Get the file
@@ -2221,6 +2360,7 @@ function parse_sql($filename)
 		- {$boarddir}
 		- {$boardurl}
 		- {$db_prefix}
+		- {$db_name}
 		- {$db_collation}
 */
 
@@ -2279,7 +2419,7 @@ function parse_sql($filename)
 		$do_current = $substep >= $_GET['substep'];
 
 		// Get rid of any comments in the beginning of the line...
-		if (substr(trim($line), 0, 2) === '/*') {
+		if (str_starts_with(trim($line), '/*')) {
 			$line = preg_replace('~/\*.+?\*/~', '', $line);
 		}
 
@@ -2401,7 +2541,7 @@ function parse_sql($filename)
 
 		$current_data .= $line;
 
-		if (substr(rtrim($current_data), -1) === ';' && $current_type === 'sql') {
+		if (str_ends_with(rtrim($current_data), ';') && $current_type === 'sql') {
 			if ((!$support_js || isset($_GET['xml']))) {
 				if (!$do_current || !empty($upcontext['skip_db_substeps'])) {
 					$current_data = '';
@@ -2414,7 +2554,7 @@ function parse_sql($filename)
 				}
 
 				// {$sboarddir} is deprecated, but blah blah backward compatibility blah...
-				$current_data = strtr(substr(rtrim($current_data), 0, -1), ['{$db_prefix}' => Config::$db_prefix, '{$boarddir}' => Db::$db->escape_string(Config::$boarddir), '{$sboarddir}' => Db::$db->escape_string(Config::$boarddir), '{$boardurl}' => Config::$boardurl, '{$db_collation}' => $db_collation]);
+				$current_data = strtr(substr(rtrim($current_data), 0, -1), ['{$db_name}' => Config::$db_name, '{$db_prefix}' => Config::$db_prefix, '{$boarddir}' => Db::$db->escape_string(Config::$boarddir), '{$sboarddir}' => Db::$db->escape_string(Config::$boarddir), '{$boardurl}' => Config::$boardurl, '{$db_collation}' => $db_collation]);
 
 				upgrade_query($current_data);
 
@@ -2436,7 +2576,7 @@ function parse_sql($filename)
 			$current_data = '';
 		}
 		// If this is xml based and we're just getting the item name then that's grand.
-		elseif ($support_js && !isset($_GET['xml']) && $upcontext['current_debug_item_name'] != '' && $do_current) {
+		elseif ($support_js && isset($_GET['xml']) && $upcontext['current_debug_item_name'] != '' && $do_current) {
 			restore_error_handler();
 
 			return false;
@@ -2529,7 +2669,7 @@ function upgrade_query($string, $unbuffered = false)
 		// Creating an index on a non-existent column.
 		elseif ($mysqli_errno == 1072) {
 			return false;
-		} elseif ($mysqli_errno == 1050 && substr(trim($string), 0, 12) == 'RENAME TABLE') {
+		} elseif ($mysqli_errno == 1050 && str_starts_with(trim($string), 'RENAME TABLE')) {
 			return false;
 		}
 		// Testing for legacy tables or columns? Needed for 1.0 & 1.1 scripts.
@@ -2540,11 +2680,11 @@ function upgrade_query($string, $unbuffered = false)
 	// If a table already exists don't go potty.
 	else {
 		if (in_array(substr(trim($string), 0, 8), ['CREATE T', 'CREATE S', 'DROP TABL', 'ALTER TA', 'CREATE I', 'CREATE U'])) {
-			if (strpos($db_error_message, 'exist') !== false) {
+			if (str_contains($db_error_message, 'exist')) {
 				return true;
 			}
-		} elseif (strpos(trim($string), 'INSERT ') !== false) {
-			if (strpos($db_error_message, 'duplicate') !== false || $ignore_insert_error) {
+		} elseif (str_contains(trim($string), 'INSERT ')) {
+			if (str_contains($db_error_message, 'duplicate') || $ignore_insert_error) {
 				return true;
 			}
 		}
@@ -2668,7 +2808,7 @@ function protected_alter($change, $substep, $is_test = false)
 			SHOW FULL PROCESSLIST');
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (strpos($row['Info'], 'ALTER TABLE ' . Config::$db_prefix . $change['table']) !== false && strpos($row['Info'], $change['text']) !== false) {
+			if (str_contains($row['Info'], 'ALTER TABLE ' . Config::$db_prefix . $change['table']) && str_contains($row['Info'], $change['text'])) {
 				$found = true;
 			}
 		}
@@ -2957,10 +3097,12 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Unable to obtain write access to "' . basename(SMF_SETTINGS_BACKUP_FILE) . '".');
 	}
 
-	if (isset(Config::$modSettings['agreement']) && (!is_writable(Config::$boarddir) || file_exists(Config::$boarddir . '/agreement.txt')) && !is_writable(Config::$boarddir . '/agreement.txt')) {
+	$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
+
+	if (isset(Config::$modSettings['agreement']) && (!is_writable($lang_dir) || file_exists($lang_dir . '/en_US/agreement.txt')) && !is_writable($lang_dir . '/en_US/agreement.txt')) {
 		print_error('Error: Unable to obtain write access to "agreement.txt".');
 	} elseif (isset(Config::$modSettings['agreement'])) {
-		$fp = fopen(Config::$boarddir . '/agreement.txt', 'w');
+		$fp = fopen($lang_dir . '/en_US/agreement.txt', 'w');
 		fwrite($fp, Config::$modSettings['agreement']);
 		fclose($fp);
 	}
@@ -2993,22 +3135,22 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 		print_error('Error: Unable to obtain write access to "db_last_error.php".');
 	}
 
-	if (!file_exists(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')) {
+	if (!file_exists($lang_dir . '/' . $upcontext['language'] . '/General.php')) {
 		print_error('Error: Unable to find language files!', true);
 	} else {
-		$temp = substr(@implode('', @file(Config::$modSettings['theme_dir'] . '/languages/index.' . $upcontext['language'] . '.php')), 0, 4096);
-		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*index(?:[\s]{2}|\*/)~i', $temp, $match);
+		$temp = file_get_contents($lang_dir . '/' . $upcontext['language'] . '/General.php', false, null, 0, 4096);
+		preg_match('~(?://|/\*)\s*Version:\s+(.+?);\s*General(?:[\s]{2}|\*/)~i', $temp, $match);
 
 		if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 			print_error('Error: Language files out of date.', true);
 		}
 
-		if (!file_exists(Config::$modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php')) {
+		if (!file_exists($lang_dir . '/' . $upcontext['language'] . '/Install.php')) {
 			print_error('Error: Install language is missing for selected language.', true);
 		}
 
 		// Otherwise include it!
-		require_once Config::$modSettings['theme_dir'] . '/languages/Install.' . $upcontext['language'] . '.php';
+		require_once $lang_dir . '/' . $upcontext['language'] . '/Install.php';
 	}
 
 	// Do we need to add this setting?
@@ -3022,7 +3164,7 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 
 	// Are we good now?
 	if (!is_writable($custom_av_dir)) {
-		print_error(sprintf(Lang::$txt['error_dir_not_writable'], $custom_av_dir));
+		print_error(Lang::getTxt('error_dir_not_writable', ['dir' => $custom_av_dir]));
 	} elseif ($need_settings_update) {
 		if (!function_exists('cache_put_data')) {
 			require_once Config::$sourcedir . '/Cache/CacheApi.php';
@@ -3051,10 +3193,10 @@ function ConvertUtf8()
 	// Done it already?
 	if (!empty($_POST['utf8_done'])) {
 		if ($command_line) {
-			return DeleteUpgrade();
+			return Cleanup();
 		}
 
-			return true;
+		return true;
 	}
 
 	// First make sure they aren't already on UTF-8 before we go anywhere...
@@ -3063,525 +3205,547 @@ function ConvertUtf8()
 			'replace',
 			'{db_prefix}settings',
 			['variable' => 'string', 'value' => 'string'],
-			[['global_character_set', 'UTF-8']],
+			[
+				['global_character_set', 'UTF-8'],
+			],
 			['variable'],
 		);
 
 		if ($command_line) {
-			return DeleteUpgrade();
+			return Cleanup();
 		}
 
-			return true;
+		return true;
 	}
 
+	$upcontext['page_title'] = Lang::$txt['converting_utf8'];
+	$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
 
-		$upcontext['page_title'] = Lang::$txt['converting_utf8'];
-		$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
+	// The character sets used in SMF's language files with their db equivalent.
+	$charsets = [
+		// Armenian
+		'armscii8' => 'armscii8',
+		// Chinese-traditional.
+		'big5' => 'big5',
+		// Chinese-simplified.
+		'gbk' => 'gbk',
+		// West European.
+		'ISO-8859-1' => 'latin1',
+		// Romanian.
+		'ISO-8859-2' => 'latin2',
+		// Turkish.
+		'ISO-8859-9' => 'latin5',
+		// Latvian
+		'ISO-8859-13' => 'latin7',
+		// West European with Euro sign.
+		'ISO-8859-15' => 'latin9',
+		// Thai.
+		'tis-620' => 'tis620',
+		// Persian, Chinese, etc.
+		'UTF-8' => 'utf8',
+		// Russian.
+		'windows-1251' => 'cp1251',
+		// Greek.
+		'windows-1253' => 'utf8',
+		// Hebrew.
+		'windows-1255' => 'utf8',
+		// Arabic.
+		'windows-1256' => 'cp1256',
+	];
 
-		// The character sets used in SMF's language files with their db equivalent.
-		$charsets = [
-			// Armenian
-			'armscii8' => 'armscii8',
-			// Chinese-traditional.
-			'big5' => 'big5',
-			// Chinese-simplified.
-			'gbk' => 'gbk',
-			// West European.
-			'ISO-8859-1' => 'latin1',
-			// Romanian.
-			'ISO-8859-2' => 'latin2',
-			// Turkish.
-			'ISO-8859-9' => 'latin5',
-			// Latvian
-			'ISO-8859-13' => 'latin7',
-			// West European with Euro sign.
-			'ISO-8859-15' => 'latin9',
-			// Thai.
-			'tis-620' => 'tis620',
-			// Persian, Chinese, etc.
-			'UTF-8' => 'utf8',
-			// Russian.
-			'windows-1251' => 'cp1251',
-			// Greek.
-			'windows-1253' => 'utf8',
-			// Hebrew.
-			'windows-1255' => 'utf8',
-			// Arabic.
-			'windows-1256' => 'cp1256',
-		];
+	// Get a list of character sets supported by your MySQL server.
+	$request = Db::$db->query(
+		'',
+		'SHOW CHARACTER SET',
+		[
+		],
+	);
+	$db_charsets = [];
 
-		// Get a list of character sets supported by your MySQL server.
-		$request = Db::$db->query(
-			'',
-			'SHOW CHARACTER SET',
-			[
-			],
-		);
-		$db_charsets = [];
+	while ($row = Db::$db->fetch_assoc($request)) {
+		$db_charsets[] = $row['Charset'];
+	}
 
+	Db::$db->free_result($request);
+
+	// Character sets supported by both MySQL and SMF's language files.
+	$charsets = array_intersect($charsets, $db_charsets);
+
+	// Use the messages.body column as indicator for the database charset.
+	$request = Db::$db->query(
+		'',
+		'SHOW FULL COLUMNS
+		FROM {db_prefix}messages
+		LIKE {string:body_like}',
+		[
+			'body_like' => 'body',
+		],
+	);
+	$column_info = Db::$db->fetch_assoc($request);
+	Db::$db->free_result($request);
+
+	// A collation looks like latin1_swedish. We only need the character set.
+	list($upcontext['database_charset']) = explode('_', $column_info['Collation']);
+	$upcontext['database_charset'] = in_array($upcontext['database_charset'], $charsets) ? array_search($upcontext['database_charset'], $charsets) : $upcontext['database_charset'];
+
+	// Detect whether a fulltext index is set.
+	$request = Db::$db->query(
+		'',
+		'SHOW INDEX
+		FROM {db_prefix}messages',
+		[
+		],
+	);
+
+	$upcontext['dropping_index'] = false;
+
+	// If there's a fulltext index, we need to drop it first...
+	if ($request !== false || Db::$db->num_rows($request) != 0) {
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$db_charsets[] = $row['Charset'];
+			if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT')) {
+				$upcontext['fulltext_index'][] = $row['Key_name'];
+			}
 		}
-
 		Db::$db->free_result($request);
 
-		// Character sets supported by both MySQL and SMF's language files.
-		$charsets = array_intersect($charsets, $db_charsets);
+		if (isset($upcontext['fulltext_index'])) {
+			$upcontext['fulltext_index'] = array_unique($upcontext['fulltext_index']);
+		}
+	}
 
-		// Use the messages.body column as indicator for the database charset.
-		$request = Db::$db->query(
+	// Drop it and make a note...
+	if (!empty($upcontext['fulltext_index'])) {
+		$upcontext['dropping_index'] = true;
+
+		Db::$db->query(
 			'',
-			'SHOW FULL COLUMNS
-			FROM {db_prefix}messages
-			LIKE {string:body_like}',
+			'ALTER TABLE {db_prefix}messages
+			DROP INDEX ' . implode(',
+			DROP INDEX ', $upcontext['fulltext_index']),
 			[
-				'body_like' => 'body',
-			],
-		);
-		$column_info = Db::$db->fetch_assoc($request);
-		Db::$db->free_result($request);
-
-		// A collation looks like latin1_swedish. We only need the character set.
-		list($upcontext['database_charset']) = explode('_', $column_info['Collation']);
-		$upcontext['database_charset'] = in_array($upcontext['database_charset'], $charsets) ? array_search($upcontext['database_charset'], $charsets) : $upcontext['database_charset'];
-
-		// Detect whether a fulltext index is set.
-		$request = Db::$db->query(
-			'',
-			'SHOW INDEX
-			FROM {db_prefix}messages',
-			[
+				'db_error_skip' => true,
 			],
 		);
 
-		$upcontext['dropping_index'] = false;
-
-		// If there's a fulltext index, we need to drop it first...
-		if ($request !== false || Db::$db->num_rows($request) != 0) {
-			while ($row = Db::$db->fetch_assoc($request)) {
-				if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT')) {
-					$upcontext['fulltext_index'][] = $row['Key_name'];
-				}
-			}
-			Db::$db->free_result($request);
-
-			if (isset($upcontext['fulltext_index'])) {
-				$upcontext['fulltext_index'] = array_unique($upcontext['fulltext_index']);
-			}
-		}
-
-		// Drop it and make a note...
-		if (!empty($upcontext['fulltext_index'])) {
-			$upcontext['dropping_index'] = true;
-
-			Db::$db->query(
-				'',
-				'ALTER TABLE {db_prefix}messages
-				DROP INDEX ' . implode(',
-				DROP INDEX ', $upcontext['fulltext_index']),
-				[
-					'db_error_skip' => true,
-				],
-			);
-
-			// Update the settings table
-			Db::$db->insert(
-				'replace',
-				'{db_prefix}settings',
-				['variable' => 'string', 'value' => 'string'],
-				['db_search_index', ''],
-				['variable'],
-			);
-		}
-
-		// Figure out what charset we should be converting from...
-		$lang_charsets = [
-			'arabic' => 'windows-1256',
-			'armenian_east' => 'armscii-8',
-			'armenian_west' => 'armscii-8',
-			'azerbaijani_latin' => 'ISO-8859-9',
-			'bangla' => 'UTF-8',
-			'belarusian' => 'ISO-8859-5',
-			'bulgarian' => 'windows-1251',
-			'cambodian' => 'UTF-8',
-			'chinese_simplified' => 'gbk',
-			'chinese_traditional' => 'big5',
-			'croation' => 'ISO-8859-2',
-			'czech' => 'ISO-8859-2',
-			'czech_informal' => 'ISO-8859-2',
-			'english_pirate' => 'UTF-8',
-			'esperanto' => 'ISO-8859-3',
-			'estonian' => 'ISO-8859-15',
-			'filipino_tagalog' => 'UTF-8',
-			'filipino_vasayan' => 'UTF-8',
-			'georgian' => 'UTF-8',
-			'greek' => 'ISO-8859-3',
-			'hebrew' => 'windows-1255',
-			'hungarian' => 'ISO-8859-2',
-			'irish' => 'UTF-8',
-			'japanese' => 'UTF-8',
-			'khmer' => 'UTF-8',
-			'korean' => 'UTF-8',
-			'kurdish_kurmanji' => 'ISO-8859-9',
-			'kurdish_sorani' => 'windows-1256',
-			'lao' => 'tis-620',
-			'latvian' => 'ISO-8859-13',
-			'lithuanian' => 'ISO-8859-4',
-			'macedonian' => 'UTF-8',
-			'malayalam' => 'UTF-8',
-			'mongolian' => 'UTF-8',
-			'nepali' => 'UTF-8',
-			'persian' => 'UTF-8',
-			'polish' => 'ISO-8859-2',
-			'romanian' => 'ISO-8859-2',
-			'russian' => 'windows-1252',
-			'sakha' => 'UTF-8',
-			'serbian_cyrillic' => 'ISO-8859-5',
-			'serbian_latin' => 'ISO-8859-2',
-			'sinhala' => 'UTF-8',
-			'slovak' => 'ISO-8859-2',
-			'slovenian' => 'ISO-8859-2',
-			'telugu' => 'UTF-8',
-			'thai' => 'tis-620',
-			'turkish' => 'ISO-8859-9',
-			'turkmen' => 'ISO-8859-9',
-			'ukranian' => 'windows-1251',
-			'urdu' => 'UTF-8',
-			'uzbek_cyrillic' => 'ISO-8859-5',
-			'uzbek_latin' => 'ISO-8859-5',
-			'vietnamese' => 'UTF-8',
-			'yoruba' => 'UTF-8',
-		];
-
-		// Default to ISO-8859-1 unless we detected another supported charset
-		$upcontext['charset_detected'] = (isset($lang_charsets[Config::$language], $charsets[strtr(strtolower($upcontext['charset_detected']),['utf' => 'UTF', 'iso' => 'ISO'])])) ? $lang_charsets[Config::$language] : 'ISO-8859-1';
-
-		$upcontext['charset_list'] = array_keys($charsets);
-
-		// Translation table for the character sets not native for MySQL.
-		$translation_tables = [
-			'windows-1255' => [
-				'0x81' => '\'\'',		'0x8A' => '\'\'',		'0x8C' => '\'\'',
-				'0x8D' => '\'\'',		'0x8E' => '\'\'',		'0x8F' => '\'\'',
-				'0x90' => '\'\'',		'0x9A' => '\'\'',		'0x9C' => '\'\'',
-				'0x9D' => '\'\'',		'0x9E' => '\'\'',		'0x9F' => '\'\'',
-				'0xCA' => '\'\'',		'0xD9' => '\'\'',		'0xDA' => '\'\'',
-				'0xDB' => '\'\'',		'0xDC' => '\'\'',		'0xDD' => '\'\'',
-				'0xDE' => '\'\'',		'0xDF' => '\'\'',		'0xFB' => '0xD792',
-				'0xFC' => '0xE282AC',		'0xFF' => '0xD6B2',		'0xC2' => '0xFF',
-				'0x80' => '0xFC',		'0xE2' => '0xFB',		'0xA0' => '0xC2A0',
-				'0xA1' => '0xC2A1',		'0xA2' => '0xC2A2',		'0xA3' => '0xC2A3',
-				'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
-				'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
-				'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
-				'0xAF' => '0xC2AF',		'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',
-				'0xB2' => '0xC2B2',		'0xB3' => '0xC2B3',		'0xB4' => '0xC2B4',
-				'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
-				'0xB8' => '0xC2B8',		'0xB9' => '0xC2B9',		'0xBB' => '0xC2BB',
-				'0xBC' => '0xC2BC',		'0xBD' => '0xC2BD',		'0xBE' => '0xC2BE',
-				'0xBF' => '0xC2BF',		'0xD7' => '0xD7B3',		'0xD1' => '0xD781',
-				'0xD4' => '0xD7B0',		'0xD5' => '0xD7B1',		'0xD6' => '0xD7B2',
-				'0xE0' => '0xD790',		'0xEA' => '0xD79A',		'0xEC' => '0xD79C',
-				'0xED' => '0xD79D',		'0xEE' => '0xD79E',		'0xEF' => '0xD79F',
-				'0xF0' => '0xD7A0',		'0xF1' => '0xD7A1',		'0xF2' => '0xD7A2',
-				'0xF3' => '0xD7A3',		'0xF5' => '0xD7A5',		'0xF6' => '0xD7A6',
-				'0xF7' => '0xD7A7',		'0xF8' => '0xD7A8',		'0xF9' => '0xD7A9',
-				'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
-				'0x86' => '0xE280A0',	'0x87' => '0xE280A1',	'0x89' => '0xE280B0',
-				'0x8B' => '0xE280B9',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
-				'0x95' => '0xE280A2',	'0x97' => '0xE28094',	'0x99' => '0xE284A2',
-				'0xC0' => '0xD6B0',		'0xC1' => '0xD6B1',		'0xC3' => '0xD6B3',
-				'0xC4' => '0xD6B4',		'0xC5' => '0xD6B5',		'0xC6' => '0xD6B6',
-				'0xC7' => '0xD6B7',		'0xC8' => '0xD6B8',		'0xC9' => '0xD6B9',
-				'0xCB' => '0xD6BB',		'0xCC' => '0xD6BC',		'0xCD' => '0xD6BD',
-				'0xCE' => '0xD6BE',		'0xCF' => '0xD6BF',		'0xD0' => '0xD780',
-				'0xD2' => '0xD782',		'0xE3' => '0xD793',		'0xE4' => '0xD794',
-				'0xE5' => '0xD795',		'0xE7' => '0xD797',		'0xE9' => '0xD799',
-				'0xFD' => '0xE2808E',	'0xFE' => '0xE2808F',	'0x92' => '0xE28099',
-				'0x83' => '0xC692',		'0xD3' => '0xD783',		'0x88' => '0xCB86',
-				'0x98' => '0xCB9C',		'0x91' => '0xE28098',	'0x96' => '0xE28093',
-				'0xBA' => '0xC3B7',		'0x9B' => '0xE280BA',	'0xAA' => '0xC397',
-				'0xA4' => '0xE282AA',	'0xE1' => '0xD791',		'0xE6' => '0xD796',
-				'0xE8' => '0xD798',		'0xEB' => '0xD79B',		'0xF4' => '0xD7A4',
-				'0xFA' => '0xD7AA',
-			],
-			'windows-1253' => [
-				'0x81' => '\'\'',			'0x88' => '\'\'',			'0x8A' => '\'\'',
-				'0x8C' => '\'\'',			'0x8D' => '\'\'',			'0x8E' => '\'\'',
-				'0x8F' => '\'\'',			'0x90' => '\'\'',			'0x98' => '\'\'',
-				'0x9A' => '\'\'',			'0x9C' => '\'\'',			'0x9D' => '\'\'',
-				'0x9E' => '\'\'',			'0x9F' => '\'\'',			'0xAA' => '\'\'',
-				'0xD2' => '0xE282AC',			'0xFF' => '0xCE92',			'0xCE' => '0xCE9E',
-				'0xB8' => '0xCE88',		'0xBA' => '0xCE8A',		'0xBC' => '0xCE8C',
-				'0xBE' => '0xCE8E',		'0xBF' => '0xCE8F',		'0xC0' => '0xCE90',
-				'0xC8' => '0xCE98',		'0xCA' => '0xCE9A',		'0xCC' => '0xCE9C',
-				'0xCD' => '0xCE9D',		'0xCF' => '0xCE9F',		'0xDA' => '0xCEAA',
-				'0xE8' => '0xCEB8',		'0xEA' => '0xCEBA',		'0xEC' => '0xCEBC',
-				'0xEE' => '0xCEBE',		'0xEF' => '0xCEBF',		'0xC2' => '0xFF',
-				'0xBD' => '0xC2BD',		'0xED' => '0xCEBD',		'0xB2' => '0xC2B2',
-				'0xA0' => '0xC2A0',		'0xA3' => '0xC2A3',		'0xA4' => '0xC2A4',
-				'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
-				'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
-				'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
-				'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',		'0xB3' => '0xC2B3',
-				'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
-				'0xBB' => '0xC2BB',		'0xE2' => '0xCEB2',		'0x80' => '0xD2',
-				'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
-				'0x86' => '0xE280A0',	'0xA1' => '0xCE85',		'0xA2' => '0xCE86',
-				'0x87' => '0xE280A1',	'0x89' => '0xE280B0',	'0xB9' => '0xCE89',
-				'0x8B' => '0xE280B9',	'0x91' => '0xE28098',	'0x99' => '0xE284A2',
-				'0x92' => '0xE28099',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
-				'0x95' => '0xE280A2',	'0x96' => '0xE28093',	'0x97' => '0xE28094',
-				'0x9B' => '0xE280BA',	'0xAF' => '0xE28095',	'0xB4' => '0xCE84',
-				'0xC1' => '0xCE91',		'0xC3' => '0xCE93',		'0xC4' => '0xCE94',
-				'0xC5' => '0xCE95',		'0xC6' => '0xCE96',		'0x83' => '0xC692',
-				'0xC7' => '0xCE97',		'0xC9' => '0xCE99',		'0xCB' => '0xCE9B',
-				'0xD0' => '0xCEA0',		'0xD1' => '0xCEA1',		'0xD3' => '0xCEA3',
-				'0xD4' => '0xCEA4',		'0xD5' => '0xCEA5',		'0xD6' => '0xCEA6',
-				'0xD7' => '0xCEA7',		'0xD8' => '0xCEA8',		'0xD9' => '0xCEA9',
-				'0xDB' => '0xCEAB',		'0xDC' => '0xCEAC',		'0xDD' => '0xCEAD',
-				'0xDE' => '0xCEAE',		'0xDF' => '0xCEAF',		'0xE0' => '0xCEB0',
-				'0xE1' => '0xCEB1',		'0xE3' => '0xCEB3',		'0xE4' => '0xCEB4',
-				'0xE5' => '0xCEB5',		'0xE6' => '0xCEB6',		'0xE7' => '0xCEB7',
-				'0xE9' => '0xCEB9',		'0xEB' => '0xCEBB',		'0xF0' => '0xCF80',
-				'0xF1' => '0xCF81',		'0xF2' => '0xCF82',		'0xF3' => '0xCF83',
-				'0xF4' => '0xCF84',		'0xF5' => '0xCF85',		'0xF6' => '0xCF86',
-				'0xF7' => '0xCF87',		'0xF8' => '0xCF88',		'0xF9' => '0xCF89',
-				'0xFA' => '0xCF8A',		'0xFB' => '0xCF8B',		'0xFC' => '0xCF8C',
-				'0xFD' => '0xCF8D',		'0xFE' => '0xCF8E',
-			],
-		];
-
-		// Make some preparations.
-		if (isset($translation_tables[$upcontext['charset_detected']])) {
-			$replace = '%field%';
-
-			// Build a huge REPLACE statement...
-			foreach ($translation_tables[$upcontext['charset_detected']] as $from => $to) {
-				$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
-			}
-		}
-
-		// Get a list of table names ahead of time... This makes it easier to set our substep and such
-		$queryTables = Db::$db->list_tables(false, Config::$db_prefix . '%');
-
-		$queryTables = array_values(array_filter($queryTables, function ($v) {
-			return stripos($v, 'backup_') !== 0;
-		}));
-
-		$upcontext['table_count'] = count($queryTables);
-
-		// What ones have we already done?
-		foreach ($queryTables as $id => $table) {
-			if ($id < $_GET['substep']) {
-				$upcontext['previous_tables'][] = $table;
-			}
-		}
-
-		$upcontext['cur_table_num'] = $_GET['substep'];
-		$upcontext['cur_table_name'] = str_replace(Config::$db_prefix, '', $queryTables[$_GET['substep']]);
-		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
-
-		// Make sure we're ready & have painted the template before proceeding
-		if ($support_js && !isset($_GET['xml'])) {
-			$_GET['substep'] = 0;
-
-			return false;
-		}
-
-		// We want to start at the first table.
-		for ($substep = $_GET['substep'], $n = count($queryTables); $substep < $n; $substep++) {
-			$table = $queryTables[$substep];
-
-			$getTableStatus = Db::$db->query(
-				'',
-				'SHOW TABLE STATUS
-				LIKE {string:table_name}',
-				[
-					'table_name' => str_replace('_', '\_', $table),
-				],
-			);
-
-			// Only one row so we can just fetch_assoc and free the result...
-			$table_info = Db::$db->fetch_assoc($getTableStatus);
-			Db::$db->free_result($getTableStatus);
-
-			$upcontext['cur_table_name'] = str_replace(Config::$db_prefix, '', ($queryTables[$substep + 1] ?? $queryTables[$substep]));
-			$upcontext['cur_table_num'] = $substep + 1;
-			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
-
-			// Do we need to pause?
-			nextSubstep($substep);
-
-			// Just to make sure it doesn't time out.
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
-
-			$table_charsets = [];
-
-			// Loop through each column.
-			$queryColumns = Db::$db->query(
-				'',
-				'SHOW FULL COLUMNS
-				FROM ' . $table_info['Name'],
-				[
-				],
-			);
-
-			while ($column_info = Db::$db->fetch_assoc($queryColumns)) {
-				// Only text'ish columns have a character set and need converting.
-				if (strpos($column_info['Type'], 'text') !== false || strpos($column_info['Type'], 'char') !== false) {
-					$collation = empty($column_info['Collation']) || $column_info['Collation'] === 'NULL' ? $table_info['Collation'] : $column_info['Collation'];
-
-					if (!empty($collation) && $collation !== 'NULL') {
-						list($charset) = explode('_', $collation);
-
-						// Build structure of columns to operate on organized by charset; only operate on columns not yet utf8
-						if ($charset != 'utf8') {
-							if (!isset($table_charsets[$charset])) {
-								$table_charsets[$charset] = [];
-							}
-
-							$table_charsets[$charset][] = $column_info;
-						}
-					}
-				}
-			}
-			Db::$db->free_result($queryColumns);
-
-			// Only change the non-utf8 columns identified above
-			if (count($table_charsets) > 0) {
-				$updates_blob = '';
-				$updates_text = '';
-
-				foreach ($table_charsets as $charset => $columns) {
-					if ($charset !== $charsets[$upcontext['charset_detected']]) {
-						foreach ($columns as $column) {
-							$updates_blob .= '
-								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . strtr($column['Type'], ['text' => 'blob', 'char' => 'binary']) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
-							$updates_text .= '
-								CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$upcontext['charset_detected']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
-						}
-					}
-				}
-
-				// Change the columns to binary form.
-				Db::$db->query(
-					'',
-					'ALTER TABLE {raw:table_name}{raw:updates_blob}',
-					[
-						'table_name' => $table_info['Name'],
-						'updates_blob' => substr($updates_blob, 0, -1),
-					],
-				);
-
-				// Convert the character set if MySQL has no native support for it.
-				if (isset($translation_tables[$upcontext['charset_detected']])) {
-					$update = '';
-
-					foreach ($table_charsets as $charset => $columns) {
-						foreach ($columns as $column) {
-							$update .= '
-								' . $column['Field'] . ' = ' . strtr($replace, ['%field%' => $column['Field']]) . ',';
-						}
-					}
-
-					Db::$db->query(
-						'',
-						'UPDATE {raw:table_name}
-						SET {raw:updates}',
-						[
-							'table_name' => $table_info['Name'],
-							'updates' => substr($update, 0, -1),
-						],
-					);
-				}
-
-				// Change the columns back, but with the proper character set.
-				Db::$db->query(
-					'',
-					'ALTER TABLE {raw:table_name}{raw:updates_text}',
-					[
-						'table_name' => $table_info['Name'],
-						'updates_text' => substr($updates_text, 0, -1),
-					],
-				);
-			}
-
-			// Now do the actual conversion (if still needed).
-			if ($charsets[$upcontext['charset_detected']] !== 'utf8') {
-				if ($command_line) {
-					echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
-				}
-
-				Db::$db->query(
-					'',
-					'ALTER TABLE {raw:table_name}
-					CONVERT TO CHARACTER SET utf8',
-					[
-						'table_name' => $table_info['Name'],
-					],
-				);
-
-				if ($command_line) {
-					echo " done.\n";
-				}
-			}
-
-			// If this is XML to keep it nice for the user do one table at a time anyway!
-			if (isset($_GET['xml']) && $upcontext['cur_table_num'] < $upcontext['table_count']) {
-				return upgradeExit();
-			}
-		}
-
-		$prev_charset = empty($translation_tables[$upcontext['charset_detected']]) ? $charsets[$upcontext['charset_detected']] : $translation_tables[$upcontext['charset_detected']];
-
+		// Update the settings table
 		Db::$db->insert(
 			'replace',
 			'{db_prefix}settings',
-			['variable' => 'string', 'value' => 'string'],
-			[['global_character_set', 'UTF-8'], ['previousCharacterSet', $prev_charset]],
+			[
+				'variable' => 'string',
+				'value' => 'string',
+			],
+			[
+				[
+					'db_search_index',
+					'',
+				],
+			],
 			['variable'],
 		);
+	}
 
-		// Store it in Settings.php too because it's needed before db connection.
-		// Hopefully this works...
-		Config::updateSettingsFile(['db_character_set' => 'utf8']);
+	// Figure out what charset we should be converting from...
+	$lang_charsets = [
+		'arabic' => 'windows-1256',
+		'armenian_east' => 'armscii-8',
+		'armenian_west' => 'armscii-8',
+		'azerbaijani_latin' => 'ISO-8859-9',
+		'bangla' => 'UTF-8',
+		'belarusian' => 'ISO-8859-5',
+		'bulgarian' => 'windows-1251',
+		'cambodian' => 'UTF-8',
+		'chinese_simplified' => 'gbk',
+		'chinese_traditional' => 'big5',
+		'croation' => 'ISO-8859-2',
+		'czech' => 'ISO-8859-2',
+		'czech_informal' => 'ISO-8859-2',
+		'english_pirate' => 'UTF-8',
+		'esperanto' => 'ISO-8859-3',
+		'estonian' => 'ISO-8859-15',
+		'filipino_tagalog' => 'UTF-8',
+		'filipino_vasayan' => 'UTF-8',
+		'georgian' => 'UTF-8',
+		'greek' => 'ISO-8859-3',
+		'hebrew' => 'windows-1255',
+		'hungarian' => 'ISO-8859-2',
+		'irish' => 'UTF-8',
+		'japanese' => 'UTF-8',
+		'khmer' => 'UTF-8',
+		'korean' => 'UTF-8',
+		'kurdish_kurmanji' => 'ISO-8859-9',
+		'kurdish_sorani' => 'windows-1256',
+		'lao' => 'tis-620',
+		'latvian' => 'ISO-8859-13',
+		'lithuanian' => 'ISO-8859-4',
+		'macedonian' => 'UTF-8',
+		'malayalam' => 'UTF-8',
+		'mongolian' => 'UTF-8',
+		'nepali' => 'UTF-8',
+		'persian' => 'UTF-8',
+		'polish' => 'ISO-8859-2',
+		'romanian' => 'ISO-8859-2',
+		'russian' => 'windows-1252',
+		'sakha' => 'UTF-8',
+		'serbian_cyrillic' => 'ISO-8859-5',
+		'serbian_latin' => 'ISO-8859-2',
+		'sinhala' => 'UTF-8',
+		'slovak' => 'ISO-8859-2',
+		'slovenian' => 'ISO-8859-2',
+		'telugu' => 'UTF-8',
+		'thai' => 'tis-620',
+		'turkish' => 'ISO-8859-9',
+		'turkmen' => 'ISO-8859-9',
+		'ukranian' => 'windows-1251',
+		'urdu' => 'UTF-8',
+		'uzbek_cyrillic' => 'ISO-8859-5',
+		'uzbek_latin' => 'ISO-8859-5',
+		'vietnamese' => 'UTF-8',
+		'yoruba' => 'UTF-8',
+	];
 
-		// The conversion might have messed up some serialized strings. Fix them!
-		$request = Db::$db->query(
+	// Map in the new locales. We do it like this, because we want to try our best to capture
+	// the correct charset no mater what the status of the language upgrade is.
+	foreach ($lang_charsets as $key => $value) {
+		// This could be more efficient, but its upgrade logic.
+		$locale = Lang::getLocaleFromLanguageName($key);
+
+		if ($locale !== null) {
+			$lang_charsets[$locale] = $value;
+		}
+	}
+
+	// Default to ISO-8859-1 unless we detected another supported charset
+	$upcontext['charset_detected'] = (isset($lang_charsets[Config::$language], $charsets[strtr(strtolower($upcontext['charset_detected']), ['utf' => 'UTF', 'iso' => 'ISO'])])) ? $lang_charsets[Config::$language] : 'ISO-8859-1';
+
+	$upcontext['charset_list'] = array_keys($charsets);
+
+	// Translation table for the character sets not native for MySQL.
+	$translation_tables = [
+		'windows-1255' => [
+			'0x81' => '\'\'',		'0x8A' => '\'\'',		'0x8C' => '\'\'',
+			'0x8D' => '\'\'',		'0x8E' => '\'\'',		'0x8F' => '\'\'',
+			'0x90' => '\'\'',		'0x9A' => '\'\'',		'0x9C' => '\'\'',
+			'0x9D' => '\'\'',		'0x9E' => '\'\'',		'0x9F' => '\'\'',
+			'0xCA' => '\'\'',		'0xD9' => '\'\'',		'0xDA' => '\'\'',
+			'0xDB' => '\'\'',		'0xDC' => '\'\'',		'0xDD' => '\'\'',
+			'0xDE' => '\'\'',		'0xDF' => '\'\'',		'0xFB' => '0xD792',
+			'0xFC' => '0xE282AC',		'0xFF' => '0xD6B2',		'0xC2' => '0xFF',
+			'0x80' => '0xFC',		'0xE2' => '0xFB',		'0xA0' => '0xC2A0',
+			'0xA1' => '0xC2A1',		'0xA2' => '0xC2A2',		'0xA3' => '0xC2A3',
+			'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
+			'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
+			'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
+			'0xAF' => '0xC2AF',		'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',
+			'0xB2' => '0xC2B2',		'0xB3' => '0xC2B3',		'0xB4' => '0xC2B4',
+			'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
+			'0xB8' => '0xC2B8',		'0xB9' => '0xC2B9',		'0xBB' => '0xC2BB',
+			'0xBC' => '0xC2BC',		'0xBD' => '0xC2BD',		'0xBE' => '0xC2BE',
+			'0xBF' => '0xC2BF',		'0xD7' => '0xD7B3',		'0xD1' => '0xD781',
+			'0xD4' => '0xD7B0',		'0xD5' => '0xD7B1',		'0xD6' => '0xD7B2',
+			'0xE0' => '0xD790',		'0xEA' => '0xD79A',		'0xEC' => '0xD79C',
+			'0xED' => '0xD79D',		'0xEE' => '0xD79E',		'0xEF' => '0xD79F',
+			'0xF0' => '0xD7A0',		'0xF1' => '0xD7A1',		'0xF2' => '0xD7A2',
+			'0xF3' => '0xD7A3',		'0xF5' => '0xD7A5',		'0xF6' => '0xD7A6',
+			'0xF7' => '0xD7A7',		'0xF8' => '0xD7A8',		'0xF9' => '0xD7A9',
+			'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
+			'0x86' => '0xE280A0',	'0x87' => '0xE280A1',	'0x89' => '0xE280B0',
+			'0x8B' => '0xE280B9',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
+			'0x95' => '0xE280A2',	'0x97' => '0xE28094',	'0x99' => '0xE284A2',
+			'0xC0' => '0xD6B0',		'0xC1' => '0xD6B1',		'0xC3' => '0xD6B3',
+			'0xC4' => '0xD6B4',		'0xC5' => '0xD6B5',		'0xC6' => '0xD6B6',
+			'0xC7' => '0xD6B7',		'0xC8' => '0xD6B8',		'0xC9' => '0xD6B9',
+			'0xCB' => '0xD6BB',		'0xCC' => '0xD6BC',		'0xCD' => '0xD6BD',
+			'0xCE' => '0xD6BE',		'0xCF' => '0xD6BF',		'0xD0' => '0xD780',
+			'0xD2' => '0xD782',		'0xE3' => '0xD793',		'0xE4' => '0xD794',
+			'0xE5' => '0xD795',		'0xE7' => '0xD797',		'0xE9' => '0xD799',
+			'0xFD' => '0xE2808E',	'0xFE' => '0xE2808F',	'0x92' => '0xE28099',
+			'0x83' => '0xC692',		'0xD3' => '0xD783',		'0x88' => '0xCB86',
+			'0x98' => '0xCB9C',		'0x91' => '0xE28098',	'0x96' => '0xE28093',
+			'0xBA' => '0xC3B7',		'0x9B' => '0xE280BA',	'0xAA' => '0xC397',
+			'0xA4' => '0xE282AA',	'0xE1' => '0xD791',		'0xE6' => '0xD796',
+			'0xE8' => '0xD798',		'0xEB' => '0xD79B',		'0xF4' => '0xD7A4',
+			'0xFA' => '0xD7AA',
+		],
+		'windows-1253' => [
+			'0x81' => '\'\'',			'0x88' => '\'\'',			'0x8A' => '\'\'',
+			'0x8C' => '\'\'',			'0x8D' => '\'\'',			'0x8E' => '\'\'',
+			'0x8F' => '\'\'',			'0x90' => '\'\'',			'0x98' => '\'\'',
+			'0x9A' => '\'\'',			'0x9C' => '\'\'',			'0x9D' => '\'\'',
+			'0x9E' => '\'\'',			'0x9F' => '\'\'',			'0xAA' => '\'\'',
+			'0xD2' => '0xE282AC',			'0xFF' => '0xCE92',			'0xCE' => '0xCE9E',
+			'0xB8' => '0xCE88',		'0xBA' => '0xCE8A',		'0xBC' => '0xCE8C',
+			'0xBE' => '0xCE8E',		'0xBF' => '0xCE8F',		'0xC0' => '0xCE90',
+			'0xC8' => '0xCE98',		'0xCA' => '0xCE9A',		'0xCC' => '0xCE9C',
+			'0xCD' => '0xCE9D',		'0xCF' => '0xCE9F',		'0xDA' => '0xCEAA',
+			'0xE8' => '0xCEB8',		'0xEA' => '0xCEBA',		'0xEC' => '0xCEBC',
+			'0xEE' => '0xCEBE',		'0xEF' => '0xCEBF',		'0xC2' => '0xFF',
+			'0xBD' => '0xC2BD',		'0xED' => '0xCEBD',		'0xB2' => '0xC2B2',
+			'0xA0' => '0xC2A0',		'0xA3' => '0xC2A3',		'0xA4' => '0xC2A4',
+			'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
+			'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
+			'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
+			'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',		'0xB3' => '0xC2B3',
+			'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
+			'0xBB' => '0xC2BB',		'0xE2' => '0xCEB2',		'0x80' => '0xD2',
+			'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
+			'0x86' => '0xE280A0',	'0xA1' => '0xCE85',		'0xA2' => '0xCE86',
+			'0x87' => '0xE280A1',	'0x89' => '0xE280B0',	'0xB9' => '0xCE89',
+			'0x8B' => '0xE280B9',	'0x91' => '0xE28098',	'0x99' => '0xE284A2',
+			'0x92' => '0xE28099',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
+			'0x95' => '0xE280A2',	'0x96' => '0xE28093',	'0x97' => '0xE28094',
+			'0x9B' => '0xE280BA',	'0xAF' => '0xE28095',	'0xB4' => '0xCE84',
+			'0xC1' => '0xCE91',		'0xC3' => '0xCE93',		'0xC4' => '0xCE94',
+			'0xC5' => '0xCE95',		'0xC6' => '0xCE96',		'0x83' => '0xC692',
+			'0xC7' => '0xCE97',		'0xC9' => '0xCE99',		'0xCB' => '0xCE9B',
+			'0xD0' => '0xCEA0',		'0xD1' => '0xCEA1',		'0xD3' => '0xCEA3',
+			'0xD4' => '0xCEA4',		'0xD5' => '0xCEA5',		'0xD6' => '0xCEA6',
+			'0xD7' => '0xCEA7',		'0xD8' => '0xCEA8',		'0xD9' => '0xCEA9',
+			'0xDB' => '0xCEAB',		'0xDC' => '0xCEAC',		'0xDD' => '0xCEAD',
+			'0xDE' => '0xCEAE',		'0xDF' => '0xCEAF',		'0xE0' => '0xCEB0',
+			'0xE1' => '0xCEB1',		'0xE3' => '0xCEB3',		'0xE4' => '0xCEB4',
+			'0xE5' => '0xCEB5',		'0xE6' => '0xCEB6',		'0xE7' => '0xCEB7',
+			'0xE9' => '0xCEB9',		'0xEB' => '0xCEBB',		'0xF0' => '0xCF80',
+			'0xF1' => '0xCF81',		'0xF2' => '0xCF82',		'0xF3' => '0xCF83',
+			'0xF4' => '0xCF84',		'0xF5' => '0xCF85',		'0xF6' => '0xCF86',
+			'0xF7' => '0xCF87',		'0xF8' => '0xCF88',		'0xF9' => '0xCF89',
+			'0xFA' => '0xCF8A',		'0xFB' => '0xCF8B',		'0xFC' => '0xCF8C',
+			'0xFD' => '0xCF8D',		'0xFE' => '0xCF8E',
+		],
+	];
+
+	// Make some preparations.
+	if (isset($translation_tables[$upcontext['charset_detected']])) {
+		$replace = '%field%';
+
+		// Build a huge REPLACE statement...
+		foreach ($translation_tables[$upcontext['charset_detected']] as $from => $to) {
+			$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
+		}
+	}
+
+	// Get a list of table names ahead of time... This makes it easier to set our substep and such
+	$queryTables = Db::$db->list_tables(false, Config::$db_prefix . '%');
+
+	$queryTables = array_values(array_filter($queryTables, function ($v) {
+		return stripos($v, 'backup_') !== 0;
+	}));
+
+	$upcontext['table_count'] = count($queryTables);
+
+	// What ones have we already done?
+	foreach ($queryTables as $id => $table) {
+		if ($id < $_GET['substep']) {
+			$upcontext['previous_tables'][] = $table;
+		}
+	}
+
+	$upcontext['cur_table_num'] = $_GET['substep'];
+	$upcontext['cur_table_name'] = str_replace(Config::$db_prefix, '', $queryTables[$_GET['substep']]);
+	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
+	// Make sure we're ready & have painted the template before proceeding
+	if ($support_js && !isset($_GET['xml'])) {
+		$_GET['substep'] = 0;
+
+		return false;
+	}
+
+	// We want to start at the first table.
+	for ($substep = $_GET['substep'], $n = count($queryTables); $substep < $n; $substep++) {
+		$table = $queryTables[$substep];
+
+		$getTableStatus = Db::$db->query(
 			'',
-			'SELECT id_action, extra
-			FROM {db_prefix}log_actions
-			WHERE action IN ({string:remove}, {string:delete})',
+			'SHOW TABLE STATUS
+			LIKE {string:table_name}',
 			[
-				'remove' => 'remove',
-				'delete' => 'delete',
+				'table_name' => str_replace('_', '\_', $table),
 			],
 		);
 
-		while ($row = Db::$db->fetch_assoc($request)) {
-			if (@Utils::safeUnserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1) {
+		// Only one row so we can just fetch_assoc and free the result...
+		$table_info = Db::$db->fetch_assoc($getTableStatus);
+		Db::$db->free_result($getTableStatus);
+
+		$upcontext['cur_table_name'] = str_replace(Config::$db_prefix, '', ($queryTables[$substep + 1] ?? $queryTables[$substep]));
+		$upcontext['cur_table_num'] = $substep + 1;
+		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+
+		// Do we need to pause?
+		nextSubstep($substep);
+
+		// Just to make sure it doesn't time out.
+		if (function_exists('apache_reset_timeout')) {
+			@apache_reset_timeout();
+		}
+
+		$table_charsets = [];
+
+		// Loop through each column.
+		$queryColumns = Db::$db->query(
+			'',
+			'SHOW FULL COLUMNS
+			FROM ' . $table_info['Name'],
+			[
+			],
+		);
+
+		while ($column_info = Db::$db->fetch_assoc($queryColumns)) {
+			// Only text'ish columns have a character set and need converting.
+			if (str_contains($column_info['Type'], 'text') || str_contains($column_info['Type'], 'char')) {
+				$collation = empty($column_info['Collation']) || $column_info['Collation'] === 'NULL' ? $table_info['Collation'] : $column_info['Collation'];
+
+				if (!empty($collation) && $collation !== 'NULL') {
+					list($charset) = explode('_', $collation);
+
+					// Build structure of columns to operate on organized by charset; only operate on columns not yet utf8
+					if ($charset != 'utf8') {
+						if (!isset($table_charsets[$charset])) {
+							$table_charsets[$charset] = [];
+						}
+
+						$table_charsets[$charset][] = $column_info;
+					}
+				}
+			}
+		}
+		Db::$db->free_result($queryColumns);
+
+		// Only change the non-utf8 columns identified above
+		if (count($table_charsets) > 0) {
+			$updates_blob = '';
+			$updates_text = '';
+
+			foreach ($table_charsets as $charset => $columns) {
+				if ($charset !== $charsets[$upcontext['charset_detected']]) {
+					foreach ($columns as $column) {
+						$updates_blob .= '
+							CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . strtr($column['Type'], ['text' => 'blob', 'char' => 'binary']) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+						$updates_text .= '
+							CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$upcontext['charset_detected']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+					}
+				}
+			}
+
+			// Change the columns to binary form.
+			Db::$db->query(
+				'',
+				'ALTER TABLE {raw:table_name}{raw:updates_blob}',
+				[
+					'table_name' => $table_info['Name'],
+					'updates_blob' => substr($updates_blob, 0, -1),
+				],
+			);
+
+			// Convert the character set if MySQL has no native support for it.
+			if (isset($translation_tables[$upcontext['charset_detected']])) {
+				$update = '';
+
+				foreach ($table_charsets as $charset => $columns) {
+					foreach ($columns as $column) {
+						$update .= '
+							' . $column['Field'] . ' = ' . strtr($replace, ['%field%' => $column['Field']]) . ',';
+					}
+				}
+
 				Db::$db->query(
 					'',
-					'UPDATE {db_prefix}log_actions
-					SET extra = {string:extra}
-					WHERE id_action = {int:current_action}',
+					'UPDATE {raw:table_name}
+					SET {raw:updates}',
 					[
-						'current_action' => $row['id_action'],
-						'extra' => $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4],
+						'table_name' => $table_info['Name'],
+						'updates' => substr($update, 0, -1),
 					],
 				);
 			}
-		}
-		Db::$db->free_result($request);
 
-		if ($upcontext['dropping_index'] && $command_line) {
-			echo "\n" . '', Lang::$txt['upgrade_fulltext_error'], '';
-			flush();
+			// Change the columns back, but with the proper character set.
+			Db::$db->query(
+				'',
+				'ALTER TABLE {raw:table_name}{raw:updates_text}',
+				[
+					'table_name' => $table_info['Name'],
+					'updates_text' => substr($updates_text, 0, -1),
+				],
+			);
 		}
 
+		// Now do the actual conversion (if still needed).
+		if ($charsets[$upcontext['charset_detected']] !== 'utf8') {
+			if ($command_line) {
+				echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
+			}
+
+			Db::$db->query(
+				'',
+				'ALTER TABLE {raw:table_name}
+				CONVERT TO CHARACTER SET utf8',
+				[
+					'table_name' => $table_info['Name'],
+				],
+			);
+
+			if ($command_line) {
+				echo " done.\n";
+			}
+		}
+
+		// If this is XML to keep it nice for the user do one table at a time anyway!
+		if (isset($_GET['xml']) && $upcontext['cur_table_num'] < $upcontext['table_count']) {
+			return upgradeExit();
+		}
+	}
+
+	$prev_charset = empty($translation_tables[$upcontext['charset_detected']]) ? $charsets[$upcontext['charset_detected']] : $translation_tables[$upcontext['charset_detected']];
+
+	Db::$db->insert(
+		'replace',
+		'{db_prefix}settings',
+		['variable' => 'string', 'value' => 'string'],
+		[
+			['global_character_set', 'UTF-8'],
+			['previousCharacterSet', $prev_charset],
+		],
+		['variable'],
+	);
+
+	// Store it in Settings.php too because it's needed before db connection.
+	// Hopefully this works...
+	Config::updateSettingsFile(['db_character_set' => 'utf8']);
+
+	// The conversion might have messed up some serialized strings. Fix them!
+	$request = Db::$db->query(
+		'',
+		'SELECT id_action, extra
+		FROM {db_prefix}log_actions
+		WHERE action IN ({string:remove}, {string:delete})',
+		[
+			'remove' => 'remove',
+			'delete' => 'delete',
+		],
+	);
+
+	while ($row = Db::$db->fetch_assoc($request)) {
+		if (@Utils::safeUnserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1) {
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}log_actions
+				SET extra = {string:extra}
+				WHERE id_action = {int:current_action}',
+				[
+					'current_action' => $row['id_action'],
+					'extra' => $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4],
+				],
+			);
+		}
+	}
+	Db::$db->free_result($request);
+
+	if ($upcontext['dropping_index'] && $command_line) {
+		echo "\n" . '', Lang::$txt['upgrade_fulltext_error'], '';
+		flush();
+	}
 
 	// Make sure we move on!
 	if ($command_line) {
@@ -3605,7 +3769,7 @@ function upgrade_unserialize($string)
 		$data = false;
 	}
 	// Might be JSON already.
-	elseif (strpos($string, '{') === 0) {
+	elseif (str_starts_with($string, '{')) {
 		$data = @json_decode($string, true);
 
 		if (is_null($data)) {
@@ -3706,218 +3870,347 @@ function serialize_to_json()
 		echo 'Converting data from serialize() to json_encode().';
 	}
 
-	if (!$support_js || isset($_GET['xml'])) {
-		// Fix the data in each table
-		for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++) {
-			$upcontext['cur_table_name'] = $keys[$substep + 1] ?? $keys[$substep];
-			$upcontext['cur_table_num'] = $substep + 1;
+	// Fix the data in each table
+	for ($substep = $_GET['substep']; $substep < $upcontext['table_count']; $substep++) {
+		$upcontext['cur_table_name'] = $keys[$substep + 1] ?? $keys[$substep];
+		$upcontext['cur_table_num'] = $substep + 1;
 
-			$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
 
-			// Do we need to pause?
-			nextSubstep($substep);
+		// Do we need to pause?
+		nextSubstep($substep);
 
-			// Initialize a few things...
-			$where = '';
-			$vars = [];
-			$table = $keys[$substep];
-			$info = $tables[$table];
+		// Initialize a few things...
+		$where = '';
+		$vars = [];
+		$table = $keys[$substep];
+		$info = $tables[$table];
 
-			// Now the fun - build our queries and all that fun stuff
-			if ($table == 'settings') {
-				// Now a few settings...
-				$serialized_settings = [
-					'attachment_basedirectories',
-					'attachmentUploadDir',
-					'cal_today_birthday',
-					'cal_today_event',
-					'cal_today_holiday',
-					'displayFields',
-					'last_attachments_directory',
-					'memberlist_cache',
-					'search_custom_index_config',
-					'spider_name_cache',
-				];
+		// Now the fun - build our queries and all that fun stuff
+		if ($table == 'settings') {
+			// Now a few settings...
+			$serialized_settings = [
+				'attachment_basedirectories',
+				'attachmentUploadDir',
+				'cal_today_birthday',
+				'cal_today_event',
+				'cal_today_holiday',
+				'displayFields',
+				'last_attachments_directory',
+				'memberlist_cache',
+				'search_custom_index_config',
+				'spider_name_cache',
+			];
 
-				// Loop through and fix these...
-				$new_settings = [];
+			// Loop through and fix these...
+			$new_settings = [];
 
-				if ($command_line) {
-					echo "\n" . 'Fixing some settings...';
+			if ($command_line) {
+				echo "\n" . 'Fixing some settings...';
+			}
+
+			foreach ($serialized_settings as $var) {
+				if (isset(Config::$modSettings[$var])) {
+					// Attempt to unserialize the setting
+					$temp = upgrade_unserialize(Config::$modSettings[$var]);
+
+					if (!$temp && $command_line) {
+						echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
+					} elseif ($temp !== false) {
+						$new_settings[$var] = json_encode($temp);
+					}
 				}
+			}
 
-				foreach ($serialized_settings as $var) {
-					if (isset(Config::$modSettings[$var])) {
-						// Attempt to unserialize the setting
-						$temp = upgrade_unserialize(Config::$modSettings[$var]);
+			// Update everything at once
+			Config::updateModSettings($new_settings, true);
 
-						if (!$temp && $command_line) {
-							echo "\n - Failed to unserialize the '" . $var . "' setting. Skipping.";
-						} elseif ($temp !== false) {
-							$new_settings[$var] = json_encode($temp);
+			if ($command_line) {
+				echo ' done.';
+			}
+		} elseif ($table == 'themes') {
+			// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
+			$query = Db::$db->query(
+				'',
+				'SELECT id_member, id_theme, value FROM {db_prefix}themes
+				WHERE variable = {string:admin_prefs}',
+				[
+					'admin_prefs' => 'admin_preferences',
+				],
+			);
+
+			if (Db::$db->num_rows($query) != 0) {
+				while ($row = Db::$db->fetch_assoc($query)) {
+					$temp = upgrade_unserialize($row['value']);
+
+					if ($command_line) {
+						if ($temp === false) {
+							echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
+						} else {
+							echo "\n" . 'Fixing admin preferences...';
+						}
+					}
+
+					if ($temp !== false) {
+						$row['value'] = json_encode($temp);
+
+						// Even though we have all values from the table, UPDATE is still faster than REPLACE
+						Db::$db->query(
+							'',
+							'UPDATE {db_prefix}themes
+							SET value = {string:prefs}
+							WHERE id_theme = {int:theme}
+								AND id_member = {int:member}
+								AND variable = {string:admin_prefs}',
+							[
+								'prefs' => $row['value'],
+								'theme' => $row['id_theme'],
+								'member' => $row['id_member'],
+								'admin_prefs' => 'admin_preferences',
+							],
+						);
+
+						if ($command_line) {
+							echo ' done.';
 						}
 					}
 				}
 
-				// Update everything at once
-				Config::updateModSettings($new_settings, true);
+				Db::$db->free_result($query);
+			}
+		} else {
+			// First item is always the key...
+			$key = $info[0];
+			unset($info[0]);
+
+			// Now we know what columns we have and such...
+			if (count($info) == 2 && $info[2] === true) {
+				$col_select = $info[1];
+				$where = ' WHERE ' . $info[1] . ' != {empty}';
+			} else {
+				$col_select = implode(', ', $info);
+			}
+
+			$query = Db::$db->query(
+				'',
+				'SELECT ' . $key . ', ' . $col_select . '
+				FROM {db_prefix}' . $table . $where,
+				[],
+			);
+
+			if (Db::$db->num_rows($query) != 0) {
+				if ($command_line) {
+					echo "\n" . ' +++ Fixing the "' . $table . '" table...';
+					flush();
+				}
+
+				while ($row = Db::$db->fetch_assoc($query)) {
+					$update = '';
+
+					// We already know what our key is...
+					foreach ($info as $col) {
+						if ($col !== true && $row[$col] != '') {
+							$temp = upgrade_unserialize($row[$col]);
+
+							// Oh well...
+							if ($temp === false) {
+								$temp = [];
+
+								if ($command_line) {
+									echo "\nFailed to unserialize " . $row[$col] . ". Setting to empty value.\n";
+								}
+							}
+
+							$row[$col] = json_encode($temp);
+
+							// Build our SET string and variables array
+							$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
+							$vars[$col] = $row[$col];
+						}
+					}
+
+					$vars[$key] = $row[$key];
+
+					// In a few cases, we might have empty data, so don't try to update in those situations...
+					if (!empty($update)) {
+						Db::$db->query(
+							'',
+							'UPDATE {db_prefix}' . $table . '
+							SET ' . $update . '
+							WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
+							$vars,
+						);
+					}
+				}
 
 				if ($command_line) {
 					echo ' done.';
 				}
-			} elseif ($table == 'themes') {
-				// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
-				$query = Db::$db->query(
-					'',
-					'SELECT id_member, id_theme, value FROM {db_prefix}themes
-					WHERE variable = {string:admin_prefs}',
-					[
-						'admin_prefs' => 'admin_preferences',
-					],
-				);
 
-				if (Db::$db->num_rows($query) != 0) {
-					while ($row = Db::$db->fetch_assoc($query)) {
-						$temp = upgrade_unserialize($row['value']);
-
-						if ($command_line) {
-							if ($temp === false) {
-								echo "\n" . 'Unserialize of admin_preferences for user ' . $row['id_member'] . ' failed. Skipping.';
-							} else {
-								echo "\n" . 'Fixing admin preferences...';
-							}
-						}
-
-						if ($temp !== false) {
-							$row['value'] = json_encode($temp);
-
-							// Even though we have all values from the table, UPDATE is still faster than REPLACE
-							Db::$db->query(
-								'',
-								'UPDATE {db_prefix}themes
-								SET value = {string:prefs}
-								WHERE id_theme = {int:theme}
-									AND id_member = {int:member}
-									AND variable = {string:admin_prefs}',
-								[
-									'prefs' => $row['value'],
-									'theme' => $row['id_theme'],
-									'member' => $row['id_member'],
-									'admin_prefs' => 'admin_preferences',
-								],
-							);
-
-							if ($command_line) {
-								echo ' done.';
-							}
-						}
-					}
-
-					Db::$db->free_result($query);
-				}
-			} else {
-				// First item is always the key...
-				$key = $info[0];
-				unset($info[0]);
-
-				// Now we know what columns we have and such...
-				if (count($info) == 2 && $info[2] === true) {
-					$col_select = $info[1];
-					$where = ' WHERE ' . $info[1] . ' != {empty}';
-				} else {
-					$col_select = implode(', ', $info);
-				}
-
-				$query = Db::$db->query(
-					'',
-					'SELECT ' . $key . ', ' . $col_select . '
-					FROM {db_prefix}' . $table . $where,
-					[],
-				);
-
-				if (Db::$db->num_rows($query) != 0) {
-					if ($command_line) {
-						echo "\n" . ' +++ Fixing the "' . $table . '" table...';
-						flush();
-					}
-
-					while ($row = Db::$db->fetch_assoc($query)) {
-						$update = '';
-
-						// We already know what our key is...
-						foreach ($info as $col) {
-							if ($col !== true && $row[$col] != '') {
-								$temp = upgrade_unserialize($row[$col]);
-
-								// Oh well...
-								if ($temp === false) {
-									$temp = [];
-
-									if ($command_line) {
-										echo "\nFailed to unserialize " . $row[$col] . ". Setting to empty value.\n";
-									}
-								}
-
-								$row[$col] = json_encode($temp);
-
-								// Build our SET string and variables array
-								$update .= (empty($update) ? '' : ', ') . $col . ' = {string:' . $col . '}';
-								$vars[$col] = $row[$col];
-							}
-						}
-
-						$vars[$key] = $row[$key];
-
-						// In a few cases, we might have empty data, so don't try to update in those situations...
-						if (!empty($update)) {
-							Db::$db->query(
-								'',
-								'UPDATE {db_prefix}' . $table . '
-								SET ' . $update . '
-								WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
-								$vars,
-							);
-						}
-					}
-
-					if ($command_line) {
-						echo ' done.';
-					}
-
-					// Free up some memory...
-					Db::$db->free_result($query);
-				}
-			}
-
-			// If this is XML to keep it nice for the user do one table at a time anyway!
-			if (isset($_GET['xml'])) {
-				return upgradeExit();
+				// Free up some memory...
+				Db::$db->free_result($query);
 			}
 		}
 
-		if ($command_line) {
-			echo "\n" . 'Successful.' . "\n";
-			flush();
+		// If this is XML to keep it nice for the user do one table at a time anyway!
+		if (isset($_GET['xml'])) {
+			return upgradeExit();
 		}
-		$upcontext['step_progress'] = 100;
+	}
 
-		// Last but not least, insert a dummy setting so we don't have to do this again in the future...
-		Config::updateModSettings(['json_done' => true]);
+	if ($command_line) {
+		echo "\n" . 'Successful.' . "\n";
+		flush();
+	}
+	$upcontext['step_progress'] = 100;
 
-		$_GET['substep'] = 0;
+	// Last but not least, insert a dummy setting so we don't have to do this again in the future...
+	Config::updateModSettings(['json_done' => true]);
 
-		// Make sure we move on!
-		if ($command_line) {
-			return ConvertUtf8();
-		}
+	$_GET['substep'] = 0;
 
+	// Make sure we move on!
+	if ($command_line) {
+		return ConvertUtf8();
+	}
+
+	return true;
+}
+
+function Cleanup()
+{
+	global $command_line, $upcontext, $support_js;
+
+	$upcontext['sub_template'] = isset($_GET['xml']) ? 'cleanup_xml' : 'cleanup';
+	$upcontext['page_title'] = Lang::$txt['upgrade_step_cleanup'];
+
+	// Done it already - js wise?
+	if (!empty($_POST['cleanup_done'])) {
 		return true;
 	}
 
-	// If this fails we just move on to deleting the upgrade anyway...
-	$_GET['substep'] = 0;
+	$cleanupSteps = [
+		0 => 'CleanupLanguages',
+		1 => 'CleanupAgreements',
+	];
 
-	return false;
+	$upcontext['steps_count'] = count($cleanupSteps);
+	$upcontext['cur_substep_num'] = ((int) $_GET['substep']) ?? 0;
+	$upcontext['cur_substep'] = $cleanupSteps[$upcontext['cur_substep_num']] ?? $cleanupSteps[0];
+	$upcontext['cur_substep_name'] = Lang::$txt['upgrade_step_cleanup_' . $upcontext['cur_substep']] ?? Lang::$txt['upgrade_step_cleanup'];
+	$upcontext['step_progress'] = (int) (($upcontext['cur_substep_num'] / $upcontext['steps_count']) * 100);
+
+	foreach ($cleanupSteps as $id => $substep) {
+		if ($id < $_GET['substep']) {
+			$upcontext['previous_substeps'][] = $substep;
+		}
+	}
+
+	if ($command_line) {
+		echo 'Cleaning up.';
+	}
+
+	// Dubstep.
+	for ($substep = $upcontext['cur_substep_num']; $substep < $upcontext['steps_count']; $substep++) {
+		$upcontext['step_progress'] = (int) (($substep / $upcontext['steps_count']) * 100);
+		$upcontext['cur_substep_name'] = Lang::$txt['upgrade_step_cleanup_' . $cleanupSteps[$substep]] ?? Lang::$txt['upgrade_step_cleanup'];
+		$upcontext['cur_substep_num'] = $substep + 1;
+
+		if ($command_line) {
+			echo "\n" . ' +++ Clean up "' . $upcontext['cur_substep_name'] . '"...';
+		}
+
+		// Timeouts
+		nextSubstep($substep);
+
+		if ($command_line) {
+			echo ' done.';
+		}
+
+		// Just to make sure it doesn't time out.
+		if (function_exists('apache_reset_timeout')) {
+			@apache_reset_timeout();
+		}
+
+		// Do the cleanup stuff.
+		$cleanupSteps[$substep]();
+
+		// If this is XML to keep it nice for the user do one cleanup at a time anyway!
+		if (isset($_GET['xml'])) {
+			return upgradeExit();
+		}
+	}
+
+	if ($command_line) {
+		echo "\n" . 'Successful.' . "\n";
+		flush();
+	}
+
+	$upcontext['step_progress'] = 100;
+	$_GET['substep'] = 0;
+	$_POST['cleanup_done'] = true;
+
+	return true;
+}
+
+function CleanupLanguages()
+{
+	global $upcontext, $upgrade_path, $command_line;
+
+	$old_languages_dir = isset(Config::$modSettings['theme_dir']) ? Config::$modSettings['theme_dir'] . '/languages' : $upgrade_path . '/Themes/default/languages';
+
+	// Can't do this if the old Themes/default/languages directory is not writable.
+	if (!quickFileWritable($old_languages_dir)) {
+		return;
+	}
+
+	$dir = dir($old_languages_dir);
+
+	while ($entry = $dir->read()) {
+		if (in_array($entry, ['.', '..', 'index.php'])) {
+			continue;
+		}
+
+		// Skip ThemeStrings
+		if (str_starts_with($entry, 'ThemeStrings.')) {
+			continue;
+		}
+
+		// Rename Settings to ThemeStrings.
+		if (str_starts_with($entry, 'Settings.') && str_ends_with($entry, '.php') && !str_contains($entry, '-utf8')) {
+			quickFileWritable($old_languages_dir . '/' . $entry);
+			rename($old_languages_dir . '/' . $entry, $old_languages_dir . '/' . str_replace('Settings.', 'ThemeStrings.', $entry));
+		} else {
+			deleteFile($old_languages_dir . '/' . $entry);
+		}
+	}
+	$dir->close();
+}
+
+function CleanupAgreements()
+{
+	global $upcontext, $upgrade_path, $command_line;
+
+	// Can't do this if the old Themes/default/languages directory is not writable.
+	if(!quickFileWritable(Config::$boarddir)) {
+		return;
+	}
+
+	$dir = dir(Config::$boarddir);
+
+	while ($entry = $dir->read()) {
+		if (in_array($entry, ['.', '..', 'index.php'])) {
+			continue;
+		}
+
+		// Skip anything not agreements.
+		if (!str_starts_with($entry, 'agreements.') || !str_ends_with($entry, '.txt')) {
+			continue;
+		}
+
+		rename(Config::$boarddir . '/' . $entry, Config::$languagesdir . '/' . $entry);
+	}
+	$dir->close();
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -4098,7 +4391,7 @@ function template_upgrade_above()
 					<h2>', Lang::$txt['upgrade_progress'], '</h2>
 					<ul class="steps_list">';
 
-	foreach ($upcontext['steps'] as $num => $step) {
+	foreach ((array) $upcontext['steps'] as $num => $step) {
 		echo '
 						<li', $num == $upcontext['current_step'] ? ' class="stepcurrent"' : '', '>
 							', Lang::$txt['upgrade_step'], ' ', $step[0], ': ', Lang::$txt[$step[1]], '
@@ -4234,7 +4527,7 @@ function template_xml_above()
 	<smf>';
 
 	if (!empty($upcontext['get_data'])) {
-		foreach ($upcontext['get_data'] as $k => $v) {
+		foreach ((array) $upcontext['get_data'] as $k => $v) {
 			echo '
 		<get key="', $k, '">', $v, '</get>';
 		}
@@ -4266,13 +4559,13 @@ function template_welcome_message()
 	echo '
 				<script src="https://www.simplemachines.org/smf/current-version.js?version=' . SMF_VERSION . '"></script>
 
-				<h3>', sprintf(Lang::$txt['upgrade_ready_proceed'], SMF_VERSION), '</h3>
+				<h3>', Lang::getTxt('upgrade_ready_proceed', ['SMF_VERSION' => SMF_VERSION]), '</h3>
 				<form action="', $upcontext['form_url'], '" method="post" name="upform" id="upform">
 					<input type="hidden" name="', $upcontext['login_token_var'], '" value="', $upcontext['login_token'], '">
 
 					<div id="version_warning" class="noticebox hidden">
 						<h3>', Lang::$txt['upgrade_warning'], '</h3>
-						', sprintf(Lang::$txt['upgrade_warning_out_of_date'], SMF_VERSION, 'https://www.simplemachines.org'), '
+						', Lang::getTxt('upgrade_warning_out_of_date', ['SMF_VERSION' => SMF_VERSION, 'url' => 'https://www.simplemachines.org']), '
 					</div>';
 
 	$upcontext['chmod_in_form'] = true;
@@ -4300,7 +4593,7 @@ function template_welcome_message()
 	echo '
 					<div class="errorbox', (file_exists($settings['default_theme_dir'] . '/scripts/script.js') ? ' hidden' : ''), '" id="js_script_missing_error">
 						<h3>', Lang::$txt['upgrade_critical_error'], '</h3>
-						', sprintf(Lang::$txt['upgrade_error_script_js'], 'https://download.simplemachines.org/?tools'), '
+						', Lang::getTxt('upgrade_error_script_js', ['url' => 'https://download.simplemachines.org/?tools']), '
 					</div>';
 
 	// Is there someone already doing this?
@@ -4320,9 +4613,9 @@ function template_welcome_message()
 		echo '
 					<div class="errorbox">
 						<h3>', Lang::$txt['upgrade_warning'], '</h3>
-						<p>', sprintf(Lang::$txt['upgrade_time_user'], $upcontext['user']['name']), '</p>
-						<p>', sprintf(Lang::$txt[$agoTxt], $ago_seconds, $ago_minutes, $ago_hours), '</p>
-						<p>', sprintf(Lang::$txt[$updatedTxt], $updated_seconds, $updated_minutes, $updated_hours), '</p>';
+						<p>', Lang::getTxt('upgrade_time_user', $upcontext['user']), '</p>
+						<p>', Lang::getTxt($agoTxt, ['s' => $ago_seconds, 'm' => $ago_minutes, 'h' => $ago_hours]), '</p>
+						<p>', Lang::getTxt($updatedTxt, ['s' => $updated_seconds, 'm' => $updated_minutes, 'h' => $updated_hours]), '</p>';
 
 		if ($updated < 600) {
 			echo '
@@ -4334,10 +4627,10 @@ function template_welcome_message()
 						<p>', Lang::$txt['upgrade_run'], '</p>';
 		} elseif ($upcontext['inactive_timeout'] > 120) {
 			echo '
-						<p>', sprintf(Lang::$txt['upgrade_script_timeout_minutes'], $upcontext['user']['name'], round($upcontext['inactive_timeout'] / 60, 1)), '</p>';
+						<p>', Lang::getTxt('upgrade_script_timeout_minutes', ['name' => $upcontext['user']['name'], 'timeout' => round($upcontext['inactive_timeout'] / 60, 1)]), '</p>';
 		} else {
 			echo '
-						<p>', sprintf(Lang::$txt['upgrade_script_timeout_seconds'], $upcontext['user']['name'], $upcontext['inactive_timeout']), '</p>';
+						<p>', Lang::getTxt('upgrade_script_timeout_seconds', ['name' => $upcontext['user']['name'], 'timeout' => $upcontext['inactive_timeout']]), '</p>';
 		}
 
 		echo '
@@ -4495,7 +4788,7 @@ function template_upgrade_options()
 						<input type="checkbox" name="stats" id="stats" value="1"', empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats']) ? '' : ' checked="checked"', '>
 						<label for="stat">
 							', Lang::$txt['upgrade_stats_collection'], '<br>
-							<span class="smalltext">', sprintf(Lang::$txt['upgrade_stats_info'], 'https://www.simplemachines.org/about/stats.php'), '</a></span>
+							<span class="smalltext">', Lang::getTxt('upgrade_stats_info', ['url' => 'https://www.simplemachines.org/about/stats.php']), '</a></span>
 						</label>
 					</li>
 					<li>
@@ -4522,14 +4815,14 @@ function template_backup_database()
 	echo '
 				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
 					<input type="hidden" name="backup_done" id="backup_done" value="0">
-					<strong>', sprintf(Lang::$txt['upgrade_completedtables_outof'], $upcontext['cur_table_num'], $upcontext['table_count']), '</strong>
+					<strong>', Lang::getTxt('upgrade_completedtables_outof', $upcontext), '</strong>
 					<div id="debug_section">
 						<span id="debuginfo"></span>
 					</div>';
 
-	// Dont any tables so far?
+	// Don't any tables so far?
 	if (!empty($upcontext['previous_tables'])) {
-		foreach ($upcontext['previous_tables'] as $table) {
+		foreach ((array) $upcontext['previous_tables'] as $table) {
 			echo '
 					<br>', Lang::$txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 		}
@@ -4624,7 +4917,7 @@ function template_database_changes()
 
 	// No javascript looks rubbish!
 	if (!$support_js) {
-		foreach ($upcontext['actioned_items'] as $num => $item) {
+		foreach ((array) $upcontext['actioned_items'] as $num => $item) {
 			if ($num != 0) {
 				echo ' Successful!';
 			}
@@ -4639,7 +4932,7 @@ function template_database_changes()
 				$minutes = intval(($active / 60) % 60);
 				$seconds = intval($active % 60);
 
-				echo '', sprintf(Lang::$txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '<br>';
+				echo '', Lang::getTxt('upgrade_success_time_db', ['s' => $seconds, 'm' => $minutes, 'h' => $hours]), '<br>';
 			} else {
 				echo '', Lang::$txt['upgrade_success'], '<br>';
 			}
@@ -4669,7 +4962,7 @@ function template_database_changes()
 				$seconds = intval($active % 60);
 
 				echo '
-					<p id="upgradeCompleted">', sprintf(Lang::$txt['upgrade_success_time_db'], $seconds, $minutes, $hours), '</p>';
+					<p id="upgradeCompleted">', Lang::getTxt('upgrade_success_time_db', ['s' => $seconds, 'm' => $minutes, 'm' => $hours]), '</p>';
 			} else {
 				echo '
 					<p id="upgradeCompleted"></p>';
@@ -4961,7 +5254,7 @@ console.log(completedTxt, upgradeFinishedTime, diffTime, diffHours, diffMinutes,
 							if (!attemptAgain)
 							{
 								document.getElementById("error_block").classList.remove("hidden");
-								setInnerHTML(document.getElementById("error_message"), "', sprintf(Lang::$txt['upgrade_respondtime'], ($timeLimitThreshold * 10)), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', Lang::$txt['upgrade_respondtime_clickhere'], '</a>");
+								setInnerHTML(document.getElementById("error_message"), "', Lang::getTxt('upgrade_respondtime', [$timeLimitThreshold * 10]), '" + "<a href=\"#\" onclick=\"retTimeout(true); return false;\">', Lang::$txt['upgrade_respondtime_clickhere'], '</a>");
 							}
 							else
 							{
@@ -5024,7 +5317,7 @@ function template_convert_utf8()
 
 	// Done any tables so far?
 	if (!empty($upcontext['previous_tables'])) {
-		foreach ($upcontext['previous_tables'] as $table) {
+		foreach ((array) $upcontext['previous_tables'] as $table) {
 			echo '
 					<br>', Lang::$txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 		}
@@ -5126,9 +5419,9 @@ function template_serialize_json()
 						<span id="debuginfo"></span>
 					</div>';
 
-	// Dont any tables so far?
+	// Don't any tables so far?
 	if (!empty($upcontext['previous_tables'])) {
-		foreach ($upcontext['previous_tables'] as $table) {
+		foreach ((array) $upcontext['previous_tables'] as $table) {
 			echo '
 					<br>', Lang::$txt['upgrade_completed_table'], ' &quot;', $table, '&quot;.';
 		}
@@ -5210,12 +5503,104 @@ function template_serialize_json_xml()
 	<table num="', $upcontext['cur_table_num'], '">', $upcontext['cur_table_name'], '</table>';
 }
 
+function template_cleanup()
+{
+	global $upcontext, $support_js, $is_debug;
+
+	echo '
+				<h3>', Lang::$txt['upgrade_step_cleanup'], '</h3>
+				<form action="', $upcontext['form_url'], '" name="upform" id="upform" method="post">
+					<input type="hidden" name="cleanup_done" id="cleanup_done" value="0">
+					<strong>', Lang::$txt['upgrade_completed'], ' <span id="tab_done">', $upcontext['cur_substep_num'], '</span> ', Lang::$txt['upgrade_outof'], ' ', $upcontext['steps_count'], ' ', Lang::$txt['upgrade_steps'], '</strong>
+					<div id="debug_section">
+						<span id="debuginfo"></span>
+					</div>';
+
+	// Dont any tables so far?
+	if (!empty($upcontext['previous_substeps'])) {
+		foreach ((array) $upcontext['previous_substeps'] as $substep) {
+			echo '
+					<br>', Lang::$txt['completed_cleanup_step'], ' &quot;', $substep, '&quot;.';
+		}
+	}
+
+	echo '
+					<h3 id="current_tab">
+						', Lang::$txt['upgrade_current_step'], ' &quot;<span id="current_step_name">', $upcontext['cur_substep_name'], '</span>&quot;
+					</h3>
+					<p id="commess" class="', $upcontext['cur_substep_num'] == $upcontext['steps_count'] ? 'inline_block' : 'hidden', '">', Lang::$txt['upgrade_cleanup_completed'], '</p>';
+
+	// Continue please!
+	$upcontext['continue'] = $support_js ? 2 : 1;
+
+	// If javascript allows we want to do this using XML.
+	if ($support_js) {
+		echo '
+					<script>
+						let lastSubStep = ', $upcontext['cur_substep_num'], ';
+						function getNextCleanup()
+						{
+							getXMLDocument(\'', $upcontext['form_url'], '&xml&substep=\' + lastSubStep, onCleanupUpdate);
+						}
+
+						// Got an update!
+						function onCleanupUpdate(oXMLDoc)
+						{
+							let sCurrentStepName = "";
+							let iStepNum = 0;
+							let sCompletedStepName = getInnerHTML(document.getElementById(\'current_step_name\'));
+							for (var i = 0; i < oXMLDoc.getElementsByTagName("step")[0].childNodes.length; i++)
+								sCurrentStepName += oXMLDoc.getElementsByTagName("step")[0].childNodes[i].nodeValue;
+							iStepNum = oXMLDoc.getElementsByTagName("step")[0].getAttribute("num");
+
+							// Update the page.
+							setInnerHTML(document.getElementById(\'tab_done\'), iStepNum);
+							setInnerHTML(document.getElementById(\'current_step_name\'), sCurrentStepName);
+							lastSubStep = iStepNum;
+							updateStepProgress(iStepNum, ', $upcontext['steps_count'], ', ', $upcontext['step_weight'] * ((100 - $upcontext['step_progress']) / 100), ');';
+
+		// If debug flood the screen.
+		if ($is_debug) {
+			echo '
+							setOuterHTML(document.getElementById(\'debuginfo\'), \'<br>', Lang::$txt['completed_cleanup_step'], ' &quot;\' + sCompletedStepName + \'&quot;.<span id="debuginfo"><\' + \'/span>\');
+
+							if (document.getElementById(\'debug_section\').scrollHeight)
+								document.getElementById(\'debug_section\').scrollTop = document.getElementById(\'debug_section\').scrollHeight';
+		}
+
+		echo '
+							// Get the next update...
+							if (iStepNum == ', $upcontext['steps_count'], ')
+							{
+								document.getElementById(\'commess\').classList.remove("hidden");
+								document.getElementById(\'current_tab\').classList.add("hidden");
+								document.getElementById(\'contbutt\').disabled = 0;
+								document.getElementById(\'cleanup_done\').value = 1;
+							}
+							else
+								getNextCleanup();
+						}
+						getNextCleanup();
+					//# sourceURL=dynamicScript-json.js
+					</script>';
+	}
+}
+
+function template_cleanup_xml()
+{
+	global $upcontext;
+
+	echo '
+	<step num="', $upcontext['cur_substep_num'], '">', $upcontext['cur_substep_name'], '</step>';
+}
+
+
 function template_upgrade_complete()
 {
 	global $upcontext, $upgradeurl, $settings, $is_debug;
 
 	echo '
-				<h3>', sprintf(Lang::$txt['upgrade_done'], Config::$boardurl), '</h3>
+				<h3>', Lang::getTxt('upgrade_done', ['boardurl' => Config::$boardurl]), '</h3>
 				<form action="', Config::$boardurl, '/index.php">';
 
 	if (!empty($upcontext['can_delete_script'])) {
@@ -5243,17 +5628,19 @@ function template_upgrade_complete()
 		$seconds = intval((int) $active % 60);
 
 		if ($hours > 0) {
-			echo '', sprintf(Lang::$txt['upgrade_completed_time_hms'], $seconds, $minutes, $hours), '';
+			$upgrade_completed_time = 'upgrade_completed_time_hms';
 		} elseif ($minutes > 0) {
-			echo '', sprintf(Lang::$txt['upgrade_completed_time_ms'], $seconds, $minutes), '';
-		} elseif ($seconds > 0) {
-			echo '', sprintf(Lang::$txt['upgrade_completed_time_s'], $seconds), '';
+			$upgrade_completed_time = 'upgrade_completed_time_ms';
+		} else {
+			$upgrade_completed_time = 'upgrade_completed_time_s';
 		}
+
+		echo Lang::getTxt($upgrade_completed_time, ['s' => $seconds, 'm' => $minutes, 'h' => $hours]);
 	}
 
 	echo '
 					<p>
-						', sprintf(Lang::$txt['upgrade_problems'], 'https://www.simplemachines.org'), '
+						', Lang::getTxt('upgrade_problems', ['url' => 'https://www.simplemachines.org']), '
 						<br>
 						', Lang::$txt['upgrade_luck'], '<br>
 						Simple Machines
@@ -5270,9 +5657,8 @@ function template_upgrade_complete()
  * @param string $newCol The new column to put data in
  * @param int $limit The amount of entries to handle at once.
  * @param int $setSize The amount of entries after which to update the database.
- * @return bool
  */
-function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setSize = 100)
+function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setSize = 100): void
 {
 	global $step_progress;
 
@@ -5399,7 +5785,6 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 	$step_progress = [];
 	unset($_GET['a'], $_GET['total_fixes']);
-
 }
 
 /**
@@ -5410,7 +5795,7 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
  *
  * @return array Info on the table.
  */
-function upgradeGetColumnInfo($targetTable, $column)
+function upgradeGetColumnInfo($targetTable, $column): array
 {
 	$columns = Db::$db->list_columns($targetTable, true);
 
@@ -5418,7 +5803,7 @@ function upgradeGetColumnInfo($targetTable, $column)
 		return $columns[$column];
 	}
 
-
+	return [];
 }
 
 ?>

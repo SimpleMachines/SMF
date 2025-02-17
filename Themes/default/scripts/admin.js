@@ -46,7 +46,7 @@ smf_AdminIndex.prototype.loadAdminIndex = function ()
 	if (this.opt.bLoadVersions)
 		this.showCurrentVersion();
 
-	// Load the text box that sais there's a new version available.
+	// Load the text box that says there's a new version available.
 	if (this.opt.bLoadUpdateNotification)
 		this.checkUpdateAvailable();
 }
@@ -507,7 +507,7 @@ function updatePreview(filename, filepath)
 		relative_url = "/" + filepath + "/" + filename;
 
 	// Make sure no sneaky people are trying to be sneaky
-	var regex = new RegExp("^/(" + smf_smiley_sets.split(",").join("|") + ")/[^.]+\.(gif|png|jpg|jpeg|tiff|svg)$");
+	var regex = new RegExp("^/(" + smf_smiley_sets.split(",").join("|") + ")/[^.]+\.(gif|png|jpg|jpeg|tiff|svg|webp)$");
 	var is_valid = relative_url.match(regex);
 
 	if (is_valid !== null)

@@ -5,17 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\Actions\Admin\News;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -24,7 +27,11 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Parser;
 use SMF\Profile;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -32,23 +39,11 @@ use SMF\Utils;
 /**
  * Handles XML-based interaction (mainly XMLhttp)
  */
-class XmlHttp implements ActionInterface
+class XmlHttp implements ActionInterface, Routable
 {
+	use ActionRouter;
+	use ActionTrait;
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'XMLhttpMain',
-			'GetJumpTo' => 'GetJumpTo',
-			'ListMessageIcons' => 'ListMessageIcons',
-			'RetrievePreview' => 'RetrievePreview',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -77,27 +72,37 @@ class XmlHttp implements ActionInterface
 		'previews' => 'previews',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return true;
+	}
 
 	/**
 	 * The main handler and designator for AJAX stuff - jumpto, message icons and previews
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('Xml');
+
 		if (!isset($this->subaction)) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
@@ -112,7 +117,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Get a list of boards and categories used for the jumpto dropdown.
 	 */
-	public function jumpTo()
+	public function jumpTo(): void
 	{
 		// Find the boards/categories they can see.
 		$boardListOptions = [
@@ -136,7 +141,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Gets a list of available message icons and sends the info to the template for display
 	 */
-	public function messageIcons()
+	public function messageIcons(): void
 	{
 		Utils::$context['icons'] = Editor::getMessageIcons(Board::$info->id);
 		Utils::$context['sub_template'] = 'message_icons';
@@ -148,7 +153,7 @@ class XmlHttp implements ActionInterface
 	 *
 	 * @return void|bool Returns false if $_POST['item'] isn't set or isn't valid
 	 */
-	public function previews()
+	public function previews(): ?bool
 	{
 		$items = [
 			'newspreview',
@@ -164,12 +169,14 @@ class XmlHttp implements ActionInterface
 		}
 
 		call_user_func([$this, $_POST['item']]);
+
+		return null;
 	}
 
 	/**
 	 * Handles previewing news items
 	 */
-	public function newspreview()
+	public function newspreview(): void
 	{
 		$errors = [];
 
@@ -178,7 +185,7 @@ class XmlHttp implements ActionInterface
 		if (empty($news)) {
 			$errors[] = ['value' => 'no_news'];
 		} else {
-			Msg::preparsecode($news);
+			Msg::preparsecode($news, false, !empty(Config::$modSettings['autoLinkUrls']));
 		}
 
 		Utils::$context['xml_data'] = [
@@ -186,7 +193,7 @@ class XmlHttp implements ActionInterface
 				'identifier' => 'parsedNews',
 				'children' => [
 					[
-						'value' => BBCodeParser::load()->parse($news),
+						'value' => Utils::adjustHeadingLevels(Parser::transform($news), null),
 					],
 				],
 			],
@@ -200,7 +207,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Handles previewing newsletters
 	 */
-	public function newsletterpreview()
+	public function newsletterpreview(): void
 	{
 		Lang::load('Errors');
 
@@ -224,7 +231,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Handles previewing signatures
 	 */
-	public function sig_preview()
+	public function sig_preview(): void
 	{
 		require_once Config::$sourcedir . '/Profile-Modify.php';
 
@@ -256,9 +263,21 @@ class XmlHttp implements ActionInterface
 
 			Lang::censorText($current_signature);
 
-			$allowedTags = BBCodeParser::getSigTags();
+			$allowedTags = Parser::getSigTags();
 
-			$current_signature = !empty($current_signature) ? BBCodeParser::load()->parse($current_signature, true, 'sig' . $user, $allowedTags) : Lang::$txt['no_signature_set'];
+			if (empty($current_signature)) {
+				$current_signature = Lang::$txt['no_signature_set'];
+			} else {
+				$current_signature = Parser::transform(
+					string: $current_signature,
+					options: [
+						'cache_id' => 'sig' . $user,
+						'parse_tags' => $allowedTags,
+					],
+				);
+
+				$current_signature = Utils::adjustHeadingLevels($current_signature, null);
+			}
 
 			$preview_signature = !empty($_POST['signature']) ? Utils::htmlspecialchars($_POST['signature']) : Lang::$txt['no_signature_preview'];
 
@@ -270,7 +289,15 @@ class XmlHttp implements ActionInterface
 
 			Lang::censorText($preview_signature);
 
-			$preview_signature = BBCodeParser::load()->parse($preview_signature, true, 'sig' . $user, $allowedTags);
+			$preview_signature = Parser::transform(
+				string: $preview_signature,
+				options: [
+					'cache_id' => 'sig' . $user,
+					'parse_tags' => $allowedTags,
+				],
+			);
+
+			$preview_signature = Utils::adjustHeadingLevels($preview_signature, null);
 		} elseif (!$can_change) {
 			if ($is_owner) {
 				$errors[] = ['value' => Lang::$txt['cannot_profile_extra_own'], 'attributes' => ['type' => 'error']];
@@ -319,7 +346,7 @@ class XmlHttp implements ActionInterface
 	/**
 	 * Handles previewing user warnings
 	 */
-	public function warning_preview()
+	public function warning_preview(): void
 	{
 		Lang::load('Errors');
 		Lang::load('ModerationCenter');
@@ -364,16 +391,17 @@ class XmlHttp implements ActionInterface
 					User::$me->name,
 					Config::$mbname,
 					Config::$scripturl,
-					sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
+					Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
 				];
 
 				$warning_body = str_replace($find, $replace, $warning_body);
 			}
 
 			if (!empty($_POST['body'])) {
-				Msg::preparsecode($warning_body);
+				Msg::preparsecode($warning_body, false, !empty(Config::$modSettings['autoLinkUrls']));
 
-				$warning_body = BBCodeParser::load()->parse($warning_body);
+				$warning_body = Parser::transform($warning_body);
+				$warning_body = Utils::adjustHeadingLevels($warning_body, null);
 			}
 
 			Utils::$context['preview_message'] = $warning_body;
@@ -382,62 +410,6 @@ class XmlHttp implements ActionInterface
 		}
 
 		Utils::$context['sub_template'] = 'warning';
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the jumpto sub-action.
-	 */
-	public static function GetJumpTo(): void
-	{
-		self::load();
-		self::$obj->subaction = 'jumpto';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the messageicons sub-action.
-	 */
-	public static function ListMessageIcons(): void
-	{
-		self::load();
-		self::$obj->subaction = 'messageicons';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the previews sub-action.
-	 */
-	public static function RetrievePreview(): void
-	{
-		self::load();
-		self::$obj->subaction = 'previews';
-		self::$obj->execute();
 	}
 
 	/******************
@@ -449,8 +421,6 @@ class XmlHttp implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Theme::loadTemplate('Xml');
-
 		// Easy adding of sub actions.
 		IntegrationHook::call('integrate_XMLhttpMain_subActions', [&self::$subactions]);
 
@@ -458,11 +428,6 @@ class XmlHttp implements ActionInterface
 			$this->subaction = $_REQUEST['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\XmlHttp::exportStatic')) {
-	XmlHttp::exportStatic();
 }
 
 ?>

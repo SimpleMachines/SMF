@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -18,19 +20,7 @@ namespace SMF;
  */
 class ItemList implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'load' => 'createList',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -119,7 +109,7 @@ class ItemList implements \ArrayAccess
 	 *
 	 * The page index for navigating this list.
 	 */
-	public string $page_index;
+	public PageIndex $page_index;
 
 	/**
 	 * @var array
@@ -233,9 +223,9 @@ class ItemList implements \ArrayAccess
 	 * Static wrapper for constructor.
 	 *
 	 * @param array $options Same as for the constructor.
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(array $options): object
+	public static function load(array $options): self
 	{
 		return new self($options);
 	}
@@ -261,7 +251,8 @@ class ItemList implements \ArrayAccess
 			$have_what_we_need &= empty($options['items_per_page']) || (isset($options['get_count']['function'], $options['base_href']) && is_numeric($options['items_per_page']));
 		}
 
-		return $have_what_we_need;
+		// @TODO: The var becomes an int because of &= usage.
+		return (bool) $have_what_we_need;
 	}
 
 	/**
@@ -317,7 +308,7 @@ class ItemList implements \ArrayAccess
 		} else {
 			$this->sort = [
 				'id' => $this->options['default_sort_col'],
-				'desc' => (!empty($this->options['default_sort_dir']) && $this->options['default_sort_dir'] == 'desc') || (!empty($this->options['columns'][$this->options['default_sort_col']]['sort']['default']) && substr($this->options['columns'][$this->options['default_sort_col']]['sort']['default'], -4, 4) == 'desc') ? true : false,
+				'desc' => (!empty($this->options['default_sort_dir']) && $this->options['default_sort_dir'] == 'desc') || (!empty($this->options['columns'][$this->options['default_sort_col']]['sort']['default']) && str_ends_with($this->options['columns'][$this->options['default_sort_col']]['sort']['default'], 'desc')) ? true : false,
 			];
 		}
 
@@ -348,12 +339,12 @@ class ItemList implements \ArrayAccess
 
 			$params = $this->options['get_count']['params'] ?? [];
 
-			$this->total_num_items = call_user_func_array($call, array_values($params));
+			$this->total_num_items = (int) call_user_func_array($call, array_values($params));
 		}
 
 		// Default the start to the beginning...sounds logical.
 		$this->start = isset($_REQUEST[$this->start_var_name]) ? (int) $_REQUEST[$this->start_var_name] : 0;
-		$this->items_per_page = $this->options['items_per_page'];
+		$this->items_per_page = (int) $this->options['items_per_page'];
 	}
 
 	/**
@@ -365,7 +356,21 @@ class ItemList implements \ArrayAccess
 			return;
 		}
 
-		$this->page_index = new PageIndex($this->options['base_href'] . (empty($this->sort) ? '' : ';' . $this->options['request_vars']['sort'] . '=' . $this->sort['id'] . ($this->sort['desc'] ? ';' . $this->options['request_vars']['desc'] : '')) . ($this->start_var_name != 'start' ? ';' . $this->start_var_name . '=%1$d' : ''), $this->start, $this->total_num_items, $this->items_per_page, $this->start_var_name != 'start');
+		$start = $this->start;
+
+		$this->page_index = new PageIndex(
+			$this->options['base_href'] . (empty($this->sort) ? '' : ';' . $this->options['request_vars']['sort'] . '=' . $this->sort['id'] . ($this->sort['desc'] ? ';' . $this->options['request_vars']['desc'] : '')) . ($this->start_var_name != 'start' ? ';' . $this->start_var_name . '=%1$d' : ''),
+			$start,
+			$this->total_num_items,
+			$this->items_per_page,
+			$this->start_var_name != 'start',
+		);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($this->start != $start) {
+			Utils::redirectexit($this->start_var_name != 'start' ? sprintf($this->page_index->base_url, $start) : $this->page_index->base_url . ';start=' . $start);
+		}
+
 	}
 
 	/**
@@ -405,17 +410,27 @@ class ItemList implements \ArrayAccess
 				}
 				// Take the value from the database and make it HTML safe.
 				elseif (isset($column['data']['db_htmlsafe'])) {
-					$cur_data['value'] = Utils::htmlspecialchars($list_item[$column['data']['db_htmlsafe']]);
+					$cur_data['value'] = Utils::htmlspecialchars((string) $list_item[$column['data']['db_htmlsafe']]);
 				}
 				// Using sprintf is probably the most readable way of injecting data.
 				elseif (isset($column['data']['sprintf'])) {
 					$params = [];
 
 					foreach ($column['data']['sprintf']['params'] as $sprintf_param => $htmlsafe) {
-						$params[] = $htmlsafe ? Utils::htmlspecialchars($list_item[$sprintf_param]) : $list_item[$sprintf_param];
+						$params[] = $htmlsafe ? Utils::htmlspecialchars((string) $list_item[$sprintf_param]) : $list_item[$sprintf_param];
 					}
 
 					$cur_data['value'] = vsprintf($column['data']['sprintf']['format'], $params);
+				}
+				// Using getTxt is the most capable way of injecting data.
+				elseif (isset($column['data']['getTxt'])) {
+					$params = [];
+
+					foreach ($column['data']['getTxt']['params'] as $key => $info) {
+						$params[$key] = $info['htmlspecialchars'] ? Utils::htmlspecialchars((string) $list_item[$info['column']]) : $list_item[$info['column']];
+					}
+
+					$cur_data['value'] = Lang::getTxt($column['data']['getTxt']['format'], $params);
 				}
 				// The most flexible way probably is applying a custom function.
 				elseif (isset($column['data']['function'])) {
@@ -436,7 +451,7 @@ class ItemList implements \ArrayAccess
 
 				// Allow for basic formatting.
 				if (!empty($column['data']['comma_format'])) {
-					$cur_data['value'] = Lang::numberFormat($cur_data['value']);
+					$cur_data['value'] = Lang::numberFormat((int) $cur_data['value']);
 				} elseif (!empty($column['data']['timeformat'])) {
 					$cur_data['value'] = Time::create('@' . $cur_data['value'])->format();
 				}
@@ -553,11 +568,6 @@ class ItemList implements \ArrayAccess
 			$this->additional_rows[$row['position']][] = $row;
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ItemList::exportStatic')) {
-	ItemList::exportStatic();
 }
 
 ?>

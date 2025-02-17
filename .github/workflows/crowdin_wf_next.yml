@@ -1,8 +1,8 @@
 # CrowdIn workflow for SMF
 
-name: CrowdIn NEXT - Update SMF_2-1_NEXT branch periodically
+name: CrowdIn NEXT - Update SMF_3-0_NEXT branch periodically
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Sundays, 7th minute, 7th hour
   schedule:
@@ -34,7 +34,7 @@ jobs:
     - name: Checkout
       # This prevents all the forks from attempting to run the interface...
       if: env.CROWDIN_API_TOKEN != null
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: crowdin-action
       # This prevents all the forks from attempting to run the interface...
@@ -48,6 +48,6 @@ jobs:
         download_translations: false
         # The crowdin_branch_name is the name of the highest level folder in your "Files" tab in CrowdIn
         # At the moment, it really does not like embedded spaces (2/2021)
-        crowdin_branch_name: 'SMF_2-1_NEXT'
+        crowdin_branch_name: 'SMF_3-0_NEXT'
         # Path to crowdin.yml, no leading /
         config: '.github/crowdin.yml'

@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -38,19 +40,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class TaskRunner
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'calculateNextTrigger' => 'CalculateNextTrigger',
-		],
-	];
-
 	/***********
 	 * Constants
 	 ***********/
@@ -84,7 +73,7 @@ class TaskRunner
 			'class' => 'SMF\\Tasks\\DailyMaintenance',
 		],
 		'weekly_maintenance' => [
-			'class' => 'SMF\\Tasks\\WeekLyMaintenance',
+			'class' => 'SMF\\Tasks\\WeeklyMaintenance',
 		],
 		'daily_digest' => [
 			'class' => 'SMF\\Tasks\\SendDigests',
@@ -96,6 +85,9 @@ class TaskRunner
 		],
 		'fetchSMfiles' => [
 			'class' => 'SMF\\Tasks\\FetchSMFiles',
+		],
+		'fetch_calendar_subs' => [
+			'class' => 'SMF\\Tasks\\FetchCalendarSubscriptions',
 		],
 		'birthdayemails' => [
 			'class' => 'SMF\\Tasks\\Birthday_Notify',
@@ -137,7 +129,7 @@ class TaskRunner
 
 		// Called from cron.php.
 		if (SMF === 'BACKGROUND') {
-			define('FROM_CLI', empty($_SERVER['REQUEST_METHOD']));
+			define('FROM_CLI', Sapi::isCLI());
 
 			// Don't do john didley if the forum's been shut down completely.
 			if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {
@@ -169,7 +161,7 @@ class TaskRunner
 				$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 			}
 
-			Config::$db_show_debug = null;
+			Config::$db_show_debug = false;
 
 			Db::load();
 
@@ -187,7 +179,7 @@ class TaskRunner
 			$this->cleanRequest();
 
 			// Load the basic Lang::$txt strings.
-			Lang::load('index+Modifications');
+			Lang::load('General+Modifications+ThemeStrings');
 		}
 	}
 
@@ -317,9 +309,9 @@ class TaskRunner
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// What kind of task are we handling?
 			if (!empty($row['callable'])) {
-				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['callable'], true);
+				$task_details = $this->getScheduledTaskDetails((int) $row['id_task'], $row['callable'], true);
 			} elseif (!empty($row['task'])) {
-				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['task']);
+				$task_details = $this->getScheduledTaskDetails((int) $row['id_task'], $row['task']);
 			} else {
 				continue;
 			}
@@ -356,10 +348,10 @@ class TaskRunner
 	 * @param string $file The file where the error occurred
 	 * @param int $line What line of the specified file the error occurred on
 	 */
-	public static function handleError($error_level, $error_string, $file, $line): void
+	public static function handleError(int $error_level, string $error_string, string $file, int $line): void
 	{
-		// Ignore errors that should not be logged.
-		if (error_reporting() == 0) {
+		// Error was suppressed with the @-operator.
+		if (error_reporting() == 0 || error_reporting() == (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR)) {
 			return;
 		}
 
@@ -432,7 +424,7 @@ class TaskRunner
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$next_time = self::getNextScheduledTime($row['time_regularity'], $row['time_unit'], $row['time_offset']);
+			$next_time = self::getNextScheduledTime((int) $row['time_regularity'], (string) $row['time_unit'], (int) $row['time_offset']);
 
 			// Only bother moving the task if it's out of place or we're forcing it!
 			if ($force_update || $next_time < $row['next_time'] || $row['next_time'] < time()) {
@@ -502,7 +494,7 @@ class TaskRunner
 		);
 
 		if ($row = Db::$db->fetch_assoc($request)) {
-			// We found one. Let's try and claim it immediately.
+			// We found one. Let's try to claim it immediately.
 			Db::$db->free_result($request);
 			Db::$db->query(
 				'',
@@ -542,7 +534,7 @@ class TaskRunner
 	 * @param array $task_details An array of info about the task.
 	 * @return bool Whether the task should be cleared from the queue.
 	 */
-	protected function performTask($task_details): bool
+	protected function performTask(array $task_details): bool
 	{
 		// This indicates the file to load.
 		// Only needed for tasks that don't use the SMF\Tasks\ namespace.
@@ -622,7 +614,7 @@ class TaskRunner
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// When should this next be run?
-			$next_time = self::getNextScheduledTime($row['time_regularity'], $row['time_unit'], $row['time_offset']);
+			$next_time = self::getNextScheduledTime((int) $row['time_regularity'], (string) $row['time_unit'], (int) $row['time_offset']);
 
 			// How long in seconds is the gap?
 			$duration = $row['time_regularity'];
@@ -655,9 +647,9 @@ class TaskRunner
 
 			// What kind of task are we handling?
 			if (!empty($row['callable'])) {
-				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['callable'], true);
+				$task_details = $this->getScheduledTaskDetails((int) $row['id_task'], (string) $row['callable'], true);
 			} elseif (!empty($row['task'])) {
-				$task_details = $this->getScheduledTaskDetails($row['id_task'], $row['task']);
+				$task_details = $this->getScheduledTaskDetails((int) $row['id_task'], (string) $row['task']);
 			}
 
 			// If we have a valid background task, queue it up.
@@ -672,10 +664,12 @@ class TaskRunner
 						'claimed_time' => 'int',
 					],
 					[
-						'',
-						$task_details['task_class'],
-						json_encode($task_details['task_data']),
-						0,
+						[
+							'',
+							$task_details['task_class'],
+							json_encode($task_details['task_data']),
+							0,
+						],
 					],
 					[],
 				);
@@ -762,12 +756,14 @@ class TaskRunner
 			$GLOBALS['_POST'],
 			$GLOBALS['_REQUEST'],
 			$GLOBALS['_COOKIE'],
-			$GLOBALS['_FILES']
+			$GLOBALS['_FILES'],
 		);
 	}
 
 	/**
 	 * The exit function.
+	 *
+	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	protected function obExit(): void
 	{
@@ -822,7 +818,7 @@ class TaskRunner
 		}
 		// Otherwise, work out what the offset would be with today's date.
 		else {
-			$next_time = mktime(date('H', $offset), date('i', $offset), 0, date('m'), date('d'), date('Y'));
+			$next_time = mktime((int) date('H', $offset), (int) date('i', $offset), 0, (int) date('m'), (int) date('d'), (int) date('Y'));
 
 			// Make the time offset in the past!
 			if ($next_time > time()) {
@@ -854,9 +850,8 @@ class TaskRunner
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TaskRunner::exportStatic')) {
-	TaskRunner::exportStatic();
+if (!empty(\SMF\Config::$backward_compatibility)) {
+	class_alias('\\SMF\\Tasks\\BackgroundTask', 'SMF_BackgroundTask');
 }
 
 ?>

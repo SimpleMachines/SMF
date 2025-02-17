@@ -5,15 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -24,6 +28,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Topic;
 use SMF\User;
@@ -32,33 +37,10 @@ use SMF\Utils;
 /**
  * This action handles moving topics from one board to another board.
  */
-class TopicMove2 implements ActionInterface
+class TopicMove2 implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'MoveTopic2',
-			'moveTopicConcurrence' => 'moveTopicConcurrence',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionSuffixRouter;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -165,9 +147,9 @@ class TopicMove2 implements ActionInterface
 						if (Lang::$default === User::$me->language) {
 							Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 						} else {
-							Lang::load('index', Lang::$default, false);
+							Lang::load('General', Lang::$default, false);
 							Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-							Lang::load('index');
+							Lang::load('General');
 						}
 						CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 					}
@@ -205,23 +187,23 @@ class TopicMove2 implements ActionInterface
 		if (isset($_POST['postRedirect'])) {
 			// Replace tokens with links in the reason.
 			$reason_replacements = [
-				Lang::$txt['movetopic_auto_board'] => '[url="' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
+				Lang::$txt['movetopic_auto_board'] => '[url=&quot;' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]',
 				Lang::$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]',
 			];
 
 			// Should be in the boardwide language.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('index', Lang::$default);
+				Lang::load('General', Lang::$default);
 
 				// Make sure we catch both languages in the reason.
 				$reason_replacements += [
-					Lang::$txt['movetopic_auto_board'] => '[url="' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
+					Lang::$txt['movetopic_auto_board'] => '[url=&quot;' . Config::$scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]',
 					Lang::$txt['movetopic_auto_topic'] => '[iurl]' . Config::$scripturl . '?topic=' . Topic::$topic_id . '.0[/iurl]',
 				];
 			}
 
 			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
-			Msg::preparsecode($_POST['reason']);
+			Msg::preparsecode($_POST['reason'], false, !empty(Config::$modSettings['autoLinkUrls']));
 
 			// Insert real links into the reason.
 			$_POST['reason'] = strtr($_POST['reason'], $reason_replacements);
@@ -233,7 +215,7 @@ class TopicMove2 implements ActionInterface
 			$redirect_topic = isset($_POST['redirect_topic']) ? Topic::$topic_id : 0;
 
 			$msgOptions = [
-				'subject' => Lang::$txt['moved'] . ': ' . $subject,
+				'subject' => Lang::getTxt('moved', ['subject' => $subject]),
 				'body' => $_POST['reason'],
 				'icon' => 'moved',
 				'smileys_enabled' => 1,
@@ -330,42 +312,20 @@ class TopicMove2 implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Called after a topic is moved to update $board_link and $topic_link to point to new location
 	 */
-	public static function moveTopicConcurrence()
+	public static function moveTopicConcurrence(): void
 	{
 		if (isset($_GET['current_board'])) {
 			$move_from = (int) $_GET['current_board'];
 		}
 
 		if (empty($move_from) || empty(Board::$info->id) || empty(Topic::$topic_id)) {
-			return true;
+			return;
 		}
 
 		if ($move_from == Board::$info->id) {
-			return true;
+			return;
 		}
 
 		$request = Db::$db->query(
@@ -389,22 +349,6 @@ class TopicMove2 implements ActionInterface
 
 		ErrorHandler::fatalLang('topic_already_moved', false, [$topic_link, $board_link]);
 	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TopicMove2::exportStatic')) {
-	TopicMove2::exportStatic();
 }
 
 ?>

@@ -5,15 +5,16 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\SecurityToken;
@@ -26,31 +27,6 @@ use SMF\Utils;
  */
 class Login extends Login2
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Login',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -97,61 +73,19 @@ class Login extends Login2
 		];
 
 		// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).
-		if (isset($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'dlattach') === false && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0) {
+		if (isset($_SESSION['old_url']) && !str_contains($_SESSION['old_url'], 'dlattach') && preg_match('~(board|topic)[=,]~', $_SESSION['old_url']) != 0) {
 			$_SESSION['login_url'] = $_SESSION['old_url'];
 		}
 		// This came from a valid hashed return url.  Or something that knows our secrets...
 		elseif (!empty($_REQUEST['return_hash']) && !empty($_REQUEST['return_to']) && hash_hmac('sha1', Utils::htmlspecialcharsDecode($_REQUEST['return_to']), Config::getAuthSecret()) == $_REQUEST['return_hash']) {
 			$_SESSION['login_url'] = Utils::htmlspecialcharsDecode($_REQUEST['return_to']);
-		} elseif (isset($_SESSION['login_url']) && strpos($_SESSION['login_url'], 'dlattach') !== false) {
+		} elseif (isset($_SESSION['login_url']) && str_contains($_SESSION['login_url'], 'dlattach')) {
 			unset($_SESSION['login_url']);
 		}
 
 		// Create a one time token.
 		SecurityToken::create('login');
 	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Login::exportStatic')) {
-	Login::exportStatic();
 }
 
 ?>

@@ -3,10 +3,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 (function ($) {
@@ -124,6 +124,13 @@
 						closeButton = $('<span class="button">').text(base._('Close')).click(function () {
 							$(".sceditor-smileyPopup").fadeOut('fast');
 						});
+						$(document).mouseup(function (e) {
+							if (allowHide && !popupContent.is(e.target) && popupContent.has(e.target).length === 0)
+								$(smileyPopup).fadeOut('fast');
+						}).keyup(function (e) {
+							if (e.keyCode === 27)
+								$(smileyPopup).fadeOut('fast');
+						});
 
 						$.each(emoticons, function( code, emoticon ) {
 							base.appendEmoticon(code, emoticon, base.opts.emoticonsDescriptions[code]);
@@ -178,17 +185,412 @@
 		}
 	};
 
+	// Our custom autolinker plugin.
+	sceditor.plugins.autolinker = function () {
+		if (typeof autolinker_regexes === 'undefined') {
+			return;
+		}
+
+		const testOnKeyDown = [
+			'Enter',
+			'ArrowLeft',
+			'ArrowRight',
+			'ArrowUp',
+			'ArrowDown',
+			'End',
+			'Home',
+			'PageDown',
+			'PageUp',
+		];
+
+		// Detects and links plain text URLs when the user presses certain keys down.
+		this.signalKeydownEvent = function (e) {
+			if (this.inSourceMode() || !testOnKeyDown.includes(e.key)) {
+				return;
+			}
+
+			const rangeHelper = this.getRangeHelper();
+			const range = rangeHelper.selectedRange();
+
+			// Are we in a link or a span that was specifically set not to autolink?
+			if (
+				range.endContainer.parentNode.closest('a')
+				|| range.endContainer.parentNode.closest('span.nolink')
+			) {
+				return;
+			}
+
+			// Only do this when the caret is at the end of a string of non-space characters.
+			if (range.endContainer.textContent.substring(range.endOffset).match(/^\S/)) {
+				return;
+			}
+
+			// We want to search from the start of the current text node to the caret position.
+			let str = range.endContainer.textContent.substring(0, range.endOffset);
+
+			let found = false;
+
+			for (const [name, regex] of autolinker_regexes.entries()) {
+				if (!name.startsWith('keypress_')) {
+					continue;
+				}
+
+				// Ensure the search always starts from the beginning.
+				regex.lastIndex = 0;
+
+				// Append a space so that the keyup regex will match.
+				const url = regex.exec(str + " ");
+
+				if (url !== null) {
+					found = true;
+
+					insertAutolink(this, str, url, regex, name, rangeHelper);
+
+					break;
+				}
+			}
+
+			if (!found) {
+				removeAutolink(rangeHelper, range.startOffset);
+			}
+		};
+
+		// Detects and links plain text URLs when user releases a key.
+		this.signalKeyupEvent = function (e) {
+			if (this.inSourceMode()) {
+				return;
+			}
+
+			const rangeHelper = this.getRangeHelper();
+			const range = rangeHelper.selectedRange();
+
+			// Are we in a span that was specifically set not to autolink?
+			if (range.endContainer.parentNode.closest('span.nolink')) {
+				return;
+			}
+
+			// We want to search from the start of the current text node to the caret position.
+			let str = range.endContainer.textContent.substring(0, range.endOffset);
+
+			let found = false;
+
+			if (!testOnKeyDown.includes(e.key)) {
+				for (const [name, regex] of autolinker_regexes.entries()) {
+					if (!name.startsWith('keypress_')) {
+						continue;
+					}
+
+					// Ensure the search always starts from the beginning.
+					regex.lastIndex = 0;
+
+					const url = regex.exec(str);
+
+					if (url !== null) {
+						found = true;
+
+						insertAutolink(this, str, url, regex, name, rangeHelper);
+
+						// Put the caret back where it was originally.
+						rangeHelper.selectRange(range);
+
+						break;
+					}
+				}
+			}
+		};
+
+		// Used when editing an existing link or an "nolink" span.
+		this.signalInputEvent = function (e) {
+			if (this.inSourceMode() && ['insertText', 'insertLineBreak', 'insertParagraph'].includes(e.inputType)) {
+				const caretPos = this.sourceEditorCaret().start;
+				const val = this.val();
+				const valBefore = val.substring(0, caretPos);
+				const valAfter = val.substring(caretPos);
+
+				for (const [name, regex] of autolinker_regexes.entries()) {
+					if (!name.startsWith('keypress_')) {
+						continue;
+					}
+
+					// Ensure the search always starts from the beginning.
+					regex.lastIndex = 0;
+
+					let found = false;
+					let url = regex.exec(valBefore);
+
+					if (url !== null) {
+						// Wrap in BBC tags.
+						this.sourceEditorCaret({start: url.index, end: regex.lastIndex});
+
+						const bbc_tag = name.endsWith('email') ? 'email' : url[0].startsWith(smf_scripturl) ? 'iurl' : 'url';
+
+						const tag_param = name.endsWith('naked_domain') ? '="//' + url[0] + '"' : '';
+
+						this.insert('[' + bbc_tag + tag_param + ']', '[/' + bbc_tag + ']');
+
+						// Bump the caret along by the length of the inserted tags.
+						this.sourceEditorCaret({start: caretPos + bbc_tag.length * 2 + tag_param.length + 5, end: caretPos + bbc_tag.length * 2 + tag_param.length + 5});
+
+						// Don't try any more regular expressions.
+						break;
+					}
+				}
+
+				return;
+			}
+
+			const rangeHelper = this.getRangeHelper();
+			const range = rangeHelper.selectedRange();
+			const parent = rangeHelper.parentNode();
+			const container = parent.parentNode;
+			const containerParent = container.parentNode;
+
+			// Adding text immediately after an existing link.
+			if (
+				e.inputType === 'insertText'
+				&& parent.nodeType === Node.TEXT_NODE
+				&& parent.textContent === e.data
+				&& parent.previousSibling
+				&& parent.previousSibling.nodeType === Node.ELEMENT_NODE
+				&& parent.previousSibling.nodeName === 'A'
+				&& parent.previousSibling.href.replace(/\/$/, '').replace(/^mailto:/, '').startsWith(parent.previousSibling.textContent.replace(/\/$/, '').replace(/^mailto:/, ''))
+			) {
+				// Turn the link back into plain text.
+				parent.previousSibling.replaceWith(parent.previousSibling.textContent);
+				containerParent.normalize();
+
+				// Put the caret back where it was originally.
+				rangeHelper.selectRange(range);
+			}
+
+			// Inside an existing link.
+			if (
+				container.nodeType === Node.ELEMENT_NODE
+				&& container.nodeName === 'A'
+			) {
+				containerParent.normalize();
+				const str = container.textContent;
+
+				// Pressed backspace inside a link.
+				if (e.inputType === 'deleteContentBackward') {
+					const caretPos = range.startOffset;
+
+					// Turn the link back into plain text.
+					const strBefore = document.createTextNode(str.substring(0, caretPos));
+					const strAfter = document.createTextNode(str.substring(caretPos));
+
+					containerParent.insertBefore(strBefore, container);
+					containerParent.replaceChild(strAfter, container);
+					containerParent.normalize();
+
+					// Put the caret back where it was originally.
+					rangeHelper.selectRange(range);
+					return;
+				}
+
+				// Any other edits.
+				for (const [name, regex] of autolinker_regexes.entries()) {
+					if (name.startsWith('keypress_') || name.startsWith('paste_')) {
+						continue;
+					}
+
+					// Ensure the search always starts from the beginning.
+					regex.lastIndex = 0;
+
+					// If text content is a URL, update the href.
+					if (regex.test(str)) {
+						container.href = (name === 'email' ? 'mailto:' : '') + str;
+						break;
+					}
+				}
+
+				return;
+			}
+
+			// Inside a span that was specifically set not to autolink.
+			if (
+				container.nodeType === Node.ELEMENT_NODE
+				&& container.nodeName === 'SPAN'
+				&& container.classList.contains('nolink')
+			) {
+				const caretPos = range.startOffset;
+
+				containerParent.normalize();
+				const str = container.textContent;
+
+				let url = null;
+
+				for (const [name, regex] of autolinker_regexes.entries()) {
+					if (name.startsWith('keypress_') || name.startsWith('paste_')) {
+						continue;
+					}
+
+					// Ensure the search always starts from the beginning.
+					regex.lastIndex = 0;
+
+					url = regex.exec(str);
+
+					if (url !== null) {
+						break;
+					}
+				}
+
+				// If the nolink span no longer contains a URL, remove the span.
+				if (url === null) {
+					const strBefore = document.createTextNode(str.substring(0, caretPos));
+					const strAfter = document.createTextNode(str.substring(caretPos));
+
+					containerParent.insertBefore(strBefore, container);
+					containerParent.replaceChild(strAfter, container);
+					containerParent.normalize();
+
+					// Put the caret back where it was originally.
+					rangeHelper.selectRange(range);
+					return;
+				}
+
+				// Move any trailing spaces out of the nolink span.
+				const trailing = str.match(/\s+$/);
+
+				if (trailing !== null && str.replace(/\s+$/, '') === url[0]) {
+					const newText = document.createTextNode(trailing[0]);
+					const newSpan = document.createElement('span');
+					newSpan.classList.add('nolink')
+					newSpan.textContent = url[0];
+
+					containerParent.insertBefore(newSpan, container);
+					containerParent.insertBefore(newText, container);
+					containerParent.removeChild(container);
+					containerParent.normalize();
+
+					// Put the caret back where it was originally.
+					rangeHelper.selectRange(range);
+				}
+			}
+		};
+
+		// Autolink URLs that are pasted into the editor.
+		this.signalPasteRaw = function (data) {
+			if (!data.html && data.text) {
+				data.html = data.text;
+			}
+
+			for (const [name, regex] of autolinker_regexes.entries()) {
+				if (!name.startsWith('paste_')) {
+					continue;
+				}
+
+				const url = regex.exec(data.html);
+
+				if (url !== null) {
+					const bbc_tag = name === 'paste_email' ? 'email' : (url[0].startsWith(smf_scripturl) ? 'iurl' : 'url');
+
+					data.html = data.html.replace(regex, '<a data-type="' + bbc_tag + '" href="' + (bbc_tag === 'email' ? 'mailto:' : '') + url[0] + '">' + url[0] + '</a>');
+
+					break;
+				}
+			}
+		};
+
+		// Helper for this.signalKeydownEvent and this.signalKeyupEvent.
+		function insertAutolink(editor, str, url, regex, regex_name, rangeHelper) {
+			// Trim off trailing brackets and quotes that aren't part of balanced pairs.
+			let found_trailing_bracket_quote = false;
+			do {
+				for (const [opener, closer] of autolinker_balanced_pairs.entries()) {
+					found_trailing_bracket_quote = url[0].endsWith(opener) || url[0].endsWith(closer);
+
+					if (url[0].endsWith(opener)) {
+						url[0] = url[0].slice(0, -1);
+						regex.lastIndex--;
+						break;
+					}
+
+					if (url[0].endsWith(closer)) {
+						let allowed_closers = 0;
+
+						for (const char of url[0]) {
+						    if (char === opener) {
+						    	allowed_closers++;
+						    } else if (char === closer) {
+						    	allowed_closers--;
+						    }
+						}
+
+						if (allowed_closers < 0) {
+							url[0] = url[0].slice(0, -1);
+							regex.lastIndex--;
+						} else {
+							found_trailing_bracket_quote = false;
+						}
+
+						break;
+					}
+				}
+			} while (found_trailing_bracket_quote);
+
+			// Which BBC do we want to use?
+			const bbc_tag = regex_name.endsWith('email') ? 'email' : (url[0].startsWith(smf_scripturl) ? 'iurl' : 'url');
+
+			// Set start of selection to the start of the URL.
+			rangeHelper.selectOuterText(str.length - url.index, 0);
+
+			// Set end of selection to the end of the URL.
+			let selectedRange = rangeHelper.selectedRange();
+			selectedRange.setEnd(rangeHelper.parentNode(), selectedRange.endOffset - (str.length - url.index - url[0].length));
+
+			// Prepend '//' to naked domains.
+			if (regex_name.endsWith('naked_domain')) {
+				url[0] = '//' + url[0];
+			}
+
+			// Insert the URL.
+			editor.wysiwygEditorInsertHtml('<a data-type="' + bbc_tag + '" href="' + url[0] + '">' + url[0] + '</a>');
+		}
+
+		// Helper for this.signalKeydownEvent.
+		function removeAutolink(rangeHelper, caretPos) {
+			const container = rangeHelper.parentNode().parentNode;
+
+			if (
+				container.nodeType === Node.ELEMENT_NODE
+				&& container.nodeName === 'A'
+				&& container.href.replace(/\/$/, '').replace(/^mailto:/, '') === container.textContent.replace(/\/$/, '')
+			) {
+				const url = container.textContent;
+				const containerParent = container.parentNode;
+
+				if (caretPos === url.length) {
+					container.replaceWith(url);
+					containerParent.normalize();
+
+					rangeHelper.selectOuterText(0, caretPos);
+					let selectedRange = rangeHelper.selectedRange();
+					selectedRange.setStart(rangeHelper.parentNode(), selectedRange.endOffset);
+				}
+			}
+		}
+	};
+
 	var createFn = sceditor.create;
 	var isPatched = false;
 
 	sceditor.create = function (textarea, options) {
+		textarea.value = textarea.value.replaceAll(/\t/, '[tab]');
+
 		// Call the original create function
 		createFn(textarea, options);
+
+		textarea.value = textarea.value.replaceAll(/\[tab\]/, '\t');
 
 		// Constructor isn't exposed so get reference to it when
 		// creating the first instance and extend it then
 		var instance = sceditor.instance(textarea);
 		if (!isPatched && instance) {
+			const wysiwygEditor = instance.getContentAreaContainer();
+			const editorContainer = wysiwygEditor.parentElement;
+			const sourceEditor = editorContainer.querySelector("textarea");
+
 			sceditor.utils.extend(instance.constructor.prototype, extensionMethods);
 			window.addEventListener('beforeunload', instance.updateOriginal, false);
 
@@ -197,11 +599,37 @@
 			 * toolbars and tons of smilies play havoc with this.
 			 * Only resize the text areas instead.
 			 */
-			document.querySelector(".sceditor-container").removeAttribute("style");
-			document.querySelector(".sceditor-container textarea").style.height = options.height;
-			document.querySelector(".sceditor-container textarea").style.flexBasis = options.height;
+			editorContainer.removeAttribute("style");
+			sourceEditor.style.height = options.height;
+			sourceEditor.style.flexBasis = options.height;
+
+			// Override these functions in order to convince SCEditor not to
+			// delete tabs. Supporting Markdown means we need to keep them.
+			const getSourceVal = instance.getSourceEditorValue;
+			const setSourceVal = instance.setSourceEditorValue;
+
+			instance.getSourceEditorValue = function (filter) {
+				if (filter !== false) {
+					sourceEditor.value = sourceEditor.value.replaceAll(/\t/, '[tab]');
+				}
+
+				return getSourceVal(filter);
+			};
+
+			instance.setSourceEditorValue = function (value) {
+				setSourceVal(value.replaceAll(/\[tab\]/, '\t'));
+			};
 
 			isPatched = true;
+		}
+
+		// Fix for minor bug where the toolbar buttons wouldn't initially be active.
+		if (options.autofocus) {
+			const rangeHelper = instance.getRangeHelper();
+			rangeHelper.saveRange();
+			instance.blur();
+			instance.focus();
+			rangeHelper.restoreRange();
 		}
 	};
 })(jQuery);
@@ -238,6 +666,159 @@ sceditor.command.set(
 				}
 			});
 		}
+	}
+);
+sceditor.command.set(
+	'unlink', {
+		state: function () {
+			if (this.inSourceMode()) {
+				return 0;
+			}
+
+			const rangeHelper = this.getRangeHelper()
+			const container = rangeHelper.parentNode().parentNode;
+
+			if (container.nodeType === Node.ELEMENT_NODE && container.nodeName === 'SPAN' && container.classList.contains('nolink')) {
+				return 1;
+			}
+
+			if (container.nodeType !== Node.ELEMENT_NODE || container.nodeName !== 'A') {
+				return -1;
+			}
+
+			return 0;
+		},
+		exec: function () {
+			const rangeHelper = this.getRangeHelper()
+			const container = rangeHelper.parentNode().parentNode;
+
+			if (
+				container.nodeType === Node.ELEMENT_NODE
+				&& container.nodeName === 'A'
+			) {
+				const containerParent = container.parentNode;
+				const caretPos = rangeHelper.selectedRange().startOffset;
+
+				const url = container.textContent;
+				container.replaceWith(url);
+				containerParent.normalize();
+
+				rangeHelper.selectOuterText(0, url.length);
+				this.insert('[nolink]', '[/nolink]');
+			} else if (
+				container.nodeType === Node.ELEMENT_NODE
+				&& container.nodeName === 'SPAN'
+				&& container.classList.contains('nolink')
+			) {
+				const containerParent = container.parentNode;
+				const caretPos = rangeHelper.selectedRange().startOffset;
+
+				const url = container.textContent;
+				container.replaceWith(url);
+				containerParent.normalize();
+
+				const bbc_tag = autolinker_regexes.get('email').test(url) ? 'email' : (url.startsWith(smf_scripturl) ? 'iurl' : 'url');
+
+				rangeHelper.selectOuterText(0, url.length);
+
+				if (autolinker_regexes.get('naked_domain').test(url)) {
+					this.insert('[' + bbc_tag + '="//' + url + '"]', '[/' + bbc_tag + ']');
+				} else {
+					this.insert('[' + bbc_tag + ']', '[/' + bbc_tag + ']');
+				}
+			}
+		},
+		txtExec: function () {
+			let caretPos = this.sourceEditorCaret().start;
+			const val = this.val();
+			const valBefore = val.substring(0, caretPos);
+			const valAfter = val.substring(caretPos);
+
+			const urlBbcBefore = new RegExp('\\[(i?url|email)([^\\]]*)\\]([^\\[\\]\\s]*)$', 'i');
+			const urlBbcAfter = new RegExp('^([^\\[\\]\\s]*)\\[\\/(i?url|email)\\]', 'i');
+			const nolinkBbcBefore = new RegExp('\\[nolink\\]([^\\[]|\\[(?!/?nolink))*$', 'im');
+			const nolinkBbcAfter = new RegExp('^([^\\]]|(?<!nolink)\\])*\\[\\/nolink\\]', 'im');
+
+			if (valBefore.match(nolinkBbcBefore) && valAfter.match(nolinkBbcAfter)) {
+				const before = nolinkBbcBefore.exec(valBefore);
+				const after = nolinkBbcAfter.exec(valAfter);
+
+				const beforePos = caretPos - before[0].length;
+
+				let possibleUrl = before[0] + after[0];
+				possibleUrl = possibleUrl.substring(8, possibleUrl.length - 9);
+
+				for (const [name, regex] of autolinker_regexes.entries()) {
+					if (name.startsWith('keypress_') || name.startsWith('paste_')) {
+						continue;
+					}
+
+					// Ensure the search always starts from the beginning.
+					regex.lastIndex = 0;
+
+					let found = false;
+					let url = regex.exec(possibleUrl);
+
+					if (url !== null) {
+						this.val(val.replace(before[0] + after[0], url[0]));
+
+						this.sourceEditorCaret({start: caretPos - before[0].length, end: caretPos - before[0].length + url[0].length});
+
+						const bbc_tag = name.endsWith('email') ? 'email' : possibleUrl.startsWith(smf_scripturl) ? 'iurl' : 'url';
+
+						if (name.endsWith('naked_domain')) {
+							this.insert('[' + bbc_tag + '="//' + url[0] + '"]', '[/' + bbc_tag + ']');
+						} else {
+							this.insert('[' + bbc_tag + ']', '[/' + bbc_tag + ']');
+						}
+
+						break;
+					}
+				}
+			} else if (valBefore.match(urlBbcBefore) && valAfter.match(urlBbcAfter)) {
+				const before = urlBbcBefore.exec(valBefore);
+				caretPos = caretPos - (before[1].length + before[2].length - 6);
+
+				this.val(valBefore.replace(urlBbcBefore, '[nolink]$3') + valAfter.replace(urlBbcAfter, '$1[/nolink]'));
+
+				this.sourceEditorCaret({start: caretPos, end: caretPos});
+			} else {
+				for (const [name, regex] of autolinker_regexes.entries()) {
+					if (name.startsWith('keypress_') || name.startsWith('paste_')) {
+						continue;
+					}
+
+					// Ensure the search always starts from the beginning.
+					regex.lastIndex = 0;
+
+					let found = false;
+					let url = regex.exec(val);
+
+					while (url !== null) {
+						if (regex.lastIndex < caretPos) {
+							url = regex.exec(val);
+						} else if (url.index > caretPos) {
+							break;
+						} else {
+							found = true;
+							break;
+						}
+					}
+
+					if (found) {
+						// Wrap in nolink tags.
+						this.sourceEditorCaret({start: url.index, end: regex.lastIndex});
+						this.insert('[nolink]', '[/nolink]');
+
+						// Bump the caret along by the length of the opening tag.
+						this.sourceEditorCaret({start: caretPos + 8, end: caretPos + 8});
+
+						// Don't try any more regular expressions.
+						break;
+					}
+				}
+			}
+		},
 	}
 );
 
@@ -292,6 +873,83 @@ sceditor.command.set(
 		exec: function () {
 			this.wysiwygEditorInsertHtml('<div class="floatright">', '</div>');
 		}
+	}
+);
+
+sceditor.command.set(
+	'heading', {
+		_dropDown: function (editor, caller, callback) {
+			var	content = document.createElement('div');
+
+			for (var i = 1; i <= 6; i++) {
+				let opt = document.createElement('a');
+				opt.href = '#',
+				opt.dataset.tag = 'h' + i;
+				opt.innerText = 'H' + i;
+				opt.style.display = 'block';
+				opt.classList.add('bbc_h' + i);
+				content.appendChild(opt);
+			}
+
+			if (!editor.sourceMode()) {
+				let opt = document.createElement('a');
+				opt.href = '#',
+				opt.dataset.tag = '';
+				opt.innerText = "\u2014";
+				opt.style.display = 'block';
+				content.appendChild(opt);
+			}
+
+			for (const elem of content.querySelectorAll("a")) {
+				elem.addEventListener("click", function (e) {
+					callback(elem.dataset.tag);
+					editor.closeDropDown(true);
+					e.preventDefault();
+				});
+			}
+
+			editor.createDropDown(caller, 'heading-picker', content);
+		},
+		state: function (parent, firstBlock) {
+			return sceditor.dom.closest(this.currentNode(), 'h1, h2, h3, h4, h5, h6') ? 1 : 0;
+		},
+		txtExec: function (caller) {
+			var editor = this;
+
+			editor.commands.heading._dropDown(editor, caller, function (tag) {
+				let caretPos = editor.sourceEditorCaret().start;
+
+				if (tag.match(/h[1-6]/)) {
+					editor.insert('[' + tag + ']', '[/' + tag + ']');
+					editor.toggleSourceMode();
+					editor.toggleSourceMode();
+					editor.sourceEditorCaret({start: caretPos, end: caretPos});
+				}
+			});
+		},
+		exec: function (caller) {
+			var editor = this;
+
+			editor.commands.heading._dropDown(editor, caller, function (tag) {
+				const rangeHelper = editor.getRangeHelper()
+				const container = rangeHelper.parentNode().parentNode;
+				const containerParent = container.parentNode;
+				const content = container.innerHTML;
+
+				if (
+					container.nodeType === Node.ELEMENT_NODE
+					&& container.nodeName.match(/H[1-6]/)
+				) {
+					let newElement = document.createElement(tag.match(/h[1-6]/) ? tag : 'p');
+					newElement.innerHTML = content;
+					container.replaceWith(newElement);
+					containerParent.normalize();
+					rangeHelper.selectOuterText(0, content.length);
+				} else if (tag.match(/h[1-6]/)) {
+					editor.insert('[' + tag + ']', '[/' + tag + ']');
+				}
+			});
+		},
 	}
 );
 
@@ -376,6 +1034,60 @@ sceditor.command.set(
 				}
 			);
 		}
+	}
+);
+
+sceditor.command.set(
+	'tt', {
+		state: function (parent, firstBlock) {
+			if (this.inSourceMode()) {
+				return 0;
+			}
+
+			let currNode = sceditor.dom.closest(this.currentNode(), 'font');
+
+			if (!currNode) {
+				return 0;
+			}
+
+			let font = currNode.getAttribute('face');
+
+			return (font === 'monospace') ? 1 : 0;
+		},
+		exec: function(caller) {
+			let currNode = sceditor.dom.closest(this.currentNode(), 'font');
+
+			if (!currNode) {
+				this.execCommand('fontname', 'monospace');
+			} else {
+				let font = currNode.getAttribute('face');
+
+				if (font === 'monospace') {
+					this.execCommand('removeFormat');
+				} else {
+					this.execCommand('fontname', 'monospace');
+				}
+			}
+		},
+		txtExec: function(caller) {
+			this.insert('[tt]', '[/tt]');
+		}
+	}
+);
+
+// This pseudo-BBCode exists solely to convince SCEditor not to delete tab characters.
+sceditor.formats.bbcode.set(
+	'tab', {
+		tags: {
+			span: {
+				class: 'tab'
+			}
+		},
+		allowsEmpty: true,
+		isSelfClosing: true,
+		isInline: true,
+		format: '\t',
+		html: '<span style="white-space: pre;" class="tab">\t</span>'
 	}
 );
 
@@ -754,6 +1466,10 @@ sceditor.formats.bbcode.set(
 		},
 		format: function (element, content)
 		{
+			if (decodeURI(element.href.substr(7)) === content) {
+				return '[email]' + content + '[/email]';
+			}
+
 			return '[email=' + element.href.substr(7) + ']' + content + '[/email]';
 		},
 		html: function (token, attrs, content)
@@ -771,6 +1487,10 @@ sceditor.formats.bbcode.set(
 		{
 			if (element.hasAttribute('data-type') && element.getAttribute('data-type') != 'url')
 				return content;
+
+			if (decodeURI(element.href).replace(/\/$/, '') === content.replace(/\/$/, '')) {
+				return '[url]' + content + '[/url]';
+			}
 
 			return '[url=' + decodeURI(element.href) + ']' + content + '[/url]';
 		},
@@ -792,11 +1512,33 @@ sceditor.formats.bbcode.set(
 		},
 		format: function (element, content)
 		{
+			if (decodeURI(element.href).replace(/\/$/, '') === content.replace(/\/$/, '')) {
+				return '[iurl]' + content + '[/iurl]';
+			}
+
 			return '[iurl=' + decodeURI(element.href) + ']' + content + '[/iurl]';
 		},
 		html: function (token, attrs, content)
 		{
 			return '<a data-type="iurl" href="' + encodeURI(attrs.defaultattr || content) + '">' + content + '</a>';
+		}
+	}
+);
+
+// This pseudo-BBCode exists only to help the autolinker plugin.
+sceditor.formats.bbcode.set(
+	'nolink', {
+		tags: {
+			span: {
+				'class': 'nolink'
+			},
+		},
+		format: function (element, content) {
+			return '[nolink]' + content + '[/nolink]';
+		},
+		html: function (token, attrs, content)
+		{
+			return '<span class="nolink">' + content + '</span>';
 		}
 	}
 );
@@ -814,9 +1556,26 @@ sceditor.formats.bbcode.set(
 
 sceditor.formats.bbcode.set(
 	'php', {
-		isInline: false,
-		format: "[php]{0}[/php]",
-		html: '<code class="php">{0}</code>'
+		tags: {
+			span: {
+				'class': 'phpcode'
+			}
+		},
+		isInline: true,
+		format: '[php]{0}[/php]',
+		html: '<span class="phpcode">{0}</span>'
+	}
+);
+
+sceditor.formats.bbcode.set(
+	'tt', {
+		tags: {
+			font: {
+				'face': 'monospace'
+			}
+		},
+		format: '[tt]{0}[/tt]',
+		html: '<font face="monospace">{0}</font>'
 	}
 );
 
@@ -828,9 +1587,6 @@ sceditor.formats.bbcode.set(
 		isInline: false,
 		allowedChildren: ['#', '#newline'],
 		format: function (element, content) {
-			if ($(element).hasClass('php'))
-				return '[php]' + content.replace('&#91;', '[') + '[/php]';
-
 			var
 				dom = sceditor.dom,
 				attr = dom.attr,
@@ -842,7 +1598,7 @@ sceditor.formats.bbcode.set(
 		html: function (element, attrs, content) {
 			var from = attrs.defaultattr ? ' data-title="' + attrs.defaultattr + '"'  : '';
 
-			return '<code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;') + '</code>'
+			return '<code data-name="' + this.opts.txtVars.code + '"' + from + '>' + content.replace('[', '&#91;').replaceAll(/\[tab\]/, '<span style="white-space: pre;" class="tab">\t</span>') + '</code>'
 		}
 	}
 );
@@ -923,6 +1679,11 @@ sceditor.formats.bbcode.set(
 			// Strip all quotes
 			font = font.replace(/['"]/g, '');
 
+			// To make [tt] work, we need to add an exception to the [font] BBC.
+			if (font === 'monospace') {
+				return content;
+			}
+
 			return '[font=' + font + ']' + content + '[/font]';
 		}
 	}
@@ -998,5 +1759,72 @@ sceditor.formats.bbcode.set(
 				return content;
 		},
 		html: '<div class="videocontainer"><div><iframe frameborder="0" src="https://www.youtube-nocookie.com/embed/{0}?wmode=opaque" data-youtube-id="{0}" loading="lazy" allowfullscreen></iframe></div></div>'
+	}
+);
+
+sceditor.formats.bbcode.set(
+	'h1', {
+		tags: {
+			h1: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h1]{0}[/h1]',
+		html: '<h1>{0}</h1>'
+	}
+);
+sceditor.formats.bbcode.set(
+	'h2', {
+		tags: {
+			h2: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h2]{0}[/h2]',
+		html: '<h2>{0}</h2>'
+	}
+);
+sceditor.formats.bbcode.set(
+	'h3', {
+		tags: {
+			h3: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h3]{0}[/h3]',
+		html: '<h3>{0}</h3>'
+	}
+);
+sceditor.formats.bbcode.set(
+	'h4', {
+		tags: {
+			h4: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h4]{0}[/h4]',
+		html: '<h4>{0}</h4>'
+	}
+);
+sceditor.formats.bbcode.set(
+	'h5', {
+		tags: {
+			h5: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h5]{0}[/h5]',
+		html: '<h5>{0}</h5>'
+	}
+);
+sceditor.formats.bbcode.set(
+	'h6', {
+		tags: {
+			h6: null,
+		},
+		isInline: false,
+		skipLastLineBreak: true,
+		format: '[h6]{0}[/h6]',
+		html: '<h6>{0}</h6>'
 	}
 );

@@ -5,17 +5,21 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\Autolinker;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
@@ -25,6 +29,9 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
+use SMF\Parser;
+use SMF\Routable;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Url;
@@ -56,22 +63,10 @@ use SMF\Utils;
  *
  * Uses Stats, Profile, Post, and PersonalMessage language files.
  */
-class Feed implements ActionInterface
+class Feed implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ShowXmlFeed',
-			'build' => 'buildXmlFeed',
-			'cdataParse' => 'cdata_parse',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*****************
 	 * Class constants
@@ -255,20 +250,19 @@ class Feed implements ActionInterface
 	 */
 	protected string $host = '';
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return true;
+	}
 
 	/**
 	 * Constructor.
@@ -293,14 +287,20 @@ class Feed implements ActionInterface
 
 		// Bail out if feeds are disabled.
 		$this->checkEnabled();
+	}
 
+	/**
+	 * Fetches the data based on the sub-action, builds the XML, and emits it.
+	 */
+	public function execute(): void
+	{
 		// The feed metadata and query are a bit more complicated...
 		Lang::load('Stats');
 
 		// Some general metadata for this feed. We'll change some of these values below.
 		$this->metadata = [
 			'title' => '',
-			'desc' => sprintf(Lang::$txt['xml_rss_desc'], Utils::$context['forum_name']),
+			'desc' => Lang::getTxt('xml_rss_desc', Utils::$context),
 			'author' => Utils::$context['forum_name'],
 			'source' => Config::$scripturl,
 			'rights' => '© ' . date('Y') . ' ' . Utils::$context['forum_name'],
@@ -457,13 +457,7 @@ class Feed implements ActionInterface
 		foreach ($this->metadata as $key => $value) {
 			$this->metadata[$key] = strip_tags($value);
 		}
-	}
 
-	/**
-	 * Fetches the data based on the sub-action, builds the XML, and emits it.
-	 */
-	public function execute(): void
-	{
 		$this->getData();
 		$this->xml = self::build($this->format, $this->data, $this->metadata, $this->subaction);
 		$this->emit();
@@ -596,7 +590,7 @@ class Feed implements ActionInterface
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
 			// Create a GUID for each member using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['date_registered']) . ':member=' . $row['id_member'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['date_registered']) . ':member=' . $row['id_member'];
 
 			// Make the data look rss-ish.
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -618,7 +612,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['date_registered']),
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $row['date_registered']),
 						],
 						[
 							'tag' => 'guid',
@@ -668,11 +662,11 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'published',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['date_registered']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['date_registered']),
 						],
 						[
 							'tag' => 'updated',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['last_login']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['last_login']),
 						],
 						[
 							'tag' => 'id',
@@ -695,7 +689,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $row['date_registered'])],
+							'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['date_registered'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['date_registered'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -741,7 +735,7 @@ class Feed implements ActionInterface
 				'',
 				'SELECT
 					m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.modified_time,
-					m.icon, t.id_topic, t.id_board, t.num_replies,
+					m.icon, m.version, t.id_topic, t.id_board, t.num_replies,
 					b.name AS bname,
 					COALESCE(mem.id_member, 0) AS id_member,
 					COALESCE(mem.email_address, m.poster_email) AS poster_email,
@@ -786,12 +780,22 @@ class Feed implements ActionInterface
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
+
 			// Limit the length of the message, if the option is set.
 			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen']) {
 				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), ["\n" => '<br>']) . '...';
 			}
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
 
 			Lang::censorText($row['body']);
 			Lang::censorText($row['subject']);
@@ -820,7 +824,7 @@ class Feed implements ActionInterface
 			}
 
 			// Create a GUID for this topic using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':topic=' . $row['id_topic'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':topic=' . $row['id_topic'];
 
 			// Being news, this actually makes sense in rss format.
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -869,7 +873,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['poster_time']),
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'guid',
@@ -971,11 +975,11 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'published',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'updated',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? (int) $row['poster_time'] : (int) $row['modified_time']),
 						],
 						[
 							'tag' => 'id',
@@ -1042,7 +1046,7 @@ class Feed implements ActionInterface
 					'content' => [
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])],
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -1197,7 +1201,8 @@ class Feed implements ActionInterface
 				b.name AS bname, t.num_replies, m.id_member, m.icon, mf.id_member AS id_first_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, mf.subject AS first_subject,
 				COALESCE(memf.real_name, mf.poster_name) AS first_poster_name,
-				COALESCE(mem.email_address, m.poster_email) AS poster_email, m.modified_time
+				COALESCE(mem.email_address, m.poster_email) AS poster_email,
+				m.modified_time, m.version
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (m.id_topic = t.id_topic)
 				INNER JOIN {db_prefix}messages AS mf ON (t.id_first_msg = mf.id_msg)
@@ -1219,12 +1224,22 @@ class Feed implements ActionInterface
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
+
 			// Limit the length of the message, if the option is set.
 			if (!empty(Config::$modSettings['xmlnews_maxlen']) && Utils::entityStrlen(str_replace('<br>', "\n", $row['body'])) > Config::$modSettings['xmlnews_maxlen']) {
 				$row['body'] = strtr(Utils::entitySubstr(str_replace('<br>', "\n", $row['body']), 0, Config::$modSettings['xmlnews_maxlen'] - 3), ["\n" => '<br>']) . '...';
 			}
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
 
 			Lang::censorText($row['body']);
 			Lang::censorText($row['subject']);
@@ -1253,7 +1268,7 @@ class Feed implements ActionInterface
 			}
 
 			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 			// Doesn't work as well as news, but it kinda does..
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -1302,7 +1317,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['poster_time']),
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'guid',
@@ -1404,11 +1419,11 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'published',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'updated',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? (int) $row['poster_time'] : (int) $row['modified_time']),
 						],
 						[
 							'tag' => 'id',
@@ -1475,7 +1490,7 @@ class Feed implements ActionInterface
 					'content' => [
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])],
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -1617,7 +1632,7 @@ class Feed implements ActionInterface
 		$profile = filter_var($profile, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
 		// Create a GUID for this member using the tag URI scheme
-		$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
+		$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $profile['registered_timestamp']) . ':member=' . $profile['id'];
 
 		if ($this->format == 'rss' || $this->format == 'rss2') {
 			$data[] = [
@@ -1643,7 +1658,7 @@ class Feed implements ActionInterface
 					],
 					[
 						'tag' => 'pubDate',
-						'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $profile['registered_timestamp']),
+						'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $profile['registered_timestamp']),
 					],
 					[
 						'tag' => 'guid',
@@ -1724,11 +1739,11 @@ class Feed implements ActionInterface
 					],
 					[
 						'tag' => 'published',
-						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['registered_timestamp']),
+						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $profile['registered_timestamp']),
 					],
 					[
 						'tag' => 'updated',
-						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['last_login_timestamp']),
+						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $profile['last_login_timestamp']),
 					],
 					[
 						'tag' => 'id',
@@ -1776,13 +1791,13 @@ class Feed implements ActionInterface
 				],
 				[
 					'tag' => 'last-login',
-					'attributes' => ['label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', $profile['last_login_timestamp'])],
-					'content' => Time::create('@' . $row['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
+					'attributes' => ['label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', (int) $profile['last_login_timestamp'])],
+					'content' => Time::create('@' . $profile['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'registered',
-					'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', $profile['registered_timestamp'])],
-					'content' => Time::create('@' . $row['registered_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
+					'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', (int) $profile['registered_timestamp'])],
+					'content' => Time::create('@' . $profile['registered_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'avatar',
@@ -1860,7 +1875,7 @@ class Feed implements ActionInterface
 				],
 			];
 
-			if (!empty($profile['birth_date']) && substr($profile['birth_date'], 0, 4) != '0000' && substr($profile['birth_date'], 0, 4) != '1004') {
+			if (!empty($profile['birth_date']) && !str_starts_with($profile['birth_date'], '0000') && !str_starts_with($profile['birth_date'], '1004')) {
 				list($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
 
 				$datearray = getdate(time());
@@ -1953,7 +1968,7 @@ class Feed implements ActionInterface
 			'SELECT
 				m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
 				m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
-				m.likes, m.approved, m.smileys_enabled
+				m.likes, m.approved, m.smileys_enabled, m.version
 			FROM {db_prefix}messages AS m' . (Config::$modSettings['postmod_active'] && !$show_all ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
 			WHERE m.id_member = {int:uid}
@@ -1981,8 +1996,18 @@ class Feed implements ActionInterface
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
+
 			// If using our own format, we want both the raw and the parsed content.
-			$row[$this->format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row[$this->format === 'smf' ? 'body_html' : 'body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
 
 			// Do we want to include any attachments?
 			if (!empty(Config::$modSettings['attachmentEnable']) && !empty(Config::$modSettings['xmlnews_attachments'])) {
@@ -2008,7 +2033,7 @@ class Feed implements ActionInterface
 			}
 
 			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['poster_time']) . ':msg=' . $row['id_msg'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':msg=' . $row['id_msg'];
 
 			if ($this->format == 'rss' || $this->format == 'rss2') {
 				// Only one attachment allowed in RSS.
@@ -2056,7 +2081,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['poster_time']),
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'guid',
@@ -2153,11 +2178,11 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'published',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['poster_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['poster_time']),
 						],
 						[
 							'tag' => 'updated',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? $row['poster_time'] : $row['modified_time']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', empty($row['modified_time']) ? (int) $row['poster_time'] : (int) $row['modified_time']),
 						],
 						[
 							'tag' => 'id',
@@ -2323,12 +2348,12 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['poster_time'])],
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
 							'tag' => 'modified_time',
-							'attributes' => !empty($row['modified_time']) ? ['label' => Lang::$txt['modified_time'], 'UTC' => Time::gmstrftime('%F %T', $row['modified_time'])] : null,
+							'attributes' => !empty($row['modified_time']) ? ['label' => Lang::$txt['modified_time'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['modified_time'])] : null,
 							'content' => !empty($row['modified_time']) ? Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['modified_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))) : null,
 						],
 						[
@@ -2392,7 +2417,7 @@ class Feed implements ActionInterface
 
 		$request = Db::$db->query(
 			'',
-			'SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names
+			'SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names, pm.version
 			FROM {db_prefix}personal_messages AS pm
 			INNER JOIN
 			(
@@ -2421,18 +2446,24 @@ class Feed implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$this->start_after = $row['id_pm'];
+			$this->start_after = (int) $row['id_pm'];
 
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
+
 			// If using our own format, we want both the raw and the parsed content.
-			$row[$this->format === 'smf' ? 'body_html' : 'body'] = BBCodeParser::load()->parse($row['body']);
+			$row[$this->format === 'smf' ? 'body_html' : 'body'] = Parser::transform($row['body']);
 
 			$recipients = array_combine(explode(',', $row['id_members_to']), explode($separator, $row['to_names']));
 
 			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', $row['msgtime']) . ':pm=' . $row['id_pm'];
+			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['msgtime']) . ':pm=' . $row['id_pm'];
 
 			if ($this->format == 'rss' || $this->format == 'rss2') {
 				$item = [
@@ -2447,7 +2478,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'pubDate',
-							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', $row['msgtime']),
+							'content' => gmdate('D, d M Y H:i:s \\G\\M\\T', (int) $row['msgtime']),
 						],
 						[
 							'tag' => 'title',
@@ -2512,7 +2543,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'updated',
-							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', $row['msgtime']),
+							'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $row['msgtime']),
 						],
 						[
 							'tag' => 'title',
@@ -2569,7 +2600,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'sent_date',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', $row['msgtime'])],
+							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['msgtime'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['msgtime'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -2651,28 +2682,6 @@ class Feed implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of the class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of the child class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Builds the XML from the data.
 	 *
 	 * Returns an array containing three parts: the feed's header section, its
@@ -2733,7 +2742,7 @@ class Feed implements ActionInterface
 
 		// Sanitize feed metadata values.
 		foreach ($metadata as $mkey => $mvalue) {
-			$metadata[$mkey] = self::cdataParse(self::fixPossibleUrl($mvalue));
+			$metadata[$mkey] = self::cdataParse(self::fixPossibleUrl((string) $mvalue));
 		}
 
 		$ns_string = '';
@@ -2962,11 +2971,89 @@ class Feed implements ActionInterface
 		return strtr($cdata, ['<![CDATA[]]>' => '']);
 	}
 
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		if (!isset($params['sa'])) {
+			$params['sa'] = get_class_vars(self::class)['subaction'];
+		}
+
+		// First do the normal stuff.
+		$route = self::buildActionRoute($params);
+
+		// Now do the custom stuff.
+		$route[] = $params['type'] ?? get_class_vars(self::class)['format'];
+		unset($params['type']);
+
+		if (isset($params['board'])) {
+			$route[] = 'boards';
+			$route[] = $params['board'];
+			unset($params['board']);
+		} elseif (isset($params['boards'])) {
+			$route[] = 'boards';
+			$route[] = $params['boards'];
+			unset($params['boards']);
+		} elseif (isset($params['c'])) {
+			$route[] = 'categories';
+			$route[] = $params['c'];
+			unset($params['c']);
+		} elseif (isset($params['u'])) {
+			$route[] = 'members';
+			$route[] = $params['u'];
+			unset($params['u']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params = array_merge($params, self::parseActionRoute($route));
+		$params['type'] = array_shift($route);
+
+		if (count($route) >= 2) {
+			switch (array_shift($route)) {
+				case 'members':
+					$params['u'] = array_shift($route);
+					break;
+
+				case 'categories':
+					$params['c'] = array_shift($route);
+					break;
+
+				default:
+					$params['board' . (str_contains(current($route), ',') ? 's' : '')] = array_shift($route);
+					break;
+			}
+		}
+
+		return $params;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
 
-	protected function setSubaction($subaction)
+	/**
+	 * Sets the subaction property
+	 *
+	 * @param ?string $subaction The subaction. If not set, checks $_GET['sa'] first, then picks the first value in self::$subactions
+	 */
+	protected function setSubaction(?string $subaction): void
 	{
 		if (isset($subaction, self::$subactions[$subaction])) {
 			$this->subaction = $subaction;
@@ -2977,40 +3064,48 @@ class Feed implements ActionInterface
 		}
 	}
 
-	protected function setMember($member)
+	/**
+	 * Sets the member property. This is the ID of the person viewing it or the person whose profile feed we're viewing
+	 *
+	 * @param ?int The member ID
+	 */
+	protected function setMember(?int $member = 0): void
 	{
 		// Member ID was passed to the constructor.
-		if (isset($member)) {
+		if ($member > 0) {
 			$this->member = $member;
 		}
 		// Member ID was set via Utils::$context.
 		elseif (isset(Utils::$context['xmlnews_uid'])) {
-			$this->member = Utils::$context['xmlnews_uid'];
+			$this->member = (int) Utils::$context['xmlnews_uid'];
 		}
 		// Member ID was set via URL parameter.
 		elseif (isset($_GET['u'])) {
-			$this->member = $_GET['u'];
+			$this->member = (int) $_GET['u'];
 		}
 		// Default to current user.
 		else {
 			$this->member = User::$me->id;
 		}
 
-		// Make sure the ID is a number and not "I like trying to hack the database."
-		$this->member = (int) $this->member;
-
 		// For backward compatibility.
 		Utils::$context['xmlnews_uid'] = $this->member;
 	}
 
-	protected function setFormat()
+	/**
+	 * Sets the format based on $_GET['type']
+	 */
+	protected function setFormat(): void
 	{
 		if (isset($_GET['type'], self::XML_NAMESPACES[$_GET['type']])) {
 			$this->format = $_GET['type'];
 		}
 	}
 
-	protected function setlimit()
+	/**
+	 * Sets the limit for determining how many items to show
+	 */
+	protected function setlimit(): void
 	{
 		// Limit was set via Utils::$context.
 		if (isset(Utils::$context['xmlnews_limit'])) {
@@ -3028,6 +3123,9 @@ class Feed implements ActionInterface
 		Utils::$context['xmlnews_limit'] = $this->limit;
 	}
 
+	/**
+	 * Checks whether feeds are enabled
+	 */
 	protected function checkEnabled(): void
 	{
 		// Users can always export their own profile data.
@@ -3086,7 +3184,7 @@ class Feed implements ActionInterface
 
 			if (!empty($attrs)) {
 				foreach ($attrs as $attr_key => $attr_value) {
-					Utils::$context['feed']['items'] .= ' ' . $attr_key . '="' . self::fixPossibleUrl($attr_value) . '"';
+					Utils::$context['feed']['items'] .= ' ' . $attr_key . '="' . self::fixPossibleUrl((string) $attr_value) . '"';
 				}
 			}
 
@@ -3103,12 +3201,12 @@ class Feed implements ActionInterface
 					Utils::$context['feed']['items'] .= "\n" . str_repeat("\t", $i);
 				}
 				// A string with returns in it.... show this as a multiline element.
-				elseif (strpos($val, "\n") !== false) {
-					Utils::$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl($val), $ns, $forceCdata) : self::fixPossibleUrl($val)) . "\n" . str_repeat("\t", $i);
+				elseif (is_string($val) && str_contains($val, "\n")) {
+					Utils::$context['feed']['items'] .= "\n" . (!empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl((string) $val), $ns, $forceCdata) : self::fixPossibleUrl((string) $val)) . "\n" . str_repeat("\t", $i);
 				}
 				// A simple string.
 				else {
-					Utils::$context['feed']['items'] .= !empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl($val), $ns, $forceCdata) : self::fixPossibleUrl($val);
+					Utils::$context['feed']['items'] .= !empty($element['cdata']) || $forceCdata ? self::cdataParse(self::fixPossibleUrl((string) $val), $ns, $forceCdata) : self::fixPossibleUrl((string) $val);
 				}
 
 				// Ending tag.
@@ -3124,9 +3222,9 @@ class Feed implements ActionInterface
 	 * @param string $val A string containing a possible URL.
 	 * @return string $val The string with any possible URLs sanitized.
 	 */
-	protected static function fixPossibleUrl($val)
+	protected static function fixPossibleUrl(string $val): string
 	{
-		if (substr($val, 0, strlen(Config::$scripturl)) != Config::$scripturl) {
+		if (!str_starts_with($val, Config::$scripturl)) {
 			return $val;
 		}
 
@@ -3135,13 +3233,13 @@ class Feed implements ActionInterface
 		if (
 			empty(Config::$modSettings['queryless_urls'])
 			|| (
-				Utils::$context['server']['is_cgi']
+				Sapi::isCGI()
 				&& ini_get('cgi.fix_pathinfo') == 0
 				&& @get_cfg_var('cgi.fix_pathinfo') == 0
 			)
 			|| (
-				!Utils::$context['server']['is_apache']
-				&& !Utils::$context['server']['is_lighttpd']
+				!Sapi::isSoftware(Sapi::SERVER_APACHE)
+				&& !Sapi::isSoftware(Sapi::SERVER_LIGHTTPD)
 			)
 		) {
 			return $val;
@@ -3157,11 +3255,6 @@ class Feed implements ActionInterface
 
 		return $val;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Feed::exportStatic')) {
-	Feed::exportStatic();
 }
 
 ?>

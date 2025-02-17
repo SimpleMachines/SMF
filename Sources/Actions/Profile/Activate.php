@@ -5,16 +5,18 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Logging;
@@ -27,30 +29,7 @@ use SMF\Utils;
  */
 class Activate implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'activateAccount',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -63,9 +42,17 @@ class Activate implements ActionInterface
 	{
 		User::$me->isAllowedTo('moderate_forum');
 
-		if (isset($_REQUEST['save'], Profile::$member->is_activated)   && Profile::$member->is_activated != 1) {
+		if (
+			isset($_REQUEST['save'], Profile::$member->is_activated)
+			&& Profile::$member->is_activated != User::ACTIVATED
+		) {
 			// If we are approving the deletion of an account, we do something special ;)
-			if (Profile::$member->is_activated == 4) {
+			if (
+				Profile::$member->is_activated == User::REQUESTED_DELETE
+				|| Profile::$member->is_activated == User::REQUESTED_DELETE_ANONYMIZE
+				|| Profile::$member->is_activated == User::REQUESTED_DELETE_BANNED
+				|| Profile::$member->is_activated == User::REQUESTED_DELETE_ANONYMIZE_BANNED
+			) {
 				User::delete(Utils::$context['id_member']);
 				Utils::redirectexit();
 			}
@@ -76,45 +63,55 @@ class Activate implements ActionInterface
 			IntegrationHook::call('integrate_activate', [Profile::$member->username]);
 
 			// Actually update this member now, as it guarantees the unapproved count can't get corrupted.
-			User::updateMemberData(Utils::$context['id_member'], ['is_activated' => Profile::$member->is_activated >= 10 ? 11 : 1, 'validation_code' => '']);
+			User::updateMemberData(
+				Profile::$member->id,
+				[
+					'is_activated' => Profile::$member->is_activated >= User::BANNED ? User::ACTIVATED_BANNED : User::ACTIVATED,
+					'validation_code' => '',
+				],
+			);
 
 			// Log what we did?
 			Logging::logAction('approve_member', ['member' => Profile::$member->id], 'admin');
 
 			// If we are doing approval, update the stats for the member just in case.
-			if (in_array($prev_is_activated, [3, 4, 5, 13, 14, 15])) {
-				Config::updateModSettings(['unapprovedMembers' => max(0, Config::$modSettings['unapprovedMembers'] - 1)]);
+			if (
+				in_array(
+					$prev_is_activated,
+					[
+						User::UNAPPROVED,
+						User::REQUESTED_DELETE,
+						User::REQUESTED_DELETE_ANONYMIZE,
+						User::NEED_COPPA,
+						User::UNAPPROVED_BANNED,
+						User::REQUESTED_DELETE_BANNED,
+						User::REQUESTED_DELETE_ANONYMIZE_BANNED,
+						User::NEED_COPPA_BANNED,
+					],
+				)
+			) {
+				Config::updateModSettings([
+					'unapprovedMembers' => max(0, Config::$modSettings['unapprovedMembers'] - 1),
+				]);
+			}
+
+			// Inform the user that their account has been approved.
+			if (in_array($prev_is_activated, [User::UNAPPROVED, User::NEED_COPPA])) {
+				$replacements = [
+					'NAME' => Profile::$member->name,
+					'USERNAME' => Profile::$member->username,
+					'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id,
+					'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
+				];
+
+				$emaildata = Mail::loadEmailTemplate('admin_approve_accept', $replacements, Profile::$member->language);
+
+				Mail::send(Profile::$member->email, $emaildata['subject'], $emaildata['body'], null, 'accapp' . Profile::$member->id, $emaildata['is_html'], 0);
 			}
 
 			// Make sure we update the stats too.
 			Logging::updateStats('member', false);
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************
@@ -130,11 +127,6 @@ class Activate implements ActionInterface
 			Profile::load();
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Activate::exportStatic')) {
-	Activate::exportStatic();
 }
 
 ?>

@@ -5,16 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
+use SMF\Autolinker;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -24,6 +28,11 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Parser;
+use SMF\Routable;
+use SMF\Theme;
 use SMF\Time;
 use SMF\Topic;
 use SMF\User;
@@ -34,36 +43,24 @@ use SMF\Utils;
  *
  * Called via '?action=jsmodify' by script.js and topic.js
  */
-class JavaScriptModify implements ActionInterface
+class JavaScriptModify implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'JavaScriptModify',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionRouter;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
+	}
 
 	/**
 	 * Does the job.
@@ -149,9 +146,19 @@ class JavaScriptModify implements ActionInterface
 			} else {
 				$_POST['message'] = Utils::htmlspecialchars($_POST['message'], ENT_QUOTES);
 
+				// Check for links with broken URLs.
+				if ($_POST['message'] !== Autolinker::load()->fixUrlsInBBC($_POST['message'])) {
+					$post_errors[] = 'links_malformed';
+				}
+
 				Msg::preparsecode($_POST['message']);
 
-				if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '') {
+				$temp = Parser::transform(
+					string: $row['body'],
+					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+				);
+
+				if (Utils::htmlTrim(strip_tags($temp, implode('', Utils::$context['allowed_html_tags']))) === '') {
 					$post_errors[] = 'no_message';
 					unset($_POST['message']);
 				}
@@ -195,7 +202,6 @@ class JavaScriptModify implements ActionInterface
 				'subject' => $_POST['subject'] ?? null,
 				'body' => $_POST['message'] ?? null,
 				'icon' => isset($_REQUEST['icon']) ? preg_replace('~[\./\\\\*\':"<>]~', '', $_REQUEST['icon']) : null,
-				'modify_reason' => ($_POST['modify_reason'] ?? ''),
 				'approved' => ($row['approved'] ?? null),
 			];
 
@@ -214,18 +220,38 @@ class JavaScriptModify implements ActionInterface
 				'update_post_count' => !User::$me->is_guest && !isset($_REQUEST['msg']) && Board::$info->posts_count,
 			];
 
-			// Only consider marking as editing if they have edited the subject, message or icon.
-			if ((isset($_POST['subject']) && $_POST['subject'] != $row['subject']) || (isset($_POST['message']) && $_POST['message'] != $row['body']) || (isset($_REQUEST['icon']) && $_REQUEST['icon'] != $row['icon'])) {
+			// Only consider marking as editing if they have edited the subject, modify reason, message or icon.
+			$is_new_edit =
+				(
+					isset($_POST['subject'])
+					&& $_POST['subject'] != $row['subject']
+				)
+				|| (
+					isset($_POST['message'])
+					&& $_POST['message'] != $row['body']
+				)
+				|| (
+					isset($_REQUEST['icon'])
+					&& $_REQUEST['icon'] != $row['icon']
+				)
+				|| (
+					isset($_POST['modify_reason'])
+					&& $_POST['modify_reason'] != $row['modified_reason']
+				);
+
+			if ($is_new_edit) {
 				// And even then only if the time has passed...
-				if (time() - $row['poster_time'] > Config::$modSettings['edit_wait_time'] || User::$me->id != $row['id_member']) {
+				if (
+					time() - $row['poster_time'] > Config::$modSettings['edit_wait_time']
+					|| User::$me->id != $row['id_member']
+				) {
 					$msgOptions['modify_time'] = time();
 					$msgOptions['modify_name'] = User::$me->name;
+					$msgOptions['modify_reason'] = $_POST['modify_reason'] ?? '';
 				}
 			}
-			// If nothing was changed there's no need to add an entry to the moderation log.
-			else {
-				$moderationAction = false;
-			}
+
+			IntegrationHook::call('integrate_jsmodify', [$row, &$is_new_edit, &$msgOptions, &$topicOptions, &$posterOptions]);
 
 			Msg::modify($msgOptions, $topicOptions, $posterOptions);
 
@@ -237,15 +263,15 @@ class JavaScriptModify implements ActionInterface
 			}
 
 			// Changing the first subject updates other subjects to 'Re: new_subject'.
-			if (isset($_POST['subject'], $_REQUEST['change_all_subjects'])   && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (User::$me->allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && User::$me->allowedTo('modify_replies')))) {
+			if (isset($_POST['subject'], $_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (User::$me->allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && User::$me->allowedTo('modify_replies')))) {
 				// Get the proper (default language) response prefix first.
 				if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
 					if (Lang::$default === User::$me->language) {
 						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 					} else {
-						Lang::load('index', Lang::$default, false);
+						Lang::load('General', Lang::$default, false);
 						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-						Lang::load('index');
+						Lang::load('General');
 					}
 					CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 				}
@@ -264,12 +290,13 @@ class JavaScriptModify implements ActionInterface
 				);
 			}
 
-			if (!empty($moderationAction)) {
+			if (!empty($moderationAction) && $is_new_edit) {
 				Logging::logAction('modify', ['topic' => Topic::$topic_id, 'message' => $row['id_msg'], 'member' => $row['id_member'], 'board' => Board::$info->id]);
 			}
 		}
 
 		if (isset($_REQUEST['xml'])) {
+			Theme::loadTemplate('Xml');
 			Utils::$context['sub_template'] = 'modifydone';
 
 			if (empty($post_errors) && isset($msgOptions['subject'], $msgOptions['body'])) {
@@ -279,7 +306,7 @@ class JavaScriptModify implements ActionInterface
 						'time' => isset($msgOptions['modify_time']) ? Time::create('@' . $msgOptions['modify_time'])->format() : '',
 						'timestamp' => $msgOptions['modify_time'] ?? 0,
 						'name' => isset($msgOptions['modify_time']) ? $msgOptions['modify_name'] : '',
-						'reason' => $msgOptions['modify_reason'],
+						'reason' => $msgOptions['modify_reason'] ?? '',
 					],
 					'subject' => $msgOptions['subject'],
 					'first_in_topic' => $row['id_msg'] == $row['id_first_msg'],
@@ -289,7 +316,13 @@ class JavaScriptModify implements ActionInterface
 				Lang::censorText(Utils::$context['message']['subject']);
 				Lang::censorText(Utils::$context['message']['body']);
 
-				Utils::$context['message']['body'] = BBCodeParser::load()->parse(Utils::$context['message']['body'], $row['smileys_enabled'], $row['id_msg']);
+				Utils::$context['message']['body'] = Parser::transform(
+					string: Utils::$context['message']['body'],
+					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+					options: ['cache_id' => (int) $row['id_msg']],
+				);
+
+				Utils::$context['message']['body'] = Utils::adjustHeadingLevels(Utils::$context['message']['body'], null);
 			}
 			// Topic?
 			elseif (empty($post_errors)) {
@@ -310,14 +343,14 @@ class JavaScriptModify implements ActionInterface
 					'id' => $row['id_msg'],
 					'errors' => [],
 					'error_in_subject' => in_array('no_subject', $post_errors),
-					'error_in_body' => in_array('no_message', $post_errors) || in_array('long_message', $post_errors),
+					'error_in_body' => in_array('no_message', $post_errors) || in_array('long_message', $post_errors) || in_array('links_malformed', $post_errors),
 				];
 
 				Lang::load('Errors');
 
 				foreach ($post_errors as $post_error) {
 					if ($post_error == 'long_message') {
-						Utils::$context['message']['errors'][] = sprintf(Lang::$txt['error_' . $post_error], Config::$modSettings['max_messageLength']);
+						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, [Config::$modSettings['max_messageLength']]);
 					} else {
 						Utils::$context['message']['errors'][] = Lang::$txt['error_' . $post_error];
 					}
@@ -329,32 +362,6 @@ class JavaScriptModify implements ActionInterface
 		} else {
 			Utils::obExit(false);
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************
@@ -373,11 +380,6 @@ class JavaScriptModify implements ActionInterface
 
 		User::$me->checkSession('get');
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\JavaScriptModify::exportStatic')) {
-	JavaScriptModify::exportStatic();
 }
 
 ?>

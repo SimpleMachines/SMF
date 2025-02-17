@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Config;
@@ -52,9 +52,6 @@ function template_init()
 
 	// The version this template/theme is for. This should probably be the version of SMF it was created for.
 	Theme::$current->settings['theme_version'] = '2.1';
-
-	// Set the following variable to true if this theme requires the optional theme strings file to be loaded.
-	Theme::$current->settings['require_theme_strings'] = false;
 
 	// Set the following variable to true if this theme wants to display the avatar of the user that posted the last and the first post on the message index and recent pages.
 	Theme::$current->settings['avatars_on_indexes'] = false;
@@ -264,7 +261,15 @@ function template_body_above()
 		{
 			echo '
 			<ul class="floatleft">
-				<li class="welcome">', sprintf(Lang::$txt[Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ', \'login\');', Config::$scripturl . '?action=signup'), '</li>
+				<li class="welcome">', Lang::getTxt(
+					Utils::$context['can_register'] ? 'welcome_guest_register' : 'welcome_guest',
+					[
+						'forum_name' => Utils::$context['forum_name_html_safe'],
+						'login_url' => Config::$scripturl . '?action=login',
+						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
+						'register_url' => Config::$scripturl . '?action=signup',
+					],
+				), '</li>
 			</ul>';
 		}
 		else
@@ -272,10 +277,10 @@ function template_body_above()
 			echo '
 			<ul class="floatleft" id="top_info">
 				<li class="welcome">
-					', sprintf(Lang::$txt['welcome_to_forum'], Utils::$context['forum_name_html_safe']), '
+					', Lang::getTxt('welcome_to_forum', ['forum_name' => Utils::$context['forum_name_html_safe']]), '
 				</li>
 				<li class="button_login">
-					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::JavaScriptEscape(Lang::$txt['login']) . ', \'login\');">
+					<a href="', Config::$scripturl, '?action=login" class="', Utils::$context['current_action'] == 'login' ? 'active' : 'open','" onclick="return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');">
 						<span class="main_icons login"></span>
 						<span class="textmenu">', Lang::$txt['login'], '</span>
 					</a>
@@ -298,7 +303,14 @@ function template_body_above()
 		// In maintenance mode, only login is allowed and don't show OverlayDiv
 		echo '
 			<ul class="floatleft welcome">
-				<li>', sprintf(Lang::$txt['welcome_guest'], Utils::$context['forum_name_html_safe'], Config::$scripturl . '?action=login', 'return true;'), '</li>
+				<li>', Lang::getTxt(
+					'welcome_guest',
+					[
+						'forum_name' => Utils::$context['forum_name_html_safe'],
+						'login_url' => Config::$scripturl . '?action=login',
+						'onclick' => 'return true;',
+					],
+				), '</li>
 			</ul>';
 
 	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['languages']) && count(Utils::$context['languages']) > 1)
@@ -469,7 +481,13 @@ function template_body_below()
 	// Show the load time?
 	if (Utils::$context['show_load_time'])
 		echo '
-		<p>', sprintf(Lang::$txt['page_created_full'], Utils::$context['load_time'], Utils::$context['load_queries']), '</p>';
+		<p>', Lang::getTxt(
+			'page_created_full',
+			[
+				Utils::$context['load_time'],
+				Utils::$context['load_queries']
+			]
+		), '</p>';
 
 	echo '
 		</div>
@@ -482,7 +500,7 @@ function template_body_below()
  */
 function template_html_below()
 {
-	// Load in any javascipt that could be deferred to the end of the page
+	// Load in any javascript that could be deferred to the end of the page
 	Theme::template_javascript(true);
 
 	echo '
@@ -775,7 +793,7 @@ function template_maint_warning_above()
 				<strong id="error_serious">', Lang::$txt['forum_in_maintenance'], '</strong>
 			</dt>
 			<dd class="error" id="error_list">
-				', sprintf(Lang::$txt['maintenance_page'], Config::$scripturl . '?action=admin;area=serversettings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '
+				', Lang::getTxt('maintenance_page', ['url' => Config::$scripturl . '?action=admin;area=serversettings;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]), '
 			</dd>
 		</dl>
 	</div>';
@@ -785,6 +803,81 @@ function template_maint_warning_above()
  * The lower part of the maintenance warning box.
  */
 function template_maint_warning_below()
+{
+
+}
+
+/**
+ * The upper part of the security warning box
+ */
+function template_security_warning_above()
+{
+	echo '
+	<div class="errorbox">
+		<p class="alert">!!</p>
+		<h3>', !isset(Utils::$context['warnings']['file']) && empty(Utils::$context['auth_secret_missing'])
+		? Lang::$txt['generic_warning']
+		: Lang::$txt['security_risk'], '</h3>';
+
+	foreach (Utils::$context['warnings']['file'] as $security_file) {
+		echo '
+		<p>', Lang::getTxt($security_file[0], $security_file[1]), '</p>';
+	}
+
+	for ($i = 0, $n = count(Utils::$context['warnings']) - 1; $i < $n; $i++) {
+		if (is_string(Utils::$context['warnings'][$i])) {
+			echo '
+		<p>' . Utils::$context['warnings'][$i] . '</p>';
+		} else {
+			echo '
+		<p>', Lang::getTxt(Utils::$context['warnings'][$i][0], Utils::$context['warnings'][$i][1] ?? []), '</p>';
+		}
+	}
+
+	echo '
+	</div>';
+}
+
+/**
+ * The lower part of the security warning box.
+ */
+function template_security_warning_below()
+{
+
+}
+
+/**
+ * The upper part of the ban warning box
+ */
+function template_banned_warning_above()
+{
+	echo '
+	<div class="noticebox">';
+
+	echo '
+		<p>', Lang::getTxt('you_are_post_banned', ['name' => User::$me->is_guest ? Lang::$txt['guest_title'] : User::$me->name]), '</p>';
+
+	if (!empty($_SESSION['ban']['cannot_post']['reason'])) {
+		echo '
+		<p>', $_SESSION['ban']['cannot_post']['reason'], '</p>';
+	}
+
+	if (!empty($_SESSION['ban']['expire_time'])) {
+		echo '
+		<p>', Lang::getTxt('your_ban_expires', ['datetime' => Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]), '</p>';
+	} else {
+		echo '
+		<p>', Lang::$txt['your_ban_expires_never'], '</p>';
+	}
+
+	echo '
+	</div>';
+}
+
+/**
+ * The lower part of the ban warning box.
+ */
+function template_banned_warning_below()
 {
 
 }

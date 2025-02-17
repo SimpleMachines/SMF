@@ -5,17 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  *
  * Original module by Mach8 - We'll never forget you.
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -27,6 +30,7 @@ use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
 use SMF\PageIndex;
+use SMF\Routable;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\Time;
@@ -37,23 +41,10 @@ use SMF\Utils;
 /**
  * Handles merging of topics.
  */
-class TopicMerge implements ActionInterface
+class TopicMerge implements ActionInterface, Routable
 {
+	use ActionTrait;
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'MergeTopics',
-			'mergeIndex' => 'MergeIndex',
-			'mergeExecute' => 'MergeExecute',
-			'mergeDone' => 'MergeDone',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -178,18 +169,6 @@ class TopicMerge implements ActionInterface
 	 */
 	protected array $merge_boards = [];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -223,7 +202,7 @@ class TopicMerge implements ActionInterface
 	 * - Uses 'merge' sub template of the MoveTopic template.
 	 * - Allows setting a different target board.
 	 */
-	public function index()
+	public function index(): void
 	{
 		if (!isset($_GET['from'])) {
 			ErrorHandler::fatalLang('no_access', false);
@@ -258,7 +237,13 @@ class TopicMerge implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Make the page list.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], $topiccount, Config::$modSettings['defaultMaxTopics'], true);
+		$start = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $start, (int) $topiccount, (int) Config::$modSettings['defaultMaxTopics'], true);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != $start) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+		}
 
 		// Get the topic's subject.
 		$request = Db::$db->query(
@@ -505,6 +490,8 @@ class TopicMerge implements ActionInterface
 			],
 		);
 
+		$num_replies = 0;
+
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If this is approved, or is fully unapproved.
 			if ($row['approved'] || !empty($first_msg)) {
@@ -612,21 +599,21 @@ class TopicMerge implements ActionInterface
 		if (isset($_POST['postRedirect'])) {
 			// Replace tokens with links in the reason.
 			$reason_replacements = [
-				Lang::$txt['movetopic_auto_topic'] => '[iurl="' . Config::$scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+				Lang::$txt['movetopic_auto_topic'] => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
 			];
 
 			// Should be in the boardwide language.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('index', Lang::$default);
+				Lang::load('General', Lang::$default);
 
 				// Make sure we catch both languages in the reason.
 				$reason_replacements += [
-					Lang::$txt['movetopic_auto_topic'] => '[iurl="' . Config::$scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+					Lang::$txt['movetopic_auto_topic'] => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
 				];
 			}
 
 			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
-			Msg::preparsecode($_POST['reason']);
+			Msg::preparsecode($_POST['reason'], false, !empty(Config::$modSettings['autoLinkUrls']));
 
 			// Add a URL onto the message.
 			$reason = strtr($_POST['reason'], $reason_replacements);
@@ -638,7 +625,7 @@ class TopicMerge implements ActionInterface
 			$redirect_topic = isset($_POST['redirect_topic']) ? $id_topic : 0;
 
 			foreach ($deleted_topics as $this_old_topic) {
-				$redirect_subject = sprintf(Lang::$txt['merged_subject'], $this->topic_data[$this_old_topic]['subject']);
+				$redirect_subject = Lang::getTxt('merged_subject', ['subject' => $this->topic_data[$this_old_topic]['subject']]);
 
 				$msgOptions = [
 					'icon' => 'moved',
@@ -667,7 +654,7 @@ class TopicMerge implements ActionInterface
 
 			// Restore language strings to normal.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('index');
+				Lang::load('General');
 			}
 		}
 
@@ -676,9 +663,9 @@ class TopicMerge implements ActionInterface
 			if (Lang::$default === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 			} else {
-				Lang::load('index', Lang::$default, false);
+				Lang::load('General', Lang::$default, false);
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('index');
+				Lang::load('General');
 			}
 
 			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
@@ -987,10 +974,11 @@ class TopicMerge implements ActionInterface
 		Mail::sendNotifications($id_topic, 'merge');
 
 		// If there's a search index that needs updating, update it...
+		/** @var \SMF\Search\SearchApiInterface $searchAPI */
 		$searchAPI = SearchApi::load();
 
 		if (is_callable([$searchAPI, 'topicMerge'])) {
-			$searchAPI->topicMerge($id_topic, $this->topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : [Utils::$context['response_prefix'], $target_subject]);
+			$searchAPI->topicMerge($id_topic, $this->topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : Utils::$context['response_prefix'] . $target_subject);
 		}
 
 		// Merging is the sort of thing an external CMS might want to know about
@@ -1022,7 +1010,7 @@ class TopicMerge implements ActionInterface
 	 * - Accessed via ?action=mergetopics;sa=done.
 	 * - Uses 'merge_done' sub template of the SplitTopics template.
 	 */
-	public function done()
+	public function done(): void
 	{
 		// Make sure the template knows everything...
 		Utils::$context['target_board'] = (int) $_GET['targetboard'];
@@ -1037,35 +1025,13 @@ class TopicMerge implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Initiates a merge of the specified topics.
 	 *
 	 * Called from SMF\MessageIndex::QuickModeration().
 	 *
 	 * @param array $topics The IDs of the topics to merge
 	 */
-	public static function initiate($topics = [])
+	public static function initiate(array $topics = []): void
 	{
 		self::load();
 		self::$obj->subaction = 'options';
@@ -1074,37 +1040,34 @@ class TopicMerge implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for the index sub-action.
-	 */
-	public static function mergeIndex(): void
-	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the options and/or merge sub-actions.
-	 * (The old procedural function with this name did both.)
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @param array $topics The IDs of the topics to merge
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function mergeExecute($topics = [])
+	public static function buildRoute(array $params): array
 	{
-		self::load();
-		self::$obj->subaction = !empty($_GET['sa']) && $_GET['sa'] === 'merge' ? 'merge' : 'options';
-		self::$obj->topics = array_map('intval', $topics);
-		self::$obj->execute();
+		// This action gets unhappy with any routing more complex than just this.
+		$route[] = $params['action'];
+		unset($params['action']);
+
+		return ['route' => $route, 'params' => $params];
 	}
 
 	/**
-	 * Backward compatibility wrapper for the split sub-action.
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
 	 */
-	public static function mergeDone(): void
+	public static function parseRoute(array $route, array $params = []): array
 	{
-		self::load();
-		self::$obj->subaction = 'done';
-		self::$obj->execute();
+		$params['action'] = array_shift($route);
+
+		return $params;
 	}
 
 	/******************
@@ -1130,7 +1093,7 @@ class TopicMerge implements ActionInterface
 	/**
 	 * Sets up some stuff needed for both $this->options() and $this->merge().
 	 */
-	protected function initOptionsAndMerge()
+	protected function initOptionsAndMerge(): void
 	{
 		// Check the session.
 		User::$me->checkSession('request');
@@ -1179,7 +1142,7 @@ class TopicMerge implements ActionInterface
 	/**
 	 * Sets the value of $this->topics.
 	 */
-	protected function getTopics()
+	protected function getTopics(): void
 	{
 		// Already set.
 		if (count($this->topics) > 1) {
@@ -1200,7 +1163,7 @@ class TopicMerge implements ActionInterface
 	/**
 	 * Gets info about the topics and polls that will be merged.
 	 */
-	protected function getTopicData()
+	protected function getTopicData(): void
 	{
 		$request = Db::$db->query(
 			'',
@@ -1257,54 +1220,54 @@ class TopicMerge implements ActionInterface
 			}
 
 			$this->boardTotals[$row['id_board']]['unapproved_posts'] += $row['unapproved_posts'];
-			$this->boardTotals[$row['id_board']]['posts'] += $row['num_replies'] + ($row['approved'] ? 1 : 0);
+			$this->boardTotals[$row['id_board']]['posts'] += (int) $row['num_replies'] + ($row['approved'] ? 1 : 0);
 
 			// In the case of making a redirect, the topic count goes up by one due to the redirect topic.
 			if (isset($_POST['postRedirect'])) {
 				$this->boardTotals[$row['id_board']]['topics']--;
 			}
 
-			$this->topic_data[$row['id_topic']] = [
-				'id' => $row['id_topic'],
-				'board' => $row['id_board'],
-				'poll' => $row['id_poll'],
-				'num_views' => $row['num_views'],
+			$this->topic_data[(int) $row['id_topic']] = [
+				'id' => (int) $row['id_topic'],
+				'board' => (int) $row['id_board'],
+				'poll' => (int) $row['id_poll'],
+				'num_views' => (int) $row['num_views'],
 				'subject' => $row['subject'],
 				'started' => [
 					'time' => Time::create('@' . $row['time_started'])->format(),
-					'timestamp' => $row['time_started'],
+					'timestamp' => (int) $row['time_started'],
 					'href' => empty($row['id_member_started']) ? '' : Config::$scripturl . '?action=profile;u=' . $row['id_member_started'],
 					'link' => empty($row['id_member_started']) ? $row['name_started'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_started'] . '">' . $row['name_started'] . '</a>',
 				],
 				'updated' => [
 					'time' => Time::create('@' . $row['time_updated'])->format(),
-					'timestamp' => $row['time_updated'],
+					'timestamp' => (int) $row['time_updated'],
 					'href' => empty($row['id_member_updated']) ? '' : Config::$scripturl . '?action=profile;u=' . $row['id_member_updated'],
 					'link' => empty($row['id_member_updated']) ? $row['name_updated'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member_updated'] . '">' . $row['name_updated'] . '</a>',
 				],
-				'approved' => $row['approved'],
+				'approved' => (int) $row['approved'],
 			];
 
-			$this->num_views += $row['num_views'];
-			$this->boards[] = $row['id_board'];
+			$this->num_views += (int) $row['num_views'];
+			$this->boards[] = (int) $row['id_board'];
 
 			// If there's no poll, id_poll == 0...
 			if ($row['id_poll'] > 0) {
-				$this->polls[] = $row['id_poll'];
+				$this->polls[] = (int) $row['id_poll'];
 			}
 
 			// Store the id_topic with the lowest id_first_msg.
 			if (empty($this->firstTopic)) {
-				$this->firstTopic = $row['id_topic'];
+				$this->firstTopic = (int) $row['id_topic'];
 			}
 
 			// Lowest topic id gets selected as surviving topic id. We need to store this board so we can adjust the topic count (This one will not have a redirect topic)
-			if ($row['id_topic'] < $this->lowestTopicId || empty($this->lowestTopicId)) {
-				$this->lowestTopicId = $row['id_topic'];
-				$this->lowestTopicBoard = $row['id_board'];
+			if ((int) $row['id_topic'] < $this->lowestTopicId || empty($this->lowestTopicId)) {
+				$this->lowestTopicId = (int) $row['id_topic'];
+				$this->lowestTopicBoard = (int) $row['id_board'];
 			}
 
-			$this->is_sticky = max($this->is_sticky, $row['is_sticky']);
+			$this->is_sticky = max($this->is_sticky, (int) $row['is_sticky']);
 		}
 		Db::$db->free_result($request);
 	}
@@ -1312,7 +1275,7 @@ class TopicMerge implements ActionInterface
 	/**
 	 * Gets the boards in which the user is allowed to merge topics.
 	 */
-	protected function getMergeBoards()
+	protected function getMergeBoards(): void
 	{
 		$this->merge_boards = User::$me->boardsAllowedTo('merge_any');
 
@@ -1343,11 +1306,6 @@ class TopicMerge implements ActionInterface
 
 		Db::$db->free_result($request);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TopicMerge::exportStatic')) {
-	TopicMerge::exportStatic();
 }
 
 ?>

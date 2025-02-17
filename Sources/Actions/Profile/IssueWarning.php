@@ -5,25 +5,30 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Parser;
 use SMF\PersonalMessage\PM;
 use SMF\Profile;
+use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
@@ -33,20 +38,9 @@ use SMF\Utils;
  */
 class IssueWarning implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'list_getUserWarnings' => 'list_getUserWarnings',
-			'list_getUserWarningCount' => 'list_getUserWarningCount',
-			'issueWarning' => 'issueWarning',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -59,21 +53,19 @@ class IssueWarning implements ActionInterface
 	 */
 	public array $issueErrors = [];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['preview']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['preview']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
 
 	/**
 	 * Does the job.
@@ -293,13 +285,14 @@ class IssueWarning implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// If we're not warning for a message skip any that are.
-			if (!Utils::$context['warning_for_message'] && strpos($row['body'], '{MESSAGE}') !== false) {
+			if (!Utils::$context['warning_for_message'] && str_contains($row['body'], '{MESSAGE}')) {
 				continue;
 			}
 
 			Utils::$context['notification_templates'][] = [
 				'title' => $row['template_title'],
-				'body' => $row['body'],
+				// Decode special chars because this will be passed through Utils::escapeJavaScript()
+				'body' => Utils::htmlspecialcharsDecode($row['body']),
 			];
 		}
 		Db::$db->free_result($request);
@@ -308,47 +301,28 @@ class IssueWarning implements ActionInterface
 		foreach (['spamming', 'offence', 'insulting'] as $type) {
 			Utils::$context['notification_templates'][] = [
 				'title' => Lang::$txt['profile_warning_notify_title_' . $type],
-				'body' => sprintf(Lang::$txt['profile_warning_notify_template_outline' . (!empty(Utils::$context['warning_for_message']) ? '_post' : '')], Lang::$txt['profile_warning_notify_for_' . $type]),
+				'body' => Lang::getTxt('profile_warning_notify_template_outline' . (!empty(Utils::$context['warning_for_message']) ? '_post' : ''), ['REASON' => Lang::$txt['profile_warning_notify_for_' . $type]]),
 			];
 		}
 
 		// Replace all the common variables in the templates.
 		foreach (Utils::$context['notification_templates'] as $k => $name) {
-			Utils::$context['notification_templates'][$k]['body'] = strtr($name['body'], [
-				'{MEMBER}' => Utils::htmlspecialcharsDecode(Utils::$context['member']['name']),
-				'{MESSAGE}' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . Utils::htmlspecialcharsDecode(Utils::$context['warned_message_subject']) . '[/url]',
-				'{SCRIPTURL}' => Config::$scripturl,
-				'{FORUMNAME}' => Config::$mbname,
-				'{REGARDS}' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
-			]);
+			Utils::$context['notification_templates'][$k]['body'] = Lang::formatText(
+				$name['body'],
+				[
+					'MEMBER' => Utils::htmlspecialcharsDecode(Utils::$context['member']['name']),
+					'MESSAGE' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . Utils::htmlspecialcharsDecode(Utils::$context['warned_message_subject']) . '[/url]',
+					'SCRIPTURL' => Config::$scripturl,
+					'FORUMNAME' => Config::$mbname,
+					'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
+				],
+			);
 		}
 	}
 
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Get the data about a user's warnings.
@@ -417,24 +391,7 @@ class IssueWarning implements ActionInterface
 		list($total_warnings) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $total_warnings;
-	}
-
-	/**
-	 * Backward compatibility wrapper.
-	 *
-	 * @param int $memID The ID of the user.
-	 */
-	public static function issueWarning(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
+		return (int) $total_warnings;
 	}
 
 	/******************
@@ -514,8 +471,10 @@ class IssueWarning implements ActionInterface
 						'body' => 'string-65534',
 					],
 					[
-						Utils::htmlspecialchars($_POST['warn_sub']),
-						Utils::htmlspecialchars($_POST['warn_body']),
+						[
+							Utils::htmlspecialchars($_POST['warn_sub']),
+							Utils::htmlspecialchars($_POST['warn_body']),
+						],
 					],
 					['id_notice'],
 					1,
@@ -545,15 +504,17 @@ class IssueWarning implements ActionInterface
 						'body' => 'string-65534',
 					],
 					[
-						User::$me->id,
-						User::$me->name,
-						'warning',
-						Profile::$member->id,
-						Profile::$member->name,
-						time(),
-						(int) $id_notice,
-						$level_change,
-						$_POST['warn_reason'],
+						[
+							User::$me->id,
+							User::$me->name,
+							'warning',
+							Profile::$member->id,
+							Profile::$member->name,
+							time(),
+							(int) $id_notice,
+							$level_change,
+							$_POST['warn_reason'],
+						],
 					],
 					['id_comment'],
 				);
@@ -583,6 +544,7 @@ class IssueWarning implements ActionInterface
 	 */
 	protected function preview(): void
 	{
+		Theme::loadTemplate('Xml');
 		$warning_body = !empty($_POST['warn_body']) ? trim(Lang::censorText($_POST['warn_body'])) : '';
 
 		Utils::$context['preview_subject'] = !empty($_POST['warn_sub']) ? trim(Utils::htmlspecialchars($_POST['warn_sub'])) : '';
@@ -592,8 +554,8 @@ class IssueWarning implements ActionInterface
 		}
 
 		if (!empty($_POST['warn_body'])) {
-			Msg::preparsecode($warning_body);
-			$warning_body = BBCodeParser::load()->parse($warning_body);
+			Msg::preparsecode($warning_body, false, !empty(Config::$modSettings['autoLinkUrls']));
+			$warning_body = Parser::transform($warning_body);
 		}
 
 		// Try to remember some bits.
@@ -605,11 +567,6 @@ class IssueWarning implements ActionInterface
 			'body_preview' => $warning_body,
 		];
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\IssueWarning::exportStatic')) {
-	IssueWarning::exportStatic();
 }
 
 ?>

@@ -11,6 +11,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
+	tab-size: 4ch;
 }
 ::selection {
 	text-shadow: none;
@@ -93,7 +94,7 @@ textarea {
 }
 
 /* Use a consistent monospace font everywhere */
-.monospace, .bbc_code, .phpcode, pre {
+.monospace, .bbc_code, .bbc_tt, .phpcode, pre {
 	font-family: "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
 }
 
@@ -142,6 +143,9 @@ fieldset legend {
 	color: #555;
 	box-shadow: none;
 	border: none;
+}
+fieldset legend a {
+	font-weight: normal;
 }
 summary {
 	margin: 5px 0;
@@ -375,7 +379,7 @@ blockquote cite::before {
 	margin: 1px 0 6px 0;
 	padding: 3px 12px;
 	overflow: auto;
-	white-space: nowrap;
+	white-space: pre;
 	max-height: 25em;
 }
 /* The "Quote:" and "Code:" header parts... */
@@ -391,6 +395,11 @@ blockquote cite::before {
 /* Expand code bbc */
 .expand_code {
 	max-height: none;
+}
+/* Inline code */
+.bbc_tt {
+	background-color: rgba(127, 127, 127, 0.15);
+	padding: 0 0.2ch;
 }
 /* Styling for BBC tags */
 .bbc_link {
@@ -409,14 +418,15 @@ blockquote cite::before {
 .bbc_table {
 	font: inherit;
 	color: inherit;
+	border: 1px solid #ddd;
+	border-collapse: collapse;
 }
-.centertext .bbc_table {
-    margin: auto;
-}
+.bbc_table th,
 .bbc_table td {
-	font: inherit;
 	color: inherit;
 	vertical-align: top;
+	padding: 4px 8px;
+	border: 1px solid #ddd;
 }
 .bbc_list {
 	text-align: left;
@@ -448,6 +458,30 @@ blockquote cite::before {
 	max-height: none;
 	max-width: 100%;
 }
+.bbc_h1, .bbc_h2, .bbc_h3, .bbc_h4, .bbc_h5, .bbc_h6 {
+	font-weight: bold;
+	margin: 0.5em 0;
+	line-height: normal;
+}
+.bbc_h1 {
+	font-size: 2em;
+}
+.bbc_h2 {
+	font-size: 1.8em;
+}
+.bbc_h3 {
+	font-size: 1.6em;
+}
+.bbc_h4 {
+	font-size: 1.4em;
+}
+.bbc_h5 {
+	font-size: 1.2em;
+}
+.bbc_h6 {
+	font-size: 1em;
+}
+
 /* No image should have a border when linked. */
 a img {
 	border: 0;
@@ -557,8 +591,17 @@ strong[id^='child_list_']::after {
 	color: #078907;
 }
 
-.holiday > span {
+.holiday > span.label {
 	color: #025dff;
+}
+.holiday_wrapper > span:first-of-type::before {
+	content: '(';
+}
+.holiday_wrapper > span:first-of-type::after {
+	content: ',';
+}
+.holiday_wrapper > span:last-of-type::after {
+	content: ')';
 }
 /* Events that are currently selected on the calendar. Won't see it much, probably. */
 .sel_event {
@@ -1444,7 +1487,8 @@ ul li.greeting {
 #display_jump_to_select,
 #message_index_jump_to_select,
 #search_jump_to_select,
-#quick_mod_jump_to_select {
+#quick_mod_jump_to_select,
+#list_integration_hooks select {
 	width: 29ch;
 }
 
@@ -1455,13 +1499,22 @@ ul li.greeting {
 
 /* Styles for edit event section
 ---------------------------------------------------- */
+#post_header + #post_event {
+	margin: 1em 0 2em;
+}
 #post_event .roundframe {
-	padding: 12px 12%;
+	padding: 12px 8%;
 	overflow: auto;
 }
 #post_event fieldset {
-	padding: 6px;
+	padding: 6px 12px;
 	clear: both;
+	margin-bottom: 12px;
+}
+#post_event fieldset:not(:last-child) {
+	margin-bottom: 0;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 }
 #post_event span.label {
 	margin: 0 0.5em 0 2px;
@@ -1515,18 +1568,44 @@ ul li.greeting {
 }
 #post_event input[type="checkbox"] {
 	height: auto;
+	vertical-align: initial;
 }
 #post_event input[type="text"][disabled] {
 	color: transparent;
 }
-#post_event select, #event_options input[type="text"], #tz {
-	max-width: calc(100% - 75px);
+#tz {
+	max-width: 100%;
 }
-#post_event select, #evtitle, #event_location {
-	width: calc(100% - 75px);
+#rrule_end {
+	white-space: nowrap;
 }
-#post_event input[type="checkbox"] + select {
-	max-width: calc(100% - 95px);
+.rrule_input.inline_block {
+	vertical-align: top;
+}
+.byday_label,
+.bymonth_label,
+.bymonthday_label {
+	white-space: nowrap;
+}
+.byday_label span,
+.bymonth_label span,
+.bymonthday_label span {
+	display: inline-block;
+}
+.bymonth_label span {
+	width: 4ch;
+}
+.bymonthday_label span {
+	width: 2ch;
+	text-align: center;
+}
+.bymonthday_label input:disabled + span {
+	opacity: 0.5;
+}
+#event_link_to label,
+#topic_link_to label {
+	margin-right: 2ch;
+	display: inline-block;
 }
 
 /* Styles for the recent messages section.
@@ -1741,6 +1820,12 @@ tr.windowbg td, tr.bg td, .table_grid tr td {
 .main_icons.alerts::before {
 	background: url(../images/icons/bell.png);
 	background-size: 16px;
+}
+.main_icons.feed::before {
+	background: url(../images/icons/feed.svg);
+	background-size: 16px;}
+a.main_icons.feed::before {
+	margin: -0.2em -0.4em 0;
 }
 /* Load better icons for higher resolution screens */
 @media
@@ -2310,7 +2395,7 @@ dl {
 	float: left;
 	margin: 0 0 3px 0;
 }
-#detailedinfo .noborder {
+#detailedinfo dl.settings:last-of-type {
 	border-bottom: 0;
 }
 #detailedinfo dt.clear {
@@ -2829,6 +2914,10 @@ dl.addrules dt.floatleft {
 	width: 480px;
 	padding: 0 6px 6px 6px;
 }
+.popup_window.large {
+	min-width: 80%;
+	top: 7vh;
+}
 .popup_heading {
 	padding: 10px 8px;
 	color: #bf6900;
@@ -2836,13 +2925,16 @@ dl.addrules dt.floatleft {
 .popup_content {
 	color: #222;
 	line-height: 1.6em;
-	max-height: 30em;
+	max-height: 65vh;
 	overflow: auto;
 	padding: 10px 8px;
 	border: 1px solid #bbb;
 	border-bottom: 1px solid #ddd;
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+.popup_window.large .popup_content {
+	max-height: 80vh;
 }
 #main_menu .popup_heading,
 #genericmenu .popup_heading,
@@ -3079,6 +3171,8 @@ h3 .collapse {
 }
 p.moderators {
 	font-size: 0.9em;
+}
+p.moderators a {
 	font-weight: bold;
 }
 span.postby {
@@ -3417,7 +3511,7 @@ img.avatar {
 	align-items: flex-start;
 	font-weight: normal;
 }
-#reason::before {
+.lastedit.reason::before {
 	content: " - ";
 }
 .subject_title a {
@@ -3483,7 +3577,7 @@ img.smiley {
 }
 #quickreply_options .roundframe {
 	margin: 0;
-	padding: 8px 10% 12px 10%;
+	padding: 8px 8% 12px;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
@@ -3493,25 +3587,30 @@ img.smiley {
 }
 /* Styles for edit post section */
 form#postmodify .roundframe {
-	padding: 12px 12%;
-	margin: 12px 0 0 0;
+	padding: 12px 8%;
 }
 #post_header {
 	padding: 6px;
 	overflow: hidden;
 }
-#post_header dt {
+#post_header dt,
+#event_options dt {
 	float: left;
 	padding: 0;
 	width: 15%;
 	margin: 6px 0 0 0;
 	font-weight: bold;
 }
-#post_header dd {
+#post_header dd,
+#event_options dd {
 	float: left;
 	padding: 0;
 	width: 83%;
 	margin: 4px 0;
+}
+#post_header input[type="text"],
+#event_basic_info input[type="text"] {
+	width: 100%;
 }
 #post_header img {
 	vertical-align: middle;
@@ -3788,11 +3887,22 @@ h3.titlebg, h4.titlebg, .titlebg, h3.subbg, h4.subbg, .subbg {
 .generic_list_wrapper .information div {
 	background: none;
 }
-.information a:not(.button) {
+.information a:not(.button):not(.bbc_link) {
 	font-weight: bold;
 }
 p.information img {
 	vertical-align: middle;
+}
+.information.events {
+	padding: 0;
+}
+.information.events ul {
+	display: flex;
+	flex-flow: row wrap;
+}
+.information.events li {
+	margin: 12px;
+	flex: 1 0 auto;
 }
 #messageindex .information {
 	border-radius: 0;
@@ -3933,7 +4043,7 @@ h3.profile_hd::before,
 #top_section, .quickbuttons > li,
 .quickbuttons li ul, .quickbuttons li ul li a:hover, .quickbuttons ul li a:focus,
 .inline_mod_check, .popup_window, #inner_section, .post_options ul,
-.post_options ul a:hover, .post_options ul a:focus, .notify_dropdown a:hover, .notify_dropdown a:focus {
+.post_options ul a:hover, .post_options ul a:focus, .dropmenu .viewport .overview a:hover, .dropmenu .viewport .overview a:focus {
 	background: #fff; /* fallback for some browsers */
 	background-image: linear-gradient(#e2e9f3 0%, #fff 70%);
 }
@@ -3949,20 +4059,21 @@ h3.profile_hd::before,
 }
 
 /* Topic/Board follow-alert menu */
-.notify_dropdown strong {
+.dropmenu .viewport .overview strong {
 	font-size: 1.1em;
 }
-.notify_dropdown a {
+.dropmenu .viewport .overview a {
 	display: block;
 	padding: 0.5em;
 	text-decoration: none;
 	border: 1px solid transparent;
 	border-radius: 3px;
 }
-.notify_dropdown a:hover, .notify_dropdown a:focus {
+.dropmenu .viewport .overview a:hover,
+.dropmenu .viewport .overview a:focus {
 	border-color: #ddd;
 }
-.notify_dropdown span {
+.dropmenu .viewport .overview span {
 	font-size: 0.9em;
 }
 

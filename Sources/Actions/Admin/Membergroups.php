@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -34,23 +37,9 @@ use SMF\Utils;
  */
 class Membergroups implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ModifyMembergroups',
-			'AddMembergroup' => 'AddMembergroup',
-			'DeleteMembergroup' => 'DeleteMembergroup',
-			'EditMembergroup' => 'EditMembergroup',
-			'MembergroupIndex' => 'MembergroupIndex',
-			'ModifyMembergroupsettings' => 'ModifyMembergroupsettings',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -85,18 +74,6 @@ class Membergroups implements ActionInterface
 		'members' => ['SMF\\Actions\\Groups::call', 'manage_membergroups'],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -106,6 +83,17 @@ class Membergroups implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Language and template stuff, the usual.
+		Lang::load('ManageMembers');
+		Theme::loadTemplate('ManageMembergroups');
+
+		// Setup the admin tabs.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['membergroups_title'],
+			'help' => 'membergroups',
+			'description' => Lang::$txt['membergroups_description'],
+		];
+
 		// Do the permission check, you might not be allowed here.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -355,12 +343,22 @@ class Membergroups implements ActionInterface
 				'',
 				'{db_prefix}membergroups',
 				[
-					'description' => 'string', 'group_name' => 'string-80', 'min_posts' => 'int',
-					'icons' => 'string', 'online_color' => 'string', 'group_type' => 'int',
+					'description' => 'string',
+					'group_name' => 'string-80',
+					'min_posts' => 'int',
+					'icons' => 'string',
+					'online_color' => 'string',
+					'group_type' => 'int',
 				],
 				[
-					'', Utils::htmlspecialchars($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
-					'1#icon.png', '', $_POST['group_type'],
+					[
+						'',
+						Utils::htmlspecialchars($_POST['group_name'], ENT_QUOTES),
+						($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
+						'1#icon.png',
+						'',
+						$_POST['group_type'],
+					],
 				],
 				['id_group'],
 				1,
@@ -369,7 +367,7 @@ class Membergroups implements ActionInterface
 			IntegrationHook::call('integrate_add_membergroup', [$id_group, $postCountBasedGroup]);
 
 			// Update the post groups now, if this is a post group!
-			if (isset($_POST['min_posts'])) {
+			if (($_POST['min_posts'] ?? -1) != -1) {
 				Logging::updateStats('postgroups');
 			}
 
@@ -656,7 +654,10 @@ class Membergroups implements ActionInterface
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
 
-		@list($group) = Group::load($_REQUEST['group']);
+		$groups = Group::load((int) $_REQUEST['group']);
+
+		/** @var \SMF\Group $group */
+		$group = array_shift($groups);
 
 		if (!isset($group) || !($group instanceof Group)) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
@@ -675,7 +676,7 @@ class Membergroups implements ActionInterface
 		Utils::$context['is_moderator_group'] = $group->is_moderator_group;
 
 		// Get a list of all the image formats we can select for icons.
-		$imageExts = ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg'];
+		$imageExts = ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg', 'webp'];
 
 		// Scan the icons directory.
 		Utils::$context['possible_icons'] = [];
@@ -909,7 +910,7 @@ class Membergroups implements ActionInterface
 		IntegrationHook::call('integrate_view_membergroup');
 
 		Utils::$context['sub_template'] = 'edit_group';
-		Utils::$context['page_title'] = Lang::$txt['membergroups_edit_group'];
+		Utils::$context['page_title'] = Lang::getTxt('membergroups_edit_group', ['name' => Utils::$context['group']->name]);
 
 		SecurityToken::create('admin-mmg');
 	}
@@ -954,28 +955,6 @@ class Membergroups implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for this admin area.
 	 *
 	 * @return array $config_vars for the membergroups area.
@@ -992,63 +971,6 @@ class Membergroups implements ActionInterface
 		return $config_vars;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the add sub-action.
-	 */
-	public static function AddMembergroup(): void
-	{
-		self::load();
-		self::$obj->subaction = 'add';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the delete sub-action.
-	 */
-	public static function DeleteMembergroup(): void
-	{
-		self::load();
-		self::$obj->subaction = 'delete';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the edit sub-action.
-	 */
-	public static function EditMembergroup(): void
-	{
-		self::load();
-		self::$obj->subaction = 'edit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the index sub-action.
-	 */
-	public static function MembergroupIndex(): void
-	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function ModifyMembergroupsettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1058,17 +980,6 @@ class Membergroups implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Language and template stuff, the usual.
-		Lang::load('ManageMembers');
-		Theme::loadTemplate('ManageMembergroups');
-
-		// Setup the admin tabs.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['membergroups_title'],
-			'help' => 'membergroups',
-			'description' => Lang::$txt['membergroups_description'],
-		];
-
 		IntegrationHook::call('integrate_manage_membergroups', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -1077,11 +988,6 @@ class Membergroups implements ActionInterface
 			$this->subaction = 'settings';
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Membergroups::exportStatic')) {
-	Membergroups::exportStatic();
 }
 
 ?>

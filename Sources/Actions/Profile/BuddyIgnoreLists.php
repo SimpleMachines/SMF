@@ -5,47 +5,38 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
 
 /**
- * Show all the users buddies, as well as a add/delete interface.
+ * Show all the users buddies, as well as an add/delete interface.
  */
 class BuddyIgnoreLists implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'editBuddyIgnoreLists',
-			'editBuddies' => 'editBuddies',
-			'editIgnoreList' => 'editIgnoreList',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -82,18 +73,6 @@ class BuddyIgnoreLists implements ActionInterface
 		'buddies' => 'editBuddies',
 		'ignore' => 'editIgnoreList',
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -316,7 +295,11 @@ class BuddyIgnoreLists implements ActionInterface
 					}
 
 					if ($column['bbc'] && !empty(Utils::$context['buddies'][$buddy]['options'][$key])) {
-						Utils::$context['buddies'][$buddy]['options'][$key] = strip_tags(BBCodeParser::load()->parse(Utils::$context['buddies'][$buddy]['options'][$key]));
+						Utils::$context['buddies'][$buddy]['options'][$key] = Parser::transform(
+							string: Utils::$context['buddies'][$buddy]['options'][$key],
+							output_type: Parser::OUTPUT_TEXT,
+							options: ['hard_breaks' => 0],
+						);
 					} elseif ($column['type'] == 'check') {
 						Utils::$context['buddies'][$buddy]['options'][$key] = Utils::$context['buddies'][$buddy]['options'][$key] == 0 ? Lang::$txt['no'] : Lang::$txt['yes'];
 					}
@@ -486,58 +469,6 @@ class BuddyIgnoreLists implements ActionInterface
 		}
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the buddies sub-action.
-	 *
-	 * @param int $memID The ID of the member
-	 */
-	public static function editBuddies($memID): void
-	{
-		Profile::load($memID);
-		self::load();
-		self::$obj->subaction = 'buddies';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the buddies sub-action.
-	 *
-	 * @param int $memID The ID of the member
-	 */
-	public static function editIgnoreList($memID): void
-	{
-		Profile::load($memID);
-		self::load();
-		self::$obj->subaction = 'ignore';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -555,11 +486,6 @@ class BuddyIgnoreLists implements ActionInterface
 			$this->subaction = $_REQUEST['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\BuddyIgnoreLists::exportStatic')) {
-	BuddyIgnoreLists::exportStatic();
 }
 
 ?>

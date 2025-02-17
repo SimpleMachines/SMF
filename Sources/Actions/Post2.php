@@ -5,29 +5,34 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\Autolinker;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
+use SMF\Calendar\EventOccurrence;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
 use SMF\ErrorHandler;
-use SMF\Event;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Parser;
 use SMF\Poll;
 use SMF\Search\SearchApi;
 use SMF\Security;
@@ -42,19 +47,6 @@ use SMF\Verifier;
  */
 class Post2 extends Post
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Post2',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -95,12 +87,12 @@ class Post2 extends Post
 	 *********************/
 
 	/**
-	 * @var object
+	 * @var \SMF\Msg
 	 *
 	 * An instance of SMF\Msg for the existing post.
 	 * Only used when editing a post.
 	 */
-	protected object $existing_msg;
+	protected Msg $existing_msg;
 
 	/**
 	 * @var bool
@@ -109,21 +101,19 @@ class Post2 extends Post
 	 */
 	protected bool $moderation_action;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['xml']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
@@ -214,7 +204,7 @@ class Post2 extends Post
 
 		// In case we have approval permissions and want to override.
 		if ($this->can_approve && Config::$modSettings['postmod_active']) {
-			$this->becomes_approved = isset($_POST['quickReply']) || !empty($_REQUEST['approve']) ? 1 : 0;
+			$this->becomes_approved = isset($_POST['quickReply']) || !empty($_REQUEST['approve']) ? true : false;
 
 			$approve_has_changed = isset($this->existing_msg->approved) ? $this->existing_msg->approved != $this->becomes_approved : false;
 		}
@@ -246,7 +236,7 @@ class Post2 extends Post
 				}
 
 				// Now make sure this email address is not banned from posting.
-				User::isBannedEmail($_POST['email'], 'cannot_post', sprintf(Lang::$txt['you_are_post_banned'], Lang::$txt['guest_title']));
+				User::isBannedEmail($_POST['email'], 'cannot_post', Lang::getTxt('you_are_post_banned', ['name' => Lang::$txt['guest_title']]));
 			}
 
 			// In case they are making multiple posts this visit, help them along by storing their name.
@@ -266,7 +256,7 @@ class Post2 extends Post
 			$this->errors[] = 'no_subject';
 		}
 
-		if (!isset($_POST['message']) || Utils::htmlTrim(Utils::htmlspecialchars($_POST['message']), ENT_QUOTES) === '') {
+		if (!isset($_POST['message']) || Utils::htmlTrim(Utils::htmlspecialchars($_POST['message'], ENT_QUOTES)) === '') {
 			$this->errors[] = 'no_message';
 		} elseif (!empty(Config::$modSettings['max_messageLength']) && Utils::entityStrlen($_POST['message']) > Config::$modSettings['max_messageLength']) {
 			$this->errors[] = ['long_message', [Config::$modSettings['max_messageLength']]];
@@ -279,15 +269,28 @@ class Post2 extends Post
 				User::$me->name = $_POST['guestname'];
 			}
 
+			// Check for links with broken URLs.
+			if (
+				!isset($_POST['save_draft'])
+				&& $_POST['message'] !== Autolinker::load()->fixUrlsInBBC($_POST['message'])
+			) {
+				$this->errors[] = 'links_malformed_review';
+			}
+
 			Msg::preparsecode($_POST['message']);
 
 			// Let's see if there's still some content left without the tags.
-			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse($_POST['message'], false), implode('', Utils::$context['allowed_html_tags']))) === '' && (!User::$me->allowedTo('bbc_html') || strpos($_POST['message'], '[html]') === false)) {
+			$temp = Parser::transform(
+				string: $_POST['message'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+			);
+
+			if (Utils::htmlTrim(strip_tags($temp, implode('', Utils::$context['allowed_html_tags']))) === '' && (!User::$me->allowedTo('bbc_html') || !str_contains($_POST['message'], '[html]'))) {
 				$this->errors[] = 'no_message';
 			}
 		}
 
-		if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && Utils::htmlTrim($_POST['evtitle']) === '') {
+		if (isset($_POST['calendar']) && !isset($_REQUEST['deleteevent']) && !isset($_REQUEST['event_id_to_link']) && Utils::htmlTrim($_POST['evtitle']) === '') {
 			$this->errors[] = 'no_event';
 		}
 
@@ -376,14 +379,14 @@ class Post2 extends Post
 			}
 
 			foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
-				if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . User::$me->id) === false) {
+				if ($attachID != 'initial_error' && !str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 					continue;
 				}
 
 				// If there was an initial error just show that message.
 				if ($attachID == 'initial_error') {
 					$attach_errors[] = '<dt>' . Lang::$txt['attach_no_upload'] . '</dt>';
-					$attach_errors[] = '<dd>' . (is_array($attachment) ? vsprintf(Lang::$txt[$attachment[0]], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</dd>';
+					$attach_errors[] = '<dd>' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</dd>';
 
 					unset($_SESSION['temp_attachments']);
 
@@ -416,7 +419,7 @@ class Post2 extends Post
 
 				if (!empty($attachmentOptions['errors'])) {
 					// Sort out the errors for display and delete any associated files.
-					$attach_errors[] = '<dt>' . sprintf(Lang::$txt['attach_warning'], $attachment['name']) . '</dt>';
+					$attach_errors[] = '<dt>' . Lang::getTxt('attach_warning', $attachment) . '</dt>';
 
 					$log_these = ['attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file'];
 
@@ -428,7 +431,7 @@ class Post2 extends Post
 								ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 							}
 						} else {
-							$attach_errors[] = '<dd>' . vsprintf(Lang::$txt[$error[0]], (array) $error[1]) . '</dd>';
+							$attach_errors[] = '<dd>' . Lang::getTxt($error[0], (array) $error[1]) . '</dd>';
 						}
 					}
 
@@ -515,58 +518,97 @@ class Post2 extends Post
 			unset($_SESSION['already_attached']);
 		}
 
-		// If we had a draft for this, its time to remove it since it was just posted
+		// If we had a draft for this, it's time to remove it since it was just posted
 		if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty($_POST['id_draft'])) {
-			Draft::delete($_POST['id_draft']);
+			Draft::delete((int) $_POST['id_draft']);
 		}
 
 		// Editing or posting an event?
-		if (isset($_POST['calendar']) && (!isset($_REQUEST['eventid']) || $_REQUEST['eventid'] == -1)) {
-			// Make sure they can link an event to this post.
-			Calendar::canLinkEvent();
+		if (isset($_POST['calendar'])) {
+			if (!isset($_REQUEST['eventid']) || $_REQUEST['eventid'] == -1) {
+				// Linking an existing event.
+				if (
+					isset($_REQUEST['event_id_to_link'], $_REQUEST['event_link_to'])
+					&& $_REQUEST['event_link_to'] === 'existing'
+					&& Event::load((int) $_REQUEST['event_id_to_link']) !== []
+				) {
+					$event = Event::$loaded[(int) $_REQUEST['event_id_to_link']];
 
-			// Insert the event.
-			$eventOptions = [
-				'board' => Board::$info->id,
-				'topic' => Topic::$topic_id,
-				'title' => $_POST['evtitle'],
-				'location' => $_POST['event_location'],
-				'member' => User::$me->id,
-			];
-			Event::create($eventOptions);
-		} elseif (isset($_POST['calendar'])) {
-			$_REQUEST['eventid'] = (int) $_REQUEST['eventid'];
+					Calendar::canLinkEvent(true, $event);
 
-			// Validate the post...
-			Calendar::validateEventPost();
+					if (!empty($event->topic)) {
+						ErrorHandler::fatalLang('event_already_linked', 'user');
+					}
 
-			// If you're not allowed to edit any and all events, you have to be the poster.
-			if (!User::$me->allowedTo('calendar_edit_any')) {
-				User::$me->isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && Calendar::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
-			}
+					$event->board = Board::$info->id;
+					$event->topic = Topic::$topic_id;
+					$event->save();
+				}
+				// Creating a new event.
+				else {
+					// Make sure they can link an event to this post.
+					Calendar::canLinkEvent(true);
 
-			// Delete it?
-			if (isset($_REQUEST['deleteevent'])) {
-				Db::$db->query(
-					'',
-					'DELETE FROM {db_prefix}calendar
-					WHERE id_event = {int:id_event}',
-					[
-						'id_event' => $_REQUEST['eventid'],
-					],
-				);
-			}
-			// ... or just update it?
-			else {
-				// Set up our options
-				$eventOptions = [
-					'board' => Board::$info->id,
-					'topic' => Topic::$topic_id,
-					'title' => $_POST['evtitle'],
-					'location' => $_POST['event_location'],
-					'member' => User::$me->id,
-				];
-				Event::modify($_REQUEST['eventid'], $eventOptions);
+					$eventOptions = [
+						'board' => Board::$info->id,
+						'topic' => Topic::$topic_id,
+						'title' => $_POST['evtitle'],
+						'location' => $_POST['event_location'],
+						'member' => User::$me->id,
+					];
+					Event::create($eventOptions);
+				}
+			} else {
+				$_REQUEST['eventid'] = (int) $_REQUEST['eventid'];
+
+				// Validate the post...
+				Calendar::validateEventPost();
+
+				// If you're not allowed to edit any and all events, you have to be the poster.
+				if (!User::$me->allowedTo('calendar_edit_any')) {
+					User::$me->isAllowedTo('calendar_edit_' . (!empty(User::$me->id) && Calendar::getEventPoster($_REQUEST['eventid']) == User::$me->id ? 'own' : 'any'));
+				}
+
+				// Delete it?
+				if (isset($_REQUEST['deleteevent'])) {
+					if (isset($_REQUEST['recurrenceid'])) {
+						EventOccurrence::remove($_REQUEST['eventid'], $_REQUEST['recurrenceid'], !empty($_REQUEST['affects_future']));
+					} else {
+						Event::remove($_REQUEST['eventid']);
+					}
+				}
+				// Unlink it from the topic?
+				elseif (isset($_REQUEST['unlink'])) {
+					$eventOptions = [
+						'board' => 0,
+						'topic' => 0,
+						'title' => $_POST['evtitle'],
+						'location' => $_POST['event_location'],
+					];
+
+					Event::modify($_REQUEST['eventid'], $eventOptions);
+				}
+				// ... or just update it?
+				else {
+					// Set up our options
+					$eventOptions = [
+						'board' => Board::$info->id,
+						'topic' => Topic::$topic_id,
+						'title' => $_POST['evtitle'],
+						'location' => $_POST['event_location'],
+						'member' => User::$me->id,
+					];
+
+					if (!empty($_REQUEST['recurrenceid'])) {
+						$eventOptions['recurrenceid'] = $_REQUEST['recurrenceid'];
+					}
+
+					if (!empty($_REQUEST['affects_future'])) {
+						$eventOptions['affects_future'] = $_REQUEST['affects_future'];
+					}
+
+					Event::modify($_REQUEST['eventid'], $eventOptions);
+				}
 			}
 		}
 
@@ -592,8 +634,18 @@ class Post2 extends Post
 			Db::$db->insert(
 				'ignore',
 				'{db_prefix}log_notify',
-				['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'],
-				[User::$me->id, Topic::$topic_id, 0],
+				[
+					'id_member' => 'int',
+					'id_topic' => 'int',
+					'id_board' => 'int',
+				],
+				[
+					[
+						User::$me->id,
+						Topic::$topic_id,
+						0,
+					],
+				],
 				['id_member', 'id_topic', 'id_board'],
 			);
 		} elseif (!$newTopic) {
@@ -665,32 +717,6 @@ class Post2 extends Post
 		}
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -704,7 +730,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Displays a visual verification control if necessary
 	 */
 	protected function checkVerification(): void
 	{
@@ -726,7 +752,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles adding/updating/deleting attachments
 	 */
 	protected function submitAttachments(): void
 	{
@@ -736,7 +762,7 @@ class Post2 extends Post
 			$keep_ids = [];
 
 			foreach ($_POST['attach_del'] as $dummy) {
-				if (strpos($dummy, 'post_tmp_' . User::$me->id) !== false) {
+				if (str_contains($dummy, 'post_tmp_' . User::$me->id)) {
 					$keep_temp[] = $dummy;
 				} else {
 					$keep_ids[] = (int) $dummy;
@@ -751,7 +777,7 @@ class Post2 extends Post
 							&& in_array($attachment['name'], $_SESSION['temp_attachments']['post']['files'])
 						)
 						|| in_array($attachID, $keep_temp)
-						|| strpos($attachID, 'post_tmp_' . User::$me->id) === false
+						|| !str_contains($attachID, 'post_tmp_' . User::$me->id)
 					) {
 						continue;
 					}
@@ -787,12 +813,12 @@ class Post2 extends Post
 
 			unset($_SESSION['already_attached']);
 
-			$this->errors[] = ['cannot_post_attachment', [Board::$info->name]];
+			$this->errors[] = ['cannot_post_attachment', ['board' => Board::$info->name]];
 		}
 	}
 
 	/**
-	 *
+	 * Handles various checks when submitting a new reply - permissions, possible errors, etc.
 	 */
 	protected function prepareNewReply(): void
 	{
@@ -882,7 +908,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles various checks when submitting a new topic
 	 */
 	protected function prepareNewTopic(): void
 	{
@@ -932,7 +958,7 @@ class Post2 extends Post
 	}
 
 	/**
-	 *
+	 * Handles various checks when editing an existing post
 	 */
 	protected function prepareEdit(): void
 	{
@@ -1034,8 +1060,8 @@ class Post2 extends Post
 		Utils::$context['poster_id'] = $this->existing_msg->id_member;
 
 		// Can they approve it?
-		$approve_checked = (!empty($REQUEST['approve']) ? 1 : 0);
-		$this->becomes_approved = Config::$modSettings['postmod_active'] ? ($this->can_approve && !$this->existing_msg->approved ? $approve_checked : $this->existing_msg->approved) : 1;
+		$approve_checked = (!empty($REQUEST['approve']) ? true : false);
+		$this->becomes_approved = Config::$modSettings['postmod_active'] ? ($this->can_approve && !$this->existing_msg->approved ? $approve_checked : $this->existing_msg->approved > 0) : true;
 
 		if (!User::$me->allowedTo('moderate_forum') || !$this->authorIsGuest) {
 			$_POST['guestname'] = $this->existing_msg->poster_name;
@@ -1046,14 +1072,9 @@ class Post2 extends Post
 		$searchAPI = SearchApi::load();
 
 		if ($searchAPI->supportsMethod('postRemoved')) {
-			$searchAPI->postRemoved($_REQUEST['msg']);
+			$searchAPI->postRemoved((int) $_REQUEST['msg']);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Post2::exportStatic')) {
-	Post2::exportStatic();
 }
 
 ?>

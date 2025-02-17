@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Tasks;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Sapi;
 
 /**
  * Prunes log_topics, log_boards, and log_mark_boards_read.
@@ -29,8 +32,9 @@ class PruneLogTopics extends ScheduledTask
 	 * This executes the task.
 	 *
 	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		// If set to zero, bypass.
 		if (empty(Config::$modSettings['mark_read_max_users']) || (empty(Config::$modSettings['mark_read_beyond']) && empty(Config::$modSettings['mark_read_delete_beyond']))) {
@@ -52,11 +56,8 @@ class PruneLogTopics extends ScheduledTask
 		}
 
 		// Try to prevent timeouts
-		@set_time_limit(300);
-
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Sapi::setTimeLimit(300);
+		Sapi::resetTimeout();
 
 		// Start off by finding the records in log_boards, log_topics & log_mark_read
 		// for users who haven't been around the longest...
@@ -110,7 +111,7 @@ class PruneLogTopics extends ScheduledTask
 		$purge_members = [];
 		$mark_read_members = [];
 
-		foreach($members as $member) {
+		foreach ($members as $member) {
 			if ($member['last_login'] <= $cleanup_beyond) {
 				$purge_members[] = $member['id_member'];
 			} elseif ($member['last_login'] <= $mark_read_cutoff) {

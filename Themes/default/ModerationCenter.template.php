@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Config;
@@ -58,7 +58,7 @@ function template_group_requests_block()
 	foreach (Utils::$context['group_requests'] as $request)
 		echo '
 				<li class="smalltext">
-					<a href="', $request['request_href'], '">', $request['group']['name'], '</a> ', Lang::$txt['mc_groupr_by'], ' ', $request['member']['link'], '
+					', Lang::getTxt('mc_groupr_by', ['group_link' => '<a href="' . $request['request_href'] . '">' . $request['group']['name'] . '</a>', 'member_link' => $request['member']['link']]) ,'
 				</li>';
 
 	// Don't have any watched users right now?
@@ -82,15 +82,15 @@ function template_group_requests_block()
 				aSwapImages: [
 					{
 						sId: \'group_requests_toggle\',
-						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'group_requests_link\',
-						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_group_requests']), ',
-						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_group_requests']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_group_requests']), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_group_requests']), '
 					}
 				],
 				oThemeOptions: {
@@ -123,7 +123,7 @@ function template_watched_users()
 	foreach (Utils::$context['watched_users'] as $user)
 		echo '
 				<li>
-					<span class="smalltext">', sprintf(!empty($user['last_login']) ? Lang::$txt['mc_seen'] : Lang::$txt['mc_seen_never'], $user['link'], $user['last_login']), '</span>
+					<span class="smalltext">', Lang::getTxt(!empty($user['last_login']) ? 'mc_seen' : 'mc_seen_never', $user), '</span>
 				</li>';
 
 	// Don't have any watched users right now?
@@ -147,15 +147,15 @@ function template_watched_users()
 				aSwapImages: [
 					{
 						sId: \'watched_users_toggle\',
-						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'watched_users_link\',
-						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_watched_users']), ',
-						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_watched_users']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_watched_users']), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_watched_users']), '
 					}
 				],
 				oThemeOptions: {
@@ -188,7 +188,7 @@ function template_reported_posts_block()
 	foreach (Utils::$context['reported_posts'] as $post)
 		echo '
 				<li>
-					<span class="smalltext">', sprintf(Lang::$txt['mc_post_report'], $post['report_link'], $post['author']['link']), '</span>
+					<span class="smalltext">', Lang::getTxt('mc_post_report', ['report_link' => $post['report_link'], 'author_link' => $post['author']['link']]), '</span>
 				</li>';
 
 	// Don't have any watched users right now?
@@ -212,15 +212,15 @@ function template_reported_posts_block()
 				aSwapImages: [
 					{
 						sId: \'reported_posts_toggle\',
-						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'reported_posts_link\',
-						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_reports']), ',
-						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_reports']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_reports']), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_reports']), '
 					}
 				],
 				oThemeOptions: {
@@ -277,15 +277,15 @@ function template_reported_users_block()
 				aSwapImages: [
 					{
 						sId: \'reported_users_toggle\',
-						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'reported_users_link\',
-						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_user_reports']), ',
-						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_user_reports']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_user_reports']), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_user_reports']), '
 					}
 				],
 				oThemeOptions: {
@@ -329,7 +329,7 @@ function template_notes()
 		foreach (Utils::$context['notes'] as $note)
 			echo '
 						<li class="smalltext">
-							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . Utils::$context['mod-modnote-del_token_var'] . '=' . Utils::$context['mod-modnote-del_token'] . '" data-confirm="' . Lang::$txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="main_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', $note['text'], '
+							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . Utils::$context['mod-modnote-del_token_var'] . '=' . Utils::$context['mod-modnote-del_token'] . '" data-confirm="' . Lang::$txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="main_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', Utils::adjustHeadingLevels($note['text'], 4), '
 						</li>';
 
 		echo '
@@ -421,10 +421,10 @@ function template_unapproved_posts()
 					<h5>
 						<strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong>
 					</h5>
-					<span class="smalltext">', sprintf(str_replace('<br>', ' ', Lang::$txt['last_post_topic']), $item['time'], '<strong>' . $item['poster']['link'] . '</strong>'), '</span>
+					<span class="smalltext">', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => $item['time'], 'member_link' => '<strong>' . $item['poster']['link'] . '</strong>'])), '</span>
 				</div>
 				<div class="list_posts">
-					<div class="post">', $item['body'], '</div>
+					<div class="post">', Utils::adjustHeadingLevels($item['body'], 5), '</div>
 				</div>
 				', template_quickbuttons($quickbuttons, 'unapproved_posts'), '
 			</div><!-- .windowbg -->';
@@ -487,12 +487,12 @@ function template_user_watch_post_callback($post)
 	$output_html = '
 					<div>
 						<div class="floatleft">
-							<strong><a href="' . Config::$scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a></strong> ' . Lang::$txt['mc_reportedp_by'] . ' <strong>' . $post['author_link'] . '</strong>
+							' . Lang::getTxt('mc_post_report', ['report_link' => '<a href="' . Config::$scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a>', 'author_link' => $post['author_link']]) . '
 						</div>
 					</div>
 					<br>
 					<div class="smalltext">
-						' . Lang::$txt['mc_watched_users_posted'] . ': ' . $post['poster_time'] . '
+						' . Lang::getTxt('mc_watched_users_posted', ['time' => $post['poster_time']]) . '
 					</div>
 					<div class="list_posts">
 						' . $post['body'] . '
@@ -538,15 +538,15 @@ function template_show_notice()
 			<h3 class="catbg">', Lang::$txt['show_notice'], '</h3>
 		</div>
 		<div class="title_bar">
-			<h3 class="titlebg">', Lang::$txt['show_notice_subject'], ': ', Utils::$context['notice_subject'], '</h3>
+			<h3 class="titlebg">', Lang::getTxt('show_notice_subject', ['subject' => Utils::$context['notice_subject']]), '</h3>
 		</div>
 		<div class="windowbg">
 			<dl>
 				<dt>
-					<strong>', Lang::$txt['show_notice_text'], ':</strong>
+					<strong>', Lang::$txt['show_notice_text'], '</strong>
 				</dt>
 				<dd>
-					', Utils::$context['notice_body'], '
+					', Utils::adjustHeadingLevels(Utils::$context['notice_body'], 3), '
 				</dd>
 			</dl>
 		</div>
@@ -592,13 +592,13 @@ function template_warn_template()
 				</div>
 				<dl class="settings">
 					<dt>
-						<strong><label for="template_title">', Lang::$txt['mc_warning_template_title'], '</label>:</strong>
+						<strong><label for="template_title">', Lang::$txt['mc_warning_template_title'], '</label></strong>
 					</dt>
 					<dd>
 						<input type="text" id="template_title" name="template_title" value="', Utils::$context['template_data']['title'], '" size="30">
 					</dd>
 					<dt>
-						<strong><label for="template_body">', Lang::$txt['profile_warning_notify_body'], '</label>:</strong><br>
+						<strong><label for="template_body">', Lang::$txt['profile_warning_notify_body'], '</label></strong><br>
 						<span class="smalltext">', Lang::$txt['mc_warning_template_body_desc'], '</span>
 					</dt>
 					<dd>

@@ -5,20 +5,22 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -28,34 +30,14 @@ use SMF\Utils;
  */
 class Logout extends Login2
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Logout',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canShowInMaintenanceMode(): bool
+	{
+		return false;
+	}
 
 	/**
 	 * Logs the current user out of their account.
@@ -138,7 +120,7 @@ class Logout extends Login2
 		if (!empty(Config::$modSettings['tfa_mode']) && !empty(User::$me->id) && !empty($_COOKIE[Config::$cookiename . '_tfa'])) {
 			list(, , $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
 
-			Cookie::setTFACookie((int) $exp - time(), $salt, Cookie::encrypt(User::$me->tfa_backup, $salt));
+			Cookie::setTFACookie((int) $exp - time(), User::$me->id, Cookie::encrypt(User::$me->tfa_backup, $salt));
 		}
 
 		session_destroy();
@@ -146,15 +128,15 @@ class Logout extends Login2
 		// Off to the merry board index we go!
 		if ($redirect) {
 			if (empty($_SESSION['logout_url'])) {
-				Utils::redirectexit('', Utils::$context['server']['needs_login_fix']);
-			} elseif (!empty($_SESSION['logout_url']) && (strpos($_SESSION['logout_url'], 'http://') === false && strpos($_SESSION['logout_url'], 'https://') === false)) {
+				Utils::redirectexit('', Sapi::needsLoginFix());
+			} elseif (!empty($_SESSION['logout_url']) && (!str_contains($_SESSION['logout_url'], 'http://') && !str_contains($_SESSION['logout_url'], 'https://'))) {
 				unset($_SESSION['logout_url']);
 				Utils::redirectexit();
 			} else {
 				$temp = $_SESSION['logout_url'];
 				unset($_SESSION['logout_url']);
 
-				Utils::redirectexit($temp, Utils::$context['server']['needs_login_fix']);
+				Utils::redirectexit($temp, Sapi::needsLoginFix());
 			}
 		}
 	}
@@ -162,20 +144,6 @@ class Logout extends Login2
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
 
 	/**
 	 * Convenience method to load() and execute() an instance of this class.
@@ -188,21 +156,22 @@ class Logout extends Login2
 		self::load()->execute($internal, $redirect);
 	}
 
-	/******************
-	 * Internal methods
-	 ******************/
-
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	protected function __construct()
+	public static function buildRoute(array $params): array
 	{
-	}
-}
+		$route[] = $params['action'];
+		unset($params['action'], $params['u']);
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Logout::exportStatic')) {
-	Logout::exportStatic();
+		return ['route' => $route, 'params' => $params];
+	}
+
 }
 
 ?>

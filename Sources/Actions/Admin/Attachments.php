@@ -9,62 +9,43 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
 
+use const DIRECTORY_SEPARATOR;
+
 /**
  * Maintains and manages attachments and avatars.
  */
 class Attachments implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManageAttachments',
-			'list_getFiles' => 'list_getFiles',
-			'list_getNumFiles' => 'list_getNumFiles',
-			'list_getAttachDirs' => 'list_getAttachDirs',
-			'list_getBaseDirs' => 'list_getBaseDirs',
-			'attachDirStatus' => 'attachDirStatus',
-			'manageAttachmentSettings' => 'ManageAttachmentSettings',
-			'manageAvatarSettings' => 'ManageAvatarSettings',
-			'browseFiles' => 'BrowseFiles',
-			'maintainFiles' => 'MaintainFiles',
-			'removeAttachment' => 'RemoveAttachment',
-			'removeAttachmentByAge' => 'RemoveAttachmentByAge',
-			'removeAttachmentBySize' => 'RemoveAttachmentBySize',
-			'removeAllAttachments' => 'RemoveAllAttachments',
-			'repairAttachments' => 'RepairAttachments',
-			'manageAttachmentPaths' => 'ManageAttachmentPaths',
-			'transferAttachments' => 'TransferAttachments',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -101,18 +82,6 @@ class Attachments implements ActionInterface
 		'transfer' => 'transfer',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -122,6 +91,8 @@ class Attachments implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -135,8 +106,6 @@ class Attachments implements ActionInterface
 	 * Called by index.php?action=admin;area=manageattachments;sa=attachments.
 	 * Uses 'attachments' sub template.
 	 *
-	 * @param bool $return_config Whether to return the array of config variables (used for admin search)
-	 * @return void|array If $return_config is true, simply returns the config_vars array, otherwise returns nothing
 	 */
 	public function attachmentSettings(): void
 	{
@@ -517,7 +486,7 @@ class Attachments implements ActionInterface
 		);
 		list(Utils::$context['num_attachments']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
-		Utils::$context['num_attachments'] = Lang::numberFormat(Utils::$context['num_attachments'], 0);
+		Utils::$context['num_attachments'] = Lang::numberFormat((int) Utils::$context['num_attachments'], 0);
 
 		// Also get the avatar amount....
 		$request = Db::$db->query(
@@ -531,7 +500,7 @@ class Attachments implements ActionInterface
 		);
 		list(Utils::$context['num_avatars']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
-		Utils::$context['num_avatars'] = Lang::numberFormat(Utils::$context['num_avatars'], 0);
+		Utils::$context['num_avatars'] = Lang::numberFormat((int) Utils::$context['num_avatars'], 0);
 
 		// Check the size of all the directories.
 		$request = Db::$db->query(
@@ -548,7 +517,7 @@ class Attachments implements ActionInterface
 
 		// Divide it into kilobytes.
 		$attachmentDirSize /= 1024;
-		Utils::$context['attachment_total_size'] = Lang::numberFormat($attachmentDirSize, 2);
+		Utils::$context['attachment_total_size'] = Lang::numberFormat((int) $attachmentDirSize, 2);
 
 		$request = Db::$db->query(
 			'',
@@ -576,7 +545,7 @@ class Attachments implements ActionInterface
 			Utils::$context['attachment_files'] = Lang::numberFormat(max(Config::$modSettings['attachmentDirFileLimit'] - $current_dir_files, 0), 0);
 		}
 
-		Utils::$context['attachment_current_files'] = Lang::numberFormat($current_dir_files, 0);
+		Utils::$context['attachment_current_files'] = Lang::numberFormat((int) $current_dir_files, 0);
 
 		Utils::$context['attach_multiple_dirs'] = count($attach_dirs) > 1 ? true : false;
 
@@ -621,7 +590,7 @@ class Attachments implements ActionInterface
 
 				// And change the message to reflect this.
 				if (!empty($messages)) {
-					Lang::load('index', Lang::$default, true);
+					Lang::load('General', Lang::$default, true);
 
 					Db::$db->query(
 						'',
@@ -634,7 +603,7 @@ class Attachments implements ActionInterface
 						],
 					);
 
-					Lang::load('index', User::$me->language, true);
+					Lang::load('General', User::$me->language, true);
 				}
 			}
 		}
@@ -759,7 +728,7 @@ class Attachments implements ActionInterface
 		}
 
 		// Try give us a while to sort this out...
-		@set_time_limit(600);
+		Sapi::setTimeLimit(600);
 
 		$_GET['step'] = empty($_GET['step']) ? 0 : (int) $_GET['step'];
 
@@ -816,6 +785,7 @@ class Attachments implements ActionInterface
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
+			$thumbnails = (int) $thumbnails;
 			Db::$db->free_result($result);
 
 			for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500) {
@@ -843,7 +813,7 @@ class Attachments implements ActionInterface
 
 						// If we are repairing remove the file from disk now.
 						if ($fix_errors && in_array('missing_thumbnail_parent', $to_fix)) {
-							$filename = Attachment::getFilePath($row['id_attach']);
+							$filename = Attachment::getFilePath((int) $row['id_attach']);
 							@unlink($filename);
 						}
 					}
@@ -888,6 +858,7 @@ class Attachments implements ActionInterface
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
+			$thumbnails = (int) $thumbnails;
 			Db::$db->free_result($result);
 
 			for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500) {
@@ -949,6 +920,7 @@ class Attachments implements ActionInterface
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
+			$thumbnails = (int) $thumbnails;
 			Db::$db->free_result($result);
 
 			for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 250) {
@@ -970,7 +942,7 @@ class Attachments implements ActionInterface
 					if ($row['attachment_type'] == 1) {
 						$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 					} else {
-						$filename = Attachment::getFilePath($row['id_attach']);
+						$filename = Attachment::getFilePath((int) $row['id_attach']);
 					}
 
 					// File doesn't exist?
@@ -1096,6 +1068,7 @@ class Attachments implements ActionInterface
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
+			$thumbnails = (int) $thumbnails;
 			Db::$db->free_result($result);
 
 			for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500) {
@@ -1126,7 +1099,7 @@ class Attachments implements ActionInterface
 						if ($row['attachment_type'] == 1) {
 							$filename = Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename'];
 						} else {
-							$filename = Attachment::getFilePath($row['id_attach']);
+							$filename = Attachment::getFilePath((int) $row['id_attach']);
 						}
 
 						@unlink($filename);
@@ -1172,6 +1145,7 @@ class Attachments implements ActionInterface
 				],
 			);
 			list($thumbnails) = Db::$db->fetch_row($result);
+			$thumbnails = (int) $thumbnails;
 			Db::$db->free_result($result);
 
 			for (; $_GET['substep'] < $thumbnails; $_GET['substep'] += 500) {
@@ -1206,7 +1180,7 @@ class Attachments implements ActionInterface
 
 					// If we are repairing remove the file from disk now.
 					if ($fix_errors && in_array('attachment_no_msg', $to_fix)) {
-						$filename = Attachment::getFilePath($row['id_attach']);
+						$filename = Attachment::getFilePath((int) $row['id_attach']);
 						@unlink($filename);
 					}
 				}
@@ -1257,14 +1231,14 @@ class Attachments implements ActionInterface
 
 						if ($files_checked <= $current_check) {
 							// Temporary file, get rid of it!
-							if (strpos($file, 'post_tmp_') !== false) {
+							if (str_contains($file, 'post_tmp_')) {
 								// Temp file is more than 5 hours old!
 								if (filemtime($attach_dir . '/' . $file) < time() - 18000) {
 									@unlink($attach_dir . '/' . $file);
 								}
 							}
 							// That should be an attachment, let's check if we have it in the database
-							elseif (strpos($file, '_') !== false) {
+							elseif (str_contains($file, '_')) {
 								$attachID = (int) substr($file, 0, strpos($file, '_'));
 
 								if (!empty($attachID)) {
@@ -1442,7 +1416,7 @@ class Attachments implements ActionInterface
 						if (!empty(Config::$modSettings['attachment_basedirectories'])) {
 							// Count any sub-folders.
 							foreach (Config::$modSettings['attachmentUploadDir'] as $sub) {
-								if (strpos($sub, $path . DIRECTORY_SEPARATOR) !== false) {
+								if (str_contains($sub, $path . DIRECTORY_SEPARATOR)) {
 									$num_attach++;
 								}
 							}
@@ -1525,14 +1499,14 @@ class Attachments implements ActionInterface
 
 					if (!empty(Config::$modSettings['attachment_basedirectories'])) {
 						foreach (Config::$modSettings['attachment_basedirectories'] as $bid => $base) {
-							if (strpos(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], $base . DIRECTORY_SEPARATOR) !== false) {
+							if (str_contains(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], $base . DIRECTORY_SEPARATOR)) {
 								$use_subdirectories_for_attachments = 1;
 								break;
 							}
 						}
 					}
 
-					if ($use_subdirectories_for_attachments == 0 && strpos(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], Config::$boarddir . DIRECTORY_SEPARATOR) !== false) {
+					if ($use_subdirectories_for_attachments == 0 && str_contains(Config::$modSettings['attachmentUploadDir'][$_POST['current_dir']], Config::$boarddir . DIRECTORY_SEPARATOR)) {
 						$bid = 0;
 					}
 
@@ -1867,7 +1841,7 @@ class Attachments implements ActionInterface
 	}
 
 	/**
-	 * Maintance function to move attachments from one directory to another
+	 * Maintenance function to move attachments from one directory to another
 	 */
 	public function transfer(): void
 	{
@@ -1900,7 +1874,7 @@ class Attachments implements ActionInterface
 		}
 
 		if (empty($results)) {
-			// Get the total file count for the progess bar.
+			// Get the total file count for the progress bar.
 			$request = Db::$db->query(
 				'',
 				'SELECT COUNT(*)
@@ -1939,11 +1913,9 @@ class Attachments implements ActionInterface
 			$break = false;
 
 			while ($break == false) {
-				@set_time_limit(300);
+				Sapi::setTimeLimit(300);
 
-				if (function_exists('apache_reset_timeout')) {
-					@apache_reset_timeout();
-				}
+				Sapi::resetTimeout();
 
 				// If limits are set, get the file count and size for the destination folder
 				if (
@@ -1999,7 +1971,7 @@ class Attachments implements ActionInterface
 				$moved = [];
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					$source = Attachment::getFilePath($row['id_attach']);
+					$source = Attachment::getFilePath((int) $row['id_attach']);
 					$dest = Config::$modSettings['attachmentUploadDir'][$new_dir] . '/' . basename($source);
 
 					// Size and file count check
@@ -2020,10 +1992,10 @@ class Attachments implements ActionInterface
 								// Since we're in auto mode. Create a new folder and reset the counters.
 								Attachment::automanageBySpace();
 
-								$results[] = sprintf(Lang::$txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
+								$results[] = Lang::getTxt('attachments_transferred', ['files' => $total_moved, 'folder' => Config::$modSettings['attachmentUploadDir'][$new_dir]]);
 
 								if (!empty($total_not_moved)) {
-									$results[] = sprintf(Lang::$txt['attachments_not_transferred'], $total_not_moved);
+									$results[] = Lang::getTxt('attachments_not_transferred', ['not_moved' => $total_not_moved]);
 								}
 
 								$dir_files = 0;
@@ -2087,10 +2059,10 @@ class Attachments implements ActionInterface
 				}
 			}
 
-			$results[] = sprintf(Lang::$txt['attachments_transferred'], $total_moved, Config::$modSettings['attachmentUploadDir'][$new_dir]);
+			$results[] = Lang::getTxt('attachments_transferred', ['files' => $total_moved, 'folder' => Config::$modSettings['attachmentUploadDir'][$new_dir]]);
 
 			if (!empty($total_not_moved)) {
-				$results[] = sprintf(Lang::$txt['attachments_not_transferred'], $total_not_moved);
+				$results[] = Lang::getTxt('attachments_not_transferred', ['not_moved' => $total_not_moved]);
 			}
 		}
 
@@ -2106,28 +2078,6 @@ class Attachments implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets the configuration variables for the attachments sub-action.
@@ -2182,8 +2132,8 @@ class Attachments implements ActionInterface
 		$testImg = get_extension_funcs('gd') || class_exists('Imagick');
 
 		// See if we can find if the server is set up to support the attachment limits
-		$post_max_kb = floor(Config::memoryReturnBytes(ini_get('post_max_size')) / 1024);
-		$file_max_kb = floor(Config::memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
+		$post_max_kb = floor(Sapi::memoryReturnBytes(ini_get('post_max_size')) / 1024);
+		$file_max_kb = floor(Sapi::memoryReturnBytes(ini_get('upload_max_filesize')) / 1024);
 
 		$config_vars = [
 			['title', 'attachment_manager_settings'],
@@ -2194,16 +2144,16 @@ class Attachments implements ActionInterface
 			// Directory and size limits.
 			['select', 'automanage_attachments', [0 => Lang::$txt['attachments_normal'], 1 => Lang::$txt['attachments_auto_space'], 2 => Lang::$txt['attachments_auto_years'], 3 => Lang::$txt['attachments_auto_months'], 4 => Lang::$txt['attachments_auto_16']]],
 			['check', 'use_subdirectories_for_attachments', 'subtext' => Lang::$txt['use_subdirectories_for_attachments_note']],
-			(empty(Config::$modSettings['attachment_basedirectories']) ? ['text', 'basedirectory_for_attachments', 40] : ['var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty(Utils::$context['valid_basedirectory']), 'text_label' => (!empty(Utils::$context['valid_basedirectory']) ? Lang::$txt['basedirectory_for_attachments_current'] : sprintf(Lang::$txt['basedirectory_for_attachments_warning'], Config::$scripturl))]),
-			empty(Config::$modSettings['attachment_basedirectories']) && Config::$modSettings['currentAttachmentUploadDir'] == 1 && count(Config::$modSettings['attachmentUploadDir']) == 1 ? ['var_message', 'attachmentUploadDir_path', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !Utils::$context['valid_upload_dir'], 'text_label' => Lang::$txt['attachmentUploadDir'], 'message' => 'attachmentUploadDir_path'] : ['var_message', 'attach_current_directory', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty(Utils::$context['valid_upload_dir']), 'text_label' => (!empty(Utils::$context['valid_upload_dir']) ? Lang::$txt['attach_current_dir'] : sprintf(Lang::$txt['attach_current_dir_warning'], Config::$scripturl))],
+			(empty(Config::$modSettings['attachment_basedirectories']) ? ['text', 'basedirectory_for_attachments', 40] : ['var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty(Utils::$context['valid_basedirectory']), 'text_label' => (!empty(Utils::$context['valid_basedirectory']) ? Lang::$txt['basedirectory_for_attachments_current'] : Lang::getTxt('basedirectory_for_attachments_warning', ['scripturl' => Config::$scripturl]))]),
+			empty(Config::$modSettings['attachment_basedirectories']) && Config::$modSettings['currentAttachmentUploadDir'] == 1 && count(Config::$modSettings['attachmentUploadDir']) == 1 ? ['var_message', 'attachmentUploadDir_path', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !Utils::$context['valid_upload_dir'], 'text_label' => Lang::$txt['attachmentUploadDir'], 'message' => 'attachmentUploadDir_path'] : ['var_message', 'attach_current_directory', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty(Utils::$context['valid_upload_dir']), 'text_label' => (!empty(Utils::$context['valid_upload_dir']) ? Lang::$txt['attach_current_dir'] : Lang::getTxt('attach_current_dir_warning', ['scripturl' => Config::$scripturl]))],
 			['int', 'attachmentDirFileLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6],
 			['int', 'attachmentDirSizeLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6, 'postinput' => Lang::$txt['kilobyte']],
 			['check', 'dont_show_attach_under_post', 'subtext' => Lang::$txt['dont_show_attach_under_post_sub']],
 			'',
 
 			// Posting limits
-			['int', 'attachmentPostLimit', 'subtext' => sprintf(Lang::$txt['attachment_ini_max'], $post_max_kb . ' ' . Lang::$txt['kilobyte']), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)],
-			['int', 'attachmentSizeLimit', 'subtext' => sprintf(Lang::$txt['attachment_ini_max'], $file_max_kb . ' ' . Lang::$txt['kilobyte']), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)],
+			['int', 'attachmentPostLimit', 'subtext' => Lang::getTxt('attachment_ini_max', [$post_max_kb]), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)],
+			['int', 'attachmentSizeLimit', 'subtext' => Lang::getTxt('attachment_ini_max', [$file_max_kb]), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)],
 			['int', 'attachmentNumPerPostLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6, 'min' => 0],
 			// Security Items
 			['title', 'attachment_security_settings'],
@@ -2332,7 +2282,7 @@ class Attachments implements ActionInterface
 	 * @param string $browse_type can be one of 'avatars' or ... not. :P
 	 * @return array An array of file info
 	 */
-	public static function list_getFiles($start, $items_per_page, $sort, $browse_type): array
+	public static function list_getFiles(int $start, int $items_per_page, string $sort, string $browse_type): array
 	{
 		$files = [];
 
@@ -2398,7 +2348,7 @@ class Attachments implements ActionInterface
 	 * @param string $browse_type can be one of 'avatars' or not. (in which case they're attachments)
 	 * @return int The number of files
 	 */
-	public static function list_getNumFiles($browse_type): int
+	public static function list_getNumFiles(string $browse_type): int
 	{
 		// Depending on the type of file, different queries are used.
 		if ($browse_type === 'avatars') {
@@ -2430,7 +2380,7 @@ class Attachments implements ActionInterface
 		list($num_files) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $num_files;
+		return (int) $num_files;
 	}
 
 	/**
@@ -2469,7 +2419,7 @@ class Attachments implements ActionInterface
 			}
 
 			// Check if the directory is doing okay.
-			list($status, $error, $files) = attachDirStatus($dir, $expected_files[$id]);
+			list($status, $error, $files) = self::attachDirStatus($dir, (int) $expected_files[$id]);
 
 			// If it is one, let's show that it's a base directory.
 			$sub_dirs = 0;
@@ -2480,7 +2430,7 @@ class Attachments implements ActionInterface
 
 				// Count any sub-folders.
 				foreach (Config::$modSettings['attachmentUploadDir'] as $sid => $sub) {
-					if (strpos($sub, $dir . DIRECTORY_SEPARATOR) !== false) {
+					if (str_contains($sub, $dir . DIRECTORY_SEPARATOR)) {
 						$expected_files[$id]++;
 						$sub_dirs++;
 					}
@@ -2495,7 +2445,7 @@ class Attachments implements ActionInterface
 				'path' => $dir,
 				'current_size' => !empty($expected_size[$id]) ? Lang::numberFormat($expected_size[$id] / 1024, 0) : 0,
 				'num_files' => Lang::numberFormat($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
-				'status' => ($is_base_dir ? Lang::$txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . sprintf(Lang::$txt['attach_dir_' . $status], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl) . ($error ? '</div>' : ''),
+				'status' => ($is_base_dir ? Lang::$txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . Lang::getTxt('attach_dir_' . $status, ['session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]) . ($error ? '</div>' : ''),
 			];
 		}
 
@@ -2533,7 +2483,7 @@ class Attachments implements ActionInterface
 			$expected_dirs = 0;
 
 			foreach (Config::$modSettings['attachmentUploadDir'] as $sid => $sub) {
-				if (strpos($sub, $dir . DIRECTORY_SEPARATOR) !== false) {
+				if (str_contains($sub, $dir . DIRECTORY_SEPARATOR)) {
 					$expected_dirs++;
 				}
 			}
@@ -2577,7 +2527,7 @@ class Attachments implements ActionInterface
 	 * @param int $expected_files How many files should be in that directory
 	 * @return array An array containing the status of the directory, whether the number of files was what we expected and how many were in the directory
 	 */
-	public static function attachDirStatus($dir, $expected_files): array
+	public static function attachDirStatus(string $dir, int $expected_files): array
 	{
 		if (!is_dir($dir)) {
 			return ['does_not_exist', true, ''];
@@ -2615,138 +2565,14 @@ class Attachments implements ActionInterface
 		return ['ok', false, $num_files];
 	}
 
-	/**
-	 * Backward compatibility wrapper for the attachments sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function manageAttachmentSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::attachConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'attachments';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the avatars sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function manageAvatarSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::avatarConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'avatars';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the browse sub-action.
-	 */
-	public static function browseFiles(): void
-	{
-		self::load();
-		self::$obj->subaction = 'browse';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the maintenance sub-action.
-	 */
-	public static function maintainFiles(): void
-	{
-		self::load();
-		self::$obj->subaction = 'maintenance';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the remove sub-action.
-	 */
-	public static function removeAttachment(): void
-	{
-		self::load();
-		self::$obj->subaction = 'remove';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the byage sub-action.
-	 */
-	public static function removeAttachmentByAge(): void
-	{
-		self::load();
-		self::$obj->subaction = 'byage';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the bysize sub-action.
-	 */
-	public static function removeAttachmentBySize(): void
-	{
-		self::load();
-		self::$obj->subaction = 'bysize';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the removeall sub-action.
-	 */
-	public static function removeAllAttachments(): void
-	{
-		self::load();
-		self::$obj->subaction = 'removeall';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the repair sub-action.
-	 */
-	public static function repairAttachments(): void
-	{
-		self::load();
-		self::$obj->subaction = 'repair';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the attachpaths sub-action.
-	 */
-	public static function manageAttachmentPaths(): void
-	{
-		self::load();
-		self::$obj->subaction = 'attachpaths';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the transfer sub-action.
-	 */
-	public static function transferAttachments(): void
-	{
-		self::load();
-		self::$obj->subaction = 'transfer';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial setup.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// You have to be able to moderate the forum to do this.
 		User::$me->isAllowedTo('manage_attachments');
@@ -2784,14 +2610,12 @@ class Attachments implements ActionInterface
 	 * @param array $to_fix IDs of attachments to fix.
 	 * @param int $max_substep The maximum substep to reach before pausing.
 	 */
-	protected function pauseAttachmentMaintenance($to_fix, $max_substep = 0): void
+	protected function pauseAttachmentMaintenance(array $to_fix, int $max_substep = 0): void
 	{
 		// Try get more time...
-		@set_time_limit(600);
+		Sapi::setTimeLimit(600);
 
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Sapi::resetTimeout();
 
 		// Have we already used our maximum time?
 		if ((time() - TIME_START) < 3 || Utils::$context['starting_substep'] == $_GET['substep']) {
@@ -2822,14 +2646,6 @@ class Attachments implements ActionInterface
 
 		Utils::obExit();
 	}
-}
-
-// Some functions have been migrated from here to the Attachment class.
-class_exists('SMF\\Attachment');
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Attachments::exportStatic')) {
-	Attachments::exportStatic();
 }
 
 ?>

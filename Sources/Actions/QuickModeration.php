@@ -5,21 +5,26 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Logging;
 use SMF\Mail;
+use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -27,20 +32,10 @@ use SMF\Utils;
 /**
  * Handles moderation from the message index.
  */
-class QuickModeration implements ActionInterface
+class QuickModeration implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'QuickModeration',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -166,18 +161,6 @@ class QuickModeration implements ActionInterface
 		'restore' => [],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -226,28 +209,6 @@ class QuickModeration implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets the list of known quick moderation actions.
@@ -506,7 +467,7 @@ class QuickModeration implements ActionInterface
 					);
 
 					while ($row = Db::$db->fetch_row($request)) {
-						$redirect_boards[] = $row[0];
+						$redirect_boards[] = (int) $row[0];
 					}
 					Db::$db->free_result($request);
 
@@ -548,7 +509,7 @@ class QuickModeration implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$logged_topics[$row['id_topic']] = $row['unwatched'];
+			$logged_topics[(int) $row['id_topic']] = (int) $row['unwatched'];
 		}
 		Db::$db->free_result($request);
 
@@ -604,8 +565,8 @@ class QuickModeration implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$sticky_cache_boards[$row['id_topic']] = $row['id_board'];
-			$sticky_cache_status[$row['id_topic']] = empty($row['is_sticky']);
+			$sticky_cache_boards[(int) $row['id_topic']] = (int) $row['id_board'];
+			$sticky_cache_status[(int) $row['id_topic']] = empty($row['is_sticky']);
 		}
 		Db::$db->free_result($request);
 
@@ -649,9 +610,9 @@ class QuickModeration implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($result)) {
-				$locked_topic_ids[] = $row['id_topic'];
-				$lock_cache_boards[$row['id_topic']] = $row['id_board'];
-				$lock_status[$row['id_topic']] = empty($row['locked']);
+				$locked_topic_ids[] = (int) $row['id_topic'];
+				$lock_cache_boards[(int) $row['id_topic']] = (int) $row['id_board'];
+				$lock_status[(int) $row['id_topic']] = empty($row['locked']);
 			}
 			Db::$db->free_result($result);
 
@@ -672,8 +633,8 @@ class QuickModeration implements ActionInterface
 			);
 
 			while ($row = Db::$db->fetch_assoc($result)) {
-				$lock_status[$row['id_topic']] = empty($row['locked']);
-				$lock_cache_boards[$row['id_topic']] = $row['id_board'];
+				$lock_status[(int) $row['id_topic']] = empty($row['locked']);
+				$lock_cache_boards[(int) $row['id_topic']] = (int) $row['id_board'];
 			}
 			Db::$db->free_result($result);
 		}
@@ -738,23 +699,23 @@ class QuickModeration implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$to = $this->topic_actions['move']['to'][$row['id_topic']];
+			$to = $this->topic_actions['move']['to'][(int) $row['id_topic']];
 
 			if (empty($to)) {
 				continue;
 			}
 
 			// Does this topic's board count the posts or not?
-			$countPosts[$row['id_topic']] = empty($row['count_posts']);
+			$countPosts[(int) $row['id_topic']] = empty($row['count_posts']);
 
 			if (!isset($moveTos[$to])) {
 				$moveTos[$to] = [];
 			}
 
-			$moveTos[$to][] = $row['id_topic'];
+			$moveTos[$to][] = (int) $row['id_topic'];
 
 			// For reporting...
-			$moveCache2[] = [$row['id_topic'], $row['id_board'], $to];
+			$moveCache2[] = [(int) $row['id_topic'], (int) $row['id_board'], $to];
 		}
 		Db::$db->free_result($request);
 
@@ -782,7 +743,7 @@ class QuickModeration implements ActionInterface
 				$cp = empty($row['count_posts']);
 
 				// Go through all the topics that are being moved to this board.
-				foreach ($moveTos[$row['id_board']] as $topic) {
+				foreach ($moveTos[(int) $row['id_board']] as $topic) {
 					// If both boards have the same value for post counting then no adjustment needs to be made.
 					if ($countPosts[$topic] != $cp) {
 						// If the board being moved to does count the posts then the other one doesn't so add to their post count.
@@ -809,16 +770,16 @@ class QuickModeration implements ActionInterface
 
 				while ($row = Db::$db->fetch_assoc($request)) {
 					if (!isset($members[$row['id_member']])) {
-						$members[$row['id_member']] = 0;
+						$members[(int) $row['id_member']] = 0;
 					}
 
-					if ($topicRecounts[$row['id_topic']] === '+') {
-						$members[$row['id_member']]++;
+					if ($topicRecounts[(int) $row['id_topic']] === '+') {
+						$members[(int) $row['id_member']]++;
 					} else {
-						$members[$row['id_member']]--;
+						$members[(int) $row['id_member']]--;
 					}
 
-					$members[$row['id_member']] = max(0, $members[$row['id_member']]);
+					$members[(int) $row['id_member']] = max(0, $members[(int) $row['id_member']]);
 				}
 				Db::$db->free_result($request);
 
@@ -872,8 +833,8 @@ class QuickModeration implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($result)) {
-			$removed_topic_ids[] = $row['id_topic'];
-			$remove_cache_boards[$row['id_topic']] = $row['id_board'];
+			$removed_topic_ids[] = (int) $row['id_topic'];
+			$remove_cache_boards[(int) $row['id_topic']] = (int) $row['id_board'];
 		}
 		Db::$db->free_result($result);
 
@@ -924,8 +885,8 @@ class QuickModeration implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$approve_topic_ids[] = $row['id_topic'];
-			$approve_cache_members[$row['id_topic']] = $row['id_member_started'];
+			$approve_topic_ids[] = (int) $row['id_topic'];
+			$approve_cache_members[(int) $row['id_topic']] = (int) $row['id_member_started'];
 		}
 		Db::$db->free_result($request);
 
@@ -976,11 +937,6 @@ class QuickModeration implements ActionInterface
 
 		Utils::redirectexit('action=restoretopic;topics=' . implode(',', $this->topic_actions['restore']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\QuickModeration::exportStatic')) {
-	QuickModeration::exportStatic();
 }
 
 ?>

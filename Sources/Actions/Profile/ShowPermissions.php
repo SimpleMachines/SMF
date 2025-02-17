@@ -5,17 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\Admin\Permissions;
-use SMF\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
@@ -29,30 +31,9 @@ use SMF\Utils;
  */
 class ShowPermissions implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'showPermissions' => 'showPermissions',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -63,6 +44,10 @@ class ShowPermissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('ManagePermissions');
+		Lang::load('Admin');
+		Theme::loadTemplate('ManageMembers');
+
 		// Verify if the user has sufficient permissions.
 		User::$me->isAllowedTo('manage_permissions');
 
@@ -78,8 +63,8 @@ class ShowPermissions implements ActionInterface
 		// Load all the permission profiles.
 		Permissions::loadPermissionProfiles();
 
-		Board::$info->id = empty(Board::$info->id) ? 0 : (int) Board::$info->id;
-		Utils::$context['board'] = Board::$info->id;
+		$board = empty(Board::$info->id) ? 0 : (int) Board::$info->id;
+		Utils::$context['board'] = $board;
 
 		// Load a list of boards for the jump box - except the defaults.
 		Utils::$context['boards'] = [];
@@ -109,7 +94,7 @@ class ShowPermissions implements ActionInterface
 				Utils::$context['boards'][$row['id_board']] = [
 					'id' => $row['id_board'],
 					'name' => $row['name'],
-					'selected' => Board::$info->id == $row['id_board'],
+					'selected' => $board == $row['id_board'],
 					'profile' => $row['id_profile'],
 					'profile_name' => Utils::$context['profiles'][$row['id_profile']]['name'],
 				];
@@ -196,21 +181,21 @@ class ShowPermissions implements ActionInterface
 		$request = Db::$db->query(
 			'',
 			'SELECT
-				bp.add_deny, bp.permission, bp.id_group, mg.group_name' . (empty(Board::$info->id) ? '' : ',
+				bp.add_deny, bp.permission, bp.id_group, mg.group_name' . (empty($board) ? '' : ',
 				b.id_profile, CASE WHEN (mods.id_member IS NULL AND modgs.id_group IS NULL) THEN 0 ELSE 1 END AS is_moderator') . '
-			FROM {db_prefix}board_permissions AS bp' . (empty(Board::$info->id) ? '' : '
+			FROM {db_prefix}board_permissions AS bp' . (empty($board) ? '' : '
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = {int:current_board})
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:group_list}))') . '
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bp.id_group)
 			WHERE bp.id_profile = {raw:current_profile}
-				AND bp.id_group IN ({array_int:group_list}' . (empty(Board::$info->id) ? ')' : ', {int:moderator_group})
+				AND bp.id_group IN ({array_int:group_list}' . (empty($board) ? ')' : ', {int:moderator_group})
 				AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})'),
 			[
-				'current_board' => Board::$info->id,
+				'current_board' => $board,
 				'group_list' => Profile::$member->groups,
 				'current_member' => Profile::$member->id,
-				'current_profile' => empty(Board::$info->id) ? '1' : 'b.id_profile',
+				'current_profile' => empty($board) ? '1' : 'b.id_profile',
 				'moderator_group' => 3,
 			],
 		);
@@ -247,7 +232,7 @@ class ShowPermissions implements ActionInterface
 					],
 					'name' => $name,
 					'is_denied' => false,
-					'is_global' => empty(Board::$info->id),
+					'is_global' => empty($board),
 				];
 			}
 
@@ -256,47 +241,6 @@ class ShowPermissions implements ActionInterface
 			$board_perms[$row['permission']]['is_denied'] |= empty($row['add_deny']);
 		}
 		Db::$db->free_result($request);
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper.
-	 */
-	public static function showPermissions(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
 	}
 
 	/******************
@@ -308,19 +252,10 @@ class ShowPermissions implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('ManagePermissions');
-		Lang::load('Admin');
-		Theme::loadTemplate('ManageMembers');
-
 		if (!isset(Profile::$member)) {
 			Profile::load();
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ShowPermissions::exportStatic')) {
-	ShowPermissions::exportStatic();
 }
 
 ?>

@@ -5,19 +5,21 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\Actions\MessageIndex;
 use SMF\Actions\Notify;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -26,6 +28,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
+use SMF\Parser;
+use SMF\Routable;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
@@ -35,28 +39,10 @@ use SMF\Utils;
 /**
  * This class, unpredictable as this might be, handles basic administration.
  */
-class ACP implements ActionInterface
+class ACP implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'AdminMain',
-			'prepareDBSettingContext' => 'prepareDBSettingContext',
-			'saveSettings' => 'saveSettings',
-			'saveDBSettings' => 'saveDBSettings',
-			'getServerVersions' => 'getServerVersions',
-			'getFileVersions' => 'getFileVersions',
-			'updateAdminPreferences' => 'updateAdminPreferences',
-			'emailAdmins' => 'emailAdmins',
-			'adminLogin' => 'adminLogin',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -75,7 +61,7 @@ class ACP implements ActionInterface
 	 * be replaced at runtime with the real values of Config::$scripturl and
 	 * Config::$boardurl.
 	 *
-	 * In this default definintion, all parts of the menu are set as enabled.
+	 * In this default definition, all parts of the menu are set as enabled.
 	 * At runtime, however, various parts may be turned on or off depending on
 	 * the forum's saved settings.
 	 *
@@ -325,6 +311,10 @@ class ACP implements ActionInterface
 							'label' => 'manage_holidays',
 							'permission' => 'admin_forum',
 						],
+						'import' => [
+							'label' => 'calendar_import',
+							'permission' => 'admin_forum',
+						],
 						'settings' => [
 							'label' => 'calendar_settings',
 							'permission' => 'admin_forum',
@@ -445,6 +435,10 @@ class ACP implements ActionInterface
 						],
 						'search' => [
 							'label' => 'mlist_search',
+						],
+						'settings' => [
+							'label' => 'settings',
+							'permission' => 'admin_forum',
 						],
 					],
 				],
@@ -726,18 +720,6 @@ class ACP implements ActionInterface
 		],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -751,6 +733,8 @@ class ACP implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		// Make sure the administrator has a valid session...
 		User::$me->validateSession();
 
@@ -812,35 +796,13 @@ class ACP implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Helper function, it sets up the context for database settings.
 	 *
 	 * @todo see rev. 10406 from 2.1-requests
 	 *
 	 * @param array $config_vars An array of configuration variables
 	 */
-	public static function prepareDBSettingContext(&$config_vars): void
+	public static function prepareDBSettingContext(array &$config_vars): void
 	{
 		Lang::load('Help');
 
@@ -901,7 +863,7 @@ class ACP implements ActionInterface
 							break;
 
 						default:
-							$value = Utils::htmlspecialchars(Config::$modSettings[$config_var[1]]);
+							$value = Utils::htmlspecialchars((string) Config::$modSettings[$config_var[1]]);
 					}
 				} else {
 					// Darn, it's empty. What type is expected?
@@ -984,7 +946,7 @@ class ACP implements ActionInterface
 				// Finally allow overrides - and some final cleanups.
 				foreach ($config_var as $k => $v) {
 					if (!is_numeric($k)) {
-						if (substr($k, 0, 2) == 'on') {
+						if (str_starts_with($k, 'on')) {
 							Utils::$context['config_vars'][$config_var[1]]['javascript'] .= ' ' . $k . '="' . $v . '"';
 						} else {
 							Utils::$context['config_vars'][$config_var[1]][$k] = $v;
@@ -1023,7 +985,7 @@ class ACP implements ActionInterface
 		// What about any BBC selection boxes?
 		if (!empty($bbcChoice)) {
 			// What are the options, eh?
-			$temp = BBCodeParser::getCodes();
+			$temp = Parser::getBBCodes();
 			$bbcTags = [];
 
 			foreach ($temp as $tag) {
@@ -1088,7 +1050,7 @@ class ACP implements ActionInterface
 	 *
 	 * @param array $config_vars An array of configuration variables
 	 */
-	public static function saveSettings(&$config_vars): void
+	public static function saveSettings(array &$config_vars): void
 	{
 		SecurityToken::validate('admin-ssc');
 
@@ -1099,13 +1061,13 @@ class ACP implements ActionInterface
 
 		// Fix the forum's URL if necessary.
 		if (isset($_POST['boardurl'])) {
-			if (substr($_POST['boardurl'], -10) == '/index.php') {
+			if (str_ends_with($_POST['boardurl'], '/index.php')) {
 				$_POST['boardurl'] = substr($_POST['boardurl'], 0, -10);
-			} elseif (substr($_POST['boardurl'], -1) == '/') {
+			} elseif (str_ends_with($_POST['boardurl'], '/')) {
 				$_POST['boardurl'] = substr($_POST['boardurl'], 0, -1);
 			}
 
-			if (substr($_POST['boardurl'], 0, 7) != 'http://' && substr($_POST['boardurl'], 0, 7) != 'file://' && substr($_POST['boardurl'], 0, 8) != 'https://') {
+			if (!str_starts_with($_POST['boardurl'], 'http://') && !str_starts_with($_POST['boardurl'], 'file://') && !str_starts_with($_POST['boardurl'], 'https://')) {
 				$_POST['boardurl'] = 'http://' . $_POST['boardurl'];
 			}
 
@@ -1295,11 +1257,9 @@ class ACP implements ActionInterface
 	/**
 	 * Helper function for saving database settings.
 	 *
-	 * @todo see rev. 10406 from 2.1-requests
-	 *
 	 * @param array $config_vars An array of configuration variables
 	 */
-	public static function saveDBSettings(&$config_vars)
+	public static function saveDBSettings(array &$config_vars): void
 	{
 		static $board_list = null;
 
@@ -1400,7 +1360,7 @@ class ACP implements ActionInterface
 			elseif ($var[0] == 'bbc') {
 				$bbcTags = [];
 
-				foreach (BBCodeParser::getCodes() as $tag) {
+				foreach (Parser::getBBCodes() as $tag) {
 					$bbcTags[] = $tag['tag'];
 				}
 
@@ -1434,7 +1394,7 @@ class ACP implements ActionInterface
 	 * @param array $checkFor An array of what to check versions for - can contain one or more of 'gd', 'imagemagick', 'db_server', 'phpa', 'memcache', 'php' or 'server'
 	 * @return array An array of versions (keys are same as what was in $checkFor, values are the versions)
 	 */
-	public static function getServerVersions($checkFor)
+	public static function getServerVersions(array $checkFor): array
 	{
 		Lang::load('Admin');
 		Lang::load('ManageSettings');
@@ -1467,12 +1427,12 @@ class ACP implements ActionInterface
 				trigger_error(Lang::$txt['get_server_versions_no_database'], E_USER_NOTICE);
 			} else {
 				$versions['db_engine'] = [
-					'title' => sprintf(Lang::$txt['support_versions_db_engine'], Db::$db->title),
+					'title' => Lang::getTxt('support_versions_db_engine', ['db_title' => Db::$db->title]),
 					'version' => Db::$db->get_vendor(),
 				];
 
 				$versions['db_server'] = [
-					'title' => sprintf(Lang::$txt['support_versions_db'], Db::$db->title),
+					'title' => Lang::getTxt('support_versions_db', ['db_title' => Db::$db->title]),
 					'version' => Db::$db->get_version(),
 				];
 			}
@@ -1520,7 +1480,7 @@ class ACP implements ActionInterface
 	 * @param array &$versionOptions An array of options. Can contain one or more of 'include_root', 'include_tasks' and 'sort_results'
 	 * @return array An array of file version info.
 	 */
-	public static function getFileVersions(&$versionOptions)
+	public static function getFileVersions(array &$versionOptions): array
 	{
 		// Default place to find the languages would be the default theme dir.
 		$lang_dir = Theme::$current->settings['default_theme_dir'] . '/languages';
@@ -1552,7 +1512,7 @@ class ACP implements ActionInterface
 				$header = fread($fp, 4096);
 				fclose($fp);
 
-				// The comment looks rougly like... that.
+				// The comment looks roughly like... that.
 				if (preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $header, $match) == 1) {
 					$version_info['root_versions'][$file] = $match[1];
 				}
@@ -1563,7 +1523,7 @@ class ACP implements ActionInterface
 			}
 		}
 
-		// Load all the files in the Sources directory, except some vendor libraires, index place holderes and non php files.
+		// Load all the files in the Sources directory, except some vendor libraries, index place holders and non php files.
 		$sources_dir = new \RecursiveIteratorIterator(
 			new \RecursiveDirectoryIterator(
 				Config::$sourcedir,
@@ -1608,12 +1568,12 @@ class ACP implements ActionInterface
 
 		// Load all the files in the tasks directory.
 		if (!empty($versionOptions['include_tasks'])) {
-			$tasks_dir = dir(Config::$tasksdir);
+			$tasks_dir = dir(Config::$sourcedir . '/Tasks');
 
 			while ($entry = $tasks_dir->read()) {
-				if (substr($entry, -4) === '.php' && !is_dir(Config::$tasksdir . '/' . $entry) && $entry !== 'index.php') {
+				if (str_ends_with($entry, '.php') && !is_dir(Config::$sourcedir . '/Tasks/' . $entry) && $entry !== 'index.php') {
 					// Read the first 4k from the file.... enough for the header.
-					$fp = fopen(Config::$tasksdir . '/' . $entry, 'rb');
+					$fp = fopen(Config::$sourcedir . '/Tasks/' . $entry, 'rb');
 					$header = fread($fp, 4096);
 					fclose($fp);
 
@@ -1641,7 +1601,7 @@ class ACP implements ActionInterface
 			$this_dir = dir($dirname);
 
 			while ($entry = $this_dir->read()) {
-				if (substr($entry, -12) == 'template.php' && !is_dir($dirname . '/' . $entry)) {
+				if (str_ends_with($entry, 'template.php') && !is_dir($dirname . '/' . $entry)) {
 					// Read the first 768 bytes from the file.... enough for the header.
 					$fp = fopen($dirname . '/' . $entry, 'rb');
 					$header = fread($fp, 768);
@@ -1664,7 +1624,7 @@ class ACP implements ActionInterface
 		$this_dir = dir($lang_dir);
 
 		while ($entry = $this_dir->read()) {
-			if (substr($entry, -4) == '.php' && $entry != 'index.php' && !is_dir($lang_dir . '/' . $entry)) {
+			if (str_ends_with($entry, '.php') && $entry != 'index.php' && !is_dir($lang_dir . '/' . $entry)) {
 				// Read the first 768 bytes from the file.... enough for the header.
 				$fp = fopen($lang_dir . '/' . $entry, 'rb');
 				$header = fread($fp, 768);
@@ -1706,11 +1666,11 @@ class ACP implements ActionInterface
 	/**
 	 * Saves the admin's current preferences to the database.
 	 */
-	public static function updateAdminPreferences()
+	public static function updateAdminPreferences(): void
 	{
 		// This must exist!
 		if (!isset(Utils::$context['admin_preferences'])) {
-			return false;
+			return;
 		}
 
 		// This is what we'll be saving.
@@ -1732,8 +1692,20 @@ class ACP implements ActionInterface
 		Db::$db->insert(
 			'replace',
 			'{db_prefix}themes',
-			['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
-			[User::$me->id, 1, 'admin_preferences', Theme::$current->options['admin_preferences']],
+			[
+				'id_member' => 'int',
+				'id_theme' => 'int',
+				'variable' => 'string-255',
+				'value' => 'string-65534',
+			],
+			[
+				[
+					User::$me->id,
+					1,
+					'admin_preferences',
+					Theme::$current->options['admin_preferences'],
+				],
+			],
 			['id_member', 'id_theme', 'variable'],
 		);
 
@@ -1751,7 +1723,7 @@ class ACP implements ActionInterface
 	 * @param array $replacements An array of items to replace the variables in the template
 	 * @param array $additional_recipients An array of arrays of info for additional recipients. Should have 'id', 'email' and 'name' for each.
 	 */
-	public static function emailAdmins($template, $replacements = [], $additional_recipients = [])
+	public static function emailAdmins(string $template, array $replacements = [], array $additional_recipients = []): void
 	{
 		// Load all members which are effectively admins.
 		$members = User::membersAllowedTo('admin_forum');
@@ -1820,7 +1792,7 @@ class ACP implements ActionInterface
 	 *
 	 * @param string $type What login type is this - can be 'admin' or 'moderate'
 	 */
-	public static function adminLogin($type = 'admin')
+	public static function adminLogin(string $type = 'admin'): void
 	{
 		Lang::load('Admin');
 		Theme::loadTemplate('Login');
@@ -1832,7 +1804,7 @@ class ACP implements ActionInterface
 
 		// They used a wrong password, log it and unset that.
 		if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass'])) {
-			Lang::$txt['security_wrong'] = sprintf(Lang::$txt['security_wrong'], $_SERVER['HTTP_REFERER'] ?? Lang::$txt['unknown'], $_SERVER['HTTP_USER_AGENT'], User::$me->ip);
+			Lang::$txt['security_wrong'] = Lang::getTxt('security_wrong', ['referrer' => $_SERVER['HTTP_REFERER'] ?? Lang::$txt['unknown'], 'user_agent' => $_SERVER['HTTP_USER_AGENT'], 'ip' => User::$me->ip]);
 			ErrorHandler::log(Lang::$txt['security_wrong'], 'critical');
 
 			if (isset($_POST[$type . '_hash_pass'])) {
@@ -1881,9 +1853,9 @@ class ACP implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial setup.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// Load the language and templates....
 		Lang::load('Admin');
@@ -1931,10 +1903,12 @@ class ACP implements ActionInterface
 					$value = Lang::$txt[$value] ?? $value;
 				}
 
-				$value = strtr($value, [
-					'{scripturl}' => Config::$scripturl,
-					'{boardurl}' => Config::$boardurl,
-				]);
+				if (is_string($value)) {
+					$value = strtr($value, [
+						'{scripturl}' => Config::$scripturl,
+						'{boardurl}' => Config::$boardurl,
+					]);
+				}
 			},
 		);
 
@@ -1985,10 +1959,10 @@ class ACP implements ActionInterface
 	 * If 'value' is an array, calls itself recursively.
 	 *
 	 * @param string $k The keys
-	 * @param string $v The values
+	 * @param string|array $v The values
 	 * @return string 'hidden' HTML form fields, containing key-value pairs
 	 */
-	protected static function adminLogin_outputPostVars($k, $v)
+	protected static function adminLogin_outputPostVars(string $k, string|array $v): string
 	{
 		if (!is_array($v)) {
 			return "\n" . '<input type="hidden" name="' . Utils::htmlspecialchars($k) . '" value="' . strtr($v, ['"' => '&quot;', '<' => '&lt;', '>' => '&gt;']) . '">';
@@ -2006,10 +1980,10 @@ class ACP implements ActionInterface
 	/**
 	 * Properly urlencodes a string to be used in a query.
 	 *
-	 * @param string $get A copy of $_GET.
+	 * @param array $get A copy of $_GET.
 	 * @return string Our query string.
 	 */
-	protected static function construct_query_string($get)
+	protected static function construct_query_string(array $get): string
 	{
 		$query_string = '';
 
@@ -2040,11 +2014,6 @@ class ACP implements ActionInterface
 
 		return $query_string;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ACP::exportStatic')) {
-	ACP::exportStatic();
 }
 
 ?>

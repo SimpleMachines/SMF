@@ -5,18 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\Notify;
+use SMF\ActionTrait;
 use SMF\Alert;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -36,26 +38,9 @@ use SMF\Utils;
  */
 class Notification implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'notification',
-			'list_getTopicNotificationCount' => 'list_getTopicNotificationCount',
-			'list_getTopicNotifications' => 'list_getTopicNotifications',
-			'list_getBoardNotifications' => 'list_getBoardNotifications',
-			'alert_configuration' => 'alert_configuration',
-			'alert_markread' => 'alert_markread',
-			'alert_notifications_topics' => 'alert_notifications_topics',
-			'alert_notifications_boards' => 'alert_notifications_boards',
-			'makeNotificationChanges' => 'makeNotificationChanges',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -316,18 +301,6 @@ class Notification implements ActionInterface
 		'boards' => 'alert_notifications_boards',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -362,7 +335,7 @@ class Notification implements ActionInterface
 	 *
 	 * @param bool $defaultSettings If true, we are loading default options.
 	 */
-	public function configuration($defaultSettings = false)
+	public function configuration(bool $defaultSettings = false): void
 	{
 		if (!isset(Utils::$context['token_check'])) {
 			Utils::$context['token_check'] = 'profile-nt' . Profile::$member->id;
@@ -584,7 +557,7 @@ class Notification implements ActionInterface
 	/**
 	 * Marks all alerts as read for user.
 	 */
-	public function markRead()
+	public function markRead(): void
 	{
 		// We do not want to output debug information here.
 		Config::$db_show_debug = false;
@@ -610,19 +583,19 @@ class Notification implements ActionInterface
 	/**
 	 * Handles alerts related to topics and posts.
 	 */
-	public function topics()
+	public function topics(): void
 	{
 		// Because of the way this stuff works, we want to do this ourselves.
 		if (isset($_POST['edit_notify_topics']) || isset($_POST['remove_notify_topics'])) {
 			User::$me->checkSession();
-			SecurityToken::validate(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
+			SecurityToken::validate(str_replace('%u', (string) Profile::$member->id, 'profile-nt%u'), 'post');
 
-			$thid->changeNotifications();
+			$this->changeNotifications();
 			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
 		}
 
 		// Now set up for the token check.
-		Utils::$context['token_check'] = str_replace('%u', Profile::$member->id, 'profile-nt%u');
+		Utils::$context['token_check'] = str_replace('%u', (string) Profile::$member->id, 'profile-nt%u');
 		SecurityToken::create(Utils::$context['token_check'], 'post');
 
 		// Do the topic notifications.
@@ -650,15 +623,13 @@ class Notification implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($topic) {
-							$link = $topic['link'];
-
-							if ($topic['new']) {
-								$link .= ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>';
-							}
-
-							$link .= '<br><span class="smalltext"><em>' . Lang::$txt['in'] . ' ' . $topic['board_link'] . '</em></span>';
-
-							return $link;
+							return Lang::getTxt(
+								'topic_in_board',
+								[
+									'topic_link' => $topic['link'] . ($topic['new'] ? ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : ''),
+									'board_link' => $topic['board_link'],
+								],
+							);
 						},
 					],
 					'sort' => [
@@ -685,13 +656,9 @@ class Notification implements ActionInterface
 						'class' => 'lefttext',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<span class="smalltext">%1$s<br>' . Lang::$txt['by'] . ' %2$s</span>',
-							'params' => [
-								'updated' => false,
-								'poster_updated_link' => false,
-							],
-						],
+						'function' => function ($topic) {
+							return '<span class="smalltext">' . Lang::getTxt('last_post_updated', ['time' => $topic['updated'], 'member_link' => $topic['poster_updated_link']]) . '</span>';
+						},
 					],
 					'sort' => [
 						'default' => 'ml.id_msg DESC',
@@ -757,19 +724,19 @@ class Notification implements ActionInterface
 	/**
 	 * Handles preferences related to board-level notifications.
 	 */
-	public function boards()
+	public function boards(): void
 	{
 		// Because of the way this stuff works, we want to do this ourselves.
 		if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards'])) {
 			User::$me->checkSession();
-			SecurityToken::validate(str_replace('%u', Profile::$member->id, 'profile-nt%u'), 'post');
+			SecurityToken::validate(str_replace('%u', (string) Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$this->changeNotifications();
 			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
 		}
 
 		// Now set up for the token check.
-		Utils::$context['token_check'] = str_replace('%u', Profile::$member->id, 'profile-nt%u');
+		Utils::$context['token_check'] = str_replace('%u', (string) Profile::$member->id, 'profile-nt%u');
 		SecurityToken::create(Utils::$context['token_check'], 'post');
 
 		// Fine, start with the board list.
@@ -867,33 +834,11 @@ class Notification implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Determines how many topics the user has requested notifications for.
 	 *
 	 * @return int The number of topics the user has subscribed to.
 	 */
-	public static function list_getTopicNotificationCount()
+	public static function list_getTopicNotificationCount(): int
 	{
 		$request = Db::$db->query(
 			'',
@@ -922,7 +867,7 @@ class Notification implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results.
 	 * @return array An array of information about the topics the user has subscribed to.
 	 */
-	public static function list_getTopicNotifications($start, $items_per_page, $sort)
+	public static function list_getTopicNotifications(int $start, int $items_per_page, string $sort): array
 	{
 		$prefs = Notify::getNotifyPrefs(Profile::$member->id);
 		$prefs = $prefs[Profile::$member->id] ?? [];
@@ -993,7 +938,7 @@ class Notification implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results.
 	 * @return array An array of information about all the boards the user is subscribed to.
 	 */
-	public static function list_getBoardNotifications($start, $items_per_page, $sort)
+	public static function list_getBoardNotifications(int $start, int $items_per_page, string $sort): array
 	{
 		$prefs = Notify::getNotifyPrefs(Profile::$member->id);
 		$prefs = $prefs[Profile::$member->id] ?? [];
@@ -1031,71 +976,6 @@ class Notification implements ActionInterface
 		return $notification_boards;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the configuration sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 * @param bool $defaultSettings If true, we are loading default options.
-	 */
-	public static function alert_configuration($memID, $defaultSettings = false): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->subaction = 'alerts';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the markRead sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 */
-	public static function alert_markread($memID): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->subaction = 'markread';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the topics sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 */
-	public static function alert_notifications_topics($memID): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->subaction = 'topics';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the boards sub-action.
-	 *
-	 * @param int $memID The ID of the member.
-	 */
-	public static function alert_notifications_boards($memID): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->subaction = 'boards';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the changeNotifications method.
-	 *
-	 * @param int $memID The ID of the member.
-	 */
-	public static function makeNotificationChanges($memID): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->changeNotifications();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1117,7 +997,7 @@ class Notification implements ActionInterface
 	/**
 	 * Make any notification changes that need to be made.
 	 */
-	protected function changeNotifications()
+	protected function changeNotifications(): void
 	{
 		// Update the boards they are being notified about.
 		if (isset($_POST['edit_notify_boards']) && !empty($_POST['notify_boards'])) {
@@ -1188,11 +1068,6 @@ class Notification implements ActionInterface
 			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Notification::exportStatic')) {
-	Notification::exportStatic();
 }
 
 ?>

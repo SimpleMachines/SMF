@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 ########## Maintenance ##########
@@ -48,7 +48,7 @@ $mbname = 'My Community';
  *
  * The default language file set for the forum.
  */
-$language = 'english';
+$language = 'en_US';
 /**
  * @var string
  *
@@ -173,7 +173,7 @@ $cache_memcached = '';
  *
  * Path to the cache directory for the file-based cache system.
  */
-$cachedir = dirname(__FILE__) . '/cache';
+$cachedir = __DIR__ . '/cache';
 
 ########## Image Proxy ##########
 /**
@@ -202,37 +202,37 @@ $image_proxy_maxsize = 5192;
  *
  * The absolute path to the forum's folder. (not just '.'!)
  */
-$boarddir = dirname(__FILE__);
+$boarddir = __DIR__;
 /**
  * @var string
  *
  * Path to the Sources directory.
  */
-$sourcedir = dirname(__FILE__) . '/Sources';
+$sourcedir = __DIR__ . '/Sources';
 /**
  * @var string
  *
  * Path to the Packages directory.
  */
-$packagesdir = dirname(__FILE__) . '/Packages';
+$packagesdir = __DIR__ . '/Packages';
 /**
  * @var string
  *
- * Path to the tasks directory.
+ * Path to the language directory.
  */
-$tasksdir = $sourcedir . '/Tasks';
+$languagesdir = __DIR__ . '/Languages';
 
-# Make sure the paths are correct... at least try to fix them.
-if (!is_dir(realpath($boarddir)) && file_exists(dirname(__FILE__) . '/agreement.txt'))
-	$boarddir = dirname(__FILE__);
-if (!is_dir(realpath($sourcedir)) && is_dir($boarddir . '/Sources'))
-	$sourcedir = $boarddir . '/Sources';
-if (!is_dir(realpath($tasksdir)) && is_dir($sourcedir . '/Tasks'))
-	$tasksdir = $sourcedir . '/Tasks';
-if (!is_dir(realpath($packagesdir)) && is_dir($boarddir . '/Packages'))
-	$packagesdir = $boarddir . '/Packages';
-if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
-	$cachedir = $boarddir . '/cache';
+######### Modification Support #########
+/**
+ * @var int
+ *
+ * Master switch to enable backward compatibility behaviours:
+ * 0: Off. This is the default.
+ * 1: On. This will be set automatically if an installed modification needs it.
+ * 2: Forced on. Use this to enable backward compatibility behaviours even when
+ *    no installed modifications require them. This is usually not necessary.
+ */
+$backward_compatibility = 0;
 
 ######### Legacy Settings #########
 /**
@@ -242,19 +242,7 @@ if (!is_dir(realpath($cachedir)) && is_dir($boarddir . '/cache'))
  */
 $db_character_set = 'utf8';
 
-########## Error-Catching ##########
-# Note: You shouldn't touch these settings.
-if (file_exists((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php'))
-	include((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php');
-
-if (!isset($db_last_error))
-{
-	// File does not exist so lets try to create it
-	file_put_contents((isset($cachedir) ? $cachedir : dirname(__FILE__)) . '/db_last_error.php', '<' . '?' . "php\n" . '$db_last_error = 0;' . "\n" . '?' . '>');
-	$db_last_error = 0;
-}
-
-if (file_exists(dirname(__FILE__) . '/install.php'))
+if (file_exists(__DIR__ . '/install.php'))
 {
 	$secure = false;
 	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')

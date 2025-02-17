@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\BrowserDetector;
@@ -30,7 +30,7 @@ function template_registration_agreement()
 				<h3 class="catbg">', Lang::$txt['registration_agreement'], '</h3>
 			</div>
 			<div class="roundframe">
-				<div>', Utils::$context['agreement'], '</div>
+				<div>', Utils::adjustHeadingLevels(Utils::$context['agreement'], 3), '</div>
 			</div>';
 
 	if (!empty(Utils::$context['privacy_policy']))
@@ -39,7 +39,7 @@ function template_registration_agreement()
 				<h3 class="catbg">', Lang::$txt['privacy_policy'], '</h3>
 			</div>
 			<div class="roundframe">
-				<div>', Utils::$context['privacy_policy'], '</div>
+				<div>', Utils::adjustHeadingLevels(Utils::$context['privacy_policy'], 3), '</div>
 			</div>';
 
 		echo '
@@ -114,7 +114,7 @@ function template_registration_form()
 				<fieldset>
 					<dl class="register_form">
 						<dt>
-							<strong><label for="smf_autov_username">', Lang::$txt['username'], ':</label></strong>
+							<strong><label for="smf_autov_username">', Lang::$txt['username'], '</label></strong>
 						</dt>
 						<dd>
 							<input type="text" name="user" id="smf_autov_username" size="50" tabindex="', Utils::$context['tabindex']++, '" maxlength="25" value="', isset(Utils::$context['username']) ? Utils::$context['username'] : '', '">
@@ -124,13 +124,13 @@ function template_registration_form()
 								</a>
 							</span>
 						</dd>
-						<dt><strong><label for="smf_autov_reserve1">', Lang::$txt['user_email_address'], ':</label></strong></dt>
+						<dt><strong><label for="smf_autov_reserve1">', Lang::$txt['user_email_address'], '</label></strong></dt>
 						<dd>
 							<input type="email" name="email" id="smf_autov_reserve1" size="50" tabindex="', Utils::$context['tabindex']++, '" value="', isset(Utils::$context['email']) ? Utils::$context['email'] : '', '">
 						</dd>
 					</dl>
 					<dl class="register_form" id="password1_group">
-						<dt><strong><label for="smf_autov_pwmain">', Lang::$txt['choose_pass'], ':</label></strong></dt>
+						<dt><strong><label for="smf_autov_pwmain">', Lang::$txt['choose_pass'], '</label></strong></dt>
 						<dd>
 							<input type="password" name="passwrd1" id="smf_autov_pwmain" size="50" tabindex="', Utils::$context['tabindex']++, '">
 							<span id="smf_autov_pwmain_div" style="display: none;">
@@ -140,7 +140,7 @@ function template_registration_form()
 					</dl>
 					<dl class="register_form" id="password2_group">
 						<dt>
-							<strong><label for="smf_autov_pwverify">', Lang::$txt['verify_pass'], ':</label></strong>
+							<strong><label for="smf_autov_pwverify">', Lang::$txt['verify_pass'], '</label></strong>
 						</dt>
 						<dd>
 							<input type="password" name="passwrd2" id="smf_autov_pwverify" size="50" tabindex="', Utils::$context['tabindex']++, '">
@@ -151,7 +151,7 @@ function template_registration_form()
 					</dl>
 					<dl class="register_form" id="notify_announcements">
 						<dt>
-							<strong><label for="notify_announcements">', Lang::$txt['notify_announcements'], ':</label></strong>
+							<strong><label for="notify_announcements">', Lang::$txt['notify_announcements'], '</label></strong>
 						</dt>
 						<dd>
 							<input type="checkbox" name="notify_announcements" id="notify_announcements" tabindex="', Utils::$context['tabindex']++, '"', Utils::$context['notify_announcements'] ? ' checked="checked"' : '', '>
@@ -498,21 +498,21 @@ function template_admin_register()
 	echo '
 					<dl class="register_form" id="admin_register_form">
 						<dt>
-							<strong><label for="user_input">', Lang::$txt['admin_register_username'], ':</label></strong>
+							<strong><label for="user_input">', Lang::$txt['admin_register_username'], '</label></strong>
 							<span class="smalltext">', Lang::$txt['admin_register_username_desc'], '</span>
 						</dt>
 						<dd>
 							<input type="text" name="user" id="user_input" tabindex="', Utils::$context['tabindex']++, '" size="50" maxlength="25">
 						</dd>
 						<dt>
-							<strong><label for="email_input">', Lang::$txt['admin_register_email'], ':</label></strong>
+							<strong><label for="email_input">', Lang::$txt['admin_register_email'], '</label></strong>
 							<span class="smalltext">', Lang::$txt['admin_register_email_desc'], '</span>
 						</dt>
 						<dd>
 							<input type="email" name="email" id="email_input" tabindex="', Utils::$context['tabindex']++, '" size="50">
 						</dd>
 						<dt>
-							<strong><label for="password_input">', Lang::$txt['admin_register_password'], ':</label></strong>
+							<strong><label for="password_input">', Lang::$txt['admin_register_password'], '</label></strong>
 							<span class="smalltext">', Lang::$txt['admin_register_password_desc'], '</span>
 						</dt>
 						<dd>
@@ -523,7 +523,7 @@ function template_admin_register()
 	{
 		echo '
 						<dt>
-							<strong><label for="group_select">', Lang::$txt['admin_register_group'], ':</label></strong>
+							<strong><label for="group_select">', Lang::$txt['admin_register_group'], '</label></strong>
 							<span class="smalltext">', Lang::$txt['admin_register_group_desc'], '</span>
 						</dt>
 						<dd>
@@ -553,14 +553,14 @@ function template_admin_register()
 
 	echo '
 						<dt>
-							<strong><label for="emailPassword_check">', Lang::$txt['admin_register_email_detail'], ':</label></strong>
+							<strong><label for="emailPassword_check">', Lang::$txt['admin_register_email_detail'], '</label></strong>
 							<span class="smalltext">', Lang::$txt['admin_register_email_detail_desc'], '</span>
 						</dt>
 						<dd>
 							<input type="checkbox" name="emailPassword" id="emailPassword_check" tabindex="', Utils::$context['tabindex']++, '" checked disabled>
 						</dd>
 						<dt>
-							<strong><label for="emailActivate_check">', Lang::$txt['admin_register_email_activate'], ':</label></strong>
+							<strong><label for="emailActivate_check">', Lang::$txt['admin_register_email_activate'], '</label></strong>
 						</dt>
 						<dd>
 							<input type="checkbox" name="emailActivate" id="emailActivate_check" tabindex="', Utils::$context['tabindex']++, '"', !empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1 ? ' checked' : '', ' onclick="onCheckChange();">
@@ -601,19 +601,15 @@ function template_edit_agreement()
 		<div id="admin_form_wrapper">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['registration_agreement'], '</h3>
-			</div>
-			<div class="windowbg" id="registration_agreement">';
+			</div>';
 
 	// Is there more than one language to choose from?
 	if (count(Utils::$context['editable_agreements']) > 1)
 	{
 		echo '
-				<div class="cat_bar">
-					<h3 class="catbg">', Lang::$txt['language_configuration'], '</h3>
-				</div>
 				<div class="information">
-					<form action="', Config::$scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="', Utils::$context['character_set'], '" style="display: inline;">
-						<strong>', Lang::$txt['admin_agreement_select_language'], ':</strong>
+					<form action="', Config::$scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="', Utils::$context['character_set'], '">
+						<strong>', Lang::$txt['admin_agreement_select_language'], '</strong>
 						<select name="agree_lang" onchange="document.getElementById(\'change_reg\').submit();" tabindex="', Utils::$context['tabindex']++, '">';
 
 		foreach (Utils::$context['editable_agreements'] as $file => $name)
@@ -634,12 +630,13 @@ function template_edit_agreement()
 
 	// Show the actual agreement in an oversized text box.
 	echo '
+			<div class="windowbg" id="registration_agreement">
 				<form action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', Utils::$context['character_set'], '">
 					<textarea cols="70" rows="20" name="agreement" id="agreement">', Utils::$context['agreement'], '</textarea>
 					<div class="information">
 						<span>', Utils::$context['agreement_info'], '</span>
 					</div>
-					<div class="righttext"><input type="submit" value="', Lang::$txt['save'], '" tabindex="', Utils::$context['tabindex']++, '" class="button" onclick="return resetAgreementConfirm()" />
+					<input type="submit" value="', Lang::$txt['save'], '" tabindex="', Utils::$context['tabindex']++, '" class="button" onclick="return resetAgreementConfirm()" />
 					<input type="hidden" name="agree_lang" value="', Utils::$context['current_agreement'], '">
 					<input type="hidden" name="sa" value="agreement">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -719,16 +716,15 @@ function template_edit_privacy_policy()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['privacy_policy'], '</h3>
-		</div>
-		<div class="windowbg" id="privacy_policy">';
+		</div>';
 
 	// Is there more than one language to choose from?
 	if (count(Utils::$context['editable_policies']) > 1)
 	{
 		echo '
 			<div class="information">
-				<form action="', Config::$scripturl, '?action=admin;area=regcenter" id="change_policy" method="post" accept-charset="', Utils::$context['character_set'], '" style="display: inline;">
-					<strong>', Lang::$txt['admin_agreement_select_language'], ':</strong>
+				<form action="', Config::$scripturl, '?action=admin;area=regcenter" id="change_policy" method="post" accept-charset="', Utils::$context['character_set'], '">
+					<strong>', Lang::$txt['admin_agreement_select_language'], '</strong>
 					<select name="policy_lang" onchange="document.getElementById(\'change_policy\').submit();" tabindex="', Utils::$context['tabindex']++, '">';
 
 		foreach (Utils::$context['editable_policies'] as $lang => $name)
@@ -747,6 +743,7 @@ function template_edit_privacy_policy()
 	}
 
 	echo '
+		<div class="windowbg" id="privacy_policy">
 			<form action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', Utils::$context['character_set'], '">';
 
 	// Show the actual policy in an oversized text box.

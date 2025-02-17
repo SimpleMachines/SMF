@@ -5,17 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Search\SearchApi;
 
@@ -25,7 +28,7 @@ use SMF\Search\SearchApi;
  * This class's static methods also takes care of certain actions on topics:
  * lock/unlock a topic, sticky/unsticky it, etc.
  */
-class Topic implements \ArrayAccess
+class Topic implements \ArrayAccess, Routable
 {
 	use BackwardCompatibility;
 	use ArrayAccessHelper;
@@ -36,14 +39,6 @@ class Topic implements \ArrayAccess
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'lock' => 'LockTopic',
-			'sticky' => 'Sticky',
-			'approve' => 'approveTopics',
-			'move' => 'moveTopics',
-			'remove' => 'removeTopics',
-			'prepareLikesContext' => 'prepareLikesContext',
-		],
 		'prop_names' => [
 			'topic_id' => 'topic',
 		],
@@ -288,7 +283,7 @@ class Topic implements \ArrayAccess
 	public static $topic_id;
 
 	/**
-	 * @var SMF\Topic
+	 * @var \SMF\Topic
 	 *
 	 * Instance of this class for the requested topic.
 	 */
@@ -317,6 +312,13 @@ class Topic implements \ArrayAccess
 		'topic_started_name' => 'started_name',
 		'topic_started_time' => 'started_time',
 	];
+
+	/**
+	 * @var array
+	 *
+	 * IDs of any events that are linked to this topic.
+	 */
+	protected array $events;
 
 	/****************************
 	 * Internal static properties
@@ -373,9 +375,19 @@ class Topic implements \ArrayAccess
 	 */
 	public function __construct(int $id, array $props = [])
 	{
-		self::$loaded[$id] = $this;
 		$this->id = $id;
 		$this->set($props);
+
+		// If the topic is constructed before User::$me is set, the properties
+		// passed in $props are probably not what they will be later.
+		if (isset(User::$me)) {
+			self::$loaded[$id] = $this;
+		}
+
+		// Create the slug for this topic.
+		if (isset($this->subject)) {
+			Slug::create($this->subject, 'topic', $id);
+		}
 	}
 
 	/**
@@ -384,13 +396,13 @@ class Topic implements \ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		// Special case for num_replies and real_num_replies.
 		if ($prop === 'num_replies' && !isset($this->real_num_replies)) {
-			$this->real_num_replies = $value;
+			$this->real_num_replies = (int) $value;
 		} elseif ($prop === 'real_num_replies' && !isset($this->num_replies)) {
-			$this->num_replies = $value;
+			$this->num_replies = (int) $value;
 		}
 
 		$this->customPropertySet($prop, $value);
@@ -535,6 +547,20 @@ class Topic implements \ArrayAccess
 		return $liked_messages;
 	}
 
+	/**
+	 * Returns any calendar events that are linked to this topic.
+	 */
+	public function getLinkedEvents(): array
+	{
+		if (!isset($this->events)) {
+			foreach (Event::load($this->id, true) as $event) {
+				$this->events[] = $event->id;
+			}
+		}
+
+		return array_intersect_key(Event::$loaded, array_flip($this->events ?? []));
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -543,9 +569,9 @@ class Topic implements \ArrayAccess
 	 * Loads information about a topic.
 	 *
 	 * @param ?int $id The ID number of a topic, or null for the current topic.
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(?int $id = null)
+	public static function load(?int $id = null): self
 	{
 		if (!isset($id)) {
 			if (empty(self::$topic_id)) {
@@ -555,188 +581,159 @@ class Topic implements \ArrayAccess
 			$id = self::$topic_id;
 		}
 
-		if (!isset(self::$loaded[$id])) {
-			new self($id);
-
-			self::$loaded[$id]->loadTopicInfo();
-
-			if (!empty(self::$topic_id) && $id === self::$topic_id) {
-				self::$info = self::$loaded[$id];
-			}
+		if (isset(self::$loaded[$id])) {
+			$obj = self::$loaded[$id];
+		} else {
+			// The constructor will take care of adding the new instance to self::$loaded.
+			$obj = new self($id);
+			$obj->loadTopicInfo();
 		}
 
-		return self::$loaded[$id];
+		if (isset(self::$loaded[$id]) && !empty(self::$topic_id) && $id === self::$topic_id) {
+			self::$info = self::$loaded[$id];
+		}
+
+		return $obj;
 	}
 
 	/**
-	 * Locks a topic... either by way of a moderator or the topic starter.
-	 * What this does:
-	 *  - locks a topic, toggles between locked/unlocked/admin locked.
-	 *  - only admins can unlock topics locked by other admins.
-	 *  - requires the lock_own or lock_any permission.
-	 *  - logs the action to the moderator log.
-	 *  - returns to the topic after it is done.
-	 *  - it is accessed via ?action=lock.
+	 * Sets the locked state for one or more topics.
+	 *
+	 * Doesn't check permissions.
+	 * Logs the action and sends notifications.
+	 *
+	 * @param array|int $topics Array of topic IDs.
+	 * @param int $level 0 = unlocked, 1 = user locked, 2 = moderator locked.
+	 * @return array IDs of topics that were changed.
 	 */
-	public static function lock(): void
+	public static function lock(array|int $topics, int $level): array
 	{
-		// Just quit if there's no topic to lock.
-		if (empty(self::$topic_id)) {
-			ErrorHandler::fatalLang('not_a_topic', false);
+		if (empty($topics)) {
+			return [];
 		}
 
-		User::$me->checkSession('get');
+		$topics = (array) $topics;
 
-		// Find out who started the topic - in case User Topic Locking is enabled.
+		// Get the topics that we need to change.
 		$request = Db::$db->query(
 			'',
-			'SELECT id_member_started, locked
+			'SELECT id_topic AS topic, id_board AS board
 			FROM {db_prefix}topics
-			WHERE id_topic = {int:current_topic}
-			LIMIT 1',
+			WHERE id_topic IN ({array_int:topics})
+				AND locked != {int:level}',
 			[
-				'current_topic' => self::$topic_id,
+				'topics' => $topics,
+				'level' => $level,
 			],
 		);
-		list($starter, $locked) = Db::$db->fetch_row($request);
+		$rows = Db::$db->fetch_all($request);
 		Db::$db->free_result($request);
 
-		// Can you lock topics here, mister?
-		$user_lock = !User::$me->allowedTo('lock_any');
-
-		if ($user_lock && $starter == User::$me->id) {
-			User::$me->isAllowedTo('lock_own');
-		} else {
-			User::$me->isAllowedTo('lock_any');
+		// If no changes are needed, we're done.
+		if (empty($rows)) {
+			return [];
 		}
 
-		// Another moderator got the job done first?
-		if (isset($_GET['sa']) && $_GET['sa'] == 'unlock' && $locked == '0') {
-			ErrorHandler::fatalLang('error_topic_locked_already', false);
-		} elseif (isset($_GET['sa']) && $_GET['sa'] == 'lock' && ($locked == '1' || $locked == '2')) {
-			ErrorHandler::fatalLang('error_topic_unlocked_already', false);
-		}
-
-		// Locking with high privileges.
-		if ($locked == '0' && !$user_lock) {
-			$locked = '1';
-		}
-		// Locking with low privileges.
-		elseif ($locked == '0') {
-			$locked = '2';
-		}
-		// Unlocking - make sure you don't unlock what you can't.
-		elseif ($locked == '2' || ($locked == '1' && !$user_lock)) {
-			$locked = '0';
-		}
-		// You cannot unlock this!
-		else {
-			ErrorHandler::fatalLang('locked_by_admin', 'user');
-		}
-
-		// Actually lock the topic in the database with the new value.
+		// Update the lock state of the topics.
 		Db::$db->query(
 			'',
 			'UPDATE {db_prefix}topics
-			SET locked = {int:locked}
-			WHERE id_topic = {int:current_topic}',
+			SET locked = {int:level}
+			WHERE id_topic IN ({array_int:topics})',
 			[
-				'current_topic' => self::$topic_id,
-				'locked' => $locked,
+				'topics' => $topics,
+				'level' => $level,
 			],
 		);
 
-		// If they are allowed a "moderator" permission, log it in the moderator log.
-		if (!$user_lock) {
-			Logging::logAction($locked ? 'lock' : 'unlock', ['topic' => self::$topic_id, 'board' => Board::$info->id]);
+		foreach ($rows as $row) {
+			// If they are allowed a "moderator" permission, log it in the moderator log.
+			if (User::$me->allowedTo('lock_any', (int) $row['board'])) {
+				Logging::logAction(empty($level) ? 'unlock' : 'lock', $row);
+			}
+
+			// Notify people that this topic has been locked or unlocked.
+			Mail::sendNotifications((int) $row['topic'], empty($level) ? 'unlock' : 'lock');
 		}
 
-		// Notify people that this topic has been locked?
-		Mail::sendNotifications(self::$topic_id, empty($locked) ? 'unlock' : 'lock');
-
-		// Back to the topic!
-		Utils::redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
+		return array_map(fn($row) => (int) $row['topic'], $rows);
 	}
 
 	/**
-	 * Sticky a topic.
-	 * Can't be done by topic starters - that would be annoying!
-	 * What this does:
-	 *  - stickies a topic - toggles between sticky and normal.
-	 *  - requires the make_sticky permission.
-	 *  - adds an entry to the moderator log.
-	 *  - when done, sends the user back to the topic.
-	 *  - accessed via ?action=sticky.
+	 * Sets the sticky state for one or more topics.
+	 *
+	 * Doesn't check permissions.
+	 * Logs the action and sends notifications.
+	 *
+	 * @param array|int $topics Array of topic IDs.
+	 * @param bool $sticky_state True to sticky or false to unsticky.
+	 * @return array IDs of topics that were changed.
 	 */
-	public static function sticky(): void
+	public static function sticky(array|int $topics, bool $sticky_state): array
 	{
-		// Make sure the user can sticky it, and they are stickying *something*.
-		User::$me->isAllowedTo('make_sticky');
-
-		// You can't sticky a board or something!
-		if (empty(self::$topic_id)) {
-			ErrorHandler::fatalLang('not_a_topic', false);
+		if (empty($topics)) {
+			return [];
 		}
 
-		User::$me->checkSession('get');
+		$topics = (array) $topics;
 
-		// Is this topic already stickied, or no?
+		// Get the topics that we need to change.
 		$request = Db::$db->query(
 			'',
-			'SELECT is_sticky
+			'SELECT id_topic AS topic, id_board AS board
 			FROM {db_prefix}topics
-			WHERE id_topic = {int:current_topic}
-			LIMIT 1',
+			WHERE id_topic IN ({array_int:topics})
+				AND is_sticky = {int:state}',
 			[
-				'current_topic' => self::$topic_id,
+				'topics' => $topics,
+				'state' => (int) !$sticky_state,
 			],
 		);
-		list($is_sticky) = Db::$db->fetch_row($request);
+		$rows = Db::$db->fetch_all($request);
 		Db::$db->free_result($request);
 
-		// Another moderator got the job done first?
-		if (isset($_GET['sa']) && $_GET['sa'] == 'nonsticky' && $is_sticky == '0') {
-			ErrorHandler::fatalLang('error_topic_nonsticky_already', false);
-		} elseif (isset($_GET['sa']) && $_GET['sa'] == 'sticky' && $is_sticky == '1') {
-			ErrorHandler::fatalLang('error_topic_sticky_already', false);
+		// If no changes are needed, we're done.
+		if (empty($rows)) {
+			return [];
 		}
 
 		// Toggle the sticky value.... pretty simple ;).
 		Db::$db->query(
 			'',
 			'UPDATE {db_prefix}topics
-			SET is_sticky = {int:is_sticky}
-			WHERE id_topic = {int:current_topic}',
+			SET is_sticky = {int:state}
+			WHERE id_topic IN ({array_int:topics})',
 			[
-				'current_topic' => self::$topic_id,
-				'is_sticky' => empty($is_sticky) ? 1 : 0,
+				'topics' => array_map(fn($row) => (int) $row['topic'], $rows),
+				'state' => (int) $sticky_state,
 			],
 		);
 
-		// Log this sticky action - always a moderator thing.
-		Logging::logAction(empty($is_sticky) ? 'sticky' : 'unsticky', ['topic' => self::$topic_id, 'board' => Board::$info->id]);
+		foreach ($rows as $row) {
+			// Log this sticky action - always a moderator thing.
+			Logging::logAction($sticky_state ? 'sticky' : 'unsticky', $row);
 
-		// Notify people that this topic has been stickied?
-		if (empty($is_sticky)) {
-			Mail::sendNotifications(self::$topic_id, 'sticky');
+			// Notify people that this topic has been stickied?
+			if ($sticky_state) {
+				Mail::sendNotifications((int) $row['topic'], 'sticky');
+			}
 		}
 
-		// Take them back to the now stickied topic.
-		Utils::redirectexit('topic=' . self::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
+		return array_map(fn($row) => (int) $row['topic'], $rows);
 	}
 
 	/**
 	 * Approves or unapproves topics.
 	 *
-	 * @param array $topics Array of topic ids.
+	 * Doesn't check permissions.
+	 *
+	 * @param array|int $topics Array of topic ids.
 	 * @param bool $approve Whether to approve the topics. If false, unapproves them instead.
 	 * @return bool Whether the operation was successful.
 	 */
-	public static function approve($topics, $approve = true)
+	public static function approve(array|int $topics, bool $approve = true): bool
 	{
-		if (!is_array($topics)) {
-			$topics = [$topics];
-		}
+		$topics = (array) $topics;
 
 		if (empty($topics)) {
 			return false;
@@ -767,15 +764,18 @@ class Topic implements \ArrayAccess
 	}
 
 	/**
-	 * Moves one or more topics to a specific board. (doesn't check permissions.)
-	 * Determines the source boards for the supplied topics
-	 * Handles the moving of mark_read data
-	 * Updates the posts count of the affected boards
+	 * Moves one or more topics to a specific board.
 	 *
-	 * @param array|int $topics The ID of a single topic to move or an array containing the IDs of multiple topics to move
-	 * @param int $toBoard The ID of the board to move the topics to
+	 * Doesn't check permissions.
+	 * Determines the source boards for the supplied topics.
+	 * Handles the moving of mark_read data.
+	 * Updates the posts count of the affected boards.
+	 *
+	 * @param array|int $topics The ID of a single topic to move or an array
+	 *    containing the IDs of multiple topics to move.
+	 * @param int $toBoard The ID of the board to move the topics to.
 	 */
-	public static function move($topics, $toBoard)
+	public static function move(array|int $topics, int $toBoard): void
 	{
 		// Empty array?
 		if (empty($topics)) {
@@ -783,6 +783,7 @@ class Topic implements \ArrayAccess
 		}
 
 		// Only a single topic.
+		// @TODO: $topics = (array) $topics;
 		if (is_numeric($topics)) {
 			$topics = [$topics];
 		}
@@ -1094,8 +1095,18 @@ class Topic implements \ArrayAccess
 			Db::$db->insert(
 				'replace',
 				'{db_prefix}log_boards',
-				['id_board' => 'int', 'id_member' => 'int', 'id_msg' => 'int'],
-				[$toBoard, User::$me->id, Config::$modSettings['maxMsgID']],
+				[
+					'id_board' => 'int',
+					'id_member' => 'int',
+					'id_msg' => 'int',
+				],
+				[
+					[
+						$toBoard,
+						User::$me->id,
+						Config::$modSettings['maxMsgID'],
+					],
+				],
 				['id_board', 'id_member'],
 			);
 		}
@@ -1128,7 +1139,7 @@ class Topic implements \ArrayAccess
 	 * @param bool $ignoreRecycling Whether to ignore recycling board settings
 	 * @param bool $updateBoardCount Whether to adjust topic counts for the boards
 	 */
-	public static function remove($topics, $decreasePostCount = true, $ignoreRecycling = false, $updateBoardCount = true)
+	public static function remove(array|int $topics, bool $decreasePostCount = true, bool $ignoreRecycling = false, bool $updateBoardCount = true): void
 	{
 		// Nothing to do?
 		if (empty($topics)) {
@@ -1136,6 +1147,7 @@ class Topic implements \ArrayAccess
 		}
 
 		// Only a single topic.
+		// @TODO: $topics = (array) $topics;
 		if (is_numeric($topics)) {
 			$topics = [$topics];
 		}
@@ -1167,7 +1179,7 @@ class Topic implements \ArrayAccess
 
 			if (Db::$db->num_rows($requestMembers) > 0) {
 				while ($rowMembers = Db::$db->fetch_assoc($requestMembers)) {
-					User::updateMemberData($rowMembers['id_member'], ['posts' => 'posts - ' . $rowMembers['posts']]);
+					User::updateMemberData((int) $rowMembers['id_member'], ['posts' => 'posts - ' . $rowMembers['posts']]);
 				}
 			}
 			Db::$db->free_result($requestMembers);
@@ -1194,11 +1206,9 @@ class Topic implements \ArrayAccess
 				$recycleTopics = [];
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					if (function_exists('apache_reset_timeout')) {
-						@apache_reset_timeout();
-					}
+					Sapi::resetTimeout();
 
-					$recycleTopics[] = $row['id_topic'];
+					$recycleTopics[] = (int) $row['id_topic'];
 
 					// Set the id_previous_board for this topic - and make it not sticky.
 					Db::$db->query(
@@ -1216,7 +1226,7 @@ class Topic implements \ArrayAccess
 				Db::$db->free_result($request);
 
 				// Move the topics to the recycle board.
-				self::move($recycleTopics, Config::$modSettings['recycle_board']);
+				self::move($recycleTopics, (int) Config::$modSettings['recycle_board']);
 
 				// Close reports that are being recycled.
 				require_once Config::$sourcedir . '/Actions/Moderation/Main.php';
@@ -1296,9 +1306,7 @@ class Topic implements \ArrayAccess
 		if ($updateBoardCount) {
 			// Decrease the posts/topics...
 			foreach ($adjustBoards as $stats) {
-				if (function_exists('apache_reset_timeout')) {
-					@apache_reset_timeout();
-				}
+				Sapi::resetTimeout();
 
 				Db::$db->query(
 					'',
@@ -1374,47 +1382,6 @@ class Topic implements \ArrayAccess
 		];
 		Attachment::remove($attachmentQuery, 'messages');
 
-		// Delete possible search index entries.
-		if (!empty(Config::$modSettings['search_custom_index_config'])) {
-			$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
-
-			$words = [];
-			$messages = [];
-			$request = Db::$db->query(
-				'',
-				'SELECT id_msg, body
-				FROM {db_prefix}messages
-				WHERE id_topic IN ({array_int:topics})',
-				[
-					'topics' => $topics,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				if (function_exists('apache_reset_timeout')) {
-					@apache_reset_timeout();
-				}
-
-				$words = array_merge($words, Utils::text2words($row['body'], $customIndexSettings['bytes_per_word'], true));
-				$messages[] = $row['id_msg'];
-			}
-			Db::$db->free_result($request);
-			$words = array_unique($words);
-
-			if (!empty($words) && !empty($messages)) {
-				Db::$db->query(
-					'',
-					'DELETE FROM {db_prefix}log_search_words
-					WHERE id_word IN ({array_int:word_list})
-						AND id_msg IN ({array_int:message_list})',
-					[
-						'word_list' => $words,
-						'message_list' => $messages,
-					],
-				);
-			}
-		}
-
 		// Delete anything related to the topic.
 		Db::$db->query(
 			'',
@@ -1484,14 +1451,95 @@ class Topic implements \ArrayAccess
 	}
 
 	/**
-	 * Backward compatibility wrapper for the getLikedMsgs method.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @param int $topic The topic ID to fetch the info from.
-	 * @return array An array of IDs of messages in the specified topic that the current user likes
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function prepareLikesContext(int $topic): array
+	public static function buildRoute(array $params): array
 	{
-		return self::load($topic)->getLikedMsgs();
+		$route = [];
+
+		$params['topic'] = $params['topic'] ?? (string) self::$id ?? null;
+
+		if (isset($params['topic'])) {
+			$route[] = 'topics';
+
+			if (str_contains($params['topic'], '.')) {
+				$params['start'] = $params['start'] ?? substr($params['topic'], strrpos($params['topic'], '.') + 1);
+				$params['topic'] = substr($params['topic'], 0, strrpos($params['topic'], '.'));
+			}
+
+			if (isset(Slug::$known['topic'][(int) $params['topic']])) {
+				$slug = (string) Slug::$known['topic'][(int) $params['topic']];
+			} elseif (($slug = Slug::getCached('topic', (int) $params['topic'])) === '') {
+				$topic = self::load((int) $params['topic']);
+				$msg = $topic instanceof self ? current(Msg::load($topic->id_first_msg)) : false;
+
+				if ($msg instanceof Msg) {
+					$slug = (string) new Slug($msg->subject, 'topic', $topic->id);
+				} else {
+					$slug = '';
+				}
+			}
+
+			$route[] = $slug . (str_ends_with($slug, '-' . $params['topic']) ? '' : ($slug !== '' ? '-' : '') . $params['topic']);
+
+			if (!empty($params['start'])) {
+				$route[] = $params['start'];
+			}
+
+			unset($params['topic'], $params['start']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		if (isset($route[1])) {
+			$params['action'] = 'display';
+			array_shift($route);
+
+			preg_match('/^(\X*?)(\d+(?:\.(?:new|msg\d+|from\d+|\d+))?)$/u', array_shift($route), $matches);
+
+			$topic = $matches[2];
+
+			if (str_contains($topic, '.')) {
+				list($params['topic'], $params['start']) = explode('.', $topic);
+			} else {
+				$params['topic'] = $topic;
+			}
+
+			Slug::setRequested(rtrim($matches[1], '-'), 'topic', (int) $params['topic']);
+
+			// Either an action suffix or a start value.
+			if (!empty($route)) {
+				if (isset(QueryString::$route_parsers[reset($route)])) {
+					$params = array_merge(
+						$params,
+						call_user_func(
+							[QueryString::$route_parsers[reset($route)], 'parseRoute'],
+							$route,
+							$params,
+						),
+					);
+				} elseif (!isset($params['start'])) {
+					$params['start'] = array_shift($route);
+				}
+			}
+		}
+
+		return $params;
 	}
 
 	/******************
@@ -1528,7 +1576,7 @@ class Topic implements \ArrayAccess
 		];
 
 		// What's new to this user?
-		if (User::$me->is_guest) {
+		if (!isset(User::$me) || User::$me->is_guest) {
 			$topic_selects[] = 't.id_last_msg + 1 AS new_from';
 		} else {
 			$topic_selects[] = 'COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from';
@@ -1563,15 +1611,26 @@ class Topic implements \ArrayAccess
 		// Censor the title...
 		Lang::censorText($this->subject);
 
+		// Create the slug for this topic.
+		if (isset($this->subject)) {
+			Slug::create($this->subject, 'topic', $this->id);
+		}
+
 		// A few tweaks and extras.
 		$this->started_time = Time::create('@' . $this->started_timestamp)->format();
 		$this->unwatched = $this->unwatched ?? 0;
-		$this->is_poll = (int) ($this->id_poll > 0 && Config::$modSettings['pollMode'] == '1' && User::$me->allowedTo('poll_view'));
+		$this->is_poll = (bool) ($this->id_poll > 0 && Config::$modSettings['pollMode'] == '1' && isset(User::$me) && User::$me->allowedTo('poll_view'));
 
-		$this->real_num_replies = $this->num_replies + (Config::$modSettings['postmod_active'] && User::$me->allowedTo('approve_posts') ? $this->unapproved_posts - ($this->is_approved ? 0 : 1) : 0);
+		$this->real_num_replies = $this->num_replies + (Config::$modSettings['postmod_active'] && isset(User::$me) && User::$me->allowedTo('approve_posts') ? $this->unapproved_posts - ($this->is_approved ? 0 : 1) : 0);
 
 		// If this topic has unapproved posts, we need to work out how many posts the user can see, for page indexing.
-		if (Config::$modSettings['postmod_active'] && $this->unapproved_posts && !User::$me->is_guest && !User::$me->allowedTo('approve_posts')) {
+		if (
+			Config::$modSettings['postmod_active']
+			&& $this->unapproved_posts
+			&& isset(User::$me)
+			&& !User::$me->is_guest
+			&& !User::$me->allowedTo('approve_posts')
+		) {
 			$request = Db::$db->query(
 				'',
 				'SELECT COUNT(id_member) AS my_unapproved_posts
@@ -1588,19 +1647,21 @@ class Topic implements \ArrayAccess
 			Db::$db->free_result($request);
 
 			$this->total_visible_posts = $this->num_replies + $myUnapprovedPosts + ($this->is_approved ? 1 : 0);
-		} elseif (User::$me->is_guest) {
+		} elseif (!isset(User::$me) || User::$me->is_guest) {
 			$this->total_visible_posts = $this->num_replies + ($this->is_approved ? 1 : 0);
 		} else {
 			$this->total_visible_posts = $this->num_replies + $this->unapproved_posts + ($this->is_approved ? 1 : 0);
 		}
 
 		// Did this user start the topic or not?
-		User::$me->started = User::$me->id == $this->id_member_started && !User::$me->is_guest;
+		if (isset(User::$me)) {
+			User::$me->started = User::$me->id == $this->id_member_started && !User::$me->is_guest;
+		}
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Topic::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([Topic::class, 'exportStatic'])) {
 	Topic::exportStatic();
 }
 

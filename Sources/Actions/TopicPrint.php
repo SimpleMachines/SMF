@@ -5,23 +5,28 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
+use SMF\ActionTrait;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Parser;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Topic;
@@ -33,36 +38,19 @@ use SMF\Utils;
  *
  * @todo Rewrite to use Msg::get() in order to reduce memory load?
  */
-class TopicPrint implements ActionInterface
+class TopicPrint implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'PrintTopic',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionSuffixRouter;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
 
 	/**
 	 * Format a topic to be printer friendly.
@@ -116,14 +104,7 @@ class TopicPrint implements ActionInterface
 			Utils::$context['poll'] = $poll->format(['no_buttons' => true]);
 		}
 
-		// We want a separate BBCodeParser instance for this, not the reusable one
-		// that would be returned by BBCodeParser::load().
-		$bbcparser = new BBCodeParser();
-
-		// Set the BBCodeParser to print mode.
-		$bbcparser->for_print = true;
-
-		// Lets "output" all that info.
+		// Let's output all that info.
 		Theme::loadTemplate('Printpage');
 		Utils::$context['template_layers'] = ['print'];
 		Utils::$context['board_name'] = Board::$info->name;
@@ -158,12 +139,14 @@ class TopicPrint implements ActionInterface
 			Lang::censorText($row['subject']);
 			Lang::censorText($row['body']);
 
+			$row['body'] = Parser::transform($row['body'], options: ['for_print' => true]);
+
 			Utils::$context['posts'][] = [
 				'subject' => $row['subject'],
 				'member' => $row['poster_name'],
 				'time' => Time::create('@' . $row['poster_time'])->format(null, false),
 				'timestamp' => $row['poster_time'],
-				'body' => $bbcparser->parse($row['body']),
+				'body' => $row['body'],
 				'id_msg' => $row['id_msg'],
 			];
 
@@ -237,48 +220,6 @@ class TopicPrint implements ActionInterface
 		// Set a canonical URL for this page.
 		Utils::$context['canonical_url'] = Config::$scripturl . '?topic=' . Topic::$topic_id . '.0';
 	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TopicPrint::exportStatic')) {
-	TopicPrint::exportStatic();
 }
 
 ?>

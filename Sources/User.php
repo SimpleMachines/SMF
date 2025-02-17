@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -34,7 +36,7 @@ use SMF\PersonalMessage\PM;
  * For the convenience of theme creators, User::$me is also available as
  * Utils::$context['user'], and its properties can be accessed as if they were
  * array elements. This means that Utils::$context['user']['id'] is
- * interchangable with User::$me->id.
+ * interchangeable with User::$me->id.
  *
  * The data previously available in the deprecated global $user_profile array
  * is now available as User::$profiles. For example, where old code might have
@@ -49,7 +51,7 @@ use SMF\PersonalMessage\PM;
  * populate $memberContext[$id_member], User::$loaded[$id_member]->format() must
  * be called in order to populate User::$loaded[$id_member]->formatted.
  *
- * To faciliate backward compatibility, the deprecated global $user_info array
+ * To facilitate backward compatibility, the deprecated global $user_info array
  * is still available, but it is simply a reference to User::$me.
  *
  * Similarly, the deprecated global $user_settings array is still available, but
@@ -75,36 +77,6 @@ class User implements \ArrayAccess
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'buildQueryBoard' => 'build_query_board',
-			'setAvatarData' => 'set_avatar_data',
-			'updateMemberData' => 'updateMemberData',
-			'getTimezone' => 'getUserTimezone',
-			'delete' => 'deleteMembers',
-			'validatePassword' => 'validatePassword',
-			'validateUsername' => 'validateUsername',
-			'isReservedName' => 'isReservedName',
-			'isBannedEmail' => 'isBannedEmail',
-			'find' => 'findMembers',
-			'membersAllowedTo' => 'membersAllowedTo',
-			'groupsAllowedTo' => 'groupsAllowedTo',
-			'getGroupsWithPermissions' => 'getGroupsWithPermissions',
-			'generateValidationCode' => 'generateValidationCode',
-			'logSpider' => 'logSpider',
-			'loadMemberData' => 'loadMemberData',
-			'loadUserSettings' => 'loadUserSettings',
-			'loadMyPermissions' => 'loadPermissions',
-			'loadMemberContext' => 'loadMemberContext',
-			'is_not_guest' => 'is_not_guest',
-			'is_not_banned' => 'is_not_banned',
-			'banPermissions' => 'banPermissions',
-			'log_ban' => 'log_ban',
-			'sessionValidate' => 'validateSession',
-			'sessionCheck' => 'checkSession',
-			'hasPermission' => 'allowedTo',
-			'mustHavePermission' => 'isAllowedTo',
-			'hasPermissionInBoards' => 'boardsAllowedTo',
-		],
 		'prop_names' => [
 			'profiles' => 'user_profile',
 			'settings' => 'user_settings',
@@ -118,9 +90,30 @@ class User implements \ArrayAccess
 	 * Class constants
 	 *****************/
 
+	/**
+	 * Constants to define loading methods.
+	 */
 	public const LOAD_BY_ID = 0;
 	public const LOAD_BY_NAME = 1;
 	public const LOAD_BY_EMAIL = 2;
+
+	/**
+	 * Constants to define activation states.
+	 */
+	public const NOT_ACTIVATED = 0;
+	public const ACTIVATED = 1;
+	public const UNVALIDATED = 2;
+	public const UNAPPROVED = 3;
+	public const REQUESTED_DELETE = 4;
+	public const NEED_COPPA = 5;
+	public const REQUESTED_DELETE_ANONYMIZE = 6;
+	public const BANNED = 10;
+	public const ACTIVATED_BANNED = 11;
+	public const UNVALIDATED_BANNED = 12;
+	public const UNAPPROVED_BANNED = 13;
+	public const REQUESTED_DELETE_BANNED = 14;
+	public const NEED_COPPA_BANNED = 15;
+	public const REQUESTED_DELETE_ANONYMIZE_BANNED = 16;
 
 	/*******************
 	 * Public properties
@@ -563,7 +556,7 @@ class User implements \ArrayAccess
 	/**
 	 * @var array
 	 *
-	 * Permssions that this user has been granted.
+	 * Permissions that this user has been granted.
 	 */
 	public array $permissions = [];
 
@@ -664,11 +657,11 @@ class User implements \ArrayAccess
 	public static array $loaded = [];
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for the current user.
 	 */
-	public static object $me;
+	public static self $me;
 
 	/**
 	 * @var int
@@ -879,7 +872,7 @@ class User implements \ArrayAccess
 	private bool $already_verified = false;
 
 	/**
-	 * @var array
+	 * @var string
 	 *
 	 * The dataset that was loaded for this user.
 	 */
@@ -963,7 +956,7 @@ class User implements \ArrayAccess
 	public function __set(string $prop, mixed $value): void
 	{
 		if (in_array($this->prop_aliases[$prop] ?? $prop, ['additional_groups', 'buddies', 'ignoreusers', 'ignoreboards']) && is_string($value)) {
-			$prop = $this->prop_aliases[$prop] ?? $prop;
+			$prop = (string) ($this->prop_aliases[$prop] ?? $prop);
 			$value = array_map('intval', array_filter(explode(',', $value), 'strlen'));
 		}
 
@@ -1124,7 +1117,7 @@ class User implements \ArrayAccess
 	{
 		static $loadedLanguages = [];
 
-		Lang::load('index+Modifications');
+		Lang::load('General+Modifications+ThemeStrings');
 
 		if (empty(Config::$modSettings['displayFields'])) {
 			$display_custom_fields = false;
@@ -1141,7 +1134,7 @@ class User implements \ArrayAccess
 			'username' => $this->is_guest ? Lang::$txt['guest_title'] : $this->username,
 			'name' => $this->is_guest ? Lang::$txt['guest_title'] : $this->name,
 			'href' => $this->is_guest ? '' : Config::$scripturl . '?action=profile;u=' . $this->id,
-			'link' => $this->is_guest ? '' : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->name) . '">' . $this->name . '</a>',
+			'link' => $this->is_guest ? '' : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name]) . '">' . $this->name . '</a>',
 			'email' => $this->email,
 			'show_email' => !self::$me->is_guest && (self::$me->id == $this->id || self::$me->allowedTo('moderate_forum')),
 			'registered' => empty($this->date_registered) ? Lang::$txt['not_applicable'] : Time::create('@' . $this->date_registered)->format(),
@@ -1179,7 +1172,7 @@ class User implements \ArrayAccess
 			$this->formatted += [
 				'username_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->username . '</span>',
 				'name_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</span>',
-				'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->name) . '" ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</a>',
+				'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name]) . '" ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</a>',
 				'is_buddy' => in_array($this->id, self::$me->buddies),
 				'is_reverse_buddy' => in_array(self::$me->id, $this->buddies),
 				'buddies' => $this->buddies,
@@ -1197,13 +1190,13 @@ class User implements \ArrayAccess
 				'online' => [
 					'is_online' => $is_visibly_online,
 					'text' => Utils::htmlspecialchars(Lang::$txt[$is_visibly_online ? 'online' : 'offline']),
-					'member_online_text' => sprintf(Lang::$txt[$is_visibly_online ? 'member_is_online' : 'member_is_offline'], Utils::htmlspecialchars($this->name)),
+					'member_online_text' => Lang::getTxt($is_visibly_online ? 'member_is_online' : 'member_is_offline', ['name' => Utils::htmlspecialchars($this->name)]),
 					'href' => Config::$scripturl . '?action=pm;sa=send;u=' . $this->id,
 					'link' => '<a href="' . Config::$scripturl . '?action=pm;sa=send;u=' . $this->id . '">' . Lang::$txt[$is_visibly_online ? 'online' : 'offline'] . '</a>',
 					'label' => Lang::$txt[$is_visibly_online ? 'online' : 'offline'],
 				],
 				'language' => !empty($loadedLanguages[$this->language]) && !empty($loadedLanguages[$this->language]['name']) ? $loadedLanguages[$this->language]['name'] : Utils::ucwords(strtr($this->language, ['_' => ' ', '-utf8' => ''])),
-				'is_activated' => $this->is_activated % 10 == 1,
+				'is_activated' => $this->is_activated % self::BANNED == self::ACTIVATED,
 				'is_banned' => $this->is_banned,
 				'options' => $this->options,
 				'is_guest' => $this->is_guest,
@@ -1217,7 +1210,7 @@ class User implements \ArrayAccess
 				'post_group' => $this->is_guest ? Lang::$txt['guest_title'] : $this->post_group_name,
 				'post_group_name' => $this->is_guest ? Lang::$txt['guest_title'] : $this->post_group_name,
 				'post_group_color' => $this->is_guest ? '' : $this->post_group_color,
-				'group_icons' => str_repeat('<img src="' . str_replace('$language', self::$me->language, isset($this->icons[1]) ? $group_icon_url : '') . '" alt="*">', empty($this->icons[0]) || empty($this->icons[1]) ? 0 : $this->icons[0]),
+				'group_icons' => str_repeat('<img src="' . str_replace('$language', self::$me->language, isset($this->icons[1]) ? $group_icon_url : '') . '" alt="*">', empty($this->icons[0]) || empty($this->icons[1]) ? 0 : (int) $this->icons[0]),
 				'warning' => $this->warning,
 				'warning_status' => !empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= $this->warning ? 'mute' : (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= $this->warning ? 'moderate' : (!empty(Config::$modSettings['warning_watch']) && Config::$modSettings['warning_watch'] <= $this->warning ? 'watch' : '')),
 				'local_time' => Time::create('now', $this->timezone)->format(null, false),
@@ -1227,7 +1220,15 @@ class User implements \ArrayAccess
 			Lang::censorText($this->formatted['blurb']);
 			Lang::censorText($this->formatted['signature']);
 
-			$this->formatted['signature'] = BBCodeParser::load()->parse(str_replace(["\n", "\r"], ['<br>', ''], $this->formatted['signature']), true, 'sig' . $this->id, BBCodeParser::getSigTags());
+			$this->formatted['signature'] = Parser::transform(
+				string: str_replace(["\n", "\r"], ['<br>', ''], $this->formatted['signature']),
+				options: [
+					'cache_id' => 'sig' . $this->id,
+					'parse_tags' => Parser::getSigTags(),
+				],
+			);
+
+			$this->formatted['signature'] = Utils::adjustHeadingLevels($this->formatted['signature'], null);
 		}
 
 		// Are we also loading the member's custom fields?
@@ -1261,7 +1262,7 @@ class User implements \ArrayAccess
 
 				// BBC?
 				if ($custom['bbc']) {
-					$value = BBCodeParser::load()->parse($value);
+					$value = Utils::adjustHeadingLevels(Parser::transform($value), null);
 				}
 				// ... or checkbox?
 				elseif (isset($custom['type']) && $custom['type'] == 'check') {
@@ -1294,7 +1295,7 @@ class User implements \ArrayAccess
 
 		IntegrationHook::call('integrate_member_context', [&$this->formatted, $this->id, $display_custom_fields]);
 
-		$this->custom_fields_displayed = !empty($this->custom_fields_displayed) | $display_custom_fields;
+		$this->custom_fields_displayed = !empty($this->custom_fields_displayed) || $display_custom_fields;
 
 		// For backward compatibility.
 		self::$memberContext[$this->id] = &$this->formatted;
@@ -1422,8 +1423,24 @@ class User implements \ArrayAccess
 			Db::$db->insert(
 				$do_delete ? 'ignore' : 'replace',
 				'{db_prefix}log_online',
-				['session' => 'string', 'id_member' => 'int', 'id_spider' => 'int', 'log_time' => 'int', 'ip' => 'inet', 'url' => 'string'],
-				[$session_id, $this->id, empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'], time(), $this->ip, $encoded_get],
+				[
+					'session' => 'string',
+					'id_member' => 'int',
+					'id_spider' => 'int',
+					'log_time' => 'int',
+					'ip' => 'inet',
+					'url' => 'string',
+				],
+				[
+					[
+						$session_id,
+						$this->id,
+						empty($_SESSION['id_robot']) ? 0 : $_SESSION['id_robot'],
+						time(),
+						$this->ip,
+						$encoded_get,
+					],
+				],
 				['session'],
 			);
 		}
@@ -1466,7 +1483,7 @@ class User implements \ArrayAccess
 	/**
 	 * Quickly find out what moderation authority the current user has
 	 *
-	 * Builds the moderator, group and board level querys for the user.
+	 * Builds the moderator, group and board level queries for the user.
 	 *
 	 * Stores the information on the current users moderation powers in
 	 * User::$me->mod_cache and $_SESSION['mc'].
@@ -1800,11 +1817,11 @@ class User implements \ArrayAccess
 				$this->id
 				&& (
 					(
-						$this->is_activated >= 10
+						$this->is_activated >= self::BANNED
 						&& !$flag_is_activated
 					)
 					|| (
-						$this->is_activated < 10
+						$this->is_activated < self::BANNED
 						&& $flag_is_activated
 					)
 				)
@@ -1887,7 +1904,7 @@ class User implements \ArrayAccess
 			Logout::call(true, false);
 
 			// You banned, sucka!
-			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)) : Lang::$txt['your_ban_expires_never']), false, 403);
+			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name]) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::$txt['your_ban_expires_never']), false, 403);
 
 			// If we get here, something's gone wrong.... but let's try anyway.
 			trigger_error('No direct access...', E_USER_ERROR);
@@ -1916,7 +1933,7 @@ class User implements \ArrayAccess
 
 			Logout::call(true, false);
 
-			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf(Lang::$txt['your_ban_expires'], Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
+			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name]) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
 		}
 
 		// Fix up the banning permissions.
@@ -2097,7 +2114,7 @@ class User implements \ArrayAccess
 		// Posting the password... check it.
 		if (isset($_POST[$type . '_pass'])) {
 			// Check to ensure we're forcing SSL for authentication
-			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+			if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 				ErrorHandler::fatalLang('login_ssl_required');
 			}
 
@@ -2106,7 +2123,7 @@ class User implements \ArrayAccess
 			$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', [$this->username, $_POST[$type . '_pass'], false]), true);
 
 			// Password correct?
-			if ($good_password || Security::hashVerifyPassword($this->username, $_POST[$type . '_pass'], $this->passwd)) {
+			if ($good_password || Security::hashVerifyPassword($_POST[$type . '_pass'], $this->passwd)) {
 				$_SESSION[$type . '_time'] = time();
 
 				unset($_SESSION['request_referer']);
@@ -2117,7 +2134,7 @@ class User implements \ArrayAccess
 
 		// Better be sure to remember the real referer
 		if (empty($_SESSION['request_referer'])) {
-			$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? @Url::create($_SERVER['HTTP_REFERER'])->parse() : [];
+			$_SESSION['request_referer'] = isset($_SERVER['HTTP_REFERER']) ? Url::create($_SERVER['HTTP_REFERER'])->parse() : [];
 		} elseif (empty($_POST)) {
 			unset($_SESSION['request_referer']);
 		}
@@ -2147,9 +2164,9 @@ class User implements \ArrayAccess
 	 * @param string $type The type of check (post, get, request).
 	 * @param string $from_action The action this is coming from.
 	 * @param bool $is_fatal Whether to die with a fatal error if the check fails.
-	 * @return string The error message, or '' if everything was fine.
+	 * @return ?string The error message, or '' if everything was fine.
 	 */
-	public function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): string
+	public function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): ?string
 	{
 		// Is it in as $_POST['sc']?
 		if ($type == 'post') {
@@ -2201,7 +2218,7 @@ class User implements \ArrayAccess
 				|| !in_array(Utils::$context['valid_cors_found'], ['same', 'subdomain'])
 			)
 		) {
-			if (strpos($_SERVER['HTTP_HOST'], ':') !== false) {
+			if (str_contains($_SERVER['HTTP_HOST'], ':')) {
 				$real_host = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], ':'));
 			} else {
 				$real_host = $_SERVER['HTTP_HOST'];
@@ -2275,6 +2292,8 @@ class User implements \ArrayAccess
 
 		// We really should never fall through here, for very important reasons.  Let's make sure.
 		trigger_error('No direct access...', E_USER_ERROR);
+
+		return null;
 	}
 
 	/**
@@ -2325,7 +2344,7 @@ class User implements \ArrayAccess
 		$cache_key = hash('md5', $this->id . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . (int) $any);
 
 		if (isset($this->perm_cache[$cache_key])) {
-			return $this->perm_cache[$cache_key];
+			return !empty($this->perm_cache[$cache_key]);
 		}
 
 		$request = Db::$db->query(
@@ -2572,7 +2591,7 @@ class User implements \ArrayAccess
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array Instances of this class for the loaded users.
 	 */
-	public static function load($users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function load(array|string|int $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
 	{
 		$users = (array) $users;
 
@@ -2607,12 +2626,12 @@ class User implements \ArrayAccess
 	/**
 	 * Reloads an array of users, specified by ID number.
 	 *
-	 * @param mixed $users One or more users specified by ID.
+	 * @param int|array $users One or more users specified by ID.
 	 * @param string $dataset What kind of data to load: 'profile', 'normal',
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array The ids of the loaded members.
 	 */
-	public static function reload($users = [], ?string $dataset = null): array
+	public static function reload(int|array $users = [], ?string $dataset = null): array
 	{
 		$users = (array) $users;
 
@@ -2852,20 +2871,29 @@ class User implements \ArrayAccess
 		}
 		// Look if the user has a gravatar field or has set an external url as avatar.
 		else {
+			if (!$data['avatar'] instanceof Url) {
+				$data['avatar'] = new Url($data['avatar']);
+			}
+
 			// So it's stored in the member table?
-			if (!empty($data['avatar'])) {
+			if ((string) $data['avatar'] !== '') {
 				// Gravatar.
-				if (stristr($data['avatar'], 'gravatar://')) {
-					if ($data['avatar'] == 'gravatar://') {
+				if ($data['avatar']->isGravatar()) {
+					if ((string) $data['avatar'] === 'gravatar://') {
 						$image = self::getGravatarUrl($data['email']);
 					} elseif (!empty(Config::$modSettings['gravatarAllowExtraEmail'])) {
-						$image = self::getGravatarUrl(Utils::entitySubstr($data['avatar'], 11));
+						$image = self::getGravatarUrl(Utils::entitySubstr((string) $data['avatar'], 11));
 					}
 				}
 				// External url.
 				else {
-					$url = new Url($data['avatar']);
-					$image = $url->scheme !== null ? $url->proxied() : Config::$modSettings['avatar_url'] . '/' . $data['avatar'];
+					if ($data['avatar'] instanceof Url) {
+						$url = $data['avatar'];
+					} else {
+						$url = new Url($data['avatar']);
+					}
+
+					$image = isset($url->scheme) ? $url->proxied() : Config::$modSettings['avatar_url'] . '/' . $data['avatar'];
 				}
 			}
 			// Perhaps this user has an attachment as avatar...
@@ -2873,17 +2901,22 @@ class User implements \ArrayAccess
 				$image = Config::$modSettings['custom_avatar_url'] . '/' . $data['filename'];
 			}
 			// Right... no avatar... use our default image.
-			else {
+			elseif (isset(Config::$modSettings['avatar_url'])) {
 				$image = Config::$modSettings['avatar_url'] . '/default.png';
 			}
+			// Last ditch fallback is a transparent 1x1 GIF.
+			else {
+				$image = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+			}
 		}
+
 
 		IntegrationHook::call('integrate_set_avatar_data', [&$image, &$data]);
 
 		// At this point in time $image has to be filled unless you chose to force gravatar and the user doesn't have the needed data to retrieve it... thus a check for !empty() is still needed.
 		if (!empty($image)) {
 			return [
-				'name' => !empty($data['avatar']) ? $data['avatar'] : '',
+				'name' => !empty($data['avatar']) ? (string) $data['avatar'] : '',
 				'image' => '<img class="avatar" src="' . $image . '" alt="">',
 				'href' => $image,
 				'url' => $image,
@@ -2919,11 +2952,11 @@ class User implements \ArrayAccess
 	 * If a member's post count is updated, this method also updates their post
 	 * groups.
 	 *
-	 * @param mixed $members An array of member IDs, the ID of a single member,
+	 * @param int|array|null $members An array of member IDs, the ID of a single member,
 	 *    or null to update this for all members.
 	 * @param array $data The info to update for the members.
 	 */
-	public static function updateMemberData($members, array $data): void
+	public static function updateMemberData(int|array|null $members, array $data): void
 	{
 		// An empty array means there's nobody to update.
 		if ($members === []) {
@@ -2932,6 +2965,10 @@ class User implements \ArrayAccess
 
 		// For loaded members, update the loaded objects with the new data.
 		foreach ((array) ($members ?? array_keys(User::$loaded)) as $member) {
+			if ($member instanceof self) {
+				$member = $member->id;
+			}
+
 			if (!isset(User::$loaded[$member])) {
 				continue;
 			}
@@ -3000,7 +3037,7 @@ class User implements \ArrayAccess
 
 		foreach ($data as $var => $val) {
 			switch ($var) {
-				case  'birthdate':
+				case 'birthdate':
 					$type = 'date';
 					break;
 
@@ -3026,7 +3063,7 @@ class User implements \ArrayAccess
 					$val = 'CASE ';
 
 					foreach ($members as $k => $v) {
-						$val .= 'WHEN id_member = ' . $v . ' THEN ' . Alert::count($v, true) . ' ';
+						$val .= 'WHEN id_member = ' . $v . ' THEN ' . Alert::count((int) $v, true) . ' ';
 					}
 
 					$val = $val . ' END';
@@ -3042,9 +3079,9 @@ class User implements \ArrayAccess
 
 			// Ensure posts, instant_messages, and unread_messages don't overflow or underflow.
 			if (in_array($var, ['posts', 'instant_messages', 'unread_messages'])) {
-				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', $val, $match)) {
+				if (preg_match('~^' . $var . ' (\+ |- |\+ -)(\d+)~', (string) $val, $match)) {
 					if ($match[1] != '+ ') {
-						$val = 'CASE WHEN ' . $var . ' <= ' . abs($match[2]) . ' THEN 0 ELSE ' . $val . ' END';
+						$val = 'CASE WHEN ' . $var . ' <= ' . abs((int) $match[2]) . ' THEN 0 ELSE ' . $val . ' END';
 					}
 
 					$type = 'raw';
@@ -3150,22 +3187,27 @@ class User implements \ArrayAccess
 	 *     ban entries, theme settings, moderator positions, poll and votes.
 	 *   - updates member statistics afterwards.
 	 *
-	 * @param int|array $users The ID of a user or an array of user IDs
-	 * @param bool $check_not_admin Whether to verify that the users aren't admins
+	 * @param int|array $users The ID of a user or an array of user IDs.
+	 * @param bool $check_not_admin Whether to verify the users aren't admins.
+	 *    Default: false.
+	 * @param bool $anonymize If true, force anonymization of all deleted users.
+	 *    If false, deleted users will be anonymized only if they requested it
+	 *    or Config::$modSettings['always_anonymize_deleted_accounts'] is true.
+	 *    Default: false.
 	 */
-	public static function delete(int|array $users, bool $check_not_admin = false): void
+	public static function delete(int|array $users, bool $check_not_admin = false, bool $anonymize = false): void
 	{
 		// Try give us a while to sort this out...
-		@set_time_limit(600);
+		Sapi::setTimeLimit();
 
 		// Try to get some more memory.
-		Config::setMemoryLimit('128M');
+		Sapi::setMemoryLimit('128M');
 
 		// If it's not an array, make it so!
 		$users = array_unique((array) $users);
 
 		// Make sure there's no void user in here.
-		$users = array_diff($users, [0]);
+		$users = array_filter(array_map('intval', $users), fn($user) => $user > 0);
 
 		// How many are they deleting?
 		if (empty($users)) {
@@ -3195,7 +3237,9 @@ class User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'SELECT id_member, member_name, CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
+			'SELECT
+				id_member, member_name, is_activated,
+				CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:user_list})
 			LIMIT {int:limit}',
@@ -3211,7 +3255,7 @@ class User implements \ArrayAccess
 				$admins[] = $row['id_member'];
 			}
 
-			$user_log_details[$row['id_member']] = [$row['id_member'], $row['member_name']];
+			$user_log_details[$row['id_member']] = $row;
 		}
 		Db::$db->free_result($request);
 
@@ -3241,15 +3285,29 @@ class User implements \ArrayAccess
 				'action' => 'delete_member',
 				'log_type' => 'admin',
 				'extra' => [
-					'member' => $user[0],
-					'name' => $user[1],
+					'member' => $user['id_member'],
+					'name' => $user['member_name'],
 					'member_acted' => self::$me->name,
 				],
 			];
 
 			// Remove any cached data if enabled.
 			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 2) {
-				CacheApi::put('user_settings-' . $user[0], null, 60);
+				CacheApi::put('user_settings-' . $user['id_member'], null, 60);
+			}
+		}
+
+		// Anonymize?
+		foreach ($user_log_details as $user) {
+			if (
+				// Anonymize all users if we were told to do that.
+				$anonymize
+				// Anonymize all users if the global setting to do so is enabled.
+				|| !empty(Config::$modSettings['always_anonymize_deleted_accounts'])
+				// Otherwise, only anonymize users who requested it.
+				|| $user['is_activated'] % User::BANNED === User::REQUESTED_DELETE_ANONYMIZE
+			) {
+				self::anonymize((int) $user['id_member']);
 			}
 		}
 
@@ -3257,12 +3315,10 @@ class User implements \ArrayAccess
 		Db::$db->query(
 			'',
 			'UPDATE {db_prefix}messages
-			SET id_member = {int:guest_id}' . (!empty(Config::$modSettings['deleteMembersRemovesEmail']) ? ',
-				poster_email = {string:blank_email}' : '') . '
+			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
 			[
 				'guest_id' => 0,
-				'blank_email' => '',
 				'users' => $users,
 			],
 		);
@@ -3582,71 +3638,6 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Checks whether a password meets the current forum rules.
-	 *
-	 * Called when registering and when choosing a new password in the profile.
-	 *
-	 * If password checking is enabled, will check that none of the words in
-	 * $restrict_in appear in the password.
-	 *
-	 * Returns an error identifier if the password is invalid, or null if valid.
-	 *
-	 * @param string $password The desired password.
-	 * @param string $username The username.
-	 * @param array $restrict_in An array of restricted strings that cannot be
-	 *    part of the password (email address, username, etc.)
-	 * @return null|string Null if valid or a string indicating the problem.
-	 */
-	public static function validatePassword(string $password, string $username, array $restrict_in = []): ?string
-	{
-		// Perform basic requirements first.
-		if (Utils::entityStrlen($password) < (empty(Config::$modSettings['password_strength']) ? 4 : 8)) {
-			return 'short';
-		}
-
-		// Maybe we need some more fancy password checks.
-		$pass_error = '';
-
-		IntegrationHook::call('integrate_validatePassword', [$password, $username, $restrict_in, &$pass_error]);
-
-		if (!empty($pass_error)) {
-			return $pass_error;
-		}
-
-		// Is this enough?
-		if (empty(Config::$modSettings['password_strength'])) {
-			return null;
-		}
-
-		// Otherwise, perform the medium strength test - checking if password appears in the restricted string.
-		if (!preg_match('~\b' . preg_quote($password, '~') . '\b~', implode(' ', $restrict_in))) {
-			return 'restricted_words';
-		}
-
-		if (Utils::entityStrpos($password, $username) !== false) {
-			return 'restricted_words';
-		}
-
-		// If just medium, we're done.
-		if (Config::$modSettings['password_strength'] == 1) {
-			return null;
-		}
-
-		// Check for both numbers and letters.
-		$good = preg_match('~\p{N}~u', $password) && preg_match('~\p{L}~u', $password);
-
-		// If there are any letters from bicameral scripts (Latin, Greek, etc.),
-		// check that there are both lowercase and uppercase letters present.
-		// Note: If the password only contains letters from a unicameral script
-		// (Arabic, Thai, etc.), this requirement is not applicable.
-		if (Utils::strtoupper($password) !== ($lower_password = Utils::strtolower($password))) {
-			$good &= $password !== $lower_password;
-		}
-
-		return $good ? null : 'chars';
-	}
-
-	/**
 	 * Checks whether a username obeys a load of rules.
 	 *
 	 * @param string $username The username to validate.
@@ -3702,7 +3693,7 @@ class User implements \ArrayAccess
 		Lang::load('Errors');
 		$error = $errors[0];
 
-		$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
+		$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : Lang::getTxt($error[1], (array) $error[3])) : $error[1];
 
 		ErrorHandler::fatal($message, empty($error[2]) || self::$me->is_admin ? false : $error[2]);
 	}
@@ -3728,33 +3719,8 @@ class User implements \ArrayAccess
 
 		// Administrators are never restricted ;).
 		if (!self::$me->allowedTo('moderate_forum') && ((!empty(Config::$modSettings['reserveName']) && $is_name) || !empty(Config::$modSettings['reserveUser']) && !$is_name)) {
-			$reservedNames = explode("\n", Config::$modSettings['reserveNames']);
-
-			// Case sensitive check?
-			$checkMe = empty(Config::$modSettings['reserveCase']) ? $checkName : $name;
-
-			// Check each name in the list...
-			foreach ($reservedNames as $reserved) {
-				if ($reserved == '') {
-					continue;
-				}
-
-				// The admin might've used entities too, level the playing field.
-				$reservedCheck = Utils::entityDecode($reserved, true);
-
-				// Case sensitive name?
-				if (empty(Config::$modSettings['reserveCase'])) {
-					$reservedCheck = Utils::strtolower($reservedCheck);
-				}
-
-				// If it's not just entire word, check for it in there somewhere...
-				if ($checkMe == $reservedCheck || (Utils::entityStrpos($checkMe, $reservedCheck) !== false && empty(Config::$modSettings['reserveWord']))) {
-					if ($fatal) {
-						ErrorHandler::fatalLang('username_reserved', 'password', [$reserved]);
-					}
-
-					return true;
-				}
+			if (Unicode\SpoofDetector::checkReservedName($name, $fatal)) {
+				return true;
 			}
 
 			$censor_name = $name;
@@ -3779,48 +3745,15 @@ class User implements \ArrayAccess
 			}
 		}
 
-		$request = Db::$db->query(
-			'',
-			'SELECT id_member
-			FROM {db_prefix}members
-			WHERE ' . (empty($current_id_member) ? '' : 'id_member != {int:current_member}
-				AND ') . '({raw:real_name} {raw:operator} LOWER({string:check_name}) OR {raw:member_name} {raw:operator} LOWER({string:check_name}))
-			LIMIT 1',
-			[
-				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
-				'member_name' => Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name',
-				'current_member' => $current_id_member,
-				'check_name' => $checkName,
-				'operator' => strpos($checkName, '%') || strpos($checkName, '_') ? 'LIKE' : '=',
-			],
-		);
-
-		if (Db::$db->num_rows($request) > 0) {
-			Db::$db->free_result($request);
-
+		// Check for similar existing member names.
+		if (Unicode\SpoofDetector::checkSimilarMemberName($name, $id_member ?? 0, $fatal)) {
 			return true;
 		}
-		Db::$db->free_result($request);
 
-		// Does name case insensitive match a member group name?
-		$request = Db::$db->query(
-			'',
-			'SELECT id_group
-			FROM {db_prefix}membergroups
-			WHERE {raw:group_name} LIKE {string:check_name}
-			LIMIT 1',
-			[
-				'group_name' => Db::$db->case_sensitive ? 'LOWER(group_name)' : 'group_name',
-				'check_name' => $checkName,
-			],
-		);
-
-		if (Db::$db->num_rows($request) > 0) {
-			Db::$db->free_result($request);
-
+		// Does the name resemble a member group name?
+		if (Unicode\SpoofDetector::checkSimilarGroupName($name, $fatal)) {
 			return true;
 		}
-		Db::$db->free_result($request);
 
 		// Okay, they passed.
 		$is_reserved = false;
@@ -3886,7 +3819,7 @@ class User implements \ArrayAccess
 
 			$_SESSION['ban']['last_checked'] = time();
 
-			ErrorHandler::fatal(sprintf(Lang::$txt['your_ban'], Lang::$txt['guest_title']) . $_SESSION['ban']['cannot_access']['reason'], false);
+			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => Lang::$txt['guest_title']]) . $_SESSION['ban']['cannot_access']['reason'], false);
 		}
 
 		if (!empty($ban_ids)) {
@@ -3905,16 +3838,15 @@ class User implements \ArrayAccess
 	 *
 	 * Searches only buddies if $buddies_only is set.
 	 *
-	 * @param array $names The names of members to search for.
+	 * @param string|array $names The names of members to search for.
 	 * @param bool $use_wildcards Whether to use wildcards. Accepts wildcards
 	 *    '?' and '*' in the pattern if true.
 	 * @param bool $buddies_only Whether to only search for the user's buddies.
 	 * @param int $max The maximum number of results.
 	 * @return array Information about the matching members.
 	 */
-	public static function find($names, bool $use_wildcards = false, bool $buddies_only = false, int $max = 500): array
+	public static function find(string|array $names, bool $use_wildcards = false, bool $buddies_only = false, int $max = 500): array
 	{
-
 		// If it's not already an array, make it one.
 		if (!is_array($names)) {
 			$names = explode(',', $names);
@@ -3946,7 +3878,7 @@ class User implements \ArrayAccess
 		// Nothing found yet.
 		$results = [];
 
-		// This ensures you can't search someones email address if you can't see it.
+		// This ensures you can't search someone's email address if you can't see it.
 		if (($use_wildcards || $maybe_email) && self::$me->allowedTo('moderate_forum')) {
 			$email_condition = '
 				OR (email_address ' . $comparison . ' \'' . implode('\') OR (email_address ' . $comparison . ' \'', $names) . '\')';
@@ -3971,11 +3903,12 @@ class User implements \ArrayAccess
 			WHERE (' . $member_name_search . '
 				OR ' . $real_name_search . ' ' . $email_condition . ')
 				' . ($buddies_only ? 'AND id_member IN ({array_int:buddy_list})' : '') . '
-				AND is_activated IN (1, 11)
+				AND is_activated IN ({array_int:activated})
 			LIMIT {int:limit}',
 			array_merge($where_params, [
 				'buddy_list' => self::$me->buddies,
 				'limit' => $max,
+				'activated' => [self::ACTIVATED, self::ACTIVATED_BANNED],
 			]),
 		);
 
@@ -3999,9 +3932,10 @@ class User implements \ArrayAccess
 	 * Retrieves a list of members that have a given permission,
 	 * either on a given board or in general.
 	 *
-	 * If $board_id is set, a board permission is assumed.
-	 * Takes different permission settings into account.
-	 * Takes possible moderators on the relevant board into account.
+	 * Will check for a board permission if $board_id is set, and any
+	 * moderators assigned to that board will be fetched in addition
+	 * to global moderators.  Pass in 0 as a special case to fetch
+	 * moderators on all boards.
 	 *
 	 * @param string $permission The permission to check.
 	 * @param int $board_id If set, checks permission for that specific board.
@@ -4009,37 +3943,47 @@ class User implements \ArrayAccess
 	 */
 	public static function membersAllowedTo(string $permission, ?int $board_id = null): array
 	{
-		$members = [];
-
 		$member_groups = self::groupsAllowedTo($permission, $board_id);
 
-		$all_groups = array_merge($member_groups['allowed'], $member_groups['denied']);
-
 		$include_moderators = in_array(3, $member_groups['allowed']) && $board_id !== null;
-		$member_groups['allowed'] = array_diff($member_groups['allowed'], [3]);
+		$include_groups = array_diff($member_groups['allowed'], [3]);
 
 		$exclude_moderators = in_array(3, $member_groups['denied']) && $board_id !== null;
-		$member_groups['denied'] = array_diff($member_groups['denied'], [3]);
+		$exclude_groups = array_diff($member_groups['denied'], [3]);
 
 		$request = Db::$db->query(
 			'',
-			'SELECT mem.id_member
-			FROM {db_prefix}members AS mem' . ($include_moderators || $exclude_moderators ? '
-				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member AND mods.id_board = {int:board_id})' : '') . '
-			WHERE (' . ($include_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_allowed}) OR FIND_IN_SET({raw:member_group_allowed_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_allowed}))' . (empty($member_groups['denied']) ? '' : '
-				AND NOT (' . ($exclude_moderators ? 'mods.id_member IS NOT NULL OR ' : '') . 'mem.id_group IN ({array_int:member_groups_denied}) OR FIND_IN_SET({raw:member_group_denied_implode}, mem.additional_groups) != 0 OR mem.id_post_group IN ({array_int:member_groups_denied}))'),
+			($include_moderators && !$exclude_moderators && $board_id !== null ? '
+			SELECT id_member
+			FROM {db_prefix}moderators' . ($board_id !== 0 ? '
+			WHERE id_board = {int:board_id}' : '') . '
+			UNION ALL
+			SELECT id_member
+			FROM {db_prefix}members AS mem
+				JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_group = mem.id_group OR FIND_IN_SET(modgs.id_group, mem.additional_groups) != 0)' . ($board_id !== 0 ? '
+			WHERE id_board = {int:board_id}' : '') . '
+			UNION ALL' : '') . '
+			SELECT id_member
+			FROM {db_prefix}members
+			WHERE (id_group IN ({array_int:include_groups}) OR id_post_group IN ({array_int:include_groups}))' . ($exclude_groups == [] ? '' : '
+				AND NOT (id_group IN ({array_int:exclude_groups}) OR id_post_group IN ({array_int:exclude_groups}))') . '
+			UNION ALL
+			SELECT id_member
+			FROM {db_prefix}members
+			WHERE
+				additional_groups != \'\'
+				AND (FIND_IN_SET({raw:include_groups_implode}, additional_groups) != 0)' . ($exclude_groups == [] ? '' : '
+				AND NOT (FIND_IN_SET({raw:exclude_groups_implode}, additional_groups) != 0)'),
 			[
-				'member_groups_allowed' => $member_groups['allowed'],
-				'member_groups_denied' => $member_groups['denied'],
-				'all_member_groups' => $all_groups,
+				'include_groups' => $include_groups,
+				'exclude_groups' => $exclude_groups,
 				'board_id' => $board_id,
-				'member_group_allowed_implode' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $member_groups['allowed']),
-				'member_group_denied_implode' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $member_groups['denied']),
+				'include_groups_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $include_groups),
+				'exclude_groups_implode' => implode(', additional_groups) != 0 OR FIND_IN_SET(', $exclude_groups),
 			],
 		);
 
-		// We only want the member IDs, not id_member
-		$members = array_values(Db::$db->fetch_all($request));
+		$members = array_unique(array_column(Db::$db->fetch_all($request), 'id_member'));
 		Db::$db->free_result($request);
 
 		return $members;
@@ -4234,7 +4178,7 @@ class User implements \ArrayAccess
 	 *    lists the groups that have the permission, and 'denied', which lists
 	 *    the groups that are denied the permission.
 	 */
-	public static function getGroupsWithPermissions(array $general_permissions = [], array $board_permissions = [], int $profile_id = 1)
+	public static function getGroupsWithPermissions(array $general_permissions = [], array $board_permissions = [], int $profile_id = 1): array
 	{
 		$member_groups = [];
 
@@ -4247,16 +4191,6 @@ class User implements \ArrayAccess
 		}
 
 		return $member_groups;
-	}
-
-	/**
-	 * Generate a random validation code.
-	 *
-	 * @return string A random validation code
-	 */
-	public static function generateValidationCode(): string
-	{
-		return bin2hex(random_bytes(5));
 	}
 
 	/**
@@ -4312,228 +4246,21 @@ class User implements \ArrayAccess
 			Db::$db->insert(
 				'insert',
 				'{db_prefix}log_spider_hits',
-				['id_spider' => 'int', 'log_time' => 'int', 'url' => 'string'],
-				[$_SESSION['id_robot'], time(), $url],
+				[
+					'id_spider' => 'int',
+					'log_time' => 'int',
+					'url' => 'string',
+				],
+				[
+					[
+						$_SESSION['id_robot'],
+						time(),
+						$url,
+					],
+				],
 				[],
 			);
 		}
-	}
-
-	/**
-	 * Wrapper around User::load() that returns the IDs of the loaded users.
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param mixed $users Users specified by ID, name, or email address.
-	 * @param int $type Whether $users contains IDs, names, or email addresses.
-	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param string $dataset What kind of data to load: 'profile', 'normal',
-	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
-	 * @return array The IDs of the loaded members.
-	 */
-	public static function loadMemberData($users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
-	{
-		$loaded = self::load($users, $type, $dataset);
-
-		return array_map(fn ($user) => $user->id, $loaded);
-	}
-
-	/**
-	 * Alias of User::load().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 */
-	public static function loadUserSettings(): void
-	{
-		self::load();
-	}
-
-	/**
-	 * Static wrapper around User::$me->loadPermissions.
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 */
-	public static function loadMyPermissions(): void
-	{
-		self::$me->loadPermissions();
-	}
-
-	/**
-	 * Static wrapper around User::$loaded[$id]->format().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param int $id The ID of a user.
-	 * @param bool $display_custom_fields Whether or not to display custom
-	 *    profile fields.
-	 * @return bool|array The loaded data, or false on error.
-	 */
-	public static function loadMemberContext(int $id, bool $display_custom_fields = false): bool|array
-	{
-		// The old procedural version of this function returned false if asked
-		// to work on a guest. Since it is possible that old mods might rely on
-		// that behaviour, we replicate it here.
-		if (empty($id)) {
-			return false;
-		}
-
-		// If the user's data is not already loaded, load it now.
-		if (!isset(self::$loaded[$id])) {
-			self::load((array) $id, self::LOAD_BY_ID, 'profile');
-		}
-
-		return self::$loaded[$id]->format($display_custom_fields);
-	}
-
-	/**
-	 * Static wrapper around User::$me->kickIfGuest().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string $message The message to display to the guest.
-	 */
-	public static function is_not_guest(string $message = ''): void
-	{
-		self::$me->kickIfGuest($message);
-	}
-
-	/**
-	 * Static wrapper around User::$me->kickIfBanned().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param bool $force_check Whether to force a recheck.
-	 */
-	public static function is_not_banned(bool $force_check = false): void
-	{
-		self::$me->kickIfBanned($force_check);
-	}
-
-	/**
-	 * Static wrapper around User::$me->adjustPermissions().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 */
-	public static function banPermissions(): void
-	{
-		self::$me->adjustPermissions();
-	}
-
-	/**
-	 * Static wrapper around User::$me->logBan().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param array $ban_ids The IDs of the bans.
-	 * @param string $email The email address associated with the user that
-	 *    triggered this hit. If not set, use the current user's email address.
-	 */
-	public static function log_ban(array $ban_ids = [], ?string $email = null): void
-	{
-		self::$me->logBan($ban_ids, $email);
-	}
-
-	/**
-	 * Static wrapper around User::$me->validateSession().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string $type What type of session this is.
-	 * @param bool $force If true, require a password even if we normally wouldn't.
-	 * @return string|null Returns 'session_verify_fail' if verification failed,
-	 *    or null if it passed.
-	 */
-	public static function sessionValidate(string $type = 'admin', bool $force = false): ?string
-	{
-		return self::$me->validateSession($type, $force);
-	}
-
-	/**
-	 * Static wrapper around User::$me->checkSession().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string $type The type of check (post, get, request).
-	 * @param string $from_action The action this is coming from.
-	 * @param bool $is_fatal Whether to die with a fatal error if the check fails.
-	 * @return string The error message, or '' if everything was fine.
-	 */
-	public static function sessionCheck(string $type = 'post', string $from_action = '', bool $is_fatal = true): string
-	{
-		return self::$me->checkSession($type, $from_action, $is_fatal);
-	}
-
-	/**
-	 * Static wrapper around User::$me->allowedTo().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string|array $permission A single permission to check or an array
-	 *    of permissions to check.
-	 * @param int|array $boards The ID of a board or an array of board IDs if we
-	 *    want to check board-level permissions
-	 * @param bool $any Whether to check for permission on at least one board
-	 *    instead of all the passed boards.
-	 * @return bool Whether the user has the specified permission.
-	 */
-	public static function hasPermission(string|array $permission, int|array|null $boards = null, bool $any = false): bool
-	{
-		// You're never allowed to do something if your data hasn't been loaded yet!
-		if (!isset(self::$me)) {
-			return false;
-		}
-
-		return self::$me->allowedTo($permission, $boards, $any);
-	}
-
-	/**
-	 * Static wrapper around User::$me->isAllowedTo().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string|array $permission A single permission to check or an array
-	 *    of permissions to check.
-	 * @param int|array $boards The ID of a board or an array of board IDs if we
-	 *    want to check board-level permissions
-	 * @param bool $any Whether to check for permission on at least one board
-	 *    instead of all the passed boards.
-	 * @return bool Whether the user has the specified permission.
-	 */
-	public static function mustHavePermission(string|array $permission, int|array|null $boards = null, bool $any = false): bool
-	{
-		// You're never allowed to do something if your data hasn't been loaded yet!
-		if (!isset(self::$me)) {
-			return false;
-		}
-
-		self::$me->isAllowedTo($permission, $boards, $any);
-
-		// If we get here, the user is allowed.
-		return true;
-	}
-
-	/**
-	 * Static wrapper around User::$me->boardsAllowedTo().
-	 *
-	 * This method exists only for backward compatibility purposes.
-	 *
-	 * @param string|array $permissions A single permission to check or an array
-	 *    of permissions to check.
-	 * @param bool $check_access Whether to check only the boards the user has
-	 *    access to.
-	 * @param bool $simple Whether to return a simple array of board IDs or one
-	 *    with permissions as the keys.
-	 * @return array An array of board IDs if $simple is true. Otherwise, an
-	 *    array containing 'permission' => array(id, id, id...) pairs.
-	 */
-	public static function hasPermissionInBoards(string|array $permission, int|array|null $boards = null, bool $any = false): array
-	{
-		// You're never allowed to do something if your data hasn't been loaded yet!
-		if (!isset(self::$me)) {
-			return false;
-		}
-
-		return self::$me->boardsAllowedTo($permission, $boards, $any);
 	}
 
 	/******************
@@ -4632,7 +4359,7 @@ class User implements \ArrayAccess
 
 			self::$loaded[$id] = $this;
 
-			if (!empty(self::$profiles[$id]) || self::$dataset_levels[self::$profiles[$id]['dataset']] < self::$dataset_levels[$dataset ?? 'normal']) {
+			if (empty(self::$profiles[$id]) || self::$dataset_levels[self::$profiles[$id]['dataset']] < self::$dataset_levels[$dataset ?? 'normal']) {
 				self::loadUserData((array) $id, self::LOAD_BY_ID, $dataset ?? 'normal');
 			}
 
@@ -4671,22 +4398,22 @@ class User implements \ArrayAccess
 		$this->is_guest = empty($this->id);
 		$this->is_admin = in_array(1, $this->groups);
 		$this->is_mod = in_array(3, $this->groups) || !empty($profile['is_mod']);
-		$this->is_activated = $profile['is_activated'] ?? (int) (!$this->is_guest);
-		$this->is_banned = $this->is_activated >= 10;
-		$this->is_online = $profile['is_online'] ?? $is_me;
+		$this->is_activated = (int) ($profile['is_activated'] ?? !$this->is_guest);
+		$this->is_banned = $this->is_activated >= self::BANNED;
+		$this->is_online = (bool) ($profile['is_online'] ?? $is_me);
 
 		// User activity and history.
-		$this->show_online = $profile['show_online'] ?? false;
+		$this->show_online = (bool) ($profile['show_online'] ?? false);
 		$this->url = $profile['url'] ?? '';
-		$this->last_login = $profile['last_login'] ?? 0;
-		$this->id_msg_last_visit = $profile['id_msg_last_visit'] ?? 0;
-		$this->total_time_logged_in = $profile['total_time_logged_in'] ?? 0;
-		$this->date_registered = $profile['date_registered'] ?? 0;
-		$this->ip = $is_me ? $_SERVER['REMOTE_ADDR'] : ($profile['member_ip'] ?? '');
-		$this->ip2 = $is_me ? $_SERVER['BAN_CHECK_IP'] : ($profile['member_ip2'] ?? '');
+		$this->last_login = (int) ($profile['last_login'] ?? 0);
+		$this->id_msg_last_visit = (int) ($profile['id_msg_last_visit'] ?? 0);
+		$this->total_time_logged_in = (int) ($profile['total_time_logged_in'] ?? 0);
+		$this->date_registered = (int) ($profile['date_registered'] ?? 0);
+		$this->ip = (string) ($is_me ? ($_SERVER['REMOTE_ADDR'] ?? '') : $profile['member_ip'] ?? '');
+		$this->ip2 = (string) ($is_me ? ($_SERVER['BAN_CHECK_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '') : $profile['member_ip2'] ?? '');
 
 		// Additional profile info.
-		$this->posts = $profile['posts'] ?? 0;
+		$this->posts = (int) ($profile['posts'] ?? 0);
 		$this->title = $profile['usertitle'] ?? '';
 		$this->signature = $profile['signature'] ?? '';
 		$this->personal_text = $profile['personal_text'] ?? '';
@@ -4695,27 +4422,27 @@ class User implements \ArrayAccess
 		$this->website['title'] = $profile['website_title'] ?? '';
 
 		// Presentation preferences.
-		$this->theme = $profile['id_theme'] ?? 0;
-		$this->options = $profile['options'] ?? [];
+		$this->theme = (int) ($profile['id_theme'] ?? 0);
+		$this->options = (array) ($profile['options'] ?? []);
 		$this->smiley_set = $profile['smiley_set'] ?? '';
 
 		// Localization.
 		$this->setLanguage();
-		$this->time_format = empty($profile['time_format']) ? Config::$modSettings['time_format'] : $profile['time_format'];
-		$this->timezone = $profile['timezone'] ?? Config::$modSettings['default_timezone'];
-		$this->time_offset = $profile['time_offset'] ?? 0;
+		$this->time_format = empty($profile['time_format']) ? (Config::$modSettings['time_format'] ?? '%F %k:%M') : $profile['time_format'];
+		$this->timezone = $profile['timezone'] ?? Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
+		$this->time_offset = (int) ($profile['time_offset'] ?? 0);
 
 		// Buddies and personal messages.
 		$this->buddies = !empty(Config::$modSettings['enable_buddylist']) && !empty($profile['buddy_list']) ? explode(',', $profile['buddy_list']) : [];
 		$this->ignoreusers = !empty($profile['pm_ignore_list']) ? explode(',', $profile['pm_ignore_list']) : [];
-		$this->pm_receive_from = $profile['pm_receive_from'] ?? 0;
-		$this->pm_prefs = $profile['pm_prefs'] ?? 0;
-		$this->messages = $profile['instant_messages'] ?? 0;
-		$this->unread_messages = $profile['unread_messages'] ?? 0;
-		$this->new_pm = $profile['new_pm'] ?? 0;
+		$this->pm_receive_from = (int) ($profile['pm_receive_from'] ?? 0);
+		$this->pm_prefs = (int) ($profile['pm_prefs'] ?? 0);
+		$this->messages = (int) ($profile['instant_messages'] ?? 0);
+		$this->unread_messages = (int) ($profile['unread_messages'] ?? 0);
+		$this->new_pm = (int) ($profile['new_pm'] ?? 0);
 
 		// What does the user want to see or know about?
-		$this->alerts = $profile['alerts'] ?? 0;
+		$this->alerts = (int) ($profile['alerts'] ?? 0);
 		$this->ignoreboards = !empty($profile['ignore_boards']) && !empty(Config::$modSettings['allow_ignore_boards']) ? explode(',', $profile['ignore_boards']) : [];
 
 		// Extended membergroup info.
@@ -4731,7 +4458,7 @@ class User implements \ArrayAccess
 		$this->avatar = array_merge(
 			[
 				'original_url' => $profile['avatar_original'] ?? '',
-				'url' => $profile['avatar'] ?? '',
+				'url' => (string) ($profile['avatar'] ?? ''),
 				'filename' => $profile['filename'] ?? '',
 				'custom_dir' => !empty($profile['attachment_type']) && $profile['attachment_type'] == 1,
 				'id_attach' => $profile['id_attach'] ?? 0,
@@ -4747,7 +4474,7 @@ class User implements \ArrayAccess
 
 		// Info about stuff related to permissions.
 		// Note that we set $this->permissions elsewhere.
-		$this->warning = $profile['warning'] ?? 0;
+		$this->warning = (int) ($profile['warning'] ?? 0);
 		$this->can_manage_boards = !empty($this->is_admin) || (!empty(Config::$modSettings['board_manager_groups']) && !empty($this->groups) && count(array_intersect($this->groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
 
 		foreach (self::buildQueryBoard($this->id) as $key => $value) {
@@ -4797,7 +4524,7 @@ class User implements \ArrayAccess
 
 		if (isset($_COOKIE[Config::$cookiename])) {
 			// First try 2.1 json-format cookie
-			$cookie_data = Utils::jsonDecode($_COOKIE[Config::$cookiename], true, false);
+			$cookie_data = Utils::jsonDecode($_COOKIE[Config::$cookiename], true, 512, 0, false);
 
 			// Legacy format (for recent 2.0 --> 2.1 upgrades)
 			if (empty($cookie_data)) {
@@ -4883,7 +4610,7 @@ class User implements \ArrayAccess
 			}
 
 			// Wrong password or not activated - either way, you're going nowhere.
-			self::$my_id = $check && (self::$profiles[self::$my_id]['is_activated'] == 1 || self::$profiles[self::$my_id]['is_activated'] == 11) ? (int) self::$profiles[self::$my_id]['id_member'] : 0;
+			self::$my_id = $check && (self::$profiles[self::$my_id]['is_activated'] % self::BANNED == self::ACTIVATED) ? (int) self::$profiles[self::$my_id]['id_member'] : 0;
 		} else {
 			self::$my_id = 0;
 		}
@@ -5116,18 +4843,18 @@ class User implements \ArrayAccess
 					$tz_system = new \DateTimeZone(Config::$modSettings['default_timezone']);
 					$time_system = new \DateTime('now', $tz_system);
 
-					self::$profiles[$this->id]['timezone'] = @timezone_name_from_abbr('', $tz_system->getOffset($time_system) + self::$profiles[$this->id]['time_offset'] * 3600, (int) $time_system->format('I'));
+					self::$profiles[$this->id]['timezone'] = @timezone_name_from_abbr('', (int) ($tz_system->getOffset($time_system) + self::$profiles[$this->id]['time_offset'] * 3600), (int) $time_system->format('I'));
 				}
 
 				if (empty(self::$profiles[$this->id]['timezone'])) {
-					self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'];
+					self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
 					self::$profiles[$this->id]['time_offset'] = 0;
 				}
 			}
 		}
 		// Guests use the forum default.
 		else {
-			self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'];
+			self::$profiles[$this->id]['timezone'] = Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
 			self::$profiles[$this->id]['time_offset'] = 0;
 		}
 	}
@@ -5234,10 +4961,10 @@ class User implements \ArrayAccess
 						self::logSpider();
 					}
 
-					$this->possibly_robot = !empty($_SESSION['id_robot']) ? $_SESSION['id_robot'] : 0;
+					$this->possibly_robot = !empty($_SESSION['id_robot']);
 				}
 			} elseif (!empty(Config::$modSettings['spider_mode'])) {
-				$this->possibly_robot = $_SESSION['id_robot'] ?? 0;
+				$this->possibly_robot = !empty($_SESSION['id_robot']);
 			}
 			// If we haven't turned on proper spider hunts then have a guess!
 			else {
@@ -5275,18 +5002,36 @@ class User implements \ArrayAccess
 			// Make it permanent for members.
 			if (!empty($this->id)) {
 				self::updateMemberData($this->id, ['lngfile' => $this->language]);
+				unset($_SESSION['language']);
 			} else {
 				$_SESSION['language'] = $this->language;
 			}
 
 			// Reload same URL with new language, if applicable.
 			if (isset($_SESSION['old_url'])) {
-				Utils::redirectexit($_SESSION['old_url']);
+				Utils::redirectexit(preg_replace('~language=[^;&$]+~i', '', $_SESSION['old_url']));
 			}
 		}
 		// Carry forward the last language request in this session, if any.
 		elseif (!empty($_SESSION['language']) && isset($languages[strtr($_SESSION['language'], './\\:', '____')])) {
 			$this->language = strtr($_SESSION['language'], './\\:', '____');
+		}
+		// Can we locate it in the accept language?
+		elseif ($this->id === 0 && empty($_SESSION['language']) && !empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+			foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $match) {
+				[$lang] = explode(';', $match);
+
+				// The strtr fallback is a sad, weak substitute, but we might as well try.
+				$lang = class_exists('\Locale') ? \Locale::canonicalize($lang) : strtr($lang, '-', '_');
+
+				if (is_null($lang)) {
+					continue;
+				}
+
+				if (isset($languages[$lang])) {
+					$this->language = $_SESSION['language'] = $lang;
+				}
+			}
 		}
 	}
 
@@ -5416,7 +5161,7 @@ class User implements \ArrayAccess
 
 				default:
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['invalid_member_data_set'], $dataset), E_USER_WARNING);
+					trigger_error(Lang::getTxt('invalid_member_data_set', [$dataset]), E_USER_WARNING);
 					break;
 			}
 
@@ -5612,10 +5357,179 @@ class User implements \ArrayAccess
 
 		return 'https://secure.gravatar.com/avatar/' . md5(Utils::strtolower($email_address)) . '?' . implode('&', $url_params);
 	}
+
+	/**
+	 * Anonymizes the specified member's personally identifying information.
+	 *
+	 * @param int $member The ID of the member to anonymize.
+	 */
+	protected static function anonymize(int $member): void
+	{
+		$anonymous_name = Utils::strtolower(Lang::$txt['user']) . '_' . substr(Uuid::create(5, 'member=' . $member)->getShortForm(true), 0, 8);
+
+		$anonymous_email = Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid';
+
+		// Anonymize the member's posts.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
+			SET poster_name = {string:anonymous_name},
+				poster_email = {string:anonymous_email},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'anonymous_email' => Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid',
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their name in the modified_name field of posts.
+		Db::$db->update_from(
+			table: [
+				'name' => '{db_prefix}messages',
+				'alias' => 'm',
+			],
+			from_tables: [
+				[
+					'name' => '{db_prefix}members',
+					'alias' => 'mem',
+					'condition' => 'm.modified_name = mem.real_name',
+				],
+			],
+			set: 'm.modified_name = {string:anonymous_name}',
+			where: 'mem.id_member = {int:member}',
+			db_values: [
+				'anonymous_name' => $anonymous_name,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their name in mentions within posts.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
+			SET body = REGEXP_REPLACE(body, {string:regex}, {string:anonymous_name})
+			WHERE id_msg IN (
+				SELECT DISTINCT content_id
+				FROM {db_prefix}mentions
+				WHERE content_type = {string:msg}
+					AND id_mentioned = {int:member}
+			)',
+			[
+				'regex' => '\\[member=' . $member . '\\][^\\[]+\\[/member\\]',
+				'anonymous_name' => $anonymous_name,
+				'member' => $member,
+				'msg' => 'msg',
+			],
+		);
+
+		// Anonymize their log comments, whether sent or received.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_comments
+			SET member_name = {string:anonymous_name},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_comments
+			SET recipient_name = {string:anonymous_name},
+				id_recipient = {int:guest_id}
+			WHERE id_recipient = {int:member}
+				AND comment_type != {string:warntpl}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+				'warntpl' => 'warntpl',
+			],
+		);
+
+		// Anonymize their logged group request actions.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_group_requests
+			SET member_name_acted = {string:anonymous_name},
+				id_member_acted = {int:guest_id}
+			WHERE id_member_acted = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their logged package actions.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_packages
+			SET member_installed = {string:anonymous_name},
+				id_member_installed = {int:guest_id}
+			WHERE id_member_installed = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_packages
+			SET member_removed = {string:anonymous_name},
+				id_member_removed = {int:guest_id}
+			WHERE id_member_removed = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize reports about them.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_reported
+			SET membername = {string:anonymous_name},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Anonymize their comments on reports.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_reported_comments
+			SET membername = {string:anonymous_name},
+				id_member = {int:guest_id}
+			WHERE id_member = {int:member}',
+			[
+				'anonymous_name' => $anonymous_name,
+				'guest_id' => 0,
+				'member' => $member,
+			],
+		);
+
+		// Do any mods want to anonymize some custom content?
+		IntegrationHook::call('integrate_anonymize', [$member]);
+	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\User::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([User::class, 'exportStatic'])) {
 	User::exportStatic();
 }
 

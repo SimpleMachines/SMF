@@ -5,21 +5,26 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Logging;
 use SMF\Mail;
+use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -27,34 +32,10 @@ use SMF\Utils;
 /**
  * This action handles the deletion of topics.
  */
-class TopicRemove implements ActionInterface
+class TopicRemove implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RemoveTopic2',
-			'removeDeleteConcurrence' => 'removeDeleteConcurrence',
-			'old' => 'RemoveOldTopics2',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionSuffixRouter;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -131,33 +112,11 @@ class TopicRemove implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Try to determine if the topic has already been deleted by another user.
 	 *
 	 * @return bool False if it can't be deleted (recycling not enabled or no recycling board set), true if we've confirmed it can be deleted. Dies with an error if it's already been deleted.
 	 */
-	public static function removeDeleteConcurrence()
+	public static function removeDeleteConcurrence(): bool
 	{
 		// No recycle no need to go further
 		if (empty(Config::$modSettings['recycle_enable']) || empty(Config::$modSettings['recycle_board'])) {
@@ -184,6 +143,8 @@ class TopicRemove implements ActionInterface
 		}
 
 		ErrorHandler::fatalLang('post_already_deleted', false, [$confirm_url]);
+
+		return false;
 	}
 
 	/**
@@ -191,7 +152,7 @@ class TopicRemove implements ActionInterface
 	 *
 	 * Used by SMF\Actions\Admin\Maintenance to prune old topics.
 	 */
-	public static function old()
+	public static function old(): void
 	{
 		User::$me->isAllowedTo('admin_forum');
 		User::$me->checkSession('post', 'admin');
@@ -265,25 +226,9 @@ class TopicRemove implements ActionInterface
 		Utils::redirectexit('action=admin;area=maintain;sa=topics;done=purgeold');
 	}
 
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-
 	/*************************
 	 * Internal static methods
 	 *************************/
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TopicRemove::exportStatic')) {
-	TopicRemove::exportStatic();
 }
 
 ?>

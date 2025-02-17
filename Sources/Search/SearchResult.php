@@ -5,22 +5,22 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
 
 namespace SMF\Search;
 
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\Autolinker;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IP;
 use SMF\Lang;
+use SMF\Parser;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -31,19 +31,6 @@ use SMF\Utils;
  */
 class SearchResult extends \SMF\Msg
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'highlight' => 'highlight',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -211,13 +198,25 @@ class SearchResult extends \SMF\Msg
 		Lang::censorText($this->first_subject);
 		Lang::censorText($this->last_subject);
 
+		// Old SMF versions autolinked during output rather than input,
+		// so maintain expected behaviour for those old messages.
+		if (version_compare($this->version, '3.0', '<')) {
+			$this->body = Autolinker::load(true)->makeLinks($this->body);
+		}
+
 		// Shorten this message if necessary.
 		if (!SearchApi::$loadedApi->params['show_complete']) {
 			// Set the number of characters before and after the searched keyword.
 			$charLimit = 50;
 
 			$this->body = strtr($this->body, ["\n" => ' ', '<br>' => "\n", '<br/>' => "\n", '<br />' => "\n"]);
-			$this->body = BBCodeParser::load()->parse($this->body, $this->smileys_enabled, $this->id_msg);
+
+			$this->body = Parser::transform(
+				string: $this->body,
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ($this->smileys_enabled ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => $this->id_msg],
+			);
+
 			$this->body = strip_tags(strtr($this->body, ['</div>' => '<br>', '</li>' => '<br>']), '<br>');
 
 			if (Utils::entityStrlen($this->body) > $charLimit) {
@@ -261,7 +260,11 @@ class SearchResult extends \SMF\Msg
 			$this->body_highlighted = self::highlight($this->body, SearchApi::$loadedApi->searchArray);
 		} else {
 			// Run BBC interpreter on the message.
-			$this->body = BBCodeParser::load()->parse($this->body, $this->smileys_enabled, $this->id_msg);
+			$this->body = Parser::transform(
+				string: $this->body,
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ($this->smileys_enabled ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => $this->id_msg],
+			);
 
 			$this->subject_highlighted = self::highlight($this->subject, SearchApi::$loadedApi->searchArray);
 			$this->body_highlighted = self::highlight($this->body, SearchApi::$loadedApi->searchArray);
@@ -343,7 +346,7 @@ class SearchResult extends \SMF\Msg
 					'id' => $this->first_member_id,
 					'name' => $this->first_member_name,
 					'href' => !empty($this->first_member_id) ? Config::$scripturl . '?action=profile;u=' . $this->first_member_id : '',
-					'link' => !empty($this->first_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->first_member_id . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->first_member_name) . '">' . $this->first_member_name . '</a>' : $this->first_member_name,
+					'link' => !empty($this->first_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->first_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->first_member_name]) . '">' . $this->first_member_name . '</a>' : $this->first_member_name,
 				],
 			],
 			'last_post' => [
@@ -359,7 +362,7 @@ class SearchResult extends \SMF\Msg
 					'id' => $this->last_member_id,
 					'name' => $this->last_member_name,
 					'href' => !empty($this->last_member_id) ? Config::$scripturl . '?action=profile;u=' . $this->last_member_id : '',
-					'link' => !empty($this->last_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->last_member_id . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $this->last_member_name) . '">' . $this->last_member_name . '</a>' : $this->last_member_name,
+					'link' => !empty($this->last_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->last_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->last_member_name]) . '">' . $this->last_member_name . '</a>' : $this->last_member_name,
 				],
 			],
 			'board' => [
@@ -411,7 +414,7 @@ class SearchResult extends \SMF\Msg
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return \Generator<array> Iterating over result gives SearchResult instances.
 	 */
-	public static function get(/*int|array*/ $ids, array $query_customizations = [])/*: Generator*/
+	public static function get(int|array $ids, array $query_customizations = []): \Generator
 	{
 		$selects = $query_customizations['selects'] ?? [
 			'm.*',
@@ -478,7 +481,7 @@ class SearchResult extends \SMF\Msg
 			$params['message_list'] = self::$messages_to_get = array_filter(array_unique(array_map('intval', (array) $ids)));
 		}
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$id = (int) $row['id_msg'];
 
 			yield (new self($id, $row));
@@ -501,7 +504,7 @@ class SearchResult extends \SMF\Msg
 	 */
 	public static function highlight(string $text, array $words): string
 	{
-		$words = Utils::buildRegex($words, '~');
+		$words = preg_replace('/\s+/u', '\W+', Utils::buildRegex($words, '~'));
 
 		$highlighted = '';
 
@@ -553,11 +556,6 @@ class SearchResult extends \SMF\Msg
 			Utils::$context['can_merge'] = in_array(0, self::$boards_can['merge_any']);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SearchResult::exportStatic')) {
-	SearchResult::exportStatic();
 }
 
 ?>

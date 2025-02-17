@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -34,14 +34,6 @@ abstract class CacheApi
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'load' => 'loadCacheAccelerator',
-			'detect' => 'loadCacheAPIs',
-			'clean' => 'clean_cache',
-			'quickGet' => 'cache_quick_get',
-			'put' => 'cache_put_data',
-			'get' => 'cache_get_data',
-		],
 		'prop_names' => [
 			'loadedApi' => 'cacheAPI',
 			'hits' => 'cache_hits',
@@ -78,7 +70,7 @@ abstract class CacheApi
 	 *
 	 * The loaded cache API, or false on failure.
 	 *
-	 * For backward compatibilty, also referenced as global $cacheAPI.
+	 * For backward compatibility, also referenced as global $cacheAPI.
 	 */
 	public static $loadedApi;
 
@@ -87,16 +79,16 @@ abstract class CacheApi
 	 *
 	 * Records debugging info.
 	 *
-	 * For backward compatibilty, also referenced as global $cache_hits.
+	 * For backward compatibility, also referenced as global $cache_hits.
 	 */
 	public static array $hits = [];
 
 	/**
 	 * @var int
 	 *
-	 * The number of times the cache has been acceesed.
+	 * The number of times the cache has been accessed.
 	 *
-	 * For backward compatibilty, also referenced as global $cache_count.
+	 * For backward compatibility, also referenced as global $cache_count.
 	 */
 	public static int $count_hits = 0;
 
@@ -105,7 +97,7 @@ abstract class CacheApi
 	 *
 	 * Records debugging info.
 	 *
-	 * For backward compatibilty, also referenced as global $cache_misses.
+	 * For backward compatibility, also referenced as global $cache_misses.
 	 */
 	public static array $misses = [];
 
@@ -114,7 +106,7 @@ abstract class CacheApi
 	 *
 	 * The number of times the cache has missed.
 	 *
-	 * For backward compatibilty, also referenced as global $cache_count_misses.
+	 * For backward compatibility, also referenced as global $cache_count_misses.
 	 */
 	public static int $count_misses = 0;
 
@@ -272,9 +264,7 @@ abstract class CacheApi
 	 *
 	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
 	 */
-	public function cacheSettings(array &$config_vars): void
-	{
-	}
+	public function cacheSettings(array &$config_vars): void {}
 
 	/**
 	 * Gets the latest version of SMF this is compatible with.
@@ -311,9 +301,7 @@ abstract class CacheApi
 	 * exp. clean up old data or do optimization
 	 *
 	 */
-	public function housekeeping(): void
-	{
-	}
+	public function housekeeping(): void {}
 
 	/**
 	 * Gets the class identifier of the current caching API implementation.
@@ -396,6 +384,7 @@ abstract class CacheApi
 			}
 
 			// Connect up to the accelerator.
+			/** @var \SMF\Cache\CacheApiInterface $cache_api */
 			if ($cache_api && $cache_api->connect() === false) {
 				$cache_api = false;
 			}
@@ -466,6 +455,7 @@ abstract class CacheApi
 	final public static function clean(string $type = ''): void
 	{
 		// If we can't get to the API, can't do this.
+		// todo: instanceof check
 		if (empty(self::$loadedApi)) {
 			return;
 		}
@@ -549,12 +539,12 @@ abstract class CacheApi
 		self::$count_hits++;
 
 		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
-			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(Utils::jsonEncode($value))];
+			self::$hits[self::$count_hits] = ['k' => $key, 'd' => 'put', 's' => $value === null ? 0 : strlen(serialize($value))];
 			$st = microtime(true);
 		}
 
 		// The API will handle the rest.
-		$value = $value === null ? null : Utils::jsonEncode($value);
+		$value = $value === null ? null : serialize($value);
 		self::$loadedApi->putData($key, $value, $ttl);
 
 		if (class_exists('SMF\\IntegrationHook', false)) {
@@ -594,7 +584,7 @@ abstract class CacheApi
 
 		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
 			self::$hits[self::$count_hits]['t'] = microtime(true) - $st;
-			self::$hits[self::$count_hits]['s'] = isset($value) ? strlen($value) : 0;
+			self::$hits[self::$count_hits]['s'] = isset($value) ? strlen((string) $value) : 0;
 
 			if (empty($value)) {
 				self::$count_misses++;
@@ -606,12 +596,24 @@ abstract class CacheApi
 			IntegrationHook::call('cache_get_data', [&$key, &$ttl, &$value]);
 		}
 
-		return empty($value) ? null : Utils::jsonDecode($value, true);
+		if (empty($value)) {
+			return null;
+		}
+
+		if (is_string($value)) {
+			try {
+				$temp = @unserialize($value);
+				$value = $temp;
+			} catch (\Throwable $e) {
+			}
+		}
+
+		return $value;
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\CacheApi::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([CacheApi::class, 'exportStatic'])) {
 	CacheApi::exportStatic();
 }
 

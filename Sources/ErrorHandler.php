@@ -9,11 +9,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -28,25 +30,6 @@ use SMF\ServerSideIncludes as SSI;
  */
 class ErrorHandler
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'smf_error_handler',
-			'log' => 'log_error',
-			'fatal' => 'fatal_error',
-			'fatalLang' => 'fatal_lang_error',
-			'displayMaintenanceMessage' => 'display_maintenance_message',
-			'displayDbError' => 'display_db_error',
-			'displayLoadAvgError' => 'display_loadavg_error',
-		],
-	];
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -63,17 +46,17 @@ class ErrorHandler
 	{
 		// Error was suppressed with the @-operator.
 		if (error_reporting() == 0 || error_reporting() == (E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR)) {
-			return true;
+			return;
 		}
 
-		// Ignore errors that should should not be logged.
+		// Ignore errors that should not be logged.
 		$error_match = error_reporting() & $error_level;
 
 		if (empty($error_match) || empty(Config::$modSettings['enableErrorLogging'])) {
-			return false;
+			return;
 		}
 
-		if (strpos($file, 'eval()') !== false && !empty(Theme::$current->settings['current_include_filename'])) {
+		if (str_contains($file, 'eval()') && !empty(Theme::$current->settings['current_include_filename'])) {
 			$array = debug_backtrace();
 			$count = count($array);
 
@@ -102,7 +85,7 @@ class ErrorHandler
 			if ($error_level % 255 != E_ERROR) {
 				$temporary = ob_get_contents();
 
-				if (substr($temporary, -2) == '="') {
+				if (str_ends_with($temporary, '="')) {
 					echo '"';
 				}
 			}
@@ -132,7 +115,7 @@ class ErrorHandler
 
 		// If this is an E_ERROR, E_USER_ERROR, E_WARNING, or E_USER_WARNING.... die. Violently so.
 		if ($error_level % 255 == E_ERROR || $error_level % 255 == E_WARNING) {
-			self::fatal(User::$me->allowedTo('admin_forum') ? $message : $error_string, false);
+			self::fatal(isset(User::$me) && User::$me->allowedTo('admin_forum') ? $message : $error_string, false);
 		}
 
 		// We should NEVER get to this point.  Any fatal error MUST quit, or very bad things can happen.
@@ -211,11 +194,15 @@ class ErrorHandler
 		// Windows style slashes don't play well, lets convert them to the UNIX style.
 		$file = str_replace('\\', '/', $file);
 
-		// Find the best query string we can...
-		$query_string = empty($_SERVER['QUERY_STRING']) ? (empty($_SERVER['REQUEST_URL']) ? '' : str_replace(Config::$scripturl, '', $_SERVER['REQUEST_URL'])) : $_SERVER['QUERY_STRING'];
+		// Find the best path and query string we can...
+		if (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
+			$query_string = substr($_SERVER['REQUEST_URL'], strlen(Config::$boardurl));
+		} else {
+			$query_string = ($_SERVER['REQUEST_URL'] ?? '');
+		}
 
 		// Don't log the session hash in the url twice, it's a waste.
-		$query_string = Utils::htmlspecialchars((SMF == 'SSI' || SMF == 'BACKGROUND' ? '' : '?') . preg_replace(['~;sesc=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], [';sesc', ''], $query_string));
+		$query_string = Utils::htmlspecialchars(preg_replace(['~([?&;]sesc)=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], ['$1', ''], $query_string));
 
 		// Just so we know what board error messages are from.
 		if (isset($_POST['board']) && !isset($_GET['board'])) {
@@ -258,7 +245,18 @@ class ErrorHandler
 		$backtrace = Utils::jsonEncode($backtrace);
 
 		// Don't log the same error countless times, as we can get in a cycle of depression...
-		$error_info = [User::$me->id ?? User::$my_id ?? 0, time(), User::$me->ip ?? $_SERVER['REMOTE_ADDR'] ?? '', $query_string, $error_message, (string) (User::$sc ?? ''), $error_type, $file, $line, $backtrace];
+		$error_info = [
+			User::$me->id ?? User::$my_id ?? 0,
+			time(),
+			User::$me->ip ?? $_SERVER['REMOTE_ADDR'] ?? '',
+			$query_string,
+			$error_message,
+			(string) (User::$sc ?? ''),
+			$error_type,
+			$file,
+			$line,
+			$backtrace,
+		];
 
 		if (empty($last_error) || $last_error != $error_info) {
 			// Insert the error into the database.
@@ -325,10 +323,10 @@ class ErrorHandler
 	 *
 	 * @param string $error The error message.
 	 * @param string|false $log The type of error, or false to not log it.
-	 * @param array $sprintf An array of data to be sprintf()'d into the specified message.
+	 * @param array $sprintf An array of data to be substituted into the specified message.
 	 * @param int $status The HTTP status code associated with this error. Default: 403.
 	 */
-	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403)
+	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403): void
 	{
 		static $fatal_error_called = false;
 
@@ -349,11 +347,11 @@ class ErrorHandler
 		if (empty(Lang::$txt[$error])) {
 			$error_message = $error;
 		} else {
-			$error_message = empty($sprintf) ? Lang::$txt[$error] : vsprintf(Lang::$txt[$error], $sprintf);
+			$error_message = Lang::getTxt($error, $sprintf);
 		}
 
 		// Send a custom header if we have a custom message.
-		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_RQEUEST['ajax'])) {
+		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_REQUEST['ajax'])) {
 			header('X-SMF-errormsg: ' . $error_message);
 		}
 
@@ -373,17 +371,17 @@ class ErrorHandler
 			if (empty(Lang::$txt[$error])) {
 				$error_message = $error;
 			} else {
-				$error_message = empty($sprintf) ? Lang::$txt[$error] : vsprintf(Lang::$txt[$error], $sprintf);
+				$error_message = Lang::getTxt($error, $sprintf);
 			}
 
 			self::log($error_message, $log);
 		}
 
 		// Load the language file, only if it needs to be reloaded
-		if ($reload_lang_file && !empty($txt[$error])) {
+		if ($reload_lang_file && !empty(Lang::$txt[$error])) {
 			Lang::load('Errors');
 
-			$error_message = empty($sprintf) ? Lang::$txt[$error] : vsprintf(Lang::$txt[$error], $sprintf);
+			$error_message = Lang::getTxt($error, $sprintf);
 		}
 
 		self::logOnline($error, $sprintf);
@@ -396,6 +394,7 @@ class ErrorHandler
 	 * It shows a complete page independent of language files or themes.
 	 * It is used only if $maintenance = 2 in Settings.php.
 	 * It stops further execution of the script.
+	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	public static function displayMaintenanceMessage(): void
 	{
@@ -429,6 +428,7 @@ class ErrorHandler
 	 * It shows a complete page independent of language files or themes.
 	 * It is used only if there's no way to connect to the database.
 	 * It stops further execution of the script.
+	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	public static function displayDbError(): void
 	{
@@ -479,6 +479,7 @@ class ErrorHandler
 	 * It shows a complete page independent of language files or themes.
 	 * It is used only if the load averages are too high to continue execution.
 	 * It stops further execution of the script.
+	 * @todo: As of PHP 8.1, this return type can be 'never'
 	 */
 	public static function displayLoadAvgError(): void
 	{
@@ -512,9 +513,8 @@ class ErrorHandler
 	 * Used by self::fatal() and self::fatalLang().
 	 *
 	 * @param string $error The error
-	 * @param array $sprintf An array of data to be sprintf()'d into the specified message
 	 */
-	protected static function logOnline(string $error, array $sprintf = [])
+	protected static function logOnline(string $error, array $sprintf = []): void
 	{
 		// Don't bother if Who's Online is disabled.
 		if (empty(Config::$modSettings['who_enabled'])) {
@@ -603,8 +603,12 @@ class ErrorHandler
 	{
 		static $level = 0;
 
-		// Attempt to prevent a recursive loop.
-		if (++$level > 1) {
+		if (
+			// Don't get caught in a recursive loop.
+			++$level > 1
+			// If we hit a fatal error during install, don't try to load the theme.
+			|| defined('SMF_INSTALLING')
+		) {
 			die($error_message);
 		}
 
@@ -674,8 +678,10 @@ class ErrorHandler
 	 * Logs the last database error into a file.
 	 * Attempts to use the backup file first, to store the last database error
 	 * and only update db_last_error.php if the first was successful.
+	 *
+	 * @return bool true if successfully able to write the last database error.
 	 */
-	protected static function logLastDatabaseError()
+	protected static function logLastDatabaseError(): bool
 	{
 		// Make a note of the last modified time in case someone does this before us
 		$last_db_error_change = @filemtime(Config::$cachedir . '/db_last_error.php');
@@ -698,19 +704,12 @@ class ErrorHandler
 				// Copy the file back and run for your life!
 				@copy(Config::$cachedir . '/db_last_error_bak.php', Config::$cachedir . '/db_last_error.php');
 			} else {
-				@touch(SMF_SETTINGS_FILE);
-
 				return true;
 			}
 		}
 
 		return false;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ErrorHandler::exportStatic')) {
-	ErrorHandler::exportStatic();
 }
 
 ?>

@@ -5,11 +5,15 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+// This can not be defined yet. We use dynamic properties, sometimes loaded from the database, which are always a string.
+// As such, forcing this will cause a casting error when trying to set the property that is a int or other non string.
+//declare(strict_types=1);
 
 namespace SMF;
 
@@ -73,9 +77,9 @@ namespace SMF;
  *        );
  *
  *    ... then getting $this->foo will get the value returned by the class's
- *    getFoo() method. The callable must be a stand-alone function or a static
- *    method in order to keep PHP happy. The current object will be passed to
- *    the callable as its first argument.
+ *    getFoo() method. The callable must be a static method in order to keep PHP
+ *    happy. The current object will be passed to the callable as its first
+ *    argument.
  */
 trait DynamicPropertyHelper
 {
@@ -173,12 +177,12 @@ trait DynamicPropertyHelper
 				return;
 			}
 
-			if (strpos($real_prop, '!') === 0) {
+			if (str_starts_with($real_prop, '!')) {
 				$real_prop = ltrim($real_prop, '!');
 				$value = !$value;
 			}
 
-			if (strpos($real_prop, '[') !== false) {
+			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
 				if (is_object($this->{$real_prop[0]})) {
@@ -207,15 +211,15 @@ trait DynamicPropertyHelper
 			$real_prop = $this->prop_aliases[$prop];
 
 			// Callable properties are calculated dynamically.
-			if (is_callable($real_prop)) {
+			if (str_contains($real_prop, '::') && is_callable($real_prop)) {
 				return call_user_func($real_prop, $this);
 			}
 
-			if (($not = strpos($real_prop, '!') === 0)) {
+			if (($not = str_starts_with($real_prop, '!'))) {
 				$real_prop = ltrim($real_prop, '!');
 			}
 
-			if (strpos($real_prop, '[') !== false) {
+			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
 				if (is_object($this->{$real_prop[0]})) {
@@ -248,11 +252,11 @@ trait DynamicPropertyHelper
 			$real_prop = ltrim($this->prop_aliases[$prop], '!');
 
 			// A callable property is set if it returns a non-null value.
-			if (is_callable($real_prop)) {
+			if (str_contains($real_prop, '::') && is_callable($real_prop)) {
 				return call_user_func($real_prop, $this) !== null;
 			}
 
-			if (strpos($real_prop, '[') !== false) {
+			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
 				if (is_object($this->{$real_prop[0]})) {

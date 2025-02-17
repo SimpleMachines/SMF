@@ -5,21 +5,26 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Routable;
 use SMF\Search\SearchApi;
 use SMF\Search\SearchResult;
 use SMF\Security;
@@ -31,20 +36,10 @@ use SMF\Verifier;
 /**
  * Shows the search form.
  */
-class Search2 implements ActionInterface
+class Search2 implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'PlushSearch2',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -71,18 +66,6 @@ class Search2 implements ActionInterface
 	 */
 	public array $posters = [];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -101,13 +84,24 @@ class Search2 implements ActionInterface
 		// Are you allowed?
 		User::$me->isAllowedTo('search_posts');
 
+		// Maximum length of the string.
+		Utils::$context['search_string_limit'] = SearchApi::MAX_LENGTH;
+
+		// Number of pages hard maximum - normally not set at all.
+		Config::$modSettings['search_max_results'] = empty(Config::$modSettings['search_max_results']) ? 200 * Config::$modSettings['search_results_per_page'] : (int) Config::$modSettings['search_max_results'];
+
+		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % Config::$modSettings['search_results_per_page']) : 0;
+
+		Lang::load('Search');
+
+		Utils::$context['robot_no_index'] = true;
+
 		// Load up the search API we are going to use.
 		SearchApi::load();
 		SearchApi::$loadedApi->initializeSearch();
 
 		Utils::$context['search_errors'] = SearchApi::$loadedApi->errors;
 
-		$this->spellCheck();
 		$this->setupVerification();
 
 		// Did we encounter any errors?
@@ -145,9 +139,9 @@ class Search2 implements ActionInterface
 	 * - loads the necessary contextual data to show a search result.
 	 *
 	 * @param bool $reset Whether to reset the counter
-	 * @return array An array of contextual info related to this search
+	 * @return false|array An array of contextual info related to this search
 	 */
-	public function prepareSearchContext($reset = false)
+	public function prepareSearchContext(bool $reset = false): bool|array
 	{
 		static $recycle_board = null;
 		static $counter = null;
@@ -163,7 +157,7 @@ class Search2 implements ActionInterface
 
 		// Start from the beginning...
 		if ($reset) {
-			return @Db::$db->data_seek(SearchResult::$messages_request, 0);
+			return @Db::$db->data_seek(SearchResult::$getter->reset(), 0);
 		}
 
 		if (!isset(SearchResult::$getter)) {
@@ -215,25 +209,41 @@ class Search2 implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @return object An instance of this class.
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function load(): object
+	public static function buildRoute(array $params): array
 	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
+		$route = self::buildActionRoute($params);
+
+		if (isset($params['start'])) {
+			$route[] = $params['start'];
+			unset($params['start']);
 		}
 
-		return self::$obj;
+		return ['route' => $route, 'params' => $params];
 	}
 
 	/**
-	 * Convenience method to load() and execute() an instance of this class.
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
 	 */
-	public static function call(): void
+	public static function parseRoute(array $route, array $params = []): array
 	{
-		self::load()->execute();
+		$params = array_merge($params, self::parseActionRoute($route));
+
+		if (!empty($route)) {
+			$params['start'] = array_shift($route);
+		}
+
+		return $params;
 	}
 
 	/******************
@@ -241,25 +251,7 @@ class Search2 implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Maximum length of the string.
-		Utils::$context['search_string_limit'] = SearchApi::MAX_LENGTH;
-
-		// Number of pages hard maximum - normally not set at all.
-		Config::$modSettings['search_max_results'] = empty(Config::$modSettings['search_max_results']) ? 200 * Config::$modSettings['search_results_per_page'] : (int) Config::$modSettings['search_max_results'];
-
-		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % Config::$modSettings['search_results_per_page']) : 0;
-
-		Lang::load('Search');
-
-		Utils::$context['robot_no_index'] = true;
-	}
-
-	/**
-	 * If comming from the quick search box and trying to search on members,
+	 * If coming from the quick search box and trying to search on members,
 	 * redirect to the right place for that.
 	 */
 	protected function redirectToMemberSearch(): void
@@ -368,7 +360,13 @@ class Search2 implements ActionInterface
 		];
 
 		// Now that we know how many results to expect we can start calculating the page numbers.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $_REQUEST['start'], $this->num_results, Config::$modSettings['search_results_per_page'], false);
+		$start = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $start, $this->num_results, (int) Config::$modSettings['search_results_per_page'], false);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		Utils::$context['key_words'] = SearchApi::$loadedApi->searchArray;
 
@@ -388,6 +386,54 @@ class Search2 implements ActionInterface
 			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
 			'board_name' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['select_destination'])),
 		];
+
+		// Define the sort order options.
+		Utils::$context['sort_options'] = [
+			'relevance|desc' => [
+				'label' => 'search_orderby_relevant_first',
+				'value' => 'relevance|desc',
+				'selected' => Utils::$context['current_sorting'] == 'relevance|desc',
+			],
+			'num_replies|desc' => [
+				'label' => 'search_orderby_large_first',
+				'value' => 'num_replies|desc',
+				'selected' => Utils::$context['current_sorting'] == 'num_replies|desc',
+			],
+			'num_replies|asc' => [
+				'label' => 'search_orderby_small_first',
+				'value' => 'num_replies|asc',
+				'selected' => Utils::$context['current_sorting'] == 'num_replies|asc',
+			],
+			'id_msg|desc' => [
+				'label' => 'search_orderby_recent_first',
+				'value' => 'id_msg|desc',
+				'selected' => Utils::$context['current_sorting'] == 'id_msg|desc',
+			],
+			'id_msg|asc' => [
+				'label' => 'search_orderby_old_first',
+				'value' => 'id_msg|asc',
+				'selected' => Utils::$context['current_sorting'] == 'id_msg|asc',
+			],
+		];
+
+		// Define the hidden inputs that let the user adjust the search.
+		Utils::$context['hidden_inputs'] = [
+			'searchtype' => '<input type="hidden" name="searchtype" value="' . (!empty(Utils::$context['search_params']['searchtype']) ? Utils::$context['search_params']['searchtype'] : 0) . '">',
+			'userspec' => '<input type="hidden" name="userspec" value="' . (!empty(Utils::$context['search_params']['userspec']) ? Utils::$context['search_params']['userspec'] : '') . '">',
+			'show_complete' => '<input type="hidden" name="show_complete" value="' . (!empty(Utils::$context['search_params']['show_complete']) ? 1 : 0) . '">',
+			'subject_only' => '<input type="hidden" name="subject_only" value="' . (!empty(Utils::$context['search_params']['subject_only']) ? 1 : 0) . '">',
+			'minage' => '<input type="hidden" name="minage" value="' . (!empty(Utils::$context['search_params']['minage']) ? Utils::$context['search_params']['minage'] : '0') . '">',
+			'maxage' => '<input type="hidden" name="maxage" value="' . (!empty(Utils::$context['search_params']['maxage']) ? Utils::$context['search_params']['maxage'] : '9999') . '">',
+			'sort' => '<input type="hidden" name="sort" value="' . (!empty(Utils::$context['search_params']['sort']) ? Utils::$context['search_params']['sort'] : 'relevance') . '">',
+		];
+
+		if (!empty(Utils::$context['search_params']['brd'])) {
+			foreach (Utils::$context['search_params']['brd'] as $board_id) {
+				Utils::$context['hidden_inputs']['brd_' . $board_id] = '<input type="hidden" name="brd[' . $board_id . ']" value="' . $board_id . '">';
+			}
+		}
+
+		SearchApi::$loadedApi->resultsContext();
 	}
 
 	/**
@@ -414,7 +460,7 @@ class Search2 implements ActionInterface
 	/**
 	 * Populates $this->posters with IDs of authors of the posts we will show.
 	 */
-	protected function getPosters()
+	protected function getPosters(): void
 	{
 		$request = Db::$db->query(
 			'',
@@ -437,111 +483,9 @@ class Search2 implements ActionInterface
 	}
 
 	/**
-	 * If spellchecking is enabled, check for typos in the search terms.
-	 */
-	protected function spellCheck()
-	{
-		if (Utils::$context['show_spellchecking']) {
-			// Don't hardcode spellchecking functions!
-			$link = SearchResult::spell_init();
-
-			$did_you_mean = ['search' => [], 'display' => []];
-			$found_misspelling = false;
-
-			foreach (SearchApi::$loadedApi->searchArray as $word) {
-				if (empty($link)) {
-					continue;
-				}
-
-				// Don't check phrases.
-				if (preg_match('~^\w+$~', $word) === 0) {
-					$did_you_mean['search'][] = '"' . $word . '"';
-					$did_you_mean['display'][] = '&quot;' . Utils::htmlspecialchars($word) . '&quot;';
-
-					continue;
-				}
-
-				// For some strange reason spell check can crash PHP on decimals.
-				if (preg_match('~\d~', $word) === 1) {
-					$did_you_mean['search'][] = $word;
-					$did_you_mean['display'][] = Utils::htmlspecialchars($word);
-
-					continue;
-				}
-
-				if (SearchResult::spell_check($link, $word)) {
-					$did_you_mean['search'][] = $word;
-					$did_you_mean['display'][] = Utils::htmlspecialchars($word);
-
-					continue;
-				}
-
-				$suggestions = SearchResult::spell_suggest($link, $word);
-
-				foreach ($suggestions as $i => $s) {
-					// Search is case insensitive.
-					if (Utils::strtolower($s) == Utils::strtolower($word)) {
-						unset($suggestions[$i]);
-					}
-
-					// Plus, don't suggest something the user thinks is rude!
-					elseif ($suggestions[$i] != Lang::censorText($s)) {
-						unset($suggestions[$i]);
-					}
-				}
-
-				// Anything found?  If so, correct it!
-				if (!empty($suggestions)) {
-					$suggestions = array_values($suggestions);
-					$did_you_mean['search'][] = $suggestions[0];
-					$did_you_mean['display'][] = '<em><strong>' . Utils::htmlspecialchars($suggestions[0]) . '</strong></em>';
-					$found_misspelling = true;
-				} else {
-					$did_you_mean['search'][] = $word;
-					$did_you_mean['display'][] = Utils::htmlspecialchars($word);
-				}
-			}
-
-			if ($found_misspelling) {
-				// Don't spell check excluded words, but add them still...
-				$temp_excluded = ['search' => [], 'display' => []];
-
-				foreach (SearchApi::$loadedApi->excludedWords as $word) {
-					if (preg_match('~^\w+$~', $word) == 0) {
-						$temp_excluded['search'][] = '-"' . $word . '"';
-						$temp_excluded['display'][] = '-&quot;' . Utils::htmlspecialchars($word) . '&quot;';
-					} else {
-						$temp_excluded['search'][] = '-' . $word;
-						$temp_excluded['display'][] = '-' . Utils::htmlspecialchars($word);
-					}
-				}
-
-				$did_you_mean['search'] = array_merge($did_you_mean['search'], $temp_excluded['search']);
-				$did_you_mean['display'] = array_merge($did_you_mean['display'], $temp_excluded['display']);
-
-				$temp_params = SearchApi::$loadedApi->params;
-				$temp_params['search'] = implode(' ', $did_you_mean['search']);
-
-				if (isset($temp_params['brd'])) {
-					$temp_params['brd'] = implode(',', $temp_params['brd']);
-				}
-
-				Utils::$context['params'] = [];
-
-				foreach ($temp_params as $k => $v) {
-					Utils::$context['did_you_mean_params'][] = $k . '|\'|' . $v;
-				}
-
-				Utils::$context['did_you_mean_params'] = base64_encode(implode('|"|', Utils::$context['did_you_mean_params']));
-				Utils::$context['did_you_mean'] = implode(' ', $did_you_mean['display']);
-			}
-		}
-	}
-
-	/**
 	 * Initializes stuff we need to display the search results.
 	 */
-	protected function initSearchContext()
+	protected function initSearchContext(): void
 	{
 		if (empty(SearchApi::$loadedApi->results)) {
 			return;
@@ -575,11 +519,6 @@ class Search2 implements ActionInterface
 
 		SearchApi::$loadedApi->setParticipants();
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Search2::exportStatic')) {
-	Search2::exportStatic();
 }
 
 ?>

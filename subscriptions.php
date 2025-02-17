@@ -8,11 +8,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 use SMF\Actions\Admin\ACP;
 use SMF\Actions\Admin\Subscriptions;
@@ -109,7 +111,7 @@ $request = Db::$db->query(
 
 // Didn't find them?
 if (Db::$db->num_rows($request) === 0) {
-	generateSubscriptionError(sprintf(Lang::$txt['paid_could_not_find_member'], $member_id));
+	generateSubscriptionError(Lang::getTxt('paid_could_not_find_member', [$member_id]));
 }
 $member_info = Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
@@ -127,7 +129,7 @@ $request = Db::$db->query(
 
 // Didn't find it?
 if (Db::$db->num_rows($request) === 0) {
-	generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_subscription'], $member_id, $subscription_id));
+	generateSubscriptionError(Lang::getTxt('paid_count_not_find_subscription', [$member_id, $subscription_id]));
 }
 
 $subscription_info = Db::$db->fetch_assoc($request);
@@ -148,7 +150,7 @@ $request = Db::$db->query(
 );
 
 if (Db::$db->num_rows($request) === 0) {
-	generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_subscription_log'], $member_id, $subscription_id));
+	generateSubscriptionError(Lang::getTxt('paid_count_not_find_subscription_log', [$member_id, $subscription_id]));
 }
 $subscription_info += Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
@@ -163,7 +165,7 @@ if ($gatewayClass->isRefund()) {
 		$subscription_act = time();
 		$status = 0;
 	} else {
-		Subscriptions::getAll();
+		Subscriptions::getSubs();
 		$subscription_act = $subscription_info['end_time'] - Subscriptions::$all[$subscription_id]['num_length'];
 		$status = 1;
 	}
@@ -209,7 +211,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription()) {
 		$real_details = Utils::jsonDecode($subscription_info['pending_details'], true);
 
 		if (empty($real_details)) {
-			generateSubscriptionError(sprintf(Lang::$txt['paid_count_not_find_outstanding_payment'], $member_id, $subscription_id));
+			generateSubscriptionError(Lang::getTxt('paid_count_not_find_outstanding_payment', [$member_id, $subscription_id]));
 		}
 
 		// Now we just try to find anything pending.

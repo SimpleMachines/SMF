@@ -5,17 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
+use SMF\Autolinker;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -27,6 +29,7 @@ use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\Time;
@@ -38,24 +41,9 @@ use SMF\Utils;
  */
 class ShowPosts implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'list_getUnwatched' => 'list_getUnwatched',
-			'list_getNumUnwatched' => 'list_getNumUnwatched',
-			'list_getAttachments' => 'list_getAttachments',
-			'list_getNumAttachments' => 'list_getNumAttachments',
-			'showPosts' => 'showPosts',
-			'showUnwatched' => 'showUnwatched',
-			'showAttachments' => 'showAttachments',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -84,18 +72,6 @@ class ShowPosts implements ActionInterface
 		'unwatchedtopics' => 'unwatched',
 		'attach' => 'attachments',
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -404,28 +380,6 @@ class ShowPosts implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets information about unwatched (disregarded) topics. Callback for the list in show_unwatched
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
@@ -513,7 +467,7 @@ class ShowPosts implements ActionInterface
 		list($unwatched_count) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $unwatched_count;
+		return (int) $unwatched_count;
 	}
 
 	/**
@@ -613,54 +567,7 @@ class ShowPosts implements ActionInterface
 		list($attach_count) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $attach_count;
-	}
-
-	/**
-	 * Backward compatibility wrapper.
-	 */
-	public static function showPosts(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the unwatchedtopics sub-action.
-	 */
-	public static function showUnwatched(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'unwatchedtopics';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the attach sub-action.
-	 */
-	public static function showAttachments(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->subaction = 'attach';
-		self::$obj->execute();
+		return (int) $attach_count;
 	}
 
 	/******************
@@ -746,9 +653,11 @@ class ShowPosts implements ActionInterface
 	}
 
 	/**
+	 * Loads a user's posts or topics
 	 *
+	 * @param bool $is_topics Whether to load topics instead of posts
 	 */
-	protected function loadPosts($is_topics = false): void
+	protected function loadPosts(bool $is_topics = false): void
 	{
 		// Default to 10.
 		if (empty($_REQUEST['viewscount']) || !is_numeric($_REQUEST['viewscount'])) {
@@ -788,6 +697,7 @@ class ShowPosts implements ActionInterface
 			);
 		}
 		list($msg_count) = Db::$db->fetch_row($request);
+		$msg_count = (int) $msg_count;
 		Db::$db->free_result($request);
 
 		$request = Db::$db->query(
@@ -816,10 +726,15 @@ class ShowPosts implements ActionInterface
 			$max_per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 		}
 
-		$max_index = $max_per_page;
+		$max_index = (int) $max_per_page;
 
 		// Make sure the starting place makes sense and construct our friend the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=showposts' . ($is_topics ? ';sa=topics' : '') . (!empty(Board::$info->id) ? ';board=' . Board::$info->id : ''), Utils::$context['start'], $msg_count, $max_index);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		Utils::$context['current_page'] = Utils::$context['start'] / $max_index;
 
@@ -858,7 +773,7 @@ class ShowPosts implements ActionInterface
 					'',
 					'SELECT
 						b.id_board, b.name AS bname, c.id_cat, c.name AS cname, t.id_member_started, t.id_first_msg, t.id_last_msg,
-						t.approved, m.body, m.smileys_enabled, m.subject, m.poster_time, m.id_topic, m.id_msg
+						t.approved, m.body, m.smileys_enabled, m.subject, m.poster_time, m.id_topic, m.id_msg, m.version
 					FROM {db_prefix}topics AS t
 						INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
 						LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -884,7 +799,7 @@ class ShowPosts implements ActionInterface
 					'SELECT
 						b.id_board, b.name AS bname, c.id_cat, c.name AS cname, m.id_topic, m.id_msg,
 						t.id_member_started, t.id_first_msg, t.id_last_msg, m.body, m.smileys_enabled,
-						m.subject, m.poster_time, m.approved
+						m.subject, m.poster_time, m.approved, m.version
 					FROM {db_prefix}messages AS m
 						INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 						INNER JOIN {db_prefix}boards AS b ON (b.id_board = t.id_board)
@@ -921,8 +836,18 @@ class ShowPosts implements ActionInterface
 			Lang::censorText($row['body']);
 			Lang::censorText($row['subject']);
 
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
+
 			// Do the code.
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
 
 			// And the array...
 			Utils::$context['posts'][$counter += $reverse ? -1 : 1] = [
@@ -1062,11 +987,6 @@ class ShowPosts implements ActionInterface
 			];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ShowPosts::exportStatic')) {
-	ShowPosts::exportStatic();
 }
 
 ?>

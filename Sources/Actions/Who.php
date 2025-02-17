@@ -5,15 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -21,6 +25,7 @@ use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -36,21 +41,10 @@ use SMF\Utils;
  * Uses Who template, main sub-template
  * Uses Who language file.
  */
-class Who implements ActionInterface
+class Who implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Who',
-			'determineActions' => 'determineActions',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public static properties
@@ -106,18 +100,6 @@ class Who implements ActionInterface
 		'viewmembers' => ['moderate_forum'],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -127,6 +109,10 @@ class Who implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Load the 'Who' template.
+		Theme::loadTemplate('Who');
+		Lang::load('Who');
+
 		// Permissions, permissions, permissions.
 		User::$me->isAllowedTo('who_view');
 
@@ -235,12 +221,17 @@ class Who implements ActionInterface
 			],
 		);
 		list($totalMembers) = Db::$db->fetch_row($request);
+		$totalMembers = (int) $totalMembers;
 		Db::$db->free_result($request);
 
 		// Prepare some page index variables.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=who;sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';asc' : '') . ';show=' . Utils::$context['show_by'], $_REQUEST['start'], $totalMembers, Config::$modSettings['defaultMaxMembers']);
+		Utils::$context['start'] = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=who;sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';asc' : '') . ';show=' . Utils::$context['show_by'], Utils::$context['start'], $totalMembers, (int) Config::$modSettings['defaultMaxMembers']);
 
-		Utils::$context['start'] = $_REQUEST['start'];
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Look for people online, provided they don't mind if you see they are.
 		Utils::$context['members'] = [];
@@ -364,28 +355,6 @@ class Who implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * This method determines the actions of the members passed in URLs.
 	 *
 	 * Adding actions to the Who's Online list:
@@ -402,9 +371,9 @@ class Who implements ActionInterface
 	 *
 	 * @param mixed $urls a single url (string) or an array of arrays, each inner array being (JSON-encoded request data, id_member)
 	 * @param string|bool $preferred_prefix = false
-	 * @return array an array of descriptions if you passed an array, otherwise the string describing their current location.
+	 * @return array|string an array of descriptions if you passed an array, otherwise the string describing their current location.
 	 */
-	public static function determineActions($urls, $preferred_prefix = false)
+	public static function determineActions(mixed $urls, string|bool $preferred_prefix = false): array|string
 	{
 		if (!User::$me->allowedTo('who_view')) {
 			return [];
@@ -456,12 +425,12 @@ class Who implements ActionInterface
 				}
 				// It's the board index!!  It must be!
 				else {
-					$data[$k] = sprintf(Lang::$txt['who_index'], Config::$scripturl, Utils::$context['forum_name_html_safe']);
+					$data[$k] = Lang::getTxt('who_index', ['scripturl' => Config::$scripturl, 'forum_name' => Utils::$context['forum_name_html_safe']]);
 				}
 			}
 			// Probably an error or some goon?
 			elseif ($actions['action'] == '') {
-				$data[$k] = sprintf(Lang::$txt['who_index'], Config::$scripturl, Utils::$context['forum_name_html_safe']);
+				$data[$k] = Lang::getTxt('who_index', ['scripturl' => Config::$scripturl, 'forum_name' => Utils::$context['forum_name_html_safe']]);
 			}
 			// Some other normal action...?
 			else {
@@ -480,11 +449,11 @@ class Who implements ActionInterface
 				}
 				// A subaction anyone can view... if the language string is there, show it.
 				elseif (isset($actions['sa'], Lang::$txt['whoall_' . $actions['action'] . '_' . $actions['sa']])) {
-					$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']]) ? Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']] : sprintf(Lang::$txt['whoall_' . $actions['action'] . '_' . $actions['sa']], Config::$scripturl);
+					$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']]) ? Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']] : Lang::getTxt('whoall_' . $actions['action'] . '_' . $actions['sa'], ['scripturl' => Config::$scripturl]);
 				}
 				// An action any old fellow can look at. (if ['whoall_' . $action] exists, we know everyone can see it.)
 				elseif (isset(Lang::$txt['whoall_' . $actions['action']])) {
-					$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action']]) ? Lang::$txt[$preferred_prefix . $actions['action']] : sprintf(Lang::$txt['whoall_' . $actions['action']], Config::$scripturl);
+					$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action']]) ? Lang::$txt[$preferred_prefix . $actions['action']] : Lang::getTxt('whoall_' . $actions['action'], ['scripturl' => Config::$scripturl]);
 				}
 				// Viewable if and only if they can see the board...
 				elseif (isset(Lang::$txt['whotopic_' . $actions['action']])) {
@@ -514,7 +483,7 @@ class Who implements ActionInterface
 					list($id_topic, $subject) = Db::$db->fetch_row($result);
 					Db::$db->free_result($result);
 
-					$data[$k] = sprintf(Lang::$txt['whopost_' . $actions['action']], $id_topic, $subject, Config::$scripturl);
+					$data[$k] = Lang::getTxt('whopost_' . $actions['action'], ['id_topic' => $id_topic, 'subject' => $subject, 'scripturl' => Config::$scripturl]);
 
 					if (empty($id_topic)) {
 						$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
@@ -522,12 +491,12 @@ class Who implements ActionInterface
 				}
 				// Viewable only by administrators.. (if it starts with whoadmin, it's admin only!)
 				elseif (User::$me->allowedTo('moderate_forum') && isset(Lang::$txt['whoadmin_' . $actions['action']])) {
-					$data[$k] = sprintf(Lang::$txt['whoadmin_' . $actions['action']], Config::$scripturl);
+					$data[$k] = Lang::getTxt('whoadmin_' . $actions['action'], ['scripturl' => Config::$scripturl]);
 				}
 				// Viewable by permission level.
 				elseif (isset(self::$allowedActions[$actions['action']])) {
 					if (User::$me->allowedTo(self::$allowedActions[$actions['action']]) && !empty(Lang::$txt['whoallow_' . $actions['action']])) {
-						$data[$k] = sprintf(Lang::$txt['whoallow_' . $actions['action']], Config::$scripturl);
+						$data[$k] = Lang::getTxt('whoallow_' . $actions['action'], ['scripturl' => Config::$scripturl]);
 					} elseif (in_array('moderate_forum', self::$allowedActions[$actions['action']])) {
 						$data[$k] = Lang::$txt['who_moderate'];
 					} elseif (in_array('admin_forum', self::$allowedActions[$actions['action']])) {
@@ -536,7 +505,7 @@ class Who implements ActionInterface
 						$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
 					}
 				} elseif (!empty($actions['action'])) {
-					$data[$k] = Lang::$txt['who_generic'] . ' ' . $actions['action'];
+					$data[$k] = Lang::getTxt('who_generic', $actions);
 				} else {
 					$data[$k] = ['label' => 'who_unknown', 'class' => 'em'];
 				}
@@ -546,7 +515,7 @@ class Who implements ActionInterface
 				Lang::load('Errors');
 
 				if (isset(Lang::$txt[$actions['error']])) {
-					$error_message = str_replace('"', '&quot;', empty($actions['error_params']) ? Lang::$txt[$actions['error']] : vsprintf(Lang::$txt[$actions['error']], (array) $actions['error_params']));
+					$error_message = str_replace('"', '&quot;', empty($actions['error_params']) ? Lang::$txt[$actions['error']] : Lang::getTxt($actions['error'], (array) $actions['error_params']));
 				} elseif ($actions['error'] == 'guest_login') {
 					$error_message = str_replace('"', '&quot;', Lang::$txt['who_guest_login']);
 				} else {
@@ -608,7 +577,7 @@ class Who implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($result)) {
 				// Show the topic's subject for each of the actions.
 				foreach ($topic_ids[$row['id_topic']] as $k => $session_text) {
-					$data[$k] = sprintf($session_text, $row['id_topic'], Lang::censorText($row['subject']), Config::$scripturl);
+					$data[$k] = Lang::formatText($session_text, ['id_topic' => $row['id_topic'], 'subject' => Lang::censorText($row['subject']), 'scripturl' => Config::$scripturl]);
 				}
 			}
 			Db::$db->free_result($result);
@@ -632,7 +601,7 @@ class Who implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($result)) {
 				// Put the board name into the string for each member...
 				foreach ($board_ids[$row['id_board']] as $k => $session_text) {
-					$data[$k] = sprintf($session_text, $row['id_board'], $row['name'], Config::$scripturl);
+					$data[$k] = Lang::formatText($session_text, ['id_board' => $row['id_board'], 'name' => $row['name'], 'scripturl' => Config::$scripturl]);
 				}
 			}
 			Db::$db->free_result($result);
@@ -662,7 +631,7 @@ class Who implements ActionInterface
 
 				// Set their action on each - session/text to sprintf.
 				foreach ($profile_ids[$row['id_member']] as $k => $session_text) {
-					$data[$k] = sprintf($session_text, $row['id_member'], $row['real_name'], Config::$scripturl);
+					$data[$k] = sprintf($session_text, ['id_member' => $row['id_member'], 'name' => $row['real_name'], 'scripturl' => Config::$scripturl]);
 				}
 			}
 			Db::$db->free_result($result);
@@ -676,25 +645,6 @@ class Who implements ActionInterface
 
 		return $data;
 	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Load the 'Who' template.
-		Theme::loadTemplate('Who');
-		Lang::load('Who');
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Who::exportStatic')) {
-	Who::exportStatic();
 }
 
 ?>

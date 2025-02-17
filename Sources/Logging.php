@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -25,41 +27,9 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Logging
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'writeLog' => 'writeLog',
-			'logAction' => 'logAction',
-			'logActions' => 'logActions',
-			'updateStats' => 'updateStats',
-			'trackStats' => 'trackStats',
-			'trackStatsUsersOnline' => 'trackStatsUsersOnline',
-			'getMembersOnlineStats' => 'getMembersOnlineStats',
-			'displayDebug' => 'displayDebug',
-		],
-	];
-
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Backward compatibility alias for User::$me->logOnline().
-	 */
-	public static function writeLog(bool $force = false): void
-	{
-		if (!isset(User::$me)) {
-			return;
-		}
-
-		User::$me->logOnline($force);
-	}
 
 	/**
 	 * This function logs an action to the database. It is a
@@ -75,7 +45,7 @@ class Logging
 	 *
 	 * @return int The ID of the row containing the logged data
 	 */
-	public static function logAction($action, array $extra = [], $log_type = 'moderate'): int
+	public static function logAction(string $action, array $extra = [], string $log_type = 'moderate'): int
 	{
 		return self::logActions([[
 			'action' => $action,
@@ -118,7 +88,7 @@ class Logging
 
 			if (!is_array($log['extra'])) {
 				Lang::load('Errors');
-				trigger_error(sprintf(Lang::$txt['logActions_not_array'], $log['action']), E_USER_NOTICE);
+				trigger_error(Lang::getTxt('logActions_not_array', [$log['action']]), E_USER_NOTICE);
 			}
 
 			// Pull out the parts we want to store separately, but also make sure that the data is proper
@@ -277,7 +247,7 @@ class Logging
 						FROM {db_prefix}members
 						WHERE is_activated = {int:is_activated}',
 						[
-							'is_activated' => 1,
+							'is_activated' => User::ACTIVATED,
 						],
 					);
 					list($changes['totalMembers'], $changes['latestMember']) = Db::$db->fetch_row($result);
@@ -304,7 +274,7 @@ class Logging
 						FROM {db_prefix}members
 						WHERE is_activated IN ({array_int:activation_status})',
 						[
-							'activation_status' => [3, 4, 5],
+							'activation_status' => [User::UNAPPROVED, User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE, User::NEED_COPPA],
 						],
 					);
 
@@ -356,7 +326,10 @@ class Logging
 				// Insert the new subject.
 				if ($parameter2 !== null) {
 					$parameter1 = (int) $parameter1;
-					$parameter2 = Utils::text2words($parameter2);
+					$parameter2 = array_map(
+						fn($word) => Utils::truncate($word, 20),
+						Utils::extractWords($parameter2, 2),
+					);
 
 					$inserts = [];
 
@@ -458,7 +431,7 @@ class Logging
 
 			default:
 				Lang::load('Errors');
-				trigger_error(sprintf(Lang::$txt['invalid_statistic_type'], $type), E_USER_NOTICE);
+				trigger_error(Lang::getTxt('invalid_statistic_type', [$type]), E_USER_NOTICE);
 		}
 	}
 
@@ -473,7 +446,7 @@ class Logging
 	 * @param array $stats An array of data
 	 * @return bool Whether or not the info was updated successfully
 	 */
-	public static function trackStats($stats = []): bool
+	public static function trackStats(array $stats = []): bool
 	{
 		static $cache_stats = [];
 
@@ -540,7 +513,7 @@ class Logging
 	 *
 	 * @param int $total_users_online The total number of members online
 	 */
-	public static function trackStatsUsersOnline($total_users_online)
+	public static function trackStatsUsersOnline(int $total_users_online): void
 	{
 		$settingsToUpdate = [];
 
@@ -572,8 +545,16 @@ class Logging
 				Db::$db->insert(
 					'ignore',
 					'{db_prefix}log_activity',
-					['date' => 'date', 'most_on' => 'int'],
-					[$date, $total_users_online],
+					[
+						'date' => 'date',
+						'most_on' => 'int',
+					],
+					[
+						[
+							$date,
+							$total_users_online,
+						],
+					],
 					['date'],
 				);
 			}
@@ -612,7 +593,7 @@ class Logging
 	 * @param array $membersOnlineOptions An array of options for the list
 	 * @return array An array of information about the online users
 	 */
-	public static function getMembersOnlineStats($membersOnlineOptions)
+	public static function getMembersOnlineStats(array $membersOnlineOptions): array
 	{
 		// The list can be sorted in several ways.
 		$allowed_sort_options = [
@@ -841,24 +822,66 @@ class Logging
 		$temp = ob_get_contents();
 		ob_clean();
 
-		echo preg_replace('~</body>\s*</html>~', '', $temp), '
-	<div class="smalltext" style="text-align: left; margin: 1ex;">
-		', Lang::$txt['debug_browser'], Utils::$context['browser_body_id'], ' <em>(', implode('</em>, <em>', array_reverse(array_keys(Utils::$context['browser'], true))), ')</em><br>
-		', Lang::$txt['debug_templates'], count(Utils::$context['debug']['templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['templates']), '</em>.<br>
-		', Lang::$txt['debug_subtemplates'], count(Utils::$context['debug']['sub_templates']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['sub_templates']), '</em>.<br>
-		', Lang::$txt['debug_language_files'], count(Utils::$context['debug']['language_files']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['language_files']), '</em>.<br>
-		', Lang::$txt['debug_stylesheets'], count(Utils::$context['debug']['sheets']), ': <em>', implode('</em>, <em>', Utils::$context['debug']['sheets']), '</em>.<br>
-		', Lang::$txt['debug_hooks'], empty(Utils::$context['debug']['hooks']) ? 0 : count(Utils::$context['debug']['hooks']) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']), '</em></span>)', '<br>
-		', (isset(Utils::$context['debug']['instances']) ? (Lang::$txt['debug_instances'] . (empty(Utils::$context['debug']['instances']) ? 0 : count(Utils::$context['debug']['instances'])) . ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_instances\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_instances" style="display: none;"><em>' . implode('</em>, <em>', array_keys(Utils::$context['debug']['instances'])) . '</em></span>)' . '<br>') : ''), '
-		', Lang::$txt['debug_files_included'], count($files), ' - ', round($total_size / 1024), Lang::$txt['debug_kb'], ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_include_info" style="display: none;"><em>', implode('</em>, <em>', $files), '</em></span>)<br>';
+		$debug_info = [
+			Lang::getTxt(
+				'debug_browser',
+				[
+					'browser_body_id' => Utils::$context['browser_body_id'],
+					'additional_info' => '(<em>' . implode('</em>, <em>', array_reverse(array_keys(Utils::$context['browser'], true))) . '</em>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_templates',
+				[
+					'num' => count(Utils::$context['debug']['templates']),
+					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['templates']) . '</em>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_subtemplates',
+				[
+					'num' => count(Utils::$context['debug']['sub_templates']),
+					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['sub_templates']) . '</em>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_language_files',
+				[
+					'num' => count(Utils::$context['debug']['language_files']),
+					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['language_files']) . '</em>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_stylesheets',
+				[
+					'num' => count(Utils::$context['debug']['sheets']),
+					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['sheets']) . '</em>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_hooks',
+				[
+					'num' => count(Utils::$context['debug']['hooks'] ?? []),
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']) . '</em></span>)',
+				],
+			),
+			Lang::getTxt(
+				'debug_files_included',
+				[
+					'num' => count($files),
+					'size' => round($total_size / 1024),
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_include_info" style="display: none;"><em>' . implode('</em>, <em>', $files) . '</em></span>)',
+				],
+			),
+		];
 
 		if (function_exists('memory_get_peak_usage')) {
-			echo Lang::$txt['debug_memory_use'], ceil(memory_get_peak_usage() / 1024), Lang::$txt['debug_kb'], '<br>';
+			$debug_info[] = Lang::getTxt('debug_memory_use', ['size' => ceil(memory_get_peak_usage() / 1024)]);
 		}
 
 		// What tokens are active?
 		if (isset($_SESSION['token'])) {
-			echo Lang::$txt['debug_tokens'] . '<em>' . implode(',</em> <em>', array_keys($_SESSION['token'])), '</em>.<br>';
+			$debug_info[] = Lang::getTxt('debug_tokens', ['additional_info' => '<em>' . implode('</em>, <em>', array_keys($_SESSION['token'])) . '</em>']);
 		}
 
 		if (!empty(CacheApi::$enable) && !empty(CacheApi::$hits)) {
@@ -868,7 +891,7 @@ class Logging
 			$total_s = 0;
 
 			foreach (CacheApi::$hits as $cache_hit) {
-				$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . sprintf(Lang::$txt['debug_cache_seconds_bytes'], Lang::numberFormat($cache_hit['t'], 5), $cache_hit['s']);
+				$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . Lang::getTxt('debug_cache_seconds_bytes', ['seconds' => $cache_hit['t'], 'bytes' => $cache_hit['s']]);
 				$total_t += $cache_hit['t'];
 				$total_s += $cache_hit['s'];
 			}
@@ -881,50 +904,77 @@ class Logging
 				$missed_entries[] = $missed['d'] . ' ' . $missed['k'];
 			}
 
-			echo '
-		', Lang::$txt['debug_cache_hits'], CacheApi::$count_hits, ': ', sprintf(Lang::$txt['debug_cache_seconds_bytes_total'], Lang::numberFormat($total_t, 5), Lang::numberFormat($total_s)), ' (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_cache_info" style="display: none;"><em>', implode('</em>, <em>', $entries), '</em></span>)<br>
-		', Lang::$txt['debug_cache_misses'], CacheApi::$count_misses, ': (<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">', Lang::$txt['debug_show'], '</a><span id="debug_cache_misses_info" style="display: none;"><em>', implode('</em>, <em>', $missed_entries), '</em></span>)<br>';
+			$debug_info[] = Lang::getTxt(
+				'debug_cache_hits',
+				[
+					'num' => CacheApi::$count_hits,
+					'seconds_bytes_total' => Lang::getTxt('debug_cache_seconds_bytes_total', ['seconds' => $total_t, 'bytes' => $total_s]),
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_cache_info" style="display: none;"><em>' . implode('</em>, <em>', $entries) . '</em></span>)',
+				],
+			);
+
+			$debug_info[] = Lang::getTxt(
+				'debug_cache_misses',
+				[
+					'num' => CacheApi::$count_misses,
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_cache_misses_info" style="display: none;"><em>' . implode('</em>, <em>', $missed_entries) . '</em></span>)',
+				],
+			);
 		}
 
+		echo preg_replace('~</body>\s*</html>~', '', $temp), '
+	<div class="smalltext" style="text-align: left; margin: 1ex;">
+		', implode("<br>\n\t\t", $debug_info), '<br>';
+
 		echo '
-		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? sprintf(Lang::$txt['debug_queries_used'], (int) Db::$count) : sprintf(Lang::$txt['debug_queries_used_and_warnings'], (int) Db::$count, $warnings), '</a><br>
+		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? Lang::getTxt('debug_queries_used', [(int) Db::$count]) : Lang::getTxt('debug_queries_used_and_warnings', [(int) Db::$count, $warnings]), '</a><br>
 		<br>';
 
 		if ($_SESSION['view_queries'] == 1 && !empty(Db::$cache)) {
 			foreach (Db::$cache as $q => $query_data) {
-				$is_select = strpos(trim($query_data['q']), 'SELECT') === 0 || preg_match('~^INSERT(?: IGNORE)? INTO \w+(?:\s+\([^)]+\))?\s+SELECT .+$~s', trim($query_data['q'])) != 0 || strpos(trim($query_data['q']), 'WITH') === 0;
-
-				// Temporary tables created in earlier queries are not explainable.
-				if ($is_select) {
-					foreach (['log_topics_unread', 'topics_posted_in', 'tmp_log_search_topics', 'tmp_log_search_messages'] as $tmp) {
-						if (strpos(trim($query_data['q']), $tmp) !== false) {
-							$is_select = false;
-							break;
-						}
-					}
-				}
-				// But actual creation of the temporary tables are.
-				elseif (preg_match('~^CREATE TEMPORARY TABLE .+?SELECT .+$~s', trim($query_data['q'])) != 0) {
-					$is_select = true;
-				}
+				// Fix the indentation....
+				$query_data['q'] = DebugUtils::trimIndent($query_data['q']);
 
 				// Make the filenames look a bit better.
 				if (isset($query_data['f'])) {
-					$query_data['f'] = preg_replace('~^' . preg_quote(Config::$boarddir, '~') . '~', '...', $query_data['f']);
+					$query_data['f'] = preg_replace('/^' . preg_quote(Config::$boarddir, '/') . '/', '...', strtr($query_data['f'], '\\', '/'));
 				}
 
-				echo '
-		<strong>', $is_select ? '<a href="' . Config::$scripturl . '?action=viewquery;qq=' . ($q + 1) . '#qq' . $q . '" target="_blank" rel="noopener" style="text-decoration: none;">' : '', nl2br(str_replace("\t", '&nbsp;&nbsp;&nbsp;', Utils::htmlspecialchars(ltrim($query_data['q'], "\n\r")))) . ($is_select ? '</a></strong>' : '</strong>') . '<br>
-		&nbsp;&nbsp;&nbsp;';
+				$is_select_query = preg_match('/^\s*(?:SELECT|WITH)/i', $query_data['q']) != 0;
+
+				if ($is_select_query) {
+					$select = $query_data['q'];
+				} elseif (preg_match('/^\s*(?:INSERT(?: IGNORE)? INTO \w+|CREATE TEMPORARY TABLE .+?)\KSELECT .+$/is', trim($query_data['q']), $matches) != 0) {
+					$is_select_query = true;
+					$select = $matches[0];
+				}
+
+				// Temporary tables created in earlier queries are not explainable.
+				if ($is_select_query && preg_match('/log_topics_unread|topics_posted_in|tmp_log_search_(?:topics|messages)/i', $select) != 0) {
+					$is_select_query = false;
+				}
+
+				if ($is_select_query) {
+					echo '
+		<a href="' . Config::$scripturl . '?action=viewquery;qq=' . $q . '#qq' . $q . '" target="_blank" rel="noopener"  target="_blank" rel="noopener" style="font-weight: bold; text-decoration: none;">';
+				}
+
+					echo '
+			<pre style="tab-size: 2;">', $query_data['q'], '</pre>';
+
+				if ($is_select_query) {
+					echo '
+		</a>';
+				}
 
 				if (!empty($query_data['f']) && !empty($query_data['l'])) {
-					echo sprintf(Lang::$txt['debug_query_in_line'], $query_data['f'], $query_data['l']);
+					echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']]);
 				}
 
 				if (isset($query_data['s'], $query_data['t'], Lang::$txt['debug_query_which_took_at'])) {
-					echo sprintf(Lang::$txt['debug_query_which_took_at'], round($query_data['t'], 8), round($query_data['s'], 8)) . '<br>';
+					echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)]) . '<br>';
 				} elseif (isset($query_data['t'])) {
-					echo sprintf(Lang::$txt['debug_query_which_took'], round($query_data['t'], 8)) . '<br>';
+					echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)]) . '<br>';
 				}
 
 				echo '
@@ -936,11 +986,6 @@ class Logging
 		<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::$txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>
 	</div></body></html>';
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Logging::exportStatic')) {
-	Logging::exportStatic();
 }
 
 ?>

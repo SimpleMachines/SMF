@@ -5,20 +5,28 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -27,8 +35,11 @@ use SMF\Utils;
 /**
  * Handles liking posts and displaying the list of who liked a post.
  */
-class Like implements ActionInterface
+class Like implements ActionInterface, Routable
 {
+	use ActionRouter;
+	use ActionTrait;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -73,7 +84,7 @@ class Like implements ActionInterface
 	 * Know if a request comes from an ajax call or not.
 	 * Depends on $_GET['js'] been set.
 	 */
-	protected $js = false;
+	protected bool $js = false;
 
 	/**
 	 * @var string
@@ -81,7 +92,7 @@ class Like implements ActionInterface
 	 * If filled, its value will contain a string matching a key
 	 * on a language var Lang::$txt[$this->error]
 	 */
-	protected $error = false;
+	protected ?string $error = null;
 
 	/**
 	 * @var string
@@ -89,36 +100,36 @@ class Like implements ActionInterface
 	 * The unique type to like, needs to be unique and it needs to be no longer
 	 * than 6 characters, only numbers and letters are allowed.
 	 */
-	protected $type = '';
+	protected string $type = '';
 
 	/**
-	 * @var string
+	 * @var string|bool
 	 *
 	 * A generic string used if you need to pass any extra info.
 	 * It gets set via $_GET['extra'].
 	 */
-	protected $extra = false;
+	protected string|bool $extra = false;
 
 	/**
 	 * @var int
 	 *
 	 * A valid ID to identify the content being liked.
 	 */
-	protected $content = 0;
+	protected int $content = 0;
 
 	/**
 	 * @var int
 	 *
 	 * The number of times the content has been liked.
 	 */
-	protected $num_likes = 0;
+	protected int $num_likes = 0;
 
 	/**
 	 * @var bool
 	 *
 	 * If the current user has already liked this content.
 	 */
-	protected $already_liked = false;
+	protected bool $already_liked = false;
 
 	/**
 	 * @var array
@@ -147,7 +158,7 @@ class Like implements ActionInterface
 	 * 'json'        bool        If true, the class will return a JSON object as
 	 *                           a response instead of HTML. Default: false.
 	 */
-	protected $valid_likes = [
+	protected array $valid_likes = [
 		'can_like' => false,
 		'redirect' => '',
 		'type' => '',
@@ -161,7 +172,7 @@ class Like implements ActionInterface
 	 *
 	 * The topic ID. Used for liking messages.
 	 */
-	protected $id_topic = 0;
+	protected int $id_topic = 0;
 
 	/**
 	 * @var bool
@@ -171,29 +182,33 @@ class Like implements ActionInterface
 	 * If this is set to false it indicates the method already implemented
 	 * its own way to send back a response.
 	 */
-	protected $set_response = true;
+	protected bool $set_response = true;
 
 	/**
 	 * @var mixed
 	 *
 	 * Data for the response.
 	 */
-	protected $data;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 */
-	protected static $obj;
+	protected mixed $data;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['js']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['js']) ? new OutputTypes\Json() : new OutputTypes\Html();
+	}
 
 	/**
 	 * The main handler.
@@ -246,35 +261,9 @@ class Like implements ActionInterface
 	 * @return mixed Either return the property or false if there isn't a
 	 *    property with that name.
 	 */
-	public function get($property = ''): mixed
+	public function get(string $property = ''): mixed
 	{
 		return property_exists($this, $property) ? $this->$property : false;
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Wrapper for constructor. Ensures only one instance is created.
-	 *
-	 * @return An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************
@@ -352,7 +341,10 @@ class Like implements ActionInterface
 			);
 
 			if (Db::$db->num_rows($request) == 1) {
-				list($this->id_topic, $topicOwner) = Db::$db->fetch_row($request);
+				// fetch_row always results in an array of strings...
+				$row = Db::$db->fetch_row($request);
+				$this->id_topic = (int) $row[0];
+				$topicOwner = (int) $row[1];
 			}
 			Db::$db->free_result($request);
 
@@ -498,10 +490,12 @@ class Like implements ActionInterface
 				'like_time' => 'int',
 			],
 			[
-				$content,
-				$type,
-				$user['id'],
-				$time,
+				[
+					$content,
+					$type,
+					$user['id'],
+					$time,
+				],
 			],
 			[
 				'content_id',
@@ -524,15 +518,17 @@ class Like implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\Likes_Notify',
-					Utils::jsonEncode([
-						'content_id' => $content,
-						'content_type' => $type,
-						'sender_id' => $user['id'],
-						'sender_name' => $user['name'],
-						'time' => $time,
-					]),
-					0,
+					[
+						'SMF\\Tasks\\Likes_Notify',
+						Utils::jsonEncode([
+							'content_id' => $content,
+							'content_type' => $type,
+							'sender_id' => $user['id'],
+							'sender_name' => $user['name'],
+							'time' => $time,
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);
@@ -560,8 +556,10 @@ class Like implements ActionInterface
 				'like_type' => $this->type,
 			],
 		);
-		list($this->num_likes) = Db::$db->fetch_row($request);
+		list($likes) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
+
+		$this->num_likes = (int) $likes;
 
 		if ($this->subaction == __FUNCTION__) {
 			$this->data = $this->num_likes;
@@ -690,7 +688,7 @@ class Like implements ActionInterface
 		$loaded = User::load($members);
 
 		if (count($loaded) != count($members)) {
-			$members = array_diff($members, array_map(fn ($member) => $member->id, $loaded));
+			$members = array_diff($members, array_map(fn($member) => $member->id, $loaded));
 
 			foreach ($members as $not_loaded) {
 				unset(Utils::$context['likers'][$not_loaded]);
@@ -708,9 +706,7 @@ class Like implements ActionInterface
 			Utils::$context['likers'][$liker]['time'] = !empty($dummy['timestamp']) ? Time::create('@' . $dummy['timestamp'])->format() : '';
 		}
 
-		$count = count(Utils::$context['likers']);
-		$title_base = isset(Lang::$txt['likes_' . $count]) ? 'likes_' . $count : 'likes_n';
-		Utils::$context['page_title'] = strip_tags(sprintf(Lang::$txt[$title_base], '', Lang::numberFormat($count)));
+		Utils::$context['page_title'] = strip_tags(Lang::getTxt('likes_count', ['num' => count(Utils::$context['likers'])]));
 
 		// Lastly, setting up for display.
 		Theme::loadTemplate('Likes');
@@ -813,69 +809,6 @@ class Like implements ActionInterface
 		Utils::serverResponse(Utils::jsonEncode($print));
 
 		die;
-	}
-
-	/***************************
-	 * Mysterious static methods
-	 ***************************/
-
-	/**
-	 * What's this? I dunno, what are you talking about? Never seen this before, nope. No sir.
-	 */
-	public static function BookOfUnknown()
-	{
-		echo '<!DOCTYPE html>
-<html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
-	<head>
-		<title>The Book of Unknown, ', @$_GET['verse'] == '2:18' ? '2:18' : '4:16', '</title>
-		<style>
-			em
-			{
-				font-size: 1.3em;
-				line-height: 0;
-			}
-		</style>
-	</head>
-	<body style="background-color: #444455; color: white; font-style: italic; font-family: serif;">
-		<div style="margin-top: 12%; font-size: 1.1em; line-height: 1.4; text-align: center;">';
-
-		if (!isset($_GET['verse']) || ($_GET['verse'] != '2:18' && $_GET['verse'] != '22:1-2')) {
-			$_GET['verse'] = '4:16';
-		}
-
-		if ($_GET['verse'] == '2:18') {
-			echo '
-			Woe, it was that his name wasn\'t <em>known</em>, that he came in mystery, and was recognized by none.&nbsp;And it became to be in those days <em>something</em>.&nbsp; Something not yet <em id="unknown" name="[Unknown]">unknown</em> to mankind.&nbsp; And thus what was to be known the <em>secret project</em> began into its existence.&nbsp; Henceforth the opposition was only <em>weary</em> and <em>fearful</em>, for now their match was at arms against them.';
-		} elseif ($_GET['verse'] == '4:16') {
-			echo '
-			And it came to pass that the <em>unbelievers</em> dwindled in number and saw rise of many <em>proselytizers</em>, and the opposition found fear in the face of the <em>x</em> and the <em>j</em> while those who stood with the <em>something</em> grew stronger and came together.&nbsp; Still, this was only the <em>beginning</em>, and what lay in the future was <em id="unknown" name="[Unknown]">unknown</em> to all, even those on the right side.';
-		} elseif ($_GET['verse'] == '22:1-2') {
-			echo '
-			<p>Now <em>behold</em>, that which was once the secret project was <em id="unknown" name="[Unknown]">unknown</em> no longer.&nbsp; Alas, it needed more than <em>only one</em>, but yet even thought otherwise.&nbsp; It became that the opposition <em>rumored</em> and lied, but still to no avail.&nbsp; Their match, though not <em>perfect</em>, had them outdone.</p>
-			<p style="margin: 2ex 1ex 0 1ex; font-size: 1.05em; line-height: 1.5; text-align: center;">Let it continue.&nbsp; <em>The end</em>.</p>';
-		}
-
-		echo '
-		</div>
-		<div style="margin-top: 2ex; font-size: 2em; text-align: right;">';
-
-		if ($_GET['verse'] == '2:18') {
-			echo '
-			from <span style="font-family: Georgia, serif;"><strong><a href="', Config::$scripturl, '?action=about:unknown;verse=4:16" style="color: white; text-decoration: none; cursor: text;">The Book of Unknown</a></strong>, 2:18</span>';
-		} elseif ($_GET['verse'] == '4:16') {
-			echo '
-			from <span style="font-family: Georgia, serif;"><strong><a href="', Config::$scripturl, '?action=about:unknown;verse=22:1-2" style="color: white; text-decoration: none; cursor: text;">The Book of Unknown</a></strong>, 4:16</span>';
-		} elseif ($_GET['verse'] == '22:1-2') {
-			echo '
-			from <span style="font-family: Georgia, serif;"><strong>The Book of Unknown</strong>, 22:1-2</span>';
-		}
-
-		echo '
-		</div>
-	</body>
-</html>';
-
-		Utils::obExit(false);
 	}
 }
 

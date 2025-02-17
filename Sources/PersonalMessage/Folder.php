@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\PersonalMessage;
 
@@ -121,7 +123,7 @@ class Folder
 
 		$this->mode = User::$me->pm_prefs & 3;
 
-		$this->per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		$this->per_page = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? (int) Theme::$current->options['messages_per_page'] : (int) Config::$modSettings['defaultMaxMessages'];
 
 		Label::load();
 		$this->current_label_id = isset($_REQUEST['l']) && isset(Label::$loaded[$_REQUEST['l']]) ? (int) $_REQUEST['l'] : -1;
@@ -225,7 +227,7 @@ class Folder
 	 * @param bool $check Checks whether we have some messages to show.
 	 * @return bool|array False on failure, otherwise an array of info
 	 */
-	public function prepareMessageContext($type = 'subject', $check = false)
+	public function prepareMessageContext(string $type = 'subject', bool $check = false): bool|array
 	{
 		static $counter = null;
 		static $temp_pm_selected = null;
@@ -252,6 +254,7 @@ class Folder
 			return PM::$getter->valid();
 		}
 
+		/** @var \SMF\PersonalMessage\PM $message */
 		$message = PM::$getter->current();
 		PM::$getter->next();
 
@@ -310,7 +313,7 @@ class Folder
 	/**
 	 * Constructs page index, sets next/prev/up links, etc.
 	 */
-	protected function setPaginationAndLinks()
+	protected function setPaginationAndLinks(): void
 	{
 		// Make sure the starting location is valid.
 		if (isset($_GET['start']) && $_GET['start'] != 'new') {
@@ -373,9 +376,14 @@ class Folder
 		}
 
 		// Set up the page index.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . Utils::$context['sort_by'] . ($this->descending ? ';desc' : ''), $_GET['start'], $max_messages, $this->per_page);
-
 		Utils::$context['start'] = $_GET['start'];
+
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . Utils::$context['sort_by'] . ($this->descending ? ';desc' : ''), Utils::$context['start'], $max_messages, $this->per_page);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Determine the navigation context.
 		Utils::$context['links'] = [
@@ -400,7 +408,7 @@ class Folder
 		} else {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . ';l=' . $this->current_label_id,
-				'name' => Lang::$txt['pm_current_label'] . ': ' . $this->current_label,
+				'name' => Lang::getTxt('pm_current_label', ['label' => $this->current_label]),
 			];
 		}
 
@@ -477,7 +485,7 @@ class Folder
 		Utils::$context['current_pm'] = $conversation->latest;
 
 		// The templates need some profile data for the senders.
-		User::load(array_map(fn ($pm) => $pm['sender'], $conversation->pms));
+		User::load(array_map(fn($pm) => $pm['sender'], $conversation->pms));
 
 		// Get the PMs.
 		$query_customizations = [

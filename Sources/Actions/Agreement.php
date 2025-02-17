@@ -5,19 +5,24 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Parser;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -27,38 +32,19 @@ use SMF\Utils;
  * and privacy policy, and to ask the user to accept them if they haven't
  * already done so.
  */
-class Agreement implements ActionInterface
+class Agreement implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Agreement',
-			'canRequireAgreement' => 'canRequireAgreement',
-			'canRequirePrivacyPolicy' => 'canRequirePrivacyPolicy',
-		],
-	];
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of the class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static $obj;
+	use ActionRouter;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isAgreementAction(): bool
+	{
+		return true;
+	}
 
 	/**
 	 * Shows the registration agreement and privacy policy.
@@ -99,28 +85,6 @@ class Agreement implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Checks whether this user needs to accept the registration agreement.
 	 *
 	 * @return bool Whether they need to accept the agreement.
@@ -132,7 +96,7 @@ class Agreement implements ActionInterface
 			return false;
 		}
 
-		$agreement_lang = file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt') ? User::$me->language : 'default';
+		$agreement_lang = file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt') ? User::$me->language : 'default';
 
 		if (empty(Config::$modSettings['agreement_updated_' . $agreement_lang])) {
 			return false;
@@ -166,16 +130,44 @@ class Agreement implements ActionInterface
 		return empty(Theme::$current->options['policy_accepted']) || Config::$modSettings['policy_updated_' . $policy_lang] > Theme::$current->options['policy_accepted'];
 	}
 
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route = self::buildActionRoute($params);
+
+		// Rename the action to avoid a naming conflict with the agreement.txt file.
+		$route[0] = 'termsofservice';
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params = array_merge($params, self::parseActionRoute($route));
+
+		// Change 'termsofservice' back to 'agreement'.
+		$params['action'] = 'agreement';
+
+		return $params;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
 
 	/**
 	 * Loads the registration agreement and privacy policy into Utils::$context
@@ -191,15 +183,18 @@ class Agreement implements ActionInterface
 		if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_agreement']) {
 			// Grab the agreement.
 			// Have we got a localized one?
-			if (file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt')) {
-				Utils::$context['agreement_file'] = Config::$boarddir . '/agreement.' . User::$me->language . '.txt';
-			} elseif (file_exists(Config::$boarddir . '/agreement.txt')) {
-				Utils::$context['agreement_file'] = Config::$boarddir . '/agreement.txt';
+			if (file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt')) {
+				Utils::$context['agreement_file'] = Config::$languagesdir . '/' . User::$me->language . '/agreement.txt';
+			} elseif (file_exists(Config::$languagesdir . '/en_US/agreement.txt')) {
+				Utils::$context['agreement_file'] = Config::$languagesdir . '/en_US/agreement.txt';
 			}
 
 			if (!empty(Utils::$context['agreement_file'])) {
-				$cache_id = strtr(Utils::$context['agreement_file'], [Config::$boarddir => '', '.txt' => '', '.' => '_']);
-				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Utils::$context['agreement_file']), true, $cache_id);
+				$cache_id = strtr(Utils::$context['agreement_file'], [Config::$languagesdir => '', '.txt' => '', '.' => '_']);
+				Utils::$context['agreement'] = Parser::transform(
+					string: file_get_contents(Utils::$context['agreement_file']),
+					options: ['cache_id' => $cache_id, 'hard_breaks' => 0],
+				);
 			} elseif (Utils::$context['can_accept_agreement']) {
 				ErrorHandler::fatalLang('error_no_agreement', false);
 			}
@@ -208,9 +203,15 @@ class Agreement implements ActionInterface
 		if (!Utils::$context['accept_doc'] || Utils::$context['can_accept_privacy_policy']) {
 			// Have we got a localized policy?
 			if (!empty(Config::$modSettings['policy_' . User::$me->language])) {
-				Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . User::$me->language]);
+				Utils::$context['privacy_policy'] = Parser::transform(
+					string: Config::$modSettings['policy_' . User::$me->language],
+					options: ['hard_breaks' => 0],
+				);
 			} elseif (!empty(Config::$modSettings['policy_' . Lang::$default])) {
-				Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Lang::$default]);
+				Utils::$context['privacy_policy'] = Parser::transform(
+					string: Config::$modSettings['policy_' . Lang::$default],
+					options: ['hard_breaks' => 0],
+				);
 			}
 			// Then I guess we've got nothing
 			elseif (Utils::$context['can_accept_privacy_policy']) {
@@ -218,11 +219,6 @@ class Agreement implements ActionInterface
 			}
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Agreement::exportStatic')) {
-	Agreement::exportStatic();
 }
 
 ?>

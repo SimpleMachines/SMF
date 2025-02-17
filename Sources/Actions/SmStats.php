@@ -5,52 +5,45 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\Actions\Admin\ACP;
-use SMF\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
+use SMF\Routable;
 use SMF\User;
 
 /**
  * Lets simplemachines.org gather statistics if, and only if, the admin allows.
  */
-class SmStats implements ActionInterface
+class SmStats implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'SMStats',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionRouter;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
 
 	/**
 	 * Sends stats to simplemachines.org when requested, but only if enabled!
@@ -140,48 +133,6 @@ class SmStats implements ActionInterface
 		// Die.
 		die('OK');
 	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SmStats::exportStatic')) {
-	SmStats::exportStatic();
 }
 
 ?>

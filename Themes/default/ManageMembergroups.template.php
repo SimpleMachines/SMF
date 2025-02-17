@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Config;
@@ -40,7 +40,7 @@ function template_new_group()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<label for="group_name_input"><strong>', Lang::$txt['membergroups_group_name'], ':</strong></label>
+						<label for="group_name_input"><strong>', Lang::$txt['membergroups_group_name'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="group_name" id="group_name_input" size="30">
@@ -50,7 +50,7 @@ function template_new_group()
 	{
 		echo '
 					<dt>
-						<label for="group_type"><strong>', Lang::$txt['membergroups_edit_group_type'], '</strong>:</label>
+						<label for="group_type"><strong>', Lang::$txt['membergroups_edit_group_type'], '</strong></label>
 					</dt>
 					<dd>
 						<fieldset id="group_type">
@@ -72,7 +72,7 @@ function template_new_group()
 	if (Utils::$context['post_group'] || Utils::$context['undefined_group'])
 		echo '
 					<dt id="min_posts_text">
-						<strong>', Lang::$txt['membergroups_min_posts'], ':</strong>
+						<strong>', Lang::$txt['membergroups_min_posts'], '</strong>
 					</dt>
 					<dd>
 						<input type="number" name="min_posts" id="min_posts_input" size="5">
@@ -82,14 +82,14 @@ function template_new_group()
 	{
 		echo '
 					<dt>
-						<label for="permission_base"><strong>', Lang::$txt['membergroups_permissions'], ':</strong></label><br>
+						<label for="permission_base"><strong>', Lang::$txt['membergroups_permissions'], '</strong></label><br>
 						<span class="smalltext">', Lang::$txt['membergroups_can_edit_later'], '</span>
 					</dt>
 					<dd>
 						<fieldset id="permission_base">
 							<legend>', Lang::$txt['membergroups_select_permission_type'], '</legend>
 							<input type="radio" name="perm_type" id="perm_type_inherit" value="inherit" checked>
-							<label for="perm_type_inherit">', Lang::$txt['membergroups_new_as_inherit'], ':</label>
+							<label for="perm_type_inherit">', Lang::$txt['membergroups_new_as_inherit'], '</label>
 							<select name="inheritperm" id="inheritperm_select" onclick="document.getElementById(\'perm_type_inherit\').checked = true;">
 								<option value="-1">', Lang::$txt['membergroups_guests'], '</option>
 								<option value="0" selected>', Lang::$txt['membergroups_members'], '</option>';
@@ -102,7 +102,7 @@ function template_new_group()
 							</select>
 							<br>
 							<input type="radio" name="perm_type" id="perm_type_copy" value="copy">
-							<label for="perm_type_copy">', Lang::$txt['membergroups_new_as_copy'], ':</label>
+							<label for="perm_type_copy">', Lang::$txt['membergroups_new_as_copy'], '</label>
 							<select name="copyperm" id="copyperm_select" onclick="document.getElementById(\'perm_type_copy\').checked = true;">
 								<option value="-1">', Lang::$txt['membergroups_guests'], '</option>
 								<option value="0" selected>', Lang::$txt['membergroups_members'], '</option>';
@@ -115,7 +115,7 @@ function template_new_group()
 							</select>
 							<br>
 							<input type="radio" name="perm_type" id="perm_type_predefined" value="predefined">
-							<label for="perm_type_predefined">', Lang::$txt['membergroups_new_as_type'], ':</label>
+							<label for="perm_type_predefined">', Lang::$txt['membergroups_new_as_type'], '</label>
 							<select name="level" id="level_select" onclick="document.getElementById(\'perm_type_predefined\').checked = true;">
 								<option value="restrict">', Lang::$txt['permitgroups_restrict'], '</option>
 								<option value="standard" selected>', Lang::$txt['permitgroups_standard'], '</option>
@@ -128,7 +128,7 @@ function template_new_group()
 
 	echo '
 					<dt>
-						<strong>', Lang::$txt['membergroups_new_board'], ':</strong>', Utils::$context['post_group'] ? '<br>
+						<strong>', Lang::$txt['membergroups_new_board'], '</strong>', Utils::$context['post_group'] ? '<br>
 						<span class="smalltext">' . Lang::$txt['membergroups_new_board_post_groups'] . '</span>' : '', '
 					</dt>
 					<dd>';
@@ -167,13 +167,13 @@ function template_edit_group()
 	echo '
 		<form action="', Config::$scripturl, '?action=admin;area=membergroups;sa=edit;group=', Utils::$context['group']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="groupForm" id="groupForm">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['membergroups_edit_group'], ' - ', Utils::$context['group']['name'], '
+				<h3 class="catbg">', Lang::getTxt('membergroups_edit_group', ['name' => Utils::$context['group']['name']]), '
 				</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<label for="group_name_input"><strong>', Lang::$txt['membergroups_edit_name'], ':</strong></label>
+						<label for="group_name_input"><strong>', Lang::$txt['membergroups_edit_name'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="group_name" id="group_name_input" value="', Utils::$context['group']['editable_name'], '" size="30">
@@ -182,7 +182,7 @@ function template_edit_group()
 	if (Utils::$context['group']['id'] != 3 && Utils::$context['group']['id'] != 4)
 		echo '
 					<dt id="group_desc_text">
-						<label for="group_desc_input"><strong>', Lang::$txt['membergroups_edit_desc'], ':</strong></label>
+						<label for="group_desc_input"><strong>', Lang::$txt['membergroups_edit_desc'], '</strong></label>
 					</dt>
 					<dd>
 						<textarea name="group_desc" id="group_desc_input" rows="4" cols="40">', Utils::$context['group']['description'], '</textarea>
@@ -193,7 +193,7 @@ function template_edit_group()
 	{
 		echo '
 					<dt>
-						<label for="group_type"><strong>', Lang::$txt['membergroups_edit_group_type'], ':</strong></label>
+						<label for="group_type"><strong>', Lang::$txt['membergroups_edit_group_type'], '</strong></label>
 					</dt>
 					<dd>
 						<fieldset id="group_type">
@@ -221,14 +221,14 @@ function template_edit_group()
 	if (Utils::$context['group']['id'] != 3 && Utils::$context['group']['id'] != 4)
 		echo '
 					<dt id="group_moderators_text">
-						<label for="group_moderators"><strong>', Lang::$txt['moderators'], ':</strong></label>
+						<label for="group_moderators"><strong>', Lang::$txt['moderators'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="group_moderators" id="group_moderators" value="', Utils::$context['group']['moderator_list'], '" size="30">
 						<div id="moderator_container"></div>
 					</dd>
 					<dt id="group_hidden_text">
-						<label for="group_hidden_input"><strong>', Lang::$txt['membergroups_edit_hidden'], ':</strong></label>
+						<label for="group_hidden_input"><strong>', Lang::$txt['membergroups_edit_hidden'], '</strong></label>
 					</dt>
 					<dd>
 						<select name="group_hidden" id="group_hidden_input" onchange="if (this.value == 2 &amp;&amp; !confirm(\'', Lang::$txt['membergroups_edit_hidden_warning'], '\')) this.value = 0;">
@@ -243,19 +243,19 @@ function template_edit_group()
 	{
 		echo '
 					<dt id="group_inherit_text">
-						<label for="group_inherit_input"><strong>', Lang::$txt['membergroups_edit_inherit_permissions'], '</strong></label>:<br>
+						<label for="group_inherit_input"><strong>', Lang::$txt['membergroups_edit_inherit_permissions'], '</strong></label><br>
 						<span class="smalltext">', Lang::$txt['membergroups_edit_inherit_permissions_desc'], '</span>
 					</dt>
 					<dd>
 						<select name="group_inherit" id="group_inherit_input">
 							<option value="-2">', Lang::$txt['membergroups_edit_inherit_permissions_no'], '</option>
-							<option value="-1"', Utils::$context['group']['inherited_from'] == -1 ? ' selected' : '', '>', Lang::$txt['membergroups_edit_inherit_permissions_from'], ': ', Lang::$txt['membergroups_guests'], '</option>
-							<option value="0"', Utils::$context['group']['inherited_from'] == 0 ? ' selected' : '', '>', Lang::$txt['membergroups_edit_inherit_permissions_from'], ': ', Lang::$txt['membergroups_members'], '</option>';
+							<option value="-1"', Utils::$context['group']['inherited_from'] == -1 ? ' selected' : '', '>', Lang::getTxt('membergroups_edit_inherit_permissions_from', ['group' => Lang::$txt['membergroups_guests']]), '</option>
+							<option value="0"', Utils::$context['group']['inherited_from'] == 0 ? ' selected' : '', '>', Lang::getTxt('membergroups_edit_inherit_permissions_from', ['group' => Lang::$txt['membergroups_members']]), '</option>';
 
 		// For all the inheritable groups show an option.
 		foreach (Utils::$context['inheritable_groups'] as $id => $group)
 			echo '
-							<option value="', $id, '"', Utils::$context['group']['inherited_from'] == $id ? ' selected' : '', '>', Lang::$txt['membergroups_edit_inherit_permissions_from'], ': ', $group, '</option>';
+							<option value="', $id, '"', Utils::$context['group']['inherited_from'] == $id ? ' selected' : '', '>', Lang::getTxt('membergroups_edit_inherit_permissions_from', ['group' => $group]), '</option>';
 
 		echo '
 						</select>
@@ -267,7 +267,7 @@ function template_edit_group()
 		echo '
 
 					<dt id="min_posts_text">
-						<label for="min_posts_input"><strong>', Lang::$txt['membergroups_min_posts'], ':</strong></label>
+						<label for="min_posts_input"><strong>', Lang::$txt['membergroups_min_posts'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="number" name="min_posts" id="min_posts_input"', Utils::$context['group']['is_post_group'] ? ' value="' . Utils::$context['group']['min_posts'] . '"' : '', ' size="6">
@@ -275,13 +275,13 @@ function template_edit_group()
 
 	echo '
 					<dt>
-						<label for="online_color_input"><strong>', Lang::$txt['membergroups_online_color'], ':</strong></label>
+						<label for="online_color_input"><strong>', Lang::$txt['membergroups_online_color'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="online_color" id="online_color_input" value="', Utils::$context['group']['color'], '" size="20">
 					</dd>
 					<dt>
-						<label for="icon_count_input"><strong>', Lang::$txt['membergroups_icon_count'], ':</strong></label>
+						<label for="icon_count_input"><strong>', Lang::$txt['membergroups_icon_count'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="number" name="icon_count" id="icon_count_input" value="', Utils::$context['group']['icon_count'], '" size="4">
@@ -292,7 +292,7 @@ function template_edit_group()
 	{
 		echo '
 					<dt>
-						<label for="icon_image_input"><strong>', Lang::$txt['membergroups_icon_image'], ':</strong></label><br>
+						<label for="icon_image_input"><strong>', Lang::$txt['membergroups_icon_image'], '</strong></label><br>
 						<span class="smalltext">', Lang::$txt['membergroups_icon_image_note'], '</span>
 						<span class="smalltext">', Lang::$txt['membergroups_icon_image_size'], '</span>
 					</dt>
@@ -318,7 +318,7 @@ function template_edit_group()
 
 	echo '
 					<dt>
-						<label for="max_messages_input"><strong>', Lang::$txt['membergroups_max_messages'], ':</strong></label><br>
+						<label for="max_messages_input"><strong>', Lang::$txt['membergroups_max_messages'], '</strong></label><br>
 						<span class="smalltext">', Lang::$txt['membergroups_max_messages_note'], '</span>
 					</dt>
 					<dd>
@@ -329,7 +329,7 @@ function template_edit_group()
 	if (!empty(Config::$modSettings['tfa_mode']) && Config::$modSettings['tfa_mode'] == 2)
 		echo '
 					<dt>
-						<label for="group_tfa_force_input"><strong>', Lang::$txt['membergroups_tfa_force'], ':</strong></label><br>
+						<label for="group_tfa_force_input"><strong>', Lang::$txt['membergroups_tfa_force'], '</strong></label><br>
 						<span class="smalltext">', Lang::$txt['membergroups_tfa_force_note'], '</span>
 					</dt>
 					<dd>
@@ -340,7 +340,7 @@ function template_edit_group()
 	{
 		echo '
 					<dt>
-						<strong>', Lang::$txt['membergroups_new_board'], ':</strong>', Utils::$context['group']['is_post_group'] ? '<br>
+						<strong>', Lang::$txt['membergroups_new_board'], '</strong>', Utils::$context['group']['is_post_group'] ? '<br>
 						<span class="smalltext">' . Lang::$txt['membergroups_new_board_post_groups'] . '</span>' : '', '
 					</dt>
 					<dd>';
@@ -381,8 +381,8 @@ function template_edit_group()
 	foreach (Utils::$context['group']['moderators'] as $id_member => $member_name)
 		echo '
 				{
-					sItemId: ', Utils::JavaScriptEscape($id_member), ',
-					sItemName: ', Utils::JavaScriptEscape($member_name), '
+					sItemId: ', Utils::escapeJavaScript($id_member), ',
+					sItemName: ', Utils::escapeJavaScript($member_name), '
 				}', $id_member == Utils::$context['group']['last_moderator_id'] ? '' : ',';
 
 	echo '
@@ -465,7 +465,7 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 									<li class="category clear">
 										<strong>', $category['name'], '</strong>
 										<span class="select_all_box floatright">
-											<em class="all_boards_in_cat">', Lang::$txt['all_boards_in_cat'], ': </em>
+											<em class="all_boards_in_cat">', Lang::$txt['all_boards_in_cat'], '</em>
 											<select onchange="select_in_category(', $category['id'], ', this, [', implode(',', array_keys($category['boards'])), ']);">
 												<option>---</option>
 												<option value="allow">', Lang::$txt['board_perms_allow'], '</option>
@@ -479,7 +479,7 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 		{
 			if (empty(Config::$modSettings['deny_boards_access']))
 				echo '
-											<li class="board" style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">
+											<li class="board" style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ' ', $board['child_level'], 'em;">
 												<input type="checkbox" name="boardaccess[', $board['id'], ']" id="brd', $board['id'], '" value="allow"', $board['allow'] ? ' checked' : '', '> <label for="brd', $board['id'], '">', $board['name'], '</label>
 											</li>';
 			else
@@ -512,7 +512,7 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 		echo '
 								<br class="clear">
 								<span class="select_all_box">
-									<em>', Lang::$txt['all'], ': </em>
+									<em>', Lang::$txt['all'], '</em>
 									<input type="radio" name="select_all" id="allow_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'allow\');"> <label for="allow_all">', Lang::$txt['board_perms_allow'], '</label>
 									<input type="radio" name="select_all" id="ignore_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'ignore\');"> <label for="ignore_all">', Lang::$txt['board_perms_ignore'], '</label>
 									<input type="radio" name="select_all" id="deny_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'deny\');"> <label for="deny_all">', Lang::$txt['board_perms_deny'], '</label>
@@ -548,7 +548,7 @@ function template_group_members()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::$txt['name'], ':</strong>
+						<strong>', Lang::$txt['name'], '</strong>
 					</dt>
 					<dd>
 						<span ', Utils::$context['group']['online_color'] ? 'style="color: ' . Utils::$context['group']['online_color'] . ';"' : '', '>', Utils::$context['group']['name'], '</span> ', Utils::$context['group']['icons'], '
@@ -558,7 +558,7 @@ function template_group_members()
 	if (!empty(Utils::$context['group']['description']))
 		echo '
 					<dt>
-						<strong>' . Lang::$txt['membergroups_members_description'] . ':</strong>
+						<strong>' . Lang::$txt['membergroups_members_description'] . '</strong>
 					</dt>
 					<dd>
 						', Utils::$context['group']['description'], '
@@ -566,7 +566,7 @@ function template_group_members()
 
 	echo '
 					<dt>
-						<strong>', Lang::$txt['membergroups_members_top'], ':</strong>
+						<strong>', Lang::$txt['membergroups_members_top'], '</strong>
 					</dt>
 					<dd>
 						', Utils::$context['total_members'], '
@@ -581,7 +581,7 @@ function template_group_members()
 
 		echo '
 					<dt>
-						<strong>', Lang::$txt['membergroups_members_group_moderators'], ':</strong>
+						<strong>', Lang::$txt['membergroups_members_group_moderators'], '</strong>
 					</dt>
 					<dd>
 						', implode(', ', $moderators), '
@@ -611,11 +611,11 @@ function template_group_members()
 	echo '
 						<th class="last_active"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=active', Utils::$context['sort_by'] == 'active' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['membergroups_members_last_active'], Utils::$context['sort_by'] == 'active' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
 						<th class="date_registered"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=registered', Utils::$context['sort_by'] == 'registered' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['date_registered'], Utils::$context['sort_by'] == 'registered' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
-						<th class="posts"', empty(Utils::$context['group']['assignable']) ? ' colspan="2"' : '', '>
+						<th class="posts"', empty(Utils::$context['can_add_remove']) ? ' colspan="2"' : '', '>
 							<a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=posts', Utils::$context['sort_by'] == 'posts' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['posts'], Utils::$context['sort_by'] == 'posts' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 						</th>';
 
-	if (!empty(Utils::$context['group']['assignable']))
+	if (!empty(Utils::$context['can_add_remove']))
 		echo '
 						<th class="quick_moderation" style="width: 4%"><input type="checkbox" onclick="invertAll(this, this.form);"></th>';
 
@@ -645,9 +645,9 @@ function template_group_members()
 		echo '
 						<td class="last_active">', $member['last_login'], '</td>
 						<td class="date_registered">', $member['registered'], '</td>
-						<td class="posts"', empty(Utils::$context['group']['assignable']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
+						<td class="posts"', empty(Utils::$context['can_add_remove']) ? ' colspan="2"' : '', '>', $member['posts'], '</td>';
 
-		if (!empty(Utils::$context['group']['assignable']))
+		if (!empty(Utils::$context['can_add_remove']))
 			echo '
 						<td class="quick_moderation" style="width: 4%"><input type="checkbox" name="rem[]" value="', $member['id'], '" ', (User::$me->id == $member['id'] && Utils::$context['group']['id'] == 1 ? 'onclick="if (this.checked) return confirm(\'' . Lang::$txt['membergroups_members_deadmin_confirm'] . '\')" ' : ''), '/></td>';
 
@@ -659,7 +659,7 @@ function template_group_members()
 				</tbody>
 			</table>';
 
-	if (!empty(Utils::$context['group']['assignable']))
+	if (!empty(Utils::$context['can_add_remove']))
 		echo '
 			<div class="floatright">
 				<input type="submit" name="remove" value="', Lang::$txt['membergroups_members_remove'], '" class="button ">
@@ -671,7 +671,7 @@ function template_group_members()
 			</div>
 			<br>';
 
-	if (!empty(Utils::$context['group']['assignable']))
+	if (!empty(Utils::$context['can_add_remove']))
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['membergroups_members_add_title'], '</h3>
@@ -679,7 +679,7 @@ function template_group_members()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<strong><label for="toAdd">', Lang::$txt['membergroups_members_add_desc'], ':</label></strong>
+						<strong><label for="toAdd">', Lang::$txt['membergroups_members_add_desc'], '</label></strong>
 					</dt>
 					<dd>
 						<input type="text" name="toAdd" id="toAdd" value="">
@@ -694,7 +694,7 @@ function template_group_members()
 			<input type="hidden" name="', Utils::$context['mod-mgm_token_var'], '" value="', Utils::$context['mod-mgm_token'], '">
 		</form>';
 
-	if (!empty(Utils::$context['group']['assignable']))
+	if (!empty(Utils::$context['can_add_remove']))
 		echo '
 	<script>
 		var oAddMemberSuggest = new smc_AutoSuggest({
@@ -732,7 +732,7 @@ function template_group_request_reason()
 	foreach (Utils::$context['group_requests'] as $request)
 		echo '
 					<dt>
-						<strong>', sprintf(Lang::$txt['mc_groupr_reason_desc'], $request['member_link'], $request['group_link']), ':</strong>
+						<strong>', Lang::getTxt('mc_groupr_reason_desc', $request), ':</strong>
 					</dt>
 					<dd>
 						<input type="hidden" name="groupr[]" value="', $request['id'], '">

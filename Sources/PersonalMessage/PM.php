@@ -5,19 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\PersonalMessage;
 
 use SMF\Actions\Notify;
 use SMF\Actions\PersonalMessage as PMAction;
 use SMF\ArrayAccessHelper;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\Autolinker;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -29,6 +30,7 @@ use SMF\Lang;
 use SMF\Mail;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
@@ -41,29 +43,7 @@ use SMF\Verifier;
  */
 class PM implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'old' => 'old',
-			'compose' => 'compose',
-			'compose2' => 'compose2',
-			'send' => 'sendpm',
-			'delete' => 'deleteMessages',
-			'markRead' => 'markMessages',
-			'getLatest' => 'getLatest',
-			'getRecent' => 'getRecent',
-			'countSent' => 'countSent',
-			'reportErrors' => 'messagePostError',
-			'isAccessible' => 'isAccessiblePM',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -139,6 +119,15 @@ class PM implements \ArrayAccess
 	 * Either 'inbox' or 'sent'.
 	 */
 	public string $folder;
+
+	/**
+	 * @var string
+	 *
+	 * The SMF version in which this message was written.
+	 *
+	 * Consists of major and minor version only (e.g. "3.0", not "3.0.1")
+	 */
+	public string $version = '';
 
 	/**
 	 * @var array
@@ -346,7 +335,7 @@ class PM implements \ArrayAccess
 			'id' => $this->id,
 			'member' => $author,
 			'subject' => $this->subject,
-			'body' => BBCodeParser::load()->parse($this->body, true, 'pm' . $this->id),
+			'body' => $this->body ?? '',
 			'time' => Time::create('@' . $this->msgtime)->format(),
 			'timestamp' => $this->msgtime,
 			'counter' => $counter,
@@ -386,7 +375,7 @@ class PM implements \ArrayAccess
 				'delete' => [
 					'label' => Lang::$txt['delete'],
 					'href' => Config::$scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $this->id . '%5D=delete;f=' . $this->folder . ';start=' . Utils::$context['start'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Utils::JavaScriptEscape(Lang::$txt['remove_message_question']) . '"',
+					'javascript' => 'data-confirm="' . Utils::escapeJavaScript(Lang::$txt['remove_message_question']) . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 				],
@@ -405,6 +394,18 @@ class PM implements \ArrayAccess
 				],
 			],
 		];
+
+		// Old SMF versions autolinked during output rather than input,
+		// so maintain expected behaviour for those old messages.
+		if (version_compare($this->version, '3.0', '<')) {
+			$this->formatted['body'] = Autolinker::load(true)->makeLinks($this->formatted['body']);
+		}
+
+		// Run BBC interpreter on the message.
+		$this->formatted['body'] = Parser::transform(
+			string: $this->formatted['body'],
+			options: ['cache_id' => 'pm' . $this->id],
+		);
 
 		return $this->formatted;
 	}
@@ -432,18 +433,18 @@ class PM implements \ArrayAccess
 
 		if ($this->member_from === User::$me->id) {
 			$valid_for['sent'] = !$this->deleted_by_sender;
-		} else {
-			foreach ($this->received as $received) {
-				if ($received->member === User::$me->id) {
-					$valid_for['inbox'] = !$received->deleted;
-					break;
-				}
+		}
+
+		foreach ($this->received as $received) {
+			if ($received->member === User::$me->id) {
+				$valid_for['inbox'] = !$received->deleted;
+				break;
 			}
 		}
 
 		$valid_for['both'] = $valid_for['inbox'] | $valid_for['sent'];
 
-		return $valid_for[$folders];
+		return (bool) $valid_for[$folders];
 	}
 
 	/***********************
@@ -460,7 +461,7 @@ class PM implements \ArrayAccess
 	 * @param array $query_customizations Customizations to the SQL query.
 	 * @return array Instances of this class for the loaded messages.
 	 */
-	public static function load($ids, array $query_customizations = []): array
+	public static function load(int|array $ids, array $query_customizations = []): array
 	{
 		$loaded = [];
 
@@ -482,6 +483,7 @@ class PM implements \ArrayAccess
 		// then return them all at once.
 		self::$keep_all = true;
 
+		/** @var \SMF\PersonalMessage\PM $pm */
 		foreach (self::get($ids, $query_customizations) as $pm) {
 			$loaded[$pm->id] = $pm;
 		}
@@ -500,9 +502,9 @@ class PM implements \ArrayAccess
 	 *
 	 * @param int|array $ids The ID numbers of one or more personal messages.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<array> Iterating over result gives PM instances.
+	 * @return \Generator<array> Iterating over result gives PM instances.
 	 */
-	public static function get($ids, array $query_customizations = [])
+	public static function get(int|array $ids, array $query_customizations = []): \Generator
 	{
 		$ids = (array) $ids;
 
@@ -534,7 +536,7 @@ class PM implements \ArrayAccess
 		// There will never be an ID 0, but SMF doesn't like empty arrays when you tell it to expect an array of integers...
 		$params['ids'] = empty($ids) ? [0] : array_filter(array_unique(array_map('intval', $ids)));
 
-		foreach(self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
+		foreach (self::queryData($selects, $params, $joins, $where, $order, $group, $limit) as $row) {
 			$id = (int) $row['id_pm'];
 
 			yield (new self($id, $row));
@@ -652,9 +654,9 @@ class PM implements \ArrayAccess
 				if (Lang::$default === User::$me->language) {
 					Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 				} else {
-					Lang::load('index', Lang::$default, false);
+					Lang::load('General', Lang::$default, false);
 					Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-					Lang::load('index');
+					Lang::load('General');
 				}
 
 				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
@@ -786,7 +788,7 @@ class PM implements \ArrayAccess
 		if (!empty(Utils::$context['drafts_save'])) {
 			$reply_to = $_REQUEST['pmsg'] ?? ($_REQUEST['quote'] ?? 0);
 
-			DraftPM::showInEditor(User::$me->id, $reply_to);
+			DraftPM::showInEditor(User::$me->id, (int) $reply_to);
 
 			// Has a specific draft has been selected?
 			// Load its data if there is not a message already in the editor.
@@ -972,7 +974,7 @@ class PM implements \ArrayAccess
 					$post_errors = array_diff($post_errors, ['no_to']);
 
 					foreach ($namesNotFound[$recipientType] as $name) {
-						Utils::$context['send_log']['failed'][] = sprintf(Lang::$txt['pm_error_user_not_found'], $name);
+						Utils::$context['send_log']['failed'][] = Lang::getTxt('pm_error_user_not_found', ['member' => $name]);
 					}
 				}
 			}
@@ -988,12 +990,26 @@ class PM implements \ArrayAccess
 		} elseif (!empty(Config::$modSettings['max_messageLength']) && Utils::entityStrlen($_REQUEST['message']) > Config::$modSettings['max_messageLength']) {
 			$post_errors[] = 'long_message';
 		} else {
-			// Preparse the message.
 			$message = $_REQUEST['message'];
+
+			// Check for links with broken URLs.
+			if (
+				!isset($_POST['save_draft'])
+				&& $message !== Autolinker::load()->fixUrlsInBBC($message)
+			) {
+				$post_errors[] = 'links_malformed_review';
+			}
+
+			// Preparse the message.
 			Msg::preparsecode($message);
 
 			// Make sure there's still some content left without the tags.
-			if (Utils::htmlTrim(strip_tags(BBCodeParser::load()->parse(Utils::htmlspecialchars($message, ENT_QUOTES), false), '<img>')) === '' && (!User::$me->allowedTo('bbc_html') || strpos($message, '[html]') === false)) {
+			$temp = Parser::transform(
+				string: Utils::htmlspecialchars($message, ENT_QUOTES),
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+			);
+
+			if (Utils::htmlTrim(strip_tags($temp, '<img>')) === '' && (!User::$me->allowedTo('bbc_html') || !str_contains($message, '[html]'))) {
 				$post_errors[] = 'no_message';
 			}
 		}
@@ -1021,14 +1037,14 @@ class PM implements \ArrayAccess
 			Msg::preparsecode(Utils::$context['preview_message'], true);
 
 			// Parse out the BBC if it is enabled.
-			Utils::$context['preview_message'] = BBCodeParser::load()->parse(Utils::$context['preview_message']);
+			Utils::$context['preview_message'] = Parser::transform(Utils::$context['preview_message']);
 
 			// Censor, as always.
 			Lang::censorText(Utils::$context['preview_subject']);
 			Lang::censorText(Utils::$context['preview_message']);
 
 			// Set a descriptive title.
-			Utils::$context['page_title'] = Lang::$txt['preview'] . ' - ' . Utils::$context['preview_subject'];
+			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => Utils::$context['preview_subject']]);
 
 			// Pretend they messed up but don't ignore if they really did :P.
 			self::reportErrors($post_errors, $namedRecipientList, $recipientList);
@@ -1043,7 +1059,7 @@ class PM implements \ArrayAccess
 				$post_errors[] = 'bad_' . $recipientType;
 
 				foreach ($names as $name) {
-					Utils::$context['send_log']['failed'][] = sprintf(Lang::$txt['pm_error_user_not_found'], $name);
+					Utils::$context['send_log']['failed'][] = Lang::getTxt('pm_error_user_not_found', ['member' => $name]);
 				}
 			}
 
@@ -1066,7 +1082,7 @@ class PM implements \ArrayAccess
 		if (!empty(Config::$modSettings['max_pm_recipients']) && count($recipientList['to']) + count($recipientList['bcc']) > Config::$modSettings['max_pm_recipients'] && !User::$me->allowedTo(['moderate_forum', 'send_mail', 'admin_forum'])) {
 			Utils::$context['send_log'] = [
 				'sent' => [],
-				'failed' => [sprintf(Lang::$txt['pm_too_many_recipients'], Config::$modSettings['max_pm_recipients'])],
+				'failed' => [Lang::getTxt('pm_too_many_recipients', [Config::$modSettings['max_pm_recipients']])],
 			];
 
 			self::reportErrors($post_errors, $namedRecipientList, $recipientList);
@@ -1115,7 +1131,7 @@ class PM implements \ArrayAccess
 			return false;
 		}
 
-		// If we had a PM draft for this one, then its time to remove it since it was just sent
+		// If we had a PM draft for this one, then it's time to remove it since it was just sent
 		if (Utils::$context['drafts_save'] && !empty($_POST['id_draft'])) {
 			DraftPM::delete($_POST['id_draft']);
 		}
@@ -1131,11 +1147,11 @@ class PM implements \ArrayAccess
 	 * @param string $subject Should have no slashes and no html entities
 	 * @param string $message Should have no slashes and no html entities
 	 * @param bool $store_outbox Whether to store it in the sender's outbox
-	 * @param array $from An array with the id, name, and username of the member.
+	 * @param ?array $from An array with the id, name, and username of the member.
 	 * @param int $pm_head The ID of the chain being replied to - if any.
 	 * @return array An array with log entries telling how many recipients were successful and which recipients it failed to send to.
 	 */
-	public static function send($recipients, $subject, $message, $store_outbox = false, $from = null, $pm_head = 0): array
+	public static function send(array $recipients, string $subject, string $message, bool $store_outbox = false, ?array $from = null, int $pm_head = 0): array
 	{
 		// Make sure the PM language file is loaded, we might need something out of it.
 		Lang::load('PersonalMessage');
@@ -1214,7 +1230,7 @@ class PM implements \ArrayAccess
 					if (!empty($usernames[$member])) {
 						$recipients[$rec_type][$id] = $usernames[$member];
 					} else {
-						$log['failed'][$id] = sprintf(Lang::$txt['pm_error_user_not_found'], $recipients[$rec_type][$id]);
+						$log['failed'][$id] = Lang::getTxt('pm_error_user_not_found', ['member' => $recipients[$rec_type][$id]]);
 
 						unset($recipients[$rec_type][$id]);
 					}
@@ -1264,11 +1280,11 @@ class PM implements \ArrayAccess
 					)
 					|| (
 						$criterium['t'] == 'sub'
-						&& strpos($subject, $criterium['v']) !== false
+						&& str_contains($subject, $criterium['v'])
 					)
 					|| (
 						$criterium['t'] == 'msg'
-						&& strpos($message, $criterium['v']) !== false
+						&& str_contains($message, $criterium['v'])
 					)
 				) {
 					$delete = true;
@@ -1358,7 +1374,7 @@ class PM implements \ArrayAccess
 				}
 
 				if ($message_limit > 0 && $message_limit <= $row['instant_messages']) {
-					$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_data_limit_reached'], $row['real_name']);
+					$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_data_limit_reached', ['member' => $row['real_name']]);
 
 					unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1367,7 +1383,7 @@ class PM implements \ArrayAccess
 
 				// Do they have any of the allowed groups?
 				if (count(array_intersect($pmReadGroups['allowed'], $groups)) == 0 || count(array_intersect($pmReadGroups['denied'], $groups)) != 0) {
-					$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_user_cannot_read'], $row['real_name']);
+					$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']]);
 
 					unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1377,16 +1393,22 @@ class PM implements \ArrayAccess
 
 			// Note that PostgreSQL can return a lowercase t/f for FIND_IN_SET
 			if (!empty($row['ignored']) && $row['ignored'] != 'f' && $row['id_member'] != $from['id']) {
-				$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_ignored_by_user'], $row['real_name']);
+				$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_ignored_by_user', $row['real_name']);
 
 				unset($all_to[array_search($row['id_member'], $all_to)]);
 
 				continue;
 			}
 
-			// If the receiving account is banned (>=10) or pending deletion (4), refuse to send the PM.
-			if ($row['is_activated'] >= 10 || ($row['is_activated'] == 4 && !User::$me->is_admin)) {
-				$log['failed'][$row['id_member']] = sprintf(Lang::$txt['pm_error_user_cannot_read'], $row['real_name']);
+			// If the receiving account is banned or pending deletion, refuse to send the PM.
+			if (
+				$row['is_activated'] >= User::BANNED
+				|| (
+					in_array((int) $row['is_activated'], [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])
+					&& !User::$me->allowedTo('moderate_forum')
+				)
+			) {
+				$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']]);
 
 				unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1396,7 +1418,7 @@ class PM implements \ArrayAccess
 			// Send a notification, if enabled - taking the buddy list into account.
 			if (
 				!empty($row['email_address'])
-				&& $row['is_activated'] == 1
+				&& $row['is_activated'] == User::ACTIVATED
 				&& (
 					(
 						empty($pm_head)
@@ -1421,7 +1443,7 @@ class PM implements \ArrayAccess
 				$notifications[empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']][] = $row['email_address'];
 			}
 
-			$log['sent'][$row['id_member']] = sprintf(Lang::$txt['pm_successfully_sent'] ?? '', $row['real_name']);
+			$log['sent'][$row['id_member']] = Lang::getTxt('pm_successfully_sent', ['member' => $row['real_name']]);
 		}
 		Db::$db->free_result($request);
 
@@ -1435,12 +1457,26 @@ class PM implements \ArrayAccess
 			'',
 			'{db_prefix}personal_messages',
 			[
-				'id_pm_head' => 'int', 'id_member_from' => 'int', 'deleted_by_sender' => 'int',
-				'from_name' => 'string-255', 'msgtime' => 'int', 'subject' => 'string-255', 'body' => 'string-65534',
+				'id_pm_head' => 'int',
+				'id_member_from' => 'int',
+				'deleted_by_sender' => 'int',
+				'from_name' => 'string-255',
+				'msgtime' => 'int',
+				'subject' => 'string-255',
+				'body' => 'string-65534',
+				'version' => 'string-5',
 			],
 			[
-				$pm_head, $from['id'], ($store_outbox ? 0 : 1),
-				$from['username'], time(), $htmlsubject, $htmlmessage,
+				[
+					$pm_head,
+					$from['id'],
+					($store_outbox ? 0 : 1),
+					$from['username'],
+					time(),
+					$htmlsubject,
+					$htmlmessage,
+					preg_replace('/(\d+\.\d+).*/', '$1', SMF_VERSION),
+				],
 			],
 			['id_pm'],
 			1,
@@ -1517,7 +1553,7 @@ class PM implements \ArrayAccess
 		$replacements = [
 			'SUBJECT' => $subject,
 			'MESSAGE' => $message,
-			'SENDER' => Utils::htmlspecialcharsDecode($from['name']),
+			'SENDER' => Utils::htmlspecialcharsDecode((string) $from['name']),
 			'READLINK' => Config::$scripturl . '?action=pm;pmsg=' . $id_pm . '#msg' . $id_pm,
 			'REPLYLINK' => Config::$scripturl . '?action=pm;sa=send;f=inbox;pmsg=' . $id_pm . ';quote;u=' . $from['id'],
 			'TOLIST' => implode(', ', $to_names),
@@ -1531,7 +1567,7 @@ class PM implements \ArrayAccess
 			// Censor and parse BBC in the receiver's language. Only do each language once.
 			if (empty($notification_texts[$lang])) {
 				if ($lang != User::$me->language) {
-					Lang::load('index+Modifications', $lang, false);
+					Lang::load('General+Modifications+ThemeStrings', $lang, false);
 				}
 
 				$notification_texts[$lang]['subject'] = $subject;
@@ -1543,13 +1579,28 @@ class PM implements \ArrayAccess
 
 					Lang::censorText($notification_texts[$lang]['body']);
 
-					$notification_texts[$lang]['body'] = trim(Utils::htmlspecialcharsDecode(strip_tags(strtr(BBCodeParser::load()->parse(Utils::htmlspecialchars($notification_texts[$lang]['body']), false), ['<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']']))));
+					$notification_texts[$lang]['body'] = Parser::transform(
+						string: Utils::htmlspecialchars($notification_texts[$lang]['body']),
+						input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+						output_type: Parser::OUTPUT_TEXT,
+						options: [
+							'text_replacements' => [
+								'<br>' => "\n",
+								'</div>' => "\n",
+								'</li>' => "\n",
+								'&#91;' => '[',
+								'&#93;' => ']',
+							],
+						],
+					);
+
+					$notification_texts[$lang]['body'] = trim(Utils::htmlspecialcharsDecode($notification_texts[$lang]['body']));
 				} else {
 					$notification_texts[$lang]['body'] = '';
 				}
 
 				if ($lang != User::$me->language) {
-					Lang::load('index+Modifications', User::$me->language, false);
+					Lang::load('General+Modifications+ThemeStrings', User::$me->language, false);
 				}
 			}
 
@@ -1566,7 +1617,7 @@ class PM implements \ArrayAccess
 		IntegrationHook::call('integrate_personal_message_after', [&$id_pm, &$log, &$recipients, &$from, &$subject, &$message]);
 
 		// Back to what we were on before!
-		Lang::load('index+PersonalMessage');
+		Lang::load('General+PersonalMessage');
 
 		// Add one to their unread and read message counts.
 		foreach ($all_to as $k => $id) {
@@ -1589,7 +1640,7 @@ class PM implements \ArrayAccess
 	 * @param string|null $folder Which "folder" to delete PMs from - 'sent' to delete them from the outbox, null or anything else to delete from the inbox
 	 * @param array|int|null $owner An array of IDs of users whose PMs are being deleted, the ID of a single user or null to use the current user's ID
 	 */
-	public static function delete($personal_messages, $folder = null, $owner = null): void
+	public static function delete(int|array|null $personal_messages, ?string $folder = null, array|int|null $owner = null): void
 	{
 		if ($owner === null) {
 			$owner = [User::$me->id];
@@ -1649,9 +1700,9 @@ class PM implements \ArrayAccess
 			// ...And update the statistics accordingly - now including unread messages!.
 			while ($row = Db::$db->fetch_assoc($request)) {
 				if ($row['is_read']) {
-					User::updateMemberData($row['id_member'], ['instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages']]);
+					User::updateMemberData((int) $row['id_member'], ['instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages']]);
 				} else {
-					User::updateMemberData($row['id_member'], ['instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages'], 'unread_messages' => $where == '' ? 0 : 'unread_messages - ' . $row['num_deleted_messages']]);
+					User::updateMemberData((int) $row['id_member'], ['instant_messages' => $where == '' ? 0 : 'instant_messages - ' . $row['num_deleted_messages'], 'unread_messages' => $where == '' ? 0 : 'unread_messages - ' . $row['num_deleted_messages']]);
 				}
 
 				// If this is the current member we need to make their message count correct.
@@ -1776,7 +1827,7 @@ class PM implements \ArrayAccess
 	 * @param int|null $label The ID of a label. If set, only messages with this label will be marked.
 	 * @param int|null $owner If owner is set, marks messages owned by that member id.
 	 */
-	public static function markRead($personal_messages = null, $label = null, $owner = null): void
+	public static function markRead(?array $personal_messages = null, ?int $label = null, ?int $owner = null): void
 	{
 		if ($owner === null) {
 			$owner = User::$me->id;
@@ -1886,7 +1937,7 @@ class PM implements \ArrayAccess
 
 			// Need to store all this.
 			CacheApi::put('labelCounts:' . $owner, Utils::$context['labels'], 720);
-			User::updateMemberData($owner, ['unread_messages' => $total_unread]);
+			User::updateMemberData((int) $owner, ['unread_messages' => $total_unread]);
 
 			// If it was for the current member, reflect this in User::$me as well.
 			if ($owner == User::$me->id) {
@@ -1904,7 +1955,7 @@ class PM implements \ArrayAccess
 	{
 		$latest = self::getRecent('pm.id_pm', true, 1);
 
-		return reset($latest);
+		return (int) reset($latest);
 	}
 
 	/**
@@ -1954,7 +2005,7 @@ class PM implements \ArrayAccess
 		}
 		Db::$db->free_result($request);
 
-		return self::$recent[$paramskey];
+		return self::$recent[$paramskey] ?? [];
 	}
 
 	/**
@@ -2085,6 +2136,11 @@ class PM implements \ArrayAccess
 			Lang::censorText($row_quoted['subject']);
 			Lang::censorText($row_quoted['body']);
 
+			$row_quoted['body'] = Parser::transform(
+				string: $row_quoted['body'],
+				options: ['cache_id' => 'pm' . $row_quoted['id_pm']],
+			);
+
 			Utils::$context['quoted_message'] = [
 				'id' => $row_quoted['id_pm'],
 				'pm_head' => $row_quoted['pm_head'],
@@ -2098,7 +2154,7 @@ class PM implements \ArrayAccess
 				'subject' => $row_quoted['subject'],
 				'time' => Time::create('@' . $row_quoted['msgtime'])->format(),
 				'timestamp' => $row_quoted['msgtime'],
-				'body' => BBCodeParser::load()->parse($row_quoted['body'], true, 'pm' . $row_quoted['id_pm']),
+				'body' => $row_quoted['body'],
 			];
 		}
 
@@ -2124,7 +2180,7 @@ class PM implements \ArrayAccess
 
 			if (isset(Lang::$txt['error_' . $error_type])) {
 				if ($error_type == 'long_message') {
-					Lang::$txt['error_' . $error_type] = sprintf(Lang::$txt['error_' . $error_type], Config::$modSettings['max_messageLength']);
+					Lang::$txt['error_' . $error_type] = Lang::getTxt('error_' . $error_type, [Config::$modSettings['max_messageLength']]);
 				}
 
 				Utils::$context['post_error']['messages'][] = Lang::$txt['error_' . $error_type];
@@ -2168,32 +2224,6 @@ class PM implements \ArrayAccess
 		Security::checkSubmitOnce('register');
 	}
 
-	/**
-	 * Backward compatibilty wrapper around the non-static canAccess() method.
-	 *
-	 * Check if the PM is available to the current user.
-	 *
-	 * @param int $pmID The ID of the PM
-	 * @param string $folders Which folders this is valid for - can be 'inbox', 'outbox' or 'in_or_outbox'
-	 * @return bool Whether the PM is accessible in that folder for the current user
-	 */
-	public static function isAccessible($pmID, $folders = 'both'): bool
-	{
-		if ($folders === 'in_or_outbox') {
-			$folders = 'both';
-		}
-
-		if ($folders === 'outbox') {
-			$folders = 'sent';
-		}
-
-		if (!isset(self::$loaded[$pmID])) {
-			self::load($pmID);
-		}
-
-		return self::$loaded[$pmID]->canAccess($folders);
-	}
-
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -2216,9 +2246,9 @@ class PM implements \ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
+	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		self::$messages_request = Db::$db->query(
 			'',
@@ -2238,11 +2268,6 @@ class PM implements \ArrayAccess
 		}
 		Db::$db->free_result(self::$messages_request);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\PM::exportStatic')) {
-	PM::exportStatic();
 }
 
 ?>

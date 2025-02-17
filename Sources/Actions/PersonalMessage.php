@@ -5,15 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -22,6 +26,8 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\PersonalMessage\{
 	Conversation,
 	DraftPM,
@@ -32,9 +38,9 @@ use SMF\PersonalMessage\{
 	Received,
 	Rule,
 	Search,
-	SearchResult,
 };
 use SMF\Profile;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -44,34 +50,11 @@ use SMF\Utils;
  * messages. It allows viewing, sending, deleting, and marking personal
  * messages.
  */
-class PersonalMessage implements ActionInterface
+class PersonalMessage implements ActionInterface, Routable
 {
+	use ActionRouter;
+	use ActionTrait;
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'MessageMain',
-			'messageFolder' => 'MessageFolder',
-			'messagePopup' => 'MessagePopup',
-			'manageLabels' => 'ManageLabels',
-			'manageRules' => 'ManageRules',
-			'messageActionsApply' => 'MessageActionsApply',
-			'messagePrune' => 'MessagePrune',
-			'messageKillAll' => 'MessageKillAll',
-			'reportMessage' => 'ReportMessage',
-			'messageSearch' => 'MessageSearch',
-			'messageSearch2' => 'MessageSearch2',
-			'messagePost' => 'MessagePost',
-			'messagePost2' => 'MessagePost2',
-			'messageSettings' => 'MessageSettings',
-			'messageDrafts' => 'MessageDrafts',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -109,7 +92,7 @@ class PersonalMessage implements ActionInterface
 	 * be replaced at runtime with the real values of Config::$scripturl and
 	 * Config::$boardurl.
 	 *
-	 * In this default definintion, all parts of the menu are set as enabled.
+	 * In this default definition, all parts of the menu are set as enabled.
 	 * At runtime, however, various parts may be turned on or off.
 	 */
 	public array $pm_areas = [
@@ -118,7 +101,7 @@ class PersonalMessage implements ActionInterface
 			'areas' => [
 				'inbox' => [
 					'label' => 'inbox',
-					'custom_url' => '{scripturl}?action=pm',
+					'custom_url' => '{scripturl}?action=pm;f=inbox',
 					'amt' => 0,
 				],
 				'send' => [
@@ -134,7 +117,7 @@ class PersonalMessage implements ActionInterface
 				],
 				'drafts' => [
 					'label' => 'drafts_show',
-					'custom_url' => '{scripturl}?action=pm;sa=showpmdrafts',
+					'custom_url' => '{scripturl}?action=pm;f=drafts',
 					'permission' => 'pm_draft',
 					'enabled' => true,
 					'amt' => 0,
@@ -197,7 +180,7 @@ class PersonalMessage implements ActionInterface
 	/**
 	 * @var int
 	 *
-	 * The display mode we are acutally using.
+	 * The display mode we are actually using.
 	 */
 	public int $mode = self::VIEW_CONV;
 
@@ -279,27 +262,74 @@ class PersonalMessage implements ActionInterface
 	 */
 	protected string $current_label_redirect;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return isset($_GET['sa']) && $_GET['sa'] != 'popup';
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_GET['sa']) && $_GET['sa'] == 'popup' || isset($_REQUEST['xml']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return isset($_GET['sa']) && $_GET['sa'] == 'popup';
+	}
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
 	 */
 	public function execute(): void
 	{
+		Lang::load('PersonalMessage+Drafts');
+		Theme::loadTemplate(isset($_REQUEST['xml']) ? 'Xml' : 'PersonalMessage');
+
+		$this->buildLimitBar();
+
+		Label::load();
+
+		// Some stuff for the labels...
+		$this->current_label_id = isset($_REQUEST['l']) && isset(Label::$loaded[$_REQUEST['l']]) ? (int) $_REQUEST['l'] : -1;
+		$this->current_label = Label::$loaded[$this->current_label_id]['name'];
+
+		// This is convenient.  Do you know how annoying it is to do this every time?!
+		$this->current_label_redirect = 'action=pm;f=' . $this->folder . (isset($_GET['start']) ? ';start=' . $_GET['start'] : '') . (isset($_REQUEST['l']) ? ';l=' . $_REQUEST['l'] : '');
+
+		// A previous message was sent successfully? Show a small indication.
+		if (isset($_GET['done']) && ($_GET['done'] == 'sent')) {
+			Utils::$context['pm_sent'] = true;
+		}
+
+		// Some context stuff for the templates.
+		Utils::$context['display_mode'] = &$this->mode;
+		Utils::$context['folder'] = &$this->folder;
+		Utils::$context['currently_using_labels'] = !empty(Label::$loaded);
+		Utils::$context['current_label_id'] = &$this->current_label_id;
+		Utils::$context['current_label'] = &$this->current_label;
+		Utils::$context['can_issue_warning'] = User::$me->allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1;
+		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
+
+		// Are PM drafts enabled?
+		Utils::$context['drafts_type'] = 'pm';
+		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_pm_enabled']) && User::$me->allowedTo('pm_draft');
+		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
+
+		// Build the linktree for all the actions...
+		Utils::$context['linktree'][] = [
+			'url' => Config::$scripturl . '?action=pm',
+			'name' => Lang::$txt['personal_messages'],
+		];
+
 		// No guests!
 		User::$me->kickIfGuest();
 
@@ -420,7 +450,7 @@ class PersonalMessage implements ActionInterface
 
 		// Don't do labels unless we're in the inbox.
 		if ($this->folder !== 'inbox') {
-			$_REQUEST['pm_actions'] = array_filter($_REQUEST['pm_actions'], fn ($action) => $action === 'delete');
+			$_REQUEST['pm_actions'] = array_filter($_REQUEST['pm_actions'], fn($action) => $action === 'delete');
 		}
 
 		// If we are in conversation, we may need to apply this to every PM in the conversation.
@@ -447,17 +477,17 @@ class PersonalMessage implements ActionInterface
 				$to_delete[] = (int) $pm;
 			}
 			// Adding a label.
-			elseif (substr($action, 0, 4) == 'add_') {
+			elseif (str_starts_with($action, 'add_')) {
 				$type = 'add';
 				$action = substr($action, 4);
 			}
 			// Removing a label.
-			elseif (substr($action, 0, 4) == 'rem_') {
+			elseif (str_starts_with($action, 'rem_')) {
 				$type = 'rem';
 				$action = substr($action, 4);
 			}
 
-			if (in_array($type, ['add', 'rem']) && ($action == '-1' || (int) $action > 0)) {
+			if (isset($type) && in_array($type, ['add', 'rem']) && ($action == '-1' || (int) $action > 0)) {
 				$to_label[(int) $pm] = (int) $action;
 				$label_type[(int) $pm] = $type;
 			}
@@ -584,7 +614,7 @@ class PersonalMessage implements ActionInterface
 			User::$me->checkSession();
 
 			// Remove the line breaks...
-			$body = preg_replace('~<br ?/?' . '>~i', "\n", $this->body);
+			$body = preg_replace('~<br ?/?' . '>~i', "\n", $pm->body);
 
 			// Get any other recipients of the email.
 			$recipients = [];
@@ -604,14 +634,14 @@ class PersonalMessage implements ActionInterface
 			}
 
 			if ($hidden_recipients) {
-				$recipients[] = sprintf(Lang::$txt['pm_report_pm_hidden'], $hidden_recipients);
+				$recipients[] = Lang::getTxt('pm_report_pm_hidden', [$hidden_recipients]);
 			}
 
 			// Prepare the message storage array.
 			$messagesToSend = [];
 
 			// Now let's get out and loop through the admins.
-			$memberFromName = Utils::htmlspecialcharsDecode($this->from_name);
+			$memberFromName = Utils::htmlspecialcharsDecode($pm->from_name);
 			$request = Db::$db->query(
 				'',
 				'SELECT id_member, real_name, lngfile
@@ -644,14 +674,14 @@ class PersonalMessage implements ActionInterface
 					$report_body .= "\n" . '[b]' . $_POST['reason'] . '[/b]' . "\n\n";
 
 					if (!empty($recipients)) {
-						$report_body .= Lang::$txt['pm_report_pm_other_recipients'] . ' ' . implode(', ', $recipients) . "\n\n";
+						$report_body .= Lang::getTxt('pm_report_pm_other_recipients', ['recipients' => Lang::sentenceList($recipients)]) . "\n\n";
 					}
 
-					$report_body .= Lang::$txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($this->member_from) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $this->member_from . ' date=' . $this->msgtime) . ']' . "\n" . Utils::htmlspecialcharsDecode($body) . '[/quote]';
+					$report_body .= Lang::$txt['pm_report_pm_unedited_below'] . "\n" . '[quote author=' . (empty($pm->member_from) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $pm->member_from . ' date=' . $pm->msgtime) . ']' . "\n" . Utils::htmlspecialcharsDecode($body) . '[/quote]';
 
 					// Plonk it in the array ;)
 					$messagesToSend[$cur_language] = [
-						'subject' => (Utils::entityStrpos($this->subject, Lang::$txt['pm_report_pm_subject']) === false ? Lang::$txt['pm_report_pm_subject'] : '') . Utils::htmlspecialcharsDecode($this->subject),
+						'subject' => (Utils::entityStrpos($pm->subject, Lang::$txt['pm_report_pm_subject']) === false ? Lang::$txt['pm_report_pm_subject'] : '') . Utils::htmlspecialcharsDecode($pm->subject),
 						'body' => $report_body,
 						'recipients' => [
 							'to' => [],
@@ -739,6 +769,7 @@ class PersonalMessage implements ActionInterface
 		if (isset($_REQUEST['save'])) {
 			User::$me->checkSession();
 			Profile::$member->save();
+			Utils::redirectexit('action=pm;sa=settings');
 		}
 
 		Profile::$member->setupContext(['pm_prefs']);
@@ -749,165 +780,58 @@ class PersonalMessage implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @return object An instance of this class.
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function load(): object
+	public static function buildRoute(array $params): array
 	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
+		$route = self::buildActionRoute($params);
+
+		if (isset($params['f'])) {
+			$route[] = 'folders';
+			$route[] = $params['f'];
+			unset($params['f']);
 		}
 
-		return self::$obj;
+		if (isset($params['l'])) {
+			$route[] = 'labels';
+			$route[] = $params['l'];
+			unset($params['l']);
+		}
+
+		return ['route' => $route, 'params' => $params];
 	}
 
 	/**
-	 * Convenience method to load() and execute() an instance of this class.
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
 	 */
-	public static function call(): void
+	public static function parseRoute(array $route, array $params = []): array
 	{
-		self::load()->execute();
-	}
+		$params['action'] = array_shift($route);
 
-	/**
-	 * Backward compatibility wrapper for the show sub-action.
-	 */
-	public static function messageFolder(): void
-	{
-		self::load();
-		self::$obj->subaction = 'show';
-		self::$obj->execute();
-	}
+		if (!empty($route) && isset(self::$subactions[reset($route)])) {
+			$params['sa'] = array_shift($route);
+		}
 
-	/**
-	 * Backward compatibility wrapper for the popup sub-action.
-	 */
-	public static function messagePopup(): void
-	{
-		self::load();
-		self::$obj->subaction = 'popup';
-		self::$obj->execute();
-	}
+		if (!empty($route) && reset($route) === 'folders') {
+			array_shift($route);
+			$params['f'] = array_shift($route);
+		}
 
-	/**
-	 * Backward compatibility wrapper for the manlabels sub-action.
-	 */
-	public static function manageLabels(): void
-	{
-		self::load();
-		self::$obj->subaction = 'manlabels';
-		self::$obj->execute();
-	}
+		if (!empty($route) && reset($route) === 'labels') {
+			array_shift($route);
+			$params['l'] = array_shift($route);
+		}
 
-	/**
-	 * Backward compatibility wrapper for the manrules sub-action.
-	 */
-	public static function manageRules(): void
-	{
-		self::load();
-		self::$obj->subaction = 'manrules';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the pmactions sub-action.
-	 */
-	public static function messageActionsApply(): void
-	{
-		self::load();
-		self::$obj->subaction = 'pmactions';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the prune sub-action.
-	 */
-	public static function messagePrune(): void
-	{
-		self::load();
-		self::$obj->subaction = 'prune';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the removeall2 sub-action.
-	 */
-	public static function messageKillAll(): void
-	{
-		self::load();
-		self::$obj->subaction = 'removeall2';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the report sub-action.
-	 */
-	public static function reportMessage(): void
-	{
-		self::load();
-		self::$obj->subaction = 'report';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the search sub-action.
-	 */
-	public static function messageSearch(): void
-	{
-		self::load();
-		self::$obj->subaction = 'search';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the search2 sub-action.
-	 */
-	public static function messageSearch2(): void
-	{
-		self::load();
-		self::$obj->subaction = 'search2';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the send sub-action.
-	 */
-	public static function messagePost(): void
-	{
-		self::load();
-		self::$obj->subaction = 'send';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the send2 sub-action.
-	 */
-	public static function messagePost2(): void
-	{
-		self::load();
-		self::$obj->subaction = 'send2';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 */
-	public static function messageSettings(): void
-	{
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the showpmdrafts sub-action.
-	 */
-	public static function messageDrafts(): void
-	{
-		self::load();
-		self::$obj->subaction = 'showpmdrafts';
-		self::$obj->execute();
+		return $params;
 	}
 
 	/******************
@@ -919,10 +843,9 @@ class PersonalMessage implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('PersonalMessage+Drafts');
-
-		if (!isset($_REQUEST['xml'])) {
-			Theme::loadTemplate('PersonalMessage');
+		if (!isset($_REQUEST['sa']) && ($_REQUEST['f'] ?? '') === 'drafts') {
+			$_REQUEST['sa'] = 'showpmdrafts';
+			unset($_REQUEST['f']);
 		}
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -933,44 +856,8 @@ class PersonalMessage implements ActionInterface
 			$this->folder = 'sent';
 		}
 
-		$this->buildLimitBar();
-
-		Label::load();
-
-		// Some stuff for the labels...
-		$this->current_label_id = isset($_REQUEST['l']) && isset(Label::$loaded[$_REQUEST['l']]) ? (int) $_REQUEST['l'] : -1;
-		$this->current_label = Label::$loaded[$this->current_label_id]['name'];
-
-		// This is convenient.  Do you know how annoying it is to do this every time?!
-		$this->current_label_redirect = 'action=pm;f=' . $this->folder . (isset($_GET['start']) ? ';start=' . $_GET['start'] : '') . (isset($_REQUEST['l']) ? ';l=' . $_REQUEST['l'] : '');
-
 		// Preferences...
 		$this->mode = User::$me->pm_prefs & 3;
-
-		// A previous message was sent successfully? Show a small indication.
-		if (isset($_GET['done']) && ($_GET['done'] == 'sent')) {
-			Utils::$context['pm_sent'] = true;
-		}
-
-		// Some context stuff for the templates.
-		Utils::$context['display_mode'] = &$this->mode;
-		Utils::$context['folder'] = &$this->folder;
-		Utils::$context['currently_using_labels'] = !empty(Label::$loaded);
-		Utils::$context['current_label_id'] = &$this->current_label_id;
-		Utils::$context['current_label'] = &$this->current_label;
-		Utils::$context['can_issue_warning'] = User::$me->allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1;
-		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
-
-		// Are PM drafts enabled?
-		Utils::$context['drafts_type'] = 'pm';
-		Utils::$context['drafts_save'] = !empty(Config::$modSettings['drafts_pm_enabled']) && User::$me->allowedTo('pm_draft');
-		Utils::$context['drafts_autosave'] = !empty(Utils::$context['drafts_save']) && !empty(Config::$modSettings['drafts_autosave_enabled']) && !empty(Theme::$current->options['drafts_autosave_enabled']);
-
-		// Build the linktree for all the actions...
-		Utils::$context['linktree'][] = [
-			'url' => Config::$scripturl . '?action=pm',
-			'name' => Lang::$txt['personal_messages'],
-		];
 	}
 
 	/**
@@ -978,7 +865,7 @@ class PersonalMessage implements ActionInterface
 	 *
 	 * @param string $area The area we're currently in
 	 */
-	protected function createMenu($area): void
+	protected function createMenu(string $area): void
 	{
 		// Finalize string values in the menu.
 		array_walk_recursive(
@@ -988,10 +875,12 @@ class PersonalMessage implements ActionInterface
 					$value = Lang::$txt[$value] ?? $value;
 				}
 
-				$value = strtr($value, [
-					'{scripturl}' => Config::$scripturl,
-					'{boardurl}' => Config::$boardurl,
-				]);
+				if (is_string($value)) {
+					$value = strtr($value, [
+						'{scripturl}' => Config::$scripturl,
+						'{boardurl}' => Config::$boardurl,
+					]);
+				}
 			},
 		);
 
@@ -1065,7 +954,7 @@ class PersonalMessage implements ActionInterface
 	/**
 	 * Figures out the limit for how many PMs this user can have.
 	 */
-	protected function buildLimitBar()
+	protected function buildLimitBar(): void
 	{
 		if (User::$me->is_admin) {
 			return;
@@ -1085,7 +974,7 @@ class PersonalMessage implements ActionInterface
 			list($maxMessage, $minMessage) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
-			$limit = $minMessage == 0 ? 0 : $maxMessage;
+			$limit = $minMessage == 0 ? 0 : (int) $maxMessage;
 
 			// Save us doing it again!
 			CacheApi::put('msgLimit:' . User::$me->id, $limit, 360);
@@ -1100,15 +989,10 @@ class PersonalMessage implements ActionInterface
 				'allowed' => $limit,
 				'percent' => $bar,
 				'bar' => min(100, (int) $bar),
-				'text' => sprintf(Lang::$txt['pm_currently_using'], User::$me->messages, $bar),
+				'text' => Lang::getTxt('pm_currently_using', [User::$me->messages, $bar]),
 			];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\PersonalMessage::exportStatic')) {
-	PersonalMessage::exportStatic();
 }
 
 ?>

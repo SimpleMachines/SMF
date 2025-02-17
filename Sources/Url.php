@@ -5,15 +5,18 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Tasks\UpdateTldRegex;
 use SMF\WebFetch\WebFetchApi;
 
 /**
@@ -28,35 +31,24 @@ class Url implements \Stringable
 {
 	use BackwardCompatibility;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'setTldRegex' => 'set_tld_regex',
-			'parseIri' => 'parse_iri',
-			'validateIri' => 'validate_iri',
-			'sanitizeIri' => 'sanitize_iri',
-			'normalizeIri' => 'normalize_iri',
-			'iriToUrl' => 'iri_to_url',
-			'urlToIri' => 'url_to_iri',
-			'getProxiedUrl' => 'get_proxied_url',
-			'sslCertFound' => 'ssl_cert_found',
-		],
-	];
+	/*****************
+	 * Class constants
+	 *****************/
+
+	 public const SCHEME_HTTPS = 'https';
+	 public const SCHEME_HTTP = 'http';
+	 public const SCHEME_GRAVATAR = 'gravatar';
 
 	/*******************
 	 * Public properties
 	 *******************/
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The scheme component of the URL.
 	 */
-	public string $scheme;
+	public ?string $scheme = null;
 
 	/**
 	 * @var string
@@ -106,6 +98,59 @@ class Url implements \Stringable
 	 * The fragment component of the URL.
 	 */
 	public string $fragment;
+
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * The 2012 list of top level domains, excluding ccTLDs.
+	 */
+	public static $basic_tlds = [
+		'com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz', 'cat',
+		'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post', 'pro',
+		'tel', 'travel', 'xxx',
+	];
+
+	/**
+	 * @var array
+	 *
+	 * Country code top level domains.
+	 */
+	public static $cc_tlds = [
+		'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as',
+		'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh',
+		'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz',
+		'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co',
+		'cr', 'cu', 'cv', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz',
+		'ec', 'ee', 'eg', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo',
+		'fr', 'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn',
+		'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr',
+		'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it',
+		'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr',
+		'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu',
+		'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn',
+		'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz',
+		'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz',
+		'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pm', 'pn', 'pr', 'ps',
+		'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw', 'sa', 'sb', 'sc',
+		'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn', 'so', 'sr',
+		'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th',
+		'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua',
+		'ug', 'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu',
+		'wf', 'ws', 'ye', 'yt', 'za', 'zm', 'zw',
+	];
+
+	/**
+	 * @var array
+	 *
+	 * "Special use domain names" that aren't in DNS but may possibly resolve.
+	 *
+	 * See https://www.iana.org/assignments/special-use-domain-names.
+	 */
+	public static $special_use_tlds = ['local', 'onion', 'test'];
 
 	/*********************
 	 * Internal properties
@@ -158,7 +203,7 @@ class Url implements \Stringable
 	 */
 	public function __toString(): string
 	{
-		return $this->url;
+		return (string) $this->url;
 	}
 
 	/**
@@ -167,9 +212,9 @@ class Url implements \Stringable
 	 * Uses Punycode to encode any non-ASCII characters in the domain name, and
 	 * uses standard URL encoding on the rest.
 	 *
-	 * @return object A reference to this object for method chaining.
+	 * @return self A reference to this object for method chaining.
 	 */
-	public function toAscii(): object
+	public function toAscii(): self
 	{
 		// Nothing to do if it is already ASCII.
 		if ($this->is_ascii) {
@@ -219,12 +264,12 @@ class Url implements \Stringable
 	 * Decodes any Punycode encoded characters in the domain name, then uses
 	 * standard URL decoding on the rest.
 	 *
-	 * @return object A reference to this object for method chaining.
+	 * @return self A reference to this object for method chaining.
 	 */
-	public function toUtf8(): object
+	public function toUtf8(): self
 	{
 		// Bail out if we can be sure that it contains no international characters, encoded or otherwise.
-		if ($this->is_ascii && strpos($this->host ?? '', 'xn--') === false && strpos($this->url, '%') === false) {
+		if ($this->is_ascii && !str_contains($this->host ?? '', 'xn--') && !str_contains($this->url, '%')) {
 			return $this;
 		}
 
@@ -270,8 +315,10 @@ class Url implements \Stringable
 	 * Internally calls $this->sanitize(), then performs Unicode normalization on the
 	 * URL as a whole, using NFKC normalization for the domain name (see RFC 3491)
 	 * and NFC normalization for the rest.
+	 *
+	 * @return self A reference to this object for method chaining.
 	 */
-	public function normalize(): object
+	public function normalize(): self
 	{
 		// Make sure it is in Unicode normalization form C.
 		$this->url = Utils::normalize($this->url);
@@ -302,9 +349,9 @@ class Url implements \Stringable
 	 * Unlike `filter_var($url, FILTER_SANITIZE_URL)`, this correctly handles
 	 * URLs with international characters (a.k.a. IRIs).
 	 *
-	 * @return object A reference to this object for method chaining.
+	 * @return self A reference to this object for method chaining.
 	 */
-	public function sanitize(): object
+	public function sanitize(): self
 	{
 		// Encode any non-ASCII characters (but not space or control characters of any sort)
 		// Also encode '%' in order to preserve anything that is already percent-encoded.
@@ -342,7 +389,7 @@ class Url implements \Stringable
 	{
 		$ascii_url = $this->is_ascii ? $this->url : (string) (clone $this)->toAscii();
 
-		if (strpos($ascii_url, '//') === 0) {
+		if (str_starts_with($ascii_url, '//')) {
 			$ascii_url = 'http:' . $ascii_url;
 		}
 
@@ -353,9 +400,9 @@ class Url implements \Stringable
 	 * Checks whether this is a valid IRI, and sets $this->url to '' if not.
 	 *
 	 * @param int $flags Optional flags for filter_var's third parameter.
-	 * @return object A reference to this object for method chaining.
+	 * @return self A reference to this object for method chaining.
 	 */
-	public function validate(int $flags = 0): object
+	public function validate(int $flags = 0): self
 	{
 		if (!$this->isValid($flags)) {
 			$this->url = '';
@@ -370,9 +417,9 @@ class Url implements \Stringable
 	 * characters (a.k.a. IRIs)
 	 *
 	 * @param int $component Optional flag for parse_url's second parameter.
-	 * @return mixed Same as parse_url(), but with unmangled Unicode.
+	 * @return string|int|array|null|bool Same as parse_url(), but with unmangled Unicode.
 	 */
-	public function parse(int $component = -1): mixed
+	public function parse(int $component = -1): string|int|array|null|bool
 	{
 		$url = preg_replace_callback(
 			'~[^\x00-\x7F\pZ\pC]|%~u',
@@ -390,7 +437,7 @@ class Url implements \Stringable
 
 			// Set the new value, if any.
 			if (isset($parsed[$prop])) {
-				$this->{$prop} = rawurldecode($parsed[$prop]);
+				$this->{$prop} = $parsed[$prop] = is_string($parsed[$prop]) ? rawurldecode($parsed[$prop]) : $parsed[$prop];
 			}
 		}
 
@@ -432,9 +479,9 @@ class Url implements \Stringable
 	 *
 	 * Mods can implement alternative proxies using the 'integrate_proxy' hook.
 	 *
-	 * @return object A new instance of this class for the proxied URL.
+	 * @return self A new instance of this class for the proxied URL.
 	 */
-	public function proxied(): object
+	public function proxied(): self
 	{
 		$proxied = clone $this;
 
@@ -451,6 +498,7 @@ class Url implements \Stringable
 		// We don't need to proxy our own resources.
 		if ($proxied->host === Url::create(Config::$boardurl)->host) {
 			$proxied->url = strtr($this->url, ['http://' => 'https://']);
+			$proxied->parse();
 
 			return $proxied;
 		}
@@ -462,11 +510,13 @@ class Url implements \Stringable
 		// MOD AUTHORS: To add settings UI for your proxy, use the integrate_general_settings hook.
 		IntegrationHook::call('integrate_proxy', [$this->url, &$proxied->url]);
 
+		$proxied->parse();
+
 		return $proxied;
 	}
 
 	/**
-	 * Check if this URL has an SSL certificate.
+	 * Checks if this URL has an SSL certificate.
 	 *
 	 * @return bool Whether the URL has an SSL certificate.
 	 */
@@ -502,7 +552,7 @@ class Url implements \Stringable
 	}
 
 	/**
-	 * Check if this URL has a redirect to https:// by querying headers.
+	 * Checks if this URL has a redirect to https:// by querying headers.
 	 *
 	 * @return bool Whether a redirect to HTTPS was found.
 	 */
@@ -535,21 +585,61 @@ class Url implements \Stringable
 		return false;
 	}
 
+	/**
+	 * Checks if this URL points to a website.
+	 *
+	 * @return bool Whether the URL matches the https or http schemes.
+	 */
+	public function isWebsite(): bool
+	{
+		return $this->isScheme([self::SCHEME_HTTP, self::SCHEME_HTTPS]);
+	}
+
+	/**
+	 * Check if this URL uses one of the specified schemes.
+	 *
+	 * @param string|string[] $scheme Schemes to check.
+	 * @return bool Whether the URL matches a scheme.
+	 */
+	public function isScheme(string|array $scheme): bool
+	{
+		return !empty($this->scheme) && in_array($this->scheme, array_map('strval', (array) $scheme));
+	}
+
+	/**
+	 * Checks if this is a Gravatar URL.
+	 *
+	 * @return bool Whether this is a Gravatar URL.
+	 */
+	public function isGravatar(): bool
+	{
+		return
+			$this->isScheme(self::SCHEME_GRAVATAR)
+			|| $this->url === 'gravatar://'
+			|| (
+				!empty($this->host)
+				&& (
+					$this->host === 'gravatar.com'
+					||  $this->host === 'secure.gravatar.com'
+				)
+			);
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
 
 	/**
-	 * Convenience wrapper for constuctor.
+	 * Convenience wrapper for constructor.
 	 *
 	 * This is just syntactical sugar to ease method chaining.
 	 *
 	 * @param string $url The URL or IRI.
 	 * @param bool $normalize Whether to normalize the URL during construction.
 	 *    Default: false.
-	 * @return object The created object.
+	 * @return self The created object.
 	 */
-	public static function create(string $url, bool $normalize = false): object
+	public static function create(string $url, bool $normalize = false): self
 	{
 		return new self($url, $normalize);
 	}
@@ -598,7 +688,7 @@ class Url implements \Stringable
 			}
 
 			// Make sure nothing went horribly wrong along the way.
-			if (md5($tlds) != substr($tlds_md5, 0, 32)) {
+			if (md5((string) $tlds) != substr((string) $tlds_md5, 0, 32)) {
 				$tlds = [];
 			}
 		}
@@ -632,29 +722,7 @@ class Url implements \Stringable
 		}
 		// Otherwise, use the 2012 list of gTLDs and ccTLDs for now and schedule a background update
 		else {
-			$tlds = ['com', 'net', 'org', 'edu', 'gov', 'mil', 'aero', 'asia', 'biz',
-				'cat', 'coop', 'info', 'int', 'jobs', 'mobi', 'museum', 'name', 'post',
-				'pro', 'tel', 'travel', 'xxx', 'ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al',
-				'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd',
-				'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bm', 'bn', 'bo', 'br', 'bs', 'bt', 'bv',
-				'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm',
-				'cn', 'co', 'cr', 'cu', 'cv', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do',
-				'dz', 'ec', 'ee', 'eg', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo',
-				'fr', 'ga', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp',
-				'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu',
-				'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo',
-				'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz', 'la',
-				'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md',
-				'me', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt',
-				'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl',
-				'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl',
-				'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw',
-				'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn',
-				'so', 'sr', 'ss', 'st', 'su', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg',
-				'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua',
-				'ug', 'uk', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf',
-				'ws', 'ye', 'yt', 'za', 'zm', 'zw',
-			];
+			$tlds = array_merge(self::$basic_tlds, self::$cc_tlds);
 
 			// Schedule a background update, unless civilization has collapsed and/or we are having connectivity issues.
 			if (empty($postapocalypticNightmare)) {
@@ -667,9 +735,11 @@ class Url implements \Stringable
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\UpdateTldRegex',
-						'',
-						0,
+						[
+							UpdateTldRegex::class,
+							'',
+							0,
+						],
 					],
 					[],
 				);
@@ -677,8 +747,7 @@ class Url implements \Stringable
 		}
 
 		// Tack on some "special use domain names" that aren't in DNS but may possibly resolve.
-		// See https://www.iana.org/assignments/special-use-domain-names/ for more info.
-		$tlds = array_merge($tlds, ['local', 'onion', 'test']);
+		$tlds = array_merge($tlds, self::$special_use_tlds);
 
 		// Get an optimized regex to match all the TLDs
 		$tld_regex = Utils::buildRegex($tlds);
@@ -686,130 +755,13 @@ class Url implements \Stringable
 		// Remember the new regex in Config::$modSettings
 		Config::updateModSettings(['tld_regex' => $tld_regex]);
 
+		// Update the editor's autolinker JavaScript.
+		if ($update) {
+			Autolinker::createJavaScriptFile(true);
+		}
+
 		// Redundant repetition is redundant
 		$done = true;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the parse method.
-	 *
-	 * @param string $iri The IRI to parse.
-	 * @param int $component Optional flag for parse_url's second parameter.
-	 * @return mixed Same as parse_url(), but with unmangled Unicode.
-	 */
-	public static function parseIri(string $iri, int $component = -1): mixed
-	{
-		$iri = new self($iri);
-
-		return $iri->parse($component);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the validate method.
-	 *
-	 * @param string $iri The IRI to parse.
-	 * @param int $flags Optional flags for filter_var's third parameter.
-	 * @return object|false A reference to an object for the IRI if it is valid,
-	 *    or false if the IRI is invalid.
-	 */
-	public static function validateIri(string $iri, int $flags = 0): object|false
-	{
-		$iri = new self($iri);
-
-		$iri->validate($flags);
-
-		return $iri->url === '' ? false : $iri;
-	}
-
-	/**
-	 * Backward compatibility method.
-	 *
-	 * @param string $iri The IRI to sanitize.
-	 * @return object A reference to an object for the IRI.
-	 */
-	public static function sanitizeIri(string $iri): object
-	{
-		$iri = new self($iri);
-
-		return $iri->sanitize();
-	}
-
-	/**
-	 * Backward compatibility method.
-	 *
-	 * @param string $iri The IRI to normalize.
-	 * @return object A reference to an object for the IRI.
-	 */
-	public static function normalizeIri(string $iri): object
-	{
-		$iri = new self($iri);
-
-		return $iri->normalize();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the toAscii method.
-	 *
-	 * @param string $iri The IRI to convert to an ASCII URL.
-	 * @return object A reference to an object for the URL.
-	 */
-	public static function iriToUrl(string $iri): object
-	{
-		$iri = new self($iri);
-
-		return $iri->toAscii();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the toUtf8 method.
-	 *
-	 * @param string $url The URL to convert to an IRI.
-	 * @return object A reference to an object for the IRI.
-	 */
-	public static function urlToIri(string $url): object
-	{
-		$url = new self($url);
-
-		return $url->toUtf8();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the proxied method.
-	 *
-	 * @param string $url The original URL of the requested resource.
-	 * @return Url A new instance of this class for the proxied URL.
-	 */
-	public static function getProxiedUrl(string $url): Url
-	{
-		$url = new self($url);
-
-		return $url->proxied();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the hasSSL method.
-	 *
-	 * @param string $url The URL to check.
-	 * @return bool Whether the URL has an SSL certificate.
-	 */
-	public static function sslCertFound(string $url): bool
-	{
-		$url = new self($url);
-
-		return $url->hasSSL();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the redirectsToHttps method.
-	 *
-	 * @param string $url The URL to check.
-	 * @return bool Whether a redirect to HTTPS was found.
-	 */
-	public function httpsRedirectActive(string $url): bool
-	{
-		$url = new self($url);
-
-		return $url->redirectsToHttps();
 	}
 
 	/******************
@@ -824,11 +776,6 @@ class Url implements \Stringable
 	{
 		$this->is_ascii = mb_check_encoding($this->url, 'ASCII');
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Url::exportStatic')) {
-	Url::exportStatic();
 }
 
 ?>

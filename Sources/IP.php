@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -21,24 +23,6 @@ use SMF\Cache\CacheApi;
 class IP implements \Stringable
 {
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'ip2range' => 'ip2range',
-			'range2ip' => 'range2ip',
-			'isValidIP' => 'isValidIP',
-			'isValidIPv6' => 'isValidIPv6',
-			'hostFromIp' => 'host_from_ip',
-			'inet_ptod' => 'inet_ptod',
-			'inet_dtop' => 'inet_dtop',
-			'expandIPv6' => 'expandIPv6',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -54,7 +38,7 @@ class IP implements \Stringable
 		// OpenDNS
 		'208.67.222.222',
 		'208.67.220.220',
-		// CloudFare
+		// CloudFlare
 		'1.1.1.1',
 		'1.0.0.1',
 	];
@@ -86,10 +70,14 @@ class IP implements \Stringable
 	 *
 	 * If the passed string is not a valid IP address, it will be set to ''.
 	 *
-	 * @param ?string $ip The IP address in either string or binary form.
+	 * @param ?string|self $ip The IP address in either string or binary form.
 	 */
-	public function __construct(?string $ip)
+	public function __construct(self|string|null $ip)
 	{
+		if ($ip instanceof self) {
+			$ip = (string) $ip;
+		}
+
 		// Is it in a valid IPv4 string?
 		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
 			$this->ip = $ip;
@@ -101,7 +89,7 @@ class IP implements \Stringable
 		}
 		// It's either in binary form or it's invalid.
 		else {
-			$this->ip = (string) @inet_ntop($ip);
+			$this->ip = (string) @inet_ntop((string) $ip);
 		}
 	}
 
@@ -116,7 +104,7 @@ class IP implements \Stringable
 	/**
 	 * Returns the binary form of the IP address.
 	 */
-	public function toBinary(): string
+	public function toBinary(): string|bool
 	{
 		return inet_pton($this->ip);
 	}
@@ -218,19 +206,66 @@ class IP implements \Stringable
 		return $this->host;
 	}
 
+	/**
+	 * Detect if a IP is in a CIDR address.
+	 *
+	 * @param string $cidr_address CIDR address to verify.
+	 * @return bool Whether the IP matches the CIDR.
+	 */
+	public function matchToCIDR(string $cidr_address): bool
+	{
+		list($cidr_network, $cidr_subnetmask) = preg_split('~/~', $cidr_address);
+
+		$ip_address = $this->ip;
+
+		// v6?
+		if ((str_contains($cidr_network, ':'))) {
+			if (!filter_var($ip_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) || !filter_var($cidr_network, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+				return false;
+			}
+
+			$ip_address = inet_pton($ip_address);
+			$cidr_network = inet_pton($cidr_network);
+			$binMask = str_repeat('f', (int) $cidr_subnetmask / 4);
+
+			switch ($cidr_subnetmask % 4) {
+				case 0:
+					break;
+
+				case 1:
+					$binMask .= '8';
+					break;
+
+				case 2:
+					$binMask .= 'c';
+					break;
+
+				case 3:
+					$binMask .= 'e';
+					break;
+			}
+			$binMask = str_pad($binMask, 32, '0');
+			$binMask = pack('H*', $binMask);
+
+			return ($ip_address & $binMask) == $cidr_network;
+		}
+
+		return (ip2long($ip_address) & (~((1 << (32 - $cidr_subnetmask)) - 1))) == ip2long($cidr_network);
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
 
 	/**
-	 * Convenience wrapper for constuctor.
+	 * Convenience wrapper for constructor.
 	 *
 	 * This is just syntactical sugar to ease method chaining.
 	 *
 	 * @param string $ip The IP address in either string or binary form.
-	 * @return object The created object.
+	 * @return self The created object.
 	 */
-	public static function create(string $ip): object
+	public static function create(string $ip): self
 	{
 		return new self($ip);
 	}
@@ -252,7 +287,7 @@ class IP implements \Stringable
 	 *    '1.2.3.4' -> array('low' => '1.2.3.4', 'high' => '1.2.3.4')
 	 *
 	 *  - If $addr is one IP address with wildcards, the return value will
-	 *    contain the minimum and maxium values possible with those wildcards.
+	 *    contain the minimum and maximum values possible with those wildcards.
 	 *
 	 *    Examples:
 	 *
@@ -281,7 +316,7 @@ class IP implements \Stringable
 	 * @param string $addr The full IP
 	 * @return array An array containing two instances of this class.
 	 */
-	public static function ip2range($addr): array
+	public static function ip2range(string $addr): array
 	{
 		// Pretend that 'unknown' is 255.255.255.255, since that can't be an IP anyway.
 		if ($addr == 'unknown') {
@@ -297,7 +332,7 @@ class IP implements \Stringable
 		$range = [[], []];
 
 		// No range.
-		if (strpos($addr, '-') === false) {
+		if (!str_contains($addr, '-')) {
 			$range[0] = $range[1] = explode($mode, $addr);
 
 			foreach ($range[0] as &$octet) {
@@ -331,7 +366,7 @@ class IP implements \Stringable
 				$octets = explode($mode, $addr);
 
 				foreach ($octets as $key => $octet) {
-					if (strpos($octet, '-') === false) {
+					if (!str_contains($octet, '-')) {
 						if (!$valid_low) {
 							$range[0][] = $octet;
 						}
@@ -400,7 +435,7 @@ class IP implements \Stringable
 		}
 
 		// Make sure the low one really is lower than the high one.
-		usort($range, fn ($a, $b) => inet_pton($a) <=> inet_pton($b));
+		usort($range, fn($a, $b) => inet_pton($a) <=> inet_pton($b));
 
 		// Return instances of this class, not just plain strings.
 		$low = new self($range[0]);
@@ -418,109 +453,29 @@ class IP implements \Stringable
 	 * Convert a range of IP addresses into a single string.
 	 * It's practically the reverse function of ip2range().
 	 *
-	 * @param string $low The low end of the range.
-	 * @param string $high The high end of the range.
+	 * @param string|IP $low The low end of the range.
+	 * @param string|IP $high The high end of the range.
 	 * @return string A string indicating the range.
 	 */
-	public static function range2ip($low, $high): string
+	public static function range2ip(string|IP $low, string|IP $high): string
 	{
-		$low = new IP($low);
-		$high = new IP($high);
+		if (!$low instanceof IP) {
+			$low = new IP($low);
+		}
+
+		if (!$high instanceof IP) {
+			$high = new IP($high);
+		}
 
 		if ($low == '255.255.255.255') {
 			return 'unknown';
 		}
 
 		if ($low == $high) {
-			return $low;
+			return (string) $low;
 		}
 
 		return $low . '-' . $high;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the isValid() method.
-	 *
-	 * @param string $ip An IP address in either string or binary form.
-	 * @return string Whether $ip is a valid IP address.
-	 */
-	public static function isValidIP(string $ip): string
-	{
-		$ip = new self($ip);
-
-		return $ip->isValid();
-	}
-
-	/**
-	 * Another backward compatibility wrapper for the isValid() method.
-	 *
-	 * This one checks specifically for valid IPv6 addresses.
-	 *
-	 * @param string $ip An IPv6 address in either string or binary form.
-	 * @return string Whether $ip is a valid IPv6 address.
-	 */
-	public static function isValidIPv6(string $ip): string
-	{
-		$ip = new self($ip);
-
-		return $ip->isValid(FILTER_FLAG_IPV6);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the getHost() method.
-	 *
-	 * @param string $ip An IP address in either string or binary form.
-	 * @return string The host name.
-	 */
-	public static function hostFromIp(string $ip): string
-	{
-		$ip = new self($ip);
-
-		return $ip->getHost(0);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the toBinary() method.
-	 *
-	 * @param string $ip An IP address in either string or binary form.
-	 * @return string The host name.
-	 */
-	public static function inet_ptod(string $ip): string
-	{
-		$ip = new self($ip);
-
-		return $ip->toBinary();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the __toString() method.
-	 *
-	 * @param string $ip An IP address in either string or binary form.
-	 * @return string The host name.
-	 */
-	public static function inet_dtop(string $ip): string
-	{
-		return (string) new self($ip);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the expand() method.
-	 *
-	 * @param string $ip An IPv6 address.
-	 * @param bool $return_bool_if_invalid Controls return type if address is
-	 *    invalid. True for boolean, false for empty string. Default: true.
-	 * @return string|false The expanded IPv6 address, or false/an empty string
-	 *    if address was invalid.
-	 */
-	public static function expandIPv6(string $ip, bool $return_bool_if_invalid = true): string|false
-	{
-		$ip = new self($ip);
-
-		if ($return_bool_if_invalid && !$ip->isValid(FILTER_FLAG_IPV6)) {
-			return false;
-		}
-
-		return $ip->expand();
 	}
 
 	/******************
@@ -542,7 +497,7 @@ class IP implements \Stringable
 		}
 
 		// Macs can use dscacheutil, host, or nslookup, but this is the recommended one.
-		if (Utils::$context['server']['is_mac']) {
+		if (Sapi::IsOS(Sapi::OS_MAC)) {
 			$test = (string) @shell_exec('dscacheutil -q host -a ' . ($this->isValid(FILTER_FLAG_IPV6) ? 'ipv6_address' : 'ip_address') . ' ' . @escapeshellarg($this->ip));
 
 			if (preg_match('~name:\s+([^\s]+)~i', $test, $match)) {
@@ -551,7 +506,7 @@ class IP implements \Stringable
 		}
 
 		// Try the Unix/Linux host command, perhaps?
-		if (!isset($host) && !Utils::$context['server']['is_windows']) {
+		if (!isset($host) && !Sapi::isOS(Sapi::OS_WINDOWS)) {
 			if (!isset(Config::$modSettings['host_to_dis'])) {
 				$test = (string) @shell_exec('host -W ' . max(1, floor($timeout / 1000)) . ' ' . @escapeshellarg($this->ip));
 			} else {
@@ -559,7 +514,7 @@ class IP implements \Stringable
 			}
 
 			// Did host say it didn't find anything?
-			if (strpos($test, 'not found') !== false) {
+			if (str_contains($test, 'not found')) {
 				$host = '';
 			}
 			// Invalid server option?
@@ -573,10 +528,10 @@ class IP implements \Stringable
 		}
 
 		// This is nslookup; available on Windows and Macs.
-		if (!isset($host) && (Utils::$context['server']['is_windows'] || Utils::$context['server']['is_mac'])) {
+		if (!isset($host) && (Sapi::isOS(Sapi::OS_WINDOWS) || Sapi::IsOS(Sapi::OS_MAC))) {
 			$test = (string) @shell_exec('nslookup -timeout=' . max(1, floor($timeout / 1000)) . ' ' . @escapeshellarg($this->ip));
 
-			if (strpos($test, 'Non-existent domain') !== false) {
+			if (str_contains($test, 'Non-existent domain')) {
 				$host = '';
 			} elseif (preg_match('~Name\s*(?:=|:)\s+([^\s]+)~i', $test, $match)) {
 				$host = $match[1];
@@ -595,7 +550,7 @@ class IP implements \Stringable
 	 * @param int $timeout Milliseconds until timeout. Default: 1000.
 	 * @return string The host name, or the IP address on failure.
 	 */
-	protected function getHostByAddr(int $timeout = 1000)
+	protected function getHostByAddr(int $timeout = 1000): string
 	{
 		$query = $this->getReverseDnsQuery();
 
@@ -640,7 +595,7 @@ class IP implements \Stringable
 			}
 
 			// Add segment to our host.
-			$host[] = substr($response, $position + 1, $len[1]);
+			$host[] = substr($response, (int) $position + 1, $len[1]);
 
 			// Move pointer on to the next segment.
 			$position += $len[1] + 1;
@@ -680,11 +635,6 @@ class IP implements \Stringable
 
 		return $query;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\IP::exportStatic')) {
-	IP::exportStatic();
 }
 
 ?>

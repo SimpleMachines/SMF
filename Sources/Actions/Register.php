@@ -5,20 +5,27 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Parser;
 use SMF\Profile;
+use SMF\Routable;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -28,20 +35,10 @@ use SMF\Verifier;
 /**
  * Shows the registration form.
  */
-class Register implements ActionInterface
+class Register implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'register' => 'Register',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -75,21 +72,24 @@ class Register implements ActionInterface
 		'usernamecheck' => 'checkUsername',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_GET['sa']) && $_GET['sa'] == 'usernamecheck';
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_GET['sa']) && $_GET['sa'] == 'usernamecheck' ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
@@ -147,8 +147,8 @@ class Register implements ActionInterface
 		// Under age restrictions?
 		if (Utils::$context['show_coppa']) {
 			Utils::$context['skip_coppa'] = false;
-			Utils::$context['coppa_agree_above'] = sprintf(Lang::$txt[$agree_txt_key . 'agree_coppa_above'], Config::$modSettings['coppaAge']);
-			Utils::$context['coppa_agree_below'] = sprintf(Lang::$txt[$agree_txt_key . 'agree_coppa_below'], Config::$modSettings['coppaAge']);
+			Utils::$context['coppa_agree_above'] = Lang::getTxt($agree_txt_key . 'agree_coppa_above', [Config::$modSettings['coppaAge']]);
+			Utils::$context['coppa_agree_below'] = Lang::getTxt($agree_txt_key . 'agree_coppa_below', [Config::$modSettings['coppaAge']]);
 		} elseif ($agree_txt_key != '') {
 			Utils::$context['agree'] = Lang::$txt[$agree_txt_key . 'agree'];
 		}
@@ -202,10 +202,22 @@ class Register implements ActionInterface
 		// If you have to agree to the agreement, it needs to be fetched from the file.
 		if (!empty(Config::$modSettings['requireAgreement'])) {
 			// Have we got a localized one?
-			if (file_exists(Config::$boarddir . '/agreement.' . User::$me->language . '.txt')) {
-				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.' . User::$me->language . '.txt'), true, 'agreement_' . User::$me->language);
-			} elseif (file_exists(Config::$boarddir . '/agreement.txt')) {
-				Utils::$context['agreement'] = BBCodeParser::load()->parse(file_get_contents(Config::$boarddir . '/agreement.txt'), true, 'agreement');
+			if (file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt')) {
+				Utils::$context['agreement'] = Parser::transform(
+					string: file_get_contents(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt'),
+					options: [
+						'cache_id' => 'agreement_' . User::$me->language,
+						'hard_breaks' => 0,
+					],
+				);
+			} elseif (file_exists(Config::$languagesdir . '/en_US/agreement.txt')) {
+				Utils::$context['agreement'] = Parser::transform(
+					string: file_get_contents(Config::$languagesdir . '/en_US/agreement.txt'),
+					options: [
+						'cache_id' => 'agreement',
+						'hard_breaks' => 0,
+					],
+				);
 			} else {
 				Utils::$context['agreement'] = '';
 			}
@@ -244,9 +256,15 @@ class Register implements ActionInterface
 		if (!empty(Config::$modSettings['requirePolicyAgreement'])) {
 			// Have we got a localized one?
 			if (!empty(Config::$modSettings['policy_' . User::$me->language])) {
-				Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . User::$me->language]);
+				Utils::$context['privacy_policy'] = Parser::transform(
+					string: Config::$modSettings['policy_' . User::$me->language],
+					options: ['hard_breaks' => 0],
+				);
 			} elseif (!empty(Config::$modSettings['policy_' . Lang::$default])) {
-				Utils::$context['privacy_policy'] = BBCodeParser::load()->parse(Config::$modSettings['policy_' . Lang::$default]);
+				Utils::$context['privacy_policy'] = Parser::transform(
+					string: Config::$modSettings['policy_' . Lang::$default],
+					options: ['hard_breaks' => 0],
+				);
 			} else {
 				// None was found; log the error so the admin knows there is a problem!
 				ErrorHandler::log(Lang::$txt['registration_policy_missing'], 'critical');
@@ -324,7 +342,7 @@ class Register implements ActionInterface
 	/**
 	 * See if a username already exists.
 	 */
-	public function checkUsername()
+	public function checkUsername(): void
 	{
 		// This is XML!
 		Theme::loadTemplate('Xml');
@@ -340,45 +358,6 @@ class Register implements ActionInterface
 		Utils::$context['valid_username'] = empty($errors);
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for show sub-action.
-	 *
-	 * @param array $reg_errors Holds information about any errors that occurred.
-	 */
-	public static function register($reg_errors = []): void
-	{
-		self::load();
-		self::$obj->subaction = 'show';
-		self::$obj->errors = (array) $reg_errors;
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -392,11 +371,6 @@ class Register implements ActionInterface
 			$this->subaction = $_GET['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Register::exportStatic')) {
-	Register::exportStatic();
 }
 
 ?>

@@ -331,7 +331,7 @@ if (!isset(Config::$modSettings['allow_no_censored']))
 		SELECT value
 		FROM {$db_prefix}themes
 		WHERE variable='allow_no_censored'
-		AND id_theme = 1 OR id_theme = 'Config::$modSettings[theme_default]'
+		AND id_theme = 1 OR id_theme = " . Config::$modSettings['theme_default'] ?? '1' . "
 	");
 
 	// Is it set for either "default" or the one they've set as default?
@@ -392,8 +392,8 @@ if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.
     while ($row = Db::$db->fetch_assoc($request))
     {
         $inserts[] = array(
-            'name' => Utils::htmlspecialchars(strip_tags(SMF\BBCodeParser::load()->unparse($row['name']))),
-            'description' => Utils::htmlspecialchars(strip_tags(SMF\BBCodeParser::load()->unparse($row['description']))),
+            'name' => Utils::htmlspecialchars(strip_tags(SMF\Parser::transform($row['name'], SMF\Parser::OUTPUT_BBC)),
+            'description' => Utils::htmlspecialchars(strip_tags(SMF\Parser::transform($row['description'], SMF\Parser::OUTPUT_BBC)),
             'id' => $row['id'],
         );
     }
@@ -448,7 +448,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('loginHistoryDays', '30'),
+			array(['loginHistoryDays', '30']),
 			array('variable')
 		);
 ---}
@@ -489,7 +489,7 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 		Db::$db->insert('ignore',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('securityDisable_moderate', '1'),
+			array(['securityDisable_moderate', '1']),
 			array('variable')
 		);
 ---}
@@ -508,21 +508,21 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('export_rate', '250')
 		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('mark_read_beyond', '90'),
+			array(['mark_read_beyond', '90']),
 			array()
 		);
 	if (!isset(Config::$modSettings['mark_read_delete_beyond']))
 		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('mark_read_delete_beyond', '365'),
+			array(['mark_read_delete_beyond', '365']),
 			array()
 		);
 	if (!isset(Config::$modSettings['mark_read_max_users']))
 		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('mark_read_max_users', '500'),
+			array(['mark_read_max_users', '500']),
 			array()
 		);
 ---}
@@ -779,7 +779,7 @@ if (empty(Config::$modSettings['json_done']))
 		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('currentAttachmentUploadDir', '1'),
+			array(['currentAttachmentUploadDir', '1']),
 			array('variable')
 		);
 	}
@@ -867,7 +867,7 @@ ADD COLUMN IF NOT EXISTS extra TEXT;
 		Db::$db->insert('',
 			'{db_prefix}package_servers',
 			array('name' => 'string', 'url' => 'string', 'validation_url' => 'string'),
-			array('Simple Machines Download Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}'),
+			array(['Simple Machines Download Site', 'https://download.simplemachines.org/browse.php?api=v1;smf_version={SMF_VERSION}', 'https://download.simplemachines.org/validate.php?api=v1;smf_version={SMF_VERSION}']),
 			array('id_server')
 		);
 ---}
@@ -975,7 +975,7 @@ VALUES
 		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('allow_expire_redirect', !$task_disabled),
+			array(['allow_expire_redirect', !$task_disabled]),
 			array('variable')
 		);
 	}
@@ -1271,7 +1271,7 @@ $step_progress['current'] = $_GET['a'];
 $limit = 10000;
 $is_done = false;
 
-$request = $smcFunc['db_query']('', '
+$request = Db::$db->query('', '
 	SELECT COUNT(*)
 	FROM {db_prefix}themes
 	WHERE variable = {string:auto_notify}',
@@ -1279,8 +1279,8 @@ $request = $smcFunc['db_query']('', '
 		'auto_notify' => 'auto_notify',
 	)
 );
-list($maxMembers) = $smcFunc['db_fetch_row']($request);
-$smcFunc['db_free_result']($request);
+list($maxMembers) = Db::$db->fetch_row($request);
+Db::$db->free_result($request);
 
 while (!$is_done)
 {
@@ -1288,7 +1288,7 @@ while (!$is_done)
 	$inserts = array();
 
 	// This setting is stored over in the themes table in 2.0...
-	$request = $smcFunc['db_query']('', '
+	$request = Db::$db->query('', '
 		SELECT id_member, value
 		FROM {db_prefix}themes
 		WHERE variable = {string:auto_notify}
@@ -1300,16 +1300,16 @@ while (!$is_done)
 			'limit' => $limit,
 		)
 	);
-	if ($smcFunc['db_num_rows']($request) != 0)
+	if (Db::$db->num_rows($request) != 0)
 	{
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = Db::$db->fetch_assoc($request))
 		{
 			$inserts[] = array($row['id_member'], 'msg_auto_notify', !empty($row['value']) ? 1 : 0);
 		}
-		$smcFunc['db_free_result']($request);
+		Db::$db->free_result($request);
 	}
 
-	$smcFunc['db_insert']('ignore',
+	Db::$db->insert('ignore',
 		'{db_prefix}user_alerts_prefs',
 		array('id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'string'),
 		$inserts,
@@ -1466,6 +1466,10 @@ FROM {$db_prefix}attachments AS f
 WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = content_id;
 ---#
 
+---# Adding index on id_board to log_notify table
+CREATE INDEX {$db_prefix}log_notify_id_board ON {$db_prefix}log_notify (id_board);
+---#
+
 /******************************************************************************/
 --- Adding support for topic unwatch
 /******************************************************************************/
@@ -1611,7 +1615,7 @@ $request = Db::$db->query('', '
 	)
 );
 // Check which themes exist in the filesystem & save off their IDs
-// Dont delete default theme(start with 1 in the array), & make sure to delete old core theme
+// Don't delete default theme(start with 1 in the array), & make sure to delete old core theme
 $known_themes = array('1');
 $core_dir = Config::boarddir . '/Themes/core';
 while ($row = Db::$db->fetch_assoc($request))	{
@@ -1656,8 +1660,6 @@ ADD COLUMN IF NOT EXISTS show_mlist smallint NOT NULL default '0';
 
 ---# Insert fields
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
-('cust_icq', '{icq}', '{icq_desc}', 'text', 12, '', 1, 'regex~[1-9][0-9]{4,9}~i', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>', 1) ON CONFLICT DO NOTHING;
-INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_skype', '{skype}', '{skype_desc}', 'text', 32, '', 2, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ', 1) ON CONFLICT DO NOTHING;
 INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_type, field_length, field_options, field_order, mask, show_reg, show_display, show_mlist, show_profile, private, active, bbc, can_search, default_value, enclose, placement) VALUES
 ('cust_loca', '{location}', '{location_desc}', 'text', 50, '', 4, 'nohtml', 0, 1, 0, 'forumprofile', 0, 1, 0, 0, '', '', 0) ON CONFLICT DO NOTHING;
@@ -1698,7 +1700,7 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 // We cannot do this twice
 // See which columns we have
 $results = Db::$db->list_columns('{db_prefix}members');
-$possible_columns = array('icq', 'msn', 'location', 'gender');
+$possible_columns = array('msn', 'location', 'gender');
 
 // Find values that are in both arrays
 $select_columns = array_intersect($possible_columns, $results);
@@ -1732,9 +1734,6 @@ if (!empty($select_columns))
 
 		while ($row = Db::$db->fetch_assoc($request))
 		{
-			if (!empty($row['icq']))
-				$inserts[] = array($row['id_member'], 1, 'cust_icq', $row['icq']);
-
 			if (!empty($row['msn']))
 				$inserts[] = array($row['id_member'], 1, 'cust_skype', $row['msn']);
 
@@ -1805,7 +1804,7 @@ ALTER TABLE {$db_prefix}members
 		Db::$db->insert('',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('displayFields', json_encode($fields)),
+			array(['displayFields', json_encode($fields)]),
 			array('variable')
 		);
 	}
@@ -2078,7 +2077,7 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 		Db::$db->insert('insert',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('samesiteCookies', 'lax'),
+			array(['samesiteCookies', 'lax']),
 			array()
 		);
 ---}
@@ -2089,7 +2088,7 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 	Db::$db->insert('replace',
 		'{db_prefix}settings',
 		array('variable' => 'string', 'value' => 'string'),
-		array('bcrypt_hash_cost', Security::hashBenchmark()),
+		array(['bcrypt_hash_cost', Security::hashBenchmark()]),
 		array('variable')
 	);
 ---}
@@ -2120,7 +2119,7 @@ if (Db::$db->num_rows($file_check) == 0)
 	Db::$db->insert('',
 		'{db_prefix}admin_info_files',
 		array('filename' => 'string', 'path' => 'string', 'parameters' => 'string', 'data' => 'string', 'filetype' => 'string'),
-		array('latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain'),
+		array(['latest-versions.txt', '/smf/', 'version=%3$s', '', 'text/plain']),
 		array('id_file')
 	);
 }
@@ -2844,7 +2843,7 @@ ADD COLUMN IF NOT EXISTS tfa_required smallint NOT NULL default '0';
 		Db::$db->insert('replace',
 			'{db_prefix}settings',
 			array('variable' => 'string', 'value' => 'string'),
-			array('tfa_mode', '1'),
+			array(['tfa_mode', '1']),
 			array('variable')
 		);
 ---}
@@ -3499,7 +3498,7 @@ if (in_array('filename', $smileys_columns))
 	}
 }
 
-// Set new default if the old one doesnt exist
+// Set new default if the old one doesn't exist
 // If fugue exists, use that.  Otherwise, what the heck, just grab the first one...
 if (!array_key_exists(Config::$modSettings['smiley_sets_default'], $filtered))
 {

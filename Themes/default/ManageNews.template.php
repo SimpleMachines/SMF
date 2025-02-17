@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Config;
@@ -35,7 +35,7 @@ function template_email_members()
 			<div class="windowbg noup">
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::$txt['admin_news_select_group'], ':</strong><br>
+						<strong>', Lang::$txt['admin_news_select_group'], '</strong><br>
 						<span class="smalltext">', Lang::$txt['admin_news_select_group_desc'], '</span>
 					</dt>
 					<dd>';
@@ -58,14 +58,14 @@ function template_email_members()
 				<div id="advanced_panel_div" class="padding">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['admin_news_select_email'], ':</strong><br>
+							<strong>', Lang::$txt['admin_news_select_email'], '</strong><br>
 							<span class="smalltext">', Lang::$txt['admin_news_select_email_desc'], '</span>
 						</dt>
 						<dd>
 							<textarea name="emails" rows="5" cols="30" style="width: 98%;"></textarea>
 						</dd>
 						<dt>
-							<strong>', Lang::$txt['admin_news_select_members'], ':</strong><br>
+							<strong>', Lang::$txt['admin_news_select_members'], '</strong><br>
 							<span class="smalltext">', Lang::$txt['admin_news_select_members_desc'], '</span>
 						</dt>
 						<dd>
@@ -76,7 +76,7 @@ function template_email_members()
 					<hr class="bordercolor">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['admin_news_select_excluded_groups'], ':</strong><br>
+							<strong>', Lang::$txt['admin_news_select_excluded_groups'], '</strong><br>
 							<span class="smalltext">', Lang::$txt['admin_news_select_excluded_groups_desc'], '</span>
 						</dt>
 						<dd>';
@@ -90,7 +90,7 @@ function template_email_members()
 							<label for="checkAllGroupsExclude"><input type="checkbox" id="checkAllGroupsExclude" onclick="invertAll(this, this.form, \'exclude_groups\');"> <em>', Lang::$txt['check_all'], '</em></label><br>
 						</dd>
 						<dt>
-							<strong>', Lang::$txt['admin_news_select_excluded_members'], ':</strong><br>
+							<strong>', Lang::$txt['admin_news_select_excluded_members'], '</strong><br>
 							<span class="smalltext">', Lang::$txt['admin_news_select_excluded_members_desc'], '</span>
 						</dt>
 							<dd>
@@ -101,7 +101,7 @@ function template_email_members()
 					<hr class="bordercolor">
 					<dl class="settings">
 						<dt>
-							<label for="email_force"><strong>', Lang::$txt['admin_news_select_override_notify'], ':</strong></label><br>
+							<label for="email_force"><strong>', Lang::$txt['admin_news_select_override_notify'], '</strong></label><br>
 							<span class="smalltext">', Lang::$txt['email_force'], '</span>
 						</dt>
 						<dd>
@@ -127,15 +127,15 @@ function template_email_members()
 			aSwapImages: [
 				{
 					sId: \'advanced_panel_toggle\',
-					altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-					altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+					altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+					altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 				}
 			],
 			aSwapLinks: [
 				{
 					sId: \'advanced_panel_link\',
-					msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['advanced']), ',
-					msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['advanced']), '
+					msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['advanced']), ',
+					msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['advanced']), '
 				}
 			]
 		});
@@ -200,7 +200,7 @@ function template_email_members_compose()
 				</h3>
 			</div>
 			<div class="information noup">
-				', sprintf(Lang::$txt['email_variables'], Config::$scripturl), '
+				', Lang::getTxt('email_variables', ['scripturl' => Config::$scripturl]), '
 			</div>
 			<div class="windowbg noup">
 				<div class="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty(Utils::$context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
@@ -266,21 +266,21 @@ function template_email_members_compose()
 						if (\'opera\' in window)
 						{
 							// Handle the WYSIWYG editor.
-							if (textFields[i] == ', Utils::JavaScriptEscape(Utils::$context['post_box_name']), ' && ', Utils::JavaScriptEscape('oEditorHandle_' . Utils::$context['post_box_name']), ' in window && oEditorHandle_', Utils::$context['post_box_name'], '.bRichTextEnabled)
+							if (textFields[i] == ', Utils::escapeJavaScript(Utils::$context['post_box_name']), ' && ', Utils::escapeJavaScript('oEditorHandle_' . Utils::$context['post_box_name']), ' in window && oEditorHandle_', Utils::$context['post_box_name'], '.bRichTextEnabled)
 								x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', Utils::$context['post_box_name'], '.getText(false).php_to8bit().php_urlencode();
 							else
 								x[x.length] = textFields[i] + \'=\' + document.forms.newsmodify[textFields[i]].value.php_to8bit().php_urlencode();
 						}
 						// @todo Currently not sending poll options and option checkboxes.
 						var x = new Array();
-						var textFields = [\'subject\', ', Utils::JavaScriptEscape(Utils::$context['post_box_name']), '];
+						var textFields = [\'subject\', ', Utils::escapeJavaScript(Utils::$context['post_box_name']), '];
 						var checkboxFields = [\'send_html\', \'send_pm\'];
 
 						for (var i = 0, n = textFields.length; i < n; i++)
 							if (textFields[i] in document.forms.newsmodify)
 							{
 								// Handle the WYSIWYG editor.
-								if (textFields[i] == ', Utils::JavaScriptEscape(Utils::$context['post_box_name']), ' && ', Utils::JavaScriptEscape('oEditorHandle_' . Utils::$context['post_box_name']), ' in window && oEditorHandle_', Utils::$context['post_box_name'], '.bRichTextEnabled)
+								if (textFields[i] == ', Utils::escapeJavaScript(Utils::$context['post_box_name']), ' && ', Utils::escapeJavaScript('oEditorHandle_' . Utils::$context['post_box_name']), ' in window && oEditorHandle_', Utils::$context['post_box_name'], '.bRichTextEnabled)
 									x[x.length] = \'message_mode=1&\' + textFields[i] + \'=\' + oEditorHandle_', Utils::$context['post_box_name'], '.getText(false).replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
 								else
 									x[x.length] = textFields[i] + \'=\' + document.forms.newsmodify[textFields[i]].value.replace(/&#/g, \'&#38;#\').php_to8bit().php_urlencode();
@@ -384,7 +384,7 @@ function template_email_members_send()
 			</div>
 			<div class="windowbg">
 				<div class="progress_bar">
-					<span>', Utils::$context['percentage_done'], '% ', Lang::$txt['email_done'], '</span>
+					<span>', Lang::getTxt('email_done', Utils::$context), '</span>
 					<div class="bar" style="width: ', Utils::$context['percentage_done'], '%;"></div>
 				</div>
 				<hr>

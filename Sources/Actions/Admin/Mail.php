@@ -5,22 +5,27 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\MailAgent\MailAgent;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -30,25 +35,9 @@ use SMF\Utils;
  */
 class Mail implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManageMail',
-			'list_getMailQueue' => 'list_getMailQueue',
-			'list_getMailQueueSize' => 'list_getMailQueueSize',
-			'timeSince' => 'timeSince',
-			'browseMailQueue' => 'BrowseMailQueue',
-			'clearMailQueue' => 'ClearMailQueue',
-			'modifyMailSettings' => 'ModifyMailSettings',
-			'testMailSend' => 'TestMailSend',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -90,18 +79,6 @@ class Mail implements ActionInterface
 	 */
 	protected static array $processedBirthdayEmails = [];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -111,6 +88,22 @@ class Mail implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// You need to be an admin to edit settings!
+		User::$me->isAllowedTo('admin_forum');
+
+		Lang::load('Help');
+		Lang::load('ManageMail');
+
+		Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
+		Utils::$context['sub_template'] = 'show_settings';
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['mailqueue_title'],
+			'help' => '',
+			'description' => Lang::$txt['mailqueue_desc'],
+		];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -149,7 +142,7 @@ class Mail implements ActionInterface
 		Db::$db->free_result($request);
 
 		Utils::$context['oldest_mail'] = empty($mailOldest) ? Lang::$txt['mailqueue_oldest_not_available'] : self::timeSince(time() - $mailOldest);
-		Utils::$context['mail_queue_size'] = Lang::numberFormat($mailQueueSize);
+		Utils::$context['mail_queue_size'] = Lang::numberFormat((int) $mailQueueSize);
 
 		$listOptions = [
 			'id' => 'mail_queue',
@@ -309,8 +302,8 @@ class Mail implements ActionInterface
 
 			Utils::$context['settings_insert_above'] .= '
 				' . $index . ': {
-					subject: ' . Utils::JavaScriptEscape($email['subject']) . ',
-					body: ' . Utils::JavaScriptEscape(nl2br($email['body'])) . '
+					subject: ' . Utils::escapeJavaScript($email['subject']) . ',
+					body: ' . Utils::escapeJavaScript(nl2br($email['body'])) . '
 				}' . (!$is_last ? ',' : '');
 		}
 
@@ -393,28 +386,6 @@ class Mail implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for this admin area.
 	 *
 	 * @return array $config_vars for the news area.
@@ -438,24 +409,38 @@ class Mail implements ActionInterface
 			$emails[$index] = $index;
 		}
 
+		$detected_apis = MailAgent::detect();
+		$apis_names = [];
+
+		foreach ($detected_apis as $class_name => $agent) {
+			$class_name_txt_key = strtolower($agent->getImplementationClassKeyName());
+
+			$apis_names[$class_name] = Lang::$txt[$class_name_txt_key . '_mailagent'] ?? $class_name;
+		}
+
+		if (empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '') {
+			Config::$modSettings['mail_type'] = MailAgent::APIS_DEFAULT;
+		}
+
 		$config_vars = [
 			// Mail queue stuff, this rocks ;)
 			['int', 'mail_limit', 'subtext' => Lang::$txt['zero_to_disable']],
 			['int', 'mail_quantity'],
 			'',
 
-			// SMTP stuff.
-			['select', 'mail_type', [Lang::$txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS']],
-			['text', 'smtp_host'],
-			['text', 'smtp_port'],
-			['text', 'smtp_username'],
-			['password', 'smtp_password'],
-			'',
-
 			['select', 'birthday_email', $emails, 'value' => ['subject' => $subject, 'body' => $body], 'javascript' => 'onchange="fetch_birthday_preview()"'],
 			'birthday_subject' => ['var_message', 'birthday_subject', 'var_message' => self::$processedBirthdayEmails[empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3],
 			'birthday_body' => ['var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)],
+			'',
+
+			['select', 'mail_type', $apis_names],
 		];
+
+		foreach ($detected_apis as $class_name => $agent) {
+			if (is_callable([$agent, 'agentSettings'])) {
+				$agent->agentSettings($config_vars);
+			}
+		}
 
 		IntegrationHook::call('integrate_modify_mail_settings', [&$config_vars]);
 
@@ -471,7 +456,7 @@ class Mail implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array with info about the mail queue items
 	 */
-	public static function list_getMailQueue($start, $items_per_page, $sort): array
+	public static function list_getMailQueue(int $start, int $items_per_page, string $sort): array
 	{
 		$mails = [];
 
@@ -523,7 +508,7 @@ class Mail implements ActionInterface
 		list($mailQueueSize) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $mailQueueSize;
+		return (int) $mailQueueSize;
 	}
 
 	/**
@@ -532,7 +517,7 @@ class Mail implements ActionInterface
 	 * @param int $time_diff The time difference, in seconds
 	 * @return string A string indicating how many days, hours, minutes or seconds (depending on $time_diff)
 	 */
-	public static function timeSince($time_diff): string
+	public static function timeSince(int $time_diff): string
 	{
 		if ($time_diff < 0) {
 			$time_diff = 0;
@@ -540,71 +525,21 @@ class Mail implements ActionInterface
 
 		// Just do a bit of an if fest...
 		if ($time_diff > 86400) {
-			$days = round($time_diff / 86400, 1);
-
-			return sprintf($days == 1 ? Lang::$txt['mq_day'] : Lang::$txt['mq_days'], $time_diff / 86400);
+			return Lang::getTxt('mq_age', ['unit' => 'day', 'age' => round($time_diff / 86400, 1)]);
 		}
 
 		// Hours?
 		if ($time_diff > 3600) {
-			$hours = round($time_diff / 3600, 1);
-
-			return sprintf($hours == 1 ? Lang::$txt['mq_hour'] : Lang::$txt['mq_hours'], $hours);
+			return Lang::getTxt('mq_age', ['unit' => 'hour', 'age' => round($time_diff / 3600, 1)]);
 		}
 
 		// Minutes?
 		if ($time_diff > 60) {
-			$minutes = (int) ($time_diff / 60);
-
-			return sprintf($minutes == 1 ? Lang::$txt['mq_minute'] : Lang::$txt['mq_minutes'], $minutes);
+			return Lang::getTxt('mq_age', ['unit' => 'minute', 'age' => (int) ($time_diff / 60)]);
 		}
 
 		// Otherwise must be second
-		return sprintf($time_diff == 1 ? Lang::$txt['mq_second'] : Lang::$txt['mq_seconds'], $time_diff);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the browse sub-action.
-	 */
-	public static function browseMailQueue(): void
-	{
-		self::load();
-		self::$obj->subaction = 'browse';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the clear sub-action.
-	 */
-	public static function clearMailQueue(): void
-	{
-		self::load();
-		self::$obj->subaction = 'clear';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 */
-	public static function modifyMailSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the test sub-action.
-	 */
-	public static function testMailSend(): void
-	{
-		self::load();
-		self::$obj->subaction = 'test';
-		self::$obj->execute();
+		return Lang::getTxt('mq_age', ['unit' => 'second', 'age' => $time_diff]);
 	}
 
 	/******************
@@ -616,15 +551,6 @@ class Mail implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// You need to be an admin to edit settings!
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('Help');
-		Lang::load('ManageMail');
-
-		Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
-		Utils::$context['sub_template'] = 'show_settings';
-
 		IntegrationHook::call('integrate_manage_mail', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -632,13 +558,6 @@ class Mail implements ActionInterface
 		}
 
 		Utils::$context['sub_action'] = $this->subaction;
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['mailqueue_title'],
-			'help' => '',
-			'description' => Lang::$txt['mailqueue_desc'],
-		];
 	}
 
 	/**
@@ -647,11 +566,8 @@ class Mail implements ActionInterface
 	protected function pauseMailQueueClear(): void
 	{
 		// Try get more time...
-		@set_time_limit(600);
-
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		// Have we already used our maximum time?
 		if ((time() - TIME_START) < 5) {
@@ -675,11 +591,6 @@ class Mail implements ActionInterface
 
 		Utils::obExit();
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Mail::exportStatic')) {
-	Mail::exportStatic();
 }
 
 ?>

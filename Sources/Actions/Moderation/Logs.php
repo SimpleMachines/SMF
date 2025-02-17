@@ -5,16 +5,18 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Moderation;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -29,31 +31,12 @@ use SMF\User;
 use SMF\Utils;
 
 /**
- * The moderation and adminstration logs are this class's only job.
+ * The moderation and administration logs are this class's only job.
  * It views them, and that's about all it does.
  */
 class Logs implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ViewModlog',
-			'list_getModLogEntryCount' => 'list_getModLogEntryCount',
-			'list_getModLogEntries' => 'list_getModLogEntries',
-		],
-	];
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -197,28 +180,28 @@ class Logs implements ActionInterface
 	/**
 	 * @var array
 	 *
-	 *
+	 * An array of search parameters
 	 */
 	protected array $search_params;
 
 	/**
 	 * @var string
 	 *
-	 *
+	 * The search parameters string
 	 */
 	protected string $search_params_string;
 
 	/**
 	 * @var string
 	 *
-	 *
+	 * The column being searched
 	 */
 	protected string $search_params_column;
 
 	/**
 	 * @var string
 	 *
-	 *
+	 * URL-encoded search params
 	 */
 	protected string $encoded_search_params;
 
@@ -229,18 +212,6 @@ class Logs implements ActionInterface
 	 */
 	protected array $search_info;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -250,6 +221,11 @@ class Logs implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('Admin+Modlog');
+
+		// If we're coming from a search, set those variables.
+		$this->setupSearch();
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -258,9 +234,10 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles the admin log.
+	 * @uses createList()
 	 */
-	public function adminlog()
+	public function adminlog(): void
 	{
 		User::$me->isAllowedTo('admin_forum');
 
@@ -272,9 +249,10 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles the moderation log
+	 * @uses createList()
 	 */
-	public function modlog()
+	public function modlog(): void
 	{
 		Utils::$context['page_title'] = Lang::$txt['modlog_view'];
 
@@ -288,28 +266,6 @@ class Logs implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Get the number of mod log entries.
 	 * Callback for SMF\ItemList().
 	 *
@@ -319,7 +275,7 @@ class Logs implements ActionInterface
 	 * @param bool $ignore_boards Whether to ignore board restrictions
 	 * @return int Total number of visible log entries.
 	 */
-	public static function list_getModLogEntryCount($query_string = '', $query_params = [], $log_type = 1, $ignore_boards = false): int
+	public static function list_getModLogEntryCount(string $query_string = '', array $query_params = [], int $log_type = 1, bool $ignore_boards = false): int
 	{
 		$modlog_query = User::$me->allowedTo('admin_forum') || User::$me->mod_cache['bq'] == '1=1' ? '1=1' : ((User::$me->mod_cache['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr(User::$me->mod_cache['bq'], ['id_board' => 'b.id_board']) . ' AND ' . strtr(User::$me->mod_cache['bq'], ['id_board' => 't.id_board'])));
 
@@ -344,7 +300,7 @@ class Logs implements ActionInterface
 		list($entry_count) = Db::$db->fetch_row($result);
 		Db::$db->free_result($result);
 
-		return $entry_count;
+		return (int) $entry_count;
 	}
 
 	/**
@@ -360,7 +316,7 @@ class Logs implements ActionInterface
 	 * @param bool $ignore_boards Whether to ignore board restrictions
 	 * @return array An array of info about the mod log entries
 	 */
-	public static function list_getModLogEntries($start, $items_per_page, $sort, $query_string = '', $query_params = [], $log_type = 1, $ignore_boards = false): array
+	public static function list_getModLogEntries(int $start, int $items_per_page, string $sort, string $query_string = '', array $query_params = [], int $log_type = 1, bool $ignore_boards = false): array
 	{
 		$modlog_query = User::$me->allowedTo('admin_forum') || User::$me->mod_cache['bq'] == '1=1' ? '1=1' : ((User::$me->mod_cache['bq'] == '0=1' || $ignore_boards) ? 'lm.id_board = 0 AND lm.id_topic = 0' : (strtr(User::$me->mod_cache['bq'], ['id_board' => 'b.id_board']) . ' AND ' . strtr(User::$me->mod_cache['bq'], ['id_board' => 't.id_board'])));
 
@@ -422,6 +378,8 @@ class Logs implements ActionInterface
 
 			if (!empty($row['id_topic'])) {
 				$row['extra']['topic'] = $row['id_topic'];
+			} elseif ($row['action'] == 'remove') {
+				$row['extra']['topic'] = $row['extra']['old_topic_id'] ?? '?';
 			}
 
 			if (!empty($row['id_msg'])) {
@@ -499,7 +457,7 @@ class Logs implements ActionInterface
 				'moderator_link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? (Lang::$txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
-				'editable' => substr($row['action'], 0, 8) !== 'clearlog' && !in_array($row['action'], self::$uneditable_actions),
+				'editable' => !str_starts_with($row['action'], 'clearlog') && !in_array($row['action'], self::$uneditable_actions),
 				'extra' => $row['extra'],
 				'action' => $row['action'],
 				'action_text' => $row['action_text'] ?? '',
@@ -637,15 +595,17 @@ class Logs implements ActionInterface
 
 		// Do some formatting of the action string.
 		foreach ($entries as $k => $entry) {
-			// Make any message info links so its easier to go find that message.
+			// Make any message info links so it's easier to go find that message.
 			if (isset($entry['extra']['message']) && (empty($entry['message']) || empty($entry['message']['id']))) {
 				$entries[$k]['extra']['message'] = '<a href="' . Config::$scripturl . '?msg=' . $entry['extra']['message'] . '">' . $entry['extra']['message'] . '</a>';
 			}
 
 			// Mark up any deleted members, topics and boards.
 			foreach (['board', 'board_from', 'board_to', 'member', 'topic', 'new_topic'] as $type) {
-				if (!empty($entry['extra'][$type]) && is_numeric($entry['extra'][$type])) {
-					$entries[$k]['extra'][$type] = sprintf(Lang::$txt['modlog_id'], $entry['extra'][$type]);
+				if (in_array($type, ['topic', 'new_topic']) && !empty($entry['extra']['subject'])) {
+					$entries[$k]['extra'][$type] = $entry['extra']['subject'];
+				} elseif (!empty($entry['extra'][$type]) && is_numeric($entry['extra'][$type])) {
+					$entries[$k]['extra'][$type] = Lang::getTxt('modlog_id', [$entry['extra'][$type]]);
 				}
 			}
 
@@ -662,13 +622,9 @@ class Logs implements ActionInterface
 				$entries[$k]['action_text'] = Lang::$txt['modlog_ac_' . $entry['action']] ?? $entry['action'];
 			}
 
-			$entries[$k]['action_text'] = preg_replace_callback(
-				'~\{([A-Za-z\d_]+)\}~i',
-				function ($matches) use ($entries, $k) {
-					return $entries[$k]['extra'][$matches[1]] ?? '';
-				},
-				$entries[$k]['action_text'],
-			);
+			Lang::$txt['action_text'] = $entries[$k]['action_text'];
+			$entries[$k]['action_text'] = Lang::getTxt('action_text', (array) $entries[$k]['extra']);
+			unset(Lang::$txt['action_text']);
 		}
 
 		// Back we go!
@@ -703,25 +659,20 @@ class Logs implements ActionInterface
 
 		$this->can_delete = User::$me->allowedTo('admin_forum');
 
-		Lang::load('Admin+Modlog');
-
 		// Setup the direction stuff...
 		if (!empty($_REQUEST['sort']) && isset(self::$sort_types[$_REQUEST['sort']])) {
 			$this->sort = $_REQUEST['sort'];
 		}
-
-		// If we're coming from a search, set those variables.
-		$this->setupSearch();
 	}
 
 	/**
-	 *
+	 * Sets up the search
 	 */
 	protected function setupSearch(): void
 	{
 		if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search'])) {
-			$this->search_params = base64_decode(strtr($_REQUEST['params'], [' ' => '+']));
-			$this->search_params = Utils::jsonDecode($this->search_params, true);
+			$search_params = base64_decode(strtr($_REQUEST['params'], [' ' => '+']));
+			$this->search_params = Utils::jsonDecode($search_params, true);
 		}
 
 		if (!isset($this->search_params['string']) || (!empty($_REQUEST['search']) && $this->search_params['string'] != $_REQUEST['search'])) {
@@ -755,7 +706,7 @@ class Logs implements ActionInterface
 		if ($this->search_params['type'] == 'action' && !empty($this->search_params['string'])) {
 			// For the moment they can only search for ONE action!
 			foreach (Lang::$txt as $key => $text) {
-				if (substr($key, 0, 10) == 'modlog_ac_' && strpos($text, $this->search_params['string']) !== false) {
+				if (str_starts_with($key, 'modlog_ac_') && str_contains($text, $this->search_params['string'])) {
 					$this->search_params['string'] = substr($key, 10);
 					break;
 				}
@@ -764,7 +715,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles deleting log entries
 	 */
 	protected function deleteEntries(): void
 	{
@@ -776,7 +727,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles deleting all entries in either the mod or admin logs
 	 */
 	protected function deleteAll(): void
 	{
@@ -799,7 +750,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Deletes a single log entry
 	 */
 	protected function deleteEntry(): void
 	{
@@ -824,7 +775,7 @@ class Logs implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up all the information for the admin or mod log
 	 */
 	protected function createList(): void
 	{
@@ -952,7 +903,7 @@ class Logs implements ActionInterface
 				[
 					'position' => 'after_title',
 					'value' => '
-						' . Lang::$txt['modlog_search'] . ' (' . Lang::$txt['modlog_by'] . ': ' . $this->search_info['label'] . '):
+						' . Lang::getTxt('modlog_search_by', $this->search_info) . '
 						<input type="text" name="search" size="18" value="' . Utils::htmlspecialchars($this->search_info['string']) . '">
 						<input type="submit" name="is_search" value="' . Lang::$txt['modlog_go'] . '" class="button" style="float:none">
 						' . ($this->can_delete ? '
@@ -993,17 +944,6 @@ class Logs implements ActionInterface
 			];
 		}
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	// code...
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Logs::exportStatic')) {
-	Logs::exportStatic();
 }
 
 ?>

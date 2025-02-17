@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -23,6 +23,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PackageManager\SubsPackage;
+use SMF\Parser;
 use SMF\User;
 use SMF\Utils;
 
@@ -39,10 +40,6 @@ abstract class SearchApi implements SearchApiInterface
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'load' => 'findSearchAPI',
-			'detect' => 'loadSearchAPIs',
-		],
 		'prop_names' => [
 			'loadedApi' => 'searchAPI',
 		],
@@ -81,6 +78,15 @@ abstract class SearchApi implements SearchApiInterface
 	public bool $is_supported = true;
 
 	/**
+	 * @var string
+	 *
+	 * The status of this API's index.
+	 *
+	 * Either 'exists', 'partial', or 'none'.
+	 */
+	public string $status;
+
+	/**
 	 * @var float
 	 *
 	 * Used to calculate relevance.
@@ -116,26 +122,15 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * @var array
 	 *
-	 * Unfortunately, searching for words like these would be slow, so we're
-	 * blacklisting them.
+	 * Words to ignore when searching.
 	 *
-	 * @todo Make this aware of languages.
-	 * @todo Should blacklist all BBC.
-	 * @todo Setting to add custom values?
-	 * @todo Maybe only blacklist if they are the only word, or "any" is used?
+	 * Populated with the contents of:
+	 *  - Lang::$txt['search_stopwords']
+	 *  - Config::$modSettings['search_stopwords']
+	 *  - Config::$modSettings['search_stopwords_custom']
+	 *  - All known BBCode tags
 	 */
-	public array $blacklisted_words = [
-		'img',
-		'url',
-		'quote',
-		'www',
-		'http',
-		'the',
-		'is',
-		'it',
-		'are',
-		'if',
-	];
+	public array $blacklisted_words = [];
 
 	/**
 	 * @var array
@@ -254,7 +249,7 @@ abstract class SearchApi implements SearchApiInterface
 	 *
 	 * The loaded search API.
 	 *
-	 * For backward compatibilty, also referenced as global $searchAPI.
+	 * For backward compatibility, also referenced as global $searchAPI.
 	 */
 	public static $loadedApi;
 
@@ -430,6 +425,22 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function getSize(): int
+	{
+		return 0;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getStatus(): ?string
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function searchSort(string $a, string $b): int
 	{
 		return 0;
@@ -438,9 +449,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
-	{
-	}
+	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void {}
 
 	/**
 	 * {@inheritDoc}
@@ -453,16 +462,12 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
-	{
-	}
+	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void {}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
-	{
-	}
+	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void {}
 
 	/**
 	 * {@inheritDoc}
@@ -520,16 +525,32 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function topicsRemoved(array $topics): void
-	{
-	}
+	public function topicsRemoved(array $topics): void {}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function topicsMoved(array $topics, int $board_to): void
-	{
-	}
+	public function topicMerge(int $id_topic, array $topics, array $affected_msgs, ?string $subject): void {}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function topicSplit(int $id_topic, array $affected_msgs): void {}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function topicsMoved(array $topics, int $board_to): void {}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function formContext(): void {}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function resultsContext(): void {}
 
 	/**
 	 * {@inheritDoc}
@@ -619,7 +640,7 @@ abstract class SearchApi implements SearchApiInterface
 		$request = Db::$db->search_query(
 			'',
 			'
-			SELECT ' . (empty($this->params['topic']) ? 'lsr.id_topic' : $this->params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
+			SELECT lsr.id_topic, lsr.id_msg, lsr.relevance, lsr.num_matches
 			FROM {db_prefix}log_search_results AS lsr' . ($this->params['sort'] == 'num_replies' || !empty($approve_query) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
 			WHERE lsr.id_search = {int:id_search}' . $approve_query . '
@@ -731,9 +752,6 @@ abstract class SearchApi implements SearchApiInterface
 	 * This exists only for the sake of backward compatibility; mods extending
 	 * this class can already access the included data directly.
 	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
-	 *
 	 * @return array Data about this search query.
 	 */
 	public function getQueryParams(): array
@@ -743,6 +761,30 @@ abstract class SearchApi implements SearchApiInterface
 			'max_msg_id' => $this->maxMsgID,
 			'memberlist' => $this->memberlist,
 		]);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getAdminSubactions(): array
+	{
+		return [];
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getLabel(): string
+	{
+		return 'search_index_' . strtolower(substr(strrchr(get_class($this), '\\'), 1));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getDescription(): string
+	{
+		return 'search_index_' . strtolower(substr(strrchr(get_class($this), '\\'), 1)) . '_desc';
 	}
 
 	/***********************
@@ -778,7 +820,7 @@ abstract class SearchApi implements SearchApiInterface
 			// Log the error.
 			Lang::load('Errors');
 
-			ErrorHandler::log(sprintf(Lang::$txt['search_api_not_compatible'], 'Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php'), 'critical');
+			ErrorHandler::log(Lang::getTxt('search_api_not_compatible', ['Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php']), 'critical');
 
 			// Fall back to standard search.
 			if (Config::$modSettings['search_index'] !== 'standard') {
@@ -826,10 +868,12 @@ abstract class SearchApi implements SearchApiInterface
 
 			$loadedApis[$index_name] = [
 				'filename' => 'Search/APIs/' . $file_info->getBasename(),
+				'class' => $fully_qualified_class_name,
 				'setting_index' => $index_name,
-				'has_template' => in_array($index_name, ['custom', 'fulltext', 'standard']),
-				'label' => $index_name && isset(Lang::$txt['search_index_' . $index_name]) ? Lang::$txt['search_index_' . $index_name] : '',
-				'desc' => $index_name && isset(Lang::$txt['search_index_' . $index_name . '_desc']) ? Lang::$txt['search_index_' . $index_name . '_desc'] : '',
+				'has_template' => $index_name === 'standard',
+				'label' => $search_api->getLabel(),
+				'desc' => $search_api->getDescription(),
+				'instance' => $search_api,
 			];
 		}
 
@@ -861,7 +905,7 @@ abstract class SearchApi implements SearchApiInterface
 			$header = fread($fp, 4096);
 			fclose($fp);
 
-			if (strpos($header, '* SearchAPI-' . $matches[1] . '.php') === false) {
+			if (!str_contains($header, '* SearchAPI-' . $matches[1] . '.php')) {
 				continue;
 			}
 
@@ -883,14 +927,27 @@ abstract class SearchApi implements SearchApiInterface
 
 			$loadedApis[$index_name] = [
 				'filename' => $file_info->getFilename(),
+				'class' => $class_name,
 				'setting_index' => $index_name,
-				'has_template' => in_array($index_name, ['custom', 'fulltext', 'standard']),
-				'label' => $index_name && isset(Lang::$txt['search_index_' . $index_name]) ? Lang::$txt['search_index_' . $index_name] : '',
-				'desc' => $index_name && isset(Lang::$txt['search_index_' . $index_name . '_desc']) ? Lang::$txt['search_index_' . $index_name . '_desc'] : '',
+				'has_template' => $index_name === 'standard',
+				'label' => $search_api->getLabel(),
+				'desc' => $search_api->getDescription(),
+				'instance' => $search_api,
 			];
 		}
 
 		IntegrationHook::call('integrate_load_search_apis', [&$loadedApis]);
+
+		// Always list standard and fulltext first.
+		uksort(
+			$loadedApis,
+			function ($a, $b) {
+				$a = strtr($a, ['standard' => '0', 'fulltext' => 1]);
+				$b = strtr($b, ['standard' => '0', 'fulltext' => 1]);
+
+				return $a <=> $b;
+			},
+		);
 
 		return $loadedApis;
 	}
@@ -901,9 +958,6 @@ abstract class SearchApi implements SearchApiInterface
 
 	/**
 	 * Calculates the weight values to use when organizing results by relevance.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function calculateWeight(): void
 	{
@@ -922,20 +976,36 @@ abstract class SearchApi implements SearchApiInterface
 
 	/**
 	 * Allows changing $this->blacklisted_words.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function setBlacklistedWords(): void
 	{
+		// Blacklist any stopwords for the current language.
+		if (isset(Lang::$txt['search_stopwords'])) {
+			$this->blacklisted_words = array_unique(array_merge(
+				$this->blacklisted_words,
+				array_map('trim', explode(',', Lang::$txt['search_stopwords'])),
+			));
+		}
+
+		// Blacklist any stopwords that the admin set manually.
+		if (isset(Config::$modSettings['search_stopwords_custom'])) {
+			$this->blacklisted_words = array_unique(array_merge(
+				$this->blacklisted_words,
+				array_map('trim', explode(',', Config::$modSettings['search_stopwords_custom'])),
+			));
+		}
+
+		// Blacklist the BBC tags.
+		$this->blacklisted_words = array_unique(array_merge(
+			$this->blacklisted_words,
+			array_map(fn($code) => $code['tag'], Parser::getBBCodes()),
+		));
+
 		IntegrationHook::call('integrate_search_blacklisted_words', [&$this->blacklisted_words]);
 	}
 
 	/**
 	 * Figures out the values for $this->params and related properties.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function setParams(): void
 	{
@@ -1041,17 +1111,14 @@ abstract class SearchApi implements SearchApiInterface
 
 	/**
 	 * Populates $this->searchArray, $this->excludedWords, etc.
-	 *
-	 * This method is not part of SearchApiInterface, and sub-classes shouldn't
-	 * normally need to implement it themselves.
 	 */
 	protected function setSearchTerms(): void
 	{
 		// Change non-word characters into spaces.
 		$stripped_query = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
 
-		// Make the query lower case. It's gonna be case insensitive anyway.
-		$stripped_query = Utils::htmlspecialcharsDecode(Utils::strtolower($stripped_query));
+		// Fold the case of the query. It's gonna be case insensitive anyway.
+		$stripped_query = Utils::htmlspecialcharsDecode(Utils::casefold($stripped_query));
 
 		// This (hidden) setting will do fulltext searching in the most basic way.
 		if (!empty(Config::$modSettings['search_simple_fulltext'])) {
@@ -1084,7 +1151,7 @@ abstract class SearchApi implements SearchApiInterface
 
 		// Now we look for -test, etc.... normaller.
 		foreach ($wordArray as $index => $word) {
-			if (strpos(trim($word), '-') === 0) {
+			if (str_starts_with(trim($word), '-')) {
 				if (($word = trim($word, '-_\' ')) !== '' && !in_array($word, $this->blacklisted_words)) {
 					$this->excludedWords[] = $word;
 				}
@@ -1171,7 +1238,7 @@ abstract class SearchApi implements SearchApiInterface
 
 				$this->searchWords[$orIndex]['all_words'][] = $word;
 
-				$subjectWords = Utils::text2words($word);
+				$subjectWords = Utils::extractWords($word, 2);
 
 				if (!$is_excluded || count($subjectWords) === 1) {
 					$this->searchWords[$orIndex]['subject_words'] = array_merge($this->searchWords[$orIndex]['subject_words'], $subjectWords);
@@ -1208,7 +1275,10 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
+	 * Wraps the given string in regex to set a word boundary
 	 *
+	 * @param string $str The string
+	 * @return string
 	 */
 	protected function wordBoundaryWrapper(string $str): string
 	{
@@ -1216,7 +1286,10 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
+	 * Uses regex to escape SQL in the given string
 	 *
+	 * @param string $str The string to escape
+	 * @return string The escaped string
 	 */
 	protected function escapeSqlRegex(string $str): string
 	{
@@ -1224,7 +1297,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Finds the lowest and highest message ID based on the given min and/or max age
 	 */
 	protected function setMsgBounds(): void
 	{
@@ -1253,7 +1326,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Sets $this->userQuery based on given params
 	 */
 	protected function setUserQuery(): void
 	{
@@ -1333,7 +1406,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Sets $this->boardQuery based on the given params
 	 */
 	protected function setBoardQuery(): void
 	{
@@ -1345,7 +1418,7 @@ abstract class SearchApi implements SearchApiInterface
 		// Ensure that brd is an array.
 		if ((!empty($_REQUEST['brd']) && !is_array($_REQUEST['brd'])) || (!empty($_REQUEST['search_selection']) && $_REQUEST['search_selection'] == 'board')) {
 			if (!empty($_REQUEST['brd'])) {
-				$_REQUEST['brd'] = strpos($_REQUEST['brd'], ',') !== false ? explode(',', $_REQUEST['brd']) : [$_REQUEST['brd']];
+				$_REQUEST['brd'] = str_contains($_REQUEST['brd'], ',') ? explode(',', $_REQUEST['brd']) : [$_REQUEST['brd']];
 			} else {
 				$_REQUEST['brd'] = isset($_REQUEST['sd_brd']) ? [$_REQUEST['sd_brd']] : [];
 			}
@@ -1472,11 +1545,11 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Handles searching for posts in the subject only
 	 */
 	protected function searchSubjectOnly(): void
 	{
-		// We do this to try and avoid duplicate keys on databases not supporting INSERT IGNORE.
+		// We do this to try to avoid duplicate keys on databases not supporting INSERT IGNORE.
 		$inserts = [];
 
 		foreach ($this->searchWords as $orIndex => $words) {
@@ -1647,7 +1720,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 *
+	 * Handles searching both in the subject and message text
 	 */
 	protected function searchSubjectAndMessage()
 	{
@@ -1655,6 +1728,7 @@ abstract class SearchApi implements SearchApiInterface
 			'select' => [
 				'id_search' => $_SESSION['search_cache']['id_search'],
 				'relevance' => '0',
+				'id_topic' => 't.id_topic',
 			],
 			'weights' => [],
 			'from' => '{db_prefix}topics AS t',
@@ -1678,7 +1752,6 @@ abstract class SearchApi implements SearchApiInterface
 		];
 
 		if (empty($this->params['topic']) && empty($this->params['show_complete'])) {
-			$main_query['select']['id_topic'] = 't.id_topic';
 			$main_query['select']['id_msg'] = 'MAX(m.id_msg) AS id_msg';
 			$main_query['select']['num_matches'] = 'COUNT(*) AS num_matches';
 
@@ -1686,8 +1759,6 @@ abstract class SearchApi implements SearchApiInterface
 
 			$main_query['group_by'][] = 't.id_topic';
 		} else {
-			// This is outrageous!
-			$main_query['select']['id_topic'] = 'm.id_msg AS id_topic';
 			$main_query['select']['id_msg'] = 'm.id_msg';
 			$main_query['select']['num_matches'] = '1 AS num_matches';
 
@@ -2257,8 +2328,8 @@ abstract class SearchApi implements SearchApiInterface
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SearchApi::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([SearchApi::class, 'exportStatic'])) {
 	SearchApi::exportStatic();
 }
 

@@ -290,7 +290,7 @@ if (empty(Config::$modSettings['pm_spam_settings']))
 		INSERT IGNORE INTO {$db_prefix}settings
 			(variable, value)
 		VALUES
-			('pm_spam_settings', 'Config::$modSettings[pm_spam_settings]')");
+			('pm_spam_settings', '" . Config::$modSettings['pm_spam_settings'] . "')");
 }
 upgrade_query("
 	DELETE FROM {$db_prefix}settings
@@ -1526,7 +1526,7 @@ if ($numIndexedWords == 0 || isset($_GET['lt']))
 		$inserts = array();
 		while ($row = smf_mysql_fetch_assoc($request))
 		{
-			foreach (Utils::text2words($row['subject']) as $word)
+			foreach (Utils::extractWords($row['subject'], 2) as $word)
 				$inserts[] = "'" . smf_mysql_real_escape_string($word) . "', $row[ID_TOPIC]";
 		}
 		smf_mysql_free_result($request);

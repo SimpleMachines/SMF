@@ -5,18 +5,22 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  *
  * Original module by Mach8 - We'll never forget you.
  */
 
+declare(strict_types=1);
+
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
+use SMF\ActionTrait;
+use SMF\Autolinker;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -26,7 +30,11 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\PageIndex;
+use SMF\Parser;
+use SMF\Routable;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\Time;
@@ -37,31 +45,11 @@ use SMF\Utils;
 /**
  * Handles splitting of topics.
  */
-class TopicSplit implements ActionInterface
+class TopicSplit implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
+	use ActionTrait;
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'SplitTopics',
-			'splitTopic' => 'splitTopic',
-			'splitIndex' => 'SplitIndex',
-			'splitExecute' => 'SplitExecute',
-			'splitSelectTopics' => 'SplitSelectTopics',
-			'SplitSelectionExecute' => 'SplitSelectionExecute',
-		],
-	];
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
 
 	/*******************
 	 * Public properties
@@ -97,21 +85,19 @@ class TopicSplit implements ActionInterface
 
 	// code...
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['xml']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
 
 	/**
 	 * Splits a topic into two topics.
@@ -132,9 +118,7 @@ class TopicSplit implements ActionInterface
 		User::$me->isAllowedTo('split_any');
 
 		// Load up the "dependencies" - the template and getMsgMemberID().
-		if (!isset($_REQUEST['xml'])) {
-			Theme::loadTemplate('SplitTopics');
-		}
+		Theme::loadTemplate(!isset($_REQUEST['xml']) ? 'Xml' : 'SplitTopics');
 
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
@@ -153,7 +137,7 @@ class TopicSplit implements ActionInterface
 	 *   the first message of a topic.
 	 * - Shows the user three ways to split the current topic.
 	 */
-	public function index()
+	public function index(): ?string
 	{
 		// Validate "at".
 		if (empty($_GET['at'])) {
@@ -211,6 +195,8 @@ class TopicSplit implements ActionInterface
 		];
 		Utils::$context['sub_template'] = 'ask';
 		Utils::$context['page_title'] = Lang::$txt['split'];
+
+		return null;
 	}
 
 	/**
@@ -224,7 +210,7 @@ class TopicSplit implements ActionInterface
 	 *   (3) select topics to split (redirects to select()).
 	 * - Uses splitTopic function to do the actual splitting.
 	 */
-	public function split()
+	public function split(): void
 	{
 		// Check the session to make sure they meant to do this.
 		User::$me->checkSession();
@@ -286,9 +272,9 @@ class TopicSplit implements ActionInterface
 	 * - Shows two independent page indexes for both the selected and
 	 *   not-selected messages (;topic=1.x;start2=y).
 	 */
-	public function select()
+	public function select(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['split'] . ' - ' . Lang::$txt['select_split_posts'];
+		Utils::$context['page_title'] = Lang::$txt['select_split_posts'];
 
 		// Haven't selected anything have we?
 		$_SESSION['split_selection'][Topic::$topic_id] = empty($_SESSION['split_selection'][Topic::$topic_id]) ? [] : $_SESSION['split_selection'][Topic::$topic_id];
@@ -457,7 +443,7 @@ class TopicSplit implements ActionInterface
 		// Get the messages and stick them into an array.
 		$request = Db::$db->query(
 			'',
-			'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled
+			'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled, m.version
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 			WHERE m.id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
@@ -478,7 +464,17 @@ class TopicSplit implements ActionInterface
 			Lang::censorText($row['subject']);
 			Lang::censorText($row['body']);
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			// Old SMF versions autolinked during output rather than input,
+			// so maintain expected behaviour for those old messages.
+			if (version_compare($row['version'], '3.0', '<')) {
+				$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+			}
+
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
 
 			Utils::$context['not_selected']['messages'][$row['id_msg']] = [
 				'id' => $row['id_msg'],
@@ -496,7 +492,7 @@ class TopicSplit implements ActionInterface
 			// Get the messages and stick them into an array.
 			$request = Db::$db->query(
 				'',
-				'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name,  m.poster_time, m.body, m.id_msg, m.smileys_enabled
+				'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name,  m.poster_time, m.body, m.id_msg, m.smileys_enabled, m.version
 				FROM {db_prefix}messages AS m
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
 				WHERE m.id_topic = {int:current_topic}
@@ -517,7 +513,17 @@ class TopicSplit implements ActionInterface
 				Lang::censorText($row['subject']);
 				Lang::censorText($row['body']);
 
-				$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+				// Old SMF versions autolinked during output rather than input,
+				// so maintain expected behaviour for those old messages.
+				if (version_compare($row['version'], '3.0', '<')) {
+					$row['body'] = Autolinker::load(true)->makeLinks($row['body']);
+				}
+
+				$row['body'] = Parser::transform(
+					string: $row['body'],
+					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+					options: ['cache_id' => (int) $row['id_msg']],
+				);
 
 				Utils::$context['selected']['messages'][$row['id_msg']] = [
 					'id' => $row['id_msg'],
@@ -575,7 +581,7 @@ class TopicSplit implements ActionInterface
 	 * - Uses the main SplitTopics template.
 	 * - Uses splitTopic function to do the actual splitting.
 	 */
-	public function splitSelection()
+	public function splitSelection(): void
 	{
 		// Make sure the session id was passed with post.
 		User::$me->checkSession();
@@ -600,28 +606,6 @@ class TopicSplit implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * General function to split off a topic.
 	 *
 	 * - Creates a new topic and moves the messages with the IDs in
@@ -637,7 +621,7 @@ class TopicSplit implements ActionInterface
 	 * @param string $new_subject The subject of the new topic
 	 * @return int The ID of the new split topic.
 	 */
-	public static function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
+	public static function splitTopic(int $split1_ID_TOPIC, array $splitMessages, string $new_subject): int
 	{
 		// Nothing to split?
 		if (empty($splitMessages)) {
@@ -687,11 +671,11 @@ class TopicSplit implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Get the right first and last message dependent on approved state...
 			if (empty($split1_first_msg) || $row['myid_first_msg'] < $split1_first_msg) {
-				$split1_first_msg = $row['myid_first_msg'];
+				$split1_first_msg = (int) $row['myid_first_msg'];
 			}
 
 			if (empty($split1_last_msg) || $row['approved']) {
-				$split1_last_msg = $row['myid_last_msg'];
+				$split1_last_msg = (int) $row['myid_last_msg'];
 			}
 
 			// Get the counts correct...
@@ -734,11 +718,11 @@ class TopicSplit implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// As before get the right first and last message dependent on approved state...
 			if (empty($split2_first_msg) || $row['myid_first_msg'] < $split2_first_msg) {
-				$split2_first_msg = $row['myid_first_msg'];
+				$split2_first_msg = (int) $row['myid_first_msg'];
 			}
 
 			if (empty($split2_last_msg) || $row['approved']) {
-				$split2_last_msg = $row['myid_last_msg'];
+				$split2_last_msg = (int) $row['myid_last_msg'];
 			}
 
 			// Then do the counts again...
@@ -794,15 +778,17 @@ class TopicSplit implements ActionInterface
 				'is_sticky' => 'int',
 			],
 			[
-				(int) $id_board,
-				$split2_firstMem,
-				$split2_lastMem,
-				0,
-				0,
-				$split2_replies,
-				$split2_unapprovedposts,
-				(int) $split2_approved,
-				0,
+				[
+					(int) $id_board,
+					$split2_firstMem,
+					$split2_lastMem,
+					0,
+					0,
+					$split2_replies,
+					$split2_unapprovedposts,
+					(int) $split2_approved,
+					0,
+				],
 			],
 			['id_topic'],
 			1,
@@ -954,7 +940,7 @@ class TopicSplit implements ActionInterface
 
 		// Housekeeping.
 		Logging::updateStats('topic');
-		Msg::updateLastMessages($id_board);
+		Msg::updateLastMessages([$id_board]);
 
 		Logging::logAction('split', ['topic' => $split1_ID_TOPIC, 'new_topic' => $split2_ID_TOPIC, 'board' => $id_board]);
 
@@ -962,6 +948,7 @@ class TopicSplit implements ActionInterface
 		Mail::sendNotifications($split1_ID_TOPIC, 'split');
 
 		// If there's a search index that needs updating, update it...
+		/** @var \SMF\Search\SearchApiInterface $searchAPI */
 		$searchAPI = SearchApi::load();
 
 		if (is_callable([$searchAPI, 'topicSplit'])) {
@@ -995,46 +982,6 @@ class TopicSplit implements ActionInterface
 		return $split2_ID_TOPIC;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the index sub-action.
-	 */
-	public static function splitIndex(): void
-	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the split sub-action.
-	 */
-	public static function splitExecute(): void
-	{
-		self::load();
-		self::$obj->subaction = 'split';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the selectTopics sub-action.
-	 */
-	public static function splitSelectTopics(): void
-	{
-		self::load();
-		self::$obj->subaction = 'selectTopics';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the splitSelection sub-action.
-	 */
-	public static function SplitSelectionExecute(): void
-	{
-		self::load();
-		self::$obj->subaction = 'splitSelection';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1054,11 +1001,6 @@ class TopicSplit implements ActionInterface
 			$this->subaction = $_GET['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TopicSplit::exportStatic')) {
-	TopicSplit::exportStatic();
 }
 
 ?>

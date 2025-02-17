@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -28,39 +30,6 @@ class Utils
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'sanitizeChars' => 'sanitize_chars',
-			'normalizeSpaces' => 'normalize_spaces',
-			'htmlspecialcharsRecursive' => 'htmlspecialchars__recursive',
-			'htmlspecialcharsDecode' => 'un_htmlspecialchars',
-			'htmlTrimRecursive' => 'htmltrim__recursive',
-			'shorten' => 'shorten_subject',
-			'text2words' => 'text2words',
-			'buildRegex' => 'build_regex',
-			'cleanXml' => 'cleanXml',
-			'JavaScriptEscape' => 'JavaScriptEscape',
-			'stripslashesRecursive' => 'stripslashes__recursive',
-			'urldecodeRecursive' => 'urldecode__recursive',
-			'escapestringRecursive' => 'escapestring__recursive',
-			'unescapestringRecursive' => 'unescapestring__recursive',
-			'truncateArray' => 'truncate_array',
-			'arrayLength' => 'array_length',
-			'jsonDecode' => 'smf_json_decode',
-			'safeSerialize' => 'safe_serialize',
-			'safeUnserialize' => 'safe_unserialize',
-			'getMimeType' => 'get_mime_type',
-			'checkMimeType' => 'check_mime_type',
-			'makeWritable' => 'smf_chmod',
-			'sendHttpStatus' => 'send_http_status',
-			'serverResponse' => 'smf_serverResponse',
-			'redirectexit' => 'redirectexit',
-			'obExit' => 'obExit',
-			'getCallable' => 'getCallable',
-			'call_helper' => 'call_helper',
-			'replaceEntities__callback' => 'replaceEntities__callback',
-			'fixchar__callback' => 'fixchar__callback',
-			'entity_fix__callback' => 'entity_fix__callback',
-		],
 		'prop_names' => [
 			'context' => 'context',
 			'smcFunc' => 'smcFunc',
@@ -72,15 +41,198 @@ class Utils
 	 *****************/
 
 	/**
-	 * Regular expression to match named entities for HTML special characters
-	 * and any numeric entities.
+	 * Regular expression to match all named HTML entities and numeric entities.
 	 */
-	public const ENT_LIST = '&(?' . '>nbsp|quot|gt|lt|a(?' . '>pos|mp)|#(?' . '>\d+|x[0-9a-fA-F]+));';
+	public const ENT_LIST = '&(?' . '>A(?' . '>acute|breve|grave|tilde|Elig|lpha' .
+		'|macr|ring|scr|uml|fr|nd|c(?' . '>irc|y)|o(?' . '>gon|pf))|B(?' . '>rev' .
+		'e|arv|opf|scr|cy|fr|e(?' . '>cause|ta))|C(?' . '>ircle(?' . '>Times|Plu' .
+		's|Dot)|ross|Hcy|dot|scr|fr|hi|up(?' . '>Cap|)|a(?' . '>cute|p(?' . '>it' .
+		'alDifferentialD|))|c(?' . '>onint|aron|edil|irc)|e(?' . '>nterDot|dilla' .
+		')|o(?' . '>product|lon(?' . '>e|)|n(?' . '>tourIntegral|gruent)))|D(?' .
+		'>Dotrahd|elta|Jcy|Scy|Zcy|fr|a(?' . '>gger|shv|rr)|c(?' . '>aron|y)|i(?' .
+		'>fferentialD|acritical(?' . '>DoubleAcute|Acute|Tilde))|o(?' . '>tDot|u' .
+		'ble(?' . '>ContourIntegral|RightTee|UpArrow|Dot|L(?' . '>ongRightArrow|' .
+		'eftArrow))|pf|wn(?' . '>Arrow(?' . '>UpArrow|Bar)|Breve|Right(?' . '>Te' .
+		'eVector|VectorBar)|arrow|Left(?' . '>RightVector|TeeVector|VectorBar)|T' .
+		'ee(?' . '>Arrow|)))|s(?' . '>trok|cr))|E(?' . '>psilon|acute|grave|xist' .
+		's|qual|dot|sim|uml|NG|TH|fr|ta|c(?' . '>aron|irc|y)|m(?' . '>acr|pty(?' .
+		'>VerySmallSquare|SmallSquare))|o(?' . '>gon|pf))|F(?' . '>illedSmallSqu' .
+		'are|cy|fr|o(?' . '>uriertrf|pf))|G(?' . '>reater(?' . '>Greater|Tilde)|' .
+		'breve|amma(?' . '>d|)|Jcy|dot|opf|scr|fr|c(?' . '>edil|irc|y)|g)|H(?' .
+		'>ilbertSpace|umpEqual|ARDcy|strok|circ|fr|a(?' . '>cek|t)|o(?' . '>rizo' .
+		'ntalLine|pf))|I(?' . '>acute|grave|tilde|Jlig|Ecy|Ocy|dot|fr|c(?' . '>i' .
+		'rc|y)|m(?' . '>plies|a(?' . '>ginaryI|cr))|n(?' . '>visibleTimes|t(?' .
+		'>egral|))|o(?' . '>gon|pf|ta)|u(?' . '>kcy|ml))|J(?' . '>ukcy|opf|fr|c(' .
+		'?' . '>irc|y)|s(?' . '>ercy|cr))|K(?' . '>appa|Hcy|Jcy|opf|scr|fr|c(?' .
+		'>edil|y))|L(?' . '>midot|Jcy|fr|a(?' . '>cute|mbda|ng|rr)|c(?' . '>aron' .
+		'|edil|y)|e(?' . '>ft(?' . '>RightVector|VectorBar|ArrowBar|Floor|Do(?' .
+		'>ubleBracket|wn(?' . '>TeeVector|VectorBar))|Up(?' . '>DownVector|TeeVe' .
+		'ctor|VectorBar)|T(?' . '>riangle(?' . '>Equal|Bar)|ee(?' . '>Vector|Arr' .
+		'ow)))|ss(?' . '>Tilde|Less))|l|o(?' . '>werRightArrow|ng(?' . '>LeftRig' .
+		'htArrow|RightArrow)|pf)|s(?' . '>trok|h))|M(?' . '>inusPlus|opf|ap|cy|f' .
+		'r|e(?' . '>diumSpace|llintrf)|u)|N(?' . '>ewLine|acute|tilde|Jcy|scr|fr' .
+		'|c(?' . '>aron|edil|y)|o(?' . '>Break|t(?' . '>RightTriangle(?' . '>Equ' .
+		'al|Bar)|Precedes(?' . '>SlantEqual|Equal)|Greater(?' . '>FullEqual|Grea' .
+		'ter|Less)|Nested(?' . '>GreaterGreater|LessLess)|Equal|Tilde|Le(?' . '>' .
+		'ftTriangleBar|ss(?' . '>Equal|))|C(?' . '>ongruent|upCap)|S(?' . '>quar' .
+		'eSu(?' . '>perset(?' . '>Equal|)|bset(?' . '>Equal|))|u(?' . '>persetEq' .
+		'ual|bsetEqual|cceeds(?' . '>SlantEqual|Equal|Tilde|)))|))|u)|O(?' . '>p' .
+		'enCurly(?' . '>DoubleQuote|Quote)|acute|dblac|grave|Elig|opf|uml|ver(?' .
+		'>Parenthesis|Brac(?' . '>ket|e))|fr|ti(?' . '>lde|mes)|c(?' . '>irc|y)|' .
+		'm(?' . '>icron|acr|ega)|r|s(?' . '>lash|cr))|P(?' . '>cy|fr|hi|i|r(?' .
+		'>ecedesSlantEqual|ime|)|s(?' . '>cr|i))|Q(?' . '>scr|fr)|R(?' . '>uleDe' .
+		'layed|everse(?' . '>UpEquilibrium|Element)|ight(?' . '>VectorBar|Ceilin' .
+		'g|Floor|Do(?' . '>ubleBracket|wn(?' . '>TeeVector|Vector(?' . '>Bar|)))' .
+		'|Up(?' . '>DownVector|TeeVector|Vector(?' . '>Bar|))|A(?' . '>ngleBrack' .
+		'et|rrowBar)|T(?' . '>eeVector|riangle(?' . '>Equal|Bar)))|fr|ho|a(?' .
+		'>cute|rrtl|ng)|c(?' . '>aron|edil|y)|o(?' . '>undImplies|pf))|S(?' . '>' .
+		'OFTcy|acute|igma|opf|scr|tar|fr|H(?' . '>CHcy|cy)|c(?' . '>aron|edil|ir' .
+		'c|y|)|q(?' . '>uare(?' . '>Su(?' . '>persetEqual|bsetEqual)|)|rt)|u(?' .
+		'>cceeds(?' . '>Equal|Tilde)|pset|b(?' . '>setEqual|)))|T(?' . '>ildeFul' .
+		'lEqual|ripleDot|HORN|opf|fr|S(?' . '>Hcy|cy)|a(?' . '>b|u)|c(?' . '>aro' .
+		'n|edil|y)|h(?' . '>eta|i(?' . '>ckSpace|nSpace))|s(?' . '>trok|cr))|U(?' .
+		'>dblac|grave|tilde|macr|ring|scr|uml|br(?' . '>eve|cy)|fr|a(?' . '>cute' .
+		'|rr(?' . '>ocir|))|c(?' . '>irc|y)|n(?' . '>ionPlus|der(?' . '>Parenthe' .
+		'sis|Brace))|o(?' . '>gon|pf)|p(?' . '>perRightArrow|DownArrow|downarrow' .
+		'|ArrowBar|TeeArrow|silon))|V(?' . '>vdash|Dash|dash(?' . '>l|)|bar|opf|' .
+		'scr|cy|er(?' . '>ticalSeparator|bar)|fr)|W(?' . '>circ|opf|scr|fr)|X(?' .
+		'>opf|scr|fr|i)|Y(?' . '>acute|Acy|Icy|Ucy|opf|scr|uml|fr|c(?' . '>irc|y' .
+		'))|Z(?' . '>acute|Hcy|dot|opf|scr|fr|c(?' . '>aron|y)|e(?' . '>roWidthS' .
+		'pace|ta))|a(?' . '>acute|breve|grave|tilde|elig|ring|uml|c(?' . '>irc|E' .
+		'|d|y|)|f(?' . '>r|)|l(?' . '>eph|pha)|m(?' . '>a(?' . '>cr|lg)|p)|n(?' .
+		'>d(?' . '>slope|and|d|v|)|g(?' . '>zarr|msd(?' . '>a(?' . '>a|b|c|d|e|f' .
+		'|g|h)|)|sph|le|rt(?' . '>vb(?' . '>d|)|)|e))|o(?' . '>gon|pf)|p(?' . '>' .
+		'acir|prox|id|os|E|e)|s(?' . '>cr|t)|w(?' . '>conint|int))|b(?' . '>karo' .
+		'w|rvbar|dquo|Not|brk(?' . '>tbrk|)|fr|ig(?' . '>triangle(?' . '>down|up' .
+		')|sqcup|uplus|c(?' . '>irc|ap|up)|o(?' . '>times|plus))|a(?' . '>ck(?' .
+		'>epsilon|prime|simeq)|r(?' . '>vee|wed))|c(?' . '>ong|y)|e(?' . '>mptyv' .
+		'|t(?' . '>ween|a|h))|l(?' . '>ock|a(?' . '>cktriangle(?' . '>right|down' .
+		'|left|)|nk)|k(?' . '>34|1(?' . '>2|4)))|n(?' . '>ot|e(?' . '>quiv|))|o(' .
+		'?' . '>wtie|pf|x(?' . '>minus|plus|box|D(?' . '>L|R|l|r)|H(?' . '>D|U|d' .
+		'|u|)|U(?' . '>L|R|l|r)|V(?' . '>H|L|R|h|l|r|)|d(?' . '>L|R|l|r)|h(?' .
+		'>D|U|d|u)|u(?' . '>L|R|l|r)|v(?' . '>H|L|R|h|l|r|)))|s(?' . '>emi|cr|im' .
+		'|ol(?' . '>hsub|b|))|u(?' . '>ll|mp(?' . '>E|)))|c(?' . '>ylcty|lubs|td' .
+		'ot|dot|fr|ir(?' . '>fnint|scir|mid|E|c(?' . '>eq|)|)|a(?' . '>cute|ret|' .
+		'p(?' . '>brcup|and|dot|c(?' . '>ap|up)|s|))|c(?' . '>edil|irc|ups(?' .
+		'>sm|)|a(?' . '>ron|ps))|e(?' . '>mptyv|nt)|h(?' . '>eck|cy|i)|o(?' . '>' .
+		'ngdot|lon(?' . '>eq|)|m(?' . '>ma(?' . '>t|)|p(?' . '>lexes|fn|))|p(?' .
+		'>f|y(?' . '>sr|)))|r(?' . '>arr|oss)|s(?' . '>cr|u(?' . '>b(?' . '>e|)|' .
+		'p(?' . '>e|)))|u(?' . '>larrp|darr(?' . '>l|r)|esc|p(?' . '>brcap|dot|o' .
+		'r|c(?' . '>ap|up)|s|)|r(?' . '>vearrowleft|arr(?' . '>m|)|ren|ly(?' .
+		'>eqprec|wedge|vee)))|w(?' . '>conint|int))|d(?' . '>bkarow|dotseq|wangl' .
+		'e|lcrop|harl|tdot|Har|jcy|a(?' . '>gger|leth|shv|rr)|c(?' . '>aron|y)|e' .
+		'(?' . '>mptyv|lta|g)|f(?' . '>isht|r)|i(?' . '>amond(?' . '>suit|)|sin|' .
+		'v(?' . '>ide|onx))|o(?' . '>ublebarwedge|wndownarrows|llar|pf|t(?' . '>' .
+		'eqdot|))|r(?' . '>bkarow|c(?' . '>orn|rop))|s(?' . '>trok|ol|c(?' . '>r' .
+		'|y))|z(?' . '>igrarr|cy))|e(?' . '>rarr|dot|fr|a(?' . '>cute|ster)|c(?' .
+		'>aron|ir(?' . '>c|)|y)|g(?' . '>rave|s(?' . '>dot|)|)|l(?' . '>inters|l' .
+		'|s(?' . '>dot|)|)|m(?' . '>acr|pty|sp(?' . '>1(?' . '>3|4)|))|n(?' . '>' .
+		'sp|g)|o(?' . '>gon|pf)|p(?' . '>lus|ar(?' . '>sl|)|si)|q(?' . '>vparsl|' .
+		'colon|u(?' . '>ivDD|als|est))|s(?' . '>dot|cr|im)|t(?' . '>a|h)|u(?' .
+		'>ml|ro)|x(?' . '>cl|p(?' . '>onentiale|ectation)))|f(?' . '>allingdotse' .
+		'q|partint|emale|ilig|jlig|nof|scr|cy|f(?' . '>ilig|l(?' . '>lig|ig)|r)|' .
+		'l(?' . '>lig|tns|at)|o(?' . '>pf|r(?' . '>all|kv))|r(?' . '>own|a(?' .
+		'>sl|c(?' . '>45|78|1(?' . '>3|4|5|6|8)|2(?' . '>3|5)|3(?' . '>4|5|8)|5(' .
+		'?' . '>6|8)))))|g(?' . '>vertneqq|breve|imel|rave|dot|jcy|opf|El|fr|a(?' .
+		'>cute|mma(?' . '>d|)|p)|c(?' . '>irc|y)|e(?' . '>qq|s(?' . '>dot(?' .
+		'>o(?' . '>l|)|)|cc|l(?' . '>es|)|)|)|g|l(?' . '>E|a|j|)|n(?' . '>sim|ap' .
+		'|e(?' . '>qq|))|s(?' . '>cr|im(?' . '>e|l))|t(?' . '>quest|lPar|c(?' .
+		'>ir|c)|r(?' . '>eqless|arr|dot)|))|h(?' . '>circ|Arr|fr|a(?' . '>irsp|l' .
+		'f|r(?' . '>dcy|r(?' . '>cir|w|)))|e(?' . '>arts|llip|rcon)|o(?' . '>mth' .
+		't|rbar|arr|pf)|s(?' . '>trok|cr)|y(?' . '>bull|phen))|i(?' . '>acute|gr' .
+		'ave|quest|tilde|jlig|prod|fr|c(?' . '>irc|y|)|e(?' . '>xcl|cy)|i(?' .
+		'>iint|nfin|ota)|m(?' . '>ped|of|a(?' . '>gline|cr))|n(?' . '>care|odot|' .
+		'fin(?' . '>tie|)|t(?' . '>larhk|cal))|o(?' . '>gon|cy|pf|ta)|s(?' . '>c' .
+		'r|in(?' . '>dot|E|s(?' . '>v|)|v))|u(?' . '>kcy|ml))|j(?' . '>math|ukcy' .
+		'|opf|fr|c(?' . '>irc|y)|s(?' . '>ercy|cr))|k(?' . '>green|appa|hcy|jcy|' .
+		'opf|scr|fr|c(?' . '>edil|y))|l(?' . '>vertneqq|Barr|Har|jcy|par(?' . '>' .
+		'lt|)|gE|ur(?' . '>dshar|uhar)|A(?' . '>tail|arr)|E|a(?' . '>emptyv|cute' .
+		'|gran|mbda|quo|ng(?' . '>le|d)|rr(?' . '>bfs|sim|fs|hk|lp|pl|tl|)|p|t(?' .
+		'>ail|e(?' . '>s|)|))|b(?' . '>arr|brk|r(?' . '>ac(?' . '>e|k)|k(?' . '>' .
+		'sl(?' . '>d|u)|e)))|c(?' . '>aron|e(?' . '>dil|il)|y)|d(?' . '>ca|sh|r(' .
+		'?' . '>ushar|dhar))|e(?' . '>ft(?' . '>rightharpoons|harpoon(?' . '>dow' .
+		'n|up))|q|s(?' . '>dot(?' . '>o(?' . '>r|)|)|cc|g(?' . '>es|)|s(?' . '>d' .
+		'ot|gtr|eq(?' . '>qgtr|gtr))|))|f(?' . '>isht|r)|h(?' . '>arul|blk)|l(?' .
+		'>corner|hard|arr|tri|)|m(?' . '>idot|oust)|n(?' . '>sim|ap|e(?' . '>qq|' .
+		'))|o(?' . '>oparrowright|ngleftarrow|times|a(?' . '>ng|rr)|p(?' . '>lus' .
+		'|ar|f)|w(?' . '>ast|bar)|z(?' . '>enge|f))|r(?' . '>hard|arr|tri|m)|s(?' .
+		'>aquo|trok|cr|im(?' . '>e|g))|t(?' . '>quest|hree|imes|larr|c(?' . '>ir' .
+		'|c)|r(?' . '>Par|i)|))|m(?' . '>DDot|dash|lcp|scr|fr|ho|a(?' . '>rker|c' .
+		'r|l(?' . '>tese|e)|p)|c(?' . '>omma|y)|i(?' . '>cro|nus(?' . '>d(?' .
+		'>u|)|)|d(?' . '>cir|))|o(?' . '>dels|pf)|u(?' . '>map|))|n(?' . '>dash|' .
+		'jcy|fr|is(?' . '>d|)|G(?' . '>g|t)|L(?' . '>eftarrow|l|t(?' . '>v|))|V(' .
+		'?' . '>Dash|dash)|a(?' . '>cute|bla|tur(?' . '>als|)|ng|p(?' . '>prox|i' .
+		'd|os|E))|b(?' . '>ump(?' . '>e|)|sp)|c(?' . '>edil|ong(?' . '>dot|)|up|' .
+		'a(?' . '>ron|p)|y)|e(?' . '>arhk|xist|Arr|dot|sim)|g(?' . '>sim|tr|e(?' .
+		'>q|s))|h(?' . '>Arr|par)|l(?' . '>sim|tri(?' . '>e|)|dr|E|e(?' . '>ft(?' .
+		'>rightarrow|arrow)|s))|o(?' . '>pf|t(?' . '>niv(?' . '>a|b|c)|in(?' .
+		'>dot|E|v(?' . '>b|c)|)|))|p(?' . '>olint|ar(?' . '>allel|sl|t)|r)|r(?' .
+		'>Arr|arr(?' . '>c|w|))|s(?' . '>hortmid|ime|cr|u(?' . '>b(?' . '>E|)|p(' .
+		'?' . '>set(?' . '>eqq|)|)))|t(?' . '>riangleright|ilde|lg)|u(?' . '>m(?' .
+		'>ero|sp|)|)|v(?' . '>infin|Dash|Harr|dash|sim|ap|g(?' . '>e|t)|l(?' .
+		'>Arr|e|t(?' . '>rie|))|r(?' . '>trie|Arr))|w(?' . '>near|Arr|ar(?' . '>' .
+		'row|hk)))|o(?' . '>elig|hbar|vbar|opf|uml|ti(?' . '>mesas|lde)|S|a(?' .
+		'>cute|st)|c(?' . '>ir(?' . '>c|)|y)|d(?' . '>blac|sold|ash|iv)|f(?' .
+		'>cir|r)|g(?' . '>rave|on|t)|l(?' . '>arr|ine|c(?' . '>ross|ir)|t)|m(?' .
+		'>acr|ega|i(?' . '>cron|nus|d))|p(?' . '>erp|ar)|r(?' . '>slope|igof|arr' .
+		'|or|d(?' . '>erof|f|m|)|v|)|s(?' . '>lash|ol))|p(?' . '>uncsp|ar(?' .
+		'>a|s(?' . '>im|l)|t)|cy|er(?' . '>tenk|cnt|iod|mil|p)|fr|h(?' . '>one|i' .
+		')|i(?' . '>tchfork|v|)|l(?' . '>anck(?' . '>h|)|us(?' . '>acir|cir|sim|' .
+		'two|mn|d(?' . '>o|u)|e|))|o(?' . '>intint|und|pf)|r(?' . '>urel|ime(?' .
+		'>s|)|ec(?' . '>approx|sim|eq|n(?' . '>approx|eqq|sim)|)|E|o(?' . '>d|f(' .
+		'?' . '>alar|line|surf)|p))|s(?' . '>cr|i))|q(?' . '>prime|opf|scr|fr|u(' .
+		'?' . '>atint|est|ot))|r(?' . '>uluhar|moust|nmid|rarr|Har|lm|A(?' . '>t' .
+		'ail|arr)|a(?' . '>emptyv|quo|ng(?' . '>d|e)|rr(?' . '>bfs|sim|ap|fs|hk|' .
+		'pl|tl|c|w)|c(?' . '>ute|e)|t(?' . '>ail|io(?' . '>nals|)))|b(?' . '>brk' .
+		'|rk(?' . '>sl(?' . '>d|u)|e))|c(?' . '>aron|edil|ub|y)|d(?' . '>ldhar|q' .
+		'uo|ca|sh)|e(?' . '>aline|ct|g)|f(?' . '>isht|r)|h(?' . '>ar(?' . '>d|u(' .
+		'?' . '>l|))|o(?' . '>v|))|i(?' . '>singdotseq|ghtleft(?' . '>harpoons|a' .
+		'rrows)|ng)|o(?' . '>times|a(?' . '>ng|rr)|p(?' . '>lus|ar|f))|p(?' . '>' .
+		'polint|ar(?' . '>gt|))|s(?' . '>aquo|cr|h|q(?' . '>uo|b))|t(?' . '>hree' .
+		'|imes|ri(?' . '>ltri|))|x)|s(?' . '>padesuit|acute|bquo|rarr|zlig|dot(?' .
+		'>b|e|)|fr|c(?' . '>polint|aron|edil|irc|E|n(?' . '>sim|E)|y)|e(?' . '>a' .
+		'rhk|swar|Arr|ct|mi|xt)|h(?' . '>ortparallel|arp|c(?' . '>hcy|y)|y)|i(?' .
+		'>gma(?' . '>v|)|m(?' . '>plus|rarr|dot|eq|ne|g(?' . '>E|)|l(?' . '>E|)|' .
+		'))|m(?' . '>eparsl|ashp|ile|t(?' . '>e(?' . '>s|)|))|o(?' . '>ftcy|pf|l' .
+		'(?' . '>b(?' . '>ar|)|))|q(?' . '>uarf|su(?' . '>pset|b)|c(?' . '>ap(?' .
+		'>s|)|up(?' . '>s|)))|s(?' . '>etmn|cr)|t(?' . '>raight(?' . '>epsilon|p' .
+		'hi)|ar(?' . '>f|))|u(?' . '>cc(?' . '>curlyeq|napprox|approx|)|ng|b(?' .
+		'>edot|mult|plus|rarr|dot|E|s(?' . '>etneq(?' . '>q|)|im|u(?' . '>b|p))|' .
+		')|m|p(?' . '>larr|mult|plus|hs(?' . '>ol|ub)|nE|1|2|3|d(?' . '>sub|ot)|' .
+		'e(?' . '>dot|)|s(?' . '>et(?' . '>eqq|neq)|im|u(?' . '>b|p))|))|w(?' .
+		'>nwar|Arr|ar(?' . '>hk|r)))|t(?' . '>woheadrightarrow|elrec|prime|fr|a(' .
+		'?' . '>rget|u)|c(?' . '>aron|edil|y)|h(?' . '>orn|e(?' . '>re4|ta(?' .
+		'>sym|)))|i(?' . '>mes(?' . '>b(?' . '>ar|)|d|)|nt)|o(?' . '>ea|p(?' .
+		'>bot|cir|f(?' . '>ork|)))|r(?' . '>pezium|ade|i(?' . '>angle(?' . '>dow' .
+		'n|q|)|minus|plus|time|dot|sb))|s(?' . '>trok|hcy|c(?' . '>r|y)))|u(?' .
+		'>wangle|grave|macr|Har|scr|uml|br(?' . '>eve|cy)|a(?' . '>cute|rr)|c(?' .
+		'>irc|y)|d(?' . '>blac|arr|har)|f(?' . '>isht|r)|h(?' . '>arl|blk)|l(?' .
+		'>tri|c(?' . '>orner|rop))|o(?' . '>gon|pf)|p(?' . '>uparrows|si(?' . '>' .
+		'h|))|r(?' . '>ing|tri|c(?' . '>orner|rop))|t(?' . '>ilde|dot))|v(?' .
+		'>zigzag|dash|nsub|rtri|Bar(?' . '>v|)|opf|cy|fr|a(?' . '>ngrt|r(?' . '>' .
+		'triangleleft|supsetneqq|kappa))|e(?' . '>llip|rt|e(?' . '>bar|eq))|s(?' .
+		'>cr|u(?' . '>pne|bn(?' . '>E|e))))|w(?' . '>circ|opf|scr|ed(?' . '>bar|' .
+		'geq)|fr|p|r)|x(?' . '>wedge|hArr|lArr|map|nis|scr|vee|fr|i|o(?' . '>dot' .
+		'|pf))|y(?' . '>icy|opf|scr|ac(?' . '>ute|y)|en|fr|c(?' . '>irc|y)|u(?' .
+		'>cy|ml))|z(?' . '>igrarr|acute|dot|eta|hcy|opf|scr|fr|c(?' . '>aron|y)|' .
+		'w(?' . '>nj|j))|#(?' . '>\d+|x[0-9a-fA-F]+));';
 
 	/**
 	 * Regular expression to match all forms of the non-breaking space entity.
 	 */
 	public const ENT_NBSP = '&(?' . '>nbsp|#(?' . '>x0*A0|0*160));';
+
+	/**
+	 * @var string
+	 *
+	 * Used to force the browser not to collapse tabs.
+	 *
+	 * This will normally be replaced in the final output with a real tab
+	 * character wrapped in a span with "white-space: pre" applied to it.
+	 * But if this substitute string somehow makes it into the final output,
+	 * it will still look like an appropriately sized string of white space.
+	 */
+	public const TAB_SUBSTITUTE = "\u{200B}\u{2007}\u{2007}\u{2007}\u{2007}\u{200B}";
 
 	/**************************
 	 * Public static properties
@@ -131,7 +283,7 @@ class Utils
 		// Even when enabled, they'll only work in old posts and not new ones.
 		'legacy_bbc' => [
 			'acronym', 'bdo', 'black', 'blue', 'flash', 'ftp', 'glow',
-			'green', 'move', 'red', 'shadow', 'tt', 'white',
+			'green', 'move', 'red', 'shadow', 'white',
 		],
 		// Define a list of BBC tags that require permissions to use.
 		'restricted_bbc' => [
@@ -170,7 +322,7 @@ class Utils
 		'normalize' => __CLASS__ . '::normalize',
 		'truncate' => __CLASS__ . '::truncate',
 		'json_encode' => __CLASS__ . '::jsonEncode',
-		'json_decode' => __CLASS__ . '::jsonDecode',
+		'json_decode' => 'smf_json_decode',
 		'random_int' => __CLASS__ . '::randomInt',
 		'random_bytes' => __CLASS__ . '::randomBytes',
 	];
@@ -195,21 +347,8 @@ class Utils
 			self::$context['utf8'] = self::$context['character_set'] === 'UTF-8';
 		}
 
-		// This determines the server... not used in many places, except for login fixing.
-		self::$context['server'] = [
-			'is_iis' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false,
-			'is_apache' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false,
-			'is_litespeed' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'LiteSpeed') !== false,
-			'is_lighttpd' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'lighttpd') !== false,
-			'is_nginx' => isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'nginx') !== false,
-			'is_cgi' => isset($_SERVER['SERVER_SOFTWARE']) && strpos(php_sapi_name(), 'cgi') !== false,
-			'is_windows' => DIRECTORY_SEPARATOR === '\\',
-			'is_mac' => PHP_OS === 'Darwin',
-			'iso_case_folding' => ord(strtolower(chr(138))) === 154,
-		];
-
-		// A bug in some versions of IIS under CGI (older ones) makes cookie setting not work with Location: headers.
-		self::$context['server']['needs_login_fix'] = self::$context['server']['is_cgi'] && self::$context['server']['is_iis'];
+		// Load up our $context['server'] data for backwards compatibility
+		Sapi::load();
 	}
 
 	/**
@@ -237,7 +376,7 @@ class Utils
 		// In theory this is always UTF-8, but...
 		if (empty(self::$context['character_set'])) {
 			$charset = is_callable('mb_detect_encoding') ? mb_detect_encoding($string) : 'UTF-8';
-		} elseif (strpos(self::$context['character_set'], 'ISO-8859-') !== false && !in_array(self::$context['character_set'], ['ISO-8859-5', 'ISO-8859-15'])) {
+		} elseif (str_contains(self::$context['character_set'], 'ISO-8859-') && !in_array(self::$context['character_set'], ['ISO-8859-5', 'ISO-8859-15'])) {
 			$charset = 'ISO-8859-1';
 		} else {
 			$charset = self::$context['character_set'];
@@ -291,7 +430,7 @@ class Utils
 	 */
 	public static function sanitizeEntities(string $string, string $substitute = '&#65533;'): string
 	{
-		if (strpos($string, '&#') === false) {
+		if (!str_contains($string, '&#')) {
 			return $string;
 		}
 
@@ -304,7 +443,7 @@ class Utils
 				if (
 					// Control characters (except \t, \n, and \r).
 					($num < 0x20 && $num !== 0x9 && $num !== 0xA && $num !== 0xD)
-					|| ($num >= 0x74 && $num < 0xA0)
+					|| ($num >= 0x7F && $num < 0xA0)
 
 					// UTF-16 surrogate pairs.
 					|| ($num >= 0xD800 && $num <= 0xDFFF)
@@ -343,9 +482,9 @@ class Utils
 	 * @param string|null $substitute Replacement string for the invalid characters.
 	 *      If not set, the Unicode replacement character (U+FFFD) will be used
 	 *      (or a fallback like "?" if necessary).
-	 * @return string The sanitized string.
+	 * @return string|false The sanitized string, or false on failure.
 	 */
-	public static function sanitizeChars($string, $level = 0, $substitute = null)
+	public static function sanitizeChars(string $string, int $level = 0, ?string $substitute = null): string|false
 	{
 		$string = (string) $string;
 		$level = min(max((int) $level, 0), 2);
@@ -413,11 +552,11 @@ class Utils
 	 *      'replace_tabs' option is supplied.) Default: false.
 	 * @param array $options An array of boolean options. Possible values are:
 	 *      - no_breaks: Vertical spaces are replaced by " " instead of "\n".
-	 *      - replace_tabs: If true, tabs are are replaced by " " chars.
+	 *      - replace_tabs: If true, tabs are replaced by " " chars.
 	 *      - collapse_hspace: If true, removes extra horizontal spaces.
-	 * @return string The sanitized string.
+	 * @return string|false The sanitized string, or false on failure.
 	 */
-	public static function normalizeSpaces($string, $vspace = true, $hspace = false, $options = [])
+	public static function normalizeSpaces(string $string, bool $vspace = true, bool $hspace = false, array $options = []): string|false
 	{
 		$string = (string) $string;
 		$vspace = !empty($vspace);
@@ -459,7 +598,7 @@ class Utils
 	 * @param string $encoding Character encoding. Default is UTF-8.
 	 * @return string The converted string.
 	 */
-	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, $encoding = 'UTF-8'): string
+	public static function htmlspecialchars(string $string, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): string
 	{
 		$string = self::normalize($string);
 
@@ -471,18 +610,18 @@ class Utils
 	 *
 	 * Only affects values.
 	 *
-	 * @param array|string $var The string or array of strings to add entities to
+	 * @param mixed $var The string or array of strings to add entities to
 	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
 	 *    Default is ENT_COMPAT.
 	 * @param string $encoding Character encoding. Default is UTF-8.
 	 * @return array|string The string or array of strings with entities added
 	 */
-	public static function htmlspecialcharsRecursive(array|string $var, int $flags = ENT_COMPAT, $encoding = 'UTF-8'): array|string
+	public static function htmlspecialcharsRecursive(mixed $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
 	{
 		static $level = 0;
 
 		if (!is_array($var)) {
-			return self::htmlspecialchars($var, $flags, $encoding);
+			return self::htmlspecialchars((string) $var, $flags, $encoding);
 		}
 
 		// Add the htmlspecialchars to every element.
@@ -509,11 +648,35 @@ class Utils
 	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
 	 *    Default is ENT_QUOTES.
 	 * @param string $encoding Character encoding. Default is UTF-8.
-	 * @return string The string without entities.
+	 * @return string|false The string without entities, or false on failure.
 	 */
-	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, $encoding = 'UTF-8'): string
+	public static function htmlspecialcharsDecode(string $string, int $flags = ENT_QUOTES, string $encoding = 'UTF-8'): string|false
 	{
 		return preg_replace('/' . self::ENT_NBSP . '/u', ' ', htmlspecialchars_decode($string, $flags));
+	}
+
+	/**
+	 * Like standard ltrim(), except that it also trims &nbsp; entities, control
+	 * characters, and Unicode whitespace characters beyond the ASCII range.
+	 *
+	 * @param string $string The string.
+	 * @return string|false The trimmed string, or false on failure.
+	 */
+	public static function htmlTrimLeft(string $string): string|false
+	{
+		return preg_replace('~^(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+~u', '', self::sanitizeEntities($string));
+	}
+
+	/**
+	 * Like standard rtrim(), except that it also trims &nbsp; entities, control
+	 * characters, and Unicode whitespace characters beyond the ASCII range.
+	 *
+	 * @param string $string The string.
+	 * @return string|false The trimmed string, or false on failure.
+	 */
+	public static function htmlTrimRight(string $string): string|false
+	{
+		return preg_replace('~(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+$~u', '', self::sanitizeEntities($string));
 	}
 
 	/**
@@ -521,9 +684,9 @@ class Utils
 	 * characters, and Unicode whitespace characters beyond the ASCII range.
 	 *
 	 * @param string $string The string.
-	 * @return string The trimmed string.
+	 * @return string|false The trimmed string, or false on failure.
 	 */
-	public static function htmlTrim(string $string): string
+	public static function htmlTrim(string $string): string|false
 	{
 		return preg_replace('~^(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+|(?' . '>[\p{Z}\p{C}]|' . self::ENT_NBSP . ')+$~u', '', self::sanitizeEntities($string));
 	}
@@ -534,9 +697,9 @@ class Utils
 	 * Only affects values.
 	 *
 	 * @param array|string $var The string or array of strings to trim.
-	 * @return array|string The trimmed string or array of trimmed strings.
+	 * @return array|string|false The trimmed string or array of trimmed strings.
 	 */
-	public static function htmlTrimRecursive(array|string $var): array|string
+	public static function htmlTrimRecursive(array|string $var): array|string|false
 	{
 		static $level = 0;
 
@@ -569,7 +732,7 @@ class Utils
 	 */
 	public static function entityStrlen(string $string): int
 	{
-		return strlen(preg_replace('~' . self::ENT_LIST . '|\X~u', '_', self::sanitizeEntities($string)));
+		return strlen((string) preg_replace('~' . self::ENT_LIST . '|\X~u', '_', self::sanitizeEntities($string)));
 	}
 
 	/**
@@ -583,7 +746,7 @@ class Utils
 	 */
 	public static function entityStrpos(string $haystack, string $needle, int $offset = 0): int|false
 	{
-		$haystack_arr = preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$haystack_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($haystack), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		if (strlen($needle) === 1) {
 			$result = array_search($needle, array_slice($haystack_arr, $offset));
@@ -591,7 +754,7 @@ class Utils
 			return is_int($result) ? $result + $offset : false;
 		}
 
-		$needle_arr = preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$needle_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($needle), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		$needle_size = count($needle_arr);
 
@@ -621,9 +784,38 @@ class Utils
 	 */
 	public static function entitySubstr(string $string, int $offset, ?int $length = null): string
 	{
-		$ent_arr = preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$ent_arr = (array) preg_split('~(' . self::ENT_LIST . '|\X)~u', self::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		return $length === null ? implode('', array_slice($ent_arr, $offset)) : implode('', array_slice($ent_arr, $offset, $length));
+	}
+
+	/**
+	 * Like standard mb_str_split(), except that it counts HTML entities as
+	 * single characters.
+	 *
+	 * @param string $string The input string.
+	 * @param int $length Maximum character length of the substrings to return.
+	 * @return array The extracted substrings.
+	 */
+	public static function entityStrSplit(string $string, int $length = 1): array
+	{
+		if ($length < 1) {
+			throw new \ValueError();
+		}
+
+		$ent_arr = (array) preg_split('~(' . Utils::ENT_LIST . '|\X)~u', Utils::sanitizeEntities($string), -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+		if ($length > 1) {
+			$temp = [];
+
+			while (!empty($ent_arr)) {
+				$temp[] = implode('', array_splice($ent_arr, 0, $length));
+			}
+
+			$ent_arr = $temp;
+		}
+
+		return $ent_arr;
 	}
 
 	/**
@@ -637,13 +829,13 @@ class Utils
 	 *
 	 * @param string $string The input string.
 	 * @param int $length The maximum length, in bytes, of the returned string.
-	 * @return string The truncated string.
+	 * @return string|false The truncated string, or false on error.
 	 */
-	public static function truncate(string $string, int $length): string
+	public static function truncate(string $string, int $length): string|false
 	{
 		$string = self::sanitizeEntities($string);
 
-		while (strlen($string) > $length) {
+		while (is_string($string) && strlen($string) > $length) {
 			$string = preg_replace('~(?:' . self::ENT_LIST . '|\X)$~u', '', $string);
 		}
 
@@ -676,7 +868,7 @@ class Utils
 	 * Note that setting $form to 'kc_casefold' will cause the string's case to
 	 * be folded and will also remove all "default ignorable code points" from
 	 * the string. It should be used (1) when validating identifier strings that
-	 * must be unambigously unique, such as domain names, file names, or even
+	 * must be unambiguously unique, such as domain names, file names, or even
 	 * SMF user names, or (2) when performing caseless matching of strings, such
 	 * as when performing a search or checking for censored words in a post.
 	 *
@@ -710,12 +902,14 @@ class Utils
 	 *    Default: false.
 	 * @param string $form A Unicode normalization form: 'c', 'd', 'kc', 'kd',
 	 *    or 'kc_casefold'.
+	 * @param bool $mb4 If true, always decode 4-byte UTF-8 characters.
+	 *      Default: false.
 	 * @return string The normalized string.
 	 */
-	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c'): string
+	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c', bool $mb4 = false): string
 	{
 		// Convert numeric entities to characters, except special ones.
-		if (strpos($string, '&#') !== false) {
+		if (str_contains($string, '&#')) {
 			$string = strtr(self::sanitizeEntities($string), [
 				'&#34;' => '&quot;',
 				'&#38;' => '&amp;',
@@ -730,14 +924,18 @@ class Utils
 
 		// Use optimized function for compatibility casefolding.
 		if ($form === 'kc_casefold') {
-			$string = (string) Unicode\Utf8String::create($string)->normalize('kc_casefold');
+			if ($case === 'fold') {
+				$string = (string) Unicode\Utf8String::create($string)->normalize('kc_casefold');
+			} else {
+				$string = (string) Unicode\Utf8String::create($string)->normalize('kc_casefold')->convertCase($case, $simple);
+			}
 		}
 		// Everything else.
 		else {
 			$string = (string) Unicode\Utf8String::create($string)->convertCase($case, $simple)->normalize($form);
 		}
 
-		return self::fixUtf8mb4($string);
+		return $mb4 ? $string : self::fixUtf8mb4($string);
 	}
 
 	/**
@@ -807,55 +1005,38 @@ class Utils
 	}
 
 	/**
-	 * Chops a string into words and prepares them to be inserted into (or
-	 * searched from) the database.
+	 * Splits a string into its words, symbols, punctuation, and whitespace.
 	 *
-	 * @param string $string The text to split into words.
-	 * @param ?int $max_length The maximum byte length for each word.
-	 * @param bool $encrypt Whether to encrypt the results.
-	 * @return array An array of strings or integers, depending on $encrypt.
+	 * E.g.: 'A red fox! 🦊' --> ['A', ' ', 'red', ' ', 'fox', '!', ' ', '🦊']
+	 *
+	 * @param string $string The string to split into semantic components.
+	 * @return array An array of strings.
 	 */
-	public static function text2words(string $string, ?int $max_length = 20, bool $encrypt = false): array
+	public static function semanticSplit(string $string): array
 	{
-		if (empty($max_length)) {
-			$max_length = PHP_INT_MAX;
-		}
-
-		$words = Unicode\Utf8String::create($string)->extractWords(2);
-
-		if (!$encrypt) {
-			foreach ($words as &$word) {
-				$word = self::truncate($word, $max_length);
-			}
-
-			return array_unique($words);
-		}
-
-		// We want to "encrypt" the words, which basically just means getting a
-		// unique number for each one...
-		$returned_ints = [];
-
-		$possible_chars = array_flip(array_merge(range(46, 57), range(65, 90), range(97, 122)));
-
-		foreach ($words as $word) {
-			if (($word = trim($word, '-_\'')) !== '') {
-				$encrypted = substr(crypt($word, 'uk'), 2, $max_length);
-
-				$total = 0;
-
-				for ($i = 0; $i < $max_length; $i++) {
-					$total += $possible_chars[ord($encrypted[$i])] * pow(63, $i);
-				}
-
-				$returned_ints[] = $max_length == 4 ? min($total, 16777215) : $total;
-			}
-		}
-
-		return array_unique($returned_ints);
+		return Unicode\Utf8String::create($string)->semanticSplit();
 	}
 
 	/**
-	 * Creates optimized regular expressions from an array of strings.
+	 * Extracts all the words in a string.
+	 *
+	 * Emoji characters count as words and are retained in the result.
+	 * Whitespace, punctuation, and other symbols are discarded.
+	 *
+	 * E.g.: 'A red fox! 🦊' --> ['A', 'red', 'fox', '🦊']
+	 *
+	 * @param string $string The string to extract words from.
+	 * @param int $level See documentation for self:sanitizeChars().
+	 *      Default: 0.
+	 * @return array An array of strings.
+	 */
+	public static function extractWords(string $string, int $level = 0): array
+	{
+		return array_values(Unicode\Utf8String::create($string)->extractWords($level));
+	}
+
+	/**
+	 * Creates optimized regular expressions from arrays of strings.
 	 *
 	 * An optimized regex built using this function will be much faster than a
 	 * simple regex built using `implode('|', $strings)` --- anywhere from
@@ -901,7 +1082,7 @@ class Utils
 		}
 
 		// This recursive closure creates the trie from the strings.
-		$add_string_to_trie = function ($string, $trie) use (&$add_string_to_trie) {
+		$add_string_to_trie = function (string $string, array $trie) use (&$add_string_to_trie) {
 			static $depth = 0;
 			$depth++;
 
@@ -942,7 +1123,7 @@ class Utils
 		};
 
 		// This recursive closure turns the trie into a regular expression.
-		$trie_to_regex = function (&$trie, $delim) use (&$trie_to_regex) {
+		$trie_to_regex = function (array &$trie, ?string $delim = null) use (&$trie_to_regex) {
 			static $depth = 0;
 			$depth++;
 
@@ -953,7 +1134,7 @@ class Utils
 			$length = 0;
 
 			foreach ($trie as $key => $value) {
-				$key_regex = preg_quote($key, $delim);
+				$key_regex = preg_quote((string) $key, $delim);
 				$new_key = $key;
 
 				if (empty($value)) {
@@ -985,11 +1166,11 @@ class Utils
 			uksort(
 				$regex,
 				function ($k1, $k2) {
-					$l1 = mb_strlen($k1);
-					$l2 = mb_strlen($k2);
+					$l1 = mb_strlen((string) $k1);
+					$l2 = mb_strlen((string) $k2);
 
 					if ($l1 == $l2) {
-						return strcmp($k1, $k2) > 0 ? 1 : -1;
+						return strcmp((string) $k1, (string) $k2) > 0 ? 1 : -1;
 					}
 
 					return $l1 > $l2 ? -1 : 1;
@@ -1006,7 +1187,7 @@ class Utils
 		$regex = '';
 
 		foreach ($strings as $string) {
-			$trie = $add_string_to_trie($string, $trie);
+			$trie = $add_string_to_trie((string) $string, $trie);
 		}
 
 		if ($return_array === true) {
@@ -1028,6 +1209,50 @@ class Utils
 		$regexes[$regex_key] = $regex;
 
 		return $regex;
+	}
+
+	/**
+	 * Adjusts the heading levels of h1-h6 elements in a string in order to
+	 * fit the needs of a particular location in the output HTML.
+	 *
+	 * For example, setting $modifier to 1 will change h1 into h2, h5 into h6,
+	 * etc.
+	 *
+	 * If the adjusted tag for the heading would be invalid (e.g. h7 or h0),
+	 * then the tag will be changed to a simple div.
+	 *
+	 * Any attributes of the adjusted elements will be preserved unchanged.
+	 * For example, `<h1 class="bbc_h1">` might become `<h5 class="bbc_h1">`.
+	 *
+	 * As a general rule, this method should be called from theme templates
+	 * rather than source files, since only the template really knows what level
+	 * of adjustment is necessary.
+	 *
+	 * @param mixed $str The string in which to adjust heading levels.
+	 *    If a non-string value is given, it will be returned unchanged.
+	 * @param ?int $modifier The amount by which to adjust heading levels.
+	 *    If null, all headings will be converted to div elements. Default: 0.
+	 * @return mixed The adjusted version of $str.
+	 */
+	public static function adjustHeadingLevels(mixed $str, ?int $modifier = 0): mixed
+	{
+		if (!is_string($str)) {
+			return $str;
+		}
+
+		return preg_replace_callback(
+			'/<(\/?)h(\d)([^>]*)>/u',
+			function ($matches) use ($modifier) {
+				$l = (int) $matches[2] + (int) $modifier;
+
+				if (!is_null($modifier) && $l >= 1 && $l <= 6) {
+					return '<' . $matches[1] . 'h' . $l . $matches[3] . '>';
+				}
+
+				return '<' . $matches[1] . 'div' . $matches[3] . '>';
+			},
+			$str,
+		);
 	}
 
 	/**
@@ -1054,7 +1279,7 @@ class Utils
 
 		// The Unicode surrogate pair code points should never be present in our
 		// strings to begin with, but if any snuck in, they need to be removed.
-		if (!empty(Utils::$context['utf8']) && strpos($string, "\xED") !== false) {
+		if (!empty(Utils::$context['utf8']) && str_contains($string, "\xED")) {
 			$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
 		}
 
@@ -1068,7 +1293,7 @@ class Utils
 	 * @param bool $as_json If true, escape as double-quoted string. Default false.
 	 * @return string The escaped string
 	 */
-	public static function JavaScriptEscape(string $string, bool $as_json = false): string
+	public static function escapeJavaScript(string $string, bool $as_json = false): string
 	{
 		$q = !empty($as_json) ? '"' : '\'';
 
@@ -1095,7 +1320,7 @@ class Utils
 	 * @param int $level = 0 What level we're at within the array (if called recursively)
 	 * @return array|string The string or array of strings with slashes stripped
 	 */
-	public static function stripslashesRecursive($var, $level = 0)
+	public static function stripslashesRecursive(string|array $var, int $level = 0): array|string
 	{
 		if (!is_array($var)) {
 			return stripslashes($var);
@@ -1121,7 +1346,7 @@ class Utils
 	 * @param int $level Which level we're at within the array (if called recursively)
 	 * @return array|string The decoded string or array of decoded strings
 	 */
-	public static function urldecodeRecursive($var, $level = 0)
+	public static function urldecodeRecursive(string|array $var, int $level = 0): array|string
 	{
 		if (!is_array($var)) {
 			return urldecode($var);
@@ -1219,7 +1444,7 @@ class Utils
 			array_walk_recursive(
 				$temp,
 				function (&$value) use ($param_length) {
-					$value = self::truncate(strval($value), $param_length);
+					$value = self::truncate(strval($value), (int) $param_length);
 				},
 			);
 
@@ -1245,7 +1470,7 @@ class Utils
 		array_walk_recursive(
 			$array,
 			function ($value, $key) use (&$length) {
-				$length += strlen($value);
+				$length += strlen((string) $value);
 			},
 		);
 
@@ -1256,20 +1481,31 @@ class Utils
 	 * Wrapper function for json_decode() with error handling.
 	 *
 	 * @param string $json The string to decode.
-	 * @param bool $associative Whether to force JSON objects to be returned as
+	 * @param ?bool $associative Whether to force JSON objects to be returned as
 	 *    associative arrays. SMF nearly always wants this to be true, but for
-	 *    the sake of consistency with json_decode(), the default is false.
+	 *    the sake of consistency with json_decode(), the default is null.
+	 * @param int $depth Maximum nesting depth of the structure being decoded.
+	 *    The value must be greater than 0, and less than or equal to 2147483647.
+	 * @param int $flags Bitmask of JSON_BIGINT_AS_STRING, JSON_INVALID_UTF8_IGNORE,
+	 *     JSON_INVALID_UTF8_SUBSTITUTE, JSON_OBJECT_AS_ARRAY, JSON_THROW_ON_ERROR
 	 * @param bool $should_log Whether to log errors. Default: true.
 	 * @return mixed The decoded data.
 	 */
-	public static function jsonDecode(string $json, bool $associative = false, bool $should_log = true)
+	public static function jsonDecode(string $json, ?bool $associative = null, int $depth = 512, int $flags = 0, bool $should_log = true): mixed
 	{
 		// Come on...
-		if (empty($json) || !is_string($json)) {
-			return [];
+		if (empty($json)) {
+			return null;
 		}
 
-		$return_value = @json_decode($json, $associative);
+		// We do this to align with PHP's default when the JSON_THROW_ON_ERROR flag is specified
+		try {
+			$return_value = json_decode($json, $associative, $depth, $flags);
+		} catch (\Exception $excepection) {
+			if (($flags & JSON_THROW_ON_ERROR) == JSON_THROW_ON_ERROR) {
+				throw $excepection;
+			}
+		}
 
 		// Use this instead of json_last_error_msg() so that we can translate
 		// the error messages for the admin.
@@ -1317,8 +1553,8 @@ class Utils
 				ErrorHandler::log(Lang::$txt['json_' . $json_error], 'critical');
 			}
 
-			// Everyone expects an array.
-			return [];
+			// Null should be returned in all cases where json can not be decoded.
+			return null;
 		}
 
 		return $return_value;
@@ -1334,9 +1570,9 @@ class Utils
 	 * @param mixed $value The value to encode.
 	 * @param int $flags Bitmask of flags for json_encode(). Default: 0.
 	 * @param int $depth Maximum depth. Default: 512.
-	 * @return mixed The decoded data.
+	 * @return string|false The decoded data.
 	 */
-	public static function jsonEncode($value, int $flags = 0, int $depth = 512)
+	public static function jsonEncode(mixed $value, int $flags = 0, int $depth = 512): string|false
 	{
 		return json_encode($value, $flags, $depth);
 	}
@@ -1443,7 +1679,7 @@ class Utils
 		}
 		// The substrings 'O:' and 'C:' are used to serialize objects.
 		// If they are not present, then there are none in the serialized data.
-		elseif (strpos($str, 'O:') === false && strpos($str, 'C:') === false) {
+		elseif (!str_contains($str, 'O:') && !str_contains($str, 'C:')) {
 			$out = unserialize($str);
 		}
 		// It looks like there might be an object in the serialized data,
@@ -1589,7 +1825,7 @@ class Utils
 	 *
 	 * Only exists for backward compatibility purposes.
 	 *
-	 * @param int $min Minumum value. Default: 0.
+	 * @param int $min Minimum value. Default: 0.
 	 * @param int $max Maximum value. Default: PHP_INT_MAX.
 	 * @return int A random integer.
 	 */
@@ -1619,9 +1855,9 @@ class Utils
 	 *
 	 * @param string $data The data to check, or the path or URL of a file to check.
 	 * @param string $is_path If true, $data is a path or URL to a file.
-	 * @return string|bool A MIME type, or false if we cannot determine it.
+	 * @return string|false A MIME type, or false if we cannot determine it.
 	 */
-	public static function getMimeType(string $data, bool $is_path = false): string|bool
+	public static function getMimeType(string $data, bool $is_path = false): string|false
 	{
 		$finfo_loaded = extension_loaded('fileinfo');
 		$exif_loaded = extension_loaded('exif') && function_exists('image_type_to_mime_type');
@@ -1727,9 +1963,10 @@ class Utils
 	 * Wrapper function for PHP's chmod().
 	 *
 	 * @param string $path The full path of the file or directory.
+	 * @param array|string|null $chmod Specify a chmod, if left blank, SMF will auto pick the writable values.
 	 * @return bool Whether the file/dir exists and is now writable.
 	 */
-	public static function makeWritable(string $path): bool
+	public static function makeWritable(string $path, array|string|null $chmod = null): bool
 	{
 		// No file? no checks!
 		if (empty($path)) {
@@ -1742,7 +1979,7 @@ class Utils
 		}
 
 		// Set different modes.
-		$chmod_values = is_dir($path) ? [0750, 0755, 0775, 0777] : [0644, 0664, 0666];
+		$chmod_values = !empty($chmod) ? (array) $chmod : (is_dir($path) ? [0750, 0755, 0775, 0777] : [0644, 0664, 0666]);
 
 		foreach ($chmod_values as $val) {
 			// If it's writable now, we're done.
@@ -1760,7 +1997,7 @@ class Utils
 	/**
 	 * Emits a file for download. Mostly used for attachments.
 	 *
-	 * @param array|object $file Information about the file. Must be either an
+	 * @param array|\ArrayAccess $file Information about the file. Must be either an
 	 *    array or an object that implements the \ArrayAccess interface.
 	 * @param bool $show_thumb Whether to send the image's embedded thumbnail,
 	 *    if it has one.
@@ -1843,7 +2080,7 @@ class Utils
 		}
 
 		// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
-		if (isset($file['mime_type'], $file['fileext']) && strpos($file['mime_type'], 'image/') !== 0 && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff'])) {
+		if (isset($file['mime_type'], $file['fileext']) && !str_starts_with($file['mime_type'], 'image/') && in_array($file['fileext'], ['gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff', 'webp'])) {
 			header('Cache-Control: no-cache');
 		} else {
 			header('Cache-Control: max-age=' . (525600 * 60) . ', private');
@@ -1968,8 +2205,9 @@ class Utils
 	 *
 	 * @param string $data The data to print
 	 * @param string $type The content type. Defaults to JSON.
+	 * @return bool|void If $data is empty, false is returned, otherwise the response is sent and execution stopped.
 	 */
-	public static function serverResponse($data = '', $type = 'Content-Type: application/json')
+	public static function serverResponse(string $data = '', string $type = 'Content-Type: application/json'): ?bool
 	{
 		// Defensive programming anyone?
 		if (empty($data)) {
@@ -1996,6 +2234,8 @@ class Utils
 
 		// Done.
 		self::obExit(false);
+
+		return null;
 	}
 
 	/**
@@ -2014,50 +2254,41 @@ class Utils
 			Mail::addToQueue(true);
 		}
 
-		$add = preg_match('~^(ftp|http)s?://~', $setLocation) == 0 && substr($setLocation, 0, 6) != 'about:';
-
-		if ($add) {
+		if (!Url::create($setLocation)->isValid()) {
 			$setLocation = Config::$scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 		}
 
-		// Put the session ID in.
-		if (defined('SID') && SID != '') {
-			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\??/', Config::$scripturl . '?' . SID . ';', $setLocation);
-		}
-		// Keep that debug in their for template debugging!
-		elseif (isset($_GET['debug'])) {
-			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '\??/', Config::$scripturl . '?debug;', $setLocation);
-		}
+		if (str_contains($setLocation, Config::$scripturl)) {
+			// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
+			$sid = defined('SID') ? @constant('SID') : null;
 
-		if (
-			!empty(Config::$modSettings['queryless_urls'])
-			&& (
-				empty(Utils::$context['server']['is_cgi'])
-				|| ini_get('cgi.fix_pathinfo') == 1
-				|| @get_cfg_var('cgi.fix_pathinfo') == 1
-			)
-			&& (
-				!empty(Utils::$context['server']['is_apache'])
-				|| !empty(Utils::$context['server']['is_lighttpd'])
-				|| !empty(Utils::$context['server']['is_litespeed'])
-			)
-		) {
-			if (defined('SID') && SID != '') {
-				$setLocation = preg_replace_callback(
-					'~^' . preg_quote(Config::$scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
-					function ($m) {
-						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "{$m[2]}" : '');
-					},
-					$setLocation,
-				);
-			} else {
-				$setLocation = preg_replace_callback(
-					'~^' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
-					function ($m) {
-						return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . (isset($m[2]) ? "{$m[2]}" : '');
-					},
-					$setLocation,
-				);
+			// Put the session ID in.
+			if (isset($sid) && $sid != '' && !preg_match("/[;?]{$sid}/", $setLocation)) {
+				$insert = (str_contains($setLocation, '?') ? ';' : '?') . $sid;
+
+				if (str_contains($setLocation, '#')) {
+					$setLocation = str_replace('#', $insert . '#', $setLocation);
+				} else {
+					$setLocation .= $insert;
+				}
+			}
+			// Keep that debug in there for template debugging!
+			elseif (isset($_GET['debug']) && !preg_match('/[;?]debug\b/', $setLocation)) {
+				$insert = (str_contains($setLocation, '?') ? ';' : '?') . 'debug';
+
+				if (str_contains($setLocation, '#')) {
+					$setLocation = str_replace('#', $insert . '#', $setLocation);
+				} else {
+					$setLocation .= $insert;
+				}
+			}
+
+			// Rewrite as a queryless URL?
+			$setLocation = QueryString::rewriteAsQueryless($setLocation);
+
+			// The request was from ajax/xhr/other api call, append ajax to the url.
+			if (!empty(Utils::$context['from_ajax'])) {
+				$setLocation .= (str_contains($setLocation, '?') ? ';' : '?') . 'ajax';
 			}
 		}
 
@@ -2068,7 +2299,7 @@ class Utils
 		header('location: ' . str_replace(' ', '%20', $setLocation), true, $permanent ? 301 : 302);
 
 		// Debugging.
-		if (isset(Config::$db_show_debug) && Config::$db_show_debug === true) {
+		if (!empty(Config::$db_show_debug)) {
 			$_SESSION['debug_redirect'] = Db::$cache;
 		}
 
@@ -2117,11 +2348,27 @@ class Utils
 		if ($do_header) {
 			// Was the page title set last minute? Also update the HTML safe one.
 			if (!empty(Utils::$context['page_title']) && empty(Utils::$context['page_title_html_safe'])) {
-				Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])) . (!empty(Utils::$context['current_page']) ? ' - ' . Lang::$txt['page'] . ' ' . (Utils::$context['current_page'] + 1) : '');
+				if (empty(Utils::$context['current_page'])) {
+					Utils::$context['page_title_html_safe'] = Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title']));
+				} else {
+					Utils::$context['page_title_html_safe'] = Lang::getTxt(
+						'page_title_number',
+						[
+							'title' => Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])),
+							'pagenum' => Utils::$context['current_page'] + 1,
+						],
+					);
+				}
 			}
 
 			// Start up the session URL fixer.
 			ob_start('SMF\\QueryString::ob_sessrewrite');
+
+			// More work needed if using "queryless" URLS.
+			ob_start('SMF\\QueryString::rewriteAsQueryless');
+
+			// Force the browser not to collapse tabs inside posts, etc.
+			ob_start(fn($buffer) => strtr($buffer, [self::TAB_SUBSTITUTE => '<span style="white-space: pre;">' . "\t" . '</span>']));
 
 			if (!empty(Theme::$current->settings['output_buffers']) && is_string(Theme::$current->settings['output_buffers'])) {
 				$buffers = explode(',', Theme::$current->settings['output_buffers']);
@@ -2152,7 +2399,7 @@ class Utils
 		}
 
 		if ($do_footer) {
-			Theme::loadSubTemplate(Utils::$context['sub_template'] ?? 'main');
+			Theme::loadSubTemplates();
 
 			// Anything special to put out?
 			if (!empty(Utils::$context['insert_after_template']) && !isset($_REQUEST['xml'])) {
@@ -2164,15 +2411,30 @@ class Utils
 				$footer_done = true;
 				Theme::template_footer();
 
-				// (since this is just debugging... it's okay that it's after </html>.)
-				if (!isset($_REQUEST['xml'])) {
+				// Add $db_show_debug = true; to Settings.php if you want to show the debugging information.
+				if (Forum::getCurrentAction()?->isSimpleAction() === false
+					|| (
+						Forum::getCurrentAction() === null
+						&& !isset($_REQUEST['xml'])
+					)
+				) {
 					Logging::displayDebug();
 				}
 			}
 		}
 
 		// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-		if (!QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')) {
+		if (
+			isset($_SERVER['REQUEST_URL'])
+			&& (
+				Forum::getCurrentAction()?->canBeLogged() === true
+				|| (
+					Forum::getCurrentAction() === null
+					&& !QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')
+					&& !isset($_REQUEST['xml'])
+				)
+			)
+		) {
 			$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 		}
 
@@ -2189,96 +2451,84 @@ class Utils
 	}
 
 	/**
-	 * Parses $input to find some sort of callable.
+	 * Parses the given input to determine if it represents a callable entity.
 	 *
-	 * If a method is found, it looks for a "#" which indicates SMF should
-	 * create a new instance of the given class.
+	 * This method supports various formats of callables, including closures,
+	 * callable arrays, static methods, and class methods with optional
+	 * instance creation.
 	 *
-	 * ADD MORE HERE.
+	 * - If a class method is specified with a "#", it attempts to create
+	 *   a new instance of the class.
+	 * - If a static method is specified, it validates the method is callable.
+	 * - If input is a closure or callable array, it checks its validity.
+	 * - Plain functions are validated as callable.
+	 * - Objects themselves are not accepted as callables.
 	 *
-	 * @param mixed $input Input to parse to find a callable.
-	 * @return string|array|bool Either a callable, or false on failure.
+	 * @param string|callable $input Input to parse as a callable.
+	 * @param bool|null $ignore_errors Optional. Whether to suppress errors if the callable is invalid. Defaults to the value of `Utils::$context['ignore_hook_errors']`.
+	 *
+	 * @return callable|false Returns the callable if valid, or false on failure.
 	 */
-	public static function getCallable(mixed $input, ?bool $ignore_errors = null): mixed
+	public static function getCallable(string|callable $input, ?bool $ignore_errors = null): callable|false
 	{
 		$ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
-		// Really?
-		if (empty($input)) {
-			return false;
-		}
-
-		// An array? should be a "callable" array IE array(object/class, valid_callable).
-		// A closure? should be a callable one.
-		if (is_array($input) || $input instanceof \Closure) {
+		if (!is_string($input)) {
 			return is_callable($input) ? $input : false;
 		}
 
-		// No full objects, sorry! pass a method or a property instead!
-		if (is_object($input)) {
-			return false;
-		}
-
-		// Stay vitaminized my friends...
+		// Sanitize and trim the input.
 		$input = Utils::htmlspecialchars(Utils::htmlTrim($input));
 
-		// Is there a file to load?
+		// Attempt to load a file, if applicable.
 		$input = self::loadFile($input);
 
-		// Loaded file failed
+		// Abort if file loading fails.
 		if (empty($input)) {
 			return false;
 		}
 
-		// Found a method.
-		if (strpos($input, '::') !== false) {
+		// Process static or instance method callables.
+		if (str_contains($input, '::')) {
 			list($class, $method) = explode('::', $input);
 
-			// Check if a new object will be created.
-			if (strpos($method, '#') !== false) {
+			// Handle instance creation for methods with "#".
+			if (str_contains($method, '#')) {
 				if (!isset(Utils::$context['instances'])) {
 					Utils::$context['instances'] = [];
 				}
 
-				// Need to remove the # thing.
+				// Remove the "#" and ensure an instance exists.
 				$method = str_replace('#', '', $method);
 
-				// Don't need to create a new instance for every method.
 				if (empty(Utils::$context['instances'][$class]) || !(Utils::$context['instances'][$class] instanceof $class)) {
 					Utils::$context['instances'][$class] = new $class();
 
-					// Add another one to the list.
-					if (Config::$db_show_debug === true) {
-						if (!isset(Utils::$context['debug']['instances'])) {
-							Utils::$context['debug']['instances'] = [];
-						}
-
+					// Optionally track instance creation for debugging.
+					if (!empty(Config::$db_show_debug)) {
 						Utils::$context['debug']['instances'][$class] = $class;
 					}
 				}
 
 				$callable = [Utils::$context['instances'][$class], $method];
-			}
-			// Right then. This is a call to a static method.
-			else {
+			} else {
+				// Static method reference.
 				$callable = [$class, $method];
 			}
-		}
-		// Nope! just a plain regular function.
-		else {
+		} else {
+			// Treat as a plain function.
 			$callable = $input;
 		}
 
-		// Right, we got what we need, time to do some checks.
-		if (!is_callable($callable, false, $callable_name) && $ignore_errors) {
-			// We can't call this helper, but we want to silently ignore this.
+		// Validate the callable.
+		if (!is_callable($callable, false, $callable_name)) {
 			if ($ignore_errors) {
 				return false;
 			}
 
-			// Gotta tell everybody.
+			// Log error for invalid callables.
 			Lang::load('Errors');
-			ErrorHandler::log(sprintf(Lang::$txt['sub_action_fail'], $callable_name), 'general');
+			ErrorHandler::log(Lang::getTxt('sub_action_fail', [$callable_name]), 'general');
 
 			return false;
 		}
@@ -2287,114 +2537,24 @@ class Utils
 	}
 
 	/**
-	 * Backward compatibility method.
-	 *
-	 * Basically just a wrapper for Utils::getCallable(), except that if this
-	 * method's $return parameter is false, the callable will be called inside
-	 * this method..
-	 *
-	 * @param mixed $input Input to parse to find a callable.
-	 * @param bool $return If true, just return the callable instead of
-	 *    calling it. Default: false.
-	 * @return mixed If $return is false, nothing. Otherwise, either a callable
-	 *    or false if no callable was found.
-	 */
-	public static function call_helper(mixed $input, bool $return = false): mixed
-	{
-		$callable = self::getCallable($input);
-
-		// Just return the callable if that's all we were asked to do.
-		if ($return) {
-			return $callable;
-		}
-
-		call_user_func($callable);
-	}
-
-	/**
-	 * Decode HTML entities to their UTF-8 equivalent character, except for
-	 * HTML special characters, which are always converted to numeric entities.
-	 *
-	 * Callback function for preg_replace_callback.
-	 * Uses capture group 2 in the supplied array.
-	 * Does basic scan to ensure characters are inside a valid range.
-	 *
-	 * Unused by SMF. Only retained for backward compatibility purposes.
-	 *
-	 * @deprecated since 3.0
-	 *
-	 * @param array $matches An array of matches (relevant info should be the 3rd item)
-	 * @return string A fixed string
-	 */
-	public static function replaceEntities__callback($matches)
-	{
-		return strtr(
-			htmlspecialchars(Utils::entityDecode($matches[1], true), ENT_QUOTES),
-			[
-				'&amp;' => '&#038;',
-				'&quot;' => '&#034;',
-				'&lt;' => '&#060;',
-				'&gt;' => '&#062;',
-			],
-		);
-	}
-
-	/**
-	 * Converts HTML entities to UTF-8 equivalents.
-	 *
-	 * Callback function for preg_replace_callback.
-	 * Uses capture group 1 in the supplied array.
-	 * Does basic checks to keep characters inside a viewable range.
-	 *
-	 * Unused by SMF. Only retained for backward compatibility purposes.
-	 *
-	 * @deprecated since 3.0
-	 *
-	 * @param array $matches An array of matches (relevant info should be the 2nd item in the array)
-	 * @return string The fixed string
-	 */
-	public static function fixchar__callback($matches)
-	{
-		return Utils::entityDecode($matches[0], true);
-	}
-
-	/**
-	 * Strips out invalid HTML entities and fixes double-encoded entities.
-	 *
-	 * Callback function for preg_replace_callback.
-	 *
-	 * Unused by SMF. Only retained for backward compatibility purposes.
-	 *
-	 * @deprecated since 3.0
-	 *
-	 * @param array $matches An array of matches (relevant info should be the 3rd
-	 *    item in the array)
-	 * @return string The fixed string
-	 */
-	public static function entity_fix__callback($matches)
-	{
-		return Utils::sanitizeEntities(Utils::entityFix($matches[1]));
-	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	/**
 	 * Converts four-byte Unicode characters to entities, but only if the
 	 * database can't handle four-byte characters natively.
 	 *
 	 * @param string $string A UTF-8 string.
 	 * @return string The string, with four-byte chars encoded as entities.
 	 */
-	final protected static function fixUtf8mb4(string $string): string
+	final public static function fixUtf8mb4(string $string): string
 	{
-		if (class_exists('SMF\\Db\\DatabaseApi', false) && isset(Db::$db) && Db::$db->mb4) {
+		if (class_exists(Db::class, false) && isset(Db::$db) && Db::$db->mb4) {
 			return $string;
 		}
 
 		return mb_encode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');
 	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
 
 	/**
 	 * Helper method for Utils::call_helper.
@@ -2404,7 +2564,7 @@ class Utils
 	 *
 	 * Checks for a '|' symbol and tries to load a file with the info given.
 	 *
-	 * The string should be format as follows: 'path/to/file.php|whatever'.
+	 * The string should be formatted as follows: 'path/to/file.php|whatever'.
 	 *
 	 * You can use the following wildcards in the path:
 	 *  - $boarddir
@@ -2412,16 +2572,16 @@ class Utils
 	 *  - $themedir (only works if SMF\Theme has already been initialized)
 	 *
 	 * @param string $string The string containing a valid format.
-	 * @return string|bool The given string with the pipe and file info removed
+	 * @return string|false The given string with the pipe and file info removed
 	 *    or false if the file couldn't be loaded.
 	 */
-	final protected static function loadFile(string $string): string|bool
+	final protected static function loadFile(string $string): string|false
 	{
 		if (empty($string)) {
 			return false;
 		}
 
-		if (strpos($string, '|') !== false) {
+		if (str_contains($string, '|')) {
 			list($file, $string) = explode('|', $string);
 
 			$path = strtr($file, [
@@ -2429,7 +2589,7 @@ class Utils
 				'$sourcedir' => Config::$sourcedir,
 			]);
 
-			if (strpos($path, '$themedir') !== false && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
+			if (str_contains($path, '$themedir') && class_exists(Theme::class, false) && !empty(Theme::$current->settings['theme_dir'])) {
 				$path = strtr($path, [
 					'$themedir' => Theme::$current->settings['theme_dir'],
 				]);
@@ -2449,7 +2609,7 @@ class Utils
 				// Sorry, can't do much for you at this point.
 				elseif (empty(Utils::$context['uninstalling'])) {
 					Lang::load('Errors');
-					ErrorHandler::log(sprintf(Lang::$txt['hook_fail_loading_file'], $path), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_loading_file', [$path]), 'general');
 
 					// File couldn't be loaded.
 					return false;
@@ -2461,8 +2621,8 @@ class Utils
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Utils::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([Utils::class, 'exportStatic'])) {
 	Utils::exportStatic();
 }
 

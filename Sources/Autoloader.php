@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -26,13 +28,14 @@ spl_autoload_register(function ($class) {
 		'ReCaptcha\\' => 'ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => 'minify/src/',
 		'MatthiasMullie\\PathConverter\\' => 'minify/path-converter/src/',
+		'ZxcvbnPhp\\' => 'ZxcvbnPhp/',
 
 		// In general, the SMF namespace maps to $sourcedir.
 		'SMF\\' => '',
 	];
 
 	// Ensure $sourcedir is set to something valid.
-	if (class_exists('SMF\\Config', false) && isset(Config::$sourcedir)) {
+	if (class_exists(Config::class, false) && isset(Config::$sourcedir)) {
 		$sourcedir = Config::$sourcedir;
 	}
 
@@ -41,12 +44,12 @@ spl_autoload_register(function ($class) {
 	}
 
 	// Do any third-party scripts want in on the fun?
-	if (!defined('SMF_INSTALLING') && class_exists('SMF\\Config', false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
-		if (!class_exists('SMF\\IntegrationHook', false) && is_file($sourcedir . '/IntegrationHook.php')) {
+	if (!defined('SMF_INSTALLING') && class_exists(Config::class, false) && $hook_value !== (Config::$modSettings['integrate_autoload'] ?? '')) {
+		if (!class_exists(IntegrationHook::class, false) && is_file($sourcedir . '/IntegrationHook.php')) {
 			require_once $sourcedir . '/IntegrationHook.php';
 		}
 
-		if (class_exists('SMF\\IntegrationHook', false)) {
+		if (class_exists(IntegrationHook::class, false)) {
 			$hook_value = Config::$modSettings['integrate_autoload'];
 			IntegrationHook::call('integrate_autoload', [&$class_map]);
 		}

@@ -5,16 +5,21 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Routable;
 use SMF\User;
 use SMF\Utils;
 
@@ -26,20 +31,10 @@ use SMF\Utils;
  * @deprecated 3.0 The requestmembers action wasn't used even in SMF 2.0!
  * @todo This is 100% obsolete, but was never officially deprecated. Remove?
  */
-class RequestMembers implements ActionInterface
+class RequestMembers implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RequestMembers',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -52,21 +47,14 @@ class RequestMembers implements ActionInterface
 	 */
 	public string $search = '';
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
 
 	/**
 	 * Does the job.
@@ -85,12 +73,13 @@ class RequestMembers implements ActionInterface
 			FROM {db_prefix}members
 			WHERE {raw:real_name} LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '
-				AND is_activated IN (1, 11)
+				AND is_activated IN ({array_int:activated})
 			LIMIT ' . (Utils::entityStrlen($this->search) <= 2 ? '100' : '800'),
 			[
 				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
 				'buddy_list' => User::$me->buddies,
 				'search' => $this->search,
+				'activated' => [User::ACTIVATED, User::ACTIVATED_BANNED],
 			],
 		);
 
@@ -112,32 +101,6 @@ class RequestMembers implements ActionInterface
 		Utils::obExit(false);
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -153,11 +116,6 @@ class RequestMembers implements ActionInterface
 		$this->search = trim(Utils::strtolower($this->search)) . '*';
 		$this->search = strtr($this->search, ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_', '&#038;' => '&amp;']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\RequestMembers::exportStatic')) {
-	RequestMembers::exportStatic();
 }
 
 ?>

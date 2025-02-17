@@ -5,16 +5,18 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -34,20 +36,7 @@ use SMF\Utils;
  */
 class Export implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'export_profile_data',
-			'createDir' => 'create_export_dir',
-			'getFormats' => 'get_export_formats',
-		],
-	];
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -115,14 +104,6 @@ class Export implements ActionInterface
 		// ),
 	];
 
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -132,13 +113,15 @@ class Export implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		if (empty(Config::$modSettings['export_dir']) || !is_dir(Config::$modSettings['export_dir']) || !Utils::makeWritable(Config::$modSettings['export_dir'])) {
 			self::createDir();
 		}
 
 		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 
-		$idhash = hash_hmac('sha1', Utils::$context['id_member'], Config::getAuthSecret());
+		$idhash = hash_hmac('sha1', (string) Utils::$context['id_member'], Config::getAuthSecret());
 		$dltoken = hash_hmac('sha1', $idhash, Config::getAuthSecret());
 
 		Utils::$context['completed_exports'] = [];
@@ -319,7 +302,7 @@ class Export implements ActionInterface
 				'included' => $included,
 				'start' => $start,
 				'latest' => $latest,
-				'datatype' => $current_datatype ?? key($included),
+				'datatype' => key($included),
 				'format_settings' => self::$formats[$format],
 				'last_page' => $last_page,
 				'dlfilename' => $dlfilename,
@@ -334,9 +317,11 @@ class Export implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\ExportProfileData',
-					$data,
-					0,
+					[
+						'SMF\\Tasks\\ExportProfileData',
+						$data,
+						0,
+					],
 				],
 				[],
 			);
@@ -360,10 +345,10 @@ class Export implements ActionInterface
 		if (empty(Config::$modSettings['export_expiry'])) {
 			unset(Lang::$txt['export_profile_data_desc_list']['expiry']);
 		} else {
-			Lang::$txt['export_profile_data_desc_list']['expiry'] = sprintf(Lang::$txt['export_profile_data_desc_list']['expiry'], Config::$modSettings['export_expiry']);
+			Lang::$txt['export_profile_data_desc_list']['expiry'] = Lang::getTxt(['export_profile_data_desc_list', 'expiry'], [Config::$modSettings['export_expiry']]);
 		}
 
-		Utils::$context['export_profile_data_desc'] = sprintf(Lang::$txt['export_profile_data_desc'], '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>');
+		Utils::$context['export_profile_data_desc'] = Lang::getTxt('export_profile_data_desc', ['list' => '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>']);
 
 		Theme::addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
 	}
@@ -371,28 +356,6 @@ class Export implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Returns the path to a secure directory for storing exported profile data.
@@ -403,7 +366,7 @@ class Export implements ActionInterface
 	 *
 	 * @return string|bool The path to the directory, or false on error.
 	 */
-	public static function createDir($fallback = ''): string|bool
+	public static function createDir(string $fallback = ''): string|bool
 	{
 		// No supplied fallback, so use the default location.
 		if (empty($fallback)) {
@@ -417,7 +380,7 @@ class Export implements ActionInterface
 
 		// Make sure the directory exists.
 		if (!file_exists(Config::$modSettings['export_dir'])) {
-			@mkdir(Config::$modSettings['export_dir'], null, true);
+			@mkdir(Config::$modSettings['export_dir'], 0750, true);
 		}
 
 		// Make sure the directory has the correct permissions.
@@ -426,7 +389,7 @@ class Export implements ActionInterface
 
 			// Try again at the fallback location.
 			if (Config::$modSettings['export_dir'] != $fallback) {
-				ErrorHandler::log(sprintf(Lang::$txt['export_dir_forced_change'], Config::$modSettings['export_dir'], $fallback));
+				ErrorHandler::log(Lang::getTxt('export_dir_forced_change', [Config::$modSettings['export_dir'], $fallback]));
 
 				Config::updateModSettings(['export_dir' => $fallback]);
 
@@ -449,7 +412,7 @@ class Export implements ActionInterface
 	 *
 	 * @return array Information about supported data formats for profile exports.
 	 */
-	public static function getFormats()
+	public static function getFormats(): array
 	{
 		static $finalized = false;
 
@@ -480,9 +443,9 @@ class Export implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Sets up some stuff we need.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		if (!isset(Utils::$context['token_check'])) {
 			Utils::$context['token_check'] = 'profile-ex' . Utils::$context['id_member'];
@@ -637,11 +600,6 @@ class Export implements ActionInterface
 		Utils::$context['export_datatypes'] = $this->datatypes;
 		Utils::$context['export_formats'] = self::$formats;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Export::exportStatic')) {
-	Export::exportStatic();
 }
 
 ?>

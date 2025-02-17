@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -23,21 +25,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Draft
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'delete' => 'DeleteDraft',
-			'showInEditor' => 'ShowDrafts',
-			'showInProfile' => 'showProfileDrafts',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -196,24 +183,39 @@ class Draft
 				foreach ($draft_info as $key => $value) {
 					switch ($key) {
 						case 'id_draft':
-							$this->id = $value;
+							$this->id = (int) $value;
 							break;
 
 						case 'id_topic':
 						case 'id_board':
 						case 'id_member':
+							$this->{substr($key, 3)} = (int) $value;
+							break;
+
 						case 'is_sticky':
-							$this->{substr($key, 3)} = $value;
+							$this->sticky = !empty($value);
 							break;
 
 						case 'id_reply':
-							$this->reply_to = $value;
+							$this->reply_to = (int) $value;
 							break;
 
 						case 'to_list':
 							$recipientsList = Utils::jsonDecode($draft_info['to_list'], true);
 							$this->recipients['to'] = $recipientsList['to'] ?? [];
 							$this->recipients['bcc'] = $recipientsList['bcc'] ?? [];
+							break;
+
+						// These have to be ints
+						case 'type':
+						case 'poster_time':
+							$this->type = (int) $value;
+							break;
+
+						// Boolean values
+						case 'smileys_enabled':
+						case 'locked':
+							$this->$key = !empty($value);
 							break;
 
 						default:
@@ -265,7 +267,7 @@ class Draft
 	 * @param array &$post_errors Any errors encountered trying to save this draft.
 	 * @return bool Whether the draft was saved successfully.
 	 */
-	public function save(&$post_errors): bool
+	public function save(array &$post_errors): bool
 	{
 		// can you be, should you be ... here?
 		if (empty(Config::$modSettings[$this->enabled_setting]) || !User::$me->allowedTo($this->permission) || !isset($_POST['save_draft'])) {
@@ -409,7 +411,7 @@ class Draft
 		Lang::load('Drafts');
 
 		// Some initial context.
-		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+		Utils::$context['start'] = (int) ($_REQUEST['start'] ?? 0);
 		Utils::$context['current_member'] = $memID;
 
 		// If just deleting a draft, do it and then redirect back.
@@ -455,14 +457,20 @@ class Draft
 			],
 		);
 		list($msgCount) = Db::$db->fetch_row($request);
+		$msgCount = (int) $msgCount;
 		Db::$db->free_result($request);
 
 		$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
-		$maxIndex = $maxPerPage;
+		$maxIndex = (int) $maxPerPage;
 
 		// Make sure the starting place makes sense and construct our friend the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=profile;u=' . $memID . ';area=showdrafts', Utils::$context['start'], $msgCount, $maxIndex);
 		Utils::$context['current_page'] = Utils::$context['start'] / $maxIndex;
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Reverse the query if we're past 50% of the pages for better performance.
 		$start = Utils::$context['start'];
@@ -517,7 +525,11 @@ class Draft
 			Lang::censorText($row['subject']);
 
 			// BBC-ilize the message.
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], 'draft' . $row['id_draft']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => 'draft' . $row['id_draft']],
+			);
 
 			// And the array...
 			Utils::$context['drafts'][$counter += $reverse ? -1 : 1] = [
@@ -583,7 +595,7 @@ class Draft
 	 *     Default: true.
 	 * @return array Data about the draft. Empty if draft was not found.
 	 */
-	protected function read($check = true): array
+	protected function read(bool $check = true): array
 	{
 		// Nothing to read, nothing to do.
 		if (empty($this->id)) {
@@ -762,19 +774,21 @@ class Draft
 					'to_list' => 'string-255',
 				],
 				[
-					$this->topic,
-					$this->board,
-					$this->reply_to,
-					$this->type,
-					time(),
-					$this->member,
-					$this->subject,
-					(int) $this->smileys_enabled,
-					$this->body,
-					$this->icon,
-					(int) $this->locked,
-					(int) $this->sticky,
-					Utils::jsonEncode($this->recipients),
+					[
+						$this->topic,
+						$this->board,
+						$this->reply_to,
+						$this->type,
+						time(),
+						$this->member,
+						$this->subject,
+						(int) $this->smileys_enabled,
+						$this->body,
+						$this->icon,
+						(int) $this->locked,
+						(int) $this->sticky,
+						Utils::jsonEncode($this->recipients),
+					],
 				],
 				[
 					'id_draft',
@@ -813,16 +827,11 @@ class Draft
 
 		echo '<?xml version="1.0" encoding="', Utils::$context['character_set'], '"?>
 		<drafts>
-			<draft id="', $id_draft, '"><![CDATA[', Lang::$txt['draft_saved_on'], ': ', Time::create('@' . Utils::$context['draft_saved_on'])->format(), ']]></draft>
+			<draft id="', $id_draft, '"><![CDATA[', Lang::getTxt('draft_saved_on', ['date' => Time::create('@' . Utils::$context['draft_saved_on'])->format()]), ']]></draft>
 		</drafts>';
 
 		Utils::obExit(false);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Draft::exportStatic')) {
-	Draft::exportStatic();
 }
 
 ?>

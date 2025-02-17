@@ -5,16 +5,18 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -30,30 +32,9 @@ use SMF\Utils;
  */
 class StatPanel implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'statPanel' => 'statPanel',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -64,11 +45,11 @@ class StatPanel implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['statPanel_showStats'] . ' ' . Profile::$member->name;
+		Utils::$context['page_title'] = Lang::getTxt('statPanel_showStats', ['name' => Profile::$member->name]);
 
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['statPanel_generalStats'] . ' - ' . Profile::$member->name,
+			'title' => Lang::getTxt('statPanel_showStats', ['name' => Profile::$member->name]),
 			'icon' => 'stats_info.png',
 		];
 
@@ -78,7 +59,15 @@ class StatPanel implements ActionInterface
 		}
 
 		// General user statistics.
-		Utils::$context['time_logged_in'] = Profile::$member->time_logged_in;
+		$time_days = floor(Profile::$member->total_time_logged_in / 86400);
+		$time_hours = floor((Profile::$member->total_time_logged_in % 86400) / 3600);
+		$time_minutes = floor((Profile::$member->total_time_logged_in % 3600) / 60);
+
+		Utils::$context['time_logged_in'] = Lang::sentenceList(array_filter([
+			$time_days > 0 ? Lang::getTxt('number_of_days', [$time_days]) : null,
+			$time_hours > 0 ? Lang::getTxt('number_of_hours', [$time_hours]) : null,
+			Lang::getTxt('number_of_minutes', [$time_minutes]),
+		]));
 
 		Utils::$context['num_posts'] = Lang::numberFormat(Profile::$member->posts);
 
@@ -278,47 +267,6 @@ class StatPanel implements ActionInterface
 		IntegrationHook::call('integrate_profile_stats', [Profile::$member->id, &Utils::$context['text_stats']]);
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper.
-	 */
-	public static function statPanel(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -332,11 +280,6 @@ class StatPanel implements ActionInterface
 			Profile::load();
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\StatPanel::exportStatic')) {
-	StatPanel::exportStatic();
 }
 
 ?>

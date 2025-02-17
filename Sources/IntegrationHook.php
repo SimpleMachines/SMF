@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -20,31 +22,16 @@ use SMF\Db\DatabaseApi as Db;
  */
 class IntegrationHook
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'call_integration_hook',
-			'add' => 'add_integration_function',
-			'remove' => 'remove_integration_function',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
 
 	/**
-	 * @var array
+	 * @var string
 	 *
 	 * The name of this integration hook.
 	 */
-	public array $name;
+	public string $name;
 
 	/**
 	 * @var bool
@@ -88,22 +75,24 @@ class IntegrationHook
 			return;
 		}
 
+		$this->name = $name;
+
 		$this->ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
-		if (Config::$db_show_debug === true) {
-			Utils::$context['debug']['hooks'][] = $name;
+		if (!empty(Config::$db_show_debug)) {
+			Utils::$context['debug']['hooks'][] = $this->name;
 		}
 
-		if (empty(Config::$modSettings[$name])) {
+		if (empty(Config::$modSettings[$this->name])) {
 			return;
 		}
 
-		$func_strings = explode(',', Config::$modSettings[$name]);
+		$func_strings = explode(',', Config::$modSettings[$this->name]);
 
 		// Loop through each one to get the callable for it.
 		foreach ($func_strings as $func_string) {
 			// Hook has been marked as disabled. Skip it!
-			if (strpos($func_string, '!') !== false) {
+			if (str_contains($func_string, '!')) {
 				continue;
 			}
 
@@ -140,7 +129,7 @@ class IntegrationHook
 				Lang::load('Errors');
 
 				// Get a full path to show on error.
-				if (strpos($func_string, '|') !== false) {
+				if (str_contains($func_string, '|')) {
 					list($file, $func) = explode('|', $func_string);
 
 					$path = strtr($file, [
@@ -148,17 +137,17 @@ class IntegrationHook
 						'$sourcedir' => Config::$sourcedir,
 					]);
 
-					if (strpos($path, '$themedir') !== false && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
+					if (str_contains($path, '$themedir') && class_exists('SMF\\Theme', false) && !empty(Theme::$current->settings['theme_dir'])) {
 						$path = strtr($path, [
 							'$themedir' => Theme::$current->settings['theme_dir'],
 						]);
 					}
 
-					ErrorHandler::log(sprintf(Lang::$txt['hook_fail_call_to'], $func, $path), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_call_to', [$func, $path]), 'general');
 				}
 				// Assume the file resides on Config::$boarddir somewhere...
 				else {
-					ErrorHandler::log(sprintf(Lang::$txt['hook_fail_call_to'], $func_string, Config::$boarddir), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_call_to', [$func_string, Config::$boarddir]), 'general');
 				}
 			}
 		}
@@ -177,7 +166,7 @@ class IntegrationHook
 	 * @param array $parameters Parameters to pass to the hooked callables.
 	 * @return array The results returned by all the hooked callables.
 	 */
-	public static function call($name, $parameters = []): array
+	public static function call(string $name, array $parameters = []): array
 	{
 		$hook = new self($name);
 
@@ -331,11 +320,6 @@ class IntegrationHook
 
 		Config::$modSettings[$name] = implode(',', $functions);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\IntegrationHook::exportStatic')) {
-	IntegrationHook::exportStatic();
 }
 
 ?>

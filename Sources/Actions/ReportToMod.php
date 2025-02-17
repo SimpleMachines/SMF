@@ -5,20 +5,25 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
@@ -28,23 +33,11 @@ use SMF\Utils;
 /**
  * Deals with reporting posts or profiles to mods and admins.
  */
-class ReportToMod implements ActionInterface
+class ReportToMod implements ActionInterface, Routable
 {
+	use ActionRouter;
+	use ActionTrait;
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ReportToModerator',
-			'ReportToModerator2' => 'ReportToModerator2',
-			'reportPost' => 'reportPost',
-			'reportUser' => 'reportUser',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -110,18 +103,6 @@ class ReportToMod implements ActionInterface
 	 */
 	protected string $comment = '';
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -131,6 +112,9 @@ class ReportToMod implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Utils::$context['robot_no_index'] = true;
+		Utils::$context['comment_body'] = '';
+
 		// No guests!
 		User::$me->kickIfGuest();
 
@@ -234,7 +218,7 @@ class ReportToMod implements ActionInterface
 
 		Utils::$context['comment_body'] = Utils::htmlspecialchars($this->comment, ENT_QUOTES);
 
-		Utils::$context['page_title'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod'] : sprintf(Lang::$txt['report_profile'], $display_name);
+		Utils::$context['page_title'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod'] : Lang::getTxt('report_profile', ['member_name' => $display_name]);
 		Utils::$context['notice'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod_func'] : Lang::$txt['report_profile_func'];
 
 		// Show the inputs for the comment, etc.
@@ -253,7 +237,7 @@ class ReportToMod implements ActionInterface
 					if ($.trim(error_box.html()) == \'\')
 						error_box.append("<ul id=\'error_list\'></ul>");
 
-					$("#error_list").append("<li id=\'error_post_too_long\' class=\'error\'>" + ' . Utils::JavaScriptEscape(Lang::$txt['post_too_long']) . ' + "</li>");
+					$("#error_list").append("<li id=\'error_post_too_long\' class=\'error\'>" + ' . Utils::escapeJavaScript(Lang::$txt['post_too_long']) . ' + "</li>");
 				}
 			}
 			else
@@ -266,7 +250,7 @@ class ReportToMod implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Checks the input, session, etc. and submits the form
 	 */
 	public function submit(): void
 	{
@@ -310,75 +294,10 @@ class ReportToMod implements ActionInterface
 		}
 
 		if (isset($_POST['msg'])) {
-			$this->reportMsg($_POST['msg']);
+			$this->reportMsg((int) $_POST['msg']);
 		} else {
-			$this->reportMember($_POST['u']);
+			$this->reportMember((int) $_POST['u']);
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the submit sub-action.
-	 * In theory, no modifications should ever have called this, but...
-	 */
-	public static function ReportToModerator2(): void
-	{
-		self::load();
-		self::$obj->subaction = 'submit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the reportMsg() method.
-	 * In theory, no modifications should ever have called this, but...
-	 */
-	public static function reportPost($msg, $reason): void
-	{
-		$_POST['msg'] = (int) $msg;
-		$_POST['comment'] = Utils::htmlspecialcharsDecode((string) $reason);
-
-		self::load();
-		self::$obj->subaction = 'submit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the reportMember() method.
-	 * In theory, no modifications should ever have called this, but...
-	 */
-	public static function reportUser($id_member, $reason): void
-	{
-		$_POST['u'] = (int) $id_member;
-		$_POST['comment'] = Utils::htmlspecialcharsDecode((string) $reason);
-
-		self::load();
-		self::$obj->subaction = 'submit';
-		self::$obj->execute();
 	}
 
 	/******************
@@ -390,9 +309,6 @@ class ReportToMod implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Utils::$context['robot_no_index'] = true;
-		Utils::$context['comment_body'] = '';
-
 		if (isset($_POST['comment'])) {
 			$this->comment = trim(Utils::normalizeSpaces(Utils::sanitizeChars(Utils::normalize($_POST['comment']), 0), true, true));
 		}
@@ -409,7 +325,7 @@ class ReportToMod implements ActionInterface
 	/**
 	 * Sets Utils::$context['preview_message'] based on $this->comment.
 	 */
-	protected function setPreview()
+	protected function setPreview(): void
 	{
 		// Set up the preview message.
 		Utils::$context['preview_message'] = Utils::htmlspecialchars($this->comment, ENT_QUOTES);
@@ -424,7 +340,7 @@ class ReportToMod implements ActionInterface
 	 *
 	 * @param int $msg The ID of the post being reported
 	 */
-	protected function reportMsg(int $msg)
+	protected function reportMsg(int $msg): void
 	{
 		// Get the basic topic information, and make sure they can see it.
 		$request = Db::$db->query(
@@ -495,13 +411,32 @@ class ReportToMod implements ActionInterface
 				'',
 				'{db_prefix}log_reported',
 				[
-					'id_msg' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'id_member' => 'int', 'membername' => 'string',
-					'subject' => 'string', 'body' => 'string', 'time_started' => 'int', 'time_updated' => 'int',
-					'num_reports' => 'int', 'closed' => 'int',
+					'id_msg' => 'int',
+					'id_topic' => 'int',
+					'id_board' => 'int',
+					'id_member' => 'int',
+					'membername' => 'string',
+					'subject' => 'string',
+					'body' => 'string',
+					'time_started' => 'int',
+					'time_updated' => 'int',
+					'num_reports' => 'int',
+					'closed' => 'int',
 				],
 				[
-					$msg, $message['id_topic'], $message['id_board'], $message['id_poster'], $message['real_name'],
-					$message['subject'], $message['body'], time(), time(), 1, 0,
+					[
+						$msg,
+						$message['id_topic'],
+						$message['id_board'],
+						$message['id_poster'],
+						$message['real_name'],
+						$message['subject'],
+						$message['body'],
+						time(),
+						time(),
+						1,
+						0,
+					],
 				],
 				['id_report'],
 				1,
@@ -514,12 +449,22 @@ class ReportToMod implements ActionInterface
 				'',
 				'{db_prefix}log_reported_comments',
 				[
-					'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string',
-					'member_ip' => 'inet', 'comment' => 'string', 'time_sent' => 'int',
+					'id_report' => 'int',
+					'id_member' => 'int',
+					'membername' => 'string',
+					'member_ip' => 'inet',
+					'comment' => 'string',
+					'time_sent' => 'int',
 				],
 				[
-					$id_report, User::$me->id, User::$me->name,
-					User::$me->ip, Utils::htmlspecialchars($this->comment), time(),
+					[
+						$id_report,
+						User::$me->id,
+						User::$me->name,
+						User::$me->ip,
+						Utils::htmlspecialchars($this->comment),
+						time(),
+					],
 				],
 				['id_comment'],
 				1,
@@ -535,18 +480,20 @@ class ReportToMod implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\MsgReport_Notify',
-					Utils::jsonEncode([
-						'report_id' => $id_report,
-						'msg_id' => $msg,
-						'topic_id' => $message['id_topic'],
-						'board_id' => $message['id_board'],
-						'sender_id' => User::$me->id,
-						'sender_name' => User::$me->name,
-						'time' => time(),
-						'comment_id' => $id_comment,
-					]),
-					0,
+					[
+						'SMF\\Tasks\\MsgReport_Notify',
+						Utils::jsonEncode([
+							'report_id' => $id_report,
+							'msg_id' => $msg,
+							'topic_id' => $message['id_topic'],
+							'board_id' => $message['id_board'],
+							'sender_id' => User::$me->id,
+							'sender_name' => User::$me->name,
+							'time' => time(),
+							'comment_id' => $id_comment,
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);
@@ -564,7 +511,7 @@ class ReportToMod implements ActionInterface
 	 *
 	 * @param int $id_member The ID of the member whose profile is being reported
 	 */
-	protected function reportMember($id_member)
+	protected function reportMember(int $id_member): void
 	{
 		// Get the basic topic information, and make sure they can see it.
 		$_POST['u'] = (int) $id_member;
@@ -633,13 +580,32 @@ class ReportToMod implements ActionInterface
 				'',
 				'{db_prefix}log_reported',
 				[
-					'id_msg' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'id_member' => 'int', 'membername' => 'string',
-					'subject' => 'string', 'body' => 'string', 'time_started' => 'int', 'time_updated' => 'int',
-					'num_reports' => 'int', 'closed' => 'int',
+					'id_msg' => 'int',
+					'id_topic' => 'int',
+					'id_board' => 'int',
+					'id_member' => 'int',
+					'membername' => 'string',
+					'subject' => 'string',
+					'body' => 'string',
+					'time_started' => 'int',
+					'time_updated' => 'int',
+					'num_reports' => 'int',
+					'closed' => 'int',
 				],
 				[
-					0, 0, 0, $user['id_member'], $user_name,
-					'', '', time(), time(), 1, 0,
+					[
+						0,
+						0,
+						0,
+						$user['id_member'],
+						$user_name,
+						'',
+						'',
+						time(),
+						time(),
+						1,
+						0,
+					],
 				],
 				['id_report'],
 				1,
@@ -652,12 +618,22 @@ class ReportToMod implements ActionInterface
 				'',
 				'{db_prefix}log_reported_comments',
 				[
-					'id_report' => 'int', 'id_member' => 'int', 'membername' => 'string',
-					'member_ip' => 'inet', 'comment' => 'string', 'time_sent' => 'int',
+					'id_report' => 'int',
+					'id_member' => 'int',
+					'membername' => 'string',
+					'member_ip' => 'inet',
+					'comment' => 'string',
+					'time_sent' => 'int',
 				],
 				[
-					$id_report, User::$me->id, User::$me->name,
-					User::$me->ip, Utils::htmlspecialchars($this->comment), time(),
+					[
+						$id_report,
+						User::$me->id,
+						User::$me->name,
+						User::$me->ip,
+						Utils::htmlspecialchars($this->comment),
+						time(),
+					],
 				],
 				['id_comment'],
 			);
@@ -672,17 +648,19 @@ class ReportToMod implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\MemberReport_Notify',
-					Utils::jsonEncode([
-						'report_id' => $id_report,
-						'user_id' => $user['id_member'],
-						'user_name' => $user_name,
-						'sender_id' => User::$me->id,
-						'sender_name' => User::$me->name,
-						'comment' => Utils::htmlspecialchars($this->comment),
-						'time' => time(),
-					]),
-					0,
+					[
+						'SMF\\Tasks\\MemberReport_Notify',
+						Utils::jsonEncode([
+							'report_id' => $id_report,
+							'user_id' => $user['id_member'],
+							'user_name' => $user_name,
+							'sender_id' => User::$me->id,
+							'sender_name' => User::$me->name,
+							'comment' => Utils::htmlspecialchars($this->comment),
+							'time' => time(),
+						]),
+						0,
+					],
 				],
 				['id_task'],
 			);
@@ -694,11 +672,6 @@ class ReportToMod implements ActionInterface
 		// Back to the profile we reported!
 		Utils::redirectexit('reportsent;action=profile;u=' . $id_member);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ReportToMod::exportStatic')) {
-	ReportToMod::exportStatic();
 }
 
 ?>

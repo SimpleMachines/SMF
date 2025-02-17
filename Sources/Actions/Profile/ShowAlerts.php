@@ -5,17 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Alert;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Lang;
 use SMF\PageIndex;
@@ -29,30 +31,9 @@ use SMF\Utils;
  */
 class ShowAlerts implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'showAlerts' => 'showAlerts',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -66,7 +47,7 @@ class ShowAlerts implements ActionInterface
 		// Are we opening a specific alert? (i.e.: ?action=profile;area=showalerts;alert=12345)
 		if (!empty($_REQUEST['alert'])) {
 			$alert_id = (int) $_REQUEST['alert'];
-			$alerts = Alert::fetch(User::$me->id, $alert_id);
+			$alerts = Alert::fetch(User::$me->id, [$alert_id]);
 			$alert = array_pop($alerts);
 
 			/*
@@ -82,7 +63,7 @@ class ShowAlerts implements ActionInterface
 			}
 
 			// Mark the alert as read while we're at it.
-			Alert::mark(User::$me->id, $alert_id, 1);
+			Alert::mark(User::$me->id, $alert_id, true);
 
 			// Take the user to the content
 			Utils::redirectexit($alert->target_href);
@@ -90,13 +71,18 @@ class ShowAlerts implements ActionInterface
 
 		// Prepare the pagination vars.
 		$maxIndex = !empty(Config::$modSettings['alerts_per_page']) && (int) Config::$modSettings['alerts_per_page'] < 1000 ? min((int) Config::$modSettings['alerts_per_page'], 1000) : 25;
-		Utils::$context['start'] = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
+		Utils::$context['start'] = (int) ($_REQUEST['start'] ?? 0);
 
 		// Fix invalid 'start' offsets.
 		if (Utils::$context['start'] > User::$me->alerts) {
 			Utils::$context['start'] = User::$me->alerts - (User::$me->alerts % $maxIndex);
 		} else {
 			Utils::$context['start'] = Utils::$context['start'] - (Utils::$context['start'] % $maxIndex);
+		}
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit('action=profile;area=showalerts;u=' . User::$me->id . ';start=' . Utils::$context['start']);
 		}
 
 		// Get the alerts.
@@ -196,7 +182,7 @@ class ShowAlerts implements ActionInterface
 					break;
 
 				default:
-					Alert::mark(User::$me->id, $toMark, $action == 'read' ? 1 : 0);
+					Alert::mark(User::$me->id, $toMark, $action == 'read');
 					break;
 			}
 
@@ -206,47 +192,6 @@ class ShowAlerts implements ActionInterface
 			// Redirect.
 			Utils::redirectexit('action=profile;area=showalerts;u=' . User::$me->id . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''));
 		}
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper.
-	 */
-	public static function showAlerts(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
 	}
 
 	/******************
@@ -267,11 +212,6 @@ class ShowAlerts implements ActionInterface
 			Utils::redirectexit('action=profile;u=' . Profile::$member->id);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ShowAlerts::exportStatic')) {
-	ShowAlerts::exportStatic();
 }
 
 ?>

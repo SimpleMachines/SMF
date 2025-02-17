@@ -5,18 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\Credits;
 use SMF\Actions\Groups;
-use SMF\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Menu;
@@ -34,18 +36,7 @@ use SMF\Utils;
  */
 class Home implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'AdminHome',
-		],
-	];
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -89,18 +80,6 @@ class Home implements ActionInterface
 		'server',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -138,76 +117,38 @@ class Home implements ActionInterface
 			Menu::$loaded['admin']->tab_data = [
 				'title' => Lang::$txt['admin_center'],
 				'help' => '',
-				'description' => '<strong>' . Lang::$txt['hello_guest'] . ' ' . User::$me->name . '!</strong>
-					' . sprintf(Lang::$txt['admin_main_welcome'], Lang::$txt['admin_center'], Lang::$txt['help'], Lang::$txt['help']),
+				'description' => '<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name]) . '</strong>
+					' . Lang::getTxt('admin_main_welcome', Lang::$txt),
 			];
 		}
 
 		// Lastly, fill in the blanks in the support resources paragraphs.
-		Lang::$txt['support_resources_p1'] = sprintf(
-			Lang::$txt['support_resources_p1'],
-			'https://wiki.simplemachines.org/',
-			'https://wiki.simplemachines.org/smf/features2',
-			'https://wiki.simplemachines.org/smf/options2',
-			'https://wiki.simplemachines.org/smf/themes2',
-			'https://wiki.simplemachines.org/smf/packages2',
+		Lang::$txt['support_resources_p1'] = Lang::getTxt(
+			'support_resources_p1',
+			[
+				'manual_main_url' => 'https://wiki.simplemachines.org/',
+				'manual_features_url' => 'https://wiki.simplemachines.org/smf/features2',
+				'manual_settings_url' => 'https://wiki.simplemachines.org/smf/options2',
+				'manual_themes_url' => 'https://wiki.simplemachines.org/smf/themes2',
+				'manual_packages_url' => 'https://wiki.simplemachines.org/smf/packages2',
+			],
 		);
 
-		Lang::$txt['support_resources_p2'] = sprintf(
-			Lang::$txt['support_resources_p2'],
-			'https://www.simplemachines.org/community/',
-			'https://www.simplemachines.org/redirect/english_support',
-			'https://www.simplemachines.org/redirect/international_support_boards',
-			'https://www.simplemachines.org/redirect/smf_support',
-			'https://www.simplemachines.org/redirect/customize_support',
+		Lang::$txt['support_resources_p2'] = Lang::getTxt(
+			'support_resources_p2',
+			[
+				'support_main_url' => 'https://www.simplemachines.org/community/',
+				'support_english_url' => 'https://www.simplemachines.org/redirect/english_support',
+				'support_intl_url' => 'https://www.simplemachines.org/redirect/international_support_boards',
+				'support_smf_url' => 'https://www.simplemachines.org/redirect/smf_support',
+				'support_customize_url' => 'https://www.simplemachines.org/redirect/customize_support',
+			],
 		);
 
 		if (Utils::$context['admin_area'] == 'admin') {
 			Theme::loadJavaScriptFile('admin.js', ['defer' => false, 'minimize' => true], 'smf_admin');
 		}
 	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Home::exportStatic')) {
-	Home::exportStatic();
 }
 
 ?>

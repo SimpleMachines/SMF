@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Config;
@@ -53,10 +53,10 @@ function template_reported_posts()
 		echo '
 		<div class="windowbg">
 			<h5>
-				<strong>', !empty($report['topic']['board_name']) ? '<a href="' . Config::$scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / <a href="', $report['topic']['href'], '">', $report['subject'], '</a></strong> ', Lang::$txt['mc_reportedp_by'], ' <strong>', $report['author']['link'], '</strong>
+				', !empty($report['topic']['board_name']) ? '<a href="' . Config::$scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / ', Lang::getTxt('mc_reportedp_subject_author', ['subject' => '<a href="' . $report['topic']['href'] . '">' . $report['subject'] . '</a>', 'author' => $report['author']['link']]), '
 			</h5>
 			<div class="smalltext">
-				', Lang::$txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
+				', Lang::getTxt('mc_reportedp_last_reported', ['date' => $report['last_updated']]), '<br>';
 
 		// Prepare the comments...
 		$comments = array();
@@ -64,10 +64,10 @@ function template_reported_posts()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-				', Lang::$txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
+				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)]), '
 			</div>
 			<hr>
-			', $report['body'], '
+			', Utils::adjustHeadingLevels($report['body'], 5), '
 			<br>';
 
 		// Reported post options
@@ -81,7 +81,7 @@ function template_reported_posts()
 	if (empty(Utils::$context['reports']))
 		echo '
 		<div class="windowbg">
-			<p class="centertext">', Lang::$txt['mc_reportedp_none_found'], '</p>
+			<div class="centertext">', Lang::$txt['mc_reportedp_none_found'], '</div>
 		</div>';
 
 	echo '
@@ -120,7 +120,7 @@ function template_reported_posts_block()
 	foreach (Utils::$context['reported_posts'] as $report)
 		echo '
 					<li class="smalltext">
-						<a href="', $report['report_href'], '">', $report['subject'], '</a> ', Lang::$txt['mc_reportedp_by'], ' ', $report['author']['link'], '
+						', Lang::getTxt('mc_reportedp_subject_author', ['subject' => '<a href="' . $report['report_href'] . '">' . $report['subject'] . '</a>', 'author' => $report['author']['link']]), '
 					</li>';
 
 	// Don't have any watched users right now?
@@ -145,15 +145,15 @@ function template_reported_posts_block()
 				aSwapImages: [
 					{
 						sId: \'reported_posts_toggle\',
-						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'reported_posts_link\',
-						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_reports']), ',
-						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_reports']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_reports']), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_reports']), '
 					}
 				],
 				oThemeOptions: {
@@ -185,13 +185,13 @@ function template_viewmodreport()
 		<form action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', sprintf(Lang::$txt['mc_viewmodreport'], Utils::$context['report']['message_link'], Utils::$context['report']['author']['link']), '
+					', Lang::getTxt('mc_viewmodreport', ['message_link' => Utils::$context['report']['message_link'], 'author_link' => Utils::$context['report']['author']['link']]), '
 				</h3>
 			</div>
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<span class="floatleft">
-						', sprintf(Lang::$txt['mc_modreport_summary'], Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']), '
+						', Lang::getTxt('mc_modreport_summary', [Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']]), '
 					</span>';
 
 	$report_buttons = array(
@@ -216,7 +216,7 @@ function template_viewmodreport()
 				</h3>
 			</div><!-- .title_bar -->
 			<div class="windowbg">
-				', Utils::$context['report']['body'], '
+				', Utils::adjustHeadingLevels(Utils::$context['report']['body'], 3), '
 			</div>
 			<br>
 			<div class="cat_bar">
@@ -226,10 +226,16 @@ function template_viewmodreport()
 	foreach (Utils::$context['report']['comments'] as $comment)
 		echo '
 			<div class="windowbg">
-				<p class="smalltext">
-					', sprintf(Lang::$txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '
-				</p>
-				<p>', $comment['message'], '</p>
+				<div class="smalltext">
+					', Lang::getTxt(
+						'mc_modreport_whoreported_data',
+						[
+							'member_link' => $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''),
+							'datetime' => $comment['time'],
+						],
+					), '
+				</div>
+				<div>', Utils::adjustHeadingLevels($comment['message'], null), '</div>
 			</div>';
 
 	echo '
@@ -242,7 +248,7 @@ function template_viewmodreport()
 	if (empty(Utils::$context['report']['mod_comments']))
 		echo '
 				<div class="information">
-					<p class="centertext">', Lang::$txt['mc_modreport_no_mod_comment'], '</p>
+					<div class="centertext">', Lang::$txt['mc_modreport_no_mod_comment'], '</div>
 				</div>';
 
 	foreach (Utils::$context['report']['mod_comments'] as $comment)
@@ -256,7 +262,7 @@ function template_viewmodreport()
 
 		echo '
 				<div class="windowbg">
-					<p>', $comment['message'], '</p>
+					<div>', Utils::adjustHeadingLevels($comment['message'], null), '</div>
 				</div>';
 	}
 
@@ -353,15 +359,15 @@ function template_reported_members_block()
 				aSwapImages: [
 					{
 						sId: \'reported_members_toggle\',
-						altExpanded: ', Utils::JavaScriptEscape(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'reported_members_link\',
-						msgExpanded: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_member_reports']), ',
-						msgCollapsed: ', Utils::JavaScriptEscape(Lang::$txt['mc_recent_member_reports']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_member_reports']), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_member_reports']), '
 					}
 				],
 				oThemeOptions: {
@@ -417,7 +423,7 @@ function template_reported_members()
 				<strong><a href="', $report['user']['href'], '">', $report['user']['name'], '</a></strong>
 			</h5>
 			<div class="smalltext">
-				', Lang::$txt['mc_reportedp_last_reported'], ': ', $report['last_updated'], '&nbsp;-&nbsp;';
+				', Lang::getTxt('mc_reportedp_last_reported', ['date' => $report['last_updated']]), '<br>';
 
 		// Prepare the comments...
 		$comments = array();
@@ -425,7 +431,7 @@ function template_reported_members()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-				', Lang::$txt['mc_reportedp_reported_by'], ': ', implode(', ', $comments), '
+				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)]), '
 			</div>
 			<hr>
 			', template_quickbuttons($report['quickbuttons'], 'reported_members'), '
@@ -436,7 +442,7 @@ function template_reported_members()
 	if (empty(Utils::$context['reports']))
 		echo '
 		<div class="windowbg">
-			<p class="centertext">', Lang::$txt['mc_reportedp_none_found'], '</p>
+			<div class="centertext">', Lang::$txt['mc_reportedp_none_found'], '</div>
 		</div>';
 
 	echo '
@@ -467,13 +473,13 @@ function template_viewmemberreport()
 		<form action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', sprintf(Lang::$txt['mc_viewmemberreport'], Utils::$context['report']['user']['link']), '
+					', Lang::getTxt('mc_viewmemberreport', ['member' => Utils::$context['report']['user']['link']]), '
 				</h3>
 			</div>
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<span class="floatleft">
-						', sprintf(Lang::$txt['mc_memberreport_summary'], Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']), '
+						', Lang::getTxt('mc_memberreport_summary', [Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']]), '
 					</span>';
 
 	$report_buttons = array(
@@ -505,10 +511,16 @@ function template_viewmemberreport()
 	foreach (Utils::$context['report']['comments'] as $comment)
 		echo '
 			<div class="windowbg">
-				<p class="smalltext">
-					', sprintf(Lang::$txt['mc_modreport_whoreported_data'], $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''), $comment['time']), '
-				</p>
-				<p>', $comment['message'], '</p>
+				<div class="smalltext">
+					', Lang::getTxt(
+						'mc_modreport_whoreported_data',
+						[
+							'member_link' => $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''),
+							'datetime' => $comment['time'],
+						],
+					), '
+				</div>
+				<div>', Utils::adjustHeadingLevels($comment['message'], null), '</div>
 			</div>';
 
 	echo '
@@ -521,7 +533,7 @@ function template_viewmemberreport()
 	if (empty(Utils::$context['report']['mod_comments']))
 		echo '
 				<div class="information">
-					<p class="centertext">', Lang::$txt['mc_modreport_no_mod_comment'], '</p>
+					<div class="centertext">', Lang::$txt['mc_modreport_no_mod_comment'], '</div>
 				</div>';
 
 	foreach (Utils::$context['report']['mod_comments'] as $comment)
@@ -533,7 +545,7 @@ function template_viewmemberreport()
 
 		echo '
 				<div class="windowbg">
-					<p>', $comment['message'], '</p>
+					<div>', Utils::adjustHeadingLevels($comment['message'], null), '</div>
 				</div>';
 	}
 

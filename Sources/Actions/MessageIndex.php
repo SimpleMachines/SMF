@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
@@ -23,6 +26,9 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Parser;
+use SMF\Routable;
+use SMF\Slug;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -34,22 +40,10 @@ use SMF\Utils;
  * Although this class is not accessed using an ?action=... URL query, it
  * behaves like an action in every other way.
  */
-class MessageIndex implements ActionInterface
+class MessageIndex implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static array $backcompat = [
-		'func_names' => [
-			'call' => 'MessageIndex',
-			'getBoardList' => 'getBoardList',
-			'buildTopicContext' => 'buildTopicContext',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -139,17 +133,6 @@ class MessageIndex implements ActionInterface
 	 */
 	protected bool $ascending_is_default = false;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -159,6 +142,22 @@ class MessageIndex implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		if (empty(Board::$info->id)) {
+			ErrorHandler::fatalLang('no_board', false);
+		}
+
+		$this->checkRedirect();
+		$this->preventPrefetch();
+
+		$this->setSortMethod();
+		$this->setPaginationAndLinks();
+
+		$this->setModerators();
+		$this->setUnapprovedPostsMessage();
+
+		$this->setupTemplate();
+		$this->setRobotNoIndex();
+
 		$this->buildTopicList();
 		$this->buildChildBoardIndex();
 
@@ -177,34 +176,12 @@ class MessageIndex implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Buils and returns the list of available boards for a user.
+	 * Builds and returns the list of available boards for a user.
 	 *
 	 * @param array $boardListOptions An array of options for the board list.
 	 * @return array An array of board info.
 	 */
-	public static function getBoardList($boardListOptions = []): array
+	public static function getBoardList(array $boardListOptions = []): array
 	{
 		if (isset($boardListOptions['excluded_boards'], $boardListOptions['included_boards'])) {
 			Lang::load('Errors');
@@ -279,18 +256,23 @@ class MessageIndex implements ActionInterface
 	 *
 	 * This is static so that it can be called by SMF\Actions\Unread, etc.
 	 */
-	public static function buildTopicContext(array $row)
+	public static function buildTopicContext(array $row): void
 	{
 		// Reference the main color class.
 		$colorClass = 'windowbg';
 
 		// Does the theme support message previews?
 		if (!empty(Config::$modSettings['preview_characters'])) {
-			// Limit them to Config::$modSettings['preview_characters'] characters
-			$row['first_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['first_body'], $row['first_smileys'], $row['id_first_msg']), ['<br>' => '&#10;']));
+			$row['first_body'] = Parser::transform(
+				string: $row['first_body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['first_smileys'] ? Parser::INPUT_SMILEYS : 0),
+				output_type: Parser::OUTPUT_TEXT,
+				options: ['str_replace' => ['<br>' => '&#10;']],
+			);
 
+			// Limit them to Config::$modSettings['preview_characters'] characters
 			if (Utils::entityStrlen($row['first_body']) > Config::$modSettings['preview_characters']) {
-				$row['first_body'] = Utils::entitySubstr($row['first_body'], 0, Config::$modSettings['preview_characters']) . '...';
+				$row['first_body'] = Utils::entitySubstr($row['first_body'], 0, (int) Config::$modSettings['preview_characters']) . '...';
 			}
 
 			// Censor the subject and message preview.
@@ -302,10 +284,15 @@ class MessageIndex implements ActionInterface
 				$row['last_subject'] = $row['first_subject'];
 				$row['last_body'] = $row['first_body'];
 			} else {
-				$row['last_body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['last_body'], $row['last_smileys'], $row['id_last_msg']), ['<br>' => '&#10;']));
+				$row['last_body'] = Parser::transform(
+					string: $row['last_body'],
+					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['last_smileys'] ? Parser::INPUT_SMILEYS : 0),
+					output_type: Parser::OUTPUT_TEXT,
+					options: ['str_replace' => ['<br>' => '&#10;']],
+				);
 
 				if (Utils::entityStrlen($row['last_body']) > Config::$modSettings['preview_characters']) {
-					$row['last_body'] = Utils::entitySubstr($row['last_body'], 0, Config::$modSettings['preview_characters']) . '...';
+					$row['last_body'] = Utils::entitySubstr($row['last_body'], 0, (int) Config::$modSettings['preview_characters']) . '...';
 				}
 
 				Lang::censorText($row['last_subject']);
@@ -327,7 +314,7 @@ class MessageIndex implements ActionInterface
 		if ($row['num_replies'] + 1 > Utils::$context['messages_per_page']) {
 			// We can't pass start by reference.
 			$start = -1;
-			$pages = new PageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, Utils::$context['messages_per_page'], true, false);
+			$pages = new PageIndex(Config::$scripturl . '?topic=' . $row['id_topic'] . '.%1$d', $start, $row['num_replies'] + 1, (int) Utils::$context['messages_per_page'], true, false);
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages']) {
@@ -377,6 +364,26 @@ class MessageIndex implements ActionInterface
 			$colorClass .= ' locked';
 		}
 
+		// Ensure the slug for the topic has been set.
+		if (
+			!empty($row['id_topic'])
+			&& ($row['first_subject'] ?? '') !== ''
+			&& !isset(Slug::$known['topic'][(int) $row['id_topic']])
+		) {
+			Slug::create($row['first_subject'], 'topic', (int) $row['id_topic']);
+		}
+
+		// Ensure the slugs for the first and last posters have been set.
+		foreach (['first', 'last'] as $fl) {
+			if (
+				!empty($row[$fl . '_id_member'])
+				&& ($row[$fl . '_display_name'] ?? '') !== ''
+				&& !isset(Slug::$known['member'][(int) $row[$fl . '_id_member']])
+			) {
+				Slug::create($row[$fl . '_display_name'], 'member', (int) $row[$fl . '_id_member']);
+			}
+		}
+
 		// 'Print' the topic info.
 		Utils::$context['topics'][$row['id_topic']] = array_merge($row, [
 			'id' => $row['id_topic'],
@@ -387,7 +394,7 @@ class MessageIndex implements ActionInterface
 					'name' => $row['first_display_name'],
 					'id' => $row['first_id_member'],
 					'href' => !empty($row['first_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
-					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . sprintf(Lang::$txt['view_profile_of_username'], $row['first_display_name']) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name'],
+					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $row['first_display_name']]) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name'],
 				],
 				'time' => Time::create('@' . $row['first_poster_time'])->format(),
 				'timestamp' => $row['first_poster_time'],
@@ -454,33 +461,22 @@ class MessageIndex implements ActionInterface
 		}
 	}
 
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		return Board::buildRoute($params);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Prepares to show the message index.
-	 *
-	 * Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		if (empty(Board::$info->id)) {
-			ErrorHandler::fatalLang('no_board', false);
-		}
-
-		$this->checkRedirect();
-		$this->preventPrefetch();
-
-		$this->setSortMethod();
-		$this->setPaginationAndLinks();
-
-		$this->setModerators();
-		$this->setUnapprovedPostsMessage();
-
-		$this->setupTemplate();
-		$this->setRobotNoIndex();
-	}
 
 	/**
 	 * Redirects to the target URL for this board, if applicable.
@@ -567,11 +563,18 @@ class MessageIndex implements ActionInterface
 
 		Utils::$context['maxindex'] = isset($_REQUEST['all']) && !empty(Config::$modSettings['enableAllMessages']) ? Board::$info->total_topics : Utils::$context['topics_per_page'];
 
+		$start = (int) $_REQUEST['start'];
+
 		// Make sure the starting place makes sense and construct the page index.
 		if ($this->sort_by !== $this->sort_default || !$this->ascending_is_default) {
-			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d' . ($this->sort_default == $this->sort_by ? '' : ';sort=' . $this->sort_by) . ($this->ascending_is_default ? '' : ($this->ascending ? ';asc' : ';desc')), $_REQUEST['start'], Board::$info->total_topics, Utils::$context['maxindex'], true);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d' . ($this->sort_default == $this->sort_by ? '' : ';sort=' . $this->sort_by) . ($this->ascending_is_default ? '' : ($this->ascending ? ';asc' : ';desc')), $start, Board::$info->total_topics, (int) Utils::$context['maxindex'], true);
 		} else {
-			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], Board::$info->total_topics, Utils::$context['maxindex'], true);
+			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d', $start, Board::$info->total_topics, (int) Utils::$context['maxindex'], true);
+		}
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != $start) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
 		}
 
 		Utils::$context['start'] = &$_REQUEST['start'];
@@ -612,13 +615,11 @@ class MessageIndex implements ActionInterface
 		}
 
 		// Calculate the fastest way to get the topics.
-		$start = (int) $_REQUEST['start'];
-
-		if ($start > (Board::$info->total_topics - 1) / 2) {
+		if ($_REQUEST['start'] > (Board::$info->total_topics - 1) / 2) {
 			$this->ascending = !$this->ascending;
 			$fake_ascending = true;
-			Utils::$context['maxindex'] = Board::$info->total_topics < $start + Utils::$context['maxindex'] + 1 ? Board::$info->total_topics - $start : Utils::$context['maxindex'];
-			$start = Board::$info->total_topics < $start + Utils::$context['maxindex'] + 1 ? 0 : Board::$info->total_topics - $start - Utils::$context['maxindex'];
+			Utils::$context['maxindex'] = Board::$info->total_topics < $_REQUEST['start'] + Utils::$context['maxindex'] + 1 ? Board::$info->total_topics - $_REQUEST['start'] : Utils::$context['maxindex'];
+			$_REQUEST['start'] = Board::$info->total_topics < $_REQUEST['start'] + Utils::$context['maxindex'] + 1 ? 0 : Board::$info->total_topics - $_REQUEST['start'] - Utils::$context['maxindex'];
 		} else {
 			$fake_ascending = false;
 		}
@@ -633,7 +634,7 @@ class MessageIndex implements ActionInterface
 			'topic_list' => $topic_ids,
 			'is_approved' => 1,
 			'find_set_topics' => implode(',', $topic_ids),
-			'start' => $start,
+			'start' => $_REQUEST['start'],
 			'maxindex' => Utils::$context['maxindex'],
 		];
 
@@ -738,8 +739,18 @@ class MessageIndex implements ActionInterface
 			Db::$db->insert(
 				'replace',
 				'{db_prefix}log_boards',
-				['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
-				[Config::$modSettings['maxMsgID'], User::$me->id, Board::$info->id],
+				[
+					'id_msg' => 'int',
+					'id_member' => 'int',
+					'id_board' => 'int',
+				],
+				[
+					[
+						Config::$modSettings['maxMsgID'],
+						User::$me->id,
+						Board::$info->id,
+					],
+				],
 				['id_member', 'id_board'],
 			);
 
@@ -893,7 +904,7 @@ class MessageIndex implements ActionInterface
 	}
 
 	/**
-	 * Prepares contextual info about the modertors of this board.
+	 * Prepares contextual info about the moderators of this board.
 	 */
 	protected function setModerators(): void
 	{
@@ -932,11 +943,13 @@ class MessageIndex implements ActionInterface
 
 			$unposts = Board::$info->unapproved_posts ? '<a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=posts;brd=' . Board::$info->id . '">' . (Board::$info->unapproved_posts - Board::$info->unapproved_topics) . '</a>' : 0;
 
-			Utils::$context['unapproved_posts_message'] = sprintf(
-				Lang::$txt['there_are_unapproved_topics'],
-				$untopics,
-				$unposts,
-				Config::$scripturl . '?action=moderate;area=postmod;sa=' . (Board::$info->unapproved_topics ? 'topics' : 'posts') . ';brd=' . Board::$info->id,
+			Utils::$context['unapproved_posts_message'] = Lang::getTxt(
+				'there_are_unapproved_topics',
+				[
+					'topics' => $untopics,
+					'posts' => $unposts,
+					'url' => Config::$scripturl . '?action=moderate;area=postmod;sa=' . (Board::$info->unapproved_topics ? 'topics' : 'posts') . ';brd=' . Board::$info->id,
+				],
 			);
 		}
 
@@ -1109,11 +1122,6 @@ class MessageIndex implements ActionInterface
 		// Note: Utils::$context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
 		IntegrationHook::call('integrate_messageindex_buttons', [&Utils::$context['normal_buttons']]);
 	}
-}
-
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\MessageIndex::exportStatic')) {
-	MessageIndex::exportStatic();
 }
 
 ?>

@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -24,6 +27,9 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\PageIndex;
+use SMF\Parser;
+use SMF\Routable;
+use SMF\Slug;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -32,21 +38,10 @@ use SMF\Utils;
 /**
  * Finds and retrieves information about recently posted messages.
  */
-class Recent implements ActionInterface
+class Recent implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RecentPosts',
-			'getLastPost' => 'getLastPost',
-		],
-	];
+	use ActionSuffixRouter;
+	use ActionTrait;
 
 	/*****************
 	 * Class constants
@@ -99,7 +94,7 @@ class Recent implements ActionInterface
 	 *
 	 * IDs of some recent messages.
 	 */
-	protected array $messages = [];
+	protected ?array $messages = [];
 
 	/**
 	 * @var array
@@ -111,18 +106,6 @@ class Recent implements ActionInterface
 		'any' => [],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -132,6 +115,34 @@ class Recent implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Utils::$context['posts'] = [];
+
+		Theme::loadTemplate('Recent');
+		Utils::$context['page_title'] = Lang::$txt['recent_posts'];
+		Utils::$context['sub_template'] = 'recent';
+
+		Utils::$context['is_redirect'] = false;
+
+		// Limit the start value to 90 or less.
+		Utils::$context['start'] = min(self::PER_PAGE * (self::PAGES - 1), (int) ($_REQUEST['start'] ?? 0));
+		// Also make it an even multiple of our posts per page value.
+		Utils::$context['start'] -= Utils::$context['start'] % self::PER_PAGE;
+
+		// Convert $_REQUEST['boards'] to an array of integers.
+		if (!empty($_REQUEST['boards'])) {
+			$_REQUEST['boards'] = array_map('intval', explode(',', $_REQUEST['boards']));
+		}
+
+		// Board requests takes precedence over category requests.
+		if (!empty($_REQUEST['boards']) || !empty(Board::$info->id)) {
+			unset($_REQUEST['c']);
+		}
+
+		// Convert $_REQUEST['c'] to an array of integers.
+		if (!empty($_REQUEST['c'])) {
+			$_REQUEST['c'] = array_map('intval', explode(',', $_REQUEST['c']));
+		}
+
 		$this->getBoards();
 		$this->getCatName();
 
@@ -157,28 +168,6 @@ class Recent implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Get the latest post made on the forum.
 	 *
 	 * Respects approved, recycled, and board permissions.
@@ -186,7 +175,7 @@ class Recent implements ActionInterface
 	 *
 	 * @return array An array of information about the last post that you can see
 	 */
-	public static function getLastPost()
+	public static function getLastPost(): array
 	{
 		// Find it by the board - better to order by board than sort the entire messages table.
 		$request = Db::$db->query(
@@ -217,7 +206,11 @@ class Recent implements ActionInterface
 		Lang::censorText($row['subject']);
 		Lang::censorText($row['body']);
 
-		$row['body'] = strip_tags(strtr(BBCodeParser::load()->parse($row['body'], $row['smileys_enabled']), ['<br>' => '&#10;']));
+		$row['body'] = Parser::transform(
+			string: $row['body'],
+			output_type: Parser::OUTPUT_TEXT,
+			options: ['str_replace' => ['<br>' => '&#10;']],
+		);
 
 		if (Utils::entityStrlen($row['body']) > 128) {
 			$row['body'] = Utils::entitySubstr($row['body'], 0, 128) . '...';
@@ -246,34 +239,6 @@ class Recent implements ActionInterface
 	protected function __construct()
 	{
 		$this->action_url = Config::$scripturl . '?action=recent';
-
-		Utils::$context['posts'] = [];
-
-		Theme::loadTemplate('Recent');
-		Utils::$context['page_title'] = Lang::$txt['recent_posts'];
-		Utils::$context['sub_template'] = 'recent';
-
-		Utils::$context['is_redirect'] = false;
-
-		// Limit the start value to 90 or less.
-		Utils::$context['start'] = min(self::PER_PAGE * (self::PAGES - 1), (int) ($_REQUEST['start'] ?? 0));
-		// Also make it an even multiple of our posts per page value.
-		Utils::$context['start'] -= Utils::$context['start'] % self::PER_PAGE;
-
-		// Convert $_REQUEST['boards'] to an array of integers.
-		if (!empty($_REQUEST['boards'])) {
-			$_REQUEST['boards'] = array_map('intval', explode(',', $_REQUEST['boards']));
-		}
-
-		// Board requests takes precedence over category requests.
-		if (!empty($_REQUEST['boards']) || !empty(Board::$info->id)) {
-			unset($_REQUEST['c']);
-		}
-
-		// Convert $_REQUEST['c'] to an array of integers.
-		if (!empty($_REQUEST['c'])) {
-			$_REQUEST['c'] = array_map('intval', explode(',', $_REQUEST['c']));
-		}
 	}
 
 	/**
@@ -283,14 +248,14 @@ class Recent implements ActionInterface
 	 *
 	 * @todo Break this up further.
 	 */
-	protected function getBoards()
+	protected function getBoards(): void
 	{
 		// Requested one or more categories.
 		if (!empty($_REQUEST['c'])) {
 			$boards = [];
 			$request = Db::$db->query(
 				'',
-				'SELECT b.id_board, b.num_posts
+				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_cat IN ({array_int:category_list})
 					AND b.redirect = {string:empty}' . (!empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? '
@@ -306,6 +271,10 @@ class Recent implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($request)) {
 				$boards[] = $row['id_board'];
 				$this->total_posts += $row['num_posts'];
+
+				if (!isset(Slug::$known['board'][(int) $row['id_board']])) {
+					Slug::create($row['name'], 'board', (int) $row['id_board'], 60);
+				}
 			}
 			Db::$db->free_result($request);
 
@@ -335,7 +304,7 @@ class Recent implements ActionInterface
 
 			$request = Db::$db->query(
 				'',
-				'SELECT b.id_board, b.num_posts
+				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_board IN ({array_int:board_list})
 					AND b.redirect = {string:empty}
@@ -352,6 +321,10 @@ class Recent implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($request)) {
 				$boards[] = $row['id_board'];
 				$this->total_posts += $row['num_posts'];
+
+				if (!isset(Slug::$known['board'][(int) $row['id_board']])) {
+					Slug::create($row['name'], 'board', (int) $row['id_board'], 60);
+				}
 			}
 			Db::$db->free_result($request);
 
@@ -383,7 +356,8 @@ class Recent implements ActionInterface
 					'current_board' => Board::$info->id,
 				],
 			);
-			list($this->total_posts, $redirect) = Db::$db->fetch_row($request);
+			list($total_posts, $redirect) = Db::$db->fetch_row($request);
+			$this->total_posts = (int) $total_posts;
 			Db::$db->free_result($request);
 
 			// If this is a redirection board, don't bother counting topics here...
@@ -416,16 +390,24 @@ class Recent implements ActionInterface
 			$query_these_boards_params = $this->query_parameters;
 			unset($query_these_boards_params['max_id_msg']);
 
+			$this->total_posts = 0;
+
 			$get_num_posts = Db::$db->query(
 				'',
-				'SELECT COALESCE(SUM(b.num_posts), 0)
+				'SELECT b.id_board, b.name, b.num_posts
 				FROM {db_prefix}boards AS b
 				WHERE ' . $query_these_boards . '
 					AND b.redirect = {string:empty}',
 				array_merge($query_these_boards_params, ['empty' => '']),
 			);
 
-			list($this->total_posts) = Db::$db->fetch_row($get_num_posts);
+			while ($row = Db::$db->fetch_assoc($get_num_posts)) {
+				$this->total_posts += $row['num_posts'];
+
+				if (!isset(Slug::$known['board'][(int) $row['id_board']])) {
+					Slug::create($row['name'], 'board', (int) $row['id_board'], 60);
+				}
+			}
 
 			Db::$db->free_result($get_num_posts);
 		}
@@ -434,7 +416,7 @@ class Recent implements ActionInterface
 	/**
 	 * Gets the category name, if applicable.
 	 */
-	protected function getCatName()
+	protected function getCatName(): void
 	{
 		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
@@ -455,7 +437,7 @@ class Recent implements ActionInterface
 	/**
 	 * Populates $this->messages with the IDs of some recent messages.
 	 */
-	protected function getMsgIds()
+	protected function getMsgIds(): void
 	{
 		// If you selected a redirection board, don't try getting posts for it...
 		if (Utils::$context['is_redirect']) {
@@ -515,7 +497,7 @@ class Recent implements ActionInterface
 	/**
 	 * Populates Utils::$context['posts'] with formatted messages.
 	 */
-	protected function getMessages()
+	protected function getMessages(): void
 	{
 		$query_customizations = [
 			'selects' => [
@@ -538,6 +520,7 @@ class Recent implements ActionInterface
 
 		$counter = Utils::$context['start'] + 1;
 
+		/** @var \SMF\Msg $msg */
 		foreach (Msg::get($this->messages, $query_customizations) as $msg) {
 			Utils::$context['posts'][$msg->id] = $msg->format($counter++, [
 				'do_permissions' => false,
@@ -632,7 +615,7 @@ class Recent implements ActionInterface
 	/**
 	 * Constructs page index, sets the linktree, next/prev/up links, etc.
 	 */
-	protected function setPaginationAndLinks()
+	protected function setPaginationAndLinks(): void
 	{
 		$total = min(self::PER_PAGE * self::PAGES, $this->total_posts);
 		$not_first_page = Utils::$context['start'] >= self::PER_PAGE;
@@ -651,6 +634,11 @@ class Recent implements ActionInterface
 		];
 
 		Utils::$context['page_index'] = new PageIndex($this->action_url, Utils::$context['start'], $total, self::PER_PAGE, !empty(Board::$info->id));
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(!empty(Board::$info->id) ? sprintf($this->action_url, Utils::$context['start']) : $this->action_url . ';start=' . Utils::$context['start']);
+		}
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / self::PER_PAGE);
 
@@ -671,7 +659,7 @@ class Recent implements ActionInterface
 	/**
 	 * Last but not least, the quickbuttons.
 	 */
-	protected function buildQuickButtons()
+	protected function buildQuickButtons(): void
 	{
 		foreach (Utils::$context['posts'] as $key => $post) {
 			Utils::$context['posts'][$key]['quickbuttons'] = [
@@ -698,11 +686,6 @@ class Recent implements ActionInterface
 			];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Recent::exportStatic')) {
-	Recent::exportStatic();
 }
 
 ?>

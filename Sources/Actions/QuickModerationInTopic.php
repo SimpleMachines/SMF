@@ -5,20 +5,25 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -27,22 +32,12 @@ use SMF\Utils;
  * Handles quick moderation actions from within a topic.
  *
  * Only deals with actions that work on individual messages, such as deleting,
- * restoring, and spliting into a new topic.
+ * restoring, and splitting into a new topic.
  */
-class QuickModerationInTopic implements ActionInterface
+class QuickModerationInTopic implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'QuickInTopicModeration',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -54,18 +49,6 @@ class QuickModerationInTopic implements ActionInterface
 	 * IDs of the messages to act on.
 	 */
 	public array $messages = [];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -88,32 +71,6 @@ class QuickModerationInTopic implements ActionInterface
 		}
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -127,9 +84,9 @@ class QuickModerationInTopic implements ActionInterface
 	}
 
 	/**
-	 * Redirects to restortopic action,
+	 * Redirects to restoretopic action,
 	 */
-	protected function restore()
+	protected function restore(): void
 	{
 		Utils::redirectexit('action=restoretopic;msgs=' . implode(',', $this->messages) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
@@ -137,7 +94,7 @@ class QuickModerationInTopic implements ActionInterface
 	/**
 	 * Looks up some info, then redirects to the splittopics action.
 	 */
-	protected function split()
+	protected function split(): void
 	{
 		$request = Db::$db->query(
 			'',
@@ -162,7 +119,7 @@ class QuickModerationInTopic implements ActionInterface
 	 *
 	 * Performs permissions checks before doing anything.
 	 */
-	protected function delete()
+	protected function delete(): void
 	{
 		// Allowed to delete any message?
 		if (User::$me->allowedTo('delete_any')) {
@@ -256,11 +213,6 @@ class QuickModerationInTopic implements ActionInterface
 
 		Utils::redirectexit(!empty($topicGone) ? 'board=' . Board::$info->id : 'topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\QuickModerationInTopic::exportStatic')) {
-	QuickModerationInTopic::exportStatic();
 }
 
 ?>

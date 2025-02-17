@@ -5,16 +5,18 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -32,21 +34,7 @@ use SMF\Utils;
  */
 class Posts implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManagePostSettings',
-			'modifyPostSettings' => 'ModifyPostSettings',
-			'modifyTopicSettings' => 'ModifyTopicSettings',
-			'modifyDraftSettings' => 'ModifyDraftSettings',
-		],
-	];
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -76,18 +64,6 @@ class Posts implements ActionInterface
 		'drafts' => 'drafts',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -97,6 +73,33 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Make sure you can be here.
+		User::$me->isAllowedTo('admin_forum');
+		Lang::load('Drafts');
+
+		Utils::$context['page_title'] = Lang::$txt['manageposts_title'];
+
+		// Tabs for browsing the different post functions.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['manageposts_title'],
+			'help' => 'posts_and_topics',
+			'description' => Lang::$txt['manageposts_description'],
+			'tabs' => [
+				'posts' => [
+					'description' => Lang::$txt['manageposts_settings_description'],
+				],
+				'censor' => [
+					'description' => Lang::$txt['admin_censored_desc'],
+				],
+				'topics' => [
+					'description' => Lang::$txt['manageposts_topic_settings_description'],
+				],
+				'drafts' => [
+					'description' => Lang::$txt['managedrafts_settings_description'],
+				],
+			],
+		];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -153,6 +156,7 @@ class Posts implements ActionInterface
 				'allow_no_censored' => empty($_POST['allow_no_censored']) ? '0' : '1',
 				'censorWholeWord' => empty($_POST['censorWholeWord']) ? '0' : '1',
 				'censorIgnoreCase' => empty($_POST['censorIgnoreCase']) ? '0' : '1',
+				'spoofdetector_censor' => empty($_POST['spoofdetector_censor']) ? '0' : '1',
 			];
 
 			IntegrationHook::call('integrate_save_censors', [&$updates]);
@@ -202,7 +206,7 @@ class Posts implements ActionInterface
 	 * Requires the admin_forum permission.
 	 * Accessed from ?action=admin;area=postsettings;sa=posts.
 	 */
-	public function posts($return_config = false)
+	public function posts(): void
 	{
 		$config_vars = self::postConfigVars();
 
@@ -225,7 +229,7 @@ class Posts implements ActionInterface
 				}
 
 				if (isset($body_type) && ($_POST['max_messageLength'] > 65535 || $_POST['max_messageLength'] == 0) && $body_type == 'text') {
-					ErrorHandler::fatalLang('convert_to_mediumtext', false, [Config::$scripturl . '?action=admin;area=maintain;sa=database']);
+					ErrorHandler::fatalLang('convert_to_mediumtext', false, ['scripturl' => Config::$scripturl . '?action=admin;area=maintain;sa=database']);
 				}
 			}
 
@@ -254,7 +258,7 @@ class Posts implements ActionInterface
 	 * Requires the admin_forum permission.
 	 * Accessed from ?action=admin;area=postsettings;sa=topics.
 	 */
-	public function topics($return_config = false)
+	public function topics(): void
 	{
 		$config_vars = self::topicConfigVars();
 
@@ -285,7 +289,7 @@ class Posts implements ActionInterface
 	 * Requires the admin_forum permission.
 	 * Accessed from ?action=admin;area=postsettings;sa=drafts
 	 */
-	public function drafts($return_config = false)
+	public function drafts(): void
 	{
 		$config_vars = self::draftConfigVars();
 
@@ -342,28 +346,6 @@ class Posts implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets configuration variables for the posts sub-action.
@@ -478,57 +460,6 @@ class Posts implements ActionInterface
 		return $config_vars;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the posts sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyPostSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::postConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'posts';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the topics sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyTopicSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::topicConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'topics';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the drafts sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyDraftSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::draftConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'drafts';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -538,44 +469,12 @@ class Posts implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Make sure you can be here.
-		User::$me->isAllowedTo('admin_forum');
-		Lang::load('Drafts');
-
-		Utils::$context['page_title'] = Lang::$txt['manageposts_title'];
-
-		// Tabs for browsing the different post functions.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['manageposts_title'],
-			'help' => 'posts_and_topics',
-			'description' => Lang::$txt['manageposts_description'],
-			'tabs' => [
-				'posts' => [
-					'description' => Lang::$txt['manageposts_settings_description'],
-				],
-				'censor' => [
-					'description' => Lang::$txt['admin_censored_desc'],
-				],
-				'topics' => [
-					'description' => Lang::$txt['manageposts_topic_settings_description'],
-				],
-				'drafts' => [
-					'description' => Lang::$txt['managedrafts_settings_description'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_posts', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Posts::exportStatic')) {
-	Posts::exportStatic();
 }
 
 ?>

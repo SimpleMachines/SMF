@@ -1,13 +1,14 @@
 <?php
+
 /**
  * Simple Machines Forum (SMF)
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -122,6 +123,13 @@ class CurlFetcher extends WebFetchApi
 	 */
 	public $headers;
 
+	/**
+	 * @var bool
+	 *
+	 * Whether to keep the connection open after the initial request.
+	 */
+	public bool $keep_alive = false;
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -133,14 +141,14 @@ class CurlFetcher extends WebFetchApi
 	 */
 	private $default_options = [
 		// Get returned value as a string (don't output it).
-		CURLOPT_RETURNTRANSFER  => 1,
+		CURLOPT_RETURNTRANSFER  => true,
 
 		// We need the headers to do our own redirect.
-		CURLOPT_HEADER          => 1,
+		CURLOPT_HEADER          => true,
 
 		// Don't follow. We will do it ourselves so safe mode and open_basedir
 		// will dig it.
-		CURLOPT_FOLLOWLOCATION  => 0,
+		CURLOPT_FOLLOWLOCATION  => false,
 
 		// Set a normal looking user agent.
 		CURLOPT_USERAGENT       => SMF_USER_AGENT,
@@ -151,20 +159,17 @@ class CurlFetcher extends WebFetchApi
 		// A page should load in this amount of time.
 		CURLOPT_TIMEOUT         => 90,
 
-		// Stop after this many redirects.
-		CURLOPT_MAXREDIRS       => 5,
-
 		// Accept gzip and decode it.
 		CURLOPT_ENCODING        => 'gzip,deflate',
 
 		// Stop curl from verifying the peer's certificate.
-		CURLOPT_SSL_VERIFYPEER  => 0,
+		CURLOPT_SSL_VERIFYPEER  => false,
 
 		// Stop curl from verifying the peer's host.
 		CURLOPT_SSL_VERIFYHOST  => 0,
 
 		// No post data. This will change if some is passed to request().
-		CURLOPT_POST            => 0,
+		CURLOPT_POST            => false,
 	];
 
 	/****************
@@ -184,6 +189,25 @@ class CurlFetcher extends WebFetchApi
 		// Initialize class variables
 		$this->max_redirect = intval($max_redirect);
 		$this->user_options = $options;
+
+		// This class handles redirections itself.
+		if (!empty($this->user_options[CURLOPT_MAXREDIRS])) {
+			$this->max_redirect = $this->user_options[CURLOPT_MAXREDIRS];
+			unset($this->user_options[CURLOPT_MAXREDIRS]);
+		}
+
+		if (!empty($this->user_options[CURLOPT_FOLLOWLOCATION])) {
+			$this->max_redirect = max(3, $this->max_redirect);
+			$this->user_options[CURLOPT_FOLLOWLOCATION] = false;
+		}
+
+		// Do we want to keep the connection open after the initial request?
+		if (
+			version_compare(curl_version()['version'], '7.25.0', '>=')
+			&& !empty($this->user_options[CURLOPT_TCP_KEEPALIVE])
+		) {
+			$this->keep_alive = true;
+		}
 	}
 
 	/**
@@ -224,7 +248,7 @@ class CurlFetcher extends WebFetchApi
 		// Umm, this shouldn't happen?
 		if (empty($url->scheme) || !in_array($url->scheme, ['http', 'https'])) {
 			Lang::load('Errors');
-			trigger_error(sprintf(Lang::$txt['fetch_web_data_bad_url'], __METHOD__), E_USER_NOTICE);
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__]), E_USER_NOTICE);
 
 			return $this;
 		}
@@ -235,6 +259,12 @@ class CurlFetcher extends WebFetchApi
 		}
 
 		// Set the options and get it.
+		if (version_compare(curl_version()['version'], '7.25.0', '>=')) {
+			$this->user_options[CURLOPT_TCP_KEEPALIVE] = (int) $this->keep_alive;
+		} else {
+			$this->keep_alive = false;
+		}
+
 		$this->setOptions();
 		$this->sendRequest(str_replace(' ', '%20', strval($url)));
 
@@ -254,7 +284,7 @@ class CurlFetcher extends WebFetchApi
 	{
 		$max_result = count($this->response) - 1;
 
-		// Just return a specifed area or the entire result?
+		// Just return a specified area or the entire result?
 		if (empty($area)) {
 			return $this->response[$max_result];
 		}
@@ -393,7 +423,7 @@ class CurlFetcher extends WebFetchApi
 
 		// POST data options, here we don't allow any override.
 		if (isset($this->post_data)) {
-			$this->options[CURLOPT_POST] = 1;
+			$this->options[CURLOPT_POST] = true;
 			$this->options[CURLOPT_POSTFIELDS] = $this->post_data;
 		}
 	}

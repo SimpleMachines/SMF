@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
@@ -52,57 +54,19 @@ class UnreadReplies extends Unread
 	 */
 	protected bool $is_topics = false;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial stuff.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// 'all' is never applicable for this action.
 		unset($_GET['all']);
 
-		parent::__construct();
+		parent::init();
 
 		Utils::$context['page_title'] = Lang::$txt['unread_replies'];
 		$this->linktree_name = Lang::$txt['unread_replies'];
@@ -112,7 +76,7 @@ class UnreadReplies extends Unread
 	/**
 	 * Checks that the load averages aren't too high to show unread replies.
 	 */
-	protected function checkLoadAverage()
+	protected function checkLoadAverage(): void
 	{
 		if (empty(Utils::$context['load_average'])) {
 			return;
@@ -130,7 +94,7 @@ class UnreadReplies extends Unread
 	/**
 	 * Sets $this->topic_request to the appropriate query.
 	 */
-	protected function setTopicRequest()
+	protected function setTopicRequest(): void
 	{
 		if (Config::$modSettings['totalMessages'] > 100000) {
 			$this->makeTempTable();
@@ -146,7 +110,7 @@ class UnreadReplies extends Unread
 	/**
 	 * For large forums, creates a temporary table to use when showing unread replies.
 	 */
-	protected function makeTempTable()
+	protected function makeTempTable(): void
 	{
 		Db::$db->query(
 			'',
@@ -221,7 +185,7 @@ class UnreadReplies extends Unread
 	/**
 	 * For large forums, sets $this->topic_request with the help of a temporary table.
 	 */
-	protected function getTopicRequestWithTempTable()
+	protected function getTopicRequestWithTempTable(): void
 	{
 		$request = Db::$db->query(
 			'',
@@ -299,7 +263,7 @@ class UnreadReplies extends Unread
 	/**
 	 * Sets $this->topic_request without the help of a temporary table.
 	 */
-	protected function getTopicRequestWithoutTempTable()
+	protected function getTopicRequestWithoutTempTable(): void
 	{
 		$request = Db::$db->query(
 			'unread_fetch_topic_count',
@@ -321,8 +285,8 @@ class UnreadReplies extends Unread
 		list($num_topics, $min_message) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		$this->num_topics = $num_topics ?? 0;
-		$this->min_message = $min_message ?? 0;
+		$this->num_topics = (int) ($num_topics ?? 0);
+		$this->min_message = (int) ($min_message ?? 0);
 
 		if ($this->num_topics == 0) {
 			$this->setNoTopics();
@@ -336,8 +300,8 @@ class UnreadReplies extends Unread
 			'',
 			'SELECT DISTINCT t.id_topic,' . $_REQUEST['sort'] . '
 			FROM {db_prefix}topics AS t
-				INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic AND m.id_member = {int:current_member})' . (strpos($_REQUEST['sort'], 'ms.') === false ? '' : '
-				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)') . (strpos($_REQUEST['sort'], 'mems.') === false ? '' : '
+				INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic AND m.id_member = {int:current_member})' . (!str_contains($_REQUEST['sort'], 'ms.') ? '' : '
+				INNER JOIN {db_prefix}messages AS ms ON (ms.id_msg = t.id_first_msg)') . (!str_contains($_REQUEST['sort'], 'mems.') ? '' : '
 				LEFT JOIN {db_prefix}members AS mems ON (mems.id_member = ms.id_member)') . '
 				LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
 				LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = t.id_board AND lmr.id_member = {int:current_member})

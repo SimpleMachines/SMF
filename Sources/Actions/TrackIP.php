@@ -5,15 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\Actions\Profile\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -22,6 +27,8 @@ use SMF\IP;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Profile;
+use SMF\Profile\Tracking;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -30,22 +37,11 @@ use SMF\Utils;
 /**
  * Rename here and in the exportStatic call at the end of the file.
  */
-class TrackIP implements ActionInterface
+class TrackIP implements ActionInterface, Routable
 {
+	use ActionRouter;
+	use ActionTrait;
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'list_getIPMessages' => 'list_getIPMessages',
-			'list_getIPMessageCount' => 'list_getIPMessageCount',
-			'trackIP' => 'TrackIP',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -65,18 +61,6 @@ class TrackIP implements ActionInterface
 	 * False if this was called via ?action=profile;area=tracking;sa=ip.
 	 */
 	public bool $standalone;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -122,14 +106,14 @@ class TrackIP implements ActionInterface
 
 		$ip_var = Utils::$context['ip'];
 
-		if (Utils::$context['ip']['low'] !== Utils::$context['ip']['high']) {
+		if ((string) Utils::$context['ip']['low'] !== (string) Utils::$context['ip']['high']) {
 			Utils::$context['ip'] = Utils::$context['ip']['low'] . '-' . Utils::$context['ip']['high'];
 		} else {
-			Utils::$context['ip'] = Utils::$context['ip']['low'];
+			Utils::$context['ip'] = (string) Utils::$context['ip']['low'];
 		}
 
 		if ($this->standalone) {
-			Utils::$context['page_title'] = Lang::$txt['trackIP'] . ' - ' . Utils::$context['ip'];
+			Utils::$context['page_title'] = Lang::getTxt('trackIP_page_title', Utils::$context);
 		}
 
 		Utils::$context['ips'] = [];
@@ -155,7 +139,7 @@ class TrackIP implements ActionInterface
 		// Start with the user messages.
 		$list_options = [
 			'id' => 'track_message_list',
-			'title' => Lang::$txt['messages_from_ip'] . ' ' . Utils::$context['ip'],
+			'title' => Lang::getTxt('messages_from_ip', Utils::$context),
 			'start_var_name' => 'messageStart',
 			'items_per_page' => $max_per_page,
 			'no_items_label' => Lang::$txt['no_messages_from_ip'],
@@ -243,21 +227,21 @@ class TrackIP implements ActionInterface
 		// Set the options for the error lists.
 		$list_options = [
 			'id' => 'track_user_list',
-			'title' => Lang::$txt['errors_from_ip'] . ' ' . Utils::$context['ip'],
+			'title' => Lang::getTxt('errors_from_ip', Utils::$context),
 			'start_var_name' => 'errorStart',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Lang::$txt['no_errors_from_ip'],
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date2',
 			'get_items' => [
-				'function' => 'list_getUserErrors',
+				'function' => '\\SMF\\Actions\\Profile\\Tracking::list_getUserErrors',
 				'params' => [
 					'le.ip >= ' . $ip_string[0] . ' and le.ip <= ' . $ip_string[1],
 					$fields,
 				],
 			],
 			'get_count' => [
-				'function' => 'list_getUserErrorCount',
+				'function' => '\\SMF\\Actions\\Profile\\Tracking::list_getUserErrorCount',
 				'params' => [
 					'ip >= ' . $ip_string[0] . ' and ip <= ' . $ip_string[1],
 					$fields,
@@ -332,7 +316,7 @@ class TrackIP implements ActionInterface
 		Utils::$context['additional_track_lists'] = [];
 		IntegrationHook::call('integrate_profile_trackip', [$ip_string, $ip_var]);
 
-		Utils::$context['single_ip'] = ($ip_var['low'] === $ip_var['high']);
+		Utils::$context['single_ip'] = ((string) $ip_var['low'] === (string) $ip_var['high']);
 
 		if (Utils::$context['single_ip']) {
 			Utils::$context['whois_servers'] = [
@@ -359,28 +343,6 @@ class TrackIP implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets all the posts made from a particular IP
@@ -456,18 +418,6 @@ class TrackIP implements ActionInterface
 		return (int) $count;
 	}
 
-	/**
-	 * Backward compatibility wrapper.
-	 *
-	 * @param int $memID The ID of a member whose IP we want to track.
-	 */
-	public static function trackIP(int $memID = 0): void
-	{
-		self::load();
-		self::$obj->memID = $memID;
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -491,11 +441,6 @@ class TrackIP implements ActionInterface
 			$this->memID = Profile::$member->id;
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TrackIP::exportStatic')) {
-	TrackIP::exportStatic();
 }
 
 ?>

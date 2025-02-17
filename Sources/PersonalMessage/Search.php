@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\PersonalMessage;
 
@@ -164,7 +166,7 @@ class Search
 	 * @param bool $inbox Whether we are searching the inbox or sent items.
 	 *    This param currently does nothing.
 	 */
-	public function __construct(int $inbox)
+	public function __construct(bool $inbox)
 	{
 		/*
 		 * @todo For the moment force the folder to the inbox.
@@ -175,7 +177,7 @@ class Search
 		Label::load();
 
 		$this->start = isset($_GET['start']) ? (int) $_GET['start'] : 0;
-		$this->per_page = Config::$modSettings['search_results_per_page'];
+		$this->per_page = (int) Config::$modSettings['search_results_per_page'];
 		$this->current_label_id = isset($_REQUEST['l']) && isset(Label::$loaded[$_REQUEST['l']]) ? (int) $_REQUEST['l'] : -1;
 
 		Utils::$context['start'] = &$this->start;
@@ -319,13 +321,19 @@ class Search
 		User::load(Utils::$context['posters']);
 
 		// Sort out the page index.
+		$start = (int) ($_GET['start'] ?? 0);
 		Utils::$context['page_index'] = new PageIndex(
 			Config::$scripturl . '?action=pm;sa=search2;params=' . $this->compressed_params,
-			(int) ($_GET['start'] ?? 0),
+			$start,
 			Utils::$context['num_results'],
 			$this->per_page,
 			false,
 		);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
 
 		Utils::$context['sub_template'] = 'search_results';
 
@@ -632,7 +640,7 @@ class Search
 
 		// Now we look for -test, etc.... normaller.
 		foreach ($tempSearch as $index => $word) {
-			if (strpos(trim($word), '-') === 0) {
+			if (str_starts_with(trim($word), '-')) {
 				$word = substr(Utils::strtolower($word), 1);
 
 				if (strlen($word) > 0) {
@@ -693,11 +701,6 @@ class Search
 			$this->search_query = implode(!empty($this->params['searchtype']) && $this->params['searchtype'] == 2 ? ' OR ' : ' AND ', $andQueryParts);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Search::exportStatic')) {
-	Search::exportStatic();
 }
 
 ?>

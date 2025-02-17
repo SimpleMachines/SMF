@@ -5,17 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Moderation\Logs as Modlog;
-use SMF\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -29,18 +32,9 @@ use SMF\Utils;
  */
 class Logs implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'adminLogs' => 'AdminLogs',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -122,18 +116,6 @@ class Logs implements ActionInterface
 		'pruneSpiderHitLog',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -151,7 +133,7 @@ class Logs implements ActionInterface
 			'tabs' => [
 				'errorlog' => [
 					'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
-					'description' => sprintf(Lang::$txt['errorlog_desc'], Lang::$txt['remove']),
+					'description' => Lang::getTxt('errorlog_desc', Lang::$txt),
 				],
 				'adminlog' => [
 					'description' => Lang::$txt['admin_log_desc'],
@@ -188,7 +170,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to ErrorLog::view().
 	 */
-	public function errorlog()
+	public function errorlog(): void
 	{
 		ErrorLog::call();
 	}
@@ -196,7 +178,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to Modlog::call().
 	 */
-	public function adminlog()
+	public function adminlog(): void
 	{
 		ModLog::call();
 	}
@@ -204,7 +186,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to Modlog::call().
 	 */
-	public function modlog()
+	public function modlog(): void
 	{
 		ModLog::call();
 	}
@@ -212,7 +194,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to Bans::log().
 	 */
-	public function banlog()
+	public function banlog(): void
 	{
 		$_REQUEST['sa'] = 'log';
 		Bans::call();
@@ -221,7 +203,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to SearchEngines::logs().
 	 */
-	public function spiderlog()
+	public function spiderlog(): void
 	{
 		$_REQUEST['sa'] = 'logs';
 		SearchEngines::call();
@@ -230,7 +212,7 @@ class Logs implements ActionInterface
 	/**
 	 * Hands execution over to Tasks::log().
 	 */
-	public function tasklog()
+	public function tasklog(): void
 	{
 		$_REQUEST['sa'] = 'tasklog';
 		Tasks::call();
@@ -239,8 +221,6 @@ class Logs implements ActionInterface
 	/**
 	 * Allow to edit the settings on the pruning screen.
 	 *
-	 * @param bool $return_config Whether or not to return the config_vars array (used for admin search)
-	 * @return void|array Returns nothing or returns the $config_vars array if $return_config is true
 	 */
 	public function settings(): void
 	{
@@ -320,28 +300,6 @@ class Logs implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for this admin area.
 	 *
 	 * @return array $config_vars for the logs area.
@@ -401,22 +359,6 @@ class Logs implements ActionInterface
 		return $config_vars;
 	}
 
-	/**
-	 * Backward compatibility wrapper.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function adminLogs($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -441,11 +383,6 @@ class Logs implements ActionInterface
 
 		$this->subaction = isset($_REQUEST['sa'], self::$subactions[$_REQUEST['sa']])   && empty(self::$subactions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Logs::exportStatic')) {
-	Logs::exportStatic();
 }
 
 ?>

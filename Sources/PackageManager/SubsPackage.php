@@ -5,20 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 namespace SMF\PackageManager;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Url;
@@ -32,48 +32,6 @@ use SMF\WebFetch\WebFetchApi;
  */
 class SubsPackage
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'read_tgz_file' => 'read_tgz_file',
-			'read_tgz_data' => 'read_tgz_data',
-			'read_zip_data' => 'read_zip_data',
-			'url_exists' => 'url_exists',
-			'loadInstalledPackages' => 'loadInstalledPackages',
-			'getPackageInfo' => 'getPackageInfo',
-			'create_chmod_control' => 'create_chmod_control',
-			'list_restoreFiles' => 'list_restoreFiles',
-			'packageRequireFTP' => 'packageRequireFTP',
-			'parsePackageInfo' => 'parsePackageInfo',
-			'matchHighestPackageVersion' => 'matchHighestPackageVersion',
-			'matchPackageVersion' => 'matchPackageVersion',
-			'compareVersions' => 'compareVersions',
-			'parse_path' => 'parse_path',
-			'deltree' => 'deltree',
-			'mktree' => 'mktree',
-			'copytree' => 'copytree',
-			'listtree' => 'listtree',
-			'parseModification' => 'parseModification',
-			'parseBoardMod' => 'parseBoardMod',
-			'package_get_contents' => 'package_get_contents',
-			'package_put_contents' => 'package_put_contents',
-			'package_flush_cache' => 'package_flush_cache',
-			'package_chmod' => 'package_chmod',
-			'package_crypt' => 'package_crypt',
-			'package_unique_filename' => 'package_unique_filename',
-			'package_create_backup' => 'package_create_backup',
-			'package_validate_installtest' => 'package_validate_installtest',
-			'package_validate' => 'package_validate',
-			'package_validate_send' => 'package_validate_send',
-		],
-	];
-
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -111,11 +69,11 @@ class SubsPackage
 	 * @param bool $single_file If true returns the contents of the file specified by destination if it exists
 	 * @param bool $overwrite Whether to overwrite existing files
 	 * @param null|array $files_to_extract Specific files to extract
-	 * @return array|string|false An array of information about extracted files or false on failure
+	 * @return array|string|false Information about extracted files or false on failure
 	 */
 	public static function read_tgz_file(string $gzfilename, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
-		$data = substr($gzfilename, 0, 7) == 'http://' || substr($gzfilename, 0, 8) == 'https://'
+		$data = str_starts_with($gzfilename, 'http://') || str_starts_with($gzfilename, 'https://')
 			? WebFetchApi::fetch($gzfilename)
 			: file_get_contents($gzfilename);
 
@@ -154,7 +112,7 @@ class SubsPackage
 	 * - destination should not begin with a / if single_file is true.
 	 *
 	 * overwrites existing files with newer modification times if and only if overwrite is true.
-	 * creates the destination directory if it doesn't exist, and is is specified.
+	 * creates the destination directory if it doesn't exist, and is specified.
 	 * requires zlib support be built into PHP.
 	 * returns an array of the files extracted.
 	 * if files_to_extract is not equal to null only extracts file within this array.
@@ -164,9 +122,9 @@ class SubsPackage
 	 * @param bool $single_file Whether to only extract a single file
 	 * @param bool $overwrite Whether to overwrite existing data
 	 * @param null|array $files_to_extract If set, only extracts the specified files
-	 * @return array|false An array of information about the extracted files or false on failure
+	 * @return array|string|false Information about the extracted files or false on failure
 	 */
-	public static function read_tgz_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|bool
+	public static function read_tgz_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
 		// Make sure we have this loaded.
 		Lang::load('Packages');
@@ -237,7 +195,7 @@ class SubsPackage
 				}
 			}
 
-			if ($current['type'] == '5' && substr($current['filename'], -1) != '/') {
+			if ($current['type'] == '5' && !str_ends_with($current['filename'], '/')) {
 				$current['filename'] .= '/';
 			}
 
@@ -260,15 +218,15 @@ class SubsPackage
 			$offset += $size;
 
 			// If hunting for a file in subdirectories, pass to subsequent write test...
-			if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/')) {
+			if ($single_file && $destination !== null && (str_starts_with($destination, '*/'))) {
 				$write_this = true;
 			}
 			// Not a directory and doesn't exist already...
-			elseif (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename'])) {
+			elseif (!str_ends_with($current['filename'], '/') && $destination !== null && !file_exists($destination . '/' . $current['filename'])) {
 				$write_this = true;
 			}
 			// File exists... check if it is newer.
-			elseif (substr($current['filename'], -1, 1) != '/') {
+			elseif (!str_ends_with($current['filename'], '/')) {
 				$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $current['filename']) < $current['mtime']);
 			}
 			// Folder... create.
@@ -285,7 +243,7 @@ class SubsPackage
 			}
 
 			if ($write_this && $destination !== null) {
-				if (strpos($current['filename'], '/') !== false && !$single_file) {
+				if (str_contains($current['filename'], '/') && !$single_file) {
 					self::mktree($destination . '/' . dirname($current['filename']), 0777);
 				}
 
@@ -307,7 +265,7 @@ class SubsPackage
 				self::package_put_contents($destination . '/' . $current['filename'], $current['data']);
 			}
 
-			if (substr($current['filename'], -1, 1) != '/') {
+			if (!str_ends_with($current['filename'], '/')) {
 				$return[] = [
 					'filename' => $current['filename'],
 					'md5' => md5($current['data']),
@@ -336,17 +294,17 @@ class SubsPackage
 	 * Destination should not begin with a / if single_file is true.
 	 *
 	 * @param string $data ZIP data
-	 * @param string $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
+	 * @param ?string $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
 	 * @param bool $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
 	 * @param bool $overwrite If true, will overwrite files with newer modification times. Default is false.
 	 * @param array $files_to_extract
 	 * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
 	 */
-	public static function read_zip_data(string $data, string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed
+	public static function read_zip_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed
 	{
 		umask(0);
 
-		if ($destination !== null && (substr($destination, 0, 2) != '*/') && !file_exists($destination) && !$single_file) {
+		if ($destination !== null && (!str_starts_with($destination, '*/')) && !file_exists($destination) && !$single_file) {
 			self::mktree($destination, 0777);
 		}
 
@@ -386,7 +344,7 @@ class SubsPackage
 			);
 
 			$file_info['filename'] = substr($data, $header['offset'] + 30, $file_info['filename_len']);
-			$is_file = substr($file_info['filename'], -1) != '/';
+			$is_file = !str_ends_with($file_info['filename'], '/');
 
 			/*
 			 * If the bit at offset 3 (0x08) of the general-purpose flags field
@@ -417,7 +375,7 @@ class SubsPackage
 				}
 				// If this is a file, and it doesn't exist.... happy days!
 				elseif ($is_file) {
-					$write_this = !file_exists($destination . '/' . $file_info['filename']) || $overwrite;
+					$write_this = !@file_exists($destination . '/' . $file_info['filename']) || $overwrite;
 				}
 				// This is a directory, so we're gonna want to create it. (probably...)
 				elseif (!$single_file) {
@@ -462,7 +420,7 @@ class SubsPackage
 					continue;
 				}
 
-				if (!$single_file && strpos($file_info['filename'], '/') !== false) {
+				if (!$single_file && str_contains($file_info['filename'], '/')) {
 					self::mktree($destination . '/' . dirname($file_info['filename']), 0777);
 				}
 
@@ -569,7 +527,7 @@ class SubsPackage
 	/**
 	 * Loads a package's information and returns a representative array.
 	 * - expects the file to be a package in Packages/.
-	 * - returns a error string if the package-info is invalid.
+	 * - returns an error string if the package-info is invalid.
 	 * - otherwise returns a basic array of id, version, filename, and similar information.
 	 * - an XmlArray is available in 'xml'.
 	 *
@@ -579,7 +537,7 @@ class SubsPackage
 	public static function getPackageInfo(string $gzfilename): array|string
 	{
 		// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
-		if (strpos($gzfilename, 'http://') !== false || strpos($gzfilename, 'https://') !== false) {
+		if (str_contains($gzfilename, 'http://') || str_contains($gzfilename, 'https://')) {
 			$packageInfo = self::read_tgz_data($gzfilename, 'package-info.xml', true);
 		} else {
 			if (!file_exists(Config::$packagesdir . '/' . $gzfilename)) {
@@ -686,7 +644,7 @@ class SubsPackage
 							'function' => function ($rowData) {
 								$formatTxt = $rowData['result'] == '' || $rowData['result'] == 'skipped' ? Lang::$txt['package_restore_permissions_pre_change'] : Lang::$txt['package_restore_permissions_post_change'];
 
-								return sprintf($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
+								return Lang::formatText($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
 							},
 							'class' => 'smalltext',
 						],
@@ -737,7 +695,7 @@ class SubsPackage
 
 			// Work out what columns and the like to show.
 			if (!empty($_POST['restore_perms'])) {
-				$listOptions['additional_rows'][1]['value'] = sprintf(Lang::$txt['package_restore_permissions_action_done'], Config::$scripturl . '?action=admin;area=packages;sa=perms;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
+				$listOptions['additional_rows'][1]['value'] = Lang::getTxt('package_restore_permissions_action_done', ['url' => Config::$scripturl . '?action=admin;area=packages;sa=perms;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]);
 				unset($listOptions['columns']['check'], $listOptions['form'], $listOptions['additional_rows'][0]);
 
 				Utils::$context['sub_template'] = 'show_list';
@@ -749,7 +707,7 @@ class SubsPackage
 			// Create the list for display.
 			new ItemList($listOptions);
 
-			// If we just restored permissions then whereever we are, we are now done and dusted.
+			// If we just restored permissions then wherever we are, we are now done and dusted.
 			if (!empty($_POST['restore_perms'])) {
 				Utils::obExit();
 			}
@@ -765,7 +723,7 @@ class SubsPackage
 
 		// Otherwise, it's entirely irrelevant?
 		if ($restore_write_status) {
-			return $$return_data;
+			return $return_data;
 		}
 
 		// If we have some FTP information already, then let's assume it was required and try to get ourselves connected.
@@ -788,7 +746,7 @@ class SubsPackage
 				if (!in_array($_POST['ftp_path'], ['', '/'])) {
 					$ftp_root = strtr(Config::$boarddir, [$_POST['ftp_path'] => '']);
 
-					if (substr($ftp_root, -1) == '/' && ($_POST['ftp_path'] == '' || substr($_POST['ftp_path'], 0, 1) == '/')) {
+					if (str_ends_with($ftp_root, '/') && ($_POST['ftp_path'] == '' || str_starts_with($_POST['ftp_path'], '/'))) {
 						$ftp_root = substr($ftp_root, 0, -1);
 					}
 				} else {
@@ -1088,7 +1046,7 @@ class SubsPackage
 			if (!in_array($_POST['ftp_path'], ['', '/'])) {
 				$ftp_root = strtr(Config::$boarddir, [$_POST['ftp_path'] => '']);
 
-				if (substr($ftp_root, -1) == '/' && ($_POST['ftp_path'] == '' || $_POST['ftp_path'][0] == '/')) {
+				if (str_ends_with($ftp_root, '/') && ($_POST['ftp_path'] == '' || $_POST['ftp_path'][0] == '/')) {
 					$ftp_root = substr($ftp_root, 0, -1);
 				}
 			} else {
@@ -1186,6 +1144,9 @@ class SubsPackage
 			return [];
 		}
 
+		// Keep track of what version of SMF we are emulating (if any).
+		Utils::$context['smf_version'] = preg_replace('/^(\d+\.\d+).*/', '$1', $the_version);
+
 		// Find all the actions in this method - in theory, these should only be allowed actions. (* means all.)
 		$actions = $script->set('*');
 		$return = [];
@@ -1276,10 +1237,10 @@ class SubsPackage
 				// quick check of any supplied url
 				$url = $action->exists('@url') ? $action->fetch('@url') : '';
 
-				if (strlen(trim($url)) > 0 && substr($url, 0, 7) !== 'http://' && substr($url, 0, 8) !== 'https://') {
+				if (strlen(trim($url)) > 0 && !str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
 					$url = 'http://' . $url;
 
-					if (strlen($url) < 8 || (substr($url, 0, 7) !== 'http://' && substr($url, 0, 8) !== 'https://')) {
+					if (strlen($url) < 8 || (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://'))) {
 						$url = '';
 					}
 				}
@@ -1320,7 +1281,7 @@ class SubsPackage
 				];
 
 				// If there is a destination, make sure it makes sense.
-				if (substr($actionType, 0, 6) != 'remove') {
+				if (!str_starts_with($actionType, 'remove')) {
 					$this_action['unparsed_destination'] = $action->fetch('@destination');
 					$this_action['destination'] = self::parse_path($action->fetch('@destination')) . '/' . basename($this_action['filename']);
 				} else {
@@ -1329,7 +1290,7 @@ class SubsPackage
 				}
 
 				// If we're moving or requiring (copying) a file.
-				if (substr($actionType, 0, 4) == 'move' || substr($actionType, 0, 7) == 'require') {
+				if (str_starts_with($actionType, 'move') || str_starts_with($actionType, 'require')) {
 					if ($action->exists('@from')) {
 						$this_action['source'] = self::parse_path($action->fetch('@from'));
 					} else {
@@ -1435,6 +1396,8 @@ class SubsPackage
 							'filename' => $this_action['filename'],
 						];
 					}
+
+					self::fixLangFilePathForRemoval($return, $this_action);
 				} elseif ($actionType == 'remove-file') {
 					if (!is_writable($this_action['filename']) && file_exists($this_action['filename'])) {
 						$return[] = [
@@ -1442,6 +1405,8 @@ class SubsPackage
 							'filename' => $this_action['filename'],
 						];
 					}
+
+					self::fixLangFilePathForRemoval($return, $this_action);
 				}
 			} else {
 				$return[] = [
@@ -1586,12 +1551,12 @@ class SubsPackage
 		// Loop through each version, save the highest we can find
 		foreach ($versions as $for) {
 			// Adjust for those wild cards
-			if (strpos($for, '*') !== false) {
+			if (str_contains($for, '*')) {
 				$for = str_replace('*', '0dev0', $for) . '-' . str_replace('*', '999', $for);
 			}
 
 			// If we have a range, grab the lower value, done this way so it looks normal-er to the user e.g. 2.0 vs 2.0.99
-			if (strpos($for, '-') !== false) {
+			if (str_contains($for, '-')) {
 				list($for, $higher) = explode('-', $for);
 			}
 
@@ -1628,12 +1593,12 @@ class SubsPackage
 		// Loop through each version.
 		foreach ($versions as $for) {
 			// Wild card spotted?
-			if (strpos($for, '*') !== false) {
+			if (str_contains($for, '*')) {
 				$for = str_replace('*', '0dev0', $for) . '-' . str_replace('*', '999', $for);
 			}
 
 			// Do we have a range?
-			if (strpos($for, '-') !== false) {
+			if (str_contains($for, '-')) {
 				list($lower, $upper) = explode('-', $for);
 
 				// Compare the version against lower and upper bounds.
@@ -1733,8 +1698,8 @@ class SubsPackage
 			'$themedir' => Theme::$current->settings['default_theme_dir'],
 			'$imagesdir' => Theme::$current->settings['default_theme_dir'] . '/' . basename(Theme::$current->settings['default_images_url']),
 			'$themes_dir' => Config::$boarddir . '/Themes',
-			'$languagedir' => Theme::$current->settings['default_theme_dir'] . '/languages',
-			'$languages_dir' => Theme::$current->settings['default_theme_dir'] . '/languages',
+			'$languagedir' => Config::$languagesdir,
+			'$languages_dir' => Config::$languagesdir,
 			'$smileysdir' => Config::$modSettings['smileys_dir'],
 			'$smileys_dir' => Config::$modSettings['smileys_dir'],
 		];
@@ -2027,11 +1992,11 @@ class SubsPackage
 				// If this filename is relative, if so take a guess at what it should be.
 				$real_filename = $filename;
 
-				if (strpos($filename, 'Themes') === 0) {
+				if (str_starts_with($filename, 'Themes')) {
 					$real_filename = Config::$boarddir . '/' . $filename;
 				}
 
-				if (strpos($real_filename, $theme['theme_dir']) === 0) {
+				if (str_starts_with($real_filename, $theme['theme_dir'])) {
 					$template_changes[$id][] = substr($real_filename, strlen($theme['theme_dir']) + 1);
 					$long_changes[$id][] = $filename;
 				}
@@ -2075,7 +2040,7 @@ class SubsPackage
 			foreach ($files_to_change as $theme => $working_file) {
 				if ($working_file[0] != '/' && $working_file[1] != ':') {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['parse_modification_filename_not_full_path'], $working_file), E_USER_WARNING);
+					trigger_error(Lang::getTxt('parse_modification_filename_not_full_path', [$working_file]), E_USER_WARNING);
 
 					$working_file = Config::$boarddir . '/' . $working_file;
 				}
@@ -2413,11 +2378,11 @@ class SubsPackage
 			// Now, is this a template file, and if so, which?
 			foreach ($theme_paths as $id => $theme) {
 				// If this filename is relative, if so take a guess at what it should be.
-				if (strpos($filename, 'Themes') === 0) {
+				if (str_starts_with($filename, 'Themes')) {
 					$filename = Config::$boarddir . '/' . $filename;
 				}
 
-				if (strpos($filename, $theme['theme_dir']) === 0) {
+				if (str_starts_with($filename, $theme['theme_dir'])) {
 					$template_changes[$id][$counter] = substr($filename, strlen($theme['theme_dir']) + 1);
 				}
 			}
@@ -2501,7 +2466,7 @@ class SubsPackage
 
 				if ($working_file[0] != '/' && $working_file[1] != ':') {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['parse_boardmod_filename_not_full_path'], $working_file), E_USER_WARNING);
+					trigger_error(Lang::getTxt('parse_boardmod_filename_not_full_path', [$working_file]), E_USER_WARNING);
 
 					$working_file = Config::$boarddir . '/' . $working_file;
 				}
@@ -2576,7 +2541,7 @@ class SubsPackage
 					$working_search = $temp;
 				}
 
-				if (strpos($working_data, $working_search) !== false) {
+				if (str_contains($working_data, $working_search)) {
 					$working_data = str_replace($working_search, $replace_with, $working_data);
 
 					$actions[] = [
@@ -2663,7 +2628,7 @@ class SubsPackage
 	public static function package_get_contents(string $filename): string
 	{
 		if (!isset(self::$package_cache)) {
-			$mem_check = Config::setMemoryLimit('128M');
+			$mem_check = Sapi::setMemoryLimit('128M');
 
 			// Windows doesn't seem to care about the memory_limit.
 			if (!empty(Config::$modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false) {
@@ -2673,7 +2638,7 @@ class SubsPackage
 			}
 		}
 
-		if (strpos($filename, 'Packages/') !== false || self::$package_cache === false || !isset(self::$package_cache[$filename])) {
+		if (str_contains($filename, 'Packages/') || self::$package_cache === false || !isset(self::$package_cache[$filename])) {
 			return file_get_contents($filename);
 		}
 
@@ -2697,7 +2662,7 @@ class SubsPackage
 
 		if (!isset(self::$package_cache)) {
 			// Try to increase the memory limit - we don't want to run out of ram!
-			$mem_check = Config::setMemoryLimit('128M');
+			$mem_check = Sapi::setMemoryLimit('128M');
 
 			if (!empty(Config::$modSettings['package_disable_cache']) || $mem_check || stripos(PHP_OS, 'win') !== false) {
 				self::$package_cache = [];
@@ -2718,7 +2683,7 @@ class SubsPackage
 
 		self::package_chmod($filename);
 
-		if (!$testing && (strpos($filename, 'Packages/') !== false || self::$package_cache === false)) {
+		if (!$testing && (str_contains($filename, 'Packages/') || self::$package_cache === false)) {
 			$fp = @fopen($filename, in_array(substr($filename, -3), $text_filetypes) ? 'w' : 'wb');
 
 			// We should show an error message or attempt a rollback, no?
@@ -2728,7 +2693,7 @@ class SubsPackage
 
 			fwrite($fp, $data);
 			fclose($fp);
-		} elseif (strpos($filename, 'Packages/') !== false || self::$package_cache === false) {
+		} elseif (str_contains($filename, 'Packages/') || self::$package_cache === false) {
 			return strlen($data);
 		} else {
 			self::$package_cache[$filename] = $data;
@@ -2951,9 +2916,11 @@ class SubsPackage
 	}
 
 	/**
-	 * @param string $dir
+	 * Generates a unique filename for the specified file in the specified directory
+	 *
+	 * @param string $dir The directory
 	 * @param string $filename The filename without an extension
-	 * @param string $ext
+	 * @param string $ext The extension
 	 * @return string The filename with a number appended but no extension
 	 * @since 2.1
 	 */
@@ -2981,7 +2948,7 @@ class SubsPackage
 	{
 		$files = [];
 
-		$base_files = ['index.php', 'SSI.php', 'agreement.txt', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php'];
+		$base_files = ['index.php', 'SSI.php', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php'];
 
 		foreach ($base_files as $file) {
 			if (file_exists(Config::$boarddir . '/' . $file)) {
@@ -2991,6 +2958,7 @@ class SubsPackage
 
 		$dirs = [
 			Config::$sourcedir => empty($_REQUEST['use_full_paths']) ? 'Sources/' : strtr(Config::$sourcedir . '/', '\\', '/'),
+			Config::$languagesdir => empty($_REQUEST['use_full_paths']) ? 'Languages/' : strtr(Config::$languagesdir . '/', '\\', '/'),
 		];
 
 		$request = Db::$db->query(
@@ -3055,11 +3023,8 @@ class SubsPackage
 				$output_file .= $output_ext;
 			}
 
-			@set_time_limit(300);
-
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
+			Sapi::setTimeLimit(300);
+			Sapi::resetTimeout();
 
 			// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
 			set_error_handler(
@@ -3069,7 +3034,7 @@ class SubsPackage
 						return false;
 					}
 
-					if (strpos($errstr, 'PharData::__construct(): open_basedir') === false && strpos($errstr, 'PharData::compress(): open_basedir') === false) {
+					if (!str_contains($errstr, 'PharData::__construct(): open_basedir') && !str_contains($errstr, 'PharData::compress(): open_basedir')) {
 						ErrorHandler::log($errstr, 'general', $errfile, $errline);
 					}
 
@@ -3235,7 +3200,7 @@ class SubsPackage
 		$isLikelyPath = false;
 
 		foreach (Utils::$context['look_for'] as $possiblePath) {
-			if (substr($possiblePath, 0, strlen($path)) == $path) {
+			if (str_starts_with($possiblePath, $path)) {
 				$isLikelyPath = true;
 			}
 		}
@@ -3269,7 +3234,7 @@ class SubsPackage
 			// Some kind of file?
 			if (is_file($path . '/' . $entry)) {
 				// Are we listing PHP files in this directory?
-				if ($save_data && !empty($data['list_contents']) && substr($entry, -4) == '.php') {
+				if ($save_data && !empty($data['list_contents']) && str_ends_with($entry, '.php')) {
 					$foundData['files'][$entry] = true;
 				}
 				// A file we were looking for.
@@ -3451,6 +3416,52 @@ class SubsPackage
 	 *************************/
 
 	/**
+	 * When removing a language file or directory, figures out whether that file
+	 * or directory is in the main languages directory or in the default theme's
+	 * language directory, and then adjusts the package action info accordingly.
+	 *
+	 * @param array &$return The complete set of package action info.
+	 * @param array &$this_action Info about the current package action.
+	 */
+	private static function fixLangFilePathForRemoval(array &$return, array &$this_action): void
+	{
+		// This only applies when removing language files.
+		if (
+			!str_starts_with($this_action['filename'], Config::$languagesdir)
+			|| !in_array($this_action['type'], ['remove-dir', 'remove-file'])
+		) {
+			return;
+		}
+
+		$backcompat_filename = str_replace(
+			Config::$languagesdir,
+			Theme::$current->settings['default_theme_dir'] . '/languages',
+			$this_action['filename'],
+		);
+
+		if (file_exists($backcompat_filename)) {
+			if (!file_exists($this_action['filename'])) {
+				// If the file is in the theme's language directory and not in
+				// the forum's main language directory, just change the path.
+				$this_action['filename'] = $backcompat_filename;
+			} else {
+				// Copies of the file are in both the theme's language directory
+				// and the forum's main language directory? Remove both.
+				$additional_action = $this_action;
+				$additional_action['filename'] = $backcompat_filename;
+				$return[] = $additional_action;
+
+				if (!is_writable($additional_action['filename'])) {
+					$return[] = [
+						'type' => 'chmod',
+						'filename' => $additional_action['filename'],
+					];
+				}
+			}
+		}
+	}
+
+	/**
 	 * crc32 doesn't work as expected on 64-bit functions - make our own.
 	 * https://php.net/crc32#79567
 	 *
@@ -3463,11 +3474,6 @@ class SubsPackage
 
 		return \smf_crc32($number);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SubsPackage::exportStatic')) {
-	SubsPackage::exportStatic();
 }
 
 ?>

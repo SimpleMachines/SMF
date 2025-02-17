@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Config;
@@ -24,7 +24,7 @@ function template_maintain_database()
 	if (!empty(Utils::$context['maintenance_finished']))
 		echo '
 	<div class="infobox">
-		', sprintf(Lang::$txt['maintain_done'], Utils::$context['maintenance_finished']), '
+		', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']]), '
 	</div>';
 
 	echo '
@@ -89,7 +89,7 @@ function template_maintain_routine()
 	if (!empty(Utils::$context['maintenance_finished']))
 		echo '
 		<div class="infobox">
-			', sprintf(Lang::$txt['maintain_done'], Utils::$context['maintenance_finished']), '
+			', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']]), '
 		</div>';
 
 	echo '
@@ -235,7 +235,7 @@ function template_maintain_members()
 	if (!empty(Utils::$context['maintenance_finished']))
 		echo '
 		<div class="infobox">
-			', sprintf(Lang::$txt['maintain_done'], Utils::$context['maintenance_finished']), '
+			', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']]), '
 		</div>';
 
 	echo '
@@ -261,7 +261,7 @@ function template_maintain_members()
 				</dl>
 				<dl class="settings">
 					<dt>
-						<label for="to"><strong>', Lang::$txt['reattribute_current_member'], ':</strong></label>
+						<label for="to"><strong>', Lang::$txt['reattribute_current_member'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="to" id="to" value="">
@@ -284,18 +284,33 @@ function template_maintain_members()
 		</div>
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=members;activity=purgeinactive" method="post" accept-charset="', Utils::$context['character_set'], '" id="membersForm">
-				<p>
-					<a id="membersLink"></a>', Lang::$txt['maintain_members_since1'], '
-					<select name="del_type">
-						<option value="activated" selected>', Lang::$txt['maintain_members_activated'], '</option>
-						<option value="logged">', Lang::$txt['maintain_members_logged_in'], '</option>
-					</select>
-					', Lang::$txt['maintain_members_since2'], '
-					<input type="number" name="maxdays" value="30" size="3">', Lang::$txt['maintain_members_since3'], '
-				</p>
-				<p>
+				<div class="padding">
+					<a id="membersLink"></a>',
+					Lang::getTxt(
+						'maintain_members_since',
+						[
+							'input_condition' => '<select name="del_type"><option value="activated" selected>' . Lang::$txt['maintain_members_activated'] . '</option><option value="logged">' . Lang::$txt['maintain_members_logged_in'] . '</option></select>',
+							'input_number' => '<input type="number" name="maxdays" value="30" size="3">',
+						],
+					), '
+				</div>
+				<div class="padding">';
+
+	if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+		echo '
+					' . Lang::$txt['deleteAccount_anonymize_forced'];
+	} else {
+		echo '
+					<label for="anonymize">
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ' . Lang::$txt['deleteAccount_anonymize'] . '
+					</label>';
+	}
+
+	echo '
+				</div>
+				<div class="padding">
 					<a href="#membersLink" onclick="swapMembers();"><img src="', Theme::$current->settings['images_url'], '/selected.png" alt="+" id="membersIcon"></a> <a href="#membersLink" onclick="swapMembers();" id="membersText" style="font-weight: bold;">', Lang::$txt['maintain_members_all'], '</a>
-				</p>
+				</div>
 				<div style="display: none;" id="membersPanel">';
 
 	foreach (Utils::$context['membergroups'] as $group)
@@ -345,7 +360,7 @@ function template_maintain_topics()
 	if (!empty(Utils::$context['maintenance_finished']))
 		echo '
 	<div class="infobox">
-		', sprintf(Lang::$txt['maintain_done'], Utils::$context['maintenance_finished']), '
+		', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']]), '
 	</div>';
 
 	// Bit of javascript for showing which boards to prune in an otherwise hidden list.
@@ -358,7 +373,7 @@ function template_maintain_topics()
 
 			// Toggle icon
 			document.getElementById("rotIcon").src = smf_images_url + (rotSwap ? "/selected_open.png" : "/selected.png");
-			setInnerHTML(document.getElementById("rotText"), rotSwap ? ', Utils::JavaScriptEscape(Lang::$txt['maintain_old_choose']), ' : ', Utils::JavaScriptEscape(Lang::$txt['maintain_old_all']), ');
+			setInnerHTML(document.getElementById("rotText"), rotSwap ? ', Utils::escapeJavaScript(Lang::$txt['maintain_old_choose']), ' : ', Utils::escapeJavaScript(Lang::$txt['maintain_old_all']), ');
 
 			// Toggle panel
 			$("#rotPanel").slideToggle(300);
@@ -386,7 +401,7 @@ function template_maintain_topics()
 	// The otherwise hidden "choose which boards to prune".
 	echo '
 					<p>
-						<a id="rotLink"></a>', Lang::$txt['maintain_old_since_days1'], '<input type="number" name="maxdays" value="30" size="3">', Lang::$txt['maintain_old_since_days2'], '
+						<a id="rotLink"></a>', Lang::getTxt('maintain_old_since_days', ['input_number' => '<input type="number" name="maxdays" value="30" size="3">']), '
 					</p>
 					<p>
 						<label for="delete_type_nothing"><input type="radio" name="delete_type" id="delete_type_nothing" value="nothing"> ', Lang::$txt['maintain_old_nothing_else'], '</label><br>
@@ -447,7 +462,7 @@ function template_maintain_topics()
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<p>
-					', Lang::$txt['maintain_old_drafts_days'], ' <input type="number" name="draftdays" value="', (!empty(Config::$modSettings['drafts_keep_days']) ? Config::$modSettings['drafts_keep_days'] : 30), '" size="3"> ', Lang::$txt['days_word'], '
+					', Lang::getTxt('maintain_old_drafts_days', ['input_number' => '<input type="number" name="draftdays" value="' . (!empty(Config::$modSettings['drafts_keep_days']) ? Config::$modSettings['drafts_keep_days'] : 30) . '" size="3">']), '
 				</p>
 				<input type="submit" value="', Lang::$txt['maintain_old_remove'], '" data-confirm="', Lang::$txt['maintain_old_drafts_confirm'], '" class="button you_sure">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -460,50 +475,41 @@ function template_maintain_topics()
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=topics;activity=massmove" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<p>
-					<label for="id_board_from">', Lang::$txt['move_topics_from'], ' </label>
-					<select name="id_board_from" id="id_board_from">
-						<option disabled>(', Lang::$txt['move_topics_select_board'], ')</option>';
+					';
 
-	// From board
-	foreach (Utils::$context['categories'] as $category)
-	{
-		echo '
-						<optgroup label="', $category['name'], '">';
+	$board_select = [
+		'<option disabled selected>(' . Lang::$txt['move_topics_select_board'] . ')</option>',
+	];
 
-		foreach ($category['boards'] as $board)
-			echo '
-							<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
+	foreach (Utils::$context['categories'] as $category){
+		$board_select[] = '<optgroup label="' . $category['name'] . '">';
 
-		echo '
-						</optgroup>';
+		foreach ($category['boards'] as $board) {
+			$board_select[] = "\t" . '<option value="' . $board['id'] . '"> ' . str_repeat('==', $board['child_level']) . '=&gt;&nbsp;' . $board['name'] . '</option>';
+		}
+
+		$board_select[] = '</optgroup>';
 	}
 
+
+	echo Lang::getTxt(
+		'move_topics_from',
+		[
+			'old' => '
+						<select name="id_board_from" id="id_board_from">
+							' . implode("\n\t\t\t\t\t\t", $board_select) . '
+						</select>',
+			'new' => '
+						<select name="id_board_to" id="id_board_to">
+							' . implode("\n\t\t\t\t\t\t", $board_select) . '
+						</select>',
+		],
+	);
+
 	echo '
-					</select>
-					<label for="id_board_to">', Lang::$txt['move_topics_to'], '</label>
-					<select name="id_board_to" id="id_board_to">
-						<option disabled>(', Lang::$txt['move_topics_select_board'], ')</option>';
-
-	// To board
-	foreach (Utils::$context['categories'] as $category)
-	{
-		echo '
-						<optgroup label="', $category['name'], '">';
-
-		foreach ($category['boards'] as $board)
-			echo '
-							<option value="', $board['id'], '"> ', str_repeat('==', $board['child_level']), '=&gt;&nbsp;', $board['name'], '</option>';
-
-		echo '
-						</optgroup>';
-	}
-	echo '
-					</select>
 				</p>
 				<p>
-					', Lang::$txt['move_topics_older_than'], '
-					<input type="number" name="maxdays" value="30" size="3">
-					', Lang::$txt['manageposts_days'], ' (', Lang::$txt['move_zero_all'], ')
+					', Lang::getTxt('move_topics_older_than', ['input_number' => '<input type="number" name="maxdays" value="30" size="3">']), ' (', Lang::$txt['move_zero_all'], ')
 				</p>
 				<p>
 					<label for="move_type_locked"><input type="checkbox" name="move_type_locked" id="move_type_locked" checked> ', Lang::$txt['move_type_locked'], '</label><br>
@@ -529,13 +535,13 @@ function template_optimize()
 		</div>
 		<div class="windowbg">
 			<p>
-				', Lang::$txt['database_numb_tables'], '<br>
+				', Utils::$context['database_numb_tables'], '<br>
 				', Lang::$txt['database_optimize_attempt'], '<br>';
 
 	// List each table being optimized...
 	foreach (Utils::$context['optimized_tables'] as $table)
 		echo '
-				', sprintf(Lang::$txt['database_optimizing'], $table['name'], $table['data_freed']), '<br>';
+				', Lang::getTxt('database_optimizing', [$table['name'], round($table['data_freed'], 2)]), '<br>';
 
 	// How did we go?
 	echo '

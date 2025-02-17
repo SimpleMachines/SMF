@@ -5,17 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\AttachmentDownload;
-use SMF\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Profile;
@@ -26,18 +28,7 @@ use SMF\Utils;
  */
 class ExportAttachment implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'export_attachment',
-		],
-	];
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -63,18 +54,6 @@ class ExportAttachment implements ActionInterface
 	 * Unique download token for the member whose profile this is.
 	 */
 	public string $dltoken;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -133,32 +112,6 @@ class ExportAttachment implements ActionInterface
 		AttachmentDownload::call();
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -172,16 +125,11 @@ class ExportAttachment implements ActionInterface
 			Profile::load();
 		}
 
-		$this->idhash = hash_hmac('sha1', Profile::$member->id, Config::getAuthSecret());
+		$this->idhash = hash_hmac('sha1', (string) Profile::$member->id, Config::getAuthSecret());
 		$this->dltoken = hash_hmac('sha1', $this->idhash, Config::getAuthSecret());
 
 		$this->attach = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ExportAttachment::exportStatic')) {
-	ExportAttachment::exportStatic();
 }
 
 ?>

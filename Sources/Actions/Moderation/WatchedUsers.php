@@ -5,23 +5,25 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Moderation;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -32,34 +34,7 @@ use SMF\Utils;
  */
 class WatchedUsers implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ViewWatchedUsers',
-			'list_getWatchedUserCount' => 'list_getWatchedUserCount',
-			'list_getWatchedUsers' => 'list_getWatchedUsers',
-			'list_getWatchedUserPostsCount' => 'list_getWatchedUserPostsCount',
-			'list_getWatchedUserPosts' => 'list_getWatchedUserPosts',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -70,6 +45,23 @@ class WatchedUsers implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Some important context!
+		Utils::$context['page_title'] = Lang::$txt['mc_watched_users_title'];
+		Utils::$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
+		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+
+		Theme::loadTemplate('ModerationCenter');
+
+		// Get some key settings!
+		Config::$modSettings['warning_watch'] = empty(Config::$modSettings['warning_watch']) ? 1 : Config::$modSettings['warning_watch'];
+
+		// Put some pretty tabs on cause we're gonna be doing hot stuff here...
+		Menu::$loaded['moderate']->tab_data = [
+			'title' => Lang::$txt['mc_watched_users_title'],
+			'help' => '',
+			'description' => Lang::$txt['mc_watched_users_desc'],
+		];
+
 		// First off - are we deleting?
 		if (!empty($_REQUEST['delete'])) {
 			User::$me->checkSession(!is_array($_REQUEST['delete']) ? 'get' : 'post');
@@ -115,7 +107,7 @@ class WatchedUsers implements ActionInterface
 		// This is all the information required for a watched user listing.
 		$listOptions = [
 			'id' => 'watch_user_list',
-			'title' => Lang::$txt['mc_watched_users_title'] . ' - ' . (Utils::$context['view_posts'] ? Lang::$txt['mc_watched_users_post'] : Lang::$txt['mc_watched_users_member']),
+			'title' => Lang::$txt['mc_watched_users_title_view_by_' . (Utils::$context['view_posts'] ? 'post' : 'member')],
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'no_items_label' => Utils::$context['view_posts'] ? Lang::$txt['mc_watched_users_no_posts'] : Lang::$txt['mc_watched_users_none'],
 			'base_href' => Config::$scripturl . '?action=moderate;area=userwatch;sa=' . (Utils::$context['view_posts'] ? 'post' : 'member'),
@@ -128,7 +120,7 @@ class WatchedUsers implements ActionInterface
 				],
 			],
 			'get_count' => [
-				'function' => Utils::$context['view_posts'] ? 'list_getWatchedUserPostsCount' : __CLASS__ . '::list_getWatchedUserCount',
+				'function' => Utils::$context['view_posts'] ? __CLASS__ . '::list_getWatchedUserPostsCount' : __CLASS__ . '::list_getWatchedUserCount',
 				'params' => [
 					$approve_query,
 				],
@@ -257,34 +249,12 @@ class WatchedUsers implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Callback for SMF\ItemList().
 	 *
 	 * @param string $approve_query Not used here
 	 * @return int The number of users on the watch list
 	 */
-	public static function list_getWatchedUserCount($approve_query): int
+	public static function list_getWatchedUserCount(string $approve_query): int
 	{
 		$request = Db::$db->query(
 			'',
@@ -298,7 +268,7 @@ class WatchedUsers implements ActionInterface
 		list($totalMembers) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $totalMembers;
+		return (int) $totalMembers;
 	}
 
 	/**
@@ -308,10 +278,10 @@ class WatchedUsers implements ActionInterface
 	 * @param int $items_per_page The number of items to show per page
 	 * @param string $sort A string indicating how to sort things
 	 * @param string $approve_query A query for approving things. Not used here.
-	 * @param string $dummy Not used here.
+	 * @param array $dummy Not used here.
 	 * @return array An array of info about watched users
 	 */
-	public static function list_getWatchedUsers($start, $items_per_page, $sort, $approve_query, $dummy): array
+	public static function list_getWatchedUsers(int $start, int $items_per_page, string $sort, string $approve_query, array $dummy): array
 	{
 		$request = Db::$db->query(
 			'',
@@ -417,7 +387,7 @@ class WatchedUsers implements ActionInterface
 	 * @param string $approve_query A query to pull only approved items
 	 * @return int The total number of posts by watched users
 	 */
-	public static function list_getWatchedUserPostsCount($approve_query): int
+	public static function list_getWatchedUserPostsCount(string $approve_query): int
 	{
 		$request = Db::$db->query(
 			'',
@@ -435,7 +405,7 @@ class WatchedUsers implements ActionInterface
 		list($totalMemberPosts) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $totalMemberPosts;
+		return (int) $totalMemberPosts;
 	}
 
 	/**
@@ -448,7 +418,7 @@ class WatchedUsers implements ActionInterface
 	 * @param int[] $delete_boards An array containing the IDs of boards we can delete posts in
 	 * @return array An array of info about posts by watched users
 	 */
-	public static function list_getWatchedUserPosts($start, $items_per_page, $sort, $approve_query, $delete_boards): array
+	public static function list_getWatchedUserPosts(int $start, int $items_per_page, string $sort, string $approve_query, array $delete_boards): array
 	{
 		$request = Db::$db->query(
 			'',
@@ -474,12 +444,18 @@ class WatchedUsers implements ActionInterface
 			$row['subject'] = Lang::censorText($row['subject']);
 			$row['body'] = Lang::censorText($row['body']);
 
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
+
 			$member_posts[$row['id_msg']] = [
 				'id' => $row['id_msg'],
 				'id_topic' => $row['id_topic'],
 				'author_link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>',
 				'subject' => $row['subject'],
-				'body' => BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']),
+				'body' => $row['body'],
 				'poster_time' => Time::create('@' . $row['poster_time'])->format(),
 				'approved' => $row['approved'],
 				'can_delete' => $delete_boards == [0] || in_array($row['id_board'], $delete_boards),
@@ -489,38 +465,6 @@ class WatchedUsers implements ActionInterface
 
 		return $member_posts;
 	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Some important context!
-		Utils::$context['page_title'] = Lang::$txt['mc_watched_users_title'];
-		Utils::$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
-		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
-
-		Theme::loadTemplate('ModerationCenter');
-
-		// Get some key settings!
-		Config::$modSettings['warning_watch'] = empty(Config::$modSettings['warning_watch']) ? 1 : Config::$modSettings['warning_watch'];
-
-		// Put some pretty tabs on cause we're gonna be doing hot stuff here...
-		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_watched_users_title'],
-			'help' => '',
-			'description' => Lang::$txt['mc_watched_users_desc'],
-		];
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\WatchedUsers::exportStatic')) {
-	WatchedUsers::exportStatic();
 }
 
 ?>

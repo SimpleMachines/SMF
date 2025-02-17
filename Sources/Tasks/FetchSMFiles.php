@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Tasks;
 
@@ -30,8 +32,9 @@ class FetchSMFiles extends ScheduledTask
 	 * This executes the task.
 	 *
 	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		// What files do we want to get?
 		$js_files = [];
@@ -59,7 +62,7 @@ class FetchSMFiles extends ScheduledTask
 
 		foreach ($js_files as $id_file => $file) {
 			// Create the url
-			$server = empty($file['path']) || (substr($file['path'], 0, 7) != 'http://' && substr($file['path'], 0, 8) != 'https://') ? 'https://www.simplemachines.org' : '';
+			$server = empty($file['path']) || (!str_starts_with($file['path'], 'http://') && !str_starts_with($file['path'], 'https://')) ? 'https://www.simplemachines.org' : '';
 
 			$url = $server . (!empty($file['path']) ? $file['path'] : $file['path']) . $file['filename'] . (!empty($file['parameters']) ? '?' . $file['parameters'] : '');
 
@@ -68,9 +71,9 @@ class FetchSMFiles extends ScheduledTask
 
 			// If we got an error - give up - the site might be down. And if we should happen to be coming from elsewhere, let's also make a note of it.
 			if ($file_data === false) {
-				Utils::$context['scheduled_errors']['fetchSMfiles'][] = sprintf(Lang::$txt['st_cannot_retrieve_file'], $url);
+				Utils::$context['scheduled_errors']['fetchSMfiles'][] = Lang::getTxt('st_cannot_retrieve_file', [$url]);
 
-				ErrorHandler::log(sprintf(Lang::$txt['st_cannot_retrieve_file'], $url));
+				ErrorHandler::log(Lang::getTxt('st_cannot_retrieve_file', [$url]));
 
 				return true;
 			}

@@ -5,21 +5,25 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -27,32 +31,9 @@ use SMF\Utils;
 /**
  * This action handles the deletion of posts.
  */
-class MsgDelete implements ActionInterface
+class MsgDelete implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'DeleteMessage',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -137,42 +118,53 @@ class MsgDelete implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @return object An instance of this class.
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function load(): object
+	public static function buildRoute(array $params): array
 	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
+		if (!isset($params['msg'])) {
+			return ['route' => [], 'params' => $params];
 		}
 
-		return self::$obj;
+		if (!isset($params['topic'])) {
+			$params['topic'] = Msg::load($params['msg'])->id_topic;
+		}
+
+		$route[] = $params['action'];
+		$route[] = $params['topic'];
+		$route[] = $params['msg'];
+
+		unset($params['topic'], $params['action'], $params['msg']);
+
+		return ['route' => $route, 'params' => $params];
 	}
 
 	/**
-	 * Convenience method to load() and execute() an instance of this class.
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
 	 */
-	public static function call(): void
+	public static function parseRoute(array $route, array $params = []): array
 	{
-		self::load()->execute();
+		$params['action'] = array_shift($route);
+
+		if (!empty($route)) {
+			$params['topic'] = array_shift($route);
+		}
+
+		if (!empty($route)) {
+			$params['msg'] = array_shift($route);
+		}
+
+		return $params;
 	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\MsgDelete::exportStatic')) {
-	MsgDelete::exportStatic();
 }
 
 ?>

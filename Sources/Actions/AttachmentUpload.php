@@ -5,28 +5,37 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Routable;
 use SMF\User;
 use SMF\Utils;
 
 /**
  * This class handles adding/deleting attachments
  */
-class AttachmentUpload implements ActionInterface
+class AttachmentUpload implements ActionInterface, Routable
 {
+	use ActionRouter;
+	use ActionTrait;
+
 	/**
 	 * @var int The ID of the message this attachment is associated with
 	 */
@@ -104,35 +113,19 @@ class AttachmentUpload implements ActionInterface
 	 */
 	protected $_sa = false;
 
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 */
-	protected static $obj;
-
-	/**
-	 * Wrapper for constructor. Ensures only one instance is created.
-	 *
-	 * @todo Add a reference to Utils::$context['instances'] as well?
-	 *
-	 * @return An instance of this class.
-	 */
-	public static function load(): object
+	public function canBeLogged(): bool
 	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
+		return false;
 	}
 
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
+	public function isSimpleAction(): bool
 	{
-		self::load()->execute();
+		return true;
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
 	}
 
 	/**
@@ -232,7 +225,7 @@ class AttachmentUpload implements ActionInterface
 		// Process them at once!
 		$this->processAttachments();
 
-		// The attachments was created and moved the the right folder, time to update the DB.
+		// The attachments was created and moved to the right folder, time to update the DB.
 		if (!empty($_SESSION['temp_attachments'])) {
 			$this->createAttach();
 		}
@@ -286,7 +279,7 @@ class AttachmentUpload implements ActionInterface
 		elseif (!is_dir($this->_attchDir)) {
 			$this->_generalErrors[] = 'attach_folder_warning';
 
-			ErrorHandler::log(sprintf(Lang::$txt['attach_folder_admin_warning'], $this->_attchDir), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', ['attach_dir' => $this->_attchDir]), 'critical');
 		}
 
 		// If this isn't a new post, check the current attachments.
@@ -469,7 +462,7 @@ class AttachmentUpload implements ActionInterface
 				$log_these = ['attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file'];
 
 				foreach ($attachment['errors'] as $error) {
-					$attachmentOptions['errors'][] = sprintf(Lang::$txt['attach_warning'], $attachment['name']);
+					$attachmentOptions['errors'][] = Lang::getTxt('attach_warning', $attachment);
 
 					if (!is_array($error)) {
 						$attachmentOptions['errors'][] = Lang::$txt[$error];
@@ -478,7 +471,7 @@ class AttachmentUpload implements ActionInterface
 							ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
 						}
 					} else {
-						$attachmentOptions['errors'][] = vsprintf(Lang::$txt[$error[0]], (array) $error[1]);
+						$attachmentOptions['errors'][] = Lang::getTxt($error[0], (array) $error[1]);
 					}
 				}
 
@@ -516,7 +509,7 @@ class AttachmentUpload implements ActionInterface
 	 *
 	 * @param array $data Data for the response if we're not adding an attachment
 	 */
-	protected function setResponse($data = []): void
+	protected function setResponse(array $data = []): void
 	{
 		// Some default values in case something is missed or neglected :P
 		$this->_response = [
@@ -530,7 +523,7 @@ class AttachmentUpload implements ActionInterface
 			// Is there any generic errors? made some sense out of them!
 			if ($this->_generalErrors) {
 				foreach ($this->_generalErrors as $k => $v) {
-					$this->_generalErrors[$k] = (is_array($v) ? vsprintf(Lang::$txt[$v[0]], (array) $v[1]) : Lang::$txt[$v]);
+					$this->_generalErrors[$k] = (is_array($v) ? Lang::getTxt($v[0], (array) $v[1]) : Lang::$txt[$v]);
 				}
 			}
 

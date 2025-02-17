@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -21,20 +23,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Editor implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'load' => 'create_control_richedit',
-			'getMessageIcons' => 'getMessageIcons',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -227,8 +216,6 @@ class Editor implements \ArrayAccess
 		$this->id = (string) ($options['id'] ?? 'message');
 
 		$this->value = strtr((string) ($options['value'] ?? ''), [
-			// Tabs are not shown in SCEditor; replace with spaces.
-			"\t" => '    ',
 			// The [#] item code for creating list items causes issues with
 			// SCEditor, but [+] is a safe equivalent.
 			'[#]' => '[+]',
@@ -238,7 +225,7 @@ class Editor implements \ArrayAccess
 		$this->columns = (int) ($options['columns'] ?? 60);
 		$this->rows = (int) ($options['rows'] ?? 18);
 		$this->width = (string) ($options['width'] ?? '70%');
-		$this->height = (string) ($options['height'] ?? '175px');
+		$this->height = (string) ($options['height'] ?? '250px');
 		$this->form = (string) ($options['form'] ?? 'postmodify');
 		$this->preview_type = (int) ($options['preview_type'] ?? self::PREVIEW_HTML);
 		$this->labels = (array) ($options['labels'] ?? []);
@@ -445,7 +432,7 @@ class Editor implements \ArrayAccess
 			'save_draft' => [
 				'type' => 'submit',
 				'value' => Lang::$txt['draft_save'],
-				'onclick' => !empty(Utils::$context['drafts_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::JavaScriptEscape(Lang::$txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+				'onclick' => !empty(Utils::$context['drafts_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::$txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
 				'accessKey' => 'd',
 				'show' => !empty(Utils::$context['drafts_save']),
 			],
@@ -579,12 +566,16 @@ class Editor implements \ArrayAccess
 				'description' => Lang::$editortxt['insert_image'],
 			],
 			[
+				'code' => 'email',
+				'description' => Lang::$editortxt['insert_email'],
+			],
+			[
 				'code' => 'link',
 				'description' => Lang::$editortxt['insert_link'],
 			],
 			[
-				'code' => 'email',
-				'description' => Lang::$editortxt['insert_email'],
+				'code' => 'unlink',
+				'description' => Lang::$editortxt['unlink'],
 			],
 			[],
 			[
@@ -594,6 +585,11 @@ class Editor implements \ArrayAccess
 			[
 				'code' => 'code',
 				'description' => Lang::$editortxt['code'],
+			],
+			[
+				'image' => 'tt',
+				'code' => 'tt',
+				'description' => Lang::$editortxt['tt'],
 			],
 			[
 				'code' => 'quote',
@@ -611,6 +607,11 @@ class Editor implements \ArrayAccess
 			[
 				'code' => 'horizontalrule',
 				'description' => Lang::$editortxt['insert_horizontal_rule'],
+			],
+			[
+				'image' => 'heading',
+				'code' => 'heading',
+				'description' => Lang::$editortxt['heading'],
 			],
 			[],
 			[
@@ -692,16 +693,16 @@ class Editor implements \ArrayAccess
 
 					// Set the tooltip and possibly the command info
 					self::$bbc_handlers .= '
-						sceditor.command.set(' . Utils::JavaScriptEscape($tag['code']) . ', {
-							tooltip: ' . Utils::JavaScriptEscape($tag['description'] ?? $tag['code']);
+						sceditor.command.set(' . Utils::escapeJavaScript($tag['code']) . ', {
+							tooltip: ' . Utils::escapeJavaScript($tag['description'] ?? $tag['code']);
 
 					// Legacy support for 2.0 BBC mods
 					if (isset($tag['before'])) {
 						self::$bbc_handlers .= ',
 							exec: function () {
-								this.insertText(' . Utils::JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . Utils::JavaScriptEscape($tag['after']) : '') . ');
+								this.insertText(' . Utils::escapeJavaScript($tag['before']) . (isset($tag['after']) ? ', ' . Utils::escapeJavaScript($tag['after']) : '') . ');
 							},
-							txtExec: [' . Utils::JavaScriptEscape($tag['before']) . (isset($tag['after']) ? ', ' . Utils::JavaScriptEscape($tag['after']) : '') . ']';
+							txtExec: [' . Utils::escapeJavaScript($tag['before']) . (isset($tag['after']) ? ', ' . Utils::escapeJavaScript($tag['after']) : '') . ']';
 					}
 
 					self::$bbc_handlers .= '
@@ -777,12 +778,12 @@ class Editor implements \ArrayAccess
 	/**
 	 * Initialize the smiley toolbar, if enabled and not already loaded.
 	 */
-	protected function setSCEditorOptions()
+	protected function setSCEditorOptions(): void
 	{
 		// Set up the SCEditor options
 		$this->sce_options = [
 			'width' => $this->width ?? '100%',
-			'height' => $this->height ?? '175px',
+			'height' => $this->height ?? '250px',
 			'style' => Theme::$current->settings[file_exists(Theme::$current->settings['theme_dir'] . '/css/jquery.sceditor.default.css') ? 'theme_url' : 'default_theme_url'] . '/css/jquery.sceditor.default.css' . Utils::$context['browser_cache'],
 			'emoticonsCompat' => true,
 			'colors' => 'black,maroon,brown,green,navy,grey,red,orange,teal,blue,white,hotpink,yellow,limegreen,purple',
@@ -790,6 +791,12 @@ class Editor implements \ArrayAccess
 			'plugins' => '',
 			'bbcodeTrim' => false,
 		];
+
+		if (!empty(Config::$modSettings['autoLinkUrls'])) {
+			$this->sce_options['plugins'] = 'autolinker';
+			Autolinker::createJavaScriptFile();
+			Theme::loadJavaScriptFile('autolinker.js', ['minimize' => true], 'smf_autolinker');
+		}
 
 		if (!empty($this->locale)) {
 			$this->sce_options['locale'] = $this->locale;
@@ -865,14 +872,9 @@ class Editor implements \ArrayAccess
 		}
 
 		// Allow mods to change $this->sce_options.
-		// Usful if, e.g., a mod wants to add an SCEditor plugin.
+		// Useful if, e.g., a mod wants to add an SCEditor plugin.
 		IntegrationHook::call('integrate_sceditor_options', [&$this->sce_options]);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Editor::exportStatic')) {
-	Editor::exportStatic();
 }
 
 ?>

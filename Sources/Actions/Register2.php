@@ -5,15 +5,16 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
@@ -24,11 +25,13 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
 use SMF\TimeZone;
+use SMF\Unicode\SpoofDetector;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
@@ -39,20 +42,6 @@ use SMF\Verifier;
  */
 class Register2 extends Register
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Register2',
-			'registerMember' => 'registerMember',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -102,18 +91,6 @@ class Register2 extends Register
 		'show_online',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -127,7 +104,7 @@ class Register2 extends Register
 		SecurityToken::validate('register');
 
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 			ErrorHandler::fatalLang('register_ssl_required');
 		}
 
@@ -146,7 +123,7 @@ class Register2 extends Register
 			Utils::redirectexit('action=signup');
 		}
 
-		// If we require neither an agreement nor a privacy policy, we need a extra check for coppa.
+		// If we require neither an agreement nor a privacy policy, we need an extra check for coppa.
 		if (empty(Config::$modSettings['requireAgreement']) && empty(Config::$modSettings['requirePolicyAgreement']) && !empty(Config::$modSettings['coppaAge'])) {
 			$_SESSION['skip_coppa'] = !empty($_POST['accept_agreement']);
 		}
@@ -208,7 +185,7 @@ class Register2 extends Register
 		}
 
 		if (isset($_POST['secret_answer']) && $_POST['secret_answer'] != '') {
-			$_POST['secret_answer'] = Security::hashPassword($_POST['user'], $_POST['secret_answer']);
+			$_POST['secret_answer'] = Security::hashPassword($_POST['secret_answer']);
 		}
 
 		// Maybe you want set the displayed name during registration
@@ -365,7 +342,7 @@ class Register2 extends Register
 						$custom_field_errors[] = ['custom_field_invalid_email', [$row['field_name']]];
 					} elseif ($row['mask'] == 'number' && preg_match('~[^\d]~', $value)) {
 						$custom_field_errors[] = ['custom_field_not_number', [$row['field_name']]];
-					} elseif (substr($row['mask'], 0, 5) == 'regex' && trim($value) != '' && preg_match(substr($row['mask'], 5), $value) === 0) {
+					} elseif (str_starts_with($row['mask'], 'regex') && trim($value) != '' && preg_match(substr($row['mask'], 5), $value) === 0) {
 						$custom_field_errors[] = ['custom_field_inproper_format', [$row['field_name']]];
 					}
 				}
@@ -383,7 +360,7 @@ class Register2 extends Register
 			Lang::load('Errors');
 
 			foreach ($custom_field_errors as $error) {
-				$this->errors[] = vsprintf(Lang::$txt['error_' . $error[0]], (array) $error[1]);
+				$this->errors[] = Lang::getTxt('error_' . $error[0], (array) $error[1]);
 			}
 		}
 
@@ -406,6 +383,8 @@ class Register2 extends Register
 
 			return;
 		}
+
+		/* @var int $member_id */
 
 		// Do our spam protection now.
 		Security::spamProtection('register');
@@ -444,37 +423,15 @@ class Register2 extends Register
 		} else {
 			IntegrationHook::call('integrate_activate', [$reg_options['username']]);
 
-			Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
+			Cookie::setLoginCookie((int) (60 * Config::$modSettings['cookieTime']), $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
 
-			Utils::redirectexit('action=login2;sa=check;member=' . $member_id, Utils::$context['server']['needs_login_fix']);
+			Utils::redirectexit('action=login2;sa=check;member=' . $member_id, Sapi::needsLoginFix());
 		}
 	}
 
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Registers a member to the forum.
@@ -491,7 +448,7 @@ class Register2 extends Register
 	 * @param bool $return_errors Whether to return the errors
 	 * @return int|array The ID of the newly registered user or an array of error info if $return_errors is true
 	 */
-	public static function registerMember(&$reg_options, $return_errors = false)
+	public static function registerMember(array &$reg_options, bool $return_errors = false): int|array
 	{
 		Lang::load('Login');
 
@@ -537,12 +494,12 @@ class Register2 extends Register
 		$validation_code = '';
 
 		if ($reg_options['require'] == 'activation') {
-			$validation_code = User::generateValidationCode();
+			$validation_code = Security::generateValidationCode();
 		}
 
 		// If you haven't put in a password generate one.
 		if ($reg_options['interface'] == 'admin' && $reg_options['password'] == '') {
-			$reg_options['password'] = User::generateValidationCode();
+			$reg_options['password'] = Security::generatePassword();
 			$reg_options['password_check'] = $reg_options['password'];
 		}
 		// Does the first password match the second?
@@ -557,14 +514,20 @@ class Register2 extends Register
 
 		// Now perform hard password validation as required.
 		if (!empty($reg_options['check_password_strength']) && $reg_options['password'] != '') {
-			$password_error = User::validatePassword($reg_options['password'], $reg_options['username'], [$reg_options['email']]);
+			$password_error = Security::validatePassword($reg_options['password'], $reg_options['username'], [$reg_options['email']]);
 
 			// Password isn't legal?
 			if ($password_error != null) {
-				$error_code = ['lang', 'profile_error_password_' . $password_error, false];
+				Lang::load('Errors');
+
+				if (isset(Lang::$txt['profile_error_password_' . $password_error])) {
+					$error_code = ['lang', 'profile_error_password_' . $password_error, false];
+				} else {
+					$error_code = ['done', $password_error, false];
+				}
 
 				if ($password_error == 'short') {
-					$error_code[] = [empty(Config::$modSettings['password_strength']) ? 4 : 8];
+					$error_code[] = Security::minimumPasswordLength();
 				}
 
 				$reg_errors[] = $error_code;
@@ -609,7 +572,7 @@ class Register2 extends Register
 				Lang::load('Errors');
 			}
 
-			$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : vsprintf(Lang::$txt[$error[1]], (array) $error[3])) : $error[1];
+			$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : Lang::getTxt($error[1], (array) $error[3])) : $error[1];
 
 			// What to do, what to do, what to do.
 			if ($return_errors) {
@@ -656,7 +619,7 @@ class Register2 extends Register
 		$reg_options['register_vars'] = [
 			'member_name' => $reg_options['username'],
 			'email_address' => $reg_options['email'],
-			'passwd' => Security::hashPassword($reg_options['username'], $reg_options['password']),
+			'passwd' => Security::hashPassword($reg_options['password']),
 			'password_salt' => bin2hex(random_bytes(16)),
 			'posts' => 0,
 			'date_registered' => time(),
@@ -686,22 +649,22 @@ class Register2 extends Register
 
 		// Setup the activation status on this new account so it is correct - firstly is it an under age account?
 		if ($reg_options['require'] == 'coppa') {
-			$reg_options['register_vars']['is_activated'] = 5;
+			$reg_options['register_vars']['is_activated'] = User::NEED_COPPA;
 
 			// @todo This should be changed.  To what should be it be changed??
 			$reg_options['register_vars']['validation_code'] = '';
 		}
 		// Maybe it can be activated right away?
 		elseif ($reg_options['require'] == 'nothing') {
-			$reg_options['register_vars']['is_activated'] = 1;
+			$reg_options['register_vars']['is_activated'] = User::ACTIVATED;
 		}
 		// Maybe it must be activated by email?
 		elseif ($reg_options['require'] == 'activation') {
-			$reg_options['register_vars']['is_activated'] = 0;
+			$reg_options['register_vars']['is_activated'] = User::NOT_ACTIVATED;
 		}
 		// Otherwise it must be awaiting approval!
 		else {
-			$reg_options['register_vars']['is_activated'] = 3;
+			$reg_options['register_vars']['is_activated'] = User::UNAPPROVED;
 		}
 
 		// Check if this group is assignable.
@@ -750,6 +713,8 @@ class Register2 extends Register
 		// Call an optional function to validate the users' input.
 		IntegrationHook::call('integrate_register', [&$reg_options, &$theme_vars, &$known_ints, &$known_floats]);
 
+		$reg_options['register_vars']['spoofdetector_name'] = Utils::htmlspecialchars(SpoofDetector::getSkeletonString(html_entity_decode($reg_options['register_vars']['real_name'] ?? $reg_options['register_vars']['member_name'], ENT_QUOTES)));
+
 		$column_names = [];
 		$values = [];
 
@@ -775,7 +740,7 @@ class Register2 extends Register
 			'',
 			'{db_prefix}members',
 			$column_names,
-			$values,
+			[$values],
 			['id_member'],
 			1,
 		);
@@ -784,7 +749,7 @@ class Register2 extends Register
 		IntegrationHook::call('integrate_post_register', [&$reg_options, &$theme_vars, &$member_id]);
 
 		// Update the number of members and latest member's info - and pass the name, but remove the 's.
-		if ($reg_options['register_vars']['is_activated'] == 1) {
+		if ($reg_options['register_vars']['is_activated'] == User::ACTIVATED) {
 			Logging::updateStats('member', $member_id, $reg_options['register_vars']['real_name']);
 		} else {
 			Logging::updateStats('member');
@@ -913,22 +878,6 @@ class Register2 extends Register
 
 		return $member_id;
 	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Register2::exportStatic')) {
-	Register2::exportStatic();
 }
 
 ?>

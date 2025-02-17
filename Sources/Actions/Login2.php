@@ -5,21 +5,27 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -29,22 +35,10 @@ use SMF\Utils;
 /**
  * Validates the submitted credentials and logs the user in if they pass.
  */
-class Login2 implements ActionInterface
+class Login2 implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Login2',
-			'checkAjax' => 'checkAjax',
-			'validatePasswordFlood' => 'validatePasswordFlood',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -73,21 +67,29 @@ class Login2 implements ActionInterface
 		'check' => 'checkCookie',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function canShowInMaintenanceMode(): bool
+	{
+		return true;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['ajax']);
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return true;
+	}
 
 	/**
 	 * Actually logs you in.
@@ -105,7 +107,7 @@ class Login2 implements ActionInterface
 	public function execute(): void
 	{
 		// Check to ensure we're forcing SSL for authentication
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 			ErrorHandler::fatalLang('login_ssl_required', false);
 		}
 
@@ -153,12 +155,12 @@ class Login2 implements ActionInterface
 		// Preserve the 2FA cookie?
 		if (!empty(Config::$modSettings['tfa_mode']) && !empty($_COOKIE[Config::$cookiename . '_tfa'])) {
 			list(, , $exp) = Utils::jsonDecode($_COOKIE[Config::$cookiename . '_tfa'], true);
-			Cookie::setTFACookie((int) $exp - time(), User::$me->password_salt, Cookie::encrypt(User::$me->tfa_backup, User::$me->password_salt));
+			Cookie::setTFACookie((int) $exp - time(), User::$me->id, Cookie::encrypt(User::$me->tfa_backup, User::$me->password_salt));
 		}
 
 		Cookie::setLoginCookie((int) $timeout - time(), User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
-		Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Utils::$context['server']['needs_login_fix']);
+		Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Sapi::needsLoginFix());
 	}
 
 	/**
@@ -176,7 +178,7 @@ class Login2 implements ActionInterface
 		// Some whitelisting for login_url...
 		if (empty($_SESSION['login_url'])) {
 			Utils::redirectexit(empty(User::$me->tfa_secret) ? '' : 'action=logintfa');
-		} elseif (!empty($_SESSION['login_url']) && (strpos($_SESSION['login_url'], 'http://') === false && strpos($_SESSION['login_url'], 'https://') === false)) {
+		} elseif (!empty($_SESSION['login_url']) && (!str_contains($_SESSION['login_url'], 'http://') && !str_contains($_SESSION['login_url'], 'https://'))) {
 			unset($_SESSION['login_url']);
 			Utils::redirectexit(empty(User::$me->tfa_secret) ? '' : 'action=logintfa');
 		} elseif (!empty(User::$me->tfa_secret)) {
@@ -301,7 +303,7 @@ class Login2 implements ActionInterface
 		User::$my_id = (reset($loaded))->id;
 
 		// Bad password! Thought you could fool the database?!
-		if (!Security::hashVerifyPassword(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd'])) {
+		if (!Security::hashVerifyPassword(Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd'])) {
 			// If the forum was recently upgraded, password might be encrypted
 			// using a different algorithm. If so, fix it. Otherwise, bail out.
 			if (!$this->checkPasswordFallbacks()) {
@@ -335,28 +337,6 @@ class Login2 implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Checks whether this is an AJAX request.
@@ -409,7 +389,7 @@ class Login2 implements ActionInterface
 	 * @param bool $was_correct Whether or not the password was correct
 	 * @param bool $tfa Whether we're validating for two-factor authentication
 	 */
-	public static function validatePasswordFlood($id_member, $member_name, $password_flood_value = false, $was_correct = false, $tfa = false)
+	public static function validatePasswordFlood(int $id_member, string $member_name, bool|string $password_flood_value = false, bool $was_correct = false, bool $tfa = false): void
 	{
 		// As this is only brute protection, we allow 5 attempts every 10 seconds.
 
@@ -535,69 +515,16 @@ class Login2 implements ActionInterface
 		// Maybe we were too hasty... let's try some other authentication methods.
 		$other_passwords = [];
 
-		// None of the below cases will be used most of the time (because the salt is normally set.)
-		if (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] == '') {
-			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x, IkonBoard, and none at all.
-			$other_passwords[] = crypt($_POST['passwrd'], substr($_POST['passwrd'], 0, 2));
-			$other_passwords[] = crypt($_POST['passwrd'], substr(User::$profiles[User::$my_id]['passwd'], 0, 2));
-			$other_passwords[] = md5($_POST['passwrd']);
-			$other_passwords[] = sha1($_POST['passwrd']);
-			$other_passwords[] = hash_hmac('md5', $_POST['passwrd'], strtolower(User::$profiles[User::$my_id]['member_name']));
-			$other_passwords[] = md5($_POST['passwrd'] . strtolower(User::$profiles[User::$my_id]['member_name']));
-			$other_passwords[] = md5(md5($_POST['passwrd']));
-			$other_passwords[] = $_POST['passwrd'];
-			$other_passwords[] = crypt($_POST['passwrd'], User::$profiles[User::$my_id]['passwd']);
-
-			// This one is a strange one... MyPHP, crypt() on the MD5 hash.
-			$other_passwords[] = crypt(md5($_POST['passwrd']), md5($_POST['passwrd']));
-
-			// Snitz style - SHA-256.
-			if (strlen(User::$profiles[User::$my_id]['passwd']) == 64 && function_exists('mhash') && defined('MHASH_SHA256')) {
-				$other_passwords[] = bin2hex(mhash(MHASH_SHA256, $_POST['passwrd']));
-			}
-
-			// phpBB3.
-			$other_passwords[] = $this->phpBB3_password_check($_POST['passwrd'], User::$profiles[User::$my_id]['passwd']);
-
-			// APBoard 2 Login Method.
-			$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
+		// SMF 2.1 prepended the username before the password.
+		if (Security::hashVerifyPassword(Utils::strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']), User::$profiles[User::$my_id]['passwd'])) {
+			$other_passwords[] = User::$profiles[User::$my_id]['passwd'];
 		}
-		// If the salt is set let's try some other options
-		elseif (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] != '') {
-			// PHPBB 3 check this function exists in PHP 5.5 or higher
-			if (function_exists('password_verify')) {
-				$other_passwords[] = password_verify($_POST['passwrd'], User::$profiles[User::$my_id]['password_salt']);
-			}
 
-			// PHP-Fusion
-			$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], User::$profiles[User::$my_id]['password_salt']);
-
-			// MyBB
-			$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
-		}
-		// The hash should be 40 if it's SHA-1, so we're safe with more here too.
-		elseif (!empty(Config::$modSettings['enable_password_conversion']) && strlen(User::$profiles[User::$my_id]['passwd']) == 32) {
-			// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
-			$other_passwords[] = md5(md5($_POST['passwrd']) . stripslashes(User::$profiles[User::$my_id]['password_salt']));
-
-			// Hmm.. p'raps it's Invision 2 style?
-			$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
-
-			// Some common md5 ones.
-			$other_passwords[] = md5(User::$profiles[User::$my_id]['password_salt'] . $_POST['passwrd']);
-			$other_passwords[] = md5($_POST['passwrd'] . User::$profiles[User::$my_id]['password_salt']);
-		} elseif (strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
+		// SMF 1.1 and 2.0 password styles.
+		if (strlen(User::$profiles[User::$my_id]['passwd']) == 40) {
 			// Maybe they are using a hash from before the password fix.
 			// This is also valid for SMF 1.1 to 2.0 style of hashing, changed to bcrypt in SMF 2.1
 			$other_passwords[] = sha1(strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']));
-
-			// BurningBoard3 style of hashing.
-			if (!empty(Config::$modSettings['enable_password_conversion'])) {
-				$other_passwords[] = sha1(User::$profiles[User::$my_id]['password_salt'] . sha1(User::$profiles[User::$my_id]['password_salt'] . sha1($_POST['passwrd'])));
-			}
-
-			// PunBB
-			$other_passwords[] = sha1(User::$profiles[User::$my_id]['password_salt'] . sha1($_POST['passwrd']));
 
 			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
 			if (Utils::$context['character_set'] == 'UTF-8' && !empty(Config::$modSettings['previousCharacterSet']) && Config::$modSettings['previousCharacterSet'] != 'utf8') {
@@ -613,12 +540,84 @@ class Login2 implements ActionInterface
 			}
 		}
 
+		// None of the below cases will be used most of the time (because the salt is normally set.)
+		if (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] == '') {
+			// YaBB SE, Discus, MD5 (used a lot), SHA-1 (used some), SMF 1.0.x, IkonBoard, and none at all.
+			switch (strlen(User::$profiles[User::$my_id]['passwd'])) {
+				case 13:
+					$other_passwords[] = crypt($_POST['passwrd'], substr($_POST['passwrd'], 0, 2));
+					$other_passwords[] = crypt($_POST['passwrd'], substr(User::$profiles[User::$my_id]['passwd'], 0, 2));
+					$other_passwords[] = crypt($_POST['passwrd'], User::$profiles[User::$my_id]['passwd']);
+
+					// This one is a strange one... MyPHP, crypt() on the MD5 hash.
+					$other_passwords[] = crypt(md5($_POST['passwrd']), md5($_POST['passwrd']));
+					break;
+
+				case 32:
+					$other_passwords[] = md5($_POST['passwrd']);
+					$other_passwords[] = hash_hmac('md5', $_POST['passwrd'], strtolower(User::$profiles[User::$my_id]['member_name']));
+					$other_passwords[] = md5($_POST['passwrd'] . strtolower(User::$profiles[User::$my_id]['member_name']));
+					$other_passwords[] = md5(md5($_POST['passwrd']));
+
+					// APBoard 2 Login Method.
+					$other_passwords[] = md5(crypt($_POST['passwrd'], 'CRYPT_MD5'));
+					break;
+
+				case 34:
+					// phpBB3.
+					$other_passwords[] = $this->phpBB3_password_check($_POST['passwrd'], User::$profiles[User::$my_id]['passwd']);
+					break;
+
+				case 40:
+					$other_passwords[] = sha1($_POST['passwrd']);
+					break;
+
+				case 64:
+					// Snitz style - SHA-256.
+					$other_passwords[] = hash('sha256', $_POST['passwrd']);
+					break;
+			}
+
+			$other_passwords[] = $_POST['passwrd'];
+		}
+		// If the salt is set let's try some other options
+		elseif (!empty(Config::$modSettings['enable_password_conversion']) && User::$profiles[User::$my_id]['password_salt'] != '') {
+			switch (strlen(User::$profiles[User::$my_id]['passwd'])) {
+				case 32:
+					// MyBB
+					$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
+
+					// vBulletin 3 style hashing?  Let's welcome them with open arms \o/.
+					$other_passwords[] = md5(md5($_POST['passwrd']) . stripslashes(User::$profiles[User::$my_id]['password_salt']));
+
+					// Hmm.. p'raps it's Invision 2 style?
+					$other_passwords[] = md5(md5(User::$profiles[User::$my_id]['password_salt']) . md5($_POST['passwrd']));
+
+					// Some common md5 ones.
+					$other_passwords[] = md5(User::$profiles[User::$my_id]['password_salt'] . $_POST['passwrd']);
+					$other_passwords[] = md5($_POST['passwrd'] . User::$profiles[User::$my_id]['password_salt']);
+					break;
+
+				case 40:
+					// BurningBoard3 style of hashing.
+					$other_passwords[] = sha1(User::$profiles[User::$my_id]['password_salt'] . sha1(User::$profiles[User::$my_id]['password_salt'] . sha1($_POST['passwrd'])));
+					// PunBB
+					$other_passwords[] = sha1(User::$profiles[User::$my_id]['password_salt'] . sha1($_POST['passwrd']));
+					break;
+
+				case 64:
+					// PHP-Fusion
+					$other_passwords[] = hash_hmac('sha256', $_POST['passwrd'], User::$profiles[User::$my_id]['password_salt']);
+					break;
+			}
+		}
+
 		// Allows mods to easily extend the $other_passwords array
 		IntegrationHook::call('integrate_other_passwords', [&$other_passwords]);
 
 		// Whichever encryption it was using, let's make it use SMF's now ;).
 		if (in_array(User::$profiles[User::$my_id]['passwd'], $other_passwords)) {
-			User::$profiles[User::$my_id]['passwd'] = Security::hashPassword(User::$profiles[User::$my_id]['member_name'], Utils::htmlspecialcharsDecode($_POST['passwrd']));
+			User::$profiles[User::$my_id]['passwd'] = Security::hashPassword(Utils::htmlspecialcharsDecode($_POST['passwrd']));
 			User::$profiles[User::$my_id]['password_salt'] = bin2hex(random_bytes(16));
 
 			// Update the password and set up the hash.
@@ -650,16 +649,13 @@ class Login2 implements ActionInterface
 	/**
 	 * Custom encryption for phpBB3 based passwords.
 	 *
-	 * @return string The hashed version of $_POST['passwrd']
+	 * @return ?string The hashed version of $_POST['passwrd']
 	 */
-	protected function phpBB3_password_check()
+	protected function phpBB3_password_check(string $passwd, string $passwd_hash): ?string
 	{
-		$passwd = $_POST['passwrd'];
-		$passwd_hash = User::$profiles[User::$my_id]['passwd'];
-
 		// Too long or too short?
 		if (strlen($passwd_hash) != 34) {
-			return;
+			return null;
 		}
 
 		// Range of characters allowed.
@@ -712,31 +708,33 @@ class Login2 implements ActionInterface
 
 	/**
 	 * Check activation status of the current user.
+	 *
+	 * @return bool True if they are activated, false otherwise.
 	 */
-	protected function checkActivation()
+	protected function checkActivation(): bool
 	{
 		if (!isset(Utils::$context['login_errors'])) {
 			Utils::$context['login_errors'] = [];
 		}
 
 		// What is the true activation status of this account?
-		$activation_status = User::$profiles[User::$my_id]['is_activated'] > 10 ? User::$profiles[User::$my_id]['is_activated'] - 10 : User::$profiles[User::$my_id]['is_activated'];
+		$activation_status = User::$profiles[User::$my_id]['is_activated'] % User::BANNED;
 
 		// Check if the account is activated - COPPA first...
-		if ($activation_status == 5) {
+		if ($activation_status == User::NEED_COPPA) {
 			Utils::$context['login_errors'][] = Lang::$txt['coppa_no_consent'] . ' <a href="' . Config::$scripturl . '?action=coppa;member=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::$txt['coppa_need_more_details'] . '</a>';
 
 			return false;
 		}
 
 		// Awaiting approval still?
-		if ($activation_status == 3) {
+		if ($activation_status == User::UNAPPROVED) {
 			ErrorHandler::fatalLang('still_awaiting_approval', 'user');
 		}
 		// Awaiting deletion, changed their mind?
-		elseif ($activation_status == 4) {
+		elseif (in_array($activation_status, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 			if (isset($_REQUEST['undelete'])) {
-				User::updateMemberData(User::$profiles[User::$my_id]['id_member'], ['is_activated' => 1]);
+				User::updateMemberData(User::$profiles[User::$my_id]['id_member'], ['is_activated' => User::$profiles[User::$my_id]['is_activated'] >= User::BANNED ? User::ACTIVATED_BANNED : User::ACTIVATED]);
 
 				Config::updateModSettings(['unapprovedMembers' => (Config::$modSettings['unapprovedMembers'] > 0 ? Config::$modSettings['unapprovedMembers'] - 1 : 0)]);
 			} else {
@@ -748,7 +746,7 @@ class Login2 implements ActionInterface
 			}
 		}
 		// Standard activation?
-		elseif ($activation_status != 1) {
+		elseif ($activation_status != User::ACTIVATED) {
 			ErrorHandler::log(Lang::$txt['activate_not_completed1'] . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
 
 			Utils::$context['login_errors'][] = Lang::$txt['activate_not_completed1'] . ' <a href="' . Config::$scripturl . '?action=activate;sa=resend;u=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::$txt['activate_not_completed2'] . '</a>';
@@ -762,7 +760,7 @@ class Login2 implements ActionInterface
 	/**
 	 * Perform the logging in. (set cookie, call hooks, etc)
 	 */
-	protected function DoLogin()
+	protected function DoLogin(): void
 	{
 		// Call login integration functions.
 		IntegrationHook::call('integrate_login', [User::$profiles[User::$my_id]['member_name'], null, Config::$modSettings['cookieTime']]);
@@ -817,10 +815,18 @@ class Login2 implements ActionInterface
 				'insert',
 				'{db_prefix}member_logins',
 				[
-					'id_member' => 'int', 'time' => 'int', 'ip' => 'inet', 'ip2' => 'inet',
+					'id_member' => 'int',
+					'time' => 'int',
+					'ip' => 'inet',
+					'ip2' => 'inet',
 				],
 				[
-					User::$me->id, time(), User::$me->ip, User::$me->ip2,
+					[
+						User::$me->id,
+						time(),
+						User::$me->ip,
+						User::$me->ip2,
+					],
 				],
 				[
 					'id_member', 'time',
@@ -830,16 +836,11 @@ class Login2 implements ActionInterface
 
 		// Just log you back out if it's in maintenance mode and you AREN'T an admin.
 		if (empty(Config::$maintenance) || User::$me->allowedTo('admin_forum')) {
-			Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Utils::$context['server']['needs_login_fix']);
+			Utils::redirectexit('action=login2;sa=check;member=' . User::$me->id, Sapi::needsLoginFix());
 		} else {
-			Utils::redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Utils::$context['server']['needs_login_fix']);
+			Utils::redirectexit('action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Sapi::needsLoginFix());
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Login2::exportStatic')) {
-	Login2::exportStatic();
 }
 
 ?>

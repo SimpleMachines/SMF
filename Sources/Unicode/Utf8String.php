@@ -5,19 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 namespace SMF\Unicode;
 
 use SMF\BackwardCompatibility;
-
 use SMF\Config;
 use SMF\Lang;
 use SMF\User;
+use SMF\Utils;
 
 /**
  * A class for manipulating UTF-8 strings.
@@ -29,29 +29,6 @@ use SMF\User;
 class Utf8String implements \Stringable
 {
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'decompose' => 'utf8_decompose',
-			'compose' => 'utf8_compose',
-			'utf8_strtolower' => 'utf8_strtolower',
-			'utf8_strtoupper' => 'utf8_strtoupper',
-			'utf8_casefold' => 'utf8_casefold',
-			'utf8_convert_case' => 'utf8_convert_case',
-			'utf8_normalize_d' => 'utf8_normalize_d',
-			'utf8_normalize_kd' => 'utf8_normalize_kd',
-			'utf8_normalize_c' => 'utf8_normalize_c',
-			'utf8_normalize_kc' => 'utf8_normalize_kc',
-			'utf8_normalize_kc_casefold' => 'utf8_normalize_kc_casefold',
-			'utf8_is_normalized' => 'utf8_is_normalized',
-			'utf8_sanitize_invisibles' => 'utf8_sanitize_invisibles',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -223,7 +200,7 @@ class Utf8String implements \Stringable
 
 			switch ($case) {
 				case 'title':
-					$this->convertCase($this->string, 'lower', $simple);
+					$this->convertCase('lower', $simple);
 					$regex = '/(?:^|[^\w' . $prop_classes['Case_Ignorable'] . '])\K(\p{L})/u';
 					break;
 
@@ -262,8 +239,8 @@ class Utf8String implements \Stringable
 
 		// Greek conditional casing, part 1: Fix lowercase sigma.
 		// Note that this rule doesn't depend on $txt['lang_locale'].
-		if ($case !== 'upper' && strpos($this->string, 'ς') !== false || strpos($this->string, 'σ') !== false) {
-			require_once $sourcedir . '/Unicode/RegularExpressions.php';
+		if ($case !== 'upper' && str_contains($this->string, 'ς') || str_contains($this->string, 'σ')) {
+			require_once Config::$sourcedir . '/Unicode/RegularExpressions.php';
 
 			$prop_classes = utf8_regex_properties();
 
@@ -539,10 +516,6 @@ class Utf8String implements \Stringable
 		$disallowed[] = '[' . implode('', [
 			// Soft Hyphen.
 			'\x{AD}',
-			// Khmer Vowel Inherent AQ and Khmer Vowel Inherent AA.
-			// Unicode Standard ch. 16 says: "they are insufficient for [their]
-			// purpose and should be considered errors in the encoding."
-			'\x{17B4}-\x{17B5}',
 			// Invisible math characters.
 			'\x{2061}-\x{2064}',
 			// Deprecated formatting characters.
@@ -564,6 +537,8 @@ class Utf8String implements \Stringable
 					'\x{200D}',
 					// All variation selectors.
 					$prop_classes['Variation_Selector'],
+					// All emoji modifiers.
+					$prop_classes['Emoji_Modifier'],
 					// Tag characters.
 					'\x{E0000}-\x{E007F}',
 				]) . ']';
@@ -675,9 +650,6 @@ class Utf8String implements \Stringable
 	 *
 	 * Emoji characters count as words. Punctuation and other symbols do not.
 	 *
-	 * @todo Improve the fallback code we use when the IntlBreakIterator class
-	 * is unavailable.
-	 *
 	 * @param int $level See documentation for Utf8String::sanitizeInvisibles().
 	 * @return array The words in this string.
 	 */
@@ -687,35 +659,48 @@ class Utf8String implements \Stringable
 		$original_string = $this->string;
 
 		// Replace any illegal entities with spaces.
-		$this->string = \SMF\Utils::sanitizeEntities($this->string, ' ');
+		$this->string = Utils::sanitizeEntities($this->string, ' ');
 
 		// Decode all the entities.
-		$this->string = \SMF\Utils::entityDecode($this->string, true, ENT_QUOTES | ENT_HTML5, true);
+		$this->string = Utils::entityDecode($this->string, true, ENT_QUOTES | ENT_HTML5, true);
 
 		// Replace unwanted invisible characters with spaces.
 		$this->sanitizeInvisibles($level, ' ');
 
 		// Normalize the whitespace.
-		$this->string = \SMF\Utils::normalizeSpaces($this->string, true, true, ['replace_tabs' => true, 'collapse_hspace' => true]);
+		$this->string = Utils::normalizeSpaces($this->string, true, true, ['replace_tabs' => true, 'collapse_hspace' => true]);
 
-		// Preserve emoji characters, variation selectors, and join controls.
-		$placeholders = [];
-		$this->preserveEmoji($placeholders);
-		$this->sanitizeVariationSelectors($placeholders, ' ');
-		$this->sanitizeJoinControls($placeholders, $level, ' ');
-
-		// Remove the private use characters that delimit the placeholders
-		// so that they don't interfere with the word splitting.
-		foreach ($placeholders as $key => $placeholder) {
-			$simple_placeholder = sha1($placeholder);
-			$this->string = str_replace($placeholder, $simple_placeholder, $this->string);
-			$placeholders[$key] = $simple_placeholder;
-		}
+		require_once __DIR__ . '/RegularExpressions.php';
+		$prop_classes = utf8_regex_properties();
 
 		// Split into words, with Unicode awareness.
+		$words = $this->semanticSplit();
+
+		foreach ($words as $key => $word) {
+			$word = Utils::htmlTrim($word);
+
+			// Filter out punctuation marks, etc.
+			if (preg_replace('/[^\w' . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Emoji_Modifier'] . ']/u', '', $word) === '') {
+				unset($words[$key]);
+			}
+		}
+
+		// Restore the original version of the string.
+		$this->string = $original_string;
+
+		return $words;
+	}
+
+	/**
+	 * Splits the string into parts using the Unicode word break algorithm.
+	 *
+	 * @return array The parts of the string.
+	 */
+	public function semanticSplit(): array
+	{
 		// Prefer IntlBreakIterator if it is available.
 		if (class_exists('IntlBreakIterator')) {
-			$break_iterator = \IntlBreakIterator::createWordInstance();
+			$break_iterator = \IntlBreakIterator::createWordInstance(Lang::getLocaleFromLanguageName(Config::$language));
 			$break_iterator->setText($this->string);
 			$parts_interator = $break_iterator->getPartsIterator();
 
@@ -726,34 +711,273 @@ class Utf8String implements \Stringable
 			}
 		} else {
 			/*
-			 * This is a sad, weak substitute for the IntlBreakIterator.
-			 * It works well enough for European languages, but it fails badly
-			 * for many Asian languages. To improve it will require adding more
-			 * data to our Unicode data files and then writing code to implement
-			 * the Unicode word break algorithm.
+			 * This implements the default Unicode word break algorithm.
+			 * It does not adapt to different locales.
 			 * See https://www.unicode.org/reports/tr29/#Word_Boundaries
 			 */
-			$words = preg_split('/(?<![\p{L}\p{M}\p{N}_])(?=[\p{L}\p{M}\p{N}_])|(?<=[\p{L}\p{M}\p{N}_])(?![\p{L}\p{M}\p{N}_])/su', $this->string);
-		}
+			$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
-		foreach ($words as $key => $word) {
-			$word = trim($word);
-
-			if (preg_replace('/\W/u', '', $word) === '') {
-				unset($words[$key]);
-
-				continue;
+			foreach ($chars as $i => $char) {
+				$chars[$i] = [
+					'char' => $char,
+					'break_after' => false,
+				];
 			}
 
-			if (!empty($placeholders)) {
-				$word = strtr($word, array_flip($placeholders));
+			require_once __DIR__ . '/RegularExpressions.php';
+			$prop_classes = utf8_regex_properties();
+
+			for ($i = 0; $i < count($chars); $i++) {
+				$substring_before = implode('', array_slice(array_map(fn($char) => $char['char'], $chars), 0, $i));
+				$substring_after = implode('', array_slice(array_map(fn($char) => $char['char'], $chars), $i));
+
+				// Do not break within CRLF.
+				if ($chars[$i]['char'] === "\r" && isset($chars[$i + 1]) && $chars[$i + 1]['char'] === "\n") {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Otherwise break before and after line breaks.
+				if (preg_match('/\v/u', $char)) {
+					$chars[$i]['break_after'] = true;
+					continue;
+				}
+
+				// Do not break within emoji zwj sequences.
+				if (preg_match('/^\x{200D}[' . $prop_classes['Emoji'] . ']/u', $substring_after)) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Keep horizontal whitespace together.
+				if (preg_match('/^[' . $prop_classes['WSegSpace'] . ']{2}/u', $substring_after)) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Ignore Format and Extend characters, except after start of text and line breaks.
+				if (
+					preg_match(
+						'/^\V([' . $prop_classes['Extend'] . $prop_classes['Format'] . '\x{200D}]+)/u',
+						$substring_after,
+						$matches,
+					)
+				) {
+					// Don't break before the extending character.
+					$chars[$i]['break_after'] = false;
+
+					// Don't break after the extending characters (except perhaps the last one).
+					for ($j = 1; $j <= mb_strlen($matches[1]); $j++) {
+						$chars[$i + $j]['break_after'] = false;
+					}
+
+					// Test consists of the characters before and after the extending characters.
+					if (isset($chars[$i + $j + 1])) {
+						$test_string .= $chars[$i]['char'] . $chars[$i + $j + 1]['char'];
+
+						$current_string = $this->string;
+						$this->string = $test_string;
+
+						// Set the break_after of the last extender to whether there
+						// would be a break if the extenders were not present.
+						$chars[$i + $j]['break_after'] = count($this->extractWords($level)) > 1;
+
+						$this->string = $current_string;
+					} else {
+						$chars[$i + $j]['break_after'] = true;
+					}
+
+					$i += $j;
+
+					continue;
+				}
+
+				// Do not break between most letters.
+				if (preg_match('/^[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']{2}/u', $substring_after)) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break letters across certain punctuation, such as within "e.g." or "example.com".
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']' .
+						'[' . $prop_classes['MidLetter'] . $prop_classes['MidNumLet'] . '\']' .
+						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . ']' .
+						'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					$chars[++$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/^[' . $prop_classes['Hebrew_Letter'] . ']\'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['Hebrew_Letter'] . ']' .
+						'"' .
+						'[' . $prop_classes['Hebrew_Letter'] . ']' .
+						'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					$chars[++$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break within sequences of digits, or digits adjacent to letters (“3a”, or “A3”).
+				if (
+					preg_match(
+						'/^[' . $prop_classes['Numeric'] . ']{2}/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/^[' . $prop_classes['ALetter'] . '][' . $prop_classes['Numeric'] . ']/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['Numeric'] . ']' .
+						'[' . $prop_classes['ALetter'] . ']' .
+						'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break within sequences, such as “3.2” or “3,456.789”.
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['Numeric'] . ']' .
+						'[' . $prop_classes['MidNum'] . $prop_classes['MidNumLet'] . '\']' .
+						'[' . $prop_classes['Numeric'] . ']' .
+						'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/[' . $prop_classes['Numeric'] . ']$/u',
+						$substring_before,
+					)
+					&& preg_match(
+						'/^' .
+						'[' . $prop_classes['MidNum'] . $prop_classes['MidNumLet'] . '\']' .
+						'[' . $prop_classes['Numeric'] . ']' .
+						'/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break between Katakana.
+				if (
+					preg_match(
+						'/^[' . $prop_classes['Katakana'] . '][' . $prop_classes['Katakana'] . ']/u',
+						$substring_after,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break from extenders.
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . $prop_classes['Numeric'] . $prop_classes['Katakana'] . $prop_classes['ExtendNumLet'] . ']' .
+						'[' . $prop_classes['ExtendNumLet'] . ']' .
+						'/u',
+						$substring_after,
+						$matches,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				if (
+					preg_match(
+						'/^' .
+						'[' . $prop_classes['ExtendNumLet'] . ']' .
+						'[' . $prop_classes['ALetter'] . $prop_classes['Hebrew_Letter'] . $prop_classes['Numeric'] . $prop_classes['Katakana'] . $prop_classes['ExtendNumLet'] . ']' .
+						'/u',
+						$substring_after,
+						$matches,
+					)
+				) {
+					$chars[$i]['break_after'] = false;
+					continue;
+				}
+
+				// Do not break within emoji flag sequences.
+				if (
+					preg_match(
+						'/^[' . $prop_classes['Regional_Indicator'] . ']/u',
+						$substring_after,
+					)
+					&& preg_match(
+						'/[' . $prop_classes['Regional_Indicator'] . ']*$/u',
+						$substring_before,
+						$matches,
+					)
+				) {
+					$chars[$i]['break_after'] = mb_strlen($matches[0]) % 2 === 1;
+					continue;
+				}
+
+				// Otherwise, break everywhere (including around ideographs).
+				$chars[$i]['break_after'] = true;
 			}
 
-			$words[$key] = $word;
-		}
+			// Build the list of words.
+			$words = [];
+			$word = '';
 
-		// Restore the original version of the string.
-		$this->string = $original_string;
+			foreach ($chars as $char) {
+				$word .= $char['char'];
+
+				if ($char['break_after']) {
+					$words[] = $word;
+					$word = '';
+				}
+			}
+		}
 
 		return $words;
 	}
@@ -929,150 +1153,6 @@ class Utf8String implements \Stringable
 		return $chars;
 	}
 
-	/**
-	 * Backward compatibility wrapper for convertCase('lower').
-	 *
-	 * Equivalent to mb_strtolower($string, 'UTF-8'), except that we can keep the
-	 * output consistent across PHP versions and up to date with the latest version
-	 * of Unicode.
-	 *
-	 * @param string $string The string
-	 * @return string The lowercase version of $string
-	 */
-	public static function utf8_strtolower(string $string): string
-	{
-		return (string) self::create($string)->convertCase('lower');
-	}
-
-	/**
-	 * Backward compatibility wrapper for convertCase('upper').
-	 *
-	 * Equivalent to mb_strtoupper($string, 'UTF-8'), except that we can keep the
-	 * output consistent across PHP versions and up to date with the latest version
-	 * of Unicode.
-	 *
-	 * @param string $string The string
-	 * @return string The uppercase version of $string
-	 */
-	public static function utf8_strtoupper(string $string): string
-	{
-		return (string) self::create($string)->convertCase('upper');
-	}
-
-	/**
-	 * Backward compatibility wrapper for convertCase('fold').
-	 *
-	 * Equivalent to mb_convert_case($string, MB_CASE_FOLD, 'UTF-8'), except that
-	 * we can keep the output consistent across PHP versions and up to date with
-	 * the latest version of Unicode.
-	 *
-	 * @param string $string The string
-	 * @return string The uppercase version of $string
-	 */
-	public static function utf8_casefold($string): string
-	{
-		return (string) self::create($string)->convertCase('fold');
-	}
-
-	/**
-	 * Backward compatibility wrapper for the convertCase method.
-	 *
-	 * @param string $string The string.
-	 * @param string $case One of 'upper', 'lower', 'fold', 'title', 'ucwords',
-	 *    or 'ucfirst'.
-	 * @param bool $simple If true, use simple maps instead of full maps.
-	 *    Default: false.
-	 * @return string A version of $string converted to the specified case.
-	 */
-	public static function utf8_convert_case(string $string, string $case, bool $simple = false): string
-	{
-		return (string) self::create($string)->convertCase($case, $simple);
-	}
-
-	/**
-	 * Backward compatibility wrapper for normalize('d').
-	 *
-	 * @param string $string A UTF-8 string
-	 * @return string The decomposed version of $string
-	 */
-	public static function utf8_normalize_d(string $string): string
-	{
-		return (string) self::create($string)->normalize('d');
-	}
-
-	/**
-	 * Backward compatibility wrapper for normalize('kd').
-	 *
-	 * @param string $string A UTF-8 string.
-	 * @return string The decomposed version of $string.
-	 */
-	public static function utf8_normalize_kd(string $string): string
-	{
-		return (string) self::create($string)->normalize('kd');
-	}
-
-	/**
-	 * Backward compatibility wrapper for normalize('c').
-	 *
-	 * @param string $string A UTF-8 string
-	 * @return string The composed version of $string
-	 */
-	public static function utf8_normalize_c(string $string): string
-	{
-		return (string) self::create($string)->normalize('c');
-	}
-
-	/**
-	 * Backward compatibility wrapper for normalize('kc').
-	 *
-	 * @param string $string The string
-	 * @return string The composed version of $string
-	 */
-	public static function utf8_normalize_kc(string $string): string
-	{
-		return (string) self::create($string)->normalize('kc');
-	}
-
-	/**
-	 * Backward compatibility wrapper for normalize('kc_casefold').
-	 *
-	 * @param string $string The string
-	 * @return string The casefolded version of $string
-	 */
-	public static function utf8_normalize_kc_casefold(string $string): string
-	{
-		return (string) self::create($string)->normalize('kc_casefold');
-	}
-
-	/**
-	 * Backward compatibility wrapper for the isNormalized method.
-	 *
-	 * @param string|array $string A string of UTF-8 characters.
-	 * @param string $form One of 'd', 'c', 'kd', 'kc', or 'kc_casefold'
-	 * @return bool Whether the string is already normalized to the given form.
-	 */
-	public static function utf8_is_normalized(string $string, string $form): bool
-	{
-		return (string) self::create($string)->isNormalized($form);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the sanitizeInvisibles method.
-	 *
-	 * @param string $string The string to sanitize.
-	 * @param int $level Controls how invisible formatting characters are handled.
-	 *      0: Allow valid formatting characters. Use for sanitizing text in posts.
-	 *      1: Allow necessary formatting characters. Use for sanitizing usernames.
-	 *      2: Disallow all formatting characters. Use for internal comparisons
-	 *         only, such as in the word censor, search contexts, etc.
-	 * @param string $substitute Replacement string for the invalid characters.
-	 * @return string The sanitized string.
-	 */
-	public static function utf8_sanitize_invisibles(string $string, int $level, string $substitute): string
-	{
-		return (string) self::create($string)->sanitizeInvisibles($level, $substitute);
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1215,7 +1295,7 @@ class Utf8String implements \Stringable
 	 */
 	protected function normalizeKCFold(): object
 	{
-		if ($this->isNormalized($this->string, 'kc_casefold')) {
+		if ($this->isNormalized('kc_casefold')) {
 			return $this;
 		}
 
@@ -1446,7 +1526,7 @@ class Utf8String implements \Stringable
 			);
 
 			// Did we catch 'em all?
-			if (strpos($this->string, $zwnj) === false && strpos($this->string, $zwj) === false) {
+			if (!str_contains($this->string, $zwnj) && !str_contains($this->string, $zwj)) {
 				break;
 			}
 		}
@@ -1454,11 +1534,6 @@ class Utf8String implements \Stringable
 		// Apart from the exceptions above, ZWNJ and ZWJ are not allowed.
 		$this->string = str_replace([$zwj, $zwnj], $substitute, $this->string);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Utf8String::exportStatic')) {
-	Utf8String::exportStatic();
 }
 
 ?>

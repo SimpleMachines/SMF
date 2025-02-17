@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -22,24 +24,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Poll implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'checkRemovePermission' => 'checkRemovePermission',
-			'vote' => 'Vote',
-			'lock' => 'LockVoting',
-			'edit' => 'EditPoll',
-			'edit2' => 'EditPoll2',
-			'remove' => 'RemovePoll',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -62,11 +47,11 @@ class Poll implements \ArrayAccess
 	 *******************/
 
 	/**
-	 * @var int
+	 * @var ?int
 	 *
 	 * This poll's ID number.
 	 */
-	public int $id;
+	public ?int $id;
 
 	/**
 	 * @var string
@@ -148,7 +133,7 @@ class Poll implements \ArrayAccess
 	/**
 	 * @var string
 	 *
-	 * Name of the member who creted the poll.
+	 * Name of the member who created the poll.
 	 */
 	public string $poster_name = '';
 
@@ -192,7 +177,7 @@ class Poll implements \ArrayAccess
 	 *
 	 * ID of this poll's topic.
 	 */
-	public int $topic;
+	public int $topic = 0;
 
 	/**
 	 * @var array
@@ -380,7 +365,7 @@ class Poll implements \ArrayAccess
 		$this->formatted = [
 			'id' => $this->id ?? 0,
 			'image' => 'normal_' . (empty($this->voting_locked) ? 'poll' : 'locked_poll'),
-			'question' => BBCodeParser::load()->parse($this->question),
+			'question' => Parser::transform($this->question, options: ['no_paragraphs' => true]),
 			'max_votes' => $this->max_votes,
 			'total_votes' => $this->total_voters,
 			'guest_vote' => $this->guest_vote,
@@ -394,7 +379,7 @@ class Poll implements \ArrayAccess
 			'lock' => $this->permissions['allow_lock_poll'],
 			'edit' => $this->permissions['allow_edit_poll'],
 			'remove' => $this->permissions['can_remove_poll'],
-			'allowed_warning' => $this->max_votes > 1 ? sprintf(Lang::$txt['poll_options_limit'], min(count($this->choices), $this->max_votes)) : '',
+			'allowed_warning' => $this->max_votes > 1 ? Lang::getTxt('poll_options_limit', [min(count($this->choices), $this->max_votes)]) : '',
 			'is_expired' => !empty($this->expire_time) && $this->expire_time < time(),
 			'expire_time' => !empty($this->expire_time) ? Time::create('@' . $this->expire_time)->format() : 0,
 			'expiration' => empty($this->expire_time) ? '' : ceil($this->expire_time <= time() ? -1 : ($this->expire_time - time()) / (3600 * 24)),
@@ -437,6 +422,8 @@ class Poll implements \ArrayAccess
 			$bar = round(($option->votes * 100) / $divisor, $precision);
 			$barWide = $bar == 0 ? 1 : floor(($bar * 8) / 3);
 
+			$label = Parser::transform($option->label, options: ['no_paragraphs' => true]);
+
 			// Now add it to the poll's contextual theme data.
 			$this->formatted['choices'][$i] = [
 				'id' => 'options-' . $i,
@@ -446,7 +433,7 @@ class Poll implements \ArrayAccess
 				'voted_this' => $option->voted_this != -1,
 				'bar_ndt' => $bar > 0 ? '<div class="bar" style="width: ' . $bar . '%;"></div>' : '',
 				'bar_width' => $barWide,
-				'label' => BBCodeParser::load()->parse($option->label),
+				'label' => $label,
 				'vote_button' => '<input type="' . ($this->max_votes > 1 ? 'checkbox' : 'radio') . '" name="options[]" id="options-' . $i . '" value="' . $i . '">',
 			];
 
@@ -491,7 +478,7 @@ class Poll implements \ArrayAccess
 			$this->formatted['buttons']['change_vote'] = [
 				'text' => 'poll_change_vote',
 				'image' => 'poll_change_vote.png',
-				'url' => Config::$scripturl . '?action=vote;topic=' . $this->topic . '.' . Utils::$context['start'] . ';poll=' . $this->id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+				'url' => Config::$scripturl . '?action=vote;topic=' . $this->topic . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			];
 		}
 
@@ -587,14 +574,16 @@ class Poll implements \ArrayAccess
 					'poster_name' => 'string-255',
 				],
 				[
-					$this->question,
-					(int) $this->max_votes,
-					(int) $this->expire_time,
-					(int) $this->hide_results,
-					(int) $this->change_vote,
-					(int) $this->guest_vote,
-					(int) $this->id_member,
-					$this->poster_name,
+					[
+						$this->question,
+						(int) $this->max_votes,
+						(int) $this->expire_time,
+						(int) $this->hide_results,
+						(int) $this->change_vote,
+						(int) $this->guest_vote,
+						(int) $this->id_member,
+						$this->poster_name,
+					],
 				],
 				['id_poll'],
 				1,
@@ -739,13 +728,13 @@ class Poll implements \ArrayAccess
 			}
 		} elseif (property_exists($this, $prop)) {
 			if (!isset($this->id) && $prop === 'id') {
-				self::$loaded[$value] = $this;
+				$this->id = (int) $value;
+				self::$loaded[$this->id] = $this;
 
-				if (isset($this->id)) {
-					unset(self::$loaded[$this->id]);
-				}
+				return;
 			}
 
+			settype($value, gettype($this->{$prop}));
 			$this->{$prop} = $value;
 		} elseif (array_key_exists($prop, $this->prop_aliases)) {
 			// Can't unset a virtual property.
@@ -763,17 +752,22 @@ class Poll implements \ArrayAccess
 				}
 			}
 
-			if (strpos($real_prop, '!') === 0) {
+			if (str_starts_with($real_prop, '!')) {
 				$real_prop = ltrim($real_prop, '!');
 				$value = !$value;
 			}
 
-			if (strpos($real_prop, '[') !== false) {
+			if (str_contains($real_prop, '[')) {
 				$real_prop = explode('[', rtrim($real_prop, ']'));
 
 				$this->{$real_prop[0]}[$real_prop[1]] = $value;
 			} else {
-				$this->{$real_prop} = $value;
+				if ($real_prop == 'id') {
+					$this->{$real_prop} = (int) $value;
+				} else {
+					settype($value, gettype($this->{$real_prop}));
+					$this->{$real_prop} = $value;
+				}
 			}
 		} else {
 			$this->custom[$prop] = $value;
@@ -789,9 +783,9 @@ class Poll implements \ArrayAccess
 	 *
 	 * @param int $id The ID number of a poll or topic. Use 0 if unknown.
 	 * @param int $options Bitmask of this class's LOAD_* and CHECK_* constants.
-	 * @return object An instance of this class.
+	 * @return self An instance of this class.
 	 */
-	public static function load(int $id, int $options = 0): object
+	public static function load(int $id, int $options = 0): self
 	{
 		return new self($id, $options);
 	}
@@ -802,9 +796,9 @@ class Poll implements \ArrayAccess
 	 * Checks permissions and sanitizes input before doing anything.
 	 *
 	 * @param array &$errors Will hold errors encountered while creating the poll.
-	 * @return object An instance of this class, or null on failure.
+	 * @return self An instance of this class, or null on failure.
 	 */
-	public static function create(array &$errors = []): ?object
+	public static function create(array &$errors = []): ?self
 	{
 		if (!self::checkCreatePermission()) {
 			return null;
@@ -860,6 +854,27 @@ class Poll implements \ArrayAccess
 	}
 
 	/**
+	 * Figures out whether guests are allowed to vote in this board.
+	 *
+	 * @return bool Whether guests can vote.
+	 */
+	public static function canGuestsVote(): bool
+	{
+		if (isset(self::$guest_vote_enabled)) {
+			return self::$guest_vote_enabled;
+		}
+
+		self::$guest_vote_enabled = false;
+
+		if (isset(Board::$info->id)) {
+			$groupsAllowedVote = User::groupsAllowedTo('poll_vote', Board::$info->id);
+			self::$guest_vote_enabled = in_array(-1, $groupsAllowedVote['allowed']);
+		}
+
+		return self::$guest_vote_enabled;
+	}
+
+	/**
 	 * Verifies that the current user is allowed to create polls in this board.
 	 *
 	 * If polls are disabled, simply returns false. Otherwise, will die with a
@@ -897,10 +912,10 @@ class Poll implements \ArrayAccess
 	 * returns false. Otherwise, will die with a fatal error if the user can't
 	 * edit the poll, or return true if they can.
 	 *
-	 * @param object $poll An instance of this class.
+	 * @param self $poll An instance of this class.
 	 * @return bool Whether the current user can edit this poll.
 	 */
-	public static function checkEditPermission($poll): bool
+	public static function checkEditPermission(self $poll): bool
 	{
 		if (Config::$modSettings['pollMode'] != 1 || empty($poll->id)) {
 			return false;
@@ -925,10 +940,10 @@ class Poll implements \ArrayAccess
 	/**
 	 * Verifies that the current user is allowed to remove the given poll.
 	 *
-	 * @param object $poll An instance of this class.
+	 * @param self $poll An instance of this class.
 	 * @return bool Whether the current user can remove this poll.
 	 */
-	public static function checkRemovePermission($poll): bool
+	public static function checkRemovePermission(self $poll): bool
 	{
 		// If they can remove any poll, they're good to go.
 		if (User::$me->allowedTo('poll_remove_any')) {
@@ -946,490 +961,12 @@ class Poll implements \ArrayAccess
 		return true;
 	}
 
-	/**
-	 * Allow the user to vote.
-	 *
-	 * It is called to record a vote in a poll.
-	 * Must be called with a topic and option specified.
-	 * Requires the poll_vote permission.
-	 * Upon successful completion of action will direct user back to topic.
-	 * Accessed via ?action=vote.
-	 *
-	 * Uses Post language file.
-	 */
-	public static function vote(): void
-	{
-		// Make sure they can vote.
-		User::$me->isAllowedTo('poll_vote');
-
-		Lang::load('Post');
-
-		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
-
-		if (empty($poll->id)) {
-			ErrorHandler::fatalLang('poll_error', false);
-		}
-
-		$poll->buildPermissions();
-
-		// If they can't vote, bail out.
-		if (!$poll->permissions['allow_vote'] && !$poll->permissions['allow_change_vote']) {
-			// Guests trying to vote illegally get their own error message.
-			if (User::$me->is_guest && !$poll->guest_vote) {
-				ErrorHandler::fatalLang('guest_vote_disabled', false);
-			}
-
-			ErrorHandler::fatalLang('poll_error', false);
-		}
-
-		User::$me->checkSession('request');
-
-		// Removing their vote(s)?
-		if ($poll->permissions['allow_change_vote'] && !User::$me->is_guest && empty($_POST['options'])) {
-			$changed = false;
-
-			foreach ($poll->choices as $id => $choice) {
-				if (!empty($choice->voted_this)) {
-					$changed = true;
-					$poll->choices[$id]->votes--;
-					$poll->choices[$id]->voted_this = false;
-				}
-			}
-
-			// Just skip it if they had voted for nothing before.
-			if ($changed) {
-				// Update the poll.
-				$poll->save();
-
-				// Delete off the log.
-				Db::$db->query(
-					'',
-					'DELETE FROM {db_prefix}log_polls
-					WHERE id_member = {int:current_member}
-						AND id_poll = {int:id_poll}',
-					[
-						'current_member' => User::$me->id,
-						'id_poll' => $poll->id,
-					],
-				);
-			}
-
-			// Redirect back to the topic so the user can vote again!
-			Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
-		}
-
-		// Make sure the option(s) are valid.
-		if (empty($_POST['options'])) {
-			ErrorHandler::fatalLang('didnt_select_vote', false);
-		}
-
-		// Too many options checked!
-		if (count($_REQUEST['options']) > $poll->max_votes) {
-			ErrorHandler::fatalLang('poll_too_many_votes', false, [$poll->max_votes]);
-		}
-
-		$choices = array_map('intval', $_REQUEST['options']);
-
-		$inserts = [];
-
-		foreach ($choices as $id_choice) {
-			$id_choice = (int) $id_choice;
-			$poll->choices[$id_choice]->votes++;
-			$inserts[] = [$poll->id, User::$me->id, $id_choice];
-		}
-
-		// If it's a guest don't let them vote again.
-		if (User::$me->is_guest && count($choices) > 0) {
-			// Time is stored in case the poll is reset later, plus what they voted for.
-			$_COOKIE['guest_poll_vote'] = empty($_COOKIE['guest_poll_vote']) ? '' : $_COOKIE['guest_poll_vote'];
-
-			// ;id,timestamp,[vote,vote...]; etc
-			$_COOKIE['guest_poll_vote'] .= ';' . $poll->id . ',' . time() . ',' . implode(',', $choices);
-
-			$cookie = new Cookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000);
-			$cookie->set();
-
-			// Increase num_guest_voters by 1
-			$poll->num_guest_voters++;
-		}
-
-		$poll->save();
-
-		// Add their vote to the tally.
-		Db::$db->insert(
-			'insert',
-			'{db_prefix}log_polls',
-			['id_poll' => 'int', 'id_member' => 'int', 'id_choice' => 'int'],
-			$inserts,
-			['id_poll', 'id_member', 'id_choice'],
-		);
-
-		// Let mods know about this vote.
-		IntegrationHook::call('integrate_poll_vote', [$poll->id, $choices]);
-
-		// Return to the post...
-		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
-	}
-
-	/**
-	 * Lock the voting for a poll.
-	 *
-	 * Must be called with a topic specified in the URL.
-	 * An admin always has overriding permission to lock a poll.
-	 * If not an admin must have poll_lock_any permission, otherwise must
-	 * be poll starter with poll_lock_own permission.
-	 * Upon successful completion of action will direct user back to topic.
-	 * Accessed via ?action=lockvoting.
-	 */
-	public static function lock(): void
-	{
-		User::$me->checkSession('get');
-
-		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
-
-		if (empty($poll->id)) {
-			ErrorHandler::fatalLang('poll_error', false);
-		}
-
-		$poll->buildPermissions();
-
-		// Not allowed, so log and show fatal error.
-		if (!$poll->permissions['allow_lock_poll']) {
-			User::$me->isAllowedTo('poll_lock_' . (User::$me->id == $poll->member ? 'own' : 'any'));
-		}
-
-		switch ($poll->voting_locked) {
-			// Was locked by a moderator.
-			case 2:
-				// If current user is not a moderator, they can't unlock it.
-				if (!User::$me->allowedTo('moderate_board')) {
-					ErrorHandler::fatalLang('locked_by_admin', 'user');
-				}
-
-				// Otherwise, unlock it.
-				$poll->voting_locked = 0;
-
-				break;
-
-			// Was locked by a regular user, so unlock it.
-			case 1:
-				$poll->voting_locked = 0;
-				break;
-
-			// Not locked, so lock it.
-			default:
-				// Remember whether this was locked by moderator or a regular user.
-				$poll->voting_locked = User::$me->allowedTo('moderate_board') ? 2 : 1;
-				break;
-		}
-
-		$poll->save();
-
-		Logging::logAction(($poll->voting_locked ? '' : 'un') . 'lock_poll', ['topic' => Topic::$topic_id]);
-
-		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
-	}
-
-	/**
-	 * Display screen for editing or adding a poll.
-	 *
-	 * Must be called with a topic specified in the URL.
-	 * If the user is adding a poll to a topic, must contain the variable
-	 * 'add' in the url.
-	 * User must have poll_edit_any/poll_add_any permission for the
-	 * relevant action, otherwise must be poll starter with poll_edit_own
-	 * permission for editing, or be topic starter with poll_add_any permission for adding.
-	 * Accessed via ?action=editpoll.
-	 *
-	 * Uses Post language file.
-	 * Uses Poll template, main sub-template.
-	 */
-	public static function edit(): void
-	{
-		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		Lang::load('Post');
-		Theme::loadTemplate('Poll');
-
-		Utils::$context['start'] = (int) $_REQUEST['start'];
-		Utils::$context['is_edit'] = isset($_REQUEST['add']) ? 0 : 1;
-
-		// Topic must exist.
-		if (empty(Topic::load()->id)) {
-			ErrorHandler::fatalLang('no_board', false);
-		}
-
-		// Get the poll attached to this topic, if there is one.
-		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
-
-		// If we are adding a new poll, make sure that there isn't already a poll there.
-		if (!Utils::$context['is_edit'] && !empty($poll->id)) {
-			ErrorHandler::fatalLang('poll_already_exists', false);
-		}
-
-		// Otherwise, if we're editing it, it obviously needs to exist.
-		if (Utils::$context['is_edit'] && empty($poll->id)) {
-			ErrorHandler::fatalLang('poll_not_found', false);
-		}
-
-		// Can you do this?
-		Utils::$context['can_moderate_poll'] = Utils::$context['is_edit'] ? self::checkEditPermission($poll) : self::checkCreatePermission();
-
-		// Do we enable guest voting?
-		self::canGuestsVote();
-
-		// Always show one extra box...
-		if (Utils::$context['is_edit']) {
-			do {
-				$poll->addChoice([
-					'id' => empty($poll->choices) ? 0 : max(array_keys($poll->choices)) + 1,
-					'number' => count($poll->choices),
-					'label' => '',
-					'votes' => -1,
-				], true);
-			} while (count($poll->choices) < 2);
-		}
-
-		// Basic theme info...
-		Utils::$context['poll'] = $poll->format();
-		Utils::$context['choices'] = &Utils::$context['poll']['choices'];
-
-		Utils::$context['last_choice_id'] = array_key_last(Utils::$context['poll']['choices']);
-		Utils::$context['poll']['choices'][Utils::$context['last_choice_id']]['is_last'] = true;
-
-		Utils::$context['page_title'] = Utils::$context['is_edit'] ? Lang::$txt['poll_edit'] : Lang::$txt['add_poll'];
-
-		// Build the link tree.
-		Utils::$context['linktree'][] = [
-			'url' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0',
-			'name' => Topic::$info->subject,
-		];
-		Utils::$context['linktree'][] = [
-			'name' => Utils::$context['page_title'],
-		];
-
-		// Register this form in the session variables.
-		Security::checkSubmitOnce('register');
-	}
-
-	/**
-	 * Update the settings for a poll, or add a new one.
-	 *
-	 * Must be called with a topic specified in the URL.
-	 * The user must have poll_edit_any/poll_add_any permission
-	 * for the relevant action. Otherwise they must be poll starter
-	 * with poll_edit_own permission for editing, or be topic starter
-	 * with poll_add_any permission for adding.
-	 * In the case of an error, this function will redirect back to
-	 * EditPoll and display the relevant error message.
-	 * Upon successful completion of action will direct user back to topic.
-	 * Accessed via ?action=editpoll2.
-	 */
-	public static function edit2(): void
-	{
-		$errors = [];
-
-		// Sneaking off, are we?
-		if (empty($_POST)) {
-			Utils::redirectexit('action=editpoll;topic=' . Topic::$topic_id . '.0');
-		}
-
-		if (User::$me->checkSession('post', '', false) != '') {
-			$errors[] = 'session_timeout';
-		}
-
-		// Topic must exist.
-		if (empty(Topic::load()->id)) {
-			ErrorHandler::fatalLang('no_board', false);
-		}
-
-		// Is this a new poll, or editing an existing?
-		$is_edit = isset($_REQUEST['add']) ? 0 : 1;
-
-		// Get the poll attached to this topic, if there is one.
-		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
-
-		// Check their adding/editing is valid.
-		if (!$is_edit && !empty($poll->id)) {
-			ErrorHandler::fatalLang('poll_already_exists');
-		}
-
-		// Are we editing a poll that doesn't exist?
-		if ($is_edit && empty($poll->id)) {
-			ErrorHandler::fatalLang('poll_not_found');
-		}
-
-		// Does this poll belong to the current user?
-		$is_own_topic = User::$me->id == Topic::$info->id_member_started;
-		$is_own_poll = $is_own_topic || (!empty($poll->member) && User::$me->id == $poll->member);
-
-		// Check if they have the power to add or edit the poll.
-		if ($is_edit && !User::$me->allowedTo('poll_edit_any')) {
-			User::$me->isAllowedTo('poll_edit_' . ($is_own_poll ? 'own' : 'any'));
-		} elseif (!$is_edit && !User::$me->allowedTo('poll_add_any')) {
-			User::$me->isAllowedTo('poll_add_' . ($is_own_topic ? 'own' : 'any'));
-		}
-
-		// Prevent double submission of this form.
-		Security::checkSubmitOnce('check');
-
-		// If adding a new poll to this topic, use the create method.
-		if (!$is_edit && empty($poll->id)) {
-			unset($poll);
-			$poll = self::create($errors);
-			$poll->topic = Topic::$topic_id;
-
-			if (!empty($errors)) {
-				self::edit();
-
-				return;
-			}
-
-			$poll->save();
-
-			Logging::logAction('add_poll', ['topic' => Topic::$topic_id]);
-			Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
-		}
-
-		// Clean up everything in $_POST.
-		self::sanitizeInput($errors);
-
-		if (!empty($errors)) {
-			self::edit();
-
-			return;
-		}
-
-		// Set the properties.
-		$props = [
-			'question' => $_POST['question'],
-			'max_votes' => $_POST['poll_max_votes'],
-			'expire_time' => empty($_POST['poll_expire']) ? 0 : time() + $_POST['poll_expire'] * 86400,
-			'hide_results' => $_POST['poll_hide'],
-			'change_vote' => $_POST['poll_change_vote'],
-			'guest_vote' => $_POST['poll_guest_vote'],
-			'choices' => [],
-		];
-
-		$poll->set($props);
-
-		foreach (array_values($_POST['options']) as $id => $label) {
-			$id = (int) $id;
-
-			if (isset($poll->choices[$id])) {
-				$poll->choices[$id]->label = $label;
-			} else {
-				$poll->addChoice([
-					'id' => $id,
-					'poll' => $poll->id,
-					'label' => $label,
-					'votes' => 0,
-				]);
-			}
-		}
-
-		// Shall I reset the vote count, sir?
-		if (isset($_POST['resetVoteCount'])) {
-			$poll->resetVotes();
-		}
-
-		$poll->save();
-
-		// Log this edit.
-		$action = isset($_POST['resetVoteCount']) ? 'reset' : 'edit';
-		Logging::logAction($action . '_poll', ['topic' => Topic::$topic_id]);
-
-		// Off we go.
-		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
-	}
-
-	/**
-	 * Remove a poll from a topic without removing the topic.
-	 *
-	 * Must be called with a topic specified in the URL.
-	 * Requires poll_remove_any permission, unless it's the poll starter
-	 * with poll_remove_own permission.
-	 * Upon successful completion of action will direct user back to topic.
-	 * Accessed via ?action=removepoll.
-	 */
-	public static function remove()
-	{
-		// Make sure the topic is not empty.
-		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		// Verify the session.
-		User::$me->checkSession('get');
-
-		$poll = self::load(Topic::$topic_id, self::LOAD_BY_TOPIC);
-
-		if (empty($poll->id)) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		self::checkRemovePermission($poll);
-
-		// Remove all user logs for this poll.
-		Db::$db->query(
-			'',
-			'DELETE FROM {db_prefix}log_polls
-			WHERE id_poll = {int:id_poll}',
-			[
-				'id_poll' => $poll->id,
-			],
-		);
-
-		// Remove all poll choices.
-		Db::$db->query(
-			'',
-			'DELETE FROM {db_prefix}poll_choices
-			WHERE id_poll = {int:id_poll}',
-			[
-				'id_poll' => $poll->id,
-			],
-		);
-
-		// Remove the poll itself.
-		Db::$db->query(
-			'',
-			'DELETE FROM {db_prefix}polls
-			WHERE id_poll = {int:id_poll}',
-			[
-				'id_poll' => $poll->id,
-			],
-		);
-
-		// Finally set the topic's poll ID back to 0.
-		Db::$db->query(
-			'',
-			'UPDATE {db_prefix}topics
-			SET id_poll = {int:no_poll}
-			WHERE id_topic = {int:current_topic}',
-			[
-				'current_topic' => Topic::$topic_id,
-				'no_poll' => 0,
-			],
-		);
-
-		// Let mods know that this poll has been removed.
-		IntegrationHook::call('integrate_poll_remove', [$poll->id]);
-
-		// Log this!
-		Logging::logAction('remove_poll', ['topic' => Topic::$topic_id]);
-
-		// Take the moderator back to the topic.
-		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantation via self::load() or self::create().
+	 * Constructor. Protected to force instantiation via self::load() or self::create().
 	 *
 	 * @param int $id The ID number of a poll or topic. Use 0 if unknown.
 	 * @param int $options Bitmask of this class's LOAD_* and CHECK_* constants.
@@ -1640,7 +1177,7 @@ class Poll implements \ArrayAccess
 		}
 		// If this is a guest we need to do our best to work out if they have voted, and what they voted for.
 		elseif ($this->guest_vote && User::$me->allowedTo('poll_vote')) {
-			if (!empty($_COOKIE['guest_poll_vote']) && preg_match('~^[0-9,;]+$~', $_COOKIE['guest_poll_vote']) && strpos($_COOKIE['guest_poll_vote'], ';' . Topic::$info->id_poll . ',') !== false) {
+			if (!empty($_COOKIE['guest_poll_vote']) && preg_match('~^[0-9,;]+$~', $_COOKIE['guest_poll_vote']) && str_contains($_COOKIE['guest_poll_vote'], ';' . Topic::$info->id_poll . ',')) {
 				// ;id,timestamp,[vote,vote...]; etc
 				$guestinfo = explode(';', $_COOKIE['guest_poll_vote']);
 
@@ -1762,7 +1299,7 @@ class Poll implements \ArrayAccess
 	 * @param int &$options The query options passed to the constructor.
 	 * @return int ID of the most recent poll.
 	 */
-	protected function getMostRecent(&$options): int
+	protected function getMostRecent(int &$options): int
 	{
 		$this->joins = array_merge([
 			't' => 'INNER JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll)',
@@ -1796,7 +1333,7 @@ class Poll implements \ArrayAccess
 	 * @param int &$options The query options passed to the constructor.
 	 * @return int ID of the most active poll.
 	 */
-	protected function getMostActive(&$options): int
+	protected function getMostActive(int &$options): int
 	{
 		$this->joins = [
 			'p' => 'INNER JOIN {db_prefix}polls AS p ON (lp.id_poll = p.id_poll)',
@@ -1831,30 +1368,9 @@ class Poll implements \ArrayAccess
 	 *************************/
 
 	/**
-	 * Figures out whether guests are allowed to vote in this board.
-	 *
-	 * @return bool Whether guests can vote.
-	 */
-	protected static function canGuestsVote(): bool
-	{
-		if (isset(self::$guest_vote_enabled)) {
-			return self::$guest_vote_enabled;
-		}
-
-		self::$guest_vote_enabled = false;
-
-		if (isset(Board::$info->id)) {
-			$groupsAllowedVote = User::groupsAllowedTo('poll_vote', Board::$info->id);
-			self::$guest_vote_enabled = in_array(-1, $groupsAllowedVote['allowed']);
-		}
-
-		return self::$guest_vote_enabled;
-	}
-
-	/**
 	 * Validates and sanitizes $_POST input for creating or editing a poll.
 	 */
-	protected static function sanitizeInput(&$errors): void
+	protected static function sanitizeInput(array &$errors): void
 	{
 		if (!isset($_POST['question']) || trim($_POST['question']) == '') {
 			$errors[] = 'no_question';
@@ -1907,11 +1423,6 @@ class Poll implements \ArrayAccess
 		$_POST['question'] = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', $_POST['question']);
 		$_POST['options'] = Utils::htmlspecialcharsRecursive($_POST['options']);
 	}
-}
-
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Poll::exportStatic')) {
-	Poll::exportStatic();
 }
 
 ?>

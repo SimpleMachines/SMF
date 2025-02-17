@@ -5,20 +5,23 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\ErrorHandler;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\Theme;
 use SMF\TOTP\Auth as Tfa;
@@ -30,41 +33,18 @@ use SMF\Utils;
  */
 class TFASetup implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'tfasetup',
-		],
-	];
+	use ActionTrait;
 
 	/*********************
 	 * Internal properties
 	 *********************/
 
 	/**
-	 * @var object
+	 * @var Tfa
 	 *
 	 * An instance of the SMF\TOTP\Auth class.
 	 */
-	protected object $totp;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	protected Tfa $totp;
 
 	/****************
 	 * Public methods
@@ -84,7 +64,7 @@ class TFASetup implements ActionInterface
 		Theme::loadJavaScriptFile('qrcode.js', ['force_current' => false, 'validate' => true]);
 
 		// Check to ensure we're forcing SSL for authentication.
-		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+		if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 			ErrorHandler::fatalLang('login_ssl_required', false);
 		}
 
@@ -103,32 +83,6 @@ class TFASetup implements ActionInterface
 		}
 
 		Utils::$context['tfa_qr_url'] = $this->totp->getQrCodeUrl(Utils::$context['forum_name'] . ':' . User::$me->name, Utils::$context['tfa_secret']);
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************
@@ -158,7 +112,7 @@ class TFASetup implements ActionInterface
 
 		if (empty(Utils::$context['password_auth_failed']) && $valid_code) {
 			$backup = bin2hex(random_bytes(8));
-			$backup_encrypted = Security::hashPassword(User::$me->username, $backup);
+			$backup_encrypted = Security::hashPassword($backup);
 
 			User::updateMemberData(Profile::$member->id, [
 				'tfa_secret' => $_SESSION['tfa_secret'],
@@ -190,11 +144,6 @@ class TFASetup implements ActionInterface
 		Utils::$context['tfa_secret'] = $secret;
 		Utils::$context['tfa_backup'] = isset($_REQUEST['backup']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TFASetup::exportStatic')) {
-	TFASetup::exportStatic();
 }
 
 ?>

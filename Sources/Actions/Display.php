@@ -5,29 +5,34 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Editor;
 use SMF\ErrorHandler;
-use SMF\Event;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
@@ -48,20 +53,10 @@ use SMF\Verifier;
  * Although this class is not accessed using an ?action=... URL query, it
  * behaves like an action in every other way.
  */
-class Display implements ActionInterface
+class Display implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static array $backcompat = [
-		'func_names' => [
-			'call' => 'Display',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -72,7 +67,7 @@ class Display implements ActionInterface
 	 *
 	 * Whether all posts in the topic can be viewed on a single page.
 	 */
-	public $can_show_all = false;
+	public bool $can_show_all = false;
 
 	/*********************
 	 * Internal properties
@@ -83,21 +78,21 @@ class Display implements ActionInterface
 	 *
 	 * ID numbers of messages in this topic.
 	 */
-	private $messages = [];
+	private array $messages = [];
 
 	/**
 	 * @var array
 	 *
 	 * ID numbers of the authors of the $messages.
 	 */
-	private $posters = [];
+	private array $posters = [];
 
 	/**
 	 * @var int
 	 *
 	 * Index of the first message.
 	 */
-	private $firstIndex;
+	private int $firstIndex;
 
 	/**
 	 * @var int
@@ -105,18 +100,7 @@ class Display implements ActionInterface
 	 * Requested message in $_REQUEST['start'].
 	 * Might or might not be set.
 	 */
-	private $virtual_msg;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 */
-	protected static object $obj;
+	private int $virtual_msg;
 
 	/****************
 	 * Public methods
@@ -125,6 +109,10 @@ class Display implements ActionInterface
 	/**
 	 * Does the heavy lifting to show the posts in this topic.
 	 *
+	 * - Handles any redirects we might need to do.
+	 * - Loads topic info.
+	 * - Loads permissions.
+	 * - Prepares stuff for the templates.
 	 * - Sets up anti-spam verification and old topic warnings.
 	 * - Gets the list of users viewing the topic.
 	 * - Loads events and polls attached to the topic.
@@ -135,6 +123,33 @@ class Display implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// What are you gonna display if this is empty?!
+		if (empty(Topic::$topic_id)) {
+			ErrorHandler::fatalLang('no_board', false);
+		}
+
+		$this->checkPrevNextRedirect();
+		$this->preventPrefetch();
+
+		// Load the topic info.
+		Topic::load();
+
+		$this->incrementNumViews();
+		$this->checkMovedMergedRedirect();
+
+		$this->setStart();
+		$this->setPaginationAndLinks();
+		$this->setRobotNoIndex();
+
+		$this->setModerators();
+		$this->setUnapprovedPostsMessage();
+
+		// Now set all the wonderful, wonderful permissions... like moderation ones...
+		foreach (Topic::$info->doPermissions() as $perm => $val) {
+			Utils::$context[$perm] = &Topic::$info->permissions[$perm];
+		}
+
+		$this->setupTemplate();
 		$this->setupVerification();
 		$this->setOldTopicWarning();
 		$this->getWhoViewing();
@@ -164,7 +179,7 @@ class Display implements ActionInterface
 	 *
 	 * @return array|bool Contextual data for a post, or false on failure.
 	 */
-	public function prepareDisplayContext()
+	public function prepareDisplayContext(): array|bool
 	{
 		static $counter = null;
 
@@ -177,6 +192,7 @@ class Display implements ActionInterface
 			return false;
 		}
 
+		/** @var \SMF\Msg $message */
 		$message = Msg::$getter->current();
 		Msg::$getter->next();
 
@@ -296,69 +312,21 @@ class Display implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @return object An instance of this class.
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function load(): object
+	public static function buildRoute(array $params): array
 	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
+		return Topic::buildRoute($params);
 	}
 
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via load().
-	 *
-	 * - Handles any redirects we might need to do.
-	 * - Loads topic info.
-	 * - Loads permissions.
-	 * - Prepares most of the stuff for the templates.
-	 */
-	protected function __construct()
-	{
-		// What are you gonna display if this is empty?!
-		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('no_board', false);
-		}
-
-		$this->checkPrevNextRedirect();
-		$this->preventPrefetch();
-
-		// Load the topic info.
-		Topic::load();
-
-		$this->incrementNumViews();
-		$this->checkMovedMergedRedirect();
-
-		$this->setStart();
-		$this->setPaginationAndLinks();
-		$this->setRobotNoIndex();
-
-		$this->setModerators();
-		$this->setUnapprovedPostsMessage();
-
-		// Now set all the wonderful, wonderful permissions... like moderation ones...
-		foreach (Topic::$info->doPermissions() as $perm => $val) {
-			Utils::$context[$perm] = &Topic::$info->permissions[$perm];
-		}
-
-		$this->setupTemplate();
-	}
 
 	/**
 	 * Redirect to the previous or next topic, if requested in the URL params.
@@ -520,10 +488,18 @@ class Display implements ActionInterface
 					Topic::$info->new_from == 0 ? 'ignore' : 'replace',
 					'{db_prefix}log_topics',
 					[
-						'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
+						'id_member' => 'int',
+						'id_topic' => 'int',
+						'id_msg' => 'int',
+						'unwatched' => 'int',
 					],
 					[
-						User::$me->id, Topic::$info->id, $mark_at_msg, Topic::$info->unwatched,
+						[
+							User::$me->id,
+							Topic::$info->id,
+							$mark_at_msg,
+							Topic::$info->unwatched,
+						],
 					],
 					['id_member', 'id_topic'],
 				);
@@ -613,8 +589,18 @@ class Display implements ActionInterface
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}log_boards',
-					['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
-					[Config::$modSettings['maxMsgID'], User::$me->id, Board::$info->id],
+					[
+						'id_msg' => 'int',
+						'id_member' => 'int',
+						'id_board' => 'int',
+					],
+					[
+						[
+							Config::$modSettings['maxMsgID'],
+							User::$me->id,
+							Board::$info->id,
+						],
+					],
 					['id_member', 'id_board'],
 				);
 			}
@@ -704,7 +690,7 @@ class Display implements ActionInterface
 			}
 
 			// Start from a certain time index, not a message.
-			if (substr($_REQUEST['start'], 0, 4) == 'from') {
+			if (str_starts_with($_REQUEST['start'], 'from')) {
 				$timestamp = (int) substr($_REQUEST['start'], 4);
 
 				if ($timestamp === 0) {
@@ -734,7 +720,7 @@ class Display implements ActionInterface
 			}
 
 			// Link to a message...
-			elseif (substr($_REQUEST['start'], 0, 3) == 'msg') {
+			elseif (str_starts_with($_REQUEST['start'], 'msg')) {
 				$this->virtual_msg = (int) substr($_REQUEST['start'], 3);
 
 				if (!Topic::$info->unapproved_posts && $this->virtual_msg >= Topic::$info->id_last_msg) {
@@ -868,9 +854,13 @@ class Display implements ActionInterface
 		}
 
 		// Construct the page index, allowing for the .START method...
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', $_REQUEST['start'], Topic::$info->total_visible_posts, Utils::$context['messages_per_page'], true);
+		Utils::$context['start'] = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', Utils::$context['start'], Topic::$info->total_visible_posts, (int) Utils::$context['messages_per_page'], true);
 
-		Utils::$context['start'] = $_REQUEST['start'];
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
+		}
 
 		// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireless..)
 		Utils::$context['page_info'] = [
@@ -907,7 +897,7 @@ class Display implements ActionInterface
 	}
 
 	/**
-	 * Prepares contextual info about the modertors of this board.
+	 * Prepares contextual info about the moderators of this board.
 	 */
 	protected function setModerators(): void
 	{
@@ -982,7 +972,7 @@ class Display implements ActionInterface
 		Utils::$context['topic_starter_id'] = Topic::$info->id_member_started;
 		Utils::$context['subject'] = Topic::$info->subject;
 		Utils::$context['num_views'] = Lang::numberFormat(Topic::$info->num_views);
-		Utils::$context['num_views_text'] = Utils::$context['num_views'] == 1 ? Lang::$txt['read_one_time'] : sprintf(Lang::$txt['read_many_times'], Utils::$context['num_views']);
+		Utils::$context['num_views_text'] = Lang::getTxt('number_of_times_read', [Utils::$context['num_views']]);
 		Utils::$context['mark_unread_time'] = !empty($this->virtual_msg) ? $this->virtual_msg : Topic::$info->new_from;
 
 		// Default this topic to not marked for notifications... of course...
@@ -1005,9 +995,9 @@ class Display implements ActionInterface
 			if (Lang::$default === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 			} else {
-				Lang::load('index', Lang::$default, false);
+				Lang::load('General', Lang::$default, false);
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('index');
+				Lang::load('General');
 			}
 			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
@@ -1067,10 +1057,24 @@ class Display implements ActionInterface
 	protected function loadEvents(): void
 	{
 		// If we want to show event information in the topic, prepare the data.
-		if (User::$me->allowedTo('calendar_view') && !empty(Config::$modSettings['cal_showInTopic']) && !empty(Config::$modSettings['cal_enabled'])) {
-			Utils::$context['linked_calendar_events'] = Event::load(Topic::$info->id, true);
+		if (
+			User::$me->allowedTo('calendar_view')
+			&& !empty(Config::$modSettings['cal_showInTopic'])
+			&& !empty(Config::$modSettings['cal_enabled'])
+		) {
+			Lang::load('Calendar');
+
+			foreach (Topic::$info->getLinkedEvents() as $event) {
+				if (($occurrence = $event->getUpcomingOccurrence()) === false) {
+					$occurrence = $event->getLastOccurrence();
+				}
+
+				Utils::$context['linked_calendar_events'][] = $occurrence;
+			}
 
 			if (!empty(Utils::$context['linked_calendar_events'])) {
+				Theme::loadTemplate('EventEditor');
+
 				Utils::$context['linked_calendar_events'][count(Utils::$context['linked_calendar_events']) - 1]['is_last'] = true;
 			}
 		}
@@ -1115,7 +1119,7 @@ class Display implements ActionInterface
 	protected function getMessagesAndPosters(): void
 	{
 		$limit = Utils::$context['messages_per_page'];
-		$start = $_REQUEST['start'];
+		$start = (int) $_REQUEST['start'];
 		$ascending = empty(Theme::$current->options['view_newest_first']);
 		$this->firstIndex = 0;
 
@@ -1289,6 +1293,11 @@ class Display implements ActionInterface
 			Utils::$context['normal_buttons']['add_poll'] = ['text' => 'add_poll', 'url' => Config::$scripturl . '?action=editpoll;add;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start']];
 		}
 
+		if (Calendar::canLinkEvent(false)) {
+			Lang::load('Calendar');
+			Utils::$context['normal_buttons']['calendar'] = ['text' => 'calendar_link', 'url' => Config::$scripturl . '?action=post;calendar;msg=' . Topic::$info->id_first_msg . ';topic=' . Utils::$context['current_topic'] . '.0'];
+		}
+
 		if (Topic::$info->permissions['can_mark_unread']) {
 			Utils::$context['normal_buttons']['mark_unread'] = ['text' => 'mark_unread', 'url' => Config::$scripturl . '?action=markasread;sa=topic;t=' . Utils::$context['mark_unread_time'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
 		}
@@ -1345,10 +1354,6 @@ class Display implements ActionInterface
 			Utils::$context['mod_buttons']['merge'] = ['text' => 'merge', 'url' => Config::$scripturl . '?action=mergetopics;board=' . Utils::$context['current_board'] . '.0;from=' . Utils::$context['current_topic']];
 		}
 
-		if (Topic::$info->permissions['calendar_post']) {
-			Utils::$context['mod_buttons']['calendar'] = ['text' => 'calendar_link', 'url' => Config::$scripturl . '?action=post;calendar;msg=' . Topic::$info->id_first_msg . ';topic=' . Utils::$context['current_topic'] . '.0'];
-		}
-
 		// Restore topic. eh?  No monkey business.
 		if (Topic::$info->permissions['can_restore_topic']) {
 			Utils::$context['mod_buttons']['restore_topic'] = ['text' => 'restore_topic', 'url' => Config::$scripturl . '?action=restoretopic;topics=' . Utils::$context['current_topic'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
@@ -1375,11 +1380,6 @@ class Display implements ActionInterface
 			}
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Display::exportStatic')) {
-	Display::exportStatic();
 }
 
 ?>

@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -96,20 +98,7 @@ namespace SMF;
  */
 class Menu implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'create' => 'createMenu',
-			'destroy' => 'destroyMenu',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -453,8 +442,10 @@ class Menu implements \ArrayAccess
 	/**
 	 * Checks whether the given menu item is enabled and whether the current
 	 * user has permission to access it.
+	 *
+	 * @param array $menu_item An array of a menu item.
 	 */
-	protected function enabledAndAllowed($menu_item): bool
+	protected function enabledAndAllowed(array $menu_item): bool
 	{
 		if (isset($menu_item['enabled']) && $menu_item['enabled'] == false) {
 			return false;
@@ -465,8 +456,10 @@ class Menu implements \ArrayAccess
 
 	/**
 	 * Build the data array for a section of the menu.
+	 *
+	 * @param array $section An array of a section data.
 	 */
-	protected function buildSection($section): void
+	protected function buildSection(array $section): void
 	{
 		// Is this enabled - or has as permission check - which fails?
 		if (!$this->enabledAndAllowed($section)) {
@@ -495,8 +488,10 @@ class Menu implements \ArrayAccess
 
 	/**
 	 * Build the data array for an area of the menu.
+	 *
+	 * @param array $area An array of a area data.
 	 */
-	protected function buildArea($area): void
+	protected function buildArea(array $area): void
 	{
 		// Can we do this?
 		if (!$this->enabledAndAllowed($area)) {
@@ -573,8 +568,10 @@ class Menu implements \ArrayAccess
 
 	/**
 	 * Build the data array for a subsection of the menu.
+	 *
+	 * @param array $subsection An array of a subsection data.
 	 */
-	protected function buildSubsection($subsection): void
+	protected function buildSubsection(array $subsection): void
 	{
 		$this_area = &$this->sections[$this->section_id]['areas'][$this->area_id];
 
@@ -663,8 +660,10 @@ class Menu implements \ArrayAccess
 
 	/**
 	 * Sets the icon for an area.
+	 *
+	 * @param array $area An array of a area data.
 	 */
-	protected function setAreaIcon($area): void
+	protected function setAreaIcon(array $area): void
 	{
 		$dirs = ['theme_dir' => 'images_url', 'default_theme_dir' => 'default_images_url'];
 		$icon_paths = ['icon' => 'admin'];
@@ -744,11 +743,6 @@ class Menu implements \ArrayAccess
 			$this->sections[$section_id]['url'] = $first_area['url'] ?? $this->base_url . ';area=' . array_key_first($section['areas']);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Menu::exportStatic')) {
-	Menu::exportStatic();
 }
 
 ?>

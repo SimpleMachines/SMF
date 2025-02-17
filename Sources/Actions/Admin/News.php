@@ -5,18 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Notify;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Editor;
@@ -28,6 +30,7 @@ use SMF\Logging;
 use SMF\Mail;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\PersonalMessage\PM;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -38,30 +41,11 @@ use SMF\Utils;
 /**
  * This class manages... the news. :P
  */
-class News extends ACP implements ActionInterface
+class News implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManageNews',
-			'list_getNews' => 'list_getNews',
-			'list_getNewsTextarea' => 'list_getNewsTextarea',
-			'list_getNewsPreview' => 'list_getNewsPreview',
-			'list_getNewsCheckbox' => 'list_getNewsCheckbox',
-			'prepareMailingForPreview' => 'prepareMailingForPreview',
-			'editNews' => 'EditNews',
-			'selectMailingMembers' => 'SelectMailingMembers',
-			'composeMailing' => 'ComposeMailing',
-			'sendMailing' => 'SendMailing',
-			'modifyNewsSettings' => 'ModifyNewsSettings',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -90,7 +74,7 @@ class News extends ACP implements ActionInterface
 	 *
 	 * All occurrences of '{js_escape:...}' in value strings will be replaced at
 	 * runtime with escaped versions of whatever appears between the colon and
-	 * the closing brace. This escaping is done using Utils::JavaScriptEscape().
+	 * the closing brace. This escaping is done using Utils::escapeJavaScript().
 	 */
 	public array $list_options = [
 		'id' => 'news_lists',
@@ -213,7 +197,7 @@ class News extends ACP implements ActionInterface
 
 						' + last_preview + ' .
 
-						'{js_escape:" style="overflow: auto; width: 100%; height: 10ex;"></div>
+						'{js_escape:" style="overflow: auto; width: 100%; min-height: 10ex;"></div>
 					</td>
 					<td></td>
 				</tr>}' .
@@ -242,18 +226,6 @@ class News extends ACP implements ActionInterface
 		'settings' => ['settings', 'admin_forum'],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -263,6 +235,33 @@ class News extends ACP implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('ManageNews');
+
+		// Create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['news_title'],
+			'help' => 'edit_news',
+			'description' => Lang::$txt['admin_news_desc'],
+			'tabs' => [
+				'editnews' => [
+				],
+				'mailingmembers' => [
+					'description' => Lang::$txt['news_mailing_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['news_settings_desc'],
+				],
+			],
+		];
+
+		// Force the right area...
+		if (str_starts_with($this->subaction, 'mailing')) {
+			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
+		}
+
+		// Insert dynamic values into the list options.
+		$this->setListOptions();
+
 		// Have you got the proper permissions?
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -312,7 +311,7 @@ class News extends ACP implements ActionInterface
 				} else {
 					$_POST['news'][$i] = Utils::htmlspecialchars($_POST['news'][$i], ENT_QUOTES);
 
-					Msg::preparsecode($_POST['news'][$i]);
+					Msg::preparsecode($_POST['news'][$i], false, !empty(Config::$modSettings['autoLinkUrls']));
 				}
 			}
 
@@ -409,7 +408,7 @@ class News extends ACP implements ActionInterface
 		Utils::$context['sub_template'] = 'email_members_compose';
 
 		Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::$txt['subject']);
-		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']) . "\n\n" . '{$board_url}');
+		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]) . "\n\n" . '{$board_url}');
 
 		// Now create the editor.
 		new Editor([
@@ -579,7 +578,7 @@ class News extends ACP implements ActionInterface
 					INNER JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member)
 				WHERE mem.is_activated = {int:is_activated}',
 				[
-					'is_activated' => 1,
+					'is_activated' => User::ACTIVATED,
 				],
 			);
 
@@ -623,7 +622,7 @@ class News extends ACP implements ActionInterface
 	 *
 	 * @param bool $clean_only If set, it will only clean the variables, put them in context, then return.
 	 */
-	public function send($clean_only = false): void
+	public function send(bool $clean_only = false): void
 	{
 		if (isset($_POST['preview'])) {
 			Utils::$context['preview'] = true;
@@ -783,7 +782,7 @@ class News extends ACP implements ActionInterface
 		if (!Utils::$context['send_pm']) {
 			$include_unsubscribe = true;
 
-			if (strpos($_POST['message'], '{$member.unsubscribe}') === false) {
+			if (!str_contains($_POST['message'], '{$member.unsubscribe}')) {
 				$_POST['message'] .= "\n\n" . '{$member.unsubscribe}';
 			}
 		}
@@ -853,7 +852,7 @@ class News extends ACP implements ActionInterface
 			}
 
 			// Non-members can't unsubscribe via the automated system.
-			$unsubscribe_link = sprintf(Lang::$txt['unsubscribe_announcements_manual'], empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']);
+			$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_manual', ['email' => empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']]);
 
 			$to_member = [
 				$email,
@@ -941,8 +940,8 @@ class News extends ACP implements ActionInterface
 				array_merge($sendParams, [
 					'start' => Utils::$context['start'],
 					'atonce' => $num_at_once,
-					'regular_group' => 0,
-					'is_activated' => 1,
+					'regular_group' => Group::REGULAR,
+					'is_activated' => User::ACTIVATED,
 				]),
 			);
 
@@ -979,9 +978,9 @@ class News extends ACP implements ActionInterface
 				$cleanMemberName = empty($_POST['send_html']) || Utils::$context['send_pm'] ? Utils::htmlspecialcharsDecode($row['real_name']) : $row['real_name'];
 
 				if (!empty($include_unsubscribe)) {
-					$token = Notify::createUnsubscribeToken($row['id_member'], $row['email_address'], 'announcements');
+					$token = Notify::createUnsubscribeToken((int) $row['id_member'], $row['email_address'], 'announcements');
 
-					$unsubscribe_link = sprintf(Lang::$txt['unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain')], Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token);
+					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token]);
 				} else {
 					$unsubscribe_link = '';
 				}
@@ -1079,7 +1078,7 @@ class News extends ACP implements ActionInterface
 
 			IntegrationHook::call('integrate_save_news_settings');
 
-			self::saveDBSettings($config_vars);
+			ACP::saveDBSettings($config_vars);
 			$_SESSION['adm-save'] = true;
 			Utils::redirectexit('action=admin;area=news;sa=settings');
 		}
@@ -1087,34 +1086,12 @@ class News extends ACP implements ActionInterface
 		// We need this for the in-line permissions
 		SecurityToken::create('admin-mp');
 
-		self::prepareDBSettingContext($config_vars);
+		ACP::prepareDBSettingContext($config_vars);
 	}
 
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets the configuration variables for this admin area.
@@ -1156,7 +1133,7 @@ class News extends ACP implements ActionInterface
 			$admin_current_news[$id] = [
 				'id' => $id,
 				'unparsed' => Msg::un_preparsecode($line),
-				'parsed' => preg_replace('~<([/]?)form[^>]*?[>]*>~i', '<em class="smalltext">&lt;$1form&gt;</em>', BBCodeParser::load()->parse($line)),
+				'parsed' => preg_replace('~<([/]?)form[^>]*?[>]*>~i', '<em class="smalltext">&lt;$1form&gt;</em>', Parser::transform($line)),
 			];
 		}
 
@@ -1173,10 +1150,10 @@ class News extends ACP implements ActionInterface
 	/**
 	 * Callback to prepare HTML for the input fields in the news editing form.
 	 *
-	 * @param $news Info about a news item.
+	 * @param array $news Info about a news item.
 	 * @return string HTML string to show in the form.
 	 */
-	public static function list_getNewsTextarea($news): string
+	public static function list_getNewsTextarea(array $news): string
 	{
 		return !is_numeric($news['id']) ? $news['unparsed'] : '
 			<textarea id="data_' . $news['id'] . '" rows="3" cols="50" name="news[]" class="padding block">' . $news['unparsed'] . '</textarea>
@@ -1186,21 +1163,21 @@ class News extends ACP implements ActionInterface
 	/**
 	 * Callback to prepare HTML for the previews in the news editing form.
 	 *
-	 * @param $news Info about a news item.
+	 * @param array $news Info about a news item.
 	 * @return string HTML string to show in the form.
 	 */
-	public static function list_getNewsPreview($news): string
+	public static function list_getNewsPreview(array $news): string
 	{
-		return '<div id="box_preview_' . $news['id'] . '" style="overflow: auto; width: 100%; height: 10ex;">' . $news['parsed'] . '</div>';
+		return '<div id="box_preview_' . $news['id'] . '" style="overflow: auto; width: 100%; min-height: 10ex;">' . Utils::adjustHeadingLevels($news['parsed'], null) . '</div>';
 	}
 
 	/**
 	 * Callback to prepare HTML for the checkboxes in the news editing form.
 	 *
-	 * @param $news Info about a news item.
+	 * @param array $news Info about a news item.
 	 * @return string HTML string to show in the form.
 	 */
-	public static function list_getNewsCheckbox($news): string
+	public static function list_getNewsCheckbox(array $news): string
 	{
 		return !is_numeric($news['id']) ? '' : '<input type="checkbox" name="remove[]" value="' . $news['id'] . '">';
 	}
@@ -1238,12 +1215,12 @@ class News extends ACP implements ActionInterface
 				continue;
 			}
 
-			Msg::preparsecode(Utils::$context[$key]);
+			Msg::preparsecode(Utils::$context[$key], false, !empty(Config::$modSettings['autoLinkUrls']));
 
 			if (!empty(Utils::$context['send_html'])) {
 				$enablePostHTML = Config::$modSettings['enablePostHTML'];
 				Config::$modSettings['enablePostHTML'] = Utils::$context['send_html'];
-				Utils::$context[$key] = BBCodeParser::load()->parse(Utils::$context[$key]);
+				Utils::$context[$key] = Parser::transform(Utils::$context[$key]);
 				Config::$modSettings['enablePostHTML'] = $enablePostHTML;
 			}
 
@@ -1262,63 +1239,6 @@ class News extends ACP implements ActionInterface
 		}
 	}
 
-	/**
-	 * Backward compatibility wrapper for the edit sub-action.
-	 */
-	public static function editNews(): void
-	{
-		self::load();
-		self::$obj->subaction = 'edit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the mailingmembers sub-action.
-	 */
-	public static function selectMailingMembers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'mailingmembers';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the mailingcompose sub-action.
-	 */
-	public static function composeMailing(): void
-	{
-		self::load();
-		self::$obj->subaction = 'mailingcompose';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the mailingsend sub-action.
-	 */
-	public static function sendMailing(): void
-	{
-		self::load();
-		self::$obj->subaction = 'mailingsend';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyNewsSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1328,37 +1248,10 @@ class News extends ACP implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Theme::loadTemplate('ManageNews');
-
-		// Create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['news_title'],
-			'help' => 'edit_news',
-			'description' => Lang::$txt['admin_news_desc'],
-			'tabs' => [
-				'editnews' => [
-				],
-				'mailingmembers' => [
-					'description' => Lang::$txt['news_mailing_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['news_settings_desc'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_news', [&self::$subactions]);
 
 		// Default to sub action 'main' or 'settings' depending on permissions.
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('edit_news') ? 'editnews' : (User::$me->allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
-
-		// Force the right area...
-		if (substr($this->subaction, 0, 7) == 'mailing') {
-			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
-		}
-
-		// Insert dynamic values into the list options.
-		$this->setListOptions();
 	}
 
 	/**
@@ -1398,7 +1291,7 @@ class News extends ACP implements ActionInterface
 								break;
 
 							case 'js_escape:':
-								$new_value = Utils::JavaScriptEscape($matches[2]);
+								$new_value = Utils::escapeJavaScript($matches[2]);
 								break;
 
 							default:
@@ -1413,11 +1306,6 @@ class News extends ACP implements ActionInterface
 			},
 		);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\News::exportStatic')) {
-	News::exportStatic();
 }
 
 ?>

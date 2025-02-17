@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -33,10 +33,6 @@ abstract class DatabaseApi
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'load' => 'loadDatabase',
-			'extend' => 'db_extend',
-		],
 		'prop_names' => [
 			'count' => 'db_count',
 			'cache' => 'db_cache',
@@ -181,7 +177,7 @@ abstract class DatabaseApi
 	 *
 	 * The number of queries that have been run.
 	 *
-	 * For backward compatibilty, also referenced as global $db_count.
+	 * For backward compatibility, also referenced as global $db_count.
 	 */
 	public static int $count = 0;
 
@@ -190,7 +186,7 @@ abstract class DatabaseApi
 	 *
 	 * Records debugging info when $this->show_debug is true.
 	 *
-	 * For backward compatibilty, also referenced as global $db_cache.
+	 * For backward compatibility, also referenced as global $db_cache.
 	 */
 	public static array $cache = [];
 
@@ -199,7 +195,7 @@ abstract class DatabaseApi
 	 *
 	 * Tracks package install/uninstall actions as they are performed.
 	 *
-	 * For backward compatibilty, also referenced as global $db_package_log.
+	 * For backward compatibility, also referenced as global $db_package_log.
 	 */
 	public static array $package_log = [];
 
@@ -244,7 +240,6 @@ abstract class DatabaseApi
 		'board_permissions_view',
 		'boards',
 		'calendar',
-		'calendar_holidays',
 		'categories',
 		'custom_fields',
 		'group_moderators',
@@ -379,13 +374,6 @@ abstract class DatabaseApi
 		return $class;
 	}
 
-	/**
-	 * Dummy method for backward compatibility.
-	 */
-	public static function extend(): void
-	{
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -442,7 +430,7 @@ abstract class DatabaseApi
 	 */
 	protected function prefixReservedTables(): void
 	{
-		// Reset $resevedTables to default.
+		// Reset $reservedTables to default.
 		$class_vars = get_class_vars(__CLASS__);
 		$this->reservedTables = $class_vars['reservedTables'];
 
@@ -542,8 +530,8 @@ abstract class DatabaseApi
 	}
 }
 
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\DatabaseApi::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([DatabaseApi::class, 'exportStatic'])) {
 	DatabaseApi::exportStatic();
 }
 

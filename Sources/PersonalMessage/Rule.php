@@ -5,16 +5,17 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\PersonalMessage;
 
 use SMF\ArrayAccessHelper;
-use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -30,22 +31,7 @@ use SMF\Utils;
  */
 class Rule implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'load' => 'loadRules',
-			'apply' => 'applyRules',
-			'delete' => 'delete',
-			'manage' => 'manage',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -190,12 +176,14 @@ class Rule implements \ArrayAccess
 					'is_or' => 'int',
 				],
 				[
-					$this->member,
-					$this->name,
-					Utils::jsonEncode($this->criteria),
-					Utils::jsonEncode($this->actions),
-					(int) $this->delete,
-					(int) $this->logic,
+					[
+						$this->member,
+						$this->name,
+						Utils::jsonEncode($this->criteria),
+						Utils::jsonEncode($this->actions),
+						(int) $this->delete,
+						(int) $this->logic,
+					],
 				],
 				['id_rule'],
 				1,
@@ -332,11 +320,11 @@ class Rule implements \ArrayAccess
 						)
 						|| (
 							$criterion['t'] == 'sub'
-							&& strpos($row['subject'], $criterion['v']) !== false
+							&& str_contains($row['subject'], $criterion['v'])
 						)
 						|| (
 							$criterion['t'] == 'msg'
-							&& strpos($row['body'], $criterion['v']) !== false
+							&& str_contains($row['body'], $criterion['v'])
 						)
 					) {
 						$match = true;
@@ -472,7 +460,7 @@ class Rule implements \ArrayAccess
 		Utils::$context['groups'] = [];
 
 		$groups = Group::loadSimple();
-		Group::loadModeratorsBatch(array_map(fn ($group) => $group->id, $groups));
+		Group::loadModeratorsBatch(array_map(fn($group) => $group->id, $groups));
 
 		foreach ($groups as $group) {
 			if ($group->hidden === Group::INVISIBLE && !$group->can_moderate) {
@@ -665,11 +653,6 @@ class Rule implements \ArrayAccess
 			Utils::redirectexit('action=pm;sa=manrules');
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Rule::exportStatic')) {
-	Rule::exportStatic();
 }
 
 ?>

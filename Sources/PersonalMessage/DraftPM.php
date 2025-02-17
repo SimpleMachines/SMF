@@ -5,21 +5,22 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\PersonalMessage;
 
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -32,20 +33,6 @@ use SMF\Utils;
  */
 class DraftPM extends Draft
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'showInEditor' => 'showInEditor',
-			'showInProfile' => 'showPMDrafts',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -88,7 +75,7 @@ class DraftPM extends Draft
 	{
 		$_REQUEST['subject'] = !empty($this->subject) ? stripslashes($this->subject) : '';
 		$_REQUEST['message'] = !empty($this->body) ? str_replace('<br>', "\n", Utils::htmlspecialcharsDecode(stripslashes($this->body))) : '';
-		$_REQUEST['replied_to'] = !empty($this->id_reply) ? $this->id_reply : 0;
+		$_REQUEST['replied_to'] = !empty($this->reply_to) ? $this->reply_to : 0;
 		Utils::$context['id_draft'] = !empty($this->id) ? $this->id : 0;
 
 		// In theory, we already did this, but just in case...
@@ -112,7 +99,7 @@ class DraftPM extends Draft
 	 * @param bool|int $reply_to ID of the PM that is being replied to.
 	 * @return bool Whether the drafts (if any) were loaded.
 	 */
-	public static function showInEditor(int $member_id, $reply_to = false): bool
+	public static function showInEditor(int $member_id, int|bool $reply_to = false): bool
 	{
 		// Permissions
 		if (empty(Utils::$context['drafts_save']) || empty($member_id)) {
@@ -171,7 +158,7 @@ class DraftPM extends Draft
 	public static function showInProfile(int $memID = -1): void
 	{
 		// init
-		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+		Utils::$context['start'] = (int) ($_REQUEST['start'] ?? 0);
 
 		// If just deleting a draft, do it and then redirect back.
 		if (!empty($_REQUEST['delete'])) {
@@ -225,14 +212,20 @@ class DraftPM extends Draft
 			],
 		);
 		list($msgCount) = Db::$db->fetch_row($request);
+		$msgCount = (int) $msgCount;
 		Db::$db->free_result($request);
 
-		$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
+		$maxPerPage = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? (int) Theme::$current->options['messages_per_page'] : (int) Config::$modSettings['defaultMaxMessages'];
 		$maxIndex = $maxPerPage;
 
 		// Make sure the starting place makes sense and construct our friend the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=pm;sa=showpmdrafts', Utils::$context['start'], $msgCount, $maxIndex);
 		Utils::$context['current_page'] = Utils::$context['start'] / $maxIndex;
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Reverse the query if we're past 50% of the total for better performance.
 		$start = Utils::$context['start'];
@@ -284,7 +277,10 @@ class DraftPM extends Draft
 			Lang::censorText($row['subject']);
 
 			// BBC-ilize the message.
-			$row['body'] = BBCodeParser::load()->parse($row['body'], true, 'draft' . $row['id_draft']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				options: ['cache_id' => 'draft' . $row['id_draft']],
+			);
 
 			// Have they provide who this will go to?
 			$recipients = [
@@ -295,7 +291,7 @@ class DraftPM extends Draft
 			$recipient_ids = (!empty($row['to_list'])) ? Utils::jsonDecode($row['to_list'], true) : [];
 
 			// @todo ... this is a bit ugly since it runs an extra query for every message, do we want this?
-			// at least its only for draft PM's and only the user can see them ... so not heavily used .. still
+			// at least it's only for draft PM's and only the user can see them ... so not heavily used .. still
 			if (!empty($recipient_ids['to']) || !empty($recipient_ids['bcc'])) {
 				$recipient_ids['to'] = array_map('intval', $recipient_ids['to']);
 				$recipient_ids['bcc'] = array_map('intval', $recipient_ids['bcc']);
@@ -360,11 +356,6 @@ class DraftPM extends Draft
 			'name' => Lang::$txt['drafts'],
 		];
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\DraftPM::exportStatic')) {
-	DraftPM::exportStatic();
 }
 
 ?>

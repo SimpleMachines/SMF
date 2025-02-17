@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -23,6 +26,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PackageManager\{SubsPackage, XmlArray};
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -50,26 +54,9 @@ use SMF\Utils;
  */
 class Themes implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ThemesMain',
-			'themeAdmin' => 'ThemeAdmin',
-			'themeList' => 'ThemeList',
-			'setThemeOptions' => 'SetThemeOptions',
-			'removeTheme' => 'RemoveTheme',
-			'enableTheme' => 'EnableTheme',
-			'themeInstall' => 'ThemeInstall',
-			'editTheme' => 'EditTheme',
-			'copyTemplate' => 'CopyTemplate',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -104,18 +91,6 @@ class Themes implements ActionInterface
 		'copy' => 'copy',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -125,6 +100,38 @@ class Themes implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('admin_forum');
+
+		// Load the important language files...
+		Lang::load('Admin');
+		Lang::load('Themes');
+		Lang::load('ThemeStrings');
+		Lang::load('Drafts');
+
+		// Default the page title to Theme Administration by default.
+		Utils::$context['page_title'] = Lang::$txt['themeadmin_title'];
+
+		if (!empty(Utils::$context['admin_menu_name'])) {
+			Menu::$loaded['admin']->tab_data = [
+				'title' => Lang::$txt['themeadmin_title'],
+				'description' => Lang::$txt['themeadmin_description'],
+				'tabs' => [
+					'admin' => [
+						'description' => Lang::$txt['themeadmin_admin_desc'],
+					],
+					'list' => [
+						'description' => Lang::$txt['themeadmin_list_desc'],
+					],
+					'reset' => [
+						'description' => Lang::$txt['themeadmin_reset_desc'],
+					],
+					'edit' => [
+						'description' => Lang::$txt['themeadmin_edit_desc'],
+					],
+				],
+			];
+		}
+
 		// Whatever they decide to do, clean the minify cache.
 		Theme::deleteAllMinified();
 
@@ -149,7 +156,7 @@ class Themes implements ActionInterface
 	 * Uses Themes template
 	 * Uses Admin language file
 	 */
-	public function admin()
+	public function admin(): void
 	{
 		// Are handling any settings?
 		if (isset($_POST['save'])) {
@@ -212,7 +219,7 @@ class Themes implements ActionInterface
 	 * This function lists the available themes and provides an interface to reset
 	 * the paths of all the installed themes.
 	 */
-	public function list()
+	public function list(): void
 	{
 		if (isset($_REQUEST['th'])) {
 			$this->setSettings();
@@ -274,7 +281,7 @@ class Themes implements ActionInterface
 	/**
 	 * Administrative global settings.
 	 */
-	public function setOptions()
+	public function setOptions(): void
 	{
 		$_GET['th'] = (int) ($_GET['th'] ?? $_GET['id'] ?? 0);
 
@@ -689,7 +696,7 @@ class Themes implements ActionInterface
 	 * - requires admin_forum permission.
 	 * - accessed with ?action=admin;area=theme;sa=list&th=xx.
 	 */
-	public function setSettings()
+	public function setSettings(): void
 	{
 		if (empty($_GET['th']) && empty($_GET['id'])) {
 			$this->admin();
@@ -727,9 +734,6 @@ class Themes implements ActionInterface
 		Theme::loadSubTemplate('init', 'ignore');
 
 		// Also load the actual themes language file - in case of special settings.
-		Lang::load('Settings', '', true, true);
-
-		// And the custom language strings...
 		Lang::load('ThemeStrings', '', false, true);
 
 		// Let the theme take care of the settings.
@@ -883,7 +887,7 @@ class Themes implements ActionInterface
 	 * - requires an administrator.
 	 * - accessed with ?action=admin;area=theme;sa=remove.
 	 */
-	public function remove()
+	public function remove(): void
 	{
 		User::$me->checkSession('get');
 
@@ -914,7 +918,7 @@ class Themes implements ActionInterface
 	/**
 	 * Handles enabling/disabling a theme from the admin center
 	 */
-	public function enable()
+	public function enable(): void
 	{
 		User::$me->checkSession('get');
 
@@ -950,7 +954,7 @@ class Themes implements ActionInterface
 	 * Requires admin_forum.
 	 * Accessed with ?action=admin;area=theme;sa=install.
 	 */
-	public function install()
+	public function install(): void
 	{
 		User::$me->checkSession('request');
 
@@ -1002,8 +1006,10 @@ class Themes implements ActionInterface
 	 * Shows an interface for editing the templates.
 	 * - uses the Themes template and edit_template/edit_style sub template.
 	 * - accessed via ?action=admin;area=theme;sa=edit
+	 *
+	 * @return ?string 'no_themes' returned if we can't find the theme, otherwise nothing is returned.
 	 */
-	public function edit()
+	public function edit(): ?string
 	{
 		// @todo Should this be removed?
 		if (isset($_REQUEST['preview'])) {
@@ -1037,7 +1043,7 @@ class Themes implements ActionInterface
 		$currentTheme = $this->getSingleTheme($_GET['th']);
 
 		Utils::$context['theme_id'] = $currentTheme['id'];
-		Utils::$context['browse_title'] = sprintf(Lang::$txt['themeadmin_browsing_theme'], $currentTheme['name']);
+		Utils::$context['browse_title'] = Lang::getTxt('themeadmin_browsing_theme', $currentTheme);
 
 		if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css')) {
 			ErrorHandler::fatalLang('theme_edit_missing', false);
@@ -1045,14 +1051,14 @@ class Themes implements ActionInterface
 
 		if (!isset($_REQUEST['filename'])) {
 			if (isset($_GET['directory'])) {
-				if (substr($_GET['directory'], 0, 1) == '.') {
+				if (str_starts_with($_GET['directory'], '.')) {
 					$_GET['directory'] = '';
 				} else {
 					$_GET['directory'] = preg_replace(['~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'], ['', '/', '/'], $_GET['directory']);
 
 					$temp = realpath($currentTheme['theme_dir'] . '/' . $_GET['directory']);
 
-					if (empty($temp) || substr($temp, 0, strlen(realpath($currentTheme['theme_dir']))) != realpath($currentTheme['theme_dir'])) {
+					if (empty($temp) || !str_starts_with($temp, realpath($currentTheme['theme_dir']))) {
 						$_GET['directory'] = '';
 					}
 				}
@@ -1079,24 +1085,24 @@ class Themes implements ActionInterface
 
 			// Do not list minified_ files
 			foreach (Utils::$context['theme_files'] as $key => $file) {
-				if (strpos($file['filename'], 'minified_') !== false) {
+				if (str_contains($file['filename'], 'minified_')) {
 					unset(Utils::$context['theme_files'][$key]);
 				}
 			}
 
 			Utils::$context['sub_template'] = 'edit_browse';
 
-			return;
+			return null;
 		}
 
-		if (substr($_REQUEST['filename'], 0, 1) == '.') {
+		if (str_starts_with($_REQUEST['filename'], '.')) {
 			$_REQUEST['filename'] = '';
 		} else {
 			$_REQUEST['filename'] = preg_replace(['~^[\./\\:\0\n\r]+~', '~[\\\\]~', '~/[\./]+~'], ['', '/', '/'], $_REQUEST['filename']);
 
 			$temp = realpath($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
 
-			if (empty($temp) || substr($temp, 0, strlen(realpath($currentTheme['theme_dir']))) != realpath($currentTheme['theme_dir'])) {
+			if (empty($temp) || !str_starts_with($temp, realpath($currentTheme['theme_dir']))) {
 				$_REQUEST['filename'] = '';
 			}
 		}
@@ -1114,7 +1120,7 @@ class Themes implements ActionInterface
 				$_POST['entire_file'] = rtrim(strtr($_POST['entire_file'], ["\r" => '', '   ' => "\t"]));
 
 				// Check for a parse error!
-				if (substr($_REQUEST['filename'], -13) == '.template.php' && is_writable($currentTheme['theme_dir']) && ini_get('display_errors')) {
+				if (str_ends_with($_REQUEST['filename'], '.template.php') && is_writable($currentTheme['theme_dir']) && ini_get('display_errors')) {
 					Config::safeFileWrite($currentTheme['theme_dir'] . '/tmp_' . session_id() . '.php', $_POST['entire_file']);
 
 					$error = @file_get_contents($currentTheme['theme_url'] . '/tmp_' . session_id() . '.php');
@@ -1157,7 +1163,7 @@ class Themes implements ActionInterface
 				// Re-create the token so that it can be used
 				SecurityToken::create('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
 
-				return;
+				return null;
 			}
 		}
 
@@ -1167,11 +1173,11 @@ class Themes implements ActionInterface
 
 		Utils::$context['edit_filename'] = Utils::htmlspecialchars($_REQUEST['filename']);
 
-		if (substr($_REQUEST['filename'], -4) == '.css') {
+		if (str_ends_with($_REQUEST['filename'], '.css')) {
 			Utils::$context['sub_template'] = 'edit_style';
 
 			Utils::$context['entire_file'] = Utils::htmlspecialchars(strtr(file_get_contents($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']), ["\t" => '   ']));
-		} elseif (substr($_REQUEST['filename'], -13) == '.template.php') {
+		} elseif (str_ends_with($_REQUEST['filename'], '.template.php')) {
 			Utils::$context['sub_template'] = 'edit_template';
 
 			if (!isset($error_file)) {
@@ -1189,7 +1195,7 @@ class Themes implements ActionInterface
 			Utils::$context['file_parts'] = [['lines' => 0, 'line' => 1, 'data' => '']];
 
 			for ($i = 0, $n = count($file_data); $i < $n; $i++) {
-				if (isset($file_data[$i + 1]) && substr($file_data[$i + 1], 0, 9) == 'function ') {
+				if (isset($file_data[$i + 1]) && str_starts_with($file_data[$i + 1], 'function ')) {
 					// Try to format the functions a little nicer...
 					Utils::$context['file_parts'][$j]['data'] = trim(Utils::$context['file_parts'][$j]['data']) . "\n";
 
@@ -1213,6 +1219,8 @@ class Themes implements ActionInterface
 
 		// Create a special token to allow editing of multiple files.
 		SecurityToken::create('admin-te-' . md5($_GET['th'] . '-' . $_REQUEST['filename']));
+
+		return null;
 	}
 
 	/**
@@ -1220,7 +1228,7 @@ class Themes implements ActionInterface
 	 *
 	 * @uses template_copy_template()
 	 */
-	public function copy()
+	public function copy(): void
 	{
 		Theme::loadTemplate('Themes');
 
@@ -1265,25 +1273,27 @@ class Themes implements ActionInterface
 		$templates = [];
 		$lang_files = [];
 
-		$dir = dir(Theme::$current->settings['default_theme_dir']);
-
-		while ($entry = $dir->read()) {
-			if (substr($entry, -13) == '.template.php') {
-				$templates[] = substr($entry, 0, -13);
+		foreach (new \DirectoryIterator(Theme::$current->settings['default_theme_dir']) as $fileInfo) {
+			if (str_ends_with($fileInfo->getFilename(), '.template.php')) {
+				$templates[] = substr($fileInfo->getFilename(), 0, -13);
 			}
 		}
 
-		$dir->close();
+		if (is_dir(Theme::$current->settings['default_theme_dir'] . '/languages')) {
+			foreach (new \DirectoryIterator(Theme::$current->settings['default_theme_dir'] . '/languages') as $langDir) {
+				if (!is_dir($langDir->getPathname()) || $langDir->getFilename()[0] == '.') {
+					continue;
+				}
 
-		$dir = dir(Theme::$current->settings['default_theme_dir'] . '/languages');
+				$lang_files[$langDir->getFilename()] = [];
 
-		while ($entry = $dir->read()) {
-			if (preg_match('~^([^\.]+\.[^\.]+)\.php$~', $entry, $matches)) {
-				$lang_files[] = $matches[1];
+				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo) {
+					if ($fileInfo->getExtension() == 'php') {
+						$lang_files[$langDir->getFilename()][] = $fileInfo->getFilename();
+					}
+				}
 			}
 		}
-
-		$dir->close();
 
 		natcasesort($templates);
 		natcasesort($lang_files);
@@ -1301,148 +1311,44 @@ class Themes implements ActionInterface
 
 		Utils::$context['available_language_files'] = [];
 
-		foreach ($lang_files as $file) {
-			Utils::$context['available_language_files'][$file] = [
-				'filename' => $file . '.php',
-				'value' => $file,
-				'already_exists' => false,
-				'can_copy' => file_exists($theme['theme_dir'] . '/languages') ? is_writable($theme['theme_dir'] . '/languages') : is_writable($theme['theme_dir']),
-			];
-		}
-
-		$dir = dir($theme['theme_dir']);
-
-		while ($entry = $dir->read()) {
-			if (substr($entry, -13) == '.template.php' && isset(Utils::$context['available_templates'][substr($entry, 0, -13)])) {
-				Utils::$context['available_templates'][substr($entry, 0, -13)]['already_exists'] = true;
-
-				Utils::$context['available_templates'][substr($entry, 0, -13)]['can_copy'] = is_writable($theme['theme_dir'] . '/' . $entry);
+		foreach ($lang_files as $dir => $lang_dir) {
+			foreach ($lang_dir as $file) {
+				Utils::$context['available_language_files'][$dir . '/' . $file] = [
+					'filename' => $dir . '/' . $file . '.php',
+					'value' => $dir . '|' . $file,
+					'already_exists' => false,
+					'can_copy' => file_exists($theme['theme_dir'] . '/languages') ? is_writable($theme['theme_dir'] . '/languages') : is_writable($theme['theme_dir']),
+				];
 			}
 		}
 
-		$dir->close();
+		foreach (new \DirectoryIterator($theme['theme_dir']) as $fileInfo) {
+			$theme_basename = substr($fileInfo->getFilename(), 0, -13);
 
-		if (file_exists($theme['theme_dir'] . '/languages')) {
-			$dir = dir($theme['theme_dir'] . '/languages');
+			if (str_ends_with($fileInfo->getFilename(), '.template.php') && isset(Utils::$context['available_templates'][$theme_basename])) {
+				Utils::$context['available_templates'][$theme_basename]['already_exists'] = true;
+				Utils::$context['available_templates'][$theme_basename]['can_copy'] = is_writable($theme['theme_dir'] . '/' . $theme_basename);
+			}
+		}
 
-			while ($entry = $dir->read()) {
-				if (preg_match('~^([^\.]+\.[^\.]+)\.php$~', $entry, $matches) && isset(Utils::$context['available_language_files'][$matches[1]])) {
-					Utils::$context['available_language_files'][$matches[1]]['already_exists'] = true;
+		if (is_dir($theme['theme_dir'] . '/languages')) {
+			foreach (new \DirectoryIterator($theme['theme_dir'] . '/languages') as $langDir) {
+				if (!is_dir($langDir->getPathname()) || $langDir->getFilename()[0] == '.') {
+					continue;
+				}
 
-					Utils::$context['available_language_files'][$matches[1]]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
+				$lang_files[$langDir->getFilename()] = [];
+
+				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo) {
+					if ($fileInfo->getExtension() == 'php'  && isset(Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()])) {
+						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['already_exists'] = true;
+						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
+					}
 				}
 			}
-
-			$dir->close();
 		}
 
 		Utils::$context['sub_template'] = 'copy_template';
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the admin sub-action.
-	 */
-	public static function themeAdmin(): void
-	{
-		self::load();
-		self::$obj->subaction = 'admin';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the list sub-action.
-	 */
-	public static function themeList(): void
-	{
-		self::load();
-		self::$obj->subaction = 'list';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the options sub-action.
-	 */
-	public static function setThemeOptions(): void
-	{
-		self::load();
-		self::$obj->subaction = 'options';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the remove sub-action.
-	 */
-	public static function removeTheme(): void
-	{
-		self::load();
-		self::$obj->subaction = 'remove';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the enable sub-action.
-	 */
-	public static function enableTheme(): void
-	{
-		self::load();
-		self::$obj->subaction = 'enable';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the install sub-action.
-	 */
-	public static function themeInstall(): void
-	{
-		self::load();
-		self::$obj->subaction = 'install';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the edit sub-action.
-	 */
-	public static function editTheme(): void
-	{
-		self::load();
-		self::$obj->subaction = 'edit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the copy sub-action.
-	 */
-	public static function copyTemplate(): void
-	{
-		self::load();
-		self::$obj->subaction = 'copy';
-		self::$obj->execute();
 	}
 
 	/******************
@@ -1454,48 +1360,15 @@ class Themes implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// PickTheme() has been migrated to SMF\Theme::pickTheme()
+		// PickTheme() has been migrated to SMF\Actions\ThemeChooser::call()
 		if (isset($_GET['sa']) && $_GET['sa'] === 'pick') {
-			Utils::redirectexit('action=theme;sa=pick' . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
+			Utils::redirectexit('action=themechooser' . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
 		}
 		// Everything in this file should be accessed via the ACP, not the 'theme' action.
 		elseif ($_REQUEST['action'] === 'theme') {
 			Utils::redirectexit('action=admin;area=theme;' . (isset($_GET['sa']) ? ';sa=' . $_GET['sa'] : '') . (isset($_GET['u']) ? ';u=' . $_GET['u'] : ''));
 		}
 
-		User::$me->isAllowedTo('admin_forum');
-
-		// Load the important language files...
-		Lang::load('Admin');
-		Lang::load('Themes');
-		Lang::load('Settings');
-		Lang::load('Drafts');
-
-		// Default the page title to Theme Administration by default.
-		Utils::$context['page_title'] = Lang::$txt['themeadmin_title'];
-
-		if (!empty(Utils::$context['admin_menu_name'])) {
-			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['themeadmin_title'],
-				'description' => Lang::$txt['themeadmin_description'],
-				'tabs' => [
-					'admin' => [
-						'description' => Lang::$txt['themeadmin_admin_desc'],
-					],
-					'list' => [
-						'description' => Lang::$txt['themeadmin_list_desc'],
-					],
-					'reset' => [
-						'description' => Lang::$txt['themeadmin_reset_desc'],
-					],
-					'edit' => [
-						'description' => Lang::$txt['themeadmin_edit_desc'],
-					],
-				],
-			];
-		}
-
-		// CRUD self::$subactions as needed.
 		IntegrationHook::call('integrate_manage_themes', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -1512,7 +1385,7 @@ class Themes implements ActionInterface
 	 *
 	 * @return array The newly created theme's info.
 	 */
-	protected function installFile()
+	protected function installFile(): ?array
 	{
 		// Set a temp dir for dumping all required files on it.
 		$dirtemp = Utils::$context['themedir'] . '/temp';
@@ -1577,6 +1450,8 @@ class Themes implements ActionInterface
 		}
 
 		ErrorHandler::fatalLang('theme_install_error_title', false);
+
+		return null;
 	}
 
 	/**
@@ -1586,7 +1461,7 @@ class Themes implements ActionInterface
 	 *
 	 * @return array The newly created theme's info.
 	 */
-	protected function installCopy()
+	protected function installCopy(): array
 	{
 		// There's gotta be something to work with.
 		if (!isset($_REQUEST['copy']) || empty($_REQUEST['copy'])) {
@@ -1620,11 +1495,8 @@ class Themes implements ActionInterface
 		mkdir(Utils::$context['to_install']['theme_dir'], 0777);
 
 		// Buy some time.
-		@set_time_limit(600);
-
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		// Create subdirectories for css and javascript files.
 		mkdir(Utils::$context['to_install']['theme_dir'] . '/css', 0777);
@@ -1645,12 +1517,12 @@ class Themes implements ActionInterface
 			'/css/rtl.css',
 			'/scripts/theme.js',
 			'/languages/index.php',
-			'/languages/Settings.english.php',
+			'/languages/en_US/ThemeStrings.php',
 		];
 
 		foreach ($to_copy as $file) {
 			copy(Theme::$current->settings['default_theme_dir'] . $file, Utils::$context['to_install']['theme_dir'] . $file);
-			Utils::makeWritable(Utils::$context['to_install']['theme_dir'] . $file, 0777);
+			Utils::makeWritable(Utils::$context['to_install']['theme_dir'] . $file, '0777');
 		}
 
 		// And now the entire images directory!
@@ -1710,8 +1582,10 @@ class Themes implements ActionInterface
 	 *
 	 * @return array The newly created theme's info.
 	 */
-	protected function installDir()
+	protected function installDir(): array
 	{
+		$_REQUEST['theme_dir'] = rtrim($_REQUEST['theme_dir'], '\\/');
+
 		// Cannot use the theme dir as a theme dir.
 		if (!isset($_REQUEST['theme_dir']) || empty($_REQUEST['theme_dir']) || rtrim(realpath($_REQUEST['theme_dir']), '/\\') == realpath(Utils::$context['themedir'])) {
 			ErrorHandler::fatalLang('theme_install_invalid_dir', false);
@@ -1749,9 +1623,9 @@ class Themes implements ActionInterface
 	 *
 	 * @param int $id The theme ID to get the info from.
 	 * @param string[] $variables
-	 * @return array The theme info as an array.
+	 * @return false|array The theme info as an array.
 	 */
-	protected function getSingleTheme($id, array $variables = [])
+	protected function getSingleTheme(int $id, array $variables = []): bool|array
 	{
 		// No data, no fun!
 		if (empty($id)) {
@@ -1789,7 +1663,7 @@ class Themes implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$single[$row['variable']] = $row['value'];
 
-			// Fix the path and tell if its a valid one.
+			// Fix the path and tell if it's a valid one.
 			if ($row['variable'] == 'theme_dir') {
 				$single['theme_dir'] = realpath($row['value']);
 				$single['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
@@ -1813,7 +1687,7 @@ class Themes implements ActionInterface
 	 *
 	 * @param bool $enable_only Whether to fetch only enabled themes. Default is false.
 	 */
-	protected function getAllThemes($enable_only = false)
+	protected function getAllThemes(bool $enable_only = false): void
 	{
 		// Make our known/enable themes a little easier to work with.
 		$knownThemes = !empty(Config::$modSettings['knownThemes']) ? explode(',', Config::$modSettings['knownThemes']) : [];
@@ -1864,7 +1738,7 @@ class Themes implements ActionInterface
 				];
 			}
 
-			// Fix the path and tell if its a valid one.
+			// Fix the path and tell if it's a valid one.
 			if ($row['variable'] == 'theme_dir') {
 				$row['value'] = realpath($row['value']);
 				Utils::$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
@@ -1882,7 +1756,7 @@ class Themes implements ActionInterface
 	 *
 	 * Config::$modSettings['knownThemes'] stores themes that the user is able to select.
 	 */
-	protected function getInstalledThemes()
+	protected function getInstalledThemes(): void
 	{
 		// Make our known/enable themes a little easier to work with.
 		$knownThemes = !empty(Config::$modSettings['knownThemes']) ? explode(',', Config::$modSettings['knownThemes']) : [];
@@ -1928,10 +1802,10 @@ class Themes implements ActionInterface
 				];
 			}
 
-			// Fix the path and tell if its a valid one.
+			// Fix the path and tell if it's a valid one.
 			if ($row['variable'] == 'theme_dir') {
 				$row['value'] = realpath($row['value']);
-				Utils::$context['themes'][$row['id_theme']]['valid_path'] = file_exists($row['value']) && is_dir($row['value']);
+				Utils::$context['themes'][$row['id_theme']]['valid_path'] = $row['value'] !== false && file_exists($row['value']) && is_dir($row['value']);
 			}
 			Utils::$context['themes'][$row['id_theme']][$row['variable']] = $row['value'];
 		}
@@ -1945,9 +1819,9 @@ class Themes implements ActionInterface
 	 * Removes the entire theme if the .xml file couldn't be found or read.
 	 *
 	 * @param string $path The absolute path to the xml file.
-	 * @return array An array with all the info extracted from the xml file.
+	 * @return false|array An array with all the info extracted from the xml file.
 	 */
-	protected function getThemeInfo($path)
+	protected function getThemeInfo(string $path): bool|array
 	{
 		if (empty($path)) {
 			return false;
@@ -1978,7 +1852,7 @@ class Themes implements ActionInterface
 		// Check for compatibility with 2.1 or greater.
 		if (!$theme_info_xml->exists('theme-info/install')) {
 			$this->deltree($path);
-			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
+			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, [SMF_FULL_VERSION]);
 		}
 
 		// So, we have an install tag which is cool and stuff but we also need to check it and match your current SMF version...
@@ -1988,7 +1862,7 @@ class Themes implements ActionInterface
 		// The theme isn't compatible with the current SMF version.
 		if (!$install_versions || !SubsPackage::matchPackageVersion($the_version, $install_versions)) {
 			$this->deltree($path);
-			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, SMF_FULL_VERSION);
+			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, [SMF_FULL_VERSION]);
 		}
 
 		$theme_info_xml = $theme_info_xml->to_array('theme-info[0]');
@@ -2033,7 +1907,7 @@ class Themes implements ActionInterface
 	 * @param array $to_install An array containing all values to be stored into the DB.
 	 * @return int The newly created theme ID.
 	 */
-	protected function addToDb($to_install = [])
+	protected function addToDb(array $to_install = []): int
 	{
 		// External use? no problem!
 		if (!empty($to_install)) {
@@ -2063,7 +1937,7 @@ class Themes implements ActionInterface
 			list($id_to_update) = Db::$db->fetch_row($request);
 			Db::$db->free_result($request);
 
-			$to_update = $this->getSingleTheme($id_to_update, ['version']);
+			$to_update = $this->getSingleTheme((int) $id_to_update, ['version']);
 
 			// Got something, lets figure it out what to do next.
 			if (!empty($id_to_update) && !empty($to_update['version'])) {
@@ -2189,7 +2063,7 @@ class Themes implements ActionInterface
 	 * @param int $themeID The theme ID
 	 * @return bool true when success, false on error.
 	 */
-	protected function removeFromDb($themeID)
+	protected function removeFromDb(int $themeID): bool
 	{
 		// Can't delete the default theme, sorry!
 		if (empty($themeID) || $themeID == 1) {
@@ -2262,7 +2136,7 @@ class Themes implements ActionInterface
 	 * @param string $path The absolute path to the directory to be removed
 	 * @return bool true when success, false on error.
 	 */
-	protected function deltree($path)
+	protected function deltree(string $path): bool
 	{
 		if (empty($path)) {
 			return false;
@@ -2276,14 +2150,15 @@ class Themes implements ActionInterface
 					if (filetype($path . '/' . $object) == 'dir') {
 						$this->deltree($path . '/' . $object);
 					} else {
-						unlink($path . '/' . $object);
+						@unlink($path . '/' . $object);
 					}
 				}
 			}
 		}
 
 		reset($objects);
-		rmdir($path);
+
+		return @rmdir($path);
 	}
 
 	/**
@@ -2293,7 +2168,7 @@ class Themes implements ActionInterface
 	 * @param string $relative The relative path (relative to the Themes directory)
 	 * @return array An array of information about the files and directories found
 	 */
-	protected function getFileList($path, $relative)
+	protected function getFileList(string $path, string $relative): array
 	{
 		// Is it even a directory?
 		if (!is_dir($path)) {
@@ -2316,7 +2191,7 @@ class Themes implements ActionInterface
 
 		foreach ($entries as $entry) {
 			// Skip all dot files, including .htaccess.
-			if (substr($entry, 0, 1) == '.' || $entry == 'CVS') {
+			if (str_starts_with($entry, '.') || $entry == 'CVS') {
 				continue;
 			}
 
@@ -2345,7 +2220,7 @@ class Themes implements ActionInterface
 					'is_writable' => is_writable($path . '/' . $entry),
 					'is_directory' => false,
 					'is_template' => preg_match('~\.template\.php$~', $entry) != 0,
-					'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png)$~', $entry) != 0,
+					'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png|svg|webp)$~', $entry) != 0,
 					'is_editable' => is_writable($path . '/' . $entry) && preg_match('~\.(php|pl|css|js|vbs|xml|xslt|txt|xsl|html|htm|shtm|shtml|asp|aspx|cgi|py)$~', $entry) != 0,
 					'href' => Config::$scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';sa=edit;filename=' . $relative . $entry,
 					'size' => $size,
@@ -2356,11 +2231,6 @@ class Themes implements ActionInterface
 
 		return array_merge($list1, $list2);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Themes::exportStatic')) {
-	Themes::exportStatic();
 }
 
 ?>

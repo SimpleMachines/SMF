@@ -1,4 +1,4 @@
-// This file contains javascript associated with a autosuggest control
+// This file contains javascript associated with an autosuggest control
 function smc_AutoSuggest(oOptions)
 {
 	this.opt = oOptions;
@@ -391,7 +391,7 @@ smc_AutoSuggest.prototype.deleteAddedItem = function (sItemId)
 // Hide the box.
 smc_AutoSuggest.prototype.autoSuggestHide = function ()
 {
-	// Delay to allow events to propogate through....
+	// Delay to allow events to propagate through....
 	this.oHideTimer = setTimeout(this.opt.sSelf + '.autoSuggestActualHide();', 250);
 }
 
@@ -565,7 +565,7 @@ smc_AutoSuggest.prototype.autoSuggestUpdate = function ()
 	var sRealLastSearch = this.sLastSearch;
 	this.sLastSearch = sSearchString;
 
-	// Either nothing or we've completed a sentance.
+	// Either nothing or we've completed a sentence.
 	if (sSearchString == '' || sSearchString.substr(sSearchString.length - 1) == '"')
 	{
 		this.populateDiv();

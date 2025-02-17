@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Config;
@@ -23,10 +23,11 @@ use SMF\Time;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
+use SMF\Uuid;
 
-define('SMF_VERSION', '3.0 Alpha 1');
+define('SMF_VERSION', '3.0 Alpha 2');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2024');
+define('SMF_SOFTWARE_YEAR', '2025');
 define('DB_SCRIPT_VERSION', '3-0');
 define('SMF_INSTALLING', 1);
 
@@ -328,14 +329,44 @@ function load_lang_file()
 	$incontext['detected_languages'] = [];
 
 	// Make sure the languages directory actually exists.
-	if (file_exists(Config::$boarddir . '/Themes/default/languages')) {
+	if (file_exists(Config::$languagesdir)) {
 		// Find all the "Install" language files in the directory.
-		$dir = dir(Config::$boarddir . '/Themes/default/languages');
+		$dir = dir(Config::$languagesdir);
 
 		while ($entry = $dir->read()) {
-			if (substr($entry, 0, 8) == 'Install.' && substr($entry, -4) == '.php') {
-				$incontext['detected_languages'][$entry] = ucfirst(substr($entry, 8, strlen($entry) - 12));
+			if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'General.php')) {
+				continue;
 			}
+
+			// Get the line we need.
+			$fp = @fopen(Config::$languagesdir . '/' . $entry . '/' . 'General.php', 'r');
+
+			// Yay!
+			if ($fp)
+			{
+				while (($line = fgets($fp)) !== false)
+				{
+					if (!str_contains($line, '$txt[\'native_name\']'))
+						continue;
+
+					preg_match('~\$txt\[\'native_name\'\]\s*=\s*\'([^\']+)\';~', $line, $matchNative);
+
+					// Set the language's name.
+					if (!empty($matchNative) && !empty($matchNative[1]))
+					{
+						// Don't mislabel the language if the translator missed this one.
+						if ($entry !== 'en_US' && $matchNative[1] === 'English (US)')
+							break;
+
+						$langName = Utils::htmlspecialcharsDecode($matchNative[1]);
+						break;
+					}
+				}
+
+				fclose($fp);
+			}
+
+			$incontext['detected_languages'][$entry] = $langName ?? $entry;
 		}
 		$dir->close();
 	}
@@ -370,7 +401,7 @@ function load_lang_file()
 
 		<p>This installer was unable to find the installer\'s language file or files. They should be found under:</p>
 
-		<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Themes/default/languages</div>
+		<div class="directory">', dirname($_SERVER['PHP_SELF']) != '/' ? dirname($_SERVER['PHP_SELF']) : '', '/Languages</div>
 
 		<p>In some cases, FTP clients do not properly upload files with this many folders. Please double check to make sure you <strong>have uploaded all the files in the distribution</strong>.</p>
 		<p>If that doesn\'t help, please make sure this install.php file is in the same place as the Themes folder.</p>
@@ -389,24 +420,24 @@ function load_lang_file()
 	}
 
 	// Make sure it exists, if it doesn't reset it.
-	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$boarddir . '/Themes/default/languages/' . $_SESSION['installer_temp_lang'])) {
+	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$languagesdir . '/' . $_SESSION['installer_temp_lang'] . '/Install.php')) {
 		// Use the first one...
 		list($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 
 		// If we have english and some other language, use the other language.  We Americans hate english :P.
-		if ($_SESSION['installer_temp_lang'] == 'Install.english.php' && count($incontext['detected_languages']) > 1) {
-			list(, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
+		if ($_SESSION['installer_temp_lang'] == 'en_US' && count($incontext['detected_languages']) > 1) {
+			list (, $_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 		}
 	}
 
 	// Which language are we loading? Assume that the admin likes that language.
-	Config::$language = preg_replace('~^Install\.|(-utf8)?\.php$~', '', $_SESSION['installer_temp_lang']);
+	Config::$language = preg_replace('~^[A-Za-z0-9]+$~', '', $_SESSION['installer_temp_lang']);
 
 	// Ensure SMF\Lang knows the path to the language directory.
-	Lang::addDirs(Config::$boarddir . '/Themes/default/languages');
+	Lang::addDirs(Config::$languagesdir);
 
 	// And now load the language file.
-	Lang::load('Install');
+	Lang::load('General+Install');
 }
 
 // This handy function loads some settings and the like.
@@ -490,7 +521,7 @@ function Welcome()
 			if (!file_exists(Config::$boarddir . '/install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql')) {
 				$databases[$key]['supported'] = false;
 				$notFoundSQLFile = true;
-				Lang::$txt['error_db_script_missing'] = sprintf(Lang::$txt['error_db_script_missing'], 'install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql');
+				Lang::$txt['error_db_script_missing'] = Lang::getTxt('error_db_script_missing', ['file' => 'install_' . DB_SCRIPT_VERSION . '_' . Db::getClass($type) . '.sql']);
 			} else {
 				$incontext['supported_databases'][] = $db;
 			}
@@ -564,14 +595,14 @@ function CheckFilesWritable()
 		'Packages',
 		'Smileys',
 		'Themes',
-		'agreement.txt',
+		'Languages/en_US/agreement.txt',
 		'Settings.php',
 		'Settings_bak.php',
 		'cache/db_last_error.php',
 	];
 
 	foreach ($incontext['detected_languages'] as $lang => $temp) {
-		$extra_files[] = 'Themes/default/languages/' . $lang;
+		$extra_files[] = 'Languages/' . $lang;
 	}
 
 	// With mod_security installed, we could attempt to fix it with .htaccess.
@@ -867,7 +898,7 @@ function DatabaseSettings()
 
 		// Better find the database file!
 		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')) {
-			$incontext['error'] = sprintf(Lang::$txt['error_db_file'], 'Db/APIs/' . Db::getClass(Config::$db_type) . '.php');
+			$incontext['error'] = Lang::getTxt('error_db_file', ['Db/APIs/' . Db::getClass(Config::$db_type) . '.php']);
 
 			return false;
 		}
@@ -902,7 +933,7 @@ function DatabaseSettings()
 		// Do they meet the install requirements?
 		// @todo Old client, new server?
 		if (version_compare($databases[Config::$db_type]['version'], preg_replace('~^\D*|\-.+?$~', '', $databases[Config::$db_type]['version_check']())) > 0) {
-			$incontext['error'] = Lang::$txt['error_db_too_low'];
+			$incontext['error'] = Lang::getTxt('error_db_too_low', $databases[Config::$db_type]);
 
 			return false;
 		}
@@ -939,7 +970,7 @@ function DatabaseSettings()
 
 			// Okay, now let's try to connect...
 			if (!Db::$db->select(Db::$db->name, Db::$db->connection)) {
-				$incontext['error'] = sprintf(Lang::$txt['error_db_database'], Db::$db->name);
+				$incontext['error'] = Lang::getTxt('error_db_database', ['db_name' => Db::$db->name]);
 
 				return false;
 			}
@@ -1033,13 +1064,13 @@ function ForumSettings()
 
 	// Submitting?
 	if (isset($_POST['boardurl'])) {
-		if (substr($_POST['boardurl'], -10) == '/index.php') {
+		if (str_ends_with($_POST['boardurl'], '/index.php')) {
 			$_POST['boardurl'] = substr($_POST['boardurl'], 0, -10);
-		} elseif (substr($_POST['boardurl'], -1) == '/') {
+		} elseif (str_ends_with($_POST['boardurl'], '/')) {
 			$_POST['boardurl'] = substr($_POST['boardurl'], 0, -1);
 		}
 
-		if (substr($_POST['boardurl'], 0, 7) != 'http://' && substr($_POST['boardurl'], 0, 7) != 'file://' && substr($_POST['boardurl'], 0, 8) != 'https://') {
+		if (!str_starts_with($_POST['boardurl'], 'http://') && !str_starts_with($_POST['boardurl'], 'file://') && !str_starts_with($_POST['boardurl'], 'https://')) {
 			$_POST['boardurl'] = 'http://' . $_POST['boardurl'];
 		}
 
@@ -1065,7 +1096,7 @@ function ForumSettings()
 			'sourcedir' => $path . '/Sources',
 			'cachedir' => $path . '/cache',
 			'packagesdir' => $path . '/Packages',
-			'tasksdir' => $path . '/Sources/Tasks',
+			'languagesdir' => $path . '/Languages',
 			'mbname' => strtr($_POST['mbname'], ['\"' => '"']),
 			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
 			'image_proxy_secret' => bin2hex(random_bytes(10)),
@@ -1085,13 +1116,13 @@ function ForumSettings()
 
 		// UTF-8 requires a setting to override the language charset.
 		if (!$databases[Config::$db_type]['utf8_support']()) {
-			$incontext['error'] = sprintf(Lang::$txt['error_utf8_support']);
+			$incontext['error'] = Lang::getTxt('error_utf8_support');
 
 			return false;
 		}
 
 		if (!empty($databases[Config::$db_type]['utf8_version_check']) && version_compare($databases[Config::$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[Config::$db_type]['utf8_version_check']()), '>')) {
-			$incontext['error'] = sprintf(Lang::$txt['error_utf8_version'], $databases[Config::$db_type]['utf8_version']);
+			$incontext['error'] = Lang::getTxt('error_utf8_version', $databases[Config::$db_type]);
 
 			return false;
 		}
@@ -1162,7 +1193,7 @@ function DatabasePopulation()
 	);
 
 	// Windows likes to leave the trailing slash, which yields to C:\path\to\SMF\/attachments...
-	if (substr(__DIR__, -1) == '\\') {
+	if (str_ends_with(__DIR__, '\\')) {
 		$attachdir = __DIR__ . 'attachments';
 	} else {
 		$attachdir = __DIR__ . '/attachments';
@@ -1182,14 +1213,14 @@ function DatabasePopulation()
 	];
 
 	foreach (Lang::$txt as $key => $value) {
-		if (substr($key, 0, 8) == 'default_') {
+		if (str_starts_with($key, 'default_')) {
 			$replaces['{$' . $key . '}'] = Db::$db->escape_string($value);
 		}
 	}
 	$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], ['\\\\n' => '\\n']);
 
 	// MySQL-specific stuff - storage engine and UTF8 handling
-	if (substr(Config::$db_type, 0, 5) == 'mysql') {
+	if (str_starts_with(Config::$db_type, 'mysql')) {
 		// Just in case the query fails for some reason...
 		$engines = [];
 
@@ -1240,7 +1271,7 @@ function DatabasePopulation()
 
 	foreach ($sql_lines as $count => $line) {
 		// No comments allowed!
-		if (substr(trim($line), 0, 1) != '#') {
+		if (!str_starts_with(trim($line), '#')) {
 			$current_statement .= "\n" . rtrim($line);
 		}
 
@@ -1301,7 +1332,7 @@ function DatabasePopulation()
 		if ($number == 0) {
 			unset($incontext['sql_results'][$key]);
 		} else {
-			$incontext['sql_results'][$key] = sprintf(Lang::$txt['db_populate_' . $key], $number);
+			$incontext['sql_results'][$key] = Lang::getTxt('db_populate_' . $key, [$number]);
 		}
 	}
 
@@ -1309,7 +1340,7 @@ function DatabasePopulation()
 	$newSettings[] = ['global_character_set', 'UTF-8'];
 
 	// Are we allowing stat collection?
-	if (!empty($_POST['stats']) && substr(Config::$boardurl, 0, 16) != 'http://localhost' && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
+	if (!empty($_POST['stats']) && !str_starts_with(Config::$boardurl, 'http://localhost') && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
 		$incontext['allow_sm_stats'] = true;
 
 		// Attempt to register the site etc.
@@ -1455,6 +1486,32 @@ function DatabasePopulation()
 		['id_smiley', 'smiley_set'],
 	);
 
+	// Set the UID column for calendar events.
+	$calendar_updates = [];
+	$request = Db::$db->query(
+		'',
+		'SELECT id_event, uid
+		FROM {db_prefix}calendar',
+		[],
+	);
+
+	while ($row = Db::$db->fetch_assoc($request)) {
+		if ($row['uid'] === '') {
+			$calendar_updates[] = ['id_event' => $row['id_event'], 'uid' => (string) new Uuid()];
+		}
+	}
+	Db::$db->free_result($request);
+
+	foreach ($calendar_updates as $calendar_update) {
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}calendar
+			SET uid = {string:uid}
+			WHERE id_event = {int:id_event}',
+			$calendar_update,
+		);
+	}
+
 	// Let's optimize those new tables, but not on InnoDB, ok?
 	if (!$has_innodb) {
 		$tables = Db::$db->list_tables(Db::$db->name, Db::$db->prefix . '%');
@@ -1470,7 +1527,7 @@ function DatabasePopulation()
 	}
 
 	// MySQL specific stuff
-	if (substr(Config::$db_type, 0, 5) != 'mysql') {
+	if (!str_starts_with(Config::$db_type, 'mysql')) {
 		return false;
 	}
 
@@ -1583,7 +1640,7 @@ function AdminAccount()
 		}
 
 		if (!file_exists(Config::$sourcedir . '/Utils.php')) {
-			$incontext['error'] = sprintf(Lang::$txt['error_sourcefile_missing'], 'Utils.php');
+			$incontext['error'] = Lang::getTxt('error_sourcefile_missing', ['file' => 'Utils.php']);
 
 			return false;
 		}
@@ -1620,14 +1677,14 @@ function AdminAccount()
 			$incontext['error'] = $_POST['username'] == '' ? Lang::$txt['error_username_left_empty'] : Lang::$txt['error_username_too_long'];
 
 			return false;
-		} elseif ($invalid_characters || $_POST['username'] == '_' || $_POST['username'] == '|' || strpos($_POST['username'], '[code') !== false || strpos($_POST['username'], '[/code') !== false) {
+		} elseif ($invalid_characters || $_POST['username'] == '_' || $_POST['username'] == '|' || str_contains($_POST['username'], '[code') || str_contains($_POST['username'], '[/code')) {
 			// Try the previous step again.
 			$incontext['error'] = Lang::$txt['error_invalid_characters_username'];
 
 			return false;
 		} elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
-			$incontext['error'] = sprintf(Lang::$txt['error_valid_admin_email_needed'], $_POST['username']);
+			$incontext['error'] = Lang::$txt['error_valid_admin_email_needed'];
 
 			return false;
 		} elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255) {
@@ -1642,7 +1699,7 @@ function AdminAccount()
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
 
-			$_POST['password1'] = Security::hashPassword($_POST['username'], $_POST['password1']);
+			$_POST['password1'] = Security::hashPassword($_POST['password1']);
 
 			$incontext['member_id'] = Db::$db->insert(
 				'',
@@ -1672,28 +1729,30 @@ function AdminAccount()
 					'ignore_boards' => 'string',
 				],
 				[
-					$_POST['username'],
-					$_POST['username'],
-					$_POST['password1'],
-					$_POST['email'],
-					1,
-					0,
-					time(),
-					$incontext['member_salt'],
-					'',
-					'',
-					'',
-					$ip,
-					$ip,
-					'',
-					'',
-					'',
-					'',
-					'',
-					'',
-					'',
-					'',
-					'',
+					[
+						$_POST['username'],
+						$_POST['username'],
+						$_POST['password1'],
+						$_POST['email'],
+						1,
+						0,
+						time(),
+						$incontext['member_salt'],
+						'',
+						'',
+						'',
+						$ip,
+						$ip,
+						'',
+						'',
+						'',
+						'',
+						'',
+						'',
+						'',
+						'',
+						'',
+					],
 				],
 				['id_member'],
 				1,
@@ -1743,8 +1802,20 @@ function DeleteInstall()
 	Db::$db->insert(
 		'ignore',
 		'{db_prefix}log_activity',
-		['date' => 'date', 'topics' => 'int', 'posts' => 'int', 'registers' => 'int'],
-		[Time::strftime('%Y-%m-%d', time()), 1, 1, (!empty($incontext['member_id']) ? 1 : 0)],
+		[
+			'date' => 'date',
+			'topics' => 'int',
+			'posts' => 'int',
+			'registers' => 'int',
+		],
+		[
+			[
+				Time::strftime('%Y-%m-%d', time()),
+				1,
+				1,
+				!empty($incontext['member_id']) ? 1 : 0,
+			],
+		],
 		['date'],
 	);
 
@@ -1796,10 +1867,16 @@ function DeleteInstall()
 			'replace',
 			'{db_prefix}sessions',
 			[
-				'session_id' => 'string', 'last_update' => 'int', 'data' => 'string',
+				'session_id' => 'string',
+				'last_update' => 'int',
+				'data' => 'string',
 			],
 			[
-				session_id(), time(), 'USER_AGENT|s:' . strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
+				[
+					session_id(),
+					time(),
+					'USER_AGENT|s:' . strlen($_SERVER['HTTP_USER_AGENT']) . ':"' . $_SERVER['HTTP_USER_AGENT'] . '";admin_time|i:' . time() . ';',
+				],
 			],
 			['session_id'],
 		);
@@ -1894,7 +1971,7 @@ function fixModSecurity()
 		$current_htaccess = implode('', file(Config::$boarddir . '/.htaccess'));
 
 		// Only change something if mod_security hasn't been addressed yet.
-		if (strpos($current_htaccess, '<IfModule mod_security.c>') === false) {
+		if (!str_contains($current_htaccess, '<IfModule mod_security.c>')) {
 			if ($ht_handle = fopen(Config::$boarddir . '/.htaccess', 'a')) {
 				fwrite($ht_handle, $htaccess_addition);
 				fclose($ht_handle);
@@ -1906,9 +1983,13 @@ function fixModSecurity()
 		}
 
 			return true;
-	} elseif (file_exists(Config::$boarddir . '/.htaccess')) {
-		return strpos(implode('', file(Config::$boarddir . '/.htaccess')), '<IfModule mod_security.c>') !== false;
-	} elseif (is_writable(Config::$boarddir)) {
+	}
+
+	if (file_exists(Config::$boarddir . '/.htaccess')) {
+		return str_contains(implode('', file(Config::$boarddir . '/.htaccess')), '<IfModule mod_security.c>');
+	}
+
+	if (is_writable(Config::$boarddir)) {
 		if ($ht_handle = fopen(Config::$boarddir . '/.htaccess', 'w')) {
 			fwrite($ht_handle, $htaccess_addition);
 			fclose($ht_handle);
@@ -2054,10 +2135,10 @@ function template_welcome_message()
 	echo '
 	<script src="https://www.simplemachines.org/smf/current-version.js?version=' . urlencode(SMF_VERSION) . '"></script>
 	<form action="', $incontext['form_url'], '" method="post">
-		<p>', sprintf(Lang::$txt['install_welcome_desc'], SMF_VERSION), '</p>
+		<p>', Lang::getTxt('install_welcome_desc', ['SMF_VERSION' => SMF_VERSION]), '</p>
 		<div id="version_warning" class="noticebox hidden">
 			<h3>', Lang::$txt['error_warning_notice'], '</h3>
-			', sprintf(Lang::$txt['error_script_outdated'], '<em id="smfVersion" style="white-space: nowrap;">??</em>', '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>'), '
+			', Lang::getTxt('error_script_outdated', ['smfVersion' => '<em id="smfVersion" style="white-space: nowrap;">??</em>', 'yourVersion' => '<em id="yourVersion" style="white-space: nowrap;">' . SMF_VERSION . '</em>']), '
 		</div>';
 
 	// Show the warnings, or not.
@@ -2507,7 +2588,7 @@ function template_delete_install()
 	}
 
 	echo '
-		<p>', sprintf(Lang::$txt['go_to_your_forum'], Config::$boardurl . '/index.php'), '</p>
+		<p>', Lang::getTxt('go_to_your_forum', ['scripturl' => Config::$boardurl . '/index.php']), '</p>
 		<br>
 		', Lang::$txt['good_luck'];
 }

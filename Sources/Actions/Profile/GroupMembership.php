@@ -5,16 +5,18 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -29,19 +31,7 @@ use SMF\Utils;
  */
 class GroupMembership implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'groupMembership',
-			'groupMembership2' => 'groupMembership2',
-		],
-	];
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -53,18 +43,6 @@ class GroupMembership implements ActionInterface
 	 * The type of change that was made when saving.
 	 */
 	public string $change_type;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -121,6 +99,10 @@ class GroupMembership implements ActionInterface
 		$open_requests = Db::$db->fetch_all($request);
 		Db::$db->free_result($request);
 
+		$open_requests = array_map(function ($request) {
+			return (int) $request['id_group'];
+		}, $open_requests);
+
 		// Show the assignable groups in the templates.
 		foreach (Profile::$member->current_and_assignable_groups as $id => $group) {
 			// Skip "Regular Members" for now.
@@ -129,17 +111,17 @@ class GroupMembership implements ActionInterface
 			}
 
 			// Are they in this group?
-			$member_or_available = in_array($id, Profile::$member->groups) ? 'member' : 'available';
+			$member_or_available = in_array($group->id, Profile::$member->groups) ? 'member' : 'available';
 
 			// Can't join private or protected groups.
 			if ($group->type < Group::TYPE_REQUESTABLE && $member_or_available == 'available') {
 				continue;
 			}
 
-			Utils::$context['groups'][$member_or_available][$id] = $group;
+			Utils::$context['groups'][$member_or_available][$group->id] = $group;
 
 			// Do they have a pending request to join this group?
-			Utils::$context['groups'][$member_or_available][$id]->pending = in_array($id, $open_requests);
+			Utils::$context['groups'][$member_or_available][$group->id]->pending = in_array($group->id, $open_requests);
 		}
 
 		// If needed, add "Regular Members" on the end.
@@ -241,7 +223,7 @@ class GroupMembership implements ActionInterface
 					if (Profile::$member->group_id == 0 && $can_edit_primary && !empty($new_group_info['can_be_primary'])) {
 						$new_primary = $new_group_id;
 					}
-					// Otherwise, make it an addtional group.
+					// Otherwise, make it an additional group.
 					else {
 						$new_additional_groups[] = $new_group_id;
 					}
@@ -269,55 +251,6 @@ class GroupMembership implements ActionInterface
 		Profile::$member->new_data['id_group'] = $new_primary;
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the save method.
-	 *
-	 * @param int $memID The ID of the user.
-	 * @return string The type of change that was made.
-	 */
-	public static function groupMembership2(int $memID): string
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$saving = Utils::$context['completed_save'];
-		Utils::$context['completed_save'] = true;
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
-
-		Utils::$context['completed_save'] = $saving;
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -333,7 +266,7 @@ class GroupMembership implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Loads an array of information about groups the user is in and any they can join
 	 */
 	protected function loadCurrentAndAssignableGroups(): void
 	{
@@ -389,7 +322,7 @@ class GroupMembership implements ActionInterface
 		if (isset($new_group_id)) {
 			$can_edit_primary = Profile::$member->current_and_assignable_groups[$new_group_id]->can_be_primary;
 		} else {
-			$possible_primary_groups = array_filter(Profile::$member->current_and_assignable_groups, fn ($group) => !empty($group->can_be_primary));
+			$possible_primary_groups = array_filter(Profile::$member->current_and_assignable_groups, fn($group) => !empty($group->can_be_primary));
 
 			$can_edit_primary = !empty($possible_primary_groups);
 		}
@@ -402,7 +335,7 @@ class GroupMembership implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles submitting a user's request to join a group
 	 */
 	protected function sendJoinRequest(int $new_group_id): void
 	{
@@ -442,15 +375,17 @@ class GroupMembership implements ActionInterface
 				'act_reason' => 'string',
 			],
 			[
-				Profile::$member->id,
-				$new_group_id,
-				time(),
-				$_POST['reason'],
-				0,
-				0,
-				'',
-				0,
-				'',
+				[
+					Profile::$member->id,
+					$new_group_id,
+					time(),
+					$_POST['reason'],
+					0,
+					0,
+					'',
+					0,
+					'',
+				],
 			],
 			['id_request'],
 		);
@@ -475,18 +410,15 @@ class GroupMembership implements ActionInterface
 				'claimed_time' => 'int',
 			],
 			[
-				'SMF\\Tasks\\GroupReq_Notify',
-				$data,
-				0,
+				[
+					'SMF\\Tasks\\GroupReq_Notify',
+					$data,
+					0,
+				],
 			],
 			[],
 		);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\GroupMembership::exportStatic')) {
-	GroupMembership::exportStatic();
 }
 
 ?>

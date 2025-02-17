@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -20,23 +22,7 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Alert implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'fetch' => 'fetch_alerts',
-			'count' => 'alert_count',
-			'mark' => 'alert_mark',
-			'delete' => 'alert_delete',
-			'purge' => 'alert_purge',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -280,7 +266,7 @@ class Alert implements \ArrayAccess
 	}
 
 	/**
-	 * Perpares this alert for use in the templates.
+	 * Prepares this alert for use in the templates.
 	 *
 	 * @param bool $with_avatar Whether to load the avatar of the alert sender.
 	 * @param bool $show_links Whether to show links in the constituent parts of
@@ -332,7 +318,7 @@ class Alert implements \ArrayAccess
 				if (isset($data['id_' . $item])) {
 					$separator = $item == 'msg' ? '=?' : '=';
 
-					if (isset($this->extra['content_link']) && strpos($this->extra['content_link'], $item . $separator) !== false && strpos($this->extra['content_link'], $item . $separator . $data['id_' . $item]) === false) {
+					if (isset($this->extra['content_link']) && str_contains($this->extra['content_link'], $item . $separator) && !str_contains($this->extra['content_link'], $item . $separator . $data['id_' . $item])) {
 						$patterns[] = '/\b' . $item . $separator . '\d+/';
 						$replacements[] = $item . $separator . $data['id_' . $item];
 					}
@@ -478,17 +464,17 @@ class Alert implements \ArrayAccess
 
 		if (isset(Lang::$txt[$txt_key])) {
 			$substitutions = [
-				'{scripturl}' => Config::$scripturl,
-				'{member_link}' => !empty($this->member_started) && $this->show_links ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->member_started . '">' . $this->member_name . '</a>' : '<strong>' . $this->member_name . '</strong>',
+				'scripturl' => Config::$scripturl,
+				'member_link' => !empty($this->member_started) && $this->show_links ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->member_started . '">' . $this->member_name . '</a>' : '<strong>' . $this->member_name . '</strong>',
 			];
 
 			if (is_array($this->extra)) {
 				foreach ($this->extra as $k => $v) {
-					$substitutions['{' . $k . '}'] = $v;
+					$substitutions[$k] = $v;
 				}
 			}
 
-			$this->text = strtr(Lang::$txt[$txt_key], $substitutions);
+			$this->text = Lang::getTxt($txt_key, $substitutions);
 		}
 	}
 
@@ -522,15 +508,17 @@ class Alert implements \ArrayAccess
 					'extra' => 'string',
 				],
 				[
-					$this->timestamp,
-					$this->member,
-					$this->member_started,
-					$this->member_name,
-					$this->content_type,
-					$this->content_id,
-					$this->content_action,
-					0,
-					Utils::jsonEncode($this->extra),
+					[
+						$this->timestamp,
+						$this->member,
+						$this->member_started,
+						$this->member_name,
+						$this->content_type,
+						$this->content_id,
+						$this->content_action,
+						0,
+						Utils::jsonEncode($this->extra),
+					],
 				],
 				['id_alert'],
 				1,
@@ -538,7 +526,7 @@ class Alert implements \ArrayAccess
 
 			// Update the keys in self::$loaded.
 			self::$loaded = array_combine(
-				array_map(fn ($alert) => $alert->id, self::$loaded),
+				array_map(fn($alert) => $alert->id, self::$loaded),
 				self::$loaded,
 			);
 
@@ -661,7 +649,7 @@ class Alert implements \ArrayAccess
 
 		foreach ($members as $memID) {
 			foreach (['checkMsgAccess' => 'possible_msgs', 'checkTopicAccess' => 'possible_topics'] as $method => $variable) {
-				$visibility = self::$method(${$variable}[$memID] ?? [], $memID, true);
+				$visibility = self::$method(${$variable}[$memID] ?? [], (int) $memID, true);
 
 				if (!empty($visibility)) {
 					foreach ($props_batch as &$props) {
@@ -686,8 +674,8 @@ class Alert implements \ArrayAccess
 			$inserts[$alert->id] = [
 				$alert->timestamp,
 				$alert->member,
-				$alert->member_started,
-				$alert->member_name,
+				$alert->member_started ?? 0,
+				$alert->member_name ?? '',
 				$alert->content_type,
 				$alert->content_id,
 				$alert->content_action,
@@ -726,13 +714,13 @@ class Alert implements \ArrayAccess
 
 		// Update the keys in self::$loaded.
 		self::$loaded = array_combine(
-			array_map(fn ($alert) => $alert->id, self::$loaded),
+			array_map(fn($alert) => $alert->id, self::$loaded),
 			self::$loaded,
 		);
 
 		// Update the keys in $created.
 		$created = array_combine(
-			array_map(fn ($alert) => $alert->id, $created),
+			array_map(fn($alert) => $alert->id, $created),
 			$created,
 		);
 
@@ -995,8 +983,10 @@ class Alert implements \ArrayAccess
 			'',
 			'UPDATE {db_prefix}user_alerts
 			SET is_read = {int:read}
-			WHERE id_alert IN ({array_int:to_mark})',
+			WHERE id_alert IN ({array_int:to_mark})
+				AND id_member IN ({array_int:members})',
 			[
+				'members' => $members,
 				'read' => $time,
 				'to_mark' => $to_mark,
 			],
@@ -1075,7 +1065,7 @@ class Alert implements \ArrayAccess
 		foreach ($where as &$condition) {
 			$condition = trim($condition);
 
-			if (strpos($condition, 'is_read ') === 0) {
+			if (str_starts_with($condition, 'is_read ')) {
 				$has_read_condition = true;
 			}
 		}
@@ -1111,8 +1101,10 @@ class Alert implements \ArrayAccess
 		Db::$db->query(
 			'',
 			'DELETE FROM {db_prefix}user_alerts
-			WHERE id_alert IN ({array_int:ids})',
+			WHERE id_alert IN ({array_int:ids})
+				AND id_member IN ({array_int:members}',
 			[
+				'members' => $members,
 				'ids' => $ids,
 			],
 		);
@@ -1156,7 +1148,6 @@ class Alert implements \ArrayAccess
 	 *
 	 * @param array $where Conditions for the WHERE clause of the SQL query.
 	 * @param array $params Parameters to substitute into the SQL query.
-	 * @param bool $read To mark as read or unread. True = read, false = unread.
 	 */
 	public static function deleteWhere(array $where, array $params): void
 	{
@@ -1459,7 +1450,7 @@ class Alert implements \ArrayAccess
 	 * @param array $possible_msgs Key-value pairs of alert IDs and topic IDs.
 	 * @return array Key-value pairs of alert IDs and visibility status.
 	 */
-	protected static function checkTopicAccess($possible_topics, int $memID, bool $simple = false): array
+	protected static function checkTopicAccess(array $possible_topics, int $memID, bool $simple = false): array
 	{
 		if (empty($possible_topics)) {
 			return [];
@@ -1559,8 +1550,10 @@ class Alert implements \ArrayAccess
 			Db::$db->query(
 				'',
 				'DELETE FROM {db_prefix}user_alerts
-				WHERE id_alert IN ({array_int:alerts})',
+				WHERE id_alert IN ({array_int:alerts})
+					AND id_member = {int:member}',
 				[
+					'member' => $memID,
 					'alerts' => $deletes,
 				],
 			);
@@ -1600,7 +1593,7 @@ class Alert implements \ArrayAccess
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
 	{
@@ -1622,11 +1615,6 @@ class Alert implements \ArrayAccess
 		}
 		Db::$db->free_result($request);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Alert::exportStatic')) {
-	Alert::exportStatic();
 }
 
 ?>

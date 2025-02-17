@@ -5,17 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
@@ -25,6 +27,7 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
@@ -36,25 +39,9 @@ use SMF\Utils;
  */
 class Boards implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManageBoards',
-			'editBoardSettings' => 'EditBoardSettings',
-		],
-	];
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
 
 	/*******************
 	 * Public properties
@@ -97,18 +84,6 @@ class Boards implements ActionInterface
 
 	// code...
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -118,6 +93,30 @@ class Boards implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Special handling for modifycat.
+		if (($_REQUEST['action'] ?? '') === 'modifycat') {
+			self::modifyCat();
+		}
+
+		// Everything's gonna need this.
+		Lang::load('ManageBoards');
+
+		// Create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['boards_and_cats'],
+			'help' => 'manage_boards',
+			'description' => Lang::$txt['boards_and_cats_desc'],
+			'tabs' => [
+				'main' => [
+				],
+				'newcat' => [
+				],
+				'settings' => [
+					'description' => Lang::$txt['mboards_settings_desc'],
+				],
+			],
+		];
+
 		// Have you got the proper permissions?
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -192,7 +191,7 @@ class Boards implements ActionInterface
 		if (!empty(Utils::$context['move_board'])) {
 			SecurityToken::create('admin-bm-' . Utils::$context['move_board'], 'request');
 
-			Utils::$context['move_title'] = sprintf(Lang::$txt['mboards_select_destination'], Utils::htmlspecialchars(Board::$loaded[Utils::$context['move_board']]->name));
+			Utils::$context['move_title'] = Lang::getTxt('mboards_select_destination', ['name' => Utils::htmlspecialchars(Board::$loaded[Utils::$context['move_board']]->name)]);
 
 			foreach (Category::$loaded as $catid => $tree) {
 				$prev_child_level = 0;
@@ -206,7 +205,7 @@ class Boards implements ActionInterface
 					if (!isset(Utils::$context['categories'][$catid]['move_link'])) {
 						Utils::$context['categories'][$catid]['move_link'] = [
 							'child_level' => 0,
-							'label' => Lang::$txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars(Board::$loaded[$boardid]->name) . '\'',
+							'label' => Lang::getTxt('mboards_order_before', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)]),
 							'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $security,
 						];
 					}
@@ -215,13 +214,13 @@ class Boards implements ActionInterface
 						Utils::$context['categories'][$catid]['boards'][$boardid]['move_links'] = [
 							[
 								'child_level' => Board::$loaded[$boardid]->child_level,
-								'label' => Lang::$txt['mboards_order_after'] . '\'' . Utils::htmlspecialchars(Board::$loaded[$boardid]->name) . '\'',
+								'label' => Lang::getTxt('mboards_order_after', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)]),
 								'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
 								'class' => Board::$loaded[$boardid]->child_level > 0 ? 'above' : 'below',
 							],
 							[
 								'child_level' => Board::$loaded[$boardid]->child_level + 1,
-								'label' => Lang::$txt['mboards_order_child_of'] . ' \'' . Utils::htmlspecialchars(Board::$loaded[$boardid]->name) . '\'',
+								'label' => Lang::getTxt('mboards_order_child_of', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)]),
 								'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
 								'class' => 'here',
 							],
@@ -257,7 +256,7 @@ class Boards implements ActionInterface
 				if (empty(Category::$boardList[$catid])) {
 					Utils::$context['categories'][$catid]['move_link'] = [
 						'child_level' => 0,
-						'label' => Lang::$txt['mboards_order_before'] . ' \'' . Utils::htmlspecialchars($tree->name) . '\'',
+						'label' => Lang::getTxt('mboards_order_before', [Utils::htmlspecialchars($tree->name)]),
 						'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_cat=' . $catid . ';move_to=top;' . $security,
 					];
 				}
@@ -340,7 +339,7 @@ class Boards implements ActionInterface
 			} elseif ($catid != $_REQUEST['cat']) {
 				Utils::$context['category_order'][$catid] = [
 					'id' => $catid,
-					'name' => Lang::$txt['mboards_order_after'] . $tree->name,
+					'name' => Lang::getTxt('mboards_order_after', [$tree->name]),
 					'selected' => false,
 					'true_name' => $tree->name,
 				];
@@ -389,9 +388,9 @@ class Boards implements ActionInterface
 				$catOptions['move_after'] = (int) $_POST['cat_order'];
 			}
 
-			// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
+			// Try to get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
 			$catOptions['cat_name'] = Utils::htmlspecialchars(strip_tags($_POST['cat_name']));
-			$catOptions['cat_desc'] = Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($_POST['cat_desc'])));
+			$catOptions['cat_desc'] = Utils::htmlspecialchars(strip_tags(Parser::transform($_POST['cat_desc'], Parser::OUTPUT_BBC)));
 			$catOptions['is_collapsible'] = isset($_POST['collapse']);
 
 			if (isset($_POST['add'])) {
@@ -700,9 +699,9 @@ class Boards implements ActionInterface
 				ErrorHandler::fatalLang('too_many_groups', false);
 			}
 
-			// Try and get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
+			// Try to get any valid HTML to BBC first, add a naive attempt to strip it off, htmlspecialchars for the rest
 			$boardOptions['board_name'] = Utils::htmlspecialchars(strip_tags($_POST['board_name']));
-			$boardOptions['board_description'] = Utils::htmlspecialchars(strip_tags(BBCodeParser::load()->unparse($_POST['desc'])));
+			$boardOptions['board_description'] = Utils::htmlspecialchars(strip_tags(Parser::transform($_POST['desc'], Parser::OUTPUT_BBC)));
 
 			$boardOptions['moderator_string'] = $_POST['moderators'];
 
@@ -809,7 +808,7 @@ class Boards implements ActionInterface
 	/**
 	 * Used to retrieve data for modifying a board category.
 	 */
-	public function modifyCat(): void
+	public static function modifyCat(): void
 	{
 		// Get some information about the boards and the cats.
 		Category::getTree();
@@ -818,7 +817,7 @@ class Boards implements ActionInterface
 		$allowed_sa = ['add', 'modify', 'cut'];
 
 		// Check our input.
-		$_POST['id'] = empty($_POST['id']) ? array_keys((array) Board::$info) : (int) $_POST['id'];
+		$_POST['id'] = empty($_POST['id']) ? array_keys((array) current(Board::$loaded)) : (int) $_POST['id'];
 		$_POST['id'] = substr($_POST['id'][1], 0, 3);
 
 		// Select the stuff we need from the DB.
@@ -890,28 +889,6 @@ class Boards implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for this admin area.
 	 *
 	 * @return array $config_vars for the boards area.
@@ -968,23 +945,6 @@ class Boards implements ActionInterface
 		return $config_vars;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function editBoardSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -994,41 +954,11 @@ class Boards implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Everything's gonna need this.
-		Lang::load('ManageBoards');
-
-		// Create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['boards_and_cats'],
-			'help' => 'manage_boards',
-			'description' => Lang::$txt['boards_and_cats_desc'],
-			'tabs' => [
-				'main' => [
-				],
-				'newcat' => [
-				],
-				'settings' => [
-					'description' => Lang::$txt['mboards_settings_desc'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_boards', [&self::$subactions]);
 
 		// Default to sub action 'main' or 'settings' depending on permissions.
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('manage_boards') ? 'main' : 'settings');
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	// code...
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Boards::exportStatic')) {
-	Boards::exportStatic();
 }
 
 ?>

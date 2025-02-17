@@ -5,17 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Register2;
-use SMF\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -36,24 +39,9 @@ use SMF\Utils;
  */
 class Registration implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RegCenter',
-			'adminRegister' => 'AdminRegister',
-			'editAgreement' => 'EditAgreement',
-			'editPrivacyPolicy' => 'EditPrivacyPolicy',
-			'setReserved' => 'SetReserved',
-			'modifyRegistrationSettings' => 'ModifyRegistrationSettings',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -85,18 +73,6 @@ class Registration implements ActionInterface
 		'settings' => ['settings', 'admin_forum'],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -106,6 +82,34 @@ class Registration implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Loading, always loading.
+		Lang::load('Login');
+		Theme::loadTemplate('Register');
+
+		// Next create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['registration_center'],
+			'help' => 'registrations',
+			'description' => Lang::$txt['admin_settings_desc'],
+			'tabs' => [
+				'register' => [
+					'description' => Lang::$txt['admin_register_desc'],
+				],
+				'agreement' => [
+					'description' => Lang::$txt['registration_agreement_desc'],
+				],
+				'policy' => [
+					'description' => Lang::$txt['privacy_policy_desc'],
+				],
+				'reservednames' => [
+					'description' => Lang::$txt['admin_reserved_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['admin_settings_desc'],
+				],
+			],
+		];
+
 		// Must have sufficient permissions.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -170,7 +174,7 @@ class Registration implements ActionInterface
 					'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $memberID . '">' . $_POST['user'] . '</a>',
 				];
 
-				Utils::$context['registration_done'] = sprintf(Lang::$txt['admin_register_done'], Utils::$context['new_member']['link']);
+				Utils::$context['registration_done'] = Lang::getTxt('admin_register_done', Utils::$context['new_member']);
 			}
 		}
 
@@ -231,27 +235,27 @@ class Registration implements ActionInterface
 
 		// Is there more than one to edit?
 		Utils::$context['editable_agreements'] = [
-			'' => Lang::$txt['admin_agreement_default'],
+			'en_US' => Lang::$txt['admin_agreement_default'],
 		];
 
 		// Get our languages.
 		Lang::get();
 
 		// Try to figure out if we have more agreements.
-		foreach (Utils::$context['languages'] as $lang) {
-			if (file_exists(Config::$boarddir . '/agreement.' . $lang['filename'] . '.txt')) {
-				Utils::$context['editable_agreements']['.' . $lang['filename']] = $lang['name'];
+		foreach (Utils::$context['languages'] as $lang_id => $lang) {
+			if (file_exists(Config::$languagesdir . '/' . $lang_id . '/agreement.txt')) {
+				Utils::$context['editable_agreements'][$lang_id] = $lang['name'];
 
 				// Are we editing this?
-				if (isset($_POST['agree_lang']) && $_POST['agree_lang'] == '.' . $lang['filename']) {
-					Utils::$context['current_agreement'] = '.' . $lang['filename'];
+				if (isset($_POST['agree_lang']) && $_POST['agree_lang'] == $lang_id) {
+					Utils::$context['current_agreement'] = $lang_id;
 				}
 			}
 		}
 
-		$agreement_lang = empty(Utils::$context['current_agreement']) ? 'default' : substr(Utils::$context['current_agreement'], 1);
+		$agreement_lang = !empty(Utils::$context['current_agreement']) ? Utils::$context['current_agreement'] : 'en_US';
 
-		$agreement_file = Config::$boarddir . '/agreement' . Utils::$context['current_agreement'] . '.txt';
+		$agreement_file = Config::$languagesdir . '/' . $agreement_lang . '/agreement.txt';
 
 		Utils::$context['agreement'] = file_exists($agreement_file) ? str_replace("\r", '', file_get_contents($agreement_file)) : '';
 
@@ -263,7 +267,7 @@ class Registration implements ActionInterface
 			User::$me->checkSession();
 			SecurityToken::validate('admin-rega');
 
-			$backup_file = (date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . $agreement_file;
+			$backup_file = dirname($agreement_file) . '/' . (date_create('@' . filemtime($agreement_file))->format('Y-m-d\\TH_i_sp')) . '_' . basename($agreement_file);
 
 			// Off it goes to the agreement file.
 			if (Config::safeFileWrite($agreement_file, $_POST['agreement'], $backup_file)) {
@@ -276,7 +280,7 @@ class Registration implements ActionInterface
 					'replace',
 					'{db_prefix}themes',
 					['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
-					[User::$me->id, 1, 'agreement_accepted', time()],
+					[[User::$me->id, 1, 'agreement_accepted', time()]],
 					['id_member', 'id_theme', 'variable'],
 				);
 
@@ -292,11 +296,11 @@ class Registration implements ActionInterface
 			}
 		}
 
-		Utils::$context['agreement_info'] = sprintf(Lang::$txt['admin_agreement_info'], empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['agreement_updated_' . $agreement_lang])->format());
+		Utils::$context['agreement_info'] = Lang::getTxt('admin_agreement_info', ['datetime' => empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['agreement_updated_' . $agreement_lang])->format()]);
 
 		Utils::$context['agreement'] = Utils::htmlspecialchars(Utils::$context['agreement']);
 
-		Utils::$context['warning'] = is_writable($agreement_file) ? '' : Lang::$txt['agreement_not_writable'];
+		Utils::$context['warning'] = is_writable($agreement_file) && is_writable(dirname($agreement_file)) ? '' : Lang::$txt['agreement_not_writable'];
 
 		Utils::$context['sub_template'] = 'edit_agreement';
 		Utils::$context['page_title'] = Lang::$txt['registration_agreement'];
@@ -338,10 +342,15 @@ class Registration implements ActionInterface
 			// Make sure there are no creepy-crawlies in it.
 			$policy_text = Utils::normalizeSpaces(Utils::htmlspecialchars($_POST['policy']));
 
+			$policy_updated_lang = Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']] ?? 0;
+
 			$policy_settings = [
 				'policy_' . Utils::$context['current_policy_lang'] => $policy_text,
-				'policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']] => Utils::$context['privacy_policy'],
 			];
+
+			if (isset(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']], Config::$modSettings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]])) {
+				$policy_settings['policy_' . Utils::$context['current_policy_lang'] . '_' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]] = Utils::$context['privacy_policy'];
+			}
 
 			$policy_settings['policy_updated_' . Utils::$context['current_policy_lang']] = time();
 
@@ -350,7 +359,7 @@ class Registration implements ActionInterface
 				'replace',
 				'{db_prefix}themes',
 				['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
-				[User::$me->id, 1, 'policy_accepted', time()],
+				[[User::$me->id, 1, 'policy_accepted', time()]],
 				['id_member', 'id_theme', 'variable'],
 			);
 
@@ -367,7 +376,7 @@ class Registration implements ActionInterface
 			Utils::$context['privacy_policy'] = $policy_text;
 		}
 
-		Utils::$context['privacy_policy_info'] = sprintf(Lang::$txt['admin_agreement_info'], empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']])->format());
+		Utils::$context['privacy_policy_info'] = Lang::getTxt('admin_agreement_info', ['datetime' => empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']])->format()]);
 
 		Utils::$context['sub_template'] = 'edit_privacy_policy';
 		Utils::$context['page_title'] = Lang::$txt['privacy_policy'];
@@ -483,28 +492,6 @@ class Registration implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for this admin area.
 	 *
 	 * @return array $config_vars for the registration area.
@@ -512,7 +499,7 @@ class Registration implements ActionInterface
 	public static function getConfigVars(): array
 	{
 		// Do we have at least default versions of the agreement and privacy policy?
-		$agreement = file_exists(Config::$boarddir . '/agreement.' . Lang::$default . '.txt') || file_exists(Config::$boarddir . '/agreement.txt');
+		$agreement = file_exists(Config::$languagesdir . '/' . Lang::$default . '/agreement.txt') || file_exists(Config::$languagesdir . '/agreement.txt');
 
 		$policy = !empty(Config::$modSettings['policy_' . Lang::$default]);
 
@@ -541,63 +528,6 @@ class Registration implements ActionInterface
 		return $config_vars;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the register sub-action.
-	 */
-	public static function adminRegister(): void
-	{
-		self::load();
-		self::$obj->subaction = 'register';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the agreement sub-action.
-	 */
-	public static function editAgreement(): void
-	{
-		self::load();
-		self::$obj->subaction = 'agreement';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the policy sub-action.
-	 */
-	public static function editPrivacyPolicy(): void
-	{
-		self::load();
-		self::$obj->subaction = 'policy';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the reservednames sub-action.
-	 */
-	public static function setReserved(): void
-	{
-		self::load();
-		self::$obj->subaction = 'reservednames';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyRegistrationSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -607,34 +537,6 @@ class Registration implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Loading, always loading.
-		Lang::load('Login');
-		Theme::loadTemplate('Register');
-
-		// Next create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['registration_center'],
-			'help' => 'registrations',
-			'description' => Lang::$txt['admin_settings_desc'],
-			'tabs' => [
-				'register' => [
-					'description' => Lang::$txt['admin_register_desc'],
-				],
-				'agreement' => [
-					'description' => Lang::$txt['registration_agreement_desc'],
-				],
-				'policy' => [
-					'description' => Lang::$txt['privacy_policy_desc'],
-				],
-				'reservednames' => [
-					'description' => Lang::$txt['admin_reserved_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['admin_settings_desc'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_registrations', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -646,11 +548,6 @@ class Registration implements ActionInterface
 		// @todo Is this context variable necessary?
 		Utils::$context['sub_action'] = $this->subaction;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Registration::exportStatic')) {
-	Registration::exportStatic();
 }
 
 ?>

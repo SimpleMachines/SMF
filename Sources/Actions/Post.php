@@ -5,29 +5,34 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
+use SMF\ActionTrait;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
 use SMF\Board;
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Draft;
 use SMF\Editor;
 use SMF\ErrorHandler;
-use SMF\Event;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\Parser;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
@@ -40,20 +45,11 @@ use SMF\Verifier;
 /**
  * This class handles posting and modifying replies and new topics.
  */
-class Post implements ActionInterface
+class Post implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
+	use ActionTrait;
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'post' => 'Post',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -190,18 +186,6 @@ class Post implements ActionInterface
 	 */
 	protected int $counter = 0;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -244,7 +228,7 @@ class Post implements ActionInterface
 	 */
 	public function show(): void
 	{
-		Lang::load('Post');
+		Lang::load('Post+Calendar');
 
 		if (!empty(Config::$modSettings['drafts_post_enabled'])) {
 			Lang::load('Drafts');
@@ -265,6 +249,7 @@ class Post implements ActionInterface
 		$this->setBoards();
 
 		if (isset($_REQUEST['xml'])) {
+			Theme::loadTemplate('Xml');
 			Utils::$context['sub_template'] = 'post';
 
 			// Just in case of an earlier error...
@@ -398,37 +383,85 @@ class Post implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @return object An instance of this class.
+	 * @param array $params URL query parameters.
+	 * @param bool $append If true, the action route will be appended to the
+	 *    topic or board route indicated by the topic or board params.
+	 *    Default: false.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function load(): object
+	public static function buildRoute(array $params): array
 	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
+		if (isset($params['topic'])) {
+			extract(Topic::buildRoute($params));
+		} elseif (isset($params['board'])) {
+			extract(Board::buildRoute($params));
 		}
 
-		return self::$obj;
+		$route = array_merge($route ?? [], self::buildActionRoute($params));
+
+		if (isset($params['msg'])) {
+			$route[] = $params['msg'];
+			unset($params['msg']);
+		}
+
+		if (isset($params['calendar'])) {
+			$route[] = 'calendar';
+			unset($params['calendar']);
+
+			if (isset($params['eventid'])) {
+				$route[] = 'events';
+				$route[] = $params['eventid'];
+				unset($params['eventid']);
+
+
+				if (isset($params['recurrenceid'])) {
+					$route[] = $params['recurrenceid'];
+					unset($params['recurrenceid']);
+				}
+			}
+		}
+
+		return ['route' => $route, 'params' => $params];
 	}
 
 	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper.
+	 * Parses a route to get URL query parameters.
 	 *
-	 * Needed to allow old mods to pass $post_errors as a function parameter.
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
 	 */
-	public static function post($post_errors = []): void
+	public static function parseRoute(array $route, array $params = []): array
 	{
-		self::load();
-		self::$obj->errors = (array) $post_errors;
-		self::$obj->execute();
+		$params['action'] = array_shift($route);
+
+		if (!empty($route) && in_array($route[0], self::$subactions)) {
+			$params['sa'] = array_shift($route);
+		}
+
+		if (!empty($route) && is_numeric($route[0])) {
+			$params['msg'] = array_shift($route);
+		}
+
+		if (!empty($route) && $route[0] === 'calendar') {
+			array_shift($route);
+			$params['calendar'] = true;
+
+			if (!empty($route) && $route[0] === 'events') {
+				array_shift($route);
+				$params['eventid'] = array_shift($route);
+
+				if (!empty($route)) {
+					$params['recurrenceid'] = array_shift($route);
+				}
+			}
+		}
+
+		return $params;
 	}
 
 	/******************
@@ -493,7 +526,11 @@ class Post implements ActionInterface
 			// Censor, BBC, ...
 			Lang::censorText($row['body']);
 
-			$row['body'] = BBCodeParser::load()->parse($row['body'], $row['smileys_enabled'], $row['id_msg']);
+			$row['body'] = Parser::transform(
+				string: $row['body'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | ((bool) $row['smileys_enabled'] ? Parser::INPUT_SMILEYS : 0),
+				options: ['cache_id' => (int) $row['id_msg']],
+			);
 
 			IntegrationHook::call('integrate_getTopic_previous_post', [&$row]);
 
@@ -607,7 +644,7 @@ class Post implements ActionInterface
 
 		// Though the topic should be there, it might have vanished.
 		if (empty(Topic::$info->id)) {
-			ErrorHandler::fatalLang('topic_doesnt_exist', 404);
+			ErrorHandler::fatalLang('topic_doesnt_exist', status: 404);
 		}
 
 		// Did this topic suddenly move? Just checking...
@@ -617,7 +654,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up various Utils::$context variables for the template when replying to a topic
 	 */
 	protected function initiateReply(): void
 	{
@@ -678,7 +715,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up the form for posting a new topic
 	 */
 	protected function initiateNewTopic(): void
 	{
@@ -691,9 +728,9 @@ class Post implements ActionInterface
 			User::$me->isAllowedTo('post_new', $this->boards, true);
 		}
 
-		$this->locked = 0;
-		Utils::$context['already_locked'] = 0;
-		Utils::$context['already_sticky'] = 0;
+		$this->locked = false;
+		Utils::$context['already_locked'] = false;
+		Utils::$context['already_sticky'] = false;
 		Utils::$context['sticky'] = !empty($_REQUEST['sticky']);
 
 		// What options should we show?
@@ -705,7 +742,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up the form for creating a new topic with a poll
 	 */
 	protected function initiatePoll(): void
 	{
@@ -727,7 +764,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up the form for creating a new event
 	 */
 	protected function initiateEvent(): void
 	{
@@ -742,15 +779,39 @@ class Post implements ActionInterface
 
 		// Start loading up the event info.
 		if (isset($_REQUEST['eventid'])) {
-			list(Utils::$context['event']) = Event::load((int) $_REQUEST['eventid']);
+			Utils::$context['event'] = current(Event::load((int) $_REQUEST['eventid']));
 		}
 
-		if (!(Utils::$context['event'] instanceof Event)) {
+		if (!isset(Utils::$context['event']) || !(Utils::$context['event'] instanceof Event)) {
 			Utils::$context['event'] = new Event(-1);
+			Utils::$context['event']->selected_occurrence = Utils::$context['event']->getFirstOccurrence();
+		} else {
+			if (isset($_REQUEST['recurrenceid'])) {
+				$selected_occurrence = Utils::$context['event']->getOccurrence($_REQUEST['recurrenceid']);
+			}
+
+			if (empty($selected_occurrence)) {
+				$selected_occurrence = Utils::$context['event']->getFirstOccurrence();
+			}
+
+			Utils::$context['event']->selected_occurrence = $selected_occurrence;
 		}
 
 		// Permissions check!
 		User::$me->isAllowedTo('calendar_post');
+
+		// Are there any other linked events besides this one?
+		foreach (Event::load(Topic::$topic_id, true) as $event) {
+			if ($event->id === Utils::$context['event']->id) {
+				continue;
+			}
+
+			if (($occurrence = $event->getUpcomingOccurrence()) === false) {
+				$occurrence = $event->getLastOccurrence();
+			}
+
+			Utils::$context['linked_calendar_events'][] = $occurrence;
+		}
 
 		// We want a fairly compact version of the time, but as close as possible to the user's settings.
 		$time_string = Time::getShortTimeFormat();
@@ -780,33 +841,27 @@ class Post implements ActionInterface
 
 		// An all day event? Set up some nice defaults in case the user wants to change that
 		if (Utils::$context['event']->allday == true) {
-			Utils::$context['event']->tz = User::getTimezone();
-			Utils::$context['event']->start->modify(Time::create('now')->format('%H:%M:%S'));
-			Utils::$context['event']->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
+			Utils::$context['event']->selected_occurrence->tz = User::getTimezone();
+			Utils::$context['event']->selected_occurrence->start->modify(Time::create('now')->format('%H:%M:%S'));
+			Utils::$context['event']->selected_occurrence->end->modify(Time::create('now + 1 hour')->format('%H:%M:%S'));
 		}
 
 		// Need this so the user can select a timezone for the event.
-		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->start_date);
+		Utils::$context['all_timezones'] = TimeZone::list(Utils::$context['event']->timestamp);
 
 		// If the event's timezone is not in SMF's standard list of time zones, try to fix it.
-		Utils::$context['event']->fixTimezone();
+		Utils::$context['event']->selected_occurrence->fixTimezone();
 
-		Calendar::loadDatePicker('#event_time_input .date_input');
-		Calendar::loadTimePicker('#event_time_input .time_input', $time_string);
-		Calendar::loadDatePair('#event_time_input', 'date_input', 'time_input');
-		Theme::addInlineJavaScript('
-		$("#allday").click(function(){
-			$("#start_time").attr("disabled", this.checked);
-			$("#end_time").attr("disabled", this.checked);
-			$("#tz").attr("disabled", this.checked);
-		});	', true);
+		Theme::loadTemplate('EventEditor');
+		Theme::addJavaScriptVar('monthly_byday_items', (string) (count(Utils::$context['event']->byday_items) - 1));
+		Theme::loadJavaScriptFile('event.js', ['defer' => true], 'smf_event');
 
-		Utils::$context['event']->board = !empty(Board::$info->id) ? Board::$info->id : Config::$modSettings['cal_defaultboard'];
-		Utils::$context['event']->topic = !empty(Topic::$info->id) ? Topic::$info->id : 0;
+		Utils::$context['event']->board = !empty(Utils::$context['event']->board) ? Utils::$context['event']->board : (Board::$info->id ?? (int) Config::$modSettings['cal_defaultboard']);
+		Utils::$context['event']->topic = !empty(Utils::$context['event']->topic) ? Utils::$context['event']->topic : -1;
 	}
 
 	/**
-	 *
+	 * Checks whether any new replies have been posted while the user was typing and warns them if so
 	 */
 	protected function checkForNewReplies(): void
 	{
@@ -844,11 +899,7 @@ class Post implements ActionInterface
 		Db::$db->free_result($request);
 
 		if (!empty(Utils::$context['new_replies'])) {
-			if (Utils::$context['new_replies'] == 1) {
-				Lang::$txt['error_new_replies'] = isset($_GET['last_msg']) ? Lang::$txt['error_new_reply_reading'] : Lang::$txt['error_new_reply'];
-			} else {
-				Lang::$txt['error_new_replies'] = sprintf(isset($_GET['last_msg']) ? Lang::$txt['error_new_replies_reading'] : Lang::$txt['error_new_replies'], Utils::$context['new_replies']);
-			}
+			Lang::$txt['error_new_replies'] = Lang::getTxt('error_new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), [Utils::$context['new_replies']]);
 
 			$this->errors[] = 'new_replies';
 
@@ -857,7 +908,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles setting the response prefix
 	 */
 	protected function setResponsePrefix(): void
 	{
@@ -865,16 +916,16 @@ class Post implements ActionInterface
 			if (Lang::$default === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
 			} else {
-				Lang::load('index', Lang::$default, false);
+				Lang::load('General', Lang::$default, false);
 				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('index');
+				Lang::load('General');
 			}
 			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
 	}
 
 	/**
-	 *
+	 * Handles previewing a post
 	 */
 	protected function showPreview(): void
 	{
@@ -979,7 +1030,11 @@ class Post implements ActionInterface
 			Msg::preparsecode(Utils::$context['preview_message']);
 
 			// Do all bulletin board code tags, with or without smileys.
-			Utils::$context['preview_message'] = BBCodeParser::load()->parse(Utils::$context['preview_message'], !isset($_REQUEST['ns']));
+			Utils::$context['preview_message'] = Parser::transform(
+				string: Utils::$context['preview_message'],
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | (!isset($_REQUEST['ns']) ? Parser::INPUT_SMILEYS : 0),
+			);
+
 			Lang::censorText(Utils::$context['preview_message']);
 
 			if ($this->form_subject != '') {
@@ -1092,7 +1147,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Shows the form for editing a post
 	 */
 	protected function showEdit(): void
 	{
@@ -1151,7 +1206,9 @@ class Post implements ActionInterface
 		if (!empty($row['modified_time'])) {
 			Utils::$context['last_modified'] = Time::create('@' . $row['modified_time'])->format();
 			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
-			Utils::$context['last_modified_text'] = sprintf(Lang::$txt['last_edit_by'], Utils::$context['last_modified'], $row['modified_name']) . empty($row['modified_reason']) ? '' : '&nbsp;' . Lang::$txt['last_edit_reason'] . ':&nbsp;' . $row['modified_reason'];
+			Utils::$context['last_modified_reason_raw'] = $row['modified_reason'];
+			Utils::$context['last_modified_name'] = $row['modified_name'];
+			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']]) . empty($row['modified_reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']]);
 		}
 
 		// Get the stuff ready for the form.
@@ -1187,7 +1244,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Shows the form for creating a new post
 	 */
 	protected function showNew(): void
 	{
@@ -1239,7 +1296,7 @@ class Post implements ActionInterface
 			Lang::censorText($this->form_subject);
 
 			// But if it's in HTML world, turn them into htmlspecialchar's so they can be edited!
-			if (strpos($this->form_message, '[html]') !== false) {
+			if (str_contains($this->form_message, '[html]')) {
 				$parts = preg_split('~(\[/code\]|\[code(?:=[^\]]+)?\])~i', $this->form_message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 				for ($i = 0, $n = count($parts); $i < $n; $i++) {
@@ -1289,7 +1346,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles showing attachments and setting up information for the attachments interface
 	 */
 	protected function showAttachments(): void
 	{
@@ -1327,7 +1384,7 @@ class Post implements ActionInterface
 				// Is this a request to delete them?
 				if (isset($_GET['delete_temp'])) {
 					foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
-						if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false) {
+						if (str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 							if (file_exists($attachment['tmp_name'])) {
 								unlink($attachment['tmp_name']);
 							}
@@ -1343,7 +1400,7 @@ class Post implements ActionInterface
 					if ((empty($_REQUEST['msg']) && empty($_SESSION['temp_attachments']['post']['msg']) && $_SESSION['temp_attachments']['post']['board'] == (!empty(Board::$info->id) ? Board::$info->id : 0)) || (!empty($_REQUEST['msg']) && $_SESSION['temp_attachments']['post']['msg'] == $_REQUEST['msg'])) {
 						// See if any files still exist before showing the warning message and the files attached.
 						foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
-							if (strpos($attachID, 'post_tmp_' . User::$me->id) === false) {
+							if (!str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 								continue;
 							}
 
@@ -1366,7 +1423,7 @@ class Post implements ActionInterface
 						$file_list = [];
 
 						foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
-							if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false) {
+							if (str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 								$file_list[] = $attachment['name'];
 							}
 						}
@@ -1378,11 +1435,11 @@ class Post implements ActionInterface
 							// We have a message id, so we can link back to the old topic they were trying to edit..
 							$goback_url = Config::$scripturl . '?action=post' . (!empty($_SESSION['temp_attachments']['post']['msg']) ? (';msg=' . $_SESSION['temp_attachments']['post']['msg']) : '') . (!empty($_SESSION['temp_attachments']['post']['last_msg']) ? (';last_msg=' . $_SESSION['temp_attachments']['post']['last_msg']) : '') . ';topic=' . $_SESSION['temp_attachments']['post']['topic'] . ';additionalOptions';
 
-							$this->errors[] = ['temp_attachments_found', [$delete_url, $goback_url, $file_list]];
+							$this->errors[] = ['temp_attachments_found', ['delete_url' => $delete_url, 'goback_url' => $goback_url, 'file_list' => $file_list]];
 
 							Utils::$context['ignore_temp_attachments'] = true;
 						} else {
-							$this->errors[] = ['temp_attachments_lost', [$delete_url, $file_list]];
+							$this->errors[] = ['temp_attachments_lost', ['delete_url' => $delete_url, 'file_list' => $file_list]];
 
 							Utils::$context['ignore_temp_attachments'] = true;
 						}
@@ -1398,12 +1455,12 @@ class Post implements ActionInterface
 						break;
 					}
 
-					if ($attachID != 'initial_error' && strpos($attachID, 'post_tmp_' . User::$me->id) === false) {
+					if ($attachID != 'initial_error' && !str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 						continue;
 					}
 
 					if ($attachID == 'initial_error') {
-						Lang::$txt['error_attach_initial_error'] = Lang::$txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? vsprintf(Lang::$txt[$attachment[0]], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</div>';
+						Lang::$txt['error_attach_initial_error'] = Lang::$txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</div>';
 
 						$this->errors[] = 'attach_initial_error';
 
@@ -1416,10 +1473,10 @@ class Post implements ActionInterface
 					if (!empty($attachment['errors'])) {
 						Lang::$txt['error_attach_errors'] = empty(Lang::$txt['error_attach_errors']) ? '<br>' : '';
 
-						Lang::$txt['error_attach_errors'] .= sprintf(Lang::$txt['attach_warning'], $attachment['name']) . '<div style="padding: 0 1em;">';
+						Lang::$txt['error_attach_errors'] .= Lang::getTxt('attach_warning', $attachment) . '<div style="padding: 0 1em;">';
 
 						foreach ($attachment['errors'] as $error) {
-							Lang::$txt['error_attach_errors'] .= (is_array($error) ? vsprintf(Lang::$txt[$error[0]], (array) $error[1]) : Lang::$txt[$error]) . '<br >';
+							Lang::$txt['error_attach_errors'] .= (is_array($error) ? Lang::getTxt($error[0], (array) $error[1]) : Lang::$txt[$error]) . '<br >';
 						}
 
 						Lang::$txt['error_attach_errors'] .= '</div>';
@@ -1504,13 +1561,15 @@ class Post implements ActionInterface
 
 			foreach ($attachmentRestrictionTypes as $type) {
 				if (!empty(Config::$modSettings[$type])) {
-					Utils::$context['attachment_restrictions'][$type] = sprintf(Lang::$txt['attach_restrict_' . $type . (Config::$modSettings[$type] >= 1024 ? '_MB' : '')], Lang::numberFormat(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2));
+					Config::$modSettings[$type] = (int) Config::$modSettings[$type];
+
+					Utils::$context['attachment_restrictions'][$type] = Lang::getTxt('attach_restrict_' . $type, [round(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2), 'unit' => Config::$modSettings[$type] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']]);
 
 					// Show the max number of attachments if not 0.
 					if ($type == 'attachmentNumPerPostLimit') {
-						Utils::$context['attachment_restrictions'][$type] .= ' (' . sprintf(Lang::$txt['attach_remaining'], max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)) . ')';
+						Utils::$context['attachment_restrictions'][$type] .= ' (' . Lang::getTxt('attach_remaining', [max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)]) . ')';
 					} elseif ($type == 'attachmentPostLimit' && Utils::$context['attachments']['total_size'] > 0) {
-						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . sprintf(Lang::$txt['attach_available'], round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)) . ')</span>';
+						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . Lang::getTxt('attach_available', [round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)]) . ')</span>';
 					}
 				}
 			}
@@ -1524,11 +1583,11 @@ class Post implements ActionInterface
 			foreach (Utils::$context['current_attachments'] as $key => $mock) {
 				Theme::addInlineJavaScript('
 		current_attachments.push({
-			name: ' . Utils::JavaScriptEscape($mock['name']) . ',
+			name: ' . Utils::escapeJavaScript($mock['name']) . ',
 			size: ' . $mock['size'] . ',
 			attachID: ' . $mock['attachID'] . ',
 			approved: ' . $mock['approved'] . ',
-			type: ' . Utils::JavaScriptEscape(!empty($mock['mime_type']) ? $mock['mime_type'] : '') . ',
+			type: ' . Utils::escapeJavaScript(!empty($mock['mime_type']) ? $mock['mime_type'] : '') . ',
 			thumbID: ' . (!empty($mock['thumb']) ? $mock['thumb'] : 0) . '
 		});');
 			}
@@ -1548,24 +1607,24 @@ class Post implements ActionInterface
 			Theme::addInlineJavaScript('
 		$(function() {
 			smf_fileUpload({
-				dictDefaultMessage : ' . Utils::JavaScriptEscape(Lang::$txt['attach_drop_zone']) . ',
-				dictFallbackMessage : ' . Utils::JavaScriptEscape(Lang::$txt['attach_drop_zone_no']) . ',
-				dictCancelUpload : ' . Utils::JavaScriptEscape(Lang::$txt['modify_cancel']) . ',
-				genericError: ' . Utils::JavaScriptEscape(Lang::$txt['attach_php_error']) . ',
-				text_attachDropzoneLabel: ' . Utils::JavaScriptEscape(Lang::$txt['attach_drop_zone']) . ',
-				text_attachLimitNag: ' . Utils::JavaScriptEscape(Lang::$txt['attach_limit_nag']) . ',
-				text_attachLeft: ' . Utils::JavaScriptEscape(Lang::$txt['attachments_left']) . ',
-				text_deleteAttach: ' . Utils::JavaScriptEscape(Lang::$txt['attached_file_delete']) . ',
-				text_attachDeleted: ' . Utils::JavaScriptEscape(Lang::$txt['attached_file_deleted']) . ',
-				text_insertBBC: ' . Utils::JavaScriptEscape(Lang::$txt['attached_insert_bbc']) . ',
-				text_attachUploaded: ' . Utils::JavaScriptEscape(Lang::$txt['attached_file_uploaded']) . ',
-				text_attach_unlimited: ' . Utils::JavaScriptEscape(Lang::$txt['attach_drop_unlimited']) . ',
-				text_totalMaxSize: ' . Utils::JavaScriptEscape(Lang::$txt['attach_max_total_file_size_current']) . ',
-				text_max_size_progress: ' . Utils::JavaScriptEscape('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte'])) . ',
-				dictMaxFilesExceeded: ' . Utils::JavaScriptEscape(Lang::$txt['more_attachments_error']) . ',
-				dictInvalidFileType: ' . Utils::JavaScriptEscape(sprintf(Lang::$txt['cant_upload_type'], Utils::$context['allowed_extensions'])) . ',
-				dictFileTooBig: ' . Utils::JavaScriptEscape(sprintf(Lang::$txt['file_too_big'], Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0))) . ',
-				acceptedFiles: ' . Utils::JavaScriptEscape($acceptedFiles) . ',
+				dictDefaultMessage : ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_zone']) . ',
+				dictFallbackMessage : ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_zone_no']) . ',
+				dictCancelUpload : ' . Utils::escapeJavaScript(Lang::$txt['modify_cancel']) . ',
+				genericError: ' . Utils::escapeJavaScript(Lang::$txt['attach_php_error']) . ',
+				text_attachDropzoneLabel: ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_zone']) . ',
+				text_attachLimitNag: ' . Utils::escapeJavaScript(Lang::$txt['attach_limit_nag']) . ',
+				text_attachLeft: ' . Utils::escapeJavaScript(Lang::$txt['attachments_left']) . ',
+				text_deleteAttach: ' . Utils::escapeJavaScript(Lang::$txt['attached_file_delete']) . ',
+				text_attachDeleted: ' . Utils::escapeJavaScript(Lang::$txt['attached_file_deleted']) . ',
+				text_insertBBC: ' . Utils::escapeJavaScript(Lang::$txt['attached_insert_bbc']) . ',
+				text_attachUploaded: ' . Utils::escapeJavaScript(Lang::$txt['attached_file_uploaded']) . ',
+				text_attach_unlimited: ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_unlimited']) . ',
+				text_totalMaxSize: ' . Utils::escapeJavaScript(Lang::$txt['attach_max_total_file_size_current']) . ',
+				text_max_size_progress: ' . Utils::escapeJavaScript('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte'])) . ',
+				dictMaxFilesExceeded: ' . Utils::escapeJavaScript(Lang::$txt['more_attachments_error']) . ',
+				dictInvalidFileType: ' . Utils::escapeJavaScript(Lang::getTxt('cant_upload_type', Utils::$context)) . ',
+				dictFileTooBig: ' . Utils::escapeJavaScript(Lang::getTxt('file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)])) . ',
+				acceptedFiles: ' . Utils::escapeJavaScript($acceptedFiles) . ',
 				thumbnailWidth: ' . (!empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 'null') . ',
 				thumbnailHeight: ' . (!empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 'null') . ',
 				limitMultiFileUploadSize:' . round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0)) * 1024 . ',
@@ -1580,7 +1639,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Shows the verification control if necessary
 	 */
 	protected function showVerification(): void
 	{
@@ -1597,7 +1656,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Checks for any errors
 	 */
 	protected function checkForErrors(): void
 	{
@@ -1614,7 +1673,7 @@ class Post implements ActionInterface
 			if (is_array($post_error)) {
 				$post_error_id = $post_error[0];
 
-				Utils::$context['post_error'][$post_error_id] = vsprintf(Lang::$txt['error_' . $post_error_id], (array) $post_error[1]);
+				Utils::$context['post_error'][$post_error_id] = Lang::getTxt('error_' . $post_error_id, (array) $post_error[1]);
 
 				// If it's not a minor error flag it as such.
 				if (!in_array($post_error_id, $this->minor_errors)) {
@@ -1632,7 +1691,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets the page title based on what the user is doing
 	 */
 	protected function setPageTitle(): void
 	{
@@ -1643,7 +1702,7 @@ class Post implements ActionInterface
 		} elseif (isset($_REQUEST['msg'])) {
 			Utils::$context['page_title'] = Lang::$txt['modify_msg'];
 		} elseif (isset($_REQUEST['subject'], Utils::$context['preview_subject'])) {
-			Utils::$context['page_title'] = Lang::$txt['preview'] . ' - ' . strip_tags(Utils::$context['preview_subject']);
+			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => strip_tags(Utils::$context['preview_subject'])]);
 		} elseif (empty(Topic::$info->id)) {
 			Utils::$context['page_title'] = Lang::$txt['start_new_topic'];
 		} else {
@@ -1652,7 +1711,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up the linktree info for the template
 	 */
 	protected function setLinktree(): void
 	{
@@ -1671,7 +1730,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles loading drafts
 	 */
 	protected function loadDrafts(): void
 	{
@@ -1714,7 +1773,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Gets information about available message icons for the template
 	 */
 	protected function setMessageIcons(): void
 	{
@@ -1760,7 +1819,7 @@ class Post implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up information about each of the form fields
 	 */
 	protected function setupPostingFields(): void
 	{
@@ -1942,7 +2001,7 @@ class Post implements ActionInterface
 					Utils::$context['posting_fields']['board']['input']['options'][$category['name']]['options'][$brd['name']] = [
 						'value' => $brd['id'],
 						'selected' => (bool) $brd['selected'],
-						'label' => ($brd['child_level'] > 0 ? str_repeat('==', $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'],
+						'label' => ($brd['child_level'] > 0 ? str_repeat('==', (int) $brd['child_level'] - 1) . '=&gt;' : '') . ' ' . $brd['name'],
 					];
 				}
 			}
@@ -2000,7 +2059,7 @@ class Post implements ActionInterface
 						'size' => 80,
 						'maxlength' => 80,
 						// If same user is editing again, keep the previous edit reason by default.
-						'value' => isset($modified_reason) && isset(Utils::$context['last_modified_name']) && Utils::$context['last_modified_name'] === User::$me->name ? $modified_reason : '',
+						'value' => isset(Utils::$context['last_modified_reason_raw']) && isset(Utils::$context['last_modified_name']) && Utils::$context['last_modified_name'] === User::$me->name ? Utils::$context['last_modified_reason_raw'] : '',
 					],
 					// If message has been edited before, show info about that.
 					'after' => empty(Utils::$context['last_modified_text']) ? '' : '<div class="smalltext em">' . Utils::$context['last_modified_text'] . '</div>',
@@ -2008,11 +2067,6 @@ class Post implements ActionInterface
 			];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Post::exportStatic')) {
-	Post::exportStatic();
 }
 
 ?>

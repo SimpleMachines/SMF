@@ -5,21 +5,26 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Category;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\User;
@@ -29,32 +34,10 @@ use SMF\Verifier;
 /**
  * Shows the search form.
  */
-class Search implements ActionInterface
+class Search implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'PlushSearch1',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionRouter;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -94,6 +77,8 @@ class Search implements ActionInterface
 			'url' => Config::$scripturl . '?action=search',
 			'name' => Lang::$txt['search'],
 		];
+
+		Utils::$context['robot_no_index'] = true;
 
 		Utils::$context['search_string_limit'] = SearchApi::MAX_LENGTH;
 
@@ -151,6 +136,20 @@ class Search implements ActionInterface
 
 		Utils::$context['search_params']['subject_only'] = !empty(Utils::$context['search_params']['subject_only']);
 
+		// Define the inputs in the "options" section of the search form.
+		Utils::$context['search_options'] = [
+			'show_complete' => [
+				'label' => 'search_show_complete_messages',
+				'html' => '<input type="checkbox" name="show_complete" id="show_complete" value="1"' . (!empty(Utils::$context['search_params']['show_complete']) ? ' checked' : '') . '>',
+			],
+			'subject_only' => [
+				'label' => 'search_subject_only',
+				'html' => '<input type="checkbox" name="subject_only" id="subject_only" value="1"' . (!empty(Utils::$context['search_params']['subject_only']) ? ' checked' : '') . '>',
+			],
+		];
+
+		SearchApi::load()->formContext();
+
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
 			Lang::load('Errors');
@@ -162,7 +161,7 @@ class Search implements ActionInterface
 				}
 
 				if ($search_error == 'string_too_long') {
-					Lang::$txt['error_string_too_long'] = sprintf(Lang::$txt['error_string_too_long'], SearchApi::MAX_LENGTH);
+					Lang::$txt['error_string_too_long'] = Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH]);
 				}
 
 				Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
@@ -297,48 +296,6 @@ class Search implements ActionInterface
 
 		IntegrationHook::call('integrate_search');
 	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Search::exportStatic')) {
-	Search::exportStatic();
 }
 
 ?>

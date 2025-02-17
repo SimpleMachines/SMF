@@ -5,16 +5,18 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Lang;
 use SMF\Utils;
@@ -24,18 +26,7 @@ use SMF\Utils;
  */
 class ExportDownload implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'download_export_file',
-		],
-	];
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -89,18 +80,6 @@ class ExportDownload implements ActionInterface
 	 * Path to the JSON file that tracks our progress exporting this profile.
 	 */
 	public string $progressfile;
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -168,7 +147,7 @@ class ExportDownload implements ActionInterface
 		}
 
 		// Check whether the ETag was sent back, and cache based on that...
-		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && strpos($_SERVER['HTTP_IF_NONE_MATCH'], $file['etag']) !== false) {
+		if (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && str_contains($_SERVER['HTTP_IF_NONE_MATCH'], $file['etag'])) {
 			ob_end_clean();
 			header_remove('content-encoding');
 
@@ -179,32 +158,6 @@ class ExportDownload implements ActionInterface
 
 		// Send the file.
 		Utils::emitFile($file);
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
 	}
 
 	/******************
@@ -220,7 +173,7 @@ class ExportDownload implements ActionInterface
 
 		$this->export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 
-		$this->idhash = hash_hmac('sha1', Utils::$context['id_member'], Config::getAuthSecret());
+		$this->idhash = hash_hmac('sha1', (string) Utils::$context['id_member'], Config::getAuthSecret());
 		$this->dltoken = hash_hmac('sha1', $this->idhash, Config::getAuthSecret());
 
 		$this->part = isset($_GET['part']) ? (int) $_GET['part'] : 1;
@@ -252,11 +205,6 @@ class ExportDownload implements ActionInterface
 
 		return $dlfilename . $suffix . '.' . $this->extension;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ExportDownload::exportStatic')) {
-	ExportDownload::exportStatic();
 }
 
 ?>

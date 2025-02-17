@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Config;
@@ -24,6 +27,8 @@ use SMF\Group;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
+use SMF\Parser;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -32,22 +37,11 @@ use SMF\Utils;
 /**
  * This class handles sending announcements about topics.
  */
-class Announce implements ActionInterface
+class Announce implements ActionInterface, Routable
 {
+	use ActionRouter;
+	use ActionTrait;
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'AnnounceTopic',
-			'selectGroup' => 'AnnouncementSelectMembergroup',
-			'announcementSend' => 'AnnouncementSend',
-		],
-	];
 
 	/*******************
 	 * Public properties
@@ -75,18 +69,6 @@ class Announce implements ActionInterface
 		'send' => 'send',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -96,6 +78,19 @@ class Announce implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('announce_topic');
+
+		User::$me->validateSession();
+
+		if (empty(Topic::$topic_id)) {
+			ErrorHandler::fatalLang('topic_gone', false);
+		}
+
+		Lang::load('Post');
+		Theme::loadTemplate('Post');
+
+		Utils::$context['page_title'] = Lang::$txt['announce_topic'];
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -104,7 +99,7 @@ class Announce implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Handles selecting which groups to send the announcement to
 	 */
 	public function select(): void
 	{
@@ -114,7 +109,7 @@ class Announce implements ActionInterface
 		Utils::$context['groups'] = Group::load($groups);
 
 		// Count the members in each group.
-		$groups_to_count = array_map(fn ($group) => $group->id, Utils::$context['groups']);
+		$groups_to_count = array_map(fn($group) => $group->id, Utils::$context['groups']);
 
 		// Counting all the regular members could be a performance hit on large forums,
 		// so don't do that for anyone without high level permissions.
@@ -138,7 +133,7 @@ class Announce implements ActionInterface
 		list(Utils::$context['topic_subject']) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		Lang::censorText(Utils::$context['announce_topic']['subject']);
+		Lang::censorText(Utils::$context['topic_subject']);
 
 		Utils::$context['move'] = isset($_REQUEST['move']) ? 1 : 0;
 		Utils::$context['go_back'] = isset($_REQUEST['goback']) ? 1 : 0;
@@ -147,7 +142,7 @@ class Announce implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sends the announcement email
 	 */
 	public function send(): void
 	{
@@ -187,7 +182,9 @@ class Announce implements ActionInterface
 		Lang::censorText(Utils::$context['topic_subject']);
 		Lang::censorText($message);
 
-		$message = trim(Utils::htmlspecialcharsDecode(strip_tags(strtr(BBCodeParser::load()->parse($message, false, $id_msg), ['<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '&#91;' => '[', '&#93;' => ']']))));
+		$message = Parser::transform(string: $message, options: ['cache_id' => $id_msg]);
+
+		$message = trim(Utils::htmlspecialcharsDecode(strip_tags(strtr($message, ['<br>' => "\n", '</div>' => "\n", '</li>' => "\n", '<p>' => '', '</p>' => "\n\n", '&#91;' => '[', '&#93;' => ']']))));
 
 		// Select the email addresses for this batch.
 		$announcements = [];
@@ -204,7 +201,7 @@ class Announce implements ActionInterface
 			LIMIT {int:chunk_size}',
 			[
 				'group_list' => $_POST['who'],
-				'is_activated' => 1,
+				'is_activated' => User::ACTIVATED,
 				'start' => Utils::$context['start'],
 				'additional_group_list' => implode(', mem.additional_groups) != 0 OR FIND_IN_SET(', $_POST['who']),
 				// @todo Might need an interface?
@@ -292,52 +289,6 @@ class Announce implements ActionInterface
 		}
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the selectgroup sub-action.
-	 */
-	public static function selectGroup(): void
-	{
-		self::load();
-		self::$obj->subaction = 'selectgroup';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the send sub-action.
-	 */
-	public static function announcementSend(): void
-	{
-		self::load();
-		self::$obj->subaction = 'send';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -347,28 +298,10 @@ class Announce implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('announce_topic');
-
-		User::$me->validateSession();
-
-		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('topic_gone', false);
-		}
-
-		Lang::load('Post');
-		Theme::loadTemplate('Post');
-
-		Utils::$context['page_title'] = Lang::$txt['announce_topic'];
-
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Announce::exportStatic')) {
-	Announce::exportStatic();
 }
 
 ?>

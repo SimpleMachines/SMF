@@ -5,60 +5,49 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
+use SMF\Routable;
+use SMF\Sapi;
 use SMF\Utils;
 
 /**
  * Get one of the admin information files from Simple Machines.
  */
-class DisplayAdminFile implements ActionInterface
+class DisplayAdminFile implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'DisplayAdminFile',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionRouter;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
 
 	/**
 	 * Do the job.
 	 */
 	public function execute(): void
 	{
-		Config::setMemoryLimit('32M');
+		Sapi::setMemoryLimit('32M');
 
 		if (empty($_REQUEST['filename']) || !is_string($_REQUEST['filename'])) {
 			ErrorHandler::fatalLang('no_access', false);
@@ -86,7 +75,7 @@ class DisplayAdminFile implements ActionInterface
 
 		// @todo Temp
 		// Figure out if sesc is still being used.
-		if (strpos($file_data, ';sesc=') !== false && $filetype == 'text/javascript') {
+		if (str_contains($file_data, ';sesc=') && $filetype == 'text/javascript') {
 			$file_data = "\n" . 'if (!(\'smfForum_sessionvar\' in window))' . "\n\t" . 'window.smfForum_sessionvar = \'sesc\';' . "\n" . strtr($file_data, [';sesc=' => ';\' + window.smfForum_sessionvar + \'=']);
 		}
 
@@ -106,48 +95,6 @@ class DisplayAdminFile implements ActionInterface
 		echo $file_data;
 		Utils::obExit(false);
 	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\DisplayAdminFile::exportStatic')) {
-	DisplayAdminFile::exportStatic();
 }
 
 ?>

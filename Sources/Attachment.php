@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -25,34 +27,7 @@ use SMF\Graphics\Image;
  */
 class Attachment implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'automanageCheckDirectory' => 'automanage_attachments_check_directory',
-			'automanageCreateDirectory' => 'automanage_attachments_create_directory',
-			'automanageBySpace' => 'automanage_attachments_by_space',
-			'process' => 'processAttachments',
-			'check' => 'attachmentChecks',
-			'create' => 'createAttachment',
-			'assign' => 'assignAttachments',
-			'approve' => 'ApproveAttachments',
-			'remove' => 'removeAttachments',
-			'parseAttachBBC' => 'parseAttachBBC',
-			'getAttachMsgInfo' => 'getAttachMsgInfo',
-			'loadAttachmentContext' => 'loadAttachmentContext',
-			'prepareByMsg' => 'prepareAttachsByMsg',
-			'createHash' => 'createHash',
-			'getFilePath' => 'getFilePath',
-			'getAttachmentFilename' => 'getAttachmentFilename',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -342,7 +317,6 @@ class Attachment implements \ArrayAccess
 	 *
 	 * @param int $id The ID number of the attachment.
 	 * @param array $props Properties to set for this attachment.
-	 * @return object An instance of this class.
 	 */
 	public function __construct(int $id = 0, array $props = [])
 	{
@@ -359,7 +333,7 @@ class Attachment implements \ArrayAccess
 				WHERE id_attach = {int:id}
 				LIMIT 1',
 				[
-					'id' => $this->id,
+					'id' => $id,
 				],
 			);
 
@@ -380,10 +354,10 @@ class Attachment implements \ArrayAccess
 
 		if (!empty($image->source)) {
 			$this->is_image = true;
-			$this->mime_type = $image->mime_type;
-			$this->width = $image->width;
-			$this->height = $image->height;
-			$this->embedded_thumb = $image->embedded_thumb;
+			$this->mime_type = (string) $image->mime_type;
+			$this->width = (int) $image->width;
+			$this->height = (int) $image->height;
+			$this->embedded_thumb = (bool) $image->embedded_thumb;
 		}
 
 		unset($image);
@@ -399,8 +373,8 @@ class Attachment implements \ArrayAccess
 			$this->thumb = $id;
 
 			// For SVGs, we don't need to calculate thumbnail size precisely.
-			$this->thumb_width = min($this->width, !empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 1000);
-			$this->thumb_height = min($this->height, !empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 1000);
+			$this->thumb_width = min($this->width, !empty(Config::$modSettings['attachmentThumbWidth']) ? (int) Config::$modSettings['attachmentThumbWidth'] : 1000);
+			$this->thumb_height = min($this->height, !empty(Config::$modSettings['attachmentThumbHeight']) ? (int) Config::$modSettings['attachmentThumbHeight'] : 1000);
 
 			// Must set the thumbnail's CSS dimensions manually.
 			Theme::addInlineCss('img#thumb_' . $this->thumb . ':not(.original_size) {width: ' . $this->thumb_width . 'px; height: ' . $this->thumb_height . 'px;}');
@@ -454,7 +428,7 @@ class Attachment implements \ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		$this->customPropertySet($prop, $value);
 
@@ -470,7 +444,7 @@ class Attachment implements \ArrayAccess
 		}
 
 		if (($this->prop_aliases[$prop] ?? $prop) === 'size') {
-			Lang::load('index');
+			Lang::load('General');
 
 			$this->formatted_size = ($this->size < 1024000) ? round($this->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($this->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'];
 		}
@@ -483,7 +457,7 @@ class Attachment implements \ArrayAccess
 	/**
 	 * Loads existing attachments by ID number.
 	 *
-	 * @param array $ids The ID numbers of one or more attachments.
+	 * @param array|string|int $ids The ID numbers of one or more attachments.
 	 * @param int $approval_status One of this class's APPROVED_* constants.
 	 *     Default: self::APPROVED_ANY.
 	 * @param int $type One of this class's TYPE_* constants.
@@ -492,7 +466,7 @@ class Attachment implements \ArrayAccess
 	 *     Default: true.
 	 * @return array Instances of this class for the loaded attachments.
 	 */
-	public static function load(array|int $ids, int $approval_status = self::APPROVED_ANY, int $type = self::TYPE_ANY, bool $get_thumbs = true): array
+	public static function load(array|string|int $ids, int $approval_status = self::APPROVED_ANY, int $type = self::TYPE_ANY, bool $get_thumbs = true): array
 	{
 		// Keep track of the ones we load during this call.
 		$loaded = [];
@@ -548,7 +522,7 @@ class Attachment implements \ArrayAccess
 			foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props) {
 				$id = (int) $props['id_attach'];
 
-				$props = array_filter($props, fn ($prop) => !is_null($prop));
+				$props = array_filter($props, fn($prop) => !is_null($prop));
 
 				$loaded[$id] = new self($id, $props);
 			}
@@ -618,7 +592,7 @@ class Attachment implements \ArrayAccess
 		foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props) {
 			$id = (int) $props['id_attach'];
 
-			$props = array_filter($props, fn ($prop) => !is_null($prop));
+			$props = array_filter($props, fn($prop) => !is_null($prop));
 
 			// Don't reload unnecessarily.
 			if (isset(self::$loaded[$id])) {
@@ -678,7 +652,7 @@ class Attachment implements \ArrayAccess
 		foreach (self::queryData($selects, $params, $from, $joins, $where, $order, $limit) as $props) {
 			$id = (int) $props['id_attach'];
 
-			$props = array_filter($props, fn ($prop) => !is_null($prop));
+			$props = array_filter($props, fn($prop) => !is_null($prop));
 
 			// Don't reload unnecessarily.
 			if (isset(self::$loaded[$id])) {
@@ -697,9 +671,9 @@ class Attachment implements \ArrayAccess
 	 * Check if the current directory is still valid or not.
 	 * If not creates the new directory
 	 *
-	 * @return void|bool False if any error occurred
+	 * @return ?bool False if any error occurred
 	 */
-	public static function automanageCheckDirectory()
+	public static function automanageCheckDirectory(): ?bool
 	{
 		// Not pretty, but since we don't want folders created for every post. It'll do unless a better solution can be found.
 		if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'admin') {
@@ -718,7 +692,7 @@ class Attachment implements \ArrayAccess
 		}
 
 		if (empty($doit)) {
-			return;
+			return null;
 		}
 
 		$year = date('Y');
@@ -812,7 +786,7 @@ class Attachment implements \ArrayAccess
 	 *
 	 * @return bool False on errors
 	 */
-	public static function automanageCreateDirectory($updir)
+	public static function automanageCreateDirectory($updir): bool
 	{
 		$tree = self::getDirectoryTreeElements($updir);
 		$count = count($tree);
@@ -884,12 +858,12 @@ class Attachment implements \ArrayAccess
 	 * Called when a directory space limit is reached.
 	 * Creates a new directory and increments the directory suffix number.
 	 *
-	 * @return void|bool False on errors, true if successful, nothing if auto-management of attachments is disabled
+	 * @return ?bool False on errors, true if successful, nothing if auto-management of attachments is disabled
 	 */
-	public static function automanageBySpace()
+	public static function automanageBySpace(): ?bool
 	{
 		if (!isset(Config::$modSettings['automanage_attachments']) || (!empty(Config::$modSettings['automanage_attachments']) && Config::$modSettings['automanage_attachments'] != 1)) {
-			return;
+			return null;
 		}
 
 		$basedirectory = !empty(Config::$modSettings['use_subdirectories_for_attachments']) ? Config::$modSettings['basedirectory_for_attachments'] : Config::$boarddir;
@@ -935,7 +909,7 @@ class Attachment implements \ArrayAccess
 	/**
 	 * Moves an attachment to the proper directory and set the relevant data into $_SESSION['temp_attachments']
 	 */
-	public static function process()
+	public static function process(): void
 	{
 		// Make sure we're uploading to the right place.
 		if (!empty(Config::$modSettings['automanage_attachments'])) {
@@ -953,7 +927,7 @@ class Attachment implements \ArrayAccess
 			$initial_error = Utils::$context['dir_creation_error'];
 		} elseif (!is_dir(Utils::$context['attach_dir'])) {
 			$initial_error = 'attach_folder_warning';
-			ErrorHandler::log(sprintf(Lang::$txt['attach_folder_admin_warning'], Utils::$context['attach_dir']), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', Utils::$context), 'critical');
 		}
 
 		if (!isset($initial_error) && !isset(Utils::$context['attachments'])) {
@@ -998,7 +972,7 @@ class Attachment implements \ArrayAccess
 			// Need to make space for the new files. So, bye bye.
 			if (!$ignore_temp) {
 				foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
-					if (strpos($attachID, 'post_tmp_' . User::$me->id) !== false) {
+					if (str_contains($attachID, 'post_tmp_' . User::$me->id)) {
 						unlink($attachment['tmp_name']);
 					}
 				}
@@ -1086,7 +1060,7 @@ class Attachment implements \ArrayAccess
 
 				// Move the file to the attachments folder with a temp name for now.
 				if (@move_uploaded_file($_FILES['attachment']['tmp_name'][$n], $destName)) {
-					Utils::makeWritable($destName, 0644);
+					Utils::makeWritable($destName);
 				} else {
 					$_SESSION['temp_attachments'][$attachID]['errors'][] = 'attach_timeout';
 
@@ -1108,7 +1082,7 @@ class Attachment implements \ArrayAccess
 
 			// If there's no errors to this point. We still do need to apply some additional checks before we are finished.
 			if (empty($_SESSION['temp_attachments'][$attachID]['errors'])) {
-				self::check($attachID);
+				self::check((int) $attachID);
 			}
 		}
 		// Mod authors, finally a hook to hang an alternate attachment upload system upon
@@ -1128,10 +1102,10 @@ class Attachment implements \ArrayAccess
 	 * Performs various checks on an uploaded file.
 	 * - Requires that $_SESSION['temp_attachments'][$attachID] be properly populated.
 	 *
-	 * @param int $attachID The ID of the attachment
+	 * @param string|int $attachID The ID of the attachment. When attached, int, for temp attachments, this is a string.
 	 * @return bool Whether the attachment is OK
 	 */
-	public static function check($attachID)
+	public static function check(string|int $attachID): bool
 	{
 		// No data or missing data .... Not necessarily needed, but in case a mod author missed something.
 		if (empty($_SESSION['temp_attachments'][$attachID])) {
@@ -1249,12 +1223,12 @@ class Attachment implements \ArrayAccess
 		Utils::$context['attachments']['total_size'] += $_SESSION['temp_attachments'][$attachID]['size'];
 
 		if (!empty(Config::$modSettings['attachmentSizeLimit']) && $_SESSION['temp_attachments'][$attachID]['size'] > Config::$modSettings['attachmentSizeLimit'] * 1024) {
-			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)]];
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['file_too_big', [Config::$modSettings['attachmentSizeLimit']]];
 		}
 
 		// Check the total upload size for this post...
 		if (!empty(Config::$modSettings['attachmentPostLimit']) && Utils::$context['attachments']['total_size'] > Config::$modSettings['attachmentPostLimit'] * 1024) {
-			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['attach_max_total_file_size', [Lang::numberFormat(Config::$modSettings['attachmentPostLimit'], 0), Lang::numberFormat(Config::$modSettings['attachmentPostLimit'] - ((Utils::$context['attachments']['total_size'] - $_SESSION['temp_attachments'][$attachID]['size']) / 1024), 0)]];
+			$_SESSION['temp_attachments'][$attachID]['errors'][] = ['attach_max_total_file_size', [Config::$modSettings['attachmentPostLimit'], Config::$modSettings['attachmentPostLimit'] - ((Utils::$context['attachments']['total_size'] - $_SESSION['temp_attachments'][$attachID]['size']) / 1024)]];
 		}
 
 		// Have we reached the maximum number of files we are allowed?
@@ -1279,7 +1253,7 @@ class Attachment implements \ArrayAccess
 
 			if (!in_array(strtolower(substr(strrchr($_SESSION['temp_attachments'][$attachID]['name'], '.'), 1)), $allowed)) {
 				$allowed_extensions = strtr(strtolower(Config::$modSettings['attachmentExtensions']), [',' => ', ']);
-				$_SESSION['temp_attachments'][$attachID]['errors'][] = ['cant_upload_type', [$allowed_extensions]];
+				$_SESSION['temp_attachments'][$attachID]['errors'][] = ['cant_upload_type', ['allowed_extensions' => $allowed_extensions]];
 			}
 		}
 
@@ -1312,7 +1286,7 @@ class Attachment implements \ArrayAccess
 	 * @param array $attachmentOptions An array of attachment options
 	 * @return bool Whether the attachment was created successfully
 	 */
-	public static function create(&$attachmentOptions)
+	public static function create(array &$attachmentOptions): bool
 	{
 		// If this is an image we need to set a few additional parameters.
 		$image = new Image($attachmentOptions['tmp_name']);
@@ -1419,7 +1393,7 @@ class Attachment implements \ArrayAccess
 			'',
 			'{db_prefix}attachments',
 			$attachmentColumns,
-			$attachmentValues,
+			[$attachmentValues],
 			['id_attach'],
 			1,
 		);
@@ -1442,10 +1416,14 @@ class Attachment implements \ArrayAccess
 				'',
 				'{db_prefix}approval_queue',
 				[
-					'id_attach' => 'int', 'id_msg' => 'int',
+					'id_attach' => 'int',
+					'id_msg' => 'int',
 				],
 				[
-					$attachmentOptions['id'], (int) $attachmentOptions['post'],
+					[
+						$attachmentOptions['id'],
+						(int) $attachmentOptions['post'],
+					],
 				],
 				[],
 			);
@@ -1460,9 +1438,11 @@ class Attachment implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\CreateAttachment_Notify',
-					Utils::jsonEncode(['id' => $attachmentOptions['id']]),
-					0,
+					[
+						'SMF\\Tasks\\CreateAttachment_Notify',
+						Utils::jsonEncode(['id' => $attachmentOptions['id']]),
+						0,
+					],
 				],
 				[
 					'id_task',
@@ -1478,7 +1458,7 @@ class Attachment implements \ArrayAccess
 		if (!empty(Config::$modSettings['attachmentThumbWidth']) && !empty(Config::$modSettings['attachmentThumbHeight']) && ($attachmentOptions['width'] > Config::$modSettings['attachmentThumbWidth'] || $attachmentOptions['height'] > Config::$modSettings['attachmentThumbHeight'])) {
 			$image = new Image($attachmentOptions['destination'], true);
 
-			if (($thumb = $image->createThumbnail(Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight'])) !== false) {
+			if (($thumb = $image->createThumbnail((int) Config::$modSettings['attachmentThumbWidth'], (int) Config::$modSettings['attachmentThumbHeight'])) !== false) {
 				// Propagate our special handling for JPEGs to the thumbnail's extension, too.
 				$thumb_ext = $image->type === $thumb->type ? $attachmentOptions['fileext'] : ltrim(image_type_to_extension($thumb->type), '.');
 
@@ -1527,17 +1507,19 @@ class Attachment implements \ArrayAccess
 						'approved' => 'int',
 					],
 					[
-						Config::$modSettings['currentAttachmentUploadDir'],
-						(int) $attachmentOptions['post'],
-						3,
-						$thumb->pathinfo['basename'],
-						self::createHash($thumb->source),
-						$thumb_ext,
-						$thumb->filesize,
-						$thumb->width,
-						$thumb->height,
-						$thumb->mime_type,
-						(int) $attachmentOptions['approved'],
+						[
+							Config::$modSettings['currentAttachmentUploadDir'],
+							(int) $attachmentOptions['post'],
+							3,
+							$thumb->pathinfo['basename'],
+							self::createHash($thumb->source),
+							$thumb_ext,
+							$thumb->filesize,
+							$thumb->width,
+							$thumb->height,
+							$thumb->mime_type,
+							(int) $attachmentOptions['approved'],
+						],
 					],
 					['id_attach'],
 					1,
@@ -1566,12 +1548,12 @@ class Attachment implements \ArrayAccess
 	/**
 	 * Assigns the given attachments to the given message ID.
 	 *
-	 * @param $attachIDs array of attachment IDs to assign.
-	 * @param $msgID integer the message ID.
+	 * @param array $attachIDs array of attachment IDs to assign.
+	 * @param int $msgID integer the message ID.
 	 *
 	 * @return bool false on error or missing params.
 	 */
-	public static function assign($attachIDs = [], $msgID = 0)
+	public static function assign(array $attachIDs = [], int $msgID = 0): bool
 	{
 		// Oh, come on!
 		if (empty($attachIDs) || empty($msgID)) {
@@ -1607,7 +1589,7 @@ class Attachment implements \ArrayAccess
 	 * @param array $attachments The IDs of the attachments to approve.
 	 * @return bool Whether the operation was successful.
 	 */
-	public static function approve($attachments): bool
+	public static function approve(array $attachments): bool
 	{
 		if (empty($attachments)) {
 			return false;
@@ -1707,9 +1689,9 @@ class Attachment implements \ArrayAccess
 	 * @param string $query_type The query type. Can be 'messages' or 'members'
 	 * @param bool $return_affected_messages Whether to return an array with the IDs of affected messages
 	 * @param bool $autoThumbRemoval Whether to automatically remove any thumbnails associated with the removed files
-	 * @return void|int[] Returns an array containing IDs of affected messages if $return_affected_messages is true
+	 * @return ?int[] Returns an array containing IDs of affected messages if $return_affected_messages is true
 	 */
-	public static function remove($condition, $query_type = '', $return_affected_messages = false, $autoThumbRemoval = true)
+	public static function remove(array $condition, string $query_type = '', bool $return_affected_messages = false, bool $autoThumbRemoval = true): ?array
 	{
 		// @todo This might need more work!
 		$new_condition = [];
@@ -1776,7 +1758,7 @@ class Attachment implements \ArrayAccess
 				// @todo look again at this.
 				@unlink(Config::$modSettings['custom_avatar_dir'] . '/' . $row['filename']);
 			} else {
-				$filename = Attachment::getFilePath($row['id_attach']);
+				$filename = Attachment::getFilePath((int) $row['id_attach']);
 				@unlink($filename);
 
 				// If this was a thumb, the parent attachment should know about it.
@@ -1786,7 +1768,7 @@ class Attachment implements \ArrayAccess
 
 				// If this attachments has a thumb, remove it as well.
 				if (!empty($row['id_thumb']) && $autoThumbRemoval) {
-					$thumb_filename = Attachment::getFilePath($row['id_thumb']);
+					$thumb_filename = Attachment::getFilePath((int) $row['id_thumb']);
 					@unlink($thumb_filename);
 					$attach[] = $row['id_thumb'];
 				}
@@ -1860,16 +1842,18 @@ class Attachment implements \ArrayAccess
 		if ($return_affected_messages) {
 			return array_unique($msgs);
 		}
+
+		return null;
 	}
 
 	/**
 	 * Gets an attach ID and tries to load all its info.
 	 *
-	 * @param int $attachID the attachment ID to load info from.
+	 * @param string|int $attachID The ID of the attachment. When attached, int, for temp attachments, this is a string.
 	 *
-	 * @return mixed If succesful, it will return an array of loaded data. String, most likely a Lang::$txt key if there was some error.
+	 * @return array|string If successful, it will return an array of loaded data. String, most likely a Lang::$txt key if there was some error.
 	 */
-	public static function parseAttachBBC($attachID = 0)
+	public static function parseAttachBBC(int|string $attachID = 0): array|string
 	{
 		static $view_attachment_boards;
 
@@ -1993,10 +1977,10 @@ class Attachment implements \ArrayAccess
 	/**
 	 * Gets all needed message data associated with an attach ID
 	 *
-	 * @param int $attachID the attachment ID to load info from.
-	 * @return mixed An instance of this class, or an empty array on failure.
+	 * @param string|int $attachID The ID of the attachment. When attached, int, for temp attachments, this is a string.
+	 * @return self|array An instance of this class, or an empty array on failure.
 	 */
-	public static function getAttachMsgInfo($attachID)
+	public static function getAttachMsgInfo(string|int $attachID): self|array
 	{
 		if (empty($attachID)) {
 			return [];
@@ -2021,7 +2005,7 @@ class Attachment implements \ArrayAccess
 	 * @param array $attachments  An array of already loaded attachments. This function no longer depends on having $topic declared, thus, you need to load the actual topic ID for each attachment.
 	 * @return array An array of attachment info
 	 */
-	public static function loadAttachmentContext($id_msg, $attachments)
+	public static function loadAttachmentContext(int $id_msg, array $attachments): array
 	{
 		if (empty($attachments) || empty($attachments[$id_msg])) {
 			return [];
@@ -2123,16 +2107,18 @@ class Attachment implements \ArrayAccess
 									'mime_type' => 'string',
 								],
 								[
-									$id_folder_thumb,
-									$id_msg,
-									3,
-									$thumb->pathinfo['basename'],
-									self::createHash($thumb->source),
-									$thumb->filesize,
-									$thumb->width,
-									$thumb->height,
-									$thumb_ext,
-									$thumb->mime_type,
+									[
+										$id_folder_thumb,
+										$id_msg,
+										3,
+										$thumb->pathinfo['basename'],
+										self::createHash($thumb->source),
+										$thumb->filesize,
+										$thumb->width,
+										$thumb->height,
+										$thumb_ext,
+										$thumb->mime_type,
+									],
 								],
 								['id_attach'],
 								1,
@@ -2229,7 +2215,6 @@ class Attachment implements \ArrayAccess
 				// This can happen if an uploaded SVG is missing some key data.
 				foreach (['real_width', 'real_height'] as $key) {
 					if (!isset($attachmentData[$i][$key]) || $attachmentData[$i][$key] === INF) {
-						Lang::load('Admin');
 						$attachmentData[$i][$key] = ' (' . Lang::$txt['unknown'] . ') ';
 					}
 				}
@@ -2256,10 +2241,10 @@ class Attachment implements \ArrayAccess
 	/**
 	 * prepare the Attachment api for all messages
 	 *
-	 * @param int array $msgIDs the message ID to load info from.
+	 * @param int[] $msgIDs the message ID to load info from.
 	 *
 	 */
-	public static function prepareByMsg($msgIDs)
+	public static function prepareByMsg(array $msgIDs): void
 	{
 		if (empty(Utils::$context['loaded_attachments'])) {
 			Utils::$context['loaded_attachments'] = [];
@@ -2329,38 +2314,6 @@ class Attachment implements \ArrayAccess
 		return self::$loaded[$id]->path;
 	}
 
-	/**
-	 * Backward compatibility only.
-	 *
-	 * New code should use Attachment::getFilePath() or Attachment::createHash()
-	 * to get whichever type of output is desired for a given situation.
-	 *
-	 *
-	 *
-	 * Get an attachment's encrypted filename. If $new is true, won't check for
-	 * file existence.
-	 *
-	 * This currently returns the hash if new, and the full filename otherwise,
-	 * which is very messy. And of course everything that calls this function
-	 * relies on that behavior and works around it. :P
-	 *
-	 * @param string $filename The name of the file. (Ignored.)
-	 * @param int $attachment_id The ID of the attachment.
-	 * @param string|null $dir Which directory it should be in. (Ignored.)
-	 * @param bool $new Whether this is a new attachment.
-	 * @param string $file_hash The file hash.  (Ignored.)
-	 * @return string A hash or the path to the file.
-	 */
-	public static function getAttachmentFilename($filename, $attachment_id, $dir = null, $new = false, $file_hash = '')
-	{
-		// Just make up a nice hash...
-		if ($new || empty($attachment_id)) {
-			return self::createHash();
-		}
-
-		return self::getFilePath($attachment_id);
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -2409,7 +2362,7 @@ class Attachment implements \ArrayAccess
 	 *
 	 * @return bool True if the path is allowed, false otherwise.
 	 */
-	protected static function isPathAllowed($path)
+	protected static function isPathAllowed(string $path): bool
 	{
 		$open_basedir = ini_get('open_basedir');
 
@@ -2435,7 +2388,7 @@ class Attachment implements \ArrayAccess
 	 *
 	 * @return array|bool An array of all the directories and subdirectories or false on failure
 	 */
-	protected static function getDirectoryTreeElements($directory)
+	protected static function getDirectoryTreeElements(string $directory): array|bool
 	{
 		/*
 			In Windows server both \ and / can be used as directory separators in paths
@@ -2466,7 +2419,7 @@ class Attachment implements \ArrayAccess
 	 *
 	 * @return string|bool The first part of the path or false on error
 	 */
-	protected static function initDir(&$tree, &$count)
+	protected static function initDir(array &$tree, int &$count): string|bool
 	{
 		$directory = '';
 
@@ -2503,9 +2456,9 @@ class Attachment implements \ArrayAccess
 	 * @param int $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
-	protected static function queryData(array $selects, array $params = [], string $from = '{db_prefix}attachments AS a', array $joins = [], array $where = [], array $order = [], int $limit = 0)
+	protected static function queryData(array $selects, array $params = [], string $from = '{db_prefix}attachments AS a', array $joins = [], array $where = [], array $order = [], int $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
 			'',
@@ -2522,11 +2475,6 @@ class Attachment implements \ArrayAccess
 		}
 		Db::$db->free_result($request);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Attachment::exportStatic')) {
-	Attachment::exportStatic();
 }
 
 ?>

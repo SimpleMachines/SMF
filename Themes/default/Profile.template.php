@@ -4,15 +4,16 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\BrowserDetector;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Utils;
 use SMF\User;
@@ -292,31 +293,31 @@ function template_summary()
 
 	if (User::$me->is_owner || User::$me->is_admin)
 		echo '
-				<dt>', Lang::$txt['username'], ': </dt>
+				<dt>', Lang::$txt['username'], '</dt>
 				<dd>', Utils::$context['member']['username'], '</dd>';
 
 	if (!isset(Utils::$context['disabled_fields']['posts']))
 		echo '
-				<dt>', Lang::$txt['profile_posts'], ': </dt>
-				<dd>', Utils::$context['member']['posts'], ' (', Utils::$context['member']['posts_per_day'], ' ', Lang::$txt['posts_per_day'], ')</dd>';
+				<dt>', Lang::$txt['profile_posts'], '</dt>
+				<dd>', Utils::$context['member']['posts'], ' (', is_numeric(Utils::$context['member']['posts_per_day']) ? Lang::getTxt('posts_per_day', [Utils::$context['member']['posts_per_day']]) : Utils::$context['member']['posts_per_day'], ')</dd>';
 
 	if (Utils::$context['member']['show_email'])
 		echo '
-				<dt>', Lang::$txt['email'], ': </dt>
+				<dt>', Lang::$txt['email'], '</dt>
 				<dd><a href="mailto:', Utils::$context['member']['email'], '">', Utils::$context['member']['email'], '</a></dd>';
 
 	if (!empty(Config::$modSettings['titlesEnable']) && !empty(Utils::$context['member']['title']))
 		echo '
-				<dt>', Lang::$txt['custom_title'], ': </dt>
+				<dt>', Lang::$txt['custom_title'], '</dt>
 				<dd>', Utils::$context['member']['title'], '</dd>';
 
 	if (!empty(Utils::$context['member']['blurb']))
 		echo '
-				<dt>', Lang::$txt['personal_text'], ': </dt>
+				<dt>', Lang::$txt['personal_text'], '</dt>
 				<dd>', Utils::$context['member']['blurb'], '</dd>';
 
 	echo '
-				<dt>', Lang::$txt['age'], ':</dt>
+				<dt>', Lang::$txt['age'], '</dt>
 				<dd>', Utils::$context['member']['age'] . (Utils::$context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . Theme::$current->settings['images_url'] . '/cake.png" alt="">' : ''), '</dd>';
 
 	echo '
@@ -347,57 +348,8 @@ function template_summary()
 	}
 
 	echo '
-			<dl class="settings noborder">';
-
-	// Can they view/issue a warning?
-	if (Utils::$context['can_view_warning'] && Utils::$context['member']['warning'])
-	{
-		echo '
-				<dt>', Lang::$txt['profile_warning_level'], ': </dt>
-				<dd>
-					<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=', (Utils::$context['can_issue_warning'] && !User::$me->is_owner ? 'issuewarning' : 'viewwarning'), '">', Utils::$context['member']['warning'], '%</a>';
-
-		// Can we provide information on what this means?
-		if (!empty(Utils::$context['warning_status']))
-			echo '
-					<span class="smalltext">(', Utils::$context['warning_status'], ')</span>';
-
-		echo '
-				</dd>';
-	}
-
-	// Is this member requiring activation and/or banned?
-	if (!empty(Utils::$context['activate_message']) || !empty(Utils::$context['member']['bans']))
-	{
-		// If the person looking at the summary has permission, and the account isn't activated, give the viewer the ability to do it themselves.
-		if (!empty(Utils::$context['activate_message']))
-			echo '
-				<dt class="clear">
-					<span class="alert">', Utils::$context['activate_message'], '</span> (<a href="', Utils::$context['activate_link'], '">', Utils::$context['activate_link_text'], '</a>)
-				</dt>';
-
-		// If the current member is banned, show a message and possibly a link to the ban.
-		if (!empty(Utils::$context['member']['bans']))
-		{
-			echo '
-				<dt class="clear">
-					<span class="alert">', Lang::$txt['user_is_banned'], '</span>&nbsp;[<a href="#" onclick="document.getElementById(\'ban_info\').classList.toggle(\'hidden\');return false;">' . Lang::$txt['view_ban'] . '</a>]
-				</dt>
-				<dt class="clear hidden" id="ban_info">
-					<strong>', Lang::$txt['user_banned_by_following'], ':</strong>';
-
-			foreach (Utils::$context['member']['bans'] as $ban)
-				echo '
-					<br>
-					<span class="smalltext">', $ban['explanation'], '</span>';
-
-			echo '
-				</dt>';
-		}
-	}
-
-	echo '
-				<dt>', Lang::$txt['date_registered'], ': </dt>
+			<dl class="settings">
+				<dt>', Lang::$txt['date_registered'], '</dt>
 				<dd>', Utils::$context['member']['registered'], '</dd>';
 
 	// If the person looking is allowed, they can check the members IP address and hostname.
@@ -405,27 +357,27 @@ function template_summary()
 	{
 		if (!empty(Utils::$context['member']['ip']))
 			echo '
-				<dt>', Lang::$txt['ip'], ': </dt>
+				<dt>', Lang::$txt['ip'], '</dt>
 				<dd><a href="', Config::$scripturl, '?action=profile;area=tracking;sa=ip;searchip=', Utils::$context['member']['ip'], ';u=', Utils::$context['member']['id'], '">', Utils::$context['member']['ip'], '</a></dd>';
 
 		if (!empty(Utils::$context['member']['hostname']))
 			echo '
-				<dt>', Lang::$txt['hostname'], ': </dt>
+				<dt>', Lang::$txt['hostname'], '</dt>
 				<dd>', Utils::$context['member']['hostname'], '</dd>';
 	}
 
 	echo '
-				<dt>', Lang::$txt['local_time'], ':</dt>
+				<dt>', Lang::$txt['local_time'], '</dt>
 				<dd>', Utils::$context['member']['local_time'], '</dd>';
 
 	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['member']['language']))
 		echo '
-				<dt>', Lang::$txt['language'], ':</dt>
+				<dt>', Lang::$txt['language'], '</dt>
 				<dd>', Utils::$context['member']['language'], '</dd>';
 
 	if (Utils::$context['member']['show_last_login'])
 		echo '
-				<dt>', Lang::$txt['lastLoggedIn'], ': </dt>
+				<dt>', Lang::$txt['lastLoggedIn'], '</dt>
 				<dd>', Utils::$context['member']['last_login'], (!empty(Utils::$context['member']['is_hidden']) ? ' (' . Lang::$txt['hidden'] . ')' : ''), '</dd>';
 
 	echo '
@@ -452,7 +404,7 @@ function template_summary()
 	if (Utils::$context['signature_enabled'] && !empty(Utils::$context['member']['signature']))
 		echo '
 			<div class="signature">
-				<h5>', Lang::$txt['signature'], ':</h5>
+				<h5>', Lang::$txt['signature'], '</h5>
 				', Utils::$context['member']['signature'], '
 			</div>';
 
@@ -471,6 +423,84 @@ function template_summary()
 				<ul class="nolist">', $fields, '
 				</ul>
 			</div>';
+	}
+
+	if (
+		(Utils::$context['can_view_warning'] && Utils::$context['member']['warning'])
+		|| !empty(Utils::$context['activate_message'])
+		|| !empty(Utils::$context['member']['bans'])
+	) {
+		echo '
+			<dl class="settings">';
+
+		// Can they view/issue a warning?
+		if (Utils::$context['can_view_warning'] && Utils::$context['member']['warning'])
+		{
+			echo '
+					<dt>', Lang::$txt['profile_warning_level'], '</dt>
+					<dd>
+						<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=', (Utils::$context['can_issue_warning'] && !User::$me->is_owner ? 'issuewarning' : 'viewwarning'), '">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), '</a>';
+
+			// Can we provide information on what this means?
+			if (!empty(Utils::$context['warning_status']))
+				echo '
+						<span class="smalltext">(', Utils::$context['warning_status'], ')</span>';
+
+			echo '
+					</dd>';
+		}
+
+		// Is this member requiring activation and/or banned?
+		if (!empty(Utils::$context['activate_message']) || !empty(Utils::$context['member']['bans']))
+		{
+			// If the person looking at the summary has permission, and the account isn't activated, give the viewer the ability to do it themselves.
+			if (!empty(Utils::$context['activate_message']))
+				echo '
+					<dt>
+						<span class="alert">', Utils::$context['activate_message'], '</span>
+					</dt>
+					<dd>
+						<a href="', Utils::$context['activate_link'], '" class="button">', Utils::$context['activate_link_text'], '</a>
+					</dd>';
+
+				if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+					echo '
+					<dt></dt>
+					<dd>
+						' . Lang::$txt['deleteAccount_anonymize_forced'] . '
+					</dd>';
+				} elseif (Utils::$context['activate_type'] % User::BANNED == User::REQUESTED_DELETE) {
+					echo '
+					<dt>
+						<label>' . Lang::$txt['deleteAccount_anonymize'] . '</label>
+					</dt>
+					<dd>
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"', !empty(Config::$modSettings['always_anonymize_deleted_accounts']) ? ' checked disabled' : '', '>
+					</dd>';
+				}
+
+			// If the current member is banned, show a message and possibly a link to the ban.
+			if (!empty(Utils::$context['member']['bans']))
+			{
+				echo '
+					<dt class="clear">
+						<span class="alert">', Lang::$txt['user_is_banned'], '</span>&nbsp;<a href="#" onclick="document.getElementById(\'ban_info\').classList.toggle(\'hidden\');return false;">' . Lang::$txt['view_ban'] . '</a>
+					</dt>
+					<dt class="clear hidden" id="ban_info">
+						<strong>', Lang::$txt['user_banned_by_following'], '</strong>';
+
+				foreach (Utils::$context['member']['bans'] as $ban)
+					echo '
+						<br>
+						<span class="smalltext">', $ban['explanation'], '</span>';
+
+				echo '
+					</dt>';
+			}
+		}
+
+		echo '
+			</dl>';
 	}
 
 	echo '
@@ -503,9 +533,9 @@ function template_showPosts()
 		<div class="', $post['css_class'], '">
 			<div class="page_number floatright"> #', $post['counter'], '</div>
 			<div class="topic_details">
-				<h5>
+				<h4>
 					<strong><a href="', Config::$scripturl, '?board=', $post['board']['id'], '.0">', $post['board']['name'], '</a> / <a href="', Config::$scripturl, '?topic=', $post['topic'], '.', $post['start'], '#msg', $post['id'], '">', $post['subject'], '</a></strong>
-				</h5>
+				</h4>
 				<span class="smalltext">', $post['time'], '</span>
 			</div>';
 
@@ -518,7 +548,7 @@ function template_showPosts()
 			echo '
 			<div class="post">
 				<div class="inner">
-					', $post['body'], '
+					', Utils::adjustHeadingLevels($post['body'], 4), '
 				</div>
 			</div><!-- .post -->';
 
@@ -532,7 +562,7 @@ function template_showPosts()
 	else
 		template_show_list('attachments');
 
-	// No posts? Just end with a informative message.
+	// No posts? Just end with an informative message.
 	if ((isset(Utils::$context['attachments']) && empty(Utils::$context['attachments'])) || (!isset(Utils::$context['attachments']) && empty(Utils::$context['posts'])))
 		echo '
 		<div class="windowbg">
@@ -562,7 +592,7 @@ function template_showAlerts()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-			', Lang::$txt['alerts'], !User::$me->is_owner ? ' - ' . Utils::$context['member']['name'] : '', '
+			', !User::$me->is_owner ? Lang::getTxt('alerts_member', ['member' => Utils::$context['member']['name']]) : Lang::$txt['alerts'], '
 			</h3>
 		</div>';
 
@@ -617,7 +647,7 @@ function template_showAlerts()
 
 		if (Utils::$context['showCheckboxes'])
 			echo '
-					', Lang::$txt['check_all'], ': <input type="checkbox" name="select_all" id="select_all">
+					', Lang::$txt['check_all'], ' <input type="checkbox" name="select_all" id="select_all">
 					<select name="mark_as">
 						<option value="read">', Lang::$txt['quick_mod_markread'], '</option>
 						<option value="unread">', Lang::$txt['quick_mod_markunread'], '</option>
@@ -646,7 +676,7 @@ function template_showDrafts()
 	echo '
 		<div class="cat_bar cat_bar_round">
 			<h3 class="catbg">
-				', Lang::$txt['drafts'], !User::$me->is_owner ? ' - ' . Utils::$context['member']['name'] : '', '
+				', !User::$me->is_owner ? Lang::getTxt('drafts_member', ['member' => Utils::$context['member']['name']]) : Lang::$txt['drafts'], '
 			</h3>
 		</div>', !empty(Utils::$context['page_index']) ? '
 		<div class="pagesection">
@@ -668,7 +698,7 @@ function template_showDrafts()
 		<div class="windowbg">
 			<div class="page_number floatright"> #', $draft['counter'], '</div>
 			<div class="topic_details">
-				<h5>
+				<h4>
 					<strong><a href="', Config::$scripturl, '?board=', $draft['board']['id'], '.0">', $draft['board']['name'], '</a> / ', $draft['topic']['link'], '</strong> &nbsp; &nbsp;';
 
 			if (!empty($draft['sticky']))
@@ -680,11 +710,11 @@ function template_showDrafts()
 					<span class="main_icons lock" title="', Lang::$txt['locked_topic'], '"></span>';
 
 			echo '
-				</h5>
-				<span class="smalltext"><strong>', Lang::$txt['draft_saved_on'], ':</strong> ', $draft['time'], '</span>
+				</h4>
+				<span class="smalltext">', Lang::getTxt('draft_saved_on', ['date' => $draft['time']]), '</span>
 			</div><!-- .topic_details -->
 			<div class="list_posts">
-				', $draft['body'], '
+				', Utils::adjustHeadingLevels($draft['body'], 4), '
 			</div>
 			<div class="floatright">';
 
@@ -711,7 +741,7 @@ function template_editBuddies()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-	<div class="infobox">', User::$me->is_owner ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], Utils::$context['member']['name']), '</div>';
+	<div class="infobox">', User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', Utils::$context['member']), '</div>';
 
 	elseif (!empty(Utils::$context['saved_failed']))
 		echo '
@@ -837,7 +867,7 @@ function template_editIgnoreList()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-	<div class="infobox">', User::$me->is_owner ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], Utils::$context['member']['name']), '</div>';
+	<div class="infobox">', User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', Utils::$context['member']), '</div>';
 
 	elseif (!empty(Utils::$context['saved_failed']))
 		echo '
@@ -911,7 +941,7 @@ function template_editIgnoreList()
 		<div class="information">
 			<dl class="settings">
 				<dt>
-					<label for="new_buddy"><strong>', Lang::$txt['who_member'], ':</strong></label>
+					<label for="new_buddy"><strong>', Lang::$txt['who_member'], '</strong></label>
 				</dt>
 				<dd>
 					<input type="text" name="new_ignore" id="new_ignore" size="30">
@@ -949,7 +979,7 @@ function template_trackActivity()
 	// The first table shows IP information about the user.
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['view_ips_by'], ' ', Utils::$context['member']['name'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('view_ips_by', ['member' => Utils::$context['member']['name']]), '</h3>
 		</div>';
 
 	// The last IP the user used.
@@ -957,9 +987,9 @@ function template_trackActivity()
 		<div id="tracking" class="windowbg">
 			<dl class="settings noborder">
 				<dt>
-					', Lang::$txt['most_recent_ip'], ':
+					', Lang::$txt['most_recent_ip'], '
 					', (empty(Utils::$context['last_ip2']) ? '' : '<br>
-					<span class="smalltext">(<a href="' . Config::$scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . Lang::$txt['why_two_ip_address'] . '</a>)</span>'), '
+					<span class="smalltext"><a href="' . Config::$scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . Lang::$txt['why_two_ip_address'] . '</a></span>'), '
 				</dt>
 				<dd>
 					<a href="', Config::$scripturl, '?action=profile;area=tracking;sa=ip;searchip=', Utils::$context['last_ip'], ';u=', Utils::$context['member']['id'], '">', Utils::$context['last_ip'], '</a>';
@@ -974,20 +1004,20 @@ function template_trackActivity()
 
 	// Lists of IP addresses used in messages / error messages.
 	echo '
-				<dt>', Lang::$txt['ips_in_messages'], ':</dt>
+				<dt>', Lang::$txt['ips_in_messages'], '</dt>
 				<dd>
-					', (count(Utils::$context['ips']) > 0 ? implode(', ', Utils::$context['ips']) : '(' . Lang::$txt['none'] . ')'), '
+					', (count(Utils::$context['ips']) > 0 ? Lang::sentenceList(Utils::$context['ips']) : Lang::$txt['none']), '
 				</dd>
-				<dt>', Lang::$txt['ips_in_errors'], ':</dt>
+				<dt>', Lang::$txt['ips_in_errors'], '</dt>
 				<dd>
-					', (count(Utils::$context['error_ips']) > 0 ? implode(', ', Utils::$context['error_ips']) : '(' . Lang::$txt['none'] . ')'), '
+					', (count(Utils::$context['error_ips']) > 0 ? Lang::sentenceList(Utils::$context['error_ips']) : Lang::$txt['none']), '
 				</dd>';
 
 	// List any members that have used the same IP addresses as the current member.
 	echo '
-				<dt>', Lang::$txt['members_in_range'], ':</dt>
+				<dt>', Lang::$txt['members_in_range'], '</dt>
 				<dd>
-					', (count(Utils::$context['members_in_range']) > 0 ? implode(', ', Utils::$context['members_in_range']) : '(' . Lang::$txt['none'] . ')'), '
+					', (count(Utils::$context['members_in_range']) > 0 ? Lang::sentenceList(Utils::$context['members_in_range']) : Lang::$txt['none']), '
 				</dd>
 			</dl>
 		</div><!-- #tracking -->';
@@ -1011,7 +1041,7 @@ function template_trackIP()
 			<form action="', Utils::$context['base_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<dl class="settings">
 					<dt>
-						<label for="searchip"><strong>', Lang::$txt['enter_ip'], ':</strong></label>
+						<label for="searchip"><strong>', Lang::$txt['enter_ip'], '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="searchip" value="', Utils::$context['ip'], '">
@@ -1027,7 +1057,7 @@ function template_trackIP()
 	{
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['whois_title'], ' ', Utils::$context['ip'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('whois_title', Utils::$context), '</h3>
 		</div>
 		<div class="windowbg">';
 
@@ -1042,7 +1072,7 @@ function template_trackIP()
 	// The second table lists all the members who have been logged as using this IP address.
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['members_from_ip'], ' ', Utils::$context['ip'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('members_from_ip', Utils::$context), '</h3>
 		</div>';
 
 	if (empty(Utils::$context['ips']))
@@ -1125,13 +1155,16 @@ function template_showPermissions()
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['showPermissions_restricted_boards'], '</h3>
 			</div>
-			<div class="windowbg smalltext">
-				', Lang::$txt['showPermissions_restricted_boards_desc'], ':<br>';
-
-			foreach (Utils::$context['no_access_boards'] as $no_access_board)
-				echo '
-				<a href="', Config::$scripturl, '?board=', $no_access_board['id'], '.0">', $no_access_board['name'], '</a>', $no_access_board['is_last'] ? '' : ', ';
-			echo '
+			<div class="windowbg smalltext">',
+			Lang::getTxt(
+				'showPermissions_restricted_boards_desc',
+				[
+					'list' => Lang::sentenceList(array_map(
+						fn ($brd) => '<a href="' . Config::$scripturl . '?board=' . $brd['id'] . '.0" class="bbc_link">' . $brd['name'] . '</a>',
+						Utils::$context['no_access_boards'],
+					)),
+				],
+			), '
 			</div>';
 		}
 
@@ -1164,10 +1197,10 @@ function template_showPermissions()
 
 				if ($permission['is_denied'])
 					echo '
-								<span class="alert">', Lang::$txt['showPermissions_denied'], ': ', implode(', ', $permission['groups']['denied']), '</span>';
+								<span class="alert">', Lang::getTxt('showPermissions_denied', ['list' => Lang::sentenceList($permission['groups']['denied'])]), '</span>';
 				else
 					echo '
-								', Lang::$txt['showPermissions_given'], ': ', implode(', ', $permission['groups']['allowed']);
+								', Lang::getTxt('showPermissions_given', ['list' => Lang::sentenceList($permission['groups']['allowed'])]);
 
 				echo '
 							</td>
@@ -1188,7 +1221,7 @@ function template_showPermissions()
 			<form action="' . Config::$scripturl . '?action=profile;u=', Utils::$context['id_member'], ';area=permissions#board_permissions" method="post" accept-charset="', Utils::$context['character_set'], '">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<a id="board_permissions"></a>', Lang::$txt['showPermissions_select'], ':
+						<span id="board_permissions">', Lang::$txt['showPermissions_select'], '</span>
 						<select name="board" onchange="if (this.options[this.selectedIndex].value) this.form.submit();">
 							<option value="0"', Utils::$context['board'] == 0 ? ' selected' : '', '>', Lang::$txt['showPermissions_global'], '</option>';
 
@@ -1224,17 +1257,17 @@ function template_showPermissions()
 				echo '
 					<tr class="windowbg">
 						<td title="', $permission['id'], '">
-							', $permission['is_denied'] ? '<del>' . $permission['name'] . '</del>' : $permission['name'], '
+							', $permission['is_denied'] ? '<del class="error">' . $permission['name'] . '</del>' : $permission['name'], '
 						</td>
 						<td class="smalltext">';
 
 				if ($permission['is_denied'])
 					echo '
-							<span class="alert">', Lang::$txt['showPermissions_denied'], ': ', implode(', ', $permission['groups']['denied']), '</span>';
+							<span class="alert">', Lang::getTxt('showPermissions_denied', ['list' => Lang::sentenceList($permission['groups']['denied'])]), '</span>';
 
 				else
 					echo '
-							', Lang::$txt['showPermissions_given'], ': ', implode(', ', $permission['groups']['allowed']);
+							', Lang::getTxt('showPermissions_given', ['list' => Lang::sentenceList($permission['groups']['allowed'])]);
 
 				echo '
 						</td>
@@ -1306,7 +1339,7 @@ function template_statPanel()
 				<li>
 					<div class="generic_bar vertical">
 						<div class="bar" style="height: ', (int) $time_of_day['relative_percent'], '%;">
-							<span>', sprintf(Lang::$txt['statPanel_activityTime_posts'], $time_of_day['posts'], $time_of_day['posts_percent']), '</span>
+							<span>', Lang::getTxt('statPanel_activityTime_posts', [$time_of_day['posts'], $time_of_day['posts_percent'] / 100]), '</span>
 						</div>
 					</div>
 					<span class="stats_hour">', $time_of_day['hour_format'], '</span>
@@ -1344,8 +1377,8 @@ function template_statPanel()
 			echo '
 					<dt>', $board['link'], '</dt>
 					<dd>
-						<div class="profile_pie" style="background-position: -', ((int) ($board['posts_percent'] / 5) * 20), 'px 0;" title="', sprintf(Lang::$txt['statPanel_topBoards_memberposts'], $board['posts'], $board['total_posts_member'], $board['posts_percent']), '">
-							', sprintf(Lang::$txt['statPanel_topBoards_memberposts'], $board['posts'], $board['total_posts_member'], $board['posts_percent']), '
+						<div class="profile_pie" style="background-position: -', ((int) ($board['posts_percent'] / 5) * 20), 'px 0;" title="', Lang::getTxt('statPanel_topBoards_memberposts', [$board['posts'], $board['total_posts_member'], $board['posts_percent'] / 100]), '">
+							', Lang::getTxt('statPanel_topBoards_memberposts', [$board['posts'], $board['total_posts_member'], $board['posts_percent'] / 100]), '
 						</div>
 						', empty(Utils::$context['hide_num_posts']) ? $board['posts'] : '', '
 					</dd>';
@@ -1377,10 +1410,10 @@ function template_statPanel()
 			echo '
 					<dt>', $activity['link'], '</dt>
 					<dd>
-						<div class="profile_pie" style="background-position: -', ((int) ($activity['posts_percent'] / 5) * 20), 'px 0;" title="', sprintf(Lang::$txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '">
-							', sprintf(Lang::$txt['statPanel_topBoards_posts'], $activity['posts'], $activity['total_posts'], $activity['posts_percent']), '
+						<div class="profile_pie" style="background-position: -', ((int) ($activity['posts_percent'] / 5) * 20), 'px 0;" title="', Lang::getTxt('statPanel_topBoards_posts', [$activity['posts'], $activity['total_posts'], $activity['posts_percent'] / 100]), '">
+							', Lang::getTxt('statPanel_topBoards_posts', [$activity['posts'], $activity['total_posts'], $activity['posts_percent'] / 100]), '
 						</div>
-						', $activity['percent'], '%
+						', Lang::formatText('{0, number, percent}', [$activity['percent'] / 100]), '
 					</dd>';
 		}
 
@@ -1621,7 +1654,7 @@ function template_profile_pm_settings()
 {
 	echo '
 					<dt>
-						<label for="pm_prefs">', Lang::$txt['pm_display_mode'], ':</label>
+						<label for="pm_prefs">', Lang::$txt['pm_display_mode'], '</label>
 					</dt>
 					<dd>
 						<select name="pm_prefs" id="pm_prefs">
@@ -2049,7 +2082,7 @@ function template_groupMembership()
 					<h3 class="catbg">', Lang::$txt['request_group_membership'], '</h3>
 				</div>
 				<div class="roundframe">
-					', Lang::$txt['request_group_membership_desc'], ':
+					<span>', Lang::$txt['request_group_membership_desc'], '</span>
 					<textarea name="reason" rows="4"></textarea>
 					<div class="righttext">
 						<input type="hidden" name="gid" value="', Utils::$context['group_request']['id'], '">
@@ -2268,20 +2301,20 @@ function template_viewWarning()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
-				', sprintf(Lang::$txt['profile_viewwarning_for_user'], Utils::$context['member']['name']), '
+				', Lang::getTxt('profile_viewwarning_for_user', Utils::$context['member']), '
 			</h3>
 		</div>
 		<p class="information">', Lang::$txt['viewWarning_help'], '</p>
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<strong>', Lang::$txt['profile_warning_name'], ':</strong>
+					<strong>', Lang::$txt['profile_warning_name'], '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['member']['name'], '
 				</dd>
 				<dt>
-					<strong>', Lang::$txt['profile_warning_level'], ':</strong>
+					<strong>', Lang::$txt['profile_warning_level'], '</strong>
 				</dt>
 				<dd>
 					<div class="generic_bar warning_level ', Utils::$context['current_warning_mode'], '">
@@ -2294,7 +2327,7 @@ function template_viewWarning()
 	if (!empty(Utils::$context['level_effects'][Utils::$context['current_level']]))
 		echo '
 				<dt>
-					<strong>', Lang::$txt['profile_viewwarning_impact'], ':</strong>
+					<strong>', Lang::$txt['profile_viewwarning_impact'], '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['level_effects'][Utils::$context['current_level']], '
@@ -2339,7 +2372,7 @@ function template_issueWarning()
 	foreach (Utils::$context['notification_templates'] as $k => $type)
 		echo '
 			if (index == ', $k, ')
-				document.getElementById(\'warn_body\').value = "', strtr($type['body'], array('"' => "'", "\n" => '\\n', "\r" => '')), '";';
+				document.getElementById(\'warn_body\').value = ', Utils::escapeJavaScript($type['body']), ';';
 
 	echo '
 		}
@@ -2355,7 +2388,8 @@ function template_issueWarning()
 				effectText = "', $text, '";';
 
 	echo '
-			setInnerHTML(document.getElementById(\'cur_level_div\'), slideAmount + \'% (\' + effectText + \')\');
+			let percent_format = "', Lang::getTxt('percent_format'), '";
+			setInnerHTML(document.getElementById(\'cur_level_div\'), percent_format.replace("{0}", slideAmount) + \' (\' + effectText + \')\');
 		}
 	</script>';
 
@@ -2378,7 +2412,7 @@ function template_issueWarning()
 	if (!User::$me->is_owner)
 		echo '
 				<dt>
-					<strong>', Lang::$txt['profile_warning_name'], ':</strong>
+					<strong>', Lang::$txt['profile_warning_name'], '</strong>
 				</dt>
 				<dd>
 					<strong>', Utils::$context['member']['name'], '</strong>
@@ -2386,20 +2420,20 @@ function template_issueWarning()
 
 	echo '
 				<dt>
-					<strong>', Lang::$txt['profile_warning_level'], ':</strong>';
+					<strong>', Lang::$txt['profile_warning_level'], '</strong>';
 
 	// Is there only so much they can apply?
 	if (Utils::$context['warning_limit'])
 		echo '
 					<br>
-					<span class="smalltext">', sprintf(Lang::$txt['profile_warning_limit_attribute'], Utils::$context['warning_limit']), '</span>';
+					<span class="smalltext">', Lang::getTxt('profile_warning_limit_attribute', [Utils::$context['warning_limit'] / 100]), '</span>';
 
 	echo '
 				</dt>
 				<dd>
-					0% <input name="warning_level" id="warning_level" type="range" min="0" max="100" step="5" value="', Utils::$context['member']['warning'], '" onchange="updateSlider(this.value)"> 100%
+					', Lang::formatText('{0, number, :: percent}', [0]), ' <input name="warning_level" id="warning_level" type="range" min="0" max="100" step="5" value="', Utils::$context['member']['warning'], '" onchange="updateSlider(this.value)"> ', Lang::formatText('{0, number, :: percent}', [100]), '
 					<div class="clear_left">
-						', Lang::$txt['profile_warning_impact'], ': <span id="cur_level_div">', Utils::$context['member']['warning'], '% (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</span>
+						', Lang::$txt['profile_warning_impact'], ': <span id="cur_level_div">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), ' (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</span>
 					</div>
 				</dd>';
 
@@ -2407,7 +2441,7 @@ function template_issueWarning()
 	{
 		echo '
 				<dt>
-					<strong>', Lang::$txt['profile_warning_reason'], ':</strong><br>
+					<strong>', Lang::$txt['profile_warning_reason'], '</strong><br>
 					<span class="smalltext">', Lang::$txt['profile_warning_reason_desc'], '</span>
 				</dt>
 				<dd>
@@ -2421,26 +2455,26 @@ function template_issueWarning()
 						<strong>', Lang::$txt['preview'], '</strong>
 					</dt>
 					<dd id="body_preview">
-						', !empty(Utils::$context['warning_data']['body_preview']) ? Utils::$context['warning_data']['body_preview'] : '', '
+						', !empty(Utils::$context['warning_data']['body_preview']) ? Utils::adjustHeadingLevels(Utils::$context['warning_data']['body_preview'], 3) : '', '
 					</dd>
 				</dl>
 				<hr>
 			</div>
 			<dl class="settings">
 				<dt>
-					<strong><label for="warn_notify">', Lang::$txt['profile_warning_notify'], ':</label></strong>
+					<strong><label for="warn_notify">', Lang::$txt['profile_warning_notify'], '</label></strong>
 				</dt>
 				<dd>
 					<input type="checkbox" name="warn_notify" id="warn_notify" onclick="modifyWarnNotify();"', Utils::$context['warning_data']['notify'] ? ' checked' : '', '>
 				</dd>
 				<dt>
-					<strong><label for="warn_sub">', Lang::$txt['profile_warning_notify_subject'], ':</label></strong>
+					<strong><label for="warn_sub">', Lang::$txt['profile_warning_notify_subject'], '</label></strong>
 				</dt>
 				<dd>
 					<input type="text" name="warn_sub" id="warn_sub" value="', empty(Utils::$context['warning_data']['notify_subject']) ? Lang::$txt['profile_warning_notify_template_subject'] : Utils::$context['warning_data']['notify_subject'], '" size="50">
 				</dd>
 				<dt>
-					<strong><label for="warn_temp">', Lang::$txt['profile_warning_notify_body'], ':</label></strong>
+					<strong><label for="warn_temp">', Lang::$txt['profile_warning_notify_body'], '</label></strong>
 				</dt>
 				<dd>
 					<select name="warn_temp" id="warn_temp" disabled onchange="populateNotifyTemplate();">
@@ -2453,7 +2487,7 @@ function template_issueWarning()
 
 		echo '
 					</select>
-					<span class="smalltext" id="new_template_link" style="display: none;">[<a href="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" target="_blank" rel="noopener">', Lang::$txt['profile_warning_new_template'], '</a>]</span>
+					<span id="new_template_link" style="display: none;"><a href="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" class="button floatnone" target="_blank" rel="noopener">', Lang::$txt['profile_warning_new_template'], '</a></span>
 					<br>
 					<textarea name="warn_body" id="warn_body" cols="40" rows="8">', Utils::$context['warning_data']['notify_body'], '</textarea>
 				</dd>';
@@ -2556,44 +2590,61 @@ function template_deleteAccount()
 	// If they are deleting their account AND the admin needs to approve it - give them another piece of info ;)
 	if (Utils::$context['needs_approval'])
 		echo '
-				<div class="errorbox">', Lang::$txt['deleteAccount_approval'], '</div>';
+				<div class="noticebox">', Lang::$txt['deleteAccount_approval'], '</div>';
 
 	// If the user is deleting their own account warn them first - and require a password!
 	if (User::$me->is_owner)
 	{
 		echo '
-				<div class="alert">', Lang::$txt['own_profile_confirm'], '</div>
-				<div>
-					<strong', (isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : ''), '>', Lang::$txt['current_password'], ': </strong>
+				<div class="errorbox">', Lang::$txt['own_profile_confirm'], '</div>
+				<fieldset>';
+
+		if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+			echo '
+					' . Lang::$txt['deleteAccount_anonymize_forced'];
+		} else {
+			echo '
+					<label for="anonymize">
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ', Lang::$txt['deleteAccount_anonymize'], '
+					</label>';
+		}
+
+		echo '
+				</fieldset>
+				<fieldset>
+					<legend>', Lang::$txt['required_security_reasons'], '</legend>
+					<strong', (isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : ''), '>', Lang::$txt['current_password'], '</strong>
 					<input type="password" name="oldpasswrd" size="20">
-					<input type="submit" value="', Lang::$txt['yes'], '" class="button">';
+				</fieldset>
+				<input type="submit" value="', Lang::$txt['delete'], '" class="button floatright">';
 
 		if (!empty(Utils::$context['token_check']))
 			echo '
-					<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
+				<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
 
 		echo '
-					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-					<input type="hidden" name="u" value="', Utils::$context['id_member'], '">
-					<input type="hidden" name="sa" value="', Utils::$context['menu_item_selected'], '">
-				</div>';
+				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
+				<input type="hidden" name="u" value="', Utils::$context['id_member'], '">
+				<input type="hidden" name="sa" value="', Utils::$context['menu_item_selected'], '">';
 	}
 	// Otherwise an admin doesn't need to enter a password - but they still get a warning - plus the option to delete lovely posts!
 	else
 	{
 		echo '
-				<div class="alert">', Lang::$txt['deleteAccount_warning'], '</div>';
+				<div class="errorbox">', Lang::$txt['deleteAccount_warning'], '</div>';
 
 		// Only actually give these options if they are kind of important.
 		if (Utils::$context['can_delete_posts'])
 		{
 			echo '
-				<div>
+				<fieldset>
 					<label for="deleteVotes">
-						<input type="checkbox" name="deleteVotes" id="deleteVotes" value="1"> ', Lang::$txt['deleteAccount_votes'], ':
-					</label><br>
+						<input type="checkbox" name="deleteVotes" id="deleteVotes" value="1"> ', Lang::$txt['deleteAccount_votes'], '
+					</label>
+				</fieldset>
+				<fieldset>
 					<label for="deletePosts">
-						<input type="checkbox" name="deletePosts" id="deletePosts" value="1"> ', Lang::$txt['deleteAccount_posts'], ':
+						<input type="checkbox" name="deletePosts" id="deletePosts" value="1"> ', Lang::$txt['deleteAccount_posts'], '
 					</label>
 					<select name="remove_type">
 						<option value="posts">', Lang::$txt['deleteAccount_all_posts'], '</option>
@@ -2603,18 +2654,33 @@ function template_deleteAccount()
 			if (Utils::$context['show_perma_delete'])
 				echo '
 					<br>
-					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1">', Lang::$txt['deleteAccount_permanent'], '</label>';
+					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1"> ', Lang::$txt['deleteAccount_permanent'], '</label>';
 
 			echo '
-				</div>';
+				</fieldset>';
 		}
 
 		echo '
+				<fieldset>
+					<label for="deleteAccount">
+						<input type="checkbox" name="deleteAccount" id="deleteAccount" value="1" onclick="if (this.checked) return confirm(\'', Lang::$txt['deleteAccount_confirm'], '\');"> ', Lang::$txt['deleteAccount_member'], '
+					</label>
+					<br>';
+
+		if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+			echo '
+					' . Lang::$txt['deleteAccount_anonymize_forced'];
+		} else {
+			echo '
+					<label for="anonymize">
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ', Lang::$txt['deleteAccount_anonymize'], '
+					</label>';
+		}
+
+		echo '
+				</fieldset>
 				<div>
-					<label for="deleteAccount"><input type="checkbox" name="deleteAccount" id="deleteAccount" value="1" onclick="if (this.checked) return confirm(\'', Lang::$txt['deleteAccount_confirm'], '\');"> ', Lang::$txt['deleteAccount_member'], '.</label>
-				</div>
-				<div>
-					<input type="submit" value="', Lang::$txt['delete'], '" class="button">';
+					<input type="submit" value="', Lang::$txt['delete'], '" class="button floatright">';
 
 		if (!empty(Utils::$context['token_check']))
 			echo '
@@ -2646,7 +2712,7 @@ function template_profile_save()
 		echo '
 					<dl class="settings">
 						<dt>
-							<strong', isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : '', '>', Lang::$txt['current_password'], ': </strong><br>
+							<strong', isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : '', '>', Lang::$txt['current_password'], '</strong><br>
 							<span class="smalltext">', Lang::$txt['required_security_reasons'], '</span>
 						</dt>
 						<dd>
@@ -2680,18 +2746,20 @@ function template_error_message()
 	if (!empty(Utils::$context['post_errors']))
 	{
 		echo '
-			<span>', !empty(Utils::$context['custom_error_title']) ? Utils::$context['custom_error_title'] : Lang::$txt['profile_errors_occurred'], ':</span>
+			<span>', !empty(Utils::$context['custom_error_title']) ? Utils::$context['custom_error_title'] : Lang::$txt['profile_errors_occurred'], '</span>
 			<ul id="list_errors">';
 
 		// Cycle through each error and display an error message.
 		foreach (Utils::$context['post_errors'] as $error)
 		{
-			$text_key_error = $error == 'password_short' ?
-				sprintf(Lang::$txt['profile_error_' . $error], (empty(Config::$modSettings['password_strength']) ? 4 : 8)) :
-				(isset(Lang::$txt['profile_error_' . $error]) ? Lang::$txt['profile_error_' . $error] : '');
+			if ($error == 'password_short') {
+				$error_message = Lang::getTxt('profile_error_' . $error, [Security::minimumPasswordLength()]);
+			} else {
+				$error_message = isset(Lang::$txt['profile_error_' . $error]) ? Lang::getTxt('profile_error_' . $error) : $error;
+			}
 
 			echo '
-				<li>', isset(Lang::$txt['profile_error_' . $error]) ? $text_key_error : $error, '</li>';
+				<li>', $error_message, '</li>';
 		}
 
 		echo '
@@ -2805,7 +2873,7 @@ function template_profile_signature_modify()
 	// If there is a limit at all!
 	if (!empty(Utils::$context['signature_limits']['max_length']))
 		echo '
-								<span class="smalltext">', sprintf(Lang::$txt['max_sig_characters'], Utils::$context['signature_limits']['max_length']), ' <span id="signatureLeft">', Utils::$context['signature_limits']['max_length'], '</span></span><br>';
+								<span class="smalltext">', Lang::getTxt('max_sig_characters', Utils::$context['signature_limits']), '</span><br>';
 
 	if (!empty(Utils::$context['show_preview_button']))
 		echo '
@@ -2934,7 +3002,7 @@ function template_profile_avatar_select()
 		echo '
 								<div id="avatar_upload">
 									', Utils::$context['member']['avatar']['choice'] == 'upload' ? '<div class="edit_avatar_img"><img src="' . Utils::$context['member']['avatar']['href'] . '" alt=""></div>' : '', '
-									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" accept="image/gif, image/jpeg, image/jpg, image/png">', template_max_size('upload'), '
+									<input type="file" size="44" name="attachment" id="avatar_upload_box" value="" onchange="readfromUpload(this)"  onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'upload\');" accept="image/gif, image/jpeg, image/jpg, image/png, image/svg+xml, image/webp">', template_max_size('upload'), '
 									', (!empty(Utils::$context['member']['avatar']['id_attach']) ? '<br><input type="hidden" name="id_attach" value="' . Utils::$context['member']['avatar']['id_attach'] . '">' : ''), '
 								</div>';
 
@@ -3028,7 +3096,7 @@ function template_max_size($type)
 		return;
 
 	echo '
-								<div class="smalltext">', sprintf(Lang::$txt['avatar_max_size_' . $suffix], $w, $h), '</div>';
+								<div class="smalltext">', Lang::getTxt('avatar_max_size_' . $suffix, ['w' => $w, 'h' => $h]), '</div>';
 }
 
 /**
@@ -3068,7 +3136,7 @@ function template_profile_theme_pick()
 								<strong>', Lang::$txt['current_theme'], '</strong>
 							</dt>
 							<dd>
-								', Utils::$context['member']['theme']['name'], ' <a class="button" href="', Config::$scripturl, '?action=theme;sa=pick;u=', Utils::$context['id_member'], '">', Lang::$txt['change'], '</a>
+								', Utils::$context['member']['theme']['name'], ' <a class="button" href="', Config::$scripturl, '?action=themechooser;u=', Utils::$context['id_member'], '">', Lang::$txt['change'], '</a>
 							</dd>';
 }
 
@@ -3196,7 +3264,7 @@ function template_tfadisable()
 	else
 		echo '
 					<div class="smalltext">
-						', sprintf(Lang::$txt['tfa_disable_for_user'], User::$me->name), '
+						', Lang::getTxt('tfa_disable_for_user', ['name' => User::$me->name]), '
 					</div>';
 
 	echo '
@@ -3247,7 +3315,7 @@ function template_profile_tfa()
 
 	else
 		echo '
-								', sprintf(Lang::$txt['tfa_profile_enabled'], (!empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl) . '?action=profile;u=' . Utils::$context['id_member'] . ';area=tfadisable');
+								', Lang::getTxt('tfa_profile_enabled', ['url' => (!empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl) . '?action=profile;u=' . Utils::$context['id_member'] . ';area=tfadisable']);
 
 	echo '
 							</dd>';
@@ -3300,12 +3368,18 @@ function template_export_profile_data()
 			}
 
 			echo '
-				<p>', sprintf(Lang::$txt['export_file_desc'], $parts[1]['included_desc'], Utils::$context['export_formats'][$parts[1]['format']]['description']), '</p>';
+				<p>', Lang::getTxt(
+					'export_file_desc',
+					[
+						'list' => $parts[1]['included_desc'],
+						'format' => Utils::$context['export_formats'][$parts[1]['format']]['description'],
+					],
+				), '</p>';
 
 			if (count($parts) > 10)
 				echo '
 				<details>
-					<summary>', sprintf(Lang::$txt['export_file_count'], count($parts)), '</summary>';
+					<summary>', Lang::getTxt('export_file_count', [count($parts)]), '</summary>';
 
 			echo '
 				<ul class="bbc_list" id="', $parts[1]['format'], '_export_files">';
@@ -3363,7 +3437,13 @@ function template_export_profile_data()
 
 			echo '
 			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="', Utils::$context['character_set'], '"', count(Utils::$context['active_exports']) > 1 ? ' class="descbox"' : '', '>
-				<p class="padding">', sprintf(Lang::$txt['export_file_desc'], $file['included_desc'], Utils::$context['export_formats'][$file['format']]['description']), '</p>
+				<p class="padding">', Lang::getTxt(
+					'export_file_desc',
+					[
+						'list' => $file['included_desc'],
+						'format' => Utils::$context['export_formats'][$file['format']]['description'],
+					],
+				), '</p>
 				<div class="righttext">
 					<input type="submit" name="delete" value="', Lang::$txt['export_cancel'], '" class="button you_sure">
 					<input type="hidden" name="format" value="', $file['format'], '">

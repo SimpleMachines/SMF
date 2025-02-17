@@ -5,21 +5,28 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -28,36 +35,24 @@ use SMF\Utils;
 /**
  * Provides a display for forum statistics.
  */
-class Stats implements ActionInterface
+class Stats implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'DisplayStats',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionRouter;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['xml']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
 
 	/**
 	 * Display some useful/interesting board statistics.
@@ -103,6 +98,7 @@ class Stats implements ActionInterface
 				Utils::obExit(false);
 			}
 
+			Theme::loadTemplate('Xml');
 			Utils::$context['sub_template'] = 'stats';
 			Utils::$context['yearly'] = [];
 
@@ -237,7 +233,7 @@ class Stats implements ActionInterface
 					[
 						'gender_var' => 'cust_gender',
 						'default_theme' => 1,
-						'is_activated' => 1,
+						'is_activated' => User::ACTIVATED,
 						'default_gender' => $default_gender,
 					],
 				);
@@ -574,7 +570,7 @@ class Stats implements ActionInterface
 			LIMIT 20',
 			[
 				'member_list_cached' => $temp,
-				'is_activated' => 1,
+				'is_activated' => User::ACTIVATED,
 			],
 		);
 		Utils::$context['stats_blocks']['time_online'] = [];
@@ -823,42 +819,9 @@ class Stats implements ActionInterface
 		$this->getDailyStats(implode(' OR ', $condition_text), $condition_params);
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
 
 	/**
 	 * Loads the statistics on a daily basis in Utils::$context.
@@ -867,7 +830,7 @@ class Stats implements ActionInterface
 	 * @param string $condition_string An SQL condition string
 	 * @param array $condition_parameters Parameters for $condition_string
 	 */
-	protected function getDailyStats($condition_string, $condition_parameters = [])
+	protected function getDailyStats(string $condition_string, array $condition_parameters = []): void
 	{
 		// Activity by day.
 		$days_result = Db::$db->query(
@@ -893,11 +856,6 @@ class Stats implements ActionInterface
 		}
 		Db::$db->free_result($days_result);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Stats::exportStatic')) {
-	Stats::exportStatic();
 }
 
 ?>

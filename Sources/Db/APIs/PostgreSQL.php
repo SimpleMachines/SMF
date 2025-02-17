@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -193,12 +193,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		$this->replace_result = 0;
 
-		if (!$this->disableQueryCheck && strpos($db_string, '\'') !== false && empty($db_values['security_override'])) {
+		if (!$this->disableQueryCheck && str_contains($db_string, '\'') && empty($db_values['security_override'])) {
 			$this->error_backtrace('No direct access...', 'Illegal character (\') used in query...', true, __FILE__, __LINE__);
 		}
 
 		// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
-		if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\s+SELECT~i', $db_string)) {
+		if (str_contains($db_string, 'GROUP BY') && !str_contains($db_string, 'ORDER BY') && preg_match('~^\s+SELECT~i', $db_string)) {
 			// Add before LIMIT
 			if ($pos = strpos($db_string, 'LIMIT ')) {
 				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, strlen($db_string));
@@ -208,14 +208,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		if (empty($db_values['security_override']) && (!empty($db_values) || strpos($db_string, '{db_prefix}') !== false)) {
-			$this->temp_values = $db_values;
-			$this->temp_connection = $connection;
-
-			// Inject the values passed to this function.
-			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', [$this, 'replacement__callback'], $db_string);
-
-			unset($this->temp_values, $this->temp_connection);
+		// Inject the values passed to this function.
+		if (empty($db_values['security_override']) && (!empty($db_values) || str_contains($db_string, '{db_prefix}'))) {
+			$db_string = $this->quote($db_string, $db_values, $connection);
 		}
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
@@ -257,13 +252,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
 			// Comments?  We don't use comments in our queries, we leave 'em outside!
-			if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false) {
+			if (strpos($clean, '/*') > 2 || str_contains($clean, '--') || str_contains($clean, ';')) {
 				$fail = true;
 			}
 			// Trying to change passwords, slow us down, or something?
-			elseif (strpos($clean, 'sleep') !== false && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0) {
+			elseif (str_contains($clean, 'sleep') && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0) {
 				$fail = true;
-			} elseif (strpos($clean, 'benchmark') !== false && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0) {
+			} elseif (str_contains($clean, 'benchmark') && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0) {
 				$fail = true;
 			}
 
@@ -322,7 +317,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function quote(string $db_string, array $db_values, ?object $connection = null): string
 	{
 		// Only bother if there's something to replace.
-		if (strpos($db_string, '{') !== false) {
+		if (str_contains($db_string, '{')) {
 			// This is needed by the callback function.
 			$this->temp_values = $db_values;
 			$this->temp_connection = $connection ?? $this->connection;
@@ -365,6 +360,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null
+	{
+		return pg_fetch_object($result, null, $class, $args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function free_result(object $result): bool
 	{
 		return pg_free_result($result);
@@ -387,8 +390,21 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Force method to lower case
 		$method = strtolower($method);
 
-		if (!is_array($data[array_rand($data)])) {
-			$data = [$data];
+		// Ensure that $data is a multidimensional array.
+		if (array_filter($data, fn($dataRow) => is_array($dataRow)) !== $data) {
+			// If backward compatibility mode is enabled, quietly clean up after
+			// old mods that did the wrong thing. Otherwise, trigger an error.
+			if (!empty(Config::$backward_compatibility)) {
+				$data = [$data];
+			} else {
+				$this->error_backtrace(
+					'Invalid data structure sent to the database.',
+					'',
+					E_USER_ERROR,
+					__FILE__,
+					__LINE__,
+				);
+			}
 		}
 
 		// Replace the prefix holder with the actual prefix.
@@ -463,7 +479,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			foreach ($columns as $columnName => $type) {
 				// Are we restricting the length?
-				if (strpos($type, 'string-') !== false) {
+				if (str_contains($type, 'string-')) {
 					$insertData .= sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . '), ', $columnName);
 				} else {
 					$insertData .= sprintf('{%1$s:%2$s}, ', $type, $columnName);
@@ -553,6 +569,48 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool
+	{
+		if (empty($table['name']) || empty($table['alias']) || empty($set)) {
+			return false;
+		}
+
+		if (!empty($where)) {
+			$where = '(' . $where . ')';
+		}
+
+		$from = [];
+
+		foreach ($from_tables as $ft) {
+			if (empty($ft['name']) || empty($ft['alias']) || empty($ft['condition'])) {
+				continue;
+			}
+
+			$from[] = $ft['name'] . ' AS ' . $ft['alias'];
+			$where = (!empty($where) ? $where . ' AND ' : '') . '(' . $ft['condition'] . ')';
+		}
+
+		if (empty($from)) {
+			return false;
+		}
+
+		// PostgreSQL doesn't like prefixes on the columns to be set.
+		$set = preg_replace('~\b' . $table['alias'] . '\.\b~', '', $set);
+
+		return $this->query(
+			'',
+			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
+			SET ' . $set . '
+			FROM ' . implode(', ', $from) . (!empty($where) ? '
+			WHERE ' . $where : ''),
+			$db_values,
+			$connection,
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function num_rows(object $result): int
 	{
 		return pg_num_rows($result);
@@ -595,7 +653,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function server_info(?object $connection = null): string
 	{
-		$version = pg_version();
+		$version = pg_version($connection ?? $this->connection);
 
 		return $version['client'];
 	}
@@ -812,7 +870,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function backup_table(string $table, string $backup_table): object
+	public function backup_table(string $table, string $backup_table): object|bool
 	{
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
@@ -1068,7 +1126,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function get_version(): string
 	{
-		$version = pg_version();
+		$version = pg_version($this->connection);
 
 		return $version['server'];
 	}
@@ -1266,7 +1324,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Get the specifics...
 		$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
 
-		list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
+		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
 
 		if ($size !== null) {
 			$type = $type . '(' . $size . ')';
@@ -1362,7 +1420,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
-		// Query returns a result or true if succesfull, false otherwise.
+		// Query returns a result or true if successful, false otherwise.
 		return $result !== false;
 	}
 
@@ -1383,7 +1441,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'tinyint' => 'smallint',
 				'tinytext' => 'character varying',
 				'mediumtext' => 'text',
-				'largetext' => 'text',
+				'longtext' => 'text',
 				'inet' => 'inet',
 				'time' => 'time without time zone',
 				'datetime' => 'timestamp without time zone',
@@ -1410,7 +1468,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Only char fields got size
-		if (strpos($type_name, 'char') === false) {
+		if (!str_contains($type_name, 'char')) {
 			$type_size = null;
 		}
 
@@ -1486,7 +1544,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			unset($column_info['default']);
 		}
 
-		// If you need to drop the default, that needs it's own thing...
+		// If you need to drop the default, that needs its own thing...
 		// Must be done first, in case the default type is inconsistent with the other changes.
 		if ($column_info['drop_default']) {
 			$this->query(
@@ -1514,7 +1572,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// What about a change in type?
 		if (isset($column_info['type']) && ($column_info['type'] != $old_info['type'] || (isset($column_info['size']) && $column_info['size'] != $old_info['size']))) {
 			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
-			list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
+			list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
 
 			if ($size !== null) {
 				$type = $type . '(' . $size . ')';
@@ -1689,7 +1747,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			// Sort out the size...
 			$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-			list($type, $size) = $this->calculate_type($column['type'], $column['size']);
+			list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
 
 			if ($size !== null) {
 				$type = $type . '(' . $size . ')';
@@ -1728,7 +1786,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// No trailing commas!
-		if (substr($table_query, -1) == ',') {
+		if (str_ends_with($table_query, ',')) {
 			$table_query = substr($table_query, 0, -1);
 		}
 
@@ -1825,7 +1883,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			// the table
 			$table_query = 'DROP TABLE ' . $short_table_name;
 
-			// and the assosciated sequence, if any
+			// and the associated sequence, if any
 			$sequence_query = 'DROP SEQUENCE IF EXISTS ' . $short_table_name . '_seq';
 
 			// drop them
@@ -1902,14 +1960,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				if ($row['column_default'] !== null) {
 					if (preg_match('~nextval\(\'(.+?)\'(.+?)*\)~i', $row['column_default'], $matches) != 0) {
 						$auto = true;
-					} elseif (substr($row['column_default'], 0, 4) != 'NULL' && trim($row['column_default']) != '') {
+					} elseif (!str_starts_with($row['column_default'], 'NULL') && trim($row['column_default']) != '') {
 						$pos = strpos($row['column_default'], '::');
 						$default = trim($pos === false ? $row['column_default'] : substr($row['column_default'], 0, $pos), '\'');
 					}
 				}
 
 				// Make the type generic.
-				list($type, $size) = $this->calculate_type($row['data_type'], $row['character_maximum_length'], true);
+				list($type, $size) = $this->calculate_type($row['data_type'], (int) $row['character_maximum_length'], true);
 
 				$columns[$row['column_name']] = [
 					'name' => $row['column_name'],
@@ -1969,7 +2027,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// Fix up the name to be consistent cross databases
-			if (substr($row['name'], -5) == '_pkey' && $row['is_primary'] == 1) {
+			if (str_ends_with($row['name'], '_pkey') && $row['is_primary'] == 1) {
 				$row['name'] = 'PRIMARY';
 			} else {
 				$row['name'] = str_replace($real_table_name . '_', '', $row['name']);
@@ -2041,8 +2099,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Better exist!
 		$indexes = $this->list_indexes($table_name, true);
 
-		// Do not add the table name to the index if it is arleady there.
-		if ($index_name != 'primary' && strpos($index_name, $real_table_name) !== false) {
+		// Do not add the table name to the index if it is already there.
+		if ($index_name != 'primary' && str_contains($index_name, $real_table_name)) {
 			$index_name = str_replace($real_table_name . '_', '', $index_name);
 		}
 
@@ -2095,7 +2153,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		parent::__construct();
 
-		// If caller was explict about non_fatal, respect that.
+		// If caller was explicit about non_fatal, respect that.
 		$non_fatal = !empty($options['non_fatal']);
 
 		// If we are in SSI try them first, but don't worry if it doesn't work, we have the normal username and password we can use.
@@ -2183,7 +2241,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 		restore_error_handler();
 
-		// Something's wrong, show an error if its fatal (which we assume it is)
+		// Something's wrong, show an error if it's fatal (which we assume it is)
 		if (empty($this->connection) && empty($options['non_fatal'])) {
 			ErrorHandler::displayDbError();
 		}
@@ -2211,7 +2269,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return $this->prefix;
 		}
 
-		if (isset(User::$me->{$matches[1]}) && strpos($matches[1], 'query_') !== false) {
+		if (isset(User::$me->{$matches[1]}) && str_contains($matches[1], 'query_')) {
 			return User::$me->{$matches[1]};
 		}
 
@@ -2406,7 +2464,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach (debug_backtrace() as $step) {
 			// Found it?
-			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), ['smf_db_', 'preg_re', 'db_erro', 'call_us']) && strpos($step['function'], '__') !== 0 && (empty($step['class']) || $step['class'] != $this::class)) {
+			if (!str_contains($step['function'], 'query') && !in_array(substr($step['function'], 0, 7), ['smf_db_', 'preg_re', 'db_erro', 'call_us']) && !str_starts_with($step['function'], '__') && (empty($step['class']) || $step['class'] != $this::class)) {
 				$log_message .= '<br>Function: ' . $step['function'];
 				break;
 			}

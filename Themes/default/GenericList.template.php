@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Utils;
@@ -114,7 +114,7 @@ function template_show_list($list_id = null)
 				foreach ($row['data'] as $row_id => $row_data)
 					echo '
 					<td class="', $row_id, empty($row_data['class']) ? '' : ' ' . $row_data['class'] . '', '"', empty($row_data['style']) ? '' : ' style="' . $row_data['style'] . '"', '>
-						', $row_data['value'], '
+						', Utils::adjustHeadingLevels($row_data['value'], 3), '
 					</td>';
 
 			echo '

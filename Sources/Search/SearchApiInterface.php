@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -39,6 +39,21 @@ interface SearchApiInterface
 	 * @return bool Whether or not this method is valid
 	 */
 	public function isValid(): bool;
+
+	/**
+	 * Gets the size, in bytes, of this API's search index.
+	 *
+	 * @return int Size of the index.
+	 */
+	public function getSize(): int;
+
+	/**
+	 * Gets whether the index for this API exists.
+	 *
+	 * @return string Either 'exists', 'partial', 'none', or null for APIs that
+	 *    don't use an index.
+	 */
+	public function getStatus(): ?string;
 
 	/**
 	 * Callback function for usort used to sort the fulltext results.
@@ -107,12 +122,40 @@ interface SearchApiInterface
 	public function topicsRemoved(array $topics): void;
 
 	/**
+	 * Callback when a topic is merged.
+	 *
+	 * @param int $id_topic The ID of the topic that messages where merged into
+	 * @param array $topics The ID(s) of the merged topic(s)
+	 * @param array $msgs The ID(s) of the merged messages(s)
+	 * @param ?string Optional rename all subjects for all messages.
+	 */
+	public function topicMerge(int $id_topic, array $topics, array $affected_msgs, ?string $subject): void;
+
+	/**
+	 * Callback when a topic is merged.
+	 *
+	 * @param int $id_topic The ID of the topic that messages where merged into
+	 * @param array $msgs The ID(s) of the merged messages(s)
+	 */
+	public function topicSplit(int $id_topic, array $affected_msgs): void;
+
+	/**
 	 * Callback when a topic is moved.
 	 *
 	 * @param array $topics The ID(s) of the moved topic(s)
 	 * @param int $board_to The board that the topics were moved to
 	 */
 	public function topicsMoved(array $topics, int $board_to): void;
+
+	/**
+	 * Lets APIs interact with Utils::$context when setting up the search form.
+	 */
+	public function formContext(): void;
+
+	/**
+	 * Lets APIs interact with Utils::$context when setting up the results page.
+	 */
+	public function resultsContext(): void;
 
 	/**
 	 * Sets whatever properties are necessary in order to perform the search.
@@ -150,6 +193,36 @@ interface SearchApiInterface
 	 * @return string URL-safe variant of a Base64 string.
 	 */
 	public function compressParams(): string;
+
+	/**
+	 * Gets info about sub-actions to support in the admin panel for this API.
+	 *
+	 * Keys of the returned array are action types (e.g. build, resume, remove).
+	 *
+	 * Values are sub-arrays with 'func', 'sa', and 'extra_params' elements:
+	 *
+	 *  - The 'func' element is the callable to execute for the sub-action.
+	 *  - The 'sa' element is the value to use for the 'sa' URL parameter.
+	 *  - The 'extra_params' element contains extra URL parameters to add to the
+	 *    URL for the sub-action.
+	 *
+	 * @return array Info about sub-actions.
+	 */
+	public function getAdminSubactions(): array;
+
+	/**
+	 * Returns the expected Lang::$txt key for this API's localized label.
+	 *
+	 * @return string Localized label for this API.
+	 */
+	public function getLabel(): string;
+
+	/**
+	 * Returns the expected Lang::$txt key for this API's localized description.
+	 *
+	 * @return string Localized description for this API.
+	 */
+	public function getDescription(): string;
 }
 
 ?>

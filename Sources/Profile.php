@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -35,17 +37,6 @@ class Profile extends User implements \ArrayAccess
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'loadCustomFieldDefinitions' => 'loadCustomFieldDefinitions',
-			'validateSignature' => 'validateSignature',
-			'backcompat_profileLoadGroups' => 'profileLoadGroups',
-			'backcompat_loadProfileFields' => 'loadProfileFields',
-			'backcompat_loadCustomFields' => 'loadCustomFields',
-			'backcompat_loadThemeOptions' => 'loadThemeOptions',
-			'backcompat_setupProfileContext' => 'setupProfileContext',
-			'backcompat_makeCustomFieldChanges' => 'makeCustomFieldChanges',
-			'backcompat_makeThemeChanges' => 'makeThemeChanges',
-		],
 		'prop_names' => [
 			'profile_fields' => 'profile_fields',
 			'profile_vars' => 'profile_vars',
@@ -181,7 +172,7 @@ class Profile extends User implements \ArrayAccess
 	 *
 	 * Instance of this class for the member whose profile is being viewed.
 	 */
-	public static object $member;
+	public static self $member;
 
 	/**
 	 * @var array
@@ -334,7 +325,7 @@ class Profile extends User implements \ArrayAccess
 		 *
 		 *    - true:           Element can be stored.
 		 *    - false:          Skip this element.
-		 *    - a text string:  An error occured; this is the error message.
+		 *    - a text string:  An error occurred; this is the error message.
 		 *
 		 * function $preload:   A function that is used to load data required
 		 *                      for this element to be displayed. Must return
@@ -390,7 +381,7 @@ class Profile extends User implements \ArrayAccess
 						if ((int) $_POST['bday3'] == 1 && (int) $_POST['bday2'] == 1 && (int) $value == 1) {
 							$value = '1004-01-01';
 						} else {
-							$value = checkdate($value, $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
+							$value = checkdate((int) $value, (int) $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : (int) $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
 						}
 					} else {
 						$value = '1004-01-01';
@@ -409,7 +400,7 @@ class Profile extends User implements \ArrayAccess
 				'input_validate' => function (&$value) {
 					// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
 					if (preg_match('/(\d{4})[\-., ](\d{2})[\-., ](\d{2})/', $value, $dates) === 1) {
-						$value = checkdate($dates[2], $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
+						$value = checkdate((int) $dates[2], (int) $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
 
 						return true;
 					}
@@ -430,7 +421,7 @@ class Profile extends User implements \ArrayAccess
 					if (($value = strtotime($value)) === false) {
 						$value = $this->date_registered;
 
-						return Lang::$txt['invalid_registration'] . ' ' . Time::strftime('%d %b %Y ' . (strpos(User::$me->time_format, '%H') !== false ? '%I:%M:%S %p' : '%H:%M:%S'), time());
+						return Lang::getTxt('invalid_registration', ['example' => Time::strftime('%d %b %Y ' . (str_contains(User::$me->time_format, '%H') ? '%I:%M:%S %p' : '%H:%M:%S'), time())]);
 					}
 
 					// As long as it doesn't equal "N/A"...
@@ -456,7 +447,7 @@ class Profile extends User implements \ArrayAccess
 					{
 						if (this.email_address.value != "' . (!empty($this->email) ? $this->email : '') . '")
 						{
-							alert(' . Utils::JavaScriptEscape(Lang::$txt['email_change_logout']) . ');
+							alert(' . Utils::escapeJavaScript(Lang::$txt['email_change_logout']) . ');
 							return true;
 						}
 					}, false);' : '',
@@ -465,13 +456,13 @@ class Profile extends User implements \ArrayAccess
 						return false;
 					}
 
-					$isValid = self::validateEmail($value, $this->id);
+					$isValid = $this->validateEmail($value);
 
 					// Do they need to revalidate? If so schedule the function!
 					if ($isValid === true && !empty(Config::$modSettings['send_validation_onChange']) && !User::$me->allowedTo('moderate_forum')) {
-						$this->new_data['validation_code'] = User::generateValidationCode();
+						$this->new_data['validation_code'] = Security::generateValidationCode();
 
-						$this->new_data['is_activated'] = 2;
+						$this->new_data['is_activated'] = User::UNVALIDATED;
 
 						Utils::$context['profile_execute_on_save'][] = [[$this, 'sendActivation']];
 
@@ -489,6 +480,8 @@ class Profile extends User implements \ArrayAccess
 				'preload' => [[$this, 'loadAssignableGroups']],
 				'log_change' => true,
 				'input_validate' => function (&$value) {
+					$value = (int) $value;
+
 					return $this->validateGroups($value, $_POST['additional_groups'] ?? []);
 				},
 			],
@@ -529,7 +522,7 @@ class Profile extends User implements \ArrayAccess
 			'lngfile' => [
 				'type' => 'select',
 				'options' => function () {
-					return array_map(fn ($lang) => $lang['name'], Lang::get());
+					return array_map(fn($lang) => $lang['name'], Lang::get());
 				},
 				'label' => Lang::$txt['preferred_language'],
 				'permission' => 'profile_identity',
@@ -570,14 +563,14 @@ class Profile extends User implements \ArrayAccess
 							&& $_POST['passwrd1'] != ''
 							&& isset($_POST['passwrd2'])
 							&& $_POST['passwrd1'] == $_POST['passwrd2']
-							&& User::validatePassword(Utils::htmlspecialcharsDecode($_POST['passwrd1']), $value, [$this->name, User::$me->username, User::$me->name, User::$me->email]) == null
+							&& Security::validatePassword(Utils::htmlspecialcharsDecode($_POST['passwrd1']), $value, [$this->name, User::$me->username, User::$me->name, User::$me->email]) == null
 						) {
 							$reset_password = false;
 						}
 
 						// Do the reset... this will send them an email too.
 						if ($reset_password) {
-							$this->resetPassword($this->id, $value);
+							$this->resetPassword($value);
 						} elseif ($value !== null) {
 							User::validateUsername($this->id, trim(Utils::normalizeSpaces(Utils::sanitizeChars($value, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true])));
 
@@ -612,15 +605,17 @@ class Profile extends User implements \ArrayAccess
 					}
 
 					// Let's get the validation function into play...
-					$passwordErrors = User::validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, [$this->name, User::$me->username, User::$me->name, User::$me->email]);
+					$password_error = Security::validatePassword(Utils::htmlspecialcharsDecode($value), $this->username, [$this->name, User::$me->username, User::$me->name, User::$me->email]);
 
 					// Were there errors?
-					if ($passwordErrors != null) {
-						return 'password_' . $passwordErrors;
+					if ($password_error != null) {
+						Lang::load('Errors');
+
+						return (isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'password_' : '') . $password_error;
 					}
 
 					// Set up the new password variable... ready for storage.
-					$value = Security::hashPassword($this->username, Utils::htmlspecialcharsDecode($value));
+					$value = Security::hashPassword(Utils::htmlspecialcharsDecode($value));
 
 					return true;
 				},
@@ -686,7 +681,7 @@ class Profile extends User implements \ArrayAccess
 						return 'posts_out_of_range';
 					}
 
-					$value = $value != '' ? strtr($value, [',' => '', '.' => '', ' ' => '']) : 0;
+					$value = $value != '' ? strtr((string) $value, [',' => '', '.' => '', ' ' => '']) : 0;
 
 					return true;
 				},
@@ -733,7 +728,7 @@ class Profile extends User implements \ArrayAccess
 				'value' => '',
 				'permission' => 'profile_password',
 				'input_validate' => function (&$value) {
-					$value = $value != '' ? Security::hashPassword($this->username, $value) : '';
+					$value = $value != '' ? Security::hashPassword($value) : '';
 
 					return true;
 				},
@@ -786,7 +781,7 @@ class Profile extends User implements \ArrayAccess
 					$no_smiley_sets = array_diff(explode(',', Config::$modSettings['smiley_sets_known']), array_keys($filenames));
 
 					foreach ($no_smiley_sets as $set) {
-						$allowedTypes = ['gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg'];
+						$allowedTypes = ['gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg', 'webp'];
 						$images = glob(implode('/', [Config::$modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}')]), GLOB_BRACE);
 
 						// Just use some image or other
@@ -798,9 +793,9 @@ class Profile extends User implements \ArrayAccess
 						else {
 							Lang::load('Errors', Lang::$default);
 
-							ErrorHandler::log(sprintf(Lang::$txt['smiley_set_dir_not_found'], $set_names[array_search($set, Utils::$context['smiley_sets'])]));
+							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]]));
 
-							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn ($v) => $v != $set);
+							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn($v) => $v != $set);
 						}
 					}
 
@@ -849,7 +844,7 @@ class Profile extends User implements \ArrayAccess
 				'permission' => 'profile_extra',
 				'is_dummy' => true,
 				'preload' => function () {
-					Lang::load('Settings');
+					Lang::load('ThemeStrings');
 
 					Utils::$context['allow_no_censored'] = false;
 
@@ -970,15 +965,14 @@ class Profile extends User implements \ArrayAccess
 				'permission' => 'profile_website',
 				// Fix the URL...
 				'input_validate' => function (&$value) {
-					if (strlen(trim($value)) > 0 && strpos($value, '://') === false) {
+					if (strlen(trim($value)) > 0 && !str_contains($value, '://')) {
 						$value = 'http://' . $value;
+						$value = Url::create($value, true)->validate()->toUtf8();
 					}
 
-					if (strlen($value) < 8 || (substr($value, 0, 7) !== 'http://' && substr($value, 0, 8) !== 'https://')) {
+					if (strlen($value) < 8 || (!str_starts_with($value, 'http://') && !str_starts_with($value, 'https://'))) {
 						$value = '';
 					}
-
-					$value = Url::create($value, true)->validate()->toUtf8();
 
 					return true;
 				},
@@ -1125,7 +1119,7 @@ class Profile extends User implements \ArrayAccess
 
 			// Parse BBCode
 			if ($cf_def['bbc']) {
-				$output_html = BBCodeParser::load()->parse($output_html);
+				$output_html = Utils::adjustHeadingLevels(Parser::transform($output_html), null);
 			} elseif ($cf_def['field_type'] == 'textarea') {
 				// Allow for newlines at least
 				$output_html = strtr($output_html, ["\n" => '<br>']);
@@ -1202,34 +1196,41 @@ class Profile extends User implements \ArrayAccess
 	{
 		Utils::$context['avatar_url'] = Config::$modSettings['avatar_url'];
 
+		// If it's not a Url, make it one.
+		if (!$this->avatar['url'] instanceof Url) {
+			$this->avatar['url'] = new Url($this->avatar['url']);
+		}
+
 		// Default context.
 		$this->formatted['avatar'] += [
-			'custom' => stristr($this->avatar['url'], 'http://') || stristr($this->avatar['url'], 'https://') ? $this->avatar['url'] : 'http://',
-			'selection' => $this->avatar['url'] == '' || (stristr($this->avatar['url'], 'http://') || stristr($this->avatar['url'], 'https://')) ? '' : $this->avatar['url'],
+			'custom' => $this->avatar['url']->isWebsite() ? (string) $this->avatar['url'] : 'http://',
+			'selection' => empty($this->avatar['url']) || !$this->avatar['url']->isWebsite() ? '' : (string) $this->avatar['url'],
 			'allow_server_stored' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_server_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_upload' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_upload_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
 			'allow_external' => (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride'])) && (User::$me->allowedTo('profile_remote_avatar') || (!User::$me->is_owner && User::$me->allowedTo('profile_extra_any'))),
-			'allow_gravatar' => !empty(Config::$modSettings['gravatarEnabled']),
+			'allow_gravatar' => !empty(Config::$modSettings['gravatarEnabled']) && User::$me->allowedTo('profile_gravatar'),
 		];
 
 		// Gravatar?
 		if (
 			$this->formatted['avatar']['allow_gravatar']
 			&& (
-				stristr($this->avatar['url'], 'gravatar://')
+				$this->avatar['url']->isGravatar()
 				|| !empty(Config::$modSettings['gravatarOverride'])
 			)
 		) {
 			$this->formatted['avatar'] += [
 				'choice' => 'gravatar',
 				'server_pic' => 'blank.png',
-				'external' => $this->avatar['url'] == 'gravatar://' || empty(Config::$modSettings['gravatarAllowExtraEmail']) || (!empty(Config::$modSettings['gravatarOverride']) && substr($this->avatar['url'], 0, 11) != 'gravatar://') ? $this->email : substr($this->avatar['url'], 11),
+				'external' =>
+					empty(Config::$modSettings['gravatarAllowExtraEmail'])
+					|| (!empty(Config::$modSettings['gravatarOverride']) && !str_starts_with((string) $this->avatar['url'], 'gravatar://')) ? $this->email : substr($this->avatar['original_url'], 11),
 			];
 			$this->formatted['avatar']['href'] = self::getGravatarUrl($this->formatted['avatar']['external']);
 		}
 		// An attachment?
 		elseif (
-			$this->avatar['original_url'] == ''
+			$this->avatar['url']->isValid()
 			&& $this->avatar['id_attach'] > 0
 			&& $this->formatted['avatar']['allow_upload']
 		) {
@@ -1245,10 +1246,9 @@ class Profile extends User implements \ArrayAccess
 		// Use "avatar_original" here so we show what the user entered even if the image proxy is enabled
 		elseif (
 			$this->formatted['avatar']['allow_external']
-			&& (
-				stristr($this->avatar['url'], 'http://')
-				|| stristr($this->avatar['url'], 'https://')
-			)) {
+			&& $this->avatar['url']->isWebsite()
+			&& stripos($this->avatar['original_url'], 'http') === 0
+			) {
 			$this->formatted['avatar'] += [
 				'choice' => 'external',
 				'server_pic' => 'blank.png',
@@ -1257,13 +1257,15 @@ class Profile extends User implements \ArrayAccess
 		}
 		// Server stored image?
 		elseif (
-			$this->avatar['url'] != ''
+			$this->avatar['url']->isValid()
+			&& stripos($this->avatar['original_url'], 'http') === false
+			&& $this->avatar['original_url'] !== ''
 			&& $this->formatted['avatar']['allow_server_stored']
-			&& file_exists(Config::$modSettings['avatar_directory'] . '/' . $this->avatar['url'])
+			&& file_exists(Config::$modSettings['avatar_directory'] . '/' . $this->avatar['original_url'])
 		) {
 			$this->formatted['avatar'] += [
 				'choice' => 'server_stored',
-				'server_pic' => $this->avatar['url'] == '' ? 'blank.png' : $this->avatar['url'],
+				'server_pic' => $this->avatar['original_url'] == '' ? 'blank.png' : $this->avatar['original_url'],
 				'external' => 'http://',
 			];
 		}
@@ -1285,7 +1287,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Second level selected avatar...
-		Utils::$context['avatar_selected'] = substr(strrchr($this->formatted['avatar']['server_pic'], '/'), 1);
+		Utils::$context['avatar_selected'] = substr((string) strrchr($this->formatted['avatar']['server_pic'], '/'), 1);
 
 		return !empty($this->formatted['avatar']['allow_server_stored']) || !empty($this->formatted['avatar']['allow_external']) || !empty($this->formatted['avatar']['allow_upload']) || !empty($this->formatted['avatar']['allow_gravatar']);
 	}
@@ -1321,9 +1323,9 @@ class Profile extends User implements \ArrayAccess
 		Utils::$context['signature_warning'] = '';
 
 		if (Utils::$context['signature_limits']['max_image_width'] && Utils::$context['signature_limits']['max_image_height']) {
-			Utils::$context['signature_warning'] = sprintf(Lang::$txt['profile_error_signature_max_image_size'], Utils::$context['signature_limits']['max_image_width'], Utils::$context['signature_limits']['max_image_height']);
+			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_size', [Utils::$context['signature_limits']['max_image_width'], Utils::$context['signature_limits']['max_image_height']]);
 		} elseif (Utils::$context['signature_limits']['max_image_width'] || Utils::$context['signature_limits']['max_image_height']) {
-			Utils::$context['signature_warning'] = sprintf(Lang::$txt['profile_error_signature_max_image_' . (Utils::$context['signature_limits']['max_image_width'] ? 'width' : 'height')], Utils::$context['signature_limits'][Utils::$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']);
+			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_' . (Utils::$context['signature_limits']['max_image_width'] ? 'width' : 'height'), [Utils::$context['signature_limits'][Utils::$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']]);
 		}
 
 		if (empty(Utils::$context['do_preview'])) {
@@ -1350,7 +1352,15 @@ class Profile extends User implements \ArrayAccess
 
 			Lang::censorText($signature);
 
-			Utils::$context['member']['signature_preview'] = BBCodeParser::load()->parse($signature, true, 'sig' . $this->id, BBCodeParser::getSigTags());
+			Utils::$context['member']['signature_preview'] = Parser::transform(
+				string: $signature,
+				options: [
+					'cache_id' => 'sig' . $this->id,
+					'parse_tags' => Parser::getSigTags(),
+				],
+			);
+
+			Utils::$context['member']['signature_preview'] = Utils::adjustHeadingLevels(Utils::$context['member']['signature_preview'], null);
 
 			Utils::$context['member']['signature'] = $_POST['signature'];
 		}
@@ -1388,18 +1398,18 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// For the templates.
-		Utils::$context['member_groups'] = array_merge(
-			[
-				0 => [
-					'id' => 0,
-					'name' => Lang::$txt['no_primary_membergroup'],
-					'is_primary' => $this->data['id_group'] == 0,
-					'can_be_additional' => false,
-					'can_be_primary' => true,
-				],
+		Utils::$context['member_groups'] = [
+			0 => [
+				'id' => 0,
+				'name' => Lang::$txt['no_primary_membergroup'],
+				'is_primary' => $this->data['id_group'] == 0,
+				'can_be_additional' => false,
+				'can_be_primary' => true,
 			],
-			$this->assignable_groups,
-		);
+		];
+
+		// Do not use array merge here, does not maintain key association.
+		Utils::$context['member_groups'] += $this->assignable_groups;
 
 		return true;
 	}
@@ -1499,7 +1509,7 @@ class Profile extends User implements \ArrayAccess
 			if (this.oldpasswrd.value == "")
 			{
 				event.preventDefault();
-				alert(' . (Utils::JavaScriptEscape(Lang::$txt['required_security_reasons'])) . ');
+				alert(' . (Utils::escapeJavaScript(Lang::$txt['required_security_reasons'])) . ');
 				return false;
 			}
 		}, false);' : ''), true);
@@ -1518,7 +1528,7 @@ class Profile extends User implements \ArrayAccess
 	/**
 	 * Saves profile data.
 	 */
-	public function save()
+	public function save(): void
 	{
 		// General-purpose permission for anything that doesn't have its own.
 		$this->can_change_extra = User::$me->allowedTo(User::$me->is_owner ? ['profile_extra_any', 'profile_extra_own'] : ['profile_extra_any']);
@@ -1536,7 +1546,7 @@ class Profile extends User implements \ArrayAccess
 		// This allows variables to call activities when they save.
 		Utils::$context['profile_execute_on_save'] = [];
 
-		if (User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area, ['account', 'forumprofile', 'theme'])) {
+		if (User::$me->is_owner && in_array(Menu::$loaded['profile']->current_area ?? null, ['account', 'forumprofile', 'theme'])) {
 			Utils::$context['profile_execute_on_save']['reload_user'] = [__CLASS__ . '::reloadUser', Profile::$member->id];
 		}
 
@@ -1547,7 +1557,7 @@ class Profile extends User implements \ArrayAccess
 		$this->prepareToSaveCustomFields($_REQUEST['sa'] ?? null);
 
 		// Give hooks some access to the save data.
-		IntegrationHook::call('integrate_profile_save', [&Profile::$member->new_data, &Profile::$member->save_errors, Profile::$member->id, Profile::$member->data, Menu::$loaded['profile']->current_area]);
+		IntegrationHook::call('integrate_profile_save', [&Profile::$member->new_data, &Profile::$member->save_errors, Profile::$member->id, Profile::$member->data, Menu::$loaded['profile']->current_area ?? null]);
 
 		// There was a problem. Let them try again.
 		if (!empty($this->save_errors)) {
@@ -1597,11 +1607,11 @@ class Profile extends User implements \ArrayAccess
 					AND (
 						(
 							id_theme = {int:id_theme}
-							AND variable IN ({array_string:cf}
+							AND variable IN ({array_string:cf})
 						)
 						OR (
 							id_theme != {int:id_theme}
-							AND variable IN ({array_string:opt}
+							AND variable IN ({array_string:opt})
 						)
 					)',
 				[
@@ -1643,10 +1653,11 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Let them know it worked!
-		Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : sprintf(Lang::$txt['profile_updated_else'], $this->username);
+		Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', ['name' => $this->username]);
 
 		// Invalidate any cached data.
 		CacheApi::put('member_data-profile-' . $this->id, null, 0);
+		CacheApi::put('slug_type-member_id-' . $this->id, null, 0);
 	}
 
 	/**
@@ -1656,7 +1667,7 @@ class Profile extends User implements \ArrayAccess
 	 * @return bool|string True if the email is valid, otherwise a string
 	 *    indicating what the problem is.
 	 */
-	public function validateEmail($email): bool|string
+	public function validateEmail(string $email): bool|string
 	{
 		$email = strtr($email, ['&#039;' => '\'']);
 
@@ -1782,9 +1793,11 @@ class Profile extends User implements \ArrayAccess
 
 		IntegrationHook::call('before_profile_save_avatar', [&$value]);
 
+		$result = null;
+
 		switch ($value) {
 			case 'server_stored':
-				$result = $this->setAvatarServerStored($_POST['file'] ?? $_POST['cat'] ?? '');
+				$this->setAvatarServerStored($_POST['file'] ?? $_POST['cat'] ?? '');
 				break;
 
 			case 'external':
@@ -1796,11 +1809,11 @@ class Profile extends User implements \ArrayAccess
 				break;
 
 			case 'gravatar':
-				$result = $this->setAvatarGravatar();
+				$this->setAvatarGravatar();
 				break;
 
 			default:
-				$result = $this->setAvatarNone();
+				$this->setAvatarNone();
 				break;
 		}
 
@@ -1836,7 +1849,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param string $dataset Ignored.
 	 * @return array The IDs of the loaded members.
 	 */
-	public static function load($users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
+	public static function load(mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
 	{
 		$users = (array) $users;
 
@@ -1899,7 +1912,7 @@ class Profile extends User implements \ArrayAccess
 	 * @return bool|string True if the signature passes the checks, otherwise
 	 *    a string indicating what the problem is.
 	 */
-	public static function validateSignature(&$value): bool|string
+	public static function validateSignature(string &$value): bool|string
 	{
 		// Admins can do whatever they hell they want!
 		if (!User::$me->allowedTo('admin_forum')) {
@@ -1912,20 +1925,20 @@ class Profile extends User implements \ArrayAccess
 
 			// Too many lines?
 			if (!empty($sig_limits[2]) && substr_count($unparsed_signature, "\n") >= $sig_limits[2]) {
-				Lang::$txt['profile_error_signature_max_lines'] = sprintf(Lang::$txt['profile_error_signature_max_lines'], $sig_limits[2]);
+				Lang::$txt['profile_error_signature_max_lines'] = Lang::getTxt('profile_error_signature_max_lines', [$sig_limits[2]]);
 
 				return 'signature_max_lines';
 			}
 
 			// Too many images?!
 			if (!empty($sig_limits[3]) && (substr_count(strtolower($unparsed_signature), '[img') + substr_count(strtolower($unparsed_signature), '<img')) > $sig_limits[3]) {
-				Lang::$txt['profile_error_signature_max_image_count'] = sprintf(Lang::$txt['profile_error_signature_max_image_count'], $sig_limits[3]);
+				Lang::$txt['profile_error_signature_max_image_count'] = Lang::getTxt('profile_error_signature_max_image_count', [$sig_limits[3]]);
 
 				return 'signature_max_image_count';
 			}
 
-			// What about too many smileys!
-			$smiley_parsed = BBCodeParser::load()->parseSmileys($unparsed_signature);
+			// What about too many smileys?
+			$smiley_parsed = Parser::transform($unparsed_signature, Parser::INPUT_SMILEYS);
 
 			$smiley_count = substr_count(strtolower($smiley_parsed), '<img') - substr_count(strtolower($unparsed_signature), '<img');
 
@@ -1934,7 +1947,7 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			if (!empty($sig_limits[4]) && $sig_limits[4] > 0 && $smiley_count > $sig_limits[4]) {
-				Lang::$txt['profile_error_signature_max_smileys'] = sprintf(Lang::$txt['profile_error_signature_max_smileys'], $sig_limits[4]);
+				Lang::$txt['profile_error_signature_max_smileys'] = Lang::getTxt('profile_error_signature_max_smileys', [$sig_limits[4]]);
 
 				return 'signature_max_smileys';
 			}
@@ -1956,7 +1969,7 @@ class Profile extends User implements \ArrayAccess
 					}
 
 					if ($limit_broke) {
-						Lang::$txt['profile_error_signature_max_font_size'] = sprintf(Lang::$txt['profile_error_signature_max_font_size'], $limit_broke);
+						Lang::$txt['profile_error_signature_max_font_size'] = Lang::getTxt('profile_error_signature_max_font_size', [$limit_broke]);
 
 						return 'signature_max_font_size';
 					}
@@ -2061,144 +2074,31 @@ class Profile extends User implements \ArrayAccess
 				if (preg_match('~\[(' . $disabledSigBBC . '[ =\]/])~i', $unparsed_signature, $matches) !== false && isset($matches[1])) {
 					$disabledTags = array_unique($disabledTags);
 
-					Lang::$txt['profile_error_signature_disabled_bbc'] = sprintf(Lang::$txt['profile_error_signature_disabled_bbc'], implode(', ', $disabledTags));
+					Lang::$txt['profile_error_signature_disabled_bbc'] = Lang::getTxt(
+						'profile_error_signature_disabled_bbc',
+						[
+							'num_disabled_tags' => count($disabledTags),
+							'list_disabled_tags' => Lang::sentenceList($disabledTags),
+						],
+					);
 
 					return 'signature_disabled_bbc';
 				}
 			}
 		}
 
-		Msg::preparsecode($value);
+		Msg::preparsecode($value, false, !empty(Config::$modSettings['autoLinkUrls']));
 
 		// Too long?
 		if (!User::$me->allowedTo('admin_forum') && !empty($sig_limits[1]) && Utils::entityStrlen(str_replace('<br>', "\n", $value)) > $sig_limits[1]) {
 			$_POST['signature'] = trim(Utils::htmlspecialchars(str_replace('<br>', "\n", $value), ENT_QUOTES));
 
-			Lang::$txt['profile_error_signature_max_length'] = sprintf(Lang::$txt['profile_error_signature_max_length'], $sig_limits[1]);
+			Lang::$txt['profile_error_signature_max_length'] = Lang::getTxt('profile_error_signature_max_length', [$sig_limits[1]]);
 
 			return 'signature_max_length';
 		}
 
 		return true;
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the loadAssignableGroups() method.
-	 *
-	 * @param int $id ID number of the member whose profile is being viewed.
-	 * @return true Always returns true
-	 */
-	public static function backcompat_profileLoadGroups(?int $id = null)
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$loaded[$id]->loadAssignableGroups();
-
-		return true;
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the loadStandardFields() method.
-	 *
-	 * @param bool $force_reload Whether to reload the data.
-	 * @param int $id The ID of the member.
-	 */
-	public static function backcompat_loadProfileFields($force_reload = false, ?int $id = null): void
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$loaded[$id]->loadStandardFields($force_reload);
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the loadCustomFields() method.
-	 *
-	 * @param int $id The ID of the member.
-	 * @param string $area Which area to load fields for.
-	 */
-	public static function backcompat_loadCustomFields(int $id, string $area = 'summary'): void
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$loaded[$id]->loadCustomFields($area);
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the loadThemeOptions() method.
-	 *
-	 * @param int $id The ID of the member.
-	 * @param bool $defaultSettings If true, we are loading default options.
-	 */
-	public static function backcompat_loadThemeOptions(int $id, bool $defaultSettings = false)
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$loaded[$id]->loadThemeOptions($defaultSettings);
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the setupContext() method.
-	 *
-	 * @param array $fields The profile fields to display. Each item should
-	 *    correspond to an item in the Profile::$member->standard_fields array.
-	 * @param int $id The ID of the member.
-	 */
-	public static function backcompat_setupProfileContext(array $fields, int $id): void
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$member->setupContext($fields);
-	}
-
-	/**
-	 * Backward compatibilty wrapper for the save() method.
-	 * Deals with changes to custom fields in particular.
-	 *
-	 * @param int $id The ID of the member
-	 * @param string $area The area of the profile these fields are in.
-	 * @param bool $sanitize = true Whether or not to sanitize the data.
-	 * @param bool $return_errors Whether or not to return any error information.
-	 * @return void|array Returns nothing or returns an array of error info if $return_errors is true.
-	 */
-	public static function backcompat_makeCustomFieldChanges($id, $area, $sanitize = true, $return_errors = false)
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		$_REQUEST['sa'] = $area;
-		self::$member->post_sanitized = !$sanitize;
-		self::$member->save();
-
-		if (!empty($return_errors)) {
-			return self::$member->cf_save_errors;
-		}
-	}
-	/**
-	 * Backward compatibilty wrapper for the save() method.
-	 * Deals with changes to theme options in particular.
-	 *
-	 * @param int $id The ID of the user
-	 * @param int $id_theme The ID of the theme
-	 */
-	public static function backcompat_makeThemeChanges($id, $id_theme)
-	{
-		if (!isset(self::$loaded[$id])) {
-			self::load($id);
-		}
-
-		self::$member->new_data['id_theme'] = $id_theme;
-		self::$member->save();
 	}
 
 	/******************
@@ -2230,6 +2130,9 @@ class Profile extends User implements \ArrayAccess
 
 		// Is this the profile of the user himself or herself?
 		parent::$me->is_owner = $this->id === parent::$me->id;
+
+		// Create the slug for this member.
+		Slug::create($this->name, 'member', $this->id);
 
 		// Backward compatibility.
 		self::$cur_profile = &self::$member->data;
@@ -2290,9 +2193,6 @@ class Profile extends User implements \ArrayAccess
 				// Set the save variable.
 				$this->new_data[$db_key] = $_POST[$key];
 
-				// And update the user profile.
-				$this->data[$key] = $this->new_data[$key];
-
 				// Are we logging it?
 				if (!empty($field['log_change']) && isset($this->data[$key])) {
 					$this->log_changes[] = [
@@ -2306,6 +2206,9 @@ class Profile extends User implements \ArrayAccess
 						],
 					];
 				}
+
+				// And update the user profile.
+				$this->data[$key] = $this->new_data[$db_key];
 			}
 
 			// Logging group changes are a bit different...
@@ -2360,6 +2263,10 @@ class Profile extends User implements \ArrayAccess
 					];
 				}
 			}
+		}
+
+		if (!empty($this->new_data['real_name'])) {
+			$this->new_data['spoofdetector_name'] = Utils::htmlspecialchars(Unicode\SpoofDetector::getSkeletonString(html_entity_decode($this->new_data['real_name'], ENT_QUOTES)));
 		}
 	}
 
@@ -2462,28 +2369,46 @@ class Profile extends User implements \ArrayAccess
 				$value = $_POST['customfield'][$cf_def['col_name']] ?? '';
 
 				if ($cf_def['field_length']) {
-					$value = Utils::entitySubstr($value, 0, $cf_def['field_length']);
+					$value = Utils::entitySubstr($value, 0, (int) $cf_def['field_length']);
 				}
 
 				// Any masks?
 				if ($cf_def['field_type'] == 'text' && !empty($cf_def['mask']) && $cf_def['mask'] != 'none') {
 					$value = Utils::htmlTrim($value);
-					$valueReference = Utils::htmlspecialcharsDecode($value);
+					$valueReference = html_entity_decode($value);
 
-					// Try and avoid some checks. '0' could be a valid non-empty value.
+					// Try to avoid some checks. '0' could be a valid non-empty value.
 					if (empty($value) && !is_numeric($value)) {
 						$value = '';
 					}
 
-					if ($cf_def['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != Utils::htmlspecialchars($value, ENT_NOQUOTES) || preg_match('/<(.+?)\s*\\/?\s*>/si', $valueReference))) {
+					if (
+						$cf_def['mask'] == 'nohtml'
+						&& (
+							$valueReference != strip_tags($valueReference)
+							|| $valueReference != htmlspecialchars($valueReference, ENT_NOQUOTES)
+							|| preg_match('/<(.+?)\s*\\/?\s*>/si', $valueReference)
+						)
+					) {
 						$mask_error = 'custom_field_nohtml_fail';
 						$value = '';
-					} elseif ($cf_def['mask'] == 'email' && !empty($value) && (!filter_var($value, FILTER_VALIDATE_EMAIL) || strlen($value) > 255)) {
+					} elseif (
+						$cf_def['mask'] == 'email'
+						&& !empty($value)
+						&& (
+							!filter_var($value, FILTER_VALIDATE_EMAIL)
+							|| strlen($value) > 255
+						)
+					) {
 						$mask_error = 'custom_field_mail_fail';
 						$value = '';
 					} elseif ($cf_def['mask'] == 'number') {
 						$value = (int) $value;
-					} elseif (substr($cf_def['mask'], 0, 5) == 'regex' && trim($value) != '' && preg_match(substr($cf_def['mask'], 5), $value) === 0) {
+					} elseif (
+						str_starts_with($cf_def['mask'], 'regex')
+						&& trim($value) != ''
+						&& preg_match(substr($cf_def['mask'], 5), $value) === 0
+					) {
 						$mask_error = 'custom_field_regex_fail';
 						$value = '';
 					}
@@ -2551,7 +2476,7 @@ class Profile extends User implements \ArrayAccess
 		]);
 
 		// Now that the hook is done, we can set deletes to just the value we need.
-		$this->new_cf_data['deletes'] = array_map(fn ($del) => $del['variable'], $deletes);
+		$this->new_cf_data['deletes'] = array_map(fn($del) => $del['variable'], $deletes);
 
 		if (!empty($hook_errors) && is_array($hook_errors)) {
 			$this->cf_save_errors = array_merge($this->cf_save_errors, $hook_errors);
@@ -2692,7 +2617,7 @@ class Profile extends User implements \ArrayAccess
 			if (!empty($tmp)) {
 				$result[] = [
 					'filename' => Utils::htmlspecialchars($line),
-					'checked' => strpos(Utils::$context['member']['avatar']['server_pic'], $line . '/') !== false,
+					'checked' => str_contains(Utils::$context['member']['avatar']['server_pic'], $line . '/'),
 					'name' => '[' . Utils::htmlspecialchars(str_replace('_', ' ', $line)) . ']',
 					'is_dir' => true,
 					'files' => $tmp,
@@ -2714,6 +2639,7 @@ class Profile extends User implements \ArrayAccess
 				&& strcasecmp($extension, 'jpeg') != 0
 				&& strcasecmp($extension, 'png') != 0
 				&& strcasecmp($extension, 'bmp') != 0
+				&& strcasecmp($extension, 'webp') != 0
 			) {
 				continue;
 			}
@@ -2772,7 +2698,7 @@ class Profile extends User implements \ArrayAccess
 			// Named 'blank.png'
 			$this->new_data['avatar'] == 'blank.png'
 			// Not inside the expected directory.
-			|| strpos($avatar_path, Config::$modSettings['avatar_directory'] . '/') !== 0
+			|| !str_starts_with($avatar_path, Config::$modSettings['avatar_directory'] . '/')
 			// Not a file.
 			|| !is_file($avatar_path)
 			// Not a valid image file.
@@ -2824,13 +2750,13 @@ class Profile extends User implements \ArrayAccess
 			return $this->setAvatarAttachment($image->source);
 		}
 
-		// Is is safe?
+		// Is it safe?
 		if (!$image->check(!empty(Config::$modSettings['avatar_paranoid']))) {
 			return 'bad_avatar';
 		}
 
 		// Is it too big?
-		if ($image->shouldResize(Config::$modSettings['avatar_max_width_external'] ?? 0, Config::$modSettings['avatar_max_height_external'] ?? 0)) {
+		if ($image->shouldResize((int) Config::$modSettings['avatar_max_width_external'] ?? 0, (int) Config::$modSettings['avatar_max_height_external'] ?? 0)) {
 			switch (Config::$modSettings['avatar_action_too_large']) {
 				case 'option_download_and_resize':
 					return $this->setAvatarAttachment($image->source);
@@ -2924,8 +2850,8 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Check whether the image is too large.
-		$max_width = Config::$modSettings['avatar_max_width_external'] ?? 0;
-		$max_height = Config::$modSettings['avatar_max_height_external'] ?? 0;
+		$max_width = (int) (Config::$modSettings['avatar_max_width_external'] ?? 0);
+		$max_height = (int) (Config::$modSettings['avatar_max_height_external'] ?? 0);
 
 		if ($image->shouldResize($max_width, $max_height)) {
 			// Try to resize it, unless the admin disabled resizing.
@@ -2964,16 +2890,18 @@ class Profile extends User implements \ArrayAccess
 				'id_folder' => 'int',
 			],
 			[
-				$this->id,
-				1,
-				$image->pathinfo['basename'],
-				'',
-				$image->pathinfo['extension'],
-				filesize($image->source),
-				$image->width,
-				$image->height,
-				$image->mime_type,
-				$id_folder,
+				[
+					$this->id,
+					1,
+					$image->pathinfo['basename'],
+					'',
+					$image->pathinfo['extension'],
+					filesize($image->source),
+					$image->width,
+					$image->height,
+					$image->mime_type,
+					$id_folder,
+				],
 			],
 			['id_attach'],
 			1,
@@ -3072,17 +3000,17 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Generate a random password.
-		$new_password = implode('-', str_split(substr(preg_replace('/\W/', '', base64_encode(random_bytes(18))), 0, 18), 6));
-		$new_password_sha1 = Security::hashPassword($username ?? $this->username, $new_password);
+		$new_password = Security::generatePassword();
+		$new_password_hashed = Security::hashPassword($new_password);
 
 		// Do some checks on the username if needed.
 		if ($username !== null) {
 			User::validateUsername($this->id, $username);
 
 			// Update the database...
-			User::updateMemberData($this->id, ['member_name' => $username, 'passwd' => $new_password_sha1]);
+			User::updateMemberData($this->id, ['member_name' => $username, 'passwd' => $new_password_hashed]);
 		} else {
-			User::updateMemberData($this->id, ['passwd' => $new_password_sha1]);
+			User::updateMemberData($this->id, ['passwd' => $new_password_hashed]);
 		}
 
 		IntegrationHook::call('integrate_reset_pass', [$this->username, $username, $new_password]);
@@ -3117,14 +3045,9 @@ class Profile extends User implements \ArrayAccess
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Profile::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([Profile::class, 'exportStatic'])) {
 	Profile::exportStatic();
 }
-
-// Old mods might include this file to get access to functions that have been moved.
-class_exists('\\SMF\\Actions\\Profile\\Main');
-class_exists('\\SMF\\Actions\\Profile\\Popup');
-class_exists('\\SMF\\Actions\\Profile\\AlertsPopup');
 
 ?>

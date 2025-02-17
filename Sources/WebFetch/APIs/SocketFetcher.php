@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -84,6 +84,13 @@ class SocketFetcher extends WebFetchApi
 	 */
 	public $response = [];
 
+	/**
+	 * @var bool
+	 *
+	 * Whether to keep the socket connection open after the initial request.
+	 */
+	public bool $keep_alive = false;
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -91,14 +98,7 @@ class SocketFetcher extends WebFetchApi
 	/**
 	 * @var bool
 	 *
-	 * Whether to keep the socket connection open after the initial request.
-	 */
-	private bool $keep_alive;
-
-	/**
-	 * @var bool
-	 *
-	 * Whether the response is transfered as chunked data.
+	 * Whether the response is transferred as chunked data.
 	 */
 	private bool $is_chunked = false;
 
@@ -172,7 +172,7 @@ class SocketFetcher extends WebFetchApi
 		// Umm, this shouldn't happen?
 		if (empty($url->scheme) || !in_array($url->scheme, ['http', 'https'])) {
 			Lang::load('Errors');
-			trigger_error(sprintf(Lang::$txt['fetch_web_data_bad_url'], __METHOD__), E_USER_NOTICE);
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__]), E_USER_NOTICE);
 
 			return $this;
 		}
@@ -281,7 +281,7 @@ class SocketFetcher extends WebFetchApi
 			$this->response[$this->current_redirect]['headers'][] = $header;
 
 			if (preg_match('~Content-Length:\s*(\d+)~i', $header, $match)) {
-				$content_length = $match[1];
+				$content_length = (int) $match[1];
 			} elseif (preg_match('~Connection:\s*Close~i', $header)) {
 				$this->keep_alive = false;
 			} elseif (preg_match('~Transfer-Encoding:\s*[\w,\s]+chunked~i', $header)) {
@@ -298,7 +298,7 @@ class SocketFetcher extends WebFetchApi
 			do {
 				$line = fgets($this->fp, $this->buffer_size);
 
-				// Encounted a line feed, skip.
+				// Encountered a line feed, skip.
 				if ($line === $this->line_break) {
 					continue;
 				}
@@ -372,7 +372,7 @@ class SocketFetcher extends WebFetchApi
 	{
 		$max_result = count($this->response) - 1;
 
-		// Just return a specifed area or the entire result?
+		// Just return a specified area or the entire result?
 		if (is_null($area)) {
 			return $this->response[$max_result];
 		}

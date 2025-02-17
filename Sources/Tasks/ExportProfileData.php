@@ -5,14 +5,17 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Tasks;
 
+use DOMDocument;
 use SMF\Actions\Feed;
 use SMF\Actions\Profile\Export;
 use SMF\Cache\CacheApi;
@@ -21,10 +24,12 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Sapi;
 use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use XSLTProcessor;
 
 /**
  * @todo Find a way to throttle the export rate dynamically when dealing with
@@ -870,9 +875,10 @@ class ExportProfileData extends BackgroundTask
 	 * It calls the correct private function based on the information stored in
 	 * the task details.
 	 *
-	 * @return bool Always returns true
+	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		if (!defined('EXPORTING')) {
 			define('EXPORTING', 1);
@@ -881,7 +887,7 @@ class ExportProfileData extends BackgroundTask
 		// Avoid leaving files in an inconsistent state.
 		ignore_user_abort(true);
 
-		$this->time_limit = (ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : ini_get('max_execution_time');
+		$this->time_limit = (int) ((ini_get('safe_mode') === false && @set_time_limit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time'));
 
 		// This could happen if the user manually changed the URL params of the export request.
 		if ($this->_details['format'] == 'HTML' && (!class_exists('DOMDocument') || !class_exists('XSLTProcessor'))) {
@@ -906,6 +912,7 @@ class ExportProfileData extends BackgroundTask
 
 		// Use some temporary integration hooks to manipulate BBC parsing during export.
 		$hook_methods = [
+			'parser_cache' => 'parser_cache',
 			'pre_parsebbc' => in_array($this->_details['format'], ['HTML', 'XML_XSLT']) ? 'pre_parsebbc_html' : 'pre_parsebbc_xml',
 			'post_parsebbc' => 'post_parsebbc',
 			'bbc_codes' => 'bbc_codes',
@@ -932,7 +939,7 @@ class ExportProfileData extends BackgroundTask
 				'insert',
 				'{db_prefix}background_tasks',
 				['task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
-				$this->next_task,
+				[$this->next_task],
 				[],
 			);
 		}
@@ -949,7 +956,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * The workhorse of this class. Compiles profile data to XML files.
 	 */
-	protected function exportXml()
+	protected function exportXml(): void
 	{
 		// For convenience...
 		$uid = $this->_details['uid'];
@@ -971,13 +978,13 @@ class ExportProfileData extends BackgroundTask
 		$feed = new Feed($datatype, $uid);
 		$feed->format = 'smf';
 		$feed->ascending = true;
-		$feed->limit = !empty(Config::$modSettings['export_rate']) ? Config::$modSettings['export_rate'] : 250;
+		$feed->limit = !empty(Config::$modSettings['export_rate']) ? (int) Config::$modSettings['export_rate'] : 250;
 		$feed->start_after = $start[$datatype];
 
 		Theme::loadEssential();
 		Theme::$current->settings['actual_theme_dir'] = Theme::$current->settings['theme_dir'];
 		User::$me->language = $lang;
-		Lang::load(implode('+', array_unique(['index', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']])), $lang);
+		Lang::load(implode('+', array_unique(['General', 'Modifications', 'Stats', 'Profile', $included[$datatype]['langfile']])), $lang);
 
 		// @todo Ask lawyers whether the GDPR requires us to include posts in the recycle bin.
 		$feed->query_this_board = '{query_see_message_board}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? ' AND m.id_board != ' . Config::$modSettings['recycle_board'] : '');
@@ -991,7 +998,7 @@ class ExportProfileData extends BackgroundTask
 
 		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
 
-		$idhash = hash_hmac('sha1', $uid, Config::getAuthSecret());
+		$idhash = hash_hmac('sha1', (string) $uid, Config::getAuthSecret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
 		// Increment the file number until we reach one that doesn't exist.
@@ -1006,7 +1013,7 @@ class ExportProfileData extends BackgroundTask
 		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
 		$feed->metadata = [
-			'title' => sprintf(Lang::$txt['profile_of_username'], User::$me->name),
+			'title' => Lang::getTxt('profile_of_username', ['name' => User::$me->name]),
 			'desc' => Lang::sentenceList(array_map(
 				function ($datatype) {
 					return Lang::$txt[$datatype];
@@ -1102,7 +1109,7 @@ class ExportProfileData extends BackgroundTask
 			if (empty($prev_item_count)) {
 				$xml_data = array_chunk($xml_data, $per_page);
 			} else {
-				$first_chunk = array_splice($xml_data, 0, $per_page - $prev_item_count);
+				$first_chunk = array_splice($xml_data, 0, (int) ($per_page - $prev_item_count));
 				$xml_data = array_merge([$first_chunk], array_chunk($xml_data, $per_page));
 				unset($first_chunk);
 			}
@@ -1124,7 +1131,7 @@ class ExportProfileData extends BackgroundTask
 				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . ($this->stylesheet ?? ''))) {
 					Lang::load('Errors');
 
-					ErrorHandler::log(sprintf(Lang::$txt['export_low_diskspace'], Config::$modSettings['export_min_diskspace_pct']));
+					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']]));
 
 					$delay = 86400;
 				} else {
@@ -1248,7 +1255,7 @@ class ExportProfileData extends BackgroundTask
 	 * Internally calls exportXml() and then uses an XSLT stylesheet to
 	 * transform the XML files into HTML.
 	 */
-	protected function exportHtml()
+	protected function exportHtml(): void
 	{
 		Utils::$context['export_last_page'] = $this->_details['last_page'];
 		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
@@ -1261,7 +1268,7 @@ class ExportProfileData extends BackgroundTask
 
 		// Determine which files, if any, are ready to be transformed.
 		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
-		$idhash = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret());
+		$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
 		$new_exportfiles = [];
@@ -1298,9 +1305,7 @@ class ExportProfileData extends BackgroundTask
 		$xmldoc = new DOMDocument();
 
 		foreach ($new_exportfiles as $exportfile) {
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
+			Sapi::resetTimeout();
 
 			$started = microtime(true);
 			$xmldoc->load($exportfile, $libxml_options);
@@ -1333,7 +1338,7 @@ class ExportProfileData extends BackgroundTask
 	 * Internally calls exportXml() and then embeds an XSLT stylesheet into
 	 * the XML so that it can be processed by the client.
 	 */
-	protected function exportXmlXslt()
+	protected function exportXmlXslt(): void
 	{
 		Utils::$context['export_last_page'] = $this->_details['last_page'];
 		Utils::$context['export_dlfilename'] = $this->_details['dlfilename'];
@@ -1354,7 +1359,7 @@ class ExportProfileData extends BackgroundTask
 
 		// Find any completed files that don't yet have the stylesheet embedded in them.
 		$export_dir_slash = Config::$modSettings['export_dir'] . DIRECTORY_SEPARATOR;
-		$idhash = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret());
+		$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
 		$idhash_ext = $idhash . '.' . $this->_details['format_settings']['extension'];
 
 		$test_length = strlen($this->stylesheet . Utils::$context['feed']['footer']);
@@ -1414,7 +1419,7 @@ class ExportProfileData extends BackgroundTask
 			}
 
 			require_once Config::$sourcedir . '/Actions/Profile/Export.php';
-			$export_formats = get_export_formats();
+			$export_formats = Export::getFormats();
 
 			Lang::load('Profile');
 
@@ -1422,7 +1427,7 @@ class ExportProfileData extends BackgroundTask
 			 * 1. The 'value' can be one of the following:
 			 *    - an integer or string
 			 *    - an XPath expression
-			 *    - raw XML, which may or not not include other XSLT statements.
+			 *    - raw XML, which may or not include other XSLT statements.
 			 *
 			 * 2. Always set 'no_cdata_parse' to true when the value is raw XML.
 			 *
@@ -1462,7 +1467,7 @@ class ExportProfileData extends BackgroundTask
 					'value' => $export_formats[$this->_details['format']]['extension'],
 				],
 				'forum_copyright' => [
-					'value' => sprintf(Lang::$forum_copyright, SMF_FULL_VERSION, SMF_SOFTWARE_YEAR, Config::$scripturl),
+					'value' => Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]),
 				],
 				'txt_summary_heading' => [
 					'value' => Lang::$txt['summary'],
@@ -1496,7 +1501,7 @@ class ExportProfileData extends BackgroundTask
 			// Let mods adjust the XSLT variables.
 			IntegrationHook::call('integrate_export_xslt_variables', [&$xslt_variables, $this->_details['format']]);
 
-			$idhash = hash_hmac('sha1', $this->_details['uid'], Config::getAuthSecret());
+			$idhash = hash_hmac('sha1', (string) $this->_details['uid'], Config::getAuthSecret());
 			$xslt_variables['dltoken'] = [
 				'value' => hash_hmac('sha1', $idhash, Config::getAuthSecret()),
 			];
@@ -1524,7 +1529,7 @@ class ExportProfileData extends BackgroundTask
 				if (isset($var['xpath'])) {
 					$this->xslt_stylesheet['variables'] .= ' select="' . $var['value'] . '"/>';
 				} else {
-					$this->xslt_stylesheet['variables'] .= '>' . (!empty($var['no_cdata_parse']) ? $var['value'] : Feed::cdataParse($var['value'])) . '</xsl:' . $element . '>';
+					$this->xslt_stylesheet['variables'] .= '>' . (!empty($var['no_cdata_parse']) ? $var['value'] : Feed::cdataParse((string) $var['value'])) . '</xsl:' . $element . '>';
 				}
 			}
 
@@ -1652,7 +1657,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Loads and prepares CSS and JavaScript for insertion into an XSLT stylesheet.
 	 */
-	protected function loadCssJs()
+	protected function loadCssJs(): void
 	{
 		// If we're not running a background task, we need to preserve any existing CSS and JavaScript.
 		if (SMF != 'BACKGROUND') {
@@ -1793,6 +1798,7 @@ class ExportProfileData extends BackgroundTask
 			'jpeg' => 'image/jpeg',
 			'tiff' => 'image/tiff',
 			'svg' => 'image/svg+xml',
+			'webp' => 'image/webp',
 		];
 
 		foreach (glob(implode(DIRECTORY_SEPARATOR, [Config::$modSettings['smileys_dir'], User::$me->smiley_set, '*.*'])) as $smiley_file) {
@@ -1845,8 +1851,17 @@ class ExportProfileData extends BackgroundTask
 	 * Adds a custom DOCTYPE definition and an XSLT processing instruction to
 	 * the main XML file's header. Only used for the XML_XSLT format.
 	 */
-	public static function add_dtd(&$xml_data, &$metadata, &$namespaces, &$extraFeedTags, &$forceCdataKeys, &$nsKeys, $xml_format, $subaction, &$doctype)
-	{
+	public static function add_dtd(
+		array &$xml_data,
+		array &$metadata,
+		array &$namespaces,
+		array &$extraFeedTags,
+		array &$forceCdataKeys,
+		array &$nsKeys,
+		string $xml_format,
+		string $subaction,
+		string &$doctype,
+	): void {
 		if (!isset(Lang::$txt['export_open_in_browser'])) {
 			Lang::load('Profile');
 		}
@@ -1864,14 +1879,21 @@ class ExportProfileData extends BackgroundTask
 	}
 
 	/**
+	 * Adds data to the cache key to distinguish parsing for exports from normal
+	 * parsing.
+	 */
+	public static function parser_cache(array &$cache_key_extras): void
+	{
+		$cache_key_extras[__CLASS__] = 1;
+	}
+
+	/**
 	 * Adjusts some parse_bbc() parameters for the special case of HTML and
 	 * XML_XSLT exports.
 	 */
-	public static function pre_parsebbc_html(&$message, &$smileys, &$cache_id, &$parse_tags, &$cache_key_extras)
+	public static function pre_parsebbc_html(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags): void
 	{
 		$cache_id = '';
-
-		$cache_key_extras[__CLASS__] = 1;
 
 		foreach (['smileys_url', 'attachmentThumbnails'] as $var) {
 			if (isset(Config::$modSettings[$var])) {
@@ -1886,11 +1908,9 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts some parse_bbc() parameters for the special case of XML exports.
 	 */
-	public static function pre_parsebbc_xml(&$message, &$smileys, &$cache_id, &$parse_tags, &$cache_key_extras)
+	public static function pre_parsebbc_xml(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags): void
 	{
 		$cache_id = '';
-
-		$cache_key_extras[__CLASS__] = 1;
 
 		$smileys = false;
 
@@ -1906,7 +1926,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Reverses changes made by pre_parsebbc()
 	 */
-	public static function post_parsebbc(&$message, &$smileys, &$cache_id, &$parse_tags)
+	public static function post_parsebbc(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags): void
 	{
 		foreach (['disabledBBC', 'smileys_url', 'attachmentThumbnails'] as $var) {
 			if (isset(self::$real_modSettings[$var])) {
@@ -1918,7 +1938,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts certain BBCodes for the special case of exports.
 	 */
-	public static function bbc_codes(&$codes, &$no_autolink_tags)
+	public static function bbc_codes(array &$codes, array &$no_autolink_tags): void
 	{
 		foreach ($codes as &$code) {
 			// To make the "Select" link work we'd need to embed a bunch more JS. Not worth it.
@@ -1931,12 +1951,12 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts the attachment download URL for the special case of exports.
 	 */
-	public static function post_parseAttachBBC(&$attachContext)
+	public static function post_parseAttachBBC(array &$attachContext): void
 	{
 		static $dltokens;
 
 		if (empty($dltokens[Utils::$context['xmlnews_uid']])) {
-			$idhash = hash_hmac('sha1', Utils::$context['xmlnews_uid'], Config::getAuthSecret());
+			$idhash = hash_hmac('sha1', (string) Utils::$context['xmlnews_uid'], Config::getAuthSecret());
 
 			$dltokens[Utils::$context['xmlnews_uid']] = hash_hmac('sha1', $idhash, Config::getAuthSecret());
 		}
@@ -1949,7 +1969,7 @@ class ExportProfileData extends BackgroundTask
 	/**
 	 * Adjusts the format of the HTML produced by the attach BBCode.
 	 */
-	public static function attach_bbc_validate(&$returnContext, $currentAttachment, $tag, $data, $disabled, $params)
+	public static function attach_bbc_validate(string &$returnContext, array $currentAttachment, array $tag, array|string $data, array $disabled, array $params): void
 	{
 		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::$txt['export_download_original'] . '</a>';
 
@@ -1969,7 +1989,7 @@ class ExportProfileData extends BackgroundTask
 				],
 				$returnContext,
 			) . $hidden_orig_link . '</span>';
-		} elseif (strpos($currentAttachment['mime_type'], 'video/') === 0) {
+		} elseif (str_starts_with($currentAttachment['mime_type'], 'video/')) {
 			$returnContext = preg_replace(
 				[
 					'src' => '~src="' . preg_quote($currentAttachment['href'], '~') . '"~',
@@ -1983,7 +2003,7 @@ class ExportProfileData extends BackgroundTask
 				],
 				$returnContext,
 			);
-		} elseif (strpos($currentAttachment['mime_type'], 'audio/') === 0) {
+		} elseif (str_starts_with($currentAttachment['mime_type'], 'audio/')) {
 			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
 				[
 					'opening_tag' => '~^<audio\b~',

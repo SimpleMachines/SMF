@@ -5,26 +5,29 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IP;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 
@@ -34,18 +37,7 @@ use SMF\Utils;
  */
 class ErrorLog implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ViewErrorLog',
-		],
-	];
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -106,18 +98,6 @@ class ErrorLog implements ActionInterface
 		],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -127,6 +107,14 @@ class ErrorLog implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Templates, etc...
+		Lang::load('ManageMaintenance');
+		Theme::loadTemplate('Errors');
+
+		foreach ($this->filters as &$filter) {
+			$filter['txt'] = Lang::$txt[$filter['txt']];
+		}
+
 		// Check for the administrative permission to do this.
 		User::$me->isAllowedTo('admin_forum');
 
@@ -160,7 +148,7 @@ class ErrorLog implements ActionInterface
 				'value' => [
 					'sql' => in_array($_GET['filter'], ['message', 'url', 'file']) ? base64_decode(strtr($_GET['value'], [' ' => '+'])) : Db::$db->escape_wildcard_string($_GET['value']),
 				],
-				'href' => ';filter=' . $_GET['filter'] . ';value=' . $_GET['value'],
+				'href' => ';filter=' . $_GET['filter'] . ';value=' . urlencode($_GET['value']),
 				'entity' => $this->filters[$_GET['filter']]['txt'],
 			];
 		}
@@ -197,7 +185,13 @@ class ErrorLog implements ActionInterface
 		Utils::$context['sort_direction'] = isset($_REQUEST['desc']) ? 'down' : 'up';
 
 		// Set the page listing up.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . (isset($this->filter) ? $this->filter['href'] : ''), $_GET['start'], $num_errors, Config::$modSettings['defaultMaxListItems']);
+		$start = (int) $_GET['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . (isset($this->filter) ? $this->filter['href'] : ''), $start, (int) $num_errors, (int) Config::$modSettings['defaultMaxListItems']);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
 
 		Utils::$context['start'] = $_GET['start'];
 
@@ -252,7 +246,7 @@ class ErrorLog implements ActionInterface
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
 				'url' => [
-					'html' => Utils::htmlspecialchars(strpos($row['url'], 'cron.php') === false ? (substr($row['url'], 0, 1) == '?' ? Config::$scripturl : '') . $row['url'] : $row['url']),
+					'html' => Utils::htmlspecialchars((Url::create($row['url'])->isValid() ? '' : Config::$boardurl) . $row['url']),
 					'href' => base64_encode(Db::$db->escape_wildcard_string($row['url'])),
 				],
 				'message' => [
@@ -270,7 +264,7 @@ class ErrorLog implements ActionInterface
 			if (!empty($row['file']) && !empty($row['line'])) {
 				// Eval'd files rarely point to the right location and cause
 				// havoc for linking, so don't link them.
-				$linkfile = strpos($row['file'], 'eval') !== false && strpos($row['file'], '?') !== false;
+				$linkfile = str_contains($row['file'], 'eval') && str_contains($row['file'], '?');
 
 				Utils::$context['errors'][$row['id_error']]['file'] = [
 					'file' => $row['file'],
@@ -332,17 +326,17 @@ class ErrorLog implements ActionInterface
 			if ($this->filter['variable'] == 'id_member') {
 				$id = $this->filter['value']['sql'];
 
-				User::load($id, self::LOAD_BY_ID, 'minimal');
+				User::load($id, User::LOAD_BY_ID, 'minimal');
 
 				Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset(User::$loaded[$id]) ? User::$loaded[$id]->name : Lang::$txt['guest']) . '</a>';
 			} elseif ($this->filter['variable'] == 'url') {
-				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((substr($this->filter['value']['sql'], 0, 1) == '?' ? Config::$scripturl : '') . $this->filter['value']['sql']), ['\\_' => '_']) . '\'';
+				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((str_starts_with($this->filter['value']['sql'], '?') ? Config::$scripturl : '') . $this->filter['value']['sql']), ['\\_' => '_']) . '\'';
 			} elseif ($this->filter['variable'] == 'message') {
-				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => '&nbsp;&nbsp;&nbsp;', '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
+				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => Utils::TAB_SUBSTITUTE, '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
 
 				Utils::$context['filter']['value']['html'] = preg_replace('~&amp;lt;span class=&amp;quot;remove&amp;quot;&amp;gt;(.+?)&amp;lt;/span&amp;gt;~', '$1', Utils::$context['filter']['value']['html']);
 			} elseif ($this->filter['variable'] == 'error_type') {
-				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => '&nbsp;&nbsp;&nbsp;', '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
+				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars($this->filter['value']['sql']), ["\n" => '<br>', '&lt;br /&gt;' => '<br>', "\t" => Utils::TAB_SUBSTITUTE, '\\_' => '_', '\\%' => '%', '\\\\' => '\\']) . '\'';
 			} else {
 				Utils::$context['filter']['value']['html'] = &$this->filter['value']['sql'];
 			}
@@ -430,12 +424,12 @@ class ErrorLog implements ActionInterface
 		if (
 			$ext != 'php'
 			|| (
-				strpos($file, $real_board) === false
-				&& strpos($file, $real_source) === false
+				!str_contains($file, $real_board)
+				&& !str_contains($file, $real_source)
 			)
 			|| $basename == strtolower(basename(SMF_SETTINGS_FILE))
 			|| $basename == strtolower(basename(SMF_SETTINGS_BACKUP_FILE))
-			|| strpos($file, $real_cache) !== false
+			|| str_contains($file, $real_cache)
 			|| !is_readable($file)
 		) {
 			ErrorHandler::fatalLang('error_bad_file', true, [Utils::htmlspecialchars($file)]);
@@ -450,12 +444,12 @@ class ErrorLog implements ActionInterface
 			ErrorHandler::fatalLang('error_bad_line');
 		}
 
-		$file_data = explode('<br />', BBCodeParser::highlightPhpCode(Utils::htmlspecialchars(file_get_contents($file))));
+		$file_data = preg_split('~\R|<br(\s*/)?>~', Parser::highlightPhpCode(Utils::htmlspecialchars(file_get_contents($file))));
 
 		// We don't want to slice off too many so lets make sure we stop at the last one
 		$max = min($max, max(array_keys($file_data)));
 
-		$file_data = array_slice($file_data, $min - 1, $max - $min);
+		$file_data = array_slice($file_data, $min - 1, (int) ($max - $min));
 
 		Utils::$context['file_data'] = [
 			'contents' => $file_data,
@@ -503,49 +497,9 @@ class ErrorLog implements ActionInterface
 		Utils::$context['sub_template'] = 'show_backtrace';
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Templates, etc...
-		Lang::load('ManageMaintenance');
-		Theme::loadTemplate('Errors');
-
-		foreach ($this->filters as &$filter) {
-			$filter['txt'] = Lang::$txt[$filter['txt']];
-		}
-	}
 
 	/**
 	 * Delete all or some of the errors in the error log.
@@ -554,7 +508,7 @@ class ErrorLog implements ActionInterface
 	 * It attempts to TRUNCATE the table to reset the auto_increment.
 	 * Redirects back to the error log when done.
 	 */
-	protected function deleteErrors()
+	protected function deleteErrors(): void
 	{
 		// Make sure the session exists and is correct; otherwise, might be a hacker.
 		User::$me->checkSession();
@@ -602,11 +556,6 @@ class ErrorLog implements ActionInterface
 		// Back to the error log!
 		Utils::redirectexit('action=admin;area=logs;sa=errorlog' . (isset($_REQUEST['desc']) ? ';desc' : ''));
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ErrorLog::exportStatic')) {
-	ErrorLog::exportStatic();
 }
 
 ?>

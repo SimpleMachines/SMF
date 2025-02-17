@@ -5,12 +5,11 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
-
 $finder = (new PhpCsFixer\Finder())
 	->in(__DIR__)
 	// Don't touch libraries.
@@ -22,6 +21,7 @@ $finder = (new PhpCsFixer\Finder())
 		'Sources/minify',
 		'Sources/random_compat',
 		'Sources/ReCaptcha',
+		'Sources/ZxcvbnPhp',
 		'Themes',
 	])
 	// Skip all index.php files and ssi_example.php.
@@ -29,9 +29,17 @@ $finder = (new PhpCsFixer\Finder())
 	// Skip anything being ignored in .gitignore.
 	->ignoreVCSIgnored(true);
 
+require_once('.github/phpcs/SMFClosingTag.php');
+
 return (new PhpCsFixer\Config())
+    ->registerCustomFixers([
+        new \SMF\Fixer\Whitespace\closing_tag_fixer(),
+    ])
 	->setRules([
-		'@PSR12' => true,
+		'@PER-CS2.0' => true,
+
+		// A custom fixer for us to apply our line endings.
+        'SMF/closing_tag_fixer' => true,
 
 		// PSR12 overrides.
 		'no_closing_tag' => false,
@@ -155,7 +163,6 @@ return (new PhpCsFixer\Config())
 		'blank_line_before_statement' => [
 			'statements' => [
 				'case',
-				'continue',
 				'declare',
 				'default',
 				'do',

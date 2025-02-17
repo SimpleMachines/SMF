@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -19,15 +21,12 @@ use SMF\Db\DatabaseApi as Db;
 /**
  * This class loads information about the current board, as well as other boards
  * when needed. It also handles low-level tasks for managing boards, such as
- * creating, deleting, and modifying them, as well as minor tasks relating to
- * boards, such as marking them read.
+ * creating, deleting, and modifying them.
  *
  * Implements the \ArrayAccess interface to ease backward compatibility with the
  * deprecated global $board_info variable.
- *
- * @todo Refactor MessageIndex.php into an extension of this class.
  */
-class Board implements \ArrayAccess
+class Board implements \ArrayAccess, Routable
 {
 	use BackwardCompatibility;
 	use ArrayAccessHelper;
@@ -38,22 +37,6 @@ class Board implements \ArrayAccess
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
-		'func_names' => [
-			'load' => 'loadBoard',
-			'markRead' => 'MarkRead',
-			'markBoardsRead' => 'markBoardsRead',
-			'getMsgMemberID' => 'getMsgMemberID',
-			'modify' => 'modifyBoard',
-			'create' => 'createBoard',
-			'delete' => 'deleteBoards',
-			'reorder' => 'reorderBoards',
-			'fixChildren' => 'fixChildren',
-			'sort' => 'sortBoards',
-			'getModerators' => 'getBoardModerators',
-			'getModeratorGroups' => 'getBoardModeratorGroups',
-			'isChildOf' => 'isChildOf',
-			'getParents' => 'getBoardParents',
-		],
 		'prop_names' => [
 			'board_id' => 'board',
 			'info' => 'board_info',
@@ -340,14 +323,14 @@ class Board implements \ArrayAccess
 	 * rather than Board::$board_id. The only exception to this rule is in code
 	 * executed before Board::load() has been called.
 	 */
-	public static $board_id;
+	public static ?int $board_id;
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for board we are currently in.
 	 */
-	public static $info;
+	public static ?self $info;
 
 	/**
 	 * @var array
@@ -470,7 +453,7 @@ class Board implements \ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		if (in_array($this->prop_aliases[$prop] ?? $prop, ['member_groups', 'deny_groups'])) {
 			if (!is_array($value)) {
@@ -499,7 +482,7 @@ class Board implements \ArrayAccess
 
 		// Special handling for the category.
 		if (($this->prop_aliases[$prop] ?? null) === 'cat[id]') {
-			$this->cat = Category::init($value);
+			$this->cat = Category::init((int) $value);
 
 			return;
 		}
@@ -573,7 +556,7 @@ class Board implements \ArrayAccess
 				'',
 				'{db_prefix}boards',
 				$columns,
-				$params,
+				[$params],
 				['id_board'],
 				1,
 			);
@@ -684,7 +667,7 @@ class Board implements \ArrayAccess
 				'insert',
 				'{db_prefix}moderators',
 				['id_board' => 'int', 'id_member' => 'int'],
-				array_map(fn ($mod) => [$this->id, $mod['id']], $this->moderators),
+				array_map(fn($mod) => [$this->id, $mod], $this->moderators),
 				['id_board', 'id_member'],
 			);
 		}
@@ -704,7 +687,7 @@ class Board implements \ArrayAccess
 				'insert',
 				'{db_prefix}moderator_groups',
 				['id_board' => 'int', 'id_group' => 'int'],
-				array_map(fn ($mod) => [$this->id, $mod['id']], $this->moderator_groups),
+				array_map(fn($mod) => [$this->id, $mod], $this->moderator_groups),
 				['id_board', 'id_group'],
 			);
 		}
@@ -749,14 +732,14 @@ class Board implements \ArrayAccess
 			case 'bottom':
 				if (!isset($target_category)) {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
+					trigger_error(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]), E_USER_ERROR);
 				}
 				break;
 
 			default:
 				if (!isset($target_board)) {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
+					trigger_error(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]), E_USER_ERROR);
 				}
 				break;
 		}
@@ -823,7 +806,7 @@ class Board implements \ArrayAccess
 
 			default:
 				Lang::load('Errors');
-				trigger_error(sprintf(Lang::$txt['modify_board_incorrect_move_to'], $move_to), E_USER_ERROR);
+				trigger_error(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]), E_USER_ERROR);
 				break;
 		}
 
@@ -893,14 +876,28 @@ class Board implements \ArrayAccess
 			}
 
 			if (!isset(self::$parsed_descriptions[$this->id])) {
-				self::$parsed_descriptions[$this->id] = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
+				self::$parsed_descriptions[$this->id] = Parser::transform(
+					string: $this->description,
+					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+					options: [
+						'parse_tags' => Utils::$context['description_allowed_tags'],
+						'no_paragraphs' => true,
+					],
+				);
 
 				CacheApi::put('parsed_boards_descriptions', self::$parsed_descriptions, 864000);
 			}
 
 			$this->description = self::$parsed_descriptions[$this->id];
 		} else {
-			$this->description = BBCodeParser::load()->parse($this->description, false, '', Utils::$context['description_allowed_tags']);
+			$this->description = Parser::transform(
+				string: $this->description,
+				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
+				options: [
+					'parse_tags' => Utils::$context['description_allowed_tags'],
+					'no_paragraphs' => true,
+				],
+			);
 		}
 	}
 
@@ -1009,309 +1006,6 @@ class Board implements \ArrayAccess
 		}
 
 		return self::$loaded[$id] ?? null;
-	}
-
-	/**
-	 * Mark one or more boards as read.
-	 */
-	public static function markRead(): void
-	{
-		// No Guests allowed!
-		User::$me->kickIfGuest();
-
-		User::$me->checkSession('get');
-
-		if (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'all') {
-			// Find all the boards this user can see.
-			$boards = [];
-
-			$result = Db::$db->query(
-				'',
-				'SELECT b.id_board
-				FROM {db_prefix}boards AS b
-				WHERE {query_see_board}',
-				[
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($result)) {
-				$boards[] = $row['id_board'];
-			}
-			Db::$db->free_result($result);
-
-			if (!empty($boards)) {
-				self::markBoardsRead($boards, isset($_REQUEST['unread']));
-			}
-
-			$_SESSION['id_msg_last_visit'] = Config::$modSettings['maxMsgID'];
-
-			if (!empty($_SESSION['old_url']) && strpos($_SESSION['old_url'], 'action=unread') !== false) {
-				Utils::redirectexit('action=unread');
-			}
-
-			if (isset($_SESSION['topicseen_cache'])) {
-				$_SESSION['topicseen_cache'] = [];
-			}
-
-			Utils::redirectexit();
-		} elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'unreadreplies') {
-			// Make sure all the topics are integers!
-			$topics = array_map('intval', explode('-', $_REQUEST['topics']));
-
-			$logged_topics = [];
-
-			$request = Db::$db->query(
-				'',
-				'SELECT id_topic, unwatched
-				FROM {db_prefix}log_topics
-				WHERE id_topic IN ({array_int:selected_topics})
-					AND id_member = {int:current_user}',
-				[
-					'selected_topics' => $topics,
-					'current_user' => User::$me->id,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$logged_topics[$row['id_topic']] = $row['unwatched'];
-			}
-			Db::$db->free_result($request);
-
-			$markRead = [];
-
-			foreach ($topics as $id_topic) {
-				$markRead[] = [Config::$modSettings['maxMsgID'], User::$me->id, $id_topic, ($logged_topics[Topic::$topic_id] ?? 0)];
-			}
-
-			Db::$db->insert(
-				'replace',
-				'{db_prefix}log_topics',
-				['id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'],
-				$markRead,
-				['id_member', 'id_topic'],
-			);
-
-			if (isset($_SESSION['topicseen_cache'])) {
-				$_SESSION['topicseen_cache'] = [];
-			}
-
-			Utils::redirectexit('action=unreadreplies');
-		}
-		// Special case: mark a topic unread!
-		elseif (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'topic') {
-			// First, let's figure out what the latest message is.
-			$result = Db::$db->query(
-				'',
-				'SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
-				FROM {db_prefix}topics as t
-					LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
-				WHERE t.id_topic = {int:current_topic}',
-				[
-					'current_topic' => Topic::$topic_id,
-					'current_member' => User::$me->id,
-				],
-			);
-			$topicinfo = Db::$db->fetch_assoc($result);
-			Db::$db->free_result($result);
-
-			if (!empty($_GET['t'])) {
-				// If they read the whole topic, go back to the beginning.
-				if ($_GET['t'] >= $topicinfo['id_last_msg']) {
-					$earlyMsg = 0;
-				}
-				// If they want to mark the whole thing read, same.
-				elseif ($_GET['t'] <= $topicinfo['id_first_msg']) {
-					$earlyMsg = 0;
-				}
-				// Otherwise, get the latest message before the named one.
-				else {
-					$result = Db::$db->query(
-						'',
-						'SELECT MAX(id_msg)
-						FROM {db_prefix}messages
-						WHERE id_topic = {int:current_topic}
-							AND id_msg >= {int:id_first_msg}
-							AND id_msg < {int:topic_msg_id}',
-						[
-							'current_topic' => Topic::$topic_id,
-							'topic_msg_id' => (int) $_GET['t'],
-							'id_first_msg' => $topicinfo['id_first_msg'],
-						],
-					);
-					list($earlyMsg) = Db::$db->fetch_row($result);
-					Db::$db->free_result($result);
-				}
-			}
-			// Marking read from first page?  That's the whole topic.
-			elseif ($_REQUEST['start'] == 0) {
-				$earlyMsg = 0;
-			} else {
-				$result = Db::$db->query(
-					'',
-					'SELECT id_msg
-					FROM {db_prefix}messages
-					WHERE id_topic = {int:current_topic}
-					ORDER BY id_msg
-					LIMIT {int:start}, 1',
-					[
-						'current_topic' => Topic::$topic_id,
-						'start' => (int) $_REQUEST['start'],
-					],
-				);
-				list($earlyMsg) = Db::$db->fetch_row($result);
-				Db::$db->free_result($result);
-
-				$earlyMsg--;
-			}
-
-			// Blam, unread!
-			Db::$db->insert(
-				'replace',
-				'{db_prefix}log_topics',
-				['id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'],
-				[$earlyMsg, User::$me->id, Topic::$topic_id, $topicinfo['unwatched']],
-				['id_member', 'id_topic'],
-			);
-
-			Utils::redirectexit('board=' . self::$info->id . '.0');
-		} else {
-			$categories = [];
-			$boards = [];
-
-			if (isset($_REQUEST['c'])) {
-				$_REQUEST['c'] = explode(',', $_REQUEST['c']);
-
-				foreach ($_REQUEST['c'] as $c) {
-					$categories[] = (int) $c;
-				}
-			}
-
-			if (isset($_REQUEST['boards'])) {
-				$_REQUEST['boards'] = explode(',', $_REQUEST['boards']);
-
-				foreach ($_REQUEST['boards'] as $b) {
-					$boards[] = (int) $b;
-				}
-			}
-
-			if (!empty(self::$info->id)) {
-				$boards[] = (int) self::$info->id;
-			}
-
-			if (isset($_REQUEST['children']) && !empty($boards)) {
-				// They want to mark the entire tree starting with the boards specified
-				// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
-				$request = Db::$db->query(
-					'',
-					'SELECT b.id_board, b.id_parent
-					FROM {db_prefix}boards AS b
-					WHERE {query_see_board}
-						AND b.child_level > {int:no_parents}
-						AND b.id_board NOT IN ({array_int:board_list})
-					ORDER BY child_level ASC',
-					[
-						'no_parents' => 0,
-						'board_list' => $boards,
-					],
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					if (in_array($row['id_parent'], $boards)) {
-						$boards[] = $row['id_board'];
-					}
-				}
-				Db::$db->free_result($request);
-			}
-
-			$clauses = [];
-			$clauseParameters = [];
-
-			if (!empty($categories)) {
-				$clauses[] = 'id_cat IN ({array_int:category_list})';
-				$clauseParameters['category_list'] = $categories;
-			}
-
-			if (!empty($boards)) {
-				$clauses[] = 'id_board IN ({array_int:board_list})';
-				$clauseParameters['board_list'] = $boards;
-			}
-
-			if (empty($clauses)) {
-				Utils::redirectexit();
-			}
-
-			$boards = [];
-
-			$request = Db::$db->query(
-				'',
-				'SELECT b.id_board
-				FROM {db_prefix}boards AS b
-				WHERE {query_see_board}
-					AND b.' . implode(' OR b.', $clauses),
-				array_merge($clauseParameters, [
-				]),
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$boards[] = $row['id_board'];
-			}
-			Db::$db->free_result($request);
-
-			if (empty($boards)) {
-				Utils::redirectexit();
-			}
-
-			self::markBoardsRead($boards, isset($_REQUEST['unread']));
-
-			foreach ($boards as $b) {
-				if (isset($_SESSION['topicseen_cache'][$b])) {
-					$_SESSION['topicseen_cache'][$b] = [];
-				}
-			}
-
-			if (!isset($_REQUEST['unread'])) {
-				// Find all the boards this user can see.
-				$result = Db::$db->query(
-					'',
-					'SELECT b.id_board
-					FROM {db_prefix}boards AS b
-					WHERE b.id_parent IN ({array_int:parent_list})
-						AND {query_see_board}',
-					[
-						'parent_list' => $boards,
-					],
-				);
-
-				if (Db::$db->num_rows($result) > 0) {
-					$logBoardInserts = [];
-
-					while ($row = Db::$db->fetch_assoc($result)) {
-						$logBoardInserts[] = [Config::$modSettings['maxMsgID'], User::$me->id, $row['id_board']];
-					}
-
-					Db::$db->insert(
-						'replace',
-						'{db_prefix}log_boards',
-						['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
-						$logBoardInserts,
-						['id_member', 'id_board'],
-					);
-				}
-				Db::$db->free_result($result);
-
-				if (empty(self::$info->id)) {
-					Utils::redirectexit();
-				} else {
-					Utils::redirectexit('board=' . self::$info->id . '.0');
-				}
-			} else {
-				if (empty(self::$info->parent)) {
-					Utils::redirectexit();
-				} else {
-					Utils::redirectexit('board=' . self::$info->parent . '.0');
-				}
-			}
-		}
 	}
 
 	/**
@@ -1614,15 +1308,15 @@ class Board implements \ArrayAccess
 		$board->member_groups = $boardOptions['access_groups'] ?? $board->member_groups;
 		$board->deny_groups = $boardOptions['deny_groups'] ?? $board->deny_groups;
 
-		// We're ready to save the changes now.
-		$board->save($boardOptions);
-
-		// If we moved any boards, save their changes too.
+		// If we moved any boards, save their changes first.
 		if (!empty($moved_boards)) {
 			foreach (array_diff($moved_boards, [$board->id]) as $moved) {
 				self::$loaded[$moved]->save();
 			}
 		}
+
+		// We're ready to save the changes now.
+		$board->save($boardOptions);
 
 		// Log the changes unless told otherwise.
 		if (empty($boardOptions['dont_log'])) {
@@ -2109,7 +1803,7 @@ class Board implements \ArrayAccess
 	 * @return bool Whether the specified child board is a child of the
 	 *    specified parent board.
 	 */
-	public static function isChildOf($child, $parent): bool
+	public static function isChildOf(int $child, int $parent): bool
 	{
 		if (empty(self::$loaded[$child]->parent)) {
 			return false;
@@ -2176,6 +1870,98 @@ class Board implements \ArrayAccess
 	}
 
 	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route = [];
+
+		$params['board'] = $params['board'] ?? (string) self::$id ?? null;
+
+		if (isset($params['board'])) {
+			$route[] = 'boards';
+
+			if (str_contains($params['board'], '.')) {
+				$params['start'] = $params['start'] ?? substr($params['board'], strrpos($params['board'], '.') + 1);
+				$params['board'] = substr($params['board'], 0, strrpos($params['board'], '.'));
+			}
+
+			if (isset(Slug::$known['board'][(int) $params['board']])) {
+				$slug = (string) Slug::$known['board'][(int) $params['board']];
+			} elseif (($slug = Slug::getCached('board', (int) $params['board'])) === '') {
+				$board = current(self::load((int) $params['board']));
+
+				if ($board instanceof self) {
+					$slug = (string) new Slug($board->name, 'board', $board->id, 60);
+				} else {
+					$slug = '';
+				}
+			}
+
+			$route[] = $slug . (str_ends_with($slug, '-' . $params['board']) ? '' : ($slug !== '' ? '-' : '') . $params['board']);
+
+			if (!empty($params['start'])) {
+				$route[] = $params['start'];
+			}
+
+			unset($params['board'], $params['start']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		if (isset($route[1])) {
+			$params['action'] = 'messageindex';
+			array_shift($route);
+
+			preg_match('/^(\X*?)(\d+(?:\.\d+)?)$/u', array_shift($route), $matches);
+
+			$board = $matches[2];
+
+			if (str_contains($board, '.')) {
+				list($params['board'], $params['start']) = explode('.', $board);
+			} else {
+				$params['board'] = $board;
+			}
+
+			Slug::setRequested(rtrim($matches[1], '-'), 'board', (int) $params['board']);
+
+			// Either an action suffix or a start value.
+			// This accounts for both 'boards/ID/START' and '/boards/ID/ACTION'
+			if (!empty($route)) {
+				if (isset(QueryString::$route_parsers[reset($route)])) {
+					$params = array_merge(
+						$params,
+						call_user_func(
+							[QueryString::$route_parsers[reset($route)], 'parseRoute'],
+							$route,
+							$params,
+						),
+					);
+				} elseif (!isset($params['start'])) {
+					$params['start'] = array_shift($route);
+				}
+			}
+		}
+
+		return $params;
+	}
+
+	/**
 	 * Generator that runs queries about board data and yields the result rows.
 	 *
 	 * @param array $selects Table columns to select.
@@ -2193,9 +1979,9 @@ class Board implements \ArrayAccess
 	 * @param int $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
-	public static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int $limit = 0)
+	public static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int $limit = 0): \Generator
 	{
 		// If we only want some child boards, use a CTE query for improved performance.
 		if (!empty($params['id_parent']) && in_array('b.id_parent != 0', $where) && Db::$db->cte_support()) {
@@ -2334,11 +2120,6 @@ class Board implements \ArrayAccess
 				// Start the linktree off empty..
 				Utils::$context['linktree'] = [];
 
-				// Have they by chance specified a message id but nothing else?
-				if (empty($_REQUEST['action']) && empty(Topic::$topic_id) && empty(self::$board_id) && !empty($_REQUEST['msg'])) {
-					$this->redirectFromMsg();
-				}
-
 				// Load this board only if it is specified.
 				if (empty(self::$board_id) && empty(Topic::$topic_id)) {
 					return;
@@ -2407,56 +2188,10 @@ class Board implements \ArrayAccess
 		if (!empty($this->cat) && $this->child_level == 0) {
 			$this->cat->children[$this->id] = $this;
 		}
-	}
 
-	/**
-	 * Handles redirecting 'index.php?msg=123' links to the canonical URL.
-	 *
-	 * @todo Should this be moved somewhere else? It's not really board-related.
-	 */
-	protected function redirectFromMsg(): void
-	{
-		// Make sure the message id is really an int.
-		$_REQUEST['msg'] = (int) $_REQUEST['msg'];
-
-		// Looking through the message table can be slow, so try using the cache first.
-		if ((Topic::$topic_id = CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_topic
-				FROM {db_prefix}messages
-				WHERE id_msg = {int:id_msg}
-				LIMIT 1',
-				[
-					'id_msg' => $_REQUEST['msg'],
-				],
-			);
-
-			// So did it find anything?
-			if (Db::$db->num_rows($request)) {
-				list(Topic::$topic_id) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
-
-				// Save save save.
-				CacheApi::put('msg_topic-' . $_REQUEST['msg'], Topic::$topic_id, 120);
-			}
-		}
-
-		// Remember redirection is the key to avoiding fallout from your bosses.
-		if (!empty(Topic::$topic_id)) {
-			$redirect_url = 'topic=' . Topic::$topic_id . '.msg' . $_REQUEST['msg'];
-
-			if (($other_get_params = array_diff(array_keys($_GET), ['msg'])) !== []) {
-				$redirect_url .= ';' . implode(';', $other_get_params);
-			}
-
-			$redirect_url .= '#msg' . $_REQUEST['msg'];
-
-			Utils::redirectexit($redirect_url);
-		} else {
-			User::$me->loadPermissions();
-			Theme::load();
-			ErrorHandler::fatalLang('topic_gone', false);
+		// Create the slug for this board.
+		if (isset($this->name)) {
+			Slug::create($this->name, 'board', $this->id, 60);
 		}
 	}
 
@@ -2477,7 +2212,7 @@ class Board implements \ArrayAccess
 
 			if (!empty($temp)) {
 				foreach ($temp as $key => $value) {
-					if ($key === 'cat') {
+					if ($key === 'cat' && !($value instanceof Category)) {
 						$this->{$key} = Category::init($value['id'], $value);
 					} else {
 						$this->{$key} = $value;
@@ -2550,17 +2285,17 @@ class Board implements \ArrayAccess
 					}
 
 					$props = [
-						'id' => $row['id_board'],
+						'id' => (int) $row['id_board'],
 						'moderators' => [],
 						'moderator_groups' => [],
-						'cat' => Category::init($row['id_cat'], ['name' => $row['cat_name']]),
+						'cat' => Category::init((int) $row['id_cat'], ['name' => $row['cat_name']]),
 						'name' => $row['name'],
 						'description' => $row['description'],
 						'num_topics' => (int) $row['num_topics'],
 						'unapproved_topics' => (int) $row['unapproved_topics'],
 						'unapproved_posts' => (int) $row['unapproved_posts'],
 						'unapproved_user_topics' => 0,
-						'parent_boards' => self::getParents($row['id_parent']),
+						'parent_boards' => self::getParents((int) $row['id_parent']),
 						'parent' => (int) $row['id_parent'],
 						'child_level' => (int) $row['child_level'],
 						'theme' => (int) $row['id_theme'],
@@ -2736,8 +2471,8 @@ class Board implements \ArrayAccess
 	}
 }
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Board::exportStatic')) {
+// Export properties to global namespace for backward compatibility.
+if (is_callable([Board::class, 'exportStatic'])) {
 	Board::exportStatic();
 }
 

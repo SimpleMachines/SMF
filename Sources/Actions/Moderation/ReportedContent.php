@@ -5,18 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Moderation;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Alert;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -27,6 +29,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -38,25 +41,9 @@ use SMF\Utils;
  */
 class ReportedContent implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ReportedContent',
-			'recountOpenReports' => 'recountOpenReports',
-			'showReports' => 'ShowReports',
-			'showClosedReports' => 'ShowClosedReports',
-			'reportDetails' => 'ReportDetails',
-			'handleReport' => 'HandleReport',
-			'handleComment' => 'HandleComment',
-			'editComment' => 'EditComment',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -123,18 +110,6 @@ class ReportedContent implements ActionInterface
 	 */
 	protected bool $manage_bans = false;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -144,6 +119,34 @@ class ReportedContent implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		if (!in_array($this->type, self::$types)) {
+			ErrorHandler::fatalLang('no_access', false);
+		}
+
+		Utils::$context['report_type'] = $this->type;
+
+		Lang::load('ModerationCenter');
+		Theme::loadTemplate('ReportedContent');
+
+		// Do we need to show a confirmation message?
+		Utils::$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : [];
+		unset($_SESSION['rc_confirmation']);
+
+		// Set up the comforting bits...
+		Utils::$context['page_title'] = Lang::$txt['mc_reported_' . $this->type];
+
+		// Put the open and closed options into tabs, because we can...
+		Menu::$loaded['moderate']->tab_data = [
+			'title' => Lang::$txt['mc_reported_' . $this->type],
+			'help' => '',
+			'description' => Lang::$txt['mc_reported_' . $this->type . '_desc'],
+		];
+
+		// This comes under the umbrella of moderating posts.
+		if ($this->type == 'members' || User::$me->mod_cache['bq'] == '0=1') {
+			User::$me->isAllowedTo('moderate_forum');
+		}
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -162,13 +165,18 @@ class ReportedContent implements ActionInterface
 
 		// Call the right template.
 		Utils::$context['sub_template'] = 'reported_' . $this->type;
-		Utils::$context['start'] = (int) isset($_GET['start']) ? $_GET['start'] : 0;
+		Utils::$context['start'] = (int) ($_GET['start'] ?? 0);
 
 		// Before anything, we need to know just how many reports do we have.
 		$total_reports = $this->countReports(Utils::$context['view_closed']);
 
 		// So, that means we can have pagination, yes?
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=show', Utils::$context['start'], $total_reports, 10);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Get the reports at once!
 		Utils::$context['reports'] = $this->getReports(Utils::$context['view_closed']);
@@ -213,13 +221,18 @@ class ReportedContent implements ActionInterface
 
 		// Call the right template.
 		Utils::$context['sub_template'] = 'reported_' . $this->type;
-		Utils::$context['start'] = (int) isset($_GET['start']) ? $_GET['start'] : 0;
+		Utils::$context['start'] = (int) ($_GET['start'] ?? 0);
 
 		// Before anything, we need to know just how many reports do we have.
 		$total_reports = $this->countReports(Utils::$context['view_closed']);
 
 		// So, that means we can have pagination, yes?
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=closed', Utils::$context['start'], $total_reports, 10);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Get the reports at once!
 		Utils::$context['reports'] = $this->getReports(Utils::$context['view_closed']);
@@ -290,7 +303,7 @@ class ReportedContent implements ActionInterface
 					'href' => Config::$scripturl . '?action=profile;u=' . $report['id_author'],
 				],
 				'subject' => $report['subject'],
-				'body' => BBCodeParser::load()->parse($report['body']),
+				'body' => Parser::transform($report['body']),
 			];
 		}
 
@@ -423,10 +436,10 @@ class ReportedContent implements ActionInterface
 
 		// Finally we are done :P
 		if ($this->type == 'members') {
-			Utils::$context['page_title'] = sprintf(Lang::$txt['mc_viewmemberreport'], Utils::$context['report']['user']['name']);
+			Utils::$context['page_title'] = Lang::getTxt('mc_viewmemberreport', ['member' => Utils::$context['report']['user']['name']]);
 			Utils::$context['sub_template'] = 'viewmemberreport';
 		} else {
-			Utils::$context['page_title'] = sprintf(Lang::$txt['mc_viewmodreport'], Utils::$context['report']['subject'], Utils::$context['report']['author']['name']);
+			Utils::$context['page_title'] = Lang::getTxt('mc_viewmodreport', ['message_link' => Utils::$context['report']['subject'], 'author_link' => Utils::$context['report']['author']['name']]);
 			Utils::$context['sub_template'] = 'viewmodreport';
 		}
 
@@ -598,28 +611,6 @@ class ReportedContent implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Recount all open reports. Sets a SESSION var with the updated info.
 	 *
 	 * @param string $type the type of reports to count
@@ -652,71 +643,11 @@ class ReportedContent implements ActionInterface
 			[
 				'id' => User::$me->id,
 				'time' => time(),
-				$arr => $open_reports,
+				$arr => (int) $open_reports,
 			],
 		);
 
-		return $open_reports;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the show sub-action.
-	 */
-	public static function showReports(): void
-	{
-		self::load();
-		self::$obj->subaction = 'show';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the closed sub-action.
-	 */
-	public static function showClosedReports(): void
-	{
-		self::load();
-		self::$obj->subaction = 'closed';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the details sub-action.
-	 */
-	public static function reportDetails(): void
-	{
-		self::load();
-		self::$obj->subaction = 'details';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the handle sub-action.
-	 */
-	public static function handleReport(): void
-	{
-		self::load();
-		self::$obj->subaction = 'handle';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the handlecomment sub-action.
-	 */
-	public static function handleComment(): void
-	{
-		self::load();
-		self::$obj->subaction = 'handlecomment';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the editcomment sub-action.
-	 */
-	public static function editComment(): void
-	{
-		self::load();
-		self::$obj->subaction = 'editcomment';
-		self::$obj->execute();
+		return (int) $open_reports;
 	}
 
 	/******************
@@ -731,34 +662,6 @@ class ReportedContent implements ActionInterface
 		// First order of business - what are these reports about?
 		// area=reported{type}
 		$this->type = substr($_GET['area'], 8);
-
-		if (!in_array($this->type, self::$types)) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		Utils::$context['report_type'] = $this->type;
-
-		Lang::load('ModerationCenter');
-		Theme::loadTemplate('ReportedContent');
-
-		// Do we need to show a confirmation message?
-		Utils::$context['report_post_action'] = !empty($_SESSION['rc_confirmation']) ? $_SESSION['rc_confirmation'] : [];
-		unset($_SESSION['rc_confirmation']);
-
-		// Set up the comforting bits...
-		Utils::$context['page_title'] = Lang::$txt['mc_reported_' . $this->type];
-
-		// Put the open and closed options into tabs, because we can...
-		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_reported_' . $this->type],
-			'help' => '',
-			'description' => Lang::$txt['mc_reported_' . $this->type . '_desc'],
-		];
-
-		// This comes under the umbrella of moderating posts.
-		if ($this->type == 'members' || User::$me->mod_cache['bq'] == '0=1') {
-			User::$me->isAllowedTo('moderate_forum');
-		}
 
 		// Go ahead and add your own sub-actions.
 		IntegrationHook::call('integrate_reported_' . $this->type, [&self::$subactions]);
@@ -895,7 +798,7 @@ class ReportedContent implements ActionInterface
 	{
 		// Setup the query, depending on if it's a member report or a msg report.
 		// In theory, these should be unique (reports for the same things get combined), but since $extra is an array, treat as an array.
-		if (strpos($log_report, '_user') !== false) {
+		if (str_contains($log_report, '_user')) {
 			$content_ids = array_unique(array_column($extra, 'member'));
 			$content_type = 'member';
 		} else {
@@ -955,7 +858,7 @@ class ReportedContent implements ActionInterface
 		list($total_reports) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $total_reports;
+		return (int) $total_reports;
 	}
 
 	/**
@@ -1036,6 +939,7 @@ class ReportedContent implements ActionInterface
 				];
 			} else {
 				$report_boards_ids[] = $row['id_board'];
+
 				$extraDetails = [
 					'topic' => [
 						'id' => $row['id_topic'],
@@ -1050,7 +954,7 @@ class ReportedContent implements ActionInterface
 						'href' => Config::$scripturl . '?action=profile;u=' . $row['id_author'],
 					],
 					'subject' => $row['subject'],
-					'body' => BBCodeParser::load()->parse($row['body']),
+					'body' => Parser::transform($row['body']),
 				];
 			}
 
@@ -1244,7 +1148,7 @@ class ReportedContent implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$report['mod_comments'][] = [
 				'id' => $row['id_comment'],
-				'message' => BBCodeParser::load()->parse($row['body']),
+				'message' => Parser::transform($row['body']),
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'can_edit' => User::$me->allowedTo('admin_forum') || ((User::$me->id == $row['id_member'])),
 				'member' => [
@@ -1314,10 +1218,15 @@ class ReportedContent implements ActionInterface
 			'',
 			'{db_prefix}log_comments',
 			[
-				'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
-				'id_notice' => 'int', 'body' => 'string', 'log_time' => 'int',
+				'id_member' => 'int',
+				'member_name' => 'string',
+				'comment_type' => 'string',
+				'recipient_name' => 'string',
+				'id_notice' => 'int',
+				'body' => 'string',
+				'log_time' => 'int',
 			],
-			$data,
+			[$data],
 			['id_comment'],
 			1,
 		);
@@ -1360,9 +1269,11 @@ class ReportedContent implements ActionInterface
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\' . $prefix . 'ReportReply_Notify',
-					Utils::jsonEncode($data),
-					0,
+					[
+						'SMF\\Tasks\\' . $prefix . 'ReportReply_Notify',
+						Utils::jsonEncode($data),
+						0,
+					],
 				],
 				['id_task'],
 			);
@@ -1415,7 +1326,7 @@ class ReportedContent implements ActionInterface
 	}
 
 	/**
-	 *
+	 * Sets up information for the quick buttons for each report
 	 */
 	protected function buildQuickButtons(): void
 	{
@@ -1475,11 +1386,6 @@ class ReportedContent implements ActionInterface
 			];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\ReportedContent::exportStatic')) {
-	ReportedContent::exportStatic();
 }
 
 ?>

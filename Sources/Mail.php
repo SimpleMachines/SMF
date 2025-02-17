@@ -5,42 +5,24 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\MailAgent\MailAgent;
 
 /**
  * Class for preparing and handling email messages.
  */
 class Mail
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'send' => 'sendmail',
-			'addToQueue' => 'AddMailQueue',
-			'reduceQueue' => 'reduceQueue',
-			'mimespecialchars' => 'mimespecialchars',
-			'sendSmtp' => 'smtp_mail',
-			'serverParse' => 'serverParse',
-			'sendNotifications' => 'sendNotifications',
-			'adminNotify' => 'adminNotify',
-			'loadEmailTemplate' => 'loadEmailTemplate',
-		],
-	];
-
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -49,7 +31,7 @@ class Mail
 	 * This function sends an email to the specified recipient(s).
 	 * It uses the mail_type settings and webmaster_email variable.
 	 *
-	 * @param array $to The email(s) to send to
+	 * @param array|string $to The email(s) to send to
 	 * @param string $subject Email subject, expected to have entities, and slashes, but not be parsed
 	 * @param string $message Email body, expected to have slashes, no htmlentities
 	 * @param string $from The address to use for replies
@@ -60,14 +42,23 @@ class Mail
 	 * @param bool $is_private Whether this is private
 	 * @return bool Whether ot not the email was sent properly.
 	 */
-	public static function send($to, $subject, $message, $from = null, $message_id = null, $send_html = false, $priority = 3, $hotmail_fix = null, $is_private = false)
-	{
+	public static function send(
+		array|string $to,
+		string $subject,
+		string $message,
+		?string $from = null,
+		?string $message_id = null,
+		bool $send_html = false,
+		int $priority = 3,
+		?bool $hotmail_fix = null,
+		bool $is_private = false,
+	): bool {
 		// Use sendmail if it's set or if no SMTP server is set.
 		$use_sendmail = empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '';
 
 		// Line breaks need to be \r\n only in windows or for SMTP.
 		// Starting with php 8x, line breaks need to be \r\n even for linux.
-		$line_break = (Utils::$context['server']['is_windows'] || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
+		$line_break = (Sapi::isOS(Sapi::OS_WINDOWS) || !$use_sendmail || version_compare(PHP_VERSION, '8.0.0', '>=')) ? "\r\n" : "\n";
 
 		// So far so good.
 		$mail_result = true;
@@ -126,6 +117,12 @@ class Mail
 			$message = preg_replace('~(' . preg_quote(Config::$scripturl, '~') . '(?:[?/][\w\-_%\.,\?&;=#]+)?)~', '<a href="$1">$1</a>', $message);
 		}
 
+		// Respect the queryless URLs setting.
+		$message = QueryString::rewriteAsQueryless($message);
+
+		// Use real tabs.
+		$message = strtr($message, [Utils::TAB_SUBSTITUTE => $send_html ? '<span style="white-space: pre;">' . "\t" . '</span>' : "\t"]);
+
 		list(, $from_name) = self::mimespecialchars(addcslashes($from !== null ? $from : Utils::$context['forum_name'], '<>()\'\\"'), true, $hotmail_fix, $line_break);
 		list(, $subject) = self::mimespecialchars($subject, true, $hotmail_fix, $line_break);
 
@@ -134,10 +131,7 @@ class Mail
 		$headers .= $from !== null ? 'Reply-To: <' . $from . '>' . $line_break : '';
 		$headers .= 'Return-Path: ' . (empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']) . $line_break;
 		$headers .= 'Date: ' . gmdate('D, d M Y H:i:s') . ' -0000' . $line_break;
-
-		if ($message_id !== null && empty(Config::$modSettings['mail_no_message_id'])) {
-			$headers .= 'Message-ID: <' . md5(Config::$scripturl . microtime()) . '-' . $message_id . strstr(empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from'], '@') . '>' . $line_break;
-		}
+		$headers .= 'Message-ID: <' . md5(Config::$scripturl . microtime()) . '-' . ($message_id ?? 0) . strstr(empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from'], '@') . '>' . $line_break;
 		$headers .= 'X-Mailer: SMF' . $line_break;
 
 		// Pass this to the integration before we start modifying the output -- it'll make it easier later.
@@ -207,49 +201,20 @@ class Mail
 			Config::updateModSettings(['mail_recent' => $new_queue_stat]);
 		}
 
-		// SMTP or sendmail?
-		if ($use_sendmail) {
-			$subject = strtr($subject, ["\r" => '', "\n" => '']);
+		// Loadup the agent.
+		$agent = MailAgent::load();
 
-			if (!empty(Config::$modSettings['mail_strip_carriage'])) {
-				$message = strtr($message, ["\r" => '']);
-				$headers = strtr($headers, ["\r" => '']);
-			}
-
-			foreach ($to_array as $to) {
-				set_error_handler(
-					function ($errno, $errstr, $errfile, $errline) {
-						// error was suppressed with the @-operator
-						if (0 === error_reporting()) {
-							return false;
-						}
-
-						throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-					},
-				);
-
-				try {
-					if (!mail(strtr($to, ["\r" => '', "\n" => '']), $subject, $message, $headers)) {
-						ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
-						$mail_result = false;
-					}
-				} catch (\ErrorException $e) {
-					ErrorHandler::log($e->getMessage(), 'general', $e->getFile(), $e->getLine());
-					ErrorHandler::log(sprintf(Lang::$txt['mail_send_unable'], $to));
-					$mail_result = false;
-				}
-				restore_error_handler();
-
-				// Wait, wait, I'm still sending here!
-				@set_time_limit(300);
-
-				if (function_exists('apache_reset_timeout')) {
-					@apache_reset_timeout();
-				}
-			}
-		} else {
-			$mail_result = $mail_result && self::sendSmtp($to_array, $subject, $message, $headers);
+		if ($agent === false || !$agent->connect()) {
+			return false;
 		}
+
+		$mail_result = true;
+
+		foreach ($to_array as $to) {
+			$mail_result = $mail_result && $agent->send($to, $subject, $message, $headers);
+		}
+
+		$agent->disconnect();
 
 		// Everything go smoothly?
 		return $mail_result;
@@ -268,8 +233,16 @@ class Mail
 	 * @param bool $is_private Whether this is private
 	 * @return bool Whether the message was added
 	 */
-	public static function addToQueue($flush = false, $to_array = [], $subject = '', $message = '', $headers = '', $send_html = false, $priority = 3, $is_private = false)
-	{
+	public static function addToQueue(
+		bool $flush = false,
+		array $to_array = [],
+		string $subject = '',
+		string $message = '',
+		string $headers = '',
+		bool $send_html = false,
+		int $priority = 3,
+		bool $is_private = false,
+	): bool {
 		static $cur_insert = [];
 		static $cur_insert_len = 0;
 
@@ -364,7 +337,7 @@ class Mail
 	 * @param bool $force_send Whether to forcibly send the messages now (useful when using cron jobs)
 	 * @return bool Whether things were sent
 	 */
-	public static function reduceQueue($number = false, $override_limit = false, $force_send = false)
+	public static function reduceQueue(bool|int $number = false, bool $override_limit = false, bool $force_send = false): bool
 	{
 		// Are we intending another script to be sending out the queue?
 		if (!empty(Config::$modSettings['mail_queue_use_cron']) && empty($force_send)) {
@@ -375,12 +348,12 @@ class Mail
 		if (empty(Lang::$txt)) {
 			Theme::loadEssential();
 			Lang::load('Errors', Lang::$default, false);
-			Lang::load('index', Lang::$default, false);
+			Lang::load('General', Lang::$default, false);
 		}
 
 		// By default send 5 at once.
 		if (!$number) {
-			$number = empty(Config::$modSettings['mail_quantity']) ? 5 : Config::$modSettings['mail_quantity'];
+			$number = empty(Config::$modSettings['mail_quantity']) ? 5 : (int) Config::$modSettings['mail_quantity'];
 		}
 
 		// If we came with a timestamp, and that doesn't match the next event, then someone else has beaten us.
@@ -532,11 +505,8 @@ class Mail
 				$result = mail(strtr($email['to'], ["\r" => '', "\n" => '']), $email['subject'], $email['body'], $email['headers']);
 
 				// Try to stop a timeout, this would be bad...
-				@set_time_limit(300);
-
-				if (function_exists('apache_reset_timeout')) {
-					@apache_reset_timeout();
-				}
+				Sapi::setTimeLimit(300);
+				Sapi::resetTimeout();
 			} else {
 				$result = self::sendSmtp([$email['to']], $email['subject'], $email['body'], $email['headers']);
 			}
@@ -561,12 +531,20 @@ class Mail
 			Db::$db->insert(
 				'replace',
 				'{db_prefix}settings',
-				['variable' => 'string', 'value' => 'string'],
-				['mail_failed_attempts', empty(Config::$modSettings['mail_failed_attempts']) ? 1 : ++Config::$modSettings['mail_failed_attempts']],
+				[
+					'variable' => 'string',
+					'value' => 'string',
+				],
+				[
+					[
+						'mail_failed_attempts',
+						empty(Config::$modSettings['mail_failed_attempts']) ? 1 : ++Config::$modSettings['mail_failed_attempts'],
+					],
+				],
 				['variable'],
 			);
 
-			// If we have failed to many times, tell mail to wait a bit and try again.
+			// If we have failed too many times, tell mail to wait a bit and try again.
 			if (Config::$modSettings['mail_failed_attempts'] > 5) {
 				Db::$db->query(
 					'',
@@ -633,7 +611,7 @@ class Mail
 	 * @param string $custom_charset If set, it uses this character set
 	 * @return array An array containing the character set, the converted string and the transport method.
 	 */
-	public static function mimespecialchars($string, $with_charset = true, $hotmail_fix = false, $line_break = "\r\n", $custom_charset = null)
+	public static function mimespecialchars(string $string, bool $with_charset = true, bool $hotmail_fix = false, string $line_break = "\r\n", ?string $custom_charset = null): array
 	{
 		$charset = $custom_charset !== null ? $custom_charset : Utils::$context['character_set'];
 
@@ -653,7 +631,7 @@ class Mail
 				$string = preg_replace_callback(
 					'~&#(\d{3,8});~',
 					function ($m) {
-						return chr("{$m[1]}");
+						return chr((int) "{$m[1]}");
 					},
 					$string,
 				);
@@ -743,7 +721,7 @@ class Mail
 	 * @param string $headers Email headers
 	 * @return bool Whether it sent or not.
 	 */
-	public static function sendSmtp($mail_to_array, $subject, $message, $headers)
+	public static function sendSmtp(array $mail_to_array, string $subject, string $message, string $headers): bool
 	{
 		static $helo;
 
@@ -754,7 +732,7 @@ class Mail
 		if (Config::$modSettings['mail_type'] == 3 && Config::$modSettings['smtp_username'] != '' && Config::$modSettings['smtp_password'] != '') {
 			$socket = fsockopen(Config::$modSettings['smtp_host'], 110, $errno, $errstr, 2);
 
-			if (!$socket && (substr(Config::$modSettings['smtp_host'], 0, 5) == 'smtp.' || substr(Config::$modSettings['smtp_host'], 0, 11) == 'ssl://smtp.')) {
+			if (!$socket && (str_starts_with(Config::$modSettings['smtp_host'], 'smtp.') || str_starts_with(Config::$modSettings['smtp_host'], 'ssl://smtp.'))) {
 				$socket = fsockopen(strtr(Config::$modSettings['smtp_host'], ['smtp.' => 'pop.']), 110, $errno, $errstr, 2);
 			}
 
@@ -771,11 +749,11 @@ class Mail
 		}
 
 		// Try to connect to the SMTP server... if it doesn't exist, only wait three seconds.
-		if (!$socket = fsockopen(Config::$modSettings['smtp_host'], empty(Config::$modSettings['smtp_port']) ? 25 : Config::$modSettings['smtp_port'], $errno, $errstr, 3)) {
+		if (!$socket = fsockopen(Config::$modSettings['smtp_host'], empty(Config::$modSettings['smtp_port']) ? 25 : (int) Config::$modSettings['smtp_port'], $errno, $errstr, 3)) {
 			// Maybe we can still save this?  The port might be wrong.
-			if (substr(Config::$modSettings['smtp_host'], 0, 4) == 'ssl:' && (empty(Config::$modSettings['smtp_port']) || Config::$modSettings['smtp_port'] == 25)) {
+			if (str_starts_with(Config::$modSettings['smtp_host'], 'ssl:') && (empty(Config::$modSettings['smtp_port']) || Config::$modSettings['smtp_port'] == 25)) {
 				// ssl:hostname can cause fsocketopen to fail with a lookup failure, ensure it exists for this test.
-				if (substr(Config::$modSettings['smtp_host'], 0, 6) != 'ssl://') {
+				if (!str_starts_with(Config::$modSettings['smtp_host'], 'ssl://')) {
 					Config::$modSettings['smtp_host'] = str_replace('ssl:', 'ss://', Config::$modSettings['smtp_host']);
 				}
 
@@ -786,7 +764,7 @@ class Mail
 
 			// Unable to connect!  Don't show any error message, but just log one and try to continue anyway.
 			if (!$socket) {
-				ErrorHandler::log(Lang::$txt['smtp_no_connect'] . ': ' . $errno . ' : ' . $errstr);
+				ErrorHandler::log(Lang::getTxt('smtp_no_connect', ['error_number' => $errno, 'error_message' => $errstr]));
 
 				return false;
 			}
@@ -810,7 +788,7 @@ class Mail
 			// If the hostname isn't a fully qualified domain name, we can use the host name from Config::$boardurl instead
 			if (
 				empty($helo)
-				|| strpos($helo, '.') === false
+				|| !str_contains($helo, '.')
 				|| substr_compare($helo, '.local', -6) === 0
 				|| (
 					!empty(Config::$modSettings['tld_regex'])
@@ -822,7 +800,7 @@ class Mail
 			}
 
 			// This is one of those situations where 'www.' is undesirable
-			if (strpos($helo, 'www.') === 0) {
+			if (str_starts_with($helo, 'www.')) {
 				$helo = substr($helo, 4);
 			}
 
@@ -925,11 +903,8 @@ class Mail
 			}
 
 			// Almost done, almost done... don't stop me just yet!
-			@set_time_limit(300);
-
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
+			Sapi::setTimeLimit(300);
+			Sapi::resetTimeout();
 		}
 		fputs($socket, 'QUIT' . "\r\n");
 		fclose($socket);
@@ -944,13 +919,13 @@ class Mail
 	 *
 	 * @internal
 	 *
-	 * @param string $message The message to send
-	 * @param resource $socket Socket to send on
-	 * @param string $code The expected response code
+	 * @param ?string $message The message to send
+	 * @param resource $socket Socket to send on. Type hinting calls it 'mixed' as resource can not be used.
+	 * @param ?string $code The expected response code
 	 * @param string $response The response from the SMTP server
-	 * @return bool Whether it responded as such.
+	 * @return bool|string Whether it responded as such. Otherwise the response code is returned.
 	 */
-	public static function serverParse($message, $socket, $code, &$response = null)
+	public static function serverParse(?string $message, mixed $socket, ?string $code, &$response = null): bool|string
 	{
 		if ($message !== null) {
 			fputs($socket, $message . "\r\n");
@@ -984,7 +959,7 @@ class Mail
 			 * 451 - cPanel "Temporary local problem - please try later"
 			 */
 			if ($response_code < 500 && !in_array($response_code, [450, 451])) {
-				ErrorHandler::log(Lang::$txt['smtp_error'] . $server_response);
+				ErrorHandler::log(Lang::getTxt('smtp_error', [$server_response]));
 			}
 
 			return false;
@@ -1001,12 +976,12 @@ class Mail
 	 * It will not send 'reply' notifications more than once in a row.
 	 * Uses Post language file
 	 *
-	 * @param array $topics Represents the topics the action is happening to.
+	 * @param int|array $topics Represents the topics the action is happening to.
 	 * @param string $type Can be any of reply, sticky, lock, unlock, remove, move, merge, and split.  An appropriate message will be sent for each.
 	 * @param array $exclude Members in the exclude array will not be processed for the topic with the same key.
 	 * @param array $members_only Are the only ones that will be sent the notification if they have it on.
 	 */
-	public static function sendNotifications($topics, $type, $exclude = [], $members_only = [])
+	public static function sendNotifications(int|array $topics, string $type, array $exclude = [], array $members_only = []): void
 	{
 		// Can't do it if there's no topics.
 		if (empty($topics)) {
@@ -1014,6 +989,7 @@ class Mail
 		}
 
 		// It must be an array - it must!
+		// @TODO: $topics = (array) $topics;
 		if (!is_array($topics)) {
 			$topics = [$topics];
 		}
@@ -1088,7 +1064,7 @@ class Mail
 	 * @param int $memberID The ID of the member
 	 * @param string $member_name The name of the member (if null, it is pulled from the database)
 	 */
-	public static function adminNotify($type, $memberID, $member_name = null)
+	public static function adminNotify(string $type, int $memberID, ?string $member_name = null): void
 	{
 		if ($member_name == null) {
 			// Get the new user's name....
@@ -1116,14 +1092,16 @@ class Mail
 				'claimed_time' => 'int',
 			],
 			[
-				'SMF\\Tasks\\Register_Notify',
-				Utils::jsonEncode([
-					'new_member_id' => $memberID,
-					'new_member_name' => $member_name,
-					'notify_type' => $type,
-					'time' => time(),
-				]),
-				0,
+				[
+					'SMF\\Tasks\\Register_Notify',
+					Utils::jsonEncode([
+						'new_member_id' => $memberID,
+						'new_member_name' => $member_name,
+						'notify_type' => $type,
+						'time' => time(),
+					]),
+					0,
+				],
 			],
 			['id_task'],
 		);
@@ -1138,7 +1116,7 @@ class Mail
 	 * @param bool $loadLang Whether to load the language file first
 	 * @return array An array containing the subject and body of the email template, with replacements made
 	 */
-	public static function loadEmailTemplate($template, $replacements = [], $lang = '', $loadLang = true)
+	public static function loadEmailTemplate(string $template, array $replacements = [], string $lang = '', bool $loadLang = true): array
 	{
 		// First things first, load up the email templates language file, if we need to.
 		if ($loadLang) {
@@ -1162,7 +1140,7 @@ class Mail
 			'THEMEURL' => Theme::$current->settings['theme_url'],
 			'IMAGESURL' => Theme::$current->settings['images_url'],
 			'DEFAULT_THEMEURL' => Theme::$current->settings['default_theme_url'],
-			'REGARDS' => sprintf(Lang::$txt['regards_team'], Utils::$context['forum_name']),
+			'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
 		];
 
 		// Split the replacements up into two arrays, for use with str_replace
@@ -1197,7 +1175,7 @@ class Mail
 	 * @param array $matches An array of matches
 	 * @return string The match
 	 */
-	protected static function userInfoCallback($matches)
+	protected static function userInfoCallback(array $matches): string
 	{
 		if (empty($matches[1])) {
 			return '';
@@ -1216,11 +1194,6 @@ class Mail
 
 		return $use_ref ? $ref : $matches[0];
 	}
-}
-
-// Export public static functions to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Mail::exportStatic')) {
-	Mail::exportStatic();
 }
 
 ?>

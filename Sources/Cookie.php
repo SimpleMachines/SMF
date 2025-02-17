@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -18,23 +20,6 @@ namespace SMF;
  */
 class Cookie
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'setLoginCookie' => 'setLoginCookie',
-			'setTFACookie' => 'setTFACookie',
-			'urlParts' => 'url_parts',
-			'encrypt' => 'hash_salt',
-			'setcookie' => 'smf_setcookie',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -213,7 +198,7 @@ class Cookie
 	/**
 	 * A wrapper for setcookie that gives integration hooks access to it.
 	 */
-	public function set()
+	public function set(): bool
 	{
 		if (in_array($this->name, [Config::$cookiename, Config::$cookiename . '_tfa'])) {
 			$data = [
@@ -283,7 +268,7 @@ class Cookie
 				if ($cookie_state == 0 && $state == 1) {
 					list($data[3], $data[4]) = self::urlParts(true, false);
 				} else {
-					list($data[3], $data[4]) = self::urlParts($state & 1 > 0, $state & 2 > 0);
+					list($data[3], $data[4]) = self::urlParts(($state & 1) > 0, ($state & 2) > 0);
 				}
 			}
 
@@ -318,7 +303,7 @@ class Cookie
 		}
 
 		// Other cookies.
-		$data = Utils::jsonDecode($_COOKIE[$name], true, false);
+		$data = Utils::jsonDecode($_COOKIE[$name], true, 512, 0, false);
 
 		if (json_last_error() !== JSON_ERROR_NONE) {
 			$data = $_COOKIE[$name];
@@ -341,7 +326,7 @@ class Cookie
 	 * @param int $id The ID of the member to set the cookie for
 	 * @param string $password The hashed password
 	 */
-	public static function setLoginCookie($cookie_length, $id, $password = '')
+	public static function setLoginCookie(int $cookie_length, int $id, string $password = ''): void
 	{
 		self::setDefaults();
 
@@ -438,7 +423,7 @@ class Cookie
 	 * @param int $id The ID of the member.
 	 * @param string $secret Should be a salted secret using self::encrypt().
 	 */
-	public static function setTFACookie($cookie_length, $id, $secret)
+	public static function setTFACookie(int $cookie_length, int $id, string $secret): void
 	{
 		self::setDefaults();
 
@@ -475,35 +460,35 @@ class Cookie
 	 *
 	 * Uses $boardurl to determine these two things.
 	 *
-	 * @param bool $local Whether we want local cookies.
-	 * @param bool $global Whether we want global cookies.
+	 * @param bool $use_local Whether we want local cookies.
+	 * @param bool $use_global Whether we want global cookies.
 	 * @return array The domain and path for the cookie, in that order.
 	 */
-	public static function urlParts($local, $global)
+	public static function urlParts(bool $use_local, bool $use_global): array
 	{
 		// Use the Url class to make life easier.
 		$url = new Url(Config::$boardurl);
 
 		// Are local cookies off?
-		$path = empty($url->path) || !$local ? '' : $url->path;
+		$path = empty($url->path) || !$use_local ? '' : $url->path;
 
 		$host = $url->host;
 
 		// Manually specified the global domain.
 		// @todo Why doesn't this check whether $global is true?
-		if (!empty(Config::$modSettings['globalCookiesDomain']) && strpos(Config::$boardurl, Config::$modSettings['globalCookiesDomain']) !== false) {
+		if (!empty(Config::$modSettings['globalCookiesDomain']) && str_contains(Config::$boardurl, Config::$modSettings['globalCookiesDomain'])) {
 			$host = Config::$modSettings['globalCookiesDomain'];
 		}
 		// Globalize cookies across domains? (filter out IP-addresses)
-		elseif ($global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $host) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $host, $parts) == 1) {
+		elseif ($use_global && preg_match('~^\d{1,3}(\.\d{1,3}){3}$~', $host) == 0 && preg_match('~(?:[^\.]+\.)?([^\.]{2,}\..+)\z~i', $host, $parts) == 1) {
 			$host = '.' . $parts[1];
 		}
 		// We shouldn't use a host at all if both options are off.
-		elseif (!$local && !$global) {
+		elseif (!$use_local && !$use_global) {
 			$host = '';
 		}
 		// The host also shouldn't be set if there aren't any dots in it.
-		elseif (!isset($host) || strpos($host, '.') === false) {
+		elseif (!isset($host) || !str_contains($host, '.')) {
 			$host = '';
 		}
 
@@ -519,7 +504,7 @@ class Cookie
 	 * @param string $salt The salt.
 	 * @return string The hashed password.
 	 */
-	public static function encrypt($password, $salt)
+	public static function encrypt(string $password, string $salt): string
 	{
 		// Append the salt to get a user-specific authentication secret.
 		$secret_key = Config::getAuthSecret() . $salt;
@@ -539,23 +524,6 @@ class Cookie
 
 		list(self::$default_domain, self::$default_path) = self::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 	}
-
-	/**
-	 * Backward compatibility wrapper for the set() method.
-	 */
-	public static function setcookie(string $name, string $value = '', int $expires = 0, string $path = '', string $domain = '', ?bool $secure = null, bool $httponly = true, ?string $samesite = null): void
-	{
-		$data = Utils::jsonDecode($value);
-
-		$cookie = new self($name, $data, $expires, $domain, $path, $secure, $httponly, $samesite);
-
-		$cookie->set();
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Cookie::exportStatic')) {
-	Cookie::exportStatic();
 }
 
 ?>

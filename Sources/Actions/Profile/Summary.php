@@ -5,17 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
 use SMF\Actions\Who;
-use SMF\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IP;
@@ -32,30 +34,9 @@ use SMF\Utils;
  */
 class Summary implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'summary' => 'summary',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -72,9 +53,15 @@ class Summary implements ActionInterface
 			'icon_class' => 'main_icons profile_hd',
 		];
 
+		// Expand the warning settings.
+		list(Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
+
 		// Set up the stuff and load the user.
 		Utils::$context += [
-			'page_title' => sprintf(Lang::$txt['profile_of_username'], Profile::$member->formatted['name']),
+			'disabled_fields' => isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : [],
+			'signature_enabled' => substr(Config::$modSettings['signature_settings'], 0, 1) == 1,
+			'can_see_ip' => User::$me->allowedTo('moderate_forum'),
+			'page_title' => Lang::getTxt('profile_of_username', Profile::$member->formatted),
 			'can_send_pm' => User::$me->allowedTo('pm_send'),
 			'can_have_buddy' => User::$me->allowedTo('profile_extra_own') && !empty(Config::$modSettings['enable_buddylist']),
 			'can_issue_warning' => User::$me->allowedTo('issue_warning') && Config::$modSettings['warning_settings'][0] == 1,
@@ -99,7 +86,7 @@ class Summary implements ActionInterface
 		if (empty(Profile::$member->date_registered) || $days_registered < 1) {
 			Profile::$member->formatted['posts_per_day'] = Lang::$txt['not_applicable'];
 		} else {
-			Profile::$member->formatted['posts_per_day'] = Lang::numberFormat(Profile::$member->formatted['real_posts'] / $days_registered, 3);
+			Profile::$member->formatted['posts_per_day'] = Profile::$member->formatted['real_posts'] / $days_registered;
 		}
 
 		// Set the age...
@@ -137,21 +124,41 @@ class Summary implements ActionInterface
 		}
 
 		// If the user is awaiting activation, and the viewer has permission, set up some activation context messages.
-		if (Profile::$member->formatted['is_activated'] % 10 != 1 && User::$me->allowedTo('moderate_forum')) {
-			Utils::$context['activate_type'] = Profile::$member->formatted['is_activated'];
+		if (
+			Profile::$member->is_activated % User::BANNED != User::ACTIVATED
+			&& User::$me->allowedTo('moderate_forum')
+		) {
+			Utils::$context['activate_type'] = Profile::$member->is_activated;
 
-			// What should the link text be?
-			Utils::$context['activate_link_text'] = in_array(Profile::$member->formatted['is_activated'], [3, 4, 5, 13, 14, 15]) ? Lang::$txt['account_approve'] : Lang::$txt['account_activate'];
+			// What should the link type and text be?
+			if (
+				in_array(
+					Profile::$member->is_activated,
+					[
+						User::UNAPPROVED,
+						User::REQUESTED_DELETE,
+						User::REQUESTED_DELETE_ANONYMIZE,
+						User::NEED_COPPA,
+						User::UNAPPROVED_BANNED,
+						User::REQUESTED_DELETE_BANNED,
+						User::REQUESTED_DELETE_ANONYMIZE_BANNED,
+						User::NEED_COPPA_BANNED,
+					],
+				)
+			) {
+				$type = 'approve';
+				Utils::$context['activate_link_text'] = Lang::$txt['account_approve'];
+			} else {
+				$type = 'activate';
+				Utils::$context['activate_link_text'] = Lang::$txt['account_activate'];
+			}
 
 			// Should we show a custom message?
-			Utils::$context['activate_message'] = Lang::$txt['account_activate_method_' . Profile::$member->formatted['is_activated'] % 10] ?? Lang::$txt['account_not_activated'];
+			Utils::$context['activate_message'] = Lang::$txt['account_activate_method_' . Profile::$member->is_activated % User::BANNED] ?? Lang::$txt['account_not_activated'];
 
 			// If they can be approved, we need to set up a token for them.
 			Utils::$context['token_check'] = 'profile-aa' . Profile::$member->id;
 			SecurityToken::create(Utils::$context['token_check'], 'get');
-
-			// Puerile comment
-			$type = in_array(Profile::$member->formatted['is_activated'], [3, 4, 5, 13, 14, 15]) ? 'approve' : 'activate';
 
 			Utils::$context['activate_link'] = Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $type . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context[Utils::$context['token_check'] . '_token_var'] . '=' . Utils::$context[Utils::$context['token_check'] . '_token'];
 		}
@@ -220,7 +227,7 @@ class Summary implements ActionInterface
 				}
 
 				// Prepare the link for context.
-				$ban_explanation = sprintf(Lang::$txt['user_cannot_due_to'], implode(', ', $ban_restrictions), '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>');
+				$ban_explanation = Lang::getTxt('user_cannot_due_to', ['list' => Lang::sentenceList($ban_restrictions, 'or'), 'ban' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>']);
 
 				Profile::$member->formatted['bans'][$row['id_ban_group']] = [
 					'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . Lang::$txt['ban_reason'] . ':</strong> ' . $row['reason'],
@@ -247,47 +254,6 @@ class Summary implements ActionInterface
 		}
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper.
-	 */
-	public static function summary(int $memID): void
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -300,24 +266,7 @@ class Summary implements ActionInterface
 		if (!isset(Profile::$member)) {
 			Profile::load();
 		}
-
-		// Are there things we don't show?
-		Utils::$context['disabled_fields'] = isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : [];
-
-		// Is the signature even enabled on this forum?
-		Utils::$context['signature_enabled'] = substr(Config::$modSettings['signature_settings'], 0, 1) == 1;
-
-		// Expand the warning settings.
-		list(Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
-
-		// Can the viewer see this member's IP address?
-		Utils::$context['can_see_ip'] = User::$me->allowedTo('moderate_forum');
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Summary::exportStatic')) {
-	Summary::exportStatic();
 }
 
 ?>

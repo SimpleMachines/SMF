@@ -5,17 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\TopicRemove;
-use SMF\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Category;
 use SMF\Config;
@@ -28,6 +31,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\TaskRunner;
 use SMF\Theme;
@@ -40,46 +44,9 @@ use SMF\Utils;
  */
 class Maintenance implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManageMaintenance',
-			'getIntegrationHooksData' => 'getIntegrationHooksData',
-			'reattributePosts' => 'reattributePosts',
-			'maintainRoutine' => 'MaintainRoutine',
-			'maintainDatabase' => 'MaintainDatabase',
-			'maintainMembers' => 'MaintainMembers',
-			'maintainTopics' => 'MaintainTopics',
-			'list_integration_hooks' => 'list_integration_hooks',
-			'versionDetail' => 'VersionDetail',
-			'maintainFindFixErrors' => 'MaintainFindFixErrors',
-			'adminBoardRecount' => 'AdminBoardRecount',
-			'rebuildSettingsFile' => 'RebuildSettingsFile',
-			'maintainEmptyUnimportantLogs' => 'MaintainEmptyUnimportantLogs',
-			'maintainCleanCache' => 'MaintainCleanCache',
-			'optimizeTables' => 'OptimizeTables',
-			'convertEntities' => 'ConvertEntities',
-			'convertMsgBody' => 'ConvertMsgBody',
-			'maintainReattributePosts' => 'MaintainReattributePosts',
-			'maintainPurgeInactiveMembers' => 'MaintainPurgeInactiveMembers',
-			'maintainRecountPosts' => 'MaintainRecountPosts',
-			'maintainMassMoveTopics' => 'MaintainMassMoveTopics',
-			'maintainRemoveOldPosts' => 'MaintainRemoveOldPosts',
-			'maintainRemoveOldDrafts' => 'MaintainRemoveOldDrafts',
-		],
-	];
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
 
 	/*******************
 	 * Public properties
@@ -159,24 +126,6 @@ class Maintenance implements ActionInterface
 		],
 	];
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -186,6 +135,30 @@ class Maintenance implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// You absolutely must be an admin by here!
+		User::$me->isAllowedTo('admin_forum');
+
+		// Need something to talk about?
+		Lang::load('ManageMaintenance');
+		Theme::loadTemplate('ManageMaintenance');
+
+		// This uses admin tabs - as it should!
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['maintain_title'],
+			'description' => Lang::$txt['maintain_info'],
+			'tabs' => [
+				'routine' => [],
+				'database' => [],
+				'members' => [],
+				'topics' => [],
+			],
+		];
+
+		// Set a few things.
+		Utils::$context['page_title'] = Lang::$txt['maintain_title'];
+		Utils::$context['sub_action'] = $this->subaction;
+		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
+
 		$call = method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
 
 		if (!empty($call)) {
@@ -922,7 +895,7 @@ class Maintenance implements ActionInterface
 	}
 
 	/**
-	 * Empties all uninmportant logs
+	 * Empties all unimportant logs
 	 */
 	public function emptyLogs(): void
 	{
@@ -1037,9 +1010,7 @@ class Maintenance implements ActionInterface
 				SecurityToken::create('admin-optimize');
 				Utils::$context['continue_post_data'] = '<input type="hidden" name="' . Utils::$context['admin-optimize_token_var'] . '" value="' . Utils::$context['admin-optimize_token'] . '">';
 
-				if (function_exists('apache_reset_timeout')) {
-					apache_reset_timeout();
-				}
+				Sapi::resetTimeout();
 
 				return;
 			}
@@ -1056,7 +1027,7 @@ class Maintenance implements ActionInterface
 		}
 
 		// Number of tables, etc...
-		Lang::$txt['database_numb_tables'] = sprintf(Lang::$txt['database_numb_tables'], Utils::$context['num_tables']);
+		Utils::$context['database_numb_tables'] = Lang::getTxt('database_numb_tables', [Utils::$context['num_tables']]);
 		Utils::$context['num_tables_optimized'] = count($_SESSION['optimized_tables']);
 		Utils::$context['optimized_tables'] = $_SESSION['optimized_tables'];
 		unset($_SESSION['optimized_tables']);
@@ -1142,9 +1113,7 @@ class Maintenance implements ActionInterface
 			// Make sure we keep stuff unique!
 			$primary_keys = [];
 
-			if (function_exists('apache_reset_timeout')) {
-				@apache_reset_timeout();
-			}
+			Sapi::resetTimeout();
 
 			// Get a list of text columns.
 			$columns = [];
@@ -1172,7 +1141,7 @@ class Maintenance implements ActionInterface
 			}
 
 			while ($column_info = Db::$db->fetch_assoc($request)) {
-				if (strpos($column_info['Type'], 'text') !== false || strpos($column_info['Type'], 'char') !== false) {
+				if (str_contains($column_info['Type'], 'text') || str_contains($column_info['Type'], 'char')) {
 					$columns[] = strtolower($column_info['Field']);
 				}
 			}
@@ -1260,7 +1229,7 @@ class Maintenance implements ActionInterface
 					$changes = [];
 
 					foreach ($row as $column_name => $column_value) {
-						if ($column_name !== $primary_key && strpos($column_value, '&#') !== false) {
+						if ($column_name !== $primary_key && str_contains($column_value, '&#')) {
 							$changes[] = $column_name . ' = {string:changes_' . $column_name . '}';
 							$insertion_variables['changes_' . $column_name] = Utils::entityDecode($column_value);
 						}
@@ -1350,7 +1319,7 @@ class Maintenance implements ActionInterface
 				Db::$db->change_column('{db_prefix}messages', 'body', ['type' => 'text']);
 			}
 
-			// 3rd party integrations may be interested in knowning about this.
+			// 3rd party integrations may be interested in knowing about this.
 			IntegrationHook::call('integrate_convert_msgbody', [$body_type]);
 
 			$colData = Db::$db->list_columns('{db_prefix}messages', true);
@@ -1394,7 +1363,7 @@ class Maintenance implements ActionInterface
 			Db::$db->free_result($request);
 
 			// Try for as much time as possible.
-			@set_time_limit(600);
+			Sapi::setTimeLimit(600);
 
 			while ($_REQUEST['start'] < $max_msgs) {
 				$request = Db::$db->query(
@@ -1436,7 +1405,7 @@ class Maintenance implements ActionInterface
 			if (!empty($id_msg_exceeding)) {
 				if (count($id_msg_exceeding) > 100) {
 					$query_msg = array_slice($id_msg_exceeding, 0, 100);
-					Utils::$context['exceeding_messages_morethan'] = sprintf(Lang::$txt['exceeding_messages_morethan'], count($id_msg_exceeding));
+					Utils::$context['exceeding_messages_morethan'] = Lang::getTxt('exceeding_messages_morethan', [count($id_msg_exceeding) - 100]);
 				} else {
 					$query_msg = $id_msg_exceeding;
 				}
@@ -1511,7 +1480,7 @@ class Maintenance implements ActionInterface
 
 			if ($_POST['del_type'] == 'activated') {
 				$where = 'mem.date_registered < {int:time_limit} AND mem.is_activated = {int:is_activated}';
-				$where_vars['is_activated'] = 0;
+				$where_vars['is_activated'] = User::NOT_ACTIVATED;
 			} else {
 				$where = 'mem.last_login < {int:time_limit} AND (mem.last_login != 0 OR mem.date_registered < {int:time_limit})';
 			}
@@ -1555,7 +1524,7 @@ class Maintenance implements ActionInterface
 			}
 			Db::$db->free_result($request);
 
-			User::delete($members);
+			User::delete($members, false, !empty($_POST['anonymize']));
 		}
 
 		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_members'];
@@ -1594,7 +1563,7 @@ class Maintenance implements ActionInterface
 		$_REQUEST['start'] = !isset($_REQUEST['start']) ? 0 : (int) $_REQUEST['start'];
 
 		// Ask for some extra time, on big boards this may take a bit
-		@set_time_limit(600);
+		Sapi::setTimeLimit(600);
 
 		// Only run this query if we don't have the total number of members that have posted
 		if (!isset($_SESSION['total_members'])) {
@@ -1662,9 +1631,7 @@ class Maintenance implements ActionInterface
 			SecurityToken::create('admin-recountposts');
 			Utils::$context['continue_post_data'] = '<input type="hidden" name="' . Utils::$context['admin-recountposts_token_var'] . '" value="' . Utils::$context['admin-recountposts_token'] . '">';
 
-			if (function_exists('apache_reset_timeout')) {
-				apache_reset_timeout();
-			}
+			Sapi::resetTimeout();
 
 			return;
 		}
@@ -1863,7 +1830,7 @@ class Maintenance implements ActionInterface
 					Utils::$context['continue_percent'] = round(100 * (Utils::$context['start'] / $total_topics), 1);
 					Utils::$context['continue_get_data'] = '?action=admin;area=maintain;sa=topics;activity=massmove;id_board_from=' . $id_board_from . ';id_board_to=' . $id_board_to . ';totaltopics=' . $total_topics . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 
-					// Let the template system do it's thang.
+					// Let the template system do its thang.
 					return;
 				}
 			}
@@ -1947,14 +1914,6 @@ class Maintenance implements ActionInterface
 			$hooks_filters[] = '<option' . ($current_filter == $hook ? ' selected ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
 		}
 
-		if (!empty($hooks_filters)) {
-			Utils::$context['insert_after_template'] .= '
-			<script>
-				var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-				hook_name_header.innerHTML += ' . Utils::JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . Lang::$txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
-			</script>';
-		}
-
 		if (!empty($_REQUEST['do']) && isset($_REQUEST['hook'], $_REQUEST['function'])) {
 			User::$me->checkSession('request');
 			SecurityToken::validate('admin-hook', 'request');
@@ -2022,7 +1981,7 @@ class Maintenance implements ActionInterface
 							$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . Lang::$txt['hooks_field_function_method'] . '"></span> ' : '');
 
 							if (!empty($data['included_file']) && !empty($data['real_function'])) {
-								return $instance . Lang::$txt['hooks_field_function'] . ': ' . $data['real_function'] . '<br>' . Lang::$txt['hooks_field_included_file'] . ': ' . $data['included_file'];
+								return $instance . Lang::getTxt('hooks_field_function', $data) . '<br>' . Lang::getTxt('hooks_field_included_file', $data);
 							}
 
 							return $instance . $data['real_function'];
@@ -2090,6 +2049,15 @@ class Maintenance implements ActionInterface
 						<li><span class="main_icons error"></span> ' . Lang::$txt['hooks_disable_legend_temp_missing'] . '</li>
 					</ul>',
 				],
+				[
+					'position' => 'above_column_headers',
+					'value' => '
+					<select onchange="window.location=(\'' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));">
+						<option value="">' . Lang::$txt['hooks_reset_filter'] . '</option>
+						' . implode('', $hooks_filters) . '
+					</select>',
+					'class' => 'floatright',
+				],
 			],
 		];
 
@@ -2128,34 +2096,15 @@ class Maintenance implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Callback function for the integration hooks list (list_integration_hooks)
 	 * Gets all of the hooks in the system and their status
 	 *
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $per_page How many items to display on each page
 	 * @param string $sort A string indicating how to sort things
+	 * @param object|array $filtered_hooks
+	 * @param string $normalized_boarddir
+	 * @param string $normalized_sourcedir
 	 * @return array An array of information about the integration hooks
 	 */
 	public static function getIntegrationHooksData($start, $per_page, $sort, $filtered_hooks, $normalized_boarddir, $normalized_sourcedir): array
@@ -2189,7 +2138,7 @@ class Maintenance implements ActionInterface
 					$function_list += self::getDefinedFunctionsInFile($absPath_clean);
 				}
 
-				$hook_exists = isset($function_list[$hookParsedData['call']]) || (substr($hook, -8) === '_include' && isset($files[$absPath_clean]));
+				$hook_exists = isset($function_list[$hookParsedData['call']]) || (str_ends_with($hook, '_include') && isset($files[$absPath_clean]));
 				$hook_temp = !empty(Utils::$context['integration_hooks_temporary'][$hook][$hookParsedData['rawData']]);
 				$temp = [
 					'hook_name' => $hook,
@@ -2220,8 +2169,8 @@ class Maintenance implements ActionInterface
 	 * If $post_count is set, the member's post count is increased.
 	 *
 	 * @param int $memID The ID of the original poster.
-	 * @param bool|string $email If set, should be the email of the poster.
-	 * @param bool|string $membername If set, the membername of the poster.
+	 * @param ?string $email If set, should be the email of the poster.
+	 * @param ?string $membername If set, the membername of the poster.
 	 * @param bool $post_count Whether to adjust post counts.
 	 * @return array The numbers of messages, topics, and reports updated.
 	 */
@@ -2353,221 +2302,6 @@ class Maintenance implements ActionInterface
 		return $updated;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the routine sub-action.
-	 */
-	public static function maintainRoutine(): void
-	{
-		self::load();
-		self::$obj->subaction = 'routine';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the database sub-action.
-	 */
-	public static function maintainDatabase(): void
-	{
-		self::load();
-		self::$obj->subaction = 'database';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the members sub-action.
-	 */
-	public static function maintainMembers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'members';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the topics sub-action.
-	 */
-	public static function maintainTopics(): void
-	{
-		self::load();
-		self::$obj->subaction = 'topics';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the hooks sub-action.
-	 */
-	public static function list_integration_hooks(): void
-	{
-		self::load();
-		self::$obj->subaction = 'hooks';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the version activity.
-	 */
-	public static function versionDetail(): void
-	{
-		self::load();
-		self::$obj->subaction = 'routine';
-		self::$obj->activity = 'version';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the repair activity.
-	 */
-	public static function maintainFindFixErrors(): void
-	{
-		self::load();
-		self::$obj->subaction = 'routine';
-		self::$obj->activity = 'repair';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the recount activity.
-	 */
-	public static function adminBoardRecount(): void
-	{
-		self::load();
-		self::$obj->subaction = 'routine';
-		self::$obj->activity = 'recount';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the rebuild_settings activity.
-	 */
-	public static function rebuildSettingsFile(): void
-	{
-		self::load();
-		self::$obj->subaction = 'routine';
-		self::$obj->activity = 'rebuild_settings';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the logs activity.
-	 */
-	public static function maintainEmptyUnimportantLogs(): void
-	{
-		self::load();
-		self::$obj->subaction = 'routine';
-		self::$obj->activity = 'logs';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the cleancache activity.
-	 */
-	public static function maintainCleanCache(): void
-	{
-		self::load();
-		self::$obj->subaction = 'routine';
-		self::$obj->activity = 'cleancache';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the optimize activity.
-	 */
-	public static function optimizeTables(): void
-	{
-		self::load();
-		self::$obj->subaction = 'database';
-		self::$obj->activity = 'optimize';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the convertentities activity.
-	 */
-	public static function convertEntities(): void
-	{
-		self::load();
-		self::$obj->subaction = 'database';
-		self::$obj->activity = 'convertentities';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the convertmsgbody activity.
-	 */
-	public static function convertMsgBody(): void
-	{
-		self::load();
-		self::$obj->subaction = 'database';
-		self::$obj->activity = 'convertmsgbody';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the reattribute activity.
-	 */
-	public static function maintainReattributePosts(): void
-	{
-		self::load();
-		self::$obj->subaction = 'members';
-		self::$obj->activity = 'reattribute';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the purgeinactive activity.
-	 */
-	public static function maintainPurgeInactiveMembers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'members';
-		self::$obj->activity = 'purgeinactive';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the recountposts activity.
-	 */
-	public static function maintainRecountPosts(): void
-	{
-		self::load();
-		self::$obj->subaction = 'members';
-		self::$obj->activity = 'recountposts';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the massmove activity.
-	 */
-	public static function maintainMassMoveTopics(): void
-	{
-		self::load();
-		self::$obj->subaction = 'topics';
-		self::$obj->activity = 'massmove';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the pruneold activity.
-	 */
-	public static function maintainRemoveOldPosts(): void
-	{
-		self::load();
-		self::$obj->subaction = 'topics';
-		self::$obj->activity = 'pruneold';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the olddrafts activity.
-	 */
-	public static function maintainRemoveOldDrafts(): void
-	{
-		self::load();
-		self::$obj->subaction = 'topics';
-		self::$obj->activity = 'olddrafts';
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -2577,25 +2311,6 @@ class Maintenance implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// You absolutely must be an admin by here!
-		User::$me->isAllowedTo('admin_forum');
-
-		// Need something to talk about?
-		Lang::load('ManageMaintenance');
-		Theme::loadTemplate('ManageMaintenance');
-
-		// This uses admin tabs - as it should!
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['maintain_title'],
-			'description' => Lang::$txt['maintain_info'],
-			'tabs' => [
-				'routine' => [],
-				'database' => [],
-				'members' => [],
-				'topics' => [],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_maintenance', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -2606,11 +2321,6 @@ class Maintenance implements ActionInterface
 		if (isset($_REQUEST['activity'], self::$subactions[$this->subaction]['activities'][$_REQUEST['activity']])) {
 			$this->activity = $_REQUEST['activity'];
 		}
-
-		// Set a few things.
-		Utils::$context['page_title'] = Lang::$txt['maintain_title'];
-		Utils::$context['sub_action'] = $this->subaction;
-		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
 	}
 
 	/**
@@ -2694,30 +2404,30 @@ class Maintenance implements ActionInterface
 		$modFunc = $rawData;
 
 		// Any files?
-		if (substr($hook, -8) === '_include') {
+		if (str_ends_with($hook, '_include')) {
 			$modFunc = $modFunc . '|';
 		}
 
-		if (strpos($modFunc, '|') !== false) {
+		if (str_contains($modFunc, '|')) {
 			list($hookData['hookFile'], $modFunc) = explode('|', $modFunc);
 			$hookData['absPath'] = strtr(strtr(trim($hookData['hookFile']), ['$boarddir' => Config::$boarddir, '$sourcedir' => Config::$sourcedir, '$themedir' => Theme::$current->settings['theme_dir'] ?? '']), '\\', '/');
 		}
 
 		// Hook is an instance.
-		if (strpos($modFunc, '#') !== false) {
+		if (str_contains($modFunc, '#')) {
 			$modFunc = str_replace('#', '', $modFunc);
 			$hookData['object'] = true;
 		}
 
 		// Hook is "disabled"
 		// May need to inspect $rawData here for includes...
-		if ((strpos($modFunc, '!') !== false) || (empty($modFunc) && (strpos($rawData, '!') !== false))) {
+		if ((str_contains($modFunc, '!')) || (empty($modFunc) && (str_contains($rawData, '!')))) {
 			$modFunc = str_replace('!', '', $modFunc);
 			$hookData['enabled'] = false;
 		}
 
 		// Handling methods?
-		if (strpos($modFunc, '::') !== false) {
+		if (str_contains($modFunc, '::')) {
 			list($hookData['class'], $hookData['method']) = explode('::', $modFunc);
 			$hookData['pureFunc'] = $hookData['method'];
 			$hookData['call'] = $modFunc;
@@ -2750,11 +2460,6 @@ class Maintenance implements ActionInterface
 
 		return $functions;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Maintenance::exportStatic')) {
-	Maintenance::exportStatic();
 }
 
 ?>

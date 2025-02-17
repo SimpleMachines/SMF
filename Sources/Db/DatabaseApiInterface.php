@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -66,21 +66,38 @@ interface DatabaseApiInterface
 	public function fetch_all(object $request): array;
 
 	/**
+	 * Fetches all rows from a result as an object.
+	 *
+	 * @param object $result A query result resource.
+	 * @param string $class The name of the class to instantiate, set the properties of and return. If not specified, a stdClass object is returned.
+	 * @param array $args An optional array of parameters to pass to the constructor for class objects.
+	 * @return object|false|null Returns an object representing the fetched row, where each property represents the name of the result set's column, null if there are no more rows in the result set, or false on failure.
+	 */
+	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null;
+
+	/**
 	 * Frees the memory and data associated with the query result.
 	 */
 	public function free_result(object $result): bool;
 
 	/**
-	 * Gets the ID of the most recently inserted row.
+	 * Inserts one or more rows of data into a database table and optionally
+	 * returns the resulting IDs.
 	 *
 	 * @param string $method INSERT or REPLACE.
 	 * @param string $table The table (only used for Postgres).
-	 * @param array $columns An array of the columns we're inserting the data into. Should contain 'column' => 'datatype' pairs.
-	 * @param array $data The data to insert.
-	 * @param array $keys The keys for the table, needs to be not empty on replace mode.
-	 * @param object $connection = null The connection (if null, $db_connection is used).
-	 * @param int returnmode 0 = nothing(default), 1 = last row id, 2 = all rows id as array.
-	 * @return int The ID of the most recently inserted row.
+	 * @param array $columns Array of the columns we're inserting the data into.
+	 *    Should contain 'column' => 'datatype' pairs.
+	 * @param array $data Rows of data to insert. Each element of $data must
+	 *    be an array of values corresponding to $columns.
+	 * @param array $keys The keys for the table. Must not empty in replace mode.
+	 * @param int $returnmode 0 = nothing, 1 = last row ID, 2 = all row IDs.
+	 *    Default: 0.
+	 * @param object $connection The connection to use.
+	 *    If null, $db_connection is used.
+	 * @return int|array|null Null if $returnmode is 0, the ID of the most
+	 *    recently inserted row if $returnmode is 1, or the IDS of all the
+	 *    inserted rows if $returnmode is 2.
 	 */
 	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null;
 
@@ -95,6 +112,30 @@ interface DatabaseApiInterface
 	public function insert_id(string $table, ?string $field = null, ?object $connection = null): int;
 
 	/**
+	 * Updates data in a table, using data from other tables.
+	 *
+	 * @todo Use this for updating topics, maintenance, repairing boards, etc.
+	 *
+	 * @param array $table Info about the table to be updated.
+	 *    Example: ['name' => '{db_prefix}foo', 'alias' => 'f']
+	 * @param array $from_tables Info about the tables to get data from.
+	 *    Example:
+	 *    [
+	 *        [
+	 *            'name' => '{db_prefix}bar',
+	 *            'alias' => 'b',
+	 *            'condition' => 'f.baz = b.qux',
+	 *        ]
+	 *    ]
+	 * @param string $set A string containing the SET instructions for the update query.
+	 * @param string $where A string containing any WHERE conditions for the update query.
+	 * @param array $db_values The values to be inserted into the compiled query string.
+	 * @param object $connection The connection to use (if null, $db_connection will be used).
+	 * @return bool True if the update was successful, otherwise false.
+	 */
+	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool;
+
+	/**
 	 * Gets the number of rows in a result set.
 	 *
 	 * @param object $request A query result resource.
@@ -107,7 +148,7 @@ interface DatabaseApiInterface
 	 *
 	 * @param int $offset The row offset.
 	 * @param object $request A query result resource.
-	 * @return bool True on success, or false on failuer.
+	 * @return bool True on success, or false on failure.
 	 */
 	public function data_seek(object $result, int $offset): bool;
 
@@ -267,9 +308,9 @@ interface DatabaseApiInterface
 	 *
 	 * @param string $table The name of the table to backup
 	 * @param string $backup_table The name of the backup table for this table
-	 * @return resource -the request handle to the table creation query
+	 * @return resource|false -the request handle to the table creation query, false if it failed.
 	 */
-	public function backup_table(string $table, string $backup_table): object;
+	public function backup_table(string $table, string $backup_table): object|bool;
 
 	/**
 	 * This function optimizes a table.
@@ -429,7 +470,7 @@ interface DatabaseApiInterface
 	 *  	- 'ignore' will do nothing if the table exists. (And will return true)
 	 *  	- 'overwrite' will drop any existing table of the same name.
 	 *  	- 'error' will return false if the table already exists.
-	 *  	- 'update' will update the table if the table already exists (no change of ai field and only colums with the same name keep the data)
+	 *  	- 'update' will update the table if the table already exists (no change of ai field and only columns with the same name keep the data)
 	 *
 	 * @param string $table_name The name of the table to create
 	 * @param array $columns An array of column info in the specified format

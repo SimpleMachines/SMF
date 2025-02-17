@@ -5,17 +5,24 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -23,23 +30,10 @@ use SMF\Utils;
 /**
  * Suggests members, membergroups, or SMF versions in reply to AJAX requests.
  */
-class AutoSuggest implements ActionInterface
+class AutoSuggest implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'AutoSuggestHandler' => 'AutoSuggestHandler',
-			'AutoSuggest_Search_Member' => 'AutoSuggest_Search_Member',
-			'AutoSuggest_Search_MemberGroups' => 'AutoSuggest_Search_MemberGroups',
-			'AutoSuggest_Search_SMFVersions' => 'AutoSuggest_Search_SMFVersions',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -84,21 +78,24 @@ class AutoSuggest implements ActionInterface
 		'versions' => 'versions',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
+	}
 
 	/**
 	 * Dispatcher to whichever method is necessary.
@@ -146,12 +143,13 @@ class AutoSuggest implements ActionInterface
 			FROM {db_prefix}members
 			WHERE {raw:real_name} LIKE {string:search}' . (!empty($this->search_param['buddies']) ? '
 				AND id_member IN ({array_int:buddy_list})' : '') . '
-				AND is_activated IN (1, 11)
+				AND is_activated IN ({array_int:activated})
 			LIMIT ' . (Utils::entityStrlen($this->search) <= 2 ? '100' : '800'),
 			[
 				'real_name' => Db::$db->case_sensitive ? 'LOWER(real_name)' : 'real_name',
 				'buddy_list' => User::$me->buddies,
 				'search' => $this->search,
+				'activated' => [User::ACTIVATED, User::ACTIVATED_BANNED],
 			],
 		);
 
@@ -235,7 +233,7 @@ class AutoSuggest implements ActionInterface
 			],
 		];
 
-		// First try and get it from the database.
+		// First try to get it from the database.
 		$versions = [];
 		$request = Db::$db->query(
 			'',
@@ -251,7 +249,11 @@ class AutoSuggest implements ActionInterface
 
 		if (Db::$db->num_rows($request)) {
 			$versions = [];
-		} elseif ($row = Db::$db->fetch_assoc($request) && !empty($row['data'])) {
+		}
+
+		$row = Db::$db->fetch_assoc($request);
+
+		if (!empty($row['data'])) {
 			// The file can have either Windows or Linux line endings, but let's
 			// ensure we clean it as best we can.
 			$possible_versions = explode("\n", $row['data']);
@@ -259,11 +261,12 @@ class AutoSuggest implements ActionInterface
 			foreach ($possible_versions as $ver) {
 				$ver = trim($ver);
 
-				if (strpos($ver, 'SMF') === 0) {
+				if (str_starts_with($ver, 'SMF')) {
 					$versions[] = $ver;
 				}
 			}
 		}
+
 		Db::$db->free_result($request);
 
 		// Just in case we don't have anything.
@@ -272,7 +275,7 @@ class AutoSuggest implements ActionInterface
 		}
 
 		foreach ($versions as $id => $version) {
-			if (strpos(strtoupper($version), strtoupper($this->search)) !== false) {
+			if (str_contains(strtoupper($version), strtoupper($this->search))) {
 				$xml_data['items']['children'][] = [
 					'attributes' => [
 						'id' => $id,
@@ -290,82 +293,15 @@ class AutoSuggest implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Checks whether the given suggestion type is supported.
 	 *
 	 * @param string $suggest_type The suggestion type we are interested in.
 	 */
 	public static function checkRegistered(string $suggest_type): bool
 	{
-		IntegrationHook::call('integrate_autosuggest', [&$suggest_types]);
+		IntegrationHook::call('integrate_autosuggest', [&self::$suggest_types]);
 
-		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || function_exists('AutoSuggest_Search_' . self::$suggest_types[$this->suggest_type]) || function_exists('AutoSuggest_Search_' . $suggest_type));
-	}
-
-	/**
-	 * Backward compatibility wrapper that either calls self::checkRegistered()
-	 * or self::call(), depending on whether the parameter is set or not.
-	 *
-	 * @param mixed $suggest_type Either a suggestion type, or null.
-	 */
-	public static function AutoSuggestHandler($suggest_type = null)
-	{
-		if (isset($suggest_type)) {
-			return self::checkRegistered($suggest_type);
-		}
-
-		self::call();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the member suggestion type.
-	 */
-	public static function AutoSuggest_Search_Member(): void
-	{
-		self::load();
-		self::$obj->suggest_type = 'member';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the membergroups suggestion type.
-	 */
-	public static function AutoSuggest_Search_MemberGroups(): void
-	{
-		self::load();
-		self::$obj->suggest_type = 'membergroups';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the versions suggestion type.
-	 */
-	public static function AutoSuggest_Search_SMFVersions(): void
-	{
-		self::load();
-		self::$obj->suggest_type = 'versions';
-		self::$obj->execute();
+		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || function_exists('AutoSuggest_Search_' . self::$suggest_types[$suggest_type]) || function_exists('AutoSuggest_Search_' . $suggest_type));
 	}
 
 	/******************
@@ -402,11 +338,6 @@ class AutoSuggest implements ActionInterface
 
 		$this->search = strtr($this->search, ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_', '&#038;' => '&amp;']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\AutoSuggest::exportStatic')) {
-	AutoSuggest::exportStatic();
 }
 
 ?>

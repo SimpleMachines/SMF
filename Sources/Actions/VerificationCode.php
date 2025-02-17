@@ -5,18 +5,23 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -26,20 +31,10 @@ use SMF\Utils;
  *
  * TrueType fonts supplied by www.LarabieFonts.com.
  */
-class VerificationCode implements ActionInterface
+class VerificationCode implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'VerificationCode',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -59,21 +54,19 @@ class VerificationCode implements ActionInterface
 	 */
 	public string $code;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
 
 	/**
 	 * Do the job.
@@ -129,32 +122,6 @@ class VerificationCode implements ActionInterface
 		die();
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -179,7 +146,7 @@ class VerificationCode implements ActionInterface
 	 * @param string $code The code to display
 	 * @return bool False if something goes wrong. Otherwise, dies.
 	 */
-	protected function showCodeImage($code): bool
+	protected function showCodeImage(string $code): bool
 	{
 		if (!extension_loaded('gd')) {
 			return false;
@@ -270,7 +237,7 @@ class VerificationCode implements ActionInterface
 
 		while ($entry = $font_dir->read()) {
 			if (preg_match('~^(.+)\.gdf$~', $entry, $matches) === 1) {
-				if ($endian ^ (strpos($entry, '_end.gdf') === false)) {
+				if ($endian ^ (!str_contains($entry, '_end.gdf'))) {
 					$font_list[] = $entry;
 				}
 			} elseif (preg_match('~^(.+)\.ttf$~', $entry, $matches) === 1) {
@@ -321,7 +288,7 @@ class VerificationCode implements ActionInterface
 			$characters[$char_index]['width'] = imagefontwidth($loaded_fonts[$character['font']]);
 			$characters[$char_index]['height'] = imagefontheight($loaded_fonts[$character['font']]);
 
-			$max_height = max($characters[$char_index]['height'] + 5, $max_height);
+			$max_height = (int) max($characters[$char_index]['height'] + 5, $max_height);
 			$total_width += $characters[$char_index]['width'];
 		}
 
@@ -377,9 +344,9 @@ class VerificationCode implements ActionInterface
 		if ($noise_type == 'extreme') {
 			for ($i = 0; $i < random_int(1, 5); $i++) {
 				$x1 = random_int(0, $total_width / 4);
-				$x2 = $x1 + round(rand($total_width / 4, $total_width));
+				$x2 = $x1 + (int) round(rand($total_width / 4, $total_width));
 				$y1 = random_int(0, $max_height);
-				$y2 = $y1 + round(rand(0, $max_height / 3));
+				$y2 = $y1 + (int) round(rand(0, $max_height / 3));
 
 				imagefilledrectangle(
 					$code_image,
@@ -530,8 +497,8 @@ class VerificationCode implements ActionInterface
 							$char_image,
 							0,
 							0,
-							$character['width'] - 1,
-							$character['height'] - 1,
+							(int) $character['width'] - 1,
+							(int) $character['height'] - 1,
 							$char_bgcolor,
 						);
 
@@ -573,7 +540,7 @@ class VerificationCode implements ActionInterface
 							$code_image,
 							$loaded_fonts[$character['font']],
 							$cur_x,
-							floor(($max_height - $character['height']) / 2),
+							(int) floor(($max_height - $character['height']) / 2),
 							$character['id'],
 							imagecolorallocate(
 								$code_image,
@@ -644,10 +611,10 @@ class VerificationCode implements ActionInterface
 				$num_ellipse = $noise_type == 'extreme' ? random_int(6, 12) : random_int(2, 6);
 
 				for ($i = 0; $i < $num_ellipse; $i++) {
-					$x1 = round(rand(($total_width / 4) * -1, $total_width + ($total_width / 4)));
-					$x2 = round(rand($total_width / 2, 2 * $total_width));
-					$y1 = round(rand(($max_height / 4) * -1, $max_height + ($max_height / 4)));
-					$y2 = round(rand($max_height / 2, 2 * $max_height));
+					$x1 = (int) round(rand(($total_width / 4) * -1, $total_width + ($total_width / 4)));
+					$x2 = (int) round(rand($total_width / 2, 2 * $total_width));
+					$y1 = (int) round(rand(($max_height / 4) * -1, $max_height + ($max_height / 4)));
+					$y2 = (int) round(rand($max_height / 2, 2 * $max_height));
 
 					imageellipse(
 						$code_image,
@@ -683,7 +650,7 @@ class VerificationCode implements ActionInterface
 	 * @param string $letter A letter to show as an image
 	 * @return bool False if something went wrong. Otherwise, dies.
 	 */
-	protected function showLetterImage($letter): bool
+	protected function showLetterImage(string $letter): bool
 	{
 		if (!is_dir(Theme::$current->settings['default_theme_dir'] . '/fonts')) {
 			return false;
@@ -732,7 +699,7 @@ class VerificationCode implements ActionInterface
 	 * @param string $word
 	 * @return bool false on failure
 	 */
-	protected function createWaveFile($word)
+	protected function createWaveFile(string $word): bool
 	{
 		// Allow max 2 requests per 20 seconds.
 		if (($ip = CacheApi::get('wave_file/' . User::$me->ip, 20)) > 2 || ($ip2 = CacheApi::get('wave_file/' . User::$me->ip2, 20)) > 2) {
@@ -772,7 +739,7 @@ class VerificationCode implements ActionInterface
 		for ($i = 0; $i < count($chars); $i++) {
 			$sound_letter = implode('', file(Theme::$current->settings['default_theme_dir'] . '/fonts/sound/' . $chars[$i] . '.' . $sound_language . '.wav'));
 
-			if (strpos($sound_letter, 'data') === false) {
+			if (!str_contains($sound_letter, 'data')) {
 				return false;
 			}
 
@@ -849,11 +816,6 @@ class VerificationCode implements ActionInterface
 		// Nothing more to add.
 		die();
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\VerificationCode::exportStatic')) {
-	VerificationCode::exportStatic();
 }
 
 ?>

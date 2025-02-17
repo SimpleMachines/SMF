@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Group;
@@ -25,6 +28,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Menu;
+use SMF\Security;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -35,24 +39,9 @@ use SMF\Utils;
  */
 class Members implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ViewMembers',
-			'list_getMembers' => 'list_getMembers',
-			'list_getNumMembers' => 'list_getNumMembers',
-			'viewMemberlist' => 'ViewMemberlist',
-			'adminApprove' => 'AdminApprove',
-			'membersAwaitingActivation' => 'MembersAwaitingActivation',
-			'searchMembers' => 'SearchMembers',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -139,19 +128,8 @@ class Members implements ActionInterface
 		'browse' => ['browse', 'moderate_forum'],
 		'search' => ['search', 'moderate_forum'],
 		'query' => ['view', 'moderate_forum'],
+		'settings' => ['settings', 'admin_forum'],
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -162,6 +140,85 @@ class Members implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Load the essentials.
+		Lang::load('ManageMembers');
+		Theme::loadTemplate('ManageMembers');
+
+		// Fetch our activation counts.
+		$this->getActivationCounts();
+
+		// For the page header... do we show activation?
+		$this->show_activate = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1) || !empty($this->awaiting_activation);
+
+		// What about approval?
+		$this->show_approve = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 2) || !empty($this->awaiting_approval) || !empty(Config::$modSettings['approveAccountDeletion']);
+
+		// Setup the admin tabs.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['admin_members'],
+			'help' => 'view_members',
+			'description' => Lang::$txt['admin_members_list'],
+			'tabs' => [],
+		];
+
+		Utils::$context['tabs'] = [
+			'viewmembers' => [
+				'label' => Lang::$txt['view_all_members'],
+				'description' => Lang::$txt['admin_members_list'],
+				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=all',
+				'selected_actions' => ['all'],
+			],
+			'search' => [
+				'label' => Lang::$txt['mlist_search'],
+				'description' => Lang::$txt['admin_members_list'],
+				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=search',
+				'selected_actions' => ['search', 'query'],
+			],
+		];
+
+		// Do we have approvals
+		if ($this->show_approve) {
+			Utils::$context['tabs']['approve'] = [
+				'label' => Lang::getTxt('admin_browse_awaiting_approval', [$this->awaiting_approval]),
+				'description' => Lang::$txt['admin_browse_approve_desc'],
+				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
+			];
+		}
+
+		// Do we have activations to show?
+		if ($this->show_activate) {
+			Utils::$context['tabs']['activate'] = [
+				'label' => Lang::getTxt('admin_browse_awaiting_activate', [$this->awaiting_activation]),
+				'description' => Lang::$txt['admin_browse_activate_desc'],
+				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
+			];
+		}
+
+		// Miscellaneous settings related to membership.
+		Utils::$context['tabs']['settings'] = [
+			'label' => Lang::$txt['settings'],
+			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=settings',
+		];
+
+		// Set the last tab.
+		Utils::$context['last_tab'] = 'settings';
+		Utils::$context['tabs']['settings']['is_last'] = true;
+
+		// Find the active tab.
+		if (isset(Utils::$context['tabs'][$this->subaction])) {
+			Utils::$context['tabs'][$this->subaction]['is_selected'] = true;
+		} elseif (isset($this->subaction)) {
+			foreach (Utils::$context['tabs'] as $id_tab => $tab_data) {
+				if (!empty($tab_data['selected_actions']) && in_array($this->subaction, $tab_data['selected_actions'])) {
+					Utils::$context['tabs'][$id_tab]['is_selected'] = true;
+				}
+			}
+		}
+
+		Utils::$context['membergroups'] = &$this->membergroups;
+		Utils::$context['postgroups'] = &$this->postgroups;
+		Utils::$context['current_filter'] = &$this->current_filter;
+
 		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
@@ -176,7 +233,7 @@ class Members implements ActionInterface
 	 * Called by ?action=admin;area=viewmembers;sa=all or ?action=admin;area=viewmembers;sa=query.
 	 * Requires the moderate_forum permission.
 	 */
-	public function view()
+	public function view(): void
 	{
 		// Are we performing a delete?
 		if (isset($_POST['delete_members']) && !empty($_POST['delete']) && User::$me->allowedTo('profile_remove_any')) {
@@ -192,7 +249,7 @@ class Members implements ActionInterface
 
 			if (!empty($delete)) {
 				// Delete all the selected members.
-				User::delete($delete, true);
+				User::delete($delete, true, !empty($_POST['anonymize']));
 			}
 		}
 
@@ -238,7 +295,7 @@ class Members implements ActionInterface
 					'range' => true,
 				],
 				'activated' => [
-					'db_fields' => ['CASE WHEN is_activated IN (1, 11) THEN 1 ELSE 0 END'],
+					'db_fields' => ['CASE WHEN is_activated IN (' . User::ACTIVATED . ', ' . User::ACTIVATED_BANNED . ') THEN 1 ELSE 0 END'],
 					'type' => 'checkbox',
 					'values' => ['0', '1'],
 				],
@@ -593,7 +650,7 @@ class Members implements ActionInterface
 							}
 
 							// Show it in italics if they're not activated...
-							if ($rowData['is_activated'] % 10 != 1) {
+							if ($rowData['is_activated'] % User::BANNED != User::ACTIVATED) {
 								$difference = sprintf('<em title="%1$s">%2$s</em>', Lang::$txt['not_activated'], $difference);
 							}
 
@@ -643,6 +700,16 @@ class Members implements ActionInterface
 			],
 		];
 
+		if (empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+			array_unshift(
+				$listOptions['additional_rows'],
+				[
+					'position' => 'below_table_data',
+					'value' => '<label class="floatright">' . Lang::$txt['admin_delete_anonymize'] . ' <input type="checkbox" name="anonymize" id="anonymize" value="1"></label>',
+				],
+			);
+		}
+
 		// Without enough permissions, don't show 'delete members' checkboxes.
 		if (!User::$me->allowedTo('profile_remove_any')) {
 			unset($listOptions['cols']['check'], $listOptions['form'], $listOptions['additional_rows']);
@@ -660,7 +727,7 @@ class Members implements ActionInterface
 	 * Requires the moderate_forum permission.
 	 * The form is submitted to action=admin;area=viewmembers;sa=query.
 	 */
-	public function search()
+	public function search(): void
 	{
 		// Get a list of all the membergroups and postgroups that can be selected.
 		$this->membergroups = [];
@@ -687,7 +754,7 @@ class Members implements ActionInterface
 	 * The form submits to ?action=admin;area=viewmembers;sa=approve.
 	 * Requires the moderate_forum permission.
 	 */
-	public function browse()
+	public function browse(): void
 	{
 		// Not a lot here!
 		Utils::$context['page_title'] = Lang::$txt['admin_members'];
@@ -700,7 +767,7 @@ class Members implements ActionInterface
 		}
 
 		// Allowed filters are those we can have, in theory.
-		$allowed_filters = $browse_type == 'approve' ? [3, 4, 5] : [0, 2];
+		$allowed_filters = $browse_type == 'approve' ? [User::UNAPPROVED, User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE, User::NEED_COPPA] : [User::NOT_ACTIVATED, User::UNVALIDATED];
 
 		$this->current_filter = isset($_REQUEST['filter']) && in_array($_REQUEST['filter'], $allowed_filters) && !empty($this->activation_numbers[$_REQUEST['filter']]) ? (int) $_REQUEST['filter'] : -1;
 
@@ -725,7 +792,7 @@ class Members implements ActionInterface
 		}
 
 		// This little variable is used to determine if we should flag where we are looking.
-		$show_filter = ($this->current_filter != 0 && $this->current_filter != 3) || count($available_filters) > 1;
+		$show_filter = ($this->current_filter != User::NOT_ACTIVATED && $this->current_filter != User::UNAPPROVED) || count($available_filters) > 1;
 
 		// The columns that can be sorted.
 		Utils::$context['columns'] = [
@@ -746,27 +813,27 @@ class Members implements ActionInterface
 		// Determine which actions we should allow on this page.
 		if ($browse_type == 'approve') {
 			// If we are approving deleted accounts we have a slightly different list... actually a mirror ;)
-			if ($this->current_filter == 4) {
+			if (in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 				$allowed_actions = [
 					'reject' => Lang::$txt['admin_browse_w_approve_deletion'],
 					'ok' => Lang::$txt['admin_browse_w_reject'],
 				];
 			} else {
 				$allowed_actions = [
-					'ok' => Lang::$txt['admin_browse_w_approve'] . ' ' . Lang::$txt['admin_browse_no_email'],
-					'okemail' => Lang::$txt['admin_browse_w_approve'] . ' ' . Lang::$txt['admin_browse_w_email'],
+					'ok' => Lang::$txt['admin_browse_w_approve'],
+					'okemail' => Lang::$txt['admin_browse_w_approve_send_email'],
 					'require_activation' => Lang::$txt['admin_browse_w_approve_require_activate'],
 					'reject' => Lang::$txt['admin_browse_w_reject'],
-					'rejectemail' => Lang::$txt['admin_browse_w_reject'] . ' ' . Lang::$txt['admin_browse_w_email'],
+					'rejectemail' => Lang::$txt['admin_browse_w_reject_send_email'],
 				];
 			}
 		} elseif ($browse_type == 'activate') {
 			$allowed_actions = [
 				'ok' => Lang::$txt['admin_browse_w_activate'],
-				'okemail' => Lang::$txt['admin_browse_w_activate'] . ' ' . Lang::$txt['admin_browse_w_email'],
+				'okemail' => Lang::$txt['admin_browse_w_activate_send_email'],
 				'delete' => Lang::$txt['admin_browse_w_delete'],
-				'deleteemail' => Lang::$txt['admin_browse_w_delete'] . ' ' . Lang::$txt['admin_browse_w_email'],
-				'remind' => Lang::$txt['admin_browse_w_remind'] . ' ' . Lang::$txt['admin_browse_w_email'],
+				'deleteemail' => Lang::$txt['admin_browse_w_delete_send_email'],
+				'remind' => Lang::$txt['admin_browse_w_remind_send_email'],
 			];
 		}
 
@@ -790,7 +857,7 @@ class Members implements ActionInterface
 				var message = "";';
 
 		// We have special messages for approving deletion of accounts - it's surprisingly logical - honest.
-		if ($this->current_filter == 4) {
+		if (in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 			$javascript .= '
 				if (document.forms.postForm.todo.value.indexOf("reject") != -1)
 					message = "' . Lang::$txt['admin_browse_w_delete'] . '";
@@ -915,16 +982,16 @@ class Members implements ActionInterface
 				],
 				'date_registered' => [
 					'header' => [
-						'value' => $this->current_filter == 4 ? Lang::$txt['viewmembers_online'] : Lang::$txt['date_registered'],
+						'value' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? Lang::$txt['viewmembers_online'] : Lang::$txt['date_registered'],
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return Time::create('@' . $rowData[$this->current_filter == 4 ? 'last_login' : 'date_registered'])->format();
+							return Time::create('@' . $rowData[in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'last_login' : 'date_registered'])->format();
 						},
 					],
 					'sort' => [
-						'default' => $this->current_filter == 4 ? 'mem.last_login DESC' : 'date_registered DESC',
-						'reverse' => $this->current_filter == 4 ? 'mem.last_login' : 'date_registered',
+						'default' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'mem.last_login DESC' : 'date_registered DESC',
+						'reverse' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? 'mem.last_login' : 'date_registered',
 					],
 				],
 				'duplicates' => [
@@ -941,7 +1008,7 @@ class Members implements ActionInterface
 								if ($member['id']) {
 									$member_links[] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'class="red"' : '') . '>' . $member['name'] . '</a>';
 								} else {
-									$member_links[] = $member['name'] . ' (' . Lang::$txt['guest'] . ')';
+									$member_links[] = $member['name'] . ' (' . Lang::$txt['guest_title'] . ')';
 								}
 							}
 
@@ -991,6 +1058,16 @@ class Members implements ActionInterface
 			],
 		];
 
+		if ($this->current_filter == User::REQUESTED_DELETE && empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
+			array_unshift(
+				$listOptions['additional_rows'],
+				[
+					'position' => 'below_table_data',
+					'value' => '<label class="floatright">' . Lang::$txt['admin_delete_anonymize'] . ' <input type="checkbox" name="anonymize" id="anonymize" value="1"></label>',
+				],
+			);
+		}
+
 		// Pick what column to actually include if we're showing duplicates.
 		if ($show_duplicates) {
 			unset($listOptions['columns']['email']);
@@ -1011,7 +1088,7 @@ class Members implements ActionInterface
 
 			foreach ($available_filters as $filter) {
 				$filterOptions .= '
-					<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . $filter['amount'] . ' ' . ($filter['amount'] == 1 ? Lang::$txt['user'] : Lang::$txt['users']) . '</option>';
+					<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . Lang::getTxt('number_of_users', [$filter['amount']]) . '</option>';
 			}
 
 			$filterOptions .= '
@@ -1046,7 +1123,7 @@ class Members implements ActionInterface
 	 * Redirects to ?action=admin;area=viewmembers;sa=browse
 	 * with the same parameters as the calling page.
 	 */
-	public function approve()
+	public function approve(): void
 	{
 		// First, check our session.
 		User::$me->checkSession();
@@ -1133,7 +1210,7 @@ class Members implements ActionInterface
 				SET validation_code = {string:blank_string}, is_activated = {int:is_activated}
 				WHERE is_activated = {int:activated_status}' . $condition,
 				[
-					'is_activated' => 1,
+					'is_activated' => User::ACTIVATED,
 					'time_before' => empty($timeBefore) ? 0 : $timeBefore,
 					'members' => empty($members) ? [] : $members,
 					'activated_status' => $current_filter,
@@ -1169,7 +1246,7 @@ class Members implements ActionInterface
 			// We have to do this for each member I'm afraid.
 			foreach ($member_info as $member) {
 				// Generate a random activation code.
-				$validation_code = User::generateValidationCode();
+				$validation_code = Security::generateValidationCode();
 
 				// Set these members for activation - I know this includes two id_member checks but it's safer than bodging $condition ;).
 				Db::$db->query(
@@ -1180,7 +1257,7 @@ class Members implements ActionInterface
 						' . $condition . '
 						AND id_member = {int:selected_member}',
 					[
-						'not_activated' => 0,
+						'not_activated' => User::NOT_ACTIVATED,
 						'activated_status' => $current_filter,
 						'selected_member' => $member['id'],
 						'validation_code' => $validation_code,
@@ -1203,7 +1280,7 @@ class Members implements ActionInterface
 		}
 		// Are we rejecting them?
 		elseif ($_POST['todo'] == 'reject' || $_POST['todo'] == 'rejectemail') {
-			User::delete($members);
+			User::delete($members, false, !empty($_POST['anonymize']));
 
 			// Send email telling them they aren't welcome?
 			if ($_POST['todo'] == 'rejectemail') {
@@ -1220,7 +1297,7 @@ class Members implements ActionInterface
 		}
 		// A simple delete?
 		elseif ($_POST['todo'] == 'delete' || $_POST['todo'] == 'deleteemail') {
-			User::delete($members);
+			User::delete($members, false, !empty($_POST['anonymize']));
 
 			// Send email telling them they aren't welcome?
 			if ($_POST['todo'] == 'deleteemail') {
@@ -1251,13 +1328,6 @@ class Members implements ActionInterface
 			}
 		}
 
-		// @todo current_language is never set, no idea what this is for. Remove?
-		// Back to the user's language!
-		if (isset($current_language) && $current_language != User::$me->language) {
-			Lang::load('index');
-			Lang::load('ManageMembers');
-		}
-
 		// Log what we did?
 		if (!empty(Config::$modSettings['modlog_enabled']) && in_array($_POST['todo'], ['ok', 'okemail', 'require_activation', 'remind'])) {
 			$log_action = $_POST['todo'] == 'remind' ? 'remind_member' : 'approve_member';
@@ -1283,30 +1353,54 @@ class Members implements ActionInterface
 		Utils::redirectexit('action=admin;area=viewmembers;sa=browse;type=' . $_REQUEST['type'] . ';sort=' . $_REQUEST['sort'] . ';filter=' . $current_filter . ';start=' . $_REQUEST['start']);
 	}
 
+	/**
+	 * Handles settings dealing with membership.
+	 *
+	 * Accessed by ?action=admin;area=viewmembers;sa=settings.
+	 * Requires the admin_forum permission.
+	 */
+	public function settings(): void
+	{
+		$config_vars = self::getConfigVars();
+
+		// Setup the template
+		Utils::$context['sub_template'] = 'show_settings';
+		Utils::$context['page_title'] = Lang::$txt['admin_members'];
+
+		if (isset($_GET['save'])) {
+			User::$me->checkSession();
+
+			IntegrationHook::call('integrate_save_members_settings');
+
+			ACP::saveDBSettings($config_vars);
+			$_SESSION['adm-save'] = true;
+			Utils::redirectexit('action=admin;area=viewmembers;sa=settings');
+		}
+
+		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=viewmembers;save;sa=settings';
+		Utils::$context['settings_title'] = Lang::$txt['settings'];
+
+		ACP::prepareDBSettingContext($config_vars);
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
+	 * Gets the configuration variables for this admin area.
 	 *
-	 * @return object An instance of this class.
+	 * @return array $config_vars for the member settings area.
 	 */
-	public static function load(): object
+	public static function getConfigVars(): array
 	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
+		$config_vars = [
+			['check', 'always_anonymize_deleted_accounts', 'subtext' => Lang::$txt['always_anonymize_deleted_accounts_desc']],
+		];
 
-		return self::$obj;
-	}
+		IntegrationHook::call('integrate_modify_members_settings', [&$config_vars]);
 
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
+		return $config_vars;
 	}
 
 	/**
@@ -1320,7 +1414,7 @@ class Members implements ActionInterface
 	 * @param bool $get_duplicates Whether to get duplicates (used for the admin member list)
 	 * @return array An array of information for displaying the list of members
 	 */
-	public static function list_getMembers($start, $items_per_page, $sort, $where, $where_params = [], $get_duplicates = false)
+	public static function list_getMembers(int $start, int $items_per_page, string $sort, string $where, array $where_params = [], bool $get_duplicates = false): array
 	{
 		$members = [];
 
@@ -1363,7 +1457,7 @@ class Members implements ActionInterface
 	 * @param array $where_params An array of parameters for $where
 	 * @return int The number of members matching the given situation
 	 */
-	public static function list_getNumMembers($where, $where_params = [])
+	public static function list_getNumMembers(string $where, array $where_params = []): int
 	{
 		// We know how many members there are in total.
 		if (empty($where) || $where == '1=1') {
@@ -1383,47 +1477,7 @@ class Members implements ActionInterface
 			Db::$db->free_result($request);
 		}
 
-		return $num_members;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the all sub-action.
-	 */
-	public static function viewMemberlist(): void
-	{
-		self::load();
-		self::$obj->subaction = 'all';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the approve sub-action.
-	 */
-	public static function adminApprove(): void
-	{
-		self::load();
-		self::$obj->subaction = 'approve';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the browse sub-action.
-	 */
-	public static function membersAwaitingActivation(): void
-	{
-		self::load();
-		self::$obj->subaction = 'browse';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the search sub-action.
-	 */
-	public static function searchMembers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'search';
-		self::$obj->execute();
+		return (int) $num_members;
 	}
 
 	/******************
@@ -1435,63 +1489,6 @@ class Members implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Load the essentials.
-		Lang::load('ManageMembers');
-		Theme::loadTemplate('ManageMembers');
-
-		// Fetch our activation counts.
-		$this->getActivationCounts();
-
-		// For the page header... do we show activation?
-		$this->show_activate = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1) || !empty($this->awaiting_activation);
-
-		// What about approval?
-		$this->show_approve = (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 2) || !empty($this->awaiting_approval) || !empty(Config::$modSettings['approveAccountDeletion']);
-
-		// Setup the admin tabs.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['admin_members'],
-			'help' => 'view_members',
-			'description' => Lang::$txt['admin_members_list'],
-			'tabs' => [],
-		];
-
-		Utils::$context['tabs'] = [
-			'viewmembers' => [
-				'label' => Lang::$txt['view_all_members'],
-				'description' => Lang::$txt['admin_members_list'],
-				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=all',
-				'selected_actions' => ['all'],
-			],
-			'search' => [
-				'label' => Lang::$txt['mlist_search'],
-				'description' => Lang::$txt['admin_members_list'],
-				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=search',
-				'selected_actions' => ['search', 'query'],
-			],
-		];
-		Utils::$context['last_tab'] = 'search';
-
-		// Do we have approvals
-		if ($this->show_approve) {
-			Utils::$context['tabs']['approve'] = [
-				'label' => sprintf(Lang::$txt['admin_browse_awaiting_approval'], $this->awaiting_approval),
-				'description' => Lang::$txt['admin_browse_approve_desc'],
-				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
-			];
-			Utils::$context['last_tab'] = 'approve';
-		}
-
-		// Do we have activations to show?
-		if ($this->show_activate) {
-			Utils::$context['tabs']['activate'] = [
-				'label' => sprintf(Lang::$txt['admin_browse_awaiting_activate'], $this->awaiting_activation),
-				'description' => Lang::$txt['admin_browse_activate_desc'],
-				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
-			];
-			Utils::$context['last_tab'] = 'activate';
-		}
-
 		// Call our hook now, letting customizations add to the subActions and/or modify Utils::$context as needed.
 		IntegrationHook::call('integrate_manage_members', [&self::$subactions]);
 
@@ -1501,30 +1498,12 @@ class Members implements ActionInterface
 
 		// We know the sub action, now we know what you're allowed to do.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
-
-		// Set the last tab.
-		Utils::$context['tabs'][Utils::$context['last_tab']]['is_last'] = true;
-
-		// Find the active tab.
-		if (isset(Utils::$context['tabs'][$this->subaction])) {
-			Utils::$context['tabs'][$this->subaction]['is_selected'] = true;
-		} elseif (isset($this->subaction)) {
-			foreach (Utils::$context['tabs'] as $id_tab => $tab_data) {
-				if (!empty($tab_data['selected_actions']) && in_array($this->subaction, $tab_data['selected_actions'])) {
-					Utils::$context['tabs'][$id_tab]['is_selected'] = true;
-				}
-			}
-		}
-
-		Utils::$context['membergroups'] = &$this->membergroups;
-		Utils::$context['postgroups'] = &$this->postgroups;
-		Utils::$context['current_filter'] = &$this->current_filter;
 	}
 
 	/**
 	 * Fetches all the activation counts for ViewMembers.
 	 */
-	protected function getActivationCounts()
+	protected function getActivationCounts(): void
 	{
 		// Get counts on every type of activation - for sections and filtering alike.
 		$request = Db::$db->query(
@@ -1534,7 +1513,7 @@ class Members implements ActionInterface
 			WHERE is_activated != {int:is_activated}
 			GROUP BY is_activated',
 			[
-				'is_activated' => 1,
+				'is_activated' => User::ACTIVATED,
 			],
 		);
 
@@ -1544,9 +1523,9 @@ class Members implements ActionInterface
 		Db::$db->free_result($request);
 
 		foreach ($this->activation_numbers as $activation_type => $total_members) {
-			if (in_array($activation_type, [0, 2])) {
+			if (in_array($activation_type, [User::NOT_ACTIVATED, User::UNVALIDATED])) {
 				$this->awaiting_activation += $total_members;
-			} elseif (in_array($activation_type, [3, 4, 5])) {
+			} elseif (in_array($activation_type, [User::UNAPPROVED, User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE, User::NEED_COPPA])) {
 				$this->awaiting_approval += $total_members;
 			}
 		}
@@ -1561,7 +1540,7 @@ class Members implements ActionInterface
 	 *
 	 * @param array $members An array of members
 	 */
-	protected static function populateDuplicateMembers(&$members)
+	protected static function populateDuplicateMembers(array &$members): void
 	{
 		// This will hold all the ip addresses.
 		$ips = [];
@@ -1583,7 +1562,7 @@ class Members implements ActionInterface
 		$ips = array_unique($ips);
 
 		if (empty($ips)) {
-			return false;
+			return;
 		}
 
 		// Fetch all members with this IP address, we'll filter out the current ones in a sec.
@@ -1611,17 +1590,17 @@ class Members implements ActionInterface
 				'id' => $row['id_member'],
 				'name' => $row['member_name'],
 				'email' => $row['email_address'],
-				'is_banned' => $row['is_activated'] > 10,
-				'ip' => $row['member_ip'],
-				'ip2' => $row['member_ip2'],
+				'is_banned' => $row['is_activated'] >= User::BANNED,
+				'ip' => (string) $row['member_ip'],
+				'ip2' => (string) $row['member_ip2'],
 			];
 
-			if (in_array($row['member_ip'], $ips)) {
-				$duplicate_members[$row['member_ip']][] = $member_context;
+			if (in_array((string) $row['member_ip'], $ips)) {
+				$duplicate_members[(string) $row['member_ip']][] = $member_context;
 			}
 
-			if ($row['member_ip'] != $row['member_ip2'] && in_array($row['member_ip2'], $ips)) {
-				$duplicate_members[$row['member_ip2']][] = $member_context;
+			if ((string) $row['member_ip'] != (string) $row['member_ip2'] && in_array((string) $row['member_ip2'], $ips)) {
+				$duplicate_members[(string) $row['member_ip2']][] = $member_context;
 			}
 		}
 		Db::$db->free_result($request);
@@ -1648,19 +1627,19 @@ class Members implements ActionInterface
 			$row['poster_ip'] = new IP($row['poster_ip']);
 
 			// Don't collect lots of the same.
-			if (isset($had_ips[$row['poster_ip']]) && in_array($row['id_member'], $had_ips[$row['poster_ip']])) {
+			if (isset($had_ips[(string) $row['poster_ip']]) && in_array((string) $row['id_member'], $had_ips[(string) $row['poster_ip']])) {
 				continue;
 			}
 
-			$had_ips[$row['poster_ip']][] = $row['id_member'];
+			$had_ips[(string) $row['poster_ip']][] = $row['id_member'];
 
-			$duplicate_members[$row['poster_ip']][] = [
+			$duplicate_members[(string) $row['poster_ip']][] = [
 				'id' => $row['id_member'],
 				'name' => $row['member_name'],
 				'email' => $row['email_address'],
-				'is_banned' => $row['is_activated'] > 10,
-				'ip' => $row['poster_ip'],
-				'ip2' => $row['poster_ip'],
+				'is_banned' => $row['is_activated'] >= User::BANNED,
+				'ip' => (string) $row['poster_ip'],
+				'ip2' => (string) $row['poster_ip'],
 			];
 		}
 		Db::$db->free_result($request);
@@ -1668,12 +1647,12 @@ class Members implements ActionInterface
 		// Now we have all the duplicate members, stick them with their respective member in the list.
 		if (!empty($duplicate_members)) {
 			foreach ($members as $key => $member) {
-				if (isset($duplicate_members[$member['member_ip']])) {
-					$members[$key]['duplicate_members'] = $duplicate_members[$member['member_ip']];
+				if (isset($duplicate_members[(string) $member['member_ip']])) {
+					$members[$key]['duplicate_members'] = $duplicate_members[(string) $member['member_ip']];
 				}
 
-				if ($member['member_ip'] != $member['member_ip2'] && isset($duplicate_members[$member['member_ip2']])) {
-					$members[$key]['duplicate_members'] = array_merge($member['duplicate_members'], $duplicate_members[$member['member_ip2']]);
+				if ($member['member_ip'] != $member['member_ip2'] && isset($duplicate_members[(string) $member['member_ip2']])) {
+					$members[$key]['duplicate_members'] = array_merge($member['duplicate_members'], $duplicate_members[(string) $member['member_ip2']]);
 				}
 
 				// Check we don't have lots of the same member.
@@ -1691,11 +1670,6 @@ class Members implements ActionInterface
 			}
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Members::exportStatic')) {
-	Members::exportStatic();
 }
 
 ?>

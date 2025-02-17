@@ -5,17 +5,18 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Moderation;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -23,6 +24,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
@@ -34,18 +36,7 @@ use SMF\Utils;
  */
 class Home implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ModerationHome',
-		],
-	];
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -84,18 +75,6 @@ class Home implements ActionInterface
 		],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -105,6 +84,12 @@ class Home implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('ModerationCenter');
+		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
+
+		Utils::$context['page_title'] = Lang::$txt['moderation_center'];
+		Utils::$context['sub_template'] = 'moderation_center';
+
 		// Normally this will already have been done, but just in case...
 		Main::checkAccessPermissions();
 
@@ -149,47 +134,9 @@ class Home implements ActionInterface
 		Utils::$context['admin_prefs'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : [];
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		Theme::loadTemplate('ModerationCenter');
-		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
-
-		Utils::$context['page_title'] = Lang::$txt['moderation_center'];
-		Utils::$context['sub_template'] = 'moderation_center';
-	}
 
 	/**
 	 * Show an area for the moderator to type into.
@@ -215,11 +162,22 @@ class Home implements ActionInterface
 					'',
 					'{db_prefix}log_comments',
 					[
-						'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
-						'body' => 'string', 'log_time' => 'int',
+						'id_member' => 'int',
+						'member_name' => 'string',
+						'comment_type' => 'string',
+						'recipient_name' => 'string',
+						'body' => 'string',
+						'log_time' => 'int',
 					],
 					[
-						User::$me->id, User::$me->name, 'modnote', '', $_POST['new_note'], time(),
+						[
+							User::$me->id,
+							User::$me->name,
+							'modnote',
+							'',
+							$_POST['new_note'],
+							time(),
+						],
 					],
 					['id_comment'],
 				);
@@ -302,6 +260,7 @@ class Home implements ActionInterface
 
 			CacheApi::put('moderator_notes_total', $moderator_notes_total, 240);
 		}
+		$moderator_notes_total = (int) $moderator_notes_total;
 
 		// Grab the current notes. We can only use the cache for the first page of notes.
 		$offset = isset($_GET['notes']) && isset($_GET['start']) ? $_GET['start'] : 0;
@@ -336,18 +295,26 @@ class Home implements ActionInterface
 
 		// Lets construct a page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=index;notes', $start, $moderator_notes_total, 10);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
+
 		Utils::$context['start'] = $start;
 
 		Utils::$context['notes'] = [];
 
 		foreach ($moderator_notes as $note) {
+			$note['body'] = Parser::transform($note['body']);
+
 			Utils::$context['notes'][] = [
 				'author' => [
 					'id' => $note['id_member'],
 					'link' => $note['id_member'] ? ('<a href="' . Config::$scripturl . '?action=profile;u=' . $note['id_member'] . '">' . $note['member_name'] . '</a>') : $note['member_name'],
 				],
 				'time' => Time::create('@' . $note['log_time'])->format(),
-				'text' => BBCodeParser::load()->parse($note['body']),
+				'text' => $note['body'],
 				'delete_href' => Config::$scripturl . '?action=moderate;area=index;notes;delete=' . $note['id_note'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				'can_delete' => User::$me->allowedTo('admin_forum') || $note['id_member'] == User::$me->id,
 			];
@@ -572,7 +539,7 @@ class Home implements ActionInterface
 	 *
 	 * MOD AUTHORS: Please use the integrate_moderation_home_blocks instead.
 	 */
-	protected static function integrateModBlocks()
+	protected static function integrateModBlocks(): void
 	{
 		$valid_blocks = [];
 
@@ -590,11 +557,6 @@ class Home implements ActionInterface
 			}
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Home::exportStatic')) {
-	Home::exportStatic();
 }
 
 ?>

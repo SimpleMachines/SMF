@@ -7,16 +7,16 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 namespace SMF\PackageManager;
 
-use SMF\Config;
 use SMF\Lang;
+use SMF\Sapi;
 
 /**
  * Class XmlArray
@@ -54,7 +54,7 @@ class XmlArray
 	public function __construct(string|array $data, bool $auto_trim = false, ?int $level = null, bool $is_clone = false)
 	{
 		// If we're using this try to get some more memory.
-		Config::setMemoryLimit('32M');
+		Sapi::setMemoryLimit('32M');
 
 		// Set the debug level.
 		$this->debug_level = $level !== null ? $level : error_reporting();
@@ -140,7 +140,7 @@ class XmlArray
 	 *
 	 * @param string $path The path to the element to get
 	 * @param bool $return_full Whether to return the full result set
-	 * @return XmlArray|string|bool a new XmlArray. False if we can not find a attribute
+	 * @return XmlArray|string|bool a new XmlArray. False if we can not find an attribute
 	 */
 	public function path(string $path, bool $return_full = false): XmlArray|string|false
 	{
@@ -153,12 +153,12 @@ class XmlArray
 		// For each element in the path.
 		foreach ($path as $el) {
 			// Deal with sets....
-			if (strpos($el, '[') !== false) {
+			if (str_contains($el, '[')) {
 				$lvl = (int) substr($el, strpos($el, '[') + 1);
 				$el = substr($el, 0, strpos($el, '['));
 			}
 			// Find an attribute.
-			elseif (substr($el, 0, 1) == '@') {
+			elseif (str_starts_with($el, '@')) {
 				// It simplifies things if the attribute is already there ;).
 				if (isset($array[$el])) {
 					return $array[$el];
@@ -175,7 +175,7 @@ class XmlArray
 				// Cause an error.
 				if ($this->debug_level & E_NOTICE) {
 					Lang::load('Errors');
-					trigger_error(sprintf(Lang::$txt['undefined_xml_attribute'], substr($el, 1) . $debug), E_USER_NOTICE);
+					trigger_error(Lang::getTxt('undefined_xml_attribute', [substr($el, 1) . $debug]), E_USER_NOTICE);
 				}
 
 				return false;
@@ -218,22 +218,27 @@ class XmlArray
 		// For each element in the path.
 		foreach ($path as $el) {
 			// Deal with sets....
-			if (strpos($el, '[') !== false) {
+			if (str_contains($el, '[')) {
 				$lvl = (int) substr($el, strpos($el, '[') + 1);
 				$el = substr($el, 0, strpos($el, '['));
 			}
 			// Find an attribute.
-			elseif (substr($el, 0, 1) == '@') {
+			elseif (str_starts_with($el, '@')) {
 				return isset($array[$el]);
 			} else {
 				$lvl = null;
+			}
+
+			// Nothing found, nothing exists.
+			if (empty($array)) {
+				return false;
 			}
 
 			// Find this element.
 			$array = $this->_path($array, $el, $lvl, true);
 		}
 
-		return $array !== false;
+		return !empty($array);
 	}
 
 	/**
@@ -376,7 +381,7 @@ class XmlArray
 			// Didn't find a tag?  Keep looping....
 			if (!isset($match[1]) || $match[1] == '') {
 				// If there's no <, the rest is data.
-				if (strpos($data, '<') === false) {
+				if (!str_contains($data, '<')) {
 					$text_value = $this->_from_cdata($data);
 					$data = '';
 
@@ -400,7 +405,7 @@ class XmlArray
 					}
 				}
 				// If we're looking at a </something> with no start, kill it.
-				elseif (strpos($data, '<') !== false && strpos($data, '<') == 0) {
+				elseif (str_contains($data, '<') && strpos($data, '<') == 0) {
 					if (strpos($data, '<', 1) !== false) {
 						$text_value = $this->_from_cdata(substr($data, 0, strpos($data, '<', 1)));
 						$data = substr($data, strpos($data, '<', 1));
@@ -470,7 +475,7 @@ class XmlArray
 
 				if (!empty($inner_match)) {
 					// Parse the inner data.
-					if (strpos($inner_match, '<') !== false) {
+					if (str_contains($inner_match, '<')) {
 						$el += $this->_parse($inner_match);
 					} elseif (trim($inner_match) != '') {
 						$text_value = $this->_from_cdata($inner_match);
@@ -529,7 +534,7 @@ class XmlArray
 			return $indentation . '<![CDATA[' . $array['value'] . ']]>';
 		}
 
-		if (substr($array['name'], -2) == '[]') {
+		if (str_ends_with($array['name'], '[]')) {
 			$array['name'] = substr($array['name'], 0, -2);
 		}
 
@@ -541,7 +546,7 @@ class XmlArray
 
 		// Run through and recursively output all the elements or attributes inside this.
 		foreach ($array as $k => $v) {
-			if (substr($k, 0, 1) == '@') {
+			if (str_starts_with($k, '@')) {
 				$output .= ' ' . substr($k, 1) . '="' . $v . '"';
 			} elseif (is_array($v)) {
 				$output_el .= $this->_xml($v, $indent === null ? null : $indent + 1);
@@ -661,7 +666,7 @@ class XmlArray
 	/**
 	 * Given an array, return the text from that array. (recursive and privately used.)
 	 *
-	 * @param null|array|string $array An aray of data
+	 * @param null|array|string $array An array of data
 	 * @return string The text from the array
 	 */
 	protected function _fetch(null|array|string $array): string
@@ -749,7 +754,7 @@ class XmlArray
 			// Cause an error.
 			if ($this->debug_level & E_NOTICE && !$no_error) {
 				Lang::load('Errors');
-				trigger_error(sprintf(Lang::$txt['undefined_xml_element'], $path . $debug), E_USER_NOTICE);
+				trigger_error(Lang::getTxt('undefined_xml_element', [$path . $debug]), E_USER_NOTICE);
 			}
 
 			return false;

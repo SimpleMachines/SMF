@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\BrowserDetector;
@@ -83,12 +83,12 @@ function template_download_language()
 				<p>', Lang::$txt['package_ftp_why'], '</p>
 				<dl class="settings">
 					<dt
-						<label for="ftp_server">', Lang::$txt['package_ftp_server'], ':</label>
+						<label for="ftp_server">', Lang::$txt['package_ftp_server'], '</label>
 					</dt>
 					<dd>
 						<div class="floatright">
 							<label for="ftp_port">
-								', Lang::$txt['package_ftp_port'], ':
+								', Lang::$txt['package_ftp_port'], '
 							</label>
 							<input type="text" size="3" name="ftp_port" id="ftp_port" value="', isset(Utils::$context['package_ftp']['port']) ? Utils::$context['package_ftp']['port'] : (isset(Config::$modSettings['package_port']) ? Config::$modSettings['package_port'] : '21'), '">
 						</div>
@@ -96,21 +96,21 @@ function template_download_language()
 					</dd>
 
 					<dt>
-						<label for="ftp_username">', Lang::$txt['package_ftp_username'], ':</label>
+						<label for="ftp_username">', Lang::$txt['package_ftp_username'], '</label>
 					</dt>
 					<dd>
 						<input type="text" size="50" name="ftp_username" id="ftp_username" value="', isset(Utils::$context['package_ftp']['username']) ? Utils::$context['package_ftp']['username'] : (isset(Config::$modSettings['package_username']) ? Config::$modSettings['package_username'] : ''), '">
 					</dd>
 
 					<dt>
-						<label for="ftp_password">', Lang::$txt['package_ftp_password'], ':</label>
+						<label for="ftp_password">', Lang::$txt['package_ftp_password'], '</label>
 					</dt>
 					<dd>
 						<input type="password" size="50" name="ftp_password" id="ftp_password">
 					</dd>
 
 					<dt>
-						<label for="ftp_path">', Lang::$txt['package_ftp_path'], ':</label>
+						<label for="ftp_path">', Lang::$txt['package_ftp_path'], '</label>
 					</dt>
 					<dd>
 						<input type="text" size="50" name="ftp_path" id="ftp_path" value="', Utils::$context['package_ftp']['path'], '">
@@ -156,7 +156,7 @@ function template_modify_language_entries()
 	echo '
 			<div class="windowbg">
 				<fieldset>
-					<legend>', Utils::$context['primary_settings']['name'], '</legend>
+					<legend>', Utils::$context['primary_settings']['native_name']['value'], '</legend>
 					<dl class="settings">';
 
 	foreach (Utils::$context['primary_settings'] as $setting => $setting_info)
@@ -197,11 +197,11 @@ function template_modify_language_entries()
 			</div>
 			<div class="information">
 				<div>
-					', sprintf(Lang::$txt['edit_language_entries_desc'], Config::$scripturl, Lang::$txt['themeadmin_edit_title']), '
+					', Lang::getTxt('edit_language_entries_desc'), '
 				</div>
 				<br>
 				<div id="taskpad" class="floatright">
-					', Lang::$txt['edit_language_entries_file'], ':
+					', Lang::$txt['edit_language_entries_file'], '
 					<select name="tfid" onchange="if (this.value != -1) document.forms.entry_form.submit();">
 						<option value="-1">&nbsp;</option>';
 

@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -20,19 +22,6 @@ namespace SMF;
  */
 class PageIndex implements \Stringable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'load' => 'constructPageIndex',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -58,7 +47,7 @@ class PageIndex implements \Stringable
 	 *
 	 * The total number of items in the overall paginated list.
 	 */
-	public int $max_value;
+	public int $num_items;
 
 	/**
 	 * @var int
@@ -195,7 +184,7 @@ class PageIndex implements \Stringable
 	 * - very importantly, cleans up the start value passed, and forces it to
 	 *   be a multiple of num_per_page.
 	 *
-	 * - checks that start is not more than max_value.
+	 * - checks that start is less than num_items.
 	 *
 	 * - base_url should be the URL without any start parameter on it.
 	 *
@@ -206,24 +195,32 @@ class PageIndex implements \Stringable
 	 * @param int &$start The start position, by reference. If this is not a
 	 *    multiple of the number of items per page, it is sanitized to be so and
 	 *    the value will persist upon the function's return.
-	 * @param int $max_value The total number of items you are paginating for.
+	 * @param int $num_items The total number of items you are paginating for.
 	 * @param int $num_per_page The number of items to be displayed on a given
 	 *    page. $start will be forced to be a multiple of this value.
 	 * @param bool $short_format Whether to use "url.offset" instead of
 	 *    "url;start=offset". Default: false.
 	 * @param bool $show_prevnext Whether the Previous and Next links should be
 	 *    shown. Default: true.
+	 * @param array $template_overrides Array of template strings to override defaults.
+	 *    Supported keys: extra_before, previous_page, current_page, page,
+	 *    expand_pages, next_page, extra_after.
 	 */
-	public function __construct(string $base_url, int &$start, int $max_value, int $num_per_page, bool $short_format = false, bool $show_prevnext = true)
-	{
+	public function __construct(
+		string $base_url,
+		int &$start,
+		int $num_items,
+		int $num_per_page,
+		bool $short_format = false,
+		bool $show_prevnext = true,
+		array $template_overrides = [],
+	) {
 		$this->base_url = $base_url;
-		$this->max_value = $max_value;
+		$this->num_items = $num_items;
 		$this->num_per_page = $num_per_page;
 		$this->short_format = $short_format;
 		$this->show_prevnext = $show_prevnext;
 		$this->start = $start = $this->fixStart($start);
-
-		$this->extra_before = str_replace('{txt_pages}', Lang::$txt['pages'], $this->extra_before);
 
 		if (isset(Theme::$current->settings['page_index'])) {
 			foreach (Theme::$current->settings['page_index'] as $key => $value) {
@@ -236,22 +233,42 @@ class PageIndex implements \Stringable
 		if (!isset(Utils::$context['current_page'])) {
 			Utils::$context['current_page'] = $this->start / $this->num_per_page;
 		}
+
+		$this->setTemplateOverrides($template_overrides);
+
+		$this->extra_before = str_replace('{txt_pages}', Lang::$txt['pages'], $this->extra_before);
+	}
+
+	/**
+	 * Sets template overrides.
+	 *
+	 * @param array $template_overrides Array of template strings to override defaults.
+	 *    Supported keys: extra_before, previous_page, current_page, page,
+	 *    expand_pages, next_page, extra_after.
+	 */
+	public function setTemplateOverrides(array $template_overrides = []): void
+	{
+		foreach ($template_overrides as $key => $value) {
+			if (property_exists($this, $key)) {
+				$this->{$key} = $value;
+			}
+		}
 	}
 
 	/**
 	 * Finalizes and returns the page index links.
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		// Why do all this work here rather than in the constructor, you ask?
 		// Because the string should always reflect the object's current
-		// property values, which may have changed after initial constuction.
+		// property values, which may have changed after initial construction.
 
 		// Ensure $this->start is still good, just in case someone changed it.
 		$this->start = $this->fixStart($this->start);
 
 		// Set some other internal values we'll need below.
-		$this->last_page_value = $this->max_value - $this->max_value % $this->num_per_page;
+		$this->last_page_value = ($this->num_items - 1) - ($this->num_items - 1) % $this->num_per_page;
 		$this->current_page_num = $this->start / $this->num_per_page + 1;
 		$this->last_page_num = $this->last_page_value / $this->num_per_page + 1;
 		$this->base_link = strtr($this->page, ['{URL}' => $this->short_format ? $this->base_url : strtr($this->base_url, ['%' => '%%']) . ';start=%1$d']);
@@ -280,20 +297,6 @@ class PageIndex implements \Stringable
 		return $pageindex;
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(string $base_url, int &$start, int $max_value, int $num_per_page, bool $short_format = false, bool $show_prevnext = true): object
-	{
-		return new self($base_url, $start, $max_value, $num_per_page, $short_format, $show_prevnext);
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -311,10 +314,10 @@ class PageIndex implements \Stringable
 		$this->start_invalid = $start < 0;
 
 		// $start must be within bounds and be a multiple of $this->num_per_page.
-		$start = min(max($start, 0), $this->max_value);
+		$start = min(max($start, 0), $this->num_items - 1);
 		$start -= ($start % $this->num_per_page);
 
-		return $start;
+		return (int) $start;
 	}
 
 	/**
@@ -437,17 +440,12 @@ class PageIndex implements \Stringable
 		}
 
 		return strtr($this->expand_pages, [
-			'{LINK}' => Utils::JavaScriptEscape(Utils::htmlspecialchars($this->base_link)),
+			'{LINK}' => Utils::escapeJavaScript(Utils::htmlspecialchars($this->base_link)),
 			'{FIRST_PAGE}' => $first_page,
 			'{LAST_PAGE}' => $last_page,
 			'{PER_PAGE}' => $this->num_per_page,
 		]);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\PageIndex::exportStatic')) {
-	PageIndex::exportStatic();
 }
 
 ?>

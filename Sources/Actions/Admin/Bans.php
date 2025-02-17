@@ -9,16 +9,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -39,32 +42,9 @@ use SMF\Utils;
  */
 class Bans implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'Ban',
-			'updateBanMembers' => 'updateBanMembers',
-			'list_getBans' => 'list_getBans',
-			'list_getNumBans' => 'list_getNumBans',
-			'list_getBanItems' => 'list_getBanItems',
-			'list_getNumBanItems' => 'list_getNumBanItems',
-			'list_getBanTriggers' => 'list_getBanTriggers',
-			'list_getNumBanTriggers' => 'list_getNumBanTriggers',
-			'list_getBanLogEntries' => 'list_getBanLogEntries',
-			'list_getNumBanLogEntries' => 'list_getNumBanLogEntries',
-			'banList' => 'BanList',
-			'banEdit' => 'BanEdit',
-			'banBrowseTriggers' => 'BanBrowseTriggers',
-			'banEditTrigger' => 'BanEditTrigger',
-			'banLog' => 'BanLog',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -96,18 +76,6 @@ class Bans implements ActionInterface
 		'log' => 'log',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -117,6 +85,8 @@ class Bans implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		User::$me->isAllowedTo('manage_bans');
 
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
@@ -569,7 +539,7 @@ class Bans implements ActionInterface
 							Utils::$context['ban_suggestions']['hostname'] = $main_ip->getHost();
 						}
 
-						Utils::$context['ban_suggestions']['other_ips'] = $this->banLoadAdditionalIPs(Utils::$context['ban_suggestions']['member']['id']);
+						Utils::$context['ban_suggestions']['other_ips'] = $this->banLoadAdditionalIPs((int) Utils::$context['ban_suggestions']['member']['id']);
 					}
 				}
 				// We came from the mod center.
@@ -979,7 +949,7 @@ class Bans implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return timeformat($rowData['log_time']);
+							return Time::stringFromUnix($rowData['log_time']);
 						},
 					],
 					'sort' => [
@@ -1039,31 +1009,9 @@ class Bans implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * As it says... this tries to review the list of banned members, to match new bans.
 	 *
-	 * Note: if is_activated >= 10, then the member is banned.
+	 * Note: if is_activated >= User::BANNED, then the member is banned.
 	 */
 	public static function updateBanMembers(): void
 	{
@@ -1099,7 +1047,7 @@ class Bans implements ActionInterface
 
 			if ($row['email_address']) {
 				// Does it have a wildcard - if so we can't do a IN on it.
-				if (strpos($row['email_address'], '%') !== false) {
+				if (str_contains($row['email_address'], '%')) {
 					$memberEmailWild[$row['email_address']] = $row['email_address'];
 				} else {
 					$memberEmails[$row['email_address']] = $row['email_address'];
@@ -1144,8 +1092,8 @@ class Bans implements ActionInterface
 					$allMembers[] = $row['id_member'];
 
 					// Do they need an update?
-					if ($row['is_activated'] < 10) {
-						$updates[($row['is_activated'] + 10)][] = $row['id_member'];
+					if ($row['is_activated'] < User::BANNED) {
+						$updates[($row['is_activated'] + User::BANNED)][] = $row['id_member'];
 						$newMembers[] = $row['id_member'];
 					}
 				}
@@ -1168,7 +1116,7 @@ class Bans implements ActionInterface
 		// Find members that are wrongfully marked as banned.
 		$request = Db::$db->query(
 			'',
-			'SELECT mem.id_member, mem.is_activated - 10 AS new_value
+			'SELECT mem.id_member, mem.is_activated - {int:ban_flag} AS new_value
 			FROM {db_prefix}members AS mem
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_member = mem.id_member OR mem.email_address LIKE bi.email_address)
 				LEFT JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group AND bg.cannot_access = {int:cannot_access_activated} AND (bg.expire_time IS NULL OR bg.expire_time > {int:current_time}))
@@ -1177,7 +1125,7 @@ class Bans implements ActionInterface
 			[
 				'cannot_access_activated' => 1,
 				'current_time' => time(),
-				'ban_flag' => 10,
+				'ban_flag' => User::BANNED,
 			],
 		);
 
@@ -1208,7 +1156,7 @@ class Bans implements ActionInterface
 	 * @param string $sort A string telling ORDER BY how to sort the results
 	 * @return array An array of information about the bans for the list
 	 */
-	public static function list_getBans($start, $items_per_page, $sort): array
+	public static function list_getBans(int $start, int $items_per_page, string $sort): array
 	{
 		$bans = [];
 
@@ -1252,7 +1200,7 @@ class Bans implements ActionInterface
 		list($numBans) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $numBans;
+		return (int) $numBans;
 	}
 
 	/**
@@ -1260,11 +1208,11 @@ class Bans implements ActionInterface
 	 *
 	 * @param int $start Which item to start with (for pagination purposes)
 	 * @param int $items_per_page How many items to show on each page
-	 * @param int $sort Not used here
+	 * @param string $sort Not used here
 	 * @param int $ban_group_id The ID of the group to get the bans for
 	 * @return array An array with information about the returned ban items
 	 */
-	public static function list_getBanItems($start = 0, $items_per_page = 0, $sort = 0, $ban_group_id = 0): array
+	public static function list_getBanItems(int $start = 0, int $items_per_page = 0, string $sort = '', int $ban_group_id = 0): array
 	{
 		$ban_items = [];
 
@@ -1375,7 +1323,7 @@ class Bans implements ActionInterface
 		list($banNumber) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $banNumber;
+		return (int) $banNumber;
 	}
 
 	/**
@@ -1389,7 +1337,7 @@ class Bans implements ActionInterface
 	 * @param string $trigger_type The trigger type - can be 'ip', 'hostname' or 'email'
 	 * @return array An array of ban trigger info for the list
 	 */
-	public static function list_getBanTriggers($start, $items_per_page, $sort, $trigger_type): array
+	public static function list_getBanTriggers(int $start, int $items_per_page, string $sort, string $trigger_type): array
 	{
 		$ban_triggers = [];
 
@@ -1435,7 +1383,7 @@ class Bans implements ActionInterface
 	 * @param string $trigger_type The trigger type. Can be 'ip', 'hostname' or 'email'
 	 * @return int The number of triggers of the specified type
 	 */
-	public static function list_getNumBanTriggers($trigger_type): int
+	public static function list_getNumBanTriggers(string $trigger_type): int
 	{
 		$where = [
 			'ip' => 'bi.ip_low is not null',
@@ -1456,7 +1404,7 @@ class Bans implements ActionInterface
 		list($num_triggers) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $num_triggers;
+		return (int) $num_triggers;
 	}
 
 	/**
@@ -1468,7 +1416,7 @@ class Bans implements ActionInterface
 	 * @param string $sort A string telling ORDER BY how to sort the results
 	 * @return array An array of info about the ban log entries for the list.
 	 */
-	public static function list_getBanLogEntries($start, $items_per_page, $sort): array
+	public static function list_getBanLogEntries(int $start, int $items_per_page, string $sort): array
 	{
 		$log_entries = [];
 
@@ -1514,57 +1462,7 @@ class Bans implements ActionInterface
 		list($num_entries) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $num_entries;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the list sub-action.
-	 */
-	public static function banList(): void
-	{
-		self::load();
-		self::$obj->subaction = 'list';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the edit sub-action.
-	 */
-	public static function banEdit(): void
-	{
-		self::load();
-		self::$obj->subaction = 'edit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the browse sub-action.
-	 */
-	public static function banBrowseTriggers(): void
-	{
-		self::load();
-		self::$obj->subaction = 'browse';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the edittrigger sub-action.
-	 */
-	public static function banEditTrigger(): void
-	{
-		self::load();
-		self::$obj->subaction = 'edittrigger';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the log sub-action.
-	 */
-	public static function banLog(): void
-	{
-		self::load();
-		self::$obj->subaction = 'log';
-		self::$obj->execute();
+		return (int) $num_entries;
 	}
 
 	/******************
@@ -1572,9 +1470,9 @@ class Bans implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial setup.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		Theme::loadTemplate('ManageBans');
 
@@ -1724,7 +1622,7 @@ class Bans implements ActionInterface
 	 * @param int $member_id The ID of the member to get additional IPs for
 	 * @return array An containing two arrays - ips_in_messages (IPs used in posts) and ips_in_errors (IPs used in error messages)
 	 */
-	protected function banLoadAdditionalIPs($member_id): array
+	protected function banLoadAdditionalIPs(int $member_id): array
 	{
 		// Borrowing a few language strings from profile.
 		Lang::load('Profile');
@@ -1754,7 +1652,7 @@ class Bans implements ActionInterface
 	 * @param int $member_id The ID of the member
 	 * @return array An array of IPs used in posts by this member
 	 */
-	protected function banLoadAdditionalIPsMember($member_id): array
+	protected function banLoadAdditionalIPsMember(int $member_id): array
 	{
 		// Find some additional IP's used by this member.
 		$message_ips = [];
@@ -1785,7 +1683,7 @@ class Bans implements ActionInterface
 	 * @param int $member_id The ID of the member
 	 * @return array An array of IPs associated with error messages generated by this user
 	 */
-	protected function banLoadAdditionalIPsError($member_id): array
+	protected function banLoadAdditionalIPsError(int $member_id): array
 	{
 		$error_ips = [];
 
@@ -1820,7 +1718,7 @@ class Bans implements ActionInterface
 	 * @param int $ban_id The ID of the ban (0 if this is a new ban).
 	 * @return array Triggers that encountered errors. Empty if triggers saved successfully.
 	 */
-	protected function saveTriggers(array $suggestions, $ban_group, $member = 0, $ban_id = 0)
+	protected function saveTriggers(array $suggestions, int $ban_group, int $member = 0, int $ban_id = 0): array
 	{
 		$triggers = [
 			'main_ip' => '',
@@ -1867,7 +1765,7 @@ class Bans implements ActionInterface
 	 * @param array $group_ids The IDs of the groups to remove.
 	 * @return bool Returns true if successful or false if $group_ids is empty
 	 */
-	protected function removeBanGroups($group_ids): bool
+	protected function removeBanGroups(array $group_ids): bool
 	{
 		if (!is_array($group_ids)) {
 			$group_ids = [$group_ids];
@@ -1919,7 +1817,7 @@ class Bans implements ActionInterface
 	 * @param array $ids IDs of the log entries to remove, or empty to remove all.
 	 * @return bool Returns true if successful or false if $ids is invalid.
 	 */
-	protected function removeBanLogs($ids = []): bool
+	protected function removeBanLogs(array $ids = []): bool
 	{
 		if (empty($ids)) {
 			Db::$db->query(
@@ -1956,7 +1854,7 @@ class Bans implements ActionInterface
 	 * @param array $triggers The triggers to validate
 	 * @return array An array of riggers and log info ready to be used
 	 */
-	protected function validateTriggers(&$triggers): array
+	protected function validateTriggers(array &$triggers): array
 	{
 		if (empty($triggers)) {
 			Utils::$context['ban_errors'][] = 'ban_empty_triggers';
@@ -2097,7 +1995,7 @@ class Bans implements ActionInterface
 	 * @param string $fullip The full IP.
 	 * @return bool Whether the IP trigger data is valid.
 	 */
-	protected function checkExistingTriggerIP($ip_array, $fullip = ''): bool
+	protected function checkExistingTriggerIP(array $ip_array, string $fullip = ''): bool
 	{
 		$values = [
 			'ip_low' => $ip_array['low'],
@@ -2144,7 +2042,7 @@ class Bans implements ActionInterface
 	 * @param array $logs The log data.
 	 * @return bool Whether or not the action was successful.
 	 */
-	protected function addTriggers($group_id = 0, $triggers = [], $logs = []): bool
+	protected function addTriggers(int $group_id = 0, array $triggers = [], array $logs = []): bool
 	{
 		if (empty($group_id)) {
 			Utils::$context['ban_errors'][] = 'ban_id_empty';
@@ -2213,7 +2111,7 @@ class Bans implements ActionInterface
 	 * @param array $trigger An array of triggers.
 	 * @param array $logs An array of log info.
 	 */
-	protected function updateTriggers($ban_item = 0, $group_id = 0, $trigger = [], $logs = []): void
+	protected function updateTriggers(int $ban_item = 0, int $group_id = 0, array $trigger = [], array $logs = []): void
 	{
 		if (empty($ban_item)) {
 			Utils::$context['ban_errors'][] = 'ban_ban_item_empty';
@@ -2269,7 +2167,7 @@ class Bans implements ActionInterface
 	 *    Should have name and may also have an id.
 	 * @return int The ban group's ID.
 	 */
-	protected function updateBanGroup($ban_info = []): int
+	protected function updateBanGroup(array $ban_info = []): int
 	{
 		if (empty($ban_info['name'])) {
 			Utils::$context['ban_errors'][] = 'ban_name_empty';
@@ -2370,7 +2268,7 @@ class Bans implements ActionInterface
 	 * @param array $ban_info An array containing 'name', which is the name of the ban group.
 	 * @return int|false The ban group's ID, or false on error.
 	 */
-	protected function insertBanGroup($ban_info = []): int|false
+	protected function insertBanGroup(array $ban_info = []): int|false
 	{
 		if (empty($ban_info['name'])) {
 			Utils::$context['ban_errors'][] = 'ban_name_empty';
@@ -2413,12 +2311,28 @@ class Bans implements ActionInterface
 			'',
 			'{db_prefix}ban_groups',
 			[
-				'name' => 'string-20', 'ban_time' => 'int', 'expire_time' => 'raw', 'cannot_access' => 'int', 'cannot_register' => 'int',
-				'cannot_post' => 'int', 'cannot_login' => 'int', 'reason' => 'string-255', 'notes' => 'string-65534',
+				'name' => 'string-20',
+				'ban_time' => 'int',
+				'expire_time' => 'raw',
+				'cannot_access' => 'int',
+				'cannot_register' => 'int',
+				'cannot_post' => 'int',
+				'cannot_login' => 'int',
+				'reason' => 'string-255',
+				'notes' => 'string-65534',
 			],
 			[
-				$ban_info['name'], time(), $ban_info['db_expiration'], $ban_info['cannot']['access'], $ban_info['cannot']['register'],
-				$ban_info['cannot']['post'], $ban_info['cannot']['login'], $ban_info['reason'], $ban_info['notes'],
+				[
+					$ban_info['name'],
+					time(),
+					$ban_info['db_expiration'],
+					$ban_info['cannot']['access'],
+					$ban_info['cannot']['register'],
+					$ban_info['cannot']['post'],
+					$ban_info['cannot']['login'],
+					$ban_info['reason'],
+					$ban_info['notes'],
+				],
 			],
 			['id_ban_group'],
 			1,
@@ -2439,7 +2353,7 @@ class Bans implements ActionInterface
 	 * @param int $id The ID of the member to get data for.
 	 * @return array The ID, name, main IP, and email address of the member.
 	 */
-	protected function getMemberData($id): array
+	protected function getMemberData(int $id): array
 	{
 		$suggestions = [];
 
@@ -2473,12 +2387,12 @@ class Bans implements ActionInterface
 	 *
 	 * Doesn't clean the inputs.
 	 *
-	 * @param array $items_ids The triggers to remove.
+	 * @param array|int $items_ids The triggers to remove.
 	 * @param int $group_id The ID of the group these triggers are associated with.
 	 *    If null, the triggers will be deleted from all groups.
 	 * @return bool Whether the operation was successful.
 	 */
-	protected static function removeBanTriggers($items_ids = [], $group_id = null): bool
+	protected static function removeBanTriggers(array|int $items_ids = [], ?int $group_id = null): bool
 	{
 		if (isset($group_id)) {
 			$group_id = (int) $group_id;
@@ -2523,7 +2437,7 @@ class Bans implements ActionInterface
 					$ban_items[$row['id_ban']]['type'] = 'ip';
 					$ban_items[$row['id_ban']]['ip'] = IP::range2ip($row['ip_low'], $row['ip_high']);
 
-					$is_range = (strpos($ban_items[$row['id_ban']]['ip'], '-') !== false || strpos($ban_items[$row['id_ban']]['ip'], '*') !== false);
+					$is_range = (str_contains($ban_items[$row['id_ban']]['ip'], '-') || str_contains($ban_items[$row['id_ban']]['ip'], '*'));
 
 					$log_info[] = [
 						'bantype' => ($is_range ? 'ip_range' : 'main_ip'),
@@ -2600,7 +2514,7 @@ class Bans implements ActionInterface
 	 * @param bool $new Whether the trigger is new or an update of an existing one
 	 * @param bool $removal Whether the trigger is being deleted
 	 */
-	protected static function logTriggersUpdates($logs, $new = true, $removal = false): void
+	protected static function logTriggersUpdates(array $logs, bool $new = true, bool $removal = false): void
 	{
 		if (empty($logs)) {
 			return;
@@ -2624,11 +2538,6 @@ class Bans implements ActionInterface
 			]);
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Bans::exportStatic')) {
-	Bans::exportStatic();
 }
 
 ?>

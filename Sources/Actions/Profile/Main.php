@@ -5,25 +5,32 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Profile;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Profile;
+use SMF\Routable;
+use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
+use SMF\Slug;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -33,20 +40,9 @@ use SMF\Utils;
  * It also allows the user to change some of their or another's preferences,
  * and such things.
  */
-class Main implements ActionInterface
+class Main implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'modifyProfile' => 'ModifyProfile',
-		],
-	];
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -69,7 +65,7 @@ class Main implements ActionInterface
 	 * be replaced at runtime with the values of Utils::$context['session_var']
 	 * and Utils::$context['session_id'].
 	 *
-	 * In this default definintion, all parts of the menu are set as enabled.
+	 * In this default definition, all parts of the menu are set as enabled.
 	 * At runtime, however, various parts may be turned on or off depending on
 	 * the forum's saved settings.
 	 *
@@ -513,8 +509,7 @@ class Main implements ActionInterface
 					],
 				],
 				'activateaccount' => [
-					'file' => 'Profile-Actions.php',
-					'function' => 'activateAccount',
+					'function' => __NAMESPACE__ . '\\Activate::call',
 					'icon' => 'regcenter',
 					'sc' => 'get',
 					'token' => 'profile-aa%u',
@@ -547,32 +542,78 @@ class Main implements ActionInterface
 	 */
 	public bool $check_password;
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return isset($_GET['area']) && !in_array($_GET['area'], ['popup', 'alerts_popup', 'download', 'dlattach']);
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_GET['area']) && in_array($_GET['area'], ['popup', 'alerts_popup']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_GET['area']) && in_array($_GET['area'], ['popup', 'alerts_popup']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return isset($_GET['area']) && ($_GET['area'] == 'popup' || $_GET['area'] == 'alerts_popup');
+	}
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
 	 */
 	public function execute(): void
 	{
+		// Don't reload this as we may have processed error strings.
+		if (empty(Profile::$member->save_errors)) {
+			Lang::load('Profile+Drafts');
+		}
+
+		Theme::loadTemplate('Profile');
+
+		// No profile can be found.
+		if (!isset(Profile::$member->id) || Profile::$member->id == 0) {
+			ErrorHandler::fatalLang('no_access', false);
+		}
+
+		// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
+		// And we care about what the current user can do, not what the user whose profile it is.
+		if (User::$me->mod_cache['gq'] != '0=1') {
+			User::$me->permissions[] = 'approve_group_requests';
+		}
+
+		// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
+		Utils::$context['subs_available'] = false;
+
+		if (!empty(Config::$modSettings['paid_enabled'])) {
+			$get_active_subs = Db::$db->query(
+				'',
+				'SELECT COUNT(*)
+				FROM {db_prefix}subscriptions
+				WHERE active = {int:active}',
+				[
+					'active' => 1,
+				],
+			);
+			list($num_subs) = Db::$db->fetch_row($get_active_subs);
+			Db::$db->free_result($get_active_subs);
+
+			Utils::$context['subs_available'] = !empty($num_subs);
+		}
+
 		// Is there an updated message to show?
 		if (isset($_GET['updated'])) {
 			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
 		}
 
+		$this->setProfileAreas();
 		$menu = $this->createMenu();
 
 		$this->securityChecks();
@@ -585,7 +626,7 @@ class Main implements ActionInterface
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=profile' . (Profile::$member->id != User::$me->id ? ';u=' . Profile::$member->id : ''),
-			'name' => sprintf(Lang::$txt['profile_of_username'], Profile::$member->formatted['name']),
+			'name' => Lang::getTxt('profile_of_username', Profile::$member->formatted),
 		];
 
 		if (!empty($menu->include_data['label'])) {
@@ -618,7 +659,7 @@ class Main implements ActionInterface
 
 			if ($this->check_password) {
 				// Check to ensure we're forcing SSL for authentication
-				if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Config::httpsOn()) {
+				if (!empty(Config::$modSettings['force_ssl']) && empty(Config::$maintenance) && !Sapi::httpsOn()) {
 					ErrorHandler::fatalLang('login_ssl_required', false);
 				}
 
@@ -636,7 +677,7 @@ class Main implements ActionInterface
 				$good_password = in_array(true, IntegrationHook::call('integrate_verify_password', [Profile::$member->username, $password, false]), true);
 
 				// Bad password!!!
-				if (!$good_password && !Security::hashVerifyPassword(Profile::$member->username, $password, Profile::$member->passwd)) {
+				if (!$good_password && !Security::hashVerifyPassword($password, Profile::$member->passwd)) {
 					Profile::$member->save_errors[] = 'bad_password';
 				}
 
@@ -705,7 +746,7 @@ class Main implements ActionInterface
 
 		// Set the page title if it's not already set...
 		if (!isset(Utils::$context['page_title'])) {
-			Utils::$context['page_title'] = Lang::$txt['profile'] . (isset(Lang::$txt[$menu->current_area]) ? ' - ' . Lang::$txt[$menu->current_area] : '');
+			Utils::$context['page_title'] = trim(Lang::getTxt('profile_page_title', ['current_area' => Lang::getTxt($menu->current_area)]), " \n\r\t\v\x00-");
 		}
 	}
 
@@ -714,35 +755,85 @@ class Main implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @return object An instance of this class.
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function load(): object
+	public static function buildRoute(array $params): array
 	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
+		$params['u'] = $params['u'] ?? User::$me->id;
+
+		if (!empty($params['u'])) {
+			$route[] = 'members';
+
+			if (isset(Slug::$known['member'][(int) $params['u']])) {
+				$slug = (string) Slug::$known['member'][(int) $params['u']];
+			} elseif (($slug = Slug::getCached('member', (int) $params['u'])) === '') {
+				$member = current(User::load((int) $params['u']));
+
+				if ($member instanceof User) {
+					$slug = (string) new Slug($member->name, 'member', $member->id);
+				} else {
+					$slug = '';
+				}
+			}
+
+			$route[] = $slug . (str_ends_with($slug, '-' . $params['u']) ? '' : ($slug !== '' ? '-' : '') . $params['u']);
+
+			unset($params['action'], $params['u']);
+
+			if (isset($params['area'])) {
+				if ($params['area'] !== 'index') {
+					$route[] = $params['area'];
+				}
+
+				unset($params['area']);
+
+				if (isset($params['sa'])) {
+					$route[] = $params['sa'];
+					unset($params['sa']);
+				}
+			}
 		}
 
-		return self::$obj;
+		return ['route' => $route, 'params' => $params];
 	}
 
 	/**
-	 * Convenience method to load() and execute() an instance of this class.
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
 	 */
-	public static function call(): void
+	public static function parseRoute(array $route, array $params = []): array
 	{
-		self::load()->execute();
-	}
+		// If they tried to go to /members/ without giving a member ID,
+		// redirect them to the member list.
+		if (!isset($route[1])) {
+			Utils::redirectexit('action=mlist');
+		}
 
-	/**
-	 * Backward compatibility wrapper.
-	 */
-	public static function modifyProfile($post_errors = []): void
-	{
-		self::load();
-		Profile::$member->save_errors = $post_errors;
-		self::$obj->execute();
+		$params['action'] = 'profile';
+
+		preg_match('/^(\X*?)(\d+)$/u', $route[1] ?? User::$me->id, $matches);
+
+		$params['u'] = $matches[2];
+
+		Slug::setRequested(rtrim($matches[1], '-'), 'member', (int) $params['u']);
+
+		if (isset($route[2])) {
+			$params['area'] = $route[2];
+
+			if (isset($route[3])) {
+				$params['sa'] = $route[3];
+			}
+		}
+
+		return $params;
 	}
 
 	/******************
@@ -754,42 +845,8 @@ class Main implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Don't reload this as we may have processed error strings.
-		if (empty(Profile::$member->save_errors)) {
-			Lang::load('Profile+Drafts');
-		}
-
-		Theme::loadTemplate('Profile');
-
 		// Load the data of the member whose profile we are viewing.
 		Profile::load();
-
-		// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
-		// And we care about what the current user can do, not what the user whose profile it is.
-		if (User::$me->mod_cache['gq'] != '0=1') {
-			User::$me->permissions[] = 'approve_group_requests';
-		}
-
-		// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
-		Utils::$context['subs_available'] = false;
-
-		if (!empty(Config::$modSettings['paid_enabled'])) {
-			$get_active_subs = Db::$db->query(
-				'',
-				'SELECT COUNT(*)
-				FROM {db_prefix}subscriptions
-				WHERE active = {int:active}',
-				[
-					'active' => 1,
-				],
-			);
-			list($num_subs) = Db::$db->fetch_row($get_active_subs);
-			Db::$db->free_result($get_active_subs);
-
-			Utils::$context['subs_available'] = !empty($num_subs);
-		}
-
-		$this->setProfileAreas();
 	}
 
 	/**
@@ -805,12 +862,14 @@ class Main implements ActionInterface
 					$value = Lang::$txt[$value] ?? $value;
 				}
 
-				$value = strtr($value, [
-					'{scripturl}' => Config::$scripturl,
-					'{boardurl}' => Config::$boardurl,
-					'{session_var}' => Utils::$context['session_var'],
-					'{session_id}' => Utils::$context['session_id'],
-				]);
+				if (is_string($value)) {
+					$value = strtr($value, [
+						'{scripturl}' => Config::$scripturl,
+						'{boardurl}' => Config::$boardurl,
+						'{session_var}' => Utils::$context['session_var'],
+						'{session_id}' => Utils::$context['session_id'],
+					]);
+				}
 			},
 		);
 
@@ -882,9 +941,9 @@ class Main implements ActionInterface
 	 * The menu is always available as Menu::$loaded['profile'], but for
 	 * convenience, this method also returns it.
 	 *
-	 * @return object The profile menu object.
+	 * @return \SMF\Menu The profile menu object.
 	 */
-	protected function createMenu(): object
+	protected function createMenu(): Menu
 	{
 		// Set a few options for the menu.
 		$menuOptions = [
@@ -944,7 +1003,7 @@ class Main implements ActionInterface
 					if (!empty($area['token'])) {
 						$security_checks[isset($_REQUEST['save']) ? 'validateToken' : 'needsToken'] = $area['token'];
 
-						$token_name = $area['token'] !== true ? str_replace('%u', Profile::$member->id, $area['token']) : 'profile-u' . Profile::$member->id;
+						$token_name = $area['token'] !== true ? str_replace('%u', (string) Profile::$member->id, $area['token']) : 'profile-u' . Profile::$member->id;
 
 						$token_type = isset($area['token_type']) && in_array($area['token_type'], ['request', 'post', 'get']) ? $area['token_type'] : 'post';
 					}
@@ -998,11 +1057,6 @@ class Main implements ActionInterface
 
 		Utils::$context['require_password'] = $this->check_password;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Main::exportStatic')) {
-	Main::exportStatic();
 }
 
 ?>

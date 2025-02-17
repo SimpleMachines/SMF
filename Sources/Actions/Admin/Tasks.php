@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -34,25 +37,9 @@ use SMF\Utils;
  */
 class Tasks implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ManageScheduledTasks',
-			'list_getScheduledTasks' => 'list_getScheduledTasks',
-			'list_getTaskLogEntries' => 'list_getTaskLogEntries',
-			'list_getNumTaskLogEntries' => 'list_getNumTaskLogEntries',
-			'scheduledTasks' => 'ScheduledTasks',
-			'editTask' => 'EditTask',
-			'taskLog' => 'TaskLog',
-			'taskSettings' => 'TaskSettings',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -82,18 +69,6 @@ class Tasks implements ActionInterface
 		'settings' => 'settings',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -103,6 +78,32 @@ class Tasks implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		User::$me->isAllowedTo('admin_forum');
+
+		Lang::load('ManageScheduledTasks');
+		Theme::loadTemplate('ManageScheduledTasks');
+
+		// Tab data might already be set if this was called from Logs::execute().
+		if (empty(Menu::$loaded['admin']->tab_data)) {
+			// Now for the lovely tabs. That we all love.
+			Menu::$loaded['admin']->tab_data = [
+				'title' => Lang::$txt['scheduled_tasks_title'],
+				'help' => '',
+				'description' => Lang::$txt['maintain_info'],
+				'tabs' => [
+					'tasks' => [
+						'description' => Lang::$txt['maintain_tasks_desc'],
+					],
+					'tasklog' => [
+						'description' => Lang::$txt['scheduled_log_desc'],
+					],
+					'settings' => [
+						'description' => Lang::$txt['scheduled_tasks_settings_desc'],
+					],
+				],
+			];
+		}
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -358,7 +359,7 @@ class Tasks implements ActionInterface
 			);
 
 			// Check the next event.
-			TaskRunner::calculateNextTrigger($_GET['tid'], true);
+			TaskRunner::calculateNextTrigger((string) $_GET['tid'], true);
 
 			// Return to the main list.
 			Utils::redirectexit('action=admin;area=scheduledtasks');
@@ -385,12 +386,12 @@ class Tasks implements ActionInterface
 				'id' => $row['id_task'],
 				'function' => $row['task'],
 				'name' => Lang::$txt['scheduled_task_' . $row['task']] ?? $row['task'],
-				'desc' => isset(Lang::$txt['scheduled_task_desc_' . $row['task']]) ? sprintf(Lang::$txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
+				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl]),
 				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
 				'offset' => $row['time_offset'],
 				'regularity' => $row['time_regularity'],
-				'offset_formatted' => date('H:i', $row['time_offset']),
+				'offset_formatted' => date('H:i', (int) $row['time_offset']),
 				'unit' => $row['time_unit'],
 			];
 		}
@@ -462,10 +463,13 @@ class Tasks implements ActionInterface
 						'value' => Lang::$txt['scheduled_log_time_taken'],
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => Lang::$txt['scheduled_log_time_taken_seconds'],
+						'getTxt' => [
+							'format' => 'scheduled_log_time_taken_seconds',
 							'params' => [
-								'time_taken' => false,
+								0 => [
+									'column' => 'time_taken',
+									'htmlspecialchars' => false,
+								],
 							],
 						],
 					],
@@ -541,28 +545,6 @@ class Tasks implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for this admin area.
 	 *
 	 * @return array $config_vars for the scheduled tasks area.
@@ -588,7 +570,7 @@ class Tasks implements ActionInterface
 	 * @param string $sort A string indicating how to sort things (not used here)
 	 * @return array An array of information about available scheduled tasks
 	 */
-	public static function list_getScheduledTasks($start, $items_per_page, $sort): array
+	public static function list_getScheduledTasks(int $start, int $items_per_page, string $sort): array
 	{
 		$known_tasks = [];
 
@@ -602,15 +584,15 @@ class Tasks implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Find the next for regularity - don't offset as it's always server time!
-			$offset = sprintf(Lang::$txt['scheduled_task_reg_starting'], date('H:i', $row['time_offset']));
+			$offset = Lang::getTxt('scheduled_task_reg_starting', ['time' => date('H:i', (int) $row['time_offset'])]);
 
-			$repeating = sprintf(Lang::$txt['scheduled_task_reg_repeating'], $row['time_regularity'], Lang::$txt['scheduled_task_reg_unit_' . $row['time_unit']]);
+			$repeating = Lang::getTxt('scheduled_task_reg_repeating', $row);
 
 			$known_tasks[] = [
 				'id' => $row['id_task'],
 				'function' => $row['task'],
 				'name' => Lang::$txt['scheduled_task_' . $row['task']] ?? $row['task'],
-				'desc' => isset(Lang::$txt['scheduled_task_desc_' . $row['task']]) ? sprintf(Lang::$txt['scheduled_task_desc_' . $row['task']], Config::$scripturl) : '',
+				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl]),
 				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
 				'checked_state' => $row['disabled'] ? '' : 'checked',
@@ -630,7 +612,7 @@ class Tasks implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array of info about task log entries
 	 */
-	public static function list_getTaskLogEntries($start, $items_per_page, $sort): array
+	public static function list_getTaskLogEntries(int $start, int $items_per_page, string $sort): array
 	{
 		$log_entries = [];
 
@@ -678,54 +660,7 @@ class Tasks implements ActionInterface
 		list($num_entries) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $num_entries;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the tasks sub-action.
-	 */
-	public static function scheduledTasks(): void
-	{
-		self::load();
-		self::$obj->subaction = 'tasks';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the taskedit sub-action.
-	 */
-	public static function editTask(): void
-	{
-		self::load();
-		self::$obj->subaction = 'taskedit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the tasklog sub-action.
-	 */
-	public static function taskLog(): void
-	{
-		self::load();
-		self::$obj->subaction = 'tasklog';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function taskSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
+		return (int) $num_entries;
 	}
 
 	/******************
@@ -737,43 +672,12 @@ class Tasks implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('ManageScheduledTasks');
-		Theme::loadTemplate('ManageScheduledTasks');
-
-		// Tab data might already be set if this was called from Logs::execute().
-		if (empty(Menu::$loaded['admin']->tab_data)) {
-			// Now for the lovely tabs. That we all love.
-			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['scheduled_tasks_title'],
-				'help' => '',
-				'description' => Lang::$txt['maintain_info'],
-				'tabs' => [
-					'tasks' => [
-						'description' => Lang::$txt['maintain_tasks_desc'],
-					],
-					'tasklog' => [
-						'description' => Lang::$txt['scheduled_log_desc'],
-					],
-					'settings' => [
-						'description' => Lang::$txt['scheduled_tasks_settings_desc'],
-					],
-				],
-			];
-		}
-
 		IntegrationHook::call('integrate_manage_scheduled_tasks', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Tasks::exportStatic')) {
-	Tasks::exportStatic();
 }
 
 ?>

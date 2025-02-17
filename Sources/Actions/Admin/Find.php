@@ -5,22 +5,25 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\PackageManager\XmlArray;
+use SMF\Sapi;
 use SMF\User;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
@@ -30,18 +33,7 @@ use SMF\WebFetch\WebFetchApi;
  */
 class Find implements ActionInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'AdminSearch',
-		],
-	];
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -82,6 +74,7 @@ class Find implements ActionInterface
 		[__NAMESPACE__ . '\\Boards::getConfigVars', 'area=manageboards;sa=settings'],
 		[__NAMESPACE__ . '\\Mail::getConfigVars', 'area=mailqueue;sa=settings'],
 		[__NAMESPACE__ . '\\News::getConfigVars', 'area=news;sa=settings'],
+		[__NAMESPACE__ . '\\Members::getConfigVars', 'area=viewmembers;sa=settings'],
 		[__NAMESPACE__ . '\\Membergroups::getConfigVars', 'area=membergroups;sa=settings'],
 		[__NAMESPACE__ . '\\Permissions::getConfigVars', 'area=permissions;sa=settings'],
 		[__NAMESPACE__ . '\\Posts::postConfigVars', 'area=postsettings;sa=posts'],
@@ -109,7 +102,7 @@ class Find implements ActionInterface
 	 *
 	 * Load a lot of language files.
 	 *
-	 * MOD AUTHORS: If your mod uses it's own language file for its settings,
+	 * MOD AUTHORS: If your mod uses its own language file for its settings,
 	 * add the language file to this array via the integrate_admin_search hook.
 	 */
 	public array $language_files = [
@@ -152,18 +145,6 @@ class Find implements ActionInterface
 		'member' => 'member',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -203,10 +184,10 @@ class Find implements ActionInterface
 	/**
 	 * A complicated but relatively quick internal search.
 	 */
-	public function internal()
+	public function internal(): void
 	{
 		// Try to get some more memory.
-		Config::setMemoryLimit('128M');
+		Sapi::setMemoryLimit('128M');
 
 		IntegrationHook::call('integrate_admin_search', [&$this->language_files, &$this->include_files, &$this->settings_search]);
 
@@ -296,7 +277,7 @@ class Find implements ActionInterface
 					$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
 
 					Utils::$context['search_results'][] = [
-						'url' => (substr($item[1], 0, 4) == 'area' ? Config::$scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ((substr($item[1], 0, 4) == 'area' && $section == 'settings' ? '#' . $item[0][0] : '')),
+						'url' => (str_starts_with($item[1], 'area') ? Config::$scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ((str_starts_with($item[1], 'area') && $section == 'settings' ? '#' . $item[0][0] : '')),
 						'name' => $name,
 						'type' => $section,
 						'help' => Utils::shorten(isset($item[2]) ? strip_tags(Lang::$helptxt[$item[2]]) : (isset(Lang::$helptxt[$found]) ? strip_tags(Lang::$helptxt[$found]) : ''), 255),
@@ -310,7 +291,7 @@ class Find implements ActionInterface
 	 * All this does is pass through to manage members.
 	 * {@see ViewMembers()}
 	 */
-	public function member()
+	public function member(): void
 	{
 		$_REQUEST['sa'] = 'query';
 
@@ -323,7 +304,7 @@ class Find implements ActionInterface
 	/**
 	 * This file allows the user to search the SM online manual for a little of help.
 	 */
-	public function online()
+	public function online(): void
 	{
 		Utils::$context['doc_apiurl'] = 'https://wiki.simplemachines.org/api.php';
 		Utils::$context['doc_scripturl'] = 'https://wiki.simplemachines.org/smf/';
@@ -376,32 +357,6 @@ class Find implements ActionInterface
 		}
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -413,11 +368,6 @@ class Find implements ActionInterface
 	{
 		$this->subaction = !isset($_REQUEST['search_type']) || !isset(self::$subactions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Find::exportStatic')) {
-	Find::exportStatic();
 }
 
 ?>

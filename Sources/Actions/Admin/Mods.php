@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -27,18 +30,9 @@ use SMF\Utils;
  */
 class Mods implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'modifyModSettings' => 'ModifyModSettings',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -65,18 +59,6 @@ class Mods implements ActionInterface
 		'general' => 'general',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -86,6 +68,22 @@ class Mods implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('Help');
+		Lang::load('ManageSettings');
+
+		Utils::$context['page_title'] = Lang::$txt['admin_modifications'];
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['admin_modifications'],
+			'help' => 'modsettings',
+			'description' => Lang::$txt['modification_settings_desc'],
+			'tabs' => [
+				'general' => [
+				],
+			],
+		];
+
 		// You need to be an admin to edit settings!
 		User::$me->isAllowedTo('admin_forum');
 
@@ -145,28 +143,6 @@ class Mods implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for the general sub-action.
 	 *
 	 * @return array $config_vars for the general sub-action.
@@ -185,22 +161,6 @@ class Mods implements ActionInterface
 		return $config_vars;
 	}
 
-	/**
-	 * Backward compatibility wrapper.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyModSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -210,22 +170,6 @@ class Mods implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('Help');
-		Lang::load('ManageSettings');
-
-		Utils::$context['page_title'] = Lang::$txt['admin_modifications'];
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['admin_modifications'],
-			'help' => 'modsettings',
-			'description' => Lang::$txt['modification_settings_desc'],
-			'tabs' => [
-				'general' => [
-				],
-			],
-		];
-
 		// Make it easier for mods to add new areas.
 		IntegrationHook::call('integrate_modify_modifications', [&self::$subactions]);
 
@@ -233,11 +177,6 @@ class Mods implements ActionInterface
 			$this->subaction = $_REQUEST['sa'];
 		}
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Mods::exportStatic')) {
-	Mods::exportStatic();
 }
 
 ?>

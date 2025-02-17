@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Lang;
@@ -81,7 +81,7 @@ function template_main()
 				<p class="noticebox">', Utils::$context['notice'], '</p>
 				<dl class="settings" id="report_post">
 					<dt>
-						<label for="report_comment">', Lang::$txt['enter_comment'], '</label>:
+						<label for="report_comment">', Lang::$txt['enter_comment'], '</label>
 					</dt>
 					<dd>
 						<textarea type="text" id="report_comment" name="comment" maxlength="254">', Utils::$context['comment_body'], '</textarea>

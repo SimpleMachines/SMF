@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Subscriptions\PayPal;
 
@@ -32,7 +34,7 @@ class Payment
 	 *
 	 * @return bool Whether this gateway things the data is valid
 	 */
-	public function isValid()
+	public function isValid(): bool
 	{
 		// Has the user set up an email address?
 		if ((empty(Config::$modSettings['paidsubs_test']) && empty(Config::$modSettings['paypal_email'])) || (!empty(Config::$modSettings['paidsubs_test']) && empty(Config::$modSettings['paypal_sandbox_email']))) {
@@ -67,7 +69,7 @@ class Payment
 	 *
 	 * @return string A string containing the subscription ID and member ID, separated by a +
 	 */
-	public function precheck()
+	public function precheck(): string
 	{
 		// Put this to some default value.
 		if (!isset($_POST['txn_type'])) {
@@ -156,11 +158,11 @@ class Payment
 
 		// Is this a subscription - and if so is it a secondary payment that we need to process?
 		// If so, make sure we get it in the expected format. Seems PayPal sometimes sends it without urlencoding.
-		if (!empty($_POST['item_number']) && strpos($_POST['item_number'], ' ') !== false) {
+		if (!empty($_POST['item_number']) && str_contains($_POST['item_number'], ' ')) {
 			$_POST['item_number'] = str_replace(' ', '+', $_POST['item_number']);
 		}
 
-		if ($this->isSubscription() && (empty($_POST['item_number']) || strpos($_POST['item_number'], '+') === false)) {
+		if ($this->isSubscription() && (empty($_POST['item_number']) || !str_contains($_POST['item_number'], '+'))) {
 			// Calculate the subscription it relates to!
 			$this->_findSubscription();
 		}
@@ -176,7 +178,7 @@ class Payment
 		}
 
 		// Return the id_sub and id_member
-		return explode('+', $_POST['item_number']);
+		return (string) explode('+', $_POST['item_number']);
 	}
 
 	/**
@@ -184,7 +186,7 @@ class Payment
 	 *
 	 * @return bool Whether this is a refund
 	 */
-	public function isRefund()
+	public function isRefund(): bool
 	{
 		return (bool) ($_POST['payment_status'] === 'Refunded' || $_POST['payment_status'] === 'Reversed' || $_POST['txn_type'] === 'Refunded' || ($_POST['txn_type'] === 'reversal' && $_POST['payment_status'] === 'Completed'));
 	}
@@ -194,9 +196,9 @@ class Payment
 	 *
 	 * @return bool Whether this is a subscription
 	 */
-	public function isSubscription()
+	public function isSubscription(): bool
 	{
-		return (bool) (substr($_POST['txn_type'], 0, 14) === 'subscr_payment' && $_POST['payment_status'] === 'Completed');
+		return (bool) (str_starts_with($_POST['txn_type'], 'subscr_payment') && $_POST['payment_status'] === 'Completed');
 	}
 
 	/**
@@ -204,7 +206,7 @@ class Payment
 	 *
 	 * @return bool Whether this is a normal payment
 	 */
-	public function isPayment()
+	public function isPayment(): bool
 	{
 		return (bool) ($_POST['payment_status'] === 'Completed' && $_POST['txn_type'] === 'web_accept');
 	}
@@ -214,12 +216,12 @@ class Payment
 	 *
 	 * @return bool Whether this is a cancellation
 	 */
-	public function isCancellation()
+	public function isCancellation(): bool
 	{
 		// subscr_cancel is sent when the user cancels, subscr_eot is sent when the subscription reaches final payment
 		// Neither require us to *do* anything as per performCancel().
 		// subscr_eot, if sent, indicates an end of payments term.
-		return (bool) (substr($_POST['txn_type'], 0, 13) === 'subscr_cancel' || substr($_POST['txn_type'], 0, 10) === 'subscr_eot');
+		return (bool) (str_starts_with($_POST['txn_type'], 'subscr_cancel') || str_starts_with($_POST['txn_type'], 'subscr_eot'));
 	}
 
 	/**
@@ -229,7 +231,7 @@ class Payment
 	 * @param int $member_id
 	 * @param array $subscription_info
 	 */
-	public function performCancel($subscription_id, $member_id, $subscription_info)
+	public function performCancel(string $subscription_id, int $member_id, array $subscription_info): void
 	{
 		// PayPal doesn't require SMF to notify it every time the subscription is up for renewal.
 		// A cancellation should not cause the user to be immediately dropped from their subscription, but
@@ -242,7 +244,7 @@ class Payment
 	 *
 	 * @return float The amount paid
 	 */
-	public function getCost()
+	public function getCost(): float
 	{
 		return ($_POST['tax'] ?? 0) + $_POST['mc_gross'];
 	}
@@ -251,7 +253,7 @@ class Payment
 	 * Record the transaction reference to finish up.
 	 *
 	 */
-	public function close()
+	public function close(): void
 	{
 		global $subscription_id;
 
@@ -275,7 +277,7 @@ class Payment
 	 *
 	 * @return bool|void False on failure, otherwise just sets $_POST['item_number']
 	 */
-	private function _findSubscription()
+	private function _findSubscription(): bool
 	{
 		// Assume we have this?
 		if (empty($_POST['subscr_id'])) {
@@ -321,6 +323,8 @@ class Payment
 		list($member_id, $subscription_id) = Db::$db->fetch_row($request);
 		$_POST['item_number'] = $member_id . '+' . $subscription_id;
 		Db::$db->free_result($request);
+
+		return true;
 	}
 }
 

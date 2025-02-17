@@ -5,20 +5,25 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -27,32 +32,10 @@ use SMF\Utils;
  * This action handles restoring a topic from the recycle board back to its
  * original board.
  */
-class TopicRestore implements ActionInterface
+class TopicRestore implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RestoreTopic',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
+	use ActionRouter;
+	use ActionTrait;
 
 	/****************
 	 * Public methods
@@ -72,7 +55,7 @@ class TopicRestore implements ActionInterface
 		}
 
 		// Can we be in here?
-		User::$me->isAllowedTo('move_any', Config::$modSettings['recycle_board']);
+		User::$me->isAllowedTo('move_any', [Config::$modSettings['recycle_board']]);
 
 		$unfound_messages = [];
 		$topics_to_restore = [];
@@ -227,7 +210,7 @@ class TopicRestore implements ActionInterface
 				}
 
 				// Ok we got here so me move them from here to there.
-				Topic::move($row['id_topic'], $row['id_previous_board']);
+				Topic::move([$row['id_topic']], (int) $row['id_previous_board']);
 
 				// Lets see if the board that we are returning to has post count enabled.
 				$request2 = Db::$db->query(
@@ -258,7 +241,7 @@ class TopicRestore implements ActionInterface
 					);
 
 					while ($member = Db::$db->fetch_assoc($request2)) {
-						User::updateMemberData($member['id_member'], ['posts' => 'posts + ' . $member['post_count']]);
+						User::updateMemberData((int) $member['id_member'], ['posts' => 'posts + ' . $member['post_count']]);
 					}
 					Db::$db->free_result($request2);
 				}
@@ -278,43 +261,6 @@ class TopicRestore implements ActionInterface
 		Utils::redirectexit();
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -322,11 +268,11 @@ class TopicRestore implements ActionInterface
 	/**
 	 * Take a load of messages from one place and stick them in a topic
 	 *
-	 * @param array $msgs The IDs of the posts to merge
+	 * @param array|int $msgs The IDs of the posts to merge
 	 * @param int $from_topic The ID of the topic the messages were originally in
 	 * @param int $target_topic The ID of the topic the messages are being merged into
 	 */
-	protected static function mergePosts($msgs, $from_topic, $target_topic)
+	protected static function mergePosts(array|int $msgs, int $from_topic, int $target_topic): void
 	{
 		// !!! This really needs to be rewritten to take a load of messages from ANY topic, it's also inefficient.
 
@@ -594,11 +540,6 @@ class TopicRestore implements ActionInterface
 
 		Msg::updateLastMessages([$from_board, $target_board]);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\TopicRestore::exportStatic')) {
-	TopicRestore::exportStatic();
 }
 
 ?>

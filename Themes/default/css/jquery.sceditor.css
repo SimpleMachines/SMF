@@ -305,25 +305,33 @@ div.sceditor-smileyPopup, div.sceditor-dropdown {
 	box-shadow: 1px 2px 4px rgba(0, 0, 0, .2);
 	overflow-y: auto;
 }
-@media screen and (min-width: 1024px) {
-	div.sceditor-smileyPopup {
-		max-height: 50%;
-		width: 50%;
-		position: fixed;
-	}
-	#sceditor-popup {
-		height: 100%;
-	}
-	#sceditor-popup-smiley {
-		height: 90%;
-		overflow: auto;
-	}
+
+div.sceditor-smileyPopup {
+	top: unset;
+	left: 0;
+	right: 0;
+	transform: unset;
+	position: absolute;
+	min-height: 100px;
+	min-width: 250px;
+	margin-inline: auto;
+	display: flex;
+	box-sizing: border-box;
+	max-height: 215px;
+	max-width: 450px;
 }
-@media screen and (max-width: 1024px) {
-	div.sceditor-smileyPopup {
-		width: 90%;
-		position: absolute;
-	}
+div.sceditor-smileyPopup #sceditor-popup {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+}
+div.sceditor-smileyPopup #sceditor-popup div#sceditor-popup-smiley {
+	flex-grow: 1;
+	align-self: flex-start;
+}
+div.sceditor-smileyPopup #sceditor-popup span.button {
+	margin-top: 20px;
+	align-self: center;
 }
 /**
 	 * Dropdown styleing

@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 use SMF\Config;
@@ -41,13 +41,13 @@ function template_main()
 		{
 			echo '
 		<div class="information noup">
-			', sprintf(Lang::$txt['agreement_accepted'], Time::create('@' . Utils::$context['agreement_accepted_date'])->format(null, false)), '
+			', Lang::getTxt('agreement_accepted', ['date' => Time::create('@' . Utils::$context['agreement_accepted_date'])->format(null, false)]), '
 		</div>';
 		}
 
 		echo '
 		<div class="windowbg noup">
-			', Utils::$context['agreement'], '
+			', Utils::adjustHeadingLevels(Utils::$context['agreement'], 3), '
 		</div>';
 	}
 
@@ -69,13 +69,13 @@ function template_main()
 		{
 			echo '
 		<div class="information noup">
-			', sprintf(Lang::$txt['privacy_policy_accepted'], Time::create('@' . Utils::$context['privacy_policy_accepted_date'])->format(null, false)), '
+			', Lang::getTxt('privacy_policy_accepted', ['date' => Time::create('@' . Utils::$context['privacy_policy_accepted_date'])->format(null, false)]), '
 		</div>';
 		}
 
 		echo '
 		<div class="windowbg noup">
-			', Utils::$context['privacy_policy'], '
+			', Utils::adjustHeadingLevels(Utils::$context['privacy_policy'], 3), '
 		</div>';
 	}
 

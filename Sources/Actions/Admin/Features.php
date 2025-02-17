@@ -5,18 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Profile\Notification;
-use SMF\BackwardCompatibility;
-use SMF\BBCodeParser;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -25,7 +27,10 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
+use SMF\Parsers\MarkdownParser;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\TimeZone;
@@ -37,29 +42,9 @@ use SMF\Utils;
  */
 class Features implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ModifyFeatureSettings',
-			'list_getProfileFields' => 'list_getProfileFields',
-			'list_getProfileFieldSize' => 'list_getProfileFieldSize',
-			'modifyBasicSettings' => 'ModifyBasicSettings',
-			'modifyBBCSettings' => 'ModifyBBCSettings',
-			'modifyLayoutSettings' => 'ModifyLayoutSettings',
-			'modifySignatureSettings' => 'ModifySignatureSettings',
-			'showCustomProfiles' => 'ShowCustomProfiles',
-			'editCustomProfiles' => 'EditCustomProfiles',
-			'modifyLikesSettings' => 'ModifyLikesSettings',
-			'modifyMentionsSettings' => 'ModifyMentionsSettings',
-			'modifyAlertsSettings' => 'ModifyAlertsSettings',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -94,18 +79,6 @@ class Features implements ActionInterface
 		'alerts' => 'alerts',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -115,6 +88,8 @@ class Features implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		// You need to be an admin to edit settings!
 		User::$me->isAllowedTo('admin_forum');
 
@@ -153,8 +128,16 @@ class Features implements ActionInterface
 
 			IntegrationHook::call('integrate_save_basic_settings');
 
+			if (!empty($_POST['hide_index_php']) && !empty($_POST['queryless_urls'])) {
+				$_POST['hide_index_php'] = $this->addRewriteRule();
+
+				if (empty($_POST['hide_index_php'])) {
+					$htaccess_failed = true;
+				}
+			}
+
 			ACP::saveDBSettings($config_vars);
-			$_SESSION['adm-save'] = true;
+			$_SESSION['adm-save'] = !empty($htaccess_failed) ? Lang::$txt['queryless_hidden_index_htaccess'] : true;
 
 			// Do a bit of housekeeping
 			if (empty($_POST['minimize_files']) || $_POST['minimize_files'] != Config::$modSettings['minimize_files']) {
@@ -193,10 +176,14 @@ class Features implements ActionInterface
 		// Legacy BBC are listed separately, but we use the same info in both cases
 		Config::$modSettings['bbc_disabled_legacyBBC'] = Config::$modSettings['bbc_disabled_disabledBBC'];
 
+		// The Markdown settings for handling line breaks are actually a single bitmask.
+		Config::$modSettings['collapse_blank_lines'] = (int) !((Config::$modSettings['markdown_brs'] ?? 0) & MarkdownParser::BR_LINES);
+		Config::$modSettings['collapse_single_breaks'] = (int) !((Config::$modSettings['markdown_brs'] ?? 0) & MarkdownParser::BR_IN_PARAGRAPHS);
+
 		$extra = '';
 
 		if (isset($_REQUEST['cowsay'])) {
-			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => sprintf(Lang::$txt['groups_can_use'], '[cowsay]')];
+			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'])];
 			$extra = ';cowsay';
 		}
 
@@ -208,7 +195,7 @@ class Features implements ActionInterface
 			$bbcTags = [];
 			$bbcTagsChildren = [];
 
-			foreach (BBCodeParser::getCodes() as $tag) {
+			foreach (Parser::getBBCodes() as $tag) {
 				$bbcTags[] = $tag['tag'];
 
 				if (isset($tag['require_children'])) {
@@ -217,8 +204,8 @@ class Features implements ActionInterface
 			}
 
 			// Clean up tags with children
-			foreach($bbcTagsChildren as $parent_tag => $children) {
-				foreach($children as $index => $child_tag) {
+			foreach ($bbcTagsChildren as $parent_tag => $children) {
+				foreach ($children as $index => $child_tag) {
 					// Remove entries where parent and child tag is the same
 					if ($child_tag == $parent_tag) {
 						unset($bbcTagsChildren[$parent_tag][$index]);
@@ -266,6 +253,12 @@ class Features implements ActionInterface
 					return !isset($config_var[1]) || $config_var[1] != 'legacyBBC';
 				},
 			);
+
+			// Save the Markdown collapse_* settings as a bitmask.
+			$config_vars[] = ['int', 'markdown_brs'];
+			$_POST['markdown_brs'] = (!empty($_POST['collapse_blank_lines']) ? 0 : MarkdownParser::BR_LINES);
+			$_POST['markdown_brs'] |= (!empty($_POST['collapse_single_breaks']) ? 0 : MarkdownParser::BR_IN_PARAGRAPHS);
+			unset($_POST['collapse_blank_lines'], $_POST['collapse_single_breaks']);
 
 			IntegrationHook::call('integrate_save_bbc_settings', [$bbcTags]);
 
@@ -371,7 +364,7 @@ class Features implements ActionInterface
 
 					// Max characters...
 					if (!empty($sig_limits[1])) {
-						$sig = Utils::entitySubstr($sig, 0, $sig_limits[1]);
+						$sig = Utils::entitySubstr($sig, 0, (int) $sig_limits[1]);
 					}
 
 					// Max lines...
@@ -609,7 +602,7 @@ class Features implements ActionInterface
 			// Clean up the tag stuff!
 			$bbcTags = [];
 
-			foreach (BBCodeParser::getCodes() as $tag) {
+			foreach (Parser::getBBCodes() as $tag) {
 				$bbcTags[] = $tag['tag'];
 			}
 
@@ -657,7 +650,7 @@ class Features implements ActionInterface
 			];
 		} else {
 			Utils::$context['settings_message'] = [
-				'label' => sprintf(Lang::$txt['signature_settings_warning'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
+				'label' => Lang::getTxt('signature_settings_warning', ['session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]),
 				'tag' => 'div',
 				'class' => 'centertext',
 			];
@@ -815,11 +808,11 @@ class Features implements ActionInterface
 							$return = '<p class="centertext bold_text">';
 
 							if ($rowData['field_order'] > 1) {
-								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . Lang::$txt['custom_edit_order_move'] . ' ' . Lang::$txt['custom_edit_order_up'] . '"></span></a>';
+								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=up"><span class="toggle_up" title="' . Lang::$txt['custom_edit_order_move_up'] . '"></span></a>';
 							}
 
 							if ($rowData['field_order'] < Utils::$context['custFieldsMaxOrder']) {
-								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . Lang::$txt['custom_edit_order_move'] . ' ' . Lang::$txt['custom_edit_order_down'] . '"></span></a>';
+								$return .= '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=' . $rowData['id_field'] . ';move=down"><span class="toggle_down" title="' . Lang::$txt['custom_edit_order_move_down'] . '"></span></a>';
 							}
 
 							$return .= '</p>';
@@ -940,7 +933,7 @@ class Features implements ActionInterface
 	/**
 	 * Edit some profile fields?
 	 */
-	public function profileEdit()
+	public function profileEdit(): void
 	{
 		// Sort out the context!
 		Utils::$context['fid'] = isset($_GET['fid']) ? (int) $_GET['fid'] : 0;
@@ -1001,7 +994,7 @@ class Features implements ActionInterface
 					'private' => $row['private'],
 					'can_search' => $row['can_search'],
 					'mask' => $row['mask'],
-					'regex' => substr($row['mask'], 0, 5) == 'regex' ? substr($row['mask'], 5) : '',
+					'regex' => str_starts_with($row['mask'], 'regex') ? substr($row['mask'], 5) : '',
 					'enclose' => $row['enclose'],
 					'placement' => $row['placement'],
 				];
@@ -1052,7 +1045,7 @@ class Features implements ActionInterface
 				[],
 			);
 
-			while($row = Db::$db->fetch_assoc($request)) {
+			while ($row = Db::$db->fetch_assoc($request)) {
 				$fields[] = $row['id_field'];
 			}
 			Db::$db->free_result($request);
@@ -1342,18 +1335,48 @@ class Features implements ActionInterface
 					'',
 					'{db_prefix}custom_fields',
 					[
-						'col_name' => 'string', 'field_name' => 'string', 'field_desc' => 'string',
-						'field_type' => 'string', 'field_length' => 'string', 'field_options' => 'string', 'field_order' => 'int',
-						'show_reg' => 'int', 'show_display' => 'int', 'show_mlist' => 'int', 'show_profile' => 'string',
-						'private' => 'int', 'active' => 'int', 'default_value' => 'string', 'can_search' => 'int',
-						'bbc' => 'int', 'mask' => 'string', 'enclose' => 'string', 'placement' => 'int',
+						'col_name' => 'string',
+						'field_name' => 'string',
+						'field_desc' => 'string',
+						'field_type' => 'string',
+						'field_length' => 'string',
+						'field_options' => 'string',
+						'field_order' => 'int',
+						'show_reg' => 'int',
+						'show_display' => 'int',
+						'show_mlist' => 'int',
+						'show_profile' => 'string',
+						'private' => 'int',
+						'active' => 'int',
+						'default_value' => 'string',
+						'can_search' => 'int',
+						'bbc' => 'int',
+						'mask' => 'string',
+						'enclose' => 'string',
+						'placement' => 'int',
 					],
 					[
-						$col_name, $_POST['field_name'], $_POST['field_desc'],
-						$_POST['field_type'], $field_length, $field_options, $new_order,
-						$show_reg, $show_display, $show_mlist, $show_profile,
-						$private, $active, $default, $can_search,
-						$bbc, $mask, $enclose, $placement,
+						[
+							$col_name,
+							$_POST['field_name'],
+							$_POST['field_desc'],
+							$_POST['field_type'],
+							$field_length,
+							$field_options,
+							$new_order,
+							$show_reg,
+							$show_display,
+							$show_mlist,
+							$show_profile,
+							$private,
+							$active,
+							$default,
+							$can_search,
+							$bbc,
+							$mask,
+							$enclose,
+							$placement,
+						],
 					],
 					['id_field'],
 				);
@@ -1498,7 +1521,7 @@ class Features implements ActionInterface
 	/**
 	 * Handles modifying the alerts settings.
 	 */
-	public function alerts()
+	public function alerts(): void
 	{
 		// Dummy settings for the template...
 		User::$me->is_owner = false;
@@ -1526,28 +1549,6 @@ class Features implements ActionInterface
 	/***********************
 	 * Public static methods
 	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
 
 	/**
 	 * Gets the configuration variables for the basic sub-action.
@@ -1603,8 +1604,20 @@ class Features implements ActionInterface
 			'',
 
 			// SEO stuff
-			['check', 'queryless_urls', 'subtext' => '<strong>' . Lang::$txt['queryless_urls_note'] . '</strong>'],
-			['text', 'meta_keywords', 'subtext' => Lang::$txt['meta_keywords_note'], 'size' => 50],
+			[
+				'check',
+				'queryless_urls',
+				'subtext' => '<strong>' . Lang::$txt['queryless_urls_note'] . '</strong>',
+				'disabled' => !Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED]),
+			],
+			[
+				'check',
+				'hide_index_php',
+				'subtext' => !Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED]) || (function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get_modules())) ? '<strong>' . Lang::$txt['hide_index_php_manual'] . '</strong>' : '',
+				// Disable only if we know for sure that it won't work.
+				'disabled' => function_exists('apache_get_modules') && !in_array('mod_rewrite', apache_get_modules()),
+			],
+			['check', 'use_ascii_slugs'],
 			'',
 
 			// Time zone and formatting.
@@ -1664,6 +1677,12 @@ class Features implements ActionInterface
 
 			// This one is actually pretend...
 			['bbc', 'legacyBBC', 'help' => 'legacy_bbc'],
+
+			// Markdown settings
+			['title', 'markdown_settings', 'text_label' => Lang::$txt['manageposts_markdown_settings_title']],
+			['check', 'enableMarkdown', 'onchange' => 'document.getElementById(\'collapse_blank_lines\').disabled = !this.checked; document.getElementById(\'collapse_single_breaks\').disabled = !this.checked;'],
+			['check', 'collapse_blank_lines', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
+			['check', 'collapse_single_breaks', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
 		];
 
 		// Permissions for restricted BBC
@@ -1672,7 +1691,7 @@ class Features implements ActionInterface
 		}
 
 		foreach (Utils::$context['restricted_bbc'] as $bbc) {
-			$config_vars[] = ['permissions', 'bbc_' . $bbc, 'text_label' => sprintf(Lang::$txt['groups_can_use'], '[' . $bbc . ']')];
+			$config_vars[] = ['permissions', 'bbc_' . $bbc, 'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'])];
 		}
 
 		Utils::$context['settings_post_javascript'] = '
@@ -1794,7 +1813,7 @@ class Features implements ActionInterface
 	 * @param bool $standardFields Whether or not to include standard fields as well
 	 * @return array An array of info about the various profile fields
 	 */
-	public static function list_getProfileFields($start, $items_per_page, $sort, $standardFields): array
+	public static function list_getProfileFields(int $start, int $items_per_page, string $sort, bool $standardFields): array
 	{
 		$list = [];
 
@@ -1855,139 +1874,7 @@ class Features implements ActionInterface
 		list($numProfileFields) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $numProfileFields;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the basic sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyBasicSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::basicConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'basic';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the bbc sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyBBCSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::bbcConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'bbc';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the layout sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyLayoutSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::layoutConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'layout';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the sig sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifySignatureSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::sigConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'sig';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the profile sub-action.
-	 */
-	public static function showCustomProfiles(): void
-	{
-		self::load();
-		self::$obj->subaction = 'profile';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the profileedit sub-action.
-	 */
-	public static function editCustomProfiles(): void
-	{
-		self::load();
-		self::$obj->subaction = 'profileedit';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the likes sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyLikesSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::likesConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'likes';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the mentions sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyMentionsSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::mentionsConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'mentions';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the alerts sub-action.
-	 */
-	public static function modifyAlertsSettings(): void
-	{
-		self::load();
-		self::$obj->subaction = 'alerts';
-		self::$obj->execute();
+		return (int) $numProfileFields;
 	}
 
 	/******************
@@ -1999,6 +1886,18 @@ class Features implements ActionInterface
 	 */
 	protected function __construct()
 	{
+		IntegrationHook::call('integrate_modify_features', [&self::$subactions]);
+
+		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
+			$this->subaction = $_REQUEST['sa'];
+		}
+	}
+
+	/**
+	 * Does some initial setup.
+	 */
+	protected function init()
+	{
 		Lang::load('Help');
 		Lang::load('ManageSettings');
 
@@ -2009,7 +1908,7 @@ class Features implements ActionInterface
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::$txt['modSettings_title'],
 			'help' => 'featuresettings',
-			'description' => sprintf(Lang::$txt['modSettings_desc'], Theme::$current->settings['theme_id'], Utils::$context['session_id'], Utils::$context['session_var'], Config::$scripturl),
+			'description' => Lang::getTxt('modSettings_desc', ['theme_id' => Theme::$current->settings['theme_id'], 'session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]),
 			'tabs' => [
 				'basic' => [
 				],
@@ -2033,12 +1932,6 @@ class Features implements ActionInterface
 				],
 			],
 		];
-
-		IntegrationHook::call('integrate_modify_features', [&self::$subactions]);
-
-		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
-			$this->subaction = $_REQUEST['sa'];
-		}
 	}
 
 	/**
@@ -2047,11 +1940,8 @@ class Features implements ActionInterface
 	protected function pauseSignatureApplySettings(): void
 	{
 		// Try get more time...
-		@set_time_limit(600);
-
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
-		}
+		Sapi::setTimeLimit(600);
+		Sapi::resetTimeout();
 
 		// Have we exhausted all the time we allowed?
 		if (time() - array_sum(explode(' ', Utils::$context['sig_start'])) < 3) {
@@ -2096,11 +1986,68 @@ class Features implements ActionInterface
 
 		return (int) $order_count;
 	}
-}
 
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Features::exportStatic')) {
-	Features::exportStatic();
+	/**
+	 * Adds a rewrite rule to .htaccess to support queryless URLs that don't
+	 * include the index.php component of the path.
+	 *
+	 * Includes safety checks to see whether the rule is aleady present or not
+	 * and whether we can successfully add the rule.
+	 *
+	 * Note that the rule will be added the first time the admin enables both
+	 * the queryless_urls setting and the hide_index_php setting, but will not
+	 * be removed if the admin later disables either of those settings. This
+	 * ensures that external links pointing to queryless URLs without the
+	 * index.php component will still resolve after either setting is disabled.
+	 *
+	 * @return bool Whether the rewrite rule is now enabled.
+	 */
+	protected function addRewriteRule(): bool
+	{
+		if (
+			// Can't do this if we are not on a server that uses .htaccess.
+			!Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LITESPEED])
+			// Can't do this if mod_rewrite is disabled.
+			|| (
+				function_exists('apache_get_modules')
+				&& !in_array('mod_rewrite', apache_get_modules())
+			)
+		) {
+			return false;
+		}
+
+		$file = Config::$boarddir . DIRECTORY_SEPARATOR . '.htaccess';
+
+		$before = '# Start SMF queryless URLs' . "\n";
+
+		$rule = <<<END
+			RewriteEngine On
+			RewriteCond %{REQUEST_FILENAME} !-d
+			RewriteCond %{REQUEST_FILENAME} !-f
+			RewriteCond %{REQUEST_URI} !\bindex\.php\b [NC]
+			RewriteRule ^(.*) ./index\.php/$1
+
+			END;
+
+		$after = '# End SMF queryless URLs' . "\n";
+
+		$content = is_file($file) && is_readable($file) ? file_get_contents($file) : '';
+
+		// Don't add duplicate copies of the rule.
+		if (str_contains($content, $rule)) {
+			return true;
+		}
+
+		// Add the rule.
+		$new_content = ltrim(rtrim($content) . "\n\n") . $before . $rule . $after;
+
+		// Write to disk.
+		return Config::safeFileWrite(
+			file: $file,
+			data: $new_content,
+			backup_file: is_file($file) ? $file . '_' . (date_create('now UTC')->format('Ymd\THis\Z')) : null,
+		);
+	}
 }
 
 ?>

@@ -5,17 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Moderation\Posts as PostMod;
-use SMF\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
@@ -35,35 +38,9 @@ use SMF\Utils;
  */
 class Permissions implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ModifyPermissions',
-			'getPermissions' => 'getPermissions',
-			'setPermissionLevel' => 'setPermissionLevel',
-			'init_inline_permissions' => 'init_inline_permissions',
-			'theme_inline_permissions' => 'theme_inline_permissions',
-			'save_inline_permissions' => 'save_inline_permissions',
-			'loadPermissionProfiles' => 'loadPermissionProfiles',
-			'updateChildPermissions' => 'updateChildPermissions',
-			'loadIllegalPermissions' => 'loadIllegalPermissions',
-			'buildHidden' => 'buildHidden',
-			'permissionIndex' => 'PermissionIndex',
-			'permissionByBoard' => 'PermissionByBoard',
-			'modifyMembergroup' => 'ModifyMembergroup',
-			'modifyMembergroup2' => 'ModifyMembergroup2',
-			'setQuickGroups' => 'SetQuickGroups',
-			'modifyPostModeration' => 'ModifyPostModeration',
-			'editPermissionProfiles' => 'EditPermissionProfiles',
-			'generalPermissionSettings' => 'GeneralPermissionSettings',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -246,8 +223,8 @@ class Permissions implements ActionInterface
 	 *  - label: Indicates the Lang::$txt string to use as the generic label for
 	 *         this permission. Defaults to 'permissionname_' . generic_name.
 	 *
-	 *  - vsprintf: Arguments passed to vsprintf() at runtime to generate the
-	 *        finalized form of the label string.
+	 *  - vsprintf: Arguments passed to Lang::formatText() at runtime to generate
+	 *        the finalized form of the label string.
 	 *
 	 *  - never_guests: If true, this permission can never be granted to guests.
 	 *
@@ -712,6 +689,12 @@ class Permissions implements ActionInterface
 			'scope' => 'global',
 			'never_guests' => true,
 		],
+		'profile_gravatar' => [
+			'view_group' => 'profile',
+			'scope' => 'global',
+			'group_level' => self::GROUP_LEVEL_STANDARD,
+			'never_guests' => true,
+		],
 		'profile_identity_own' => [
 			'generic_name' => 'profile_identity',
 			'own_any' => 'own',
@@ -940,14 +923,6 @@ class Permissions implements ActionInterface
 	 */
 	protected static array $illegal = [];
 
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -962,6 +937,33 @@ class Permissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Lang::load('ManagePermissions+ManageMembers');
+		Theme::loadTemplate('ManagePermissions');
+
+		// Create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::$txt['permissions_title'],
+			'help' => 'permissions',
+			'description' => '',
+			'tabs' => [
+				'index' => [
+					'description' => Lang::$txt['permissions_groups'],
+				],
+				'board' => [
+					'description' => Lang::$txt['permission_by_board_desc'],
+				],
+				'profiles' => [
+					'description' => Lang::$txt['permissions_profiles_desc'],
+				],
+				'postmod' => [
+					'description' => Lang::$txt['permissions_post_moderation_desc'],
+				],
+				'settings' => [
+					'description' => Lang::$txt['permission_settings_desc'],
+				],
+			],
+		];
+
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
 		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
@@ -1390,7 +1392,7 @@ class Permissions implements ActionInterface
 			if (isset(Utils::$context['profiles'][$row['id_profile']])) {
 				Utils::$context['profiles'][$row['id_profile']]['in_use'] = true;
 				Utils::$context['profiles'][$row['id_profile']]['boards'] = $row['board_count'];
-				Utils::$context['profiles'][$row['id_profile']]['boards_text'] = $row['board_count'] > 1 ? sprintf(Lang::$txt['permissions_profile_used_by_many'], $row['board_count']) : Lang::$txt['permissions_profile_used_by_' . ($row['board_count'] ? 'one' : 'none')];
+				Utils::$context['profiles'][$row['id_profile']]['boards_text'] = Lang::getTxt('permissions_profile_used_by_count', [$row['board_count']]);
 			}
 		}
 		Db::$db->free_result($request);
@@ -1598,28 +1600,6 @@ class Permissions implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for this admin area.
 	 *
 	 * @return array $config_vars for the permissions area.
@@ -1732,6 +1712,11 @@ class Permissions implements ActionInterface
 			self::$permissions['mention']['hidden'] = true;
 		}
 
+		// If Gravatars are disabled, disable the related permission.
+		if (empty(Config::$modSettings['gravatarEnabled'])) {
+			self::$permissions['profile_gravatar']['hidden'] = true;
+		}
+
 		// Finalize various values.
 		foreach (self::$permissions as $permission => &$perm_info) {
 			$perm_info['generic_name'] = $perm_info['generic_name'] ?? $permission;
@@ -1744,7 +1729,7 @@ class Permissions implements ActionInterface
 
 			// Do we need to dynamically generate the label string?
 			if (!empty($perm_info['vsprintf'])) {
-				Lang::$txt[$perm_info['label']] = vsprintf(Lang::$txt[$perm_info['vsprintf'][0]] ?? $perm_info['vsprintf'][0], $perm_info['vsprintf'][1]);
+				Lang::$txt[$perm_info['label']] = Lang::formatText(Lang::$txt[$perm_info['vsprintf'][0]] ?? $perm_info['vsprintf'][0], $perm_info['vsprintf'][1]);
 			}
 		}
 
@@ -1758,7 +1743,7 @@ class Permissions implements ActionInterface
 	 * @param int $group The group to set the permission for
 	 * @param string|int $profile The ID of the permissions profile or 'null' if we're setting it for a group
 	 */
-	public static function setPermissionLevel($level, $group, $profile = 'null'): void
+	public static function setPermissionLevel(string $level, int $group, string|int $profile = 'null'): void
 	{
 		self::loadIllegalPermissions();
 		self::loadIllegalGuestPermissions();
@@ -2017,7 +2002,7 @@ class Permissions implements ActionInterface
 	 * Uses ManagePermissions language
 	 * Uses ManagePermissions template
 	 */
-	public static function init_inline_permissions($permissions, $excluded_groups = []): void
+	public static function init_inline_permissions(array $permissions, array $excluded_groups = []): void
 	{
 		Lang::load('ManagePermissions');
 		Theme::loadTemplate('ManagePermissions');
@@ -2052,7 +2037,7 @@ class Permissions implements ActionInterface
 			Group::load([], $query_customizations),
 		);
 
-		Group::loadPermissionsBatch(array_map(fn ($group) => $group->id, $groups), 0);
+		Group::loadPermissionsBatch(array_map(fn($group) => $group->id, $groups), 0);
 
 		foreach ($permissions as $permission) {
 			foreach ($groups as $group) {
@@ -2126,7 +2111,7 @@ class Permissions implements ActionInterface
 	 *
 	 * @param string $permission The permission to display inline
 	 */
-	public static function theme_inline_permissions($permission): void
+	public static function theme_inline_permissions(string $permission): void
 	{
 		Utils::$context['current_permission'] = $permission;
 		Utils::$context['member_groups'] = Utils::$context[$permission];
@@ -2139,7 +2124,7 @@ class Permissions implements ActionInterface
 	 *
 	 * @param array $permissions The permissions to save
 	 */
-	public static function save_inline_permissions($permissions): void
+	public static function save_inline_permissions(array $permissions): void
 	{
 		// No permissions? Not a great deal to do here.
 		if (!User::$me->allowedTo('manage_permissions')) {
@@ -2243,10 +2228,10 @@ class Permissions implements ActionInterface
 	 *
 	 * @param int|array $parents The parent groups.
 	 * @param int $profile The ID of a permissions profile to update
-	 * @return void|false Returns nothing if successful or false if there are no
+	 * @return bool Returns true if successful or false if there are no
 	 *    child groups to update.
 	 */
-	public static function updateChildPermissions(int|array|null $parents = null, ?int $profile = null)
+	public static function updateChildPermissions(int|array|null $parents = null, ?int $profile = null): bool
 	{
 		// All the parent groups to sort out.
 		$parents = array_unique(array_map('intval', (array) $parents));
@@ -2263,7 +2248,7 @@ class Permissions implements ActionInterface
 			$child_groups = array_merge($child_groups, array_keys($parent_group->children));
 		}
 
-		$parents = array_map(fn ($parent_group) => $parent_group->id, $parent_groups);
+		$parents = array_map(fn($parent_group) => $parent_group->id, $parent_groups);
 
 		// Not a sausage, or a child?
 		if (empty($children)) {
@@ -2363,6 +2348,8 @@ class Permissions implements ActionInterface
 				);
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -2405,92 +2392,6 @@ class Permissions implements ActionInterface
 		Utils::$context['hidden_permissions'] = self::$hidden;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the index sub-action.
-	 */
-	public static function permissionIndex(): void
-	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the board sub-action.
-	 */
-	public static function permissionByBoard(): void
-	{
-		self::load();
-		self::$obj->subaction = 'board';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the modify sub-action.
-	 */
-	public static function modifyMembergroup(): void
-	{
-		self::load();
-		self::$obj->subaction = 'modify';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the modify2 sub-action.
-	 */
-	public static function modifyMembergroup2(): void
-	{
-		self::load();
-		self::$obj->subaction = 'modify2';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the quick sub-action.
-	 */
-	public static function setQuickGroups(): void
-	{
-		self::load();
-		self::$obj->subaction = 'quick';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the postmod sub-action.
-	 */
-	public static function modifyPostModeration(): void
-	{
-		self::load();
-		self::$obj->subaction = 'postmod';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the profiles sub-action.
-	 */
-	public static function editPermissionProfiles(): void
-	{
-		self::load();
-		self::$obj->subaction = 'profiles';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the settings sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function generalPermissionSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'settings';
-		self::$obj->execute();
-	}
 
 	/******************
 	 * Internal methods
@@ -2501,33 +2402,6 @@ class Permissions implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('ManagePermissions+ManageMembers');
-		Theme::loadTemplate('ManagePermissions');
-
-		// Create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['permissions_title'],
-			'help' => 'permissions',
-			'description' => '',
-			'tabs' => [
-				'index' => [
-					'description' => Lang::$txt['permissions_groups'],
-				],
-				'board' => [
-					'description' => Lang::$txt['permission_by_board_desc'],
-				],
-				'profiles' => [
-					'description' => Lang::$txt['permissions_profiles_desc'],
-				],
-				'postmod' => [
-					'description' => Lang::$txt['permissions_post_moderation_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['permission_settings_desc'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_permissions', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -2580,7 +2454,7 @@ class Permissions implements ActionInterface
 			];
 		}
 
-		Group::countPermissionsBatch(array_keys(Utils::$context['groups']), $_REQUEST['pid'] ?? null);
+		Group::countPermissionsBatch(array_keys(Utils::$context['groups']), isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : null);
 	}
 
 	/**
@@ -3074,7 +2948,7 @@ class Permissions implements ActionInterface
 
 		Db::$db->free_result($request);
 
-		return $parent;
+		return (int) $parent;
 	}
 
 	/**
@@ -3188,7 +3062,9 @@ class Permissions implements ActionInterface
 				'profile_name' => 'string',
 			],
 			[
-				$_POST['profile_name'],
+				[
+					$_POST['profile_name'],
+				],
 			],
 			['id_profile'],
 			1,
@@ -3437,7 +3313,11 @@ class Permissions implements ActionInterface
 		// Find the permissions that guests may never have.
 		foreach (self::getPermissions() as $permission => $perm_info) {
 			if (!empty($perm_info['never_guests'])) {
-				self::$never_guests[] = $perm_info['generic_name'];
+				self::$never_guests[] = $permission;
+
+				if (isset($perm_info['generic_name'])) {
+					self::$never_guests[] = $perm_info['generic_name'];
+				}
 			}
 		}
 
@@ -3499,7 +3379,7 @@ class Permissions implements ActionInterface
 	 * @param bool $reload Before acting, refresh the list of membergroups who
 	 *    cannot be granted the bbc_html permission
 	 */
-	protected static function removeIllegalBBCHtmlPermission($reload = false): void
+	protected static function removeIllegalBBCHtmlPermission(bool $reload = false): void
 	{
 		if (empty(self::$excluded['bbc_html']) || $reload) {
 			self::loadIllegalBBCHtmlGroups();
@@ -3563,6 +3443,9 @@ class Permissions implements ActionInterface
 		}
 
 		// Provide a practical way to modify permissions.
+		self::$permission_groups['membergroup'] = &self::$permission_groups['global'];
+		$permissions_by_scope['membergroup'] = &$permissions_by_scope['global'];
+
 		IntegrationHook::call('integrate_load_permissions', [&self::$permission_groups, &$permissions_by_scope, &self::$left_permission_groups, &$hidden_permissions, &$relabel_permissions]);
 
 		// If the hook made changes, sync them back to our master list.
@@ -3637,7 +3520,7 @@ class Permissions implements ActionInterface
 		IntegrationHook::call('integrate_load_illegal_permissions');
 
 		// If the hook added anything, sync that back to our master list.
-		// Because this hook can't tell us what the prerequistes are, we assume
+		// Because this hook can't tell us what the prerequisites are, we assume
 		// that the permission can only be granted by admins.
 		if ($temp != Utils::jsonEncode(self::$illegal)) {
 			foreach (self::$illegal as $permission) {
@@ -3698,11 +3581,6 @@ class Permissions implements ActionInterface
 		// We don't need this anymore.
 		unset(Utils::$context['non_guest_permissions']);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Permissions::exportStatic')) {
-	Permissions::exportStatic();
 }
 
 ?>

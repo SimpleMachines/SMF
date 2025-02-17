@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Tasks;
 
@@ -28,8 +30,9 @@ class RemoveTempAttachments extends ScheduledTask
 	 * This executes the task.
 	 *
 	 * @return bool Always returns true.
+	 * @todo PHP 8.2: This can be changed to return type: true.
 	 */
-	public function execute()
+	public function execute(): bool
 	{
 		// We need to know where this thing is going.
 		if (!empty(Config::$modSettings['currentAttachmentUploadDir'])) {
@@ -50,9 +53,9 @@ class RemoveTempAttachments extends ScheduledTask
 				Theme::loadEssential();
 				Lang::load('Post');
 
-				Utils::$context['scheduled_errors']['remove_temp_attachments'][] = Lang::$txt['cant_access_upload_path'] . ' (' . $attach_dir . ')';
+				Utils::$context['scheduled_errors']['remove_temp_attachments'][] = Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir]);
 
-				ErrorHandler::log(Lang::$txt['cant_access_upload_path'] . ' (' . $attach_dir . ')', 'critical');
+				ErrorHandler::log(Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir]), 'critical');
 
 				return true;
 			}
@@ -62,7 +65,7 @@ class RemoveTempAttachments extends ScheduledTask
 					continue;
 				}
 
-				if (strpos($file, 'post_tmp_') !== false) {
+				if (str_contains($file, 'post_tmp_')) {
 					// Temp file is more than 5 hours old!
 					if (filemtime($attach_dir . '/' . $file) < time() - 18000) {
 						@unlink($attach_dir . '/' . $file);

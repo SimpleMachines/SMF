@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -18,24 +20,7 @@ namespace SMF;
  */
 class Time extends \DateTime implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'create' => 'create',
-			'strftime' => 'smf_strftime',
-			'gmstrftime' => 'smf_gmstrftime',
-			'getDateOrTimeFormat' => 'get_date_or_time_format',
-			'timeformat' => 'timeformat',
-			'forumTime' => 'forum_time',
-		],
-	];
 
 	/*****************
 	 * Class constants
@@ -166,6 +151,13 @@ class Time extends \DateTime implements \ArrayAccess
 	 */
 	protected static array $today;
 
+	/**
+	 * @var string
+	 *
+	 * Regular expression to match all keywords recognized by PHP's date parser.
+	 */
+	protected static string $parsable_words_regex;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -202,12 +194,30 @@ class Time extends \DateTime implements \ArrayAccess
 			unset($timezone);
 		}
 
-		parent::__construct($datetime, $timezone ?? self::$user_tz);
+		$datetime = self::sanitize($datetime);
 
-		// If $datetime was a Unix timestamp, force the time zone to be the one we were told to use.
-		// Honestly, it's a mystery why the \DateTime class doesn't do this itself already...
 		if (str_starts_with($datetime, '@')) {
+			$datetime = '@' . min(max((int) ltrim($datetime, '@'), PHP_INT_MIN), PHP_INT_MAX);
+		}
+
+		if (
+			// If $datetime was a Unix timestamp, set the time zone to the one
+			// we were told to use. Honestly, it's a mystery why the \DateTime
+			// class doesn't do this itself already...
+			str_starts_with($datetime, '@')
+			// In some versions of PHP, unexpected results may be produced if
+			// $datetime contains the special 'now' or 'ago' keywords and also
+			// contains a time zone ID string (e.g. 'now Europe/Paris'), but
+			// that time zone ID string is different than the one in $timezone.
+			// In order to avoid problems, we use two steps when the 'now' or
+			// 'ago' keywords are present.
+			|| str_contains($datetime, 'now')
+			|| str_contains($datetime, 'ago')
+		) {
+			parent::__construct($datetime);
 			$this->setTimezone($timezone ?? self::$user_tz);
+		} else {
+			parent::__construct($datetime, $timezone ?? self::$user_tz);
 		}
 	}
 
@@ -217,7 +227,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 * @param string $prop The property name.
 	 * @param mixed $value The value to set.
 	 */
-	public function __set(string $prop, $value): void
+	public function __set(string $prop, mixed $value): void
 	{
 		switch ($prop) {
 			case 'datetime':
@@ -239,23 +249,23 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'year':
 				$this->setDate(
 					(int) $value,
-					$this->format('m', false, false),
-					$this->format('d', false, false),
+					(int) $this->format('m', false, false),
+					(int) $this->format('d', false, false),
 				);
 				break;
 
 			case 'month':
 				$this->setDate(
-					$this->format('Y', false, false),
+					(int) $this->format('Y', false, false),
 					(int) $value,
-					$this->format('d', false, false),
+					(int) $this->format('d', false, false),
 				);
 				break;
 
 			case 'day':
 				$this->setDate(
-					$this->format('Y', false, false),
-					$this->format('m', false, false),
+					(int) $this->format('Y', false, false),
+					(int) $this->format('m', false, false),
 					(int) $value,
 				);
 				break;
@@ -263,30 +273,30 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'hour':
 				$this->setTime(
 					(int) $value,
-					$this->format('i', false, false),
-					$this->format('s', false, false),
+					(int) $this->format('i', false, false),
+					(int) $this->format('s', false, false),
 				);
 				break;
 
 			case 'minute':
 				$this->setTime(
-					$this->format('H', false, false),
+					(int) $this->format('H', false, false),
 					(int) $value,
-					$this->format('s', false, false),
+					(int) $this->format('s', false, false),
 				);
 				break;
 
 			case 'second':
 				$this->setTime(
-					$this->format('H', false, false),
-					$this->format('i', false, false),
+					(int) $this->format('H', false, false),
+					(int) $this->format('i', false, false),
 					(int) $value,
 				);
 				break;
 
 			case 'iso_gmdate':
 				$tz = $this->getTimezone();
-				$this->setTimezone(timezone_open('UTC'));
+				$this->setTimezone(new \DateTimeZone('UTC'));
 				$this->modify($value);
 				$this->setTimezone($tz);
 				break;
@@ -298,8 +308,8 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'tz':
 			case 'tzid':
 			case 'timezone':
-				if (in_array($value, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
-					$this->setTimezone(timezone_open($value));
+				if ($value instanceof \DateTimeZone || (is_string($value) && in_array($value, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC)))) {
+					$this->setTimezone($value);
 				}
 				break;
 
@@ -374,7 +384,7 @@ class Time extends \DateTime implements \ArrayAccess
 				break;
 
 			case 'iso_gmdate':
-				$value = (clone $this)->setTimezone(new \DateTimeZone('UTC'))->format('c', false, false);
+				$value = (clone $this)->setTimezone(new \DateTimeZone('UTC'))->format('c');
 				break;
 
 			case 'timestamp':
@@ -434,8 +444,8 @@ class Time extends \DateTime implements \ArrayAccess
 	}
 
 	/**
-	 * Like DateTime::format(), except that it can accept both DateTime format
-	 * specifiers and strftime format specifiers (but not both at once).
+	 * Like DateTime::format(), except that it can accept either DateTime format
+	 * specifiers or strftime format specifiers (but not both at once).
 	 *
 	 * This does not use the system's strftime library or locale setting when
 	 * formatting using strftime format specifiers, so results may vary in a few
@@ -479,28 +489,38 @@ class Time extends \DateTime implements \ArrayAccess
 			$format = strtr($format, self::FORMAT_SHORT_FORMS);
 		}
 
-		// Today and Yesterday?
-		$prefix = '';
-
-		if ($relative && Config::$modSettings['todayMod'] >= 1) {
+		// Yesterday, today, or tomorrow?
+		if (!$relative) {
+			$prefix = '';
+		} else {
 			$tzid = date_format($this, 'e');
 
 			if (!isset(self::$today[$tzid])) {
 				self::$today[$tzid] = strtotime('today ' . $tzid);
 			}
 
-			// Tomorrow? We don't support the future. ;)
-			if ($this->getTimestamp() >= self::$today[$tzid] + 86400) {
-				$prefix = '';
+			// The future.
+			if ($this->getTimestamp() >= self::$today[$tzid] + 172800) {
+				$relative_day = null;
+			}
+			// Tomorrow.
+			elseif ($this->getTimestamp() >= self::$today[$tzid] + 86400) {
+				$relative_day = Config::$modSettings['todayMod'] > 1 ? 'tomorrow' : null;
 			}
 			// Today.
 			elseif ($this->getTimestamp() >= self::$today[$tzid]) {
-				$prefix = Lang::$txt['today'] ?? '';
+				$relative_day = Config::$modSettings['todayMod'] >= 1 ? 'today' : null;
 			}
 			// Yesterday.
-			elseif (Config::$modSettings['todayMod'] > 1 && $this->getTimestamp() >= self::$today[$tzid] - 86400) {
-				$prefix = Lang::$txt['yesterday'] ?? '';
+			elseif ($this->getTimestamp() >= self::$today[$tzid] - 86400) {
+				$relative_day = Config::$modSettings['todayMod'] > 1 ? 'yesterday' : null;
 			}
+			// The past.
+			else {
+				$relative_day = null;
+			}
+
+			$prefix = Lang::$txt[$relative_day] ?? '';
 		}
 
 		$format = !empty($prefix) ? self::getTimeFormat($format) : $format;
@@ -576,7 +596,7 @@ class Time extends \DateTime implements \ArrayAccess
 						break;
 					}
 
-					$placeholders[str_replace($f, $num, $placeholder)] = Lang::$txt[$key][$num];
+					$placeholders[str_replace($f, (string) $num, $placeholder)] = Lang::$txt[$key][$num];
 				}
 
 				$parts[$i] = $txt_strings_exist ? $placeholder : self::FORMAT_EQUIVALENTS[$parts[$i]];
@@ -697,12 +717,32 @@ class Time extends \DateTime implements \ArrayAccess
 		return $prefix . $result;
 	}
 
+	/**
+	 * Sets the time zone for the SMF\Time object.
+	 *
+	 * @param \DateTimeZone|string $timezone The desired time zone. Can be a
+	 *    \DateTimeZone object or a valid time zone identifier string.
+	 * @return staitc An reference to this object.
+	 */
+	public function setTimezone(\DateTimeZone|string $timezone): static
+	{
+		if ($timezone instanceof \DateTimeZone) {
+			date_timezone_set($this, $timezone);
+		} elseif (in_array($timezone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC))) {
+			date_timezone_set($this, new \DateTimeZone($timezone));
+		} else {
+			throw new \ValueError();
+		}
+
+		return $this;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
 
 	/**
-	 * Convenience wrapper for constuctor.
+	 * Convenience wrapper for constructor.
 	 *
 	 * This is just syntactical sugar to ease method chaining.
 	 *
@@ -711,10 +751,44 @@ class Time extends \DateTime implements \ArrayAccess
 	 * @param \DateTimeZone|string $timezone The time zone of $datetime, either
 	 *    as a \DateTimeZone object or as a time zone identifier string.
 	 *    Defaults to the current user's time zone.
+	 * @return self An instance of this class.
 	 */
-	public static function create(string $datetime = 'now', \DateTimeZone|string|null $timezone = null): object
+	public static function create(string $datetime = 'now', \DateTimeZone|string|null $timezone = null): self
 	{
 		return new self($datetime, $timezone);
+	}
+
+	/**
+	 * Convert a \DateTimeInterface object to a Time object.
+	 *
+	 * @param string $object A \DateTimeInterface object.
+	 * @param Time A Time object.
+	 */
+	public static function createFromInterface(\DateTimeInterface $object): static
+	{
+		return new self($object->format('Y-m-d H:i:s.u e'));
+	}
+
+	/**
+	 * Convert a \DateTime object to a Time object.
+	 *
+	 * @param string $object A \DateTime object.
+	 * @param Time A Time object.
+	 */
+	public static function createFromMutable(\DateTime $object): static
+	{
+		return self::createFromInterface($object);
+	}
+
+	/**
+	 * Convert a \DateTimeImmutable object to a Time object.
+	 *
+	 * @param string $object A \DateTimeImmutable object.
+	 * @param Time A Time object.
+	 */
+	public static function createFromImmutable(\DateTimeImmutable $object): static
+	{
+		return self::createFromInterface($object);
 	}
 
 	/**
@@ -757,6 +831,19 @@ class Time extends \DateTime implements \ArrayAccess
 	public static function gmstrftime(string $format, ?int $timestamp = null): string
 	{
 		return self::strftime($format, $timestamp, 'UTC');
+	}
+
+	/**
+	 * Like self::strftime(), but always uses the current user's time zone and
+	 * preferred time format.
+	 *
+	 * @param int|string|null $timestamp A Unix timestamp.
+	 *     If null or invalid, defaults to the current time.
+	 * @return string A formatted time string.
+	 */
+	public static function stringFromUnix(int|string|null $timestamp = null): string
+	{
+		return self::create('@' . (is_numeric($timestamp) ? $timestamp : time()))->format();
 	}
 
 	/**
@@ -900,7 +987,7 @@ class Time extends \DateTime implements \ArrayAccess
 
 			$time_format = preg_replace_callback(
 				'/(?<!\\\\)[' . implode('', array_keys($substitutions)) . ']/',
-				fn ($m) => $substitutions[$m],
+				fn($m) => $substitutions[$m],
 				$time_format,
 			);
 
@@ -949,42 +1036,162 @@ class Time extends \DateTime implements \ArrayAccess
 	}
 
 	/**
-	 * Backward compatibility wrapper for the format method.
+	 * Figures out whether the passed format is a strftime format.
 	 *
-	 * @param int $log_time A timestamp.
-	 * @param bool|string $show_today Whether to show "Today"/"Yesterday" or
-	 *    just a date. If a string is specified, that is used to temporarily
-	 *    override the date format.
-	 * @param string $tzid Time zone identifier string of the time zone to use.
-	 *    If empty, the user's time zone will be used.
-	 *    If set to a valid time zone identifier, that will be used.
-	 *    Otherwise, the value of Config::$modSettings['default_timezone'] will
-	 *    be used.
-	 * @return string A formatted time string
+	 * @param string $format The format string.
+	 * @return bool Whether it is a strftime format.
 	 */
-	public static function timeformat(int $log_time, bool|string $show_today = true, ?string $tzid = null): string
+	public static function isStrftimeFormat(string $format): bool
 	{
-		// For backward compatibility, replace empty values with the user's time
-		// zone and replace anything invalid with the forum's default time zone.
-		$tzid = empty($tzid) ? User::getTimezone() : (($tzid === 'forum' || @timezone_open((string) $tzid) === false) ? Config::$modSettings['default_timezone'] : $tzid);
-
-		$date = new self('@' . $log_time);
-		$date->setTimezone(new \DateTimeZone($tzid));
-
-		return is_bool($show_today) ? $date->format(null, $show_today) : $date->format($show_today);
+		return (bool) preg_match('/' . self::REGEX_STRFTIME . '/', $format);
 	}
 
 	/**
-	 * Backward compatibility method.
+	 * Removes text that the date parser wouldn't recognize.
 	 *
-	 * @deprecated since 2.1
-	 * @param bool $use_user_offset This parameter is deprecated and ignored.
-	 * @param int $timestamp A timestamp (null to use current time).
-	 * @return int Seconds since the Unix epoch.
+	 * @param string $datetime A date/time string that needs to be parsed.
+	 * @return string Sanitized version of $datetime.
 	 */
-	public static function forumTime($use_user_offset = true, $timestamp = null)
+	public static function sanitize(string $datetime): string
 	{
-		return !isset($timestamp) ? time() : (int) $timestamp;
+		self::setParsableWordsRegex();
+
+		// Remove HTML.
+		$datetime = strip_tags($datetime);
+
+		// Parsing fails when AM/PM is not separated from the time by a space.
+		$datetime = preg_replace_callback_array(
+			[
+				'/(\s\d?\d)([ap]\.?m\.?)/i' => fn($matches) => $matches[1] . ':00 ' . $matches[2],
+				'/(:\d\d)([ap]\.?m\.?)/i' => fn($matches) => $matches[1] . ' ' . $matches[2],
+			],
+			$datetime,
+		);
+
+		// Protect the parsable strings.
+		$placeholders = [];
+
+		$datetime = preg_replace_callback(
+			[
+				'~(GMT)?[+\-](0?\d|1[0-2]):?([0-5]\d)~i',
+				'~\b' . self::$parsable_words_regex . '\b~iu',
+				'~[ap]\.?m\.?~i',
+				'~\d+(st|nd|rd|th)~i',
+				'~(\b|d+)[TW]\d+~i',
+				'~[.:+\-/@]~',
+				'~\d+~',
+			],
+			function ($matches) use (&$placeholders) {
+				$char = mb_chr(0xE000 + count($placeholders));
+				$placeholders[$char] = $matches[0];
+
+				return $char;
+			},
+			$datetime,
+		);
+
+		// Remove unparsable strings.
+		$datetime = preg_replace('~[^\s' . implode('', array_keys($placeholders)) . ']~u', '', $datetime);
+
+		// Restore the parsable strings.
+		$datetime = strtr($datetime, $placeholders);
+
+		// Clean up white space.
+		$datetime = trim(Utils::normalizeSpaces($datetime, true, true, ['collapse_hspace' => true, 'replace_tabs' => true, 'no_breaks' => true]));
+
+		return $datetime;
+	}
+
+	/**
+	 * Helper function to convert a date string to English so that date_parse()
+	 * can parse it correctly.
+	 *
+	 * @param string $date A localized date string.
+	 * @return string English date string.
+	 */
+	public static function convertToEnglish(string $date): string
+	{
+		self::setParsableWordsRegex();
+
+		// Preserve any existing parseable words, such as time zone identifiers.
+		$placeholders = [];
+
+		$date = preg_replace_callback(
+			'~\b' . self::$parsable_words_regex . '\b~iu',
+			function ($matches) use (&$placeholders) {
+				$char = mb_chr(0xE000 + count($placeholders));
+				$placeholders[$char] = $matches[0];
+
+				return $char;
+			},
+			$date,
+		);
+
+		// Build an array of regular expressions to translate the current language strings to English.
+		$replacements = array_combine(
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['months_titles']),
+			[
+				'January', 'February', 'March', 'April', 'May', 'June',
+				'July', 'August', 'September', 'October', 'November', 'December',
+			],
+		);
+
+		$replacements += array_combine(
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['months_short']),
+			['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+		);
+
+		$replacements += array_combine(
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['days']),
+			['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+		);
+
+		$replacements += array_combine(
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['days_short']),
+			['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+		);
+
+		// Find all possible variants of AM and PM for this language.
+		$replacements['~' . preg_quote(Lang::$txt['time_am'], '~') . '~iu'] = 'AM';
+		$replacements['~' . preg_quote(Lang::$txt['time_pm'], '~') . '~iu'] = 'PM';
+
+		if (($am = self::strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false) {
+			$replacements['~' . preg_quote($am, '~') . '~iu'] = 'AM';
+			$replacements['~' . preg_quote(self::strftime('%p', strtotime('23:00:00')), '~') . '~iu'] = 'PM';
+		}
+
+		if (($am = self::strftime('%P', strtotime('01:00:00'))) !== 'P' && $am !== false) {
+			$replacements['~' . preg_quote($am, '~') . '~iu'] = 'AM';
+			$replacements['~' . preg_quote(self::strftime('%P', strtotime('23:00:00')), '~') . '~iu'] = 'PM';
+		}
+
+		// Find this language's equivalents for today, yesterday, and tomorrow.
+		// In theory, it would be nice to do the same for other keywords used by
+		// PHP's date parser, but that would get very complicated very quickly.
+		foreach (['today', 'yesterday', 'tomorrow'] as $word) {
+			$translated_word = preg_replace('~\X*<strong>(\X*?)</strong>\X*~u', '$1', Lang::$txt[$word]);
+			$replacements['~\b' . preg_quote($translated_word, '~') . '\b~iu'] = $word;
+		}
+
+		// Finalize.
+		foreach ($replacements as $pattern => $replacement) {
+			// Filter out empty patterns.
+			if (preg_match('/^~\s*~iu$/', $pattern)) {
+				unset($replacements[$pattern]);
+				continue;
+			}
+
+			// Wrap the replacement strings in closures.
+			$replacements[$pattern] = fn($matches) => $replacement;
+		}
+
+		// Translate.
+		$date = preg_replace_callback_array($replacements, $date);
+
+		// Restore the preserved words.
+		$date = strtr($date, $placeholders);
+
+		return $date;
 	}
 
 	/*************************
@@ -1072,7 +1279,7 @@ class Time extends \DateTime implements \ArrayAccess
 		$format_parts = preg_split('~%[' . (strtr(implode('', $unwanted), ['%' => ''])) . ']~u', $format);
 
 		foreach ($format_parts as $p => $f) {
-			if (strpos($f, '%') === false) {
+			if (!str_contains($f, '%')) {
 				unset($format_parts[$p]);
 			}
 		}
@@ -1080,7 +1287,6 @@ class Time extends \DateTime implements \ArrayAccess
 		$format = implode('', $format_parts);
 
 		// Finally, strip out any unwanted leftovers.
-		// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
 		$format = preg_replace(
 			[
 				// Anything that isn't a specification, punctuation mark, or whitespace.
@@ -1195,12 +1401,11 @@ class Time extends \DateTime implements \ArrayAccess
 		// Make any necessary substitutions in the format.
 		$format = preg_replace_callback(
 			'/(?<!\\\\)[' . implode('', array_keys($specifications)) . ']/',
-			fn ($m) => $specifications[$m],
+			fn($m) => $specifications[$m],
 			$format,
 		);
 
 		// Finally, strip out any unwanted leftovers.
-		// For info on the charcter classes used here, see https://www.php.net/manual/en/regexp.reference.unicode.php and https://www.regular-expressions.info/unicode.html
 		$format = preg_replace(
 			[
 				// Anything that isn't a specification, punctuation mark, or whitespace.
@@ -1238,20 +1443,42 @@ class Time extends \DateTime implements \ArrayAccess
 	}
 
 	/**
-	 * Figures out whether the passed format is a strftime format.
-	 *
-	 * @param string $format The format string.
-	 * @return bool Whether is is a strftime format.
+	 * Builds a regex to match words that the date parser recognizes and saves
+	 * it in self::$parsable_words_regex.
 	 */
-	protected static function isStrftimeFormat(string $format): bool
+	protected static function setParsableWordsRegex(): void
 	{
-		return (bool) preg_match('/' . self::REGEX_STRFTIME . '/', $format);
+		self::$parsable_words_regex = self::$parsable_words_regex ?? Utils::buildRegex(
+			array_merge(
+				// Time zone abbreviations.
+				array_filter(array_keys(\DateTimeZone::listAbbreviations()), fn($a) => !is_numeric($a)),
+				// Time zone identifiers.
+				\DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC),
+				// Recognized key words.
+				[
+					'january', 'february', 'march', 'april', 'may', 'june',
+					'july', 'august', 'september', 'october', 'november',
+					'december', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul',
+					'aug', 'sep', 'sept', 'oct', 'nov', 'dec', 'I', 'II', 'III',
+					'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII',
+					'sunday', 'monday', 'tuesday', 'wednesday', 'thursday',
+					'friday', 'saturday', 'sun', 'mon', 'tue', 'wed', 'thu',
+					'fri', 'sat', 'first', 'second', 'third', 'fourth', 'fifth',
+					'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh',
+					'twelfth', 'next', 'last', 'previous', 'this', 'ms', 'µs',
+					'msec', 'millisecond', 'µsec', 'microsecond', 'usec', 'sec',
+					'second', 'min', 'minute', 'hour', 'day', 'week',
+					'fortnight', 'forthnight', 'month', 'year', 'msecs',
+					'milliseconds', 'µsecs', 'microseconds', 'usecs', 'secs',
+					'seconds', 'mins', 'minutes', 'hours', 'days', 'weeks',
+					'fortnights', 'forthnights', 'months', 'years', 'yesterday',
+					'midnight', 'today', 'now', 'noon', 'tomorrow', 'back',
+					'front', 'of', 'ago',
+				],
+			),
+			'~',
+		);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Time::exportStatic')) {
-	Time::exportStatic();
 }
 
 ?>

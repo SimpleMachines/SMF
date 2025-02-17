@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Moderation;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -34,25 +37,9 @@ use SMF\Utils;
  */
 class Warnings implements ActionInterface
 {
-	use BackwardCompatibility;
+	use ActionTrait;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'ViewWarnings',
-			'list_getWarningCount' => 'list_getWarningCount',
-			'list_getWarnings' => 'list_getWarnings',
-			'list_getWarningTemplateCount' => 'list_getWarningTemplateCount',
-			'list_getWarningTemplates' => 'list_getWarningTemplates',
-			'ViewWarningLog' => 'ViewWarningLog',
-			'ViewWarningTemplates' => 'ViewWarningTemplates',
-			'ModifyWarningTemplate' => 'ModifyWarningTemplate',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -80,18 +67,6 @@ class Warnings implements ActionInterface
 		'templates' => ['templates', 'issue_warning'],
 		'templateedit' => ['templateEdit', 'issue_warning'],
 	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -270,7 +245,7 @@ class Warnings implements ActionInterface
 				[
 					'position' => 'below_table_data',
 					'value' => '
-						' . Lang::$txt['modlog_search'] . ':
+						' . Lang::$txt['modlog_search'] . '
 						<input type="text" name="search" size="18" value="' . Utils::htmlspecialchars(Utils::$context['search']['string']) . '">
 						<input type="submit" name="is_search" value="' . Lang::$txt['modlog_go'] . '" class="button">',
 					'class' => 'floatright',
@@ -292,7 +267,7 @@ class Warnings implements ActionInterface
 	{
 		// Submitting a new one?
 		if (isset($_POST['add'])) {
-			$this->ModifyWarningTemplate();
+			$this->templateEdit();
 
 			return;
 		}
@@ -479,7 +454,8 @@ class Warnings implements ActionInterface
 			while ($row = Db::$db->fetch_assoc($request)) {
 				Utils::$context['template_data'] = [
 					'title' => $row['template_title'],
-					'body' => Utils::htmlspecialchars($row['body']),
+					// Redo htmlspecialchars for the sake of old data that might have incorrectly encoded entities.
+					'body' => Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($row['body'])),
 					'personal' => $row['id_recipient'],
 					'can_edit_personal' => $row['id_member'] == User::$me->id,
 				];
@@ -500,9 +476,10 @@ class Warnings implements ActionInterface
 			if (!empty($_POST['template_body']) && !empty($_POST['template_title'])) {
 				// Safety first.
 				$_POST['template_title'] = Utils::htmlspecialchars($_POST['template_title']);
+				$_POST['template_body'] = Utils::htmlspecialchars($_POST['template_body']);
 
 				// Clean up BBC.
-				Msg::preparsecode($_POST['template_body']);
+				Msg::preparsecode($_POST['template_body'], false, !empty(Config::$modSettings['autoLinkUrls']));
 
 				// But put line breaks back!
 				$_POST['template_body'] = strtr($_POST['template_body'], ['<br>' => "\n"]);
@@ -549,12 +526,24 @@ class Warnings implements ActionInterface
 						'',
 						'{db_prefix}log_comments',
 						[
-							'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'id_recipient' => 'int',
-							'recipient_name' => 'string-255', 'body' => 'string-65535', 'log_time' => 'int',
+							'id_member' => 'int',
+							'member_name' => 'string',
+							'comment_type' => 'string',
+							'id_recipient' => 'int',
+							'recipient_name' => 'string-255',
+							'body' => 'string-65535',
+							'log_time' => 'int',
 						],
 						[
-							User::$me->id, User::$me->name, 'warntpl', $recipient_id,
-							$_POST['template_title'], $_POST['template_body'], time(),
+							[
+								User::$me->id,
+								User::$me->name,
+								'warntpl',
+								$recipient_id,
+								$_POST['template_title'],
+								$_POST['template_body'],
+								time(),
+							],
 						],
 						['id_comment'],
 					);
@@ -588,28 +577,6 @@ class Warnings implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Callback for SMF\ItemList().
 	 *
 	 * @return int The total number of warnings that have been issued
@@ -628,7 +595,7 @@ class Warnings implements ActionInterface
 		list($totalWarns) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $totalWarns;
+		return (int) $totalWarns;
 	}
 
 	/**
@@ -639,7 +606,7 @@ class Warnings implements ActionInterface
 	 * @param string $sort A string indicating how to sort the results
 	 * @return array An array of data about warning log entries
 	 */
-	public static function list_getWarnings($start, $items_per_page, $sort): array
+	public static function list_getWarnings(int $start, int $items_per_page, string $sort): array
 	{
 		$warnings = [];
 
@@ -699,7 +666,7 @@ class Warnings implements ActionInterface
 		list($totalWarns) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return $totalWarns;
+		return (int) $totalWarns;
 	}
 
 	/**
@@ -708,9 +675,9 @@ class Warnings implements ActionInterface
 	 * @param int $start The item to start with (for pagination purposes)
 	 * @param int $items_per_page The number of items to show per page
 	 * @param string $sort A string indicating how to sort the results
-	 * @return array An arrray of info about the available warning templates
+	 * @return array An array of info about the available warning templates
 	 */
-	public static function list_getWarningTemplates($start, $items_per_page, $sort): array
+	public static function list_getWarningTemplates(int $start, int $items_per_page, string $sort): array
 	{
 		$templates = [];
 
@@ -744,36 +711,6 @@ class Warnings implements ActionInterface
 		Db::$db->free_result($request);
 
 		return $templates;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the log sub-action.
-	 */
-	public static function ViewWarningLog(): void
-	{
-		self::load();
-		self::$obj->subaction = 'log';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the templates sub-action.
-	 */
-	public static function ViewWarningTemplates(): void
-	{
-		self::load();
-		self::$obj->subaction = 'templates';
-		self::$obj->execute();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the templateedit sub-action.
-	 */
-	public static function ModifyWarningTemplate(): void
-	{
-		self::load();
-		self::$obj->subaction = 'templateedit';
-		self::$obj->execute();
 	}
 
 	/******************
@@ -812,17 +749,6 @@ class Warnings implements ActionInterface
 			}
 		}
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	// code...
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Warnings::exportStatic')) {
-	Warnings::exportStatic();
 }
 
 ?>

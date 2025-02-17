@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
@@ -143,12 +143,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// One more query....
 		self::$count++;
 
-		if (!$this->disableQueryCheck && strpos($db_string, '\'') !== false && empty($db_values['security_override'])) {
+		if (!$this->disableQueryCheck && str_contains($db_string, '\'') && empty($db_values['security_override'])) {
 			$this->error_backtrace('No direct access...', 'Illegal character (\') used in query...', true, __FILE__, __LINE__);
 		}
 
 		// Use "ORDER BY null" to prevent Mysql doing filesorts for Group By clauses without an Order By
-		if (strpos($db_string, 'GROUP BY') !== false && strpos($db_string, 'ORDER BY') === false && preg_match('~^\s+SELECT~i', $db_string)) {
+		if (str_contains($db_string, 'GROUP BY') && !str_contains($db_string, 'ORDER BY') && preg_match('~^\s+SELECT~i', $db_string)) {
 			// Add before LIMIT
 			if ($pos = strpos($db_string, 'LIMIT ')) {
 				$db_string = substr($db_string, 0, $pos) . "\t\t\tORDER BY null\n" . substr($db_string, $pos, strlen($db_string));
@@ -158,14 +158,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		if (empty($db_values['security_override']) && (!empty($db_values) || strpos($db_string, '{db_prefix}') !== false)) {
-			$this->temp_values = $db_values;
-			$this->temp_connection = $connection;
-
-			// Inject the values passed to this function.
-			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', [$this, 'replacement__callback'], $db_string);
-
-			unset($this->temp_values, $this->temp_connection);
+		// Inject the values passed to this function.
+		if (empty($db_values['security_override']) && (!empty($db_values) || str_contains($db_string, '{db_prefix}'))) {
+			$db_string = $this->quote($db_string, $db_values, $connection);
 		}
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
@@ -207,13 +202,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
 
 			// Comments?  We don't use comments in our queries, we leave 'em outside!
-			if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false) {
+			if (strpos($clean, '/*') > 2 || str_contains($clean, '--') || str_contains($clean, ';')) {
 				$fail = true;
 			}
 			// Trying to change passwords, slow us down, or something?
-			elseif (strpos($clean, 'sleep') !== false && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0) {
+			elseif (str_contains($clean, 'sleep') && preg_match('~(^|[^a-z])sleep($|[^[_a-z])~s', $clean) != 0) {
 				$fail = true;
-			} elseif (strpos($clean, 'benchmark') !== false && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0) {
+			} elseif (str_contains($clean, 'benchmark') && preg_match('~(^|[^a-z])benchmark($|[^[a-z])~s', $clean) != 0) {
 				$fail = true;
 			}
 
@@ -242,6 +237,31 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$ret = @mysqli_query($connection, $db_string, self::$unbuffered ? MYSQLI_USE_RESULT : MYSQLI_STORE_RESULT);
 
+		if ($ret === false && empty($db_values['db_error_skip'])) {
+			list($file, $line) = $this->error_backtrace('', '', 'return', __FILE__, __LINE__);
+			$query_error = $this->error();
+
+			// Nothing's defined yet... just die with it.
+			if (empty(Utils::$context) || empty(Lang::$txt) || defined('SMF_INSTALLING')) {
+				die($query_error);
+			}
+
+			// Show an error message, if possible.
+			Utils::$context['error_title'] = Lang::$txt['database_error'];
+			$error_message = Lang::$txt['try_again'];
+
+			if (isset(User::$me) && User::$me->allowedTo('admin_forum')) {
+				$error_message = nl2br($query_error) . '<br>' . Lang::$txt['file'] . ': ' . $file . '<br>' . Lang::$txt['line'] . ': ' . $line;
+
+				if ($this->show_debug) {
+					$error_message .= '<br><br>' . nl2br($db_string);
+				}
+			}
+
+			ErrorHandler::log(Lang::$txt['database_error'] . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n{$db_string}" : ''), 'database', $file, $line);
+			ErrorHandler::fatal($error_message, false);
+		}
+
 		// Debugging.
 		if ($this->show_debug) {
 			self::$cache[self::$count]['t'] = microtime(true) - $st;
@@ -256,7 +276,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public function quote(string $db_string, array $db_values, ?object $connection = null): string
 	{
 		// Only bother if there's something to replace.
-		if (strpos($db_string, '{') !== false) {
+		if (str_contains($db_string, '{')) {
 			// This is needed by the callback function.
 			$this->temp_values = $db_values;
 			$this->temp_connection = $connection ?? $this->connection;
@@ -299,6 +319,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null
+	{
+		return mysqli_fetch_object($result, $class, $args);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function free_result(object $result): bool
 	{
 		mysqli_free_result($result);
@@ -336,9 +364,21 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		// Inserting data as a single row can be done as a single array.
-		if (!is_array($data[array_rand($data)])) {
-			$data = [$data];
+		// Ensure that $data is a multidimensional array.
+		if (array_filter($data, fn($dataRow) => is_array($dataRow)) !== $data) {
+			// If backward compatibility mode is enabled, quietly clean up after
+			// old mods that did the wrong thing. Otherwise, trigger an error.
+			if (!empty(Config::$backward_compatibility)) {
+				$data = [$data];
+			} else {
+				$this->error_backtrace(
+					'Invalid data structure sent to the database.',
+					'',
+					E_USER_ERROR,
+					__FILE__,
+					__LINE__,
+				);
+			}
 		}
 
 		// Create the mold for a single row insert.
@@ -346,7 +386,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach ($columns as $columnName => $type) {
 			// Are we restricting the length?
-			if (strpos($type, 'string-') !== false) {
+			if (str_contains($type, 'string-')) {
 				$insertData .= sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . '), ', $columnName);
 			} else {
 				$insertData .= sprintf('{%1$s:%2$s}, ', $type, $columnName);
@@ -443,30 +483,30 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				}
 				// the inserted value already exists we need to find the pk
 				else {
-					$where_string = '';
+					$where_string = [];
 
-					$count2 = count($keys);
-
-					for ($x = 0; $x < $count2; $x++) {
-						$keyPos = array_search($keys[$x], array_keys($columns));
-
-						$where_string .= $keys[$x] . ' = ' . $data[$i][$keyPos];
-
-						if (($x + 1) < $count2) {
-							$where_string .= ' AND ';
+					foreach ($columns as $column_name => $type) {
+						if (str_contains($type, 'string-')) {
+							$where_string[] = $column_name . ' = ' . sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . ')', $column_name);
+						} else {
+							$where_string[] = $column_name . ' = ' . sprintf('{%1$s:%2$s}', $type, $column_name);
 						}
 					}
 
+					$where_string = implode(' AND ', $where_string);
+
 					$request = $this->query(
 						'',
-						'SELECT `' . $keys[0] . '` FROM ' . $table . '
-						WHERE ' . $where_string . ' LIMIT 1',
-						[],
+						'SELECT ' . $keys[0] . '
+						FROM ' . $table . '
+						WHERE ' . $where_string . '
+						LIMIT 1',
+						array_combine($indexed_columns, $data[$i]),
 					);
 
 					if ($request !== false && $this->num_rows($request) == 1) {
 						$row = $this->fetch_assoc($request);
-						$ai = $row[$keys[0]];
+						$ai = (int) $row[$keys[0]];
 					}
 				}
 
@@ -510,6 +550,41 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// MySQL doesn't need the table or field information.
 		return mysqli_insert_id($connection ?? $this->connection);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool
+	{
+		if (empty($table['name']) || empty($table['alias']) || empty($set)) {
+			return false;
+		}
+
+		$joins = [];
+
+		foreach ($from_tables as $ft) {
+			if (empty($ft['name']) || empty($ft['alias']) || empty($ft['condition'])) {
+				continue;
+			}
+
+			$joins[] = 'JOIN ' . $ft['name'] . ' AS ' . $ft['alias'] . ' ON (' . $ft['condition'] . ')';
+		}
+
+		if (empty($joins)) {
+			return false;
+		}
+
+		return $this->query(
+			'',
+			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
+				' . implode('
+				', $joins) . '
+			SET ' . $set . (!empty($where) ? '
+			WHERE ' . $where : ''),
+			$db_values,
+			$connection,
+		);
 	}
 
 	/**
@@ -585,12 +660,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function error(object $connection): string
+	public function error(?object $connection = null): string
 	{
-		if ($connection === null && $this->connection === null) {
-			return '';
-		}
-
 		if (!(($connection ?? $this->connection) instanceof \mysqli)) {
 			return '';
 		}
@@ -727,7 +798,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$this->get_version();
 
-		$min_version = strpos(strtolower($this->version), 'mariadb') !== false ? '10.2.2' : '8.0.1';
+		$min_version = str_contains(strtolower($this->version), 'mariadb') ? '10.2.2' : '8.0.1';
 
 		$this->supports_cte = version_compare($this->version, $min_version, '>=');
 
@@ -757,7 +828,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function backup_table(string $table, string $backup_table): object
+	public function backup_table(string $table, string $backup_table): object|bool
 	{
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
@@ -825,7 +896,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// For the engine type, see if we can work out what it is.
-			if (strpos($l, 'ENGINE') !== false || strpos($l, 'TYPE') !== false) {
+			if (str_contains($l, 'ENGINE') || str_contains($l, 'TYPE')) {
 				// Extract the engine type.
 				preg_match('~(ENGINE|TYPE)=(\w+)(\sDEFAULT)?(\sCHARSET=(\w+))?(\sCOLLATE=(\w+))?~', $l, $match);
 
@@ -847,7 +918,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// Skip everything but keys...
-			if (strpos($l, 'KEY') === false) {
+			if (!str_contains($l, 'KEY')) {
 				unset($create[$k]);
 			}
 		}
@@ -877,7 +948,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		);
 
 		if ($auto_inc != '') {
-			if (preg_match('~\`(.+?)\`\s~', $auto_inc, $match) != 0 && substr($auto_inc, -1, 1) == ',') {
+			if (preg_match('~\`(.+?)\`\s~', $auto_inc, $match) != 0 && str_ends_with($auto_inc, ',')) {
 				$auto_inc = substr($auto_inc, 0, -1);
 			}
 
@@ -983,7 +1054,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				elseif ($row['Default'] !== null) {
 					// If this field is numeric the default needs no escaping.
 					$type = strtolower($row['Type']);
-					$isNumericColumn = strpos($type, 'int') !== false || strpos($type, 'bool') !== false || strpos($type, 'bit') !== false || strpos($type, 'float') !== false || strpos($type, 'double') !== false || strpos($type, 'decimal') !== false;
+					$isNumericColumn = str_contains($type, 'int') || str_contains($type, 'bool') || str_contains($type, 'bit') || str_contains($type, 'float') || str_contains($type, 'double') || str_contains($type, 'decimal');
 
 					$schema_create .= ' default ' . ($isNumericColumn ? $row['Default'] : '\'' . $this->escape_string($row['Default']) . '\'');
 				}
@@ -1257,18 +1328,18 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return false;
 		}
 
-		// MySQL If its a text column, we need to add a size.
+		// MySQL If it's a text column, we need to add a size.
 		$cols = $this->list_columns($table_name, true);
 
 		foreach ($index_info['columns'] as &$c) {
 			$c = trim($c);
 			$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? $cols[$c]['size'] : null;
-			list($type, $size) = $this->calculate_type($cols[$c]['type'], $cols[$c]['size']);
+			list($type, $size) = $this->calculate_type($cols[$c]['type'], (int) $cols[$c]['size']);
 
 			// If a size was already specified, we won't be able to match it anyways.
 			if (
 				!isset($cols[$c])
-				|| !in_array($cols[$c]['type'], ['text', 'mediumntext', 'largetext', 'varchar', 'char'])
+				|| !in_array($cols[$c]['type'], ['text', 'mediumtext', 'longtext', 'varchar', 'char'])
 				|| (
 					isset($size)
 					&& $size <= 191
@@ -1331,7 +1402,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
-		// Query returns a result or true if succesfull, false otherwise.
+		// Query returns a result or true if successful, false otherwise.
 		return $result !== false;
 	}
 
@@ -1348,10 +1419,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		if (!$reverse) {
 			$types = [
 				'inet' => 'varbinary',
+				'uuid' => 'binary',
 			];
 		} else {
 			$types = [
 				'varbinary' => 'inet',
+				'binary' => 'uuid',
 			];
 		}
 
@@ -1360,15 +1433,28 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if ($type_name == 'inet' && !$reverse) {
 				$type_size = 16;
 				$type_name = 'varbinary';
+			} elseif ($type_name == 'uuid' && !$reverse) {
+				$type_size = 16;
+				$type_name = 'binary';
 			} elseif ($type_name == 'varbinary' && $reverse && $type_size == 16) {
 				$type_name = 'inet';
 				$type_size = null;
+			} elseif ($type_name == 'binary' && $reverse && $type_size == 16) {
+				$type_name = 'uuid';
+				$type_size = null;
 			} elseif ($type_name == 'varbinary') {
 				$type_name = 'varbinary';
+			} elseif ($type_name == 'binary') {
+				$type_name = 'binary';
 			} else {
 				$type_name = $types[$type_name];
 			}
 		} elseif ($type_name == 'boolean') {
+			$type_size = null;
+		}
+
+		// We can't have a zero size, remove it.
+		if ($type_size === 0) {
 			$type_size = null;
 		}
 
@@ -1444,12 +1530,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			unset($column_info['default']);
 		}
 
-		list($type, $size) = $this->calculate_type($column_info['type'], $column_info['size']);
+		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
 
 		// Allow for unsigned integers (mysql only)
 		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
 
-		// If you need to drop the default, that needs it's own thing...
+		// If you need to drop the default, that needs its own thing...
 		// Must be done first, in case the default type is inconsistent with the other changes.
 		if ($column_info['drop_default']) {
 			$this->query(
@@ -1469,9 +1555,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if (is_null($column_info['default'])) {
 				$default_clause = 'DEFAULT NULL';
 			} elseif (is_numeric($column_info['default'])) {
-				$default_clause = 'DEFAULT ' . (strpos($column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']));
+				$default_clause = 'DEFAULT ' . (strpos((string) $column_info['default'], '.') ? floatval($column_info['default']) : intval($column_info['default']));
 			} elseif (is_string($column_info['default'])) {
-				$default_clause = 'DEFAULT \'' . $this->escape_string($column_info['default']) . '\'';
+				$default_clause = 'DEFAULT \'' . $this->escape_string((string) $column_info['default']) . '\'';
 			}
 		}
 
@@ -1551,19 +1637,19 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Loop through the indexes next...
 		foreach ($indexes as $index) {
-			// MySQL If its a text column, we need to add a size.
+			// MySQL If it's a text column, we need to add a size.
 			foreach ($index['columns'] as &$c) {
 				$c = trim($c);
 
 				// If a size was already specified, we won't be able to match it anyways.
 				$key = array_search($c, array_column($columns, 'name'));
 				$columns[$key]['size'] = isset($columns[$key]['size']) && is_numeric($columns[$key]['size']) ? $columns[$key]['size'] : null;
-				list($type, $size) = $this->calculate_type($columns[$key]['type'], $columns[$key]['size']);
+				list($type, $size) = $this->calculate_type($columns[$key]['type'], (int) $columns[$key]['size']);
 
 				if (
 					$key === false
 					|| !isset($columns[$key])
-					|| !in_array($columns[$key]['type'], ['text', 'mediumntext', 'largetext', 'varchar', 'char'])
+					|| !in_array($columns[$key]['type'], ['text', 'mediumtext', 'longtext', 'varchar', 'char'])
 					|| (
 						isset($size)
 						&& $size <= 191
@@ -1590,7 +1676,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// No trailing commas!
-		if (substr($table_query, -1) == ',') {
+		if (str_ends_with($table_query, ',')) {
 			$table_query = substr($table_query, 0, -1);
 		}
 
@@ -1648,6 +1734,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			);
 
 			while ($row = $this->fetch_assoc($request)) {
+				$row = array_change_key_case($row, CASE_LOWER);
 				$same_col[] = $row['column_name'];
 			}
 
@@ -1734,9 +1821,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		return [
 			'name' => $parsed_table_name,
-			'columns' => $this->list_columns($table_name, true),
-			'indexes' => $this->list_indexes($table_name, true),
-			'engine' => $row['Engine'],
+			'columns' => is_null($row) ? [] : $this->list_columns($table_name, true),
+			'indexes' => is_null($row) ? [] : $this->list_indexes($table_name, true),
+			'engine' => is_null($row) ? '' : $row['Engine'],
 		];
 	}
 
@@ -1768,7 +1855,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$columns[] = $row['Field'];
 			} else {
 				// Is there an auto_increment?
-				$auto = strpos($row['Extra'], 'auto_increment') !== false ? true : false;
+				$auto = str_contains($row['Extra'], 'auto_increment') ? true : false;
 
 				// Can we split out the size?
 				if (preg_match('~(.+?)\s*\((\d+)\)(?:(?:\s*)?(unsigned))?~i', $row['Type'], $matches) === 1) {
@@ -1951,7 +2038,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		parent::__construct();
 
-		// If caller was explict about non_fatal, respect that.
+		// If caller was explicit about non_fatal, respect that.
 		$non_fatal = !empty($options['non_fatal']);
 
 		// If we are in SSI try them first, but don't worry if it doesn't work, we have the normal username and password we can use.
@@ -1996,7 +2083,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		$this->get_version();
-		$this->supports_pcre = version_compare($this->version, strpos($this->version, 'MariaDB') !== false ? '10.0.5' : '8.0.4', '>=');
+		$this->supports_pcre = version_compare($this->version, str_contains($this->version, 'MariaDB') ? '10.0.5' : '8.0.4', '>=');
 
 		// Ensure database has UTF-8 as its default input charset.
 		$this->query(
@@ -2044,7 +2131,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
-		// Something's wrong, show an error if its fatal (which we assume it is)
+		// Something's wrong, show an error if it's fatal (which we assume it is)
 		if ($success === false) {
 			if (!empty($options['non_fatal'])) {
 				$this->connection = null;
@@ -2098,7 +2185,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return $this->prefix;
 		}
 
-		if (isset(User::$me->{$matches[1]}) && strpos($matches[1], 'query_') !== false) {
+		if (isset(User::$me->{$matches[1]}) && str_contains($matches[1], 'query_')) {
 			return User::$me->{$matches[1]};
 		}
 
@@ -2130,7 +2217,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'string':
 			case 'text':
-				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, (string) $replacement));
+				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, Utils::fixUtf8mb4((string) $replacement)));
 
 			case 'array_int':
 				if (is_array($replacement)) {
@@ -2160,7 +2247,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					}
 
 					foreach ($replacement as $key => $value) {
-						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $value));
+						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, Utils::fixUtf8mb4($value)));
 					}
 
 					return implode(', ', $replacement);
@@ -2295,7 +2382,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach (debug_backtrace() as $step) {
 			// Found it?
-			if (strpos($step['function'], 'query') === false && !in_array(substr($step['function'], 0, 7), ['smf_db_', 'preg_re', 'db_erro', 'call_us']) && strpos($step['function'], '__') !== 0 && (empty($step['class']) || $step['class'] != $this::class)) {
+			if (!str_contains($step['function'], 'query') && !in_array(substr($step['function'], 0, 7), ['smf_db_', 'preg_re', 'db_erro', 'call_us']) && !str_starts_with($step['function'], '__') && (empty($step['class']) || $step['class'] != $this::class)) {
 				$log_message .= '<br>Function: ' . $step['function'];
 				break;
 			}
@@ -2352,11 +2439,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 		// Numbers don't need quotes.
 		elseif (isset($column['default']) && is_numeric($column['default'])) {
-			$default = 'DEFAULT ' . (strpos($column['default'], '.') ? floatval($column['default']) : intval($column['default']));
+			$default = 'DEFAULT ' . (strpos((string) $column['default'], '.') ? floatval($column['default']) : intval($column['default']));
 		}
 		// Non empty string.
 		elseif (isset($column['default'])) {
-			$default = 'DEFAULT \'' . $this->escape_string($column['default']) . '\'';
+			$default = 'DEFAULT \'' . $this->escape_string((string) $column['default']) . '\'';
 		} else {
 			$default = '';
 		}
@@ -2368,12 +2455,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Sort out the size... and stuff...
 		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
-		list($type, $size) = $this->calculate_type($column['type'], $column['size']);
+		list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
 
 		// Allow unsigned integers (mysql only)
 		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column['unsigned']) ? 'unsigned ' : '';
 
-		if ($size !== null) {
+		if ($size > 0) {
 			$type = $type . '(' . $size . ')';
 		}
 

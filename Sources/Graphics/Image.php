@@ -5,20 +5,20 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
 
 declare(strict_types=1);
 
 namespace SMF\Graphics;
 
-use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\Sapi;
 use SMF\Url;
 use SMF\Utils;
 use SMF\WebFetch\WebFetchApi;
@@ -34,30 +34,6 @@ if (!defined('IMAGETYPE_AVIF')) {
  */
 class Image
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'getImageTypes' => 'getImageTypes',
-			'getSupportedFormats' => 'getSupportedFormats',
-			'checkMemory' => 'imageMemoryCheck',
-			'getSizeExternal' => 'url_image_size',
-			'gifOutputAsPng' => 'gif_outputAsPng',
-			'getSvgSize' => 'getSvgSize',
-			'makeThumbnail' => 'createThumbnail',
-			'reencodeImage' => 'reencodeImage',
-			'checkImageContents' => 'checkImageContents',
-			'checkSvgContents' => 'checkSvgContents',
-			'resizeImageFile' => 'resizeImageFile',
-			'resizeImage' => 'resizeImage',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -247,7 +223,7 @@ class Image
 			}
 
 			// At this point, $source contains raw image data. Save to a temp file.
-			$this->source = tempnam(Config::getTempDir(), '');
+			$this->source = tempnam(Sapi::getTempDir(), '');
 			file_put_contents($this->source, $source);
 
 			$this->is_temp = true;
@@ -587,7 +563,7 @@ class Image
 	{
 		// doing the old 'set it and hope' way?
 		if (empty(Config::$modSettings['attachment_thumb_memory'])) {
-			Config::setMemoryLimit('128M');
+			Sapi::setMemoryLimit('128M');
 
 			return true;
 		}
@@ -595,12 +571,12 @@ class Image
 		// Determine the memory requirements for this image. If you want to use
 		// an image formula W x H x bits/8 x channels x Overhead factor you will
 		// need to account for single bit images as GD expands them to an 8 bit
-		// and will greatly overun the calculated value.  The 5 is simply a
+		// and will greatly overrun the calculated value.  The 5 is simply a
 		// shortcut of 8bpp, 3 channels, 1.66 overhead.
 		$needed_memory = ($sizes[0] * $sizes[1] * 5);
 
 		// if we need more, lets try to get it
-		return Config::setMemoryLimit((string) $needed_memory, true);
+		return Sapi::setMemoryLimit((string) $needed_memory, true);
 	}
 
 	/**
@@ -663,124 +639,6 @@ class Image
 		@fclose($fh);
 
 		return true;
-	}
-
-	/**
-	 * Gets the dimensions of an SVG image (specifically, of its viewport).
-	 *
-	 * If $filepath is not the path to a valid SVG file, the returned width and
-	 * height will both be null.
-	 *
-	 * See https://www.w3.org/TR/SVG11/coords.html#IntrinsicSizing
-	 *
-	 * This method only exists for backward compatibility purposes. New code
-	 * should just create a new instance of this class for the SVG and then get
-	 * its width and height properties directly.
-	 *
-	 * @param string $filepath The path to the SVG file.
-	 * @return array The width and height of the SVG image in pixels.
-	 */
-	public static function getSvgSize(string $filepath): array
-	{
-		$image = new self($filepath);
-
-		if ($image->mime_type !== 'image/svg+xml') {
-			return ['width' => null, 'height' => null];
-		}
-
-		return ['width' => $image->width, 'height' => $image->height];
-	}
-
-	/**
-	 * Backward compatibility wrapper for the createThumbnail() method.
-	 *
-	 * @param string $source The path to the source image.
-	 * @param int $max_width The maximum allowed width.
-	 * @param int $max_height The maximum allowed height.
-	 * @return bool Whether the thumbnail creation was successful.
-	 */
-	public static function makeThumbnail(string $source, int $max_width, int $max_height): bool
-	{
-		$img = new self($source);
-
-		return ($img->createThumbnail($max_width, $max_height) !== false);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the reencode() method.
-	 *
-	 * @param string $source The path to the source image.
-	 * @param int $preferred_type And IMAGETYPE_* constant, or 0 for automatic.
-	 * @return bool Whether the operation was successful.
-	 */
-	public static function reencodeImage(string $source, int $preferred_type = 0): bool
-	{
-		$img = new self($source);
-
-		return $img->reencode($preferred_type);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the check() method.
-	 *
-	 * @param string $source The path to the source image.
-	 * @param bool $extensive Whether to perform extensive checks.
-	 * @return bool Whether the image appears to be safe.
-	 */
-	public static function checkImageContents(string $source, bool $extensive = false): bool
-	{
-		$img = new self($source);
-
-		return $img->check($extensive);
-	}
-
-	/**
-	 * Another backward compatibility wrapper for the check() method.
-	 *
-	 * @param string $source The path to the source image.
-	 * @return bool Whether the image appears to be safe.
-	 */
-	public static function checkSvgContents(string $source): bool
-	{
-		$img = new self($source);
-
-		return $img->check();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the resize() method.
-	 *
-	 * @param string $source The path to the source image.
-	 * @param string $destination The path to the destination image.
-	 * @param int $max_width The maximum allowed width.
-	 * @param int $max_height The maximum allowed height.
-	 * @param int $preferred_type And IMAGETYPE_* constant, or 0 for automatic.
-	 * @return bool Whether the operation was successful.
-	 */
-	public static function resizeImageFile(string $source, string $destination, int $max_width, int $max_height, int $preferred_type = 0): bool
-	{
-		$img = new self($source);
-
-		return $img->resize($destination, $max_width, $max_height, $preferred_type);
-	}
-
-	/**
-	 * Another backward compatibility wrapper for the resize() method.
-	 *
-	 * @param string $source The source image data as a string.
-	 * @param string $destination The path to the destination image.
-	 * @param int $src_width The width of the source image. (Ignored.)
-	 * @param int $src_height The height of the source image. (Ignored.)
-	 * @param int $max_width The maximum allowed width.
-	 * @param int $max_height The maximum allowed height.
-	 * @param int $preferred_type And IMAGETYPE_* constant, or 0 for automatic.
-	 * @return bool Whether the operation was successful.
-	 */
-	public static function resizeImage(string $source, string $destination, int $src_width, int $src_height, int $max_width, int $max_height, int $preferred_type = 0): bool
-	{
-		$img = new self($source);
-
-		return $img->resize($destination, $max_width, $max_height, $preferred_type);
 	}
 
 	/******************
@@ -983,16 +841,16 @@ class Image
 			$vb_height = $matches[3];
 
 			// No dimensions given, so use viewBox dimensions.
-			if (!empty($width) && !empty($height)) {
+			if (!isset($width) && !isset($height)) {
 				$width = $vb_width;
 				$height = $vb_height;
 			}
 			// Width but no height, so calculate height.
-			elseif (!empty($width)) {
+			elseif (isset($width)) {
 				$height = $width * $vb_height / $vb_width;
 			}
 			// Height but no width, so calculate width.
-			elseif (!empty($height)) {
+			elseif (isset($height)) {
 				$width = $height * $vb_width / $vb_height;
 			}
 		}
@@ -1003,8 +861,8 @@ class Image
 			$height = INF;
 		}
 
-		$this->width = round($width);
-		$this->height = round($height);
+		$this->width = round((float) $width);
+		$this->height = round((float) $height);
 	}
 
 	/**
@@ -1120,7 +978,7 @@ class Image
 	}
 
 	/**
-	 * Resizes an image using the GD extesion.
+	 * Resizes an image using the GD extension.
 	 *
 	 * @param string $destination The path to the destination image.
 	 * @param int $max_width The maximum allowed width.
@@ -1163,11 +1021,11 @@ class Image
 
 		// Determine whether to resize to max width or to max height (depending on the limits.)
 		if (!empty($max_width) && (empty($max_height) || round($this->height * $max_width / $this->width) <= $max_height)) {
-			$dst_width = $max_width;
-			$dst_height = round($this->height * $max_width / $this->width);
+			$dst_width = (int) $max_width;
+			$dst_height = (int) round($this->height * $max_width / $this->width);
 		} elseif (!empty($max_height)) {
-			$dst_width = round($this->width * $max_height / $this->height);
-			$dst_height = $max_height;
+			$dst_width = (int) round($this->width * $max_height / $this->height);
+			$dst_height = (int) $max_height;
 		}
 
 		// Don't bother resizing if it's already smaller...
@@ -1223,7 +1081,7 @@ class Image
 	}
 
 	/**
-	 * Resizes an image using the imagick extesion.
+	 * Resizes an image using the imagick extension.
 	 *
 	 * @param string $destination The path to the destination image.
 	 * @param int $max_width The maximum allowed width.
@@ -1309,11 +1167,6 @@ class Image
 
 		return 0;
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Image::exportStatic')) {
-	Image::exportStatic();
 }
 
 ?>

@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -24,21 +26,6 @@ namespace SMF;
  */
 class SecurityToken extends \ArrayObject
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'create' => 'createToken',
-			'validate' => 'validateToken',
-			'clean' => 'cleanTokens',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -115,7 +102,7 @@ class SecurityToken extends \ArrayObject
 	 * Sets $_SESSION['token'][$type . '-' . $action] to a new instance of this
 	 * class.
 	 *
-	 * Sets Utils::$context[$action . '_token_var'] to the the $var property of
+	 * Sets Utils::$context[$action . '_token_var'] to the $var property of
 	 * the token instance, and Utils::$context[$action . '_token'] to the $val
 	 * property. Also returns that data as an array.
 	 *
@@ -249,11 +236,6 @@ class SecurityToken extends \ArrayObject
 	{
 		return hash_hmac('sha1', $val . (User::$sc ?? '') . ($_SERVER['HTTP_USER_AGENT'] ?? ''), Config::getAuthSecret());
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\SecurityToken::exportStatic')) {
-	SecurityToken::exportStatic();
 }
 
 ?>

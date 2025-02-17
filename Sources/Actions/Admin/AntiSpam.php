@@ -5,16 +5,19 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions\Admin;
 
-use SMF\Actions\ActionInterface;
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\Actions\BackwardCompatibility;
+use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -30,30 +33,9 @@ use SMF\Utils;
  */
 class AntiSpam implements ActionInterface
 {
+	use ActionTrait;
+
 	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'modifyAntispamSettings' => 'ModifyAntispamSettings',
-		],
-	];
-
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
 
 	/****************
 	 * Public methods
@@ -109,12 +91,12 @@ class AntiSpam implements ActionInterface
 				Utils::$context['settings_insert_above'] = '';
 			}
 
-			Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . sprintf(Lang::$txt['question_not_defined'], Utils::$context['languages'][Lang::$default]['name']) . '</div>';
+			Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . Lang::getTxt('question_not_defined', Utils::$context['languages'][Lang::$default]) . '</div>';
 		}
 
 		// Thirdly, push some JavaScript for the form to make it work.
 		$nextrow = !empty(Utils::$context['question_answers']) ? max(array_keys(Utils::$context['question_answers'])) + 1 : 1;
-		$setup_verification_add_answer = Utils::JavaScriptEscape(Lang::$txt['setup_verification_add_answer']);
+		$setup_verification_add_answer = Utils::escapeJavaScript(Lang::$txt['setup_verification_add_answer']);
 		$default_lang = strtr(Lang::$default, ['-utf8' => '']);
 
 		Theme::addInlineJavaScript(<<<END
@@ -369,28 +351,6 @@ class AntiSpam implements ActionInterface
 	 ***********************/
 
 	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
-	/**
 	 * Gets the configuration variables for the anti-spam area.
 	 *
 	 * @return array $config_vars for the anti-spam area.
@@ -460,38 +420,6 @@ class AntiSpam implements ActionInterface
 
 		return $config_vars;
 	}
-
-	/**
-	 * Backward compatibility wrapper.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyAntispamSettings($return_config = false)
-	{
-		if (!empty($return_config)) {
-			return self::getConfigVars();
-		}
-
-		self::load();
-		self::$obj->execute();
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\AntiSpam::exportStatic')) {
-	AntiSpam::exportStatic();
 }
 
 ?>

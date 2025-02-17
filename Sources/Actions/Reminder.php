@@ -5,20 +5,25 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF\Actions;
 
-use SMF\BackwardCompatibility;
+use SMF\ActionInterface;
+use SMF\ActionRouter;
+use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Routable;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -28,20 +33,10 @@ use SMF\Utils;
 /**
  * Handle sending out reminders, and checking the secret answer and question.
  */
-class Reminder implements ActionInterface
+class Reminder implements ActionInterface, Routable
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'call' => 'RemindMe',
-		],
-	];
+	use ActionRouter;
+	use ActionTrait;
 
 	/*******************
 	 * Public properties
@@ -60,11 +55,11 @@ class Reminder implements ActionInterface
 	 *********************/
 
 	/**
-	 * @var object
+	 * @var \SMF\User
 	 *
 	 * SMF\User object for the member.
 	 */
-	public object $member;
+	public User $member;
 
 	/**************************
 	 * Public static properties
@@ -83,27 +78,26 @@ class Reminder implements ActionInterface
 		'setpassword2' => 'setPassword2',
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var object
-	 *
-	 * An instance of this class.
-	 * This is used by the load() method to prevent mulitple instantiations.
-	 */
-	protected static object $obj;
-
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
 	 */
 	public function execute(): void
 	{
+		Lang::load('Profile');
+		Theme::loadTemplate('Reminder');
+
+		Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
+		Utils::$context['robot_no_index'] = true;
+
 		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
@@ -114,7 +108,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Just shows the main template to ask for a more specific sub-action.
 	 */
-	public function main()
+	public function main(): void
 	{
 		SecurityToken::create('remind');
 	}
@@ -122,7 +116,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Allows the user to pick how they wish to be reminded.
 	 */
-	public function pickType()
+	public function pickType(): ?string
 	{
 		User::$me->checkSession();
 		SecurityToken::validate('remind');
@@ -137,12 +131,12 @@ class Reminder implements ActionInterface
 		$this->loadMember();
 
 		// If the user isn't activated/approved, give them some feedback on what to do next.
-		if ($this->member->is_activated != 1) {
+		if ($this->member->is_activated % User::BANNED != User::ACTIVATED) {
 			// Awaiting approval...
 			if (trim($this->member->validation_code) == '') {
-				ErrorHandler::fatal(sprintf(Lang::$txt['registration_not_approved'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
+				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']]), false);
 			} else {
-				ErrorHandler::fatal(sprintf(Lang::$txt['registration_not_activated'], Config::$scripturl . '?action=activate;user=' . $_POST['user']), false);
+				ErrorHandler::fatal(Lang::getTxt('registration_not_activated', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']]), false);
 			}
 		}
 
@@ -150,13 +144,13 @@ class Reminder implements ActionInterface
 		$this->member->email = trim($this->member->email);
 
 		if ($this->member->email == '') {
-			ErrorHandler::fatal(Lang::$txt['no_reminder_email'] . '<br>' . Lang::$txt['send_email_to'] . ' <a href="mailto:' . Config::$webmaster_email . '">' . Lang::$txt['webmaster'] . '</a> ' . Lang::$txt['to_ask_password']);
+			ErrorHandler::fatal(Lang::$txt['no_reminder_email'] . '<br>' . Lang::getTxt('send_email_to_webmaster', ['webmaster_email' => Config::$webmaster_email]));
 		}
 
 		// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
 		if (empty($this->member->secret_question) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email')) {
 			// Randomly generate a validation code with a max length of 10 chars.
-			$code = User::generateValidationCode();
+			$code = Security::generateValidationCode();
 
 			$replacements = [
 				'REALNAME' => $this->member->name,
@@ -177,7 +171,7 @@ class Reminder implements ActionInterface
 			Utils::$context['sub_template'] = 'sent';
 
 			// Don't really.
-			return;
+			return null;
 		}
 
 		// Otherwise are ready to answer the question?
@@ -191,12 +185,14 @@ class Reminder implements ActionInterface
 			'id' => $this->member->id,
 			'name' => $this->member->username,
 		];
+
+		return null;
 	}
 
 	/**
 	 * Allows the user to set their new password.
 	 */
-	public function setPassword()
+	public function setPassword(): void
 	{
 		Lang::load('Login');
 
@@ -222,7 +218,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Actually sets the new password.
 	 */
-	public function setPassword2()
+	public function setPassword2(): void
 	{
 		User::$me->checkSession();
 		SecurityToken::validate('remind-sp');
@@ -246,14 +242,16 @@ class Reminder implements ActionInterface
 		$this->loadMember();
 
 		// Is the password actually valid?
-		$passwordError = User::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
+		$password_error = Security::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
 
 		// What - it's not?
-		if ($passwordError != null) {
-			if ($passwordError == 'short') {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false, [empty(Config::$modSettings['password_strength']) ? 4 : 8]);
+		if ($password_error != null) {
+			if ($password_error == 'short') {
+				ErrorHandler::fatalLang('profile_error_password_short', false, [Security::minimumPasswordLength()]);
 			} else {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false);
+				Lang::load('Errors');
+
+				ErrorHandler::fatalLang((isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'profile_error_password_' : '') . $password_error, false);
 			}
 		}
 
@@ -269,7 +267,7 @@ class Reminder implements ActionInterface
 		Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
 
 		// User validated.  Update the database!
-		User::updateMemberData($this->member->id, ['validation_code' => '', 'passwd' => Security::hashPassword($this->member->username, $_POST['passwrd1'])]);
+		User::updateMemberData($this->member->id, ['validation_code' => '', 'passwd' => Security::hashPassword($_POST['passwrd1'])]);
 
 		IntegrationHook::call('integrate_reset_pass', [$this->member->username, $this->member->username, $_POST['passwrd1']]);
 
@@ -289,7 +287,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Allows the user to enter their secret answer.
 	 */
-	public function secretAnswerInput()
+	public function secretAnswerInput(): void
 	{
 		User::$me->checkSession();
 
@@ -319,7 +317,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Validates the secret answer input by the user.
 	 */
-	public function secretAnswer2()
+	public function secretAnswer2(): void
 	{
 		User::$me->checkSession();
 		SecurityToken::validate('remind-sai');
@@ -336,11 +334,14 @@ class Reminder implements ActionInterface
 		/*
 		 * Check if the secret answer is correct.
 		 *
-		 * In 2.1 this was changed to use hash_(verify_)passsword, same as the
-		 * password. The length of the hash is 60 characters.
-		 *
 		 * Prior to 2.1 this was a simple md5. The length of the hash is 32
 		 * characters.
+		 *
+		 * In 2.1 this was changed to use hash_(verify_)password, same as the
+		 * password. The length of the hash is 60 characters.
+		 *
+		 * In 3.0 this was changed to not prepend the username to the password
+		 * string in hash_(verify_)password.
 		 *
 		 * For compatibility with older answers, we still check if a match
 		 * occurs on md5. If it does, we automatically upgrade the stored
@@ -350,17 +351,24 @@ class Reminder implements ActionInterface
 			$this->member->secret_question == ''
 			|| $this->member->secret_answer == ''
 			|| (
-				!Security::hashVerifyPassword($this->member->username, $_POST['secret_answer'], $this->member->secret_answer)
+				// 3.0
+				!Security::hashVerifyPassword($_POST['secret_answer'], $this->member->secret_answer)
+				// 2.1
+				&& !Security::hashVerifyPassword(Utils::strtolower($this->member->username) . $_POST['secret_answer'], $this->member->secret_answer)
+				// 2.0 and below.
 				&& md5($_POST['secret_answer']) != $this->member->secret_answer
 			)
 		) {
-			ErrorHandler::log(sprintf(Lang::$txt['reminder_error'], $this->member->username), 'user');
+			ErrorHandler::log(Lang::getTxt('reminder_error', ['name' => $this->member->username]), 'user');
 			ErrorHandler::fatalLang('incorrect_answer', false);
 		}
 
-		// If the secret answer was right, but stored using md5, upgrade it now.
-		if (md5($_POST['secret_answer']) === $this->member->secret_answer) {
-			User::updateMemberData($this->member->id_member, ['secret_answer' => Security::hashPassword($this->member->username, $_POST['secret_answer'])]);
+		// If the secret answer was right, but stored incorrectly, upgrade it now.
+		if (
+			Security::hashVerifyPassword(Utils::strtolower($this->member->username) . $_POST['secret_answer'], $this->member->secret_answer)
+			|| md5($_POST['secret_answer']) === $this->member->secret_answer
+		) {
+			User::updateMemberData($this->member->id_member, ['secret_answer' => Security::hashPassword($_POST['secret_answer'])]);
 		}
 
 		// You can't use a blank one!
@@ -374,19 +382,21 @@ class Reminder implements ActionInterface
 		}
 
 		// Make sure they have a strong enough password.
-		$passwordError = User::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
+		$password_error = Security::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
 
 		// Invalid?
-		if ($passwordError != null) {
-			if ($passwordError == 'short') {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false, [empty(Config::$modSettings['password_strength']) ? 4 : 8]);
+		if ($password_error != null) {
+			if ($password_error == 'short') {
+				ErrorHandler::fatalLang('profile_error_password_' . $password_error, false, [Security::minimumPasswordLength()]);
 			} else {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false);
+				Lang::load('Errors');
+
+				ErrorHandler::fatalLang((isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'profile_error_password_' : '') . $password_error, false);
 			}
 		}
 
 		// Alright, so long as 'yer sure.
-		User::updateMemberData($this->member->id_member, ['passwd' => Security::hashPassword($this->member->username, $_POST['passwrd1'])]);
+		User::updateMemberData($this->member->id_member, ['passwd' => Security::hashPassword($_POST['passwrd1'])]);
 
 		IntegrationHook::call('integrate_reset_pass', [$this->member->username, $this->member->username, $_POST['passwrd1']]);
 
@@ -404,32 +414,6 @@ class Reminder implements ActionInterface
 		SecurityToken::create('login');
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Static wrapper for constructor.
-	 *
-	 * @return object An instance of this class.
-	 */
-	public static function load(): object
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		return self::$obj;
-	}
-
-	/**
-	 * Convenience method to load() and execute() an instance of this class.
-	 */
-	public static function call(): void
-	{
-		self::load()->execute();
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -439,12 +423,6 @@ class Reminder implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('Profile');
-		Theme::loadTemplate('Reminder');
-
-		Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
-		Utils::$context['robot_no_index'] = true;
-
 		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
 			$this->subaction = $_GET['sa'];
 		}
@@ -453,7 +431,7 @@ class Reminder implements ActionInterface
 	/**
 	 * Loads the requested member.
 	 */
-	protected function loadMember()
+	protected function loadMember(): void
 	{
 		$loaded = [];
 		$err_msg = 'username_no_exist';
@@ -487,11 +465,6 @@ class Reminder implements ActionInterface
 
 		$this->member = reset($loaded);
 	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Reminder::exportStatic')) {
-	Reminder::exportStatic();
 }
 
 ?>

@@ -5,11 +5,13 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 2
  */
+
+declare(strict_types=1);
 
 namespace SMF;
 
@@ -26,19 +28,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Session implements \SessionHandlerInterface
 {
-	use BackwardCompatibility;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'func_names' => [
-			'load' => 'loadSession',
-		],
-	];
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -125,9 +114,11 @@ class Session implements \SessionHandlerInterface
 				'last_update' => 'int',
 			],
 			[
-				$session_id,
-				$data,
-				time(),
+				[
+					$session_id,
+					$data,
+					time(),
+				],
 			],
 			['session_id'],
 		);
@@ -199,10 +190,10 @@ class Session implements \SessionHandlerInterface
 	public static function load(): void
 	{
 		// Attempt to change a few PHP settings.
-		@ini_set('session.use_cookies', true);
-		@ini_set('session.use_only_cookies', false);
+		@ini_set('session.use_cookies', '1');
+		@ini_set('session.use_only_cookies', '0');
 		@ini_set('url_rewriter.tags', '');
-		@ini_set('session.use_trans_sid', false);
+		@ini_set('session.use_trans_sid', '0');
 		@ini_set('arg_separator.output', '&amp;');
 
 		// Allows mods to change/add PHP settings
@@ -269,59 +260,6 @@ class Session implements \SessionHandlerInterface
 
 		User::$sc = $_SESSION['session_value'];
 	}
-
-	/**
-	 * Backward compatibility wrapper for the open method.
-	 */
-	public static function sessionOpen(string $path, string $name): bool
-	{
-		return (new self())->open($path, $name);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the close method.
-	 */
-	public static function sessionClose(): bool
-	{
-		return (new self())->close();
-	}
-
-	/**
-	 * Backward compatibility wrapper for the read method.
-	 */
-	public static function sessionRead(string $session_id): string
-	{
-		return (string) (new self())->read($session_id);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the write method.
-	 */
-	public static function sessionWrite(string $session_id, string $data): bool
-	{
-		return (new self())->write($session_id, $data);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the destroy method.
-	 */
-	public static function sessionDestroy(string $session_id): bool
-	{
-		return (new self())->destroy($session_id);
-	}
-
-	/**
-	 * Backward compatibility wrapper for the gc method.
-	 */
-	public static function sessionGC(int $max_lifetime): int|false
-	{
-		return (new self())->gc($max_lifetime);
-	}
-}
-
-// Export public static functions and properties to global namespace for backward compatibility.
-if (is_callable(__NAMESPACE__ . '\\Session::exportStatic')) {
-	Session::exportStatic();
 }
 
 ?>
