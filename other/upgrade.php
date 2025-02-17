@@ -3866,11 +3866,6 @@ function ConvertUtf8(): bool
 		if ($command_line && ($table_charset !== 'utf8mb4' || $convert_columns_individually)) {
 			echo " done.\n";
 		}
-
-		// If this is XML to keep it nice for the user do one table at a time anyway!
-		if (isset($_GET['xml']) && $upcontext['cur_table_num'] < $upcontext['table_count']) {
-			return upgradeExit();
-		}
 	}
 
 	// Set the default character set for the database as a whole to utf8mb4.
