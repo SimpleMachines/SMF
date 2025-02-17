@@ -3214,6 +3214,8 @@ function ConvertUtf8(): bool
 	if (isset(Config::$modSettings['global_character_set'])) {
 		// Things are easy if this exists.
 		$lang_charset = Config::$modSettings['global_character_set'];
+	} elseif (version_compare(strtolower(str_replace(' ', '.', Config::$modSettings['smfVersion'])), '3.0.dev.1', '>=')) {
+		$lang_charset = 'utf8';
 	} else {
 		// Figure it out the hard way.
 		// These are the $txt['lang_character_set'] values from all the 2.0.19
@@ -3887,7 +3889,7 @@ function ConvertUtf8(): bool
 	);
 
 	// Record whatever the previous language character set was, unless it was already UTF-8.
-	if ($lang_charset !== 'UTF-8') {
+	if (!str_starts_with(strtolower($lang_charset), 'utf8')) {
 		Config::updateModSettings(['previousCharacterSet' => $lang_charset]);
 	}
 
