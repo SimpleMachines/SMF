@@ -3782,6 +3782,12 @@ function ConvertUtf8(): bool
 						$from_charset = $column['charset'];
 					}
 
+					// If $from_charset is already some variant of UTF-8, we don't need to
+					// deal with the byte-level conversion step.
+					if (str_starts_with(strtolower($from_charset), 'utf8')) {
+						continue;
+					}
+
 					// Build a huge REPLACE statement.
 					$replace = '{identifier:column}';
 
@@ -3792,7 +3798,7 @@ function ConvertUtf8(): bool
 					} else {
 						for ($i = 0; $i <= 0xFF; $i++) {
 							$from = '0x' . strtoupper(dechex($i));
-							$to = '0x' . strtoupper(bin2hex(mb_convert_encoding(chr($i), 'UTF-8', str_starts_with(strtolower($from_charset), 'utf8') ? 'UTF-8' : $from_charset)));
+							$to = '0x' . strtoupper(bin2hex(mb_convert_encoding(chr($i), 'UTF-8', $from_charset)));
 
 							if ($from !== $to) {
 								$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
