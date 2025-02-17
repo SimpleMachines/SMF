@@ -819,7 +819,7 @@ function template_security_warning_above()
 		? Lang::$txt['generic_warning']
 		: Lang::$txt['security_risk'], '</h3>';
 
-	foreach (Utils::$context['warnings']['file'] as $security_file) {
+	foreach ((Utils::$context['warnings']['file'] ?? []) as $security_file) {
 		echo '
 		<p>', Lang::getTxt($security_file[0], $security_file[1]), '</p>';
 	}
