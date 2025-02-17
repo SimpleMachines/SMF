@@ -1927,32 +1927,6 @@ function DatabaseChanges()
 
 	$_GET['substep'] = 0;
 
-	// Set the UID column for calendar events.
-	$calendar_updates = [];
-	$request = Db::$db->query(
-		'',
-		'SELECT id_event, uid
-		FROM {db_prefix}calendar',
-		[],
-	);
-
-	while ($row = Db::$db->fetch_assoc($request)) {
-		if ($row['uid'] === '') {
-			$calendar_updates[] = ['id_event' => $row['id_event'], 'uid' => (string) new Uuid()];
-		}
-	}
-	Db::$db->free_result($request);
-
-	foreach ($calendar_updates as $calendar_update) {
-		Db::$db->query(
-			'',
-			'UPDATE {db_prefix}calendar
-			SET uid = {string:uid}
-			WHERE id_event = {int:id_event}',
-			$calendar_update,
-		);
-	}
-
 	// So the template knows we're done.
 	if (!$support_js) {
 		$upcontext['changes_complete'] = true;
@@ -2554,7 +2528,7 @@ function parse_sql($filename)
 				}
 
 				// @todo Update this to a try/catch for PHP 7+, because eval() now throws an exception for parse errors instead of returning false
-				if (eval('use SMF\Config; use SMF\Utils; use SMF\Lang; use SMF\Db\DatabaseApi as Db; use SMF\Security; global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false) {
+				if (eval('use SMF\Config; use SMF\Utils; use SMF\Lang; use SMF\Db\DatabaseApi as Db; use SMF\Security; use SMF\Uuid; global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false) {
 					$upcontext['error_message'] = 'Error in upgrade script ' . basename($filename) . ' on line ' . $line_number . '!' . $endl;
 
 					if ($command_line) {
