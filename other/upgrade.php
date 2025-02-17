@@ -1306,7 +1306,7 @@ function checkLogin()
 				}
 
 				// We don't use "-utf8" anymore...
-				$user_language = str_ireplace('-utf8', '', $user_language);
+				$user_language = str_ireplace('-utf8', '', Lang::getLocaleFromLanguageName($user_language));
 			} else {
 				$upcontext['username_incorrect'] = true;
 			}
