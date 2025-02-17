@@ -3707,13 +3707,13 @@ function ConvertUtf8(): bool
 	}
 
 	foreach ($tables as $table_num => $table) {
-		if ($table_num < $upcontext['cur_table_num']) {
+		if ($table_num + 1 < $upcontext['cur_table_num']) {
 			continue;
 		}
 
-		$upcontext['cur_table_num'] = $table_num;
+		$upcontext['cur_table_num'] = $table_num + 1;
 		$upcontext['cur_table_name'] = str_replace(Db::$db->prefix, '', $table);
-		$upcontext['step_progress'] = (int) ($table_num / $upcontext['table_count'] * 100);
+		$upcontext['step_progress'] = (int) (($table_num + 1) / $upcontext['table_count'] * 100);
 
 		// Do we need to pause?
 		nextSubstep($table_num);
