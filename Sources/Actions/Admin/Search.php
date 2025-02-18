@@ -23,6 +23,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\Search\SearchApi;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -129,11 +130,8 @@ class Search implements ActionInterface
 			if (isset($_POST['search_stopwords_custom'])) {
 				$_POST['search_stopwords_custom'] = array_diff(
 					preg_split('/[\s,]+/u', $_POST['search_stopwords_custom']),
-					explode(',', Lang::$txt['search_stopwords'] ?? ''),
-					explode(',', Config::$modSettings['search_stopwords_parsed'] ?? ''),
+					SearchApi::getLangStopWords(),
 				);
-
-				sort($_POST['search_stopwords_custom']);
 
 				$_POST['search_stopwords_custom'] = implode(',', array_map([Utils::class, 'htmlspecialchars'], $_POST['search_stopwords_custom']));
 			}
@@ -333,13 +331,6 @@ class Search implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		$permanent_stopwords = array_unique(array_merge(
-			explode(',', Lang::$txt['search_stopwords'] ?? ''),
-			explode(',', Config::$modSettings['search_stopwords_parsed'] ?? ''),
-		));
-
-		sort($permanent_stopwords);
-
 		// What are we editing anyway?
 		$config_vars = [
 			// Permission...
@@ -354,7 +345,7 @@ class Search implements ActionInterface
 			'',
 
 			// Allow the admin to set stopwords.
-			['large_text', 'search_stopwords_custom', 'rows' => 8, 'subtext' => '<span class="infobox block">' . Lang::getTxt('search_stopwords_permanent', ['list' => implode(', ', $permanent_stopwords)]) . '</span>'],
+			['large_text', 'search_stopwords_custom', 'rows' => 8, 'subtext' => '<span class="infobox block">' . Lang::getTxt('search_stopwords_permanent', ['list' => Parser::transform('[tt]' . implode('[/tt], [tt]', SearchApi::getLangStopWords()) . '[/tt]', Parser::INPUT_BBC)]) . '</span>'],
 		];
 
 		// Do any mods want access?

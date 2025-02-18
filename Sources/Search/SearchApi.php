@@ -125,7 +125,7 @@ abstract class SearchApi implements SearchApiInterface
 	 * Words to ignore when searching.
 	 *
 	 * Populated with the contents of:
-	 *  - Lang::$txt['search_stopwords']
+	 *  - Lang::$txt['search_stopwords'] for all installed languages.
 	 *  - Config::$modSettings['search_stopwords']
 	 *  - Config::$modSettings['search_stopwords_custom']
 	 *  - All known BBCode tags
@@ -952,6 +952,32 @@ abstract class SearchApi implements SearchApiInterface
 		return $loadedApis;
 	}
 
+	/**
+	 * Gets a list of all the words in Lang::$txt['search_stopwords'] for all
+	 * installed language packs.
+	 */
+	final public static function getLangStopWords(): array
+	{
+		$permanent_stopwords = [];
+
+		foreach (array_keys(Lang::get()) as $lang) {
+			Lang::load('Search', $lang, true);
+
+			$permanent_stopwords = array_merge(
+				$permanent_stopwords,
+				Utils::htmlTrimRecursive(explode(',', Lang::$txt['search_stopwords'] ?? '')),
+			);
+		}
+
+		Lang::load('Search', '', true);
+
+		$permanent_stopwords = array_filter(array_unique($permanent_stopwords), 'strlen');
+
+		sort($permanent_stopwords);
+
+		return $permanent_stopwords;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -979,13 +1005,11 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	protected function setBlacklistedWords(): void
 	{
-		// Blacklist any stopwords for the current language.
-		if (isset(Lang::$txt['search_stopwords'])) {
-			$this->blacklisted_words = array_unique(array_merge(
-				$this->blacklisted_words,
-				array_map('trim', explode(',', Lang::$txt['search_stopwords'])),
-			));
-		}
+		// Blacklist any stopwords for the installed languages.
+		$this->blacklisted_words = array_unique(array_merge(
+			$this->blacklisted_words,
+			self::getLangStopWords(),
+		));
 
 		// Blacklist any stopwords that the admin set manually.
 		if (isset(Config::$modSettings['search_stopwords_custom'])) {

@@ -777,7 +777,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		$stopwords = array_map(fn($w) => Utils::normalize(Utils::entityDecode($w, true)), $stopwords);
 
 		Config::updateModSettings([
-			'search_stopwords_parsed' => implode(',', $stopwords),
+			'search_stopwords_parsed' => implode(',', array_diff($stopwords, self::getLangStopWords())),
 			'search_stopwords_parsed_updated' => time(),
 		]);
 	}
@@ -797,13 +797,11 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 */
 	protected function setBlacklistedWords(): void
 	{
-		// Blacklist any stopwords for the current language.
-		if (isset(Lang::$txt['search_stopwords'])) {
-			$this->blacklisted_words = array_unique(array_merge(
-				$this->blacklisted_words,
-				array_map('trim', explode(',', Lang::$txt['search_stopwords'])),
-			));
-		}
+		// Blacklist any stopwords for the installed languages.
+		$this->blacklisted_words = array_unique(array_merge(
+			$this->blacklisted_words,
+			self::getLangStopWords(),
+		));
 
 		// Blacklist any stopwords that we found automatically.
 		if (isset(Config::$modSettings['search_stopwords_parsed'])) {
