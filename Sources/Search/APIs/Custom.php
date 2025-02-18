@@ -405,7 +405,15 @@ class Custom extends SearchApi implements SearchApiInterface
 	{
 		if (isset($msgOptions['body'])) {
 			$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
-			$stopwords = empty(Config::$modSettings['search_stopwords']) ? [] : explode(',', Config::$modSettings['search_stopwords']);
+			$stopwords = array_filter(
+				array_unique(
+					array_merge(
+						explode(',', Config::$modSettings['search_stopwords'] ?? ''),
+						self::getLangStopWords(),
+					),
+				),
+				'strlen',
+			);
 			$old_body = $msgOptions['old_body'] ?? '';
 
 			// create thew new and old index
@@ -745,7 +753,21 @@ class Custom extends SearchApi implements SearchApiInterface
 			if (Utils::$context['index_settings']['bytes_per_word'] < 4) {
 				Utils::$context['step'] = 3;
 			} else {
-				$stop_words = Utils::$context['start'] === 0 || empty(Config::$modSettings['search_stopwords']) ? [] : explode(',', Config::$modSettings['search_stopwords']);
+				if (Utils::$context['start'] === 0) {
+					$stop_words = [];
+				} else {
+					$stop_words = array_filter(
+						array_unique(
+							array_merge(
+								explode(',', Config::$modSettings['search_stopwords'] ?? ''),
+								self::getLangStopWords(),
+							),
+						),
+						'strlen',
+					);
+
+					sort($stop_words);
+				}
 
 				$stop = time() + 3;
 
@@ -773,7 +795,7 @@ class Custom extends SearchApi implements SearchApiInterface
 					}
 					Db::$db->free_result($request);
 
-					Config::updateModSettings(['search_stopwords' => implode(',', $stop_words)]);
+					Config::updateModSettings(['search_stopwords' => implode(',', array_diff($stop_words, self::getLangStopWords()))]);
 
 					if (!empty($stop_words)) {
 						Db::$db->query(
