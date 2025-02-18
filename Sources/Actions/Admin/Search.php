@@ -23,6 +23,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Parser;
 use SMF\Search\SearchApi;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -344,7 +345,7 @@ class Search implements ActionInterface
 			'',
 
 			// Allow the admin to set stopwords.
-			['large_text', 'search_stopwords_custom', 'rows' => 8, 'subtext' => '<span class="infobox block">' . Lang::getTxt('search_stopwords_permanent', ['list' => implode(', ', SearchApi::getLangStopWords())]) . '</span>'],
+			['large_text', 'search_stopwords_custom', 'rows' => 8, 'subtext' => '<span class="infobox block">' . Lang::getTxt('search_stopwords_permanent', ['list' => Parser::transform('[tt]' . implode('[/tt], [tt]', SearchApi::getLangStopWords()) . '[/tt]', Parser::INPUT_BBC)]) . '</span>'],
 		];
 
 		// Do any mods want access?
