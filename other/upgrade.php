@@ -3341,7 +3341,7 @@ function ConvertUtf8(): bool
 		// Thai.
 		'tis-620' => 'tis620',
 		// Persian, Chinese, etc.
-		'UTF-8' => 'utf8',
+		'UTF-8' => 'utf8mb3',
 		// Russian.
 		'windows-1251' => 'cp1251',
 		// Arabic.
@@ -3727,7 +3727,8 @@ function ConvertUtf8(): bool
 				$table_is_unicode
 				&& (
 					!isset($charset_maps[$lang_charset])
-					|| $charset_maps[$lang_charset] === 'utf8'
+					|| str_starts_with($charset_maps[$lang_charset], 'utf')
+					|| $charset_maps[$lang_charset] === 'ucs2'
 				)
 			)
 		);
