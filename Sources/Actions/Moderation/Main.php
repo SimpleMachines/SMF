@@ -244,7 +244,7 @@ class Main implements ActionInterface, Routable
 			require_once Config::$sourcedir . '/' . Menu::$loaded['moderate']->include_data['file'];
 		}
 
-		$call = method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
+		$call = is_string(Menu::$loaded['moderate']->include_data['function']) && method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
 
 		if (!empty($call)) {
 			call_user_func($call);

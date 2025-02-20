@@ -136,7 +136,7 @@ class Themes implements ActionInterface
 		Theme::deleteAllMinified();
 
 		if (isset(self::$subactions[$this->subaction])) {
-			$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+			$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 		} else {
 			$call = Utils::getCallable($this->subaction);
 		}

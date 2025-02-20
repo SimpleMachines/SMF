@@ -113,7 +113,7 @@ class Registration implements ActionInterface
 		// Must have sufficient permissions.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
 			call_user_func($call);

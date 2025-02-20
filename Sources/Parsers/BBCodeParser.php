@@ -3991,7 +3991,7 @@ class BBCodeParser extends Parser
 			$temp = [];
 
 			// Reverse order because mods typically append to the array.
-			for ($i = count(self::$codes) - 1; $i >= 0; $i--) {
+			foreach (array_reverse(array_keys(self::$codes)) as $i) {
 				$value = self::$codes[$i];
 
 				// Closures cannot be serialized, but they can be reflected.

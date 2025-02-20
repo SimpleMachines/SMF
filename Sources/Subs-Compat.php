@@ -7028,9 +7028,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Parser::getBBCodes();
 		}
 
+		// As nice as it might have been to include Markdown parsing here,
+		// evidence has shown that parsing Markdown can cause problems for
+		// mods that were not expecting that to happen.
 		return SMF\Parser::transform(
 			string: $message,
-			input_types: SMF\Parser::INPUT_BBC | SMF\Parser::INPUT_MARKDOWN | (!empty($smileys) ? SMF\Parser::INPUT_SMILEYS : 0),
+			input_types: SMF\Parser::INPUT_BBC | (!empty($smileys) ? SMF\Parser::INPUT_SMILEYS : 0),
 			options: [
 				'cache_id' => $cache_id,
 				'parse_tags' => $parse_tags,
