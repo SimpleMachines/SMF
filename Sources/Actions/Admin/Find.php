@@ -173,7 +173,7 @@ class Find implements ActionInterface
 		if (trim(Utils::$context['search_term']) == '') {
 			Utils::$context['search_results'] = [];
 		} else {
-			$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+			$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 			if (!empty($call)) {
 				call_user_func($call);

@@ -159,7 +159,7 @@ class Maintenance implements ActionInterface
 		Utils::$context['sub_action'] = $this->subaction;
 		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
 
-		$call = method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
+		$call = is_string(self::$subactions[$this->subaction]['function']) && method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -167,7 +167,7 @@ class Maintenance implements ActionInterface
 
 		// Any special activity?
 		if (!empty($this->activity)) {
-			$call = method_exists($this, self::$subactions[$this->subaction]['activities'][$this->activity]) ? [$this, self::$subactions[$this->subaction]['activities'][$this->activity]] : Utils::getCallable(self::$subactions[$this->subaction]['activities'][$this->activity]);
+			$call = is_string(self::$subactions[$this->subaction]['activities'][$this->activity]) && method_exists($this, self::$subactions[$this->subaction]['activities'][$this->activity]) ? [$this, self::$subactions[$this->subaction]['activities'][$this->activity]] : Utils::getCallable(self::$subactions[$this->subaction]['activities'][$this->activity]);
 
 			if (!empty($call)) {
 				call_user_func($call);
