@@ -422,6 +422,13 @@ class ItemList implements \ArrayAccess
 
 					$cur_data['value'] = vsprintf($column['data']['sprintf']['format'], $params);
 				}
+				// Using formatText is more readable than sprintf when injecting data.
+				elseif (isset($column['data']['formatText'])) {
+					$cur_data['value'] = Lang::formatText(
+						$column['data']['formatText']['format'],
+						$list_item + $column['data']['formatText']['params'],
+					);
+				}
 				// Using getTxt is the most capable way of injecting data.
 				elseif (isset($column['data']['getTxt'])) {
 					$params = [];
