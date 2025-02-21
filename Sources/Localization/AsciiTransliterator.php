@@ -86,7 +86,7 @@ class AsciiTransliterator
 
 			IntegrationHook::call('integrate_ascii_transliterator_id', [&$id]);
 
-			if ($id !== self::$transliterator->$id) {
+			if ($id !== self::$transliterator->id) {
 				self::$transliterator = ($temp = \Transliterator::create($id)) instanceof \Transliterator ? $temp : self::$transliterator;
 			}
 		}
