@@ -30,6 +30,17 @@ use SMF\Lang;
  */
 class AsciiTransliterator
 {
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var object
+	 *
+	 * An instance of \Transliterator to be used by self::intl().
+	 */
+	private static \Transliterator $transliterator;
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -63,24 +74,24 @@ class AsciiTransliterator
 	 */
 	protected static function intl(string $string): string
 	{
-		/*
-		 * First use the specific transliterator method for converting the
-		 * forum's default language to Latin characters, if there is one.
-		 * Then use the generic Any-Latin to convert any other characters.
-		 * Finally, convert Latin to ASCII to get rid of accents and such.
-		 */
-		$transliterator_id = Lang::$default . '-Latin; Any-Latin; Latin-ASCII';
+		if (!isset(self::$transliterator)) {
+			// First use the specific transliterator method for converting the
+			// forum's default language to Latin characters, if there is one.
+			// Then use the generic Any-Latin to convert any other characters.
+			// Finally, convert Latin to ASCII to get rid of accents and such.
+			self::$transliterator = ($temp = \Transliterator::create(Lang::$default . '-Latin; Any-Latin; Latin-ASCII')) instanceof \Transliterator ? $temp : \Transliterator::create('Any-Latin; Latin-ASCII');
 
-		// Allow mods to adjust the transliterator identifiers.
-		IntegrationHook::call('integrate_ascii_transliterator_id', [&$transliterator_id]);
+			// Allow mods to adjust the transliterator identifier string.
+			$id = self::$transliterator->id;
 
-		$transliterator = \Transliterator::create($transliterator_id);
+			IntegrationHook::call('integrate_ascii_transliterator_id', [&$id]);
 
-		if (!($transliterator instanceof \Transliterator)) {
-			$transliterator = \Transliterator::create('Any-Latin; Latin-ASCII');
+			if ($id !== self::$transliterator->$id) {
+				self::$transliterator = ($temp = \Transliterator::create($id)) instanceof \Transliterator ? $temp : self::$transliterator;
+			}
 		}
 
-		return $transliterator->transliterate($string);
+		return self::$transliterator->transliterate($string);
 	}
 
 	/**
