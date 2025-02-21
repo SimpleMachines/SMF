@@ -280,9 +280,7 @@ class Slug implements \Stringable
 
 		// Remove common words.
 		if (!isset(self::$common_words_regex)) {
-			Lang::load('Search');
-
-			self::$common_words_regex = '/\b' . Utils::buildRegex(explode(',', Lang::getTxt('search_stopwords')), '/') . '\b/iu';
+			self::$common_words_regex = '/(?<!\w)' . Utils::buildRegex(Search\SearchApi::getLangStopWords(), '/') . '(?!\w)/iu';
 		}
 
 		$this->slug = preg_replace(self::$common_words_regex, ' ', $this->slug);
