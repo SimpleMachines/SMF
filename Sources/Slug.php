@@ -238,6 +238,10 @@ class Slug implements \Stringable
 	{
 		self::$requested = new self('', $type, $id);
 		self::$requested->slug = $slug;
+
+		// self::$known should only contain slugs that we know to be correct,
+		// whereas the slug in the requested URL is untrustworthy.
+		unset(self::$known[$type][$id]);
 	}
 
 	/**
