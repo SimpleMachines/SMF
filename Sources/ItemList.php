@@ -413,44 +413,29 @@ class ItemList implements \ArrayAccess
 				elseif (isset($data['db_htmlsafe'])) {
 					$cur_data['value'] = Utils::htmlspecialchars((string) $list_item[$data['db_htmlsafe']]);
 				}
-				// Using sprintf is probably the most readable way of injecting data.
-				elseif (isset($data['sprintf'])) {
-					$params = [];
+				// These are probably the most readable way of injecting complex data.
+				elseif (isset($data['sprintf']) || isset($data['formatText']) || isset($data['getTxt'])) {
+					$params = $list_item;
+					$call = 'vsprintf';
+					$format = 'sprintf';
 
-					foreach ($data['sprintf']['params'] as $sprintf_param => $htmlsafe) {
-						if ($htmlsafe === true) {
-							$params[] = Utils::htmlspecialchars((string) $list_item[$sprintf_param]);
-						} else {
-							$params[] = $list_item[$sprintf_param];
+					if (isset($data['getTxt'])) {
+						$call = 'SMF\Lang::getTxt';
+						$format = 'getTxt';
+					} elseif (isset($data['formatText'])) {
+						$call = 'SMF\Lang::formatText';
+						$format = 'formatText';
+					}
+
+					foreach ($data[$format]['params'] as $key => $info) {
+						$params[$key] = $list_item[$info['column'] ?? (\is_bool($info) ? $key : $info)] ?? $info;
+
+						if (isset($info['htmlspecialchars']) && $info['htmlspecialchars'] || $info === true) {
+							$params[$key] = Utils::htmlspecialchars((string) $params[$key]);
 						}
 					}
 
-					$cur_data['value'] = vsprintf($data['sprintf']['format'], $params);
-				}
-				// Using formatText is more readable than sprintf when injecting data.
-				elseif (isset($data['formatText'])) {
-					$cur_data['value'] = Lang::formatText(
-						$data['formatText']['format'],
-						$list_item + $data['formatText']['params'],
-					);
-				}
-				// Using getTxt is the most capable way of injecting data.
-				elseif (isset($data['getTxt'])) {
-					$params = [];
-
-					foreach ($data['getTxt']['params'] as $key => $info) {
-						if (isset($info['htmlspecialchars'])) {
-							if ($info['htmlspecialchars']) {
-								$params[$key] = Utils::htmlspecialchars((string) $list_item[$info['column']]);
-							} else {
-								if (isset($info['column'])) {
-									$params[$key] = $list_item[$info['column']];
-								}
-							}
-						}
-					}
-
-					$cur_data['value'] = Lang::getTxt($data['getTxt']['format'], $params);
+					$cur_data['value'] = $call($data[$format]['format'], $params);
 				}
 				// The most flexible way probably is applying a custom function.
 				elseif (isset($data['function'])) {
