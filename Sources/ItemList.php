@@ -105,7 +105,7 @@ class ItemList implements \ArrayAccess
 	public string $javascript;
 
 	/**
-	 * @var string
+	 * @var PageIndex
 	 *
 	 * The page index for navigating this list.
 	 */
