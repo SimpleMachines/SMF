@@ -308,7 +308,7 @@ class ItemList implements \ArrayAccess
 		} else {
 			$this->sort = [
 				'id' => $this->options['default_sort_col'],
-				'desc' => (!empty($this->options['default_sort_dir']) && $this->options['default_sort_dir'] == 'desc') || (!empty($this->options['columns'][$this->options['default_sort_col']]['sort']['default']) && str_ends_with($this->options['columns'][$this->options['default_sort_col']]['sort']['default'], 'desc')) ? true : false,
+				'desc' => (!empty($this->options['default_sort_dir']) && $this->options['default_sort_dir'] == 'desc') || (!empty($this->options['columns'][$this->options['default_sort_col']]['sort']['default']) && str_ends_with($this->options['columns'][$this->options['default_sort_col']]['sort']['default'], 'desc')),
 			];
 		}
 
@@ -402,89 +402,87 @@ class ItemList implements \ArrayAccess
 			$cur_row = [];
 
 			foreach ($this->options['columns'] as $column_id => $column) {
-				$cur_data = [];
+				$data = $column['data'] ?? [];
+				$cur_data = ['value' => $data['value'] ?? ''];
 
 				// A value straight from the database?
-				if (isset($column['data']['db'])) {
-					$cur_data['value'] = $list_item[$column['data']['db']];
+				if (isset($data['db'])) {
+					$cur_data['value'] = $list_item[$data['db']];
 				}
 				// Take the value from the database and make it HTML safe.
-				elseif (isset($column['data']['db_htmlsafe'])) {
-					$cur_data['value'] = Utils::htmlspecialchars((string) $list_item[$column['data']['db_htmlsafe']]);
+				elseif (isset($data['db_htmlsafe'])) {
+					$cur_data['value'] = Utils::htmlspecialchars((string) $list_item[$data['db_htmlsafe']]);
 				}
 				// Using sprintf is probably the most readable way of injecting data.
-				elseif (isset($column['data']['sprintf'])) {
+				elseif (isset($data['sprintf'])) {
 					$params = [];
 
-					foreach ($column['data']['sprintf']['params'] as $sprintf_param => $htmlsafe) {
-						$params[] = $htmlsafe ? Utils::htmlspecialchars((string) $list_item[$sprintf_param]) : $list_item[$sprintf_param];
+					foreach ($data['sprintf']['params'] as $sprintf_param => $htmlsafe) {
+						if ($htmlsafe === true) {
+							$params[] = Utils::htmlspecialchars((string) $list_item[$sprintf_param]);
+						} else {
+							$params[] = $list_item[$sprintf_param];
+						}
 					}
 
-					$cur_data['value'] = vsprintf($column['data']['sprintf']['format'], $params);
+					$cur_data['value'] = vsprintf($data['sprintf']['format'], $params);
 				}
 				// Using formatText is more readable than sprintf when injecting data.
-				elseif (isset($column['data']['formatText'])) {
+				elseif (isset($data['formatText'])) {
 					$cur_data['value'] = Lang::formatText(
-						$column['data']['formatText']['format'],
-						$list_item + $column['data']['formatText']['params'],
+						$data['formatText']['format'],
+						$list_item + $data['formatText']['params'],
 					);
 				}
 				// Using getTxt is the most capable way of injecting data.
-				elseif (isset($column['data']['getTxt'])) {
+				elseif (isset($data['getTxt'])) {
 					$params = [];
 
-					foreach ($column['data']['getTxt']['params'] as $key => $info) {
-						$params[$key] = $info['htmlspecialchars'] ? Utils::htmlspecialchars((string) $list_item[$info['column']]) : $list_item[$info['column']];
+					foreach ($data['getTxt']['params'] as $key => $info) {
+						if (isset($info['htmlspecialchars'])) {
+							if ($info['htmlspecialchars']) {
+								$params[$key] = Utils::htmlspecialchars((string) $list_item[$info['column']]);
+							} else {
+								if (isset($info['column'])) {
+									$params[$key] = $list_item[$info['column']];
+								}
+							}
+						}
 					}
 
-					$cur_data['value'] = Lang::getTxt($column['data']['getTxt']['format'], $params);
+					$cur_data['value'] = Lang::getTxt($data['getTxt']['format'], $params);
 				}
 				// The most flexible way probably is applying a custom function.
-				elseif (isset($column['data']['function'])) {
-					$cur_data['value'] = call_user_func_array($column['data']['function'], [$list_item]);
+				elseif (isset($data['function'])) {
+					$cur_data['value'] = call_user_func_array($data['function'], [$list_item]);
 				}
 				// A modified value (inject the database values).
-				elseif (isset($column['data']['eval'])) {
-					$cur_data['value'] = eval(preg_replace('~%([a-zA-Z0-9\-_]+)%~', '$list_item[\'$1\']', $column['data']['eval']));
-				}
-				// A literal value.
-				elseif (isset($column['data']['value'])) {
-					$cur_data['value'] = $column['data']['value'];
-				}
-				// Empty value.
-				else {
-					$cur_data['value'] = '';
+				elseif (isset($data['eval'])) {
+					$cur_data['value'] = eval(preg_replace('~%([a-zA-Z0-9\-_]+)%~', '$list_item[\'$1\']', $data['eval']));
 				}
 
 				// Allow for basic formatting.
-				if (!empty($column['data']['comma_format'])) {
+				if (!empty($data['comma_format'])) {
 					$cur_data['value'] = Lang::numberFormat((int) $cur_data['value']);
-				} elseif (!empty($column['data']['timeformat'])) {
+				} elseif (!empty($data['timeformat'])) {
 					$cur_data['value'] = Time::create('@' . $cur_data['value'])->format();
 				}
 
-				// Set a style class for this column?
-				if (isset($column['data']['class'])) {
-					$cur_data['class'] = $column['data']['class'];
-				}
-
-				// Fully customized styling for the cells in this column only.
-				if (isset($column['data']['style'])) {
-					$cur_data['style'] = $column['data']['style'];
+				foreach (['class', 'style'] as $attr) {
+					if (isset($data[$attr])) {
+						$cur_data[$attr] = $data[$attr];
+					}
 				}
 
 				// Add the data cell properties to the current row.
 				$cur_row[$column_id] = $cur_data;
 			}
 
-			// Maybe we wat set a custom class for the row based on the data in the row itself
 			if (isset($this->options['data_check'])) {
-				if (isset($this->options['data_check']['class'])) {
-					$this->rows[$item_id]['class'] = $this->options['data_check']['class']($list_item);
-				}
-
-				if (isset($this->options['data_check']['style'])) {
-					$this->rows[$item_id]['style'] = $this->options['data_check']['style']($list_item);
+				foreach (['class', 'style'] as $attr) {
+					if (isset($this->options['data_check'][$attr])) {
+						$this->rows[$item_id][$attr] = $this->options['data_check'][$attr]($list_item);
+					}
 				}
 			}
 
