@@ -414,14 +414,14 @@ class ItemList implements \ArrayAccess
 					$cur_data['value'] = Utils::htmlspecialchars((string) $list_item[$data['db_htmlsafe']]);
 				}
 				// These are probably the most readable way of injecting complex data.
-				elseif (isset($data['sprintf']) || isset($data['formatText']) || isset($data['getTxt'])) {
+				elseif (isset($data['sprintf']) || isset($data['format_text']) || isset($data['get_txt'])) {
 					$params = $list_item;
-					if (isset($data['getTxt'])) {
+					$call = 'SMF\Lang::formatText';
+					$format = isset($data['format_text']) ? 'format_text' : 'sprintf';
+
+					if (isset($data['get_txt'])) {
 						$call = 'SMF\Lang::getTxt';
-						$format = 'getTxt';
-					} else {
-						$call = 'SMF\Lang::formatText';
-						$format = isset($data['formatText']) ? 'formatText' : 'sprintf';
+						$format = 'get_txt';
 					}
 
 					foreach ($data[$format]['params'] as $key => $info) {
