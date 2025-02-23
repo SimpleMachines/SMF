@@ -463,7 +463,7 @@ class Tasks implements ActionInterface
 						'value' => Lang::$txt['scheduled_log_time_taken'],
 					],
 					'data' => [
-						'getTxt' => [
+						'get_txt' => [
 							'format' => 'scheduled_log_time_taken_seconds',
 							'params' => [
 								0 => [
