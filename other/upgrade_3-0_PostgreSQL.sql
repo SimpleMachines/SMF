@@ -866,7 +866,7 @@ ADD COLUMN IF NOT EXISTS smf_version VARCHAR(5) NOT NULL DEFAULT '';
 /******************************************************************************/
 
 ---# Improving search results storage
-ALTER TABLE {$db_prefix}log_search_results DROP PRIMARY KEY;
+ALTER TABLE {$db_prefix}log_search_results DROP CONSTRAINT {$db_prefix}log_search_results_pkey;
 ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
 ---#
 
@@ -878,14 +878,14 @@ ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic,
 UPDATE {$db_prefix}settings
 SET value =
 	CASE
-		WHEN value = 0
+		WHEN value = '0'
 			THEN 'SendMail'
-		WHEN value = 1
+		WHEN value = '1'
 			THEN 'SMTP'
-		WHEN value = 2
+		WHEN value = '2'
 			THEN 'SMTPTLS'
 		ELSE
 			value
 		END
 WHERE variable = 'mail_type'
-	AND value IN (0,1,2);
+	AND value IN ('0','1','2');
