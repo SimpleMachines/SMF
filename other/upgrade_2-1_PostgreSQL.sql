@@ -392,8 +392,8 @@ if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.
     while ($row = Db::$db->fetch_assoc($request))
     {
         $inserts[] = array(
-            'name' => Utils::htmlspecialchars(strip_tags(SMF\Parser::transform($row['name'], SMF\Parser::OUTPUT_BBC)),
-            'description' => Utils::htmlspecialchars(strip_tags(SMF\Parser::transform($row['description'], SMF\Parser::OUTPUT_BBC)),
+            'name' => Utils::htmlspecialchars(strip_tags(SMF\Parser::transform($row['name'], SMF\Parser::OUTPUT_BBC))),
+            'description' => Utils::htmlspecialchars(strip_tags(SMF\Parser::transform($row['description'], SMF\Parser::OUTPUT_BBC))),
             'id' => $row['id'],
         );
     }
@@ -541,7 +541,7 @@ ALTER TABLE {$db_prefix}attachments
 ---{
 
 // Need to know a few things first.
-$custom_av_dir = !empty(Config::$modSettings['custom_avatar_dir']) ? Config::$modSettings['custom_avatar_dir'] : Config::boarddir .'/custom_avatar';
+$custom_av_dir = !empty(Config::$modSettings['custom_avatar_dir']) ? Config::$modSettings['custom_avatar_dir'] : Config::$boarddir .'/custom_avatar';
 
 // This little fellow has to cooperate...
 if (!is_writable($custom_av_dir))
@@ -560,22 +560,22 @@ if (!is_writable($custom_av_dir))
 }
 
 // If we already are using a custom dir, delete the predefined one.
-if (realpath($custom_av_dir) != realpath(Config::boarddir .'/custom_avatar'))
+if (realpath($custom_av_dir) != realpath(Config::$boarddir .'/custom_avatar'))
 {
 	// Borrow custom_avatars index.php file.
 	if (!file_exists($custom_av_dir . '/index.php'))
-		@rename(Config::boarddir .'/custom_avatar/index.php', $custom_av_dir .'/index.php');
+		@rename(Config::$boarddir .'/custom_avatar/index.php', $custom_av_dir .'/index.php');
 	else
-		@unlink(Config::boarddir . '/custom_avatar/index.php');
+		@unlink(Config::$boarddir . '/custom_avatar/index.php');
 
 	// Borrow blank.png as well
 	if (!file_exists($custom_av_dir . '/blank.png'))
-		@rename(Config::boarddir . '/custom_avatar/blank.png', $custom_av_dir . '/blank.png');
+		@rename(Config::$boarddir . '/custom_avatar/blank.png', $custom_av_dir . '/blank.png');
 	else
-		@unlink(Config::boarddir . '/custom_avatar/blank.png');
+		@unlink(Config::$boarddir . '/custom_avatar/blank.png');
 
 	// Attempt to delete the directory.
-	@rmdir(Config::boarddir .'/custom_avatar');
+	@rmdir(Config::$boarddir .'/custom_avatar');
 }
 
 $request = upgrade_query("
@@ -1617,7 +1617,7 @@ $request = Db::$db->query('', '
 // Check which themes exist in the filesystem & save off their IDs
 // Don't delete default theme(start with 1 in the array), & make sure to delete old core theme
 $known_themes = array('1');
-$core_dir = Config::boarddir . '/Themes/core';
+$core_dir = Config::$boarddir . '/Themes/core';
 while ($row = Db::$db->fetch_assoc($request))	{
 	if ($row['value'] != $core_dir && is_dir($row['value'])) {
 		$known_themes[] = $row['id_theme'];
