@@ -1179,7 +1179,7 @@ class User implements \ArrayAccess
 				'title' => !empty(Config::$modSettings['titlesEnable']) ? $this->title : '',
 				'blurb' => $this->personal_text,
 				'website' => $this->website,
-				'birth_date' => empty($this->birthdate) ? '1004-01-01' : (substr($this->birthdate, 0, 4) === '0004' ? '1004' . substr($this->birthdate, 4) : $this->birthdate),
+				'birthdate' => empty($this->birthdate) || (int) substr($this->birthdate, 0, 4) <= 1004 ? '' : $this->birthdate,
 				'signature' => $this->signature,
 				'real_posts' => $this->posts,
 				'posts' => $this->posts > 500000 ? Lang::$txt['geek'] : Lang::numberFormat($this->posts),
@@ -1229,6 +1229,8 @@ class User implements \ArrayAccess
 			);
 
 			$this->formatted['signature'] = Utils::adjustHeadingLevels($this->formatted['signature'], null);
+
+			$this->formatted['birth_date'] = $this->formatted['birthdate'];
 		}
 
 		// Are we also loading the member's custom fields?
@@ -3038,6 +3040,13 @@ class User implements \ArrayAccess
 			switch ($var) {
 				case 'birthdate':
 					$type = 'date';
+
+					try {
+						$val = empty($val) ? '1004-01-01' : Time::create($val)->format('Y-m-d', false, false);
+					} catch (\Throwable $e) {
+						$val = '1004-01-01';
+					}
+
 					break;
 
 				case 'member_ip':
