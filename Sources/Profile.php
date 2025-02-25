@@ -437,9 +437,10 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'email_address' => [
-				'type' => 'email',
+				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_email'])) ? 'email' : 'label',
 				'label' => Lang::$txt['user_email_address'],
 				'subtext' => Lang::$txt['valid_email'],
+				'postinput' => !User::$me->is_owner && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_email']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_email" class="button smalltext">' . Lang::$txt['username_change'] . '</a>' : '',
 				'log_change' => true,
 				'permission' => 'profile_password',
 				'js_submit' => !empty(Config::$modSettings['send_validation_onChange']) ? '
@@ -549,7 +550,7 @@ class Profile extends User implements \ArrayAccess
 			'member_name' => [
 				'type' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? 'text' : 'label',
 				'label' => Lang::$txt['username'],
-				'subtext' => User::$me->allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" style="font-style: italic;">' . Lang::$txt['username_change'] . '</a>]' : '',
+				'postinput' => User::$me->allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" class="button smalltext">' . Lang::$txt['username_change'] . '</a>' : '',
 				'log_change' => true,
 				'permission' => 'profile_identity',
 				'prehtml' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . Lang::$txt['username_warning'] . '</div>' : '',
@@ -585,9 +586,10 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'passwrd1' => [
-				'type' => 'password',
+				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'label',
 				'label' => Lang::$txt['choose_pass'],
 				'subtext' => Lang::$txt['password_strength'],
+				'postinput' => !User::$me->is_owner && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_password']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_password" class="button smalltext">' . Lang::$txt['username_change'] . '</a>' : '',
 				'size' => 20,
 				'value' => '',
 				'permission' => 'profile_password',
@@ -621,7 +623,7 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'passwrd2' => [
-				'type' => 'password',
+				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'hidden',
 				'label' => Lang::$txt['verify_pass'],
 				'size' => 20,
 				'value' => '',
