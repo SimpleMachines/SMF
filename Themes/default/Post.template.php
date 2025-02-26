@@ -342,30 +342,12 @@ function template_main()
 	// If the admin has enabled the hiding of the additional options - show a link and image for it.
 	if (!empty(Config::$modSettings['additional_options_collapsable']))
 		echo '
-					<div id="post_additional_options_header">
-						<strong><a href="#" id="postMoreExpandLink"> ', Lang::getTxt('post_additionalopt', file: 'Post'), '</a></strong>
-					</div>';
+					<details id="additional_options_toggle" ', Utils::$context['show_additional_options'] ? 'open' : '', ',><summary>', Lang::$txt['post_additionalopt'], '</summary>';
 
-	echo '
-					<div id="post_additional_options">';
+	template_additional_options(Utils::$context['Additional_options']);
 
-	// Display the checkboxes for all the standard options - if they are available to the user!
-	echo '
-						<div id="post_settings" class="smalltext">
-							<ul class="post_options">
-								', Utils::$context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . (Utils::$context['notify'] || !empty(Theme::$current->options['auto_notify']) || Utils::$context['auto_notify'] ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('notify_replies', file: 'Post') . '</label></li>' : '', '
-								', Utils::$context['can_lock'] ? '<li><input type="hidden" name="already_locked" value="' . Utils::$context['already_locked'] . '"><input type="hidden" name="lock" value="0"><label for="check_lock"><input type="checkbox" name="lock" id="check_lock"' . (Utils::$context['locked'] ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('lock_topic', file: 'Post') . '</label></li>' : '', '
-								<li><label for="check_back"><input type="checkbox" name="goback" id="check_back"' . (Utils::$context['back_to_topic'] || !empty(Theme::$current->options['return_to_post']) ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('back_to_topic', file: 'Post') . '</label></li>
-								', Utils::$context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . Utils::$context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . (Utils::$context['sticky'] ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('sticky_after_posting', file: 'Post') . '</label></li>' : '', '
-								<li><label for="check_smileys"><input type="checkbox" name="ns" id="check_smileys"', Utils::$context['use_smileys'] ? '' : ' checked', ' value="NS"> ', Lang::getTxt('dont_use_smileys', file: 'Post'), '</label></li>', '
-								', Utils::$context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty(Utils::$context['move']) ? ' checked" ' : '') . '> ' . Lang::getTxt('move_after_posting', file: 'Post') . '</label></li>' : '', '
-								', Utils::$context['can_announce'] && Utils::$context['is_first_post'] ? '<li><label for="check_announce"><input type="checkbox" name="announce_topic" id="check_announce" value="1"' . (!empty(Utils::$context['announce']) ? ' checked' : '') . '> ' . Lang::getTxt('announce_topic', file: 'Post') . '</label></li>' : '', '
-								', Utils::$context['show_approval'] ? '<li><label for="approve"><input type="checkbox" name="approve" id="approve" value="2"' . (Utils::$context['show_approval'] === 2 ? ' checked' : '') . '> ' . Lang::getTxt('approve_this_post', file: 'Post') . '</label></li>' : '', '
-							</ul>
-						</div><!-- #post_settings -->';
-
-	echo '
-					</div><!-- #post_additional_options -->';
+	if (!empty(Config::$modSettings['additional_options_collapsable']))
+		echo '</details>';
 
 	// If the admin enabled the drafts feature, show a draft selection box
 	if (!empty(Config::$modSettings['drafts_post_enabled']) && !empty(Utils::$context['drafts']) && !empty(Config::$modSettings['drafts_show_saved_enabled']) && !empty(Theme::$current->options['drafts_show_saved_enabled']))
@@ -475,32 +457,17 @@ function template_main()
 	// Code for showing and hiding additional options.
 	if (!empty(Config::$modSettings['additional_options_collapsable']))
 		echo '
-			var oSwapAdditionalOptions = new smc_Toggle({
-				bToggleEnabled: true,
-				bCurrentlyCollapsed: ', Utils::$context['show_additional_options'] ? 'false' : 'true', ',
-				funcOnBeforeCollapse: function () {
-					document.getElementById(\'additional_options\').value = \'0\';
-				},
-				funcOnBeforeExpand: function () {
-					document.getElementById(\'additional_options\').value = \'1\';
-				},
-				aSwappableContainers: [
-					\'post_additional_options\',
-				],
-				aSwapImages: [
-					{
-						sId: \'postMoreExpandLink\',
-						altExpanded: \'-\',
-						altCollapsed: \'+\'
-					}
-				],
-				aSwapLinks: [
-					{
-						sId: \'postMoreExpandLink\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('post_additionalopt', file: 'Post')), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('post_additionalopt', file: 'Post')), '
-					}
-				]
+			// Get the details element and the hidden input field
+			const detailsElement = document.getElementById("additional_options_toggle");
+			const valueField = document.getElementById("additional_options");
+
+			// Add an event listener to the details element for when it is opened or closed
+			detailsElement.addEventListener("toggle", function() {
+				if (detailsElement.open) {
+					valueField.value = "1"; // Set value to 1 when details are opened
+				} else {
+					valueField.value = "0"; // Set value to 0 when details are closed
+				}
 			});';
 
 	// Code for showing and hiding drafts
@@ -529,8 +496,6 @@ function template_main()
 			});';
 
 	echo '
-			var oEditorID = "', Utils::$context['post_box_name'], '";
-			var oEditorObject = oEditorHandle_', Utils::$context['post_box_name'], ';
 		</script>';
 
 	// If the user is replying to a topic show the previous posts.
@@ -607,6 +572,53 @@ function template_main()
 		echo '
 		</script>';
 	}
+}
+
+/**
+ * Render additional post options as a list of checkboxes.
+ *
+ * $additional_options is an array of options to be rendered as elements in a HTML unordered list.  It accrpts:
+ *    - 'can_show' (bool): Whether the option should be displayed (based on user permissions).
+ *    - 'name' (string): The name attribute of the checkbox input.
+ *    - 'id' (string): The id attribute of the checkbox input.
+ *    - 'checked' (bool): Whether the checkbox should be pre-checked or not.
+ *    - 'label' (string): The label text displayed next to the checkbox.
+ *    - 'value' (string, optional): The value attribute of the checkbox (default is '1').
+ *    - 'hidden' (array, optional): Any hidden input fields associated with this option (key-value pairs).
+ *
+ * @param array $additional_options The options array containing the settings for each checkbox.
+ * @param ?string $id The id for the wrapper list element (`ul`).
+ */
+function template_additional_options(array $additional_options, ?string $id = null): void
+{
+	echo '
+			<ul id="' . ($id ?? 'additional_options') . '" class="smalltext">';
+
+	foreach ($additional_options as $option) {
+		// Only display the option if can_show is true
+		if ($option['can_show']) {
+			echo '
+				<li>';
+
+			// Render hidden fields if present
+			if (isset($option['hidden'])) {
+				foreach ($option['hidden'] as $hidden_name => $hidden_value) {
+					echo '
+					<input type="hidden" name="' . $hidden_name . '" value="' . $hidden_value . '">';
+				}
+			}
+
+			// Render the checkbox input
+			echo '
+					<label for="' . $option['id'] . '">
+						<input type="checkbox" name="' . $option['name'] . '" id="' . $option['id'] . '"' . ($option['checked'] ? ' checked' : '') . ' value="' . ($option['value'] ?? '1') . '"> ' . $option['label'] . '
+					</label>
+				</li>';
+		}
+	}
+
+	echo '
+			</ul><!-- #additional_options -->';
 }
 
 /**

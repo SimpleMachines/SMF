@@ -1869,6 +1869,100 @@ class Post implements ActionInterface, Routable
 	protected function setupPostingFields(): void
 	{
 		/*
+			**Keys in Each Option Array**:
+
+			**`can_show`** (bool)
+			A boolean flag that determines if the option should be displayed.  If
+			set to `true`, the option will be rendered; if `false`, it will be skipped.
+
+			**`name`** (string)
+			The `name` attribute for the checkbox input.  This is the identifier
+			sent when the form is submitted. Each checkbox must have a unique name.
+
+			**`id`** (string)
+			The `id` attribute for the checkbox input.  This must be unique
+			and is used to associate the checkbox with its label (`for` attribute).
+
+			**`checked`** (bool)
+			Whether the checkbox should be checked by default.  If set to `true`,
+			the checkbox will be checked. If set to `false`, it will be unchecked.
+
+			**`label`** (string)
+			The label text that will appear next to the checkbox.  It describes
+			the option to the user, such as "Notify me of replies".
+
+			**`value`** (string, optional)
+			The `value` attribute of the checkbox.  This determines the value that
+			will be submitted when the checkbox is checked. The default value is `'1'`.
+
+			**`hidden`** (array, optional)
+			An associative array of hidden input fields related to this option.
+			The keys represent the name of the hidden field, and the values
+			represent the value of the hidden field.
+			*/
+		Utils::$context['Additional_options'] = [
+			[
+				'can_show' => Utils::$context['can_notify'],
+				'name' => 'notify',
+				'id' => 'check_notify',
+				'checked' => Utils::$context['notify'] || !empty(Theme::$current->options['auto_notify']) || Utils::$context['auto_notify'],
+				'label' => Lang::$txt['notify_replies'],
+			],
+			[
+				'can_show' => Utils::$context['can_lock'],
+				'name' => 'lock',
+				'id' => 'check_lock',
+				'checked' => Utils::$context['locked'],
+				'label' => Lang::$txt['lock_topic'],
+				'hidden' => ['already_locked' => Utils::$context['already_locked']],
+			],
+			[
+				'can_show' => Utils::$context['can_sticky'],
+				'name' => 'sticky',
+				'id' => 'check_sticky',
+				'checked' => Utils::$context['sticky'],
+				'label' => Lang::$txt['sticky_after_posting'],
+				'hidden' => ['already_sticky' => Utils::$context['already_sticky']],
+			],
+			[
+				'can_show' => Utils::$context['can_move'],
+				'name' => 'move',
+				'id' => 'check_move',
+				'checked' => !empty(Utils::$context['move']),
+				'label' => Lang::$txt['move_after_posting'],
+			],
+			[
+				'can_show' => Utils::$context['can_announce'] && Utils::$context['is_first_post'],
+				'name' => 'announce_topic',
+				'id' => 'check_announce',
+				'checked' => !empty(Utils::$context['announce']),
+				'label' => Lang::$txt['announce_topic'],
+			],
+			[
+				'can_show' => Utils::$context['show_approval'] === 2,
+				'name' => 'approve',
+				'id' => 'approve',
+				'checked' => Utils::$context['show_approval'] === 2,
+				'label' => Lang::$txt['approve_this_post'],
+			],
+			[
+				'can_show' => true,
+				'name' => 'goback',
+				'id' => 'check_back',
+				'checked' => Utils::$context['back_to_topic'] || !empty(Theme::$current->options['return_to_post']),
+				'label' => Lang::$txt['back_to_topic'],
+			],
+			[
+				'can_show' => true,
+				'name' => 'ns',
+				'id' => 'check_smileys',
+				'checked' => !Utils::$context['use_smileys'],
+				'label' => Lang::$txt['dont_use_smileys'],
+				'value' => 'NS',
+			],
+		];
+
+		/*
 			Each item in Utils::$context['posting_fields'] is an array similar to one of
 			the following:
 

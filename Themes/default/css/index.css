@@ -3761,26 +3761,12 @@ form#postmodify .roundframe {
 #post_header img {
 	vertical-align: middle;
 }
-ul.post_options {
-	margin: 0 0 0 12px;
-	padding: 0;
-	overflow: hidden;
+#additional_options {
+	display: grid;
+	gap: 2px 0;
+	grid: auto / 1fr 1fr;
 }
-ul.post_options li {
-	margin: 2px 0;
-	width: 49%;
-	float: left;
-}
-#post_additional_options_header {
-	margin-top: 0.5em;
-}
-#post_additional_options {
-	overflow: hidden;
-}
-#post_additional_options .progress_bar {
-	height: 22px;
-}
-#post_settings, #postAttachment, #postAttachment2, #attachment_previews {
+#additional_options, #postAttachment, #postAttachment2, #attachment_previews {
 	padding: 10px 0;
 }
 

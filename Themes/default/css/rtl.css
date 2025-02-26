@@ -108,13 +108,6 @@ dl.settings img {
 #post_header dd {
 	float: right;
 }
-ul.post_options {
-	margin: 0 1em 0 0;
-}
-ul.post_options li {
-	float: right;
-	margin: 0 2px;
-}
 
 /* Styles for edit event section
 ---------------------------------------------------- */

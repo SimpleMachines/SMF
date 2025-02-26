@@ -344,14 +344,6 @@
 	#post_confirm_buttons .smalltext {
 		display: none;
 	}
-	ul.post_options {
-		padding: 0;
-		margin: 0;
-	}
-	ul.post_options li {
-		margin: 2px 5px 0 0;
-		width: 48%;
-	}
 	/* Search */
 	#searchform .roundframe {
 		padding: 5px;
