@@ -3354,7 +3354,7 @@ function ConvertUtf8(): bool
 	];
 
 	// Remove any mapped character sets that are unsupported by this MySQL server.
-	$charset_maps = array_diff($charset_maps, $supported_charsets);
+	$charset_maps = array_intersect($charset_maps, $supported_charsets);
 
 	// Manual character translation for a couple of rare character sets that old
 	// SMF language files might have used.
