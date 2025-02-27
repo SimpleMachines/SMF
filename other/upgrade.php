@@ -3210,6 +3210,11 @@ function ConvertUtf8(): bool
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
 	$upcontext['dropping_index'] = $upcontext['dropping_index'] ?? false;
 
+	// Get all the characters sets that are supported by this MySQL server.
+	$request = Db::$db->query('', 'SHOW CHARACTER SET');
+	$supported_charsets = array_map(fn ($row) => $row['Charset'], Db::$db->fetch_all($request));
+	Db::$db->free_result($request);
+
 	// Which character set have they been using for interacting with the browser?
 	if (isset(Config::$modSettings['global_character_set'])) {
 		// Things are easy if this exists.
@@ -3349,9 +3354,7 @@ function ConvertUtf8(): bool
 	];
 
 	// Remove any mapped character sets that are unsupported by this MySQL server.
-	$request = Db::$db->query('', 'SHOW CHARACTER SET');
-	$charset_maps = array_diff($charset_maps, array_map(fn ($row) => $row['Charset'], Db::$db->fetch_all($request)));
-	Db::$db->free_result($request);
+	$charset_maps = array_diff($charset_maps, $supported_charsets);
 
 	// Manual character translation for a couple of rare character sets that old
 	// SMF language files might have used.
@@ -3789,34 +3792,43 @@ function ConvertUtf8(): bool
 						continue;
 					}
 
-					// Build a huge REPLACE statement.
-					$replace = '{identifier:column}';
+					if (!in_array($from_charset, $supported_charsets)) {
+						// Build a huge REPLACE statement.
+						$replace = '{identifier:column}';
 
-					if (isset($translation_tables[$from_charset])) {
-						foreach ($translation_tables[$from_charset] as $from => $to) {
-							$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
-						}
-					} else {
-						for ($i = 0; $i <= 0xFF; $i++) {
-							$from = '0x' . strtoupper(dechex($i));
-							$to = '0x' . strtoupper(bin2hex(mb_convert_encoding(chr($i), 'UTF-8', $from_charset)));
-
-							if ($from !== $to) {
+						if (isset($translation_tables[$from_charset])) {
+							foreach ($translation_tables[$from_charset] as $from => $to) {
 								$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
 							}
-						}
-					}
+						} else {
+							try {
+								for ($i = 0; $i <= 0xFF; $i++) {
+									$from = '0x' . strtoupper(dechex($i));
+									$to = '0x' . strtoupper(bin2hex(mb_convert_encoding(chr($i), 'UTF-8', $from_charset)));
 
-					// Convert the characters to UTF-8, using raw bytes.
-					Db::$db->query(
-						'',
-						'UPDATE {identifier:table}
-						SET {identifier:column} = ' . $replace,
-						[
-							'table' => $table,
-							'column' => $column['name'],
-						],
-					);
+									if ($from !== $to) {
+										$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
+									}
+								}
+							} catch (\Throwable $e) {
+								// mb_convert_encoding will throw a ValueError if
+								// either encoding is unrecognized.
+								unset($replace);
+								continue;
+							}
+						}
+
+						// Convert the characters to UTF-8, using raw bytes.
+						Db::$db->query(
+							'',
+							'UPDATE {identifier:table}
+							SET {identifier:column} = ' . $replace,
+							[
+								'table' => $table,
+								'column' => $column['name'],
+							],
+						);
+					}
 				}
 			}
 
