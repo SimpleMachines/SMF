@@ -1605,7 +1605,7 @@ class Smileys implements ActionInterface
 				PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 
 				// @todo not sure about url in destination_url
-				PackageUtils::create_chmod_control([Config::$packagesdir . '/temp/delme.tmp'], ['destination_url' => Config::$scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true]);
+				PackageUtils::createChmodControl([Config::$packagesdir . '/temp/delme.tmp'], ['destination_url' => Config::$scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true]);
 
 				PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 
@@ -1615,7 +1615,7 @@ class Smileys implements ActionInterface
 			}
 		}
 
-		$extracted = PackageUtils::read_tgz_file($destination, Config::$packagesdir . '/temp');
+		$extracted = PackageUtils::readTgzFile($destination, Config::$packagesdir . '/temp');
 
 		if (!$extracted) {
 			ErrorHandler::fatalLang('packageget_unable', false, ['https://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name]);
@@ -1746,7 +1746,7 @@ class Smileys implements ActionInterface
 				]);
 			}
 
-			PackageUtils::package_flush_cache();
+			PackageUtils::flushCache();
 
 			// Credits tag?
 			$credits_tag = (empty($credits_tag)) ? '' : Utils::jsonEncode($credits_tag);

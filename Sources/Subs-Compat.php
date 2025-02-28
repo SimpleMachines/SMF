@@ -5882,7 +5882,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $overwrite = false,
 		?array $files_to_extract = null,
 	): array|bool {
-		return SMF\PackageManager\PackageUtils::read_tgz_file(
+		return SMF\PackageManager\PackageUtils::readTgzFile(
 			$gzfilename,
 			isset($destination) ? (string) $destination : null,
 			$single_file,
@@ -5924,7 +5924,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $overwrite = false,
 		?array $files_to_extract = null,
 	): array|bool {
-		return SMF\PackageManager\PackageUtils::read_tgz_data(
+		return SMF\PackageManager\PackageUtils::readTgzData(
 			$data,
 			$destination,
 			$single_file,
@@ -5953,7 +5953,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $overwrite = false,
 		?array $files_to_extract = null,
 	): mixed {
-		return SMF\PackageManager\PackageUtils::read_zip_data(
+		return SMF\PackageManager\PackageUtils::readZipData(
 			$data,
 			$destination,
 			$single_file,
@@ -5971,7 +5971,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function url_exists(string $url): bool
 	{
-		return SMF\PackageManager\PackageUtils::url_exists($url);
+		return SMF\PackageManager\PackageUtils::urlExists($url);
 	}
 
 	/**
@@ -6014,7 +6014,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		array $chmodOptions = [],
 		bool $restore_write_status = false,
 	): array {
-		return SMF\PackageManager\PackageUtils::create_chmod_control($chmodFiles, $chmodOptions, $restore_write_status);
+		return SMF\PackageManager\PackageUtils::createChmodControl($chmodFiles, $chmodOptions, $restore_write_status);
 	}
 
 	/**
@@ -6128,7 +6128,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function parse_path(string $path): string
 	{
-		return SMF\PackageManager\PackageUtils::parse_path($path);
+		return SMF\PackageManager\PackageUtils::parsePath($path);
 	}
 
 	/**
@@ -6216,7 +6216,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_get_contents(string $filename): string
 	{
-		return SMF\PackageManager\PackageUtils::package_get_contents($filename);
+		return SMF\PackageManager\PackageUtils::packageGetContents($filename);
 	}
 
 	/**
@@ -6232,7 +6232,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_put_contents(string $filename, string $data, bool $testing = false): int
 	{
-		return SMF\PackageManager\PackageUtils::package_put_contents($filename, $data, $testing);
+		return SMF\PackageManager\PackageUtils::packagePutContents($filename, $data, $testing);
 	}
 
 	/**
@@ -6242,7 +6242,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_flush_cache(bool $trash = false): void
 	{
-		SMF\PackageManager\PackageUtils::package_flush_cache($trash);
+		SMF\PackageManager\PackageUtils::flushCache($trash);
 	}
 
 	/**
@@ -6255,7 +6255,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_chmod(string $filename, string $perm_state = 'writable', bool $track_change = false): bool
 	{
-		return SMF\PackageManager\PackageUtils::package_chmod($filename, $perm_state, $track_change);
+		return SMF\PackageManager\PackageUtils::chmod($filename, $perm_state, $track_change);
 	}
 
 	/**
@@ -6266,7 +6266,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_crypt(#[\SensitiveParameter] string $pass): string
 	{
-		return SMF\PackageManager\PackageUtils::package_crypt($pass);
+		return SMF\PackageManager\PackageUtils::crypt($pass);
 	}
 
 	/**
@@ -6278,7 +6278,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_unique_filename(string $dir, string $filename, string $ext): string
 	{
-		return SMF\PackageManager\PackageUtils::package_unique_filename($dir, $filename, $ext);
+		return SMF\PackageManager\PackageUtils::generateUniqueFilename($dir, $filename, $ext);
 	}
 
 	/**
@@ -6289,7 +6289,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_create_backup(string $id = 'backup'): bool
 	{
-		return SMF\PackageManager\PackageUtils::package_create_backup($id);
+		return SMF\PackageManager\PackageUtils::createBackup($id);
 	}
 
 	/**
@@ -6300,7 +6300,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_validate_installtest(array $package): array
 	{
-		return SMF\PackageManager\PackageUtils::package_validate_installtest($package);
+		return SMF\PackageManager\PackageUtils::validateInstallTest($package);
 	}
 
 	/**
@@ -6311,7 +6311,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_validate(array $packages): array
 	{
-		return SMF\PackageManager\PackageUtils::package_validate($packages);
+		return SMF\PackageManager\PackageUtils::validate($packages);
 	}
 
 	/**
@@ -6322,7 +6322,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_validate_send(array $sendData): array
 	{
-		return SMF\PackageManager\PackageUtils::package_validate_send($sendData);
+		return SMF\PackageManager\PackageUtils::validateSend($sendData);
 	}
 
 	/******************************

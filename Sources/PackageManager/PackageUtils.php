@@ -71,7 +71,7 @@ class PackageUtils
 	 * @param null|array $files_to_extract Specific files to extract
 	 * @return array|string|false Information about extracted files or false on failure
 	 */
-	public static function read_tgz_file(string $gzfilename, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
+	public static function readTgzFile(string $gzfilename, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
 		$data = str_starts_with($gzfilename, 'http://') || str_starts_with($gzfilename, 'https://')
 			? WebFetchApi::fetch($gzfilename)
@@ -87,12 +87,12 @@ class PackageUtils
 		}
 
 		if ($data[0] == "\x1f" && $data[1] == "\x8b") {
-			return self::read_tgz_data($data, $destination, $single_file, $overwrite, $files_to_extract);
+			return self::readTgzData($data, $destination, $single_file, $overwrite, $files_to_extract);
 		}
 
 		// Okay, this ain't no tar.gz, but maybe it's a zip file.
 		if ($data[0] == 'P' && $data[1] == 'K') {
-			return self::read_zip_data($data, $destination, $single_file, $overwrite, $files_to_extract);
+			return self::readZipData($data, $destination, $single_file, $overwrite, $files_to_extract);
 		}
 
 		return false;
@@ -124,7 +124,7 @@ class PackageUtils
 	 * @param null|array $files_to_extract If set, only extracts the specified files
 	 * @return array|string|false Information about the extracted files or false on failure
 	 */
-	public static function read_tgz_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
+	public static function readTgzData(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
 		// Make sure we have this loaded.
 		Lang::load('Packages');
@@ -262,7 +262,7 @@ class PackageUtils
 					continue;
 				}
 
-				self::package_put_contents($destination . '/' . $current['filename'], $current['data']);
+				self::packagePutContents($destination . '/' . $current['filename'], $current['data']);
 			}
 
 			if (!str_ends_with($current['filename'], '/')) {
@@ -277,7 +277,7 @@ class PackageUtils
 		}
 
 		if ($destination !== null && !$single_file) {
-			self::package_flush_cache();
+			self::flushCache();
 		}
 
 		if ($single_file) {
@@ -300,7 +300,7 @@ class PackageUtils
 	 * @param array $files_to_extract
 	 * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
 	 */
-	public static function read_zip_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed
+	public static function readZipData(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed
 	{
 		umask(0);
 
@@ -424,7 +424,7 @@ class PackageUtils
 					self::mktree($destination . '/' . dirname($file_info['filename']), 0777);
 				}
 
-				self::package_put_contents($destination . '/' . $file_info['filename'], $file_info['data']);
+				self::packagePutContents($destination . '/' . $file_info['filename'], $file_info['data']);
 			}
 
 			if ($is_file) {
@@ -439,7 +439,7 @@ class PackageUtils
 		}
 
 		if ($destination !== null && !$single_file) {
-			self::package_flush_cache();
+			self::flushCache();
 		}
 
 		return $single_file ? false : $return;
@@ -452,7 +452,7 @@ class PackageUtils
 	 * @param string $url The URL to parse
 	 * @return bool Whether the specified URL exists
 	 */
-	public static function url_exists(string $url): bool
+	public static function urlExists(string $url): bool
 	{
 		$url = new Url($url);
 		$url->toAscii();
@@ -538,14 +538,14 @@ class PackageUtils
 	{
 		// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 		if (str_contains($gzfilename, 'http://') || str_contains($gzfilename, 'https://')) {
-			$packageInfo = self::read_tgz_data($gzfilename, 'package-info.xml', true);
+			$packageInfo = self::readTgzData($gzfilename, 'package-info.xml', true);
 		} else {
 			if (!file_exists(Config::$packagesdir . '/' . $gzfilename)) {
 				return 'package_get_error_not_found';
 			}
 
 			if (is_file(Config::$packagesdir . '/' . $gzfilename)) {
-				$packageInfo = self::read_tgz_file(Config::$packagesdir . '/' . $gzfilename, '*/package-info.xml', true);
+				$packageInfo = self::readTgzFile(Config::$packagesdir . '/' . $gzfilename, '*/package-info.xml', true);
 			} elseif (file_exists(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml')) {
 				$packageInfo = file_get_contents(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml');
 			} else {
@@ -556,7 +556,7 @@ class PackageUtils
 		// Nothing?
 		if (empty($packageInfo)) {
 			// Perhaps they are trying to install a theme, lets tell them nicely this is the wrong function
-			$packageInfo = self::read_tgz_file(Config::$packagesdir . '/' . $gzfilename, '*/theme_info.xml', true);
+			$packageInfo = self::readTgzFile(Config::$packagesdir . '/' . $gzfilename, '*/theme_info.xml', true);
 
 			if (!empty($packageInfo)) {
 				return 'package_get_error_is_theme';
@@ -604,7 +604,7 @@ class PackageUtils
 	 * @param bool $restore_write_status Whether to restore write status
 	 * @return array An array of file info
 	 */
-	public static function create_chmod_control(array $chmodFiles = [], array $chmodOptions = [], bool $restore_write_status = false): array
+	public static function createChmodControl(array $chmodFiles = [], array $chmodOptions = [], bool $restore_write_status = false): array
 	{
 		// If we're restoring the status of existing files prepare the data.
 		if ($restore_write_status && isset($_SESSION['pack_ftp']) && !empty($_SESSION['pack_ftp']['original_perms'])) {
@@ -728,7 +728,7 @@ class PackageUtils
 
 		// If we have some FTP information already, then let's assume it was required and try to get ourselves connected.
 		if (!empty($_SESSION['pack_ftp']['connected'])) {
-			self::$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], self::package_crypt($_SESSION['pack_ftp']['password']));
+			self::$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], self::crypt($_SESSION['pack_ftp']['password']));
 		}
 
 		// Just got a submission did we?
@@ -757,7 +757,7 @@ class PackageUtils
 					'server' => $_POST['ftp_server'],
 					'port' => $_POST['ftp_port'],
 					'username' => $_POST['ftp_username'],
-					'password' => self::package_crypt($_POST['ftp_password']),
+					'password' => self::crypt($_POST['ftp_password']),
 					'path' => $_POST['ftp_path'],
 					'root' => $ftp_root,
 					'connected' => true,
@@ -784,7 +784,7 @@ class PackageUtils
 					$return_data['files']['writable'][] = $file;
 				} else {
 					// Now try to change that.
-					$return_data['files'][self::package_chmod($file, 'writable', true) ? 'writable' : 'notwritable'][] = $file;
+					$return_data['files'][self::chmod($file, 'writable', true) ? 'writable' : 'notwritable'][] = $file;
 				}
 			}
 		}
@@ -954,7 +954,7 @@ class PackageUtils
 		}
 
 		if (isset($_SESSION['pack_ftp'])) {
-			self::$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], self::package_crypt($_SESSION['pack_ftp']['password']));
+			self::$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], self::crypt($_SESSION['pack_ftp']['password']));
 
 			if ($files === null) {
 				return [];
@@ -1057,7 +1057,7 @@ class PackageUtils
 				'server' => $_POST['ftp_server'],
 				'port' => $_POST['ftp_port'],
 				'username' => $_POST['ftp_username'],
-				'password' => self::package_crypt($_POST['ftp_password']),
+				'password' => self::crypt($_POST['ftp_password']),
 				'path' => $_POST['ftp_path'],
 				'root' => $ftp_root,
 			];
@@ -1198,7 +1198,7 @@ class PackageUtils
 				// @todo Make sure the file actually exists?  Might not work when testing?
 				if ($action->exists('@type') && $action->fetch('@type') == 'inline') {
 					$filename = self::$temp_path . '$auto_' . $temp_auto++ . (in_array($actionType, ['readme', 'redirect', 'license']) ? '.txt' : ($actionType == 'code' || $actionType == 'database' ? '.php' : '.mod'));
-					self::package_put_contents($filename, $action->fetch('.'));
+					self::packagePutContents($filename, $action->fetch('.'));
 					$filename = strtr($filename, [self::$temp_path => '']);
 				} else {
 					$filename = $action->fetch('.');
@@ -1283,16 +1283,16 @@ class PackageUtils
 				// If there is a destination, make sure it makes sense.
 				if (!str_starts_with($actionType, 'remove')) {
 					$this_action['unparsed_destination'] = $action->fetch('@destination');
-					$this_action['destination'] = self::parse_path($action->fetch('@destination')) . '/' . basename($this_action['filename']);
+					$this_action['destination'] = self::parsePath($action->fetch('@destination')) . '/' . basename($this_action['filename']);
 				} else {
 					$this_action['unparsed_filename'] = $this_action['filename'];
-					$this_action['filename'] = self::parse_path($this_action['filename']);
+					$this_action['filename'] = self::parsePath($this_action['filename']);
 				}
 
 				// If we're moving or requiring (copying) a file.
 				if (str_starts_with($actionType, 'move') || str_starts_with($actionType, 'require')) {
 					if ($action->exists('@from')) {
-						$this_action['source'] = self::parse_path($action->fetch('@from'));
+						$this_action['source'] = self::parsePath($action->fetch('@from'));
 					} else {
 						$this_action['source'] = self::$temp_path . $this_action['filename'];
 					}
@@ -1442,7 +1442,7 @@ class PackageUtils
 				}
 
 				// Create an empty file.
-				self::package_put_contents($action['destination'], self::package_get_contents($action['source']), $testing_only);
+				self::packagePutContents($action['destination'], self::packageGetContents($action['source']), $testing_only);
 
 				if (!file_exists($action['destination'])) {
 					$failure = true;
@@ -1461,7 +1461,7 @@ class PackageUtils
 					$failure |= !self::mktree(dirname($action['destination']), 0777);
 				}
 
-				self::package_put_contents($action['destination'], self::package_get_contents($action['source']), $testing_only);
+				self::packagePutContents($action['destination'], self::packageGetContents($action['source']), $testing_only);
 
 				$failure |= !copy($action['source'], $action['destination']);
 
@@ -1472,7 +1472,7 @@ class PackageUtils
 							$failure |= !self::mktree(dirname($theme_destination), 0777);
 						}
 
-						self::package_put_contents($theme_destination, self::package_get_contents($action['source']), $testing_only);
+						self::packagePutContents($theme_destination, self::packageGetContents($action['source']), $testing_only);
 
 						$failure |= !copy($action['source'], $theme_destination);
 					}
@@ -1501,7 +1501,7 @@ class PackageUtils
 			} elseif ($action['type'] == 'remove-file') {
 				// Make sure the file exists before deleting it.
 				if (file_exists($action['filename'])) {
-					self::package_chmod($action['filename']);
+					self::chmod($action['filename']);
 					$failure |= !unlink($action['filename']);
 				}
 				// The file that was supposed to be deleted couldn't be found.
@@ -1687,7 +1687,7 @@ class PackageUtils
 	 * @param string $path The path
 	 * @return string The parsed path
 	 */
-	public static function parse_path(string $path): string
+	public static function parsePath(string $path): string
 	{
 		$dirs = [
 			'\\' => '/',
@@ -1897,12 +1897,12 @@ class PackageUtils
 				}
 			}
 
-			self::package_chmod($destination . '/' . $entryname);
+			self::chmod($destination . '/' . $entryname);
 
 			if (is_dir($source . '/' . $entryname)) {
 				self::copytree($source . '/' . $entryname, $destination . '/' . $entryname);
 			} elseif (file_exists($destination . '/' . $entryname)) {
-				self::package_put_contents($destination . '/' . $entryname, self::package_get_contents($source . '/' . $entryname));
+				self::packagePutContents($destination . '/' . $entryname, self::packageGetContents($source . '/' . $entryname));
 			} else {
 				copy($source . '/' . $entryname, $destination . '/' . $entryname);
 			}
@@ -1985,7 +1985,7 @@ class PackageUtils
 		// First, we need to build the list of all the files likely to get changed.
 		foreach ($files as $file) {
 			// What is the filename we're currently on?
-			$filename = self::parse_path(trim($file->fetch('@name')));
+			$filename = self::parsePath(trim($file->fetch('@name')));
 
 			// Now, we need to work out whether this is even a template file...
 			foreach ($theme_paths as $id => $theme) {
@@ -2028,7 +2028,7 @@ class PackageUtils
 		foreach ($files as $file) {
 			// This is the actual file referred to in the XML document...
 			$files_to_change = [
-				1 => self::parse_path(trim($file->fetch('@name'))),
+				1 => self::parsePath(trim($file->fetch('@name'))),
 			];
 
 			// Sometimes though, we have some additional files for other themes, if we have add them to the mix.
@@ -2074,7 +2074,7 @@ class PackageUtils
 				}
 				// Phew, it exists!  Load 'er up!
 				else {
-					$working_data = str_replace("\r", '', self::package_get_contents($working_file));
+					$working_data = str_replace("\r", '', self::packageGetContents($working_file));
 				}
 
 				$actions[] = [
@@ -2277,7 +2277,7 @@ class PackageUtils
 				// Fix any little helper symbols ;).
 				$working_data = strtr($working_data, ['[$PACK' . 'AGE1$]' => '$', '[$PACK' . 'AGE2$]' => '\\']);
 
-				self::package_chmod($working_file);
+				self::chmod($working_file);
 
 				if ((file_exists($working_file) && !is_writable($working_file)) || (!file_exists($working_file) && !is_writable(dirname($working_file)))) {
 					$actions[] = [
@@ -2300,7 +2300,7 @@ class PackageUtils
 				}
 
 				// Always call this, even if in testing, because it won't really be written in testing mode.
-				self::package_put_contents($working_file, $working_data, $testing);
+				self::packagePutContents($working_file, $working_data, $testing);
 
 				$actions[] = [
 					'type' => 'saved',
@@ -2373,7 +2373,7 @@ class PackageUtils
 				'changes' => [],
 			];
 
-			$filename = self::parse_path($code_match[2]);
+			$filename = self::parsePath($code_match[2]);
 
 			// Now, is this a template file, and if so, which?
 			foreach ($theme_paths as $id => $theme) {
@@ -2425,7 +2425,7 @@ class PackageUtils
 			if ($code_match[1] == 'file' || $code_match[1] == 'edit file') {
 				// Backup the old file.
 				if ($working_file !== null) {
-					self::package_chmod($working_file);
+					self::chmod($working_file);
 
 					// Don't even dare.
 					if (basename($working_file) == basename(SMF_SETTINGS_BACKUP_FILE)) {
@@ -2447,7 +2447,7 @@ class PackageUtils
 						}
 					}
 
-					self::package_put_contents($working_file, $working_data, $testing);
+					self::packagePutContents($working_file, $working_data, $testing);
 				}
 
 				if ($working_file !== null) {
@@ -2462,7 +2462,7 @@ class PackageUtils
 				$is_custom = $theme_id_ref[$counter - 1] ?? 0;
 
 				// Make sure the file exists!
-				$working_file = self::parse_path($code_match[2]);
+				$working_file = self::parsePath($code_match[2]);
 
 				if ($working_file[0] != '/' && $working_file[1] != ':') {
 					Lang::load('Errors');
@@ -2484,7 +2484,7 @@ class PackageUtils
 
 				if (file_exists($working_file)) {
 					// Load the new file.
-					$working_data = str_replace("\r", '', self::package_get_contents($working_file));
+					$working_data = str_replace("\r", '', self::packageGetContents($working_file));
 
 					$actions[] = [
 						'type' => 'opened',
@@ -2583,7 +2583,7 @@ class PackageUtils
 
 		// Backup the old file.
 		if ($working_file !== null) {
-			self::package_chmod($working_file);
+			self::chmod($working_file);
 
 			if (!is_writable($working_file)) {
 				$actions[] = [
@@ -2600,7 +2600,7 @@ class PackageUtils
 				}
 			}
 
-			self::package_put_contents($working_file, $working_data, $testing);
+			self::packagePutContents($working_file, $working_data, $testing);
 		}
 
 		if ($working_file !== null) {
@@ -2625,7 +2625,7 @@ class PackageUtils
 	 * @param string $filename The package file
 	 * @return string The contents of the specified file
 	 */
-	public static function package_get_contents(string $filename): string
+	public static function packageGetContents(string $filename): string
 	{
 		if (!isset(self::$package_cache)) {
 			$mem_check = Sapi::setMemoryLimit('128M');
@@ -2656,7 +2656,7 @@ class PackageUtils
 	 * @param bool $testing Whether we're just testing things
 	 * @return int The length of the data written (in bytes)
 	 */
-	public static function package_put_contents(string $filename, string $data, bool $testing = false): int
+	public static function packagePutContents(string $filename, string $data, bool $testing = false): int
 	{
 		static $text_filetypes = ['php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm'];
 
@@ -2681,7 +2681,7 @@ class PackageUtils
 			@touch($filename);
 		}
 
-		self::package_chmod($filename);
+		self::chmod($filename);
 
 		if (!$testing && (str_contains($filename, 'Packages/') || self::$package_cache === false)) {
 			$fp = @fopen($filename, in_array(substr($filename, -3), $text_filetypes) ? 'w' : 'wb');
@@ -2715,7 +2715,7 @@ class PackageUtils
 	 *
 	 * @param bool $trash
 	 */
-	public static function package_flush_cache(bool $trash = false): void
+	public static function flushCache(bool $trash = false): void
 	{
 		static $text_filetypes = ['php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm'];
 
@@ -2735,7 +2735,7 @@ class PackageUtils
 				@touch($filename);
 			}
 
-			$result = self::package_chmod($filename);
+			$result = self::chmod($filename);
 
 			// if we are not doing our test pass, then lets do a full write check
 			// bypass directories when doing this test
@@ -2781,7 +2781,7 @@ class PackageUtils
 	 * @param bool $track_change Whether to track this change
 	 * @return bool True if it worked, false if it didn't
 	 */
-	public static function package_chmod(string $filename, string $perm_state = 'writable', bool $track_change = false): bool
+	public static function chmod(string $filename, string $perm_state = 'writable', bool $track_change = false): bool
 	{
 		if (file_exists($filename) && is_writable($filename) && $perm_state == 'writable') {
 			return true;
@@ -2896,7 +2896,7 @@ class PackageUtils
 	 * @param string $pass The password
 	 * @return string The encrypted password
 	 */
-	public static function package_crypt(
+	public static function crypt(
 		#[\SensitiveParameter]
 		string $pass,
 	): string {
@@ -2924,7 +2924,7 @@ class PackageUtils
 	 * @return string The filename with a number appended but no extension
 	 * @since 2.1
 	 */
-	public static function package_unique_filename(string $dir, string $filename, string $ext): string
+	public static function generateUniqueFilename(string $dir, string $filename, string $ext): string
 	{
 		if (file_exists($dir . '/' . $filename . '.' . $ext)) {
 			$i = 1;
@@ -2944,7 +2944,7 @@ class PackageUtils
 	 * @param string $id The name of the backup
 	 * @return bool True if it worked, false if it didn't
 	 */
-	public static function package_create_backup(string $id = 'backup'): bool
+	public static function createBackup(string $id = 'backup'): bool
 	{
 		$files = [];
 
@@ -3006,7 +3006,7 @@ class PackageUtils
 			}
 
 			if (!is_writable(Config::$packagesdir . '/backups')) {
-				self::package_chmod(Config::$packagesdir . '/backups');
+				self::chmod(Config::$packagesdir . '/backups');
 			}
 			$output_file = Config::$packagesdir . '/backups/' . Time::strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
 			$output_ext = '.tar';
@@ -3067,7 +3067,7 @@ class PackageUtils
 	 * @param array $package Package data
 	 * @return array Results from the package validation.
 	 */
-	public static function package_validate_installtest(array $package): array
+	public static function validateInstallTest(array $package): array
 	{
 		// Don't validate directories.
 		Utils::$context['package_sha256_hash'] = is_dir($package['file_name']) ? null : hash_file('sha256', $package['file_name']);
@@ -3079,7 +3079,7 @@ class PackageUtils
 			'custom_type' => $package['custom_type'],
 		]];
 
-		return self::package_validate_send($sendData);
+		return self::validateSend($sendData);
 	}
 
 	/**
@@ -3088,7 +3088,7 @@ class PackageUtils
 	 * @param array $packages Package data
 	 * @return array Results from the package validation.
 	 */
-	public static function package_validate(array $packages): array
+	public static function validate(array $packages): array
 	{
 		// Setup our send data.
 		$sendData = [];
@@ -3118,7 +3118,7 @@ class PackageUtils
 			];
 		}
 
-		return self::package_validate_send($sendData);
+		return self::validateSend($sendData);
 	}
 
 	/**
@@ -3127,7 +3127,7 @@ class PackageUtils
 	 * @param array $sendData Json encoded data to be sent to the validation servers.
 	 * @return array Results from the package validation.
 	 */
-	public static function package_validate_send(array $sendData): array
+	public static function validateSend(array $sendData): array
 	{
 		// First lets get all package servers into here.
 		if (empty(Utils::$context['package_servers'])) {

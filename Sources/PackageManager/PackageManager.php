@@ -200,7 +200,7 @@ class PackageManager
 		Utils::$context['install_id'] = isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : 0;
 
 		// Load up the package FTP information?
-		PackageUtils::create_chmod_control();
+		PackageUtils::createChmodControl();
 
 		// Make sure temp directory exists and is empty.
 		if (file_exists(Config::$packagesdir . '/temp')) {
@@ -212,7 +212,7 @@ class PackageManager
 
 			if (!PackageUtils::mktree(Config::$packagesdir . '/temp', 0777)) {
 				PackageUtils::deltree(Config::$packagesdir . '/temp', false);
-				PackageUtils::create_chmod_control([Config::$packagesdir . '/temp/delme.tmp'], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;sa=' . $_REQUEST['sa'] . ';package=' . $_REQUEST['package'], 'crash_on_error' => true]);
+				PackageUtils::createChmodControl([Config::$packagesdir . '/temp/delme.tmp'], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;sa=' . $_REQUEST['sa'] . ';package=' . $_REQUEST['package'], 'crash_on_error' => true]);
 
 				PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 
@@ -240,7 +240,7 @@ class PackageManager
 
 		// Extract the files so we can get things like the readme, etc.
 		if (is_file(Config::$packagesdir . '/' . Utils::$context['filename'])) {
-			Utils::$context['extracted_files'] = PackageUtils::read_tgz_file(Config::$packagesdir . '/' . Utils::$context['filename'], Config::$packagesdir . '/temp');
+			Utils::$context['extracted_files'] = PackageUtils::readTgzFile(Config::$packagesdir . '/' . Utils::$context['filename'], Config::$packagesdir . '/temp');
 
 			if (Utils::$context['extracted_files'] && !file_exists(Config::$packagesdir . '/temp/package-info.xml')) {
 				foreach (Utils::$context['extracted_files'] as $file) {
@@ -297,7 +297,7 @@ class PackageManager
 		Utils::$context['extract_type'] = $packageInfo['type'] ?? 'modification';
 
 		// Get our validation info.
-		Utils::$context['validation_tests'] = PackageUtils::package_validate_installtest([
+		Utils::$context['validation_tests'] = PackageUtils::validateInstallTest([
 			'file_name' => Config::$packagesdir . '/' . Utils::$context['filename'],
 			'custom_id' => !empty($packageInfo['id']) ? $packageInfo['id'] : '',
 			'custom_type' => Utils::$context['extract_type'],
@@ -691,7 +691,7 @@ class PackageManager
 					}
 					// Otherwise is this is going into another theme record it.
 					elseif ($matches[1] == 'themes_dir') {
-						$themeFinds['other_themes'][] = strtolower(strtr(PackageUtils::parse_path($action['unparsed_destination']), ['\\' => '/']) . '/' . basename($action['filename']));
+						$themeFinds['other_themes'][] = strtolower(strtr(PackageUtils::parsePath($action['unparsed_destination']), ['\\' => '/']) . '/' . basename($action['filename']));
 					}
 				}
 			} elseif (in_array($action['type'], ['move-dir', 'move-file'])) {
@@ -726,7 +726,7 @@ class PackageManager
 					}
 					// Otherwise is this is going into another theme record it.
 					elseif ($matches[1] == 'themes_dir') {
-						$themeFinds['other_themes'][] = strtolower(strtr(PackageUtils::parse_path($action['unparsed_filename']), ['\\' => '/']) . '/' . basename($action['filename']));
+						$themeFinds['other_themes'][] = strtolower(strtr(PackageUtils::parsePath($action['unparsed_filename']), ['\\' => '/']) . '/' . basename($action['filename']));
 					}
 				}
 			}
@@ -835,14 +835,14 @@ class PackageManager
 		}
 
 		// Trash the cache... which will also check permissions for us!
-		PackageUtils::package_flush_cache(true);
+		PackageUtils::flushCache(true);
 
 		if (file_exists(Config::$packagesdir . '/temp')) {
 			PackageUtils::deltree(Config::$packagesdir . '/temp');
 		}
 
 		if (!empty($chmod_files)) {
-			$ftp_status = PackageUtils::create_chmod_control($chmod_files);
+			$ftp_status = PackageUtils::createChmodControl($chmod_files);
 			Utils::$context['ftp_needed'] = !empty($ftp_status['files']['notwritable']) && !empty(Utils::$context['package_ftp']);
 		}
 
@@ -886,7 +886,7 @@ class PackageManager
 		}
 
 		// Load up the package FTP information?
-		PackageUtils::create_chmod_control([], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;sa=' . $_REQUEST['sa'] . ';package=' . $_REQUEST['package']]);
+		PackageUtils::createChmodControl([], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;sa=' . $_REQUEST['sa'] . ';package=' . $_REQUEST['package']]);
 
 		// Make sure temp directory exists and is empty!
 		if (file_exists(Config::$packagesdir . '/temp')) {
@@ -897,7 +897,7 @@ class PackageManager
 
 		// Let the unpacker do the work.
 		if (is_file(Config::$packagesdir . '/' . Utils::$context['filename'])) {
-			Utils::$context['extracted_files'] = PackageUtils::read_tgz_file(Config::$packagesdir . '/' . Utils::$context['filename'], Config::$packagesdir . '/temp');
+			Utils::$context['extracted_files'] = PackageUtils::readTgzFile(Config::$packagesdir . '/' . Utils::$context['filename'], Config::$packagesdir . '/temp');
 
 			if (!file_exists(Config::$packagesdir . '/temp/package-info.xml')) {
 				foreach (Utils::$context['extracted_files'] as $file) {
@@ -995,7 +995,7 @@ class PackageManager
 		// Create a backup file to roll back to! (but if they do this more than once, don't run it a zillion times.)
 		if (!empty(Config::$modSettings['package_make_full_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != Utils::$context['filename'] . (Utils::$context['uninstalling'] ? '$$' : '$'))) {
 			$_SESSION['last_backup_for'] = Utils::$context['filename'] . (Utils::$context['uninstalling'] ? '$$' : '$');
-			$result = PackageUtils::package_create_backup((Utils::$context['uninstalling'] ? 'backup_' : 'before_') . strtok(Utils::$context['filename'], '.'));
+			$result = PackageUtils::createBackup((Utils::$context['uninstalling'] ? 'backup_' : 'before_') . strtok(Utils::$context['filename'], '.'));
 
 			if (!$result) {
 				ErrorHandler::fatalLang('could_not_package_backup', false);
@@ -1203,7 +1203,7 @@ class PackageManager
 				}
 			}
 
-			PackageUtils::package_flush_cache();
+			PackageUtils::flushCache();
 
 			// See if this is already installed, and change it's state as required.
 			$request = Db::$db->query(
@@ -1413,7 +1413,7 @@ class PackageManager
 		}
 
 		// Restore file permissions?
-		PackageUtils::create_chmod_control([], [], true);
+		PackageUtils::createChmodControl([], [], true);
 
 		// Does Config::$backward_compatibility need to be updated?
 		$this->updateBackwardCompatibility();
@@ -1482,7 +1482,7 @@ class PackageManager
 
 		// Let the unpacker do the work.
 		if (is_file(Config::$packagesdir . '/' . Utils::$context['filename'])) {
-			Utils::$context['files'] = PackageUtils::read_tgz_file(Config::$packagesdir . '/' . Utils::$context['filename'], null);
+			Utils::$context['files'] = PackageUtils::readTgzFile(Config::$packagesdir . '/' . Utils::$context['filename'], null);
 		} elseif (is_dir(Config::$packagesdir . '/' . Utils::$context['filename'])) {
 			Utils::$context['files'] = PackageUtils::listtree(Config::$packagesdir . '/' . Utils::$context['filename']);
 		}
@@ -1508,7 +1508,7 @@ class PackageManager
 
 		if (isset($_REQUEST['raw'])) {
 			if (is_file(Config::$packagesdir . '/' . $_REQUEST['package'])) {
-				echo PackageUtils::read_tgz_file(Config::$packagesdir . '/' . $_REQUEST['package'], $_REQUEST['file'], true);
+				echo PackageUtils::readTgzFile(Config::$packagesdir . '/' . $_REQUEST['package'], $_REQUEST['file'], true);
 			} elseif (is_dir(Config::$packagesdir . '/' . $_REQUEST['package'])) {
 				echo file_get_contents(Config::$packagesdir . '/' . $_REQUEST['package'] . '/' . $_REQUEST['file']);
 			}
@@ -1532,7 +1532,7 @@ class PackageManager
 			Utils::$context['filedata'] = '<img src="' . Config::$scripturl . '?action=admin;area=packages;sa=examine;package=' . $_REQUEST['package'] . ';file=' . $_REQUEST['file'] . ';raw" alt="' . $_REQUEST['file'] . '">';
 		} else {
 			if (is_file(Config::$packagesdir . '/' . $_REQUEST['package'])) {
-				Utils::$context['filedata'] = Utils::htmlspecialchars(PackageUtils::read_tgz_file(Config::$packagesdir . '/' . $_REQUEST['package'], $_REQUEST['file'], true));
+				Utils::$context['filedata'] = Utils::htmlspecialchars(PackageUtils::readTgzFile(Config::$packagesdir . '/' . $_REQUEST['package'], $_REQUEST['file'], true));
 			} elseif (is_dir(Config::$packagesdir . '/' . $_REQUEST['package'])) {
 				Utils::$context['filedata'] = Utils::htmlspecialchars(file_get_contents(Config::$packagesdir . '/' . $_REQUEST['package'] . '/' . $_REQUEST['file']));
 			}
@@ -1559,7 +1559,7 @@ class PackageManager
 
 		// Can't delete what's not there.
 		if (file_exists(Config::$packagesdir . '/' . $_GET['package']) && (str_ends_with($_GET['package'], '.zip') || str_ends_with($_GET['package'], '.tgz') || str_ends_with($_GET['package'], '.tar.gz') || is_dir(Config::$packagesdir . '/' . $_GET['package'])) && $_GET['package'] != 'backups' && !str_starts_with($_GET['package'], '.')) {
-			PackageUtils::create_chmod_control([Config::$packagesdir . '/' . $_GET['package']], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;sa=remove;package=' . $_GET['package'], 'crash_on_error' => true]);
+			PackageUtils::createChmodControl([Config::$packagesdir . '/' . $_GET['package']], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;sa=remove;package=' . $_GET['package'], 'crash_on_error' => true]);
 
 			if (is_dir(Config::$packagesdir . '/' . $_GET['package'])) {
 				PackageUtils::deltree(Config::$packagesdir . '/' . $_GET['package']);
@@ -1783,7 +1783,7 @@ class PackageManager
 
 		// We need to extract this again.
 		if (is_file(Config::$packagesdir . '/' . Utils::$context['filename'])) {
-			Utils::$context['extracted_files'] = PackageUtils::read_tgz_file(Config::$packagesdir . '/' . Utils::$context['filename'], Config::$packagesdir . '/temp');
+			Utils::$context['extracted_files'] = PackageUtils::readTgzFile(Config::$packagesdir . '/' . Utils::$context['filename'], Config::$packagesdir . '/temp');
 
 			if (Utils::$context['extracted_files'] && !file_exists(Config::$packagesdir . '/temp/package-info.xml')) {
 				foreach (Utils::$context['extracted_files'] as $file) {
@@ -1901,7 +1901,7 @@ class PackageManager
 
 		// If we're restoring permissions this is just a pass through really.
 		if (isset($_GET['restore'])) {
-			PackageUtils::create_chmod_control([], [], true);
+			PackageUtils::createChmodControl([], [], true);
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -1910,7 +1910,7 @@ class PackageManager
 		Sapi::setTimeLimit();
 
 		// Load up some FTP stuff.
-		PackageUtils::create_chmod_control();
+		PackageUtils::createChmodControl();
 
 		if (empty(PackageUtils::$package_ftp) && !isset($_POST['skip_ftp'])) {
 			$ftp = new FtpConnection(null);
@@ -2291,7 +2291,7 @@ class PackageManager
 			// Start processing items.
 			foreach (Utils::$context['to_process'] as $path => $status) {
 				if (in_array($status, ['execute', 'writable', 'read'])) {
-					PackageUtils::package_chmod($path, $status);
+					PackageUtils::chmod($path, $status);
 				} elseif ($status == 'custom' && !empty($custom_value)) {
 					// Use FTP if we have it.
 					if (!empty(PackageUtils::$package_ftp) && !empty($_SESSION['pack_ftp'])) {
@@ -2370,7 +2370,7 @@ class PackageManager
 					// Actually process this file?
 					if (!$dont_chmod && !is_dir($path . '/' . $entry) && (empty(Utils::$context['file_offset']) || Utils::$context['file_offset'] < $file_count)) {
 						$status = Utils::$context['predefined_type'] == 'free' || isset(Utils::$context['special_files'][$path . '/' . $entry]) ? 'writable' : 'execute';
-						PackageUtils::package_chmod($path . '/' . $entry, $status);
+						PackageUtils::chmod($path . '/' . $entry, $status);
 					}
 
 					// See if we're out of time?
@@ -2393,7 +2393,7 @@ class PackageManager
 
 				// Do the actual directory.
 				$status = Utils::$context['predefined_type'] == 'free' || isset(Utils::$context['special_files'][$path]) ? 'writable' : 'execute';
-				PackageUtils::package_chmod($path, $status);
+				PackageUtils::chmod($path, $status);
 
 				// We've finished the directory so no file offset, and no record.
 				Utils::$context['file_offset'] = 0;
@@ -2426,7 +2426,7 @@ class PackageManager
 		User::$me->checkSession('get');
 
 		// Try to make the FTP connection.
-		PackageUtils::create_chmod_control([], ['force_find_error' => true]);
+		PackageUtils::createChmodControl([], ['force_find_error' => true]);
 
 		// Deal with the template stuff.
 		Theme::loadTemplate('Xml');
@@ -2635,7 +2635,7 @@ class PackageManager
 		}
 
 		// Check to be sure the packages.xml file actually exists where it should be... or dump out.
-		if ((isset($_GET['absolute']) || isset($_GET['relative'])) && !PackageUtils::url_exists($_GET['package'])) {
+		if ((isset($_GET['absolute']) || isset($_GET['relative'])) && !PackageUtils::urlExists($_GET['package'])) {
 			ErrorHandler::fatalLang('packageget_unable', false, [$url . '/index.php']);
 		}
 
@@ -2989,8 +2989,8 @@ class PackageManager
 		}
 
 		// Use FTP if necessary.
-		PackageUtils::create_chmod_control([Config::$packagesdir . '/' . $package_name], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;get;sa=download' . (isset($_GET['server']) ? ';server=' . $_GET['server'] : '') . (isset($_REQUEST['auto']) ? ';auto' : '') . ';package=' . $_REQUEST['package'] . (isset($_REQUEST['conflict']) ? ';conflict' : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'crash_on_error' => true]);
-		PackageUtils::package_put_contents(Config::$packagesdir . '/' . $package_name, WebFetchApi::fetch($url . $_REQUEST['package']));
+		PackageUtils::createChmodControl([Config::$packagesdir . '/' . $package_name], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;get;sa=download' . (isset($_GET['server']) ? ';server=' . $_GET['server'] : '') . (isset($_REQUEST['auto']) ? ';auto' : '') . ';package=' . $_REQUEST['package'] . (isset($_REQUEST['conflict']) ? ';conflict' : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'crash_on_error' => true]);
+		PackageUtils::packagePutContents(Config::$packagesdir . '/' . $package_name, WebFetchApi::fetch($url . $_REQUEST['package']));
 
 		// Done!  Did we get this package automatically?
 		// @ TODO: These are usually update packages.  Allowing both for now until more testing has been done.
@@ -3052,7 +3052,7 @@ class PackageManager
 
 		// We only need the filename...
 		$packageName = substr($_FILES['package']['name'], 0, -strlen($match[0]));
-		$packageFileName = PackageUtils::package_unique_filename(Config::$packagesdir, $packageName, $match[1]) . $match[0];
+		$packageFileName = PackageUtils::generateUniqueFilename(Config::$packagesdir, $packageName, $match[1]) . $match[0];
 
 		// Setup the destination and throw an error if the file is already there!
 		$destination = Config::$packagesdir . '/' . $packageFileName;
@@ -3199,7 +3199,7 @@ class PackageManager
 
 		// We need the packages directory to be writable for this.
 		if (!@is_writable(Config::$packagesdir)) {
-			PackageUtils::create_chmod_control([Config::$packagesdir], ['destination_url' => Config::$scripturl . '?action=admin;area=packages', 'crash_on_error' => true]);
+			PackageUtils::createChmodControl([Config::$packagesdir], ['destination_url' => Config::$scripturl . '?action=admin;area=packages', 'crash_on_error' => true]);
 		}
 
 		$the_version = SMF_VERSION;

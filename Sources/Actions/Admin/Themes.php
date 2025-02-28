@@ -1432,7 +1432,7 @@ class Themes implements ActionInterface
 		];
 
 		// Extract the file on the proper themes dir.
-		$extracted = PackageUtils::read_tgz_file($_FILES['theme_gz']['tmp_name'], $dirtemp, false, true);
+		$extracted = PackageUtils::readTgzFile($_FILES['theme_gz']['tmp_name'], $dirtemp, false, true);
 
 		if ($extracted) {
 			// Read its info form the XML file.
@@ -1527,7 +1527,7 @@ class Themes implements ActionInterface
 
 		// And now the entire images directory!
 		PackageUtils::copytree(Theme::$current->settings['default_theme_dir'] . '/images', Utils::$context['to_install']['theme_dir'] . '/images');
-		PackageUtils::package_flush_cache();
+		PackageUtils::flushCache();
 
 		// Any data from the default theme that we want?
 		foreach ($this->getSingleTheme(1, ['theme_layers', 'theme_templates']) as $variable => $value) {
