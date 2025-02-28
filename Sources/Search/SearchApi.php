@@ -22,7 +22,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
-use SMF\PackageManager\SubsPackage;
+use SMF\PackageManager\PackageUtils;
 use SMF\Parser;
 use SMF\User;
 use SMF\Utils;
@@ -815,7 +815,7 @@ abstract class SearchApi implements SearchApiInterface
 			!self::$loadedApi
 			|| !(self::$loadedApi instanceof SearchApiInterface)
 			|| (self::$loadedApi->supportsMethod('isValid') && !self::$loadedApi->isValid())
-			|| !SubsPackage::matchPackageVersion(SMF_VERSION, self::$loadedApi->min_smf_version . '-' . self::$loadedApi->version_compatible)
+			|| !PackageUtils::matchPackageVersion(SMF_VERSION, self::$loadedApi->min_smf_version . '-' . self::$loadedApi->version_compatible)
 		) {
 			// Log the error.
 			Lang::load('Errors');

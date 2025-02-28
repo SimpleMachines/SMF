@@ -31,7 +31,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
-use SMF\PackageManager\SubsPackage;
+use SMF\PackageManager\PackageUtils;
 use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -1595,27 +1595,27 @@ class Smileys implements ActionInterface
 
 		// Make sure temp directory exists and is empty.
 		if (file_exists(Config::$packagesdir . '/temp')) {
-			SubsPackage::deltree(Config::$packagesdir . '/temp', false);
+			PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 		}
 
-		if (!SubsPackage::mktree(Config::$packagesdir . '/temp', 0755)) {
-			SubsPackage::deltree(Config::$packagesdir . '/temp', false);
+		if (!PackageUtils::mktree(Config::$packagesdir . '/temp', 0755)) {
+			PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 
-			if (!SubsPackage::mktree(Config::$packagesdir . '/temp', 0777)) {
-				SubsPackage::deltree(Config::$packagesdir . '/temp', false);
+			if (!PackageUtils::mktree(Config::$packagesdir . '/temp', 0777)) {
+				PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 
 				// @todo not sure about url in destination_url
-				SubsPackage::create_chmod_control([Config::$packagesdir . '/temp/delme.tmp'], ['destination_url' => Config::$scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true]);
+				PackageUtils::create_chmod_control([Config::$packagesdir . '/temp/delme.tmp'], ['destination_url' => Config::$scripturl . '?action=admin;area=smileys;sa=install;set_gz=' . $_REQUEST['set_gz'], 'crash_on_error' => true]);
 
-				SubsPackage::deltree(Config::$packagesdir . '/temp', false);
+				PackageUtils::deltree(Config::$packagesdir . '/temp', false);
 
-				if (!SubsPackage::mktree(Config::$packagesdir . '/temp', 0777)) {
+				if (!PackageUtils::mktree(Config::$packagesdir . '/temp', 0777)) {
 					ErrorHandler::fatalLang('package_cant_download', false);
 				}
 			}
 		}
 
-		$extracted = SubsPackage::read_tgz_file($destination, Config::$packagesdir . '/temp');
+		$extracted = PackageUtils::read_tgz_file($destination, Config::$packagesdir . '/temp');
 
 		if (!$extracted) {
 			ErrorHandler::fatalLang('packageget_unable', false, ['https://custom.simplemachines.org/mods/index.php?action=search;type=12;basic_search=' . $name]);
@@ -1638,7 +1638,7 @@ class Smileys implements ActionInterface
 			ErrorHandler::fatalLang('package_get_error_missing_xml', false);
 		}
 
-		$smileyInfo = SubsPackage::getPackageInfo(Utils::$context['filename']);
+		$smileyInfo = PackageUtils::getPackageInfo(Utils::$context['filename']);
 
 		if (!is_array($smileyInfo)) {
 			ErrorHandler::fatalLang($smileyInfo, false);
@@ -1664,7 +1664,7 @@ class Smileys implements ActionInterface
 		}
 
 		// Everything is fine, now it's time to do something
-		$actions = SubsPackage::parsePackageInfo($smileyInfo['xml'], true, 'install');
+		$actions = PackageUtils::parsePackageInfo($smileyInfo['xml'], true, 'install');
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=smileys;sa=install;package=' . $base_name;
 		Utils::$context['has_failure'] = false;
@@ -1737,7 +1737,7 @@ class Smileys implements ActionInterface
 		// Do the actual install
 		else {
 			// @TODO Does this call have side effects? ($actions is not used)
-			$actions = SubsPackage::parsePackageInfo($smileyInfo['xml'], false, 'install');
+			$actions = PackageUtils::parsePackageInfo($smileyInfo['xml'], false, 'install');
 
 			foreach (Utils::$context['actions'] as $action) {
 				Config::updateModSettings([
@@ -1746,7 +1746,7 @@ class Smileys implements ActionInterface
 				]);
 			}
 
-			SubsPackage::package_flush_cache();
+			PackageUtils::package_flush_cache();
 
 			// Credits tag?
 			$credits_tag = (empty($credits_tag)) ? '' : Utils::jsonEncode($credits_tag);
@@ -1795,7 +1795,7 @@ class Smileys implements ActionInterface
 		}
 
 		if (file_exists(Config::$packagesdir . '/temp')) {
-			SubsPackage::deltree(Config::$packagesdir . '/temp');
+			PackageUtils::deltree(Config::$packagesdir . '/temp');
 		}
 
 		if (!$testing) {

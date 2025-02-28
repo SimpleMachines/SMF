@@ -30,7 +30,7 @@ use SMF\WebFetch\WebFetchApi;
  *
  * These are kept separate from the PackageManager class for memory purposes.
  */
-class SubsPackage
+class PackageUtils
 {
 	/**************************
 	 * Public static properties
