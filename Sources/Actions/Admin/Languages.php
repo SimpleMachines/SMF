@@ -26,7 +26,7 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
-use SMF\PackageManager\SubsPackage;
+use SMF\PackageManager\PackageUtils;
 use SMF\PackageManager\XmlArray;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -214,7 +214,7 @@ class Languages implements ActionInterface
 			}
 
 			// Call this in case we have work to do.
-			$file_status = SubsPackage::create_chmod_control($chmod_files);
+			$file_status = PackageUtils::createChmodControl($chmod_files);
 			$files_left = $file_status['files']['notwritable'];
 
 			// Something not writable?
@@ -223,10 +223,10 @@ class Languages implements ActionInterface
 			}
 			// Otherwise, go go go!
 			elseif (!empty($install_files)) {
-				SubsPackage::read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), Config::$boarddir, false, true, $install_files);
+				PackageUtils::readTgzFile('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), Config::$boarddir, false, true, $install_files);
 
 				// Make sure the files aren't stuck in the cache.
-				SubsPackage::package_flush_cache();
+				PackageUtils::flushCache();
 
 				Utils::$context['install_complete'] = Lang::getTxt('languages_download_complete_desc', ['url' => Config::$scripturl . '?action=admin;area=languages']);
 
@@ -236,7 +236,7 @@ class Languages implements ActionInterface
 
 		// Open up the old china.
 		if (!isset($archive_content)) {
-			$archive_content = SubsPackage::read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), null);
+			$archive_content = PackageUtils::readTgzFile('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), null);
 		}
 
 		if (empty($archive_content)) {
@@ -368,7 +368,7 @@ class Languages implements ActionInterface
 		// Before we go to far can we make anything writable, eh, eh?
 		if (!empty(Utils::$context['make_writable'])) {
 			// What is left to be made writable?
-			$file_status = SubsPackage::create_chmod_control(Utils::$context['make_writable']);
+			$file_status = PackageUtils::createChmodControl(Utils::$context['make_writable']);
 			Utils::$context['still_not_writable'] = $file_status['files']['notwritable'];
 
 			// Mark those which are now writable as such.
@@ -813,7 +813,7 @@ class Languages implements ActionInterface
 			if (!empty(Config::$modSettings['package_make_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != $lang_id . '$$$')) {
 				$_SESSION['last_backup_for'] = $lang_id . '$$$';
 
-				$result = SubsPackage::package_create_backup('backup_lang_' . $lang_id);
+				$result = PackageUtils::createBackup('backup_lang_' . $lang_id);
 
 				if (!$result) {
 					ErrorHandler::fatalLang('could_not_language_backup', false);
@@ -843,7 +843,7 @@ class Languages implements ActionInterface
 			if (!empty($images_dirs)) {
 				foreach ($images_dirs as $curPath) {
 					if (is_dir($curPath)) {
-						SubsPackage::deltree($curPath);
+						PackageUtils::deltree($curPath);
 					}
 				}
 			}
