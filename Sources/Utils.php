@@ -2412,11 +2412,10 @@ class Utils
 				Theme::template_footer();
 
 				// Add $db_show_debug = true; to Settings.php if you want to show the debugging information.
-				if (Forum::getCurrentAction()?->isSimpleAction() === false
-					|| (
-						Forum::getCurrentAction() === null
-						&& !isset($_REQUEST['xml'])
-					)
+				if (
+					Forum::getCurrentAction()?->isSimpleAction() === false
+					&& !(Forum::getCurrentAction()?->getOutputType() instanceof OutputTypes\Xml)
+					&& !isset($_REQUEST['xml'])
 				) {
 					Logging::displayDebug();
 				}

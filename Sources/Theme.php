@@ -2056,7 +2056,7 @@ class Theme
 		);
 
 		// See if there is any extra param to check.
-		$requires_xml = false;
+		$requires_xml = Forum::getCurrentAction()?->getOutputType() instanceof OutputTypes\Xml;
 
 		foreach ($this->extraParams as $key => $extra) {
 			if (isset($_REQUEST[$extra])) {
@@ -2066,17 +2066,16 @@ class Theme
 			}
 		}
 
+		// Attempt to load language files.
+		Lang::load('General+ThemeStrings+Modifications', '', false);
+
 		// Output is fully XML, so no need for the index template.
 		if (isset($_REQUEST['xml']) && (in_array(Utils::$context['current_action'], $this->xmlActions) || $requires_xml)) {
 			self::loadTemplate('Xml');
 			Utils::$context['template_layers'] = [];
 		}
-
-		// Attempt to load language files.
-		Lang::load('General+ThemeStrings+Modifications', '', false);
-
 		// These actions don't require the index template at all.
-		if (!empty(Utils::$context['simple_action'])) {
+		elseif (!empty(Utils::$context['simple_action'])) {
 			Utils::$context['template_layers'] = [];
 		} else {
 			// Custom templates to load, or just default?

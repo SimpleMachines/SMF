@@ -1742,7 +1742,7 @@ class Msg implements \ArrayAccess, Routable
 		}
 
 		// Anyone quoted or mentioned?
-		$quoted_members = Mentions::getQuotedMembers($msgOptions['body'], (int) $posterOptions['id']);
+		$quoted_members = Mentions::getQuotedMembers($msgOptions['body'] ?? '', (int) $posterOptions['id']);
 		$quoted_modifications = Mentions::modifyMentions('quote', (int) $msgOptions['id'], $quoted_members, (int) $posterOptions['id']);
 
 		if (!empty($quoted_modifications['added'])) {

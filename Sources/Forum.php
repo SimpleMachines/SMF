@@ -447,23 +447,17 @@ class Forum
 	{
 		$this->init();
 
-		$requested_action = $_REQUEST['action'] ?? null;
-		$current_action = $this->findAction($requested_action);
+		self::getCurrentAction();
 
-		if (is_a($current_action, ActionInterface::class, true)) {
-			$action = call_user_func([$current_action, 'load']);
-			self::$current_action = $action;
-
-			// Perform operations on the action object before execute() is called.
-			IntegrationHook::call('integrate_init_action', [$action]);
+		// Perform operations on the action object before its execute() is called.
+		if (isset(self::$current_action)) {
+			IntegrationHook::call('integrate_init_action', [self::$current_action]);
 		}
 
 		$this->preflight();
 
-		if (isset($action)) {
-			$action->execute();
-		} elseif (is_callable($current_action)) {
-			call_user_func($current_action);
+		if (isset(self::$current_action)) {
+			self::$current_action->execute();
 		} else {
 			ErrorHandler::fatalLang('not_found', false, [], 404);
 		}
@@ -511,6 +505,17 @@ class Forum
 	 */
 	public static function getCurrentAction(): ?ActionInterface
 	{
+		if (!isset(self::$current_action)) {
+			$current_action = self::findAction($_REQUEST['action'] ?? null);
+
+			if (is_a($current_action, ActionInterface::class, true)) {
+				self::$current_action = call_user_func([$current_action, 'load']);
+			} elseif (is_callable($current_action)) {
+				self::$current_action = Actions\GenericAction::load();
+				self::$current_action->setCallable($current_action);
+			}
+		}
+
 		return self::$current_action;
 	}
 
@@ -684,6 +689,10 @@ class Forum
 		}
 	}
 
+	/*************************
+	 * Internal static methods
+	 *************************/
+
 	/**
 	 * Resolves the appropriate action to execute based on the current request context.
 	 *
@@ -691,7 +700,7 @@ class Forum
 	 *  - A string representing a class implementing ActionInterface.
 	 *  - A callable string representing a static method (e.g., `'Class::method'`).
 	 */
-	protected function findAction(?string $action): string|callable|false
+	protected static function findAction(?string $action): string|callable|false
 	{
 		// If no action was supplied, is there an implied action?
 		if (empty($action)) {
