@@ -458,8 +458,6 @@ class Forum
 
 		if (isset(self::$current_action)) {
 			self::$current_action->execute();
-		} elseif (is_callable($current_action = self::findAction($_REQUEST['action'] ?? null))) {
-			call_user_func($current_action);
 		} else {
 			ErrorHandler::fatalLang('not_found', false, [], 404);
 		}
@@ -512,6 +510,9 @@ class Forum
 
 			if (is_a($current_action, ActionInterface::class, true)) {
 				self::$current_action = call_user_func([$current_action, 'load']);
+			} elseif (is_callable($current_action)) {
+				self::$current_action = Actions\GenericAction::load();
+				self::$current_action->setCallable($current_action);
 			}
 		}
 
