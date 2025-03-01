@@ -8,11 +8,8 @@ html {
 body {
 	background: var(--body-bg);
 	color: var(--body-color);
-	display: flex;
-	flex-direction: column;
-	font-family: var(--body-font-family);
-	font-size: clamp(var(--body-font-size-min), var(--body-font-size), var(--body-font-size-max));
-	min-height: 100vh;
+	font: var(--body-font-size) / 150% var(--body-font-family);
+	min-height: 100dvh;
 	tab-size: 4ch;
 }
 ::selection {
@@ -100,7 +97,7 @@ input:focus, select:focus, textarea:focus {
 	color: var(--input-color_focus);
 	text-shadow: var(--input-text-shadow_focus);
 }
-select[size] {
+select[size], textarea {
 	height: unset;
 }
 select optgroup option {
