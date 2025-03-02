@@ -1928,7 +1928,9 @@ class Board implements \ArrayAccess, Routable
 			$params['action'] = 'messageindex';
 			array_shift($route);
 
-			preg_match('/^(\X*?)(\d+(?:\.\d+)?)$/u', array_shift($route), $matches);
+			if (!preg_match('/^(\X*?)(\d+(?:\.\d+)?)$/u', array_shift($route), $matches)) {
+				return $params;
+			}
 
 			$board = $matches[2];
 
