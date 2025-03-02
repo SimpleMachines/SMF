@@ -125,7 +125,7 @@ class Display implements ActionInterface, Routable
 	{
 		// What are you gonna display if this is empty?!
 		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('no_board', false);
+			ErrorHandler::fatalLang('not_a_topic', false);
 		}
 
 		$this->checkPrevNextRedirect();
