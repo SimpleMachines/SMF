@@ -2832,7 +2832,7 @@ class Config
 	/**
 	 * Wrapper for SMF\Sapi::getTempDir().
 	 *
-	 * Loads the Sapi class manually if necessary, and then calls
+	 * Loads the Sapi class if necessary, and then calls Sapi::getTempDir().
 	 */
 	protected static function getTempDir(): string
 	{
