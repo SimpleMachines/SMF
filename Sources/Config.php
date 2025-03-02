@@ -2780,99 +2780,6 @@ class Config
 	}
 
 	/**
-	 * Locates the most appropriate temporary directory.
-	 *
-	 * Systems using `open_basedir` restrictions may receive errors with
-	 * `sys_get_temp_dir()` due to misconfigurations on servers. Other
-	 * cases sys_temp_dir may not be set to a safe value. Additionally
-	 * `sys_get_temp_dir` may use a readonly directory. This attempts to
-	 * find a working temp directory that is accessible under the
-	 * restrictions and is writable to the web service account.
-	 *
-	 * Directories checked against `open_basedir`:
-	 *
-	 * - `sys_get_temp_dir()`
-	 * - `upload_tmp_dir`
-	 * - `session.save_path`
-	 * - `cachedir`
-	 *
-	 * @return string Path to a temporary directory.
-	 */
-	public static function getTempDir(): string
-	{
-		// Already did this.
-		if (!empty(self::$temp_dir)) {
-			return self::$temp_dir;
-		}
-
-		// Temp Directory options order.
-		$temp_dir_options = [
-			0 => 'sys_get_temp_dir',
-			1 => 'upload_tmp_dir',
-			2 => 'session.save_path',
-			3 => 'cachedir',
-		];
-
-		// Is self::$cachedir a valid option?
-		if (empty(self::$cachedir) || !is_dir(self::$cachedir) || !is_writable(self::$cachedir)) {
-			$temp_dir_options = array_diff($temp_dir_options, ['cachedir']);
-		}
-
-		// Determine if we should detect a restriction and what restrictions that may be.
-		$open_base_dir = ini_get('open_basedir');
-		$restriction = !empty($open_base_dir) ? explode(':', $open_base_dir) : false;
-
-		// Prevent any errors as we search.
-		$old_error_reporting = error_reporting(0);
-
-		// Search for a working temp directory.
-		foreach ($temp_dir_options as $id_temp => $temp_option) {
-			switch ($temp_option) {
-				case 'cachedir':
-					$possible_temp = rtrim(self::$cachedir, '\\/');
-					break;
-
-				case 'session.save_path':
-					$possible_temp = rtrim(ini_get('session.save_path'), '\\/');
-					break;
-
-				case 'upload_tmp_dir':
-					$possible_temp = rtrim(ini_get('upload_tmp_dir'), '\\/');
-					break;
-
-				default:
-					$possible_temp = sys_get_temp_dir();
-					break;
-			}
-
-			// Check if we have a restriction preventing this from working.
-			if ($restriction) {
-				foreach ($restriction as $dir) {
-					if (str_contains($possible_temp, $dir) && is_writable($possible_temp)) {
-						self::$temp_dir = $possible_temp;
-						break;
-					}
-				}
-			}
-			// No restrictions, but need to check for writable status.
-			elseif (is_writable($possible_temp)) {
-				self::$temp_dir = $possible_temp;
-				break;
-			}
-		}
-
-		// Fall back to sys_get_temp_dir even though it won't work, so we have something.
-		if (empty(self::$temp_dir)) {
-			self::$temp_dir = sys_get_temp_dir();
-		}
-
-		// Put things back.
-		error_reporting($old_error_reporting);
-
-		return self::$temp_dir;
-	}
-
-	/**
 	 * Generate a random seed and ensure it's stored in settings.
 	 *
 	 * This only exists for backward compatibility with mods that might use the
@@ -2916,6 +2823,26 @@ class Config
 				self::updateModSettings(['cron_last_checked' => time()]);
 			}
 		}
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Wrapper for SMF\Sapi::getTempDir().
+	 *
+	 * Loads the Sapi class manually if necessary, and then calls
+	 */
+	protected static function getTempDir(): string
+	{
+		// Can't rely on autoloading because this method may be
+		// called before the autoloader exists.
+		if (!class_exists('\\SMF\\Sapi', false)) {
+			require_once self::$sourcedir . DIRECTORY_SEPARATOR . 'Sapi.php';
+		}
+
+		return Sapi::getTempDir();
 	}
 }
 

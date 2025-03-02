@@ -5622,30 +5622,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * Locates the most appropriate temp directory.
-	 *
-	 * Systems using `open_basedir` restrictions may receive errors with
-	 * `sys_get_temp_dir()` due to misconfigurations on servers. Other
-	 * cases sys_temp_dir may not be set to a safe value. Additionally
-	 * `sys_get_temp_dir` may use a readonly directory. This attempts to
-	 * find a working temp directory that is accessible under the
-	 * restrictions and is writable to the web service account.
-	 *
-	 * Directories checked against `open_basedir`:
-	 *
-	 * - `sys_get_temp_dir()`
-	 * - `upload_tmp_dir`
-	 * - `session.save_path`
-	 * - `cachedir`
-	 *
-	 * @return string
-	 */
-	function sm_temp_dir()
-	{
-		return SMF\Config::getTempDir();
-	}
-
-	/**
 	 * Generate a random seed and ensure it's stored in settings.
 	 */
 	function smf_seed_generator()
@@ -8797,6 +8773,30 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/****************
 	 * Begin SMF\Sapi
 	 ****************/
+
+	/**
+	 * Locates the most appropriate temp directory.
+	 *
+	 * Systems using `open_basedir` restrictions may receive errors with
+	 * `sys_get_temp_dir()` due to misconfigurations on servers. Other
+	 * cases sys_temp_dir may not be set to a safe value. Additionally
+	 * `sys_get_temp_dir` may use a readonly directory. This attempts to
+	 * find a working temp directory that is accessible under the
+	 * restrictions and is writable to the web service account.
+	 *
+	 * Directories checked against `open_basedir`:
+	 *
+	 * - `sys_get_temp_dir()`
+	 * - `upload_tmp_dir`
+	 * - `session.save_path`
+	 * - `cachedir`
+	 *
+	 * @return string
+	 */
+	function sm_temp_dir()
+	{
+		return SMF\Sapi::getTempDir();
+	}
 
 	/**
 	 * Helper function to set the system memory to a needed value
