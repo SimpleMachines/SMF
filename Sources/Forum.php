@@ -704,9 +704,18 @@ class Forum
 	{
 		// If no action was supplied, is there an implied action?
 		if (empty($action)) {
-			// Action and board are both empty... BoardIndex!
-			if (empty(Board::$info->id) && empty(Topic::$topic_id)) {
-				// ... unless someone else wants to do something different.
+			// We check $_GET['topic'] and $_GET['board'] because the implied
+			// action depends on what was in the URL, not on whatever values we
+			// calculated for Board::$info->id and Topic::$info->id. This means
+			// that if $_GET['topic'] or $_GET['board'] are set to something
+			// invalid, an error will be shown. This is the correct and intended
+			// behaviour.
+			if (isset($_GET['topic'])) {
+				$action = 'display';
+			} elseif (isset($_GET['board'])) {
+				$action = 'messageindex';
+			} else {
+				// Does a mod want to change the default action?
 				if (!empty(Config::$modSettings['integrate_default_action'])) {
 					$default_action = explode(',', Config::$modSettings['integrate_default_action'])[0];
 
@@ -714,14 +723,6 @@ class Forum
 				}
 
 				$action = 'boardindex';
-			}
-			// Topic is empty, and action is empty.... MessageIndex!
-			elseif (empty(Topic::$topic_id)) {
-				$action = 'messageindex';
-			}
-			// Board is not empty... topic is not empty... action is empty... Display!
-			else {
-				$action = 'display';
 			}
 		}
 
