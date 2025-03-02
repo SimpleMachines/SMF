@@ -1510,7 +1510,9 @@ class Topic implements \ArrayAccess, Routable
 			$params['action'] = 'display';
 			array_shift($route);
 
-			preg_match('/^(\X*?)(\d+(?:\.(?:new|msg\d+|from\d+|\d+))?)$/u', array_shift($route), $matches);
+			if (!preg_match('/^(\X*?)(\d+(?:\.(?:new|msg\d+|from\d+|\d+))?)$/u', array_shift($route), $matches)) {
+				return $params;
+			}
 
 			$topic = $matches[2];
 
