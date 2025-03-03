@@ -2529,7 +2529,7 @@ class Config
 
 			foreach ($var as $key => $value) {
 				++$depth;
-				$return[] = ($depth > 1 && $is_simple_list ? '' : var_export($key, true) . ' => ') . self::varExport($value);
+				$return[] = ($is_simple_list ? '' : var_export($key, true) . ' => ') . self::varExport($value);
 				--$depth;
 			}
 
@@ -2537,8 +2537,23 @@ class Config
 				return '[]';
 			}
 
-			if ($depth > 0 && $is_simple_list) {
-				return '[' . implode(', ', $return) . ']';
+			if ($is_simple_list) {
+				if (mb_strlen(implode(', ', $return)) <= 74 - $depth * 4) {
+					return '[' . implode(', ', $return) . ']';
+				}
+
+				$temp = [];
+				$row = -1;
+
+				foreach ($return as $element) {
+					if (isset($temp[$row]) && mb_strlen(implode(', ', [$temp[$row], $element])) <= 74 - $depth * 4) {
+						$temp[$row] = implode(', ', [$temp[$row], $element]);
+					} else {
+						$temp[++$row] = $element;
+					}
+				}
+
+				$return = $temp;
 			}
 
 			return "[\n" . str_repeat("\t", $depth + 1) . implode(",\n" . str_repeat("\t", $depth + 1), $return) . ",\n" . str_repeat("\t", $depth) . ']';
@@ -2551,11 +2566,12 @@ class Config
 			return preg_replace(
 				[
 					"/(?<!\\\\)'' \. /",
-					"/ \. ''/"],
+					"/ \. ''/",
+				],
 				'',
 				preg_replace_callback(
 					'/[\r\n\t]+/',
-					fn($m) => '\' . "' . strtr($m[0], ["\r" => '\r', "\n" => '\n', "\t" => '\t']) . '" . \'',
+					fn($m) => '\' . "' . addcslashes($m[0], "\r\n\t") . '" . \'',
 					var_export($var, true),
 				),
 			);
