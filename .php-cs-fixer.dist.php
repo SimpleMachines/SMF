@@ -25,8 +25,8 @@ $finder = (new PhpCsFixer\Finder())
 		'Sources/ZxcvbnPhp',
 		'Themes',
 	])
-	// Skip all index.php files and ssi_example.php.
-	->notName(['index.php', 'ssi_examples.php'])
+	// Skip ssi_example.php.
+	->notName(['ssi_examples.php'])
 	// Skip anything being ignored in .gitignore.
 	->ignoreVCSIgnored(true);
 
