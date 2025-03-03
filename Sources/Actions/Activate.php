@@ -373,5 +373,3 @@ class Activate implements ActionInterface, Routable
 		Utils::$context['member_id'] = $this->member->id;
 	}
 }
-
-?>

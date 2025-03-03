@@ -2016,5 +2016,3 @@ class ACP implements ActionInterface, Routable
 		return $query_string;
 	}
 }
-
-?>

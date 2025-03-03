@@ -103,5 +103,3 @@ class Zend extends CacheApi implements CacheApiInterface
 		return zend_version();
 	}
 }
-
-?>

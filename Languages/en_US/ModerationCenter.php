@@ -184,5 +184,3 @@ $txt['mc_add_note'] = 'Add';
 $txt['mc_reportedm_ignore_confirm'] = 'If you choose &quot;OK&quot;, all future reports about this user’s profile will be ignored; moderators will not see any future reports about this user’s profile. Are you sure you wish to do this?';
 $txt['mc_reported_members_title'] = 'Reported Members';
 $txt['mc_reported_members_desc'] = 'Allows you to view a list of all users whose profiles have been reported';
-
-?>

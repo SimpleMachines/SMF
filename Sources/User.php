@@ -5192,5 +5192,3 @@ class User implements \ArrayAccess
 if (is_callable([User::class, 'exportStatic'])) {
 	User::exportStatic();
 }
-
-?>

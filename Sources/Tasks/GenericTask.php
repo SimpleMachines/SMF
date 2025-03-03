@@ -43,5 +43,3 @@ class GenericTask extends BackgroundTask
 		return true;
 	}
 }
-
-?>

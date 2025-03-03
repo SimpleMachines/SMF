@@ -70,5 +70,3 @@ class Vostok extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

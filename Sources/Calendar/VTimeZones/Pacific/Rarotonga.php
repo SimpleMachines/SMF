@@ -72,5 +72,3 @@ class Rarotonga extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

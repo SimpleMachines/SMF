@@ -56,5 +56,3 @@ class Fakaofo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

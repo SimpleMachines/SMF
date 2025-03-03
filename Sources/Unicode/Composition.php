@@ -993,5 +993,3 @@ function utf8_compose_maps(): array
 		"\xF0\x96\xB5\xA9\xF0\x96\xB5\xA7" => "\xF0\x96\xB5\xAA",
 	];
 }
-
-?>

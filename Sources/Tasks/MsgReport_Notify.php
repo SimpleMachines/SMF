@@ -195,5 +195,3 @@ class MsgReport_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

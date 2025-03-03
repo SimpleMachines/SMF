@@ -56,5 +56,3 @@ class Kiritimati extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

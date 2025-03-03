@@ -652,5 +652,3 @@ class Groups extends ViewGroups
 		}
 	}
 }
-
-?>

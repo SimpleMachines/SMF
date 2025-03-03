@@ -137,5 +137,3 @@ class Mazatlan extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

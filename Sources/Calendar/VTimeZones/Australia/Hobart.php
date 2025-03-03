@@ -259,5 +259,3 @@ class Hobart extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

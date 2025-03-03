@@ -157,5 +157,3 @@ class Eucla extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

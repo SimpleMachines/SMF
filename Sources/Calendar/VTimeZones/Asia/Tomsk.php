@@ -131,5 +131,3 @@ class Tomsk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

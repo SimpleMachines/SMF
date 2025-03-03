@@ -427,5 +427,3 @@ class UserPermissionSet
 		return $allowed;
 	}
 }
-
-?>

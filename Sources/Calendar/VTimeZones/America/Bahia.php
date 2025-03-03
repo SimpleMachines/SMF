@@ -381,5 +381,3 @@ class Bahia extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

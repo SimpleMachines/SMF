@@ -214,5 +214,3 @@ class QuickModerationInTopic implements ActionInterface, Routable
 		Utils::redirectexit(!empty($topicGone) ? 'board=' . Board::$info->id : 'topic=' . Topic::$topic_id . '.' . $_REQUEST['start']);
 	}
 }
-
-?>

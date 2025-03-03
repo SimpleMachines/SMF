@@ -222,5 +222,3 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 		return false;
 	}
 }
-
-?>

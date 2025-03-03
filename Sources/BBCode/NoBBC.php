@@ -44,5 +44,3 @@ class NoBBC extends BBCode
 	 */
 	public ?string $disabled_content = '$1';
 }
-
-?>

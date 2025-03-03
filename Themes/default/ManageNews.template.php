@@ -438,5 +438,3 @@ function template_news_lists()
 
 	template_show_list('news_lists');
 }
-
-?>

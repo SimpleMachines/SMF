@@ -51,5 +51,3 @@ class White extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

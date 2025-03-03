@@ -103,5 +103,3 @@ class Grand_Turk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

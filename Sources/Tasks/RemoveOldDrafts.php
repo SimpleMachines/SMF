@@ -68,5 +68,3 @@ class RemoveOldDrafts extends ScheduledTask
 		return true;
 	}
 }
-
-?>

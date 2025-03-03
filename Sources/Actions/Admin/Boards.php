@@ -956,5 +956,3 @@ class Boards implements ActionInterface
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('manage_boards') ? 'main' : 'settings');
 	}
 }
-
-?>

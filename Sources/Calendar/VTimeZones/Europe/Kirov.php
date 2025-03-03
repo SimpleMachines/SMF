@@ -117,5 +117,3 @@ class Kirov extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

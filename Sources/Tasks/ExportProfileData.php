@@ -2039,5 +2039,3 @@ class ExportProfileData extends BackgroundTask
 		}
 	}
 }
-
-?>

@@ -232,5 +232,3 @@ class Moncton extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -17,5 +17,3 @@ if (!defined('SMF')) {
 
 // Just an alias to help people looking for the package manager in the wrong namespace.
 class_alias('SMF\\PackageManager\\PackageManager', 'SMF\\Actions\\Admin\\PackageManager');
-
-?>

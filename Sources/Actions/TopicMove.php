@@ -145,5 +145,3 @@ class TopicMove implements ActionInterface, Routable
 		Security::checkSubmitOnce('register');
 	}
 }
-
-?>

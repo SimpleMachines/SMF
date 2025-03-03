@@ -592,5 +592,3 @@ class Mail implements ActionInterface
 		Utils::obExit();
 	}
 }
-
-?>

@@ -2269,5 +2269,3 @@ class Subscriptions implements ActionInterface
 		}
 	}
 }
-
-?>

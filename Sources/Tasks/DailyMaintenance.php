@@ -152,5 +152,3 @@ class DailyMaintenance extends ScheduledTask
 		return true;
 	}
 }
-
-?>

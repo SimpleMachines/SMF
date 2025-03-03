@@ -1278,5 +1278,3 @@ class Autolinker
 		$this->js_url_regexes['naked_domain'] = $space_lookbehind . '(?:' . $domain . ')(?:(?=\/)' . $path_component . $query_component . $fragment_component . ')?' . $end;
 	}
 }
-
-?>

@@ -171,5 +171,3 @@ class Logout extends Login2
 	}
 
 }
-
-?>

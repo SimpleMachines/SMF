@@ -96,5 +96,3 @@ class Apcu extends CacheApi implements CacheApiInterface
 		return phpversion('apcu');
 	}
 }
-
-?>

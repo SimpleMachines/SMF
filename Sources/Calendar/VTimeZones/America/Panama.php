@@ -49,5 +49,3 @@ class Panama extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

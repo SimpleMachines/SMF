@@ -358,5 +358,3 @@ class Punta_Arenas extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -64,5 +64,3 @@ class Quote1 extends BBCode
 	 */
 	public string $trim = 'both';
 }
-
-?>

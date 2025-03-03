@@ -941,5 +941,3 @@ class Posts implements ActionInterface
 		}
 	}
 }
-
-?>

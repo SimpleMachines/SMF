@@ -38,5 +38,3 @@ interface BBCodeInterface
 	 */
 	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void;
 }
-
-?>

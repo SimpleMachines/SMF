@@ -93,5 +93,3 @@ class Khartoum extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

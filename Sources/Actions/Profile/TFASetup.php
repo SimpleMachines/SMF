@@ -145,5 +145,3 @@ class TFASetup implements ActionInterface
 		Utils::$context['tfa_backup'] = isset($_REQUEST['backup']);
 	}
 }
-
-?>

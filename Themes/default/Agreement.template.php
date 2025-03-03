@@ -87,5 +87,3 @@ function template_main()
 		</div>
 	</form>';
 }
-
-?>

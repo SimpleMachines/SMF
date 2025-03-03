@@ -2777,5 +2777,3 @@ class Attachments implements ActionInterface
 		Utils::obExit();
 	}
 }
-
-?>

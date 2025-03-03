@@ -141,5 +141,3 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 		);
 	}
 }
-
-?>

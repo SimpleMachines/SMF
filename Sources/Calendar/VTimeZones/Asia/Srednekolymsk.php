@@ -117,5 +117,3 @@ class Srednekolymsk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

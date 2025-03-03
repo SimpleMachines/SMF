@@ -512,5 +512,3 @@ class Groups implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

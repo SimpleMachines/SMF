@@ -70,5 +70,3 @@ class Bougainville extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

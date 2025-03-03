@@ -89,5 +89,3 @@ class FloatDiv extends BBCode
 		$data = $class . $css;
 	}
 }
-
-?>

@@ -127,5 +127,3 @@ class Baku extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

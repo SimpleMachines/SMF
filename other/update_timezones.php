@@ -913,7 +913,7 @@ class TimezoneUpdater
 		}
 
 		// Get $txt and $tztxt as real variables so that we can work with them.
-		eval(substr($file_contents, 5, -2));
+		eval(substr(rtrim($file_contents, '?>'), 5));
 
 		// Add any new metazones.
 		if (!empty($this->new_metazones)) {
@@ -1055,7 +1055,6 @@ class TimezoneUpdater
 		}
 
 		$lines[] = '';
-		$lines[] = '?>';
 
 		// Save the changes.
 		file_put_contents(Config::$languagesdir . '/en_US/Timezones.php', implode("\n", $lines));
@@ -2726,7 +2725,6 @@ class TimezoneUpdater
 					]),
 					'}',
 					'',
-					'?' . '>',
 				])),
 			);
 
@@ -3079,5 +3077,3 @@ class Lang
 		return $final;
 	}
 }
-
-?>

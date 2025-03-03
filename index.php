@@ -148,5 +148,3 @@ require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
 if (SMF === 1) {
 	(new SMF\Forum())->execute();
 }
-
-?>

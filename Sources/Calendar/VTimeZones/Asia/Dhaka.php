@@ -84,5 +84,3 @@ class Dhaka extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

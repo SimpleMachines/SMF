@@ -57,5 +57,3 @@ class AlertsPopup implements ActionInterface
 		}
 	}
 }
-
-?>

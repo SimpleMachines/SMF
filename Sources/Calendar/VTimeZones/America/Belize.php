@@ -130,5 +130,3 @@ class Belize extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

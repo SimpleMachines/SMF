@@ -48,5 +48,3 @@ class EndSession implements ActionInterface
 		Utils::redirectexit();
 	}
 }
-
-?>

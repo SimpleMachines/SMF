@@ -81,5 +81,3 @@ class ThemeOptions implements ActionInterface
 		}
 	}
 }
-
-?>

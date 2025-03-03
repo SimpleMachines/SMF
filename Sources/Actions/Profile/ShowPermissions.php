@@ -259,5 +259,3 @@ class ShowPermissions implements ActionInterface
 		}
 	}
 }
-
-?>

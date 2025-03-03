@@ -281,5 +281,3 @@ class StatPanel implements ActionInterface
 		}
 	}
 }
-
-?>

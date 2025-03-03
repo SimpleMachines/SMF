@@ -91,5 +91,3 @@ class Honolulu extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

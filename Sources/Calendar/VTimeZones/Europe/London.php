@@ -548,5 +548,3 @@ class London extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

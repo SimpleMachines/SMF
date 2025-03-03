@@ -115,5 +115,3 @@ class LoginTFA extends Login2
 		Utils::$context['tfa_url'] = Config::$scripturl . '?action=logintfa';
 	}
 }
-
-?>

@@ -106,5 +106,3 @@ class Darwin extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

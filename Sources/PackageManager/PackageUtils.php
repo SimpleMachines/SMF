@@ -3242,5 +3242,3 @@ class PackageUtils
 		return \smf_crc32($number);
 	}
 }
-
-?>

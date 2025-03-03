@@ -38,5 +38,3 @@ class Ftp1 extends Url1
 	 */
 	public string $default_scheme = 'ftp';
 }
-
-?>

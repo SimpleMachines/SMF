@@ -178,5 +178,3 @@ $txt['registration_policy_missing'] = 'The privacy policy is either missing or e
 $txt['logout_confirm'] = 'Are you sure you want to log out?';
 $txt['logout_notice'] = 'You are about to be logged out of the forum and continue browsing as a guest!';
 $txt['logout_return'] = 'Stay logged in and return to browsing as a member.';
-
-?>

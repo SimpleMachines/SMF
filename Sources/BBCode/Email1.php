@@ -56,5 +56,3 @@ class Email1 extends BBCode
 		$data = strtr($data, ['<br>' => '']);
 	}
 }
-
-?>

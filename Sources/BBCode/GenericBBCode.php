@@ -190,5 +190,3 @@ class GenericBBCode extends BBCode
 		}
 	}
 }
-
-?>

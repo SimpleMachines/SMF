@@ -458,5 +458,3 @@ class Label implements \ArrayAccess
 		}
 	}
 }
-
-?>

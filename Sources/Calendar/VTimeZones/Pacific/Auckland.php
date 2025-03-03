@@ -171,5 +171,3 @@ class Auckland extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

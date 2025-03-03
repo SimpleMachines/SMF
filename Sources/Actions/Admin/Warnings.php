@@ -190,5 +190,3 @@ class Warnings implements ActionInterface
 		return $config_vars;
 	}
 }
-
-?>

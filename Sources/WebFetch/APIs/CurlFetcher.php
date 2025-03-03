@@ -465,5 +465,3 @@ class CurlFetcher extends WebFetchApi
 		return strlen($header);
 	}
 }
-
-?>

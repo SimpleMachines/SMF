@@ -2259,5 +2259,3 @@ class RepairBoards implements ActionInterface
 		);
 	}
 }
-
-?>

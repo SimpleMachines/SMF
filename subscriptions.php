@@ -338,5 +338,3 @@ function generateSubscriptionError($text, $debug = false)
 
 	exit;
 }
-
-?>

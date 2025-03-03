@@ -552,7 +552,6 @@ class Security
 					exit;
 				}
 
-				?>
 				END;
 
 			$fh = @fopen($path . '/index.php', 'w');
@@ -754,5 +753,3 @@ class Security
 		}
 	}
 }
-
-?>

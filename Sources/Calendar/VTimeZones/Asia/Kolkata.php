@@ -77,5 +77,3 @@ class Kolkata extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -1073,5 +1073,3 @@ class Post2 extends Post
 		}
 	}
 }
-
-?>

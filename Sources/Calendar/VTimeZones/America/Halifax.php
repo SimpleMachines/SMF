@@ -426,5 +426,3 @@ class Halifax extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

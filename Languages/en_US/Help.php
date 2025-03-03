@@ -679,5 +679,3 @@ $helptxt['gravatar'] = 'Gravatar is Globally Recognized Avatars. Register an acc
 
 $helptxt['restricted_bbc'] = 'When a BBCode is marked as restricted, you can configure permissions to control who is allowed to use that BBCode in their posts.';
 $helptxt['restricted_bbc_forced'] = 'The restrictions on the {0} BBCode cannot be turned off.';
-
-?>

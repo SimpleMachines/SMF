@@ -135,5 +135,3 @@ class Managua extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -180,5 +180,3 @@ class Seoul extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

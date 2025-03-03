@@ -87,5 +87,3 @@ class Canary extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

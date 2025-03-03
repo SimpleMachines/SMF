@@ -75,5 +75,3 @@ class Url1 extends BBCode
 		}
 	}
 }
-
-?>

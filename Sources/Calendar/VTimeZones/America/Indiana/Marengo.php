@@ -177,5 +177,3 @@ class Marengo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

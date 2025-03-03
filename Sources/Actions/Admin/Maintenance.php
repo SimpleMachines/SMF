@@ -2455,5 +2455,3 @@ class Maintenance implements ActionInterface
 		return $functions;
 	}
 }
-
-?>

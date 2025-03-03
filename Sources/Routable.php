@@ -44,5 +44,3 @@ interface Routable
 	 */
 	public static function parseRoute(array $route, array $params = []): array;
 }
-
-?>

@@ -1383,5 +1383,3 @@ class Parsed extends SearchApi implements SearchApiInterface
 		);
 	}
 }
-
-?>

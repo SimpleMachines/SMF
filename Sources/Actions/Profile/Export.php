@@ -606,5 +606,3 @@ class Export implements ActionInterface
 		Utils::$context['export_formats'] = self::$formats;
 	}
 }
-
-?>

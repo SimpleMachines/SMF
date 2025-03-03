@@ -1528,5 +1528,3 @@ class Permission implements \ArrayAccess
 		}
 	}
 }
-
-?>

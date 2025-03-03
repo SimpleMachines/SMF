@@ -103,5 +103,3 @@ class Helsinki extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

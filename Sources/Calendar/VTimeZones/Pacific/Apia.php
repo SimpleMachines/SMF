@@ -100,5 +100,3 @@ class Apia extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

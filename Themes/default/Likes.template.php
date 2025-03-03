@@ -95,5 +95,3 @@ function template_generic()
 {
 	echo Utils::$context['data'];
 }
-
-?>

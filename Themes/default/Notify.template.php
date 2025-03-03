@@ -90,5 +90,3 @@ function template_notify_pref_changed()
 			<p>', Utils::$context['notify_success_msg'], '</p>
 		</div>';
 }
-
-?>

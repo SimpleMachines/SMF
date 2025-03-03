@@ -466,5 +466,3 @@ class WatchedUsers implements ActionInterface
 		return $member_posts;
 	}
 }
-
-?>

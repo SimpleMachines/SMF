@@ -110,5 +110,3 @@ class Kamchatka extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

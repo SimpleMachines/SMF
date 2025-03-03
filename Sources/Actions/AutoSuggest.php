@@ -339,5 +339,3 @@ class AutoSuggest implements ActionInterface, Routable
 		$this->search = strtr($this->search, ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_', '&#038;' => '&amp;']);
 	}
 }
-
-?>

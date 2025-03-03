@@ -99,5 +99,3 @@ function template_import()
 		template_show_list('calendar_subscriptions');
 	}
 }
-
-?>

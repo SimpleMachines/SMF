@@ -201,5 +201,3 @@ class Ceuta extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

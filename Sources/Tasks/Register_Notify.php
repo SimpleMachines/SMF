@@ -132,5 +132,3 @@ class Register_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

@@ -128,5 +128,3 @@ class Barbados extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

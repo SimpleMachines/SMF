@@ -79,5 +79,3 @@ class Jamaica extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

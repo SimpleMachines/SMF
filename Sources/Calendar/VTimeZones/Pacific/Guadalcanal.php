@@ -49,5 +49,3 @@ class Guadalcanal extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

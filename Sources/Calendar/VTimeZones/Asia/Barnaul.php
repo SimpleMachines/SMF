@@ -131,5 +131,3 @@ class Barnaul extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

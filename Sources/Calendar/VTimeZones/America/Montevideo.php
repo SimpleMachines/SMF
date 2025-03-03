@@ -394,5 +394,3 @@ class Montevideo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

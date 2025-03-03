@@ -518,5 +518,3 @@ function template_logout()
 		</div><!-- .logout -->
 	</form>';
 }
-
-?>

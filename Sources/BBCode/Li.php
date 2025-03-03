@@ -64,5 +64,3 @@ class Li extends BBCode
 	 */
 	public ?array $require_parents = ['list'];
 }
-
-?>

@@ -420,5 +420,3 @@ class Search implements ActionInterface
 		Utils::$context['sub_action'] = $this->subaction;
 	}
 }
-
-?>

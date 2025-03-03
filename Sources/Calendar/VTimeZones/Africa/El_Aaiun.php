@@ -1271,5 +1271,3 @@ class El_Aaiun extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

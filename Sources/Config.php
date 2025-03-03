@@ -1526,7 +1526,7 @@ class Config
 			$neg_index-- => [
 				'search_pattern' => '~\S\K\s*(\?' . '>)?\s*$~',
 				'placeholder' => "\n" . md5($prefix . '?' . '>'),
-				'replacement' => "\n\n?" . '>',
+				'replacement' => "\n",
 			],
 			// Remove the code that redirects to the installer.
 			$neg_index-- => [
@@ -1786,7 +1786,7 @@ class Config
 			}
 
 			// Backup is bad too? Our only option is to create one from scratch.
-			if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php' || substr($settingsText, -2) !== '?' . '>') {
+			if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php') {
 				$settingsText = '<' . "?php\n";
 
 				foreach ($settings_defs as $var => $setting_def) {
@@ -1797,7 +1797,6 @@ class Config
 					$settingsText .= $substitutions[$var]['replacement'] . "\n";
 				}
 
-				$settingsText .= "\n\n?" . '>';
 				$rebuild = true;
 			}
 		}
@@ -2764,7 +2763,7 @@ class Config
 			$errorfile = self::$boarddir . '/db_last_error.php';
 		}
 
-		$result = file_put_contents($errorfile, '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
+		$result = file_put_contents($errorfile, '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n", LOCK_EX);
 
 		self::$db_last_error = $time;
 
@@ -2837,5 +2836,3 @@ class Config
 		return Sapi::getTempDir();
 	}
 }
-
-?>

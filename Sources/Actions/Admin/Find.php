@@ -376,5 +376,3 @@ class Find implements ActionInterface
 		$this->subaction = !isset($_REQUEST['search_type']) || !isset(self::$subactions[$_REQUEST['search_type']]) ? 'internal' : $_REQUEST['search_type'];
 	}
 }
-
-?>

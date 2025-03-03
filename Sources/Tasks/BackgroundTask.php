@@ -64,5 +64,3 @@ abstract class BackgroundTask
 		return array_intersect_key(User::$profiles, array_flip($loaded_ids));
 	}
 }
-
-?>

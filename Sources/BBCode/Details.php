@@ -87,5 +87,3 @@ class Details extends BBCode
 		}
 	}
 }
-
-?>

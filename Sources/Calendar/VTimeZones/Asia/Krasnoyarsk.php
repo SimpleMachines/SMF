@@ -117,5 +117,3 @@ class Krasnoyarsk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

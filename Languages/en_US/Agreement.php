@@ -10,5 +10,3 @@ $txt['privacy_policy_updated_desc'] = 'You must accept the terms of the privacy 
 $txt['privacy_policy_accepted'] = 'You accepted the terms of this privacy policy on {date}.';
 $txt['agreement_and_privacy_policy'] = 'Registration Agreement and Privacy Policy';
 $txt['agree'] = 'I Agree';
-
-?>

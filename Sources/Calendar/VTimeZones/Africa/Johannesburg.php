@@ -72,5 +72,3 @@ class Johannesburg extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

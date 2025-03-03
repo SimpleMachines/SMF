@@ -156,5 +156,3 @@ class Attach extends BBCode
 		$data = $return_context;
 	}
 }
-
-?>

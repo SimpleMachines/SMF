@@ -93,5 +93,3 @@ class FetchSMFiles extends ScheduledTask
 		return true;
 	}
 }
-
-?>

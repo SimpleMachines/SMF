@@ -353,5 +353,3 @@ class DraftPM extends Draft
 		];
 	}
 }
-
-?>

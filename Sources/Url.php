@@ -777,5 +777,3 @@ class Url implements \Stringable
 		$this->is_ascii = mb_check_encoding($this->url, 'ASCII');
 	}
 }
-
-?>

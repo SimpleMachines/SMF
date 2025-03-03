@@ -737,5 +737,3 @@ function template_linked_events()
 					</ul>
 				</div>';
 }
-
-?>

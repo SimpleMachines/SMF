@@ -63,5 +63,3 @@ class Guayaquil extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

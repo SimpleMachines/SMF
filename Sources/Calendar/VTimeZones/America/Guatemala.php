@@ -105,5 +105,3 @@ class Guatemala extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

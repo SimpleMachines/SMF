@@ -299,5 +299,3 @@ class Cairo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

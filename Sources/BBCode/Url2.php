@@ -94,5 +94,3 @@ class Url2 extends BBCode
 		}
 	}
 }
-
-?>

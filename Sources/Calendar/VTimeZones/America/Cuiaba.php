@@ -454,5 +454,3 @@ class Cuiaba extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

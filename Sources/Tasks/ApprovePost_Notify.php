@@ -119,5 +119,3 @@ class ApprovePost_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

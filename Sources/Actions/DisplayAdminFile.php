@@ -96,5 +96,3 @@ class DisplayAdminFile implements ActionInterface, Routable
 		Utils::obExit(false);
 	}
 }
-
-?>

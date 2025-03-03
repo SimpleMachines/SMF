@@ -111,5 +111,3 @@ class ApproveReply_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

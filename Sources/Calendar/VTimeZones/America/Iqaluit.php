@@ -111,5 +111,3 @@ class Iqaluit extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

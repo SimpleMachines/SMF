@@ -145,5 +145,3 @@ class Metlakatla extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

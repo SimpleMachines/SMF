@@ -20,5 +20,3 @@ if (!defined('SMF')) {
 }
 
 class_alias('SMF\\Search\\APIs\\Standard', '\\standard_search');
-
-?>

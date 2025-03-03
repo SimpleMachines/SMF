@@ -77,5 +77,3 @@ class Mauritius extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

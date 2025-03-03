@@ -1061,5 +1061,3 @@ We hope this message brought you cheer, and make it last, until same time same p
 
 {REGARDS}';
 $txtBirthdayEmails['karlbenson2_author'] = '<a href="https://www.simplemachines.org/community/?action=profile;u=63186">karlbenson</a>';
-
-?>

@@ -188,5 +188,3 @@ class Image
 		$this->m_data = $data;
 	}
 }
-
-?>

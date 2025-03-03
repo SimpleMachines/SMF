@@ -204,5 +204,3 @@ class St_Johns extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -1075,5 +1075,3 @@ class RRule implements \Stringable
 		}
 	}
 }
-
-?>

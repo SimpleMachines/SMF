@@ -916,5 +916,3 @@ class MessageFormatter
 		return $number;
 	}
 }
-
-?>

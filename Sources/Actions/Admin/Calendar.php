@@ -712,5 +712,3 @@ class Calendar implements ActionInterface
 		}
 	}
 }
-
-?>

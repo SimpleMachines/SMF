@@ -195,5 +195,3 @@ class CoppaForm implements ActionInterface, Routable
 		return $params;
 	}
 }
-
-?>

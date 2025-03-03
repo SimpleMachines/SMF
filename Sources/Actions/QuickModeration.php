@@ -938,5 +938,3 @@ class QuickModeration implements ActionInterface, Routable
 		Utils::redirectexit('action=restoretopic;topics=' . implode(',', $this->topic_actions['restore']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 }
-
-?>

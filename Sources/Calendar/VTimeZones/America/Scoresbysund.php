@@ -112,5 +112,3 @@ class Scoresbysund extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

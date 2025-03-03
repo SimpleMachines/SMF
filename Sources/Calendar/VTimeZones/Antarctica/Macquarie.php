@@ -221,5 +221,3 @@ class Macquarie extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

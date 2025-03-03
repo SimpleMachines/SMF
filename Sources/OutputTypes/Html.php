@@ -28,5 +28,3 @@ class Html implements OutputTypeInterface
 		return 'text/html';
 	}
 }
-
-?>

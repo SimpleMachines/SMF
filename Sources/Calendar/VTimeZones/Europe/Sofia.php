@@ -191,5 +191,3 @@ class Sofia extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

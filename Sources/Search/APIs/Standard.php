@@ -46,5 +46,3 @@ class Standard extends SearchApi implements SearchApiInterface
 		parent::__construct();
 	}
 }
-
-?>

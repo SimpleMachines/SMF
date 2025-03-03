@@ -1055,5 +1055,3 @@ class Main implements ActionInterface, Routable
 		Utils::$context['require_password'] = $this->check_password;
 	}
 }
-
-?>

@@ -518,5 +518,3 @@ class Search2 implements ActionInterface, Routable
 		SearchApi::$loadedApi->setParticipants();
 	}
 }
-
-?>

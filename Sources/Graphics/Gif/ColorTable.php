@@ -90,5 +90,3 @@ class ColorTable
 		return $idx;
 	}
 }
-
-?>

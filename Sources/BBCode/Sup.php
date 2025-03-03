@@ -49,5 +49,3 @@ class Sup extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

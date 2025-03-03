@@ -117,5 +117,3 @@ class Yerevan extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

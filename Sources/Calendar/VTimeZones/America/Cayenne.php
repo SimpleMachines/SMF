@@ -56,5 +56,3 @@ class Cayenne extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

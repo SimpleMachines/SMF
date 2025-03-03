@@ -617,5 +617,3 @@ function template_convert_msgbody()
 		</div><!-- .windowbg -->
 	</div><!-- #manage_maintenance -->';
 }
-
-?>

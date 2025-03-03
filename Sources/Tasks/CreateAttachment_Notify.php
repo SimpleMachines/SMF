@@ -151,5 +151,3 @@ class CreateAttachment_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

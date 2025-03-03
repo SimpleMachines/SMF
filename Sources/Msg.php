@@ -2914,5 +2914,3 @@ class Msg implements \ArrayAccess, Routable
 		Db::$db->free_result(self::$messages_request);
 	}
 }
-
-?>

@@ -2004,5 +2004,3 @@ class Topic implements \ArrayAccess, Routable
 if (is_callable([Topic::class, 'exportStatic'])) {
 	Topic::exportStatic();
 }
-
-?>

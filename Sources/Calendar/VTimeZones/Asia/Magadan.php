@@ -124,5 +124,3 @@ class Magadan extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

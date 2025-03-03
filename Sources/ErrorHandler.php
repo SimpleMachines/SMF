@@ -708,7 +708,7 @@ class ErrorHandler
 
 		if (filemtime(Config::$cachedir . '/db_last_error.php') === $last_db_error_change) {
 			// Write the change
-			$write_db_change = '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
+			$write_db_change = '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n";
 			$written_bytes = file_put_contents(Config::$cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
 
 			// survey says ...
@@ -724,5 +724,3 @@ class ErrorHandler
 		return false;
 	}
 }
-
-?>

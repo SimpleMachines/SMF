@@ -327,5 +327,3 @@ class Payment
 		return true;
 	}
 }
-
-?>

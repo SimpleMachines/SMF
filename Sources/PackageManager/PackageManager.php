@@ -1866,7 +1866,7 @@ class PackageManager
 
 		// Let's do some formatting...
 		$operation_text = Utils::$context['operations']['position'] == 'replace' ? 'operation_replace' : (Utils::$context['operations']['position'] == 'before' ? 'operation_after' : 'operation_before');
-		Utils::$context['operations']['search'] = Parser::transform('[code=' . Lang::getTxt('operation_find', file: 'Packages') . ']' . (Utils::$context['operations']['position'] == 'end' ? '?&gt;' : Utils::$context['operations']['search']) . '[/code]');
+		Utils::$context['operations']['search'] = Parser::transform('[code=' . Lang::getTxt(Utils::$context['operations']['position'] == 'end' || Utils::$context['operations']['is_reg_exp'] ? 'operation_find_regex' : 'operation_find') . ']' . (Utils::$context['operations']['position'] == 'end' ? '(\\n\\?&gt;)?$' : Utils::$context['operations']['search']) . '[/code]');
 		Utils::$context['operations']['replace'] = Parser::transform('[code=' . Lang::getTxt($operation_text, file: 'Packages') . ']' . Utils::$context['operations']['replace'] . '[/code]');
 
 		// No layers
@@ -3672,5 +3672,3 @@ class PackageManager
 		}
 	}
 }
-
-?>

@@ -480,5 +480,3 @@ function template_editicon()
 		</div><!-- .windowbg -->
 	</form>';
 }
-
-?>

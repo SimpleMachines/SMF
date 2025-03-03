@@ -157,5 +157,3 @@ trait ActionRouter
 		return $params;
 	}
 }
-
-?>

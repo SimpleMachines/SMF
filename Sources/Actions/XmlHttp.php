@@ -421,5 +421,3 @@ class XmlHttp implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

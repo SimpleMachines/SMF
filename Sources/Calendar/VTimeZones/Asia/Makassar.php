@@ -63,5 +63,3 @@ class Makassar extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

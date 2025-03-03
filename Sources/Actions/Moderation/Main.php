@@ -470,5 +470,3 @@ class Main implements ActionInterface, Routable
 		$this->moderation_areas['members']['areas']['reportedmembers']['enabled'] = Utils::$context['can_moderate_users'];
 	}
 }
-
-?>

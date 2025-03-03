@@ -230,5 +230,3 @@ class TopicRemove implements ActionInterface, Routable
 	 * Internal static methods
 	 *************************/
 }
-
-?>

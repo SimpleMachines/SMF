@@ -4159,5 +4159,3 @@ class MarkdownParser extends Parser
 		}
 	}
 }
-
-?>

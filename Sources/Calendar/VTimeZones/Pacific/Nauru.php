@@ -70,5 +70,3 @@ class Nauru extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

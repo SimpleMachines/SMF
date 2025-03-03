@@ -293,5 +293,3 @@ class Amman extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

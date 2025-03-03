@@ -95,5 +95,3 @@ class SendMail extends MailAgent implements MailAgentInterface
 		return $mail_result;
 	}
 }
-
-?>

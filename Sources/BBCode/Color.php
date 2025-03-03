@@ -59,5 +59,3 @@ class Color extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

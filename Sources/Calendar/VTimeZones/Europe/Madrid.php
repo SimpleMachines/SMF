@@ -306,5 +306,3 @@ class Madrid extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

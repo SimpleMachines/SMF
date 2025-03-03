@@ -51,5 +51,3 @@ class Green extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

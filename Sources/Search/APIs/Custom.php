@@ -926,5 +926,3 @@ class Custom extends SearchApi implements SearchApiInterface
 		return array_unique(array_values($returned_ints));
 	}
 }
-
-?>

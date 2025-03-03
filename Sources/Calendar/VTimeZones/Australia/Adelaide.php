@@ -218,5 +218,3 @@ class Adelaide extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

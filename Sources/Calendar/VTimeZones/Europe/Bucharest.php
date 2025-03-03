@@ -172,5 +172,3 @@ class Bucharest extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

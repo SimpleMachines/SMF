@@ -86,5 +86,3 @@ class Norfolk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>
