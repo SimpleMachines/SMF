@@ -12,6 +12,8 @@
  */
 $finder = (new PhpCsFixer\Finder())
 	->in(__DIR__)
+	->in(__DIR__ . '/Languages')
+	->in(__DIR__ . '/Sources/Unicode')
 	// Don't touch libraries.
 	->exclude([
 		'cache',
@@ -19,7 +21,6 @@ $finder = (new PhpCsFixer\Finder())
 		'Packages',
 		'Smileys',
 		'Sources/minify',
-		'Sources/random_compat',
 		'Sources/ReCaptcha',
 		'Sources/ZxcvbnPhp',
 		'Themes',

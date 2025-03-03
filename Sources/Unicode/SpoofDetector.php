@@ -15,12 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Unicode;
 
-use SMF\Action\Admin\ACP;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\User;
 use SMF\Utils;
 
 /**
