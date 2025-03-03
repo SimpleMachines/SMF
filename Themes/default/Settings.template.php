@@ -132,7 +132,7 @@ function template_options()
 			'label' => $txt['pm_remove_inbox_label'],
 			'default' => true,
 		),
-		$txt['theme_opt_calendar'],
+		!empty($modSettings['cal_enabled']) ? $txt['theme_opt_calendar'] : '',
 		array(
 			'id' => 'calendar_default_view',
 			'label' => $txt['calendar_default_view'],
