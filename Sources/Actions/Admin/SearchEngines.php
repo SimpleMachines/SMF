@@ -1212,6 +1212,7 @@ class SearchEngines implements ActionInterface
 					$boardpath . '/*.msg',
 					$boardpath . '/*.new',
 					$boardpath . '/*.from',
+					$boardpath . '/msgs/',
 					// Normal URLs of actions that always set Utils::$context['robot_no_index'] to true
 					$scriptpath . '?action=admin',
 					$scriptpath . '?action=credits',
