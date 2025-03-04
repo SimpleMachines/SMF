@@ -597,6 +597,147 @@ class Topic implements \ArrayAccess, Routable
 	}
 
 	/**
+	 * Creates a new topic in the database.
+	 *
+	 * Called from Msg::create().
+	 *
+	 * @param array &$msgOptions Information about the post.
+	 * @param array &$topicOptions Information about the topic.
+	 * @param array &$posterOptions Information about the poster.
+	 * @return bool Whether the operation was a success.
+	 */
+	public static function create(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
+	{
+		$topic_columns = [
+			'id_board' => 'int',
+			'id_member_started' => 'int',
+			'id_member_updated' => 'int',
+			'id_first_msg' => 'int',
+			'id_last_msg' => 'int',
+			'locked' => 'int',
+			'is_sticky' => 'int',
+			'num_views' => 'int',
+			'id_poll' => 'int',
+			'unapproved_posts' => 'int',
+			'approved' => 'int',
+			'redirect_expires' => 'int',
+			'id_redirect_topic' => 'int',
+		];
+
+		$topic_parameters = [
+			$topicOptions['board'],
+			$posterOptions['id'],
+			$posterOptions['id'],
+			$msgOptions['id'],
+			$msgOptions['id'],
+			$topicOptions['lock_mode'] ?? 0,
+			$topicOptions['sticky_mode'] ?? 0,
+			0,
+			$topicOptions['poll'] ?? 0,
+			(int) empty($msgOptions['approved']),
+			$msgOptions['approved'],
+			$topicOptions['redirect_expires'] ?? 0,
+			$topicOptions['redirect_topic'] ?? 0,
+		];
+
+		IntegrationHook::call('integrate_before_create_topic', [&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters]);
+
+		// Insert the topic
+		$topicOptions['id'] = Db::$db->insert(
+			'',
+			'{db_prefix}topics',
+			$topic_columns,
+			[$topic_parameters],
+			['id_topic'],
+			1,
+		);
+
+		// If it didn't work, bail out.
+		if (empty($topicOptions['id'])) {
+			$topicOptions['id'] = 0;
+
+			return false;
+		}
+
+		// Fix the message with the topic.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}messages
+			SET id_topic = {int:id_topic}
+			WHERE id_msg = {int:id_msg}',
+			[
+				'id_topic' => $topicOptions['id'],
+				'id_msg' => $msgOptions['id'],
+			],
+		);
+
+		// There's been a new topic today.
+		Logging::trackStats(['topics' => '+']);
+
+		Logging::updateStats('topic', true);
+		Logging::updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
+
+		// What if we want to export new topics out to a CMS?
+		IntegrationHook::call('integrate_create_topic', [$msgOptions, $topicOptions, $posterOptions]);
+	}
+
+	/**
+	 * Updates a topic in the database when a new reply is added to it.
+	 *
+	 * Called from Msg::create().
+	 *
+	 * @param array &$msgOptions Information about the post.
+	 * @param array &$topicOptions Information about the topic.
+	 * @param array &$posterOptions Information about the poster.
+	 * @return bool Whether the operation was a success.
+	 */
+	public static function addReply(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
+	{
+		$update_parameters = [
+			'poster_id' => $posterOptions['id'],
+			'id_msg' => $msgOptions['id'],
+			'locked' => $topicOptions['lock_mode'],
+			'is_sticky' => $topicOptions['sticky_mode'],
+			'id_topic' => $topicOptions['id'],
+			'counter_increment' => 1,
+		];
+
+		if ($msgOptions['approved']) {
+			$topics_columns = [
+				'id_member_updated = {int:poster_id}',
+				'id_last_msg = {int:id_msg}',
+				'num_replies = num_replies + {int:counter_increment}',
+			];
+		} else {
+			$topics_columns = [
+				'unapproved_posts = unapproved_posts + {int:counter_increment}',
+			];
+		}
+
+		if ($topicOptions['lock_mode'] !== null) {
+			$topics_columns[] = 'locked = {int:locked}';
+		}
+
+		if ($topicOptions['sticky_mode'] !== null) {
+			$topics_columns[] = 'is_sticky = {int:is_sticky}';
+		}
+
+		IntegrationHook::call('integrate_modify_topic', [&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions]);
+
+		// Update the number of replies and the lock/sticky status.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}topics
+			SET
+				' . implode(', ', $topics_columns) . '
+			WHERE id_topic = {int:id_topic}',
+			$update_parameters,
+		);
+
+		return true;
+	}
+
+	/**
 	 * Sets the locked state for one or more topics.
 	 *
 	 * Doesn't check permissions.

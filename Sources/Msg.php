@@ -265,7 +265,10 @@ class Msg implements \ArrayAccess, Routable
 	{
 		$this->id = $id;
 		$this->set($props);
-		self::$loaded[$id] = $this;
+
+		if (!empty($this->id)) {
+			self::$loaded[$this->id] = $this;
+		}
 	}
 
 	/**
@@ -1166,15 +1169,16 @@ class Msg implements \ArrayAccess, Routable
 
 	/**
 	 * Create a post, either as new topic (id_topic = 0) or in an existing one.
+	 *
 	 * The input parameters of this function assume:
 	 * - Strings have been escaped.
 	 * - Integers have been cast to integer.
 	 * - Mandatory parameters are set.
 	 *
-	 * @param array $msgOptions An array of information/options for the post
-	 * @param array $topicOptions An array of information/options for the topic
-	 * @param array $posterOptions An array of information/options for the poster
-	 * @return bool Whether the operation was a success
+	 * @param array &$msgOptions Information/options about the post.
+	 * @param array &$topicOptions Information/options about the topic.
+	 * @param array &$posterOptions Information/options about the poster.
+	 * @return bool Whether the operation was a success.
 	 */
 	public static function create(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
@@ -1275,7 +1279,7 @@ class Msg implements \ArrayAccess, Routable
 			'id_topic' => 'int',
 			'id_member' => 'int',
 			'subject' => 'string-255',
-			'body' => (!empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] > 65534 ? 'string-' . Config::$modSettings['max_messageLength'] : (empty(Config::$modSettings['max_messageLength']) ? 'string' : 'string-65534')),
+			'body' => 'string' . (empty(Config::$modSettings['max_messageLength']) ? '' : '-' . max(65534, Config::$modSettings['max_messageLength'])),
 			'poster_name' => 'string-255',
 			'poster_email' => 'string-255',
 			'poster_time' => 'int',
@@ -1324,16 +1328,7 @@ class Msg implements \ArrayAccess, Routable
 
 		// Fix the attachments.
 		if (!empty($msgOptions['attachments'])) {
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}attachments
-				SET id_msg = {int:id_msg}
-				WHERE id_attach IN ({array_int:attachment_list})',
-				[
-					'attachment_list' => $msgOptions['attachments'],
-					'id_msg' => $msgOptions['id'],
-				],
-			);
+			Attachment::assign($msgOptions['attachments'], $msgOptions['id']);
 		}
 
 		// What if we want to export new posts out to a CMS?
@@ -1341,30 +1336,7 @@ class Msg implements \ArrayAccess, Routable
 
 		// Insert a new topic (if the topicID was left empty.)
 		if ($new_topic) {
-			$topic_columns = [
-				'id_board' => 'int', 'id_member_started' => 'int', 'id_member_updated' => 'int', 'id_first_msg' => 'int',
-				'id_last_msg' => 'int', 'locked' => 'int', 'is_sticky' => 'int', 'num_views' => 'int',
-				'id_poll' => 'int', 'unapproved_posts' => 'int', 'approved' => 'int',
-				'redirect_expires' => 'int', 'id_redirect_topic' => 'int',
-			];
-
-			$topic_parameters = [
-				$topicOptions['board'], $posterOptions['id'], $posterOptions['id'], $msgOptions['id'],
-				$msgOptions['id'], $topicOptions['lock_mode'] === null ? 0 : $topicOptions['lock_mode'], $topicOptions['sticky_mode'] === null ? 0 : $topicOptions['sticky_mode'], 0,
-				$topicOptions['poll'] === null ? 0 : $topicOptions['poll'], $msgOptions['approved'] ? 0 : 1, $msgOptions['approved'],
-				$topicOptions['redirect_expires'] === null ? 0 : $topicOptions['redirect_expires'], $topicOptions['redirect_topic'] === null ? 0 : $topicOptions['redirect_topic'],
-			];
-
-			IntegrationHook::call('integrate_before_create_topic', [&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters]);
-
-			$topicOptions['id'] = Db::$db->insert(
-				'',
-				'{db_prefix}topics',
-				$topic_columns,
-				[$topic_parameters],
-				['id_topic'],
-				1,
-			);
+			Topic::create($msgOptions, $topicOptions, $posterOptions);
 
 			// The topic couldn't be created for some reason.
 			if (empty($topicOptions['id'])) {
@@ -1380,77 +1352,17 @@ class Msg implements \ArrayAccess, Routable
 
 				return false;
 			}
-
-			// Fix the message with the topic.
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}messages
-				SET id_topic = {int:id_topic}
-				WHERE id_msg = {int:id_msg}',
-				[
-					'id_topic' => $topicOptions['id'],
-					'id_msg' => $msgOptions['id'],
-				],
-			);
-
-			// There's been a new topic AND a new post today.
-			Logging::trackStats(['topics' => '+', 'posts' => '+']);
-
-			Logging::updateStats('topic', true);
-			Logging::updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
-
-			// What if we want to export new topics out to a CMS?
-			IntegrationHook::call('integrate_create_topic', [&$msgOptions, &$topicOptions, &$posterOptions]);
 		}
 		// The topic already exists, it only needs a little updating.
 		else {
-			$update_parameters = [
-				'poster_id' => $posterOptions['id'],
-				'id_msg' => $msgOptions['id'],
-				'locked' => $topicOptions['lock_mode'],
-				'is_sticky' => $topicOptions['sticky_mode'],
-				'id_topic' => $topicOptions['id'],
-				'counter_increment' => 1,
-			];
-
-			if ($msgOptions['approved']) {
-				$topics_columns = [
-					'id_member_updated = {int:poster_id}',
-					'id_last_msg = {int:id_msg}',
-					'num_replies = num_replies + {int:counter_increment}',
-				];
-			} else {
-				$topics_columns = [
-					'unapproved_posts = unapproved_posts + {int:counter_increment}',
-				];
-			}
-
-			if ($topicOptions['lock_mode'] !== null) {
-				$topics_columns[] = 'locked = {int:locked}';
-			}
-
-			if ($topicOptions['sticky_mode'] !== null) {
-				$topics_columns[] = 'is_sticky = {int:is_sticky}';
-			}
-
-			IntegrationHook::call('integrate_modify_topic', [&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions]);
-
-			// Update the number of replies and the lock/sticky status.
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}topics
-				SET
-					' . implode(', ', $topics_columns) . '
-				WHERE id_topic = {int:id_topic}',
-				$update_parameters,
-			);
-
-			// One new post has been added today.
-			Logging::trackStats(['posts' => '+']);
+			Topic::addReply($msgOptions, $topicOptions, $posterOptions);
 		}
 
+		// One new post has been added today.
+		Logging::trackStats(['posts' => '+']);
+
 		// Creating is modifying...in a way.
-		// @todo Why not set id_msg_modified on the insert?
+		// Done in a second query because we don't know the ID until after the insert.
 		Db::$db->query(
 			'',
 			'UPDATE {db_prefix}messages
@@ -1664,13 +1576,17 @@ class Msg implements \ArrayAccess, Routable
 	/**
 	 * Modifying a post...
 	 *
-	 * @param array &$msgOptions An array of information/options for the post
-	 * @param array &$topicOptions An array of information/options for the topic
-	 * @param array &$posterOptions An array of information/options for the poster
-	 * @return bool Whether the post was modified successfully
+	 * @param array &$msgOptions Information/options about the post.
+	 * @param array &$topicOptions Information/options about the topic.
+	 * @param array &$posterOptions Information/options about the poster.
+	 * @return bool Whether the operation was a success.
 	 */
 	public static function modify(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
+		if (empty($msgOptions['id'])) {
+			return false;
+		}
+
 		$searchAPI = SearchApi::load();
 
 		// This is longer than it has to be, but makes it so we only set/change what we have to.
@@ -1827,7 +1743,7 @@ class Msg implements \ArrayAccess, Routable
 				WHERE id_topic = {int:id_topic}',
 				$topic_parameters,
 			);
-	}
+		}
 
 		// Mark the edited post as read.
 		if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest) {
