@@ -3422,9 +3422,12 @@ class PackageManager
 				$_REQUEST['sa'] = 'servers';
 			}
 
-			// Backward compatibility for deprecated integrate_package_get hook.
 			$temp = array_map(function ($sa) {return $this->subactions[$sa];}, $this->packageget_subactions);
-			IntegrationHook::call('integrate_package_get', [&$temp]);
+
+			// MOD AUTHORS: integrate_package_get is deprecated. Use integrate_manage_packages instead.
+			if (!empty(Config::$backward_compatibility)) {
+				IntegrationHook::call('integrate_package_get', [&$temp]);
+			}
 
 			foreach ($temp as $sa => $func) {
 				$this->subactions[$this->packageget_subactions[$sa] ?? $sa] = $func;

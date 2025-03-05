@@ -1119,7 +1119,8 @@ class MessageIndex implements ActionInterface, Routable
 		}
 
 		// Allow adding new buttons easily.
-		// Note: Utils::$context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
+		// MOD AUTHORS: A future version of SMF will stop passing Utils::$context['normal_buttons'] to this hook.
+		// You should just interact with Utils::$context['normal_buttons'] directly in your hooked code.
 		IntegrationHook::call('integrate_messageindex_buttons', [&Utils::$context['normal_buttons']]);
 	}
 }
