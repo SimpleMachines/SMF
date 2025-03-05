@@ -415,8 +415,6 @@ class Notification implements ActionInterface
 			}
 		}
 
-		// Now, now, we could pass this through global but we should really get into the habit of
-		// passing content to hooks, not expecting hooks to splatter everything everywhere.
 		IntegrationHook::call('integrate_alert_types', [&$this->alert_types, &$this->group_options]);
 
 		// Now we have to do some permissions testing - but only if we're not loading this from the admin center

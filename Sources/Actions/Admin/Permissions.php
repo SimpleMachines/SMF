@@ -2368,6 +2368,7 @@ class Permissions implements ActionInterface
 
 		self::$illegal = array_unique(self::$illegal);
 
+		// Call the deprecated integrate_load_illegal_permissions hook.
 		self::integrateLoadIllegalPermissions();
 
 		return self::$illegal;
@@ -3208,7 +3209,7 @@ class Permissions implements ActionInterface
 		// We also need to know which groups can't be given the bbc_html permission.
 		self::loadIllegalBBCHtmlGroups();
 
-		// Backward compatibility with the integrate_load_permissions hook.
+		// Call the deprecated integrate_load_permissions hook.
 		self::integrateLoadPermissions();
 
 		// Figure out which permissions should be hidden.
@@ -3420,7 +3421,7 @@ class Permissions implements ActionInterface
 	protected static function integrateLoadPermissions(): void
 	{
 		// Don't bother if nothing is using this hook.
-		if (empty(Config::$modSettings['integrate_load_permissions'])) {
+		if (empty(Config::$backward_compatibility) || empty(Config::$modSettings['integrate_load_permissions'])) {
 			return;
 		}
 
@@ -3506,7 +3507,7 @@ class Permissions implements ActionInterface
 	protected static function integrateLoadIllegalPermissions(): void
 	{
 		// Don't bother if nothing is using this hook.
-		if (empty(Config::$modSettings['integrate_load_illegal_permissions'])) {
+		if (empty(Config::$backward_compatibility) || empty(Config::$modSettings['integrate_load_illegal_permissions'])) {
 			return;
 		}
 
@@ -3546,7 +3547,7 @@ class Permissions implements ActionInterface
 	protected static function integrateLoadIllegalGuestPermissions(): void
 	{
 		// Don't bother if nothing is using this hook.
-		if (empty(Config::$modSettings['integrate_load_illegal_guest_permissions'])) {
+		if (empty(Config::$backward_compatibility) || empty(Config::$modSettings['integrate_load_illegal_guest_permissions'])) {
 			return;
 		}
 

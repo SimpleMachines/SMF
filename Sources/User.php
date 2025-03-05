@@ -4328,12 +4328,10 @@ class User implements \ArrayAccess
 				self::$info = $this;
 				Utils::$context['user'] = $this;
 
-				// MOD AUTHORS: If you use this hook, update your code to work
-				// with SMF\User::$me instead of the deprecated $user_info.
-				// Alternatively, consider the integrate_user_properties hook in
-				// the setProperties() method, which lets you work with the
-				// properties of any instance of this class.
-				IntegrationHook::call('integrate_user_info');
+				// MOD AUTHORS: integrate_user_info is deprecated. Use integrate_user_properties instead.
+				if (!empty(Config::$backward_compatibility)) {
+					IntegrationHook::call('integrate_user_info');
+				}
 			}
 		}
 		// Reloading the current user requires special handling.

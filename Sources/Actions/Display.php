@@ -1360,10 +1360,14 @@ class Display implements ActionInterface, Routable
 		}
 
 		// Allow adding new buttons easily.
-		// Note: Utils::$context['normal_buttons'] and Utils::$context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
+		// MOD AUTHORS: A future version of SMF will stop passing Utils::$context['normal_buttons'] to this hook.
+		// You should just interact with Utils::$context['normal_buttons'] directly in your hooked code.
 		IntegrationHook::call('integrate_display_buttons', [&Utils::$context['normal_buttons']]);
-		// Note: integrate_mod_buttons is no longer necessary and deprecated, but is kept for backward compatibility with 2.0
-		IntegrationHook::call('integrate_mod_buttons', [&Utils::$context['mod_buttons']]);
+
+		// NOD AUTHORS: integrate_mod_buttons is deprecated. Use integrate_display_buttons instead.
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_mod_buttons', [&Utils::$context['mod_buttons']]);
+		}
 
 		// If any buttons have a 'test' check, run those tests now to keep things clean.
 		foreach (['normal_buttons', 'mod_buttons'] as $button_strip) {

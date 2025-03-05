@@ -416,11 +416,15 @@ class Forum
 
 		// Allow modifying $unlogged_actions easily.
 		// Deprecated: Implement ActionInterface::isSimpleAction() instead of this hook.
-		IntegrationHook::call('integrate_pre_log_stats', [&self::$unlogged_actions]);
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_pre_log_stats', [&self::$unlogged_actions]);
+		}
 
 		// Allow modifying $guest_access_actions easily.
 		// Deprecated: Implement ActionInterface::isRestrictedGuestAccessAllowed() instead of this hook.
-		IntegrationHook::call('integrate_guest_actions', [&self::$guest_access_actions]);
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_guest_actions', [&self::$guest_access_actions]);
+		}
 	}
 
 	/**

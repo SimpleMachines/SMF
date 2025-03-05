@@ -2040,7 +2040,9 @@ class Theme
 		Utils::$context['insert_after_template'] = '';
 
 		// Deprecated: Implement ActionInterface::isSimpleAction() instead of this hook.
-		IntegrationHook::call('integrate_simple_actions', [&$this->simpleActions, &$this->simpleAreas, &$this->simpleSubActions, &$this->extraParams, &$this->xmlActions]);
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_simple_actions', [&$this->simpleActions, &$this->simpleAreas, &$this->simpleSubActions, &$this->extraParams, &$this->xmlActions]);
+		}
 
 		Utils::$context['simple_action'] = (
 			(Forum::getCurrentAction())?->isSimpleAction() === true

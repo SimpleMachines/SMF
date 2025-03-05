@@ -537,10 +537,14 @@ class Home implements ActionInterface
 	/**
 	 * Provides a home for the deprecated integrate_mod_centre_blocks hook.
 	 *
-	 * MOD AUTHORS: Please use the integrate_moderation_home_blocks instead.
+	 * MOD AUTHORS: Please use integrate_moderation_home_blocks instead.
 	 */
 	protected static function integrateModBlocks(): void
 	{
+		if (empty(Config::$backward_compatibility)) {
+			return;
+		}
+
 		$valid_blocks = [];
 
 		IntegrationHook::call('integrate_mod_centre_blocks', [&$valid_blocks]);
