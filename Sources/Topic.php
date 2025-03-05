@@ -209,6 +209,15 @@ class Topic implements \ArrayAccess, Routable
 	/**
 	 * @var int
 	 *
+	 * For redirection topics, the Unix timestamp when the redirect expires.
+	 *
+	 * Redirection topics are usually deleted automatically once they expire.
+	 */
+	public int $redirect_expires;
+
+	/**
+	 * @var int
+	 *
 	 * For topics in the recycle board, the ID number of the board that this
 	 * topic used to be in.
 	 */
@@ -308,9 +317,12 @@ class Topic implements \ArrayAccess, Routable
 	protected array $prop_aliases = [
 		'id_topic' => 'id',
 		'locked' => 'is_locked',
+		'lock_mode' => 'is_locked',
+		'sticky_mode' => 'is_sticky',
 		'approved' => 'is_approved',
 		'topic_started_name' => 'started_name',
 		'topic_started_time' => 'started_time',
+		'poll' => 'id_poll',
 	];
 
 	/**
@@ -380,13 +392,165 @@ class Topic implements \ArrayAccess, Routable
 
 		// If the topic is constructed before User::$me is set, the properties
 		// passed in $props are probably not what they will be later.
-		if (isset(User::$me)) {
-			self::$loaded[$id] = $this;
+		if (isset(User::$me) && !empty($this->id)) {
+			self::$loaded[$this->id] = $this;
 		}
 
 		// Create the slug for this topic.
 		if (isset($this->subject)) {
 			Slug::create($this->subject, 'topic', $id);
+		}
+	}
+
+	/**
+	 * Saves this topic to the database.
+	 */
+	public function save(): void
+	{
+		// Ensure the hooks have what they expect.
+		foreach (['msgOptions', 'topicOptions', 'posterOptions'] as $key) {
+			if (!isset($this->custom[$key])) {
+				$this->custom[$key] = [];
+			}
+		}
+
+		if (empty($this->id)) {
+			$columns = [
+				'id_board' => 'int',
+				'id_member_started' => 'int',
+				'id_member_updated' => 'int',
+				'id_first_msg' => 'int',
+				'id_last_msg' => 'int',
+				'locked' => 'int',
+				'is_sticky' => 'int',
+				'approved' => 'int',
+				'num_views' => 'int',
+				'num_replies' => 'int',
+				'id_poll' => 'int',
+				'unapproved_posts' => 'int',
+				'id_redirect_topic' => 'int',
+				'redirect_expires' => 'int',
+				'id_previous_board' => 'int',
+				'id_previous_topic' => 'int',
+			];
+
+			$params = [
+				$this->id_board,
+				$this->id_member_started,
+				$this->id_member_updated,
+				$this->id_first_msg,
+				$this->id_last_msg,
+				$this->is_locked,
+				$this->is_sticky,
+				$this->is_approved,
+				$this->num_views ?? 0,
+				$this->num_replies ?? 0,
+				$this->id_poll ?? 0,
+				$this->unapproved_posts ?? 0,
+				$this->id_redirect_topic ?? 0,
+				$this->redirect_expires ?? 0,
+				$this->id_previous_board ?? 0,
+				$this->id_previous_topic ?? 0,
+			];
+
+			// If mods added extra columns to the table and those column values
+			// are reflected in this object's custom properties, save them too.
+			if (!empty($this->custom)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}topics', $this->custom) as $key => $type) {
+					if (isset($this->custom[$key]) && !is_array($this->custom[$key])) {
+						$columns[$key] = $type;
+						$params[] = $this->custom[$key];
+					}
+				}
+			}
+
+			// Give mods an opportunity for fine-tuned control over the values to be saved.
+			IntegrationHook::call('integrate_before_create_topic', [&$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$columns, &$params]);
+
+			$this->id = (int) Db::$db->insert(
+				'',
+				'{db_prefix}topics',
+				$columns,
+				[$params],
+				['id_topic'],
+				1,
+			);
+
+			self::$loaded[$this->id] = $this;
+
+			// Ensure the first message knows it is part of this topic.
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}messages
+				SET id_topic = {int:id_topic}
+				WHERE id_msg = {int:id_msg}',
+				[
+					'id_topic' => $this->id,
+					'id_msg' => $this->id_first_msg,
+				],
+			);
+		} else {
+			$set = [
+				'id_topic = {int:id_topic}',
+				'id_board = {int:id_board}',
+				'id_member_started = {int:id_member_started}',
+				'id_member_updated = {int:id_member_updated}',
+				'id_first_msg = {int:id_first_msg}',
+				'id_last_msg = {int:id_last_msg}',
+				'locked = {int:locked}',
+				'is_sticky = {int:is_sticky}',
+				'approved = {int:approved}',
+				'num_views = {int:num_views}',
+				'num_replies = {int:num_replies}',
+				'id_poll = {int:id_poll}',
+				'unapproved_posts = {int:unapproved_posts}',
+				'id_redirect_topic = {int:id_redirect_topic}',
+				'redirect_expires = {int:redirect_expires}',
+				'id_previous_board = {int:id_previous_board}',
+				'id_previous_topic = {int:id_previous_topic}',
+			];
+
+			$params = [
+				'id_topic' => (int) $this->id,
+				'id_board' => (int) $this->id_board,
+				'id_member_started' => (int) $this->id_member_started,
+				'id_member_updated' => (int) $this->id_member_updated,
+				'id_first_msg' => (int) $this->id_first_msg,
+				'id_last_msg' => (int) $this->id_last_msg,
+				'locked' => (int) $this->is_locked,
+				'is_sticky' => (int) $this->is_sticky,
+				'approved' => (int) $this->is_approved,
+				'num_views' => (int) $this->num_views,
+				'num_replies' => (int) $this->num_replies,
+				'id_poll' => (int) $this->id_poll,
+				'unapproved_posts' => (int) $this->unapproved_posts,
+				'id_redirect_topic' => (int) $this->id_redirect_topic,
+				'redirect_expires' => (int) $this->redirect_expires,
+				'id_previous_board' => (int) $this->id_previous_board,
+				'id_previous_topic' => (int) $this->id_previous_topic,
+			];
+
+			// If mods added extra columns to the table and those column values
+			// are reflected in this object's custom properties, save them too.
+			if (!empty($this->custom)) {
+				foreach (Db::$db->getTypeIndicators('{db_prefix}topics', $this->custom) as $key => $type) {
+					if (isset($this->custom[$key]) && !is_array($this->custom[$key])) {
+						$set[] = $key . ' = {' . $type . ':' . $key . '}';
+						$params[$key] = $this->custom[$key];
+					}
+				}
+			}
+
+			// Give mods an opportunity for fine-tuned control over the values to be saved.
+			IntegrationHook::call('integrate_modify_topic', [&$set, &$params, &$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions']]);
+
+			Db::$db->query(
+				'',
+				'UPDATE {db_prefix}topics
+				SET ' . (implode(', ', $set)) . '
+				WHERE id_topic = {int:id_topic}',
+				$params,
+			);
 		}
 	}
 
@@ -561,6 +725,59 @@ class Topic implements \ArrayAccess, Routable
 		return array_intersect_key(Event::$loaded, array_flip($this->events ?? []));
 	}
 
+	/**
+	 * Mark this topic as read for the specified user.
+	 *
+	 * @param int $id_member The ID of the member who has read this topic.
+	 * @param int $id_msg The ID of the last message that was read.
+	 * @throws \ValueError if either param is invalid.
+	 */
+	public function markAsRead(int $id_member, int $id_msg): void
+	{
+		if ($id_member <= 0) {
+			throw new \ValueError();
+		}
+
+		if ($id_msg < 0) {
+			throw new \ValueError();
+		}
+
+		// If there is an existing record, update it.
+		Db::$db->query(
+			'',
+			'UPDATE {db_prefix}log_topics
+			SET id_msg = (CASE WHEN id_msg < {int:id_msg} THEN {int:id_msg} ELSE id_msg END)
+			WHERE id_member = {int:id_member}
+				AND id_topic = {int:id_topic}',
+			[
+				'id_topic' => $this->id,
+				'id_member' => $id_member,
+				'id_msg' => $id_msg,
+			],
+		);
+
+		// If there was no existing record, insert one.
+		if (Db::$db->affected_rows() == 0) {
+			Db::$db->insert(
+				'ignore',
+				'{db_prefix}log_topics',
+				[
+					'id_topic' => 'int',
+					'id_member' => 'int',
+					'id_msg' => 'int',
+				],
+				[
+					[
+						$this->id,
+						$id_member,
+						$id_msg,
+					],
+				],
+				['id_topic', 'id_member'],
+			);
+		}
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -608,77 +825,63 @@ class Topic implements \ArrayAccess, Routable
 	 */
 	public static function create(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
-		$topic_columns = [
-			'id_board' => 'int',
-			'id_member_started' => 'int',
-			'id_member_updated' => 'int',
-			'id_first_msg' => 'int',
-			'id_last_msg' => 'int',
-			'locked' => 'int',
-			'is_sticky' => 'int',
-			'num_views' => 'int',
-			'id_poll' => 'int',
-			'unapproved_posts' => 'int',
-			'approved' => 'int',
-			'redirect_expires' => 'int',
-			'id_redirect_topic' => 'int',
-		];
+		$topic = new self(0, [
+			'id_board' => (int) $topicOptions['board'],
+			'id_member_started' => (int) $posterOptions['id'],
+			'id_member_updated' => (int) $posterOptions['id'],
+			'id_first_msg' => (int) $msgOptions['id'],
+			'id_last_msg' => (int) $msgOptions['id'],
+			'is_locked' => (int) ($topicOptions['lock_mode'] ?? 0),
+			'is_sticky' => (int) ($topicOptions['sticky_mode'] ?? 0),
+			'is_approved' => (int) $msgOptions['approved'],
+			'num_views' => 0,
+			'num_replies' => 0,
+			'id_poll' => (int) ($topicOptions['poll'] ?? 0),
+			'unapproved_posts' => (int) empty($msgOptions['approved']),
+			'id_redirect_topic' => (int) ($topicOptions['redirect_topic'] ?? 0),
+			'redirect_expires' => (int) ($topicOptions['redirect_expires'] ?? 0),
+			'id_previous_board' => 0,
+			'id_previous_topic' => 0,
+		]);
 
-		$topic_parameters = [
-			$topicOptions['board'],
-			$posterOptions['id'],
-			$posterOptions['id'],
-			$msgOptions['id'],
-			$msgOptions['id'],
-			$topicOptions['lock_mode'] ?? 0,
-			$topicOptions['sticky_mode'] ?? 0,
-			0,
-			$topicOptions['poll'] ?? 0,
-			(int) empty($msgOptions['approved']),
-			$msgOptions['approved'],
-			$topicOptions['redirect_expires'] ?? 0,
-			$topicOptions['redirect_topic'] ?? 0,
-		];
+		$topic->msgOptions = &$msgOptions;
+		$topic->topicOptions = &$topicOptions;
+		$topic->posterOptions = &$posterOptions;
 
-		IntegrationHook::call('integrate_before_create_topic', [&$msgOptions, &$topicOptions, &$posterOptions, &$topic_columns, &$topic_parameters]);
-
-		// Insert the topic
-		$topicOptions['id'] = Db::$db->insert(
-			'',
-			'{db_prefix}topics',
-			$topic_columns,
-			[$topic_parameters],
-			['id_topic'],
-			1,
-		);
+		// Save.
+		$topic->save();
 
 		// If it didn't work, bail out.
-		if (empty($topicOptions['id'])) {
-			$topicOptions['id'] = 0;
-
+		if (empty($topic->id)) {
 			return false;
 		}
 
-		// Fix the message with the topic.
-		Db::$db->query(
-			'',
-			'UPDATE {db_prefix}messages
-			SET id_topic = {int:id_topic}
-			WHERE id_msg = {int:id_msg}',
-			[
-				'id_topic' => $topicOptions['id'],
-				'id_msg' => $msgOptions['id'],
-			],
-		);
+		$topicOptions['id'] = $topic->id;
+
+		// Increase the number of topics on the board.
+		$board = Board::load($topic->id_board);
+
+		if ($msgOptions['approved']) {
+			$board->num_topics++;
+		} else {
+			$board->unapproved_topics++;
+		}
+
+		$board->save();
 
 		// There's been a new topic today.
 		Logging::trackStats(['topics' => '+']);
-
 		Logging::updateStats('topic', true);
 		Logging::updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
 
 		// What if we want to export new topics out to a CMS?
 		IntegrationHook::call('integrate_create_topic', [$msgOptions, $topicOptions, $posterOptions]);
+
+		if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest) {
+			$topic->markAsRead(User::$me->id, $topic->id_last_msg);
+		}
+
+		return true;
 	}
 
 	/**
@@ -693,46 +896,40 @@ class Topic implements \ArrayAccess, Routable
 	 */
 	public static function addReply(array &$msgOptions, array &$topicOptions, array &$posterOptions): bool
 	{
-		$update_parameters = [
-			'poster_id' => $posterOptions['id'],
-			'id_msg' => $msgOptions['id'],
-			'locked' => $topicOptions['lock_mode'],
-			'is_sticky' => $topicOptions['sticky_mode'],
-			'id_topic' => $topicOptions['id'],
-			'counter_increment' => 1,
-		];
+		$topic = self::load($topicOptions['id']);
 
-		if ($msgOptions['approved']) {
-			$topics_columns = [
-				'id_member_updated = {int:poster_id}',
-				'id_last_msg = {int:id_msg}',
-				'num_replies = num_replies + {int:counter_increment}',
-			];
+		$topic->msgOptions = &$msgOptions;
+		$topic->topicOptions = &$topicOptions;
+		$topic->posterOptions = &$posterOptions;
+
+		if (!empty($msgOptions['approved'])) {
+			$topic->id_member_updated = (int) $posterOptions['id'];
+			$topic->id_last_msg = (int) $msgOptions['id'];
+			$topic->num_replies++;
 		} else {
-			$topics_columns = [
-				'unapproved_posts = unapproved_posts + {int:counter_increment}',
-			];
+			$topic->unapproved_posts++;
 		}
 
-		if ($topicOptions['lock_mode'] !== null) {
-			$topics_columns[] = 'locked = {int:locked}';
+		if (isset($topicOptions['lock_mode'])) {
+			$topic->is_locked = (int) $topicOptions['lock_mode'];
 		}
 
-		if ($topicOptions['sticky_mode'] !== null) {
-			$topics_columns[] = 'is_sticky = {int:is_sticky}';
+		if (isset($topicOptions['sticky_mode'])) {
+			$topic->is_sticky = (int) $topicOptions['sticky_mode'];
 		}
 
-		IntegrationHook::call('integrate_modify_topic', [&$topics_columns, &$update_parameters, &$msgOptions, &$topicOptions, &$posterOptions]);
+		$topic->save();
 
-		// Update the number of replies and the lock/sticky status.
-		Db::$db->query(
-			'',
-			'UPDATE {db_prefix}topics
-			SET
-				' . implode(', ', $topics_columns) . '
-			WHERE id_topic = {int:id_topic}',
-			$update_parameters,
-		);
+		// Reload to verify that it saved correctly.
+		$topic->loadTopicInfo();
+
+		if ($topic->id_last_msg !== (int) $msgOptions['id']) {
+			return false;
+		}
+
+		if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest) {
+			$topic->markAsRead(User::$me->id, $topic->id_last_msg);
+		}
 
 		return true;
 	}

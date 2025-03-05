@@ -1373,12 +1373,12 @@ class Msg implements \ArrayAccess, Routable
 			],
 		);
 
-		// Increase the number of posts and topics on the board.
+		// Increase the number of posts on the board.
 		if ($msgOptions['approved']) {
 			Db::$db->query(
 				'',
 				'UPDATE {db_prefix}boards
-				SET num_posts = num_posts + 1' . ($new_topic ? ', num_topics = num_topics + 1' : '') . '
+				SET num_posts = num_posts + 1
 				WHERE id_board = {int:id_board}',
 				[
 					'id_board' => $topicOptions['board'],
@@ -1388,7 +1388,7 @@ class Msg implements \ArrayAccess, Routable
 			Db::$db->query(
 				'',
 				'UPDATE {db_prefix}boards
-				SET unapproved_posts = unapproved_posts + 1' . ($new_topic ? ', unapproved_topics = unapproved_topics + 1' : '') . '
+				SET unapproved_posts = unapproved_posts + 1
 				WHERE id_board = {int:id_board}',
 				[
 					'id_board' => $topicOptions['board'],
@@ -1431,47 +1431,6 @@ class Msg implements \ArrayAccess, Routable
 				],
 				['id_task'],
 			);
-		}
-
-		// Mark inserted topic as read (only for the user calling this function).
-		if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest) {
-			// Since it's likely they *read* it before replying, let's try an UPDATE first.
-			if (!$new_topic) {
-				Db::$db->query(
-					'',
-					'UPDATE {db_prefix}log_topics
-					SET id_msg = {int:id_msg}
-					WHERE id_member = {int:current_member}
-						AND id_topic = {int:id_topic}',
-					[
-						'current_member' => $posterOptions['id'],
-						'id_msg' => $msgOptions['id'],
-						'id_topic' => $topicOptions['id'],
-					],
-				);
-
-				$flag = Db::$db->affected_rows() != 0;
-			}
-
-			if (empty($flag)) {
-				Db::$db->insert(
-					'ignore',
-					'{db_prefix}log_topics',
-					[
-						'id_topic' => 'int',
-						'id_member' => 'int',
-						'id_msg' => 'int',
-					],
-					[
-						[
-							$topicOptions['id'],
-							$posterOptions['id'],
-							$msgOptions['id'],
-						],
-					],
-					['id_topic', 'id_member'],
-				);
-			}
 		}
 
 		if ($msgOptions['approved'] && empty($topicOptions['is_approved']) && $posterOptions['id'] != User::$me->id) {
