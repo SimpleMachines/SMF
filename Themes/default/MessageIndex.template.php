@@ -226,10 +226,185 @@ function template_main()
 }
 
 /**
+ * Get the previous or next value in an associative array based on a given key.
+ *
+ * @param array $array The associative array.
+ * @param mixed $current_key The key to search for.
+ * @param string $direction "before" to get the previous value, "after" to get the next value.
+ *
+ * @return mixed|null The found value if exists, otherwise null.
+ */
+function get_adjacent_value(array $array, $current_key, string $direction = "before")
+{
+    reset($array);
+    $previous_value = null;
+
+    while (key($array) !== null) {
+        $key_in_loop = key($array);
+        $value = current($array);
+
+        if ($direction === "before" && $key_in_loop === $current_key) {
+            return $previous_value;
+        }
+
+        next($array);
+
+        if ($direction === "after" && $key_in_loop === $current_key) {
+            return current($array) !== false ? current($array) : null;
+        }
+
+        $previous_value = $value;
+    }
+
+    return null;
+}
+
+/**
  * This actually displays the message index
  */
 function template_list_topics(array $headers, array $topics): void
 {
+	/**
+	 * Topic header column definitions.
+	 *
+	 * @var array $columns
+	 * Each column has:
+	 * - `class`: The CSS class name.
+	 * - `content`: The displayed content.
+	 * - `size`: The column width in CSS grid format.
+	 * - `rowspan`: Number of rows the column should span.
+	 * - `colspan`: Number of columns the column should span.
+	 * - `row_number`: The row in which the element starts (1-based).
+	 */
+	$columns = [
+		'icon' => [
+			'class'      => 'topic_icon',
+			'content'    => ['header' => ''],
+			'size'       => 'max-content',
+			'rowspan'    => 2,
+			'colspan'    => 1,
+			'row_number' => 1,
+		],
+		'info' => [
+			'class'      => 'info',
+			'content'    => ['header' => '{subject} / {starter}'],
+			'size'       => '1fr',
+			'rowspan'    => 1,
+			'colspan'    => 2,
+			'row_number' => 1,
+		],
+		'author' => [
+			'class'      => 'topic_author',
+			'content'    => ['header' => ''],
+			'size'       => 'auto',
+			'rowspan'    => 1,
+			'colspan'    => 1,
+			'row_number' => 2,
+		],
+		'stats' => [
+			'class'      => 'topic_stats',
+			'content'    => ['header' => '{replies} / {views}'],
+			'size'       => '10%',
+			'rowspan'    => 2,
+			'colspan'    => 1,
+			'row_number' => 1,
+		],
+		'lastpost' => [
+			'class'      => 'lastpost',
+			'content'    => ['header' => '{last_post}'],
+			'size'       => '28%',
+			'rowspan'    => 2,
+			'colspan'    => 1,
+			'row_number' => 1,
+		],
+		'moderation' => [
+			'class'      => 'moderation',
+			'content'    => [
+				'header' => '<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">'
+			],
+			'size'       => 'auto',
+			'rowspan'    => 2,
+			'colspan'    => 1,
+			'row_number' => 1,
+		],
+	];
+
+	// Remove moderation column if quick mod is disabled
+	if (empty(Utils::$context['can_quick_mod']) || empty(Theme::$current->options['display_quick_mod'])) {
+		unset($columns['moderation']);
+	}
+
+	$grid_rows = [];
+	$num_rows = 1;
+	$grid_sizes = [];
+	$row_numbers = [];
+	$indexed_grid_areas = [];
+	$column_index = 0; // Tracks column position
+	$column_numbers = [];
+	$prev_name = '';
+
+	foreach ($columns as $name => $column) {
+		$row_index = $column['row_number'] - 1; // Convert to zero-based index
+
+		if (!isset($grid_rows[$row_index])) {
+			$grid_rows[$row_index] = [];
+		}
+
+		for ($i = 0; $i < $column['colspan']; $i++) {
+			for ($y = 0; $y < $column['rowspan']; $y++) {
+				$current_row = $row_index + $y;
+				$row_numbers[$current_row][$name] = ($column_numbers[$row_index] ?? 0);
+
+				if ($row_numbers[$current_row][$name] === 0) {
+					$row_numbers[$current_row][$name] = (get_adjacent_value($row_numbers[$current_row], $name) ?? -1) + 1;
+				}
+
+				$column_index = $row_numbers[$current_row][$name];
+				$grid_rows[$current_row][$column_index + $i] = $name;
+			}
+
+			// Add column sizes only if we're on the first row.
+			if ($column['row_number'] === 1) {
+				$grid_sizes[] = $column['size'];
+			}
+		}
+
+		// Move to the next available column
+		//~ $column_index = $row_numbers[$row_index][$column['colspan'];
+		$column_numbers[$row_index] = ($column_numbers[$row_index] ?? $row_numbers[$row_index][$name]) + $column['colspan'];
+		$num_rows = max($num_rows, $row_index + $column['rowspan']);
+		$prev_name = $name;
+	}
+	var_export($row_numbers);
+
+	// Fill empty grid areas.
+	for ($y = 0; $y < $num_rows; $y++) {
+		for ($i = 0, $n = count($grid_sizes); $i < $n; $i++) {
+			$indexed_grid_areas[$y][$i] = $grid_rows[$y][$i] ?? '.';
+		}
+	}
+
+	// Convert rows into CSS grid template areas.
+	$grid_areas_str = implode('" "', array_map(fn($r) => implode(' ', $r), $indexed_grid_areas));
+
+	echo '
+	<style>';
+
+	foreach ($columns as $name => $column) {
+		echo '
+		.' . $column['class'] . ' {
+			grid-area: ' . $name . ';
+		}';
+	}
+
+	echo '
+#topic_header,
+.topic_container {
+			--grid-template-columns:' . implode(' ', $grid_sizes) . ';
+			--grid-template-areas: "' . $grid_areas_str . '";
+		}
+	</style>';
+
 	if ($topics == [])
 	{
 		// No topics... just say, "sorry bub".
@@ -242,18 +417,12 @@ function template_list_topics(array $headers, array $topics): void
 	{
 		echo '
 		<div id="topic_container">
-			<div class="title_bar" id="topic_header">
-				<div class="topic_icon"></div>
-				<div class="info">', $headers['subject'], ' / ', $headers['starter'], '</div>
-				<div class="topic_stats">', $headers['replies'], ' / ', $headers['views'], '</div>
-				<div class="lastpost">', $headers['last_post'], '</div>';
+			<div class="title_bar" id="topic_header">';
 
-		// Show a "select all" box for quick moderation?
-		if (!empty(Utils::$context['can_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
+		foreach ($columns as $column) {
 			echo '
-				<div class="moderation">
-					<input type="checkbox" onclick="invertAll(this, this.form, \'topics[]\');">
-				</div>';
+				<div class="' . $column['class'] . '">' . Lang::formatText($column['content']['header'], $headers) . '</div>';
+		}
 
 		echo '
 			</div><!-- #topic_header -->';
@@ -261,96 +430,23 @@ function template_list_topics(array $headers, array $topics): void
 		foreach ($topics as $topic)
 		{
 			echo '
-			<div class="topic_container', $topic['css_class'], '">
-				<div class="topic_icon">
-					<img src="', $topic['first_post']['icon_url'], '" alt="">', $topic['is_posted_in'] ? '
-					<span class="main_icons profile_sm"></span>' : '', '
-				</div>
-				<div', !empty($topic['quick_mod']['modify']) ? ' data-msg-id="' . $topic['first_post']['id'] . '"' : '', '>';
+			<div class="topic_container', $topic['css_class'], '">';
 
-			// Now we handle the icons
-			echo '
-						<div id="icons', $topic['first_post']['id'], '" class="icons floatright">';
-
-			if ($topic['is_watched'])
+			foreach ($columns as $name => $column) {
 				echo '
-							<span class="main_icons watch" title="', Lang::$txt['watching_this_topic'], '"></span>';
+				<div class="' . $column['class'] . '">';
 
-			if ($topic['is_locked'])
-				echo '
-							<span class="main_icons lock"></span>';
+				$callable = $column['content']['callable'] ?? ('template_topic_' . $name);
 
-			if ($topic['is_sticky'])
-				echo '
-							<span class="main_icons sticky"></span>';
-
-			if ($topic['is_redirect'])
-				echo '
-							<span class="main_icons move"></span>';
-
-			if ($topic['is_poll'])
-				echo '
-							<span class="main_icons poll"></span>';
-
-			echo '
-						</div>';
-
-			echo '
-						<div class="message_index_title">', $topic['new'] && User::$me->is_logged ? '
-							<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
-							<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
-								<span id="msg', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''), '</span>
-							</span>
-						</div>
-						<p class="floatleft">
-							', Lang::getTxt('started_by_member', ['member' => $topic['first_post']['member']['link']]), '
-						</p>', !empty($topic['pages']) ? '
-						<span id="pages' . $topic['first_post']['id'] . '" class="pagelinks">' . $topic['pages'] . '</span>' : '', '
-				</div><!-- .info -->
-				<div class="topic_stats">
-					<p>', Lang::getTxt('number_of_replies', [$topic['replies']]), '<br>', Lang::getTxt('number_of_views', [$topic['views']]), '</p>
-				</div>
-				<div class="topic_lastpost">
-					<p>', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '</p>
-				</div>';
-
-			// Show the quick moderation options?
-			if (!empty(Utils::$context['can_quick_mod']))
-			{
-				echo '
-				<div class="topic_moderation">';
-
-				if (Theme::$current->options['display_quick_mod'] == 1)
-					echo '
-					<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
-				else
-				{
-					// Check permissions on each and show only the ones they are allowed to use.
-					if ($topic['quick_mod']['remove'])
-						echo '
-						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=remove;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', Lang::$txt['remove_topic'], '"></span></a>';
-
-					if ($topic['quick_mod']['lock'])
-						echo '
-						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=lock;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', $topic['is_locked'] ? Lang::$txt['set_unlock'] : Lang::$txt['set_lock'], '"></span></a>';
-
-					if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
-						echo '
-						<br>';
-
-					if ($topic['quick_mod']['sticky'])
-						echo '
-						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', $topic['is_sticky'] ? Lang::$txt['set_nonsticky'] : Lang::$txt['set_sticky'], '"></span></a>';
-
-					if ($topic['quick_mod']['move'])
-						echo '
-						<a href="', Config::$scripturl, '?action=movetopic;current_board=', Utils::$context['current_board'], ';board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';topic=', $topic['id'], '.0"><span class="main_icons move" title="', Lang::$txt['move_topic'], '"></span></a>';
+				if (is_callable($callable)) {
+					call_user_func($callable, $topic);
 				}
+
 				echo '
-				</div><!-- .moderation -->';
+				</div><!-- .', $column['class'], ' -->';
 			}
 			echo '
-			</div><!-- #topic_container.$topic[css_class] -->';
+			</div><!-- .topic_container $topic[css_class] -->';
 		}
 		echo '
 		</div><!-- #topic_container -->';
@@ -401,6 +497,144 @@ function template_topic_legend()
 	echo '
 		</div><!-- .information -->
 	</div><!-- #topic_icons -->';
+}
+
+/**
+ * Renders the topic icon column.
+ *
+ * @param array $topic The topic data.
+ */
+function template_topic_icon($topic)
+{
+	echo '
+					<img src="', $topic['first_post']['icon_url'], '" alt="">', $topic['is_posted_in'] ? '
+					<span class="main_icons profile_sm"></span>' : '';
+}
+
+/**
+ * Renders the topic info column, including title and preview.
+ *
+ * @param array $topic The topic data.
+ */
+function template_topic_info($topic)
+{
+		// Now we handle the icons
+		echo '
+					<div id="icons', $topic['first_post']['id'], '" class="icons floatright">';
+
+		if ($topic['is_watched'])
+			echo '
+						<span class="main_icons watch" title="', Lang::$txt['watching_this_topic'], '"></span>';
+
+		if ($topic['is_locked'])
+			echo '
+						<span class="main_icons lock"></span>';
+
+		if ($topic['is_sticky'])
+			echo '
+						<span class="main_icons sticky"></span>';
+
+		if ($topic['is_redirect'])
+			echo '
+						<span class="main_icons move"></span>';
+
+		if ($topic['is_poll'])
+			echo '
+						<span class="main_icons poll"></span>';
+
+		echo '
+					</div>';
+
+		echo '
+					<div class="message_index_title">', $topic['new'] && User::$me->is_logged ? '
+						<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
+						<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
+							<span id="msg', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''), '</span>
+						</span>
+					</div>';
+}
+
+/**
+ * Renders the topic author.
+ *
+ * @param array $topic The topic data.
+ */
+function template_topic_author($topic)
+{
+		echo '
+					<p class="floatleft">
+						', Lang::getTxt('started_by_member', ['member' => $topic['first_post']['member']['link']]), '
+					</p>', !empty($topic['pages']) ? '
+					<span id="pages' . $topic['first_post']['id'] . '" class="pagelinks">' . $topic['pages'] . '</span>' : '';
+}
+
+/**
+ * Renders the topic stats column.
+ *
+ * @param array $topic The topic data.
+ */
+function template_topic_stats($topic)
+{
+	echo '
+					' . Lang::formatText(
+							'{0}<br>{1}',
+							[
+								Lang::getTxt('number_of_replies', [$topic['replies']]),
+								Lang::getTxt('number_of_views', [$topic['views']]),
+							],
+						);
+}
+
+/**
+ * Renders the last post column.
+ *
+ * @param array $topic The topic data.
+ */
+function template_topic_lastpost($topic)
+{
+	echo '
+					' . Lang::getTxt(
+							'last_post_topic',
+							[
+								'post_link'   => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>',
+								'member_link' => $topic['last_post']['member']['link'],
+							],
+						);
+}
+
+/**
+ * Renders the topic moderation column (checkboxes, remove, lock, etc.).
+ *
+ * @param array $topic The topic data.
+ */
+function template_topic_moderation($topic)
+{
+				if (Theme::$current->options['display_quick_mod'] == 1)
+					echo '
+					<input type="checkbox" name="topics[]" value="', $topic['id'], '">';
+				else
+				{
+					// Check permissions on each and show only the ones they are allowed to use.
+					if ($topic['quick_mod']['remove'])
+						echo '
+						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=remove;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', Lang::$txt['remove_topic'], '"></span></a>';
+
+					if ($topic['quick_mod']['lock'])
+						echo '
+						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=lock;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', $topic['is_locked'] ? Lang::$txt['set_unlock'] : Lang::$txt['set_lock'], '"></span></a>';
+
+					if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
+						echo '
+						<br>';
+
+					if ($topic['quick_mod']['sticky'])
+						echo '
+						<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', $topic['is_sticky'] ? Lang::$txt['set_nonsticky'] : Lang::$txt['set_sticky'], '"></span></a>';
+
+					if ($topic['quick_mod']['move'])
+						echo '
+						<a href="', Config::$scripturl, '?action=movetopic;current_board=', Utils::$context['current_board'], ';board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';topic=', $topic['id'], '.0"><span class="main_icons move" title="', Lang::$txt['move_topic'], '"></span></a>';
+				}
 }
 
 ?>

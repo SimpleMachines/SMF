@@ -3551,16 +3551,11 @@ div#manage_boards dl dd textarea[name=desc] {
 	content: " - ";
 }
 /* Topic list */
-#topic_container {
-	display: grid;
-	gap: 0 1em;
-	grid-template-columns: 2em 1fr 10% 28% auto;
-}
 #topic_header,
 .topic_container {
 	display: grid;
-	grid-column: span 5;
-	grid-template-columns: subgrid;
+	gap: 0 1em;
+	grid: var(--grid-template-areas) / var(--grid-template-columns);
 	padding: .25em 1em;
 }
 .topic_container {
@@ -3572,36 +3567,9 @@ div#manage_boards dl dd textarea[name=desc] {
 	border-width: var(--window-border-width);
 }
 .topic_icon {
-	align-items: center;
 	display: flex;
-	flex-direction: column;
-}
-.icon img {
-	margin-top: 15px;
-}
-.topic_info {
-	position: relative;
-}
-.topic_info .icons {
-	display: flex;
-	gap: .5em;
-	inset-inline-end: .5em;
-	position: absolute;
-}
-.topic_info .started_by {
-	float: inline-start;
-}
-.topic_info .pagelinks {
-	float: inline-end;
-	font-size: .85em;
-}
-.topic_lastpost {
-	align-items: center;
-	display: flex;
-	gap: .75em;
-}
-.topic_container .topic_lastpost:not(:has(> p)) {
-	display: none;
+	gap: 4px;
+	place-content: center;
 }
 .topic_lastpost img.avatar {
 	--avatar-size: 30px;
