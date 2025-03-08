@@ -1309,7 +1309,7 @@ class Group implements \ArrayAccess
 				SET id_group = {int:regular_member}
 				WHERE id_group = {int:current_group}',
 				[
-					'regular_member' => 0,
+					'regular_member' => self::REGULAR,
 					'current_group' => $this->id,
 				],
 			);
@@ -1378,7 +1378,7 @@ class Group implements \ArrayAccess
 				SET id_group = {int:regular_member}
 				WHERE id_group = {int:current_group}',
 				[
-					'regular_member' => 0,
+					'regular_member' => self::REGULAR,
 					'current_group' => $this->id,
 				],
 			);
@@ -1623,7 +1623,7 @@ class Group implements \ArrayAccess
 		$ids = array_unique(array_map('intval', (array) $ids));
 
 		// The guest and regular member groups require special handling.
-		$guest_and_reg = array_intersect([-1, 0], $ids);
+		$guest_and_reg = array_intersect([self::GUEST, self::REGULAR], $ids);
 
 		if (!empty($guest_and_reg)) {
 			foreach ($guest_and_reg as $id) {
@@ -1642,7 +1642,7 @@ class Group implements \ArrayAccess
 		$where = $query_customizations['where'] ?? [];
 		$order = $query_customizations['order'] ?? [
 			'min_posts',
-			'CASE WHEN id_group < 4 THEN id_group ELSE 4 END',
+			'CASE WHEN id_group < ' . self::NEWBIE . ' THEN id_group ELSE ' . self::NEWBIE . ' END',
 			'group_name',
 		];
 		$group = $query_customizations['group'] ?? [];
@@ -1688,7 +1688,7 @@ class Group implements \ArrayAccess
 		$query_customizations = [
 			'order' => [
 				'min_posts',
-				'CASE WHEN id_group < 4 THEN id_group ELSE 4 END',
+				'CASE WHEN id_group < ' . self::NEWBIE . ' THEN id_group ELSE ' . self::NEWBIE . ' END',
 				'group_name',
 			],
 		];
@@ -1707,12 +1707,12 @@ class Group implements \ArrayAccess
 		if ($include & self::LOAD_NORMAL) {
 			// Do we want the guest group?
 			if (!in_array(self::GUEST, $exclude)) {
-				$loaded = array_merge($loaded, self::load(-1));
+				$loaded = array_merge($loaded, self::load(self::GUEST));
 			}
 
 			// Do we want the regular members group?
 			if (!in_array(self::REGULAR, $exclude)) {
-				$loaded = array_merge($loaded, self::load(0));
+				$loaded = array_merge($loaded, self::load(self::REGULAR));
 			}
 		}
 
@@ -1751,18 +1751,18 @@ class Group implements \ArrayAccess
 	public static function loadAssignable(): array
 	{
 		$loaded = [
-			new self(0),
+			new self(self::REGULAR),
 		];
 
 		$query_customizations = [
 			'where' => [
-				'id_group != 3',
+				'id_group != ' . self::MOD,
 				'min_posts = -1',
 				'id_group NOT IN ({array_int:unassignable})',
 			],
 			'order' => [
 				'min_posts',
-				'CASE WHEN id_group < 4 THEN id_group ELSE 4 END',
+				'CASE WHEN id_group < ' . self::NEWBIE . ' THEN id_group ELSE ' . self::NEWBIE . ' END',
 				'group_name',
 			],
 			'params' => [
@@ -2282,7 +2282,7 @@ class Group implements \ArrayAccess
 			WHERE group_type IN ({array_int:is_protected})
 				OR min_posts > -1',
 			[
-				'is_protected' => !User::$me->allowedTo('manage_membergroups') ? [self::REGULAR, self::ADMIN] : [self::ADMIN],
+				'is_protected' => !User::$me->allowedTo('manage_membergroups') ? [self::TYPE_PRIVATE, self::TYPE_PROTECTED] : [self::TYPE_PROTECTED],
 			],
 		);
 
