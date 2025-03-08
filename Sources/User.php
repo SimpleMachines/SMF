@@ -22,6 +22,7 @@ use SMF\Actions\Logout;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Permissions\Permission;
 use SMF\PersonalMessage\PM;
 
 /**
@@ -2429,14 +2430,13 @@ class User implements \ArrayAccess
 	 *
 	 * If the user is a guest and cannot do it, calls $this->kickIfGuest().
 	 *
-	 * @param string|array $permission A single permission to check or an array
-	 *    of permissions to check.
+	 * @param string|array $permissions One or more permissions to check.
 	 * @param int|array $boards The ID of a board or an array of board IDs if we
 	 *    want to check board-level permissions
 	 * @param bool $any Whether to check for permission on at least one board
 	 *    instead of all the passed boards.
 	 */
-	public function isAllowedTo(string|array $permission, int|array|null $boards = null, bool $any = false): void
+	public function isAllowedTo(string|array $permissions, int|array|null $boards = null, bool $any = false): void
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
@@ -2444,15 +2444,12 @@ class User implements \ArrayAccess
 		}
 
 		// Make it an array, even if a string was passed.
-		$permission = (array) $permission;
-		$boards = (array) $boards;
-
-		IntegrationHook::call('integrate_heavy_permissions_session', [&self::$heavy_permissions]);
+		$permissions = (array) $permissions;
 
 		// Check the permission and return an error...
-		if (!$this->allowedTo($permission, $boards, $any)) {
+		if (!$this->allowedTo($permissions, $boards, $any)) {
 			// Pick the last array entry as the permission shown as the error.
-			$error_permission = array_shift($permission);
+			$error_permission = array_shift($permissions);
 
 			// If they are a guest, show a login. (because the error might be gone if they do!)
 			if ($this->is_guest) {
@@ -2472,10 +2469,12 @@ class User implements \ArrayAccess
 		}
 
 		// If you're doing something on behalf of some "heavy" permissions,
-		// validate your session. (Take out the heavy permissions, and if you
-		// can't do anything but those, you need a validated session.)
-		if (!$this->allowedTo(array_diff($permission, self::$heavy_permissions), $boards)) {
-			$this->validateSession();
+		// validate your session.
+		foreach ($permissions as $permission) {
+			if (Permission::get($permission)->heavy) {
+				$this->validateSession();
+				break;
+			}
 		}
 	}
 

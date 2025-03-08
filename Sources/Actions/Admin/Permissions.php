@@ -28,6 +28,7 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Permissions\Permission;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -45,16 +46,6 @@ class Permissions implements ActionInterface
 	/*****************
 	 * Class constants
 	 *****************/
-
-	public const GROUP_LEVEL_RESTRICT = 0;
-	public const GROUP_LEVEL_STANDARD = 1;
-	public const GROUP_LEVEL_MODERATOR = 2;
-	public const GROUP_LEVEL_MAINTENANCE = 3;
-
-	public const BOARD_LEVEL_STANDARD = 0;
-	public const BOARD_LEVEL_LOCKED = 1;
-	public const BOARD_LEVEL_PUBLISH = 2;
-	public const BOARD_LEVEL_FREE = 3;
 
 	public const PROFILE_DEFAULT = 1;
 	public const PROFILE_NO_POLLS = 2;
@@ -156,13 +147,6 @@ class Permissions implements ActionInterface
 		'post',
 	];
 
-	/**
-	 * @var array
-	 *
-	 * Convenience array listing hidden permissions.
-	 */
-	public static array $hidden;
-
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -184,744 +168,12 @@ class Permissions implements ActionInterface
 		],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
-
-	/**
-	 * @var array
-	 *
-	 * List of all known permissions.
-	 * Protected to force access via getPermissions().
-	 *
-	 * Mods can add to this list using the integrate_permission_list hook.
-	 *
-	 * For each permission, the available keys and their meaning are as follows:
-	 *
-	 *  - generic_name: This is used to group own/any variants together. For
-	 *        permissions that don't have own/any variants, this is can be left
-	 *        unset. The default is the same as the permission name.
-	 *
-	 *  - own_any: Indicates whether this is the "own" or the "any" variant of
-	 *        the generic permission. Not applicable for permissions that don't
-	 *        have own/any variants.
-	 *
-	 *  - view_group: Name of the group to show the permission within on the
-	 *        profile profile editing page.
-	 *
-	 *  - scope: Either 'board' for permissions that apply at the board level,
-	 *        or 'global' for permissions that apply everywhere.
-	 *
-	 *  - group_level: Used by the predefined permission profiles to indicate
-	 *        the minimum group level that this permission should be granted at.
-	 *
-	 *  - board_level: Used by the predefined permission profiles to indicate
-	 *        the minimum board level that this permission should be granted at.
-	 *
-	 *  - hidden: If true, permission should not be shown in the UI.
-	 *
-	 *  - label: Indicates the Lang::$txt string to use as the generic label for
-	 *         this permission. Defaults to 'permissionname_' . generic_name.
-	 *
-	 *  - vsprintf: Arguments passed to Lang::formatText() at runtime to generate
-	 *        the finalized form of the label string.
-	 *
-	 *  - never_guests: If true, this permission can never be granted to guests.
-	 *
-	 *  - assignee_prerequisites: Permissions that someone must already have at
-	 *        least one of before they can be granted this permission.
-	 *
-	 *  - assigner_prerequisites: Permissions that someone must have at least
-	 *        one of before they can grant this permission to anyone.
-	 */
-	protected static array $permissions = [
-		'access_mod_center' => [
-			'view_group' => 'maintenance',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'never_guests' => true,
-		],
-		'admin_forum' => [
-			'view_group' => 'maintenance',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-			'assigner_prerequisites' => ['admin_forum'],
-		],
-		'announce_topic' => [
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'never_guests' => true,
-		],
-		'approve_posts' => [
-			'view_group' => 'general_board',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'bbc_cowsay' => [
-			'view_group' => 'bbc',
-			'scope' => 'global',
-			'hidden' => true,
-			'vsprintf' => ['permissionname_bbc', ['cowsay']],
-		],
-		'bbc_html' => [
-			'view_group' => 'bbc',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'vsprintf' => ['permissionname_bbc', ['html']],
-			'never_guests' => true,
-			'assignee_prerequisites' => [
-				'admin_forum',
-				'manage_membergroups',
-				'manage_permissions',
-			],
-			'assigner_prerequisites' => ['admin_forum'],
-		],
-		'calendar_edit_own' => [
-			'generic_name' => 'calendar_edit',
-			'own_any' => 'own',
-			'view_group' => 'calendar',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'never_guests' => true,
-		],
-		'calendar_edit_any' => [
-			'generic_name' => 'calendar_edit',
-			'own_any' => 'any',
-			'view_group' => 'calendar',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'calendar_post' => [
-			'view_group' => 'calendar',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-		],
-		'calendar_view' => [
-			'view_group' => 'calendar',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-		],
-		'delete_own' => [
-			'generic_name' => 'delete',
-			'own_any' => 'own',
-			'view_group' => 'post',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-			'never_guests' => true,
-		],
-		'delete_any' => [
-			'generic_name' => 'delete',
-			'own_any' => 'any',
-			'view_group' => 'post',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'delete_replies' => [
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-			'never_guests' => true,
-		],
-		'edit_news' => [
-			'view_group' => 'maintenance',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'issue_warning' => [
-			'view_group' => 'member_admin',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'never_guests' => true,
-		],
-		'likes_like' => [
-			'view_group' => 'likes',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'lock_own' => [
-			'generic_name' => 'lock',
-			'own_any' => 'own',
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-			'never_guests' => true,
-		],
-		'lock_any' => [
-			'generic_name' => 'lock',
-			'own_any' => 'any',
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'make_sticky' => [
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'manage_attachments' => [
-			'view_group' => 'maintenance',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'manage_bans' => [
-			'view_group' => 'member_admin',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'manage_boards' => [
-			'view_group' => 'maintenance',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'manage_membergroups' => [
-			'view_group' => 'member_admin',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-			'assigner_prerequisites' => ['manage_membergroups'],
-		],
-		'manage_permissions' => [
-			'view_group' => 'member_admin',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-			'assigner_prerequisites' => ['manage_permissions'],
-		],
-		'manage_smileys' => [
-			'view_group' => 'maintenance',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'mention' => [
-			'view_group' => 'mentions',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-		],
-		'merge_any' => [
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'moderate_board' => [
-			'view_group' => 'general_board',
-			'scope' => 'board',
-			'never_guests' => true,
-		],
-		'moderate_forum' => [
-			'view_group' => 'member_admin',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'modify_own' => [
-			'generic_name' => 'modify',
-			'own_any' => 'own',
-			'view_group' => 'post',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-			'never_guests' => true,
-		],
-		'modify_any' => [
-			'generic_name' => 'modify',
-			'own_any' => 'any',
-			'view_group' => 'post',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'modify_replies' => [
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-			'never_guests' => true,
-		],
-		'move_own' => [
-			'generic_name' => 'move',
-			'own_any' => 'own',
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'never_guests' => true,
-		],
-		'move_any' => [
-			'generic_name' => 'move',
-			'own_any' => 'any',
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'never_guests' => true,
-		],
-		'pm_draft' => [
-			'view_group' => 'pm',
-			'scope' => 'global',
-			'never_guests' => true,
-		],
-		'pm_read' => [
-			'view_group' => 'pm',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'pm_send' => [
-			'view_group' => 'pm',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'poll_add_own' => [
-			'generic_name' => 'poll_add',
-			'own_any' => 'own',
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-			'never_guests' => true,
-		],
-		'poll_add_any' => [
-			'generic_name' => 'poll_add',
-			'own_any' => 'any',
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'poll_edit_own' => [
-			'generic_name' => 'poll_edit',
-			'own_any' => 'own',
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-			'never_guests' => true,
-		],
-		'poll_edit_any' => [
-			'generic_name' => 'poll_edit',
-			'own_any' => 'any',
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'poll_lock_own' => [
-			'generic_name' => 'poll_lock',
-			'own_any' => 'own',
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'never_guests' => true,
-		],
-		'poll_lock_any' => [
-			'generic_name' => 'poll_lock',
-			'own_any' => 'any',
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'poll_post' => [
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-		],
-		'poll_remove_own' => [
-			'generic_name' => 'poll_remove',
-			'own_any' => 'own',
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-			'never_guests' => true,
-		],
-		'poll_remove_any' => [
-			'generic_name' => 'poll_remove',
-			'own_any' => 'any',
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'poll_view' => [
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-			'board_level' => self::BOARD_LEVEL_LOCKED,
-		],
-		'poll_vote' => [
-			'view_group' => 'poll',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-		],
-		'post_attachment' => [
-			'view_group' => 'attachment',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-		],
-		'post_draft' => [
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'never_guests' => true,
-		],
-		'post_new' => [
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-		],
-		'post_reply_own' => [
-			'generic_name' => 'post_reply',
-			'own_any' => 'own',
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-		],
-		'post_reply_any' => [
-			'generic_name' => 'post_reply',
-			'own_any' => 'any',
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-		],
-		'post_unapproved_attachments' => [
-			'view_group' => 'attachment',
-			'scope' => 'board',
-		],
-		'post_unapproved_replies_own' => [
-			'generic_name' => 'post_unapproved_replies',
-			'own_any' => 'own',
-			'view_group' => 'topic',
-			'scope' => 'board',
-		],
-		'post_unapproved_replies_any' => [
-			'generic_name' => 'post_unapproved_replies',
-			'own_any' => 'any',
-			'view_group' => 'topic',
-			'scope' => 'board',
-		],
-		'post_unapproved_topics' => [
-			'view_group' => 'topic',
-			'scope' => 'board',
-		],
-		'profile_blurb_own' => [
-			'generic_name' => 'profile_blurb',
-			'own_any' => 'own',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'never_guests' => true,
-		],
-		'profile_blurb_any' => [
-			'generic_name' => 'profile_blurb',
-			'own_any' => 'any',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'never_guests' => true,
-		],
-		'profile_displayed_name_own' => [
-			'generic_name' => 'profile_displayed_name',
-			'own_any' => 'own',
-			'view_group' => 'profile_account',
-			'scope' => 'global',
-			'never_guests' => true,
-		],
-		'profile_displayed_name_any' => [
-			'generic_name' => 'profile_displayed_name',
-			'own_any' => 'any',
-			'view_group' => 'profile_account',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'profile_extra_own' => [
-			'generic_name' => 'profile_extra',
-			'own_any' => 'own',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'profile_extra_any' => [
-			'generic_name' => 'profile_extra',
-			'own_any' => 'any',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'profile_forum_own' => [
-			'generic_name' => 'profile_forum',
-			'own_any' => 'own',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'profile_forum_any' => [
-			'generic_name' => 'profile_forum',
-			'own_any' => 'any',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'never_guests' => true,
-		],
-		'profile_gravatar' => [
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'profile_identity_own' => [
-			'generic_name' => 'profile_identity',
-			'own_any' => 'own',
-			'view_group' => 'profile_account',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-			'never_guests' => true,
-		],
-		'profile_identity_any' => [
-			'generic_name' => 'profile_identity',
-			'own_any' => 'any',
-			'view_group' => 'profile_account',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'profile_password_own' => [
-			'generic_name' => 'profile_password',
-			'own_any' => 'own',
-			'view_group' => 'profile_account',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'profile_password_any' => [
-			'generic_name' => 'profile_password',
-			'own_any' => 'any',
-			'view_group' => 'profile_account',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'profile_remote_avatar' => [
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'profile_remove_own' => [
-			'generic_name' => 'profile_remove',
-			'own_any' => 'own',
-			'view_group' => 'profile_account',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'profile_remove_any' => [
-			'generic_name' => 'profile_remove',
-			'own_any' => 'any',
-			'view_group' => 'profile_account',
-			'scope' => 'global',
-			'never_guests' => true,
-		],
-		'profile_server_avatar' => [
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'profile_signature_own' => [
-			'generic_name' => 'profile_signature',
-			'own_any' => 'own',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'profile_signature_any' => [
-			'generic_name' => 'profile_signature',
-			'own_any' => 'any',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'profile_title_own' => [
-			'generic_name' => 'profile_title',
-			'own_any' => 'own',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'never_guests' => true,
-		],
-		'profile_title_any' => [
-			'generic_name' => 'profile_title',
-			'own_any' => 'any',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'profile_upload_avatar' => [
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'profile_view' => [
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-		],
-		'profile_website_own' => [
-			'generic_name' => 'profile_website',
-			'own_any' => 'own',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'profile_website_any' => [
-			'generic_name' => 'profile_website',
-			'own_any' => 'any',
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
-			'never_guests' => true,
-		],
-		'remove_own' => [
-			'generic_name' => 'remove',
-			'own_any' => 'own',
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'board_level' => self::BOARD_LEVEL_PUBLISH,
-			'never_guests' => true,
-		],
-		'remove_any' => [
-			'generic_name' => 'remove',
-			'own_any' => 'any',
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'report_any' => [
-			'view_group' => 'post',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-			'board_level' => self::BOARD_LEVEL_LOCKED,
-			'never_guests' => true,
-		],
-		'report_user' => [
-			'view_group' => 'profile',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
-		'search_posts' => [
-			'view_group' => 'general',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-		],
-		'send_mail' => [
-			'view_group' => 'member_admin',
-			'scope' => 'global',
-			'never_guests' => true,
-		],
-		'split_any' => [
-			'view_group' => 'topic',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_MODERATOR,
-			'board_level' => self::BOARD_LEVEL_FREE,
-			'never_guests' => true,
-		],
-		'view_attachments' => [
-			'view_group' => 'attachment',
-			'scope' => 'board',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'board_level' => self::BOARD_LEVEL_LOCKED,
-		],
-		'view_mlist' => [
-			'view_group' => 'general',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-		],
-		'view_stats' => [
-			'view_group' => 'general',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-		],
-		'view_warning_own' => [
-			'generic_name' => 'view_warning',
-			'own_any' => 'own',
-			'view_group' => 'profile_account',
-			'scope' => 'global',
-		],
-		'view_warning_any' => [
-			'generic_name' => 'view_warning',
-			'own_any' => 'any',
-			'view_group' => 'profile_account',
-			'scope' => 'global',
-		],
-		'who_view' => [
-			'view_group' => 'general',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_RESTRICT,
-		],
-	];
-
-	/**
-	 * @var bool
-	 *
-	 * Whether self::$permissions has already be processed by getPermissions().
-	 */
-	protected static bool $processed = false;
-
-	/**
-	 * @var array
-	 *
-	 * Convenience array listing permissions that guests may never have.
-	 */
-	protected static array $never_guests = [];
-
 	/**
 	 * @var array
 	 *
 	 * Convenience array listing permissions that certain groups may not have.
 	 */
 	protected static array $excluded = [];
-
-	/**
-	 * @var array
-	 *
-	 * Convenience array listing permissions that the current user can't change.
-	 */
-	protected static array $illegal = [];
 
 	/****************
 	 * Public methods
@@ -987,7 +239,7 @@ class Permissions implements ActionInterface
 		Utils::$context['page_title'] = Lang::getTxt('permissions_title', file: 'ManagePermissions');
 
 		// Load all the permissions. We'll need them for the advanced options.
-		self::loadAllPermissions();
+		self::loadPermissionsContext();
 
 		// Also load profiles, we may want to reset.
 		self::loadPermissionProfiles();
@@ -1115,10 +367,6 @@ class Permissions implements ActionInterface
 		// Clear out any cached authority.
 		Config::updateModSettings(['settings_updated' => time()]);
 
-		self::loadIllegalPermissions();
-		self::loadIllegalGuestPermissions();
-		self::loadIllegalBBCHtmlGroups();
-
 		// Set a predefined permission profile.
 		if (!empty($_POST['predefined'])) {
 			$this->quickSetPredefined();
@@ -1190,8 +438,8 @@ class Permissions implements ActionInterface
 		}
 
 		$illegal_permissions = array_merge(
-			self::loadIllegalPermissions(),
-			$_GET['group'] == -1 ? self::loadIllegalGuestPermissions() : [],
+			Permission::getUnassignable(),
+			$_GET['group'] == -1 ? Permission::getNonGuestPermissions() : [],
 		);
 
 		$give_perms = [
@@ -1623,124 +871,6 @@ class Permissions implements ActionInterface
 	}
 
 	/**
-	 * Gets the list of all known permissions.
-	 *
-	 * This method contains the integrate_permissions_list hook, which is the
-	 * recommended way to add new permissions to SMF.
-	 *
-	 * @return array Finalized version of self::$permissions
-	 */
-	public static function getPermissions(): array
-	{
-		if (!empty(self::$processed)) {
-			return self::$permissions;
-		}
-
-		IntegrationHook::call('integrate_permissions_list', [&self::$permissions]);
-
-		// In case a mod screwed things up...
-		if (!in_array('html', Utils::$context['restricted_bbc'])) {
-			Utils::$context['restricted_bbc'][] = 'html';
-		}
-
-		// Add the permissions for the restricted BBCodes
-		foreach (Utils::$context['restricted_bbc'] as $bbc) {
-			if (isset(self::$permissions['bbc_' . $bbc])) {
-				continue;
-			}
-
-			self::$permissions['bbc_' . $bbc] = [
-				'has_own_any' => false,
-				'view_group' => 'bbc',
-				'scope' => 'global',
-				'vsprintf' => ['permissionname_bbc', [$bbc]],
-			];
-		}
-
-		// If the calendar is disabled, disable the related permissions.
-		if (empty(Config::$modSettings['cal_enabled'])) {
-			self::$permissions['calendar_view']['hidden'] = true;
-			self::$permissions['calendar_post']['hidden'] = true;
-			self::$permissions['calendar_edit_own']['hidden'] = true;
-			self::$permissions['calendar_edit_any']['hidden'] = true;
-		}
-
-		// If warnings are disabled, disable the related permissions.
-		if (Config::$modSettings['warning_settings'][0] == 0) {
-			self::$permissions['issue_warning']['hidden'] = true;
-			self::$permissions['view_warning_own']['hidden'] = true;
-			self::$permissions['view_warning_any']['hidden'] = true;
-		}
-
-		// If post moderation is disabled, disable the related permissions.
-		if (!Config::$modSettings['postmod_active']) {
-			self::$permissions['approve_posts']['hidden'] = true;
-			self::$permissions['post_unapproved_topics']['hidden'] = true;
-			self::$permissions['post_unapproved_replies_own']['hidden'] = true;
-			self::$permissions['post_unapproved_replies_any']['hidden'] = true;
-			self::$permissions['post_unapproved_attachments']['hidden'] = true;
-		}
-		// If post moderation is enabled, these are named differently...
-		else {
-			// Relabel the topics permissions
-			self::$permissions['post_new']['label'] = 'auto_approve_topics';
-
-			// Relabel the reply permissions
-			self::$permissions['post_reply_own']['label'] = 'auto_approve_replies';
-			self::$permissions['post_reply_any']['label'] = 'auto_approve_replies';
-
-			// Relabel the attachment permissions
-			self::$permissions['post_attachment']['label'] = 'auto_approve_attachments';
-		}
-
-		// If attachments are disabled, disable the related permissions.
-		if (empty(Config::$modSettings['attachmentEnable'])) {
-			self::$permissions['manage_attachments']['hidden'] = true;
-			self::$permissions['view_attachments']['hidden'] = true;
-			self::$permissions['post_unapproved_attachments']['hidden'] = true;
-			self::$permissions['post_attachment']['hidden'] = true;
-		}
-
-		// If likes are disabled, disable the related permission.
-		if (empty(Config::$modSettings['enable_likes'])) {
-			self::$permissions['likes_like']['hidden'] = true;
-		}
-
-		// If mentions are disabled, disable the related permission.
-		if (empty(Config::$modSettings['enable_mentions'])) {
-			self::$permissions['mention']['hidden'] = true;
-		}
-
-		// If Gravatars are disabled, disable the related permission.
-		if (empty(Config::$modSettings['gravatarEnabled'])) {
-			self::$permissions['profile_gravatar']['hidden'] = true;
-		}
-
-		// Finalize various values.
-		foreach (self::$permissions as $permission => &$perm_info) {
-			$perm_info['generic_name'] = $perm_info['generic_name'] ?? $permission;
-			$perm_info['hidden'] = !empty($perm_info['hidden']);
-			$perm_info['never_guests'] = !empty($perm_info['never_guests']);
-			$perm_info['assignee_prerequisites'] = $perm_info['assignee_prerequisites'] ?? [];
-			$perm_info['assigner_prerequisites'] = $perm_info['assigner_prerequisites'] ?? [];
-
-			$perm_info['label'] = $perm_info['label'] ?? 'permissionname_' . $perm_info['generic_name'];
-
-			// Do we need to dynamically generate the label string?
-			if (!empty($perm_info['vsprintf'])) {
-				Lang::setTxt(
-					$perm_info['label'],
-					Lang::txtExists($perm_info['vsprintf'][0], file: 'ManagePermissions')
-					? Lang::getTxt($perm_info['vsprintf'][0], $perm_info['vsprintf'][1], file: 'ManagePermissions')
-					: Lang::formatText($perm_info['vsprintf'][0], $perm_info['vsprintf'][1]),
-				);
-			}
-		}
-
-		return self::$permissions;
-	}
-
-	/**
 	 * Set the permission level for a specific profile, group, or group for a profile.
 	 *
 	 * @param string $level The level ('restrict', 'standard', etc.)
@@ -1749,10 +879,6 @@ class Permissions implements ActionInterface
 	 */
 	public static function setPermissionLevel(string $level, int $group, string|int $profile = 'null'): void
 	{
-		self::loadIllegalPermissions();
-		self::loadIllegalGuestPermissions();
-		self::loadIllegalBBCHtmlGroups();
-
 		// Levels by group... restrict, standard, moderator, maintenance.
 		$group_levels = [
 			'board' => ['inherit' => []],
@@ -1761,43 +887,43 @@ class Permissions implements ActionInterface
 		// Levels by board... standard, publish, free.
 		$board_levels = ['inherit' => []];
 
-		foreach (self::getPermissions() as $permission => $perm_info) {
-			if (isset($perm_info['group_level'])) {
-				switch ($perm_info['group_level']) {
-					case self::GROUP_LEVEL_RESTRICT:
-						$group_levels[$perm_info['scope']]['restrict'][] = $permission;
+		foreach (Permission::getAll() as $perm) {
+			if (isset($perm->group_level)) {
+				switch ($perm->group_level) {
+					case Permission::GROUP_LEVEL_RESTRICT:
+						$group_levels[$perm->scope]['restrict'][] = $perm->name;
 						// no break
 
-					case self::GROUP_LEVEL_STANDARD:
-						$group_levels[$perm_info['scope']]['standard'][] = $permission;
+					case Permission::GROUP_LEVEL_STANDARD:
+						$group_levels[$perm->scope]['standard'][] = $perm->name;
 						// no break
 
-					case self::GROUP_LEVEL_MODERATOR:
-						$group_levels[$perm_info['scope']]['moderator'][] = $permission;
+					case Permission::GROUP_LEVEL_MODERATOR:
+						$group_levels[$perm->scope]['moderator'][] = $perm->name;
 						// no break
 
-					case self::GROUP_LEVEL_MAINTENANCE:
-						$group_levels[$perm_info['scope']]['maintenance'][] = $permission;
+					case Permission::GROUP_LEVEL_MAINTENANCE:
+						$group_levels[$perm->scope]['maintenance'][] = $perm->name;
 						break;
 				}
 			}
 
-			if (isset($perm_info['board_level'])) {
-				switch ($perm_info['board_level']) {
-					case self::BOARD_LEVEL_STANDARD:
-						$board_levels['standard'][] = $permission;
+			if (isset($perm->board_level)) {
+				switch ($perm->board_level) {
+					case Permission::BOARD_LEVEL_STANDARD:
+						$board_levels['standard'][] = $perm->name;
 						// no break
 
-					case self::BOARD_LEVEL_LOCKED:
-						$board_levels['locked'][] = $permission;
+					case Permission::BOARD_LEVEL_LOCKED:
+						$board_levels['locked'][] = $perm->name;
 						// no break
 
-					case self::BOARD_LEVEL_PUBLISH:
-						$board_levels['publish'][] = $permission;
+					case Permission::BOARD_LEVEL_PUBLISH:
+						$board_levels['publish'][] = $perm->name;
 						// no break
 
-					case self::BOARD_LEVEL_FREE:
-						$board_levels['free'][] = $permission;
+					case Permission::BOARD_LEVEL_FREE:
+						$board_levels['free'][] = $perm->name;
 						break;
 				}
 			}
@@ -1808,11 +934,10 @@ class Permissions implements ActionInterface
 		// Make sure we're not granting someone too many permissions!
 		foreach (['global', 'board'] as $scope) {
 			foreach ($group_levels[$scope][$level] as $k => $permission) {
-				if (in_array($permission, self::$illegal ?? [])) {
-					unset($group_levels[$scope][$level][$k]);
-				}
-
-				if (in_array($group, self::$excluded[$permission] ?? [])) {
+				if (
+					!Permission::get($permission)->canAssign()
+					|| !Permission::get($permission)->canBeGrantedTo($group)
+				) {
 					unset($group_levels[$scope][$level][$k]);
 				}
 			}
@@ -1833,10 +958,10 @@ class Permissions implements ActionInterface
 				'',
 				'DELETE FROM {db_prefix}permissions
 				WHERE id_group = {int:current_group}
-				' . (empty(self::$illegal) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
+				' . (empty(Permission::getUnassignable()) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
 				[
 					'current_group' => $group,
-					'illegal_permissions' => !empty(self::$illegal) ? self::$illegal : [],
+					'illegal_permissions' => Permission::getUnassignable(),
 				],
 			);
 			Db::$db->query(
@@ -1984,7 +1109,7 @@ class Permissions implements ActionInterface
 		}
 
 		// Make sure Config::$modSettings['board_manager_groups'] is up to date.
-		if (!in_array('manage_boards', self::$illegal)) {
+		if (Permission::get('manage_boards')->canAssign()) {
 			self::updateBoardManagers();
 		}
 	}
@@ -2053,47 +1178,22 @@ class Permissions implements ActionInterface
 			}
 		}
 
-		// Make sure we honor the "illegal guest permissions"
-		self::loadIllegalGuestPermissions();
-
-		// Only special people can have this permission
-		if (in_array('bbc_html', $permissions)) {
-			self::loadIllegalBBCHtmlGroups();
-		}
-
-		// Are any of these permissions that guests can't have?
-		$non_guest_perms = array_intersect(str_replace(['_any', '_own'], '', $permissions), self::$never_guests);
-
-		foreach ($non_guest_perms as $permission) {
-			if (!isset(self::$excluded[$permission]) || !in_array(-1, self::$excluded[$permission])) {
-				self::$excluded[$permission][] = -1;
-			}
-		}
-
-		// Any explicitly excluded groups for this call?
-		if (!empty($excluded_groups)) {
-			// Make sure this is an array of integers
-			$excluded_groups = array_filter(
-				(array) $excluded_groups,
-				function ($v) {
-					return is_int($v) || is_string($v) && (string) intval($v) === $v;
-				},
-			);
-
-			foreach ($permissions as $permission) {
-				self::$excluded[$permission] = array_unique(array_merge(self::$excluded[$permission], $excluded_groups));
-			}
-		}
+		// Make sure this is an array of integers.
+		// Can't blindly cast to int because we don't want invalid ones to become 0.
+		$excluded_groups = array_map('intval', array_filter(
+			(array) $excluded_groups,
+			fn($v) => is_int($v) || is_string($v) && intval($v) == $v,
+		));
 
 		// Some permissions cannot be given to certain groups. Remove the groups.
 		foreach ($permissions as $permission) {
-			if (!isset(self::$excluded[$permission])) {
-				continue;
-			}
-
-			foreach (self::$excluded[$permission] as $group_id) {
-				if (isset(Utils::$context[$permission][$group_id])) {
-					unset(Utils::$context[$permission][$group_id]);
+			foreach ($groups as $group) {
+				if (
+					in_array($group->id, $excluded_groups)
+					|| !Permission::get($permission)->canAssign()
+					|| !Permission::get($permission)->canBeGrantedTo($group->id)
+				) {
+					unset(Utils::$context[$permission][$group->id]);
 				}
 			}
 
@@ -2138,13 +1238,6 @@ class Permissions implements ActionInterface
 		User::$me->checkSession();
 		SecurityToken::validate('admin-mp');
 
-		// Check they can't do certain things.
-		self::loadIllegalPermissions();
-
-		if (in_array('bbc_html', $permissions)) {
-			self::loadIllegalBBCHtmlGroups();
-		}
-
 		$insert_rows = [];
 
 		foreach ($permissions as $permission) {
@@ -2157,7 +1250,11 @@ class Permissions implements ActionInterface
 					continue;
 				}
 
-				if (in_array($value, ['on', 'deny']) && (empty(self::$illegal) || !in_array($permission, self::$illegal))) {
+				if (
+					in_array($value, ['on', 'deny'])
+					&& Permission::get($permission)->canAssign()
+					&& ($value === 'on' ? Permission::get($permission)->canBeGrantedTo((int) $id_group) : true)
+				) {
 					$insert_rows[] = [(int) $id_group, $permission, $value == 'on' ? 1 : 0];
 				}
 			}
@@ -2168,9 +1265,9 @@ class Permissions implements ActionInterface
 			'',
 			'DELETE FROM {db_prefix}permissions
 			WHERE permission IN ({array_string:permissions})
-				' . (empty(self::$illegal) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
+				' . (empty(Permission::getUnassignable()) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
 			[
-				'illegal_permissions' => !empty(self::$illegal) ? self::$illegal : [],
+				'illegal_permissions' => Permission::getUnassignable(),
 				'permissions' => $permissions,
 			],
 		);
@@ -2190,7 +1287,7 @@ class Permissions implements ActionInterface
 		self::updateChildPermissions([], -1);
 
 		// Make sure Config::$modSettings['board_manager_groups'] is up to date.
-		if (!in_array('manage_boards', self::$illegal)) {
+		if (Permission::get('manage_boards')->canAssign()) {
 			self::updateBoardManagers();
 		}
 
@@ -2355,48 +1452,6 @@ class Permissions implements ActionInterface
 		return true;
 	}
 
-	/**
-	 * Loads a list of permissions that the current user cannot grant.
-	 *
-	 * @return array Permissions that the current user cannot grant.
-	 */
-	public static function loadIllegalPermissions(): array
-	{
-		foreach (self::getPermissions() as $permission => $perm_info) {
-			if (!empty($perm_info['assigner_prerequisites']) && !User::$me->allowedTo($perm_info['assigner_prerequisites'])) {
-				self::$illegal[] = $permission;
-				self::$illegal[] = $perm_info['generic_name'];
-			}
-		}
-
-		self::$illegal = array_unique(self::$illegal);
-
-		// Call the deprecated integrate_load_illegal_permissions hook.
-		self::integrateLoadIllegalPermissions();
-
-		return self::$illegal;
-	}
-
-	/**
-	 * Populates self::$hidden with a list of hidden permissions.
-	 */
-	public static function buildHidden(): void
-	{
-		if (isset(self::$hidden)) {
-			return;
-		}
-
-		foreach (self::getPermissions() as $permission => $perm_info) {
-			if (!empty($perm_info['hidden'])) {
-				self::$hidden[] = $permission;
-			}
-		}
-
-		// Backward compatibility.
-		Utils::$context['hidden_permissions'] = self::$hidden;
-	}
-
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -2527,15 +1582,14 @@ class Permissions implements ActionInterface
 			foreach ($_POST['group'] as $group_id) {
 				foreach ($target_perm as $perm => $add_deny) {
 					// No dodgy permissions please!
-					if (in_array($perm, self::$illegal)) {
+					if (
+						!Permission::get($perm)->canAssign()
+						|| !Permission::get($perm)->canBeGrantedTo($group_id)
+					) {
 						continue;
 					}
 
-					if (in_array($group_id, self::$excluded[$perm] ?? [])) {
-						continue;
-					}
-
-					if ($group_id != 1 && $group_id != 3) {
+					if ($group_id != Group::ADMIN && $group_id != Group::MOD) {
 						$inserts[] = [$perm, $group_id, $add_deny];
 					}
 				}
@@ -2546,10 +1600,10 @@ class Permissions implements ActionInterface
 				'',
 				'DELETE FROM {db_prefix}permissions
 				WHERE id_group IN ({array_int:group_list})
-					' . (empty(self::$illegal) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
+					' . (empty(Permission::getUnassignable()) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
 				[
 					'group_list' => $_POST['group'],
-					'illegal_permissions' => self::$illegal,
+					'illegal_permissions' => Permission::getUnassignable(),
 				],
 			);
 
@@ -2591,7 +1645,7 @@ class Permissions implements ActionInterface
 		foreach ($_POST['group'] as $group_id) {
 			foreach ($target_perm as $perm => $add_deny) {
 				// Are these for guests?
-				if ($group_id == -1 && in_array($perm, self::$never_guests)) {
+				if ($group_id == -1 && in_array($perm, Permission::getNonGuestPermissions())) {
 					continue;
 				}
 
@@ -2651,18 +1705,16 @@ class Permissions implements ActionInterface
 					'DELETE FROM {db_prefix}permissions
 					WHERE id_group IN ({array_int:current_group_list})
 						AND permission = {string:current_permission}
-						' . (empty(self::$illegal) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
+						' . (empty(Permission::getUnassignable()) ? '' : ' AND permission NOT IN ({array_string:illegal_permissions})'),
 					[
 						'current_group_list' => $_POST['group'],
 						'current_permission' => $permission,
-						'illegal_permissions' => self::$illegal,
+						'illegal_permissions' => Permission::getUnassignable(),
 					],
 				);
 
-				// Did these changes make anyone lose eligibility for the bbc_html permission?
-				$bbc_html_groups = array_diff($_POST['group'], self::$excluded['bbc_html']);
-
-				if (!empty($bbc_html_groups)) {
+				// Check whether anyone lost their eligibility for the bbc_html permission.
+				if (array_intersect($_POST['group'], Permission::get('bbc_html')->eligibleGroups()) !== []) {
 					self::removeIllegalBBCHtmlPermission(true);
 				}
 			} else {
@@ -2686,11 +1738,11 @@ class Permissions implements ActionInterface
 			$perm_change = [];
 
 			foreach ($_POST['group'] as $groupID) {
-				if (isset(self::$excluded[$permission]) && in_array($groupID, self::$excluded[$permission])) {
+				if (!Permission::get($permission)->canBeGrantedTo($groupID)) {
 					continue;
 				}
 
-				if ($scope == 'global' && $groupID != 1 && $groupID != 3 && !in_array($permission, self::$illegal)) {
+				if ($scope == 'global' && $groupID != Group::ADMIN && $groupID != Group::MOD && Permission::get($permission)->canAssign()) {
 					$perm_change[] = [$permission, $groupID, $add_deny];
 				} elseif ($scope != 'global') {
 					$perm_change[] = [$permission, $groupID, $pid, $add_deny];
@@ -2872,7 +1924,7 @@ class Permissions implements ActionInterface
 	 */
 	protected function setOnOff(): void
 	{
-		self::loadAllPermissions();
+		self::loadPermissionsContext();
 		Utils::$context['hidden_perms'] = [];
 
 		// Loop through each permission and set whether it's on, off, or denied.
@@ -3204,19 +2256,10 @@ class Permissions implements ActionInterface
 	/**
 	 * Load permissions into Utils::$context['permissions'].
 	 */
-	protected static function loadAllPermissions(): void
+	protected static function loadPermissionsContext(): void
 	{
-		// We need to know what permissions we can't give to guests.
-		self::loadIllegalGuestPermissions();
-
-		// We also need to know which groups can't be given the bbc_html permission.
-		self::loadIllegalBBCHtmlGroups();
-
 		// Call the deprecated integrate_load_permissions hook.
 		self::integrateLoadPermissions();
-
-		// Figure out which permissions should be hidden.
-		self::buildHidden();
 
 		Utils::$context['permissions'] = [];
 
@@ -3246,37 +2289,40 @@ class Permissions implements ActionInterface
 			}
 		}
 
-		foreach (self::getPermissions() as $permission => $perm_info) {
+		foreach (Permission::getAll() as $permission) {
 			// If this permission shouldn't be given to certain groups (e.g. guests), don't.
-			foreach ([$permission, $perm_info['generic_name']] as $perm) {
-				if (isset(Utils::$context['group']['id']) && in_array(Utils::$context['group']['id'], self::$excluded[$perm] ?? [])) {
-					continue 2;
-				}
+			if (isset(Utils::$context['group']['id']) && !$permission->canBeGrantedTo(Utils::$context['group']['id'])) {
+				continue;
 			}
 
 			// What column should this be located in?
-			$position = (int) (!in_array($perm_info['view_group'], self::$left_permission_groups));
+			$position = (int) (!in_array($permission->view_group, self::$left_permission_groups));
 
 			// For legibility reasons...
-			$view_group_perms = &Utils::$context['permissions'][$perm_info['scope']]['columns'][$position][$perm_info['view_group']]['permissions'];
+			$view_group_perms = &Utils::$context['permissions'][$permission->scope]['columns'][$position][$permission->view_group]['permissions'];
 
-			if (!isset($view_group_perms[$perm_info['generic_name']])) {
-				$view_group_perms[$perm_info['generic_name']] = [
-					'id' => $perm_info['generic_name'],
-					'name' => Lang::getTxt($perm_info['label'], file: 'ManagePermissions+ManageMembers'),
-					'show_help' => Lang::txtExists('permissionhelp_' . $perm_info['generic_name'], file: 'ManagePermissions'),
-					'note' => Lang::txtExists('permissionnote_' . $perm_info['generic_name'], file: 'ManagePermissions') ? Lang::getTxt('permissionnote_' . $perm_info['generic_name'], file: 'ManagePermissions') : '',
-					'hidden' => !empty($perm_info['hidden']),
+			if (!isset($view_group_perms[$permission->generic_name])) {
+				$view_group_perms[$permission->generic_name] = [
+					'id' => $permission->generic_name,
+					'name' => Lang::getTxt($permission->label, file: 'ManagePermissions+ManageMembers'),
+					'show_help' => Lang::txtExists('permissionhelp_' . $permission->generic_name, file: 'ManagePermissions'),
+					'note' => Lang::txtExists('permissionnote_' . $permission->generic_name, file: 'ManagePermissions') ? Lang::getTxt('permissionnote_' . $permission->generic_name, file: 'ManagePermissions') : '',
+					'hidden' => !empty($permission->hidden),
 				];
 			}
 
-			$view_group_perms[$perm_info['generic_name']]['has_own_any'] = isset($perm_info['own_any']);
+			$view_group_perms[$permission->generic_name]['has_own_any'] = isset($permission->own_any);
 
-			if (isset($perm_info['own_any'])) {
-				$view_group_perms[$perm_info['generic_name']][$perm_info['own_any']] = [
+			if (isset($permission->own_any)) {
+				$view_group_perms[$permission->generic_name][$permission->own_any] = [
 					'id' => $permission,
-					'name' => Lang::getTxt('permissionname_' . $permission, file: 'ManagePermissions'),
+					'name' => Lang::getTxt('permissionname_' . $permission->name, file: 'ManagePermissions'),
 				];
+			}
+
+			// For backward compatibility purposes only.
+			if ($permission->hidden) {
+				Utils::$context['hidden_permissions'][] = $permission->name;
 			}
 		}
 
@@ -3305,79 +2351,6 @@ class Permissions implements ActionInterface
 	}
 
 	/**
-	 * Loads the permissions that cannot be given to guests.
-	 *
-	 * Stores the permissions in self::$never_guests.
-	 * Also populates self::$excluded with the info.
-	 *
-	 * @return array A copy of self::$never_guests.
-	 */
-	protected static function loadIllegalGuestPermissions(): array
-	{
-		// Find the permissions that guests may never have.
-		foreach (self::getPermissions() as $permission => $perm_info) {
-			if (!empty($perm_info['never_guests'])) {
-				self::$never_guests[] = $permission;
-
-				if (isset($perm_info['generic_name'])) {
-					self::$never_guests[] = $perm_info['generic_name'];
-				}
-			}
-		}
-
-		self::$never_guests = array_unique(self::$never_guests);
-
-		// Call the deprecated integrate_load_illegal_guest_permissions hook.
-		self::integrateLoadIllegalGuestPermissions();
-
-		// Also add this info to self::$excluded to make life easier for everyone
-		foreach (self::$never_guests as $permission) {
-			if (empty(self::$excluded[$permission]) || !in_array($permission, self::$excluded[$permission])) {
-				self::$excluded[$permission][] = -1;
-			}
-		}
-
-		return self::$never_guests;
-	}
-
-	/**
-	 * Loads a list of membergroups who cannot be granted the bbc_html permission.
-	 * Stores the groups in self::$excluded['bbc_html'].
-	 *
-	 * @return array A copy of self::$excluded['bbc_html'].
-	 */
-	protected static function loadIllegalBBCHtmlGroups(): array
-	{
-		self::$excluded['bbc_html'] = [-1, 0];
-
-		$request = Db::$db->query(
-			'',
-			'SELECT id_group
-			FROM {db_prefix}membergroups
-			WHERE id_group != {int:admin} AND id_group NOT IN (
-				SELECT DISTINCT id_group
-				FROM {db_prefix}permissions
-				WHERE permission IN ({array_string:permissions})
-					AND add_deny = {int:add}
-			)',
-			[
-				'permissions' => self::$permissions['bbc_html']['assignee_prerequisites'],
-				'add' => 1,
-				'admin' => Group::ADMIN,
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			self::$excluded['bbc_html'][] = $row['id_group'];
-		}
-		Db::$db->free_result($request);
-
-		self::$excluded['bbc_html'] = array_unique(self::$excluded['bbc_html']);
-
-		return self::$excluded['bbc_html'];
-	}
-
-	/**
 	 * Removes the bbc_html permission from anyone who shouldn't have it.
 	 *
 	 * @param bool $reload Before acting, refresh the list of membergroups who
@@ -3385,18 +2358,14 @@ class Permissions implements ActionInterface
 	 */
 	protected static function removeIllegalBBCHtmlPermission(bool $reload = false): void
 	{
-		if (empty(self::$excluded['bbc_html']) || $reload) {
-			self::loadIllegalBBCHtmlGroups();
-		}
-
 		Db::$db->query(
 			'',
 			'DELETE FROM {db_prefix}permissions
-			WHERE id_group IN ({array_int:current_group_list})
+			WHERE id_group IN ({array_int:ineligible_groups})
 				AND permission = {string:current_permission}
 				AND add_deny = {int:add}',
 			[
-				'current_group_list' => self::$excluded['bbc_html'],
+				'ineligible_groups' => Permission::ineligibleGroups('bbc_html', true),
 				'current_permission' => 'bbc_html',
 				'add' => 1,
 			],
@@ -3417,7 +2386,8 @@ class Permissions implements ActionInterface
 	/**
 	 * Calls the deprecated integrate_load_permissions hook.
 	 *
-	 * MOD AUTHORS: Please update your code to use integrate_permissions_list.
+	 * MOD AUTHORS: Please update your code to use integrate_permissions_list,
+	 * which can be found in SMF\Permissions\Permission::getAll()
 	 *
 	 * @deprecated 3.0
 	 */
@@ -3435,14 +2405,14 @@ class Permissions implements ActionInterface
 		$hidden_permissions = [];
 		$relabel_permissions = [];
 
-		foreach (self::getPermissions() as $permission => $perm_info) {
-			$permissions_by_scope[$perm_info['scope']][$perm_info['generic_name']] = [
-				!empty($perm_info['own_any']),
-				$perm_info['view_group'],
+		foreach (Permission::getAll() as $perm) {
+			$permissions_by_scope[$perm->scope][$perm->generic_name] = [
+				!empty($perm->own_any),
+				$perm->view_group,
 			];
 
-			if (!empty($perm_info['hidden'])) {
-				$hidden_permissions[] = $perm_info['generic_name'];
+			if (!empty($perm->hidden)) {
+				$hidden_permissions[] = $perm->generic_name;
 			}
 		}
 
@@ -3454,30 +2424,34 @@ class Permissions implements ActionInterface
 
 		// If the hook made changes, sync them back to our master list.
 		foreach ($permissions_by_scope as $scope => $permissions) {
-			foreach ($permissions as $permission => $perm_info) {
+			foreach ($permissions as $generic_name => $perm_info) {
 				$is_new = true;
 
 				foreach (['', '_own', '_any'] as $suffix) {
-					if (isset(self::$permissions[$permission . $suffix])) {
-						$is_new = false;
-
-						self::$permissions[$permission . $suffix]['view_group'] = $perm_info[1];
+					try {
+						$permission = Permission::get($generic_name . $suffix);
+					} catch (\Throwable $e) {
+						continue;
 					}
+
+					$is_new = false;
+					$permission->view_group = $perm_info[1];
+					unset($permission);
 				}
 
 				if ($is_new) {
-					$new_ids = $perm_info[0] ? [$permission . '_own', $permission . '_any'] : [$permission];
+					$new_ids = $perm_info[0] ? [$generic_name . '_own', $generic_name . '_any'] : [$generic_name];
 
 					foreach ($new_ids as $id) {
-						self::$permissions[$id] = [
-							'generic_name' => $permission,
+						(new Permission($id, [
+							'generic_name' => $generic_name,
 							'own_any' => $perm_info[0] ? substr($id, -3) : null,
 							'view_group' => $perm_info[1],
 							'scope' => $scope === 'board' ? 'board' : 'global',
-							'hidden' => in_array($permission, $hidden_permissions),
-							'label' => 'permissionname_' . $permission,
-							'never_guests' => in_array($permission, self::$never_guests),
-						];
+							'hidden' => in_array($generic_name, $hidden_permissions),
+							'label' => 'permissionname_' . $generic_name,
+							'never_guests' => in_array($generic_name, Permission::getNonGuestPermissions()),
+						]))->addToKnownPermissions();
 					}
 				}
 			}
@@ -3485,105 +2459,29 @@ class Permissions implements ActionInterface
 
 		foreach ($hidden_permissions as $permission) {
 			foreach (['', '_own', '_any'] as $suffix) {
-				if (isset(self::$permissions[$permission . $suffix])) {
-					self::$permissions[$permission . $suffix]['hidden'] = true;
+				try {
+					$permission = Permission::get($permission . $suffix);
+				} catch (\Throwable $e) {
+					continue;
 				}
+
+				$permission->hidden = true;
+				unset($permission);
 			}
 		}
 
 		foreach ($relabel_permissions as $permission => $label) {
 			foreach (['', '_own', '_any'] as $suffix) {
-				if (isset(self::$permissions[$permission . $suffix])) {
-					self::$permissions[$permission . $suffix]['label'] = $label;
+				try {
+					$permission = Permission::get($permission . $suffix);
+				} catch (\Throwable $e) {
+					continue;
 				}
+
+				$permission->label = $label;
+				unset($permission);
 			}
 		}
-	}
-
-	/**
-	 * Calls the deprecated integrate_load_illegal_permissions hook.
-	 *
-	 * MOD AUTHORS: Please update your code to use integrate_permissions_list.
-	 *
-	 * @deprecated 3.0
-	 */
-	protected static function integrateLoadIllegalPermissions(): void
-	{
-		// Don't bother if nothing is using this hook.
-		if (empty(Config::$backward_compatibility) || empty(Config::$modSettings['integrate_load_illegal_permissions'])) {
-			return;
-		}
-
-		// This context variable exists only for the sake of the hook.
-		Utils::$context['illegal_permissions'] = &self::$illegal;
-
-		// Track whether the hook makes any changes.
-		$temp = Utils::jsonEncode(self::$illegal);
-
-		// Give mods access to this list.
-		IntegrationHook::call('integrate_load_illegal_permissions');
-
-		// If the hook added anything, sync that back to our master list.
-		// Because this hook can't tell us what the prerequisites are, we assume
-		// that the permission can only be granted by admins.
-		if ($temp != Utils::jsonEncode(self::$illegal)) {
-			foreach (self::$illegal as $permission) {
-				foreach (['', '_own', '_any'] as $suffix) {
-					if (isset(self::$permissions[$permission . $suffix]) && !isset(self::$permissions[$permission . $suffix]['assigner_prerequisites'])) {
-						self::$permissions[$permission . $suffix]['assigner_prerequisites'] = ['admin_forum'];
-					}
-				}
-			}
-		}
-
-		// We don't need this anymore.
-		unset(Utils::$context['illegal_permissions']);
-	}
-
-	/**
-	 * Calls the deprecated integrate_load_illegal_guest_permissions hook.
-	 *
-	 * MOD AUTHORS: Please update your code to use integrate_permissions_list.
-	 *
-	 * @deprecated 3.0
-	 */
-	protected static function integrateLoadIllegalGuestPermissions(): void
-	{
-		// Don't bother if nothing is using this hook.
-		if (empty(Config::$backward_compatibility) || empty(Config::$modSettings['integrate_load_illegal_guest_permissions'])) {
-			return;
-		}
-
-		// This context variable exists only for the sake of the hook.
-		Utils::$context['non_guest_permissions'] = &self::$never_guests;
-
-		// Track whether the hook makes any changes.
-		$temp = Utils::jsonEncode(self::$never_guests);
-
-		// Give mods access to this list.
-		IntegrationHook::call('integrate_load_illegal_guest_permissions');
-
-		// If the hook changed anything, sync that back to our master list.
-		if ($temp != Utils::jsonEncode(self::$never_guests)) {
-			// Did the hook add a permission to self::$never_guests?
-			foreach (self::$never_guests as $permission) {
-				foreach (['', '_own', '_any'] as $suffix) {
-					if (isset(self::$permissions[$permission . $suffix])) {
-						self::$permissions[$permission . $suffix]['never_guests'] = true;
-					}
-				}
-			}
-
-			// Did the hook remove a permission from self::$never_guests?
-			foreach (self::$permissions as $permission => $perm_info) {
-				if (!in_array($perm_info['generic_name'], self::$never_guests)) {
-					self::$permissions[$permission]['never_guests'] = false;
-				}
-			}
-		}
-
-		// We don't need this anymore.
-		unset(Utils::$context['non_guest_permissions']);
 	}
 }
 

@@ -27,6 +27,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\Permissions\Permission;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -395,7 +396,7 @@ class Membergroups implements ActionInterface
 				}
 
 				// Don't allow copying of a real privileged person!
-				$illegal_permissions = Permissions::loadIllegalPermissions();
+				$illegal_permissions = Permission::getUnassignable();
 
 				$inserts = [];
 				$request = Db::$db->query(

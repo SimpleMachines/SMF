@@ -1502,7 +1502,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function loadIllegalPermissions(): array
 	{
-		return SMF\Actions\Admin\Permissions::loadIllegalPermissions();
+		return SMF\Permissions\Permission::getUnassignable();
 	}
 
 	/**

@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Admin\Permissions;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Permissions\Permission;
 
 /**
  * Represents a member group.
@@ -332,6 +333,13 @@ class Group implements \ArrayAccess
 	 * IDs of all post-count based groups.
 	 */
 	protected static array $post_groups;
+
+	/**
+	 * @var array
+	 *
+	 * IDs of all groups.
+	 */
+	protected static array $all_groups;
 
 	/****************
 	 * Public methods
@@ -2113,20 +2121,16 @@ class Group implements \ArrayAccess
 	 */
 	public static function countPermissionsBatch(array $group_ids, ?int $profile = null): array
 	{
-		if (!isset(Permissions::$hidden)) {
-			Permissions::buildHidden();
-		}
-
 		// If null or 0, we want general permissions.
 		if (empty($profile)) {
 			$request = Db::$db->query(
 				'',
 				'SELECT id_group, COUNT(*) AS num_permissions, add_deny
 				FROM {db_prefix}permissions
-				' . (empty(Permissions::$hidden) ? '' : ' WHERE permission NOT IN ({array_string:hidden_permissions})') . '
+				' . (empty(Permission::getHidden()) ? '' : ' WHERE permission NOT IN ({array_string:hidden_permissions})') . '
 				GROUP BY id_group, add_deny',
 				[
-					'hidden_permissions' => Permissions::$hidden,
+					'hidden_permissions' => Permission::getHidden(),
 				],
 			);
 
@@ -2192,6 +2196,40 @@ class Group implements \ArrayAccess
 		}
 
 		return $all_counted_permissions;
+	}
+
+	/**
+	 * Returns the IDs of all groups.
+	 *
+	 * @return array IDs of all groups.
+	 */
+	public static function getAll(): array
+	{
+		if (!isset(self::$all_groups)) {
+			self::$all_groups = [
+				Group::GUEST,
+				Group::REGULAR,
+				Group::ADMIN,
+				Group::GLOBAL_MOD,
+				Group::MOD,
+				Group::NEWBIE,
+			];
+
+			$request = Db::$db->query(
+				'',
+				'SELECT id_group
+				FROM {db_prefix}membergroups',
+				[],
+			);
+
+			while ($row = Db::$db->fetch_assoc($request)) {
+				self::$all_groups[] = (int) $row['id_group'];
+			}
+
+			self::$all_groups = array_unique(self::$all_groups);
+		}
+
+		return self::$all_groups;
 	}
 
 	/**
