@@ -27,6 +27,7 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Permissions\PermissionProfile;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -234,7 +235,7 @@ class Reports implements ActionInterface
 			[Group::ADMIN, Group::MOD],
 		);
 
-		Permissions::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		// Get all the themes...
 		Utils::$context['themes'] = [];
@@ -407,7 +408,7 @@ class Reports implements ActionInterface
 	 */
 	public function boardPerms(): void
 	{
-		Permissions::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		$inc = [];
 

@@ -29,6 +29,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Permissions\Permission;
+use SMF\Permissions\PermissionProfile;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -42,17 +43,6 @@ class Permissions implements ActionInterface
 	use ActionTrait;
 
 	use BackwardCompatibility;
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	public const PROFILE_DEFAULT = 1;
-	public const PROFILE_NO_POLLS = 2;
-	public const PROFILE_REPLY_ONLY = 3;
-	public const PROFILE_READ_ONLY = 4;
-	public const PROFILE_PREDEFINED = [1, 2, 3, 4];
-	public const PROFILE_UNMODIFIABLE = [2, 3, 4];
 
 	/*******************
 	 * Public properties
@@ -242,7 +232,7 @@ class Permissions implements ActionInterface
 		self::loadPermissionsContext();
 
 		// Also load profiles, we may want to reset.
-		self::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		// Expand or collapse the advanced options?
 		Utils::$context['show_advanced_options'] = empty(Utils::$context['admin_preferences']['app']);
@@ -250,7 +240,7 @@ class Permissions implements ActionInterface
 		$this->setGroupsContext();
 
 		// We can modify any permission set, except for the ones we can't.
-		Utils::$context['can_modify'] = empty($_REQUEST['pid']) || !in_array((int) $_REQUEST['pid'], self::PROFILE_UNMODIFIABLE);
+		Utils::$context['can_modify'] = PermissionProfile::load((int) ($_REQUEST['pid'] ?? PermissionProfile::DEFAULT)) !== null && PermissionProfile::load((int) ($_REQUEST['pid'] ?? PermissionProfile::DEFAULT))->canModify();
 
 		// Load the proper template.
 		Utils::$context['sub_template'] = 'permission_index';
@@ -273,7 +263,9 @@ class Permissions implements ActionInterface
 			$changes = [];
 
 			foreach ($_POST['boardprofile'] as $p_board => $profile) {
-				$changes[(int) $profile][] = (int) $p_board;
+				if (PermissionProfile::load((int) $profile) !== null) {
+					$changes[(int) $profile][] = (int) $p_board;
+				}
 			}
 
 			if (!empty($changes)) {
@@ -295,7 +287,7 @@ class Permissions implements ActionInterface
 		}
 
 		// Load all permission profiles.
-		self::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		// Get the board tree.
 		Category::getTree();
@@ -312,7 +304,7 @@ class Permissions implements ActionInterface
 
 			foreach (Category::$boardList[$catid] as $boardid) {
 				if (!isset(Utils::$context['profiles'][Board::$loaded[$boardid]->profile])) {
-					Board::$loaded[$boardid]->profile = self::PROFILE_DEFAULT;
+					Board::$loaded[$boardid]->profile = PermissionProfile::DEFAULT;
 				}
 
 				Utils::$context['categories'][$catid]['boards'][$boardid] = [
@@ -331,8 +323,8 @@ class Permissions implements ActionInterface
 	}
 
 	/**
-	 * Handles permission modification actions from the upper part of the
-	 * permission manager index.
+	 * Handles permission modification actions from the "advanced options"
+	 * section of the permission manager index.
 	 */
 	public function quick(): void
 	{
@@ -360,7 +352,10 @@ class Permissions implements ActionInterface
 		$_REQUEST['pid'] = (int) ($_REQUEST['pid'] ?? 0);
 
 		// Sorry, but that one can't be modified.
-		if (in_array($_REQUEST['pid'], self::PROFILE_UNMODIFIABLE)) {
+		if (
+			PermissionProfile::load($_REQUEST['pid']) === null
+			|| !PermissionProfile::load($_REQUEST['pid'])->canModify()
+		) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
@@ -423,18 +418,25 @@ class Permissions implements ActionInterface
 		$_GET['pid'] = (int) $_GET['pid'];
 
 		// Group needs to be valid.
-		if ($_GET['group'] < -1) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		// No, you can't modify this permission profile.
-		if (in_array($_GET['pid'], self::PROFILE_UNMODIFIABLE)) {
+		if ($_GET['group'] < Group::GUEST) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		// Verify this isn't inherited.
-		if ($this->getParentGroup($_GET['group']) != Group::NONE) {
+		if (current(Group::load($_GET['group']))->parent != Group::NONE) {
 			ErrorHandler::fatalLang('cannot_edit_permissions_inherited');
+		}
+
+		$permission_profile = PermissionProfile::load($_GET['pid']);
+
+		// Permission profile needs to be valid.
+		if (!($permission_profile instanceof PermissionProfile)) {
+			ErrorHandler::fatalLang('no_access', false);
+		}
+
+		// No, you can't modify this permission profile.
+		if (!$permission_profile->canModify()) {
+			ErrorHandler::fatalLang('no_access', false);
 		}
 
 		$illegal_permissions = array_merge(
@@ -474,7 +476,7 @@ class Permissions implements ActionInterface
 		}
 
 		// Insert the general permissions.
-		if ($_GET['group'] != 3 && empty($_GET['pid'])) {
+		if ($_GET['group'] != Group::MOD && empty($_GET['pid'])) {
 			$this->updateGlobalPermissions($_GET['group'], $give_perms, $illegal_permissions);
 		}
 
@@ -623,40 +625,32 @@ class Permissions implements ActionInterface
 		}
 
 		// Clearly, we'll need this!
-		self::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		// Work out what ones are in use.
-		$request = Db::$db->query(
-			'',
-			'SELECT id_profile, COUNT(*) AS board_count
-			FROM {db_prefix}boards
-			GROUP BY id_profile',
-			[
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			if (isset(Utils::$context['profiles'][$row['id_profile']])) {
-				Utils::$context['profiles'][$row['id_profile']]['in_use'] = true;
-				Utils::$context['profiles'][$row['id_profile']]['boards'] = $row['board_count'];
-				Utils::$context['profiles'][$row['id_profile']]['boards_text'] = Lang::getTxt('permissions_profile_used_by_count', [$row['board_count']], file: 'ManagePermissions');
-			}
+		foreach (PermissionProfile::loadAll() as $profile) {
+			Utils::$context['profiles'][$profile->id]['in_use'] = !empty($profile->boards());
+			Utils::$context['profiles'][$profile->id]['boards'] = count($profile->boards());
+			Utils::$context['profiles'][$profile->id]['boards_text'] = Lang::getTxt(
+				'permissions_profile_used_by_count',
+				[count($profile->boards())],
+				file: 'ManagePermissions',
+			);
 		}
-		Db::$db->free_result($request);
 
 		// What can we do with these?
 		Utils::$context['can_rename_something'] = false;
 
-		foreach (Utils::$context['profiles'] as $id => $profile) {
+		foreach (PermissionProfile::loadAll() as $profile) {
 			// Can't rename the special ones.
-			Utils::$context['profiles'][$id]['can_rename'] = !in_array($id, self::PROFILE_PREDEFINED);
+			Utils::$context['profiles'][$profile->id]['can_rename'] = !$profile->isPredefined();
 
-			if (Utils::$context['profiles'][$id]['can_rename']) {
+			if (Utils::$context['profiles'][$profile->id]['can_rename']) {
 				Utils::$context['can_rename_something'] = true;
 			}
 
 			// You can only delete it if you can rename it AND it's not in use.
-			Utils::$context['profiles'][$id]['can_delete'] = !in_array($id, self::PROFILE_PREDEFINED) && empty($profile['in_use']);
+			Utils::$context['profiles'][$profile->id]['can_delete'] = !$profile->isPredefined() && empty($profile->boards());
 		}
 
 		SecurityToken::create('admin-mpp');
@@ -675,7 +669,7 @@ class Permissions implements ActionInterface
 		Utils::$context['current_profile'] = isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : 1;
 
 		// Load all the permission profiles.
-		self::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		IntegrationHook::call('integrate_post_moderation_mapping', [&$this->postmod_maps]);
 
@@ -736,7 +730,10 @@ class Permissions implements ActionInterface
 		}
 
 		// If we're saving the changes then do just that - save them.
-		if (!empty($_POST['save_changes']) && !in_array(Utils::$context['current_profile'], self::PROFILE_UNMODIFIABLE)) {
+		if (
+			!empty($_POST['save_changes'])
+			&& PermissionProfile::load(Utils::$context['current_profile'])->canModify()
+		) {
 			SecurityToken::validate('admin-mppm');
 
 			// First, are we saving a new value for enabled post moderation?
@@ -1006,7 +1003,12 @@ class Permissions implements ActionInterface
 			self::removeIllegalBBCHtmlPermission();
 		}
 		// Setting profile permissions for a specific group.
-		elseif ($profile !== 'null' && $group !== 'null' && !in_array($profile, self::PROFILE_UNMODIFIABLE)) {
+		elseif (
+			$profile !== 'null'
+			&& $group !== 'null'
+			&& PermissionProfile::load((int) $profile) !== null
+			&& PermissionProfile::load((int) $profile)->canModify()
+		) {
 			$group = (int) $group;
 			$profile = (int) $profile;
 
@@ -1040,7 +1042,12 @@ class Permissions implements ActionInterface
 			}
 		}
 		// Setting profile permissions for all groups.
-		elseif ($profile !== 'null' && $group === 'null' && !in_array($profile, self::PROFILE_UNMODIFIABLE)) {
+		elseif (
+			$profile !== 'null'
+			&& $group === 'null'
+			&& PermissionProfile::load((int) $profile) !== null
+			&& PermissionProfile::load((int) $profile)->canModify()
+		) {
 			$profile = (int) $profile;
 
 			Db::$db->query(
@@ -1292,35 +1299,6 @@ class Permissions implements ActionInterface
 		}
 
 		Config::updateModSettings(['settings_updated' => time()]);
-	}
-
-	/**
-	 * Load permissions profiles.
-	 */
-	public static function loadPermissionProfiles(): void
-	{
-		Utils::$context['profiles'] = [];
-
-		$request = Db::$db->query(
-			'',
-			'SELECT id_profile, profile_name
-			FROM {db_prefix}permission_profiles
-			ORDER BY id_profile',
-			[
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$row['id_profile'] = (int) $row['id_profile'];
-
-			Utils::$context['profiles'][$row['id_profile']] = [
-				'id' => $row['id_profile'],
-				'name' => Lang::txtExists('permissions_profile_' . $row['profile_name'], file: 'ManagePermissions') ? Lang::getTxt('permissions_profile_' . $row['profile_name'], file: 'ManagePermissions') : $row['profile_name'],
-				'can_modify' => !in_array($row['id_profile'], self::PROFILE_UNMODIFIABLE),
-				'unformatted_name' => $row['profile_name'],
-			];
-		}
-		Db::$db->free_result($request);
 	}
 
 	/**
@@ -1832,23 +1810,23 @@ class Permissions implements ActionInterface
 	 */
 	protected function setProfileContext(): void
 	{
-		self::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		Utils::$context['profile']['id'] = (int) ($_GET['pid'] ?? 0);
 
 		// If this is a moderator and they are editing "no profile" then we only do boards.
-		if (Utils::$context['group']['id'] == 3 && empty(Utils::$context['profile']['id'])) {
+		if (Utils::$context['group']['id'] == Group::MOD && empty(Utils::$context['profile']['id'])) {
 			// For sanity just check they have no general permissions.
 			Db::$db->query(
 				'',
 				'DELETE FROM {db_prefix}permissions
 				WHERE id_group = {int:moderator_group}',
 				[
-					'moderator_group' => 3,
+					'moderator_group' => Group::MOD,
 				],
 			);
 
-			Utils::$context['profile']['id'] = self::PROFILE_DEFAULT;
+			Utils::$context['profile']['id'] = PermissionProfile::DEFAULT;
 		}
 
 		Utils::$context['permission_type'] = empty(Utils::$context['profile']['id']) ? 'global' : 'board';
@@ -1871,49 +1849,33 @@ class Permissions implements ActionInterface
 	 *
 	 * @param int $group ID number of a membergroup.
 	 * @param string $scope Either 'global' or 'board'. If this is 'global', the
-	 *    $profile param will always be treated as 1.
+	 *    $profile param will always be treated as PermissionProfile::DEFAULT.
 	 * @param int $profile Permission profile to use. Only applicable when the
 	 *    $scope param is set to 'board'.
 	 */
-	protected function setAllowedDenied(int $group, string $scope = 'global', int $profile = 1): void
+	protected function setAllowedDenied(int $group, string $scope = 'global', int $profile = PermissionProfile::DEFAULT): void
 	{
+		$perm_profile = PermissionProfile::load($scope == 'global' ? PermissionProfile::DEFAULT : $profile);
+
 		// General permissions?
 		if ($scope == 'global') {
-			$profile = 1;
+			foreach ($perm_profile->getGlobalPermissions()[$group] as $perm => $add_deny) {
+				if (is_null($add_deny)) {
+					continue;
+				}
 
-			$result = Db::$db->query(
-				'',
-				'SELECT permission, add_deny
-				FROM {db_prefix}permissions
-				WHERE id_group = {int:current_group}',
-				[
-					'current_group' => $group,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($result)) {
-				$this->allowed_denied['global'][empty($row['add_deny']) ? 'denied' : 'allowed'][] = $row['permission'];
+				$this->allowed_denied['global'][empty($add_deny) ? 'denied' : 'allowed'][] = $perm;
 			}
-			Db::$db->free_result($result);
 		}
 
 		// Fetch current board permissions...
-		$result = Db::$db->query(
-			'',
-			'SELECT permission, add_deny
-			FROM {db_prefix}board_permissions
-			WHERE id_group = {int:current_group}
-				AND id_profile = {int:current_profile}',
-			[
-				'current_group' => $group,
-				'current_profile' => $profile,
-			],
-		);
+		foreach ($perm_profile->getBoardPermissions()[$group] as $perm => $add_deny) {
+			if (is_null($add_deny)) {
+				continue;
+			}
 
-		while ($row = Db::$db->fetch_assoc($result)) {
-			$this->allowed_denied['board'][empty($row['add_deny']) ? 'denied' : 'allowed'][] = $row['permission'];
+			$this->allowed_denied['board'][empty($add_deny) ? 'denied' : 'allowed'][] = $perm;
 		}
-		Db::$db->free_result($result);
 	}
 
 	/**
@@ -1969,42 +1931,6 @@ class Permissions implements ActionInterface
 				}
 			}
 		}
-	}
-
-	/**
-	 * Gets the parent membergroup of the given membergroup.
-	 *
-	 * This is used to determine permission inheritance.
-	 *
-	 * @param int $group ID of a membergroup.
-	 * @return int The ID of the parent membergroup, or -2 if it has no parent.
-	 */
-	protected function getParentGroup(int $group): int
-	{
-		if ($group == -1 || $group == 0) {
-			return -2;
-		}
-
-		$request = Db::$db->query(
-			'',
-			'SELECT id_parent
-			FROM {db_prefix}membergroups
-			WHERE id_group = {int:current_group}
-			LIMIT 1',
-			[
-				'current_group' => $group,
-			],
-		);
-
-		if (Db::$db->num_rows($request) === 0) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		list($parent) = Db::$db->fetch_row($request);
-
-		Db::$db->free_result($request);
-
-		return (int) $parent;
 	}
 
 	/**
@@ -2107,52 +2033,7 @@ class Permissions implements ActionInterface
 		User::$me->checkSession();
 		SecurityToken::validate('admin-mpp');
 
-		$_POST['copy_from'] = (int) $_POST['copy_from'];
-		$_POST['profile_name'] = Utils::htmlspecialchars($_POST['profile_name']);
-
-		// Insert the profile itself.
-		$profile_id = Db::$db->insert(
-			'',
-			'{db_prefix}permission_profiles',
-			[
-				'profile_name' => 'string',
-			],
-			[
-				[
-					$_POST['profile_name'],
-				],
-			],
-			['id_profile'],
-			1,
-		);
-
-		// Load the permissions from the one it's being copied from.
-		$inserts = [];
-
-		$request = Db::$db->query(
-			'',
-			'SELECT id_group, permission, add_deny
-			FROM {db_prefix}board_permissions
-			WHERE id_profile = {int:copy_from}',
-			[
-				'copy_from' => $_POST['copy_from'],
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$inserts[] = [$profile_id, $row['id_group'], $row['permission'], $row['add_deny']];
-		}
-		Db::$db->free_result($request);
-
-		if (!empty($inserts)) {
-			Db::$db->insert(
-				'insert',
-				'{db_prefix}board_permissions',
-				['id_profile' => 'int', 'id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'],
-				$inserts,
-				['id_profile', 'id_group', 'permission'],
-			);
-		}
+		PermissionProfile::copy((int) $_POST['copy_from'], Utils::htmlspecialchars($_POST['profile_name']));
 	}
 
 	/**
@@ -2181,19 +2062,13 @@ class Permissions implements ActionInterface
 				continue;
 			}
 
-			$value = Utils::htmlspecialchars($value);
-
-			if (trim($value) != '' && !in_array($id, self::PROFILE_PREDEFINED)) {
-				Db::$db->query(
-					'',
-					'UPDATE {db_prefix}permission_profiles
-					SET profile_name = {string:profile_name}
-					WHERE id_profile = {int:current_profile}',
-					[
-						'current_profile' => $id,
-						'profile_name' => $value,
-					],
-				);
+			if (
+				Utils::htmlTrim($value) != ''
+				&& ($profile = PermissionProfile::load($id)) !== null
+				&& !$profile->isPredefined()
+			) {
+				$profile->name = Utils::htmlspecialchars($value);
+				$profile->save();
 			}
 		}
 	}
@@ -2215,38 +2090,22 @@ class Permissions implements ActionInterface
 
 		$profiles = [];
 
-		foreach (array_map('intval', $_POST['delete_profile']) as $profile) {
-			if ($profile > 0 && !in_array($profile, self::PROFILE_PREDEFINED)) {
-				$profiles[] = $profile;
+		foreach (array_map('intval', $_POST['delete_profile']) as $id) {
+			if (
+				$id <= 0
+				|| ($profile = PermissionProfile::load($id)) === null
+				|| $profile->isPredefined()
+				|| !empty($profile->boards())
+			) {
+				ErrorHandler::fatalLang('no_access', false);
 			}
+
+			$profiles[] = $profile;
 		}
 
-		// Verify it's not in use...
-		$request = Db::$db->query(
-			'',
-			'SELECT id_board
-			FROM {db_prefix}boards
-			WHERE id_profile IN ({array_int:profile_list})
-			LIMIT 1',
-			[
-				'profile_list' => $profiles,
-			],
-		);
-
-		if (Db::$db->num_rows($request) != 0) {
-			ErrorHandler::fatalLang('no_access', false);
+		foreach ($profiles as $profile) {
+			$profile->delete();
 		}
-		Db::$db->free_result($request);
-
-		// Oh well, delete.
-		Db::$db->query(
-			'',
-			'DELETE FROM {db_prefix}permission_profiles
-			WHERE id_profile IN ({array_int:profile_list})',
-			[
-				'profile_list' => $profiles,
-			],
-		);
 	}
 
 	/*************************

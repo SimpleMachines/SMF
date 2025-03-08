@@ -1482,7 +1482,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function loadPermissionProfiles(): void
 	{
-		SMF\Actions\Admin\Permissions::loadPermissionProfiles();
+		SMF\Permissions\PermissionProfile::loadContext();
 	}
 
 	/**

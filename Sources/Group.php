@@ -19,6 +19,7 @@ use SMF\Actions\Admin\Permissions;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Permissions\Permission;
+use SMF\Permissions\PermissionProfile;
 
 /**
  * Represents a member group.
@@ -1458,30 +1459,24 @@ class Group implements \ArrayAccess
 		// General permissions.
 		if (empty($profile)) {
 			if (empty($this->permissions['general']) || $reload) {
-				$request = Db::$db->query(
-					'',
-					'SELECT permission, add_deny
-					FROM {db_prefix}permissions
-					WHERE id_group = {int:this_group}',
-					[
-						'this_group' => $this->id,
-					],
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					$this->permissions['general'][$row['permission']] = (int) $row['add_deny'];
-				}
-				Db::$db->free_result($request);
+				$this->permissions['general'] = PermissionProfile::load(PermissionProfile::DEFAULT)->getGlobalPermissions()[$this->id];
 			}
 		}
 
 		// If profile is zero, we only wanted general permissions.
-		if (isset($profile) && $profile === 0) {
+		if ($profile === 0) {
 			return $this->permissions;
 		}
 
 		// Don't reload unnecessarily.
-		if (isset($profile, $this->permissions['board_profiles'][$profile])   && !$reload) {
+		if (isset($profile, $this->permissions['board_profiles'][$profile]) && !$reload) {
+			return $this->permissions;
+		}
+
+		// One board profile.
+		if ($profile !== null && PermissionProfile::load($profile) !== null) {
+			$this->permissions['board_profiles'][$profile] = PermissionProfile::load($profile)->getBoardPermissions()[$this->id];
+
 			return $this->permissions;
 		}
 
@@ -1490,17 +1485,15 @@ class Group implements \ArrayAccess
 			$excluded_profiles = array_keys($this->permissions['board_profiles']);
 		}
 
-		// Get board permissions.
+		// All board profiles.
 		$request = Db::$db->query(
 			'',
 			'SELECT id_profile, permission, add_deny
 			FROM {db_prefix}board_permissions
-			WHERE id_group = {int:this_group}' . (isset($profile) ? '
-				AND id_profile = {int:profile}' : '') . (isset($excluded_profiles) ? '
+			WHERE id_group = {int:this_group}' . (isset($excluded_profiles) ? '
 				AND id_profile NOT IN ({array_int:excluded_profiles})' : ''),
 			[
 				'this_group' => $this->id,
-				'profile' => $profile ?? 0,
 				'excluded_profiles' => $excluded_profiles ?? [0],
 			],
 		);
@@ -2150,7 +2143,7 @@ class Group implements \ArrayAccess
 
 		// For board permissions, null means the same as default.
 		if ($profile === null) {
-			$profile = Permissions::PROFILE_DEFAULT;
+			$profile = PermissionProfile::DEFAULT;
 		}
 
 		if (!empty($profile)) {
