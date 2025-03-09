@@ -63,20 +63,13 @@ class PermissionProfile
 	private array $boards;
 
 	/**
-	 * @var array
+	 * @var int
 	 *
-	 * Multidimensional array listing permission status for all global
-	 * permissions for all groups.
-	 */
-	private array $global_permissions;
-
-	/**
-	 * @var array
+	 * ID of the profile that this one was copied from.
 	 *
-	 * Multidimensional array listing permission status for all board
-	 * permissions for all groups.
+	 * Only set during self::copy().
 	 */
-	private array $board_permissions;
+	private int $copied_from;
 
 	/****************************
 	 * Internal static properties
@@ -117,29 +110,13 @@ class PermissionProfile
 				1,
 			);
 
-			if (!empty($this->board_permissions)) {
-				foreach ($this->board_permissions as $group => $permissions) {
-					foreach ($permissions as $permission => $value) {
-						if (is_int($value)) {
-							$inserts[] = [$this->id, $group, $permission, $value];
-						}
-					}
+			if (!empty($this->copied_from)) {
+				foreach (GroupPermissionSet::load($this->copied_from, Group::getAll()) as $set) {
+					$set->profile = $this->id;
+					$set->save();
 				}
 
-				if (!empty($inserts)) {
-					Db::$db->insert(
-						'insert',
-						'{db_prefix}board_permissions',
-						[
-							'id_profile' => 'int',
-							'id_group' => 'int',
-							'permission' => 'string',
-							'add_deny' => 'int',
-						],
-						$inserts,
-						['id_profile', 'id_group', 'permission'],
-					);
-				}
+				unset($this->copied_from);
 			}
 
 			self::$loaded[$this->id] = $this;
@@ -238,92 +215,6 @@ class PermissionProfile
 		}
 
 		return $this->boards;
-	}
-
-	/**
-	 * Get the allowed/not allowed/denied status for all global permissions
-	 * for all groups.
-	 *
-	 * Note that this only returns a meaningful result for the default profile.
-	 * For all other profiles, an empty array is returned.
-	 *
-	 * @return array Multidimensional array where the keys are group IDs and the
-	 *    values are lists of permissions and the allowed/not allowed/denied
-	 *    status that the group has for that permission.
-	 */
-	public function getGlobalPermissions(): array
-	{
-		if ($this->id !== self::DEFAULT) {
-			return [];
-		}
-
-		if (!isset($this->global_permissions)) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_group, permission, add_deny
-				FROM {db_prefix}permissions',
-				[],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$this->global_permissions[(int) $row['id_group']][$row['permission']] = (int) $row['add_deny'];
-			}
-
-			Db::$db->free_result($request);
-
-			foreach (Group::getAll() as $id_group) {
-				foreach (Permission::getAll() as $permission) {
-					if ($permission->scope !== 'global') {
-						continue;
-					}
-
-					$this->global_permissions[$id_group][$permission->name] = $id_group === Group::ADMIN ? 1 : ($this->global_permissions[$id_group][$permission->name] ?? null);
-				}
-			}
-		}
-
-		return $this->global_permissions;
-	}
-
-	/**
-	 * Get the allowed/not allowed/denied status for all board permissions
-	 * for all groups.
-	 *
-	 * @return array Multidimensional array where the keys are group IDs and the
-	 *    values are lists of permissions and the allowed/not allowed/denied
-	 *    status that the group has for that permission.
-	 */
-	public function getBoardPermissions(): array
-	{
-		if (!isset($this->board_permissions)) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_group, permission, add_deny
-				FROM {db_prefix}board_permissions
-				WHERE id_profile = {int:profile}',
-				[
-					'profile' => $this->id,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$this->board_permissions[(int) $row['id_group']][$row['permission']] = (int) $row['add_deny'];
-			}
-
-			Db::$db->free_result($request);
-
-			foreach (Group::getAll() as $id_group) {
-				foreach (Permission::getAll() as $permission) {
-					if ($permission->scope !== 'board') {
-						continue;
-					}
-
-					$this->board_permissions[$id_group][$permission->name] = $id_group === Group::ADMIN ? 1 : ($this->board_permissions[$id_group][$permission->name] ?? null);
-				}
-			}
-		}
-
-		return $this->board_permissions;
 	}
 
 	/***********************
@@ -449,14 +340,11 @@ class PermissionProfile
 			return null;
 		}
 
-		$source_profile->getBoardPermissions();
-
-		$new_profile = clone $source_profile;
-		$new_profile->id = 0;
-		$new_profile->name = $name;
+		$new_profile = new self(0, $name);
+		$new_profile->copied_from = $source_profile->id;
 
 		// Saving will set the new ID, propagate the permissions, and add the
-		// new profile to list of loaded profiles.
+		// new profile to the list of loaded profiles.
 		$new_profile->save();
 
 		return $new_profile;

@@ -1494,7 +1494,25 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function updateChildPermissions(int|array|null $parents = null, ?int $profile = null): ?bool
 	{
-		return SMF\Actions\Admin\Permissions::updateChildPermissions($parents, $profile);
+		// All the parent groups to sort out.
+		$parents = array_unique(array_map('intval', (array) $parents));
+
+		// If $profile is null or less than 1, use the default profile.
+		$profile = max((int) $profile, SMF\Permissions\PermissionProfile::DEFAULT);
+
+		// (Re)load the permission sets and save them. This is all we need to do
+		// because GroupPermissionSet::save() updates child groups automatically.
+		$sets = SMF\Permissions\GroupPermissionSet::load($profile, $parents, true);
+
+		if (empty($sets)) {
+			return false;
+		}
+
+		foreach ($sets as $set) {
+			$set->save();
+		}
+
+		return true;
 	}
 
 	/**

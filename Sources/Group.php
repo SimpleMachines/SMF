@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Admin\Permissions;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Permissions\GroupPermissionSet;
 use SMF\Permissions\Permission;
 use SMF\Permissions\PermissionProfile;
 
@@ -228,36 +229,23 @@ class Group implements \ArrayAccess
 	/**
 	 * @var array
 	 *
-	 * Permissions that this group has.
-	 *
-	 * Contains two sub-arrays, 'general' and 'board_profiles'.
-	 *
-	 * General permissions are listed as key-value pairs where the keys are
-	 * permission names and values are integers.
-	 *
-	 * Board permissions are listed with the keys being permission profile IDs,
-	 * the values being sub-arrays containing key-value pairs similar to what is
-	 * used for the general permissions.
-	 *
-	 * As in the database table itself, 0 means denied and 1 means allowed.
-	 * A permission that is not listed at all is neither granted nor denied.
+	 * Permission sets for this group.
 	 */
-	public array $permissions = [
-		'general' => [],
-		'board_profiles' => [],
-	];
+	public array $permission_sets = [];
 
 	/**
 	 * @var array
 	 *
-	 * The numbers of allowed and denied permissions that this group has.
+	 * The numbers of allowed, disallowed, and denied permissions that this
+	 * group has.
 	 *
-	 * Contains two sub-arrays, 'allowed' and 'denied'.
+	 * Contains three sub-arrays, 'allowed', 'disallowed', and 'denied'.
 	 *
 	 * This is typically only used by SMF\Actions\Admin\Permissions.
 	 */
 	public array $num_permissions = [
 		'allowed' => 0,
+		'disallowed' => 0,
 		'denied' => 0,
 	];
 
@@ -546,9 +534,17 @@ class Group implements \ArrayAccess
 			);
 		}
 
-		// Update permissions of any groups that inherit from this group.
-		if ($this->parent === self::NONE) {
-			Permissions::updateChildPermissions($this->id);
+		// (Re)load and save all of this group's permissions.
+		// This ensures that permissions for any groups that inherit from this
+		// one are up to date.
+		foreach (
+			GroupPermissionSet::load(
+				array_map(fn($profile) => $profile->id, PermissionProfile::loadAll()),
+				$this->id,
+				true,
+			) as $set
+		) {
+			$set->save();
 		}
 
 		// Did we make some post group changes?
@@ -1445,65 +1441,16 @@ class Group implements \ArrayAccess
 	/**
 	 * Loads the permissions for this group.
 	 *
-	 * Results are saved in $this->permissions and also returned.
+	 * Results are saved in $this->permission_sets.
 	 *
 	 * @param int $profile Which permissions profile to get permissions for.
-	 *    If set to 1 or higher, get permissions for that permissions profile.
-	 *    If set to 0, get general permissions.
-	 *    If null, get all permissions.
+	 *    Default: PermissionProfile::DEFAULT.
 	 * @param bool $reload If true, force a reload from the database.
-	 * @return array A copy of $this->permissions.
+	 *    Default: false.
 	 */
-	public function loadPermissions(?int $profile = null, bool $reload = false): array
+	public function loadPermissions(int $profile = PermissionProfile::DEFAULT, bool $reload = false): void
 	{
-		// General permissions.
-		if (empty($profile)) {
-			if (empty($this->permissions['general']) || $reload) {
-				$this->permissions['general'] = PermissionProfile::load(PermissionProfile::DEFAULT)->getGlobalPermissions()[$this->id];
-			}
-		}
-
-		// If profile is zero, we only wanted general permissions.
-		if ($profile === 0) {
-			return $this->permissions;
-		}
-
-		// Don't reload unnecessarily.
-		if (isset($profile, $this->permissions['board_profiles'][$profile]) && !$reload) {
-			return $this->permissions;
-		}
-
-		// One board profile.
-		if ($profile !== null && PermissionProfile::load($profile) !== null) {
-			$this->permissions['board_profiles'][$profile] = PermissionProfile::load($profile)->getBoardPermissions()[$this->id];
-
-			return $this->permissions;
-		}
-
-		// Have we already loaded some board permissions?
-		if (!$reload && !empty($this->permissions['board_profiles'])) {
-			$excluded_profiles = array_keys($this->permissions['board_profiles']);
-		}
-
-		// All board profiles.
-		$request = Db::$db->query(
-			'',
-			'SELECT id_profile, permission, add_deny
-			FROM {db_prefix}board_permissions
-			WHERE id_group = {int:this_group}' . (isset($excluded_profiles) ? '
-				AND id_profile NOT IN ({array_int:excluded_profiles})' : ''),
-			[
-				'this_group' => $this->id,
-				'excluded_profiles' => $excluded_profiles ?? [0],
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			$this->permissions['board_profiles'][(int) $row['id_profile']][$row['permission']] = (int) $row['add_deny'];
-		}
-		Db::$db->free_result($request);
-
-		return $this->permissions;
+		$this->permission_sets[$profile] = current(GroupPermissionSet::load($profile, $this->id, $reload));
 	}
 
 	/**
@@ -1511,15 +1458,72 @@ class Group implements \ArrayAccess
 	 *
 	 * Results are saved in $this->num_permissions and also returned.
 	 *
-	 * @param int $profile Which permissions profile to get permissions for.
-	 *    If set to 1 or higher, get permissions for that permissions profile.
-	 *    If set to 0, get general permissions.
-	 *    If null, get all permissions.
+	 * @param int $profile Which permission profile to count permissions for.
+	 *    If set to 1 or higher, count board permissions for that profile.
+	 *    If set to 0, count general permissions only.
+	 *    If null, count general permissions and board permissions for the
+	 *    default permission profile.
 	 * @return array A copy of $this->num_permissions.
 	 */
 	public function countPermissions(?int $profile = null): array
 	{
-		self::countPermissionsBatch([$this->id], $profile);
+		$this->num_permissions = [
+			'allowed' => 0,
+			'disallowed' => 0,
+			'denied' => 0,
+		];
+
+		if (empty($profile)) {
+			if (!isset($this->permission_sets[PermissionProfile::DEFAULT])) {
+				$this->loadPermissions(PermissionProfile::DEFAULT);
+			}
+
+			$this->num_permissions['allowed'] += count(array_filter(
+				$this->permission_sets[PermissionProfile::DEFAULT]->permissions,
+				fn($v, $k) => $v === 1 && Permission::get($k)->scope === 'global' && !Permission::get($k)->hidden,
+				ARRAY_FILTER_USE_BOTH,
+			));
+
+			$this->num_permissions['disallowed'] += count(array_filter(
+				$this->permission_sets[PermissionProfile::DEFAULT]->permissions,
+				fn($v, $k) => $v === null && Permission::get($k)->scope === 'global' && !Permission::get($k)->hidden,
+				ARRAY_FILTER_USE_BOTH,
+			));
+
+			$this->num_permissions['denied'] += count(array_filter(
+				$this->permission_sets[PermissionProfile::DEFAULT]->permissions,
+				fn($v, $k) => $v === 0 && Permission::get($k)->scope === 'global' && !Permission::get($k)->hidden,
+				ARRAY_FILTER_USE_BOTH,
+			));
+		}
+
+		if (!empty($profile) || $profile === null) {
+			if ($profile === null) {
+				$profile = PermissionProfile::DEFAULT;
+			}
+
+			if (!isset($this->permission_sets[$profile])) {
+				$this->loadPermissions($profile);
+			}
+
+			$this->num_permissions['allowed'] += count(array_filter(
+				$this->permission_sets[$profile]->permissions,
+				fn($v, $k) => $v === 1 && Permission::get($k)->scope === 'board' && !Permission::get($k)->hidden,
+				ARRAY_FILTER_USE_BOTH,
+			));
+
+			$this->num_permissions['disallowed'] += count(array_filter(
+				$this->permission_sets[$profile]->permissions,
+				fn($v, $k) => $v === null && Permission::get($k)->scope === 'board' && !Permission::get($k)->hidden,
+				ARRAY_FILTER_USE_BOTH,
+			));
+
+			$this->num_permissions['denied'] += count(array_filter(
+				$this->permission_sets[$profile]->permissions,
+				fn($v, $k) => $v === 0 && Permission::get($k)->scope === 'board' && !Permission::get($k)->hidden,
+				ARRAY_FILTER_USE_BOTH,
+			));
+		}
 
 		return $this->num_permissions;
 	}
@@ -2001,194 +2005,6 @@ class Group implements \ArrayAccess
 		}
 
 		return $counts;
-	}
-
-	/**
-	 * Like $this->loadPermissions(), except that this is more efficient when
-	 * working on a batch of groups.
-	 *
-	 * Groups that have not already been loaded will be skipped.
-	 *
-	 * Results are saved in $this->permissions for each group and also returned.
-	 *
-	 * @param array $group_ids IDs of the groups to get permissions for.
-	 * @param int $profile Which permissions profile to get permissions for.
-	 *    If set to 1 or higher, get permissions for that permissions profile.
-	 *    If set to 0, get general permissions only.
-	 *    If null, get all permissions.
-	 * @param bool $reload If true, force a reload from the database.
-	 * @return array Copies of $this->permissions for all the groups.
-	 */
-	public static function loadPermissionsBatch(array $group_ids, ?int $profile = null, bool $reload = false): array
-	{
-		$get_general = [];
-		$get_board = [];
-
-		$group_ids = array_intersect(array_unique(array_map('intval', $group_ids)), array_keys(self::$loaded));
-
-		// Figure out which groups we need to get info for.
-		foreach ($group_ids as $key => $group_id) {
-			// Profile is 0 or null and general perms haven't been loaded or should be reloaded.
-			if (empty($profile) && (empty(self::$loaded[$group_id]->permissions['general']) || $reload)) {
-				$get_general[] = $group_id;
-			}
-
-			// Profile is null, or it's not 0 and either hasn't been loaded or should be reloaded.
-			if (!isset($profile) || (!empty($profile) && (!isset(self::$loaded[$group_id]->permissions['board_profiles'][$profile]) || $reload))) {
-				$get_board[] = $group_id;
-			}
-		}
-
-		// General permissions.
-		if (!empty($get_general)) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_group, permission, add_deny
-				FROM {db_prefix}permissions
-				WHERE id_group IN ({array_int:groups})',
-				[
-					'groups' => $get_general,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				self::$loaded[(int) $row['id_group']]->permissions['general'][$row['permission']] = (int) $row['add_deny'];
-			}
-			Db::$db->free_result($request);
-		}
-
-		// Board permissions.
-		if (!empty($get_board)) {
-			// Get board permissions.
-			$request = Db::$db->query(
-				'',
-				'SELECT id_profile, id_group, permission, add_deny
-				FROM {db_prefix}board_permissions
-				WHERE id_group IN ({array_int:groups})' . (isset($profile) ? '
-					AND id_profile = {int:profile}' : ''),
-				[
-					'groups' => $get_board,
-					'profile' => $profile ?? 0,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$row['id_profile'] = (int) $row['id_profile'];
-				$row['id_group'] = (int) $row['id_group'];
-				$row['add_deny'] = (int) $row['add_deny'];
-
-				// If we're loading all profiles, but not reloading, don't overwrite existing data.
-				if (!isset($profile) && !$reload && isset(self::$loaded[$row['id_group']]->permissions['board_profiles'][$row['id_profile']])) {
-					continue;
-				}
-
-				self::$loaded[$row['id_group']]->permissions['board_profiles'][$row['id_profile']][$row['permission']] = $row['add_deny'];
-			}
-			Db::$db->free_result($request);
-		}
-
-		$all_loaded_permissions = [];
-
-		foreach ($group_ids as $group_id) {
-			$all_loaded_permissions[$group_id] = self::$loaded[$group_id]->permissions;
-		}
-
-		return $all_loaded_permissions;
-	}
-
-	/**
-	 * Like $this->countPermissions(), except that this is more efficient when
-	 * working on a batch of groups.
-	 *
-	 * Groups that have not already been loaded will be skipped.
-	 *
-	 * Results are saved in $this->num_permissions for each group and also
-	 * returned.
-	 *
-	 * @param array $group_ids IDs of the groups to count permissions for.
-	 * @param int $profile Which permissions profile to count permissions for.
-	 *    If set to 1 or higher, count permissions for that permissions profile.
-	 *    If set to 0, count general permissions only.
-	 *    If null, count general permissions and the default profile.
-	 * @return array Copies of $this->num_permissions for all the groups.
-	 */
-	public static function countPermissionsBatch(array $group_ids, ?int $profile = null): array
-	{
-		// If null or 0, we want general permissions.
-		if (empty($profile)) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_group, COUNT(*) AS num_permissions, add_deny
-				FROM {db_prefix}permissions
-				' . (empty(Permission::getHidden()) ? '' : ' WHERE permission NOT IN ({array_string:hidden_permissions})') . '
-				GROUP BY id_group, add_deny',
-				[
-					'hidden_permissions' => Permission::getHidden(),
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$row['id_group'] = (int) $row['id_group'];
-
-				if (!isset(self::$loaded[$row['id_group']])) {
-					continue;
-				}
-
-				if (!empty($row['add_deny']) || $row['id_group'] != self::GUEST) {
-					self::$loaded[$row['id_group']]->num_permissions[empty($row['add_deny']) ? 'denied' : 'allowed'] = $row['num_permissions'];
-				}
-			}
-			Db::$db->free_result($request);
-		}
-
-		// For board permissions, null means the same as default.
-		if ($profile === null) {
-			$profile = PermissionProfile::DEFAULT;
-		}
-
-		if (!empty($profile)) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_profile, id_group, COUNT(*) AS num_permissions, add_deny
-				FROM {db_prefix}board_permissions
-				WHERE id_profile = {int:current_profile}
-				GROUP BY id_profile, id_group, add_deny',
-				[
-					'current_profile' => $profile,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$row['id_group'] = (int) $row['id_group'];
-
-				if (!isset(self::$loaded[$row['id_group']])) {
-					continue;
-				}
-
-				if (!empty($row['add_deny']) || $row['id_group'] != self::GUEST) {
-					self::$loaded[$row['id_group']]->num_permissions[empty($row['add_deny']) ? 'denied' : 'allowed'] += $row['num_permissions'];
-				}
-			}
-			Db::$db->free_result($request);
-		}
-
-		// A few overrides.
-		if (isset(self::$loaded[self::GUEST])) {
-			self::$loaded[self::GUEST]->num_permissions['denied'] = '(' . Lang::getTxt('permissions_none', file: 'ManagePermissions') . ')';
-		}
-
-		if (isset(self::$loaded[self::ADMIN])) {
-			self::$loaded[self::ADMIN]->num_permissions['allowed'] = '(' . Lang::getTxt('permissions_all', file: 'ManagePermissions') . ')';
-			self::$loaded[self::ADMIN]->num_permissions['denied'] = '(' . Lang::getTxt('permissions_none', file: 'ManagePermissions') . ')';
-		}
-
-		$all_counted_permissions = [];
-
-		foreach ($group_ids as $group_id) {
-			$all_counted_permissions[$group_id] = self::$loaded[$group_id]->num_permissions;
-		}
-
-		return $all_counted_permissions;
 	}
 
 	/**

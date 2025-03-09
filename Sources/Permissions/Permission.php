@@ -1008,16 +1008,8 @@ class Permission implements \ArrayAccess
 					$this->eligibility[$group] = true;
 				}
 			} else {
-				foreach (Group::getAll() as $group) {
-					$this->eligibility[$group] = false;
-				}
-
-				foreach (User::getGroupsWithPermissions($this->assignee_prerequisites) as $prerequisite) {
-					// We only pay attention to 'allowed' here because a group can
-					// be granted this permission if it has any of the prerequisites.
-					foreach ($prerequisite['allowed'] as $group) {
-						$this->eligibility[$group] = true;
-					}
+				foreach (GroupPermissionSet::load(PermissionProfile::DEFAULT, Group::getAll()) as $set) {
+					$this->eligibility[$set->group] = count($this->assignee_prerequisites) === count(array_filter($this->assignee_prerequisites, fn($prereq) => !empty($set->permissions[$prereq])));
 				}
 			}
 
