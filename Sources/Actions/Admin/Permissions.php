@@ -1785,19 +1785,19 @@ class Permissions implements ActionInterface
 			if (isset($perm_info['board_level'])) {
 				switch ($perm_info['board_level']) {
 					case self::BOARD_LEVEL_STANDARD:
-						$group_levels[$perm_info['scope']]['standard'][] = $permission;
+						$board_levels['standard'][] = $permission;
 						// no break
 
 					case self::BOARD_LEVEL_LOCKED:
-						$group_levels[$perm_info['scope']]['locked'][] = $permission;
+						$board_levels['locked'][] = $permission;
 						// no break
 
 					case self::BOARD_LEVEL_PUBLISH:
-						$group_levels[$perm_info['scope']]['publish'][] = $permission;
+						$board_levels['publish'][] = $permission;
 						// no break
 
 					case self::BOARD_LEVEL_FREE:
-						$group_levels[$perm_info['scope']]['free'][] = $permission;
+						$board_levels['free'][] = $permission;
 						break;
 				}
 			}
