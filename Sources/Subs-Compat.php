@@ -10635,7 +10635,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function banPermissions(): void
 	{
-		SMF\User::$me->adjustPermissions();
+		if (!isset(SMF\User::$me->permission_set)) {
+			SMF\User::$me->loadPermissions();
+		}
+
+		SMF\User::$me->permission_set->applyBansAndWarnings();
 	}
 
 	/**

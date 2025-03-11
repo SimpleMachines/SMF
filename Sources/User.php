@@ -23,6 +23,8 @@ use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Permissions\Permission;
+use SMF\Permissions\PermissionProfile;
+use SMF\Permissions\UserPermissionSet;
 use SMF\PersonalMessage\PM;
 
 /**
@@ -564,9 +566,15 @@ class User implements \ArrayAccess
 	/**
 	 * @var array
 	 *
-	 * Permissions that this user has been granted.
+	 * A collection of UserPermissionSet instances, organized by board.
+	 *
+	 * The UserPermissionSet for this user's global (a.k.a. general) permissions
+	 * is stored in $this->permission_sets[0].
+	 *
+	 * Otherwise, keys are board IDs and values are UserPermissionSet instances
+	 * for those boards.
 	 */
-	public array $permissions = [];
+	public array $permission_sets;
 
 	/**
 	 * @var int
@@ -782,92 +790,6 @@ class User implements \ArrayAccess
 		'website_url',
 	];
 
-	/**
-	 * @var array
-	 *
-	 * Permissions to deny to users who are banned from posting.
-	 */
-	public static array $post_ban_permissions = [
-		'admin_forum',
-		'calendar_edit_any',
-		'calendar_edit_own',
-		'calendar_post',
-		'delete_any',
-		'delete_own',
-		'delete_replies',
-		'edit_news',
-		'lock_any',
-		'lock_own',
-		'make_sticky',
-		'manage_attachments',
-		'manage_bans',
-		'manage_boards',
-		'manage_membergroups',
-		'manage_permissions',
-		'manage_smileys',
-		'merge_any',
-		'moderate_forum',
-		'modify_any',
-		'modify_own',
-		'modify_replies',
-		'move_any',
-		'pm_send',
-		'poll_add_any',
-		'poll_add_own',
-		'poll_edit_any',
-		'poll_edit_own',
-		'poll_lock_any',
-		'poll_lock_own',
-		'poll_post',
-		'poll_remove_any',
-		'poll_remove_own',
-		'post_new',
-		'post_reply_any',
-		'post_reply_own',
-		'post_unapproved_replies_any',
-		'post_unapproved_replies_own',
-		'post_unapproved_topics',
-		'profile_extra_any',
-		'profile_forum_any',
-		'profile_identity_any',
-		'profile_other_any',
-		'profile_signature_any',
-		'profile_title_any',
-		'remove_any',
-		'remove_own',
-		'send_mail',
-		'split_any',
-	];
-
-	/**
-	 * @var array
-	 *
-	 * Permissions to change for users with a high warning level.
-	 */
-	public static array $warn_permissions = [
-		'post_new' => 'post_unapproved_topics',
-		'post_reply_own' => 'post_unapproved_replies_own',
-		'post_reply_any' => 'post_unapproved_replies_any',
-		'post_attachment' => 'post_unapproved_attachments',
-	];
-
-	/**
-	 * @var array
-	 *
-	 * Permissions that should only be given to highly trusted members.
-	 */
-	public static array $heavy_permissions = [
-		'admin_forum',
-		'manage_attachments',
-		'manage_smileys',
-		'manage_boards',
-		'edit_news',
-		'moderate_forum',
-		'manage_bans',
-		'manage_membergroups',
-		'manage_permissions',
-	];
-
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -974,143 +896,64 @@ class User implements \ArrayAccess
 	/**
 	 * Load this user's permissions.
 	 */
-	public function loadPermissions(): void
+	public function loadPermissions(int|array|null $boards = null): void
 	{
-		if ($this->is_admin) {
-			$this->can_mod = true;
-			$this->can_manage_boards = true;
-
-			$this->adjustPermissions();
-
-			return;
+		if ($boards === []) {
+			$boards = null;
 		}
 
-		if (!empty(CacheApi::$enable)) {
-			$cache_groups = $this->groups;
-			asort($cache_groups);
-			$cache_groups = implode(',', $cache_groups);
-
-			// If it's a spider then cache it separately.
-			if ($this->possibly_robot) {
-				$cache_groups .= '-spider';
+		foreach (
+			UserPermissionSet::load(
+				$this,
+				array_filter(
+					array_unique(
+						array_merge(
+							[0],
+							(array) ($boards ?? Board::$info->id ?? 0),
+						),
+					),
+					fn($board) => !isset($this->permission_sets[$board]),
+				),
+			) as $set
+		) {
+			if ($set->profile->id === PermissionProfile::DEFAULT) {
+				$this->permission_sets[0] = $set;
 			}
 
-			if (
-				CacheApi::$enable >= 2
-				&& !empty(Board::$info->id)
-				&& ($temp = CacheApi::get('permissions:' . $cache_groups . ':' . Board::$info->id, 240)) != null
-				&& time() - 240 > Config::$modSettings['settings_updated']
-			) {
-				list($this->permissions) = $temp;
-				$this->adjustPermissions();
-
-				return;
-			}
-
-			if (
-				($temp = CacheApi::get('permissions:' . $cache_groups, 240)) != null
-				&& time() - 240 > Config::$modSettings['settings_updated']
-			) {
-				list($this->permissions, $removals) = $temp;
+			foreach ($set->profile->boards() as $id_board) {
+				$this->permission_sets[$id_board] = $set;
 			}
 		}
 
-		// If it is detected as a robot, and we are restricting permissions as a special group - then implement this.
-		$spider_restrict = $this->possibly_robot && !empty(Config::$modSettings['spider_group']) ? ' OR (id_group = {int:spider_group} AND add_deny = 0)' : '';
-
-		if (empty($this->permissions)) {
-			// Get the general permissions.
-			$removals = [];
-			$request = Db::$db->query(
-				'',
-				'SELECT permission, add_deny
-				FROM {db_prefix}permissions
-				WHERE id_group IN ({array_int:member_groups})
-					' . $spider_restrict,
-				[
-					'member_groups' => $this->groups,
-					'spider_group' => !empty(Config::$modSettings['spider_group']) ? Config::$modSettings['spider_group'] : 0,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				if (empty($row['add_deny'])) {
-					$removals[] = $row['permission'];
-				} else {
-					$this->permissions[] = $row['permission'];
-				}
-			}
-			Db::$db->free_result($request);
-
-			if (isset($cache_groups)) {
-				CacheApi::put('permissions:' . $cache_groups, [$this->permissions, $removals], 240);
-			}
-		}
-
-		// Get the board permissions.
-		if (!empty(Board::$info->id)) {
-			// Make sure the board (if any) has been loaded by Board::load().
-			if (!isset(Board::$info->profile)) {
-				ErrorHandler::fatalLang('no_board');
-			}
-
-			$request = Db::$db->query(
-				'',
-				'SELECT permission, add_deny
-				FROM {db_prefix}board_permissions
-				WHERE (id_group IN ({array_int:member_groups})
-					' . $spider_restrict . ')
-					AND id_profile = {int:id_profile}',
-				[
-					'member_groups' => $this->groups,
-					'id_profile' => Board::$info->profile,
-					'spider_group' => !empty(Config::$modSettings['spider_group']) ? Config::$modSettings['spider_group'] : 0,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				if (empty($row['add_deny'])) {
-					$removals[] = $row['permission'];
-				} else {
-					$this->permissions[] = $row['permission'];
-				}
-			}
-			Db::$db->free_result($request);
-		}
-
-		// Remove all the permissions they shouldn't have ;).
-		if (!empty(Config::$modSettings['permission_enable_deny'])) {
-			$this->permissions = array_diff($this->permissions, $removals);
-		}
-
-		if (isset($cache_groups) && !empty(Board::$info->id) && CacheApi::$enable >= 2) {
-			CacheApi::put('permissions:' . $cache_groups . ':' . Board::$info->id, [$this->permissions, null], 240);
-		}
-
-		// Banned?  Watch, don't touch..
-		$this->adjustPermissions();
-
-		// Load the mod cache so we can know what additional boards they should see, but no sense in doing it for guests
-		if (!$this->is_guest && $this->id === self::$my_id) {
-			if (!isset($_SESSION['mc']) || $_SESSION['mc']['time'] <= Config::$modSettings['settings_updated']) {
-				$this->rebuildModCache();
-			} else {
-				$this->mod_cache = $_SESSION['mc'];
-			}
-
-			// This is a useful phantom permission added to the current user, and only the current user while they are logged in.
-			// For example this drastically simplifies certain changes to the profile area.
-			$this->permissions[] = 'is_not_guest';
-
-			// And now some backwards compatibility stuff for mods and whatnot that aren't expecting the new permissions.
-			$this->permissions[] = 'profile_view_own';
-
-			if (in_array('profile_view', $this->permissions)) {
-				$this->permissions[] = 'profile_view_any';
-			}
+		if (!isset($boards)) {
+			$this->loadModCache();
 
 			// A user can mod if they have permission to see the mod center, or they are a board/group/approval moderator.
-			$this->can_mod = in_array('access_mod_center', $this->permissions) || ($this->mod_cache['gq'] ?? '0=1') != '0=1' || ($this->mod_cache['bq'] ?? '0=1') != '0=1' || (Config::$modSettings['postmod_active'] && !empty($this->mod_cache['ap']));
+			$this->can_mod = (
+				$this->is_admin
+				|| $this->permission_sets[0]->allowedTo('access_mod_center')
+				|| ($this->mod_cache['gq'] ?? '0=1') != '0=1'
+				|| ($this->mod_cache['bq'] ?? '0=1') != '0=1'
+				|| (
+					Config::$modSettings['postmod_active']
+					&& !empty($this->mod_cache['ap'])
+				)
+			);
+
+			if (!$this->is_guest && $this === self::$me) {
+				// This is a useful phantom permission added to the current user,
+				// and only the current user while they are logged in. For example
+				// this drastically simplifies certain changes to the profile area.
+				$this->permission_sets[0]->grant('is_not_guest');
+
+				// And now some backwards compatibility stuff for mods and whatnot
+				// that aren't expecting the new permissions.
+				$this->permission_sets[0]->grant('profile_view_own');
+
+				if ($this->permission_sets[0]->allowedTo('profile_view')) {
+					$this->permission_sets[0]->grant('profile_view_any');
+				}
+			}
 		}
 	}
 
@@ -1486,6 +1329,41 @@ class User implements \ArrayAccess
 			}
 
 			$_SESSION['timeOnlineUpdated'] = time();
+		}
+	}
+
+	/**
+	 * Loads the mod cache data.
+	 *
+	 * Stores the information on the current users moderation powers in
+	 * User::$me->mod_cache and $_SESSION['mc'].
+	 */
+	public function loadModCache(): void
+	{
+		if (
+			isset($_SESSION['mc'])
+			&& $_SESSION['mc']['time'] > Config::$modSettings['settings_updated']
+			&& $_SESSION['mc']['id'] == $this->id
+		) {
+			$this->mod_cache = $_SESSION['mc'];
+		} else {
+			$this->rebuildModCache();
+		}
+
+		// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
+		if (
+			isset($_SESSION['rc']['reports'], $_SESSION['rc']['member_reports'])
+			&& $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action']
+			&& $_SESSION['rc']['id'] == $this->id
+		) {
+			Utils::$context['open_mod_reports'] = $_SESSION['rc']['reports'];
+			Utils::$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
+		} elseif ($_SESSION['mc']['bq'] != '0=1') {
+			Utils::$context['open_mod_reports'] = ReportedContent::recountOpenReports('posts');
+			Utils::$context['open_member_reports'] = ReportedContent::recountOpenReports('members');
+		} else {
+			Utils::$context['open_mod_reports'] = 0;
+			Utils::$context['open_member_reports'] = 0;
 		}
 	}
 
@@ -1946,8 +1824,8 @@ class User implements \ArrayAccess
 		}
 
 		// Fix up the banning permissions.
-		if (isset($this->permissions)) {
-			$this->adjustPermissions();
+		if (isset($this->permissions_set)) {
+			$this->permissions_set->applyBansAndWarnings();
 		}
 	}
 
@@ -2001,66 +1879,6 @@ class User implements \ArrayAccess
 					'ban_ids' => $ban_ids,
 				],
 			);
-		}
-	}
-
-	/**
-	 * Fix permissions according to ban and warning status.
-	 *
-	 * Applies any states of banning and/or warning moderation by removing
-	 * permissions the user cannot have.
-	 */
-	public function adjustPermissions(): void
-	{
-		// This only applies to the current user.
-		if ($this->id !== User::$my_id) {
-			return;
-		}
-
-		// Somehow they got here, at least take away all permissions...
-		if (isset($_SESSION['ban']['cannot_access'])) {
-			$this->permissions = [];
-		}
-		// Okay, well, you can watch, but don't touch a thing.
-		elseif (isset($_SESSION['ban']['cannot_post']) || (!empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= $this->warning)) {
-			IntegrationHook::call('integrate_post_ban_permissions', [&self::$post_ban_permissions]);
-
-			$this->permissions = array_diff($this->permissions, self::$post_ban_permissions);
-		}
-		// Are they absolutely under moderation?
-		elseif (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= $this->warning) {
-			// Work out what permissions should change...
-			IntegrationHook::call('integrate_warn_permissions', [&self::$warn_permissions]);
-
-			foreach (self::$warn_permissions as $old => $new) {
-				if (!in_array($old, $this->permissions)) {
-					unset(self::$warn_permissions[$old]);
-				} else {
-					$this->permissions[] = $new;
-				}
-			}
-
-			$this->permissions = array_diff($this->permissions, array_keys(self::$warn_permissions));
-		}
-
-		// @todo Find a better place to call this? Needs to be after permissions loaded!
-		// Finally, some bits we cache in the session because it saves queries.
-		if (isset($_SESSION['mc']) && $_SESSION['mc']['time'] > Config::$modSettings['settings_updated'] && $_SESSION['mc']['id'] == $this->id) {
-			$this->mod_cache = $_SESSION['mc'];
-		} else {
-			$this->rebuildModCache();
-		}
-
-		// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
-		if (isset($_SESSION['rc']['reports'], $_SESSION['rc']['member_reports'])   && $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action'] && $_SESSION['rc']['id'] == $this->id) {
-			Utils::$context['open_mod_reports'] = $_SESSION['rc']['reports'];
-			Utils::$context['open_member_reports'] = $_SESSION['rc']['member_reports'];
-		} elseif ($_SESSION['mc']['bq'] != '0=1') {
-			Utils::$context['open_mod_reports'] = ReportedContent::recountOpenReports('posts');
-			Utils::$context['open_member_reports'] = ReportedContent::recountOpenReports('members');
-		} else {
-			Utils::$context['open_mod_reports'] = 0;
-			Utils::$context['open_member_reports'] = 0;
 		}
 	}
 
@@ -2304,27 +2122,27 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Checks whether the user has a given permissions (e.g. 'post_new').
+	 * Checks whether the user has the specified permissions (e.g. 'post_new').
 	 *
 	 * If $boards is specified, checks those boards instead of the current one.
 	 *
-	 * If $any is true, will return true if the user has the permission on any
-	 * of the specified boards
+	 * If $any is true, will return true if the user has any of the specified
+	 * permissions on any of the specified boards.
 	 *
 	 * Always returns true if the user is an administrator.
 	 *
-	 * @param string|array $permission A single permission to check or an array
-	 *    of permissions to check.
-	 * @param int|array $boards The ID of a board or an array of board IDs if we
-	 *    want to check board-level permissions
-	 * @param bool $any Whether to check for permission on at least one board
-	 *    instead of all the passed boards.
+	 * @param string|array $permissions One or more permissions to check.
+	 * @param int|array|null $boards The IDs of one or more boards, or null for
+	 *    the current board. Default: null.
+	 * @param bool $any If true, will return true if the user has any of the
+	 *    specified permissions. If false, will return true only if the user
+	 *    has all of the specified permissions. Default: false.
 	 * @return bool Whether the user has the specified permission.
 	 */
-	public function allowedTo(string|array $permission, int|array|null $boards = null, bool $any = false): bool
+	public function allowedTo(string|array $permissions, int|array|null $boards = null, bool $any = false): bool
 	{
 		// You're always allowed to do nothing. (Unless you're a working man, MR. LAZY :P!)
-		if (empty($permission)) {
+		if (empty($permissions)) {
 			return true;
 		}
 
@@ -2333,85 +2151,48 @@ class User implements \ArrayAccess
 			return true;
 		}
 
-		// Let's ensure this is an array.
-		$permission = (array) $permission;
+		// Let's ensure these are arrays.
+		$permissions = (array) $permissions;
+		$boards = array_filter(
+			array_map(
+				fn($b) => max(0, (int) $b),
+				(array) ($boards ?? Board::$info->id ?? []),
+			),
+		);
 
-		// Are we checking the _current_ board, or some other boards?
-		if ($boards === null || $boards === []) {
-			$user_permissions = (array) $this->permissions;
-
-			// Allow temporary overrides for general permissions?
-			IntegrationHook::call('integrate_allowed_to_general', [&$user_permissions, $permission]);
-
-			return array_intersect($permission, $user_permissions) != [];
-		}
-
-		$boards = (array) $boards;
-
-		$cache_key = hash('md5', $this->id . '-' . implode(',', $permission) . '-' . implode(',', $boards) . '-' . (int) $any);
+		// Avoid unnecessary repetition.
+		$cache_key = implode(',', $permissions) . '-' . implode(',', $boards) . '-' . (int) $any;
 
 		if (isset($this->perm_cache[$cache_key])) {
 			return !empty($this->perm_cache[$cache_key]);
 		}
 
-		$request = Db::$db->query(
-			'',
-			'SELECT MIN(bp.add_deny) AS add_deny
-			FROM {db_prefix}boards AS b
-				INNER JOIN {db_prefix}board_permissions AS bp ON (bp.id_profile = b.id_profile)
-				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
-				LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:group_list}))
-			WHERE b.id_board IN ({array_int:board_list})
-				AND bp.id_group IN ({array_int:group_list}, {int:moderator_group})
-				AND bp.permission IN ({array_string:permission_list})
-				AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})
-			GROUP BY b.id_board',
-			[
-				'current_member' => $this->id,
-				'board_list' => $boards,
-				'group_list' => $this->groups,
-				'moderator_group' => 3,
-				'permission_list' => $permission,
-			],
-		);
+		// Separate the board permissions from the global permissions.
+		$board_permissions = array_filter($permissions, fn($p) => Permission::get($p)->scope === 'board');
+		$global_permissions = array_diff($permissions, $board_permissions);
 
-		if ($any) {
-			$result = false;
+		// Assume false until proven otherwise.
+		$allowed = false;
 
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$result = !empty($row['add_deny']);
-
-				if ($result == true) {
-					break;
-				}
-			}
-			Db::$db->free_result($request);
-
-			$return = $result;
-		}
-		// Make sure they can do it on all of the boards.
-		elseif (Db::$db->num_rows($request) != count($boards)) {
-			Db::$db->free_result($request);
-
-			$return = false;
-		} else {
-			$result = true;
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$result &= !empty($row['add_deny']);
-			}
-			Db::$db->free_result($request);
-
-			$return = $result;
+		// Check any requested global permissions.
+		if (!empty($global_permissions)) {
+			$this->loadPermissions(0);
+			$allowed = $this->permission_sets[0]->allowedTo($global_permissions, $any);
 		}
 
-		// Allow temporary overrides for board permissions?
-		IntegrationHook::call('integrate_allowed_to_board', [&$return, $permission, $boards, $any]);
+		// Check any requested board permissions.
+		if (!empty($board_permissions) && !empty($boards)) {
+			$this->loadPermissions($boards);
 
-		$this->perm_cache[$cache_key] = $return;
+			foreach ($boards as $board) {
+				$allowed_here = $this->permission_sets[$board]->allowedTo($board_permissions, $any);
+				$allowed = $any ? ($allowed || $allowed_here) : ($allowed && $allowed_here);
+			}
+		}
 
-		// If the query returned 1, they can do it... otherwise, they can't.
-		return (bool) $return;
+		$this->perm_cache[$cache_key] = $allowed;
+
+		return $allowed;
 	}
 
 	/**
@@ -4486,7 +4267,7 @@ class User implements \ArrayAccess
 		);
 
 		// Info about stuff related to permissions.
-		// Note that we set $this->permissions elsewhere.
+		// Note that we populate $this->permission_sets elsewhere.
 		$this->warning = (int) ($profile['warning'] ?? 0);
 		$this->can_manage_boards = !empty($this->is_admin) || (!empty(Config::$modSettings['board_manager_groups']) && !empty($this->groups) && count(array_intersect($this->groups, explode(',', Config::$modSettings['board_manager_groups']))) > 0);
 
