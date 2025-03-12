@@ -424,31 +424,14 @@ class Notification implements ActionInterface
 				unset($this->alert_types['members']['request_group']);
 			}
 
-			$group_permissions = [];
-			$board_permissions = [];
-
+			// Disable any types that this user doesn't have the permissions for.
 			foreach ($this->alert_types as $group => $items) {
 				foreach ($items as $alert_key => $alert_value) {
-					if (isset($alert_value['permission'])) {
-						if (empty($alert_value['permission']['is_board'])) {
-							$group_permissions[] = $alert_value['permission']['name'];
-						} else {
-							$board_permissions[] = $alert_value['permission']['name'];
-						}
-					}
-				}
-			}
-
-			$member_groups = User::getGroupsWithPermissions($group_permissions, $board_permissions);
-
-			foreach ($this->alert_types as $group => $items) {
-				foreach ($items as $alert_key => $alert_value) {
-					if (isset($alert_value['permission'])) {
-						$allowed = count(array_intersect(Profile::$member->groups, $member_groups[$alert_value['permission']['name']]['allowed'])) != 0;
-
-						if (!$allowed) {
-							unset($this->alert_types[$group][$alert_key]);
-						}
+					if (
+						isset($alert_value['permission'])
+						&& !Profile::$member->allowedTo($alert_value['permission']['name'], $alert_value['permission']['is_board'] ? Board::getAll() : null, true)
+					) {
+						unset($this->alert_types[$group][$alert_key]);
 					}
 				}
 
