@@ -419,7 +419,12 @@ class Notification implements ActionInterface
 
 		// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 		if (!empty(Profile::$member->id)) {
-			$group_permissions = ['manage_membergroups'];
+			// Disable membergroup requests if this user can't moderate any groups.
+			if (empty(Profile::$member->groupsCanModerate())) {
+				unset($this->alert_types['members']['request_group']);
+			}
+
+			$group_permissions = [];
 			$board_permissions = [];
 
 			foreach ($this->alert_types as $group => $items) {
@@ -435,24 +440,6 @@ class Notification implements ActionInterface
 			}
 
 			$member_groups = User::getGroupsWithPermissions($group_permissions, $board_permissions);
-
-			if (empty($member_groups['manage_membergroups']['allowed'])) {
-				$request = Db::$db->query(
-					'',
-					'SELECT COUNT(*)
-					FROM {db_prefix}group_moderators
-					WHERE id_member = {int:memID}',
-					[
-						'memID' => Profile::$member->id,
-					],
-				);
-				list($is_group_moderator) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
-
-				if (empty($is_group_moderator)) {
-					unset($this->alert_types['members']['request_group']);
-				}
-			}
 
 			foreach ($this->alert_types as $group => $items) {
 				foreach ($items as $alert_key => $alert_value) {

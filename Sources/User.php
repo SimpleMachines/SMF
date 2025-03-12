@@ -832,6 +832,13 @@ class User implements \ArrayAccess
 	/**
 	 * @var array
 	 *
+	 * Cache for the groupsCanModerate() method.
+	 */
+	private array $groups_can_moderate;
+
+	/**
+	 * @var array
+	 *
 	 * Alternate names for some object properties.
 	 */
 	protected array $prop_aliases = [
@@ -2354,6 +2361,66 @@ class User implements \ArrayAccess
 		Db::$db->free_result($request);
 
 		return $this->accessible_boards;
+	}
+
+	/**
+	 * Gets a list of membergroups that this user can moderate.
+	 *
+	 * @param bool $ignore_protected Whether to ignore the protected status of
+	 *    protected groups. Only applicable when this user can manage groups but
+	 *    is not an admin. Default: false.
+	 * @return array A list of zero or more membergroup IDs.
+	 */
+	public function groupsCanModerate(bool $ignore_protected = false): array
+	{
+		// $ignore_protected only ever matters in this one scenario.
+		if (
+			$ignore_protected
+			&& !$this->allowedTo('admin_forum')
+			&& $this->allowedTo('manage_membergroups')
+		) {
+			return Group::getAll();
+		}
+
+		if (isset($this->groups_can_moderate)) {
+			return $this->groups_can_moderate;
+		}
+
+		if ($this->is_guest) {
+			$this->groups_can_moderate = [];
+		} elseif ($this->allowedTo('admin_forum')) {
+			$this->groups_can_moderate = Group::getAll();
+		} elseif ($this->allowedTo('manage_membergroups')) {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_group
+				FROM {db_prefix}groups
+				WHERE group_type != {int:protected}',
+				[
+					'protected' => Group::TYPE_PROTECTED,
+				],
+			);
+
+			$this->groups_can_moderate = array_map(fn($row) => $row['id_group'], Db::$db->fetch_all($request));
+
+			Db::$db->free_result($request);
+		} else {
+			$request = Db::$db->query(
+				'',
+				'SELECT id_group
+				FROM {db_prefix}group_moderators
+				WHERE id_member = {int:member}',
+				[
+					'member' => $this->id,
+				],
+			);
+
+			$this->groups_can_moderate = array_map(fn($row) => $row['id_group'], Db::$db->fetch_all($request));
+
+			Db::$db->free_result($request);
+		}
+
+		return $this->groups_can_moderate;
 	}
 
 	/***********************
