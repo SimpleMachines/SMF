@@ -825,6 +825,13 @@ class User implements \ArrayAccess
 	/**
 	 * @var array
 	 *
+	 * Cache for the boardsCanAccess() method.
+	 */
+	private array $accessible_boards;
+
+	/**
+	 * @var array
+	 *
 	 * Alternate names for some object properties.
 	 */
 	protected array $prop_aliases = [
@@ -2285,81 +2292,68 @@ class User implements \ArrayAccess
 		$boards = [];
 		$deny_boards = [];
 
-		// Arrays are nice, most of the time.
-		$permissions = (array) $permissions;
+		$permissions = array_filter((array) $permissions, fn($p) => Permission::get($p)->scope === 'board');
 
-		// Administrators are all powerful.
-		if ($this->is_admin) {
-			if ($simple) {
-				return [0];
+		foreach (PermissionProfile::loadAll() as $profile) {
+			if (empty($profile->boards)) {
+				continue;
 			}
+
+			$set = UserPermissionSet::load($user, reset($profile->boards));
 
 			foreach ($permissions as $permission) {
-				$boards[$permission] = [0];
-			}
-
-			return $boards;
-		}
-
-		// All groups the user is in except 'moderator'.
-		$groups = array_diff($this->groups, [3]);
-
-		$request = Db::$db->query(
-			'',
-			'SELECT b.id_board, bp.add_deny' . ($simple ? '' : ', bp.permission') . '
-			FROM {db_prefix}board_permissions AS bp
-				INNER JOIN {db_prefix}boards AS b ON (b.id_profile = bp.id_profile)
-				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
-				LEFT JOIN {db_prefix}moderator_groups AS modgs ON (modgs.id_board = b.id_board AND modgs.id_group IN ({array_int:group_list}))
-			WHERE bp.id_group IN ({array_int:group_list}, {int:moderator_group})
-				AND bp.permission IN ({array_string:permissions})
-				AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})' .
-				($check_access ? ' AND {query_see_board}' : ''),
-			[
-				'current_member' => $this->id,
-				'group_list' => $groups,
-				'moderator_group' => 3,
-				'permissions' => $permissions,
-			],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			if ($simple) {
-				if (empty($row['add_deny'])) {
-					$deny_boards[] = $row['id_board'];
+				if ($set->allowedTo($permission)) {
+					$boards[$permission] = array_merge($boards[$permission] ?? [], $profile->boards);
 				} else {
-					$boards[] = $row['id_board'];
-				}
-			} else {
-				if (empty($row['add_deny'])) {
-					$deny_boards[$row['permission']][] = $row['id_board'];
-				} else {
-					$boards[$row['permission']][] = $row['id_board'];
+					$deny_boards[$permission] = array_merge($deny_boards[$permission] ?? [], $profile->boards);
 				}
 			}
 		}
-		Db::$db->free_result($request);
+
+		$check_access = $check_access && !$this->can_manage_boards;
+
+		if ($check_access) {
+			foreach ($boards as $permission => $board_list) {
+				$boards[$permission] = array_intersect($board_list, $this->boardsCanAccess());
+			}
+		}
 
 		if ($simple) {
-			$boards = array_unique(array_values(array_diff($boards, $deny_boards)));
-		} else {
-			foreach ($permissions as $permission) {
-				// Never had it to start with.
-				if (empty($boards[$permission])) {
-					$boards[$permission] = [];
-				} else {
-					// Or it may have been removed.
-					$deny_boards[$permission] = $deny_boards[$permission] ?? [];
-
-					$boards[$permission] = array_unique(array_values(array_diff($boards[$permission], $deny_boards[$permission])));
-				}
-			}
+			$boards = array_reduce($boards, fn($carry, $item) => $carry = array_unique(array_merge($carry, $item)), []);
 		}
 
 		// Maybe a mod needs to tweak the list of allowed boards on the fly?
 		IntegrationHook::call('integrate_boards_allowed_to', [&$boards, $deny_boards, $permissions, $check_access, $simple]);
 
 		return $boards;
+	}
+
+	/**
+	 * Gets a list of boards that this user can access.
+	 *
+	 * @return array A list of board IDs.
+	 */
+	public function boardsCanAccess(): array
+	{
+		if (isset($this->accessible_boards)) {
+			return $this->accessible_boards;
+		}
+
+		$request = Db::$db->query(
+			'',
+			'SELECT id_board
+			FROM {db_prefix}boards
+			WHERE {raw:can_access}',
+			[
+				'can_access' => $this->query_see_board,
+			],
+		);
+
+		$this->accessible_boards = array_map(fn($row) => $row['id_board'], Db::$db->fetch_all($request));
+
+		Db::$db->free_result($request);
+
+		return $this->accessible_boards;
 	}
 
 	/***********************
