@@ -866,9 +866,8 @@ class Poll implements \ArrayAccess
 
 		self::$guest_vote_enabled = false;
 
-		if (isset(Board::$info->id)) {
-			$groupsAllowedVote = User::groupsAllowedTo('poll_vote', Board::$info->id);
-			self::$guest_vote_enabled = in_array(-1, $groupsAllowedVote['allowed']);
+		if (isset(Board::$info->profile)) {
+			self::$guest_vote_enabled = in_array(-1, Group::getAllowedTo('poll_vote', Board::$info->profile));
 		}
 
 		return self::$guest_vote_enabled;

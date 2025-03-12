@@ -2041,6 +2041,43 @@ class Group implements \ArrayAccess
 		return self::$all_groups;
 	}
 
+
+	/**
+	 * Returns the IDs of groups that have the specified permissions.
+	 *
+	 * @param array|string $permissions One or more permissions to check.
+	 * @param int $profile ID of a permission profile. Default: 1.
+	 * @param bool $any If true, will return groups that have any of the
+	 *    specified permissions. If false, will return groups that have
+	 *    all of the specified permissions. Default: false.
+	 * @throws \ValueError if $profile is invalid.
+	 * @return array IDs of groups that have the specified permissions.
+	 */
+	public static function getAllowedTo(array|string $permissions, int $profile = PermissionProfile::DEFAULT, bool $any = false): array
+	{
+		if (!(PermissionProfile::load($profile) instanceof PermissionProfile)) {
+			throw new \ValueError();
+		}
+
+		$permissions = (array) $permissions;
+
+		$groups = [];
+
+		foreach (GroupPermissionSet::load(self::getAll(), $profile) as $set) {
+			$can = !$any;
+
+			foreach ($permissions as $permission) {
+				$can = $any ? ($can || ($set->permissions[$permission] ?? false)) : ($can && ($set->permissions[$permission] ?? false));
+			}
+
+			if ($can) {
+				$groups[] = $set->group;
+			}
+		}
+
+		return $groups;
+	}
+
 	/**
 	 * Returns the IDs of all post-count based groups.
 	 *

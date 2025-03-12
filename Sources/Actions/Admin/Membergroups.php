@@ -660,9 +660,7 @@ class Membergroups implements ActionInterface
 		}
 
 		// People who can manage boards are a bit special.
-		$board_managers = User::groupsAllowedTo('manage_boards', null);
-
-		Utils::$context['can_manage_boards'] = in_array($group->id, $board_managers['allowed']);
+		Utils::$context['can_manage_boards'] = in_array($group->id, Group::getAllowedTo('manage_boards'));
 
 		// Can this group moderate any boards?
 		Utils::$context['is_moderator_group'] = $group->is_moderator_group;

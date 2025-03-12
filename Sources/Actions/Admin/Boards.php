@@ -438,8 +438,7 @@ class Boards implements ActionInterface
 		PermissionProfile::loadContext();
 
 		// People with manage-boards are special.
-		$groups = User::groupsAllowedTo('manage_boards', null);
-		Utils::$context['board_managers'] = $groups['allowed'];
+		Utils::$context['board_managers'] = Group::getAllowedTo('manage_boards');
 
 		// id_board must be a number....
 		$_REQUEST['boardid'] = isset($_REQUEST['boardid']) ? (int) $_REQUEST['boardid'] : 0;

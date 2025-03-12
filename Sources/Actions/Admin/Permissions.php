@@ -1700,10 +1700,7 @@ class Permissions implements ActionInterface
 	 */
 	protected static function updateBoardManagers(): void
 	{
-		$board_managers = User::groupsAllowedTo('manage_boards', null);
-		$board_managers = implode(',', $board_managers['allowed']);
-
-		Config::updateModSettings(['board_manager_groups' => $board_managers], true);
+		Config::updateModSettings(['board_manager_groups' => implode(',', Group::getAllowedTo('manage_boards'))], true);
 	}
 
 	/**
