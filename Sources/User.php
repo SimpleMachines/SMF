@@ -3725,27 +3725,32 @@ class User implements \ArrayAccess
 	}
 
 	/**
-	 * Retrieves a list of members that have a given permission,
-	 * either on a given board or in general.
+	 * Retrieves a list of members that have a given permission, either on a
+	 * given board or in general.
 	 *
-	 * Will check for a board permission if $board_id is set, and any
-	 * moderators assigned to that board will be fetched in addition
-	 * to global moderators.  Pass in 0 as a special case to fetch
-	 * moderators on all boards.
+	 * Will check for a board permission if $board_id is set, and any moderators
+	 * assigned to that board will be fetched in addition to global moderators.
+	 * Pass in 0 as a special case to fetch moderators on all boards.
 	 *
 	 * @param string $permission The permission to check.
 	 * @param int $board_id If set, checks permission for that specific board.
 	 * @return array IDs of the members who have that permission.
 	 */
-	public static function membersAllowedTo(string $permission, ?int $board_id = null): array
+	public static function getAllowedTo(string $permission, ?int $board_id = null): array
 	{
-		$member_groups = self::groupsAllowedTo($permission, $board_id);
+		$member_groups = Group::getAllWithPermissions($permission, $board_id);
 
-		$include_moderators = in_array(3, $member_groups['allowed']) && $board_id !== null;
-		$include_groups = array_diff($member_groups['allowed'], [3]);
+		$include_moderators = $member_groups[Group::MOD][$permission] === 1 && $board_id !== null;
+		$include_groups = array_keys(array_filter(
+			$member_groups,
+			fn($permissions, $group) => $permissions[$permission] === 1 && $group !== Group::MOD,
+		));
 
-		$exclude_moderators = in_array(3, $member_groups['denied']) && $board_id !== null;
-		$exclude_groups = array_diff($member_groups['denied'], [3]);
+		$exclude_moderators = $member_groups[Group::MOD][$permission] === 0 && $board_id !== null;
+		$exclude_groups = array_keys(array_filter(
+			$member_groups,
+			fn($permissions, $group) => $permissions[$permission] === 0 && $group !== Group::MOD,
+		));
 
 		$request = Db::$db->query(
 			'',
@@ -3783,210 +3788,6 @@ class User implements \ArrayAccess
 		Db::$db->free_result($request);
 
 		return $members;
-	}
-
-	/**
-	 * Retrieves a list of membergroups that have the given permission(s),
-	 * either on a given board or in general.
-	 *
-	 * If $board_id is set, a board permission is assumed.
-	 *
-	 * @param array|string $permissions The permission(s) to check.
-	 * @param int $board_id If set, checks permissions for the specified board.
-	 * @param bool $simple If true, and $permission contains a single permission
-	 *    to check, the returned array will contain only the relevant sub-array
-	 *    for that permission. Default: true.
-	 * @param int $profile_id The permission profile for the board.
-	 *    If not set, will be looked up automatically.
-	 * @return array Multidimensional array where each key is a permission name
-	 *    and each value is an array containing to sub-arrays: 'allowed', which
-	 *    lists the groups that have the permission, and 'denied', which lists
-	 *    the groups that are denied the permission. However, if $simple is true
-	 *    and only one permission was asked for, the returned value will contain
-	 *    only the relevant sub-array for that permission.
-	 */
-	public static function groupsAllowedTo(array|string $permissions, ?int $board_id = null, bool $simple = true, ?int $profile_id = null): array
-	{
-		$permissions = (array) $permissions;
-
-		$group_permissions = [];
-		$board_permissions = [];
-
-		foreach ($permissions as $permission) {
-			// Admins are allowed to do anything.
-			$member_groups[$permission] = [
-				'allowed' => [1],
-				'denied' => [],
-			];
-		}
-
-		// No board means we're dealing with general permissions.
-		if (!isset($board_id)) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_group, permission, add_deny
-				FROM {db_prefix}permissions
-				WHERE permission IN ({array_string:permissions})',
-				[
-					'permissions' => $permissions,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$group_permissions[] = $row['permission'];
-
-				$member_groups[$row['permission']][$row['add_deny'] ? 'allowed' : 'denied'][] = $row['id_group'];
-			}
-			Db::$db->free_result($request);
-
-			$group_permissions = array_unique($group_permissions);
-		}
-
-		// If given a board, we need its permission profile.
-		if (!isset($profile_id) && isset($board_id)) {
-			$board_id = (int) $board_id;
-
-			// First get the profile of the given board.
-			if (isset(Board::$info->id) && Board::$info->id == $board_id) {
-				$profile_id = Board::$info->profile;
-			} elseif ($board_id !== 0) {
-				$request = Db::$db->query(
-					'',
-					'SELECT id_profile
-					FROM {db_prefix}boards
-					WHERE id_board = {int:id_board}
-					LIMIT 1',
-					[
-						'id_board' => $board_id,
-					],
-				);
-
-				if (Db::$db->num_rows($request) == 0) {
-					Db::$db->free_result($request);
-					ErrorHandler::fatalLang('no_board');
-				}
-				list($profile_id) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
-			} else {
-				$profile_id = 1;
-			}
-		}
-
-		if (isset($profile_id)) {
-			$request = Db::$db->query(
-				'',
-				'SELECT id_group, permission, add_deny
-				FROM {db_prefix}board_permissions
-				WHERE permission IN ({array_string:permissions})
-					AND id_profile = {int:profile_id}',
-				[
-					'profile_id' => $profile_id,
-					'permissions' => $permissions,
-				],
-			);
-
-			while ($row = Db::$db->fetch_assoc($request)) {
-				$board_permissions[] = $row['permission'];
-
-				$member_groups[$row['permission']][$row['add_deny'] ? 'allowed' : 'denied'][] = $row['id_group'];
-			}
-			Db::$db->free_result($request);
-
-			$board_permissions = array_unique($board_permissions);
-
-			// Inherit any moderator permissions as needed.
-			$moderator_groups = [];
-
-			if (isset(Board::$info->id, Board::$info->moderator_groups) && $board_id == Board::$info->id) {
-				$moderator_groups = array_keys(Board::$info->moderator_groups);
-			} elseif (isset($board_id) && $board_id !== 0) {
-				// Get the groups that can moderate this board
-				$request = Db::$db->query(
-					'',
-					'SELECT id_group
-					FROM {db_prefix}moderator_groups
-					WHERE id_board = {int:board_id}',
-					[
-						'board_id' => $board_id,
-					],
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					$moderator_groups[] = $row['id_group'];
-				}
-				Db::$db->free_result($request);
-			}
-
-			// Inherit any additional permissions from the moderators group.
-			foreach ($moderator_groups as $mod_group) {
-				foreach ($board_permissions as $permission) {
-					// If they're not specifically allowed, but the moderator group is,
-					// then allow it.
-					if (in_array(3, $member_groups[$permission]['allowed']) && !in_array($mod_group, $member_groups[$permission]['allowed'])) {
-						$member_groups[$permission]['allowed'][] = $mod_group;
-					}
-
-					// They're not denied, but the moderator group is, so deny it.
-					if (in_array(3, $member_groups[$permission]['denied']) && !in_array($mod_group, $member_groups[$permission]['denied'])) {
-						$member_groups[$permission]['denied'][] = $mod_group;
-					}
-				}
-			}
-		}
-
-		// Finalize the data.
-		foreach ($permissions as $permission) {
-			foreach (['allowed', 'denied'] as $k) {
-				$member_groups[$permission][$k] = array_unique($member_groups[$permission][$k]);
-			}
-
-			// Maybe a mod needs to tweak the list of allowed groups on the fly?
-			IntegrationHook::call('integrate_groups_allowed_to', [&$member_groups[$permission], $permission, $board_id]);
-
-			// Denied is never allowed.
-			$member_groups[$permission]['allowed'] = array_diff($member_groups[$permission]['allowed'], $member_groups[$permission]['denied']);
-		}
-
-		if ($simple && count($member_groups) === 1) {
-			return reset($member_groups);
-		}
-
-		return $member_groups;
-	}
-
-	/**
-	 * Similar to self::groupsAllowedTo, except that:
-	 *
-	 * 1. It allows looking up any arbitrary combination of general permissions
-	 *    and board permissions in one call.
-	 *
-	 * 2. When looking up board permissions, the ID of a permission profile must
-	 *    be provided, rather than the ID of a board.
-	 *
-	 * 3. There is no $simple option.
-	 *
-	 * @param array $general_permissions The general permissions to check.
-	 * @param array $board_permissions The board permissions to check.
-	 * @param int $profile_id The permission profile for the board permissions.
-	 *    Default: 1
-	 * @return array Multidimensional array where each key is a permission name
-	 *    and each value is an array containing to sub-arrays: 'allowed', which
-	 *    lists the groups that have the permission, and 'denied', which lists
-	 *    the groups that are denied the permission.
-	 */
-	public static function getGroupsWithPermissions(array $general_permissions = [], array $board_permissions = [], int $profile_id = 1): array
-	{
-		$member_groups = [];
-
-		if (!empty($general_permissions)) {
-			$member_groups = self::groupsAllowedTo($general_permissions, null, false);
-		}
-
-		if (!empty($board_permissions)) {
-			$member_groups = array_merge($member_groups, self::groupsAllowedTo($board_permissions, null, false, $profile_id));
-		}
-
-		return $member_groups;
 	}
 
 	/**

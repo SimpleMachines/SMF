@@ -623,10 +623,10 @@ class Reports implements ActionInterface
 	public function staff(): void
 	{
 		// Get a list of global moderators (i.e. members with moderation powers).
-		$global_mods = array_intersect(User::membersAllowedTo('moderate_board', 0), User::membersAllowedTo('approve_posts', 0), User::membersAllowedTo('remove_any', 0), User::membersAllowedTo('modify_any', 0));
+		$global_mods = array_intersect(User::getAllowedTo('moderate_board', 0), User::getAllowedTo('approve_posts', 0), User::getAllowedTo('remove_any', 0), User::getAllowedTo('modify_any', 0));
 
 		// How about anyone else who is special?
-		$allStaff = array_merge(User::membersAllowedTo('admin_forum'), User::membersAllowedTo('manage_membergroups'), User::membersAllowedTo('manage_permissions'), $global_mods);
+		$allStaff = array_merge(User::getAllowedTo('admin_forum'), User::getAllowedTo('manage_membergroups'), User::getAllowedTo('manage_permissions'), $global_mods);
 
 		// Make sure everyone is there once - no admin less important than any other!
 		$allStaff = array_unique($allStaff);

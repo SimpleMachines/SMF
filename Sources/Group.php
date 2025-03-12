@@ -2041,6 +2041,49 @@ class Group implements \ArrayAccess
 		return self::$all_groups;
 	}
 
+	/**
+	 * Returns the IDs of all groups and whether the specified permissions are
+	 * allowed, disallowed, or denied for each group.
+	 *
+	 * @param string|array $permissions One or more permissions to check.
+	 * @param ?int $board_or_profile ID of either a board or of a permission
+	 *    profile. If null, the default permission profile will be used.
+	 *    Default: null.
+	 * @param bool $is_profile Set this to true if $board_or_profile is a
+	 *    permission profile ID. Means nothing if $board_or_profile is null.
+	 *    Default: false.
+	 * @return array
+	 */
+	public static function getAllWithPermissions(string|array $permissions, ?int $board_or_profile = null, bool $is_profile = false): array
+	{
+		if (!isset($board_or_profile)) {
+			$profile = PermissionProfile::DEFAULT;
+		} elseif ($is_profile) {
+			$profile = current(PermissionProfile::load($board_or_profile));
+			$profile = $profile instanceof PermissionProfile ? $profile->id : PermissionProfile::DEFAULT;
+		} else {
+			$profile = current(PermissionProfile::loadByBoard($board_or_profile));
+			$profile = $profile instanceof PermissionProfile ? $profile->id : PermissionProfile::DEFAULT;
+		}
+
+		$permissions = (array) $permissions;
+
+		$groups = [];
+
+		foreach (GroupPermissionSet::load($profile, self::getAll()) as $set) {
+			foreach ($permissions as $permission) {
+				$groups[$set->group][$permission] = $set->permissions[$permission];
+			}
+		}
+
+		// Maybe a mod needs to tweak the list of allowed groups on the fly?
+		IntegrationHook::call('integrate_groups_with_permissions', [&$groups, $permissions, $board]);
+
+		// Call the deprecated integrate_groups_allowed_to hook.
+		self::integrateGroupsAllowedTo($groups, $permissions, $board);
+
+		return $groups;
+	}
 
 	/**
 	 * Returns the IDs of groups that have the specified permissions.
@@ -2538,6 +2581,57 @@ class Group implements \ArrayAccess
 			yield $row;
 		}
 		Db::$db->free_result($request);
+	}
+
+	/**
+	 * Calls the deprecated integrate_groups_allowed_to hook.
+	 *
+	 * MOD AUTHORS: Update your code to use integrate_groups_with_permissions,
+	 * which can be found in SMF\Group::getAllWithPermissions()
+	 *
+	 * @deprecated 3.0
+	 *
+	 * @param array &$groups Info about the permission values for some groups.
+	 * @param array $permissions The permissions to check.
+	 * @param ?int $board Optional board ID. Default: null.
+	 */
+	protected static function integrateGroupsAllowedTo(array &$groups, array $permissions, ?int $board = null): void
+	{
+		if (empty(Config::$backward_compatibility) || empty(Config::$modSettings['integrate_groups_allowed_to'])) {
+			return;
+		}
+
+		foreach ($permissions as $permission) {
+			$allowed_denied = [];
+
+			foreach ($groups as $group => $group_permissions) {
+				switch ($group_permissions[$permission] ?? null) {
+					case 1:
+						$allowed_denied['allowed'][] = $group;
+						break;
+
+					case 0:
+						$allowed_denied['denied'][] = $group;
+						break;
+
+					default:
+						$allowed_denied['disallowed'][] = $group;
+						break;
+				}
+			}
+
+			IntegrationHook::call('integrate_groups_allowed_to', [&$allowed_denied, $permission, $board]);
+
+			foreach ($groups as $group => $group_permissions) {
+				if (in_array($allowed_denied['allowed'])) {
+					$groups[$group][$permission] = 1;
+				} elseif (in_array($allowed_denied['denied'])) {
+					$groups[$group][$permission] = 0;
+				} else {
+					$groups[$group][$permission] = null;
+				}
+			}
+		}
 	}
 }
 
