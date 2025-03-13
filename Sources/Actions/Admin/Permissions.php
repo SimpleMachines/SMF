@@ -1149,6 +1149,14 @@ class Permissions implements ActionInterface
 		Config::updateModSettings(['settings_updated' => time()]);
 	}
 
+	/**
+	 * Makes sure Config::$modSettings['board_manager_groups'] is up to date.
+	 */
+	public static function updateBoardManagers(): void
+	{
+		Config::updateModSettings(['board_manager_groups' => implode(',', Group::getAllowedTo('manage_boards'))], true);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1237,12 +1245,10 @@ class Permissions implements ActionInterface
 			Utils::redirectexit('action=admin;area=permissions;pid=' . $_REQUEST['pid']);
 		}
 
-		foreach ($_POST['group'] as $group_id) {
-			if (!empty($_REQUEST['pid'])) {
-				self::setPermissionLevel($_POST['predefined'], $group_id, $_REQUEST['pid']);
-			} else {
-				self::setPermissionLevel($_POST['predefined'], $group_id);
-			}
+		$level = constant(Permission::class . '::GROUP_LEVEL_' . strtoupper($_POST['predefined']));
+
+		foreach (Group::load(array_map('intval', $_POST['group'])) as $group) {
+			$group->setPermissionsByLevel($level, (int) ($_REQUEST['pid'] ?? PermissionProfile::DEFAULT));
 		}
 	}
 
@@ -1693,14 +1699,6 @@ class Permissions implements ActionInterface
 				}
 			}
 		}
-	}
-
-	/**
-	 * Makes sure Config::$modSettings['board_manager_groups'] is up to date.
-	 */
-	protected static function updateBoardManagers(): void
-	{
-		Config::updateModSettings(['board_manager_groups' => implode(',', Group::getAllowedTo('manage_boards'))], true);
 	}
 
 	/**

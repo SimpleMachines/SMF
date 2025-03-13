@@ -1077,6 +1077,7 @@ class Permission implements \ArrayAccess
 		IntegrationHook::call('integrate_permissions_list', [&self::$permissions]);
 
 		self::integrateHeavyPermissionsSession();
+		self::integrateLoadPermissionLevels();
 
 		// In case a mod screwed things up...
 		if (!in_array('html', Utils::$context['restricted_bbc'])) {
@@ -1379,6 +1380,120 @@ class Permission implements \ArrayAccess
 
 		// We don't need this anymore.
 		unset(Utils::$context['illegal_permissions']);
+	}
+
+	/**
+	 * Calls the deprecated integrate_load_permission_levels hook.
+	 *
+	 * MOD AUTHORS: Please update your code to use integrate_permissions_list
+	 * to set any permission's group_level or board_level parameter.
+	 *
+	 * @deprecated 3.0
+	 */
+	protected static function integrateLoadPermissionLevels(): void
+	{
+		// Don't bother if nothing is using this hook.
+		if (empty(Config::$backward_compatibility) || empty(Config::$modSettings['integrate_load_permission_levels'])) {
+			return;
+		}
+
+		// Levels by group... restrict, standard, moderator, maintenance.
+		$group_levels = [
+			'board' => ['inherit' => []],
+			'group' => ['inherit' => []],
+		];
+		// Levels by board... standard, publish, free.
+		$board_levels = ['inherit' => []];
+
+		foreach (self::$permissions as $perm) {
+			if (isset($perm['group_level'])) {
+				switch ($perm['group_level']) {
+					case self::GROUP_LEVEL_RESTRICT:
+						$group_levels[$perm['scope']]['restrict'][] = $perm['name'];
+						// no break
+
+					case self::GROUP_LEVEL_STANDARD:
+						$group_levels[$perm['scope']]['standard'][] = $perm['name'];
+						// no break
+
+					case self::GROUP_LEVEL_MODERATOR:
+						$group_levels[$perm['scope']]['moderator'][] = $perm['name'];
+						// no break
+
+					case self::GROUP_LEVEL_MAINTENANCE:
+						$group_levels[$perm['scope']]['maintenance'][] = $perm['name'];
+						break;
+				}
+			}
+
+			if (isset($perm['board_level'])) {
+				switch ($perm['board_level']) {
+					case self::BOARD_LEVEL_STANDARD:
+						$board_levels['standard'][] = $perm['name'];
+						// no break
+
+					case self::BOARD_LEVEL_LOCKED:
+						$board_levels['locked'][] = $perm['name'];
+						// no break
+
+					case self::BOARD_LEVEL_PUBLISH:
+						$board_levels['publish'][] = $perm['name'];
+						// no break
+
+					case self::BOARD_LEVEL_FREE:
+						$board_levels['free'][] = $perm['name'];
+						break;
+				}
+			}
+		}
+
+		IntegrationHook::call('integrate_load_permission_levels', [&$group_levels, &$board_levels]);
+
+		foreach ($group_levels as $scope => $levels) {
+			foreach ($levels as $level => $permissions) {
+				foreach ($permissions as $permission) {
+					switch ($level) {
+						case 'restrict':
+							self::$permissions[$permission]['group_level'] = self::GROUP_LEVEL_RESTRICT;
+							break;
+
+						case 'standard':
+							self::$permissions[$permission]['group_level'] = self::GROUP_LEVEL_STANDARD;
+							break;
+
+						case 'moderator':
+							self::$permissions[$permission]['group_level'] = self::GROUP_LEVEL_MODERATOR;
+							break;
+
+						case 'maintenance':
+							self::$permissions[$permission]['group_level'] = self::GROUP_LEVEL_MAINTENANCE;
+							break;
+					}
+				}
+			}
+		}
+
+		foreach ($board_levels as $level => $permissions) {
+			foreach ($permissions as $permission) {
+				switch ($level) {
+					case 'standard':
+						self::$permissions[$permission]['board_level'] = self::BOARD_LEVEL_STANDARD;
+						break;
+
+					case 'locked':
+						self::$permissions[$permission]['board_level'] = self::BOARD_LEVEL_LOCKED;
+						break;
+
+					case 'publish':
+						self::$permissions[$permission]['board_level'] = self::BOARD_LEVEL_PUBLISH;
+						break;
+
+					case 'free':
+						self::$permissions[$permission]['board_level'] = self::BOARD_LEVEL_FREE;
+						break;
+				}
+			}
+		}
 	}
 }
 

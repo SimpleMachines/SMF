@@ -337,13 +337,14 @@ class Group implements \ArrayAccess
 	/**
 	 * Constructor.
 	 *
-	 * @param int $id The ID number of the group.
+	 * @param ?int $id The ID number of the group. Can be set to null when
+	 *    creating a brand new group that will be saved to the database.
 	 * @param array $props Properties to set for this group. If empty, will be
 	 *    loaded from the database automatically.
 	 */
-	public function __construct(int $id, array $props = [])
+	public function __construct(?int $id, array $props = [])
 	{
-		if ($id > self::REGULAR && empty($props)) {
+		if (isset($id) && $id > self::REGULAR && empty($props)) {
 			$request = Db::$db->query(
 				'',
 				'SELECT *
@@ -358,8 +359,13 @@ class Group implements \ArrayAccess
 			Db::$db->free_result($request);
 		}
 
-		$this->id = $id;
 		$this->set($props);
+
+		if (!isset($id)) {
+			return;
+		}
+
+		$this->id = $id;
 		self::$loaded[$this->id] = $this;
 
 		// Some special cases.
@@ -396,7 +402,7 @@ class Group implements \ArrayAccess
 	public function __set(string $prop, mixed $value): void
 	{
 		// Special handling for the icons.
-		if ($prop === 'icons' && is_string($value)) {
+		if (($prop === 'icons' || $prop === 'raw_icons') && is_string($value)) {
 			$prop = 'raw_icons';
 
 			if (preg_match('/^\d+#/', $value)) {
@@ -423,8 +429,6 @@ class Group implements \ArrayAccess
 
 		// Saving a new group.
 		if (empty($this->id)) {
-			IntegrationHook::call('integrate_pre_add_membergroup', []);
-
 			$columns = [
 				'group_name' => 'string-80',
 				'description' => 'string',
@@ -463,6 +467,11 @@ class Group implements \ArrayAccess
 			self::$loaded[$this->id] = $this;
 
 			IntegrationHook::call('integrate_add_membergroup', [$this->id, $this->min_posts > -1]);
+
+			// Update the post groups now, if this is a post group!
+			if ($this->min_posts > -1) {
+				Logging::updateStats('postgroups');
+			}
 		}
 		// Updating an existing group.
 		else {
@@ -550,6 +559,11 @@ class Group implements \ArrayAccess
 		// Did we make some post group changes?
 		if ($this->min_posts > -1) {
 			Logging::updateStats('postgroups');
+		}
+
+		// Make sure Config::$modSettings['board_manager_groups'] is up to date.
+		if (Permission::get('manage_boards')->canAssign()) {
+			Permissions::updateBoardManagers();
 		}
 
 		// Rebuild the group cache.
@@ -1526,6 +1540,155 @@ class Group implements \ArrayAccess
 		}
 
 		return $this->num_permissions;
+	}
+
+	/**
+	 * Set this group's permissions according to a predefined permission level.
+	 *
+	 * @param int $level One of the Permission::GROUP_LEVEL_* constants.
+	 * @param int $profile ID of a permission profile. Default: 1
+	 */
+	public function setPermissionsByLevel(int $level, int $profile = PermissionProfile::DEFAULT): void
+	{
+		// Cannot set permissions for post groups if they are disabled.
+		if ($this->min_posts > -1 && empty(Config::$modSettings['permission_enable_postgroups'])) {
+			return;
+		}
+
+		// Check that the level is valid.
+		if (!in_array($level, [Permission::GROUP_LEVEL_RESTRICT, Permission::GROUP_LEVEL_STANDARD, Permission::GROUP_LEVEL_MODERATOR, Permission::GROUP_LEVEL_MAINTENANCE])) {
+			return;
+		}
+
+		// Reset all cached permissions.
+		Config::updateModSettings(['settings_updated' => time()]);
+
+		$set = current(GroupPermissionSet::load($profile, (int) $group));
+
+		foreach ($set->permissions as $permission_name => $value) {
+			$permission = Permission::get($permission_name);
+
+			if (
+				// Skip any that don't have a group level.
+				!isset($permission->group_level)
+				// Make sure we're not granting someone too many permissions!
+				|| !$permission->canAssign()
+				|| !$permission->canBeGrantedTo($set->group)
+			) {
+				continue;
+			}
+
+			$set->permissions[$permission_name] = $permission->group_level <= $level ? 1 : null;
+		}
+
+		$set->save();
+	}
+
+	/**
+	 * Set this group's permissions to match those of another group, and
+	 * optionally make this group a child of that other group.
+	 *
+	 * @param int $other_group ID of the group to copy permissions from.
+	 * @param bool $inherit If true, make this group a child of $other_group.
+	 *    Default: false.
+	 */
+	public function copyPermissionsFrom(int $other_group, bool $inherit = false): void
+	{
+		// Cannot set permissions for post groups if they are disabled.
+		if ($this->min_posts > -1 && empty(Config::$modSettings['permission_enable_postgroups'])) {
+			return;
+		}
+
+		$copy_from = current(self::load($other_group));
+
+		if (!($copy_from instanceof self)) {
+			ErrorHandler::fatalLang('membergroup_does_not_exist');
+		}
+
+		// Protected groups are... well, protected!
+		if (!User::$me->allowedTo('admin_forum') && $copy_from->type == self::TYPE_PROTECTED) {
+			ErrorHandler::fatalLang('membergroup_does_not_exist');
+		}
+
+		// Don't allow copying of a real privileged person!
+		$illegal_permissions = Permission::getUnassignable();
+
+		// Copy the global permissions.
+		$inserts = [];
+
+		$request = Db::$db->query(
+			'',
+			'SELECT permission, add_deny
+			FROM {db_prefix}permissions
+			WHERE id_group = {int:copy_from}',
+			[
+				'copy_from' => $other_group,
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (empty($illegal_permissions) || !in_array($row['permission'], $illegal_permissions)) {
+				$inserts[] = [$this->id, $row['permission'], $row['add_deny']];
+			}
+		}
+
+		Db::$db->free_result($request);
+
+		if (!empty($inserts)) {
+			Db::$db->insert(
+				'replace',
+				'{db_prefix}permissions',
+				['id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'],
+				$inserts,
+				['id_group', 'permission'],
+			);
+		}
+
+		// Copy the board permissions.
+		$inserts = [];
+
+		$request = Db::$db->query(
+			'',
+			'SELECT id_profile, permission, add_deny
+			FROM {db_prefix}board_permissions
+			WHERE id_group = {int:copy_from}',
+			[
+				'copy_from' => $other_group,
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$inserts[] = [$this->id, $row['id_profile'], $row['permission'], $row['add_deny']];
+		}
+
+		Db::$db->free_result($request);
+
+		if (!empty($inserts)) {
+			Db::$db->insert(
+				'replace',
+				'{db_prefix}board_permissions',
+				['id_group' => 'int', 'id_profile' => 'int', 'permission' => 'string', 'add_deny' => 'int'],
+				$inserts,
+				['id_group', 'id_profile', 'permission'],
+			);
+		}
+
+		// Also get some membergroup information if we're copying and not copying from guests...
+		if ($other_group > 0 && !$inherit) {
+			// ...and update the new membergroup with it.
+			$this->set([
+				'max_messages' => $copy_from->max_messages,
+				'online_color' => $copy_from->online_color,
+				'raw_icons' => $copy_from->raw_icons,
+			]);
+
+			$this->save();
+		}
+		// If inheriting say so...
+		elseif ($inherit) {
+			$this->set(['parent' => $other_group]);
+			$this->save();
+		}
 	}
 
 	/**
