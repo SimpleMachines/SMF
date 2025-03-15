@@ -450,7 +450,7 @@ class Permissions implements ActionInterface
 				$permission = Permission::get($name);
 
 				// Only change global permissions when $_GET['pid'] is 0.
-				if ($permission->scope === 'global' && $_GET['pid'] !== 0) {
+				if ($permission->scope !== ($_GET['pid'] === 0 ? 'global' : 'board')) {
 					continue;
 				}
 
@@ -1211,7 +1211,7 @@ class Permissions implements ActionInterface
 		}
 
 		foreach (Utils::$context['groups'] as $group) {
-			$group->countPermissions(isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : null);
+			$group->countPermissions(isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : 0);
 
 			// A few overrides.
 			if ($group->id === Group::GUEST) {
