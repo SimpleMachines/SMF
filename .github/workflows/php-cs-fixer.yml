@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - release-2.1
+      - release-3.0
   pull_request:
 
 name: PHP Check
@@ -14,9 +14,12 @@ jobs:
 
       - name: Get changed files
         id: changed-files
-        uses: tj-actions/changed-files@v42
-        with:
-          files: '*.php'
+        run: |
+          if ${{ github.event_name == 'pull_request' }}; then
+            echo "all_changed_files_count=$(git diff --name-only -r HEAD^1 HEAD | xargs | grep '\.php$')" >> $GITHUB_OUTPUT
+          else
+            echo "all_changed_files_count=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs | grep '\.php$')" >> $GITHUB_OUTPUT
+          fi
 
       - name: Get extra arguments for PHP-CS-Fixer
         id: phpcs-intersection
