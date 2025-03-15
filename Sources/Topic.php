@@ -440,9 +440,9 @@ class Topic implements \ArrayAccess, Routable
 				$this->id_member_updated,
 				$this->id_first_msg,
 				$this->id_last_msg,
-				$this->is_locked,
-				$this->is_sticky,
-				$this->is_approved,
+				(int) ($this->is_locked ?? 0),
+				(int) ($this->is_sticky ?? 0),
+				(int) ($this->is_approved ?? 0),
 				$this->num_views ?? 0,
 				$this->num_replies ?? 0,
 				$this->id_poll ?? 0,
@@ -453,16 +453,16 @@ class Topic implements \ArrayAccess, Routable
 				$this->id_previous_topic ?? 0,
 			];
 
-			// If mods added extra columns to the table and those column values
-			// are reflected in this object's custom properties, save them too.
-			if (!empty($this->custom)) {
-				foreach (Db::$db->getTypeIndicators('{db_prefix}topics', $this->custom) as $key => $type) {
-					if (isset($this->custom[$key]) && !is_array($this->custom[$key])) {
-						$columns[$key] = $type;
-						$params[] = $this->custom[$key];
-					}
-				}
-			}
+			// // If mods added extra columns to the table and those column values
+			// // are reflected in this object's custom properties, save them too.
+			// if (!empty($this->custom)) {
+			// 	foreach (Db::$db->getTypeIndicators('{db_prefix}topics', $this->custom) as $key => $type) {
+			// 		if (isset($this->custom[$key]) && !is_array($this->custom[$key])) {
+			// 			$columns[$key] = $type;
+			// 			$params[] = $this->custom[$key];
+			// 		}
+			// 	}
+			// }
 
 			// Give mods an opportunity for fine-tuned control over the values to be saved.
 			IntegrationHook::call('integrate_before_create_topic', [&$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions'], &$columns, &$params]);
@@ -844,9 +844,9 @@ class Topic implements \ArrayAccess, Routable
 			'id_previous_topic' => 0,
 		]);
 
-		$topic->msgOptions = &$msgOptions;
-		$topic->topicOptions = &$topicOptions;
-		$topic->posterOptions = &$posterOptions;
+		$topic->custom['msgOptions'] = &$msgOptions;
+		$topic->custom['topicOptions'] = &$topicOptions;
+		$topic->custom['posterOptions'] = &$posterOptions;
 
 		// Save.
 		$topic->save();
@@ -856,12 +856,12 @@ class Topic implements \ArrayAccess, Routable
 			return false;
 		}
 
-		$topicOptions['id'] = $topic->id;
+		$topic->custom['topicOptions']['id'] = $topic->id;
 
 		// Increase the number of topics on the board.
-		$board = Board::load($topic->id_board);
+		$board = current(Board::load($topic->id_board));
 
-		if ($msgOptions['approved']) {
+		if ($topic->custom['msgOptions']['approved']) {
 			$board->num_topics++;
 		} else {
 			$board->unapproved_topics++;
@@ -872,12 +872,12 @@ class Topic implements \ArrayAccess, Routable
 		// There's been a new topic today.
 		Logging::trackStats(['topics' => '+']);
 		Logging::updateStats('topic', true);
-		Logging::updateStats('subject', $topicOptions['id'], $msgOptions['subject']);
+		Logging::updateStats('subject', $topic->custom['topicOptions']['id'], $topic->custom['msgOptions']['subject']);
 
 		// What if we want to export new topics out to a CMS?
-		IntegrationHook::call('integrate_create_topic', [$msgOptions, $topicOptions, $posterOptions]);
+		IntegrationHook::call('integrate_create_topic', [$topic->custom['msgOptions'], $topic->custom['topicOptions'], $topic->custom['posterOptions']]);
 
-		if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest) {
+		if (!empty($topic->custom['topicOptions']['mark_as_read']) && !User::$me->is_guest) {
 			$topic->markAsRead(User::$me->id, $topic->id_last_msg);
 		}
 
@@ -898,24 +898,24 @@ class Topic implements \ArrayAccess, Routable
 	{
 		$topic = self::load($topicOptions['id']);
 
-		$topic->msgOptions = &$msgOptions;
-		$topic->topicOptions = &$topicOptions;
-		$topic->posterOptions = &$posterOptions;
+		$topic->custom['msgOptions'] = &$msgOptions;
+		$topic->custom['topicOptions'] = &$topicOptions;
+		$topic->custom['posterOptions'] = &$posterOptions;
 
-		if (!empty($msgOptions['approved'])) {
-			$topic->id_member_updated = (int) $posterOptions['id'];
-			$topic->id_last_msg = (int) $msgOptions['id'];
+		if (!empty($topic->custom['msgOptions']['approved'])) {
+			$topic->id_member_updated = (int) $topic->custom['posterOptions']['id'];
+			$topic->id_last_msg = (int) $topic->custom['msgOptions']['id'];
 			$topic->num_replies++;
 		} else {
 			$topic->unapproved_posts++;
 		}
 
-		if (isset($topicOptions['lock_mode'])) {
-			$topic->is_locked = (int) $topicOptions['lock_mode'];
+		if (isset($topic->custom['topicOptions']['lock_mode'])) {
+			$topic->is_locked = (int) $topic->custom['topicOptions']['lock_mode'];
 		}
 
-		if (isset($topicOptions['sticky_mode'])) {
-			$topic->is_sticky = (int) $topicOptions['sticky_mode'];
+		if (isset($topic->custom['topicOptions']['sticky_mode'])) {
+			$topic->is_sticky = (int) $topic->custom['topicOptions']['sticky_mode'];
 		}
 
 		$topic->save();
@@ -923,11 +923,11 @@ class Topic implements \ArrayAccess, Routable
 		// Reload to verify that it saved correctly.
 		$topic->loadTopicInfo();
 
-		if ($topic->id_last_msg !== (int) $msgOptions['id']) {
+		if ($topic->id_last_msg !== (int) $topic->custom['msgOptions']['id']) {
 			return false;
 		}
 
-		if (!empty($topicOptions['mark_as_read']) && !User::$me->is_guest) {
+		if (!empty($topic->custom['topicOptions']['mark_as_read']) && !User::$me->is_guest) {
 			$topic->markAsRead(User::$me->id, $topic->id_last_msg);
 		}
 

@@ -396,9 +396,9 @@ abstract class DatabaseApi
 				default:
 					$test = is_array($value) ? reset($value) : $value;
 
-					if (IP::create($test)->isValid()) {
+					if (IP::create((string) $test)->isValid()) {
 						$types[$column_name] = 'inet';
-					} elseif ($test instanceof Uuid || (string) (@Uuid::createFromString($test)) !== Uuid::NIL_UUID) {
+					} elseif ($test instanceof Uuid || (string) (@Uuid::createFromString((string) $test)) !== Uuid::NIL_UUID) {
 						$types[$column_name] = 'uuid';
 					} else {
 						$type = 'string';

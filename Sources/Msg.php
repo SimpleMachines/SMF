@@ -1512,7 +1512,7 @@ class Msg implements \ArrayAccess, Routable
 		Logging::trackStats(['posts' => '+']);
 
 		// Increase the number of posts on the board.
-		$board = Board::load($msg->id_board);
+		$board = current(Board::load($msg->id_board));
 
 		if ($msgOptions['approved']) {
 			$board->num_posts++;
