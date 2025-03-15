@@ -585,7 +585,6 @@ class Group implements \ArrayAccess
 			'SELECT name
 			FROM {db_prefix}subscriptions
 			WHERE id_group = {int:this_group}
-				OR FIND_IN_SET({int:this_group}, additional_groups) != 0
 			ORDER BY name',
 			[
 				'this_group' => $this->id,
