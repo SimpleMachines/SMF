@@ -2872,7 +2872,7 @@ class User implements \ArrayAccess
 		// Look if the user has a gravatar field or has set an external url as avatar.
 		else {
 			if (!$data['avatar'] instanceof Url) {
-				$data['avatar'] = new Url($data['avatar']);
+				$data['avatar'] = new Url((string) $data['avatar']);
 			}
 
 			// So it's stored in the member table?
@@ -2890,7 +2890,7 @@ class User implements \ArrayAccess
 					if ($data['avatar'] instanceof Url) {
 						$url = $data['avatar'];
 					} else {
-						$url = new Url($data['avatar']);
+						$url = new Url((string) $data['avatar']);
 					}
 
 					$image = isset($url->scheme) ? $url->proxied() : Config::$modSettings['avatar_url'] . '/' . $data['avatar'];
