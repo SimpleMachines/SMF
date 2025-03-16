@@ -155,14 +155,35 @@ class ErrorHandler
 	/**
 	 * Convenience method to create an instance of this class.
 	 *
-	 * @param int $error_level A pre-defined error-handling constant (see {@link https://php.net/errorfunc.constants})
-	 * @param string $error_string The error message
-	 * @param string $file The file where the error occurred
-	 * @param int $line The line where the error occurred
+	 * @param int $error_level A pre-defined error-handling constant.
+	 *    (see {@link https://php.net/errorfunc.constants})
+	 * @param string $error_string The error message.
+	 * @param string $file The file where the error occurred.
+	 * @param int $line The line where the error occurred.
 	 */
 	public static function call(int $error_level, string $error_string, string $file, int $line): void
 	{
 		new self($error_level, $error_string, $file, $line);
+	}
+
+	/**
+	 * Generic handler for uncaught exceptions.
+	 *
+	 * Always ends execution.
+	 *
+	 * @param \Throwable $e The uncaught exception.
+	 */
+	public static function catch(\Throwable $e): void
+	{
+		Lang::load('Errors');
+
+		$message = Lang::$txt[$e->getMessage()] ? Lang::$txt[$e->getMessage()] : $e->getMessage();
+
+		if (!empty(Config::$modSettings['enableErrorLogging'])) {
+			self::log($message, 'general', $e->getFile(), $e->getLine());
+		}
+
+		self::fatal($message, false);
 	}
 
 	/**
@@ -294,14 +315,16 @@ class ErrorHandler
 	}
 
 	/**
-	 * An irrecoverable error.
+	 * An unrecoverable error.
 	 *
 	 * This function stops execution and displays an error message.
 	 * It logs the error message if $log is specified.
 	 *
 	 * @param string $error The error message
-	 * @param string|bool $log = 'general' What type of error to log this as (false to not log it))
-	 * @param int $status The HTTP status code associated with this error
+	 * @param string|bool $log What type of error to log this as. Set to false
+	 *    to not log the error. Default: 'general'.
+	 * @param int $status The HTTP status code associated with this error.
+	 *    Default: 500.
 	 */
 	public static function fatal(string $error, string|bool $log = 'general', int $status = 500): void
 	{
@@ -330,7 +353,8 @@ class ErrorHandler
 	 *  - the information is logged if log is specified.
 	 *
 	 * @param string $error The error message.
-	 * @param string|false $log The type of error, or false to not log it.
+	 * @param string|bool $log What type of error to log this as. Set to false
+	 *    to not log the error. Default: 'general'.
 	 * @param array $sprintf An array of data to be substituted into the specified message.
 	 * @param int $status The HTTP status code associated with this error. Default: 403.
 	 */
