@@ -720,8 +720,7 @@ class Uuid implements \Stringable
 					} else {
 						// On non-POSIX systems, fall back to user ID because
 						// getmygid() returns nothing useful on non-POSIX systems.
-						Lang::load('Errors', Lang::$default);
-						trigger_error(Lang::$txt['uuid_group_non_posix'], E_USER_NOTICE);
+						throw new \ValueError('uuid_group_non_posix');
 
 						$id = getmyuid();
 						$domain = 0;
