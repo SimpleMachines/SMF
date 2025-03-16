@@ -30,6 +30,30 @@ use SMF\ServerSideIncludes as SSI;
  */
 class ErrorHandler
 {
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * What types of categories do we have for logging errors?
+	 */
+	public static array $known_error_types = [
+		'general',
+		'critical',
+		'database',
+		'undefined_vars',
+		'user',
+		'ban',
+		'template',
+		'debug',
+		'cron',
+		'paidsubs',
+		'backup',
+		'login',
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -209,22 +233,6 @@ class ErrorHandler
 			$query_string .= ($query_string == '' ? 'board=' : ';board=') . $_POST['board'];
 		}
 
-		// What types of categories do we have?
-		$known_error_types = [
-			'general',
-			'critical',
-			'database',
-			'undefined_vars',
-			'user',
-			'ban',
-			'template',
-			'debug',
-			'cron',
-			'paidsubs',
-			'backup',
-			'login',
-		];
-
 		// This prevents us from infinite looping if the hook or call produces an error.
 		$other_error_types = [];
 
@@ -234,11 +242,11 @@ class ErrorHandler
 			// Allow the hook to change the error_type and know about the error.
 			IntegrationHook::call('integrate_error_types', [&$other_error_types, &$error_type, $error_message, $file, $line]);
 
-			$known_error_types = array_merge($known_error_types, $other_error_types);
+			self::$known_error_types = array_merge(self::$known_error_types, $other_error_types);
 		}
 
 		// Make sure the category that was specified is a valid one
-		$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
+		$error_type = in_array($error_type, self::$known_error_types) && $error_type !== true ? $error_type : 'general';
 
 		// Leave out the call to this method.
 		array_splice($backtrace, 0, 1);
