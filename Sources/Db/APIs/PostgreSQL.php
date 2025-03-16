@@ -20,7 +20,6 @@ use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
 use SMF\ErrorHandler;
 use SMF\IP;
-use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
 use SMF\Uuid;
@@ -529,8 +528,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 						}
 					} else {
 						$with_returning = false;
-						Lang::load('Errors');
-						trigger_error(Lang::$txt['postgres_id_not_int'], E_USER_ERROR);
+
+						throw new \TypeError('postgres_id_not_int');
 					}
 				}
 			}

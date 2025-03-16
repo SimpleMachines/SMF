@@ -732,14 +732,16 @@ class Board implements \ArrayAccess, Routable
 			case 'bottom':
 				if (!isset($target_category)) {
 					Lang::load('Errors');
-					trigger_error(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]), E_USER_ERROR);
+
+					throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]));
 				}
 				break;
 
 			default:
 				if (!isset($target_board)) {
 					Lang::load('Errors');
-					trigger_error(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]), E_USER_ERROR);
+
+					throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]));
 				}
 				break;
 		}
@@ -806,7 +808,8 @@ class Board implements \ArrayAccess, Routable
 
 			default:
 				Lang::load('Errors');
-				trigger_error(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]), E_USER_ERROR);
+
+				throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]));
 				break;
 		}
 
@@ -1338,13 +1341,11 @@ class Board implements \ArrayAccess, Routable
 	{
 		// Trigger an error if one of the required values is not set.
 		if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category'])) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['create_board_missing_options'], E_USER_ERROR);
+			throw new \Exception('create_board_missing_options');
 		}
 
 		if (in_array($boardOptions['move_to'], ['child', 'before', 'after']) && !isset($boardOptions['target_board'])) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['move_board_no_target'], E_USER_ERROR);
+			throw new \Exception('move_board_no_target');
 		}
 
 		// Set every optional value to its default value.

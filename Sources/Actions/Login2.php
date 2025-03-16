@@ -145,8 +145,7 @@ class Login2 implements ActionInterface, Routable
 		elseif (isset($_SESSION['login_' . Config::$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_SESSION['login_' . Config::$cookiename]) === 1) {
 			list(, , $timeout) = Utils::safeUnserialize($_SESSION['login_' . Config::$cookiename]);
 		} else {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['login_no_session_cookie'], E_USER_ERROR);
+			throw new \Exception('login_no_session_cookie');
 		}
 
 		User::$me->password_salt = bin2hex(random_bytes(16));

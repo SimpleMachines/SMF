@@ -737,7 +737,8 @@ class Uuid implements \Stringable
 				// Unknown domain.
 				default:
 					Lang::load('Errors');
-					trigger_error(Lang::getTxt('uuid_unknown_domain', [$domain]), E_USER_ERROR);
+
+					throw new \Exception(Lang::getTxt('uuid_unknown_domain', [$domain]));
 					break;
 			}
 		}
