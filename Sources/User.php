@@ -1663,8 +1663,8 @@ class User implements \ArrayAccess
 
 		Utils::obExit();
 
-		// We should never get to this point, but if we did we wouldn't know the user is a guest.
-		trigger_error('No direct access...', E_USER_ERROR);
+		// We should never reach this point, but just in case...
+		die('No direct access...');
 	}
 
 	/**
@@ -1906,11 +1906,12 @@ class User implements \ArrayAccess
 			// You banned, sucka!
 			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name]) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::$txt['your_ban_expires_never']), false, 403);
 
-			// If we get here, something's gone wrong.... but let's try anyway.
-			trigger_error('No direct access...', E_USER_ERROR);
+			// We should never reach this point, but just in case...
+			die('No direct access...');
 		}
+
 		// You're not allowed to log in but yet you are. Let's fix that.
-		elseif (isset($_SESSION['ban']['cannot_login']) && !$this->is_guest) {
+		if (isset($_SESSION['ban']['cannot_login']) && !$this->is_guest) {
 			// We don't wanna see you!
 			Db::$db->query(
 				'',
@@ -2290,10 +2291,8 @@ class User implements \ArrayAccess
 
 		ErrorHandler::fatalLang($error, isset($log_error) ? 'user' : false);
 
-		// We really should never fall through here, for very important reasons.  Let's make sure.
-		trigger_error('No direct access...', E_USER_ERROR);
-
-		return null;
+		// We should never reach this point, but just in case...
+		die('No direct access...');
 	}
 
 	/**
@@ -2462,8 +2461,8 @@ class User implements \ArrayAccess
 
 			ErrorHandler::fatalLang('cannot_' . $error_permission, false);
 
-			// Getting this far is a really big problem, but let's try our best to prevent any cases...
-			trigger_error('No direct access...', E_USER_ERROR);
+			// We should never get to this point, but just in case...
+			die('No direct access...');
 		}
 
 		// If you're doing something on behalf of some "heavy" permissions,

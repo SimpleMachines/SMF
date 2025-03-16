@@ -1844,8 +1844,8 @@ class ACP implements ActionInterface, Routable
 
 		Utils::obExit();
 
-		// We MUST exit at this point, because otherwise we CANNOT KNOW that the user is privileged.
-		trigger_error('No direct access...', E_USER_ERROR);
+		// We should never get to this point, but just in case...
+		die('No direct access...');
 	}
 
 	/******************

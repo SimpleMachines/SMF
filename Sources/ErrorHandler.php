@@ -703,7 +703,7 @@ class ErrorHandler
 			PROGRAM FLOW.  Otherwise, security error messages will not be shown, and
 			your forum will be in a very easily hackable state.
 		*/
-		trigger_error('No direct access...', E_USER_ERROR);
+		die('No direct access...');
 	}
 
 	/**
