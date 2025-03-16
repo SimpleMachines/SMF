@@ -176,6 +176,7 @@ if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 
 // Register an error handler.
 set_error_handler('smf_error_handler');
+set_exception_handler('smf_exception_handler');
 
 // Start the session. (assuming it hasn't already been.)
 loadSession();

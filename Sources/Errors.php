@@ -334,6 +334,28 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 }
 
 /**
+ * Generic handler for uncaught exceptions.
+ *
+ * Always ends execution.
+ *
+ * @param \Throwable $e The uncaught exception.
+ */
+function smf_exception_handler(\Throwable $e)
+{
+	global $modSettings, $txt;
+
+	loadLanguage('Errors');
+
+	$message = $txt[$e->getMessage()] ? $txt[$e->getMessage()] : $e->getMessage();
+
+	if (!empty($modSettings['enableErrorLogging'])) {
+		log_error($message, 'general', $e->getFile(), $e->getLine());
+	}
+
+	fatal_error($message, false);
+}
+
+/**
  * It is called by {@link fatal_error()} and {@link fatal_lang_error()}.
  *
  * @uses template_fatal_error()

@@ -117,6 +117,7 @@ reloadSettings();
 
 // Just in case there's a problem...
 set_error_handler('smf_error_handler_cron');
+set_exception_handler('smf_exception_handler_cron');
 $sc = '';
 $_SERVER['QUERY_STRING'] = '';
 $_SERVER['REQUEST_URL'] = FROM_CLI ? 'CLI cron.php' : $boardurl . '/cron.php';
@@ -301,6 +302,26 @@ function smf_error_handler_cron($error_level, $error_string, $file, $line)
 	// If this is an E_ERROR or E_USER_ERROR.... die.  Violently so.
 	if ($error_level % 255 == E_ERROR)
 		die('No direct access...');
+}
+
+/**
+ * Generic handler for uncaught exceptions.
+ *
+ * Always ends execution.
+ *
+ * @param \Throwable $e The uncaught exception.
+ */
+function smf_exception_handler_cron(\Throwable $e)
+{
+	global $modSettings, $txt;
+
+	loadLanguage('Errors');
+
+	$message = $txt[$e->getMessage()] ? $txt[$e->getMessage()] : $e->getMessage();
+
+	if (!empty($modSettings['enableErrorLogging'])) {
+		log_error($message, 'cron', $e->getFile(), $e->getLine());
+	}
 }
 
 /**
