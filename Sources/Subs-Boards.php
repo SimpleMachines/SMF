@@ -527,7 +527,7 @@ function modifyBoard($board_id, &$boardOptions)
 		else
 		{
 			loadLanguage('Errors');
-			trigger_error(sprintf($txt['modify_board_incorrect_move_to'], $boardOptions['move_to']), E_USER_ERROR);
+			throw new \Exception(sprintf($txt['modify_board_incorrect_move_to'], $boardOptions['move_to']));
 		}
 
 		// Get a list of children of this board.
@@ -864,13 +864,13 @@ function createBoard($boardOptions)
 	if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category']))
 	{
 		loadLanguage('Errors');
-		trigger_error($txt['create_board_missing_options'], E_USER_ERROR);
+		throw new \Exception('create_board_missing_options');
 	}
 
 	if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
 	{
 		loadLanguage('Errors');
-		trigger_error($txt['move_board_no_target'], E_USER_ERROR);
+		throw new \Exception('move_board_no_target');
 	}
 
 	// Set every optional value to its default value.
