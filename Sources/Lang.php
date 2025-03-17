@@ -197,6 +197,23 @@ class Lang
 	/**
 	 * @var array
 	 *
+	 * Tracks which language file each loaded string came from.
+	 *
+	 * Used to ensure that calls to Lang::getTxt() that specified a particular
+	 * file get the version of the string from that file, rather than a string
+	 * from a different file with the same name.
+	 *
+	 * This is necessary for two reasons:
+	 *
+	 *  1. We cannot guarantee that keys are unique across all language files.
+	 *  2. The Modifications language file might intentionally overwrite the
+	 *     default values of language strings, and that needs to be respected.
+	 */
+	private static $loaded_keys = [];
+
+	/**
+	 * @var array
+	 *
 	 * Tracks the value of $forum_copyright for different languages.
 	 */
 	private static array $localized_copyright = [];
@@ -237,28 +254,28 @@ class Lang
 		}
 
 		// For each file open it up and write it out!
-		foreach (explode('+', $filename) as $file) {
+		foreach (explode('+', $filename) as $name) {
 			// Did we call the old index language file? Redirect.
-			if ($file === 'index') {
-				$file = 'General';
+			if ($name === 'index') {
+				$name = 'General';
 			}
 
 			// Don't repeat this unnecessarily.
-			if (!$force_reload && isset(self::$already_loaded[$file]) && self::$already_loaded[$file] == $lang) {
+			if (!$force_reload && isset(self::$already_loaded[$name]) && self::$already_loaded[$name] == $lang) {
 				continue;
 			}
 
 			$attempts = [];
 
 			foreach (self::$dirs as $dir) {
-				$attempts[] = [$dir, $file, $lang];
-				$attempts[] = [$dir, $file, self::$default];
+				$attempts[] = [$dir, $name, $lang];
+				$attempts[] = [$dir, $name, self::$default];
 			}
 
 			// Fall back to English if none of the preferred languages can be found.
 			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en_US', [$lang, self::$default])) {
 				foreach (self::$dirs as $dir) {
-					$attempts[] = [$dir, $file, 'en_US'];
+					$attempts[] = [$dir, $name, 'en_US'];
 				}
 			}
 
@@ -288,7 +305,17 @@ class Lang
 							continue;
 						}
 
+						// Add the strings to the appropriate array.
 						self::${$var} = array_merge(self::${$var}, ${$var});
+
+						// Keep track of where these strings came from.
+						self::$loaded_keys[$var] = array_merge(
+							self::$loaded_keys[$var] ?? [],
+							array_combine(
+								array_keys(${$var}),
+								array_fill(0, count(${$var}), ['file' => $file[1], 'lang' => $file[2]]),
+							),
+						);
 
 						unset(${$var});
 					}
@@ -367,7 +394,7 @@ class Lang
 			}
 
 			// Remember what we have loaded, and in which language.
-			self::$already_loaded[$file] = $lang;
+			self::$already_loaded[$name] = $lang;
 		}
 
 		// Return the language actually loaded.
@@ -527,27 +554,82 @@ class Lang
 	 *    array will be used as a sub-key to drill down into deeper levels of
 	 *    the overall array.
 	 * @param array $args Arguments to substitute into the Lang::$txt string.
-	 * @param string $var Name of the array to search in. Default: 'txt'.
-	 *    Other possible values are 'helptxt', 'editortxt', and 'tztxt'.
+	 * @param string $var Name of the array to search in. Allowed values are
+	 *    'txt', 'helptxt', 'editortxt', 'tztxt', and 'txtBirthdayEmails'.
+	 *    Default: 'txt'.
+	 * @param ?string $file Name of a language file to load. This is not needed
+	 *    when $var is 'helptxt', 'editortxt', 'tztxt', or 'txtBirthdayEmails'.
+	 *    Default: null.
+	 * @param ?string $lang A specific language to load $file from. If empty,
+	 *    defaults to the current user's preferred language.
 	 * @throws \ValueError if $var is invalid.
 	 * @return string|array The string to display to the user, or an array
 	 *    of strings if $txt_key refers to an array.
 	 */
-	public static function getTxt(string|array $txt_key, array $args = [], string $var = 'txt'): string|array
+	public static function getTxt(string|array $txt_key, array $args = [], string $var = 'txt', ?string $file = null, string $lang = ''): string|array
 	{
 		// Validate $var.
 		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
 			throw new \ValueError();
 		}
 
+		$txt_key = array_values((array) $txt_key);
+
+		if ($lang == '') {
+			$lang = User::$me->language ?? self::$default;
+		}
+
+		// Can we guess the file based on $var?
+		if (!isset($file)) {
+			switch ($var) {
+				case 'tztxt':
+					$file = 'Timezones';
+					break;
+
+				case 'editortxt':
+					$file = 'Editor';
+					break;
+
+				case 'helptxt':
+					$file = 'Help';
+					break;
+
+				case 'txtBirthdayEmails':
+					$file = 'EmailTemplates';
+					break;
+			}
+		}
+
+		// Check whether we need to load the specified file.
+		if (
+			is_string($file)
+			&& (
+				// If we haven't loaded the file yet, do so now.
+				!isset(self::$loaded_keys[$txt_key[0]])
+
+				// If we loaded it for a different language, reload for the right language.
+				|| self::$loaded_keys[$txt_key[0]]['lang'] !== $lang
+
+				// In the event of key conflicts between different files, give
+				// them the string from the requested file. HOWEVER, if the key
+				// was overwritten in the Modifications or ThemeStrings language
+				// files, then keep that version instead.
+				|| (
+					self::$loaded_keys[$txt_key[0]]['file'] !== $file
+					&& self::$loaded_keys[$txt_key[0]]['file'] !== 'ThemeStrings'
+					&& self::$loaded_keys[$txt_key[0]]['file'] !== 'Modifications'
+				)
+			)
+		) {
+			self::load($file . (!str_contains($file, 'ThemeStrings') ? '+ThemeStrings' : '') . (!str_contains($file, 'Modifications') ? '+Modifications' : ''), $lang, force_reload: true);
+		}
+
 		// Don't waste time when getting a simple string.
-		if ($args === [] && is_string($txt_key)) {
-			return self::${$var}[$txt_key] ?? '';
+		if ($args === [] && count($txt_key) === 1) {
+			return self::${$var}[$txt_key[0]] ?? '';
 		}
 
 		// Trying to get something more complex...
-		$txt_key = (array) $txt_key;
-
 		$target = &self::${$var};
 
 		// Drill down to the specified key.
@@ -879,7 +961,17 @@ class Lang
 						continue;
 					}
 
+					// Add the strings to the appropriate array.
 					self::${$var} = array_merge(self::${$var}, ${$var});
+
+					// Keep track of where these strings came from.
+					self::$loaded_keys[$var] = array_merge(
+						self::$loaded_keys[$var] ?? [],
+						array_combine(
+							array_keys(${$var}),
+							array_fill(0, count(${$var}), ['file' => $file[1], 'lang' => $file[2]]),
+						),
+					);
 
 					unset(${$var});
 				}
