@@ -404,8 +404,9 @@ class Forum
 			}
 		}
 
-		// Register an error handler.
+		// Register an error handler and an exception handler.
 		set_error_handler([ErrorHandler::class, 'call']);
+		set_exception_handler([ErrorHandler::class, 'catch']);
 
 		// Start the session. (assuming it hasn't already been.)
 		Session::load();

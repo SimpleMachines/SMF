@@ -20,7 +20,6 @@ use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
 use SMF\ErrorHandler;
 use SMF\IP;
-use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
 use SMF\Uuid;
@@ -529,8 +528,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 						}
 					} else {
 						$with_returning = false;
-						Lang::load('Errors');
-						trigger_error(Lang::$txt['postgres_id_not_int'], E_USER_ERROR);
+
+						throw new \TypeError('postgres_id_not_int');
 					}
 				}
 			}
@@ -2454,9 +2453,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 * @param string|int|bool $error_type What type of error this is
 	 * @param string $file The file the error occurred in
 	 * @param int $line What line of $file the code which generated the error is on
-	 * @return void|array Returns an array with the file and line if $error_type is 'return'
+	 * @return array Returns an array with the file and line if $error_type is
+	 *    'return'. Otherwise, just dies.
 	 */
-	protected function error_backtrace(string $error_message, string $log_message = '', string|int|bool $error_type = false, ?string $file = null, ?int $line = null): ?array
+	protected function error_backtrace(string $error_message, string $log_message = '', string|int|bool $error_type = false, ?string $file = null, ?int $line = null): array
 	{
 		if (empty($log_message)) {
 			$log_message = $error_message;
@@ -2481,24 +2481,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Is always a critical error.
-		if (function_exists('log_error')) {
+		try {
 			ErrorHandler::log($log_message, 'critical', $file, $line);
+			ErrorHandler::fatal($error_message, false);
+		} catch (\Throwable $e) {
+			echo $error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : '');
 		}
 
-		if (function_exists('fatal_error')) {
-			ErrorHandler::fatal($error_message, $error_type);
-
-			// Cannot continue...
-			exit;
-		}
-
-		if ($error_type) {
-			trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''), (int) $error_type);
-		} else {
-			trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''));
-		}
-
-		return null;
+		die();
 	}
 }
 

@@ -184,8 +184,7 @@ class MessageIndex implements ActionInterface, Routable
 	public static function getBoardList(array $boardListOptions = []): array
 	{
 		if (isset($boardListOptions['excluded_boards'], $boardListOptions['included_boards'])) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['get_board_list_cannot_include_and_exclude'], E_USER_ERROR);
+			throw new \Exception('get_board_list_cannot_include_and_exclude');
 		}
 
 		$where = [];

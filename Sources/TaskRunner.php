@@ -169,6 +169,7 @@ class TaskRunner
 
 			// Just in case there's a problem...
 			set_error_handler(__CLASS__ . '::handleError');
+			set_exception_handler(__CLASS__ . '::handleException');
 
 			User::$sc = '';
 
@@ -341,7 +342,7 @@ class TaskRunner
 	 ***********************/
 
 	/**
-	 * The error handling function
+	 * The error handler.
 	 *
 	 * @param int $error_level One of the PHP error level constants (see )
 	 * @param string $error_string The error message
@@ -362,6 +363,24 @@ class TaskRunner
 		// If this is an E_ERROR or E_USER_ERROR.... die.  Violently so.
 		if ($error_level % 255 == E_ERROR) {
 			die('No direct access...');
+		}
+	}
+
+	/**
+	 * The exception handler.
+	 *
+	 * Execution always ends after this is called.
+	 *
+	 * @param \Throwable $e The uncaught exception.
+	 */
+	public static function handleException(\Throwable $e): void
+	{
+		Lang::load('Errors');
+
+		$message = Lang::$txt[$e->getMessage()] ? Lang::$txt[$e->getMessage()] : $e->getMessage();
+
+		if (!empty(Config::$modSettings['enableErrorLogging'])) {
+			ErrorHandler::log($message, 'cron', $e->getFile(), $e->getLine());
 		}
 	}
 

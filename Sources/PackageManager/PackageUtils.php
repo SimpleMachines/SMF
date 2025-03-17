@@ -1710,8 +1710,7 @@ class PackageUtils
 		}
 
 		if (strlen($path) == 0) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['parse_path_filename_required'], E_USER_ERROR);
+			throw new \Exception('parse_path_filename_required');
 		}
 
 		return strtr($path, $dirs);
