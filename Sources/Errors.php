@@ -427,7 +427,7 @@ function setup_fatal_error_context($error_message, $error_code = null)
 		PROGRAM FLOW.  Otherwise, security error messages will not be shown, and
 		your forum will be in a very easily hackable state.
 	*/
-	trigger_error('No direct access...', E_USER_ERROR);
+	die('No direct access...');
 }
 
 /**

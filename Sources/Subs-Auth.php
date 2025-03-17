@@ -306,7 +306,7 @@ function adminLogin($type = 'admin')
 	obExit();
 
 	// We MUST exit at this point, because otherwise we CANNOT KNOW that the user is privileged.
-	trigger_error('No direct access...', E_USER_ERROR);
+	die('No direct access...');
 }
 
 /**
