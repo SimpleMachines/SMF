@@ -177,7 +177,7 @@ class ErrorHandler
 	{
 		Lang::load('Errors');
 
-		$message = Lang::$txt[$e->getMessage()] ? Lang::$txt[$e->getMessage()] : $e->getMessage();
+		$message = Lang::$txt[$e->getMessage()] ?? $e->getMessage();
 
 		if (!empty(Config::$modSettings['enableErrorLogging'])) {
 			self::log($message, 'general', $e->getFile(), $e->getLine());
