@@ -4207,7 +4207,7 @@ function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 
 		default:
 			loadLanguage('Errors');
-			trigger_error($txt['pm_invalid_validation_type'], E_USER_ERROR);
+			throw new \Exception('pm_invalid_validation_type');
 			break;
 	}
 }

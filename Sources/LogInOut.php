@@ -164,7 +164,7 @@ function Login2()
 		else
 		{
 			loadLanguage('Errors');
-			trigger_error($txt['login_no_session_cookie'], E_USER_ERROR);
+			throw new \Exception('login_no_session_cookie');
 		}
 
 		$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));

@@ -1653,7 +1653,7 @@ function parse_path($path)
 	if (strlen($path) == 0)
 	{
 		loadLanguage('Errors');
-		trigger_error($txt['parse_path_filename_required'], E_USER_ERROR);
+		throw new \Exception('parse_path_filename_required');
 	}
 
 	return strtr($path, $dirs);
