@@ -346,7 +346,7 @@ function smf_exception_handler(\Throwable $e)
 
 	loadLanguage('Errors');
 
-	$message = $txt[$e->getMessage()] ? $txt[$e->getMessage()] : $e->getMessage();
+	$message = $txt[$e->getMessage()] ?? $e->getMessage();
 
 	if (!empty($modSettings['enableErrorLogging'])) {
 		log_error($message, 'general', $e->getFile(), $e->getLine());
