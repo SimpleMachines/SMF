@@ -279,12 +279,10 @@ class ReportToMod implements ActionInterface, Routable
 
 		// Any errors?
 		if (!empty($post_errors)) {
-			Lang::load('Errors');
-
 			Utils::$context['post_errors'] = [];
 
 			foreach ($post_errors as $post_error) {
-				Utils::$context['post_errors'][$post_error] = Lang::$txt['error_' . $post_error];
+				Utils::$context['post_errors'][$post_error] = Lang::getTxt('error_' . $post_error, file: 'Errors');
 			}
 
 			$this->previewing = false;

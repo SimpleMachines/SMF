@@ -1188,8 +1188,6 @@ class News implements ActionInterface
 	 */
 	public static function prepareMailingForPreview(): void
 	{
-		Lang::load('Errors');
-
 		$processing = ['preview_subject' => 'subject', 'preview_message' => 'message'];
 
 		// Use the default time format.
@@ -1210,7 +1208,7 @@ class News implements ActionInterface
 			Utils::$context[$key] = !empty($_REQUEST[$post]) ? $_REQUEST[$post] : '';
 
 			if (empty(Utils::$context[$key]) && empty($_REQUEST['xml'])) {
-				Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_' . $post];
+				Utils::$context['post_error']['messages'][] = Lang::getTxt('error_no_' . $post, file: 'Errors');
 			} elseif (!empty($_REQUEST['xml'])) {
 				continue;
 			}

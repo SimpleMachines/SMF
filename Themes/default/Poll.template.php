@@ -45,7 +45,7 @@ function template_main()
 			<div class="errorbox">
 				<dl class="poll_error">
 					<dt>
-						', Utils::$context['is_edit'] ? Lang::$txt['error_while_editing_poll'] : Lang::$txt['error_while_adding_poll'], '
+						', Lang::getTxt(Utils::$context['is_edit'] ? 'error_while_editing_poll' : 'error_while_adding_poll', file: 'Errors'), '
 					</dt>
 					<dt>
 						', empty(Utils::$context['poll_error']['messages']) ? '' : implode('<br>', Utils::$context['poll_error']['messages']), '

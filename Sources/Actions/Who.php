@@ -512,15 +512,13 @@ class Who implements ActionInterface, Routable
 			}
 
 			if (isset($actions['error'])) {
-				Lang::load('Errors');
+				$error_message = Lang::getTxt(
+					$actions['error'] == 'guest_login' ? 'who_guest_login' : $actions['error'],
+					(array) ($actions['error_params'] ?? []),
+					file: 'Who+Errors',
+				);
 
-				if (isset(Lang::$txt[$actions['error']])) {
-					$error_message = str_replace('"', '&quot;', empty($actions['error_params']) ? Lang::$txt[$actions['error']] : Lang::getTxt($actions['error'], (array) $actions['error_params']));
-				} elseif ($actions['error'] == 'guest_login') {
-					$error_message = str_replace('"', '&quot;', Lang::$txt['who_guest_login']);
-				} else {
-					$error_message = str_replace('"', '&quot;', $actions['error']);
-				}
+				$error_message = str_replace('"', '&quot;', $error_message);
 
 				if (!empty($error_message)) {
 					$error_message = ' <span class="main_icons error" title="' . $error_message . '"></span>';

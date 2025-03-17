@@ -346,13 +346,11 @@ class JavaScriptModify implements ActionInterface, Routable
 					'error_in_body' => in_array('no_message', $post_errors) || in_array('long_message', $post_errors) || in_array('links_malformed', $post_errors),
 				];
 
-				Lang::load('Errors');
-
 				foreach ($post_errors as $post_error) {
 					if ($post_error == 'long_message') {
-						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, [Config::$modSettings['max_messageLength']]);
+						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, [Config::$modSettings['max_messageLength']], file: 'Errors');
 					} else {
-						Utils::$context['message']['errors'][] = Lang::$txt['error_' . $post_error];
+						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, file: 'Errors');
 					}
 				}
 			}

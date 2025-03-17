@@ -576,7 +576,6 @@ class Rule implements \ArrayAccess
 					);
 
 					if (Db::$db->num_rows($request) == 0) {
-						Lang::load('Errors');
 						ErrorHandler::fatalLang('invalid_username', false);
 					}
 					list($memID) = Db::$db->fetch_row($request);

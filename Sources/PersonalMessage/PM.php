@@ -2178,12 +2178,12 @@ class PM implements \ArrayAccess
 		foreach ($error_types as $error_type) {
 			Utils::$context['post_error'][$error_type] = true;
 
-			if (isset(Lang::$txt['error_' . $error_type])) {
+			if (Lang::txtExists('error_' . $error_type, file: 'Errors')) {
 				if ($error_type == 'long_message') {
-					Lang::$txt['error_' . $error_type] = Lang::getTxt('error_' . $error_type, [Config::$modSettings['max_messageLength']]);
+					Lang::$txt['error_' . $error_type] = Lang::getTxt('error_' . $error_type, [Config::$modSettings['max_messageLength']], file: 'Errors');
 				}
 
-				Utils::$context['post_error']['messages'][] = Lang::$txt['error_' . $error_type];
+				Utils::$context['post_error']['messages'][] = Lang::getTxt('error_' . $error_type, file: 'Errors');
 			}
 
 			// If it's not a minor error flag it as such.

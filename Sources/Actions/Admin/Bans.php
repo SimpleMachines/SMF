@@ -334,7 +334,7 @@ class Bans implements ActionInterface
 
 		if (!empty(Utils::$context['ban_errors'])) {
 			foreach (Utils::$context['ban_errors'] as $error) {
-				Utils::$context['error_messages'][$error] = Lang::$txt[$error];
+				Utils::$context['error_messages'][$error] = Lang::getTxt($error, file: 'Errors');
 			}
 		} else {
 			// If we're editing an existing ban, get it from the database.
@@ -344,7 +344,7 @@ class Bans implements ActionInterface
 				$listOptions = [
 					'id' => 'ban_items',
 					'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $ban_group_id,
-					'no_items_label' => Lang::$txt['ban_no_triggers'],
+					'no_items_label' => Lang::getTxt('ban_no_triggers', file: 'Errors'),
 					'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 					'get_items' => [
 						'function' => __CLASS__ . '::list_getBanItems',

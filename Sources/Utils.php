@@ -1494,12 +1494,10 @@ class Utils
 			$json_debug = debug_backtrace();
 			$json_debug = $json_debug[0];
 
-			Lang::load('Errors');
-
 			if (!empty($json_debug)) {
-				ErrorHandler::log(Lang::$txt['json_' . $json_error], 'critical', $json_debug['file'], $json_debug['line']);
+				ErrorHandler::log(Lang::getTxt('json_' . $json_error, file: 'Errors'), 'critical', $json_debug['file'], $json_debug['line']);
 			} else {
-				ErrorHandler::log(Lang::$txt['json_' . $json_error], 'critical');
+				ErrorHandler::log(Lang::getTxt('json_' . $json_error, file: 'Errors'), 'critical');
 			}
 
 			// Null should be returned in all cases where json can not be decoded.
@@ -2472,8 +2470,7 @@ class Utils
 			}
 
 			// Log error for invalid callables.
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::getTxt('sub_action_fail', [$callable_name]), 'general');
+			ErrorHandler::log(Lang::getTxt('sub_action_fail', [$callable_name], file: 'Errors'), 'general');
 
 			return false;
 		}
@@ -2537,8 +2534,7 @@ class Utils
 				}
 				// Sorry, can't do much for you at this point.
 				elseif (empty(Utils::$context['uninstalling'])) {
-					Lang::load('Errors');
-					ErrorHandler::log(Lang::getTxt('hook_fail_loading_file', [$path]), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_loading_file', [$path], file: 'Errors'), 'general');
 
 					// File couldn't be loaded.
 					return false;

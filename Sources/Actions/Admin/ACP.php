@@ -1423,8 +1423,7 @@ class ACP implements ActionInterface, Routable
 		// Now lets check for the Database.
 		if (in_array('db_server', $checkFor)) {
 			if (!isset(Db::$db_connection) || Db::$db_connection === false) {
-				Lang::load('Errors');
-				trigger_error(Lang::$txt['get_server_versions_no_database'], E_USER_NOTICE);
+				trigger_error(Lang::getTxt('get_server_versions_no_database', file: 'Errors'), E_USER_NOTICE);
 			} else {
 				$versions['db_engine'] = [
 					'title' => Lang::getTxt('support_versions_db_engine', ['db_title' => Db::$db->title]),

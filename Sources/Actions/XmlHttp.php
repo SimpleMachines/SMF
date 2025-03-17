@@ -209,18 +209,16 @@ class XmlHttp implements ActionInterface, Routable
 	 */
 	public function newsletterpreview(): void
 	{
-		Lang::load('Errors');
-
 		Utils::$context['post_error']['messages'] = [];
 		Utils::$context['send_pm'] = !empty($_POST['send_pm']) ? 1 : 0;
 		Utils::$context['send_html'] = !empty($_POST['send_html']) ? 1 : 0;
 
 		if (empty($_POST['subject'])) {
-			Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_subject'];
+			Utils::$context['post_error']['messages'][] = Lang::getTxt('error_no_subject', file: 'Errors');
 		}
 
 		if (empty($_POST['message'])) {
-			Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_message'];
+			Utils::$context['post_error']['messages'][] = Lang::getTxt('error_no_message', file: 'Errors');
 		}
 
 		News::prepareMailingForPreview();
@@ -236,7 +234,6 @@ class XmlHttp implements ActionInterface, Routable
 		require_once Config::$sourcedir . '/Profile-Modify.php';
 
 		Lang::load('Profile');
-		Lang::load('Errors');
 
 		$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
 		$is_owner = $user == User::$me->id;
@@ -284,7 +281,7 @@ class XmlHttp implements ActionInterface, Routable
 			$validation = Profile::validateSignature($preview_signature);
 
 			if ($validation !== true && $validation !== false) {
-				$errors[] = ['value' => Lang::$txt['profile_error_' . $validation], 'attributes' => ['type' => 'error']];
+				$errors[] = ['value' => Lang::getTxt('profile_error_' . $validation, file: 'Errors'), 'attributes' => ['type' => 'error']];
 			}
 
 			Lang::censorText($preview_signature);
@@ -300,12 +297,12 @@ class XmlHttp implements ActionInterface, Routable
 			$preview_signature = Utils::adjustHeadingLevels($preview_signature, null);
 		} elseif (!$can_change) {
 			if ($is_owner) {
-				$errors[] = ['value' => Lang::$txt['cannot_profile_extra_own'], 'attributes' => ['type' => 'error']];
+				$errors[] = ['value' => Lang::getTxt('cannot_profile_extra_own', file: 'Errors'), 'attributes' => ['type' => 'error']];
 			} else {
-				$errors[] = ['value' => Lang::$txt['cannot_profile_extra_any'], 'attributes' => ['type' => 'error']];
+				$errors[] = ['value' => Lang::getTxt('cannot_profile_extra_any', file: 'Errors'), 'attributes' => ['type' => 'error']];
 			}
 		} else {
-			$errors[] = ['value' => Lang::$txt['no_user_selected'], 'attributes' => ['type' => 'error']];
+			$errors[] = ['value' => Lang::getTxt('no_user_selected', file: 'Errors'), 'attributes' => ['type' => 'error']];
 		}
 
 		Utils::$context['xml_data']['signatures'] = [
@@ -333,7 +330,7 @@ class XmlHttp implements ActionInterface, Routable
 				'children' => array_merge(
 					[
 						[
-							'value' => Lang::$txt['profile_errors_occurred'],
+							'value' => Lang::getTxt('profile_errors_occurred', file: 'Errors'),
 							'attributes' => ['type' => 'errors_occurred'],
 						],
 					],
@@ -348,7 +345,6 @@ class XmlHttp implements ActionInterface, Routable
 	 */
 	public function warning_preview(): void
 	{
-		Lang::load('Errors');
 		Lang::load('ModerationCenter');
 
 		Utils::$context['post_error']['messages'] = [];
@@ -360,7 +356,7 @@ class XmlHttp implements ActionInterface, Routable
 
 			if (isset($_POST['issuing'])) {
 				if (empty($_POST['title']) || empty($_POST['body'])) {
-					Utils::$context['post_error']['messages'][] = Lang::$txt['warning_notify_blank'];
+					Utils::$context['post_error']['messages'][] = Lang::getTxt('warning_notify_blank', file: 'Errors');
 				}
 			} else {
 				if (empty($_POST['title'])) {
@@ -406,7 +402,7 @@ class XmlHttp implements ActionInterface, Routable
 
 			Utils::$context['preview_message'] = $warning_body;
 		} else {
-			Utils::$context['post_error']['messages'][] = ['value' => Lang::$txt['cannot_issue_warning'], 'attributes' => ['type' => 'error']];
+			Utils::$context['post_error']['messages'][] = ['value' => Lang::getTxt('cannot_issue_warning', file: 'Errors'), 'attributes' => ['type' => 'error']];
 		}
 
 		Utils::$context['sub_template'] = 'warning';

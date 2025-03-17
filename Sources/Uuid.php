@@ -241,7 +241,7 @@ class Uuid implements \Stringable
 
 		if (!in_array($this->version, self::SUPPORTED_VERSIONS)) {
 			Lang::load('Errors', Lang::$default);
-			trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version]), E_USER_WARNING);
+			trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
 			$this->version = self::DEFAULT_VERSION;
 		}
 
@@ -277,7 +277,7 @@ class Uuid implements \Stringable
 
 		if (in_array($this->version, [3, 5]) && !isset($input)) {
 			Lang::load('Errors', Lang::$default);
-			trigger_error(Lang::getTxt('uuid_requires_string_input', [$this->version]), E_USER_WARNING);
+			trigger_error(Lang::getTxt('uuid_requires_string_input', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
 			$this->version = 0;
 		}
 
@@ -449,7 +449,7 @@ class Uuid implements \Stringable
 			$hex = strtolower(str_replace(['{', '-', '}'], '', $input));
 		} else {
 			Lang::load('Errors', $strict ? Lang::$default : '');
-			trigger_error(Lang::getTxt('uuid_invalid_string', [$input]), $strict ? E_USER_ERROR : E_USER_WARNING);
+			trigger_error(Lang::getTxt('uuid_invalid_string', [$input], file: 'Errors', lang: $strict ? Lang::$default : ''), $strict ? E_USER_ERROR : E_USER_WARNING);
 
 			$hex = '00000000000000000000000000000000';
 		}
@@ -466,7 +466,7 @@ class Uuid implements \Stringable
 			|| ($version === 15 && $hex !== 'ffffffffffffffffffffffffffffffff')
 		) {
 			Lang::load('Errors', $strict ? Lang::$default : '');
-			trigger_error(Lang::getTxt('uuid_invalid_string', [$input]), $strict ? E_USER_ERROR : E_USER_WARNING);
+			trigger_error(Lang::getTxt('uuid_invalid_string', [$input], file: 'Errors', lang: $strict ? Lang::$default : ''), $strict ? E_USER_ERROR : E_USER_WARNING);
 
 			$hex = '00000000000000000000000000000000';
 			$version = 0;
@@ -735,9 +735,7 @@ class Uuid implements \Stringable
 
 				// Unknown domain.
 				default:
-					Lang::load('Errors');
-
-					throw new \Exception(Lang::getTxt('uuid_unknown_domain', [$domain]));
+					throw new \Exception(Lang::getTxt('uuid_unknown_domain', [$domain], file: 'Errors'));
 					break;
 			}
 		}
@@ -992,7 +990,7 @@ class Uuid implements \Stringable
 
 			default:
 				Lang::load('Errors', Lang::$default);
-				trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version]), E_USER_WARNING);
+				trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
 
 				return (int) $timestamp;
 		}
@@ -1001,7 +999,7 @@ class Uuid implements \Stringable
 
 		if ($timestamp < 0) {
 			Lang::load('Errors', Lang::$default);
-			trigger_error(Lang::getTxt('uuid_timestamp_out_of_range', [$this->version]), E_USER_WARNING);
+			trigger_error(Lang::getTxt('uuid_timestamp_out_of_range', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
 		}
 
 		return $timestamp;

@@ -2038,8 +2038,7 @@ class PackageUtils
 			// Now, loop through all the files we're changing, and, well, change them ;)
 			foreach ($files_to_change as $theme => $working_file) {
 				if ($working_file[0] != '/' && $working_file[1] != ':') {
-					Lang::load('Errors');
-					trigger_error(Lang::getTxt('parse_modification_filename_not_full_path', [$working_file]), E_USER_WARNING);
+					trigger_error(Lang::getTxt('parse_modification_filename_not_full_path', [$working_file], file: 'Errors'), E_USER_WARNING);
 
 					$working_file = Config::$boarddir . '/' . $working_file;
 				}
@@ -2464,8 +2463,7 @@ class PackageUtils
 				$working_file = self::parsePath($code_match[2]);
 
 				if ($working_file[0] != '/' && $working_file[1] != ':') {
-					Lang::load('Errors');
-					trigger_error(Lang::getTxt('parse_boardmod_filename_not_full_path', [$working_file]), E_USER_WARNING);
+					trigger_error(Lang::getTxt('parse_boardmod_filename_not_full_path', [$working_file], file: 'Errors'), E_USER_WARNING);
 
 					$working_file = Config::$boarddir . '/' . $working_file;
 				}
@@ -2744,8 +2742,7 @@ class PackageUtils
 
 				if (!$fp) {
 					// We should have package_chmod()'d them before, no?!
-					Lang::load('Errors');
-					trigger_error(Lang::$txt['package_flush_cache_not_writable'], E_USER_WARNING);
+					trigger_error(Lang::getTxt('package_flush_cache_not_writable', file: 'Errors'), E_USER_WARNING);
 
 					return;
 				}

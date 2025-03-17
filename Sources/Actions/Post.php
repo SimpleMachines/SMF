@@ -1110,7 +1110,6 @@ class Post implements ActionInterface, Routable
 			}
 
 			if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg']) {
-				Lang::load('Errors');
 				Utils::$context['post_error']['already_announced'] = Lang::$txt['error_topic_already_announced'];
 			}
 
@@ -1198,7 +1197,6 @@ class Post implements ActionInterface, Routable
 		}
 
 		if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg']) {
-			Lang::load('Errors');
 			Utils::$context['post_error']['already_announced'] = Lang::$txt['error_topic_already_announced'];
 		}
 

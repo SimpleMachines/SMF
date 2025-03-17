@@ -152,7 +152,6 @@ class Search implements ActionInterface, Routable
 
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
-			Lang::load('Errors');
 			Utils::$context['search_errors']['messages'] = [];
 
 			foreach (Utils::$context['search_errors'] as $search_error => $dummy) {
@@ -161,10 +160,13 @@ class Search implements ActionInterface, Routable
 				}
 
 				if ($search_error == 'string_too_long') {
-					Lang::$txt['error_string_too_long'] = Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH]);
+					Lang::setTxt(
+						'error_string_too_long',
+						Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH], file: 'Errors'),
+					);
 				}
 
-				Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
+				Utils::$context['search_errors']['messages'][] = Lang::getTxt('error_' . $search_error, file: 'Errors');
 			}
 		}
 

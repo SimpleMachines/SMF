@@ -967,7 +967,7 @@ class Group implements \ArrayAccess
 		}
 
 		if (!in_array($type, ['auto', 'only_additional', 'only_primary', 'force_primary'])) {
-			throw new \ValueError(Lang::getTxt('add_members_to_group_invalid_type', [$type]));
+			throw new \ValueError(Lang::getTxt('add_members_to_group_invalid_type', [$type], file: 'Errors'));
 		}
 
 		// Can this group be a primary group?

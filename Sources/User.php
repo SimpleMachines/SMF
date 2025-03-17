@@ -2449,8 +2449,7 @@ class User implements \ArrayAccess
 
 			// If they are a guest, show a login. (because the error might be gone if they do!)
 			if ($this->is_guest) {
-				Lang::load('Errors');
-				$this->kickIfGuest(Lang::$txt['cannot_' . $error_permission]);
+				$this->kickIfGuest(Lang::getTxt('cannot_' . $error_permission, file: 'Errors'));
 			}
 
 			// Clear the action because they aren't really doing that!
@@ -3689,12 +3688,16 @@ class User implements \ArrayAccess
 			return null;
 		}
 
-		Lang::load('Errors');
 		$error = $errors[0];
 
-		$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : Lang::getTxt($error[1], (array) $error[3])) : $error[1];
-
-		ErrorHandler::fatal($message, empty($error[2]) || self::$me->is_admin ? false : $error[2]);
+		ErrorHandler::fatal(
+			Lang::getTxt(
+				$error[1],
+				(array) ($error[3] ?? []),
+				file: 'Errors',
+			),
+			empty($error[2]) || self::$me->is_admin ? false : $error[2],
+		);
 	}
 
 	/**
@@ -5157,8 +5160,7 @@ class User implements \ArrayAccess
 					break;
 
 				default:
-					Lang::load('Errors');
-					trigger_error(Lang::getTxt('invalid_member_data_set', [$dataset]), E_USER_WARNING);
+					trigger_error(Lang::getTxt('invalid_member_data_set', [$dataset], file: 'Errors'), E_USER_WARNING);
 					break;
 			}
 

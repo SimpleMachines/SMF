@@ -1129,9 +1129,7 @@ class ExportProfileData extends BackgroundTask
 
 				// If disk space is insufficient, pause for a day so the admin can fix it.
 				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . ($this->stylesheet ?? ''))) {
-					Lang::load('Errors');
-
-					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']]));
+					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']], file: 'Errors'));
 
 					$delay = 86400;
 				} else {

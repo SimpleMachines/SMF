@@ -231,7 +231,7 @@ function template_ban_edit()
 		{
 			if (aForm.ban_name.value == \'\')
 			{
-				alert(\'', Lang::$txt['ban_name_empty'], '\');
+				alert(\'', Lang::getTxt('ban_name_empty', file: 'Errors'), '\');
 				return false;
 			}
 

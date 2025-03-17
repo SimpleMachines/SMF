@@ -1400,8 +1400,7 @@ class Attachment implements \ArrayAccess
 
 		// Attachment couldn't be created.
 		if (empty($attachmentOptions['id'])) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::$txt['attachment_not_created'], 'general');
+			ErrorHandler::log(Lang::getTxt('attachment_not_created', file: 'Errors'), 'general');
 
 			return false;
 		}

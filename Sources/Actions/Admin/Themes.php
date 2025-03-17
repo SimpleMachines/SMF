@@ -1836,8 +1836,17 @@ class Themes implements ActionInterface
 			// We need to delete the dir otherwise the next time you try to install a theme you will get the same error.
 			$this->deltree($path);
 
-			Lang::$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', Config::$scripturl . '?action=admin;area=packages;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::$txt['package_get_error_is_mod']);
-			ErrorHandler::fatalLang('package_theme_upload_error_broken', false, Lang::$txt['package_get_error_is_mod']);
+			ErrorHandler::fatalLang(
+				'package_theme_upload_error_broken',
+				false,
+				Lang::getTxt(
+					'package_get_error_is_mod',
+					[
+						'MANAGEMODURL' => Config::$scripturl . '?action=admin;area=packages;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+					],
+					file: 'Errors',
+				),
+			);
 		}
 
 		// Parse theme-info.xml into an XmlArray.

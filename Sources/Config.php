@@ -1300,7 +1300,6 @@ class Config
 				// Set the last error to now, but only every 15 minutes. Don't need to flood the logs.
 				if (empty(self::$db_last_error) || (self::$db_last_error + 60 * 15) <= time()) {
 					self::updateDbLastError(time());
-					Lang::load('Errors');
 					ErrorHandler::log(Lang::$txt['auth_secret_missing'], 'critical');
 				}
 			}

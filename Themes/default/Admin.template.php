@@ -1137,12 +1137,10 @@ function template_edit_profile_field()
 	// any errors messages to show?
 	if (isset($_GET['msg']))
 	{
-		Lang::load('Errors');
-
-		if (isset(Lang::$txt['custom_option_' . $_GET['msg']]))
+		if (Lang::txtExists('custom_option_' . $_GET['msg'], file: 'Errors'))
 			echo '
 					<div class="errorbox">',
-						Lang::$txt['custom_option_' . $_GET['msg']], '
+						Lang::getTxt('custom_option_' . $_GET['msg'], file: 'Errors'), '
 					</div>';
 	}
 

@@ -87,9 +87,7 @@ class Logging
 			}
 
 			if (!is_array($log['extra'])) {
-				Lang::load('Errors');
-
-				throw new \TypeError(Lang::getTxt('logActions_not_array', [$log['action']]));
+				throw new \TypeError(Lang::getTxt('logActions_not_array', [$log['action']], file: 'Errors'));
 			}
 
 			// Pull out the parts we want to store separately, but also make sure that the data is proper
@@ -426,9 +424,7 @@ class Logging
 				break;
 
 			default:
-				Lang::load('Errors');
-
-				throw new \ValueError(Lang::getTxt('invalid_statistic_type', [$type]));
+				throw new \ValueError(Lang::getTxt('invalid_statistic_type', [$type], file: 'Errors'));
 		}
 	}
 

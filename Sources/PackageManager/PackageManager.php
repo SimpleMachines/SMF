@@ -3091,7 +3091,6 @@ class PackageManager
 
 				if ($packageInfo['id'] == Utils::$context['package']['id'] && $packageInfo['version'] == Utils::$context['package']['version']) {
 					@unlink($destination);
-					Lang::load('Errors');
 					ErrorHandler::fatalLang('package_upload_error_exists', false);
 				}
 			}

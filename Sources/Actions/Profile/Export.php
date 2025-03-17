@@ -385,11 +385,9 @@ class Export implements ActionInterface
 
 		// Make sure the directory has the correct permissions.
 		if (!is_dir(Config::$modSettings['export_dir']) || !Utils::makeWritable(Config::$modSettings['export_dir'])) {
-			Lang::load('Errors');
-
 			// Try again at the fallback location.
 			if (Config::$modSettings['export_dir'] != $fallback) {
-				ErrorHandler::log(Lang::getTxt('export_dir_forced_change', [Config::$modSettings['export_dir'], $fallback]));
+				ErrorHandler::log(Lang::getTxt('export_dir_forced_change', [Config::$modSettings['export_dir'], $fallback], 'Errors', file: 'Errors'));
 
 				Config::updateModSettings(['export_dir' => $fallback]);
 
@@ -398,7 +396,7 @@ class Export implements ActionInterface
 			}
 			// Uh-oh. Even the default location failed.
 			else {
-				ErrorHandler::log(Lang::$txt['export_dir_not_writable']);
+				ErrorHandler::log(Lang::getTxt('export_dir_not_writable', file: 'Errors'));
 
 				return false;
 			}

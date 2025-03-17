@@ -434,10 +434,9 @@ class Theme
 			self::$current->settings['template_dirs'][] = self::$current->settings['default_theme_dir'];
 
 			if (!empty(User::$me->is_admin) && !isset($_GET['th'])) {
-				Lang::load('Errors');
 				echo '
 	<div class="alert errorbox">
-		<a href="', Config::$scripturl . '?action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], '" class="alert">', Lang::$txt['theme_dir_wrong'], '</a>
+		<a href="', Config::$scripturl . '?action=admin;area=theme;sa=list;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], '" class="alert">', Lang::getTxt('theme_dir_wrong', file: 'Errors'), '</a>
 	</div>';
 			}
 
@@ -1733,8 +1732,7 @@ class Theme
 
 		// File has to exist. If it doesn't, try to create it.
 		if (@fopen($minified_file, 'w') === false || !Utils::makeWritable($minified_file)) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file]), 'general');
+			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file], file: 'Errors'), 'general');
 
 			// The process failed, so roll back to print each individual file.
 			return $data;
@@ -1750,8 +1748,7 @@ class Theme
 
 			// The file couldn't be located so it won't be added. Log this error.
 			if (empty($toAdd)) {
-				Lang::load('Errors');
-				ErrorHandler::log(Lang::getTxt('file_minimize_fail', [!empty($file['fileName']) ? $file['fileName'] : $id]), 'general');
+				ErrorHandler::log(Lang::getTxt('file_minimize_fail', [!empty($file['fileName']) ? $file['fileName'] : $id], file: 'Errors'), 'general');
 
 				continue;
 			}
@@ -1767,8 +1764,7 @@ class Theme
 
 		// Minify process failed.
 		if (!filesize($minified_file)) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file]), 'general');
+			ErrorHandler::log(Lang::getTxt('file_not_created', [$minified_file], file: 'Errors'), 'general');
 
 			// The process failed so roll back to print each individual file.
 			return $data;
@@ -1824,8 +1820,7 @@ class Theme
 
 		// If any of the files could not be deleted, log an error about it.
 		if (!empty($not_deleted)) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::getTxt('unlink_minimized_fail', [implode('<br>', $not_deleted)]), 'general');
+			ErrorHandler::log(Lang::getTxt('unlink_minimized_fail', [implode('<br>', $not_deleted)], file: 'Errors'), 'general');
 		}
 	}
 

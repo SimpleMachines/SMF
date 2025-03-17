@@ -2746,7 +2746,7 @@ function template_error_message()
 	if (!empty(Utils::$context['post_errors']))
 	{
 		echo '
-			<span>', !empty(Utils::$context['custom_error_title']) ? Utils::$context['custom_error_title'] : Lang::$txt['profile_errors_occurred'], '</span>
+			<span>', !empty(Utils::$context['custom_error_title']) ? Utils::$context['custom_error_title'] : Lang::getTxt('profile_errors_occurred', file: 'Errors'), '</span>
 			<ul id="list_errors">';
 
 		// Cycle through each error and display an error message.

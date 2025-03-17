@@ -609,9 +609,7 @@ class Profile extends User implements \ArrayAccess
 
 					// Were there errors?
 					if ($password_error != null) {
-						Lang::load('Errors');
-
-						return (isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'password_' : '') . $password_error;
+						return (Lang::txtExists('profile_error_password_' . $password_error, file: 'Errors') ? 'password_' : '') . $password_error;
 					}
 
 					// Set up the new password variable... ready for storage.
@@ -793,7 +791,7 @@ class Profile extends User implements \ArrayAccess
 						else {
 							Lang::load('Errors', Lang::$default);
 
-							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]]));
+							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]], file: 'Errors', lang: Lang::$default));
 
 							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn($v) => $v != $set);
 						}

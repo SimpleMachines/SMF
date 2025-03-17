@@ -818,9 +818,7 @@ abstract class SearchApi implements SearchApiInterface
 			|| !PackageUtils::matchPackageVersion(SMF_VERSION, self::$loadedApi->min_smf_version . '-' . self::$loadedApi->version_compatible)
 		) {
 			// Log the error.
-			Lang::load('Errors');
-
-			ErrorHandler::log(Lang::getTxt('search_api_not_compatible', ['Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php']), 'critical');
+			ErrorHandler::log(Lang::getTxt('search_api_not_compatible', ['Search/APIs/' . ucwords(Config::$modSettings['search_index']) . '.php'], file: 'Errors'), 'critical');
 
 			// Fall back to standard search.
 			if (Config::$modSettings['search_index'] !== 'standard') {

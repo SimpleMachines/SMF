@@ -249,9 +249,7 @@ class Reminder implements ActionInterface, Routable
 			if ($password_error == 'short') {
 				ErrorHandler::fatalLang('profile_error_password_short', false, [Security::minimumPasswordLength()]);
 			} else {
-				Lang::load('Errors');
-
-				ErrorHandler::fatalLang((isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'profile_error_password_' : '') . $password_error, false);
+				ErrorHandler::fatalLang((Lang::txtExists('profile_error_password_' . $password_error, file: 'Errors') ? 'profile_error_password_' : '') . $password_error, false);
 			}
 		}
 
@@ -389,9 +387,7 @@ class Reminder implements ActionInterface, Routable
 			if ($password_error == 'short') {
 				ErrorHandler::fatalLang('profile_error_password_' . $password_error, false, [Security::minimumPasswordLength()]);
 			} else {
-				Lang::load('Errors');
-
-				ErrorHandler::fatalLang((isset(Lang::$txt['profile_error_password_' . $password_error]) ? 'profile_error_password_' : '') . $password_error, false);
+				ErrorHandler::fatalLang((Lang::txtExists('profile_error_password_' . $password_error, file: 'Errors') ? 'profile_error_password_' : '') . $password_error, false);
 			}
 		}
 

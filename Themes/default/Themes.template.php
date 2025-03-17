@@ -914,7 +914,7 @@ function template_edit_style()
 	if (Utils::$context['session_error'])
 		echo '
 	<div class="errorbox">
-		', Lang::$txt['error_session_timeout'], '
+		', Lang::getTxt('error_session_timeout', file: 'Errors'), '
 	</div>';
 
 	// From now on no one can complain that editing css is difficult. If you disagree, go to www.w3schools.com.
@@ -1072,7 +1072,7 @@ function template_edit_template()
 	if (Utils::$context['session_error'])
 		echo '
 	<div class="errorbox">
-		', Lang::$txt['error_session_timeout'], '
+		', Lang::getTxt('error_session_timeout', file: 'Errors'), '
 	</div>';
 
 	if (isset(Utils::$context['parse_error']))
@@ -1126,7 +1126,7 @@ function template_edit_file()
 	if (Utils::$context['session_error'])
 		echo '
 	<div class="errorbox">
-		', Lang::$txt['error_session_timeout'], '
+		', Lang::getTxt('error_session_timeout', file: 'Errors'), '
 	</div>';
 
 	// Is this file writeable?
