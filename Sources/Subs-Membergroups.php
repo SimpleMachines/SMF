@@ -598,7 +598,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 	else
 	{
 		loadLanguage('Errors');
-		trigger_error(sprintf($txt['add_members_to_group_invalid_type'], $type), E_USER_WARNING);
+		throw new \TypeError(sprintf($txt['add_members_to_group_invalid_type'], $type));
 	}
 
 	call_integration_hook('integrate_add_members_to_group', array($members, $group, &$group_names));
