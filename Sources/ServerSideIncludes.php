@@ -2055,12 +2055,12 @@ class ServerSideIncludes
 
 		if (!empty($return['calendar_holidays'])) {
 			echo '
-				<span class="holiday">' . Lang::$txt['calendar_prompt'] . ' ' . implode(', ', (array) $return['calendar_holidays']) . '<br></span>';
+				<span class="holiday">' . Lang::getTxt('calendar_prompt', file: 'Calendar') . ' ' . implode(', ', (array) $return['calendar_holidays']) . '<br></span>';
 		}
 
 		if (!empty($return['calendar_birthdays'])) {
 			echo '
-				<span class="birthday">' . Lang::$txt['birthdays_upcoming'] . '</span> ';
+				<span class="birthday">' . Lang::getTxt('birthdays_upcoming', file: 'Calendar') . '</span> ';
 
 			foreach ((array) $return['calendar_birthdays'] as $member) {
 				echo '
@@ -2072,7 +2072,7 @@ class ServerSideIncludes
 
 		if (!empty($return['calendar_events'])) {
 			echo '
-				<span class="event">' . Lang::$txt['events_upcoming'] . '</span> ';
+				<span class="event">' . Lang::getTxt('events_upcoming', file: 'Calendar') . '</span> ';
 
 			foreach ((array) $return['calendar_events'] as $event) {
 				if ($event['can_edit']) {
@@ -2471,7 +2471,7 @@ class ServerSideIncludes
 
 		// Well the output method is echo.
 		echo '
-				<span class="event">' . Lang::$txt['events'] . '</span> ';
+				<span class="event">' . Lang::getTxt('events', file: 'Calendar') . '</span> ';
 
 		foreach ($return as $mday => $array) {
 			foreach ($array as $event) {

@@ -1161,7 +1161,7 @@ class Theme
 					],
 				],
 				'calendar' => [
-					'title' => Lang::$txt['calendar'],
+					'title' => Lang::getTxt('calendar', file: 'Calendar'),
 					'href' => Config::$scripturl . '?action=calendar',
 					'show' => Utils::$context['allow_calendar'],
 					'sub_buttons' => [
@@ -1171,7 +1171,7 @@ class Theme
 							'show' => Utils::$context['allow_calendar_event'],
 						],
 						'post' => [
-							'title' => Lang::$txt['calendar_post_event'],
+							'title' => Lang::getTxt('calendar_post_event', file: 'Calendar'),
 							'href' => Config::$scripturl . '?action=calendar;sa=post',
 							'show' => Utils::$context['allow_calendar_event'],
 							'is_last' => true,

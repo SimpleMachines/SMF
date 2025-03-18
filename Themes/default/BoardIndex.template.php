@@ -408,7 +408,7 @@ function template_ic_block_calendar()
 	echo '
 			<div class="sub_bar">
 				<h4 class="subbg">
-					<a href="', Config::$scripturl, '?action=calendar' . '"><span class="main_icons calendar"></span> ', Utils::$context['calendar_only_today'] ? Lang::$txt['calendar_today'] : Lang::$txt['calendar_upcoming'], '</a>
+					<a href="', Config::$scripturl, '?action=calendar' . '"><span class="main_icons calendar"></span> ', Lang::getTxt(Utils::$context['calendar_only_today'] ? 'calendar_today' : 'calendar_upcoming', file: 'Calendar'), '</a>
 				</h4>
 			</div>';
 
@@ -422,7 +422,7 @@ function template_ic_block_calendar()
 
 		echo '
 			<p class="inline holiday">
-				<span class="label">', Lang::$txt['calendar_prompt'], '</span> ', implode(', ', $holidays), '
+				<span class="label">', Lang::getTxt('calendar_prompt', file: 'Calendar'), '</span> ', implode(', ', $holidays), '
 			</p>';
 	}
 
@@ -431,7 +431,7 @@ function template_ic_block_calendar()
 	{
 		echo '
 			<p class="inline">
-				<span class="birthday">', Utils::$context['calendar_only_today'] ? Lang::$txt['birthdays'] : Lang::$txt['birthdays_upcoming'], '</span>';
+				<span class="birthday">', Lang::getTxt(Utils::$context['calendar_only_today'] ? 'birthdays' : 'birthdays_upcoming', file: 'Calendar'), '</span>';
 
 		// Each member in calendar_birthdays has: id, name (person), age (if they have one set?), is_last. (last in list?), and is_today (birthday is today?)
 		foreach (Utils::$context['calendar_birthdays'] as $member)
@@ -447,13 +447,13 @@ function template_ic_block_calendar()
 	{
 		echo '
 			<p class="inline">
-				<span class="event">', Utils::$context['calendar_only_today'] ? Lang::$txt['events'] : Lang::$txt['events_upcoming'], '</span> ';
+				<span class="event">', Lang::getTxt(Utils::$context['calendar_only_today'] ? 'events' : 'events_upcoming', file: 'Calendar'), '</span> ';
 
 		// Each event in calendar_events should have:
 		//		title, href, is_last, can_edit (are they allowed?), modify_href, and is_today.
 		foreach (Utils::$context['calendar_events'] as $event)
 			echo '
-				', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . Lang::$txt['calendar_edit'] . '"><span class="main_icons calendar_modify"></span></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br>' : ', ';
+				', $event['can_edit'] ? '<a href="' . $event['modify_href'] . '" title="' . Lang::getTxt('calendar_edit', file: 'Calendar') . '"><span class="main_icons calendar_modify"></span></a> ' : '', $event['href'] == '' ? '' : '<a href="' . $event['href'] . '">', $event['is_today'] ? '<strong>' . $event['title'] . '</strong>' : $event['title'], $event['href'] == '' ? '' : '</a>', $event['is_last'] ? '<br>' : ', ';
 		echo '
 			</p>';
 	}

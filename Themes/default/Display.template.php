@@ -177,7 +177,7 @@ function template_main()
 	if (!empty(Utils::$context['linked_calendar_events'])) {
 		echo '
 		<div class="title_bar">
-			<h3 class="titlebg">', Lang::$txt['calendar_linked_events'], '</h3>
+			<h3 class="titlebg">', Lang::getTxt('calendar_linked_events', file: 'Calendar'), '</h3>
 		</div>';
 
 		template_linked_events();

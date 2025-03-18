@@ -548,7 +548,7 @@ class Event implements \ArrayAccess
 
 		// Now set all the options for the UI.
 		foreach ($this->frequency_units as $freq => $unit) {
-			$this->frequency_units[$freq] = Lang::$txt['calendar_repeat_frequency_units'][$freq] ?? $unit;
+			$this->frequency_units[$freq] = Lang::txtExists(['calendar_repeat_frequency_units', $freq], file: 'Calendar') ? Lang::getTxt(['calendar_repeat_frequency_units', $freq], file: 'Calendar') : $unit;
 		}
 
 		// Our Lang::$txt arrays use Sunday = 0, but ISO day numbering uses Monday = 0.
@@ -571,13 +571,13 @@ class Event implements \ArrayAccess
 			];
 		}
 
-		foreach (Lang::$txt['calendar_repeat_rrule_presets'] as $rrule => $description) {
+		foreach (Lang::getTxt('calendar_repeat_rrule_presets', file: 'Calendar') as $rrule => $description) {
 			if (isset($this->rrule_presets[$rrule])) {
 				$this->rrule_presets[$rrule] = $description;
 			}
 		}
 
-		$this->byday_num_options = Lang::$txt['calendar_repeat_byday_num_options'];
+		$this->byday_num_options = Lang::getTxt('calendar_repeat_byday_num_options', file: 'Calendar');
 
 		uksort(
 			$this->byday_num_options,
@@ -2179,7 +2179,24 @@ class Event implements \ArrayAccess
 		}
 
 		foreach (self::$special_rrules[$base]['group'] as $special_rrule) {
-			$props['rrule_presets'][Lang::$txt['calendar_repeat_special']][$special_rrule] = Lang::$txt['calendar_repeat_rrule_presets'][self::$special_rrules[$special_rrule]['txt_key']] ?? Lang::$txt[self::$special_rrules[$special_rrule]['txt_key']] ?? Lang::$txt['calendar_repeat_rrule_presets'][$special_rrule] ?? Lang::$txt[$special_rrule] ?? $special_rrule;
+			$special = Lang::getTxt('calendar_repeat_special', file: 'Calendar');
+
+			$props['rrule_presets'][$special][$special_rrule] = $special_rrule;
+
+			foreach (
+				[
+					['calendar_repeat_rrule_presets', self::$special_rrules[$special_rrule]['txt_key']],
+					self::$special_rrules[$special_rrule]['txt_key'],
+					['calendar_repeat_rrule_presets', $special_rrule],
+					$special_rrule,
+				] as $txt_key
+			) {
+				if (Lang::txtExists($txt_key, file: 'Calendar')) {
+					$props['rrule_presets'][$special][$special_rrule] = Lang::getTxt($txt_key, file: 'Calendar');
+
+					break;
+				}
+			}
 		}
 
 		switch ($base) {

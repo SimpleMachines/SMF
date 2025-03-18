@@ -1696,7 +1696,7 @@ class Post implements ActionInterface, Routable
 		if (isset($_REQUEST['poll'])) {
 			Utils::$context['page_title'] = Lang::$txt['new_poll'];
 		} elseif (Utils::$context['make_event']) {
-			Utils::$context['page_title'] = Utils::$context['event']->id == -1 ? Lang::$txt['calendar_post_event'] : Lang::$txt['calendar_edit'];
+			Utils::$context['page_title'] = Lang::getTxt(Utils::$context['event']->id == -1 ? 'calendar_post_event' : 'calendar_edit', file: 'Calendar');
 		} elseif (isset($_REQUEST['msg'])) {
 			Utils::$context['page_title'] = Lang::$txt['modify_msg'];
 		} elseif (isset($_REQUEST['subject'], Utils::$context['preview_subject'])) {
@@ -1984,7 +1984,7 @@ class Post implements ActionInterface, Routable
 		if (empty(Board::$info->id)) {
 			Utils::$context['posting_fields']['board'] = [
 				'label' => [
-					'text' => Lang::$txt['calendar_post_in'],
+					'text' => Lang::getTxt('calendar_post_in', file: 'Calendar'),
 				],
 				'input' => [
 					'type' => 'select',

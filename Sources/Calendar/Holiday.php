@@ -65,7 +65,25 @@ class Holiday extends Event
 		// For new events, provide all known special RRule options.
 		if ($id <= 0) {
 			foreach (self::$special_rrules as $special_rrule => $info) {
-				$this->rrule_presets[Lang::$txt['calendar_repeat_special']][$special_rrule] = Lang::$txt['calendar_repeat_rrule_presets'][$info['txt_key']] ?? Lang::$txt[$info['txt_key']] ?? Lang::$txt['calendar_repeat_rrule_presets'][$special_rrule] ?? Lang::$txt[$special_rrule] ?? $special_rrule;
+				$special = Lang::getTxt('calendar_repeat_special', file: 'Calendar');
+
+				$props['rrule_presets'][$special][$special_rrule] = $special_rrule;
+
+				foreach (
+					[
+						['calendar_repeat_rrule_presets', $info['txt_key']],
+						$info['txt_key'],
+						['calendar_repeat_rrule_presets', $special_rrule],
+						$special_rrule,
+					] as $txt_key
+				) {
+					if (Lang::txtExists($txt_key, file: 'Calendar')) {
+						$props['rrule_presets'][$special][$special_rrule] = Lang::getTxt($txt_key, file: 'Calendar');
+
+						break;
+					}
+				}
+
 			}
 
 			Theme::addJavaScriptVar('special_rrules', array_keys(self::$special_rrules), true);

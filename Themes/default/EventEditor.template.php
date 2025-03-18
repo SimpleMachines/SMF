@@ -27,7 +27,7 @@ function template_event_options()
 {
 	echo '
 				<fieldset id="event_options">
-					<legend>', Lang::$txt['calendar_event_options'], '</legend>
+					<legend>', Lang::getTxt('calendar_event_options', file: 'Calendar'), '</legend>
 					<input type="hidden" name="calendar" value="1">
 					<input type="hidden" name="eventid" value="', Utils::$context['event']->id, '">
 					<input type="hidden" name="recurrenceid" value="', Utils::$context['event']->selected_occurrence->id, '">';
@@ -70,16 +70,16 @@ function template_event_link_to()
 		echo '
 					<dl id="event_link_to">
 						<dt class="clear">
-							' . Lang::$txt['calendar_link_to'] . '
+							' . Lang::getTxt('calendar_link_to', file: 'Calendar') . '
 						</dt>
 						<dd>
 							<label>
 								<input type="radio" id="event_link_to_new" name="event_link_to" value="new" checked>
-								<span>' . Lang::$txt['calendar_event_new'] . '</span>
+								<span>' . Lang::getTxt('calendar_event_new', file: 'Calendar') . '</span>
 							</label>
 							<label>
 								<input type="radio" name="event_link_to" value="existing">
-								<span>' . Lang::$txt['calendar_event_existing'] . '</span>
+								<span>' . Lang::getTxt('calendar_event_existing', file: 'Calendar') . '</span>
 							</label>
 						</dd>
 					</dl>';
@@ -89,7 +89,7 @@ function template_event_link_to()
 	echo '
 					<dl id="event_id_to_link">
 						<dt class="clear">
-							' . Lang::$txt['calendar_link_event_id'] . '
+							' . Lang::getTxt('calendar_link_event_id', file: 'Calendar') . '
 						</dt>
 						<dd>
 							<input type="text" name="event_id_to_link">
@@ -109,7 +109,7 @@ function template_event_unlink()
 	echo '
 					<dl>
 						<dt class="clear">
-							' . Lang::$txt['calendar_unlink'] . '
+							' . Lang::getTxt('calendar_unlink', file: 'Calendar') . '
 						</dt>
 						<dd>
 							<input type="checkbox" name="unlink">
@@ -131,7 +131,7 @@ function template_event_board()
 	echo '
 					<dl id="topic_link_to">
 						<dt class="clear">
-							' . Lang::$txt['calendar_post_in'] . '
+							' . Lang::getTxt('calendar_post_in', file: 'Calendar') . '
 						</dt>
 						<dd>';
 
@@ -139,7 +139,7 @@ function template_event_board()
 		echo '
 							<label>
 								<input type="radio" id="link_to_none" name="link_to" value="none"' . (empty(Utils::$context['event']->topic) ? ' checked' : '') . '>
-								' . Lang::$txt['calendar_only'] . '
+								' . Lang::getTxt('calendar_only', file: 'Calendar') . '
 							</label>';
 	}
 
@@ -154,7 +154,7 @@ function template_event_board()
 	echo '
 							<label>
 								<input type="radio" id="link_to_topic" name="link_to" value="topic"' . (!empty(Utils::$context['event']->topic) ? ' checked' : '') . '>
-								' . Lang::$txt['calendar_topic_existing'] . '
+								' . Lang::getTxt('calendar_topic_existing', file: 'Calendar') . '
 							</label>
 						</dd>
 					</dl>';
@@ -192,7 +192,7 @@ function template_event_board()
 	echo '
 					<dl id="event_topic">
 						<dt class="clear">
-							<label>' . Lang::$txt['calendar_link_topic_id'] . '</label>
+							<label>' . Lang::getTxt('calendar_link_topic_id', file: 'Calendar') . '</label>
 						</dt>
 						<dd>
 							<input type="text" name="topic" value="' . (!empty(Utils::$context['event']->topic) ? Utils::$context['event']->topic : '') . '">
@@ -216,7 +216,7 @@ function template_event_new()
 					<div id="event_new">
 						<dl id="event_basic_info">
 							<dt class="clear">
-								<label', isset(Utils::$context['post_error']['no_event']) ? ' class="error"' : '', '>', Lang::$txt['calendar_event_title'], '</label>
+								<label', isset(Utils::$context['post_error']['no_event']) ? ' class="error"' : '', '>', Lang::getTxt('calendar_event_title', file: 'Calendar'), '</label>
 							</dt>
 							<dd>
 								<input type="text" id="evtitle" name="evtitle" maxlength="255" value="', Utils::$context['event']->selected_occurrence->title, '"', isset(Utils::$context['post_error']['no_event']) ? ' class="error"' : '', '>
@@ -235,7 +235,7 @@ function template_event_new()
 						<hr class="clear">
 						<dl id="event_date_and_time">
 							<dt class="clear">
-								<label for="allday">', Lang::$txt['calendar_allday'], '</label>
+								<label for="allday">', Lang::getTxt('calendar_allday', file: 'Calendar'), '</label>
 							</dt>
 							<dd>
 								<input type="checkbox" name="allday" id="allday"', !empty(Utils::$context['event']->allday) ? ' checked' : '', !empty(Utils::$context['event']->special_rrule) || (!Utils::$context['event']->new && !Utils::$context['event']->selected_occurrence->is_first) ? ' disabled' : '', '>
@@ -259,7 +259,7 @@ function template_event_new()
 							</dd>
 
 							<dt id="tz_dt" class="clear">
-								<label>', Lang::$txt['calendar_timezone'], '</label>
+								<label>', Lang::getTxt('calendar_timezone', file: 'Calendar'), '</label>
 							</dt>
 							<dd id="tz_dd">';
 
@@ -299,17 +299,17 @@ function template_occurrence_options()
 		echo '
 						<dl id="occurrence_options">
 							<dt class="clear">
-								', Lang::$txt['calendar_repeat_adjustment_label'], '
+								', Lang::getTxt('calendar_repeat_adjustment_label', file: 'Calendar'), '
 							</dt>
 							<dd>
 								<label>
 									<input type="radio" name="affects_future" value="0" required checked>
-									<span>', Lang::$txt['calendar_repeat_adjustment_this_only'], '</span>
+									<span>', Lang::getTxt('calendar_repeat_adjustment_this_only', file: 'Calendar'), '</span>
 								</label>
 								<br>
 								<label>
-									<input type="radio" name="affects_future" value="1" required class="you_sure" data-confirm="' . Lang::$txt['calendar_repeat_adjustment_confirm'] . '">
-									<span>', Lang::$txt['calendar_repeat_adjustment_this_and_future'], '</span>
+									<input type="radio" name="affects_future" value="1" required class="you_sure" data-confirm="' . Lang::getTxt('calendar_repeat_adjustment_confirm', file: 'Calendar') . '">
+									<span>', Lang::getTxt('calendar_repeat_adjustment_this_and_future', file: 'Calendar'), '</span>
 								</label>
 							</dd>
 						</dl>';
@@ -328,7 +328,7 @@ function template_rrule()
 	// RRULE presets.
 	echo '
 							<dt class="clear">
-								<label>', Lang::$txt['calendar_repeat_recurrence_label'], '</label>
+								<label>', Lang::getTxt('calendar_repeat_recurrence_label', file: 'Calendar'), '</label>
 							</dt>
 							<dd>
 								<select name="RRULE" id="rrule" class="rrule_input">';
@@ -359,9 +359,9 @@ function template_rrule()
 		echo '
 								<span id="rrule_end" class="rrule_input_wrapper">
 									<select id="end_option" class="rrule_input">
-										<option value="forever">', Lang::$txt['calendar_repeat_until_options']['forever'], '</option>
-										<option value="until"', !empty(Utils::$context['event']->recurrence_iterator->getRRule()->until) ? ' selected' : '', '>', Lang::$txt['calendar_repeat_until_options']['until'], '</option>
-										<option value="count"', (Utils::$context['event']->recurrence_iterator->getRRule()->count ?? 0) > 1 ? ' selected' : '', '>', Lang::$txt['calendar_repeat_until_options']['count'], '</option>
+										<option value="forever">', Lang::getTxt(['calendar_repeat_until_options', 'forever'], file: 'Calendar'), '</option>
+										<option value="until"', !empty(Utils::$context['event']->recurrence_iterator->getRRule()->until) ? ' selected' : '', '>', Lang::getTxt(['calendar_repeat_until_options', 'until'], file: 'Calendar'), '</option>
+										<option value="count"', (Utils::$context['event']->recurrence_iterator->getRRule()->count ?? 0) > 1 ? ' selected' : '', '>', Lang::getTxt(['calendar_repeat_until_options', 'count'], file: 'Calendar'), '</option>
 									</select>
 									<input type="date" name="UNTIL" id="until" class="rrule_input"', !empty(Utils::$context['event']->recurrence_iterator->getRRule()->until) ? ' value="' . Utils::$context['event']->recurrence_iterator->getRRule()->until->format('Y-m-d') . '"' : ' disabled', '>
 									<input type="number" name="COUNT" id="count" class="rrule_input" min="1"', (Utils::$context['event']->recurrence_iterator->getRRule()->count ?? 0) > 1 ? ' value="' . Utils::$context['event']->recurrence_iterator->getRRule()->count . '"' : ' value="1" disabled', '>
@@ -378,10 +378,10 @@ function template_rrule()
 						<dl id="special_rrule_options">
 							<dt class="clear">
 								<a id="special_rrule_modifier_help" href="https://stovell.noip.me/~jon/dev/index.php?action=helpadmin;help=special_rrule_modifier" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="Help"></span></a>
-								<label>', Lang::$txt['calendar_repeat_special_rrule_modifier'], '</label>
+								<label>', Lang::getTxt('calendar_repeat_special_rrule_modifier', file: 'Calendar'), '</label>
 							</dt>
 							<dd>
-								<input type="text" name="special_rrule_modifier" id="special_rrule_modifier" placeholder="', Lang::$txt['calendar_repeat_offset_examples'], '" value="' . (Utils::$context['event']->special_rrule['modifier'] ?? '') . '">
+								<input type="text" name="special_rrule_modifier" id="special_rrule_modifier" placeholder="', Lang::getTxt('calendar_repeat_offset_examples', file: 'Calendar'), '" value="' . (Utils::$context['event']->special_rrule['modifier'] ?? '') . '">
 							</dd>
 						</dl>';
 	}
@@ -392,7 +392,7 @@ function template_rrule()
 		echo '
 						<dl id="freq_interval_options" class="rrule_input_wrapper">
 							<dt class="clear">
-								<label>', Lang::$txt['calendar_repeat_interval_label'], '</label>
+								<label>', Lang::getTxt('calendar_repeat_interval_label', file: 'Calendar'), '</label>
 							</dt>
 							<dd>
 								<input type="number" name="INTERVAL" value="', Utils::$context['event']->recurrence_iterator->getRRule()->interval, '" min="1" class="rrule_input" disabled>
@@ -412,7 +412,7 @@ function template_rrule()
 		echo '
 						<dl id="yearly_options" class="rrule_input_wrapper">
 							<dt class="clear">
-								<label>', Lang::$txt['calendar_repeat_bymonth_label'], '</label>
+								<label>', Lang::getTxt('calendar_repeat_bymonth_label', file: 'Calendar'), '</label>
 							</dt>
 							<dd>
 								<div class="rrule_input_row">';
@@ -444,7 +444,7 @@ function template_rrule()
 		echo '
 							<dt class="clear" id="dt_monthly_option_type_bymonthday">
 								<label>
-									', Lang::$txt['calendar_repeat_bymonthday_label'], '
+									', Lang::getTxt('calendar_repeat_bymonthday_label', file: 'Calendar'), '
 									<input type="radio" name="monthly_option_type" id="monthly_option_type_bymonthday"', !empty(Utils::$context['event']->recurrence_iterator->getRRule()->bymonthday) ? ' checked' : '', '>
 								</label>
 							</dt>
@@ -476,7 +476,7 @@ function template_rrule()
 		echo '
 							<dt class="clear">
 								<label>
-									', Lang::$txt['calendar_repeat_byday_label'], '
+									', Lang::getTxt('calendar_repeat_byday_label', file: 'Calendar'), '
 									<input type="radio" name="monthly_option_type" id="monthly_option_type_byday"', !empty(Utils::$context['event']->recurrence_iterator->getRRule()->byday) ? ' checked' : '', '>
 								</label>
 							</dt>
@@ -512,8 +512,8 @@ function template_rrule()
 
 			echo '
 											<option disabled>------</option>
-											<option value="MO,TU,WE,TH,FR">', Lang::$txt['calendar_repeat_weekday'], '</option>
-											<option value="SA,SU">', Lang::$txt['calendar_repeat_weekend_day'], '</option>
+											<option value="MO,TU,WE,TH,FR">', Lang::getTxt('calendar_repeat_weekday', file: 'Calendar'), '</option>
+											<option value="SA,SU">', Lang::getTxt('calendar_repeat_weekend_day', file: 'Calendar'), '</option>
 										</select>
 									</div>';
 		}
@@ -521,7 +521,7 @@ function template_rrule()
 		echo '
 								</div>
 								<div>
-									<a id="event_add_byday" class="rrule_input button floatnone">', Lang::$txt['calendar_repeat_add_condition'], '</a>
+									<a id="event_add_byday" class="rrule_input button floatnone">', Lang::getTxt('calendar_repeat_add_condition', file: 'Calendar'), '</a>
 								</div>
 								<template id="byday_template">
 									<div>
@@ -551,8 +551,8 @@ function template_rrule()
 
 		echo '
 											<option disabled>------</option>
-											<option value="MO,TU,WE,TH,FR">', Lang::$txt['calendar_repeat_weekday'], '</option>
-											<option value="SA,SU">', Lang::$txt['calendar_repeat_weekend_day'], '</option>
+											<option value="MO,TU,WE,TH,FR">', Lang::getTxt('calendar_repeat_weekday', file: 'Calendar'), '</option>
+											<option value="SA,SU">', Lang::getTxt('calendar_repeat_weekend_day', file: 'Calendar'), '</option>
 										</select>
 									</div>
 								</template>
@@ -563,7 +563,7 @@ function template_rrule()
 		echo '
 						<dl id="weekly_options" class="rrule_input_wrapper">
 							<dt class="clear">
-								<label>', Lang::$txt['calendar_repeat_byday_label'], '</label>
+								<label>', Lang::getTxt('calendar_repeat_byday_label', file: 'Calendar'), '</label>
 							</dt>
 							<dd class="rrule_input_row">';
 
@@ -583,13 +583,13 @@ function template_rrule()
 	// Advanced options.
 	echo '
 						<details id="advanced_options" class="rrule_input_wrapper"' . (!empty(Utils::$context['event']->recurrence_iterator->getRDates()) || !empty(Utils::$context['event']->recurrence_iterator->getEXDates()) ? ' open' : '') . '>
-							<summary>', Lang::$txt['calendar_repeat_advanced_options_label'], '</summary>';
+							<summary>', Lang::getTxt('calendar_repeat_advanced_options_label', file: 'Calendar'), '</summary>';
 
 	// Arbitrary dates to add to the recurrence set.
 	echo '
 							<dl id="rdates">
 								<dt class="clear">
-									<label>', Lang::$txt['calendar_repeat_rdates_label'], '</label>
+									<label>', Lang::getTxt('calendar_repeat_rdates_label', file: 'Calendar'), '</label>
 								</dt>
 								<dd>
 									<div id="rdate_list">';
@@ -609,7 +609,7 @@ function template_rrule()
 	echo '
 									</div>
 									<div>
-										<a id="event_add_rdate" data-container="rdate_list" data-inputname="RDATE" class="button floatnone">', Lang::$txt['calendar_repeat_add_condition'], '</a>
+										<a id="event_add_rdate" data-container="rdate_list" data-inputname="RDATE" class="button floatnone">', Lang::getTxt('calendar_repeat_add_condition', file: 'Calendar'), '</a>
 									</div>
 								</dd>
 							</dl>';
@@ -618,7 +618,7 @@ function template_rrule()
 	echo '
 							<dl id="exdates">
 								<dt class="clear">
-									<label>', Lang::$txt['calendar_repeat_exdates_label'], '</label>
+									<label>', Lang::getTxt('calendar_repeat_exdates_label', file: 'Calendar'), '</label>
 								</dt>
 								<dd>
 									<div id="exdate_list">';
@@ -638,7 +638,7 @@ function template_rrule()
 	echo '
 									</div>
 									<div>
-										<a id="event_add_exdate" data-container="exdate_list" data-inputname="EXDATE" class="button floatnone">', Lang::$txt['calendar_repeat_add_condition'], '</a>
+										<a id="event_add_exdate" data-container="exdate_list" data-inputname="EXDATE" class="button floatnone">', Lang::getTxt('calendar_repeat_add_condition', file: 'Calendar'), '</a>
 									</div>
 									<template id="additional_dates_template">
 										<div>
@@ -673,11 +673,11 @@ function template_linked_events()
 							<strong class="event_title"><a href="', Config::$scripturl, '?action=calendar;event=', $event['id_event'], (!$event->is_first ? ';start_date=' . $event['start_date'] : ''), '">', $event['title'], '</a></strong>';
 
 		if ($event['can_edit']) {
-			echo ' <a href="' . $event['modify_href'] . '"><span class="main_icons calendar_modify" title="', Lang::$txt['calendar_edit'], '"></span></a>';
+			echo ' <a href="' . $event['modify_href'] . '"><span class="main_icons calendar_modify" title="', Lang::getTxt('calendar_edit', file: 'Calendar'), '"></span></a>';
 		}
 
 		if ($event['can_export']) {
-			echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', Lang::$txt['calendar_export'], '"></span></a>';
+			echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', Lang::getTxt('calendar_export', file: 'Calendar'), '"></span></a>';
 		}
 
 		echo '
