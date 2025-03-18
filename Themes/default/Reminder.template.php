@@ -130,11 +130,11 @@ function template_set_password()
 	</form>
 	<script>
 		var regTextStrings = {
-			"password_short": "', Lang::$txt['registration_password_short'], '",
-			"password_reserved": "', Lang::$txt['registration_password_reserved'], '",
-			"password_numbercase": "', Lang::$txt['registration_password_numbercase'], '",
-			"password_no_match": "', Lang::$txt['registration_password_no_match'], '",
-			"password_valid": "', Lang::$txt['registration_password_valid'], '"
+			"password_short": "', Lang::getTxt('registration_password_short', file: 'Login'), '",
+			"password_reserved": "', Lang::getTxt('registration_password_reserved', file: 'Login'), '",
+			"password_numbercase": "', Lang::getTxt('registration_password_numbercase', file: 'Login'), '",
+			"password_no_match": "', Lang::getTxt('registration_password_no_match', file: 'Login'), '",
+			"password_valid": "', Lang::getTxt('registration_password_valid', file: 'Login'), '"
 		};
 		var verificationHandle = new smfRegister("reminder_form", ', empty(Config::$modSettings['password_strength']) ? 0 : Config::$modSettings['password_strength'], ', regTextStrings);
 	</script>';
@@ -185,11 +185,11 @@ function template_ask()
 	</form>
 	<script>
 		var regTextStrings = {
-			"password_short": "', Lang::$txt['registration_password_short'], '",
-			"password_reserved": "', Lang::$txt['registration_password_reserved'], '",
-			"password_numbercase": "', Lang::$txt['registration_password_numbercase'], '",
-			"password_no_match": "', Lang::$txt['registration_password_no_match'], '",
-			"password_valid": "', Lang::$txt['registration_password_valid'], '"
+			"password_short": "', Lang::getTxt('registration_password_short', file: 'Login'), '",
+			"password_reserved": "', Lang::getTxt('registration_password_reserved', file: 'Login'), '",
+			"password_numbercase": "', Lang::getTxt('registration_password_numbercase', file: 'Login'), '",
+			"password_no_match": "', Lang::getTxt('registration_password_no_match', file: 'Login'), '",
+			"password_valid": "', Lang::getTxt('registration_password_valid', file: 'Login'), '"
 		};
 		var verificationHandle = new smfRegister("creator", ', empty(Config::$modSettings['password_strength']) ? 0 : Config::$modSettings['password_strength'], ', regTextStrings);
 	</script>';

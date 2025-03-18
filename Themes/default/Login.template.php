@@ -69,7 +69,7 @@ function template_login()
 	// If they have deleted their account, give them a chance to change their mind.
 	if (isset(Utils::$context['login_show_undelete']))
 		echo '
-						<dt class="alert">', Lang::$txt['undelete_account'], '</dt>
+						<dt class="alert">', Lang::getTxt('undelete_account', file: 'Login'), '</dt>
 						<dd><input type="checkbox" name="undelete"></dd>';
 
 	echo '
@@ -293,18 +293,18 @@ function template_kick_guest()
 	<form action="', Utils::$context['login_url'], '" method="post" accept-charset="UTF-8" name="frmLogin" id="frmLogin">
 		<div class="login">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['warning'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('warning', file: 'Login'), '</h3>
 			</div>';
 
 	// Show the message or default message.
 	echo '
 			<p class="information centertext">
-				', empty(Utils::$context['kick_message']) ? Lang::$txt['only_members_can_access'] : Utils::$context['kick_message'], '<br>';
+				', empty(Utils::$context['kick_message']) ? Lang::getTxt('only_members_can_access', file: 'Login') : Utils::$context['kick_message'], '<br>';
 
 	if (Utils::$context['can_register'])
-		echo Lang::getTxt('login_below_or_register', ['url' => Config::$scripturl . '?action=signup', 'forum_name' => Utils::$context['forum_name_html_safe']]);
+		echo Lang::getTxt('login_below_or_register', ['url' => Config::$scripturl . '?action=signup', 'forum_name' => Utils::$context['forum_name_html_safe']], file: 'Login');
 	else
-		echo Lang::$txt['login_below'];
+		echo Lang::getTxt('login_below', file: 'Login');
 
 	// And now the login information.
 	echo '
@@ -363,7 +363,7 @@ function template_maintenance()
 				<h3 class="catbg">', Utils::$context['title'], '</h3>
 			</div>
 			<div class="information">
-				<img class="floatleft" src="', Theme::$current->settings['images_url'], '/construction.png" width="40" height="40" alt="', Lang::$txt['in_maintain_mode'], '">
+				<img class="floatleft" src="', Theme::$current->settings['images_url'], '/construction.png" width="40" height="40" alt="', Lang::getTxt('in_maintain_mode', file: 'Login'), '">
 				', Utils::$context['description'], '<br class="clear">
 			</div>
 			<div class="title_bar">
@@ -455,14 +455,14 @@ function template_retry_activate()
 	// You didn't even have an ID?
 	if (empty(Utils::$context['member_id']))
 		echo '
-					<dt>', Lang::$txt['invalid_activation_username'], '</dt>
+					<dt>', Lang::getTxt('invalid_activation_username', file: 'Login'), '</dt>
 					<dd><input type="text" name="user" size="30"></dd>';
 
 	echo '
-					<dt>', Lang::$txt['invalid_activation_retry'], '</dt>
+					<dt>', Lang::getTxt('invalid_activation_retry', file: 'Login'), '</dt>
 					<dd><input type="text" name="code" size="30"></dd>
 				</dl>
-				<p><input type="submit" value="', Lang::$txt['invalid_activation_submit'], '" class="button"></p>
+				<p><input type="submit" value="', Lang::getTxt('invalid_activation_submit', file: 'Login'), '" class="button"></p>
 			</div>
 		</form>';
 }
@@ -480,27 +480,27 @@ function template_resend()
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', Lang::$txt['invalid_activation_username'], '</dt>
+					<dt>', Lang::getTxt('invalid_activation_username', file: 'Login'), '</dt>
 					<dd><input type="text" name="user" size="40" value="', Utils::$context['default_username'], '"></dd>
 				</dl>
-				<p>', Lang::$txt['invalid_activation_new'], '</p>
+				<p>', Lang::getTxt('invalid_activation_new', file: 'Login'), '</p>
 				<dl>
-					<dt>', Lang::$txt['invalid_activation_new_email'], '</dt>
+					<dt>', Lang::getTxt('invalid_activation_new_email', file: 'Login'), '</dt>
 					<dd><input type="text" name="new_email" size="40"></dd>
-					<dt>', Lang::$txt['invalid_activation_password'], '</dt>
+					<dt>', Lang::getTxt('invalid_activation_password', file: 'Login'), '</dt>
 					<dd><input type="password" name="passwd" size="30"></dd>
 				</dl>';
 
 	if (Utils::$context['can_activate'])
 		echo '
-				<p>', Lang::$txt['invalid_activation_known'], '</p>
+				<p>', Lang::getTxt('invalid_activation_known', file: 'Login'), '</p>
 				<dl>
-					<dt>', Lang::$txt['invalid_activation_retry'], '</dt>
+					<dt>', Lang::getTxt('invalid_activation_retry', file: 'Login'), '</dt>
 					<dd><input type="text" name="code" size="30"></dd>
 				</dl>';
 
 	echo '
-				<p><input type="submit" value="', Lang::$txt['invalid_activation_resend'], '" class="button"></p>
+				<p><input type="submit" value="', Lang::getTxt('invalid_activation_resend', file: 'Login'), '" class="button"></p>
 			</div><!-- .roundframe -->
 		</form>';
 }
@@ -515,16 +515,16 @@ function template_logout()
 	<form action="', Config::$scripturl . '?action=logout;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8" name="frmLogout" id="frmLogout">
 		<div class="logout">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['logout_confirm'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('logout_confirm', file: 'Login'), '</h3>
 			</div>
 			<div class="roundframe">
 				<p class="information centertext">
-					', Lang::$txt['logout_notice'], '
+					', Lang::getTxt('logout_notice', file: 'Login'), '
 				</p>
 
 				<p class="centertext">
 					<input type="submit" value="', Lang::$txt['logout'], '" class="button">
-					<input type="submit" name="cancel" value="', Lang::$txt['logout_return'], '" class="button">
+					<input type="submit" name="cancel" value="', Lang::getTxt('logout_return', file: 'Login'), '" class="button">
 				</p>
 			</div>
 		</div><!-- .logout -->

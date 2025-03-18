@@ -1658,7 +1658,7 @@ class User implements \ArrayAccess
 		// Use the kick_guest sub template...
 		Utils::$context['sub_template'] = 'kick_guest';
 		Utils::$context['page_title'] = Lang::$txt['login'];
-		Utils::$context['kick_message'] = $message ?? Lang::$txt['only_members_can_access'];
+		Utils::$context['kick_message'] = $message ?? Lang::getTxt('only_members_can_access', file: 'Login');
 		Utils::$context['robot_no_index'] = true;
 
 		Utils::obExit();

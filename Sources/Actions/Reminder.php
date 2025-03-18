@@ -258,7 +258,7 @@ class Reminder implements ActionInterface, Routable
 			// Stop brute force attacks like this.
 			Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
 
-			ErrorHandler::fatal(Lang::$txt['invalid_activation_code'], false);
+			ErrorHandler::fatal(Lang::getTxt('invalid_activation_code', file: 'Login'), false);
 		}
 
 		// Just in case, flood control.

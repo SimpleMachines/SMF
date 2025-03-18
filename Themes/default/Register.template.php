@@ -74,7 +74,7 @@ function template_registration_form()
 			{
 				if (currentAuthMethod == \'passwd\' && document.forms.registration.smf_autov_pwmain.value != document.forms.registration.smf_autov_pwverify.value)
 				{
-					alert("', Lang::$txt['register_passwords_differ_js'], '");
+					alert("', Lang::getTxt('register_passwords_differ_js', file: 'Login'), '");
 					return false;
 				}
 
@@ -89,7 +89,7 @@ function template_registration_form()
 	{
 		echo '
 		<div class="errorbox">
-			<span>', Lang::$txt['registration_errors_occurred'], '</span>
+			<span>', Lang::getTxt('registration_errors_occurred', file: 'Login'), '</span>
 			<ul>';
 
 		// Cycle through each error and display an error message.
@@ -105,10 +105,10 @@ function template_registration_form()
 	echo '
 		<form action="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl, '?action=signup2" method="post" accept-charset="UTF-8" name="registration" id="registration" onsubmit="return verifyAgree();">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['registration_form'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('registration_form', file: 'Login'), '</h3>
 			</div>
 			<div class="title_bar">
-				<h3 class="titlebg">', Lang::$txt['required_info'], '</h3>
+				<h3 class="titlebg">', Lang::getTxt('required_info', file: 'Login'), '</h3>
 			</div>
 			<div class="roundframe noup">
 				<fieldset>
@@ -185,7 +185,7 @@ function template_registration_form()
 	if (!empty(Utils::$context['profile_fields']) || !empty(Utils::$context['custom_fields']))
 		echo '
 			<div class="title_bar">
-				<h3 class="titlebg">', Lang::$txt['additional_information'], '</h3>
+				<h3 class="titlebg">', Lang::getTxt('additional_information', file: 'Login'), '</h3>
 			</div>
 			<div class="roundframe noup">
 				<fieldset>
@@ -325,14 +325,14 @@ function template_registration_form()
 		</form>
 		<script>
 			var regTextStrings = {
-				"username_valid": "', Lang::$txt['registration_username_available'], '",
-				"username_invalid": "', Lang::$txt['registration_username_unavailable'], '",
-				"username_check": "', Lang::$txt['registration_username_check'], '",
-				"password_short": "', Lang::$txt['registration_password_short'], '",
-				"password_reserved": "', Lang::$txt['registration_password_reserved'], '",
-				"password_numbercase": "', Lang::$txt['registration_password_numbercase'], '",
-				"password_no_match": "', Lang::$txt['registration_password_no_match'], '",
-				"password_valid": "', Lang::$txt['registration_password_valid'], '"
+				"username_valid": "', Lang::getTxt('registration_username_available', file: 'Login'), '",
+				"username_invalid": "', Lang::getTxt('registration_username_unavailable', file: 'Login'), '",
+				"username_check": "', Lang::getTxt('registration_username_check', file: 'Login'), '",
+				"password_short": "', Lang::getTxt('registration_password_short', file: 'Login'), '",
+				"password_reserved": "', Lang::getTxt('registration_password_reserved', file: 'Login'), '",
+				"password_numbercase": "', Lang::getTxt('registration_password_numbercase', file: 'Login'), '",
+				"password_no_match": "', Lang::getTxt('registration_password_no_match', file: 'Login'), '",
+				"password_valid": "', Lang::getTxt('registration_password_valid', file: 'Login'), '"
 			};
 			var verificationHandle = new smfRegister("registration", ', empty(Config::$modSettings['password_strength']) ? 0 : Config::$modSettings['password_strength'], ', regTextStrings);
 		</script>';
@@ -368,14 +368,14 @@ function template_coppa()
 			<div id="coppa" class="roundframe noup">
 				<p>', Utils::$context['coppa']['body'], '</p>
 				<p>
-					<span><a href="', Config::$scripturl, '?action=coppa;form;member=', Utils::$context['coppa']['id'], '" target="_blank" rel="noopener">', Lang::$txt['coppa_form_link_popup'], '</a> | <a href="', Config::$scripturl, '?action=coppa;form;dl;member=', Utils::$context['coppa']['id'], '">', Lang::$txt['coppa_form_link_download'], '</a></span>
+					<span><a href="', Config::$scripturl, '?action=coppa;form;member=', Utils::$context['coppa']['id'], '" target="_blank" rel="noopener">', Lang::getTxt('coppa_form_link_popup', file: 'Login'), '</a> | <a href="', Config::$scripturl, '?action=coppa;form;dl;member=', Utils::$context['coppa']['id'], '">', Lang::getTxt('coppa_form_link_download', file: 'Login'), '</a></span>
 				</p>
-				<p>', Utils::$context['coppa']['many_options'] ? Lang::$txt['coppa_send_to_two_options'] : Lang::$txt['coppa_send_to_one_option'], '</p>';
+				<p>', Lang::getTxt(Utils::$context['coppa']['many_options'] ? 'coppa_send_to_two_options' : 'coppa_send_to_one_option', file: 'Login'), '</p>';
 
 	// Can they send by post?
 	if (!empty(Utils::$context['coppa']['post']))
 		echo '
-				<h4>1) ', Lang::$txt['coppa_send_by_post'], '</h4>
+				<h4>1) ', Lang::getTxt('coppa_send_by_post', file: 'Login'), '</h4>
 				<div class="coppa_contact">
 					', Utils::$context['coppa']['post'], '
 				</div>';
@@ -383,7 +383,7 @@ function template_coppa()
 	// Can they send by fax??
 	if (!empty(Utils::$context['coppa']['fax']))
 		echo '
-				<h4>', !empty(Utils::$context['coppa']['post']) ? '2' : '1', ') ', Lang::$txt['coppa_send_by_fax'], '</h4>
+				<h4>', !empty(Utils::$context['coppa']['post']) ? '2' : '1', ') ', Lang::getTxt('coppa_send_by_fax', file: 'Login'), '</h4>
 				<div class="coppa_contact">
 					', Utils::$context['coppa']['fax'], '
 				</div>';
@@ -410,7 +410,7 @@ function template_coppa_form()
 			</tr>
 			<tr>
 				<td class="righttext">
-					<em>', Lang::$txt['coppa_form_address'], '</em>: ', Utils::$context['ul'], '<br>
+					<em>', Lang::getTxt('coppa_form_address', file: 'Login'), '</em>: ', Utils::$context['ul'], '<br>
 					', Utils::$context['ul'], '<br>
 					', Utils::$context['ul'], '<br>
 					', Utils::$context['ul'], '
@@ -418,7 +418,7 @@ function template_coppa_form()
 			</tr>
 			<tr>
 				<td class="righttext">
-					<em>', Lang::$txt['coppa_form_date'], '</em>: ', Utils::$context['ul'], '
+					<em>', Lang::getTxt('coppa_form_date', file: 'Login'), '</em>: ', Utils::$context['ul'], '
 					<br><br>
 				</td>
 			</tr>
@@ -468,9 +468,9 @@ function template_verification_sound()
 
 	echo '
 			<br>
-			<a href="', Utils::$context['verification_sound_href'], ';sound" rel="nofollow">', Lang::$txt['visual_verification_sound_again'], '</a><br>
-			<a href="', Utils::$context['verification_sound_href'], '" rel="nofollow">', Lang::$txt['visual_verification_sound_direct'], '</a><br><br>
-			<a href="javascript:self.close();">', Lang::$txt['visual_verification_sound_close'], '</a><br>
+			<a href="', Utils::$context['verification_sound_href'], ';sound" rel="nofollow">', Lang::getTxt('visual_verification_sound_again', file: 'Login'), '</a><br>
+			<a href="', Utils::$context['verification_sound_href'], '" rel="nofollow">', Lang::getTxt('visual_verification_sound_direct', file: 'Login'), '</a><br><br>
+			<a href="javascript:self.close();">', Lang::getTxt('visual_verification_sound_close', file: 'Login'), '</a><br>
 		</div><!-- .description -->
 	</body>
 </html>';
@@ -498,22 +498,22 @@ function template_admin_register()
 	echo '
 					<dl class="register_form" id="admin_register_form">
 						<dt>
-							<strong><label for="user_input">', Lang::$txt['admin_register_username'], '</label></strong>
-							<span class="smalltext">', Lang::$txt['admin_register_username_desc'], '</span>
+							<strong><label for="user_input">', Lang::getTxt('admin_register_username', file: 'Login'), '</label></strong>
+							<span class="smalltext">', Lang::getTxt('admin_register_username_desc', file: 'Login'), '</span>
 						</dt>
 						<dd>
 							<input type="text" name="user" id="user_input" tabindex="', Utils::$context['tabindex']++, '" size="50" maxlength="25">
 						</dd>
 						<dt>
-							<strong><label for="email_input">', Lang::$txt['admin_register_email'], '</label></strong>
-							<span class="smalltext">', Lang::$txt['admin_register_email_desc'], '</span>
+							<strong><label for="email_input">', Lang::getTxt('admin_register_email', file: 'Login'), '</label></strong>
+							<span class="smalltext">', Lang::getTxt('admin_register_email_desc', file: 'Login'), '</span>
 						</dt>
 						<dd>
 							<input type="email" name="email" id="email_input" tabindex="', Utils::$context['tabindex']++, '" size="50">
 						</dd>
 						<dt>
-							<strong><label for="password_input">', Lang::$txt['admin_register_password'], '</label></strong>
-							<span class="smalltext">', Lang::$txt['admin_register_password_desc'], '</span>
+							<strong><label for="password_input">', Lang::getTxt('admin_register_password', file: 'Login'), '</label></strong>
+							<span class="smalltext">', Lang::getTxt('admin_register_password_desc', file: 'Login'), '</span>
 						</dt>
 						<dd>
 							<input type="password" name="password" id="password_input" tabindex="', Utils::$context['tabindex']++, '" size="50" onchange="onCheckChange();">
@@ -523,8 +523,8 @@ function template_admin_register()
 	{
 		echo '
 						<dt>
-							<strong><label for="group_select">', Lang::$txt['admin_register_group'], '</label></strong>
-							<span class="smalltext">', Lang::$txt['admin_register_group_desc'], '</span>
+							<strong><label for="group_select">', Lang::getTxt('admin_register_group', file: 'Login'), '</label></strong>
+							<span class="smalltext">', Lang::getTxt('admin_register_group_desc', file: 'Login'), '</span>
 						</dt>
 						<dd>
 							<select name="group" id="group_select" tabindex="', Utils::$context['tabindex']++, '">';
@@ -553,14 +553,14 @@ function template_admin_register()
 
 	echo '
 						<dt>
-							<strong><label for="emailPassword_check">', Lang::$txt['admin_register_email_detail'], '</label></strong>
-							<span class="smalltext">', Lang::$txt['admin_register_email_detail_desc'], '</span>
+							<strong><label for="emailPassword_check">', Lang::getTxt('admin_register_email_detail', file: 'Login'), '</label></strong>
+							<span class="smalltext">', Lang::getTxt('admin_register_email_detail_desc', file: 'Login'), '</span>
 						</dt>
 						<dd>
 							<input type="checkbox" name="emailPassword" id="emailPassword_check" tabindex="', Utils::$context['tabindex']++, '" checked disabled>
 						</dd>
 						<dt>
-							<strong><label for="emailActivate_check">', Lang::$txt['admin_register_email_activate'], '</label></strong>
+							<strong><label for="emailActivate_check">', Lang::getTxt('admin_register_email_activate', file: 'Login'), '</label></strong>
 						</dt>
 						<dd>
 							<input type="checkbox" name="emailActivate" id="emailActivate_check" tabindex="', Utils::$context['tabindex']++, '"', !empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1 ? ' checked' : '', ' onclick="onCheckChange();">

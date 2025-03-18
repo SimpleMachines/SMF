@@ -279,7 +279,7 @@ class Login2 implements ActionInterface, Routable
 
 		// Are we using any sort of integration to validate the login?
 		if (in_array('retry', IntegrationHook::call('integrate_validate_login', [$_POST['user'], $_POST['passwrd'] ?? null, Config::$modSettings['cookieTime']]), true)) {
-			Utils::$context['login_errors'] = [Lang::$txt['incorrect_password']];
+			Utils::$context['login_errors'] = [Lang::getTxt('incorrect_password', file: 'Login')];
 
 			return;
 		}
@@ -467,14 +467,14 @@ class Login2 implements ActionInterface, Routable
 	{
 		// You forgot to type your username, dummy!
 		if (!isset($_POST['user']) || $_POST['user'] == '') {
-			Utils::$context['login_errors'] = [Lang::$txt['need_username']];
+			Utils::$context['login_errors'] = [Lang::getTxt('need_username', file: 'Login')];
 
 			return false;
 		}
 
 		// Hmm... maybe 'admin' will login with no password. Uhh... NO!
 		if (!isset($_POST['passwrd']) || $_POST['passwrd'] == '') {
-			Utils::$context['login_errors'] = [Lang::$txt['no_password']];
+			Utils::$context['login_errors'] = [Lang::getTxt('no_password', file: 'Login')];
 
 			return false;
 		}
@@ -634,9 +634,9 @@ class Login2 implements ActionInterface, Routable
 			// We'll give you another chance...
 			else {
 				// Log an error so we know that it didn't go well in the error log.
-				ErrorHandler::log(Lang::$txt['incorrect_password'] . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
+				ErrorHandler::log(Lang::getTxt('incorrect_password', file: 'Login') . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
 
-				Utils::$context['login_errors'] = [Lang::$txt['incorrect_password']];
+				Utils::$context['login_errors'] = [Lang::getTxt('incorrect_password', file: 'Login')];
 
 				return false;
 			}
@@ -721,7 +721,7 @@ class Login2 implements ActionInterface, Routable
 
 		// Check if the account is activated - COPPA first...
 		if ($activation_status == User::NEED_COPPA) {
-			Utils::$context['login_errors'][] = Lang::$txt['coppa_no_consent'] . ' <a href="' . Config::$scripturl . '?action=coppa;member=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::$txt['coppa_need_more_details'] . '</a>';
+			Utils::$context['login_errors'][] = Lang::getTxt('coppa_no_consent', file: 'Login') . ' <a href="' . Config::$scripturl . '?action=coppa;member=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::getTxt('coppa_need_more_details', file: 'Login') . '</a>';
 
 			return false;
 		}
@@ -738,7 +738,7 @@ class Login2 implements ActionInterface, Routable
 				Config::updateModSettings(['unapprovedMembers' => (Config::$modSettings['unapprovedMembers'] > 0 ? Config::$modSettings['unapprovedMembers'] - 1 : 0)]);
 			} else {
 				Utils::$context['disable_login_hashing'] = true;
-				Utils::$context['login_errors'][] = Lang::$txt['awaiting_delete_account'];
+				Utils::$context['login_errors'][] = Lang::getTxt('awaiting_delete_account', file: 'Login');
 				Utils::$context['login_show_undelete'] = true;
 
 				return false;
@@ -746,9 +746,9 @@ class Login2 implements ActionInterface, Routable
 		}
 		// Standard activation?
 		elseif ($activation_status != User::ACTIVATED) {
-			ErrorHandler::log(Lang::$txt['activate_not_completed1'] . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
+			ErrorHandler::log(Lang::getTxt('activate_not_completed1', file: 'Login') . ' - <span class="remove">' . User::$profiles[User::$my_id]['member_name'] . '</span>', 'user');
 
-			Utils::$context['login_errors'][] = Lang::$txt['activate_not_completed1'] . ' <a href="' . Config::$scripturl . '?action=activate;sa=resend;u=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::$txt['activate_not_completed2'] . '</a>';
+			Utils::$context['login_errors'][] = Lang::getTxt('activate_not_completed1', file: 'Login') . ' <a href="' . Config::$scripturl . '?action=activate;sa=resend;u=' . User::$profiles[User::$my_id]['id_member'] . '">' . Lang::getTxt('activate_not_completed2', file: 'Login') . '</a>';
 
 			return false;
 		}

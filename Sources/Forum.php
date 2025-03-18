@@ -546,7 +546,7 @@ class Forum
 		Utils::$context['sub_template'] = 'maintenance';
 		Utils::$context['title'] = Utils::htmlspecialchars(Config::$mtitle);
 		Utils::$context['description'] = &Config::$mmessage;
-		Utils::$context['page_title'] = Lang::$txt['maintain_mode'];
+		Utils::$context['page_title'] = Lang::getTxt('maintain_mode', file: 'Login');
 	}
 
 	/******************

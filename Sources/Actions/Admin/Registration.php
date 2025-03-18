@@ -90,10 +90,10 @@ class Registration implements ActionInterface
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::getTxt('registration_center', file: 'Admin'),
 			'help' => 'registrations',
-			'description' => Lang::$txt['admin_settings_desc'],
+			'description' => Lang::getTxt('admin_settings_desc', file: 'Login'),
 			'tabs' => [
 				'register' => [
-					'description' => Lang::$txt['admin_register_desc'],
+					'description' => Lang::getTxt('admin_register_desc', file: 'Login'),
 				],
 				'agreement' => [
 					'description' => Lang::getTxt('registration_agreement_desc', file: 'Admin'),
@@ -105,7 +105,7 @@ class Registration implements ActionInterface
 					'description' => Lang::getTxt('admin_reserved_desc', file: 'Admin'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['admin_settings_desc'],
+					'description' => Lang::getTxt('admin_settings_desc', file: 'Login'),
 				],
 			],
 		];
@@ -174,7 +174,7 @@ class Registration implements ActionInterface
 					'link' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $memberID . '">' . $_POST['user'] . '</a>',
 				];
 
-				Utils::$context['registration_done'] = Lang::getTxt('admin_register_done', Utils::$context['new_member']);
+				Utils::$context['registration_done'] = Lang::getTxt('admin_register_done', Utils::$context['new_member'], file: 'Login');
 			}
 		}
 
@@ -182,7 +182,7 @@ class Registration implements ActionInterface
 
 		// Load the assignable member groups.
 		if (User::$me->allowedTo('manage_membergroups')) {
-			Utils::$context['member_groups'][] = Lang::$txt['admin_register_group_none'];
+			Utils::$context['member_groups'][] = Lang::getTxt('admin_register_group_none', file: 'Login');
 
 			$request = Db::$db->query(
 				'',
@@ -504,7 +504,16 @@ class Registration implements ActionInterface
 		$policy = !empty(Config::$modSettings['policy_' . Lang::$default]);
 
 		$config_vars = [
-			['select', 'registration_method', [Lang::$txt['setting_registration_standard'], Lang::$txt['setting_registration_activate'], Lang::$txt['setting_registration_approval'], Lang::$txt['setting_registration_disabled']]],
+			[
+				'select',
+				'registration_method',
+				[
+					Lang::getTxt('setting_registration_standard', file: 'Login'),
+					Lang::getTxt('setting_registration_activate', file: 'Login'),
+					Lang::getTxt('setting_registration_approval', file: 'Login'),
+					Lang::getTxt('setting_registration_disabled', file: 'Login'),
+				],
+			],
 			['check', 'send_welcomeEmail'],
 
 			'',
@@ -532,8 +541,20 @@ class Registration implements ActionInterface
 				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
 				'onchange' => 'checkCoppa();',
 			],
-			['select', 'coppaType', [Lang::$txt['setting_coppaType_reject'], Lang::$txt['setting_coppaType_approval']], 'onchange' => 'checkCoppa();'],
-			['large_text', 'coppaPost', 'subtext' => Lang::$txt['setting_coppaPost_desc']],
+			[
+				'select',
+				'coppaType',
+				[
+					Lang::getTxt('setting_coppaType_reject', file: 'Login'),
+					Lang::getTxt('setting_coppaType_approval', file: 'Login'),
+				],
+				'onchange' => 'checkCoppa();',
+			],
+			[
+				'large_text',
+				'coppaPost',
+				'subtext' => Lang::getTxt('setting_coppaPost_desc', file: 'Login'),
+			],
 			['text', 'coppaFax'],
 			['text', 'coppaPhone'],
 		];

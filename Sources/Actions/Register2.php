@@ -410,9 +410,9 @@ class Register2 extends Register
 
 			Utils::$context += [
 				'page_title' => Lang::$txt['register'],
-				'title' => Lang::$txt['registration_successful'],
+				'title' => Lang::getTxt('registration_successful', file: 'Login'),
 				'sub_template' => 'after',
-				'description' => Config::$modSettings['registration_method'] == 2 ? Lang::$txt['approval_after_registration'] : Lang::$txt['activate_after_registration'],
+				'description' => Lang::getTxt(Config::$modSettings['registration_method'] == 2 ? 'approval_after_registration' : 'activate_after_registration', file: 'Login'),
 			];
 		} else {
 			IntegrationHook::call('integrate_activate', [$reg_options['username']]);
@@ -530,7 +530,7 @@ class Register2 extends Register
 
 		// You may not be allowed to register this email.
 		if (!empty($reg_options['check_email_ban'])) {
-			User::isBannedEmail($reg_options['email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
+			User::isBannedEmail($reg_options['email'], 'cannot_register', Lang::getTxt('ban_register_prohibited', file: 'Login'));
 		}
 
 		// Check if the email address is in use.
