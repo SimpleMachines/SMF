@@ -46,7 +46,7 @@ class WatchedUsers implements ActionInterface
 	public function execute(): void
 	{
 		// Some important context!
-		Utils::$context['page_title'] = Lang::$txt['mc_watched_users_title'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_watched_users_title', file: 'ModerationCenter');
 		Utils::$context['view_posts'] = isset($_GET['sa']) && $_GET['sa'] == 'post';
 		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
@@ -57,9 +57,9 @@ class WatchedUsers implements ActionInterface
 
 		// Put some pretty tabs on cause we're gonna be doing hot stuff here...
 		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_watched_users_title'],
+			'title' => Lang::getTxt('mc_watched_users_title', file: 'ModerationCenter'),
 			'help' => '',
-			'description' => Lang::$txt['mc_watched_users_desc'],
+			'description' => Lang::getTxt('mc_watched_users_desc', file: 'ModerationCenter'),
 		];
 
 		// First off - are we deleting?
@@ -107,9 +107,9 @@ class WatchedUsers implements ActionInterface
 		// This is all the information required for a watched user listing.
 		$listOptions = [
 			'id' => 'watch_user_list',
-			'title' => Lang::$txt['mc_watched_users_title_view_by_' . (Utils::$context['view_posts'] ? 'post' : 'member')],
+			'title' => Lang::getTxt('mc_watched_users_title_view_by_' . (Utils::$context['view_posts'] ? 'post' : 'member'), file: 'ModerationCenter'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Utils::$context['view_posts'] ? Lang::$txt['mc_watched_users_no_posts'] : Lang::$txt['mc_watched_users_none'],
+			'no_items_label' => Lang::getTxt(Utils::$context['view_posts'] ? 'mc_watched_users_no_posts' : 'mc_watched_users_none', file: 'ModerationCenter'),
 			'base_href' => Config::$scripturl . '?action=moderate;area=userwatch;sa=' . (Utils::$context['view_posts'] ? 'post' : 'member'),
 			'default_sort_col' => Utils::$context['view_posts'] ? '' : 'member',
 			'get_items' => [
@@ -129,7 +129,7 @@ class WatchedUsers implements ActionInterface
 			'columns' => [
 				'member' => [
 					'header' => [
-						'value' => Lang::$txt['mc_watched_users_member'],
+						'value' => Lang::getTxt('mc_watched_users_member', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -147,7 +147,7 @@ class WatchedUsers implements ActionInterface
 				],
 				'warning' => [
 					'header' => [
-						'value' => Lang::$txt['mc_watched_users_warning'],
+						'value' => Lang::getTxt('mc_watched_users_warning', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'function' => function ($member) {
@@ -179,7 +179,7 @@ class WatchedUsers implements ActionInterface
 				],
 				'last_login' => [
 					'header' => [
-						'value' => Lang::$txt['mc_watched_users_last_login'],
+						'value' => Lang::getTxt('mc_watched_users_last_login', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'last_login',
@@ -191,7 +191,7 @@ class WatchedUsers implements ActionInterface
 				],
 				'last_post' => [
 					'header' => [
-						'value' => Lang::$txt['mc_watched_users_last_post'],
+						'value' => Lang::getTxt('mc_watched_users_last_post', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'function' => function ($member) {

@@ -360,11 +360,11 @@ class XmlHttp implements ActionInterface, Routable
 				}
 			} else {
 				if (empty($_POST['title'])) {
-					Utils::$context['post_error']['messages'][] = Lang::$txt['mc_warning_template_error_no_title'];
+					Utils::$context['post_error']['messages'][] = Lang::getTxt('mc_warning_template_error_no_title', file: 'ModerationCenter');
 				}
 
 				if (empty($_POST['body'])) {
-					Utils::$context['post_error']['messages'][] = Lang::$txt['mc_warning_template_error_no_body'];
+					Utils::$context['post_error']['messages'][] = Lang::getTxt('mc_warning_template_error_no_body', file: 'ModerationCenter');
 				}
 
 				// Add in few replacements.

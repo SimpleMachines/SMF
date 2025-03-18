@@ -281,12 +281,12 @@ class Main implements ActionInterface, Routable
 
 		// @todo: html in here is not good
 		$menu->tab_data = [
-			'title' => Lang::$txt['moderation_center'],
+			'title' => Lang::getTxt('moderation_center', file: 'ModerationCenter'),
 			'help' => '',
 			'description' => '
 				<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name]) . '</strong>
 				<br><br>
-				' . Lang::$txt['mc_description'],
+				' . Lang::getTxt('mc_description', file: 'ModerationCenter'),
 		];
 
 		// What a pleasant shortcut - even tho we're not *really* on the admin screen who cares...
@@ -295,7 +295,7 @@ class Main implements ActionInterface, Routable
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=moderate',
-			'name' => Lang::$txt['moderation_center'],
+			'name' => Lang::getTxt('moderation_center', file: 'ModerationCenter'),
 		];
 
 		if (isset($menu->current_area) && $menu->current_area != 'index') {
@@ -431,7 +431,7 @@ class Main implements ActionInterface, Routable
 			$this->moderation_areas,
 			function (&$value, $key) {
 				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::$txt[$value] ?? $value;
+					$value = Lang::txtExists($value, file: 'ModerationCenter') ? Lang::getTxt($value, file: 'ModerationCenter') : $value;
 				}
 
 				if (is_string($value)) {

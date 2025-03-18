@@ -49,7 +49,7 @@ function template_group_requests_block()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span id="group_requests_toggle" class="', !empty(Utils::$context['admin_prefs']['mcgr']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcgr']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
-				<a href="', Config::$scripturl, '?action=groups;sa=requests" id="group_requests_link">', Lang::$txt['mc_group_requests'], '</a>
+				<a href="', Config::$scripturl, '?action=groups;sa=requests" id="group_requests_link">', Lang::getTxt('mc_group_requests', file: 'ModerationCenter'), '</a>
 			</h3>
 		</div>
 		<div class="windowbg" id="group_requests_panel">
@@ -58,14 +58,14 @@ function template_group_requests_block()
 	foreach (Utils::$context['group_requests'] as $request)
 		echo '
 				<li class="smalltext">
-					', Lang::getTxt('mc_groupr_by', ['group_link' => '<a href="' . $request['request_href'] . '">' . $request['group']['name'] . '</a>', 'member_link' => $request['member']['link']]) ,'
+					', Lang::getTxt('mc_groupr_by', ['group_link' => '<a href="' . $request['request_href'] . '">' . $request['group']['name'] . '</a>', 'member_link' => $request['member']['link']], file: 'ModerationCenter') ,'
 				</li>';
 
 	// Don't have any watched users right now?
 	if (empty(Utils::$context['group_requests']))
 		echo '
 				<li>
-					<strong class="smalltext">', Lang::$txt['mc_group_requests_none'], '</strong>
+					<strong class="smalltext">', Lang::getTxt('mc_group_requests_none', file: 'ModerationCenter'), '</strong>
 				</li>';
 
 	echo '
@@ -89,8 +89,8 @@ function template_group_requests_block()
 				aSwapLinks: [
 					{
 						sId: \'group_requests_link\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_group_requests']), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_group_requests']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('mc_group_requests', file: 'ModerationCenter')), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('mc_group_requests', file: 'ModerationCenter')), '
 					}
 				],
 				oThemeOptions: {
@@ -114,7 +114,7 @@ function template_watched_users()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span id="watched_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcwu']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
-				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', Lang::$txt['mc_watched_users'], '</a>
+				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', Lang::getTxt('mc_watched_users', file: 'ModerationCenter'), '</a>
 			</h3>
 		</div>
 		<div class="windowbg" id="watched_users_panel">
@@ -123,14 +123,14 @@ function template_watched_users()
 	foreach (Utils::$context['watched_users'] as $user)
 		echo '
 				<li>
-					<span class="smalltext">', Lang::getTxt(!empty($user['last_login']) ? 'mc_seen' : 'mc_seen_never', $user), '</span>
+					<span class="smalltext">', Lang::getTxt(!empty($user['last_login']) ? 'mc_seen' : 'mc_seen_never', $user, file: 'ModerationCenter'), '</span>
 				</li>';
 
 	// Don't have any watched users right now?
 	if (empty(Utils::$context['watched_users']))
 		echo '
 				<li>
-					<strong class="smalltext">', Lang::$txt['mc_watched_users_none'], '</strong>
+					<strong class="smalltext">', Lang::getTxt('mc_watched_users_none', file: 'ModerationCenter'), '</strong>
 				</li>';
 
 	echo '
@@ -154,8 +154,8 @@ function template_watched_users()
 				aSwapLinks: [
 					{
 						sId: \'watched_users_link\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_watched_users']), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_watched_users']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('mc_watched_users', file: 'ModerationCenter')), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('mc_watched_users', file: 'ModerationCenter')), '
 					}
 				],
 				oThemeOptions: {
@@ -179,7 +179,7 @@ function template_reported_posts_block()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span id="reported_posts_toggle" class="', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcrp']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
-				<a href="', Config::$scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', Lang::$txt['mc_recent_reports'], '</a>
+				<a href="', Config::$scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', Lang::getTxt('mc_recent_reports', file: 'ModerationCenter'), '</a>
 			</h3>
 		</div>
 		<div class="windowbg" id="reported_posts_panel">
@@ -188,14 +188,14 @@ function template_reported_posts_block()
 	foreach (Utils::$context['reported_posts'] as $post)
 		echo '
 				<li>
-					<span class="smalltext">', Lang::getTxt('mc_post_report', ['report_link' => $post['report_link'], 'author_link' => $post['author']['link']]), '</span>
+					<span class="smalltext">', Lang::getTxt('mc_post_report', ['report_link' => $post['report_link'], 'author_link' => $post['author']['link']], file: 'ModerationCenter'), '</span>
 				</li>';
 
 	// Don't have any watched users right now?
 	if (empty(Utils::$context['reported_posts']))
 		echo '
 				<li>
-					<strong class="smalltext">', Lang::$txt['mc_recent_reports_none'], '</strong>
+					<strong class="smalltext">', Lang::getTxt('mc_recent_reports_none', file: 'ModerationCenter'), '</strong>
 				</li>';
 
 	echo '
@@ -219,8 +219,8 @@ function template_reported_posts_block()
 				aSwapLinks: [
 					{
 						sId: \'reported_posts_link\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_reports']), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_reports']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('mc_recent_reports', file: 'ModerationCenter')), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('mc_recent_reports', file: 'ModerationCenter')), '
 					}
 				],
 				oThemeOptions: {
@@ -244,7 +244,7 @@ function template_reported_users_block()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span id="reported_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcur']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
-				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', Lang::$txt['mc_recent_user_reports'], '</a>
+				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', Lang::getTxt('mc_recent_user_reports', file: 'ModerationCenter'), '</a>
 			</h3>
 		</div>
 		<div class="windowbg" id="reported_users_panel">
@@ -260,7 +260,7 @@ function template_reported_users_block()
 	if (empty(Utils::$context['reported_users']))
 		echo '
 				<li>
-					<strong class="smalltext">', Lang::$txt['mc_reported_users_none'], '</strong>
+					<strong class="smalltext">', Lang::getTxt('mc_reported_users_none', file: 'ModerationCenter'), '</strong>
 				</li>';
 
 	echo '
@@ -284,8 +284,8 @@ function template_reported_users_block()
 				aSwapLinks: [
 					{
 						sId: \'reported_users_link\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_user_reports']), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_user_reports']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('mc_recent_user_reports', file: 'ModerationCenter')), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('mc_recent_user_reports', file: 'ModerationCenter')), '
 					}
 				],
 				oThemeOptions: {
@@ -309,14 +309,14 @@ function template_notes()
 	if (!empty(Utils::$context['report_post_action']))
 		echo '
 		<div class="infobox">
-			', Lang::$txt['report_action_' . Utils::$context['report_post_action']], '
+			', Lang::getTxt('report_action_' . Utils::$context['report_post_action'], file: 'ModerationCenter'), '
 		</div>';
 
 	echo '
 		<div id="modnotes">
 			<form action="', Config::$scripturl, '?action=moderate;area=index;modnote" method="post">
 				<div class="cat_bar">
-					<h3 class="catbg">', Lang::$txt['mc_notes'], '</h3>
+					<h3 class="catbg">', Lang::getTxt('mc_notes', file: 'ModerationCenter'), '</h3>
 				</div>
 				<div class="windowbg">';
 
@@ -329,7 +329,7 @@ function template_notes()
 		foreach (Utils::$context['notes'] as $note)
 			echo '
 						<li class="smalltext">
-							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . Utils::$context['mod-modnote-del_token_var'] . '=' . Utils::$context['mod-modnote-del_token'] . '" data-confirm="' . Lang::$txt['mc_reportedp_delete_confirm'] . '" class="you_sure"><span class="main_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', Utils::adjustHeadingLevels($note['text'], 4), '
+							', ($note['can_delete'] ? '<a href="' . $note['delete_href'] . ';' . Utils::$context['mod-modnote-del_token_var'] . '=' . Utils::$context['mod-modnote-del_token'] . '" data-confirm="' . Lang::getTxt('mc_reportedp_delete_confirm', file: 'ModerationCenter') . '" class="you_sure"><span class="main_icons delete"></span></a>' : ''), $note['time'], ' <strong>', $note['author']['link'], ':</strong> ', Utils::adjustHeadingLevels($note['text'], 4), '
 						</li>';
 
 		echo '
@@ -341,10 +341,10 @@ function template_notes()
 
 	echo '
 					<div class="floatleft post_note">
-						<input type="text" name="new_note" placeholder="', Lang::$txt['mc_click_add_note'], '">
+						<input type="text" name="new_note" placeholder="', Lang::getTxt('mc_click_add_note', file: 'ModerationCenter'), '">
 					</div>
 					<input type="hidden" name="', Utils::$context['mod-modnote-add_token_var'], '" value="', Utils::$context['mod-modnote-add_token'], '">
-					<input type="submit" name="makenote" value="', Lang::$txt['mc_add_note'], '" class="button">
+					<input type="submit" name="makenote" value="', Lang::getTxt('mc_add_note', file: 'ModerationCenter'), '" class="button">
 				</div><!-- .windowbg -->
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>
@@ -361,7 +361,7 @@ function template_unapproved_posts()
 	<div id="modcenter">
 		<form action="', Config::$scripturl, '?action=moderate;area=postmod;start=', Utils::$context['start'], ';sa=', Utils::$context['current_view'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar', !empty(Utils::$context['unapproved_items']) ? ' cat_bar_round' : '', '">
-				<h3 class="catbg">', Lang::$txt['mc_unapproved_posts'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mc_unapproved_posts', file: 'ModerationCenter'), '</h3>
 			</div>';
 
 	// No posts?
@@ -370,7 +370,7 @@ function template_unapproved_posts()
 		echo '
 			<div class="windowbg">
 				<p class="centertext">
-					', Lang::$txt['mc_unapproved_' . Utils::$context['current_view'] . '_none_found'], '
+					', Lang::getTxt('mc_unapproved_' . Utils::$context['current_view'] . '_none_found', file: 'ModerationCenter'), '
 				</p>
 			</div>';
 	}
@@ -436,8 +436,8 @@ function template_unapproved_posts()
 	if (!empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1)
 		echo '
 				<div class="floatright">
-					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', Lang::$txt['mc_unapproved_sure'], '\')) submit();">
-						<option value="0">', Lang::$txt['with_selected'], ':</option>
+					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', Lang::getTxt('mc_unapproved_sure', file: 'ModerationCenter'), '\')) submit();">
+						<option value="0">', Lang::getTxt('with_selected', file: 'ModerationCenter'), ':</option>
 						<option value="0" disabled>-------------------</option>
 						<option value="approve">&nbsp;--&nbsp;', Lang::$txt['approve'], '</option>
 						<option value="delete">&nbsp;--&nbsp;', Lang::$txt['delete'], '</option>
@@ -472,7 +472,7 @@ function template_user_watch_post_callback($post)
 		'delete' => array(
 			'label' => Lang::$txt['remove_message'],
 			'href' => Config::$scripturl.'?action=moderate;area=userwatch;sa=post;delete='.$post['id'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
-			'javascript' => 'data-confirm="' . Lang::$txt['mc_watched_users_delete_post'] . '"',
+			'javascript' => 'data-confirm="' . Lang::getTxt('mc_watched_users_delete_post', file: 'ModerationCenter') . '"',
 			'class' => 'you_sure',
 			'icon' => 'remove_button',
 			'show' => $post['can_delete']
@@ -487,12 +487,12 @@ function template_user_watch_post_callback($post)
 	$output_html = '
 					<div>
 						<div class="floatleft">
-							' . Lang::getTxt('mc_post_report', ['report_link' => '<a href="' . Config::$scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a>', 'author_link' => $post['author_link']]) . '
+							' . Lang::getTxt('mc_post_report', ['report_link' => '<a href="' . Config::$scripturl . '?topic=' . $post['id_topic'] . '.' . $post['id'] . '#msg' . $post['id'] . '">' . $post['subject'] . '</a>', 'author_link' => $post['author_link']], file: 'ModerationCenter') . '
 						</div>
 					</div>
 					<br>
 					<div class="smalltext">
-						' . Lang::getTxt('mc_watched_users_posted', ['time' => $post['poster_time']]) . '
+						' . Lang::getTxt('mc_watched_users_posted', ['time' => $post['poster_time']], file: 'ModerationCenter') . '
 					</div>
 					<div class="list_posts">
 						' . $post['body'] . '
@@ -513,7 +513,7 @@ function template_moderation_settings()
 
 	echo '
 		<div class="windowbg">
-			<div class="centertext">', Lang::$txt['mc_no_settings'], '</div>
+			<div class="centertext">', Lang::getTxt('mc_no_settings', file: 'ModerationCenter'), '</div>
 		</div>';
 
 	echo '
@@ -535,15 +535,15 @@ function template_show_notice()
 	</head>
 	<body>
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['show_notice'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('show_notice', file: 'ModerationCenter'), '</h3>
 		</div>
 		<div class="title_bar">
-			<h3 class="titlebg">', Lang::getTxt('show_notice_subject', ['subject' => Utils::$context['notice_subject']]), '</h3>
+			<h3 class="titlebg">', Lang::getTxt('show_notice_subject', ['subject' => Utils::$context['notice_subject']], file: 'ModerationCenter'), '</h3>
 		</div>
 		<div class="windowbg">
 			<dl>
 				<dt>
-					<strong>', Lang::$txt['show_notice_text'], '</strong>
+					<strong>', Lang::getTxt('show_notice_text', file: 'ModerationCenter'), '</strong>
 				</dt>
 				<dd>
 					', Utils::adjustHeadingLevels(Utils::$context['notice_body'], 3), '
@@ -567,7 +567,7 @@ function template_warn_template()
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>
 			<div class="information">
-				', Lang::$txt['mc_warning_template_desc'], '
+				', Lang::getTxt('mc_warning_template_desc', file: 'ModerationCenter'), '
 			</div>
 			<div class="windowbg">
 				<div class="errorbox"', empty(Utils::$context['warning_errors']) ? ' style="display: none"' : '', ' id="errors">
@@ -592,14 +592,14 @@ function template_warn_template()
 				</div>
 				<dl class="settings">
 					<dt>
-						<strong><label for="template_title">', Lang::$txt['mc_warning_template_title'], '</label></strong>
+						<strong><label for="template_title">', Lang::getTxt('mc_warning_template_title', file: 'ModerationCenter'), '</label></strong>
 					</dt>
 					<dd>
 						<input type="text" id="template_title" name="template_title" value="', Utils::$context['template_data']['title'], '" size="30">
 					</dd>
 					<dt>
 						<strong><label for="template_body">', Lang::$txt['profile_warning_notify_body'], '</label></strong><br>
-						<span class="smalltext">', Lang::$txt['mc_warning_template_body_desc'], '</span>
+						<span class="smalltext">', Lang::getTxt('mc_warning_template_body_desc', file: 'ModerationCenter'), '</span>
 					</dt>
 					<dd>
 						<textarea id="template_body" name="template_body" rows="10" cols="45" class="smalltext">', Utils::$context['template_data']['body'], '</textarea>
@@ -610,9 +610,9 @@ function template_warn_template()
 		echo '
 				<input type="checkbox" name="make_personal" id="make_personal"', Utils::$context['template_data']['personal'] ? ' checked' : '', '>
 					<label for="make_personal">
-						<strong>', Lang::$txt['mc_warning_template_personal'], '</strong>
+						<strong>', Lang::getTxt('mc_warning_template_personal', file: 'ModerationCenter'), '</strong>
 					</label>
-					<p class="smalltext">', Lang::$txt['mc_warning_template_personal_desc'], '</p>';
+					<p class="smalltext">', Lang::getTxt('mc_warning_template_personal_desc', file: 'ModerationCenter'), '</p>';
 
 	echo '
 				<input type="submit" name="preview" id="preview_button" value="', Lang::$txt['preview'], '" class="button">

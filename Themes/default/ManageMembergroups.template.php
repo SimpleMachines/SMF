@@ -723,7 +723,7 @@ function template_group_request_reason()
 	<div id="moderationcenter">
 		<form action="', Config::$scripturl, '?action=groups;sa=requests" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mc_groups_reason_title'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mc_groups_reason_title', file: 'ModerationCenter'), '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">';
@@ -732,7 +732,7 @@ function template_group_request_reason()
 	foreach (Utils::$context['group_requests'] as $request)
 		echo '
 					<dt>
-						<strong>', Lang::getTxt('mc_groupr_reason_desc', $request), ':</strong>
+						<strong>', Lang::getTxt('mc_groupr_reason_desc', $request, file: 'ModerationCenter'), ':</strong>
 					</dt>
 					<dd>
 						<input type="hidden" name="groupr[]" value="', $request['id'], '">
@@ -741,7 +741,7 @@ function template_group_request_reason()
 
 	echo '
 				</dl>
-				<input type="submit" name="go" value="', Lang::$txt['mc_groupr_submit'], '" class="button">
+				<input type="submit" name="go" value="', Lang::getTxt('mc_groupr_submit', file: 'ModerationCenter'), '" class="button">
 				<input type="hidden" name="req_action" value="got_reason">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['mod-gr_token_var'], '" value="', Utils::$context['mod-gr_token'], '">

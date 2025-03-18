@@ -134,7 +134,7 @@ class IssueWarning implements ActionInterface
 			Utils::$context['post_errors'] = [];
 
 			foreach ($this->issueErrors as $error) {
-				Utils::$context['post_errors'][] = Lang::$txt[$error];
+				Utils::$context['post_errors'][] = Lang::getTxt($error, file: 'ModerationCenter');
 			}
 		}
 

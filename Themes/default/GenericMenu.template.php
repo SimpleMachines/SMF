@@ -23,7 +23,7 @@ function template_generic_menu_dropdown_above()
 	// Which menu are we rendering?
 	Utils::$context['cur_menu_id'] = isset(Utils::$context['cur_menu_id']) ? Utils::$context['cur_menu_id'] + 1 : 1;
 	$menu_context = &Utils::$context['menu_data_' . Utils::$context['cur_menu_id']];
-	$menu_label = isset(Utils::$context['admin_menu_name']) ? Lang::$txt['admin_center'] : (isset(Utils::$context['moderation_menu_name']) ? Lang::$txt['moderation_center'] : '');
+	$menu_label = isset(Utils::$context['admin_menu_name']) ? Lang::$txt['admin_center'] : (isset(Utils::$context['moderation_menu_name']) ? Lang::getTxt('moderation_center', file: 'ModerationCenter') : '');
 
 	// Load the menu
 	// Add mobile menu as well

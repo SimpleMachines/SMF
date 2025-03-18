@@ -87,7 +87,7 @@ class Home implements ActionInterface
 		Theme::loadTemplate('ModerationCenter');
 		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
 
-		Utils::$context['page_title'] = Lang::$txt['moderation_center'];
+		Utils::$context['page_title'] = Lang::getTxt('moderation_center', file: 'ModerationCenter');
 		Utils::$context['sub_template'] = 'moderation_center';
 
 		// Normally this will already have been done, but just in case...
