@@ -941,10 +941,10 @@ function template_show_settings()
 				{
 					$first = true;
 					echo '
-										<a href="#" class="board_selector">[ ', Lang::$txt['select_boards_from_list'], ' ]</a>
+										<a href="#" class="board_selector">[ ', Lang::getTxt('select_boards_from_list', file: 'ManageSettings'), ' ]</a>
 										<fieldset>
 											<legend class="board_selector">
-												<a href="#">', Lang::$txt['select_boards_from_list'], '</a>
+												<a href="#">', Lang::getTxt('select_boards_from_list', file: 'ManageSettings'), '</a>
 											</legend>';
 
 					foreach (Utils::$context['board_list'] as $id_cat => $cat)
@@ -1151,13 +1151,13 @@ function template_edit_profile_field()
 							</div>
 							<div class="windowbg">
 								<fieldset>
-									<legend>', Lang::$txt['custom_edit_general'], '</legend>
+									<legend>', Lang::getTxt('custom_edit_general', file: 'ManageSettings'), '</legend>
 
 									<dl class="settings">
 										<dt>
 											<a id="field_name_help" href="', Config::$scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-											<strong><label for="field_name">', Lang::$txt['custom_edit_name'], '</label></strong><br>
-											<span class="smalltext">', Lang::$txt['custom_edit_name_desc'], '</span>
+											<strong><label for="field_name">', Lang::getTxt('custom_edit_name', file: 'ManageSettings'), '</label></strong><br>
+											<span class="smalltext">', Lang::getTxt('custom_edit_name_desc', file: 'ManageSettings'), '</span>
 										</dt>
 										<dd>
 											<input type="text" name="field_name" id="field_name" value="', Utils::$context['field']['name'], '" size="20" maxlength="40">
@@ -1166,19 +1166,19 @@ function template_edit_profile_field()
 											<a id="field_desc_help" href="', Config::$scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help">
 												<span class="main_icons help" title="', Lang::$txt['help'], '"></span>
 											</a>
-											<strong><label for="field_desc">', Lang::$txt['custom_edit_desc'], '</label></strong><br>
-											<span class="smalltext">', Lang::$txt['custom_edit_name_desc'], '</span>
+											<strong><label for="field_desc">', Lang::getTxt('custom_edit_desc', file: 'ManageSettings'), '</label></strong><br>
+											<span class="smalltext">', Lang::getTxt('custom_edit_name_desc', file: 'ManageSettings'), '</span>
 										</dt>
 										<dd>
 											<textarea name="field_desc" id="field_desc" rows="3" cols="40">', Utils::$context['field']['desc'], '</textarea>
 										</dd>
 										<dt>
-											<strong><label for="profile_area">', Lang::$txt['custom_edit_profile'], '</label></strong><br>
-											<span class="smalltext">', Lang::$txt['custom_edit_profile_desc'], '</span>
+											<strong><label for="profile_area">', Lang::getTxt('custom_edit_profile', file: 'ManageSettings'), '</label></strong><br>
+											<span class="smalltext">', Lang::getTxt('custom_edit_profile_desc', file: 'ManageSettings'), '</span>
 										</dt>
 										<dd>
 											<select name="profile_area" id="profile_area">
-												<option value="none"', Utils::$context['field']['profile_area'] == 'none' ? ' selected' : '', '>', Lang::$txt['custom_edit_profile_none'], '</option>
+												<option value="none"', Utils::$context['field']['profile_area'] == 'none' ? ' selected' : '', '>', Lang::getTxt('custom_edit_profile_none', file: 'ManageSettings'), '</option>
 												<option value="account"', Utils::$context['field']['profile_area'] == 'account' ? ' selected' : '', '>', Lang::$txt['account'], '</option>
 												<option value="forumprofile"', Utils::$context['field']['profile_area'] == 'forumprofile' ? ' selected' : '', '>', Lang::$txt['forumprofile'], '</option>
 												<option value="theme"', Utils::$context['field']['profile_area'] == 'theme' ? ' selected' : '', '>', Lang::$txt['theme'], '</option>
@@ -1186,44 +1186,44 @@ function template_edit_profile_field()
 										</dd>
 										<dt>
 											<a id="field_reg_require" href="', Config::$scripturl, '?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-											<strong><label for="reg">', Lang::$txt['custom_edit_registration'], '</label></strong>
+											<strong><label for="reg">', Lang::getTxt('custom_edit_registration', file: 'ManageSettings'), '</label></strong>
 										</dt>
 										<dd>
 											<select name="reg" id="reg">
-												<option value="0"', Utils::$context['field']['reg'] == 0 ? ' selected' : '', '>', Lang::$txt['custom_edit_registration_disable'], '</option>
-												<option value="1"', Utils::$context['field']['reg'] == 1 ? ' selected' : '', '>', Lang::$txt['custom_edit_registration_allow'], '</option>
-												<option value="2"', Utils::$context['field']['reg'] == 2 ? ' selected' : '', '>', Lang::$txt['custom_edit_registration_require'], '</option>
+												<option value="0"', Utils::$context['field']['reg'] == 0 ? ' selected' : '', '>', Lang::getTxt('custom_edit_registration_disable', file: 'ManageSettings'), '</option>
+												<option value="1"', Utils::$context['field']['reg'] == 1 ? ' selected' : '', '>', Lang::getTxt('custom_edit_registration_allow', file: 'ManageSettings'), '</option>
+												<option value="2"', Utils::$context['field']['reg'] == 2 ? ' selected' : '', '>', Lang::getTxt('custom_edit_registration_require', file: 'ManageSettings'), '</option>
 											</select>
 										</dd>
 										<dt>
-											<strong><label for="display">', Lang::$txt['custom_edit_display'], '</label></strong>
+											<strong><label for="display">', Lang::getTxt('custom_edit_display', file: 'ManageSettings'), '</label></strong>
 										</dt>
 										<dd>
 											<input type="checkbox" name="display" id="display"', Utils::$context['field']['display'] ? ' checked' : '', '>
 										</dd>
 										<dt>
-											<strong><label for="mlist">', Lang::$txt['custom_edit_mlist'], '</label></strong>
+											<strong><label for="mlist">', Lang::getTxt('custom_edit_mlist', file: 'ManageSettings'), '</label></strong>
 										</dt>
 										<dd>
 											<input type="checkbox" name="mlist" id="show_mlist"', Utils::$context['field']['mlist'] ? ' checked' : '', '>
 										</dd>
 										<dt>
-											<strong><label for="placement">', Lang::$txt['custom_edit_placement'], '</label></strong>
+											<strong><label for="placement">', Lang::getTxt('custom_edit_placement', file: 'ManageSettings'), '</label></strong>
 										</dt>
 										<dd>
 											<select name="placement" id="placement">';
 
 	foreach (Utils::$context['cust_profile_fields_placement'] as $order => $name)
 		echo '
-												<option value="', $order, '"', Utils::$context['field']['placement'] == $order ? ' selected' : '', '>', Lang::$txt['custom_profile_placement_' . $name], '</option>';
+												<option value="', $order, '"', Utils::$context['field']['placement'] == $order ? ' selected' : '', '>', Lang::getTxt('custom_profile_placement_' . $name, file: 'ManageSettings'), '</option>';
 
 	echo '
 											</select>
 										</dd>
 										<dt>
 											<a id="field_show_enclosed" href="', Config::$scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-											<strong><label for="enclose">', Lang::$txt['custom_edit_enclose'], '</label></strong><br>
-											<span class="smalltext">', Lang::$txt['custom_edit_enclose_desc'], '</span>
+											<strong><label for="enclose">', Lang::getTxt('custom_edit_enclose', file: 'ManageSettings'), '</label></strong><br>
+											<span class="smalltext">', Lang::getTxt('custom_edit_enclose_desc', file: 'ManageSettings'), '</span>
 										</dt>
 										<dd>
 											<textarea name="enclose" id="enclose" rows="10" cols="50">', @Utils::$context['field']['enclose'], '</textarea>
@@ -1231,47 +1231,47 @@ function template_edit_profile_field()
 									</dl>
 								</fieldset>
 								<fieldset>
-									<legend>', Lang::$txt['custom_edit_input'], '</legend>
+									<legend>', Lang::getTxt('custom_edit_input', file: 'ManageSettings'), '</legend>
 									<dl class="settings">
 										<dt>
-											<strong><label for="field_type">', Lang::$txt['custom_edit_picktype'], '</label></strong>
+											<strong><label for="field_type">', Lang::getTxt('custom_edit_picktype', file: 'ManageSettings'), '</label></strong>
 										</dt>
 										<dd>
 											<select name="field_type" id="field_type" onchange="updateInputBoxes();">';
 
 	foreach (array('text', 'textarea', 'select', 'radio', 'check') as $field_type)
 		echo '
-												<option value="', $field_type, '"', Utils::$context['field']['type'] == $field_type ? ' selected' : '', '>', Lang::$txt['custom_profile_type_' . $field_type], '</option>';
+												<option value="', $field_type, '"', Utils::$context['field']['type'] == $field_type ? ' selected' : '', '>', Lang::getTxt('custom_profile_type_' . $field_type, file: 'ManageSettings'), '</option>';
 
 	echo '
 											</select>
 										</dd>
 										<dt id="max_length_dt">
-											<strong><label for="max_length_dd">', Lang::$txt['custom_edit_max_length'], '</label></strong><br>
-											<span class="smalltext">', Lang::$txt['custom_edit_max_length_desc'], '</span>
+											<strong><label for="max_length_dd">', Lang::getTxt('custom_edit_max_length', file: 'ManageSettings'), '</label></strong><br>
+											<span class="smalltext">', Lang::getTxt('custom_edit_max_length_desc', file: 'ManageSettings'), '</span>
 										</dt>
 										<dd>
 											<input type="text" name="max_length" id="max_length_dd" value="', Utils::$context['field']['max_length'], '" size="7" maxlength="6">
 										</dd>
 										<dt id="dimension_dt">
-											<strong><label for="dimension_dd">', Lang::$txt['custom_edit_dimension'], '</label></strong>
+											<strong><label for="dimension_dd">', Lang::getTxt('custom_edit_dimension', file: 'ManageSettings'), '</label></strong>
 										</dt>
 										<dd id="dimension_dd">
-											<strong>', Lang::$txt['custom_edit_dimension_row'], '</strong> <input type="text" name="rows" value="', Utils::$context['field']['rows'], '" size="5" maxlength="3">
-											<strong>', Lang::$txt['custom_edit_dimension_col'], '</strong> <input type="text" name="cols" value="', Utils::$context['field']['cols'], '" size="5" maxlength="3">
+											<strong>', Lang::getTxt('custom_edit_dimension_row', file: 'ManageSettings'), '</strong> <input type="text" name="rows" value="', Utils::$context['field']['rows'], '" size="5" maxlength="3">
+											<strong>', Lang::getTxt('custom_edit_dimension_col', file: 'ManageSettings'), '</strong> <input type="text" name="cols" value="', Utils::$context['field']['cols'], '" size="5" maxlength="3">
 										</dd>
 										<dt id="bbc_dt">
-											<strong><label for="bbc_dd">', Lang::$txt['custom_edit_bbc'], '</label></strong>
+											<strong><label for="bbc_dd">', Lang::getTxt('custom_edit_bbc', file: 'ManageSettings'), '</label></strong>
 										</dt>
 										<dd>
 											<input type="checkbox" name="bbc" id="bbc_dd"', Utils::$context['field']['bbc'] ? ' checked' : '', '>
 										</dd>
 										<dt id="options_dt">
 											<a href="', Config::$scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-											<strong><label for="options_dd">', Lang::$txt['custom_edit_options'], '</label></strong><br>
-											<span class="smalltext">', Lang::$txt['custom_edit_options_desc'], '</span>
+											<strong><label for="options_dd">', Lang::getTxt('custom_edit_options', file: 'ManageSettings'), '</label></strong><br>
+											<span class="smalltext">', Lang::getTxt('custom_edit_options_desc', file: 'ManageSettings'), '</span>
 											<br>
-											<span>', Lang::$txt['custom_edit_name_desc'], '</span>
+											<span>', Lang::getTxt('custom_edit_name_desc', file: 'ManageSettings'), '</span>
 										</dt>
 										<dd id="options_dd">';
 
@@ -1281,10 +1281,10 @@ function template_edit_profile_field()
 
 	echo '
 											<span id="addopt"></span>
-											[<a href="" onclick="addOption(); return false;">', Lang::$txt['custom_edit_options_more'], '</a>]
+											[<a href="" onclick="addOption(); return false;">', Lang::getTxt('custom_edit_options_more', file: 'ManageSettings'), '</a>]
 										</dd>
 										<dt id="default_dt">
-											<strong><label for="default_dd">', Lang::$txt['custom_edit_default'], '</label></strong>
+											<strong><label for="default_dd">', Lang::getTxt('custom_edit_default', file: 'ManageSettings'), '</label></strong>
 										</dt>
 										<dd>
 											<input type="checkbox" name="default_check" id="default_dd"', Utils::$context['field']['default_check'] ? ' checked' : '', '>
@@ -1292,19 +1292,19 @@ function template_edit_profile_field()
 									</dl>
 								</fieldset>
 								<fieldset>
-									<legend>', Lang::$txt['custom_edit_advanced'], '</legend>
+									<legend>', Lang::getTxt('custom_edit_advanced', file: 'ManageSettings'), '</legend>
 									<dl class="settings">
 										<dt id="mask_dt">
 											<a id="custom_mask" href="', Config::$scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-											<strong><label for="mask">', Lang::$txt['custom_edit_mask'], '</label></strong><br>
-											<span class="smalltext">', Lang::$txt['custom_edit_mask_desc'], '</span>
+											<strong><label for="mask">', Lang::getTxt('custom_edit_mask', file: 'ManageSettings'), '</label></strong><br>
+											<span class="smalltext">', Lang::getTxt('custom_edit_mask_desc', file: 'ManageSettings'), '</span>
 										</dt>
 										<dd>
 											<select name="mask" id="mask" onchange="updateInputBoxes();">
-												<option value="nohtml"', Utils::$context['field']['mask'] == 'nohtml' ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_nohtml'], '</option>
-												<option value="email"', Utils::$context['field']['mask'] == 'email' ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_email'], '</option>
-												<option value="number"', Utils::$context['field']['mask'] == 'number' ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_number'], '</option>
-												<option value="regex"', str_starts_with(Utils::$context['field']['mask'], 'regex') ? ' selected' : '', '>', Lang::$txt['custom_edit_mask_regex'], '</option>
+												<option value="nohtml"', Utils::$context['field']['mask'] == 'nohtml' ? ' selected' : '', '>', Lang::getTxt('custom_edit_mask_nohtml', file: 'ManageSettings'), '</option>
+												<option value="email"', Utils::$context['field']['mask'] == 'email' ? ' selected' : '', '>', Lang::getTxt('custom_edit_mask_email', file: 'ManageSettings'), '</option>
+												<option value="number"', Utils::$context['field']['mask'] == 'number' ? ' selected' : '', '>', Lang::getTxt('custom_edit_mask_number', file: 'ManageSettings'), '</option>
+												<option value="regex"', str_starts_with(Utils::$context['field']['mask'], 'regex') ? ' selected' : '', '>', Lang::getTxt('custom_edit_mask_regex', file: 'ManageSettings'), '</option>
 											</select>
 											<br>
 											<span id="regex_div">
@@ -1312,27 +1312,27 @@ function template_edit_profile_field()
 											</span>
 										</dd>
 										<dt>
-											<strong><label for="private">', Lang::$txt['custom_edit_privacy'], '</label></strong><br>
-											<span class="smalltext">', Lang::$txt['custom_edit_privacy_desc'], '</span>
+											<strong><label for="private">', Lang::getTxt('custom_edit_privacy', file: 'ManageSettings'), '</label></strong><br>
+											<span class="smalltext">', Lang::getTxt('custom_edit_privacy_desc', file: 'ManageSettings'), '</span>
 										</dt>
 										<dd>
 											<select name="private" id="private" onchange="updateInputBoxes();">
-												<option value="0"', Utils::$context['field']['private'] == 0 ? ' selected' : '', '>', Lang::$txt['custom_edit_privacy_all'], '</option>
-												<option value="1"', Utils::$context['field']['private'] == 1 ? ' selected' : '', '>', Lang::$txt['custom_edit_privacy_see'], '</option>
-												<option value="2"', Utils::$context['field']['private'] == 2 ? ' selected' : '', '>', Lang::$txt['custom_edit_privacy_owner'], '</option>
-												<option value="3"', Utils::$context['field']['private'] == 3 ? ' selected' : '', '>', Lang::$txt['custom_edit_privacy_none'], '</option>
+												<option value="0"', Utils::$context['field']['private'] == 0 ? ' selected' : '', '>', Lang::getTxt('custom_edit_privacy_all', file: 'ManageSettings'), '</option>
+												<option value="1"', Utils::$context['field']['private'] == 1 ? ' selected' : '', '>', Lang::getTxt('custom_edit_privacy_see', file: 'ManageSettings'), '</option>
+												<option value="2"', Utils::$context['field']['private'] == 2 ? ' selected' : '', '>', Lang::getTxt('custom_edit_privacy_owner', file: 'ManageSettings'), '</option>
+												<option value="3"', Utils::$context['field']['private'] == 3 ? ' selected' : '', '>', Lang::getTxt('custom_edit_privacy_none', file: 'ManageSettings'), '</option>
 											</select>
 										</dd>
 										<dt id="can_search_dt">
-											<strong><label for="can_search_dd">', Lang::$txt['custom_edit_can_search'], '</label></strong><br>
-											<span class="smalltext">', Lang::$txt['custom_edit_can_search_desc'], '</span>
+											<strong><label for="can_search_dd">', Lang::getTxt('custom_edit_can_search', file: 'ManageSettings'), '</label></strong><br>
+											<span class="smalltext">', Lang::getTxt('custom_edit_can_search_desc', file: 'ManageSettings'), '</span>
 										</dt>
 										<dd>
 											<input type="checkbox" name="can_search" id="can_search_dd"', Utils::$context['field']['can_search'] ? ' checked' : '', '>
 										</dd>
 										<dt>
-											<strong><label for="can_search_check">', Lang::$txt['custom_edit_active'], '</label></strong><br>
-											<span class="smalltext">', Lang::$txt['custom_edit_active_desc'], '</span>
+											<strong><label for="can_search_check">', Lang::getTxt('custom_edit_active', file: 'ManageSettings'), '</label></strong><br>
+											<span class="smalltext">', Lang::getTxt('custom_edit_active_desc', file: 'ManageSettings'), '</span>
 										</dt>
 										<dd>
 											<input type="checkbox" name="active" id="can_search_check"', Utils::$context['field']['active'] ? ' checked' : '', '>
@@ -1343,7 +1343,7 @@ function template_edit_profile_field()
 
 	if (Utils::$context['fid'])
 		echo '
-								<input type="submit" name="delete" value="', Lang::$txt['delete'], '" data-confirm="', Lang::$txt['custom_edit_delete_sure'], '" class="button you_sure">';
+								<input type="submit" name="delete" value="', Lang::$txt['delete'], '" data-confirm="', Lang::getTxt('custom_edit_delete_sure', file: 'ManageSettings'), '" class="button you_sure">';
 
 	echo '
 							</div><!-- .windowbg -->
@@ -1442,10 +1442,10 @@ function template_callback_question_answer_list()
 							<legend><a href="javascript:void(0);">', $lang['name'], '</a></legend>
 							<dl class="settings">
 								<dt>
-									<strong>', Lang::$txt['setup_verification_question'], '</strong>
+									<strong>', Lang::getTxt('setup_verification_question', file: 'ManageSettings'), '</strong>
 								</dt>
 								<dd>
-									<strong>', Lang::$txt['setup_verification_answer'], '</strong>
+									<strong>', Lang::getTxt('setup_verification_answer', file: 'ManageSettings'), '</strong>
 								</dd>';
 
 		if (!empty(Utils::$context['qa_by_lang'][$lang_id]))
@@ -1464,12 +1464,12 @@ function template_callback_question_answer_list()
 									<input type="text" name="answer[', $lang_id, '][', $q_id, '][]" value="', $answer, '" size="50" class="verification_answer">';
 
 				echo '
-									<div class="qa_add_answer"><a href="javascript:void(0);">[ ', Lang::$txt['setup_verification_add_answer'], ' ]</a></div>
+									<div class="qa_add_answer"><a href="javascript:void(0);">[ ', Lang::getTxt('setup_verification_add_answer', file: 'ManageSettings'), ' ]</a></div>
 								</dd>';
 			}
 
 		echo '
-								<dt class="qa_add_question"><a href="javascript:void(0);">[ ', Lang::$txt['setup_verification_add_more'], ' ]</a></dt>
+								<dt class="qa_add_question"><a href="javascript:void(0);">[ ', Lang::getTxt('setup_verification_add_more', file: 'ManageSettings'), ' ]</a></dt>
 							</dl>
 						</fieldset>';
 	}

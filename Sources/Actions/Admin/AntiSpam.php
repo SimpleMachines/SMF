@@ -91,12 +91,12 @@ class AntiSpam implements ActionInterface
 				Utils::$context['settings_insert_above'] = '';
 			}
 
-			Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . Lang::getTxt('question_not_defined', Utils::$context['languages'][Lang::$default]) . '</div>';
+			Utils::$context['settings_insert_above'] .= '<div class="noticebox">' . Lang::getTxt('question_not_defined', Utils::$context['languages'][Lang::$default], file: 'ManageSettings') . '</div>';
 		}
 
 		// Thirdly, push some JavaScript for the form to make it work.
 		$nextrow = !empty(Utils::$context['question_answers']) ? max(array_keys(Utils::$context['question_answers'])) + 1 : 1;
-		$setup_verification_add_answer = Utils::escapeJavaScript(Lang::$txt['setup_verification_add_answer']);
+		$setup_verification_add_answer = Utils::escapeJavaScript(Lang::getTxt('setup_verification_add_answer', file: 'ManageSettings'));
 		$default_lang = strtr(Lang::$default, ['-utf8' => '']);
 
 		Theme::addInlineJavaScript(<<<END
@@ -314,9 +314,9 @@ class AntiSpam implements ActionInterface
 
 		// Show the image itself, or text saying we can't.
 		if (Utils::$context['use_graphic_library']) {
-			$config_vars['vv']['postinput'] = '<br><img src="' . Utils::$context['verification_image_href'] . ';type=' . (empty(Config::$modSettings['visual_verification_type']) ? 0 : Config::$modSettings['visual_verification_type']) . '" alt="' . Lang::$txt['setting_image_verification_sample'] . '" id="verification_image"><br>';
+			$config_vars['vv']['postinput'] = '<br><img src="' . Utils::$context['verification_image_href'] . ';type=' . (empty(Config::$modSettings['visual_verification_type']) ? 0 : Config::$modSettings['visual_verification_type']) . '" alt="' . Lang::getTxt('setting_image_verification_sample', file: 'ManageSettings') . '" id="verification_image"><br>';
 		} else {
-			$config_vars['vv']['postinput'] = '<br><span class="smalltext">' . Lang::$txt['setting_image_verification_nogd'] . '</span>';
+			$config_vars['vv']['postinput'] = '<br><span class="smalltext">' . Lang::getTxt('setting_image_verification_nogd', file: 'ManageSettings') . '</span>';
 		}
 
 		// Hack for PM spam settings.
@@ -334,13 +334,13 @@ class AntiSpam implements ActionInterface
 
 		// And everything else.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=antispam;save';
-		Utils::$context['settings_title'] = Lang::$txt['antispam_Settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('antispam_Settings', file: 'ManageSettings');
 		Utils::$context['page_title'] = Lang::getTxt('antispam_title', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::getTxt('antispam_title', file: 'Admin'),
-			'description' => Lang::$txt['antispam_Settings_desc'],
+			'description' => Lang::getTxt('antispam_Settings_desc', file: 'ManageSettings'),
 		];
 
 		ACP::prepareDBSettingContext($config_vars);
@@ -370,21 +370,33 @@ class AntiSpam implements ActionInterface
 			'guest_verify' => [
 				'check',
 				'guests_require_captcha',
-				'subtext' => Lang::$txt['setting_guests_require_captcha_desc'],
+				'subtext' => Lang::getTxt('setting_guests_require_captcha_desc', file: 'ManageSettings'),
 			],
 			[
 				'int',
 				'posts_require_captcha',
-				'subtext' => Lang::$txt['posts_require_captcha_desc'],
+				'subtext' => Lang::getTxt('posts_require_captcha_desc', file: 'ManageSettings'),
 				'min' => -1,
 				'onchange' => 'if (this.value > 0){ document.getElementById(\'guests_require_captcha\').checked = true; document.getElementById(\'guests_require_captcha\').disabled = true;} else {document.getElementById(\'guests_require_captcha\').disabled = false;}',
 			],
 			'',
 
 			// PM Settings
-			'pm1' => ['int', 'max_pm_recipients', 'subtext' => Lang::$txt['max_pm_recipients_note']],
-			'pm2' => ['int', 'pm_posts_verification', 'subtext' => Lang::$txt['pm_posts_verification_note']],
-			'pm3' => ['int', 'pm_posts_per_hour', 'subtext' => Lang::$txt['pm_posts_per_hour_note']],
+			'pm1' => [
+				'int',
+				'max_pm_recipients',
+				'subtext' => Lang::getTxt('max_pm_recipients_note', file: 'ManageSettings'),
+			],
+			'pm2' => [
+				'int',
+				'pm_posts_verification',
+				'subtext' => Lang::getTxt('pm_posts_verification_note', file: 'ManageSettings'),
+			],
+			'pm3' => [
+				'int',
+				'pm_posts_per_hour',
+				'subtext' => Lang::getTxt('pm_posts_per_hour_note', file: 'ManageSettings'),
+			],
 			// Visual verification.
 			['title', 'configure_verification_means'],
 			['desc', 'configure_verification_means_desc'],
@@ -392,27 +404,50 @@ class AntiSpam implements ActionInterface
 				'select',
 				'visual_verification_type',
 				[
-					Lang::$txt['setting_image_verification_off'],
-					Lang::$txt['setting_image_verification_vsimple'],
-					Lang::$txt['setting_image_verification_simple'],
-					Lang::$txt['setting_image_verification_medium'],
-					Lang::$txt['setting_image_verification_high'],
-					Lang::$txt['setting_image_verification_extreme'],
+					Lang::getTxt('setting_image_verification_off', file: 'ManageSettings'),
+					Lang::getTxt('setting_image_verification_vsimple', file: 'ManageSettings'),
+					Lang::getTxt('setting_image_verification_simple', file: 'ManageSettings'),
+					Lang::getTxt('setting_image_verification_medium', file: 'ManageSettings'),
+					Lang::getTxt('setting_image_verification_high', file: 'ManageSettings'),
+					Lang::getTxt('setting_image_verification_extreme', file: 'ManageSettings'),
 				],
-				'subtext' => Lang::$txt['setting_visual_verification_type_desc'],
+				'subtext' => Lang::getTxt('setting_visual_verification_type_desc', file: 'ManageSettings'),
 				'onchange' => Utils::$context['use_graphic_library'] ? 'refreshImages();' : '',
 			],
 			// reCAPTCHA
 			['title', 'recaptcha_configure'],
 			['desc', 'recaptcha_configure_desc', 'class' => 'windowbg'],
-			['check', 'recaptcha_enabled', 'subtext' => Lang::$txt['recaptcha_enable_desc']],
-			['text', 'recaptcha_site_key', 'subtext' => Lang::$txt['recaptcha_site_key_desc']],
-			['text', 'recaptcha_secret_key', 'subtext' => Lang::$txt['recaptcha_secret_key_desc']],
-			['select', 'recaptcha_theme', ['light' => Lang::$txt['recaptcha_theme_light'], 'dark' => Lang::$txt['recaptcha_theme_dark']]],
+			[
+				'check',
+				'recaptcha_enabled',
+				'subtext' => Lang::getTxt('recaptcha_enable_desc', file: 'ManageSettings'),
+			],
+			[
+				'text',
+				'recaptcha_site_key',
+				'subtext' => Lang::getTxt('recaptcha_site_key_desc', file: 'ManageSettings'),
+			],
+			[
+				'text',
+				'recaptcha_secret_key',
+				'subtext' => Lang::getTxt('recaptcha_secret_key_desc', file: 'ManageSettings'),
+			],
+			[
+				'select',
+				'recaptcha_theme',
+				[
+					'light' => Lang::getTxt('recaptcha_theme_light', file: 'ManageSettings'),
+					'dark' => Lang::getTxt('recaptcha_theme_dark', file: 'ManageSettings'),
+				],
+			],
 			// Clever Thomas, who is looking sheepy now? Not I, the mighty sword swinger did say.
 			['title', 'setup_verification_questions'],
 			['desc', 'setup_verification_questions_desc'],
-			['int', 'qa_verification_number', 'subtext' => Lang::$txt['setting_qa_verification_number_desc']],
+			[
+				'int',
+				'qa_verification_number',
+				'subtext' => Lang::getTxt('setting_qa_verification_number_desc', file: 'ManageSettings'),
+			],
 			['callback', 'question_answer_list'],
 		];
 

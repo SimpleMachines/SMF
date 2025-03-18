@@ -77,7 +77,7 @@ class Mods implements ActionInterface
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::getTxt('admin_modifications', file: 'Admin'),
 			'help' => 'modsettings',
-			'description' => Lang::$txt['modification_settings_desc'],
+			'description' => Lang::getTxt('modification_settings_desc', file: 'ManageSettings'),
 			'tabs' => [
 				'general' => [
 				],
@@ -111,7 +111,7 @@ class Mods implements ActionInterface
 		if (empty($config_vars)) {
 			Utils::$context['settings_save_dont_show'] = true;
 			Utils::$context['settings_message'] = [
-				'label' => Lang::$txt['modification_no_misc_settings'],
+				'label' => Lang::getTxt('modification_no_misc_settings', file: 'ManageSettings'),
 				'tag' => 'div',
 				'class' => 'centertext',
 			];

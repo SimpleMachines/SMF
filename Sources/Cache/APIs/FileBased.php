@@ -177,7 +177,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 		$class_name = $this->getImplementationClassKeyName();
 		$class_name_txt_key = strtolower($class_name);
 
-		$config_vars[] = Lang::$txt['cache_' . $class_name_txt_key . '_settings'];
+		$config_vars[] = Lang::getTxt('cache_' . $class_name_txt_key . '_settings', file: 'ManageSettings');
 		$config_vars[] = [
 			'cachedir',
 			Lang::getTxt('cachedir', file: 'Admin'),

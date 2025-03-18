@@ -161,27 +161,27 @@ class Warnings implements ActionInterface
 				[
 					'int',
 					'warning_watch',
-					'subtext' => Lang::$txt['setting_warning_watch_note'] . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
+					'subtext' => Lang::getTxt('setting_warning_watch_note', file: 'ManageSettings') . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
 				],
 				'moderate' => [
 					'int',
 					'warning_moderate',
-					'subtext' => Lang::$txt['setting_warning_moderate_note'] . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
+					'subtext' => Lang::getTxt('setting_warning_moderate_note', file: 'ManageSettings') . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
 				],
 				[
 					'int',
 					'warning_mute',
-					'subtext' => Lang::$txt['setting_warning_mute_note'] . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
+					'subtext' => Lang::getTxt('setting_warning_mute_note', file: 'ManageSettings') . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
 				],
 				'rem1' => [
 					'int',
 					'user_limit',
-					'subtext' => Lang::$txt['setting_user_limit_note'],
+					'subtext' => Lang::getTxt('setting_user_limit_note', file: 'ManageSettings'),
 				],
 				'rem2' => [
 					'int',
 					'warning_decrement',
-					'subtext' => Lang::$txt['setting_warning_decrement_note'] . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
+					'subtext' => Lang::getTxt('setting_warning_decrement_note', file: 'ManageSettings') . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
 				],
 				['permissions', 'view_warning_any'],
 				['permissions', 'view_warning_own'],

@@ -145,10 +145,10 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		$class_name = $this->getImplementationClassKeyName();
 		$class_name_txt_key = strtolower($class_name);
 
-		$config_vars[] = Lang::$txt['cache_' . $class_name_txt_key . '_settings'];
+		$config_vars[] = Lang::getTxt('cache_' . $class_name_txt_key . '_settings', file: 'ManageSettings');
 		$config_vars[] = [
 			'cachedir_' . $class_name_txt_key,
-			Lang::$txt['cachedir_' . $class_name_txt_key],
+			Lang::getTxt('cachedir_' . $class_name_txt_key, file: 'ManageSettings'),
 			'file',
 			'text',
 			36,

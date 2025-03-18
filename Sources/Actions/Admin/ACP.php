@@ -1443,7 +1443,7 @@ class ACP implements ActionInterface, Routable
 
 			if (in_array($class_name_txt_key, $checkFor)) {
 				$versions[$class_name_txt_key] = [
-					'title' => Lang::$txt[$class_name_txt_key . '_cache'] ?? $class_name,
+					'title' => Lang::txtExists($class_name_txt_key . '_cache', file: 'Admin+ManageSettings') ? Lang::getTxt($class_name_txt_key . '_cache', file: 'Admin+ManageSettings') : $class_name,
 					'version' => $cache_api->getVersion(),
 				];
 			}

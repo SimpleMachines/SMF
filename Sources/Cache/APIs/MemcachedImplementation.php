@@ -178,15 +178,16 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	public function cacheSettings(array &$config_vars): void
 	{
-		if (!in_array(Lang::$txt[self::CLASS_KEY . '_settings'], $config_vars)) {
-			$config_vars[] = Lang::$txt[self::CLASS_KEY . '_settings'];
+		if (!in_array(Lang::getTxt(self::CLASS_KEY . '_settings', file: 'ManageSettings'), $config_vars)) {
+			$config_vars[] = Lang::getTxt(self::CLASS_KEY . '_settings', file: 'ManageSettings');
 			$config_vars[] = [
 				self::CLASS_KEY,
-				Lang::$txt[self::CLASS_KEY . '_servers'],
+				Lang::getTxt(self::CLASS_KEY . '_servers', file: 'ManageSettings'),
 				'file',
 				'text',
 				0,
-				'subtext' => Lang::$txt[self::CLASS_KEY . '_servers_subtext']];
+				'subtext' => Lang::getTxt(self::CLASS_KEY . '_servers_subtext', file: 'ManageSettings'),
+			];
 		}
 
 		if (!isset(Utils::$context['settings_post_javascript'])) {
