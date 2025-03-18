@@ -78,7 +78,6 @@ $txt['member_group_settings'] = 'Settings';
 $txt['member_group_access'] = 'Board Access';
 
 // Board info.
-$txt['none'] = 'None';
 $txt['board_category'] = 'Category';
 $txt['board_parent'] = 'Parent Board';
 $txt['board_redirect'] = 'Redirection Board, redirects to';

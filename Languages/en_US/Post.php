@@ -3,7 +3,6 @@
 // Version: 3.0 Alpha 3; Post
 
 $txt['post_reply'] = 'Post reply';
-$txt['message_icon'] = 'Message icon';
 $txt['subject_not_filled'] = 'The subject field was not filled out. It is required.';
 $txt['message_body_not_filled'] = 'The message body was not filled out. It is required.';
 // Use numeric entities in the below string.
@@ -59,7 +58,6 @@ $txt['cant_upload_type'] = 'You cannot upload that type of file. The only allowe
 $txt['uncheck_unwatchd_attach'] = 'Uncheck the attachments you no longer want attached';
 $txt['restricted_filename'] = 'That is a restricted filename. Please try a different filename.';
 $txt['topic_locked_no_reply'] = 'Warning! This topic is currently/will be locked<br>Only admins and moderators can reply.';
-$txt['awaiting_approval'] = 'Awaiting approval';
 $txt['attachment_requires_approval'] = 'Note that any files attached will not be displayed until approved by a moderator.';
 $txt['error_temp_attachments'] = 'There are attachments found, which you have attached before but not posted. These attachments are now attached to this post. If you do not want to include them in this post, you can remove them <a href="#postAttachment">here</a>.';
 // Use numeric entities in the below string.

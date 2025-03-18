@@ -156,7 +156,6 @@ $txt['spider_name_desc'] = 'Name by which the spider will be referred.';
 $txt['spider_agent_desc'] = 'User agent associated with this spider.';
 $txt['spider_ip_info_desc'] = 'Comma separated list of IP addresses associated with this spider.';
 
-$txt['spider'] = 'Spider';
 $txt['spider_time'] = 'Time';
 $txt['spider_viewing'] = 'Viewing';
 $txt['spider_logs_empty'] = 'There are currently no spider log entries.';

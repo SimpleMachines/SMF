@@ -193,6 +193,9 @@ $txt['login'] = 'Log in';
 $txt['username'] = 'Username';
 $txt['password'] = 'Password';
 
+$txt['registration_agreement'] = 'Registration Agreement';
+$txt['privacy_policy'] = 'Privacy Policy';
+
 $txt['username_no_exist'] = 'That username does not exist.';
 $txt['no_user_with_email'] = 'There are no usernames associated with that email.';
 
@@ -201,6 +204,7 @@ $txt['remove_topic'] = 'Remove topic';
 $txt['topics'] = 'Topics';
 $txt['modify_msg'] = 'Modify message';
 $txt['name'] = 'Name';
+$txt['display_name'] = 'Display name';
 $txt['email'] = 'Email';
 $txt['user_email_address'] = 'Email address';
 $txt['subject'] = 'Subject';
@@ -292,7 +296,6 @@ $txt['unnotify'] = 'Unnotify';
 $txt['regards_team'] = 'Regards,
 The {forum_name} Team.';
 
-$txt['notify_replies'] = 'Notify of replies';
 $txt['move_topic'] = 'Move Topic';
 $txt['move_to'] = 'Move to';
 $txt['pages'] = 'Pages';
@@ -531,6 +534,7 @@ $txt['logged'] = 'Logged';
 $txt['show_ip'] = 'Show IP address';
 // Use numeric entities in the below string.
 $txt['ip'] = 'IP';
+$txt['ip_address'] = 'IP address';
 $txt['url'] = 'URL';
 $txt['www'] = 'WWW';
 
@@ -620,6 +624,7 @@ $txt['your_pms'] = 'Your Personal Messages';
 
 $txt['kilobyte'] = 'KB';
 $txt['megabyte'] = 'MB';
+$txt['size_byte'] = '{0, number} B';
 $txt['size_kilobyte'] = '{0, number} KB';
 $txt['size_megabyte'] = '{0, number} MB';
 
@@ -921,11 +926,11 @@ $txt['merged_subject'] = '[MERGED] {subject}';
 $txt['mergetopic_default'] = 'This topic has been merged into {topic_link}.';
 
 $txt['response_prefix'] = 'Re: ';
-$txt['current_icon'] = 'Current Icon';
-$txt['message_icon'] = 'Message Icon';
+$txt['current_icon'] = 'Current icon';
+$txt['message_icon'] = 'Message icon';
 
-$txt['smileys_current'] = 'Current Smiley Set';
-$txt['smileys_none'] = 'No Smileys';
+$txt['smileys_current'] = 'Current smiley set';
+$txt['smileys_none'] = 'No smileys';
 $txt['smileys_forum_board_default'] = 'Forum/Board Default';
 
 $txt['search_results'] = 'Search Results';

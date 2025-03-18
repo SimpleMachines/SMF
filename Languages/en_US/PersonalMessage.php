@@ -13,7 +13,6 @@ $txt['pm_was_sent_to_you'] = 'You received a message';
 $txt['pm_you_were_replied_to'] = 'A message of yours was replied to';
 
 $txt['pm_inbox'] = 'Personal Messages Index';
-$txt['send_message'] = 'Send message';
 $txt['pm_add'] = 'Add';
 $txt['make_bcc'] = 'Add BCC';
 $txt['pm_subject'] = 'Subject: {subject}';

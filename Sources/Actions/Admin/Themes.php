@@ -2210,9 +2210,9 @@ class Themes implements ActionInterface
 				$size = filesize($path . '/' . $entry);
 
 				if ($size > 2048 || $size == 1024) {
-					$size = Lang::numberFormat($size / 1024) . ' ' . Lang::$txt['themeadmin_edit_kilobytes'];
+					$size = Lang::getTxt('size_kilobytes', [Lang::numberFormat($size / 1024)]);
 				} else {
-					$size = Lang::numberFormat($size) . ' ' . Lang::$txt['themeadmin_edit_bytes'];
+					$size = Lang::getTxt('size_bytes', [Lang::numberFormat($size)]);
 				}
 
 				$list2[] = [

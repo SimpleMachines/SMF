@@ -69,9 +69,7 @@ $txt['dont_show_attach_under_post'] = 'Do not show attachments under the post if
 $txt['dont_show_attach_under_post_sub'] = 'Enable this if you do not want attachments to appear twice. Attachments embedded in the post still count towards attachment limits and can still be treated like normal attachments.';
 
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
-$txt['registration_agreement'] = 'Registration Agreement';
 $txt['registration_agreement_desc'] = 'This agreement is shown when a user registers an account on this forum and has to be accepted before users can continue registration.';
-$txt['privacy_policy'] = 'Privacy Policy';
 $txt['privacy_policy_desc'] = 'This privacy policy describes the promises you make to your users regarding how you will use their personal data. It is shown when a user registers an account on this forum and has to be accepted before the user can continue registration.';
 $txt['errors_list'] = 'Listing of forum errors';
 $txt['errors_found'] = 'The following errors are fouling up your forum:';
@@ -126,12 +124,8 @@ $txt['viewmembers_today'] = 'Today';
 $txt['viewmembers_day_ago'] = 'day ago';
 $txt['viewmembers_days_ago'] = 'days ago';
 
-$txt['display_name'] = 'Display name';
 $txt['email_address'] = 'Email address';
-$txt['ip_address'] = 'IP address';
 $txt['member_id'] = 'ID';
-
-$txt['unknown'] = 'unknown';
 
 $txt['security_wrong'] = 'Administration login attempt!
 Referrer: {referrer}
@@ -292,8 +286,6 @@ $txt['not_activated'] = 'Not activated';
 $txt['primary'] = 'Primary';
 $txt['additional'] = 'Additional';
 $txt['wild_cards_allowed'] = 'wildcard characters * and ? are allowed';
-$txt['search_for'] = 'Search for';
-$txt['search_match'] = 'Match';
 $txt['member_part_of_these_membergroups'] = 'Member is part of these membergroups';
 $txt['membergroups'] = 'Membergroups';
 $txt['confirm_delete_members'] = 'Are you sure you want to delete the selected members?';
@@ -751,7 +743,6 @@ $txt['themeadmin_edit_title'] = 'Modify Themes';
 $txt['admin_browse_register_new'] = 'Register new member';
 
 $txt['search_engines'] = 'Search Engines';
-$txt['spiders'] = 'Spiders';
 $txt['spider_logs'] = 'Spider Log';
 $txt['spider_stats'] = 'Stats';
 

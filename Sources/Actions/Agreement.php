@@ -64,7 +64,7 @@ class Agreement implements ActionInterface, Routable
 		if (!empty(Utils::$context['agreement']) && !empty(Utils::$context['privacy_policy'])) {
 			$page_title = Lang::$txt['agreement_and_privacy_policy'];
 		} elseif (!empty(Utils::$context['agreement'])) {
-			$page_title = Lang::$txt['agreement'];
+			$page_title = Lang::$txt['registration_agreement'];
 		} elseif (!empty(Utils::$context['privacy_policy'])) {
 			$page_title = Lang::$txt['privacy_policy'];
 		}
