@@ -183,11 +183,11 @@ class Search
 		Utils::$context['start'] = &$this->start;
 		Utils::$context['params'] = &$this->compressed_params;
 
-		Utils::$context['page_title'] = Lang::$txt['pm_search_title'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_search_title', file: 'PersonalMessage');
 		Menu::$loaded['pm']['current_area'] = 'search';
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=search',
-			'name' => Lang::$txt['pm_search_bar_title'],
+			'name' => Lang::getTxt('pm_search_bar_title', file: 'PersonalMessage'),
 		];
 	}
 

@@ -355,7 +355,7 @@ class PM implements \ArrayAccess
 			'custom_fields' => $custom_fields,
 			'quickbuttons' => [
 				'reply_to_all' => [
-					'label' => Lang::$txt['reply_to_all'],
+					'label' => Lang::getTxt('reply_to_all', file: 'PersonalMessage'),
 					'href' => Config::$scripturl . '?action=pm;sa=send;f=' . $this->folder . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $this->id . ($this->member_from != User::$me->id ? ';quote' : '') . ';u=all',
 					'icon' => 'reply_all_button',
 					'show' => Utils::$context['can_send_pm'] && !$author['is_guest'] && ($number_recipients > 1 || $this->member_from == User::$me->id),
@@ -381,7 +381,7 @@ class PM implements \ArrayAccess
 				],
 				'more' => [
 					'report' => [
-						'label' => Lang::$txt['pm_report_to_admin'],
+						'label' => Lang::getTxt('pm_report_to_admin', file: 'PersonalMessage'),
 						'href' => Config::$scripturl . '?action=pm;sa=report;l=' . Utils::$context['current_label_id'] . ';pmsg=' . $this->id,
 						'icon' => 'error',
 						'show' => !empty(Config::$modSettings['enableReportPM']),
@@ -781,7 +781,7 @@ class PM implements \ArrayAccess
 		// And build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=send',
-			'name' => Lang::$txt['new_message'],
+			'name' => Lang::getTxt('new_message', file: 'PersonalMessage'),
 		];
 
 		// Generate a list of drafts that they can load in to the editor
@@ -974,7 +974,7 @@ class PM implements \ArrayAccess
 					$post_errors = array_diff($post_errors, ['no_to']);
 
 					foreach ($namesNotFound[$recipientType] as $name) {
-						Utils::$context['send_log']['failed'][] = Lang::getTxt('pm_error_user_not_found', ['member' => $name]);
+						Utils::$context['send_log']['failed'][] = Lang::getTxt('pm_error_user_not_found', ['member' => $name], file: 'PersonalMessage');
 					}
 				}
 			}
@@ -1059,7 +1059,7 @@ class PM implements \ArrayAccess
 				$post_errors[] = 'bad_' . $recipientType;
 
 				foreach ($names as $name) {
-					Utils::$context['send_log']['failed'][] = Lang::getTxt('pm_error_user_not_found', ['member' => $name]);
+					Utils::$context['send_log']['failed'][] = Lang::getTxt('pm_error_user_not_found', ['member' => $name], file: 'PersonalMessage');
 				}
 			}
 
@@ -1082,7 +1082,7 @@ class PM implements \ArrayAccess
 		if (!empty(Config::$modSettings['max_pm_recipients']) && count($recipientList['to']) + count($recipientList['bcc']) > Config::$modSettings['max_pm_recipients'] && !User::$me->allowedTo(['moderate_forum', 'send_mail', 'admin_forum'])) {
 			Utils::$context['send_log'] = [
 				'sent' => [],
-				'failed' => [Lang::getTxt('pm_too_many_recipients', [Config::$modSettings['max_pm_recipients']])],
+				'failed' => [Lang::getTxt('pm_too_many_recipients', [Config::$modSettings['max_pm_recipients']], file: 'PersonalMessage')],
 			];
 
 			self::reportErrors($post_errors, $namedRecipientList, $recipientList);
@@ -1230,7 +1230,7 @@ class PM implements \ArrayAccess
 					if (!empty($usernames[$member])) {
 						$recipients[$rec_type][$id] = $usernames[$member];
 					} else {
-						$log['failed'][$id] = Lang::getTxt('pm_error_user_not_found', ['member' => $recipients[$rec_type][$id]]);
+						$log['failed'][$id] = Lang::getTxt('pm_error_user_not_found', ['member' => $recipients[$rec_type][$id]], file: 'PersonalMessage');
 
 						unset($recipients[$rec_type][$id]);
 					}
@@ -1374,7 +1374,7 @@ class PM implements \ArrayAccess
 				}
 
 				if ($message_limit > 0 && $message_limit <= $row['instant_messages']) {
-					$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_data_limit_reached', ['member' => $row['real_name']]);
+					$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_data_limit_reached', ['member' => $row['real_name']], file: 'PersonalMessage');
 
 					unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1383,7 +1383,7 @@ class PM implements \ArrayAccess
 
 				// Do they have any of the allowed groups?
 				if (count(array_intersect($pmReadGroups['allowed'], $groups)) == 0 || count(array_intersect($pmReadGroups['denied'], $groups)) != 0) {
-					$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']]);
+					$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']], file: 'PersonalMessage');
 
 					unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1393,7 +1393,7 @@ class PM implements \ArrayAccess
 
 			// Note that PostgreSQL can return a lowercase t/f for FIND_IN_SET
 			if (!empty($row['ignored']) && $row['ignored'] != 'f' && $row['id_member'] != $from['id']) {
-				$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_ignored_by_user', $row['real_name']);
+				$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_ignored_by_user', $row['real_name'], file: 'PersonalMessage');
 
 				unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1408,7 +1408,7 @@ class PM implements \ArrayAccess
 					&& !User::$me->allowedTo('moderate_forum')
 				)
 			) {
-				$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']]);
+				$log['failed'][$row['id_member']] = Lang::getTxt('pm_error_user_cannot_read', ['member' => $row['real_name']], file: 'PersonalMessage');
 
 				unset($all_to[array_search($row['id_member'], $all_to)]);
 
@@ -1443,7 +1443,7 @@ class PM implements \ArrayAccess
 				$notifications[empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']][] = $row['email_address'];
 			}
 
-			$log['sent'][$row['id_member']] = Lang::getTxt('pm_successfully_sent', ['member' => $row['real_name']]);
+			$log['sent'][$row['id_member']] = Lang::getTxt('pm_successfully_sent', ['member' => $row['real_name']], file: 'PersonalMessage');
 		}
 		Db::$db->free_result($request);
 
@@ -2161,7 +2161,7 @@ class PM implements \ArrayAccess
 		// Build the link tree....
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=send',
-			'name' => Lang::$txt['new_message'],
+			'name' => Lang::getTxt('new_message', file: 'PersonalMessage'),
 		];
 
 		// Set each of the errors for the template.
@@ -2180,7 +2180,14 @@ class PM implements \ArrayAccess
 
 			if (Lang::txtExists('error_' . $error_type, file: 'Errors')) {
 				if ($error_type == 'long_message') {
-					Lang::$txt['error_' . $error_type] = Lang::getTxt('error_' . $error_type, [Config::$modSettings['max_messageLength']], file: 'Errors');
+					Lang::setTxt(
+						'error_' . $error_type,
+						Lang::getTxt(
+							'error_' . $error_type,
+							[Config::$modSettings['max_messageLength']],
+							file: 'Errors+PersonalMessage',
+						),
+					);
 				}
 
 				Utils::$context['post_error']['messages'][] = Lang::getTxt('error_' . $error_type, file: 'Errors');

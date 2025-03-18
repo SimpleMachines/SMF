@@ -26,7 +26,7 @@ $txt['sent_items'] = 'Sent Items';
 $txt['new_message'] = 'New Message';
 $txt['delete_message'] = 'Delete Messages';
 // Don't translate "PMBOX" in this string.
-$txt['delete_all'] = 'Delete all messages in your PMBOX';
+$txt['delete_all'] = 'Delete all messages in your {pmbox}';
 $txt['delete_all_confirm'] = 'Are you sure you want to delete all messages?';
 $txt['recipient'] = 'Recipient';
 

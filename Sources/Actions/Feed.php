@@ -2592,7 +2592,7 @@ class Feed implements ActionInterface, Routable
 
 				$item = [
 					'tag' => 'personal_message',
-					'attributes' => ['label' => Lang::$txt['pm']],
+					'attributes' => ['label' => Lang::getTxt('pm', file: 'PersonalMessage')],
 					'content' => [
 						[
 							'tag' => 'id',
@@ -2648,7 +2648,7 @@ class Feed implements ActionInterface, Routable
 				foreach ($recipients as $recipient_id => $recipient_name) {
 					$item['content'][] = [
 						'tag' => 'recipient',
-						'attributes' => ['label' => Lang::$txt['recipient']],
+						'attributes' => ['label' => Lang::getTxt('recipient', file: 'PersonalMessage')],
 						'content' => [
 							[
 								'tag' => 'name',
