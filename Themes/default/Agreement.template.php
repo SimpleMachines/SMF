@@ -27,21 +27,21 @@ function template_main()
 	{
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['agreement' . (!empty(Utils::$context['can_accept_agreement']) ? '_updated' : '')], '</h3>
+			<h3 class="catbg">', Lang::getTxt('agreement' . (!empty(Utils::$context['can_accept_agreement']) ? '_updated' : ''), file: 'General+Agreement'), '</h3>
 		</div>';
 
 		if (!empty(Utils::$context['can_accept_agreement']))
 		{
 			echo '
 		<div class="information noup">
-			', Lang::$txt['agreement_updated_desc'], '
+			', Lang::getTxt('agreement_updated_desc', file: 'Agreement'), '
 		</div>';
 		}
 		elseif (!empty(Utils::$context['agreement_accepted_date']))
 		{
 			echo '
 		<div class="information noup">
-			', Lang::getTxt('agreement_accepted', ['date' => Time::create('@' . Utils::$context['agreement_accepted_date'])->format(null, false)]), '
+			', Lang::getTxt('agreement_accepted', ['date' => Time::create('@' . Utils::$context['agreement_accepted_date'])->format(null, false)], file: 'Agreement'), '
 		</div>';
 		}
 
@@ -55,21 +55,21 @@ function template_main()
 	{
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['privacy_policy' . (!empty(Utils::$context['can_accept_privacy_policy']) ? '_updated' : '')], '</h3>
+			<h3 class="catbg">', Lang::getTxt('privacy_policy' . (!empty(Utils::$context['can_accept_privacy_policy']) ? '_updated' : ''), file: 'General+Agreement'), '</h3>
 		</div>';
 
 		if (!empty(Utils::$context['can_accept_privacy_policy']))
 		{
 			echo '
 		<div class="information noup">
-			', Lang::$txt['privacy_policy_updated_desc'], '
+			', Lang::getTxt('privacy_policy_updated_desc', file: 'Agreement'), '
 		</div>';
 		}
 		elseif (!empty(Utils::$context['privacy_policy_accepted_date']))
 		{
 			echo '
 		<div class="information noup">
-			', Lang::getTxt('privacy_policy_accepted', ['date' => Time::create('@' . Utils::$context['privacy_policy_accepted_date'])->format(null, false)]), '
+			', Lang::getTxt('privacy_policy_accepted', ['date' => Time::create('@' . Utils::$context['privacy_policy_accepted_date'])->format(null, false)], file: 'Agreement'), '
 		</div>';
 		}
 
@@ -82,7 +82,7 @@ function template_main()
 	if (!empty(Utils::$context['accept_doc']))
 		echo '
 		<div id="confirm_buttons">
-			<input type="submit" value="', Lang::$txt['agree'], '" class="button">
+			<input type="submit" value="', Lang::getTxt('agree', file: 'Agreement'), '" class="button">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 		</div>
 	</form>';
