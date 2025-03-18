@@ -1695,7 +1695,7 @@ class Smileys implements ActionInterface
 			if ($action['type'] == 'require-dir') {
 				// Do this one...
 				$thisAction = [
-					'type' => $action['type'] == 'require-dir' ? Lang::$txt['package_extract_tree'] : Lang::$txt['package_extract_file'],
+					'type' => Lang::getTxt($action['type'] == 'require-dir' ? 'package_extract_tree' : 'package_extract_file', file: 'Packages'),
 					'action' => Utils::htmlspecialchars(strtr($action['destination'], [Config::$boarddir => '.'])),
 				];
 
@@ -1705,7 +1705,7 @@ class Smileys implements ActionInterface
 					Utils::$context['has_failure'] = true;
 
 					$thisAction += [
-						'description' => Lang::$txt['package_action_error'],
+						'description' => Lang::getTxt('package_action_error', file: 'Packages'),
 						'failed' => true,
 					];
 				}
