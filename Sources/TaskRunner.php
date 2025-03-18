@@ -377,7 +377,7 @@ class TaskRunner
 	{
 		Lang::load('Errors');
 
-		$message = Lang::$txt[$e->getMessage()] ? Lang::$txt[$e->getMessage()] : $e->getMessage();
+		$message = Lang::$txt[$e->getMessage()] ?? $e->getMessage();
 
 		if (!empty(Config::$modSettings['enableErrorLogging'])) {
 			ErrorHandler::log($message, 'cron', $e->getFile(), $e->getLine());
