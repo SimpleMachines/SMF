@@ -46,7 +46,7 @@ Lang::load('ManagePaid');
 if (empty($_POST)) {
 	header('content-type: text/html; charset=UTF-8');
 
-	die(Lang::$txt['paid_no_data']);
+	die(Lang::getTxt('paid_no_data', file: 'ManagePaid'));
 }
 
 // I assume we're even active?
@@ -61,7 +61,7 @@ if (!empty(Config::$modSettings['paid_email_to'])) {
 	foreach (explode(',', Config::$modSettings['paid_email_to']) as $email) {
 		$notify_users[] = [
 			'email' => $email,
-			'name' => Lang::$txt['who_member'],
+			'name' => Lang::getTxt('who_member', file: 'General'),
 			'id' => 0,
 		];
 	}
@@ -83,7 +83,7 @@ foreach ($gatewayHandles as $gateway) {
 }
 
 if (empty($txnType)) {
-	generateSubscriptionError(Lang::$txt['paid_unknown_transaction_type']);
+	generateSubscriptionError(Lang::getTxt('paid_unknown_transaction_type', file: 'ManagePaid'));
 }
 
 // Get the subscription and member ID, amongst others...
@@ -95,7 +95,7 @@ $member_id = (int) $member_id;
 
 // This would be bad...
 if (empty($member_id)) {
-	generateSubscriptionError(Lang::$txt['paid_empty_member']);
+	generateSubscriptionError(Lang::getTxt('paid_empty_member', file: 'ManagePaid'));
 }
 
 // Verify the member.
@@ -111,7 +111,7 @@ $request = Db::$db->query(
 
 // Didn't find them?
 if (Db::$db->num_rows($request) === 0) {
-	generateSubscriptionError(Lang::getTxt('paid_could_not_find_member', [$member_id]));
+	generateSubscriptionError(Lang::getTxt('paid_could_not_find_member', [$member_id], file: 'ManagePaid'));
 }
 $member_info = Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
@@ -129,7 +129,7 @@ $request = Db::$db->query(
 
 // Didn't find it?
 if (Db::$db->num_rows($request) === 0) {
-	generateSubscriptionError(Lang::getTxt('paid_count_not_find_subscription', [$member_id, $subscription_id]));
+	generateSubscriptionError(Lang::getTxt('paid_count_not_find_subscription', [$member_id, $subscription_id], file: 'ManagePaid'));
 }
 
 $subscription_info = Db::$db->fetch_assoc($request);
@@ -150,7 +150,7 @@ $request = Db::$db->query(
 );
 
 if (Db::$db->num_rows($request) === 0) {
-	generateSubscriptionError(Lang::getTxt('paid_count_not_find_subscription_log', [$member_id, $subscription_id]));
+	generateSubscriptionError(Lang::getTxt('paid_count_not_find_subscription_log', [$member_id, $subscription_id], file: 'ManagePaid'));
 }
 $subscription_info += Db::$db->fetch_assoc($request);
 Db::$db->free_result($request);
@@ -211,7 +211,7 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription()) {
 		$real_details = Utils::jsonDecode($subscription_info['pending_details'], true);
 
 		if (empty($real_details)) {
-			generateSubscriptionError(Lang::getTxt('paid_count_not_find_outstanding_payment', [$member_id, $subscription_id]));
+			generateSubscriptionError(Lang::getTxt('paid_count_not_find_outstanding_payment', [$member_id, $subscription_id], file: 'ManagePaid'));
 		}
 
 		// Now we just try to find anything pending.
@@ -306,7 +306,7 @@ $gatewayClass->close();
 
 // Hidden setting to log the IPN info for debugging purposes.
 if ($paid_debug === true) {
-	generateSubscriptionError(Lang::$txt['subscription'], true);
+	generateSubscriptionError(Lang::getTxt('subscription', file: 'ManagePaid'), true);
 }
 
 /**

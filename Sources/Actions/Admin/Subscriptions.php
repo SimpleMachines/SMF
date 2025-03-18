@@ -105,16 +105,16 @@ class Subscriptions implements ActionInterface
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::getTxt('paid_subscriptions', file: 'Admin'),
 			'help' => '',
-			'description' => Lang::$txt['paid_subscriptions_desc'],
+			'description' => Lang::getTxt('paid_subscriptions_desc', file: 'ManagePaid'),
 		];
 
 		if (!empty(Config::$modSettings['paid_enabled']) && !empty(Config::$modSettings['paid_currency_symbol'])) {
 			Menu::$loaded['admin']->tab_data['tabs'] = [
 				'view' => [
-					'description' => Lang::$txt['paid_subs_view_desc'],
+					'description' => Lang::getTxt('paid_subs_view_desc', file: 'ManagePaid'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['paid_subs_settings_desc'],
+					'description' => Lang::getTxt('paid_subs_settings_desc', file: 'ManagePaid'),
 				],
 			];
 		}
@@ -148,7 +148,7 @@ class Subscriptions implements ActionInterface
 
 		$listOptions = [
 			'id' => 'subscription_list',
-			'title' => Lang::$txt['subscriptions'],
+			'title' => Lang::getTxt('subscriptions', file: 'ManagePaid'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=paidsubscribe;sa=view',
 			'get_items' => [
@@ -177,11 +177,11 @@ class Subscriptions implements ActionInterface
 					return count(self::$all);
 				},
 			],
-			'no_items_label' => Lang::$txt['paid_none_yet'],
+			'no_items_label' => Lang::getTxt('paid_none_yet', file: 'ManagePaid'),
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['paid_name'],
+						'value' => Lang::getTxt('paid_name', file: 'ManagePaid'),
 						'style' => 'width: 35%;',
 					],
 					'data' => [
@@ -192,17 +192,17 @@ class Subscriptions implements ActionInterface
 				],
 				'cost' => [
 					'header' => [
-						'value' => Lang::$txt['paid_cost'],
+						'value' => Lang::getTxt('paid_cost', file: 'ManagePaid'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return $rowData['flexible'] ? '<em>' . Lang::$txt['flexible'] . '</em>' : $rowData['cost'] . ' / ' . $rowData['length'];
+							return $rowData['flexible'] ? '<em>' . Lang::getTxt('flexible', file: 'ManagePaid') . '</em>' : $rowData['cost'] . ' / ' . $rowData['length'];
 						},
 					],
 				],
 				'pending' => [
 					'header' => [
-						'value' => Lang::$txt['paid_pending'],
+						'value' => Lang::getTxt('paid_pending', file: 'ManagePaid'),
 						'style' => 'width: 18%;',
 						'class' => 'centercol',
 					],
@@ -213,7 +213,7 @@ class Subscriptions implements ActionInterface
 				],
 				'finished' => [
 					'header' => [
-						'value' => Lang::$txt['paid_finished'],
+						'value' => Lang::getTxt('paid_finished', file: 'ManagePaid'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -223,7 +223,7 @@ class Subscriptions implements ActionInterface
 				],
 				'total' => [
 					'header' => [
-						'value' => Lang::$txt['paid_active'],
+						'value' => Lang::getTxt('paid_active', file: 'ManagePaid'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -233,7 +233,7 @@ class Subscriptions implements ActionInterface
 				],
 				'is_active' => [
 					'header' => [
-						'value' => Lang::$txt['paid_is_active'],
+						'value' => Lang::getTxt('paid_is_active', file: 'ManagePaid'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -266,11 +266,11 @@ class Subscriptions implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_table_headers',
-					'value' => '<input type="submit" name="add" value="' . Lang::$txt['paid_add_subscription'] . '" class="button">',
+					'value' => '<input type="submit" name="add" value="' . Lang::getTxt('paid_add_subscription', file: 'ManagePaid') . '" class="button">',
 				],
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="add" value="' . Lang::$txt['paid_add_subscription'] . '" class="button">',
+					'value' => '<input type="submit" name="add" value="' . Lang::getTxt('paid_add_subscription', file: 'ManagePaid') . '" class="button">',
 				],
 			],
 		];
@@ -291,7 +291,7 @@ class Subscriptions implements ActionInterface
 	public function viewUsers(): void
 	{
 		// Setup the template.
-		Utils::$context['page_title'] = Lang::$txt['viewing_users_subscribed'];
+		Utils::$context['page_title'] = Lang::getTxt('viewing_users_subscribed', file: 'ManagePaid');
 
 		// ID of the subscription.
 		Utils::$context['sub_id'] = (int) $_REQUEST['sid'];
@@ -329,7 +329,7 @@ class Subscriptions implements ActionInterface
 
 		$listOptions = [
 			'id' => 'subscribed_users_list',
-			'title' => Lang::getTxt('view_users_subscribed', $row),
+			'title' => Lang::getTxt('view_users_subscribed', $row, file: 'ManagePaid'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=paidsubscribe;sa=viewsub;sid=' . Utils::$context['sub_id'],
 			'default_sort_col' => 'name',
@@ -349,7 +349,7 @@ class Subscriptions implements ActionInterface
 					$search_vars,
 				],
 			],
-			'no_items_label' => Lang::$txt['no_subscribers'],
+			'no_items_label' => Lang::getTxt('no_subscribers', file: 'ManagePaid'),
 			'columns' => [
 				'name' => [
 					'header' => [
@@ -368,7 +368,7 @@ class Subscriptions implements ActionInterface
 				],
 				'status' => [
 					'header' => [
-						'value' => Lang::$txt['paid_status'],
+						'value' => Lang::getTxt('paid_status', file: 'ManagePaid'),
 						'style' => 'width: 10%;',
 					],
 					'data' => [
@@ -381,7 +381,7 @@ class Subscriptions implements ActionInterface
 				],
 				'payments_pending' => [
 					'header' => [
-						'value' => Lang::$txt['paid_payments_pending'],
+						'value' => Lang::getTxt('paid_payments_pending', file: 'ManagePaid'),
 						'style' => 'width: 15%;',
 					],
 					'data' => [
@@ -394,7 +394,7 @@ class Subscriptions implements ActionInterface
 				],
 				'start_time' => [
 					'header' => [
-						'value' => Lang::$txt['start_date'],
+						'value' => Lang::getTxt('start_date', file: 'ManagePaid'),
 						'style' => 'width: 20%;',
 					],
 					'data' => [
@@ -408,7 +408,7 @@ class Subscriptions implements ActionInterface
 				],
 				'end_time' => [
 					'header' => [
-						'value' => Lang::$txt['end_date'],
+						'value' => Lang::getTxt('end_date', file: 'ManagePaid'),
 						'style' => 'width: 20%;',
 					],
 					'data' => [
@@ -452,16 +452,16 @@ class Subscriptions implements ActionInterface
 				[
 					'position' => 'below_table_data',
 					'value' => '
-						<input type="submit" name="add" value="' . Lang::$txt['add_subscriber'] . '" class="button">
-						<input type="submit" name="finished" value="' . Lang::$txt['complete_selected'] . '" data-confirm="' . Lang::$txt['complete_are_sure'] . '" class="button you_sure">
-						<input type="submit" name="delete" value="' . Lang::$txt['delete_selected'] . '" data-confirm="' . Lang::$txt['delete_are_sure'] . '" class="button you_sure">
+						<input type="submit" name="add" value="' . Lang::getTxt('add_subscriber', file: 'ManagePaid') . '" class="button">
+						<input type="submit" name="finished" value="' . Lang::getTxt('complete_selected', file: 'ManagePaid') . '" data-confirm="' . Lang::getTxt('complete_are_sure', file: 'ManagePaid') . '" class="button you_sure">
+						<input type="submit" name="delete" value="' . Lang::getTxt('delete_selected', file: 'ManagePaid') . '" data-confirm="' . Lang::getTxt('delete_are_sure', file: 'ManagePaid') . '" class="button you_sure">
 					',
 				],
 				[
 					'position' => 'top_of_list',
 					'value' => '
 						<div class="flow_auto">
-							<input type="submit" name="ssearch" value="' . Lang::$txt['search_sub'] . '" class="button" style="margin-top: 3px;">
+							<input type="submit" name="ssearch" value="' . Lang::getTxt('search_sub', file: 'ManagePaid') . '" class="button" style="margin-top: 3px;">
 							<input type="text" name="sub_search" value="" class="floatright">
 						</div>
 					',
@@ -487,7 +487,7 @@ class Subscriptions implements ActionInterface
 
 		// Setup the template.
 		Utils::$context['sub_template'] = Utils::$context['action_type'] == 'delete' ? 'delete_subscription' : 'modify_subscription';
-		Utils::$context['page_title'] = Lang::$txt['paid_' . Utils::$context['action_type'] . '_subscription'];
+		Utils::$context['page_title'] = Lang::getTxt('paid_' . Utils::$context['action_type'] . '_subscription', file: 'ManagePaid');
 
 		// Delete it?
 		if (isset($_POST['delete_confirm'], $_REQUEST['delete'])) {
@@ -887,7 +887,7 @@ class Subscriptions implements ActionInterface
 
 		// Setup the template.
 		Utils::$context['sub_template'] = 'modify_user_subscription';
-		Utils::$context['page_title'] = Lang::$txt[Utils::$context['action_type'] . '_subscriber'];
+		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['action_type'] . '_subscriber', file: 'ManagePaid');
 
 		// If we haven't been passed the subscription ID get it.
 		if (Utils::$context['log_id'] && !Utils::$context['sub_id']) {
@@ -1171,7 +1171,7 @@ class Subscriptions implements ActionInterface
 							foreach ($costs as $duration => $cost) {
 								if ($cost != 0 && $cost == $pending[1] && $duration == $pending[2]) {
 									Utils::$context['pending_payments'][$id] = [
-										'desc' => sprintf(Config::$modSettings['paid_currency_symbol'], $cost . '/' . Lang::$txt[$duration]),
+										'desc' => sprintf(Config::$modSettings['paid_currency_symbol'], $cost . '/' . Lang::getTxt($duration, file: 'ManagePaid')),
 									];
 								}
 							}
@@ -1261,7 +1261,7 @@ class Subscriptions implements ActionInterface
 		if (empty(Config::$modSettings['paid_enabled'])) {
 			Utils::$context['settings_title'] = Lang::getTxt('paid_subscriptions', file: 'Admin');
 		} else {
-			Utils::$context['settings_message'] = Lang::getTxt('paid_note', ['boardurl' => Config::$boardurl]);
+			Utils::$context['settings_message'] = Lang::getTxt('paid_note', ['boardurl' => Config::$boardurl], file: 'ManagePaid');
 			Menu::$loaded['admin']['current_subsection'] = 'settings';
 			Utils::$context['settings_title'] = Lang::$txt['settings'];
 
@@ -1350,7 +1350,7 @@ class Subscriptions implements ActionInterface
 				// Sort out the currency stuff.
 				if ($_POST['paid_currency'] != 'other') {
 					$_POST['paid_currency_code'] = $_POST['paid_currency'];
-					$_POST['paid_currency_symbol'] = Lang::$txt[$_POST['paid_currency'] . '_symbol'];
+					$_POST['paid_currency_symbol'] = Lang::getTxt($_POST['paid_currency'] . '_symbol', file: 'ManagePaid');
 				}
 				unset($config_vars['dummy_currency']);
 			}
@@ -1396,16 +1396,16 @@ class Subscriptions implements ActionInterface
 					'select',
 					'paid_email',
 					[
-						0 => Lang::$txt['paid_email_no'],
-						1 => Lang::$txt['paid_email_error'],
-						2 => Lang::$txt['paid_email_all'],
+						0 => Lang::getTxt('paid_email_no', file: 'ManagePaid'),
+						1 => Lang::getTxt('paid_email_error', file: 'ManagePaid'),
+						2 => Lang::getTxt('paid_email_all', file: 'ManagePaid'),
 					],
-					'subtext' => Lang::$txt['paid_email_desc'],
+					'subtext' => Lang::getTxt('paid_email_desc', file: 'ManagePaid'),
 				],
 				[
 					'email',
 					'paid_email_to',
-					'subtext' => Lang::$txt['paid_email_to_desc'],
+					'subtext' => Lang::getTxt('paid_email_to_desc', file: 'ManagePaid'),
 					'size' => 60,
 				],
 				'',
@@ -1414,34 +1414,34 @@ class Subscriptions implements ActionInterface
 					'select',
 					'paid_currency',
 					[
-						'usd' => Lang::$txt['usd'],
-						'eur' => Lang::$txt['eur'],
-						'gbp' => Lang::$txt['gbp'],
-						'cad' => Lang::$txt['cad'],
-						'aud' => Lang::$txt['aud'],
-						'other' => Lang::$txt['other'],
+						'usd' => Lang::getTxt('usd', file: 'ManagePaid'),
+						'eur' => Lang::getTxt('eur', file: 'ManagePaid'),
+						'gbp' => Lang::getTxt('gbp', file: 'ManagePaid'),
+						'cad' => Lang::getTxt('cad', file: 'ManagePaid'),
+						'aud' => Lang::getTxt('aud', file: 'ManagePaid'),
+						'other' => Lang::getTxt('other', file: 'ManagePaid'),
 					],
 					'javascript' => 'onchange="toggleOther();"',
 				],
 				[
 					'text',
 					'paid_currency_code',
-					'subtext' => Lang::$txt['paid_currency_code_desc'],
+					'subtext' => Lang::getTxt('paid_currency_code_desc', file: 'ManagePaid'),
 					'size' => 5,
 					'force_div_id' => 'custom_currency_code_div',
 				],
 				[
 					'text',
 					'paid_currency_symbol',
-					'subtext' => Lang::$txt['paid_currency_symbol_desc'],
+					'subtext' => Lang::getTxt('paid_currency_symbol_desc', file: 'ManagePaid'),
 					'size' => 8,
 					'force_div_id' => 'custom_currency_symbol_div',
 				],
 				[
 					'check',
 					'paidsubs_test',
-					'subtext' => Lang::$txt['paidsubs_test_desc'],
-					'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . Lang::$txt['paidsubs_test_confirm'] . '\') : true;',
+					'subtext' => Lang::getTxt('paidsubs_test_desc', file: 'ManagePaid'),
+					'onclick' => 'return document.getElementById(\'paidsubs_test\').checked ? confirm(\'' . Lang::getTxt('paidsubs_test_confirm', file: 'ManagePaid') . '\') : true;',
 				],
 			];
 
@@ -1454,7 +1454,7 @@ class Subscriptions implements ActionInterface
 				$setting_data = $gatewayClass->getGatewaySettings();
 
 				if (!empty($setting_data)) {
-					$config_vars[] = ['title', $gatewayClass->title, 'text_label' => (Lang::$txt['paidsubs_gateway_title_' . $gatewayClass->title] ?? $gatewayClass->title)];
+					$config_vars[] = ['title', $gatewayClass->title, 'text_label' => (Lang::txtExists('paidsubs_gateway_title_' . $gatewayClass->title, file: 'ManagePaid+Modifications') ? Lang::getTxt('paidsubs_gateway_title_' . $gatewayClass->title, file: 'ManagePaid+Modifications') : $gatewayClass->title)];
 
 					$config_vars = array_merge($config_vars, $setting_data);
 				}
@@ -1518,22 +1518,22 @@ class Subscriptions implements ActionInterface
 
 				switch ($match[2]) {
 					case 'D':
-						$length .= Lang::$txt['paid_mod_span_days'];
+						$length .= Lang::getTxt('paid_mod_span_days', file: 'ManagePaid');
 						$num_length *= 86400;
 						break;
 
 					case 'W':
-						$length .= Lang::$txt['paid_mod_span_weeks'];
+						$length .= Lang::getTxt('paid_mod_span_weeks', file: 'ManagePaid');
 						$num_length *= 604800;
 						break;
 
 					case 'M':
-						$length .= Lang::$txt['paid_mod_span_months'];
+						$length .= Lang::getTxt('paid_mod_span_months', file: 'ManagePaid');
 						$num_length *= 2629743;
 						break;
 
 					case 'Y':
-						$length .= Lang::$txt['paid_mod_span_years'];
+						$length .= Lang::getTxt('paid_mod_span_years', file: 'ManagePaid');
 						$num_length *= 31556926;
 						break;
 				}
@@ -2244,7 +2244,7 @@ class Subscriptions implements ActionInterface
 				'end_date' => $row['end_time'] == 0 ? 'N/A' : Time::create('@' . $row['end_time'])->format(null, false),
 				'pending' => $row['payments_pending'],
 				'status' => $row['status'],
-				'status_text' => $row['status'] == 0 ? ($row['payments_pending'] == 0 ? Lang::$txt['paid_finished'] : Lang::$txt['paid_pending']) : Lang::$txt['paid_active'],
+				'status_text' => Lang::getTxt($row['status'] == 0 ? ($row['payments_pending'] == 0 ? 'paid_finished' : 'paid_pending') : 'paid_active', file: 'ManagePaid'),
 			];
 		}
 		Db::$db->free_result($request);
