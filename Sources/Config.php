@@ -2802,8 +2802,7 @@ class Config
 
 			// If we have tasks more than a day overdue, cron isn't doing its job.
 			if (!empty($overdue)) {
-				Lang::load('ManageScheduledTasks');
-				ErrorHandler::log(Lang::$txt['cron_not_working']);
+				ErrorHandler::log(Lang::getTxt('cron_not_working', file: 'ManageScheduledTasks'));
 				self::updateModSettings(['cron_is_real_cron' => 0]);
 			} else {
 				self::updateModSettings(['cron_last_checked' => time()]);

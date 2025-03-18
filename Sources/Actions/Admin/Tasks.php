@@ -87,7 +87,7 @@ class Tasks implements ActionInterface
 		if (empty(Menu::$loaded['admin']->tab_data)) {
 			// Now for the lovely tabs. That we all love.
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['scheduled_tasks_title'],
+				'title' => Lang::getTxt('scheduled_tasks_title', file: 'ManageScheduledTasks'),
 				'help' => '',
 				'description' => Lang::getTxt('maintain_info', file: 'Admin'),
 				'tabs' => [
@@ -199,7 +199,7 @@ class Tasks implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_name'],
+						'value' => Lang::getTxt('scheduled_tasks_name', file: 'ManageScheduledTasks'),
 						'style' => 'width: 40%;',
 					],
 					'data' => [
@@ -216,7 +216,7 @@ class Tasks implements ActionInterface
 				],
 				'next_due' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_next_time'],
+						'value' => Lang::getTxt('scheduled_tasks_next_time', file: 'ManageScheduledTasks'),
 					],
 					'data' => [
 						'db' => 'next_time',
@@ -225,7 +225,7 @@ class Tasks implements ActionInterface
 				],
 				'regularity' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_regularity'],
+						'value' => Lang::getTxt('scheduled_tasks_regularity', file: 'ManageScheduledTasks'),
 					],
 					'data' => [
 						'db' => 'regularity',
@@ -234,7 +234,7 @@ class Tasks implements ActionInterface
 				],
 				'run_now' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_run_now'],
+						'value' => Lang::getTxt('scheduled_tasks_run_now', file: 'ManageScheduledTasks'),
 						'style' => 'width: 12%;',
 						'class' => 'centercol',
 					],
@@ -251,7 +251,7 @@ class Tasks implements ActionInterface
 				],
 				'enabled' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_enabled'],
+						'value' => Lang::getTxt('scheduled_tasks_enabled', file: 'ManageScheduledTasks'),
 						'style' => 'width: 6%;',
 						'class' => 'centercol',
 					],
@@ -275,12 +275,12 @@ class Tasks implements ActionInterface
 				[
 					'position' => 'below_table_data',
 					'value' => '
-						<input type="submit" name="save" value="' . Lang::$txt['scheduled_tasks_save_changes'] . '" class="button">
-						<input type="submit" name="run" value="' . Lang::$txt['scheduled_tasks_run_now'] . '" class="button">',
+						<input type="submit" name="save" value="' . Lang::getTxt('scheduled_tasks_save_changes', file: 'ManageScheduledTasks') . '" class="button">
+						<input type="submit" name="run" value="' . Lang::getTxt('scheduled_tasks_run_now', file: 'ManageScheduledTasks') . '" class="button">',
 				],
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['scheduled_tasks_time_offset'],
+					'value' => Lang::getTxt('scheduled_tasks_time_offset', file: 'ManageScheduledTasks'),
 				],
 			],
 		];
@@ -300,7 +300,7 @@ class Tasks implements ActionInterface
 		// Just set up some lovely context stuff.
 		Menu::$loaded['admin']['current_subsection'] = 'tasks';
 		Utils::$context['sub_template'] = 'edit_scheduled_tasks';
-		Utils::$context['page_title'] = Lang::$txt['scheduled_task_edit'];
+		Utils::$context['page_title'] = Lang::getTxt('scheduled_task_edit', file: 'ManageScheduledTasks');
 		Utils::$context['server_time'] = Time::create('now', new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false);
 
 		// Cleaning...
@@ -385,9 +385,9 @@ class Tasks implements ActionInterface
 			Utils::$context['task'] = [
 				'id' => $row['id_task'],
 				'function' => $row['task'],
-				'name' => Lang::$txt['scheduled_task_' . $row['task']] ?? $row['task'],
-				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl]),
-				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
+				'name' => Lang::txtExists('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') : $row['task'],
+				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl], file: 'ManageScheduledTasks'),
+				'next_time' => $row['disabled'] ? Lang::getTxt('scheduled_tasks_na', file: 'ManageScheduledTasks') : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
 				'offset' => $row['time_offset'],
 				'regularity' => $row['time_regularity'],
@@ -426,7 +426,7 @@ class Tasks implements ActionInterface
 			'id' => 'task_log',
 			'items_per_page' => 30,
 			'title' => Lang::getTxt('scheduled_log', file: 'Admin'),
-			'no_items_label' => Lang::$txt['scheduled_log_empty'],
+			'no_items_label' => Lang::getTxt('scheduled_log_empty', file: 'ManageScheduledTasks'),
 			'base_href' => Utils::$context['admin_area'] == 'scheduledtasks' ? Config::$scripturl . '?action=admin;area=scheduledtasks;sa=tasklog' : Config::$scripturl . '?action=admin;area=logs;sa=tasklog',
 			'default_sort_col' => 'date',
 			'get_items' => [
@@ -438,7 +438,7 @@ class Tasks implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_name'],
+						'value' => Lang::getTxt('scheduled_tasks_name', file: 'ManageScheduledTasks'),
 					],
 					'data' => [
 						'db' => 'name',
@@ -446,7 +446,7 @@ class Tasks implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_log_time_run'],
+						'value' => Lang::getTxt('scheduled_log_time_run', file: 'ManageScheduledTasks'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -460,7 +460,7 @@ class Tasks implements ActionInterface
 				],
 				'time_taken' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_log_time_taken'],
+						'value' => Lang::getTxt('scheduled_log_time_taken', file: 'ManageScheduledTasks'),
 					],
 					'data' => [
 						'get_txt' => [
@@ -487,11 +487,11 @@ class Tasks implements ActionInterface
 				[
 					'position' => 'below_table_data',
 					'value' => '
-						<input type="submit" name="removeAll" value="' . Lang::$txt['scheduled_log_empty_log'] . '" data-confirm="' . Lang::$txt['scheduled_log_empty_log_confirm'] . '" class="button you_sure">',
+						<input type="submit" name="removeAll" value="' . Lang::getTxt('scheduled_log_empty_log', file: 'ManageScheduledTasks') . '" data-confirm="' . Lang::getTxt('scheduled_log_empty_log_confirm', file: 'ManageScheduledTasks') . '" class="button you_sure">',
 				],
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['scheduled_tasks_time_offset'],
+					'value' => Lang::getTxt('scheduled_tasks_time_offset', file: 'ManageScheduledTasks'),
 				],
 			],
 		];
@@ -554,7 +554,12 @@ class Tasks implements ActionInterface
 		Lang::load('Help+ManageScheduledTasks');
 
 		$config_vars = [
-			['check', 'cron_is_real_cron', 'subtext' => Lang::$txt['cron_is_real_cron_desc'], 'help' => 'cron_is_real_cron'],
+			[
+				'check',
+				'cron_is_real_cron',
+				'subtext' => Lang::getTxt('cron_is_real_cron_desc', file: 'ManageScheduledTasks'),
+				'help' => 'cron_is_real_cron',
+			],
 		];
 
 		IntegrationHook::call('integrate_scheduled_tasks_settings', [&$config_vars]);
@@ -584,16 +589,16 @@ class Tasks implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Find the next for regularity - don't offset as it's always server time!
-			$offset = Lang::getTxt('scheduled_task_reg_starting', ['time' => date('H:i', (int) $row['time_offset'])]);
+			$offset = Lang::getTxt('scheduled_task_reg_starting', ['time' => date('H:i', (int) $row['time_offset'])], file: 'ManageScheduledTasks');
 
-			$repeating = Lang::getTxt('scheduled_task_reg_repeating', $row);
+			$repeating = Lang::getTxt('scheduled_task_reg_repeating', $row, file: 'ManageScheduledTasks');
 
 			$known_tasks[] = [
 				'id' => $row['id_task'],
 				'function' => $row['task'],
-				'name' => Lang::$txt['scheduled_task_' . $row['task']] ?? $row['task'],
-				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl]),
-				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
+				'name' => Lang::txtExists('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') : $row['task'],
+				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl], file: 'ManageScheduledTasks'),
+				'next_time' => $row['disabled'] ? Lang::getTxt('scheduled_tasks_na', file: 'ManageScheduledTasks') : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
 				'checked_state' => $row['disabled'] ? '' : 'checked',
 				'regularity' => $offset . ', ' . $repeating,
@@ -633,7 +638,7 @@ class Tasks implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$log_entries[] = [
 				'id' => $row['id_log'],
-				'name' => Lang::$txt['scheduled_task_' . $row['task']] ?? $row['task'],
+				'name' => Lang::txtExists('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') : $row['task'],
 				'time_run' => $row['time_run'],
 				'time_taken' => $row['time_taken'],
 			];
