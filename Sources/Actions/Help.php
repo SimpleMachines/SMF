@@ -115,7 +115,7 @@ class Help implements ActionInterface, Routable
 		];
 
 		// Lastly, some minor template stuff.
-		Utils::$context['page_title'] = Lang::$txt['manual_smf_user_help'];
+		Utils::$context['page_title'] = Lang::getTxt('manual_smf_user_help', file: 'Manual');
 		Utils::$context['sub_template'] = 'manual';
 	}
 
