@@ -552,14 +552,14 @@ class Draft
 				'sticky' => $row['is_sticky'],
 				'quickbuttons' => [
 					'edit' => [
-						'label' => Lang::$txt['draft_edit'],
+						'label' => Lang::getTxt('draft_edit', file: 'Drafts'),
 						'href' => Config::$scripturl . '?action=post;' . (empty($row['id_topic']) ? 'board=' . $row['id_board'] : 'topic=' . $row['id_topic']) . '.0;id_draft=' . $row['id_draft'],
 						'icon' => 'modify_button',
 					],
 					'delete' => [
-						'label' => Lang::$txt['draft_delete'],
+						'label' => Lang::getTxt('draft_delete', file: 'Drafts'),
 						'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['member']['id'] . ';area=showdrafts;delete=' . $row['id_draft'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-						'javascript' => 'data-confirm="' . Lang::$txt['draft_remove'] . '"',
+						'javascript' => 'data-confirm="' . Lang::getTxt('draft_remove', file: 'Drafts') . '"',
 						'class' => 'you_sure',
 						'icon' => 'remove_button',
 					],
@@ -575,8 +575,8 @@ class Draft
 
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['drafts_show'],
-			'description' => Lang::$txt['drafts_show_desc'],
+			'title' => Lang::getTxt('drafts_show', file: 'Drafts'),
+			'description' => Lang::getTxt('drafts_show_desc', file: 'Drafts'),
 			'icon_class' => 'main_icons drafts',
 		];
 		Utils::$context['sub_template'] = 'showDrafts';
@@ -827,7 +827,7 @@ class Draft
 
 		echo '<' . '?xml version="1.0" encoding="UTF-8"?' . '>
 		<drafts>
-			<draft id="', $id_draft, '"><![CDATA[', Lang::getTxt('draft_saved_on', ['date' => Time::create('@' . Utils::$context['draft_saved_on'])->format()]), ']]></draft>
+			<draft id="', $id_draft, '"><![CDATA[', Lang::getTxt('draft_saved_on', ['date' => Time::create('@' . Utils::$context['draft_saved_on'])->format()], file: 'Drafts'), ']]></draft>
 		</drafts>';
 
 		Utils::obExit(false);

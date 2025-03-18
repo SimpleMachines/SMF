@@ -131,7 +131,7 @@ class DraftPM extends Draft
 		// Add them to the drafts array for display.
 		while ($row = Db::$db->fetch_assoc($request)) {
 			if (empty($row['subject'])) {
-				$row['subject'] = Lang::$txt['drafts_none'];
+				$row['subject'] = Lang::getTxt('drafts_none', file: 'Drafts');
 			}
 
 			$tmp_subject = Utils::shorten(stripslashes($row['subject']), 24);
@@ -327,14 +327,14 @@ class DraftPM extends Draft
 				'remaining' => (!empty(Config::$modSettings['drafts_keep_days']) ? floor(Config::$modSettings['drafts_keep_days'] - ((time() - $row['poster_time']) / 86400)) : 0),
 				'quickbuttons' => [
 					'edit' => [
-						'label' => Lang::$txt['draft_edit'],
+						'label' => Lang::getTxt('draft_edit', file: 'Drafts'),
 						'href' => Config::$scripturl . '?action=pm;sa=showpmdrafts;id_draft=' . $row['id_draft'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 						'icon' => 'modify_button',
 					],
 					'delete' => [
-						'label' => Lang::$txt['draft_delete'],
+						'label' => Lang::getTxt('draft_delete', file: 'Drafts'),
 						'href' => Config::$scripturl . '?action=pm;sa=showpmdrafts;delete=' . $row['id_draft'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-						'javascript' => 'data-confirm="' . Lang::$txt['draft_remove'] . '?"',
+						'javascript' => 'data-confirm="' . Lang::getTxt('draft_remove', file: 'Drafts') . '?"',
 						'class' => 'you_sure',
 						'icon' => 'remove_button',
 					],
@@ -349,11 +349,11 @@ class DraftPM extends Draft
 		}
 
 		// off to the template we go
-		Utils::$context['page_title'] = Lang::$txt['drafts'];
+		Utils::$context['page_title'] = Lang::getTxt('drafts', file: 'Drafts');
 		Utils::$context['sub_template'] = 'showPMDrafts';
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=showpmdrafts',
-			'name' => Lang::$txt['drafts'],
+			'name' => Lang::getTxt('drafts', file: 'Drafts'),
 		];
 	}
 }

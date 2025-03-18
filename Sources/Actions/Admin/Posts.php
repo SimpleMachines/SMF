@@ -519,15 +519,28 @@ class Posts implements ActionInterface
 			// Draft settings ...
 			['check', 'drafts_post_enabled'],
 			['check', 'drafts_pm_enabled'],
-			['check', 'drafts_show_saved_enabled', 'subtext' => Lang::$txt['drafts_show_saved_enabled_subnote']],
-			['int', 'drafts_keep_days', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['drafts_keep_days_subnote']],
+			[
+				'check',
+				'drafts_show_saved_enabled',
+				'subtext' => Lang::getTxt('drafts_show_saved_enabled_subnote', file: 'Drafts'),
+			],
+			[
+				'int',
+				'drafts_keep_days',
+				'postinput' => Lang::$txt['days_word'],
+				'subtext' => Lang::getTxt('drafts_keep_days_subnote', file: 'Drafts'),
+			],
 			'',
-			['check', 'drafts_autosave_enabled', 'subtext' => Lang::$txt['drafts_autosave_enabled_subnote']],
+			[
+				'check',
+				'drafts_autosave_enabled',
+				'subtext' => Lang::getTxt('drafts_autosave_enabled_subnote', file: 'Drafts'),
+			],
 			[
 				'int',
 				'drafts_autosave_frequency',
 				'postinput' => Lang::getTxt('manageposts_seconds', file: 'Admin'),
-				'subtext' => Lang::$txt['drafts_autosave_frequency_subnote'],
+				'subtext' => Lang::getTxt('drafts_autosave_frequency_subnote', file: 'Drafts'),
 			],
 		];
 

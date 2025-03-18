@@ -1009,8 +1009,8 @@ function template_send()
 	if (!empty(Config::$modSettings['drafts_pm_enabled']))
 		echo '
 				<div id="draft_section" class="infobox"', isset(Utils::$context['draft_saved']) ? '' : ' style="display: none;"', '>',
-					Lang::getTxt('draft_pm_saved', ['url' => Config::$scripturl . '?action=pm;sa=showpmdrafts']), '
-					', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . Lang::getTxt('draft_save_warning', [Config::$modSettings['drafts_keep_days']]) . '</strong>' : ''), '
+					Lang::getTxt('draft_pm_saved', ['url' => Config::$scripturl . '?action=pm;sa=showpmdrafts'], file: 'Drafts'), '
+					', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . Lang::getTxt('draft_save_warning', [Config::$modSettings['drafts_keep_days']], file: 'Drafts') . '</strong>' : ''), '
 				</div>';
 
 	echo '
@@ -1068,13 +1068,13 @@ function template_send()
 		echo '
 				<div id="post_draft_options_header" class="title_bar">
 					<h4 class="titlebg">
-						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::$txt['drafts_show'], '</a></strong>
+						<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a></strong>
 					</h4>
 				</div>
 				<div id="post_draft_options">
 					<dl class="settings">
 						<dt><strong>', Lang::$txt['subject'], '</strong></dt>
-						<dd><strong>', trim(Lang::getTxt('draft_saved_on', ['date' => ''])), '</strong></dd>';
+						<dd><strong>', trim(Lang::getTxt('draft_saved_on', ['date' => ''], file: 'Drafts')), '</strong></dd>';
 
 		foreach (Utils::$context['drafts'] as $draft)
 			echo '
@@ -1227,8 +1227,8 @@ function template_send()
 				aSwapLinks: [
 					{
 						sId: \'postDraftExpandLink\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['draft_hide']), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['drafts_show']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('draft_hide', file: 'Drafts')), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('drafts_show', file: 'Drafts')), '
 					}
 				]
 			});';
@@ -1890,18 +1890,18 @@ function template_showPMDrafts()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="main_icons inbox"></span> ', Lang::$txt['drafts_show'], '
+				<span class="main_icons inbox"></span> ', Lang::getTxt('drafts_show', file: 'Drafts'), '
 			</h3>
 		</div>
 		<p class="information">
-			', Lang::$txt['drafts_show_desc'], '
+			', Lang::getTxt('drafts_show_desc', file: 'Drafts'), '
 		</p>';
 
 	// No drafts? Just show an informative message.
 	if (empty(Utils::$context['drafts']))
 		echo '
 		<div class="windowbg centertext">
-			', Lang::$txt['draft_none'], '
+			', Lang::getTxt('draft_none', file: 'Drafts'), '
 		</div>';
 	else
 	{
@@ -1930,7 +1930,7 @@ function template_showPMDrafts()
 			echo '
 				</div>
 				<div class="smalltext">
-					', Lang::getTxt('draft_last_saved', ['age' => $draft['age'], 'remaining' => $draft['remaining']]), '
+					', Lang::getTxt('draft_last_saved', ['age' => $draft['age'], 'remaining' => $draft['remaining']], file: 'Drafts'), '
 				</div>
 			</div>
 			<div class="list_posts">

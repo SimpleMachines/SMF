@@ -97,13 +97,13 @@ function template_options()
 		),
 		array(
 			'id' => 'drafts_autosave_enabled',
-			'label' => Lang::$txt['drafts_autosave_enabled'],
+			'label' => Lang::getTxt('drafts_autosave_enabled', file: 'Drafts'),
 			'default' => true,
 			'enabled' => !empty(Config::$modSettings['drafts_autosave_enabled']) && (!empty(Config::$modSettings['drafts_post_enabled']) || !empty(Config::$modSettings['drafts_pm_enabled'])),
 		),
 		array(
 			'id' => 'drafts_show_saved_enabled',
-			'label' => Lang::$txt['drafts_show_saved_enabled'],
+			'label' => Lang::getTxt('drafts_show_saved_enabled', file: 'Drafts'),
 			'default' => true,
 			'enabled' => !empty(Config::$modSettings['drafts_show_saved_enabled']) && (!empty(Config::$modSettings['drafts_post_enabled']) || !empty(Config::$modSettings['drafts_pm_enabled'])),
 		),

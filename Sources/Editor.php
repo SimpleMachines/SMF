@@ -431,8 +431,8 @@ class Editor implements \ArrayAccess
 		Utils::$context['richedit_buttons'] = [
 			'save_draft' => [
 				'type' => 'submit',
-				'value' => Lang::$txt['draft_save'],
-				'onclick' => !empty(Utils::$context['drafts_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::$txt['draft_save_note']) . ') && submitThisOnce(this);' : ''),
+				'value' => Lang::getTxt('draft_save', file: 'Drafts'),
+				'onclick' => !empty(Utils::$context['drafts_save']) ? 'submitThisOnce(this);' : (!empty(Utils::$context['drafts_save']) ? 'return confirm(' . Utils::escapeJavaScript(Lang::getTxt('draft_save_note', file: 'Drafts')) . ') && submitThisOnce(this);' : ''),
 				'accessKey' => 'd',
 				'show' => !empty(Utils::$context['drafts_save']),
 			],

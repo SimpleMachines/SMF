@@ -263,7 +263,7 @@ function template_summary()
 
 	if (User::$me->is_owner && !empty(Config::$modSettings['drafts_post_enabled']))
 		echo '
-			<a href="', Config::$scripturl, '?action=profile;area=showdrafts;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::$txt['drafts_show'], '</a>';
+			<a href="', Config::$scripturl, '?action=profile;area=showdrafts;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a>';
 
 	echo '
 			<a href="', Config::$scripturl, '?action=profile;area=statistics;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::$txt['statPanel'], '</a>';
@@ -676,7 +676,7 @@ function template_showDrafts()
 	echo '
 		<div class="cat_bar cat_bar_round">
 			<h3 class="catbg">
-				', !User::$me->is_owner ? Lang::getTxt('drafts_member', ['member' => Utils::$context['member']['name']]) : Lang::$txt['drafts'], '
+				', !User::$me->is_owner ? Lang::getTxt('drafts_member', ['member' => Utils::$context['member']['name']], file: 'Drafts') : Lang::getTxt('drafts', file: 'Drafts'), '
 			</h3>
 		</div>', !empty(Utils::$context['page_index']) ? '
 		<div class="pagesection">
@@ -687,7 +687,7 @@ function template_showDrafts()
 	if (empty(Utils::$context['drafts']))
 		echo '
 		<div class="windowbg centertext">
-			', Lang::$txt['draft_none'], '
+			', Lang::getTxt('draft_none', file: 'Drafts'), '
 		</div>';
 	else
 	{
@@ -711,7 +711,7 @@ function template_showDrafts()
 
 			echo '
 				</h4>
-				<span class="smalltext">', Lang::getTxt('draft_saved_on', ['date' => $draft['time']]), '</span>
+				<span class="smalltext">', Lang::getTxt('draft_saved_on', ['date' => $draft['time']], file: 'Drafts'), '</span>
 			</div><!-- .topic_details -->
 			<div class="list_posts">
 				', Utils::adjustHeadingLevels($draft['body'], 4), '

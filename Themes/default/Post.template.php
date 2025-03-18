@@ -133,8 +133,8 @@ function template_main()
 	if (!empty(Config::$modSettings['drafts_post_enabled']))
 		echo '
 					<div id="draft_section" class="infobox"', isset(Utils::$context['draft_saved']) ? '' : ' style="display: none;"', '>',
-						Lang::getTxt('draft_saved', ['url' => Config::$scripturl . '?action=profile;u=' . User::$me->id . ';area=showdrafts']), '
-						', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . Lang::getTxt('draft_save_warning', [Config::$modSettings['drafts_keep_days']]) . '</strong>' : ''), '
+						Lang::getTxt('draft_saved', ['url' => Config::$scripturl . '?action=profile;u=' . User::$me->id . ';area=showdrafts'], file: 'Drafts'), '
+						', (!empty(Config::$modSettings['drafts_keep_days']) ? ' <strong>' . Lang::getTxt('draft_save_warning', [Config::$modSettings['drafts_keep_days']], file: 'Drafts') . '</strong>' : ''), '
 					</div>';
 
 	// The post header... important stuff
@@ -409,13 +409,13 @@ function template_main()
 		echo '
 					<div id="post_draft_options_header" class="title_bar">
 						<h4 class="titlebg">
-							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::$txt['drafts_show'], '</a></strong>
+							<span id="postDraftExpand" class="toggle_up floatright" style="display: none;"></span> <strong><a href="#" id="postDraftExpandLink">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a></strong>
 						</h4>
 					</div>
 					<div id="post_draft_options">
 						<dl class="settings">
 							<dt><strong>', Lang::$txt['subject'], '</strong></dt>
-							<dd><strong>', trim(Lang::getTxt('draft_saved_on', ['date' => ''])), '</strong></dd>';
+							<dd><strong>', trim(Lang::getTxt('draft_saved_on', ['date' => ''], file: 'Drafts')), '</strong></dd>';
 
 		foreach (Utils::$context['drafts'] as $draft)
 			echo '
@@ -558,8 +558,8 @@ function template_main()
 				aSwapLinks: [
 					{
 						sId: \'postDraftExpandLink\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['draft_hide']), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['drafts_show']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('draft_hide', file: 'Drafts')), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('drafts_show', file: 'Drafts')), '
 					}
 				]
 			});';
