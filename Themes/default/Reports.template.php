@@ -23,7 +23,7 @@ function template_report_type()
 	echo '
 		<form action="', Config::$scripturl, '?action=admin;area=reports" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['generate_reports_type'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('generate_reports_type', file: 'Reports'), '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">';
@@ -43,7 +43,7 @@ function template_report_type()
 	}
 	echo '
 				</dl>
-				<input type="submit" name="continue" value="', Lang::$txt['generate_reports_continue'], '" class="button">
+				<input type="submit" name="continue" value="', Lang::getTxt('generate_reports_continue', file: 'Reports'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</div><!-- .windowbg -->
 		</form>';
@@ -56,7 +56,7 @@ function template_main()
 {
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['results'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('results', file: 'Reports'), '</h3>
 		</div>
 		<div id="report_buttons">';
 
