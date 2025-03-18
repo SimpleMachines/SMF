@@ -31,13 +31,20 @@ function template_main()
 	if (!empty(Utils::$context['search_ignored']))
 		echo '
 		<div class="noticebox">
-			', Lang::$txt['search_warning_ignored_word' . (count(Utils::$context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', Utils::$context['search_ignored']), '
+			', Lang::getTxt(
+				'search_warning_ignored',
+				[
+					'number_of_terms' => count(Utils::$context['search_ignored']),
+					'list' => implode(Lang::getTxt('sentence_list_separator') . ' ', Utils::$context['search_ignored']),
+				],
+				file: 'Search',
+			), '
 		</div>';
 
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="main_icons filter"></span>', Lang::$txt['set_parameters'], '
+				<span class="main_icons filter"></span>', Lang::getTxt('set_parameters', file: 'Search'), '
 			</h3>
 		</div>
 		<div id="advanced_search" class="roundframe">
@@ -50,7 +57,7 @@ function template_main()
 
 	if (empty(Config::$modSettings['search_simple_fulltext']))
 		echo '
-					<br><em class="smalltext">', Lang::$txt['search_example'], '</em>';
+					<br><em class="smalltext">', Lang::getTxt('search_example', file: 'Search'), '</em>';
 
 	echo '
 				</dd>
@@ -60,30 +67,30 @@ function template_main()
 				</dt>
 				<dd>
 					<select name="searchtype" id="searchtype">
-						<option value="1"', empty(Utils::$context['search_params']['searchtype']) ? ' selected' : '', '>', Lang::$txt['all_words'], '</option>
-						<option value="2"', !empty(Utils::$context['search_params']['searchtype']) ? ' selected' : '', '>', Lang::$txt['any_words'], '</option>
+						<option value="1"', empty(Utils::$context['search_params']['searchtype']) ? ' selected' : '', '>', Lang::getTxt('all_words', file: 'Search'), '</option>
+						<option value="2"', !empty(Utils::$context['search_params']['searchtype']) ? ' selected' : '', '>', Lang::getTxt('any_words', file: 'Search'), '</option>
 					</select>
 				</dd>
 				<dt>
-					<label for="userspec">', Lang::$txt['by_user'], '</label>
+					<label for="userspec">', Lang::getTxt('by_user', file: 'Search'), '</label>
 				</dt>
 				<dd>
 					<input id="userspec" type="text" name="userspec" value="', empty(Utils::$context['search_params']['userspec']) ? '*' : Utils::$context['search_params']['userspec'], '" size="40">
 				</dd>
 				<dt>
-					<label for="sort">', Lang::$txt['search_order'], '</label>
+					<label for="sort">', Lang::getTxt('search_order', file: 'Search'), '</label>
 				</dt>
 				<dd>
 					<select id="sort" name="sort">
-						<option value="relevance|desc">', Lang::$txt['search_orderby_relevant_first'], '</option>
-						<option value="num_replies|desc">', Lang::$txt['search_orderby_large_first'], '</option>
-						<option value="num_replies|asc">', Lang::$txt['search_orderby_small_first'], '</option>
-						<option value="id_msg|desc">', Lang::$txt['search_orderby_recent_first'], '</option>
-						<option value="id_msg|asc">', Lang::$txt['search_orderby_old_first'], '</option>
+						<option value="relevance|desc">', Lang::getTxt('search_orderby_relevant_first', file: 'Search'), '</option>
+						<option value="num_replies|desc">', Lang::getTxt('search_orderby_large_first', file: 'Search'), '</option>
+						<option value="num_replies|asc">', Lang::getTxt('search_orderby_small_first', file: 'Search'), '</option>
+						<option value="id_msg|desc">', Lang::getTxt('search_orderby_recent_first', file: 'Search'), '</option>
+						<option value="id_msg|asc">', Lang::getTxt('search_orderby_old_first', file: 'Search'), '</option>
 					</select>
 				</dd>
 				<dt class="righttext options">',
-					Lang::$txt['search_options'], '
+					Lang::getTxt('search_options', file: 'Search'), '
 				</dt>
 				<dd class="options">
 					<ul>';
@@ -93,7 +100,7 @@ function template_main()
 						<li>
 							<label>
 								', $option['html'], '
-								<span>', Lang::$txt[$option['label']], '</span>
+								<span>', Lang::getTxt($option['label'], file: 'Search'), '</span>
 							</label>
 						</li>';
 	}
@@ -102,7 +109,7 @@ function template_main()
 					</ul>
 				</dd>
 				<dt class="between">',
-					Lang::$txt['search_post_age'], '
+					Lang::getTxt('search_post_age', file: 'Search'), '
 				</dt>
 				<dd>
 					', Lang::getTxt(
@@ -111,6 +118,7 @@ function template_main()
 							'min' => '<input type="number" name="minage" id="minage" min="0" max="9999" value="' . (empty(Utils::$context['search_params']['minage']) ? '0' : Utils::$context['search_params']['minage']) . '">',
 							'max' => '<input type="number" name="maxage" id="maxage" min="0" max="9999" value="' . (empty(Utils::$context['search_params']['maxage']) ? '9999' : Utils::$context['search_params']['maxage']) . '">',
 						],
+						file: 'Search',
 					), '
 				</dd>
 			</dl>
@@ -132,7 +140,7 @@ function template_main()
 	if (!empty(Utils::$context['search_params']['topic']))
 		echo '
 			<p>
-				', Lang::getTxt('search_specific_topic', ['topic' => Utils::$context['search_topic']['link']]), '
+				', Lang::getTxt('search_specific_topic', ['topic' => Utils::$context['search_topic']['link']], file: 'Search'), '
 			</p>
 			<input type="hidden" name="topic" value="', Utils::$context['search_topic']['id'], '">
 			<input type="submit" name="b_search" value="', Lang::$txt['search'], '" class="button">';
@@ -148,7 +156,7 @@ function template_main()
 				<div class="title_bar">
 					<h4 class="titlebg">
 						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
-						<a href="#" id="advanced_panel_link">', Lang::$txt['choose_board'], '</a>
+						<a href="#" id="advanced_panel_link">', Lang::getTxt('choose_board', file: 'Search'), '</a>
 					</h4>
 				</div>
 				<div class="flow_auto boardslist" id="advanced_panel_div"', Utils::$context['boards_check_all'] ? ' style="display: none;"' : '', '>
@@ -231,8 +239,8 @@ function template_main()
 				aSwapLinks: [
 					{
 						sId: \'advanced_panel_link\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['choose_board']), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['choose_board']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('choose_board', file: 'Search')), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('choose_board', file: 'Search')), '
 					}
 				]
 			});
@@ -264,7 +272,7 @@ function template_results()
 	<div id="search_results">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				', Lang::$txt['search_adjust_query'], '
+				', Lang::getTxt('search_adjust_query', file: 'Search'), '
 			</h3>
 		</div>
 		<div class="roundframe">';
@@ -273,20 +281,27 @@ function template_results()
 		if (isset(Utils::$context['did_you_mean']))
 			echo '
 			<p>
-				', Lang::getTxt('search_did_you_mean', ['suggested_query' => '<a href="' . Config::$scripturl . '?action=search2;params=' . Utils::$context['did_you_mean_params'] . '">' . Utils::$context['did_you_mean'] . '</a>']), '
+				', Lang::getTxt('search_did_you_mean', ['suggested_query' => '<a href="' . Config::$scripturl . '?action=search2;params=' . Utils::$context['did_you_mean_params'] . '">' . Utils::$context['did_you_mean'] . '</a>'], file: 'Search'), '
 			</p>';
 
 		if (!empty(Utils::$context['search_ignored']))
 			echo '
 			<p>
-				', Lang::$txt['search_warning_ignored_word' . (count(Utils::$context['search_ignored']) == 1 ? '' : 's')], ': ', implode(', ', Utils::$context['search_ignored']), '
+				', Lang::getTxt(
+					'search_warning_ignored',
+					[
+						'number_of_terms' => count(Utils::$context['search_ignored']),
+						'list' => implode(Lang::getTxt('sentence_list_separator') . ' ', Utils::$context['search_ignored']),
+					],
+					file: 'Search',
+				), '
 			</p>';
 
 		echo '
 			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
 				<strong>', Lang::$txt['search_for'], '</strong>
 				<input type="text" name="search"', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">
-				<input type="submit" name="edit_search" value="', Lang::$txt['search_adjust_submit'], '" class="button">';
+				<input type="submit" name="edit_search" value="', Lang::getTxt('search_adjust_submit', file: 'Search'), '" class="button">';
 
 		foreach (Utils::$context['hidden_inputs'] as $input) {
 			echo "\n\t\t\t\t" . $input;
@@ -317,7 +332,7 @@ function template_results()
 				<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
 			</h2>
 			<div class="floatleft">
-				<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::$txt['search_adjust_query'], '</a>
+				<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::getTxt('search_adjust_query', file: 'Search'), '</a>
 			</div>';
 
 		// Was anything even found?
@@ -325,12 +340,12 @@ function template_results()
 		{
 			echo '
 			<div class="floatright">
-				<span class="padding">', Lang::$txt['search_order'], '</span>
+				<span class="padding">', Lang::getTxt('search_order', file: 'Search'), '</span>
 				<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">';
 
 			foreach (Utils::$context['sort_options'] as $option) {
 				echo '
-					<option value="' . $option['value'] . '"' . ($option['selected'] ? ' selected' : '') . '>' . Lang::$txt[$option['label']] . '</option>';
+					<option value="' . $option['value'] . '"' . ($option['selected'] ? ' selected' : '') . '>' . Lang::getTxt($option['label'], file: 'Search') . '</option>';
 			}
 
 			echo'
@@ -384,7 +399,7 @@ function template_results()
 			<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
 		</h2>
 		<div class="floatleft">
-			<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::$txt['search_adjust_query'], '</a>
+			<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::getTxt('search_adjust_query', file: 'Search'), '</a>
 		</div>';
 
 		// Was anything even found?
@@ -392,12 +407,12 @@ function template_results()
 		{
 			echo '
 		<div class="floatright">
-			<span class="padding">', Lang::$txt['search_order'], '</span>
+			<span class="padding">', Lang::getTxt('search_order', file: 'Search'), '</span>
 			<select name="sort" class="floatright" form="new_search" onchange="document.forms.new_search.submit()">';
 
 			foreach (Utils::$context['sort_options'] as $option) {
 				echo '
-				<option value="' . $option['value'] . '"' . ($option['selected'] ? ' selected' : '') . '>' . Lang::$txt[$option['label']] . '</option>';
+				<option value="' . $option['value'] . '"' . ($option['selected'] ? ' selected' : '') . '>' . Lang::getTxt($option['label'], file: 'Search') . '</option>';
 			}
 
 			echo'

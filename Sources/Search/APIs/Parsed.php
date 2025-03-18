@@ -554,7 +554,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 */
 	public function formContext(): void
 	{
-		Utils::$context['search_params']['ignore_accents'] = !empty(Utils::$context['search_params']['ignore_accents']) || (!isset(Utils::$context['search_params']['ignore_accents']) && !empty(Lang::$txt['search_ignore_accents_by_default']));
+		Utils::$context['search_params']['ignore_accents'] = !empty(Utils::$context['search_params']['ignore_accents']) || (!isset(Utils::$context['search_params']['ignore_accents']) && !empty(Lang::getTxt('search_ignore_accents_by_default', file: 'Search')));
 
 
 		Utils::$context['search_options']['ignore_accents'] = [
@@ -834,7 +834,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		// Some extra stuff that is specific to this API.
 		self::$default_params['alt_forms'] = '';
-		self::$default_params['ignore_accents'] = !empty(Lang::$txt['search_ignore_accents_by_default']);
+		self::$default_params['ignore_accents'] = !empty(Lang::getTxt('search_ignore_accents_by_default', file: 'Search'));
 
 		$this->params['ignore_accents'] = !empty($this->params['ignore_accents']) || !empty($_REQUEST['ignore_accents']);
 	}

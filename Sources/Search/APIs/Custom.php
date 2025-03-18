@@ -579,7 +579,7 @@ class Custom extends SearchApi implements SearchApiInterface
 		Sapi::resetTimeout();
 
 		Menu::$loaded['admin']['current_subsection'] = 'method';
-		Utils::$context['page_title'] = Lang::$txt['search_index_custom'];
+		Utils::$context['page_title'] = Lang::getTxt('search_index_custom', file: 'Search');
 
 		$messages_per_batch = 50;
 

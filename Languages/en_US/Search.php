@@ -114,8 +114,10 @@ $txt['error_string_too_long'] = '{0, plural,
 }';
 
 $txt['search_adjust_query'] = 'Adjust Search Parameters';
-$txt['search_warning_ignored_word'] = 'The following term has been ignored in your search because it is too short';
-$txt['search_warning_ignored_words'] = 'The following terms have been ignored in your search because they are too short';
+$txt['search_warning_ignored'] = '{number_of_terms, plural,
+	one {The following term has been ignored in your search because it is too short: {list}}
+	other {The following terms have been ignored in your search because they are too short: {list}}
+}';
 $txt['search_adjust_submit'] = 'Revise Search';
 $txt['search_did_you_mean'] = 'You may have meant to search for {suggested_query}.';
 

@@ -294,7 +294,7 @@ class Search implements ActionInterface, Routable
 			Utils::$context['search_topic']['link'] = '<a href="' . Utils::$context['search_topic']['href'] . '">' . Utils::$context['search_topic']['subject'] . '</a>';
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['set_parameters'];
+		Utils::$context['page_title'] = Lang::getTxt('set_parameters', file: 'Search');
 
 		IntegrationHook::call('integrate_search');
 	}

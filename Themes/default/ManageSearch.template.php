@@ -28,7 +28,7 @@ function template_modify_weights()
 			<dl class="settings">
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a><label for="weight1_val">
-					', Lang::$txt['search_weight_frequency'], '</label>
+					', Lang::getTxt('search_weight_frequency', file: 'Search'), '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -38,7 +38,7 @@ function template_modify_weights()
 				</dd>
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-					<label for="weight2_val">', Lang::$txt['search_weight_age'], '</label>
+					<label for="weight2_val">', Lang::getTxt('search_weight_age', file: 'Search'), '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -48,7 +48,7 @@ function template_modify_weights()
 				</dd>
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-					<label for="weight3_val">', Lang::$txt['search_weight_length'], '</label>
+					<label for="weight3_val">', Lang::getTxt('search_weight_length', file: 'Search'), '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -58,7 +58,7 @@ function template_modify_weights()
 				</dd>
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-					<label for="weight4_val">', Lang::$txt['search_weight_subject'], '</label>
+					<label for="weight4_val">', Lang::getTxt('search_weight_subject', file: 'Search'), '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -68,7 +68,7 @@ function template_modify_weights()
 				</dd>
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-					<label for="weight5_val">', Lang::$txt['search_weight_first_message'], '</label>
+					<label for="weight5_val">', Lang::getTxt('search_weight_first_message', file: 'Search'), '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -78,7 +78,7 @@ function template_modify_weights()
 				</dd>
 				<dt>
 					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_sticky" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-					<label for="weight6_val">', Lang::$txt['search_weight_sticky'], '</label>
+					<label for="weight6_val">', Lang::getTxt('search_weight_sticky', file: 'Search'), '</label>
 				</dt>
 				<dd>
 					<span class="search_weight">
@@ -87,7 +87,7 @@ function template_modify_weights()
 					<span id="weight6" class="search_weight">', Utils::$context['relative_weights']['search_weight_sticky'], '%</span>
 				</dd>
 				<dt>
-					<strong>', Lang::$txt['search_weights_total'], '</strong>
+					<strong>', Lang::getTxt('search_weights_total', file: 'Search'), '</strong>
 				</dt>
 				<dd>
 					<span id="weighttotal" class="search_weight">
@@ -96,7 +96,7 @@ function template_modify_weights()
 					<span class="search_weight"><strong>100%</strong></span>
 				</dd>
 			</dl>
-			<input type="submit" name="save" value="', Lang::$txt['search_weights_save'], '" class="button">
+			<input type="submit" name="save" value="', Lang::getTxt('search_weights_save', file: 'Search'), '" class="button">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="', Utils::$context['admin-msw_token_var'], '" value="', Utils::$context['admin-msw_token'], '">
 		</div><!-- .windowbg -->
@@ -114,7 +114,7 @@ function template_select_search_method()
 	</div>
 	<div class="information">
 		<div class="smalltext">
-			<a href="', Config::$scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', Lang::$txt['search_create_index_why'], '</a>
+			<a href="', Config::$scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', Lang::getTxt('search_create_index_why', file: 'Search'), '</a>
 		</div>
 	</div>
 	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=managesearch;sa=method" method="post" accept-charset="UTF-8">
@@ -127,13 +127,13 @@ function template_select_search_method()
 	if (!empty(Utils::$context['table_info']))
 		echo '
 				<dt>
-					<strong>', Lang::$txt['search_method_messages_table_space'], '</strong>
+					<strong>', Lang::getTxt('search_method_messages_table_space', file: 'Search'), '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['table_info']['data_length'], '
 				</dd>
 				<dt>
-					<strong>', Lang::$txt['search_method_messages_index_space'], '</strong>
+					<strong>', Lang::getTxt('search_method_messages_index_space', file: 'Search'), '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['table_info']['index_length'], '
@@ -141,14 +141,14 @@ function template_select_search_method()
 	echo '
 			</dl>
 			', Utils::$context['double_index'] ? '<div class="noticebox">
-			' . Lang::$txt['search_double_index'] . '</div>' : '', '
+			' . Lang::getTxt('search_double_index', file: 'Search') . '</div>' : '', '
 			<fieldset class="search_settings floatleft">
-				<legend>', Lang::$txt['search_index'], '</legend>
+				<legend>', Lang::getTxt('search_index', file: 'Search'), '</legend>
 				<dl>
 					<dt>
 						<label>
 							<input type="radio" name="search_index" value=""', empty(Config::$modSettings['search_index']) ? ' checked' : '', '>
-							', Lang::$txt['search_index_none'], '
+							', Lang::getTxt('search_index_none', file: 'Search'), '
 						</label>
 					</dt>';
 
@@ -162,19 +162,19 @@ function template_select_search_method()
 					<hr>
 					<dt>
 						<label>
-							<input type="radio" name="search_index" value="', $api['setting_index'], '"', !empty(Config::$modSettings['search_index']) && Config::$modSettings['search_index'] == $api['setting_index'] ? ' checked' : '', !in_array($api['instance']->getStatus(), [null, 'exists']) ? ' onclick="alert(\'' . Lang::$txt['search_index_custom_warning'] . '\'); return false;"' : '', '>
-							', Lang::$txt[$api['instance']->getLabel()] ?? Lang::getTxt('search_index_generic', ['index' => substr(strrchr($api['class'], '\\'), 1)]), '
+							<input type="radio" name="search_index" value="', $api['setting_index'], '"', !empty(Config::$modSettings['search_index']) && Config::$modSettings['search_index'] == $api['setting_index'] ? ' checked' : '', !in_array($api['instance']->getStatus(), [null, 'exists']) ? ' onclick="alert(\'' . Lang::getTxt('search_index_custom_warning', file: 'Search') . '\'); return false;"' : '', '>
+							', Lang::txtExists($api['instance']->getLabel(), file: 'Search') ? Lang::getTxt($api['instance']->getLabel(), file: 'Search') : Lang::getTxt('search_index_generic', ['index' => substr(strrchr($api['class'], '\\'), 1)], file: 'Search'), '
 						</label>
 					</dt>
 					<dd>
 						<span class="smalltext">';
 
-		if (!empty(Lang::$txt[$api['instance']->getDescription()])) {
-			echo Lang::$txt[$api['instance']->getDescription()];
+		if (Lang::txtExists($api['instance']->getDescription(), file: 'Search')) {
+			echo Lang::getTxt($api['instance']->getDescription(), file: 'Search');
 		}
 
 		if ($api['instance']->getStatus() !== null) {
-			if (!empty(Lang::$txt[$api['instance']->getDescription()])) {
+			if (Lang::txtExists($api['instance']->getDescription(), file: 'Search')) {
 				echo '
 						<br>';
 			}
@@ -224,10 +224,22 @@ function template_select_search_method()
 					break;
 			}
 
-			echo Lang::getTxt($index_status, ['index' => Lang::$txt[$api['instance']->getLabel()] ?? Lang::getTxt('search_index_generic', ['index' => substr(strrchr($api['instance']::class, '\\'), 1)])]);
+			echo Lang::getTxt(
+				$index_status,
+				[
+					'index' => Lang::getTxt(
+						Lang::txtExists($api['instance']->getLabel(), file: 'Search') ? $api['instance']->getLabel() : 'search_index_generic',
+						[
+							'index' => substr(strrchr($api['instance']::class, '\\'), 1),
+						],
+						file: 'Search',
+					),
+				],
+				file: 'Search',
+			);
 
 			foreach ($buttons as $sa => $label) {
-				echo ' <a href="' . Config::$scripturl . '?action=admin;area=managesearch;sa=' . $sa . '" class="button">' . Lang::$txt[$label] . '</a>';
+				echo ' <a href="' . Config::$scripturl . '?action=admin;area=managesearch;sa=' . $sa . '" class="button">' . Lang::getTxt($label, file: 'Search') . '</a>';
 			}
 		}
 
@@ -237,7 +249,7 @@ function template_select_search_method()
 		) {
 			echo '
 						<br>
-						<strong>' . Lang::$txt['search_index_size'] . '</strong> ' . Lang::getTxt('size_kilobyte', [$api['instance']->getSize() / 1024]);
+						<strong>' . Lang::getTxt('search_index_size', file: 'Search') . '</strong> ' . Lang::getTxt('size_kilobyte', [$api['instance']->getSize() / 1024]);
 		}
 
 		echo '
@@ -250,11 +262,11 @@ function template_select_search_method()
 			</fieldset>
 			<fieldset class="search_settings floatright">
 			<legend>', Lang::getTxt('search_method', file: 'Admin'), '</legend>
-				<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty(Config::$modSettings['search_force_index']) ? '' : ' checked', '><label for="search_force_index_check">', Lang::$txt['search_force_index'], '</label><br>
-				<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty(Config::$modSettings['search_match_words']) ? '' : ' checked', '><label for="search_match_words_check">', Lang::$txt['search_match_words'], '</label>
+				<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty(Config::$modSettings['search_force_index']) ? '' : ' checked', '><label for="search_force_index_check">', Lang::getTxt('search_force_index', file: 'Search'), '</label><br>
+				<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty(Config::$modSettings['search_match_words']) ? '' : ' checked', '><label for="search_match_words_check">', Lang::getTxt('search_match_words', file: 'Search'), '</label>
 			</fieldset>
 			<br class="clear">
-			<input type="submit" name="save" value="', Lang::$txt['search_method_save'], '" class="button">
+			<input type="submit" name="save" value="', Lang::getTxt('search_method_save', file: 'Search'), '" class="button">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="', Utils::$context['admin-msmpost_token_var'], '" value="', Utils::$context['admin-msmpost_token'], '">
 		</div><!-- .windowbg -->
@@ -269,23 +281,23 @@ function template_create_index()
 	echo '
 	<form action="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex;step=1" method="post" accept-charset="UTF-8" name="create_index">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['search_create_index'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('search_create_index', file: 'Search'), '</h3>
 		</div>
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<label for="predefine_select">', Lang::$txt['search_predefined'], '</label>
+					<label for="predefine_select">', Lang::getTxt('search_predefined', file: 'Search'), '</label>
 				</dt>
 				<dd>
 					<select name="bytes_per_word" id="predefine_select">
-						<option value="2">', Lang::$txt['search_predefined_small'], '</option>
-						<option value="4" selected>', Lang::$txt['search_predefined_moderate'], '</option>
-						<option value="5">', Lang::$txt['search_predefined_large'], '</option>
+						<option value="2">', Lang::getTxt('search_predefined_small', file: 'Search'), '</option>
+						<option value="4" selected>', Lang::getTxt('search_predefined_moderate', file: 'Search'), '</option>
+						<option value="5">', Lang::getTxt('search_predefined_large', file: 'Search'), '</option>
 					</select>
 				</dd>
 			</dl>
 			<hr>
-			<input type="submit" name="save" value="', Lang::$txt['search_create_index_start'], '" class="button">
+			<input type="submit" name="save" value="', Lang::getTxt('search_create_index_start', file: 'Search'), '" class="button">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 		</div>
 	</form>';
@@ -299,18 +311,18 @@ function template_create_index_progress()
 	echo '
 	<form action="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex;step=1" name="autoSubmit" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['search_create_index'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('search_create_index', file: 'Search'), '</h3>
 		</div>
 		<div class="windowbg">
 			<div>
-				<p>', Lang::$txt['search_create_index_not_ready'], '</p>
+				<p>', Lang::getTxt('search_create_index_not_ready', file: 'Search'), '</p>
 				<div class="progress_bar">
 					<span>', Utils::$context['percentage'], '%</span>
 					<div class="bar" style="width: ', Utils::$context['percentage'], '%;"></div>
 				</div>
 			</div>
 			<hr>
-			<input type="submit" name="b" value="', Lang::$txt['search_create_index_continue'], '" class="button">
+			<input type="submit" name="b" value="', Lang::getTxt('search_create_index_continue', file: 'Search'), '" class="button">
 		</div>
 		<input type="hidden" name="step" value="', Utils::$context['step'], '">
 		<input type="hidden" name="start" value="', Utils::$context['start'], '">
@@ -328,7 +340,7 @@ function template_create_index_progress()
 			else if (countdown == -1)
 				return;
 
-			document.forms.autoSubmit.b.value = "', Lang::$txt['search_create_index_continue'], ' (" + countdown + ")";
+			document.forms.autoSubmit.b.value = "', Lang::getTxt('search_create_index_continue', file: 'Search'), ' (" + countdown + ")";
 			countdown--;
 
 			setTimeout("doAutoSubmit();", 1000);
@@ -344,12 +356,12 @@ function template_create_index_done()
 {
 	echo '
 	<div class="cat_bar">
-		<h3 class="catbg">', Lang::$txt['search_create_index'], '</h3>
+		<h3 class="catbg">', Lang::getTxt('search_create_index', file: 'Search'), '</h3>
 	</div>
 	<div class="windowbg">
-		<p>', Lang::$txt['search_create_index_done'], '</p>
+		<p>', Lang::getTxt('search_create_index_done', file: 'Search'), '</p>
 		<p>
-			<strong><a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=method">', Lang::$txt['search_create_index_done_link'], '</a></strong>
+			<strong><a href="', Config::$scripturl, '?action=admin;area=managesearch;sa=method">', Lang::getTxt('search_create_index_done_link', file: 'Search'), '</a></strong>
 		</p>
 	</div>';
 }
@@ -365,27 +377,27 @@ function template_spider_edit()
 			<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 		</div>
 		<div class="information noup">
-			', Lang::$txt['add_spider_desc'], '
+			', Lang::getTxt('add_spider_desc', file: 'Search'), '
 		</div>
 		<div class="windowbg noup">
 			<dl class="settings">
 				<dt>
-					<strong><label for="spider_name">', Lang::$txt['spider_name'], '</label></strong><br>
-					<span class="smalltext">', Lang::$txt['spider_name_desc'], '</span>
+					<strong><label for="spider_name">', Lang::getTxt('spider_name', file: 'Search'), '</label></strong><br>
+					<span class="smalltext">', Lang::getTxt('spider_name_desc', file: 'Search'), '</span>
 				</dt>
 				<dd>
 					<input type="text" name="spider_name" id="spider_name" value="', Utils::$context['spider']['name'], '">
 				</dd>
 				<dt>
-					<strong><label for="spider_agent">', Lang::$txt['spider_agent'], '</label></strong><br>
-					<span class="smalltext">', Lang::$txt['spider_agent_desc'], '</span>
+					<strong><label for="spider_agent">', Lang::getTxt('spider_agent', file: 'Search'), '</label></strong><br>
+					<span class="smalltext">', Lang::getTxt('spider_agent_desc', file: 'Search'), '</span>
 				</dt>
 				<dd>
 					<input type="text" name="spider_agent" id="spider_agent" value="', Utils::$context['spider']['agent'], '">
 				</dd>
 				<dt>
-					<strong><label for="spider_ip">', Lang::$txt['spider_ip_info'], '</label></strong><br>
-					<span class="smalltext">', Lang::$txt['spider_ip_info_desc'], '</span>
+					<strong><label for="spider_ip">', Lang::getTxt('spider_ip_info', file: 'Search'), '</label></strong><br>
+					<span class="smalltext">', Lang::getTxt('spider_ip_info_desc', file: 'Search'), '</span>
 				</dt>
 				<dd>
 					<textarea name="spider_ip" id="spider_ip" rows="4" cols="20">', Utils::$context['spider']['ip_info'], '</textarea>
@@ -410,15 +422,15 @@ function template_show_spider_logs()
 	echo '
 	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['spider_logs_delete'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('spider_logs_delete', file: 'Search'), '</h3>
 		</div>
 		<div class="windowbg">
 			<p>
-				', Lang::$txt['spider_logs_delete_older'], '
+				', Lang::getTxt('spider_logs_delete_older', file: 'Search'), '
 				<input type="text" name="older" id="older" value="7" size="3">
-				', Lang::$txt['spider_logs_delete_day'], '
+				', Lang::getTxt('spider_logs_delete_day', file: 'Search'), '
 			</p>
-			<input type="submit" name="delete_entries" value="', Lang::$txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes(Lang::$txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button">
+			<input type="submit" name="delete_entries" value="', Lang::getTxt('spider_logs_delete_submit', file: 'Search'), '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes(Lang::getTxt('spider_logs_delete_confirm', file: 'Search'), "'") . '\')) return false; return true;" class="button">
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="', Utils::$context['admin-sl_token_var'], '" value="', Utils::$context['admin-sl_token'], '">
 		</div>
@@ -436,15 +448,15 @@ function template_show_spider_stats()
 	echo '
 		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=sengines;sa=stats" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['spider_logs_delete'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('spider_logs_delete', file: 'Search'), '</h3>
 			</div>
 			<div class="windowbg">
 				<p>
-					', Lang::getTxt('spider_stats_delete_older', ['input' => '<input type="number" name="older" id="older" value="90" size="3">']), '
+					', Lang::getTxt('spider_stats_delete_older', ['input' => '<input type="number" name="older" id="older" value="90" size="3">'], file: 'Search'), '
 				</p>
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-ss_token_var'], '" value="', Utils::$context['admin-ss_token'], '">
-				<input type="submit" name="delete_entries" value="', Lang::$txt['spider_logs_delete_submit'], '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes(Lang::$txt['spider_logs_delete_confirm'], "'") . '\')) return false; return true;" class="button">
+				<input type="submit" name="delete_entries" value="', Lang::getTxt('spider_logs_delete_submit', file: 'Search'), '" onclick="if (document.getElementById(\'older\').value &lt; 1 &amp;&amp; !confirm(\'' . addcslashes(Lang::getTxt('spider_logs_delete_confirm', file: 'Search'), "'") . '\')) return false; return true;" class="button">
 				<br>
 			</div>
 		</form>';
