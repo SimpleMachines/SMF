@@ -383,18 +383,18 @@ class Editor implements \ArrayAccess
 
 		$scExtraLangs = '
 		$.sceditor.locale["' . Lang::$txt['lang_dictionary'] . '"] = {
-			"Width (optional):": "' . Lang::$editortxt['width'] . '",
-			"Height (optional):": "' . Lang::$editortxt['height'] . '",
-			"Insert": "' . Lang::$editortxt['insert'] . '",
-			"Description (optional):": "' . Lang::$editortxt['description'] . '",
-			"Rows:": "' . Lang::$editortxt['rows'] . '",
-			"Cols:": "' . Lang::$editortxt['cols'] . '",
-			"URL:": "' . Lang::$editortxt['url'] . '",
-			"E-mail:": "' . Lang::$editortxt['email'] . '",
-			"Video URL:": "' . Lang::$editortxt['video_url'] . '",
-			"More": "' . Lang::$editortxt['more'] . '",
-			"Close": "' . Lang::$editortxt['close'] . '",
-			dateFormat: "' . Lang::$editortxt['dateformat'] . '"
+			"Width (optional):": "' . Lang::getTxt('width', var: 'editortxt') . '",
+			"Height (optional):": "' . Lang::getTxt('height', var: 'editortxt') . '",
+			"Insert": "' . Lang::getTxt('insert', var: 'editortxt') . '",
+			"Description (optional):": "' . Lang::getTxt('description', var: 'editortxt') . '",
+			"Rows:": "' . Lang::getTxt('rows', var: 'editortxt') . '",
+			"Cols:": "' . Lang::getTxt('cols', var: 'editortxt') . '",
+			"URL:": "' . Lang::getTxt('url', var: 'editortxt') . '",
+			"E-mail:": "' . Lang::getTxt('email', var: 'editortxt') . '",
+			"Video URL:": "' . Lang::getTxt('video_url', var: 'editortxt') . '",
+			"More": "' . Lang::getTxt('more', var: 'editortxt') . '",
+			"Close": "' . Lang::getTxt('close', var: 'editortxt') . '",
+			dateFormat: "' . Lang::getTxt('dateformat', var: 'editortxt') . '"
 		};';
 
 		Theme::addInlineJavaScript($scExtraLangs, true);
@@ -473,7 +473,7 @@ class Editor implements \ArrayAccess
 		/*
 			array(
 				'code' => 'b', // Required
-				'description' => Lang::$editortxt['bold'], // Required
+				'description' => Lang::getTxt('bold', var: 'editortxt'), // Required
 				'image' => 'bold', // Optional
 				'before' => '[b]', // Deprecated
 				'after' => '[/b]', // Deprecated
@@ -482,148 +482,148 @@ class Editor implements \ArrayAccess
 		self::$bbc_tags[] = [
 			[
 				'code' => 'bold',
-				'description' => Lang::$editortxt['bold'],
+				'description' => Lang::getTxt('bold', var: 'editortxt'),
 			],
 			[
 				'code' => 'italic',
-				'description' => Lang::$editortxt['italic'],
+				'description' => Lang::getTxt('italic', var: 'editortxt'),
 			],
 			[
 				'code' => 'underline',
-				'description' => Lang::$editortxt['underline'],
+				'description' => Lang::getTxt('underline', var: 'editortxt'),
 			],
 			[
 				'code' => 'strike',
-				'description' => Lang::$editortxt['strikethrough'],
+				'description' => Lang::getTxt('strikethrough', var: 'editortxt'),
 			],
 			[
 				'code' => 'superscript',
-				'description' => Lang::$editortxt['superscript'],
+				'description' => Lang::getTxt('superscript', var: 'editortxt'),
 			],
 			[
 				'code' => 'subscript',
-				'description' => Lang::$editortxt['subscript'],
+				'description' => Lang::getTxt('subscript', var: 'editortxt'),
 			],
 			[],
 			[
 				'code' => 'pre',
-				'description' => Lang::$editortxt['preformatted_text'],
+				'description' => Lang::getTxt('preformatted_text', var: 'editortxt'),
 			],
 			[
 				'code' => 'left',
-				'description' => Lang::$editortxt['align_left'],
+				'description' => Lang::getTxt('align_left', var: 'editortxt'),
 			],
 			[
 				'code' => 'center',
-				'description' => Lang::$editortxt['center'],
+				'description' => Lang::getTxt('center', var: 'editortxt'),
 			],
 			[
 				'code' => 'right',
-				'description' => Lang::$editortxt['align_right'],
+				'description' => Lang::getTxt('align_right', var: 'editortxt'),
 			],
 			[
 				'code' => 'justify',
-				'description' => Lang::$editortxt['justify'],
+				'description' => Lang::getTxt('justify', var: 'editortxt'),
 			],
 			[],
 			[
 				'code' => 'font',
-				'description' => Lang::$editortxt['font_name'],
+				'description' => Lang::getTxt('font_name', var: 'editortxt'),
 			],
 			[
 				'code' => 'size',
-				'description' => Lang::$editortxt['font_size'],
+				'description' => Lang::getTxt('font_size', var: 'editortxt'),
 			],
 			[
 				'code' => 'color',
-				'description' => Lang::$editortxt['font_color'],
+				'description' => Lang::getTxt('font_color', var: 'editortxt'),
 			],
 		];
 
 		if (empty(Config::$modSettings['disable_wysiwyg'])) {
 			self::$bbc_tags[count(self::$bbc_tags) - 1][] = [
 				'code' => 'removeformat',
-				'description' => Lang::$editortxt['remove_formatting'],
+				'description' => Lang::getTxt('remove_formatting', var: 'editortxt'),
 			];
 		}
 
 		self::$bbc_tags[] = [
 			[
 				'code' => 'floatleft',
-				'description' => Lang::$editortxt['float_left'],
+				'description' => Lang::getTxt('float_left', var: 'editortxt'),
 			],
 			[
 				'code' => 'floatright',
-				'description' => Lang::$editortxt['float_right'],
+				'description' => Lang::getTxt('float_right', var: 'editortxt'),
 			],
 			[],
 			[
 				'code' => 'youtube',
-				'description' => Lang::$editortxt['insert_youtube_video'],
+				'description' => Lang::getTxt('insert_youtube_video', var: 'editortxt'),
 			],
 			[
 				'code' => 'image',
-				'description' => Lang::$editortxt['insert_image'],
+				'description' => Lang::getTxt('insert_image', var: 'editortxt'),
 			],
 			[
 				'code' => 'email',
-				'description' => Lang::$editortxt['insert_email'],
+				'description' => Lang::getTxt('insert_email', var: 'editortxt'),
 			],
 			[
 				'code' => 'link',
-				'description' => Lang::$editortxt['insert_link'],
+				'description' => Lang::getTxt('insert_link', var: 'editortxt'),
 			],
 			[
 				'code' => 'unlink',
-				'description' => Lang::$editortxt['unlink'],
+				'description' => Lang::getTxt('unlink', var: 'editortxt'),
 			],
 			[],
 			[
 				'code' => 'table',
-				'description' => Lang::$editortxt['insert_table'],
+				'description' => Lang::getTxt('insert_table', var: 'editortxt'),
 			],
 			[
 				'code' => 'code',
-				'description' => Lang::$editortxt['code'],
+				'description' => Lang::getTxt('code', var: 'editortxt'),
 			],
 			[
 				'image' => 'tt',
 				'code' => 'tt',
-				'description' => Lang::$editortxt['tt'],
+				'description' => Lang::getTxt('tt', var: 'editortxt'),
 			],
 			[
 				'code' => 'quote',
-				'description' => Lang::$editortxt['insert_quote'],
+				'description' => Lang::getTxt('insert_quote', var: 'editortxt'),
 			],
 			[],
 			[
 				'code' => 'bulletlist',
-				'description' => Lang::$editortxt['bullet_list'],
+				'description' => Lang::getTxt('bullet_list', var: 'editortxt'),
 			],
 			[
 				'code' => 'orderedlist',
-				'description' => Lang::$editortxt['numbered_list'],
+				'description' => Lang::getTxt('numbered_list', var: 'editortxt'),
 			],
 			[
 				'code' => 'horizontalrule',
-				'description' => Lang::$editortxt['insert_horizontal_rule'],
+				'description' => Lang::getTxt('insert_horizontal_rule', var: 'editortxt'),
 			],
 			[
 				'image' => 'heading',
 				'code' => 'heading',
-				'description' => Lang::$editortxt['heading'],
+				'description' => Lang::getTxt('heading', var: 'editortxt'),
 			],
 			[],
 			[
 				'code' => 'maximize',
-				'description' => Lang::$editortxt['maximize'],
+				'description' => Lang::getTxt('maximize', var: 'editortxt'),
 			],
 		];
 
 		if (empty(Config::$modSettings['disable_wysiwyg'])) {
 			self::$bbc_tags[count(self::$bbc_tags) - 1][] = [
 				'code' => 'source',
-				'description' => Lang::$editortxt['view_source'],
+				'description' => Lang::getTxt('view_source', var: 'editortxt'),
 			];
 		}
 
