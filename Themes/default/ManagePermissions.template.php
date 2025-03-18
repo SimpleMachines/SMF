@@ -47,8 +47,8 @@ function template_permission_index()
 			<table class="table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th>', Lang::$txt['membergroups_name'], '</th>
-						<th class="small_table">', Lang::$txt['membergroups_members_top'], '</th>';
+						<th>', Lang::getTxt('membergroups_name', file: 'ManageMembers'), '</th>
+						<th class="small_table">', Lang::getTxt('membergroups_members_top', file: 'ManageMembers'), '</th>';
 
 	if (empty(Config::$modSettings['permission_enable_deny']))
 		echo '

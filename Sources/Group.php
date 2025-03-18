@@ -602,7 +602,14 @@ class Group implements \ArrayAccess
 		if (!empty($subscriptions)) {
 			// Uh oh. But before we return, we need to update a language string because we want the names of the groups.
 			Lang::load('ManageMembers');
-			Lang::$txt['membergroups_cannot_delete_paid'] = Lang::getTxt('membergroups_cannot_delete_paid', [Lang::sentenceList($subscriptions)]);
+			Lang::setTxt(
+				'membergroups_cannot_delete_paid',
+				Lang::getTxt(
+					'membergroups_cannot_delete_paid',
+					[Lang::sentenceList($subscriptions)],
+					file: 'ManageMembers',
+				),
+			);
 
 			return 'group_cannot_delete_sub';
 		}

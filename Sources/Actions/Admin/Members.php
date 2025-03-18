@@ -179,8 +179,8 @@ class Members implements ActionInterface
 		// Do we have approvals
 		if ($this->show_approve) {
 			Utils::$context['tabs']['approve'] = [
-				'label' => Lang::getTxt('admin_browse_awaiting_approval', [$this->awaiting_approval]),
-				'description' => Lang::$txt['admin_browse_approve_desc'],
+				'label' => Lang::getTxt('admin_browse_awaiting_approval', [$this->awaiting_approval], file: 'ManageMembers'),
+				'description' => Lang::getTxt('admin_browse_approve_desc', file: 'ManageMembers'),
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
 			];
 		}
@@ -188,8 +188,8 @@ class Members implements ActionInterface
 		// Do we have activations to show?
 		if ($this->show_activate) {
 			Utils::$context['tabs']['activate'] = [
-				'label' => Lang::getTxt('admin_browse_awaiting_activate', [$this->awaiting_activation]),
-				'description' => Lang::$txt['admin_browse_activate_desc'],
+				'label' => Lang::getTxt('admin_browse_awaiting_activate', [$this->awaiting_activation], file: 'ManageMembers'),
+				'description' => Lang::getTxt('admin_browse_activate_desc', file: 'ManageMembers'),
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=activate',
 			];
 		}
@@ -780,7 +780,7 @@ class Members implements ActionInterface
 				$available_filters[] = [
 					'type' => $type,
 					'amount' => $amount,
-					'desc' => Lang::$txt['admin_browse_filter_type_' . $type] ?? '?',
+					'desc' => Lang::txtExists('admin_browse_filter_type_' . $type, file: 'ManageMembers') ? Lang::getTxt('admin_browse_filter_type_' . $type, file: 'ManageMembers') : '?',
 					'selected' => $type == $this->current_filter,
 				];
 			}
@@ -796,11 +796,11 @@ class Members implements ActionInterface
 
 		// The columns that can be sorted.
 		Utils::$context['columns'] = [
-			'id_member' => ['label' => Lang::$txt['admin_browse_id']],
-			'member_name' => ['label' => Lang::$txt['admin_browse_username']],
-			'email_address' => ['label' => Lang::$txt['admin_browse_email']],
-			'member_ip' => ['label' => Lang::$txt['admin_browse_ip']],
-			'date_registered' => ['label' => Lang::$txt['admin_browse_registered']],
+			'id_member' => ['label' => Lang::getTxt('admin_browse_id', file: 'ManageMembers')],
+			'member_name' => ['label' => Lang::getTxt('admin_browse_username', file: 'ManageMembers')],
+			'email_address' => ['label' => Lang::getTxt('admin_browse_email', file: 'ManageMembers')],
+			'member_ip' => ['label' => Lang::getTxt('admin_browse_ip', file: 'ManageMembers')],
+			'date_registered' => ['label' => Lang::getTxt('admin_browse_registered', file: 'ManageMembers')],
 		];
 
 		// Are we showing duplicate information?
@@ -815,31 +815,31 @@ class Members implements ActionInterface
 			// If we are approving deleted accounts we have a slightly different list... actually a mirror ;)
 			if (in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 				$allowed_actions = [
-					'reject' => Lang::$txt['admin_browse_w_approve_deletion'],
-					'ok' => Lang::$txt['admin_browse_w_reject'],
+					'reject' => Lang::getTxt('admin_browse_w_approve_deletion', file: 'ManageMembers'),
+					'ok' => Lang::getTxt('admin_browse_w_reject', file: 'ManageMembers'),
 				];
 			} else {
 				$allowed_actions = [
-					'ok' => Lang::$txt['admin_browse_w_approve'],
-					'okemail' => Lang::$txt['admin_browse_w_approve_send_email'],
-					'require_activation' => Lang::$txt['admin_browse_w_approve_require_activate'],
-					'reject' => Lang::$txt['admin_browse_w_reject'],
-					'rejectemail' => Lang::$txt['admin_browse_w_reject_send_email'],
+					'ok' => Lang::getTxt('admin_browse_w_approve', file: 'ManageMembers'),
+					'okemail' => Lang::getTxt('admin_browse_w_approve_send_email', file: 'ManageMembers'),
+					'require_activation' => Lang::getTxt('admin_browse_w_approve_require_activate', file: 'ManageMembers'),
+					'reject' => Lang::getTxt('admin_browse_w_reject', file: 'ManageMembers'),
+					'rejectemail' => Lang::getTxt('admin_browse_w_reject_send_email', file: 'ManageMembers'),
 				];
 			}
 		} elseif ($browse_type == 'activate') {
 			$allowed_actions = [
-				'ok' => Lang::$txt['admin_browse_w_activate'],
-				'okemail' => Lang::$txt['admin_browse_w_activate_send_email'],
-				'delete' => Lang::$txt['admin_browse_w_delete'],
-				'deleteemail' => Lang::$txt['admin_browse_w_delete_send_email'],
-				'remind' => Lang::$txt['admin_browse_w_remind_send_email'],
+				'ok' => Lang::getTxt('admin_browse_w_activate', file: 'ManageMembers'),
+				'okemail' => Lang::getTxt('admin_browse_w_activate_send_email', file: 'ManageMembers'),
+				'delete' => Lang::getTxt('admin_browse_w_delete', file: 'ManageMembers'),
+				'deleteemail' => Lang::getTxt('admin_browse_w_delete_send_email', file: 'ManageMembers'),
+				'remind' => Lang::getTxt('admin_browse_w_remind_send_email', file: 'ManageMembers'),
 			];
 		}
 
 		// Create an option list for actions allowed to be done with selected members.
 		$action_options = '
-				<option selected value="">' . Lang::$txt['admin_browse_with_selected'] . ':</option>
+				<option selected value="">' . Lang::getTxt('admin_browse_with_selected', file: 'ManageMembers') . ':</option>
 				<option value="" disabled>-----------------------------</option>';
 
 		foreach ($allowed_actions as $key => $desc) {
@@ -860,25 +860,25 @@ class Members implements ActionInterface
 		if (in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE])) {
 			$javascript .= '
 				if (document.forms.postForm.todo.value.indexOf("reject") != -1)
-					message = "' . Lang::$txt['admin_browse_w_delete'] . '";
+					message = "' . Lang::getTxt('admin_browse_w_delete', file: 'ManageMembers') . '";
 				else
-					message = "' . Lang::$txt['admin_browse_w_reject'] . '";';
+					message = "' . Lang::getTxt('admin_browse_w_reject', file: 'ManageMembers') . '";';
 		}
 		// Otherwise a nice standard message.
 		else {
 			$javascript .= '
 				if (document.forms.postForm.todo.value.indexOf("delete") != -1)
-					message = "' . Lang::$txt['admin_browse_w_delete'] . '";
+					message = "' . Lang::getTxt('admin_browse_w_delete', file: 'ManageMembers') . '";
 				else if (document.forms.postForm.todo.value.indexOf("reject") != -1)
-					message = "' . Lang::$txt['admin_browse_w_reject'] . '";
+					message = "' . Lang::getTxt('admin_browse_w_reject', file: 'ManageMembers') . '";
 				else if (document.forms.postForm.todo.value == "remind")
-					message = "' . Lang::$txt['admin_browse_w_remind'] . '";
+					message = "' . Lang::getTxt('admin_browse_w_remind', file: 'ManageMembers') . '";
 				else
-					message = "' . ($browse_type == 'approve' ? Lang::$txt['admin_browse_w_approve'] : Lang::$txt['admin_browse_w_activate']) . '";';
+					message = "' . Lang::getTxt($browse_type == 'approve' ? 'admin_browse_w_approve' : 'admin_browse_w_activate', file: 'ManageMembers') . '";';
 		}
 
 		$javascript .= '
-				if (confirm(message + " ' . Lang::$txt['admin_browse_warn'] . '"))
+				if (confirm(message + " ' . Lang::getTxt('admin_browse_warn', file: 'ManageMembers') . '"))
 					document.forms.postForm.submit();
 			}';
 
@@ -996,7 +996,7 @@ class Members implements ActionInterface
 				],
 				'duplicates' => [
 					'header' => [
-						'value' => Lang::$txt['duplicates'],
+						'value' => Lang::getTxt('duplicates', file: 'ManageMembers'),
 						// Make sure it doesn't go too wide.
 						'style' => 'width: 20%;',
 					],
@@ -1047,7 +1047,7 @@ class Members implements ActionInterface
 				[
 					'position' => 'below_table_data',
 					'value' => '
-						<a href="' . Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;showdupes=' . ($show_duplicates ? 0 : 1) . ';type=' . $browse_type . (!empty($show_filter) ? ';filter=' . $this->current_filter : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" class="button floatnone">' . ($show_duplicates ? Lang::$txt['dont_check_for_duplicate'] : Lang::$txt['check_for_duplicate']) . '</a>
+						<a href="' . Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;showdupes=' . ($show_duplicates ? 0 : 1) . ';type=' . $browse_type . (!empty($show_filter) ? ';filter=' . $this->current_filter : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" class="button floatnone">' . Lang::getTxt($show_duplicates ? 'dont_check_for_duplicate' : 'check_for_duplicate', file: 'ManageMembers') . '</a>
 						<select name="todo" onchange="onSelectChange();">
 							' . $action_options . '
 						</select>
@@ -1083,7 +1083,7 @@ class Members implements ActionInterface
 		// Is there any need to show filters?
 		if (isset($available_filters) && count($available_filters) > 1) {
 			$filterOptions = '
-				<strong>' . Lang::$txt['admin_browse_filter_by'] . ':</strong>
+				<strong>' . Lang::getTxt('admin_browse_filter_by', file: 'ManageMembers') . ':</strong>
 				<select name="filter" onchange="this.form.submit();">';
 
 			foreach ($available_filters as $filter) {
@@ -1106,7 +1106,7 @@ class Members implements ActionInterface
 		if (!empty($show_filter) && !empty($available_filters)) {
 			$listOptions['additional_rows'][] = [
 				'position' => 'above_column_headers',
-				'value' => '<strong>' . Lang::$txt['admin_browse_filter_show'] . ':</strong> ' . ((isset($this->current_filter, Lang::$txt['admin_browse_filter_type_' . $this->current_filter])) ? Lang::$txt['admin_browse_filter_type_' . $this->current_filter] : $available_filters[0]['desc']),
+				'value' => '<strong>' . Lang::getTxt('admin_browse_filter_show', file: 'ManageMembers') . ':</strong> ' . (Lang::txtExists('admin_browse_filter_type_' . ($this->current_filter ?? ''), file: 'ManageMembers') ? Lang::getTxt('admin_browse_filter_type_' . $this->current_filter, file: 'ManageMembers') : $available_filters[0]['desc']),
 				'class' => 'filter_row generic_list_wrapper smalltext',
 			];
 		}

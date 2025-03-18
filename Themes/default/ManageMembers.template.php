@@ -179,7 +179,7 @@ function template_search_members()
 				<thead>
 					<tr class="title_bar">
 						<th scope="col">
-							', Lang::$txt['membergroups_postgroups'], '
+							', Lang::getTxt('membergroups_postgroups', file: 'ManageMembers'), '
 						</th>
 						<th class="quarter_table"></th>
 					</tr>
@@ -228,7 +228,7 @@ function template_admin_browse()
 		<br>
 		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=viewmembers" method="post" accept-charset="UTF-8" name="postFormOutstanding" id="postFormOutstanding" onsubmit="return onOutstandingSubmit();">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['admin_browse_outstanding'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('admin_browse_outstanding', file: 'ManageMembers'), '</h3>
 			</div>
 			<script>
 				function onOutstandingSubmit()
@@ -238,15 +238,15 @@ function template_admin_browse()
 
 					var message = "";
 					if (document.forms.postFormOutstanding.todo.value.indexOf("delete") != -1)
-						message = "', Lang::$txt['admin_browse_w_delete'], '";
+						message = "', Lang::getTxt('admin_browse_w_delete', file: 'ManageMembers'), '";
 					else if (document.forms.postFormOutstanding.todo.value.indexOf("reject") != -1)
-						message = "', Lang::$txt['admin_browse_w_reject'], '";
+						message = "', Lang::getTxt('admin_browse_w_reject', file: 'ManageMembers'), '";
 					else if (document.forms.postFormOutstanding.todo.value == "remind")
-						message = "', Lang::$txt['admin_browse_w_remind'], '";
+						message = "', Lang::getTxt('admin_browse_w_remind', file: 'ManageMembers'), '";
 					else
-						message = "', Utils::$context['browse_type'] == 'approve' ? Lang::$txt['admin_browse_w_approve'] : Lang::$txt['admin_browse_w_activate'], '";
+						message = "', Lang::getTxt(Utils::$context['browse_type'] == 'approve' ? 'admin_browse_w_approve' : 'admin_browse_w_activate', file: 'ManageMembers'), '";
 
-					if (confirm(message + " ', Lang::$txt['admin_browse_outstanding_warn'], '"))
+					if (confirm(message + " ', Lang::getTxt('admin_browse_outstanding_warn', file: 'ManageMembers'), '"))
 						return true;
 					else
 						return false;
@@ -262,27 +262,28 @@ function template_admin_browse()
 							'input' => '<input type="number" name="time_passed" value="14">',
 							'number' => 14,
 						],
+						file: 'ManageMembers',
 					), '
 				</p>
 				<dl class="settings">
 					<dt>
-						', Lang::$txt['admin_browse_outstanding_perform'], ':
+						', Lang::getTxt('admin_browse_outstanding_perform', file: 'ManageMembers'), ':
 					</dt>
 					<dd>
 						<select name="todo">
 							', Utils::$context['browse_type'] == 'activate' ? '
-							<option value="ok">' . Lang::$txt['admin_browse_w_activate'] . '</option>' : '', '
-							<option value="okemail">', Utils::$context['browse_type'] == 'approve' ? Lang::$txt['admin_browse_w_approve_send_email'] : Lang::$txt['admin_browse_w_activate_send_email'], '</option>', Utils::$context['browse_type'] == 'activate' ? '' : '
-							<option value="require_activation">' . Lang::$txt['admin_browse_w_approve_require_activate'] . '</option>', '
-							<option value="reject">', Lang::$txt['admin_browse_w_reject'], '</option>
-							<option value="rejectemail">', Lang::$txt['admin_browse_w_reject_send_email'], '</option>
-							<option value="delete">', Lang::$txt['admin_browse_w_delete'], '</option>
-							<option value="deleteemail">', Lang::$txt['admin_browse_w_delete_send_email'], '</option>', Utils::$context['browse_type'] == 'activate' ? '
-							<option value="remind">' . Lang::$txt['admin_browse_w_remind'] . '</option>' : '', '
+							<option value="ok">' . Lang::getTxt('admin_browse_w_activate', file: 'ManageMembers') . '</option>' : '', '
+							<option value="okemail">', Lang::getTxt(Utils::$context['browse_type'] == 'approve' ? 'admin_browse_w_approve_send_email' : 'admin_browse_w_activate_send_email', file: 'ManageMembers'), '</option>', Utils::$context['browse_type'] == 'activate' ? '' : '
+							<option value="require_activation">' . Lang::getTxt('admin_browse_w_approve_require_activate', file: 'ManageMembers') . '</option>', '
+							<option value="reject">', Lang::getTxt('admin_browse_w_reject', file: 'ManageMembers'), '</option>
+							<option value="rejectemail">', Lang::getTxt('admin_browse_w_reject_send_email', file: 'ManageMembers'), '</option>
+							<option value="delete">', Lang::getTxt('admin_browse_w_delete', file: 'ManageMembers'), '</option>
+							<option value="deleteemail">', Lang::getTxt('admin_browse_w_delete_send_email', file: 'ManageMembers'), '</option>', Utils::$context['browse_type'] == 'activate' ? '
+							<option value="remind">' . Lang::getTxt('admin_browse_w_remind', file: 'ManageMembers') . '</option>' : '', '
 						</select>
 					</dd>
 				</dl>
-				<input type="submit" value="', Lang::$txt['admin_browse_outstanding_go'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('admin_browse_outstanding_go', file: 'ManageMembers'), '" class="button">
 				<input type="hidden" name="type" value="', Utils::$context['browse_type'], '">
 				<input type="hidden" name="sort" value="', Utils::$context['approve_list']['sort']['id'], '">
 				<input type="hidden" name="start" value="', Utils::$context['approve_list']['start'], '">

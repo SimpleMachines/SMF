@@ -99,7 +99,7 @@ class Groups implements ActionInterface, Routable
 
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . $this->action_url,
-			'name' => Lang::$txt['groups'],
+			'name' => Lang::getTxt('groups', file: 'ManageMembers'),
 		];
 
 		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
@@ -114,7 +114,7 @@ class Groups implements ActionInterface, Routable
 	 */
 	public function index(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['viewing_groups'];
+		Utils::$context['page_title'] = Lang::getTxt('viewing_groups', file: 'ManageMembers');
 
 		// Use the standard templates for showing this.
 		$listOptions = [
@@ -161,7 +161,7 @@ class Groups implements ActionInterface, Routable
 				],
 				'icons' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_icons'],
+						'value' => Lang::getTxt('membergroups_icons', file: 'ManageMembers'),
 					],
 					'data' => [
 						'db' => 'icons',
@@ -177,18 +177,18 @@ class Groups implements ActionInterface, Routable
 					],
 					'data' => [
 						'function' => function ($group) {
-							return empty($group['moderators']) ? '<em>' . Lang::$txt['membergroups_new_copy_none'] . '</em>' : implode(', ', $group['moderators']);
+							return empty($group['moderators']) ? '<em>' . Lang::getTxt('membergroups_new_copy_none', file: 'ManageMembers') . '</em>' : implode(', ', $group['moderators']);
 						},
 					],
 				],
 				'members' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_members_top'],
+						'value' => Lang::getTxt('membergroups_members_top', file: 'ManageMembers'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
 							// No explicit members for the moderator group.
-							return $rowData['id_group'] == 3 ? Lang::$txt['membergroups_guests_na'] : Lang::numberFormat($rowData['num_members']);
+							return $rowData['id_group'] == 3 ? Lang::getTxt('membergroups_guests_na', file: 'ManageMembers') : Lang::numberFormat($rowData['num_members']);
 						},
 						'class' => 'centercol',
 					],
@@ -309,7 +309,7 @@ class Groups implements ActionInterface, Routable
 
 		// Select the template.
 		Utils::$context['sub_template'] = 'group_members';
-		Utils::$context['page_title'] = Lang::$txt['membergroups_members_title'] . ': ' . $group->name;
+		Utils::$context['page_title'] = Lang::getTxt('membergroups_members_title', file: 'ManageMembers') . ': ' . $group->name;
 		SecurityToken::create('mod-mgm');
 	}
 
