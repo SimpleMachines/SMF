@@ -539,6 +539,69 @@ class Lang
 	}
 
 	/**
+	 * Checks whether the specified language string exists.
+	 *
+	 * @param string|array $txt_key The key of the Lang::$txt array to check.
+	 *    If this is an array, each item of the array will be used as a sub-key
+	 *    to drill down into deeper levels of the overall array.
+	 * @param string $var Name of the array to search in. Default: 'txt'.
+	 *    Other possible values are 'helptxt', 'editortxt', and 'tztxt'.
+	 * @param ?string $file Name of a language file to load. This is not needed
+	 *    when $var is 'helptxt', 'editortxt', 'tztxt', or 'txtBirthdayEmails'.
+	 *    Default: null.
+	 * @param ?string $lang A specific language to load $file from. If empty,
+	 *    defaults to the current user's preferred language.
+	 * @throws \ValueError if $var is invalid.
+	 * @return string The string to display to the user.
+	 */
+	public static function txtExists(string|array $txt_key, string $var = 'txt', ?string $file = null, string $lang = ''): bool
+	{
+		// Validate $var.
+		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
+			throw new \ValueError();
+		}
+
+		// Can we guess the file based on $var?
+		if (!isset($file)) {
+			switch ($var) {
+				case 'tztxt':
+					$file = 'Timezones';
+					break;
+
+				case 'editortxt':
+					$file = 'Editor';
+					break;
+
+				case 'helptxt':
+					$file = 'Help';
+					break;
+
+				case 'txtBirthdayEmails':
+					$file = 'EmailTemplates';
+					break;
+			}
+		}
+
+		// Load the specified file.
+		if (is_string($file) && !isset(self::$already_loaded[$file])) {
+			self::load($file . (!str_contains($file, 'ThemeStrings') ? '+ThemeStrings' : '') . (!str_contains($file, 'Modifications') ? '+Modifications' : ''), $lang);
+		}
+
+		$target = &self::${$var};
+
+		// Drill down to the specified key.
+		foreach ((array) $txt_key as $key) {
+			if (isset($target[$key])) {
+				$target = &$target[$key];
+			} else {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * High level method that retrieves language strings, inserts any arguments
 	 * into them, and then returns the resulting finalized string.
 	 *
