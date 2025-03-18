@@ -375,7 +375,7 @@ class Post2 extends Post
 			$attach_errors = [];
 
 			if (!empty(Utils::$context['we_are_history'])) {
-				$attach_errors[] = '<dd>' . Lang::$txt['error_temp_attachments_flushed'] . '<br><br></dd>';
+				$attach_errors[] = '<dd>' . Lang::getTxt('error_temp_attachments_flushed', file: 'Post') . '<br><br></dd>';
 			}
 
 			foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
@@ -385,8 +385,8 @@ class Post2 extends Post
 
 				// If there was an initial error just show that message.
 				if ($attachID == 'initial_error') {
-					$attach_errors[] = '<dt>' . Lang::$txt['attach_no_upload'] . '</dt>';
-					$attach_errors[] = '<dd>' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</dd>';
+					$attach_errors[] = '<dt>' . Lang::getTxt('attach_no_upload', file: 'Post') . '</dt>';
+					$attach_errors[] = '<dd>' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1], file: 'Post') : Lang::getTxt($attachment, file: 'Post')) . '</dd>';
 
 					unset($_SESSION['temp_attachments']);
 
@@ -419,19 +419,19 @@ class Post2 extends Post
 
 				if (!empty($attachmentOptions['errors'])) {
 					// Sort out the errors for display and delete any associated files.
-					$attach_errors[] = '<dt>' . Lang::getTxt('attach_warning', $attachment) . '</dt>';
+					$attach_errors[] = '<dt>' . Lang::getTxt('attach_warning', $attachment, file: 'Post') . '</dt>';
 
 					$log_these = ['attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file'];
 
 					foreach ($attachmentOptions['errors'] as $error) {
 						if (!is_array($error)) {
-							$attach_errors[] = '<dd>' . Lang::$txt[$error] . '</dd>';
+							$attach_errors[] = '<dd>' . Lang::getTxt($error, ['path' => User::$me->is_admin ? (Utils::$context['attach_dir'] ?? '') : Lang::getTxt('hidden', file: 'General')], file: 'Post') . '</dd>';
 
 							if (in_array($error, $log_these)) {
-								ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
+								ErrorHandler::log($attachment['name'] . ': ' . Lang::getTxt($error, ['path' => User::$me->is_admin ? (Utils::$context['attach_dir'] ?? '') : Lang::getTxt('hidden', file: 'General')], file: 'Post'), 'critical');
 							}
 						} else {
-							$attach_errors[] = '<dd>' . Lang::getTxt($error[0], (array) $error[1]) . '</dd>';
+							$attach_errors[] = '<dd>' . Lang::getTxt($error[0], (array) $error[1], file: 'Post') . '</dd>';
 						}
 					}
 

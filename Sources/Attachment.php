@@ -927,7 +927,7 @@ class Attachment implements \ArrayAccess
 			$initial_error = Utils::$context['dir_creation_error'];
 		} elseif (!is_dir(Utils::$context['attach_dir'])) {
 			$initial_error = 'attach_folder_warning';
-			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', Utils::$context), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', Utils::$context, file: 'Post'), 'critical');
 		}
 
 		if (!isset($initial_error) && !isset(Utils::$context['attachments'])) {
@@ -977,7 +977,7 @@ class Attachment implements \ArrayAccess
 					}
 				}
 
-				Utils::$context['we_are_history'] = Lang::$txt['error_temp_attachments_flushed'];
+				Utils::$context['we_are_history'] = Lang::getTxt('error_temp_attachments_flushed', file: 'Post');
 				$_SESSION['temp_attachments'] = [];
 			}
 		}
@@ -1027,9 +1027,9 @@ class Attachment implements \ArrayAccess
 				if ($_FILES['attachment']['error'][$n] == 2) {
 					$errors[] = ['file_too_big', [Config::$modSettings['attachmentSizeLimit']]];
 				} elseif ($_FILES['attachment']['error'][$n] == 6) {
-					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::getTxt('php_upload_error_6', file: 'Post'), 'critical');
 				} else {
-					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::getTxt('php_upload_error_' . $_FILES['attachment']['error'][$n], file: 'Post'));
 				}
 
 				if (empty($errors)) {

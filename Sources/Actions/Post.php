@@ -899,7 +899,7 @@ class Post implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		if (!empty(Utils::$context['new_replies'])) {
-			Lang::$txt['error_new_replies'] = Lang::getTxt('error_new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), [Utils::$context['new_replies']]);
+			Lang::setTxt('error_new_replies', Lang::getTxt('error_new_replies' . (isset($_GET['last_msg']) ? '_reading' : ''), [Utils::$context['new_replies']], file: 'Post'));
 
 			$this->errors[] = 'new_replies';
 
@@ -1110,7 +1110,7 @@ class Post implements ActionInterface, Routable
 			}
 
 			if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg']) {
-				Utils::$context['post_error']['already_announced'] = Lang::$txt['error_topic_already_announced'];
+				Utils::$context['post_error']['already_announced'] = Lang::getTxt('error_topic_already_announced', file: 'Post');
 			}
 
 			if (!empty(Config::$modSettings['attachmentEnable'])) {
@@ -1197,7 +1197,7 @@ class Post implements ActionInterface, Routable
 		}
 
 		if (Utils::$context['can_announce'] && !empty($row['id_action']) && $row['id_first_msg'] == $_REQUEST['msg']) {
-			Utils::$context['post_error']['already_announced'] = Lang::$txt['error_topic_already_announced'];
+			Utils::$context['post_error']['already_announced'] = Lang::getTxt('error_topic_already_announced', file: 'Post');
 		}
 
 		// When was it last modified?
@@ -1404,7 +1404,7 @@ class Post implements ActionInterface, Routable
 
 							if (file_exists($attachment['tmp_name'])) {
 								$this->errors[] = 'temp_attachments_new';
-								Utils::$context['files_in_session_warning'] = Lang::$txt['attached_files_in_session'];
+								Utils::$context['files_in_session_warning'] = Lang::getTxt('attached_files_in_session', file: 'Post');
 								unset($_SESSION['temp_attachments']['post']['files']);
 								break;
 							}
@@ -1458,7 +1458,10 @@ class Post implements ActionInterface, Routable
 					}
 
 					if ($attachID == 'initial_error') {
-						Lang::$txt['error_attach_initial_error'] = Lang::$txt['attach_no_upload'] . '<div style="padding: 0 1em;">' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1]) : Lang::$txt[$attachment]) . '</div>';
+						Lang::setTxt(
+							'error_attach_initial_error',
+							Lang::getTxt('attach_no_upload', file: 'Post') . '<div style="padding: 0 1em;">' . (is_array($attachment) ? Lang::getTxt($attachment[0], (array) $attachment[1], file: 'Post') : Lang::getTxt($attachment, file: 'Post')) . '</div>',
+						);
 
 						$this->errors[] = 'attach_initial_error';
 
@@ -1471,10 +1474,10 @@ class Post implements ActionInterface, Routable
 					if (!empty($attachment['errors'])) {
 						Lang::$txt['error_attach_errors'] = empty(Lang::$txt['error_attach_errors']) ? '<br>' : '';
 
-						Lang::$txt['error_attach_errors'] .= Lang::getTxt('attach_warning', $attachment) . '<div style="padding: 0 1em;">';
+						Lang::$txt['error_attach_errors'] .= Lang::getTxt('attach_warning', $attachment, file: 'Post') . '<div style="padding: 0 1em;">';
 
 						foreach ($attachment['errors'] as $error) {
-							Lang::$txt['error_attach_errors'] .= (is_array($error) ? Lang::getTxt($error[0], (array) $error[1]) : Lang::$txt[$error]) . '<br >';
+							Lang::$txt['error_attach_errors'] .= (is_array($error) ? Lang::getTxt($error[0], (array) $error[1], file: 'Post') : Lang::getTxt($error, file: 'Post')) . '<br >';
 						}
 
 						Lang::$txt['error_attach_errors'] .= '</div>';
@@ -1502,7 +1505,7 @@ class Post implements ActionInterface, Routable
 					Utils::$context['attachments']['total_size'] += $attachment['size'];
 
 					if (!isset(Utils::$context['files_in_session_warning'])) {
-						Utils::$context['files_in_session_warning'] = Lang::$txt['attached_files_in_session'];
+						Utils::$context['files_in_session_warning'] = Lang::getTxt('attached_files_in_session', file: 'Post');
 					}
 
 					Utils::$context['current_attachments'][$attachID] = [
@@ -1561,13 +1564,28 @@ class Post implements ActionInterface, Routable
 				if (!empty(Config::$modSettings[$type])) {
 					Config::$modSettings[$type] = (int) Config::$modSettings[$type];
 
-					Utils::$context['attachment_restrictions'][$type] = Lang::getTxt('attach_restrict_' . $type, [round(Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type], 2), 'unit' => Config::$modSettings[$type] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']]);
+					Utils::$context['attachment_restrictions'][$type] = Lang::getTxt(
+						'attach_restrict_' . $type,
+						[
+							'size_with_unit' => Lang::getTxt(
+								Config::$modSettings[$type] >= 1024 ? 'size_megabyte' : 'size_kiobyte',
+								[
+									round(
+										Config::$modSettings[$type] >= 1024 ? Config::$modSettings[$type] / 1024 : Config::$modSettings[$type],
+										2,
+									),
+								],
+								file: 'General',
+							),
+						],
+						file: 'Post',
+					);
 
 					// Show the max number of attachments if not 0.
 					if ($type == 'attachmentNumPerPostLimit') {
-						Utils::$context['attachment_restrictions'][$type] .= ' (' . Lang::getTxt('attach_remaining', [max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)]) . ')';
+						Utils::$context['attachment_restrictions'][$type] .= ' (' . Lang::getTxt('attach_remaining', [max(Config::$modSettings['attachmentNumPerPostLimit'] - Utils::$context['attachments']['quantity'], 0)], file: 'Post') . ')';
 					} elseif ($type == 'attachmentPostLimit' && Utils::$context['attachments']['total_size'] > 0) {
-						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . Lang::getTxt('attach_available', [round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)]) . ')</span>';
+						Utils::$context['attachment_restrictions'][$type] .= '<span class="attach_available"> (' . Lang::getTxt('attach_available', [round(max(Config::$modSettings['attachmentPostLimit'] - (Utils::$context['attachments']['total_size'] / 1024), 0), 2)], file: 'Post') . ')</span>';
 					}
 				}
 			}
@@ -1605,23 +1623,23 @@ class Post implements ActionInterface, Routable
 			Theme::addInlineJavaScript('
 		$(function() {
 			smf_fileUpload({
-				dictDefaultMessage : ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_zone']) . ',
-				dictFallbackMessage : ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_zone_no']) . ',
+				dictDefaultMessage : ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone', file: 'Post')) . ',
+				dictFallbackMessage : ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone_no', file: 'Post')) . ',
 				dictCancelUpload : ' . Utils::escapeJavaScript(Lang::$txt['modify_cancel']) . ',
-				genericError: ' . Utils::escapeJavaScript(Lang::$txt['attach_php_error']) . ',
-				text_attachDropzoneLabel: ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_zone']) . ',
-				text_attachLimitNag: ' . Utils::escapeJavaScript(Lang::$txt['attach_limit_nag']) . ',
-				text_attachLeft: ' . Utils::escapeJavaScript(Lang::$txt['attachments_left']) . ',
-				text_deleteAttach: ' . Utils::escapeJavaScript(Lang::$txt['attached_file_delete']) . ',
-				text_attachDeleted: ' . Utils::escapeJavaScript(Lang::$txt['attached_file_deleted']) . ',
-				text_insertBBC: ' . Utils::escapeJavaScript(Lang::$txt['attached_insert_bbc']) . ',
-				text_attachUploaded: ' . Utils::escapeJavaScript(Lang::$txt['attached_file_uploaded']) . ',
-				text_attach_unlimited: ' . Utils::escapeJavaScript(Lang::$txt['attach_drop_unlimited']) . ',
-				text_totalMaxSize: ' . Utils::escapeJavaScript(Lang::$txt['attach_max_total_file_size_current']) . ',
+				genericError: ' . Utils::escapeJavaScript(Lang::getTxt('attach_php_error', file: 'Post')) . ',
+				text_attachDropzoneLabel: ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone', file: 'Post')) . ',
+				text_attachLimitNag: ' . Utils::escapeJavaScript(Lang::getTxt('attach_limit_nag', file: 'Post')) . ',
+				text_attachLeft: ' . Utils::escapeJavaScript(Lang::getTxt('attachments_left', file: 'Post')) . ',
+				text_deleteAttach: ' . Utils::escapeJavaScript(Lang::getTxt('attached_file_delete', file: 'Post')) . ',
+				text_attachDeleted: ' . Utils::escapeJavaScript(Lang::getTxt('attached_file_deleted', file: 'Post')) . ',
+				text_insertBBC: ' . Utils::escapeJavaScript(Lang::getTxt('attached_insert_bbc', file: 'Post')) . ',
+				text_attachUploaded: ' . Utils::escapeJavaScript(Lang::getTxt('attached_file_uploaded', file: 'Post')) . ',
+				text_attach_unlimited: ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_unlimited', file: 'Post')) . ',
+				text_totalMaxSize: ' . Utils::escapeJavaScript(Lang::getTxt('attach_max_total_file_size_current', file: 'Post')) . ',
 				text_max_size_progress: ' . Utils::escapeJavaScript('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte'])) . ',
-				dictMaxFilesExceeded: ' . Utils::escapeJavaScript(Lang::$txt['more_attachments_error']) . ',
-				dictInvalidFileType: ' . Utils::escapeJavaScript(Lang::getTxt('cant_upload_type', Utils::$context)) . ',
-				dictFileTooBig: ' . Utils::escapeJavaScript(Lang::getTxt('file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)])) . ',
+				dictMaxFilesExceeded: ' . Utils::escapeJavaScript(Lang::getTxt('more_attachments_error', file: 'Post')) . ',
+				dictInvalidFileType: ' . Utils::escapeJavaScript(Lang::getTxt('cant_upload_type', Utils::$context, file: 'Post')) . ',
+				dictFileTooBig: ' . Utils::escapeJavaScript(Lang::getTxt('file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)], file: 'Post')) . ',
 				acceptedFiles: ' . Utils::escapeJavaScript($acceptedFiles) . ',
 				thumbnailWidth: ' . (!empty(Config::$modSettings['attachmentThumbWidth']) ? Config::$modSettings['attachmentThumbWidth'] : 'null') . ',
 				thumbnailHeight: ' . (!empty(Config::$modSettings['attachmentThumbHeight']) ? Config::$modSettings['attachmentThumbHeight'] : 'null') . ',
@@ -1671,14 +1689,14 @@ class Post implements ActionInterface, Routable
 			if (is_array($post_error)) {
 				$post_error_id = $post_error[0];
 
-				Utils::$context['post_error'][$post_error_id] = Lang::getTxt('error_' . $post_error_id, (array) $post_error[1]);
+				Utils::$context['post_error'][$post_error_id] = Lang::getTxt('error_' . $post_error_id, (array) $post_error[1], file: 'Errors+Post');
 
 				// If it's not a minor error flag it as such.
 				if (!in_array($post_error_id, $this->minor_errors)) {
 					Utils::$context['error_type'] = 'serious';
 				}
 			} else {
-				Utils::$context['post_error'][$post_error] = Lang::$txt['error_' . $post_error];
+				Utils::$context['post_error'][$post_error] = Lang::getTxt('error_' . $post_error, file: 'Errors+Post');
 
 				// If it's not a minor error flag it as such.
 				if (!in_array($post_error, $this->minor_errors)) {
@@ -1704,7 +1722,7 @@ class Post implements ActionInterface, Routable
 		} elseif (empty(Topic::$info->id)) {
 			Utils::$context['page_title'] = Lang::$txt['start_new_topic'];
 		} else {
-			Utils::$context['page_title'] = Lang::$txt['post_reply'];
+			Utils::$context['page_title'] = Lang::getTxt('post_reply', file: 'Post');
 		}
 	}
 
@@ -1827,7 +1845,7 @@ class Post implements ActionInterface, Routable
 
 			Utils::$context['posting_fields']['foo'] = array(
 				'label' => array(
-					'text' => Lang::$txt['foo'], // required
+					'text' => Lang::getTxt('foo'), // required
 					'class' => 'foo', // optional
 				),
 				'input' => array(
@@ -1842,7 +1860,7 @@ class Post implements ActionInterface, Routable
 
 			Utils::$context['posting_fields']['bar'] = array(
 				'label' => array(
-					'text' => Lang::$txt['bar'], // required
+					'text' => Lang::getTxt('bar'), // required
 					'class' => 'bar', // optional
 				),
 				'input' => array(
@@ -1852,25 +1870,25 @@ class Post implements ActionInterface, Routable
 					),
 					'options' => array(
 						'option_1' => array(
-							'label' => Lang::$txt['option_1'],
+							'label' => Lang::getTxt('option_1'),
 							'value' => '1',
 							'selected' => true,
 						),
 						'option_2' => array(
-							'label' => Lang::$txt['option_2'],
+							'label' => Lang::getTxt('option_2'),
 							'value' => '2',
 							'selected' => false,
 						),
 						'opt_group_1' => array(
-							'label' => Lang::$txt['opt_group_1'],
+							'label' => Lang::getTxt('opt_group_1'),
 							'options' => array(
 								'option_3' => array(
-									'label' => Lang::$txt['option_3'],
+									'label' => Lang::getTxt('option_3'),
 									'value' => '3',
 									'selected' => false,
 								),
 								'option_4' => array(
-									'label' => Lang::$txt['option_4'],
+									'label' => Lang::getTxt('option_4'),
 									'value' => '4',
 									'selected' => false,
 								),
@@ -1882,7 +1900,7 @@ class Post implements ActionInterface, Routable
 
 			Utils::$context['posting_fields']['baz'] = array(
 				'label' => array(
-					'text' => Lang::$txt['baz'], // required
+					'text' => Lang::getTxt('baz'), // required
 					'class' => 'baz', // optional
 				),
 				'input' => array(
@@ -1892,12 +1910,12 @@ class Post implements ActionInterface, Routable
 					),
 					'options' => array(
 						'option_1' => array(
-							'label' => Lang::$txt['option_1'],
+							'label' => Lang::getTxt('option_1'),
 							'value' => '1',
 							'selected' => true,
 						),
 						'option_2' => array(
-							'label' => Lang::$txt['option_2'],
+							'label' => Lang::getTxt('option_2'),
 							'value' => '2',
 							'selected' => false,
 						),

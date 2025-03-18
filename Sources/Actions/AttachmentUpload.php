@@ -279,7 +279,7 @@ class AttachmentUpload implements ActionInterface, Routable
 		elseif (!is_dir($this->_attchDir)) {
 			$this->_generalErrors[] = 'attach_folder_warning';
 
-			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', ['attach_dir' => $this->_attchDir]), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', ['attach_dir' => $this->_attchDir], file: 'Post'), 'critical');
 		}
 
 		// If this isn't a new post, check the current attachments.
@@ -336,12 +336,12 @@ class AttachmentUpload implements ActionInterface, Routable
 				if ($_FILES['attachment']['error'][$n] == 2) {
 					$errors[] = ['file_too_big', [Config::$modSettings['attachmentSizeLimit']]];
 				} else {
-					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::getTxt('php_upload_error_' . $_FILES['attachment']['error'][$n], file: 'Post'));
 				}
 
 				// Log this one, because...
 				if ($_FILES['attachment']['error'][$n] == 6) {
-					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::getTxt('php_upload_error_6', file: 'Post'), 'critical');
 				}
 
 				// Weird, no errors were cached, still fill out a generic one.
@@ -462,16 +462,16 @@ class AttachmentUpload implements ActionInterface, Routable
 				$log_these = ['attachments_no_create', 'attachments_no_write', 'attach_timeout', 'ran_out_of_space', 'cant_access_upload_path', 'attach_0_byte_file'];
 
 				foreach ($attachment['errors'] as $error) {
-					$attachmentOptions['errors'][] = Lang::getTxt('attach_warning', $attachment);
+					$attachmentOptions['errors'][] = Lang::getTxt('attach_warning', $attachment, file: 'Post');
 
 					if (!is_array($error)) {
-						$attachmentOptions['errors'][] = Lang::$txt[$error];
+						$attachmentOptions['errors'][] = Lang::getTxt($error, file: 'Post');
 
 						if (in_array($error, $log_these)) {
-							ErrorHandler::log($attachment['name'] . ': ' . Lang::$txt[$error], 'critical');
+							ErrorHandler::log($attachment['name'] . ': ' . Lang::getTxt($error, ['path' => User::$me->is_admin ? $this->_attchDir : Lang::getTxt('hidden', file: 'General')], file: 'Post'), 'critical');
 						}
 					} else {
-						$attachmentOptions['errors'][] = Lang::getTxt($error[0], (array) $error[1]);
+						$attachmentOptions['errors'][] = Lang::getTxt($error[0], (array) $error[1], file: 'Post');
 					}
 				}
 
@@ -523,7 +523,7 @@ class AttachmentUpload implements ActionInterface, Routable
 			// Is there any generic errors? made some sense out of them!
 			if ($this->_generalErrors) {
 				foreach ($this->_generalErrors as $k => $v) {
-					$this->_generalErrors[$k] = (is_array($v) ? Lang::getTxt($v[0], (array) $v[1]) : Lang::$txt[$v]);
+					$this->_generalErrors[$k] = is_array($v) ? Lang::getTxt($v[0], (array) $v[1], file: 'Post') : Lang::getTxt($v, file: 'Post');
 				}
 			}
 
@@ -541,8 +541,8 @@ class AttachmentUpload implements ActionInterface, Routable
 		}
 		// Rest of us mere mortals gets no special treatment...
 		elseif (!empty($data)) {
-			if (!empty($data['text']) && !empty(Lang::$txt[$data['text']])) {
-				$this->_response['text'] = Lang::$txt[$data['text']];
+			if (!empty($data['text']) && Lang::txtExists($data['text'], file: 'Post')) {
+				$this->_response['text'] = Lang::getTxt($data['text'], file: 'Post');
 			}
 		}
 	}

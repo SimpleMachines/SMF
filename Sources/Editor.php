@@ -279,19 +279,58 @@ class Editor implements \ArrayAccess
 			Lang::load('Post');
 
 			$icons = [
-				['value' => 'xx', 'name' => Lang::$txt['standard']],
-				['value' => 'thumbup', 'name' => Lang::$txt['thumbs_up']],
-				['value' => 'thumbdown', 'name' => Lang::$txt['thumbs_down']],
-				['value' => 'exclamation', 'name' => Lang::$txt['exclamation_point']],
-				['value' => 'question', 'name' => Lang::$txt['question_mark']],
-				['value' => 'lamp', 'name' => Lang::$txt['lamp']],
-				['value' => 'smiley', 'name' => Lang::$txt['icon_smiley']],
-				['value' => 'angry', 'name' => Lang::$txt['icon_angry']],
-				['value' => 'cheesy', 'name' => Lang::$txt['icon_cheesy']],
-				['value' => 'grin', 'name' => Lang::$txt['icon_grin']],
-				['value' => 'sad', 'name' => Lang::$txt['icon_sad']],
-				['value' => 'wink', 'name' => Lang::$txt['icon_wink']],
-				['value' => 'poll', 'name' => Lang::$txt['icon_poll']],
+				[
+					'value' => 'xx',
+					'name' => Lang::getTxt('standard', file: 'Post'),
+				],
+				[
+					'value' => 'thumbup',
+					'name' => Lang::getTxt('thumbs_up', file: 'Post'),
+				],
+				[
+					'value' => 'thumbdown',
+					'name' => Lang::getTxt('thumbs_down', file: 'Post'),
+				],
+				[
+					'value' => 'exclamation',
+					'name' => Lang::getTxt('exclamation_point', file: 'Post'),
+				],
+				[
+					'value' => 'question',
+					'name' => Lang::getTxt('question_mark', file: 'Post'),
+				],
+				[
+					'value' => 'lamp',
+					'name' => Lang::getTxt('lamp', file: 'Post'),
+				],
+				[
+					'value' => 'smiley',
+					'name' => Lang::$txt['icon_smiley'],
+				],
+				[
+					'value' => 'angry',
+					'name' => Lang::$txt['icon_angry'],
+				],
+				[
+					'value' => 'cheesy',
+					'name' => Lang::$txt['icon_cheesy'],
+				],
+				[
+					'value' => 'grin',
+					'name' => Lang::$txt['icon_grin'],
+				],
+				[
+					'value' => 'sad',
+					'name' => Lang::$txt['icon_sad'],
+				],
+				[
+					'value' => 'wink',
+					'name' => Lang::$txt['icon_wink'],
+				],
+				[
+					'value' => 'poll',
+					'name' => Lang::getTxt('icon_poll', file: 'Post'),
+				],
 			];
 
 			foreach ($icons as $k => $dummy) {
@@ -405,7 +444,7 @@ class Editor implements \ArrayAccess
 		var bbc_quote = \'' . addcslashes(Lang::$txt['quote'], "'") . '\';
 		var bbc_search_on = \'' . addcslashes(Lang::$txt['search_on'], "'") . '\';');
 
-		Utils::$context['shortcuts_text'] = Lang::$txt['shortcuts' . (!empty(Utils::$context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (BrowserDetector::isBrowser('is_firefox') ? '_firefox' : ''))];
+		Utils::$context['shortcuts_text'] = Lang::getTxt('shortcuts' . (!empty(Utils::$context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (BrowserDetector::isBrowser('is_firefox') ? '_firefox' : '')), file: 'Post');
 
 		if (Utils::$context['show_spellchecking']) {
 			Theme::loadJavaScriptFile('spellcheck.js', ['minimize' => true], 'smf_spellcheck');

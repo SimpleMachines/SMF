@@ -89,7 +89,7 @@ class Announce implements ActionInterface, Routable
 		Lang::load('Post');
 		Theme::loadTemplate('Post');
 
-		Utils::$context['page_title'] = Lang::$txt['announce_topic'];
+		Utils::$context['page_title'] = Lang::getTxt('announce_topic', file: 'Post');
 
 		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 

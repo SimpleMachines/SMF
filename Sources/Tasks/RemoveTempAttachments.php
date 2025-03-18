@@ -53,9 +53,9 @@ class RemoveTempAttachments extends ScheduledTask
 				Theme::loadEssential();
 				Lang::load('Post');
 
-				Utils::$context['scheduled_errors']['remove_temp_attachments'][] = Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir]);
+				Utils::$context['scheduled_errors']['remove_temp_attachments'][] = Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir], file: 'Post');
 
-				ErrorHandler::log(Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir]), 'critical');
+				ErrorHandler::log(Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir], file: 'Post'), 'critical');
 
 				return true;
 			}

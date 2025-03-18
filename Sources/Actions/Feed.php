@@ -1002,7 +1002,7 @@ class Feed implements ActionInterface, Routable
 					foreach ($loaded_attachments as $attachment) {
 						$attachments[] = [
 							'tag' => 'attachment',
-							'attributes' => ['label' => Lang::$txt['attachment']],
+							'attributes' => ['label' => Lang::getTxt('attachment', file: 'Post')],
 							'content' => [
 								[
 									'tag' => 'id',
@@ -1119,7 +1119,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'attachments',
-							'attributes' => ['label' => Lang::$txt['attachments']],
+							'attributes' => ['label' => Lang::getTxt('attachments', file: 'Post')],
 							'content' => $attachments,
 						],
 					],
@@ -1446,7 +1446,7 @@ class Feed implements ActionInterface, Routable
 					foreach ($loaded_attachments as $attachment) {
 						$attachments[] = [
 							'tag' => 'attachment',
-							'attributes' => ['label' => Lang::$txt['attachment']],
+							'attributes' => ['label' => Lang::getTxt('attachment', file: 'Post')],
 							'content' => [
 								[
 									'tag' => 'id',
@@ -1600,7 +1600,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'attachments',
-							'attributes' => ['label' => Lang::$txt['attachments']],
+							'attributes' => ['label' => Lang::getTxt('attachments', file: 'Post')],
 							'content' => $attachments,
 						],
 					],
@@ -2205,7 +2205,7 @@ class Feed implements ActionInterface, Routable
 					foreach ($loaded_attachments as $attachment) {
 						$attachments[] = [
 							'tag' => 'attachment',
-							'attributes' => ['label' => Lang::$txt['attachment']],
+							'attributes' => ['label' => Lang::getTxt('attachment', file: 'Post')],
 							'content' => [
 								[
 									'tag' => 'id',
@@ -2238,7 +2238,7 @@ class Feed implements ActionInterface, Routable
 								],
 								[
 									'tag' => 'approval_status',
-									'attributes' => $show_all ? ['label' => Lang::$txt['approval_status']] : null,
+									'attributes' => $show_all ? ['label' => Lang::getTxt('approval_status', file: 'Post')] : null,
 									'content' => $show_all ? $attachment->approved : null,
 								],
 							],
@@ -2375,12 +2375,12 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'approval_status',
-							'attributes' => $show_all ? ['label' => Lang::$txt['approval_status']] : null,
+							'attributes' => $show_all ? ['label' => Lang::getTxt('approval_status', file: 'Post')] : null,
 							'content' => $show_all ? $row['approved'] : null,
 						],
 						[
 							'tag' => 'attachments',
-							'attributes' => ['label' => Lang::$txt['attachments']],
+							'attributes' => ['label' => Lang::getTxt('attachments', file: 'Post')],
 							'content' => $attachments,
 						],
 					],

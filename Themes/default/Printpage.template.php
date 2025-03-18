@@ -166,8 +166,8 @@ function template_main()
 		foreach (Utils::$context['poll']['options'] as $option)
 			echo '
 					<div>
-						', Lang::getTxt('option_number', [$options++]), ': <strong>', $option['option'], '</strong>
-						', Utils::$context['allow_results_view'] ? Lang::getTxt('number_of_votes', [$option['votes']]) : '', '
+						', Lang::getTxt('option_number', [$options++], file: 'Post'), ': <strong>', $option['option'], '</strong>
+						', Utils::$context['allow_results_view'] ? Lang::getTxt('number_of_votes', [$option['votes']], file: 'Post') : '', '
 					</div>';
 
 		echo '

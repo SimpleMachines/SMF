@@ -61,7 +61,7 @@ function template_main()
 				pollOptionNum++
 				pollOptionId++
 
-				setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" >', strtr(Lang::getTxt('option_number', [999]), ['999' => '\' + pollOptionNum + \'']), '</label></dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p>\');
+				setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" >', strtr(Lang::getTxt('option_number', [999], file: 'Post'), ['999' => '\' + pollOptionNum + \'']), '</label></dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p>\');
 			}';
 
 	// If we are making a calendar event we want to ensure we show the current days in a month etc... this is done here.
@@ -72,7 +72,7 @@ function template_main()
 	// End of the javascript, start the form and display the link tree.
 	echo '
 		</script>
-		<form action="', Config::$scripturl, '?action=', Utils::$context['destination'], ';', empty(Utils::$context['current_board']) ? '' : 'board=' . Utils::$context['current_board'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="', (Utils::$context['becomes_approved'] ? '' : 'alert(\'' . Lang::$txt['js_post_will_require_approval'] . '\');'), 'submitonce(this);" enctype="multipart/form-data">';
+		<form action="', Config::$scripturl, '?action=', Utils::$context['destination'], ';', empty(Utils::$context['current_board']) ? '' : 'board=' . Utils::$context['current_board'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="', (Utils::$context['becomes_approved'] ? '' : 'alert(\'' . Lang::getTxt('js_post_will_require_approval', file: 'Post') . '\');'), 'submitonce(this);" enctype="multipart/form-data">';
 
 	// If the user wants to see how their message looks - the preview section is where it's at!
 	echo '
@@ -127,7 +127,7 @@ function template_main()
 	if (!empty(Utils::$context['locked']))
 		echo '
 					<div class="errorbox">
-						', Lang::$txt['topic_locked_no_reply'], '
+						', Lang::getTxt('topic_locked_no_reply', file: 'Post'), '
 					</div>';
 
 	if (!empty(Config::$modSettings['drafts_post_enabled']))
@@ -174,7 +174,7 @@ function template_main()
 		foreach (Utils::$context['choices'] as $choice)
 			echo '
 								<dt>
-									<label for="options-', $choice['id'], '">', Lang::getTxt('option_number', [$choice['number']]), '</label>
+									<label for="options-', $choice['id'], '">', Lang::getTxt('option_number', [$choice['number']], file: 'Post'), '</label>
 								</dt>
 								<dd>
 									<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="255">
@@ -183,26 +183,26 @@ function template_main()
 		echo '
 								<p id="pollMoreOptions"></p>
 							</dl>
-							<strong><a href="javascript:addPollOption(); void(0);">(', Lang::$txt['poll_add_option'], ')</a></strong>
+							<strong><a href="javascript:addPollOption(); void(0);">(', Lang::getTxt('poll_add_option', file: 'Post'), ')</a></strong>
 						</fieldset>
 						<fieldset id="poll_options">
-							<legend>', Lang::$txt['poll_options'], '</legend>
+							<legend>', Lang::getTxt('poll_options', file: 'Post'), '</legend>
 							<dl class="settings poll_options">
 								<dt>
-									<label for="poll_max_votes">', Lang::$txt['poll_max_votes'], '</label>
+									<label for="poll_max_votes">', Lang::getTxt('poll_max_votes', file: 'Post'), '</label>
 								</dt>
 								<dd>
 									<input type="number" name="poll_max_votes" id="poll_max_votes" min="1" value="', Utils::$context['poll_options']['max_votes'], '">
 								</dd>
 								<dt>
-									<label for="poll_expire">', Lang::$txt['poll_run'], '</label><br>
-									<em class="smalltext">', Lang::$txt['poll_run_limit'], '</em>
+									<label for="poll_expire">', Lang::getTxt('poll_run', file: 'Post'), '</label><br>
+									<em class="smalltext">', Lang::getTxt('poll_run_limit', file: 'Post'), '</em>
 								</dt>
 								<dd>
 									<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll_options']['expire'] ?? 0), '" onchange="pollOptions();">
 								</dd>
 								<dt>
-									<label for="poll_change_vote">', Lang::$txt['poll_do_change_vote'], '</label>
+									<label for="poll_change_vote">', Lang::getTxt('poll_do_change_vote', file: 'Post'), '</label>
 								</dt>
 								<dd>
 									<input type="checkbox" id="poll_change_vote" name="poll_change_vote"', !empty(Utils::$context['poll']['change_vote']) ? ' checked' : '', '>
@@ -211,7 +211,7 @@ function template_main()
 		if (Utils::$context['poll_options']['guest_vote_enabled'])
 			echo '
 								<dt>
-									<label for="poll_guest_vote">', Lang::$txt['poll_guest_vote'], '</label>
+									<label for="poll_guest_vote">', Lang::getTxt('poll_guest_vote', file: 'Post'), '</label>
 								</dt>
 								<dd>
 									<input type="checkbox" id="poll_guest_vote" name="poll_guest_vote"', !empty(Utils::$context['poll_options']['guest_vote']) ? ' checked' : '', '>
@@ -219,12 +219,12 @@ function template_main()
 
 		echo '
 								<dt>
-									', Lang::$txt['poll_results_visibility'], '
+									', Lang::getTxt('poll_results_visibility', file: 'Post'), '
 								</dt>
 								<dd>
-									<input type="radio" name="poll_hide" id="poll_results_anyone" value="0"', Utils::$context['poll_options']['hide'] == 0 ? ' checked' : '', '> <label for="poll_results_anyone">', Lang::$txt['poll_results_anyone'], '</label><br>
-									<input type="radio" name="poll_hide" id="poll_results_voted" value="1"', Utils::$context['poll_options']['hide'] == 1 ? ' checked' : '', '> <label for="poll_results_voted">', Lang::$txt['poll_results_voted'], '</label><br>
-									<input type="radio" name="poll_hide" id="poll_results_expire" value="2"', Utils::$context['poll_options']['hide'] == 2 ? ' checked' : '', empty(Utils::$context['poll_options']['expire']) ? ' disabled' : '', '> <label for="poll_results_expire">', Lang::$txt['poll_results_after'], '</label>
+									<input type="radio" name="poll_hide" id="poll_results_anyone" value="0"', Utils::$context['poll_options']['hide'] == 0 ? ' checked' : '', '> <label for="poll_results_anyone">', Lang::getTxt('poll_results_anyone', file: 'Post'), '</label><br>
+									<input type="radio" name="poll_hide" id="poll_results_voted" value="1"', Utils::$context['poll_options']['hide'] == 1 ? ' checked' : '', '> <label for="poll_results_voted">', Lang::getTxt('poll_results_voted', file: 'Post'), '</label><br>
+									<input type="radio" name="poll_hide" id="poll_results_expire" value="2"', Utils::$context['poll_options']['hide'] == 2 ? ' checked' : '', empty(Utils::$context['poll_options']['expire']) ? ' disabled' : '', '> <label for="poll_results_expire">', Lang::getTxt('poll_results_after', file: 'Post'), '</label>
 								</dd>
 							</dl>
 						</fieldset>
@@ -246,7 +246,7 @@ function template_main()
 							<div id="postAttachment">
 								<div class="padding">
 									<div>
-										<strong>', Lang::$txt['attachments'], '</strong>:';
+										<strong>', Lang::getTxt('attachments', file: 'Post'), '</strong>:';
 
 		if (Utils::$context['can_post_attachment'])
 			echo '
@@ -266,7 +266,7 @@ function template_main()
 		echo '
 									<div class="smalltext">
 										<input type="hidden" name="attach_del[]" value="0">
-										', Lang::$txt['uncheck_unwatchd_attach'], '
+										', Lang::getTxt('uncheck_unwatchd_attach', file: 'Post'), '
 									</div>
 								</div>
 								<div class="attachments">';
@@ -319,7 +319,7 @@ function template_main()
 						<div id="attachment_upload">
 							<div id="drop_zone_ui" class="centertext">
 								<div class="attach_drop_zone_label">
-									', Utils::$context['num_allowed_attachments'] <= count(Utils::$context['current_attachments']) ? Lang::$txt['attach_limit_nag'] : Lang::$txt['attach_drop_zone'], '
+									', Lang::getTxt(Utils::$context['num_allowed_attachments'] <= count(Utils::$context['current_attachments']) ? 'attach_limit_nag' : 'attach_drop_zone', file: 'Post'), '
 								</div>
 							</div>
 							<div class="files" id="attachment_previews">
@@ -329,12 +329,12 @@ function template_main()
 											<a data-dz-remove class="main_icons delete floatright cancel"></a>
 											<div class="attached_BBC_width_height">
 												<div class="attached_BBC_width">
-													<label for="attached_BBC_width">', Lang::$txt['attached_insert_width'], '</label>
-													<input type="number" name="attached_BBC_width" min="0" value="" placeholder="', Lang::$txt['attached_insert_placeholder'], '">
+													<label for="attached_BBC_width">', Lang::getTxt('attached_insert_width', file: 'Post'), '</label>
+													<input type="number" name="attached_BBC_width" min="0" value="" placeholder="', Lang::getTxt('attached_insert_placeholder', file: 'Post'), '">
 												</div>
 												<div class="attached_BBC_height">
-													<label for="attached_BBC_height">', Lang::$txt['attached_insert_height'], '</label>
-													<input type="number" name="attached_BBC_height" min="0" value="" placeholder="', Lang::$txt['attached_insert_placeholder'], '">
+													<label for="attached_BBC_height">', Lang::getTxt('attached_insert_height', file: 'Post'), '</label>
+													<input type="number" name="attached_BBC_height" min="0" value="" placeholder="', Lang::getTxt('attached_insert_placeholder', file: 'Post'), '">
 												</div>
 											</div>
 										</div>
@@ -354,7 +354,7 @@ function template_main()
 								</div><!-- #au-template -->
 								<div class="attachment_spacer">
 									<div class="fallback">
-											<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', Lang::$txt['clean_attach'], '</a>)';
+											<input type="file" multiple="multiple" name="attachment[]" id="attachment1" class="fallback"> (<a href="javascript:void(0);" onclick="cleanFileInput(\'attachment1\');">', Lang::getTxt('clean_attach', file: 'Post'), '</a>)';
 
 			if (!empty(Config::$modSettings['attachmentSizeLimit']))
 				echo '
@@ -379,7 +379,7 @@ function template_main()
 	if (!empty(Config::$modSettings['additional_options_collapsable']))
 		echo '
 					<div id="post_additional_options_header">
-						<strong><a href="#" id="postMoreExpandLink"> ', Lang::$txt['post_additionalopt'], '</a></strong>
+						<strong><a href="#" id="postMoreExpandLink"> ', Lang::getTxt('post_additionalopt', file: 'Post'), '</a></strong>
 					</div>';
 
 	echo '
@@ -389,14 +389,14 @@ function template_main()
 	echo '
 						<div id="post_settings" class="smalltext">
 							<ul class="post_options">
-								', Utils::$context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . (Utils::$context['notify'] || !empty(Theme::$current->options['auto_notify']) || Utils::$context['auto_notify'] ? ' checked' : '') . ' value="1"> ' . Lang::$txt['notify_replies'] . '</label></li>' : '', '
-								', Utils::$context['can_lock'] ? '<li><input type="hidden" name="already_locked" value="' . Utils::$context['already_locked'] . '"><input type="hidden" name="lock" value="0"><label for="check_lock"><input type="checkbox" name="lock" id="check_lock"' . (Utils::$context['locked'] ? ' checked' : '') . ' value="1"> ' . Lang::$txt['lock_topic'] . '</label></li>' : '', '
-								<li><label for="check_back"><input type="checkbox" name="goback" id="check_back"' . (Utils::$context['back_to_topic'] || !empty(Theme::$current->options['return_to_post']) ? ' checked' : '') . ' value="1"> ' . Lang::$txt['back_to_topic'] . '</label></li>
-								', Utils::$context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . Utils::$context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . (Utils::$context['sticky'] ? ' checked' : '') . ' value="1"> ' . Lang::$txt['sticky_after_posting'] . '</label></li>' : '', '
-								<li><label for="check_smileys"><input type="checkbox" name="ns" id="check_smileys"', Utils::$context['use_smileys'] ? '' : ' checked', ' value="NS"> ', Lang::$txt['dont_use_smileys'], '</label></li>', '
-								', Utils::$context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty(Utils::$context['move']) ? ' checked" ' : '') . '> ' . Lang::$txt['move_after_posting'] . '</label></li>' : '', '
-								', Utils::$context['can_announce'] && Utils::$context['is_first_post'] ? '<li><label for="check_announce"><input type="checkbox" name="announce_topic" id="check_announce" value="1"' . (!empty(Utils::$context['announce']) ? ' checked' : '') . '> ' . Lang::$txt['announce_topic'] . '</label></li>' : '', '
-								', Utils::$context['show_approval'] ? '<li><label for="approve"><input type="checkbox" name="approve" id="approve" value="2"' . (Utils::$context['show_approval'] === 2 ? ' checked' : '') . '> ' . Lang::$txt['approve_this_post'] . '</label></li>' : '', '
+								', Utils::$context['can_notify'] ? '<li><input type="hidden" name="notify" value="0"><label for="check_notify"><input type="checkbox" name="notify" id="check_notify"' . (Utils::$context['notify'] || !empty(Theme::$current->options['auto_notify']) || Utils::$context['auto_notify'] ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('notify_replies', file: 'Post') . '</label></li>' : '', '
+								', Utils::$context['can_lock'] ? '<li><input type="hidden" name="already_locked" value="' . Utils::$context['already_locked'] . '"><input type="hidden" name="lock" value="0"><label for="check_lock"><input type="checkbox" name="lock" id="check_lock"' . (Utils::$context['locked'] ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('lock_topic', file: 'Post') . '</label></li>' : '', '
+								<li><label for="check_back"><input type="checkbox" name="goback" id="check_back"' . (Utils::$context['back_to_topic'] || !empty(Theme::$current->options['return_to_post']) ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('back_to_topic', file: 'Post') . '</label></li>
+								', Utils::$context['can_sticky'] ? '<li><input type="hidden" name="already_sticky" value="' . Utils::$context['already_sticky'] . '"><input type="hidden" name="sticky" value="0"><label for="check_sticky"><input type="checkbox" name="sticky" id="check_sticky"' . (Utils::$context['sticky'] ? ' checked' : '') . ' value="1"> ' . Lang::getTxt('sticky_after_posting', file: 'Post') . '</label></li>' : '', '
+								<li><label for="check_smileys"><input type="checkbox" name="ns" id="check_smileys"', Utils::$context['use_smileys'] ? '' : ' checked', ' value="NS"> ', Lang::getTxt('dont_use_smileys', file: 'Post'), '</label></li>', '
+								', Utils::$context['can_move'] ? '<li><input type="hidden" name="move" value="0"><label for="check_move"><input type="checkbox" name="move" id="check_move" value="1"' . (!empty(Utils::$context['move']) ? ' checked" ' : '') . '> ' . Lang::getTxt('move_after_posting', file: 'Post') . '</label></li>' : '', '
+								', Utils::$context['can_announce'] && Utils::$context['is_first_post'] ? '<li><label for="check_announce"><input type="checkbox" name="announce_topic" id="check_announce" value="1"' . (!empty(Utils::$context['announce']) ? ' checked' : '') . '> ' . Lang::getTxt('announce_topic', file: 'Post') . '</label></li>' : '', '
+								', Utils::$context['show_approval'] ? '<li><label for="approve"><input type="checkbox" name="approve" id="approve" value="2"' . (Utils::$context['show_approval'] === 2 ? ' checked' : '') . '> ' . Lang::getTxt('approve_this_post', file: 'Post') . '</label></li>' : '', '
 							</ul>
 						</div><!-- #post_settings -->';
 
@@ -533,8 +533,8 @@ function template_main()
 				aSwapLinks: [
 					{
 						sId: \'postMoreExpandLink\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['post_additionalopt']), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['post_additionalopt']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('post_additionalopt', file: 'Post')), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('post_additionalopt', file: 'Post')), '
 					}
 				]
 			});';
@@ -712,21 +712,21 @@ function template_spellcheck()
 			<table width="100%">
 				<tr class="windowbg">
 					<td style="width: 50%; vertical-align: top">
-						', Lang::$txt['spellcheck_change_to'], '<br>
+						', Lang::getTxt('spellcheck_change_to', file: 'Post'), '<br>
 						<input type="text" name="changeto" style="width: 98%;">
 					</td>
 					<td style="width: 50%">
-						', Lang::$txt['spellcheck_suggest'], '<br>
+						', Lang::getTxt('spellcheck_suggest', file: 'Post'), '<br>
 						<select name="suggestions" style="width: 98%;" size="5" onclick="if (this.selectedIndex != -1) this.form.changeto.value = this.options[this.selectedIndex].text;" ondblclick="replaceWord();">
 						</select>
 					</td>
 				</tr>
 			</table>
 			<div class="righttext" style="padding: 4px;">
-				<input type="button" name="change" value="', Lang::$txt['spellcheck_change'], '" onclick="replaceWord();" class="button">
-				<input type="button" name="changeall" value="', Lang::$txt['spellcheck_change_all'], '" onclick="replaceAll();" class="button">
-				<input type="button" name="ignore" value="', Lang::$txt['spellcheck_ignore'], '" onclick="nextWord(false);" class="button">
-				<input type="button" name="ignoreall" value="', Lang::$txt['spellcheck_ignore_all'], '" onclick="nextWord(true);" class="button">
+				<input type="button" name="change" value="', Lang::getTxt('spellcheck_change', file: 'Post'), '" onclick="replaceWord();" class="button">
+				<input type="button" name="changeall" value="', Lang::getTxt('spellcheck_change_all', file: 'Post'), '" onclick="replaceAll();" class="button">
+				<input type="button" name="ignore" value="', Lang::getTxt('spellcheck_ignore', file: 'Post'), '" onclick="nextWord(false);" class="button">
+				<input type="button" name="ignoreall" value="', Lang::getTxt('spellcheck_ignore_all', file: 'Post'), '" onclick="nextWord(true);" class="button">
 			</div>
 		</form>
 	</body>
@@ -742,11 +742,11 @@ function template_quotefast()
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="UTF-8">
-		<title>', Lang::$txt['retrieving_quote'], '</title>
+		<title>', Lang::getTxt('retrieving_quote', file: 'Post'), '</title>
 		<script src="', Theme::$current->settings['default_theme_url'], '/scripts/script.js', Utils::$context['browser_cache'], '"></script>
 	</head>
 	<body>
-		', Lang::$txt['retrieving_quote'], '
+		', Lang::getTxt('retrieving_quote', file: 'Post'), '
 		<div id="temporary_posting_area" style="display: none;"></div>
 		<script>';
 
@@ -794,14 +794,14 @@ function template_announce()
 	<div id="announcement">
 		<form action="', Config::$scripturl, '?action=announce;sa=send" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['announce_title'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('announce_title', file: 'Post'), '</h3>
 			</div>
 			<div class="information">
-				', Lang::$txt['announce_desc'], '
+				', Lang::getTxt('announce_desc', file: 'Post'), '
 			</div>
 			<div class="windowbg">
 				<p>
-					', Lang::getTxt('announce_this_topic', ['subject' => '<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.0">' . Utils::$context['topic_subject'] . '</a>']), '
+					', Lang::getTxt('announce_this_topic', ['subject' => '<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.0">' . Utils::$context['topic_subject'] . '</a>'], file: 'Post'), '
 				</p>
 				<ul>';
 
@@ -841,15 +841,15 @@ function template_announcement_send()
 		<form action="', Config::$scripturl, '?action=announce;sa=send" method="post" accept-charset="UTF-8" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg">
 				<p>
-					', Lang::getTxt('announce_sending', ['subject' => '<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.0" target="_blank" rel="noopener">' . Utils::$context['topic_subject'] . '</a>']),'
+					', Lang::getTxt('announce_sending', ['subject' => '<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.0" target="_blank" rel="noopener">' . Utils::$context['topic_subject'] . '</a>'], file: 'Post'),'
 				</p>
 				<div class="progress_bar">
-					<span>', Lang::getTxt('announce_done', Utils::$context), '</span>
+					<span>', Lang::getTxt('announce_done', Utils::$context, file: 'Post'), '</span>
 					<div class="bar" style="width: ', Utils::$context['percentage_done'], '%;"></div>
 				</div>
 				<hr>
 				<div id="confirm_buttons">
-					<input type="submit" name="b" value="', Lang::$txt['announce_continue'], '" class="button">
+					<input type="submit" name="b" value="', Lang::getTxt('announce_continue', file: 'Post'), '" class="button">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="topic" value="', Utils::$context['current_topic'], '">
 					<input type="hidden" name="move" value="', Utils::$context['move'], '">
@@ -873,7 +873,7 @@ function template_announcement_send()
 			else if (countdown == -1)
 				return;
 
-			document.forms.autoSubmit.b.value = "', Lang::$txt['announce_continue'], ' (" + countdown + ")";
+			document.forms.autoSubmit.b.value = "', Lang::getTxt('announce_continue', file: 'Post'), ' (" + countdown + ")";
 			countdown--;
 
 			setTimeout("doAutoSubmit();", 1000);

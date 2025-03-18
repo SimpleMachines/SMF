@@ -66,8 +66,8 @@ $txt['js_post_will_require_approval'] = 'Reminder: This post will not appear unt
 $txt['enter_comment'] = 'Enter comment';
 $txt['report_submit'] = 'Submit';
 
-$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size {0, number} {unit}';
-$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size {0, number} {unit}';
+$txt['attach_restrict_attachmentPostLimit'] = 'maximum total size {size_with_unit}';
+$txt['attach_restrict_attachmentSizeLimit'] = 'maximum individual size {size_with_unit}';
 $txt['attach_restrict_attachmentNumPerPostLimit'] = '{0, number, integer} per post';
 $txt['attach_restrictions'] = 'Restrictions: {list}';
 
