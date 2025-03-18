@@ -345,7 +345,7 @@ class ReportedContent implements ActionInterface
 			'id' => 'moderation_actions_list',
 			'title' => Lang::getTxt('mc_modreport_modactions', file: 'ModerationCenter'),
 			'items_per_page' => 15,
-			'no_items_label' => Lang::$txt['modlog_no_entries_found'],
+			'no_items_label' => Lang::getTxt('modlog_no_entries_found', file: 'Modlog'),
 			'base_href' => Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=details;rid=' . Utils::$context['report']['id'],
 			'default_sort_col' => 'time',
 			'get_items' => [
@@ -360,7 +360,7 @@ class ReportedContent implements ActionInterface
 			'columns' => [
 				'action' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_action'],
+						'value' => Lang::getTxt('modlog_action', file: 'Modlog'),
 					],
 					'data' => [
 						'db' => 'action_text',
@@ -373,7 +373,7 @@ class ReportedContent implements ActionInterface
 				],
 				'time' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_date'],
+						'value' => Lang::getTxt('modlog_date', file: 'Modlog'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -386,7 +386,7 @@ class ReportedContent implements ActionInterface
 				],
 				'moderator' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_member'],
+						'value' => Lang::getTxt('modlog_member', file: 'Modlog'),
 					],
 					'data' => [
 						'db' => 'moderator_link',
@@ -399,7 +399,7 @@ class ReportedContent implements ActionInterface
 				],
 				'position' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_position'],
+						'value' => Lang::getTxt('modlog_position', file: 'Modlog'),
 					],
 					'data' => [
 						'db' => 'position',
@@ -412,7 +412,7 @@ class ReportedContent implements ActionInterface
 				],
 				'ip' => [
 					'header' => [
-						'value' => Lang::$txt['modlog_ip'],
+						'value' => Lang::getTxt('modlog_ip', file: 'Modlog'),
 					],
 					'data' => [
 						'db' => 'ip',

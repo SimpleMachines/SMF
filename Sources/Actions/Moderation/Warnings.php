@@ -245,9 +245,9 @@ class Warnings implements ActionInterface
 				[
 					'position' => 'below_table_data',
 					'value' => '
-						' . Lang::$txt['modlog_search'] . '
+						' . Lang::getTxt('modlog_search', file: 'Modlog') . '
 						<input type="text" name="search" size="18" value="' . Utils::htmlspecialchars(Utils::$context['search']['string']) . '">
-						<input type="submit" name="is_search" value="' . Lang::$txt['modlog_go'] . '" class="button">',
+						<input type="submit" name="is_search" value="' . Lang::getTxt('modlog_go', file: 'Modlog') . '" class="button">',
 					'class' => 'floatright',
 				],
 			],
