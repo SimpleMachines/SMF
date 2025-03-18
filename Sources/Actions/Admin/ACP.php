@@ -888,7 +888,7 @@ class ACP implements ActionInterface, Routable
 
 				Utils::$context['config_vars'][$config_var[1]] = [
 					'label' => $config_var['text_label'] ?? (Lang::txtExists($config_var[1], file: 'Admin') ? Lang::getTxt($config_var[1], file: 'Admin') : (isset($config_var[3]) && !is_array($config_var[3]) ? $config_var[3] : '')),
-					'help' => isset(Lang::$helptxt[$config_var[1]]) ? $config_var[1] : '',
+					'help' => Lang::txtExists($config_var[1], var: 'helptxt') ? $config_var[1] : '',
 					'type' => $config_var[0],
 					'size' => !empty($config_var['size']) ? $config_var['size'] : (!empty($config_var[2]) && !is_array($config_var[2]) ? $config_var[2] : (in_array($config_var[0], ['int', 'float']) ? 6 : 0)),
 					'data' => [],

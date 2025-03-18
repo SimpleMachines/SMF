@@ -48,7 +48,7 @@ function template_popup()
 	echo '
 			</ul>
 			<br class="clear">
-			<a href="javascript:self.close();">', Lang::$txt['close_window'], '</a>
+			<a href="javascript:self.close();">', Lang::getTxt('close_window', file: 'Help'), '</a>
 		</div><!-- .windowbg -->
 	</body>
 </html>';

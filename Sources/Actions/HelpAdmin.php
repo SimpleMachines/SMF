@@ -84,10 +84,10 @@ class HelpAdmin implements ActionInterface, Routable
 		IntegrationHook::call('integrate_helpadmin');
 
 		// What help string should be used?
-		if (isset(Lang::$helptxt[$_GET['help']])) {
-			Utils::$context['help_text'] = Lang::$helptxt[$_GET['help']];
-		} elseif (isset(Lang::$txt[$_GET['help']])) {
-			Utils::$context['help_text'] = Lang::$txt[$_GET['help']];
+		if (Lang::txtExists($_GET['help'], var: 'helptxt')) {
+			Utils::$context['help_text'] = Lang::getTxt($_GET['help'], var: 'helptxt');
+		} elseif (Lang::txtExists($_GET['help'])) {
+			Utils::$context['help_text'] = Lang::getTxt($_GET['help']);
 		} else {
 			ErrorHandler::fatalLang('not_found', false, [], 404);
 		}

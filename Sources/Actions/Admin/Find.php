@@ -280,7 +280,16 @@ class Find implements ActionInterface
 						'url' => (str_starts_with($item[1], 'area') ? Config::$scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ((str_starts_with($item[1], 'area') && $section == 'settings' ? '#' . $item[0][0] : '')),
 						'name' => $name,
 						'type' => $section,
-						'help' => Utils::shorten(isset($item[2]) ? strip_tags(Lang::$helptxt[$item[2]]) : (isset(Lang::$helptxt[$found]) ? strip_tags(Lang::$helptxt[$found]) : ''), 255),
+						'help' => Utils::shorten(
+							isset($item[2])
+							? strip_tags(Lang::getTxt($item[2], var: 'helptxt'))
+							: (
+								Lang::txtExists($found, var: 'helptxt')
+								? strip_tags(Lang::getTxt($found, var: 'helptxt'))
+								: ''
+							),
+							255,
+						),
 					];
 				}
 			}
