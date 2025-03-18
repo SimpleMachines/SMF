@@ -182,7 +182,7 @@ function template_login_tfa()
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', Lang::$txt['tfa_profile_label'], '
+					', Lang::getTxt('tfa_profile_label', file: 'Profile'), '
 				</h3>
 			</div>
 			<div class="roundframe">';
@@ -190,27 +190,27 @@ function template_login_tfa()
 	if (!empty(Utils::$context['tfa_error']) || !empty(Utils::$context['tfa_backup_error']))
 		echo '
 				<div class="error">
-					', Lang::$txt['tfa_' . (!empty(Utils::$context['tfa_error']) ? 'code_' : 'backup_') . 'invalid'], '
+					', Lang::getTxt('tfa_' . (!empty(Utils::$context['tfa_error']) ? 'code_' : 'backup_') . 'invalid', file: 'Profile'), '
 				</div>';
 
 	echo '
 				<form action="', Utils::$context['tfa_url'], '" method="post" id="frmTfa">
 					<div id="tfaCode">
-						<p style="margin-bottom: 0.5em">', Lang::$txt['tfa_login_desc'], '</p>
+						<p style="margin-bottom: 0.5em">', Lang::getTxt('tfa_login_desc', file: 'Profile'), '</p>
 						<div class="centertext">
-							<strong>', Lang::$txt['tfa_code'], '</strong>
+							<strong>', Lang::getTxt('tfa_code', file: 'Profile'), '</strong>
 							<input type="text" name="tfa_code" value="', !empty(Utils::$context['tfa_value']) ? Utils::$context['tfa_value'] : '', '">
 							<input type="submit" class="button" name="submit" value="', Lang::$txt['login'], '">
 						</div>
 						<hr>
 						<div class="centertext">
-							<input type="button" class="button" name="backup" value="', Lang::$txt['tfa_backup'], '">
+							<input type="button" class="button" name="backup" value="', Lang::getTxt('tfa_backup', file: 'Profile'), '">
 						</div>
 					</div>
 					<div id="tfaBackup" style="display: none;">
-						<p style="margin-bottom: 0.5em">', Lang::$txt['tfa_backup_desc'], '</p>
+						<p style="margin-bottom: 0.5em">', Lang::getTxt('tfa_backup_desc', file: 'Profile'), '</p>
 						<div class="centertext">
-							<strong>', Lang::$txt['tfa_backup_code'], '</strong>
+							<strong>', Lang::getTxt('tfa_backup_code', file: 'Profile'), '</strong>
 							<input type="text" name="tfa_backup" value="', !empty(Utils::$context['tfa_backup']) ? Utils::$context['tfa_backup'] : '', '">
 							<input type="submit" class="button" name="submit" value="', Lang::$txt['login'], '">
 						</div>

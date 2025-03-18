@@ -88,8 +88,8 @@ class ShowPosts implements ActionInterface
 
 		// Create the tabs for the template.
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['showPosts'],
-			'description' => Lang::$txt['showPosts_help'],
+			'title' => Lang::getTxt('showPosts', file: 'Profile'),
+			'description' => Lang::getTxt('showPosts_help', file: 'Profile'),
 			'icon_class' => 'main_icons profile_hd',
 			'tabs' => [
 				'messages' => [
@@ -161,7 +161,7 @@ class ShowPosts implements ActionInterface
 			'id' => 'unwatched_topics',
 			'width' => '100%',
 			'items_per_page' => (empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['topics_per_page'])) ? Theme::$current->options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'],
-			'no_items_label' => Lang::$txt['unwatched_topics_none'],
+			'no_items_label' => Lang::getTxt('unwatched_topics_none', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=showposts;sa=unwatchedtopics;u=' . Profile::$member->id,
 			'default_sort_col' => 'started_on',
 			'get_items' => [
@@ -277,7 +277,7 @@ class ShowPosts implements ActionInterface
 			'id' => 'attachments',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['show_attachments_none'],
+			'no_items_label' => Lang::getTxt('show_attachments_none', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=showposts;sa=attach;u=' . Profile::$member->id,
 			'default_sort_col' => 'filename',
 			'get_items' => [
@@ -300,7 +300,7 @@ class ShowPosts implements ActionInterface
 			'columns' => [
 				'filename' => [
 					'header' => [
-						'value' => Lang::$txt['show_attach_filename'],
+						'value' => Lang::getTxt('show_attach_filename', file: 'Profile'),
 						'class' => 'lefttext',
 						'style' => 'width: 25%;',
 					],
@@ -322,7 +322,7 @@ class ShowPosts implements ActionInterface
 				],
 				'downloads' => [
 					'header' => [
-						'value' => Lang::$txt['show_attach_downloads'],
+						'value' => Lang::getTxt('show_attach_downloads', file: 'Profile'),
 						'style' => 'width: 12%;',
 					],
 					'data' => [
@@ -356,7 +356,7 @@ class ShowPosts implements ActionInterface
 				],
 				'posted' => [
 					'header' => [
-						'value' => Lang::$txt['show_attach_posted'],
+						'value' => Lang::getTxt('show_attach_posted', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -602,7 +602,7 @@ class ShowPosts implements ActionInterface
 		];
 
 		// Set the page title
-		Utils::$context['page_title'] = Lang::$txt[$title[$_REQUEST['sa'] ?? 'messages'] ?? $title['messages']] . ' - ' . Profile::$member->name;
+		Utils::$context['page_title'] = Lang::getTxt($title[$_REQUEST['sa'] ?? 'messages'] ?? $title['messages'], file: 'Profile') . ' - ' . Profile::$member->name;
 	}
 
 	/**

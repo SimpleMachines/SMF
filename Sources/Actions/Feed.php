@@ -1779,19 +1779,19 @@ class Feed implements ActionInterface, Routable
 				],
 				[
 					'tag' => 'post-group',
-					'attributes' => ['label' => Lang::$txt['post_based_membergroup']],
+					'attributes' => ['label' => Lang::getTxt('post_based_membergroup', file: 'Profile')],
 					'content' => $profile['post_group'],
 					'cdata' => true,
 				],
 				[
 					'tag' => 'language',
-					'attributes' => ['label' => Lang::$txt['preferred_language']],
+					'attributes' => ['label' => Lang::getTxt('preferred_language', file: 'Profile')],
 					'content' => $profile['language'],
 					'cdata' => true,
 				],
 				[
 					'tag' => 'last-login',
-					'attributes' => ['label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', (int) $profile['last_login_timestamp'])],
+					'attributes' => ['label' => Lang::getTxt('lastLoggedIn', file: 'Profile'), 'UTC' => Time::gmstrftime('%F %T', (int) $profile['last_login_timestamp'])],
 					'content' => Time::create('@' . $profile['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
@@ -1801,13 +1801,13 @@ class Feed implements ActionInterface, Routable
 				],
 				[
 					'tag' => 'avatar',
-					'attributes' => !empty($profile['avatar']['url']) ? ['label' => Lang::$txt['personal_picture']] : null,
+					'attributes' => !empty($profile['avatar']['url']) ? ['label' => Lang::getTxt('personal_picture', file: 'Profile')] : null,
 					'content' => !empty($profile['avatar']['url']) ? $profile['avatar']['url'] : null,
 					'cdata' => true,
 				],
 				[
 					'tag' => 'signature',
-					'attributes' => !empty($profile['signature']) ? ['label' => Lang::$txt['signature']] : null,
+					'attributes' => !empty($profile['signature']) ? ['label' => Lang::getTxt('signature', file: 'Profile')] : null,
 					'content' => !empty($profile['signature']) ? $profile['signature'] : null,
 					'cdata' => true,
 				],
@@ -1841,13 +1841,13 @@ class Feed implements ActionInterface, Routable
 					'content' => empty($profile['website']['url']) ? null : [
 						[
 							'tag' => 'title',
-							'attributes' => !empty($profile['website']['title']) ? ['label' => Lang::$txt['website_title']] : null,
+							'attributes' => !empty($profile['website']['title']) ? ['label' => Lang::getTxt('website_title', file: 'Profile')] : null,
 							'content' => !empty($profile['website']['title']) ? $profile['website']['title'] : null,
 							'cdata' => true,
 						],
 						[
 							'tag' => 'link',
-							'attributes' => ['label' => Lang::$txt['website_url']],
+							'attributes' => ['label' => Lang::getTxt('website_url', file: 'Profile')],
 							'content' => $profile['website']['url'],
 							'cdata' => true,
 						],
@@ -1864,7 +1864,7 @@ class Feed implements ActionInterface, Routable
 					'content' => User::$me->allowedTo('moderate_forum') || User::$me->id == $profile['id'] ? [
 						[
 							'tag' => 'ip',
-							'attributes' => ['label' => Lang::$txt['most_recent_ip']],
+							'attributes' => ['label' => Lang::getTxt('most_recent_ip', file: 'Profile')],
 							'content' => $profile['ip'],
 						],
 						[
@@ -1884,12 +1884,12 @@ class Feed implements ActionInterface, Routable
 
 				$data[] = [
 					'tag' => 'age',
-					'attributes' => ['label' => Lang::$txt['age']],
+					'attributes' => ['label' => Lang::getTxt('age', file: 'Profile')],
 					'content' => $age,
 				];
 				$data[] = [
 					'tag' => 'birthdate',
-					'attributes' => ['label' => Lang::$txt['dob']],
+					'attributes' => ['label' => Lang::getTxt('dob', file: 'Profile')],
 					'content' => $profile['birth_date'],
 				];
 			}

@@ -144,7 +144,7 @@ class ShowAlerts implements ActionInterface
 
 		// Set a nice message.
 		if (!empty($_SESSION['update_message'])) {
-			Utils::$context['update_message'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['update_message'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 			unset($_SESSION['update_message']);
 		}
 

@@ -299,11 +299,11 @@ function template_maintain_members()
 
 	if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
 		echo '
-					' . Lang::$txt['deleteAccount_anonymize_forced'];
+					' . Lang::getTxt('deleteAccount_anonymize_forced', file: 'Profile');
 	} else {
 		echo '
 					<label for="anonymize">
-						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ' . Lang::$txt['deleteAccount_anonymize'] . '
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ' . Lang::getTxt('deleteAccount_anonymize', file: 'Profile') . '
 					</label>';
 	}
 

@@ -113,7 +113,7 @@ class TrackIP implements ActionInterface, Routable
 		}
 
 		if ($this->standalone) {
-			Utils::$context['page_title'] = Lang::getTxt('trackIP_page_title', Utils::$context);
+			Utils::$context['page_title'] = Lang::getTxt('trackIP_page_title', Utils::$context, file: 'Profile');
 		}
 
 		Utils::$context['ips'] = [];
@@ -139,10 +139,10 @@ class TrackIP implements ActionInterface, Routable
 		// Start with the user messages.
 		$list_options = [
 			'id' => 'track_message_list',
-			'title' => Lang::getTxt('messages_from_ip', Utils::$context),
+			'title' => Lang::getTxt('messages_from_ip', Utils::$context, file: 'Profile'),
 			'start_var_name' => 'messageStart',
 			'items_per_page' => $max_per_page,
-			'no_items_label' => Lang::$txt['no_messages_from_ip'],
+			'no_items_label' => Lang::getTxt('no_messages_from_ip', file: 'Profile'),
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date',
 			'get_items' => [
@@ -179,7 +179,7 @@ class TrackIP implements ActionInterface, Routable
 				],
 				'poster' => [
 					'header' => [
-						'value' => Lang::$txt['poster'],
+						'value' => Lang::getTxt('poster', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'member_link',
@@ -216,7 +216,7 @@ class TrackIP implements ActionInterface, Routable
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['messages_from_ip_desc'],
+					'value' => Lang::getTxt('messages_from_ip_desc', file: 'Profile'),
 				],
 			],
 		];
@@ -227,10 +227,10 @@ class TrackIP implements ActionInterface, Routable
 		// Set the options for the error lists.
 		$list_options = [
 			'id' => 'track_user_list',
-			'title' => Lang::getTxt('errors_from_ip', Utils::$context),
+			'title' => Lang::getTxt('errors_from_ip', Utils::$context, file: 'Profile'),
 			'start_var_name' => 'errorStart',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['no_errors_from_ip'],
+			'no_items_label' => Lang::getTxt('no_errors_from_ip', file: 'Profile'),
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date2',
 			'get_items' => [
@@ -304,7 +304,7 @@ class TrackIP implements ActionInterface, Routable
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['errors_from_ip_desc'],
+					'value' => Lang::getTxt('errors_from_ip_desc', file: 'Profile'),
 				],
 			],
 		];
@@ -321,19 +321,19 @@ class TrackIP implements ActionInterface, Routable
 		if (Utils::$context['single_ip']) {
 			Utils::$context['whois_servers'] = [
 				'apnic' => [
-					'name' => Lang::$txt['whois_apnic'],
+					'name' => Lang::getTxt('whois_apnic', file: 'Profile'),
 					'url' => 'https://wq.apnic.net/apnic-bin/whois.pl?searchtext=' . Utils::$context['ip'],
 				],
 				'arin' => [
-					'name' => Lang::$txt['whois_arin'],
+					'name' => Lang::getTxt('whois_arin', file: 'Profile'),
 					'url' => 'https://whois.arin.net/rest/ip/' . Utils::$context['ip'],
 				],
 				'lacnic' => [
-					'name' => Lang::$txt['whois_lacnic'],
+					'name' => Lang::getTxt('whois_lacnic', file: 'Profile'),
 					'url' => 'https://query.milacnic.lacnic.net/search?id=' . Utils::$context['ip'],
 				],
 				'ripe' => [
-					'name' => Lang::$txt['whois_ripe'],
+					'name' => Lang::getTxt('whois_ripe', file: 'Profile'),
 					'url' => 'https://apps.db.ripe.net/db-web-ui/query?searchtext=' . Utils::$context['ip'],
 				],
 			];

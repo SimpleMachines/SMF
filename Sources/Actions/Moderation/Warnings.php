@@ -110,7 +110,7 @@ class Warnings implements ActionInterface
 
 		// This array houses all the valid search types.
 		$searchTypes = [
-			'member' => ['sql' => 'member_name_col', 'label' => Lang::$txt['profile_warning_previous_issued']],
+			'member' => ['sql' => 'member_name_col', 'label' => Lang::getTxt('profile_warning_previous_issued', file: 'Profile')],
 			'recipient' => ['sql' => 'recipient_name', 'label' => Lang::getTxt('mc_warnings_recipient', file: 'ModerationCenter')],
 		];
 
@@ -169,7 +169,7 @@ class Warnings implements ActionInterface
 			'columns' => [
 				'issuer' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_issued'],
+						'value' => Lang::getTxt('profile_warning_previous_issued', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'issuer_link',
@@ -193,7 +193,7 @@ class Warnings implements ActionInterface
 				],
 				'time' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_time'],
+						'value' => Lang::getTxt('profile_warning_previous_time', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -205,7 +205,7 @@ class Warnings implements ActionInterface
 				],
 				'reason' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_reason'],
+						'value' => Lang::getTxt('profile_warning_previous_reason', file: 'Profile'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -216,7 +216,7 @@ class Warnings implements ActionInterface
 
 							if (!empty($rowData['id_notice'])) {
 								$output .= '
-									&nbsp;<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . Lang::$txt['profile_warning_previous_notice'] . '"><span class="main_icons filter centericon"></span></a>';
+									&nbsp;<a href="' . Config::$scripturl . '?action=moderate;area=notice;nid=' . $rowData['id_notice'] . '" onclick="window.open(this.href, \'\', \'scrollbars=yes,resizable=yes,width=400,height=250\');return false;" target="_blank" rel="noopener" title="' . Lang::getTxt('profile_warning_previous_notice', file: 'Profile') . '"><span class="main_icons filter centericon"></span></a>';
 							}
 
 							return $output;
@@ -225,7 +225,7 @@ class Warnings implements ActionInterface
 				],
 				'points' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_level'],
+						'value' => Lang::getTxt('profile_warning_previous_level', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'counter',

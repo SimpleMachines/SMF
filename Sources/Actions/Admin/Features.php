@@ -1888,7 +1888,7 @@ class Features implements ActionInterface
 			foreach ($standard_fields as $field) {
 				$list[] = [
 					'id' => $field,
-					'label' => Lang::txtExists('standard_profile_field_' . $field, file: 'ManageSettings') ? Lang::getTxt('standard_profile_field_' . $field, file: 'ManageSettings') : (Lang::txtExists($field) ? Lang::getTxt($field) : $field),
+					'label' => Lang::txtExists('standard_profile_field_' . $field, file: 'ManageSettings') ? Lang::getTxt('standard_profile_field_' . $field, file: 'ManageSettings') : (Lang::txtExists($field, file: 'Profile') ? Lang::getTxt($field, file: 'Profile') : $field),
 					'disabled' => in_array($field, $disabled_fields),
 					'on_register' => in_array($field, $registration_fields) && !in_array($field, $fields_no_registration),
 					'can_show_register' => !in_array($field, $fields_no_registration),

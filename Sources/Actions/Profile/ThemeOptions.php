@@ -52,7 +52,7 @@ class ThemeOptions implements ActionInterface
 			Profile::$member->loadCustomFields('theme');
 		}
 
-		Utils::$context['page_desc'] = Lang::$txt['theme_info'];
+		Utils::$context['page_desc'] = Lang::getTxt('theme_info', file: 'Profile');
 
 		Profile::$member->setupContext(
 			[

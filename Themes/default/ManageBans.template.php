@@ -153,7 +153,7 @@ function template_ban_edit()
 				if (!empty($ban_ips))
 				{
 					echo '
-					<div>', Lang::$txt[$key], '</div>
+					<div>', Lang::getTxt($key, file: 'Profile'), '</div>
 					<dl class="settings">';
 
 					$count = 0;

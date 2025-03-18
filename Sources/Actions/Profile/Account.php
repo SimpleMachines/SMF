@@ -44,7 +44,7 @@ class Account implements ActionInterface
 			Profile::$member->loadCustomFields('account');
 		}
 
-		Utils::$context['page_desc'] = Lang::$txt['account_info'];
+		Utils::$context['page_desc'] = Lang::getTxt('account_info', file: 'Profile');
 
 		Profile::$member->setupContext(
 			[

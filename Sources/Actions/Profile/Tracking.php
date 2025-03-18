@@ -112,8 +112,8 @@ class Tracking implements ActionInterface
 
 		// Create the tabs for the template.
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['tracking'],
-			'description' => Lang::$txt['tracking_description'],
+			'title' => Lang::getTxt('tracking', file: 'Profile'),
+			'description' => Lang::getTxt('tracking_description', file: 'Profile'),
 			'icon_class' => 'main_icons profile_hd',
 			'tabs' => [],
 		];
@@ -123,7 +123,14 @@ class Tracking implements ActionInterface
 		}
 
 		// Set a page title.
-		Utils::$context['page_title'] = Lang::getTxt('trackUser_page_title', ['name' => Profile::$member->name, 'subaction' => Lang::$txt[self::$subactions[$this->subaction][1]]]);
+		Utils::$context['page_title'] = Lang::getTxt(
+			'trackUser_page_title',
+			[
+				'name' => Profile::$member->name,
+				'subaction' => Lang::getTxt(self::$subactions[$this->subaction][1], file: 'Profile'),
+			],
+			file: 'Profile',
+		);
 
 		$call = is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
@@ -154,9 +161,9 @@ class Tracking implements ActionInterface
 		// Set the options for the list component.
 		$list_options = [
 			'id' => 'track_user_list',
-			'title' => Lang::getTxt('errors_by', Utils::$context['member']),
+			'title' => Lang::getTxt('errors_by', Utils::$context['member'], file: 'Profile'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['no_errors_from_user'],
+			'no_items_label' => Lang::getTxt('no_errors_from_user', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=user;u=' . Profile::$member->id,
 			'default_sort_col' => 'date',
 			'get_items' => [
@@ -221,7 +228,7 @@ class Tracking implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['errors_desc'],
+					'value' => Lang::getTxt('errors_desc', file: 'Profile'),
 				],
 			],
 		];
@@ -406,9 +413,9 @@ class Tracking implements ActionInterface
 		// Set the options for the error lists.
 		$list_options = [
 			'id' => 'edit_list',
-			'title' => Lang::$txt['trackEdits'],
+			'title' => Lang::getTxt('trackEdits', file: 'Profile'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['trackEdit_no_edits'],
+			'no_items_label' => Lang::getTxt('trackEdit_no_edits', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=edits;u=' . Profile::$member->id,
 			'default_sort_col' => 'time',
 			'get_items' => [
@@ -422,7 +429,7 @@ class Tracking implements ActionInterface
 			'columns' => [
 				'action' => [
 					'header' => [
-						'value' => Lang::$txt['trackEdit_action'],
+						'value' => Lang::getTxt('trackEdit_action', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'action_text',
@@ -430,7 +437,7 @@ class Tracking implements ActionInterface
 				],
 				'before' => [
 					'header' => [
-						'value' => Lang::$txt['trackEdit_before'],
+						'value' => Lang::getTxt('trackEdit_before', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'before',
@@ -438,7 +445,7 @@ class Tracking implements ActionInterface
 				],
 				'after' => [
 					'header' => [
-						'value' => Lang::$txt['trackEdit_after'],
+						'value' => Lang::getTxt('trackEdit_after', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'after',
@@ -458,7 +465,7 @@ class Tracking implements ActionInterface
 				],
 				'applicator' => [
 					'header' => [
-						'value' => Lang::$txt['trackEdit_applicator'],
+						'value' => Lang::getTxt('trackEdit_applicator', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'member_link',
@@ -482,9 +489,9 @@ class Tracking implements ActionInterface
 		// Set the options for the error lists.
 		$list_options = [
 			'id' => 'request_list',
-			'title' => Lang::getTxt('trackGroupRequests_title', Utils::$context['member']),
+			'title' => Lang::getTxt('trackGroupRequests_title', Utils::$context['member'], file: 'Profile'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['requested_none'],
+			'no_items_label' => Lang::getTxt('requested_none', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=tracking;sa=groupreq;u=' . Profile::$member->id,
 			'default_sort_col' => 'time_applied',
 			'get_items' => [
@@ -498,7 +505,7 @@ class Tracking implements ActionInterface
 			'columns' => [
 				'group' => [
 					'header' => [
-						'value' => Lang::$txt['requested_group'],
+						'value' => Lang::getTxt('requested_group', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'group_name',
@@ -506,7 +513,7 @@ class Tracking implements ActionInterface
 				],
 				'group_reason' => [
 					'header' => [
-						'value' => Lang::$txt['requested_group_reason'],
+						'value' => Lang::getTxt('requested_group_reason', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'group_reason',
@@ -514,7 +521,7 @@ class Tracking implements ActionInterface
 				],
 				'time_applied' => [
 					'header' => [
-						'value' => Lang::$txt['requested_group_time'],
+						'value' => Lang::getTxt('requested_group_time', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'time_applied',
@@ -527,7 +534,7 @@ class Tracking implements ActionInterface
 				],
 				'outcome' => [
 					'header' => [
-						'value' => Lang::$txt['requested_group_outcome'],
+						'value' => Lang::getTxt('requested_group_outcome', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'outcome',
@@ -553,8 +560,8 @@ class Tracking implements ActionInterface
 		// Start with the user messages.
 		$list_options = [
 			'id' => 'track_logins_list',
-			'title' => Lang::$txt['trackLogins'],
-			'no_items_label' => Lang::$txt['trackLogins_none_found'],
+			'title' => Lang::getTxt('trackLogins', file: 'Profile'),
+			'no_items_label' => Lang::getTxt('trackLogins_none_found', file: 'Profile'),
 			'base_href' => Utils::$context['base_url'],
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getLogins',
@@ -597,7 +604,7 @@ class Tracking implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['trackLogins_desc'],
+					'value' => Lang::getTxt('trackLogins_desc', file: 'Profile'),
 				],
 			],
 		];
@@ -723,10 +730,10 @@ class Tracking implements ActionInterface
 			}
 
 			// Work out what the name of the action is.
-			if (isset(Lang::$txt['trackEdit_action_' . $row['action']])) {
-				$action_text = Lang::$txt['trackEdit_action_' . $row['action']];
-			} elseif (isset(Lang::$txt[$row['action']])) {
-				$action_text = Lang::$txt[$row['action']];
+			if (Lang::txtExists('trackEdit_action_' . $row['action'], file: 'Profile')) {
+				$action_text = Lang::getTxt('trackEdit_action_' . $row['action'], file: 'Profile');
+			} elseif (Lang::txtExists($row['action'], file: 'Profile')) {
+				$action_text = Lang::getTxt($row['action'], file: 'Profile');
 			}
 			// Custom field?
 			elseif (isset(Utils::$context['custom_field_titles'][$row['action']])) {
@@ -742,7 +749,7 @@ class Tracking implements ActionInterface
 				'id' => $row['id_action'],
 				'ip' => new IP($row['ip']),
 				'id_member' => !empty($extra['applicator']) ? $extra['applicator'] : 0,
-				'member_link' => Lang::$txt['trackEdit_deleted_member'],
+				'member_link' => Lang::getTxt('trackEdit_deleted_member', file: 'Profile'),
 				'action' => $row['action'],
 				'action_text' => $action_text,
 				'before' => !empty($extra['previous']) ? ($parse_bbc ? Utils::adjustHeadingLevels(Parser::transform($extra['previous']), null) : $extra['previous']) : '',
@@ -847,7 +854,7 @@ class Tracking implements ActionInterface
 
 			switch ($row['status']) {
 				case 0:
-					$this_req['outcome'] = Lang::$txt['outcome_pending'];
+					$this_req['outcome'] = Lang::getTxt('outcome_pending', file: 'Profile');
 					break;
 
 				case 1:
@@ -858,6 +865,7 @@ class Tracking implements ActionInterface
 							'member_link' => $member_link,
 							'datetime' => Time::create('@' . $row['time_acted'])->format(),
 						],
+						file: 'Profile',
 					);
 					break;
 
@@ -870,6 +878,7 @@ class Tracking implements ActionInterface
 							'datetime' => Time::create('@' . $row['time_acted'])->format(),
 							'reason' => $row['act_reason'],
 						],
+						file: 'Profile',
 					);
 					break;
 			}

@@ -20,17 +20,17 @@ use SMF\Utils;
 function template_options()
 {
 	Utils::$context['theme_options'] = array(
-		Lang::$txt['theme_opt_display'],
+		Lang::getTxt('theme_opt_display', file: 'Profile'),
 		array(
 			'id' => 'show_children',
-			'label' => Lang::$txt['show_children'],
+			'label' => Lang::getTxt('show_children', file: 'Profile'),
 			'default' => true,
 		),
 		array(
 			'id' => 'topics_per_page',
-			'label' => Lang::$txt['topics_per_page'],
+			'label' => Lang::getTxt('topics_per_page', file: 'Profile'),
 			'options' => array(
-				0 => Lang::$txt['per_page_default'],
+				0 => Lang::getTxt('per_page_default', file: 'Profile'),
 				5 => 5,
 				10 => 10,
 				25 => 25,
@@ -41,9 +41,9 @@ function template_options()
 		),
 		array(
 			'id' => 'messages_per_page',
-			'label' => Lang::$txt['messages_per_page'],
+			'label' => Lang::getTxt('messages_per_page', file: 'Profile'),
 			'options' => array(
-				0 => Lang::$txt['per_page_default'],
+				0 => Lang::getTxt('per_page_default', file: 'Profile'),
 				5 => 5,
 				10 => 10,
 				25 => 25,
@@ -54,44 +54,44 @@ function template_options()
 		),
 		array(
 			'id' => 'view_newest_first',
-			'label' => Lang::$txt['recent_posts_at_top'],
+			'label' => Lang::getTxt('recent_posts_at_top', file: 'Profile'),
 			'default' => true,
 		),
 		array(
 			'id' => 'show_no_avatars',
-			'label' => Lang::$txt['show_no_avatars'],
+			'label' => Lang::getTxt('show_no_avatars', file: 'Profile'),
 			'default' => true,
 		),
 		array(
 			'id' => 'show_no_signatures',
-			'label' => Lang::$txt['show_no_signatures'],
+			'label' => Lang::getTxt('show_no_signatures', file: 'Profile'),
 			'default' => true,
 		),
 		array(
 			'id' => 'posts_apply_ignore_list',
-			'label' => Lang::$txt['posts_apply_ignore_list'],
+			'label' => Lang::getTxt('posts_apply_ignore_list', file: 'Profile'),
 			'default' => false,
 			'enabled' => !empty(Config::$modSettings['enable_buddylist'])
 		),
-		Lang::$txt['theme_opt_posting'],
+		Lang::getTxt('theme_opt_posting', file: 'Profile'),
 		array(
 			'id' => 'return_to_post',
-			'label' => Lang::$txt['return_to_post'],
+			'label' => Lang::getTxt('return_to_post', file: 'Profile'),
 			'default' => true,
 		),
 		array(
 			'id' => 'no_new_reply_warning',
-			'label' => Lang::$txt['no_new_reply_warning'],
+			'label' => Lang::getTxt('no_new_reply_warning', file: 'Profile'),
 			'default' => true,
 		),
 		array(
 			'id' => 'auto_notify',
-			'label' => Lang::$txt['auto_notify'],
+			'label' => Lang::getTxt('auto_notify', file: 'Profile'),
 			'default' => true,
 		),
 		array(
 			'id' => 'wysiwyg_default',
-			'label' => Lang::$txt['wysiwyg_default'],
+			'label' => Lang::getTxt('wysiwyg_default', file: 'Profile'),
 			'default' => false,
 			'enabled' => empty(Config::$modSettings['disable_wysiwyg']),
 		),
@@ -107,48 +107,48 @@ function template_options()
 			'default' => true,
 			'enabled' => !empty(Config::$modSettings['drafts_show_saved_enabled']) && (!empty(Config::$modSettings['drafts_post_enabled']) || !empty(Config::$modSettings['drafts_pm_enabled'])),
 		),
-		Lang::$txt['theme_opt_moderation'],
+		Lang::getTxt('theme_opt_moderation', file: 'Profile'),
 		array(
 			'id' => 'display_quick_mod',
-			'label' => Lang::$txt['display_quick_mod'],
+			'label' => Lang::getTxt('display_quick_mod', file: 'Profile'),
 			'options' => array(
-				0 => Lang::$txt['display_quick_mod_none'],
-				1 => Lang::$txt['display_quick_mod_check'],
-				2 => Lang::$txt['display_quick_mod_image'],
+				0 => Lang::getTxt('display_quick_mod_none', file: 'Profile'),
+				1 => Lang::getTxt('display_quick_mod_check', file: 'Profile'),
+				2 => Lang::getTxt('display_quick_mod_image', file: 'Profile'),
 			),
 			'default' => true,
 		),
-		Lang::$txt['theme_opt_personal_messages'],
+		Lang::getTxt('theme_opt_personal_messages', file: 'Profile'),
 		array(
 			'id' => 'popup_messages',
-			'label' => Lang::$txt['popup_messages'],
+			'label' => Lang::getTxt('popup_messages', file: 'Profile'),
 			'default' => true,
 		),
 		array(
 			'id' => 'view_newest_pm_first',
-			'label' => Lang::$txt['recent_pms_at_top'],
+			'label' => Lang::getTxt('recent_pms_at_top', file: 'Profile'),
 			'default' => true,
 		),
 		array(
 			'id' => 'pm_remove_inbox_label',
-			'label' => Lang::$txt['pm_remove_inbox_label'],
+			'label' => Lang::getTxt('pm_remove_inbox_label', file: 'Profile'),
 			'default' => true,
 		),
-		!empty(Config::$modSettings['cal_enabled']) ? Lang::$txt['theme_opt_calendar'] : '',
+		!empty(Config::$modSettings['cal_enabled']) ? Lang::getTxt('theme_opt_calendar', file: 'Profile') : '',
 		array(
 			'id' => 'calendar_default_view',
-			'label' => Lang::$txt['calendar_default_view'],
+			'label' => Lang::getTxt('calendar_default_view', file: 'Profile'),
 			'options' => array(
-				'viewlist' => Lang::$txt['calendar_viewlist'],
-				'viewmonth' => Lang::$txt['calendar_viewmonth'],
-				'viewweek' => Lang::$txt['calendar_viewweek']
+				'viewlist' => Lang::getTxt('calendar_viewlist', file: 'Profile'),
+				'viewmonth' => Lang::getTxt('calendar_viewmonth', file: 'Profile'),
+				'viewweek' => Lang::getTxt('calendar_viewweek', file: 'Profile')
 			),
 			'default' => true,
 			'enabled' => !empty(Config::$modSettings['cal_enabled']),
 		),
 		array(
 			'id' => 'calendar_start_day',
-			'label' => Lang::$txt['calendar_start_day'],
+			'label' => Lang::getTxt('calendar_start_day', file: 'Profile'),
 			'options' => array(
 				0 => Lang::$txt['days'][0],
 				1 => Lang::$txt['days'][1],

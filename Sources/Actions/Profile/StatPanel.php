@@ -248,18 +248,18 @@ class StatPanel implements ActionInterface
 				'text' => Utils::$context['time_logged_in'],
 			],
 			'total_posts' => [
-				'text' => Utils::$context['num_posts'] . ' ' . Lang::$txt['statPanel_posts'],
+				'text' => Utils::$context['num_posts'] . ' ' . Lang::getTxt('statPanel_posts', file: 'Profile'),
 				'url' => Config::$scripturl . '?action=profile;area=showposts;sa=messages;u=' . Profile::$member->id,
 			],
 			'total_topics' => [
-				'text' => Utils::$context['num_topics'] . ' ' . Lang::$txt['statPanel_topics'],
+				'text' => Utils::$context['num_topics'] . ' ' . Lang::getTxt('statPanel_topics', file: 'Profile'),
 				'url' => Config::$scripturl . '?action=profile;area=showposts;sa=topics;u=' . Profile::$member->id,
 			],
 			'users_polls' => [
-				'text' => Utils::$context['num_polls'] . ' ' . Lang::$txt['statPanel_polls'],
+				'text' => Utils::$context['num_polls'] . ' ' . Lang::getTxt('statPanel_polls', file: 'Profile'),
 			],
 			'users_votes' => [
-				'text' => Utils::$context['num_votes'] . ' ' . Lang::$txt['statPanel_votes'],
+				'text' => Utils::$context['num_votes'] . ' ' . Lang::getTxt('statPanel_votes', file: 'Profile'),
 			],
 		];
 

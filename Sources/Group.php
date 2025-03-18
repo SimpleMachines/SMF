@@ -374,7 +374,7 @@ class Group implements \ArrayAccess
 			if ($this->id === self::REGULAR && !isset($this->description)) {
 				Lang::load('Profile');
 
-				$this->description = Lang::$txt['regular_members_desc'];
+				$this->description = Lang::getTxt('regular_members_desc', file: 'Profile');
 			}
 		}
 

@@ -317,9 +317,9 @@ class Notification implements ActionInterface
 
 		if (isset(Menu::$loaded['profile'])) {
 			Menu::$loaded['profile']->tab_data = [
-				'title' => Lang::$txt['notification'],
+				'title' => Lang::getTxt('notification', file: 'Profile'),
 				'help' => '',
-				'description' => Lang::$txt['notification_info'],
+				'description' => Lang::getTxt('notification_info', file: 'Profile'),
 			];
 		}
 
@@ -410,7 +410,7 @@ class Notification implements ActionInterface
 				}
 
 				foreach ($option['opts'] as &$value) {
-					$value = Lang::$txt[$value] ?? $value;
+					$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
 				}
 			}
 		}
@@ -546,7 +546,7 @@ class Notification implements ActionInterface
 
 			$this->changeNotifications();
 
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		SecurityToken::create(Utils::$context['token_check'], 'post');
@@ -589,7 +589,7 @@ class Notification implements ActionInterface
 			SecurityToken::validate(str_replace('%u', (string) Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$this->changeNotifications();
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		// Now set up for the token check.
@@ -601,7 +601,7 @@ class Notification implements ActionInterface
 			'id' => 'topic_notification_list',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['notifications_topics_none'] . '<br><br>' . Lang::$txt['notifications_topics_howto'],
+			'no_items_label' => Lang::getTxt('notifications_topics_none', file: 'Profile') . '<br><br>' . Lang::getTxt('notifications_topics_howto', file: 'Profile'),
 			'no_items_align' => 'left',
 			'base_href' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=notification;sa=topics',
 			'default_sort_col' => 'last_post',
@@ -616,7 +616,7 @@ class Notification implements ActionInterface
 			'columns' => [
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['notifications_topics'],
+						'value' => Lang::getTxt('notifications_topics', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -665,7 +665,7 @@ class Notification implements ActionInterface
 				],
 				'alert_pref' => [
 					'header' => [
-						'value' => Lang::$txt['notify_what_how'],
+						'value' => Lang::getTxt('notify_what_how', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -708,8 +708,8 @@ class Notification implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="edit_notify_topics" value="' . Lang::$txt['notifications_update'] . '" class="button">
-								<input type="submit" name="remove_notify_topics" value="' . Lang::$txt['notification_remove_pref'] . '" class="button">',
+					'value' => '<input type="submit" name="edit_notify_topics" value="' . Lang::getTxt('notifications_update', file: 'Profile') . '" class="button">
+								<input type="submit" name="remove_notify_topics" value="' . Lang::getTxt('notification_remove_pref', file: 'Profile') . '" class="button">',
 					'class' => 'floatright',
 				],
 			],
@@ -730,7 +730,7 @@ class Notification implements ActionInterface
 			SecurityToken::validate(str_replace('%u', (string) Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$this->changeNotifications();
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		// Now set up for the token check.
@@ -741,7 +741,7 @@ class Notification implements ActionInterface
 		$list_options = [
 			'id' => 'board_notification_list',
 			'width' => '100%',
-			'no_items_label' => Lang::$txt['notifications_boards_none'] . '<br><br>' . Lang::$txt['notifications_boards_howto'],
+			'no_items_label' => Lang::getTxt('notifications_boards_none', file: 'Profile') . '<br><br>' . Lang::getTxt('notifications_boards_howto', file: 'Profile'),
 			'no_items_align' => 'left',
 			'base_href' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=notification;sa=boards',
 			'default_sort_col' => 'board_name',
@@ -752,7 +752,7 @@ class Notification implements ActionInterface
 			'columns' => [
 				'board_name' => [
 					'header' => [
-						'value' => Lang::$txt['notifications_boards'],
+						'value' => Lang::getTxt('notifications_boards', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -773,7 +773,7 @@ class Notification implements ActionInterface
 				],
 				'alert_pref' => [
 					'header' => [
-						'value' => Lang::$txt['notify_what_how'],
+						'value' => Lang::getTxt('notify_what_how', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -816,8 +816,8 @@ class Notification implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="edit_notify_boards" value="' . Lang::$txt['notifications_update'] . '" class="button">
-								<input type="submit" name="remove_notify_boards" value="' . Lang::$txt['notification_remove_pref'] . '" class="button">',
+					'value' => '<input type="submit" name="edit_notify_boards" value="' . Lang::getTxt('notifications_update', file: 'Profile') . '" class="button">
+								<input type="submit" name="remove_notify_boards" value="' . Lang::getTxt('notification_remove_pref', file: 'Profile') . '" class="button">',
 					'class' => 'floatright',
 				],
 			],

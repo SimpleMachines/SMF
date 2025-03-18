@@ -193,7 +193,7 @@ class ExportDownload implements ActionInterface
 
 		$included_desc = array_map(
 			function ($datatype) {
-				return Lang::$txt[$datatype];
+				return Lang::getTxt($datatype, file: 'Profile');
 			},
 			$datatypes,
 		);

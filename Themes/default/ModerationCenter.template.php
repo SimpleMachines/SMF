@@ -598,7 +598,7 @@ function template_warn_template()
 						<input type="text" id="template_title" name="template_title" value="', Utils::$context['template_data']['title'], '" size="30">
 					</dd>
 					<dt>
-						<strong><label for="template_body">', Lang::$txt['profile_warning_notify_body'], '</label></strong><br>
+						<strong><label for="template_body">', Lang::getTxt('profile_warning_notify_body', file: 'Profile'), '</label></strong><br>
 						<span class="smalltext">', Lang::getTxt('mc_warning_template_body_desc', file: 'ModerationCenter'), '</span>
 					</dt>
 					<dd>

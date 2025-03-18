@@ -367,7 +367,7 @@ class Activate implements ActionInterface, Routable
 			ErrorHandler::fatalLang('already_activated', false);
 		} elseif ($this->member->validation_code == '') {
 			Lang::load('Profile');
-			ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $this->member->username]), false);
+			ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $this->member->username], file: 'Profile'), false);
 		}
 
 		Utils::$context['sub_template'] = 'retry_activate';

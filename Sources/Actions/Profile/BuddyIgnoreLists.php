@@ -96,8 +96,8 @@ class BuddyIgnoreLists implements ActionInterface
 
 		// Create the tabs for the template.
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['editBuddyIgnoreLists'],
-			'description' => Lang::$txt['buddy_ignore_desc'],
+			'title' => Lang::getTxt('editBuddyIgnoreLists', file: 'Profile'),
+			'description' => Lang::getTxt('buddy_ignore_desc', file: 'Profile'),
 			'icon_class' => 'main_icons profile_hd',
 			'tabs' => [
 				'buddies' => [],
@@ -134,7 +134,7 @@ class BuddyIgnoreLists implements ActionInterface
 
 			IntegrationHook::call('integrate_remove_buddy', [Profile::$member->id]);
 
-			$_SESSION['prf-save'] = Lang::$txt['could_not_remove_person'];
+			$_SESSION['prf-save'] = Lang::getTxt('could_not_remove_person', file: 'Profile');
 
 			// Heh, I'm lazy, do it the easy way...
 			foreach ($buddiesArray as $key => $buddy) {
@@ -173,7 +173,7 @@ class BuddyIgnoreLists implements ActionInterface
 
 			IntegrationHook::call('integrate_add_buddies', [Profile::$member->id, &$new_buddies]);
 
-			$_SESSION['prf-save'] = Lang::$txt['could_not_add_person'];
+			$_SESSION['prf-save'] = Lang::getTxt('could_not_add_person', file: 'Profile');
 
 			if (!empty($new_buddies)) {
 				// Now find out the id_member of the buddy.
@@ -349,7 +349,7 @@ class BuddyIgnoreLists implements ActionInterface
 		if (isset($_GET['remove'])) {
 			User::$me->checkSession('get');
 
-			$_SESSION['prf-save'] = Lang::$txt['could_not_remove_person'];
+			$_SESSION['prf-save'] = Lang::getTxt('could_not_remove_person', file: 'Profile');
 
 			// Heh, I'm lazy, do it the easy way...
 			foreach ($ignoreArray as $key => $id_remove) {
@@ -386,7 +386,7 @@ class BuddyIgnoreLists implements ActionInterface
 				}
 			}
 
-			$_SESSION['prf-save'] = Lang::$txt['could_not_add_person'];
+			$_SESSION['prf-save'] = Lang::getTxt('could_not_add_person', file: 'Profile');
 
 			if (!empty($new_entries)) {
 				// Now find out the id_member for the members in question.

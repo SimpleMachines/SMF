@@ -1013,10 +1013,10 @@ class ExportProfileData extends BackgroundTask
 		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
 		$feed->metadata = [
-			'title' => Lang::getTxt('profile_of_username', ['name' => User::$me->name]),
+			'title' => Lang::getTxt('profile_of_username', ['name' => User::$me->name], file: 'Profile'),
 			'desc' => Lang::sentenceList(array_map(
 				function ($datatype) {
-					return Lang::$txt[$datatype];
+					return Lang::getTxt($datatype, file: 'Profile');
 				},
 				array_keys($included),
 			)),
@@ -1477,10 +1477,10 @@ class ExportProfileData extends BackgroundTask
 					'value' => Lang::$txt['personal_messages'],
 				],
 				'txt_view_source_button' => [
-					'value' => Lang::$txt['export_view_source_button'],
+					'value' => Lang::getTxt('export_view_source_button', file: 'Profile'),
 				],
 				'txt_download_original' => [
-					'value' => Lang::$txt['export_download_original'],
+					'value' => Lang::getTxt('export_download_original', file: 'Profile'),
 				],
 				'txt_help' => [
 					'value' => Lang::$txt['help'],
@@ -1860,13 +1860,9 @@ class ExportProfileData extends BackgroundTask
 		string $subaction,
 		string &$doctype,
 	): void {
-		if (!isset(Lang::$txt['export_open_in_browser'])) {
-			Lang::load('Profile');
-		}
-
 		$doctype = implode("\n", [
 			'<!--',
-			"\t" . Lang::$txt['export_open_in_browser'],
+			"\t" . Lang::getTxt('export_open_in_browser', file: 'Profile'),
 			'-->',
 			'<?xml-stylesheet type="text/xsl" href="#stylesheet"?>',
 			'<!DOCTYPE smf:xml-feed [',
@@ -1969,9 +1965,9 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function attach_bbc_validate(string &$returnContext, array $currentAttachment, array $tag, array|string $data, array $disabled, array $params): void
 	{
-		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::$txt['export_download_original'] . '</a>';
+		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::getTxt('export_download_original', file: 'Profile') . '</a>';
 
-		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . Lang::$txt['export_download_original'] . '</a>';
+		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . Lang::getTxt('export_download_original', file: 'Profile') . '</a>';
 
 		if ($params['{display}'] == 'link') {
 			$returnContext .= ' (' . $orig_link . ')';

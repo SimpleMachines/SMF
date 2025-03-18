@@ -51,7 +51,7 @@ class ShowPermissions implements ActionInterface
 		// Verify if the user has sufficient permissions.
 		User::$me->isAllowedTo('manage_permissions');
 
-		Utils::$context['page_title'] = Lang::$txt['showPermissions'];
+		Utils::$context['page_title'] = Lang::getTxt('showPermissions', file: 'Profile');
 
 		// If they're an admin we know they can do everything, so we might as well leave.
 		Profile::$member->formatted['has_all_permissions'] = Profile::$member->is_admin;

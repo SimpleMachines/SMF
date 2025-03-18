@@ -249,24 +249,24 @@ function template_summary()
 	if (!empty(Utils::$context['can_have_buddy']) && !User::$me->is_owner)
 		echo '
 				<br>
-				<a href="', Config::$scripturl, '?action=buddy;u=', Utils::$context['id_member'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['buddy_' . (Utils::$context['member']['is_buddy'] ? 'remove' : 'add')], '</a>';
+				<a href="', Config::$scripturl, '?action=buddy;u=', Utils::$context['id_member'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('buddy_' . (Utils::$context['member']['is_buddy'] ? 'remove' : 'add'), file: 'Profile'), '</a>';
 
 	echo '
 			</span>';
 
 	if (!User::$me->is_owner && Utils::$context['can_send_pm'])
 		echo '
-			<a href="', Config::$scripturl, '?action=pm;sa=send;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::$txt['profile_sendpm_short'], '</a>';
+			<a href="', Config::$scripturl, '?action=pm;sa=send;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('profile_sendpm_short', file: 'Profile'), '</a>';
 
 	echo '
-			<a href="', Config::$scripturl, '?action=profile;area=showposts;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::$txt['showPosts'], '</a>';
+			<a href="', Config::$scripturl, '?action=profile;area=showposts;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('showPosts', file: 'Profile'), '</a>';
 
 	if (User::$me->is_owner && !empty(Config::$modSettings['drafts_post_enabled']))
 		echo '
 			<a href="', Config::$scripturl, '?action=profile;area=showdrafts;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('drafts_show', file: 'Drafts'), '</a>';
 
 	echo '
-			<a href="', Config::$scripturl, '?action=profile;area=statistics;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::$txt['statPanel'], '</a>';
+			<a href="', Config::$scripturl, '?action=profile;area=statistics;u=', Utils::$context['id_member'], '" class="infolinks">', Lang::getTxt('statPanel', file: 'Profile'), '</a>';
 
 	// Are there any custom profile fields for bottom?
 	if (!empty(Utils::$context['print_custom_fields']['bottom_poster']))
@@ -298,8 +298,8 @@ function template_summary()
 
 	if (!isset(Utils::$context['disabled_fields']['posts']))
 		echo '
-				<dt>', Lang::$txt['profile_posts'], '</dt>
-				<dd>', Utils::$context['member']['posts'], ' (', is_numeric(Utils::$context['member']['posts_per_day']) ? Lang::getTxt('posts_per_day', [Utils::$context['member']['posts_per_day']]) : Utils::$context['member']['posts_per_day'], ')</dd>';
+				<dt>', Lang::getTxt('profile_posts', file: 'Profile'), '</dt>
+				<dd>', Utils::$context['member']['posts'], ' (', is_numeric(Utils::$context['member']['posts_per_day']) ? Lang::getTxt('posts_per_day', [Utils::$context['member']['posts_per_day']], file: 'Profile') : Utils::$context['member']['posts_per_day'], ')</dd>';
 
 	if (Utils::$context['member']['show_email'])
 		echo '
@@ -308,7 +308,7 @@ function template_summary()
 
 	if (!empty(Config::$modSettings['titlesEnable']) && !empty(Utils::$context['member']['title']))
 		echo '
-				<dt>', Lang::$txt['custom_title'], '</dt>
+				<dt>', Lang::getTxt('custom_title', file: 'Profile'), '</dt>
 				<dd>', Utils::$context['member']['title'], '</dd>';
 
 	if (!empty(Utils::$context['member']['blurb']))
@@ -317,7 +317,7 @@ function template_summary()
 				<dd>', Utils::$context['member']['blurb'], '</dd>';
 
 	echo '
-				<dt>', Lang::$txt['age'], '</dt>
+				<dt>', Lang::getTxt('age', file: 'Profile'), '</dt>
 				<dd>', Utils::$context['member']['age'] . (Utils::$context['member']['today_is_birthday'] ? ' &nbsp; <img src="' . Theme::$current->settings['images_url'] . '/cake.png" alt="">' : ''), '</dd>';
 
 	echo '
@@ -367,18 +367,18 @@ function template_summary()
 	}
 
 	echo '
-				<dt>', Lang::$txt['local_time'], '</dt>
+				<dt>', Lang::getTxt('local_time', file: 'Profile'), '</dt>
 				<dd>', Utils::$context['member']['local_time'], '</dd>';
 
 	if (!empty(Config::$modSettings['userLanguage']) && !empty(Utils::$context['member']['language']))
 		echo '
-				<dt>', Lang::$txt['language'], '</dt>
+				<dt>', Lang::getTxt('language', file: 'Profile'), '</dt>
 				<dd>', Utils::$context['member']['language'], '</dd>';
 
 	if (Utils::$context['member']['show_last_login'])
 		echo '
-				<dt>', Lang::$txt['lastLoggedIn'], '</dt>
-				<dd>', Utils::$context['member']['last_login'], (!empty(Utils::$context['member']['is_hidden']) ? ' (' . Lang::$txt['hidden'] . ')' : ''), '</dd>';
+				<dt>', Lang::getTxt('lastLoggedIn', file: 'Profile'), '</dt>
+				<dd>', Utils::$context['member']['last_login'], (!empty(Utils::$context['member']['is_hidden']) ? ' (' . Lang::getTxt('hidden', file: 'Profile') . ')' : ''), '</dd>';
 
 	echo '
 			</dl>';
@@ -404,7 +404,7 @@ function template_summary()
 	if (Utils::$context['signature_enabled'] && !empty(Utils::$context['member']['signature']))
 		echo '
 			<div class="signature">
-				<h5>', Lang::$txt['signature'], '</h5>
+				<h5>', Lang::getTxt('signature', file: 'Profile'), '</h5>
 				', Utils::$context['member']['signature'], '
 			</div>';
 
@@ -437,7 +437,7 @@ function template_summary()
 		if (Utils::$context['can_view_warning'] && Utils::$context['member']['warning'])
 		{
 			echo '
-					<dt>', Lang::$txt['profile_warning_level'], '</dt>
+					<dt>', Lang::getTxt('profile_warning_level', file: 'Profile'), '</dt>
 					<dd>
 						<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=', (Utils::$context['can_issue_warning'] && !User::$me->is_owner ? 'issuewarning' : 'viewwarning'), '">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), '</a>';
 
@@ -467,12 +467,12 @@ function template_summary()
 					echo '
 					<dt></dt>
 					<dd>
-						' . Lang::$txt['deleteAccount_anonymize_forced'] . '
+						' . Lang::getTxt('deleteAccount_anonymize_forced', file: 'Profile') . '
 					</dd>';
 				} elseif (Utils::$context['activate_type'] % User::BANNED == User::REQUESTED_DELETE) {
 					echo '
 					<dt>
-						<label>' . Lang::$txt['deleteAccount_anonymize'] . '</label>
+						<label>' . Lang::getTxt('deleteAccount_anonymize', file: 'Profile') . '</label>
 					</dt>
 					<dd>
 						<input type="checkbox" name="anonymize" id="anonymize" value="1"', !empty(Config::$modSettings['always_anonymize_deleted_accounts']) ? ' checked disabled' : '', '>
@@ -484,10 +484,10 @@ function template_summary()
 			{
 				echo '
 					<dt class="clear">
-						<span class="alert">', Lang::$txt['user_is_banned'], '</span>&nbsp;<a href="#" onclick="document.getElementById(\'ban_info\').classList.toggle(\'hidden\');return false;">' . Lang::$txt['view_ban'] . '</a>
+						<span class="alert">', Lang::getTxt('user_is_banned', file: 'Profile'), '</span>&nbsp;<a href="#" onclick="document.getElementById(\'ban_info\').classList.toggle(\'hidden\');return false;">' . Lang::getTxt('view_ban', file: 'Profile') . '</a>
 					</dt>
 					<dt class="clear hidden" id="ban_info">
-						<strong>', Lang::$txt['user_banned_by_following'], '</strong>';
+						<strong>', Lang::getTxt('user_banned_by_following', file: 'Profile'), '</strong>';
 
 				foreach (Utils::$context['member']['bans'] as $ban)
 					echo '
@@ -516,7 +516,17 @@ function template_showPosts()
 	echo '
 		<div class="cat_bar', !isset(Utils::$context['attachments']) ? ' cat_bar_round' : '', '">
 			<h3 class="catbg">
-				', (!isset(Utils::$context['attachments']) && empty(Utils::$context['is_topics']) ? Lang::$txt['showMessages'] : (!empty(Utils::$context['is_topics']) ? Lang::$txt['showTopics'] : Lang::$txt['showAttachments'])), !User::$me->is_owner ? ' - ' . Utils::$context['member']['name'] : '', '
+				', Lang::getTxt(
+					!isset(Utils::$context['attachments']) && empty(Utils::$context['is_topics'])
+					? 'showMessages'
+					: (
+						!empty(Utils::$context['is_topics'])
+						? 'showTopics'
+						: 'showAttachments'
+					),
+					file: 'Profile',
+				),
+				!User::$me->is_owner ? ' - ' . Utils::$context['member']['name'] : '', '
 			</h3>
 		</div>', !empty(Utils::$context['page_index']) ? '
 		<div class="pagesection">
@@ -566,7 +576,16 @@ function template_showPosts()
 	if ((isset(Utils::$context['attachments']) && empty(Utils::$context['attachments'])) || (!isset(Utils::$context['attachments']) && empty(Utils::$context['posts'])))
 		echo '
 		<div class="windowbg">
-			', isset(Utils::$context['attachments']) ? Lang::$txt['show_attachments_none'] : (Utils::$context['is_topics'] ? Lang::$txt['show_topics_none'] : Lang::$txt['show_posts_none']), '
+			', Lang::getTxt(
+				isset(Utils::$context['attachments'])
+				? 'show_attachments_none'
+				: (
+					Utils::$context['is_topics']
+					? 'show_topics_none'
+					: 'show_posts_none'
+				),
+				file: 'Profile',
+			), '
 		</div>';
 
 	// Show more page numbers.
@@ -658,7 +677,7 @@ function template_showAlerts()
 					<input type="submit" name="req" value="', Lang::$txt['quick_mod_go'], '" class="button you_sure">';
 
 		echo '
-					<a href="', Utils::$context['alert_purge_link'], '" class="button you_sure">', Lang::$txt['alert_purge'], '</a>
+					<a href="', Utils::$context['alert_purge_link'], '" class="button you_sure">', Lang::getTxt('alert_purge', file: 'Profile'), '</a>
 				</div>
 			</div>';
 
@@ -741,7 +760,7 @@ function template_editBuddies()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-	<div class="infobox">', User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', Utils::$context['member']), '</div>';
+	<div class="infobox">', Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_updated_else', Utils::$context['member'], file: 'Profile'), '</div>';
 
 	elseif (!empty(Utils::$context['saved_failed']))
 		echo '
@@ -751,7 +770,7 @@ function template_editBuddies()
 	<div id="edit_buddies">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="main_icons people icon"></span> ', Lang::$txt['editBuddies'], '
+				<span class="main_icons people icon"></span> ', Lang::getTxt('editBuddies', file: 'Profile'), '
 			</h3>
 		</div>
 		<table class="table_grid">
@@ -780,7 +799,7 @@ function template_editBuddies()
 		echo '
 				<tr class="windowbg">
 					<td colspan="', Utils::$context['can_moderate_forum'] ? '10' : '9', '">
-						<strong>', Lang::$txt['no_buddies'], '</strong>
+						<strong>', Lang::getTxt('no_buddies', file: 'Profile'), '</strong>
 					</td>
 				</tr>';
 
@@ -810,7 +829,7 @@ function template_editBuddies()
 
 			echo '
 					<td class="centertext buddy_remove">
-						<a href="', Config::$scripturl, '?action=profile;area=lists;sa=buddies;u=', Utils::$context['id_member'], ';remove=', $buddy['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '"><span class="main_icons delete" title="', Lang::$txt['buddy_remove'], '"></span></a>
+						<a href="', Config::$scripturl, '?action=profile;area=lists;sa=buddies;u=', Utils::$context['id_member'], ';remove=', $buddy['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '"><span class="main_icons delete" title="', Lang::getTxt('buddy_remove', file: 'Profile'), '"></span></a>
 					</td>
 				</tr>';
 		}
@@ -825,7 +844,7 @@ function template_editBuddies()
 	echo '
 	<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=lists;sa=buddies" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['buddy_add'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('buddy_add', file: 'Profile'), '</h3>
 		</div>
 		<div class="information">
 			<dl class="settings">
@@ -834,7 +853,7 @@ function template_editBuddies()
 				</dt>
 				<dd>
 					<input type="text" name="new_buddy" id="new_buddy" size="30">
-					<input type="submit" value="', Lang::$txt['buddy_add_button'], '" class="button floatnone">
+					<input type="submit" value="', Lang::getTxt('buddy_add_button', file: 'Profile'), '" class="button floatnone">
 				</dd>
 			</dl>
 		</div>';
@@ -867,7 +886,7 @@ function template_editIgnoreList()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-	<div class="infobox">', User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', Utils::$context['member']), '</div>';
+	<div class="infobox">', Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_updated_else', Utils::$context['member'], file: 'Profile'), '</div>';
 
 	elseif (!empty(Utils::$context['saved_failed']))
 		echo '
@@ -877,7 +896,7 @@ function template_editIgnoreList()
 	<div id="edit_buddies">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
-				', Lang::$txt['editIgnoreList'], '
+				', Lang::getTxt('editIgnoreList', file: 'Profile'), '
 			</h3>
 		</div>
 		<table class="table_grid">
@@ -891,7 +910,7 @@ function template_editIgnoreList()
 					<th scope="col" class="buddy_email">', Lang::$txt['email'], '</th>';
 
 	echo '
-					<th scope="col" class="buddy_remove">', Lang::$txt['ignore_remove'], '</th>
+					<th scope="col" class="buddy_remove">', Lang::getTxt('ignore_remove', file: 'Profile'), '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -901,7 +920,7 @@ function template_editIgnoreList()
 		echo '
 				<tr class="windowbg">
 					<td colspan="', Utils::$context['can_moderate_forum'] ? '4' : '3', '">
-						<strong>', Lang::$txt['no_ignore'], '</strong>
+						<strong>', Lang::getTxt('no_ignore', file: 'Profile'), '</strong>
 					</td>
 				</tr>';
 
@@ -922,7 +941,7 @@ function template_editIgnoreList()
 					</td>';
 		echo '
 					<td class="centertext buddy_remove">
-						<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '"><span class="main_icons delete" title="', Lang::$txt['ignore_remove'], '"></span></a>
+						<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=lists;sa=ignore;remove=', $member['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '"><span class="main_icons delete" title="', Lang::getTxt('ignore_remove', file: 'Profile'), '"></span></a>
 					</td>
 				</tr>';
 	}
@@ -936,7 +955,7 @@ function template_editIgnoreList()
 	echo '
 	<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=lists;sa=ignore" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['ignore_add'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('ignore_add', file: 'Profile'), '</h3>
 		</div>
 		<div class="information">
 			<dl class="settings">
@@ -945,7 +964,7 @@ function template_editIgnoreList()
 				</dt>
 				<dd>
 					<input type="text" name="new_ignore" id="new_ignore" size="30">
-					<input type="submit" value="', Lang::$txt['ignore_add_button'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('ignore_add_button', file: 'Profile'), '" class="button">
 				</dd>
 			</dl>
 		</div>';
@@ -979,7 +998,7 @@ function template_trackActivity()
 	// The first table shows IP information about the user.
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('view_ips_by', ['member' => Utils::$context['member']['name']]), '</h3>
+			<h3 class="catbg">', Lang::getTxt('view_ips_by', ['member' => Utils::$context['member']['name']], file: 'Profile'), '</h3>
 		</div>';
 
 	// The last IP the user used.
@@ -987,9 +1006,9 @@ function template_trackActivity()
 		<div id="tracking" class="windowbg">
 			<dl class="settings noborder">
 				<dt>
-					', Lang::$txt['most_recent_ip'], '
+					', Lang::getTxt('most_recent_ip', file: 'Profile'), '
 					', (empty(Utils::$context['last_ip2']) ? '' : '<br>
-					<span class="smalltext"><a href="' . Config::$scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . Lang::$txt['why_two_ip_address'] . '</a></span>'), '
+					<span class="smalltext"><a href="' . Config::$scripturl . '?action=helpadmin;help=whytwoip" onclick="return reqOverlayDiv(this.href);">' . Lang::getTxt('why_two_ip_address', file: 'Profile') . '</a></span>'), '
 				</dt>
 				<dd>
 					<a href="', Config::$scripturl, '?action=profile;area=tracking;sa=ip;searchip=', Utils::$context['last_ip'], ';u=', Utils::$context['member']['id'], '">', Utils::$context['last_ip'], '</a>';
@@ -1004,18 +1023,18 @@ function template_trackActivity()
 
 	// Lists of IP addresses used in messages / error messages.
 	echo '
-				<dt>', Lang::$txt['ips_in_messages'], '</dt>
+				<dt>', Lang::getTxt('ips_in_messages', file: 'Profile'), '</dt>
 				<dd>
 					', (count(Utils::$context['ips']) > 0 ? Lang::sentenceList(Utils::$context['ips']) : Lang::$txt['none']), '
 				</dd>
-				<dt>', Lang::$txt['ips_in_errors'], '</dt>
+				<dt>', Lang::getTxt('ips_in_errors', file: 'Profile'), '</dt>
 				<dd>
 					', (count(Utils::$context['error_ips']) > 0 ? Lang::sentenceList(Utils::$context['error_ips']) : Lang::$txt['none']), '
 				</dd>';
 
 	// List any members that have used the same IP addresses as the current member.
 	echo '
-				<dt>', Lang::$txt['members_in_range'], '</dt>
+				<dt>', Lang::getTxt('members_in_range', file: 'Profile'), '</dt>
 				<dd>
 					', (count(Utils::$context['members_in_range']) > 0 ? Lang::sentenceList(Utils::$context['members_in_range']) : Lang::$txt['none']), '
 				</dd>
@@ -1035,19 +1054,19 @@ function template_trackIP()
 	// The first table in the template gives an input box to allow the admin to enter another IP to track.
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['trackIP'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('trackIP', file: 'Profile'), '</h3>
 		</div>
 		<div class="windowbg">
 			<form action="', Utils::$context['base_url'], '" method="post" accept-charset="UTF-8">
 				<dl class="settings">
 					<dt>
-						<label for="searchip"><strong>', Lang::$txt['enter_ip'], '</strong></label>
+						<label for="searchip"><strong>', Lang::getTxt('enter_ip', file: 'Profile'), '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="searchip" value="', Utils::$context['ip'], '">
 					</dd>
 				</dl>
-				<input type="submit" value="', Lang::$txt['trackIP'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('trackIP', file: 'Profile'), '" class="button">
 			</form>
 		</div>
 		<br>';
@@ -1057,7 +1076,7 @@ function template_trackIP()
 	{
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('whois_title', Utils::$context), '</h3>
+			<h3 class="catbg">', Lang::getTxt('whois_title', Utils::$context, file: 'Profile'), '</h3>
 		</div>
 		<div class="windowbg">';
 
@@ -1072,13 +1091,13 @@ function template_trackIP()
 	// The second table lists all the members who have been logged as using this IP address.
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt('members_from_ip', Utils::$context), '</h3>
+			<h3 class="catbg">', Lang::getTxt('members_from_ip', Utils::$context, file: 'Profile'), '</h3>
 		</div>';
 
 	if (empty(Utils::$context['ips']))
 		echo '
 		<p class="windowbg description">
-			<em>', Lang::$txt['no_members_from_ip'], '</em>
+			<em>', Lang::getTxt('no_members_from_ip', file: 'Profile'), '</em>
 		</p>';
 
 	else
@@ -1135,25 +1154,25 @@ function template_showPermissions()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
-				', Lang::$txt['showPermissions'], '
+				', Lang::getTxt('showPermissions', file: 'Profile'), '
 			</h3>
 		</div>';
 
 	if (Utils::$context['member']['has_all_permissions'])
 		echo '
-		<div class="information">', Lang::$txt['showPermissions_all'], '</div>';
+		<div class="information">', Lang::getTxt('showPermissions_all', file: 'Profile'), '</div>';
 
 	else
 	{
 		echo '
-		<div class="information">', Lang::$txt['showPermissions_help'], '</div>
+		<div class="information">', Lang::getTxt('showPermissions_help', file: 'Profile'), '</div>
 		<div id="permissions" class="flow_hidden">';
 
 		if (!empty(Utils::$context['no_access_boards']))
 		{
 			echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['showPermissions_restricted_boards'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('showPermissions_restricted_boards', file: 'Profile'), '</h3>
 			</div>
 			<div class="windowbg smalltext">',
 			Lang::getTxt(
@@ -1164,6 +1183,7 @@ function template_showPermissions()
 						Utils::$context['no_access_boards'],
 					)),
 				],
+				file: 'Profile',
 			), '
 			</div>';
 		}
@@ -1172,7 +1192,7 @@ function template_showPermissions()
 		echo '
 			<div class="tborder">
 				<div class="cat_bar">
-					<h3 class="catbg">', Lang::$txt['showPermissions_general'], '</h3>
+					<h3 class="catbg">', Lang::getTxt('showPermissions_general', file: 'Profile'), '</h3>
 				</div>';
 		if (!empty(Utils::$context['member']['permissions']['general']))
 		{
@@ -1180,8 +1200,8 @@ function template_showPermissions()
 				<table class="table_grid">
 					<thead>
 						<tr class="title_bar">
-							<th class="lefttext half_table">', Lang::$txt['showPermissions_permission'], '</th>
-							<th class="lefttext half_table">', Lang::$txt['showPermissions_status'], '</th>
+							<th class="lefttext half_table">', Lang::getTxt('showPermissions_permission', file: 'Profile'), '</th>
+							<th class="lefttext half_table">', Lang::getTxt('showPermissions_status', file: 'Profile'), '</th>
 						</tr>
 					</thead>
 					<tbody>';
@@ -1197,10 +1217,10 @@ function template_showPermissions()
 
 				if ($permission['is_denied'])
 					echo '
-								<span class="alert">', Lang::getTxt('showPermissions_denied', ['list' => Lang::sentenceList($permission['groups']['denied'])]), '</span>';
+								<span class="alert">', Lang::getTxt('showPermissions_denied', ['list' => Lang::sentenceList($permission['groups']['denied'])], file: 'Profile'), '</span>';
 				else
 					echo '
-								', Lang::getTxt('showPermissions_given', ['list' => Lang::sentenceList($permission['groups']['allowed'])]);
+								', Lang::getTxt('showPermissions_given', ['list' => Lang::sentenceList($permission['groups']['allowed'])], file: 'Profile');
 
 				echo '
 							</td>
@@ -1214,16 +1234,16 @@ function template_showPermissions()
 		}
 		else
 			echo '
-			<p class="windowbg">', Lang::$txt['showPermissions_none_general'], '</p>';
+			<p class="windowbg">', Lang::getTxt('showPermissions_none_general', file: 'Profile'), '</p>';
 
 		// Board permission section.
 		echo '
 			<form action="' . Config::$scripturl . '?action=profile;u=', Utils::$context['id_member'], ';area=permissions#board_permissions" method="post" accept-charset="UTF-8">
 				<div class="cat_bar">
 					<h3 class="catbg">
-						<span id="board_permissions">', Lang::$txt['showPermissions_select'], '</span>
+						<span id="board_permissions">', Lang::getTxt('showPermissions_select', file: 'Profile'), '</span>
 						<select name="board" onchange="if (this.options[this.selectedIndex].value) this.form.submit();">
-							<option value="0"', Utils::$context['board'] == 0 ? ' selected' : '', '>', Lang::$txt['showPermissions_global'], '</option>';
+							<option value="0"', Utils::$context['board'] == 0 ? ' selected' : '', '>', Lang::getTxt('showPermissions_global', file: 'Profile'), '</option>';
 
 		if (!empty(Utils::$context['boards']))
 			echo '
@@ -1246,8 +1266,8 @@ function template_showPermissions()
 			<table class="table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th class="lefttext half_table">', Lang::$txt['showPermissions_permission'], '</th>
-						<th class="lefttext half_table">', Lang::$txt['showPermissions_status'], '</th>
+						<th class="lefttext half_table">', Lang::getTxt('showPermissions_permission', file: 'Profile'), '</th>
+						<th class="lefttext half_table">', Lang::getTxt('showPermissions_status', file: 'Profile'), '</th>
 					</tr>
 				</thead>
 				<tbody>';
@@ -1263,11 +1283,11 @@ function template_showPermissions()
 
 				if ($permission['is_denied'])
 					echo '
-							<span class="alert">', Lang::getTxt('showPermissions_denied', ['list' => Lang::sentenceList($permission['groups']['denied'])]), '</span>';
+							<span class="alert">', Lang::getTxt('showPermissions_denied', ['list' => Lang::sentenceList($permission['groups']['denied'])], file: 'Profile'), '</span>';
 
 				else
 					echo '
-							', Lang::getTxt('showPermissions_given', ['list' => Lang::sentenceList($permission['groups']['allowed'])]);
+							', Lang::getTxt('showPermissions_given', ['list' => Lang::sentenceList($permission['groups']['allowed'])], file: 'Profile');
 
 				echo '
 						</td>
@@ -1279,7 +1299,7 @@ function template_showPermissions()
 		}
 		else
 			echo '
-			<p class="windowbg">', Lang::$txt['showPermissions_none_board'], '</p>';
+			<p class="windowbg">', Lang::getTxt('showPermissions_none_board', file: 'Profile'), '</p>';
 		echo '
 		</div><!-- #permissions -->';
 	}
@@ -1299,7 +1319,7 @@ function template_statPanel()
 	foreach (Utils::$context['text_stats'] as $key => $stat)
 	{
 		echo '
-				<dt>', Lang::$txt['statPanel_' . $key], '</dt>';
+				<dt>', Lang::getTxt('statPanel_' . $key, file: 'Profile'), '</dt>';
 
 		if (!empty($stat['url']))
 			echo '
@@ -1318,14 +1338,14 @@ function template_statPanel()
 		<div id="activitytime" class="flow_hidden">
 			<div class="title_bar">
 				<h3 class="titlebg">
-					<span class="main_icons history"></span> ', Lang::$txt['statPanel_activityTime'], '
+					<span class="main_icons history"></span> ', Lang::getTxt('statPanel_activityTime', file: 'Profile'), '
 				</h3>
 			</div>';
 
 	// If they haven't post at all, don't draw the graph.
 	if (empty(Utils::$context['posts_by_time']))
 		echo '
-			<p class="centertext padding">', Lang::$txt['statPanel_noPosts'], '</p>';
+			<p class="centertext padding">', Lang::getTxt('statPanel_noPosts', file: 'Profile'), '</p>';
 
 	// Otherwise do!
 	else
@@ -1339,7 +1359,7 @@ function template_statPanel()
 				<li>
 					<div class="generic_bar vertical">
 						<div class="bar" style="height: ', (int) $time_of_day['relative_percent'], '%;">
-							<span>', Lang::getTxt('statPanel_activityTime_posts', [$time_of_day['posts'], $time_of_day['posts_percent'] / 100]), '</span>
+							<span>', Lang::getTxt('statPanel_activityTime_posts', [$time_of_day['posts'], $time_of_day['posts_percent'] / 100], file: 'Profile'), '</span>
 						</div>
 					</div>
 					<span class="stats_hour">', $time_of_day['hour_format'], '</span>
@@ -1358,13 +1378,13 @@ function template_statPanel()
 			<div class="half_content">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<span class="main_icons replies"></span> ', Lang::$txt['statPanel_topBoards'], '
+						<span class="main_icons replies"></span> ', Lang::getTxt('statPanel_topBoards', file: 'Profile'), '
 					</h3>
 				</div>';
 
 	if (empty(Utils::$context['popular_boards']))
 		echo '
-				<p class="centertext padding">', Lang::$txt['statPanel_noPosts'], '</p>';
+				<p class="centertext padding">', Lang::getTxt('statPanel_noPosts', file: 'Profile'), '</p>';
 
 	else
 	{
@@ -1377,8 +1397,8 @@ function template_statPanel()
 			echo '
 					<dt>', $board['link'], '</dt>
 					<dd>
-						<div class="profile_pie" style="background-position: -', ((int) ($board['posts_percent'] / 5) * 20), 'px 0;" title="', Lang::getTxt('statPanel_topBoards_memberposts', [$board['posts'], $board['total_posts_member'], $board['posts_percent'] / 100]), '">
-							', Lang::getTxt('statPanel_topBoards_memberposts', [$board['posts'], $board['total_posts_member'], $board['posts_percent'] / 100]), '
+						<div class="profile_pie" style="background-position: -', ((int) ($board['posts_percent'] / 5) * 20), 'px 0;" title="', Lang::getTxt('statPanel_topBoards_memberposts', [$board['posts'], $board['total_posts_member'], $board['posts_percent'] / 100], file: 'Profile'), '">
+							', Lang::getTxt('statPanel_topBoards_memberposts', [$board['posts'], $board['total_posts_member'], $board['posts_percent'] / 100], file: 'Profile'), '
 						</div>
 						', empty(Utils::$context['hide_num_posts']) ? $board['posts'] : '', '
 					</dd>';
@@ -1392,13 +1412,13 @@ function template_statPanel()
 			<div class="half_content">
 				<div class="title_bar">
 					<h3 class="titlebg">
-						<span class="main_icons replies"></span> ', Lang::$txt['statPanel_topBoardsActivity'], '
+						<span class="main_icons replies"></span> ', Lang::getTxt('statPanel_topBoardsActivity', file: 'Profile'), '
 					</h3>
 				</div>';
 
 	if (empty(Utils::$context['board_activity']))
 		echo '
-				<p class="centertext padding">', Lang::$txt['statPanel_noPosts'], '</p>';
+				<p class="centertext padding">', Lang::getTxt('statPanel_noPosts', file: 'Profile'), '</p>';
 	else
 	{
 		echo '
@@ -1410,8 +1430,8 @@ function template_statPanel()
 			echo '
 					<dt>', $activity['link'], '</dt>
 					<dd>
-						<div class="profile_pie" style="background-position: -', ((int) ($activity['posts_percent'] / 5) * 20), 'px 0;" title="', Lang::getTxt('statPanel_topBoards_posts', [$activity['posts'], $activity['total_posts'], $activity['posts_percent'] / 100]), '">
-							', Lang::getTxt('statPanel_topBoards_posts', [$activity['posts'], $activity['total_posts'], $activity['posts_percent'] / 100]), '
+						<div class="profile_pie" style="background-position: -', ((int) ($activity['posts_percent'] / 5) * 20), 'px 0;" title="', Lang::getTxt('statPanel_topBoards_posts', [$activity['posts'], $activity['total_posts'], $activity['posts_percent'] / 100], file: 'Profile'), '">
+							', Lang::getTxt('statPanel_topBoards_posts', [$activity['posts'], $activity['total_posts'], $activity['posts_percent'] / 100], file: 'Profile'), '
 						</div>
 						', Lang::formatText('{0, number, percent}', [$activity['percent'] / 100]), '
 					</dd>';
@@ -1614,8 +1634,8 @@ function template_edit_options()
 		echo '
 				<dl class="settings">
 					<dt>
-						<strong', isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : '', '><label for="oldpasswrd">', Lang::$txt['current_password'], '</label></strong><br>
-						<span class="smalltext">', Lang::$txt['required_security_reasons'], '</span>
+						<strong', isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : '', '><label for="oldpasswrd">', Lang::getTxt('current_password', file: 'Profile'), '</label></strong><br>
+						<span class="smalltext">', Lang::getTxt('required_security_reasons', file: 'Profile'), '</span>
 					</dt>
 					<dd>
 						<input type="password" name="oldpasswrd" id="oldpasswrd" size="20">
@@ -1628,7 +1648,7 @@ function template_edit_options()
 				<input type="submit" name="save" value="', Utils::$context['submit_button_text'], '" class="button floatright">';
 	else
 		echo '
-				<input type="submit" name="save" value="', Lang::$txt['change_profile'], '" class="button floatright">';
+				<input type="submit" name="save" value="', Lang::getTxt('change_profile', file: 'Profile'), '" class="button floatright">';
 
 	if (!empty(Utils::$context['token_check']))
 		echo '
@@ -1654,17 +1674,17 @@ function template_profile_pm_settings()
 {
 	echo '
 					<dt>
-						<label for="pm_prefs">', Lang::$txt['pm_display_mode'], '</label>
+						<label for="pm_prefs">', Lang::getTxt('pm_display_mode', file: 'Profile'), '</label>
 					</dt>
 					<dd>
 						<select name="pm_prefs" id="pm_prefs">
-							<option value="0"', Utils::$context['display_mode'] == 0 ? ' selected' : '', '>', Lang::$txt['pm_display_mode_all'], '</option>
-							<option value="1"', Utils::$context['display_mode'] == 1 ? ' selected' : '', '>', Lang::$txt['pm_display_mode_one'], '</option>
-							<option value="2"', Utils::$context['display_mode'] == 2 ? ' selected' : '', '>', Lang::$txt['pm_display_mode_linked'], '</option>
+							<option value="0"', Utils::$context['display_mode'] == 0 ? ' selected' : '', '>', Lang::getTxt('pm_display_mode_all', file: 'Profile'), '</option>
+							<option value="1"', Utils::$context['display_mode'] == 1 ? ' selected' : '', '>', Lang::getTxt('pm_display_mode_one', file: 'Profile'), '</option>
+							<option value="2"', Utils::$context['display_mode'] == 2 ? ' selected' : '', '>', Lang::getTxt('pm_display_mode_linked', file: 'Profile'), '</option>
 						</select>
 					</dd>
 					<dt>
-						<label for="view_newest_pm_first">', Lang::$txt['recent_pms_at_top'], '</label>
+						<label for="view_newest_pm_first">', Lang::getTxt('recent_pms_at_top', file: 'Profile'), '</label>
 					</dt>
 					<dd>
 						<input type="hidden" name="default_options[view_newest_pm_first]" value="0">
@@ -1674,23 +1694,23 @@ function template_profile_pm_settings()
 				<hr>
 				<dl class="settings">
 					<dt>
-						<label for="pm_receive_from">', Lang::$txt['pm_receive_from'], '</label>
+						<label for="pm_receive_from">', Lang::getTxt('pm_receive_from', file: 'Profile'), '</label>
 					</dt>
 					<dd>
 						<select name="pm_receive_from" id="pm_receive_from">
-							<option value="0"', empty(Utils::$context['receive_from']) || (empty(Config::$modSettings['enable_buddylist']) && Utils::$context['receive_from'] < 3) ? ' selected' : '', '>', Lang::$txt['pm_receive_from_everyone'], '</option>';
+							<option value="0"', empty(Utils::$context['receive_from']) || (empty(Config::$modSettings['enable_buddylist']) && Utils::$context['receive_from'] < 3) ? ' selected' : '', '>', Lang::getTxt('pm_receive_from_everyone', file: 'Profile'), '</option>';
 
 	if (!empty(Config::$modSettings['enable_buddylist']))
 		echo '
-							<option value="1"', !empty(Utils::$context['receive_from']) && Utils::$context['receive_from'] == 1 ? ' selected' : '', '>', Lang::$txt['pm_receive_from_ignore'], '</option>
-							<option value="2"', !empty(Utils::$context['receive_from']) && Utils::$context['receive_from'] == 2 ? ' selected' : '', '>', Lang::$txt['pm_receive_from_buddies'], '</option>';
+							<option value="1"', !empty(Utils::$context['receive_from']) && Utils::$context['receive_from'] == 1 ? ' selected' : '', '>', Lang::getTxt('pm_receive_from_ignore', file: 'Profile'), '</option>
+							<option value="2"', !empty(Utils::$context['receive_from']) && Utils::$context['receive_from'] == 2 ? ' selected' : '', '>', Lang::getTxt('pm_receive_from_buddies', file: 'Profile'), '</option>';
 
 	echo '
-							<option value="3"', !empty(Utils::$context['receive_from']) && Utils::$context['receive_from'] > 2 ? ' selected' : '', '>', Lang::$txt['pm_receive_from_admins'], '</option>
+							<option value="3"', !empty(Utils::$context['receive_from']) && Utils::$context['receive_from'] > 2 ? ' selected' : '', '>', Lang::getTxt('pm_receive_from_admins', file: 'Profile'), '</option>
 						</select>
 					</dd>
 					<dt>
-						<label for="popup_messages">', Lang::$txt['popup_messages'], '</label>
+						<label for="popup_messages">', Lang::getTxt('popup_messages', file: 'Profile'), '</label>
 					</dt>
 					<dd>
 						<input type="hidden" name="default_options[popup_messages]" value="0">
@@ -1700,7 +1720,7 @@ function template_profile_pm_settings()
 				<hr>
 				<dl class="settings">
 					<dt>
-						<label for="pm_remove_inbox_label">', Lang::$txt['pm_remove_inbox_label'], '</label>
+						<label for="pm_remove_inbox_label">', Lang::getTxt('pm_remove_inbox_label', file: 'Profile'), '</label>
 					</dt>
 					<dd>
 						<input type="hidden" name="default_options[pm_remove_inbox_label]" value="0">
@@ -1861,22 +1881,22 @@ function template_alert_configuration()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				', Lang::$txt['alert_prefs'], '
+				', Lang::getTxt('alert_prefs', file: 'Profile'), '
 			</h3>
 		</div>
 		<p class="information">
-			', (empty(Utils::$context['description']) ? Lang::$txt['alert_prefs_desc'] : Utils::$context['description']), '
+			', (empty(Utils::$context['description']) ? Lang::getTxt('alert_prefs_desc', file: 'Profile') : Utils::$context['description']), '
 		</p>
 		<form action="', Config::$scripturl, '?', Utils::$context['action'], '" method="post" accept-charset="UTF-8" id="notify_options" class="flow_auto">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', Lang::$txt['notification_general'], '
+					', Lang::getTxt('notification_general', file: 'Profile'), '
 				</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<label for="notify_announcements">', Lang::$txt['notify_important_email'], '</label>', Utils::$context['id_member'] == 0 ? '
+						<label for="notify_announcements">', Lang::getTxt('notify_important_email', file: 'Profile'), '</label>', Utils::$context['id_member'] == 0 ? '
 						<br>
 						<span class="smalltext alert">' . Lang::getTxt('notify_announcements_desc', file: 'Admin') . '</span>' : '', '
 					</dt>
@@ -1888,7 +1908,7 @@ function template_alert_configuration()
 	if (!empty(Config::$modSettings['enable_ajax_alerts']))
 		echo '
 					<dt>
-						<label for="notify_send_body">', Lang::$txt['notify_alert_timeout'], '</label>
+						<label for="notify_send_body">', Lang::getTxt('notify_alert_timeout', file: 'Profile'), '</label>
 					</dt>
 					<dd>
 						<input type="number" size="4" id="notify_alert_timeout" name="opt_alert_timeout" min="0" max="127" value="', Utils::$context['member']['alert_timeout'], '">
@@ -1899,7 +1919,7 @@ function template_alert_configuration()
 			</div><!-- .windowbg -->
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', Lang::$txt['notify_what_how'], '
+					', Lang::getTxt('notify_what_how', file: 'Profile'), '
 				</h3>
 			</div>
 			<table class="table_grid">';
@@ -1908,9 +1928,9 @@ function template_alert_configuration()
 	{
 		echo '
 				<tr class="title_bar">
-					<th>', Lang::$txt['alert_group_' . $alert_group], '</th>
-					<th>', Lang::$txt['receive_alert'], '</th>
-					<th>', Lang::$txt['receive_mail'], '</th>
+					<th>', Lang::getTxt('alert_group_' . $alert_group, file: 'Profile'), '</th>
+					<th>', Lang::getTxt('receive_alert', file: 'Profile'), '</th>
+					<th>', Lang::getTxt('receive_mail', file: 'Profile'), '</th>
 				</tr>
 				<tr class="windowbg">';
 
@@ -1925,7 +1945,7 @@ function template_alert_configuration()
 				<tr class="windowbg">
 					<td colspan="3">';
 
-				$label = Lang::$txt['alert_opt_' . $opts[1]];
+				$label = Lang::getTxt('alert_opt_' . $opts[1], file: 'Profile');
 				$label_pos = isset($opts['label']) ? $opts['label'] : '';
 				if ($label_pos == 'before')
 					echo '
@@ -1966,7 +1986,7 @@ function template_alert_configuration()
 			echo '
 				<tr class="windowbg">
 					<td>
-						', Lang::$txt['alert_' . $alert_id], isset($alert_details['help']) ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><span class="main_icons help" title="' . Lang::$txt['help'] . '"></span></a>' : '', '
+						', Lang::getTxt('alert_' . $alert_id, file: 'Profile'), isset($alert_details['help']) ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=' . $alert_details['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help floatright"><span class="main_icons help" title="' . Lang::$txt['help'] . '"></span></a>' : '', '
 					</td>';
 
 			foreach (Utils::$context['alert_bits'] as $type => $bitmask)
@@ -2003,7 +2023,7 @@ function template_alert_configuration()
 			</table>
 			<br>
 			<div>
-				<input id="notify_submit" type="submit" name="notify_submit" value="', Lang::$txt['notify_save'], '" class="button">
+				<input id="notify_submit" type="submit" name="notify_submit" value="', Lang::getTxt('notify_save', file: 'Profile'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">', !empty(Utils::$context['token_check']) ? '
 				<input type="hidden" name="' . Utils::$context[Utils::$context['token_check'] . '_token_var'] . '" value="' . Utils::$context[Utils::$context['token_check'] . '_token'] . '">' : '', '
 				<input type="hidden" name="u" value="', Utils::$context['id_member'], '">
@@ -2022,10 +2042,10 @@ function template_alert_notifications_topics()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				', Lang::$txt['watched_topics'], '
+				', Lang::getTxt('watched_topics', file: 'Profile'), '
 			</h3>
 		</div>
-		<p class="information">', Lang::$txt['watched_topics_desc'], '</p>
+		<p class="information">', Lang::getTxt('watched_topics_desc', file: 'Profile'), '</p>
 		<br>';
 
 	template_show_list('topic_notification_list');
@@ -2039,10 +2059,10 @@ function template_alert_notifications_boards()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				', Lang::$txt['watched_boards'], '
+				', Lang::getTxt('watched_boards', file: 'Profile'), '
 			</h3>
 		</div>
-		<p class="information">', Lang::$txt['watched_boards_desc'], '</p>
+		<p class="information">', Lang::getTxt('watched_boards_desc', file: 'Profile'), '</p>
 		<br>';
 
 	template_show_list('board_notification_list');
@@ -2061,7 +2081,7 @@ function template_groupMembership()
 					', Lang::$txt['profile'], '
 				</h3>
 			</div>
-			<p class="information">', Lang::$txt['groupMembership_info'], '</p>';
+			<p class="information">', Lang::getTxt('groupMembership_info', file: 'Profile'), '</p>';
 
 	// Do we have an update message?
 	if (!empty(Utils::$context['update_message']))
@@ -2079,14 +2099,14 @@ function template_groupMembership()
 		echo '
 			<div class="groupmembership">
 				<div class="cat_bar">
-					<h3 class="catbg">', Lang::$txt['request_group_membership'], '</h3>
+					<h3 class="catbg">', Lang::getTxt('request_group_membership', file: 'Profile'), '</h3>
 				</div>
 				<div class="roundframe">
-					<span>', Lang::$txt['request_group_membership_desc'], '</span>
+					<span>', Lang::getTxt('request_group_membership_desc', file: 'Profile'), '</span>
 					<textarea name="reason" rows="4"></textarea>
 					<div class="righttext">
 						<input type="hidden" name="gid" value="', Utils::$context['group_request']['id'], '">
-						<input type="submit" name="req" value="', Lang::$txt['submit_request'], '" class="button">
+						<input type="submit" name="req" value="', Lang::getTxt('submit_request', file: 'Profile'), '" class="button">
 						</div>
 					</div>
 				</div><!-- .groupmembership -->';
@@ -2095,7 +2115,7 @@ function template_groupMembership()
 	{
 		echo '
 				<div class="title_bar">
-					<h3 class="titlebg">', Lang::$txt['current_membergroups'], '</h3>
+					<h3 class="titlebg">', Lang::getTxt('current_membergroups', file: 'Profile'), '</h3>
 				</div>';
 
 		foreach (Utils::$context['groups']['member'] as $group)
@@ -2113,7 +2133,7 @@ function template_groupMembership()
 			// Can they leave their group?
 			if ($group['can_leave'])
 				echo '
-					<a href="' . Config::$scripturl . '?action=profile;save;u=' . Utils::$context['id_member'] . ';area=groupmembership;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';gid=' . $group['id'] . ';', Utils::$context[Utils::$context['token_check'] . '_token_var'], '=', Utils::$context[Utils::$context['token_check'] . '_token'], '">' . Lang::$txt['leave_group'] . '</a>';
+					<a href="' . Config::$scripturl . '?action=profile;save;u=' . Utils::$context['id_member'] . ';area=groupmembership;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';gid=' . $group['id'] . ';', Utils::$context[Utils::$context['token_check'] . '_token_var'], '=', Utils::$context[Utils::$context['token_check'] . '_token'], '">' . Lang::getTxt('leave_group', file: 'Profile') . '</a>';
 
 			echo '
 				</div><!-- .windowbg -->';
@@ -2122,7 +2142,7 @@ function template_groupMembership()
 		if (Utils::$context['can_edit_primary'])
 			echo '
 				<div class="padding righttext">
-					<input type="submit" value="', Lang::$txt['make_primary'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('make_primary', file: 'Profile'), '" class="button">
 				</div>';
 
 		// Any groups they can join?
@@ -2130,7 +2150,7 @@ function template_groupMembership()
 		{
 			echo '
 				<div class="title_bar">
-					<h3 class="titlebg">', Lang::$txt['available_groups'], '</h3>
+					<h3 class="titlebg">', Lang::getTxt('available_groups', file: 'Profile'), '</h3>
 				</div>';
 
 			foreach (Utils::$context['groups']['available'] as $group)
@@ -2141,15 +2161,15 @@ function template_groupMembership()
 
 				if ($group['type'] == 3)
 					echo '
-					<a href="', Config::$scripturl, '?action=profile;save;u=', Utils::$context['id_member'], ';area=groupmembership;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';gid=', $group['id'], ';', Utils::$context[Utils::$context['token_check'] . '_token_var'], '=', Utils::$context[Utils::$context['token_check'] . '_token'], '" class="button floatright">', Lang::$txt['join_group'], '</a>';
+					<a href="', Config::$scripturl, '?action=profile;save;u=', Utils::$context['id_member'], ';area=groupmembership;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';gid=', $group['id'], ';', Utils::$context[Utils::$context['token_check'] . '_token_var'], '=', Utils::$context[Utils::$context['token_check'] . '_token'], '" class="button floatright">', Lang::getTxt('join_group', file: 'Profile'), '</a>';
 
 				elseif ($group['type'] == 2 && $group['pending'])
 					echo '
-					<span class="floatright">', Lang::$txt['approval_pending'], '</span>';
+					<span class="floatright">', Lang::getTxt('approval_pending', file: 'Profile'), '</span>';
 
 				elseif ($group['type'] == 2)
 					echo '
-					<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=groupmembership;request=', $group['id'], '" class="button floatright">', Lang::$txt['request_group'], '</a>';
+					<a href="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=groupmembership;request=', $group['id'], '" class="button floatright">', Lang::getTxt('request_group', file: 'Profile'), '</a>';
 
 				echo '
 				</div><!-- .windowbg -->';
@@ -2206,7 +2226,7 @@ function template_ignoreboards()
 				', Lang::$txt['profile'], '
 			</h3>
 		</div>
-		<p class="information">', Lang::$txt['ignoreboards_info'], '</p>
+		<p class="information">', Lang::getTxt('ignoreboards_info', file: 'Profile'), '</p>
 		<div class="windowbg">
 			<div class="flow_hidden boardslist">
 				<ul>';
@@ -2301,20 +2321,20 @@ function template_viewWarning()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
-				', Lang::getTxt('profile_viewwarning_for_user', Utils::$context['member']), '
+				', Lang::getTxt('profile_viewwarning_for_user', Utils::$context['member'], file: 'Profile'), '
 			</h3>
 		</div>
-		<p class="information">', Lang::$txt['viewWarning_help'], '</p>
+		<p class="information">', Lang::getTxt('viewWarning_help', file: 'Profile'), '</p>
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<strong>', Lang::$txt['profile_warning_name'], '</strong>
+					<strong>', Lang::getTxt('profile_warning_name', file: 'Profile'), '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['member']['name'], '
 				</dd>
 				<dt>
-					<strong>', Lang::$txt['profile_warning_level'], '</strong>
+					<strong>', Lang::getTxt('profile_warning_level', file: 'Profile'), '</strong>
 				</dt>
 				<dd>
 					<div class="generic_bar warning_level ', Utils::$context['current_warning_mode'], '">
@@ -2327,7 +2347,7 @@ function template_viewWarning()
 	if (!empty(Utils::$context['level_effects'][Utils::$context['current_level']]))
 		echo '
 				<dt>
-					<strong>', Lang::$txt['profile_viewwarning_impact'], '</strong>
+					<strong>', Lang::getTxt('profile_viewwarning_impact', file: 'Profile'), '</strong>
 				</dt>
 				<dd>
 					', Utils::$context['level_effects'][Utils::$context['current_level']], '
@@ -2397,13 +2417,13 @@ function template_issueWarning()
 	<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=issuewarning" method="post" class="flow_hidden" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
-				', User::$me->is_owner ? Lang::$txt['profile_warning_level'] : Lang::$txt['profile_issue_warning'], '
+				', Lang::getTxt(User::$me->is_owner ? 'profile_warning_level' : 'profile_issue_warning', file: 'Profile'), '
 			</h3>
 		</div>';
 
 	if (!User::$me->is_owner)
 		echo '
-		<p class="information">', Lang::$txt['profile_warning_desc'], '</p>';
+		<p class="information">', Lang::getTxt('profile_warning_desc', file: 'Profile'), '</p>';
 
 	echo '
 		<div class="windowbg">
@@ -2412,7 +2432,7 @@ function template_issueWarning()
 	if (!User::$me->is_owner)
 		echo '
 				<dt>
-					<strong>', Lang::$txt['profile_warning_name'], '</strong>
+					<strong>', Lang::getTxt('profile_warning_name', file: 'Profile'), '</strong>
 				</dt>
 				<dd>
 					<strong>', Utils::$context['member']['name'], '</strong>
@@ -2420,20 +2440,20 @@ function template_issueWarning()
 
 	echo '
 				<dt>
-					<strong>', Lang::$txt['profile_warning_level'], '</strong>';
+					<strong>', Lang::getTxt('profile_warning_level', file: 'Profile'), '</strong>';
 
 	// Is there only so much they can apply?
 	if (Utils::$context['warning_limit'])
 		echo '
 					<br>
-					<span class="smalltext">', Lang::getTxt('profile_warning_limit_attribute', [Utils::$context['warning_limit'] / 100]), '</span>';
+					<span class="smalltext">', Lang::getTxt('profile_warning_limit_attribute', [Utils::$context['warning_limit'] / 100], file: 'Profile'), '</span>';
 
 	echo '
 				</dt>
 				<dd>
 					', Lang::formatText('{0, number, :: percent}', [0]), ' <input name="warning_level" id="warning_level" type="range" min="0" max="100" step="5" value="', Utils::$context['member']['warning'], '" onchange="updateSlider(this.value)"> ', Lang::formatText('{0, number, :: percent}', [100]), '
 					<div class="clear_left">
-						', Lang::$txt['profile_warning_impact'], ': <span id="cur_level_div">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), ' (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</span>
+						', Lang::getTxt('profile_warning_impact', file: 'Profile'), ': <span id="cur_level_div">', Lang::formatText('{0, number, :: percent}', [Utils::$context['member']['warning']]), ' (', Utils::$context['level_effects'][Utils::$context['current_level']], ')</span>
 					</div>
 				</dd>';
 
@@ -2441,8 +2461,8 @@ function template_issueWarning()
 	{
 		echo '
 				<dt>
-					<strong>', Lang::$txt['profile_warning_reason'], '</strong><br>
-					<span class="smalltext">', Lang::$txt['profile_warning_reason_desc'], '</span>
+					<strong>', Lang::getTxt('profile_warning_reason', file: 'Profile'), '</strong><br>
+					<span class="smalltext">', Lang::getTxt('profile_warning_reason_desc', file: 'Profile'), '</span>
 				</dt>
 				<dd>
 					<input type="text" name="warn_reason" id="warn_reason" value="', Utils::$context['warning_data']['reason'], '" size="50">
@@ -2462,23 +2482,23 @@ function template_issueWarning()
 			</div>
 			<dl class="settings">
 				<dt>
-					<strong><label for="warn_notify">', Lang::$txt['profile_warning_notify'], '</label></strong>
+					<strong><label for="warn_notify">', Lang::getTxt('profile_warning_notify', file: 'Profile'), '</label></strong>
 				</dt>
 				<dd>
 					<input type="checkbox" name="warn_notify" id="warn_notify" onclick="modifyWarnNotify();"', Utils::$context['warning_data']['notify'] ? ' checked' : '', '>
 				</dd>
 				<dt>
-					<strong><label for="warn_sub">', Lang::$txt['profile_warning_notify_subject'], '</label></strong>
+					<strong><label for="warn_sub">', Lang::getTxt('profile_warning_notify_subject', file: 'Profile'), '</label></strong>
 				</dt>
 				<dd>
-					<input type="text" name="warn_sub" id="warn_sub" value="', empty(Utils::$context['warning_data']['notify_subject']) ? Lang::$txt['profile_warning_notify_template_subject'] : Utils::$context['warning_data']['notify_subject'], '" size="50">
+					<input type="text" name="warn_sub" id="warn_sub" value="', empty(Utils::$context['warning_data']['notify_subject']) ? Lang::getTxt('profile_warning_notify_template_subject', file: 'Profile') : Utils::$context['warning_data']['notify_subject'], '" size="50">
 				</dd>
 				<dt>
-					<strong><label for="warn_temp">', Lang::$txt['profile_warning_notify_body'], '</label></strong>
+					<strong><label for="warn_temp">', Lang::getTxt('profile_warning_notify_body', file: 'Profile'), '</label></strong>
 				</dt>
 				<dd>
 					<select name="warn_temp" id="warn_temp" disabled onchange="populateNotifyTemplate();">
-						<option value="-1">', Lang::$txt['profile_warning_notify_template'], '</option>
+						<option value="-1">', Lang::getTxt('profile_warning_notify_template', file: 'Profile'), '</option>
 						<option value="-1" disabled>------------------------------</option>';
 
 		foreach (Utils::$context['notification_templates'] as $id_template => $template)
@@ -2487,7 +2507,7 @@ function template_issueWarning()
 
 		echo '
 					</select>
-					<span id="new_template_link" style="display: none;"><a href="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" class="button floatnone" target="_blank" rel="noopener">', Lang::$txt['profile_warning_new_template'], '</a></span>
+					<span id="new_template_link" style="display: none;"><a href="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=0" class="button floatnone" target="_blank" rel="noopener">', Lang::getTxt('profile_warning_new_template', file: 'Profile'), '</a></span>
 					<br>
 					<textarea name="warn_body" id="warn_body" cols="40" rows="8">', Utils::$context['warning_data']['notify_body'], '</textarea>
 				</dd>';
@@ -2503,7 +2523,7 @@ function template_issueWarning()
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="button" name="preview" id="preview_button" value="', Lang::$txt['preview'], '" class="button">
-				<input type="submit" name="save" value="', User::$me->is_owner ? Lang::$txt['change_profile'] : Lang::$txt['profile_warning_issue'], '" class="button">
+				<input type="submit" name="save" value="', Lang::getTxt(User::$me->is_owner ? 'change_profile' : 'profile_warning_issue', file: 'Profile'), '" class="button">
 			</div><!-- .righttext -->
 		</div><!-- .windowbg -->
 	</form>';
@@ -2575,14 +2595,14 @@ function template_deleteAccount()
 		<form action="', Config::$scripturl, '?action=profile;area=deleteaccount;save" method="post" accept-charset="UTF-8" name="creator" id="creator">
 			<div class="cat_bar">
 				<h3 class="catbg profile_hd">
-					', Lang::$txt['deleteAccount'], '
+					', Lang::getTxt('deleteAccount', file: 'Profile'), '
 				</h3>
 			</div>';
 
 	// If deleting another account give them a lovely info box.
 	if (!User::$me->is_owner)
 		echo '
-			<p class="information">', Lang::$txt['deleteAccount_desc'], '</p>';
+			<p class="information">', Lang::getTxt('deleteAccount_desc', file: 'Profile'), '</p>';
 
 	echo '
 			<div class="windowbg">';
@@ -2590,30 +2610,30 @@ function template_deleteAccount()
 	// If they are deleting their account AND the admin needs to approve it - give them another piece of info ;)
 	if (Utils::$context['needs_approval'])
 		echo '
-				<div class="noticebox">', Lang::$txt['deleteAccount_approval'], '</div>';
+				<div class="noticebox">', Lang::getTxt('deleteAccount_approval', file: 'Profile'), '</div>';
 
 	// If the user is deleting their own account warn them first - and require a password!
 	if (User::$me->is_owner)
 	{
 		echo '
-				<div class="errorbox">', Lang::$txt['own_profile_confirm'], '</div>
+				<div class="errorbox">', Lang::getTxt('own_profile_confirm', file: 'Profile'), '</div>
 				<fieldset>';
 
 		if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
 			echo '
-					' . Lang::$txt['deleteAccount_anonymize_forced'];
+					' . Lang::getTxt('deleteAccount_anonymize_forced', file: 'Profile');
 		} else {
 			echo '
 					<label for="anonymize">
-						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ', Lang::$txt['deleteAccount_anonymize'], '
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ', Lang::getTxt('deleteAccount_anonymize', file: 'Profile'), '
 					</label>';
 		}
 
 		echo '
 				</fieldset>
 				<fieldset>
-					<legend>', Lang::$txt['required_security_reasons'], '</legend>
-					<strong', (isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : ''), '>', Lang::$txt['current_password'], '</strong>
+					<legend>', Lang::getTxt('required_security_reasons', file: 'Profile'), '</legend>
+					<strong', (isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : ''), '>', Lang::getTxt('current_password', file: 'Profile'), '</strong>
 					<input type="password" name="oldpasswrd" size="20">
 				</fieldset>
 				<input type="submit" value="', Lang::$txt['delete'], '" class="button floatright">';
@@ -2631,7 +2651,7 @@ function template_deleteAccount()
 	else
 	{
 		echo '
-				<div class="errorbox">', Lang::$txt['deleteAccount_warning'], '</div>';
+				<div class="errorbox">', Lang::getTxt('deleteAccount_warning', file: 'Profile'), '</div>';
 
 		// Only actually give these options if they are kind of important.
 		if (Utils::$context['can_delete_posts'])
@@ -2639,22 +2659,22 @@ function template_deleteAccount()
 			echo '
 				<fieldset>
 					<label for="deleteVotes">
-						<input type="checkbox" name="deleteVotes" id="deleteVotes" value="1"> ', Lang::$txt['deleteAccount_votes'], '
+						<input type="checkbox" name="deleteVotes" id="deleteVotes" value="1"> ', Lang::getTxt('deleteAccount_votes', file: 'Profile'), '
 					</label>
 				</fieldset>
 				<fieldset>
 					<label for="deletePosts">
-						<input type="checkbox" name="deletePosts" id="deletePosts" value="1"> ', Lang::$txt['deleteAccount_posts'], '
+						<input type="checkbox" name="deletePosts" id="deletePosts" value="1"> ', Lang::getTxt('deleteAccount_posts', file: 'Profile'), '
 					</label>
 					<select name="remove_type">
-						<option value="posts">', Lang::$txt['deleteAccount_all_posts'], '</option>
-						<option value="topics">', Lang::$txt['deleteAccount_topics'], '</option>
+						<option value="posts">', Lang::getTxt('deleteAccount_all_posts', file: 'Profile'), '</option>
+						<option value="topics">', Lang::getTxt('deleteAccount_topics', file: 'Profile'), '</option>
 					</select>';
 
 			if (Utils::$context['show_perma_delete'])
 				echo '
 					<br>
-					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1"> ', Lang::$txt['deleteAccount_permanent'], '</label>';
+					<label for="perma_delete"><input type="checkbox" name="perma_delete" id="perma_delete" value="1"> ', Lang::getTxt('deleteAccount_permanent', file: 'Profile'), '</label>';
 
 			echo '
 				</fieldset>';
@@ -2663,17 +2683,17 @@ function template_deleteAccount()
 		echo '
 				<fieldset>
 					<label for="deleteAccount">
-						<input type="checkbox" name="deleteAccount" id="deleteAccount" value="1" onclick="if (this.checked) return confirm(\'', Lang::$txt['deleteAccount_confirm'], '\');"> ', Lang::$txt['deleteAccount_member'], '
+						<input type="checkbox" name="deleteAccount" id="deleteAccount" value="1" onclick="if (this.checked) return confirm(\'', Lang::getTxt('deleteAccount_confirm', file: 'Profile'), '\');"> ', Lang::getTxt('deleteAccount_member', file: 'Profile'), '
 					</label>
 					<br>';
 
 		if (!empty(Config::$modSettings['always_anonymize_deleted_accounts'])) {
 			echo '
-					' . Lang::$txt['deleteAccount_anonymize_forced'];
+					' . Lang::getTxt('deleteAccount_anonymize_forced', file: 'Profile');
 		} else {
 			echo '
 					<label for="anonymize">
-						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ', Lang::$txt['deleteAccount_anonymize'], '
+						<input type="checkbox" name="anonymize" id="anonymize" value="1"> ', Lang::getTxt('deleteAccount_anonymize', file: 'Profile'), '
 					</label>';
 		}
 
@@ -2712,8 +2732,8 @@ function template_profile_save()
 		echo '
 					<dl class="settings">
 						<dt>
-							<strong', isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : '', '>', Lang::$txt['current_password'], '</strong><br>
-							<span class="smalltext">', Lang::$txt['required_security_reasons'], '</span>
+							<strong', isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : '', '>', Lang::getTxt('current_password', file: 'Profile'), '</strong><br>
+							<span class="smalltext">', Lang::getTxt('required_security_reasons', file: 'Profile'), '</span>
 						</dt>
 						<dd>
 							<input type="password" name="oldpasswrd" size="20">
@@ -2728,7 +2748,7 @@ function template_profile_save()
 						<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">';
 
 	echo '
-						<input type="submit" value="', Lang::$txt['change_profile'], '" class="button">
+						<input type="submit" value="', Lang::getTxt('change_profile', file: 'Profile'), '" class="button">
 						<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 						<input type="hidden" name="u" value="', Utils::$context['id_member'], '">
 						<input type="hidden" name="sa" value="', Utils::$context['menu_item_selected'], '">
@@ -2753,9 +2773,9 @@ function template_error_message()
 		foreach (Utils::$context['post_errors'] as $error)
 		{
 			if ($error == 'password_short') {
-				$error_message = Lang::getTxt('profile_error_' . $error, [Security::minimumPasswordLength()]);
+				$error_message = Lang::getTxt('profile_error_' . $error, [Security::minimumPasswordLength()], file: 'Profile');
 			} else {
-				$error_message = isset(Lang::$txt['profile_error_' . $error]) ? Lang::getTxt('profile_error_' . $error) : $error;
+				$error_message = Lang::txtExists('profile_error_' . $error, file: 'Profile') ? Lang::getTxt('profile_error_' . $error, file: 'Profile') : $error;
 			}
 
 			echo '
@@ -2777,11 +2797,11 @@ function template_profile_group_manage()
 {
 	echo '
 							<dt>
-								<strong>', Lang::$txt['primary_membergroup'], '</strong><br>
-								<span class="smalltext"><a href="', Config::$scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ', Lang::$txt['moderator_why_missing'], '</a></span>
+								<strong>', Lang::getTxt('primary_membergroup', file: 'Profile'), '</strong><br>
+								<span class="smalltext"><a href="', Config::$scripturl, '?action=helpadmin;help=moderator_why_missing" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ', Lang::getTxt('moderator_why_missing', file: 'Profile'), '</a></span>
 							</dt>
 							<dd>
-								<select name="id_group" ', (User::$me->is_owner && Utils::$context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . Lang::$txt['deadmin_confirm'] . '\')) this.value = 1;"' : ''), '>';
+								<select name="id_group" ', (User::$me->is_owner && Utils::$context['member']['group_id'] == 1 ? 'onchange="if (this.value != 1 &amp;&amp; !confirm(\'' . Lang::getTxt('deadmin_confirm', file: 'Profile') . '\')) this.value = 1;"' : ''), '>';
 
 	// Fill the select box with all primary member groups that can be assigned to a member.
 	foreach (Utils::$context['member_groups'] as $member_group)
@@ -2795,7 +2815,7 @@ function template_profile_group_manage()
 								</select>
 							</dd>
 							<dt>
-								<strong>', Lang::$txt['additional_membergroups'], '</strong>
+								<strong>', Lang::getTxt('additional_membergroups', file: 'Profile'), '</strong>
 							</dt>
 							<dd>
 								<span id="additional_groupsList">
@@ -2809,7 +2829,7 @@ function template_profile_group_manage()
 
 	echo '
 								</span>
-								<a href="javascript:void(0);" onclick="document.getElementById(\'additional_groupsList\').style.display = \'block\'; document.getElementById(\'additional_groupsLink\').style.display = \'none\'; return false;" id="additional_groupsLink" style="display: none;" class="toggle_down">', Lang::$txt['additional_membergroups_show'], '</a>
+								<a href="javascript:void(0);" onclick="document.getElementById(\'additional_groupsList\').style.display = \'block\'; document.getElementById(\'additional_groupsLink\').style.display = \'none\'; return false;" id="additional_groupsLink" style="display: none;" class="toggle_down">', Lang::getTxt('additional_membergroups_show', file: 'Profile'), '</a>
 								<script>
 									document.getElementById("additional_groupsList").style.display = "none";
 									document.getElementById("additional_groupsLink").style.display = "";
@@ -2826,8 +2846,8 @@ function template_profile_birthdate()
 	// Just show the pretty box!
 	echo '
 							<dt>
-								<strong>', Lang::$txt['dob'], '</strong><br>
-								<span class="smalltext">', Lang::$txt['dob_year'], ' - ', Lang::$txt['dob_month'], ' - ', Lang::$txt['dob_day'], '</span>
+								<strong>', Lang::getTxt('dob', file: 'Profile'), '</strong><br>
+								<span class="smalltext">', Lang::getTxt('dob_year', file: 'Profile'), ' - ', Lang::getTxt('dob_month', file: 'Profile'), ' - ', Lang::getTxt('dob_day', file: 'Profile'), '</span>
 							</dt>
 							<dd>
 								<input type="text" name="bday3" size="4" maxlength="4" value="', Utils::$context['member']['birth_date']['year'], '"> -
@@ -2843,22 +2863,22 @@ function template_profile_signature_modify()
 {
 	echo '
 							<dt id="current_signature" style="display:none">
-								<strong>', Lang::$txt['current_signature'], '</strong>
+								<strong>', Lang::getTxt('current_signature', file: 'Profile'), '</strong>
 							</dt>
 							<dd id="current_signature_display" style="display:none">
 								<hr>
 							</dd>
 
 							<dt id="preview_signature" style="display:none">
-								<strong>', Lang::$txt['signature_preview'], '</strong>
+								<strong>', Lang::getTxt('signature_preview', file: 'Profile'), '</strong>
 							</dt>
 							<dd id="preview_signature_display" style="display:none">
 								<hr>
 							</dd>
 
 							<dt>
-								<strong>', Lang::$txt['signature'], '</strong><br>
-								<span class="smalltext">', Lang::$txt['sig_info'], '</span><br>
+								<strong>', Lang::getTxt('signature', file: 'Profile'), '</strong><br>
+								<span class="smalltext">', Lang::getTxt('sig_info', file: 'Profile'), '</span><br>
 								<br>';
 
 	if (Utils::$context['show_spellchecking'])
@@ -2873,11 +2893,11 @@ function template_profile_signature_modify()
 	// If there is a limit at all!
 	if (!empty(Utils::$context['signature_limits']['max_length']))
 		echo '
-								<span class="smalltext">', Lang::getTxt('max_sig_characters', Utils::$context['signature_limits']), '</span><br>';
+								<span class="smalltext">', Lang::getTxt('max_sig_characters', Utils::$context['signature_limits'], file: 'Profile'), '</span><br>';
 
 	if (!empty(Utils::$context['show_preview_button']))
 		echo '
-								<input type="button" name="preview_signature" id="preview_button" value="', Lang::$txt['preview_signature'], '" class="button floatright">';
+								<input type="button" name="preview_signature" id="preview_button" value="', Lang::getTxt('preview_signature', file: 'Profile'), '" class="button floatright">';
 
 	if (Utils::$context['signature_warning'])
 		echo '
@@ -2907,41 +2927,41 @@ function template_profile_avatar_select()
 	echo '
 							<dt>
 								<strong id="personal_picture">
-									<label for="avatar_upload_box">', Lang::$txt['personal_picture'], '</label>
+									<label for="avatar_upload_box">', Lang::getTxt('personal_picture', file: 'Profile'), '</label>
 								</strong>';
 
 	if (empty(Config::$modSettings['gravatarEnabled']) || empty(Config::$modSettings['gravatarOverride']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_none" value="none"' . (Utils::$context['member']['avatar']['choice'] == 'none' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_none"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
-									' . Lang::$txt['no_avatar'] . '
+									' . Lang::getTxt('no_avatar', file: 'Profile') . '
 								</label><br>';
 
 	if (!empty(Utils::$context['member']['avatar']['allow_server_stored']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_server_stored" value="server_stored"' . (Utils::$context['member']['avatar']['choice'] == 'server_stored' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_server_stored"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
-									', Lang::$txt['choose_avatar_gallery'], '
+									', Lang::getTxt('choose_avatar_gallery', file: 'Profile'), '
 								</label><br>';
 
 	if (!empty(Utils::$context['member']['avatar']['allow_external']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_external" value="external"' . (Utils::$context['member']['avatar']['choice'] == 'external' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_external"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
-									', Lang::$txt['my_own_pic'], '
+									', Lang::getTxt('my_own_pic', file: 'Profile'), '
 								</label><br>';
 
 	if (!empty(Utils::$context['member']['avatar']['allow_upload']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_upload" value="upload"' . (Utils::$context['member']['avatar']['choice'] == 'upload' ? ' checked="checked"' : '') . '>
 								<label for="avatar_choice_upload"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>
-									', Lang::$txt['avatar_will_upload'], '
+									', Lang::getTxt('avatar_will_upload', file: 'Profile'), '
 								</label><br>';
 
 	if (!empty(Utils::$context['member']['avatar']['allow_gravatar']))
 		echo '
 								<input type="radio" onclick="swap_avatar(this); return true;" name="avatar_choice" id="avatar_choice_gravatar" value="gravatar"' . (Utils::$context['member']['avatar']['choice'] == 'gravatar' ? ' checked="checked"' : '') . '>
-								<label for="avatar_choice_gravatar"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . Lang::$txt['use_gravatar'] . '</label>
+								<label for="avatar_choice_gravatar"' . (isset(Utils::$context['modify_error']['bad_avatar']) ? ' class="error"' : '') . '>' . Lang::getTxt('use_gravatar', file: 'Profile') . '</label>
 								<span class="smalltext"><a href="', Config::$scripturl, '?action=helpadmin;help=gravatar" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span></a></span>';
 
 	echo '
@@ -2993,7 +3013,7 @@ function template_profile_avatar_select()
 		echo '
 								<div id="avatar_external">
 									', Utils::$context['member']['avatar']['choice'] == 'external' ? '<div class="edit_avatar_img"><img src="' . Utils::$context['member']['avatar']['href'] . '" alt="" class="avatar"></div>' : '', '
-									<div class="smalltext">', Lang::$txt['avatar_by_url'], '</div>', !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
+									<div class="smalltext">', Lang::getTxt('avatar_by_url', file: 'Profile'), '</div>', !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_download_and_resize' ? template_max_size('external') : '', '
 									<input type="text" name="userpicpersonal" size="45" value="', ((stristr(Utils::$context['member']['avatar']['external'], 'http://') || stristr(Utils::$context['member']['avatar']['external'], 'https://')) ? Utils::$context['member']['avatar']['external'] : 'http://'), '" onfocus="selectRadioByName(document.forms.creator.avatar_choice, \'external\');" onchange="if (typeof(previewExternalAvatar) != \'undefined\') previewExternalAvatar(this.value);"><br>
 								</div>';
 
@@ -3015,7 +3035,7 @@ function template_profile_avatar_select()
 
 		if (empty(Config::$modSettings['gravatarAllowExtraEmail']))
 			echo '
-									<div class="smalltext">', Lang::$txt['gravatar_noAlternateEmail'], '</div>';
+									<div class="smalltext">', Lang::getTxt('gravatar_noAlternateEmail', file: 'Profile'), '</div>';
 		else
 		{
 			// Depending on other stuff, the stored value here might have some odd things in it from other areas.
@@ -3025,7 +3045,7 @@ function template_profile_avatar_select()
 				$textbox_value = Utils::$context['member']['avatar']['external'];
 
 			echo '
-									<div class="smalltext">', Lang::$txt['gravatar_alternateEmail'], '</div>
+									<div class="smalltext">', Lang::getTxt('gravatar_alternateEmail', file: 'Profile'), '</div>
 									<input type="text" name="gravatarEmail" id="gravatarEmail" size="45" value="', $textbox_value, '">';
 		}
 		echo '
@@ -3096,7 +3116,7 @@ function template_max_size($type)
 		return;
 
 	echo '
-								<div class="smalltext">', Lang::getTxt('avatar_max_size_' . $suffix, ['w' => $w, 'h' => $h]), '</div>';
+								<div class="smalltext">', Lang::getTxt('avatar_max_size_' . $suffix, ['w' => $w, 'h' => $h], file: 'Profile'), '</div>';
 }
 
 /**
@@ -3106,10 +3126,10 @@ function template_profile_timeformat_modify()
 {
 	echo '
 							<dt>
-								<strong><label for="easyformat">', Lang::$txt['time_format'], '</label></strong><br>
+								<strong><label for="easyformat">', Lang::getTxt('time_format', file: 'Profile'), '</label></strong><br>
 								<a href="', Config::$scripturl, '?action=helpadmin;help=time_format" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
 								<span class="smalltext">
-									<label for="time_format">', Lang::$txt['date_format'], '</label>
+									<label for="time_format">', Lang::getTxt('date_format', file: 'Profile'), '</label>
 								</span>
 							</dt>
 							<dd>
@@ -3133,10 +3153,10 @@ function template_profile_theme_pick()
 {
 	echo '
 							<dt>
-								<strong>', Lang::$txt['current_theme'], '</strong>
+								<strong>', Lang::getTxt('current_theme', file: 'Profile'), '</strong>
 							</dt>
 							<dd>
-								', Utils::$context['member']['theme']['name'], ' <a class="button" href="', Config::$scripturl, '?action=themechooser;u=', Utils::$context['id_member'], '">', Lang::$txt['change'], '</a>
+								', Utils::$context['member']['theme']['name'], ' <a class="button" href="', Config::$scripturl, '?action=themechooser;u=', Utils::$context['id_member'], '">', Lang::getTxt('change', file: 'Profile'), '</a>
 							</dd>';
 }
 
@@ -3169,7 +3189,7 @@ function template_tfasetup()
 {
 	echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['tfa_title'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('tfa_title', file: 'Profile'), '</h3>
 			</div>
 			<div class="roundframe">
 				<div>';
@@ -3177,50 +3197,50 @@ function template_tfasetup()
 	if (!empty(Utils::$context['tfa_backup']))
 		echo '
 					<div class="smalltext error">
-						', Lang::$txt['tfa_backup_used_desc'], '
+						', Lang::getTxt('tfa_backup_used_desc', file: 'Profile'), '
 					</div>';
 
 	elseif (Config::$modSettings['tfa_mode'] == 2)
 		echo '
 					<div class="smalltext">
-						<strong>', Lang::$txt['tfa_forced_desc'], '</strong>
+						<strong>', Lang::getTxt('tfa_forced_desc', file: 'Profile'), '</strong>
 					</div>';
 
 	echo '
 					<div class="smalltext">
-						', Lang::$txt['tfa_desc'], '
+						', Lang::getTxt('tfa_desc', file: 'Profile'), '
 					</div>
 					<div class="floatleft">
 						<form action="', Config::$scripturl, '?action=profile;area=tfasetup" method="post">
 							<div class="block">
-								<strong>', Lang::$txt['tfa_step1'], '</strong><br>';
+								<strong>', Lang::getTxt('tfa_step1', file: 'Profile'), '</strong><br>';
 
 	if (!empty(Utils::$context['tfa_pass_error']))
 		echo '
 								<div class="error smalltext">
-									', Lang::$txt['tfa_pass_invalid'], '
+									', Lang::getTxt('tfa_pass_invalid', file: 'Profile'), '
 								</div>';
 
 	echo '
 								<input type="password" name="oldpasswrd" size="25"', !empty(Utils::$context['password_auth_failed']) ? ' class="error"' : '', !empty(Utils::$context['tfa_pass_value']) ? ' value="' . Utils::$context['tfa_pass_value'] . '"' : '', '>
 							</div>
 							<div class="block">
-								<strong>', Lang::$txt['tfa_step2'], '</strong>
-								<div class="smalltext">', Lang::$txt['tfa_step2_desc'], '</div>
+								<strong>', Lang::getTxt('tfa_step2', file: 'Profile'), '</strong>
+								<div class="smalltext">', Lang::getTxt('tfa_step2_desc', file: 'Profile'), '</div>
 								<div class="tfacode">', Utils::$context['tfa_secret'], '</div>
 							</div>
 							<div class="block">
-								<strong>', Lang::$txt['tfa_step3'], '</strong><br>';
+								<strong>', Lang::getTxt('tfa_step3', file: 'Profile'), '</strong><br>';
 
 	if (!empty(Utils::$context['tfa_error']))
 		echo '
 								<div class="error smalltext">
-									', Lang::$txt['tfa_code_invalid'], '
+									', Lang::getTxt('tfa_code_invalid', file: 'Profile'), '
 								</div>';
 
 	echo '
 								<input type="text" name="tfa_code" size="25"', !empty(Utils::$context['tfa_error']) ? ' class="error"' : '', !empty(Utils::$context['tfa_value']) ? ' value="' . Utils::$context['tfa_value'] . '"' : '', '>
-								<input type="submit" name="save" value="', Lang::$txt['tfa_enable'], '" class="button">
+								<input type="submit" name="save" value="', Lang::getTxt('tfa_enable', file: 'Profile'), '" class="button">
 							</div>
 							<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">
 							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -3250,7 +3270,7 @@ function template_tfadisable()
 {
 	echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['tfadisable'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('tfadisable', file: 'Profile'), '</h3>
 			</div>
 			<div class="roundframe">
 				<form action="', Config::$scripturl, '?action=profile;area=tfadisable" method="post">';
@@ -3258,17 +3278,17 @@ function template_tfadisable()
 	if (User::$me->is_owner)
 		echo '
 					<div class="block">
-						<strong', (isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : ''), '>', Lang::$txt['current_password'], '</strong><br>
+						<strong', (isset(Utils::$context['modify_error']['bad_password']) || isset(Utils::$context['modify_error']['no_password']) ? ' class="error"' : ''), '>', Lang::getTxt('current_password', file: 'Profile'), '</strong><br>
 						<input type="password" name="oldpasswrd" size="20">
 					</div>';
 	else
 		echo '
 					<div class="smalltext">
-						', Lang::getTxt('tfa_disable_for_user', ['name' => User::$me->name]), '
+						', Lang::getTxt('tfa_disable_for_user', ['name' => User::$me->name], file: 'Profile'), '
 					</div>';
 
 	echo '
-					<input type="submit" name="save" value="', Lang::$txt['tfa_disable'], '" class="button floatright">
+					<input type="submit" name="save" value="', Lang::getTxt('tfa_disable', file: 'Profile'), '" class="button floatright">
 					<input type="hidden" name="', Utils::$context[Utils::$context['token_check'] . '_token_var'], '" value="', Utils::$context[Utils::$context['token_check'] . '_token'], '">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="u" value="', Utils::$context['id_member'], '">
@@ -3283,11 +3303,11 @@ function template_tfasetup_backup()
 {
 	echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['tfa_backup_title'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('tfa_backup_title', file: 'Profile'), '</h3>
 			</div>
 			<div class="roundframe">
 				<div>
-					<div class="smalltext">', Lang::$txt['tfa_backup_desc'], '</div>
+					<div class="smalltext">', Lang::getTxt('tfa_backup_desc', file: 'Profile'), '</div>
 					<div class="bbc_code" style="resize: none; border: none;">', Utils::$context['tfa_backup'], '</div>
 				</div>
 			</div>';
@@ -3300,22 +3320,22 @@ function template_profile_tfa()
 {
 	echo '
 							<dt>
-								<strong>', Lang::$txt['tfa_profile_label'], '</strong><br>
-								<div class="smalltext">', Lang::$txt['tfa_profile_desc'], '</div>
+								<strong>', Lang::getTxt('tfa_profile_label', file: 'Profile'), '</strong><br>
+								<div class="smalltext">', Lang::getTxt('tfa_profile_desc', file: 'Profile'), '</div>
 							</dt>
 							<dd>';
 
 	if (!Utils::$context['tfa_enabled'] && User::$me->is_owner)
 		echo '
-								<a href="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl, '?action=profile;area=tfasetup" id="enable_tfa">', Lang::$txt['tfa_profile_enable'], '</a>';
+								<a href="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl, '?action=profile;area=tfasetup" id="enable_tfa">', Lang::getTxt('tfa_profile_enable', file: 'Profile'), '</a>';
 
 	elseif (!Utils::$context['tfa_enabled'])
 		echo '
-								', Lang::$txt['tfa_profile_disabled'];
+								', Lang::getTxt('tfa_profile_disabled', file: 'Profile');
 
 	else
 		echo '
-								', Lang::getTxt('tfa_profile_enabled', ['url' => (!empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl) . '?action=profile;u=' . Utils::$context['id_member'] . ';area=tfadisable']);
+								', Lang::getTxt('tfa_profile_enabled', ['url' => (!empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl) . '?action=profile;u=' . Utils::$context['id_member'] . ';area=tfadisable'], file: 'Profile');
 
 	echo '
 							</dd>';
@@ -3333,7 +3353,7 @@ function template_export_profile_data()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
-				', Lang::$txt['export_profile_data'], '
+				', Lang::getTxt('export_profile_data', file: 'Profile'), '
 			</h3>
 		</div>
 		<div class="information">', Utils::$context['export_profile_data_desc'], '</div>';
@@ -3342,7 +3362,7 @@ function template_export_profile_data()
 	{
 		echo '
 		<div class="title_bar">
-			<h3 class="titlebg">', Lang::$txt['completed_exports'], '</h3>
+			<h3 class="titlebg">', Lang::getTxt('completed_exports', file: 'Profile'), '</h3>
 		</div>
 		<div class="windowbg noup">';
 
@@ -3355,12 +3375,12 @@ function template_export_profile_data()
 			{
 				echo '
 				<div class="noticebox">
-					<p>', Lang::$txt['export_outdated_warning'], '</p>
+					<p>', Lang::getTxt('export_outdated_warning', file: 'Profile'), '</p>
 					<ul class="bbc_list">';
 
 				foreach (Utils::$context['outdated_exports'][$basehash_ext] as $datatype)
 					echo '
-						<li>', Lang::$txt[$datatype], '</li>';
+						<li>', Lang::getTxt($datatype), '</li>';
 
 				echo '
 					</ul>
@@ -3374,12 +3394,13 @@ function template_export_profile_data()
 						'list' => $parts[1]['included_desc'],
 						'format' => Utils::$context['export_formats'][$parts[1]['format']]['description'],
 					],
+					file: 'Profile',
 				), '</p>';
 
 			if (count($parts) > 10)
 				echo '
 				<details>
-					<summary>', Lang::getTxt('export_file_count', [count($parts)]), '</summary>';
+					<summary>', Lang::getTxt('export_file_count', [count($parts)], file: 'Profile'), '</summary>';
 
 			echo '
 				<ul class="bbc_list" id="', $parts[1]['format'], '_export_files">';
@@ -3410,7 +3431,7 @@ function template_export_profile_data()
 					<input type="submit" name="delete" value="', Lang::$txt['delete'], '" class="button you_sure">
 					<input type="hidden" name="format" value="', $parts[1]['format'], '">
 					<input type="hidden" name="t" value="', $dltoken, '">
-					<button type="button" class="button export_download_all" style="display:none" onclick="export_download_all(\'', $parts[1]['format'], '\');">', Lang::$txt['export_download_all'], '</button>
+					<button type="button" class="button export_download_all" style="display:none" onclick="export_download_all(\'', $parts[1]['format'], '\');">', Lang::getTxt('export_download_all', file: 'Profile'), '</button>
 				</div>
 			</form>';
 		}
@@ -3423,7 +3444,7 @@ function template_export_profile_data()
 	{
 		echo '
 		<div class="title_bar">
-			<h3 class="titlebg">', Lang::$txt['active_exports'], '</h3>
+			<h3 class="titlebg">', Lang::getTxt('active_exports', file: 'Profile'), '</h3>
 		</div>
 		<div class="windowbg noup">';
 
@@ -3443,9 +3464,10 @@ function template_export_profile_data()
 						'list' => $file['included_desc'],
 						'format' => Utils::$context['export_formats'][$file['format']]['description'],
 					],
+					file: 'Profile',
 				), '</p>
 				<div class="righttext">
-					<input type="submit" name="delete" value="', Lang::$txt['export_cancel'], '" class="button you_sure">
+					<input type="submit" name="delete" value="', Lang::getTxt('export_cancel', file: 'Profile'), '" class="button you_sure">
 					<input type="hidden" name="format" value="', $file['format'], '">
 					<input type="hidden" name="t" value="', $dltoken, '">
 				</div>
@@ -3458,7 +3480,7 @@ function template_export_profile_data()
 
 	echo '
 		<div class="title_bar">
-			<h3 class="titlebg">', Lang::$txt['export_settings'], '</h3>
+			<h3 class="titlebg">', Lang::getTxt('export_settings', file: 'Profile'), '</h3>
 		</div>
 		<div class="windowbg noup">
 			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="UTF-8">
@@ -3480,7 +3502,7 @@ function template_export_profile_data()
 				</dl>
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::$txt['export_format'], '</strong>
+						<strong>', Lang::getTxt('export_format', file: 'Profile'), '</strong>
 					</dt>
 					<dd>
 						<select id="export_format_select" name="format">';
@@ -3500,10 +3522,10 @@ function template_export_profile_data()
 	{
 		echo '
 					<div id="export_begin" style="display:none">
-						<input type="submit" name="export_begin" value="', Lang::$txt['export_begin'], '" class="button">
+						<input type="submit" name="export_begin" value="', Lang::getTxt('export_begin', file: 'Profile'), '" class="button">
 					</div>
 					<div id="export_restart">
-						<input type="submit" name="export_begin" value="', Lang::$txt['export_restart'], '" class="button you_sure" data-confirm="', Lang::$txt['export_restart_confirm'], '">
+						<input type="submit" name="export_begin" value="', Lang::getTxt('export_restart', file: 'Profile'), '" class="button you_sure" data-confirm="', Lang::getTxt('export_restart_confirm', file: 'Profile'), '">
 						<input type="hidden" name="delete">
 						<input type="hidden" name="t" value="', $dltoken, '">
 					</div>';
@@ -3512,7 +3534,7 @@ function template_export_profile_data()
 	else
 	{
 		echo '
-					<input type="submit" name="export_begin" value="', Lang::$txt['export_begin'], '" class="button">';
+					<input type="submit" name="export_begin" value="', Lang::getTxt('export_begin', file: 'Profile'), '" class="button">';
 	}
 
 	echo '

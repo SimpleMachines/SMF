@@ -263,7 +263,7 @@ class XmlHttp implements ActionInterface, Routable
 			$allowedTags = Parser::getSigTags();
 
 			if (empty($current_signature)) {
-				$current_signature = Lang::$txt['no_signature_set'];
+				$current_signature = Lang::getTxt('no_signature_set', file: 'Profile');
 			} else {
 				$current_signature = Parser::transform(
 					string: $current_signature,
@@ -276,7 +276,7 @@ class XmlHttp implements ActionInterface, Routable
 				$current_signature = Utils::adjustHeadingLevels($current_signature, null);
 			}
 
-			$preview_signature = !empty($_POST['signature']) ? Utils::htmlspecialchars($_POST['signature']) : Lang::$txt['no_signature_preview'];
+			$preview_signature = !empty($_POST['signature']) ? Utils::htmlspecialchars($_POST['signature']) : Lang::getTxt('no_signature_preview', file: 'Profile');
 
 			$validation = Profile::validateSignature($preview_signature);
 

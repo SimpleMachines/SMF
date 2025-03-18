@@ -73,11 +73,11 @@ class Summary implements ActionInterface
 
 		// See if they have broken any warning levels...
 		if (!empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= Profile::$member->formatted['warning']) {
-			Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_muted'];
+			Utils::$context['warning_status'] = Lang::getTxt('profile_warning_is_muted', file: 'Profile');
 		} elseif (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= Profile::$member->formatted['warning']) {
-			Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_moderation'];
+			Utils::$context['warning_status'] = Lang::getTxt('profile_warning_is_moderation', file: 'Profile');
 		} elseif (!empty(Config::$modSettings['warning_watch']) && Config::$modSettings['warning_watch'] <= Profile::$member->formatted['warning']) {
-			Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_watch'];
+			Utils::$context['warning_status'] = Lang::getTxt('profile_warning_is_watch', file: 'Profile');
 		}
 
 		// They haven't even been registered for a full day!?
@@ -147,14 +147,22 @@ class Summary implements ActionInterface
 				)
 			) {
 				$type = 'approve';
-				Utils::$context['activate_link_text'] = Lang::$txt['account_approve'];
+				Utils::$context['activate_link_text'] = Lang::getTxt('account_approve', file: 'Profile');
 			} else {
 				$type = 'activate';
-				Utils::$context['activate_link_text'] = Lang::$txt['account_activate'];
+				Utils::$context['activate_link_text'] = Lang::getTxt('account_activate', file: 'Profile');
 			}
 
 			// Should we show a custom message?
-			Utils::$context['activate_message'] = Lang::$txt['account_activate_method_' . Profile::$member->is_activated % User::BANNED] ?? Lang::$txt['account_not_activated'];
+			Utils::$context['activate_message'] = Lang::getTxt(
+				Lang::txtExists(
+					'account_activate_method_' . Profile::$member->is_activated % User::BANNED,
+					file: 'Profile',
+				)
+				? 'account_activate_method_' . Profile::$member->is_activated % User::BANNED
+				: 'account_not_activated',
+				file: 'Profile',
+			);
 
 			// If they can be approved, we need to set up a token for them.
 			Utils::$context['token_check'] = 'profile-aa' . Profile::$member->id;
@@ -217,7 +225,7 @@ class Summary implements ActionInterface
 
 				foreach (['access', 'login', 'post'] as $type) {
 					if ($row['cannot_' . $type]) {
-						$ban_restrictions[] = Lang::$txt['ban_type_' . $type];
+						$ban_restrictions[] = Lang::getTxt('ban_type_' . $type, file: 'Profile');
 					}
 				}
 
@@ -227,7 +235,7 @@ class Summary implements ActionInterface
 				}
 
 				// Prepare the link for context.
-				$ban_explanation = Lang::getTxt('user_cannot_due_to', ['list' => Lang::sentenceList($ban_restrictions, 'or'), 'ban' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>']);
+				$ban_explanation = Lang::getTxt('user_cannot_due_to', ['list' => Lang::sentenceList($ban_restrictions, 'or'), 'ban' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>'], file: 'Profile');
 
 				Profile::$member->formatted['bans'][$row['id_ban_group']] = [
 					'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . Lang::$txt['ban_reason'] . ':</strong> ' . $row['reason'],

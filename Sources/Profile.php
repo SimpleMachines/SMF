@@ -421,7 +421,7 @@ class Profile extends User implements \ArrayAccess
 					if (($value = strtotime($value)) === false) {
 						$value = $this->date_registered;
 
-						return Lang::getTxt('invalid_registration', ['example' => Time::strftime('%d %b %Y ' . (str_contains(User::$me->time_format, '%H') ? '%I:%M:%S %p' : '%H:%M:%S'), time())]);
+						return Lang::getTxt('invalid_registration', ['example' => Time::strftime('%d %b %Y ' . (str_contains(User::$me->time_format, '%H') ? '%I:%M:%S %p' : '%H:%M:%S'), time())], file: 'Profile');
 					}
 
 					// As long as it doesn't equal "N/A"...
@@ -447,7 +447,7 @@ class Profile extends User implements \ArrayAccess
 					{
 						if (this.email_address.value != "' . (!empty($this->email) ? $this->email : '') . '")
 						{
-							alert(' . Utils::escapeJavaScript(Lang::$txt['email_change_logout']) . ');
+							alert(' . Utils::escapeJavaScript(Lang::getTxt('email_change_logout', file: 'Profile')) . ');
 							return true;
 						}
 					}, false);' : '',
@@ -508,7 +508,7 @@ class Profile extends User implements \ArrayAccess
 
 					Utils::$context['member']['theme'] = [
 						'id' => $this->theme,
-						'name' => empty($this->theme) ? Lang::$txt['theme_forum_default'] : $name,
+						'name' => empty($this->theme) ? Lang::getTxt('theme_forum_default', file: 'Profile') : $name,
 					];
 
 					return true;
@@ -524,7 +524,7 @@ class Profile extends User implements \ArrayAccess
 				'options' => function () {
 					return array_map(fn($lang) => $lang['name'], Lang::get());
 				},
-				'label' => Lang::$txt['preferred_language'],
+				'label' => Lang::getTxt('preferred_language', file: 'Profile'),
 				'permission' => 'profile_identity',
 				'enabled' => !empty(Config::$modSettings['userLanguage']),
 				'value' => $this->language,
@@ -549,10 +549,10 @@ class Profile extends User implements \ArrayAccess
 			'member_name' => [
 				'type' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? 'text' : 'label',
 				'label' => Lang::$txt['username'],
-				'subtext' => User::$me->allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" style="font-style: italic;">' . Lang::$txt['username_change'] . '</a>]' : '',
+				'subtext' => User::$me->allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" style="font-style: italic;">' . Lang::getTxt('username_change', file: 'Profile') . '</a>]' : '',
 				'log_change' => true,
 				'permission' => 'profile_identity',
-				'prehtml' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . Lang::$txt['username_warning'] . '</div>' : '',
+				'prehtml' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . Lang::getTxt('username_warning', file: 'Profile') . '</div>' : '',
 				'input_validate' => function (&$value) {
 					if (User::$me->allowedTo('admin_forum')) {
 						// Maybe they are trying to change their password as well?
@@ -587,7 +587,7 @@ class Profile extends User implements \ArrayAccess
 			'passwrd1' => [
 				'type' => 'password',
 				'label' => Lang::$txt['choose_pass'],
-				'subtext' => Lang::$txt['password_strength'],
+				'subtext' => Lang::getTxt('password_strength', file: 'Profile'),
 				'size' => 20,
 				'value' => '',
 				'permission' => 'profile_password',
@@ -664,7 +664,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'posts' => [
 				'type' => 'int',
-				'label' => Lang::$txt['profile_posts'],
+				'label' => Lang::getTxt('profile_posts', file: 'Profile'),
 				'log_change' => true,
 				'size' => 7,
 				'min' => 0,
@@ -687,7 +687,7 @@ class Profile extends User implements \ArrayAccess
 			'real_name' => [
 				'type' => User::$me->allowedTo('profile_displayed_name_own') || User::$me->allowedTo('profile_displayed_name_any') || User::$me->allowedTo('moderate_forum') ? 'text' : 'label',
 				'label' => Lang::$txt['name'],
-				'subtext' => Lang::$txt['display_name_desc'],
+				'subtext' => Lang::getTxt('display_name_desc', file: 'Profile'),
 				'log_change' => true,
 				'input_attr' => ['maxlength="60"'],
 				'permission' => 'profile_displayed_name',
@@ -712,17 +712,17 @@ class Profile extends User implements \ArrayAccess
 			],
 			'secret_question' => [
 				'type' => 'text',
-				'label' => Lang::$txt['secret_question'],
-				'subtext' => Lang::$txt['secret_desc'],
+				'label' => Lang::getTxt('secret_question', file: 'Profile'),
+				'subtext' => Lang::getTxt('secret_desc', file: 'Profile'),
 				'size' => 50,
 				'permission' => 'profile_password',
 			],
 			'secret_answer' => [
 				'type' => 'text',
-				'label' => Lang::$txt['secret_answer'],
-				'subtext' => Lang::$txt['secret_desc2'],
+				'label' => Lang::getTxt('secret_answer', file: 'Profile'),
+				'subtext' => Lang::getTxt('secret_desc2', file: 'Profile'),
 				'size' => 20,
-				'postinput' => '<span class="smalltext"><a href="' . Config::$scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ' . Lang::$txt['secret_why_blank'] . '</a></span>',
+				'postinput' => '<span class="smalltext"><a href="' . Config::$scripturl . '?action=helpadmin;help=secret_why_blank" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help"></span> ' . Lang::getTxt('secret_why_blank', file: 'Profile') . '</a></span>',
 				'value' => '',
 				'permission' => 'profile_password',
 				'input_validate' => function (&$value) {
@@ -741,7 +741,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'show_online' => [
 				'type' => 'check',
-				'label' => Lang::$txt['show_online'],
+				'label' => Lang::getTxt('show_online', file: 'Profile'),
 				'permission' => 'profile_identity',
 				'enabled' => !empty(Config::$modSettings['allow_hideOnline']) || User::$me->allowedTo('moderate_forum'),
 			],
@@ -872,27 +872,27 @@ class Profile extends User implements \ArrayAccess
 					Utils::$context['easy_timeformats'] = [
 						[
 							'format' => '',
-							'title' => Lang::$txt['timeformat_default'],
+							'title' => Lang::getTxt('timeformat_default', file: 'Profile'),
 						],
 						[
 							'format' => '%B %d, %Y, %I:%M:%S %p',
-							'title' => Lang::$txt['timeformat_easy1'],
+							'title' => Lang::getTxt('timeformat_easy1', file: 'Profile'),
 						],
 						[
 							'format' => '%B %d, %Y, %H:%M:%S',
-							'title' => Lang::$txt['timeformat_easy2'],
+							'title' => Lang::getTxt('timeformat_easy2', file: 'Profile'),
 						],
 						[
 							'format' => '%Y-%m-%d, %H:%M:%S',
-							'title' => Lang::$txt['timeformat_easy3'],
+							'title' => Lang::getTxt('timeformat_easy3', file: 'Profile'),
 						],
 						[
 							'format' => '%d %B %Y, %H:%M:%S',
-							'title' => Lang::$txt['timeformat_easy4'],
+							'title' => Lang::getTxt('timeformat_easy4', file: 'Profile'),
 						],
 						[
 							'format' => '%d-%m-%Y, %H:%M:%S',
-							'title' => Lang::$txt['timeformat_easy5'],
+							'title' => Lang::getTxt('timeformat_easy5', file: 'Profile'),
 						],
 					];
 
@@ -912,7 +912,7 @@ class Profile extends User implements \ArrayAccess
 				'options' => TimeZone::list(),
 				'disabled_options' => array_filter(array_keys(TimeZone::list()), 'is_int'),
 				'permission' => 'profile_extra',
-				'label' => Lang::$txt['timezone'],
+				'label' => Lang::getTxt('timezone', file: 'Profile'),
 				'value' => empty(User::$me->timezone) ? Config::$modSettings['default_timezone'] : User::$me->timezone,
 				'input_validate' => function ($value) {
 					$tz = TimeZone::list();
@@ -926,7 +926,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'usertitle' => [
 				'type' => 'text',
-				'label' => Lang::$txt['custom_title'],
+				'label' => Lang::getTxt('custom_title', file: 'Profile'),
 				'log_change' => true,
 				'input_attr' => ['maxlength="50"'],
 				'size' => 50,
@@ -942,8 +942,8 @@ class Profile extends User implements \ArrayAccess
 			],
 			'website_title' => [
 				'type' => 'text',
-				'label' => Lang::$txt['website_title'],
-				'subtext' => Lang::$txt['include_website_url'],
+				'label' => Lang::getTxt('website_title', file: 'Profile'),
+				'subtext' => Lang::getTxt('include_website_url', file: 'Profile'),
 				'size' => 50,
 				'permission' => 'profile_website',
 				'link_with' => 'website',
@@ -957,8 +957,8 @@ class Profile extends User implements \ArrayAccess
 			],
 			'website_url' => [
 				'type' => 'url',
-				'label' => Lang::$txt['website_url'],
-				'subtext' => Lang::$txt['complete_url'],
+				'label' => Lang::getTxt('website_url', file: 'Profile'),
+				'subtext' => Lang::getTxt('complete_url', file: 'Profile'),
 				'size' => 50,
 				'permission' => 'profile_website',
 				// Fix the URL...
@@ -1321,9 +1321,9 @@ class Profile extends User implements \ArrayAccess
 		Utils::$context['signature_warning'] = '';
 
 		if (Utils::$context['signature_limits']['max_image_width'] && Utils::$context['signature_limits']['max_image_height']) {
-			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_size', [Utils::$context['signature_limits']['max_image_width'], Utils::$context['signature_limits']['max_image_height']]);
+			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_size', [Utils::$context['signature_limits']['max_image_width'], Utils::$context['signature_limits']['max_image_height']], file: 'Profile');
 		} elseif (Utils::$context['signature_limits']['max_image_width'] || Utils::$context['signature_limits']['max_image_height']) {
-			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_' . (Utils::$context['signature_limits']['max_image_width'] ? 'width' : 'height'), [Utils::$context['signature_limits'][Utils::$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']]);
+			Utils::$context['signature_warning'] = Lang::getTxt('profile_error_signature_max_image_' . (Utils::$context['signature_limits']['max_image_width'] ? 'width' : 'height'), [Utils::$context['signature_limits'][Utils::$context['signature_limits']['max_image_width'] ? 'max_image_width' : 'max_image_height']], file: 'Profile');
 		}
 
 		if (empty(Utils::$context['do_preview'])) {
@@ -1399,7 +1399,7 @@ class Profile extends User implements \ArrayAccess
 		Utils::$context['member_groups'] = [
 			0 => [
 				'id' => 0,
-				'name' => Lang::$txt['no_primary_membergroup'],
+				'name' => Lang::getTxt('no_primary_membergroup', file: 'Profile'),
 				'is_primary' => $this->data['id_group'] == 0,
 				'can_be_additional' => false,
 				'can_be_primary' => true,
@@ -1454,7 +1454,7 @@ class Profile extends User implements \ArrayAccess
 				// If this is anything but complex we need to do more cleaning!
 				if ($cur_field['type'] != 'callback' && $cur_field['type'] != 'hidden') {
 					if (!isset($cur_field['label'])) {
-						$cur_field['label'] = Lang::$txt[$field] ?? $field;
+						$cur_field['label'] = Lang::txtExists($field, file: 'Profile') ? Lang::getTxt($field, file: 'Profile') : $field;
 					}
 
 					// Everything has a value!
@@ -1507,7 +1507,7 @@ class Profile extends User implements \ArrayAccess
 			if (this.oldpasswrd.value == "")
 			{
 				event.preventDefault();
-				alert(' . (Utils::escapeJavaScript(Lang::$txt['required_security_reasons'])) . ');
+				alert(' . (Utils::escapeJavaScript(Lang::getTxt('required_security_reasons', file: 'Profile'))) . ');
 				return false;
 			}
 		}, false);' : ''), true);
@@ -1651,7 +1651,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Let them know it worked!
-		Utils::$context['profile_updated'] = User::$me->is_owner ? Lang::$txt['profile_updated_own'] : Lang::getTxt('profile_updated_else', ['name' => $this->username]);
+		Utils::$context['profile_updated'] = Lang::getTxt(User::$me->is_owner ? 'profile_updated_own' : 'profile_updated_else', ['name' => $this->username], file: 'Profile');
 
 		// Invalidate any cached data.
 		CacheApi::put('member_data-profile-' . $this->id, null, 0);
@@ -1923,14 +1923,28 @@ class Profile extends User implements \ArrayAccess
 
 			// Too many lines?
 			if (!empty($sig_limits[2]) && substr_count($unparsed_signature, "\n") >= $sig_limits[2]) {
-				Lang::$txt['profile_error_signature_max_lines'] = Lang::getTxt('profile_error_signature_max_lines', [$sig_limits[2]]);
+				Lang::setTxt(
+					'profile_error_signature_max_lines',
+					Lang::getTxt(
+						'profile_error_signature_max_lines',
+						[$sig_limits[2]],
+						file: 'Profile',
+					),
+				);
 
 				return 'signature_max_lines';
 			}
 
 			// Too many images?!
 			if (!empty($sig_limits[3]) && (substr_count(strtolower($unparsed_signature), '[img') + substr_count(strtolower($unparsed_signature), '<img')) > $sig_limits[3]) {
-				Lang::$txt['profile_error_signature_max_image_count'] = Lang::getTxt('profile_error_signature_max_image_count', [$sig_limits[3]]);
+				Lang::setTxt(
+					'profile_error_signature_max_image_count',
+					Lang::getTxt(
+						'profile_error_signature_max_image_count',
+						[$sig_limits[3]],
+						file: 'Profile',
+					),
+				);
 
 				return 'signature_max_image_count';
 			}
@@ -1945,7 +1959,14 @@ class Profile extends User implements \ArrayAccess
 			}
 
 			if (!empty($sig_limits[4]) && $sig_limits[4] > 0 && $smiley_count > $sig_limits[4]) {
-				Lang::$txt['profile_error_signature_max_smileys'] = Lang::getTxt('profile_error_signature_max_smileys', [$sig_limits[4]]);
+				Lang::setTxt(
+					'profile_error_signature_max_smileys',
+					Lang::getTxt(
+						'profile_error_signature_max_smileys',
+						[$sig_limits[4]],
+						file: 'Profile',
+					),
+				);
 
 				return 'signature_max_smileys';
 			}
@@ -1967,7 +1988,14 @@ class Profile extends User implements \ArrayAccess
 					}
 
 					if ($limit_broke) {
-						Lang::$txt['profile_error_signature_max_font_size'] = Lang::getTxt('profile_error_signature_max_font_size', [$limit_broke]);
+						Lang::setTxt(
+							'profile_error_signature_max_font_size',
+							Lang::getTxt(
+								'profile_error_signature_max_font_size',
+								[$limit_broke],
+								file: 'Profile',
+							),
+						);
 
 						return 'signature_max_font_size';
 					}
@@ -2072,12 +2100,16 @@ class Profile extends User implements \ArrayAccess
 				if (preg_match('~\[(' . $disabledSigBBC . '[ =\]/])~i', $unparsed_signature, $matches) !== false && isset($matches[1])) {
 					$disabledTags = array_unique($disabledTags);
 
-					Lang::$txt['profile_error_signature_disabled_bbc'] = Lang::getTxt(
+					Lang::setTxt(
 						'profile_error_signature_disabled_bbc',
-						[
-							'num_disabled_tags' => count($disabledTags),
-							'list_disabled_tags' => Lang::sentenceList($disabledTags),
-						],
+						Lang::getTxt(
+							'profile_error_signature_disabled_bbc',
+							[
+								'num_disabled_tags' => count($disabledTags),
+								'list_disabled_tags' => Lang::sentenceList($disabledTags),
+							],
+							file: 'Profile',
+						),
 					);
 
 					return 'signature_disabled_bbc';
@@ -2091,7 +2123,14 @@ class Profile extends User implements \ArrayAccess
 		if (!User::$me->allowedTo('admin_forum') && !empty($sig_limits[1]) && Utils::entityStrlen(str_replace('<br>', "\n", $value)) > $sig_limits[1]) {
 			$_POST['signature'] = trim(Utils::htmlspecialchars(str_replace('<br>', "\n", $value), ENT_QUOTES));
 
-			Lang::$txt['profile_error_signature_max_length'] = Lang::getTxt('profile_error_signature_max_length', [$sig_limits[1]]);
+			Lang::setTxt(
+				'profile_error_signature_max_length',
+				Lang::getTxt(
+					'profile_error_signature_max_length',
+					[$sig_limits[1]],
+					file: 'Profile',
+				),
+			);
 
 			return 'signature_max_length';
 		}
@@ -2604,7 +2643,7 @@ class Profile extends User implements \ArrayAccess
 			$result[] = [
 				'filename' => 'blank.png',
 				'checked' => in_array(Utils::$context['member']['avatar']['server_pic'], ['', 'blank.png']),
-				'name' => Lang::$txt['no_pic'],
+				'name' => Lang::getTxt('no_pic', file: 'Profile'),
 				'is_dir' => false,
 			];
 		}

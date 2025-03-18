@@ -95,7 +95,7 @@ class Reminder implements ActionInterface, Routable
 		Lang::load('Profile');
 		Theme::loadTemplate('Reminder');
 
-		Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
+		Utils::$context['page_title'] = Lang::getTxt('authentication_reminder', file: 'Profile');
 		Utils::$context['robot_no_index'] = true;
 
 		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
@@ -134,9 +134,9 @@ class Reminder implements ActionInterface, Routable
 		if ($this->member->is_activated % User::BANNED != User::ACTIVATED) {
 			// Awaiting approval...
 			if (trim($this->member->validation_code) == '') {
-				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']]), false);
+				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']], file: 'Profile'), false);
 			} else {
-				ErrorHandler::fatal(Lang::getTxt('registration_not_activated', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']]), false);
+				ErrorHandler::fatal(Lang::getTxt('registration_not_activated', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']], file: 'Profile'), false);
 			}
 		}
 
@@ -144,7 +144,7 @@ class Reminder implements ActionInterface, Routable
 		$this->member->email = trim($this->member->email);
 
 		if ($this->member->email == '') {
-			ErrorHandler::fatal(Lang::$txt['no_reminder_email'] . '<br>' . Lang::getTxt('send_email_to_webmaster', ['webmaster_email' => Config::$webmaster_email]));
+			ErrorHandler::fatal(Lang::getTxt('no_reminder_email', file: 'Profile') . '<br>' . Lang::getTxt('send_email_to_webmaster', ['webmaster_email' => Config::$webmaster_email], file: 'Profile'));
 		}
 
 		// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
@@ -167,7 +167,7 @@ class Reminder implements ActionInterface, Routable
 			User::updateMemberData($this->member->id, ['validation_code' => $code]);
 
 			// Set up the template.
-			Utils::$context['description'] = Lang::$txt['reminder_sent'];
+			Utils::$context['description'] = Lang::getTxt('reminder_sent', file: 'Profile');
 			Utils::$context['sub_template'] = 'sent';
 
 			// Don't really.
@@ -203,7 +203,7 @@ class Reminder implements ActionInterface, Routable
 
 		// Fill the context array.
 		Utils::$context += [
-			'page_title' => Lang::$txt['reminder_set_password'],
+			'page_title' => Lang::getTxt('reminder_set_password', file: 'Profile'),
 			'sub_template' => 'set_password',
 			'code' => $_REQUEST['code'],
 			'memID' => (int) $_REQUEST['u'],
@@ -271,12 +271,12 @@ class Reminder implements ActionInterface, Routable
 
 		Theme::loadTemplate('Login');
 		Utils::$context += [
-			'page_title' => Lang::$txt['reminder_password_set'],
+			'page_title' => Lang::getTxt('reminder_password_set', file: 'Profile'),
 			'sub_template' => 'login',
 			'default_username' => $this->member->username,
 			'default_password' => $_POST['passwrd1'],
 			'never_expire' => false,
-			'description' => Lang::$txt['reminder_password_set'],
+			'description' => Lang::getTxt('reminder_password_set', file: 'Profile'),
 		];
 
 		SecurityToken::create('login');
@@ -357,7 +357,7 @@ class Reminder implements ActionInterface, Routable
 				&& md5($_POST['secret_answer']) != $this->member->secret_answer
 			)
 		) {
-			ErrorHandler::log(Lang::getTxt('reminder_error', ['name' => $this->member->username]), 'user');
+			ErrorHandler::log(Lang::getTxt('reminder_error', ['name' => $this->member->username], file: 'Profile'), 'user');
 			ErrorHandler::fatalLang('incorrect_answer', false);
 		}
 
@@ -399,12 +399,12 @@ class Reminder implements ActionInterface, Routable
 		// Tell them it went fine.
 		Theme::loadTemplate('Login');
 		Utils::$context += [
-			'page_title' => Lang::$txt['reminder_password_set'],
+			'page_title' => Lang::getTxt('reminder_password_set', file: 'Profile'),
 			'sub_template' => 'login',
 			'default_username' => $this->member->username,
 			'default_password' => $_POST['passwrd1'],
 			'never_expire' => false,
-			'description' => Lang::$txt['reminder_password_set'],
+			'description' => Lang::getTxt('reminder_password_set', file: 'Profile'),
 		];
 
 		SecurityToken::create('login');

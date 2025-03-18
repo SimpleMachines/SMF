@@ -24,15 +24,15 @@ function template_main()
 	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="UTF-8">
 		<div class="tborder login">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('authentication_reminder', file: 'Profile'), '</h3>
 			</div>
 			<div class="roundframe">
-				<p class="smalltext centertext">', Lang::$txt['password_reminder_desc'], '</p>
+				<p class="smalltext centertext">', Lang::getTxt('password_reminder_desc', file: 'Profile'), '</p>
 				<dl>
-					<dt>', Lang::$txt['user_email'], '</dt>
+					<dt>', Lang::getTxt('user_email', file: 'Profile'), '</dt>
 					<dd><input type="text" name="user" size="30"></dd>
 				</dl>
-				<input type="submit" value="', Lang::$txt['reminder_continue'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('reminder_continue', file: 'Profile'), '" class="button">
 				<br class="clear">
 			</div>
 		</div>
@@ -51,20 +51,20 @@ function template_reminder_pick()
 	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="UTF-8">
 		<div class="tborder login">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('authentication_reminder', file: 'Profile'), '</h3>
 			</div>
 			<div class="roundframe">
-				<p><strong>', Lang::$txt['authentication_options'], '</strong></p>
+				<p><strong>', Lang::getTxt('authentication_options', file: 'Profile'), '</strong></p>
 				<p>
 					<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked></dt>
-					<label for="reminder_type_email">', Lang::$txt['authentication_password_email'], '</label></dd>
+					<label for="reminder_type_email">', Lang::getTxt('authentication_password_email', file: 'Profile'), '</label></dd>
 				</p>
 				<p>
 					<input type="radio" name="reminder_type" id="reminder_type_secret" value="secret">
-					<label for="reminder_type_secret">', Lang::$txt['authentication_password_secret'], '</label>
+					<label for="reminder_type_secret">', Lang::getTxt('authentication_password_secret', file: 'Profile'), '</label>
 				</p>
 				<div class="flow_auto">
-					<input type="submit" value="', Lang::$txt['reminder_continue'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('reminder_continue', file: 'Profile'), '" class="button">
 					<input type="hidden" name="uid" value="', Utils::$context['current_member']['id'], '">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="', Utils::$context['remind_token_var'], '" value="', Utils::$context['remind_token'], '">
@@ -150,14 +150,14 @@ function template_ask()
 	<form action="', Config::$scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="UTF-8" name="creator" id="creator">
 		<div class="tborder login">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('authentication_reminder', file: 'Profile'), '</h3>
 			</div>
 			<div class="roundframe">
-				<p class="smalltext">', Lang::$txt['enter_new_password'], '</p>
+				<p class="smalltext">', Lang::getTxt('enter_new_password', file: 'Profile'), '</p>
 				<dl>
-					<dt>', Lang::$txt['secret_question'], '</dt>
+					<dt>', Lang::getTxt('secret_question', file: 'Profile'), '</dt>
 					<dd>', Utils::$context['secret_question'], '</dd>
-					<dt>', Lang::$txt['secret_answer'], '</dt>
+					<dt>', Lang::getTxt('secret_answer', file: 'Profile'), '</dt>
 					<dd><input type="text" name="secret_answer" size="22"></dd>
 					<dt>', Lang::$txt['choose_pass'], '</dt>
 					<dd>

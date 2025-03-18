@@ -610,7 +610,7 @@ class Main implements ActionInterface, Routable
 
 		// Is there an updated message to show?
 		if (isset($_GET['updated'])) {
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		$this->setProfileAreas();
@@ -746,7 +746,7 @@ class Main implements ActionInterface, Routable
 
 		// Set the page title if it's not already set...
 		if (!isset(Utils::$context['page_title'])) {
-			Utils::$context['page_title'] = trim(Lang::getTxt('profile_page_title', ['current_area' => Lang::getTxt($menu->current_area)]), " \n\r\t\v\x00-");
+			Utils::$context['page_title'] = trim(Lang::getTxt('profile_page_title', ['current_area' => Lang::getTxt($menu->current_area, file: 'Profile')], file: 'Profile'), " \n\r\t\v\x00-");
 		}
 	}
 
@@ -859,7 +859,7 @@ class Main implements ActionInterface, Routable
 			$this->profile_areas,
 			function (&$value, $key) {
 				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::$txt[$value] ?? $value;
+					$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
 				}
 
 				if (is_string($value)) {

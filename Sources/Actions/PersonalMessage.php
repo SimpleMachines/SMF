@@ -761,7 +761,7 @@ class PersonalMessage implements ActionInterface, Routable
 		Utils::$context['submit_button_text'] = Lang::getTxt('pm_settings', file: 'PersonalMessage');
 		Utils::$context['profile_header_text'] = Lang::$txt['personal_messages'];
 		Utils::$context['sub_template'] = 'edit_options';
-		Utils::$context['page_desc'] = Lang::$txt['pm_settings_desc'];
+		Utils::$context['page_desc'] = Lang::getTxt('pm_settings_desc', file: 'Profile');
 
 		Profile::$member->loadThemeOptions();
 		Profile::$member->loadCustomFields('pmprefs');
