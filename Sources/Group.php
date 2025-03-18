@@ -2181,12 +2181,12 @@ class Group implements \ArrayAccess
 
 		// A few overrides.
 		if (isset(self::$loaded[self::GUEST])) {
-			self::$loaded[self::GUEST]->num_permissions['denied'] = '(' . Lang::$txt['permissions_none'] . ')';
+			self::$loaded[self::GUEST]->num_permissions['denied'] = '(' . Lang::getTxt('permissions_none', file: 'ManagePermissions') . ')';
 		}
 
 		if (isset(self::$loaded[self::ADMIN])) {
-			self::$loaded[self::ADMIN]->num_permissions['allowed'] = '(' . Lang::$txt['permissions_all'] . ')';
-			self::$loaded[self::ADMIN]->num_permissions['denied'] = '(' . Lang::$txt['permissions_none'] . ')';
+			self::$loaded[self::ADMIN]->num_permissions['allowed'] = '(' . Lang::getTxt('permissions_all', file: 'ManagePermissions') . ')';
+			self::$loaded[self::ADMIN]->num_permissions['denied'] = '(' . Lang::getTxt('permissions_none', file: 'ManagePermissions') . ')';
 		}
 
 		$all_counted_permissions = [];

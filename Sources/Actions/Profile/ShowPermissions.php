@@ -135,7 +135,7 @@ class ShowPermissions implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($result)) {
 			// We don't know about this permission, it doesn't exist :P.
-			if (!isset(Lang::$txt['permissionname_' . $row['permission']])) {
+			if (!Lang::txtExists('permissionname_' . $row['permission'], file: 'ManagePermissions')) {
 				continue;
 			}
 
@@ -144,10 +144,13 @@ class ShowPermissions implements ActionInterface
 			}
 
 			// Permissions that end with _own or _any consist of two parts.
-			if (in_array(substr($row['permission'], -4), ['_own', '_any']) && isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)])) {
-				$name = Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . Lang::$txt['permissionname_' . $row['permission']];
+			if (
+				in_array(substr($row['permission'], -4), ['_own', '_any'])
+				&& Lang::txtExists('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions')
+			) {
+				$name = Lang::getTxt('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions') . ' - ' . Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			} else {
-				$name = Lang::$txt['permissionname_' . $row['permission']];
+				$name = Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			}
 
 			// Is this group allowed or denied?
@@ -202,18 +205,18 @@ class ShowPermissions implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// We don't know about this permission, it doesn't exist :P.
-			if (!isset(Lang::$txt['permissionname_' . $row['permission']])) {
+			if (!Lang::txtExists('permissionname_' . $row['permission'], file: 'ManagePermissions')) {
 				continue;
 			}
 
 			// The name of the permission using the format 'permission name' - 'own/any topic/event/etc.'.
 			if (
 				in_array(substr($row['permission'], -4), ['_own', '_any'])
-				&& isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)])
+				&& Lang::txtExists('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions')
 			) {
-				$name = Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . Lang::$txt['permissionname_' . $row['permission']];
+				$name = Lang::getTxt('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions') . ' - ' . Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			} else {
-				$name = Lang::$txt['permissionname_' . $row['permission']];
+				$name = Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			}
 
 			// Is this group allowed or denied?

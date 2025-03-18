@@ -337,15 +337,15 @@ function template_modify_board()
 						<textarea name="desc" rows="3" cols="35">', Utils::$context['board']['description'], '</textarea>
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['permission_profile'], '</strong><br>
-						<span class="smalltext">', Utils::$context['can_manage_permissions'] ? Lang::getTxt('permission_profile_desc', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]) : strip_tags(Lang::$txt['permission_profile_desc']), '</span>
+						<strong>', Lang::getTxt('permission_profile', file: 'ManagePermissions'), '</strong><br>
+						<span class="smalltext">', Utils::$context['can_manage_permissions'] ? Lang::getTxt('permission_profile_desc', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']], file: 'ManagePermissions') : strip_tags(Lang::getTxt('permission_profile_desc', file: 'ManagePermissions')), '</span>
 					</dt>
 					<dd>
 						<select name="profile">';
 
 	if (isset(Utils::$context['board']['is_new']))
 		echo '
-							<option value="-1">[', Lang::$txt['permission_profile_inherit'], ']</option>';
+							<option value="-1">[', Lang::getTxt('permission_profile_inherit', file: 'ManagePermissions'), ']</option>';
 
 	foreach (Utils::$context['profiles'] as $id => $profile)
 		echo '
@@ -367,9 +367,9 @@ function template_modify_board()
 						<table>
 							<tr>
 								<td></td>
-								<th>', Lang::$txt['permissions_option_on'], '</th>
-								<th>', Lang::$txt['permissions_option_off'], '</th>
-								<th>', Lang::$txt['permissions_option_deny'], '</th>
+								<th>', Lang::getTxt('permissions_option_on', file: 'ManagePermissions'), '</th>
+								<th>', Lang::getTxt('permissions_option_off', file: 'ManagePermissions'), '</th>
+								<th>', Lang::getTxt('permissions_option_deny', file: 'ManagePermissions'), '</th>
 							</tr>';
 
 	// List all the membergroups so the user can choose who may access this board.

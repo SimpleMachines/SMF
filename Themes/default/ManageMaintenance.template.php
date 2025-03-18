@@ -45,7 +45,7 @@ function template_maintain_database()
 	if (isset(Utils::$context['convert_to']))
 		echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt[Utils::$context['convert_to'] . '_title'], '</h3>
+			<h3 class="catbg">', Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance'), '</h3>
 		</div>
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="UTF-8">
@@ -584,7 +584,7 @@ function template_convert_msgbody()
 	echo '
 	<div id="manage_maintenance">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt[Utils::$context['convert_to'] . '_title'], '</h3>
+			<h3 class="catbg">', Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance'), '</h3>
 		</div>
 		<div class="windowbg">
 			<p>', Lang::getTxt('body_checking_introduction', file: 'ManageMaintenance'), '</p>';

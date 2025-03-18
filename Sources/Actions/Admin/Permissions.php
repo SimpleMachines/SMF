@@ -942,7 +942,7 @@ class Permissions implements ActionInterface
 
 		// Create the tabs for the template.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['permissions_title'],
+			'title' => Lang::getTxt('permissions_title', file: 'ManagePermissions'),
 			'help' => 'permissions',
 			'description' => '',
 			'tabs' => [
@@ -950,16 +950,16 @@ class Permissions implements ActionInterface
 					'description' => Lang::getTxt('permissions_groups', file: 'Admin'),
 				],
 				'board' => [
-					'description' => Lang::$txt['permission_by_board_desc'],
+					'description' => Lang::getTxt('permission_by_board_desc', file: 'ManagePermissions'),
 				],
 				'profiles' => [
-					'description' => Lang::$txt['permissions_profiles_desc'],
+					'description' => Lang::getTxt('permissions_profiles_desc', file: 'ManagePermissions'),
 				],
 				'postmod' => [
-					'description' => Lang::$txt['permissions_post_moderation_desc'],
+					'description' => Lang::getTxt('permissions_post_moderation_desc', file: 'ManagePermissions'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['permission_settings_desc'],
+					'description' => Lang::getTxt('permission_settings_desc', file: 'ManagePermissions'),
 				],
 			],
 		];
@@ -985,7 +985,7 @@ class Permissions implements ActionInterface
 	 */
 	public function index(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['permissions_title'];
+		Utils::$context['page_title'] = Lang::getTxt('permissions_title', file: 'ManagePermissions');
 
 		// Load all the permissions. We'll need them for the advanced options.
 		self::loadAllPermissions();
@@ -1154,7 +1154,7 @@ class Permissions implements ActionInterface
 		$this->setOnOff();
 
 		Utils::$context['sub_template'] = 'modify_group';
-		Utils::$context['page_title'] = Lang::$txt['permissions_modify_group'];
+		Utils::$context['page_title'] = Lang::getTxt('permissions_modify_group', file: 'ManagePermissions');
 
 		SecurityToken::create('admin-mp');
 	}
@@ -1259,7 +1259,7 @@ class Permissions implements ActionInterface
 		// All the setting variables
 		$config_vars = self::getConfigVars();
 
-		Utils::$context['page_title'] = Lang::$txt['permission_settings_title'];
+		Utils::$context['page_title'] = Lang::getTxt('permission_settings_title', file: 'ManagePermissions');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=permissions;save;sa=settings';
@@ -1359,7 +1359,7 @@ class Permissions implements ActionInterface
 	public function profiles(): void
 	{
 		// Setup the template.
-		Utils::$context['page_title'] = Lang::$txt['permissions_profile_edit'];
+		Utils::$context['page_title'] = Lang::getTxt('permissions_profile_edit', file: 'ManagePermissions');
 		Utils::$context['sub_template'] = 'edit_profiles';
 
 		// If we're creating a new one do it first.
@@ -1392,7 +1392,7 @@ class Permissions implements ActionInterface
 			if (isset(Utils::$context['profiles'][$row['id_profile']])) {
 				Utils::$context['profiles'][$row['id_profile']]['in_use'] = true;
 				Utils::$context['profiles'][$row['id_profile']]['boards'] = $row['board_count'];
-				Utils::$context['profiles'][$row['id_profile']]['boards_text'] = Lang::getTxt('permissions_profile_used_by_count', [$row['board_count']]);
+				Utils::$context['profiles'][$row['id_profile']]['boards_text'] = Lang::getTxt('permissions_profile_used_by_count', [$row['board_count']], file: 'ManagePermissions');
 			}
 		}
 		Db::$db->free_result($request);
@@ -1614,8 +1614,8 @@ class Permissions implements ActionInterface
 			'',
 
 			// A few useful settings
-			['check', 'permission_enable_deny', 0, Lang::$txt['permission_settings_enable_deny'], 'help' => 'permissions_deny'],
-			['check', 'permission_enable_postgroups', 0, Lang::$txt['permission_settings_enable_postgroups'], 'help' => 'permissions_postgroups'],
+			['check', 'permission_enable_deny', 0, Lang::getTxt('permission_settings_enable_deny', file: 'ManagePermissions'), 'help' => 'permissions_deny'],
+			['check', 'permission_enable_postgroups', 0, Lang::getTxt('permission_settings_enable_postgroups', file: 'ManagePermissions'), 'help' => 'permissions_postgroups'],
 		];
 
 		IntegrationHook::call('integrate_modify_permission_settings', [&$config_vars]);
@@ -1729,7 +1729,12 @@ class Permissions implements ActionInterface
 
 			// Do we need to dynamically generate the label string?
 			if (!empty($perm_info['vsprintf'])) {
-				Lang::$txt[$perm_info['label']] = Lang::formatText(Lang::$txt[$perm_info['vsprintf'][0]] ?? $perm_info['vsprintf'][0], $perm_info['vsprintf'][1]);
+				Lang::setTxt(
+					$perm_info['label'],
+					Lang::txtExists($perm_info['vsprintf'][0], file: 'ManagePermissions')
+					? Lang::getTxt($perm_info['vsprintf'][0], $perm_info['vsprintf'][1], file: 'ManagePermissions')
+					: Lang::formatText($perm_info['vsprintf'][0], $perm_info['vsprintf'][1]),
+				);
 			}
 		}
 
@@ -2215,7 +2220,7 @@ class Permissions implements ActionInterface
 
 			Utils::$context['profiles'][$row['id_profile']] = [
 				'id' => $row['id_profile'],
-				'name' => Lang::$txt['permissions_profile_' . $row['profile_name']] ?? $row['profile_name'],
+				'name' => Lang::txtExists('permissions_profile_' . $row['profile_name'], file: 'ManagePermissions') ? Lang::getTxt('permissions_profile_' . $row['profile_name'], file: 'ManagePermissions') : $row['profile_name'],
 				'can_modify' => !in_array($row['id_profile'], self::PROFILE_UNMODIFIABLE),
 				'unformatted_name' => $row['profile_name'],
 			];
@@ -3234,9 +3239,9 @@ class Permissions implements ActionInterface
 				Utils::$context['permissions'][$scope]['columns'][$position][$group] = [
 					'type' => $scope,
 					'id' => $group,
-					'name' => Lang::$txt['permissiongroup_' . $group],
-					'icon' => Lang::$txt['permissionicon_' . $group] ?? Lang::$txt['permissionicon'],
-					'help' => Lang::$txt['permissionhelp_' . $group] ?? '',
+					'name' => Lang::getTxt('permissiongroup_' . $group, file: 'ManagePermissions'),
+					'icon' => Lang::txtExists('permissionicon_' . $group, file: 'ManagePermissions') ? Lang::getTxt('permissionicon_' . $group, file: 'ManagePermissions') : Lang::getTxt('permissionicon', file: 'ManagePermissions'),
+					'help' => Lang::txtExists('permissionhelp_' . $group, file: 'ManagePermissions') ? Lang::getTxt('permissionhelp_' . $group, file: 'ManagePermissions') : '',
 					'hidden' => false,
 					'permissions' => [],
 				];
@@ -3260,9 +3265,9 @@ class Permissions implements ActionInterface
 			if (!isset($view_group_perms[$perm_info['generic_name']])) {
 				$view_group_perms[$perm_info['generic_name']] = [
 					'id' => $perm_info['generic_name'],
-					'name' => Lang::$txt[$perm_info['label']],
-					'show_help' => isset(Lang::$txt['permissionhelp_' . $perm_info['generic_name']]),
-					'note' => Lang::$txt['permissionnote_' . $perm_info['generic_name']] ?? '',
+					'name' => Lang::getTxt($perm_info['label'], file: 'ManagePermissions+ManageMembers'),
+					'show_help' => Lang::txtExists('permissionhelp_' . $perm_info['generic_name'], file: 'ManagePermissions'),
+					'note' => Lang::txtExists('permissionnote_' . $perm_info['generic_name'], file: 'ManagePermissions') ? Lang::getTxt('permissionnote_' . $perm_info['generic_name'], file: 'ManagePermissions') : '',
 					'hidden' => !empty($perm_info['hidden']),
 				];
 			}
@@ -3272,7 +3277,7 @@ class Permissions implements ActionInterface
 			if (isset($perm_info['own_any'])) {
 				$view_group_perms[$perm_info['generic_name']][$perm_info['own_any']] = [
 					'id' => $permission,
-					'name' => Lang::$txt['permissionname_' . $permission],
+					'name' => Lang::getTxt('permissionname_' . $permission, file: 'ManagePermissions'),
 				];
 			}
 		}

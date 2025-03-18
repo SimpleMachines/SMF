@@ -487,9 +487,9 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 											<li class="board clear">
 												<span style="margin-', Utils::$context['right_to_left'] ? 'right' : 'left', ': ', $board['child_level'], 'em;">', $board['name'], ': </span>
 												<span class="floatright">
-													<input type="radio" name="boardaccess[', $board['id'], ']" id="allow_brd', $board['id'], '" value="allow"', $board['allow'] ? ' checked' : '', '> <label for="allow_brd', $board['id'], '">', Lang::$txt['permissions_option_on'], '</label>
-													<input type="radio" name="boardaccess[', $board['id'], ']" id="ignore_brd', $board['id'], '" value="ignore"', !$board['allow'] && !$board['deny'] ? ' checked' : '', '> <label for="ignore_brd', $board['id'], '">', Lang::$txt['permissions_option_off'], '</label>
-													<input type="radio" name="boardaccess[', $board['id'], ']" id="deny_brd', $board['id'], '" value="deny"', $board['deny'] ? ' checked' : '', '> <label for="deny_brd', $board['id'], '">', Lang::$txt['permissions_option_deny'], '</label>
+													<input type="radio" name="boardaccess[', $board['id'], ']" id="allow_brd', $board['id'], '" value="allow"', $board['allow'] ? ' checked' : '', '> <label for="allow_brd', $board['id'], '">', Lang::getTxt('permissions_option_on', file: 'ManagePermissions'), '</label>
+													<input type="radio" name="boardaccess[', $board['id'], ']" id="ignore_brd', $board['id'], '" value="ignore"', !$board['allow'] && !$board['deny'] ? ' checked' : '', '> <label for="ignore_brd', $board['id'], '">', Lang::getTxt('permissions_option_off', file: 'ManagePermissions'), '</label>
+													<input type="radio" name="boardaccess[', $board['id'], ']" id="deny_brd', $board['id'], '" value="deny"', $board['deny'] ? ' checked' : '', '> <label for="deny_brd', $board['id'], '">', Lang::getTxt('permissions_option_deny', file: 'ManagePermissions'), '</label>
 												</span>
 											</li>';
 		}
