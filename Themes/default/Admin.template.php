@@ -1516,7 +1516,7 @@ function template_repair_boards()
 			echo '
 							<p>', Lang::getTxt('maintain_no_errors', file: 'Admin'), '</p>
 							<p class="padding">
-								<a href="', Config::$scripturl, '?action=admin;area=maintain;sa=routine">', Lang::$txt['maintain_return'], '</a>
+								<a href="', Config::$scripturl, '?action=admin;area=maintain;sa=routine">', Lang::getTxt('maintain_return', file: 'ManageMaintenance'), '</a>
 							</p>';
 	}
 	else
@@ -1538,7 +1538,7 @@ function template_repair_boards()
 			echo '
 							<p>', Lang::getTxt('errors_fixed', file: 'Admin'), '</p>
 							<p class="padding">
-								<a href="', Config::$scripturl, '?action=admin;area=maintain;sa=routine">', Lang::$txt['maintain_return'], '</a>
+								<a href="', Config::$scripturl, '?action=admin;area=maintain;sa=routine">', Lang::getTxt('maintain_return', file: 'ManageMaintenance'), '</a>
 							</p>';
 		}
 	}
@@ -1662,12 +1662,12 @@ function template_clean_cache_button_below()
 {
 	echo '
 					<div class="cat_bar">
-						<h3 class="catbg">', Lang::$txt['maintain_cache'], '</h3>
+						<h3 class="catbg">', Lang::getTxt('maintain_cache', file: 'ManageMaintenance'), '</h3>
 					</div>
 					<div class="windowbg">
 						<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="UTF-8">
-							<p>', Lang::$txt['maintain_cache_info'], '</p>
-							<span><input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button"></span>
+							<p>', Lang::getTxt('maintain_cache_info', file: 'ManageMaintenance'), '</p>
+							<span><input type="submit" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button"></span>
 							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 							<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
 						</form>

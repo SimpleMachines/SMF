@@ -184,7 +184,7 @@ class Maintenance implements ActionInterface
 	public function routine(): void
 	{
 		if (isset($_GET['done']) && in_array($_GET['done'], ['recount', 'rebuild_settings'])) {
-			Utils::$context['maintenance_finished'] = Lang::$txt['maintain_' . $_GET['done']];
+			Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_' . $_GET['done'], file: 'ManageMaintenance');
 		}
 	}
 
@@ -211,7 +211,7 @@ class Maintenance implements ActionInterface
 		}
 
 		if (isset($_GET['done']) && $_GET['done'] == 'convertentities') {
-			Utils::$context['maintenance_finished'] = Lang::$txt['entity_convert_title'];
+			Utils::$context['maintenance_finished'] = Lang::getTxt('entity_convert_title', file: 'ManageMaintenance');
 		}
 	}
 
@@ -222,12 +222,12 @@ class Maintenance implements ActionInterface
 	{
 		// Get membergroups - for deleting members and the like.
 		Utils::$context['membergroups'] = array_merge(
-			[new Group(Group::REGULAR, ['name' => Lang::$txt['maintain_members_ungrouped']])],
+			[new Group(Group::REGULAR, ['name' => Lang::getTxt('maintain_members_ungrouped', file: 'ManageMaintenance')])],
 			Group::load(),
 		);
 
 		if (isset($_GET['done']) && $_GET['done'] == 'recountposts') {
-			Utils::$context['maintenance_finished'] = Lang::$txt['maintain_recountposts'];
+			Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_recountposts', file: 'ManageMaintenance');
 		}
 
 		Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
@@ -272,9 +272,9 @@ class Maintenance implements ActionInterface
 		Category::sort(Utils::$context['categories']);
 
 		if (isset($_GET['done']) && $_GET['done'] == 'purgeold') {
-			Utils::$context['maintenance_finished'] = Lang::$txt['maintain_old'];
+			Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_old', file: 'ManageMaintenance');
 		} elseif (isset($_GET['done']) && $_GET['done'] == 'massmove') {
-			Utils::$context['maintenance_finished'] = Lang::$txt['move_topics_maintenance'];
+			Utils::$context['maintenance_finished'] = Lang::getTxt('move_topics_maintenance', file: 'ManageMaintenance');
 		}
 	}
 
@@ -923,7 +923,7 @@ class Maintenance implements ActionInterface
 
 		Config::updateModSettings(['search_pointer' => 0]);
 
-		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_logs'];
+		Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_logs', file: 'ManageMaintenance');
 	}
 
 	/**
@@ -937,7 +937,7 @@ class Maintenance implements ActionInterface
 		// Just wipe the whole cache!
 		CacheApi::clean();
 
-		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_cache'];
+		Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_cache', file: 'ManageMaintenance');
 	}
 
 	/**
@@ -963,7 +963,7 @@ class Maintenance implements ActionInterface
 
 		ignore_user_abort(true);
 
-		Utils::$context['page_title'] = Lang::$txt['database_optimize'];
+		Utils::$context['page_title'] = Lang::getTxt('database_optimize', file: 'ManageMaintenance');
 		Utils::$context['sub_template'] = 'optimize';
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_countdown'] = 3;
@@ -1027,7 +1027,7 @@ class Maintenance implements ActionInterface
 		}
 
 		// Number of tables, etc...
-		Utils::$context['database_numb_tables'] = Lang::getTxt('database_numb_tables', [Utils::$context['num_tables']]);
+		Utils::$context['database_numb_tables'] = Lang::getTxt('database_numb_tables', [Utils::$context['num_tables']], file: 'ManageMaintenance');
 		Utils::$context['num_tables_optimized'] = count($_SESSION['optimized_tables']);
 		Utils::$context['optimized_tables'] = $_SESSION['optimized_tables'];
 		unset($_SESSION['optimized_tables']);
@@ -1400,7 +1400,7 @@ class Maintenance implements ActionInterface
 			if (!empty($id_msg_exceeding)) {
 				if (count($id_msg_exceeding) > 100) {
 					$query_msg = array_slice($id_msg_exceeding, 0, 100);
-					Utils::$context['exceeding_messages_morethan'] = Lang::getTxt('exceeding_messages_morethan', [count($id_msg_exceeding) - 100]);
+					Utils::$context['exceeding_messages_morethan'] = Lang::getTxt('exceeding_messages_morethan', [count($id_msg_exceeding) - 100], file: 'ManageMaintenance');
 				} else {
 					$query_msg = $id_msg_exceeding;
 				}
@@ -1447,7 +1447,7 @@ class Maintenance implements ActionInterface
 		// Now call the reattribute function.
 		self::reattributePosts($memID, $email, $membername, !empty($_POST['posts']));
 
-		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_reattribute_posts'];
+		Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_reattribute_posts', file: 'ManageMaintenance');
 	}
 
 	/**
@@ -1522,7 +1522,7 @@ class Maintenance implements ActionInterface
 			User::delete($members, false, !empty($_POST['anonymize']));
 		}
 
-		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_members'];
+		Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_members', file: 'ManageMaintenance');
 		SecurityToken::create('admin-maint');
 	}
 
@@ -1687,7 +1687,7 @@ class Maintenance implements ActionInterface
 
 		// all done
 		unset($_SESSION['total_members']);
-		Utils::$context['maintenance_finished'] = Lang::$txt['maintain_recountposts'];
+		Utils::$context['maintenance_finished'] = Lang::getTxt('maintain_recountposts', file: 'ManageMaintenance');
 		Utils::redirectexit('action=admin;area=maintain;sa=members;done=recountposts');
 	}
 

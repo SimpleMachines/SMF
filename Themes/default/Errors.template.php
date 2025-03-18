@@ -87,14 +87,14 @@ function template_error_log()
 	if (Utils::$context['has_filter'])
 		echo '
 				<div class="infobox">
-					', Lang::getTxt('applying_filter', ['type' => Utils::$context['filter']['entity'], 'value' => Utils::$context['filter']['value']['html']]), '
+					', Lang::getTxt('applying_filter', ['type' => Utils::$context['filter']['entity'], 'value' => Utils::$context['filter']['value']['html']], file: 'ManageMaintenance'), '
 				</div>';
 
 	echo '
 				<div class="floatright">
-					<input type="submit" name="removeSelection" value="', Lang::$txt['remove_selection'], '" data-confirm="', Lang::$txt['remove_selection_confirm'], '" class="button you_sure">
-					<input type="submit" name="delall" value="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results'] : Lang::getTxt('remove_all', file: 'Admin')), '" data-confirm="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results_confirm'] : Lang::$txt['sure_about_errorlog_remove']), '" class="button you_sure">
-					', (Utils::$context['has_filter'] ? '<a href="' . Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . '" class="button">' . Lang::$txt['clear_filter'] . '</a>' : ''), '
+					<input type="submit" name="removeSelection" value="', Lang::getTxt('remove_selection', file: 'ManageMaintenance'), '" data-confirm="', Lang::getTxt('remove_selection_confirm', file: 'ManageMaintenance'), '" class="button you_sure">
+					<input type="submit" name="delall" value="', (Utils::$context['has_filter'] ? Lang::getTxt('remove_filtered_results', file: 'ManageMaintenance') : Lang::getTxt('remove_all', file: 'Admin')), '" data-confirm="', (Utils::$context['has_filter'] ? Lang::getTxt('remove_filtered_results_confirm', file: 'ManageMaintenance') : Lang::getTxt('sure_about_errorlog_remove', file: 'ManageMaintenance')), '" class="button you_sure">
+					', (Utils::$context['has_filter'] ? '<a href="' . Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . '" class="button">' . Lang::getTxt('clear_filter', file: 'ManageMaintenance') . '</a>' : ''), '
 				</div>';
 
 	$error_types = array();
@@ -103,7 +103,7 @@ function template_error_log()
 		$error_types[] = ($details['is_selected'] ? '<span class="main_icons right_arrow"></span> ' : '') . '<a href="' . $details['url'] . '" ' . ($details['is_selected'] ? 'style="font-weight: bold;"' : 'style="font-weight: normal;"') . ' title="' . $details['description'] . '">' . ($details['error_type'] === 'critical' ? '<span class="error">' . $details['label'] . '</span>' : $details['label']) . '</a>';
 
 	echo '
-				', Lang::getTxt('apply_filter_of_type', ['list' => implode(' | ', $error_types)]), '
+				', Lang::getTxt('apply_filter_of_type', ['list' => implode(' | ', $error_types)], file: 'ManageMaintenance'), '
 				</div>
 			</div>
 			<div class="pagesection">
@@ -127,49 +127,49 @@ function template_error_log()
 						<input type="checkbox" name="delete[]" value="', $error['id'], '">
 					</span>
 					<h5>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? '' : ';desc', Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '', '" title="', Lang::$txt['reverse_direction'], '"><span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span></a> ', $error['time'], '
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? '' : ';desc', Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '', '" title="', Lang::getTxt('reverse_direction', file: 'ManageMaintenance'), '"><span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span></a> ', $error['time'], '
 					</h5>
 					<hr class="clear">
 				</div>
 				<div>
 					<div class="half_content">
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_member']]), '"><span class="main_icons filter"></span></a>
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=id_member;value=', $error['member']['id'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_member', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a>
 						<strong>', $error['member']['link'], '</strong>';
 
 		if (!empty($error['member']['ip']))
 			echo '
 						<br>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_ip']]), '"><span class="main_icons filter"></span></a>
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=ip;value=', $error['member']['ip'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_ip', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a>
 						<strong><a href="', Config::$scripturl, '?action=trackip;searchip=', $error['member']['ip'], '">', $error['member']['ip'], '</a></strong>';
 
 		if (!empty($error['member']['session']))
 			echo '
 						<br>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_session']]), '"><span class="main_icons filter"></span></a> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_session']]), '">', $error['member']['session'], '</a>';
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_session', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=session;value=', $error['member']['session'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_session', file: 'ManageMaintenance')]), '">', $error['member']['session'], '</a>';
 
 		echo '
 						<br>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_url']]), '"><span class="main_icons filter"></span></a>
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=url;value=', $error['url']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_url', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a>
 						<a href="', $error['url']['html'], '" class="bbc_link word_break">', $error['url']['html'], '</a>';
 
 		if (!empty($error['file']))
 			echo '
 						<br>
-						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_file']]), '"><span class="main_icons filter"></span></a> ', Lang::getTxt('error_file_and_line', ['file' => '<a class="bbc_link" href="' . $error['file']['href'] . '" onclick="return reqWin(this.href, 600, 480, false);">' . $error['file']['file'] . '</a>', 'line' => $error['file']['line']]);
+						<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=file;value=', $error['file']['search'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_file', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a> ', Lang::getTxt('error_file_and_line', ['file' => '<a class="bbc_link" href="' . $error['file']['href'] . '" onclick="return reqWin(this.href, 600, 480, false);">' . $error['file']['file'] . '</a>', 'line' => $error['file']['line']], file: 'ManageMaintenance');
 
 		echo '
 					</div>
 					<div class="half_content">
 						<strong class="floatright">
-							<span class="main_icons details"></span> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);">', Lang::$txt['backtrace_title'], '</a>
+							<span class="main_icons details"></span> <a class="bbc_link" href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog;backtrace=', $error['id'], '" onclick="return reqWin(this.href, 600, 480, false);">', Lang::getTxt('backtrace_title', file: 'ManageMaintenance'), '</a>
 						</strong>
 					</div>
 				</div>
 				<div class="post">
 					<br class="clear">
-					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_type']]), '"><span class="main_icons filter"></span></a>', Lang::getTxt('error_type_name', ['type' => $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name']]), '<br>
-					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::$txt['filter_only_message']]), '"><span class="main_icons filter floatleft"></span></a>
-					<div class="codeheader"><span class="code floatleft">' . Lang::$txt['error_message'] . '</span> <a class="codeoperation smf_select_text">' . Lang::$txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . Lang::$txt['code_shrink'] . '" data-expand-txt="' . Lang::$txt['code_expand'] . '">' . Lang::$txt['code_expand'] . '</a>
+					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_type', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a>', Lang::getTxt('error_type_name', ['type' => $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name']], file: 'ManageMaintenance'), '<br>
+					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_message', file: 'ManageMaintenance')]), '"><span class="main_icons filter floatleft"></span></a>
+					<div class="codeheader"><span class="code floatleft">' . Lang::getTxt('error_message', file: 'ManageMaintenance') . '</span> <a class="codeoperation smf_select_text">' . Lang::$txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . Lang::$txt['code_shrink'] . '" data-expand-txt="' . Lang::$txt['code_expand'] . '">' . Lang::$txt['code_expand'] . '</a>
 					</div><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', $error['message']['html'], '</code>
 				</div>
 			</div>';
@@ -181,8 +181,8 @@ function template_error_log()
 					', Utils::$context['page_index'], '
 				</div>
 				<div class="floatright">
-					<input type="submit" name="removeSelection" value="', Lang::$txt['remove_selection'], '" data-confirm="', Lang::$txt['remove_selection_confirm'], '" class="button you_sure">
-					<input type="submit" name="delall" value="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results'] : Lang::getTxt('remove_all', file: 'Admin')), '" data-confirm="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results_confirm'] : Lang::$txt['sure_about_errorlog_remove']), '" class="button you_sure">
+					<input type="submit" name="removeSelection" value="', Lang::getTxt('remove_selection', file: 'ManageMaintenance'), '" data-confirm="', Lang::getTxt('remove_selection_confirm', file: 'ManageMaintenance'), '" class="button you_sure">
+					<input type="submit" name="delall" value="', (Utils::$context['has_filter'] ? Lang::getTxt('remove_filtered_results', file: 'ManageMaintenance') : Lang::getTxt('remove_all', file: 'Admin')), '" data-confirm="', (Utils::$context['has_filter'] ? Lang::getTxt('remove_filtered_results_confirm', file: 'ManageMaintenance') : Lang::getTxt('sure_about_errorlog_remove', file: 'ManageMaintenance')), '" class="button you_sure">
 				</div>
 			</div>';
 
@@ -266,7 +266,7 @@ function template_show_backtrace()
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="UTF-8">
-		<title>', Lang::$txt['backtrace_title'], '</title>';
+		<title>', Lang::getTxt('backtrace_title', file: 'ManageMaintenance'), '</title>';
 
 	Theme::template_css();
 
@@ -279,7 +279,7 @@ function template_show_backtrace()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', Lang::$txt['error'], '
+					', Lang::getTxt('error', file: 'ManageMaintenance'), '
 				</h3>
 			</div>
 			<div class="windowbg" id="backtrace">
@@ -289,7 +289,7 @@ function template_show_backtrace()
 		if (!empty(Utils::$context['error_info']['error_type']))
 			echo '
 						<tr class="title_bar">
-							<td><strong>', Lang::$txt['error_type'], '</strong></td>
+							<td><strong>', Lang::getTxt('error_type', file: 'ManageMaintenance'), '</strong></td>
 						</tr>
 						<tr class="windowbg">
 							<td>', ucfirst(Utils::$context['error_info']['error_type']), '</td>
@@ -298,7 +298,7 @@ function template_show_backtrace()
 		if (!empty(Utils::$context['error_info']['message']))
 			echo '
 						<tr class="title_bar">
-							<td><strong>', Lang::$txt['error_message'], '</strong></td>
+							<td><strong>', Lang::getTxt('error_message', file: 'ManageMaintenance'), '</strong></td>
 						</tr>
 						<tr class="windowbg lefttext">
 							<td><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', Utils::$context['error_info']['message'], '</code></td>
@@ -325,7 +325,7 @@ function template_show_backtrace()
 		if (!empty(Utils::$context['error_info']['url']))
 			echo '
 						<tr class="title_bar">
-							<td><strong>', Lang::$txt['error_url'], '</strong></td>
+							<td><strong>', Lang::getTxt('error_url', file: 'ManageMaintenance'), '</strong></td>
 						</tr>
 						<tr class="windowbg word_break">
 							<td>', Utils::$context['error_info']['url'], '</td>
@@ -342,7 +342,7 @@ function template_show_backtrace()
 		echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', Lang::$txt['backtrace_title'], '
+					', Lang::getTxt('backtrace_title', file: 'ManageMaintenance'), '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -368,7 +368,8 @@ function template_show_backtrace()
 							$value->line,
 							base64_encode($value->file),
 							Config::$scripturl,
-						]
+						],
+						file: 'ManageMaintenance',
 					),
 					'</li>';
 		}

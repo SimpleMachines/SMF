@@ -256,7 +256,7 @@ class ErrorLog implements ActionInterface
 				'id' => $row['id_error'],
 				'error_type' => [
 					'type' => $row['error_type'],
-					'name' => Lang::$txt['errortype_' . $row['error_type']] ?? $row['error_type'],
+					'name' => Lang::txtExists('errortype_' . $row['error_type'], file: 'ManageMaintenance') ? Lang::getTxt('errortype_' . $row['error_type'], file: 'ManageMaintenance') : $row['error_type'],
 				],
 				'file' => [],
 			];
@@ -345,9 +345,9 @@ class ErrorLog implements ActionInterface
 		Utils::$context['error_types'] = [];
 
 		Utils::$context['error_types']['all'] = [
-			'label' => Lang::$txt['errortype_all'],
+			'label' => Lang::getTxt('errortype_all', file: 'ManageMaintenance'),
 			'error_type' => 'all',
-			'description' => Lang::$txt['errortype_all_desc'] ?? '',
+			'description' => '',
 			'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : ''),
 			'is_selected' => empty($this->filter),
 		];
@@ -371,9 +371,9 @@ class ErrorLog implements ActionInterface
 			$sum += $row['num_errors'];
 
 			Utils::$context['error_types'][$sum] = [
-				'label' => (Lang::$txt['errortype_' . $row['error_type']] ?? $row['error_type']) . ' (' . $row['num_errors'] . ')',
+				'label' => (Lang::txtExists('errortype_' . $row['error_type'], file: 'ManageMaintenance') ? Lang::getTxt('errortype_' . $row['error_type'], file: 'ManageMaintenance') : $row['error_type']) . ' (' . $row['num_errors'] . ')',
 				'error_type' => $row['error_type'],
-				'description' => Lang::$txt['errortype_' . $row['error_type'] . '_desc'] ?? '',
+				'description' => Lang::txtExists('errortype_' . $row['error_type'] . '_desc', file: 'ManageMaintenance') ? Lang::getTxt('errortype_' . $row['error_type'] . '_desc', file: 'ManageMaintenance') : '',
 				'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . ';filter=error_type;value=' . $row['error_type'],
 				'is_selected' => isset($this->filter) && $this->filter['value']['sql'] == Db::$db->escape_wildcard_string($row['error_type']),
 			];
