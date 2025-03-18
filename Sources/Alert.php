@@ -384,7 +384,7 @@ class Alert implements \ArrayAccess
 			if (!in_array('', $msg_values)) {
 				$this->extra[$msg_type] = vsprintf(self::$link_formats[$msg_type][$this->show_links ? 'link' : 'text'], $msg_values);
 			} elseif (in_array($msg_type, ['msg_msg', 'topic_msg', 'board_msg'])) {
-				$this->extra[$msg_type] = Lang::$txt[$msg_type == 'board_msg' ? 'board_na' : 'topic_na'];
+				$this->extra[$msg_type] = Lang::getTxt($msg_type == 'board_msg' ? 'board_na' : 'topic_na', file: 'Alerts');
 			} else {
 				$this->extra[$msg_type] = '(' . Lang::$txt['not_applicable'] . ')';
 			}
@@ -462,7 +462,7 @@ class Alert implements \ArrayAccess
 		// Finally, set this alert's text string.
 		$txt_key = 'alert_' . $this->content_type . '_' . $this->content_action;
 
-		if (isset(Lang::$txt[$txt_key])) {
+		if (Lang::txtExists($txt_key, file: 'Alerts')) {
 			$substitutions = [
 				'scripturl' => Config::$scripturl,
 				'member_link' => !empty($this->member_started) && $this->show_links ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->member_started . '">' . $this->member_name . '</a>' : '<strong>' . $this->member_name . '</strong>',
@@ -474,7 +474,7 @@ class Alert implements \ArrayAccess
 				}
 			}
 
-			$this->text = Lang::getTxt($txt_key, $substitutions);
+			$this->text = Lang::getTxt($txt_key, $substitutions, file: 'Alerts');
 		}
 	}
 

@@ -92,11 +92,11 @@ function template_alerts_popup()
 	echo '
 		<div class="alert_bar">
 			<div class="alerts_opts block">
-				<a href="' . Config::$scripturl . '?action=profile;area=notification;sa=markread;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return markAlertsRead(this)">', Lang::$txt['mark_alerts_read'], '</a>
-				<a href="', Config::$scripturl, '?action=profile;area=notification;sa=alerts" class="floatright">', Lang::$txt['alert_settings'], '</a>
+				<a href="' . Config::$scripturl . '?action=profile;area=notification;sa=markread;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" onclick="return markAlertsRead(this)">', Lang::getTxt('mark_alerts_read', file: 'Alerts'), '</a>
+				<a href="', Config::$scripturl, '?action=profile;area=notification;sa=alerts" class="floatright">', Lang::getTxt('alert_settings', file: 'Alerts'), '</a>
 			</div>
 			<div class="alerts_box centertext">
-				<a href="', Config::$scripturl, '?action=profile;area=showalerts" class="button">', Lang::$txt['all_alerts'], '</a>
+				<a href="', Config::$scripturl, '?action=profile;area=showalerts" class="button">', Lang::getTxt('all_alerts', file: 'Alerts'), '</a>
 			</div>
 		</div>
 		<div class="alerts_unread">';
@@ -146,7 +146,7 @@ function template_alerts_popup()
  */
 function template_alerts_all_read()
 {
-	echo '<div class="no_unread">', Lang::$txt['alerts_no_unread'], '</div>';
+	echo '<div class="no_unread">', Lang::getTxt('alerts_no_unread', file: 'Alerts'), '</div>';
 }
 
 /**
@@ -599,7 +599,7 @@ function template_showAlerts()
 	if (empty(Utils::$context['alerts']))
 		echo '
 		<div class="information">
-			', Lang::$txt['alerts_none'], '
+			', Lang::getTxt('alerts_none', file: 'Alerts'), '
 		</div>';
 
 	else
