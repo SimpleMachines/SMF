@@ -101,7 +101,7 @@ class Mail implements ActionInterface
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::getTxt('mailqueue_title', file: 'Admin'),
 			'help' => '',
-			'description' => Lang::$txt['mailqueue_desc'],
+			'description' => Lang::getTxt('mailqueue_desc', file: 'ManageMail'),
 		];
 
 		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
@@ -141,7 +141,7 @@ class Mail implements ActionInterface
 		list($mailQueueSize, $mailOldest) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		Utils::$context['oldest_mail'] = empty($mailOldest) ? Lang::$txt['mailqueue_oldest_not_available'] : self::timeSince(time() - $mailOldest);
+		Utils::$context['oldest_mail'] = empty($mailOldest) ? Lang::getTxt('mailqueue_oldest_not_available', file: 'ManageMail') : self::timeSince(time() - $mailOldest);
 		Utils::$context['mail_queue_size'] = Lang::numberFormat((int) $mailQueueSize);
 
 		$listOptions = [
@@ -150,7 +150,7 @@ class Mail implements ActionInterface
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=mailqueue',
 			'default_sort_col' => 'age',
-			'no_items_label' => Lang::$txt['mailqueue_no_items'],
+			'no_items_label' => Lang::getTxt('mailqueue_no_items', file: 'ManageMail'),
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getMailQueue',
 			],
@@ -160,7 +160,7 @@ class Mail implements ActionInterface
 			'columns' => [
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['mailqueue_subject'],
+						'value' => Lang::getTxt('mailqueue_subject', file: 'ManageMail'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -175,7 +175,7 @@ class Mail implements ActionInterface
 				],
 				'recipient' => [
 					'header' => [
-						'value' => Lang::$txt['mailqueue_recipient'],
+						'value' => Lang::getTxt('mailqueue_recipient', file: 'ManageMail'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -193,15 +193,19 @@ class Mail implements ActionInterface
 				],
 				'priority' => [
 					'header' => [
-						'value' => Lang::$txt['mailqueue_priority'],
+						'value' => Lang::getTxt('mailqueue_priority', file: 'ManageMail'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
 							// We probably have a text label with your priority.
 							$txtKey = sprintf('mq_mpriority_%1$s', $rowData['priority']);
 
-							// But if not, revert to priority 0.
-							return Lang::$txt[$txtKey] ?? Lang::$txt['mq_mpriority_1'];
+							// But if not, revert to priority 1.
+							if (!Lang::txtExists($txtKey, file: 'ManageMail')) {
+								$txtKey = 'mq_mpriority_1';
+							}
+
+							return Lang::getTxt($txtKey, file: 'ManageMail');
 						},
 						'class' => 'smalltext',
 					],
@@ -212,7 +216,7 @@ class Mail implements ActionInterface
 				],
 				'age' => [
 					'header' => [
-						'value' => Lang::$txt['mailqueue_age'],
+						'value' => Lang::getTxt('mailqueue_age', file: 'ManageMail'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -245,11 +249,11 @@ class Mail implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'top_of_list',
-					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['mailqueue_clear_list_warning'] . '">' . Lang::$txt['mailqueue_clear_list'] . '</a> ',
+					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('mailqueue_clear_list_warning', file: 'ManageMail') . '">' . Lang::getTxt('mailqueue_clear_list', file: 'ManageMail') . '</a> ',
 				],
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['mailqueue_clear_list_warning'] . '">' . Lang::$txt['mailqueue_clear_list'] . '</a> ',
+					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('mailqueue_clear_list_warning', file: 'ManageMail') . '">' . Lang::getTxt('mailqueue_clear_list', file: 'ManageMail') . '</a> ',
 				],
 			],
 		];
@@ -477,7 +481,7 @@ class Mail implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Private PM/email subjects and similar shouldn't be shown in the mailbox area.
 			if (!empty($row['private'])) {
-				$row['subject'] = Lang::$txt['personal_message'];
+				$row['subject'] = Lang::getTxt('personal_message', file: 'ManageMail');
 			} else {
 				$row['subject'] = mb_decode_mimeheader($row['subject']);
 			}
@@ -525,21 +529,21 @@ class Mail implements ActionInterface
 
 		// Just do a bit of an if fest...
 		if ($time_diff > 86400) {
-			return Lang::getTxt('mq_age', ['unit' => 'day', 'age' => round($time_diff / 86400, 1)]);
+			return Lang::getTxt('mq_age', ['unit' => 'day', 'age' => round($time_diff / 86400, 1)], file: 'ManageMail');
 		}
 
 		// Hours?
 		if ($time_diff > 3600) {
-			return Lang::getTxt('mq_age', ['unit' => 'hour', 'age' => round($time_diff / 3600, 1)]);
+			return Lang::getTxt('mq_age', ['unit' => 'hour', 'age' => round($time_diff / 3600, 1)], file: 'ManageMail');
 		}
 
 		// Minutes?
 		if ($time_diff > 60) {
-			return Lang::getTxt('mq_age', ['unit' => 'minute', 'age' => (int) ($time_diff / 60)]);
+			return Lang::getTxt('mq_age', ['unit' => 'minute', 'age' => (int) ($time_diff / 60)], file: 'ManageMail');
 		}
 
 		// Otherwise must be second
-		return Lang::getTxt('mq_age', ['unit' => 'second', 'age' => $time_diff]);
+		return Lang::getTxt('mq_age', ['unit' => 'second', 'age' => $time_diff], file: 'ManageMail');
 	}
 
 	/******************
