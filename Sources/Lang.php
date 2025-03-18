@@ -565,7 +565,7 @@ class Lang
 		// Workaround for a CrowdIn limitation that won't allow translators to
 		// change offset values in strings.
 		if (
-			count($txt_key) === 0
+			count($txt_key) === 1
 			&& in_array($txt_key[0], ['ordinal_last', 'ordinal_spellout_last'])
 			&& isset(self::$txt['ordinal_last_offset'])
 		) {
