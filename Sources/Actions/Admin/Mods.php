@@ -71,11 +71,11 @@ class Mods implements ActionInterface
 		Lang::load('Help');
 		Lang::load('ManageSettings');
 
-		Utils::$context['page_title'] = Lang::$txt['admin_modifications'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_modifications', file: 'Admin');
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['admin_modifications'],
+			'title' => Lang::getTxt('admin_modifications', file: 'Admin'),
 			'help' => 'modsettings',
 			'description' => Lang::$txt['modification_settings_desc'],
 			'tabs' => [
@@ -105,7 +105,7 @@ class Mods implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=modsettings;save;sa=general';
-		Utils::$context['settings_title'] = Lang::$txt['mods_cat_modifications_misc'];
+		Utils::$context['settings_title'] = Lang::getTxt('mods_cat_modifications_misc', file: 'Admin');
 
 		// No removing this line, you dirty unwashed mod authors. :p
 		if (empty($config_vars)) {

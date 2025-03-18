@@ -88,7 +88,7 @@ class Registration implements ActionInterface
 
 		// Next create the tabs for the template.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['registration_center'],
+			'title' => Lang::getTxt('registration_center', file: 'Admin'),
 			'help' => 'registrations',
 			'description' => Lang::$txt['admin_settings_desc'],
 			'tabs' => [
@@ -96,13 +96,13 @@ class Registration implements ActionInterface
 					'description' => Lang::$txt['admin_register_desc'],
 				],
 				'agreement' => [
-					'description' => Lang::$txt['registration_agreement_desc'],
+					'description' => Lang::getTxt('registration_agreement_desc', file: 'Admin'),
 				],
 				'policy' => [
-					'description' => Lang::$txt['privacy_policy_desc'],
+					'description' => Lang::getTxt('privacy_policy_desc', file: 'Admin'),
 				],
 				'reservednames' => [
-					'description' => Lang::$txt['admin_reserved_desc'],
+					'description' => Lang::getTxt('admin_reserved_desc', file: 'Admin'),
 				],
 				'settings' => [
 					'description' => Lang::$txt['admin_settings_desc'],
@@ -212,7 +212,7 @@ class Registration implements ActionInterface
 
 		// Basic stuff.
 		Utils::$context['sub_template'] = 'admin_register';
-		Utils::$context['page_title'] = Lang::$txt['registration_center'];
+		Utils::$context['page_title'] = Lang::getTxt('registration_center', file: 'Admin');
 
 		SecurityToken::create('admin-regc');
 
@@ -235,7 +235,7 @@ class Registration implements ActionInterface
 
 		// Is there more than one to edit?
 		Utils::$context['editable_agreements'] = [
-			'en_US' => Lang::$txt['admin_agreement_default'],
+			'en_US' => Lang::getTxt('admin_agreement_default', file: 'Admin'),
 		];
 
 		// Get our languages.
@@ -300,7 +300,7 @@ class Registration implements ActionInterface
 
 		Utils::$context['agreement'] = Utils::htmlspecialchars(Utils::$context['agreement']);
 
-		Utils::$context['warning'] = is_writable($agreement_file) && is_writable(dirname($agreement_file)) ? '' : Lang::$txt['agreement_not_writable'];
+		Utils::$context['warning'] = is_writable($agreement_file) && is_writable(dirname($agreement_file)) ? '' : Lang::getTxt('agreement_not_writable', file: 'Admin');
 
 		Utils::$context['sub_template'] = 'edit_agreement';
 		Utils::$context['page_title'] = Lang::$txt['registration_agreement'];
@@ -425,7 +425,7 @@ class Registration implements ActionInterface
 
 		// Ready the template......
 		Utils::$context['sub_template'] = 'edit_reserved_words';
-		Utils::$context['page_title'] = Lang::$txt['admin_reserved_set'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_reserved_set', file: 'Admin');
 
 		SecurityToken::create('admin-regr');
 	}
@@ -444,7 +444,7 @@ class Registration implements ActionInterface
 
 		// Setup the template
 		Utils::$context['sub_template'] = 'show_settings';
-		Utils::$context['page_title'] = Lang::$txt['registration_center'];
+		Utils::$context['page_title'] = Lang::getTxt('registration_center', file: 'Admin');
 
 		if (isset($_GET['save'])) {
 			User::$me->checkSession();
@@ -509,14 +509,29 @@ class Registration implements ActionInterface
 
 			'',
 
-			['check', 'requireAgreement', 'text_label' => Lang::$txt['admin_agreement'], 'value' => !empty(Config::$modSettings['requireAgreement'])],
+			[
+				'check',
+				'requireAgreement',
+				'text_label' => Lang::getTxt('admin_agreement', file: 'Admin'),
+				'value' => !empty(Config::$modSettings['requireAgreement']),
+			],
 			['warning', empty($agreement) ? 'error_no_agreement' : ''],
-			['check', 'requirePolicyAgreement', 'text_label' => Lang::$txt['admin_privacy_policy'], 'value' => !empty(Config::$modSettings['requirePolicyAgreement'])],
+			[
+				'check',
+				'requirePolicyAgreement',
+				'text_label' => Lang::getTxt('admin_privacy_policy', file: 'Admin'),
+				'value' => !empty(Config::$modSettings['requirePolicyAgreement']),
+			],
 			['warning', empty($policy) ? 'error_no_privacy_policy' : ''],
 
 			'',
 
-			['int', 'coppaAge', 'subtext' => Lang::$txt['zero_to_disable'], 'onchange' => 'checkCoppa();'],
+			[
+				'int',
+				'coppaAge',
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+				'onchange' => 'checkCoppa();',
+			],
 			['select', 'coppaType', [Lang::$txt['setting_coppaType_reject'], Lang::$txt['setting_coppaType_approval']], 'onchange' => 'checkCoppa();'],
 			['large_text', 'coppaPost', 'subtext' => Lang::$txt['setting_coppaPost_desc']],
 			['text', 'coppaFax'],

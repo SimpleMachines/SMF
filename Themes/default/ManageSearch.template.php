@@ -22,7 +22,7 @@ function template_modify_weights()
 	echo '
 	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=managesearch;sa=weights" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['search_weights'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('search_weights', file: 'Admin'), '</h3>
 		</div>
 		<div class="windowbg">
 			<dl class="settings">
@@ -110,7 +110,7 @@ function template_select_search_method()
 {
 	echo '
 	<div class="cat_bar">
-		<h3 class="catbg">', Lang::$txt['search_method'], '</h3>
+		<h3 class="catbg">', Lang::getTxt('search_method', file: 'Admin'), '</h3>
 	</div>
 	<div class="information">
 		<div class="smalltext">
@@ -119,7 +119,7 @@ function template_select_search_method()
 	</div>
 	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=managesearch;sa=method" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['search_method'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('search_method', file: 'Admin'), '</h3>
 		</div>
 		<div class="windowbg">
 			<dl class="settings">';
@@ -249,7 +249,7 @@ function template_select_search_method()
 				</dl>
 			</fieldset>
 			<fieldset class="search_settings floatright">
-			<legend>', Lang::$txt['search_method'], '</legend>
+			<legend>', Lang::getTxt('search_method', file: 'Admin'), '</legend>
 				<input type="checkbox" name="search_force_index" id="search_force_index_check" value="1"', empty(Config::$modSettings['search_force_index']) ? '' : ' checked', '><label for="search_force_index_check">', Lang::$txt['search_force_index'], '</label><br>
 				<input type="checkbox" name="search_match_words" id="search_match_words_check" value="1"', empty(Config::$modSettings['search_match_words']) ? '' : ' checked', '><label for="search_match_words_check">', Lang::$txt['search_match_words'], '</label>
 			</fieldset>

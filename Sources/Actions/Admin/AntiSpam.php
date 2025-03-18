@@ -335,11 +335,11 @@ class AntiSpam implements ActionInterface
 		// And everything else.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=antispam;save';
 		Utils::$context['settings_title'] = Lang::$txt['antispam_Settings'];
-		Utils::$context['page_title'] = Lang::$txt['antispam_title'];
+		Utils::$context['page_title'] = Lang::getTxt('antispam_title', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['antispam_title'],
+			'title' => Lang::getTxt('antispam_title', file: 'Admin'),
 			'description' => Lang::$txt['antispam_Settings_desc'],
 		];
 

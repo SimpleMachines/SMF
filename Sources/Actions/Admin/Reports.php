@@ -157,11 +157,11 @@ class Reports implements ActionInterface
 		Lang::load('Reports');
 		Theme::loadJavaScriptFile('reports.js', ['defer' => true, 'minimize' => true], 'smf_reports');
 
-		Utils::$context['page_title'] = Lang::$txt['generate_reports'];
+		Utils::$context['page_title'] = Lang::getTxt('generate_reports', file: 'Admin');
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['generate_reports'],
+			'title' => Lang::getTxt('generate_reports', file: 'Admin'),
 			'help' => '',
 			'description' => Lang::$txt['generate_reports_desc'],
 		];

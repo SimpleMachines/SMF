@@ -1577,7 +1577,7 @@ class PackageManager
 	 */
 	public function browse(): void
 	{
-		Utils::$context['page_title'] .= ' - ' . Lang::$txt['browse_packages'];
+		Utils::$context['page_title'] .= ' - ' . Lang::getTxt('browse_packages', file: 'Admin');
 
 		Utils::$context['forum_version'] = SMF_FULL_VERSION;
 		Utils::$context['available_packages'] = 0;
@@ -1747,7 +1747,7 @@ class PackageManager
 			$default_username = '';
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['package_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('package_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'install_options';
 
 		Utils::$context['package_ftp_server'] = Config::$modSettings['package_server'] ?? 'localhost';
@@ -1928,7 +1928,7 @@ class PackageManager
 		}
 
 		// Define the template.
-		Utils::$context['page_title'] = Lang::$txt['package_file_perms'];
+		Utils::$context['page_title'] = Lang::getTxt('package_file_perms', file: 'Admin');
 		Utils::$context['sub_template'] = 'file_permissions';
 
 		// Define what files we're interested in, as a tree.
@@ -2456,7 +2456,7 @@ class PackageManager
 	{
 		// Ensure we use the correct template, and page title.
 		Utils::$context['sub_template'] = 'servers';
-		Utils::$context['page_title'] .= ' - ' . Lang::$txt['download_packages'];
+		Utils::$context['page_title'] .= ' - ' . Lang::getTxt('download_packages', file: 'Admin');
 
 		// Load the list of servers.
 		$request = Db::$db->query(

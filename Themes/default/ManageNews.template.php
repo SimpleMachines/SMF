@@ -22,21 +22,21 @@ function template_email_members()
 	// Are we done sending the newsletter?
 	if (!empty(Utils::$context['newsletter_sent']))
 		echo '
-	<div class="infobox">', Lang::$txt['admin_news_newsletter_' . Utils::$context['newsletter_sent']], '</div>';
+	<div class="infobox">', Lang::getTxt('admin_news_newsletter_' . Utils::$context['newsletter_sent'], file: 'Admin'), '</div>';
 
 	echo '
 		<form action="', Config::$scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['admin_newsletters'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('admin_newsletters', file: 'Admin'), '</h3>
 			</div>
 			<div class="information noup">
-				', Lang::$txt['admin_news_select_recipients'], '
+				', Lang::getTxt('admin_news_select_recipients', file: 'Admin'), '
 			</div>
 			<div class="windowbg noup">
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::$txt['admin_news_select_group'], '</strong><br>
-						<span class="smalltext">', Lang::$txt['admin_news_select_group_desc'], '</span>
+						<strong>', Lang::getTxt('admin_news_select_group', file: 'Admin'), '</strong><br>
+						<span class="smalltext">', Lang::getTxt('admin_news_select_group_desc', file: 'Admin'), '</span>
 					</dt>
 					<dd>';
 
@@ -52,21 +52,21 @@ function template_email_members()
 				<div id="advanced_panel_header" class="title_bar">
 					<h3 class="titlebg">
 						<span id="advanced_panel_toggle" class="toggle_down floatright" style="display: none;"></span>
-						<a href="#" id="advanced_panel_link">', Lang::$txt['advanced'], '</a>
+						<a href="#" id="advanced_panel_link">', Lang::getTxt('advanced', file: 'Admin'), '</a>
 					</h3>
 				</div>
 				<div id="advanced_panel_div" class="padding">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['admin_news_select_email'], '</strong><br>
-							<span class="smalltext">', Lang::$txt['admin_news_select_email_desc'], '</span>
+							<strong>', Lang::getTxt('admin_news_select_email', file: 'Admin'), '</strong><br>
+							<span class="smalltext">', Lang::getTxt('admin_news_select_email_desc', file: 'Admin'), '</span>
 						</dt>
 						<dd>
 							<textarea name="emails" rows="5" cols="30" style="width: 98%;"></textarea>
 						</dd>
 						<dt>
-							<strong>', Lang::$txt['admin_news_select_members'], '</strong><br>
-							<span class="smalltext">', Lang::$txt['admin_news_select_members_desc'], '</span>
+							<strong>', Lang::getTxt('admin_news_select_members', file: 'Admin'), '</strong><br>
+							<span class="smalltext">', Lang::getTxt('admin_news_select_members_desc', file: 'Admin'), '</span>
 						</dt>
 						<dd>
 							<input type="text" name="members" id="members" value="" size="30">
@@ -76,8 +76,8 @@ function template_email_members()
 					<hr class="bordercolor">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['admin_news_select_excluded_groups'], '</strong><br>
-							<span class="smalltext">', Lang::$txt['admin_news_select_excluded_groups_desc'], '</span>
+							<strong>', Lang::getTxt('admin_news_select_excluded_groups', file: 'Admin'), '</strong><br>
+							<span class="smalltext">', Lang::getTxt('admin_news_select_excluded_groups_desc', file: 'Admin'), '</span>
 						</dt>
 						<dd>';
 
@@ -90,8 +90,8 @@ function template_email_members()
 							<label for="checkAllGroupsExclude"><input type="checkbox" id="checkAllGroupsExclude" onclick="invertAll(this, this.form, \'exclude_groups\');"> <em>', Lang::$txt['check_all'], '</em></label><br>
 						</dd>
 						<dt>
-							<strong>', Lang::$txt['admin_news_select_excluded_members'], '</strong><br>
-							<span class="smalltext">', Lang::$txt['admin_news_select_excluded_members_desc'], '</span>
+							<strong>', Lang::getTxt('admin_news_select_excluded_members', file: 'Admin'), '</strong><br>
+							<span class="smalltext">', Lang::getTxt('admin_news_select_excluded_members_desc', file: 'Admin'), '</span>
 						</dt>
 							<dd>
 							<input type="text" name="exclude_members" id="exclude_members" value="" size="30">
@@ -101,8 +101,8 @@ function template_email_members()
 					<hr class="bordercolor">
 					<dl class="settings">
 						<dt>
-							<label for="email_force"><strong>', Lang::$txt['admin_news_select_override_notify'], '</strong></label><br>
-							<span class="smalltext">', Lang::$txt['email_force'], '</span>
+							<label for="email_force"><strong>', Lang::getTxt('admin_news_select_override_notify', file: 'Admin'), '</strong></label><br>
+							<span class="smalltext">', Lang::getTxt('email_force', file: 'Admin'), '</span>
 						</dt>
 						<dd>
 							<input type="checkbox" name="email_force" id="email_force" value="1">
@@ -110,7 +110,7 @@ function template_email_members()
 					</dl>
 				</div><!-- #advanced_panel_div -->
 				<br>
-				<input type="submit" value="', Lang::$txt['admin_next'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('admin_next', file: 'Admin'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</div><!-- .windowbg -->
 		</form>';
@@ -134,8 +134,8 @@ function template_email_members()
 			aSwapLinks: [
 				{
 					sId: \'advanced_panel_link\',
-					msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['advanced']), ',
-					msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['advanced']), '
+					msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('advanced', file: 'Admin')), ',
+					msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('advanced', file: 'Admin')), '
 				}
 			]
 		});
@@ -196,11 +196,11 @@ function template_email_members_compose()
 		<form name="newsmodify" action="', Config::$scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', Config::$scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::$txt['admin_newsletters'], '
+					<a href="', Config::$scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::getTxt('admin_newsletters', file: 'Admin'), '
 				</h3>
 			</div>
 			<div class="information noup">
-				', Lang::getTxt('email_variables', ['scripturl' => Config::$scripturl]), '
+				', Lang::getTxt('email_variables', ['scripturl' => Config::$scripturl], file: 'Admin'), '
 			</div>
 			<div class="windowbg noup">
 				<div class="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty(Utils::$context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
@@ -234,9 +234,9 @@ function template_email_members_compose()
 
 	echo '
 				<ul>
-					<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm"', !empty(Utils::$context['send_pm']) ? ' checked' : '', ' onclick="checkboxes_status(this);"> ', Lang::$txt['email_as_pms'], '</label></li>
-					<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html"', !empty(Utils::$context['send_html']) ? ' checked' : '', ' onclick="checkboxes_status(this);"> ', Lang::$txt['email_as_html'], '</label></li>
-					<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked disabled> ', Lang::$txt['email_parsed_html'], '</label></li>
+					<li><label for="send_pm"><input type="checkbox" name="send_pm" id="send_pm"', !empty(Utils::$context['send_pm']) ? ' checked' : '', ' onclick="checkboxes_status(this);"> ', Lang::getTxt('email_as_pms', file: 'Admin'), '</label></li>
+					<li><label for="send_html"><input type="checkbox" name="send_html" id="send_html"', !empty(Utils::$context['send_html']) ? ' checked' : '', ' onclick="checkboxes_status(this);"> ', Lang::getTxt('email_as_html', file: 'Admin'), '</label></li>
+					<li><label for="parse_html"><input type="checkbox" name="parse_html" id="parse_html" checked disabled> ', Lang::getTxt('email_parsed_html', file: 'Admin'), '</label></li>
 				</ul>
 				<span id="post_confirm_buttons">
 					', template_control_richedit_buttons(Utils::$context['post_box_name']), '
@@ -379,16 +379,16 @@ function template_email_members_send()
 		<form action="', Config::$scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="UTF-8" name="autoSubmit" id="autoSubmit">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', Config::$scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::$txt['admin_newsletters'], '
+					<a href="', Config::$scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::getTxt('admin_newsletters', file: 'Admin'), '
 				</h3>
 			</div>
 			<div class="windowbg">
 				<div class="progress_bar">
-					<span>', Lang::getTxt('email_done', Utils::$context), '</span>
+					<span>', Lang::getTxt('email_done', Utils::$context, file: 'Admin'), '</span>
 					<div class="bar" style="width: ', Utils::$context['percentage_done'], '%;"></div>
 				</div>
 				<hr>
-				<input type="submit" name="b" value="', Lang::$txt['email_continue'], '" class="button">
+				<input type="submit" name="b" value="', Lang::getTxt('email_continue', file: 'Admin'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="subject" value="', Utils::$context['subject'], '">
 				<input type="hidden" name="message" value="', Utils::$context['message'], '">
@@ -419,7 +419,7 @@ function template_email_members_send()
 			else if (countdown == -1)
 				return;
 
-			document.forms.autoSubmit.b.value = "', Lang::$txt['email_continue'], ' (" + countdown + ")";
+			document.forms.autoSubmit.b.value = "', Lang::getTxt('email_continue', file: 'Admin'), ' (" + countdown + ")";
 			countdown--;
 
 			setTimeout("doAutoSubmit();", 1000);
@@ -434,7 +434,7 @@ function template_news_lists()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-			<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
+			<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
 
 	template_show_list('news_lists');
 }

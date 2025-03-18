@@ -52,7 +52,7 @@ function template_permission_index()
 
 	if (empty(Config::$modSettings['permission_enable_deny']))
 		echo '
-						<th class="small_table">', Lang::$txt['membergroups_permissions'], '</th>';
+						<th class="small_table">', Lang::getTxt('membergroups_permissions', file: 'Admin'), '</th>';
 	else
 		echo '
 						<th class="small_table">', Lang::$txt['permissions_allowed'], '</th>
@@ -131,10 +131,10 @@ function template_permission_index()
 						<dd>
 							<select name="predefined">
 								<option value="">(', Lang::$txt['permissions_select_pre_defined'], ')</option>
-								<option value="restrict">', Lang::$txt['permitgroups_restrict'], '</option>
-								<option value="standard">', Lang::$txt['permitgroups_standard'], '</option>
-								<option value="moderator">', Lang::$txt['permitgroups_moderator'], '</option>
-								<option value="maintenance">', Lang::$txt['permitgroups_maintenance'], '</option>
+								<option value="restrict">', Lang::getTxt('permitgroups_restrict', file: 'Admin'), '</option>
+								<option value="standard">', Lang::getTxt('permitgroups_standard', file: 'Admin'), '</option>
+								<option value="moderator">', Lang::getTxt('permitgroups_moderator', file: 'Admin'), '</option>
+								<option value="maintenance">', Lang::getTxt('permitgroups_maintenance', file: 'Admin'), '</option>
 							</select>
 						</dd>
 						<dt>
@@ -281,7 +281,7 @@ function template_by_board()
 	echo '
 		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=permissions;sa=board" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['permissions_boards'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('permissions_boards', file: 'Admin'), '</h3>
 			</div>
 			<div class="information">
 				', Lang::$txt['permissions_boards_desc'], '
@@ -681,7 +681,7 @@ function template_inline_permissions()
 	// This looks really weird, but it keeps things nested properly...
 	echo '
 											<fieldset id="', Utils::$context['current_permission'], '">
-												<legend><a href="javascript:void(0);" onclick="document.getElementById(\'', Utils::$context['current_permission'], '\').style.display = \'none\';document.getElementById(\'', Utils::$context['current_permission'], '_groups_link\').style.display = \'block\'; return false;" class="toggle_up"> ', Lang::$txt['avatar_select_permission'], '</a></legend>';
+												<legend><a href="javascript:void(0);" onclick="document.getElementById(\'', Utils::$context['current_permission'], '\').style.display = \'none\';document.getElementById(\'', Utils::$context['current_permission'], '_groups_link\').style.display = \'block\'; return false;" class="toggle_up"> ', Lang::getTxt('avatar_select_permission', file: 'Admin'), '</a></legend>';
 
 	if (empty(Config::$modSettings['permission_enable_deny']))
 		echo '
@@ -742,7 +742,7 @@ function template_inline_permissions()
 	echo '
 											</fieldset>
 
-											<a href="javascript:void(0);" onclick="document.getElementById(\'', Utils::$context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', Utils::$context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', Utils::$context['current_permission'], '_groups_link" style="display: none;" class="toggle_down"> ', Lang::$txt['avatar_select_permission'], '</a>
+											<a href="javascript:void(0);" onclick="document.getElementById(\'', Utils::$context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', Utils::$context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', Utils::$context['current_permission'], '_groups_link" style="display: none;" class="toggle_down"> ', Lang::getTxt('avatar_select_permission', file: 'Admin'), '</a>
 
 											<script>
 												document.getElementById("', Utils::$context['current_permission'], '").style.display = "none";
@@ -759,7 +759,7 @@ function template_postmod_permissions()
 					<div id="admin_form_wrapper">
 						<form action="', Config::$scripturl, '?action=admin;area=permissions;sa=postmod;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" name="postmodForm" id="postmodForm" accept-charset="UTF-8">
 							<div class="cat_bar">
-								<h3 class="catbg">', Lang::$txt['permissions_post_moderation'], '</h3>
+								<h3 class="catbg">', Lang::getTxt('permissions_post_moderation', file: 'Admin'), '</h3>
 							</div>';
 
 	// First, we have the bit where we can enable or disable this bad boy.

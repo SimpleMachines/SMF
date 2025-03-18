@@ -485,7 +485,7 @@ function template_admin_register()
 		<div id="admin_form_wrapper">
 			<form id="postForm" action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="UTF-8" name="postForm">
 				<div class="cat_bar">
-					<h3 class="catbg">', Lang::$txt['admin_browse_register_new'], '</h3>
+					<h3 class="catbg">', Lang::getTxt('admin_browse_register_new', file: 'Admin'), '</h3>
 				</div>
 				<div id="register_screen" class="windowbg">';
 
@@ -585,11 +585,11 @@ function template_edit_agreement()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-		<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
+		<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
 
 	elseif (!empty(Utils::$context['could_not_save']))
 		echo '
-		<div class="errorbox">', Lang::$txt['admin_agreement_not_saved'], '</div>';
+		<div class="errorbox">', Lang::getTxt('admin_agreement_not_saved', file: 'Admin'), '</div>';
 
 	// Warning for if the file isn't writable.
 	if (!empty(Utils::$context['warning']))
@@ -609,7 +609,7 @@ function template_edit_agreement()
 		echo '
 				<div class="information">
 					<form action="', Config::$scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="UTF-8">
-						<strong>', Lang::$txt['admin_agreement_select_language'], '</strong>
+						<strong>', Lang::getTxt('admin_agreement_select_language', file: 'Admin'), '</strong>
 						<select name="agree_lang" onchange="document.getElementById(\'change_reg\').submit();" tabindex="', Utils::$context['tabindex']++, '">';
 
 		foreach (Utils::$context['editable_agreements'] as $file => $name)
@@ -622,7 +622,7 @@ function template_edit_agreement()
 							<input type="hidden" name="sa" value="agreement">
 							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 							<input type="hidden" name="', Utils::$context['admin-rega_token_var'], '" value="', Utils::$context['admin-rega_token'], '">
-							<input type="submit" name="change" value="', Lang::$txt['admin_agreement_select_language_change'], '" tabindex="', Utils::$context['tabindex']++, '" class="button">
+							<input type="submit" name="change" value="', Lang::getTxt('admin_agreement_select_language_change', file: 'Admin'), '" tabindex="', Utils::$context['tabindex']++, '" class="button">
 						</div>
 					</form>
 				</div><!-- .information -->';
@@ -659,37 +659,37 @@ function template_edit_reserved_words()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-	<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
+	<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
 
 	echo '
 	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['admin_reserved_set'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('admin_reserved_set', file: 'Admin'), '</h3>
 		</div>
 		<div class="windowbg">
-			<h4>', Lang::$txt['admin_reserved_line'], '</h4>
+			<h4>', Lang::getTxt('admin_reserved_line', file: 'Admin'), '</h4>
 			<textarea cols="30" rows="6" name="reserved" id="reserved">', implode("\n", Utils::$context['reserved_words']), '</textarea>
 			<dl class="settings">
 				<dt>
-					<label for="matchword">', Lang::$txt['admin_match_whole'], '</label>
+					<label for="matchword">', Lang::getTxt('admin_match_whole', file: 'Admin'), '</label>
 				</dt>
 				<dd>
 					<input type="checkbox" name="matchword" id="matchword" tabindex="', Utils::$context['tabindex']++, '"', Utils::$context['reserved_word_options']['match_word'] ? ' checked' : '', '>
 				</dd>
 				<dt>
-					<label for="matchcase">', Lang::$txt['admin_match_case'], '</label>
+					<label for="matchcase">', Lang::getTxt('admin_match_case', file: 'Admin'), '</label>
 				</dt>
 				<dd>
 					<input type="checkbox" name="matchcase" id="matchcase" tabindex="', Utils::$context['tabindex']++, '"', Utils::$context['reserved_word_options']['match_case'] ? ' checked' : '', '>
 				</dd>
 				<dt>
-					<label for="matchuser">', Lang::$txt['admin_check_user'], '</label>
+					<label for="matchuser">', Lang::getTxt('admin_check_user', file: 'Admin'), '</label>
 				</dt>
 				<dd>
 					<input type="checkbox" name="matchuser" id="matchuser" tabindex="', Utils::$context['tabindex']++, '"', Utils::$context['reserved_word_options']['match_user'] ? ' checked' : '', '>
 				</dd>
 				<dt>
-					<label for="matchname">', Lang::$txt['admin_check_display'], '</label>
+					<label for="matchname">', Lang::getTxt('admin_check_display', file: 'Admin'), '</label>
 				</dt>
 				<dd>
 					<input type="checkbox" name="matchname" id="matchname" tabindex="', Utils::$context['tabindex']++, '"', Utils::$context['reserved_word_options']['match_name'] ? ' checked' : '', '>
@@ -710,7 +710,7 @@ function template_edit_privacy_policy()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-		<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
+		<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
 
 	// Just a big box to edit the text file ;).
 	echo '
@@ -724,7 +724,7 @@ function template_edit_privacy_policy()
 		echo '
 			<div class="information">
 				<form action="', Config::$scripturl, '?action=admin;area=regcenter" id="change_policy" method="post" accept-charset="UTF-8">
-					<strong>', Lang::$txt['admin_agreement_select_language'], '</strong>
+					<strong>', Lang::getTxt('admin_agreement_select_language', file: 'Admin'), '</strong>
 					<select name="policy_lang" onchange="document.getElementById(\'change_policy\').submit();" tabindex="', Utils::$context['tabindex']++, '">';
 
 		foreach (Utils::$context['editable_policies'] as $lang => $name)
@@ -736,7 +736,7 @@ function template_edit_privacy_policy()
 					<div class="righttext">
 						<input type="hidden" name="sa" value="policy">
 						<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-						<input type="submit" name="change" value="', Lang::$txt['admin_agreement_select_language_change'], '" tabindex="', Utils::$context['tabindex']++, '" class="button">
+						<input type="submit" name="change" value="', Lang::getTxt('admin_agreement_select_language_change', file: 'Admin'), '" tabindex="', Utils::$context['tabindex']++, '" class="button">
 					</div>
 				</form>
 			</div>';

@@ -947,7 +947,7 @@ class Permissions implements ActionInterface
 			'description' => '',
 			'tabs' => [
 				'index' => [
-					'description' => Lang::$txt['permissions_groups'],
+					'description' => Lang::getTxt('permissions_groups', file: 'Admin'),
 				],
 				'board' => [
 					'description' => Lang::$txt['permission_by_board_desc'],
@@ -1011,7 +1011,7 @@ class Permissions implements ActionInterface
 	 */
 	public function board(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['permissions_boards'];
+		Utils::$context['page_title'] = Lang::getTxt('permissions_boards', file: 'Admin');
 		Utils::$context['edit_all'] = isset($_GET['edit']);
 
 		// Saving?
@@ -1423,7 +1423,7 @@ class Permissions implements ActionInterface
 		// Just in case.
 		User::$me->checkSession('get');
 
-		Utils::$context['page_title'] = Lang::$txt['permissions_post_moderation'];
+		Utils::$context['page_title'] = Lang::getTxt('permissions_post_moderation', file: 'Admin');
 		Utils::$context['sub_template'] = 'postmod_permissions';
 		Utils::$context['current_profile'] = isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : 1;
 
@@ -1435,14 +1435,14 @@ class Permissions implements ActionInterface
 		// Start this with the guests/members.
 		Utils::$context['profile_groups'] = [
 			Group::GUEST => new Group(Group::GUEST, [
-				'name' => Lang::$txt['membergroups_guests'],
+				'name' => Lang::getTxt('membergroups_guests', file: 'Admin'),
 				'new_topic' => 'disallow',
 				'replies_own' => 'disallow',
 				'replies_any' => 'disallow',
 				'attachment' => 'disallow',
 			]),
 			Group::REGULAR => new Group(Group::REGULAR, [
-				'name' => Lang::$txt['membergroups_members'],
+				'name' => Lang::getTxt('membergroups_members', file: 'Admin'),
 				'new_topic' => 'disallow',
 				'replies_own' => 'disallow',
 				'replies_any' => 'disallow',
@@ -2736,11 +2736,11 @@ class Permissions implements ActionInterface
 
 		switch (Utils::$context['group']['id']) {
 			case -1:
-				Utils::$context['group']['name'] = Lang::$txt['membergroups_guests'];
+				Utils::$context['group']['name'] = Lang::getTxt('membergroups_guests', file: 'Admin');
 				break;
 
 			case 0:
-				Utils::$context['group']['name'] = Lang::$txt['membergroups_members'];
+				Utils::$context['group']['name'] = Lang::getTxt('membergroups_members', file: 'Admin');
 				break;
 
 			// Can't set permissions for admins.

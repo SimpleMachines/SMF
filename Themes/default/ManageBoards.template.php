@@ -24,7 +24,7 @@ function template_main()
 	echo '
 	<div id="manage_boards">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['boards_edit'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('boards_edit', file: 'Admin'), '</h3>
 		</div>
 		<div class="windowbg">';
 
@@ -268,7 +268,7 @@ function template_modify_board()
 			<input type="hidden" name="boardid" value="', Utils::$context['board']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', isset(Utils::$context['board']['is_new']) ? Lang::$txt['mboards_new_board_name'] : Lang::$txt['boards_edit'], '
+					', isset(Utils::$context['board']['is_new']) ? Lang::$txt['mboards_new_board_name'] : Lang::getTxt('boards_edit', file: 'Admin'), '
 				</h3>
 			</div>
 			<div class="windowbg">

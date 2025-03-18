@@ -35,7 +35,7 @@ function template_new_group()
 	echo '
 		<form id="new_group" action="', Config::$scripturl, '?action=admin;area=membergroups;sa=add" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['membergroups_new_group'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('membergroups_new_group', file: 'Admin'), '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
@@ -82,7 +82,7 @@ function template_new_group()
 	{
 		echo '
 					<dt>
-						<label for="permission_base"><strong>', Lang::$txt['membergroups_permissions'], '</strong></label><br>
+						<label for="permission_base"><strong>', Lang::getTxt('membergroups_permissions', file: 'Admin'), '</strong></label><br>
 						<span class="smalltext">', Lang::$txt['membergroups_can_edit_later'], '</span>
 					</dt>
 					<dd>
@@ -91,8 +91,8 @@ function template_new_group()
 							<input type="radio" name="perm_type" id="perm_type_inherit" value="inherit" checked>
 							<label for="perm_type_inherit">', Lang::$txt['membergroups_new_as_inherit'], '</label>
 							<select name="inheritperm" id="inheritperm_select" onclick="document.getElementById(\'perm_type_inherit\').checked = true;">
-								<option value="-1">', Lang::$txt['membergroups_guests'], '</option>
-								<option value="0" selected>', Lang::$txt['membergroups_members'], '</option>';
+								<option value="-1">', Lang::getTxt('membergroups_guests', file: 'Admin'), '</option>
+								<option value="0" selected>', Lang::getTxt('membergroups_members', file: 'Admin'), '</option>';
 
 		foreach (Utils::$context['groups'] as $group)
 			echo '
@@ -104,8 +104,8 @@ function template_new_group()
 							<input type="radio" name="perm_type" id="perm_type_copy" value="copy">
 							<label for="perm_type_copy">', Lang::$txt['membergroups_new_as_copy'], '</label>
 							<select name="copyperm" id="copyperm_select" onclick="document.getElementById(\'perm_type_copy\').checked = true;">
-								<option value="-1">', Lang::$txt['membergroups_guests'], '</option>
-								<option value="0" selected>', Lang::$txt['membergroups_members'], '</option>';
+								<option value="-1">', Lang::getTxt('membergroups_guests', file: 'Admin'), '</option>
+								<option value="0" selected>', Lang::getTxt('membergroups_members', file: 'Admin'), '</option>';
 
 		foreach (Utils::$context['groups'] as $group)
 			echo '
@@ -117,10 +117,10 @@ function template_new_group()
 							<input type="radio" name="perm_type" id="perm_type_predefined" value="predefined">
 							<label for="perm_type_predefined">', Lang::$txt['membergroups_new_as_type'], '</label>
 							<select name="level" id="level_select" onclick="document.getElementById(\'perm_type_predefined\').checked = true;">
-								<option value="restrict">', Lang::$txt['permitgroups_restrict'], '</option>
-								<option value="standard" selected>', Lang::$txt['permitgroups_standard'], '</option>
-								<option value="moderator">', Lang::$txt['permitgroups_moderator'], '</option>
-								<option value="maintenance">', Lang::$txt['permitgroups_maintenance'], '</option>
+								<option value="restrict">', Lang::getTxt('permitgroups_restrict', file: 'Admin'), '</option>
+								<option value="standard" selected>', Lang::getTxt('permitgroups_standard', file: 'Admin'), '</option>
+								<option value="moderator">', Lang::getTxt('permitgroups_moderator', file: 'Admin'), '</option>
+								<option value="maintenance">', Lang::getTxt('permitgroups_maintenance', file: 'Admin'), '</option>
 							</select>
 						</fieldset>
 					</dd>';
@@ -138,7 +138,7 @@ function template_new_group()
 	echo '
 					</dd>
 				</dl>
-				<input type="submit" value="', Lang::$txt['membergroups_add_group'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('membergroups_add_group', file: 'Admin'), '" class="button">
 			</div><!-- .windowbg -->';
 
 	if (Utils::$context['undefined_group'])
@@ -249,8 +249,8 @@ function template_edit_group()
 					<dd>
 						<select name="group_inherit" id="group_inherit_input">
 							<option value="-2">', Lang::$txt['membergroups_edit_inherit_permissions_no'], '</option>
-							<option value="-1"', Utils::$context['group']['inherited_from'] == -1 ? ' selected' : '', '>', Lang::getTxt('membergroups_edit_inherit_permissions_from', ['group' => Lang::$txt['membergroups_guests']]), '</option>
-							<option value="0"', Utils::$context['group']['inherited_from'] == 0 ? ' selected' : '', '>', Lang::getTxt('membergroups_edit_inherit_permissions_from', ['group' => Lang::$txt['membergroups_members']]), '</option>';
+							<option value="-1"', Utils::$context['group']['inherited_from'] == -1 ? ' selected' : '', '>', Lang::getTxt('membergroups_edit_inherit_permissions_from', ['group' => Lang::getTxt('membergroups_guests', file: 'Admin')]), '</option>
+							<option value="0"', Utils::$context['group']['inherited_from'] == 0 ? ' selected' : '', '>', Lang::getTxt('membergroups_edit_inherit_permissions_from', ['group' => Lang::getTxt('membergroups_members', file: 'Admin')]), '</option>';
 
 		// For all the inheritable groups show an option.
 		foreach (Utils::$context['inheritable_groups'] as $id => $group)
@@ -465,12 +465,12 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 									<li class="category clear">
 										<strong>', $category['name'], '</strong>
 										<span class="select_all_box floatright">
-											<em class="all_boards_in_cat">', Lang::$txt['all_boards_in_cat'], '</em>
+											<em class="all_boards_in_cat">', Lang::getTxt('all_boards_in_cat', file: 'Admin'), '</em>
 											<select onchange="select_in_category(', $category['id'], ', this, [', implode(',', array_keys($category['boards'])), ']);">
 												<option>---</option>
-												<option value="allow">', Lang::$txt['board_perms_allow'], '</option>
-												<option value="ignore">', Lang::$txt['board_perms_ignore'], '</option>
-												<option value="deny">', Lang::$txt['board_perms_deny'], '</option>
+												<option value="allow">', Lang::getTxt('board_perms_allow', file: 'Admin'), '</option>
+												<option value="ignore">', Lang::getTxt('board_perms_ignore', file: 'Admin'), '</option>
+												<option value="deny">', Lang::getTxt('board_perms_deny', file: 'Admin'), '</option>
 											</select>
 										</span>
 										<ul id="boards_list_', $category['id'], '">';
@@ -513,9 +513,9 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 								<br class="clear">
 								<span class="select_all_box">
 									<em>', Lang::$txt['all'], '</em>
-									<input type="radio" name="select_all" id="allow_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'allow\');"> <label for="allow_all">', Lang::$txt['board_perms_allow'], '</label>
-									<input type="radio" name="select_all" id="ignore_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'ignore\');"> <label for="ignore_all">', Lang::$txt['board_perms_ignore'], '</label>
-									<input type="radio" name="select_all" id="deny_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'deny\');"> <label for="deny_all">', Lang::$txt['board_perms_deny'], '</label>
+									<input type="radio" name="select_all" id="allow_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'allow\');"> <label for="allow_all">', Lang::getTxt('board_perms_allow', file: 'Admin'), '</label>
+									<input type="radio" name="select_all" id="ignore_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'ignore\');"> <label for="ignore_all">', Lang::getTxt('board_perms_ignore', file: 'Admin'), '</label>
+									<input type="radio" name="select_all" id="deny_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'deny\');"> <label for="deny_all">', Lang::getTxt('board_perms_deny', file: 'Admin'), '</label>
 								</span>
 							</fieldset>
 							<script>

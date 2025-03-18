@@ -144,8 +144,8 @@ class Maintenance implements ActionInterface
 
 		// This uses admin tabs - as it should!
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['maintain_title'],
-			'description' => Lang::$txt['maintain_info'],
+			'title' => Lang::getTxt('maintain_title', file: 'Admin'),
+			'description' => Lang::getTxt('maintain_info', file: 'Admin'),
 			'tabs' => [
 				'routine' => [],
 				'database' => [],
@@ -155,7 +155,7 @@ class Maintenance implements ActionInterface
 		];
 
 		// Set a few things.
-		Utils::$context['page_title'] = Lang::$txt['maintain_title'];
+		Utils::$context['page_title'] = Lang::getTxt('maintain_title', file: 'Admin');
 		Utils::$context['sub_action'] = $this->subaction;
 		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
 
@@ -330,7 +330,7 @@ class Maintenance implements ActionInterface
 		Utils::$context['forum_version'] = SMF_FULL_VERSION;
 
 		Utils::$context['sub_template'] = 'view_versions';
-		Utils::$context['page_title'] = Lang::$txt['admin_version_check'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_version_check', file: 'Admin');
 	}
 
 	/**
@@ -370,7 +370,7 @@ class Maintenance implements ActionInterface
 		Utils::$context['not_done_token'] = 'admin-boardrecount';
 		SecurityToken::create(Utils::$context['not_done_token']);
 
-		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_countdown'] = 3;
 		Utils::$context['sub_template'] = 'not_done';
@@ -1005,7 +1005,7 @@ class Maintenance implements ActionInterface
 				Utils::$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=optimize;start=' . $_REQUEST['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 				Utils::$context['continue_percent'] = round(100 * $_REQUEST['start'] / Utils::$context['num_tables']);
 				Utils::$context['sub_template'] = 'not_done';
-				Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+				Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 
 				SecurityToken::create('admin-optimize');
 				Utils::$context['continue_post_data'] = '<input type="hidden" name="' . Utils::$context['admin-optimize_token_var'] . '" value="' . Utils::$context['admin-optimize_token'] . '">';
@@ -1325,7 +1325,7 @@ class Maintenance implements ActionInterface
 				}
 			}
 
-			Utils::$context['maintenance_finished'] = Lang::$txt[Utils::$context['convert_to'] . '_title'];
+			Utils::$context['maintenance_finished'] = Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance');
 			Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
 			Utils::$context['convert_to_suggest'] = ($body_type != 'text' && !empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] < 65536);
 
@@ -1341,7 +1341,7 @@ class Maintenance implements ActionInterface
 				SecurityToken::validate('admin-convertMsg');
 			}
 
-			Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+			Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 			Utils::$context['continue_post_data'] = '';
 			Utils::$context['continue_countdown'] = 3;
 			Utils::$context['sub_template'] = 'not_done';
@@ -1394,7 +1394,7 @@ class Maintenance implements ActionInterface
 				}
 			}
 			SecurityToken::create('admin-maint');
-			Utils::$context['page_title'] = Lang::$txt[Utils::$context['convert_to'] . '_title'];
+			Utils::$context['page_title'] = Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance');
 			Utils::$context['sub_template'] = 'convert_msgbody';
 
 			if (!empty($id_msg_exceeding)) {
@@ -1548,7 +1548,7 @@ class Maintenance implements ActionInterface
 		User::$me->checkSession('request');
 
 		// Set up to the context.
-		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 		Utils::$context['continue_countdown'] = 3;
 		Utils::$context['continue_get_data'] = '';
 		Utils::$context['sub_template'] = 'not_done';
@@ -1705,7 +1705,7 @@ class Maintenance implements ActionInterface
 		SecurityToken::validate('admin-maint');
 
 		// Set up to the context.
-		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 		Utils::$context['continue_countdown'] = 3;
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_get_data'] = '';
@@ -1931,7 +1931,7 @@ class Maintenance implements ActionInterface
 
 		$list_options = [
 			'id' => 'list_integration_hooks',
-			'title' => Lang::$txt['hooks_title_list'],
+			'title' => Lang::getTxt('hooks_title_list', file: 'Admin'),
 			'items_per_page' => 20,
 			'base_href' => Config::$scripturl . '?action=admin;area=maintain;sa=hooks' . $filter_url . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			'default_sort_col' => 'hook_name',
@@ -1952,11 +1952,11 @@ class Maintenance implements ActionInterface
 					0,
 				),
 			],
-			'no_items_label' => Lang::$txt['hooks_no_hooks'],
+			'no_items_label' => Lang::getTxt('hooks_no_hooks', file: 'Admin'),
 			'columns' => [
 				'hook_name' => [
 					'header' => [
-						'value' => Lang::$txt['hooks_field_hook_name'],
+						'value' => Lang::getTxt('hooks_field_hook_name', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'hook_name',
@@ -1968,15 +1968,15 @@ class Maintenance implements ActionInterface
 				],
 				'function_name' => [
 					'header' => [
-						'value' => Lang::$txt['hooks_field_function_name'],
+						'value' => Lang::getTxt('hooks_field_function_name', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($data) {
 							// Show a nice icon to indicate this is an instance.
-							$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . Lang::$txt['hooks_field_function_method'] . '"></span> ' : '');
+							$instance = (!empty($data['instance']) ? '<span class="main_icons news" title="' . Lang::getTxt('hooks_field_function_method', file: 'Admin') . '"></span> ' : '');
 
 							if (!empty($data['included_file']) && !empty($data['real_function'])) {
-								return $instance . Lang::getTxt('hooks_field_function', $data) . '<br>' . Lang::getTxt('hooks_field_included_file', $data);
+								return $instance . Lang::getTxt('hooks_field_function', $data, file: 'Admin') . '<br>' . Lang::getTxt('hooks_field_included_file', $data, file: 'Admin');
 							}
 
 							return $instance . $data['real_function'];
@@ -1990,7 +1990,7 @@ class Maintenance implements ActionInterface
 				],
 				'file_name' => [
 					'header' => [
-						'value' => Lang::$txt['hooks_field_file_name'],
+						'value' => Lang::getTxt('hooks_field_file_name', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'file_name',
@@ -2003,7 +2003,7 @@ class Maintenance implements ActionInterface
 				],
 				'status' => [
 					'header' => [
-						'value' => Lang::$txt['hooks_field_hook_exists'],
+						'value' => Lang::getTxt('hooks_field_hook_exists', file: 'Admin'),
 						'style' => 'width:3%;',
 					],
 					'data' => [
@@ -2034,21 +2034,21 @@ class Maintenance implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['hooks_disable_instructions'] . '<br>
-						' . Lang::$txt['hooks_disable_legend'] . ':
+					'value' => Lang::getTxt('hooks_disable_instructions', file: 'Admin') . '<br>
+						' . Lang::getTxt('hooks_disable_legend', file: 'Admin') . ':
 					<ul style="list-style: none;">
-						<li><span class="main_icons post_moderation_allow"></span> ' . Lang::$txt['hooks_disable_legend_exists'] . '</li>
-						<li><span class="main_icons post_moderation_moderate"></span> ' . Lang::$txt['hooks_disable_legend_disabled'] . '</li>
-						<li><span class="main_icons post_moderation_deny"></span> ' . Lang::$txt['hooks_disable_legend_missing'] . '</li>
-						<li><span class="main_icons posts"></span> ' . Lang::$txt['hooks_disable_legend_temp'] . '</li>
-						<li><span class="main_icons error"></span> ' . Lang::$txt['hooks_disable_legend_temp_missing'] . '</li>
+						<li><span class="main_icons post_moderation_allow"></span> ' . Lang::getTxt('hooks_disable_legend_exists', file: 'Admin') . '</li>
+						<li><span class="main_icons post_moderation_moderate"></span> ' . Lang::getTxt('hooks_disable_legend_disabled', file: 'Admin') . '</li>
+						<li><span class="main_icons post_moderation_deny"></span> ' . Lang::getTxt('hooks_disable_legend_missing', file: 'Admin') . '</li>
+						<li><span class="main_icons posts"></span> ' . Lang::getTxt('hooks_disable_legend_temp', file: 'Admin') . '</li>
+						<li><span class="main_icons error"></span> ' . Lang::getTxt('hooks_disable_legend_temp_missing', file: 'Admin') . '</li>
 					</ul>',
 				],
 				[
 					'position' => 'above_column_headers',
 					'value' => '
 					<select onchange="window.location=(\'' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));">
-						<option value="">' . Lang::$txt['hooks_reset_filter'] . '</option>
+						<option value="">' . Lang::getTxt('hooks_reset_filter', file: 'Admin') . '</option>
 						' . implode('', $hooks_filters) . '
 					</select>',
 					'class' => 'floatright',
@@ -2058,7 +2058,7 @@ class Maintenance implements ActionInterface
 
 		$list_options['columns']['remove'] = [
 			'header' => [
-				'value' => Lang::$txt['hooks_button_remove'],
+				'value' => Lang::getTxt('hooks_button_remove', file: 'Admin'),
 				'style' => 'width:3%',
 			],
 			'data' => [
@@ -2067,7 +2067,7 @@ class Maintenance implements ActionInterface
 					if (!$data['hook_exists'] && $data['status'] != 'temp') {
 						return '
 						<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="you_sure">
-							<span class="main_icons delete" title="' . Lang::$txt['hooks_button_remove'] . '"></span>
+							<span class="main_icons delete" title="' . Lang::getTxt('hooks_button_remove', file: 'Admin') . '"></span>
 						</a>';
 					}
 				},
@@ -2081,7 +2081,7 @@ class Maintenance implements ActionInterface
 
 		new ItemList($list_options);
 
-		Utils::$context['page_title'] = Lang::$txt['hooks_title_list'];
+		Utils::$context['page_title'] = Lang::getTxt('hooks_title_list', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_list';
 		Utils::$context['default_list'] = 'list_integration_hooks';
 	}
@@ -2144,7 +2144,7 @@ class Maintenance implements ActionInterface
 					'instance' => $hookParsedData['object'],
 					'hook_exists' => $hook_exists,
 					'status' => ($hook_temp ? 'temp' : ($hook_exists ? ($hookParsedData['enabled'] ? 'allow' : 'moderate') : 'deny')),
-					'img_text' => Lang::$txt['hooks_' . ($hook_exists ? ($hook_temp ? 'temp' : ($hookParsedData['enabled'] ? 'active' : 'disabled')) : 'missing')],
+					'img_text' => Lang::getTxt('hooks_' . ($hook_exists ? ($hook_temp ? 'temp' : ($hookParsedData['enabled'] ? 'active' : 'disabled')) : 'missing'), file: 'Admin'),
 					'enabled' => $hookParsedData['enabled'],
 				];
 				$sort_array[] = $temp[$sort_types[$sort][0]];

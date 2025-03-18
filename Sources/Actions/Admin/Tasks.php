@@ -89,16 +89,16 @@ class Tasks implements ActionInterface
 			Menu::$loaded['admin']->tab_data = [
 				'title' => Lang::$txt['scheduled_tasks_title'],
 				'help' => '',
-				'description' => Lang::$txt['maintain_info'],
+				'description' => Lang::getTxt('maintain_info', file: 'Admin'),
 				'tabs' => [
 					'tasks' => [
-						'description' => Lang::$txt['maintain_tasks_desc'],
+						'description' => Lang::getTxt('maintain_tasks_desc', file: 'Admin'),
 					],
 					'tasklog' => [
-						'description' => Lang::$txt['scheduled_log_desc'],
+						'description' => Lang::getTxt('scheduled_log_desc', file: 'Admin'),
 					],
 					'settings' => [
-						'description' => Lang::$txt['scheduled_tasks_settings_desc'],
+						'description' => Lang::getTxt('scheduled_tasks_settings_desc', file: 'Admin'),
 					],
 				],
 			];
@@ -119,7 +119,7 @@ class Tasks implements ActionInterface
 		// Mama, setup the template first - cause it's like the most important bit, like pickle in a sandwich.
 		// ... ironically I don't like pickle. </grudge>
 		Utils::$context['sub_template'] = 'view_scheduled_tasks';
-		Utils::$context['page_title'] = Lang::$txt['maintain_tasks'];
+		Utils::$context['page_title'] = Lang::getTxt('maintain_tasks', file: 'Admin');
 
 		// Saving changes?
 		if (isset($_REQUEST['save'], $_POST['enable_task'])) {
@@ -191,7 +191,7 @@ class Tasks implements ActionInterface
 
 		$listOptions = [
 			'id' => 'scheduled_tasks',
-			'title' => Lang::$txt['maintain_tasks'],
+			'title' => Lang::getTxt('maintain_tasks', file: 'Admin'),
 			'base_href' => Config::$scripturl . '?action=admin;area=scheduledtasks',
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getScheduledTasks',
@@ -425,7 +425,7 @@ class Tasks implements ActionInterface
 		$listOptions = [
 			'id' => 'task_log',
 			'items_per_page' => 30,
-			'title' => Lang::$txt['scheduled_log'],
+			'title' => Lang::getTxt('scheduled_log', file: 'Admin'),
 			'no_items_label' => Lang::$txt['scheduled_log_empty'],
 			'base_href' => Utils::$context['admin_area'] == 'scheduledtasks' ? Config::$scripturl . '?action=admin;area=scheduledtasks;sa=tasklog' : Config::$scripturl . '?action=admin;area=logs;sa=tasklog',
 			'default_sort_col' => 'date',
@@ -505,7 +505,7 @@ class Tasks implements ActionInterface
 
 		// Make it all look spiffy.
 		Menu::$loaded['admin']['current_subsection'] = 'tasklog';
-		Utils::$context['page_title'] = Lang::$txt['scheduled_log'];
+		Utils::$context['page_title'] = Lang::getTxt('scheduled_log', file: 'Admin');
 	}
 
 	/**
@@ -516,11 +516,11 @@ class Tasks implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		// Set up the template.
-		Utils::$context['page_title'] = Lang::$txt['scheduled_tasks_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('scheduled_tasks_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=scheduledtasks;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['scheduled_tasks_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('scheduled_tasks_settings', file: 'Admin');
 
 		// Saving?
 		if (isset($_GET['save'])) {

@@ -155,22 +155,22 @@ class Members implements ActionInterface
 
 		// Setup the admin tabs.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['admin_members'],
+			'title' => Lang::getTxt('admin_members', file: 'Admin'),
 			'help' => 'view_members',
-			'description' => Lang::$txt['admin_members_list'],
+			'description' => Lang::getTxt('admin_members_list', file: 'Admin'),
 			'tabs' => [],
 		];
 
 		Utils::$context['tabs'] = [
 			'viewmembers' => [
 				'label' => Lang::$txt['view_all_members'],
-				'description' => Lang::$txt['admin_members_list'],
+				'description' => Lang::getTxt('admin_members_list', file: 'Admin'),
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=all',
 				'selected_actions' => ['all'],
 			],
 			'search' => [
 				'label' => Lang::$txt['mlist_search'],
-				'description' => Lang::$txt['admin_members_list'],
+				'description' => Lang::getTxt('admin_members_list', file: 'Admin'),
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=search',
 				'selected_actions' => ['search', 'query'],
 			],
@@ -514,7 +514,7 @@ class Members implements ActionInterface
 		$params_url = $this->subaction == 'query' ? ';sa=query;params=' . $search_url_params : '';
 
 		// Get the title and sub template ready..
-		Utils::$context['page_title'] = Lang::$txt['admin_members'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_members', file: 'Admin');
 
 		$listOptions = [
 			'id' => 'member_list',
@@ -539,7 +539,7 @@ class Members implements ActionInterface
 			'columns' => [
 				'id_member' => [
 					'header' => [
-						'value' => Lang::$txt['member_id'],
+						'value' => Lang::getTxt('member_id', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'id_member',
@@ -587,7 +587,7 @@ class Members implements ActionInterface
 				],
 				'email' => [
 					'header' => [
-						'value' => Lang::$txt['email_address'],
+						'value' => Lang::getTxt('email_address', file: 'Admin'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -621,7 +621,7 @@ class Members implements ActionInterface
 				],
 				'last_active' => [
 					'header' => [
-						'value' => Lang::$txt['viewmembers_online'],
+						'value' => Lang::getTxt('viewmembers_online', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -637,21 +637,21 @@ class Members implements ActionInterface
 
 								// Today.
 								if (empty($num_days_difference)) {
-									$difference = Lang::$txt['viewmembers_today'];
+									$difference = Lang::getTxt('viewmembers_today', file: 'Admin');
 								}
 								// Yesterday.
 								elseif ($num_days_difference == 1) {
-									$difference = sprintf('1 %1$s', Lang::$txt['viewmembers_day_ago']);
+									$difference = sprintf('1 %1$s', Lang::getTxt('viewmembers_day_ago', file: 'Admin'));
 								}
 								// X days ago.
 								else {
-									$difference = sprintf('%1$d %2$s', $num_days_difference, Lang::$txt['viewmembers_days_ago']);
+									$difference = sprintf('%1$d %2$s', $num_days_difference, Lang::getTxt('viewmembers_days_ago', file: 'Admin'));
 								}
 							}
 
 							// Show it in italics if they're not activated...
 							if ($rowData['is_activated'] % User::BANNED != User::ACTIVATED) {
-								$difference = sprintf('<em title="%1$s">%2$s</em>', Lang::$txt['not_activated'], $difference);
+								$difference = sprintf('<em title="%1$s">%2$s</em>', Lang::getTxt('not_activated', file: 'Admin'), $difference);
 							}
 
 							return $difference;
@@ -695,7 +695,7 @@ class Members implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="delete_members" value="' . Lang::$txt['admin_delete_members'] . '" data-confirm="' . Lang::$txt['confirm_delete_members'] . '" class="button you_sure">',
+					'value' => '<input type="submit" name="delete_members" value="' . Lang::getTxt('admin_delete_members', file: 'Admin') . '" data-confirm="' . Lang::getTxt('confirm_delete_members', file: 'Admin') . '" class="button you_sure">',
 				],
 			],
 		];
@@ -705,7 +705,7 @@ class Members implements ActionInterface
 				$listOptions['additional_rows'],
 				[
 					'position' => 'below_table_data',
-					'value' => '<label class="floatright">' . Lang::$txt['admin_delete_anonymize'] . ' <input type="checkbox" name="anonymize" id="anonymize" value="1"></label>',
+					'value' => '<label class="floatright">' . Lang::getTxt('admin_delete_anonymize', file: 'Admin') . ' <input type="checkbox" name="anonymize" id="anonymize" value="1"></label>',
 				],
 			);
 		}
@@ -741,7 +741,7 @@ class Members implements ActionInterface
 			}
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['admin_members'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_members', file: 'Admin');
 		Utils::$context['sub_template'] = 'search_members';
 	}
 
@@ -757,7 +757,7 @@ class Members implements ActionInterface
 	public function browse(): void
 	{
 		// Not a lot here!
-		Utils::$context['page_title'] = Lang::$txt['admin_members'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_members', file: 'Admin');
 		Utils::$context['sub_template'] = 'admin_browse';
 
 		$browse_type = $_REQUEST['type'] ?? (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1 ? 'activate' : 'approve');
@@ -905,7 +905,7 @@ class Members implements ActionInterface
 			'columns' => [
 				'id_member' => [
 					'header' => [
-						'value' => Lang::$txt['member_id'],
+						'value' => Lang::getTxt('member_id', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'id_member',
@@ -935,7 +935,7 @@ class Members implements ActionInterface
 				],
 				'email' => [
 					'header' => [
-						'value' => Lang::$txt['email_address'],
+						'value' => Lang::getTxt('email_address', file: 'Admin'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -982,7 +982,7 @@ class Members implements ActionInterface
 				],
 				'date_registered' => [
 					'header' => [
-						'value' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? Lang::$txt['viewmembers_online'] : Lang::$txt['date_registered'],
+						'value' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? Lang::getTxt('viewmembers_online', file: 'Admin') : Lang::$txt['date_registered'],
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -1063,7 +1063,7 @@ class Members implements ActionInterface
 				$listOptions['additional_rows'],
 				[
 					'position' => 'below_table_data',
-					'value' => '<label class="floatright">' . Lang::$txt['admin_delete_anonymize'] . ' <input type="checkbox" name="anonymize" id="anonymize" value="1"></label>',
+					'value' => '<label class="floatright">' . Lang::getTxt('admin_delete_anonymize', file: 'Admin') . ' <input type="checkbox" name="anonymize" id="anonymize" value="1"></label>',
 				],
 			);
 		}
@@ -1365,7 +1365,7 @@ class Members implements ActionInterface
 
 		// Setup the template
 		Utils::$context['sub_template'] = 'show_settings';
-		Utils::$context['page_title'] = Lang::$txt['admin_members'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_members', file: 'Admin');
 
 		if (isset($_GET['save'])) {
 			User::$me->checkSession();
@@ -1395,7 +1395,7 @@ class Members implements ActionInterface
 	public static function getConfigVars(): array
 	{
 		$config_vars = [
-			['check', 'always_anonymize_deleted_accounts', 'subtext' => Lang::$txt['always_anonymize_deleted_accounts_desc']],
+			['check', 'always_anonymize_deleted_accounts', 'subtext' => Lang::getTxt('always_anonymize_deleted_accounts_desc', file: 'Admin')],
 		];
 
 		IntegrationHook::call('integrate_modify_members_settings', [&$config_vars]);

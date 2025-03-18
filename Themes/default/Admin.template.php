@@ -34,11 +34,11 @@ function template_admin()
 							<div id="live_news" class="floatleft">
 								<div class="cat_bar">
 									<h3 class="catbg">
-										<a href="', Config::$scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::$txt['live'], '
+										<a href="', Config::$scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::getTxt('live', file: 'Admin'), '
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
-									<div id="smfAnnouncements">', Lang::$txt['smf_news_cant_connect'], '</div>
+									<div id="smfAnnouncements">', Lang::getTxt('smf_news_cant_connect', file: 'Admin'), '</div>
 								</div>
 							</div>';
 
@@ -47,16 +47,16 @@ function template_admin()
 							<div id="support_info" class="floatright">
 								<div class="cat_bar">
 									<h3 class="catbg">
-										<a href="', Config::$scripturl, '?action=admin;area=credits">', Lang::$txt['support_title'], '</a>
+										<a href="', Config::$scripturl, '?action=admin;area=credits">', Lang::getTxt('support_title', file: 'Admin'), '</a>
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
 									<div id="version_details" class="padding">
-										<strong>', Lang::$txt['support_versions'], '</strong>
+										<strong>', Lang::getTxt('support_versions', file: 'Admin'), '</strong>
 										<ul>
-											<li>', Lang::getTxt('support_versions_forum', ['version' => Utils::$context['forum_version']]), '</li>
-											<li>', Lang::getTxt('support_versions_current', ['version' => '??']), '</li>
-											<li>', Utils::$context['can_admin'] ? '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . Lang::$txt['version_check_more'] . '</a>' : '', '</li>
+											<li>', Lang::getTxt('support_versions_forum', ['version' => Utils::$context['forum_version']], file: 'Admin'), '</li>
+											<li>', Lang::getTxt('support_versions_current', ['version' => '??'], file: 'Admin'), '</li>
+											<li>', Utils::$context['can_admin'] ? '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . Lang::getTxt('version_check_more', file: 'Admin') . '</a>' : '', '</li>
 										</ul>';
 
 	// Display all the members who can administrate the forum.
@@ -136,8 +136,8 @@ function template_admin()
 
 							bLoadUpdateNotification: true,
 							sUpdateNotificationContainerId: \'update_section\',
-							sUpdateNotificationDefaultTitle: ', Utils::escapeJavaScript(Lang::$txt['update_available']), ',
-							sUpdateNotificationDefaultMessage: ', Utils::escapeJavaScript(Lang::$txt['update_message']), ',
+							sUpdateNotificationDefaultTitle: ', Utils::escapeJavaScript(Lang::getTxt('update_available', file: 'Admin')), ',
+							sUpdateNotificationDefaultMessage: ', Utils::escapeJavaScript(Lang::getTxt('update_message', file: 'Admin')), ',
 							sUpdateNotificationTemplate: ', Utils::escapeJavaScript('
 								<h3 id="update_title">
 									%title%
@@ -161,15 +161,15 @@ function template_credits()
 					<div class="roundframe noup">
 						<div class="title_bar">
 							<h3 class="titlebg">
-								', Lang::$txt['support_title'], '
+								', Lang::getTxt('support_title', file: 'Admin'), '
 							</h3>
 						</div>
 						<div class="padding">
 							<img src="', Theme::$current->settings['images_url'], '/smflogo.svg" class="floatright" alt="">
-							<strong>', Lang::$txt['support_versions'], '</strong>
+							<strong>', Lang::getTxt('support_versions', file: 'Admin'), '</strong>
 							<ul>
-								<li>', Lang::getTxt('support_versions_forum', ['version' => Utils::$context['forum_version']]), Utils::$context['can_admin'] ? ' <a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . Lang::$txt['version_check_more'] . '</a>' : '', '</li>
-								<li>', Lang::getTxt('support_versions_current', ['version' => '??']), '</li>
+								<li>', Lang::getTxt('support_versions_forum', ['version' => Utils::$context['forum_version']], file: 'Admin'), Utils::$context['can_admin'] ? ' <a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=routine;activity=version">' . Lang::getTxt('version_check_more', file: 'Admin') . '</a>' : '', '</li>
+								<li>', Lang::getTxt('support_versions_current', ['version' => '??'], file: 'Admin'), '</li>
 							</ul>';
 
 	// Display all the variables we have server information for.
@@ -182,7 +182,7 @@ function template_credits()
 		// more details for this item, show them a link
 		if (Utils::$context['can_admin'] && isset($version['more']))
 			echo
-							' <a href="', Config::$scripturl, $version['more'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['version_check_more'], '</a>';
+							' <a href="', Config::$scripturl, $version['more'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('version_check_more', file: 'Admin'), '</a>';
 		echo '
 							<br>';
 	}
@@ -194,19 +194,19 @@ function template_credits()
 	echo '
 						<div id="support_resources" class="title_bar">
 							<h3 class="titlebg">
-								', Lang::$txt['support_resources'], '
+								', Lang::getTxt('support_resources', file: 'Admin'), '
 							</h3>
 						</div>
 						<div class="padding">
-							<p>', Lang::$txt['support_resources_p1'], '</p>
-							<p>', Lang::$txt['support_resources_p2'], '</p>
+							<p>', Lang::getTxt('support_resources_p1', file: 'Admin'), '</p>
+							<p>', Lang::getTxt('support_resources_p2', file: 'Admin'), '</p>
 						</div>';
 
 	// The most important part - the credits :P.
 	echo '
 						<div id="credits_sections" class="title_bar">
 							<h3 class="titlebg">
-								', Lang::$txt['admin_credits'], '
+								', Lang::getTxt('admin_credits', file: 'Admin'), '
 							</h3>
 						</div>
 						<div id="support_credits_list" class="padding">';
@@ -295,22 +295,22 @@ function template_view_versions()
 	echo '
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">
-								', Lang::$txt['admin_version_check'], '
+								', Lang::getTxt('admin_version_check', file: 'Admin'), '
 							</h3>
 						</div>
-						<div class="information">', Lang::$txt['version_check_desc'], '</div>
+						<div class="information">', Lang::getTxt('version_check_desc', file: 'Admin'), '</div>
 						<div id="versions">
 							<table class="table_grid">
 								<thead>
 									<tr class="title_bar">
 										<th class="half_table">
-											<strong>', Lang::$txt['admin_smffile'], '</strong>
+											<strong>', Lang::getTxt('admin_smffile', file: 'Admin'), '</strong>
 										</th>
 										<th class="quarter_table">
-											<strong>', Lang::$txt['dvc_your'], '</strong>
+											<strong>', Lang::getTxt('dvc_your', file: 'Admin'), '</strong>
 										</th>
 										<th class="quarter_table">
-											<strong>', Lang::$txt['dvc_current'], '</strong>
+											<strong>', Lang::getTxt('dvc_current', file: 'Admin'), '</strong>
 										</th>
 									</tr>
 								</thead>
@@ -320,7 +320,7 @@ function template_view_versions()
 	echo '
 									<tr class="windowbg">
 										<td class="half_table">
-											', Lang::$txt['admin_smfpackage'], '
+											', Lang::getTxt('admin_smfpackage', file: 'Admin'), '
 										</td>
 										<td class="quarter_table">
 											<em id="yourSMF">', Utils::$context['forum_version'], '</em>
@@ -334,7 +334,7 @@ function template_view_versions()
 	echo '
 									<tr class="windowbg">
 										<td class="half_table">
-											<a href="#" id="Root-link">', Lang::$txt['dvc_root'], '</a>
+											<a href="#" id="Root-link">', Lang::getTxt('dvc_root', file: 'Admin'), '</a>
 										</td>
 										<td class="quarter_table">
 											<em id="yourRoot">??</em>
@@ -372,7 +372,7 @@ function template_view_versions()
 								<tbody>
 									<tr class="windowbg">
 										<td class="half_table">
-											<a href="#" id="Sources-link">', Lang::$txt['dvc_sources'], '</a>
+											<a href="#" id="Sources-link">', Lang::getTxt('dvc_sources', file: 'Admin'), '</a>
 										</td>
 										<td class="quarter_table">
 											<em id="yourSources">??</em>
@@ -411,7 +411,7 @@ function template_view_versions()
 								<tbody>
 									<tr class="windowbg">
 										<td class="half_table">
-											<a href="#" id="Default-link">', Lang::$txt['dvc_default'], '</a>
+											<a href="#" id="Default-link">', Lang::getTxt('dvc_default', file: 'Admin'), '</a>
 										</td>
 										<td class="quarter_table">
 											<em id="yourDefault">??</em>
@@ -449,7 +449,7 @@ function template_view_versions()
 								<tbody>
 									<tr class="windowbg">
 										<td class="half_table">
-											<a href="#" id="Languages-link">', Lang::$txt['dvc_languages'], '</a>
+											<a href="#" id="Languages-link">', Lang::getTxt('dvc_languages', file: 'Admin'), '</a>
 										</td>
 										<td class="quarter_table">
 											<em id="yourLanguages">??</em>
@@ -493,7 +493,7 @@ function template_view_versions()
 								<tbody>
 									<tr class="windowbg">
 										<td class="half_table">
-											<a href="#" id="Templates-link">', Lang::$txt['dvc_templates'], '</a>
+											<a href="#" id="Templates-link">', Lang::getTxt('dvc_templates', file: 'Admin'), '</a>
 										</td>
 										<td class="quarter_table">
 											<em id="yourTemplates">??</em>
@@ -535,7 +535,7 @@ function template_view_versions()
 								<tbody>
 									<tr class="windowbg">
 										<td class="half_table">
-											<a href="#" id="Tasks-link">', Lang::$txt['dvc_tasks'], '</a>
+											<a href="#" id="Tasks-link">', Lang::getTxt('dvc_tasks', file: 'Admin'), '</a>
 										</td>
 										<td class="quarter_table">
 											<em id="yourTasks">??</em>
@@ -603,18 +603,18 @@ function template_edit_censored()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-					<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
+					<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
 
 	// First section is for adding/removing words from the censored list.
 	echo '
 						<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="UTF-8">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">
-									', Lang::$txt['admin_censored_words'], '
+									', Lang::getTxt('admin_censored_words', file: 'Admin'), '
 								</h3>
 							</div>
 							<div class="windowbg">
-								<p>', Lang::$txt['admin_censored_where'], '</p>';
+								<p>', Lang::getTxt('admin_censored_where', file: 'Admin'), '</p>';
 
 	// Show text boxes for censoring [bad   ] => [good  ].
 	foreach (Utils::$context['censored_words'] as $vulgar => $proper)
@@ -630,7 +630,7 @@ function template_edit_censored()
 								</div>
 								<div id="moreCensoredWords"></div>
 								<div class="block hidden" id="moreCensoredWords_link">
-									<a class="button" href="#" onclick="addNewWord(); return false;">', Lang::$txt['censor_clickadd'], '</a><br>
+									<a class="button" href="#" onclick="addNewWord(); return false;">', Lang::getTxt('censor_clickadd', file: 'Admin'), '</a><br>
 								</div>
 								<script>
 									document.getElementById("moreCensoredWords_link").classList.remove(\'hidden\');
@@ -644,22 +644,22 @@ function template_edit_censored()
 										<input type="checkbox" name="allow_no_censored" value="1" id="allow_no_censored"', empty(Config::$modSettings['allow_no_censored']) ? '' : ' checked', '>
 									</dd>
 									<dt>
-										<strong><label for="censorWholeWord_check">', Lang::$txt['censor_whole_words'], '</label></strong>
+										<strong><label for="censorWholeWord_check">', Lang::getTxt('censor_whole_words', file: 'Admin'), '</label></strong>
 									</dt>
 									<dd>
 										<input type="checkbox" name="censorWholeWord" value="1" id="censorWholeWord_check"', empty(Config::$modSettings['censorWholeWord']) ? '' : ' checked', '>
 									</dd>
 									<dt>
-										<strong><label for="censorIgnoreCase_check">', Lang::$txt['censor_case'], '</label></strong>
+										<strong><label for="censorIgnoreCase_check">', Lang::getTxt('censor_case', file: 'Admin'), '</label></strong>
 									</dt>
 									<dd>
 										<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty(Config::$modSettings['censorIgnoreCase']) ? '' : ' checked', '>
 									</dd>
 									<dt>
 										<a id="spoofdetector_censor_help" href="', Config::$scripturl, '?action=helpadmin;help=spoofdetector_censor" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-										<strong><label for="spoofdetector_censor_check">', Lang::$txt['spoofdetector_censor'], '</label></strong>
+										<strong><label for="spoofdetector_censor_check">', Lang::getTxt('spoofdetector_censor', file: 'Admin'), '</label></strong>
 										<br>
-										<span class="smalltext">', Lang::$txt['spoofdetector_censor_desc'], '</span>
+										<span class="smalltext">', Lang::getTxt('spoofdetector_censor_desc', file: 'Admin'), '</span>
 
 									</dt>
 									<dd>
@@ -673,13 +673,13 @@ function template_edit_censored()
 	echo '
 							<div class="cat_bar">
 								<h3 class="catbg">
-									', Lang::$txt['censor_test'], '
+									', Lang::getTxt('censor_test', file: 'Admin'), '
 								</h3>
 							</div>
 							<div class="windowbg">
 								<p class="centertext">
 									<input type="text" name="censortest" value="', empty(Utils::$context['censor_test']) ? '' : Utils::$context['censor_test'], '">
-									<input type="submit" value="', Lang::$txt['censor_test_save'], '" class="button">
+									<input type="submit" value="', Lang::getTxt('censor_test_save', file: 'Admin'), '" class="button">
 								</p>
 							</div>
 
@@ -696,11 +696,11 @@ function template_not_done()
 	echo '
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">
-								', Lang::$txt['not_done_title'], '
+								', Lang::getTxt('not_done_title', file: 'Admin'), '
 							</h3>
 						</div>
 						<div class="windowbg">
-							', Lang::$txt['not_done_reason'];
+							', Lang::getTxt('not_done_reason', file: 'Admin');
 
 	if (!empty(Utils::$context['continue_percent']))
 		echo '
@@ -725,7 +725,7 @@ function template_not_done()
 							<input type="hidden" name="', Utils::$context[Utils::$context['not_done_token'] . '_token_var'], '" value="', Utils::$context[Utils::$context['not_done_token'] . '_token'], '">';
 
 	echo '
-								<input type="submit" name="cont" value="', Lang::$txt['not_done_continue'], '" class="button">
+								<input type="submit" name="cont" value="', Lang::getTxt('not_done_continue', file: 'Admin'), '" class="button">
 								', Utils::$context['continue_post_data'], '
 							</form>
 						</div><!-- .windowbg -->
@@ -740,7 +740,7 @@ function template_not_done()
 							else if (countdown == -1)
 								return;
 
-							document.forms.autoSubmit.cont.value = "', Lang::$txt['not_done_continue'], ' (" + countdown + ")";
+							document.forms.autoSubmit.cont.value = "', Lang::getTxt('not_done_continue', file: 'Admin'), ' (" + countdown + ")";
 							countdown--;
 
 							setTimeout("doAutoSubmit();", 1000);
@@ -755,10 +755,10 @@ function template_show_settings()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-					<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
+					<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
 	elseif (!empty(Utils::$context['saved_failed']))
 		echo '
-					<div class="errorbox">', Lang::getTxt('settings_not_saved', ['reason' => Utils::$context['saved_failed']]), '</div>';
+					<div class="errorbox">', Lang::getTxt('settings_not_saved', ['reason' => Utils::$context['saved_failed']], file: 'Admin'), '</div>';
 
 	if (!empty(Utils::$context['settings_pre_javascript']))
 		echo '
@@ -909,7 +909,7 @@ function template_show_settings()
 										<a id="setting_', $config_var['name'], '_help" href="', Config::$scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ';
 
 				echo '
-										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label', ($config_var['type'] == 'boards' || $config_var['type'] == 'permissions' ? '' : ' for="' . $config_var['name'] . '"'), '>', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . Lang::$txt['admin_confirm_password'] . '</em>' : ''), '</span>
+										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label', ($config_var['type'] == 'boards' || $config_var['type'] == 'permissions' ? '' : ' for="' . $config_var['name'] . '"'), '>', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . Lang::getTxt('admin_confirm_password', file: 'Admin') . '</em>' : ''), '</span>
 									</dt>
 									<dd', (!empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '_dd"' : ''), '>',
 										$config_var['preinput'];
@@ -995,7 +995,7 @@ function template_show_settings()
 												</li>';
 					}
 					echo '					</ul>
-											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', Utils::$context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', Lang::$txt['enabled_bbc_select_all'], '</em></label>
+											<input type="checkbox" id="bbc_', $config_var['name'], '_select_all" onclick="invertAll(this, this.form, \'', $config_var['name'], '_enabledTags\');"', Utils::$context['bbc_sections'][$config_var['name']]['all_selected'] ? ' checked' : '', '> <label for="bbc_', $config_var['name'], '_select_all"><em>', Lang::getTxt('enabled_bbc_select_all', file: 'Admin'), '</em></label>
 										</fieldset>';
 				}
 				// A simple message?
@@ -1105,7 +1105,7 @@ function template_show_custom_profile()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-					<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
+					<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
 
 	// Standard fields.
 	template_show_list('standard_profile_fields');
@@ -1368,7 +1368,7 @@ function template_admin_search_results()
 							', template_admin_quick_search(), '
 							<h3 class="catbg">
 								<span id="quick_search_results">
-									', Lang::getTxt('admin_search_results_desc', Utils::$context), '
+									', Lang::getTxt('admin_search_results_desc', Utils::$context, file: 'Admin'), '
 								</span>
 							</h3>
 						</div><!-- #section_header -->
@@ -1378,7 +1378,7 @@ function template_admin_search_results()
 	{
 		echo '
 							<p class="centertext">
-								<strong>', Lang::$txt['admin_search_results_none'], '</strong>
+								<strong>', Lang::getTxt('admin_search_results_none', file: 'Admin'), '</strong>
 							</p>';
 	}
 	else
@@ -1406,7 +1406,7 @@ function template_admin_search_results()
 			{
 				echo '
 								<li>
-									<a href="', $result['url'], '"><strong>', $result['name'], '</strong></a> [', isset(Lang::$txt['admin_search_section_' . $result['type']]) ? Lang::$txt['admin_search_section_' . $result['type']] : $result['type'], ']';
+									<a href="', $result['url'], '"><strong>', $result['name'], '</strong></a> [', Lang::txtExists('admin_search_section_' . $result['type'], file: 'Admin') ? Lang::getTxt('admin_search_section_' . $result['type'], file: 'Admin') : $result['type'], ']';
 
 				if ($result['help'])
 					echo '
@@ -1483,7 +1483,7 @@ function template_repair_boards()
 	echo '
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">',
-								Utils::$context['error_search'] ? Lang::$txt['errors_list'] : Lang::$txt['errors_fixing'], '
+								Utils::$context['error_search'] ? Lang::getTxt('errors_list', file: 'Admin') : Lang::getTxt('errors_fixing', file: 'Admin'), '
 							</h3>
 						</div>
 						<div class="windowbg">';
@@ -1494,7 +1494,7 @@ function template_repair_boards()
 		if (!empty(Utils::$context['to_fix']))
 		{
 			echo '
-							', Lang::$txt['errors_found'], '
+							', Lang::getTxt('errors_found', file: 'Admin'), '
 							<ul>';
 
 			foreach (Utils::$context['repair_errors'] as $error)
@@ -1506,7 +1506,7 @@ function template_repair_boards()
 			echo '
 							</ul>
 							<p>
-								', Lang::$txt['errors_fix'], '
+								', Lang::getTxt('errors_fix', file: 'Admin'), '
 							</p>
 							<p class="padding">
 								<strong><a href="', Config::$scripturl, '?action=admin;area=repairboards;fixErrors;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-repairboards_token_var'], '=', Utils::$context['admin-repairboards_token'], '">', Lang::$txt['yes'], '</a> - <a href="', Config::$scripturl, '?action=admin;area=maintain">', Lang::$txt['no'], '</a></strong>
@@ -1514,7 +1514,7 @@ function template_repair_boards()
 		}
 		else
 			echo '
-							<p>', Lang::$txt['maintain_no_errors'], '</p>
+							<p>', Lang::getTxt('maintain_no_errors', file: 'Admin'), '</p>
 							<p class="padding">
 								<a href="', Config::$scripturl, '?action=admin;area=maintain;sa=routine">', Lang::$txt['maintain_return'], '</a>
 							</p>';
@@ -1525,18 +1525,18 @@ function template_repair_boards()
 		{
 			echo '
 							<p>
-								', Lang::$txt['errors_do_recount'], '
+								', Lang::getTxt('errors_do_recount', file: 'Admin'), '
 							</p>
 							<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" id="recount_form" method="post">
 								<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
 								<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-								<input type="submit" name="recount" id="recount_now" value="', Lang::$txt['errors_recount_now'], '">
+								<input type="submit" name="recount" id="recount_now" value="', Lang::getTxt('errors_recount_now', file: 'Admin'), '">
 							</form>';
 		}
 		else
 		{
 			echo '
-							<p>', Lang::$txt['errors_fixed'], '</p>
+							<p>', Lang::getTxt('errors_fixed', file: 'Admin'), '</p>
 							<p class="padding">
 								<a href="', Config::$scripturl, '?action=admin;area=maintain;sa=routine">', Lang::$txt['maintain_return'], '</a>
 							</p>';
@@ -1560,7 +1560,7 @@ function template_repair_boards()
 							else if (countdown == -1)
 								return;
 
-							document.forms.recount_form.recount_now.value = "', Lang::$txt['errors_recount_now'], ' (" + countdown + ")";
+							document.forms.recount_form.recount_now.value = "', Lang::getTxt('errors_recount_now', file: 'Admin'), ' (" + countdown + ")";
 							countdown--;
 
 							setTimeout("doAutoSubmit();", 1000);
@@ -1578,7 +1578,7 @@ function template_php_info()
 					<div id="admin_form_wrapper">
 						<div id="section_header" class="cat_bar">
 							<h3 class="catbg">
-								', Lang::$txt['phpinfo_settings'], '
+								', Lang::getTxt('phpinfo_settings', file: 'Admin'), '
 							</h3>
 						</div>';
 
@@ -1609,9 +1609,9 @@ function template_php_info()
 					// heading row for the settings section of this category's settings
 					echo '
 								<tr class="title_bar">
-									<td class="equal_table"><strong>', Lang::$txt['phpinfo_itemsettings'], '</strong></td>
-									<td class="equal_table"><strong>', Lang::$txt['phpinfo_localsettings'], '</strong></td>
-									<td class="equal_table"><strong>', Lang::$txt['phpinfo_defaultsettings'], '</strong></td>
+									<td class="equal_table"><strong>', Lang::getTxt('phpinfo_itemsettings', file: 'Admin'), '</strong></td>
+									<td class="equal_table"><strong>', Lang::getTxt('phpinfo_localsettings', file: 'Admin'), '</strong></td>
+									<td class="equal_table"><strong>', Lang::getTxt('phpinfo_defaultsettings', file: 'Admin'), '</strong></td>
 								</tr>';
 
 					$localmaster = false;
@@ -1683,13 +1683,13 @@ function template_admin_quick_search()
 		echo '
 								<form action="' . Config::$scripturl . '?action=admin;area=search" method="post" accept-charset="UTF-8" class="admin_search">
 									<span class="main_icons filter centericon"></span>
-									<input type="search" name="search_term" placeholder="', Lang::$txt['admin_search'], '"', isset(Utils::$context['search_term']) ? ' value="' . Utils::$context['search_term'] . '"' : '','>
+									<input type="search" name="search_term" placeholder="', Lang::getTxt('admin_search', file: 'Admin'), '"', isset(Utils::$context['search_term']) ? ' value="' . Utils::$context['search_term'] . '"' : '','>
 									<select name="search_type">
-										<option value="internal"', (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] == 'internal' ? ' selected' : ''), '>', Lang::$txt['admin_search_type_internal'], '</option>
-										<option value="member"', (!empty(Utils::$context['admin_preferences']['sb']) && Utils::$context['admin_preferences']['sb'] == 'member' ? ' selected' : ''), '>', Lang::$txt['admin_search_type_member'], '</option>
-										<option value="online"', (!empty(Utils::$context['admin_preferences']['sb']) && Utils::$context['admin_preferences']['sb'] == 'online' ? ' selected' : ''), '>', Lang::$txt['admin_search_type_online'], '</option>
+										<option value="internal"', (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] == 'internal' ? ' selected' : ''), '>', Lang::getTxt('admin_search_type_internal', file: 'Admin'), '</option>
+										<option value="member"', (!empty(Utils::$context['admin_preferences']['sb']) && Utils::$context['admin_preferences']['sb'] == 'member' ? ' selected' : ''), '>', Lang::getTxt('admin_search_type_member', file: 'Admin'), '</option>
+										<option value="online"', (!empty(Utils::$context['admin_preferences']['sb']) && Utils::$context['admin_preferences']['sb'] == 'online' ? ' selected' : ''), '>', Lang::getTxt('admin_search_type_online', file: 'Admin'), '</option>
 									</select>
-									<input type="submit" name="search_go" id="search_go" value="', Lang::$txt['admin_search_go'], '" class="button">
+									<input type="submit" name="search_go" id="search_go" value="', Lang::getTxt('admin_search_go', file: 'Admin'), '" class="button">
 								</form>';
 }
 

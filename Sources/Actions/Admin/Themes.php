@@ -621,7 +621,7 @@ class Themes implements ActionInterface
 		IntegrationHook::call('integrate_theme_options');
 
 		Utils::$context['sub_template'] = 'set_options';
-		Utils::$context['page_title'] = Lang::$txt['theme_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('theme_settings', file: 'Admin');
 
 		Utils::$context['options'] = Utils::$context['theme_options'];
 		Utils::$context['theme_settings'] = Theme::$current->settings;
@@ -719,7 +719,7 @@ class Themes implements ActionInterface
 		$set_names = explode("\n", Lang::$txt['smileys_none'] . "\n" . Config::$modSettings['smiley_sets_names']);
 
 		Utils::$context['smiley_sets'] = [
-			'' => Lang::$txt['smileys_no_default'],
+			'' => Lang::getTxt('smileys_no_default', file: 'Admin'),
 		];
 
 		foreach ($sets as $i => $set) {
@@ -822,7 +822,7 @@ class Themes implements ActionInterface
 		}
 
 		Utils::$context['sub_template'] = 'set_settings';
-		Utils::$context['page_title'] = Lang::$txt['theme_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('theme_settings', file: 'Admin');
 
 		foreach (Theme::$current->settings as $setting => $dummy) {
 			if (!in_array($setting, ['theme_url', 'theme_dir', 'images_url', 'template_dirs'])) {

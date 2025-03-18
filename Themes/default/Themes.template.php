@@ -200,7 +200,7 @@ function template_list_themes()
 		</div>
 		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=theme;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';sa=list" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['theme_settings'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('theme_settings', file: 'Admin'), '</h3>
 			</div>
 			<br>';
 
@@ -277,7 +277,7 @@ function template_reset_list()
 {
 	echo '
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['themeadmin_reset_title'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('themeadmin_reset_title', file: 'Admin'), '</h3>
 		</div>
 		<div class="information">
 			', Lang::$txt['themeadmin_reset_tip'], '
@@ -792,7 +792,7 @@ function template_edit_list()
 	echo '
 	<div id="admin_form_wrapper">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['themeadmin_edit_title'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('themeadmin_edit_title', file: 'Admin'), '</h3>
 		</div>
 		<div class="windowbg">';
 

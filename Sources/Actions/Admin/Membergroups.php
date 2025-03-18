@@ -207,11 +207,11 @@ class Membergroups implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_column_headers',
-					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
+					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::getTxt('membergroups_add_group', file: 'Admin') . '</a>',
 				],
 				[
 					'position' => 'below_table_data',
-					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
+					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::getTxt('membergroups_add_group', file: 'Admin') . '</a>',
 				],
 			],
 		];
@@ -310,7 +310,7 @@ class Membergroups implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'below_table_data',
-					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;postgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
+					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;postgroup">' . Lang::getTxt('membergroups_add_group', file: 'Admin') . '</a>',
 				],
 			],
 		];
@@ -561,7 +561,7 @@ class Membergroups implements ActionInterface
 		}
 
 		// Just show the 'add membergroup' screen.
-		Utils::$context['page_title'] = Lang::$txt['membergroups_new_group'];
+		Utils::$context['page_title'] = Lang::getTxt('membergroups_new_group', file: 'Admin');
 		Utils::$context['sub_template'] = 'new_group';
 		Utils::$context['post_group'] = isset($_REQUEST['postgroup']);
 		Utils::$context['undefined_group'] = !isset($_REQUEST['postgroup']) && !isset($_REQUEST['generalgroup']);

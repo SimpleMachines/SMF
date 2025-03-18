@@ -89,8 +89,8 @@ class Languages implements ActionInterface
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['language_configuration'],
-			'description' => Lang::$txt['language_description'],
+			'title' => Lang::getTxt('language_configuration', file: 'Admin'),
+			'description' => Lang::getTxt('language_description', file: 'Admin'),
 		];
 
 		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
@@ -641,18 +641,18 @@ class Languages implements ActionInterface
 
 		// Setup the template stuff.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=languages;sa=settings;save';
-		Utils::$context['settings_title'] = Lang::$txt['language_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('language_settings', file: 'Admin');
 		Utils::$context['save_disabled'] = Server::$settings_not_writable;
 
 		if (Server::$settings_not_writable) {
 			Utils::$context['settings_message'] = [
-				'label' => Lang::$txt['settings_not_writable'],
+				'label' => Lang::getTxt('settings_not_writable', file: 'Admin'),
 				'tag' => 'div',
 				'class' => 'centertext strong',
 			];
 		} elseif (Server::$settings_backup_fail) {
 			Utils::$context['settings_message'] = [
-				'label' => Lang::$txt['admin_backup_fail'],
+				'label' => Lang::getTxt('admin_backup_fail', file: 'Admin'),
 				'tag' => 'div',
 				'class' => 'centertext strong',
 			];
@@ -686,7 +686,7 @@ class Languages implements ActionInterface
 		// Get all the theme data.
 		$themes = [
 			1 => [
-				'name' => Lang::$txt['dvc_default'],
+				'name' => Lang::getTxt('dvc_default', file: 'Admin'),
 				'theme_dir' => Theme::$current->settings['default_theme_dir'],
 			],
 		];
@@ -1477,7 +1477,7 @@ class Languages implements ActionInterface
 	public static function getConfigVars(): array
 	{
 		$config_vars = [
-			'language' => ['language', Lang::$txt['default_language'], 'file', 'select', [], null, 'disabled' => !is_writable(SMF_SETTINGS_FILE)],
+			'language' => ['language', Lang::getTxt('default_language', file: 'Admin'), 'file', 'select', [], null, 'disabled' => !is_writable(SMF_SETTINGS_FILE)],
 			['userLanguage', Lang::$txt['userLanguage'], 'db', 'check', null, 'userLanguage'],
 		];
 

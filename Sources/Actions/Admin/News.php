@@ -239,17 +239,17 @@ class News implements ActionInterface
 
 		// Create the tabs for the template.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['news_title'],
+			'title' => Lang::getTxt('news_title', file: 'Admin'),
 			'help' => 'edit_news',
-			'description' => Lang::$txt['admin_news_desc'],
+			'description' => Lang::getTxt('admin_news_desc', file: 'Admin'),
 			'tabs' => [
 				'editnews' => [
 				],
 				'mailingmembers' => [
-					'description' => Lang::$txt['news_mailing_desc'],
+					'description' => Lang::getTxt('news_mailing_desc', file: 'Admin'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['news_settings_desc'],
+					'description' => Lang::getTxt('news_settings_desc', file: 'Admin'),
 				],
 			],
 		];
@@ -324,7 +324,7 @@ class News implements ActionInterface
 			Logging::logAction('news');
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['admin_edit_news'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_edit_news', file: 'Admin');
 
 		// Create the request list.
 		new ItemList($this->list_options);
@@ -348,7 +348,7 @@ class News implements ActionInterface
 		// Is there any confirm message?
 		Utils::$context['newsletter_sent'] = $_SESSION['newsletter_sent'] ?? '';
 
-		Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_newsletters', file: 'Admin');
 
 		Utils::$context['sub_template'] = 'email_members';
 
@@ -404,7 +404,7 @@ class News implements ActionInterface
 	public function compose(): void
 	{
 		// Setup the template!
-		Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_newsletters', file: 'Admin');
 		Utils::$context['sub_template'] = 'email_members_compose';
 
 		Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::$txt['subject']);
@@ -1047,7 +1047,7 @@ class News implements ActionInterface
 
 		Utils::$context['percentage_done'] = round(($percentEmails + $percentMembers) * 100, 2);
 
-		Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_newsletters', file: 'Admin');
 		Utils::$context['sub_template'] = 'email_members_send';
 	}
 
@@ -1063,7 +1063,7 @@ class News implements ActionInterface
 	{
 		$config_vars = self::getConfigVars();
 
-		Utils::$context['page_title'] = Lang::$txt['admin_edit_news'] . ' - ' . Lang::$txt['settings'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_edit_news', file: 'Admin') . ' - ' . Lang::$txt['settings'];
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Wrap it all up nice and warm...
@@ -1110,8 +1110,8 @@ class News implements ActionInterface
 
 			// Just the remaining settings.
 			['check', 'xmlnews_enable', 'onclick' => 'document.getElementById(\'xmlnews_maxlen\').disabled = !this.checked;'],
-			['int', 'xmlnews_maxlen', 'subtext' => Lang::$txt['xmlnews_maxlen_note'], 10],
-			['check', 'xmlnews_attachments', 'subtext' => Lang::$txt['xmlnews_attachments_note']],
+			['int', 'xmlnews_maxlen', 'subtext' => Lang::getTxt('xmlnews_maxlen_note', file: 'Admin'), 10],
+			['check', 'xmlnews_attachments', 'subtext' => Lang::getTxt('xmlnews_attachments_note', file: 'Admin')],
 		];
 
 		IntegrationHook::call('integrate_modify_news_settings', [&$config_vars]);

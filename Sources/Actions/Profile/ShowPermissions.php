@@ -154,7 +154,7 @@ class ShowPermissions implements ActionInterface
 			$denied_allowed = empty($row['add_deny']) ? 'denied' : 'allowed';
 
 			// The name of the group.
-			$group_name = $row['id_group'] == 0 ? Lang::$txt['membergroups_members'] : $row['group_name'];
+			$group_name = $row['id_group'] == 0 ? Lang::getTxt('membergroups_members', file: 'Admin') : $row['group_name'];
 
 			// Add this permission if it doesn't exist yet.
 			if (!isset($general_perms[$row['permission']])) {
@@ -220,7 +220,7 @@ class ShowPermissions implements ActionInterface
 			$denied_allowed = empty($row['add_deny']) ? 'denied' : 'allowed';
 
 			// The name of the group.
-			$group_name = $row['id_group'] == 0 ? Lang::$txt['membergroups_members'] : $row['group_name'];
+			$group_name = $row['id_group'] == 0 ? Lang::getTxt('membergroups_members', file: 'Admin') : $row['group_name'];
 
 			// Create the structure for this permission.
 			if (!isset($board_perms[$row['permission']])) {

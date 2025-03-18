@@ -232,7 +232,7 @@ class Attachments implements ActionInterface
 		}
 
 		// Attempt to figure out if the admin is trying to break things.
-		Utils::$context['settings_save_onclick'] = 'return (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . Lang::$txt['custom_avatar_check_empty'] . '\') : true;';
+		Utils::$context['settings_save_onclick'] = 'return (document.getElementById(\'custom_avatar_dir\').value == \'\' || document.getElementById(\'custom_avatar_url\').value == \'\') ? confirm(\'' . Lang::getTxt('custom_avatar_check_empty', file: 'Admin') . '\') : true;';
 
 		// We need this for the in-line permissions
 		SecurityToken::create('admin-mp');
@@ -264,7 +264,7 @@ class Attachments implements ActionInterface
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=browse' . (Utils::$context['browse_type'] === 'avatars' ? ';avatars' : (Utils::$context['browse_type'] === 'thumbs' ? ';thumbs' : '')),
 			'default_sort_col' => 'name',
-			'no_items_label' => Lang::$txt['attachment_manager_' . (Utils::$context['browse_type'] === 'avatars' ? 'avatars' : (Utils::$context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments')) . '_no_entries'],
+			'no_items_label' => Lang::getTxt('attachment_manager_' . (Utils::$context['browse_type'] === 'avatars' ? 'avatars' : (Utils::$context['browse_type'] === 'thumbs' ? 'thumbs' : 'attachments')) . '_no_entries', file: 'Admin'),
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getFiles',
 				'params' => [
@@ -280,7 +280,7 @@ class Attachments implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['attachment_name'],
+						'value' => Lang::getTxt('attachment_name', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -323,7 +323,7 @@ class Attachments implements ActionInterface
 				],
 				'filesize' => [
 					'header' => [
-						'value' => Lang::$txt['attachment_file_size'],
+						'value' => Lang::getTxt('attachment_file_size', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -337,7 +337,7 @@ class Attachments implements ActionInterface
 				],
 				'member' => [
 					'header' => [
-						'value' => Utils::$context['browse_type'] == 'avatars' ? Lang::$txt['attachment_manager_member'] : Lang::$txt['posted_by'],
+						'value' => Utils::$context['browse_type'] == 'avatars' ? Lang::getTxt('attachment_manager_member', file: 'Admin') : Lang::$txt['posted_by'],
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -357,7 +357,7 @@ class Attachments implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Utils::$context['browse_type'] == 'avatars' ? Lang::$txt['attachment_manager_last_active'] : Lang::$txt['date'],
+						'value' => Utils::$context['browse_type'] == 'avatars' ? Lang::getTxt('attachment_manager_last_active', file: 'Admin') : Lang::$txt['date'],
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -366,7 +366,15 @@ class Attachments implements ActionInterface
 
 							// Add a link to the topic in case of an attachment.
 							if (Utils::$context['browse_type'] !== 'avatars') {
-								$date .= sprintf('<br>%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>', Lang::$txt['in'], Config::$scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
+								$date = Lang::getTxt(
+									'attachment_date_in_topic',
+									[
+										'date' => $date,
+										'url' => Config::$scripturl . '?topic=' . $rowData['id_topic'] . '.msg' . $rowData['id_msg'] . '#msg' . $rowData['id_msg'],
+										'subject' => $rowData['subject'],
+									],
+									file: 'Admin',
+								);
 							}
 
 							return $date;
@@ -417,22 +425,22 @@ class Attachments implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_column_headers',
-					'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['confirm_delete_attachments'] . '">',
+					'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::getTxt('confirm_delete_attachments', file: 'Admin') . '">',
 				],
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['confirm_delete_attachments'] . '">',
+					'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::getTxt('confirm_delete_attachments', file: 'Admin') . '">',
 				],
 			],
 		];
 
 		$titles = [
-			'attachments' => ['?action=admin;area=manageattachments;sa=browse', Lang::$txt['attachment_manager_attachments']],
-			'avatars' => ['?action=admin;area=manageattachments;sa=browse;avatars', Lang::$txt['attachment_manager_avatars']],
-			'thumbs' => ['?action=admin;area=manageattachments;sa=browse;thumbs', Lang::$txt['attachment_manager_thumbs']],
+			'attachments' => ['?action=admin;area=manageattachments;sa=browse', Lang::getTxt('attachment_manager_attachments', file: 'Admin')],
+			'avatars' => ['?action=admin;area=manageattachments;sa=browse;avatars', Lang::getTxt('attachment_manager_avatars', file: 'Admin')],
+			'thumbs' => ['?action=admin;area=manageattachments;sa=browse;thumbs', Lang::getTxt('attachment_manager_thumbs', file: 'Admin')],
 		];
 
-		$list_title = Lang::$txt['attachment_manager_browse_files'] . ': ';
+		$list_title = Lang::getTxt('attachment_manager_browse_files', file: 'Admin') . ': ';
 
 		// Does a hook want to display their attachments better?
 		IntegrationHook::call('integrate_attachments_browse', [&$listOptions, &$titles]);
@@ -599,7 +607,7 @@ class Attachments implements ActionInterface
 						WHERE id_msg IN ({array_int:messages_affected})',
 						[
 							'messages_affected' => $messages,
-							'deleted_message' => '<br><br>' . Lang::$txt['attachment_delete_admin'],
+							'deleted_message' => '<br><br>' . Lang::getTxt('attachment_delete_admin', file: 'Admin'),
 						],
 					);
 
@@ -695,7 +703,7 @@ class Attachments implements ActionInterface
 		$messages = Attachment::remove(['attachment_type' => 0], '', true);
 
 		if (!isset($_POST['notice'])) {
-			$_POST['notice'] = Lang::$txt['attachment_delete_admin'];
+			$_POST['notice'] = Lang::getTxt('attachment_delete_admin', file: 'Admin');
 		}
 
 		// Add the notice on the end of the changed messages.
@@ -1290,7 +1298,7 @@ class Attachments implements ActionInterface
 		}
 
 		// Got here we must be doing well - just the template! :D
-		Utils::$context['page_title'] = Lang::$txt['repair_attachments'];
+		Utils::$context['page_title'] = Lang::getTxt('repair_attachments', file: 'Admin');
 		Menu::$loaded['admin']['current_subsection'] = 'maintenance';
 		Utils::$context['sub_template'] = 'attachment_repair';
 
@@ -1333,7 +1341,7 @@ class Attachments implements ActionInterface
 				$invalid_dirs = [Config::$boarddir, Theme::$current->settings['default_theme_dir'], Config::$sourcedir];
 
 				if (in_array($path, $invalid_dirs)) {
-					$errors[] = $path . ': ' . Lang::$txt['attach_dir_invalid'];
+					$errors[] = $path . ': ' . Lang::getTxt('attach_dir_invalid', file: 'Admin');
 
 					continue;
 				}
@@ -1343,7 +1351,7 @@ class Attachments implements ActionInterface
 				if (!array_key_exists($id, Config::$modSettings['attachmentUploadDir']) && !empty($path)) {
 					// or is it?
 					if (in_array($path, Config::$modSettings['attachmentUploadDir']) || in_array(Config::$boarddir . DIRECTORY_SEPARATOR . $path, Config::$modSettings['attachmentUploadDir'])) {
-						$errors[] = $path . ': ' . Lang::$txt['attach_dir_duplicate_msg'];
+						$errors[] = $path . ': ' . Lang::getTxt('attach_dir_duplicate_msg', file: 'Admin');
 
 						continue;
 					}
@@ -1357,7 +1365,7 @@ class Attachments implements ActionInterface
 					if (Attachment::automanageCreateDirectory($path)) {
 						$_POST['current_dir'] = Config::$modSettings['currentAttachmentUploadDir'];
 					} else {
-						$errors[] = $path . ': ' . Lang::$txt[Utils::$context['dir_creation_error']];
+						$errors[] = $path . ': ' . Lang::getTxt(Utils::$context['dir_creation_error'], file: 'Admin');
 					}
 				}
 
@@ -1365,11 +1373,11 @@ class Attachments implements ActionInterface
 				if (!empty(Config::$modSettings['attachmentUploadDir'][$id]) && !empty($path) && $path != Config::$modSettings['attachmentUploadDir'][$id]) {
 					if ($path != Config::$modSettings['attachmentUploadDir'][$id] && !is_dir($path)) {
 						if (!@rename(Config::$modSettings['attachmentUploadDir'][$id], $path)) {
-							$errors[] = $path . ': ' . Lang::$txt['attach_dir_no_rename'];
+							$errors[] = $path . ': ' . Lang::getTxt('attach_dir_no_rename', file: 'Admin');
 							$path = Config::$modSettings['attachmentUploadDir'][$id];
 						}
 					} else {
-						$errors[] = $path . ': ' . Lang::$txt['attach_dir_exists_msg'];
+						$errors[] = $path . ': ' . Lang::getTxt('attach_dir_exists_msg', file: 'Admin');
 						$path = Config::$modSettings['attachmentUploadDir'][$id];
 					}
 
@@ -1393,11 +1401,11 @@ class Attachments implements ActionInterface
 
 					// It's not a good idea to delete the current directory.
 					if ($id == (!empty($_POST['current_dir']) ? $_POST['current_dir'] : Config::$modSettings['currentAttachmentUploadDir'])) {
-						$errors[] = $path . ': ' . Lang::$txt['attach_dir_is_current'];
+						$errors[] = $path . ': ' . Lang::getTxt('attach_dir_is_current', file: 'Admin');
 					}
 					// Or the current base directory
 					elseif (!empty(Config::$modSettings['basedirectory_for_attachments']) && Config::$modSettings['basedirectory_for_attachments'] == Config::$modSettings['attachmentUploadDir'][$id]) {
-						$errors[] = $path . ': ' . Lang::$txt['attach_dir_is_current_bd'];
+						$errors[] = $path . ': ' . Lang::getTxt('attach_dir_is_current_bd', file: 'Admin');
 					} else {
 						// Let's not try to delete a path with files in it.
 						$request = Db::$db->query(
@@ -1436,7 +1444,7 @@ class Attachments implements ActionInterface
 								unlink($path . '/index.php');
 
 								if (!@rmdir($path)) {
-									$error = $path . ': ' . Lang::$txt['attach_dir_no_delete'];
+									$error = $path . ': ' . Lang::getTxt('attach_dir_no_delete', file: 'Admin');
 								}
 							}
 
@@ -1449,7 +1457,7 @@ class Attachments implements ActionInterface
 								Config::$modSettings['attachment_basedirectories'] = Utils::jsonDecode(Config::$modSettings['attachment_basedirectories'], true);
 							}
 						} else {
-							$error = $path . ': ' . Lang::$txt['attach_dir_no_remove'];
+							$error = $path . ': ' . Lang::getTxt('attach_dir_no_remove', file: 'Admin');
 						}
 
 						if (empty($error)) {
@@ -1597,7 +1605,7 @@ class Attachments implements ActionInterface
 
 					if (empty($dir)) {
 						if ($id == $_POST['current_base_dir']) {
-							$errors[] = Config::$modSettings['attachmentUploadDir'][$id] . ': ' . Lang::$txt['attach_dir_is_current'];
+							$errors[] = Config::$modSettings['attachmentUploadDir'][$id] . ': ' . Lang::getTxt('attach_dir_is_current', file: 'Admin');
 
 							continue;
 						}
@@ -1620,7 +1628,7 @@ class Attachments implements ActionInterface
 
 				if (!in_array($_POST['new_base_dir'], Config::$modSettings['attachmentUploadDir'])) {
 					if (!Attachment::automanageCreateDirectory($_POST['new_base_dir'])) {
-						$errors[] = $_POST['new_base_dir'] . ': ' . Lang::$txt['attach_dir_base_no_create'];
+						$errors[] = $_POST['new_base_dir'] . ': ' . Lang::getTxt('attach_dir_base_no_create', file: 'Admin');
 					}
 				}
 
@@ -1673,14 +1681,14 @@ class Attachments implements ActionInterface
 		$listOptions = [
 			'id' => 'attach_paths',
 			'base_href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-			'title' => Lang::$txt['attach_paths'],
+			'title' => Lang::getTxt('attach_paths', file: 'Admin'),
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getAttachDirs',
 			],
 			'columns' => [
 				'current_dir' => [
 					'header' => [
-						'value' => Lang::$txt['attach_current'],
+						'value' => Lang::getTxt('attach_current', file: 'Admin'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -1693,7 +1701,7 @@ class Attachments implements ActionInterface
 				],
 				'path' => [
 					'header' => [
-						'value' => Lang::$txt['attach_path'],
+						'value' => Lang::getTxt('attach_path', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -1704,7 +1712,7 @@ class Attachments implements ActionInterface
 				],
 				'current_size' => [
 					'header' => [
-						'value' => Lang::$txt['attach_current_size'],
+						'value' => Lang::getTxt('attach_current_size', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'current_size',
@@ -1713,7 +1721,7 @@ class Attachments implements ActionInterface
 				],
 				'num_files' => [
 					'header' => [
-						'value' => Lang::$txt['attach_num_files'],
+						'value' => Lang::getTxt('attach_num_files', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'num_files',
@@ -1722,7 +1730,7 @@ class Attachments implements ActionInterface
 				],
 				'status' => [
 					'header' => [
-						'value' => Lang::$txt['attach_dir_status'],
+						'value' => Lang::getTxt('attach_dir_status', file: 'Admin'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -1741,15 +1749,15 @@ class Attachments implements ActionInterface
 					'value' => '
 					<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
 					<input type="submit" name="save" value="' . Lang::$txt['save'] . '" class="button">
-					<input type="submit" name="new_path" value="' . Lang::$txt['attach_add_path'] . '" class="button">',
+					<input type="submit" name="new_path" value="' . Lang::getTxt('attach_add_path', file: 'Admin') . '" class="button">',
 				],
 				empty($errors['dir']) ? [
 					'position' => 'top_of_list',
-					'value' => Lang::$txt['attach_dir_desc'],
+					'value' => Lang::getTxt('attach_dir_desc', file: 'Admin'),
 					'class' => 'information',
 				] : [
 					'position' => 'top_of_list',
-					'value' => Lang::$txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['dir']),
+					'value' => Lang::getTxt('attach_dir_save_problem', file: 'Admin') . '<br>' . implode('<br>', $errors['dir']),
 					'style' => 'padding-left: 35px;',
 					'class' => 'noticebox',
 				],
@@ -1761,14 +1769,14 @@ class Attachments implements ActionInterface
 			$listOptions2 = [
 				'id' => 'base_paths',
 				'base_href' => Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'title' => Lang::$txt['attach_base_paths'],
+				'title' => Lang::getTxt('attach_base_paths', file: 'Admin'),
 				'get_items' => [
 					'function' => __CLASS__ . '::list_getBaseDirs',
 				],
 				'columns' => [
 					'current_dir' => [
 						'header' => [
-							'value' => Lang::$txt['attach_current'],
+							'value' => Lang::getTxt('attach_current', file: 'Admin'),
 							'class' => 'centercol',
 						],
 						'data' => [
@@ -1781,7 +1789,7 @@ class Attachments implements ActionInterface
 					],
 					'path' => [
 						'header' => [
-							'value' => Lang::$txt['attach_path'],
+							'value' => Lang::getTxt('attach_path', file: 'Admin'),
 						],
 						'data' => [
 							'db' => 'path',
@@ -1791,7 +1799,7 @@ class Attachments implements ActionInterface
 					],
 					'num_dirs' => [
 						'header' => [
-							'value' => Lang::$txt['attach_num_dirs'],
+							'value' => Lang::getTxt('attach_num_dirs', file: 'Admin'),
 						],
 						'data' => [
 							'db' => 'num_dirs',
@@ -1800,7 +1808,7 @@ class Attachments implements ActionInterface
 					],
 					'status' => [
 						'header' => [
-							'value' => Lang::$txt['attach_dir_status'],
+							'value' => Lang::getTxt('attach_dir_status', file: 'Admin'),
 						],
 						'data' => [
 							'db' => 'status',
@@ -1816,16 +1824,16 @@ class Attachments implements ActionInterface
 					[
 						'position' => 'below_table_data',
 						'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="save2" value="' . Lang::$txt['save'] . '" class="button">
-						<input type="submit" name="new_base_path" value="' . Lang::$txt['attach_add_path'] . '" class="button">',
+						<input type="submit" name="new_base_path" value="' . Lang::getTxt('attach_add_path', file: 'Admin') . '" class="button">',
 					],
 					empty($errors['base']) ? [
 						'position' => 'top_of_list',
-						'value' => Lang::$txt['attach_dir_base_desc'],
+						'value' => Lang::getTxt('attach_dir_base_desc', file: 'Admin'),
 						'style' => 'padding: 5px 10px;',
 						'class' => 'windowbg smalltext',
 					] : [
 						'position' => 'top_of_list',
-						'value' => Lang::$txt['attach_dir_save_problem'] . '<br>' . implode('<br>', $errors['base']),
+						'value' => Lang::getTxt('attach_dir_save_problem', file: 'Admin') . '<br>' . implode('<br>', $errors['base']),
 						'style' => 'padding-left: 35px',
 						'class' => 'noticebox',
 					],
@@ -1836,7 +1844,7 @@ class Attachments implements ActionInterface
 
 		// Fix up our template.
 		Menu::$loaded['admin']['current_subsection'] = 'attachpaths';
-		Utils::$context['page_title'] = Lang::$txt['attach_path_manage'];
+		Utils::$context['page_title'] = Lang::getTxt('attach_path_manage', file: 'Admin');
 		Utils::$context['sub_template'] = 'attachment_paths';
 	}
 
@@ -1866,11 +1874,11 @@ class Attachments implements ActionInterface
 		$total_not_moved = 0;
 
 		if (empty($_POST['from']) || (empty($_POST['auto']) && empty($_POST['to']))) {
-			$results[] = Lang::$txt['attachment_transfer_no_dir'];
+			$results[] = Lang::getTxt('attachment_transfer_no_dir', file: 'Admin');
 		}
 
 		if ($_POST['from'] == $_POST['to']) {
-			$results[] = Lang::$txt['attachment_transfer_same_dir'];
+			$results[] = Lang::getTxt('attachment_transfer_same_dir', file: 'Admin');
 		}
 
 		if (empty($results)) {
@@ -1891,7 +1899,7 @@ class Attachments implements ActionInterface
 			$total_progress -= $start;
 
 			if ($total_progress < 1) {
-				$results[] = Lang::$txt['attachment_transfer_no_find'];
+				$results[] = Lang::getTxt('attachment_transfer_no_find', file: 'Admin');
 			}
 		}
 
@@ -1958,7 +1966,7 @@ class Attachments implements ActionInterface
 
 				if (Db::$db->num_rows($request) === 0) {
 					if (empty($current_progress)) {
-						$results[] = Lang::$txt['attachment_transfer_no_find'];
+						$results[] = Lang::getTxt('attachment_transfer_no_find', file: 'Admin');
 					}
 					break;
 				}
@@ -1992,10 +2000,10 @@ class Attachments implements ActionInterface
 								// Since we're in auto mode. Create a new folder and reset the counters.
 								Attachment::automanageBySpace();
 
-								$results[] = Lang::getTxt('attachments_transferred', ['files' => $total_moved, 'folder' => Config::$modSettings['attachmentUploadDir'][$new_dir]]);
+								$results[] = Lang::getTxt('attachments_transferred', ['files' => $total_moved, 'folder' => Config::$modSettings['attachmentUploadDir'][$new_dir]], file: 'Admin');
 
 								if (!empty($total_not_moved)) {
-									$results[] = Lang::getTxt('attachments_not_transferred', ['not_moved' => $total_not_moved]);
+									$results[] = Lang::getTxt('attachments_not_transferred', ['not_moved' => $total_not_moved], file: 'Admin');
 								}
 
 								$dir_files = 0;
@@ -2008,7 +2016,7 @@ class Attachments implements ActionInterface
 							}
 
 							// Hmm, not in auto. Time to bail out then...
-							$results[] = Lang::$txt['attachment_transfer_no_room'];
+							$results[] = Lang::getTxt('attachment_transfer_no_room', file: 'Admin');
 							$break = true;
 
 							break;
@@ -2059,10 +2067,10 @@ class Attachments implements ActionInterface
 				}
 			}
 
-			$results[] = Lang::getTxt('attachments_transferred', ['files' => $total_moved, 'folder' => Config::$modSettings['attachmentUploadDir'][$new_dir]]);
+			$results[] = Lang::getTxt('attachments_transferred', ['files' => $total_moved, 'folder' => Config::$modSettings['attachmentUploadDir'][$new_dir]], file: 'Admin');
 
 			if (!empty($total_not_moved)) {
-				$results[] = Lang::getTxt('attachments_not_transferred', ['not_moved' => $total_not_moved]);
+				$results[] = Lang::getTxt('attachments_not_transferred', ['not_moved' => $total_not_moved], file: 'Admin');
 			}
 		}
 
@@ -2106,27 +2114,49 @@ class Attachments implements ActionInterface
 		}
 
 		// A bit of razzle dazzle with the Lang::$txt strings. :)
-		Lang::$txt['attachment_path'] = Utils::$context['attachmentUploadDir'];
+		Lang::setTxt('attachment_path', Utils::$context['attachmentUploadDir']);
 
 		if (
 			empty(Config::$modSettings['attachment_basedirectories'])
 			&& Config::$modSettings['currentAttachmentUploadDir'] == 1
 			&& count(Config::$modSettings['attachmentUploadDir']) == 1
 		) {
-			Lang::$txt['attachmentUploadDir_path'] = Config::$modSettings['attachmentUploadDir'][1];
+			Lang::setTxt('attachmentUploadDir_path', Config::$modSettings['attachmentUploadDir'][1]);
 		}
 
-		Lang::$txt['basedirectory_for_attachments_path'] = Config::$modSettings['basedirectory_for_attachments'] ?? '';
+		Lang::setTxt(
+			'basedirectory_for_attachments_path',
+			Config::$modSettings['basedirectory_for_attachments'] ?? '',
+		);
 
-		Lang::$txt['use_subdirectories_for_attachments_note'] = empty(Config::$modSettings['attachment_basedirectories']) || empty(Config::$modSettings['use_subdirectories_for_attachments']) ? Lang::$txt['use_subdirectories_for_attachments_note'] : '';
+		if (
+			!empty(Config::$modSettings['attachment_basedirectories'])
+			|| !empty(Config::$modSettings['use_subdirectories_for_attachments'])
+		) {
+			Lang::setTxt('use_subdirectories_for_attachments_note', '');
+		}
 
-		Lang::$txt['attachmentUploadDir_multiple_configure'] = '<a href="' . Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . Lang::$txt['attachmentUploadDir_multiple_configure'] . ']</a>';
+		Lang::setTxt(
+			'attachmentUploadDir_multiple_configure',
+			'<a href="' . Config::$scripturl . '?action=admin;area=manageattachments;sa=attachpaths">[' . Lang::getTxt('attachmentUploadDir_multiple_configure', file: 'Admin') . ']</a>',
+		);
 
-		Lang::$txt['attach_current_dir'] = empty(Config::$modSettings['automanage_attachments']) ? Lang::$txt['attach_current_dir'] : Lang::$txt['attach_last_dir'];
+		if (!empty(Config::$modSettings['automanage_attachments'])) {
+			Lang::setTxt(
+				'attach_current_dir',
+				Lang::getTxt('attach_last_dir', file: 'Admin'),
+			);
+		}
 
-		Lang::$txt['attach_current_dir_warning'] = Lang::$txt['attach_current_dir'] . Lang::$txt['attach_current_dir_warning'];
+		Lang::setTxt(
+			'attach_current_dir_warning',
+			Lang::getTxt('attach_current_dir', file: 'Admin') . Lang::getTxt('attach_current_dir_warning', file: 'Admin'),
+		);
 
-		Lang::$txt['basedirectory_for_attachments_warning'] = Lang::$txt['basedirectory_for_attachments_current'] . Lang::$txt['basedirectory_for_attachments_warning'];
+		Lang::setTxt(
+			'basedirectory_for_attachments_warning',
+			Lang::getTxt('basedirectory_for_attachments_current', file: 'Admin') . Lang::getTxt('basedirectory_for_attachments_warning', file: 'Admin'),
+		);
 
 		// Perform a test to see if the GD module or ImageMagick are installed.
 		$testImg = get_extension_funcs('gd') || class_exists('Imagick');
@@ -2138,23 +2168,127 @@ class Attachments implements ActionInterface
 		$config_vars = [
 			['title', 'attachment_manager_settings'],
 			// Are attachments enabled?
-			['select', 'attachmentEnable', [Lang::$txt['attachmentEnable_deactivate'], Lang::$txt['attachmentEnable_enable_all'], Lang::$txt['attachmentEnable_disable_new']]],
+			[
+				'select',
+				'attachmentEnable',
+				[
+					Lang::getTxt('attachmentEnable_deactivate', file: 'Admin'),
+					Lang::getTxt('attachmentEnable_enable_all', file: 'Admin'),
+					Lang::getTxt('attachmentEnable_disable_new', file: 'Admin'),
+				],
+			],
 			'',
 
 			// Directory and size limits.
-			['select', 'automanage_attachments', [0 => Lang::$txt['attachments_normal'], 1 => Lang::$txt['attachments_auto_space'], 2 => Lang::$txt['attachments_auto_years'], 3 => Lang::$txt['attachments_auto_months'], 4 => Lang::$txt['attachments_auto_16']]],
-			['check', 'use_subdirectories_for_attachments', 'subtext' => Lang::$txt['use_subdirectories_for_attachments_note']],
-			(empty(Config::$modSettings['attachment_basedirectories']) ? ['text', 'basedirectory_for_attachments', 40] : ['var_message', 'basedirectory_for_attachments', 'message' => 'basedirectory_for_attachments_path', 'invalid' => empty(Utils::$context['valid_basedirectory']), 'text_label' => (!empty(Utils::$context['valid_basedirectory']) ? Lang::$txt['basedirectory_for_attachments_current'] : Lang::getTxt('basedirectory_for_attachments_warning', ['scripturl' => Config::$scripturl]))]),
-			empty(Config::$modSettings['attachment_basedirectories']) && Config::$modSettings['currentAttachmentUploadDir'] == 1 && count(Config::$modSettings['attachmentUploadDir']) == 1 ? ['var_message', 'attachmentUploadDir_path', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 40, 'invalid' => !Utils::$context['valid_upload_dir'], 'text_label' => Lang::$txt['attachmentUploadDir'], 'message' => 'attachmentUploadDir_path'] : ['var_message', 'attach_current_directory', 'subtext' => Lang::$txt['attachmentUploadDir_multiple_configure'], 'message' => 'attachment_path', 'invalid' => empty(Utils::$context['valid_upload_dir']), 'text_label' => (!empty(Utils::$context['valid_upload_dir']) ? Lang::$txt['attach_current_dir'] : Lang::getTxt('attach_current_dir_warning', ['scripturl' => Config::$scripturl]))],
-			['int', 'attachmentDirFileLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6],
-			['int', 'attachmentDirSizeLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6, 'postinput' => Lang::$txt['kilobyte']],
-			['check', 'dont_show_attach_under_post', 'subtext' => Lang::$txt['dont_show_attach_under_post_sub']],
+			[
+				'select',
+				'automanage_attachments',
+				[
+					0 => Lang::getTxt('attachments_normal', file: 'Admin'),
+					1 => Lang::getTxt('attachments_auto_space', file: 'Admin'),
+					2 => Lang::getTxt('attachments_auto_years', file: 'Admin'),
+					3 => Lang::getTxt('attachments_auto_months', file: 'Admin'),
+					4 => Lang::getTxt('attachments_auto_16', file: 'Admin'),
+				],
+			],
+			[
+				'check',
+				'use_subdirectories_for_attachments',
+				'subtext' => Lang::getTxt('use_subdirectories_for_attachments_note', file: 'Admin'),
+			],
+			(
+				empty(Config::$modSettings['attachment_basedirectories'])
+				? [
+					'text',
+					'basedirectory_for_attachments',
+					40,
+				]
+				: [
+					'var_message',
+					'basedirectory_for_attachments',
+					'message' => 'basedirectory_for_attachments_path',
+					'invalid' => empty(Utils::$context['valid_basedirectory']),
+					'text_label' => (
+						!empty(Utils::$context['valid_basedirectory'])
+						? Lang::getTxt('basedirectory_for_attachments_current', file: 'Admin')
+						: Lang::getTxt('basedirectory_for_attachments_warning', ['scripturl' => Config::$scripturl], file: 'Admin')
+					),
+				]
+			),
+			(
+				empty(Config::$modSettings['attachment_basedirectories'])
+				&& Config::$modSettings['currentAttachmentUploadDir'] == 1
+				&& count(Config::$modSettings['attachmentUploadDir']) == 1
+				? [
+					'var_message',
+					'attachmentUploadDir_path',
+					'subtext' => Lang::getTxt('attachmentUploadDir_multiple_configure', file: 'Admin'),
+					40,
+					'invalid' => !Utils::$context['valid_upload_dir'],
+					'text_label' => Lang::getTxt('attachmentUploadDir', file: 'Admin'),
+					'message' => 'attachmentUploadDir_path',
+				]
+				: [
+					'var_message',
+					'attach_current_directory',
+					'subtext' => Lang::getTxt('attachmentUploadDir_multiple_configure', file: 'Admin'),
+					'message' => 'attachment_path',
+					'invalid' => empty(Utils::$context['valid_upload_dir']),
+					'text_label' => (
+						!empty(Utils::$context['valid_upload_dir'])
+						? Lang::getTxt('attach_current_dir', file: 'Admin')
+						: Lang::getTxt('attach_current_dir_warning', ['scripturl' => Config::$scripturl], file: 'Admin')
+					),
+				]
+			),
+			[
+				'int',
+				'attachmentDirFileLimit',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+				6,
+			],
+			[
+				'int',
+				'attachmentDirSizeLimit',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+				6,
+				'postinput' => Lang::$txt['kilobyte'],
+			],
+			[
+				'check',
+				'dont_show_attach_under_post',
+				'subtext' => Lang::getTxt('dont_show_attach_under_post_sub', file: 'Admin'),
+			],
 			'',
 
 			// Posting limits
-			['int', 'attachmentPostLimit', 'subtext' => Lang::getTxt('attachment_ini_max', [$post_max_kb]), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $post_max_kb, 'disabled' => empty($post_max_kb)],
-			['int', 'attachmentSizeLimit', 'subtext' => Lang::getTxt('attachment_ini_max', [$file_max_kb]), 6, 'postinput' => Lang::$txt['kilobyte'], 'min' => 1, 'max' => $file_max_kb, 'disabled' => empty($file_max_kb)],
-			['int', 'attachmentNumPerPostLimit', 'subtext' => Lang::$txt['zero_for_no_limit'], 6, 'min' => 0],
+			[
+				'int',
+				'attachmentPostLimit',
+				'subtext' => Lang::getTxt('attachment_ini_max', [$post_max_kb], file: 'Admin'),
+				6,
+				'postinput' => Lang::$txt['kilobyte'],
+				'min' => 1,
+				'max' => $post_max_kb,
+				'disabled' => empty($post_max_kb),
+			],
+			[
+				'int',
+				'attachmentSizeLimit',
+				'subtext' => Lang::getTxt('attachment_ini_max', [$file_max_kb], file: 'Admin'),
+				6,
+				'postinput' => Lang::$txt['kilobyte'],
+				'min' => 1,
+				'max' => $file_max_kb,
+				'disabled' => empty($file_max_kb),
+			],
+			[
+				'int',
+				'attachmentNumPerPostLimit',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+				6,
+				'min' => 0,
+			],
 			// Security Items
 			['title', 'attachment_security_settings'],
 			// Extension checks etc.
@@ -2180,8 +2314,8 @@ class Attachments implements ActionInterface
 			['text', 'attachmentThumbHeight', 6],
 			'',
 
-			['int', 'max_image_width', 'subtext' => Lang::$txt['zero_for_no_limit']],
-			['int', 'max_image_height', 'subtext' => Lang::$txt['zero_for_no_limit']],
+			['int', 'max_image_width', 'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin')],
+			['int', 'max_image_height', 'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin')],
 		];
 
 		IntegrationHook::call('integrate_modify_attachment_settings', [&$config_vars]);
@@ -2206,29 +2340,29 @@ class Attachments implements ActionInterface
 			// Server stored avatars!
 			['title', 'avatar_server_stored'],
 			['warning', empty($testImg) ? 'avatar_img_enc_warning' : ''],
-			['permissions', 'profile_server_avatar', 0, Lang::$txt['avatar_server_stored_groups']],
+			['permissions', 'profile_server_avatar', 0, Lang::getTxt('avatar_server_stored_groups', file: 'Admin')],
 			['warning', !Utils::$context['valid_avatar_dir'] ? 'avatar_directory_wrong' : ''],
 			['text', 'avatar_directory', 40, 'invalid' => !Utils::$context['valid_avatar_dir']],
 			['text', 'avatar_url', 40],
 			// External avatars?
 			['title', 'avatar_external'],
-			['permissions', 'profile_remote_avatar', 0, Lang::$txt['avatar_external_url_groups']],
+			['permissions', 'profile_remote_avatar', 0, Lang::getTxt('avatar_external_url_groups', file: 'Admin')],
 			['check', 'avatar_download_external', 0, 'onchange' => 'fUpdateStatus();'],
-			['text', 'avatar_max_width_external', 'subtext' => Lang::$txt['zero_for_no_limit'], 6],
-			['text', 'avatar_max_height_external', 'subtext' => Lang::$txt['zero_for_no_limit'], 6],
+			['text', 'avatar_max_width_external', 'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'), 6],
+			['text', 'avatar_max_height_external', 'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'), 6],
 			['select', 'avatar_action_too_large',
 				[
-					'option_refuse' => Lang::$txt['option_refuse'],
-					'option_css_resize' => Lang::$txt['option_css_resize'],
-					'option_download_and_resize' => Lang::$txt['option_download_and_resize'],
+					'option_refuse' => Lang::getTxt('option_refuse', file: 'Admin'),
+					'option_css_resize' => Lang::getTxt('option_css_resize', file: 'Admin'),
+					'option_download_and_resize' => Lang::getTxt('option_download_and_resize', file: 'Admin'),
 				],
 			],
 			// Uploadable avatars?
 			['title', 'avatar_upload'],
-			['permissions', 'profile_upload_avatar', 0, Lang::$txt['avatar_upload_groups']],
-			['text', 'avatar_max_width_upload', 'subtext' => Lang::$txt['zero_for_no_limit'], 6],
-			['text', 'avatar_max_height_upload', 'subtext' => Lang::$txt['zero_for_no_limit'], 6],
-			['check', 'avatar_resize_upload', 'subtext' => Lang::$txt['avatar_resize_upload_note']],
+			['permissions', 'profile_upload_avatar', 0, Lang::getTxt('avatar_upload_groups', file: 'Admin')],
+			['text', 'avatar_max_width_upload', 'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'), 6],
+			['text', 'avatar_max_height_upload', 'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'), 6],
+			['check', 'avatar_resize_upload', 'subtext' => Lang::getTxt('avatar_resize_upload_note', file: 'Admin')],
 			['check', 'avatar_download_png'],
 			['check', 'avatar_reencode'],
 			'',
@@ -2238,7 +2372,7 @@ class Attachments implements ActionInterface
 			'',
 
 			['warning', !Utils::$context['valid_custom_avatar_dir'] ? 'custom_avatar_dir_wrong' : ''],
-			['text', 'custom_avatar_dir', 40, 'subtext' => Lang::$txt['custom_avatar_dir_desc'], 'invalid' => !Utils::$context['valid_custom_avatar_dir']],
+			['text', 'custom_avatar_dir', 40, 'subtext' => Lang::getTxt('custom_avatar_dir_desc', file: 'Admin'), 'invalid' => !Utils::$context['valid_custom_avatar_dir']],
 			['text', 'custom_avatar_url', 40],
 			// Grvatars?
 			['title', 'gravatar_settings'],
@@ -2249,20 +2383,20 @@ class Attachments implements ActionInterface
 
 			['select', 'gravatarMaxRating',
 				[
-					'G' => Lang::$txt['gravatar_maxG'],
-					'PG' => Lang::$txt['gravatar_maxPG'],
-					'R' => Lang::$txt['gravatar_maxR'],
-					'X' => Lang::$txt['gravatar_maxX'],
+					'G' => Lang::getTxt('gravatar_maxG', file: 'Admin'),
+					'PG' => Lang::getTxt('gravatar_maxPG', file: 'Admin'),
+					'R' => Lang::getTxt('gravatar_maxR', file: 'Admin'),
+					'X' => Lang::getTxt('gravatar_maxX', file: 'Admin'),
 				],
 			],
 			['select', 'gravatarDefault',
 				[
-					'mm' => Lang::$txt['gravatar_mm'],
-					'identicon' => Lang::$txt['gravatar_identicon'],
-					'monsterid' => Lang::$txt['gravatar_monsterid'],
-					'wavatar' => Lang::$txt['gravatar_wavatar'],
-					'retro' => Lang::$txt['gravatar_retro'],
-					'blank' => Lang::$txt['gravatar_blank'],
+					'mm' => Lang::getTxt('gravatar_mm', file: 'Admin'),
+					'identicon' => Lang::getTxt('gravatar_identicon', file: 'Admin'),
+					'monsterid' => Lang::getTxt('gravatar_monsterid', file: 'Admin'),
+					'wavatar' => Lang::getTxt('gravatar_wavatar', file: 'Admin'),
+					'retro' => Lang::getTxt('gravatar_retro', file: 'Admin'),
+					'blank' => Lang::getTxt('gravatar_blank', file: 'Admin'),
 				],
 			],
 		];
@@ -2445,7 +2579,7 @@ class Attachments implements ActionInterface
 				'path' => $dir,
 				'current_size' => !empty($expected_size[$id]) ? Lang::numberFormat($expected_size[$id] / 1024, 0) : 0,
 				'num_files' => Lang::numberFormat($expected_files[$id] - $sub_dirs, 0) . ($sub_dirs > 0 ? ' (' . $sub_dirs . ')' : ''),
-				'status' => ($is_base_dir ? Lang::$txt['attach_dir_basedir'] . '<br>' : '') . ($error ? '<div class="error">' : '') . Lang::getTxt('attach_dir_' . $status, ['session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl]) . ($error ? '</div>' : ''),
+				'status' => ($is_base_dir ? Lang::getTxt('attach_dir_basedir', file: 'Admin') . '<br>' : '') . ($error ? '<div class="error">' : '') . Lang::getTxt('attach_dir_' . $status, ['session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl], file: 'Admin') . ($error ? '</div>' : ''),
 			];
 		}
 
@@ -2501,7 +2635,7 @@ class Attachments implements ActionInterface
 				'current' => $dir == Config::$modSettings['basedirectory_for_attachments'],
 				'path' => $expected_dirs > 0 ? $dir : ('<input type="text" name="base_dir[' . $id . ']" value="' . $dir . '" size="40">'),
 				'num_dirs' => $expected_dirs,
-				'status' => $status == 'ok' ? Lang::$txt['attach_dir_ok'] : ('<span class="error">' . Lang::$txt['attach_dir_' . $status] . '</span>'),
+				'status' => $status == 'ok' ? Lang::getTxt('attach_dir_ok', file: 'Admin') : ('<span class="error">' . Lang::getTxt('attach_dir_' . $status, file: 'Admin') . '</span>'),
 			];
 		}
 
@@ -2582,9 +2716,9 @@ class Attachments implements ActionInterface
 
 		// This uses admin tabs - as it should!
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['attachments_avatars'],
+			'title' => Lang::getTxt('attachments_avatars', file: 'Admin'),
 			'help' => 'manage_files',
-			'description' => Lang::$txt['attachments_desc'],
+			'description' => Lang::getTxt('attachments_desc', file: 'Admin'),
 		];
 
 		IntegrationHook::call('integrate_manage_attachments', [&self::$subactions]);
@@ -2596,7 +2730,7 @@ class Attachments implements ActionInterface
 		Utils::$context['sub_action'] = &$this->subaction;
 
 		// Default page title is good.
-		Utils::$context['page_title'] = Lang::$txt['attachments_avatars'];
+		Utils::$context['page_title'] = Lang::getTxt('attachments_avatars', file: 'Admin');
 	}
 
 	/**
@@ -2623,7 +2757,7 @@ class Attachments implements ActionInterface
 		}
 
 		Utils::$context['continue_get_data'] = '?action=admin;area=manageattachments;sa=repair' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_countdown'] = '2';
 		Utils::$context['sub_template'] = 'not_done';

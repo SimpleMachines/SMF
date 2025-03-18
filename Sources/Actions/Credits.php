@@ -66,7 +66,7 @@ class Credits implements ActionInterface, Routable
 
 		if ($this->in_admin) {
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['support_credits_title'],
+				'title' => Lang::getTxt('support_credits_title', file: 'Admin'),
 				'help' => '',
 				'description' => '',
 			];

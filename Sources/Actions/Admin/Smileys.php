@@ -173,7 +173,7 @@ class Smileys implements ActionInterface
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['smileys_manage'],
+			'title' => Lang::getTxt('smileys_manage', file: 'Admin'),
 			'help' => 'smileys',
 			'description' => Lang::$txt['smiley_settings_explain'],
 			'tabs' => [
@@ -211,7 +211,7 @@ class Smileys implements ActionInterface
 
 		Utils::$context['sub_action'] = &$this->subaction;
 
-		Utils::$context['page_title'] = Lang::$txt['smileys_manage'];
+		Utils::$context['page_title'] = Lang::getTxt('smileys_manage', file: 'Admin');
 		Utils::$context['sub_template'] = $this->subaction;
 
 		self::findSmileysDir();
@@ -484,7 +484,7 @@ class Smileys implements ActionInterface
 
 		$listOptions = [
 			'id' => 'smiley_set_list',
-			'title' => Lang::$txt['smiley_sets'],
+			'title' => Lang::getTxt('smiley_sets', file: 'Admin'),
 			'no_items_label' => Lang::$txt['smiley_sets_none'],
 			'base_href' => Config::$scripturl . '?action=admin;area=smileys;sa=editsets',
 			'default_sort_col' => 'name',
@@ -1081,7 +1081,7 @@ class Smileys implements ActionInterface
 
 			$listOptions = [
 				'id' => 'smiley_list',
-				'title' => Lang::$txt['smileys_edit'],
+				'title' => Lang::getTxt('smileys_edit', file: 'Admin'),
 				'items_per_page' => 40,
 				'base_href' => Config::$scripturl . '?action=admin;area=smileys;sa=editsmileys',
 				'default_sort_col' => 'filename',
@@ -1964,7 +1964,7 @@ class Smileys implements ActionInterface
 
 		$listOptions = [
 			'id' => 'message_icon_list',
-			'title' => Lang::$txt['icons_edit_message_icons'],
+			'title' => Lang::getTxt('icons_edit_message_icons', file: 'Admin'),
 			'base_href' => Config::$scripturl . '?action=admin;area=smileys;sa=editicons',
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getMessageIcons',

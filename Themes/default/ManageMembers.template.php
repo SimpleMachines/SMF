@@ -25,7 +25,7 @@ function template_search_members()
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="floatleft">', Lang::$txt['search_for'], '</span>
-					<span class="smalltext floatright">', Lang::$txt['wild_cards_allowed'], '</span>
+					<span class="smalltext floatright">', Lang::getTxt('wild_cards_allowed', file: 'Admin'), '</span>
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -33,7 +33,7 @@ function template_search_members()
 					<div class="msearch_details floatleft">
 						<dl class="settings right">
 							<dt class="righttext">
-								<strong><label for="mem_id">', Lang::$txt['member_id'], '</label></strong>
+								<strong><label for="mem_id">', Lang::getTxt('member_id', file: 'Admin'), '</label></strong>
 								<select name="types[mem_id]">
 									<option value="--">&lt;</option>
 									<option value="-">&lt;=</option>
@@ -46,7 +46,7 @@ function template_search_members()
 								<input type="number" name="mem_id" id="mem_id" value="" size="6">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="age">', Lang::$txt['age'], '</label></strong>
+								<strong><label for="age">', Lang::getTxt('age', file: 'Admin'), '</label></strong>
 								<select name="types[age]">
 									<option value="--">&lt;</option>
 									<option value="-">&lt;=</option>
@@ -85,7 +85,7 @@ function template_search_members()
 								<input type="date" name="reg_date" id="reg_date" value="" size="10"><span class="smalltext"></span>
 							</dd>
 							<dt class="righttext">
-								<strong><label for="last_online">', Lang::$txt['viewmembers_online'], '</label></strong>
+								<strong><label for="last_online">', Lang::getTxt('viewmembers_online', file: 'Admin'), '</label></strong>
 								<select name="types[last_online]">
 									<option value="--">&lt;</option>
 									<option value="-">&lt;=</option>
@@ -108,7 +108,7 @@ function template_search_members()
 								<input type="text" name="membername" id="membername" value="">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="email">', Lang::$txt['email_address'], '</label></strong>
+								<strong><label for="email">', Lang::getTxt('email_address', file: 'Admin'), '</label></strong>
 							</dt>
 							<dd>
 								<input type="email" name="email" id="email" value="">
@@ -129,22 +129,22 @@ function template_search_members()
 					</div><!-- .msearch_details -->
 					<div class="msearch_details floatright">
 						<fieldset>
-							<legend>', Lang::$txt['activation_status'], '</legend>
-							<label for="activated-0"><input type="checkbox" name="activated[]" value="1" id="activated-0" checked> ', Lang::$txt['activated'], '</label>&nbsp;&nbsp;
-							<label for="activated-1"><input type="checkbox" name="activated[]" value="0" id="activated-1" checked> ', Lang::$txt['not_activated'], '</label>
+							<legend>', Lang::getTxt('activation_status', file: 'Admin'), '</legend>
+							<label for="activated-0"><input type="checkbox" name="activated[]" value="1" id="activated-0" checked> ', Lang::getTxt('activated', file: 'Admin'), '</label>&nbsp;&nbsp;
+							<label for="activated-1"><input type="checkbox" name="activated[]" value="0" id="activated-1" checked> ', Lang::getTxt('not_activated', file: 'Admin'), '</label>
 						</fieldset>
 					</div>
 				</div><!-- .flow_hidden -->
 			</div><!-- ..windowbg -->
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['member_part_of_these_membergroups'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('member_part_of_these_membergroups', file: 'Admin'), '</h3>
 			</div>
 			<table class="table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th scope="col">', Lang::$txt['membergroups'], '</th>
-						<th scope="col" class="centercol quarter_table">', Lang::$txt['primary'], '</th>
-						<th scope="col" class="centercol quarter_table">', Lang::$txt['additional'], '</th>
+						<th scope="col">', Lang::getTxt('membergroups', file: 'Admin'), '</th>
+						<th scope="col" class="centercol quarter_table">', Lang::getTxt('primary', file: 'Admin'), '</th>
+						<th scope="col" class="centercol quarter_table">', Lang::getTxt('additional', file: 'Admin'), '</th>
 					</tr>
 				</thead>
 				<tbody>';

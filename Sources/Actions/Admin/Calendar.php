@@ -91,7 +91,7 @@ class Calendar implements ActionInterface
 
 		// Set up the two tabs here...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['manage_calendar'],
+			'title' => Lang::getTxt('manage_calendar', file: 'Admin'),
 			'help' => 'calendar',
 			'description' => Lang::$txt['calendar_settings_desc'],
 		];
@@ -240,7 +240,7 @@ class Calendar implements ActionInterface
 		new ItemList($listOptions);
 
 		// loadTemplate('ManageCalendar');
-		Utils::$context['page_title'] = Lang::$txt['manage_holidays'];
+		Utils::$context['page_title'] = Lang::getTxt('manage_holidays', file: 'Admin');
 
 		// Since the list is the only thing to show, use the default list template.
 		Utils::$context['default_list'] = 'holiday_list';
@@ -329,7 +329,7 @@ class Calendar implements ActionInterface
 	{
 		Theme::loadTemplate('ManageCalendar');
 		Utils::$context['sub_template'] = 'import';
-		Utils::$context['page_title'] = Lang::$txt['calendar_import'];
+		Utils::$context['page_title'] = Lang::getTxt('calendar_import', file: 'Admin');
 
 		// Submitting?
 		if (isset($_POST[Utils::$context['session_var']])) {
@@ -536,12 +536,12 @@ class Calendar implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		// Some important context stuff
-		Utils::$context['page_title'] = Lang::$txt['calendar_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('calendar_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Get the final touches in place.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=managecalendar;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['calendar_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('calendar_settings', file: 'Admin');
 
 		// Saving the settings?
 		if (isset($_GET['save'])) {
@@ -628,7 +628,7 @@ class Calendar implements ActionInterface
 				'',
 
 				// Calendar spanning...
-				['int', 'cal_maxspan', 6, 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_for_no_limit'], 'help' => 'cal_maxevent_span'],
+				['int', 'cal_maxspan', 6, 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'), 'help' => 'cal_maxevent_span'],
 				'',
 
 				// Miscellaneous layout settings...

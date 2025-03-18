@@ -149,7 +149,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=basic';
-		Utils::$context['settings_title'] = Lang::$txt['mods_cat_features'];
+		Utils::$context['settings_title'] = Lang::getTxt('mods_cat_features', file: 'Admin');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -168,7 +168,7 @@ class Features implements ActionInterface
 
 		// Setup the template.
 		Utils::$context['sub_template'] = 'show_settings';
-		Utils::$context['page_title'] = Lang::$txt['manageposts_bbc_settings_title'];
+		Utils::$context['page_title'] = Lang::getTxt('manageposts_bbc_settings_title', file: 'Admin');
 
 		// Make sure we check the right tags!
 		Config::$modSettings['bbc_disabled_disabledBBC'] = empty(Config::$modSettings['disabledBBC']) ? [] : explode(',', Config::$modSettings['disabledBBC']);
@@ -183,7 +183,7 @@ class Features implements ActionInterface
 		$extra = '';
 
 		if (isset($_REQUEST['cowsay'])) {
-			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'])];
+			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'], file: 'Admin')];
 			$extra = ';cowsay';
 		}
 
@@ -268,7 +268,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=bbc' . $extra;
-		Utils::$context['settings_title'] = Lang::$txt['manageposts_bbc_settings_title'];
+		Utils::$context['settings_title'] = Lang::getTxt('manageposts_bbc_settings_title', file: 'Admin');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -296,7 +296,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=layout';
-		Utils::$context['settings_title'] = Lang::$txt['mods_cat_layout'];
+		Utils::$context['settings_title'] = Lang::getTxt('mods_cat_layout', file: 'Admin');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -1539,10 +1539,10 @@ class Features implements ActionInterface
 		Profile::load(0);
 		Notification::call();
 
-		Utils::$context['page_title'] = Lang::$txt['notify_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('notify_settings', file: 'Admin');
 
 		// Override the description
-		Utils::$context['description'] = Lang::$txt['notifications_desc'];
+		Utils::$context['description'] = Lang::getTxt('notifications_desc', file: 'Admin');
 		Utils::$context['sub_template'] = 'alert_configuration';
 	}
 
@@ -1678,7 +1678,11 @@ class Features implements ActionInterface
 			['bbc', 'legacyBBC', 'help' => 'legacy_bbc'],
 
 			// Markdown settings
-			['title', 'markdown_settings', 'text_label' => Lang::$txt['manageposts_markdown_settings_title']],
+			[
+				'title',
+				'markdown_settings',
+				'text_label' => Lang::getTxt('manageposts_markdown_settings_title', file: 'Admin'),
+			],
 			['check', 'enableMarkdown', 'onchange' => 'document.getElementById(\'collapse_blank_lines\').disabled = !this.checked; document.getElementById(\'collapse_single_breaks\').disabled = !this.checked;'],
 			['check', 'collapse_blank_lines', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
 			['check', 'collapse_single_breaks', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
@@ -1690,7 +1694,11 @@ class Features implements ActionInterface
 		}
 
 		foreach (Utils::$context['restricted_bbc'] as $bbc) {
-			$config_vars[] = ['permissions', 'bbc_' . $bbc, 'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'])];
+			$config_vars[] = [
+				'permissions',
+				'bbc_' . $bbc,
+				'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'], file: 'Admin'),
+			];
 		}
 
 		Utils::$context['settings_post_javascript'] = '
@@ -1748,17 +1756,45 @@ class Features implements ActionInterface
 			'',
 
 			// Tweaking settings!
-			['int', 'signature_max_length', 'subtext' => Lang::$txt['zero_for_no_limit']],
-			['int', 'signature_max_lines', 'subtext' => Lang::$txt['zero_for_no_limit']],
-			['int', 'signature_max_font_size', 'subtext' => Lang::$txt['zero_for_no_limit']],
-			['check', 'signature_allow_smileys', 'onclick' => 'document.getElementById(\'signature_max_smileys\').disabled = !this.checked;'],
-			['int', 'signature_max_smileys', 'subtext' => Lang::$txt['zero_for_no_limit']],
+			[
+				'int',
+				'signature_max_length',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
+			[
+				'int',
+				'signature_max_lines',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
+			[
+				'int',
+				'signature_max_font_size',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
+			[
+				'check',
+				'signature_allow_smileys',
+				'onclick' => 'document.getElementById(\'signature_max_smileys\').disabled = !this.checked;',
+			],
+			[
+				'int',
+				'signature_max_smileys',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
 			'',
 
 			// Image settings.
 			['int', 'signature_max_images', 'subtext' => Lang::$txt['signature_max_images_note']],
-			['int', 'signature_max_image_width', 'subtext' => Lang::$txt['zero_for_no_limit']],
-			['int', 'signature_max_image_height', 'subtext' => Lang::$txt['zero_for_no_limit']],
+			[
+				'int',
+				'signature_max_image_width',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
+			[
+				'int',
+				'signature_max_image_height',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
 			'',
 
 			['bbc', 'signature_bbc'],
@@ -1912,7 +1948,7 @@ class Features implements ActionInterface
 				'basic' => [
 				],
 				'bbc' => [
-					'description' => Lang::$txt['manageposts_bbc_settings_description'],
+					'description' => Lang::getTxt('manageposts_bbc_settings_description', file: 'Admin'),
 				],
 				'layout' => [
 				],
@@ -1927,7 +1963,7 @@ class Features implements ActionInterface
 				'mentions' => [
 				],
 				'alerts' => [
-					'description' => Lang::$txt['notifications_desc'],
+					'description' => Lang::getTxt('notifications_desc', file: 'Admin'),
 				],
 			],
 		];
@@ -1948,7 +1984,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['continue_get_data'] = '?action=admin;area=featuresettings;sa=sig;apply;step=' . $_GET['step'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_countdown'] = '2';
 		Utils::$context['sub_template'] = 'not_done';

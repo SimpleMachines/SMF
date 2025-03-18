@@ -132,7 +132,7 @@ class Bans implements ActionInterface
 
 		$listOptions = [
 			'id' => 'ban_list',
-			'title' => Lang::$txt['ban_title'],
+			'title' => Lang::getTxt('ban_title', file: 'Admin'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=list',
 			'default_sort_col' => 'added',
@@ -143,11 +143,11 @@ class Bans implements ActionInterface
 			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumBans',
 			],
-			'no_items_label' => Lang::$txt['ban_no_entries'],
+			'no_items_label' => Lang::getTxt('ban_no_entries', file: 'Admin'),
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['ban_name'],
+						'value' => Lang::getTxt('ban_name', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'name',
@@ -159,7 +159,7 @@ class Bans implements ActionInterface
 				],
 				'notes' => [
 					'header' => [
-						'value' => Lang::$txt['ban_notes'],
+						'value' => Lang::getTxt('ban_notes', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'notes',
@@ -185,7 +185,7 @@ class Bans implements ActionInterface
 				],
 				'added' => [
 					'header' => [
-						'value' => Lang::$txt['ban_added'],
+						'value' => Lang::getTxt('ban_added', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -205,7 +205,7 @@ class Bans implements ActionInterface
 				],
 				'expires' => [
 					'header' => [
-						'value' => Lang::$txt['ban_expires'],
+						'value' => Lang::getTxt('ban_expires', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -216,11 +216,11 @@ class Bans implements ActionInterface
 
 							// This ban has already expired.
 							if ($rowData['expire_time'] < time()) {
-								return sprintf('<span class="red">%1$s</span>', Lang::$txt['ban_expired']);
+								return sprintf('<span class="red">%1$s</span>', Lang::getTxt('ban_expired', file: 'Admin'));
 							}
 
 							// Still need to wait a few days for this ban to expire.
-							return sprintf('%1$d&nbsp;%2$s', ceil(($rowData['expire_time'] - time()) / (60 * 60 * 24)), Lang::$txt['ban_days']);
+							return sprintf('%1$d&nbsp;%2$s', ceil(($rowData['expire_time'] - time()) / (60 * 60 * 24)), Lang::getTxt('ban_days', file: 'Admin'));
 						},
 					],
 					'sort' => [
@@ -230,7 +230,7 @@ class Bans implements ActionInterface
 				],
 				'num_triggers' => [
 					'header' => [
-						'value' => Lang::$txt['ban_triggers'],
+						'value' => Lang::getTxt('ban_triggers', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'num_triggers',
@@ -242,7 +242,7 @@ class Bans implements ActionInterface
 				],
 				'actions' => [
 					'header' => [
-						'value' => Lang::$txt['ban_actions'],
+						'value' => Lang::getTxt('ban_actions', file: 'Admin'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -277,11 +277,11 @@ class Bans implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'top_of_list',
-					'value' => '<input type="submit" name="removeBans" value="' . Lang::$txt['ban_remove_selected'] . '" class="button">',
+					'value' => '<input type="submit" name="removeBans" value="' . Lang::getTxt('ban_remove_selected', file: 'Admin') . '" class="button">',
 				],
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="removeBans" value="' . Lang::$txt['ban_remove_selected'] . '" class="button">',
+					'value' => '<input type="submit" name="removeBans" value="' . Lang::getTxt('ban_remove_selected', file: 'Admin') . '" class="button">',
 				],
 			],
 			'javascript' => '
@@ -297,7 +297,7 @@ class Bans implements ActionInterface
 				}
 
 
-				return confirm("' . Lang::$txt['ban_remove_selected_confirm'] . '");
+				return confirm("' . Lang::getTxt('ban_remove_selected_confirm', file: 'Admin') . '");
 			});',
 		];
 
@@ -361,7 +361,7 @@ class Bans implements ActionInterface
 					'columns' => [
 						'type' => [
 							'header' => [
-								'value' => Lang::$txt['ban_banned_entity'],
+								'value' => Lang::getTxt('ban_banned_entity', file: 'Admin'),
 								'style' => 'width: 60%;text-align: left;',
 							],
 							'data' => [
@@ -381,7 +381,7 @@ class Bans implements ActionInterface
 						],
 						'hits' => [
 							'header' => [
-								'value' => Lang::$txt['ban_hits'],
+								'value' => Lang::getTxt('ban_hits', file: 'Admin'),
 								'style' => 'width: 15%; text-align: center;',
 							],
 							'data' => [
@@ -391,12 +391,12 @@ class Bans implements ActionInterface
 						],
 						'id' => [
 							'header' => [
-								'value' => Lang::$txt['ban_actions'],
+								'value' => Lang::getTxt('ban_actions', file: 'Admin'),
 								'style' => 'width: 15%; text-align: center;',
 							],
 							'data' => [
 								'function' => function ($ban_item) {
-									return '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . Utils::$context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . Lang::$txt['ban_edit_trigger'] . '</a>';
+									return '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . Utils::$context['ban_group_id'] . ';bi=' . $ban_item['id'] . '">' . Lang::getTxt('ban_edit_trigger', file: 'Admin') . '</a>';
 								},
 								'style' => 'text-align: center;',
 							],
@@ -424,7 +424,7 @@ class Bans implements ActionInterface
 						[
 							'position' => 'above_column_headers',
 							'value' => '
-							<input type="submit" name="remove_selection" value="' . Lang::$txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . Lang::$txt['ban_add_trigger'] . '</a>',
+							<input type="submit" name="remove_selection" value="' . Lang::getTxt('ban_remove_selected_triggers', file: 'Admin') . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . Lang::getTxt('ban_add_trigger', file: 'Admin') . '</a>',
 							'style' => 'text-align: right;',
 						],
 						[
@@ -437,7 +437,7 @@ class Bans implements ActionInterface
 						[
 							'position' => 'below_table_data',
 							'value' => '
-							<input type="submit" name="remove_selection" value="' . Lang::$txt['ban_remove_selected_triggers'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . Lang::$txt['ban_add_trigger'] . '</a>',
+							<input type="submit" name="remove_selection" value="' . Lang::getTxt('ban_remove_selected_triggers', file: 'Admin') . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=ban;sa=edittrigger;bg=' . $ban_group_id . '">' . Lang::getTxt('ban_add_trigger', file: 'Admin') . '</a>',
 							'style' => 'text-align: right;',
 						],
 						[
@@ -461,7 +461,7 @@ class Bans implements ActionInterface
 				}
 
 
-				return confirm("' . Lang::$txt['ban_remove_selected_confirm'] . '");
+				return confirm("' . Lang::getTxt('ban_remove_selected_confirm', file: 'Admin') . '");
 			});',
 				];
 
@@ -604,11 +604,11 @@ class Bans implements ActionInterface
 
 		$listOptions = [
 			'id' => 'ban_trigger_list',
-			'title' => Lang::$txt['ban_trigger_browse'],
+			'title' => Lang::getTxt('ban_trigger_browse', file: 'Admin'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=' . Utils::$context['selected_entity'],
 			'default_sort_col' => 'banned_entity',
-			'no_items_label' => Lang::$txt['ban_no_triggers'],
+			'no_items_label' => Lang::getTxt('ban_no_triggers', file: 'Admin'),
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getBanTriggers',
 				'params' => [
@@ -624,12 +624,12 @@ class Bans implements ActionInterface
 			'columns' => [
 				'banned_entity' => [
 					'header' => [
-						'value' => Lang::$txt['ban_banned_entity'],
+						'value' => Lang::getTxt('ban_banned_entity', file: 'Admin'),
 					],
 				],
 				'ban_name' => [
 					'header' => [
-						'value' => Lang::$txt['ban_name'],
+						'value' => Lang::getTxt('ban_name', file: 'Admin'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -647,7 +647,7 @@ class Bans implements ActionInterface
 				],
 				'hits' => [
 					'header' => [
-						'value' => Lang::$txt['ban_hits'],
+						'value' => Lang::getTxt('ban_hits', file: 'Admin'),
 					],
 					'data' => [
 						'db' => 'hits',
@@ -685,7 +685,7 @@ class Bans implements ActionInterface
 				],
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="remove_triggers" value="' . Lang::$txt['ban_remove_selected_triggers'] . '" data-confirm="' . Lang::$txt['ban_remove_selected_triggers_confirm'] . '" class="button you_sure">',
+					'value' => '<input type="submit" name="remove_triggers" value="' . Lang::getTxt('ban_remove_selected_triggers', file: 'Admin') . '" data-confirm="' . Lang::getTxt('ban_remove_selected_triggers_confirm', file: 'Admin') . '" class="button you_sure">',
 				],
 			],
 		];
@@ -884,7 +884,7 @@ class Bans implements ActionInterface
 
 		$listOptions = [
 			'id' => 'ban_log',
-			'title' => Lang::$txt['ban_log'],
+			'title' => Lang::getTxt('ban_log', file: 'Admin'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Utils::$context['admin_area'] == 'ban' ? Config::$scripturl . '?action=admin;area=ban;sa=log' : Config::$scripturl . '?action=admin;area=logs;sa=banlog',
 			'default_sort_col' => 'date',
@@ -894,11 +894,11 @@ class Bans implements ActionInterface
 			'get_count' => [
 				'function' => __CLASS__ . '::list_getNumBanLogEntries',
 			],
-			'no_items_label' => Lang::$txt['ban_log_no_entries'],
+			'no_items_label' => Lang::getTxt('ban_log_no_entries', file: 'Admin'),
 			'columns' => [
 				'ip' => [
 					'header' => [
-						'value' => Lang::$txt['ban_log_ip'],
+						'value' => Lang::getTxt('ban_log_ip', file: 'Admin'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -915,7 +915,7 @@ class Bans implements ActionInterface
 				],
 				'email' => [
 					'header' => [
-						'value' => Lang::$txt['ban_log_email'],
+						'value' => Lang::getTxt('ban_log_email', file: 'Admin'),
 					],
 					'data' => [
 						'db_htmlsafe' => 'email',
@@ -927,7 +927,7 @@ class Bans implements ActionInterface
 				],
 				'member' => [
 					'header' => [
-						'value' => Lang::$txt['ban_log_member'],
+						'value' => Lang::getTxt('ban_log_member', file: 'Admin'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -945,7 +945,7 @@ class Bans implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['ban_log_date'],
+						'value' => Lang::getTxt('ban_log_date', file: 'Admin'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -983,14 +983,14 @@ class Bans implements ActionInterface
 				[
 					'position' => 'after_title',
 					'value' => '
-						<input type="submit" name="removeSelected" value="' . Lang::$txt['ban_log_remove_selected'] . '" data-confirm="' . Lang::$txt['ban_log_remove_selected_confirm'] . '" class="button you_sure">
-						<input type="submit" name="removeAll" value="' . Lang::$txt['ban_log_remove_all'] . '" data-confirm="' . Lang::$txt['ban_log_remove_all_confirm'] . '" class="button you_sure">',
+						<input type="submit" name="removeSelected" value="' . Lang::getTxt('ban_log_remove_selected', file: 'Admin') . '" data-confirm="' . Lang::getTxt('ban_log_remove_selected_confirm', file: 'Admin') . '" class="button you_sure">
+						<input type="submit" name="removeAll" value="' . Lang::getTxt('ban_log_remove_all', file: 'Admin') . '" data-confirm="' . Lang::getTxt('ban_log_remove_all_confirm', file: 'Admin') . '" class="button you_sure">',
 				],
 				[
 					'position' => 'bottom_of_list',
 					'value' => '
-						<input type="submit" name="removeSelected" value="' . Lang::$txt['ban_log_remove_selected'] . '" data-confirm="' . Lang::$txt['ban_log_remove_selected_confirm'] . '" class="button you_sure">
-						<input type="submit" name="removeAll" value="' . Lang::$txt['ban_log_remove_all'] . '" data-confirm="' . Lang::$txt['ban_log_remove_all_confirm'] . '" class="button you_sure">',
+						<input type="submit" name="removeSelected" value="' . Lang::getTxt('ban_log_remove_selected', file: 'Admin') . '" data-confirm="' . Lang::getTxt('ban_log_remove_selected_confirm', file: 'Admin') . '" class="button you_sure">
+						<input type="submit" name="removeAll" value="' . Lang::getTxt('ban_log_remove_all', file: 'Admin') . '" data-confirm="' . Lang::getTxt('ban_log_remove_all_confirm', file: 'Admin') . '" class="button you_sure">',
 				],
 			],
 		];
@@ -999,7 +999,7 @@ class Bans implements ActionInterface
 
 		new ItemList($listOptions);
 
-		Utils::$context['page_title'] = Lang::$txt['ban_log'];
+		Utils::$context['page_title'] = Lang::getTxt('ban_log', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_list';
 		Utils::$context['default_list'] = 'ban_log';
 	}
@@ -1480,24 +1480,24 @@ class Bans implements ActionInterface
 		if (empty(Menu::$loaded['admin']->tab_data)) {
 			// Tabs for browsing the different ban functions.
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['ban_title'],
+				'title' => Lang::getTxt('ban_title', file: 'Admin'),
 				'help' => 'ban_members',
-				'description' => Lang::$txt['ban_description'],
+				'description' => Lang::getTxt('ban_description', file: 'Admin'),
 				'tabs' => [
 					'list' => [
-						'description' => Lang::$txt['ban_description'],
+						'description' => Lang::getTxt('ban_description', file: 'Admin'),
 						'href' => Config::$scripturl . '?action=admin;area=ban;sa=list',
 					],
 					'add' => [
-						'description' => Lang::$txt['ban_description'],
+						'description' => Lang::getTxt('ban_description', file: 'Admin'),
 						'href' => Config::$scripturl . '?action=admin;area=ban;sa=add',
 					],
 					'browse' => [
-						'description' => Lang::$txt['ban_trigger_browse_description'],
+						'description' => Lang::getTxt('ban_trigger_browse_description', file: 'Admin'),
 						'href' => Config::$scripturl . '?action=admin;area=ban;sa=browse',
 					],
 					'log' => [
-						'description' => Lang::$txt['ban_log_description'],
+						'description' => Lang::getTxt('ban_log_description', file: 'Admin'),
 						'href' => Config::$scripturl . '?action=admin;area=ban;sa=log',
 						'is_last' => true,
 					],
@@ -1516,7 +1516,7 @@ class Bans implements ActionInterface
 			Menu::$loaded['admin']->tab_data['tabs'][$this->subaction]['is_selected'] = true;
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['ban_title'];
+		Utils::$context['page_title'] = Lang::getTxt('ban_title', file: 'Admin');
 		Utils::$context['sub_action'] = $this->subaction;
 	}
 

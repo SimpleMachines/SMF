@@ -97,13 +97,13 @@ class SearchEngines implements ActionInterface
 		Lang::load('Search');
 		Theme::loadTemplate('ManageSearch');
 
-		Utils::$context['page_title'] = Lang::$txt['search_engines'];
+		Utils::$context['page_title'] = Lang::getTxt('search_engines', file: 'Admin');
 
 		// Tab data might already be set if this was called from Logs::execute().
 		if (empty(Menu::$loaded['admin']->tab_data)) {
 			// Some more tab data.
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['search_engines'],
+				'title' => Lang::getTxt('search_engines', file: 'Admin'),
 				'description' => Lang::$txt['search_engines_description'],
 			];
 		}
@@ -222,7 +222,7 @@ class SearchEngines implements ActionInterface
 
 		$listOptions = [
 			'id' => 'spider_stat_list',
-			'title' => Lang::$txt['spider_stats'],
+			'title' => Lang::getTxt('spider_stats', file: 'Admin'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=sengines;sa=stats',
 			'default_sort_col' => 'stat_date',
@@ -331,7 +331,7 @@ class SearchEngines implements ActionInterface
 		$listOptions = [
 			'id' => 'spider_logs',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'title' => Lang::$txt['spider_logs'],
+			'title' => Lang::getTxt('spider_logs', file: 'Admin'),
 			'no_items_label' => Lang::$txt['spider_logs_empty'],
 			'base_href' => Utils::$context['admin_area'] == 'sengines' ? Config::$scripturl . '?action=admin;area=sengines;sa=logs' : Config::$scripturl . '?action=admin;area=logs;sa=spiderlog',
 			'default_sort_col' => 'log_time',
@@ -426,7 +426,7 @@ class SearchEngines implements ActionInterface
 			}
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['spider_logs'];
+		Utils::$context['page_title'] = Lang::getTxt('spider_logs', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_spider_logs';
 		Utils::$context['default_list'] = 'spider_logs';
 	}
@@ -795,9 +795,37 @@ class SearchEngines implements ActionInterface
 	{
 		$config_vars = [
 			// How much detail?
-			['select', 'spider_mode', 'subtext' => Lang::$txt['spider_mode_note'], [Lang::$txt['spider_mode_off'], Lang::$txt['spider_mode_standard'], Lang::$txt['spider_mode_high'], Lang::$txt['spider_mode_vhigh']], 'onchange' => 'disableFields();'],
-			'spider_group' => ['select', 'spider_group', 'subtext' => Lang::$txt['spider_group_note'], [Lang::$txt['spider_group_none'], Lang::$txt['membergroups_members']]],
-			['select', 'show_spider_online', [Lang::$txt['show_spider_online_no'], Lang::$txt['show_spider_online_summary'], Lang::$txt['show_spider_online_detail'], Lang::$txt['show_spider_online_detail_admin']]],
+			[
+				'select',
+				'spider_mode',
+				'subtext' => Lang::$txt['spider_mode_note'],
+				[
+					Lang::$txt['spider_mode_off'],
+					Lang::$txt['spider_mode_standard'],
+					Lang::$txt['spider_mode_high'],
+					Lang::$txt['spider_mode_vhigh'],
+				],
+				'onchange' => 'disableFields();',
+			],
+			'spider_group' => [
+				'select',
+				'spider_group',
+				'subtext' => Lang::$txt['spider_group_note'],
+				[
+					Lang::$txt['spider_group_none'],
+					Lang::getTxt('membergroups_members', file: 'Admin'),
+				],
+			],
+			[
+				'select',
+				'show_spider_online',
+				[
+					Lang::$txt['show_spider_online_no'],
+					Lang::$txt['show_spider_online_summary'],
+					Lang::$txt['show_spider_online_detail'],
+					Lang::$txt['show_spider_online_detail_admin'],
+				],
+			],
 		];
 
 		// Do some javascript.

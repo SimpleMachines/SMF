@@ -187,7 +187,7 @@ function template_settings()
 		'',
 		array(
 			'id' => 'smiley_sets_default',
-			'label' => Lang::$txt['smileys_default_set_for_theme'],
+			'label' => Lang::getTxt('smileys_default_set_for_theme', file: 'Admin'),
 			'options' => Utils::$context['smiley_sets'],
 			'type' => 'text',
 		),
@@ -202,14 +202,14 @@ function template_settings()
 		),
 		array(
 			'id' => 'newsfader_time',
-			'label' => Lang::$txt['admin_fader_delay'],
+			'label' => Lang::getTxt('admin_fader_delay', file: 'Admin'),
 			'type' => 'number',
 		),
 		'',
 		array(
 			'id' => 'number_recent_posts',
 			'label' => Lang::$txt['number_recent_posts'],
-			'description' => Lang::$txt['zero_to_disable'],
+			'description' => Lang::getTxt('zero_to_disable', file: 'Admin'),
 			'type' => 'number',
 		),
 		array(

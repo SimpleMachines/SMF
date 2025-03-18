@@ -576,8 +576,8 @@ function template_browse()
 					bLoadVersions: false,
 					bLoadUpdateNotification: true,
 					sUpdateNotificationContainerId: \'update_section\',
-					sUpdateNotificationDefaultTitle: ', Utils::escapeJavaScript(Lang::$txt['update_available']), ',
-					sUpdateNotificationDefaultMessage: ', Utils::escapeJavaScript(Lang::$txt['update_message']), ',
+					sUpdateNotificationDefaultTitle: ', Utils::escapeJavaScript(Lang::getTxt('update_available', file: 'Admin')), ',
+					sUpdateNotificationDefaultMessage: ', Utils::escapeJavaScript(Lang::getTxt('update_message', file: 'Admin')), ',
 					sUpdateNotificationTemplate: ', Utils::escapeJavaScript('
 						<h3 id="update_title">
 							%title%
@@ -1057,7 +1057,7 @@ function template_install_options()
 {
 	if (!empty(Utils::$context['saved_successful']))
 		echo '
-	<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
+	<div class="infobox">', Lang::getTxt('settings_saved', file: 'Admin'), '</div>';
 
 	echo '
 		<div class="cat_bar">
@@ -1532,7 +1532,7 @@ function template_file_permissions()
 	<form action="', Config::$scripturl, '?action=admin;area=packages;sa=perms;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="floatleft">', Lang::$txt['package_file_perms'], '</span><span class="perms_status floatright">', Lang::$txt['package_file_perms_new_status'], '</span>
+				<span class="floatleft">', Lang::getTxt('package_file_perms', file: 'Admin'), '</span><span class="perms_status floatright">', Lang::$txt['package_file_perms_new_status'], '</span>
 			</h3>
 		</div>
 		<table class="table_grid">
@@ -1828,7 +1828,7 @@ function template_action_permissions()
 				<input type="hidden" name="method" value="', Utils::$context['method'], '">
 				<input type="hidden" name="action_changes" value="1">
 				<div class="righttext padding">
-					<input type="submit" name="go" id="cont" value="', Lang::$txt['not_done_continue'], '" class="button">
+					<input type="submit" name="go" id="cont" value="', Lang::getTxt('not_done_continue', file: 'Admin'), '" class="button">
 				</div>
 			</div><!-- .windowbg -->
 		</form>';
@@ -1846,7 +1846,7 @@ function template_action_permissions()
 			else if (countdown == -1)
 				return;
 
-			document.getElementById(\'cont\').value = "', Lang::$txt['not_done_continue'], ' (" + countdown + ")";
+			document.getElementById(\'cont\').value = "', Lang::getTxt('not_done_continue', file: 'Admin'), ' (" + countdown + ")";
 			countdown--;
 
 			setTimeout("doAutoSubmit();", 1000);

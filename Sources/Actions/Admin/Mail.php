@@ -94,12 +94,12 @@ class Mail implements ActionInterface
 		Lang::load('Help');
 		Lang::load('ManageMail');
 
-		Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
+		Utils::$context['page_title'] = Lang::getTxt('mailqueue_title', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['mailqueue_title'],
+			'title' => Lang::getTxt('mailqueue_title', file: 'Admin'),
 			'help' => '',
 			'description' => Lang::$txt['mailqueue_desc'],
 		];
@@ -146,7 +146,7 @@ class Mail implements ActionInterface
 
 		$listOptions = [
 			'id' => 'mail_queue',
-			'title' => Lang::$txt['mailqueue_browse'],
+			'title' => Lang::getTxt('mailqueue_browse', file: 'Admin'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=mailqueue',
 			'default_sort_col' => 'age',
@@ -287,7 +287,7 @@ class Mail implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=mailqueue;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['mailqueue_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('mailqueue_settings', file: 'Admin');
 
 		ACP::prepareDBSettingContext($config_vars);
 
@@ -424,7 +424,7 @@ class Mail implements ActionInterface
 
 		$config_vars = [
 			// Mail queue stuff, this rocks ;)
-			['int', 'mail_limit', 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'mail_limit', 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
 			['int', 'mail_quantity'],
 			'',
 
@@ -575,7 +575,7 @@ class Mail implements ActionInterface
 		}
 
 		Utils::$context['continue_get_data'] = '?action=admin;area=mailqueue;sa=clear;te=' . $_GET['te'] . ';sent=' . $_GET['sent'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_countdown'] = '2';
 		Utils::$context['sub_template'] = 'not_done';

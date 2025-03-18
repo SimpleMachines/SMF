@@ -111,19 +111,19 @@ class Home implements ActionInterface
 
 		Utils::$context['sub_template'] = Utils::$context['admin_area'] == 'credits' ? 'credits' : 'admin';
 
-		Utils::$context['page_title'] = Utils::$context['admin_area'] == 'credits' ? Lang::$txt['support_credits_title'] : Lang::$txt['admin_center'];
+		Utils::$context['page_title'] = Utils::$context['admin_area'] == 'credits' ? Lang::getTxt('support_credits_title', file: 'Admin') : Lang::$txt['admin_center'];
 
 		if (Utils::$context['admin_area'] != 'credits') {
 			Menu::$loaded['admin']->tab_data = [
 				'title' => Lang::$txt['admin_center'],
 				'help' => '',
 				'description' => '<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name]) . '</strong>
-					' . Lang::getTxt('admin_main_welcome', Lang::$txt),
+					' . Lang::getTxt('admin_main_welcome', Lang::$txt, file: 'Admin'),
 			];
 		}
 
 		// Lastly, fill in the blanks in the support resources paragraphs.
-		Lang::$txt['support_resources_p1'] = Lang::getTxt(
+		Lang::setTxt('support_resources_p1', Lang::getTxt(
 			'support_resources_p1',
 			[
 				'manual_main_url' => 'https://wiki.simplemachines.org/',
@@ -132,9 +132,10 @@ class Home implements ActionInterface
 				'manual_themes_url' => 'https://wiki.simplemachines.org/smf/themes2',
 				'manual_packages_url' => 'https://wiki.simplemachines.org/smf/packages2',
 			],
-		);
+			file: 'Admin',
+		));
 
-		Lang::$txt['support_resources_p2'] = Lang::getTxt(
+		Lang::setTxt('support_resources_p2', Lang::getTxt(
 			'support_resources_p2',
 			[
 				'support_main_url' => 'https://www.simplemachines.org/community/',
@@ -143,7 +144,8 @@ class Home implements ActionInterface
 				'support_smf_url' => 'https://www.simplemachines.org/redirect/smf_support',
 				'support_customize_url' => 'https://www.simplemachines.org/redirect/customize_support',
 			],
-		);
+			file: 'Admin',
+		));
 
 		if (Utils::$context['admin_area'] == 'admin') {
 			Theme::loadJavaScriptFile('admin.js', ['defer' => false, 'minimize' => true], 'smf_admin');

@@ -160,7 +160,7 @@ class Find implements ActionInterface
 		Utils::$context['search_term'] = isset($_REQUEST['search_term']) ? Utils::htmlspecialchars($_REQUEST['search_term'], ENT_QUOTES) : '';
 
 		Utils::$context['sub_template'] = 'admin_search_results';
-		Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_search_results', file: 'Admin');
 
 		// Keep track of what the admin wants.
 		if (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] != $this->subaction) {
@@ -239,7 +239,7 @@ class Find implements ActionInterface
 			}
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_search_results', file: 'Admin');
 		Utils::$context['search_results'] = [];
 
 		$search_term = strtolower(Utils::htmlspecialcharsDecode(Utils::$context['search_term']));
@@ -272,7 +272,7 @@ class Find implements ActionInterface
 
 				if ($found) {
 					// Format the name - and remove any descriptions the entry may have.
-					$name = Lang::$txt[$found] ?? (Lang::$txt['setting_' . $found] ?? (!empty($item['alttxt']) ? $item['alttxt'] : $found));
+					$name = Lang::txtExists($found, file: 'Admin') ? Lang::getTxt($found, file: 'Admin') : (Lang::txtExists('setting_' . $found, file: 'Admin') ? Lang::getTxt('setting_' . $found, file: 'Admin') : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
 
 					$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
 

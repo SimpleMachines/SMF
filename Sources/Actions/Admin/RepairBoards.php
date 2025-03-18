@@ -782,7 +782,7 @@ class RepairBoards implements ActionInterface
 	public function execute(): void
 	{
 		// Print out the top of the webpage.
-		Utils::$context['page_title'] = Lang::$txt['admin_repair'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_repair', file: 'Admin');
 		Utils::$context['sub_template'] = 'repair_boards';
 		Menu::$loaded['admin']['current_subsection'] = 'general';
 
@@ -791,9 +791,9 @@ class RepairBoards implements ActionInterface
 
 		// Make sure the tabs stay nice.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['maintain_title'],
+			'title' => Lang::getTxt('maintain_title', file: 'Admin'),
 			'help' => '',
-			'description' => Lang::$txt['maintain_info'],
+			'description' => Lang::getTxt('maintain_info', file: 'Admin'),
 			'tabs' => [],
 		];
 
@@ -1156,7 +1156,7 @@ class RepairBoards implements ActionInterface
 		}
 
 		Utils::$context['continue_get_data'] = '?action=admin;area=repairboards' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_countdown'] = '2';
 		Utils::$context['sub_template'] = 'not_done';

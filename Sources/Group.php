@@ -368,11 +368,7 @@ class Group implements \ArrayAccess
 		// Some special cases.
 		if (in_array($this->id, [self::GUEST, self::REGULAR])) {
 			if (empty($this->name)) {
-				if ($this->id === self::GUEST || !isset(Lang::$txt['announce_regular_members'])) {
-					Lang::load('Admin');
-				}
-
-				$this->name = $this->id === self::GUEST ? Lang::$txt['membergroups_guests'] : (Lang::$txt['announce_regular_members'] ?? Lang::$txt['membergroups_members']);
+				$this->name = Lang::getTxt($this->id === self::GUEST ? 'membergroups_guests' : 'membergroups_members', file: 'Admin');
 			}
 
 			if ($this->id === self::REGULAR && !isset($this->description)) {

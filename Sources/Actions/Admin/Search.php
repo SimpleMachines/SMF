@@ -82,7 +82,7 @@ class Search implements ActionInterface
 
 		// Create the tabs for the template.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['manage_search'],
+			'title' => Lang::getTxt('manage_search', file: 'Admin'),
 			'help' => 'search',
 			'description' => Lang::$txt['search_settings_desc'],
 			'tabs' => [

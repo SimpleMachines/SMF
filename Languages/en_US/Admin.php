@@ -103,6 +103,8 @@ $txt['attachment_file_size'] = 'File size';
 $txt['attachmentdir_size_not_set'] = 'No maximum directory size is currently set';
 $txt['attachmentdir_files_not_set'] = 'No directory file limit is currently set';
 $txt['attachment_delete_admin'] = '[attachment deleted by admin]';
+$txt['attachment_date_in_topic'] = '{date}<br>in <a href="{url}">{subject}</a>';
+
 $txt['live'] = 'Live from Simple Machines...';
 $txt['remove_all'] = 'Clear log';
 $txt['agreement_not_writable'] = 'Warning - agreement.txt is not writable, any changes you make will NOT be saved.';

@@ -24,7 +24,7 @@ function template_maintain_database()
 	if (!empty(Utils::$context['maintenance_finished']))
 		echo '
 	<div class="infobox">
-		', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']]), '
+		', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
 	</div>';
 
 	echo '
@@ -89,7 +89,7 @@ function template_maintain_routine()
 	if (!empty(Utils::$context['maintenance_finished']))
 		echo '
 		<div class="infobox">
-			', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']]), '
+			', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
 		</div>';
 
 	echo '
@@ -235,7 +235,7 @@ function template_maintain_members()
 	if (!empty(Utils::$context['maintenance_finished']))
 		echo '
 		<div class="infobox">
-			', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']]), '
+			', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
 		</div>';
 
 	echo '
@@ -360,7 +360,7 @@ function template_maintain_topics()
 	if (!empty(Utils::$context['maintenance_finished']))
 		echo '
 	<div class="infobox">
-		', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']]), '
+		', Lang::getTxt('maintain_done', ['task' => Utils::$context['maintenance_finished']], file: 'Admin'), '
 	</div>';
 
 	// Bit of javascript for showing which boards to prune in an otherwise hidden list.

@@ -99,11 +99,11 @@ class Subscriptions implements ActionInterface
 		Lang::load('ManagePaid');
 		Theme::loadTemplate('ManagePaid');
 
-		Utils::$context['page_title'] = Lang::$txt['paid_subscriptions'];
+		Utils::$context['page_title'] = Lang::getTxt('paid_subscriptions', file: 'Admin');
 
 		// Tabs for browsing the different subscription functions.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['paid_subscriptions'],
+			'title' => Lang::getTxt('paid_subscriptions', file: 'Admin'),
 			'help' => '',
 			'description' => Lang::$txt['paid_subscriptions_desc'],
 		];
@@ -142,7 +142,7 @@ class Subscriptions implements ActionInterface
 		}
 
 		// Some basic stuff.
-		Utils::$context['page_title'] = Lang::$txt['paid_subs_view'];
+		Utils::$context['page_title'] = Lang::getTxt('paid_subs_view', file: 'Admin');
 
 		$all = self::getSubs();
 
@@ -1259,7 +1259,7 @@ class Subscriptions implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		if (empty(Config::$modSettings['paid_enabled'])) {
-			Utils::$context['settings_title'] = Lang::$txt['paid_subscriptions'];
+			Utils::$context['settings_title'] = Lang::getTxt('paid_subscriptions', file: 'Admin');
 		} else {
 			Utils::$context['settings_message'] = Lang::getTxt('paid_note', ['boardurl' => Config::$boardurl]);
 			Menu::$loaded['admin']['current_subsection'] = 'settings';

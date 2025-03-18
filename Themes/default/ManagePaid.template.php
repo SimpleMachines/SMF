@@ -94,7 +94,7 @@ function template_modify_subscription()
 				</dd>
 				<dt>
 					', Lang::$txt['paid_mod_reminder'], '<br>
-					<span class="smalltext">', Lang::$txt['paid_mod_reminder_desc'], ' ', Lang::$txt['zero_to_disable'], '</span>
+					<span class="smalltext">', Lang::$txt['paid_mod_reminder_desc'], ' ', Lang::getTxt('zero_to_disable', file: 'Admin'), '</span>
 				</dt>
 				<dd>
 					<input type="number" name="reminder" value="', Utils::$context['sub']['reminder'], '" size="6">

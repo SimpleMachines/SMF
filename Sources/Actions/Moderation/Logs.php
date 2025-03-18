@@ -782,7 +782,7 @@ class Logs implements ActionInterface
 		// This is all the information required for a watched user listing.
 		$listOptions = [
 			'id' => 'moderation_log_list',
-			'title' => $this->log_type == 3 ? Lang::$txt['admin_log'] : Lang::$txt['moderation_log'],
+			'title' => $this->log_type == 3 ? Lang::getTxt('admin_log', file: 'Admin') : Lang::getTxt('moderation_log', file: 'Admin'),
 			'width' => '100%',
 			'items_per_page' => $this->per_page,
 			'no_items_label' => Lang::$txt['modlog_' . ($this->log_type == 3 ? 'admin_log_' : '') . 'no_entries_found'],

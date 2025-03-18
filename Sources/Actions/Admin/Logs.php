@@ -127,31 +127,31 @@ class Logs implements ActionInterface
 	{
 		// Set up some tab stuff.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['logs'],
+			'title' => Lang::getTxt('logs', file: 'Admin'),
 			'help' => '',
-			'description' => Lang::$txt['maintain_info'],
+			'description' => Lang::getTxt('maintain_info', file: 'Admin'),
 			'tabs' => [
 				'errorlog' => [
 					'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
-					'description' => Lang::getTxt('errorlog_desc', Lang::$txt),
+					'description' => Lang::getTxt('errorlog_desc', Lang::$txt, file: 'Admin'),
 				],
 				'adminlog' => [
-					'description' => Lang::$txt['admin_log_desc'],
+					'description' => Lang::getTxt('admin_log_desc', file: 'Admin'),
 				],
 				'modlog' => [
-					'description' => Lang::$txt['moderation_log_desc'],
+					'description' => Lang::getTxt('moderation_log_desc', file: 'Admin'),
 				],
 				'banlog' => [
-					'description' => Lang::$txt['ban_log_description'],
+					'description' => Lang::getTxt('ban_log_description', file: 'Admin'),
 				],
 				'spiderlog' => [
-					'description' => Lang::$txt['spider_log_desc'],
+					'description' => Lang::getTxt('spider_log_desc', file: 'Admin'),
 				],
 				'tasklog' => [
-					'description' => Lang::$txt['scheduled_log_desc'],
+					'description' => Lang::getTxt('scheduled_log_desc', file: 'Admin'),
 				],
 				'settings' => [
-					'description' => Lang::$txt['log_settings_desc'],
+					'description' => Lang::getTxt('log_settings_desc', file: 'Admin'),
 				],
 			],
 		];
@@ -229,7 +229,7 @@ class Logs implements ActionInterface
 		// Make sure we understand what's going on.
 		Lang::load('ManageSettings');
 
-		Utils::$context['page_title'] = Lang::$txt['log_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('log_settings', file: 'Admin');
 
 		Theme::addInlineJavaScript('
 		function togglePruned()
@@ -276,7 +276,7 @@ class Logs implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=logs;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['log_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('log_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Get the actual values
@@ -320,9 +320,9 @@ class Logs implements ActionInterface
 			// The 'mark read' log settings.
 			['title', 'markread_title', 'force_div_id' => 'markread_title'],
 			['desc', 'mark_read_desc'],
-			['int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => Lang::$txt['zero_to_disable']],
-			['int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => Lang::$txt['zero_to_disable']],
-			['int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'mark_read_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
+			['int', 'mark_read_delete_beyond', 'step' => 1, 'min' => 0, 'max' => 18000, 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
+			['int', 'mark_read_max_users', 'step' => 1, 'min' => 0, 'max' => 20000, 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
 
 			// Even do the pruning?
 			['title', 'pruning_title', 'force_div_id' => 'pruning_title'],
@@ -335,22 +335,22 @@ class Logs implements ActionInterface
 			// Various logs that could be pruned.
 
 			// Error log.
-			['int', 'pruneErrorLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'pruneErrorLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
 
 			// Moderation log.
-			['int', 'pruneModLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'pruneModLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
 
 			// Ban hit log.
-			['int', 'pruneBanLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'pruneBanLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
 
 			// Report to moderator log.
-			['int', 'pruneReportLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'pruneReportLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
 
 			// Log of the scheduled tasks and how long they ran.
-			['int', 'pruneScheduledTaskLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'pruneScheduledTaskLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
 
 			// Log recording when search engines have crawled the forum.
-			['int', 'pruneSpiderHitLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'pruneSpiderHitLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
 		];
 
 		// MOD AUTHORS: If you want to add your own logs, use this hook.

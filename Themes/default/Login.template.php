@@ -414,7 +414,7 @@ function template_admin_login()
 
 	if (!empty(Utils::$context['incorrect_password']))
 		echo '
-				<div class="error">', Lang::$txt['admin_incorrect_password'], '</div>';
+				<div class="error">', Lang::getTxt('admin_incorrect_password', file: 'Admin'), '</div>';
 
 	echo '
 				<strong>', Lang::$txt['password'], '</strong>

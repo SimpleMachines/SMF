@@ -77,7 +77,7 @@ function template_error_log()
 	if (empty(Utils::$context['errors']))
 	{
 		echo '
-					', Lang::$txt['errorlog_no_entries'], '
+					', Lang::getTxt('errorlog_no_entries', file: 'Admin'), '
 				</div>
 			</div>
 		</form>';
@@ -93,7 +93,7 @@ function template_error_log()
 	echo '
 				<div class="floatright">
 					<input type="submit" name="removeSelection" value="', Lang::$txt['remove_selection'], '" data-confirm="', Lang::$txt['remove_selection_confirm'], '" class="button you_sure">
-					<input type="submit" name="delall" value="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results'] : Lang::$txt['remove_all']), '" data-confirm="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results_confirm'] : Lang::$txt['sure_about_errorlog_remove']), '" class="button you_sure">
+					<input type="submit" name="delall" value="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results'] : Lang::getTxt('remove_all', file: 'Admin')), '" data-confirm="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results_confirm'] : Lang::$txt['sure_about_errorlog_remove']), '" class="button you_sure">
 					', (Utils::$context['has_filter'] ? '<a href="' . Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . '" class="button">' . Lang::$txt['clear_filter'] . '</a>' : ''), '
 				</div>';
 
@@ -182,7 +182,7 @@ function template_error_log()
 				</div>
 				<div class="floatright">
 					<input type="submit" name="removeSelection" value="', Lang::$txt['remove_selection'], '" data-confirm="', Lang::$txt['remove_selection_confirm'], '" class="button you_sure">
-					<input type="submit" name="delall" value="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results'] : Lang::$txt['remove_all']), '" data-confirm="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results_confirm'] : Lang::$txt['sure_about_errorlog_remove']), '" class="button you_sure">
+					<input type="submit" name="delall" value="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results'] : Lang::getTxt('remove_all', file: 'Admin')), '" data-confirm="', (Utils::$context['has_filter'] ? Lang::$txt['remove_filtered_results_confirm'] : Lang::$txt['sure_about_errorlog_remove']), '" class="button you_sure">
 				</div>
 			</div>';
 

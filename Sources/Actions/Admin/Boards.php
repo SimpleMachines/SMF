@@ -629,7 +629,7 @@ class Boards implements ActionInterface
 
 		if (!isset($_REQUEST['delete'])) {
 			Utils::$context['sub_template'] = 'modify_board';
-			Utils::$context['page_title'] = Lang::$txt['boards_edit'];
+			Utils::$context['page_title'] = Lang::getTxt('boards_edit', file: 'Admin');
 			Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 		} else {
 			Utils::$context['sub_template'] = 'confirm_board_delete';

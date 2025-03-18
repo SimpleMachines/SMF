@@ -1878,7 +1878,7 @@ function template_alert_configuration()
 					<dt>
 						<label for="notify_announcements">', Lang::$txt['notify_important_email'], '</label>', Utils::$context['id_member'] == 0 ? '
 						<br>
-						<span class="smalltext alert">' . Lang::$txt['notify_announcements_desc'] . '</span>' : '', '
+						<span class="smalltext alert">' . Lang::getTxt('notify_announcements_desc', file: 'Admin') . '</span>' : '', '
 					</dt>
 					<dd>
 						<input type="hidden" name="notify_announcements" value="0">
