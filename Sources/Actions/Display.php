@@ -690,7 +690,7 @@ class Display implements ActionInterface, Routable
 			}
 
 			// Start from a certain time index, not a message.
-			if (str_starts_with($_REQUEST['start'], 'from')) {
+			if (str_starts_with((string) $_REQUEST['start'], 'from')) {
 				$timestamp = (int) substr($_REQUEST['start'], 4);
 
 				if ($timestamp === 0) {
@@ -720,7 +720,7 @@ class Display implements ActionInterface, Routable
 			}
 
 			// Link to a message...
-			elseif (str_starts_with($_REQUEST['start'], 'msg')) {
+			elseif (str_starts_with((string) $_REQUEST['start'], 'msg')) {
 				$this->virtual_msg = (int) substr($_REQUEST['start'], 3);
 
 				if (!Topic::$info->unapproved_posts && $this->virtual_msg >= Topic::$info->id_last_msg) {
