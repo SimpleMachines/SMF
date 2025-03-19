@@ -123,9 +123,9 @@ class Stats implements ActionInterface, Routable
 		// Build the link tree......
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=stats',
-			'name' => Lang::$txt['stats_center'],
+			'name' => Lang::getTxt('stats_center', file: 'Stats'),
 		];
-		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::$txt['stats_center'];
+		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::getTxt('stats_center', file: 'Stats');
 
 		Utils::$context['show_member_list'] = User::$me->allowedTo('view_mlist');
 

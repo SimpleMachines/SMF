@@ -2150,7 +2150,7 @@ class ServerSideIncludes
 
 		if (Db::$db->num_rows($request) == 0) {
 			if ($output_method == 'echo') {
-				die(Lang::$txt['ssi_no_guests']);
+				die(Lang::getTxt('ssi_no_guests', file: 'Stats'));
 			}
 
 			return [];
@@ -2282,11 +2282,11 @@ class ServerSideIncludes
 				'timestamp' => $row['poster_time'],
 				'body' => $row['body'],
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? Lang::$txt['ssi_comment'] : Lang::$txt['ssi_comments']) . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . Lang::getTxt('ssi_num_comments', [$row['num_replies']], file: 'Stats') . '</a>',
 				'replies' => $row['num_replies'],
 				'comment_href' => !empty($row['locked']) ? '' : Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'],
-				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . Lang::$txt['ssi_write_comment'] . '</a>',
-				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . Lang::$txt['ssi_write_comment'] . '</a>',
+				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . Lang::getTxt('ssi_write_comment', file: 'Stats') . '</a>',
+				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . Lang::getTxt('ssi_write_comment', file: 'Stats') . '</a>',
 				'poster' => [
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],

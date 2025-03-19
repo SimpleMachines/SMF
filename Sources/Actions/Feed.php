@@ -300,7 +300,7 @@ class Feed implements ActionInterface, Routable
 		// Some general metadata for this feed. We'll change some of these values below.
 		$this->metadata = [
 			'title' => '',
-			'desc' => Lang::getTxt('xml_rss_desc', Utils::$context),
+			'desc' => Lang::getTxt('xml_rss_desc', Utils::$context, file: 'Stats'),
 			'author' => Utils::$context['forum_name'],
 			'source' => Config::$scripturl,
 			'rights' => '© ' . date('Y') . ' ' . Utils::$context['forum_name'],

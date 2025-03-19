@@ -37,6 +37,10 @@ $txt['average_hits'] = 'Average page views per day';
 
 $txt['ssi_comment'] = 'comment';
 $txt['ssi_comments'] = 'comments';
+$txt['ssi_num_comments'] = '{0, plural,
+	one {# comment}
+	other {# comments}
+}';
 $txt['ssi_write_comment'] = 'Write Comment';
 $txt['ssi_no_guests'] = 'You cannot specify a board that does not allow guests. Please check the board ID before trying again.';
 // argument(s): forum name
