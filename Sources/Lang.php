@@ -529,9 +529,11 @@ class Lang
 	 * @param array $args Arguments to substitute into the Lang::$txt string.
 	 * @param string $var Name of the array to search in. Default: 'txt'.
 	 *    Other possible values are 'helptxt', 'editortxt', and 'tztxt'.
-	 * @return string The string to display to the user.
+	 * @throws \ValueError if $var is invalid.
+	 * @return string|array The string to display to the user, or an array
+	 *    of strings if $txt_key refers to an array.
 	 */
-	public static function getTxt(string|array $txt_key, array $args = [], string $var = 'txt'): string
+	public static function getTxt(string|array $txt_key, array $args = [], string $var = 'txt'): string|array
 	{
 		// Validate $var.
 		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
@@ -558,12 +560,12 @@ class Lang
 			}
 		}
 
-		if (!is_scalar($target)) {
-			throw new \ValueError();
+		if (is_array($target) || empty($args)) {
+			return $target;
 		}
 
-		if (empty($args)) {
-			return $target;
+		if (!is_string($target)) {
+			throw new \ValueError();
 		}
 
 		// Workaround for a CrowdIn limitation that won't allow translators to
