@@ -103,14 +103,14 @@ function template_set_password()
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', Lang::$txt['choose_pass'], '</dt>
+					<dt>', Lang::getTxt('choose_pass', file: 'General'), '</dt>
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
 						<span id="smf_autov_pwmain_div" style="display: none;">
 							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
 						</span>
 					</dd>
-					<dt>', Lang::$txt['verify_pass'], '</dt>
+					<dt>', Lang::getTxt('verify_pass', file: 'General'), '</dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
 						<span id="smf_autov_pwverify_div" style="display: none;">
@@ -119,7 +119,7 @@ function template_set_password()
 					</dd>
 				</dl>
 				<p class="align_center">
-					<input type="submit" value="', Lang::$txt['save'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('save', file: 'General'), '" class="button">
 				</p>
 			</div><!-- .roundframe -->
 		</div><!-- .login -->
@@ -159,14 +159,14 @@ function template_ask()
 					<dd>', Utils::$context['secret_question'], '</dd>
 					<dt>', Lang::getTxt('secret_answer', file: 'Profile'), '</dt>
 					<dd><input type="text" name="secret_answer" size="22"></dd>
-					<dt>', Lang::$txt['choose_pass'], '</dt>
+					<dt>', Lang::getTxt('choose_pass', file: 'General'), '</dt>
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
 						<span id="smf_autov_pwmain_div" style="display: none;">
 							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
 						</span>
 					</dd>
-					<dt>', Lang::$txt['verify_pass'], '</dt>
+					<dt>', Lang::getTxt('verify_pass', file: 'General'), '</dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
 						<span id="smf_autov_pwverify_div" style="display: none;">
@@ -175,7 +175,7 @@ function template_ask()
 					</dd>
 				</dl>
 				<div class="auto_flow">
-					<input type="submit" value="', Lang::$txt['save'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('save', file: 'General'), '" class="button">
 					<input type="hidden" name="uid" value="', Utils::$context['remind_user'], '">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="', Utils::$context['remind-sai_token_var'], '" value="', Utils::$context['remind-sai_token'], '">

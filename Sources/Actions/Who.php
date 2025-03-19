@@ -271,7 +271,7 @@ class Who implements ActionInterface, Routable
 				'id' => $row['id_member'],
 				'ip' => User::$me->allowedTo('moderate_forum') ? new IP($row['ip']) : '',
 				// It is *going* to be today or yesterday, so why keep that information in there?
-				'time' => strtr(Time::create('@' . $row['log_time'])->format(), [Lang::$txt['today'] => '', Lang::$txt['yesterday'] => '']),
+				'time' => strtr(Time::create('@' . $row['log_time'])->format(), [Lang::getTxt('today', file: 'General') => '', Lang::getTxt('yesterday', file: 'General') => '']),
 				'timestamp' => $row['log_time'],
 				'query' => $actions,
 				'is_hidden' => $row['show_online'] == 0,
@@ -301,7 +301,7 @@ class Who implements ActionInterface, Routable
 			foreach (Utils::jsonDecode(Config::$modSettings['spider_name_cache'], true) as $id => $name) {
 				$spiderFormatted[$id] = [
 					'name' => $name,
-					'group' => Lang::$txt['spiders'],
+					'group' => Lang::getTxt('spiders', file: 'General'),
 					'link' => $name,
 					'email' => $name,
 				];
@@ -311,10 +311,10 @@ class Who implements ActionInterface, Routable
 		$url_data = self::determineActions($url_data);
 
 		// Setup the linktree and page title (do it down here because the language files are now loaded..)
-		Utils::$context['page_title'] = Lang::$txt['who_title'];
+		Utils::$context['page_title'] = Lang::getTxt('who_title', file: 'General');
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=who',
-			'name' => Lang::$txt['who_title'],
+			'name' => Lang::getTxt('who_title', file: 'General'),
 		];
 
 		// Put it in the context variables.
@@ -331,8 +331,8 @@ class Who implements ActionInterface, Routable
 					$formatted = array_merge($formatted, $spiderFormatted[$member['id_spider']]);
 				} else {
 					$formatted = array_merge($formatted, [
-						'link' => Lang::$txt['guest_title'],
-						'email' => Lang::$txt['guest_title'],
+						'link' => Lang::getTxt('guest_title', file: 'General'),
+						'email' => Lang::getTxt('guest_title', file: 'General'),
 					]);
 				}
 			}

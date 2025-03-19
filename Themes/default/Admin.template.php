@@ -34,7 +34,7 @@ function template_admin()
 							<div id="live_news" class="floatleft">
 								<div class="cat_bar">
 									<h3 class="catbg">
-										<a href="', Config::$scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::getTxt('live', file: 'Admin'), '
+										<a href="', Config::$scripturl, '?action=helpadmin;help=live_news" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a> ', Lang::getTxt('live', file: 'Admin'), '
 									</h3>
 								</div>
 								<div class="windowbg nopadding">
@@ -656,7 +656,7 @@ function template_edit_censored()
 										<input type="checkbox" name="censorIgnoreCase" value="1" id="censorIgnoreCase_check"', empty(Config::$modSettings['censorIgnoreCase']) ? '' : ' checked', '>
 									</dd>
 									<dt>
-										<a id="spoofdetector_censor_help" href="', Config::$scripturl, '?action=helpadmin;help=spoofdetector_censor" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+										<a id="spoofdetector_censor_help" href="', Config::$scripturl, '?action=helpadmin;help=spoofdetector_censor" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 										<strong><label for="spoofdetector_censor_check">', Lang::getTxt('spoofdetector_censor', file: 'Admin'), '</label></strong>
 										<br>
 										<span class="smalltext">', Lang::getTxt('spoofdetector_censor_desc', file: 'Admin'), '</span>
@@ -666,7 +666,7 @@ function template_edit_censored()
 										<input type="checkbox" name="spoofdetector_censor" value="1" id="spoofdetector_censor_check"', empty(Config::$modSettings['spoofdetector_censor']) ? '' : ' checked', '>
 									</dd>
 								</dl>
-								<input type="submit" name="save_censor" value="', Lang::$txt['save'], '" class="button">
+								<input type="submit" name="save_censor" value="', Lang::getTxt('save', file: 'General'), '" class="button">
 							</div><!-- .windowbg -->';
 
 	// This table lets you test out your filters by typing in rude words and seeing what comes out.
@@ -844,7 +844,7 @@ function template_show_settings()
 				echo '
 							<div class="cat_bar">
 								<h3 class="', !empty($config_var['class']) ? $config_var['class'] : 'catbg', '"', !empty($config_var['force_div_id']) ? ' id="' . $config_var['force_div_id'] . '"' : '', '>
-									', ($config_var['help'] ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . Lang::$txt['help'] . '"></span></a>' : ''), '
+									', ($config_var['help'] ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=' . $config_var['help'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . Lang::getTxt('help', file: 'General') . '"></span></a>' : ''), '
 									', $config_var['label'], '
 								</h3>
 							</div>';
@@ -906,7 +906,7 @@ function template_show_settings()
 				// Show the [?] button.
 				if ($config_var['help'])
 					echo '
-										<a id="setting_', $config_var['name'], '_help" href="', Config::$scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ';
+										<a id="setting_', $config_var['name'], '_help" href="', Config::$scripturl, '?action=helpadmin;help=', $config_var['help'], '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a> ';
 
 				echo '
 										<a id="setting_', $config_var['name'], '"></a> <span', ($config_var['disabled'] ? ' style="color: #777777;"' : ($config_var['invalid'] ? ' class="error"' : '')), '><label', ($config_var['type'] == 'boards' || $config_var['type'] == 'permissions' ? '' : ' for="' . $config_var['name'] . '"'), '>', $config_var['label'], '</label>', $subtext, ($config_var['type'] == 'password' ? '<br><em>' . Lang::getTxt('admin_confirm_password', file: 'Admin') . '</em>' : ''), '</span>
@@ -967,7 +967,7 @@ function template_show_settings()
 					echo '
 											<hr />
 											<input type="checkbox" onclick="invertAll(this, this.form, \'' . $config_var['name'] . '[\');">
-											<span>', Lang::$txt['check_all'], '</span>
+											<span>', Lang::getTxt('check_all', file: 'General'), '</span>
 										</fieldset>';
 				}
 				// Text area?
@@ -1052,7 +1052,7 @@ function template_show_settings()
 
 	if (empty(Utils::$context['settings_save_dont_show']))
 		echo '
-								<input type="submit" value="', Lang::$txt['save'], '"', (!empty(Utils::$context['save_disabled']) ? ' disabled' : ''), (!empty(Utils::$context['settings_save_onclick']) ? ' onclick="' . Utils::$context['settings_save_onclick'] . '"' : ''), ' class="button">';
+								<input type="submit" value="', Lang::getTxt('save', file: 'General'), '"', (!empty(Utils::$context['save_disabled']) ? ' disabled' : ''), (!empty(Utils::$context['settings_save_onclick']) ? ' onclick="' . Utils::$context['settings_save_onclick'] . '"' : ''), ' class="button">';
 
 	if ($is_open)
 		echo '
@@ -1155,7 +1155,7 @@ function template_edit_profile_field()
 
 									<dl class="settings">
 										<dt>
-											<a id="field_name_help" href="', Config::$scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+											<a id="field_name_help" href="', Config::$scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 											<strong><label for="field_name">', Lang::getTxt('custom_edit_name', file: 'ManageSettings'), '</label></strong><br>
 											<span class="smalltext">', Lang::getTxt('custom_edit_name_desc', file: 'ManageSettings'), '</span>
 										</dt>
@@ -1164,7 +1164,7 @@ function template_edit_profile_field()
 										</dd>
 										<dt>
 											<a id="field_desc_help" href="', Config::$scripturl, '?action=helpadmin;help=translatable_fields" onclick="return reqOverlayDiv(this.href);" class="help">
-												<span class="main_icons help" title="', Lang::$txt['help'], '"></span>
+												<span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span>
 											</a>
 											<strong><label for="field_desc">', Lang::getTxt('custom_edit_desc', file: 'ManageSettings'), '</label></strong><br>
 											<span class="smalltext">', Lang::getTxt('custom_edit_name_desc', file: 'ManageSettings'), '</span>
@@ -1179,13 +1179,13 @@ function template_edit_profile_field()
 										<dd>
 											<select name="profile_area" id="profile_area">
 												<option value="none"', Utils::$context['field']['profile_area'] == 'none' ? ' selected' : '', '>', Lang::getTxt('custom_edit_profile_none', file: 'ManageSettings'), '</option>
-												<option value="account"', Utils::$context['field']['profile_area'] == 'account' ? ' selected' : '', '>', Lang::$txt['account'], '</option>
-												<option value="forumprofile"', Utils::$context['field']['profile_area'] == 'forumprofile' ? ' selected' : '', '>', Lang::$txt['forumprofile'], '</option>
-												<option value="theme"', Utils::$context['field']['profile_area'] == 'theme' ? ' selected' : '', '>', Lang::$txt['theme'], '</option>
+												<option value="account"', Utils::$context['field']['profile_area'] == 'account' ? ' selected' : '', '>', Lang::getTxt('account', file: 'General'), '</option>
+												<option value="forumprofile"', Utils::$context['field']['profile_area'] == 'forumprofile' ? ' selected' : '', '>', Lang::getTxt('forumprofile', file: 'General'), '</option>
+												<option value="theme"', Utils::$context['field']['profile_area'] == 'theme' ? ' selected' : '', '>', Lang::getTxt('theme', file: 'General'), '</option>
 											</select>
 										</dd>
 										<dt>
-											<a id="field_reg_require" href="', Config::$scripturl, '?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+											<a id="field_reg_require" href="', Config::$scripturl, '?action=helpadmin;help=field_reg_require" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 											<strong><label for="reg">', Lang::getTxt('custom_edit_registration', file: 'ManageSettings'), '</label></strong>
 										</dt>
 										<dd>
@@ -1221,7 +1221,7 @@ function template_edit_profile_field()
 											</select>
 										</dd>
 										<dt>
-											<a id="field_show_enclosed" href="', Config::$scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+											<a id="field_show_enclosed" href="', Config::$scripturl, '?action=helpadmin;help=field_show_enclosed" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 											<strong><label for="enclose">', Lang::getTxt('custom_edit_enclose', file: 'ManageSettings'), '</label></strong><br>
 											<span class="smalltext">', Lang::getTxt('custom_edit_enclose_desc', file: 'ManageSettings'), '</span>
 										</dt>
@@ -1267,7 +1267,7 @@ function template_edit_profile_field()
 											<input type="checkbox" name="bbc" id="bbc_dd"', Utils::$context['field']['bbc'] ? ' checked' : '', '>
 										</dd>
 										<dt id="options_dt">
-											<a href="', Config::$scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+											<a href="', Config::$scripturl, '?action=helpadmin;help=customoptions" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 											<strong><label for="options_dd">', Lang::getTxt('custom_edit_options', file: 'ManageSettings'), '</label></strong><br>
 											<span class="smalltext">', Lang::getTxt('custom_edit_options_desc', file: 'ManageSettings'), '</span>
 											<br>
@@ -1295,7 +1295,7 @@ function template_edit_profile_field()
 									<legend>', Lang::getTxt('custom_edit_advanced', file: 'ManageSettings'), '</legend>
 									<dl class="settings">
 										<dt id="mask_dt">
-											<a id="custom_mask" href="', Config::$scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+											<a id="custom_mask" href="', Config::$scripturl, '?action=helpadmin;help=custom_mask" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 											<strong><label for="mask">', Lang::getTxt('custom_edit_mask', file: 'ManageSettings'), '</label></strong><br>
 											<span class="smalltext">', Lang::getTxt('custom_edit_mask_desc', file: 'ManageSettings'), '</span>
 										</dt>
@@ -1339,11 +1339,11 @@ function template_edit_profile_field()
 										</dd>
 									</dl>
 								</fieldset>
-								<input type="submit" name="save" value="', Lang::$txt['save'], '" class="button">';
+								<input type="submit" name="save" value="', Lang::getTxt('save', file: 'General'), '" class="button">';
 
 	if (Utils::$context['fid'])
 		echo '
-								<input type="submit" name="delete" value="', Lang::$txt['delete'], '" data-confirm="', Lang::getTxt('custom_edit_delete_sure', file: 'ManageSettings'), '" class="button you_sure">';
+								<input type="submit" name="delete" value="', Lang::getTxt('delete', file: 'General'), '" data-confirm="', Lang::getTxt('custom_edit_delete_sure', file: 'ManageSettings'), '" class="button you_sure">';
 
 	echo '
 							</div><!-- .windowbg -->
@@ -1509,7 +1509,7 @@ function template_repair_boards()
 								', Lang::getTxt('errors_fix', file: 'Admin'), '
 							</p>
 							<p class="padding">
-								<strong><a href="', Config::$scripturl, '?action=admin;area=repairboards;fixErrors;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-repairboards_token_var'], '=', Utils::$context['admin-repairboards_token'], '">', Lang::$txt['yes'], '</a> - <a href="', Config::$scripturl, '?action=admin;area=maintain">', Lang::$txt['no'], '</a></strong>
+								<strong><a href="', Config::$scripturl, '?action=admin;area=repairboards;fixErrors;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';', Utils::$context['admin-repairboards_token_var'], '=', Utils::$context['admin-repairboards_token'], '">', Lang::getTxt('yes', file: 'General'), '</a> - <a href="', Config::$scripturl, '?action=admin;area=maintain">', Lang::getTxt('no', file: 'General'), '</a></strong>
 							</p>';
 		}
 		else

@@ -407,8 +407,8 @@ class News implements ActionInterface
 		Utils::$context['page_title'] = Lang::getTxt('admin_newsletters', file: 'Admin');
 		Utils::$context['sub_template'] = 'email_members_compose';
 
-		Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::$txt['subject']);
-		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]) . "\n\n" . '{$board_url}');
+		Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::getTxt('subject', file: 'General'));
+		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::getTxt('message', file: 'General') . "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General') . "\n\n" . '{$board_url}');
 
 		// Now create the editor.
 		new Editor([
@@ -417,7 +417,7 @@ class News implements ActionInterface
 			'height' => '150px',
 			'width' => '100%',
 			'labels' => [
-				'post_button' => Lang::$txt['sendtopic_send'],
+				'post_button' => Lang::getTxt('sendtopic_send', file: 'General'),
 			],
 			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
@@ -980,7 +980,7 @@ class News implements ActionInterface
 				if (!empty($include_unsubscribe)) {
 					$token = Notify::createUnsubscribeToken((int) $row['id_member'], $row['email_address'], 'announcements');
 
-					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token]);
+					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token], file: 'General');
 				} else {
 					$unsubscribe_link = '';
 				}
@@ -1063,7 +1063,7 @@ class News implements ActionInterface
 	{
 		$config_vars = self::getConfigVars();
 
-		Utils::$context['page_title'] = Lang::getTxt('admin_edit_news', file: 'Admin') . ' - ' . Lang::$txt['settings'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_edit_news', file: 'Admin') . ' - ' . Lang::getTxt('settings', file: 'General');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Wrap it all up nice and warm...
@@ -1293,7 +1293,7 @@ class News implements ActionInterface
 								break;
 
 							default:
-								$new_value = Lang::$txt[$matches[2]] ?? $matches[0];
+								$new_value = Lang::txtExists($matches[2], file: 'General+Admin') ? Lang::getTxt($matches[2], file: 'General+Admin') : $matches[0];
 								break;
 						}
 

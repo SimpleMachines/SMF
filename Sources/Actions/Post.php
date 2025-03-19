@@ -914,10 +914,10 @@ class Post implements ActionInterface, Routable
 	{
 		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
 			if (Lang::$default === User::$me->language) {
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 			} else {
 				Lang::load('General', Lang::$default, false);
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 				Lang::load('General');
 			}
 			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
@@ -1042,7 +1042,7 @@ class Post implements ActionInterface, Routable
 
 				Lang::censorText(Utils::$context['preview_subject']);
 			} else {
-				Utils::$context['preview_subject'] = '<em>' . Lang::$txt['no_subject'] . '</em>';
+				Utils::$context['preview_subject'] = '<em>' . Lang::getTxt('no_subject', file: 'General') . '</em>';
 			}
 
 			IntegrationHook::call('integrate_preview_post', [&$this->form_message, &$this->form_subject]);
@@ -1062,7 +1062,7 @@ class Post implements ActionInterface, Routable
 		// Set the destination action for submission.
 		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . (isset($_REQUEST['msg']) ? ';msg=' . $_REQUEST['msg'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] : '') . (isset($_REQUEST['poll']) ? ';poll' : '');
 
-		Utils::$context['submit_label'] = isset($_REQUEST['msg']) ? Lang::$txt['save'] : Lang::$txt['post'];
+		Utils::$context['submit_label'] = Lang::getTxt(isset($_REQUEST['msg']) ? 'save' : 'post', file: 'General');
 
 		// Previewing an edit?
 		if (isset($_REQUEST['msg']) && !empty(Topic::$info->id)) {
@@ -1206,7 +1206,7 @@ class Post implements ActionInterface, Routable
 			Utils::$context['last_modified_reason'] = Lang::censorText($row['modified_reason']);
 			Utils::$context['last_modified_reason_raw'] = $row['modified_reason'];
 			Utils::$context['last_modified_name'] = $row['modified_name'];
-			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']]) . empty($row['modified_reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']]);
+			Utils::$context['last_modified_text'] = Lang::getTxt('last_edit_by', ['time' => Utils::$context['last_modified'], 'member' => $row['modified_name']], file: 'General') . empty($row['modified_reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => $row['modified_reason']], file: 'General');
 		}
 
 		// Get the stuff ready for the form.
@@ -1238,7 +1238,7 @@ class Post implements ActionInterface, Routable
 		// Set the destination.
 		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . ';msg=' . $_REQUEST['msg'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (isset($_REQUEST['poll']) ? ';poll' : '');
 
-		Utils::$context['submit_label'] = Lang::$txt['save'];
+		Utils::$context['submit_label'] = Lang::getTxt('save', file: 'General');
 	}
 
 	/**
@@ -1256,7 +1256,7 @@ class Post implements ActionInterface, Routable
 		}
 		Utils::$context['destination'] = 'post2;start=' . $_REQUEST['start'] . (isset($_REQUEST['poll']) ? ';poll' : '');
 
-		Utils::$context['submit_label'] = Lang::$txt['post'];
+		Utils::$context['submit_label'] = Lang::getTxt('post', file: 'General');
 
 		// Posting a quoted reply?
 		if (!empty(Topic::$info->id) && !empty($_REQUEST['quote'])) {
@@ -1625,7 +1625,7 @@ class Post implements ActionInterface, Routable
 			smf_fileUpload({
 				dictDefaultMessage : ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone', file: 'Post')) . ',
 				dictFallbackMessage : ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone_no', file: 'Post')) . ',
-				dictCancelUpload : ' . Utils::escapeJavaScript(Lang::$txt['modify_cancel']) . ',
+				dictCancelUpload : ' . Utils::escapeJavaScript(Lang::getTxt('modify_cancel', file: 'General')) . ',
 				genericError: ' . Utils::escapeJavaScript(Lang::getTxt('attach_php_error', file: 'Post')) . ',
 				text_attachDropzoneLabel: ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_zone', file: 'Post')) . ',
 				text_attachLimitNag: ' . Utils::escapeJavaScript(Lang::getTxt('attach_limit_nag', file: 'Post')) . ',
@@ -1636,7 +1636,7 @@ class Post implements ActionInterface, Routable
 				text_attachUploaded: ' . Utils::escapeJavaScript(Lang::getTxt('attached_file_uploaded', file: 'Post')) . ',
 				text_attach_unlimited: ' . Utils::escapeJavaScript(Lang::getTxt('attach_drop_unlimited', file: 'Post')) . ',
 				text_totalMaxSize: ' . Utils::escapeJavaScript(Lang::getTxt('attach_max_total_file_size_current', file: 'Post')) . ',
-				text_max_size_progress: ' . Utils::escapeJavaScript('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte']) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::$txt['megabyte'] : Lang::$txt['kilobyte'])) . ',
+				text_max_size_progress: ' . Utils::escapeJavaScript('{currentRemain} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::getTxt('megabyte', file: 'General') : Lang::getTxt('kilobyte', file: 'General')) . ' / {currentTotal} ' . (Config::$modSettings['attachmentPostLimit'] >= 1024 ? Lang::getTxt('megabyte', file: 'General') : Lang::getTxt('kilobyte', file: 'General'))) . ',
 				dictMaxFilesExceeded: ' . Utils::escapeJavaScript(Lang::getTxt('more_attachments_error', file: 'Post')) . ',
 				dictInvalidFileType: ' . Utils::escapeJavaScript(Lang::getTxt('cant_upload_type', Utils::$context, file: 'Post')) . ',
 				dictFileTooBig: ' . Utils::escapeJavaScript(Lang::getTxt('file_too_big', [Lang::numberFormat(Config::$modSettings['attachmentSizeLimit'], 0)], file: 'Post')) . ',
@@ -1712,15 +1712,15 @@ class Post implements ActionInterface, Routable
 	protected function setPageTitle(): void
 	{
 		if (isset($_REQUEST['poll'])) {
-			Utils::$context['page_title'] = Lang::$txt['new_poll'];
+			Utils::$context['page_title'] = Lang::getTxt('new_poll', file: 'General');
 		} elseif (Utils::$context['make_event']) {
 			Utils::$context['page_title'] = Lang::getTxt(Utils::$context['event']->id == -1 ? 'calendar_post_event' : 'calendar_edit', file: 'Calendar');
 		} elseif (isset($_REQUEST['msg'])) {
-			Utils::$context['page_title'] = Lang::$txt['modify_msg'];
+			Utils::$context['page_title'] = Lang::getTxt('modify_msg', file: 'General');
 		} elseif (isset($_REQUEST['subject'], Utils::$context['preview_subject'])) {
-			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => strip_tags(Utils::$context['preview_subject'])]);
+			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => strip_tags(Utils::$context['preview_subject'])], file: 'General');
 		} elseif (empty(Topic::$info->id)) {
-			Utils::$context['page_title'] = Lang::$txt['start_new_topic'];
+			Utils::$context['page_title'] = Lang::getTxt('start_new_topic', file: 'General');
 		} else {
 			Utils::$context['page_title'] = Lang::getTxt('post_reply', file: 'Post');
 		}
@@ -1733,7 +1733,7 @@ class Post implements ActionInterface, Routable
 	{
 		if (empty(Topic::$info->id)) {
 			Utils::$context['linktree'][] = [
-				'name' => '<em>' . Lang::$txt['start_new_topic'] . '</em>',
+				'name' => '<em>' . Lang::getTxt('start_new_topic', file: 'General') . '</em>',
 			];
 		} else {
 			Utils::$context['linktree'][] = [
@@ -1826,7 +1826,7 @@ class Post implements ActionInterface, Routable
 
 			array_unshift(Utils::$context['icons'], [
 				'value' => Utils::$context['icon'],
-				'name' => Lang::$txt['current_icon'],
+				'name' => Lang::getTxt('current_icon', file: 'General'),
 				'url' => Utils::$context['icon_url'],
 				'is_last' => empty(Utils::$context['icons']),
 				'selected' => true,
@@ -1966,7 +1966,7 @@ class Post implements ActionInterface, Routable
 		if (isset(Utils::$context['name'], Utils::$context['email'])) {
 			Utils::$context['posting_fields']['guestname'] = [
 				'label' => [
-					'text' => Lang::$txt['name'],
+					'text' => Lang::getTxt('name', file: 'General'),
 					'class' => isset(Utils::$context['post_error']['long_name']) || isset(Utils::$context['post_error']['no_name']) || isset(Utils::$context['post_error']['bad_name']) ? 'error' : '',
 				],
 				'input' => [
@@ -1983,7 +1983,7 @@ class Post implements ActionInterface, Routable
 			if (empty(Config::$modSettings['guest_post_no_email'])) {
 				Utils::$context['posting_fields']['email'] = [
 					'label' => [
-						'text' => Lang::$txt['email'],
+						'text' => Lang::getTxt('email', file: 'General'),
 						'class' => isset(Utils::$context['post_error']['no_email']) || isset(Utils::$context['post_error']['bad_email']) ? 'error' : '',
 					],
 					'input' => [
@@ -2026,7 +2026,7 @@ class Post implements ActionInterface, Routable
 		// Gotta have a subject.
 		Utils::$context['posting_fields']['subject'] = [
 			'label' => [
-				'text' => Lang::$txt['subject'],
+				'text' => Lang::getTxt('subject', file: 'General'),
 				'class' => isset(Utils::$context['post_error']['no_subject']) ? 'error' : '',
 			],
 			'input' => [
@@ -2043,7 +2043,7 @@ class Post implements ActionInterface, Routable
 		// Icons are fun.
 		Utils::$context['posting_fields']['icon'] = [
 			'label' => [
-				'text' => Lang::$txt['message_icon'],
+				'text' => Lang::getTxt('message_icon', file: 'General'),
 			],
 			'input' => [
 				'type' => 'select',
@@ -2067,7 +2067,7 @@ class Post implements ActionInterface, Routable
 		if (isset(Utils::$context['editing']) && Config::$modSettings['show_modify']) {
 			Utils::$context['posting_fields']['modify_reason'] = [
 				'label' => [
-					'text' => Lang::$txt['reason_for_edit'],
+					'text' => Lang::getTxt('reason_for_edit', file: 'General'),
 				],
 				'input' => [
 					'type' => 'text',

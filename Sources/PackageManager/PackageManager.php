@@ -135,7 +135,7 @@ class PackageManager
 		Lang::load('Packages');
 		Theme::loadTemplate('Packages', 'admin');
 
-		Utils::$context['page_title'] = Lang::$txt['package'];
+		Utils::$context['page_title'] = Lang::getTxt('package', file: 'General');
 
 		// Work out exactly who it is we are calling.
 		if (isset($_REQUEST['sa'], $this->subactions[$_REQUEST['sa']])) {
@@ -1639,7 +1639,7 @@ class PackageManager
 							'function' => function ($package) {
 								return !empty($package['time_installed'])
 									? Time::create('@' . $package['time_installed'])->format()
-									: Lang::$txt['not_applicable'];
+									: Lang::getTxt('not_applicable', file: 'General');
 							},
 							'class' => 'smalltext',
 						],
@@ -2537,14 +2537,14 @@ class PackageManager
 			{
 				collapsedDiv.show(\'slow\');
 				icon.removeClass(\'toggle_down\').addClass(\'toggle_up\');
-				icon.prop(\'title\', ' . Utils::escapeJavaScript(Lang::$txt['hide']) . ');
+				icon.prop(\'title\', ' . Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')) . ');
 			}
 
 			else
 			{
 				collapsedDiv.hide(\'slow\');
 				icon.removeClass(\'toggle_up\').addClass(\'toggle_down\');
-				icon.prop(\'title\', ' . Utils::escapeJavaScript(Lang::$txt['show']) . ');
+				icon.prop(\'title\', ' . Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')) . ');
 			}
 		});', true);
 	}

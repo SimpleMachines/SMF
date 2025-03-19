@@ -172,7 +172,7 @@ class Bans implements ActionInterface
 				],
 				'reason' => [
 					'header' => [
-						'value' => Lang::$txt['ban_reason'],
+						'value' => Lang::getTxt('ban_reason', file: 'General'),
 					],
 					'data' => [
 						'db' => 'reason',
@@ -211,7 +211,7 @@ class Bans implements ActionInterface
 						'function' => function ($rowData) {
 							// This ban never expires...whahaha.
 							if ($rowData['expire_time'] === null) {
-								return Lang::$txt['never'];
+								return Lang::getTxt('never', file: 'General');
 							}
 
 							// This ban has already expired.
@@ -247,7 +247,7 @@ class Bans implements ActionInterface
 					],
 					'data' => [
 						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">' . Lang::$txt['modify'] . '</a>',
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">' . Lang::getTxt('modify', file: 'General') . '</a>',
 							'params' => [
 								'id_ban_group' => false,
 							],
@@ -293,7 +293,7 @@ class Bans implements ActionInterface
 				if (removeItems == 0)
 				{
 					e.preventDefault();
-					return alert("' . Lang::$txt['select_item_check'] . '");
+					return alert("' . Lang::getTxt('select_item_check', file: 'General') . '");
 				}
 
 
@@ -367,14 +367,14 @@ class Bans implements ActionInterface
 							'data' => [
 								'function' => function ($ban_item) {
 									if (in_array($ban_item['type'], ['ip', 'hostname', 'email'])) {
-										return '<strong>' . Lang::$txt[$ban_item['type']] . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
+										return '<strong>' . Lang::getTxt($ban_item['type'], file: 'General') . ':</strong>&nbsp;' . $ban_item[$ban_item['type']];
 									}
 
 									if ($ban_item['type'] == 'user') {
-										return '<strong>' . Lang::$txt['username'] . ':</strong>&nbsp;' . $ban_item['user']['link'];
+										return '<strong>' . Lang::getTxt('username', file: 'General') . ':</strong>&nbsp;' . $ban_item['user']['link'];
 									}
 
-									return '<strong>' . Lang::$txt['unknown'] . ':</strong>&nbsp;' . $ban_item['no_bantype_selected'];
+									return '<strong>' . Lang::getTxt('unknown', file: 'General') . ':</strong>&nbsp;' . $ban_item['no_bantype_selected'];
 								},
 								'style' => 'text-align: left;',
 							],
@@ -457,7 +457,7 @@ class Bans implements ActionInterface
 				if (removeItems == 0)
 				{
 					e.preventDefault();
-					return alert("' . Lang::$txt['select_item_check'] . '");
+					return alert("' . Lang::getTxt('select_item_check', file: 'General') . '");
 				}
 
 
@@ -681,7 +681,10 @@ class Bans implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_column_headers',
-					'value' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=ip">' . (Utils::$context['selected_entity'] == 'ip' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['ip'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=hostname">' . (Utils::$context['selected_entity'] == 'hostname' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['hostname'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=email">' . (Utils::$context['selected_entity'] == 'email' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['email'] . '</a>&nbsp;|&nbsp;<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=member">' . (Utils::$context['selected_entity'] == 'member' ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::$txt['username'] . '</a>',
+					'value' => implode('&nbsp;|&nbsp;', array_map(
+						fn($entity) => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=browse;entity=' . $entity . '">' . (Utils::$context['selected_entity'] === $entity ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="&gt;"> ' : '') . Lang::getTxt($entity === 'member' ? 'username' : $entity, file: 'General') . '</a>',
+						['ip', 'hostname', 'email', 'member'],
+					)),
 				],
 				[
 					'position' => 'bottom_of_list',

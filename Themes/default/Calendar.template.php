@@ -291,7 +291,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 
 		// Arguably the most exciting part, the title!
 		echo '
-					<a href="', Config::$scripturl, '?action=calendar;', Utils::$context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $calendar_data['current_day'], '">', Lang::$txt['months_titles'][$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>
+					<a href="', Config::$scripturl, '?action=calendar;', Utils::$context['calendar_view'], ';year=', $calendar_data['current_year'], ';month=', $calendar_data['current_month'], ';day=', $calendar_data['current_day'], '">', Lang::getTxt('months_titles', file: 'General')[$calendar_data['current_month']], ' ', $calendar_data['current_year'], '</a>
 				</h3>
 			</div><!-- .cat_bar -->';
 	}
@@ -318,7 +318,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 		// Now, loop through each actual day of the week.
 		foreach ($calendar_data['week_days'] as $day)
 			echo '
-					<th class="days" scope="col">', !empty($calendar_data['short_day_titles']) || $is_mini === true ? Lang::$txt['days_short'][$day] : Lang::$txt['days'][$day], '</th>';
+					<th class="days" scope="col">', Lang::getTxt([!empty($calendar_data['short_day_titles']) || $is_mini === true ? 'days_short' : 'days', $day], file: 'General'), '</th>';
 
 		echo '
 				</tr>';
@@ -369,7 +369,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 			if (!empty($day['day']))
 			{
 				// If it's the first day of this month and not a mini-calendar, we'll add the month title - whether short or full.
-				$title_prefix = !empty($day['is_first_of_month']) && Utils::$context['current_month'] == $calendar_data['current_month'] && $is_mini === false ? (!empty($calendar_data['short_month_titles']) ? Lang::$txt['months_short'][$calendar_data['current_month']] . ' ' : Lang::$txt['months_titles'][$calendar_data['current_month']] . ' ') : '';
+				$title_prefix = !empty($day['is_first_of_month']) && Utils::$context['current_month'] == $calendar_data['current_month'] && $is_mini === false ? Lang::getTxt([!empty($calendar_data['short_month_titles']) ? 'months_short' : 'months_titles', $calendar_data['current_month']], file: 'General') . ' ' : '';
 
 				// The actual day number - be it a link, or just plain old text!
 				if (!empty(Config::$modSettings['cal_daysaslink']) && Utils::$context['can_post'])
@@ -479,7 +479,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							} elseif (!empty($event['start_time_local']) && $event['start_date'] == $day['date']) {
 								echo trim(str_replace(':00 ', ' ', $event['start_time_local']));
 							} elseif (!empty($event['end_time_local']) && $event['end_date'] == $day['date']) {
-								echo strtolower(Lang::$txt['ends']), ' ', trim(str_replace(':00 ', ' ', $event['end_time_local']));
+								echo strtolower(Lang::getTxt('ends', file: 'General')), ' ', trim(str_replace(':00 ', ' ', $event['end_time_local']));
 							}
 
 							echo '
@@ -529,7 +529,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 				if (empty($current_month_started) && !empty(Utils::$context['calendar_grid_prev']))
 					echo '<a href="', Config::$scripturl, '?action=calendar;viewmonth;year=', Utils::$context['calendar_grid_prev']['current_year'], ';month=', Utils::$context['calendar_grid_prev']['current_month'], '">', Utils::$context['calendar_grid_prev']['last_of_month'] - $calendar_data['shift']-- +1, '</a>';
 				elseif (!empty($current_month_started) && !empty(Utils::$context['calendar_grid_next']))
-					echo '<a href="', Config::$scripturl, '?action=calendar;viewmonth;year=', Utils::$context['calendar_grid_next']['current_year'], ';month=', Utils::$context['calendar_grid_next']['current_month'], '">', $current_month_started + 1 == $count ? (!empty($calendar_data['short_month_titles']) ? Lang::$txt['months_short'][Utils::$context['calendar_grid_next']['current_month']] . ' ' : Lang::$txt['months_titles'][Utils::$context['calendar_grid_next']['current_month']] . ' ') : '', $final_count++, '</a>';
+					echo '<a href="', Config::$scripturl, '?action=calendar;viewmonth;year=', Utils::$context['calendar_grid_next']['current_year'], ';month=', Utils::$context['calendar_grid_next']['current_month'], '">', $current_month_started + 1 == $count ? Lang::getTxt([!empty($calendar_data['short_month_titles']) ? 'months_short' : 'months_titles', Utils::$context['calendar_grid_next']['current_month']], file: 'General') . ' ' : '', $final_count++, '</a>';
 			}
 
 			// Close this day and increase var count.
@@ -604,7 +604,7 @@ function template_show_week_grid($grid_name)
 		echo '
 				<div class="week_month_title">
 					<a href="', Config::$scripturl, '?action=calendar;viewmonth;month=', $month_data['current_month'], '">
-						', Lang::$txt['months_titles'][$month_data['current_month']], '
+						', Lang::getTxt(['months_titles', $month_data['current_month']], file: 'General'), '
 					</a>
 				</div>';
 
@@ -640,9 +640,9 @@ function template_show_week_grid($grid_name)
 			// Should the day number be a link?
 			if (!empty(Config::$modSettings['cal_daysaslink']) && Utils::$context['can_post'])
 				echo '
-							<a href="', Config::$scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['days'][$day['day_of_week']], ' - ', $day['day'], '</a>';
+							<a href="', Config::$scripturl, '?action=calendar;sa=post;month=', $month_data['current_month'], ';year=', $month_data['current_year'], ';day=', $day['day'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt(['days', $day['day_of_week']], file: 'General'), ' - ', $day['day'], '</a>';
 			else
-				echo Lang::$txt['days'][$day['day_of_week']], ' - ', $day['day'];
+				echo Lang::getTxt(['days', $day['day_of_week']], file: 'General'), ' - ', $day['day'];
 
 			echo '
 						</td>';
@@ -650,7 +650,7 @@ function template_show_week_grid($grid_name)
 			if (!empty($calendar_data['show_events']))
 			{
 				echo '
-						<td class="', implode(' ', $classes), '', empty($day['events']) ? (' disabled' . (Utils::$context['can_post'] ? ' week_post' : '')) : ' events', ' event_col" data-css-prefix="' . Lang::getTxt('events', file: 'Calendar') . ' ', (empty($day['events']) && empty(Utils::$context['can_post'])) ? Lang::$txt['none'] : '', '">';
+						<td class="', implode(' ', $classes), '', empty($day['events']) ? (' disabled' . (Utils::$context['can_post'] ? ' week_post' : '')) : ' events', ' event_col" data-css-prefix="' . Lang::getTxt('events', file: 'Calendar') . ' ', (empty($day['events']) && empty(Utils::$context['can_post'])) ? Lang::getTxt('none', file: 'General') : '', '">';
 
 				// Show any events...
 				if (!empty($day['events']))
@@ -829,11 +829,11 @@ function template_calendar_top($calendar_data)
 
 	if (!empty($calendar_data['end_date']))
 		echo '
-				<span>', Utils::strtolower(Lang::$txt['to']), '</span>
+				<span>', Utils::strtolower(Lang::getTxt('to', file: 'General')), '</span>
 				<input type="date" name="end_date" id="end_date" value="', $calendar_data['iso_end_date'], '" tabindex="', Utils::$context['tabindex']++, '" class="date_input end" data-type="date">';
 
 	echo '
-				<input type="submit" class="button" style="float:none" id="view_button" value="', Lang::$txt['view'], '">
+				<input type="submit" class="button" style="float:none" id="view_button" value="', Lang::getTxt('view', file: 'General'), '">
 			</form>
 		</div><!-- .calendar_top -->';
 }
@@ -865,7 +865,7 @@ function template_event_post()
 				<div class="errorbox">
 					<dl class="event_error">
 						<dt>
-							', Utils::$context['error_type'] == 'serious' ? '<strong>' . Lang::$txt['error_while_submitting'] . '</strong>' : '', '
+							', Utils::$context['error_type'] == 'serious' ? '<strong>' . Lang::getTxt('error_while_submitting', file: 'General') . '</strong>' : '', '
 						</dt>
 						<dt class="error">
 							', implode('<br>', Utils::$context['post_error']['messages']), '
@@ -880,7 +880,7 @@ function template_event_post()
 
 	echo '
 					<div class="buttonlist">
-						<input type="submit" value="', empty(Utils::$context['event']->new) ? Lang::$txt['save'] : Lang::$txt['post'], '" class="button floatright">';
+						<input type="submit" value="', Lang::getTxt(empty(Utils::$context['event']->new) ? 'save' : 'post', file: 'General'), '" class="button floatright">';
 
 	if (!Utils::$context['event']->new) {
 		echo '

@@ -1758,7 +1758,7 @@ class BBCodeParser extends Parser
 
 		// parseAttachBBC will return a string (Lang::$txt key) rather than dying with a fatal_error. Up to you to decide what to do.
 		if (is_string($current_attachment)) {
-			$data = '<span style="display:inline-block" class="errorbox">' . (!empty(Lang::$txt[$current_attachment]) ? Lang::$txt[$current_attachment] : $current_attachment) . '</span>';
+			$data = '<span style="display:inline-block" class="errorbox">' . (Lang::txtExists($current_attachment, file: 'General') ? Lang::getTxt($current_attachment, file: 'General') : $current_attachment) . '</span>';
 
 			return;
 		}
@@ -2742,8 +2742,8 @@ class BBCodeParser extends Parser
 					return $this->hosturl;
 				}
 
-				if (str_starts_with($matches[1], 'txt_') && isset(Lang::$txt[substr($matches[1], 4)])) {
-					return Lang::$txt[substr($matches[1], 4)];
+				if (str_starts_with($matches[1], 'txt_') && Lang::txtExists(substr($matches[1], 4))) {
+					return Lang::getTxt(substr($matches[1], 4));
 				}
 
 				return $matches[0];

@@ -716,7 +716,7 @@ class Themes implements ActionInterface
 
 		// Fetch the smiley sets...
 		$sets = explode(',', 'none,' . Config::$modSettings['smiley_sets_known']);
-		$set_names = explode("\n", Lang::$txt['smileys_none'] . "\n" . Config::$modSettings['smiley_sets_names']);
+		$set_names = explode("\n", Lang::getTxt('smileys_none', file: 'General') . "\n" . Config::$modSettings['smiley_sets_names']);
 
 		Utils::$context['smiley_sets'] = [
 			'' => Lang::getTxt('smileys_no_default', file: 'Admin'),
@@ -2219,9 +2219,9 @@ class Themes implements ActionInterface
 				$size = filesize($path . '/' . $entry);
 
 				if ($size > 2048 || $size == 1024) {
-					$size = Lang::getTxt('size_kilobytes', [Lang::numberFormat($size / 1024)]);
+					$size = Lang::getTxt('size_kilobytes', [Lang::numberFormat($size / 1024)], file: 'General');
 				} else {
-					$size = Lang::getTxt('size_bytes', [Lang::numberFormat($size)]);
+					$size = Lang::getTxt('size_bytes', [Lang::numberFormat($size)], file: 'General');
 				}
 
 				$list2[] = [

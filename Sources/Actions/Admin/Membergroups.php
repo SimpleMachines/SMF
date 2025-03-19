@@ -190,7 +190,7 @@ class Membergroups implements ActionInterface
 				],
 				'modify' => [
 					'header' => [
-						'value' => Lang::$txt['modify'],
+						'value' => Lang::getTxt('modify', file: 'General'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -293,7 +293,7 @@ class Membergroups implements ActionInterface
 				],
 				'modify' => [
 					'header' => [
-						'value' => Lang::$txt['modify'],
+						'value' => Lang::getTxt('modify', file: 'General'),
 						'class' => 'centercol',
 					],
 					'data' => [

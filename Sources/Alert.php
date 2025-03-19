@@ -386,7 +386,7 @@ class Alert implements \ArrayAccess
 			} elseif (in_array($msg_type, ['msg_msg', 'topic_msg', 'board_msg'])) {
 				$this->extra[$msg_type] = Lang::getTxt($msg_type == 'board_msg' ? 'board_na' : 'topic_na', file: 'Alerts');
 			} else {
-				$this->extra[$msg_type] = '(' . Lang::$txt['not_applicable'] . ')';
+				$this->extra[$msg_type] = '(' . Lang::getTxt('not_applicable', file: 'General') . ')';
 			}
 		}
 

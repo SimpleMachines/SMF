@@ -145,8 +145,8 @@ function template_reported_posts_block()
 				aSwapImages: [
 					{
 						sId: \'reported_posts_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 					}
 				],
 				aSwapLinks: [
@@ -360,8 +360,8 @@ function template_reported_members_block()
 				aSwapImages: [
 					{
 						sId: \'reported_members_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 					}
 				],
 				aSwapLinks: [

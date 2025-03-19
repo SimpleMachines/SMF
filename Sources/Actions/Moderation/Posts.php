@@ -433,7 +433,7 @@ class Posts implements ActionInterface
 	 */
 	public function attachments(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['mc_unapproved_attachments'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_unapproved_attachments', file: 'General');
 
 		// Once again, permissions are king!
 		$approve_boards = User::$me->boardsAllowedTo('approve_posts');
@@ -564,7 +564,7 @@ class Posts implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 						'style' => 'width: 18%;',
 					],
 					'data' => [
@@ -579,7 +579,7 @@ class Posts implements ActionInterface
 				],
 				'message' => [
 					'header' => [
-						'value' => Lang::$txt['post'],
+						'value' => Lang::getTxt('post', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($data) {
@@ -626,10 +626,10 @@ class Posts implements ActionInterface
 						<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'' . Lang::getTxt('mc_unapproved_sure', file: 'ModerationCenter') . '\')) submit();">
 							<option value="0">' . Lang::getTxt('with_selected', file: 'ModerationCenter') . ':</option>
 							<option value="0" disabled>-------------------</option>
-							<option value="approve">&nbsp;--&nbsp;' . Lang::$txt['approve'] . '</option>
-							<option value="delete">&nbsp;--&nbsp;' . Lang::$txt['delete'] . '</option>
+							<option value="approve">&nbsp;--&nbsp;' . Lang::getTxt('approve', file: 'General') . '</option>
+							<option value="delete">&nbsp;--&nbsp;' . Lang::getTxt('delete', file: 'General') . '</option>
 						</select>
-						<noscript><input type="submit" name="ml_go" value="' . Lang::$txt['go'] . '" class="button"></noscript>',
+						<noscript><input type="submit" name="ml_go" value="' . Lang::getTxt('go', file: 'General') . '" class="button"></noscript>',
 					'class' => 'floatright',
 				],
 			],
@@ -643,7 +643,7 @@ class Posts implements ActionInterface
 		Utils::$context['default_list'] = 'mc_unapproved_attach';
 
 		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_unapproved_attachments'],
+			'title' => Lang::getTxt('mc_unapproved_attachments', file: 'General'),
 			'help' => '',
 			'description' => Lang::getTxt('mc_unapproved_attachments_desc', file: 'ModerationCenter'),
 		];

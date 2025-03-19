@@ -584,21 +584,16 @@ class Stats implements ActionInterface, Routable
 				continue;
 			}
 
-			// Figure out the days, hours and minutes.
-			$timeDays = floor($row_members['total_time_logged_in'] / 86400);
-			$timeHours = floor(($row_members['total_time_logged_in'] % 86400) / 3600);
-
 			// Figure out which things to show... (days, hours, minutes, etc.)
-			$timelogged = '';
-
-			if ($timeDays > 0) {
-				$timelogged .= $timeDays . Lang::$txt['total_time_logged_d'];
-			}
-
-			if ($timeHours > 0) {
-				$timelogged .= $timeHours . Lang::$txt['total_time_logged_h'];
-			}
-			$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . Lang::$txt['total_time_logged_m'];
+			$timelogged = Lang::getTxt(
+				'total_time_logged',
+				[
+					'days' => max(0, floor($row_members['total_time_logged_in'] / 86400)),
+					'hours' => max(0, floor(($row_members['total_time_logged_in'] % 86400) / 3600)),
+					'minutes' => max(0, floor(($row_members['total_time_logged_in'] % 3600) / 60)),
+				],
+				file: 'General',
+			);
 
 			Utils::$context['stats_blocks']['time_online'][] = [
 				'id' => $row_members['id_member'],
@@ -751,8 +746,8 @@ class Stats implements ActionInterface, Routable
 					'year' => $row_months['stats_year'],
 				],
 				'href' => Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH,
-				'link' => '<a href="' . Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH . '">' . Lang::$txt['months_titles'][(int) $row_months['stats_month']] . ' ' . $row_months['stats_year'] . '</a>',
-				'month' => Lang::$txt['months_titles'][(int) $row_months['stats_month']],
+				'link' => '<a href="' . Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH . '">' . Lang::getTxt(['months_titles', (int) $row_months['stats_month']], file: 'General') . ' ' . $row_months['stats_year'] . '</a>',
+				'month' => Lang::getTxt(['months_titles', (int) $row_months['stats_month']], file: 'General'),
 				'year' => $row_months['stats_year'],
 				'new_topics' => Lang::numberFormat($row_months['topics']),
 				'new_posts' => Lang::numberFormat($row_months['posts']),

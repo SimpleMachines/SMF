@@ -238,7 +238,7 @@ class Subscriptions implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return '<span style="color: ' . ($rowData['active'] ? 'green' : 'red') . '">' . ($rowData['active'] ? Lang::$txt['yes'] : Lang::$txt['no']) . '</span>';
+							return '<span style="color: ' . ($rowData['active'] ? 'green' : 'red') . '">' . Lang::getTxt($rowData['active'] ? 'yes' : 'no', file: 'General') . '</span>';
 						},
 						'class' => 'centercol',
 					],
@@ -246,7 +246,7 @@ class Subscriptions implements ActionInterface
 				'modify' => [
 					'data' => [
 						'function' => function ($rowData) {
-							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;sid=' . $rowData['id'] . '">' . Lang::$txt['modify'] . '</a>';
+							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;sid=' . $rowData['id'] . '">' . Lang::getTxt('modify', file: 'General') . '</a>';
 						},
 						'class' => 'centercol',
 					],
@@ -254,7 +254,7 @@ class Subscriptions implements ActionInterface
 				'delete' => [
 					'data' => [
 						'function' => function ($rowData) {
-							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;delete;sid=' . $rowData['id'] . '">' . Lang::$txt['delete'] . '</a>';
+							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modify;delete;sid=' . $rowData['id'] . '">' . Lang::getTxt('delete', file: 'General') . '</a>';
 						},
 						'class' => 'centercol',
 					],
@@ -325,7 +325,7 @@ class Subscriptions implements ActionInterface
 		// Are we searching for people?
 		$search_string = isset($_POST['ssearch']) && !empty($_POST['sub_search']) ? ' AND COALESCE(mem.real_name, {string:guest}) LIKE {string:search}' : '';
 
-		$search_vars = empty($_POST['sub_search']) ? [] : ['search' => '%' . $_POST['sub_search'] . '%', 'guest' => Lang::$txt['guest']];
+		$search_vars = empty($_POST['sub_search']) ? [] : ['search' => '%' . $_POST['sub_search'] . '%', 'guest' => Lang::getTxt('guest', file: 'General')];
 
 		$listOptions = [
 			'id' => 'subscribed_users_list',
@@ -353,12 +353,12 @@ class Subscriptions implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['who_member'],
+						'value' => Lang::getTxt('who_member', file: 'General'),
 						'style' => 'width: 20%;',
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return $rowData['id_member'] == 0 ? Lang::$txt['guest'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $rowData['id_member'] . '">' . $rowData['name'] . '</a>';
+							return $rowData['id_member'] == 0 ? Lang::getTxt('guest', file: 'General') : '<a href="' . Config::$scripturl . '?action=profile;u=' . $rowData['id_member'] . '">' . $rowData['name'] . '</a>';
 						},
 					],
 					'sort' => [
@@ -427,7 +427,7 @@ class Subscriptions implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $rowData['id'] . '">' . Lang::$txt['modify'] . '</a>';
+							return '<a href="' . Config::$scripturl . '?action=admin;area=paidsubscribe;sa=modifyuser;lid=' . $rowData['id'] . '">' . Lang::getTxt('modify', file: 'General') . '</a>';
 						},
 						'class' => 'centercol',
 					],
@@ -1263,7 +1263,7 @@ class Subscriptions implements ActionInterface
 		} else {
 			Utils::$context['settings_message'] = Lang::getTxt('paid_note', ['boardurl' => Config::$boardurl], file: 'ManagePaid');
 			Menu::$loaded['admin']['current_subsection'] = 'settings';
-			Utils::$context['settings_title'] = Lang::$txt['settings'];
+			Utils::$context['settings_title'] = Lang::getTxt('settings', file: 'General');
 
 			// We want JavaScript for our currency options.
 			Theme::addInlineJavaScript('
@@ -1301,7 +1301,7 @@ class Subscriptions implements ActionInterface
 		}
 
 		// Some important context stuff
-		Utils::$context['page_title'] = Lang::$txt['settings'];
+		Utils::$context['page_title'] = Lang::getTxt('settings', file: 'General');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Get the final touches in place.
@@ -2228,7 +2228,7 @@ class Subscriptions implements ActionInterface
 				'current_subscription' => $id_sub,
 				'no_end_time' => 0,
 				'no_payments_pending' => 0,
-				'guest' => Lang::$txt['guest'],
+				'guest' => Lang::getTxt('guest', file: 'General'),
 				'sort' => $sort,
 				'start' => $start,
 				'max' => $items_per_page,

@@ -178,7 +178,7 @@ class SearchEngines implements ActionInterface
 					break;
 				}
 
-				$date_choices[$y . $m] = Lang::$txt['months_short'][$m] . ' ' . $y;
+				$date_choices[$y . $m] = Lang::getTxt(['months_short', $m], file: 'General') . ' ' . $y;
 			}
 		}
 
@@ -199,7 +199,7 @@ class SearchEngines implements ActionInterface
 			$date_select .= '
 			</select>
 			<noscript>
-				<input type="submit" name="go" value="' . Lang::$txt['go'] . '" class="button">
+				<input type="submit" name="go" value="' . Lang::getTxt('go', file: 'General') . '" class="button">
 			</noscript>';
 		}
 
@@ -236,7 +236,7 @@ class SearchEngines implements ActionInterface
 			'columns' => [
 				'stat_date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'stat_date',
@@ -344,7 +344,7 @@ class SearchEngines implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['spider'],
+						'value' => Lang::getTxt('spider', file: 'General'),
 					],
 					'data' => [
 						'db' => 'spider_name',
@@ -510,7 +510,7 @@ class SearchEngines implements ActionInterface
 
 		$listOptions = [
 			'id' => 'spider_list',
-			'title' => Lang::$txt['spiders'],
+			'title' => Lang::getTxt('spiders', file: 'General'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=sengines;sa=spiders',
 			'default_sort_col' => 'name',
@@ -642,7 +642,7 @@ class SearchEngines implements ActionInterface
 		}
 
 		// Setup the template.
-		Utils::$context['page_title'] = Lang::$txt['settings'];
+		Utils::$context['page_title'] = Lang::getTxt('settings', file: 'General');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Are we saving them - are we??
@@ -663,7 +663,7 @@ class SearchEngines implements ActionInterface
 		// Final settings...
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=sengines;save;sa=settings';
 
-		Utils::$context['settings_title'] = Lang::$txt['settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('settings', file: 'General');
 
 		Theme::addInlineJavaScript(self::$javascript_function, true);
 

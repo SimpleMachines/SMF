@@ -42,11 +42,11 @@ function template_email_members()
 
 	foreach (Utils::$context['groups'] as $group)
 		echo '
-						<label for="groups_', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'] ?? Lang::$txt['not_applicable'], ')</em><br>';
+						<label for="groups_', $group['id'], '"><input type="checkbox" name="groups[', $group['id'], ']" id="groups_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'] ?? Lang::getTxt('not_applicable', file: 'General'), ')</em><br>';
 
 	echo '
 						<br>
-						<label for="checkAllGroups"><input type="checkbox" id="checkAllGroups" checked onclick="invertAll(this, this.form, \'groups\');"> <em>', Lang::$txt['check_all'], '</em></label>
+						<label for="checkAllGroups"><input type="checkbox" id="checkAllGroups" checked onclick="invertAll(this, this.form, \'groups\');"> <em>', Lang::getTxt('check_all', file: 'General'), '</em></label>
 					</dd>
 				</dl>
 				<div id="advanced_panel_header" class="title_bar">
@@ -87,7 +87,7 @@ function template_email_members()
 
 	echo '
 							<br>
-							<label for="checkAllGroupsExclude"><input type="checkbox" id="checkAllGroupsExclude" onclick="invertAll(this, this.form, \'exclude_groups\');"> <em>', Lang::$txt['check_all'], '</em></label><br>
+							<label for="checkAllGroupsExclude"><input type="checkbox" id="checkAllGroupsExclude" onclick="invertAll(this, this.form, \'exclude_groups\');"> <em>', Lang::getTxt('check_all', file: 'General'), '</em></label><br>
 						</dd>
 						<dt>
 							<strong>', Lang::getTxt('admin_news_select_excluded_members', file: 'Admin'), '</strong><br>
@@ -127,8 +127,8 @@ function template_email_members()
 			aSwapImages: [
 				{
 					sId: \'advanced_panel_toggle\',
-					altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-					altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+					altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+					altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 				}
 			],
 			aSwapLinks: [
@@ -151,7 +151,7 @@ function template_email_members()
 			bItemList: true,
 			sPostName: \'member_list\',
 			sURLMask: \'action=profile;u=%item_id%\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			sItemListContainerId: \'members_container\',
 			aListItems: []
 		});
@@ -165,7 +165,7 @@ function template_email_members()
 			bItemList: true,
 			sPostName: \'exclude_member_list\',
 			sURLMask: \'action=profile;u=%item_id%\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			sItemListContainerId: \'exclude_members_container\',
 			aListItems: []
 		});
@@ -196,7 +196,7 @@ function template_email_members_compose()
 		<form name="newsmodify" action="', Config::$scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', Config::$scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::getTxt('admin_newsletters', file: 'Admin'), '
+					<a href="', Config::$scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a> ', Lang::getTxt('admin_newsletters', file: 'Admin'), '
 				</h3>
 			</div>
 			<div class="information noup">
@@ -206,7 +206,7 @@ function template_email_members_compose()
 				<div class="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty(Utils::$context['post_error']['messages']) ? ' style="display: none"' : '', ' id="errors">
 					<dl>
 						<dt>
-							<strong id="error_serious">', Lang::$txt['error_while_submitting'], '</strong>
+							<strong id="error_serious">', Lang::getTxt('error_while_submitting', file: 'General'), '</strong>
 						</dt>
 						<dd class="error" id="error_list">
 							', empty(Utils::$context['post_error']['messages']) ? '' : implode('<br>', Utils::$context['post_error']['messages']), '
@@ -215,7 +215,7 @@ function template_email_members_compose()
 				</div>
 				<dl id="post_header">
 					<dt>
-						<label', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' for="subject" id="caption_subject">', Lang::$txt['subject'], '</label>
+						<label', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' for="subject" id="caption_subject">', Lang::getTxt('subject', file: 'General'), '</label>
 					</dt>
 					<dd id="pm_subject">
 						<input type="text" id="subject" name="subject" value="', Utils::$context['subject'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="84"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
@@ -255,8 +255,8 @@ function template_email_members_compose()
 
 	// The functions used to preview a posts without loading a new page.
 	echo '
-				var txt_preview_title = "', Lang::$txt['preview_title'], '";
-				var txt_preview_fetch = "', Lang::$txt['preview_fetch'], '";
+				var txt_preview_title = "', Lang::getTxt('preview_title', file: 'General'), '";
+				var txt_preview_fetch = "', Lang::getTxt('preview_fetch', file: 'General'), '";
 				function previewPost()
 				{
 					if (window.XMLHttpRequest)
@@ -379,7 +379,7 @@ function template_email_members_send()
 		<form action="', Config::$scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="UTF-8" name="autoSubmit" id="autoSubmit">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', Config::$scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::getTxt('admin_newsletters', file: 'Admin'), '
+					<a href="', Config::$scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a> ', Lang::getTxt('admin_newsletters', file: 'Admin'), '
 				</h3>
 			</div>
 			<div class="windowbg">

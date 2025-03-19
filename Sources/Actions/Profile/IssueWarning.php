@@ -314,7 +314,7 @@ class IssueWarning implements ActionInterface
 					'MESSAGE' => '[url=' . Config::$scripturl . '?msg=' . Utils::$context['warning_for_message'] . ']' . Utils::htmlspecialcharsDecode(Utils::$context['warned_message_subject']) . '[/url]',
 					'SCRIPTURL' => Config::$scripturl,
 					'FORUMNAME' => Config::$mbname,
-					'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
+					'REGARDS' => Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General'),
 				],
 			);
 		}

@@ -1262,7 +1262,7 @@ class Smileys implements ActionInterface
 								<option value="delete">' . Lang::getTxt('smileys_remove', file: 'ManageSmileys') . '</option>
 							</select>
 							<noscript>
-								<input type="submit" name="perform_action" value="' . Lang::$txt['go'] . '" class="button">
+								<input type="submit" name="perform_action" value="' . Lang::getTxt('go', file: 'General') . '" class="button">
 							</noscript>',
 						'class' => 'righttext',
 					],
@@ -2050,7 +2050,7 @@ class Smileys implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="delete" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon">' . Lang::getTxt('icons_add_new', file: 'ManageSmileys') . '</a>',
+					'value' => '<input type="submit" name="delete" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" class="button"> <a class="button" href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon">' . Lang::getTxt('icons_add_new', file: 'ManageSmileys') . '</a>',
 				],
 			],
 		];

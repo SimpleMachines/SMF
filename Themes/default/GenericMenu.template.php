@@ -23,20 +23,20 @@ function template_generic_menu_dropdown_above()
 	// Which menu are we rendering?
 	Utils::$context['cur_menu_id'] = isset(Utils::$context['cur_menu_id']) ? Utils::$context['cur_menu_id'] + 1 : 1;
 	$menu_context = &Utils::$context['menu_data_' . Utils::$context['cur_menu_id']];
-	$menu_label = isset(Utils::$context['admin_menu_name']) ? Lang::$txt['admin_center'] : (isset(Utils::$context['moderation_menu_name']) ? Lang::getTxt('moderation_center', file: 'ModerationCenter') : '');
+	$menu_label = isset(Utils::$context['admin_menu_name']) ? Lang::getTxt('admin_center', file: 'General') : (isset(Utils::$context['moderation_menu_name']) ? Lang::getTxt('moderation_center', file: 'ModerationCenter') : '');
 
 	// Load the menu
 	// Add mobile menu as well
 	echo '
 	<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '">
 		<span class="menu_icon"></span>
-		<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '</span>
+		<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label], file: 'General'), '</span>
 	</a>
 	<div id="genericmenu">
 		<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '" class="popup_container">
 			<div class="popup_window description">
 				<div class="popup_heading">
-					', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label]), '
+					', Lang::getTxt('mobile_generic_menu', ['label' => $menu_label], file: 'General'), '
 					<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 				</div>
 				', template_generic_menu($menu_context), '
@@ -224,7 +224,7 @@ function template_generic_menu_tabs(&$menu_context)
 
 			if (!empty($selected_tab['help']) || !empty($tab_context['help']))
 				echo '
-								<a href="', Config::$scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>';
+								<a href="', Config::$scripturl, '?action=helpadmin;help=', !empty($selected_tab['help']) ? $selected_tab['help'] : $tab_context['help'], '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>';
 
 			echo $tab_context['title'];
 		}
@@ -251,13 +251,13 @@ function template_generic_menu_tabs(&$menu_context)
 		echo '
 					<a class="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs">
 						<span class="menu_icon"></span>
-						<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']]), '</span>
+						<span class="text_menu">', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']], file: 'General'), '</span>
 					</a>
 					<div id="adm_submenus">
 						<div id="mobile_generic_menu_', Utils::$context['cur_menu_id'], '_tabs" class="popup_container">
 							<div class="popup_window description">
 								<div class="popup_heading">
-									', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']]), '
+									', Lang::getTxt('mobile_generic_menu', ['label' => $tab_context['title']], file: 'General'), '
 									<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 								</div>';
 

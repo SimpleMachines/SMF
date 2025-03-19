@@ -2301,6 +2301,7 @@ class Utils
 							'title' => Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])),
 							'pagenum' => Utils::$context['current_page'] + 1,
 						],
+						file: 'General',
 					);
 				}
 			}

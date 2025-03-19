@@ -1022,7 +1022,7 @@ class ExportProfileData extends BackgroundTask
 			)),
 			'author' => Config::$mbname,
 			'source' => Config::$scripturl . '?action=profile;u=' . $uid,
-			'language' => !empty(Lang::$txt['lang_locale']) ? str_replace('_', '-', substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], '.'))) : 'en',
+			'language' => !empty(Lang::getTxt('lang_locale', file: 'General')) ? str_replace('_', '-', substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), '.'))) : 'en',
 			'self' => '', // Unused, but can't be null.
 			'page' => &$filenum,
 		];
@@ -1468,13 +1468,13 @@ class ExportProfileData extends BackgroundTask
 					'value' => Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]),
 				],
 				'txt_summary_heading' => [
-					'value' => Lang::$txt['summary'],
+					'value' => Lang::getTxt('summary', file: 'General'),
 				],
 				'txt_posts_heading' => [
-					'value' => Lang::$txt['posts'],
+					'value' => Lang::getTxt('posts', file: 'General'),
 				],
 				'txt_personal_messages_heading' => [
-					'value' => Lang::$txt['personal_messages'],
+					'value' => Lang::getTxt('personal_messages', file: 'General'),
 				],
 				'txt_view_source_button' => [
 					'value' => Lang::getTxt('export_view_source_button', file: 'Profile'),
@@ -1483,16 +1483,16 @@ class ExportProfileData extends BackgroundTask
 					'value' => Lang::getTxt('export_download_original', file: 'Profile'),
 				],
 				'txt_help' => [
-					'value' => Lang::$txt['help'],
+					'value' => Lang::getTxt('help', file: 'General'),
 				],
 				'txt_terms_rules' => [
-					'value' => Lang::$txt['terms_and_rules'],
+					'value' => Lang::getTxt('terms_and_rules', file: 'General'),
 				],
 				'txt_go_up' => [
-					'value' => Lang::$txt['go_up'],
+					'value' => Lang::getTxt('go_up', file: 'General'),
 				],
 				'txt_pages' => [
-					'value' => Lang::$txt['pages'],
+					'value' => Lang::getTxt('pages', file: 'General'),
 				],
 			];
 

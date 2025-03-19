@@ -946,7 +946,7 @@ class Server implements ActionInterface
 				'db',
 				'select',
 				array_filter(array_map(
-					fn($str) => Lang::txtExists($str) ? Lang::getTxt($str) : '',
+					fn($str) => Lang::txtExists($str, file: 'General') ? Lang::getTxt($str, file: 'General') : '',
 					Utils::$context['login_cookie_times'],
 				)),
 			],
@@ -1029,7 +1029,7 @@ class Server implements ActionInterface
 				'int',
 				false,
 				'databaseSession_lifetime',
-				'postinput' => Lang::$txt['seconds'],
+				'postinput' => Lang::getTxt('seconds', file: 'General'),
 			],
 			'',
 
@@ -1252,7 +1252,7 @@ class Server implements ActionInterface
 				'export_expiry',
 				'subtext' =>
 				Lang::getTxt('zero_to_disable', file: 'Admin'),
-				'postinput' => Lang::$txt['days_word'],
+				'postinput' => Lang::getTxt('days_word', file: 'General'),
 			],
 			[
 				'int',

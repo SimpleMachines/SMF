@@ -118,7 +118,7 @@ class Recent implements ActionInterface, Routable
 		Utils::$context['posts'] = [];
 
 		Theme::loadTemplate('Recent');
-		Utils::$context['page_title'] = Lang::$txt['recent_posts'];
+		Utils::$context['page_title'] = Lang::getTxt('recent_posts', file: 'General');
 		Utils::$context['sub_template'] = 'recent';
 
 		Utils::$context['is_redirect'] = false;
@@ -664,21 +664,21 @@ class Recent implements ActionInterface, Routable
 		foreach (Utils::$context['posts'] as $key => $post) {
 			Utils::$context['posts'][$key]['quickbuttons'] = [
 				'reply' => [
-					'label' => Lang::$txt['reply'],
+					'label' => Lang::getTxt('reply', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;topic=' . $post['topic'] . '.0',
 					'icon' => 'reply_button',
 					'show' => $post['can_reply'],
 				],
 				'quote' => [
-					'label' => Lang::$txt['quote_action'],
+					'label' => Lang::getTxt('quote_action', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;topic=' . $post['topic'] . '.0;quote=' . $post['id'],
 					'icon' => 'quote',
 					'show' => $post['can_quote'],
 				],
 				'delete' => [
-					'label' => Lang::$txt['remove'],
+					'label' => Lang::getTxt('remove', file: 'General'),
 					'href' => Config::$scripturl . '?action=deletemsg;msg=' . $post['id'] . ';topic=' . $post['topic'] . ';recent;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['remove_message'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('remove_message', file: 'General') . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 					'show' => $post['can_delete'],

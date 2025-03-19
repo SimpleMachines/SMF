@@ -395,7 +395,7 @@ abstract class Notify implements ActionInterface
 	protected function ask(): void
 	{
 		Theme::loadTemplate('Notify');
-		Utils::$context['page_title'] = Lang::$txt['notification'];
+		Utils::$context['page_title'] = Lang::getTxt('notification', file: 'General');
 
 		if (self::$member_info['id'] !== User::$me->id) {
 			Utils::$context['notify_info'] = [
@@ -516,7 +516,7 @@ abstract class Notify implements ActionInterface
 	protected function showConfirmation(): void
 	{
 		Theme::loadTemplate('Notify');
-		Utils::$context['page_title'] = Lang::$txt['notification'];
+		Utils::$context['page_title'] = Lang::getTxt('notification', file: 'General');
 		Utils::$context['sub_template'] = 'notify_pref_changed';
 
 		Utils::$context['notify_success_msg'] = $this->getSuccessMsg();

@@ -387,7 +387,7 @@ class XmlHttp implements ActionInterface, Routable
 					User::$me->name,
 					Config::$mbname,
 					Config::$scripturl,
-					Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]),
+					Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General'),
 				];
 
 				$warning_body = str_replace($find, $replace, $warning_body);

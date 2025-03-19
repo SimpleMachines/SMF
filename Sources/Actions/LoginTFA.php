@@ -113,7 +113,7 @@ class LoginTFA extends Login2
 
 		Theme::loadTemplate('Login');
 		Utils::$context['sub_template'] = 'login_tfa';
-		Utils::$context['page_title'] = Lang::$txt['login'];
+		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 		Utils::$context['tfa_url'] = Config::$scripturl . '?action=logintfa';
 	}
 }

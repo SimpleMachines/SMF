@@ -53,7 +53,7 @@ function template_fatal_error()
 		// Show a back button
 		echo '
 	<div class="centertext">
-		<a class="button floatnone" href="', Utils::$context['error_link'], '">', Lang::$txt['back'], '</a>
+		<a class="button floatnone" href="', Utils::$context['error_link'], '">', Lang::getTxt('back', file: 'General'), '</a>
 	</div>';
 	}
 }
@@ -67,7 +67,7 @@ function template_error_log()
 		<form action="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';start=', Utils::$context['start'], Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '', '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', Config::$scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::$txt['errorlog'], '
+					<a href="', Config::$scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a> ', Lang::getTxt('errorlog', file: 'General'), '
 				</h3>
 			</div>
 			<div class="information flow_hidden">
@@ -111,7 +111,7 @@ function template_error_log()
 					', Utils::$context['page_index'], '
 				</div>
 				<div class="floatright" style="padding: 0 12px">
-					<label for="check_all"><strong>', Lang::$txt['check_all'], '</strong></label>
+					<label for="check_all"><strong>', Lang::getTxt('check_all', file: 'General'), '</strong></label>
 					<input type="checkbox" id="check_all" onclick="invertAll(this, this.form, \'delete[]\');">
 				</div>
 			</div>';
@@ -169,7 +169,7 @@ function template_error_log()
 					<br class="clear">
 					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=error_type;value=', $error['error_type']['type'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_type', file: 'ManageMaintenance')]), '"><span class="main_icons filter"></span></a>', Lang::getTxt('error_type_name', ['type' => $error['error_type']['type'] === 'critical' ? '<span class="error">' . $error['error_type']['name'] . '</span>' : $error['error_type']['name']], file: 'ManageMaintenance'), '<br>
 					<a href="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';filter=message;value=', $error['message']['href'], '" title="', Lang::getTxt('apply_filter_type', ['type' => Lang::getTxt('filter_only_message', file: 'ManageMaintenance')]), '"><span class="main_icons filter floatleft"></span></a>
-					<div class="codeheader"><span class="code floatleft">' . Lang::getTxt('error_message', file: 'ManageMaintenance') . '</span> <a class="codeoperation smf_select_text">' . Lang::$txt['code_select'] . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . Lang::$txt['code_shrink'] . '" data-expand-txt="' . Lang::$txt['code_expand'] . '">' . Lang::$txt['code_expand'] . '</a>
+					<div class="codeheader"><span class="code floatleft">' . Lang::getTxt('error_message', file: 'ManageMaintenance') . '</span> <a class="codeoperation smf_select_text">' . Lang::getTxt('code_select', file: 'General') . '</a> <a class="codeoperation smf_expand_code hidden" data-shrink-txt="' . Lang::getTxt('code_shrink', file: 'General') . '" data-expand-txt="' . Lang::getTxt('code_expand', file: 'General') . '">' . Lang::getTxt('code_expand', file: 'General') . '</a>
 					</div><code class="bbc_code" style="white-space: pre-line; overflow-y: auto">', $error['message']['html'], '</code>
 				</div>
 			</div>';
@@ -247,11 +247,11 @@ function template_attachment_errors()
 
 	if (!empty(Utils::$context['back_link']))
 		echo '
-				<a class="button" href="', Config::$scripturl, Utils::$context['back_link'], '">', Lang::$txt['back'], '</a>';
+				<a class="button" href="', Config::$scripturl, Utils::$context['back_link'], '">', Lang::getTxt('back', file: 'General'), '</a>';
 
 	echo '
 				<span style="float: right; margin:.5em;"></span>
-				<a class="button" href="', Config::$scripturl, Utils::$context['redirect_link'], '">', Lang::$txt['continue'], '</a>
+				<a class="button" href="', Config::$scripturl, Utils::$context['redirect_link'], '">', Lang::getTxt('continue', file: 'General'), '</a>
 			</div>
 		</div>
 	</div>';
@@ -307,7 +307,7 @@ function template_show_backtrace()
 		if (!empty(Utils::$context['error_info']['file']))
 			echo '
 						<tr class="title_bar">
-							<td><strong>', Lang::$txt['file'], '</strong></td>
+							<td><strong>', Lang::getTxt('file', file: 'General'), '</strong></td>
 						</tr>
 						<tr class="windowbg">
 							<td>', Utils::$context['error_info']['file'], '</td>
@@ -316,7 +316,7 @@ function template_show_backtrace()
 		if (!empty(Utils::$context['error_info']['line']))
 			echo '
 						<tr class="title_bar">
-							<td><strong>', Lang::$txt['line'], '</strong></td>
+							<td><strong>', Lang::getTxt('line', file: 'General'), '</strong></td>
 						</tr>
 						<tr class="windowbg">
 							<td>', Utils::$context['error_info']['line'], '</td>
@@ -352,7 +352,7 @@ function template_show_backtrace()
 		{
 			//Check for existing
 			if (!property_exists($value, 'file') || empty($value->file))
-				$value->file = Lang::$txt['unknown'];
+				$value->file = Lang::getTxt('unknown', file: 'General');
 
 			if (!property_exists($value, 'line') || empty($value->line))
 				$value->line = -1;
@@ -360,7 +360,7 @@ function template_show_backtrace()
 			echo '
 					<li class="backtrace">',
 					Lang::getTxt(
-						'backtrace_info' . ($value->file == Lang::$txt['unknown'] && $value->line == -1 ? '_internal_function' : ''),
+						'backtrace_info' . ($value->file == Lang::getTxt('unknown', file: 'General') && $value->line == -1 ? '_internal_function' : ''),
 						[
 							$key,
 							(!empty($value->class) ? $value->class . $value->type : '') . $value->function,

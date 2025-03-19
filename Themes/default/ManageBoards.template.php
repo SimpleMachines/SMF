@@ -188,7 +188,7 @@ function template_modify_category()
 				<input type="submit" name="add" value="', Lang::getTxt('mboards_add_cat_button', file: 'ManageBoards'), '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">';
 	else
 		echo '
-				<input type="submit" name="edit" value="', Lang::$txt['modify'], '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">
+				<input type="submit" name="edit" value="', Lang::getTxt('modify', file: 'General'), '" onclick="return !isEmptyText(this.form.cat_name);" tabindex="', Utils::$context['tabindex']++, '" class="button">
 				<input type="submit" name="delete" value="', Lang::getTxt('mboards_delete_cat', file: 'ManageBoards'), '" data-confirm="', Lang::getTxt('cat_delete_confirm', file: 'ManageBoards'), '" class="button you_sure">';
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -407,7 +407,7 @@ function template_modify_board()
 	if (empty(Config::$modSettings['deny_boards_access']))
 		echo '
 						<span class="select_all_box">
-							<em>', Lang::$txt['check_all'], '</em> <input type="checkbox" onclick="invertAll(this, this.form, \'groups[\');">
+							<em>', Lang::getTxt('check_all', file: 'General'), '</em> <input type="checkbox" onclick="invertAll(this, this.form, \'groups[\');">
 						</span>
 						<br><br>
 					</dd>';
@@ -426,7 +426,7 @@ function template_modify_board()
 									<input type="radio" name="select_all" onclick="selectAllRadio(this, this.form, \'groups\', \'deny\');">
 								</td>
 								<td>
-									<em>', Lang::$txt['check_all'], '</em>
+									<em>', Lang::getTxt('check_all', file: 'General'), '</em>
 								</td>
 							</tr>
 						</table>
@@ -592,7 +592,7 @@ function template_modify_board()
 				<input type="submit" name="add" value="', Lang::getTxt('mboards_new_board', file: 'ManageBoards'), '" onclick="return !isEmptyText(this.form.board_name);" class="button">';
 	else
 		echo '
-				<input type="submit" name="edit" value="', Lang::$txt['modify'], '" onclick="return !isEmptyText(this.form.board_name);" class="button">';
+				<input type="submit" name="edit" value="', Lang::getTxt('modify', file: 'General'), '" onclick="return !isEmptyText(this.form.board_name);" class="button">';
 
 	if (!isset(Utils::$context['board']['is_new']) && empty(Utils::$context['board']['is_recycle']))
 		echo '
@@ -613,7 +613,7 @@ function template_modify_board()
 			bItemList: true,
 			sPostName: \'moderator_list\',
 			sURLMask: \'action=profile;u=%item_id%\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			sItemListContainerId: \'moderator_container\',
 			aListItems: [';
 
@@ -638,7 +638,7 @@ function template_modify_board()
 			bItemList: true,
 			sPostName: \'moderator_group_list\',
 			sURLMask: \'action=groups;sa=members;group=%item_id%\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			sItemListContainerId: \'moderator_group_container\',
 			aListItems: [';
 

@@ -112,7 +112,7 @@ class ErrorLog implements ActionInterface
 		Theme::loadTemplate('Errors');
 
 		foreach ($this->filters as &$filter) {
-			$filter['txt'] = Lang::$txt[$filter['txt']];
+			$filter['txt'] = Lang::getTxt($filter['txt'], file: 'General+ManageMaintenance');
 		}
 
 		// Check for the administrative permission to do this.
@@ -304,7 +304,7 @@ class ErrorLog implements ActionInterface
 			$members[0] = [
 				'id_member' => 0,
 				'member_name' => '',
-				'real_name' => Lang::$txt['guest_title'],
+				'real_name' => Lang::getTxt('guest_title', file: 'General'),
 			];
 
 			// Go through each error and tack the data on.
@@ -314,7 +314,7 @@ class ErrorLog implements ActionInterface
 				$error['member']['username'] = $members[$memID]['member_name'];
 				$error['member']['name'] = $members[$memID]['real_name'];
 				$error['member']['href'] = empty($memID) ? '' : Config::$scripturl . '?action=profile;u=' . $memID;
-				$error['member']['link'] = empty($memID) ? Lang::$txt['guest_title'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $memID . '">' . $error['member']['name'] . '</a>';
+				$error['member']['link'] = empty($memID) ? Lang::getTxt('guest_title', file: 'General') : '<a href="' . Config::$scripturl . '?action=profile;u=' . $memID . '">' . $error['member']['name'] . '</a>';
 			}
 		}
 
@@ -328,7 +328,7 @@ class ErrorLog implements ActionInterface
 
 				User::load($id, User::LOAD_BY_ID, 'minimal');
 
-				Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset(User::$loaded[$id]) ? User::$loaded[$id]->name : Lang::$txt['guest']) . '</a>';
+				Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset(User::$loaded[$id]) ? User::$loaded[$id]->name : Lang::getTxt('guest', file: 'General')) . '</a>';
 			} elseif ($this->filter['variable'] == 'url') {
 				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((str_starts_with($this->filter['value']['sql'], '?') ? Config::$scripturl : '') . $this->filter['value']['sql']), ['\\_' => '_']) . '\'';
 			} elseif ($this->filter['variable'] == 'message') {
@@ -391,7 +391,7 @@ class ErrorLog implements ActionInterface
 		}
 
 		// And this is pretty basic ;).
-		Utils::$context['page_title'] = Lang::$txt['errorlog'];
+		Utils::$context['page_title'] = Lang::getTxt('errorlog', file: 'General');
 		Utils::$context['has_filter'] = isset($this->filter);
 		Utils::$context['sub_template'] = 'error_log';
 

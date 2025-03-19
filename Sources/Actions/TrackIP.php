@@ -162,7 +162,7 @@ class TrackIP implements ActionInterface, Routable
 			'columns' => [
 				'ip_address' => [
 					'header' => [
-						'value' => Lang::$txt['ip_address'],
+						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -187,7 +187,7 @@ class TrackIP implements ActionInterface, Routable
 				],
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['subject'],
+						'value' => Lang::getTxt('subject', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -202,7 +202,7 @@ class TrackIP implements ActionInterface, Routable
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -250,7 +250,7 @@ class TrackIP implements ActionInterface, Routable
 			'columns' => [
 				'ip_address2' => [
 					'header' => [
-						'value' => Lang::$txt['ip_address'],
+						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -267,7 +267,7 @@ class TrackIP implements ActionInterface, Routable
 				],
 				'display_name' => [
 					'header' => [
-						'value' => Lang::$txt['display_name'],
+						'value' => Lang::getTxt('display_name', file: 'General'),
 					],
 					'data' => [
 						'db' => 'member_link',
@@ -275,7 +275,7 @@ class TrackIP implements ActionInterface, Routable
 				],
 				'message' => [
 					'header' => [
-						'value' => Lang::$txt['message'],
+						'value' => Lang::getTxt('message', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -290,7 +290,7 @@ class TrackIP implements ActionInterface, Routable
 				],
 				'date2' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'time',

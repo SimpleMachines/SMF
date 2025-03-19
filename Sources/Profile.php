@@ -412,8 +412,8 @@ class Profile extends User implements \ArrayAccess
 			],
 			'date_registered' => [
 				'type' => 'date',
-				'value' => empty($this->date_registered) || !is_int($this->date_registered) ? Lang::$txt['not_applicable'] : Time::strftime('%Y-%m-%d', $this->date_registered),
-				'label' => Lang::$txt['date_registered'],
+				'value' => empty($this->date_registered) || !is_int($this->date_registered) ? Lang::getTxt('not_applicable', file: 'General') : Time::strftime('%Y-%m-%d', $this->date_registered),
+				'label' => Lang::getTxt('date_registered', file: 'General'),
 				'log_change' => true,
 				'permission' => 'moderate_forum',
 				'input_validate' => function (&$value) {
@@ -425,7 +425,7 @@ class Profile extends User implements \ArrayAccess
 					}
 
 					// As long as it doesn't equal "N/A"...
-					if ($value != Lang::$txt['not_applicable'] && $value != strtotime(Time::strftime('%Y-%m-%d', $this->date_registered))) {
+					if ($value != Lang::getTxt('not_applicable', file: 'General') && $value != strtotime(Time::strftime('%Y-%m-%d', $this->date_registered))) {
 						$diff = $this->date_registered - strtotime(Time::strftime('%Y-%m-%d', $this->date_registered));
 
 						$value = $value + $diff;
@@ -438,8 +438,8 @@ class Profile extends User implements \ArrayAccess
 			],
 			'email_address' => [
 				'type' => 'email',
-				'label' => Lang::$txt['user_email_address'],
-				'subtext' => Lang::$txt['valid_email'],
+				'label' => Lang::getTxt('user_email_address', file: 'General'),
+				'subtext' => Lang::getTxt('valid_email', file: 'General'),
 				'log_change' => true,
 				'permission' => 'profile_password',
 				'js_submit' => !empty(Config::$modSettings['send_validation_onChange']) ? '
@@ -548,7 +548,7 @@ class Profile extends User implements \ArrayAccess
 			// The username is not always editable - so adjust it as such.
 			'member_name' => [
 				'type' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? 'text' : 'label',
-				'label' => Lang::$txt['username'],
+				'label' => Lang::getTxt('username', file: 'General'),
 				'subtext' => User::$me->allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" style="font-style: italic;">' . Lang::getTxt('username_change', file: 'Profile') . '</a>]' : '',
 				'log_change' => true,
 				'permission' => 'profile_identity',
@@ -586,7 +586,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'passwrd1' => [
 				'type' => 'password',
-				'label' => Lang::$txt['choose_pass'],
+				'label' => Lang::getTxt('choose_pass', file: 'General'),
 				'subtext' => Lang::getTxt('password_strength', file: 'Profile'),
 				'size' => 20,
 				'value' => '',
@@ -620,7 +620,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'passwrd2' => [
 				'type' => 'password',
-				'label' => Lang::$txt['verify_pass'],
+				'label' => Lang::getTxt('verify_pass', file: 'General'),
 				'size' => 20,
 				'value' => '',
 				'permission' => 'profile_password',
@@ -628,7 +628,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'personal_text' => [
 				'type' => 'text',
-				'label' => Lang::$txt['personal_text'],
+				'label' => Lang::getTxt('personal_text', file: 'General'),
 				'log_change' => true,
 				'input_attr' => ['maxlength="50"'],
 				'size' => 50,
@@ -686,7 +686,7 @@ class Profile extends User implements \ArrayAccess
 			],
 			'real_name' => [
 				'type' => User::$me->allowedTo('profile_displayed_name_own') || User::$me->allowedTo('profile_displayed_name_any') || User::$me->allowedTo('moderate_forum') ? 'text' : 'label',
-				'label' => Lang::$txt['name'],
+				'label' => Lang::getTxt('name', file: 'General'),
 				'subtext' => Lang::getTxt('display_name_desc', file: 'Profile'),
 				'log_change' => true,
 				'input_attr' => ['maxlength="60"'],
@@ -755,7 +755,7 @@ class Profile extends User implements \ArrayAccess
 
 					Utils::$context['smiley_sets'] = explode(',', 'none,,' . Config::$modSettings['smiley_sets_known']);
 
-					$set_names = explode("\n", Lang::$txt['smileys_none'] . "\n" . Lang::$txt['smileys_forum_board_default'] . "\n" . Config::$modSettings['smiley_sets_names']);
+					$set_names = explode("\n", Lang::getTxt('smileys_none', file: 'General') . "\n" . Lang::getTxt('smileys_forum_board_default', file: 'General') . "\n" . Config::$modSettings['smiley_sets_names']);
 
 					$filenames = [];
 
@@ -1078,7 +1078,7 @@ class Profile extends User implements \ArrayAccess
 
 				$input_html = '<input type="checkbox" name="customfield[' . $cf_def['col_name'] . ']" id="customfield[' . $cf_def['col_name'] . ']"' . ($true ? ' checked' : '') . '>';
 
-				$output_html = $true ? Lang::$txt['yes'] : Lang::$txt['no'];
+				$output_html = Lang::getTxt($true ? 'yes' : 'no', file: 'General');
 			} elseif ($cf_def['field_type'] == 'select') {
 				$input_html = '<select name="customfield[' . $cf_def['col_name'] . ']" id="customfield[' . $cf_def['col_name'] . ']"><option value="-1"></option>';
 

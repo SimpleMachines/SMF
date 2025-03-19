@@ -249,11 +249,11 @@ class Mail implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'top_of_list',
-					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('mailqueue_clear_list_warning', file: 'ManageMail') . '">' . Lang::getTxt('mailqueue_clear_list', file: 'ManageMail') . '</a> ',
+					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" data-confirm="' . Lang::getTxt('quickmod_confirm', file: 'General') . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('mailqueue_clear_list_warning', file: 'ManageMail') . '">' . Lang::getTxt('mailqueue_clear_list', file: 'ManageMail') . '</a> ',
 				],
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('mailqueue_clear_list_warning', file: 'ManageMail') . '">' . Lang::getTxt('mailqueue_clear_list', file: 'ManageMail') . '</a> ',
+					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" data-confirm="' . Lang::getTxt('quickmod_confirm', file: 'General') . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('mailqueue_clear_list_warning', file: 'ManageMail') . '">' . Lang::getTxt('mailqueue_clear_list', file: 'ManageMail') . '</a> ',
 				],
 			],
 		];

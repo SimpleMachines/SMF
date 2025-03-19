@@ -205,14 +205,14 @@ class Display implements ActionInterface, Routable
 		// Set up the quick buttons.
 		$output['quickbuttons'] = [
 			'quote' => [
-				'label' => Lang::$txt['quote_action'],
+				'label' => Lang::getTxt('quote_action', file: 'General'),
 				'href' => Config::$scripturl . '?action=post;quote=' . $output['id'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';last_msg=' . Topic::$info->id_last_msg,
 				'javascript' => 'onclick="return oQuickReply.quote(' . $output['id'] . ');"',
 				'icon' => 'quote',
 				'show' => Utils::$context['can_quote'],
 			],
 			'quote_selected' => [
-				'label' => Lang::$txt['quote_selected_action'],
+				'label' => Lang::getTxt('quote_selected_action', file: 'General'),
 				'id' => 'quoteSelected_' . $output['id'],
 				'href' => 'javascript:void(0)',
 				'custom' => 'style="display:none"',
@@ -220,7 +220,7 @@ class Display implements ActionInterface, Routable
 				'show' => Utils::$context['can_quote'],
 			],
 			'quick_edit' => [
-				'label' => Lang::$txt['quick_edit'],
+				'label' => Lang::getTxt('quick_edit', file: 'General'),
 				'class' => 'quick_edit',
 				'id' => 'modify_button_' . $output['id'],
 				'custom' => 'onclick="oQuickModify.modifyMsg(\'' . $output['id'] . '\', \'' . !empty(Config::$modSettings['toggle_subject']) . '\')"',
@@ -229,59 +229,59 @@ class Display implements ActionInterface, Routable
 			],
 			'more' => [
 				'modify' => [
-					'label' => Lang::$txt['modify'],
+					'label' => Lang::getTxt('modify', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;msg=' . $output['id'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'],
 					'icon' => 'modify_button',
 					'show' => $output['can_modify'],
 				],
 				'remove_topic' => [
-					'label' => Lang::$txt['remove_topic'],
+					'label' => Lang::getTxt('remove_topic', file: 'General'),
 					'href' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['are_sure_remove_topic'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('are_sure_remove_topic', file: 'General') . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 					'show' => Utils::$context['can_delete'] && (Topic::$info->id_first_msg == $output['id']),
 				],
 				'remove' => [
-					'label' => Lang::$txt['remove'],
+					'label' => Lang::getTxt('remove', file: 'General'),
 					'href' => Config::$scripturl . '?action=deletemsg;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['remove_message_question'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('remove_message_question', file: 'General') . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 					'show' => $output['can_remove'] && (Topic::$info->id_first_msg != $output['id']),
 				],
 				'split' => [
-					'label' => Lang::$txt['split'],
+					'label' => Lang::getTxt('split', file: 'General'),
 					'href' => Config::$scripturl . '?action=splittopics;topic=' . Utils::$context['current_topic'] . '.0;at=' . $output['id'],
 					'icon' => 'split_button',
 					'show' => Utils::$context['can_split'] && !empty(Topic::$info->real_num_replies),
 				],
 				'report' => [
-					'label' => Lang::$txt['report_to_mod'],
+					'label' => Lang::getTxt('report_to_mod', file: 'General'),
 					'href' => Config::$scripturl . '?action=reporttm;topic=' . Utils::$context['current_topic'] . '.' . $output['counter'] . ';msg=' . $output['id'],
 					'icon' => 'error',
 					'show' => Utils::$context['can_report_moderator'],
 				],
 				'warn' => [
-					'label' => Lang::$txt['issue_warning'],
+					'label' => Lang::getTxt('issue_warning', file: 'General'),
 					'href' => Config::$scripturl . '?action=profile;area=issuewarning;u=' . $output['member']['id'] . ';msg=' . $output['id'],
 					'icon' => 'warn_button',
 					'show' => Utils::$context['can_issue_warning'] && !$output['is_message_author'] && !$output['member']['is_guest'],
 				],
 				'restore' => [
-					'label' => Lang::$txt['restore_message'],
+					'label' => Lang::getTxt('restore_message', file: 'General'),
 					'href' => Config::$scripturl . '?action=restoretopic;msgs=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'restore_button',
 					'show' => Utils::$context['can_restore_msg'],
 				],
 				'approve' => [
-					'label' => Lang::$txt['approve'],
+					'label' => Lang::getTxt('approve', file: 'General'),
 					'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=approve;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'approve_button',
 					'show' => $output['can_approve'],
 				],
 				'unapprove' => [
-					'label' => Lang::$txt['unapprove'],
+					'label' => Lang::getTxt('unapprove', file: 'General'),
 					'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=approve;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'unapprove_button',
 					'show' => $output['can_unapprove'],
@@ -840,7 +840,7 @@ class Display implements ActionInterface, Routable
 		Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 		// Create a previous next string if the selected theme has it as a selected option.
-		Utils::$context['previous_next'] = Config::$modSettings['enablePreviousNext'] ? '<a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=prev#new">' . Lang::$txt['previous_next_back'] . '</a> - <a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=next#new">' . Lang::$txt['previous_next_forward'] . '</a>' : '';
+		Utils::$context['previous_next'] = Config::$modSettings['enablePreviousNext'] ? '<a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=prev#new">' . Lang::getTxt('previous_next_back', file: 'General') . '</a> - <a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=next#new">' . Lang::getTxt('previous_next_forward', file: 'General') . '</a>' : '';
 
 		// If all is set, but not allowed... just unset it.
 		$this->can_show_all = !empty(Config::$modSettings['enableAllMessages']) && Topic::$info->total_visible_posts > Utils::$context['messages_per_page'] && Topic::$info->total_visible_posts < Config::$modSettings['enableAllMessages'];
@@ -884,14 +884,14 @@ class Display implements ActionInterface, Routable
 			if (isset($_REQUEST['all'])) {
 				// No limit! (actually, there is a limit, but...)
 				Utils::$context['messages_per_page'] = -1;
-				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['current_page'], ['%1$d' => '%1$s']), Lang::$txt['all']);
+				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['current_page'], ['%1$d' => '%1$s']), Lang::getTxt('all', file: 'General'));
 
 				// Set start back to 0...
 				$_REQUEST['start'] = 0;
 			}
 			// They aren't using it, but the *option* is there, at least.
 			else {
-				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all']), '', Lang::$txt['all']);
+				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all']), '', Lang::getTxt('all', file: 'General'));
 			}
 		}
 	}
@@ -909,20 +909,20 @@ class Display implements ActionInterface, Routable
 		if (!empty(Board::$info->moderators)) {
 			// Add a link for each moderator...
 			foreach (Board::$info->moderators as $mod) {
-				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod['name'] . '</a>';
+				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $mod['name'] . '</a>';
 			}
 		}
 
 		if (!empty(Board::$info->moderator_groups)) {
 			// Add a link for each moderator group as well...
 			foreach (Board::$info->moderator_groups as $mod_group) {
-				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=viewmembers;group=' . $mod_group['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
+				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=viewmembers;group=' . $mod_group['id'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $mod_group['name'] . '</a>';
 			}
 		}
 
 		if (!empty(Utils::$context['link_moderators'])) {
 			// And show it after the board's name.
-			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 		}
 	}
 
@@ -972,7 +972,7 @@ class Display implements ActionInterface, Routable
 		Utils::$context['topic_starter_id'] = Topic::$info->id_member_started;
 		Utils::$context['subject'] = Topic::$info->subject;
 		Utils::$context['num_views'] = Lang::numberFormat(Topic::$info->num_views);
-		Utils::$context['num_views_text'] = Lang::getTxt('number_of_times_read', [Utils::$context['num_views']]);
+		Utils::$context['num_views_text'] = Lang::getTxt('number_of_times_read', [Utils::$context['num_views']], file: 'General');
 		Utils::$context['mark_unread_time'] = !empty($this->virtual_msg) ? $this->virtual_msg : Topic::$info->new_from;
 
 		// Default this topic to not marked for notifications... of course...
@@ -985,7 +985,7 @@ class Display implements ActionInterface, Routable
 		];
 
 		Utils::$context['jump_to'] = [
-			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
+			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('jump_to', file: 'General'))),
 			'board_name' => strtr(Utils::htmlspecialchars(strip_tags(Board::$info->name)), ['&amp;' => '&']),
 			'child_level' => Board::$info->child_level,
 		];
@@ -993,10 +993,10 @@ class Display implements ActionInterface, Routable
 		// For quick reply we need a response prefix in the default forum language.
 		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
 			if (Lang::$default === User::$me->language) {
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 			} else {
 				Lang::load('General', Lang::$default, false);
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 				Lang::load('General');
 			}
 			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
@@ -1255,7 +1255,7 @@ class Display implements ActionInterface, Routable
 			'id' => 'quickReply',
 			'value' => '',
 			'labels' => [
-				'post_button' => Lang::$txt['post'],
+				'post_button' => Lang::getTxt('post', file: 'General'),
 			],
 			// add height and width for the editor
 			'height' => '150px',
@@ -1339,7 +1339,7 @@ class Display implements ActionInterface, Routable
 		}
 
 		if (Topic::$info->permissions['can_delete']) {
-			Utils::$context['mod_buttons']['delete'] = ['text' => 'remove_topic', 'custom' => 'data-confirm="' . Lang::$txt['are_sure_remove_topic'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
+			Utils::$context['mod_buttons']['delete'] = ['text' => 'remove_topic', 'custom' => 'data-confirm="' . Lang::getTxt('are_sure_remove_topic', file: 'General') . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
 		}
 
 		if (Topic::$info->permissions['can_lock']) {

@@ -335,22 +335,52 @@ class Logs implements ActionInterface
 			// Various logs that could be pruned.
 
 			// Error log.
-			['int', 'pruneErrorLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
+			[
+				'int',
+				'pruneErrorLog',
+				'postinput' => Lang::getTxt('days_word', file: 'General'),
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+			],
 
 			// Moderation log.
-			['int', 'pruneModLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
+			[
+				'int',
+				'pruneModLog',
+				'postinput' => Lang::getTxt('days_word', file: 'General'),
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+			],
 
 			// Ban hit log.
-			['int', 'pruneBanLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
+			[
+				'int',
+				'pruneBanLog',
+				'postinput' => Lang::getTxt('days_word', file: 'General'),
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+			],
 
 			// Report to moderator log.
-			['int', 'pruneReportLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
+			[
+				'int',
+				'pruneReportLog',
+				'postinput' => Lang::getTxt('days_word', file: 'General'),
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+			],
 
 			// Log of the scheduled tasks and how long they ran.
-			['int', 'pruneScheduledTaskLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
+			[
+				'int',
+				'pruneScheduledTaskLog',
+				'postinput' => Lang::getTxt('days_word', file: 'General'),
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+			],
 
 			// Log recording when search engines have crawled the forum.
-			['int', 'pruneSpiderHitLog', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
+			[
+				'int',
+				'pruneSpiderHitLog',
+				'postinput' => Lang::getTxt('days_word', file: 'General'),
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+			],
 		];
 
 		// MOD AUTHORS: If you want to add your own logs, use this hook.

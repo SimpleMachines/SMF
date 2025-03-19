@@ -1923,7 +1923,7 @@ class TimeZone extends \DateTimeZone
 			}
 			// Otherwise, use the list of locations (max 5, so things don't get silly)
 			else {
-				$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . Lang::$txt['etc'] : '');
+				$desc = implode(', ', array_slice(array_unique($tzvalue['locations']), 0, 5)) . (count($tzvalue['locations']) > 5 ? ', ' . Lang::getTxt('etc', file: 'General') : '');
 			}
 
 			// We don't want abbreviations like '+03' or '-11'.

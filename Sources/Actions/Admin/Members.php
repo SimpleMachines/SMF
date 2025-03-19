@@ -163,13 +163,13 @@ class Members implements ActionInterface
 
 		Utils::$context['tabs'] = [
 			'viewmembers' => [
-				'label' => Lang::$txt['view_all_members'],
+				'label' => Lang::getTxt('view_all_members', file: 'General'),
 				'description' => Lang::getTxt('admin_members_list', file: 'Admin'),
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=all',
 				'selected_actions' => ['all'],
 			],
 			'search' => [
-				'label' => Lang::$txt['mlist_search'],
+				'label' => Lang::getTxt('mlist_search', file: 'General'),
 				'description' => Lang::getTxt('admin_members_list', file: 'Admin'),
 				'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=search',
 				'selected_actions' => ['search', 'query'],
@@ -196,7 +196,7 @@ class Members implements ActionInterface
 
 		// Miscellaneous settings related to membership.
 		Utils::$context['tabs']['settings'] = [
-			'label' => Lang::$txt['settings'],
+			'label' => Lang::getTxt('settings', file: 'General'),
 			'url' => Config::$scripturl . '?action=admin;area=viewmembers;sa=settings',
 		];
 
@@ -518,7 +518,7 @@ class Members implements ActionInterface
 
 		$listOptions = [
 			'id' => 'member_list',
-			'title' => Lang::$txt['members_list'],
+			'title' => Lang::getTxt('members_list', file: 'General'),
 			'items_per_page' => Config::$modSettings['defaultMaxMembers'],
 			'base_href' => Config::$scripturl . '?action=admin;area=viewmembers' . $params_url,
 			'default_sort_col' => 'user_name',
@@ -551,7 +551,7 @@ class Members implements ActionInterface
 				],
 				'user_name' => [
 					'header' => [
-						'value' => Lang::$txt['username'],
+						'value' => Lang::getTxt('username', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -569,7 +569,7 @@ class Members implements ActionInterface
 				],
 				'display_name' => [
 					'header' => [
-						'value' => Lang::$txt['display_name'],
+						'value' => Lang::getTxt('display_name', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -604,7 +604,7 @@ class Members implements ActionInterface
 				],
 				'ip' => [
 					'header' => [
-						'value' => Lang::$txt['ip_address'],
+						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -627,7 +627,7 @@ class Members implements ActionInterface
 						'function' => function ($rowData) {
 							// Calculate number of days since last online.
 							if (empty($rowData['last_login'])) {
-								$difference = Lang::$txt['never'];
+								$difference = Lang::getTxt('never', file: 'General');
 							} else {
 								$tz = timezone_open(User::getTimezone());
 								$today = new \DateTime('today', $tz);
@@ -664,7 +664,7 @@ class Members implements ActionInterface
 				],
 				'posts' => [
 					'header' => [
-						'value' => Lang::$txt['member_postcount'],
+						'value' => Lang::getTxt('member_postcount', file: 'General'),
 					],
 					'data' => [
 						'db' => 'posts',
@@ -917,7 +917,7 @@ class Members implements ActionInterface
 				],
 				'user_name' => [
 					'header' => [
-						'value' => Lang::$txt['username'],
+						'value' => Lang::getTxt('username', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -952,7 +952,7 @@ class Members implements ActionInterface
 				],
 				'ip' => [
 					'header' => [
-						'value' => Lang::$txt['ip_address'],
+						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -969,7 +969,7 @@ class Members implements ActionInterface
 				],
 				'hostname' => [
 					'header' => [
-						'value' => Lang::$txt['hostname'],
+						'value' => Lang::getTxt('hostname', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -982,7 +982,7 @@ class Members implements ActionInterface
 				],
 				'date_registered' => [
 					'header' => [
-						'value' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? Lang::getTxt('viewmembers_online', file: 'Admin') : Lang::$txt['date_registered'],
+						'value' => in_array($this->current_filter, [User::REQUESTED_DELETE, User::REQUESTED_DELETE_ANONYMIZE]) ? Lang::getTxt('viewmembers_online', file: 'Admin') : Lang::getTxt('date_registered', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -1008,7 +1008,7 @@ class Members implements ActionInterface
 								if ($member['id']) {
 									$member_links[] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $member['id'] . '" ' . (!empty($member['is_banned']) ? 'class="red"' : '') . '>' . $member['name'] . '</a>';
 								} else {
-									$member_links[] = $member['name'] . ' (' . Lang::$txt['guest_title'] . ')';
+									$member_links[] = $member['name'] . ' (' . Lang::getTxt('guest_title', file: 'General') . ')';
 								}
 							}
 
@@ -1051,7 +1051,7 @@ class Members implements ActionInterface
 						<select name="todo" onchange="onSelectChange();">
 							' . $action_options . '
 						</select>
-						<noscript><input type="submit" value="' . Lang::$txt['go'] . '" class="button"><br class="clear_right"></noscript>
+						<noscript><input type="submit" value="' . Lang::getTxt('go', file: 'General') . '" class="button"><br class="clear_right"></noscript>
 					',
 					'class' => 'floatright',
 				],
@@ -1088,12 +1088,12 @@ class Members implements ActionInterface
 
 			foreach ($available_filters as $filter) {
 				$filterOptions .= '
-					<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . Lang::getTxt('number_of_users', [$filter['amount']]) . '</option>';
+					<option value="' . $filter['type'] . '"' . ($filter['selected'] ? ' selected' : '') . '>' . $filter['desc'] . ' - ' . Lang::getTxt('number_of_users', [$filter['amount']], file: 'General') . '</option>';
 			}
 
 			$filterOptions .= '
 				</select>
-				<noscript><input type="submit" value="' . Lang::$txt['go'] . '" name="filter" class="button"></noscript>';
+				<noscript><input type="submit" value="' . Lang::getTxt('go', file: 'General') . '" name="filter" class="button"></noscript>';
 
 			$listOptions['additional_rows'][] = [
 				'position' => 'top_of_list',
@@ -1378,7 +1378,7 @@ class Members implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=viewmembers;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('settings', file: 'General');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}

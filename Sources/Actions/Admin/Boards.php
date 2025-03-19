@@ -854,7 +854,7 @@ class Boards implements ActionInterface
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=manageboards;save;sa=settings';
 
-		Utils::$context['page_title'] = Lang::getTxt('boards_and_cats', file: 'ManageBoards') . ' - ' . Lang::$txt['settings'];
+		Utils::$context['page_title'] = Lang::getTxt('boards_and_cats', file: 'ManageBoards') . ' - ' . Lang::getTxt('settings', file: 'General');
 
 		Theme::loadTemplate('ManageBoards');
 		Utils::$context['sub_template'] = 'show_settings';

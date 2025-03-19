@@ -175,7 +175,7 @@ class ShowPosts implements ActionInterface
 			'columns' => [
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['subject'],
+						'value' => Lang::getTxt('subject', file: 'General'),
 						'class' => 'lefttext',
 						'style' => 'width: 30%;',
 					],
@@ -195,7 +195,7 @@ class ShowPosts implements ActionInterface
 				],
 				'started_by' => [
 					'header' => [
-						'value' => Lang::$txt['started_by'],
+						'value' => Lang::getTxt('started_by', file: 'General'),
 						'style' => 'width: 15%;',
 					],
 					'data' => [
@@ -208,7 +208,7 @@ class ShowPosts implements ActionInterface
 				],
 				'started_on' => [
 					'header' => [
-						'value' => Lang::$txt['on'],
+						'value' => Lang::getTxt('on', file: 'General'),
 						'class' => 'lefttext',
 						'style' => 'width: 20%;',
 					],
@@ -223,7 +223,7 @@ class ShowPosts implements ActionInterface
 				],
 				'last_post_by' => [
 					'header' => [
-						'value' => Lang::$txt['last_post'],
+						'value' => Lang::getTxt('last_post', file: 'General'),
 						'style' => 'width: 15%;',
 					],
 					'data' => [
@@ -236,7 +236,7 @@ class ShowPosts implements ActionInterface
 				],
 				'last_post_on' => [
 					'header' => [
-						'value' => Lang::$txt['on'],
+						'value' => Lang::getTxt('on', file: 'General'),
 						'class' => 'lefttext',
 						'style' => 'width: 20%;',
 					],
@@ -336,7 +336,7 @@ class ShowPosts implements ActionInterface
 				],
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['message'],
+						'value' => Lang::getTxt('message', file: 'General'),
 						'class' => 'lefttext',
 						'style' => 'width: 30%;',
 					],
@@ -524,7 +524,7 @@ class ShowPosts implements ActionInterface
 				'board' => $row['id_board'],
 				'board_name' => $row['name'],
 				'approved' => $row['approved'],
-				'awaiting_approval' => (empty($row['approved']) ? ' <em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''),
+				'awaiting_approval' => (empty($row['approved']) ? ' <em>(' . Lang::getTxt('awaiting_approval', file: 'General') . ')</em>' : ''),
 			];
 		}
 		Db::$db->free_result($request);
@@ -965,21 +965,21 @@ class ShowPosts implements ActionInterface
 		foreach (Utils::$context['posts'] as $key => $post) {
 			Utils::$context['posts'][$key]['quickbuttons'] = [
 				'reply' => [
-					'label' => Lang::$txt['reply'],
+					'label' => Lang::getTxt('reply', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;topic=' . $post['topic'] . '.' . $post['start'],
 					'icon' => 'reply_button',
 					'show' => $post['can_reply'],
 				],
 				'quote' => [
-					'label' => Lang::$txt['quote_action'],
+					'label' => Lang::getTxt('quote_action', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;topic=' . $post['topic'] . '.' . $post['start'] . ';quote=' . $post['id'],
 					'icon' => 'quote',
 					'show' => $post['can_quote'],
 				],
 				'remove' => [
-					'label' => Lang::$txt['remove'],
+					'label' => Lang::getTxt('remove', file: 'General'),
 					'href' => Config::$scripturl . '?action=deletemsg;msg=' . $post['id'] . ';topic=' . $post['topic'] . ';profile;u=' . Utils::$context['member']['id'] . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['remove_message'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('remove_message', file: 'General') . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 					'show' => $post['can_delete'],

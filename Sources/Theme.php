@@ -207,11 +207,11 @@ class Theme
 		}
 
 		// Set the text direction from the language strings.
-		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
+		Utils::$context['right_to_left'] = !empty(Lang::getTxt('lang_rtl', file: 'General'));
 
 		// Guests may still need a name.
 		if (User::$me->is_guest && empty(User::$me->name)) {
-			User::$me->name = Lang::$txt['guest_title'];
+			User::$me->name = Lang::getTxt('guest_title', file: 'General');
 		}
 
 		// Make a special URL for the language.
@@ -367,7 +367,7 @@ class Theme
 		Lang::load('General+Modifications');
 
 		// Just in case it wasn't already set elsewhere.
-		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
+		Utils::$context['right_to_left'] = !empty(Lang::getTxt('lang_rtl', file: 'General'));
 
 		// Tell ErrorHandler::fatalLang() to not reload the theme.
 		Utils::$context['theme_loaded'] = true;
@@ -446,7 +446,16 @@ class Theme
 		elseif ($template_name != 'Errors' && $template_name != 'index' && $fatal) {
 			ErrorHandler::fatalLang('theme_template_error', 'template', ['template_name' => (string) $template_name, 'type' => 'file']);
 		} elseif ($fatal) {
-			die(ErrorHandler::log(Lang::formatText(Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} template file.', ['template_name' => (string) $template_name, 'type' => 'file']), 'template'));
+			die(ErrorHandler::log(
+				Lang::formatText(
+					Lang::txtExists('theme_template_error', file: 'General') ? Lang::getTxt('theme_template_error', file: 'General') : 'Unable to load the {template_name} template file.',
+					[
+						'template_name' => (string) $template_name,
+						'type' => 'file',
+					],
+				),
+				'template',
+			));
 		} else {
 			return false;
 		}
@@ -521,8 +530,11 @@ class Theme
 				);
 			} elseif ($fatal !== 'ignore') {
 				$error_message = Lang::formatText(
-					Lang::$txt['theme_template_error'] ?? 'Unable to load the {template_name} sub-template.',
-					['template_name' => $template_name, 'type' => 'sub'],
+					Lang::txtExists('theme_template_error', file: 'General') ? Lang::getTxt('theme_template_error', file: 'General') : 'Unable to load the {template_name} sub-template.',
+					[
+						'template_name' => (string) $template_name,
+						'type' => 'file',
+					],
 				);
 
 				die(ErrorHandler::log($error_message, 'template'));
@@ -930,8 +942,8 @@ class Theme
 			self::addInlineJavaScript('
 			jQuery(document).ready(function($) {
 				new smc_Popup({
-					heading: ' . Utils::escapeJavaScript(Lang::$txt['show_personal_messages_heading']) . ',
-					content: ' . Utils::escapeJavaScript(Lang::getTxt('show_personal_messages', ['num' => User::$me->unread_messages, 'url' => Config::$scripturl . '?action=pm'])) . ',
+					heading: ' . Utils::escapeJavaScript(Lang::getTxt('show_personal_messages_heading', file: 'General')) . ',
+					content: ' . Utils::escapeJavaScript(Lang::getTxt('show_personal_messages', ['num' => User::$me->unread_messages, 'url' => Config::$scripturl . '?action=pm'], file: 'General')) . ',
 					icon_class: \'main_icons mail_new\'
 				});
 			});');
@@ -939,7 +951,7 @@ class Theme
 
 		// Add a generic "Are you sure?" confirmation message.
 		self::addInlineJavaScript('
-		var smf_you_sure =' . Utils::escapeJavaScript(Lang::$txt['quickmod_confirm']) . ';');
+		var smf_you_sure =' . Utils::escapeJavaScript(Lang::getTxt('quickmod_confirm', file: 'General')) . ';');
 
 		// Now add the capping code for avatars.
 		if (!empty(Config::$modSettings['avatar_max_width_external']) && !empty(Config::$modSettings['avatar_max_height_external']) && !empty(Config::$modSettings['avatar_action_too_large']) && Config::$modSettings['avatar_action_too_large'] == 'option_css_resize') {
@@ -974,6 +986,7 @@ class Theme
 				'topics' => Utils::$context['common_stats']['total_topics'],
 				'members' => Utils::$context['common_stats']['total_members'],
 			],
+			file: 'General',
 		);
 
 		if (empty(self::$current->settings['theme_version'])) {
@@ -994,6 +1007,7 @@ class Theme
 					'title' => Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])),
 					'pagenum' => Utils::$context['current_page'] + 1,
 				],
+				file: 'General',
 			);
 		}
 
@@ -1080,7 +1094,7 @@ class Theme
 		if (($menu_buttons = CacheApi::get('menu_buttons-' . implode('_', User::$me->groups) . '-' . User::$me->language, $cacheTime)) === null || time() - $cacheTime <= Config::$modSettings['settings_updated']) {
 			$buttons = [
 				'home' => [
-					'title' => Lang::$txt['home'],
+					'title' => Lang::getTxt('home', file: 'General'),
 					'href' => Config::$scripturl,
 					'show' => true,
 					'sub_buttons' => [
@@ -1088,39 +1102,39 @@ class Theme
 					'is_last' => Utils::$context['right_to_left'],
 				],
 				'search' => [
-					'title' => Lang::$txt['search'],
+					'title' => Lang::getTxt('search', file: 'General'),
 					'href' => Config::$scripturl . '?action=search',
 					'show' => Utils::$context['allow_search'],
 					'sub_buttons' => [
 					],
 				],
 				'admin' => [
-					'title' => Lang::$txt['admin'],
+					'title' => Lang::getTxt('admin', file: 'General'),
 					'href' => Config::$scripturl . '?action=admin',
 					'show' => Utils::$context['allow_admin'],
 					'sub_buttons' => [
 						'featuresettings' => [
-							'title' => Lang::$txt['modSettings_title'],
+							'title' => Lang::getTxt('modSettings_title', file: 'General'),
 							'href' => Config::$scripturl . '?action=admin;area=featuresettings',
 							'show' => User::$me->allowedTo('admin_forum'),
 						],
 						'packages' => [
-							'title' => Lang::$txt['package'],
+							'title' => Lang::getTxt('package', file: 'General'),
 							'href' => Config::$scripturl . '?action=admin;area=packages',
 							'show' => User::$me->allowedTo('admin_forum'),
 						],
 						'errorlog' => [
-							'title' => Lang::$txt['errorlog'],
+							'title' => Lang::getTxt('errorlog', file: 'General'),
 							'href' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog;desc',
 							'show' => User::$me->allowedTo('admin_forum') && !empty(Config::$modSettings['enableErrorLogging']),
 						],
 						'permissions' => [
-							'title' => Lang::$txt['edit_permissions'],
+							'title' => Lang::getTxt('edit_permissions', file: 'General'),
 							'href' => Config::$scripturl . '?action=admin;area=permissions',
 							'show' => User::$me->allowedTo('manage_permissions'),
 						],
 						'memberapprove' => [
-							'title' => Lang::$txt['approve_members_waiting'],
+							'title' => Lang::getTxt('approve_members_waiting', file: 'General'),
 							'href' => Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=approve',
 							'show' => !empty(Utils::$context['unapproved_members']),
 							'is_last' => true,
@@ -1128,32 +1142,32 @@ class Theme
 					],
 				],
 				'moderate' => [
-					'title' => Lang::$txt['moderate'],
+					'title' => Lang::getTxt('moderate', file: 'General'),
 					'href' => Config::$scripturl . '?action=moderate',
 					'show' => Utils::$context['allow_moderation_center'],
 					'sub_buttons' => [
 						'modlog' => [
-							'title' => Lang::$txt['modlog_view'],
+							'title' => Lang::getTxt('modlog_view', file: 'General'),
 							'href' => Config::$scripturl . '?action=moderate;area=modlog',
 							'show' => !empty(Config::$modSettings['modlog_enabled']) && !empty(User::$me->mod_cache) && User::$me->mod_cache['bq'] != '0=1',
 						],
 						'poststopics' => [
-							'title' => Lang::$txt['mc_unapproved_poststopics'],
+							'title' => Lang::getTxt('mc_unapproved_poststopics', file: 'General'),
 							'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=posts',
 							'show' => Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']),
 						],
 						'attachments' => [
-							'title' => Lang::$txt['mc_unapproved_attachments'],
+							'title' => Lang::getTxt('mc_unapproved_attachments', file: 'General'),
 							'href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 							'show' => Config::$modSettings['postmod_active'] && !empty(User::$me->mod_cache['ap']),
 						],
 						'reports' => [
-							'title' => Lang::$txt['mc_reported_posts'],
+							'title' => Lang::getTxt('mc_reported_posts', file: 'General'),
 							'href' => Config::$scripturl . '?action=moderate;area=reportedposts',
 							'show' => !empty(User::$me->mod_cache) && User::$me->mod_cache['bq'] != '0=1',
 						],
 						'reported_members' => [
-							'title' => Lang::$txt['mc_reported_members'],
+							'title' => Lang::getTxt('mc_reported_members', file: 'General'),
 							'href' => Config::$scripturl . '?action=moderate;area=reportedmembers',
 							'show' => User::$me->allowedTo('moderate_forum'),
 							'is_last' => true,
@@ -1166,7 +1180,7 @@ class Theme
 					'show' => Utils::$context['allow_calendar'],
 					'sub_buttons' => [
 						'view' => [
-							'title' => Lang::$txt['calendar_menu'],
+							'title' => Lang::getTxt('calendar_menu', file: 'General'),
 							'href' => Config::$scripturl . '?action=calendar',
 							'show' => Utils::$context['allow_calendar_event'],
 						],
@@ -1179,17 +1193,17 @@ class Theme
 					],
 				],
 				'mlist' => [
-					'title' => Lang::$txt['members_title'],
+					'title' => Lang::getTxt('members_title', file: 'General'),
 					'href' => Config::$scripturl . '?action=mlist',
 					'show' => Utils::$context['allow_memberlist'],
 					'sub_buttons' => [
 						'mlist_view' => [
-							'title' => Lang::$txt['mlist_menu_view'],
+							'title' => Lang::getTxt('mlist_menu_view', file: 'General'),
 							'href' => Config::$scripturl . '?action=mlist',
 							'show' => true,
 						],
 						'mlist_search' => [
-							'title' => Lang::$txt['mlist_search'],
+							'title' => Lang::getTxt('mlist_search', file: 'General'),
 							'href' => Config::$scripturl . '?action=mlist;sa=search',
 							'show' => true,
 							'is_last' => true,
@@ -1201,16 +1215,16 @@ class Theme
 				// the main forum menu on your theme, set Theme::$current->settings['login_main_menu'] to
 				// true in your theme's template_init() function in index.template.php.
 				'login' => [
-					'title' => Lang::$txt['login'],
+					'title' => Lang::getTxt('login', file: 'General'),
 					'href' => Config::$scripturl . '?action=login',
-					'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ', \'login\');',
+					'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::getTxt('login', file: 'General')) . ', \'login\');',
 					'show' => User::$me->is_guest && !empty(self::$current->settings['login_main_menu']),
 					'sub_buttons' => [
 					],
 					'is_last' => !Utils::$context['right_to_left'],
 				],
 				'logout' => [
-					'title' => Lang::$txt['logout'],
+					'title' => Lang::getTxt('logout', file: 'General'),
 					'href' => Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'show' => !User::$me->is_guest && !empty(self::$current->settings['login_main_menu']),
 					'sub_buttons' => [
@@ -1218,7 +1232,7 @@ class Theme
 					'is_last' => !Utils::$context['right_to_left'],
 				],
 				'signup' => [
-					'title' => Lang::$txt['register'],
+					'title' => Lang::getTxt('register', file: 'General'),
 					'href' => Config::$scripturl . '?action=signup',
 					'icon' => 'regcenter',
 					'show' => User::$me->is_guest && Utils::$context['can_register'] && !empty(self::$current->settings['login_main_menu']),
@@ -2175,13 +2189,13 @@ class Theme
 			'smf_session_id' => '"' . Utils::$context['session_id'] . '"',
 			'smf_session_var' => '"' . Utils::$context['session_var'] . '"',
 			'smf_member_id' => User::$me->id,
-			'ajax_notification_text' => Utils::escapeJavaScript(Lang::$txt['ajax_in_progress']),
-			'help_popup_heading_text' => Utils::escapeJavaScript(Lang::$txt['help_popup']),
-			'banned_text' => Utils::escapeJavaScript(Lang::getTxt('your_ban', ['name' => User::$me->name])),
-			'smf_txt_expand' => Utils::escapeJavaScript(Lang::$txt['code_expand']),
-			'smf_txt_shrink' => Utils::escapeJavaScript(Lang::$txt['code_shrink']),
-			'smf_collapseAlt' => Utils::escapeJavaScript(Lang::$txt['hide']),
-			'smf_expandAlt' => Utils::escapeJavaScript(Lang::$txt['show']),
+			'ajax_notification_text' => Utils::escapeJavaScript(Lang::getTxt('ajax_in_progress', file: 'General')),
+			'help_popup_heading_text' => Utils::escapeJavaScript(Lang::getTxt('help_popup', file: 'General')),
+			'banned_text' => Utils::escapeJavaScript(Lang::getTxt('your_ban', ['name' => User::$me->name], file: 'General')),
+			'smf_txt_expand' => Utils::escapeJavaScript(Lang::getTxt('code_expand', file: 'General')),
+			'smf_txt_shrink' => Utils::escapeJavaScript(Lang::getTxt('code_shrink', file: 'General')),
+			'smf_collapseAlt' => Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')),
+			'smf_expandAlt' => Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')),
 			'smf_quote_expand' => !empty(Config::$modSettings['quote_expand']) ? Config::$modSettings['quote_expand'] : 'false',
 			'allow_xhjr_credentials' => !empty(Config::$modSettings['allow_cors_credentials']) ? 'true' : 'false',
 		];
@@ -2265,7 +2279,7 @@ class Theme
 						)
 					)
 				) {
-					Utils::$context['linktree'][$k]['name'] = Lang::$txt['restricted_board'];
+					Utils::$context['linktree'][$k]['name'] = Lang::getTxt('restricted_board', file: 'General');
 					Utils::$context['linktree'][$k]['extra_before'] = '<i>';
 					Utils::$context['linktree'][$k]['extra_after'] = '</i>';
 					unset(Utils::$context['linktree'][$k]['url']);
@@ -2329,11 +2343,23 @@ class Theme
 			header('last-modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 			header('cache-control: no-cache');
 
-			if (!isset(Lang::$txt['template_parse_error'])) {
-				Lang::$txt['template_parse_error'] = 'Template Parse Error!';
-				Lang::$txt['template_parse_error_message'] = 'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.';
-				Lang::$txt['template_parse_error_details'] = 'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file.  Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>).  To see more specific error information from PHP, try <a href="%2$s%1$s" class="extern">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="%3$s?theme=1">use the default theme</a>.';
-				Lang::$txt['template_parse_errmsg'] = 'Unfortunately more information is not available at this time as to exactly what is wrong.';
+			if (!Lang::txtExists('template_parse_error')) {
+				Lang::setTxt(
+					'template_parse_error',
+					'Template Parse Error!',
+				);
+				Lang::setTxt(
+					'template_parse_error_message',
+					'It seems something has gone sour on the forum with the template system.  This problem should only be temporary, so please come back later and try again.  If you continue to see this message, please contact the administrator.<br><br>You can also try <a href="javascript:location.reload();">refreshing this page</a>.',
+				);
+				Lang::setTxt(
+					'template_parse_error_details',
+					'There was a problem loading the <pre><strong>%1$s</strong></pre> template or language file.  Please check the syntax and try again - remember, single quotes (<pre>\'</pre>) often have to be escaped with a slash (<pre>\\</pre>).  To see more specific error information from PHP, try <a href="%2$s%1$s" class="extern">accessing the file directly</a>.<br><br>You may want to try to <a href="javascript:location.reload();">refresh this page</a> or <a href="%3$s?theme=1">use the default theme</a>.',
+				);
+				Lang::setTxt(
+					'template_parse_errmsg',
+					'Unfortunately more information is not available at this time as to exactly what is wrong.',
+				);
 			}
 
 			// First, let's get the doctype and language information out of the way.
@@ -2342,7 +2368,7 @@ class Theme
 			if (!empty(Config::$maintenance) && !User::$me->allowedTo('admin_forum')) {
 				echo "\n\t\t" . '<title>', Config::$mtitle, '</title>' . "\n\t" . '</head>' . "\n\t" . '<body>' . "\n\t\t" . '<h3>', Config::$mtitle, '</h3>' . "\n\t\t", Config::$mmessage, "\n\t" . '</body>' . "\n" . '</html>';
 			} elseif (!User::$me->allowedTo('admin_forum')) {
-				echo "\n\t" . '<title>', Lang::$txt['template_parse_error'], '</title>' . "\n\t" . '</head>' . "\n\t" . '<body>' . "\n\t\t" . '<h3>', Lang::$txt['template_parse_error'], '</h3>' . "\n\t\t", Lang::$txt['template_parse_error_message'], "\n\t" . '</body>' . "\n" . '</html>';
+				echo "\n\t" . '<title>', Lang::getTxt('template_parse_error', file: 'General'), '</title>' . "\n\t" . '</head>' . "\n\t" . '<body>' . "\n\t\t" . '<h3>', Lang::getTxt('template_parse_error', file: 'General'), '</h3>' . "\n\t\t", Lang::getTxt('template_parse_error_message', file: 'General'), "\n\t" . '</body>' . "\n" . '</html>';
 			} else {
 				$error = WebFetchApi::fetch(Config::$boardurl . strtr($filename, [Config::$boarddir => '', strtr(Config::$boarddir, '\\', '/') => '']));
 
@@ -2353,14 +2379,14 @@ class Theme
 				}
 
 				if (empty($error)) {
-					$error = Lang::$txt['template_parse_errmsg'];
+					$error = Lang::getTxt('template_parse_errmsg', file: 'General');
 				}
 
 				$error = strtr($error, ['<b>' => '<strong>', '</b>' => '</strong>']);
 
-				echo "\n\t\t" . '<title>', Lang::$txt['template_parse_error'], '</title>' . "\n\t" . '</head>';
+				echo "\n\t\t" . '<title>', Lang::getTxt('template_parse_error', file: 'General'), '</title>' . "\n\t" . '</head>';
 
-				echo "\n\t" . '<body>' . "\n\t" . '<h3>', Lang::$txt['template_parse_error'], '</h3>' . "\n\t";
+				echo "\n\t" . '<body>' . "\n\t" . '<h3>', Lang::getTxt('template_parse_error', file: 'General'), '</h3>' . "\n\t";
 
 				echo Lang::getTxt(
 					'template_parse_error_details',
@@ -2369,6 +2395,7 @@ class Theme
 						'boardurl' => Config::$boardurl,
 						'scripturl' => Config::$scripturl,
 					],
+					file: 'General',
 				);
 
 				if (!empty($error)) {

@@ -64,7 +64,7 @@ function template_ban_edit()
 	if (isset(Utils::$context['ban']['reason']))
 		echo '
 					<dt>
-						<strong><label for="reason">', Lang::$txt['ban_reason'], '</label></strong><br>
+						<strong><label for="reason">', Lang::getTxt('ban_reason', file: 'General'), '</label></strong><br>
 						<span class="smalltext">', Lang::getTxt('ban_reason_desc', file: 'Admin'), '</span>
 					</dt>
 					<dd>
@@ -87,8 +87,8 @@ function template_ban_edit()
 					<legend>
 						', Lang::getTxt('ban_expiration', file: 'Admin'), '
 					</legend>
-					<input type="radio" name="expiration" value="never" id="never_expires" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'never' ? ' checked' : '', '> <label for="never_expires">', Lang::$txt['never'], '</label><br>
-					<input type="radio" name="expiration" value="one_day" id="expires_one_day" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'one_day' ? ' checked' : '', '> <label for="expires_one_day">', Lang::getTxt('ban_will_expire_within', file: 'Admin'), '</label> <input type="number" name="expire_date" id="expire_date" size="3" value="', Utils::$context['ban']['expiration']['days'], '"> ', str_replace(Utils::$context['ban']['expiration']['days'], '', Lang::getTxt('number_of_days', [Utils::$context['ban']['expiration']['days']])), '<br>
+					<input type="radio" name="expiration" value="never" id="never_expires" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'never' ? ' checked' : '', '> <label for="never_expires">', Lang::getTxt('never', file: 'General'), '</label><br>
+					<input type="radio" name="expiration" value="one_day" id="expires_one_day" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'one_day' ? ' checked' : '', '> <label for="expires_one_day">', Lang::getTxt('ban_will_expire_within', file: 'Admin'), '</label> <input type="number" name="expire_date" id="expire_date" size="3" value="', Utils::$context['ban']['expiration']['days'], '"> ', str_replace(Utils::$context['ban']['expiration']['days'], '', Lang::getTxt('number_of_days', [Utils::$context['ban']['expiration']['days']], file: 'General')), '<br>
 					<input type="radio" name="expiration" value="expired" id="already_expired" onclick="fUpdateStatus();"', Utils::$context['ban']['expiration']['status'] == 'expired' ? ' checked' : '', '> <label for="already_expired">', Lang::getTxt('ban_expired', file: 'Admin'), '</label>
 				</fieldset>
 				<fieldset class="ban_settings floatright">
@@ -215,7 +215,7 @@ function template_ban_edit()
 			sSuggestId: \'user\',
 			sControlId: \'user\',
 			sSearchType: \'member\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			bItemList: false
 		});
 
@@ -322,7 +322,7 @@ function template_ban_edit_trigger()
 			sSuggestId: \'username\',
 			sControlId: \'user\',
 			sSearchType: \'member\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			bItemList: false
 		});
 

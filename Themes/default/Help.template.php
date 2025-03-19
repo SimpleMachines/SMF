@@ -57,7 +57,8 @@ function template_manual()
 
 	foreach (Utils::$context['manual_sections'] as $section_id => $wiki_id)
 		echo '
-						<li><a href="', Utils::$context['wiki_url'], '/', Utils::$context['wiki_prefix'], $wiki_id, (Lang::$txt['lang_dictionary'] != 'en' ? '/' . Lang::$txt['lang_dictionary'] : ''), '" target="_blank" rel="noopener">', Lang::getTxt('manual_section_' . $section_id . '_title', file: 'Manual'), '</a> - ', Lang::getTxt('manual_section_' . $section_id . '_desc', file: 'Manual'), '</li>';
+						<li><a href="', Utils::$context['wiki_url'], '/', Utils::$context['wiki_prefix'], $wiki_id, (Lang::getTxt('lang_dictionary', file: 'General') != 'en' ? '/' . Lang::getTxt('lang_dictionary', file: 'General') : ''), '" target="_blank" rel="noopener">', Lang::getTxt('manual_section_' . $section_id . '_title', file: 'Manual'), '</a> - ', Lang::getTxt('manual_section_' . $section_id . '_desc', file: 'Manual'), '</li>';
+
 	echo '
 					</ul>
 					<p>', Lang::getTxt('manual_docs_and_credits', ['wiki_url' => Utils::$context['wiki_url'], 'credits_url' => Config::$scripturl . '?action=credits'], file: 'Manual'), '</p>

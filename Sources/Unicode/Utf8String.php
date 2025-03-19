@@ -76,7 +76,7 @@ class Utf8String implements \Stringable
 	{
 		$this->string = $string;
 
-		$this->language = substr($language ?? User::$me->language ?? Lang::$default ?? Config::$language ?? Lang::$txt['lang_locale'] ?? '', 0, 2);
+		$this->language = substr($language ?? User::$me->language ?? Lang::$default ?? Config::$language ?? Lang::getTxt('lang_locale', file: 'General') ?? '', 0, 2);
 
 		// Can we use the intl extension's Normalizer class?
 		if (!isset(self::$use_intl_normalizer)) {

@@ -639,15 +639,15 @@ class RRule implements \Stringable
 
 				foreach ($this->byday as $day) {
 					if (in_array($day, self::WEEKDAYS)) {
-						$day_names[] = Lang::$txt[$days_long_or_short][(array_search($day, self::WEEKDAYS) + 1) % 7];
+						$day_names[] = Lang::getTxt([$days_long_or_short, (array_search($day, self::WEEKDAYS) + 1) % 7], file: 'General');
 					} else {
 						$desc_byday = 'calendar_rrule_desc_byday';
 
 						list($num, $name) = preg_split('/(?=MO|TU|WE|TH|FR|SA|SU)/', $day);
 						$num = empty($num) ? 1 : (int) $num;
 
-						$nth = Lang::getTxt($num < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($num)]);
-						$day_name = Lang::$txt[$days_long_or_short][(array_search($name, self::WEEKDAYS) + 1) % 7];
+						$nth = Lang::getTxt($num < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($num)], file: 'General');
+						$day_name = Lang::getTxt([$days_long_or_short, (array_search($name, self::WEEKDAYS) + 1) % 7], file: 'General');
 
 						$day_names[] = Lang::getTxt('calendar_rrule_desc_ordinal_day_name', ['ordinal' => $nth, 'day_name' => $day_name], file: 'Calendar');
 					}
@@ -664,7 +664,7 @@ class RRule implements \Stringable
 				$months_titles = [];
 
 				foreach ($this->bymonth as $month_num) {
-					$months_titles[] = Lang::$txt['month_titles'][$month_num];
+					$months_titles[] = Lang::getTxt(['month_titles', $month_num], file: 'General');
 				}
 
 				$description['bymonth'] = Lang::getTxt('calendar_rrule_desc_bymonth', ['months_titles' => Lang::sentenceList($months_titles)], file: 'Calendar');
@@ -676,7 +676,7 @@ class RRule implements \Stringable
 			$description[] = '<q>' . $this->getDescriptionNormal($start) . '</q>';
 		}
 
-		$ordinals = array_map(fn($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)]), $this->bysetpos);
+		$ordinals = array_map(fn($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)], file: 'General'), $this->bysetpos);
 
 		return (isset($frequency_interval) ? $frequency_interval . ' ' : '') . Lang::getTxt(
 			'calendar_rrule_desc_bysetpos',
@@ -713,15 +713,15 @@ class RRule implements \Stringable
 
 		foreach ($this->byday as $day) {
 			if (in_array($day, self::WEEKDAYS)) {
-				$day_names[] = Lang::$txt[$days_long_or_short][(array_search($day, self::WEEKDAYS) + 1) % 7];
+				$day_names[] = Lang::getTxt([$days_long_or_short, (array_search($day, self::WEEKDAYS) + 1) % 7], file: 'General');
 			} else {
 				$desc_byday = 'calendar_rrule_desc_byday';
 
 				list($num, $name) = preg_split('/(?=MO|TU|WE|TH|FR|SA|SU)/', $day);
 				$num = empty($num) ? 1 : (int) $num;
 
-				$nth = Lang::getTxt($num < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($num)]);
-				$day_name = Lang::$txt[$days_long_or_short][(array_search($name, self::WEEKDAYS) + 1) % 7];
+				$nth = Lang::getTxt($num < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($num)], file: 'General');
+				$day_name = Lang::getTxt([$days_long_or_short, (array_search($name, self::WEEKDAYS) + 1) % 7], file: 'General');
 
 				$day_names[] = Lang::getTxt('calendar_rrule_desc_ordinal_day_name', ['ordinal' => $nth, 'day_name' => $day_name], file: 'Calendar');
 			}
@@ -781,7 +781,7 @@ class RRule implements \Stringable
 		$months_titles = [];
 
 		foreach ($this->bymonth as $month_num) {
-			$months_titles[] = Lang::$txt['months_titles'][$month_num];
+			$months_titles[] = Lang::getTxt(['months_titles', $month_num], file: 'General');
 		}
 
 		$description['bymonth'] = Lang::getTxt('calendar_rrule_desc_bymonth', ['months_titles' => Lang::sentenceList($months_titles)], file: 'Calendar');
@@ -803,7 +803,7 @@ class RRule implements \Stringable
 			unset($description['frequency_interval']);
 		}
 
-		$ordinals = array_map(fn($n) => Lang::getTxt('ordinal_spellout', [$n]), $this->byweekno);
+		$ordinals = array_map(fn($n) => Lang::getTxt('ordinal_spellout', [$n], file: 'General'), $this->byweekno);
 		$description['byweekno'] = Lang::getTxt('calendar_rrule_desc_byweekno', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)], file: 'Calendar');
 	}
 
@@ -823,7 +823,7 @@ class RRule implements \Stringable
 			unset($description['frequency_interval']);
 		}
 
-		$ordinals = array_map(fn($n) => Lang::getTxt('ordinal_spellout', [$n]), $this->byyearday);
+		$ordinals = array_map(fn($n) => Lang::getTxt('ordinal_spellout', [$n], file: 'General'), $this->byyearday);
 		$description['byeyarday'] = Lang::getTxt('calendar_rrule_desc_byyearday', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)], file: 'Calendar');
 	}
 
@@ -855,8 +855,8 @@ class RRule implements \Stringable
 				$named_monthday = Lang::getTxt(
 					'calendar_rrule_desc_named_monthday',
 					[
-						'day_name' => Lang::$txt[$days_long_or_short][(array_search($this->byday[0], self::WEEKDAYS) + 1) % 7],
-						'ordinal_month_day' => Lang::getTxt('ordinal', $this->bymonthday),
+						'day_name' => Lang::getTxt([$days_long_or_short, (array_search($this->byday[0], self::WEEKDAYS) + 1) % 7], file: 'General'),
+						'ordinal_month_day' => Lang::getTxt('ordinal', $this->bymonthday, file: 'General'),
 						'cardinal_month_day' => $this->bymonthday[0],
 					],
 					file: 'Calendar',
@@ -885,12 +885,12 @@ class RRule implements \Stringable
 			// "the first Tuesday or Thursday that is the second, third, or fourth day of the month"
 			else {
 				foreach ($this->byday as $day_abbrev) {
-					$day_names[] = Lang::$txt[$days_long_or_short][(array_search($day_abbrev, self::WEEKDAYS) + 1) % 7];
+					$day_names[] = Lang::getTxt([$days_long_or_short, (array_search($day_abbrev, self::WEEKDAYS) + 1) % 7], file: 'General');
 				}
 
 				$ordinal_form = max(array_map('abs', $this->bymonthday)) < 10 && count($this->bymonthday) <= 3 ? 'ordinal_spellout' : 'ordinal';
 
-				$ordinals = array_map(fn($n) => Lang::getTxt($n < 0 ? $ordinal_form . '_last' : $ordinal_form, [abs($n)]), $this->bymonthday);
+				$ordinals = array_map(fn($n) => Lang::getTxt($n < 0 ? $ordinal_form . '_last' : $ordinal_form, [abs($n)], file: 'General'), $this->bymonthday);
 
 				$description['byday'] = Lang::getTxt(
 					'calendar_rrule_desc_byday',
@@ -910,7 +910,7 @@ class RRule implements \Stringable
 		}
 		// Normal case.
 		else {
-			$ordinals = array_map(fn($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)]), $this->bymonthday);
+			$ordinals = array_map(fn($n) => Lang::getTxt($n < 0 ? 'ordinal_spellout_last' : 'ordinal_spellout', [abs($n)], file: 'General'), $this->bymonthday);
 			$description['bymonthday'] = Lang::getTxt('calendar_rrule_desc_bymonthday', ['ordinal_list' => Lang::sentenceList($ordinals), 'count' => count($ordinals)], file: 'Calendar');
 		}
 	}
@@ -986,7 +986,7 @@ class RRule implements \Stringable
 					'calendar_rrule_desc_between',
 					[
 						'min' => $min->format('s'),
-						'max' => Lang::getTxt('number_of_seconds', [$max->format('s')]),
+						'max' => Lang::getTxt('number_of_seconds', [$max->format('s')], file: 'General'),
 					],
 					file: 'Calendar',
 				);
@@ -994,7 +994,7 @@ class RRule implements \Stringable
 				$list = $this->bysecond;
 
 				sort($list);
-				$list[array_key_last($list)] = Lang::getTxt('number_of_seconds', [$list[array_key_last($list)]]);
+				$list[array_key_last($list)] = Lang::getTxt('number_of_seconds', [$list[array_key_last($list)]], file: 'General');
 				$list = Lang::sentenceList($list);
 			}
 
@@ -1012,7 +1012,7 @@ class RRule implements \Stringable
 					'calendar_rrule_desc_between',
 					[
 						'min' => $min->format('i'),
-						'max' => Lang::getTxt('number_of_minutes', [$max->format('i')]),
+						'max' => Lang::getTxt('number_of_minutes', [$max->format('i')], file: 'General'),
 					],
 					file: 'Calendar',
 				);
@@ -1026,7 +1026,7 @@ class RRule implements \Stringable
 				$list = $this->byminute;
 
 				sort($list);
-				$list[array_key_last($list)] = Lang::getTxt('number_of_minutes', [$list[array_key_last($list)]]);
+				$list[array_key_last($list)] = Lang::getTxt('number_of_minutes', [$list[array_key_last($list)]], file: 'General');
 				$list = Lang::sentenceList($list);
 
 				if (!isset($description['bytime'])) {
@@ -1064,7 +1064,7 @@ class RRule implements \Stringable
 				$list = $this->byhour;
 
 				sort($list);
-				$list[array_key_last($list)] = Lang::getTxt('number_of_hours', [$list[array_key_last($list)]]);
+				$list[array_key_last($list)] = Lang::getTxt('number_of_hours', [$list[array_key_last($list)]], file: 'General');
 				$list = Lang::sentenceList($list);
 
 				if (!isset($description['bytime'])) {

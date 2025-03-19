@@ -753,7 +753,7 @@ class ACP implements ActionInterface, Routable
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=admin',
-			'name' => Lang::$txt['admin_center'],
+			'name' => Lang::getTxt('admin_center', file: 'General'),
 		];
 
 		if (isset($menu->current_area) && $menu->current_area != 'index') {
@@ -1803,7 +1803,7 @@ class ACP implements ActionInterface, Routable
 
 		// They used a wrong password, log it and unset that.
 		if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass'])) {
-			ErrorHandler::log(Lang::getTxt('security_wrong', ['referrer' => $_SERVER['HTTP_REFERER'] ?? Lang::$txt['unknown'], 'user_agent' => $_SERVER['HTTP_USER_AGENT'], 'ip' => User::$me->ip], file: 'Admin'), 'critical');
+			ErrorHandler::log(Lang::getTxt('security_wrong', ['referrer' => $_SERVER['HTTP_REFERER'] ?? Lang::getTxt('unknown', file: 'General'), 'user_agent' => $_SERVER['HTTP_USER_AGENT'], 'ip' => User::$me->ip], file: 'Admin'), 'critical');
 
 			if (isset($_POST[$type . '_hash_pass'])) {
 				unset($_POST[$type . '_hash_pass']);
@@ -1834,7 +1834,7 @@ class ACP implements ActionInterface, Routable
 
 		// And title the page something like "Login".
 		if (!isset(Utils::$context['page_title'])) {
-			Utils::$context['page_title'] = Lang::$txt['login'];
+			Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 		}
 
 		// The type of action.

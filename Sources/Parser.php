@@ -538,7 +538,7 @@ abstract class Parser
 		self::$time_offset = self::$time_offset ?? User::$me->time_offset ?? 0;
 		self::$time_format = self::$time_format ?? User::$me->time_format ?? Time::getTimeFormat();
 
-		self::$locale = self::$locale ?? Lang::$txt['lang_locale'] ?? '';
+		self::$locale = self::$locale ?? Lang::getTxt('lang_locale', file: 'General') ?? '';
 
 		// Smiley settings.
 		self::$custom_smileys_enabled = self::$custom_smileys_enabled ?? !empty(Config::$modSettings['smiley_enable']);

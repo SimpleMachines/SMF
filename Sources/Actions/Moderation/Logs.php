@@ -254,7 +254,7 @@ class Logs implements ActionInterface
 	 */
 	public function modlog(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['modlog_view'];
+		Utils::$context['page_title'] = Lang::getTxt('modlog_view', file: 'General');
 
 		$this->deleteEntries();
 
@@ -429,7 +429,7 @@ class Logs implements ActionInterface
 				if ($seeIP) {
 					$row['extra']['ip_range'] = '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . $row['extra']['ip_range'] . '">' . $row['extra']['ip_range'] . '</a>';
 				} else {
-					$row['extra']['ip_range'] = Lang::$txt['logged'];
+					$row['extra']['ip_range'] = Lang::getTxt('logged', file: 'General');
 				}
 			}
 
@@ -452,9 +452,9 @@ class Logs implements ActionInterface
 			// The array to go to the template. Note here that action is set to a "default" value of the action doesn't match anything in the descriptions. Allows easy adding of logging events with basic details.
 			$entries[$row['id_action']] = [
 				'id' => $row['id_action'],
-				'ip' => $seeIP ? new IP($row['ip']) : Lang::$txt['logged'],
-				'position' => empty($row['real_name']) && empty($row['group_name']) ? Lang::$txt['guest'] : $row['group_name'],
-				'moderator_link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? (Lang::$txt['guest'] . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
+				'ip' => $seeIP ? new IP($row['ip']) : Lang::getTxt('logged', file: 'General'),
+				'position' => empty($row['real_name']) && empty($row['group_name']) ? Lang::getTxt('guest', file: 'General') : $row['group_name'],
+				'moderator_link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['real_name'] . '</a>' : (empty($row['real_name']) ? (Lang::getTxt('guest', file: 'General') . (!empty($row['extra']['member_acted']) ? ' (' . $row['extra']['member_acted'] . ')' : '')) : $row['real_name']),
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
 				'editable' => !str_starts_with($row['action'], 'clearlog') && !in_array($row['action'], self::$uneditable_actions),

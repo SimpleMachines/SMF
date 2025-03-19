@@ -147,7 +147,7 @@ function template_event_board()
 		echo '
 							<label>
 								<input type="radio" id="link_to_board" name="link_to" value="board"' . (empty(Utils::$context['event']->topic) && empty(Config::$modSettings['cal_allow_unlinked']) ? ' checked' : '') . '>
-								' . Lang::$txt['new_topic'] . '
+								' . Lang::getTxt('new_topic', file: 'General') . '
 							</label>';
 	}
 
@@ -164,7 +164,7 @@ function template_event_board()
 		echo '
 					<dl id="event_board">
 						<dt class="clear">
-							<label>' . Lang::$txt['board_name'] . '</label>
+							<label>' . Lang::getTxt('board_name', file: 'General') . '</label>
 						</dt>
 						<dd>';
 		echo '
@@ -223,7 +223,7 @@ function template_event_new()
 							</dd>
 
 							<dt class="clear">
-								<label>', Lang::$txt['location'], '</label>
+								<label>', Lang::getTxt('location', file: 'General'), '</label>
 							</dt>
 							<dd>
 								<input type="text" name="event_location" id="event_location" maxlength="255" value="', Utils::$context['event']->selected_occurrence->location, '">
@@ -243,7 +243,7 @@ function template_event_new()
 							</dd>
 
 							<dt class="clear">
-								<label>', Lang::$txt['start'], '</label>
+								<label>', Lang::getTxt('start', file: 'General'), '</label>
 							</dt>
 							<dd>
 								<input type="date" name="start_date" id="start_date" value="', Utils::$context['event']->selected_occurrence->start->format('Y-m-d'), '" class="date_input start"', !empty(Utils::$context['event']->special_rrule) ? ' disabled data-force-disabled' : '', '>
@@ -251,7 +251,7 @@ function template_event_new()
 							</dd>
 
 							<dt class="clear">
-								<label>', Lang::$txt['end'], '</label>
+								<label>', Lang::getTxt('end', file: 'General'), '</label>
 							</dt>
 							<dd>
 								<input type="date" name="end_date" id="end_date" value="', Utils::$context['event']->selected_occurrence->end->format('Y-m-d'), '" class="date_input end"', Config::$modSettings['cal_maxspan'] == 1 || !empty(Utils::$context['event']->special_rrule) ? ' disabled' : '', !empty(Utils::$context['event']->special_rrule) ? ' data-force-disabled' : '', '>
@@ -421,7 +421,7 @@ function template_rrule()
 			echo '
 									<label class="bymonth_label">
 										<input type="checkbox" name="BYMONTH[]" value="' . $i . '" id="bymonth_', $i,'" class="rrule_input" disabled>
-										<span>' . Lang::$txt['months_short'][$i] . '</span>
+										<span>' . Lang::getTxt(['months_short', $i], file: 'General') . '</span>
 									</label>';
 
 			if ($i % 6 === 0) {

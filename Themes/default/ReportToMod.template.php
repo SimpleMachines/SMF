@@ -38,7 +38,7 @@ function template_main()
 	<div id="preview_section"', isset(Utils::$context['preview_message']) ? '' : ' class="hidden"', '>
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span>', Lang::$txt['preview'], '</span>
+				<span>', Lang::getTxt('preview', file: 'General'), '</span>
 			</h3>
 		</div>
 		<div class="windowbg">
@@ -87,7 +87,7 @@ function template_main()
 						<textarea type="text" id="report_comment" name="comment" maxlength="254">', Utils::$context['comment_body'], '</textarea>
 					</dd>
 				</dl>
-				<input type="submit" name="preview" value="', Lang::$txt['preview'], '" class="button">
+				<input type="submit" name="preview" value="', Lang::getTxt('preview', file: 'General'), '" class="button">
 				<input type="submit" name="save" value="', Lang::getTxt('report_submit', file: 'Post'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</div><!-- .windowbg -->

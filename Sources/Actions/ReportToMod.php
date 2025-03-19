@@ -218,8 +218,16 @@ class ReportToMod implements ActionInterface, Routable
 
 		Utils::$context['comment_body'] = Utils::htmlspecialchars($this->comment, ENT_QUOTES);
 
-		Utils::$context['page_title'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod'] : Lang::getTxt('report_profile', ['member_name' => $display_name]);
-		Utils::$context['notice'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod_func'] : Lang::$txt['report_profile_func'];
+		Utils::$context['page_title'] = Lang::getTxt(
+			Utils::$context['report_type'] == 'msg' ? 'report_to_mod' : 'report_profile',
+			['member_name' => $display_name ?? ''],
+			file: 'General',
+		);
+
+		Utils::$context['notice'] = Lang::getTxt(
+			Utils::$context['report_type'] == 'msg' ? 'report_to_mod_func' : 'report_profile_func',
+			file: 'General',
+		);
 
 		// Show the inputs for the comment, etc.
 		Lang::load('Post');

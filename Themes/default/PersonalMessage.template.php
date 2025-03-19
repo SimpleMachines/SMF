@@ -212,7 +212,7 @@ function template_folder()
 			</div>
 			<div class="roundframe">
 				<div class="display_title">', Utils::$context['current_pm_subject'], '</div>
-				<p>', Lang::getTxt('started_by_member_time', ['member' => Utils::$context['current_pm_author'], 'time' => Utils::$context['current_pm_time']]), '</p>';
+				<p>', Lang::getTxt('started_by_member_time', ['member' => Utils::$context['current_pm_author'], 'time' => Utils::$context['current_pm_time']], file: 'General'), '</p>';
 			}
 			else
 			{
@@ -235,7 +235,7 @@ function template_folder()
 			<div class="pagesection">
 				<div class="pagelinks">', Utils::$context['page_index'], '</div>
 				<div class="floatright">
-					<input type="submit" name="del_selected" value="', Lang::$txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '\')) return false;" class="button">
+					<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" onclick="if (!confirm(\'', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '\')) return false;" class="button">
 				</div>
 			</div>';
 
@@ -363,7 +363,7 @@ function template_single_pm($message)
 		// Show how many posts they have made.
 		if (!isset(Utils::$context['disabled_fields']['posts']))
 			echo '
-					<li class="postcount">', Lang::getTxt('member_postcount_num', [$message['member']['posts']]), '</li>';
+					<li class="postcount">', Lang::getTxt('member_postcount_num', [$message['member']['posts']], file: 'General'), '</li>';
 
 		// Show their personal text?
 		if (!empty(Config::$modSettings['show_blurb']) && $message['member']['blurb'] != '')
@@ -404,7 +404,7 @@ function template_single_pm($message)
 		else
 			echo '
 					<li class="poster_ip">
-						<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::$txt['logged'], '</a>
+						<a href="', Config::$scripturl, '?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);" class="help">', Lang::getTxt('logged', file: 'General'), '</a>
 					</li>';
 
 		// Show the profile, website, email address, and personal message buttons.
@@ -417,22 +417,22 @@ function template_single_pm($message)
 			// Show the profile button
 			if ($message['member']['can_view_profile'])
 				echo '
-							<li><a href="', $message['member']['href'], '" title="' . Lang::$txt['view_profile'] . '">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : Lang::$txt['view_profile']), '</a></li>';
+							<li><a href="', $message['member']['href'], '" title="' . Lang::getTxt('view_profile', file: 'General') . '">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons members"></span>' : Lang::getTxt('view_profile', file: 'General')), '</a></li>';
 
 			// Don't show an icon if they haven't specified a website.
 			if ($message['member']['website']['url'] != '' && !isset(Utils::$context['disabled_fields']['website']))
 				echo '
-							<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::$txt['www']), '</a></li>';
+							<li><a href="', $message['member']['website']['url'], '" title="' . $message['member']['website']['title'] . '" target="_blank" rel="noopener">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons www centericon" title="' . $message['member']['website']['title'] . '"></span>' : Lang::getTxt('www', file: 'General')), '</a></li>';
 
 			// Don't show the email address if they want it hidden.
 			if ($message['member']['show_email'])
 				echo '
-							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::$txt['email'] . '"></span>' : Lang::$txt['email']), '</a></li>';
+							<li><a href="mailto:', $message['member']['email'], '" rel="nofollow">', (Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons mail centericon" title="' . Lang::getTxt('email', file: 'General') . '"></span>' : Lang::getTxt('email', file: 'General')), '</a></li>';
 
 			// Since we know this person isn't a guest, you *can* message them.
 			if (Utils::$context['can_send_pm'] && $message['member']['id'] != 0)
 				echo '
-							<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', $message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline'], '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']) . '"></span> ' : ($message['member']['online']['is_online'] ? Lang::$txt['pm_online'] : Lang::$txt['pm_offline']), '</a></li>';
+							<li><a href="', Config::$scripturl, '?action=pm;sa=send;u=', $message['member']['id'], '" title="', Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '">', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($message['member']['online']['is_online'] ? 'on' : 'off') . ' centericon" title="' . Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General') . '"></span> ' : Lang::getTxt($message['member']['online']['is_online'] ? 'pm_online' : 'pm_offline', file: 'General'), '</a></li>';
 
 			echo '
 						</ol>
@@ -448,7 +448,7 @@ function template_single_pm($message)
 		// Are we showing the warning status?
 		if ($message['member']['can_see_warning'])
 			echo '
-					<li class="warning">', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span>', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::$txt['warn_' . $message['member']['warning_status']], '</span></li>';
+					<li class="warning">', Utils::$context['can_issue_warning'] ? '<a href="' . Config::$scripturl . '?action=profile;area=issuewarning;u=' . $message['member']['id'] . '">' : '', '<span class="main_icons warning_', $message['member']['warning_status'], '"></span>', Utils::$context['can_issue_warning'] ? '</a>' : '', '<span class="warn_', $message['member']['warning_status'], '">', Lang::getTxt('warn_' . $message['member']['warning_status'], file: 'General'), '</span></li>';
 
 		// Are there any custom fields to show at the bottom of the poster info?
 		if (!empty($message['custom_fields']['bottom_poster']))
@@ -475,7 +475,7 @@ function template_single_pm($message)
 							'sent_to_date',
 							[
 								'list' => !empty($message['recipients']['to']) ? Lang::sentenceList($message['recipients']['to']) : Lang::getTxt('pm_undisclosed_recipients', file: 'PersonalMessage'),
-								'relative' => str_contains($message['time'], Lang::$txt['today']) ? 'today' : (str_contains($message['time'], Lang::$txt['yesterday']) ? 'yesterday' : 'false'),
+								'relative' => str_contains($message['time'], Lang::getTxt('today', file: 'General')) ? 'today' : (str_contains($message['time'], Lang::getTxt('yesterday', file: 'General')) ? 'yesterday' : 'false'),
 								'date' => $message['time'],
 							],
 							file: 'PersonalMessage',
@@ -485,7 +485,7 @@ function template_single_pm($message)
 	// If we're in the sent items, show who it was sent to besides the "To:" people.
 	if (!empty($message['recipients']['bcc']))
 		echo '
-						<span class="smalltext">', Lang::getTxt('pm_bcc', ['list' => implode(Lang::$txt['sentence_list_separator'] . ' ', $message['recipients']['bcc'])]), ' </span>';
+						<span class="smalltext">', Lang::getTxt('pm_bcc', ['list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', $message['recipients']['bcc'])]), ' </span>';
 
 	if (!empty($message['is_replied_to']))
 		echo '
@@ -618,13 +618,13 @@ function template_subject_list()
 					<a href="', Config::$scripturl, '?action=pm;view;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=', Utils::$context['sort_by'], (Utils::$context['sort_direction'] == 'up' ? '' : ';desc'), (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : ''), '"> <span class="main_icons switch" title="', Lang::getTxt('pm_change_view', file: 'PersonalMessage'), '"></span></a>
 				</th>
 				<th class="lefttext quarter_table pm_time">
-					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=date', Utils::$context['sort_by'] == 'date' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', Lang::$txt['date'], Utils::$context['sort_by'] == 'date' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
+					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=date', Utils::$context['sort_by'] == 'date' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', Lang::getTxt('date', file: 'General'), Utils::$context['sort_by'] == 'date' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
 				<th class="lefttext half_table pm_subject">
-					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=subject', Utils::$context['sort_by'] == 'subject' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', Lang::$txt['subject'], Utils::$context['sort_by'] == 'subject' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
+					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=subject', Utils::$context['sort_by'] == 'subject' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', Lang::getTxt('subject', file: 'General'), Utils::$context['sort_by'] == 'subject' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
 				<th class="lefttext pm_from_to">
-					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=name', Utils::$context['sort_by'] == 'name' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', (Utils::$context['from_or_to'] == 'from' ? Lang::$txt['from'] : Lang::$txt['to']), Utils::$context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
+					<a href="', Config::$scripturl, '?action=pm;f=', Utils::$context['folder'], ';start=', Utils::$context['start'], ';sort=name', Utils::$context['sort_by'] == 'name' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '">', Lang::getTxt(Utils::$context['from_or_to'] == 'from' ? 'from' : 'to', file: 'General'), Utils::$context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 				</th>
 				<th class="centercol table_icon pm_moderation">
 					<input type="checkbox" onclick="invertAll(this, this.form);">
@@ -636,7 +636,7 @@ function template_subject_list()
 	if (!Utils::$context['show_delete'])
 		echo '
 			<tr class="windowbg">
-				<td colspan="5">', Lang::$txt['pm_alert_none'], '</td>
+				<td colspan="5">', Lang::getTxt('pm_alert_none', file: 'General'), '</td>
 			</tr>';
 
 	while ($message = Utils::$context['get_pmessage']('subject'))
@@ -665,7 +665,7 @@ function template_subject_list()
 				</td>
 				<td class="pm_time">', $message['time'], '</td>
 				<td class="pm_subject">
-					', (Utils::$context['display_mode'] != 0 && Utils::$context['current_pm'] == $message['id'] ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', (Utils::$context['display_mode'] == 0 || Utils::$context['current_pm'] == $message['id'] ? '' : (Config::$scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . ';sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';' : ';desc') . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . Lang::$txt['new'] . '</span>' : '', '</a>
+					', (Utils::$context['display_mode'] != 0 && Utils::$context['current_pm'] == $message['id'] ? '<img src="' . Theme::$current->settings['images_url'] . '/selected.png" alt="*">' : ''), '<a href="', (Utils::$context['display_mode'] == 0 || Utils::$context['current_pm'] == $message['id'] ? '' : (Config::$scripturl . '?action=pm;pmid=' . $message['id'] . ';kstart;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . ';sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';' : ';desc') . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : ''))), '#msg', $message['id'], '">', $message['subject'], $message['is_unread'] ? '&nbsp;<span class="new_posts">' . Lang::getTxt('new', file: 'General') . '</span>' : '', '</a>
 				</td>
 				<td class="pm_from_to">
 					', (Utils::$context['from_or_to'] == 'from' ? $message['member']['link'] : (empty($message['recipients']['to']) ? '' : implode(', ', $message['recipients']['to']))), '
@@ -715,7 +715,7 @@ function template_subject_list()
 		}
 
 		echo '
-			<input type="submit" name="del_selected" value="', Lang::$txt['quickmod_delete_selected'], '" onclick="if (!confirm(\'', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '\')) return false;" class="button">';
+			<input type="submit" name="del_selected" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" onclick="if (!confirm(\'', Lang::getTxt('delete_selected_confirm', file: 'PersonalMessage'), '\')) return false;" class="button">';
 	}
 
 	echo '
@@ -753,7 +753,7 @@ function template_search()
 					</script>
 				</dd>
 				<dt>
-					<label for="searchtype">', Lang::$txt['search_match'], '</label>
+					<label for="searchtype">', Lang::getTxt('search_match', file: 'General'), '</label>
 				</dt>
 				<dd>
 					<select name="searchtype">
@@ -837,7 +837,7 @@ function template_search()
 				<br class="clear">
 				<div class="padding">
 					<input type="checkbox" name="all" id="check_all" value=""', Utils::$context['check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'searchlabel\');">
-					<label for="check_all"><em>', Lang::$txt['check_all'], '</em></label>
+					<label for="check_all"><em>', Lang::getTxt('check_all', file: 'General'), '</em></label>
 					<input type="submit" name="pm_search" value="', Lang::getTxt('pm_search_go', file: 'PersonalMessage'), '" class="button floatright">
 				</div class="padding">
 			</div><!-- .roundframe -->
@@ -855,8 +855,8 @@ function template_search()
 				aSwapImages: [
 					{
 						sId: \'advanced_panel_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 					}
 				],
 				aSwapLinks: [
@@ -896,9 +896,9 @@ function template_search_results()
 		<table class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="lefttext quarter_table">', Lang::$txt['date'], '</th>
-					<th class="lefttext half_table">', Lang::$txt['subject'], '</th>
-					<th class="lefttext quarter_table">', Lang::$txt['from'], '</th>
+					<th class="lefttext quarter_table">', Lang::getTxt('date', file: 'General'), '</th>
+					<th class="lefttext half_table">', Lang::getTxt('subject', file: 'General'), '</th>
+					<th class="lefttext quarter_table">', Lang::getTxt('from', file: 'General'), '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -1000,7 +1000,7 @@ function template_send()
 				<div class="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '', empty(Utils::$context['post_error']['messages']) ? ' hidden' : '', '" id="errors">
 					<dl>
 						<dt>
-							<strong id="error_serious">', Lang::$txt['error_while_submitting'], '</strong>
+							<strong id="error_serious">', Lang::getTxt('error_while_submitting', file: 'General'), '</strong>
 						</dt>
 						<dd class="error" id="error_list">
 							', empty(Utils::$context['post_error']['messages']) ? '' : implode('<br>', Utils::$context['post_error']['messages']), '
@@ -1053,7 +1053,7 @@ function template_send()
 	// The subject of the PM.
 	echo '
 					<dt class="clear_left">
-						<span', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', Lang::$txt['subject'], '</span>
+						<span', (isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : ''), ' id="caption_subject">', Lang::getTxt('subject', file: 'General'), '</span>
 					</dt>
 					<dd id="pm_subject">
 						<input type="text" name="subject" value="', Utils::$context['subject'], '" tabindex="', Utils::$context['tabindex']++, '" size="80" maxlength="80"', isset(Utils::$context['post_error']['no_subject']) ? ' class="error"' : '', '>
@@ -1075,7 +1075,7 @@ function template_send()
 				</div>
 				<div id="post_draft_options">
 					<dl class="settings">
-						<dt><strong>', Lang::$txt['subject'], '</strong></dt>
+						<dt><strong>', Lang::getTxt('subject', file: 'General'), '</strong></dt>
 						<dd><strong>', trim(Lang::getTxt('draft_saved_on', ['date' => ''], file: 'Drafts')), '</strong></dd>';
 
 		foreach (Utils::$context['drafts'] as $draft)
@@ -1115,8 +1115,8 @@ function template_send()
 
 	// The functions used to preview a personal message without loading a new page.
 	echo '
-			var txt_preview_title = "', Lang::$txt['preview_title'], '";
-			var txt_preview_fetch = "', Lang::$txt['preview_fetch'], '";
+			var txt_preview_title = "', Lang::getTxt('preview_title', file: 'General'), '";
+			var txt_preview_fetch = "', Lang::getTxt('preview_fetch', file: 'General'), '";
 			function previewPost()
 			{
 				if (window.XMLHttpRequest)
@@ -1261,7 +1261,7 @@ function template_send()
 				sSelf: \'oPersonalMessageSend\',
 				sSessionId: smf_session_id,
 				sSessionVar: smf_session_var,
-				sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+				sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 				sToControlId: \'to_control\',
 				aToRecipients: [';
 
@@ -1314,7 +1314,7 @@ function template_ask_delete()
 		<div class="windowbg">
 			<p>', Lang::getTxt('delete_all_confirm', file: 'PersonalMessage'), '</p>
 			<br>
-			<strong><a href="', Config::$scripturl, '?action=pm;sa=removeall2;f=', Utils::$context['folder'], ';', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['yes'], '</a> - <a href="javascript:history.go(-1);">', Lang::$txt['no'], '</a></strong>
+			<strong><a href="', Config::$scripturl, '?action=pm;sa=removeall2;f=', Utils::$context['folder'], ';', Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('yes', file: 'General'), '</a> - <a href="javascript:history.go(-1);">', Lang::getTxt('no', file: 'General'), '</a></strong>
 		</div>';
 }
 
@@ -1330,7 +1330,7 @@ function template_prune()
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=pm;sa=prune" method="post" accept-charset="UTF-8" onsubmit="return confirm(\'', Lang::getTxt('pm_prune_warning', file: 'PersonalMessage'), '\');">
 				<p>', Lang::getTxt('pm_prune_desc1', file: 'PersonalMessage'), ' <input type="text" name="age" size="3" value="14"> ', Lang::getTxt('pm_prune_desc2', file: 'PersonalMessage'), '</p>
-				<input type="submit" value="', Lang::$txt['delete'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('delete', file: 'General'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>
 		</div>
@@ -1401,8 +1401,8 @@ function template_labels()
 	if (!count(Utils::$context['labels']) < 2)
 		echo '
 		<div class="block righttext">
-			<input type="submit" name="save" value="', Lang::$txt['save'], '" class="button">
-			<input type="submit" name="delete" value="', Lang::$txt['quickmod_delete_selected'], '" data-confirm="', Lang::getTxt('pm_labels_delete', file: 'PersonalMessage'), '" class="button you_sure">
+			<input type="submit" name="save" value="', Lang::getTxt('save', file: 'General'), '" class="button">
+			<input type="submit" name="delete" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" data-confirm="', Lang::getTxt('pm_labels_delete', file: 'PersonalMessage'), '" class="button you_sure">
 		</div>';
 
 	echo '
@@ -1923,11 +1923,11 @@ function template_showPMDrafts()
 					<strong>', $draft['subject'], '</strong>
 				</h4>
 				<div class="smalltext">
-					<div class="recipient_to">', Lang::getTxt('pm_to', ['list' => implode(Lang::$txt['sentence_list_separator'] . ' ', $draft['recipients']['to'])]), '</div>';
+					<div class="recipient_to">', Lang::getTxt('pm_to', ['list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', $draft['recipients']['to'])]), '</div>';
 
 			if(!empty($draft['recipients']['bcc']))
 				echo'
-					<div class="pm_bbc">', Lang::getTxt('pm_bcc', ['list' => implode(Lang::$txt['sentence_list_separator'] . ' ', $draft['recipients']['bcc'])]), '</div>';
+					<div class="pm_bbc">', Lang::getTxt('pm_bcc', ['list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', $draft['recipients']['bcc'])]), '</div>';
 
 			echo '
 				</div>

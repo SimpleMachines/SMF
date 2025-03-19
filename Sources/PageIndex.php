@@ -236,7 +236,7 @@ class PageIndex implements \Stringable
 
 		$this->setTemplateOverrides($template_overrides);
 
-		$this->extra_before = str_replace('{txt_pages}', Lang::$txt['pages'], $this->extra_before);
+		$this->extra_before = str_replace('{txt_pages}', Lang::getTxt('pages', file: 'General'), $this->extra_before);
 	}
 
 	/**

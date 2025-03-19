@@ -527,7 +527,7 @@ class Posts implements ActionInterface
 			[
 				'int',
 				'drafts_keep_days',
-				'postinput' => Lang::$txt['days_word'],
+				'postinput' => Lang::getTxt('days_word', file: 'General'),
 				'subtext' => Lang::getTxt('drafts_keep_days_subnote', file: 'Drafts'),
 			],
 			'',

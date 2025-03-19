@@ -25,7 +25,7 @@ function template_main()
 	<div class="main_section" id="whos_online">
 		<form action="', Config::$scripturl, '?action=who" method="post" id="whoFilter" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['who_title'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('who_title', file: 'General'), '</h3>
 			</div>
 			<div id="mlist">
 				<div class="pagesection">
@@ -40,7 +40,7 @@ function template_main()
 	echo '
 						</select>
 						<noscript>
-							<input type="submit" name="submit_top" value="', Lang::$txt['go'], '" class="button">
+							<input type="submit" name="submit_top" value="', Lang::getTxt('go', file: 'General'), '" class="button">
 						</noscript>
 					</div>
 				</div>
@@ -64,12 +64,12 @@ function template_main()
 		if (!$member['is_guest'])
 			echo '
 								<span class="contact_info floatright">
-									', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . Lang::$txt['pm_online'] . '">' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Lang::$txt['pm_online'] . '"></span>' : $member['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', '
+									', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . Lang::getTxt('pm_online', file: 'General') . '">' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="main_icons im_' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . Lang::getTxt('pm_online', file: 'General') . '"></span>' : $member['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', '
 								</span>';
 
 		echo '
 								<span class="member', $member['is_hidden'] ? ' hidden' : '', '">
-									', $member['is_guest'] ? $member['name'] : '<a href="' . $member['href'] . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $member['name']]) . '"' . (empty($member['color']) ? '' : ' style="color: ' . $member['color'] . ';"') . '>' . $member['name'] . '</a>', '
+									', $member['is_guest'] ? $member['name'] : '<a href="' . $member['href'] . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $member['name']], file: 'General') . '"' . (empty($member['color']) ? '' : ' style="color: ' . $member['color'] . ';"') . '>' . $member['name'] . '</a>', '
 								</span>';
 
 		if (!empty($member['ip']))
@@ -122,7 +122,7 @@ function template_main()
 	echo '
 						</select>
 						<noscript>
-							<input type="submit" value="', Lang::$txt['go'], '" class="button">
+							<input type="submit" value="', Lang::getTxt('go', file: 'General'), '" class="button">
 						</noscript>
 					</div>
 				</div><!-- #lower_pagesection -->

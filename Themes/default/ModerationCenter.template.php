@@ -48,7 +48,7 @@ function template_group_requests_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="group_requests_toggle" class="', !empty(Utils::$context['admin_prefs']['mcgr']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcgr']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
+				<span id="group_requests_toggle" class="', !empty(Utils::$context['admin_prefs']['mcgr']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', Lang::getTxt(empty(Utils::$context['admin_prefs']['mcgr']) ? 'hide' : 'show', file: 'General'), '" style="display: none;"></span>
 				<a href="', Config::$scripturl, '?action=groups;sa=requests" id="group_requests_link">', Lang::getTxt('mc_group_requests', file: 'ModerationCenter'), '</a>
 			</h3>
 		</div>
@@ -82,8 +82,8 @@ function template_group_requests_block()
 				aSwapImages: [
 					{
 						sId: \'group_requests_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 					}
 				],
 				aSwapLinks: [
@@ -113,7 +113,7 @@ function template_watched_users()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="watched_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcwu']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
+				<span id="watched_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcwu']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', Lang::getTxt(empty(Utils::$context['admin_prefs']['mcwu']) ? 'hide' : 'show', file: 'General'), '" style="display: none;"></span>
 				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="watched_users_link">', Lang::getTxt('mc_watched_users', file: 'ModerationCenter'), '</a>
 			</h3>
 		</div>
@@ -147,8 +147,8 @@ function template_watched_users()
 				aSwapImages: [
 					{
 						sId: \'watched_users_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 					}
 				],
 				aSwapLinks: [
@@ -178,7 +178,7 @@ function template_reported_posts_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="reported_posts_toggle" class="', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcrp']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
+				<span id="reported_posts_toggle" class="', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', Lang::getTxt(empty(Utils::$context['admin_prefs']['mcrp']) ? 'hide' : 'show', file: 'General'), '" style="display: none;"></span>
 				<a href="', Config::$scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', Lang::getTxt('mc_recent_reports', file: 'ModerationCenter'), '</a>
 			</h3>
 		</div>
@@ -212,8 +212,8 @@ function template_reported_posts_block()
 				aSwapImages: [
 					{
 						sId: \'reported_posts_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 					}
 				],
 				aSwapLinks: [
@@ -243,7 +243,7 @@ function template_reported_users_block()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span id="reported_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', empty(Utils::$context['admin_prefs']['mcur']) ? Lang::$txt['hide'] : Lang::$txt['show'], '" style="display: none;"></span>
+				<span id="reported_users_toggle" class="', !empty(Utils::$context['admin_prefs']['mcur']) ? 'toggle_down' : 'toggle_up', ' floatright" title="', Lang::getTxt(empty(Utils::$context['admin_prefs']['mcur']) ? 'hide' : 'show', file: 'General'), '" style="display: none;"></span>
 				<a href="', Config::$scripturl, '?action=moderate;area=userwatch" id="reported_users_link">', Lang::getTxt('mc_recent_user_reports', file: 'ModerationCenter'), '</a>
 			</h3>
 		</div>
@@ -277,8 +277,8 @@ function template_reported_users_block()
 				aSwapImages: [
 					{
 						sId: \'reported_users_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 					}
 				],
 				aSwapLinks: [
@@ -398,12 +398,12 @@ function template_unapproved_posts()
 		// The buttons
 		$quickbuttons = array(
 			'approve' => array(
-				'label' => Lang::$txt['approve'],
+				'label' => Lang::getTxt('approve', file: 'General'),
 				'href' => Config::$scripturl.'?action=moderate;area=postmod;sa='.Utils::$context['current_view'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'].';approve='.$item['id'],
 				'icon' => 'approve',
 			),
 			'delete' => array(
-				'label' => Lang::$txt['remove'],
+				'label' => Lang::getTxt('remove', file: 'General'),
 				'href' => Config::$scripturl.'?action=moderate;area=postmod;sa='.Utils::$context['current_view'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'].';delete='.$item['id'],
 				'icon' => 'remove_button',
 				'show' => $item['can_delete']
@@ -421,7 +421,7 @@ function template_unapproved_posts()
 					<h5>
 						<strong>', $item['category']['link'], ' / ', $item['board']['link'], ' / ', $item['link'], '</strong>
 					</h5>
-					<span class="smalltext">', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => $item['time'], 'member_link' => '<strong>' . $item['poster']['link'] . '</strong>'])), '</span>
+					<span class="smalltext">', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => $item['time'], 'member_link' => '<strong>' . $item['poster']['link'] . '</strong>'], file: 'General')), '</span>
 				</div>
 				<div class="list_posts">
 					<div class="post">', Utils::adjustHeadingLevels($item['body'], 5), '</div>
@@ -439,11 +439,11 @@ function template_unapproved_posts()
 					<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'', Lang::getTxt('mc_unapproved_sure', file: 'ModerationCenter'), '\')) submit();">
 						<option value="0">', Lang::getTxt('with_selected', file: 'ModerationCenter'), ':</option>
 						<option value="0" disabled>-------------------</option>
-						<option value="approve">&nbsp;--&nbsp;', Lang::$txt['approve'], '</option>
-						<option value="delete">&nbsp;--&nbsp;', Lang::$txt['delete'], '</option>
+						<option value="approve">&nbsp;--&nbsp;', Lang::getTxt('approve', file: 'General'), '</option>
+						<option value="delete">&nbsp;--&nbsp;', Lang::getTxt('delete', file: 'General'), '</option>
 					</select>
 					<noscript>
-						<input type="submit" name="mc_go" value="', Lang::$txt['go'], '" class="button">
+						<input type="submit" name="mc_go" value="', Lang::getTxt('go', file: 'General'), '" class="button">
 					</noscript>
 				</div>';
 
@@ -470,7 +470,7 @@ function template_user_watch_post_callback($post)
 	// @todo Discuss this with the team and rewrite if required.
 	$quickbuttons = array(
 		'delete' => array(
-			'label' => Lang::$txt['remove_message'],
+			'label' => Lang::getTxt('remove_message', file: 'General'),
 			'href' => Config::$scripturl.'?action=moderate;area=userwatch;sa=post;delete='.$post['id'].';start='.Utils::$context['start'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'],
 			'javascript' => 'data-confirm="' . Lang::getTxt('mc_watched_users_delete_post', file: 'ModerationCenter') . '"',
 			'class' => 'you_sure',
@@ -573,7 +573,7 @@ function template_warn_template()
 				<div class="errorbox"', empty(Utils::$context['warning_errors']) ? ' style="display: none"' : '', ' id="errors">
 					<dl>
 						<dt>
-							<strong id="error_serious">', Lang::$txt['error_while_submitting'], '</strong>
+							<strong id="error_serious">', Lang::getTxt('error_while_submitting', file: 'General'), '</strong>
 						</dt>
 						<dd class="error" id="error_list">
 							', empty(Utils::$context['warning_errors']) ? '' : implode('<br>', Utils::$context['warning_errors']), '
@@ -583,7 +583,7 @@ function template_warn_template()
 				<div id="box_preview"', !empty(Utils::$context['template_preview']) ? '' : ' style="display:none"', '>
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['preview'], '</strong>
+							<strong>', Lang::getTxt('preview', file: 'General'), '</strong>
 						</dt>
 						<dd id="template_preview">
 							', !empty(Utils::$context['template_preview']) ? Utils::$context['template_preview'] : '', '
@@ -615,7 +615,7 @@ function template_warn_template()
 					<p class="smalltext">', Lang::getTxt('mc_warning_template_personal_desc', file: 'ModerationCenter'), '</p>';
 
 	echo '
-				<input type="submit" name="preview" id="preview_button" value="', Lang::$txt['preview'], '" class="button">
+				<input type="submit" name="preview" id="preview_button" value="', Lang::getTxt('preview', file: 'General'), '" class="button">
 				<input type="submit" name="save" value="', Utils::$context['page_title'], '" class="button">
 			</div><!-- .windowbg -->
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">

@@ -137,7 +137,7 @@ class ReportedContent implements ActionInterface
 
 		// Put the open and closed options into tabs, because we can...
 		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_reported_' . $this->type],
+			'title' => Lang::getTxt('mc_reported_' . $this->type, file: 'General+ModerationCenter'),
 			'help' => '',
 			'description' => Lang::getTxt('mc_reported_' . $this->type . '_desc', file: 'ModerationCenter'),
 		];
@@ -577,7 +577,7 @@ class ReportedContent implements ActionInterface
 		}
 
 		// Set up the comforting bits...
-		Utils::$context['page_title'] = Lang::$txt['mc_reported_posts'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_reported_posts', file: 'General');
 		Utils::$context['sub_template'] = 'edit_comment';
 
 		if (isset($_REQUEST['save'], $_POST['edit_comment'])   && !empty($_POST['mod_comment'])) {
@@ -1009,8 +1009,8 @@ class ReportedContent implements ActionInterface
 					'time' => Time::create('@' . $row['time_sent'])->format(),
 					'member' => [
 						'id' => $row['id_member'],
-						'name' => empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter'],
-						'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter']),
+						'name' => empty($row['reporter']) ? Lang::getTxt('guest', file: 'General') : $row['reporter'],
+						'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::getTxt('guest', file: 'General') : $row['reporter']),
 						'href' => $row['id_member'] ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
 					],
 				];
@@ -1122,8 +1122,8 @@ class ReportedContent implements ActionInterface
 				'time' => Time::create('@' . $row['time_sent'])->format(),
 				'member' => [
 					'id' => $row['id_member'],
-					'name' => empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter'],
-					'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::$txt['guest'] : $row['reporter']),
+					'name' => empty($row['reporter']) ? Lang::getTxt('guest', file: 'General') : $row['reporter'],
+					'link' => $row['id_member'] ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['id_member'] . '">' . $row['reporter'] . '</a>' : (empty($row['reporter']) ? Lang::getTxt('guest', file: 'General') : $row['reporter']),
 					'href' => $row['id_member'] ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
 					'ip' => !empty($row['member_ip']) && User::$me->allowedTo('moderate_forum') ? '<a href="' . Config::$scripturl . '?action=trackip;searchip=' . $row['member_ip'] . '">' . $row['member_ip'] . '</a>' : '',
 				],

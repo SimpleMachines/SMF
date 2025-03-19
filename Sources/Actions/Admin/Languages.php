@@ -119,7 +119,7 @@ class Languages implements ActionInterface
 				'columns' => [
 					'name' => [
 						'header' => [
-							'value' => Lang::$txt['name'],
+							'value' => Lang::getTxt('name', file: 'General'),
 						],
 						'data' => [
 							'db' => 'name',
@@ -412,7 +412,7 @@ class Languages implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return '<span style="color: ' . ($rowData['writable'] ? 'green' : 'red') . ';">' . ($rowData['writable'] ? Lang::$txt['yes'] : Lang::$txt['no']) . '</span>';
+							return '<span style="color: ' . ($rowData['writable'] ? 'green' : 'red') . ';">' . Lang::getTxt($rowData['writable'] ? 'yes' : 'no', file: 'General') . '</span>';
 						},
 					],
 				],
@@ -432,7 +432,7 @@ class Languages implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return $rowData['exists'] ? ($rowData['exists'] == 'same' ? Lang::getTxt('languages_download_exists_same', file: 'ManageSettings') : Lang::getTxt('languages_download_exists_different', file: 'ManageSettings')) : Lang::$txt['no'];
+							return $rowData['exists'] ? ($rowData['exists'] == 'same' ? Lang::getTxt('languages_download_exists_same', file: 'ManageSettings') : Lang::getTxt('languages_download_exists_different', file: 'ManageSettings')) : Lang::getTxt('no', file: 'General');
 						},
 					],
 				],
@@ -562,7 +562,7 @@ class Languages implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s" class="button">%3$s</a>', Config::$scripturl, $rowData['id'], Lang::$txt['edit']);
+							return sprintf('<a href="%1$s?action=admin;area=languages;sa=editlang;lid=%2$s" class="button">%3$s</a>', Config::$scripturl, $rowData['id'], Lang::getTxt('edit', file: 'General'));
 						},
 						'style' => 'width: 8%;',
 						'class' => 'centercol',
@@ -576,7 +576,7 @@ class Languages implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="set_default" value="' . Lang::$txt['save'] . '"' . (is_writable(SMF_SETTINGS_FILE) ? '' : ' disabled') . ' class="button">',
+					'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="set_default" value="' . Lang::getTxt('save', file: 'General') . '"' . (is_writable(SMF_SETTINGS_FILE) ? '' : ' disabled') . ' class="button">',
 				],
 			],
 		];
@@ -1391,7 +1391,7 @@ class Languages implements ActionInterface
 								return;
 							}
 
-							$("#language_" + group).append("<dt><span>" + key + subkey + "</span></dt> <dd id=\\"entry_" + entry_num + "\\"><input id=\\"entry_" + entry_num + "_edit\\" class=\\"entry_toggle\\" type=\\"checkbox\\" name=\\"edit[" + key + "]" + subkey + "\\" value=\\"add\\" data-target=\\"#entry_" + entry_num + "\\" checked> <label for=\\"entry_" + entry_num + "_edit\\">' . Lang::$txt['edit'] . '</label> <input type=\\"hidden\\" class=\\"entry_oldvalue\\" name=\\"grp[" + key + "]\\" value=\\"" + group + "\\"> <textarea name=\\"entry[" + key + "]" + subkey + "\\" class=\\"entry_textfield\\" cols=\\"40\\" rows=\\"1\\" style=\\"width: 96%; margin-bottom: 2em;\\"></textarea></dd>");
+							$("#language_" + group).append("<dt><span>" + key + subkey + "</span></dt> <dd id=\\"entry_" + entry_num + "\\"><input id=\\"entry_" + entry_num + "_edit\\" class=\\"entry_toggle\\" type=\\"checkbox\\" name=\\"edit[" + key + "]" + subkey + "\\" value=\\"add\\" data-target=\\"#entry_" + entry_num + "\\" checked> <label for=\\"entry_" + entry_num + "_edit\\">' . Lang::getTxt('edit', file: 'General') . '</label> <input type=\\"hidden\\" class=\\"entry_oldvalue\\" name=\\"grp[" + key + "]\\" value=\\"" + group + "\\"> <textarea name=\\"entry[" + key + "]" + subkey + "\\" class=\\"entry_textfield\\" cols=\\"40\\" rows=\\"1\\" style=\\"width: 96%; margin-bottom: 2em;\\"></textarea></dd>");
 						}
 					};');
 
@@ -1521,7 +1521,7 @@ class Languages implements ActionInterface
 					'id' => $file->fetch('id'),
 					'name' => Utils::ucwords($file->fetch('name')),
 					'version' => $file->fetch('version'),
-					'utf8' => Lang::$txt['yes'],
+					'utf8' => Lang::getTxt('yes', file: 'General'),
 					'description' => $file->fetch('description'),
 					'install_link' => '<a href="' . Config::$scripturl . '?action=admin;area=languages;sa=downloadlang;did=' . $file->fetch('id') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . Lang::getTxt('add_language_smf_install', file: 'ManageSettings') . '</a>',
 				];

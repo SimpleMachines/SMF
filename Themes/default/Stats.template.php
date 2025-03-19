@@ -32,13 +32,13 @@ function template_main()
 				</h4>
 			</div>
 			<dl class="stats half_content">
-				<dt>', Lang::$txt['total_members'], '</dt>
+				<dt>', Lang::getTxt('total_members', file: 'General'), '</dt>
 				<dd>', Utils::$context['show_member_list'] ? '<a href="' . Config::$scripturl . '?action=mlist">' . Utils::$context['num_members'] . '</a>' : Utils::$context['num_members'], '</dd>
-				<dt>', Lang::$txt['total_posts'], '</dt>
+				<dt>', Lang::getTxt('total_posts', file: 'General'), '</dt>
 				<dd>', Utils::$context['num_posts'], '</dd>
-				<dt>', Lang::$txt['total_topics'], '</dt>
+				<dt>', Lang::getTxt('total_topics', file: 'General'), '</dt>
 				<dd>', Utils::$context['num_topics'], '</dd>
-				<dt>', Lang::$txt['total_cats'], '</dt>
+				<dt>', Lang::getTxt('total_cats', file: 'General'), '</dt>
 				<dd>', Utils::$context['num_categories'], '</dd>
 				<dt>', Lang::getTxt('users_online', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['users_online'], '</dd>
@@ -61,9 +61,9 @@ function template_main()
 				<dd>', Utils::$context['average_posts'], '</dd>
 				<dt>', Lang::getTxt('average_topics', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['average_topics'], '</dd>
-				<dt>', Lang::$txt['total_boards'], '</dt>
+				<dt>', Lang::getTxt('total_boards', file: 'General'), '</dt>
 				<dd>', Utils::$context['num_boards'], '</dd>
-				<dt>', Lang::$txt['latest_member'], '</dt>
+				<dt>', Lang::getTxt('latest_member', file: 'General'), '</dt>
 				<dd>', Utils::$context['common_stats']['latest_member']['link'], '</dd>
 				<dt>', Lang::getTxt('average_online', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['average_online'], '</dd>';

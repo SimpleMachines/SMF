@@ -169,7 +169,7 @@ class Calendar implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($event) {
@@ -226,12 +226,12 @@ class Calendar implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_column_headers',
-					'value' => '<input type="submit" name="delete" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button">
+					'value' => '<input type="submit" name="delete" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" class="button">
 						<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . Lang::getTxt('holidays_add', file: 'ManageCalendar') . '</a>',
 				],
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="delete" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button">
+					'value' => '<input type="submit" name="delete" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" class="button">
 						<a class="button" href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday">' . Lang::getTxt('holidays_add', file: 'ManageCalendar') . '</a>',
 				],
 			],
@@ -448,11 +448,11 @@ class Calendar implements ActionInterface
 				'get_count' => [
 					'value' => count(Utils::$context['calendar_subscriptions']),
 				],
-				'no_items_label' => Lang::$txt['none'],
+				'no_items_label' => Lang::getTxt('none', file: 'General'),
 				'columns' => [
 					'url' => [
 						'header' => [
-							'value' => Lang::$txt['url'],
+							'value' => Lang::getTxt('url', file: 'General'),
 						],
 						'data' => [
 							'sprintf' => [
@@ -604,7 +604,13 @@ class Calendar implements ActionInterface
 				'',
 
 				// How many days to show on board index, and where to display events etc?
-				['int', 'cal_days_for_index', 'help' => 'cal_maxdays_advance', 6, 'postinput' => Lang::$txt['days_word']],
+				[
+					'int',
+					'cal_days_for_index',
+					'help' => 'cal_maxdays_advance',
+					6,
+					'postinput' => Lang::getTxt('days_word', file: 'General'),
+				],
 				[
 					'select',
 					'cal_showholidays',
@@ -651,7 +657,14 @@ class Calendar implements ActionInterface
 				'',
 
 				// Calendar spanning...
-				['int', 'cal_maxspan', 6, 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'), 'help' => 'cal_maxevent_span'],
+				[
+					'int',
+					'cal_maxspan',
+					6,
+					'postinput' => Lang::getTxt('days_word', file: 'General'),
+					'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+					'help' => 'cal_maxevent_span',
+				],
 				'',
 
 				// Miscellaneous layout settings...

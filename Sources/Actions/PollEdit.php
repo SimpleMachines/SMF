@@ -109,7 +109,7 @@ class PollEdit implements ActionInterface, Routable
 		Utils::$context['last_choice_id'] = array_key_last(Utils::$context['poll']['choices']);
 		Utils::$context['poll']['choices'][Utils::$context['last_choice_id']]['is_last'] = true;
 
-		Utils::$context['page_title'] = Utils::$context['is_edit'] ? Lang::$txt['poll_edit'] : Lang::$txt['add_poll'];
+		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['is_edit'] ? 'poll_edit' : 'add_poll', file: 'General');
 
 		// Build the link tree.
 		Utils::$context['linktree'][] = [

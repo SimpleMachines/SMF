@@ -161,7 +161,7 @@ class WatchedUsers implements ActionInterface
 				],
 				'posts' => [
 					'header' => [
-						'value' => Lang::$txt['posts'],
+						'value' => Lang::getTxt('posts', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -217,7 +217,7 @@ class WatchedUsers implements ActionInterface
 					[
 						'position' => 'bottom_of_list',
 						'value' => '
-						<input type="submit" name="delete_selected" value="' . Lang::$txt['quickmod_delete_selected'] . '" class="button">',
+						<input type="submit" name="delete_selected" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" class="button">',
 						'class' => 'floatright',
 					] : [],
 			],
@@ -304,8 +304,8 @@ class WatchedUsers implements ActionInterface
 			$watched_users[$row['id_member']] = [
 				'id' => $row['id_member'],
 				'name' => $row['real_name'],
-				'last_login' => $row['last_login'] ? Time::create('@' . $row['last_login'])->format() : Lang::$txt['never'],
-				'last_post' => Lang::$txt['not_applicable'],
+				'last_login' => $row['last_login'] ? Time::create('@' . $row['last_login'])->format() : Lang::getTxt('never', file: 'General'),
+				'last_post' => Lang::getTxt('not_applicable', file: 'General'),
 				'last_post_id' => 0,
 				'warning' => $row['warning'],
 				'posts' => $row['posts'],

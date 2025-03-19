@@ -279,7 +279,7 @@ function template_maintain_members()
 		</div><!-- .windowbg -->
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', Config::$scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::getTxt('maintain_members', file: 'ManageMaintenance'), '
+				<a href="', Config::$scripturl, '?action=helpadmin;help=maintenance_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a> ', Lang::getTxt('maintain_members', file: 'ManageMaintenance'), '
 			</h3>
 		</div>
 		<div class="windowbg">
@@ -346,7 +346,7 @@ function template_maintain_members()
 			sSuggestId: \'attributeMember\',
 			sControlId: \'to\',
 			sSearchType: \'member\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			bItemList: false
 		});
 	</script>';

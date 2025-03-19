@@ -270,7 +270,7 @@ class DraftPM extends Draft
 			$row['subject'] = Utils::htmlTrim($row['subject']);
 
 			if (empty($row['subject'])) {
-				$row['subject'] = Lang::$txt['no_subject'];
+				$row['subject'] = Lang::getTxt('no_subject', file: 'General');
 			}
 
 			Lang::censorText($row['body']);

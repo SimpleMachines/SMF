@@ -284,7 +284,7 @@ class Main implements ActionInterface, Routable
 			'title' => Lang::getTxt('moderation_center', file: 'ModerationCenter'),
 			'help' => '',
 			'description' => '
-				<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name]) . '</strong>
+				<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name], file: 'General') . '</strong>
 				<br><br>
 				' . Lang::getTxt('mc_description', file: 'ModerationCenter'),
 		];

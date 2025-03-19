@@ -296,14 +296,14 @@ class Registration implements ActionInterface
 			}
 		}
 
-		Utils::$context['agreement_info'] = Lang::getTxt('admin_agreement_info', ['datetime' => empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['agreement_updated_' . $agreement_lang])->format()]);
+		Utils::$context['agreement_info'] = Lang::getTxt('admin_agreement_info', ['datetime' => empty(Config::$modSettings['agreement_updated_' . $agreement_lang]) ? Lang::getTxt('never', file: 'General') : Time::create('@' . Config::$modSettings['agreement_updated_' . $agreement_lang])->format()]);
 
 		Utils::$context['agreement'] = Utils::htmlspecialchars(Utils::$context['agreement']);
 
 		Utils::$context['warning'] = is_writable($agreement_file) && is_writable(dirname($agreement_file)) ? '' : Lang::getTxt('agreement_not_writable', file: 'Admin');
 
 		Utils::$context['sub_template'] = 'edit_agreement';
-		Utils::$context['page_title'] = Lang::$txt['registration_agreement'];
+		Utils::$context['page_title'] = Lang::getTxt('registration_agreement', file: 'General');
 
 		SecurityToken::create('admin-rega');
 	}
@@ -376,10 +376,16 @@ class Registration implements ActionInterface
 			Utils::$context['privacy_policy'] = $policy_text;
 		}
 
-		Utils::$context['privacy_policy_info'] = Lang::getTxt('admin_agreement_info', ['datetime' => empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? Lang::$txt['never'] : Time::create('@' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']])->format()]);
+		Utils::$context['privacy_policy_info'] = Lang::getTxt(
+			'admin_agreement_info',
+			[
+				'datetime' => empty(Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']]) ? Lang::getTxt('never', file: 'General') : Time::create('@' . Config::$modSettings['policy_updated_' . Utils::$context['current_policy_lang']])->format(),
+			],
+			file: 'Admin',
+		);
 
 		Utils::$context['sub_template'] = 'edit_privacy_policy';
-		Utils::$context['page_title'] = Lang::$txt['privacy_policy'];
+		Utils::$context['page_title'] = Lang::getTxt('privacy_policy', file: 'General');
 
 		SecurityToken::create('admin-regp');
 	}
@@ -465,7 +471,7 @@ class Registration implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=regcenter;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('settings', file: 'General');
 
 		// Define some javascript for COPPA.
 		Utils::$context['settings_post_javascript'] = '

@@ -444,9 +444,13 @@ class Attachment implements \ArrayAccess
 		}
 
 		if (($this->prop_aliases[$prop] ?? $prop) === 'size') {
-			Lang::load('General');
-
-			$this->formatted_size = ($this->size < 1024000) ? round($this->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($this->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'];
+			$this->formatted_size = Lang::getTxt(
+				$this->size < 1024000 ? 'size_kilobyte' : 'size_megabyte',
+				[
+					$this->size < 1024000 ? round($this->size / 1024, 2) : round($this->size / 1024 / 1024, 2),
+				],
+				file: 'General',
+			);
 		}
 	}
 
@@ -2020,8 +2024,14 @@ class Attachment implements \ArrayAccess
 					'id' => $attachment['id_attach'],
 					'name' => Utils::entityFix(Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($attachment['filename']))),
 					'downloads' => $attachment['downloads'],
-					'formatted_size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
 					'byte_size' => $attachment['filesize'],
+					'formatted_size' => Lang::getTxt(
+						$attachment['filesize'] < 1024000 ? 'size_kilobyte' : 'size_megabyte',
+						[
+							$attachment['filesize'] < 1024000 ? round($attachment['filesize'] / 1024, 2) : round($attachment['filesize'] / 1024 / 1024, 2),
+						],
+						file: 'General',
+					),
 					'href' => Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
 					'link' => '<a href="' . Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($attachment['filename'])) . '</a>',
 					'is_image' => !empty($attachment['width']) && !empty($attachment['height']),
@@ -2214,7 +2224,7 @@ class Attachment implements \ArrayAccess
 				// This can happen if an uploaded SVG is missing some key data.
 				foreach (['real_width', 'real_height'] as $key) {
 					if (!isset($attachmentData[$i][$key]) || $attachmentData[$i][$key] === INF) {
-						$attachmentData[$i][$key] = ' (' . Lang::$txt['unknown'] . ') ';
+						$attachmentData[$i][$key] = ' (' . Lang::getTxt('unknown', file: 'General') . ') ';
 					}
 				}
 			}

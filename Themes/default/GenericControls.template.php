@@ -120,7 +120,7 @@ function template_control_richedit_buttons($editor_id)
 	}
 
 	echo '
-		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : Lang::$txt['post'], '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
+		<input type="submit" value="', isset($editor_context['labels']['post_button']) ? $editor_context['labels']['post_button'] : Lang::getTxt('post', file: 'General'), '" name="post" tabindex="', --$tempTab, '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 		</span>';
 
 	// Start an instance of the auto saver if it's enabled
@@ -182,7 +182,7 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 		if ($verify_context->empty_field && empty($i))
 			echo '
 				<div class="smalltext vv_special">
-					', Lang::$txt['visual_verification_hidden'], '
+					', Lang::getTxt('visual_verification_hidden', file: 'General'), '
 					<input type="text" name="', $_SESSION[$verify_id . '_vv']['empty_field'], '" autocomplete="off" size="30" value="">
 				</div>';
 
@@ -193,27 +193,27 @@ function template_control_verification($verify_id, $display_type = 'all', $reset
 			{
 				if (Utils::$context['use_graphic_library'])
 					echo '
-				<img src="', $verify_context->image_href, '" alt="', Lang::$txt['visual_verification_description'], '" id="verification_image_', $verify_id, '">';
+				<img src="', $verify_context->image_href, '" alt="', Lang::getTxt('visual_verification_description', file: 'General'), '" id="verification_image_', $verify_id, '">';
 				else
 					echo '
-				<img src="', $verify_context->image_href, ';letter=1" alt="', Lang::$txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_1">
-				<img src="', $verify_context->image_href, ';letter=2" alt="', Lang::$txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_2">
-				<img src="', $verify_context->image_href, ';letter=3" alt="', Lang::$txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_3">
-				<img src="', $verify_context->image_href, ';letter=4" alt="', Lang::$txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_4">
-				<img src="', $verify_context->image_href, ';letter=5" alt="', Lang::$txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_5">
-				<img src="', $verify_context->image_href, ';letter=6" alt="', Lang::$txt['visual_verification_description'], '" id="verification_image_', $verify_id, '_6">';
+				<img src="', $verify_context->image_href, ';letter=1" alt="', Lang::getTxt('visual_verification_description', file: 'General'), '" id="verification_image_', $verify_id, '_1">
+				<img src="', $verify_context->image_href, ';letter=2" alt="', Lang::getTxt('visual_verification_description', file: 'General'), '" id="verification_image_', $verify_id, '_2">
+				<img src="', $verify_context->image_href, ';letter=3" alt="', Lang::getTxt('visual_verification_description', file: 'General'), '" id="verification_image_', $verify_id, '_3">
+				<img src="', $verify_context->image_href, ';letter=4" alt="', Lang::getTxt('visual_verification_description', file: 'General'), '" id="verification_image_', $verify_id, '_4">
+				<img src="', $verify_context->image_href, ';letter=5" alt="', Lang::getTxt('visual_verification_description', file: 'General'), '" id="verification_image_', $verify_id, '_5">
+				<img src="', $verify_context->image_href, ';letter=6" alt="', Lang::getTxt('visual_verification_description', file: 'General'), '" id="verification_image_', $verify_id, '_6">';
 
 				echo '
 				<div class="smalltext" style="margin: 4px 0 8px 0;">
-					<a href="', $verify_context->image_href, ';sound" id="visual_verification_', $verify_id, '_sound" rel="nofollow">', Lang::$txt['visual_verification_sound'], '</a> / <a href="#visual_verification_', $verify_id, '_refresh" id="visual_verification_', $verify_id, '_refresh">', Lang::$txt['visual_verification_request_new'], '</a>', $display_type != 'quick_reply' ? '<br>' : '', '<br>
-					', Lang::$txt['visual_verification_description'], $display_type != 'quick_reply' ? '<br>' : '', '
+					<a href="', $verify_context->image_href, ';sound" id="visual_verification_', $verify_id, '_sound" rel="nofollow">', Lang::getTxt('visual_verification_sound', file: 'General'), '</a> / <a href="#visual_verification_', $verify_id, '_refresh" id="visual_verification_', $verify_id, '_refresh">', Lang::getTxt('visual_verification_request_new', file: 'General'), '</a>', $display_type != 'quick_reply' ? '<br>' : '', '<br>
+					', Lang::getTxt('visual_verification_description', file: 'General'), $display_type != 'quick_reply' ? '<br>' : '', '
 					<input type="text" name="', $verify_id, '_vv[code]" value="" size="30" tabindex="', Utils::$context['tabindex']++, '" autocomplete="off" required>
 				</div>';
 			}
 
 			if ($verify_context->can_recaptcha)
 			{
-				$lang = (isset(Lang::$txt['lang_recaptcha']) ? Lang::$txt['lang_recaptcha'] : Lang::$txt['lang_dictionary']);
+				$lang = Lang::getTxt(Lang::txtExists('lang_recaptcha', file: 'General') ? 'lang_recaptcha' : 'lang_dictionary', file: 'General');
 				echo '
 				<div class="g-recaptcha centertext" data-sitekey="' . $verify_context->recaptcha_site_key . '" data-theme="' . $verify_context->recaptcha_theme . '"></div>
 				<br>

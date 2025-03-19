@@ -24,7 +24,7 @@ function template_login()
 		<div class="login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="main_icons login"></span> ', Lang::$txt['login'], '
+					<span class="main_icons login"></span> ', Lang::getTxt('login', file: 'General'), '
 				</h3>
 			</div>
 			<div class="roundframe">
@@ -44,23 +44,23 @@ function template_login()
 	// Now just get the basic information - username, password, etc.
 	echo '
 					<dl>
-						<dt>', Lang::$txt['username'], '</dt>
+						<dt>', Lang::getTxt('username', file: 'General'), '</dt>
 						<dd>
 							<input type="text" id="', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', 'loginuser" name="user" size="20" value="', Utils::$context['default_username'], '" required>
 						</dd>
-						<dt>', Lang::$txt['password'], '</dt>
+						<dt>', Lang::getTxt('password', file: 'General'), '</dt>
 						<dd>
 							<input type="password" id="', !empty(Utils::$context['from_ajax']) ? 'ajax_' : '', 'loginpass" name="passwrd" value="', Utils::$context['default_password'], '" size="20" required>
 						</dd>
 					</dl>
 					<dl>
-						<dt>', Lang::$txt['time_logged_in'], '</dt>
+						<dt>', Lang::getTxt('time_logged_in', file: 'General'), '</dt>
 						<dd>
 							<select name="cookielength" id="cookielength">';
 
 	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
 		echo '
-								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::$txt[$cookie_txt], '</option>';
+								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::getTxt($cookie_txt, file: 'General'), '</option>';
 
 	echo '
 							</select>
@@ -75,15 +75,15 @@ function template_login()
 	echo '
 					</dl>
 					<p>
-						<input type="submit" value="', Lang::$txt['login'], '" class="button">
+						<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
 					</p>
 					<p class="smalltext">
-						<a href="', Config::$scripturl, '?action=reminder">', Lang::$txt['forgot_your_password'], '</a>
+						<a href="', Config::$scripturl, '?action=reminder">', Lang::getTxt('forgot_your_password', file: 'General'), '</a>
 					</p>';
 	if (!empty(Config::$modSettings['registration_method']) && Config::$modSettings['registration_method'] == 1)
 		echo '
 					<p class="smalltext">
-						', Lang::getTxt('welcome_guest_activate', ['scripturl' => Config::$scripturl]), '
+						', Lang::getTxt('welcome_guest_activate', ['scripturl' => Config::$scripturl], file: 'General'), '
 					</p>';
 	echo '
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -159,7 +159,7 @@ function template_login()
 		echo '
 				<hr>
 				<div class="centertext">
-					', Lang::getTxt('register_prompt', ['scripturl' => Config::$scripturl]), '
+					', Lang::getTxt('register_prompt', ['scripturl' => Config::$scripturl], file: 'General'), '
 				</div>';
 
 	// It is a long story as to why we have this when we're clearly not going to use it.
@@ -200,7 +200,7 @@ function template_login_tfa()
 						<div class="centertext">
 							<strong>', Lang::getTxt('tfa_code', file: 'Profile'), '</strong>
 							<input type="text" name="tfa_code" value="', !empty(Utils::$context['tfa_value']) ? Utils::$context['tfa_value'] : '', '">
-							<input type="submit" class="button" name="submit" value="', Lang::$txt['login'], '">
+							<input type="submit" class="button" name="submit" value="', Lang::getTxt('login', file: 'General'), '">
 						</div>
 						<hr>
 						<div class="centertext">
@@ -212,7 +212,7 @@ function template_login_tfa()
 						<div class="centertext">
 							<strong>', Lang::getTxt('tfa_backup_code', file: 'Profile'), '</strong>
 							<input type="text" name="tfa_backup" value="', !empty(Utils::$context['tfa_backup']) ? Utils::$context['tfa_backup'] : '', '">
-							<input type="submit" class="button" name="submit" value="', Lang::$txt['login'], '">
+							<input type="submit" class="button" name="submit" value="', Lang::getTxt('login', file: 'General'), '">
 						</div>
 					</div>
 				</form>
@@ -310,32 +310,32 @@ function template_kick_guest()
 	echo '
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="main_icons login"></span> ', Lang::$txt['login'], '
+					<span class="main_icons login"></span> ', Lang::getTxt('login', file: 'General'), '
 				</h3>
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', Lang::$txt['username'], '</dt>
+					<dt>', Lang::getTxt('username', file: 'General'), '</dt>
 					<dd><input type="text" name="user" size="20"></dd>
-					<dt>', Lang::$txt['password'], '</dt>
+					<dt>', Lang::getTxt('password', file: 'General'), '</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', Lang::$txt['time_logged_in'], '</dt>
+					<dt>', Lang::getTxt('time_logged_in', file: 'General'), '</dt>
 					<dd>
 							<select name="cookielength" id="cookielength">';
 
 	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
 		echo '
-								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::$txt[$cookie_txt], '</option>';
+								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::getTxt($cookie_txt, file: 'General'), '</option>';
 
 	echo '
 							</select>
 					</dd>
 				</dl>
 				<p class="centertext">
-					<input type="submit" value="', Lang::$txt['login'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
 				</p>
 				<p class="centertext smalltext">
-					<a href="', Config::$scripturl, '?action=reminder">', Lang::$txt['forgot_your_password'], '</a>
+					<a href="', Config::$scripturl, '?action=reminder">', Lang::getTxt('forgot_your_password', file: 'General'), '</a>
 				</p>
 			</div>
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -367,27 +367,27 @@ function template_maintenance()
 				', Utils::$context['description'], '<br class="clear">
 			</div>
 			<div class="title_bar">
-				<h4 class="titlebg">', Lang::$txt['admin_login'], '</h4>
+				<h4 class="titlebg">', Lang::getTxt('admin_login', file: 'General'), '</h4>
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', Lang::$txt['username'], '</dt>
+					<dt>', Lang::getTxt('username', file: 'General'), '</dt>
 					<dd><input type="text" name="user" size="20"></dd>
-					<dt>', Lang::$txt['password'], '</dt>
+					<dt>', Lang::getTxt('password', file: 'General'), '</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', Lang::$txt['time_logged_in'], '</dt>
+					<dt>', Lang::getTxt('time_logged_in', file: 'General'), '</dt>
 					<dd>
 							<select name="cookielength" id="cookielength">';
 
 	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
 		echo '
-								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::$txt[$cookie_txt], '</option>';
+								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::getTxt($cookie_txt, file: 'General'), '</option>';
 
 	echo '
 							</select>
 					</dd>
 				</dl>
-				<input type="submit" value="', Lang::$txt['login'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
 				<br class="clear">
 			</div>
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -407,7 +407,7 @@ function template_admin_login()
 		<div class="login" id="admin_login">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="main_icons login"></span> ', Lang::$txt['login'], '
+					<span class="main_icons login"></span> ', Lang::getTxt('login', file: 'General'), '
 				</h3>
 			</div>
 			<div class="roundframe centertext">';
@@ -417,12 +417,12 @@ function template_admin_login()
 				<div class="error">', Lang::getTxt('admin_incorrect_password', file: 'Admin'), '</div>';
 
 	echo '
-				<strong>', Lang::$txt['password'], '</strong>
+				<strong>', Lang::getTxt('password', file: 'General'), '</strong>
 				<input type="password" name="', Utils::$context['sessionCheckType'], '_pass" size="24">
-				<a href="', Config::$scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a><br>
+				<a href="', Config::$scripturl, '?action=helpadmin;help=securityDisable_why" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a><br>
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-login_token_var'], '" value="', Utils::$context['admin-login_token'], '">
-				<input type="submit" value="', Lang::$txt['login'], '" class="button">';
+				<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">';
 
 	// Make sure to output all the old post data.
 	echo Utils::$context['post_data'], '
@@ -523,7 +523,7 @@ function template_logout()
 				</p>
 
 				<p class="centertext">
-					<input type="submit" value="', Lang::$txt['logout'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('logout', file: 'General'), '" class="button">
 					<input type="submit" name="cancel" value="', Lang::getTxt('logout_return', file: 'Login'), '" class="button">
 				</p>
 			</div>

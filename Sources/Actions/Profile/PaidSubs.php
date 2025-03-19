@@ -117,7 +117,7 @@ class PaidSubs implements ActionInterface
 				'hide' => $row['status'] == 0 && $row['end_time'] == 0 && $row['payments_pending'] == 0,
 				'name' => Subscriptions::$all[$row['id_subscribe']]['name'],
 				'start' => Time::create('@' . $row['start_time'])->format(null, false),
-				'end' => $row['end_time'] == 0 ? Lang::$txt['not_applicable'] : Time::create('@' . $row['end_time'])->format(null, false),
+				'end' => $row['end_time'] == 0 ? Lang::getTxt('not_applicable', file: 'General') : Time::create('@' . $row['end_time'])->format(null, false),
 				'pending_details' => $row['pending_details'],
 				'status' => $row['status'],
 				'status_text' => Lang::getTxt($row['status'] == 0 ? ($row['payments_pending'] ? 'paid_pending' : 'paid_finished') : 'paid_active', file: 'ManagePaid'),

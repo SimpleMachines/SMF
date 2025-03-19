@@ -776,7 +776,7 @@ class Features implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="save" value="' . Lang::$txt['save'] . '" class="button">',
+					'value' => '<input type="submit" name="save" value="' . Lang::getTxt('save', file: 'General') . '" class="button">',
 				],
 			],
 		];
@@ -871,7 +871,7 @@ class Features implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return $rowData['active'] ? Lang::$txt['yes'] : Lang::$txt['no'];
+							return Lang::getTxt($rowData['active'] ? 'yes' : 'no', file: 'General');
 						},
 						'style' => 'width: 8%;',
 					],
@@ -898,7 +898,7 @@ class Features implements ActionInterface
 				'show_on_registration' => [
 					'data' => [
 						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=%1$s">' . Lang::$txt['modify'] . '</a>',
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=%1$s">' . Lang::getTxt('modify', file: 'General') . '</a>',
 							'params' => [
 								'id_field' => false,
 							],
@@ -1485,7 +1485,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=likes';
-		Utils::$context['settings_title'] = Lang::$txt['likes'];
+		Utils::$context['settings_title'] = Lang::getTxt('likes', file: 'General');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -1511,7 +1511,7 @@ class Features implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=featuresettings;save;sa=mentions';
-		Utils::$context['settings_title'] = Lang::$txt['mentions'];
+		Utils::$context['settings_title'] = Lang::getTxt('mentions', file: 'General');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -1642,7 +1642,12 @@ class Features implements ActionInterface
 
 			// Who's online?
 			['check', 'who_enabled'],
-			['int', 'lastActive', 6, 'postinput' => Lang::$txt['minutes']],
+			[
+				'int',
+				'lastActive',
+				6,
+				'postinput' => Lang::getTxt('minutes', file: 'General'),
+			],
 			'',
 
 			// Statistics.
@@ -1963,12 +1968,12 @@ class Features implements ActionInterface
 		Lang::load('Help');
 		Lang::load('ManageSettings');
 
-		Utils::$context['page_title'] = Lang::$txt['modSettings_title'];
+		Utils::$context['page_title'] = Lang::getTxt('modSettings_title', file: 'General');
 		Utils::$context['show_privacy_policy_warning'] = empty(Config::$modSettings['policy_' . Lang::$default]);
 
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['modSettings_title'],
+			'title' => Lang::getTxt('modSettings_title', file: 'General'),
 			'help' => 'featuresettings',
 			'description' => Lang::getTxt('modSettings_desc', ['theme_id' => Theme::$current->settings['theme_id'], 'session_id' => Utils::$context['session_id'], 'session_var' => Utils::$context['session_var'], 'scripturl' => Config::$scripturl], file: 'ManageSettings'),
 			'tabs' => [

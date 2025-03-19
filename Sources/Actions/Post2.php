@@ -236,7 +236,7 @@ class Post2 extends Post
 				}
 
 				// Now make sure this email address is not banned from posting.
-				User::isBannedEmail($_POST['email'], 'cannot_post', Lang::getTxt('you_are_post_banned', ['name' => Lang::$txt['guest_title']]));
+				User::isBannedEmail($_POST['email'], 'cannot_post', Lang::getTxt('you_are_post_banned', ['name' => Lang::getTxt('guest_title', file: 'General')]));
 			}
 
 			// In case they are making multiple posts this visit, help them along by storing their name.

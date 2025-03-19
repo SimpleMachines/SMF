@@ -1131,13 +1131,13 @@ class User implements \ArrayAccess
 		// The minimal values.
 		$this->formatted = [
 			'id' => $this->id,
-			'username' => $this->is_guest ? Lang::$txt['guest_title'] : $this->username,
-			'name' => $this->is_guest ? Lang::$txt['guest_title'] : $this->name,
+			'username' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->username,
+			'name' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->name,
 			'href' => $this->is_guest ? '' : Config::$scripturl . '?action=profile;u=' . $this->id,
-			'link' => $this->is_guest ? '' : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name]) . '">' . $this->name . '</a>',
+			'link' => $this->is_guest ? '' : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '">' . $this->name . '</a>',
 			'email' => $this->email,
 			'show_email' => !self::$me->is_guest && (self::$me->id == $this->id || self::$me->allowedTo('moderate_forum')),
-			'registered' => empty($this->date_registered) ? Lang::$txt['not_applicable'] : Time::create('@' . $this->date_registered)->format(),
+			'registered' => empty($this->date_registered) ? Lang::getTxt('not_applicable', file: 'General') : Time::create('@' . $this->date_registered)->format(),
 			'registered_timestamp' => $this->date_registered,
 		];
 
@@ -1172,7 +1172,7 @@ class User implements \ArrayAccess
 			$this->formatted += [
 				'username_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->username . '</span>',
 				'name_color' => '<span ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</span>',
-				'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name]) . '" ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</a>',
+				'link_color' => '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->name], file: 'General') . '" ' . (!empty($this->group_color) ? 'style="color:' . $this->group_color . ';"' : '') . '>' . $this->name . '</a>',
 				'is_buddy' => in_array($this->id, self::$me->buddies),
 				'is_reverse_buddy' => in_array(self::$me->id, $this->buddies),
 				'buddies' => $this->buddies,
@@ -1182,18 +1182,18 @@ class User implements \ArrayAccess
 				'birth_date' => empty($this->birthdate) ? '1004-01-01' : (substr($this->birthdate, 0, 4) === '0004' ? '1004' . substr($this->birthdate, 4) : $this->birthdate),
 				'signature' => $this->signature,
 				'real_posts' => $this->posts,
-				'posts' => $this->posts > 500000 ? Lang::$txt['geek'] : Lang::numberFormat($this->posts),
-				'last_login' => empty($this->last_login) ? Lang::$txt['never'] : Time::create('@' . $this->last_login)->format(),
+				'posts' => $this->posts > 500000 ? Lang::getTxt('geek', file: 'General') : Lang::numberFormat($this->posts),
+				'last_login' => empty($this->last_login) ? Lang::getTxt('never', file: 'General') : Time::create('@' . $this->last_login)->format(),
 				'last_login_timestamp' => empty($this->last_login) ? 0 : $this->last_login,
 				'ip' => Utils::htmlspecialchars($this->ip),
 				'ip2' => Utils::htmlspecialchars($this->ip2),
 				'online' => [
 					'is_online' => $is_visibly_online,
-					'text' => Utils::htmlspecialchars(Lang::$txt[$is_visibly_online ? 'online' : 'offline']),
-					'member_online_text' => Lang::getTxt($is_visibly_online ? 'member_is_online' : 'member_is_offline', ['name' => Utils::htmlspecialchars($this->name)]),
+					'text' => Utils::htmlspecialchars(Lang::getTxt($is_visibly_online ? 'online' : 'offline', file: 'General')),
+					'member_online_text' => Lang::getTxt($is_visibly_online ? 'member_is_online' : 'member_is_offline', ['name' => Utils::htmlspecialchars($this->name)], file: 'General'),
 					'href' => Config::$scripturl . '?action=pm;sa=send;u=' . $this->id,
-					'link' => '<a href="' . Config::$scripturl . '?action=pm;sa=send;u=' . $this->id . '">' . Lang::$txt[$is_visibly_online ? 'online' : 'offline'] . '</a>',
-					'label' => Lang::$txt[$is_visibly_online ? 'online' : 'offline'],
+					'link' => '<a href="' . Config::$scripturl . '?action=pm;sa=send;u=' . $this->id . '">' . Lang::getTxt($is_visibly_online ? 'online' : 'offline', file: 'General') . '</a>',
+					'label' => Lang::getTxt($is_visibly_online ? 'online' : 'offline', file: 'General'),
 				],
 				'language' => !empty($loadedLanguages[$this->language]) && !empty($loadedLanguages[$this->language]['name']) ? $loadedLanguages[$this->language]['name'] : Utils::ucwords(strtr($this->language, ['_' => ' ', '-utf8' => ''])),
 				'is_activated' => $this->is_activated % self::BANNED == self::ACTIVATED,
@@ -1201,14 +1201,14 @@ class User implements \ArrayAccess
 				'options' => $this->options,
 				'is_guest' => $this->is_guest,
 				'group_id' => $this->group_id,
-				'group' => $this->is_guest ? Lang::$txt['guest_title'] : $this->group_name,
-				'group_name' => $this->is_guest ? Lang::$txt['guest_title'] : $this->group_name,
+				'group' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->group_name,
+				'group_name' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->group_name,
 				'group_color' => $this->group_color,
-				'primary_group' => $this->is_guest ? Lang::$txt['guest_title'] : $this->primary_group_name,
-				'primary_group_name' => $this->is_guest ? Lang::$txt['guest_title'] : $this->primary_group_name,
+				'primary_group' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->primary_group_name,
+				'primary_group_name' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->primary_group_name,
 				'post_group_id' => $this->post_group_id,
-				'post_group' => $this->is_guest ? Lang::$txt['guest_title'] : $this->post_group_name,
-				'post_group_name' => $this->is_guest ? Lang::$txt['guest_title'] : $this->post_group_name,
+				'post_group' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->post_group_name,
+				'post_group_name' => $this->is_guest ? Lang::getTxt('guest_title', file: 'General') : $this->post_group_name,
 				'post_group_color' => $this->is_guest ? '' : $this->post_group_color,
 				'group_icons' => str_repeat('<img src="' . str_replace('$language', self::$me->language, isset($this->icons[1]) ? $group_icon_url : '') . '" alt="*">', empty($this->icons[0]) || empty($this->icons[1]) ? 0 : (int) $this->icons[0]),
 				'warning' => $this->warning,
@@ -1266,7 +1266,7 @@ class User implements \ArrayAccess
 				}
 				// ... or checkbox?
 				elseif (isset($custom['type']) && $custom['type'] == 'check') {
-					$value = $value ? Lang::$txt['yes'] : Lang::$txt['no'];
+					$value = Lang::getTxt($value ? 'yes' : 'no', file: 'General');
 				}
 
 				// Enclosing the user input within some other text?
@@ -1657,7 +1657,7 @@ class User implements \ArrayAccess
 
 		// Use the kick_guest sub template...
 		Utils::$context['sub_template'] = 'kick_guest';
-		Utils::$context['page_title'] = Lang::$txt['login'];
+		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 		Utils::$context['kick_message'] = $message ?? Lang::getTxt('only_members_can_access', file: 'Login');
 		Utils::$context['robot_no_index'] = true;
 
@@ -1888,7 +1888,7 @@ class User implements \ArrayAccess
 			}
 
 			// 'Log' the user out.  Can't have any funny business... (save the name!)
-			$old_name = isset($this->name) && $this->name != '' ? $this->name : Lang::$txt['guest_title'];
+			$old_name = isset($this->name) && $this->name != '' ? $this->name : Lang::getTxt('guest_title', file: 'General');
 
 			User::setMe(0);
 
@@ -1904,7 +1904,7 @@ class User implements \ArrayAccess
 			Logout::call(true, false);
 
 			// You banned, sucka!
-			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name]) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::$txt['your_ban_expires_never']), false, 403);
+			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name], file: 'General') . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::getTxt('your_ban_expires_never', file: 'General')), false, 403);
 
 			// We should never reach this point, but just in case...
 			die('No direct access...');
@@ -1923,7 +1923,7 @@ class User implements \ArrayAccess
 			);
 
 			// 'Log' the user out.  Can't have any funny business... (save the name!)
-			$old_name = isset($this->name) && $this->name != '' ? $this->name : Lang::$txt['guest_title'];
+			$old_name = isset($this->name) && $this->name != '' ? $this->name : Lang::getTxt('guest_title', file: 'General');
 			User::setMe(0);
 
 			// SMF's Wipe 'n Clean(r) erases all traces.
@@ -1934,7 +1934,7 @@ class User implements \ArrayAccess
 
 			Logout::call(true, false);
 
-			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name]) . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::$txt['your_ban_expires_never']) . '<br>' . Lang::$txt['ban_continue_browse'], false, 403);
+			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => $old_name], file: 'General') . (empty($_SESSION['ban']['cannot_login']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_login']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? Lang::getTxt('your_ban_expires', [Time::create('@' . $_SESSION['ban']['expire_time'])->format(null, false)]) : Lang::getTxt('your_ban_expires_never', file: 'General')) . '<br>' . Lang::getTxt('ban_continue_browse', file: 'General'), false, 403);
 		}
 
 		// Fix up the banning permissions.
@@ -3669,12 +3669,12 @@ class User implements \ArrayAccess
 			$errors[] = ['lang', 'error_invalid_characters_username'];
 		}
 
-		if (stristr($username, Lang::$txt['guest_title']) !== false) {
-			$errors[] = ['lang', 'username_reserved', 'general', [Lang::$txt['guest_title']]];
+		if (stristr($username, Lang::getTxt('guest_title', file: 'General')) !== false) {
+			$errors[] = ['lang', 'username_reserved', 'general', [Lang::getTxt('guest_title', file: 'General')]];
 		}
 
 		if ($check_reserved_name && User::isReservedName($username, $memID, false)) {
-			$errors[] = ['done', '(' . Utils::htmlspecialchars($username) . ') ' . Lang::$txt['name_in_use']];
+			$errors[] = ['done', '(' . Utils::htmlspecialchars($username) . ') ' . Lang::getTxt('name_in_use', file: 'General')];
 		}
 
 		// Maybe a mod wants to perform more checks?
@@ -3821,7 +3821,7 @@ class User implements \ArrayAccess
 
 			$_SESSION['ban']['last_checked'] = time();
 
-			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => Lang::$txt['guest_title']]) . $_SESSION['ban']['cannot_access']['reason'], false);
+			ErrorHandler::fatal(Lang::getTxt('your_ban', ['name' => Lang::getTxt('guest_title', file: 'General')]) . $_SESSION['ban']['cannot_access']['reason'], false);
 		}
 
 		if (!empty($ban_ids)) {
@@ -5364,7 +5364,7 @@ class User implements \ArrayAccess
 	 */
 	protected static function anonymize(int $member): void
 	{
-		$anonymous_name = Utils::strtolower(Lang::$txt['user']) . '_' . substr(Uuid::create(5, 'member=' . $member)->getShortForm(true), 0, 8);
+		$anonymous_name = Utils::strtolower(Lang::getTxt('user', file: 'General')) . '_' . substr(Uuid::create(5, 'member=' . $member)->getShortForm(true), 0, 8);
 
 		$anonymous_email = Uuid::create(5, 'member=' . $member)->getShortForm(true) . '@email.invalid';
 

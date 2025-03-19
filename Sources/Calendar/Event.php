@@ -561,13 +561,12 @@ class Event implements \ArrayAccess
 		}
 
 		foreach ($this->sorted_weekdays as $abbrev => $iso_num) {
-			$txt_key = ($iso_num + 1) % 7;
 			$this->sorted_weekdays[$abbrev] = [
 				'iso_num' => $iso_num,
-				'txt_key' => $txt_key,
+				'txt_key' => ($iso_num + 1) % 7,
 				'abbrev' => $abbrev,
-				'short' => Lang::$txt['days_short'][$txt_key],
-				'long' => Lang::$txt['days'][$txt_key],
+				'short' => Lang::getTxt(['days_short', ($iso_num + 1) % 7], file: 'General'),
+				'long' => Lang::getTxt(['days', ($iso_num + 1) % 7], file: 'General'),
 			];
 		}
 

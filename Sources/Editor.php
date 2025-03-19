@@ -231,7 +231,7 @@ class Editor implements \ArrayAccess
 		$this->labels = (array) ($options['labels'] ?? []);
 		$this->required = !empty($options['required']);
 
-		$this->locale = !empty(Lang::$txt['lang_dictionary']) && Lang::$txt['lang_dictionary'] != 'en' ? Lang::$txt['lang_dictionary'] : '';
+		$this->locale = !empty(Lang::getTxt('lang_dictionary', file: 'General')) && Lang::getTxt('lang_dictionary', file: 'General') != 'en' ? Lang::getTxt('lang_dictionary', file: 'General') : '';
 
 		$this->rich_active = empty(Config::$modSettings['disable_wysiwyg']) && (!empty(Theme::$current->options['wysiwyg_default']) || !empty($options['force_rich']) || !empty($_REQUEST[$this->id . '_mode']));
 
@@ -305,27 +305,27 @@ class Editor implements \ArrayAccess
 				],
 				[
 					'value' => 'smiley',
-					'name' => Lang::$txt['icon_smiley'],
+					'name' => Lang::getTxt('icon_smiley', file: 'General'),
 				],
 				[
 					'value' => 'angry',
-					'name' => Lang::$txt['icon_angry'],
+					'name' => Lang::getTxt('icon_angry', file: 'General'),
 				],
 				[
 					'value' => 'cheesy',
-					'name' => Lang::$txt['icon_cheesy'],
+					'name' => Lang::getTxt('icon_cheesy', file: 'General'),
 				],
 				[
 					'value' => 'grin',
-					'name' => Lang::$txt['icon_grin'],
+					'name' => Lang::getTxt('icon_grin', file: 'General'),
 				],
 				[
 					'value' => 'sad',
-					'name' => Lang::$txt['icon_sad'],
+					'name' => Lang::getTxt('icon_sad', file: 'General'),
 				],
 				[
 					'value' => 'wink',
-					'name' => Lang::$txt['icon_wink'],
+					'name' => Lang::getTxt('icon_wink', file: 'General'),
 				],
 				[
 					'value' => 'poll',
@@ -421,7 +421,7 @@ class Editor implements \ArrayAccess
 		Theme::loadJavaScriptFile('jquery.sceditor.smf.js', ['minimize' => true], 'smf_sceditor_smf');
 
 		$scExtraLangs = '
-		$.sceditor.locale["' . Lang::$txt['lang_dictionary'] . '"] = {
+		$.sceditor.locale["' . Lang::getTxt('lang_dictionary', file: 'General') . '"] = {
 			"Width (optional):": "' . Lang::getTxt('width', var: 'editortxt') . '",
 			"Height (optional):": "' . Lang::getTxt('height', var: 'editortxt') . '",
 			"Insert": "' . Lang::getTxt('insert', var: 'editortxt') . '",
@@ -440,9 +440,9 @@ class Editor implements \ArrayAccess
 
 		Theme::addInlineJavaScript('
 		var smf_smileys_url = \'' . Theme::$current->settings['smileys_url'] . '\';
-		var bbc_quote_from = \'' . addcslashes(Lang::$txt['quote_from'], "'") . '\';
-		var bbc_quote = \'' . addcslashes(Lang::$txt['quote'], "'") . '\';
-		var bbc_search_on = \'' . addcslashes(Lang::$txt['search_on'], "'") . '\';');
+		var bbc_quote_from = \'' . addcslashes(Lang::getTxt('quote_from', file: 'General'), "'") . '\';
+		var bbc_quote = \'' . addcslashes(Lang::getTxt('quote', file: 'General'), "'") . '\';
+		var bbc_search_on = \'' . addcslashes(Lang::getTxt('search_on', file: 'General'), "'") . '\';');
 
 		Utils::$context['shortcuts_text'] = Lang::getTxt('shortcuts' . (!empty(Utils::$context['drafts_save']) ? '_drafts' : '') . (stripos($_SERVER['HTTP_USER_AGENT'], 'Macintosh') !== false ? '_mac' : (BrowserDetector::isBrowser('is_firefox') ? '_firefox' : '')), file: 'Post');
 
@@ -482,12 +482,12 @@ class Editor implements \ArrayAccess
 			],
 			'spell_check' => [
 				'type' => 'submit',
-				'value' => Lang::$txt['spell_check'],
+				'value' => Lang::getTxt('spell_check', file: 'General'),
 				'show' => !empty(Utils::$context['show_spellchecking']),
 			],
 			'preview' => [
 				'type' => 'submit',
-				'value' => Lang::$txt['preview'],
+				'value' => Lang::getTxt('preview', file: 'General'),
 				'accessKey' => 'p',
 			],
 		];
@@ -791,7 +791,11 @@ class Editor implements \ArrayAccess
 				);
 
 				while ($row = Db::$db->fetch_assoc($request)) {
-					$row['description'] = !empty(Lang::$txt['icon_' . strtolower($row['description'])]) ? Utils::htmlspecialchars(Lang::$txt['icon_' . strtolower($row['description'])]) : Utils::htmlspecialchars($row['description']);
+					if (Lang::txtExists('icon_' . strtolower($row['description']), file: 'General')) {
+						$row['description'] = Utils::htmlspecialchars(Lang::getTxt('icon_' . strtolower($row['description']), file: 'General'));
+					} else {
+						$row['description'] = Utils::htmlspecialchars($row['description']);
+					}
 
 					self::$smileys_toolbar[empty($row['hidden']) ? 'postform' : 'popup'][$row['smiley_row']]['smileys'][] = $row;
 				}
@@ -891,7 +895,7 @@ class Editor implements \ArrayAccess
 		}
 
 		$this->sce_options['parserOptions']['txtVars'] = [
-			'code' => Lang::$txt['code'],
+			'code' => Lang::getTxt('code', file: 'General'),
 		];
 
 		$this->sce_options['toolbar'] = '';

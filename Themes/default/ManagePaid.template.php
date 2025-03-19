@@ -272,7 +272,7 @@ function template_modify_user_subscription()
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
 		echo '
-					<option value="', $month, '"', $month == Utils::$context['sub']['start']['month'] ? ' selected' : '', '>', Lang::$txt['months'][$month], '</option>';
+					<option value="', $month, '"', $month == Utils::$context['sub']['start']['month'] ? ' selected' : '', '>', Lang::getTxt(['months', $month], file: 'General'), '</option>';
 
 	echo '
 				</select>
@@ -306,7 +306,7 @@ function template_modify_user_subscription()
 	// There are 12 months per year - ensure that they all get listed.
 	for ($month = 1; $month <= 12; $month++)
 		echo '
-					<option value="', $month, '"', $month == Utils::$context['sub']['end']['month'] ? ' selected' : '', '>', Lang::$txt['months'][$month], '</option>';
+					<option value="', $month, '"', $month == Utils::$context['sub']['end']['month'] ? ' selected' : '', '>', Lang::getTxt(['months', $month], file: 'General'), '</option>';
 
 	echo '
 				</select>
@@ -336,7 +336,7 @@ function template_modify_user_subscription()
 			sSuggestId: \'name_subscriber\',
 			sControlId: \'name_control\',
 			sSearchType: \'member\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			bItemList: false
 			});
 	</script>';

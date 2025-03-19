@@ -267,7 +267,7 @@ function template_addsmiley()
 			<fieldset id="ul_settings" style="display: none;">
 				<dl class="settings">
 					<dt>
-						<a href="', Config::$scripturl, '?action=helpadmin;help=smiley_sameall" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+						<a href="', Config::$scripturl, '?action=helpadmin;help=smiley_sameall" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 						<strong><label for="sameall">', Lang::getTxt('smileys_add_upload_all', file: 'ManageSmileys'), '</label></strong>
 					</dt>
 					<dd>

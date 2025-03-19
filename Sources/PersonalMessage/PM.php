@@ -250,7 +250,7 @@ class PM implements \ArrayAccess
 		Utils::$context['can_send_pm'] = Utils::$context['can_send_pm'] ?? User::$me->allowedTo('pm_send');
 
 		// Use '(no subject)' if none was specified.
-		$this->subject = $this->subject == '' ? Lang::$txt['no_subject'] : $this->subject;
+		$this->subject = $this->subject == '' ? Lang::getTxt('no_subject', file: 'General') : $this->subject;
 
 		if (!empty($this->member_from) && !isset(User::$loaded[$this->member_from])) {
 			User::load($this->member_from);
@@ -262,7 +262,7 @@ class PM implements \ArrayAccess
 			$author['name'] = $this->from_name;
 
 			// Sometimes the forum sends messages itself (Warnings are an example) - in this case don't label it from a guest.
-			$author['group'] = $this->from_name == Utils::$context['forum_name_html_safe'] ? '' : Lang::$txt['guest_title'];
+			$author['group'] = $this->from_name == Utils::$context['forum_name_html_safe'] ? '' : Lang::getTxt('guest_title', file: 'General');
 			$author['link'] = $this->from_name;
 			$author['email'] = '';
 			$author['show_email'] = false;
@@ -294,7 +294,7 @@ class PM implements \ArrayAccess
 
 		foreach ($this->received as $member => $received_copy) {
 			if (empty($format_options['no_bcc']) || !$received_copy->bcc) {
-				$recipients[$received_copy->bcc ? 'bcc' : 'to'][] = empty($received_copy->name) ? Lang::$txt['guest_title'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $received_copy->member . '">' . $received_copy->name . '</a>';
+				$recipients[$received_copy->bcc ? 'bcc' : 'to'][] = empty($received_copy->name) ? Lang::getTxt('guest_title', file: 'General') : '<a href="' . Config::$scripturl . '?action=profile;u=' . $received_copy->member . '">' . $received_copy->name . '</a>';
 			}
 
 			if ($received_copy->member === User::$me->id) {
@@ -309,7 +309,7 @@ class PM implements \ArrayAccess
 
 		// Sent to a member that no longer exists?
 		if ($this->member_from === User::$me->id && empty($this->received)) {
-			$recipients['to'] = [Lang::$txt['guest_title']];
+			$recipients['to'] = [Lang::getTxt('guest_title', file: 'General')];
 		}
 
 		// Censor all the important text...
@@ -361,21 +361,21 @@ class PM implements \ArrayAccess
 					'show' => Utils::$context['can_send_pm'] && !$author['is_guest'] && ($number_recipients > 1 || $this->member_from == User::$me->id),
 				],
 				'reply' => [
-					'label' => Lang::$txt['reply'],
+					'label' => Lang::getTxt('reply', file: 'General'),
 					'href' => Config::$scripturl . '?action=pm;sa=send;f=' . $this->folder . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $this->id . ';u=' . $this->member_from,
 					'icon' => 'reply_button',
 					'show' => Utils::$context['can_send_pm'] && !$author['is_guest'] && $this->member_from != User::$me->id,
 				],
 				'quote' => [
-					'label' => Lang::$txt['quote_action'],
+					'label' => Lang::getTxt('quote_action', file: 'General'),
 					'href' => Config::$scripturl . '?action=pm;sa=send;f=' . $this->folder . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';pmsg=' . $this->id . ';quote' . ($number_recipients > 1 || $this->member_from == User::$me->id ? ';u=all' : (!$author['is_guest'] ? ';u=' . $this->member_from : '')),
 					'icon' => 'quote',
 					'show' => Utils::$context['can_send_pm'],
 				],
 				'delete' => [
-					'label' => Lang::$txt['delete'],
+					'label' => Lang::getTxt('delete', file: 'General'),
 					'href' => Config::$scripturl . '?action=pm;sa=pmactions;pm_actions%5b' . $this->id . '%5D=delete;f=' . $this->folder . ';start=' . Utils::$context['start'] . (Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Utils::escapeJavaScript(Lang::$txt['remove_message_question']) . '"',
+					'javascript' => 'data-confirm="' . Utils::escapeJavaScript(Lang::getTxt('remove_message_question', file: 'General')) . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 				],
@@ -606,7 +606,7 @@ class PM implements \ArrayAccess
 		list(Config::$modSettings['max_pm_recipients'], Config::$modSettings['pm_posts_verification'], Config::$modSettings['pm_posts_per_hour']) = explode(',', Config::$modSettings['pm_spam_settings']);
 
 		// Set the title...
-		Utils::$context['page_title'] = Lang::$txt['send_message'];
+		Utils::$context['page_title'] = Lang::getTxt('send_message', file: 'General');
 
 		Utils::$context['reply'] = isset($_REQUEST['pmsg']) || isset($_REQUEST['quote']);
 
@@ -652,10 +652,10 @@ class PM implements \ArrayAccess
 			// Add 'Re: ' to it....
 			if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
 				if (Lang::$default === User::$me->language) {
-					Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+					Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 				} else {
 					Lang::load('General', Lang::$default, false);
-					Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+					Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 					Lang::load('General');
 				}
 
@@ -805,7 +805,7 @@ class PM implements \ArrayAccess
 			'height' => '175px',
 			'width' => '100%',
 			'labels' => [
-				'post_button' => Lang::$txt['send_message'],
+				'post_button' => Lang::getTxt('send_message', file: 'General'),
 			],
 			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
@@ -1044,7 +1044,7 @@ class PM implements \ArrayAccess
 			Lang::censorText(Utils::$context['preview_message']);
 
 			// Set a descriptive title.
-			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => Utils::$context['preview_subject']]);
+			Utils::$context['page_title'] = Lang::getTxt('preview_subject', ['subject' => Utils::$context['preview_subject']], file: 'General');
 
 			// Pretend they messed up but don't ignore if they really did :P.
 			self::reportErrors($post_errors, $namedRecipientList, $recipientList);
@@ -2061,7 +2061,7 @@ class PM implements \ArrayAccess
 			Utils::$context['sub_template'] = 'pm';
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['send_message'];
+		Utils::$context['page_title'] = Lang::getTxt('send_message', file: 'General');
 
 		// Got some known members?
 		Utils::$context['recipients'] = [
@@ -2206,7 +2206,7 @@ class PM implements \ArrayAccess
 			'width' => '90%',
 			'height' => '175px',
 			'labels' => [
-				'post_button' => Lang::$txt['send_message'],
+				'post_button' => Lang::getTxt('send_message', file: 'General'),
 			],
 			'preview_type' => Editor::PREVIEW_XML,
 		]);

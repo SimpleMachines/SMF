@@ -176,7 +176,7 @@ class Register implements ActionInterface, Routable
 
 		// Show the user the right form.
 		Utils::$context['sub_template'] = $current_step == 1 ? 'registration_agreement' : 'registration_form';
-		Utils::$context['page_title'] = $current_step == 1 ? Lang::$txt['registration_agreement'] : Lang::getTxt('registration_form', file: 'Login');
+		Utils::$context['page_title'] = Lang::getTxt($current_step == 1 ? 'registration_agreement' : 'registration_form', file: 'General+Login');
 
 		// Kinda need this.
 		if (Utils::$context['sub_template'] == 'registration_form') {
@@ -186,7 +186,7 @@ class Register implements ActionInterface, Routable
 		// Add the register chain to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=signup',
-			'name' => Lang::$txt['register'],
+			'name' => Lang::getTxt('register', file: 'General'),
 		];
 
 		// Prepare the time gate! Do it like so, in case later steps want to reset the limit for any reason, but make sure the time is the current one.

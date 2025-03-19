@@ -111,7 +111,7 @@ class Help implements ActionInterface, Routable
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=help',
-			'name' => Lang::$txt['help'],
+			'name' => Lang::getTxt('help', file: 'General'),
 		];
 
 		// Lastly, some minor template stuff.

@@ -25,7 +25,7 @@ function template_main()
 	echo '
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<a href="', Config::$scripturl, '?action=helpadmin;help=themes_manage" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+				<a href="', Config::$scripturl, '?action=helpadmin;help=themes_manage" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 				', Lang::getTxt('themeadmin_install_title', file: 'Themes'), '
 			</h3>
 		</div>
@@ -37,7 +37,7 @@ function template_main()
 		<form action="', Config::$scripturl, '?action=admin;area=theme;sa=admin" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">',
-					Lang::$txt['settings'], '
+					Lang::getTxt('settings', file: 'General'), '
 				</h3>
 			</div>
 			<div class="windowbg">
@@ -100,7 +100,7 @@ function template_main()
 						<span class="smalltext pick_theme"><a href="', Config::$scripturl, '?action=themechooser;u=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="button floatnone">', Lang::getTxt('theme_select', file: 'Themes'), '</a></span>
 					</dd>
 				</dl>
-				<input type="submit" name="save" value="' . Lang::$txt['save'] . '" class="button">
+				<input type="submit" name="save" value="' . Lang::getTxt('save', file: 'General') . '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-tm_token_var'], '" value="', Utils::$context['admin-tm_token'], '">
 			</div><!-- .windowbg -->
@@ -137,7 +137,7 @@ function template_main()
 						<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 						<input type="hidden" name="', Utils::$context['admin-t-file_token_var'], '" value="', Utils::$context['admin-t-file_token'], '">
 						<input type="file" name="theme_gz" id="theme_gz" value="theme_gz" size="40" onchange="this.form.copy.disabled = this.value != \'\'; this.form.theme_dir.disabled = this.value != \'\';">
-						<input type="submit" name="save_file" value="' . Lang::$txt['upload'] . '" class="button">
+						<input type="submit" name="save_file" value="' . Lang::getTxt('upload', file: 'General') . '" class="button">
 					</form>
 				</fieldset>';
 
@@ -149,7 +149,7 @@ function template_main()
 						<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 						<input type="hidden" name="', Utils::$context['admin-t-copy_token_var'], '" value="', Utils::$context['admin-t-copy_token'], '">
 						<input type="text" name="copy" id="copy" value="', Utils::$context['new_theme_name'], '" size="40">
-						<input type="submit" name="save_copy" value="' . Lang::$txt['save'] . '" class="button">
+						<input type="submit" name="save_copy" value="' . Lang::getTxt('save', file: 'General') . '" class="button">
 					</form>
 				</fieldset>';
 	}
@@ -162,7 +162,7 @@ function template_main()
 						<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 						<input type="hidden" name="', Utils::$context['admin-t-dir_token_var'], '" value="', Utils::$context['admin-t-dir_token'], '">
 						<input type="text" name="theme_dir" id="theme_dir" value="', Utils::$context['new_theme_dir'], '" size="40">
-						<input type="submit" name="save_dir" value="' . Lang::$txt['save'] . '" class="button">
+						<input type="submit" name="save_dir" value="' . Lang::getTxt('save', file: 'General') . '" class="button">
 					</form>
 				</fieldset>';
 
@@ -436,7 +436,7 @@ function template_set_options()
 	// Close the option page up
 	echo '
 				</dl>
-				<input type="submit" name="submit" value="', Lang::$txt['save'], '" class="button">
+				<input type="submit" name="submit" value="', Lang::getTxt('save', file: 'General'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-sto_token_var'], '" value="', Utils::$context['admin-sto_token'], '">
 			</div>
@@ -453,7 +453,7 @@ function template_set_settings()
 		<form action="', Config::$scripturl, '?action=admin;area=theme;sa=list;th=', Utils::$context['theme_settings']['theme_id'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<a href="', Config::$scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::getTxt('theme_settings_for', ['theme' => Utils::$context['theme_settings']['name']], file: 'Themes'), '
+					<a href="', Config::$scripturl, '?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a> ', Lang::getTxt('theme_settings_for', ['theme' => Utils::$context['theme_settings']['name']], file: 'Themes'), '
 				</h3>
 			</div>
 			<div class="windowbg">';
@@ -656,7 +656,7 @@ function template_set_settings()
 
 	echo '
 				</dl>
-				<input type="submit" name="save" value="', Lang::$txt['save'], '" class="button">
+				<input type="submit" name="save" value="', Lang::getTxt('save', file: 'General'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-sts_token_var'], '" value="', Utils::$context['admin-sts_token'], '">
 			</div><!-- .windowbg -->
@@ -777,7 +777,7 @@ function template_installed()
 				<a href="', Config::$scripturl, '?action=admin;area=theme;sa=list;th=', Utils::$context['installed_theme']['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Utils::$context['installed_theme']['name'], '</a> ', Lang::getTxt('theme_' . (isset(Utils::$context['installed_theme']['updated']) ? 'updated' : 'installed') . '_message', file: 'Themes'), '
 			</p>
 			<p>
-				<a href="', Config::$scripturl, '?action=admin;area=theme;sa=admin;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['back'], '</a>
+				<a href="', Config::$scripturl, '?action=admin;area=theme;sa=admin;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('back', file: 'General'), '</a>
 			</p>';
 
 	echo '

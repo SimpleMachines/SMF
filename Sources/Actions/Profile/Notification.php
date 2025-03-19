@@ -624,9 +624,10 @@ class Notification implements ActionInterface
 							return Lang::getTxt(
 								'topic_in_board',
 								[
-									'topic_link' => $topic['link'] . ($topic['new'] ? ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : ''),
+									'topic_link' => $topic['link'] . ($topic['new'] ? ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>' : ''),
 									'board_link' => $topic['board_link'],
 								],
+								file: 'General',
 							);
 						},
 					],
@@ -637,7 +638,7 @@ class Notification implements ActionInterface
 				],
 				'started_by' => [
 					'header' => [
-						'value' => Lang::$txt['started_by'],
+						'value' => Lang::getTxt('started_by', file: 'General'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -650,12 +651,12 @@ class Notification implements ActionInterface
 				],
 				'last_post' => [
 					'header' => [
-						'value' => Lang::$txt['last_post'],
+						'value' => Lang::getTxt('last_post', file: 'General'),
 						'class' => 'lefttext',
 					],
 					'data' => [
 						'function' => function ($topic) {
-							return '<span class="smalltext">' . Lang::getTxt('last_post_updated', ['time' => $topic['updated'], 'member_link' => $topic['poster_updated_link']]) . '</span>';
+							return '<span class="smalltext">' . Lang::getTxt('last_post_updated', ['time' => $topic['updated'], 'member_link' => $topic['poster_updated_link']], file: 'General') . '</span>';
 						},
 					],
 					'sort' => [
@@ -673,7 +674,7 @@ class Notification implements ActionInterface
 							$pref = $topic['notify_pref'];
 							$mode = !empty($topic['unwatched']) ? 0 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
 
-							return Lang::$txt['notify_topic_' . $mode];
+							return Lang::getTxt('notify_topic_' . $mode, file: 'General');
 						},
 					],
 				],
@@ -760,7 +761,7 @@ class Notification implements ActionInterface
 							$link = $board['link'];
 
 							if ($board['new']) {
-								$link .= ' <a href="' . $board['href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>';
+								$link .= ' <a href="' . $board['href'] . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>';
 							}
 
 							return $link;
@@ -781,7 +782,7 @@ class Notification implements ActionInterface
 							$pref = $board['notify_pref'];
 							$mode = $pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1);
 
-							return Lang::$txt['notify_board_' . $mode];
+							return Lang::getTxt('notify_board_' . $mode, file: 'General');
 						},
 					],
 				],

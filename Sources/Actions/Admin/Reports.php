@@ -301,16 +301,16 @@ class Reports implements ActionInterface
 			// Create the main data array.
 			$boardData = [
 				'category' => $board->cat->name,
-				'parent' => $board->parent == 0 ? Lang::$txt['none'] : Board::$loaded[$board->parent]->name,
+				'parent' => $board->parent == 0 ? Lang::getTxt('none', file: 'General') : Board::$loaded[$board->parent]->name,
 				'redirect' => $board->redirect,
 				'num_posts' => $board->posts,
 				'num_topics' => $board->topics,
-				'count_posts' => empty($board->count_posts) ? Lang::$txt['yes'] : Lang::$txt['no'],
-				'theme' => Utils::$context['themes'][$board->theme] ?? Lang::$txt['none'],
+				'count_posts' => Lang::getTxt(empty($board->count_posts) ? 'yes' : 'no', file: 'General'),
+				'theme' => Utils::$context['themes'][$board->theme] ?? Lang::getTxt('none', file: 'General'),
 				'profile' => Utils::$context['profiles'][$board->profile]['name'],
-				'override_theme' => $board->override_theme ? Lang::$txt['yes'] : Lang::$txt['no'],
-				'moderators' => implode(', ', array_column($board->moderators, 'name')) ?: Lang::$txt['none'],
-				'moderator_groups' => implode(', ', array_column($board->moderator_groups, 'name')) ?: Lang::$txt['none'],
+				'override_theme' => Lang::getTxt($board->override_theme ? 'yes' : 'no', file: 'General'),
+				'moderators' => implode(', ', array_column($board->moderators, 'name')) ?: Lang::getTxt('none', file: 'General'),
+				'moderator_groups' => implode(', ', array_column($board->moderator_groups, 'name')) ?: Lang::getTxt('none', file: 'General'),
 			];
 
 			// Work out the membergroups who can and cannot access it (but only if enabled).
@@ -499,7 +499,7 @@ class Reports implements ActionInterface
 			$group_info = [
 				'name' => $group->name,
 				'color' => empty($group->online_color) ? '&mdash;' : '<span style="color: ' . $group->online_color . ';">' . $group->online_color . '</span>',
-				'min_posts' => $group->min_posts == -1 ? Lang::$txt['not_applicable'] : (string) $group->min_posts,
+				'min_posts' => $group->min_posts == -1 ? Lang::getTxt('not_applicable', file: 'General') : (string) $group->min_posts,
 				'max_messages' => (string) $group->max_messages,
 				'icons' => $group->icons,
 			];

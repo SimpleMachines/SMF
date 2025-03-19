@@ -64,9 +64,9 @@ class StatPanel implements ActionInterface
 		$time_minutes = floor((Profile::$member->total_time_logged_in % 3600) / 60);
 
 		Utils::$context['time_logged_in'] = Lang::sentenceList(array_filter([
-			$time_days > 0 ? Lang::getTxt('number_of_days', [$time_days]) : null,
-			$time_hours > 0 ? Lang::getTxt('number_of_hours', [$time_hours]) : null,
-			Lang::getTxt('number_of_minutes', [$time_minutes]),
+			$time_days > 0 ? Lang::getTxt('number_of_days', [$time_days], file: 'General') : null,
+			$time_hours > 0 ? Lang::getTxt('number_of_hours', [$time_hours], file: 'General') : null,
+			Lang::getTxt('number_of_minutes', [$time_minutes], file: 'General'),
 		]));
 
 		Utils::$context['num_posts'] = Lang::numberFormat(Profile::$member->posts);

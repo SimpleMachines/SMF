@@ -382,7 +382,7 @@ class Draft
 		// Add them to the drafts array for display.
 		while ($row = Db::$db->fetch_assoc($request)) {
 			if (empty($row['subject'])) {
-				$row['subject'] = Lang::$txt['no_subject'];
+				$row['subject'] = Lang::getTxt('no_subject', file: 'General');
 			}
 
 			$tmp_subject = Utils::shorten(stripslashes($row['subject']), 24);
@@ -518,7 +518,7 @@ class Draft
 			$row['subject'] = Utils::htmlTrim($row['subject']);
 
 			if (empty($row['subject'])) {
-				$row['subject'] = Lang::$txt['no_subject'];
+				$row['subject'] = Lang::getTxt('no_subject', file: 'General');
 			}
 
 			Lang::censorText($row['body']);

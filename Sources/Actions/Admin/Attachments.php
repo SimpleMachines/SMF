@@ -327,7 +327,7 @@ class Attachments implements ActionInterface
 					],
 					'data' => [
 						'function' => function ($rowData) {
-							return sprintf('%1$s%2$s', round($rowData['size'] / 1024, 2), Lang::$txt['kilobyte']);
+							return Lang::getTxt('size_kilobyte', [round($rowData['size'] / 1024, 2)], file: 'General');
 						},
 					],
 					'sort' => [
@@ -337,7 +337,7 @@ class Attachments implements ActionInterface
 				],
 				'member' => [
 					'header' => [
-						'value' => Utils::$context['browse_type'] == 'avatars' ? Lang::getTxt('attachment_manager_member', file: 'Admin') : Lang::$txt['posted_by'],
+						'value' => Utils::$context['browse_type'] == 'avatars' ? Lang::getTxt('attachment_manager_member', file: 'Admin') : Lang::getTxt('posted_by', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -357,12 +357,12 @@ class Attachments implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Utils::$context['browse_type'] == 'avatars' ? Lang::getTxt('attachment_manager_last_active', file: 'Admin') : Lang::$txt['date'],
+						'value' => Utils::$context['browse_type'] == 'avatars' ? Lang::getTxt('attachment_manager_last_active', file: 'Admin') : Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
 							// The date the message containing the attachment was posted or the owner of the avatar was active.
-							$date = empty($rowData['poster_time']) ? Lang::$txt['never'] : Time::create('@' . $rowData['poster_time'])->format(null, true);
+							$date = empty($rowData['poster_time']) ? Lang::getTxt('never', file: 'General') : Time::create('@' . $rowData['poster_time'])->format(null, true);
 
 							// Add a link to the topic in case of an attachment.
 							if (Utils::$context['browse_type'] !== 'avatars') {
@@ -387,7 +387,7 @@ class Attachments implements ActionInterface
 				],
 				'downloads' => [
 					'header' => [
-						'value' => Lang::$txt['downloads'],
+						'value' => Lang::getTxt('downloads', file: 'General'),
 					],
 					'data' => [
 						'db' => 'downloads',
@@ -425,11 +425,11 @@ class Attachments implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_column_headers',
-					'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::getTxt('confirm_delete_attachments', file: 'Admin') . '">',
+					'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" data-confirm="' . Lang::getTxt('confirm_delete_attachments', file: 'Admin') . '">',
 				],
 				[
 					'position' => 'below_table_data',
-					'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::getTxt('confirm_delete_attachments', file: 'Admin') . '">',
+					'value' => '<input type="submit" name="remove_submit" class="button you_sure" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" data-confirm="' . Lang::getTxt('confirm_delete_attachments', file: 'Admin') . '">',
 				],
 			],
 		];
@@ -1748,7 +1748,7 @@ class Attachments implements ActionInterface
 					'position' => 'below_table_data',
 					'value' => '
 					<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
-					<input type="submit" name="save" value="' . Lang::$txt['save'] . '" class="button">
+					<input type="submit" name="save" value="' . Lang::getTxt('save', file: 'General') . '" class="button">
 					<input type="submit" name="new_path" value="' . Lang::getTxt('attach_add_path', file: 'Admin') . '" class="button">',
 				],
 				empty($errors['dir']) ? [
@@ -1823,7 +1823,7 @@ class Attachments implements ActionInterface
 				'additional_rows' => [
 					[
 						'position' => 'below_table_data',
-						'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="save2" value="' . Lang::$txt['save'] . '" class="button">
+						'value' => '<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '"><input type="submit" name="save2" value="' . Lang::getTxt('save', file: 'General') . '" class="button">
 						<input type="submit" name="new_base_path" value="' . Lang::getTxt('attach_add_path', file: 'Admin') . '" class="button">',
 					],
 					empty($errors['base']) ? [
@@ -2252,7 +2252,7 @@ class Attachments implements ActionInterface
 				'attachmentDirSizeLimit',
 				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
 				6,
-				'postinput' => Lang::$txt['kilobyte'],
+				'postinput' => Lang::getTxt('kilobyte', file: 'General'),
 			],
 			[
 				'check',
@@ -2267,7 +2267,7 @@ class Attachments implements ActionInterface
 				'attachmentPostLimit',
 				'subtext' => Lang::getTxt('attachment_ini_max', [$post_max_kb], file: 'Admin'),
 				6,
-				'postinput' => Lang::$txt['kilobyte'],
+				'postinput' => Lang::getTxt('kilobyte', file: 'General'),
 				'min' => 1,
 				'max' => $post_max_kb,
 				'disabled' => empty($post_max_kb),
@@ -2277,7 +2277,7 @@ class Attachments implements ActionInterface
 				'attachmentSizeLimit',
 				'subtext' => Lang::getTxt('attachment_ini_max', [$file_max_kb], file: 'Admin'),
 				6,
-				'postinput' => Lang::$txt['kilobyte'],
+				'postinput' => Lang::getTxt('kilobyte', file: 'General'),
 				'min' => 1,
 				'max' => $file_max_kb,
 				'disabled' => empty($file_max_kb),
@@ -2436,7 +2436,7 @@ class Attachments implements ActionInterface
 				[
 					'guest_id' => 0,
 					'blank_text' => '',
-					'not_applicable_text' => Lang::$txt['not_applicable'],
+					'not_applicable_text' => Lang::getTxt('not_applicable', file: 'General'),
 					'sort' => $sort,
 					'start' => $start,
 					'per_page' => $items_per_page,

@@ -131,7 +131,7 @@ class Groups implements ActionInterface, Routable
 			'columns' => [
 				'group' => [
 					'header' => [
-						'value' => Lang::$txt['name'],
+						'value' => Lang::getTxt('name', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -173,7 +173,7 @@ class Groups implements ActionInterface, Routable
 				],
 				'moderators' => [
 					'header' => [
-						'value' => Lang::$txt['moderators'],
+						'value' => Lang::getTxt('moderators', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($group) {

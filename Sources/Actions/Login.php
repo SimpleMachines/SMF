@@ -61,7 +61,7 @@ class Login extends Login2
 		parent::checkAjax();
 
 		// Get the template ready.... not really much else to do.
-		Utils::$context['page_title'] = Lang::$txt['login'];
+		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 		Utils::$context['default_username'] = &$_REQUEST['u'];
 		Utils::$context['default_password'] = '';
 		Utils::$context['never_expire'] = false;
@@ -69,7 +69,7 @@ class Login extends Login2
 		// Add the login chain to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=login',
-			'name' => Lang::$txt['login'],
+			'name' => Lang::getTxt('login', file: 'General'),
 		];
 
 		// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).

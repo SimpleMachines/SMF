@@ -35,7 +35,7 @@ function template_main()
 				'search_warning_ignored',
 				[
 					'number_of_terms' => count(Utils::$context['search_ignored']),
-					'list' => implode(Lang::getTxt('sentence_list_separator') . ' ', Utils::$context['search_ignored']),
+					'list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', Utils::$context['search_ignored']),
 				],
 				file: 'Search',
 			), '
@@ -50,7 +50,7 @@ function template_main()
 		<div id="advanced_search" class="roundframe">
 			<dl class="settings" id="search_options">
 				<dt>
-					<strong><label for="searchfor">', Lang::$txt['search_for'], '</label></strong>
+					<strong><label for="searchfor">', Lang::getTxt('search_for', file: 'General'), '</label></strong>
 				</dt>
 				<dd>
 					<input type="search" name="search" id="searchfor" ', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">';
@@ -63,7 +63,7 @@ function template_main()
 				</dd>
 
 				<dt>
-					<label for="searchtype">', Lang::$txt['search_match'], '</label>
+					<label for="searchtype">', Lang::getTxt('search_match', file: 'General'), '</label>
 				</dt>
 				<dd>
 					<select name="searchtype" id="searchtype">
@@ -132,7 +132,7 @@ function template_main()
 	if (Utils::$context['require_verification'])
 		echo '
 			<p>
-				<strong>', Lang::$txt['verification'], '</strong>
+				<strong>', Lang::getTxt('verification', file: 'General'), '</strong>
 				', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 			</p>';
 
@@ -143,7 +143,7 @@ function template_main()
 				', Lang::getTxt('search_specific_topic', ['topic' => Utils::$context['search_topic']['link']], file: 'Search'), '
 			</p>
 			<input type="hidden" name="topic" value="', Utils::$context['search_topic']['id'], '">
-			<input type="submit" name="b_search" value="', Lang::$txt['search'], '" class="button">';
+			<input type="submit" name="b_search" value="', Lang::getTxt('search', file: 'General'), '" class="button">';
 
 	echo '
 		</div>';
@@ -215,8 +215,8 @@ function template_main()
 				<br class="clear">
 				<div class="padding">
 					<input type="checkbox" name="all" id="check_all" value=""', Utils::$context['boards_check_all'] ? ' checked' : '', ' onclick="invertAll(this, this.form, \'brd\');">
-					<label for="check_all"><em>', Lang::$txt['check_all'], '</em></label>
-					<input type="submit" name="b_search" value="', Lang::$txt['search'], '" class="button floatright">
+					<label for="check_all"><em>', Lang::getTxt('check_all', file: 'General'), '</em></label>
+					<input type="submit" name="b_search" value="', Lang::getTxt('search', file: 'General'), '" class="button floatright">
 				</div>
 			</div><!-- .roundframe -->
 		</fieldset>';
@@ -232,8 +232,8 @@ function template_main()
 				aSwapImages: [
 					{
 						sId: \'advanced_panel_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 					}
 				],
 				aSwapLinks: [
@@ -291,7 +291,7 @@ function template_results()
 					'search_warning_ignored',
 					[
 						'number_of_terms' => count(Utils::$context['search_ignored']),
-						'list' => implode(Lang::getTxt('sentence_list_separator') . ' ', Utils::$context['search_ignored']),
+						'list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', Utils::$context['search_ignored']),
 					],
 					file: 'Search',
 				), '
@@ -299,7 +299,7 @@ function template_results()
 
 		echo '
 			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
-				<strong>', Lang::$txt['search_for'], '</strong>
+				<strong>', Lang::getTxt('search_for', file: 'General'), '</strong>
 				<input type="text" name="search"', !empty(Utils::$context['search_params']['search']) ? ' value="' . Utils::$context['search_params']['search'] . '"' : '', ' maxlength="', Utils::$context['search_string_limit'], '" size="40">
 				<input type="submit" name="edit_search" value="', Lang::getTxt('search_adjust_submit', file: 'Search'), '" class="button">';
 
@@ -329,7 +329,7 @@ function template_results()
 		echo '
 		<div id="display_head" class="information">
 			<h2 class="display_title">
-				<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
+				<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']], file: 'General'), '</span>
 			</h2>
 			<div class="floatleft">
 				<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::getTxt('search_adjust_query', file: 'Search'), '</a>
@@ -360,7 +360,7 @@ function template_results()
 		{
 			echo '
 		</div>
-		<div class="roundframe noup">', Lang::$txt['search_no_results'], '</div>';
+		<div class="roundframe noup">', Lang::getTxt('search_no_results', file: 'General'), '</div>';
 		}
 
 		// While we have results to show ...
@@ -377,7 +377,7 @@ function template_results()
 				<div class="half_content">
 					<div class="topic_details">
 						<h5>', $topic['board']['link'], ' / <a href="', Config::$scripturl, '?topic=', $topic['id'], '.msg', $message['id'], '#msg', $message['id'], '">', $message['subject_highlighted'], '</a></h5>
-						<span class="smalltext">', str_replace('<br>', ' ', Lang::getTxt('last_post_updated', ['time' => $message['time'], 'member_link' => '<strong>' . $message['member']['link'] . '</strong>'])), '</span>
+						<span class="smalltext">', str_replace('<br>', ' ', Lang::getTxt('last_post_updated', ['time' => $message['time'], 'member_link' => '<strong>' . $message['member']['link'] . '</strong>'], file: 'General')), '</span>
 					</div>
 				</div>
 			</div><!-- .block -->';
@@ -396,7 +396,7 @@ function template_results()
 		echo '
 	<div id="display_head" class="information">
 		<h2 class="display_title">
-			<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']]), '</span>
+			<span>', Lang::getTxt('search_results', ['params' => Utils::$context['search_params']['search']], file: 'General'), '</span>
 		</h2>
 		<div class="floatleft">
 			<a class="button" href="', Config::$scripturl, '?action=search;params=' . Utils::$context['params'], '">', Lang::getTxt('search_adjust_query', file: 'Search'), '</a>
@@ -427,7 +427,7 @@ function template_results()
 		{
 			echo '
 	</div>
-	<div class="roundframe noup">', Lang::$txt['search_no_results'], '</div>';
+	<div class="roundframe noup">', Lang::getTxt('search_no_results', file: 'General'), '</div>';
 		}
 
 		while ($topic = Utils::$context['get_topics']())
@@ -441,7 +441,7 @@ function template_results()
 			<h5>
 				', $topic['board']['link'], ' / <a href="', Config::$scripturl, '?topic=', $topic['id'], '.', $message['start'], ';topicseen#msg', $message['id'], '">', $message['subject_highlighted'], '</a>
 			</h5>
-			<span class="smalltext">', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => $message['time'], 'member_link' => '<strong>' . $message['member']['link'] . '</strong>'])), '</span>
+			<span class="smalltext">', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => $message['time'], 'member_link' => '<strong>' . $message['member']['link'] . '</strong>'], file: 'General')), '</span>
 		</div>
 		<div class="list_posts">', $message['body_highlighted'], '</div>';
 
@@ -474,7 +474,7 @@ function template_results()
 				sBoardPrefix: "=> ",
 				sCatSeparator: "-----------------------------",
 				sCatPrefix: "",
-				sGoButtonLabel: "', Lang::$txt['quick_mod_go'], '"
+				sGoButtonLabel: "', Lang::getTxt('quick_mod_go', file: 'General'), '"
 			});
 		</script>
 	</div>';

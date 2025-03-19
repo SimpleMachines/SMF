@@ -27,7 +27,7 @@ function template_modify_weights()
 		<div class="windowbg">
 			<dl class="settings">
 				<dt>
-					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a><label for="weight1_val">
+					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a><label for="weight1_val">
 					', Lang::getTxt('search_weight_frequency', file: 'Search'), '</label>
 				</dt>
 				<dd>
@@ -37,7 +37,7 @@ function template_modify_weights()
 					<span id="weight1" class="search_weight">', Utils::$context['relative_weights']['search_weight_frequency'], '%</span>
 				</dd>
 				<dt>
-					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 					<label for="weight2_val">', Lang::getTxt('search_weight_age', file: 'Search'), '</label>
 				</dt>
 				<dd>
@@ -47,7 +47,7 @@ function template_modify_weights()
 					<span id="weight2" class="search_weight">', Utils::$context['relative_weights']['search_weight_age'], '%</span>
 				</dd>
 				<dt>
-					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 					<label for="weight3_val">', Lang::getTxt('search_weight_length', file: 'Search'), '</label>
 				</dt>
 				<dd>
@@ -57,7 +57,7 @@ function template_modify_weights()
 					<span id="weight3" class="search_weight">', Utils::$context['relative_weights']['search_weight_length'], '%</span>
 				</dd>
 				<dt>
-					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 					<label for="weight4_val">', Lang::getTxt('search_weight_subject', file: 'Search'), '</label>
 				</dt>
 				<dd>
@@ -67,7 +67,7 @@ function template_modify_weights()
 					<span id="weight4" class="search_weight">', Utils::$context['relative_weights']['search_weight_subject'], '%</span>
 				</dd>
 				<dt>
-					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 					<label for="weight5_val">', Lang::getTxt('search_weight_first_message', file: 'Search'), '</label>
 				</dt>
 				<dd>
@@ -77,7 +77,7 @@ function template_modify_weights()
 					<span id="weight5" class="search_weight">', Utils::$context['relative_weights']['search_weight_first_message'], '%</span>
 				</dd>
 				<dt>
-					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_sticky" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+					<a href="', Config::$scripturl, '?action=helpadmin;help=search_weight_sticky" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 					<label for="weight6_val">', Lang::getTxt('search_weight_sticky', file: 'Search'), '</label>
 				</dt>
 				<dd>
@@ -249,7 +249,7 @@ function template_select_search_method()
 		) {
 			echo '
 						<br>
-						<strong>' . Lang::getTxt('search_index_size', file: 'Search') . '</strong> ' . Lang::getTxt('size_kilobyte', [$api['instance']->getSize() / 1024]);
+						<strong>' . Lang::getTxt('search_index_size', file: 'Search') . '</strong> ' . Lang::getTxt('size_kilobyte', [$api['instance']->getSize() / 1024], file: 'General');
 		}
 
 		echo '

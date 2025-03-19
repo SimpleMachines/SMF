@@ -2017,7 +2017,7 @@ class Maintenance implements ActionInterface
 
 							// Can only enable/disable if it exists...
 							if ($data['hook_exists']) {
-								$change_status['before'] = '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="you_sure">';
+								$change_status['before'] = '<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=' . ($data['enabled'] ? 'disable' : 'enable') . ';hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('quickmod_confirm', file: 'General') . '" class="you_sure">';
 								$change_status['after'] = '</a>';
 							}
 
@@ -2066,7 +2066,7 @@ class Maintenance implements ActionInterface
 					// Note: Cannot remove temp hooks via the UI...
 					if (!$data['hook_exists'] && $data['status'] != 'temp') {
 						return '
-						<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="you_sure">
+						<a href="' . Config::$scripturl . '?action=admin;area=maintain;sa=hooks;do=remove;hook=' . $data['hook_name'] . ';function=' . urlencode($data['function_name']) . $filter_url . ';' . Utils::$context['admin-hook_token_var'] . '=' . Utils::$context['admin-hook_token'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('quickmod_confirm', file: 'General') . '" class="you_sure">
 							<span class="main_icons delete" title="' . Lang::getTxt('hooks_button_remove', file: 'Admin') . '"></span>
 						</a>';
 					}

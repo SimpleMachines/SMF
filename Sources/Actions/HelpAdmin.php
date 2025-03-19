@@ -97,8 +97,8 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						'short' => Lang::$txt['months_short'][1],
-						'long' => Lang::$txt['months_titles'][1],
+						'short' => Lang::getTxt(['months_short', 1], file: 'General'),
+						'long' => Lang::getTxt(['months_titles', 1], file: 'General'),
 					],
 				);
 				break;
@@ -107,8 +107,8 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						'short' => Lang::$txt['days_short'][1],
-						'long' => Lang::$txt['days'][1],
+						'short' => Lang::getTxt(['days_short', 1], file: 'General'),
+						'long' => Lang::getTxt(['days', 1], file: 'General'),
 					],
 				);
 				break;
@@ -117,7 +117,7 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						'boarddir' => User::$me->allowedTo('admin_forum') ? Config::$boarddir : '[' . Lang::$txt['hidden'] . ']',
+						'boarddir' => User::$me->allowedTo('admin_forum') ? Config::$boarddir : '[' . Lang::getTxt('hidden', file: 'General') . ']',
 						'boardurl' => Config::$boardurl,
 					],
 				);
@@ -165,7 +165,7 @@ class HelpAdmin implements ActionInterface, Routable
 		}
 
 		// Set the page title to something relevant.
-		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::$txt['help'];
+		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::getTxt('help', file: 'General');
 
 		// Don't show any template layers, just the popup sub template.
 		Utils::$context['template_layers'] = [];

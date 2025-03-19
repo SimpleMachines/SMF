@@ -409,7 +409,7 @@ class Register2 extends Register
 			Theme::loadTemplate('Register');
 
 			Utils::$context += [
-				'page_title' => Lang::$txt['register'],
+				'page_title' => Lang::getTxt('register', file: 'General'),
 				'title' => Lang::getTxt('registration_successful', file: 'Login'),
 				'sub_template' => 'after',
 				'description' => Lang::getTxt(Config::$modSettings['registration_method'] == 2 ? 'approval_after_registration' : 'activate_after_registration', file: 'Login'),

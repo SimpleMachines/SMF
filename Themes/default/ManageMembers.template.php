@@ -24,7 +24,7 @@ function template_search_members()
 			<input type="hidden" name="sa" value="query">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					<span class="floatleft">', Lang::$txt['search_for'], '</span>
+					<span class="floatleft">', Lang::getTxt('search_for', file: 'General'), '</span>
 					<span class="smalltext floatright">', Lang::getTxt('wild_cards_allowed', file: 'Admin'), '</span>
 				</h3>
 			</div>
@@ -59,7 +59,7 @@ function template_search_members()
 								<input type="number" name="age" id="age" value="" size="6">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="posts">', Lang::$txt['member_postcount'], '</label></strong>
+								<strong><label for="posts">', Lang::getTxt('member_postcount', file: 'General'), '</label></strong>
 								<select name="types[posts]">
 									<option value="--">&lt;</option>
 									<option value="-">&lt;=</option>
@@ -72,7 +72,7 @@ function template_search_members()
 								<input type="number" name="posts" id="posts" value="" size="6">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="reg_date">', Lang::$txt['date_registered'], '</label></strong>
+								<strong><label for="reg_date">', Lang::getTxt('date_registered', file: 'General'), '</label></strong>
 								<select name="types[reg_date]">
 									<option value="--">&lt;</option>
 									<option value="-">&lt;=</option>
@@ -102,7 +102,7 @@ function template_search_members()
 					<div class="msearch_details floatright">
 						<dl class="settings right">
 							<dt class="righttext">
-								<strong><label for="membername">', Lang::$txt['username'], '</label></strong>
+								<strong><label for="membername">', Lang::getTxt('username', file: 'General'), '</label></strong>
 							</dt>
 							<dd>
 								<input type="text" name="membername" id="membername" value="">
@@ -114,13 +114,13 @@ function template_search_members()
 								<input type="email" name="email" id="email" value="">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="website">', Lang::$txt['website'], '</label></strong>
+								<strong><label for="website">', Lang::getTxt('website', file: 'General'), '</label></strong>
 							</dt>
 							<dd>
 								<input type="url" name="website" id="website" value="">
 							</dd>
 							<dt class="righttext">
-								<strong><label for="ip">', Lang::$txt['ip_address'], '</label></strong>
+								<strong><label for="ip">', Lang::getTxt('ip_address', file: 'General'), '</label></strong>
 							</dt>
 							<dd>
 								<input type="text" name="ip" id="ip" value="">
@@ -164,7 +164,7 @@ function template_search_members()
 	echo '
 					<tr class="windowbg">
 						<td>
-							<em>', Lang::$txt['check_all'], '</em>
+							<em>', Lang::getTxt('check_all', file: 'General'), '</em>
 						</td>
 						<td class="centercol">
 							<input type="checkbox" onclick="invertAll(this, this.form, \'membergroups[1]\');" checked>
@@ -200,7 +200,7 @@ function template_search_members()
 	echo '
 					<tr class="windowbg">
 						<td>
-							<em>', Lang::$txt['check_all'], '</em>
+							<em>', Lang::getTxt('check_all', file: 'General'), '</em>
 						</td>
 						<td class="centercol">
 							<input type="checkbox" onclick="invertAll(this, this.form, \'postgroups[]\');" checked>
@@ -209,7 +209,7 @@ function template_search_members()
 				</tbody>
 			</table>
 			<br>
-			<input type="submit" value="', Lang::$txt['search'], '" class="button">
+			<input type="submit" value="', Lang::getTxt('search', file: 'General'), '" class="button">
 		</form>';
 }
 

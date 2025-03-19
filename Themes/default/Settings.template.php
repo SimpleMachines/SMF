@@ -149,10 +149,10 @@ function template_options()
 		array(
 			'id' => 'calendar_start_day',
 			'label' => Lang::getTxt('calendar_start_day', file: 'Profile'),
-			'options' => array(
-				0 => Lang::$txt['days'][0],
-				1 => Lang::$txt['days'][1],
-				6 => Lang::$txt['days'][6],
+			'options' => array_filter(
+				Lang::getTxt('days', file: 'General'),
+				fn($key) => in_array($key, [0, 1, 5, 6]),
+				ARRAY_FILTER_USE_KEY,
 			),
 			'default' => true,
 			'enabled' => !empty(Config::$modSettings['cal_enabled']),

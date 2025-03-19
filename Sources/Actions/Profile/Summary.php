@@ -49,7 +49,7 @@ class Summary implements ActionInterface
 	{
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['summary'],
+			'title' => Lang::getTxt('summary', file: 'General'),
 			'icon_class' => 'main_icons profile_hd',
 		];
 
@@ -84,7 +84,7 @@ class Summary implements ActionInterface
 		$days_registered = (int) ((time() - Profile::$member->date_registered) / (3600 * 24));
 
 		if (empty(Profile::$member->date_registered) || $days_registered < 1) {
-			Profile::$member->formatted['posts_per_day'] = Lang::$txt['not_applicable'];
+			Profile::$member->formatted['posts_per_day'] = Lang::getTxt('not_applicable', file: 'General');
 		} else {
 			Profile::$member->formatted['posts_per_day'] = Profile::$member->formatted['real_posts'] / $days_registered;
 		}
@@ -92,7 +92,7 @@ class Summary implements ActionInterface
 		// Set the age...
 		if (empty(Profile::$member->formatted['birth_date']) || substr(Profile::$member->formatted['birth_date'], 0, 4) < 1002) {
 			Profile::$member->formatted += [
-				'age' => Lang::$txt['not_applicable'],
+				'age' => Lang::getTxt('not_applicable', file: 'General'),
 				'today_is_birthday' => false,
 			];
 		} else {
@@ -101,7 +101,7 @@ class Summary implements ActionInterface
 			$datearray = getdate(time());
 
 			Profile::$member->formatted += [
-				'age' => $birth_year <= 1004 ? Lang::$txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
+				'age' => $birth_year <= 1004 ? Lang::getTxt('not_applicable', file: 'General') : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
 				'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day && $birth_year > 1004,
 			];
 		}
@@ -238,7 +238,7 @@ class Summary implements ActionInterface
 				$ban_explanation = Lang::getTxt('user_cannot_due_to', ['list' => Lang::sentenceList($ban_restrictions, 'or'), 'ban' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>'], file: 'Profile');
 
 				Profile::$member->formatted['bans'][$row['id_ban_group']] = [
-					'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . Lang::$txt['ban_reason'] . ':</strong> ' . $row['reason'],
+					'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . Lang::getTxt('ban_reason', file: 'General') . ':</strong> ' . $row['reason'],
 					'cannot' => [
 						'access' => !empty($row['cannot_access']),
 						'post' => !empty($row['cannot_post']),

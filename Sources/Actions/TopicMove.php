@@ -117,7 +117,7 @@ class TopicMove implements ActionInterface, Routable
 
 		Utils::$context['categories'] = MessageIndex::getBoardList($options);
 
-		Utils::$context['page_title'] = Lang::$txt['move_topic'];
+		Utils::$context['page_title'] = Lang::getTxt('move_topic', file: 'General');
 
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?topic=' . Topic::$topic_id . '.0',
@@ -125,17 +125,18 @@ class TopicMove implements ActionInterface, Routable
 		];
 
 		Utils::$context['linktree'][] = [
-			'name' => Lang::$txt['move_topic'],
+			'name' => Lang::getTxt('move_topic', file: 'General'),
 		];
 
 		Utils::$context['back_to_topic'] = isset($_REQUEST['goback']);
 
 		if (User::$me->language != Lang::$default) {
 			Lang::load('General', Lang::$default);
-			$temp = Lang::$txt['movetopic_default'];
+			Lang::setTxt(
+				'movetopic_default',
+				Lang::getTxt('movetopic_default', file: 'General', lang: Lang::$default),
+			);
 			Lang::load('General');
-
-			Lang::$txt['movetopic_default'] = $temp;
 		}
 
 		Utils::$context['sub_template'] = 'move';

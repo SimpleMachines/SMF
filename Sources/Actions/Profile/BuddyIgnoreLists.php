@@ -301,7 +301,7 @@ class BuddyIgnoreLists implements ActionInterface
 							options: ['hard_breaks' => 0],
 						);
 					} elseif ($column['type'] == 'check') {
-						Utils::$context['buddies'][$buddy]['options'][$key] = Utils::$context['buddies'][$buddy]['options'][$key] == 0 ? Lang::$txt['no'] : Lang::$txt['yes'];
+						Utils::$context['buddies'][$buddy]['options'][$key] = Lang::getTxt(Utils::$context['buddies'][$buddy]['options'][$key] == 0 ? 'no' : 'yes', file: 'General');
 					}
 
 					// Enclosing the user input within some other text?

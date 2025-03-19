@@ -940,6 +940,16 @@ $txt['search_no_results'] = 'Sorry, no matches were found';
 $txt['total_time_logged_d'] = 'd ';
 $txt['total_time_logged_h'] = 'h ';
 $txt['total_time_logged_m'] = 'm';
+$txt['total_time_logged'] = '{days, select,
+	0 {}
+	other {{days, number, integer} d }
+}{hours, select,
+	0 {}
+	other {{hours, number, integer} h }
+}{minutes, select,
+	0 {}
+	other {{minutes, number, integer} m}
+}';
 
 $txt['approve_members_waiting'] = 'Member Approvals';
 

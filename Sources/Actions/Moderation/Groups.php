@@ -421,7 +421,7 @@ class Groups extends ViewGroups
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 						'style' => 'width: 18%; white-space:nowrap;',
 					],
 					'data' => [
@@ -465,7 +465,7 @@ class Groups extends ViewGroups
 							<option value="reject">' . Lang::getTxt('mc_groupr_reject', file: 'ModerationCenter') . '</option>
 							<option value="reason">' . Lang::getTxt('mc_groupr_reject_w_reason', file: 'ModerationCenter') . '</option>
 						</select>
-						<input type="submit" name="go" value="' . Lang::$txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . Lang::getTxt('mc_groupr_warning', file: 'ModerationCenter') . '\')) return false;" class="button">',
+						<input type="submit" name="go" value="' . Lang::getTxt('go', file: 'General') . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . Lang::getTxt('mc_groupr_warning', file: 'ModerationCenter') . '\')) return false;" class="button">',
 					'class' => 'floatright',
 				],
 			],

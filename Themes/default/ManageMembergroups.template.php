@@ -221,7 +221,7 @@ function template_edit_group()
 	if (Utils::$context['group']['id'] != 3 && Utils::$context['group']['id'] != 4)
 		echo '
 					<dt id="group_moderators_text">
-						<label for="group_moderators"><strong>', Lang::$txt['moderators'], '</strong></label>
+						<label for="group_moderators"><strong>', Lang::getTxt('moderators', file: 'General'), '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="group_moderators" id="group_moderators" value="', Utils::$context['group']['moderator_list'], '" size="30">
@@ -374,7 +374,7 @@ function template_edit_group()
 			bItemList: true,
 			sPostName: \'moderator_list\',
 			sURLMask: \'action=profile;u=%item_id%\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			sItemListContainerId: \'moderator_container\',
 			aListItems: [';
 
@@ -506,13 +506,13 @@ function template_add_edit_group_boards_list($collapse = true, $form_id = 'new_g
 		echo '
 								<br class="clear"><br>
 								<input type="checkbox" id="checkall_check" onclick="invertAll(this, this.form, \'boardaccess\');">
-								<label for="checkall_check"><em>', Lang::$txt['check_all'], '</em></label>
+								<label for="checkall_check"><em>', Lang::getTxt('check_all', file: 'General'), '</em></label>
 							</fieldset>';
 	else
 		echo '
 								<br class="clear">
 								<span class="select_all_box">
-									<em>', Lang::$txt['all'], '</em>
+									<em>', Lang::getTxt('all', file: 'General'), '</em>
 									<input type="radio" name="select_all" id="allow_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'allow\');"> <label for="allow_all">', Lang::getTxt('board_perms_allow', file: 'Admin'), '</label>
 									<input type="radio" name="select_all" id="ignore_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'ignore\');"> <label for="ignore_all">', Lang::getTxt('board_perms_ignore', file: 'Admin'), '</label>
 									<input type="radio" name="select_all" id="deny_all" onclick="selectAllRadio(this, this.form, \'boardaccess\', \'deny\');"> <label for="deny_all">', Lang::getTxt('board_perms_deny', file: 'Admin'), '</label>
@@ -548,7 +548,7 @@ function template_group_members()
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::$txt['name'], '</strong>
+						<strong>', Lang::getTxt('name', file: 'General'), '</strong>
 					</dt>
 					<dd>
 						<span ', Utils::$context['group']['online_color'] ? 'style="color: ' . Utils::$context['group']['online_color'] . ';"' : '', '>', Utils::$context['group']['name'], '</span> ', Utils::$context['group']['icons'], '
@@ -602,17 +602,17 @@ function template_group_members()
 			<table class="table_grid" id="group_members">
 				<thead>
 					<tr class="title_bar">
-						<th class="user_name"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=name', Utils::$context['sort_by'] == 'name' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['name'], Utils::$context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>';
+						<th class="user_name"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=name', Utils::$context['sort_by'] == 'name' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::getTxt('name', file: 'General'), Utils::$context['sort_by'] == 'name' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>';
 
 	if (Utils::$context['can_send_email'])
 		echo '
-						<th class="email"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=email', Utils::$context['sort_by'] == 'email' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['email'], Utils::$context['sort_by'] == 'email' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>';
+						<th class="email"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=email', Utils::$context['sort_by'] == 'email' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::getTxt('email', file: 'General'), Utils::$context['sort_by'] == 'email' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>';
 
 	echo '
 						<th class="last_active"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=active', Utils::$context['sort_by'] == 'active' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::getTxt('membergroups_members_last_active', file: 'ManageMembers'), Utils::$context['sort_by'] == 'active' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
-						<th class="date_registered"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=registered', Utils::$context['sort_by'] == 'registered' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['date_registered'], Utils::$context['sort_by'] == 'registered' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
+						<th class="date_registered"><a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=registered', Utils::$context['sort_by'] == 'registered' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::getTxt('date_registered', file: 'General'), Utils::$context['sort_by'] == 'registered' ? '<span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a></th>
 						<th class="posts"', empty(Utils::$context['can_add_remove']) ? ' colspan="2"' : '', '>
-							<a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=posts', Utils::$context['sort_by'] == 'posts' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::$txt['posts'], Utils::$context['sort_by'] == 'posts' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
+							<a href="', Config::$scripturl, '?action=', Utils::$context['current_action'], (isset(Utils::$context['admin_area']) ? ';area=' . Utils::$context['admin_area'] : ''), ';sa=members;start=', Utils::$context['start'], ';sort=posts', Utils::$context['sort_by'] == 'posts' && Utils::$context['sort_direction'] == 'up' ? ';desc' : '', ';group=', Utils::$context['group']['id'], '">', Lang::getTxt('posts', file: 'General'), Utils::$context['sort_by'] == 'posts' ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '', '</a>
 						</th>';
 
 	if (!empty(Utils::$context['can_add_remove']))
@@ -706,7 +706,7 @@ function template_group_members()
 			sSearchType: \'member\',
 			sPostName: \'member_add\',
 			sURLMask: \'action=profile;u=%item_id%\',
-			sTextDeleteItem: \'', Lang::$txt['autosuggest_delete_item'], '\',
+			sTextDeleteItem: \'', Lang::getTxt('autosuggest_delete_item', file: 'General'), '\',
 			bItemList: true,
 			sItemListContainerId: \'toAddItemContainer\'
 		});

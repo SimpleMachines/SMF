@@ -303,7 +303,7 @@ class Calendar implements ActionInterface, Routable
 
 		// Set the page title to mention the month or week, too
 		if (Utils::$context['calendar_view'] != 'viewlist') {
-			Utils::$context['page_title'] .= ' - ' . (Utils::$context['calendar_view'] == 'viewweek' ? Utils::$context['calendar_grid_main']['week_title'] : Lang::$txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year']);
+			Utils::$context['page_title'] .= ' - ' . (Utils::$context['calendar_view'] == 'viewweek' ? Utils::$context['calendar_grid_main']['week_title'] : Lang::getTxt(['months_titles', Utils::$context['current_month']], file: 'General') . ' ' . Utils::$context['current_year']);
 		}
 
 		// Load up the linktree!
@@ -314,7 +314,7 @@ class Calendar implements ActionInterface, Routable
 		// Add the current month to the linktree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=calendar;year=' . Utils::$context['current_year'] . ';month=' . Utils::$context['current_month'],
-			'name' => Lang::$txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year'],
+			'name' => Lang::getTxt(['months_titles', Utils::$context['current_month']], file: 'General') . ' ' . Utils::$context['current_year'],
 		];
 
 		// If applicable, add the current week to the linktree.

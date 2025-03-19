@@ -75,7 +75,7 @@ class Search implements ActionInterface, Routable
 		// Link tree....
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=search',
-			'name' => Lang::$txt['search'],
+			'name' => Lang::getTxt('search', file: 'General'),
 		];
 
 		Utils::$context['robot_no_index'] = true;

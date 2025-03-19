@@ -94,7 +94,7 @@ class Home implements ActionInterface
 		// Find all of this forum's administrators...
 		if (Groups::listMembergroupMembers_Href(Utils::$context['administrators'], 1, 32) && User::$me->allowedTo('manage_membergroups')) {
 			// Add a 'more'-link if there are more than 32.
-			Utils::$context['more_admins_link'] = '<a href="' . Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . Lang::$txt['more'] . '</a>';
+			Utils::$context['more_admins_link'] = '<a href="' . Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . Lang::getTxt('more', file: 'General') . '</a>';
 		}
 
 		// Load the credits stuff.
@@ -111,13 +111,13 @@ class Home implements ActionInterface
 
 		Utils::$context['sub_template'] = Utils::$context['admin_area'] == 'credits' ? 'credits' : 'admin';
 
-		Utils::$context['page_title'] = Utils::$context['admin_area'] == 'credits' ? Lang::getTxt('support_credits_title', file: 'Admin') : Lang::$txt['admin_center'];
+		Utils::$context['page_title'] = Utils::$context['admin_area'] == 'credits' ? Lang::getTxt('support_credits_title', file: 'Admin') : Lang::getTxt('admin_center', file: 'General');
 
 		if (Utils::$context['admin_area'] != 'credits') {
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['admin_center'],
+				'title' => Lang::getTxt('admin_center', file: 'General'),
 				'help' => '',
-				'description' => '<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name]) . '</strong>
+				'description' => '<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name], file: 'General') . '</strong>
 					' . Lang::getTxt('admin_main_welcome', Lang::$txt, file: 'Admin'),
 			];
 		}

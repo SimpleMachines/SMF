@@ -327,7 +327,7 @@ class PersonalMessage implements ActionInterface, Routable
 		// Build the linktree for all the actions...
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm',
-			'name' => Lang::$txt['personal_messages'],
+			'name' => Lang::getTxt('personal_messages', file: 'General'),
 		];
 
 		// No guests!
@@ -759,7 +759,7 @@ class PersonalMessage implements ActionInterface, Routable
 		Utils::$context['require_password'] = false;
 		Utils::$context['menu_item_selected'] = 'settings';
 		Utils::$context['submit_button_text'] = Lang::getTxt('pm_settings', file: 'PersonalMessage');
-		Utils::$context['profile_header_text'] = Lang::$txt['personal_messages'];
+		Utils::$context['profile_header_text'] = Lang::getTxt('personal_messages', file: 'General');
 		Utils::$context['sub_template'] = 'edit_options';
 		Utils::$context['page_desc'] = Lang::getTxt('pm_settings_desc', file: 'Profile');
 

@@ -56,13 +56,13 @@ function template_maintenance()
 				<dt><strong>', Lang::getTxt('attachment_manager_total_avatars', file: 'Admin'), '</strong></dt>
 				<dd>', Utils::$context['num_avatars'], '</dd>
 				<dt><strong>', Lang::getTxt('attachmentdir_size', file: 'Admin'), '</strong></dt>
-				<dd>', Lang::getTxt('size_kilobyte', [Utils::$context['attachment_total_size']]), '</dd>
+				<dd>', Lang::getTxt('size_kilobyte', [Utils::$context['attachment_total_size']], file: 'General'), '</dd>
 				<dt><strong>', Lang::getTxt('attach_current_dir', file: 'Admin'), '</strong></dt>
 				<dd class="word_break">', Config::$modSettings['attachmentUploadDir'][Config::$modSettings['currentAttachmentUploadDir']], '</dd>
 				<dt><strong>', Lang::getTxt('attachmentdir_size_current', file: 'Admin'), '</strong></dt>
-				<dd>', Lang::getTxt('size_kilobyte', [Utils::$context['attachment_current_size']]), '</dd>
+				<dd>', Lang::getTxt('size_kilobyte', [Utils::$context['attachment_current_size']], file: 'General'), '</dd>
 				<dt><strong>', Lang::getTxt('attachment_space', file: 'Admin'), '</strong></dt>
-				<dd>', isset(Utils::$context['attachment_space']) ? Lang::getTxt('size_kilobyte', [Utils::$context['attachment_space']]) : Lang::getTxt('attachmentdir_size_not_set', file: 'Admin'), '</dd>
+				<dd>', isset(Utils::$context['attachment_space']) ? Lang::getTxt('size_kilobyte', [Utils::$context['attachment_space']], file: 'General') : Lang::getTxt('attachmentdir_size_not_set', file: 'Admin'), '</dd>
 				<dt><strong>', Lang::getTxt('attachmentdir_files_current', file: 'Admin'), '</strong></dt>
 				<dd>', Utils::$context['attachment_current_files'], '</dd>
 				<dt><strong>', Lang::getTxt('attachment_files', file: 'Admin'), '</strong></dt>
@@ -85,10 +85,10 @@ function template_maintenance()
 			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="UTF-8" onsubmit="return confirm(\'', Lang::getTxt('attachment_pruning_warning', file: 'Admin'), '\');">
 				<dl class="settings">
 					<dt>', Lang::getTxt('attachment_remove_old', file: 'Admin'), '</dt>
-					<dd><input type="number" name="age" value="25" size="4"> ', str_replace('25', '', Lang::getTxt('number_of_days', [25])), '</dd>
+					<dd><input type="number" name="age" value="25" size="4"> ', str_replace('25', '', Lang::getTxt('number_of_days', [25], file: 'General')), '</dd>
 					<dt>', Lang::getTxt('attachment_pruning_message', file: 'Admin'), '</dt>
 					<dd><input type="text" name="notice" value="', Lang::getTxt('attachment_delete_admin', file: 'Admin'), '" size="40"></dd>
-					<input type="submit" name="remove" value="', Lang::$txt['remove'], '" class="button">
+					<input type="submit" name="remove" value="', Lang::getTxt('remove', file: 'General'), '" class="button">
 					<input type="hidden" name="type" value="attachments">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="sa" value="byage">
@@ -97,10 +97,10 @@ function template_maintenance()
 			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="UTF-8" onsubmit="return confirm(\'', Lang::getTxt('attachment_pruning_warning', file: 'Admin'), '\');">
 				<dl class="settings">
 					<dt>', Lang::getTxt('attachment_remove_size', file: 'Admin'), '</dt>
-					<dd><input type="number" name="size" id="size" value="100" size="4"> ', Lang::$txt['kilobyte'], '</dd>
+					<dd><input type="number" name="size" id="size" value="100" size="4"> ', Lang::getTxt('kilobyte', file: 'General'), '</dd>
 					<dt>', Lang::getTxt('attachment_pruning_message', file: 'Admin'), '</dt>
 					<dd><input type="text" name="notice" value="', Lang::getTxt('attachment_delete_admin', file: 'Admin'), '" size="40"></dd>
-					<input type="submit" name="remove" value="', Lang::$txt['remove'], '" class="button">
+					<input type="submit" name="remove" value="', Lang::getTxt('remove', file: 'General'), '" class="button">
 					<input type="hidden" name="type" value="attachments">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="sa" value="bysize">
@@ -109,8 +109,8 @@ function template_maintenance()
 			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="UTF-8" onsubmit="return confirm(\'', Lang::getTxt('attachment_pruning_warning', file: 'Admin'), '\');">
 				<dl class="settings">
 					<dt>', Lang::getTxt('attachment_manager_avatars_older', file: 'Admin'), '</dt>
-					<dd><input type="number" name="age" value="45" size="4"> ', str_replace('45', '', Lang::getTxt('number_of_days', [45])), '</dd>
-					<input type="submit" name="remove" value="', Lang::$txt['remove'], '" class="button">
+					<dd><input type="number" name="age" value="45" size="4"> ', str_replace('45', '', Lang::getTxt('number_of_days', [45], file: 'General')), '</dd>
+					<input type="submit" name="remove" value="', Lang::getTxt('remove', file: 'General'), '" class="button">
 					<input type="hidden" name="type" value="avatars">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="sa" value="byage">
@@ -191,7 +191,7 @@ function template_maintenance()
 			}
 
 			function show_msg() {
-				$(\'#progress_msg\').html(\'<div><img src="', Theme::$current->settings['actual_images_url'], '/loading_sm.gif" alt="', Lang::$txt['ajax_in_progress'], '" width="35" height="35"> ', Lang::getTxt('attachment_transfer_progress', file: 'Admin'), '<\/div>\');
+				$(\'#progress_msg\').html(\'<div><img src="', Theme::$current->settings['actual_images_url'], '/loading_sm.gif" alt="', Lang::getTxt('ajax_in_progress', file: 'General'), '" width="35" height="35"> ', Lang::getTxt('attachment_transfer_progress', file: 'Admin'), '<\/div>\');
 				show_progress();
 			}
 

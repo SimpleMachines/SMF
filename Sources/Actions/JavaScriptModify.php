@@ -267,10 +267,10 @@ class JavaScriptModify implements ActionInterface, Routable
 				// Get the proper (default language) response prefix first.
 				if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
 					if (Lang::$default === User::$me->language) {
-						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+						Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 					} else {
 						Lang::load('General', Lang::$default, false);
-						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
+						Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
 						Lang::load('General');
 					}
 					CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);

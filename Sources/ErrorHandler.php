@@ -634,7 +634,7 @@ class ErrorHandler
 		Utils::$context['robot_no_index'] = true;
 
 		if (!isset(Utils::$context['error_title'])) {
-			Utils::$context['error_title'] = Lang::$txt['error_occured'];
+			Utils::$context['error_title'] = Lang::getTxt('error_occured', file: 'General');
 		}
 
 		Utils::$context['error_message'] = Utils::$context['error_message'] ?? $error_message;

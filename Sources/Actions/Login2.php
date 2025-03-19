@@ -263,13 +263,13 @@ class Login2 implements ActionInterface, Routable
 		Utils::$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#$1;', Utils::htmlspecialchars($_POST['user'])) : '';
 		Utils::$context['default_password'] = '';
 		Utils::$context['never_expire'] = Config::$modSettings['cookieTime'] <= 525600;
-		Utils::$context['login_errors'] = [Lang::$txt['error_occured']];
-		Utils::$context['page_title'] = Lang::$txt['login'];
+		Utils::$context['login_errors'] = [Lang::getTxt('error_occured', file: 'General')];
+		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 
 		// Add the login chain to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=login',
-			'name' => Lang::$txt['login'],
+			'name' => Lang::getTxt('login', file: 'General'),
 		];
 
 		// Bail out if the username and/or password are obviously invalid.
@@ -294,7 +294,7 @@ class Login2 implements ActionInterface, Routable
 
 		// Let them try again, it didn't match anything...
 		if (empty($loaded)) {
-			Utils::$context['login_errors'] = [Lang::$txt['username_no_exist']];
+			Utils::$context['login_errors'] = [Lang::getTxt('username_no_exist', file: 'General')];
 
 			return;
 		}
@@ -481,7 +481,7 @@ class Login2 implements ActionInterface, Routable
 
 		// No funky symbols either.
 		if (preg_match('~[<>&"\'=\\\]~', preg_replace('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', '', $_POST['user'])) != 0) {
-			Utils::$context['login_errors'] = [Lang::$txt['error_invalid_characters_username']];
+			Utils::$context['login_errors'] = [Lang::getTxt('error_invalid_characters_username', file: 'General')];
 
 			return false;
 		}

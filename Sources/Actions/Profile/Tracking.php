@@ -183,7 +183,7 @@ class Tracking implements ActionInterface
 			'columns' => [
 				'ip_address' => [
 					'header' => [
-						'value' => Lang::$txt['ip_address'],
+						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -200,7 +200,7 @@ class Tracking implements ActionInterface
 				],
 				'message' => [
 					'header' => [
-						'value' => Lang::$txt['message'],
+						'value' => Lang::getTxt('message', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -214,7 +214,7 @@ class Tracking implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -453,7 +453,7 @@ class Tracking implements ActionInterface
 				],
 				'time' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -580,7 +580,7 @@ class Tracking implements ActionInterface
 			'columns' => [
 				'time' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -588,7 +588,7 @@ class Tracking implements ActionInterface
 				],
 				'ip' => [
 					'header' => [
-						'value' => Lang::$txt['ip_address'],
+						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
 						'sprintf' => [
@@ -646,7 +646,7 @@ class Tracking implements ActionInterface
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:max}',
 			array_merge($where_vars, [
-				'guest_title' => Lang::$txt['guest_title'],
+				'guest_title' => Lang::getTxt('guest_title', file: 'General'),
 				'sort' => $sort,
 				'start' => $start,
 				'max' => $items_per_page,

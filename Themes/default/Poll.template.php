@@ -66,9 +66,9 @@ function template_main()
 				<div class="roundframe noup">
 					<input type="hidden" name="poll" value="', Utils::$context['poll']['id'], '">
 					<fieldset id="poll_main">
-						<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::$txt['poll_question'], '</span></legend>
+						<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::getTxt('poll_question', file: 'General'), '</span></legend>
 						<dl class="settings poll_options">
-							<dt>', Lang::$txt['poll_question'], '</dt>
+							<dt>', Lang::getTxt('poll_question', file: 'General'), '</dt>
 							<dd><input type="text" name="question" size="80" value="', Utils::$context['poll']['question'], '"></dd>';
 
 	foreach (Utils::$context['choices'] as $choice)
@@ -150,7 +150,7 @@ function template_main()
 						<input type="checkbox" name="resetVoteCount" value="on"> ' . Lang::getTxt('reset_votes_check', file: 'Post') . '
 					</fieldset>';
 	echo '
-					<input type="submit" name="post" value="', Lang::$txt['save'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
+					<input type="submit" name="post" value="', Lang::getTxt('save', file: 'General'), '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 				</div><!-- .roundframe -->
 			</div>
 			<input type="hidden" name="seqnum" value="', Utils::$context['form_sequence_number'], '">

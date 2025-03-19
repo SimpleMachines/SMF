@@ -72,7 +72,7 @@ function template_permission_index()
 		echo '
 					<tr class="windowbg">
 						<td>
-							', !empty($group['help']) ? ' <a class="help" href="' . Config::$scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="' . Lang::$txt['help'] . '"></span></a> ' : '<img class="icon" src="' . Theme::$current->settings['images_url'] . '/blank.png" alt="' . Lang::$txt['help'] . '">', '<span>', $group['name'], '</span>';
+							', !empty($group['help']) ? ' <a class="help" href="' . Config::$scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="' . Lang::getTxt('help', file: 'General') . '"></span></a> ' : '<img class="icon" src="' . Theme::$current->settings['images_url'] . '/blank.png" alt="' . Lang::getTxt('help', file: 'General') . '">', '<span>', $group['name'], '</span>';
 
 		if (!empty($group['children']))
 			echo '
@@ -81,7 +81,7 @@ function template_permission_index()
 
 		echo '
 						</td>
-						<td>', $group['can_search'] ? $group['link'] : $group['num_members'] ?? Lang::$txt['not_applicable'], '</td>';
+						<td>', $group['can_search'] ? $group['link'] : ($group['num_members'] ?? Lang::getTxt('not_applicable', file: 'General')), '</td>';
 
 		if (empty(Config::$modSettings['permission_enable_deny']))
 			echo '
@@ -125,7 +125,7 @@ function template_permission_index()
 					<legend>', Lang::getTxt('permissions_with_selection', file: 'ManagePermissions'), '</legend>
 					<dl class="settings">
 						<dt>
-							<a class="help" href="', Config::$scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
+							<a class="help" href="', Config::$scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
 							', Lang::getTxt('permissions_apply_pre_defined', file: 'ManagePermissions'), '
 						</dt>
 						<dd>
@@ -219,8 +219,8 @@ function template_permission_index()
 					aSwapImages: [
 						{
 							sId: \'permissions_panel_toggle\',
-							altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-							altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+							altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+							altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 						}
 					],
 					aSwapLinks: [
@@ -289,7 +289,7 @@ function template_by_board()
 
 			<div class="cat_bar">
 				<h3 id="board_permissions" class="catbg flow_hidden">
-					<span class="perm_name floatleft">', Lang::$txt['board_name'], '</span>
+					<span class="perm_name floatleft">', Lang::getTxt('board_name', file: 'General'), '</span>
 					<span class="perm_profile floatleft">', Lang::getTxt('permission_profile', file: 'ManagePermissions'), '</span>';
 	echo '
 				</h3>
@@ -344,7 +344,7 @@ function template_by_board()
 
 	if (Utils::$context['edit_all'])
 		echo '
-				<input type="submit" name="save_changes" value="', Lang::$txt['save'], '" class="button">';
+				<input type="submit" name="save_changes" value="', Lang::getTxt('save', file: 'General'), '" class="button">';
 	else
 		echo '
 				<a class="button" href="', Config::$scripturl, '?action=admin;area=permissions;sa=board;edit;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('permissions_board_all', file: 'ManagePermissions'), '</a>';
@@ -373,7 +373,7 @@ function template_edit_profiles()
 					<tr class="title_bar">
 						<th>', Lang::getTxt('permissions_profile_name', file: 'ManagePermissions'), '</th>
 						<th>', Lang::getTxt('permissions_profile_used_by', file: 'ManagePermissions'), '</th>
-						<th class="table_icon"', !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '', '>', Lang::$txt['delete'], '</th>
+						<th class="table_icon"', !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '', '>', Lang::getTxt('delete', file: 'General'), '</th>
 					</tr>
 				</thead>
 				<tbody>';
@@ -414,7 +414,7 @@ function template_edit_profiles()
 				<input type="submit" name="rename" value="', Lang::getTxt(empty(Utils::$context['show_rename_boxes']) ? 'permissions_profile_rename' : 'permissions_commit', file: 'ManagePermissions'), '" class="button">';
 
 	echo '
-				<input type="submit" name="delete" value="', Lang::$txt['quickmod_delete_selected'], '" class="button" ', !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '', '>
+				<input type="submit" name="delete" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" class="button" ', !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '', '>
 			</div>
 		</form>
 		<br>
@@ -588,7 +588,7 @@ function template_modify_group_display($type)
 					echo '
 						<tr class="windowbg">
 							<td>
-								', $permission['show_help'] ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . Lang::$txt['help'] . '"></span></a>' : '', '
+								', $permission['show_help'] ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . Lang::getTxt('help', file: 'General') . '"></span></a>' : '', '
 							</td>
 							<td class="lefttext full_width">
 								', $permission['name'], (!empty($permission['note']) ? '<br>
@@ -738,7 +738,7 @@ function template_inline_permissions()
 		echo '
 													<li>
 														<input type="checkbox" onclick="invertAll(this, this.form, \'' . Utils::$context['current_permission'] . '[\');">
-														<span>', Lang::$txt['check_all'], '</span>
+														<span>', Lang::getTxt('check_all', file: 'General'), '</span>
 													</li>
 												</ul>';
 	else
@@ -805,7 +805,7 @@ function template_postmod_permissions()
 
 		echo '
 									</select>
-									<input type="submit" value="', Lang::$txt['go'], '" class="button">
+									<input type="submit" value="', Lang::getTxt('go', file: 'General'), '" class="button">
 								</p>
 							</div><!-- .padding -->
 							<table class="table_grid" id="postmod">

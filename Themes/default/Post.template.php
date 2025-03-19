@@ -107,7 +107,7 @@ function template_main()
 					<div class="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? 'noticebox' : 'errorbox', '"', empty(Utils::$context['post_error']) ? ' style="display: none"' : '', ' id="errors">
 						<dl>
 							<dt>
-								<strong id="error_serious">', Lang::$txt['error_while_submitting'], '</strong>
+								<strong id="error_serious">', Lang::getTxt('error_while_submitting', file: 'General'), '</strong>
 							</dt>
 							<dd class="error" id="error_list">
 								', empty(Utils::$context['post_error']) ? '' : implode('<br>', Utils::$context['post_error']), '
@@ -119,7 +119,7 @@ function template_main()
 	if (!Utils::$context['becomes_approved'])
 		echo '
 					<div class="noticebox">
-						<em>', Lang::$txt['wait_for_approval'], '</em>
+						<em>', Lang::getTxt('wait_for_approval', file: 'General'), '</em>
 						<input type="hidden" name="not_approved" value="1">
 					</div>';
 
@@ -163,9 +163,9 @@ function template_main()
 					<hr class="clear">
 					<div id="edit_poll">
 						<fieldset id="poll_main">
-							<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::$txt['poll_question'], '</span></legend>
+							<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::getTxt('poll_question', file: 'General'), '</span></legend>
 							<dl class="settings poll_options">
-								<dt>', Lang::$txt['poll_question'], '</dt>
+								<dt>', Lang::getTxt('poll_question', file: 'General'), '</dt>
 								<dd>
 									<input type="text" name="question" value="', isset(Utils::$context['question']) ? Utils::$context['question'] : '', '" tabindex="', Utils::$context['tabindex']++, '" size="80">
 								</dd>';
@@ -261,7 +261,7 @@ function template_main()
 
 		if (!empty(Utils::$context['attachment_restrictions']))
 			echo '
-									<div class="smalltext">', Lang::getTxt('attach_restrictions', ['list' => implode(Lang::$txt['sentence_list_separator'] . ' ', Utils::$context['attachment_restrictions'])]), '</div>';
+									<div class="smalltext">', Lang::getTxt('attach_restrictions', ['list' => implode(Lang::getTxt('sentence_list_separator', file: 'General') . ' ', Utils::$context['attachment_restrictions'])]), '</div>';
 
 		echo '
 									<div class="smalltext">
@@ -296,8 +296,8 @@ function template_main()
 				echo '
 										<div class="attachments_bot">
 											<span class="name">' . $attachment['name'] . '</span>', (empty($attachment['approved']) ? '
-											<br>(' . Lang::$txt['awaiting_approval'] . ')' : ''), '
-											<br>', $attachment['size'] < 1024000 ? Lang::getTxt('size_kilobyte', [round($attachment['size'] / 1024, 2)]) : Lang::getTxt('size_megabyte', [round($attachment['size'] / 1024 / 1024, 2)]), '
+											<br>(' . Lang::getTxt('awaiting_approval', file: 'General') . ')' : ''), '
+											<br>', $attachment['size'] < 1024000 ? Lang::getTxt('size_kilobyte', [round($attachment['size'] / 1024, 2)], file: 'General') : Lang::getTxt('size_megabyte', [round($attachment['size'] / 1024 / 1024, 2)], file: 'General'), '
 										</div>
 									</div>';
 			}
@@ -414,7 +414,7 @@ function template_main()
 					</div>
 					<div id="post_draft_options">
 						<dl class="settings">
-							<dt><strong>', Lang::$txt['subject'], '</strong></dt>
+							<dt><strong>', Lang::getTxt('subject', file: 'General'), '</strong></dt>
 							<dd><strong>', trim(Lang::getTxt('draft_saved_on', ['date' => ''], file: 'Drafts')), '</strong></dd>';
 
 		foreach (Utils::$context['drafts'] as $draft)
@@ -431,7 +431,7 @@ function template_main()
 		echo '
 					<div class="post_verification">
 						<span', !empty(Utils::$context['post_error']['need_qr_verification']) ? ' class="error"' : '', '>
-							<strong>', Lang::$txt['verification'], '</strong>
+							<strong>', Lang::getTxt('verification', file: 'General'), '</strong>
 						</span>
 						', template_control_verification(Utils::$context['visual_verification_id'], 'all'), '
 					</div>';
@@ -466,17 +466,17 @@ function template_main()
 		<div class="windowbg">
 			<div id="msg%PostID%">
 			<h5 class="floatleft">
-				' . Lang::getTxt('posted_by_member_time', ['member' => '%PosterName%', 'time' => '%PostTime%']) . '&nbsp;&#187; <span class="new_posts" id="image_new_%PostID%">' . Lang::$txt['new'] . '</span>
+				' . Lang::getTxt('posted_by_member_time', ['member' => '%PosterName%', 'time' => '%PostTime%'], file: 'General') . '&nbsp;&#187; <span class="new_posts" id="image_new_%PostID%">' . Lang::getTxt('new', file: 'General') . '</span>
 			</h5>
 			<br class="clear">
-			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . Lang::$txt['ignoring_user'] . '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . Lang::$txt['show_ignore_user_post'] . '</a></div>
+			<div id="msg_%PostID%_ignored_prompt" class="smalltext" style="display: none;">' . Lang::getTxt('ignoring_user', file: 'General') . '<a href="#" id="msg_%PostID%_ignored_link" style="%IgnoredStyle%">' . Lang::getTxt('show_ignore_user_post', file: 'General') . '</a></div>
 			<div class="list_posts smalltext" id="msg_%PostID%_body">%PostBody%</div>';
 
 	if (Utils::$context['can_quote'])
 		$newPostsHTML .= '
 			<ul class="quickbuttons sf-js-enabled sf-arrows" id="msg_%PostID%_quote" style="touch-action: pan-y;">
 				<li id="post_modify">
-					<a href="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="main_icons quote"></span>' . Lang::$txt['quote'] . '</a>
+					<a href="#postmodify" onclick="return insertQuoteFast(%PostID%);" class="quote_button"><span class="main_icons quote"></span>' . Lang::getTxt('quote', file: 'General') . '</a>
 				</li>
 			</ul>';
 
@@ -496,8 +496,8 @@ function template_main()
 				sNewImageContainerID: "image_new_%ID%",
 				sPostBoxContainerID: ', Utils::escapeJavaScript(Utils::$context['post_box_name']), ',
 				bMakePoll: ', Utils::$context['make_poll'] ? 'true' : 'false', ',
-				sTxtPreviewTitle: ', Utils::escapeJavaScript(Lang::$txt['preview_title']), ',
-				sTxtPreviewFetch: ', Utils::escapeJavaScript(Lang::$txt['preview_fetch']), ',
+				sTxtPreviewTitle: ', Utils::escapeJavaScript(Lang::getTxt('preview_title', file: 'General')), ',
+				sTxtPreviewFetch: ', Utils::escapeJavaScript(Lang::getTxt('preview_fetch', file: 'General')), ',
 				sSessionVar: ', Utils::escapeJavaScript(Utils::$context['session_var']), ',
 				newPostsTemplate:', Utils::escapeJavaScript($newPostsHTML);
 
@@ -575,7 +575,7 @@ function template_main()
 		echo '
 		<div id="recent" class="flow_hidden main_section">
 			<div class="cat_bar cat_bar_round">
-				<h3 class="catbg">', Lang::$txt['topic_summary'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('topic_summary', file: 'General'), '</h3>
 			</div>
 			<span id="new_replies"></span>';
 
@@ -591,15 +591,15 @@ function template_main()
 				<div id="msg', $post['id'], '">
 					<div>
 						<h5 class="floatleft">
-							', Lang::getTxt('posted_by_member_time', ['member' => $post['poster'], 'time' => $post['time']]), '
+							', Lang::getTxt('posted_by_member_time', ['member' => $post['poster'], 'time' => $post['time']], file: 'General'), '
 						</h5>
 					</div>';
 
 			if ($ignoring)
 				echo '
 					<div id="msg_', $post['id'], '_ignored_prompt" class="smalltext">
-						', Lang::$txt['ignoring_user'], '
-						<a href="#" id="msg_', $post['id'], '_ignored_link" style="display: none;">', Lang::$txt['show_ignore_user_post'], '</a>
+						', Lang::getTxt('ignoring_user', file: 'General'), '
+						<a href="#" id="msg_', $post['id'], '_ignored_link" style="display: none;">', Lang::getTxt('show_ignore_user_post', file: 'General'), '</a>
 					</div>';
 
 			echo '
@@ -608,8 +608,8 @@ function template_main()
 			if (Utils::$context['can_quote'])
 				echo '
 					<ul class="quickbuttons" id="msg_', $post['id'], '_quote">
-						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', Lang::$txt['quote_selected_action'], '</a></li>
-						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="main_icons quote"></span>', Lang::$txt['quote'], '</a></li>
+						<li style="display:none;" id="quoteSelected_', $post['id'], '" data-msgid="', $post['id'], '"><a href="javascript:void(0)"><span class="main_icons quote_selected"></span>', Lang::getTxt('quote_selected_action', file: 'General'), '</a></li>
+						<li id="post_modify"><a href="#postmodify" onclick="return insertQuoteFast(', $post['id'], ');"><span class="main_icons quote"></span>', Lang::getTxt('quote', file: 'General'), '</a></li>
 					</ul>';
 
 			echo '
@@ -636,7 +636,7 @@ function template_main()
 					{
 						sId: \'msg_', $post_id, '_ignored_link\',
 						msgExpanded: \'\',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show_ignore_user_post']), '
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show_ignore_user_post', file: 'General')), '
 					}
 				]
 			});';
@@ -669,7 +669,7 @@ function template_spellcheck()
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
 		<meta charset="UTF-8">
-		<title>', Lang::$txt['spell_check'], '</title>
+		<title>', Lang::getTxt('spell_check', file: 'General'), '</title>
 		<link rel="stylesheet" href="', Theme::$current->settings['theme_url'], '/css/index', Utils::$context['theme_variant'], '.css', Utils::$context['browser_cache'], '">
 		<style>
 			body, td {
@@ -808,17 +808,17 @@ function template_announce()
 	foreach (Utils::$context['groups'] as $group)
 		echo '
 					<li>
-						<label for="who_', $group['id'], '"><input type="checkbox" name="who[', $group['id'], ']" id="who_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'] ?? Lang::$txt['not_applicable'], ')</em>
+						<label for="who_', $group['id'], '"><input type="checkbox" name="who[', $group['id'], ']" id="who_', $group['id'], '" value="', $group['id'], '" checked> ', $group['name'], '</label> <em>(', $group['member_count'] ?? Lang::getTxt('not_applicable', file: 'General'), ')</em>
 					</li>';
 
 	echo '
 					<li>
-						<label for="checkall"><input type="checkbox" id="checkall" onclick="invertAll(this, this.form);" checked> <em>', Lang::$txt['check_all'], '</em></label>
+						<label for="checkall"><input type="checkbox" id="checkall" onclick="invertAll(this, this.form);" checked> <em>', Lang::getTxt('check_all', file: 'General'), '</em></label>
 					</li>
 				</ul>
 				<hr>
 				<div id="confirm_buttons">
-					<input type="submit" value="', Lang::$txt['post'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('post', file: 'General'), '" class="button">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="topic" value="', Utils::$context['current_topic'], '">
 					<input type="hidden" name="move" value="', Utils::$context['move'], '">
@@ -899,7 +899,7 @@ function template_post_header()
 	if (empty(Utils::$context['posting_fields']['subject']) || !is_array(Utils::$context['posting_fields']['subject']))
 	{
 		Utils::$context['posting_fields']['subject'] = array(
-			'label' => array('html' => '<label for="subject" id="caption_subject">' . Lang::$txt['subject'] . '</label>'),
+			'label' => array('html' => '<label for="subject" id="caption_subject">' . Lang::getTxt('subject', file: 'General') . '</label>'),
 			'input' => array('html' => '<input type="text" id="subject" name="subject" value="' . Utils::$context['subject'] . '" size="80" maxlength="80" required>')
 		);
 	}

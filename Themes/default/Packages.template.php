@@ -526,12 +526,12 @@ function template_list()
 
 	foreach (Utils::$context['files'] as $fileinfo)
 		echo '
-				<li><a href="', Config::$scripturl, '?action=admin;area=packages;sa=examine;package=', Utils::$context['filename'], ';file=', $fileinfo['filename'], '" title="', Lang::$txt['view'], '">', $fileinfo['filename'], '</a> ', Lang::getTxt('package_bytes', $fileinfo, file: 'Packages'), '</li>';
+				<li><a href="', Config::$scripturl, '?action=admin;area=packages;sa=examine;package=', Utils::$context['filename'], ';file=', $fileinfo['filename'], '" title="', Lang::getTxt('view', file: 'General'), '">', $fileinfo['filename'], '</a> ', Lang::getTxt('package_bytes', $fileinfo, file: 'Packages'), '</li>';
 
 	echo '
 			</ol>
 			<br>
-			<a href="', Config::$scripturl, '?action=admin;area=packages" class="button floatnone">', Lang::$txt['back'], '</a>
+			<a href="', Config::$scripturl, '?action=admin;area=packages" class="button floatnone">', Lang::getTxt('back', file: 'General'), '</a>
 		</div>';
 }
 
@@ -677,8 +677,8 @@ function template_browse()
 			aSwapImages: [
 				{
 					sId: \'advanced_panel_toggle\',
-					altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-					altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+					altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+					altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 				}
 			],
 			aSwapLinks: [
@@ -726,14 +726,14 @@ function template_servers()
 						<input type="file" name="package" size="38">
 					</dd>
 				</dl>
-				<input type="submit" value="', Lang::$txt['upload'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('upload', file: 'General'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<a class="download_new_package">
-					<span class="toggle_down floatright" alt="*" title="', Lang::$txt['show'], '"></span>
+					<span class="toggle_down floatright" alt="*" title="', Lang::getTxt('show', file: 'General'), '"></span>
 					', Lang::getTxt('download_new_package', file: 'Packages'), '
 				</a>
 			</h3>
@@ -797,7 +797,7 @@ function template_servers()
 						<li class="flow_auto">
 							<span class="floatleft">' . $server['name'] . '</span>
 							<span class="package_server floatright"><a href="' . Config::$scripturl . '?action=admin;area=packages;get;sa=browse;server=' . $server['id'] . '" class="button">' . Lang::getTxt('package_browse', file: 'Packages') . '</a></span>
-							' . (!str_ends_with((new Url($server['url']))->host, '.simplemachines.org') ? '<span class="package_server floatright"><a href="' . Config::$scripturl . '?action=admin;area=packages;get;sa=remove;server=' . $server['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" class="button">' . Lang::$txt['delete'] . '</a></span>' : '') . '
+							' . (!str_ends_with((new Url($server['url']))->host, '.simplemachines.org') ? '<span class="package_server floatright"><a href="' . Config::$scripturl . '?action=admin;area=packages;get;sa=remove;server=' . $server['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" class="button">' . Lang::getTxt('delete', file: 'General') . '</a></span>' : '') . '
 						</li>';
 	echo '
 					</ul>
@@ -1065,7 +1065,7 @@ function template_downloaded()
 				</li>
 			</ul>
 			<br><br>
-			<p><a href="', Config::$scripturl, '?action=admin;area=packages;get', (isset(Utils::$context['package_server']) ? ';sa=browse;server=' . Utils::$context['package_server'] : ''), '" class="button floatnone">', Lang::$txt['back'], '</a></p>
+			<p><a href="', Config::$scripturl, '?action=admin;area=packages;get', (isset(Utils::$context['package_server']) ? ';sa=browse;server=' . Utils::$context['package_server'] : ''), '" class="button floatnone">', Lang::getTxt('back', file: 'General'), '</a></p>
 		</div>';
 }
 
@@ -1120,7 +1120,7 @@ function template_install_options()
 					</dd>
 				</dl>
 
-				<input type="submit" name="save" value="', Lang::$txt['save'], '" class="button">
+				<input type="submit" name="save" value="', Lang::getTxt('save', file: 'General'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>
 		</div><!-- .windowbg -->';

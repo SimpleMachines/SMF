@@ -1409,7 +1409,7 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingPollOptions(array $row): void
 	{
-		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
+		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::getTxt('guest', file: 'General');
 		$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
 
 		if (empty($row['id_board'])) {
@@ -1548,7 +1548,7 @@ class RepairBoards implements ActionInterface
 			$row['id_board'] = $_SESSION['salvageBoardID'] = $this->salvage_board;
 		}
 
-		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
+		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::getTxt('guest', file: 'General');
 
 		$newMessageID = Db::$db->insert(
 			'',

@@ -309,7 +309,7 @@ class Search implements ActionInterface
 				break;
 			}
 
-			Utils::$context['table_info'][$type] = Lang::getTxt('size_kilobyte', [Utils::$context['table_info'][$type] / 1024]);
+			Utils::$context['table_info'][$type] = Lang::getTxt('size_kilobyte', [Utils::$context['table_info'][$type] / 1024], file: 'General');
 		}
 
 		Utils::$context['custom_index'] = !empty(Config::$modSettings['search_custom_index_config']);
@@ -350,7 +350,7 @@ class Search implements ActionInterface
 				'search_floodcontrol_time',
 				'subtext' => Lang::getTxt('search_floodcontrol_time_desc', file: 'Search'),
 				6,
-				'postinput' => Lang::$txt['seconds'],
+				'postinput' => Lang::getTxt('seconds', file: 'General'),
 			],
 			'',
 
