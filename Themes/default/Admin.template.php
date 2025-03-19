@@ -638,7 +638,7 @@ function template_edit_censored()
 								<hr>
 								<dl class="settings">
 									<dt>
-										<strong><label for="allow_no_censored">', Lang::$txt['allow_no_censored'], '</label></strong>
+										<strong><label for="allow_no_censored">', Lang::getTxt('allow_no_censored', file: 'Themes'), '</label></strong>
 									</dt>
 									<dd>
 										<input type="checkbox" name="allow_no_censored" value="1" id="allow_no_censored"', empty(Config::$modSettings['allow_no_censored']) ? '' : ' checked', '>

@@ -168,20 +168,20 @@ function template_settings()
 	Utils::$context['theme_settings'] = array(
 		array(
 			'id' => 'header_logo_url',
-			'label' => Lang::$txt['header_logo_url'],
-			'description' => Lang::$txt['header_logo_url_desc'],
+			'label' => Lang::getTxt('header_logo_url', file: 'Themes'),
+			'description' => Lang::getTxt('header_logo_url_desc', file: 'Themes'),
 			'type' => 'text',
 		),
 		array(
 			'id' => 'site_slogan',
-			'label' => Lang::$txt['site_slogan'],
-			'description' => Lang::$txt['site_slogan_desc'],
+			'label' => Lang::getTxt('site_slogan', file: 'Themes'),
+			'description' => Lang::getTxt('site_slogan_desc', file: 'Themes'),
 			'type' => 'text',
 		),
 		array(
 			'id' => 'og_image',
-			'label' => Lang::$txt['og_image'],
-			'description' => Lang::$txt['og_image_desc'],
+			'label' => Lang::getTxt('og_image', file: 'Themes'),
+			'description' => Lang::getTxt('og_image_desc', file: 'Themes'),
 			'type' => 'url',
 		),
 		'',
@@ -194,11 +194,11 @@ function template_settings()
 		'',
 		array(
 			'id' => 'enable_news',
-			'label' => Lang::$txt['enable_random_news'],
+			'label' => Lang::getTxt('enable_random_news', file: 'Themes'),
 		),
 		array(
 			'id' => 'show_newsfader',
-			'label' => Lang::$txt['news_fader'],
+			'label' => Lang::getTxt('news_fader', file: 'Themes'),
 		),
 		array(
 			'id' => 'newsfader_time',
@@ -208,29 +208,29 @@ function template_settings()
 		'',
 		array(
 			'id' => 'number_recent_posts',
-			'label' => Lang::$txt['number_recent_posts'],
+			'label' => Lang::getTxt('number_recent_posts', file: 'Themes'),
 			'description' => Lang::getTxt('zero_to_disable', file: 'Admin'),
 			'type' => 'number',
 		),
 		array(
 			'id' => 'show_stats_index',
-			'label' => Lang::$txt['show_stats_index'],
+			'label' => Lang::getTxt('show_stats_index', file: 'Themes'),
 		),
 		array(
 			'id' => 'show_latest_member',
-			'label' => Lang::$txt['latest_members'],
+			'label' => Lang::getTxt('latest_members', file: 'Themes'),
 		),
 		array(
 			'id' => 'show_group_key',
-			'label' => Lang::$txt['show_group_key'],
+			'label' => Lang::getTxt('show_group_key', file: 'Themes'),
 		),
 		array(
 			'id' => 'display_who_viewing',
-			'label' => Lang::$txt['who_display_viewing'],
+			'label' => Lang::getTxt('who_display_viewing', file: 'Themes'),
 			'options' => array(
-				0 => Lang::$txt['who_display_viewing_off'],
-				1 => Lang::$txt['who_display_viewing_numbers'],
-				2 => Lang::$txt['who_display_viewing_names'],
+				0 => Lang::getTxt('who_display_viewing_off', file: 'Themes'),
+				1 => Lang::getTxt('who_display_viewing_numbers', file: 'Themes'),
+				2 => Lang::getTxt('who_display_viewing_names', file: 'Themes'),
 			),
 			'type' => 'list',
 		),

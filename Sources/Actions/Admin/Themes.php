@@ -109,24 +109,24 @@ class Themes implements ActionInterface
 		Lang::load('Drafts');
 
 		// Default the page title to Theme Administration by default.
-		Utils::$context['page_title'] = Lang::$txt['themeadmin_title'];
+		Utils::$context['page_title'] = Lang::getTxt('themeadmin_title', file: 'Themes');
 
 		if (!empty(Utils::$context['admin_menu_name'])) {
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['themeadmin_title'],
-				'description' => Lang::$txt['themeadmin_description'],
+				'title' => Lang::getTxt('themeadmin_title', file: 'Themes'),
+				'description' => Lang::getTxt('themeadmin_description', file: 'Themes'),
 				'tabs' => [
 					'admin' => [
-						'description' => Lang::$txt['themeadmin_admin_desc'],
+						'description' => Lang::getTxt('themeadmin_admin_desc', file: 'Themes'),
 					],
 					'list' => [
-						'description' => Lang::$txt['themeadmin_list_desc'],
+						'description' => Lang::getTxt('themeadmin_list_desc', file: 'Themes'),
 					],
 					'reset' => [
-						'description' => Lang::$txt['themeadmin_reset_desc'],
+						'description' => Lang::getTxt('themeadmin_reset_desc', file: 'Themes'),
 					],
 					'edit' => [
-						'description' => Lang::$txt['themeadmin_edit_desc'],
+						'description' => Lang::getTxt('themeadmin_edit_desc', file: 'Themes'),
 					],
 				],
 			];
@@ -992,7 +992,7 @@ class Themes implements ActionInterface
 			// Everything went better than expected!
 			if (!empty($result)) {
 				Utils::$context['sub_template'] = 'installed';
-				Utils::$context['page_title'] = Lang::$txt['theme_installed'];
+				Utils::$context['page_title'] = Lang::getTxt('theme_installed', file: 'Themes');
 				Utils::$context['installed_theme'] = $result;
 			}
 		}
@@ -1043,7 +1043,7 @@ class Themes implements ActionInterface
 		$currentTheme = $this->getSingleTheme($_GET['th']);
 
 		Utils::$context['theme_id'] = $currentTheme['id'];
-		Utils::$context['browse_title'] = Lang::getTxt('themeadmin_browsing_theme', $currentTheme);
+		Utils::$context['browse_title'] = Lang::getTxt('themeadmin_browsing_theme', $currentTheme, file: 'Themes');
 
 		if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css')) {
 			ErrorHandler::fatalLang('theme_edit_missing', false);

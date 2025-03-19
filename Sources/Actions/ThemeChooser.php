@@ -73,7 +73,7 @@ class ThemeChooser implements ActionInterface, Routable
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=themechooser;u=' . $_REQUEST['u'],
-			'name' => Lang::$txt['theme_pick'],
+			'name' => Lang::getTxt('theme_pick', file: 'Themes'),
 		];
 		Utils::$context['default_theme_id'] = Config::$modSettings['theme_default'];
 		$_SESSION['id_theme'] = 0;
@@ -299,7 +299,7 @@ class ThemeChooser implements ActionInterface, Routable
 					if (!empty(Theme::$current->settings['theme_variants'])) {
 						foreach (Theme::$current->settings['theme_variants'] as $variant) {
 							Utils::$context['available_themes'][$id_theme]['variants'][$variant] = [
-								'label' => Lang::$txt['variant_' . $variant] ?? $variant,
+								'label' => Lang::txtExists('variant_' . $variant) ? Lang::getTxt('variant_' . $variant) : $variant,
 								'thumbnail' => file_exists($theme_data['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? $theme_data['images_url'] . '/thumbnail_' . $variant . '.png' : (file_exists($theme_data['theme_dir'] . '/images/thumbnail.png') ? $theme_data['images_url'] . '/thumbnail.png' : ''),
 							];
 						}
@@ -313,7 +313,7 @@ class ThemeChooser implements ActionInterface, Routable
 						Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Utils::$context['available_themes'][$id_theme]['variants'][Utils::$context['available_themes'][$id_theme]['selected_variant']]['thumbnail'];
 
 						// Allow themes to override the text.
-						Utils::$context['available_themes'][$id_theme]['pick_label'] = Lang::$txt['variant_pick'] ?? Lang::$txt['theme_pick_variant'];
+						Utils::$context['available_themes'][$id_theme]['pick_label'] = Lang::getTxt(Lang::txtExists('variant_pick') ? 'variant_pick' : 'theme_pick_variant', file: 'Themes');
 					}
 				}
 			}
@@ -344,14 +344,14 @@ class ThemeChooser implements ActionInterface, Routable
 			}
 
 			Utils::$context['available_themes'][0]['id'] = 0;
-			Utils::$context['available_themes'][0]['name'] = Lang::$txt['theme_forum_default'];
+			Utils::$context['available_themes'][0]['name'] = Lang::getTxt('theme_forum_default', file: 'Themes');
 			Utils::$context['available_themes'][0]['selected'] = Utils::$context['current_theme'] == 0;
-			Utils::$context['available_themes'][0]['description'] = Lang::$txt['theme_global_description'];
+			Utils::$context['available_themes'][0]['description'] = Lang::getTxt('theme_global_description', file: 'Themes');
 		}
 
 		ksort(Utils::$context['available_themes']);
 
-		Utils::$context['page_title'] = Lang::$txt['theme_pick'];
+		Utils::$context['page_title'] = Lang::getTxt('theme_pick', file: 'Themes');
 		Utils::$context['sub_template'] = 'pick';
 		SecurityToken::create('pick-th');
 	}

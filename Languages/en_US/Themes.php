@@ -48,8 +48,10 @@ $txt['theme_install_invalid_id'] = 'This is not a valid theme ID.';
 $txt['theme_pick'] = 'Choose a theme...';
 $txt['theme_preview'] = 'Preview theme';
 $txt['theme_set'] = 'Use this theme';
-$txt['theme_user'] = 'person is using this theme.';
-$txt['theme_users'] = 'people are using this theme.';
+$txt['theme_num_users'] = '{0, plural,
+	one {# person is using this theme.}
+	other {# people are using this theme.}
+}';
 $txt['theme_pick_variant'] = 'Select Variant';
 
 $txt['theme_edit'] = 'Edit Theme';
