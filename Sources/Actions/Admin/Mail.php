@@ -398,8 +398,10 @@ class Mail implements ActionInterface
 	{
 		Lang::load('EmailTemplates');
 
-		$body = Lang::$txtBirthdayEmails[(empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']) . '_body'];
-		$subject = Lang::$txtBirthdayEmails[(empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']) . '_subject'];
+		$txt_key_prefix = empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email'];
+
+		$body = Lang::getTxt($txt_key_prefix . '_body', var: 'txtBirthdayEmails');
+		$subject = Lang::getTxt($txt_key_prefix . '_subject', var: 'txtBirthdayEmails');
 
 		$emails = [];
 
@@ -419,7 +421,7 @@ class Mail implements ActionInterface
 		foreach ($detected_apis as $class_name => $agent) {
 			$class_name_txt_key = strtolower($agent->getImplementationClassKeyName());
 
-			$apis_names[$class_name] = Lang::$txt[$class_name_txt_key . '_mailagent'] ?? $class_name;
+			$apis_names[$class_name] = Lang::txtExists($class_name_txt_key . '_mailagent', file: 'EmailTemplates') ? Lang::getTxt($class_name_txt_key . '_mailagent', file: 'EmailTemplates') : $class_name;
 		}
 
 		if (empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '') {

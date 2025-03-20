@@ -1060,14 +1060,17 @@ class Mail
 			Lang::load('EmailTemplates', $lang);
 		}
 
-		if (!isset(Lang::$txt[$template . '_subject']) || !isset(Lang::$txt[$template . '_body'])) {
+		if (
+			!Lang::txtExists($template . '_subject', file: 'EmailTemplates', lang: $loadLang ? $lang : '')
+			|| !Lang::txtExists($template . '_body', file: 'EmailTemplates', lang: $loadLang ? $lang : '')
+		) {
 			ErrorHandler::fatalLang('email_no_template', 'template', [$template]);
 		}
 
 		$ret = [
-			'subject' => Lang::$txt[$template . '_subject'],
-			'body' => Lang::$txt[$template . '_body'],
-			'is_html' => !empty(Lang::$txt[$template . '_html']),
+			'subject' => Lang::getTxt($template . '_subject', file: 'EmailTemplates', lang: $loadLang ? $lang : ''),
+			'body' => Lang::getTxt($template . '_body', file: 'EmailTemplates', lang: $loadLang ? $lang : ''),
+			'is_html' => Lang::txtExists($template . '_html', file: 'EmailTemplates', lang: $loadLang ? $lang : ''),
 		];
 
 		// Add in the default replacements.
