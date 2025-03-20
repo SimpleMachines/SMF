@@ -257,12 +257,12 @@ class Find implements ActionInterface
 					if (
 						stripos($term, $search_term) !== false
 						|| (
-							isset(Lang::$txt[$term])
-							&& stripos(Lang::$txt[$term], $search_term) !== false
+							Lang::txtExists($term, file: implode('+', $this->language_files))
+							&& stripos(Lang::getTxt($term, file: implode('+', $this->language_files)), $search_term) !== false
 						)
 						|| (
-							isset(Lang::$txt['setting_' . $term])
-							&& stripos(Lang::$txt['setting_' . $term], $search_term) !== false
+							Lang::txtExists('setting_' . $term, file: implode('+', $this->language_files))
+							&& stripos(Lang::getTxt('setting_' . $term, file: implode('+', $this->language_files)), $search_term) !== false
 						)
 					) {
 						$found = $term;
