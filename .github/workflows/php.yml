@@ -47,8 +47,16 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #4.2.2
 
+    - name: Get PHP version
+      id: php-version
+      run: |
+        php -v
+        PHP_VERSION=$(php -r "echo PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;")
+        echo "version=${PHP_VERSION}" >> $GITHUB_OUTPUT
+
     - name: Setup PHP ${{ matrix.php }}
       uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 #2.32.0
+      if: ${{ matrix.php != steps.php-version.outputs.version }}
       with:
         php-version: ${{ matrix.php }}
         coverage: none
@@ -66,4 +74,11 @@ jobs:
       run: composer install --prefer-dist --no-progress --ansi
 
     - name: Lint PHP files
+      if: ${{ matrix.php == 8 }}
       run: vendor/bin/phplint -w --exclude .git --exclude vendor --ansi .
+
+    - name: Check PHP syntax errors
+      if: ${{ matrix.php != 8 }}
+      uses: overtrue/phplint@9.6.2
+      with:
+        options: --exclude .git --exclude vendor
