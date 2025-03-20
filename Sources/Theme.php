@@ -202,8 +202,8 @@ class Theme
 		$this->loadTemplatesAndLangFiles();
 
 		// Allow overriding the forum's default time/number formats.
-		if (empty(User::$profiles[User::$me->id]['time_format']) && !empty(Lang::$txt['time_format'])) {
-			User::$me->time_format = Lang::$txt['time_format'];
+		if (empty(User::$profiles[User::$me->id]['time_format']) && Lang::txtExists('time_format', file: 'ThemeStrings')) {
+			User::$me->time_format = Lang::getTxt('time_format', file: 'ThemeStrings');
 		}
 
 		// Set the text direction from the language strings.
@@ -215,7 +215,7 @@ class Theme
 		}
 
 		// Make a special URL for the language.
-		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
+		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (Lang::txtExists('image_lang', file: 'ThemeStrings') ? Lang::getTxt('image_lang', file: 'ThemeStrings') : User::$me->language);
 
 		$this->loadCss();
 

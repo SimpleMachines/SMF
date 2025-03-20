@@ -256,10 +256,6 @@ class ThemeChooser implements ActionInterface, Routable
 		$current_images_url = Theme::$current->settings['images_url'];
 		$current_theme_variants = !empty(Theme::$current->settings['theme_variants']) ? Theme::$current->settings['theme_variants'] : [];
 
-		$current_lang_dirs = Lang::$dirs;
-		$current_thumbnail = Lang::$txt['theme_thumbnail_href'];
-		$current_description = Lang::$txt['theme_description'];
-
 		foreach (Utils::$context['available_themes'] as $id_theme => $theme_data) {
 			// Don't try to load the forum or board default theme's data... it doesn't have any!
 			if ($id_theme == 0) {
@@ -272,17 +268,12 @@ class ThemeChooser implements ActionInterface, Routable
 			Lang::addDirs([$theme_data['theme_dir'] . '/languages']);
 			Lang::load('Settings', '', false, true);
 
-			if (empty(Lang::$txt['theme_thumbnail_href'])) {
-				Lang::$txt['theme_thumbnail_href'] = $theme_data['images_url'] . '/thumbnail.png';
-			}
+			Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Lang::formatText(
+				Lang::txtExists('theme_thumbnail_href', file: 'ThemeStrings') ? Lang::getTxt('theme_thumbnail_href', file: 'ThemeStrings') : '{images_url}/thumbnail.png',
+				Theme::$current->settings,
+			);
 
-			if (empty(Lang::$txt['theme_description'])) {
-				Lang::$txt['theme_description'] = '';
-			}
-
-			Utils::$context['available_themes'][$id_theme]['thumbnail_href'] = Lang::getTxt('theme_thumbnail_href', Theme::$current->settings);
-
-			Utils::$context['available_themes'][$id_theme]['description'] = Lang::$txt['theme_description'];
+			Utils::$context['available_themes'][$id_theme]['description'] = Lang::getTxt('theme_description', file: 'ThemeStrings');
 
 			// Are there any variants?
 			Utils::$context['available_themes'][$id_theme]['variants'] = [];
@@ -317,11 +308,6 @@ class ThemeChooser implements ActionInterface, Routable
 					}
 				}
 			}
-
-			// Restore language stuff.
-			Lang::$dirs = $current_lang_dirs;
-			Lang::$txt['theme_thumbnail_href'] = $current_thumbnail;
-			Lang::$txt['theme_description'] = $current_description;
 		}
 
 		Theme::addJavaScriptVar(

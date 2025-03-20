@@ -861,7 +861,7 @@ class Themes implements ActionInterface
 			foreach (Theme::$current->settings['theme_variants'] as $variant) {
 				// Have any text, old chap?
 				Utils::$context['theme_variants'][$variant] = [
-					'label' => Lang::$txt['variant_' . $variant] ?? $variant,
+					'label' => Lang::txtExists('variant_' . $variant, file: 'ThemeStrings') ? Lang::getTxt('variant_' . $variant, file: 'ThemeStrings') : $variant,
 					'thumbnail' => !file_exists(Theme::$current->settings['theme_dir'] . '/images/thumbnail.png') || file_exists(Theme::$current->settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? Theme::$current->settings['images_url'] . '/thumbnail_' . $variant . '.png' : (Theme::$current->settings['images_url'] . '/thumbnail.png'),
 				];
 			}
