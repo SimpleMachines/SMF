@@ -3923,7 +3923,7 @@ function ConvertUtf8(): bool
 
 	// Make sure we move on!
 	if ($command_line) {
-		return DeleteUpgrade();
+		return Cleanup();
 	}
 
 	$_GET['substep'] = 0;
