@@ -92,6 +92,16 @@ foreach (Config::$modSettings as $variable => $value) {
 ---#
 
 /******************************************************************************/
+--- Updating log_errors table
+/******************************************************************************/
+
+---# Fixing the default for the sessions column
+---{
+Db::$db->change_column('{db_prefix}log_errors', 'session', ['default' => '']);
+---}
+---#
+
+/******************************************************************************/
 --- Adding version information to posts, polls, and personal messages
 /******************************************************************************/
 
