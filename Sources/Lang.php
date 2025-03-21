@@ -795,7 +795,11 @@ class Lang
 
 		// If nothing changed, try formatting it as a sprintf string.
 		if ($final === $message) {
-			$final = vsprintf($message, $args);
+			try {
+				$final = vsprintf($message, $args);
+			} catch (\Throwable $e) {
+				$final = $message;
+			}
 		}
 
 		return $final;
