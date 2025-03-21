@@ -287,10 +287,6 @@ class ServerSideIncludes
 
 				if (User::$me->allowedTo('pm_read')) {
 					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages]);
-
-					if (!empty(User::$me->messages)) {
-						echo ', ', Lang::getTxt('msg_alert_new', [User::$me->unread_messages]);
-					}
 				}
 			}
 
