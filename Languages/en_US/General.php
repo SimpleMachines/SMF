@@ -886,21 +886,21 @@ $txt['number_of_users'] = '{0, plural,
 
 $txt['buddy'] = 'Buddy';
 $txt['buddies'] = 'Buddies';
-$txt['buddy_plural'] = '{0, plural, {
+$txt['buddy_plural'] = '{0, plural,
 	one {buddy}
 	other {buddies}
 }';
-$txt['number_of_buddy'] = '{0, plural, {
+$txt['number_of_buddies'] = '{0, plural,
 	one {# buddy}
 	other {# buddies}
 }';
 
 $txt['hidden'] = 'Hidden';
-$txt['hidden_plural'] = '{0, plural, {
+$txt['hidden_plural'] = '{0, plural,
 	one {hidden}
 	other {hidden}
 }';
-$txt['number_of_hidden_members'] = '{0, plural, {
+$txt['number_of_hidden_members'] = '{0, plural,
 	one {# hidden}
 	other {# hidden}
 }';
