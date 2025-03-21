@@ -180,7 +180,7 @@ class ErrorHandler
 		$message = Lang::$txt[$e->getMessage()] ?? $e->getMessage();
 
 		if (!empty(Config::$modSettings['enableErrorLogging'])) {
-			self::log($message, 'general', $e->getFile(), $e->getLine());
+			self::log($message, 'general', $e->getFile(), $e->getLine(), $e->getTrace());
 		}
 
 		self::fatal($message, false);
@@ -200,7 +200,7 @@ class ErrorHandler
 	 * @param int $line The line where the error occurred.
 	 * @return string The message that was logged.
 	 */
-	public static function log(string $error_message, string|bool $error_type = 'general', string $file = '', int $line = 0): string
+	public static function log(string $error_message, string|bool $error_type = 'general', string $file = '', int $line = 0, ?array $backtrace = null): string
 	{
 		static $last_error;
 		static $tried_hook = false;
@@ -210,10 +210,10 @@ class ErrorHandler
 
 		// Collect a backtrace
 		if (!isset(Config::$db_show_debug) || Config::$db_show_debug === false) {
-			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		} else {
 			// This is how to keep the args but skip the objects.
-			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
+			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
 		}
 
 		// Are we in a loop?
