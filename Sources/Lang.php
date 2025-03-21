@@ -208,15 +208,20 @@ class Lang
 	/**
 	 * Load a language file.
 	 *
-	 * Tries the current and default themes as well as the user and global languages.
+	 * Looks for files the Languages directory and the langauges directories of
+	 * the current and default themes. Within each directory, tries both the
+	 * user's preferred language and the forum's default language, and falls
+	 * back to English as a last resort.
 	 *
-	 * @param string $template_name The name of a template file.
+	 * @param string $filename The name of a language file, without the file
+	 *    extension.
 	 * @param string $lang A specific language to load this file from.
 	 * @param bool $fatal Whether to die with an error if it can't be loaded.
-	 * @param bool $force_reload Whether to load the file again if it's already loaded.
+	 * @param bool $force_reload Whether to load the file again if it's already
+	 *    loaded.
 	 * @return string The language actually loaded.
 	 */
-	public static function load(string $template_name, string $lang = '', bool $fatal = true, bool $force_reload = false): string
+	public static function load(string $filename, string $lang = '', bool $fatal = true, bool $force_reload = false): string
 	{
 		if (!isset(self::$default)) {
 			self::$default = &Config::$language;
@@ -232,28 +237,28 @@ class Lang
 		}
 
 		// For each file open it up and write it out!
-		foreach (explode('+', $template_name) as $template) {
+		foreach (explode('+', $filename) as $file) {
 			// Did we call the old index language file? Redirect.
-			if ($template === 'index') {
-				$template = 'General';
+			if ($file === 'index') {
+				$file = 'General';
 			}
 
 			// Don't repeat this unnecessarily.
-			if (!$force_reload && isset(self::$already_loaded[$template]) && self::$already_loaded[$template] == $lang) {
+			if (!$force_reload && isset(self::$already_loaded[$file]) && self::$already_loaded[$file] == $lang) {
 				continue;
 			}
 
 			$attempts = [];
 
 			foreach (self::$dirs as $dir) {
-				$attempts[] = [$dir, $template, $lang];
-				$attempts[] = [$dir, $template, self::$default];
+				$attempts[] = [$dir, $file, $lang];
+				$attempts[] = [$dir, $file, self::$default];
 			}
 
 			// Fall back to English if none of the preferred languages can be found.
 			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en_US', [$lang, self::$default])) {
 				foreach (self::$dirs as $dir) {
-					$attempts[] = [$dir, $template, 'en_US'];
+					$attempts[] = [$dir, $file, 'en_US'];
 				}
 			}
 
@@ -318,19 +323,18 @@ class Lang
 				}
 			}
 
-			// Legacy language calls.
 			/*
 			 * Legacy language calls.
 			 * Under normal conditions, we stop once we find it through the locale lookup.
 			 * Modifications is a special case in which we allow it to be checked everywhere.
 			 */
-			if ((!$found || str_contains($template_name, 'Modifications') || str_contains($template_name, 'ThemeStrings')) && Config::$backward_compatibility) {
+			if ((!$found || str_contains($filename, 'Modifications') || str_contains($filename, 'ThemeStrings')) && Config::$backward_compatibility) {
 				$found = self::loadOld($attempts) || $found;
 			}
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
 			if (!$found && $fatal) {
-				ErrorHandler::log(self::formatText(self::$txt['theme_language_error'] ?? 'Unable to load the {filename} language file.', ['filename' => $lang . '/' . $template_name]), 'template');
+				ErrorHandler::log(self::formatText(self::$txt['theme_language_error'] ?? 'Unable to load the {filename} language file.', ['filename' => $lang . '/' . $filename]), 'template');
 				break;
 			}
 
@@ -363,7 +367,7 @@ class Lang
 			}
 
 			// Remember what we have loaded, and in which language.
-			self::$already_loaded[$template] = $lang;
+			self::$already_loaded[$file] = $lang;
 		}
 
 		// Return the language actually loaded.
