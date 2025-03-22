@@ -432,7 +432,7 @@ class ItemList implements \ArrayAccess
 						}
 					}
 
-					$cur_data['value'] = $call($data[$format]['format'], $params);
+					$cur_data['value'] = $call($data[$format]['format'], (array) $params);
 				}
 				// The most flexible way probably is applying a custom function.
 				elseif (isset($data['function'])) {
