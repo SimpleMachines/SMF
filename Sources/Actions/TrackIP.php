@@ -76,7 +76,6 @@ class TrackIP implements ActionInterface, Routable
 
 		if ($this->standalone) {
 			Theme::loadTemplate('Profile');
-			Lang::load('Profile');
 			Utils::$context['base_url'] = Config::$scripturl . '?action=trackip';
 
 			Utils::$context['ip'] = IP::ip2range(User::$me->ip);

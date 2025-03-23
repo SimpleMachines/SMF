@@ -58,7 +58,6 @@ class FetchSMFiles extends ScheduledTask
 
 		// Just in case we run into a problem.
 		Theme::loadEssential();
-		Lang::load('Errors', Lang::$default, false);
 
 		foreach ($js_files as $id_file => $file) {
 			// Create the url

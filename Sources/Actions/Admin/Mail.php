@@ -91,9 +91,6 @@ class Mail implements ActionInterface
 		// You need to be an admin to edit settings!
 		User::$me->isAllowedTo('admin_forum');
 
-		Lang::load('Help');
-		Lang::load('ManageMail');
-
 		Utils::$context['page_title'] = Lang::getTxt('mailqueue_title', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
@@ -362,7 +359,6 @@ class Mail implements ActionInterface
 	 */
 	public function test(): void
 	{
-		Lang::load('ManageMail');
 		Theme::loadTemplate('ManageMail');
 		Utils::$context['sub_template'] = 'mailtest';
 		Utils::$context['base_url'] = Config::$scripturl . '?action=admin;area=mailqueue;sa=test';
@@ -396,8 +392,6 @@ class Mail implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		Lang::load('EmailTemplates');
-
 		$txt_key_prefix = empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email'];
 
 		$body = Lang::getTxt($txt_key_prefix . '_body', var: 'txtBirthdayEmails');

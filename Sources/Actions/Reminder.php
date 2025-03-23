@@ -92,7 +92,6 @@ class Reminder implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Profile');
 		Theme::loadTemplate('Reminder');
 
 		Utils::$context['page_title'] = Lang::getTxt('authentication_reminder', file: 'Profile');
@@ -194,8 +193,6 @@ class Reminder implements ActionInterface, Routable
 	 */
 	public function setPassword(): void
 	{
-		Lang::load('Login');
-
 		// You need a code!
 		if (!isset($_REQUEST['code'])) {
 			ErrorHandler::fatalLang('no_access', false);
@@ -236,8 +233,6 @@ class Reminder implements ActionInterface, Routable
 		if ($_POST['passwrd1'] == '') {
 			ErrorHandler::fatalLang('no_password', false);
 		}
-
-		Lang::load('Login');
 
 		$this->loadMember();
 
@@ -289,9 +284,6 @@ class Reminder implements ActionInterface, Routable
 	{
 		User::$me->checkSession();
 
-		// Strings for the register auto javascript clever stuffy wuffy.
-		Lang::load('Login');
-
 		// This should never happen, but just in case...
 		if (!isset($this->member)) {
 			$this->loadMember();
@@ -324,8 +316,6 @@ class Reminder implements ActionInterface, Routable
 		if (empty($_REQUEST['uid'])) {
 			ErrorHandler::fatalLang('username_no_exist', false);
 		}
-
-		Lang::load('Login');
 
 		$this->loadMember();
 

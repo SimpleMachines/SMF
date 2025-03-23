@@ -40,8 +40,6 @@ require_once __DIR__ . '/SSI.php';
 // Ensure we don't trip over disabled internal functions
 require_once Config::$sourcedir . '/Subs-Compat.php';
 
-Lang::load('ManagePaid');
-
 // If there's literally nothing coming in, let's take flight!
 if (empty($_POST)) {
 	header('content-type: text/html; charset=UTF-8');

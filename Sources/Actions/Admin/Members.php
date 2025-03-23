@@ -141,7 +141,6 @@ class Members implements ActionInterface
 	public function execute(): void
 	{
 		// Load the essentials.
-		Lang::load('ManageMembers');
 		Theme::loadTemplate('ManageMembers');
 
 		// Fetch our activation counts.

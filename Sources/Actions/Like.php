@@ -710,7 +710,6 @@ class Like implements ActionInterface, Routable
 
 		// Lastly, setting up for display.
 		Theme::loadTemplate('Likes');
-		Lang::load('Help'); // For the close window button.
 		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'popup';
 

@@ -1117,8 +1117,6 @@ class User implements \ArrayAccess
 	{
 		static $loadedLanguages = [];
 
-		Lang::load('General+Modifications+ThemeStrings');
-
 		if (empty(Config::$modSettings['displayFields'])) {
 			$display_custom_fields = false;
 		}
@@ -1650,7 +1648,6 @@ class User implements \ArrayAccess
 
 		// Load the Login template and language file.
 		Theme::loadTemplate('Login');
-		Lang::load('Login');
 
 		// Create a login token.
 		SecurityToken::create('login');

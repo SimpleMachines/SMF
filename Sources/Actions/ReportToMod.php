@@ -230,7 +230,6 @@ class ReportToMod implements ActionInterface, Routable
 		);
 
 		// Show the inputs for the comment, etc.
-		Lang::load('Post');
 		Theme::loadTemplate('ReportToMod');
 
 		Theme::addInlineJavaScript('

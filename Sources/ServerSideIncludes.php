@@ -2048,8 +2048,6 @@ class ServerSideIncludes
 			return $return;
 		}
 
-		Lang::load('Calendar');
-
 		if (!empty($return['calendar_holidays'])) {
 			echo '
 				<span class="holiday">' . Lang::getTxt('calendar_prompt', file: 'Calendar') . ' ' . implode(', ', (array) $return['calendar_holidays']) . '<br></span>';
@@ -2101,8 +2099,6 @@ class ServerSideIncludes
 		if (!self::$setup_done) {
 			new self();
 		}
-
-		Lang::load('Stats');
 
 		// Must be integers....
 		if ($limit === null) {
@@ -2463,8 +2459,6 @@ class ServerSideIncludes
 		if ($output_method != 'echo' || empty($return)) {
 			return $return;
 		}
-
-		Lang::load('Calendar');
 
 		// Well the output method is echo.
 		echo '

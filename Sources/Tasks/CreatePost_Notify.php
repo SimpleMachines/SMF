@@ -563,8 +563,6 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
-			Lang::load('General+Modifications+ThemeStrings', $member_data['lngfile'], false);
-
 			$localization = implode('|', [$member_data['lngfile'], $member_data['time_offset'], $member_data['time_format']]);
 
 			if (empty($parsed_message[$localization])) {

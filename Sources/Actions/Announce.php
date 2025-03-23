@@ -86,7 +86,6 @@ class Announce implements ActionInterface, Routable
 			ErrorHandler::fatalLang('topic_gone', false);
 		}
 
-		Lang::load('Post');
 		Theme::loadTemplate('Post');
 
 		Utils::$context['page_title'] = Lang::getTxt('announce_topic', file: 'Post');
@@ -282,11 +281,6 @@ class Announce implements ActionInterface, Routable
 		Utils::$context['go_back'] = empty($_REQUEST['goback']) ? 0 : 1;
 		Utils::$context['membergroups'] = implode(',', $_POST['who']);
 		Utils::$context['sub_template'] = 'announcement_send';
-
-		// Go back to the correct language for the user ;).
-		if (!empty(Config::$modSettings['userLanguage'])) {
-			Lang::load('Post');
-		}
 	}
 
 	/******************

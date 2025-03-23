@@ -82,7 +82,6 @@ class Languages implements ActionInterface
 	public function execute(): void
 	{
 		Theme::loadTemplate('ManageLanguages');
-		Lang::load('ManageSettings');
 
 		Utils::$context['page_title'] = Lang::getTxt('edit_languages', file: 'ManageSettings');
 		Utils::$context['sub_template'] = 'show_settings';
@@ -182,8 +181,6 @@ class Languages implements ActionInterface
 	 */
 	public function download(): void
 	{
-		Lang::load('ManageSettings');
-
 		// Clearly we need to know what to request.
 		if (!isset($_GET['did'])) {
 			ErrorHandler::fatalLang('no_access', false);
@@ -378,11 +375,6 @@ class Languages implements ActionInterface
 						Utils::$context['files'][$type][$k]['writable'] = true;
 					}
 				}
-			}
-
-			// Are we going to need more language stuff?
-			if (!empty(Utils::$context['still_not_writable'])) {
-				Lang::load('Packages');
 			}
 		}
 
@@ -667,8 +659,6 @@ class Languages implements ActionInterface
 	 */
 	public function editEntries()
 	{
-		Lang::load('ManageSettings');
-
 		// Select the languages tab.
 		Menu::$loaded['admin']['current_subsection'] = 'edit';
 		Utils::$context['page_title'] = Lang::getTxt('edit_languages', file: 'ManageSettings');

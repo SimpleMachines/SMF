@@ -153,9 +153,6 @@ class AttachmentUpload implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		// Need this. For reasons...
-		Lang::load('Post');
-
 		$this->_sa = !empty($_REQUEST['sa']) ? Utils::htmlspecialchars(Utils::htmlTrim($_REQUEST['sa'])) : false;
 
 		if ($this->_canPostAttachment && $this->_sa && in_array($this->_sa, $this->_subActions)) {

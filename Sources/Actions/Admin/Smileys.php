@@ -168,7 +168,6 @@ class Smileys implements ActionInterface
 	{
 		User::$me->isAllowedTo('manage_smileys');
 
-		Lang::load('ManageSmileys');
 		Theme::loadTemplate('ManageSmileys');
 
 		// Load up all the tabs...
@@ -1551,10 +1550,6 @@ class Smileys implements ActionInterface
 	{
 		User::$me->isAllowedTo('manage_smileys');
 		User::$me->checkSession('request');
-
-		// One of these two may be necessary
-		Lang::load('Errors');
-		Lang::load('Packages');
 
 		// Installing unless proven otherwise
 		$testing = false;

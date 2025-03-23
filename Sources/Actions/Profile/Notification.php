@@ -564,8 +564,6 @@ class Notification implements ActionInterface
 		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'alerts_all_read';
 
-		Lang::load('Alerts');
-
 		// Now we're all set up.
 		User::$me->kickIfGuest();
 

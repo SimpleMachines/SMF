@@ -45,7 +45,6 @@ class PaidSubs implements ActionInterface
 	{
 		// Load the paid template anyway.
 		Theme::loadTemplate('ManagePaid');
-		Lang::load('ManagePaid');
 
 		// Load all of the subscriptions.
 		Subscriptions::getSubs();

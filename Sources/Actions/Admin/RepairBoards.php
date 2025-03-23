@@ -786,9 +786,6 @@ class RepairBoards implements ActionInterface
 		Utils::$context['sub_template'] = 'repair_boards';
 		Menu::$loaded['admin']['current_subsection'] = 'general';
 
-		// Load the language file.
-		Lang::load('ManageMaintenance');
-
 		// Make sure the tabs stay nice.
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::getTxt('maintain_title', file: 'Admin'),
@@ -1201,9 +1198,6 @@ class RepairBoards implements ActionInterface
 
 		$this->salvage_created = true;
 
-		// Back to the forum's default language.
-		Lang::load('Admin', Lang::$default);
-
 		// Check to see if a 'Salvage Category' exists, if not => insert one.
 		$result = Db::$db->query(
 			'',
@@ -1212,7 +1206,7 @@ class RepairBoards implements ActionInterface
 			WHERE name = {string:cat_name}
 			LIMIT 1',
 			[
-				'cat_name' => Lang::getTxt('salvaged_category_name', file: 'ManageMaintenance'),
+				'cat_name' => Lang::getTxt('salvaged_category_name', file: 'ManageMaintenance', lang: Lang::$default),
 			],
 		);
 
@@ -1232,9 +1226,9 @@ class RepairBoards implements ActionInterface
 				],
 				[
 					[
-						Lang::getTxt('salvaged_category_name', file: 'ManageMaintenance'),
+						Lang::getTxt('salvaged_category_name', file: 'ManageMaintenance', lang: Lang::$default),
 						-1,
-						Lang::getTxt('salvaged_category_description', file: 'ManageMaintenance'),
+						Lang::getTxt('salvaged_category_description', file: 'ManageMaintenance', lang: Lang::$default),
 					],
 				],
 				['id_cat'],
@@ -1242,7 +1236,6 @@ class RepairBoards implements ActionInterface
 			);
 
 			if (Db::$db->affected_rows() <= 0) {
-				Lang::load('Admin');
 				ErrorHandler::fatalLang('salvaged_category_error', false);
 			}
 		}
@@ -1257,7 +1250,7 @@ class RepairBoards implements ActionInterface
 			LIMIT 1',
 			[
 				'id_cat' => $this->salvage_category,
-				'board_name' => Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance'),
+				'board_name' => Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance', lang: Lang::$default),
 			],
 		);
 
@@ -1280,8 +1273,8 @@ class RepairBoards implements ActionInterface
 				],
 				[
 					[
-						Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance'),
-						Lang::getTxt('salvaged_board_description', file: 'ManageMaintenance'),
+						Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance', lang: Lang::$default),
+						Lang::getTxt('salvaged_board_description', file: 'ManageMaintenance', lang: Lang::$default),
 						$this->salvage_category,
 						'1',
 						-1,
@@ -1293,13 +1286,9 @@ class RepairBoards implements ActionInterface
 			);
 
 			if (Db::$db->affected_rows() <= 0) {
-				Lang::load('Admin');
 				ErrorHandler::fatalLang('salvaged_board_error', false);
 			}
 		}
-
-		// Restore the user's language.
-		Lang::load('Admin');
 	}
 
 	/**

@@ -92,8 +92,6 @@ class Groups extends ViewGroups
 		$this->action_url = '?action=moderate;area=' . $_GET['area'];
 
 		// Get the template stuff up and running.
-		Lang::load('ManageMembers');
-		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ManageMembergroups');
 
 		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);

@@ -57,8 +57,6 @@ class QuoteFast implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Post');
-
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Post');
 		}

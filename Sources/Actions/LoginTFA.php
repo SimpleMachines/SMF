@@ -44,8 +44,6 @@ class LoginTFA extends Login2
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		Lang::load('Profile');
-
 		$member = Utils::$context['tfa_member'];
 
 		// Prevent replay attacks by limiting at least 2 minutes before they can log in again via 2FA

@@ -276,8 +276,6 @@ class Editor implements \ArrayAccess
 	public static function getMessageIcons(int $board_id): array
 	{
 		if (empty(Config::$modSettings['messageIcons_enable'])) {
-			Lang::load('Post');
-
 			$icons = [
 				[
 					'value' => 'xx',
@@ -391,10 +389,6 @@ class Editor implements \ArrayAccess
 		if (!empty(self::$loaded)) {
 			return;
 		}
-
-		Lang::load('Post');
-		Lang::load('Editor');
-		Lang::load('Drafts');
 
 		// Some general stuff.
 		Theme::$current->settings['smileys_url'] = Config::$modSettings['smileys_url'] . '/' . User::$me->smiley_set;

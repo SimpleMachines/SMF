@@ -86,9 +86,6 @@ class Calendar implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Everything's gonna need this.
-		Lang::load('Calendar+ManageCalendar');
-
 		// Set up the two tabs here...
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::getTxt('manage_calendar', file: 'Admin'),

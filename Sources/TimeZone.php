@@ -1812,9 +1812,6 @@ class TimeZone extends \DateTimeZone
 			return self::$timezones_when[$when];
 		}
 
-		// Load up any custom time zone descriptions we might have
-		Lang::load('Timezones');
-
 		self::buildMetaZoneTransitions($when);
 
 		// Should we put time zones from certain countries at the top of the list?

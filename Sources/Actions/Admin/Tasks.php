@@ -80,7 +80,6 @@ class Tasks implements ActionInterface
 	{
 		User::$me->isAllowedTo('admin_forum');
 
-		Lang::load('ManageScheduledTasks');
 		Theme::loadTemplate('ManageScheduledTasks');
 
 		// Tab data might already be set if this was called from Logs::execute().
@@ -405,9 +404,6 @@ class Tasks implements ActionInterface
 	 */
 	public function log(): void
 	{
-		// Lets load the language just incase we are outside the Scheduled area.
-		Lang::load('ManageScheduledTasks');
-
 		// Empty the log?
 		if (!empty($_POST['removeAll'])) {
 			User::$me->checkSession();
@@ -551,8 +547,6 @@ class Tasks implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		Lang::load('Help+ManageScheduledTasks');
-
 		$config_vars = [
 			[
 				'check',

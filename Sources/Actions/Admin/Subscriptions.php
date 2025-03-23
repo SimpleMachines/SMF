@@ -95,8 +95,6 @@ class Subscriptions implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Load the required language and template.
-		Lang::load('ManagePaid');
 		Theme::loadTemplate('ManagePaid');
 
 		Utils::$context['page_title'] = Lang::getTxt('paid_subscriptions', file: 'Admin');
@@ -1487,9 +1485,6 @@ class Subscriptions implements ActionInterface
 		if (!empty(self::$all)) {
 			return self::$all;
 		}
-
-		// Make sure this is loaded, just in case.
-		Lang::load('ManagePaid');
 
 		$request = Db::$db->query(
 			'',

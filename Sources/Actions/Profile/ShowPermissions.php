@@ -44,8 +44,6 @@ class ShowPermissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Lang::load('ManagePermissions');
-		Lang::load('Admin');
 		Theme::loadTemplate('ManageMembers');
 
 		// Verify if the user has sufficient permissions.

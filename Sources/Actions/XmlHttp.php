@@ -233,8 +233,6 @@ class XmlHttp implements ActionInterface, Routable
 	{
 		require_once Config::$sourcedir . '/Profile-Modify.php';
 
-		Lang::load('Profile');
-
 		$user = isset($_POST['user']) ? (int) $_POST['user'] : 0;
 		$is_owner = $user == User::$me->id;
 
@@ -345,8 +343,6 @@ class XmlHttp implements ActionInterface, Routable
 	 */
 	public function warning_preview(): void
 	{
-		Lang::load('ModerationCenter');
-
 		Utils::$context['post_error']['messages'] = [];
 
 		if (User::$me->allowedTo('issue_warning')) {

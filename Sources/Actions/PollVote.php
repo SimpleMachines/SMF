@@ -21,7 +21,6 @@ use SMF\ActionTrait;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
-use SMF\Lang;
 use SMF\Poll;
 use SMF\Routable;
 use SMF\Topic;
@@ -55,8 +54,6 @@ class PollVote implements ActionInterface, Routable
 	{
 		// Make sure they can vote.
 		User::$me->isAllowedTo('poll_vote');
-
-		Lang::load('Post');
 
 		$poll = Poll::load(Topic::$topic_id, Poll::LOAD_BY_TOPIC);
 

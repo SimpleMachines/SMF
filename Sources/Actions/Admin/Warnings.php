@@ -142,9 +142,6 @@ class Warnings implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		Lang::load('Help');
-		Lang::load('ManageSettings');
-
 		// We need the existing ones for this
 		list($currently_enabled, Config::$modSettings['user_limit'], Config::$modSettings['warning_decrement']) = explode(',', Config::$modSettings['warning_settings']);
 

@@ -357,8 +357,6 @@ class Draft
 			return false;
 		}
 
-		Lang::load('Drafts');
-
 		Utils::$context['drafts'] = [];
 
 		// Load the drafts this user has available.
@@ -408,8 +406,6 @@ class Draft
 	 */
 	public static function showInProfile(int $memID): void
 	{
-		Lang::load('Drafts');
-
 		// Some initial context.
 		Utils::$context['start'] = (int) ($_REQUEST['start'] ?? 0);
 		Utils::$context['current_member'] = $memID;
@@ -821,8 +817,6 @@ class Draft
 	 */
 	protected static function xml(int $id_draft): void
 	{
-		Lang::load('Drafts');
-
 		header('content-type: text/xml; charset=UTF-8');
 
 		echo '<' . '?xml version="1.0" encoding="UTF-8"?' . '>

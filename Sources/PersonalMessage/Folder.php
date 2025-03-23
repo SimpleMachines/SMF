@@ -113,8 +113,6 @@ class Folder
 	 */
 	public function __construct(bool $is_inbox = true)
 	{
-		Lang::load('PersonalMessage');
-
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('PersonalMessage');
 		}

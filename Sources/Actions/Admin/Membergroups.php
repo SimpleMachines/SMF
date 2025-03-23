@@ -84,7 +84,6 @@ class Membergroups implements ActionInterface
 	public function execute(): void
 	{
 		// Language and template stuff, the usual.
-		Lang::load('ManageMembers');
 		Theme::loadTemplate('ManageMembergroups');
 
 		// Setup the admin tabs.
@@ -567,10 +566,6 @@ class Membergroups implements ActionInterface
 		Utils::$context['undefined_group'] = !isset($_REQUEST['postgroup']) && !isset($_REQUEST['generalgroup']);
 		Utils::$context['allow_protected'] = User::$me->allowedTo('admin_forum');
 
-		if (!empty(Config::$modSettings['deny_boards_access'])) {
-			Lang::load('ManagePermissions');
-		}
-
 		// Load all the relevant member groups. Start with a clean slate.
 		Group::$loaded = [];
 
@@ -645,10 +640,6 @@ class Membergroups implements ActionInterface
 	public function edit(): void
 	{
 		$_REQUEST['group'] = isset($_REQUEST['group']) && $_REQUEST['group'] > 0 ? (int) $_REQUEST['group'] : 0;
-
-		if (!empty(Config::$modSettings['deny_boards_access'])) {
-			Lang::load('ManagePermissions');
-		}
 
 		if (empty($_REQUEST['group'])) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);

@@ -108,7 +108,6 @@ class ErrorLog implements ActionInterface
 	public function execute(): void
 	{
 		// Templates, etc...
-		Lang::load('ManageMaintenance');
 		Theme::loadTemplate('Errors');
 
 		foreach ($this->filters as &$filter) {
@@ -492,7 +491,6 @@ class ErrorLog implements ActionInterface
 
 		Theme::loadCSSFile('admin.css', [], 'smf_admin');
 		Theme::loadTemplate('Errors');
-		Lang::load('ManageMaintenance');
 		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'show_backtrace';
 	}

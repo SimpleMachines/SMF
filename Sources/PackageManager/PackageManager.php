@@ -132,7 +132,6 @@ class PackageManager
 	public function execute(): void
 	{
 		// Load all the basic stuff.
-		Lang::load('Packages');
 		Theme::loadTemplate('Packages', 'admin');
 
 		Utils::$context['page_title'] = Lang::getTxt('package', file: 'General');

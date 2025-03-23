@@ -291,7 +291,6 @@ class PersonalMessage implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('PersonalMessage+Drafts');
 		Theme::loadTemplate(isset($_REQUEST['xml']) ? 'Xml' : 'PersonalMessage');
 
 		$this->buildLimitBar();
@@ -666,8 +665,6 @@ class PersonalMessage implements ActionInterface, Routable
 				$cur_language = empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile'];
 
 				if (!isset($messagesToSend[$cur_language])) {
-					Lang::load('PersonalMessage', $cur_language, false);
-
 					// Make the body.
 					$report_body = Lang::getTxt(
 						'pm_report_pm_user_sent',
@@ -676,19 +673,27 @@ class PersonalMessage implements ActionInterface, Routable
 							'SENDER' => $memberFromName,
 						],
 						file: 'PersonalMessage',
+						lang: $cur_language,
 					);
 
 					$report_body .= "\n" . '[b]' . $_POST['reason'] . '[/b]' . "\n\n";
 
 					if (!empty($recipients)) {
-						$report_body .= Lang::getTxt('pm_report_pm_other_recipients', ['recipients' => Lang::sentenceList($recipients)]) . "\n\n";
+						$report_body .= Lang::getTxt(
+							'pm_report_pm_other_recipients',
+							[
+								'recipients' => Lang::sentenceList($recipients),
+							],
+							file: 'PersonalMessage',
+							lang: $cur_language,
+						) . "\n\n";
 					}
 
-					$report_body .= Lang::getTxt('pm_report_pm_unedited_below', file: 'PersonalMessage') . "\n" . '[quote author=' . (empty($pm->member_from) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $pm->member_from . ' date=' . $pm->msgtime) . ']' . "\n" . Utils::htmlspecialcharsDecode($body) . '[/quote]';
+					$report_body .= Lang::getTxt('pm_report_pm_unedited_below', file: 'PersonalMessage', lang: $cur_language) . "\n" . '[quote author=' . (empty($pm->member_from) ? '"' . $memberFromName . '"' : $memberFromName . ' link=action=profile;u=' . $pm->member_from . ' date=' . $pm->msgtime) . ']' . "\n" . Utils::htmlspecialcharsDecode($body) . '[/quote]';
 
 					// Plonk it in the array ;)
 					$messagesToSend[$cur_language] = [
-						'subject' => (Utils::entityStrpos($pm->subject, Lang::getTxt('pm_report_pm_subject', file: 'PersonalMessage')) === false ? Lang::getTxt('pm_report_pm_subject', file: 'PersonalMessage') : '') . Utils::htmlspecialcharsDecode($pm->subject),
+						'subject' => (Utils::entityStrpos($pm->subject, Lang::getTxt('pm_report_pm_subject', file: 'PersonalMessage', lang: $cur_language)) === false ? Lang::getTxt('pm_report_pm_subject', file: 'PersonalMessage', lang: $cur_language) : '') . Utils::htmlspecialcharsDecode($pm->subject),
 						'body' => $report_body,
 						'recipients' => [
 							'to' => [],
@@ -705,11 +710,6 @@ class PersonalMessage implements ActionInterface, Routable
 			// Send a different email for each language.
 			foreach ($messagesToSend as $lang => $message) {
 				PM::send($message['recipients'], $message['subject'], $message['body']);
-			}
-
-			// Give the user their own language back!
-			if (!empty(Config::$modSettings['userLanguage'])) {
-				Lang::load('PersonalMessage', '', false);
 			}
 
 			// Leave them with a template.
@@ -748,7 +748,6 @@ class PersonalMessage implements ActionInterface, Routable
 
 		Profile::load(User::$me->id);
 
-		Lang::load('Profile');
 		Theme::loadTemplate('Profile');
 
 		// Since this is internally handled with the profile code because that's how

@@ -106,8 +106,6 @@ class DraftPM extends Draft
 			return false;
 		}
 
-		Lang::load('Drafts');
-
 		Utils::$context['drafts'] = [];
 
 		// Load the drafts this user has available.
@@ -189,8 +187,6 @@ class DraftPM extends Draft
 			$id_draft = (int) $_REQUEST['id_draft'];
 			Utils::redirectexit('action=pm;sa=send;id_draft=' . $id_draft);
 		}
-
-		Lang::load('Drafts');
 
 		// Default to 10.
 		if (empty($_REQUEST['viewscount']) || !is_numeric($_REQUEST['viewscount'])) {

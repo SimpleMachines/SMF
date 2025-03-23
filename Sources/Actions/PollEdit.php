@@ -60,7 +60,6 @@ class PollEdit implements ActionInterface, Routable
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		Lang::load('Post');
 		Theme::loadTemplate('Poll');
 
 		Utils::$context['start'] = (int) $_REQUEST['start'];

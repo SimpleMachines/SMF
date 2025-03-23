@@ -444,8 +444,6 @@ class Register2 extends Register
 	 */
 	public static function registerMember(array &$reg_options, bool $return_errors = false): int|array
 	{
-		Lang::load('Login');
-
 		// Put any errors in here.
 		$reg_errors = [];
 
@@ -512,8 +510,6 @@ class Register2 extends Register
 
 			// Password isn't legal?
 			if ($password_error != null) {
-				Lang::load('Errors');
-
 				if (Lang::txtExists('profile_error_password_' . $password_error, file: 'Errors')) {
 					$error_code = ['lang', 'profile_error_password_' . $password_error, false];
 				} else {

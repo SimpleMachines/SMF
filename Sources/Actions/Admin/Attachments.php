@@ -598,8 +598,6 @@ class Attachments implements ActionInterface
 
 				// And change the message to reflect this.
 				if (!empty($messages)) {
-					Lang::load('General', Lang::$default, true);
-
 					Db::$db->query(
 						'',
 						'UPDATE {db_prefix}messages
@@ -607,11 +605,9 @@ class Attachments implements ActionInterface
 						WHERE id_msg IN ({array_int:messages_affected})',
 						[
 							'messages_affected' => $messages,
-							'deleted_message' => '<br><br>' . Lang::getTxt('attachment_delete_admin', file: 'Admin'),
+							'deleted_message' => '<br><br>' . Lang::getTxt('attachment_delete_admin', file: 'Admin', lang: Lang::$default),
 						],
 					);
-
-					Lang::load('General', User::$me->language, true);
 				}
 			}
 		}

@@ -571,11 +571,6 @@ class Main implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		// Don't reload this as we may have processed error strings.
-		if (empty(Profile::$member->save_errors)) {
-			Lang::load('Profile+Drafts');
-		}
-
 		Theme::loadTemplate('Profile');
 
 		// No profile can be found.

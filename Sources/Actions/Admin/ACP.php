@@ -804,8 +804,6 @@ class ACP implements ActionInterface, Routable
 	 */
 	public static function prepareDBSettingContext(array &$config_vars): void
 	{
-		Lang::load('Help');
-
 		if (isset($_SESSION['adm-save'])) {
 			if ($_SESSION['adm-save'] === true) {
 				Utils::$context['saved_successful'] = true;
@@ -1029,7 +1027,7 @@ class ACP implements ActionInterface, Routable
 
 					Utils::$context['bbc_sections'][$bbcSection]['columns'][$col][] = [
 						'tag' => $tag,
-						'show_help' => isset(Lang::$helptxt['tag_' . $tag]),
+						'show_help' => Lang::txtExists('tag_' . $tag, var: 'helptxt'),
 					];
 
 					$i++;
@@ -1396,9 +1394,6 @@ class ACP implements ActionInterface, Routable
 	 */
 	public static function getServerVersions(array $checkFor): array
 	{
-		Lang::load('Admin');
-		Lang::load('ManageSettings');
-
 		$versions = [];
 
 		// Is GD available?  If it is, we should show version information for it too.
@@ -1793,7 +1788,6 @@ class ACP implements ActionInterface, Routable
 	 */
 	public static function adminLogin(string $type = 'admin'): void
 	{
-		Lang::load('Admin');
 		Theme::loadTemplate('Login');
 
 		// Validate what type of session check this is.
@@ -1856,7 +1850,6 @@ class ACP implements ActionInterface, Routable
 	protected function init()
 	{
 		// Load the language and templates....
-		Lang::load('Admin');
 		Theme::loadTemplate('Admin');
 		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
 		Theme::loadCSSFile('admin.css', [], 'smf_admin');

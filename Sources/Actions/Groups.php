@@ -93,8 +93,6 @@ class Groups implements ActionInterface, Routable
 		User::$me->isAllowedTo('view_mlist');
 
 		// Get the template stuff up and running.
-		Lang::load('ManageMembers');
-		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ManageMembergroups');
 
 		Utils::$context['linktree'][] = [

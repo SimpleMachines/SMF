@@ -789,8 +789,6 @@ class Profile extends User implements \ArrayAccess
 						}
 						// No images at all? That's no good. Let the admin know, and quietly skip for this user.
 						else {
-							Lang::load('Errors', Lang::$default);
-
 							ErrorHandler::log(Lang::getTxt('smiley_set_dir_not_found', [$set_names[array_search($set, Utils::$context['smiley_sets'])]], file: 'Errors', lang: Lang::$default));
 
 							Utils::$context['smiley_sets'] = array_filter(Utils::$context['smiley_sets'], fn($v) => $v != $set);
@@ -1334,7 +1332,6 @@ class Profile extends User implements \ArrayAccess
 			$validation = self::validateSignature($signature);
 
 			if (empty(Utils::$context['post_errors'])) {
-				Lang::load('Errors');
 				Utils::$context['post_errors'] = [];
 			}
 
@@ -1559,8 +1556,6 @@ class Profile extends User implements \ArrayAccess
 
 		// There was a problem. Let them try again.
 		if (!empty($this->save_errors)) {
-			// Load the language file so we can give a nice explanation of the errors.
-			Lang::load('Errors');
 			Utils::$context['post_errors'] = $this->save_errors;
 
 			return;
@@ -3029,9 +3024,6 @@ class Profile extends User implements \ArrayAccess
 	 */
 	protected function resetPassword(?string $username = null): void
 	{
-		// Language...
-		Lang::load('Login');
-
 		if ($username !== null) {
 			$username = trim(Utils::normalizeSpaces(Utils::sanitizeChars($username, 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true]));
 		}

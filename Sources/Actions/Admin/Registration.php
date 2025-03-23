@@ -83,7 +83,6 @@ class Registration implements ActionInterface
 	public function execute(): void
 	{
 		// Loading, always loading.
-		Lang::load('Login');
 		Theme::loadTemplate('Register');
 
 		// Next create the tabs for the template.

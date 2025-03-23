@@ -250,8 +250,6 @@ class Login2 implements ActionInterface, Routable
 			Config::$modSettings['cookieTime'] = (int) $_POST['cookielength'];
 		}
 
-		Lang::load('Login');
-
 		// Load the template stuff.
 		Theme::loadTemplate('Login');
 		Utils::$context['sub_template'] = 'login';

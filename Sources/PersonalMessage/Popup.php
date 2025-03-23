@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace SMF\PersonalMessage;
 
 use SMF\Config;
-use SMF\Lang;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -32,8 +31,6 @@ class Popup
 	 */
 	public function __construct()
 	{
-		Lang::load('PersonalMessage');
-
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('PersonalMessage');
 		}

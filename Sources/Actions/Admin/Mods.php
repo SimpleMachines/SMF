@@ -68,9 +68,6 @@ class Mods implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Lang::load('Help');
-		Lang::load('ManageSettings');
-
 		Utils::$context['page_title'] = Lang::getTxt('admin_modifications', file: 'Admin');
 
 		// Load up all the tabs...

@@ -495,9 +495,6 @@ class News implements ActionInterface
 		// Clean the other vars.
 		self::send(true);
 
-		// We need a couple strings from the email template file
-		Lang::load('EmailTemplates');
-
 		// Get a list of all full banned users.  Use their Username and email to find them.  Only get the ones that can't login to turn off notification.
 		$request = Db::$db->query(
 			'',
@@ -852,7 +849,7 @@ class News implements ActionInterface
 			}
 
 			// Non-members can't unsubscribe via the automated system.
-			$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_manual', ['email' => empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']]);
+			$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_manual', ['email' => empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']], file: 'General');
 
 			$to_member = [
 				$email,

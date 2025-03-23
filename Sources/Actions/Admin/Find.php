@@ -191,8 +191,6 @@ class Find implements ActionInterface
 
 		IntegrationHook::call('integrate_admin_search', [&$this->language_files, &$this->include_files, &$this->settings_search]);
 
-		Lang::load(implode('+', $this->language_files));
-
 		foreach ($this->include_files as $file) {
 			require_once Config::$sourcedir . '/' . $file . '.php';
 		}

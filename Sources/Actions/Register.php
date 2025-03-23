@@ -122,7 +122,6 @@ class Register implements ActionInterface, Routable
 			Utils::redirectexit();
 		}
 
-		Lang::load('Login');
 		Theme::loadTemplate('Register');
 
 		// How many steps have we done so far today?
@@ -164,7 +163,6 @@ class Register implements ActionInterface, Routable
 
 				// Are they saying they're under age, while under age registration is disabled?
 				if (empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa'])) {
-					Lang::load('Login');
 					ErrorHandler::fatalLang('under_age_registration_prohibited', false, [Config::$modSettings['coppaAge']]);
 				}
 			}
@@ -281,7 +279,6 @@ class Register implements ActionInterface, Routable
 			require_once Config::$sourcedir . '/Profile-Modify.php';
 
 			// Setup some important context.
-			Lang::load('Profile');
 			Theme::loadTemplate('Profile');
 
 			User::$me->is_owner = true;

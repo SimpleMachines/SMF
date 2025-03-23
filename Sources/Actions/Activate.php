@@ -96,7 +96,6 @@ class Activate implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Login');
 		Theme::loadTemplate('Login');
 
 		if (!isset($this->member)) {
@@ -366,7 +365,6 @@ class Activate implements ActionInterface, Routable
 		if (!empty($this->member->is_activated)) {
 			ErrorHandler::fatalLang('already_activated', false);
 		} elseif ($this->member->validation_code == '') {
-			Lang::load('Profile');
 			ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $this->member->username], file: 'Profile'), false);
 		}
 

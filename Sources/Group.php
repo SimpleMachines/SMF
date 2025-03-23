@@ -372,8 +372,6 @@ class Group implements \ArrayAccess
 			}
 
 			if ($this->id === self::REGULAR && !isset($this->description)) {
-				Lang::load('Profile');
-
 				$this->description = Lang::getTxt('regular_members_desc', file: 'Profile');
 			}
 		}
@@ -601,7 +599,6 @@ class Group implements \ArrayAccess
 
 		if (!empty($subscriptions)) {
 			// Uh oh. But before we return, we need to update a language string because we want the names of the groups.
-			Lang::load('ManageMembers');
 			Lang::setTxt(
 				'membergroups_cannot_delete_paid',
 				Lang::getTxt(

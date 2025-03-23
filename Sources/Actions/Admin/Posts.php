@@ -75,7 +75,6 @@ class Posts implements ActionInterface
 	{
 		// Make sure you can be here.
 		User::$me->isAllowedTo('admin_forum');
-		Lang::load('Drafts');
 
 		Utils::$context['page_title'] = Lang::getTxt('manageposts_title', file: 'Admin');
 
@@ -191,9 +190,6 @@ class Posts implements ActionInterface
 		}
 
 		IntegrationHook::call('integrate_censors');
-
-		// Since the "Allow users to disable the word censor" stuff was moved from a theme setting to a global one, we need this...
-		Lang::load('Themes');
 
 		Utils::$context['sub_template'] = 'edit_censored';
 		Utils::$context['page_title'] = Lang::getTxt('admin_censored_words', file: 'Admin');

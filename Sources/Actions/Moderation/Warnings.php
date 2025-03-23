@@ -78,7 +78,6 @@ class Warnings implements ActionInterface
 	public function execute(): void
 	{
 		Theme::loadTemplate('ModerationCenter');
-		Lang::load('Profile');
 
 		Menu::$loaded['moderate']->tab_data = [
 			'title' => Lang::getTxt('mc_warnings', file: 'ModerationCenter'),
@@ -99,8 +98,6 @@ class Warnings implements ActionInterface
 	{
 		// Setup context as always.
 		Utils::$context['page_title'] = Lang::getTxt('mc_warning_log_title', file: 'ModerationCenter');
-
-		Lang::load('Modlog');
 
 		// If we're coming from a search, get the variables.
 		if (!empty($_REQUEST['params']) && empty($_REQUEST['is_search'])) {

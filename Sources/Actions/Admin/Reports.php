@@ -154,7 +154,6 @@ class Reports implements ActionInterface
 
 		// Let's get our things running...
 		Theme::loadTemplate('Reports');
-		Lang::load('Reports');
 		Theme::loadJavaScriptFile('reports.js', ['defer' => true, 'minimize' => true], 'smf_reports');
 
 		Utils::$context['page_title'] = Lang::getTxt('generate_reports', file: 'Admin');
@@ -234,7 +233,7 @@ class Reports implements ActionInterface
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
 			[Group::ADMIN, Group::MOD],
 		);
-		Lang::load('ManagePermissions');
+
 		Permissions::loadPermissionProfiles();
 
 		// Get all the themes...
@@ -408,7 +407,6 @@ class Reports implements ActionInterface
 	 */
 	public function boardPerms(): void
 	{
-		Lang::load('ManagePermissions');
 		Permissions::loadPermissionProfiles();
 
 		$inc = [];

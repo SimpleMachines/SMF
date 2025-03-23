@@ -991,15 +991,13 @@ class Display implements ActionInterface, Routable
 		];
 
 		// For quick reply we need a response prefix in the default forum language.
-		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+		if (!isset(Utils::$context['response_prefix'])) {
 			if (Lang::$default === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
-			} else {
-				Lang::load('General', Lang::$default, false);
-				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
-				Lang::load('General');
+			} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
-			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
 
 		// Are we showing signatures - or disabled fields?
@@ -1019,11 +1017,6 @@ class Display implements ActionInterface, Routable
 		// Load the drafts js file.
 		if (!empty(Topic::$info->permissions['drafts_autosave'])) {
 			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
-		}
-
-		// And the drafts language file.
-		if (!empty(Topic::$info->permissions['drafts_save'])) {
-			Lang::load('Drafts');
 		}
 
 		// Spellcheck
@@ -1062,8 +1055,6 @@ class Display implements ActionInterface, Routable
 			&& !empty(Config::$modSettings['cal_showInTopic'])
 			&& !empty(Config::$modSettings['cal_enabled'])
 		) {
-			Lang::load('Calendar');
-
 			foreach (Topic::$info->getLinkedEvents() as $event) {
 				if (($occurrence = $event->getUpcomingOccurrence()) === false) {
 					$occurrence = $event->getLastOccurrence();
@@ -1294,7 +1285,6 @@ class Display implements ActionInterface, Routable
 		}
 
 		if (Calendar::canLinkEvent(false)) {
-			Lang::load('Calendar');
 			Utils::$context['normal_buttons']['calendar'] = ['text' => 'calendar_link', 'url' => Config::$scripturl . '?action=post;calendar;msg=' . Topic::$info->id_first_msg . ';topic=' . Utils::$context['current_topic'] . '.0'];
 		}
 

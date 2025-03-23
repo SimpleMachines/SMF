@@ -325,9 +325,6 @@ class Bans implements ActionInterface
 
 		$ban_group_id = Utils::$context['ban']['id'] ?? (isset($_REQUEST['bg']) ? (int) $_REQUEST['bg'] : 0);
 
-		// Template needs this to show errors using javascript
-		Lang::load('Errors');
-
 		SecurityToken::create('admin-bet');
 
 		Utils::$context['form_url'] = Config::$scripturl . '?action=admin;area=ban;sa=edit';

@@ -92,8 +92,6 @@ class Search2 implements ActionInterface, Routable
 
 		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % Config::$modSettings['search_results_per_page']) : 0;
 
-		Lang::load('Search');
-
 		Utils::$context['robot_no_index'] = true;
 
 		// Load up the search API we are going to use.

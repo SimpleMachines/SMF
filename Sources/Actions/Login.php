@@ -52,8 +52,7 @@ class Login extends Login2
 			}
 		}
 
-		// We need to load the Login template/language file.
-		Lang::load('Login');
+		// We need to load the Login template.
 		Theme::loadTemplate('Login');
 
 		Utils::$context['sub_template'] = 'login';

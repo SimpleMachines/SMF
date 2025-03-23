@@ -77,7 +77,6 @@ class Search implements ActionInterface
 	{
 		User::$me->isAllowedTo('admin_forum');
 
-		Lang::load('Search');
 		Theme::loadTemplate('ManageSearch');
 
 		// Create the tabs for the template.

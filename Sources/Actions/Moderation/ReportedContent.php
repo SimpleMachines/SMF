@@ -125,7 +125,6 @@ class ReportedContent implements ActionInterface
 
 		Utils::$context['report_type'] = $this->type;
 
-		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ReportedContent');
 
 		// Do we need to show a confirmation message?
@@ -337,8 +336,6 @@ class ReportedContent implements ActionInterface
 				1,
 			];
 		}
-
-		Lang::load('Modlog');
 
 		// This is all the information from the moderation log.
 		$listOptions = [

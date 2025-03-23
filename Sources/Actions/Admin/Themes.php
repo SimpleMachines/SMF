@@ -102,12 +102,6 @@ class Themes implements ActionInterface
 	{
 		User::$me->isAllowedTo('admin_forum');
 
-		// Load the important language files...
-		Lang::load('Admin');
-		Lang::load('Themes');
-		Lang::load('ThemeStrings');
-		Lang::load('Drafts');
-
 		// Default the page title to Theme Administration by default.
 		Utils::$context['page_title'] = Lang::getTxt('themeadmin_title', file: 'Themes');
 
@@ -608,11 +602,6 @@ class Themes implements ActionInterface
 
 		Theme::load($_GET['th'], false);
 
-		Lang::load('Profile');
-
-		// @todo Should we just move these options so they are no longer theme dependant?
-		Lang::load('PersonalMessage');
-
 		// Let the theme take care of the settings.
 		Theme::loadTemplate('Settings');
 		Theme::loadSubTemplate('options');
@@ -732,9 +721,6 @@ class Themes implements ActionInterface
 
 		// Sadly we really do need to init the template.
 		Theme::loadSubTemplate('init', 'ignore');
-
-		// Also load the actual themes language file - in case of special settings.
-		Lang::load('ThemeStrings', '', false, true);
 
 		// Let the theme take care of the settings.
 		Theme::loadTemplate('Settings');
@@ -1143,8 +1129,6 @@ class Themes implements ActionInterface
 			}
 			// Session timed out.
 			else {
-				Lang::load('Errors');
-
 				Utils::$context['session_error'] = true;
 				Utils::$context['sub_template'] = 'edit_file';
 
@@ -1831,8 +1815,6 @@ class Themes implements ActionInterface
 
 		// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
 		if (file_exists($path . '/package-info.xml')) {
-			Lang::load('Errors');
-
 			// We need to delete the dir otherwise the next time you try to install a theme you will get the same error.
 			$this->deltree($path);
 

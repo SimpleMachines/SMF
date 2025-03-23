@@ -78,7 +78,6 @@ class IssueWarning implements ActionInterface
 		}
 
 		// Get the base (errors related) stuff done.
-		Lang::load('Errors');
 		Utils::$context['custom_error_title'] = Lang::getTxt('profile_warning_errors_occured', file: 'Profile');
 
 		Utils::$context['warning_limit'] = User::$me->allowedTo('admin_forum') ? 0 : Config::$modSettings['user_limit'];

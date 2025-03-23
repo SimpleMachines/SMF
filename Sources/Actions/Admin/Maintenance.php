@@ -139,7 +139,6 @@ class Maintenance implements ActionInterface
 		User::$me->isAllowedTo('admin_forum');
 
 		// Need something to talk about?
-		Lang::load('ManageMaintenance');
 		Theme::loadTemplate('ManageMaintenance');
 
 		// This uses admin tabs - as it should!

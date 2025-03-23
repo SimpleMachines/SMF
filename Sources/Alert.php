@@ -275,7 +275,6 @@ class Alert implements \ArrayAccess
 	public function format(bool $with_avatar = false, bool $show_links = false): void
 	{
 		Utils::$context['avatar_url'] = Config::$modSettings['avatar_url'];
-		Lang::load('Alerts');
 
 		if (!$this->visible) {
 			return;
@@ -742,8 +741,6 @@ class Alert implements \ArrayAccess
 	 */
 	public static function load(int|array $ids = [], array $query_customizations = [], bool $simple_access_check = false): array
 	{
-		Lang::load('Alerts');
-
 		$loaded = [];
 		$possible_msgs = [];
 		$possible_topics = [];

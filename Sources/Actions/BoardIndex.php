@@ -56,8 +56,6 @@ class BoardIndex implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Calendar');
-
 		Theme::loadTemplate('BoardIndex');
 		Utils::$context['template_layers'][] = 'boardindex_outer';
 

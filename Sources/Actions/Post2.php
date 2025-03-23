@@ -175,8 +175,6 @@ class Post2 extends Post
 		// Wrong verification code?
 		$this->checkVerification();
 
-		Lang::load('Post');
-
 		IntegrationHook::call('integrate_post2_start', [&$this->errors]);
 
 		$this->submitAttachments();
@@ -334,7 +332,6 @@ class Post2 extends Post
 		// Previewing? Go back to start.
 		if (isset($_REQUEST['preview'])) {
 			if (User::$me->checkSession('post', '', false) != '') {
-				Lang::load('Errors');
 				$this->errors[] = 'session_timeout';
 				unset($_POST['preview'], $_REQUEST['xml']); // just in case
 			}

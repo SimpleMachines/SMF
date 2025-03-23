@@ -99,7 +99,6 @@ class TopicPrint implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		if (!empty($row['id_poll'])) {
-			Lang::load('Post');
 			$poll = Poll::load(Topic::$topic_id, Poll::LOAD_BY_TOPIC);
 			Utils::$context['poll'] = $poll->format(['no_buttons' => true]);
 		}

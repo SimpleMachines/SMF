@@ -48,7 +48,6 @@ class CoppaForm implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Login');
 		Theme::loadTemplate('Register');
 
 		// No User ID??

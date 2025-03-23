@@ -85,8 +85,6 @@ class Calendar implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Calendar');
-
 		// Some global template resources.
 		Utils::$context['calendar_resources'] = [
 			'min_year' => Config::$modSettings['cal_minyear'],

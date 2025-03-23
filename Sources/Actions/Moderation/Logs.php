@@ -221,8 +221,6 @@ class Logs implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Lang::load('Admin+Modlog');
-
 		// If we're coming from a search, set those variables.
 		$this->setupSearch();
 

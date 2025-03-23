@@ -62,7 +62,7 @@ function template_admin()
 	// Display all the members who can administrate the forum.
 	echo '
 										<br>
-										', Lang::getTxt('administrators', ['list' => Lang::sentenceList(Utils::$context['administrators'])]);
+										', Lang::getTxt('administrators', ['list' => Lang::sentenceList(Utils::$context['administrators'])], file: 'Admin');
 
 	// If we have lots of admins... don't show them all.
 	if (!empty(Utils::$context['more_admins_link']))

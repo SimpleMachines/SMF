@@ -98,9 +98,6 @@ class Boards implements ActionInterface
 			self::modifyCat();
 		}
 
-		// Everything's gonna need this.
-		Lang::load('ManageBoards');
-
 		// Create the tabs for the template.
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::getTxt('boards_and_cats', file: 'ManageBoards'),
@@ -437,7 +434,6 @@ class Boards implements ActionInterface
 		Category::getTree();
 
 		// For editing the profile we'll need this.
-		Lang::load('ManagePermissions');
 		Permissions::loadPermissionProfiles();
 
 		// People with manage-boards are special.

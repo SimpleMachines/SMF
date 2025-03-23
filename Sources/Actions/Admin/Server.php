@@ -185,8 +185,6 @@ class Server implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Lang::load('ManageSettings');
-
 		// Load up all the tabs...
 		Menu::$loaded['admin']->tab_data = [
 			'title' => Lang::getTxt('admin_server_settings', file: 'Admin'),
@@ -514,7 +512,6 @@ class Server implements ActionInterface
 			Utils::redirectexit('action=admin;area=serversettings;sa=cache;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
-		Lang::load('ManageMaintenance');
 		SecurityToken::create('admin-maint');
 		Utils::$context['template_layers'][] = 'clean_cache_button';
 

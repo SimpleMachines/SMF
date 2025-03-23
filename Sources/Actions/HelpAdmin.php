@@ -70,21 +70,15 @@ class HelpAdmin implements ActionInterface, Routable
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		// Load the admin help language file and template.
-		Lang::load('Help');
-
-		// Permission specific help?
-		if (isset($_GET['help']) && str_starts_with($_GET['help'], 'permissionhelp')) {
-			Lang::load('ManagePermissions');
-		}
-
 		Theme::loadTemplate('Help');
 
 		// Allow mods to load their own language file here
 		IntegrationHook::call('integrate_helpadmin');
 
 		// What help string should be used?
-		if (Lang::txtExists($_GET['help'], var: 'helptxt')) {
+		if (str_starts_with($_GET['help'], 'permissionhelp') && Lang::txtExists($_GET['help'], file: 'ManagePermissions')) {
+			Utils::$context['help_text'] = Lang::getTxt($_GET['help'], file: 'ManagePermissions');
+		} elseif (Lang::txtExists($_GET['help'], var: 'helptxt')) {
 			Utils::$context['help_text'] = Lang::getTxt($_GET['help'], var: 'helptxt');
 		} elseif (Lang::txtExists($_GET['help'])) {
 			Utils::$context['help_text'] = Lang::getTxt($_GET['help']);

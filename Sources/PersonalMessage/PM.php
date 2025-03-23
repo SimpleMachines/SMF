@@ -589,8 +589,6 @@ class PM implements \ArrayAccess
 	{
 		User::$me->isAllowedTo('pm_send');
 
-		Lang::load('PersonalMessage');
-
 		// Just in case it was loaded from somewhere else.
 		Theme::loadTemplate('PersonalMessage');
 		Theme::loadJavaScriptFile('PersonalMessage.js', ['defer' => false, 'minimize' => true], 'smf_pms');
@@ -629,7 +627,7 @@ class PM implements \ArrayAccess
 			Db::$db->free_result($request);
 
 			if (!empty($postCount) && $postCount >= Config::$modSettings['pm_posts_per_hour']) {
-				ErrorHandler::fatalLang('pm_too_many_per_hour', true, [Config::$modSettings['pm_posts_per_hour']]);
+				ErrorHandler::fatalLang('pm_too_many_per_hour', true, [Config::$modSettings['pm_posts_per_hour']], file: 'PersonalMessage');
 			}
 		}
 
@@ -643,23 +641,20 @@ class PM implements \ArrayAccess
 
 			// Make sure this is yours.
 			if (!$pm->canAccess('both')) {
-				ErrorHandler::fatalLang('pm_not_yours', false);
+				ErrorHandler::fatalLang('pm_not_yours', false, file: 'PersonalMessage');
 			}
 
 			// Format it all.
 			$pm->format();
 
 			// Add 'Re: ' to it....
-			if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
+			if (!isset(Utils::$context['response_prefix'])) {
 				if (Lang::$default === User::$me->language) {
 					Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
-				} else {
-					Lang::load('General', Lang::$default, false);
-					Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
-					Lang::load('General');
+				} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+					Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+					CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 				}
-
-				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
 
 			$form_subject = $pm->formatted['subject'];
@@ -841,8 +836,6 @@ class PM implements \ArrayAccess
 			Utils::$context['id_draft'] = !empty($_POST['id_draft']) ? (int) $_POST['id_draft'] : 0;
 		}
 
-		Lang::load('PersonalMessage', '', false);
-
 		// Extract out the spam settings - it saves database space!
 		list(Config::$modSettings['max_pm_recipients'], Config::$modSettings['pm_posts_verification'], Config::$modSettings['pm_posts_per_hour']) = explode(',', Config::$modSettings['pm_spam_settings']);
 
@@ -869,7 +862,7 @@ class PM implements \ArrayAccess
 
 			if (!empty($postCount) && $postCount >= Config::$modSettings['pm_posts_per_hour']) {
 				if (!isset($_REQUEST['xml'])) {
-					ErrorHandler::fatalLang('pm_too_many_per_hour', true, [Config::$modSettings['pm_posts_per_hour']]);
+					ErrorHandler::fatalLang('pm_too_many_per_hour', true, [Config::$modSettings['pm_posts_per_hour']], file: 'PersonalMessage');
 				} else {
 					$post_errors[] = 'pm_too_many_per_hour';
 				}
@@ -1153,9 +1146,6 @@ class PM implements \ArrayAccess
 	 */
 	public static function send(array $recipients, string $subject, string $message, bool $store_outbox = false, ?array $from = null, int $pm_head = 0): array
 	{
-		// Make sure the PM language file is loaded, we might need something out of it.
-		Lang::load('PersonalMessage');
-
 		// Initialize log array.
 		$log = [
 			'failed' => [],
@@ -1611,9 +1601,6 @@ class PM implements \ArrayAccess
 
 		// Integrated After PMs
 		IntegrationHook::call('integrate_personal_message_after', [&$id_pm, &$log, &$recipients, &$from, &$subject, &$message]);
-
-		// Back to what we were on before!
-		Lang::load('General+PersonalMessage');
 
 		// Add one to their unread and read message counts.
 		foreach ($all_to as $k => $id) {
@@ -2121,7 +2108,7 @@ class PM implements \ArrayAccess
 
 			if (Db::$db->num_rows($request) == 0) {
 				if (!isset($_REQUEST['xml'])) {
-					ErrorHandler::fatalLang('pm_not_yours', false);
+					ErrorHandler::fatalLang('pm_not_yours', false, file: 'PersonalMessage');
 				} else {
 					$error_types[] = 'pm_not_yours';
 				}
@@ -2161,8 +2148,6 @@ class PM implements \ArrayAccess
 		];
 
 		// Set each of the errors for the template.
-		Lang::load('Errors');
-
 		Utils::$context['error_type'] = 'minor';
 
 		Utils::$context['post_error'] = [
@@ -2174,7 +2159,7 @@ class PM implements \ArrayAccess
 		foreach ($error_types as $error_type) {
 			Utils::$context['post_error'][$error_type] = true;
 
-			if (Lang::txtExists('error_' . $error_type, file: 'Errors')) {
+			if (Lang::txtExists('error_' . $error_type, file: 'Errors+PersonalMessage')) {
 				if ($error_type == 'long_message') {
 					Lang::setTxt(
 						'error_' . $error_type,
@@ -2186,7 +2171,7 @@ class PM implements \ArrayAccess
 					);
 				}
 
-				Utils::$context['post_error']['messages'][] = Lang::getTxt('error_' . $error_type, file: 'Errors');
+				Utils::$context['post_error']['messages'][] = Lang::getTxt('error_' . $error_type, file: 'Errors+PersonalMessage');
 			}
 
 			// If it's not a minor error flag it as such.

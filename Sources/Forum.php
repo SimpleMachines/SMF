@@ -535,7 +535,6 @@ class Forum
 	 */
 	protected static function inMaintenance(): void
 	{
-		Lang::load('Login');
 		Theme::loadTemplate('Login');
 		SecurityToken::create('login');
 

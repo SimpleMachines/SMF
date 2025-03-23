@@ -116,7 +116,6 @@ class Stats implements ActionInterface, Routable
 			return;
 		}
 
-		Lang::load('Stats');
 		Theme::loadTemplate('Stats');
 		Theme::loadJavaScriptFile('stats.js', ['default_theme' => true, 'defer' => false, 'minimize' => true], 'smf_stats');
 

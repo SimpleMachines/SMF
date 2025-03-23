@@ -74,7 +74,6 @@ class Help implements ActionInterface, Routable
 	public function execute(): void
 	{
 		Theme::loadTemplate('Help');
-		Lang::load('Manual');
 
 		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 

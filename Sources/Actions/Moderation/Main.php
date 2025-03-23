@@ -229,7 +229,6 @@ class Main implements ActionInterface, Routable
 			self::checkAccessPermissions();
 
 			// Load the language, and the template.
-			Lang::load('ModerationCenter');
 			Theme::loadTemplate(false, 'admin');
 
 			Utils::$context['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : [];

@@ -65,9 +65,6 @@ class ThemeChooser implements ActionInterface, Routable
 			User::$me->isAllowedTo('profile_extra' . ($_REQUEST['u'] === User::$me->id ? '_own' : '_any'));
 		}
 
-		Lang::load('Profile');
-		Lang::load('Themes');
-		Lang::load('ThemeStrings');
 		Theme::loadTemplate('Themes');
 
 		// Build the link tree.

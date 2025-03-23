@@ -959,15 +959,11 @@ abstract class SearchApi implements SearchApiInterface
 		$permanent_stopwords = [];
 
 		foreach (array_keys(Lang::get()) as $lang) {
-			Lang::load('Search', $lang, force_reload: true);
-
 			$permanent_stopwords = array_merge(
 				$permanent_stopwords,
-				Utils::htmlTrimRecursive(explode(',', Lang::getTxt('search_stopwords', file: 'Search'))),
+				Utils::htmlTrimRecursive(explode(',', Lang::getTxt('search_stopwords', file: 'Search', lang: $lang))),
 			);
 		}
-
-		Lang::load('Search', '', true);
 
 		$permanent_stopwords = array_filter(array_unique($permanent_stopwords), 'strlen');
 

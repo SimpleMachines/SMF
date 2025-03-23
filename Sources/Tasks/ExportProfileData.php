@@ -1419,8 +1419,6 @@ class ExportProfileData extends BackgroundTask
 			require_once Config::$sourcedir . '/Actions/Profile/Export.php';
 			$export_formats = Export::getFormats();
 
-			Lang::load('Profile');
-
 			/* Notes:
 			 * 1. The 'value' can be one of the following:
 			 *    - an integer or string

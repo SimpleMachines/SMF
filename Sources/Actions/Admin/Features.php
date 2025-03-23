@@ -939,9 +939,6 @@ class Features implements ActionInterface
 		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['fid'] ? 'custom_edit_title' : 'custom_add_title', file: 'ManageSettings');
 		Utils::$context['sub_template'] = 'edit_profile_field';
 
-		// Load the profile language for section names.
-		Lang::load('Profile');
-
 		// There's really only a few places we can go...
 		$move_to = ['up', 'down'];
 
@@ -1532,7 +1529,6 @@ class Features implements ActionInterface
 		Utils::$context['action'] = 'action=admin;area=featuresettings;sa=alerts;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
 
 		Theme::loadTemplate('Profile');
-		Lang::load('Profile');
 
 		Profile::load(0);
 		Notification::call();
@@ -1965,9 +1961,6 @@ class Features implements ActionInterface
 	 */
 	protected function init()
 	{
-		Lang::load('Help');
-		Lang::load('ManageSettings');
-
 		Utils::$context['page_title'] = Lang::getTxt('modSettings_title', file: 'General');
 		Utils::$context['show_privacy_policy_warning'] = empty(Config::$modSettings['policy_' . Lang::$default]);
 

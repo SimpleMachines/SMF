@@ -61,8 +61,6 @@ class Search implements ActionInterface, Routable
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 
-		Lang::load('Search');
-
 		// Don't load this in XML mode.
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Search');

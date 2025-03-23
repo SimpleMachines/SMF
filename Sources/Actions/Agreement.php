@@ -56,7 +56,6 @@ class Agreement implements ActionInterface, Routable
 	{
 		$this->prepareAgreementContext();
 
-		Lang::load('Agreement');
 		Theme::loadTemplate('Agreement');
 
 		$page_title = '';

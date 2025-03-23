@@ -937,7 +937,6 @@ class Permissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Lang::load('ManagePermissions+ManageMembers');
 		Theme::loadTemplate('ManagePermissions');
 
 		// Create the tabs for the template.
@@ -2009,7 +2008,6 @@ class Permissions implements ActionInterface
 	 */
 	public static function init_inline_permissions(array $permissions, array $excluded_groups = []): void
 	{
-		Lang::load('ManagePermissions');
 		Theme::loadTemplate('ManagePermissions');
 		Utils::$context['can_change_permissions'] = User::$me->allowedTo('manage_permissions');
 

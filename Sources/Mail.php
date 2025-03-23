@@ -1055,11 +1055,6 @@ class Mail
 	 */
 	public static function loadEmailTemplate(string $template, array $replacements = [], string $lang = '', bool $loadLang = true): array
 	{
-		// First things first, load up the email templates language file, if we need to.
-		if ($loadLang) {
-			Lang::load('EmailTemplates', $lang);
-		}
-
 		if (
 			!Lang::txtExists($template . '_subject', file: 'EmailTemplates', lang: $loadLang ? $lang : '')
 			|| !Lang::txtExists($template . '_body', file: 'EmailTemplates', lang: $loadLang ? $lang : '')

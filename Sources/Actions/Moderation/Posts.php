@@ -83,7 +83,6 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ModerationCenter');
 
 		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);

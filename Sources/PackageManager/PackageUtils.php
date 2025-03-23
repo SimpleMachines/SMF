@@ -126,11 +126,9 @@ class PackageUtils
 	 */
 	public static function readTgzData(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
-		// Make sure we have this loaded.
-		Lang::load('Packages');
-
 		// This function sorta needs gzinflate!
 		if (!function_exists('gzinflate')) {
+			Lang::load('Packages');
 			ErrorHandler::fatalLang('package_no_lib', 'critical', ['package_no_zlib', 'package_no_package_manager']);
 		}
 

@@ -111,7 +111,6 @@ class Who implements ActionInterface, Routable
 	{
 		// Load the 'Who' template.
 		Theme::loadTemplate('Who');
-		Lang::load('Who');
 
 		// Permissions, permissions, permissions.
 		User::$me->isAllowedTo('who_view');
@@ -378,8 +377,6 @@ class Who implements ActionInterface, Routable
 		if (!User::$me->allowedTo('who_view')) {
 			return [];
 		}
-
-		Lang::load('Who');
 
 		IntegrationHook::call('who_allowed', [&self::$allowedActions]);
 

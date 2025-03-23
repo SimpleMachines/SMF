@@ -294,9 +294,6 @@ class Feed implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		// The feed metadata and query are a bit more complicated...
-		Lang::load('Stats');
-
 		// Some general metadata for this feed. We'll change some of these values below.
 		$this->metadata = [
 			'title' => '',
@@ -567,8 +564,6 @@ class Feed implements ActionInterface, Routable
 		if (!User::$me->allowedTo('view_mlist')) {
 			return [];
 		}
-
-		Lang::load('Profile');
 
 		// Find the most (or least) recent members.
 		$data = [];
@@ -994,8 +989,6 @@ class Feed implements ActionInterface, Routable
 			}
 			// The biggest difference here is more information.
 			else {
-				Lang::load('Post');
-
 				$attachments = [];
 
 				if (!empty($loaded_attachments)) {
@@ -1438,8 +1431,6 @@ class Feed implements ActionInterface, Routable
 			}
 			// A lot of information here.  Should be enough to please the rss-ers.
 			else {
-				Lang::load('Post');
-
 				$attachments = [];
 
 				if (!empty($loaded_attachments)) {
@@ -1752,8 +1743,6 @@ class Feed implements ActionInterface, Routable
 				],
 			];
 		} else {
-			Lang::load('Profile');
-
 			$data = [
 				[
 					'tag' => 'username',
@@ -2197,8 +2186,6 @@ class Feed implements ActionInterface, Routable
 			}
 			// A lot of information here.  Should be enough to please the rss-ers.
 			else {
-				Lang::load('Post');
-
 				$attachments = [];
 
 				if (!empty($loaded_attachments)) {
@@ -2588,8 +2575,6 @@ class Feed implements ActionInterface, Routable
 
 				$data[] = $item;
 			} else {
-				Lang::load('PersonalMessage');
-
 				$item = [
 					'tag' => 'personal_message',
 					'attributes' => ['label' => Lang::getTxt('pm', file: 'PersonalMessage')],

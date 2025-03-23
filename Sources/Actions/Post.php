@@ -228,12 +228,6 @@ class Post implements ActionInterface, Routable
 	 */
 	public function show(): void
 	{
-		Lang::load('Post+Calendar');
-
-		if (!empty(Config::$modSettings['drafts_post_enabled'])) {
-			Lang::load('Drafts');
-		}
-
 		// You can't reply with a poll... hacker.
 		if (isset($_REQUEST['poll']) && !empty(Topic::$topic_id) && !isset($_REQUEST['msg'])) {
 			unset($_REQUEST['poll']);
@@ -912,15 +906,13 @@ class Post implements ActionInterface, Routable
 	 */
 	protected function setResponsePrefix(): void
 	{
-		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
+		if (!isset(Utils::$context['response_prefix'])) {
 			if (Lang::$default === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
-			} else {
-				Lang::load('General', Lang::$default, false);
-				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
-				Lang::load('General');
+			} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
-			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
 	}
 
@@ -1682,7 +1674,6 @@ class Post implements ActionInterface, Routable
 			return;
 		}
 
-		Lang::load('Errors');
 		Utils::$context['error_type'] = 'minor';
 
 		foreach ($this->errors as $post_error) {

@@ -58,9 +58,6 @@ class Credits implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		// Don't blink. Don't even blink. Blink and you're dead.
-		Lang::load('Who');
-
 		// Discourage robots from indexing this page.
 		Utils::$context['robot_no_index'] = true;
 

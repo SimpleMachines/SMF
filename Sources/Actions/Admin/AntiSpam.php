@@ -357,9 +357,6 @@ class AntiSpam implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		Lang::load('Help');
-		Lang::load('ManageSettings');
-
 		// Generate a sample registration image.
 		Utils::$context['use_graphic_library'] = in_array('gd', get_loaded_extensions());
 

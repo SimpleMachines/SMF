@@ -181,10 +181,6 @@ class SendDigests extends ScheduledTask
 		$langtxt = [];
 
 		foreach ($langs as $lang) {
-			Lang::load('Post', $lang);
-			Lang::load('General', $lang);
-			Lang::load('EmailTemplates', $lang);
-
 			$langtxt[$lang] = [
 				'subject' => Lang::getTxt('digest_subject_' . ($is_weekly ? 'weekly' : 'daily'), file: 'Post', lang: $lang),
 				'char_set' => 'UTF-8',

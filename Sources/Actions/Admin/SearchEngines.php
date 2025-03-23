@@ -94,7 +94,6 @@ class SearchEngines implements ActionInterface
 	{
 		User::$me->isAllowedTo('admin_forum');
 
-		Lang::load('Search');
 		Theme::loadTemplate('ManageSearch');
 
 		Utils::$context['page_title'] = Lang::getTxt('search_engines', file: 'Admin');
@@ -297,8 +296,6 @@ class SearchEngines implements ActionInterface
 	 */
 	public function logs(): void
 	{
-		// Load the template and language just incase.
-		Lang::load('Search');
 		Theme::loadTemplate('ManageSearch');
 
 		// Did they want to delete some entries?
