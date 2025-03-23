@@ -2742,8 +2742,8 @@ class BBCodeParser extends Parser
 					return $this->hosturl;
 				}
 
-				if (str_starts_with($matches[1], 'txt_') && Lang::txtExists(substr($matches[1], 4))) {
-					return Lang::getTxt(substr($matches[1], 4));
+				if (str_starts_with($matches[1], 'txt_') && Lang::txtExists(substr($matches[1], 4), file: implode('+', self::$lang_files), lang: self::$locale)) {
+					return Lang::getTxt(substr($matches[1], 4), file: implode('+', self::$lang_files), lang: self::$locale);
 				}
 
 				return $matches[0];

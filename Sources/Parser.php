@@ -166,6 +166,20 @@ abstract class Parser
 	];
 
 	/**
+	 * @var array
+	 *
+	 * Language files that should be loaded in order to populate any Lang::$txt
+	 * strings that are used by BBCodes.
+	 *
+	 * Mods implementing custom BBCodes can add values to this array using the
+	 * integrate_parser_static_vars hook.
+	 */
+	public static array $lang_files = [
+		'General',
+		'Modifications',
+	];
+
+	/**
 	 * @var bool
 	 *
 	 * Whether BBCode should be parsed.
@@ -544,6 +558,9 @@ abstract class Parser
 		self::$custom_smileys_enabled = self::$custom_smileys_enabled ?? !empty(Config::$modSettings['smiley_enable']);
 		self::$smileys_url = self::$smileys_url ?? Config::$modSettings['smileys_url'];
 		self::$smiley_set = self::$smiley_set ?? (!empty(User::$me->smiley_set) ? User::$me->smiley_set : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none'));
+
+		// Give mods a chance to make any changes they need.
+		IntegrationHook::call('integrate_parser_static_vars');
 	}
 
 	/**
