@@ -6418,439 +6418,124 @@ function utf8_confusables(): array
 function utf8_character_scripts(): array
 {
 	return [
-		"\x40" => [
-			'Common',
-		],
-		"\x5A" => [
-			'Latin',
-		],
-		"\x60" => [
-			'Common',
-		],
-		"\x7A" => [
-			'Latin',
-		],
-		"\xC2\xA9" => [
-			'Common',
-		],
-		"\xC2\xAA" => [
-			'Latin',
-		],
-		"\xC2\xB6" => [
-			'Common',
-		],
+		"\x40" => ['Common'],
+		"\x5A" => ['Latin'],
+		"\x60" => ['Common'],
+		"\x7A" => ['Latin'],
+		"\xC2\xA9" => ['Common'],
+		"\xC2\xAA" => ['Latin'],
+		"\xC2\xB6" => ['Common'],
 		"\xC2\xB7" => [
-			'Common',
-			'Avestan',
-			'Carian',
-			'Coptic',
-			'Duployan',
-			'Elbasan',
-			'Georgian',
-			'Glagolitic',
-			'Gunjala_Gondi',
-			'Gothic',
-			'Greek',
-			'Han',
-			'Latin',
-			'Lydian',
-			'Mahajani',
-			'Old_Permic',
-			'Shavian',
+			'Common', 'Avestan', 'Carian', 'Coptic', 'Duployan', 'Elbasan', 'Georgian',
+			'Glagolitic', 'Gunjala_Gondi', 'Gothic', 'Greek', 'Han', 'Latin', 'Lydian',
+			'Mahajani', 'Old_Permic', 'Shavian',
 		],
-		"\xC2\xB9" => [
-			'Common',
-		],
-		"\xC2\xBA" => [
-			'Latin',
-		],
-		"\xC2\xBF" => [
-			'Common',
-		],
-		"\xC3\x96" => [
-			'Latin',
-		],
-		"\xC3\x97" => [
-			'Common',
-		],
-		"\xC3\xB6" => [
-			'Latin',
-		],
-		"\xC3\xB7" => [
-			'Common',
-		],
-		"\xCA\xB8" => [
-			'Latin',
-		],
-		"\xCA\xBB" => [
-			'Common',
-		],
+		"\xC2\xB9" => ['Common'],
+		"\xC2\xBA" => ['Latin'],
+		"\xC2\xBF" => ['Common'],
+		"\xC3\x96" => ['Latin'],
+		"\xC3\x97" => ['Common'],
+		"\xC3\xB6" => ['Latin'],
+		"\xC3\xB7" => ['Common'],
+		"\xCA\xB8" => ['Latin'],
+		"\xCA\xBB" => ['Common'],
 		"\xCA\xBC" => [
-			'Common',
-			'Bengali',
-			'Cyrillic',
-			'Devanagari',
-			'Latin',
-			'Lisu',
-			'Thai',
+			'Common', 'Bengali', 'Cyrillic', 'Devanagari', 'Latin', 'Lisu', 'Thai',
 			'Toto',
 		],
-		"\xCB\x86" => [
-			'Common',
-		],
-		"\xCB\x87" => [
-			'Common',
-			'Bopomofo',
-			'Latin',
-		],
-		"\xCB\x88" => [
-			'Common',
-		],
-		"\xCB\x89" => [
-			'Common',
-			'Bopomofo',
-		],
-		"\xCB\x8A" => [
-			'Common',
-			'Latin',
-		],
-		"\xCB\x8B" => [
-			'Common',
-			'Bopomofo',
-		],
-		"\xCB\x8C" => [
-			'Common',
-			'Latin',
-		],
-		"\xCB\x8D" => [
-			'Common',
-			'Latin',
-			'Lisu',
-		],
-		"\xCB\x96" => [
-			'Common',
-		],
-		"\xCB\x97" => [
-			'Common',
-			'Latin',
-			'Thai',
-		],
-		"\xCB\x98" => [
-			'Common',
-		],
-		"\xCB\x99" => [
-			'Common',
-			'Bopomofo',
-			'Latin',
-		],
-		"\xCB\x9F" => [
-			'Common',
-		],
-		"\xCB\xA4" => [
-			'Latin',
-		],
-		"\xCB\xA9" => [
-			'Common',
-		],
-		"\xCB\xAB" => [
-			'Bopomofo',
-		],
-		"\xCB\xBF" => [
-			'Common',
-		],
+		"\xCB\x86" => ['Common'],
+		"\xCB\x87" => ['Common', 'Bopomofo', 'Latin'],
+		"\xCB\x88" => ['Common'],
+		"\xCB\x89" => ['Common', 'Bopomofo'],
+		"\xCB\x8A" => ['Common', 'Latin'],
+		"\xCB\x8B" => ['Common', 'Bopomofo'],
+		"\xCB\x8C" => ['Common', 'Latin'],
+		"\xCB\x8D" => ['Common', 'Latin', 'Lisu'],
+		"\xCB\x96" => ['Common'],
+		"\xCB\x97" => ['Common', 'Latin', 'Thai'],
+		"\xCB\x98" => ['Common'],
+		"\xCB\x99" => ['Common', 'Bopomofo', 'Latin'],
+		"\xCB\x9F" => ['Common'],
+		"\xCB\xA4" => ['Latin'],
+		"\xCB\xA9" => ['Common'],
+		"\xCB\xAB" => ['Bopomofo'],
+		"\xCB\xBF" => ['Common'],
 		"\xCC\x80" => [
-			'Inherited',
-			'Cherokee',
-			'Coptic',
-			'Cyrillic',
-			'Greek',
-			'Latin',
-			'Old_Permic',
-			'Sunuwar',
-			'Tai_Le',
+			'Inherited', 'Cherokee', 'Coptic', 'Cyrillic', 'Greek', 'Latin',
+			'Old_Permic', 'Sunuwar', 'Tai_Le',
 		],
 		"\xCC\x81" => [
-			'Inherited',
-			'Cherokee',
-			'Cyrillic',
-			'Greek',
-			'Latin',
-			'Osage',
-			'Sunuwar',
-			'Tai_Le',
-			'Todhri',
+			'Inherited', 'Cherokee', 'Cyrillic', 'Greek', 'Latin', 'Osage', 'Sunuwar',
+			'Tai_Le', 'Todhri',
 		],
-		"\xCC\x82" => [
-			'Inherited',
-			'Cherokee',
-			'Cyrillic',
-			'Latin',
-			'Tifinagh',
-		],
-		"\xCC\x83" => [
-			'Inherited',
-			'Glagolitic',
-			'Latin',
-			'Sunuwar',
-			'Syriac',
-			'Thai',
-		],
+		"\xCC\x82" => ['Inherited', 'Cherokee', 'Cyrillic', 'Latin', 'Tifinagh'],
+		"\xCC\x83" => ['Inherited', 'Glagolitic', 'Latin', 'Sunuwar', 'Syriac', 'Thai'],
 		"\xCC\x84" => [
-			'Inherited',
-			'Caucasian_Albanian',
-			'Cherokee',
-			'Coptic',
-			'Cyrillic',
-			'Gothic',
-			'Greek',
-			'Latin',
-			'Osage',
-			'Syriac',
-			'Tifinagh',
-			'Todhri',
+			'Inherited', 'Caucasian_Albanian', 'Cherokee', 'Coptic', 'Cyrillic',
+			'Gothic', 'Greek', 'Latin', 'Osage', 'Syriac', 'Tifinagh', 'Todhri',
 		],
 		"\xCC\x85" => [
-			'Inherited',
-			'Coptic',
-			'Elbasan',
-			'Glagolitic',
-			'Gothic',
-			'Katakana',
+			'Inherited', 'Coptic', 'Elbasan', 'Glagolitic', 'Gothic', 'Katakana',
 			'Latin',
 		],
-		"\xCC\x86" => [
-			'Inherited',
-			'Cyrillic',
-			'Greek',
-			'Latin',
-			'Old_Permic',
-		],
+		"\xCC\x86" => ['Inherited', 'Cyrillic', 'Greek', 'Latin', 'Old_Permic'],
 		"\xCC\x87" => [
-			'Inherited',
-			'Coptic',
-			'Duployan',
-			'Hebrew',
-			'Latin',
-			'Old_Permic',
-			'Syriac',
-			'Tai_Le',
-			'Tifinagh',
-			'Todhri',
+			'Inherited', 'Coptic', 'Duployan', 'Hebrew', 'Latin', 'Old_Permic',
+			'Syriac', 'Tai_Le', 'Tifinagh', 'Todhri',
 		],
 		"\xCC\x88" => [
-			'Inherited',
-			'Armenian',
-			'Cyrillic',
-			'Duployan',
-			'Gothic',
-			'Greek',
-			'Hebrew',
-			'Latin',
-			'Old_Permic',
-			'Syriac',
-			'Tai_Le',
+			'Inherited', 'Armenian', 'Cyrillic', 'Duployan', 'Gothic', 'Greek',
+			'Hebrew', 'Latin', 'Old_Permic', 'Syriac', 'Tai_Le',
 		],
-		"\xCC\x89" => [
-			'Inherited',
-			'Latin',
-			'Tifinagh',
-		],
-		"\xCC\x8A" => [
-			'Inherited',
-			'Duployan',
-			'Latin',
-			'Syriac',
-		],
-		"\xCC\x8B" => [
-			'Inherited',
-			'Cherokee',
-			'Cyrillic',
-			'Latin',
-			'Osage',
-		],
-		"\xCC\x8C" => [
-			'Inherited',
-			'Cherokee',
-			'Latin',
-			'Tai_Le',
-		],
-		"\xCC\x8D" => [
-			'Inherited',
-			'Latin',
-			'Sunuwar',
-		],
-		"\xCC\x8E" => [
-			'Inherited',
-			'Ethiopic',
-			'Latin',
-		],
-		"\xCC\x8F" => [
-			'Inherited',
-		],
-		"\xCC\x90" => [
-			'Inherited',
-			'Latin',
-			'Sunuwar',
-		],
-		"\xCC\x91" => [
-			'Inherited',
-			'Cyrillic',
-			'Latin',
-			'Todhri',
-		],
-		"\xCC\x92" => [
-			'Inherited',
-		],
-		"\xCC\x93" => [
-			'Inherited',
-			'Greek',
-			'Latin',
-			'Old_Permic',
-			'Todhri',
-		],
-		"\xCC\x9F" => [
-			'Inherited',
-		],
-		"\xCC\xA0" => [
-			'Inherited',
-			'Latin',
-			'Syriac',
-		],
-		"\xCC\xA2" => [
-			'Inherited',
-		],
-		"\xCC\xA3" => [
-			'Inherited',
-			'Cherokee',
-			'Duployan',
-			'Katakana',
-			'Latin',
-			'Syriac',
-		],
-		"\xCC\xA4" => [
-			'Inherited',
-			'Cherokee',
-			'Duployan',
-			'Latin',
-			'Syriac',
-		],
-		"\xCC\xA5" => [
-			'Inherited',
-			'Latin',
-			'Syriac',
-		],
-		"\xCC\xAC" => [
-			'Inherited',
-		],
-		"\xCC\xAD" => [
-			'Inherited',
-			'Latin',
-			'Sunuwar',
-			'Syriac',
-		],
-		"\xCC\xAE" => [
-			'Inherited',
-			'Latin',
-			'Syriac',
-		],
-		"\xCC\xAF" => [
-			'Inherited',
-		],
-		"\xCC\xB0" => [
-			'Inherited',
-			'Cherokee',
-			'Latin',
-			'Syriac',
-		],
+		"\xCC\x89" => ['Inherited', 'Latin', 'Tifinagh'],
+		"\xCC\x8A" => ['Inherited', 'Duployan', 'Latin', 'Syriac'],
+		"\xCC\x8B" => ['Inherited', 'Cherokee', 'Cyrillic', 'Latin', 'Osage'],
+		"\xCC\x8C" => ['Inherited', 'Cherokee', 'Latin', 'Tai_Le'],
+		"\xCC\x8D" => ['Inherited', 'Latin', 'Sunuwar'],
+		"\xCC\x8E" => ['Inherited', 'Ethiopic', 'Latin'],
+		"\xCC\x8F" => ['Inherited'],
+		"\xCC\x90" => ['Inherited', 'Latin', 'Sunuwar'],
+		"\xCC\x91" => ['Inherited', 'Cyrillic', 'Latin', 'Todhri'],
+		"\xCC\x92" => ['Inherited'],
+		"\xCC\x93" => ['Inherited', 'Greek', 'Latin', 'Old_Permic', 'Todhri'],
+		"\xCC\x9F" => ['Inherited'],
+		"\xCC\xA0" => ['Inherited', 'Latin', 'Syriac'],
+		"\xCC\xA2" => ['Inherited'],
+		"\xCC\xA3" => ['Inherited', 'Cherokee', 'Duployan', 'Katakana', 'Latin', 'Syriac'],
+		"\xCC\xA4" => ['Inherited', 'Cherokee', 'Duployan', 'Latin', 'Syriac'],
+		"\xCC\xA5" => ['Inherited', 'Latin', 'Syriac'],
+		"\xCC\xAC" => ['Inherited'],
+		"\xCC\xAD" => ['Inherited', 'Latin', 'Sunuwar', 'Syriac'],
+		"\xCC\xAE" => ['Inherited', 'Latin', 'Syriac'],
+		"\xCC\xAF" => ['Inherited'],
+		"\xCC\xB0" => ['Inherited', 'Cherokee', 'Latin', 'Syriac'],
 		"\xCC\xB1" => [
-			'Inherited',
-			'Caucasian_Albanian',
-			'Cherokee',
-			'Gothic',
-			'Latin',
-			'Sunuwar',
-			'Thai',
+			'Inherited', 'Caucasian_Albanian', 'Cherokee', 'Gothic', 'Latin',
+			'Sunuwar', 'Thai',
 		],
-		"\xCD\x81" => [
-			'Inherited',
-		],
-		"\xCD\x82" => [
-			'Inherited',
-			'Greek',
-		],
-		"\xCD\x84" => [
-			'Inherited',
-		],
-		"\xCD\x85" => [
-			'Inherited',
-			'Greek',
-		],
-		"\xCD\x97" => [
-			'Inherited',
-		],
-		"\xCD\x98" => [
-			'Inherited',
-			'Latin',
-			'Osage',
-		],
-		"\xCD\x9D" => [
-			'Inherited',
-		],
-		"\xCD\x9E" => [
-			'Inherited',
-			'Caucasian_Albanian',
-			'Latin',
-			'Todhri',
-		],
-		"\xCD\xA2" => [
-			'Inherited',
-		],
-		"\xCD\xAF" => [
-			'Inherited',
-			'Latin',
-		],
-		"\xCD\xB3" => [
-			'Greek',
-		],
-		"\xCD\xB4" => [
-			'Common',
-			'Coptic',
-			'Greek',
-		],
-		"\xCD\xB5" => [
-			'Greek',
-			'Coptic',
-		],
-		"\xCD\xBD" => [
-			'Greek',
-		],
-		"\xCD\xBE" => [
-			'Common',
-		],
-		"\xCE\x84" => [
-			'Greek',
-		],
-		"\xCE\x85" => [
-			'Common',
-		],
-		"\xCE\x86" => [
-			'Greek',
-		],
-		"\xCE\x87" => [
-			'Common',
-		],
-		"\xCF\xA1" => [
-			'Greek',
-		],
-		"\xCF\xAF" => [
-			'Coptic',
-		],
-		"\xCF\xBF" => [
-			'Greek',
-		],
-		"\xD2\x82" => [
-			'Cyrillic',
-		],
+		"\xCD\x81" => ['Inherited'],
+		"\xCD\x82" => ['Inherited', 'Greek'],
+		"\xCD\x84" => ['Inherited'],
+		"\xCD\x85" => ['Inherited', 'Greek'],
+		"\xCD\x97" => ['Inherited'],
+		"\xCD\x98" => ['Inherited', 'Latin', 'Osage'],
+		"\xCD\x9D" => ['Inherited'],
+		"\xCD\x9E" => ['Inherited', 'Caucasian_Albanian', 'Latin', 'Todhri'],
+		"\xCD\xA2" => ['Inherited'],
+		"\xCD\xAF" => ['Inherited', 'Latin'],
+		"\xCD\xB3" => ['Greek'],
+		"\xCD\xB4" => ['Common', 'Coptic', 'Greek'],
+		"\xCD\xB5" => ['Greek', 'Coptic'],
+		"\xCD\xBD" => ['Greek'],
+		"\xCD\xBE" => ['Common'],
+		"\xCE\x84" => ['Greek'],
+		"\xCE\x85" => ['Common'],
+		"\xCE\x86" => ['Greek'],
+		"\xCE\x87" => ['Common'],
+		"\xCF\xA1" => ['Greek'],
+		"\xCF\xAF" => ['Coptic'],
+		"\xCF\xBF" => ['Greek'],
+		"\xD2\x82" => ['Cyrillic'],
 		"\xD2\x83" => [
 			'Cyrillic',
 			'Old_Permic',
@@ -6859,65 +6544,31 @@ function utf8_character_scripts(): array
 			'Cyrillic',
 			'Glagolitic',
 		],
-		"\xD2\x85" => [
-			'Inherited',
-			'Cyrillic',
-		],
-		"\xD2\x86" => [
-			'Inherited',
-			'Latin',
-		],
+		"\xD2\x85" => ['Inherited', 'Cyrillic'],
+		"\xD2\x86" => ['Inherited', 'Latin'],
 		"\xD2\x87" => [
 			'Cyrillic',
 			'Glagolitic',
 		],
-		"\xD4\xAF" => [
-			'Cyrillic',
-		],
-		"\xD6\x88" => [
-			'Armenian',
-		],
+		"\xD4\xAF" => ['Cyrillic'],
+		"\xD6\x88" => ['Armenian'],
 		"\xD6\x89" => [
 			'Armenian',
 			'Georgian',
 			'Glagolitic',
 		],
-		"\xD6\x8F" => [
-			'Armenian',
-		],
-		"\xD7\xB4" => [
-			'Hebrew',
-		],
-		"\xD8\x84" => [
-			'Arabic',
-		],
-		"\xD8\x85" => [
-			'Common',
-		],
-		"\xD8\x8B" => [
-			'Arabic',
-		],
+		"\xD6\x8F" => ['Armenian'],
+		"\xD7\xB4" => ['Hebrew'],
+		"\xD8\x84" => ['Arabic'],
+		"\xD8\x85" => ['Common'],
+		"\xD8\x8B" => ['Arabic'],
 		"\xD8\x8C" => [
-			'Common',
-			'Arabic',
-			'Garay',
-			'Nko',
-			'Hanifi_Rohingya',
-			'Syriac',
-			'Thaana',
+			'Common', 'Arabic', 'Garay', 'Nko', 'Hanifi_Rohingya', 'Syriac', 'Thaana',
 			'Yezidi',
 		],
-		"\xD8\x9A" => [
-			'Arabic',
-		],
+		"\xD8\x9A" => ['Arabic'],
 		"\xD8\x9B" => [
-			'Common',
-			'Arabic',
-			'Garay',
-			'Nko',
-			'Hanifi_Rohingya',
-			'Syriac',
-			'Thaana',
+			'Common', 'Arabic', 'Garay', 'Nko', 'Hanifi_Rohingya', 'Syriac', 'Thaana',
 			'Yezidi',
 		],
 		"\xD8\x9C" => [
@@ -6925,1692 +6576,482 @@ function utf8_character_scripts(): array
 			'Syriac',
 			'Thaana',
 		],
-		"\xD8\x9E" => [
-			'Arabic',
-		],
+		"\xD8\x9E" => ['Arabic'],
 		"\xD8\x9F" => [
-			'Common',
-			'Adlam',
-			'Arabic',
-			'Garay',
-			'Nko',
-			'Hanifi_Rohingya',
-			'Syriac',
-			'Thaana',
-			'Yezidi',
+			'Common', 'Adlam', 'Arabic', 'Garay', 'Nko', 'Hanifi_Rohingya', 'Syriac',
+			'Thaana', 'Yezidi',
 		],
-		"\xD8\xBF" => [
-			'Arabic',
-		],
+		"\xD8\xBF" => ['Arabic'],
 		"\xD9\x80" => [
-			'Common',
-			'Adlam',
-			'Arabic',
-			'Mandaic',
-			'Manichaean',
-			'Old_Uyghur',
-			'Psalter_Pahlavi',
-			'Hanifi_Rohingya',
-			'Sogdian',
-			'Syriac',
+			'Common', 'Adlam', 'Arabic', 'Mandaic', 'Manichaean', 'Old_Uyghur',
+			'Psalter_Pahlavi', 'Hanifi_Rohingya', 'Sogdian', 'Syriac',
 		],
-		"\xD9\x8A" => [
-			'Arabic',
-		],
-		"\xD9\x8B" => [
-			'Inherited',
-			'Arabic',
-		],
-		"\xD9\x8C" => [
-			'Inherited',
-			'Syriac',
-		],
-		"\xD9\x8D" => [
-			'Inherited',
-			'Arabic',
-		],
-		"\xD9\x8E" => [
-			'Inherited',
-			'Syriac',
-		],
-		"\xD9\x8F" => [
-			'Inherited',
-			'Arabic',
-		],
-		"\xD9\x90" => [
-			'Inherited',
-			'Syriac',
-		],
-		"\xD9\x91" => [
-			'Inherited',
-			'Arabic',
-		],
-		"\xD9\x92" => [
-			'Inherited',
-			'Syriac',
-		],
-		"\xD9\x93" => [
-			'Inherited',
-			'Arabic',
-		],
-		"\xD9\x94" => [
-			'Inherited',
-			'Syriac',
-		],
-		"\xD9\x95" => [
-			'Inherited',
-			'Arabic',
-		],
-		"\xD9\x96" => [
-			'Arabic',
-			'Syriac',
-		],
-		"\xD9\xA0" => [
-			'Arabic',
-		],
-		"\xD9\xA1" => [
-			'Arabic',
-			'Thaana',
-		],
-		"\xD9\xA2" => [
-			'Arabic',
-			'Yezidi',
-		],
-		"\xD9\xA3" => [
-			'Arabic',
-		],
-		"\xD9\xA4" => [
-			'Arabic',
-			'Thaana',
-		],
-		"\xD9\xA5" => [
-			'Arabic',
-			'Yezidi',
-		],
-		"\xD9\xA6" => [
-			'Arabic',
-		],
-		"\xD9\xA7" => [
-			'Arabic',
-			'Thaana',
-		],
-		"\xD9\xA8" => [
-			'Arabic',
-			'Yezidi',
-		],
-		"\xD9\xA9" => [
-			'Arabic',
-		],
-		"\xD9\xAA" => [
-			'Arabic',
-			'Thaana',
-		],
-		"\xD9\xAB" => [
-			'Arabic',
-			'Yezidi',
-		],
-		"\xD9\xAF" => [
-			'Arabic',
-		],
-		"\xD9\xB0" => [
-			'Inherited',
-			'Arabic',
-			'Syriac',
-		],
-		"\xDB\x93" => [
-			'Arabic',
-		],
+		"\xD9\x8A" => ['Arabic'],
+		"\xD9\x8B" => ['Inherited', 'Arabic'],
+		"\xD9\x8C" => ['Inherited', 'Syriac'],
+		"\xD9\x8D" => ['Inherited', 'Arabic'],
+		"\xD9\x8E" => ['Inherited', 'Syriac'],
+		"\xD9\x8F" => ['Inherited', 'Arabic'],
+		"\xD9\x90" => ['Inherited', 'Syriac'],
+		"\xD9\x91" => ['Inherited', 'Arabic'],
+		"\xD9\x92" => ['Inherited', 'Syriac'],
+		"\xD9\x93" => ['Inherited', 'Arabic'],
+		"\xD9\x94" => ['Inherited', 'Syriac'],
+		"\xD9\x95" => ['Inherited', 'Arabic'],
+		"\xD9\x96" => ['Arabic', 'Syriac'],
+		"\xD9\xA0" => ['Arabic'],
+		"\xD9\xA1" => ['Arabic', 'Thaana'],
+		"\xD9\xA2" => ['Arabic', 'Yezidi'],
+		"\xD9\xA3" => ['Arabic'],
+		"\xD9\xA4" => ['Arabic', 'Thaana'],
+		"\xD9\xA5" => ['Arabic', 'Yezidi'],
+		"\xD9\xA6" => ['Arabic'],
+		"\xD9\xA7" => ['Arabic', 'Thaana'],
+		"\xD9\xA8" => ['Arabic', 'Yezidi'],
+		"\xD9\xA9" => ['Arabic'],
+		"\xD9\xAA" => ['Arabic', 'Thaana'],
+		"\xD9\xAB" => ['Arabic', 'Yezidi'],
+		"\xD9\xAF" => ['Arabic'],
+		"\xD9\xB0" => ['Inherited', 'Arabic', 'Syriac'],
+		"\xDB\x93" => ['Arabic'],
 		"\xDB\x94" => [
 			'Arabic',
 			'Hanifi_Rohingya',
 		],
-		"\xDB\x9C" => [
-			'Arabic',
-		],
-		"\xDB\x9D" => [
-			'Common',
-		],
-		"\xDB\xBF" => [
-			'Arabic',
-		],
-		"\xDD\x8F" => [
-			'Syriac',
-		],
-		"\xDD\xBF" => [
-			'Arabic',
-		],
-		"\xDE\xB1" => [
-			'Thaana',
-		],
-		"\xDF\xBF" => [
-			'Nko',
-		],
-		"\xE0\xA0\xBE" => [
-			'Samaritan',
-		],
-		"\xE0\xA1\x9E" => [
-			'Mandaic',
-		],
-		"\xE0\xA1\xAA" => [
-			'Syriac',
-		],
-		"\xE0\xA3\xA1" => [
-			'Arabic',
-		],
-		"\xE0\xA3\xA2" => [
-			'Common',
-		],
-		"\xE0\xA3\xBF" => [
-			'Arabic',
-		],
-		"\xE0\xA5\x90" => [
-			'Devanagari',
-		],
+		"\xDB\x9C" => ['Arabic'],
+		"\xDB\x9D" => ['Common'],
+		"\xDB\xBF" => ['Arabic'],
+		"\xDD\x8F" => ['Syriac'],
+		"\xDD\xBF" => ['Arabic'],
+		"\xDE\xB1" => ['Thaana'],
+		"\xDF\xBF" => ['Nko'],
+		"\xE0\xA0\xBE" => ['Samaritan'],
+		"\xE0\xA1\x9E" => ['Mandaic'],
+		"\xE0\xA1\xAA" => ['Syriac'],
+		"\xE0\xA3\xA1" => ['Arabic'],
+		"\xE0\xA3\xA2" => ['Common'],
+		"\xE0\xA3\xBF" => ['Arabic'],
+		"\xE0\xA5\x90" => ['Devanagari'],
 		"\xE0\xA5\x91" => [
-			'Inherited',
-			'Bengali',
-			'Devanagari',
-			'Grantha',
-			'Gujarati',
-			'Gurmukhi',
-			'Kannada',
-			'Latin',
-			'Malayalam',
-			'Oriya',
-			'Sharada',
-			'Tamil',
-			'Telugu',
+			'Inherited', 'Bengali', 'Devanagari', 'Grantha', 'Gujarati', 'Gurmukhi',
+			'Kannada', 'Latin', 'Malayalam', 'Oriya', 'Sharada', 'Tamil', 'Telugu',
 			'Tirhuta',
 		],
 		"\xE0\xA5\x92" => [
-			'Inherited',
-			'Bengali',
-			'Devanagari',
-			'Grantha',
-			'Gujarati',
-			'Gurmukhi',
-			'Kannada',
-			'Latin',
-			'Malayalam',
-			'Oriya',
-			'Tamil',
-			'Telugu',
-			'Tirhuta',
+			'Inherited', 'Bengali', 'Devanagari', 'Grantha', 'Gujarati', 'Gurmukhi',
+			'Kannada', 'Latin', 'Malayalam', 'Oriya', 'Tamil', 'Telugu', 'Tirhuta',
 		],
-		"\xE0\xA5\x94" => [
-			'Inherited',
-		],
-		"\xE0\xA5\xA3" => [
-			'Devanagari',
-		],
+		"\xE0\xA5\x94" => ['Inherited'],
+		"\xE0\xA5\xA3" => ['Devanagari'],
 		"\xE0\xA5\xA4" => [
-			'Common',
-			'Bengali',
-			'Devanagari',
-			'Dogra',
-			'Gunjala_Gondi',
-			'Masaram_Gondi',
-			'Grantha',
-			'Gujarati',
-			'Gurmukhi',
-			'Kannada',
-			'Mahajani',
-			'Malayalam',
-			'Nandinagari',
-			'Ol_Onal',
-			'Oriya',
-			'Khudawadi',
-			'Sinhala',
-			'Syloti_Nagri',
-			'Takri',
-			'Tamil',
-			'Telugu',
-			'Tirhuta',
+			'Common', 'Bengali', 'Devanagari', 'Dogra', 'Gunjala_Gondi',
+			'Masaram_Gondi', 'Grantha', 'Gujarati', 'Gurmukhi', 'Kannada', 'Mahajani',
+			'Malayalam', 'Nandinagari', 'Ol_Onal', 'Oriya', 'Khudawadi', 'Sinhala',
+			'Syloti_Nagri', 'Takri', 'Tamil', 'Telugu', 'Tirhuta',
 		],
 		"\xE0\xA5\xA5" => [
-			'Common',
-			'Bengali',
-			'Devanagari',
-			'Dogra',
-			'Gunjala_Gondi',
-			'Masaram_Gondi',
-			'Grantha',
-			'Gujarati',
-			'Gurung_Khema',
-			'Gurmukhi',
-			'Kannada',
-			'Limbu',
-			'Mahajani',
-			'Malayalam',
-			'Nandinagari',
-			'Ol_Onal',
-			'Oriya',
-			'Khudawadi',
-			'Sinhala',
-			'Syloti_Nagri',
-			'Takri',
-			'Tamil',
-			'Telugu',
-			'Tirhuta',
-		],
-		"\xE0\xA5\xA6" => [
-			'Devanagari',
-		],
-		"\xE0\xA5\xA7" => [
-			'Devanagari',
-			'Dogra',
-		],
-		"\xE0\xA5\xA8" => [
-			'Devanagari',
-			'Kaithi',
-		],
-		"\xE0\xA5\xA9" => [
-			'Devanagari',
-			'Mahajani',
-		],
-		"\xE0\xA5\xAA" => [
-			'Devanagari',
-		],
-		"\xE0\xA5\xAB" => [
-			'Devanagari',
-			'Dogra',
-		],
-		"\xE0\xA5\xAC" => [
-			'Devanagari',
-			'Kaithi',
-		],
-		"\xE0\xA5\xAD" => [
-			'Devanagari',
-			'Mahajani',
-		],
-		"\xE0\xA5\xAE" => [
-			'Devanagari',
-		],
-		"\xE0\xA5\xAF" => [
-			'Devanagari',
-			'Dogra',
-		],
-		"\xE0\xA5\xB0" => [
-			'Devanagari',
-			'Kaithi',
-		],
-		"\xE0\xA5\xB1" => [
-			'Devanagari',
-			'Mahajani',
-		],
-		"\xE0\xA5\xBF" => [
-			'Devanagari',
-		],
-		"\xE0\xA7\xA6" => [
-			'Bengali',
-		],
-		"\xE0\xA7\xA7" => [
-			'Bengali',
-			'Chakma',
-		],
-		"\xE0\xA7\xA8" => [
-			'Bengali',
-			'Syloti_Nagri',
-		],
-		"\xE0\xA7\xA9" => [
-			'Bengali',
-		],
-		"\xE0\xA7\xAA" => [
-			'Bengali',
-			'Chakma',
-		],
-		"\xE0\xA7\xAB" => [
-			'Bengali',
-			'Syloti_Nagri',
-		],
-		"\xE0\xA7\xAC" => [
-			'Bengali',
-		],
-		"\xE0\xA7\xAD" => [
-			'Bengali',
-			'Chakma',
-		],
-		"\xE0\xA7\xAE" => [
-			'Bengali',
-			'Syloti_Nagri',
-		],
-		"\xE0\xA7\xAF" => [
-			'Bengali',
-		],
-		"\xE0\xA7\xB0" => [
-			'Bengali',
-			'Chakma',
-		],
-		"\xE0\xA7\xB1" => [
-			'Bengali',
-			'Syloti_Nagri',
-		],
-		"\xE0\xA7\xBE" => [
-			'Bengali',
-		],
-		"\xE0\xA9\xA6" => [
-			'Gurmukhi',
-		],
-		"\xE0\xA9\xA7" => [
-			'Gurmukhi',
-			'Multani',
-		],
-		"\xE0\xA9\xA8" => [
-			'Gurmukhi',
-		],
-		"\xE0\xA9\xA9" => [
-			'Gurmukhi',
-			'Multani',
-		],
-		"\xE0\xA9\xAA" => [
-			'Gurmukhi',
-		],
-		"\xE0\xA9\xAB" => [
-			'Gurmukhi',
-			'Multani',
-		],
-		"\xE0\xA9\xAC" => [
-			'Gurmukhi',
-		],
-		"\xE0\xA9\xAD" => [
-			'Gurmukhi',
-			'Multani',
-		],
-		"\xE0\xA9\xAE" => [
-			'Gurmukhi',
-		],
-		"\xE0\xA9\xAF" => [
-			'Gurmukhi',
-			'Multani',
-		],
-		"\xE0\xA9\xB6" => [
-			'Gurmukhi',
-		],
-		"\xE0\xAB\xA6" => [
-			'Gujarati',
-		],
-		"\xE0\xAB\xA7" => [
-			'Gujarati',
-			'Khojki',
-		],
-		"\xE0\xAB\xA8" => [
-			'Gujarati',
-		],
-		"\xE0\xAB\xA9" => [
-			'Gujarati',
-			'Khojki',
-		],
-		"\xE0\xAB\xAA" => [
-			'Gujarati',
-		],
-		"\xE0\xAB\xAB" => [
-			'Gujarati',
-			'Khojki',
-		],
-		"\xE0\xAB\xAC" => [
-			'Gujarati',
-		],
-		"\xE0\xAB\xAD" => [
-			'Gujarati',
-			'Khojki',
-		],
-		"\xE0\xAB\xAE" => [
-			'Gujarati',
-		],
-		"\xE0\xAB\xAF" => [
-			'Gujarati',
-			'Khojki',
-		],
-		"\xE0\xAB\xBF" => [
-			'Gujarati',
-		],
-		"\xE0\xAD\xB7" => [
-			'Oriya',
-		],
-		"\xE0\xAF\x97" => [
-			'Tamil',
-		],
-		"\xE0\xAF\xA6" => [
-			'Tamil',
-			'Grantha',
-		],
-		"\xE0\xAF\xA7" => [
-			'Tamil',
-		],
-		"\xE0\xAF\xA8" => [
-			'Tamil',
-			'Grantha',
-		],
-		"\xE0\xAF\xA9" => [
-			'Tamil',
-		],
-		"\xE0\xAF\xAA" => [
-			'Tamil',
-			'Grantha',
-		],
-		"\xE0\xAF\xAB" => [
-			'Tamil',
-		],
-		"\xE0\xAF\xAC" => [
-			'Tamil',
-			'Grantha',
-		],
-		"\xE0\xAF\xAD" => [
-			'Tamil',
-		],
-		"\xE0\xAF\xAE" => [
-			'Tamil',
-			'Grantha',
-		],
-		"\xE0\xAF\xAF" => [
-			'Tamil',
-		],
-		"\xE0\xAF\xB0" => [
-			'Tamil',
-			'Grantha',
-		],
-		"\xE0\xAF\xB1" => [
-			'Tamil',
-		],
-		"\xE0\xAF\xB2" => [
-			'Tamil',
-			'Grantha',
-		],
+			'Common', 'Bengali', 'Devanagari', 'Dogra', 'Gunjala_Gondi',
+			'Masaram_Gondi', 'Grantha', 'Gujarati', 'Gurung_Khema', 'Gurmukhi',
+			'Kannada', 'Limbu', 'Mahajani', 'Malayalam', 'Nandinagari', 'Ol_Onal',
+			'Oriya', 'Khudawadi', 'Sinhala', 'Syloti_Nagri', 'Takri', 'Tamil',
+			'Telugu', 'Tirhuta',
+		],
+		"\xE0\xA5\xA6" => ['Devanagari'],
+		"\xE0\xA5\xA7" => ['Devanagari', 'Dogra'],
+		"\xE0\xA5\xA8" => ['Devanagari', 'Kaithi'],
+		"\xE0\xA5\xA9" => ['Devanagari', 'Mahajani'],
+		"\xE0\xA5\xAA" => ['Devanagari'],
+		"\xE0\xA5\xAB" => ['Devanagari', 'Dogra'],
+		"\xE0\xA5\xAC" => ['Devanagari', 'Kaithi'],
+		"\xE0\xA5\xAD" => ['Devanagari', 'Mahajani'],
+		"\xE0\xA5\xAE" => ['Devanagari'],
+		"\xE0\xA5\xAF" => ['Devanagari', 'Dogra'],
+		"\xE0\xA5\xB0" => ['Devanagari', 'Kaithi'],
+		"\xE0\xA5\xB1" => ['Devanagari', 'Mahajani'],
+		"\xE0\xA5\xBF" => ['Devanagari'],
+		"\xE0\xA7\xA6" => ['Bengali'],
+		"\xE0\xA7\xA7" => ['Bengali', 'Chakma'],
+		"\xE0\xA7\xA8" => ['Bengali', 'Syloti_Nagri'],
+		"\xE0\xA7\xA9" => ['Bengali'],
+		"\xE0\xA7\xAA" => ['Bengali', 'Chakma'],
+		"\xE0\xA7\xAB" => ['Bengali', 'Syloti_Nagri'],
+		"\xE0\xA7\xAC" => ['Bengali'],
+		"\xE0\xA7\xAD" => ['Bengali', 'Chakma'],
+		"\xE0\xA7\xAE" => ['Bengali', 'Syloti_Nagri'],
+		"\xE0\xA7\xAF" => ['Bengali'],
+		"\xE0\xA7\xB0" => ['Bengali', 'Chakma'],
+		"\xE0\xA7\xB1" => ['Bengali', 'Syloti_Nagri'],
+		"\xE0\xA7\xBE" => ['Bengali'],
+		"\xE0\xA9\xA6" => ['Gurmukhi'],
+		"\xE0\xA9\xA7" => ['Gurmukhi', 'Multani'],
+		"\xE0\xA9\xA8" => ['Gurmukhi'],
+		"\xE0\xA9\xA9" => ['Gurmukhi', 'Multani'],
+		"\xE0\xA9\xAA" => ['Gurmukhi'],
+		"\xE0\xA9\xAB" => ['Gurmukhi', 'Multani'],
+		"\xE0\xA9\xAC" => ['Gurmukhi'],
+		"\xE0\xA9\xAD" => ['Gurmukhi', 'Multani'],
+		"\xE0\xA9\xAE" => ['Gurmukhi'],
+		"\xE0\xA9\xAF" => ['Gurmukhi', 'Multani'],
+		"\xE0\xA9\xB6" => ['Gurmukhi'],
+		"\xE0\xAB\xA6" => ['Gujarati'],
+		"\xE0\xAB\xA7" => ['Gujarati', 'Khojki'],
+		"\xE0\xAB\xA8" => ['Gujarati'],
+		"\xE0\xAB\xA9" => ['Gujarati', 'Khojki'],
+		"\xE0\xAB\xAA" => ['Gujarati'],
+		"\xE0\xAB\xAB" => ['Gujarati', 'Khojki'],
+		"\xE0\xAB\xAC" => ['Gujarati'],
+		"\xE0\xAB\xAD" => ['Gujarati', 'Khojki'],
+		"\xE0\xAB\xAE" => ['Gujarati'],
+		"\xE0\xAB\xAF" => ['Gujarati', 'Khojki'],
+		"\xE0\xAB\xBF" => ['Gujarati'],
+		"\xE0\xAD\xB7" => ['Oriya'],
+		"\xE0\xAF\x97" => ['Tamil'],
+		"\xE0\xAF\xA6" => ['Tamil', 'Grantha'],
+		"\xE0\xAF\xA7" => ['Tamil'],
+		"\xE0\xAF\xA8" => ['Tamil', 'Grantha'],
+		"\xE0\xAF\xA9" => ['Tamil'],
+		"\xE0\xAF\xAA" => ['Tamil', 'Grantha'],
+		"\xE0\xAF\xAB" => ['Tamil'],
+		"\xE0\xAF\xAC" => ['Tamil', 'Grantha'],
+		"\xE0\xAF\xAD" => ['Tamil'],
+		"\xE0\xAF\xAE" => ['Tamil', 'Grantha'],
+		"\xE0\xAF\xAF" => ['Tamil'],
+		"\xE0\xAF\xB0" => ['Tamil', 'Grantha'],
+		"\xE0\xAF\xB1" => ['Tamil'],
+		"\xE0\xAF\xB2" => ['Tamil', 'Grantha'],
 		"\xE0\xAF\xB3" => [
 			'Tamil',
 			'Grantha',
 		],
-		"\xE0\xAF\xBA" => [
-			'Tamil',
-		],
-		"\xE0\xB1\xBF" => [
-			'Telugu',
-		],
-		"\xE0\xB3\xA6" => [
-			'Kannada',
-		],
-		"\xE0\xB3\xA7" => [
-			'Kannada',
-			'Nandinagari',
-		],
-		"\xE0\xB3\xA8" => [
-			'Kannada',
-			'Tulu_Tigalari',
-		],
-		"\xE0\xB3\xA9" => [
-			'Kannada',
-		],
-		"\xE0\xB3\xAA" => [
-			'Kannada',
-			'Nandinagari',
-		],
-		"\xE0\xB3\xAB" => [
-			'Kannada',
-			'Tulu_Tigalari',
-		],
-		"\xE0\xB3\xAC" => [
-			'Kannada',
-		],
-		"\xE0\xB3\xAD" => [
-			'Kannada',
-			'Nandinagari',
-		],
-		"\xE0\xB3\xAE" => [
-			'Kannada',
-			'Tulu_Tigalari',
-		],
-		"\xE0\xB3\xAF" => [
-			'Kannada',
-		],
-		"\xE0\xB3\xB0" => [
-			'Nandinagari',
-		],
-		"\xE0\xB3\xB1" => [
-			'Kannada',
-			'Tulu_Tigalari',
-		],
-		"\xE0\xB3\xB3" => [
-			'Kannada',
-		],
-		"\xE0\xB5\xBF" => [
-			'Malayalam',
-		],
-		"\xE0\xB7\xB4" => [
-			'Sinhala',
-		],
-		"\xE0\xB8\xBA" => [
-			'Thai',
-		],
-		"\xE0\xB8\xBF" => [
-			'Common',
-		],
-		"\xE0\xB9\x9B" => [
-			'Thai',
-		],
-		"\xE0\xBB\x9F" => [
-			'Lao',
-		],
-		"\xE0\xBF\x94" => [
-			'Tibetan',
-		],
-		"\xE0\xBF\x98" => [
-			'Common',
-		],
-		"\xE0\xBF\x9A" => [
-			'Tibetan',
-		],
-		"\xE1\x80\xBF" => [
-			'Myanmar',
-		],
-		"\xE1\x81\x80" => [
-			'Myanmar',
-			'Chakma',
-		],
-		"\xE1\x81\x81" => [
-			'Myanmar',
-		],
-		"\xE1\x81\x82" => [
-			'Myanmar',
-			'Tai_Le',
-		],
-		"\xE1\x81\x83" => [
-			'Myanmar',
-			'Chakma',
-		],
-		"\xE1\x81\x84" => [
-			'Myanmar',
-		],
-		"\xE1\x81\x85" => [
-			'Myanmar',
-			'Tai_Le',
-		],
-		"\xE1\x81\x86" => [
-			'Myanmar',
-			'Chakma',
-		],
-		"\xE1\x81\x87" => [
-			'Myanmar',
-		],
-		"\xE1\x81\x88" => [
-			'Myanmar',
-			'Tai_Le',
-		],
-		"\xE1\x81\x89" => [
-			'Myanmar',
-			'Chakma',
-		],
-		"\xE1\x81\x8A" => [
-			'Myanmar',
-		],
-		"\xE1\x81\x8B" => [
-			'Myanmar',
-			'Tai_Le',
-		],
-		"\xE1\x82\x9F" => [
-			'Myanmar',
-		],
-		"\xE1\x83\xBA" => [
-			'Georgian',
-		],
-		"\xE1\x83\xBB" => [
-			'Common',
-			'Georgian',
-			'Glagolitic',
-			'Latin',
-		],
-		"\xE1\x83\xBF" => [
-			'Georgian',
-		],
-		"\xE1\x87\xBF" => [
-			'Hangul',
-		],
-		"\xE1\x8E\x99" => [
-			'Ethiopic',
-		],
-		"\xE1\x8F\xBD" => [
-			'Cherokee',
-		],
-		"\xE1\x99\xBF" => [
-			'Canadian_Aboriginal',
-		],
-		"\xE1\x9A\x9C" => [
-			'Ogham',
-		],
-		"\xE1\x9B\xAA" => [
-			'Runic',
-		],
-		"\xE1\x9B\xAD" => [
-			'Common',
-			'Runic',
-		],
-		"\xE1\x9B\xB8" => [
-			'Runic',
-		],
-		"\xE1\x9C\x9F" => [
-			'Tagalog',
-		],
-		"\xE1\x9C\xB4" => [
-			'Hanunoo',
-		],
-		"\xE1\x9C\xB5" => [
-			'Common',
-			'Buhid',
-		],
-		"\xE1\x9C\xB6" => [
-			'Common',
-			'Hanunoo',
-		],
-		"\xE1\x9C\xB7" => [
-			'Tagbanwa',
-		],
-		"\xE1\x9C\xB8" => [
-			'Tagalog',
-		],
-		"\xE1\x9D\x93" => [
-			'Buhid',
-		],
-		"\xE1\x9D\xB3" => [
-			'Tagbanwa',
-		],
-		"\xE1\x9F\xB9" => [
-			'Khmer',
-		],
-		"\xE1\xA0\x81" => [
-			'Mongolian',
-		],
-		"\xE1\xA0\x82" => [
-			'Common',
-			'Mongolian',
-		],
-		"\xE1\xA0\x83" => [
-			'Common',
-			'Phags_Pa',
-		],
-		"\xE1\xA0\x84" => [
-			'Mongolian',
-		],
-		"\xE1\xA0\x85" => [
-			'Common',
-			'Mongolian',
-			'Phags_Pa',
-		],
-		"\xE1\xA2\xAA" => [
-			'Mongolian',
-		],
-		"\xE1\xA3\xB5" => [
-			'Canadian_Aboriginal',
-		],
-		"\xE1\xA5\x8F" => [
-			'Limbu',
-		],
-		"\xE1\xA5\xB4" => [
-			'Tai_Le',
-		],
-		"\xE1\xA7\x9F" => [
-			'New_Tai_Lue',
-		],
-		"\xE1\xA7\xBF" => [
-			'Khmer',
-		],
-		"\xE1\xA8\x9F" => [
-			'Buginese',
-		],
-		"\xE1\xAA\xAD" => [
-			'Tai_Tham',
-		],
-		"\xE1\xAB\x8E" => [
-			'Inherited',
-		],
-		"\xE1\xAD\xBF" => [
-			'Balinese',
-		],
-		"\xE1\xAE\xBF" => [
-			'Sundanese',
-		],
-		"\xE1\xAF\xBF" => [
-			'Batak',
-		],
-		"\xE1\xB1\x8F" => [
-			'Lepcha',
-		],
-		"\xE1\xB1\xBF" => [
-			'Ol_Chiki',
-		],
-		"\xE1\xB2\x8A" => [
-			'Cyrillic',
-		],
-		"\xE1\xB2\xBF" => [
-			'Georgian',
-		],
-		"\xE1\xB3\x87" => [
-			'Sundanese',
-		],
-		"\xE1\xB3\x90" => [
-			'Inherited',
-			'Bengali',
-			'Devanagari',
-			'Grantha',
-			'Kannada',
-		],
-		"\xE1\xB3\x91" => [
-			'Inherited',
-			'Devanagari',
-		],
-		"\xE1\xB3\x92" => [
-			'Inherited',
-			'Bengali',
-			'Devanagari',
-			'Grantha',
-			'Kannada',
-		],
-		"\xE1\xB3\x93" => [
-			'Common',
-			'Devanagari',
-			'Grantha',
-			'Kannada',
-		],
-		"\xE1\xB3\x94" => [
-			'Inherited',
-			'Devanagari',
-		],
-		"\xE1\xB3\x95" => [
-			'Inherited',
-			'Bengali',
-		],
-		"\xE1\xB3\x96" => [
-			'Inherited',
-			'Devanagari',
-		],
-		"\xE1\xB3\x97" => [
-			'Inherited',
-			'Devanagari',
-			'Sharada',
-		],
-		"\xE1\xB3\x98" => [
-			'Inherited',
-			'Bengali',
-			'Devanagari',
-		],
-		"\xE1\xB3\x99" => [
-			'Inherited',
-			'Devanagari',
-			'Sharada',
-		],
+		"\xE0\xAF\xBA" => ['Tamil'],
+		"\xE0\xB1\xBF" => ['Telugu'],
+		"\xE0\xB3\xA6" => ['Kannada'],
+		"\xE0\xB3\xA7" => ['Kannada', 'Nandinagari'],
+		"\xE0\xB3\xA8" => ['Kannada', 'Tulu_Tigalari'],
+		"\xE0\xB3\xA9" => ['Kannada'],
+		"\xE0\xB3\xAA" => ['Kannada', 'Nandinagari'],
+		"\xE0\xB3\xAB" => ['Kannada', 'Tulu_Tigalari'],
+		"\xE0\xB3\xAC" => ['Kannada'],
+		"\xE0\xB3\xAD" => ['Kannada', 'Nandinagari'],
+		"\xE0\xB3\xAE" => ['Kannada', 'Tulu_Tigalari'],
+		"\xE0\xB3\xAF" => ['Kannada'],
+		"\xE0\xB3\xB0" => ['Nandinagari'],
+		"\xE0\xB3\xB1" => ['Kannada', 'Tulu_Tigalari'],
+		"\xE0\xB3\xB3" => ['Kannada'],
+		"\xE0\xB5\xBF" => ['Malayalam'],
+		"\xE0\xB7\xB4" => ['Sinhala'],
+		"\xE0\xB8\xBA" => ['Thai'],
+		"\xE0\xB8\xBF" => ['Common'],
+		"\xE0\xB9\x9B" => ['Thai'],
+		"\xE0\xBB\x9F" => ['Lao'],
+		"\xE0\xBF\x94" => ['Tibetan'],
+		"\xE0\xBF\x98" => ['Common'],
+		"\xE0\xBF\x9A" => ['Tibetan'],
+		"\xE1\x80\xBF" => ['Myanmar'],
+		"\xE1\x81\x80" => ['Myanmar', 'Chakma'],
+		"\xE1\x81\x81" => ['Myanmar'],
+		"\xE1\x81\x82" => ['Myanmar', 'Tai_Le'],
+		"\xE1\x81\x83" => ['Myanmar', 'Chakma'],
+		"\xE1\x81\x84" => ['Myanmar'],
+		"\xE1\x81\x85" => ['Myanmar', 'Tai_Le'],
+		"\xE1\x81\x86" => ['Myanmar', 'Chakma'],
+		"\xE1\x81\x87" => ['Myanmar'],
+		"\xE1\x81\x88" => ['Myanmar', 'Tai_Le'],
+		"\xE1\x81\x89" => ['Myanmar', 'Chakma'],
+		"\xE1\x81\x8A" => ['Myanmar'],
+		"\xE1\x81\x8B" => ['Myanmar', 'Tai_Le'],
+		"\xE1\x82\x9F" => ['Myanmar'],
+		"\xE1\x83\xBA" => ['Georgian'],
+		"\xE1\x83\xBB" => ['Common', 'Georgian', 'Glagolitic', 'Latin'],
+		"\xE1\x83\xBF" => ['Georgian'],
+		"\xE1\x87\xBF" => ['Hangul'],
+		"\xE1\x8E\x99" => ['Ethiopic'],
+		"\xE1\x8F\xBD" => ['Cherokee'],
+		"\xE1\x99\xBF" => ['Canadian_Aboriginal'],
+		"\xE1\x9A\x9C" => ['Ogham'],
+		"\xE1\x9B\xAA" => ['Runic'],
+		"\xE1\x9B\xAD" => ['Common', 'Runic'],
+		"\xE1\x9B\xB8" => ['Runic'],
+		"\xE1\x9C\x9F" => ['Tagalog'],
+		"\xE1\x9C\xB4" => ['Hanunoo'],
+		"\xE1\x9C\xB5" => ['Common', 'Buhid'],
+		"\xE1\x9C\xB6" => ['Common', 'Hanunoo'],
+		"\xE1\x9C\xB7" => ['Tagbanwa'],
+		"\xE1\x9C\xB8" => ['Tagalog'],
+		"\xE1\x9D\x93" => ['Buhid'],
+		"\xE1\x9D\xB3" => ['Tagbanwa'],
+		"\xE1\x9F\xB9" => ['Khmer'],
+		"\xE1\xA0\x81" => ['Mongolian'],
+		"\xE1\xA0\x82" => ['Common', 'Mongolian'],
+		"\xE1\xA0\x83" => ['Common', 'Phags_Pa'],
+		"\xE1\xA0\x84" => ['Mongolian'],
+		"\xE1\xA0\x85" => ['Common', 'Mongolian', 'Phags_Pa'],
+		"\xE1\xA2\xAA" => ['Mongolian'],
+		"\xE1\xA3\xB5" => ['Canadian_Aboriginal'],
+		"\xE1\xA5\x8F" => ['Limbu'],
+		"\xE1\xA5\xB4" => ['Tai_Le'],
+		"\xE1\xA7\x9F" => ['New_Tai_Lue'],
+		"\xE1\xA7\xBF" => ['Khmer'],
+		"\xE1\xA8\x9F" => ['Buginese'],
+		"\xE1\xAA\xAD" => ['Tai_Tham'],
+		"\xE1\xAB\x8E" => ['Inherited'],
+		"\xE1\xAD\xBF" => ['Balinese'],
+		"\xE1\xAE\xBF" => ['Sundanese'],
+		"\xE1\xAF\xBF" => ['Batak'],
+		"\xE1\xB1\x8F" => ['Lepcha'],
+		"\xE1\xB1\xBF" => ['Ol_Chiki'],
+		"\xE1\xB2\x8A" => ['Cyrillic'],
+		"\xE1\xB2\xBF" => ['Georgian'],
+		"\xE1\xB3\x87" => ['Sundanese'],
+		"\xE1\xB3\x90" => ['Inherited', 'Bengali', 'Devanagari', 'Grantha', 'Kannada'],
+		"\xE1\xB3\x91" => ['Inherited', 'Devanagari'],
+		"\xE1\xB3\x92" => ['Inherited', 'Bengali', 'Devanagari', 'Grantha', 'Kannada'],
+		"\xE1\xB3\x93" => ['Common', 'Devanagari', 'Grantha', 'Kannada'],
+		"\xE1\xB3\x94" => ['Inherited', 'Devanagari'],
+		"\xE1\xB3\x95" => ['Inherited', 'Bengali'],
+		"\xE1\xB3\x96" => ['Inherited', 'Devanagari'],
+		"\xE1\xB3\x97" => ['Inherited', 'Devanagari', 'Sharada'],
+		"\xE1\xB3\x98" => ['Inherited', 'Bengali', 'Devanagari'],
+		"\xE1\xB3\x99" => ['Inherited', 'Devanagari', 'Sharada'],
 		"\xE1\xB3\x9A" => [
-			'Inherited',
-			'Devanagari',
-			'Kannada',
-			'Malayalam',
-			'Oriya',
-			'Tamil',
+			'Inherited', 'Devanagari', 'Kannada', 'Malayalam', 'Oriya', 'Tamil',
 			'Telugu',
 		],
-		"\xE1\xB3\x9C" => [
-			'Inherited',
-			'Devanagari',
-		],
-		"\xE1\xB3\x9D" => [
-			'Inherited',
-			'Sharada',
-		],
-		"\xE1\xB3\x9F" => [
-			'Inherited',
-			'Devanagari',
-		],
-		"\xE1\xB3\xA0" => [
-			'Inherited',
-			'Devanagari',
-			'Sharada',
-		],
-		"\xE1\xB3\xA1" => [
-			'Common',
-			'Bengali',
-			'Devanagari',
-		],
-		"\xE1\xB3\xA8" => [
-			'Inherited',
-			'Devanagari',
-		],
-		"\xE1\xB3\xA9" => [
-			'Common',
-			'Devanagari',
-			'Nandinagari',
-		],
-		"\xE1\xB3\xAA" => [
-			'Common',
-			'Bengali',
-			'Devanagari',
-		],
-		"\xE1\xB3\xAC" => [
-			'Common',
-			'Devanagari',
-		],
-		"\xE1\xB3\xAD" => [
-			'Inherited',
-			'Bengali',
-			'Devanagari',
-		],
-		"\xE1\xB3\xB1" => [
-			'Common',
-			'Devanagari',
-		],
+		"\xE1\xB3\x9C" => ['Inherited', 'Devanagari'],
+		"\xE1\xB3\x9D" => ['Inherited', 'Sharada'],
+		"\xE1\xB3\x9F" => ['Inherited', 'Devanagari'],
+		"\xE1\xB3\xA0" => ['Inherited', 'Devanagari', 'Sharada'],
+		"\xE1\xB3\xA1" => ['Common', 'Bengali', 'Devanagari'],
+		"\xE1\xB3\xA8" => ['Inherited', 'Devanagari'],
+		"\xE1\xB3\xA9" => ['Common', 'Devanagari', 'Nandinagari'],
+		"\xE1\xB3\xAA" => ['Common', 'Bengali', 'Devanagari'],
+		"\xE1\xB3\xAC" => ['Common', 'Devanagari'],
+		"\xE1\xB3\xAD" => ['Inherited', 'Bengali', 'Devanagari'],
+		"\xE1\xB3\xB1" => ['Common', 'Devanagari'],
 		"\xE1\xB3\xB2" => [
-			'Common',
-			'Bengali',
-			'Devanagari',
-			'Grantha',
-			'Kannada',
-			'Malayalam',
-			'Nandinagari',
-			'Oriya',
-			'Sinhala',
-			'Telugu',
-			'Tirhuta',
-			'Tulu_Tigalari',
+			'Common', 'Bengali', 'Devanagari', 'Grantha', 'Kannada', 'Malayalam',
+			'Nandinagari', 'Oriya', 'Sinhala', 'Telugu', 'Tirhuta', 'Tulu_Tigalari',
 		],
-		"\xE1\xB3\xB3" => [
-			'Common',
-			'Devanagari',
-			'Grantha',
-		],
-		"\xE1\xB3\xB4" => [
-			'Inherited',
-			'Devanagari',
-			'Grantha',
-			'Kannada',
-			'Tulu_Tigalari',
-		],
-		"\xE1\xB3\xB5" => [
-			'Common',
-			'Bengali',
-		],
-		"\xE1\xB3\xB6" => [
-			'Common',
-			'Devanagari',
-		],
-		"\xE1\xB3\xB7" => [
-			'Common',
-			'Bengali',
-		],
-		"\xE1\xB3\xB8" => [
-			'Inherited',
-			'Devanagari',
-		],
-		"\xE1\xB3\xB9" => [
-			'Inherited',
-			'Grantha',
-		],
-		"\xE1\xB3\xBA" => [
-			'Common',
-			'Nandinagari',
-		],
-		"\xE1\xB4\xA5" => [
-			'Latin',
-		],
-		"\xE1\xB4\xAA" => [
-			'Greek',
-		],
-		"\xE1\xB4\xAB" => [
-			'Cyrillic',
-		],
-		"\xE1\xB5\x9C" => [
-			'Latin',
-		],
-		"\xE1\xB5\xA1" => [
-			'Greek',
-		],
-		"\xE1\xB5\xA5" => [
-			'Latin',
-		],
-		"\xE1\xB5\xAA" => [
-			'Greek',
-		],
-		"\xE1\xB5\xB7" => [
-			'Latin',
-		],
-		"\xE1\xB5\xB8" => [
-			'Cyrillic',
-		],
-		"\xE1\xB6\xBE" => [
-			'Latin',
-		],
-		"\xE1\xB6\xBF" => [
-			'Greek',
-		],
-		"\xE1\xB7\x81" => [
-			'Inherited',
-			'Greek',
-		],
-		"\xE1\xB7\xB7" => [
-			'Inherited',
-		],
-		"\xE1\xB7\xB8" => [
-			'Inherited',
-			'Cyrillic',
-			'Latin',
-			'Syriac',
-		],
-		"\xE1\xB7\xB9" => [
-			'Inherited',
-		],
-		"\xE1\xB7\xBA" => [
-			'Inherited',
-			'Syriac',
-		],
-		"\xE1\xB7\xBF" => [
-			'Inherited',
-		],
-		"\xE1\xBB\xBF" => [
-			'Latin',
-		],
-		"\xE1\xBF\xBE" => [
-			'Greek',
-		],
-		"\xE2\x80\x8B" => [
-			'Common',
-		],
-		"\xE2\x80\x8D" => [
-			'Inherited',
-		],
-		"\xE2\x80\xAE" => [
-			'Common',
-		],
-		"\xE2\x80\xAF" => [
-			'Common',
-			'Latin',
-			'Mongolian',
-			'Phags_Pa',
-		],
-		"\xE2\x81\x8E" => [
-			'Common',
-		],
-		"\xE2\x81\x8F" => [
-			'Common',
-			'Adlam',
-			'Arabic',
-		],
-		"\xE2\x81\x99" => [
-			'Common',
-		],
+		"\xE1\xB3\xB3" => ['Common', 'Devanagari', 'Grantha'],
+		"\xE1\xB3\xB4" => ['Inherited', 'Devanagari', 'Grantha', 'Kannada', 'Tulu_Tigalari'],
+		"\xE1\xB3\xB5" => ['Common', 'Bengali'],
+		"\xE1\xB3\xB6" => ['Common', 'Devanagari'],
+		"\xE1\xB3\xB7" => ['Common', 'Bengali'],
+		"\xE1\xB3\xB8" => ['Inherited', 'Devanagari'],
+		"\xE1\xB3\xB9" => ['Inherited', 'Grantha'],
+		"\xE1\xB3\xBA" => ['Common', 'Nandinagari'],
+		"\xE1\xB4\xA5" => ['Latin'],
+		"\xE1\xB4\xAA" => ['Greek'],
+		"\xE1\xB4\xAB" => ['Cyrillic'],
+		"\xE1\xB5\x9C" => ['Latin'],
+		"\xE1\xB5\xA1" => ['Greek'],
+		"\xE1\xB5\xA5" => ['Latin'],
+		"\xE1\xB5\xAA" => ['Greek'],
+		"\xE1\xB5\xB7" => ['Latin'],
+		"\xE1\xB5\xB8" => ['Cyrillic'],
+		"\xE1\xB6\xBE" => ['Latin'],
+		"\xE1\xB6\xBF" => ['Greek'],
+		"\xE1\xB7\x81" => ['Inherited', 'Greek'],
+		"\xE1\xB7\xB7" => ['Inherited'],
+		"\xE1\xB7\xB8" => ['Inherited', 'Cyrillic', 'Latin', 'Syriac'],
+		"\xE1\xB7\xB9" => ['Inherited'],
+		"\xE1\xB7\xBA" => ['Inherited', 'Syriac'],
+		"\xE1\xB7\xBF" => ['Inherited'],
+		"\xE1\xBB\xBF" => ['Latin'],
+		"\xE1\xBF\xBE" => ['Greek'],
+		"\xE2\x80\x8B" => ['Common'],
+		"\xE2\x80\x8D" => ['Inherited'],
+		"\xE2\x80\xAE" => ['Common'],
+		"\xE2\x80\xAF" => ['Common', 'Latin', 'Mongolian', 'Phags_Pa'],
+		"\xE2\x81\x8E" => ['Common'],
+		"\xE2\x81\x8F" => ['Common', 'Adlam', 'Arabic'],
+		"\xE2\x81\x99" => ['Common'],
 		"\xE2\x81\x9A" => [
-			'Common',
-			'Carian',
-			'Georgian',
-			'Glagolitic',
-			'Old_Hungarian',
-			'Lycian',
+			'Common', 'Carian', 'Georgian', 'Glagolitic', 'Old_Hungarian', 'Lycian',
 			'Old_Turkic',
 		],
-		"\xE2\x81\x9C" => [
-			'Common',
-		],
-		"\xE2\x81\x9D" => [
-			'Common',
-			'Carian',
-			'Greek',
-			'Old_Hungarian',
-			'Meroitic_Hieroglyphs',
-		],
-		"\xE2\x81\xB0" => [
-			'Common',
-		],
-		"\xE2\x81\xB1" => [
-			'Latin',
-		],
-		"\xE2\x81\xBE" => [
-			'Common',
-		],
-		"\xE2\x81\xBF" => [
-			'Latin',
-		],
-		"\xE2\x82\x8E" => [
-			'Common',
-		],
-		"\xE2\x82\x9C" => [
-			'Latin',
-		],
-		"\xE2\x83\x80" => [
-			'Common',
-		],
-		"\xE2\x83\xAF" => [
-			'Inherited',
-		],
-		"\xE2\x83\xB0" => [
-			'Inherited',
-			'Devanagari',
-			'Grantha',
-			'Latin',
-		],
-		"\xE2\x84\xA5" => [
-			'Common',
-		],
-		"\xE2\x84\xA6" => [
-			'Greek',
-		],
-		"\xE2\x84\xA9" => [
-			'Common',
-		],
-		"\xE2\x84\xAB" => [
-			'Latin',
-		],
-		"\xE2\x84\xB1" => [
-			'Common',
-		],
-		"\xE2\x84\xB2" => [
-			'Latin',
-		],
-		"\xE2\x85\x8D" => [
-			'Common',
-		],
-		"\xE2\x85\x8E" => [
-			'Latin',
-		],
-		"\xE2\x85\x9F" => [
-			'Common',
-		],
-		"\xE2\x86\x88" => [
-			'Latin',
-		],
-		"\xE2\x9F\xBF" => [
-			'Common',
-		],
-		"\xE2\xA3\xBF" => [
-			'Braille',
-		],
-		"\xE2\xAF\xBF" => [
-			'Common',
-		],
-		"\xE2\xB1\x9F" => [
-			'Glagolitic',
-		],
-		"\xE2\xB1\xBF" => [
-			'Latin',
-		],
-		"\xE2\xB3\xBF" => [
-			'Coptic',
-		],
-		"\xE2\xB4\xAD" => [
-			'Georgian',
-		],
-		"\xE2\xB5\xBF" => [
-			'Tifinagh',
-		],
-		"\xE2\xB7\x9E" => [
-			'Ethiopic',
-		],
-		"\xE2\xB7\xBF" => [
-			'Cyrillic',
-		],
-		"\xE2\xB8\x96" => [
-			'Common',
-		],
-		"\xE2\xB8\x97" => [
-			'Common',
-			'Coptic',
-			'Latin',
-		],
-		"\xE2\xB8\xAF" => [
-			'Common',
-		],
-		"\xE2\xB8\xB0" => [
-			'Common',
-			'Avestan',
-			'Old_Turkic',
-		],
+		"\xE2\x81\x9C" => ['Common'],
+		"\xE2\x81\x9D" => ['Common', 'Carian', 'Greek', 'Old_Hungarian', 'Meroitic_Hieroglyphs'],
+		"\xE2\x81\xB0" => ['Common'],
+		"\xE2\x81\xB1" => ['Latin'],
+		"\xE2\x81\xBE" => ['Common'],
+		"\xE2\x81\xBF" => ['Latin'],
+		"\xE2\x82\x8E" => ['Common'],
+		"\xE2\x82\x9C" => ['Latin'],
+		"\xE2\x83\x80" => ['Common'],
+		"\xE2\x83\xAF" => ['Inherited'],
+		"\xE2\x83\xB0" => ['Inherited', 'Devanagari', 'Grantha', 'Latin'],
+		"\xE2\x84\xA5" => ['Common'],
+		"\xE2\x84\xA6" => ['Greek'],
+		"\xE2\x84\xA9" => ['Common'],
+		"\xE2\x84\xAB" => ['Latin'],
+		"\xE2\x84\xB1" => ['Common'],
+		"\xE2\x84\xB2" => ['Latin'],
+		"\xE2\x85\x8D" => ['Common'],
+		"\xE2\x85\x8E" => ['Latin'],
+		"\xE2\x85\x9F" => ['Common'],
+		"\xE2\x86\x88" => ['Latin'],
+		"\xE2\x9F\xBF" => ['Common'],
+		"\xE2\xA3\xBF" => ['Braille'],
+		"\xE2\xAF\xBF" => ['Common'],
+		"\xE2\xB1\x9F" => ['Glagolitic'],
+		"\xE2\xB1\xBF" => ['Latin'],
+		"\xE2\xB3\xBF" => ['Coptic'],
+		"\xE2\xB4\xAD" => ['Georgian'],
+		"\xE2\xB5\xBF" => ['Tifinagh'],
+		"\xE2\xB7\x9E" => ['Ethiopic'],
+		"\xE2\xB7\xBF" => ['Cyrillic'],
+		"\xE2\xB8\x96" => ['Common'],
+		"\xE2\xB8\x97" => ['Common', 'Coptic', 'Latin'],
+		"\xE2\xB8\xAF" => ['Common'],
+		"\xE2\xB8\xB0" => ['Common', 'Avestan', 'Old_Turkic'],
 		"\xE2\xB8\xB1" => [
-			'Common',
-			'Avestan',
-			'Carian',
-			'Georgian',
-			'Old_Hungarian',
-			'Kaithi',
-			'Lydian',
-			'Samaritan',
+			'Common', 'Avestan', 'Carian', 'Georgian', 'Old_Hungarian', 'Kaithi',
+			'Lydian', 'Samaritan',
 		],
-		"\xE2\xB8\xBB" => [
-			'Common',
-		],
-		"\xE2\xB8\xBC" => [
-			'Common',
-			'Duployan',
-		],
-		"\xE2\xB9\x80" => [
-			'Common',
-		],
-		"\xE2\xB9\x81" => [
-			'Common',
-			'Adlam',
-			'Arabic',
-			'Old_Hungarian',
-		],
-		"\xE2\xB9\x82" => [
-			'Common',
-		],
-		"\xE2\xB9\x83" => [
-			'Common',
-			'Cyrillic',
-			'Glagolitic',
-		],
-		"\xE2\xB9\x9D" => [
-			'Common',
-		],
-		"\xE2\xBF\x95" => [
-			'Han',
-		],
-		"\xE2\xBF\xB0" => [
-			'Common',
-			'Han',
-		],
-		"\xE2\xBF\xB1" => [
-			'Common',
-			'Tangut',
-		],
-		"\xE2\xBF\xB2" => [
-			'Common',
-			'Han',
-		],
-		"\xE2\xBF\xB3" => [
-			'Common',
-			'Tangut',
-		],
-		"\xE2\xBF\xB4" => [
-			'Common',
-			'Han',
-		],
-		"\xE2\xBF\xB5" => [
-			'Common',
-			'Tangut',
-		],
-		"\xE2\xBF\xB6" => [
-			'Common',
-			'Han',
-		],
-		"\xE2\xBF\xB7" => [
-			'Common',
-			'Tangut',
-		],
-		"\xE2\xBF\xB8" => [
-			'Common',
-			'Han',
-		],
-		"\xE2\xBF\xB9" => [
-			'Common',
-			'Tangut',
-		],
-		"\xE2\xBF\xBA" => [
-			'Common',
-			'Han',
-		],
-		"\xE2\xBF\xBB" => [
-			'Common',
-			'Tangut',
-		],
-		"\xE2\xBF\xBC" => [
-			'Common',
-			'Han',
-		],
-		"\xE2\xBF\xBD" => [
-			'Common',
-			'Tangut',
-		],
-		"\xE2\xBF\xBE" => [
-			'Common',
-			'Han',
-		],
-		"\xE2\xBF\xBF" => [
-			'Common',
-			'Tangut',
-		],
-		"\xE3\x80\x80" => [
-			'Common',
-		],
+		"\xE2\xB8\xBB" => ['Common'],
+		"\xE2\xB8\xBC" => ['Common', 'Duployan'],
+		"\xE2\xB9\x80" => ['Common'],
+		"\xE2\xB9\x81" => ['Common', 'Adlam', 'Arabic', 'Old_Hungarian'],
+		"\xE2\xB9\x82" => ['Common'],
+		"\xE2\xB9\x83" => ['Common', 'Cyrillic', 'Glagolitic'],
+		"\xE2\xB9\x9D" => ['Common'],
+		"\xE2\xBF\x95" => ['Han'],
+		"\xE2\xBF\xB0" => ['Common', 'Han'],
+		"\xE2\xBF\xB1" => ['Common', 'Tangut'],
+		"\xE2\xBF\xB2" => ['Common', 'Han'],
+		"\xE2\xBF\xB3" => ['Common', 'Tangut'],
+		"\xE2\xBF\xB4" => ['Common', 'Han'],
+		"\xE2\xBF\xB5" => ['Common', 'Tangut'],
+		"\xE2\xBF\xB6" => ['Common', 'Han'],
+		"\xE2\xBF\xB7" => ['Common', 'Tangut'],
+		"\xE2\xBF\xB8" => ['Common', 'Han'],
+		"\xE2\xBF\xB9" => ['Common', 'Tangut'],
+		"\xE2\xBF\xBA" => ['Common', 'Han'],
+		"\xE2\xBF\xBB" => ['Common', 'Tangut'],
+		"\xE2\xBF\xBC" => ['Common', 'Han'],
+		"\xE2\xBF\xBD" => ['Common', 'Tangut'],
+		"\xE2\xBF\xBE" => ['Common', 'Han'],
+		"\xE2\xBF\xBF" => ['Common', 'Tangut'],
+		"\xE3\x80\x80" => ['Common'],
 		"\xE3\x80\x81" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-			'Mongolian',
+			'Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana', 'Mongolian',
 			'Yi',
 		],
 		"\xE3\x80\x82" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-			'Mongolian',
-			'Phags_Pa',
-			'Yi',
+			'Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana', 'Mongolian',
+			'Phags_Pa', 'Yi',
 		],
-		"\xE3\x80\x83" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-		],
-		"\xE3\x80\x84" => [
-			'Common',
-		],
-		"\xE3\x80\x85" => [
-			'Han',
-		],
-		"\xE3\x80\x86" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x80\x87" => [
-			'Han',
-		],
+		"\xE3\x80\x83" => ['Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana'],
+		"\xE3\x80\x84" => ['Common'],
+		"\xE3\x80\x85" => ['Han'],
+		"\xE3\x80\x86" => ['Common', 'Han'],
+		"\xE3\x80\x87" => ['Han'],
 		"\xE3\x80\x89" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-			'Mongolian',
-			'Tibetan',
-			'Yi',
+			'Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana', 'Mongolian',
+			'Tibetan', 'Yi',
 		],
 		"\xE3\x80\x8B" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-			'Lisu',
-			'Mongolian',
-			'Tibetan',
-			'Yi',
-		],
-		"\xE3\x80\x91" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-			'Yi',
-		],
-		"\xE3\x80\x92" => [
-			'Common',
-		],
-		"\xE3\x80\x93" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-		],
-		"\xE3\x80\x9B" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-			'Yi',
-		],
-		"\xE3\x80\x9D" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-		],
-		"\xE3\x80\x9E" => [
-			'Common',
-			'Bopomofo',
-		],
-		"\xE3\x80\x9F" => [
-			'Common',
-			'Hangul',
-		],
-		"\xE3\x80\xA0" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x80\xA1" => [
-			'Han',
-			'Hiragana',
-		],
-		"\xE3\x80\xA2" => [
-			'Han',
-			'Katakana',
-		],
-		"\xE3\x80\xA9" => [
-			'Han',
-		],
-		"\xE3\x80\xAA" => [
-			'Inherited',
-			'Bopomofo',
-		],
-		"\xE3\x80\xAB" => [
-			'Inherited',
-			'Han',
-		],
-		"\xE3\x80\xAC" => [
-			'Inherited',
-			'Bopomofo',
-		],
-		"\xE3\x80\xAD" => [
-			'Inherited',
-			'Han',
-		],
-		"\xE3\x80\xAF" => [
-			'Hangul',
-		],
-		"\xE3\x80\xB0" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-		],
-		"\xE3\x80\xB1" => [
-			'Common',
-			'Hiragana',
-		],
-		"\xE3\x80\xB2" => [
-			'Common',
-			'Katakana',
-		],
-		"\xE3\x80\xB3" => [
-			'Common',
-			'Hiragana',
-		],
-		"\xE3\x80\xB4" => [
-			'Common',
-			'Katakana',
-		],
-		"\xE3\x80\xB5" => [
-			'Common',
-			'Hiragana',
-		],
-		"\xE3\x80\xB6" => [
-			'Common',
-			'Katakana',
-		],
-		"\xE3\x80\xB7" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-		],
-		"\xE3\x80\xBB" => [
-			'Han',
-		],
-		"\xE3\x80\xBD" => [
-			'Common',
-			'Han',
-			'Hiragana',
-			'Katakana',
-		],
-		"\xE3\x80\xBF" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x82\x96" => [
-			'Hiragana',
-		],
-		"\xE3\x82\x99" => [
-			'Inherited',
-			'Hiragana',
-		],
-		"\xE3\x82\x9A" => [
-			'Inherited',
-			'Katakana',
-		],
-		"\xE3\x82\x9B" => [
-			'Common',
-			'Hiragana',
-		],
-		"\xE3\x82\x9C" => [
-			'Common',
-			'Katakana',
-		],
-		"\xE3\x82\x9F" => [
-			'Hiragana',
-		],
-		"\xE3\x82\xA0" => [
-			'Common',
-			'Hiragana',
-			'Katakana',
-		],
-		"\xE3\x83\xBA" => [
-			'Katakana',
-		],
-		"\xE3\x83\xBB" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-			'Yi',
-		],
-		"\xE3\x83\xBC" => [
-			'Common',
-			'Hiragana',
-			'Katakana',
-		],
-		"\xE3\x83\xBF" => [
-			'Katakana',
-		],
-		"\xE3\x84\xAF" => [
-			'Bopomofo',
-		],
-		"\xE3\x86\x8E" => [
-			'Hangul',
-		],
-		"\xE3\x86\x9F" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x86\xBF" => [
-			'Bopomofo',
-		],
-		"\xE3\x87\xA5" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x87\xAF" => [
-			'Common',
-			'Han',
-			'Tangut',
-		],
-		"\xE3\x87\xBF" => [
-			'Katakana',
-		],
-		"\xE3\x88\x9E" => [
-			'Hangul',
-		],
-		"\xE3\x89\x87" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x89\x9F" => [
-			'Common',
-		],
-		"\xE3\x89\xBE" => [
-			'Hangul',
-		],
-		"\xE3\x89\xBF" => [
-			'Common',
-		],
-		"\xE3\x8A\xB0" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x8A\xBF" => [
-			'Common',
-		],
-		"\xE3\x8B\x8B" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x8B\x8F" => [
-			'Common',
-		],
-		"\xE3\x8B\xBE" => [
-			'Katakana',
-		],
-		"\xE3\x8B\xBF" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x8D\x97" => [
-			'Katakana',
-		],
-		"\xE3\x8D\xB0" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x8D\xBA" => [
-			'Common',
-		],
-		"\xE3\x8D\xBF" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x8F\x9F" => [
-			'Common',
-		],
-		"\xE3\x8F\xBE" => [
-			'Common',
-			'Han',
-		],
-		"\xE3\x8F\xBF" => [
-			'Common',
-		],
-		"\xE4\xB6\xBF" => [
-			'Han',
-		],
-		"\xE4\xB7\xBF" => [
-			'Common',
-		],
-		"\xE9\xBF\xBF" => [
-			'Han',
-		],
-		"\xEA\x93\x86" => [
-			'Yi',
-		],
-		"\xEA\x93\xBF" => [
-			'Lisu',
-		],
-		"\xEA\x98\xAB" => [
-			'Vai',
-		],
-		"\xEA\x99\xAE" => [
-			'Cyrillic',
-		],
+			'Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana', 'Lisu',
+			'Mongolian', 'Tibetan', 'Yi',
+		],
+		"\xE3\x80\x91" => ['Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana', 'Yi'],
+		"\xE3\x80\x92" => ['Common'],
+		"\xE3\x80\x93" => ['Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana'],
+		"\xE3\x80\x9B" => ['Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana', 'Yi'],
+		"\xE3\x80\x9D" => ['Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana'],
+		"\xE3\x80\x9E" => ['Common', 'Bopomofo'],
+		"\xE3\x80\x9F" => ['Common', 'Hangul'],
+		"\xE3\x80\xA0" => ['Common', 'Han'],
+		"\xE3\x80\xA1" => ['Han', 'Hiragana'],
+		"\xE3\x80\xA2" => ['Han', 'Katakana'],
+		"\xE3\x80\xA9" => ['Han'],
+		"\xE3\x80\xAA" => ['Inherited', 'Bopomofo'],
+		"\xE3\x80\xAB" => ['Inherited', 'Han'],
+		"\xE3\x80\xAC" => ['Inherited', 'Bopomofo'],
+		"\xE3\x80\xAD" => ['Inherited', 'Han'],
+		"\xE3\x80\xAF" => ['Hangul'],
+		"\xE3\x80\xB0" => ['Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana'],
+		"\xE3\x80\xB1" => ['Common', 'Hiragana'],
+		"\xE3\x80\xB2" => ['Common', 'Katakana'],
+		"\xE3\x80\xB3" => ['Common', 'Hiragana'],
+		"\xE3\x80\xB4" => ['Common', 'Katakana'],
+		"\xE3\x80\xB5" => ['Common', 'Hiragana'],
+		"\xE3\x80\xB6" => ['Common', 'Katakana'],
+		"\xE3\x80\xB7" => ['Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana'],
+		"\xE3\x80\xBB" => ['Han'],
+		"\xE3\x80\xBD" => ['Common', 'Han', 'Hiragana', 'Katakana'],
+		"\xE3\x80\xBF" => ['Common', 'Han'],
+		"\xE3\x82\x96" => ['Hiragana'],
+		"\xE3\x82\x99" => ['Inherited', 'Hiragana'],
+		"\xE3\x82\x9A" => ['Inherited', 'Katakana'],
+		"\xE3\x82\x9B" => ['Common', 'Hiragana'],
+		"\xE3\x82\x9C" => ['Common', 'Katakana'],
+		"\xE3\x82\x9F" => ['Hiragana'],
+		"\xE3\x82\xA0" => ['Common', 'Hiragana', 'Katakana'],
+		"\xE3\x83\xBA" => ['Katakana'],
+		"\xE3\x83\xBB" => ['Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana', 'Yi'],
+		"\xE3\x83\xBC" => ['Common', 'Hiragana', 'Katakana'],
+		"\xE3\x83\xBF" => ['Katakana'],
+		"\xE3\x84\xAF" => ['Bopomofo'],
+		"\xE3\x86\x8E" => ['Hangul'],
+		"\xE3\x86\x9F" => ['Common', 'Han'],
+		"\xE3\x86\xBF" => ['Bopomofo'],
+		"\xE3\x87\xA5" => ['Common', 'Han'],
+		"\xE3\x87\xAF" => ['Common', 'Han', 'Tangut'],
+		"\xE3\x87\xBF" => ['Katakana'],
+		"\xE3\x88\x9E" => ['Hangul'],
+		"\xE3\x89\x87" => ['Common', 'Han'],
+		"\xE3\x89\x9F" => ['Common'],
+		"\xE3\x89\xBE" => ['Hangul'],
+		"\xE3\x89\xBF" => ['Common'],
+		"\xE3\x8A\xB0" => ['Common', 'Han'],
+		"\xE3\x8A\xBF" => ['Common'],
+		"\xE3\x8B\x8B" => ['Common', 'Han'],
+		"\xE3\x8B\x8F" => ['Common'],
+		"\xE3\x8B\xBE" => ['Katakana'],
+		"\xE3\x8B\xBF" => ['Common', 'Han'],
+		"\xE3\x8D\x97" => ['Katakana'],
+		"\xE3\x8D\xB0" => ['Common', 'Han'],
+		"\xE3\x8D\xBA" => ['Common'],
+		"\xE3\x8D\xBF" => ['Common', 'Han'],
+		"\xE3\x8F\x9F" => ['Common'],
+		"\xE3\x8F\xBE" => ['Common', 'Han'],
+		"\xE3\x8F\xBF" => ['Common'],
+		"\xE4\xB6\xBF" => ['Han'],
+		"\xE4\xB7\xBF" => ['Common'],
+		"\xE9\xBF\xBF" => ['Han'],
+		"\xEA\x93\x86" => ['Yi'],
+		"\xEA\x93\xBF" => ['Lisu'],
+		"\xEA\x98\xAB" => ['Vai'],
+		"\xEA\x99\xAE" => ['Cyrillic'],
 		"\xEA\x99\xAF" => [
 			'Cyrillic',
 			'Glagolitic',
 		],
-		"\xEA\x9A\x9F" => [
-			'Cyrillic',
-		],
-		"\xEA\x9B\xB7" => [
-			'Bamum',
-		],
-		"\xEA\x9C\x80" => [
-			'Common',
-			'Han',
-		],
-		"\xEA\x9C\x81" => [
-			'Common',
-			'Latin',
-		],
-		"\xEA\x9C\x82" => [
-			'Common',
-			'Han',
-		],
-		"\xEA\x9C\x83" => [
-			'Common',
-			'Latin',
-		],
-		"\xEA\x9C\x84" => [
-			'Common',
-			'Han',
-		],
-		"\xEA\x9C\x85" => [
-			'Common',
-			'Latin',
-		],
-		"\xEA\x9C\x86" => [
-			'Common',
-			'Han',
-		],
-		"\xEA\x9C\x87" => [
-			'Common',
-			'Latin',
-		],
-		"\xEA\x9C\xA1" => [
-			'Common',
-		],
-		"\xEA\x9E\x87" => [
-			'Latin',
-		],
-		"\xEA\x9E\x8A" => [
-			'Common',
-		],
-		"\xEA\x9F\xBF" => [
-			'Latin',
-		],
-		"\xEA\xA0\xAC" => [
-			'Syloti_Nagri',
-		],
-		"\xEA\xA0\xB0" => [
-			'Common',
-			'Devanagari',
-		],
-		"\xEA\xA0\xB1" => [
-			'Common',
-			'Dogra',
-		],
-		"\xEA\xA0\xB2" => [
-			'Common',
-			'Gujarati',
-		],
-		"\xEA\xA0\xB3" => [
-			'Common',
-			'Gurmukhi',
-			'Devanagari',
-		],
-		"\xEA\xA0\xB4" => [
-			'Common',
-			'Khojki',
-			'Dogra',
-		],
-		"\xEA\xA0\xB5" => [
-			'Common',
-			'Kannada',
-			'Gujarati',
-		],
-		"\xEA\xA0\xB6" => [
-			'Common',
-			'Kaithi',
-			'Gurmukhi',
-			'Devanagari',
-		],
-		"\xEA\xA0\xB7" => [
-			'Common',
-			'Mahajani',
-			'Khojki',
-			'Dogra',
-		],
+		"\xEA\x9A\x9F" => ['Cyrillic'],
+		"\xEA\x9B\xB7" => ['Bamum'],
+		"\xEA\x9C\x80" => ['Common', 'Han'],
+		"\xEA\x9C\x81" => ['Common', 'Latin'],
+		"\xEA\x9C\x82" => ['Common', 'Han'],
+		"\xEA\x9C\x83" => ['Common', 'Latin'],
+		"\xEA\x9C\x84" => ['Common', 'Han'],
+		"\xEA\x9C\x85" => ['Common', 'Latin'],
+		"\xEA\x9C\x86" => ['Common', 'Han'],
+		"\xEA\x9C\x87" => ['Common', 'Latin'],
+		"\xEA\x9C\xA1" => ['Common'],
+		"\xEA\x9E\x87" => ['Latin'],
+		"\xEA\x9E\x8A" => ['Common'],
+		"\xEA\x9F\xBF" => ['Latin'],
+		"\xEA\xA0\xAC" => ['Syloti_Nagri'],
+		"\xEA\xA0\xB0" => ['Common', 'Devanagari'],
+		"\xEA\xA0\xB1" => ['Common', 'Dogra'],
+		"\xEA\xA0\xB2" => ['Common', 'Gujarati'],
+		"\xEA\xA0\xB3" => ['Common', 'Gurmukhi', 'Devanagari'],
+		"\xEA\xA0\xB4" => ['Common', 'Khojki', 'Dogra'],
+		"\xEA\xA0\xB5" => ['Common', 'Kannada', 'Gujarati'],
+		"\xEA\xA0\xB6" => ['Common', 'Kaithi', 'Gurmukhi', 'Devanagari'],
+		"\xEA\xA0\xB7" => ['Common', 'Mahajani', 'Khojki', 'Dogra'],
 		"\xEA\xA0\xB8" => [
 			'Common',
 			'Malayalam',
@@ -8642,1153 +7083,363 @@ function utf8_character_scripts(): array
 			'Takri',
 			'Tirhuta',
 		],
-		"\xEA\xA0\xBA" => [
-			'Nandinagari',
-			'Mahajani',
-			'Khojki',
-		],
-		"\xEA\xA0\xBB" => [
-			'Sharada',
-			'Modi',
-			'Kaithi',
-		],
-		"\xEA\xA0\xBC" => [
-			'Khudawadi',
-			'Nandinagari',
-			'Mahajani',
-		],
-		"\xEA\xA0\xBD" => [
-			'Takri',
-			'Sharada',
-			'Modi',
-		],
-		"\xEA\xA0\xBE" => [
-			'Tirhuta',
-			'Khudawadi',
-		],
-		"\xEA\xA0\xBF" => [
-			'Tulu_Tigalari',
-			'Takri',
-		],
-		"\xEA\xA1\x80" => [
-			'Phags_Pa',
-			'Tirhuta',
-		],
-		"\xEA\xA1\x81" => [
-			'Phags_Pa',
-			'Tulu_Tigalari',
-		],
-		"\xEA\xA1\xB7" => [
-			'Phags_Pa',
-		],
-		"\xEA\xA3\x99" => [
-			'Saurashtra',
-		],
-		"\xEA\xA3\xB0" => [
-			'Devanagari',
-		],
+		"\xEA\xA0\xBA" => ['Nandinagari', 'Mahajani', 'Khojki'],
+		"\xEA\xA0\xBB" => ['Sharada', 'Modi', 'Kaithi'],
+		"\xEA\xA0\xBC" => ['Khudawadi', 'Nandinagari', 'Mahajani'],
+		"\xEA\xA0\xBD" => ['Takri', 'Sharada', 'Modi'],
+		"\xEA\xA0\xBE" => ['Tirhuta', 'Khudawadi'],
+		"\xEA\xA0\xBF" => ['Tulu_Tigalari', 'Takri'],
+		"\xEA\xA1\x80" => ['Phags_Pa', 'Tirhuta'],
+		"\xEA\xA1\x81" => ['Phags_Pa', 'Tulu_Tigalari'],
+		"\xEA\xA1\xB7" => ['Phags_Pa'],
+		"\xEA\xA3\x99" => ['Saurashtra'],
+		"\xEA\xA3\xB0" => ['Devanagari'],
 		"\xEA\xA3\xB1" => [
 			'Devanagari',
 			'Bengali',
 			'Tulu_Tigalari',
 		],
-		"\xEA\xA3\xB2" => [
-			'Devanagari',
-		],
+		"\xEA\xA3\xB2" => ['Devanagari'],
 		"\xEA\xA3\xB3" => [
 			'Devanagari',
 			'Tamil',
 		],
-		"\xEA\xA3\xBF" => [
-			'Devanagari',
-		],
-		"\xEA\xA4\xAD" => [
-			'Kayah_Li',
-		],
-		"\xEA\xA4\xAE" => [
-			'Common',
-			'Kayah_Li',
-			'Latin',
-			'Myanmar',
-		],
-		"\xEA\xA4\xAF" => [
-			'Kayah_Li',
-		],
-		"\xEA\xA5\x9F" => [
-			'Rejang',
-		],
-		"\xEA\xA5\xBC" => [
-			'Hangul',
-		],
-		"\xEA\xA7\x8D" => [
-			'Javanese',
-		],
-		"\xEA\xA7\x8F" => [
-			'Common',
-			'Buginese',
-			'Javanese',
-		],
-		"\xEA\xA7\x9F" => [
-			'Javanese',
-		],
-		"\xEA\xA7\xBE" => [
-			'Myanmar',
-		],
-		"\xEA\xA9\x9F" => [
-			'Cham',
-		],
-		"\xEA\xA9\xBF" => [
-			'Myanmar',
-		],
-		"\xEA\xAB\x9F" => [
-			'Tai_Viet',
-		],
-		"\xEA\xAB\xB6" => [
-			'Meetei_Mayek',
-		],
-		"\xEA\xAC\xAE" => [
-			'Ethiopic',
-		],
-		"\xEA\xAD\x9A" => [
-			'Latin',
-		],
-		"\xEA\xAD\x9B" => [
-			'Common',
-		],
-		"\xEA\xAD\xA4" => [
-			'Latin',
-		],
-		"\xEA\xAD\xA5" => [
-			'Greek',
-		],
-		"\xEA\xAD\xA9" => [
-			'Latin',
-		],
-		"\xEA\xAD\xAB" => [
-			'Common',
-		],
-		"\xEA\xAE\xBF" => [
-			'Cherokee',
-		],
-		"\xEA\xAF\xB9" => [
-			'Meetei_Mayek',
-		],
-		"\xED\x9F\xBB" => [
-			'Hangul',
-		],
-		"\xEF\xAB\x99" => [
-			'Han',
-		],
-		"\xEF\xAC\x86" => [
-			'Latin',
-		],
-		"\xEF\xAC\x97" => [
-			'Armenian',
-		],
-		"\xEF\xAD\x8F" => [
-			'Hebrew',
-		],
-		"\xEF\xB4\xBD" => [
-			'Arabic',
-		],
-		"\xEF\xB4\xBF" => [
-			'Common',
-			'Arabic',
-			'Nko',
-		],
-		"\xEF\xB7\xB1" => [
-			'Arabic',
-		],
+		"\xEA\xA3\xBF" => ['Devanagari'],
+		"\xEA\xA4\xAD" => ['Kayah_Li'],
+		"\xEA\xA4\xAE" => ['Common', 'Kayah_Li', 'Latin', 'Myanmar'],
+		"\xEA\xA4\xAF" => ['Kayah_Li'],
+		"\xEA\xA5\x9F" => ['Rejang'],
+		"\xEA\xA5\xBC" => ['Hangul'],
+		"\xEA\xA7\x8D" => ['Javanese'],
+		"\xEA\xA7\x8F" => ['Common', 'Buginese', 'Javanese'],
+		"\xEA\xA7\x9F" => ['Javanese'],
+		"\xEA\xA7\xBE" => ['Myanmar'],
+		"\xEA\xA9\x9F" => ['Cham'],
+		"\xEA\xA9\xBF" => ['Myanmar'],
+		"\xEA\xAB\x9F" => ['Tai_Viet'],
+		"\xEA\xAB\xB6" => ['Meetei_Mayek'],
+		"\xEA\xAC\xAE" => ['Ethiopic'],
+		"\xEA\xAD\x9A" => ['Latin'],
+		"\xEA\xAD\x9B" => ['Common'],
+		"\xEA\xAD\xA4" => ['Latin'],
+		"\xEA\xAD\xA5" => ['Greek'],
+		"\xEA\xAD\xA9" => ['Latin'],
+		"\xEA\xAD\xAB" => ['Common'],
+		"\xEA\xAE\xBF" => ['Cherokee'],
+		"\xEA\xAF\xB9" => ['Meetei_Mayek'],
+		"\xED\x9F\xBB" => ['Hangul'],
+		"\xEF\xAB\x99" => ['Han'],
+		"\xEF\xAC\x86" => ['Latin'],
+		"\xEF\xAC\x97" => ['Armenian'],
+		"\xEF\xAD\x8F" => ['Hebrew'],
+		"\xEF\xB4\xBD" => ['Arabic'],
+		"\xEF\xB4\xBF" => ['Common', 'Arabic', 'Nko'],
+		"\xEF\xB7\xB1" => ['Arabic'],
 		"\xEF\xB7\xB2" => [
 			'Arabic',
 			'Thaana',
 		],
-		"\xEF\xB7\xBC" => [
-			'Arabic',
-		],
+		"\xEF\xB7\xBC" => ['Arabic'],
 		"\xEF\xB7\xBD" => [
 			'Arabic',
 			'Thaana',
 		],
-		"\xEF\xB7\xBF" => [
-			'Arabic',
-		],
-		"\xEF\xB8\x8F" => [
-			'Inherited',
-		],
-		"\xEF\xB8\x99" => [
-			'Common',
-		],
-		"\xEF\xB8\xAD" => [
-			'Inherited',
-		],
-		"\xEF\xB8\xAF" => [
-			'Cyrillic',
-		],
-		"\xEF\xB9\x84" => [
-			'Common',
-		],
-		"\xEF\xB9\x85" => [
-			'Common',
-			'Bopomofo',
-		],
-		"\xEF\xB9\x86" => [
-			'Common',
-			'Hangul',
-		],
-		"\xEF\xB9\x87" => [
-			'Common',
-			'Han',
-		],
-		"\xEF\xB9\x88" => [
-			'Common',
-			'Hiragana',
-		],
-		"\xEF\xB9\x89" => [
-			'Common',
-			'Katakana',
-		],
-		"\xEF\xB9\xAB" => [
-			'Common',
-		],
-		"\xEF\xBB\xBC" => [
-			'Arabic',
-		],
-		"\xEF\xBC\xA0" => [
-			'Common',
-		],
-		"\xEF\xBC\xBA" => [
-			'Latin',
-		],
-		"\xEF\xBD\x80" => [
-			'Common',
-		],
-		"\xEF\xBD\x9A" => [
-			'Latin',
-		],
-		"\xEF\xBD\xA0" => [
-			'Common',
-		],
-		"\xEF\xBD\xA3" => [
-			'Common',
-			'Bopomofo',
-			'Hangul',
-			'Han',
-			'Hiragana',
-			'Katakana',
-			'Yi',
-		],
-		"\xEF\xBD\xA4" => [
-			'Common',
-			'Bopomofo',
-		],
-		"\xEF\xBD\xA5" => [
-			'Common',
-			'Hangul',
-		],
-		"\xEF\xBD\xA6" => [
-			'Katakana',
-			'Han',
-		],
-		"\xEF\xBD\xA7" => [
-			'Katakana',
-			'Hiragana',
-		],
-		"\xEF\xBD\xA8" => [
-			'Katakana',
-		],
-		"\xEF\xBD\xA9" => [
-			'Katakana',
-			'Yi',
-		],
-		"\xEF\xBD\xAF" => [
-			'Katakana',
-		],
-		"\xEF\xBD\xB0" => [
-			'Common',
-			'Hiragana',
-			'Katakana',
-		],
-		"\xEF\xBE\x9D" => [
-			'Katakana',
-		],
-		"\xEF\xBE\x9E" => [
-			'Common',
-			'Hiragana',
-		],
-		"\xEF\xBE\x9F" => [
-			'Common',
-			'Katakana',
-		],
-		"\xEF\xBF\x9C" => [
-			'Hangul',
-		],
-		"\xEF\xBF\xBD" => [
-			'Common',
-		],
-		"\xF0\x90\x83\xBA" => [
-			'Linear_B',
-		],
-		"\xF0\x90\x84\x80" => [
-			'Common',
-			'Cypro_Minoan',
-		],
-		"\xF0\x90\x84\x81" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\x82" => [
-			'Common',
-			'Linear_B',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\x87" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\x88" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\x89" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\x8A" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\x8B" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\x8C" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\x8D" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\x8E" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\x8F" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\x90" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\x91" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\x92" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\x93" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\x94" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\x95" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\x96" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\x97" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\x98" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\x99" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\x9A" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\x9B" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\x9C" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\x9D" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\x9E" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\x9F" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xA0" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\xA1" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xA2" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xA3" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\xA4" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xA5" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xA6" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\xA7" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xA8" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xA9" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\xAA" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xAB" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xAC" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\xAD" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xAE" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xAF" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\xB0" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xB1" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xB2" => [
-			'Common',
-			'Linear_A',
-		],
-		"\xF0\x90\x84\xB3" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xB7" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xB8" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xB9" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xBA" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xBB" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xBC" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xBD" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x84\xBE" => [
-			'Common',
-			'Linear_B',
-		],
-		"\xF0\x90\x84\xBF" => [
-			'Common',
-			'Cypriot',
-		],
-		"\xF0\x90\x85\x80" => [
-			'Greek',
-			'Linear_B',
-		],
-		"\xF0\x90\x86\x8E" => [
-			'Greek',
-		],
-		"\xF0\x90\x86\x9C" => [
-			'Common',
-		],
-		"\xF0\x90\x86\xA0" => [
-			'Greek',
-		],
-		"\xF0\x90\x87\xBC" => [
-			'Common',
-		],
-		"\xF0\x90\x87\xBD" => [
-			'Inherited',
-		],
-		"\xF0\x90\x8A\x9C" => [
-			'Lycian',
-		],
-		"\xF0\x90\x8B\x90" => [
-			'Carian',
-		],
-		"\xF0\x90\x8B\xA0" => [
-			'Inherited',
-			'Arabic',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xA1" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xA2" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xA3" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xA4" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xA5" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xA6" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xA7" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xA8" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xA9" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xAA" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xAB" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xAC" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xAD" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xAE" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xAF" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xB0" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xB1" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xB2" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xB3" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xB4" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xB5" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xB6" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xB7" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xB8" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xB9" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xBA" => [
-			'Common',
-			'Coptic',
-		],
-		"\xF0\x90\x8B\xBB" => [
-			'Common',
-			'Arabic',
-		],
-		"\xF0\x90\x8B\xBC" => [
-			'Coptic',
-		],
-		"\xF0\x90\x8C\xAF" => [
-			'Old_Italic',
-		],
-		"\xF0\x90\x8D\x8A" => [
-			'Gothic',
-		],
-		"\xF0\x90\x8D\xBA" => [
-			'Old_Permic',
-		],
-		"\xF0\x90\x8E\x9F" => [
-			'Ugaritic',
-		],
-		"\xF0\x90\x8F\x95" => [
-			'Old_Persian',
-		],
-		"\xF0\x90\x91\x8F" => [
-			'Deseret',
-		],
-		"\xF0\x90\x91\xBF" => [
-			'Shavian',
-		],
-		"\xF0\x90\x92\xA9" => [
-			'Osmanya',
-		],
-		"\xF0\x90\x93\xBB" => [
-			'Osage',
-		],
-		"\xF0\x90\x94\xA7" => [
-			'Elbasan',
-		],
-		"\xF0\x90\x95\xAF" => [
-			'Caucasian_Albanian',
-		],
-		"\xF0\x90\x96\xBC" => [
-			'Vithkuqi',
-		],
-		"\xF0\x90\x97\xB3" => [
-			'Todhri',
-		],
-		"\xF0\x90\x9D\xA7" => [
-			'Linear_A',
-		],
-		"\xF0\x90\x9E\xBA" => [
-			'Latin',
-		],
-		"\xF0\x90\xA0\xBF" => [
-			'Cypriot',
-		],
-		"\xF0\x90\xA1\x9F" => [
-			'Imperial_Aramaic',
-		],
-		"\xF0\x90\xA1\xBF" => [
-			'Palmyrene',
-		],
-		"\xF0\x90\xA2\xAF" => [
-			'Nabataean',
-		],
-		"\xF0\x90\xA3\xBF" => [
-			'Hatran',
-		],
-		"\xF0\x90\xA4\x9F" => [
-			'Phoenician',
-		],
-		"\xF0\x90\xA4\xBF" => [
-			'Lydian',
-		],
-		"\xF0\x90\xA6\x9F" => [
-			'Meroitic_Hieroglyphs',
-		],
-		"\xF0\x90\xA7\xBF" => [
-			'Meroitic_Cursive',
-		],
-		"\xF0\x90\xA9\x98" => [
-			'Kharoshthi',
-		],
-		"\xF0\x90\xA9\xBF" => [
-			'Old_South_Arabian',
-		],
-		"\xF0\x90\xAA\x9F" => [
-			'Old_North_Arabian',
-		],
-		"\xF0\x90\xAB\xB1" => [
-			'Manichaean',
-		],
+		"\xEF\xB7\xBF" => ['Arabic'],
+		"\xEF\xB8\x8F" => ['Inherited'],
+		"\xEF\xB8\x99" => ['Common'],
+		"\xEF\xB8\xAD" => ['Inherited'],
+		"\xEF\xB8\xAF" => ['Cyrillic'],
+		"\xEF\xB9\x84" => ['Common'],
+		"\xEF\xB9\x85" => ['Common', 'Bopomofo'],
+		"\xEF\xB9\x86" => ['Common', 'Hangul'],
+		"\xEF\xB9\x87" => ['Common', 'Han'],
+		"\xEF\xB9\x88" => ['Common', 'Hiragana'],
+		"\xEF\xB9\x89" => ['Common', 'Katakana'],
+		"\xEF\xB9\xAB" => ['Common'],
+		"\xEF\xBB\xBC" => ['Arabic'],
+		"\xEF\xBC\xA0" => ['Common'],
+		"\xEF\xBC\xBA" => ['Latin'],
+		"\xEF\xBD\x80" => ['Common'],
+		"\xEF\xBD\x9A" => ['Latin'],
+		"\xEF\xBD\xA0" => ['Common'],
+		"\xEF\xBD\xA3" => ['Common', 'Bopomofo', 'Hangul', 'Han', 'Hiragana', 'Katakana', 'Yi'],
+		"\xEF\xBD\xA4" => ['Common', 'Bopomofo'],
+		"\xEF\xBD\xA5" => ['Common', 'Hangul'],
+		"\xEF\xBD\xA6" => ['Katakana', 'Han'],
+		"\xEF\xBD\xA7" => ['Katakana', 'Hiragana'],
+		"\xEF\xBD\xA8" => ['Katakana'],
+		"\xEF\xBD\xA9" => ['Katakana', 'Yi'],
+		"\xEF\xBD\xAF" => ['Katakana'],
+		"\xEF\xBD\xB0" => ['Common', 'Hiragana', 'Katakana'],
+		"\xEF\xBE\x9D" => ['Katakana'],
+		"\xEF\xBE\x9E" => ['Common', 'Hiragana'],
+		"\xEF\xBE\x9F" => ['Common', 'Katakana'],
+		"\xEF\xBF\x9C" => ['Hangul'],
+		"\xEF\xBF\xBD" => ['Common'],
+		"\xF0\x90\x83\xBA" => ['Linear_B'],
+		"\xF0\x90\x84\x80" => ['Common', 'Cypro_Minoan'],
+		"\xF0\x90\x84\x81" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\x82" => ['Common', 'Linear_B', 'Cypriot'],
+		"\xF0\x90\x84\x87" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\x88" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\x89" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\x8A" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\x8B" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\x8C" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\x8D" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\x8E" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\x8F" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\x90" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\x91" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\x92" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\x93" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\x94" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\x95" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\x96" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\x97" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\x98" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\x99" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\x9A" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\x9B" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\x9C" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\x9D" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\x9E" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\x9F" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xA0" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\xA1" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xA2" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xA3" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\xA4" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xA5" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xA6" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\xA7" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xA8" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xA9" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\xAA" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xAB" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xAC" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\xAD" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xAE" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xAF" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\xB0" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xB1" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xB2" => ['Common', 'Linear_A'],
+		"\xF0\x90\x84\xB3" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xB7" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xB8" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xB9" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xBA" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xBB" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xBC" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xBD" => ['Common', 'Cypriot'],
+		"\xF0\x90\x84\xBE" => ['Common', 'Linear_B'],
+		"\xF0\x90\x84\xBF" => ['Common', 'Cypriot'],
+		"\xF0\x90\x85\x80" => ['Greek', 'Linear_B'],
+		"\xF0\x90\x86\x8E" => ['Greek'],
+		"\xF0\x90\x86\x9C" => ['Common'],
+		"\xF0\x90\x86\xA0" => ['Greek'],
+		"\xF0\x90\x87\xBC" => ['Common'],
+		"\xF0\x90\x87\xBD" => ['Inherited'],
+		"\xF0\x90\x8A\x9C" => ['Lycian'],
+		"\xF0\x90\x8B\x90" => ['Carian'],
+		"\xF0\x90\x8B\xA0" => ['Inherited', 'Arabic', 'Coptic'],
+		"\xF0\x90\x8B\xA1" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xA2" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xA3" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xA4" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xA5" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xA6" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xA7" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xA8" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xA9" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xAA" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xAB" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xAC" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xAD" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xAE" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xAF" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xB0" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xB1" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xB2" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xB3" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xB4" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xB5" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xB6" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xB7" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xB8" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xB9" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xBA" => ['Common', 'Coptic'],
+		"\xF0\x90\x8B\xBB" => ['Common', 'Arabic'],
+		"\xF0\x90\x8B\xBC" => ['Coptic'],
+		"\xF0\x90\x8C\xAF" => ['Old_Italic'],
+		"\xF0\x90\x8D\x8A" => ['Gothic'],
+		"\xF0\x90\x8D\xBA" => ['Old_Permic'],
+		"\xF0\x90\x8E\x9F" => ['Ugaritic'],
+		"\xF0\x90\x8F\x95" => ['Old_Persian'],
+		"\xF0\x90\x91\x8F" => ['Deseret'],
+		"\xF0\x90\x91\xBF" => ['Shavian'],
+		"\xF0\x90\x92\xA9" => ['Osmanya'],
+		"\xF0\x90\x93\xBB" => ['Osage'],
+		"\xF0\x90\x94\xA7" => ['Elbasan'],
+		"\xF0\x90\x95\xAF" => ['Caucasian_Albanian'],
+		"\xF0\x90\x96\xBC" => ['Vithkuqi'],
+		"\xF0\x90\x97\xB3" => ['Todhri'],
+		"\xF0\x90\x9D\xA7" => ['Linear_A'],
+		"\xF0\x90\x9E\xBA" => ['Latin'],
+		"\xF0\x90\xA0\xBF" => ['Cypriot'],
+		"\xF0\x90\xA1\x9F" => ['Imperial_Aramaic'],
+		"\xF0\x90\xA1\xBF" => ['Palmyrene'],
+		"\xF0\x90\xA2\xAF" => ['Nabataean'],
+		"\xF0\x90\xA3\xBF" => ['Hatran'],
+		"\xF0\x90\xA4\x9F" => ['Phoenician'],
+		"\xF0\x90\xA4\xBF" => ['Lydian'],
+		"\xF0\x90\xA6\x9F" => ['Meroitic_Hieroglyphs'],
+		"\xF0\x90\xA7\xBF" => ['Meroitic_Cursive'],
+		"\xF0\x90\xA9\x98" => ['Kharoshthi'],
+		"\xF0\x90\xA9\xBF" => ['Old_South_Arabian'],
+		"\xF0\x90\xAA\x9F" => ['Old_North_Arabian'],
+		"\xF0\x90\xAB\xB1" => ['Manichaean'],
 		"\xF0\x90\xAB\xB2" => [
 			'Manichaean',
 			'Old_Uyghur',
 		],
-		"\xF0\x90\xAB\xB6" => [
-			'Manichaean',
-		],
-		"\xF0\x90\xAC\xBF" => [
-			'Avestan',
-		],
-		"\xF0\x90\xAD\x9F" => [
-			'Inscriptional_Parthian',
-		],
-		"\xF0\x90\xAD\xBF" => [
-			'Inscriptional_Pahlavi',
-		],
-		"\xF0\x90\xAE\xAF" => [
-			'Psalter_Pahlavi',
-		],
-		"\xF0\x90\xB1\x88" => [
-			'Old_Turkic',
-		],
-		"\xF0\x90\xB3\xBF" => [
-			'Old_Hungarian',
-		],
-		"\xF0\x90\xB4\xB9" => [
-			'Hanifi_Rohingya',
-		],
-		"\xF0\x90\xB6\x8F" => [
-			'Garay',
-		],
-		"\xF0\x90\xB9\xBE" => [
-			'Arabic',
-		],
-		"\xF0\x90\xBA\xB1" => [
-			'Yezidi',
-		],
-		"\xF0\x90\xBB\xBF" => [
-			'Arabic',
-		],
-		"\xF0\x90\xBC\xA7" => [
-			'Old_Sogdian',
-		],
-		"\xF0\x90\xBD\x99" => [
-			'Sogdian',
-		],
-		"\xF0\x90\xBE\x89" => [
-			'Old_Uyghur',
-		],
-		"\xF0\x90\xBF\x8B" => [
-			'Chorasmian',
-		],
-		"\xF0\x90\xBF\xB6" => [
-			'Elymaic',
-		],
-		"\xF0\x91\x81\xBF" => [
-			'Brahmi',
-		],
-		"\xF0\x91\x83\x8D" => [
-			'Kaithi',
-		],
-		"\xF0\x91\x83\xB9" => [
-			'Sora_Sompeng',
-		],
-		"\xF0\x91\x85\x87" => [
-			'Chakma',
-		],
-		"\xF0\x91\x85\xB6" => [
-			'Mahajani',
-		],
-		"\xF0\x91\x87\x9F" => [
-			'Sharada',
-		],
-		"\xF0\x91\x87\xB4" => [
-			'Sinhala',
-		],
-		"\xF0\x91\x89\x81" => [
-			'Khojki',
-		],
-		"\xF0\x91\x8A\xA9" => [
-			'Multani',
-		],
-		"\xF0\x91\x8B\xB9" => [
-			'Khudawadi',
-		],
-		"\xF0\x91\x8C\x80" => [
-			'Grantha',
-		],
+		"\xF0\x90\xAB\xB6" => ['Manichaean'],
+		"\xF0\x90\xAC\xBF" => ['Avestan'],
+		"\xF0\x90\xAD\x9F" => ['Inscriptional_Parthian'],
+		"\xF0\x90\xAD\xBF" => ['Inscriptional_Pahlavi'],
+		"\xF0\x90\xAE\xAF" => ['Psalter_Pahlavi'],
+		"\xF0\x90\xB1\x88" => ['Old_Turkic'],
+		"\xF0\x90\xB3\xBF" => ['Old_Hungarian'],
+		"\xF0\x90\xB4\xB9" => ['Hanifi_Rohingya'],
+		"\xF0\x90\xB6\x8F" => ['Garay'],
+		"\xF0\x90\xB9\xBE" => ['Arabic'],
+		"\xF0\x90\xBA\xB1" => ['Yezidi'],
+		"\xF0\x90\xBB\xBF" => ['Arabic'],
+		"\xF0\x90\xBC\xA7" => ['Old_Sogdian'],
+		"\xF0\x90\xBD\x99" => ['Sogdian'],
+		"\xF0\x90\xBE\x89" => ['Old_Uyghur'],
+		"\xF0\x90\xBF\x8B" => ['Chorasmian'],
+		"\xF0\x90\xBF\xB6" => ['Elymaic'],
+		"\xF0\x91\x81\xBF" => ['Brahmi'],
+		"\xF0\x91\x83\x8D" => ['Kaithi'],
+		"\xF0\x91\x83\xB9" => ['Sora_Sompeng'],
+		"\xF0\x91\x85\x87" => ['Chakma'],
+		"\xF0\x91\x85\xB6" => ['Mahajani'],
+		"\xF0\x91\x87\x9F" => ['Sharada'],
+		"\xF0\x91\x87\xB4" => ['Sinhala'],
+		"\xF0\x91\x89\x81" => ['Khojki'],
+		"\xF0\x91\x8A\xA9" => ['Multani'],
+		"\xF0\x91\x8B\xB9" => ['Khudawadi'],
+		"\xF0\x91\x8C\x80" => ['Grantha'],
 		"\xF0\x91\x8C\x81" => [
 			'Grantha',
 			'Tamil',
 		],
-		"\xF0\x91\x8C\x82" => [
-			'Grantha',
-		],
+		"\xF0\x91\x8C\x82" => ['Grantha'],
 		"\xF0\x91\x8C\x83" => [
 			'Grantha',
 			'Tamil',
 		],
-		"\xF0\x91\x8C\xB9" => [
-			'Grantha',
-		],
-		"\xF0\x91\x8C\xBB" => [
-			'Inherited',
-			'Grantha',
-		],
-		"\xF0\x91\x8C\xBC" => [
-			'Grantha',
-			'Tamil',
-		],
-		"\xF0\x91\x8D\xB4" => [
-			'Grantha',
-		],
-		"\xF0\x91\x8F\xA2" => [
-			'Tulu_Tigalari',
-		],
-		"\xF0\x91\x91\xA1" => [
-			'Newa',
-		],
-		"\xF0\x91\x93\x99" => [
-			'Tirhuta',
-		],
-		"\xF0\x91\x97\x9D" => [
-			'Siddham',
-		],
-		"\xF0\x91\x99\x99" => [
-			'Modi',
-		],
-		"\xF0\x91\x99\xAC" => [
-			'Mongolian',
-		],
-		"\xF0\x91\x9B\x89" => [
-			'Takri',
-		],
-		"\xF0\x91\x9B\xA3" => [
-			'Myanmar',
-		],
-		"\xF0\x91\x9D\x86" => [
-			'Ahom',
-		],
-		"\xF0\x91\xA0\xBB" => [
-			'Dogra',
-		],
-		"\xF0\x91\xA3\xBF" => [
-			'Warang_Citi',
-		],
-		"\xF0\x91\xA5\x99" => [
-			'Dives_Akuru',
-		],
-		"\xF0\x91\xA7\xA4" => [
-			'Nandinagari',
-		],
-		"\xF0\x91\xA9\x87" => [
-			'Zanabazar_Square',
-		],
-		"\xF0\x91\xAA\xA2" => [
-			'Soyombo',
-		],
-		"\xF0\x91\xAA\xBF" => [
-			'Canadian_Aboriginal',
-		],
-		"\xF0\x91\xAB\xB8" => [
-			'Pau_Cin_Hau',
-		],
-		"\xF0\x91\xAC\x89" => [
-			'Devanagari',
-		],
-		"\xF0\x91\xAF\xB9" => [
-			'Sunuwar',
-		],
-		"\xF0\x91\xB1\xAC" => [
-			'Bhaiksuki',
-		],
-		"\xF0\x91\xB2\xB6" => [
-			'Marchen',
-		],
-		"\xF0\x91\xB5\x99" => [
-			'Masaram_Gondi',
-		],
-		"\xF0\x91\xB6\xA9" => [
-			'Gunjala_Gondi',
-		],
-		"\xF0\x91\xBB\xB8" => [
-			'Makasar',
-		],
-		"\xF0\x91\xBD\x9A" => [
-			'Kawi',
-		],
-		"\xF0\x91\xBE\xB0" => [
-			'Lisu',
-		],
-		"\xF0\x91\xBF\x8F" => [
-			'Tamil',
-		],
-		"\xF0\x91\xBF\x90" => [
-			'Tamil',
-			'Grantha',
-		],
-		"\xF0\x91\xBF\x92" => [
-			'Tamil',
-		],
-		"\xF0\x91\xBF\x93" => [
-			'Tamil',
-			'Grantha',
-		],
-		"\xF0\x91\xBF\xBF" => [
-			'Tamil',
-		],
-		"\xF0\x92\x95\x83" => [
-			'Cuneiform',
-		],
-		"\xF0\x92\xBF\xB2" => [
-			'Cypro_Minoan',
-		],
-		"\xF0\x94\x8F\xBA" => [
-			'Egyptian_Hieroglyphs',
-		],
-		"\xF0\x94\x99\x86" => [
-			'Anatolian_Hieroglyphs',
-		],
-		"\xF0\x96\x84\xB9" => [
-			'Gurung_Khema',
-		],
-		"\xF0\x96\xA8\xB8" => [
-			'Bamum',
-		],
-		"\xF0\x96\xA9\xAF" => [
-			'Mro',
-		],
-		"\xF0\x96\xAB\x89" => [
-			'Tangsa',
-		],
-		"\xF0\x96\xAB\xB5" => [
-			'Bassa_Vah',
-		],
-		"\xF0\x96\xAE\x8F" => [
-			'Pahawh_Hmong',
-		],
-		"\xF0\x96\xB5\xB9" => [
-			'Kirat_Rai',
-		],
-		"\xF0\x96\xBA\x9A" => [
-			'Medefaidrin',
-		],
-		"\xF0\x96\xBE\x9F" => [
-			'Miao',
-		],
-		"\xF0\x96\xBF\xA0" => [
-			'Tangut',
-		],
-		"\xF0\x96\xBF\xA1" => [
-			'Nushu',
-		],
-		"\xF0\x96\xBF\xA3" => [
-			'Han',
-		],
-		"\xF0\x96\xBF\xA4" => [
-			'Khitan_Small_Script',
-		],
-		"\xF0\x96\xBF\xB1" => [
-			'Han',
-		],
-		"\xF0\x98\xAB\xBF" => [
-			'Tangut',
-		],
-		"\xF0\x98\xB3\xBF" => [
-			'Khitan_Small_Script',
-		],
-		"\xF0\x98\xB4\x88" => [
-			'Tangut',
-		],
-		"\xF0\x9B\x80\x80" => [
-			'Katakana',
-		],
-		"\xF0\x9B\x84\x9F" => [
-			'Hiragana',
-		],
-		"\xF0\x9B\x84\xA2" => [
-			'Katakana',
-		],
-		"\xF0\x9B\x85\x92" => [
-			'Hiragana',
-		],
-		"\xF0\x9B\x85\xA7" => [
-			'Katakana',
-		],
-		"\xF0\x9B\x8B\xBB" => [
-			'Nushu',
-		],
-		"\xF0\x9B\xB2\x9F" => [
-			'Duployan',
-		],
-		"\xF0\x9B\xB2\xA3" => [
-			'Common',
-			'Duployan',
-		],
-		"\xF0\x9C\xBA\xB3" => [
-			'Common',
-		],
-		"\xF0\x9C\xBD\x86" => [
-			'Inherited',
-		],
-		"\xF0\x9D\x85\xA6" => [
-			'Common',
-		],
-		"\xF0\x9D\x85\xA9" => [
-			'Inherited',
-		],
-		"\xF0\x9D\x85\xBA" => [
-			'Common',
-		],
-		"\xF0\x9D\x86\x82" => [
-			'Inherited',
-		],
-		"\xF0\x9D\x86\x84" => [
-			'Common',
-		],
-		"\xF0\x9D\x86\x8B" => [
-			'Inherited',
-		],
-		"\xF0\x9D\x86\xA9" => [
-			'Common',
-		],
-		"\xF0\x9D\x86\xAD" => [
-			'Inherited',
-		],
-		"\xF0\x9D\x87\xAA" => [
-			'Common',
-		],
-		"\xF0\x9D\x89\x85" => [
-			'Greek',
-		],
-		"\xF0\x9D\x8D\x96" => [
-			'Common',
-		],
-		"\xF0\x9D\x8D\xB1" => [
-			'Common',
-			'Han',
-		],
-		"\xF0\x9D\x9F\xBF" => [
-			'Common',
-		],
-		"\xF0\x9D\xAA\xAF" => [
-			'SignWriting',
-		],
-		"\xF0\x9D\xBC\xAA" => [
-			'Latin',
-		],
-		"\xF0\x9E\x80\xAA" => [
-			'Glagolitic',
-		],
-		"\xF0\x9E\x82\x8F" => [
-			'Cyrillic',
-		],
-		"\xF0\x9E\x85\x8F" => [
-			'Nyiakeng_Puachue_Hmong',
-		],
-		"\xF0\x9E\x8A\xAE" => [
-			'Toto',
-		],
-		"\xF0\x9E\x8B\xBF" => [
-			'Wancho',
-		],
-		"\xF0\x9E\x93\xB9" => [
-			'Nag_Mundari',
-		],
-		"\xF0\x9E\x97\xBF" => [
-			'Ol_Onal',
-		],
-		"\xF0\x9E\x9F\xBE" => [
-			'Ethiopic',
-		],
-		"\xF0\x9E\xA3\x96" => [
-			'Mende_Kikakui',
-		],
-		"\xF0\x9E\xA5\x9F" => [
-			'Adlam',
-		],
-		"\xF0\x9E\xB4\xBD" => [
-			'Common',
-		],
-		"\xF0\x9E\xBB\xB1" => [
-			'Arabic',
-		],
-		"\xF0\x9F\x87\xBF" => [
-			'Common',
-		],
-		"\xF0\x9F\x88\x80" => [
-			'Hiragana',
-		],
-		"\xF0\x9F\x89\x88" => [
-			'Common',
-		],
-		"\xF0\x9F\x89\x91" => [
-			'Common',
-			'Han',
-		],
-		"\xF0\x9F\xAF\xB9" => [
-			'Common',
-		],
-		"\xF0\xB2\x8E\xAF" => [
-			'Han',
-		],
-		"\xF3\xA0\x81\xBF" => [
-			'Common',
-		],
+		"\xF0\x91\x8C\xB9" => ['Grantha'],
+		"\xF0\x91\x8C\xBB" => ['Inherited', 'Grantha'],
+		"\xF0\x91\x8C\xBC" => ['Grantha', 'Tamil'],
+		"\xF0\x91\x8D\xB4" => ['Grantha'],
+		"\xF0\x91\x8F\xA2" => ['Tulu_Tigalari'],
+		"\xF0\x91\x91\xA1" => ['Newa'],
+		"\xF0\x91\x93\x99" => ['Tirhuta'],
+		"\xF0\x91\x97\x9D" => ['Siddham'],
+		"\xF0\x91\x99\x99" => ['Modi'],
+		"\xF0\x91\x99\xAC" => ['Mongolian'],
+		"\xF0\x91\x9B\x89" => ['Takri'],
+		"\xF0\x91\x9B\xA3" => ['Myanmar'],
+		"\xF0\x91\x9D\x86" => ['Ahom'],
+		"\xF0\x91\xA0\xBB" => ['Dogra'],
+		"\xF0\x91\xA3\xBF" => ['Warang_Citi'],
+		"\xF0\x91\xA5\x99" => ['Dives_Akuru'],
+		"\xF0\x91\xA7\xA4" => ['Nandinagari'],
+		"\xF0\x91\xA9\x87" => ['Zanabazar_Square'],
+		"\xF0\x91\xAA\xA2" => ['Soyombo'],
+		"\xF0\x91\xAA\xBF" => ['Canadian_Aboriginal'],
+		"\xF0\x91\xAB\xB8" => ['Pau_Cin_Hau'],
+		"\xF0\x91\xAC\x89" => ['Devanagari'],
+		"\xF0\x91\xAF\xB9" => ['Sunuwar'],
+		"\xF0\x91\xB1\xAC" => ['Bhaiksuki'],
+		"\xF0\x91\xB2\xB6" => ['Marchen'],
+		"\xF0\x91\xB5\x99" => ['Masaram_Gondi'],
+		"\xF0\x91\xB6\xA9" => ['Gunjala_Gondi'],
+		"\xF0\x91\xBB\xB8" => ['Makasar'],
+		"\xF0\x91\xBD\x9A" => ['Kawi'],
+		"\xF0\x91\xBE\xB0" => ['Lisu'],
+		"\xF0\x91\xBF\x8F" => ['Tamil'],
+		"\xF0\x91\xBF\x90" => ['Tamil', 'Grantha'],
+		"\xF0\x91\xBF\x92" => ['Tamil'],
+		"\xF0\x91\xBF\x93" => ['Tamil', 'Grantha'],
+		"\xF0\x91\xBF\xBF" => ['Tamil'],
+		"\xF0\x92\x95\x83" => ['Cuneiform'],
+		"\xF0\x92\xBF\xB2" => ['Cypro_Minoan'],
+		"\xF0\x94\x8F\xBA" => ['Egyptian_Hieroglyphs'],
+		"\xF0\x94\x99\x86" => ['Anatolian_Hieroglyphs'],
+		"\xF0\x96\x84\xB9" => ['Gurung_Khema'],
+		"\xF0\x96\xA8\xB8" => ['Bamum'],
+		"\xF0\x96\xA9\xAF" => ['Mro'],
+		"\xF0\x96\xAB\x89" => ['Tangsa'],
+		"\xF0\x96\xAB\xB5" => ['Bassa_Vah'],
+		"\xF0\x96\xAE\x8F" => ['Pahawh_Hmong'],
+		"\xF0\x96\xB5\xB9" => ['Kirat_Rai'],
+		"\xF0\x96\xBA\x9A" => ['Medefaidrin'],
+		"\xF0\x96\xBE\x9F" => ['Miao'],
+		"\xF0\x96\xBF\xA0" => ['Tangut'],
+		"\xF0\x96\xBF\xA1" => ['Nushu'],
+		"\xF0\x96\xBF\xA3" => ['Han'],
+		"\xF0\x96\xBF\xA4" => ['Khitan_Small_Script'],
+		"\xF0\x96\xBF\xB1" => ['Han'],
+		"\xF0\x98\xAB\xBF" => ['Tangut'],
+		"\xF0\x98\xB3\xBF" => ['Khitan_Small_Script'],
+		"\xF0\x98\xB4\x88" => ['Tangut'],
+		"\xF0\x9B\x80\x80" => ['Katakana'],
+		"\xF0\x9B\x84\x9F" => ['Hiragana'],
+		"\xF0\x9B\x84\xA2" => ['Katakana'],
+		"\xF0\x9B\x85\x92" => ['Hiragana'],
+		"\xF0\x9B\x85\xA7" => ['Katakana'],
+		"\xF0\x9B\x8B\xBB" => ['Nushu'],
+		"\xF0\x9B\xB2\x9F" => ['Duployan'],
+		"\xF0\x9B\xB2\xA3" => ['Common', 'Duployan'],
+		"\xF0\x9C\xBA\xB3" => ['Common'],
+		"\xF0\x9C\xBD\x86" => ['Inherited'],
+		"\xF0\x9D\x85\xA6" => ['Common'],
+		"\xF0\x9D\x85\xA9" => ['Inherited'],
+		"\xF0\x9D\x85\xBA" => ['Common'],
+		"\xF0\x9D\x86\x82" => ['Inherited'],
+		"\xF0\x9D\x86\x84" => ['Common'],
+		"\xF0\x9D\x86\x8B" => ['Inherited'],
+		"\xF0\x9D\x86\xA9" => ['Common'],
+		"\xF0\x9D\x86\xAD" => ['Inherited'],
+		"\xF0\x9D\x87\xAA" => ['Common'],
+		"\xF0\x9D\x89\x85" => ['Greek'],
+		"\xF0\x9D\x8D\x96" => ['Common'],
+		"\xF0\x9D\x8D\xB1" => ['Common', 'Han'],
+		"\xF0\x9D\x9F\xBF" => ['Common'],
+		"\xF0\x9D\xAA\xAF" => ['SignWriting'],
+		"\xF0\x9D\xBC\xAA" => ['Latin'],
+		"\xF0\x9E\x80\xAA" => ['Glagolitic'],
+		"\xF0\x9E\x82\x8F" => ['Cyrillic'],
+		"\xF0\x9E\x85\x8F" => ['Nyiakeng_Puachue_Hmong'],
+		"\xF0\x9E\x8A\xAE" => ['Toto'],
+		"\xF0\x9E\x8B\xBF" => ['Wancho'],
+		"\xF0\x9E\x93\xB9" => ['Nag_Mundari'],
+		"\xF0\x9E\x97\xBF" => ['Ol_Onal'],
+		"\xF0\x9E\x9F\xBE" => ['Ethiopic'],
+		"\xF0\x9E\xA3\x96" => ['Mende_Kikakui'],
+		"\xF0\x9E\xA5\x9F" => ['Adlam'],
+		"\xF0\x9E\xB4\xBD" => ['Common'],
+		"\xF0\x9E\xBB\xB1" => ['Arabic'],
+		"\xF0\x9F\x87\xBF" => ['Common'],
+		"\xF0\x9F\x88\x80" => ['Hiragana'],
+		"\xF0\x9F\x89\x88" => ['Common'],
+		"\xF0\x9F\x89\x91" => ['Common', 'Han'],
+		"\xF0\x9F\xAF\xB9" => ['Common'],
+		"\xF0\xB2\x8E\xAF" => ['Han'],
+		"\xF3\xA0\x81\xBF" => ['Common'],
 	];
 }
 
