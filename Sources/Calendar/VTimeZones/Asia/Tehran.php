@@ -77,7 +77,7 @@ class Tehran extends \SMF\Calendar\VTimeZone
 		],
 		5 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '19790101T000000',
+			'DTSTART' => '19781111T000000',
 			'TZNAME' => 'UTC+0330',
 			'TZOFFSETFROM' => '+0400',
 			'TZOFFSETTO' => '+0330',

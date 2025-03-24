@@ -809,6 +809,7 @@ class TimeZone extends \DateTimeZone
 			'America/Santiago',
 			'America/Punta_Arenas',
 			'Pacific/Easter',
+			'America/Coyhaique',
 		],
 		'CM' => [
 			'Africa/Douala',
@@ -1570,6 +1571,26 @@ class TimeZone extends \DateTimeZone
 			[
 				'ts' => '2022-11-30T06:00:00+0000',
 				'tzid' => 'America/Denver',
+			],
+		],
+
+		// Diverged from America/Santiago in version 2025b.
+		'America/Coyhaique' => [
+			[
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			],
+			[
+				'ts' => '1890-01-01T04:48:16+0000',
+				'tzid' => 'America/Punta_Arenas',
+			],
+			[
+				'ts' => '1946-08-29T04:00:00+0000',
+				'tzid' => 'Chile/Continental',
+			],
+			[
+				'ts' => '2025-03-20T03:00:00+0000',
+				'tzid' => 'America/Punta_Arenas',
 			],
 		],
 	];
