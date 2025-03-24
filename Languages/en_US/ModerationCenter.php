@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; ModerationCenter
+// Version: 3.0 Alpha 3; ModerationCenter
 
 $txt['moderation_center'] = 'Moderation Center';
 $txt['mc_main'] = 'Main';

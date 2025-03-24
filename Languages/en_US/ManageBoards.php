@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; ManageBoards
+// Version: 3.0 Alpha 3; ManageBoards
 
 $txt['boards_and_cats'] = 'Manage Boards and Categories';
 $txt['order'] = 'Order';

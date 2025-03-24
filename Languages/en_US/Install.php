@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Install
+// Version: 3.0 Alpha 3; Install
 
 // This should be the same as the one in General.php.
 $txt['lang_rtl'] = '0';

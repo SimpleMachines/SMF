@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -25,7 +25,7 @@ use SMF\User;
 use SMF\Utils;
 use SMF\Uuid;
 
-define('SMF_VERSION', '3.0 Alpha 2');
+define('SMF_VERSION', '3.0 Alpha 3');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2025');
 define('DB_SCRIPT_VERSION', '3-0');
