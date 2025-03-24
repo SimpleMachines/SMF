@@ -47,6 +47,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public bool $mb4 = true;
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public bool $case_sensitive = false;
 
 	/**
@@ -295,7 +300,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function fetch_row(object $result): array|false|null
 	{
-		return mysqli_fetch_row($result);
+		$row = mysqli_fetch_row($result);
+
+		if (is_array($row)) {
+			foreach ($row as $key => $value) {
+				$row[$key] = is_string($value) ? $this->restore_mb4($value) : $value;
+			}
+		}
+
+		return $row;
 	}
 
 	/**
@@ -303,7 +316,16 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function fetch_assoc(object $result): array|false|null
 	{
-		return mysqli_fetch_assoc($result);
+		$row = mysqli_fetch_assoc($result);
+
+		if (is_array($row)) {
+			foreach ($row as $key => $value) {
+				$row[$key] = is_string($value) ? $this->restore_mb4($value) : $value;
+			}
+		}
+
+		return $row;
+
 	}
 
 	/**
@@ -313,7 +335,19 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$return = mysqli_fetch_all($request, MYSQLI_ASSOC);
 
-		return !empty($return) ? $return : [];
+		if (empty($return)) {
+			return [];
+		}
+
+		foreach ($return as $row_num => $row) {
+			if (is_array($row)) {
+				foreach ($row as $key => $value) {
+					$return[$row_num][$key] = is_string($value) ? $this->restore_mb4($value) : $value;
+				}
+			}
+		}
+
+		return $return;
 	}
 
 	/**
@@ -630,6 +664,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fix_mb4(string $string): string
+	{
+		return $this->mb4 ? $string : mb_encode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function server_info(?object $connection = null): string
 	{
 		return mysqli_get_server_info($connection ?? $this->connection);
@@ -675,6 +717,26 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	public function select(string $database, ?object $connection = null): bool
 	{
 		return mysqli_select_db($connection ?? $this->connection, $database);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get_engines(): array
+	{
+		if (empty($this->engines)) {
+			$request = $this->query('', 'SHOW ENGINES', []);
+
+			while ($row = $this->fetch_assoc($request)) {
+				if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT') {
+					$this->engines[] = $row['Engine'];
+				}
+			}
+
+			$this->free_result($request);
+		}
+
+		return $this->engines;
 	}
 
 	/**
@@ -821,6 +883,71 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		return mysqli_connect_errno();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public function detect_charset(?string $table = null, ?string $column = null): string
+	{
+		static $detected;
+
+		// MySQL has a default character set for the database, but tables can
+		// use different character sets, and even columns within those tables
+		// can use different character sets again. So figuring out the actual
+		// character set used by any given table or column is complicated.
+		if (!isset($detected)) {
+			$request = $this->query(
+				'',
+				'SELECT
+					s.DEFAULT_CHARACTER_SET_NAME,
+					t.TABLE_NAME,
+					a.CHARACTER_SET_NAME AS TABLE_CHARSET,
+					c.COLUMN_NAME,
+					c.CHARACTER_SET_NAME AS COLUMN_CHARSET
+				FROM information_schema.TABLES AS t
+					INNER JOIN information_schema.SCHEMATA AS s ON (s.SCHEMA_NAME = t.TABLE_SCHEMA)
+					INNER JOIN information_schema.COLUMNS AS c ON (c.TABLE_SCHEMA = t.TABLE_SCHEMA AND c.TABLE_NAME = t.TABLE_NAME)
+					INNER JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY AS a ON (t.TABLE_COLLATION = a.COLLATION_NAME)
+				WHERE t.TABLE_SCHEMA = {string:db_name}
+					AND c.DATA_TYPE IN ({array_string:types})
+				ORDER BY t.TABLE_SCHEMA, t.TABLE_NAME, c.COLUMN_NAME',
+				[
+					'db_name' => $this->name,
+					'types' => ['enum', 'varchar', 'char', 'tinytext', 'text', 'mediumtext', 'longtext'],
+				],
+			);
+
+			$detected = $this->fetch_all($request);
+			$this->free_result($request);
+		}
+
+		// If no results were returned, the database doesn't exist yet.
+		// Therefore, assume that it will be utf8mb4 once it is created.
+		if (!isset($detected[0]['DEFAULT_CHARACTER_SET_NAME'])) {
+			return 'utf8mb4';
+		}
+
+		$charset = $detected[0]['DEFAULT_CHARACTER_SET_NAME'];
+
+		if (isset($table)) {
+			$table = str_replace('{db_prefix}', Config::$db_prefix, $table);
+
+			foreach ($detected as $row) {
+				if (
+					$row['TABLE_NAME'] === $table
+					&& (
+						!isset($column)
+						|| $row['COLUMN_NAME'] === $column
+					)
+				) {
+					$charset = isset($column) ? $row['COLUMN_CHARSET'] : $row['TABLE_CHARSET'];
+					break;
+				}
+			}
+		}
+
+		return $charset;
+	}
+
 	/****************************************
 	 * Methods that formerly lived in DbExtra
 	 ****************************************/
@@ -885,7 +1012,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$auto_inc = '';
 		// Default engine type.
-		$engine = 'MyISAM';
+		$engine = 'InnoDB';
 		$charset = '';
 		$collate = '';
 
@@ -1105,7 +1232,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$schema_create .= ',' . $crlf . ' ' . $keyname . ' (' . implode(', ', $columns) . ')';
 		}
 
-		// Now just get the comment and engine... (MyISAM, etc.)
+		// Now just get the comment and engine... (InnoDB, etc.)
 		$result = $this->query(
 			'',
 			'SHOW TABLE STATUS
@@ -1117,7 +1244,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$row = $this->fetch_assoc($result);
 		$this->free_result($result);
 
-		// Probably MyISAM.... and it might have a comment.
+		// Probably InnoDB.... and it might have a comment.
 		$schema_create .= $crlf . ') ENGINE=' . $row['Engine'] . ($row['Comment'] != '' ? ' COMMENT="' . $row['Comment'] . '"' : '');
 
 		return $schema_create;
@@ -1681,18 +1808,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Which engine do we want here?
-		if (empty($this->engines)) {
-			// Figure out which engines we have
-			$get_engines = $this->query('', 'SHOW ENGINES', []);
-
-			while ($row = $this->fetch_assoc($get_engines)) {
-				if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT') {
-					$this->engines[] = $row['Engine'];
-				}
-			}
-
-			$this->free_result($get_engines);
-		}
+		$this->get_engines();
 
 		// If we don't have this engine, or didn't specify one, default to InnoDB or MyISAM
 		// depending on which one is available
@@ -1702,8 +1818,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$table_query .= ') ENGINE=' . $parameters['engine'];
 
-		if (!empty($this->character_set) && $this->character_set == 'utf8') {
-			$table_query .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		if (!empty($this->character_set) && str_starts_with($this->character_set, 'utf8')) {
+			if ($this->mb4) {
+				$table_query .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
+			} else {
+				$table_query .= ' DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci';
+			}
 		}
 
 		// Create the table!
@@ -1824,6 +1944,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			'columns' => is_null($row) ? [] : $this->list_columns($table_name, true),
 			'indexes' => is_null($row) ? [] : $this->list_indexes($table_name, true),
 			'engine' => is_null($row) ? '' : $row['Engine'],
+			'row_format' => is_null($row) ? '' : $row['Row_format'],
 		];
 	}
 
@@ -2085,12 +2206,18 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$this->get_version();
 		$this->supports_pcre = version_compare($this->version, str_contains($this->version, 'MariaDB') ? '10.0.5' : '8.0.4', '>=');
 
-		// Ensure database has UTF-8 as its default input charset.
+		$this->character_set = strtolower($this->detect_charset('messages', 'body'));
+		$this->mb4 = $this->character_set === 'utf8mb4';
+
+		// Ensure database has utf8mb4 as its default input/output charset.
+		// Note: This just informs MySQL that input we send it will be in UTF-8
+		// and that it should reply in UTF-8. This is an independent matter from
+		// whatever charset MySQL uses to store the data.
 		$this->query(
 			'',
 			'SET NAMES {string:db_character_set}',
 			[
-				'db_character_set' => $this->character_set,
+				'db_character_set' => 'utf8mb4',
 			],
 		);
 	}
@@ -2217,7 +2344,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'string':
 			case 'text':
-				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, Utils::fixUtf8mb4((string) $replacement)));
+				return sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $this->fix_mb4((string) $replacement)));
 
 			case 'array_int':
 				if (is_array($replacement)) {
@@ -2247,7 +2374,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					}
 
 					foreach ($replacement as $key => $value) {
-						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, Utils::fixUtf8mb4($value)));
+						$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($this->temp_connection, $this->fix_mb4((string) $value)));
 					}
 
 					return implode(', ', $replacement);
@@ -2457,6 +2584,17 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Now just put it together!
 		return '`' . $column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['not_null']) ? 'NOT NULL' : '') . ' ' . $default;
+	}
+
+	/**
+	 * Converts entities for four-byte UTF-8 characters back to characters.
+	 *
+	 * @param string $string A UTF-8 string.
+	 * @return string A UTF-8 string.
+	 */
+	protected function restore_mb4(string $string): string
+	{
+		return str_contains($string, '&') ? mb_decode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8') : $string;
 	}
 }
 

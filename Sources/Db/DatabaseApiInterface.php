@@ -179,6 +179,15 @@ interface DatabaseApiInterface
 	public function unescape_string(string $string): string;
 
 	/**
+	 * Converts four-byte UTF-8 characters to entities, but only if the
+	 * database encoding doesn't accept four-byte characters natively.
+	 *
+	 * @param string $string A UTF-8 string.
+	 * @return string The string, with four-byte chars possibly encoded as entities.
+	 */
+	public function fix_mb4(string $string): string;
+
+	/**
 	 * Gets information, such as the version, about the database server.
 	 *
 	 * @param object $connection The connection to use (if null, $db_connection is used)
@@ -223,6 +232,15 @@ interface DatabaseApiInterface
 	 * @return bool Whether the database was selected
 	 */
 	public function select(string $database, ?object $connection = null): bool;
+
+	/**
+	 * Gets a list of engines that MySQL supports.
+	 *
+	 * Returns an empty array for PostgreSQL.
+	 *
+	 * @return array Supported engines.
+	 */
+	public function get_engines(): array;
 
 	/**
 	 * Escape the LIKE wildcards so that they match the character and not the wildcard.
@@ -298,6 +316,23 @@ interface DatabaseApiInterface
 	 * @return int Error code from the last connection attempt.
 	 */
 	public function connect_errno(): int;
+
+	/**
+	 * Detects the character set in use for a table, a column, or the database.
+	 *
+	 * If $table is null or the specified table does not exist, the database's
+	 * default character set will be returned.
+	 *
+	 * If $column is null, or if the specified column either does not exist or
+	 * does not store string values, the table's character set will be returned.
+	 *
+	 * @param ?string $table The table to check, or null to get the database's
+	 *    default character set.
+	 * @param ?string $column The column to check, or null to get the table's
+	 *    default character set. This parameter is ignored if $table is null.
+	 * @return string The character set.
+	 */
+	public function detect_charset(?string $table = null, ?string $column = null): string;
 
 	/****************************************
 	 * Methods that formerly lived in DbExtra

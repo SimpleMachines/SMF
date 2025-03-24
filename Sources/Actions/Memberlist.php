@@ -295,7 +295,7 @@ class Memberlist implements ActionInterface, Routable
 		}
 
 		if (!is_numeric($_REQUEST['start'])) {
-			if (preg_match('~^[^\'\\\\/]~' . (Utils::$context['utf8'] ? 'u' : ''), Utils::strtolower($_REQUEST['start']), $match) === 0) {
+			if (preg_match('~^[^\'\\\\/]~u', Utils::strtolower($_REQUEST['start']), $match) === 0) {
 				ErrorHandler::fatal('Are you a wannabe hacker?', false);
 			}
 

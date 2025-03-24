@@ -24,7 +24,7 @@ function template_print_above()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<meta name="robots" content="noindex">
 		<link rel="canonical" href="', Utils::$context['canonical_url'], '">
 		<title>', Lang::$txt['print_page'], ' - ', Utils::$context['topic_subject'], '</title>

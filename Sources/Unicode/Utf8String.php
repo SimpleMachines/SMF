@@ -662,7 +662,7 @@ class Utf8String implements \Stringable
 		$this->string = Utils::sanitizeEntities($this->string, ' ');
 
 		// Decode all the entities.
-		$this->string = Utils::entityDecode($this->string, true, ENT_QUOTES | ENT_HTML5, true);
+		$this->string = Utils::entityDecode($this->string, ENT_QUOTES | ENT_HTML5, true);
 
 		// Replace unwanted invisible characters with spaces.
 		$this->sanitizeInvisibles($level, ' ');

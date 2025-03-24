@@ -23,7 +23,6 @@ use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
-use SMF\Lang;
 use SMF\Routable;
 use SMF\User;
 use SMF\Utils;
@@ -371,15 +370,6 @@ class AttachmentDownload implements ActionInterface, Routable
 	 */
 	protected function __construct()
 	{
-		// Some defaults that we need.
-		if (!isset(Utils::$context['character_set'])) {
-			Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set'];
-		}
-
-		if (!isset(Utils::$context['utf8'])) {
-			Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
-		}
-
 		// Which attachment was requested?
 		$this->id = $_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) (isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0);
 

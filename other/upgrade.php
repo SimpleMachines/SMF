@@ -744,8 +744,6 @@ function redirectLocation($location, $addForm = true)
 // Load all essential data and connect to the DB as this is pre SSI.php
 function loadEssentialData()
 {
-	global $utf8;
-
 	// Report all errors if admin wants them or this is a pre-release version.
 	if (!empty(Config::$db_show_debug) || strspn(SMF_VERSION, '1234567890.') !== strlen(SMF_VERSION)) {
 		error_reporting(E_ALL);
@@ -772,8 +770,6 @@ function loadEssentialData()
 
 	// Initialize everything...
 	initialize_inputs();
-
-	$utf8 = (empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set']) === 'UTF-8';
 
 	// Get the database going!
 	if (empty(Config::$db_type) || Config::$db_type == 'mysqli') {
@@ -811,17 +807,6 @@ function loadEssentialData()
 			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
 
 			die(Lang::$txt['error_db_connect_settings'] . '<br><br>' . $db_error);
-		}
-
-		if (Config::$db_type == 'mysql' && isset(Config::$db_character_set) && preg_match('~^\w+$~', Config::$db_character_set) === 1) {
-			Db::$db->query(
-				'',
-				'SET NAMES {string:db_character_set}',
-				[
-					'db_error_skip' => true,
-					'db_character_set' => Config::$db_character_set,
-				],
-			);
 		}
 
 		// Load the modSettings data...
@@ -956,7 +941,7 @@ function WelcomeLogin()
 	}
 
 	// We don't need "-utf8" files anymore...
-	$upcontext['language'] = str_ireplace('-utf8', '', $upcontext['language']);
+	$upcontext['language'] = str_ireplace('-utf8', '', $upcontext['language'] ?? $upcontext['lang'] ?? Config::$language);
 
 	if (!$check) {
 		// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
@@ -1321,7 +1306,7 @@ function checkLogin()
 				}
 
 				// We don't use "-utf8" anymore...
-				$user_language = str_ireplace('-utf8', '', $user_language);
+				$user_language = str_ireplace('-utf8', '', Lang::getLocaleFromLanguageName($user_language));
 			} else {
 				$upcontext['username_incorrect'] = true;
 			}
@@ -1806,6 +1791,10 @@ function DatabaseChanges()
 	$upcontext['empty_error'] = !empty($_SESSION['empty_error']);
 	$upcontext['reprocess_attachments'] = !empty($_SESSION['reprocess_attachments']);
 
+	if (Config::$db_type == 'mysql') {
+		convertToInnoDb();
+	}
+
 	// All possible files.
 	// Name, < version, insert_on_complete
 	// Last entry in array indicates whether to use sql_mode of STRICT or not.
@@ -1938,32 +1927,6 @@ function DatabaseChanges()
 
 	$_GET['substep'] = 0;
 
-	// Set the UID column for calendar events.
-	$calendar_updates = [];
-	$request = Db::$db->query(
-		'',
-		'SELECT id_event, uid
-		FROM {db_prefix}calendar',
-		[],
-	);
-
-	while ($row = Db::$db->fetch_assoc($request)) {
-		if ($row['uid'] === '') {
-			$calendar_updates[] = ['id_event' => $row['id_event'], 'uid' => (string) new Uuid()];
-		}
-	}
-	Db::$db->free_result($request);
-
-	foreach ($calendar_updates as $calendar_update) {
-		Db::$db->query(
-			'',
-			'UPDATE {db_prefix}calendar
-			SET uid = {string:uid}
-			WHERE id_event = {int:id_event}',
-			$calendar_update,
-		);
-	}
-
 	// So the template knows we're done.
 	if (!$support_js) {
 		$upcontext['changes_complete'] = true;
@@ -1988,8 +1951,50 @@ function setSqlMode($strict = true)
 	}
 
 	mysqli_query(Db::$db_connection, 'SET SESSION sql_mode = \'' . $mode . '\'');
+}
 
+/**
+ * Converts all MySQL tables to the InnoDB engine and dynamic rows.
+ */
+function convertToInnoDb()
+{
+	if (Config::$db_type != 'mysql') {
+		return;
+	}
 
+	$tables = Db::$db->list_tables(false, Db::$db->prefix . '%');
+
+	foreach ($tables as $table) {
+		$structure = Db::$db->table_structure($table);
+
+		if ($structure['engine'] !== 'InnoDB') {
+			Db::$db->query(
+				'',
+				'ALTER TABLE {identifier:table}
+				ENGINE {literal:InnoDB}
+				ROW_FORMAT=DYNAMIC',
+				[
+					'table' => $table,
+				],
+			);
+		} elseif ($structure['row_format'] !== 'Dynamic') {
+			Db::$db->query(
+				'',
+				'ALTER TABLE {identifier:table}
+				ROW_FORMAT=DYNAMIC',
+				[
+					'table' => $table,
+				],
+			);
+		}
+	}
+
+	// Ensure all future tables use dynamic row format.
+	Db::$db->query(
+		'',
+		'SET GLOBAL innodb_default_row_format=DYNAMIC',
+		[],
+	);
 }
 
 // Delete the damn thing!
@@ -2382,10 +2387,10 @@ function parse_sql($filename)
 		},
 	);
 
-	// If we're on MySQL, set {db_collation}; this approach is used throughout upgrade_2-0_mysql.php to set new tables to utf8
-	// Note it is expected to be in the format: ENGINE=MyISAM{$db_collation};
+	// If we're on MySQL, set {db_collation}; this approach is used throughout upgrade_2-0_mysql.php to set new tables to utf8mb4
+	// Note it is expected to be in the format: ENGINE=InnoDB{$db_collation};
 	if (Config::$db_type == 'mysql') {
-		$db_collation = ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		$db_collation = ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
 	} else {
 		$db_collation = '';
 	}
@@ -2400,7 +2405,7 @@ function parse_sql($filename)
 	$last_step = '';
 
 	// Make sure all newly created tables will have the proper characters set; this approach is used throughout upgrade_2-1_mysql.php
-	$lines = str_replace(') ENGINE=MyISAM;', ') ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;', $lines);
+	$lines = preg_replace('/\) ENGINE=(InnoDB|MyISAM);/', ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;', $lines);
 
 	// Count the total number of steps within this file - for progress.
 	$file_steps = substr_count(implode('', $lines), '---#');
@@ -2523,7 +2528,7 @@ function parse_sql($filename)
 				}
 
 				// @todo Update this to a try/catch for PHP 7+, because eval() now throws an exception for parse errors instead of returning false
-				if (eval('use SMF\Config; use SMF\Utils; use SMF\Lang; use SMF\Db\DatabaseApi as Db; use SMF\Security; global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false) {
+				if (eval('use SMF\Config; use SMF\Utils; use SMF\Lang; use SMF\Db\DatabaseApi as Db; use SMF\Security; use SMF\Uuid; global $db_prefix, $modSettings, $smcFunc, $txt, $upcontext, $db_name; ' . $current_data) === false) {
 					$upcontext['error_message'] = 'Error in upgrade script ' . basename($filename) . ' on line ' . $line_number . '!' . $endl;
 
 					if ($command_line) {
@@ -3183,33 +3188,16 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 }
 
 /**
- * Handles converting your database to UTF-8
+ * Handles converting your database to UTF-8 (specifically, utf8mb4).
  */
-function ConvertUtf8()
+function ConvertUtf8(): bool
 {
 	global $upcontext;
 	global $command_line, $support_js;
 
-	// Done it already?
-	if (!empty($_POST['utf8_done'])) {
-		if ($command_line) {
-			return Cleanup();
-		}
-
-		return true;
-	}
-
-	// First make sure they aren't already on UTF-8 before we go anywhere...
-	if (Config::$db_type == 'postgresql' || (Config::$db_character_set === 'utf8' && !empty(Config::$modSettings['global_character_set']) && Config::$modSettings['global_character_set'] === 'UTF-8')) {
-		Db::$db->insert(
-			'replace',
-			'{db_prefix}settings',
-			['variable' => 'string', 'value' => 'string'],
-			[
-				['global_character_set', 'UTF-8'],
-			],
-			['variable'],
-		);
+	// Only applicable to MySQL and its forks.
+	if (!empty($_POST['utf8_done']) || Config::$db_type !== 'mysql') {
+		Config::updateSettingsFile(['db_character_set' => '', 'db_mb4' => null]);
 
 		if ($command_line) {
 			return Cleanup();
@@ -3220,11 +3208,129 @@ function ConvertUtf8()
 
 	$upcontext['page_title'] = Lang::$txt['converting_utf8'];
 	$upcontext['sub_template'] = isset($_GET['xml']) ? 'convert_xml' : 'convert_utf8';
+	$upcontext['dropping_index'] = $upcontext['dropping_index'] ?? false;
 
-	// The character sets used in SMF's language files with their db equivalent.
-	$charsets = [
+	// Get all the characters sets that are supported by this MySQL server.
+	$request = Db::$db->query('', 'SHOW CHARACTER SET');
+	$supported_charsets = array_map(fn ($row) => $row['Charset'], Db::$db->fetch_all($request));
+	Db::$db->free_result($request);
+
+	// Which character set have they been using for interacting with the browser?
+	if (isset(Config::$modSettings['global_character_set'])) {
+		// Things are easy if this exists.
+		$lang_charset = Config::$modSettings['global_character_set'];
+	} elseif (version_compare(strtolower(str_replace(' ', '.', Config::$modSettings['smfVersion'])), '3.0.dev.1', '>=')) {
+		$lang_charset = 'utf8';
+	} else {
+		// Figure it out the hard way.
+		// These are the $txt['lang_character_set'] values from all the 2.0.19
+		// language packs that weren't *-utf8 ones. Note that some of them used
+		// UTF-8 in both versions of their language packs, so UTF-8 still shows
+		// up in a number of entries below.
+		$lang_charsets = [
+			'afrikaans' => 'ISO-8859-1',
+			'albanian' => 'ISO-8859-1',
+			'arabic' => 'windows-1256',
+			'armenian_east' => 'armscii-8',
+			'armenian_west' => 'armscii-8',
+			'azerbaijani_latin' => 'ISO-8859-9',
+			'bangla' => 'UTF-8',
+			'basque' => 'ISO-8859-1',
+			'belarusian' => 'ISO-8859-5',
+			'bosnian' => 'ISO-8859-1',
+			'bulgarian' => 'windows-1251',
+			'cambodian' => 'UTF-8',
+			'catalan' => 'ISO-8859-1',
+			'chinese_simplified' => 'gbk',
+			'chinese_traditional' => 'big5',
+			'croatian' => 'ISO-8859-2',
+			'czech' => 'ISO-8859-2',
+			'czech_informal' => 'ISO-8859-2',
+			'danish' => 'ISO-8859-1',
+			'dutch' => 'ISO-8859-1',
+			'english' => 'ISO-8859-1',
+			'english_british' => 'ISO-8859-1',
+			'english_pirate' => 'UTF-8',
+			'esperanto' => 'ISO-8859-3',
+			'estonian' => 'ISO-8859-15',
+			'filipino_tagalog' => 'UTF-8',
+			'filipino_visayan' => 'UTF-8',
+			'finnish' => 'ISO-8859-1',
+			'french' => 'ISO-8859-1',
+			'galician' => 'ISO-8859-1',
+			'georgian' => 'UTF-8',
+			'german' => 'ISO-8859-1',
+			'german_informal' => 'ISO-8859-1',
+			'greek' => 'windows-1253',
+			'hebrew' => 'windows-1255',
+			'hindi' => 'ISO-8859-1',
+			'hungarian' => 'ISO-8859-2',
+			'icelandic' => 'ISO-8859-1',
+			'indonesian' => 'ISO-8859-1',
+			'irish' => 'UTF-8',
+			'italian' => 'ISO-8859-1',
+			'japanese' => 'UTF-8',
+			'khmer' => 'UTF-8',
+			'korean' => 'UTF-8',
+			'kurdish_kurmanji' => 'ISO-8859-9',
+			'kurdish_sorani' => 'windows-1256',
+			'lao' => 'tis-620',
+			'latvian' => 'ISO-8859-13',
+			'macedonian' => 'UTF-8',
+			'malay' => 'ISO-8859-1',
+			'malayalam' => 'UTF-8',
+			'mongolian' => 'UTF-8',
+			'nepali' => 'UTF-8',
+			'norwegian' => 'ISO-8859-1',
+			'persian' => 'UTF-8',
+			'polish' => 'ISO-8859-2',
+			'portuguese_brazilian' => 'ISO-8859-1',
+			'portuguese_pt' => 'ISO-8859-1',
+			'romanian' => 'ISO-8859-2',
+			'russian' => 'windows-1251',
+			'sakha' => 'UTF-8',
+			'serbian_cyrillic' => 'ISO-8859-5',
+			'serbian_latin' => 'ISO-8859-2',
+			'sinhala' => 'UTF-8',
+			'slovak' => 'ISO-8859-2',
+			'slovenian' => 'ISO-8859-2',
+			'spanish' => 'ISO-8859-1',
+			'spanish_es' => 'ISO-8859-1',
+			'spanish_latin' => 'ISO-8859-1',
+			'swedish' => 'ISO-8859-1',
+			'telugu' => 'UTF-8',
+			'thai' => 'tis-620',
+			'turkish' => 'ISO-8859-9',
+			'turkmen' => 'ISO-8859-9',
+			'ukrainian' => 'windows-1251',
+			'urdu' => 'UTF-8',
+			'uzbek_cyrillic' => 'ISO-8859-5',
+			'uzbek_latin' => 'ISO-8859-5',
+			'vietnamese' => 'UTF-8',
+			'welsh' => 'ISO-8859-1',
+			'yoruba' => 'UTF-8',
+		];
+
+		// Map in the new locales. We do it like this because we want to try
+		// our best to capture the correct charset no matter what the status of
+		// the language upgrade is.
+		foreach ($lang_charsets as $key => $value) {
+			$locale = Lang::getLocaleFromLanguageName($key);
+
+			if ($locale !== null) {
+				$lang_charsets[$locale] = $value;
+			}
+		}
+
+		$lang_charset = $lang_charsets[Config::$language];
+	}
+
+	// Maps character sets used in old, non-Unicode SMF language files to the
+	// corresponding MySQL aliases for those character sets. This list only
+	// includes exact matches.
+	$charset_maps = [
 		// Armenian
-		'armscii8' => 'armscii8',
+		'armscii-8' => 'armscii8',
 		// Chinese-traditional.
 		'big5' => 'big5',
 		// Chinese-simplified.
@@ -3237,312 +3343,340 @@ function ConvertUtf8()
 		'ISO-8859-9' => 'latin5',
 		// Latvian
 		'ISO-8859-13' => 'latin7',
-		// West European with Euro sign.
-		'ISO-8859-15' => 'latin9',
 		// Thai.
 		'tis-620' => 'tis620',
 		// Persian, Chinese, etc.
-		'UTF-8' => 'utf8',
+		'UTF-8' => 'utf8mb3',
 		// Russian.
 		'windows-1251' => 'cp1251',
-		// Greek.
-		'windows-1253' => 'utf8',
-		// Hebrew.
-		'windows-1255' => 'utf8',
 		// Arabic.
 		'windows-1256' => 'cp1256',
 	];
 
-	// Get a list of character sets supported by your MySQL server.
-	$request = Db::$db->query(
-		'',
-		'SHOW CHARACTER SET',
-		[
-		],
-	);
-	$db_charsets = [];
+	// Remove any mapped character sets that are unsupported by this MySQL server.
+	$charset_maps = array_intersect($charset_maps, $supported_charsets);
 
-	while ($row = Db::$db->fetch_assoc($request)) {
-		$db_charsets[] = $row['Charset'];
-	}
-
-	Db::$db->free_result($request);
-
-	// Character sets supported by both MySQL and SMF's language files.
-	$charsets = array_intersect($charsets, $db_charsets);
-
-	// Use the messages.body column as indicator for the database charset.
-	$request = Db::$db->query(
-		'',
-		'SHOW FULL COLUMNS
-		FROM {db_prefix}messages
-		LIKE {string:body_like}',
-		[
-			'body_like' => 'body',
-		],
-	);
-	$column_info = Db::$db->fetch_assoc($request);
-	Db::$db->free_result($request);
-
-	// A collation looks like latin1_swedish. We only need the character set.
-	list($upcontext['database_charset']) = explode('_', $column_info['Collation']);
-	$upcontext['database_charset'] = in_array($upcontext['database_charset'], $charsets) ? array_search($upcontext['database_charset'], $charsets) : $upcontext['database_charset'];
-
-	// Detect whether a fulltext index is set.
-	$request = Db::$db->query(
-		'',
-		'SHOW INDEX
-		FROM {db_prefix}messages',
-		[
-		],
-	);
-
-	$upcontext['dropping_index'] = false;
-
-	// If there's a fulltext index, we need to drop it first...
-	if ($request !== false || Db::$db->num_rows($request) != 0) {
-		while ($row = Db::$db->fetch_assoc($request)) {
-			if ($row['Column_name'] == 'body' && (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT' || isset($row['Comment']) && $row['Comment'] == 'FULLTEXT')) {
-				$upcontext['fulltext_index'][] = $row['Key_name'];
-			}
-		}
-		Db::$db->free_result($request);
-
-		if (isset($upcontext['fulltext_index'])) {
-			$upcontext['fulltext_index'] = array_unique($upcontext['fulltext_index']);
-		}
-	}
-
-	// Drop it and make a note...
-	if (!empty($upcontext['fulltext_index'])) {
-		$upcontext['dropping_index'] = true;
-
-		Db::$db->query(
-			'',
-			'ALTER TABLE {db_prefix}messages
-			DROP INDEX ' . implode(',
-			DROP INDEX ', $upcontext['fulltext_index']),
-			[
-				'db_error_skip' => true,
-			],
-		);
-
-		// Update the settings table
-		Db::$db->insert(
-			'replace',
-			'{db_prefix}settings',
-			[
-				'variable' => 'string',
-				'value' => 'string',
-			],
-			[
-				[
-					'db_search_index',
-					'',
-				],
-			],
-			['variable'],
-		);
-	}
-
-	// Figure out what charset we should be converting from...
-	$lang_charsets = [
-		'arabic' => 'windows-1256',
-		'armenian_east' => 'armscii-8',
-		'armenian_west' => 'armscii-8',
-		'azerbaijani_latin' => 'ISO-8859-9',
-		'bangla' => 'UTF-8',
-		'belarusian' => 'ISO-8859-5',
-		'bulgarian' => 'windows-1251',
-		'cambodian' => 'UTF-8',
-		'chinese_simplified' => 'gbk',
-		'chinese_traditional' => 'big5',
-		'croation' => 'ISO-8859-2',
-		'czech' => 'ISO-8859-2',
-		'czech_informal' => 'ISO-8859-2',
-		'english_pirate' => 'UTF-8',
-		'esperanto' => 'ISO-8859-3',
-		'estonian' => 'ISO-8859-15',
-		'filipino_tagalog' => 'UTF-8',
-		'filipino_vasayan' => 'UTF-8',
-		'georgian' => 'UTF-8',
-		'greek' => 'ISO-8859-3',
-		'hebrew' => 'windows-1255',
-		'hungarian' => 'ISO-8859-2',
-		'irish' => 'UTF-8',
-		'japanese' => 'UTF-8',
-		'khmer' => 'UTF-8',
-		'korean' => 'UTF-8',
-		'kurdish_kurmanji' => 'ISO-8859-9',
-		'kurdish_sorani' => 'windows-1256',
-		'lao' => 'tis-620',
-		'latvian' => 'ISO-8859-13',
-		'lithuanian' => 'ISO-8859-4',
-		'macedonian' => 'UTF-8',
-		'malayalam' => 'UTF-8',
-		'mongolian' => 'UTF-8',
-		'nepali' => 'UTF-8',
-		'persian' => 'UTF-8',
-		'polish' => 'ISO-8859-2',
-		'romanian' => 'ISO-8859-2',
-		'russian' => 'windows-1252',
-		'sakha' => 'UTF-8',
-		'serbian_cyrillic' => 'ISO-8859-5',
-		'serbian_latin' => 'ISO-8859-2',
-		'sinhala' => 'UTF-8',
-		'slovak' => 'ISO-8859-2',
-		'slovenian' => 'ISO-8859-2',
-		'telugu' => 'UTF-8',
-		'thai' => 'tis-620',
-		'turkish' => 'ISO-8859-9',
-		'turkmen' => 'ISO-8859-9',
-		'ukranian' => 'windows-1251',
-		'urdu' => 'UTF-8',
-		'uzbek_cyrillic' => 'ISO-8859-5',
-		'uzbek_latin' => 'ISO-8859-5',
-		'vietnamese' => 'UTF-8',
-		'yoruba' => 'UTF-8',
-	];
-
-	// Map in the new locales. We do it like this, because we want to try our best to capture
-	// the correct charset no mater what the status of the language upgrade is.
-	foreach ($lang_charsets as $key => $value) {
-		// This could be more efficient, but its upgrade logic.
-		$locale = Lang::getLocaleFromLanguageName($key);
-
-		if ($locale !== null) {
-			$lang_charsets[$locale] = $value;
-		}
-	}
-
-	// Default to ISO-8859-1 unless we detected another supported charset
-	$upcontext['charset_detected'] = (isset($lang_charsets[Config::$language], $charsets[strtr(strtolower($upcontext['charset_detected']), ['utf' => 'UTF', 'iso' => 'ISO'])])) ? $lang_charsets[Config::$language] : 'ISO-8859-1';
-
-	$upcontext['charset_list'] = array_keys($charsets);
-
-	// Translation table for the character sets not native for MySQL.
+	// Manual character translation for a couple of rare character sets that old
+	// SMF language files might have used.
 	$translation_tables = [
-		'windows-1255' => [
-			'0x81' => '\'\'',		'0x8A' => '\'\'',		'0x8C' => '\'\'',
-			'0x8D' => '\'\'',		'0x8E' => '\'\'',		'0x8F' => '\'\'',
-			'0x90' => '\'\'',		'0x9A' => '\'\'',		'0x9C' => '\'\'',
-			'0x9D' => '\'\'',		'0x9E' => '\'\'',		'0x9F' => '\'\'',
-			'0xCA' => '\'\'',		'0xD9' => '\'\'',		'0xDA' => '\'\'',
-			'0xDB' => '\'\'',		'0xDC' => '\'\'',		'0xDD' => '\'\'',
-			'0xDE' => '\'\'',		'0xDF' => '\'\'',		'0xFB' => '0xD792',
-			'0xFC' => '0xE282AC',		'0xFF' => '0xD6B2',		'0xC2' => '0xFF',
-			'0x80' => '0xFC',		'0xE2' => '0xFB',		'0xA0' => '0xC2A0',
-			'0xA1' => '0xC2A1',		'0xA2' => '0xC2A2',		'0xA3' => '0xC2A3',
-			'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
-			'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
-			'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
-			'0xAF' => '0xC2AF',		'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',
-			'0xB2' => '0xC2B2',		'0xB3' => '0xC2B3',		'0xB4' => '0xC2B4',
-			'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
-			'0xB8' => '0xC2B8',		'0xB9' => '0xC2B9',		'0xBB' => '0xC2BB',
-			'0xBC' => '0xC2BC',		'0xBD' => '0xC2BD',		'0xBE' => '0xC2BE',
-			'0xBF' => '0xC2BF',		'0xD7' => '0xD7B3',		'0xD1' => '0xD781',
-			'0xD4' => '0xD7B0',		'0xD5' => '0xD7B1',		'0xD6' => '0xD7B2',
-			'0xE0' => '0xD790',		'0xEA' => '0xD79A',		'0xEC' => '0xD79C',
-			'0xED' => '0xD79D',		'0xEE' => '0xD79E',		'0xEF' => '0xD79F',
-			'0xF0' => '0xD7A0',		'0xF1' => '0xD7A1',		'0xF2' => '0xD7A2',
-			'0xF3' => '0xD7A3',		'0xF5' => '0xD7A5',		'0xF6' => '0xD7A6',
-			'0xF7' => '0xD7A7',		'0xF8' => '0xD7A8',		'0xF9' => '0xD7A9',
-			'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
-			'0x86' => '0xE280A0',	'0x87' => '0xE280A1',	'0x89' => '0xE280B0',
-			'0x8B' => '0xE280B9',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
-			'0x95' => '0xE280A2',	'0x97' => '0xE28094',	'0x99' => '0xE284A2',
-			'0xC0' => '0xD6B0',		'0xC1' => '0xD6B1',		'0xC3' => '0xD6B3',
-			'0xC4' => '0xD6B4',		'0xC5' => '0xD6B5',		'0xC6' => '0xD6B6',
-			'0xC7' => '0xD6B7',		'0xC8' => '0xD6B8',		'0xC9' => '0xD6B9',
-			'0xCB' => '0xD6BB',		'0xCC' => '0xD6BC',		'0xCD' => '0xD6BD',
-			'0xCE' => '0xD6BE',		'0xCF' => '0xD6BF',		'0xD0' => '0xD780',
-			'0xD2' => '0xD782',		'0xE3' => '0xD793',		'0xE4' => '0xD794',
-			'0xE5' => '0xD795',		'0xE7' => '0xD797',		'0xE9' => '0xD799',
-			'0xFD' => '0xE2808E',	'0xFE' => '0xE2808F',	'0x92' => '0xE28099',
-			'0x83' => '0xC692',		'0xD3' => '0xD783',		'0x88' => '0xCB86',
-			'0x98' => '0xCB9C',		'0x91' => '0xE28098',	'0x96' => '0xE28093',
-			'0xBA' => '0xC3B7',		'0x9B' => '0xE280BA',	'0xAA' => '0xC397',
-			'0xA4' => '0xE282AA',	'0xE1' => '0xD791',		'0xE6' => '0xD796',
-			'0xE8' => '0xD798',		'0xEB' => '0xD79B',		'0xF4' => '0xD7A4',
-			'0xFA' => '0xD7AA',
-		],
 		'windows-1253' => [
-			'0x81' => '\'\'',			'0x88' => '\'\'',			'0x8A' => '\'\'',
-			'0x8C' => '\'\'',			'0x8D' => '\'\'',			'0x8E' => '\'\'',
-			'0x8F' => '\'\'',			'0x90' => '\'\'',			'0x98' => '\'\'',
-			'0x9A' => '\'\'',			'0x9C' => '\'\'',			'0x9D' => '\'\'',
-			'0x9E' => '\'\'',			'0x9F' => '\'\'',			'0xAA' => '\'\'',
-			'0xD2' => '0xE282AC',			'0xFF' => '0xCE92',			'0xCE' => '0xCE9E',
-			'0xB8' => '0xCE88',		'0xBA' => '0xCE8A',		'0xBC' => '0xCE8C',
-			'0xBE' => '0xCE8E',		'0xBF' => '0xCE8F',		'0xC0' => '0xCE90',
-			'0xC8' => '0xCE98',		'0xCA' => '0xCE9A',		'0xCC' => '0xCE9C',
-			'0xCD' => '0xCE9D',		'0xCF' => '0xCE9F',		'0xDA' => '0xCEAA',
-			'0xE8' => '0xCEB8',		'0xEA' => '0xCEBA',		'0xEC' => '0xCEBC',
-			'0xEE' => '0xCEBE',		'0xEF' => '0xCEBF',		'0xC2' => '0xFF',
-			'0xBD' => '0xC2BD',		'0xED' => '0xCEBD',		'0xB2' => '0xC2B2',
-			'0xA0' => '0xC2A0',		'0xA3' => '0xC2A3',		'0xA4' => '0xC2A4',
-			'0xA5' => '0xC2A5',		'0xA6' => '0xC2A6',		'0xA7' => '0xC2A7',
-			'0xA8' => '0xC2A8',		'0xA9' => '0xC2A9',		'0xAB' => '0xC2AB',
-			'0xAC' => '0xC2AC',		'0xAD' => '0xC2AD',		'0xAE' => '0xC2AE',
-			'0xB0' => '0xC2B0',		'0xB1' => '0xC2B1',		'0xB3' => '0xC2B3',
-			'0xB5' => '0xC2B5',		'0xB6' => '0xC2B6',		'0xB7' => '0xC2B7',
-			'0xBB' => '0xC2BB',		'0xE2' => '0xCEB2',		'0x80' => '0xD2',
-			'0x82' => '0xE2809A',	'0x84' => '0xE2809E',	'0x85' => '0xE280A6',
-			'0x86' => '0xE280A0',	'0xA1' => '0xCE85',		'0xA2' => '0xCE86',
-			'0x87' => '0xE280A1',	'0x89' => '0xE280B0',	'0xB9' => '0xCE89',
-			'0x8B' => '0xE280B9',	'0x91' => '0xE28098',	'0x99' => '0xE284A2',
-			'0x92' => '0xE28099',	'0x93' => '0xE2809C',	'0x94' => '0xE2809D',
-			'0x95' => '0xE280A2',	'0x96' => '0xE28093',	'0x97' => '0xE28094',
-			'0x9B' => '0xE280BA',	'0xAF' => '0xE28095',	'0xB4' => '0xCE84',
-			'0xC1' => '0xCE91',		'0xC3' => '0xCE93',		'0xC4' => '0xCE94',
-			'0xC5' => '0xCE95',		'0xC6' => '0xCE96',		'0x83' => '0xC692',
-			'0xC7' => '0xCE97',		'0xC9' => '0xCE99',		'0xCB' => '0xCE9B',
-			'0xD0' => '0xCEA0',		'0xD1' => '0xCEA1',		'0xD3' => '0xCEA3',
-			'0xD4' => '0xCEA4',		'0xD5' => '0xCEA5',		'0xD6' => '0xCEA6',
-			'0xD7' => '0xCEA7',		'0xD8' => '0xCEA8',		'0xD9' => '0xCEA9',
-			'0xDB' => '0xCEAB',		'0xDC' => '0xCEAC',		'0xDD' => '0xCEAD',
-			'0xDE' => '0xCEAE',		'0xDF' => '0xCEAF',		'0xE0' => '0xCEB0',
-			'0xE1' => '0xCEB1',		'0xE3' => '0xCEB3',		'0xE4' => '0xCEB4',
-			'0xE5' => '0xCEB5',		'0xE6' => '0xCEB6',		'0xE7' => '0xCEB7',
-			'0xE9' => '0xCEB9',		'0xEB' => '0xCEBB',		'0xF0' => '0xCF80',
-			'0xF1' => '0xCF81',		'0xF2' => '0xCF82',		'0xF3' => '0xCF83',
-			'0xF4' => '0xCF84',		'0xF5' => '0xCF85',		'0xF6' => '0xCF86',
-			'0xF7' => '0xCF87',		'0xF8' => '0xCF88',		'0xF9' => '0xCF89',
-			'0xFA' => '0xCF8A',		'0xFB' => '0xCF8B',		'0xFC' => '0xCF8C',
-			'0xFD' => '0xCF8D',		'0xFE' => '0xCF8E',
+			'0x80' => '0xE282AC',
+			'0x81' => '\'\'',
+			'0x82' => '0xE2809A',
+			'0x83' => '0xC692',
+			'0x84' => '0xE2809E',
+			'0x85' => '0xE280A6',
+			'0x86' => '0xE280A0',
+			'0x87' => '0xE280A1',
+			'0x88' => '\'\'',
+			'0x89' => '0xE280B0',
+			'0x8A' => '\'\'',
+			'0x8B' => '0xE280B9',
+			'0x8C' => '\'\'',
+			'0x8D' => '\'\'',
+			'0x8E' => '\'\'',
+			'0x8F' => '\'\'',
+			'0x90' => '\'\'',
+			'0x91' => '0xE28098',
+			'0x92' => '0xE28099',
+			'0x93' => '0xE2809C',
+			'0x94' => '0xE2809D',
+			'0x95' => '0xE280A2',
+			'0x96' => '0xE28093',
+			'0x97' => '0xE28094',
+			'0x98' => '\'\'',
+			'0x99' => '0xE284A2',
+			'0x9A' => '\'\'',
+			'0x9B' => '0xE280BA',
+			'0x9C' => '\'\'',
+			'0x9D' => '\'\'',
+			'0x9E' => '\'\'',
+			'0x9F' => '\'\'',
+			'0xA0' => '0xC2A0',
+			'0xA1' => '0xCE85',
+			'0xA2' => '0xCE86',
+			'0xA3' => '0xC2A3',
+			'0xA4' => '0xC2A4',
+			'0xA5' => '0xC2A5',
+			'0xA6' => '0xC2A6',
+			'0xA7' => '0xC2A7',
+			'0xA8' => '0xC2A8',
+			'0xA9' => '0xC2A9',
+			'0xAA' => '\'\'',
+			'0xAB' => '0xC2AB',
+			'0xAC' => '0xC2AC',
+			'0xAD' => '0xC2AD',
+			'0xAE' => '0xC2AE',
+			'0xAF' => '0xE28095',
+			'0xB0' => '0xC2B0',
+			'0xB1' => '0xC2B1',
+			'0xB2' => '0xC2B2',
+			'0xB3' => '0xC2B3',
+			'0xB4' => '0xCE84',
+			'0xB5' => '0xC2B5',
+			'0xB6' => '0xC2B6',
+			'0xB7' => '0xC2B7',
+			'0xB8' => '0xCE88',
+			'0xB9' => '0xCE89',
+			'0xBA' => '0xCE8A',
+			'0xBB' => '0xC2BB',
+			'0xBC' => '0xCE8C',
+			'0xBD' => '0xC2BD',
+			'0xBE' => '0xCE8E',
+			'0xBF' => '0xCE8F',
+			'0xC0' => '0xCE90',
+			'0xC1' => '0xCE91',
+			'0xC2' => '0xCE92',
+			'0xC3' => '0xCE93',
+			'0xC4' => '0xCE94',
+			'0xC5' => '0xCE95',
+			'0xC6' => '0xCE96',
+			'0xC7' => '0xCE97',
+			'0xC8' => '0xCE98',
+			'0xC9' => '0xCE99',
+			'0xCA' => '0xCE9A',
+			'0xCB' => '0xCE9B',
+			'0xCC' => '0xCE9C',
+			'0xCD' => '0xCE9D',
+			'0xCE' => '0xCE9E',
+			'0xCF' => '0xCE9F',
+			'0xD0' => '0xCEA0',
+			'0xD1' => '0xCEA1',
+			'0xD2' => '0xEFBFBD',
+			'0xD3' => '0xCEA3',
+			'0xD4' => '0xCEA4',
+			'0xD5' => '0xCEA5',
+			'0xD6' => '0xCEA6',
+			'0xD7' => '0xCEA7',
+			'0xD8' => '0xCEA8',
+			'0xD9' => '0xCEA9',
+			'0xDA' => '0xCEAA',
+			'0xDB' => '0xCEAB',
+			'0xDC' => '0xCEAC',
+			'0xDD' => '0xCEAD',
+			'0xDE' => '0xCEAE',
+			'0xDF' => '0xCEAF',
+			'0xE0' => '0xCEB0',
+			'0xE1' => '0xCEB1',
+			'0xE2' => '0xCEB2',
+			'0xE3' => '0xCEB3',
+			'0xE4' => '0xCEB4',
+			'0xE5' => '0xCEB5',
+			'0xE6' => '0xCEB6',
+			'0xE7' => '0xCEB7',
+			'0xE8' => '0xCEB8',
+			'0xE9' => '0xCEB9',
+			'0xEA' => '0xCEBA',
+			'0xEB' => '0xCEBB',
+			'0xEC' => '0xCEBC',
+			'0xED' => '0xCEBD',
+			'0xEE' => '0xCEBE',
+			'0xEF' => '0xCEBF',
+			'0xF0' => '0xCF80',
+			'0xF1' => '0xCF81',
+			'0xF2' => '0xCF82',
+			'0xF3' => '0xCF83',
+			'0xF4' => '0xCF84',
+			'0xF5' => '0xCF85',
+			'0xF6' => '0xCF86',
+			'0xF7' => '0xCF87',
+			'0xF8' => '0xCF88',
+			'0xF9' => '0xCF89',
+			'0xFA' => '0xCF8A',
+			'0xFB' => '0xCF8B',
+			'0xFC' => '0xCF8C',
+			'0xFD' => '0xCF8D',
+			'0xFE' => '0xCF8E',
+		],
+		'windows-1255' => [
+			'0x80' => '0xE282AC',
+			'0x81' => '\'\'',
+			'0x82' => '0xE2809A',
+			'0x83' => '0xC692',
+			'0x84' => '0xE2809E',
+			'0x85' => '0xE280A6',
+			'0x86' => '0xE280A0',
+			'0x87' => '0xE280A1',
+			'0x88' => '0xCB86',
+			'0x89' => '0xE280B0',
+			'0x8A' => '\'\'',
+			'0x8B' => '0xE280B9',
+			'0x8C' => '\'\'',
+			'0x8D' => '\'\'',
+			'0x8E' => '\'\'',
+			'0x8F' => '\'\'',
+			'0x90' => '\'\'',
+			'0x91' => '0xE28098',
+			'0x92' => '0xE28099',
+			'0x93' => '0xE2809C',
+			'0x94' => '0xE2809D',
+			'0x95' => '0xE280A2',
+			'0x96' => '0xE28093',
+			'0x97' => '0xE28094',
+			'0x98' => '0xCB9C',
+			'0x99' => '0xE284A2',
+			'0x9A' => '\'\'',
+			'0x9B' => '0xE280BA',
+			'0x9C' => '\'\'',
+			'0x9D' => '\'\'',
+			'0x9E' => '\'\'',
+			'0x9F' => '\'\'',
+			'0xA0' => '0xC2A0',
+			'0xA1' => '0xC2A1',
+			'0xA2' => '0xC2A2',
+			'0xA3' => '0xC2A3',
+			'0xA4' => '0xE282AA',
+			'0xA5' => '0xC2A5',
+			'0xA6' => '0xC2A6',
+			'0xA7' => '0xC2A7',
+			'0xA8' => '0xC2A8',
+			'0xA9' => '0xC2A9',
+			'0xAA' => '0xC397',
+			'0xAB' => '0xC2AB',
+			'0xAC' => '0xC2AC',
+			'0xAD' => '0xC2AD',
+			'0xAE' => '0xC2AE',
+			'0xAF' => '0xC2AF',
+			'0xB0' => '0xC2B0',
+			'0xB1' => '0xC2B1',
+			'0xB2' => '0xC2B2',
+			'0xB3' => '0xC2B3',
+			'0xB4' => '0xC2B4',
+			'0xB5' => '0xC2B5',
+			'0xB6' => '0xC2B6',
+			'0xB7' => '0xC2B7',
+			'0xB8' => '0xC2B8',
+			'0xB9' => '0xC2B9',
+			'0xBA' => '0xC3B7',
+			'0xBB' => '0xC2BB',
+			'0xBC' => '0xC2BC',
+			'0xBD' => '0xC2BD',
+			'0xBE' => '0xC2BE',
+			'0xBF' => '0xC2BF',
+			'0xC0' => '0xD6B0',
+			'0xC1' => '0xD6B1',
+			'0xC2' => '0xD6B2',
+			'0xC3' => '0xD6B3',
+			'0xC4' => '0xD6B4',
+			'0xC5' => '0xD6B5',
+			'0xC6' => '0xD6B6',
+			'0xC7' => '0xD6B7',
+			'0xC8' => '0xD6B8',
+			'0xC9' => '0xD6B9',
+			'0xCA' => '0xEFBFBD',
+			'0xCB' => '0xD6BB',
+			'0xCC' => '0xD6BC',
+			'0xCD' => '0xD6BD',
+			'0xCE' => '0xD6BE',
+			'0xCF' => '0xD6BF',
+			'0xD0' => '0xD780',
+			'0xD1' => '0xD781',
+			'0xD2' => '0xD782',
+			'0xD3' => '0xD783',
+			'0xD4' => '0xD7B0',
+			'0xD5' => '0xD7B1',
+			'0xD6' => '0xD7B2',
+			'0xD7' => '0xD7B3',
+			'0xD8' => '0xD7B4',
+			'0xD9' => '\'\'',
+			'0xDA' => '\'\'',
+			'0xDB' => '\'\'',
+			'0xDC' => '\'\'',
+			'0xDD' => '\'\'',
+			'0xDE' => '\'\'',
+			'0xDF' => '\'\'',
+			'0xE0' => '0xD790',
+			'0xE1' => '0xD791',
+			'0xE2' => '0xD792',
+			'0xE3' => '0xD793',
+			'0xE4' => '0xD794',
+			'0xE5' => '0xD795',
+			'0xE6' => '0xD796',
+			'0xE7' => '0xD797',
+			'0xE8' => '0xD798',
+			'0xE9' => '0xD799',
+			'0xEA' => '0xD79A',
+			'0xEB' => '0xD79B',
+			'0xEC' => '0xD79C',
+			'0xED' => '0xD79D',
+			'0xEE' => '0xD79E',
+			'0xEF' => '0xD79F',
+			'0xF0' => '0xD7A0',
+			'0xF1' => '0xD7A1',
+			'0xF2' => '0xD7A2',
+			'0xF3' => '0xD7A3',
+			'0xF4' => '0xD7A4',
+			'0xF5' => '0xD7A5',
+			'0xF6' => '0xD7A6',
+			'0xF7' => '0xD7A7',
+			'0xF8' => '0xD7A8',
+			'0xF9' => '0xD7A9',
+			'0xFA' => '0xD7AA',
+			'0xFB' => '\'\'',
+			'0xFC' => '\'\'',
+			'0xFD' => '0xE2808E',
+			'0xFE' => '0xE2808F',
 		],
 	];
 
-	// Make some preparations.
-	if (isset($translation_tables[$upcontext['charset_detected']])) {
-		$replace = '%field%';
+	// Create a MySQL function to decode entities.
+	Db::$db->disableQueryCheck = true;
+	Db::$db->query(
+		'',
+		'CREATE FUNCTION IF NOT EXISTS {identifier:db_name}.smf_entity_decode(txt TEXT CHARSET utf8mb4) RETURNS TEXT CHARSET utf8mb4
+			NO SQL
+			DETERMINISTIC
+		BEGIN
 
-		// Build a huge REPLACE statement...
-		foreach ($translation_tables[$upcontext['charset_detected']] as $from => $to) {
-			$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
-		}
-	}
+			DECLARE tmp TEXT CHARSET utf8mb4 DEFAULT txt;
+			DECLARE entity TEXT CHARSET utf8mb4;
+			DECLARE pos1 INT DEFAULT 1;
+			DECLARE pos2 INT;
+			DECLARE codepoint INT;
 
-	// Get a list of table names ahead of time... This makes it easier to set our substep and such
-	$queryTables = Db::$db->list_tables(false, Config::$db_prefix . '%');
+			IF txt IS NULL THEN
+				RETURN NULL;
+			END IF;
+			LOOP
+				SET pos1 = LOCATE("&#", tmp, pos1);
+				IF pos1 = 0 THEN
+					RETURN tmp;
+				END IF;
+				SET pos2 = LOCATE(";", tmp, pos1 + 2);
+				IF pos2 > pos1 THEN
+					SET entity = SUBSTRING(tmp, pos1, pos2 - pos1 + 1);
+					IF entity REGEXP "^&#[[:digit:]]+;$" THEN
+						SET codepoint = CAST(SUBSTRING(entity, 3, pos2 - pos1 - 2) AS UNSIGNED);
+						SET tmp = CONCAT(LEFT(tmp, pos1 - 1), CHAR(codepoint USING utf32), SUBSTRING(tmp, pos2 + 1));
+					END IF;
+					IF entity REGEXP "^&#x[[:xdigit:]]+;$" THEN
+						SET codepoint = CAST(CONV(SUBSTRING(entity, 4, pos2 - pos1 - 3), 16, 10) AS UNSIGNED);
+						SET tmp = CONCAT(LEFT(tmp, pos1 - 1), CHAR(codepoint USING utf32), SUBSTRING(tmp, pos2 + 1));
+					END IF;
+				END IF;
+				SET pos1 = pos1 + 1;
+			END LOOP;
+		END',
+		[
+			'db_name' => Db::$db->name,
+		]
+	);
+	Db::$db->disableQueryCheck = false;
 
-	$queryTables = array_values(array_filter($queryTables, function ($v) {
-		return stripos($v, 'backup_') !== 0;
-	}));
+	// Get all the SMF tables.
+	$tables = Db::$db->list_tables(false, Db::$db->prefix . '%');
 
-	$upcontext['table_count'] = count($queryTables);
+	// Set some initial values for the templates.
+	$upcontext['table_count'] = count($tables);
+	$upcontext['cur_table_num'] = (int) $_GET['substep'];
+	$upcontext['cur_table_name'] = str_replace(Db::$db->prefix, '', $tables[$upcontext['cur_table_num']]);
+	$upcontext['step_progress'] = (int) ($upcontext['cur_table_num'] / $upcontext['table_count'] * 100);
 
-	// What ones have we already done?
-	foreach ($queryTables as $id => $table) {
-		if ($id < $_GET['substep']) {
+	foreach ($tables as $table_num => $table) {
+		if ($table_num < $upcontext['cur_table_num']) {
 			$upcontext['previous_tables'][] = $table;
 		}
 	}
-
-	$upcontext['cur_table_num'] = $_GET['substep'];
-	$upcontext['cur_table_name'] = str_replace(Config::$db_prefix, '', $queryTables[$_GET['substep']]);
-	$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
 
 	// Make sure we're ready & have painted the template before proceeding
 	if ($support_js && !isset($_GET['xml'])) {
@@ -3551,196 +3685,236 @@ function ConvertUtf8()
 		return false;
 	}
 
-	// We want to start at the first table.
-	for ($substep = $_GET['substep'], $n = count($queryTables); $substep < $n; $substep++) {
-		$table = $queryTables[$substep];
+	foreach ($tables as $table_num => $table) {
+		if ($table_num + 1 < $upcontext['cur_table_num']) {
+			continue;
+		}
 
-		$getTableStatus = Db::$db->query(
-			'',
-			'SHOW TABLE STATUS
-			LIKE {string:table_name}',
-			[
-				'table_name' => str_replace('_', '\_', $table),
-			],
-		);
-
-		// Only one row so we can just fetch_assoc and free the result...
-		$table_info = Db::$db->fetch_assoc($getTableStatus);
-		Db::$db->free_result($getTableStatus);
-
-		$upcontext['cur_table_name'] = str_replace(Config::$db_prefix, '', ($queryTables[$substep + 1] ?? $queryTables[$substep]));
-		$upcontext['cur_table_num'] = $substep + 1;
-		$upcontext['step_progress'] = (int) (($upcontext['cur_table_num'] / $upcontext['table_count']) * 100);
+		$upcontext['cur_table_num'] = $table_num + 1;
+		$upcontext['cur_table_name'] = str_replace(Db::$db->prefix, '', $table);
+		$upcontext['step_progress'] = (int) (($table_num + 1) / $upcontext['table_count'] * 100);
 
 		// Do we need to pause?
-		nextSubstep($substep);
+		nextSubstep($table_num);
 
 		// Just to make sure it doesn't time out.
-		if (function_exists('apache_reset_timeout')) {
-			@apache_reset_timeout();
+		Sapi::resetTimeout();
+
+		$table_charset = Db::$db->detect_charset($table);
+		$structure = Db::$db->table_structure($table);
+
+		// If there's a fulltext index, we need to drop it first...
+		foreach ($structure['indexes'] as $i => $index) {
+			if ($index['type'] === 'fulltext') {
+				Db::$db->remove_index($table, $index['name']);
+
+				if (
+					$table = Db::$db->prefix . 'messages'
+					&& (Config::$modSettings['search_index'] ?? null) === 'fulltext'
+				) {
+					Config::updateModSettings(['search_index' => '']);
+					$upcontext['dropping_index'] = true;
+				}
+			}
 		}
 
-		$table_charsets = [];
+		// Is the table already using some version of Unicode?
+		$table_is_unicode = str_starts_with($table_charset, 'utf') || $table_charset === 'ucs2';
 
-		// Loop through each column.
-		$queryColumns = Db::$db->query(
-			'',
-			'SHOW FULL COLUMNS
-			FROM ' . $table_info['Name'],
-			[
-			],
+		// We might need to do each column individually.
+		$convert_columns_individually = !(
+			// Probably don't need to if the table uses the expected charset.
+			$table_charset === ($charset_maps[$lang_charset] ?? null)
+			// Probably don't need to if they're just different versions of Unicode.
+			|| (
+				$table_is_unicode
+				&& (
+					!isset($charset_maps[$lang_charset])
+					|| str_starts_with($charset_maps[$lang_charset], 'utf')
+					|| $charset_maps[$lang_charset] === 'ucs2'
+				)
+			)
 		);
 
-		while ($column_info = Db::$db->fetch_assoc($queryColumns)) {
-			// Only text'ish columns have a character set and need converting.
-			if (str_contains($column_info['Type'], 'text') || str_contains($column_info['Type'], 'char')) {
-				$collation = empty($column_info['Collation']) || $column_info['Collation'] === 'NULL' ? $table_info['Collation'] : $column_info['Collation'];
+		$string_columns = [];
 
-				if (!empty($collation) && $collation !== 'NULL') {
-					list($charset) = explode('_', $collation);
+		foreach ($structure['columns'] as $c => $column) {
+			if (!in_array($column['type'], ['varchar', 'char', 'tinytext', 'text', 'mediumtext', 'longtext', 'enum', 'set'])) {
+				continue;
+			}
 
-					// Build structure of columns to operate on organized by charset; only operate on columns not yet utf8
-					if ($charset != 'utf8') {
-						if (!isset($table_charsets[$charset])) {
-							$table_charsets[$charset] = [];
-						}
+			$string_columns[] = $column['name'];
 
-						$table_charsets[$charset][] = $column_info;
-					}
-				}
+			$structure['columns'][$c]['charset'] = Db::$db->detect_charset($table, $column['name']);
+
+			// We need to do each column individually if any of them use a
+			// different character set than the table as a whole.
+			if ($structure['columns'][$c]['charset'] !== $table_charset) {
+				$convert_columns_individually = true;
 			}
 		}
-		Db::$db->free_result($queryColumns);
 
-		// Only change the non-utf8 columns identified above
-		if (count($table_charsets) > 0) {
-			$updates_blob = '';
-			$updates_text = '';
+		if ($command_line && ($table_charset !== 'utf8mb4' || $convert_columns_individually)) {
+			echo 'Converting table ' . $structure['name'] . ' to utf8mb4...';
+		}
 
-			foreach ($table_charsets as $charset => $columns) {
-				if ($charset !== $charsets[$upcontext['charset_detected']]) {
-					foreach ($columns as $column) {
-						$updates_blob .= '
-							CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . strtr($column['Type'], ['text' => 'blob', 'char' => 'binary']) . ($column['Null'] === 'YES' ? ' NULL' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
-						$updates_text .= '
-							CHANGE COLUMN `' . $column['Field'] . '` `' . $column['Field'] . '` ' . $column['Type'] . ' CHARACTER SET ' . $charsets[$upcontext['charset_detected']] . ($column['Null'] === 'YES' ? '' : ' NOT NULL') . (strpos($column['Type'], 'char') === false ? '' : ' default \'' . $column['Default'] . '\'') . ',';
+		// Do we need to do each column individually?
+		if ($convert_columns_individually) {
+			foreach ($structure['columns'] as $c => $column) {
+				if (!isset($column['charset'])) {
+					continue;
+				}
+
+				if ($column['charset'] !== ($charset_maps[$lang_charset] ?? null)) {
+					// First, convert the column to binary.
+					Db::$db->change_column(
+						$table,
+						$column['name'],
+						[
+							'type' => strtr($column['type'], ['text' => 'blob', 'char' => 'binary']),
+						],
+					);
+
+					// Which encoding should we be converting from?
+					if (!isset($charset_maps[$lang_charset])) {
+						// $lang_charset doesn't map to a supported database charset, which
+						// means that the string was stored using the wrong charset, but
+						// still would have been interpreted as $lang_charset once retrieved.
+						$from_charset = $lang_charset;
+					} else {
+						// This column simply isn't using the table's default character set.
+						$from_charset = $column['charset'];
+					}
+
+					// If $from_charset is already some variant of UTF-8, we don't need to
+					// deal with the byte-level conversion step.
+					if (str_starts_with(strtolower($from_charset), 'utf8')) {
+						continue;
+					}
+
+					if (!in_array($from_charset, $supported_charsets)) {
+						// Build a huge REPLACE statement.
+						$replace = '{identifier:column}';
+
+						if (isset($translation_tables[$from_charset])) {
+							foreach ($translation_tables[$from_charset] as $from => $to) {
+								$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
+							}
+						} else {
+							try {
+								for ($i = 0; $i <= 0xFF; $i++) {
+									$from = '0x' . strtoupper(dechex($i));
+									$to = '0x' . strtoupper(bin2hex(mb_convert_encoding(chr($i), 'UTF-8', $from_charset)));
+
+									if ($from !== $to) {
+										$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
+									}
+								}
+							} catch (\Throwable $e) {
+								// mb_convert_encoding will throw a ValueError if
+								// either encoding is unrecognized.
+								unset($replace);
+								continue;
+							}
+						}
+
+						// Convert the characters to UTF-8, using raw bytes.
+						Db::$db->query(
+							'',
+							'UPDATE {identifier:table}
+							SET {identifier:column} = ' . $replace,
+							[
+								'table' => $table,
+								'column' => $column['name'],
+							],
+						);
 					}
 				}
 			}
 
-			// Change the columns to binary form.
+			// Change the table's character set to utf8mb4.
 			Db::$db->query(
 				'',
-				'ALTER TABLE {raw:table_name}{raw:updates_blob}',
+				'ALTER TABLE {identifier:table_name}
+				CONVERT TO CHARACTER SET utf8mb4',
 				[
-					'table_name' => $table_info['Name'],
-					'updates_blob' => substr($updates_blob, 0, -1),
-				],
+					'table_name' => $table,
+				]
 			);
 
-			// Convert the character set if MySQL has no native support for it.
-			if (isset($translation_tables[$upcontext['charset_detected']])) {
-				$update = '';
-
-				foreach ($table_charsets as $charset => $columns) {
-					foreach ($columns as $column) {
-						$update .= '
-							' . $column['Field'] . ' = ' . strtr($replace, ['%field%' => $column['Field']]) . ',';
-					}
-				}
-
-				Db::$db->query(
-					'',
-					'UPDATE {raw:table_name}
-					SET {raw:updates}',
+			// Convert each column from binary back to text.
+			foreach ($structure['columns'] as $c => $column) {
+				Db::$db->change_column(
+					$table,
+					$column['name'],
 					[
-						'table_name' => $table_info['Name'],
-						'updates' => substr($update, 0, -1),
+						'type' =>$column['type'],
 					],
 				);
 			}
-
-			// Change the columns back, but with the proper character set.
+		} else {
+			// Change the table's character set to utf8mb4.
 			Db::$db->query(
 				'',
-				'ALTER TABLE {raw:table_name}{raw:updates_text}',
+				'ALTER TABLE {identifier:table_name}
+				CONVERT TO CHARACTER SET utf8mb4',
 				[
-					'table_name' => $table_info['Name'],
-					'updates_text' => substr($updates_text, 0, -1),
-				],
+					'table_name' => $table,
+				]
 			);
 		}
 
-		// Now do the actual conversion (if still needed).
-		if ($charsets[$upcontext['charset_detected']] !== 'utf8') {
-			if ($command_line) {
-				echo 'Converting table ' . $table_info['Name'] . ' to UTF-8...';
+		// Convert entities to characters.
+		// @todo Do this in batches for the sake of large forums.
+		if (!empty($string_columns)) {
+			$col_ent_decode = [];
+
+			foreach ($string_columns as $col) {
+				$col_ent_decode[] = $col . ' = smf_entity_decode(' . $col . ')';
 			}
 
 			Db::$db->query(
 				'',
-				'ALTER TABLE {raw:table_name}
-				CONVERT TO CHARACTER SET utf8',
+				'UPDATE {identifier:table_name}
+				SET {raw:col_ent_decode}',
 				[
-					'table_name' => $table_info['Name'],
-				],
+					'table_name' => $table,
+					'col_ent_decode' => implode(', ', $col_ent_decode),
+				]
 			);
-
-			if ($command_line) {
-				echo " done.\n";
-			}
 		}
 
-		// If this is XML to keep it nice for the user do one table at a time anyway!
-		if (isset($_GET['xml']) && $upcontext['cur_table_num'] < $upcontext['table_count']) {
-			return upgradeExit();
+		if ($command_line && ($table_charset !== 'utf8mb4' || $convert_columns_individually)) {
+			echo " done.\n";
 		}
 	}
 
-	$prev_charset = empty($translation_tables[$upcontext['charset_detected']]) ? $charsets[$upcontext['charset_detected']] : $translation_tables[$upcontext['charset_detected']];
-
-	Db::$db->insert(
-		'replace',
-		'{db_prefix}settings',
-		['variable' => 'string', 'value' => 'string'],
-		[
-			['global_character_set', 'UTF-8'],
-			['previousCharacterSet', $prev_charset],
-		],
-		['variable'],
-	);
-
-	// Store it in Settings.php too because it's needed before db connection.
-	// Hopefully this works...
-	Config::updateSettingsFile(['db_character_set' => 'utf8']);
-
-	// The conversion might have messed up some serialized strings. Fix them!
-	$request = Db::$db->query(
+	// Set the default character set for the database as a whole to utf8mb4.
+	Db::$db->query(
 		'',
-		'SELECT id_action, extra
-		FROM {db_prefix}log_actions
-		WHERE action IN ({string:remove}, {string:delete})',
+		'ALTER DATABASE {identifier:db_name}
+		CHARACTER SET utf8mb4',
 		[
-			'remove' => 'remove',
-			'delete' => 'delete',
-		],
+			'db_name' => Db::$db->name,
+		]
 	);
 
-	while ($row = Db::$db->fetch_assoc($request)) {
-		if (@Utils::safeUnserialize($row['extra']) === false && preg_match('~^(a:3:{s:5:"topic";i:\d+;s:7:"subject";s:)(\d+):"(.+)"(;s:6:"member";s:5:"\d+";})$~', $row['extra'], $matches) === 1) {
-			Db::$db->query(
-				'',
-				'UPDATE {db_prefix}log_actions
-				SET extra = {string:extra}
-				WHERE id_action = {int:current_action}',
-				[
-					'current_action' => $row['id_action'],
-					'extra' => $matches[1] . strlen($matches[3]) . ':"' . $matches[3] . '"' . $matches[4],
-				],
-			);
-		}
+	Db::$db->query(
+		'',
+		'DROP FUNCTION IF EXISTS {identifier:db_name}.smf_entity_decode',
+		[
+			'db_name' => Db::$db->name,
+		]
+	);
+
+	// Record whatever the previous language character set was, unless it was already UTF-8.
+	if (!str_starts_with(strtolower($lang_charset), 'utf8')) {
+		Config::updateModSettings(['previousCharacterSet' => $lang_charset]);
 	}
-	Db::$db->free_result($request);
+
+	// Remove obsolete settings.
+	Config::updateModSettings(['global_character_set' => null]);
+	Config::updateSettingsFile(['db_character_set' => '', 'db_mb4' => null]);
 
 	if ($upcontext['dropping_index'] && $command_line) {
 		echo "\n" . '', Lang::$txt['upgrade_fulltext_error'], '';
@@ -3749,7 +3923,7 @@ function ConvertUtf8()
 
 	// Make sure we move on!
 	if ($command_line) {
-		return DeleteUpgrade();
+		return Cleanup();
 	}
 
 	$_GET['substep'] = 0;
@@ -3815,7 +3989,7 @@ function serialize_to_json()
 			return ConvertUtf8();
 		}
 
-			return true;
+		return true;
 	}
 
 	// Needed when writing settings
@@ -4345,7 +4519,7 @@ function template_upgrade_above()
 	echo '<!DOCTYPE html>
 <html', Lang::$txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
 <head>
-	<meta charset="', Lang::$txt['lang_character_set'] ?? 'UTF-8', '">
+	<meta charset="UTF-8">
 	<meta name="robots" content="noindex">
 	<title>', Lang::$txt['upgrade_upgrade_utility'], '</title>
 	<link rel="stylesheet" href="', $settings['default_theme_url'], '/css/index.css">
@@ -4355,7 +4529,7 @@ function template_upgrade_above()
 	<script src="', $settings['default_theme_url'], '/scripts/script.js"></script>
 	<script>
 		var smf_scripturl = \'', $upgradeurl, '\';
-		var smf_charset = \'', (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'UTF-8' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']), '\';
+		var smf_charset = \'UTF-8\';
 		var startPercent = ', $upcontext['overall_percent'], ';
 		var allow_xhjr_credentials = false;
 

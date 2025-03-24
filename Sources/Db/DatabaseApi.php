@@ -136,16 +136,14 @@ abstract class DatabaseApi
 	 * Whether the database supports 4-byte UTF-8 characters.
 	 *
 	 * For PostgreSQL, this will always be set to true.
-	 * For MySQL, this will be set to the value of the Config::$db_mb4.
-	 *
-	 * @todo Use auto-detect for MySQL.
+	 * For MySQL, this will be determined automatically.
 	 */
 	public bool $mb4;
 
 	/**
 	 * @var string
 	 *
-	 * Local copy of Config::$db_character_set.
+	 * The default character set.
 	 */
 	public string $character_set;
 
@@ -510,14 +508,6 @@ abstract class DatabaseApi
 
 		if (!isset($this->persist)) {
 			$this->persist = !empty(Config::$db_persist);
-		}
-
-		if (!isset($this->mb4)) {
-			$this->mb4 = !empty(Config::$db_mb4);
-		}
-
-		if (!isset($this->character_set)) {
-			$this->character_set = (string) Config::$db_character_set;
 		}
 
 		if (!isset($this->show_debug)) {

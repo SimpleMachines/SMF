@@ -75,9 +75,6 @@ class SmileyParser extends Parser
 		if (self::$smiley_set !== 'none') {
 			$data = self::loadData(self::$smiley_set);
 
-			// The non-breaking-space is a complex thing...
-			$non_breaking_space = self::$encoding === 'UTF-8' ? '\x{A0}' : '\xA0';
-
 			$this->smiley_preg_replacements = [];
 			$search_parts = [];
 			$smileys_path = Utils::htmlspecialchars(self::$smileys_url . '/' . rawurlencode(self::$smiley_set) . '/');
@@ -106,7 +103,7 @@ class SmileyParser extends Parser
 			}
 
 			// This smiley regex makes sure it doesn't parse smileys within code tags (so [url=mailto:David@bla.com] doesn't parse the :D smiley)
-			$this->smiley_preg_search = '~(?<=[>:\?\.\s' . $non_breaking_space . '[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . Utils::buildRegex($search_parts, '~') . ')(?=[^[:alpha:]0-9]|$)~' . (self::$encoding === 'UTF-8' ? 'u' : '');
+			$this->smiley_preg_search = '~(?<=[>:\?\.\s\x{A0}[\]()*\\\;]|(?<![a-zA-Z0-9])\(|^)(' . Utils::buildRegex($search_parts, '~') . ')(?=[^[:alpha:]0-9]|$)~u';
 
 			// Maybe a mod wants to implement an alternative method for smileys
 			// (e.g. emojis instead of images)

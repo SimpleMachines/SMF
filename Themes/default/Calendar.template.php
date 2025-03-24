@@ -824,7 +824,7 @@ function template_calendar_top($calendar_data)
 			', template_button_strip(Utils::$context['calendar_buttons'], 'right');
 
 	echo '
-			<form action="', Config::$scripturl, '?action=calendar;', Utils::$context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=calendar;', Utils::$context['calendar_view'], '" id="', !empty($calendar_data['end_date']) ? 'calendar_range' : 'calendar_navigation', '" method="post" accept-charset="UTF-8">
 				<input type="date" name="start_date" id="start_date" value="', $calendar_data['iso_start_date'], '" tabindex="', Utils::$context['tabindex']++, '" class="date_input start" data-type="date">';
 
 	if (!empty($calendar_data['end_date']))
@@ -844,7 +844,7 @@ function template_calendar_top($calendar_data)
 function template_event_post()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="', Utils::$context['character_set'], '" onsubmit="submitonce(this);">';
+		<form action="', Config::$scripturl, '?action=calendar;sa=post" method="post" name="postevent" accept-charset="UTF-8" onsubmit="submitonce(this);">';
 
 	if (!empty(Utils::$context['event']->new))
 		echo '

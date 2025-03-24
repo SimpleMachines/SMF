@@ -1139,7 +1139,7 @@ abstract class SearchApi implements SearchApiInterface
 	protected function setSearchTerms(): void
 	{
 		// Change non-word characters into spaces.
-		$stripped_query = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
+		$stripped_query = preg_replace('~(?:[\x0B\0\x{A0}\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~u', ' ', $this->params['search']);
 
 		// Fold the case of the query. It's gonna be case insensitive anyway.
 		$stripped_query = Utils::htmlspecialcharsDecode(Utils::casefold($stripped_query));
@@ -1158,7 +1158,7 @@ abstract class SearchApi implements SearchApiInterface
 		$phraseArray = $matches[2];
 
 		// Remove the phrase parts and extract the words.
-		$wordArray = preg_replace('~(?:^|\s)[-]?"[^"]+"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
+		$wordArray = preg_replace('~(?:^|\s)[-]?"[^"]+"(?:$|\s)~u', ' ', $this->params['search']);
 
 		$wordArray = explode(' ', Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($wordArray), ENT_QUOTES));
 

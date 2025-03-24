@@ -194,7 +194,7 @@ class Maintenance implements ActionInterface
 	public function database(): void
 	{
 		// Show some conversion options?
-		Utils::$context['convert_entities'] = isset(Config::$modSettings['global_character_set']) && Config::$modSettings['global_character_set'] === 'UTF-8';
+		Utils::$context['convert_entities'] = true;
 
 		if (Config::$db_type == 'mysql') {
 			$colData = Db::$db->list_columns('{db_prefix}messages', true);
@@ -1047,11 +1047,6 @@ class Maintenance implements ActionInterface
 	public function entitiesToUnicode(): void
 	{
 		User::$me->isAllowedTo('admin_forum');
-
-		// Check to see if UTF-8 is currently the default character set.
-		if (Config::$modSettings['global_character_set'] !== 'UTF-8') {
-			ErrorHandler::fatalLang('entity_convert_only_utf8');
-		}
 
 		// Some starting values.
 		Utils::$context['table'] = empty($_REQUEST['table']) ? 0 : (int) $_REQUEST['table'];

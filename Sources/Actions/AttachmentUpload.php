@@ -561,7 +561,7 @@ class AttachmentUpload implements ActionInterface, Routable
 		}
 
 		// Set the header.
-		header('content-type: application/json; charset=' . Utils::$context['character_set'] . '');
+		header('content-type: application/json; charset=UTF-8');
 
 		echo Utils::jsonEncode($this->_response ? $this->_response : []);
 

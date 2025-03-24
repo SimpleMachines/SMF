@@ -302,11 +302,15 @@ class Lang
 						if (str_contains(self::$txt['lang_locale'], '.')) {
 							$locale_variants = self::$txt['lang_locale'];
 						} else {
-							$locale_variants = array_unique(array_merge(
-								!empty(Config::$modSettings['global_character_set']) ? [self::$txt['lang_locale'] . '.' . Config::$modSettings['global_character_set']] : [],
-								!empty(Utils::$context['utf8']) ? [self::$txt['lang_locale'] . '.UTF-8', self::$txt['lang_locale'] . '.UTF8', self::$txt['lang_locale'] . '.utf-8', self::$txt['lang_locale'] . '.utf8'] : [],
-								[self::$txt['lang_locale']],
-							));
+							$locale_variants = array_unique(
+								[
+									self::$txt['lang_locale'] . '.UTF-8',
+									self::$txt['lang_locale'] . '.UTF8',
+									self::$txt['lang_locale'] . '.utf-8',
+									self::$txt['lang_locale'] . '.utf8',
+									self::$txt['lang_locale'],
+								],
+							);
 						}
 
 						setlocale(LC_CTYPE, $locale_variants);
@@ -410,7 +414,6 @@ class Lang
 
 	/**
 	 * Attempt to reload our known languages.
-	 * It will try to choose only utf8 or non-utf8 languages.
 	 *
 	 * @param bool $use_cache Whether or not to use the cache
 	 * @return array An array of information about available languages
@@ -606,8 +609,6 @@ class Lang
 			$censor_vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
 			$censor_proper = explode("\n", Config::$modSettings['censor_proper']);
 
-			$charset = empty(Config::$modSettings['global_character_set']) ? self::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-
 			// Quote them for use in regular expressions.
 			for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++) {
 				// If a word is replaced with itself, just leave it as it is.
@@ -624,13 +625,13 @@ class Lang
 
 				if (!empty(Config::$modSettings['censorWholeWord'])) {
 					// Use the faster \b if we can, or something more complex if we can't
-					$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?<![\p{L}\p{M}\p{N}_])' : '(?<!\w)');
-					$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?![\p{L}\p{M}\p{N}_])' : '(?!\w)');
+					$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : '(?<![\p{L}\p{M}\p{N}_])';
+					$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : '(?![\p{L}\p{M}\p{N}_])';
 				} else {
 					$boundary_before = $boundary_after = '';
 				}
 
-				$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i') . ($charset === 'UTF-8' ? 'u' : '');
+				$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/u' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i');
 			}
 		}
 

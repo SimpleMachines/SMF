@@ -650,6 +650,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fix_mb4(string $string): string
+	{
+		return $string;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function server_info(?object $connection = null): string
 	{
 		$version = pg_version($connection ?? $this->connection);
@@ -718,6 +726,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function select(string $database, ?object $connection = null): bool
 	{
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get_engines(): array
+	{
+		return [];
 	}
 
 	/**
@@ -860,6 +876,34 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function connect_errno(): int
 	{
 		return (int) $this->connect_errno;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function detect_charset(?string $table = null, ?string $column = null): string
+	{
+		static $detected;
+
+		// PostgreSQL uses one character set per database. So sane and simple.
+		if (!isset($detected)) {
+			$request = $this->query(
+				'',
+				'SHOW SERVER_ENCODING;',
+				[],
+			);
+
+			$detected = $this->fetch_all($request);
+			$this->free_result($request);
+		}
+
+		// If no results were returned, the database doesn't exist yet.
+		// Therefore, assume that it will be utf8 once it is created.
+		if (!isset($detected['server_encoding'])) {
+			return 'utf8';
+		}
+
+		return strtolower($detected['server_encoding']);
 	}
 
 	/****************************************
@@ -2187,6 +2231,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		if (!is_object(self::$db_connection)) {
 			self::$db_connection = $this->connection;
 		}
+
+		$this->character_set = strtolower($this->detect_charset());
+		$this->mb4 = $this->character_set === 'utf8';
 
 		// Ensure database has UTF-8 as its default input charset.
 		$this->query(

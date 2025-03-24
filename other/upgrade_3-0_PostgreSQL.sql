@@ -91,6 +91,16 @@ foreach (Config::$modSettings as $variable => $value) {
 ---#
 
 /******************************************************************************/
+--- Updating log_errors table
+/******************************************************************************/
+
+---# Fixing the default for the sessions column
+---{
+Db::$db->change_column('{db_prefix}log_errors', 'session', ['default' => '']);
+---}
+---#
+
+/******************************************************************************/
 --- Adding version information to posts, polls, and personal messages
 /******************************************************************************/
 
@@ -829,6 +839,35 @@ if ($exists) {
 	}
 
 	Db::$db->free_result($request);
+}
+---}
+---#
+
+---# Setting the UID column for calendar events.
+---{
+$calendar_updates = [];
+$request = Db::$db->query(
+	'',
+	'SELECT id_event, uid
+	FROM {db_prefix}calendar',
+	[],
+);
+
+while ($row = Db::$db->fetch_assoc($request)) {
+	if ($row['uid'] === '') {
+		$calendar_updates[] = ['id_event' => $row['id_event'], 'uid' => (string) new Uuid()];
+	}
+}
+Db::$db->free_result($request);
+
+foreach ($calendar_updates as $calendar_update) {
+	Db::$db->query(
+		'',
+		'UPDATE {db_prefix}calendar
+		SET uid = {string:uid}
+		WHERE id_event = {int:id_event}',
+		$calendar_update,
+	);
 }
 ---}
 ---#

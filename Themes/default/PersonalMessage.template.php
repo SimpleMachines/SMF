@@ -183,7 +183,7 @@ function template_folder()
 		</script>';
 
 	echo '
-		<form class="flow_hidden" action="', Config::$scripturl, '?action=pm;sa=pmactions;', Utils::$context['display_mode'] == 2 ? 'conversation;' : '', 'f=', Utils::$context['folder'], ';start=', Utils::$context['start'], Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '" method="post" accept-charset="', Utils::$context['character_set'], '" name="pmFolder" id="pmFolder">';
+		<form class="flow_hidden" action="', Config::$scripturl, '?action=pm;sa=pmactions;', Utils::$context['display_mode'] == 2 ? 'conversation;' : '', 'f=', Utils::$context['folder'], ';start=', Utils::$context['start'], Utils::$context['current_label_id'] != -1 ? ';l=' . Utils::$context['current_label_id'] : '', '" method="post" accept-charset="UTF-8" name="pmFolder" id="pmFolder">';
 
 	// If we are not in single display mode show the subjects on the top!
 	if (Utils::$context['display_mode'] != 1)
@@ -734,7 +734,7 @@ function template_search()
 		</div>';
 
 	echo '
-	<form action="', Config::$scripturl, '?action=pm;sa=search2" method="post" accept-charset="', Utils::$context['character_set'], '" name="searchform" id="searchform">
+	<form action="', Config::$scripturl, '?action=pm;sa=search2" method="post" accept-charset="UTF-8" name="searchform" id="searchform">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['pm_search_title'], '</h3>
 		</div>
@@ -985,7 +985,7 @@ function template_send()
 
 	// Main message editing box.
 	echo '
-		<form action="', Config::$scripturl, '?action=pm;sa=send2" method="post" accept-charset="', Utils::$context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);">
+		<form action="', Config::$scripturl, '?action=pm;sa=send2" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="submitonce(this);">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span class="main_icons inbox icon" title="', Lang::$txt['new_message'], '"></span> ', Lang::$txt['new_message'], '
@@ -1326,7 +1326,7 @@ function template_prune()
 			<h3 class="catbg">', Lang::$txt['pm_prune'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=pm;sa=prune" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', Lang::$txt['pm_prune_warning'], '\');">
+			<form action="', Config::$scripturl, '?action=pm;sa=prune" method="post" accept-charset="UTF-8" onsubmit="return confirm(\'', Lang::$txt['pm_prune_warning'], '\');">
 				<p>', Lang::$txt['pm_prune_desc1'], ' <input type="text" name="age" size="3" value="14"> ', Lang::$txt['pm_prune_desc2'], '</p>
 				<input type="submit" value="', Lang::$txt['delete'], '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -1347,7 +1347,7 @@ function template_prune()
 function template_labels()
 {
 	echo '
-	<form action="', Config::$scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['pm_manage_labels'], '</h3>
 		</div>
@@ -1406,7 +1406,7 @@ function template_labels()
 	echo '
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 	</form>
-	<form action="', Config::$scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=pm;sa=manlabels" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['pm_label_add_new'], '</h3>
 		</div>
@@ -1432,7 +1432,7 @@ function template_labels()
 function template_report_message()
 {
 	echo '
-	<form action="', Config::$scripturl, '?action=pm;sa=report;l=', Utils::$context['current_label_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=pm;sa=report;l=', Utils::$context['current_label_id'], '" method="post" accept-charset="UTF-8">
 		<input type="hidden" name="pmsg" value="', Utils::$context['pm_id'], '">
 		<div class="information">
 			', Lang::$txt['pm_report_desc'], '
@@ -1501,7 +1501,7 @@ function template_report_message_complete()
 function template_rules()
 {
 	echo '
-	<form action="', Config::$scripturl, '?action=pm;sa=manrules" method="post" accept-charset="', Utils::$context['character_set'], '" name="manRules" id="manrules">
+	<form action="', Config::$scripturl, '?action=pm;sa=manrules" method="post" accept-charset="UTF-8" name="manRules" id="manrules">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['pm_manage_rules'], '</h3>
 		</div>
@@ -1719,7 +1719,7 @@ function template_add_rule()
 	</script>';
 
 	echo '
-	<form action="', Config::$scripturl, '?action=pm;sa=manrules;save;rid=', Utils::$context['rid'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="addrule" id="addrule" class="flow_hidden">
+	<form action="', Config::$scripturl, '?action=pm;sa=manrules;save;rid=', Utils::$context['rid'], '" method="post" accept-charset="UTF-8" name="addrule" id="addrule" class="flow_hidden">
 		<div class="cat_bar">
 			<h3 class="catbg">', Utils::$context['rid'] == 0 ? Lang::$txt['pm_add_rule'] : Lang::$txt['pm_edit_rule'], '</h3>
 		</div>

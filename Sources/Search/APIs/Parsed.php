@@ -399,7 +399,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		// Help SearchResult::highlight() to highlight the matches we actually
 		// found, not just the strings that were originally requested.
 		foreach (array_keys($found) as $word) {
-			$word = Utils::fixUtf8mb4(Utils::normalize(Utils::entityDecode($word, true), 'c'));
+			$word = Db::$db->fix_mb4(Utils::normalize(Utils::entityDecode($word), 'c'));
 
 			if (!in_array($word, $this->searchArray)) {
 				$this->searchArray[] = $word;
@@ -774,7 +774,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		Db::$db->free_result($request);
 
-		$stopwords = array_map(fn($w) => Utils::normalize(Utils::entityDecode($w, true)), $stopwords);
+		$stopwords = array_map(fn($w) => Utils::normalize(Utils::entityDecode($w)), $stopwords);
 
 		Config::updateModSettings([
 			'search_stopwords_parsed' => implode(',', array_diff($stopwords, self::getLangStopWords())),
@@ -1195,7 +1195,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				continue;
 			}
 
-			$word = Utils::truncate(Utils::fixUtf8mb4($word), 255);
+			$word = Utils::truncate(Db::$db->fix_mb4($word), 255);
 
 			$word_data[$word][] = $wordnum;
 		}

@@ -1508,7 +1508,7 @@ class ServerSideIncludes
 		SecurityToken::create('login');
 
 		echo '
-			<form action="', Config::$scripturl, '?action=login2" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=login2" method="post" accept-charset="UTF-8">
 				<table style="border: none" class="ssi_table">
 					<tr>
 						<td style="text-align: right; border-spacing: 1"><label for="user">', Lang::$txt['username'], ':</label>&nbsp;</td>
@@ -1581,7 +1581,7 @@ class ServerSideIncludes
 
 		if ($return['allow_vote']) {
 			echo '
-				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', Utils::$context['character_set'], '">
+				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="UTF-8">
 					<strong>', $return['question'], '</strong><br>
 					', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
 
@@ -1668,7 +1668,7 @@ class ServerSideIncludes
 
 		if ($return['allow_vote']) {
 			echo '
-				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', Utils::$context['character_set'], '">
+				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="UTF-8">
 					<strong>', $return['question'], '</strong><br>
 					', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
 
@@ -1860,7 +1860,7 @@ class ServerSideIncludes
 		}
 
 		echo '
-			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
 				<input type="hidden" name="advanced" value="0"><input type="text" name="search" size="30"> <input type="submit" value="', Lang::$txt['search'], '" class="button">
 			</form>';
 
@@ -2798,7 +2798,7 @@ class ServerSideIncludes
 
 		// @todo: probably not the best place, but somewhere it should be set...
 		if (!headers_sent()) {
-			header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']));
+			header('content-type: text/html; charset=UTF-8');
 		}
 
 		// Take care of any banning that needs to be done.

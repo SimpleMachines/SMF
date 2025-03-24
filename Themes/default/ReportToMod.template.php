@@ -50,7 +50,7 @@ function template_main()
 
 	echo '
 	<div id="report_form">
-		<form action="', Utils::$context['submit_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Utils::$context['submit_url'], '" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="', Utils::$context['report_type'], '" value="', Utils::$context['reported_item'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>

@@ -151,7 +151,7 @@ function template_search()
 {
 	// Start the submission form for the search!
 	echo '
-	<form action="', Config::$scripturl, '?action=mlist;sa=search" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=mlist;sa=search" method="post" accept-charset="UTF-8">
 		<div id="memberlist">
 			<div class="pagesection">
 				', template_button_strip(Utils::$context['memberlist_buttons'], 'right'), '

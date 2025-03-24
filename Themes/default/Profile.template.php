@@ -607,7 +607,7 @@ function template_showAlerts()
 		// Start the form if checkboxes are in use
 		if (Utils::$context['showCheckboxes'])
 			echo '
-		<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=showalerts;save" method="post" accept-charset="', Utils::$context['character_set'], '" id="mark_all">';
+		<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=showalerts;save" method="post" accept-charset="UTF-8" id="mark_all">';
 
 		echo '
 			<table id="alerts" class="table_grid">';
@@ -823,7 +823,7 @@ function template_editBuddies()
 
 	// Add a new buddy?
 	echo '
-	<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=lists;sa=buddies" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=lists;sa=buddies" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['buddy_add'], '</h3>
 		</div>
@@ -934,7 +934,7 @@ function template_editIgnoreList()
 
 	// Add to the ignore list?
 	echo '
-	<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=lists;sa=ignore" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=lists;sa=ignore" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['ignore_add'], '</h3>
 		</div>
@@ -1038,7 +1038,7 @@ function template_trackIP()
 			<h3 class="catbg">', Lang::$txt['trackIP'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Utils::$context['base_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Utils::$context['base_url'], '" method="post" accept-charset="UTF-8">
 				<dl class="settings">
 					<dt>
 						<label for="searchip"><strong>', Lang::$txt['enter_ip'], '</strong></label>
@@ -1218,7 +1218,7 @@ function template_showPermissions()
 
 		// Board permission section.
 		echo '
-			<form action="' . Config::$scripturl . '?action=profile;u=', Utils::$context['id_member'], ';area=permissions#board_permissions" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="' . Config::$scripturl . '?action=profile;u=', Utils::$context['id_member'], ';area=permissions#board_permissions" method="post" accept-charset="UTF-8">
 				<div class="cat_bar">
 					<h3 class="catbg">
 						<span id="board_permissions">', Lang::$txt['showPermissions_select'], '</span>
@@ -1439,7 +1439,7 @@ function template_edit_options()
 	$url = Utils::$context['require_password'] && !empty(Config::$modSettings['force_ssl']) ? strtr($url, array('http://' => 'https://')) : $url;
 
 	echo '
-		<form action="', $url, '" method="post" accept-charset="', Utils::$context['character_set'], '" name="creator" id="creator" enctype="multipart/form-data"', (Utils::$context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
+		<form action="', $url, '" method="post" accept-charset="UTF-8" name="creator" id="creator" enctype="multipart/form-data"', (Utils::$context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
 			<div style="height:0;overflow:hidden;">
 				<input type="text" id="autocompleteFakeName">
 				<input type="password" id="autocompleteFakePassword">
@@ -1644,7 +1644,7 @@ function template_edit_options()
 	// Any final spellchecking stuff?
 	if (!empty(Utils::$context['show_spellchecking']))
 		echo '
-		<form name="spell_form" id="spell_form" method="post" accept-charset="', Utils::$context['character_set'], '" target="spellWindow" action="', Config::$scripturl, '?action=spellcheck"><input type="hidden" name="spellstring" value=""></form>';
+		<form name="spell_form" id="spell_form" method="post" accept-charset="UTF-8" target="spellWindow" action="', Config::$scripturl, '?action=spellcheck"><input type="hidden" name="spellstring" value=""></form>';
 }
 
 /**
@@ -1867,7 +1867,7 @@ function template_alert_configuration()
 		<p class="information">
 			', (empty(Utils::$context['description']) ? Lang::$txt['alert_prefs_desc'] : Utils::$context['description']), '
 		</p>
-		<form action="', Config::$scripturl, '?', Utils::$context['action'], '" method="post" accept-charset="', Utils::$context['character_set'], '" id="notify_options" class="flow_auto">
+		<form action="', Config::$scripturl, '?', Utils::$context['action'], '" method="post" accept-charset="UTF-8" id="notify_options" class="flow_auto">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', Lang::$txt['notification_general'], '
@@ -2055,7 +2055,7 @@ function template_groupMembership()
 {
 	// The main containing header.
 	echo '
-		<form action="', Config::$scripturl, '?action=profile;area=groupmembership;save" method="post" accept-charset="', Utils::$context['character_set'], '" name="creator" id="creator">
+		<form action="', Config::$scripturl, '?action=profile;area=groupmembership;save" method="post" accept-charset="UTF-8" name="creator" id="creator">
 			<div class="cat_bar">
 				<h3 class="catbg profile_hd">
 					', Lang::$txt['profile'], '
@@ -2200,7 +2200,7 @@ function template_ignoreboards()
 {
 	// The main containing header.
 	echo '
-	<form action="', Config::$scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="', Utils::$context['character_set'], '" name="creator" id="creator">
+	<form action="', Config::$scripturl, '?action=profile;area=ignoreboards;save" method="post" accept-charset="UTF-8" name="creator" id="creator">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
 				', Lang::$txt['profile'], '
@@ -2394,7 +2394,7 @@ function template_issueWarning()
 	</script>';
 
 	echo '
-	<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=issuewarning" method="post" class="flow_hidden" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=profile;u=', Utils::$context['id_member'], ';area=issuewarning" method="post" class="flow_hidden" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg profile_hd">
 				', User::$me->is_owner ? Lang::$txt['profile_warning_level'] : Lang::$txt['profile_issue_warning'], '
@@ -2572,7 +2572,7 @@ function template_deleteAccount()
 {
 	// The main containing header.
 	echo '
-		<form action="', Config::$scripturl, '?action=profile;area=deleteaccount;save" method="post" accept-charset="', Utils::$context['character_set'], '" name="creator" id="creator">
+		<form action="', Config::$scripturl, '?action=profile;area=deleteaccount;save" method="post" accept-charset="UTF-8" name="creator" id="creator">
 			<div class="cat_bar">
 				<h3 class="catbg profile_hd">
 					', Lang::$txt['deleteAccount'], '
@@ -3349,7 +3349,7 @@ function template_export_profile_data()
 		foreach (Utils::$context['completed_exports'] as $basehash_ext => $parts)
 		{
 			echo '
-			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="', Utils::$context['character_set'], '" class="', count(Utils::$context['completed_exports']) > 1 ? 'descbox' : 'padding', '">';
+			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="UTF-8" class="', count(Utils::$context['completed_exports']) > 1 ? 'descbox' : 'padding', '">';
 
 			if (!empty(Utils::$context['outdated_exports'][$basehash_ext]))
 			{
@@ -3436,7 +3436,7 @@ function template_export_profile_data()
 				$default_settings['format'] = $file['format'];
 
 			echo '
-			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="', Utils::$context['character_set'], '"', count(Utils::$context['active_exports']) > 1 ? ' class="descbox"' : '', '>
+			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="UTF-8"', count(Utils::$context['active_exports']) > 1 ? ' class="descbox"' : '', '>
 				<p class="padding">', Lang::getTxt(
 					'export_file_desc',
 					[
@@ -3461,7 +3461,7 @@ function template_export_profile_data()
 			<h3 class="titlebg">', Lang::$txt['export_settings'], '</h3>
 		</div>
 		<div class="windowbg noup">
-			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=profile;area=getprofiledata;u=', Utils::$context['id_member'], '" method="post" accept-charset="UTF-8">
 				<dl class="settings">';
 
 	foreach (Utils::$context['export_datatypes'] as $datatype => $datatype_settings)

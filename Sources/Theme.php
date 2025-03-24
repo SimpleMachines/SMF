@@ -206,8 +206,7 @@ class Theme
 			User::$me->time_format = Lang::$txt['time_format'];
 		}
 
-		// Set the character set from the template.
-		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
+		// Set the text direction from the language strings.
 		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
 
 		// Guests may still need a name.
@@ -368,8 +367,6 @@ class Theme
 		Lang::load('General+Modifications');
 
 		// Just in case it wasn't already set elsewhere.
-		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-		Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
 		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
 
 		// Tell ErrorHandler::fatalLang() to not reload the theme.
@@ -1394,13 +1391,13 @@ class Theme
 			if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !BrowserDetector::isBrowser('ie')) {
 				header('content-type: application/xhtml+xml');
 			} elseif (!isset($_REQUEST['xml'])) {
-				header('content-type: text/html; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+				header('content-type: text/html; charset=UTF-8');
 			}
 		}
 
 		$content_type = Forum::getCurrentAction()?->getOutputType()->getMimeType() ?? (isset($_REQUEST['xml']) ? 'application/xml' : 'text/html');
 
-		header('Content-Type: ' . $content_type . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+		header('Content-Type: ' . $content_type . '; charset=UTF-8');
 
 		// Collect layers to be added
 		$layers = [];
@@ -2179,7 +2176,7 @@ class Theme
 			'smf_avatars_url' => '"' . Config::$modSettings['avatar_url'] . '"',
 			'smf_scripturl' => '"' . Config::$scripturl . '"',
 			'smf_iso_case_folding' => Sapi::supportsIsoCaseFolding() ? 'true' : 'false',
-			'smf_charset' => '"' . Utils::$context['character_set'] . '"',
+			'smf_charset' => '"UTF-8"',
 			'smf_session_id' => '"' . Utils::$context['session_id'] . '"',
 			'smf_session_var' => '"' . Utils::$context['session_var'] . '"',
 			'smf_member_id' => User::$me->id,
@@ -2329,7 +2326,7 @@ class Theme
 			}
 
 			if (isset($_GET['debug'])) {
-				header('content-type: application/xhtml+xml; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+				header('content-type: application/xhtml+xml; charset=UTF-8');
 			}
 
 			// Don't cache error pages!!
@@ -2345,11 +2342,7 @@ class Theme
 			}
 
 			// First, let's get the doctype and language information out of the way.
-			echo '<!DOCTYPE html>' . "\n" . '<html', !empty(Utils::$context['right_to_left']) ? ' dir="rtl"' : '', '>' . "\n\t" . '<head>';
-
-			if (isset(Utils::$context['character_set'])) {
-				echo "\n\t\t" . '<meta charset="', Utils::$context['character_set'], '">';
-			}
+			echo '<!DOCTYPE html>' . "\n" . '<html', !empty(Utils::$context['right_to_left']) ? ' dir="rtl"' : '', '>' . "\n\t" . '<head>' . "\n\t\t" . '<meta charset="UTF-8">';
 
 			if (!empty(Config::$maintenance) && !User::$me->allowedTo('admin_forum')) {
 				echo "\n\t\t" . '<title>', Config::$mtitle, '</title>' . "\n\t" . '</head>' . "\n\t" . '<body>' . "\n\t\t" . '<h3>', Config::$mtitle, '</h3>' . "\n\t\t", Config::$mmessage, "\n\t" . '</body>' . "\n" . '</html>';

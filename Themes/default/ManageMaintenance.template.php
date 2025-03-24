@@ -33,7 +33,7 @@ function template_maintain_database()
 			<h3 class="catbg">', Lang::$txt['maintain_optimize'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=optimize" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=optimize" method="post" accept-charset="UTF-8">
 				<p>', Lang::$txt['maintain_optimize_info'], '</p>
 				<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -48,7 +48,7 @@ function template_maintain_database()
 			<h3 class="catbg">', Lang::$txt[Utils::$context['convert_to'] . '_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="UTF-8">
 				<p>', Lang::$txt['mediumtext_introduction'], '</p>',
 				Utils::$context['convert_to_suggest'] ? '<p class="infobox">' . Lang::$txt['convert_to_suggest_text'] . '</p>' : '', '
 				<input type="submit" name="evaluate_conversion" value="', Lang::$txt['maintain_run_now'], '" class="button">
@@ -64,7 +64,7 @@ function template_maintain_database()
 			<h3 class="catbg">', Lang::$txt['entity_convert_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities" method="post" accept-charset="UTF-8">
 				<p>', Lang::$txt['entity_convert_introduction'], '</p>
 				<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -97,7 +97,7 @@ function template_maintain_routine()
 			<h3 class="catbg">', Lang::$txt['maintain_version'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=version" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=version" method="post" accept-charset="UTF-8">
 				<p>
 					', Lang::$txt['maintain_version_info'], '
 					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
@@ -109,7 +109,7 @@ function template_maintain_routine()
 			<h3 class="catbg">', Lang::$txt['maintain_errors'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=repairboards" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=repairboards" method="post" accept-charset="UTF-8">
 				<p>
 					', Lang::$txt['maintain_errors_info'], '
 					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
@@ -122,7 +122,7 @@ function template_maintain_routine()
 			<h3 class="catbg">', Lang::$txt['maintain_recount'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=recount" method="post" accept-charset="UTF-8">
 				<p>
 					', Lang::$txt['maintain_recount_info'], '
 					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
@@ -135,7 +135,7 @@ function template_maintain_routine()
 			<h3 class="catbg">', Lang::$txt['maintain_rebuild_settings'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=rebuild_settings" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=rebuild_settings" method="post" accept-charset="UTF-8">
 				<p>
 					', Lang::$txt['maintain_rebuild_settings_info'], '
 					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
@@ -147,7 +147,7 @@ function template_maintain_routine()
 			<h3 class="catbg">', Lang::$txt['maintain_logs'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=logs" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=logs" method="post" accept-charset="UTF-8">
 				<p>
 					', Lang::$txt['maintain_logs_info'], '
 					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
@@ -160,7 +160,7 @@ function template_maintain_routine()
 			<h3 class="catbg">', Lang::$txt['maintain_cache'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="UTF-8">
 				<p>
 					', Lang::$txt['maintain_cache_info'], '
 					<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
@@ -243,7 +243,7 @@ function template_maintain_members()
 			<h3 class="catbg">', Lang::$txt['maintain_reattribute_posts'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=members;activity=reattribute" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=members;activity=reattribute" method="post" accept-charset="UTF-8">
 				<p><strong>', Lang::$txt['reattribute_guest_posts'], '</strong></p>
 				<dl class="settings">
 					<dt>
@@ -283,7 +283,7 @@ function template_maintain_members()
 			</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=members;activity=purgeinactive" method="post" accept-charset="', Utils::$context['character_set'], '" id="membersForm">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=members;activity=purgeinactive" method="post" accept-charset="UTF-8" id="membersForm">
 				<div class="padding">
 					<a id="membersLink"></a>',
 					Lang::getTxt(
@@ -328,7 +328,7 @@ function template_maintain_members()
 			<h3 class="catbg">', Lang::$txt['maintain_recountposts'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=members;activity=recountposts" method="post" accept-charset="', Utils::$context['character_set'], '" id="membersRecountForm">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=members;activity=recountposts" method="post" accept-charset="UTF-8" id="membersRecountForm">
 				<p>', Lang::$txt['maintain_recountposts_info'], '</p>
 				<input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -396,7 +396,7 @@ function template_maintain_topics()
 		</div>
 		<div class="windowbg">
 			<div class="flow_auto">
-				<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=topics;activity=pruneold" method="post" accept-charset="', Utils::$context['character_set'], '">';
+				<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=topics;activity=pruneold" method="post" accept-charset="UTF-8">';
 
 	// The otherwise hidden "choose which boards to prune".
 	echo '
@@ -460,7 +460,7 @@ function template_maintain_topics()
 			<h3 class="catbg">', Lang::$txt['maintain_old_drafts'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post" accept-charset="UTF-8">
 				<p>
 					', Lang::getTxt('maintain_old_drafts_days', ['input_number' => '<input type="number" name="draftdays" value="' . (!empty(Config::$modSettings['drafts_keep_days']) ? Config::$modSettings['drafts_keep_days'] : 30) . '" size="3">']), '
 				</p>
@@ -473,7 +473,7 @@ function template_maintain_topics()
 			<h3 class="catbg">', Lang::$txt['move_topics_maintenance'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=topics;activity=massmove" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=topics;activity=massmove" method="post" accept-charset="UTF-8">
 				<p>
 					';
 
@@ -567,7 +567,7 @@ function template_convert_entities()
 		</div>
 		<div class="windowbg">
 			<p>', Lang::$txt['entity_convert_introduction'], '</p>
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities;start=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertentities;start=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
 			<input type="submit" value="', Lang::$txt['entity_convert_proceed'], '" class="button">
 			</form>
 		</div>
@@ -606,7 +606,7 @@ function template_convert_msgbody()
 			<p class="infobox">', Lang::$txt['convert_to_text'], '</p>';
 
 	echo '
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="UTF-8">
 			<hr>
 			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">

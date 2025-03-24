@@ -82,12 +82,12 @@ $databases = [
 		'default_host' => 'mysql.default_host',
 		'default_port' => 'mysql.default_port',
 		'utf8_support' => function () {
-			return true;
+			$request = Db::$db->query('', 'SHOW CHARACTER SET');
+			$db_charsets = array_map(fn ($row) => $row['Charset'], Db::$db->fetch_all($request));
+			Db::$db->free_result($request);
+			return in_array('utf8mb4', $db_charsets);
 		},
-		'utf8_version' => '5.0.22',
-		'utf8_version_check' => function () {
-			return mysqli_get_server_info(Db::$db->connection);
-		},
+		'utf8_version' => '5.5.3',
 		'alter_support' => true,
 		'validate_prefix' => function (&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
@@ -115,13 +115,6 @@ $databases = [
 			return (bool) ($charcode == 'UTF8');
 		},
 		'utf8_version' => '8.0',
-		'utf8_version_check' => function () {
-			$request = pg_query(Db::$db->connection, 'SELECT version()');
-			list($version) = pg_fetch_row($request);
-			list($pgl, $version) = explode(' ', $version);
-
-			return $version;
-		},
 		'validate_prefix' => function (&$value) {
 			$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
 
@@ -457,7 +450,7 @@ function installExit($fallThrough = false)
 	global $incontext, $installurl;
 
 	// Send character set.
-	header('content-type: text/html; charset=' . (Lang::$txt['lang_character_set'] ?? 'UTF-8'));
+	header('content-type: text/html; charset=UTF-8');
 
 	// We usually dump our templates out.
 	if (!$fallThrough) {
@@ -942,10 +935,12 @@ function DatabaseSettings()
 		if (Db::$db->name != '' && !$needsDB) {
 			Db::$db->query(
 				'',
-				'CREATE DATABASE IF NOT EXISTS `' . Db::$db->name . '`',
+				'CREATE DATABASE IF NOT EXISTS {identifier:db_name} {raw:extra}',
 				[
 					'security_override' => true,
 					'db_error_skip' => true,
+					'db_name' => Db::$db->name,
+					'extra' => Config::$db_type === 'mysql' ? ' CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci' : '',
 				],
 				Db::$db->connection,
 			);
@@ -954,10 +949,12 @@ function DatabaseSettings()
 			if (!Db::$db->select(Db::$db->name, Db::$db->connection) && Db::$db->name != '') {
 				Db::$db->query(
 					'',
-					'CREATE DATABASE IF NOT EXISTS `' . Db::$db->prefix . Db::$db->name . '`',
+					'CREATE DATABASE IF NOT EXISTS {identifier:db_name} {raw:extra}',
 					[
 						'security_override' => true,
 						'db_error_skip' => true,
+						'db_name' => Db::$db->prefix . Db::$db->name,
+						'extra' => Config::$db_type === 'mysql' ? ' CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci' : '',
 					],
 					Db::$db->connection,
 				);
@@ -1082,9 +1079,7 @@ function ForumSettings()
 		}
 
 		// Make sure international domain names are normalized correctly.
-		if (Lang::$txt['lang_character_set'] == 'UTF-8') {
-			$_POST['boardurl'] = (string) new Url($_POST['boardurl'], true);
-		}
+		$_POST['boardurl'] = (string) new Url($_POST['boardurl'], true);
 
 		// Deal with different operating systems' directory structure...
 		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__), '/');
@@ -1121,14 +1116,11 @@ function ForumSettings()
 			return false;
 		}
 
-		if (!empty($databases[Config::$db_type]['utf8_version_check']) && version_compare($databases[Config::$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[Config::$db_type]['utf8_version_check']()), '>')) {
+		if (version_compare($databases[Config::$db_type]['utf8_version'], preg_replace('~\-.+?$~', '', $databases[Config::$db_type]['version_check']()), '>')) {
 			$incontext['error'] = Lang::getTxt('error_utf8_version', $databases[Config::$db_type]);
 
 			return false;
 		}
-
-		// Set the character set here.
-		installer_updateSettingsFile(['db_character_set' => 'utf8'], true);
 
 		// Good, skip on.
 		return true;
@@ -1182,16 +1174,6 @@ function DatabasePopulation()
 	}
 	Config::$modSettings['disableQueryCheck'] = true;
 
-	// If doing UTF8, select it. PostgreSQL requires passing it as a string...
-	Db::$db->query(
-		'',
-		'SET NAMES {string:utf8}',
-		[
-			'db_error_skip' => true,
-			'utf8' => 'utf8',
-		],
-	);
-
 	// Windows likes to leave the trailing slash, which yields to C:\path\to\SMF\/attachments...
 	if (str_ends_with(__DIR__, '\\')) {
 		$attachdir = __DIR__ . 'attachments';
@@ -1242,8 +1224,8 @@ function DatabasePopulation()
 		$replaces['{$memory}'] = (!$has_innodb && in_array('MEMORY', $engines)) ? 'MEMORY' : $replaces['{$engine}'];
 
 		// UTF-8 is required.
-		$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
-		$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
+		$replaces['{$engine}'] .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
+		$replaces['{$memory}'] .= ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci';
 
 		// One last thing - if we don't have InnoDB, we can't do transactions...
 		if (!$has_innodb) {
@@ -1335,9 +1317,6 @@ function DatabasePopulation()
 			$incontext['sql_results'][$key] = Lang::getTxt('db_populate_' . $key, [$number]);
 		}
 	}
-
-	// Make sure UTF will be used globally.
-	$newSettings[] = ['global_character_set', 'UTF-8'];
 
 	// Are we allowing stat collection?
 	if (!empty($_POST['stats']) && !str_starts_with(Config::$boardurl, 'http://localhost') && empty(Config::$modSettings['allow_sm_stats']) && empty(Config::$modSettings['enable_sm_stats'])) {
@@ -1789,15 +1768,6 @@ function DeleteInstall()
 		$incontext['warning'] = $incontext['account_existed'];
 	}
 
-	Db::$db->query(
-		'',
-		'SET NAMES {string:db_character_set}',
-		[
-			'db_character_set' => Config::$db_character_set,
-			'db_error_skip' => true,
-		],
-	);
-
 	// As track stats is by default enabled let's add some activity.
 	Db::$db->insert(
 		'ignore',
@@ -1897,7 +1867,6 @@ function DeleteInstall()
 			'db_error_skip' => true,
 		],
 	);
-	Utils::$context['utf8'] = true;
 
 	if (Db::$db->num_rows($request) > 0) {
 		Logging::updateStats('subject', 1, htmlspecialchars(Lang::$txt['default_topic_subject']));
@@ -2010,7 +1979,7 @@ function template_install_above()
 	echo '<!DOCTYPE html>
 <html', Lang::$txt['lang_rtl'] == '1' ? ' dir="rtl"' : '', '>
 <head>
-	<meta charset="', Lang::$txt['lang_character_set'] ?? 'UTF-8', '">
+	<meta charset="UTF-8">
 	<meta name="robots" content="noindex">
 	<title>', Lang::$txt['smf_installer'], '</title>
 	<link rel="stylesheet" href="Themes/default/css/index.css">

@@ -150,13 +150,6 @@ class Config
 	 * Send emails on database connection error.
 	 */
 	public static bool $db_error_send;
-	/**
-	 * @var null|bool
-	 *
-	 * Override the default behavior of the database layer for mb4 handling.
-	 * null keep the default behavior untouched.
-	 */
-	public static ?bool $db_mb4;
 
 	########## Cache info ##########
 	/**
@@ -252,14 +245,6 @@ class Config
 	 *    no installed modifications require them. This is usually not necessary.
 	 */
 	public static int $backward_compatibility;
-
-	######### Legacy settings #########
-	/**
-	 * @var string
-	 *
-	 * Database character set. Should always be utf8.
-	 */
-	public static string $db_character_set;
 
 	######### Developer settings #########
 	/**
@@ -618,18 +603,6 @@ class Config
 			'default' => false,
 			'type' => 'boolean',
 		],
-		'db_mb4' => [
-			'text' => <<<'END'
-				/**
-				 * @var null|bool
-				 *
-				 * Override the default behavior of the database layer for mb4 handling.
-				 * null keep the default behavior untouched.
-				 */
-				END,
-			'default' => null,
-			'type' => ['NULL', 'boolean'],
-		],
 		'cache_accelerator' => [
 			'text' => <<<'END'
 
@@ -796,19 +769,6 @@ class Config
 			'default' => 0,
 			'type' => 'integer',
 		],
-		'db_character_set' => [
-			'text' => <<<'END'
-
-				######### Legacy Settings #########
-				/**
-				 * @var string
-				 *
-				 * Database character set. Should always be utf8.
-				 */
-				END,
-			'default' => 'utf8',
-			'type' => 'string',
-		],
 		'db_show_debug' => [
 			'text' => <<<'END'
 
@@ -834,6 +794,16 @@ class Config
 			'default' => '',
 			'auto_delete' => 3,
 			'type' => 'string',
+		],
+		'db_character_set' => [
+			'default' => '',
+			'auto_delete' => 3,
+			'type' => 'string',
+		],
+		'db_mb4' => [
+			'default' => null,
+			'auto_delete' => 3,
+			'type' => ['NULL', 'boolean'],
 		],
 		'db_last_error' => [
 			'default' => 0,
@@ -1155,9 +1125,7 @@ class Config
 			self::updateModSettings(['forum_uuid' => Uuid::getNamespace()]);
 		}
 
-		// Here to justify the name of this function. :P
-		// It should be added to the install and upgrade scripts.
-		// But since the converters need to be updated also. This is easier.
+		// Ensure the attachment upload directory settings are valid.
 		if (empty(self::$modSettings['currentAttachmentUploadDir'])) {
 			self::updateModSettings([
 				'attachmentUploadDir' => Utils::jsonEncode([1 => self::$modSettings['attachmentUploadDir']]),
@@ -1171,6 +1139,11 @@ class Config
 		self::$modSettings['attachmentPostLimit'] = empty(self::$modSettings['attachmentPostLimit']) ? $post_max_kb : min(self::$modSettings['attachmentPostLimit'], $post_max_kb);
 		self::$modSettings['attachmentSizeLimit'] = empty(self::$modSettings['attachmentSizeLimit']) ? $file_max_kb : min(self::$modSettings['attachmentSizeLimit'], $file_max_kb);
 		self::$modSettings['attachmentNumPerPostLimit'] = !isset(self::$modSettings['attachmentNumPerPostLimit']) ? 4 : self::$modSettings['attachmentNumPerPostLimit'];
+
+		// Deprecated, but some old mods might use it.
+		if (!empty(self::$backward_compatibility)) {
+			self::$modSettings['global_character_set'] = 'UTF-8';
+		}
 
 		// Integration is cool.
 		if (defined('SMF_INTEGRATION_SETTINGS')) {
@@ -1471,9 +1444,6 @@ class Config
 		// It works best to set everything afresh.
 		$new_settings_vars = array_merge($settings_vars, $config_vars);
 
-		// Are we using UTF-8?
-		$utf8 = class_exists('SMF\\Utils', false) && isset(Utils::$context['utf8']) ? Utils::$context['utf8'] : (isset($settings_vars['db_character_set']) ? $settings_vars['db_character_set'] === 'utf8' : (isset(self::$db_character_set) ? self::$db_character_set === 'utf8' : true));
-
 		// Get our definitions for all known Settings.php variables and other content.
 		$settings_defs = self::getSettingsDefs();
 
@@ -1580,7 +1550,8 @@ class Config
 			$placeholder = md5($prefix . $var);
 			$replacement = '';
 
-			if (($setting_def['auto_delete'] ?? null) === 3) {
+			// Auto-delete, unless installing.
+			if (!defined('SMF_INSTALLING') && ($setting_def['auto_delete'] ?? null) === 3) {
 				$new_settings_vars[$var] = $setting_def['default'];
 			}
 
@@ -1706,7 +1677,7 @@ class Config
 
 					$var_pattern = count($var_pattern) > 1 ? '(?:' . (implode('|', $var_pattern)) . ')' : $var_pattern[0];
 
-					$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
+					$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~u';
 				}
 
 				// Next create the placeholder or replace_pattern.
@@ -1767,7 +1738,7 @@ class Config
 
 			$placeholder = md5($prefix . $var);
 
-			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
+			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~u';
 			$substitutions[$var]['placeholder'] = $placeholder;
 			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val) . ';';
 		}

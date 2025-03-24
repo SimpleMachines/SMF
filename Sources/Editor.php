@@ -413,7 +413,7 @@ class Editor implements \ArrayAccess
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml'])) {
 				Utils::$context['insert_after_template'] .= '
-				<form name="spell_form" id="spell_form" method="post" accept-charset="' . Utils::$context['character_set'] . '" target="spellWindow" action="' . Config::$scripturl . '?action=spellcheck">
+				<form name="spell_form" id="spell_form" method="post" accept-charset="UTF-8" target="spellWindow" action="' . Config::$scripturl . '?action=spellcheck">
 					<input type="hidden" name="spellstring" value="">
 				</form>';
 			}

@@ -276,7 +276,7 @@ class Slug implements \Stringable
 		$this->slug = rawurldecode($string);
 
 		// Decode any HTML entities.
-		$this->slug = Utils::entityDecode($this->slug, true);
+		$this->slug = Utils::entityDecode($this->slug);
 
 		// Get rid of formatting characters, punctuation, etc.
 		// Note: does not remove apostrophes inside words, so we do that later.
