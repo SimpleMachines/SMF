@@ -602,6 +602,49 @@ class Lang
 	}
 
 	/**
+	 * Sets the value of a Lang::$txt string or an array of strings.
+	 *
+	 * Used for dynamically generated strings.
+	 *
+	 * @param string|array $txt_key The key of the Lang::$txt array that
+	 *    contains the desired string. If this is an array, each item of the
+	 *    array will be used as a sub-key to drill down into deeper levels of
+	 *    the overall array.
+	 * @param string|array $value Either a single string or an array of strings.
+	 * @param string $var Name of the array that will contain the new string.
+	 *    Allowed values are 'txt', 'helptxt', 'editortxt', 'tztxt', and
+	 *    'txtBirthdayEmails'. Default: 'txt'.
+	 * @throws \ValueError if $txt_key is an empty array or $var is invalid.
+	 */
+	public static function setTxt(string|array $txt_key, string|array $value, string $var = 'txt'): void
+	{
+		// Validate $var.
+		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
+			throw new \ValueError();
+		}
+
+		$txt_key = array_values((array) $txt_key);
+
+		if ($txt_key === []) {
+			throw new \ValueError();
+		}
+
+		$target = &self::${$var};
+
+		// Drill down to the specified key.
+		foreach ($txt_key as $depth => $key) {
+			if (isset($target[(string) $key])) {
+				$target = &$target[(string) $key];
+			} else {
+				$target[(string) $key] = $depth === array_key_last($txt_key) ? '' : [];
+				$target = &$target[(string) $key];
+			}
+		}
+
+		$target = $value;
+	}
+
+	/**
 	 * High level method that retrieves language strings, inserts any arguments
 	 * into them, and then returns the resulting finalized string.
 	 *
