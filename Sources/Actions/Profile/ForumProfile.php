@@ -54,7 +54,7 @@ class ForumProfile implements ActionInterface
 				'hr',
 				'personal_text',
 				'hr',
-				'bday1',
+				'birthdate',
 				'usertitle',
 				'signature',
 				'hr',

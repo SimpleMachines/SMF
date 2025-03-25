@@ -359,55 +359,25 @@ class Profile extends User implements \ArrayAccess
 				'input_validate' => [$this, 'validateAvatarData'],
 				'save_key' => 'avatar',
 			],
-			'bday1' => [
-				'type' => 'callback',
-				'callback_func' => 'birthdate',
+			'birthdate' => [
+				'type' => 'date',
+				'label' => Lang::getTxt('dob', file: 'Profile'),
 				'permission' => 'profile_extra',
 				'preload' => function () {
-					// Split up the birthdate....
-					list($uyear, $umonth, $uday) = explode('-', empty($this->birthdate) || $this->birthdate === '1004-01-01' ? '--' : $this->birthdate);
-
-					Utils::$context['member']['birth_date'] = [
-						'year' => $uyear,
-						'month' => $umonth,
-						'day' => $uday,
-					];
+					$this->data['birthdate'] = $this->formatted['birthdate'];
 
 					return true;
 				},
 				'input_validate' => function (&$value) {
-					if (isset($_POST['bday2'], $_POST['bday3']) && $value > 0 && $_POST['bday2'] > 0) {
-						// Set to blank?
-						if ((int) $_POST['bday3'] == 1 && (int) $_POST['bday2'] == 1 && (int) $value == 1) {
-							$value = '1004-01-01';
-						} else {
-							$value = checkdate((int) $value, (int) $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : (int) $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
-						}
-					} else {
-						$value = '1004-01-01';
-					}
-
-					$this->new_data['birthdate'] = $value;
-					$this->birthdate = $value;
-
-					return false;
-				},
-			],
-			// Setting the birthdate the old style way?
-			'birthdate' => [
-				'type' => 'hidden',
-				'permission' => 'profile_extra',
-				'input_validate' => function (&$value) {
-					// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
-					if (preg_match('/(\d{4})[\-., ](\d{2})[\-., ](\d{2})/', $value, $dates) === 1) {
-						$value = checkdate((int) $dates[2], (int) $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
+					try {
+						$value = Time::create($value)->format('Y-m-d', false, false);
 
 						return true;
+					} catch (\Throwable $e) {
+						$value = empty($this->birthdate) ? '1004-01-01' : $this->birthdate;
+
+						return false;
 					}
-
-					$value = empty($this->birthdate) ? '1004-01-01' : $this->birthdate;
-
-					return false;
 				},
 			],
 			'date_registered' => [
@@ -437,9 +407,10 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'email_address' => [
-				'type' => 'email',
+				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_email'])) ? 'email' : 'label',
 				'label' => Lang::getTxt('user_email_address', file: 'General'),
 				'subtext' => Lang::getTxt('valid_email', file: 'General'),
+				'postinput' => !User::$me->is_owner && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_email']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_email" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
 				'log_change' => true,
 				'permission' => 'profile_password',
 				'js_submit' => !empty(Config::$modSettings['send_validation_onChange']) ? '
@@ -549,7 +520,7 @@ class Profile extends User implements \ArrayAccess
 			'member_name' => [
 				'type' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? 'text' : 'label',
 				'label' => Lang::getTxt('username', file: 'General'),
-				'subtext' => User::$me->allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '[<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" style="font-style: italic;">' . Lang::getTxt('username_change', file: 'Profile') . '</a>]' : '',
+				'postinput' => User::$me->allowedTo('admin_forum') && !isset($_GET['changeusername']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;changeusername" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
 				'log_change' => true,
 				'permission' => 'profile_identity',
 				'prehtml' => User::$me->allowedTo('admin_forum') && isset($_GET['changeusername']) ? '<div class="alert">' . Lang::getTxt('username_warning', file: 'Profile') . '</div>' : '',
@@ -585,9 +556,10 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'passwrd1' => [
-				'type' => 'password',
+				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'label',
 				'label' => Lang::getTxt('choose_pass', file: 'General'),
 				'subtext' => Lang::getTxt('password_strength', file: 'Profile'),
+				'postinput' => !User::$me->is_owner && User::$me->allowedTo('moderate_forum') && !isset($_GET['change_password']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id . ';area=account;change_password" class="button smalltext">' . Lang::getTxt('username_change', file: 'Profile') . '</a>' : '',
 				'size' => 20,
 				'value' => '',
 				'permission' => 'profile_password',
@@ -619,7 +591,7 @@ class Profile extends User implements \ArrayAccess
 				},
 			],
 			'passwrd2' => [
-				'type' => 'password',
+				'type' => User::$me->is_owner || (User::$me->allowedTo('moderate_forum') && isset($_GET['change_password'])) ? 'password' : 'hidden',
 				'label' => Lang::getTxt('verify_pass', file: 'General'),
 				'size' => 20,
 				'value' => '',

@@ -1460,10 +1460,6 @@ function template_edit_options()
 
 	echo '
 		<form action="', $url, '" method="post" accept-charset="UTF-8" name="creator" id="creator" enctype="multipart/form-data"', (Utils::$context['menu_item_selected'] == 'account' ? ' autocomplete="off"' : ''), '>
-			<div style="height:0;overflow:hidden;">
-				<input type="text" id="autocompleteFakeName">
-				<input type="password" id="autocompleteFakePassword">
-			</div>
 			<div class="cat_bar">
 				<h3 class="catbg profile_hd">';
 
@@ -2836,24 +2832,6 @@ function template_profile_group_manage()
 								</script>
 							</dd>';
 
-}
-
-/**
- * Callback function for entering a birthdate!
- */
-function template_profile_birthdate()
-{
-	// Just show the pretty box!
-	echo '
-							<dt>
-								<strong>', Lang::getTxt('dob', file: 'Profile'), '</strong><br>
-								<span class="smalltext">', Lang::getTxt('dob_year', file: 'Profile'), ' - ', Lang::getTxt('dob_month', file: 'Profile'), ' - ', Lang::getTxt('dob_day', file: 'Profile'), '</span>
-							</dt>
-							<dd>
-								<input type="text" name="bday3" size="4" maxlength="4" value="', Utils::$context['member']['birth_date']['year'], '"> -
-								<input type="text" name="bday1" size="2" maxlength="2" value="', Utils::$context['member']['birth_date']['month'], '"> -
-								<input type="text" name="bday2" size="2" maxlength="2" value="', Utils::$context['member']['birth_date']['day'], '">
-							</dd>';
 }
 
 /**

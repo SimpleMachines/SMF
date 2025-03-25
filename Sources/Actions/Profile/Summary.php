@@ -90,13 +90,13 @@ class Summary implements ActionInterface
 		}
 
 		// Set the age...
-		if (empty(Profile::$member->formatted['birth_date']) || substr(Profile::$member->formatted['birth_date'], 0, 4) < 1002) {
+		if (empty(Profile::$member->formatted['birthdate']) || substr(Profile::$member->formatted['birthdate'], 0, 4) < 1002) {
 			Profile::$member->formatted += [
 				'age' => Lang::getTxt('not_applicable', file: 'General'),
 				'today_is_birthday' => false,
 			];
 		} else {
-			list($birth_year, $birth_month, $birth_day) = sscanf(Profile::$member->formatted['birth_date'], '%d-%d-%d');
+			list($birth_year, $birth_month, $birth_day) = sscanf(Profile::$member->formatted['birthdate'], '%d-%d-%d');
 
 			$datearray = getdate(time());
 
