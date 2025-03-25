@@ -1114,6 +1114,10 @@ html[lang="el-GR"] .inline_mod_check {
 	margin: 0;
 	padding: 0;
 }
+.button.smalltext {
+	font-size: 0.6em;
+	padding: 0 5px;
+}
 
 /* Styles for the general looks of the theme.
 ------------------------------------------------------- */
