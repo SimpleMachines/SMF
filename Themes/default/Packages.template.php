@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -131,7 +131,7 @@ function template_view_package()
 	}
 
 	echo '
-		<form action="', !empty(Utils::$context['post_url']) ? Utils::$context['post_url'] : '#', '" onsubmit="submitonce(this);" method="post" accept-charset="', Utils::$context['character_set'], '" id="view_package">
+		<form action="', !empty(Utils::$context['post_url']) ? Utils::$context['post_url'] : '#', '" onsubmit="submitonce(this);" method="post" accept-charset="UTF-8" id="view_package">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					', Lang::getTxt(Utils::$context['uninstalling'] ? 'package_uninstall_actions' : 'package_install_actions', Utils::$context), '
@@ -698,7 +698,7 @@ function template_servers()
 			<h3 class="catbg">', Lang::$txt['package_upload_title'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="', Utils::$context['character_set'], '" enctype="multipart/form-data">
+			<form action="', Config::$scripturl, '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
 				<dl class="settings">
 					<dt>
 						<strong>', Lang::$txt['package_upload_select'], '</strong>
@@ -731,7 +731,7 @@ function template_servers()
 				<p>
 					', Lang::$txt['package_ftp_why_download'], '
 				</p>
-				<form action="', Config::$scripturl, '?action=admin;area=packages;get" method="post" accept-charset="', Utils::$context['character_set'], '">
+				<form action="', Config::$scripturl, '?action=admin;area=packages;get" method="post" accept-charset="UTF-8">
 					<dl class="settings">
 						<dt>
 							<label for="ftp_server">', Lang::$txt['package_ftp_server'], '</label>
@@ -785,7 +785,7 @@ function template_servers()
 				</fieldset>
 				<fieldset>
 					<legend>' . Lang::$txt['add_server'] . '</legend>
-					<form action="' . Config::$scripturl . '?action=admin;area=packages;get;sa=add" method="post" accept-charset="', Utils::$context['character_set'], '">
+					<form action="' . Config::$scripturl . '?action=admin;area=packages;get;sa=add" method="post" accept-charset="UTF-8">
 						<dl class="settings">
 							<dt>
 								<strong>' . Lang::$txt['server_name'] . '</strong>
@@ -808,7 +808,7 @@ function template_servers()
 				</fieldset>
 				<fieldset>
 					<legend>', Lang::$txt['package_download_by_url'], '</legend>
-					<form action="', Config::$scripturl, '?action=admin;area=packages;get;sa=download;byurl;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+					<form action="', Config::$scripturl, '?action=admin;area=packages;get;sa=download;byurl;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
 						<dl class="settings">
 							<dt>
 								<strong>' . Lang::$txt['serverurl'] . '</strong>
@@ -1067,7 +1067,7 @@ function template_install_options()
 			', Lang::$txt['package_install_options_ftp_why'], '
 		</div>
 		<div class="windowbg noup">
-			<form action="', Config::$scripturl, '?action=admin;area=packages;sa=options" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=packages;sa=options" method="post" accept-charset="UTF-8">
 				<dl class="settings">
 					<dt>
 						<label for="pack_server"><strong>', Lang::$txt['package_install_options_ftp_server'], '</strong></label>
@@ -1153,7 +1153,7 @@ function template_control_chmod()
 
 	if (!empty(Utils::$context['package_ftp']['destination']))
 		echo '
-				<form action="', Utils::$context['package_ftp']['destination'], '" method="post" accept-charset="', Utils::$context['character_set'], '">';
+				<form action="', Utils::$context['package_ftp']['destination'], '" method="post" accept-charset="UTF-8">';
 
 	echo '
 					<fieldset>
@@ -1293,7 +1293,7 @@ function template_view_operations()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<title>', Lang::$txt['operation_title'], '</title>
 		', Theme::template_css();
 
@@ -1529,7 +1529,7 @@ function template_file_permissions()
 		</div>
 	</div>
 
-	<form action="', Config::$scripturl, '?action=admin;area=packages;sa=perms;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=admin;area=packages;sa=perms;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="floatleft">', Lang::$txt['package_file_perms'], '</span><span class="perms_status floatright">', Lang::$txt['package_file_perms_new_status'], '</span>
@@ -1739,7 +1739,7 @@ function template_action_permissions()
 	$countDown = 3;
 
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=packages;sa=perms;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" id="perm_submit" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=packages;sa=perms;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" id="perm_submit" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['package_file_perms_applying'], '</h3>
 			</div>';

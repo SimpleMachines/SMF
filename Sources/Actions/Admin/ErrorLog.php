@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -187,6 +187,11 @@ class ErrorLog implements ActionInterface
 		// Set the page listing up.
 		$start = (int) $_GET['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . (isset($this->filter) ? $this->filter['href'] : ''), $start, (int) $num_errors, (int) Config::$modSettings['defaultMaxListItems']);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
 
 		Utils::$context['start'] = $_GET['start'];
 

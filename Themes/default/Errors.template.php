@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -64,7 +64,7 @@ function template_fatal_error()
 function template_error_log()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';start=', Utils::$context['start'], Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '', '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=logs;sa=errorlog', Utils::$context['sort_direction'] == 'down' ? ';desc' : '', ';start=', Utils::$context['start'], Utils::$context['has_filter'] ? Utils::$context['filter']['href'] : '', '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<a href="', Config::$scripturl, '?action=helpadmin;help=error_log" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::$txt['errorlog'], '
@@ -204,7 +204,7 @@ function template_show_file()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<title>', Utils::$context['file_data']['file'], '</title>
 		', Theme::template_css(), '
 	</head>
@@ -265,7 +265,7 @@ function template_show_backtrace()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<title>', Lang::$txt['backtrace_title'], '</title>';
 
 	Theme::template_css();

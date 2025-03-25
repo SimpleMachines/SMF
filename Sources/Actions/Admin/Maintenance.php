@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -159,7 +159,7 @@ class Maintenance implements ActionInterface
 		Utils::$context['sub_action'] = $this->subaction;
 		Utils::$context['sub_template'] = !empty(self::$subactions[$this->subaction]['template']) ? self::$subactions[$this->subaction]['template'] : '';
 
-		$call = method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
+		$call = is_string(self::$subactions[$this->subaction]['function']) && method_exists($this, self::$subactions[$this->subaction]['function']) ? [$this, self::$subactions[$this->subaction]['function']] : Utils::getCallable(self::$subactions[$this->subaction]['function']);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -167,7 +167,7 @@ class Maintenance implements ActionInterface
 
 		// Any special activity?
 		if (!empty($this->activity)) {
-			$call = method_exists($this, self::$subactions[$this->subaction]['activities'][$this->activity]) ? [$this, self::$subactions[$this->subaction]['activities'][$this->activity]] : Utils::getCallable(self::$subactions[$this->subaction]['activities'][$this->activity]);
+			$call = is_string(self::$subactions[$this->subaction]['activities'][$this->activity]) && method_exists($this, self::$subactions[$this->subaction]['activities'][$this->activity]) ? [$this, self::$subactions[$this->subaction]['activities'][$this->activity]] : Utils::getCallable(self::$subactions[$this->subaction]['activities'][$this->activity]);
 
 			if (!empty($call)) {
 				call_user_func($call);
@@ -194,7 +194,7 @@ class Maintenance implements ActionInterface
 	public function database(): void
 	{
 		// Show some conversion options?
-		Utils::$context['convert_entities'] = isset(Config::$modSettings['global_character_set']) && Config::$modSettings['global_character_set'] === 'UTF-8';
+		Utils::$context['convert_entities'] = true;
 
 		if (Config::$db_type == 'mysql') {
 			$colData = Db::$db->list_columns('{db_prefix}messages', true);
@@ -1047,11 +1047,6 @@ class Maintenance implements ActionInterface
 	public function entitiesToUnicode(): void
 	{
 		User::$me->isAllowedTo('admin_forum');
-
-		// Check to see if UTF-8 is currently the default character set.
-		if (Config::$modSettings['global_character_set'] !== 'UTF-8') {
-			ErrorHandler::fatalLang('entity_convert_only_utf8');
-		}
 
 		// Some starting values.
 		Utils::$context['table'] = empty($_REQUEST['table']) ? 0 : (int) $_REQUEST['table'];

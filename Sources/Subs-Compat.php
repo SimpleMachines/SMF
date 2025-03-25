@@ -11,7 +11,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 if (!defined('SMF')) {
@@ -5622,30 +5622,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	}
 
 	/**
-	 * Locates the most appropriate temp directory.
-	 *
-	 * Systems using `open_basedir` restrictions may receive errors with
-	 * `sys_get_temp_dir()` due to misconfigurations on servers. Other
-	 * cases sys_temp_dir may not be set to a safe value. Additionally
-	 * `sys_get_temp_dir` may use a readonly directory. This attempts to
-	 * find a working temp directory that is accessible under the
-	 * restrictions and is writable to the web service account.
-	 *
-	 * Directories checked against `open_basedir`:
-	 *
-	 * - `sys_get_temp_dir()`
-	 * - `upload_tmp_dir`
-	 * - `session.save_path`
-	 * - `cachedir`
-	 *
-	 * @return string
-	 */
-	function sm_temp_dir()
-	{
-		return SMF\Config::getTempDir();
-	}
-
-	/**
 	 * Generate a random seed and ensure it's stored in settings.
 	 */
 	function smf_seed_generator()
@@ -5861,9 +5837,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		return (new Image($source))->resize($destination, $max_width, $max_height, $preferred_type);
 	}
 
-	/**************************************
-	 * Begin SMF\Packagemanager\SubsPackage
-	 **************************************/
+	/***************************************
+	 * Begin SMF\Packagemanager\PackageUtils
+	 ***************************************/
 
 	/**
 	 * Reads an archive from either a remote location or from the local filesystem.
@@ -5882,7 +5858,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $overwrite = false,
 		?array $files_to_extract = null,
 	): array|bool {
-		return SMF\PackageManager\SubsPackage::read_tgz_file(
+		return SMF\PackageManager\PackageUtils::readTgzFile(
 			$gzfilename,
 			isset($destination) ? (string) $destination : null,
 			$single_file,
@@ -5924,7 +5900,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $overwrite = false,
 		?array $files_to_extract = null,
 	): array|bool {
-		return SMF\PackageManager\SubsPackage::read_tgz_data(
+		return SMF\PackageManager\PackageUtils::readTgzData(
 			$data,
 			$destination,
 			$single_file,
@@ -5953,7 +5929,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $overwrite = false,
 		?array $files_to_extract = null,
 	): mixed {
-		return SMF\PackageManager\SubsPackage::read_zip_data(
+		return SMF\PackageManager\PackageUtils::readZipData(
 			$data,
 			$destination,
 			$single_file,
@@ -5971,7 +5947,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function url_exists(string $url): bool
 	{
-		return SMF\PackageManager\SubsPackage::url_exists($url);
+		return SMF\PackageManager\PackageUtils::urlExists($url);
 	}
 
 	/**
@@ -5983,7 +5959,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function loadInstalledPackages(): array
 	{
-		return SMF\PackageManager\SubsPackage::loadInstalledPackages();
+		return SMF\PackageManager\PackageUtils::loadInstalledPackages();
 	}
 
 	/**
@@ -5998,7 +5974,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function getPackageInfo(string $gzfilename): array|string
 	{
-		return SMF\PackageManager\SubsPackage::getPackageInfo($gzfilename);
+		return SMF\PackageManager\PackageUtils::getPackageInfo($gzfilename);
 	}
 
 	/**
@@ -6014,7 +5990,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		array $chmodOptions = [],
 		bool $restore_write_status = false,
 	): array {
-		return SMF\PackageManager\SubsPackage::create_chmod_control($chmodFiles, $chmodOptions, $restore_write_status);
+		return SMF\PackageManager\PackageUtils::createChmodControl($chmodFiles, $chmodOptions, $restore_write_status);
 	}
 
 	/**
@@ -6028,7 +6004,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function list_restoreFiles(mixed $dummy1, mixed $dummy2, mixed $dummy3, bool $do_change): array
 	{
-		return SMF\PackageManager\SubsPackage::list_restoreFiles($dummy1, $dummy2, $dummy3, $do_change);
+		return SMF\PackageManager\PackageUtils::list_restoreFiles($dummy1, $dummy2, $dummy3, $do_change);
 	}
 
 	/**
@@ -6041,7 +6017,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function packageRequireFTP(string $destination_url, ?array $files = null, bool $return = false): array
 	{
-		return SMF\PackageManager\SubsPackage::packageRequireFTP($destination_url, $files, $return);
+		return SMF\PackageManager\PackageUtils::packageRequireFTP($destination_url, $files, $return);
 	}
 
 	/**
@@ -6065,7 +6041,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		string $method = 'install',
 		string $previous_version = '',
 	): array {
-		return SMF\PackageManager\SubsPackage::parsePackageInfo(
+		return SMF\PackageManager\PackageUtils::parsePackageInfo(
 			$packageXML,
 			$testing_only,
 			$method,
@@ -6087,7 +6063,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function matchHighestPackageVersion(string $versions, bool $reset, string $the_version): string|bool
 	{
-		return SMF\PackageManager\SubsPackage::matchHighestPackageVersion($versions, $reset, $the_version);
+		return SMF\PackageManager\PackageUtils::matchHighestPackageVersion($versions, $reset, $the_version);
 	}
 
 	/**
@@ -6102,7 +6078,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function matchPackageVersion(string $version, string $versions): bool
 	{
-		return SMF\PackageManager\SubsPackage::matchPackageVersion($version, $versions);
+		return SMF\PackageManager\PackageUtils::matchPackageVersion($version, $versions);
 	}
 
 	/**
@@ -6117,7 +6093,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function compareVersions(string $version1, string $version2): int
 	{
-		return SMF\PackageManager\SubsPackage::compareVersions($version1, $version2);
+		return SMF\PackageManager\PackageUtils::compareVersions($version1, $version2);
 	}
 
 	/**
@@ -6128,7 +6104,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function parse_path(string $path): string
 	{
-		return SMF\PackageManager\SubsPackage::parse_path($path);
+		return SMF\PackageManager\PackageUtils::parsePath($path);
 	}
 
 	/**
@@ -6140,7 +6116,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function deltree(string $dir, bool $delete_dir = true): void
 	{
-		SMF\PackageManager\SubsPackage::deltree($dir, $delete_dir);
+		SMF\PackageManager\PackageUtils::deltree($dir, $delete_dir);
 	}
 
 	/**
@@ -6153,7 +6129,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function mktree(string $strPath, int $mode): bool
 	{
-		return SMF\PackageManager\SubsPackage::mktree($strPath, $mode);
+		return SMF\PackageManager\PackageUtils::mktree($strPath, $mode);
 	}
 
 	/**
@@ -6165,7 +6141,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function copytree(string $source, string $destination): void
 	{
-		SMF\PackageManager\SubsPackage::copytree($source, $destination);
+		SMF\PackageManager\PackageUtils::copytree($source, $destination);
 	}
 
 	/**
@@ -6177,7 +6153,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function listtree(string $path, string $sub_path = ''): array
 	{
-		return SMF\PackageManager\SubsPackage::listtree($path, $sub_path);
+		return SMF\PackageManager\PackageUtils::listtree($path, $sub_path);
 	}
 
 	/**
@@ -6191,7 +6167,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function parseModification(string $file, bool $testing = true, bool $undo = false, array $theme_paths = []): array
 	{
-		return SMF\PackageManager\SubsPackage::parseModification($file, $testing, $undo, $theme_paths);
+		return SMF\PackageManager\PackageUtils::parseModification($file, $testing, $undo, $theme_paths);
 	}
 
 	/**
@@ -6205,7 +6181,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function parseBoardMod(string $file, bool $testing = true, bool $undo = false, array $theme_paths = []): array
 	{
-		return SMF\PackageManager\SubsPackage::parseBoardMod($file, $testing, $undo, $theme_paths);
+		return SMF\PackageManager\PackageUtils::parseBoardMod($file, $testing, $undo, $theme_paths);
 	}
 
 	/**
@@ -6216,7 +6192,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_get_contents(string $filename): string
 	{
-		return SMF\PackageManager\SubsPackage::package_get_contents($filename);
+		return SMF\PackageManager\PackageUtils::packageGetContents($filename);
 	}
 
 	/**
@@ -6232,7 +6208,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_put_contents(string $filename, string $data, bool $testing = false): int
 	{
-		return SMF\PackageManager\SubsPackage::package_put_contents($filename, $data, $testing);
+		return SMF\PackageManager\PackageUtils::packagePutContents($filename, $data, $testing);
 	}
 
 	/**
@@ -6242,7 +6218,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_flush_cache(bool $trash = false): void
 	{
-		SMF\PackageManager\SubsPackage::package_flush_cache($trash);
+		SMF\PackageManager\PackageUtils::flushCache($trash);
 	}
 
 	/**
@@ -6255,7 +6231,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_chmod(string $filename, string $perm_state = 'writable', bool $track_change = false): bool
 	{
-		return SMF\PackageManager\SubsPackage::package_chmod($filename, $perm_state, $track_change);
+		return SMF\PackageManager\PackageUtils::chmod($filename, $perm_state, $track_change);
 	}
 
 	/**
@@ -6266,7 +6242,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_crypt(#[\SensitiveParameter] string $pass): string
 	{
-		return SMF\PackageManager\SubsPackage::package_crypt($pass);
+		return SMF\PackageManager\PackageUtils::crypt($pass);
 	}
 
 	/**
@@ -6278,7 +6254,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_unique_filename(string $dir, string $filename, string $ext): string
 	{
-		return SMF\PackageManager\SubsPackage::package_unique_filename($dir, $filename, $ext);
+		return SMF\PackageManager\PackageUtils::generateUniqueFilename($dir, $filename, $ext);
 	}
 
 	/**
@@ -6289,7 +6265,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_create_backup(string $id = 'backup'): bool
 	{
-		return SMF\PackageManager\SubsPackage::package_create_backup($id);
+		return SMF\PackageManager\PackageUtils::createBackup($id);
 	}
 
 	/**
@@ -6300,7 +6276,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_validate_installtest(array $package): array
 	{
-		return SMF\PackageManager\SubsPackage::package_validate_installtest($package);
+		return SMF\PackageManager\PackageUtils::validateInstallTest($package);
 	}
 
 	/**
@@ -6311,7 +6287,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_validate(array $packages): array
 	{
-		return SMF\PackageManager\SubsPackage::package_validate($packages);
+		return SMF\PackageManager\PackageUtils::validate($packages);
 	}
 
 	/**
@@ -6322,7 +6298,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function package_validate_send(array $sendData): array
 	{
-		return SMF\PackageManager\SubsPackage::package_validate_send($sendData);
+		return SMF\PackageManager\PackageUtils::validateSend($sendData);
 	}
 
 	/******************************
@@ -7028,9 +7004,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Parser::getBBCodes();
 		}
 
+		// As nice as it might have been to include Markdown parsing here,
+		// evidence has shown that parsing Markdown can cause problems for
+		// mods that were not expecting that to happen.
 		return SMF\Parser::transform(
 			string: $message,
-			input_types: SMF\Parser::INPUT_BBC | SMF\Parser::INPUT_MARKDOWN | (!empty($smileys) ? SMF\Parser::INPUT_SMILEYS : 0),
+			input_types: SMF\Parser::INPUT_BBC | (!empty($smileys) ? SMF\Parser::INPUT_SMILEYS : 0),
 			options: [
 				'cache_id' => $cache_id,
 				'parse_tags' => $parse_tags,
@@ -8506,7 +8485,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param string $base_url The basic URL to be used for each link.
 	 * @param int &$start The start position, by reference. If this is not a multiple of the number of items per page, it is sanitized to be so and the value will persist upon the function's return.
-	 * @param int $max_value The total number of items you are paginating for.
+	 * @param int $num_items The total number of items you are paginating for.
 	 * @param int $num_per_page The number of items to be displayed on a given page. $start will be forced to be a multiple of this value.
 	 * @param bool $short_format Whether a ;start=x component should be introduced into the URL automatically (see above)
 	 * @param bool $show_prevnext Whether the Previous and Next links should be shown (should be on only when navigating the list)
@@ -8516,19 +8495,19 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function constructPageIndex(
 		string $base_url,
 		int &$start,
-		int $max_value,
+		int $num_items,
 		int $num_per_page,
 		bool $short_format = false,
 		bool $show_prevnext = true,
 	): string {
-		return (string) SMF\PageIndex::load(
+		return (string) (new SMF\PageIndex(
 			$base_url,
 			$start,
-			$max_value,
+			$num_items,
 			$num_per_page,
 			$short_format,
 			$show_prevnext,
-		);
+		));
 	}
 
 	/****************
@@ -8794,6 +8773,30 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/****************
 	 * Begin SMF\Sapi
 	 ****************/
+
+	/**
+	 * Locates the most appropriate temp directory.
+	 *
+	 * Systems using `open_basedir` restrictions may receive errors with
+	 * `sys_get_temp_dir()` due to misconfigurations on servers. Other
+	 * cases sys_temp_dir may not be set to a safe value. Additionally
+	 * `sys_get_temp_dir` may use a readonly directory. This attempts to
+	 * find a working temp directory that is accessible under the
+	 * restrictions and is writable to the web service account.
+	 *
+	 * Directories checked against `open_basedir`:
+	 *
+	 * - `sys_get_temp_dir()`
+	 * - `upload_tmp_dir`
+	 * - `session.save_path`
+	 * - `cachedir`
+	 *
+	 * @return string
+	 */
+	function sm_temp_dir()
+	{
+		return SMF\Sapi::getTempDir();
+	}
 
 	/**
 	 * Helper function to set the system memory to a needed value
@@ -11168,7 +11171,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	function replaceEntities__callback(array $matches): string
 	{
 		return strtr(
-			htmlspecialchars(SMF\Utils::entityDecode($matches[1], true), ENT_QUOTES),
+			htmlspecialchars(SMF\Utils::entityDecode($matches[1]), ENT_QUOTES),
 			[
 				'&amp;' => '&#038;',
 				'&quot;' => '&#034;',
@@ -11189,7 +11192,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function fixchar__callback(array $matches): string
 	{
-		return SMF\Utils::entityDecode($matches[0], true);
+		return SMF\Utils::entityDecode($matches[0]);
 	}
 
 	/**
@@ -11254,17 +11257,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			"\xe2\x80\x9d",	// right double curly quote, U+201D
 		];
 
-		// windows 1252 / iso equivalents
-		$findchars_iso = [
-			chr(130),
-			chr(132),
-			chr(133),
-			chr(145),
-			chr(146),
-			chr(147),
-			chr(148),
-		];
-
 		// safe replacements
 		$replacechars = [
 			',',	// &sbquo;
@@ -11276,9 +11268,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			'"',	// &rdquo;
 		];
 
-		$encoding = (!empty(SMF\Utils::$context['utf8']) ? 'UTF-8' : (!empty(SMF\Config::$modSettings['global_character_set']) ? SMF\Config::$modSettings['global_character_set'] : (!empty(SMF\Lang::$txt['lang_character_set']) ? SMF\Lang::$txt['lang_character_set'] : 'UTF-8')));
-
-		$string = str_replace($encoding === 'UTF-8' ? $findchars_utf8 : $findchars_iso, $replacechars, $string);
+		$string = str_replace($findchars_utf8, $replacechars, $string);
 
 		return $string;
 	}

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -147,7 +147,7 @@ class ReportedContent implements ActionInterface
 			User::$me->isAllowedTo('moderate_forum');
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -165,13 +165,18 @@ class ReportedContent implements ActionInterface
 
 		// Call the right template.
 		Utils::$context['sub_template'] = 'reported_' . $this->type;
-		Utils::$context['start'] = (int) isset($_GET['start']) ? $_GET['start'] : 0;
+		Utils::$context['start'] = (int) ($_GET['start'] ?? 0);
 
 		// Before anything, we need to know just how many reports do we have.
 		$total_reports = $this->countReports(Utils::$context['view_closed']);
 
 		// So, that means we can have pagination, yes?
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=show', Utils::$context['start'], $total_reports, 10);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Get the reports at once!
 		Utils::$context['reports'] = $this->getReports(Utils::$context['view_closed']);
@@ -216,13 +221,18 @@ class ReportedContent implements ActionInterface
 
 		// Call the right template.
 		Utils::$context['sub_template'] = 'reported_' . $this->type;
-		Utils::$context['start'] = (int) isset($_GET['start']) ? $_GET['start'] : 0;
+		Utils::$context['start'] = (int) ($_GET['start'] ?? 0);
 
 		// Before anything, we need to know just how many reports do we have.
 		$total_reports = $this->countReports(Utils::$context['view_closed']);
 
 		// So, that means we can have pagination, yes?
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=reported' . $this->type . ';sa=closed', Utils::$context['start'], $total_reports, 10);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Get the reports at once!
 		Utils::$context['reports'] = $this->getReports(Utils::$context['view_closed']);

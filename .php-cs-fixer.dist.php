@@ -12,6 +12,8 @@
  */
 $finder = (new PhpCsFixer\Finder())
 	->in(__DIR__)
+	->in(__DIR__ . '/Languages')
+	->in(__DIR__ . '/Sources/Unicode')
 	// Don't touch libraries.
 	->exclude([
 		'cache',
@@ -19,13 +21,12 @@ $finder = (new PhpCsFixer\Finder())
 		'Packages',
 		'Smileys',
 		'Sources/minify',
-		'Sources/random_compat',
 		'Sources/ReCaptcha',
 		'Sources/ZxcvbnPhp',
 		'Themes',
 	])
-	// Skip all index.php files and ssi_example.php.
-	->notName(['index.php', 'ssi_examples.php'])
+	// Skip ssi_example.php.
+	->notName(['ssi_examples.php'])
 	// Skip anything being ignored in .gitignore.
 	->ignoreVCSIgnored(true);
 

@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -21,7 +21,7 @@ function template_edit_holiday()
 {
 	// Show a form for all the holiday information.
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=editholiday" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=editholiday" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>
@@ -53,7 +53,7 @@ function template_import()
 {
 	// Show a form for all the holiday information.
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=import" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=managecalendar;sa=import" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>

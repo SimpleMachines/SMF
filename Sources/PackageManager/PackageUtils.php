@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 namespace SMF\PackageManager;
@@ -30,7 +30,7 @@ use SMF\WebFetch\WebFetchApi;
  *
  * These are kept separate from the PackageManager class for memory purposes.
  */
-class SubsPackage
+class PackageUtils
 {
 	/**************************
 	 * Public static properties
@@ -71,7 +71,7 @@ class SubsPackage
 	 * @param null|array $files_to_extract Specific files to extract
 	 * @return array|string|false Information about extracted files or false on failure
 	 */
-	public static function read_tgz_file(string $gzfilename, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
+	public static function readTgzFile(string $gzfilename, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
 		$data = str_starts_with($gzfilename, 'http://') || str_starts_with($gzfilename, 'https://')
 			? WebFetchApi::fetch($gzfilename)
@@ -87,12 +87,12 @@ class SubsPackage
 		}
 
 		if ($data[0] == "\x1f" && $data[1] == "\x8b") {
-			return self::read_tgz_data($data, $destination, $single_file, $overwrite, $files_to_extract);
+			return self::readTgzData($data, $destination, $single_file, $overwrite, $files_to_extract);
 		}
 
 		// Okay, this ain't no tar.gz, but maybe it's a zip file.
 		if ($data[0] == 'P' && $data[1] == 'K') {
-			return self::read_zip_data($data, $destination, $single_file, $overwrite, $files_to_extract);
+			return self::readZipData($data, $destination, $single_file, $overwrite, $files_to_extract);
 		}
 
 		return false;
@@ -124,7 +124,7 @@ class SubsPackage
 	 * @param null|array $files_to_extract If set, only extracts the specified files
 	 * @return array|string|false Information about the extracted files or false on failure
 	 */
-	public static function read_tgz_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
+	public static function readTgzData(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
 		// Make sure we have this loaded.
 		Lang::load('Packages');
@@ -262,7 +262,7 @@ class SubsPackage
 					continue;
 				}
 
-				self::package_put_contents($destination . '/' . $current['filename'], $current['data']);
+				self::packagePutContents($destination . '/' . $current['filename'], $current['data']);
 			}
 
 			if (!str_ends_with($current['filename'], '/')) {
@@ -277,7 +277,7 @@ class SubsPackage
 		}
 
 		if ($destination !== null && !$single_file) {
-			self::package_flush_cache();
+			self::flushCache();
 		}
 
 		if ($single_file) {
@@ -300,7 +300,7 @@ class SubsPackage
 	 * @param array $files_to_extract
 	 * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
 	 */
-	public static function read_zip_data(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed
+	public static function readZipData(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed
 	{
 		umask(0);
 
@@ -424,7 +424,7 @@ class SubsPackage
 					self::mktree($destination . '/' . dirname($file_info['filename']), 0777);
 				}
 
-				self::package_put_contents($destination . '/' . $file_info['filename'], $file_info['data']);
+				self::packagePutContents($destination . '/' . $file_info['filename'], $file_info['data']);
 			}
 
 			if ($is_file) {
@@ -439,7 +439,7 @@ class SubsPackage
 		}
 
 		if ($destination !== null && !$single_file) {
-			self::package_flush_cache();
+			self::flushCache();
 		}
 
 		return $single_file ? false : $return;
@@ -452,7 +452,7 @@ class SubsPackage
 	 * @param string $url The URL to parse
 	 * @return bool Whether the specified URL exists
 	 */
-	public static function url_exists(string $url): bool
+	public static function urlExists(string $url): bool
 	{
 		$url = new Url($url);
 		$url->toAscii();
@@ -538,14 +538,14 @@ class SubsPackage
 	{
 		// Extract package-info.xml from downloaded file. (*/ is used because it could be in any directory.)
 		if (str_contains($gzfilename, 'http://') || str_contains($gzfilename, 'https://')) {
-			$packageInfo = self::read_tgz_data($gzfilename, 'package-info.xml', true);
+			$packageInfo = self::readTgzData($gzfilename, 'package-info.xml', true);
 		} else {
 			if (!file_exists(Config::$packagesdir . '/' . $gzfilename)) {
 				return 'package_get_error_not_found';
 			}
 
 			if (is_file(Config::$packagesdir . '/' . $gzfilename)) {
-				$packageInfo = self::read_tgz_file(Config::$packagesdir . '/' . $gzfilename, '*/package-info.xml', true);
+				$packageInfo = self::readTgzFile(Config::$packagesdir . '/' . $gzfilename, '*/package-info.xml', true);
 			} elseif (file_exists(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml')) {
 				$packageInfo = file_get_contents(Config::$packagesdir . '/' . $gzfilename . '/package-info.xml');
 			} else {
@@ -556,7 +556,7 @@ class SubsPackage
 		// Nothing?
 		if (empty($packageInfo)) {
 			// Perhaps they are trying to install a theme, lets tell them nicely this is the wrong function
-			$packageInfo = self::read_tgz_file(Config::$packagesdir . '/' . $gzfilename, '*/theme_info.xml', true);
+			$packageInfo = self::readTgzFile(Config::$packagesdir . '/' . $gzfilename, '*/theme_info.xml', true);
 
 			if (!empty($packageInfo)) {
 				return 'package_get_error_is_theme';
@@ -604,7 +604,7 @@ class SubsPackage
 	 * @param bool $restore_write_status Whether to restore write status
 	 * @return array An array of file info
 	 */
-	public static function create_chmod_control(array $chmodFiles = [], array $chmodOptions = [], bool $restore_write_status = false): array
+	public static function createChmodControl(array $chmodFiles = [], array $chmodOptions = [], bool $restore_write_status = false): array
 	{
 		// If we're restoring the status of existing files prepare the data.
 		if ($restore_write_status && isset($_SESSION['pack_ftp']) && !empty($_SESSION['pack_ftp']['original_perms'])) {
@@ -728,7 +728,7 @@ class SubsPackage
 
 		// If we have some FTP information already, then let's assume it was required and try to get ourselves connected.
 		if (!empty($_SESSION['pack_ftp']['connected'])) {
-			self::$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], self::package_crypt($_SESSION['pack_ftp']['password']));
+			self::$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], self::crypt($_SESSION['pack_ftp']['password']));
 		}
 
 		// Just got a submission did we?
@@ -757,7 +757,7 @@ class SubsPackage
 					'server' => $_POST['ftp_server'],
 					'port' => $_POST['ftp_port'],
 					'username' => $_POST['ftp_username'],
-					'password' => self::package_crypt($_POST['ftp_password']),
+					'password' => self::crypt($_POST['ftp_password']),
 					'path' => $_POST['ftp_path'],
 					'root' => $ftp_root,
 					'connected' => true,
@@ -784,7 +784,7 @@ class SubsPackage
 					$return_data['files']['writable'][] = $file;
 				} else {
 					// Now try to change that.
-					$return_data['files'][self::package_chmod($file, 'writable', true) ? 'writable' : 'notwritable'][] = $file;
+					$return_data['files'][self::chmod($file, 'writable', true) ? 'writable' : 'notwritable'][] = $file;
 				}
 			}
 		}
@@ -954,7 +954,7 @@ class SubsPackage
 		}
 
 		if (isset($_SESSION['pack_ftp'])) {
-			self::$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], self::package_crypt($_SESSION['pack_ftp']['password']));
+			self::$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], self::crypt($_SESSION['pack_ftp']['password']));
 
 			if ($files === null) {
 				return [];
@@ -1057,7 +1057,7 @@ class SubsPackage
 				'server' => $_POST['ftp_server'],
 				'port' => $_POST['ftp_port'],
 				'username' => $_POST['ftp_username'],
-				'password' => self::package_crypt($_POST['ftp_password']),
+				'password' => self::crypt($_POST['ftp_password']),
 				'path' => $_POST['ftp_path'],
 				'root' => $ftp_root,
 			];
@@ -1198,7 +1198,7 @@ class SubsPackage
 				// @todo Make sure the file actually exists?  Might not work when testing?
 				if ($action->exists('@type') && $action->fetch('@type') == 'inline') {
 					$filename = self::$temp_path . '$auto_' . $temp_auto++ . (in_array($actionType, ['readme', 'redirect', 'license']) ? '.txt' : ($actionType == 'code' || $actionType == 'database' ? '.php' : '.mod'));
-					self::package_put_contents($filename, $action->fetch('.'));
+					self::packagePutContents($filename, $action->fetch('.'));
 					$filename = strtr($filename, [self::$temp_path => '']);
 				} else {
 					$filename = $action->fetch('.');
@@ -1283,16 +1283,16 @@ class SubsPackage
 				// If there is a destination, make sure it makes sense.
 				if (!str_starts_with($actionType, 'remove')) {
 					$this_action['unparsed_destination'] = $action->fetch('@destination');
-					$this_action['destination'] = self::parse_path($action->fetch('@destination')) . '/' . basename($this_action['filename']);
+					$this_action['destination'] = self::parsePath($action->fetch('@destination')) . '/' . basename($this_action['filename']);
 				} else {
 					$this_action['unparsed_filename'] = $this_action['filename'];
-					$this_action['filename'] = self::parse_path($this_action['filename']);
+					$this_action['filename'] = self::parsePath($this_action['filename']);
 				}
 
 				// If we're moving or requiring (copying) a file.
 				if (str_starts_with($actionType, 'move') || str_starts_with($actionType, 'require')) {
 					if ($action->exists('@from')) {
-						$this_action['source'] = self::parse_path($action->fetch('@from'));
+						$this_action['source'] = self::parsePath($action->fetch('@from'));
 					} else {
 						$this_action['source'] = self::$temp_path . $this_action['filename'];
 					}
@@ -1442,7 +1442,7 @@ class SubsPackage
 				}
 
 				// Create an empty file.
-				self::package_put_contents($action['destination'], self::package_get_contents($action['source']), $testing_only);
+				self::packagePutContents($action['destination'], self::packageGetContents($action['source']), $testing_only);
 
 				if (!file_exists($action['destination'])) {
 					$failure = true;
@@ -1461,7 +1461,7 @@ class SubsPackage
 					$failure |= !self::mktree(dirname($action['destination']), 0777);
 				}
 
-				self::package_put_contents($action['destination'], self::package_get_contents($action['source']), $testing_only);
+				self::packagePutContents($action['destination'], self::packageGetContents($action['source']), $testing_only);
 
 				$failure |= !copy($action['source'], $action['destination']);
 
@@ -1472,7 +1472,7 @@ class SubsPackage
 							$failure |= !self::mktree(dirname($theme_destination), 0777);
 						}
 
-						self::package_put_contents($theme_destination, self::package_get_contents($action['source']), $testing_only);
+						self::packagePutContents($theme_destination, self::packageGetContents($action['source']), $testing_only);
 
 						$failure |= !copy($action['source'], $theme_destination);
 					}
@@ -1501,7 +1501,7 @@ class SubsPackage
 			} elseif ($action['type'] == 'remove-file') {
 				// Make sure the file exists before deleting it.
 				if (file_exists($action['filename'])) {
-					self::package_chmod($action['filename']);
+					self::chmod($action['filename']);
 					$failure |= !unlink($action['filename']);
 				}
 				// The file that was supposed to be deleted couldn't be found.
@@ -1687,7 +1687,7 @@ class SubsPackage
 	 * @param string $path The path
 	 * @return string The parsed path
 	 */
-	public static function parse_path(string $path): string
+	public static function parsePath(string $path): string
 	{
 		$dirs = [
 			'\\' => '/',
@@ -1710,8 +1710,7 @@ class SubsPackage
 		}
 
 		if (strlen($path) == 0) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['parse_path_filename_required'], E_USER_ERROR);
+			throw new \Exception('parse_path_filename_required');
 		}
 
 		return strtr($path, $dirs);
@@ -1897,12 +1896,12 @@ class SubsPackage
 				}
 			}
 
-			self::package_chmod($destination . '/' . $entryname);
+			self::chmod($destination . '/' . $entryname);
 
 			if (is_dir($source . '/' . $entryname)) {
 				self::copytree($source . '/' . $entryname, $destination . '/' . $entryname);
 			} elseif (file_exists($destination . '/' . $entryname)) {
-				self::package_put_contents($destination . '/' . $entryname, self::package_get_contents($source . '/' . $entryname));
+				self::packagePutContents($destination . '/' . $entryname, self::packageGetContents($source . '/' . $entryname));
 			} else {
 				copy($source . '/' . $entryname, $destination . '/' . $entryname);
 			}
@@ -1985,7 +1984,7 @@ class SubsPackage
 		// First, we need to build the list of all the files likely to get changed.
 		foreach ($files as $file) {
 			// What is the filename we're currently on?
-			$filename = self::parse_path(trim($file->fetch('@name')));
+			$filename = self::parsePath(trim($file->fetch('@name')));
 
 			// Now, we need to work out whether this is even a template file...
 			foreach ($theme_paths as $id => $theme) {
@@ -2028,7 +2027,7 @@ class SubsPackage
 		foreach ($files as $file) {
 			// This is the actual file referred to in the XML document...
 			$files_to_change = [
-				1 => self::parse_path(trim($file->fetch('@name'))),
+				1 => self::parsePath(trim($file->fetch('@name'))),
 			];
 
 			// Sometimes though, we have some additional files for other themes, if we have add them to the mix.
@@ -2074,7 +2073,7 @@ class SubsPackage
 				}
 				// Phew, it exists!  Load 'er up!
 				else {
-					$working_data = str_replace("\r", '', self::package_get_contents($working_file));
+					$working_data = str_replace("\r", '', self::packageGetContents($working_file));
 				}
 
 				$actions[] = [
@@ -2277,7 +2276,7 @@ class SubsPackage
 				// Fix any little helper symbols ;).
 				$working_data = strtr($working_data, ['[$PACK' . 'AGE1$]' => '$', '[$PACK' . 'AGE2$]' => '\\']);
 
-				self::package_chmod($working_file);
+				self::chmod($working_file);
 
 				if ((file_exists($working_file) && !is_writable($working_file)) || (!file_exists($working_file) && !is_writable(dirname($working_file)))) {
 					$actions[] = [
@@ -2300,7 +2299,7 @@ class SubsPackage
 				}
 
 				// Always call this, even if in testing, because it won't really be written in testing mode.
-				self::package_put_contents($working_file, $working_data, $testing);
+				self::packagePutContents($working_file, $working_data, $testing);
 
 				$actions[] = [
 					'type' => 'saved',
@@ -2373,7 +2372,7 @@ class SubsPackage
 				'changes' => [],
 			];
 
-			$filename = self::parse_path($code_match[2]);
+			$filename = self::parsePath($code_match[2]);
 
 			// Now, is this a template file, and if so, which?
 			foreach ($theme_paths as $id => $theme) {
@@ -2425,7 +2424,7 @@ class SubsPackage
 			if ($code_match[1] == 'file' || $code_match[1] == 'edit file') {
 				// Backup the old file.
 				if ($working_file !== null) {
-					self::package_chmod($working_file);
+					self::chmod($working_file);
 
 					// Don't even dare.
 					if (basename($working_file) == basename(SMF_SETTINGS_BACKUP_FILE)) {
@@ -2447,7 +2446,7 @@ class SubsPackage
 						}
 					}
 
-					self::package_put_contents($working_file, $working_data, $testing);
+					self::packagePutContents($working_file, $working_data, $testing);
 				}
 
 				if ($working_file !== null) {
@@ -2462,7 +2461,7 @@ class SubsPackage
 				$is_custom = $theme_id_ref[$counter - 1] ?? 0;
 
 				// Make sure the file exists!
-				$working_file = self::parse_path($code_match[2]);
+				$working_file = self::parsePath($code_match[2]);
 
 				if ($working_file[0] != '/' && $working_file[1] != ':') {
 					Lang::load('Errors');
@@ -2484,7 +2483,7 @@ class SubsPackage
 
 				if (file_exists($working_file)) {
 					// Load the new file.
-					$working_data = str_replace("\r", '', self::package_get_contents($working_file));
+					$working_data = str_replace("\r", '', self::packageGetContents($working_file));
 
 					$actions[] = [
 						'type' => 'opened',
@@ -2583,7 +2582,7 @@ class SubsPackage
 
 		// Backup the old file.
 		if ($working_file !== null) {
-			self::package_chmod($working_file);
+			self::chmod($working_file);
 
 			if (!is_writable($working_file)) {
 				$actions[] = [
@@ -2600,7 +2599,7 @@ class SubsPackage
 				}
 			}
 
-			self::package_put_contents($working_file, $working_data, $testing);
+			self::packagePutContents($working_file, $working_data, $testing);
 		}
 
 		if ($working_file !== null) {
@@ -2625,7 +2624,7 @@ class SubsPackage
 	 * @param string $filename The package file
 	 * @return string The contents of the specified file
 	 */
-	public static function package_get_contents(string $filename): string
+	public static function packageGetContents(string $filename): string
 	{
 		if (!isset(self::$package_cache)) {
 			$mem_check = Sapi::setMemoryLimit('128M');
@@ -2656,7 +2655,7 @@ class SubsPackage
 	 * @param bool $testing Whether we're just testing things
 	 * @return int The length of the data written (in bytes)
 	 */
-	public static function package_put_contents(string $filename, string $data, bool $testing = false): int
+	public static function packagePutContents(string $filename, string $data, bool $testing = false): int
 	{
 		static $text_filetypes = ['php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm'];
 
@@ -2681,7 +2680,7 @@ class SubsPackage
 			@touch($filename);
 		}
 
-		self::package_chmod($filename);
+		self::chmod($filename);
 
 		if (!$testing && (str_contains($filename, 'Packages/') || self::$package_cache === false)) {
 			$fp = @fopen($filename, in_array(substr($filename, -3), $text_filetypes) ? 'w' : 'wb');
@@ -2715,7 +2714,7 @@ class SubsPackage
 	 *
 	 * @param bool $trash
 	 */
-	public static function package_flush_cache(bool $trash = false): void
+	public static function flushCache(bool $trash = false): void
 	{
 		static $text_filetypes = ['php', 'txt', '.js', 'css', 'vbs', 'tml', 'htm'];
 
@@ -2735,7 +2734,7 @@ class SubsPackage
 				@touch($filename);
 			}
 
-			$result = self::package_chmod($filename);
+			$result = self::chmod($filename);
 
 			// if we are not doing our test pass, then lets do a full write check
 			// bypass directories when doing this test
@@ -2781,7 +2780,7 @@ class SubsPackage
 	 * @param bool $track_change Whether to track this change
 	 * @return bool True if it worked, false if it didn't
 	 */
-	public static function package_chmod(string $filename, string $perm_state = 'writable', bool $track_change = false): bool
+	public static function chmod(string $filename, string $perm_state = 'writable', bool $track_change = false): bool
 	{
 		if (file_exists($filename) && is_writable($filename) && $perm_state == 'writable') {
 			return true;
@@ -2896,7 +2895,7 @@ class SubsPackage
 	 * @param string $pass The password
 	 * @return string The encrypted password
 	 */
-	public static function package_crypt(
+	public static function crypt(
 		#[\SensitiveParameter]
 		string $pass,
 	): string {
@@ -2924,7 +2923,7 @@ class SubsPackage
 	 * @return string The filename with a number appended but no extension
 	 * @since 2.1
 	 */
-	public static function package_unique_filename(string $dir, string $filename, string $ext): string
+	public static function generateUniqueFilename(string $dir, string $filename, string $ext): string
 	{
 		if (file_exists($dir . '/' . $filename . '.' . $ext)) {
 			$i = 1;
@@ -2944,7 +2943,7 @@ class SubsPackage
 	 * @param string $id The name of the backup
 	 * @return bool True if it worked, false if it didn't
 	 */
-	public static function package_create_backup(string $id = 'backup'): bool
+	public static function createBackup(string $id = 'backup'): bool
 	{
 		$files = [];
 
@@ -3006,7 +3005,7 @@ class SubsPackage
 			}
 
 			if (!is_writable(Config::$packagesdir . '/backups')) {
-				self::package_chmod(Config::$packagesdir . '/backups');
+				self::chmod(Config::$packagesdir . '/backups');
 			}
 			$output_file = Config::$packagesdir . '/backups/' . Time::strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
 			$output_ext = '.tar';
@@ -3067,7 +3066,7 @@ class SubsPackage
 	 * @param array $package Package data
 	 * @return array Results from the package validation.
 	 */
-	public static function package_validate_installtest(array $package): array
+	public static function validateInstallTest(array $package): array
 	{
 		// Don't validate directories.
 		Utils::$context['package_sha256_hash'] = is_dir($package['file_name']) ? null : hash_file('sha256', $package['file_name']);
@@ -3079,7 +3078,7 @@ class SubsPackage
 			'custom_type' => $package['custom_type'],
 		]];
 
-		return self::package_validate_send($sendData);
+		return self::validateSend($sendData);
 	}
 
 	/**
@@ -3088,7 +3087,7 @@ class SubsPackage
 	 * @param array $packages Package data
 	 * @return array Results from the package validation.
 	 */
-	public static function package_validate(array $packages): array
+	public static function validate(array $packages): array
 	{
 		// Setup our send data.
 		$sendData = [];
@@ -3118,7 +3117,7 @@ class SubsPackage
 			];
 		}
 
-		return self::package_validate_send($sendData);
+		return self::validateSend($sendData);
 	}
 
 	/**
@@ -3127,7 +3126,7 @@ class SubsPackage
 	 * @param array $sendData Json encoded data to be sent to the validation servers.
 	 * @return array Results from the package validation.
 	 */
-	public static function package_validate_send(array $sendData): array
+	public static function validateSend(array $sendData): array
 	{
 		// First lets get all package servers into here.
 		if (empty(Utils::$context['package_servers'])) {
@@ -3182,233 +3181,6 @@ class SubsPackage
 		}
 
 		return $return_data;
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Checks the permissions of all the areas that will be affected by the package
-	 *
-	 * @param string $path The path to the directory to check permissions for
-	 * @param array $data An array of data about the directory
-	 * @param int $level How far deep to go
-	 */
-	protected function fetchPerms__recursive(string $path, array &$data, int $level): void
-	{
-		$isLikelyPath = false;
-
-		foreach (Utils::$context['look_for'] as $possiblePath) {
-			if (str_starts_with($possiblePath, $path)) {
-				$isLikelyPath = true;
-			}
-		}
-
-		// Is this where we stop?
-		if (isset($_GET['xml']) && !empty(Utils::$context['look_for']) && !$isLikelyPath) {
-			return;
-		}
-
-		if ($level > Utils::$context['default_level'] && !$isLikelyPath) {
-			return;
-		}
-
-		// Are we actually interested in saving this data?
-		$save_data = empty(Utils::$context['only_find']) || Utils::$context['only_find'] == $path;
-
-		// @todo Shouldn't happen - but better error message?
-		if (!is_dir($path)) {
-			ErrorHandler::fatalLang('no_access', false);
-		}
-
-		// This is where we put stuff we've found for sorting.
-		$foundData = [
-			'files' => [],
-			'folders' => [],
-		];
-
-		$dh = opendir($path);
-
-		while ($entry = readdir($dh)) {
-			// Some kind of file?
-			if (is_file($path . '/' . $entry)) {
-				// Are we listing PHP files in this directory?
-				if ($save_data && !empty($data['list_contents']) && str_ends_with($entry, '.php')) {
-					$foundData['files'][$entry] = true;
-				}
-				// A file we were looking for.
-				elseif ($save_data && isset($data['contents'][$entry])) {
-					$foundData['files'][$entry] = true;
-				}
-			}
-			// It's a directory - we're interested one way or another, probably...
-			elseif ($entry != '.' && $entry != '..') {
-				// Going further?
-				if ((!empty($data['type']) && $data['type'] == 'dir_recursive') || (isset($data['contents'][$entry]) && (!empty($data['contents'][$entry]['list_contents']) || (!empty($data['contents'][$entry]['type']) && $data['contents'][$entry]['type'] == 'dir_recursive')))) {
-					if (!isset($data['contents'][$entry])) {
-						$foundData['folders'][$entry] = 'dir_recursive';
-					} else {
-						$foundData['folders'][$entry] = true;
-					}
-
-					// If this wasn't expected inherit the recursiveness...
-					if (!isset($data['contents'][$entry])) {
-						// We need to do this as we will be going all recursive.
-						$data['contents'][$entry] = [
-							'type' => 'dir_recursive',
-						];
-					}
-
-					// Actually do the recursive stuff...
-					$this->fetchPerms__recursive($path . '/' . $entry, $data['contents'][$entry], $level + 1);
-				}
-				// Maybe it is a folder we are not descending into.
-				elseif (isset($data['contents'][$entry])) {
-					$foundData['folders'][$entry] = true;
-				}
-				// Otherwise we stop here.
-			}
-		}
-		closedir($dh);
-
-		// Nothing to see here?
-		if (!$save_data) {
-			return;
-		}
-
-		// Now actually add the data, starting with the folders.
-		ksort($foundData['folders']);
-
-		foreach ($foundData['folders'] as $folder => $type) {
-			$additional_data = [
-				'perms' => [
-					'chmod' => @is_writable($path . '/' . $folder),
-					'perms' => @fileperms($path . '/' . $folder),
-				],
-			];
-
-			if ($type !== true) {
-				$additional_data['type'] = $type;
-			}
-
-			// If there's an offset ignore any folders in XML mode.
-			if (isset($_GET['xml']) && Utils::$context['file_offset'] == 0) {
-				Utils::$context['xml_data']['folders']['children'][] = [
-					'attributes' => [
-						'writable' => $additional_data['perms']['chmod'] ? 1 : 0,
-						'permissions' => substr(sprintf('%o', $additional_data['perms']['perms']), -4),
-						'folder' => 1,
-						'path' => Utils::$context['only_find'],
-						'level' => $level,
-						'more' => 0,
-						'offset' => Utils::$context['file_offset'],
-						'my_ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $folder),
-						'ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find']),
-					],
-					'value' => $folder,
-				];
-			} elseif (!isset($_GET['xml'])) {
-				if (isset($data['contents'][$folder])) {
-					$data['contents'][$folder] = array_merge($data['contents'][$folder], $additional_data);
-				} else {
-					$data['contents'][$folder] = $additional_data;
-				}
-			}
-		}
-
-		// Now we want to do a similar thing with files.
-		ksort($foundData['files']);
-		$counter = -1;
-
-		foreach ($foundData['files'] as $file => $dummy) {
-			$counter++;
-
-			// Have we reached our offset?
-			if (Utils::$context['file_offset'] > $counter) {
-				continue;
-			}
-
-			// Gone too far?
-			if ($counter > (Utils::$context['file_offset'] + Utils::$context['file_limit'])) {
-				continue;
-			}
-
-			$additional_data = [
-				'perms' => [
-					'chmod' => @is_writable($path . '/' . $file),
-					'perms' => @fileperms($path . '/' . $file),
-				],
-			];
-
-			// XML?
-			if (isset($_GET['xml'])) {
-				Utils::$context['xml_data']['folders']['children'][] = [
-					'attributes' => [
-						'writable' => $additional_data['perms']['chmod'] ? 1 : 0,
-						'permissions' => substr(sprintf('%o', $additional_data['perms']['perms']), -4),
-						'folder' => 0,
-						'path' => Utils::$context['only_find'],
-						'level' => $level,
-						'more' => $counter == (Utils::$context['file_offset'] + Utils::$context['file_limit']) ? 1 : 0,
-						'offset' => Utils::$context['file_offset'],
-						'my_ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find'] . '/' . $file),
-						'ident' => preg_replace('~[^A-Za-z0-9_\-=:]~', ':-:', Utils::$context['only_find']),
-					],
-					'value' => $file,
-				];
-			} elseif ($counter != (Utils::$context['file_offset'] + Utils::$context['file_limit'])) {
-				if (isset($data['contents'][$file])) {
-					$data['contents'][$file] = array_merge($data['contents'][$file], $additional_data);
-				} else {
-					$data['contents'][$file] = $additional_data;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Counts all the directories under a given path
-	 *
-	 * @param string $dir
-	 * @return int
-	 */
-	protected function count_directories__recursive(string $dir): int
-	{
-		$count = 0;
-		$dh = @opendir($dir);
-
-		while ($entry = readdir($dh)) {
-			if ($entry != '.' && $entry != '..' && is_dir($dir . '/' . $entry)) {
-				Utils::$context['directory_list'][$dir . '/' . $entry] = 1;
-				$count++;
-				$count += $this->count_directories__recursive($dir . '/' . $entry);
-			}
-		}
-		closedir($dh);
-
-		return $count;
-	}
-
-	/**
-	 * Builds a list of special files recursively for a given path
-	 *
-	 * @param string $path
-	 * @param array $data
-	 */
-	protected function build_special_files__recursive(string $path, array &$data): void
-	{
-		if (!empty($data['writable_on'])) {
-			if (Utils::$context['predefined_type'] == 'standard' || $data['writable_on'] == 'restrictive') {
-				Utils::$context['special_files'][$path] = 1;
-			}
-		}
-
-		if (!empty($data['contents'])) {
-			foreach ($data['contents'] as $name => $contents) {
-				$this->build_special_files__recursive($path . '/' . $name, $contents);
-			}
-		}
 	}
 
 	/*************************

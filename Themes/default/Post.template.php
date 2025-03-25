@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\BrowserDetector;
@@ -72,7 +72,7 @@ function template_main()
 	// End of the javascript, start the form and display the link tree.
 	echo '
 		</script>
-		<form action="', Config::$scripturl, '?action=', Utils::$context['destination'], ';', empty(Utils::$context['current_board']) ? '' : 'board=' . Utils::$context['current_board'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="', (Utils::$context['becomes_approved'] ? '' : 'alert(\'' . Lang::$txt['js_post_will_require_approval'] . '\');'), 'submitonce(this);" enctype="multipart/form-data">';
+		<form action="', Config::$scripturl, '?action=', Utils::$context['destination'], ';', empty(Utils::$context['current_board']) ? '' : 'board=' . Utils::$context['current_board'], '" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" class="flow_hidden" onsubmit="', (Utils::$context['becomes_approved'] ? '' : 'alert(\'' . Lang::$txt['js_post_will_require_approval'] . '\');'), 'submitonce(this);" enctype="multipart/form-data">';
 
 	// If the user wants to see how their message looks - the preview section is where it's at!
 	echo '
@@ -668,7 +668,7 @@ function template_spellcheck()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<title>', Lang::$txt['spell_check'], '</title>
 		<link rel="stylesheet" href="', Theme::$current->settings['theme_url'], '/css/index', Utils::$context['theme_variant'], '.css', Utils::$context['browser_cache'], '">
 		<style>
@@ -707,7 +707,7 @@ function template_spellcheck()
 		</script>
 	</head>
 	<body onload="nextWord(false);">
-		<form action="#" method="post" accept-charset="', Utils::$context['character_set'], '" name="spellingForm" id="spellingForm" onsubmit="return false;">
+		<form action="#" method="post" accept-charset="UTF-8" name="spellingForm" id="spellingForm" onsubmit="return false;">
 			<div id="spellview">&nbsp;</div>
 			<table width="100%">
 				<tr class="windowbg">
@@ -741,7 +741,7 @@ function template_quotefast()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<title>', Lang::$txt['retrieving_quote'], '</title>
 		<script src="', Theme::$current->settings['default_theme_url'], '/scripts/script.js', Utils::$context['browser_cache'], '"></script>
 	</head>
@@ -792,7 +792,7 @@ function template_announce()
 {
 	echo '
 	<div id="announcement">
-		<form action="', Config::$scripturl, '?action=announce;sa=send" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=announce;sa=send" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['announce_title'], '</h3>
 			</div>
@@ -838,7 +838,7 @@ function template_announcement_send()
 {
 	echo '
 	<div id="announcement">
-		<form action="', Config::$scripturl, '?action=announce;sa=send" method="post" accept-charset="', Utils::$context['character_set'], '" name="autoSubmit" id="autoSubmit">
+		<form action="', Config::$scripturl, '?action=announce;sa=send" method="post" accept-charset="UTF-8" name="autoSubmit" id="autoSubmit">
 			<div class="windowbg">
 				<p>
 					', Lang::getTxt('announce_sending', ['subject' => '<a href="' . Config::$scripturl . '?topic=' . Utils::$context['current_topic'] . '.0" target="_blank" rel="noopener">' . Utils::$context['topic_subject'] . '</a>']),'

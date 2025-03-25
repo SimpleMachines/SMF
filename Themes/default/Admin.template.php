@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Actions\Admin\Permissions;
@@ -607,7 +607,7 @@ function template_edit_censored()
 
 	// First section is for adding/removing words from the censored list.
 	echo '
-						<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="', Utils::$context['character_set'], '">
+						<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=postsettings;sa=censor" method="post" accept-charset="UTF-8">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">
 									', Lang::$txt['admin_censored_words'], '
@@ -717,7 +717,7 @@ function template_not_done()
 							</div>';
 
 	echo '
-							<form action="', Config::$scripturl, Utils::$context['continue_get_data'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="autoSubmit" id="autoSubmit">';
+							<form action="', Config::$scripturl, Utils::$context['continue_get_data'], '" method="post" accept-charset="UTF-8" name="autoSubmit" id="autoSubmit">';
 
 	// Do we have a token?
 	if (isset(Utils::$context['not_done_token']) && isset(Utils::$context[Utils::$context['not_done_token'] . '_token'], Utils::$context[Utils::$context['not_done_token'] . '_token_var']))
@@ -768,7 +768,7 @@ function template_show_settings()
 		echo Utils::$context['settings_insert_above'];
 
 	echo '
-						<form id="admin_form_wrapper" action="', Utils::$context['post_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '"', !empty(Utils::$context['force_form_onsubmit']) ? ' onsubmit="' . Utils::$context['force_form_onsubmit'] . '"' : '', '>';
+						<form id="admin_form_wrapper" action="', Utils::$context['post_url'], '" method="post" accept-charset="UTF-8"', !empty(Utils::$context['force_form_onsubmit']) ? ' onsubmit="' . Utils::$context['force_form_onsubmit'] . '"' : '', '>';
 
 	// Is there a custom title?
 	if (isset(Utils::$context['settings_title']))
@@ -1147,7 +1147,7 @@ function template_edit_profile_field()
 	}
 
 	echo '
-						<form action="', Config::$scripturl, '?action=admin;area=featuresettings;sa=profileedit;fid=', Utils::$context['fid'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+						<form action="', Config::$scripturl, '?action=admin;area=featuresettings;sa=profileedit;fid=', Utils::$context['fid'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
 							<div id="section_header" class="cat_bar">
 								<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 							</div>
@@ -1667,7 +1667,7 @@ function template_clean_cache_button_below()
 						<h3 class="catbg">', Lang::$txt['maintain_cache'], '</h3>
 					</div>
 					<div class="windowbg">
-						<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="', Utils::$context['character_set'], '">
+						<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=routine;activity=cleancache" method="post" accept-charset="UTF-8">
 							<p>', Lang::$txt['maintain_cache_info'], '</p>
 							<span><input type="submit" value="', Lang::$txt['maintain_run_now'], '" class="button"></span>
 							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -1683,7 +1683,7 @@ function template_admin_quick_search()
 {
 	if (User::$me->is_admin)
 		echo '
-								<form action="' . Config::$scripturl . '?action=admin;area=search" method="post" accept-charset="' . Utils::$context['character_set'] . '" class="admin_search">
+								<form action="' . Config::$scripturl . '?action=admin;area=search" method="post" accept-charset="UTF-8" class="admin_search">
 									<span class="main_icons filter centericon"></span>
 									<input type="search" name="search_term" placeholder="', Lang::$txt['admin_search'], '"', isset(Utils::$context['search_term']) ? ' value="' . Utils::$context['search_term'] . '"' : '','>
 									<select name="search_type">

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 // Special thanks to Spaceman-Spiff for his contributions to this page.
@@ -476,7 +476,7 @@ function template_ssi_above()
 		<script>
 			var smf_scripturl = "', SMF\Config::$scripturl, '";
 			var smf_iso_case_folding = ', SMF\Sapi::supportsIsoCaseFolding() ? 'true' : 'false', ';
-			var smf_charset = "', SMF\Utils::$context['character_set'], '";
+			var smf_charset = "UTF-8";
 
 			// Sets all ssi_preview class to hidden, then shows the one requested.
 			function showSSIBlock(elementID)

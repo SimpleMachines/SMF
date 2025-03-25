@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -125,7 +125,7 @@ class Display implements ActionInterface, Routable
 	{
 		// What are you gonna display if this is empty?!
 		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('no_board', false);
+			ErrorHandler::fatalLang('not_a_topic', false);
 		}
 
 		$this->checkPrevNextRedirect();
@@ -690,7 +690,7 @@ class Display implements ActionInterface, Routable
 			}
 
 			// Start from a certain time index, not a message.
-			if (str_starts_with($_REQUEST['start'], 'from')) {
+			if (str_starts_with((string) $_REQUEST['start'], 'from')) {
 				$timestamp = (int) substr($_REQUEST['start'], 4);
 
 				if ($timestamp === 0) {
@@ -720,7 +720,7 @@ class Display implements ActionInterface, Routable
 			}
 
 			// Link to a message...
-			elseif (str_starts_with($_REQUEST['start'], 'msg')) {
+			elseif (str_starts_with((string) $_REQUEST['start'], 'msg')) {
 				$this->virtual_msg = (int) substr($_REQUEST['start'], 3);
 
 				if (!Topic::$info->unapproved_posts && $this->virtual_msg >= Topic::$info->id_last_msg) {
@@ -857,9 +857,10 @@ class Display implements ActionInterface, Routable
 		Utils::$context['start'] = (int) $_REQUEST['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', Utils::$context['start'], Topic::$info->total_visible_posts, (int) Utils::$context['messages_per_page'], true);
 
-		// SMF has a logic issue where we don't get the proper start in our query, quick fix.
-		// @ TODO; Properly fix this, remove this and load a topic with ?topic=123.msg456
-		$_REQUEST['start'] = Utils::$context['start'];
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
+		}
 
 		// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireless..)
 		Utils::$context['page_info'] = [
@@ -1359,10 +1360,14 @@ class Display implements ActionInterface, Routable
 		}
 
 		// Allow adding new buttons easily.
-		// Note: Utils::$context['normal_buttons'] and Utils::$context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
+		// MOD AUTHORS: A future version of SMF will stop passing Utils::$context['normal_buttons'] to this hook.
+		// You should just interact with Utils::$context['normal_buttons'] directly in your hooked code.
 		IntegrationHook::call('integrate_display_buttons', [&Utils::$context['normal_buttons']]);
-		// Note: integrate_mod_buttons is no longer necessary and deprecated, but is kept for backward compatibility with 2.0
-		IntegrationHook::call('integrate_mod_buttons', [&Utils::$context['mod_buttons']]);
+
+		// NOD AUTHORS: integrate_mod_buttons is deprecated. Use integrate_display_buttons instead.
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_mod_buttons', [&Utils::$context['mod_buttons']]);
+		}
 
 		// If any buttons have a 'test' check, run those tests now to keep things clean.
 		foreach (['normal_buttons', 'mod_buttons'] as $button_strip) {

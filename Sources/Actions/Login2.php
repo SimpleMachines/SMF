@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -113,7 +113,7 @@ class Login2 implements ActionInterface, Routable
 
 		self::checkAjax();
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -145,8 +145,7 @@ class Login2 implements ActionInterface, Routable
 		elseif (isset($_SESSION['login_' . Config::$cookiename]) && preg_match('~^a:[34]:\{i:0;i:\d+;i:1;s:(0|40):"([a-fA-F0-9]{40})?";i:2;[id]:\d+;~', $_SESSION['login_' . Config::$cookiename]) === 1) {
 			list(, , $timeout) = Utils::safeUnserialize($_SESSION['login_' . Config::$cookiename]);
 		} else {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['login_no_session_cookie'], E_USER_ERROR);
+			throw new \Exception('login_no_session_cookie');
 		}
 
 		User::$me->password_salt = bin2hex(random_bytes(16));
@@ -527,7 +526,7 @@ class Login2 implements ActionInterface, Routable
 			$other_passwords[] = sha1(strtolower(User::$profiles[User::$my_id]['member_name']) . Utils::htmlspecialcharsDecode($_POST['passwrd']));
 
 			// Perhaps we converted to UTF-8 and have a valid password being hashed differently.
-			if (Utils::$context['character_set'] == 'UTF-8' && !empty(Config::$modSettings['previousCharacterSet']) && Config::$modSettings['previousCharacterSet'] != 'utf8') {
+			if (!empty(Config::$modSettings['previousCharacterSet']) && Config::$modSettings['previousCharacterSet'] != 'utf8') {
 				// Try iconv first, for no particular reason.
 				if (function_exists('iconv')) {
 					$other_passwords['iconv'] = sha1(strtolower(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], User::$profiles[User::$my_id]['member_name'])) . Utils::htmlspecialcharsDecode(iconv('UTF-8', Config::$modSettings['previousCharacterSet'], $_POST['passwrd'])));

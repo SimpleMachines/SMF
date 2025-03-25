@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -404,8 +404,9 @@ class Forum
 			}
 		}
 
-		// Register an error handler.
+		// Register an error handler and an exception handler.
 		set_error_handler([ErrorHandler::class, 'call']);
+		set_exception_handler([ErrorHandler::class, 'catch']);
 
 		// Start the session. (assuming it hasn't already been.)
 		Session::load();
@@ -416,11 +417,15 @@ class Forum
 
 		// Allow modifying $unlogged_actions easily.
 		// Deprecated: Implement ActionInterface::isSimpleAction() instead of this hook.
-		IntegrationHook::call('integrate_pre_log_stats', [&self::$unlogged_actions]);
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_pre_log_stats', [&self::$unlogged_actions]);
+		}
 
 		// Allow modifying $guest_access_actions easily.
 		// Deprecated: Implement ActionInterface::isRestrictedGuestAccessAllowed() instead of this hook.
-		IntegrationHook::call('integrate_guest_actions', [&self::$guest_access_actions]);
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_guest_actions', [&self::$guest_access_actions]);
+		}
 	}
 
 	/**
@@ -447,23 +452,17 @@ class Forum
 	{
 		$this->init();
 
-		$requested_action = $_REQUEST['action'] ?? null;
-		$current_action = $this->findAction($requested_action);
+		self::getCurrentAction();
 
-		if (is_a($current_action, ActionInterface::class, true)) {
-			$action = call_user_func([$current_action, 'load']);
-			self::$current_action = $action;
-
-			// Perform operations on the action object before execute() is called.
-			IntegrationHook::call('integrate_init_action', [$action]);
+		// Perform operations on the action object before its execute() is called.
+		if (isset(self::$current_action)) {
+			IntegrationHook::call('integrate_init_action', [self::$current_action]);
 		}
 
 		$this->preflight();
 
-		if (isset($action)) {
-			$action->execute();
-		} elseif (is_callable($current_action)) {
-			call_user_func($current_action);
+		if (isset(self::$current_action)) {
+			self::$current_action->execute();
 		} else {
 			ErrorHandler::fatalLang('not_found', false, [], 404);
 		}
@@ -511,6 +510,17 @@ class Forum
 	 */
 	public static function getCurrentAction(): ?ActionInterface
 	{
+		if (!isset(self::$current_action)) {
+			$current_action = self::findAction($_REQUEST['action'] ?? null);
+
+			if (is_a($current_action, ActionInterface::class, true)) {
+				self::$current_action = call_user_func([$current_action, 'load']);
+			} elseif (is_callable($current_action)) {
+				self::$current_action = Actions\GenericAction::load();
+				self::$current_action->setCallable($current_action);
+			}
+		}
+
 		return self::$current_action;
 	}
 
@@ -579,8 +589,8 @@ class Forum
 
 		// Load the current theme.  (note that ?theme=1 will also work, may be used for guest theming.)
 		// Attachments don't require the entire theme to be loaded.
-		if (($_REQUEST['action'] ?? '') !== 'dlattach' || empty(Config::$maintenance)) {
-			Theme::load(0, false);
+		if (($_REQUEST['action'] ?? '') !== 'dlattach' || !empty(Config::$maintenance)) {
+			Theme::load();
 		}
 
 		// Check if the user should be disallowed access.
@@ -592,8 +602,6 @@ class Forum
 	 */
 	protected function preflight(): void
 	{
-		Theme::$current->initialize();
-
 		// If the user needs to accept the agreement or privacy policy, redirect now.
 		$this->requireAgreement();
 
@@ -686,6 +694,10 @@ class Forum
 		}
 	}
 
+	/*************************
+	 * Internal static methods
+	 *************************/
+
 	/**
 	 * Resolves the appropriate action to execute based on the current request context.
 	 *
@@ -693,13 +705,22 @@ class Forum
 	 *  - A string representing a class implementing ActionInterface.
 	 *  - A callable string representing a static method (e.g., `'Class::method'`).
 	 */
-	protected function findAction(?string $action): string|callable|false
+	protected static function findAction(?string $action): string|callable|false
 	{
 		// If no action was supplied, is there an implied action?
 		if (empty($action)) {
-			// Action and board are both empty... BoardIndex!
-			if (empty(Board::$info->id) && empty(Topic::$topic_id)) {
-				// ... unless someone else wants to do something different.
+			// We check $_GET['topic'] and $_GET['board'] because the implied
+			// action depends on what was in the URL, not on whatever values we
+			// calculated for Board::$info->id and Topic::$info->id. This means
+			// that if $_GET['topic'] or $_GET['board'] are set to something
+			// invalid, an error will be shown. This is the correct and intended
+			// behaviour.
+			if (isset($_GET['topic'])) {
+				$action = 'display';
+			} elseif (isset($_GET['board'])) {
+				$action = 'messageindex';
+			} else {
+				// Does a mod want to change the default action?
 				if (!empty(Config::$modSettings['integrate_default_action'])) {
 					$default_action = explode(',', Config::$modSettings['integrate_default_action'])[0];
 
@@ -707,14 +728,6 @@ class Forum
 				}
 
 				$action = 'boardindex';
-			}
-			// Topic is empty, and action is empty.... MessageIndex!
-			elseif (empty(Topic::$topic_id)) {
-				$action = 'messageindex';
-			}
-			// Board is not empty... topic is not empty... action is empty... Display!
-			else {
-				$action = 'display';
 			}
 		}
 

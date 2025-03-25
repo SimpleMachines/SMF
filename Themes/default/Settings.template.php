@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -134,7 +134,7 @@ function template_options()
 			'label' => Lang::$txt['pm_remove_inbox_label'],
 			'default' => true,
 		),
-		Lang::$txt['theme_opt_calendar'],
+		!empty(Config::$modSettings['cal_enabled']) ? Lang::$txt['theme_opt_calendar'] : '',
 		array(
 			'id' => 'calendar_default_view',
 			'label' => Lang::$txt['calendar_default_view'],

@@ -472,7 +472,7 @@ while (!$is_done)
 		{
 			// Remove international characters (windows-1252)
 			// These lines should never be needed again. Still, behave.
-			if (empty(Config::$db_character_set) || Config::$db_character_set != 'utf8')
+			if (!str_starts_with(Db::$db->detect_charset('attachments', 'filename'), 'utf8'))
 			{
 				$row['filename'] = strtr($row['filename'],
 					"\x8a\x8e\x9a\x9e\x9f\xc0\xc1\xc2\xc3\xc4\xc5\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd1\xd2\xd3\xd4\xd5\xd6\xd8\xd9\xda\xdb\xdc\xdd\xe0\xe1\xe2\xe3\xe4\xe5\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf1\xf2\xf3\xf4\xf5\xf6\xf8\xf9\xfa\xfb\xfc\xfd\xff",

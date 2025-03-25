@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\BrowserDetector;
@@ -22,7 +22,7 @@ use SMF\Utils;
 function template_registration_agreement()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=signup" method="post" accept-charset="', Utils::$context['character_set'], '" id="registration">';
+		<form action="', Config::$scripturl, '?action=signup" method="post" accept-charset="UTF-8" id="registration">';
 
 	if (!empty(Utils::$context['agreement']))
 		echo '
@@ -103,7 +103,7 @@ function template_registration_form()
 	}
 
 	echo '
-		<form action="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl, '?action=signup2" method="post" accept-charset="', Utils::$context['character_set'], '" name="registration" id="registration" onsubmit="return verifyAgree();">
+		<form action="', !empty(Config::$modSettings['force_ssl']) ? strtr(Config::$scripturl, array('http://' => 'https://')) : Config::$scripturl, '?action=signup2" method="post" accept-charset="UTF-8" name="registration" id="registration" onsubmit="return verifyAgree();">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['registration_form'], '</h3>
 			</div>
@@ -439,7 +439,7 @@ function template_verification_sound()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<title>', Lang::$txt['visual_verification_sound'], '</title>
 		<meta name="robots" content="noindex">
 		', Theme::template_css(), '
@@ -483,7 +483,7 @@ function template_admin_register()
 {
 	echo '
 		<div id="admin_form_wrapper">
-			<form id="postForm" action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', Utils::$context['character_set'], '" name="postForm">
+			<form id="postForm" action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="UTF-8" name="postForm">
 				<div class="cat_bar">
 					<h3 class="catbg">', Lang::$txt['admin_browse_register_new'], '</h3>
 				</div>
@@ -608,7 +608,7 @@ function template_edit_agreement()
 	{
 		echo '
 				<div class="information">
-					<form action="', Config::$scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="', Utils::$context['character_set'], '">
+					<form action="', Config::$scripturl, '?action=admin;area=regcenter" id="change_reg" method="post" accept-charset="UTF-8">
 						<strong>', Lang::$txt['admin_agreement_select_language'], '</strong>
 						<select name="agree_lang" onchange="document.getElementById(\'change_reg\').submit();" tabindex="', Utils::$context['tabindex']++, '">';
 
@@ -631,7 +631,7 @@ function template_edit_agreement()
 	// Show the actual agreement in an oversized text box.
 	echo '
 			<div class="windowbg" id="registration_agreement">
-				<form action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', Utils::$context['character_set'], '">
+				<form action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="UTF-8">
 					<textarea cols="70" rows="20" name="agreement" id="agreement">', Utils::$context['agreement'], '</textarea>
 					<div class="information">
 						<span>', Utils::$context['agreement_info'], '</span>
@@ -662,7 +662,7 @@ function template_edit_reserved_words()
 	<div class="infobox">', Lang::$txt['settings_saved'], '</div>';
 
 	echo '
-	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['admin_reserved_set'], '</h3>
 		</div>
@@ -723,7 +723,7 @@ function template_edit_privacy_policy()
 	{
 		echo '
 			<div class="information">
-				<form action="', Config::$scripturl, '?action=admin;area=regcenter" id="change_policy" method="post" accept-charset="', Utils::$context['character_set'], '">
+				<form action="', Config::$scripturl, '?action=admin;area=regcenter" id="change_policy" method="post" accept-charset="UTF-8">
 					<strong>', Lang::$txt['admin_agreement_select_language'], '</strong>
 					<select name="policy_lang" onchange="document.getElementById(\'change_policy\').submit();" tabindex="', Utils::$context['tabindex']++, '">';
 
@@ -744,7 +744,7 @@ function template_edit_privacy_policy()
 
 	echo '
 		<div class="windowbg" id="privacy_policy">
-			<form action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="', Utils::$context['character_set'], '">';
+			<form action="', Config::$scripturl, '?action=admin;area=regcenter" method="post" accept-charset="UTF-8">';
 
 	// Show the actual policy in an oversized text box.
 	echo '

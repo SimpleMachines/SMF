@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -88,7 +88,7 @@ function template_html_above()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', !empty(Lang::$txt['lang_locale']) ? ' lang="' . str_replace("_", "-", substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], "."))) . '"' : '', '>
 <head>
-	<meta charset="', Utils::$context['character_set'], '">';
+	<meta charset="UTF-8">';
 
 	/*
 		You don't need to manually load index.css, this will be set up for you.
@@ -334,7 +334,7 @@ function template_body_above()
 	if (Utils::$context['allow_search'])
 	{
 		echo '
-			<form id="search_form" class="floatright" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form id="search_form" class="floatright" action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
 				<input type="search" name="search" value="">&nbsp;';
 
 		// Using the quick search dropdown?
@@ -819,7 +819,7 @@ function template_security_warning_above()
 		? Lang::$txt['generic_warning']
 		: Lang::$txt['security_risk'], '</h3>';
 
-	foreach (Utils::$context['warnings']['file'] as $security_file) {
+	foreach ((Utils::$context['warnings']['file'] ?? []) as $security_file) {
 		echo '
 		<p>', Lang::getTxt($security_file[0], $security_file[1]), '</p>';
 	}

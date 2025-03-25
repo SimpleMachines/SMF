@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -25,7 +25,7 @@ function template_email_members()
 	<div class="infobox">', Lang::$txt['admin_news_newsletter_' . Utils::$context['newsletter_sent']], '</div>';
 
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=news;sa=mailingcompose" method="post" id="admin_newsletters" class="flow_hidden" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['admin_newsletters'], '</h3>
 			</div>
@@ -193,7 +193,7 @@ function template_email_members_compose()
 	<br>';
 
 	echo '
-		<form name="newsmodify" action="', Config::$scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form name="newsmodify" action="', Config::$scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<a href="', Config::$scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::$txt['admin_newsletters'], '
@@ -376,7 +376,7 @@ function template_email_members_compose()
 function template_email_members_send()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="', Utils::$context['character_set'], '" name="autoSubmit" id="autoSubmit">
+		<form action="', Config::$scripturl, '?action=admin;area=news;sa=mailingsend" method="post" accept-charset="UTF-8" name="autoSubmit" id="autoSubmit">
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<a href="', Config::$scripturl, '?action=helpadmin;help=email_members" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a> ', Lang::$txt['admin_newsletters'], '

@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -132,7 +132,7 @@ function template_main()
 		else
 		{
 			echo '
-					<form action="', Config::$scripturl, '?action=vote;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="', Utils::$context['character_set'], '">';
+					<form action="', Config::$scripturl, '?action=vote;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="UTF-8">';
 
 			// Show a warning if they are allowed more than one option.
 			if (Utils::$context['poll']['allowed_warning'])
@@ -207,7 +207,7 @@ function template_main()
 	// Show the topic information - icon, subject, etc.
 	echo '
 		<div id="forumposts">
-			<form action="', Config::$scripturl, '?action=quickmod2;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="quickModForm" id="quickModForm" onsubmit="return oQuickModify.bInEditMode ? oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\') : false">';
+			<form action="', Config::$scripturl, '?action=quickmod2;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], '" method="post" accept-charset="UTF-8" name="quickModForm" id="quickModForm" onsubmit="return oQuickModify.bInEditMode ? oQuickModify.modifySave(\'' . Utils::$context['session_id'] . '\', \'' . Utils::$context['session_var'] . '\') : false">';
 
 	Utils::$context['ignoredMsgs'] = array();
 	Utils::$context['removableMessageIDs'] = array();
@@ -898,7 +898,7 @@ function template_quickreply()
 					<p><em>', Lang::$txt['wait_for_approval'], '</em></p>';
 
 	echo '
-					<form action="', Config::$scripturl, '?board=', Utils::$context['current_board'], ';action=post2" method="post" accept-charset="', Utils::$context['character_set'], '" name="postmodify" id="postmodify" onsubmit="submitonce(this);">
+					<form action="', Config::$scripturl, '?board=', Utils::$context['current_board'], ';action=post2" method="post" accept-charset="UTF-8" name="postmodify" id="postmodify" onsubmit="submitonce(this);">
 						<input type="hidden" name="topic" value="', Utils::$context['current_topic'], '">
 						<input type="hidden" name="subject" value="', Utils::$context['response_prefix'], Utils::$context['subject'], '">
 						<input type="hidden" name="icon" value="xx">
@@ -986,7 +986,7 @@ function template_quickreply()
 
 	if (Utils::$context['show_spellchecking'])
 		echo '
-		<form action="', Config::$scripturl, '?action=spellcheck" method="post" accept-charset="', Utils::$context['character_set'], '" name="spell_form" id="spell_form" target="spellWindow">
+		<form action="', Config::$scripturl, '?action=spellcheck" method="post" accept-charset="UTF-8" name="spell_form" id="spell_form" target="spellWindow">
 			<input type="hidden" name="spellstring" value="">
 		</form>';
 

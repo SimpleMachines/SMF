@@ -11,7 +11,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -44,7 +44,7 @@ Lang::load('ManagePaid');
 
 // If there's literally nothing coming in, let's take flight!
 if (empty($_POST)) {
-	header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']));
+	header('content-type: text/html; charset=UTF-8');
 
 	die(Lang::$txt['paid_no_data']);
 }

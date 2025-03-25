@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -54,7 +54,7 @@ function template_main()
 
 		// Boards table header.
 		echo '
-			<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=newboard;cat=', $category['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=newboard;cat=', $category['id'], '" method="post" accept-charset="UTF-8">
 				<ul id="category_', $category['id'], '" class="nolist">';
 
 		if (!empty($category['move_link']))
@@ -112,7 +112,7 @@ function template_modify_category()
 	// Print table header.
 	echo '
 	<div id="manage_boards">
-		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="cat" value="', Utils::$context['category']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -213,7 +213,7 @@ function template_confirm_category_delete()
 	// Print table header.
 	echo '
 	<div id="manage_boards" class="roundframe">
-		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=cat2" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="cat" value="', Utils::$context['category']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['mboards_delete_cat'], '</h3>
@@ -264,7 +264,7 @@ function template_modify_board()
 	// The main table header.
 	echo '
 	<div id="manage_boards">
-		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="boardid" value="', Utils::$context['board']['id'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">
@@ -716,7 +716,7 @@ function template_confirm_board_delete()
 	// Print table header.
 	echo '
 	<div id="manage_boards" class="roundframe">
-		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=manageboards;sa=board2" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="boardid" value="', Utils::$context['board']['id'], '">
 
 			<div class="cat_bar">

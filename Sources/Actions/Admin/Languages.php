@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -26,7 +26,7 @@ use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
 use SMF\Menu;
-use SMF\PackageManager\SubsPackage;
+use SMF\PackageManager\PackageUtils;
 use SMF\PackageManager\XmlArray;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -93,7 +93,7 @@ class Languages implements ActionInterface
 			'description' => Lang::$txt['language_description'],
 		];
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -214,7 +214,7 @@ class Languages implements ActionInterface
 			}
 
 			// Call this in case we have work to do.
-			$file_status = SubsPackage::create_chmod_control($chmod_files);
+			$file_status = PackageUtils::createChmodControl($chmod_files);
 			$files_left = $file_status['files']['notwritable'];
 
 			// Something not writable?
@@ -223,10 +223,10 @@ class Languages implements ActionInterface
 			}
 			// Otherwise, go go go!
 			elseif (!empty($install_files)) {
-				SubsPackage::read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), Config::$boarddir, false, true, $install_files);
+				PackageUtils::readTgzFile('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), Config::$boarddir, false, true, $install_files);
 
 				// Make sure the files aren't stuck in the cache.
-				SubsPackage::package_flush_cache();
+				PackageUtils::flushCache();
 
 				Utils::$context['install_complete'] = Lang::getTxt('languages_download_complete_desc', ['url' => Config::$scripturl . '?action=admin;area=languages']);
 
@@ -236,7 +236,7 @@ class Languages implements ActionInterface
 
 		// Open up the old china.
 		if (!isset($archive_content)) {
-			$archive_content = SubsPackage::read_tgz_file('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), null);
+			$archive_content = PackageUtils::readTgzFile('https://download.simplemachines.org/fetch_language.php?version=' . urlencode(SMF_VERSION) . ';fetch=' . urlencode($_GET['did']), null);
 		}
 
 		if (empty($archive_content)) {
@@ -368,7 +368,7 @@ class Languages implements ActionInterface
 		// Before we go to far can we make anything writable, eh, eh?
 		if (!empty(Utils::$context['make_writable'])) {
 			// What is left to be made writable?
-			$file_status = SubsPackage::create_chmod_control(Utils::$context['make_writable']);
+			$file_status = PackageUtils::createChmodControl(Utils::$context['make_writable']);
 			Utils::$context['still_not_writable'] = $file_status['files']['notwritable'];
 
 			// Mark those which are now writable as such.
@@ -813,7 +813,7 @@ class Languages implements ActionInterface
 			if (!empty(Config::$modSettings['package_make_backups']) && (!isset($_SESSION['last_backup_for']) || $_SESSION['last_backup_for'] != $lang_id . '$$$')) {
 				$_SESSION['last_backup_for'] = $lang_id . '$$$';
 
-				$result = SubsPackage::package_create_backup('backup_lang_' . $lang_id);
+				$result = PackageUtils::createBackup('backup_lang_' . $lang_id);
 
 				if (!$result) {
 					ErrorHandler::fatalLang('could_not_language_backup', false);
@@ -843,7 +843,7 @@ class Languages implements ActionInterface
 			if (!empty($images_dirs)) {
 				foreach ($images_dirs as $curPath) {
 					if (is_dir($curPath)) {
-						SubsPackage::deltree($curPath);
+						PackageUtils::deltree($curPath);
 					}
 				}
 			}
@@ -899,7 +899,11 @@ class Languages implements ActionInterface
 			$replace_array = [];
 
 			foreach ($primary_settings as $setting => $type) {
-				$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? 'true' : 'false') : '\'' . ($setting = 'native_name' ? htmlentities(Utils::htmlspecialcharsDecode($_POST[$setting]), ENT_QUOTES, Utils::$context['character_set']) : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
+				if ($setting === 'lang_character_set') {
+					$replace_array['/\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+\R/u'] = '';
+				} else {
+					$replace_array['~\$txt\[\'' . $setting . '\'\]\s*=\s*[^\r\n]+~u'] = '$txt[\'' . $setting . '\'] = ' . ($type === 'bool' ? (!empty($_POST[$setting]) ? '\'1\'' : '\'0\'') : '\'' . ($setting = 'native_name' ? htmlentities(Utils::htmlspecialcharsDecode($_POST[$setting]), ENT_QUOTES, 'UTF-8') : preg_replace('~[^\w-]~i', '', $_POST[$setting])) . '\'') . ';';
+				}
 			}
 
 			$current_data = preg_replace(array_keys($replace_array), array_values($replace_array), $current_data);
@@ -922,6 +926,10 @@ class Languages implements ActionInterface
 		Utils::$context['primary_settings']['name'] = Utils::ucwords(strtr($lang_id, ['_' => ' ', '-utf8' => '']));
 
 		foreach ($primary_settings as $setting => $type) {
+			if ($setting === 'lang_character_set') {
+				continue;
+			}
+
 			Utils::$context['primary_settings'][$setting] = [
 				'label' => str_replace('lang_', '', $setting),
 				'value' => $type === 'bool' ? !empty(Lang::$txt[$setting]) : Lang::$txt[$setting],
@@ -1017,12 +1025,12 @@ class Languages implements ActionInterface
 			// Also, remove any lines for uneditable variables like $forum_copyright from the working data.
 			$entries = [];
 
-			foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~m' . (Utils::$context['utf8'] ? 'u' : ''), preg_replace('~\s*\n(\$(?!(?:' . implode('|', $string_types) . '))[^\n]*)~', '', file_get_contents($current_file))) as $blob) {
+			foreach (preg_split('~^(?=\$(?:' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\])~mu', preg_replace('~\s*\n(\$(?!(?:' . implode('|', $string_types) . '))[^\n]*)~', '', file_get_contents($current_file))) as $blob) {
 				// Comment lines at the end of the blob can make terrible messes
-				$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~' . (Utils::$context['utf8'] ? 'u' : ''), '', $blob);
+				$blob = preg_replace('~(\n[ \t]*//[^\n]*)*$~u', '', $blob);
 
 				// Extract the variable
-				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);([ \t]*(?://[^\n]*)?)$~ms' . (Utils::$context['utf8'] ? 'u' : ''), strtr($blob, ["\r" => '']), $matches)) {
+				if (preg_match('~^\$(' . implode('|', $string_types) . ')\[\'([^\n]+?)\'\](?:\[\'?([^\n]+?)\'?\])?\s?=\s?(.+);([ \t]*(?://[^\n]*)?)$~msu', strtr($blob, ["\r" => '']), $matches)) {
 					// If no valid subkey was found, we need it to be explicitly null
 					$matches[3] = isset($matches[3]) && $matches[3] !== '' ? $matches[3] : null;
 
@@ -1105,7 +1113,7 @@ class Languages implements ActionInterface
 						# Followed by a comma or the end of the string
 						(?=,|$)
 
-						/x' . (Utils::$context['utf8'] ? 'u' : ''), $entryValue['entry'], $matches);
+						/xu', $entryValue['entry'], $matches);
 
 					if (empty($m)) {
 						continue;
@@ -1337,7 +1345,7 @@ class Languages implements ActionInterface
 				// Apply our changes.
 				foreach ($final_saves as $save) {
 					if (!empty($save['is_regex'])) {
-						$file_contents = preg_replace('~' . $save['find'] . '~' . (Utils::$context['utf8'] ? 'u' : ''), $save['replace'], $file_contents);
+						$file_contents = preg_replace('~' . $save['find'] . '~u', $save['replace'], $file_contents);
 					} else {
 						$file_contents = str_replace($save['find'], $save['replace'], $file_contents);
 					}
@@ -1579,7 +1587,7 @@ class Languages implements ActionInterface
 			$languages[$lang['filename']] = [
 				'id' => $lang['filename'],
 				'count' => 0,
-				'char_set' => $txt['lang_character_set'],
+				'char_set' => 'UTF-8',
 				'default' => Lang::$default == $lang['filename'] || (Lang::$default == '' && $lang['filename'] == 'en_US'),
 				'locale' => $txt['lang_locale'],
 				'name' => $lang['name'],

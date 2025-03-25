@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -967,8 +967,7 @@ class Group implements \ArrayAccess
 		}
 
 		if (!in_array($type, ['auto', 'only_additional', 'only_primary', 'force_primary'])) {
-			Lang::load('Errors');
-			trigger_error(Lang::getTxt('add_members_to_group_invalid_type', [$type]), E_USER_WARNING);
+			throw new \ValueError(Lang::getTxt('add_members_to_group_invalid_type', [$type]));
 		}
 
 		// Can this group be a primary group?

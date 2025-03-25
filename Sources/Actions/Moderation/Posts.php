@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -86,7 +86,7 @@ class Posts implements ActionInterface
 		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ModerationCenter');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -303,6 +303,11 @@ class Posts implements ActionInterface
 		Utils::$context['start'] = $_GET['start'] ?? 0;
 
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), Utils::$context['start'], Utils::$context['current_view'] == 'topics' ? (int) Utils::$context['total_unapproved_topics'] : (int) Utils::$context['total_unapproved_posts'], $limit);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// We have enough to make some pretty tabs!
 		$menu = Menu::$loaded['moderate'];

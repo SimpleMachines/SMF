@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -2179,13 +2179,13 @@ class UpdateUnicode extends BackgroundTask
 
 					$rule = preg_replace_callback('/(\d+)\.\.(\d+)/', fn($matches) => implode(',', range($matches[1], $matches[2], $step)), $rule);
 
-					$rule = str_replace('=in_array', 'in_array', preg_replace('/(\$[nivwftc](?: % \d+)?) ([!=])= ((?:\d+,\s*)+\d+)/', '$2in_array($1, [$3])', $rule));
+					$rule = preg_replace_callback('/(\$[nivwftc](?: % \d+)?) ([!=])= ((?:\d+,\s*)+\d+)/', fn($matches) => ($matches[2] === '=' ? '' : $matches[2]) . 'in_array(' . $matches[1] . ', [' . preg_replace('/,\s*/', ', ', $matches[3]) . '])', $rule);
 
 					if ($key === 'other' && $rule === '') {
 						$rule = 'true';
 					}
 
-					$this->funcs['plurals']['data'][$lang][$type][$key] = 'fn ($n, $i, $v, $w, $f, $t, $c) => ' . $rule;
+					$this->funcs['plurals']['data'][$lang][$type][$key] = 'fn($n, $i, $v, $w, $f, $t, $c) => ' . $rule;
 				}
 			}
 		}

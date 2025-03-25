@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ class QueryString
 	 * Classes listed in this array must implement the Routable interface.
 	 *
 	 * MOD AUTHORS: To add a new route parser to this list for a custom action
-	 * or content type, use the integrate_parse_route hook in self::parseRoute().
+	 * or content type, use the integrate_route_parsers hook.
 	 */
 	public static array $route_parsers = [
 		'about:unknown'			=> Actions\Like::class,
@@ -212,6 +212,9 @@ class QueryString
 				}
 			}
 		}
+
+		// Let mods add new route parsers to self::$route_parsers.
+		IntegrationHook::call('integrate_route_parsers');
 
 		// Are we using routing (a.k.a. queryless/friendly/pretty URLs)?
 		$_GET = self::parseRoute($_SERVER['PATH_INFO'] ?? '', $_GET);
@@ -617,6 +620,8 @@ class QueryString
 			$route_base = 'msgs';
 		}
 
+		IntegrationHook::call('integrate_build_route', [&$route_base, $params]);
+
 		if (
 			isset($route_base, self::$route_parsers[$route_base])
 			&& method_exists(self::$route_parsers[$route_base], 'buildRoute')
@@ -640,21 +645,12 @@ class QueryString
 	/**
 	 * Updates an array of URL parameters based on a routing path.
 	 *
-	 * MOD AUTHORS: If your mod implements an alternative form of pretty URLs,
-	 * or if you just want to add something to the list of known route parsers,
-	 * the 'integrate_parse_route' hook inside this method will be of interest
-	 * to you.
-	 *
 	 * @param string $path A virtual path. Typically $_SERVER['PATH_INFO'].
 	 * @param array $params Existing URL query parameters. Typically $_GET.
 	 * @return array Updated copy of $params.
 	 */
 	public static function parseRoute(string $path, array $params): array
 	{
-		// Give mods a chance to parse the route before we do anything to it.
-		// This hook can also be used add new route parsers to self::$route_parsers.
-		IntegrationHook::call('integrate_parse_route', [&$path, &$params]);
-
 		if (!str_starts_with($path, '/')) {
 			return $params;
 		}
@@ -782,6 +778,7 @@ class QueryString
 			!empty(Config::$modSettings['force_ssl'])
 			&& empty(Config::$maintenance)
 			&& !Sapi::httpsOn()
+			&& str_starts_with($_SERVER['REQUEST_URL'] ?? '', 'http://')
 			&& SMF != 'SSI'
 		) {
 			if (isset($_GET['sslRedirect'])) {

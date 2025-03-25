@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -206,17 +206,13 @@ class Theme
 			User::$me->time_format = Lang::$txt['time_format'];
 		}
 
-		// Set the character set from the template.
-		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
+		// Set the text direction from the language strings.
 		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
 
 		// Guests may still need a name.
 		if (User::$me->is_guest && empty(User::$me->name)) {
 			User::$me->name = Lang::$txt['guest_title'];
 		}
-
-		// Any theme-related strings that need to be loaded?
-		Lang::load('ThemeStrings', '', false);
 
 		// Make a special URL for the language.
 		$this->settings['lang_images_url'] = $this->settings['images_url'] . '/' . (!empty(Lang::$txt['image_lang']) ? Lang::$txt['image_lang'] : User::$me->language);
@@ -371,8 +367,6 @@ class Theme
 		Lang::load('General+Modifications');
 
 		// Just in case it wasn't already set elsewhere.
-		Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? Lang::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-		Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
 		Utils::$context['right_to_left'] = !empty(Lang::$txt['lang_rtl']);
 
 		// Tell ErrorHandler::fatalLang() to not reload the theme.
@@ -1397,13 +1391,13 @@ class Theme
 			if (!isset($_REQUEST['xml']) && isset($_GET['debug']) && !BrowserDetector::isBrowser('ie')) {
 				header('content-type: application/xhtml+xml');
 			} elseif (!isset($_REQUEST['xml'])) {
-				header('content-type: text/html; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+				header('content-type: text/html; charset=UTF-8');
 			}
 		}
 
 		$content_type = Forum::getCurrentAction()?->getOutputType()->getMimeType() ?? (isset($_REQUEST['xml']) ? 'application/xml' : 'text/html');
 
-		header('Content-Type: ' . $content_type . '; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+		header('Content-Type: ' . $content_type . '; charset=UTF-8');
 
 		// Collect layers to be added
 		$layers = [];
@@ -2043,7 +2037,9 @@ class Theme
 		Utils::$context['insert_after_template'] = '';
 
 		// Deprecated: Implement ActionInterface::isSimpleAction() instead of this hook.
-		IntegrationHook::call('integrate_simple_actions', [&$this->simpleActions, &$this->simpleAreas, &$this->simpleSubActions, &$this->extraParams, &$this->xmlActions]);
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_simple_actions', [&$this->simpleActions, &$this->simpleAreas, &$this->simpleSubActions, &$this->extraParams, &$this->xmlActions]);
+		}
 
 		Utils::$context['simple_action'] = (
 			(Forum::getCurrentAction())?->isSimpleAction() === true
@@ -2059,7 +2055,7 @@ class Theme
 		);
 
 		// See if there is any extra param to check.
-		$requires_xml = false;
+		$requires_xml = Forum::getCurrentAction()?->getOutputType() instanceof OutputTypes\Xml;
 
 		foreach ($this->extraParams as $key => $extra) {
 			if (isset($_REQUEST[$extra])) {
@@ -2069,17 +2065,16 @@ class Theme
 			}
 		}
 
+		// Attempt to load language files.
+		Lang::load('General+ThemeStrings+Modifications', '', false);
+
 		// Output is fully XML, so no need for the index template.
 		if (isset($_REQUEST['xml']) && (in_array(Utils::$context['current_action'], $this->xmlActions) || $requires_xml)) {
 			self::loadTemplate('Xml');
 			Utils::$context['template_layers'] = [];
 		}
-
-		// Attempt to load language files.
-		Lang::load('General+ThemeStrings+Modifications', '', false);
-
 		// These actions don't require the index template at all.
-		if (!empty(Utils::$context['simple_action'])) {
+		elseif (!empty(Utils::$context['simple_action'])) {
 			Utils::$context['template_layers'] = [];
 		} else {
 			// Custom templates to load, or just default?
@@ -2181,7 +2176,7 @@ class Theme
 			'smf_avatars_url' => '"' . Config::$modSettings['avatar_url'] . '"',
 			'smf_scripturl' => '"' . Config::$scripturl . '"',
 			'smf_iso_case_folding' => Sapi::supportsIsoCaseFolding() ? 'true' : 'false',
-			'smf_charset' => '"' . Utils::$context['character_set'] . '"',
+			'smf_charset' => '"UTF-8"',
 			'smf_session_id' => '"' . Utils::$context['session_id'] . '"',
 			'smf_session_var' => '"' . Utils::$context['session_var'] . '"',
 			'smf_member_id' => User::$me->id,
@@ -2331,7 +2326,7 @@ class Theme
 			}
 
 			if (isset($_GET['debug'])) {
-				header('content-type: application/xhtml+xml; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+				header('content-type: application/xhtml+xml; charset=UTF-8');
 			}
 
 			// Don't cache error pages!!
@@ -2347,11 +2342,7 @@ class Theme
 			}
 
 			// First, let's get the doctype and language information out of the way.
-			echo '<!DOCTYPE html>' . "\n" . '<html', !empty(Utils::$context['right_to_left']) ? ' dir="rtl"' : '', '>' . "\n\t" . '<head>';
-
-			if (isset(Utils::$context['character_set'])) {
-				echo "\n\t\t" . '<meta charset="', Utils::$context['character_set'], '">';
-			}
+			echo '<!DOCTYPE html>' . "\n" . '<html', !empty(Utils::$context['right_to_left']) ? ' dir="rtl"' : '', '>' . "\n\t" . '<head>' . "\n\t\t" . '<meta charset="UTF-8">';
 
 			if (!empty(Config::$maintenance) && !User::$me->allowedTo('admin_forum')) {
 				echo "\n\t\t" . '<title>', Config::$mtitle, '</title>' . "\n\t" . '</head>' . "\n\t" . '<body>' . "\n\t\t" . '<h3>', Config::$mtitle, '</h3>' . "\n\t\t", Config::$mmessage, "\n\t" . '</body>' . "\n" . '</html>';

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 namespace SMF\Unicode;
@@ -662,7 +662,7 @@ class Utf8String implements \Stringable
 		$this->string = Utils::sanitizeEntities($this->string, ' ');
 
 		// Decode all the entities.
-		$this->string = Utils::entityDecode($this->string, true, ENT_QUOTES | ENT_HTML5, true);
+		$this->string = Utils::entityDecode($this->string, ENT_QUOTES | ENT_HTML5, true);
 
 		// Replace unwanted invisible characters with spaces.
 		$this->sanitizeInvisibles($level, ' ');

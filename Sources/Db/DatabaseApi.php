@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -18,7 +18,9 @@ namespace SMF\Db;
 use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\ErrorHandler;
+use SMF\IP;
 use SMF\Utils;
+use SMF\Uuid;
 
 /**
  * Class DatabaseApi
@@ -134,16 +136,14 @@ abstract class DatabaseApi
 	 * Whether the database supports 4-byte UTF-8 characters.
 	 *
 	 * For PostgreSQL, this will always be set to true.
-	 * For MySQL, this will be set to the value of the Config::$db_mb4.
-	 *
-	 * @todo Use auto-detect for MySQL.
+	 * For MySQL, this will be determined automatically.
 	 */
 	public bool $mb4;
 
 	/**
 	 * @var string
 	 *
-	 * Local copy of Config::$db_character_set.
+	 * The default character set.
 	 */
 	public string $character_set;
 
@@ -304,6 +304,113 @@ abstract class DatabaseApi
 		'user_likes',
 	];
 
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Figures out the best type indicators to use in SMF's query placeholder
+	 * strings and/or insert column type definitions for a given set of columns.
+	 *
+	 * In most cases, this is simply a matter of looking up the expected data
+	 * type for the target column and then translating it to the type indicator
+	 * string that Db::$db->quote() and Db::$db->insert() would expect for that
+	 * column's data type. There are a couple of special cases that we need to
+	 * check for, though, so this method takes care of that.
+	 *
+	 * Calling this method is usually only necessary if we are trying to save
+	 * values to custom columns that were added by mods.
+	 *
+	 * @param string $table_name The name of a table.
+	 * @param array $column_values Array where keys are possible column names
+	 *    and values are the values we plan to set.
+	 * @return array List of recognized column names and their corresponding
+	 *    data type indicators.
+	 */
+	public function getTypeIndicators(string $table_name, array $column_values): array
+	{
+		$columns = $this->list_columns($table_name, true);
+
+		$types = [];
+
+		foreach ($column_values as $column_name => $value) {
+			if (!isset($columns[$column_name])) {
+				continue;
+			}
+
+			switch (strtolower($columns[$column_name]['type'])) {
+				case 'decimal':
+				case 'numeric':
+				case 'float':
+				case 'double':
+				case 'real':
+				case 'double precision':
+				case 'money':
+					$type = 'float';
+					break;
+
+				case 'integer':
+				case 'int':
+				case 'tinyint':
+				case 'smallint':
+				case 'mediumint':
+				case 'bigint':
+				case 'bool':
+				case 'boolean':
+					$type = 'int';
+					break;
+
+				case 'year':
+					$type = 'int';
+					break;
+
+				case 'datetime':
+				case 'timestamp':
+					$type = 'datetime';
+					break;
+
+				case 'date':
+					$type = 'date';
+					break;
+
+				case 'time':
+					$type = 'time';
+					break;
+
+				case 'inet':
+					$type = 'inet';
+					break;
+
+				case 'uuid':
+					$type = 'uuid';
+					break;
+
+				case 'json':
+				case 'enum':
+				case 'set':
+					$type = 'string';
+					break;
+
+				default:
+					$test = is_array($value) ? reset($value) : $value;
+
+					if (IP::create((string) $test)->isValid()) {
+						$types[$column_name] = 'inet';
+					} elseif ($test instanceof Uuid || (string) (@Uuid::createFromString((string) $test)) !== Uuid::NIL_UUID) {
+						$types[$column_name] = 'uuid';
+					} else {
+						$type = 'string';
+					}
+
+					break;
+			}
+
+			$types[$column_name] = $type;
+		}
+
+		return $types;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -401,14 +508,6 @@ abstract class DatabaseApi
 
 		if (!isset($this->persist)) {
 			$this->persist = !empty(Config::$db_persist);
-		}
-
-		if (!isset($this->mb4)) {
-			$this->mb4 = !empty(Config::$db_mb4);
-		}
-
-		if (!isset($this->character_set)) {
-			$this->character_set = (string) Config::$db_character_set;
 		}
 
 		if (!isset($this->show_debug)) {

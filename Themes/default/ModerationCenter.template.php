@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -359,7 +359,7 @@ function template_unapproved_posts()
 	// Just a big table of it all really...
 	echo '
 	<div id="modcenter">
-		<form action="', Config::$scripturl, '?action=moderate;area=postmod;start=', Utils::$context['start'], ';sa=', Utils::$context['current_view'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=moderate;area=postmod;start=', Utils::$context['start'], ';sa=', Utils::$context['current_view'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar', !empty(Utils::$context['unapproved_items']) ? ' cat_bar_round' : '', '">
 				<h3 class="catbg">', Lang::$txt['mc_unapproved_posts'], '</h3>
 			</div>';
@@ -529,7 +529,7 @@ function template_show_notice()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<title>', Utils::$context['page_title'], '</title>
 		', Theme::template_css(), '
 	</head>
@@ -562,7 +562,7 @@ function template_warn_template()
 {
 	echo '
 	<div id="modcenter">
-		<form action="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=', Utils::$context['id_template'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=moderate;area=warnings;sa=templateedit;tid=', Utils::$context['id_template'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>

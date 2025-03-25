@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -216,7 +216,7 @@ class Asuncion extends \SMF\Calendar\VTimeZone
 		23 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20101003T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=1SU;UNTIL=20241006T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
@@ -224,10 +224,17 @@ class Asuncion extends \SMF\Calendar\VTimeZone
 		24 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20130324T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=4SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=4SU;UNTIL=20240324T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
+		],
+		25 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20241015T000000',
+			'TZNAME' => 'UTC-03',
+			'TZOFFSETFROM' => '-0300',
+			'TZOFFSETTO' => '-0300',
 		],
 	];
 }

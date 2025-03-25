@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -25,7 +25,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
-use SMF\PackageManager\{SubsPackage, XmlArray};
+use SMF\PackageManager\{PackageUtils, XmlArray};
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -136,7 +136,7 @@ class Themes implements ActionInterface
 		Theme::deleteAllMinified();
 
 		if (isset(self::$subactions[$this->subaction])) {
-			$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+			$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 		} else {
 			$call = Utils::getCallable($this->subaction);
 		}
@@ -1432,7 +1432,7 @@ class Themes implements ActionInterface
 		];
 
 		// Extract the file on the proper themes dir.
-		$extracted = SubsPackage::read_tgz_file($_FILES['theme_gz']['tmp_name'], $dirtemp, false, true);
+		$extracted = PackageUtils::readTgzFile($_FILES['theme_gz']['tmp_name'], $dirtemp, false, true);
 
 		if ($extracted) {
 			// Read its info form the XML file.
@@ -1526,8 +1526,8 @@ class Themes implements ActionInterface
 		}
 
 		// And now the entire images directory!
-		SubsPackage::copytree(Theme::$current->settings['default_theme_dir'] . '/images', Utils::$context['to_install']['theme_dir'] . '/images');
-		SubsPackage::package_flush_cache();
+		PackageUtils::copytree(Theme::$current->settings['default_theme_dir'] . '/images', Utils::$context['to_install']['theme_dir'] . '/images');
+		PackageUtils::flushCache();
 
 		// Any data from the default theme that we want?
 		foreach ($this->getSingleTheme(1, ['theme_layers', 'theme_templates']) as $variable => $value) {
@@ -1860,7 +1860,7 @@ class Themes implements ActionInterface
 		$install_versions = $theme_info_xml->fetch('theme-info/install/@for');
 
 		// The theme isn't compatible with the current SMF version.
-		if (!$install_versions || !SubsPackage::matchPackageVersion($the_version, $install_versions)) {
+		if (!$install_versions || !PackageUtils::matchPackageVersion($the_version, $install_versions)) {
 			$this->deltree($path);
 			ErrorHandler::fatalLang('package_get_error_theme_not_compatible', false, [SMF_FULL_VERSION]);
 		}
@@ -1941,7 +1941,7 @@ class Themes implements ActionInterface
 
 			// Got something, lets figure it out what to do next.
 			if (!empty($id_to_update) && !empty($to_update['version'])) {
-				switch (SubsPackage::compareVersions(Utils::$context['to_install']['version'], $to_update['version'])) {
+				switch (PackageUtils::compareVersions(Utils::$context['to_install']['version'], $to_update['version'])) {
 					case 1: // Got a newer version, update the old entry.
 						Db::$db->query(
 							'',

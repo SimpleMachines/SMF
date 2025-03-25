@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -206,13 +206,6 @@ abstract class Parser
 	 * URL of the base smileys directory.
 	 */
 	public static string $smileys_url;
-
-	/**
-	 * @var string
-	 *
-	 * The character encoding of the strings to be parsed.
-	 */
-	public static string $encoding;
 
 	/**
 	 * @var string
@@ -546,7 +539,6 @@ abstract class Parser
 		self::$time_format = self::$time_format ?? User::$me->time_format ?? Time::getTimeFormat();
 
 		self::$locale = self::$locale ?? Lang::$txt['lang_locale'] ?? '';
-		self::$encoding = self::$encoding ?? (!empty(Utils::$context['utf8']) ? 'UTF-8' : (!empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : 'UTF-8')));
 
 		// Smiley settings.
 		self::$custom_smileys_enabled = self::$custom_smileys_enabled ?? !empty(Config::$modSettings['smiley_enable']);
@@ -705,7 +697,6 @@ abstract class Parser
 			$output_type,
 			$options,
 			// Localization settings.
-			self::$encoding,
 			self::$locale,
 			self::$time_offset,
 			self::$time_format,

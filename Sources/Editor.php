@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -413,7 +413,7 @@ class Editor implements \ArrayAccess
 			// Some hidden information is needed in order to make the spell checking work.
 			if (!isset($_REQUEST['xml'])) {
 				Utils::$context['insert_after_template'] .= '
-				<form name="spell_form" id="spell_form" method="post" accept-charset="' . Utils::$context['character_set'] . '" target="spellWindow" action="' . Config::$scripturl . '?action=spellcheck">
+				<form name="spell_form" id="spell_form" method="post" accept-charset="UTF-8" target="spellWindow" action="' . Config::$scripturl . '?action=spellcheck">
 					<input type="hidden" name="spellstring" value="">
 				</form>';
 			}

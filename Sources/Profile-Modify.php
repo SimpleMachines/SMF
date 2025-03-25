@@ -10,23 +10,13 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 if (!defined('SMF')) {
 	die('No direct access...');
 }
 
-class_exists('\\SMF\\Alert');
-class_exists('\\SMF\\Profile');
-class_exists('\\SMF\\Actions\\Profile\\Account');
-class_exists('\\SMF\\Actions\\Profile\\BuddyIgnoreLists');
-class_exists('\\SMF\\Actions\\Profile\\ForumProfile');
-class_exists('\\SMF\\Actions\\Profile\\GroupMembership');
-class_exists('\\SMF\\Actions\\Profile\\IgnoreBoards');
-class_exists('\\SMF\\Actions\\Profile\\Notification');
-class_exists('\\SMF\\Actions\\Profile\\TFADisable');
-class_exists('\\SMF\\Actions\\Profile\\TFASetup');
-class_exists('\\SMF\\Actions\\Profile\\ThemeOptions');
+require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
 
 ?>

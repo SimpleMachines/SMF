@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -1070,7 +1070,7 @@ class ACP implements ActionInterface, Routable
 
 		// Fix the darn stupid cookiename! (more may not be allowed, but these for sure!)
 		if (isset($_POST['cookiename'])) {
-			$_POST['cookiename'] = preg_replace('~[,;\s\.$]+~' . (Utils::$context['utf8'] ? 'u' : ''), '', $_POST['cookiename']);
+			$_POST['cookiename'] = preg_replace('~[,;\s\.$]+~u', '', $_POST['cookiename']);
 		}
 
 		// Fix the forum's URL if necessary.
@@ -1858,8 +1858,8 @@ class ACP implements ActionInterface, Routable
 
 		Utils::obExit();
 
-		// We MUST exit at this point, because otherwise we CANNOT KNOW that the user is privileged.
-		trigger_error('No direct access...', E_USER_ERROR);
+		// We should never get to this point, but just in case...
+		die('No direct access...');
 	}
 
 	/******************

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -572,6 +572,11 @@ class Unread implements ActionInterface, Routable
 
 		// Make sure the starting place makes sense and construct the page index.
 		Utils::$context['page_index'] = new PageIndex($this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . Utils::$context['querystring_sort_limits'], Utils::$context['start'], $this->num_topics, (int) Utils::$context['topics_per_page'], true);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+		}
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / Utils::$context['topics_per_page']);
 

@@ -8,19 +8,16 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
 
 namespace SMF\Unicode;
 
-use SMF\Action\Admin\ACP;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
-use SMF\Lang;
-use SMF\User;
 use SMF\Utils;
 
 /**
@@ -42,10 +39,6 @@ class SpoofDetector
 	 */
 	public static function getSkeletonString(string $string): string
 	{
-		if (empty(Utils::$context['utf8'])) {
-			return $string;
-		}
-
 		$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		if ($chars === false) {
@@ -80,10 +73,6 @@ class SpoofDetector
 	 */
 	public static function resolveScriptSet(string $string): array
 	{
-		if (empty(Utils::$context['utf8'])) {
-			return [];
-		}
-
 		$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		if ($chars === false) {
@@ -150,7 +139,7 @@ class SpoofDetector
 	 */
 	public static function enhanceWordCensor(string $text): void
 	{
-		if (empty(Utils::$context['utf8']) || empty(Config::$modSettings['spoofdetector_censor'])) {
+		if (empty(Config::$modSettings['spoofdetector_censor'])) {
 			return;
 		}
 

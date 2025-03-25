@@ -10,7 +10,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -244,7 +244,7 @@ class Main implements ActionInterface, Routable
 			require_once Config::$sourcedir . '/' . Menu::$loaded['moderate']->include_data['file'];
 		}
 
-		$call = method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
+		$call = is_string(Menu::$loaded['moderate']->include_data['function']) && method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
 
 		if (!empty($call)) {
 			call_user_func($call);

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -330,6 +330,11 @@ class Search
 			false,
 		);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
+
 		Utils::$context['sub_template'] = 'search_results';
 
 		// If mods want access to the general context values, let them do that now.
@@ -610,12 +615,12 @@ class Search
 	protected function setSearchQuery(): void
 	{
 		// Extract phrase parts first (e.g. some words "this is a phrase" some more words.)
-		preg_match_all('~(?:^|\s)([-]?)"([^"]+)"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), $this->params['search'], $matches, PREG_PATTERN_ORDER);
+		preg_match_all('~(?:^|\s)([-]?)"([^"]+)"(?:$|\s)~u', $this->params['search'], $matches, PREG_PATTERN_ORDER);
 
 		$searchArray = $matches[2];
 
 		// Remove the phrase parts and extract the words.
-		$tempSearch = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']));
+		$tempSearch = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~u', ' ', $this->params['search']));
 
 		// A minus sign in front of a word excludes the word.... so...
 		$excludedWords = [];

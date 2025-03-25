@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -56,7 +56,7 @@ function template_main()
 	// Start the main poll form.
 	echo '
 	<div id="edit_poll">
-		<form action="' . Config::$scripturl . '?action=editpoll2', Utils::$context['is_edit'] ? '' : ';add', ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . '" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="submitonce(this);" name="postmodify" id="postmodify">
+		<form action="' . Config::$scripturl . '?action=editpoll2', Utils::$context['is_edit'] ? '' : ';add', ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . '" method="post" accept-charset="UTF-8" onsubmit="submitonce(this);" name="postmodify" id="postmodify">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>';

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -205,7 +205,7 @@ class Draft
 							$this->recipients['to'] = $recipientsList['to'] ?? [];
 							$this->recipients['bcc'] = $recipientsList['bcc'] ?? [];
 							break;
-						
+
 						// These have to be ints
 						case 'type':
 						case 'poster_time':
@@ -411,7 +411,7 @@ class Draft
 		Lang::load('Drafts');
 
 		// Some initial context.
-		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+		Utils::$context['start'] = (int) ($_REQUEST['start'] ?? 0);
 		Utils::$context['current_member'] = $memID;
 
 		// If just deleting a draft, do it and then redirect back.
@@ -466,6 +466,11 @@ class Draft
 		// Make sure the starting place makes sense and construct our friend the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=profile;u=' . $memID . ';area=showdrafts', Utils::$context['start'], $msgCount, $maxIndex);
 		Utils::$context['current_page'] = Utils::$context['start'] / $maxIndex;
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Reverse the query if we're past 50% of the pages for better performance.
 		$start = Utils::$context['start'];
@@ -818,9 +823,9 @@ class Draft
 	{
 		Lang::load('Drafts');
 
-		header('content-type: text/xml; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
+		header('content-type: text/xml; charset=UTF-8');
 
-		echo '<?xml version="1.0" encoding="', Utils::$context['character_set'], '"?>
+		echo '<' . '?xml version="1.0" encoding="UTF-8"?' . '>
 		<drafts>
 			<draft id="', $id_draft, '"><![CDATA[', Lang::getTxt('draft_saved_on', ['date' => Time::create('@' . Utils::$context['draft_saved_on'])->format()]), ']]></draft>
 		</drafts>';

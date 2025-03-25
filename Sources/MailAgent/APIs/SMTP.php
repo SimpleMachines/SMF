@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 3
  */
 
 namespace SMF\MailAgent\APIs;
@@ -18,8 +18,8 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\MailAgent\MailAgent;
 use SMF\MailAgent\MailAgentInterface;
+use SMF\Sapi;
 use SMF\Url;
-use SMF\Utils;
 
 /**
  * Sends mail via SMTP
@@ -41,11 +41,12 @@ class SMTP extends MailAgent implements MailAgentInterface
 	public bool $useTLS = false;
 
 	/**
-	 * @var resource
+	 * @var resource|false
 	 *
 	 * A file pointer containing the active connection to the SMTP server.
+	 * PHP does not have a type hint for resource of type Stream.  So we just use mixed.
 	 */
-	private object $socket;
+	private mixed $socket;
 
 	/**
 	 * {@inheritDoc}
@@ -111,16 +112,9 @@ class SMTP extends MailAgent implements MailAgentInterface
 						return false;
 					}
 
-					// Enable the encryption
-					// php 5.6+ fix
-					$crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+					$crypto_method = STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
 
-					if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
-						$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
-						$crypto_method |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
-					}
-
-					if (!@stream_socket_enable_crypto($this->socket, true, $crypto_method)) {
+					if (!stream_socket_enable_crypto($this->socket, true, $crypto_method)) {
 						return false;
 					}
 
@@ -198,8 +192,8 @@ class SMTP extends MailAgent implements MailAgentInterface
 		}
 
 		// Almost done, almost done... don't stop me just yet!
-		Utils::sapiSetTimeLimit(300);
-		Utils::sapiResetTimeout();
+		Sapi::setTimeLimit(300);
+		Sapi::resetTimeout();
 
 		return true;
 	}

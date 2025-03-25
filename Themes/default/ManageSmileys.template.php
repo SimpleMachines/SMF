@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -28,7 +28,7 @@ function template_editsets()
 function template_modifyset()
 {
 	echo '
-		<form action="', Config::$scripturl, '?action=admin;area=smileys;sa=editsets" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=smileys;sa=editsets" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">
 			', Utils::$context['current_set']['is_new'] ? Lang::$txt['smiley_set_new'] : Lang::$txt['smiley_set_modify_existing'], '
@@ -106,7 +106,7 @@ function template_modifyset()
 function template_modifysmiley()
 {
 	echo '
-	<form action="', Config::$scripturl, '?action=admin;area=smileys;sa=editsmileys" method="post" accept-charset="', Utils::$context['character_set'], '" name="smileyForm" id="smileyForm" enctype="multipart/form-data">
+	<form action="', Config::$scripturl, '?action=admin;area=smileys;sa=editsmileys" method="post" accept-charset="UTF-8" name="smileyForm" id="smileyForm" enctype="multipart/form-data">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['smiley_modify_existing'], '</h3>
 		</div>
@@ -205,7 +205,7 @@ function template_modifysmiley()
 function template_addsmiley()
 {
 	echo '
-	<form action="', Config::$scripturl, '?action=admin;area=smileys;sa=addsmiley" method="post" accept-charset="', Utils::$context['character_set'], '" name="smileyForm" id="smileyForm" enctype="multipart/form-data">
+	<form action="', Config::$scripturl, '?action=admin;area=smileys;sa=addsmiley" method="post" accept-charset="UTF-8" name="smileyForm" id="smileyForm" enctype="multipart/form-data">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['smileys_add_method'], '</h3>
 		</div>
@@ -344,7 +344,7 @@ function template_setorder()
 	foreach (Utils::$context['smileys'] as $location)
 	{
 		echo '
-	<form action="', Config::$scripturl, '?action=admin;area=smileys;sa=editsmileys" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=admin;area=smileys;sa=editsmileys" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', $location['title'], '</h3>
 		</div>
@@ -398,7 +398,7 @@ function template_editicons()
 function template_editicon()
 {
 	echo '
-	<form action="', Config::$scripturl, '?action=admin;area=smileys;sa=editicon;icon=', Utils::$context['new_icon'] ? '0' : Utils::$context['icon']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=admin;area=smileys;sa=editicon;icon=', Utils::$context['new_icon'] ? '0' : Utils::$context['icon']['id'], '" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">
 				', Utils::$context['new_icon'] ? Lang::$txt['icons_new_icon'] : Lang::$txt['icons_edit_icon'], '

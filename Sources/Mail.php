@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -600,102 +600,39 @@ class Mail
 
 	/**
 	 * Prepare text strings for sending as email body or header.
-	 * In case there are higher ASCII characters in the given string, this
-	 * function will attempt the transport method 'quoted-printable'.
+	 *
+	 * In case there are Unicode characters in the given string, this
+	 * function will attempt the transport method 'base64'.
 	 * Otherwise the transport method '7bit' is used.
 	 *
 	 * @param string $string The string
 	 * @param bool $with_charset Whether we're specifying a charset ($custom_charset must be set here)
-	 * @param bool $hotmail_fix Whether to apply the hotmail fix  (all higher ASCII characters are converted to HTML entities to assure proper display of the mail)
+	 * @param bool $hotmail_fix Whether to apply the hotmail fix  (all Unicode characters are converted to HTML entities to assure proper display of the mail)
 	 * @param string $line_break The linebreak
-	 * @param string $custom_charset If set, it uses this character set
+	 * @param ?string $custom_charset The character set of the incoming string. Optional.
 	 * @return array An array containing the character set, the converted string and the transport method.
 	 */
 	public static function mimespecialchars(string $string, bool $with_charset = true, bool $hotmail_fix = false, string $line_break = "\r\n", ?string $custom_charset = null): array
 	{
-		$charset = $custom_charset !== null ? $custom_charset : Utils::$context['character_set'];
-
-		// This is the fun part....
-		if (preg_match_all('~&#(\d{3,8});~', $string, $matches) !== 0 && !$hotmail_fix) {
-			// Let's, for now, assume there are only &#021;'ish characters.
-			$simple = true;
-
-			foreach ($matches[1] as $entity) {
-				if ($entity > 128) {
-					$simple = false;
-				}
-			}
-			unset($matches);
-
-			if ($simple) {
-				$string = preg_replace_callback(
-					'~&#(\d{3,8});~',
-					function ($m) {
-						return chr((int) "{$m[1]}");
-					},
-					$string,
-				);
-			} else {
-				// Try to convert the string to UTF-8.
-				if (!Utils::$context['utf8'] && function_exists('iconv')) {
-					$newstring = @iconv(Utils::$context['character_set'], 'UTF-8', $string);
-
-					if ($newstring) {
-						$string = $newstring;
-					}
-				}
-
-				$string = Utils::entityDecode($string, true);
-
-				// Unicode, baby.
-				$charset = 'UTF-8';
-			}
+		if (isset($custom_charset)) {
+			$string = mb_convert_encoding($string, 'UTF-8', $custom_charset);
 		}
 
+		$string = Utils::entityDecode($string);
+
 		// Convert all special characters to HTML entities...just for Hotmail :-\
-		if ($hotmail_fix && (Utils::$context['utf8'] || function_exists('iconv') || Utils::$context['character_set'] === 'ISO-8859-1')) {
-			if (!Utils::$context['utf8'] && function_exists('iconv')) {
-				$newstring = @iconv(Utils::$context['character_set'], 'UTF-8', $string);
-
-				if ($newstring) {
-					$string = $newstring;
-				}
-			}
-
-			$entityConvert = function ($m) {
-				$c = $m[1];
-
-				if (strlen($c) === 1 && ord($c[0]) <= 0x7F) {
-					return $c;
-				}
-
-				if (strlen($c) === 2 && ord($c[0]) >= 0xC0 && ord($c[0]) <= 0xDF) {
-					return '&#' . (((ord($c[0]) ^ 0xC0) << 6) + (ord($c[1]) ^ 0x80)) . ';';
-				}
-
-				if (strlen($c) === 3 && ord($c[0]) >= 0xE0 && ord($c[0]) <= 0xEF) {
-					return '&#' . (((ord($c[0]) ^ 0xE0) << 12) + ((ord($c[1]) ^ 0x80) << 6) + (ord($c[2]) ^ 0x80)) . ';';
-				}
-
-				if (strlen($c) === 4 && ord($c[0]) >= 0xF0 && ord($c[0]) <= 0xF7) {
-					return '&#' . (((ord($c[0]) ^ 0xF0) << 18) + ((ord($c[1]) ^ 0x80) << 12) + ((ord($c[2]) ^ 0x80) << 6) + (ord($c[3]) ^ 0x80)) . ';';
-				}
-
-				return '';
-			};
-
-			// Convert all 'special' characters to HTML entities.
-			return [$charset, preg_replace_callback('~([\x80-\x{10FFFF}])~u', $entityConvert, $string), '7bit'];
+		if ($hotmail_fix) {
+			return ['UTF-8', mb_encode_numericentity($string, [0x80, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8'), '7bit'];
 		}
 
 		// We don't need to mess with the subject line if no special characters were in it..
-		if (!$hotmail_fix && preg_match('~([^\x09\x0A\x0D\x20-\x7F])~', $string) === 1) {
+		if (preg_match('/([^\x{09}\x{0A}\x{0D}\x{20}-\x{7F}])/u', $string)) {
 			// Base64 encode.
 			$string = base64_encode($string);
 
 			// Show the characterset and the transfer-encoding for header strings.
 			if ($with_charset) {
-				$string = '=?' . $charset . '?B?' . $string . '?=';
+				$string = '=?UTF-8?B?' . $string . '?=';
 			}
 
 			// Break it up in lines (mail body).
@@ -703,10 +640,10 @@ class Mail
 				$string = chunk_split($string, 76, $line_break);
 			}
 
-			return [$charset, $string, 'base64'];
+			return ['UTF-8', $string, 'base64'];
 		}
 
-		return [$charset, $string, '7bit'];
+		return ['UTF-8', $string, '7bit'];
 	}
 
 	/**

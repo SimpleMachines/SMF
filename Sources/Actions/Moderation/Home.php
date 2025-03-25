@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -295,6 +295,12 @@ class Home implements ActionInterface
 
 		// Lets construct a page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=index;notes', $start, $moderator_notes_total, 10);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
+
 		Utils::$context['start'] = $start;
 
 		Utils::$context['notes'] = [];
@@ -531,10 +537,14 @@ class Home implements ActionInterface
 	/**
 	 * Provides a home for the deprecated integrate_mod_centre_blocks hook.
 	 *
-	 * MOD AUTHORS: Please use the integrate_moderation_home_blocks instead.
+	 * MOD AUTHORS: Please use integrate_moderation_home_blocks instead.
 	 */
 	protected static function integrateModBlocks(): void
 	{
+		if (empty(Config::$backward_compatibility)) {
+			return;
+		}
+
 		$valid_blocks = [];
 
 		IntegrationHook::call('integrate_mod_centre_blocks', [&$valid_blocks]);

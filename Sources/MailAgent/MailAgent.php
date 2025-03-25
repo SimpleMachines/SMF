@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 1
+ * @version 3.0 Alpha 3
  */
 
 namespace SMF\MailAgent;
@@ -54,11 +54,11 @@ abstract class MailAgent
 	public static string $agent;
 
 	/**
-	 * @var \SMF\MailAgent\MailAgentInterface|bool
+	 * @var \SMF\MailAgent\MailAgentInterface|bool|null
 	 *
 	 * The loaded agent, or false on failure.
 	 */
-	public static MailAgentInterface|bool $loaded_api;
+	public static MailAgentInterface|bool|null $loaded_api = null;
 
 	/**********************
 	 * Protected properties
@@ -211,7 +211,7 @@ abstract class MailAgent
 			}
 		}
 
-		if (is_object(self::$loaded_api)) {
+		if (!is_null(self::$loaded_api) && is_object(self::$loaded_api)) {
 			return self::$loaded_api;
 		}
 
@@ -220,7 +220,7 @@ abstract class MailAgent
 		}
 
 		// What agent we are going to try.
-		$agent_class_name = !empty(self::$agent) ? self::$agent : self::APIS_DEFAULT;
+		$agent_class_name = !empty(self::$agent) && !$loadDefault ? self::$agent : self::APIS_DEFAULT;
 		$fully_qualified_class_name = self::APIS_NAMESPACE . $agent_class_name;
 
 		// Do some basic tests.
@@ -250,10 +250,6 @@ abstract class MailAgent
 			if ($agent_api && $agent_api->connect() === false) {
 				$agent_api = false;
 			}
-		}
-
-		if (!$agent_api && $agent_class_name !== self::APIS_DEFAULT) {
-			$agent_api = self::load(false);
 		}
 
 		return $agent_api;

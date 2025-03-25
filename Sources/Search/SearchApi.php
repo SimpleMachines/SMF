@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -22,7 +22,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
-use SMF\PackageManager\SubsPackage;
+use SMF\PackageManager\PackageUtils;
 use SMF\Parser;
 use SMF\User;
 use SMF\Utils;
@@ -125,7 +125,7 @@ abstract class SearchApi implements SearchApiInterface
 	 * Words to ignore when searching.
 	 *
 	 * Populated with the contents of:
-	 *  - Lang::$txt['search_stopwords']
+	 *  - Lang::$txt['search_stopwords'] for all installed languages.
 	 *  - Config::$modSettings['search_stopwords']
 	 *  - Config::$modSettings['search_stopwords_custom']
 	 *  - All known BBCode tags
@@ -640,7 +640,7 @@ abstract class SearchApi implements SearchApiInterface
 		$request = Db::$db->search_query(
 			'',
 			'
-			SELECT ' . (empty($this->params['topic']) ? 'lsr.id_topic' : $this->params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
+			SELECT lsr.id_topic, lsr.id_msg, lsr.relevance, lsr.num_matches
 			FROM {db_prefix}log_search_results AS lsr' . ($this->params['sort'] == 'num_replies' || !empty($approve_query) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
 			WHERE lsr.id_search = {int:id_search}' . $approve_query . '
@@ -815,7 +815,7 @@ abstract class SearchApi implements SearchApiInterface
 			!self::$loadedApi
 			|| !(self::$loadedApi instanceof SearchApiInterface)
 			|| (self::$loadedApi->supportsMethod('isValid') && !self::$loadedApi->isValid())
-			|| !SubsPackage::matchPackageVersion(SMF_VERSION, self::$loadedApi->min_smf_version . '-' . self::$loadedApi->version_compatible)
+			|| !PackageUtils::matchPackageVersion(SMF_VERSION, self::$loadedApi->min_smf_version . '-' . self::$loadedApi->version_compatible)
 		) {
 			// Log the error.
 			Lang::load('Errors');
@@ -952,6 +952,32 @@ abstract class SearchApi implements SearchApiInterface
 		return $loadedApis;
 	}
 
+	/**
+	 * Gets a list of all the words in Lang::$txt['search_stopwords'] for all
+	 * installed language packs.
+	 */
+	final public static function getLangStopWords(): array
+	{
+		$permanent_stopwords = [];
+
+		foreach (array_keys(Lang::get()) as $lang) {
+			Lang::load('Search', $lang, true);
+
+			$permanent_stopwords = array_merge(
+				$permanent_stopwords,
+				Utils::htmlTrimRecursive(explode(',', Lang::$txt['search_stopwords'] ?? '')),
+			);
+		}
+
+		Lang::load('Search', '', true);
+
+		$permanent_stopwords = array_filter(array_unique($permanent_stopwords), 'strlen');
+
+		sort($permanent_stopwords);
+
+		return $permanent_stopwords;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -979,13 +1005,11 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	protected function setBlacklistedWords(): void
 	{
-		// Blacklist any stopwords for the current language.
-		if (isset(Lang::$txt['search_stopwords'])) {
-			$this->blacklisted_words = array_unique(array_merge(
-				$this->blacklisted_words,
-				array_map('trim', explode(',', Lang::$txt['search_stopwords'])),
-			));
-		}
+		// Blacklist any stopwords for the installed languages.
+		$this->blacklisted_words = array_unique(array_merge(
+			$this->blacklisted_words,
+			self::getLangStopWords(),
+		));
 
 		// Blacklist any stopwords that the admin set manually.
 		if (isset(Config::$modSettings['search_stopwords_custom'])) {
@@ -1115,7 +1139,7 @@ abstract class SearchApi implements SearchApiInterface
 	protected function setSearchTerms(): void
 	{
 		// Change non-word characters into spaces.
-		$stripped_query = preg_replace('~(?:[\x0B\0' . (Utils::$context['utf8'] ? '\x{A0}' : '\xA0') . '\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
+		$stripped_query = preg_replace('~(?:[\x0B\0\x{A0}\t\r\s\n(){}\\[\\]<>!@$%^*.,:+=`\~\?/\\\\]+|&(?:amp|lt|gt|quot);)+~u', ' ', $this->params['search']);
 
 		// Fold the case of the query. It's gonna be case insensitive anyway.
 		$stripped_query = Utils::htmlspecialcharsDecode(Utils::casefold($stripped_query));
@@ -1134,7 +1158,7 @@ abstract class SearchApi implements SearchApiInterface
 		$phraseArray = $matches[2];
 
 		// Remove the phrase parts and extract the words.
-		$wordArray = preg_replace('~(?:^|\s)[-]?"[^"]+"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']);
+		$wordArray = preg_replace('~(?:^|\s)[-]?"[^"]+"(?:$|\s)~u', ' ', $this->params['search']);
 
 		$wordArray = explode(' ', Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($wordArray), ENT_QUOTES));
 
@@ -1728,6 +1752,7 @@ abstract class SearchApi implements SearchApiInterface
 			'select' => [
 				'id_search' => $_SESSION['search_cache']['id_search'],
 				'relevance' => '0',
+				'id_topic' => 't.id_topic',
 			],
 			'weights' => [],
 			'from' => '{db_prefix}topics AS t',
@@ -1751,7 +1776,6 @@ abstract class SearchApi implements SearchApiInterface
 		];
 
 		if (empty($this->params['topic']) && empty($this->params['show_complete'])) {
-			$main_query['select']['id_topic'] = 't.id_topic';
 			$main_query['select']['id_msg'] = 'MAX(m.id_msg) AS id_msg';
 			$main_query['select']['num_matches'] = 'COUNT(*) AS num_matches';
 
@@ -1759,8 +1783,6 @@ abstract class SearchApi implements SearchApiInterface
 
 			$main_query['group_by'][] = 't.id_topic';
 		} else {
-			// This is outrageous!
-			$main_query['select']['id_topic'] = 'm.id_msg AS id_topic';
 			$main_query['select']['id_msg'] = 'm.id_msg';
 			$main_query['select']['num_matches'] = '1 AS num_matches';
 

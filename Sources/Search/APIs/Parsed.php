@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -399,7 +399,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		// Help SearchResult::highlight() to highlight the matches we actually
 		// found, not just the strings that were originally requested.
 		foreach (array_keys($found) as $word) {
-			$word = Utils::fixUtf8mb4(Utils::normalize(Utils::entityDecode($word, true), 'c'));
+			$word = Db::$db->fix_mb4(Utils::normalize(Utils::entityDecode($word), 'c'));
 
 			if (!in_array($word, $this->searchArray)) {
 				$this->searchArray[] = $word;
@@ -774,10 +774,10 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		Db::$db->free_result($request);
 
-		$stopwords = array_map(fn($w) => Utils::normalize(Utils::entityDecode($w, true)), $stopwords);
+		$stopwords = array_map(fn($w) => Utils::normalize(Utils::entityDecode($w)), $stopwords);
 
 		Config::updateModSettings([
-			'search_stopwords_parsed' => implode(',', $stopwords),
+			'search_stopwords_parsed' => implode(',', array_diff($stopwords, self::getLangStopWords())),
 			'search_stopwords_parsed_updated' => time(),
 		]);
 	}
@@ -797,13 +797,11 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 */
 	protected function setBlacklistedWords(): void
 	{
-		// Blacklist any stopwords for the current language.
-		if (isset(Lang::$txt['search_stopwords'])) {
-			$this->blacklisted_words = array_unique(array_merge(
-				$this->blacklisted_words,
-				array_map('trim', explode(',', Lang::$txt['search_stopwords'])),
-			));
-		}
+		// Blacklist any stopwords for the installed languages.
+		$this->blacklisted_words = array_unique(array_merge(
+			$this->blacklisted_words,
+			self::getLangStopWords(),
+		));
 
 		// Blacklist any stopwords that we found automatically.
 		if (isset(Config::$modSettings['search_stopwords_parsed'])) {
@@ -1197,7 +1195,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				continue;
 			}
 
-			$word = Utils::truncate(Utils::fixUtf8mb4($word), 255);
+			$word = Utils::truncate(Db::$db->fix_mb4($word), 255);
 
 			$word_data[$word][] = $wordnum;
 		}

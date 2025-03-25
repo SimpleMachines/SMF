@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -323,7 +323,7 @@ class Notification implements ActionInterface
 			];
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -415,8 +415,6 @@ class Notification implements ActionInterface
 			}
 		}
 
-		// Now, now, we could pass this through global but we should really get into the habit of
-		// passing content to hooks, not expecting hooks to splatter everything everywhere.
 		IntegrationHook::call('integrate_alert_types', [&$this->alert_types, &$this->group_options]);
 
 		// Now we have to do some permissions testing - but only if we're not loading this from the admin center

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -362,6 +362,11 @@ class Search2 implements ActionInterface, Routable
 		// Now that we know how many results to expect we can start calculating the page numbers.
 		$start = (int) $_REQUEST['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $start, $this->num_results, (int) Config::$modSettings['search_results_per_page'], false);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		Utils::$context['key_words'] = SearchApi::$loadedApi->searchArray;
 

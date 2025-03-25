@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Lang;
@@ -50,7 +50,7 @@ function template_main()
 
 	echo '
 	<div id="report_form">
-		<form action="', Utils::$context['submit_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Utils::$context['submit_url'], '" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="', Utils::$context['report_type'], '" value="', Utils::$context['reported_item'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>

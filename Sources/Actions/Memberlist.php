@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -214,7 +214,7 @@ class Memberlist implements ActionInterface, Routable
 		// Allow mods to add additional buttons here
 		IntegrationHook::call('integrate_memberlist_buttons');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -295,7 +295,7 @@ class Memberlist implements ActionInterface, Routable
 		}
 
 		if (!is_numeric($_REQUEST['start'])) {
-			if (preg_match('~^[^\'\\\\/]~' . (Utils::$context['utf8'] ? 'u' : ''), Utils::strtolower($_REQUEST['start']), $match) === 0) {
+			if (preg_match('~^[^\'\\\\/]~u', Utils::strtolower($_REQUEST['start']), $match) === 0) {
 				ErrorHandler::fatal('Are you a wannabe hacker?', false);
 			}
 
@@ -349,6 +349,11 @@ class Memberlist implements ActionInterface, Routable
 
 		// Construct the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $start, (int) Utils::$context['num_members'], (int) Config::$modSettings['defaultMaxMembers']);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (is_numeric($_REQUEST['start']) && $_REQUEST['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
 
 		// Send the data to the template.
 		Utils::$context['start'] = $start + 1;
@@ -596,6 +601,11 @@ class Memberlist implements ActionInterface, Routable
 			Db::$db->free_result($request);
 
 			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sa=search;search=' . urlencode($_POST['search']) . ';fields=' . implode(',', $_POST['fields']), $start, $numResults, (int) Config::$modSettings['defaultMaxMembers']);
+
+			// If the supplied start value was invalid, redirect to the correct one.
+			if ($_REQUEST['start'] != $start) {
+				Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+			}
 
 			$custom_fields_qry = '';
 

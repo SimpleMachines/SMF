@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -20,7 +20,6 @@ use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
 use SMF\ErrorHandler;
 use SMF\IP;
-use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
 use SMF\Uuid;
@@ -529,8 +528,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 						}
 					} else {
 						$with_returning = false;
-						Lang::load('Errors');
-						trigger_error(Lang::$txt['postgres_id_not_int'], E_USER_ERROR);
+
+						throw new \TypeError('postgres_id_not_int');
 					}
 				}
 			}
@@ -651,6 +650,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function fix_mb4(string $string): string
+	{
+		return $string;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public function server_info(?object $connection = null): string
 	{
 		$version = pg_version($connection ?? $this->connection);
@@ -719,6 +726,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function select(string $database, ?object $connection = null): bool
 	{
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function get_engines(): array
+	{
+		return [];
 	}
 
 	/**
@@ -861,6 +876,34 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function connect_errno(): int
 	{
 		return (int) $this->connect_errno;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function detect_charset(?string $table = null, ?string $column = null): string
+	{
+		static $detected;
+
+		// PostgreSQL uses one character set per database. So sane and simple.
+		if (!isset($detected)) {
+			$request = $this->query(
+				'',
+				'SHOW SERVER_ENCODING;',
+				[],
+			);
+
+			$detected = $this->fetch_all($request);
+			$this->free_result($request);
+		}
+
+		// If no results were returned, the database doesn't exist yet.
+		// Therefore, assume that it will be utf8 once it is created.
+		if (!isset($detected['server_encoding'])) {
+			return 'utf8';
+		}
+
+		return strtolower($detected['server_encoding']);
 	}
 
 	/****************************************
@@ -2189,6 +2232,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			self::$db_connection = $this->connection;
 		}
 
+		$this->character_set = strtolower($this->detect_charset());
+		$this->mb4 = $this->character_set === 'utf8';
+
 		// Ensure database has UTF-8 as its default input charset.
 		$this->query(
 			'',
@@ -2454,9 +2500,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 * @param string|int|bool $error_type What type of error this is
 	 * @param string $file The file the error occurred in
 	 * @param int $line What line of $file the code which generated the error is on
-	 * @return void|array Returns an array with the file and line if $error_type is 'return'
+	 * @return array Returns an array with the file and line if $error_type is
+	 *    'return'. Otherwise, just dies.
 	 */
-	protected function error_backtrace(string $error_message, string $log_message = '', string|int|bool $error_type = false, ?string $file = null, ?int $line = null): ?array
+	protected function error_backtrace(string $error_message, string $log_message = '', string|int|bool $error_type = false, ?string $file = null, ?int $line = null): array
 	{
 		if (empty($log_message)) {
 			$log_message = $error_message;
@@ -2481,24 +2528,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Is always a critical error.
-		if (function_exists('log_error')) {
+		try {
 			ErrorHandler::log($log_message, 'critical', $file, $line);
+			ErrorHandler::fatal($error_message, false);
+		} catch (\Throwable $e) {
+			echo $error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : '');
 		}
 
-		if (function_exists('fatal_error')) {
-			ErrorHandler::fatal($error_message, $error_type);
-
-			// Cannot continue...
-			exit;
-		}
-
-		if ($error_type) {
-			trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''), (int) $error_type);
-		} else {
-			trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''));
-		}
-
-		return null;
+		die();
 	}
 }
 

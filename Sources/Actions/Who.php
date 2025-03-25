@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -227,6 +227,11 @@ class Who implements ActionInterface, Routable
 		// Prepare some page index variables.
 		Utils::$context['start'] = (int) $_REQUEST['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=who;sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';asc' : '') . ';show=' . Utils::$context['show_by'], Utils::$context['start'], $totalMembers, (int) Config::$modSettings['defaultMaxMembers']);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Look for people online, provided they don't mind if you see they are.
 		Utils::$context['members'] = [];

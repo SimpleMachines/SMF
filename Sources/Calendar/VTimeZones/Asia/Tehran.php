@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -77,7 +77,7 @@ class Tehran extends \SMF\Calendar\VTimeZone
 		],
 		5 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '19790101T000000',
+			'DTSTART' => '19781111T000000',
 			'TZNAME' => 'UTC+0330',
 			'TZOFFSETFROM' => '+0400',
 			'TZOFFSETTO' => '+0330',

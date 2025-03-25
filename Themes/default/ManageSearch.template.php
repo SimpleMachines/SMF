@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -20,7 +20,7 @@ use SMF\Utils;
 function template_modify_weights()
 {
 	echo '
-	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=managesearch;sa=weights" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=managesearch;sa=weights" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['search_weights'], '</h3>
 		</div>
@@ -117,7 +117,7 @@ function template_select_search_method()
 			<a href="', Config::$scripturl, '?action=helpadmin;help=search_why_use_index" onclick="return reqOverlayDiv(this.href);">', Lang::$txt['search_create_index_why'], '</a>
 		</div>
 	</div>
-	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=managesearch;sa=method" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=managesearch;sa=method" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['search_method'], '</h3>
 		</div>
@@ -267,7 +267,7 @@ function template_select_search_method()
 function template_create_index()
 {
 	echo '
-	<form action="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex;step=1" method="post" accept-charset="', Utils::$context['character_set'], '" name="create_index">
+	<form action="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex;step=1" method="post" accept-charset="UTF-8" name="create_index">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['search_create_index'], '</h3>
 		</div>
@@ -297,7 +297,7 @@ function template_create_index()
 function template_create_index_progress()
 {
 	echo '
-	<form action="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex;step=1" name="autoSubmit" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=admin;area=managesearch;sa=createmsgindex;step=1" name="autoSubmit" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['search_create_index'], '</h3>
 		</div>
@@ -360,7 +360,7 @@ function template_create_index_done()
 function template_spider_edit()
 {
 	echo '
-	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=sengines;sa=editspiders;sid=', Utils::$context['spider']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=sengines;sa=editspiders;sid=', Utils::$context['spider']['id'], '" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 		</div>
@@ -408,7 +408,7 @@ function template_show_spider_logs()
 	template_show_list('spider_logs');
 
 	echo '
-	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=sengines;sa=logs" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">', Lang::$txt['spider_logs_delete'], '</h3>
 		</div>
@@ -434,7 +434,7 @@ function template_show_spider_stats()
 	template_show_list('spider_stat_list');
 
 	echo '
-		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=sengines;sa=stats" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=sengines;sa=stats" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['spider_logs_delete'], '</h3>
 			</div>

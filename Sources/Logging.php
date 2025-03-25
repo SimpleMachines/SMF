@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -88,14 +88,14 @@ class Logging
 
 			if (!is_array($log['extra'])) {
 				Lang::load('Errors');
-				trigger_error(Lang::getTxt('logActions_not_array', [$log['action']]), E_USER_NOTICE);
+
+				throw new \TypeError(Lang::getTxt('logActions_not_array', [$log['action']]));
 			}
 
 			// Pull out the parts we want to store separately, but also make sure that the data is proper
 			if (isset($log['extra']['topic'])) {
 				if (!is_numeric($log['extra']['topic'])) {
-					Lang::load('Errors');
-					trigger_error(Lang::$txt['logActions_topic_not_numeric'], E_USER_NOTICE);
+					throw new \TypeError('logActions_topic_not_numeric');
 				}
 				$topic_id = empty($log['extra']['topic']) ? 0 : (int) $log['extra']['topic'];
 				unset($log['extra']['topic']);
@@ -105,8 +105,7 @@ class Logging
 
 			if (isset($log['extra']['message'])) {
 				if (!is_numeric($log['extra']['message'])) {
-					Lang::load('Errors');
-					trigger_error(Lang::$txt['logActions_message_not_numeric'], E_USER_NOTICE);
+					throw new \TypeError('logActions_message_not_numeric');
 				}
 				$msg_id = empty($log['extra']['message']) ? 0 : (int) $log['extra']['message'];
 				unset($log['extra']['message']);
@@ -138,14 +137,12 @@ class Logging
 			}
 
 			if (isset($log['extra']['member']) && !is_numeric($log['extra']['member'])) {
-				Lang::load('Errors');
-				trigger_error(Lang::$txt['logActions_member_not_numeric'], E_USER_NOTICE);
+				throw new \TypeError('logActions_member_not_numeric');
 			}
 
 			if (isset($log['extra']['board'])) {
 				if (!is_numeric($log['extra']['board'])) {
-					Lang::load('Errors');
-					trigger_error(Lang::$txt['logActions_board_not_numeric'], E_USER_NOTICE);
+					throw new \TypeError('logActions_board_not_numeric');
 				}
 				$board_id = empty($log['extra']['board']) ? 0 : (int) $log['extra']['board'];
 				unset($log['extra']['board']);
@@ -155,8 +152,7 @@ class Logging
 
 			if (isset($log['extra']['board_to'])) {
 				if (!is_numeric($log['extra']['board_to'])) {
-					Lang::load('Errors');
-					trigger_error(Lang::$txt['logActions_board_to_not_numeric'], E_USER_NOTICE);
+					throw new \TypeError('logActions_board_to_not_numeric');
 				}
 
 				if (empty($board_id)) {
@@ -431,7 +427,8 @@ class Logging
 
 			default:
 				Lang::load('Errors');
-				trigger_error(Lang::getTxt('invalid_statistic_type', [$type]), E_USER_NOTICE);
+
+				throw new \ValueError(Lang::getTxt('invalid_statistic_type', [$type]));
 		}
 	}
 
@@ -612,9 +609,8 @@ class Logging
 		}
 
 		// Not allowed sort method? Bang! Error!
-		elseif (!in_array($membersOnlineOptions['sort'], $allowed_sort_options)) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['get_members_online_stats_invalid_sort'], E_USER_NOTICE);
+		if (!in_array($membersOnlineOptions['sort'], $allowed_sort_options)) {
+			throw new \ValueError('get_members_online_stats_invalid_sort');
 		}
 
 		// Initialize the array that'll be returned later on.

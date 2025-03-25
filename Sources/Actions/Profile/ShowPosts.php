@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -114,7 +114,7 @@ class ShowPosts implements ActionInterface
 			ErrorHandler::fatalLang('loadavg_show_posts_disabled', false);
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -730,6 +730,11 @@ class ShowPosts implements ActionInterface
 
 		// Make sure the starting place makes sense and construct our friend the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=showposts' . ($is_topics ? ';sa=topics' : '') . (!empty(Board::$info->id) ? ';board=' . Board::$info->id : ''), Utils::$context['start'], $msg_count, $max_index);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		Utils::$context['current_page'] = Utils::$context['start'] / $max_index;
 

@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -73,7 +73,7 @@ function template_maintenance()
 			<h3 class="catbg">', Lang::$txt['attachment_integrity_check'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=manageattachments;sa=repair;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=admin;area=manageattachments;sa=repair;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
 				<p>', Lang::$txt['attachment_integrity_check_desc'], '</p>
 				<input type="submit" name="repair" value="', Lang::$txt['attachment_check_now'], '" class="button">
 			</form>
@@ -82,7 +82,7 @@ function template_maintenance()
 			<h3 class="catbg">', Lang::$txt['attachment_pruning'], '</h3>
 		</div>
 		<div class="windowbg">
-			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', Lang::$txt['attachment_pruning_warning'], '\');">
+			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="UTF-8" onsubmit="return confirm(\'', Lang::$txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', Lang::$txt['attachment_remove_old'], '</dt>
 					<dd><input type="number" name="age" value="25" size="4"> ', str_replace('25', '', Lang::getTxt('number_of_days', [25])), '</dd>
@@ -94,7 +94,7 @@ function template_maintenance()
 					<input type="hidden" name="sa" value="byage">
 				</dl>
 			</form>
-			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', Lang::$txt['attachment_pruning_warning'], '\');">
+			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="UTF-8" onsubmit="return confirm(\'', Lang::$txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', Lang::$txt['attachment_remove_size'], '</dt>
 					<dd><input type="number" name="size" id="size" value="100" size="4"> ', Lang::$txt['kilobyte'], '</dd>
@@ -106,7 +106,7 @@ function template_maintenance()
 					<input type="hidden" name="sa" value="bysize">
 				</dl>
 			</form>
-			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="return confirm(\'', Lang::$txt['attachment_pruning_warning'], '\');">
+			<form action="', Config::$scripturl, '?action=admin;area=manageattachments" method="post" accept-charset="UTF-8" onsubmit="return confirm(\'', Lang::$txt['attachment_pruning_warning'], '\');">
 				<dl class="settings">
 					<dt>', Lang::$txt['attachment_manager_avatars_older'], '</dt>
 					<dd><input type="number" name="age" value="45" size="4"> ', str_replace('45', '', Lang::getTxt('number_of_days', [45])), '</dd>
@@ -128,7 +128,7 @@ function template_maintenance()
 		<h3 class="catbg">', Lang::$txt['attachment_transfer'], '</h3>
 	</div>
 	<div class="windowbg">
-		<form action="', Config::$scripturl, '?action=admin;area=manageattachments;sa=transfer" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=manageattachments;sa=transfer" method="post" accept-charset="UTF-8">
 			<p>', Lang::$txt['attachment_transfer_desc'], '</p>
 			<dl class="settings">
 				<dt>', Lang::$txt['attachment_transfer_from'], '</dt>
@@ -238,7 +238,7 @@ function template_attachment_repair()
 	{
 		echo '
 	<div id="manage_attachments">
-		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=manageattachments;sa=repair;fixErrors=1;step=0;substep=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=manageattachments;sa=repair;fixErrors=1;step=0;substep=0;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">', Lang::$txt['repair_attachments'], '</h3>
 			</div>

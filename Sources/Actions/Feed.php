@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -538,11 +538,11 @@ class Feed implements ActionInterface, Routable
 
 		$filename[] = $this->format;
 
-		$filename = preg_replace(Utils::$context['utf8'] ? '/[^\p{L}\p{M}\p{N}\-]+/u' : '/[\s_,.\/\\;:\'<>?|\[\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('-', $filename)))));
+		$filename = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/u', '_', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('-', $filename)))));
 
 		$file = [
 			'filename' => $filename . '.xml',
-			'mime_type' => self::MIME_TYPES[$this->format] . '; charset=' . (empty(Utils::$context['character_set']) ? 'UTF-8' : Utils::$context['character_set']),
+			'mime_type' => self::MIME_TYPES[$this->format] . '; charset=UTF-8',
 			'content' => implode('', $this->xml),
 			'disposition' => isset($_GET['download']) ? 'attachment' : 'inline',
 		];
@@ -589,8 +589,8 @@ class Feed implements ActionInterface, Routable
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
-			// Create a GUID for each member using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['date_registered']) . ':member=' . $row['id_member'];
+			// Create a UUID for each member
+			$uuid = (string) (new Uuid(5, 'member=' . $row['id_member']));
 
 			// Make the data look rss-ish.
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -616,7 +616,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'guid',
-							'content' => $guid,
+							'content' => $uuid,
 							'attributes' => [
 								'isPermaLink' => 'false',
 							],
@@ -670,7 +670,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'id',
-							'content' => $guid,
+							'content' => $uuid,
 						],
 					],
 				];
@@ -823,8 +823,8 @@ class Feed implements ActionInterface, Routable
 				$loaded_attachments = null;
 			}
 
-			// Create a GUID for this topic using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':topic=' . $row['id_topic'];
+			// Create a UUID for this topic
+			$uuid = (string) (new Uuid(5, 'topic=' . $row['id_topic']));
 
 			// Being news, this actually makes sense in rss format.
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -877,7 +877,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'guid',
-							'content' => $guid,
+							'content' => $uuid,
 							'attributes' => [
 								'isPermaLink' => 'false',
 							],
@@ -983,7 +983,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'id',
-							'content' => $guid,
+							'content' => $uuid,
 						],
 						[
 							'tag' => 'link',
@@ -1267,8 +1267,8 @@ class Feed implements ActionInterface, Routable
 				$loaded_attachments = null;
 			}
 
-			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':msg=' . $row['id_msg'];
+			// Create a UUID for this post
+			$uuid = (string) (new Uuid(5, 'msg=' . $row['id_msg']));
 
 			// Doesn't work as well as news, but it kinda does..
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -1321,7 +1321,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'guid',
-							'content' => $guid,
+							'content' => $uuid,
 							'attributes' => [
 								'isPermaLink' => 'false',
 							],
@@ -1427,7 +1427,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'id',
-							'content' => $guid,
+							'content' => $uuid,
 						],
 						[
 							'tag' => 'link',
@@ -1631,8 +1631,8 @@ class Feed implements ActionInterface, Routable
 		// If any control characters slipped in somehow, kill the evil things
 		$profile = filter_var($profile, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
-		// Create a GUID for this member using the tag URI scheme
-		$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $profile['registered_timestamp']) . ':member=' . $profile['id'];
+		// Create a UUID for this member
+		$uuid = (string) (new Uuid(5, 'member=' . $profile['id']));
 
 		if ($this->format == 'rss' || $this->format == 'rss2') {
 			$data[] = [
@@ -1662,7 +1662,7 @@ class Feed implements ActionInterface, Routable
 					],
 					[
 						'tag' => 'guid',
-						'content' => $guid,
+						'content' => $uuid,
 						'attributes' => [
 							'isPermaLink' => 'false',
 						],
@@ -1747,7 +1747,7 @@ class Feed implements ActionInterface, Routable
 					],
 					[
 						'tag' => 'id',
-						'content' => $guid,
+						'content' => $uuid,
 					],
 				],
 			];
@@ -2032,8 +2032,8 @@ class Feed implements ActionInterface, Routable
 				$loaded_attachments = null;
 			}
 
-			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':msg=' . $row['id_msg'];
+			// Create a UUID for this post
+			$uuid = (string) (new Uuid(5, 'msg=' . $row['id_msg']));
 
 			if ($this->format == 'rss' || $this->format == 'rss2') {
 				// Only one attachment allowed in RSS.
@@ -2085,7 +2085,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'guid',
-							'content' => $guid,
+							'content' => $uuid,
 							'attributes' => [
 								'isPermaLink' => 'false',
 							],
@@ -2186,7 +2186,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'id',
-							'content' => $guid,
+							'content' => $uuid,
 						],
 						[
 							'tag' => 'link',
@@ -2462,8 +2462,8 @@ class Feed implements ActionInterface, Routable
 
 			$recipients = array_combine(explode(',', $row['id_members_to']), explode($separator, $row['to_names']));
 
-			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['msgtime']) . ':pm=' . $row['id_pm'];
+			// Create a UUID for this post
+			$uuid = (string) (new Uuid(5, 'pm=' . $row['id_pm']));
 
 			if ($this->format == 'rss' || $this->format == 'rss2') {
 				$item = [
@@ -2471,7 +2471,7 @@ class Feed implements ActionInterface, Routable
 					'content' => [
 						[
 							'tag' => 'guid',
-							'content' => $guid,
+							'content' => $uuid,
 							'attributes' => [
 								'isPermaLink' => 'false',
 							],
@@ -2539,7 +2539,7 @@ class Feed implements ActionInterface, Routable
 					'content' => [
 						[
 							'tag' => 'id',
-							'content' => $guid,
+							'content' => $uuid,
 						],
 						[
 							'tag' => 'updated',
@@ -2768,7 +2768,7 @@ class Feed implements ActionInterface, Routable
 		Utils::$context['feed'] = [];
 
 		// First, output the xml header.
-		Utils::$context['feed']['header'] = '<?xml version="1.0" encoding="' . Utils::$context['character_set'] . '"?' . '>' . ($doctype !== '' ? "\n" . trim($doctype) : '');
+		Utils::$context['feed']['header'] = '<' . '?xml version="1.0" encoding="UTF-8"?' . '>' . ($doctype !== '' ? "\n" . trim($doctype) : '');
 
 		// Are we outputting an rss feed or one with more information?
 		if ($format == 'rss' || $format == 'rss2') {

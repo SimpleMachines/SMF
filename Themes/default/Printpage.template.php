@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -24,7 +24,7 @@ function template_print_above()
 	echo '<!DOCTYPE html>
 <html', Utils::$context['right_to_left'] ? ' dir="rtl"' : '', '>
 	<head>
-		<meta charset="', Utils::$context['character_set'], '">
+		<meta charset="UTF-8">
 		<meta name="robots" content="noindex">
 		<link rel="canonical" href="', Utils::$context['canonical_url'], '">
 		<title>', Lang::$txt['print_page'], ' - ', Utils::$context['topic_subject'], '</title>

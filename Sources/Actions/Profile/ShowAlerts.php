@@ -71,13 +71,18 @@ class ShowAlerts implements ActionInterface
 
 		// Prepare the pagination vars.
 		$maxIndex = !empty(Config::$modSettings['alerts_per_page']) && (int) Config::$modSettings['alerts_per_page'] < 1000 ? min((int) Config::$modSettings['alerts_per_page'], 1000) : 25;
-		Utils::$context['start'] = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
+		Utils::$context['start'] = (int) ($_REQUEST['start'] ?? 0);
 
 		// Fix invalid 'start' offsets.
 		if (Utils::$context['start'] > User::$me->alerts) {
 			Utils::$context['start'] = User::$me->alerts - (User::$me->alerts % $maxIndex);
 		} else {
 			Utils::$context['start'] = Utils::$context['start'] - (Utils::$context['start'] % $maxIndex);
+		}
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit('action=profile;area=showalerts;u=' . User::$me->id . ';start=' . Utils::$context['start']);
 		}
 
 		// Get the alerts.

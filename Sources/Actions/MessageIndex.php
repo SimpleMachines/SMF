@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -184,8 +184,7 @@ class MessageIndex implements ActionInterface, Routable
 	public static function getBoardList(array $boardListOptions = []): array
 	{
 		if (isset($boardListOptions['excluded_boards'], $boardListOptions['included_boards'])) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['get_board_list_cannot_include_and_exclude'], E_USER_ERROR);
+			throw new \Exception('get_board_list_cannot_include_and_exclude');
 		}
 
 		$where = [];
@@ -572,6 +571,11 @@ class MessageIndex implements ActionInterface, Routable
 			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?board=' . Board::$info->id . '.%1$d', $start, Board::$info->total_topics, (int) Utils::$context['maxindex'], true);
 		}
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != $start) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+		}
+
 		Utils::$context['start'] = &$_REQUEST['start'];
 
 		$can_show_all = !empty(Config::$modSettings['enableAllMessages']) && Utils::$context['maxindex'] > Config::$modSettings['enableAllMessages'];
@@ -610,13 +614,11 @@ class MessageIndex implements ActionInterface, Routable
 		}
 
 		// Calculate the fastest way to get the topics.
-		$start = (int) $_REQUEST['start'];
-
-		if ($start > (Board::$info->total_topics - 1) / 2) {
+		if ($_REQUEST['start'] > (Board::$info->total_topics - 1) / 2) {
 			$this->ascending = !$this->ascending;
 			$fake_ascending = true;
-			Utils::$context['maxindex'] = Board::$info->total_topics < $start + Utils::$context['maxindex'] + 1 ? Board::$info->total_topics - $start : Utils::$context['maxindex'];
-			$start = Board::$info->total_topics < $start + Utils::$context['maxindex'] + 1 ? 0 : Board::$info->total_topics - $start - Utils::$context['maxindex'];
+			Utils::$context['maxindex'] = Board::$info->total_topics < $_REQUEST['start'] + Utils::$context['maxindex'] + 1 ? Board::$info->total_topics - $_REQUEST['start'] : Utils::$context['maxindex'];
+			$_REQUEST['start'] = Board::$info->total_topics < $_REQUEST['start'] + Utils::$context['maxindex'] + 1 ? 0 : Board::$info->total_topics - $_REQUEST['start'] - Utils::$context['maxindex'];
 		} else {
 			$fake_ascending = false;
 		}
@@ -631,7 +633,7 @@ class MessageIndex implements ActionInterface, Routable
 			'topic_list' => $topic_ids,
 			'is_approved' => 1,
 			'find_set_topics' => implode(',', $topic_ids),
-			'start' => $start,
+			'start' => $_REQUEST['start'],
 			'maxindex' => Utils::$context['maxindex'],
 		];
 
@@ -1116,7 +1118,8 @@ class MessageIndex implements ActionInterface, Routable
 		}
 
 		// Allow adding new buttons easily.
-		// Note: Utils::$context['normal_buttons'] is added for backward compatibility with 2.0, but is deprecated and should not be used
+		// MOD AUTHORS: A future version of SMF will stop passing Utils::$context['normal_buttons'] to this hook.
+		// You should just interact with Utils::$context['normal_buttons'] directly in your hooked code.
 		IntegrationHook::call('integrate_messageindex_buttons', [&Utils::$context['normal_buttons']]);
 	}
 }

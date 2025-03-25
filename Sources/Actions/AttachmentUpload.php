@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 namespace SMF\Actions;
@@ -561,7 +561,7 @@ class AttachmentUpload implements ActionInterface, Routable
 		}
 
 		// Set the header.
-		header('content-type: application/json; charset=' . Utils::$context['character_set'] . '');
+		header('content-type: application/json; charset=UTF-8');
 
 		echo Utils::jsonEncode($this->_response ? $this->_response : []);
 

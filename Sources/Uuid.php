@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -720,8 +720,7 @@ class Uuid implements \Stringable
 					} else {
 						// On non-POSIX systems, fall back to user ID because
 						// getmygid() returns nothing useful on non-POSIX systems.
-						Lang::load('Errors', Lang::$default);
-						trigger_error(Lang::$txt['uuid_group_non_posix'], E_USER_NOTICE);
+						throw new \ValueError('uuid_group_non_posix');
 
 						$id = getmyuid();
 						$domain = 0;
@@ -737,7 +736,8 @@ class Uuid implements \Stringable
 				// Unknown domain.
 				default:
 					Lang::load('Errors');
-					trigger_error(Lang::getTxt('uuid_unknown_domain', [$domain]), E_USER_ERROR);
+
+					throw new \Exception(Lang::getTxt('uuid_unknown_domain', [$domain]));
 					break;
 			}
 		}

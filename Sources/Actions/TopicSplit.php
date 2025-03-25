@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  *
  * Original module by Mach8 - We'll never forget you.
  */
@@ -120,7 +120,7 @@ class TopicSplit implements ActionInterface, Routable
 		// Load up the "dependencies" - the template and getMsgMemberID().
 		Theme::loadTemplate(!isset($_REQUEST['xml']) ? 'Xml' : 'SplitTopics');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
