@@ -2815,24 +2815,6 @@ function template_profile_group_manage()
 }
 
 /**
- * Callback function for entering a birthdate!
- */
-function template_profile_birthdate()
-{
-	// Just show the pretty box!
-	echo '
-							<dt>
-								<strong>', Lang::$txt['dob'], '</strong><br>
-								<span class="smalltext">', Lang::$txt['dob_year'], ' - ', Lang::$txt['dob_month'], ' - ', Lang::$txt['dob_day'], '</span>
-							</dt>
-							<dd>
-								<input type="text" name="bday3" size="4" maxlength="4" value="', Utils::$context['member']['birth_date']['year'], '"> -
-								<input type="text" name="bday1" size="2" maxlength="2" value="', Utils::$context['member']['birth_date']['month'], '"> -
-								<input type="text" name="bday2" size="2" maxlength="2" value="', Utils::$context['member']['birth_date']['day'], '">
-							</dd>';
-}
-
-/**
  * Show the signature editing box?
  */
 function template_profile_signature_modify()

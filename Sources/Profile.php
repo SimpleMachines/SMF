@@ -359,55 +359,25 @@ class Profile extends User implements \ArrayAccess
 				'input_validate' => [$this, 'validateAvatarData'],
 				'save_key' => 'avatar',
 			],
-			'bday1' => [
-				'type' => 'callback',
-				'callback_func' => 'birthdate',
+			'birthdate' => [
+				'type' => 'date',
+				'label' => Lang::$txt['dob'],
 				'permission' => 'profile_extra',
 				'preload' => function () {
-					// Split up the birthdate....
-					list($uyear, $umonth, $uday) = explode('-', empty($this->birthdate) || $this->birthdate === '1004-01-01' ? '--' : $this->birthdate);
-
-					Utils::$context['member']['birth_date'] = [
-						'year' => $uyear,
-						'month' => $umonth,
-						'day' => $uday,
-					];
+					$this->data['birthdate'] = $this->formatted['birthdate'];
 
 					return true;
 				},
 				'input_validate' => function (&$value) {
-					if (isset($_POST['bday2'], $_POST['bday3']) && $value > 0 && $_POST['bday2'] > 0) {
-						// Set to blank?
-						if ((int) $_POST['bday3'] == 1 && (int) $_POST['bday2'] == 1 && (int) $value == 1) {
-							$value = '1004-01-01';
-						} else {
-							$value = checkdate((int) $value, (int) $_POST['bday2'], $_POST['bday3'] < 1004 ? 1004 : (int) $_POST['bday3']) ? sprintf('%04d-%02d-%02d', $_POST['bday3'] < 1004 ? 1004 : $_POST['bday3'], $_POST['bday1'], $_POST['bday2']) : '1004-01-01';
-						}
-					} else {
-						$value = '1004-01-01';
-					}
-
-					$this->new_data['birthdate'] = $value;
-					$this->birthdate = $value;
-
-					return false;
-				},
-			],
-			// Setting the birthdate the old style way?
-			'birthdate' => [
-				'type' => 'hidden',
-				'permission' => 'profile_extra',
-				'input_validate' => function (&$value) {
-					// @todo Should we check for this year and tell them they made a mistake :P? (based on coppa at least?)
-					if (preg_match('/(\d{4})[\-., ](\d{2})[\-., ](\d{2})/', $value, $dates) === 1) {
-						$value = checkdate((int) $dates[2], (int) $dates[3], $dates[1] < 4 ? 4 : $dates[1]) ? sprintf('%04d-%02d-%02d', $dates[1] < 4 ? 4 : $dates[1], $dates[2], $dates[3]) : '1004-01-01';
+					try {
+						$value = Time::create($value)->format('Y-m-d', false, false);
 
 						return true;
+					} catch (\Throwable $e) {
+						$value = empty($this->birthdate) ? '1004-01-01' : $this->birthdate;
+
+						return false;
 					}
-
-					$value = empty($this->birthdate) ? '1004-01-01' : $this->birthdate;
-
-					return false;
 				},
 			],
 			'date_registered' => [

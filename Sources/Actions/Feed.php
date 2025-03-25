@@ -1875,8 +1875,8 @@ class Feed implements ActionInterface, Routable
 				],
 			];
 
-			if (!empty($profile['birth_date']) && !str_starts_with($profile['birth_date'], '0000') && !str_starts_with($profile['birth_date'], '1004')) {
-				list($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
+			if (!empty($profile['birthdate']) && !str_starts_with($profile['birthdate'], '0000') && !str_starts_with($profile['birthdate'], '1004')) {
+				list($birth_year, $birth_month, $birth_day) = sscanf($profile['birthdate'], '%d-%d-%d');
 
 				$datearray = getdate(time());
 
@@ -1890,7 +1890,7 @@ class Feed implements ActionInterface, Routable
 				$data[] = [
 					'tag' => 'birthdate',
 					'attributes' => ['label' => Lang::$txt['dob']],
-					'content' => $profile['birth_date'],
+					'content' => $profile['birthdate'],
 				];
 			}
 
