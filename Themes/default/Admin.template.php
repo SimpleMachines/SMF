@@ -899,6 +899,7 @@ function template_show_settings()
 				$javascript = $config_var['javascript'];
 				$disabled = !empty($config_var['disabled']) ? ' disabled' : '';
 				$subtext = !empty($config_var['subtext']) ? '<br><span class="smalltext"> ' . $config_var['subtext'] . '</span>' : '';
+				$placeholder = !empty($config_var['placeholder']) ? ' placeholder="' . $config_var['placeholder'] . '"' : '';
 
 				// Various HTML5 input types that are basically enhanced textboxes
 				$text_types = array('color', 'date', 'datetime', 'datetime-local', 'email', 'month', 'time');
@@ -1021,7 +1022,7 @@ function template_show_settings()
 					$max = isset($config_var['max']) ? ' max="' . $config_var['max'] . '"' : '';
 
 					echo '
-										<input type="', $type, '"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), '', $min . $max . $step, '>';
+										<input type="', $type, '"', $javascript, $disabled, ' name="', $config_var['name'], '" id="', $config_var['name'], '" value="', $config_var['value'], '"', ($config_var['size'] ? ' size="' . $config_var['size'] . '"' : ''), '', $min . $max . $step, $placeholder, '>';
 				}
 
 				echo isset($config_var['postinput']) ? '
