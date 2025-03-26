@@ -127,7 +127,7 @@ class Payment
 
 			// Did it work?
 			if (!$fp) {
-				generateSubscriptionError(Lang::$txt['paypal_could_not_connect']);
+				generateSubscriptionError(Lang::getTxt('paypal_could_not_connect', file: 'ManagePaid'));
 			}
 
 			// Put the data to the port.

@@ -731,17 +731,13 @@ class Board implements \ArrayAccess, Routable
 			case 'top':
 			case 'bottom':
 				if (!isset($target_category)) {
-					Lang::load('Errors');
-
-					throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]));
+					throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to], file: 'Errors'));
 				}
 				break;
 
 			default:
 				if (!isset($target_board)) {
-					Lang::load('Errors');
-
-					throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]));
+					throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to], file: 'Errors'));
 				}
 				break;
 		}
@@ -807,9 +803,7 @@ class Board implements \ArrayAccess, Routable
 				break;
 
 			default:
-				Lang::load('Errors');
-
-				throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to]));
+				throw new \Exception(Lang::getTxt('modify_board_move_to_incorrect', [$move_to], file: 'Errors'));
 				break;
 		}
 
@@ -2465,8 +2459,7 @@ class Board implements \ArrayAccess, Routable
 				// Slightly different error message here...
 				ErrorHandler::fatalLang('cannot_post_redirect', false);
 			} elseif (User::$me->is_guest) {
-				Lang::load('Errors');
-				User::$me->kickIfGuest(Lang::$txt['topic_gone']);
+				User::$me->kickIfGuest(Lang::getTxt('topic_gone', file: 'Errors'));
 			} else {
 				ErrorHandler::fatalLang('topic_gone', false);
 			}

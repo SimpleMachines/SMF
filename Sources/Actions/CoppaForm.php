@@ -48,7 +48,6 @@ class CoppaForm implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Login');
 		Theme::loadTemplate('Register');
 
 		// No User ID??
@@ -87,7 +86,7 @@ class CoppaForm implements ActionInterface, Routable
 				Utils::$context['ul'] = '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>';
 				Utils::$context['template_layers'] = [];
 				Utils::$context['sub_template'] = 'coppa_form';
-				Utils::$context['page_title'] = Lang::getTxt('coppa_form_title', ['forum_name' => Utils::$context['forum_name_html_safe']]);
+				Utils::$context['page_title'] = Lang::getTxt('coppa_form_title', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'Login');
 				Utils::$context['coppa_body'] = Lang::getTxt(
 					'coppa_form_body',
 					[
@@ -96,6 +95,7 @@ class CoppaForm implements ActionInterface, Routable
 						'child_name' => Utils::$context['ul'],
 						'user_name' => $username,
 					],
+					file: 'Login',
 				);
 			}
 			// Downloading.
@@ -103,7 +103,7 @@ class CoppaForm implements ActionInterface, Routable
 				// The data.
 				$ul = '________________';
 				$crlf = "\r\n";
-				$data = Utils::$context['forum_contacts'] . $crlf . Lang::$txt['coppa_form_address'] . ':' . $crlf . Lang::$txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf;
+				$data = Utils::$context['forum_contacts'] . $crlf . Lang::getTxt('coppa_form_address', file: 'Login') . ':' . $crlf . Lang::getTxt('coppa_form_date', file: 'Login') . ':' . $crlf . $crlf . $crlf;
 				$data .= Lang::getTxt(
 					'coppa_form_body',
 					[
@@ -112,6 +112,7 @@ class CoppaForm implements ActionInterface, Routable
 						'child_name' => $ul,
 						'user_name' => $username,
 					],
+					file: 'Login',
 				);
 				$data = str_replace('<br>', $crlf, $data);
 
@@ -126,16 +127,16 @@ class CoppaForm implements ActionInterface, Routable
 			}
 		} else {
 			Utils::$context += [
-				'page_title' => Lang::$txt['coppa_title'],
+				'page_title' => Lang::getTxt('coppa_title', file: 'Login'),
 				'sub_template' => 'coppa',
 			];
 
 			Utils::$context['coppa'] = [
-				'body' => Lang::getTxt('coppa_after_registration', ['forum_name' => Utils::$context['forum_name_html_safe'], 'minimum_age' => Config::$modSettings['coppaAge']]),
+				'body' => Lang::getTxt('coppa_after_registration', ['forum_name' => Utils::$context['forum_name_html_safe'], 'minimum_age' => Config::$modSettings['coppaAge']], file: 'Login'),
 				'many_options' => !empty(Config::$modSettings['coppaPost']) && !empty(Config::$modSettings['coppaFax']),
 				'post' => empty(Config::$modSettings['coppaPost']) ? '' : Config::$modSettings['coppaPost'],
 				'fax' => empty(Config::$modSettings['coppaFax']) ? '' : Config::$modSettings['coppaFax'],
-				'phone' => empty(Config::$modSettings['coppaPhone']) ? '' : str_replace('{PHONE_NUMBER}', Config::$modSettings['coppaPhone'], Lang::$txt['coppa_send_by_phone']),
+				'phone' => empty(Config::$modSettings['coppaPhone']) ? '' : str_replace('{PHONE_NUMBER}', Config::$modSettings['coppaPhone'], Lang::getTxt('coppa_send_by_phone', file: 'Login')),
 				'id' => $_GET['member'],
 			];
 		}

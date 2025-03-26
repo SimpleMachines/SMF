@@ -317,7 +317,7 @@ class MessageIndex implements ActionInterface, Routable
 
 			// If we can use all, show all.
 			if (!empty(Config::$modSettings['enableAllMessages']) && $row['num_replies'] + 1 < Config::$modSettings['enableAllMessages']) {
-				$pages .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all']), '', Lang::$txt['all']);
+				$pages .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0;all']), '', Lang::getTxt('all', file: 'General'));
 			}
 		} else {
 			$pages = '';
@@ -393,7 +393,7 @@ class MessageIndex implements ActionInterface, Routable
 					'name' => $row['first_display_name'],
 					'id' => $row['first_id_member'],
 					'href' => !empty($row['first_id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] : '',
-					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $row['first_display_name']]) . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name'],
+					'link' => !empty($row['first_id_member']) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $row['first_id_member'] . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $row['first_display_name']], file: 'General') . '" class="preview">' . $row['first_display_name'] . '</a>' : $row['first_display_name'],
 				],
 				'time' => Time::create('@' . $row['first_poster_time'])->format(),
 				'timestamp' => $row['first_poster_time'],
@@ -540,10 +540,10 @@ class MessageIndex implements ActionInterface, Routable
 		$this->sort_column = $this->sort_methods[$this->sort_by]['column'];
 
 		Utils::$context['sort_by'] = $this->sort_by;
-		Lang::$txt['starter'] = Lang::$txt['started_by'];
+		Lang::setTxt('starter', Lang::getTxt('started_by', file: 'General'));
 
 		foreach ($this->sort_methods as $key => $val) {
-			Utils::$context['topics_headers'][$key] = '<a href="' . Config::$scripturl . '?board=' . Utils::$context['current_board'] . '.' . $_REQUEST['start'] . ($this->sort_default == $key ? '' : ';sort=' . $key) . ($this->sort_by == $key && $this->ascending_is_default ? ($this->ascending ? ';desc' : ';asc') : '') . '">' . Lang::$txt[$key] . ($this->sort_by == $key ? ' <span class="main_icons sort_' . ($this->ascending ? 'up' : 'down') . '"></span>' : '') . '</a>';
+			Utils::$context['topics_headers'][$key] = '<a href="' . Config::$scripturl . '?board=' . Utils::$context['current_board'] . '.' . $_REQUEST['start'] . ($this->sort_default == $key ? '' : ';sort=' . $key) . ($this->sort_by == $key && $this->ascending_is_default ? ($this->ascending ? ';desc' : ';asc') : '') . '">' . Lang::getTxt($key, file: 'General') . ($this->sort_by == $key ? ' <span class="main_icons sort_' . ($this->ascending ? 'up' : 'down') . '"></span>' : '') . '</a>';
 		}
 	}
 
@@ -914,20 +914,20 @@ class MessageIndex implements ActionInterface, Routable
 
 		if (!empty(Board::$info->moderators)) {
 			foreach (Board::$info->moderators as $mod) {
-				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod['name'] . '</a>';
+				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $mod['name'] . '</a>';
 			}
 		}
 
 		if (!empty(Board::$info->moderator_groups)) {
 			// By default just tack the moderator groups onto the end of the members
 			foreach (Board::$info->moderator_groups as $mod_group) {
-				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
+				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=members;group=' . $mod_group['id'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $mod_group['name'] . '</a>';
 			}
 		}
 
 		// Now we tack the info onto the end of the linktree
 		if (!empty(Utils::$context['link_moderators'])) {
-			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 		}
 	}
 
@@ -949,6 +949,7 @@ class MessageIndex implements ActionInterface, Routable
 					'posts' => $unposts,
 					'url' => Config::$scripturl . '?action=moderate;area=postmod;sa=' . (Board::$info->unapproved_topics ? 'topics' : 'posts') . ';brd=' . Board::$info->id,
 				],
+				file: 'General',
 			);
 		}
 
@@ -989,7 +990,7 @@ class MessageIndex implements ActionInterface, Routable
 		Utils::$context['can_approve_posts'] = User::$me->allowedTo('approve_posts');
 
 		Utils::$context['jump_to'] = [
-			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
+			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('jump_to', file: 'General'))),
 			'board_name' => strtr(Utils::htmlspecialchars(strip_tags(Board::$info->name)), ['&amp;' => '&']),
 			'child_level' => Board::$info->child_level,
 		];
@@ -1093,7 +1094,7 @@ class MessageIndex implements ActionInterface, Routable
 		}
 
 		if (User::$me->is_logged) {
-			Utils::$context['normal_buttons']['markread'] = ['text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=board;board=' . Utils::$context['current_board'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
+			Utils::$context['normal_buttons']['markread'] = ['text' => 'mark_read_short', 'image' => 'markread.png', 'lang' => true, 'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=board;board=' . Utils::$context['current_board'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
 		}
 
 		if (Utils::$context['can_mark_notify']) {

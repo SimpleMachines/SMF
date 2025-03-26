@@ -92,8 +92,6 @@ class Search2 implements ActionInterface, Routable
 
 		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % Config::$modSettings['search_results_per_page']) : 0;
 
-		Lang::load('Search');
-
 		Utils::$context['robot_no_index'] = true;
 
 		// Load up the search API we are going to use.
@@ -352,11 +350,11 @@ class Search2 implements ActionInterface, Routable
 		// ... and add the links to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=search;params=' . SearchApi::$loadedApi->compressParams(),
-			'name' => Lang::$txt['search'],
+			'name' => Lang::getTxt('search', file: 'General'),
 		];
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(),
-			'name' => Lang::$txt['search_results'],
+			'name' => Lang::getTxt('search_results', file: 'General'),
 		];
 
 		// Now that we know how many results to expect we can start calculating the page numbers.
@@ -377,14 +375,14 @@ class Search2 implements ActionInterface, Routable
 			Utils::$context['icon_sources'][$icon] = 'images_url';
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['search_results'];
+		Utils::$context['page_title'] = Lang::getTxt('search_results', file: 'General');
 		Utils::$context['get_topics'] = [$this, 'prepareSearchContext'];
 		Utils::$context['can_restore_perm'] = User::$me->allowedTo('move_any') && !empty(Config::$modSettings['recycle_enable']);
 		Utils::$context['can_restore'] = false; // We won't know until we handle the context later whether we can actually restore...
 
 		Utils::$context['jump_to'] = [
-			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
-			'board_name' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['select_destination'])),
+			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('jump_to', file: 'General'))),
+			'board_name' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('select_destination', file: 'General'))),
 		];
 
 		// Define the sort order options.

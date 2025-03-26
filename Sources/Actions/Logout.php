@@ -19,7 +19,6 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
-use SMF\Lang;
 use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
@@ -60,7 +59,6 @@ class Logout extends Login2
 		}
 		// Prompt to logout?
 		elseif (!$internal && !isset($_GET[Utils::$context['session_var']])) {
-			Lang::load('Login');
 			Theme::loadTemplate('Login');
 			Utils::$context['sub_template'] = 'logout';
 

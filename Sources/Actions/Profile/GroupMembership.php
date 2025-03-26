@@ -70,7 +70,7 @@ class GroupMembership implements ActionInterface
 		}
 
 		Utils::$context['primary_group'] = Profile::$member->group_id;
-		Utils::$context['update_message'] = Lang::$txt['group_membership_msg_' . ($_GET['msg'] ?? '')] ?? '';
+		Utils::$context['update_message'] = !empty($_GET['msg']) && Lang::txtExists('group_membership_msg_' . $_GET['msg'], file: 'Profile') ? Lang::getTxt('group_membership_msg_' . $_GET['msg'], file: 'Profile') : '';
 
 		// Can they manage groups?
 		Utils::$context['can_edit_primary'] = $this->canEditPrimary();
@@ -127,7 +127,7 @@ class GroupMembership implements ActionInterface
 		// If needed, add "Regular Members" on the end.
 		if (Utils::$context['can_edit_primary'] || Profile::$member->group_id == Group::REGULAR) {
 			Utils::$context['groups']['member'][Group::REGULAR] = Profile::$member->assignable_groups[Group::REGULAR];
-			Utils::$context['groups']['member'][Group::REGULAR]->name = Lang::$txt['regular_members'];
+			Utils::$context['groups']['member'][Group::REGULAR]->name = Lang::getTxt('regular_members', file: 'Profile');
 		}
 
 		// No changing primary group unless you have enough groups!

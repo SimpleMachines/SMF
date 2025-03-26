@@ -27,7 +27,7 @@ function template_print_above()
 		<meta charset="UTF-8">
 		<meta name="robots" content="noindex">
 		<link rel="canonical" href="', Utils::$context['canonical_url'], '">
-		<title>', Lang::$txt['print_page'], ' - ', Utils::$context['topic_subject'], '</title>
+		<title>', Lang::getTxt('print_page', file: 'General'), ' - ', Utils::$context['topic_subject'], '</title>
 		<style>
 			body, a {
 				color: #000;
@@ -144,7 +144,7 @@ function template_print_above()
 
 	echo '
 		<h1 id="title">', Utils::$context['forum_name_html_safe'], '</h1>
-		<h2 id="linktree">', Utils::$context['category_name'], ' ▸ ', (!empty(Utils::$context['parent_boards']) ? implode(' ▸ ', Utils::$context['parent_boards']) . ' ▸ ' : ''), Utils::$context['board_name'], ' ▸ ', Lang::getTxt('started_by_member_time', ['member' => Utils::$context['poster_name'], 'time' => Utils::$context['post_time']]), '</h2>
+		<h2 id="linktree">', Utils::$context['category_name'], ' ▸ ', (!empty(Utils::$context['parent_boards']) ? implode(' ▸ ', Utils::$context['parent_boards']) . ' ▸ ' : ''), Utils::$context['board_name'], ' ▸ ', Lang::getTxt('started_by_member_time', ['member' => Utils::$context['poster_name'], 'time' => Utils::$context['post_time']], file: 'General'), '</h2>
 		<div id="posts">';
 }
 
@@ -157,17 +157,17 @@ function template_main()
 	{
 		echo '
 			<div id="poll_data">
-				<span>', Lang::$txt['poll'], '</span>
+				<span>', Lang::getTxt('poll', file: 'General'), '</span>
 				<div class="question">
-					', Lang::$txt['poll_question'], ': <strong>', Utils::$context['poll']['question'], '</strong>
+					', Lang::getTxt('poll_question', file: 'General'), ': <strong>', Utils::$context['poll']['question'], '</strong>
 				</div>';
 
 		$options = 1;
 		foreach (Utils::$context['poll']['options'] as $option)
 			echo '
 					<div>
-						', Lang::getTxt('option_number', [$options++]), ': <strong>', $option['option'], '</strong>
-						', Utils::$context['allow_results_view'] ? Lang::getTxt('number_of_votes', [$option['votes']]) : '', '
+						', Lang::getTxt('option_number', [$options++], file: 'Post'), ': <strong>', $option['option'], '</strong>
+						', Utils::$context['allow_results_view'] ? Lang::getTxt('number_of_votes', [$option['votes']], file: 'Post') : '', '
 					</div>';
 
 		echo '
@@ -179,7 +179,7 @@ function template_main()
 		echo '
 			<div class="postheader">
 				<div><strong>', $post['subject'], '</strong></div>
-				<div>', Lang::getTxt('posted_by_member_time', $post), '</div>
+				<div>', Lang::getTxt('posted_by_member_time', $post, file: 'General'), '</div>
 			</div>
 			<div class="postbody">
 				', Utils::adjustHeadingLevels($post['body'], 2);
@@ -230,10 +230,10 @@ function template_print_options()
 	// Which option is set, text or text&images
 	if (isset($_REQUEST['images']))
 		echo '
-			<a href="', $url_text, '">', Lang::$txt['print_page_text'], '</a> | <strong><a href="', $url_images, '">', Lang::$txt['print_page_images'], '</a></strong>';
+			<a href="', $url_text, '">', Lang::getTxt('print_page_text', file: 'General'), '</a> | <strong><a href="', $url_images, '">', Lang::getTxt('print_page_images', file: 'General'), '</a></strong>';
 	else
 		echo '
-			<strong><a href="', $url_text, '">', Lang::$txt['print_page_text'], '</a></strong> | <a href="', $url_images, '">', Lang::$txt['print_page_images'], '</a>';
+			<strong><a href="', $url_text, '">', Lang::getTxt('print_page_text', file: 'General'), '</a></strong> | <a href="', $url_images, '">', Lang::getTxt('print_page_images', file: 'General'), '</a>';
 
 	echo '
 		</div><!-- .print_options -->';

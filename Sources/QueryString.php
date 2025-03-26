@@ -782,7 +782,6 @@ class QueryString
 			&& SMF != 'SSI'
 		) {
 			if (isset($_GET['sslRedirect'])) {
-				Lang::load('Errors');
 				ErrorHandler::fatalLang('login_ssl_required', false);
 			}
 

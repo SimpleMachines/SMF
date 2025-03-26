@@ -85,9 +85,14 @@ class Birthday_Notify extends ScheduledTask
 			// Send out the greetings!
 			foreach ($birthdays as $lang => $members) {
 				// We need to do some shuffling to make this work properly.
-				Lang::load('EmailTemplates', $lang);
-				Lang::$txt['happy_birthday_subject'] = Lang::$txtBirthdayEmails[$greeting . '_subject'];
-				Lang::$txt['happy_birthday_body'] = Lang::$txtBirthdayEmails[$greeting . '_body'];
+				Lang::setTxt(
+					'happy_birthday_subject',
+					Lang::getTxt($greeting . '_subject', var: 'txtBirthdayEmails', lang: $lang),
+				);
+				Lang::setTxt(
+					'happy_birthday_body',
+					Lang::getTxt($greeting . '_body', var: 'txtBirthdayEmails', lang: $lang),
+				);
 
 				$prefs = Notify::getNotifyPrefs(array_keys($members), ['birthday'], true);
 

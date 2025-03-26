@@ -585,8 +585,7 @@ class UpdateUnicode extends BackgroundTask
 			}
 
 			if (!is_file($file_paths['final']) || !Utils::makeWritable($file_paths['final'])) {
-				Lang::load('Errors');
-				ErrorHandler::log(Lang::getTxt('unicode_update_failed', [$this->unicodedir]));
+				ErrorHandler::log(Lang::getTxt('unicode_update_failed', [$this->unicodedir], file: 'Errors'));
 
 				return true;
 			}
@@ -598,8 +597,7 @@ class UpdateUnicode extends BackgroundTask
 			}
 
 			if (!is_file($file_paths['temp']) || !Utils::makeWritable($file_paths['temp'])) {
-				Lang::load('Errors');
-				ErrorHandler::log(Lang::getTxt('unicode_update_failed', [$this->temp_dir]));
+				ErrorHandler::log(Lang::getTxt('unicode_update_failed', [$this->temp_dir], file: 'Errors'));
 
 				return true;
 			}

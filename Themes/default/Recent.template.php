@@ -24,7 +24,7 @@ function template_recent()
 	<div id="recent" class="main_section">
 		<div id="display_head" class="information">
 			<h2 class="display_title">
-				<span id="top_subject">', Lang::$txt['recent_posts'], '</span>
+				<span id="top_subject">', Lang::getTxt('recent_posts', file: 'General'), '</span>
 			</h2>
 		</div>';
 
@@ -36,7 +36,7 @@ function template_recent()
 
 	if (empty(Utils::$context['posts']))
 		echo '
-		<div class="windowbg">', Lang::$txt['no_messages'], '</div>';
+		<div class="windowbg">', Lang::getTxt('no_messages', file: 'General'), '</div>';
 
 	foreach (Utils::$context['posts'] as $post)
 	{
@@ -45,7 +45,7 @@ function template_recent()
 			<div class="page_number floatright"> #', $post['counter'], '</div>
 			<div class="topic_details">
 				<h5>', $post['board']['link'], ' / ', $post['link'], '</h5>
-				<span class="smalltext">', Lang::getTxt('last_post_member_date',  ['member' => $post['poster']['link'], 'relative' => str_contains($post['time'], Lang::$txt['today']) ? 'today' : (str_contains($post['time'], Lang::$txt['yesterday']) ? 'yesterday' : 'other'), 'date' => $post['time']]), '</span>
+				<span class="smalltext">', Lang::getTxt('last_post_member_date',  ['member' => $post['poster']['link'], 'relative' => str_contains($post['time'], Lang::getTxt('today', file: 'General')) ? 'today' : (str_contains($post['time'], Lang::getTxt('yesterday', file: 'General')) ? 'yesterday' : 'other'), 'date' => $post['time']]), '</span>
 			</div>
 			<div class="list_posts">', $post['body'], '</div>';
 
@@ -74,7 +74,7 @@ function template_unread()
 	<div id="mobile_action" class="popup_container">
 		<div class="popup_window description">
 			<div class="popup_heading">
-				', Lang::$txt['mobile_action'], '
+				', Lang::getTxt('mobile_action', file: 'General'), '
 				<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 			</div>
 			', template_button_strip(Utils::$context['recent_buttons']), '
@@ -102,7 +102,7 @@ function template_unread()
 			<div class="pagesection">
 				', Utils::$context['menu_separator'], '
 				<div class="pagelinks floatleft">
-					<a href="#bot" class="button">', Lang::$txt['go_down'], '</a>
+					<a href="#bot" class="button">', Lang::getTxt('go_down', file: 'General'), '</a>
 					', Utils::$context['page_index'], '
 				</div>
 				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '';
@@ -111,7 +111,7 @@ function template_unread()
 		if (!empty(Utils::$context['recent_buttons']))
 			echo '
 				<div class="mobile_buttons floatright">
-					<a class="button mobile_act">', Lang::$txt['mobile_action'], '</a>
+					<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 				</div>';
 
 		echo '
@@ -167,7 +167,7 @@ function template_unread()
 
 			echo '
 							<div class="recent_title">
-								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '" class="new_posts">' . Lang::$txt['new'] . '</a>
+								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>
 								', $topic['is_sticky'] ? '<strong>' : '', '<span class="preview" title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span></span>', $topic['is_sticky'] ? '</strong>' : '', '
 							</div>
 							<p class="floatleft">
@@ -177,13 +177,13 @@ function template_unread()
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
-								', Lang::getTxt('number_of_replies', [$topic['replies']]), '
+								', Lang::getTxt('number_of_replies', [$topic['replies']], file: 'General'), '
 								<br>
-								', Lang::getTxt('number_of_views', [$topic['views']]), '
+								', Lang::getTxt('number_of_views', [$topic['views']], file: 'General'), '
 							</p>
 						</div>
 						<div class="lastpost">
-							', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '
+							', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']], file: 'General'), '
 						</div>';
 
 			if (Utils::$context['showCheckboxes'])
@@ -209,7 +209,7 @@ function template_unread()
 				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '', '
 				', Utils::$context['menu_separator'], '
 				<div class="pagelinks floatleft">
-					<a href="#recent" class="button" id="bot">', Lang::$txt['go_up'], '</a>
+					<a href="#recent" class="button" id="bot">', Lang::getTxt('go_up', file: 'General'), '</a>
 					', Utils::$context['page_index'], '
 				</div>';
 
@@ -217,7 +217,7 @@ function template_unread()
 		if (!empty(Utils::$context['recent_buttons']))
 		echo '
 				<div class="mobile_buttons floatright">
-					<a class="button mobile_act">', Lang::$txt['mobile_action'], '</a>
+					<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 				</div>';
 
 		echo '
@@ -227,7 +227,7 @@ function template_unread()
 		echo '
 			<div class="infobox">
 				<p class="centertext">
-					', Utils::$context['showing_all_topics'] ? Lang::$txt['topic_alert_none'] : Lang::getTxt('unread_topics_visit_none', ['scripturl' => Config::$scripturl]), '
+					', Lang::getTxt(Utils::$context['showing_all_topics'] ? 'topic_alert_none' : 'unread_topics_visit_none', ['scripturl' => Config::$scripturl], file: 'General'), '
 				</p>
 			</div>';
 
@@ -253,7 +253,7 @@ function template_replies()
 	<div id="mobile_action" class="popup_container">
 		<div class="popup_window description">
 			<div class="popup_heading">
-				', Lang::$txt['mobile_action'], '
+				', Lang::getTxt('mobile_action', file: 'General'), '
 				<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 			</div>
 			', template_button_strip(Utils::$context['recent_buttons']), '
@@ -281,7 +281,7 @@ function template_replies()
 			<div class="pagesection">
 				', Utils::$context['menu_separator'], '
 				<div class="pagelinks floatleft">
-					<a href="#bot" class="button">', Lang::$txt['go_down'], '</a>
+					<a href="#bot" class="button">', Lang::getTxt('go_down', file: 'General'), '</a>
 					', Utils::$context['page_index'], '
 				</div>
 				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '';
@@ -290,7 +290,7 @@ function template_replies()
 		if (!empty(Utils::$context['recent_buttons']))
 			echo '
 				<div class="mobile_buttons floatright">
-					<a class="button mobile_act">', Lang::$txt['mobile_action'], '</a>
+					<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 				</div>';
 
 		echo '
@@ -346,7 +346,7 @@ function template_replies()
 
 			echo '
 							<div class="recent_title">
-								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '" class="new_posts">' . Lang::$txt['new'] . '</a>
+								<a href="', $topic['new_href'], '" id="newicon', $topic['first_post']['id'], '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>
 								', $topic['is_sticky'] ? '<strong>' : '', '<span title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '"><span id="msg_' . $topic['first_post']['id'] . '">', $topic['first_post']['link'], '</span>', $topic['is_sticky'] ? '</strong>' : '', '
 							</div>
 							<p class="floatleft">
@@ -356,13 +356,13 @@ function template_replies()
 						</div><!-- .info -->
 						<div class="board_stats centertext">
 							<p>
-								', Lang::getTxt('number_of_replies', [$topic['replies']]), '
+								', Lang::getTxt('number_of_replies', [$topic['replies']], file: 'General'), '
 								<br>
-								', Lang::getTxt('number_of_views', [$topic['views']]), '
+								', Lang::getTxt('number_of_views', [$topic['views']], file: 'General'), '
 							</p>
 						</div>
 						<div class="lastpost">
-							', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '
+							', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']], file: 'General'), '
 						</div>';
 
 			if (Utils::$context['showCheckboxes'])
@@ -382,7 +382,7 @@ function template_replies()
 				', !empty(Utils::$context['recent_buttons']) ? template_button_strip(Utils::$context['recent_buttons'], 'right') : '', '
 				', Utils::$context['menu_separator'], '
 				<div class="pagelinks floatleft">
-					<a href="#recent" class="button" id="bot">', Lang::$txt['go_up'], '</a>
+					<a href="#recent" class="button" id="bot">', Lang::getTxt('go_up', file: 'General'), '</a>
 					', Utils::$context['page_index'], '
 				</div>';
 
@@ -390,7 +390,7 @@ function template_replies()
 		if (!empty(Utils::$context['recent_buttons']))
 			echo '
 				<div class="mobile_buttons floatright">
-					<a class="button mobile_act">', Lang::$txt['mobile_action'], '</a>
+					<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 				</div>';
 
 		echo '
@@ -400,7 +400,7 @@ function template_replies()
 		echo '
 			<div class="infobox">
 				<p class="centertext">
-					', Utils::$context['showing_all_topics'] ? Lang::$txt['topic_alert_none'] : Lang::$txt['updated_topics_visit_none'], '
+					', Lang::getTxt(Utils::$context['showing_all_topics'] ? 'topic_alert_none' : 'updated_topics_visit_none', file: 'General'), '
 				</p>
 			</div>';
 

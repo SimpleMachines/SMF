@@ -114,10 +114,10 @@ class Popup implements ActionInterface
 			$this->profile_items,
 			function (&$value, $key) {
 				if ($key === 'title') {
-					$value = Lang::$txt[$value] ?? $value;
+					$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
 				}
 
-				$value = strtr($value, ['{scripturl}' => Config::$scripturl]);
+				$value = Lang::formatText($value, ['scripturl' => Config::$scripturl]);
 			},
 		);
 

@@ -218,11 +218,18 @@ class ReportToMod implements ActionInterface, Routable
 
 		Utils::$context['comment_body'] = Utils::htmlspecialchars($this->comment, ENT_QUOTES);
 
-		Utils::$context['page_title'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod'] : Lang::getTxt('report_profile', ['member_name' => $display_name]);
-		Utils::$context['notice'] = Utils::$context['report_type'] == 'msg' ? Lang::$txt['report_to_mod_func'] : Lang::$txt['report_profile_func'];
+		Utils::$context['page_title'] = Lang::getTxt(
+			Utils::$context['report_type'] == 'msg' ? 'report_to_mod' : 'report_profile',
+			['member_name' => $display_name ?? ''],
+			file: 'General',
+		);
+
+		Utils::$context['notice'] = Lang::getTxt(
+			Utils::$context['report_type'] == 'msg' ? 'report_to_mod_func' : 'report_profile_func',
+			file: 'General',
+		);
 
 		// Show the inputs for the comment, etc.
-		Lang::load('Post');
 		Theme::loadTemplate('ReportToMod');
 
 		Theme::addInlineJavaScript('
@@ -237,7 +244,7 @@ class ReportToMod implements ActionInterface, Routable
 					if ($.trim(error_box.html()) == \'\')
 						error_box.append("<ul id=\'error_list\'></ul>");
 
-					$("#error_list").append("<li id=\'error_post_too_long\' class=\'error\'>" + ' . Utils::escapeJavaScript(Lang::$txt['post_too_long']) . ' + "</li>");
+					$("#error_list").append("<li id=\'error_post_too_long\' class=\'error\'>" + ' . Utils::escapeJavaScript(Lang::getTxt('post_too_long', file: 'Post')) . ' + "</li>");
 				}
 			}
 			else
@@ -279,12 +286,10 @@ class ReportToMod implements ActionInterface, Routable
 
 		// Any errors?
 		if (!empty($post_errors)) {
-			Lang::load('Errors');
-
 			Utils::$context['post_errors'] = [];
 
 			foreach ($post_errors as $post_error) {
-				Utils::$context['post_errors'][$post_error] = Lang::$txt['error_' . $post_error];
+				Utils::$context['post_errors'][$post_error] = Lang::getTxt('error_' . $post_error, file: 'Errors');
 			}
 
 			$this->previewing = false;

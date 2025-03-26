@@ -44,7 +44,7 @@ class ShowNotice implements ActionInterface
 		// Before we get too excited, is the current user allowed to see this?
 		User::$me->isAllowedTo(['issue_warning', 'view_warning_any']);
 
-		Utils::$context['page_title'] = Lang::$txt['show_notice'];
+		Utils::$context['page_title'] = Lang::getTxt('show_notice', file: 'ModerationCenter');
 		Utils::$context['sub_template'] = 'show_notice';
 		Utils::$context['template_layers'] = [];
 

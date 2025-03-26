@@ -24,7 +24,6 @@ $txt['paid_username'] = 'Username';
 $txt['paid_subscriptions_desc'] = 'From this section you can add, remove and edit paid subscription methods to your forum.';
 $txt['paid_subs_settings'] = 'Settings';
 $txt['paid_subs_settings_desc'] = 'From here you can edit the payment methods available to your users.';
-$txt['paid_subs_view'] = 'View Subscriptions';
 $txt['paid_subs_view_desc'] = 'From this section you can view all the subscriptions you have available.';
 
 // Setting type strings.
@@ -84,9 +83,6 @@ $txt['paid_is_active'] = 'Activated';
 $txt['paid_none_yet'] = 'You have not set up any subscriptions yet.';
 $txt['paid_payments_pending'] = 'Payments Pending';
 $txt['paid_order'] = 'Order';
-
-$txt['yes'] = 'Yes';
-$txt['no'] = 'No';
 
 // Add/Edit/Delete subscription.
 $txt['paid_add_subscription'] = 'Add Subscription';
@@ -158,7 +154,6 @@ $txt['start_date'] = 'Start Date';
 $txt['end_date'] = 'End Date';
 $txt['start_date_and_time'] = 'Start Date and Time';
 $txt['end_date_and_time'] = 'End Date and Time';
-$txt['edit'] = 'EDIT';
 $txt['one_username'] = 'Please enter one username only.';
 $txt['minute'] = 'Minute';
 $txt['error_member_not_found'] = 'The member entered could not be found';

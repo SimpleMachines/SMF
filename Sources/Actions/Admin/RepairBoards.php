@@ -782,18 +782,15 @@ class RepairBoards implements ActionInterface
 	public function execute(): void
 	{
 		// Print out the top of the webpage.
-		Utils::$context['page_title'] = Lang::$txt['admin_repair'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_repair', file: 'Admin');
 		Utils::$context['sub_template'] = 'repair_boards';
 		Menu::$loaded['admin']['current_subsection'] = 'general';
 
-		// Load the language file.
-		Lang::load('ManageMaintenance');
-
 		// Make sure the tabs stay nice.
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['maintain_title'],
+			'title' => Lang::getTxt('maintain_title', file: 'Admin'),
 			'help' => '',
-			'description' => Lang::$txt['maintain_info'],
+			'description' => Lang::getTxt('maintain_info', file: 'Admin'),
 			'tabs' => [],
 		];
 
@@ -968,7 +965,7 @@ class RepairBoards implements ActionInterface
 						$found_errors = true;
 
 						if (isset($test['message'])) {
-							Utils::$context['repair_errors'][] = Lang::getTxt($test['message']);
+							Utils::$context['repair_errors'][] = Lang::getTxt($test['message'], file: 'ManageMaintenance');
 						}
 						// One per row!
 						elseif (isset($test['messages'])) {
@@ -984,7 +981,7 @@ class RepairBoards implements ActionInterface
 									}
 								}
 
-								Utils::$context['repair_errors'][] = Lang::getTxt($txt_key, $variables);
+								Utils::$context['repair_errors'][] = Lang::getTxt($txt_key, $variables, file: 'ManageMaintenance');
 							}
 						}
 						// A function to process?
@@ -1156,7 +1153,7 @@ class RepairBoards implements ActionInterface
 		}
 
 		Utils::$context['continue_get_data'] = '?action=admin;area=repairboards' . (isset($_GET['fixErrors']) ? ';fixErrors' : '') . ';step=' . $_GET['step'] . ';substep=' . $_GET['substep'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_countdown'] = '2';
 		Utils::$context['sub_template'] = 'not_done';
@@ -1176,8 +1173,9 @@ class RepairBoards implements ActionInterface
 		Utils::$context['substep_title'] = Lang::getTxt(
 			'repair_currently_' . (isset($_GET['fixErrors']) ? 'fixing' : 'checking'),
 			[
-				Lang::$txt['repair_operation_' . $current_step_description] ?? $current_step_description,
+				Lang::txtExists('repair_operation_' . $current_step_description, file: 'ManageMaintenance') ? Lang::getTxt('repair_operation_' . $current_step_description, file: 'ManageMaintenance') : $current_step_description,
 			],
+			file: 'ManageMaintenance',
 		);
 		Utils::$context['substep_continue_percent'] = $max_substep == 0 ? 0 : round(($_GET['substep'] * 100) / $max_substep, 1);
 
@@ -1200,9 +1198,6 @@ class RepairBoards implements ActionInterface
 
 		$this->salvage_created = true;
 
-		// Back to the forum's default language.
-		Lang::load('Admin', Lang::$default);
-
 		// Check to see if a 'Salvage Category' exists, if not => insert one.
 		$result = Db::$db->query(
 			'',
@@ -1211,7 +1206,7 @@ class RepairBoards implements ActionInterface
 			WHERE name = {string:cat_name}
 			LIMIT 1',
 			[
-				'cat_name' => Lang::$txt['salvaged_category_name'],
+				'cat_name' => Lang::getTxt('salvaged_category_name', file: 'ManageMaintenance', lang: Lang::$default),
 			],
 		);
 
@@ -1231,9 +1226,9 @@ class RepairBoards implements ActionInterface
 				],
 				[
 					[
-						Lang::$txt['salvaged_category_name'],
+						Lang::getTxt('salvaged_category_name', file: 'ManageMaintenance', lang: Lang::$default),
 						-1,
-						Lang::$txt['salvaged_category_description'],
+						Lang::getTxt('salvaged_category_description', file: 'ManageMaintenance', lang: Lang::$default),
 					],
 				],
 				['id_cat'],
@@ -1241,7 +1236,6 @@ class RepairBoards implements ActionInterface
 			);
 
 			if (Db::$db->affected_rows() <= 0) {
-				Lang::load('Admin');
 				ErrorHandler::fatalLang('salvaged_category_error', false);
 			}
 		}
@@ -1256,7 +1250,7 @@ class RepairBoards implements ActionInterface
 			LIMIT 1',
 			[
 				'id_cat' => $this->salvage_category,
-				'board_name' => Lang::$txt['salvaged_board_name'],
+				'board_name' => Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance', lang: Lang::$default),
 			],
 		);
 
@@ -1279,8 +1273,8 @@ class RepairBoards implements ActionInterface
 				],
 				[
 					[
-						Lang::$txt['salvaged_board_name'],
-						Lang::$txt['salvaged_board_description'],
+						Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance', lang: Lang::$default),
+						Lang::getTxt('salvaged_board_description', file: 'ManageMaintenance', lang: Lang::$default),
 						$this->salvage_category,
 						'1',
 						-1,
@@ -1292,13 +1286,9 @@ class RepairBoards implements ActionInterface
 			);
 
 			if (Db::$db->affected_rows() <= 0) {
-				Lang::load('Admin');
 				ErrorHandler::fatalLang('salvaged_board_error', false);
 			}
 		}
-
-		// Restore the user's language.
-		Lang::load('Admin');
 	}
 
 	/**
@@ -1408,7 +1398,7 @@ class RepairBoards implements ActionInterface
 	 */
 	protected function fixMissingPollOptions(array $row): void
 	{
-		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
+		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::getTxt('guest', file: 'General');
 		$row['id_poster'] = !empty($row['id_poster']) ? $row['id_poster'] : 0;
 
 		if (empty($row['id_board'])) {
@@ -1441,12 +1431,12 @@ class RepairBoards implements ActionInterface
 						0,
 						time(),
 						$row['id_poster'],
-						Lang::$txt['salvaged_poll_topic_name'],
+						Lang::getTxt('salvaged_poll_topic_name', file: 'ManageMaintenance'),
 						$row['poster_name'],
-						Lang::$txt['salvaged_poll_topic_name'],
+						Lang::getTxt('salvaged_poll_topic_name', file: 'ManageMaintenance'),
 						'127.0.0.1',
 						1,
-						Lang::$txt['salvaged_poll_message_body'],
+						Lang::getTxt('salvaged_poll_message_body', file: 'ManageMaintenance'),
 						'xx',
 						1,
 					],
@@ -1494,7 +1484,7 @@ class RepairBoards implements ActionInterface
 				],
 			);
 
-			Logging::updateStats('subject', $row['id_topic'], Lang::$txt['salvaged_poll_topic_name']);
+			Logging::updateStats('subject', $row['id_topic'], Lang::getTxt('salvaged_poll_topic_name', file: 'ManageMaintenance'));
 		}
 
 		Db::$db->insert(
@@ -1517,7 +1507,7 @@ class RepairBoards implements ActionInterface
 			[
 				[
 					$row['id_poll'],
-					Lang::$txt['salvaged_poll_question'],
+					Lang::getTxt('salvaged_poll_question', file: 'ManageMaintenance'),
 					1,
 					0,
 					0,
@@ -1547,7 +1537,7 @@ class RepairBoards implements ActionInterface
 			$row['id_board'] = $_SESSION['salvageBoardID'] = $this->salvage_board;
 		}
 
-		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::$txt['guest'];
+		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::getTxt('guest', file: 'General');
 
 		$newMessageID = Db::$db->insert(
 			'',
@@ -1572,12 +1562,12 @@ class RepairBoards implements ActionInterface
 					0,
 					time(),
 					$row['id_member'],
-					Lang::$txt['salvaged_poll_topic_name'],
+					Lang::getTxt('salvaged_poll_topic_name', file: 'ManageMaintenance'),
 					$row['poster_name'],
 					'',
 					'127.0.0.1',
 					1,
-					Lang::$txt['salvaged_poll_message_body'],
+					Lang::getTxt('salvaged_poll_message_body', file: 'ManageMaintenance'),
 					'xx',
 					1,
 				],
@@ -1625,7 +1615,7 @@ class RepairBoards implements ActionInterface
 			],
 		);
 
-		Logging::updateStats('subject', $newTopicID, Lang::$txt['salvaged_poll_topic_name']);
+		Logging::updateStats('subject', $newTopicID, Lang::getTxt('salvaged_poll_topic_name', file: 'ManageMaintenance'));
 	}
 
 	/**
@@ -1681,15 +1671,15 @@ class RepairBoards implements ActionInterface
 		}
 
 		if ($row['id_first_msg'] != $row['myid_first_msg']) {
-			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_first_id', [$row['id_topic'], $row['id_first_msg']]);
+			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_first_id', [$row['id_topic'], $row['id_first_msg']], file: 'ManageMaintenance');
 		}
 
 		if ($row['id_last_msg'] != $row['myid_last_msg']) {
-			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_last_id', [$row['id_topic'], $row['id_last_msg']]);
+			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_last_id', [$row['id_topic'], $row['id_last_msg']], file: 'ManageMaintenance');
 		}
 
 		if ($row['approved'] != $row['firstmsg_approved']) {
-			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_approval', [$row['id_topic']]);
+			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_approval', [$row['id_topic']], file: 'ManageMaintenance');
 		}
 
 		return true;
@@ -1737,7 +1727,7 @@ class RepairBoards implements ActionInterface
 		}
 
 		if ($row['num_replies'] != $row['my_num_replies']) {
-			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_replies', [$row['id_topic'], $row['num_replies']]);
+			Utils::$context['repair_errors'][] = Lang::getTxt('repair_topic_wrong_replies', [$row['id_topic'], $row['num_replies']], file: 'ManageMaintenance');
 		}
 
 		return true;
@@ -1790,8 +1780,8 @@ class RepairBoards implements ActionInterface
 			[
 				[
 					$this->salvage_category,
-					Lang::$txt['salvaged_board_name'],
-					Lang::$txt['salvaged_board_description'],
+					Lang::getTxt('salvaged_board_name', file: 'ManageMaintenance'),
+					Lang::getTxt('salvaged_board_description', file: 'ManageMaintenance'),
 					$row['my_num_topics'],
 					$row['my_num_posts'],
 					'1',
@@ -2142,7 +2132,7 @@ class RepairBoards implements ActionInterface
 	protected function missingCachedSubjectMessage(array $row): bool
 	{
 		if (count(Utils::extractWords($row['subject'], 2)) != 0) {
-			Utils::$context['repair_errors'][] = Lang::getTxt('repair_missing_cached_subject', [$row['id_topic']]);
+			Utils::$context['repair_errors'][] = Lang::getTxt('repair_missing_cached_subject', [$row['id_topic']], file: 'ManageMaintenance');
 
 			return true;
 		}

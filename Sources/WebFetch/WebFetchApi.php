@@ -127,8 +127,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 
 		// No scheme? No data for you!
 		if (empty($url->scheme) || !isset(self::$scheme_handlers[$url->scheme])) {
-			Lang::load('Errors');
-			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__]), E_USER_NOTICE);
+			trigger_error(Lang::getTxt('fetch_web_data_bad_url', [__METHOD__], file: 'Errors'), E_USER_NOTICE);
 			$data = false;
 		}
 

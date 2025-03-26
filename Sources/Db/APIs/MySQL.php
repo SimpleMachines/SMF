@@ -252,18 +252,18 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// Show an error message, if possible.
-			Utils::$context['error_title'] = Lang::$txt['database_error'];
-			$error_message = Lang::$txt['try_again'];
+			Utils::$context['error_title'] = Lang::getTxt('database_error', file: 'General');
+			$error_message = Lang::getTxt('try_again', file: 'General');
 
 			if (isset(User::$me) && User::$me->allowedTo('admin_forum')) {
-				$error_message = nl2br($query_error) . '<br>' . Lang::$txt['file'] . ': ' . $file . '<br>' . Lang::$txt['line'] . ': ' . $line;
+				$error_message = nl2br($query_error) . '<br>' . Lang::getTxt('file', file: 'General') . ': ' . $file . '<br>' . Lang::getTxt('line', file: 'General') . ': ' . $line;
 
 				if ($this->show_debug) {
 					$error_message .= '<br><br>' . nl2br($db_string);
 				}
 			}
 
-			ErrorHandler::log(Lang::$txt['database_error'] . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n{$db_string}" : ''), 'database', $file, $line);
+			ErrorHandler::log(Lang::getTxt('database_error', file: 'General') . ': ' . $query_error . (!empty(Config::$modSettings['enableErrorQueryLogging']) ? "\n\n{$db_string}" : ''), 'database', $file, $line);
 			ErrorHandler::fatal($error_message, false);
 		}
 
@@ -1323,9 +1323,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$this->vendor = 'MySQL';
 			}
 		} else {
-			Lang::load('Admin');
-
-			return Lang::$txt['unknown'];
+			return Lang::getTxt('unknown', file: 'General');
 		}
 
 		return $this->vendor;

@@ -447,10 +447,10 @@ class Rule implements \ArrayAccess
 		// The link tree - gotta have this :o
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=manrules',
-			'name' => Lang::$txt['pm_manage_rules'],
+			'name' => Lang::getTxt('pm_manage_rules', file: 'PersonalMessage'),
 		];
 
-		Utils::$context['page_title'] = Lang::$txt['pm_manage_rules'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_manage_rules', file: 'PersonalMessage');
 		Utils::$context['sub_template'] = 'rules';
 
 		// Load them... load them!!
@@ -576,7 +576,6 @@ class Rule implements \ArrayAccess
 					);
 
 					if (Db::$db->num_rows($request) == 0) {
-						Lang::load('Errors');
 						ErrorHandler::fatalLang('invalid_username', false);
 					}
 					list($memID) = Db::$db->fetch_row($request);

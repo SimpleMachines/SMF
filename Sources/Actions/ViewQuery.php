@@ -147,13 +147,13 @@ class ViewQuery implements ActionInterface, Routable
 			}
 
 			if (!empty($query_data['f']) && !empty($query_data['l'])) {
-				echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']]);
+				echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']], file: 'General');
 			}
 
-			if (isset($query_data['s'], $query_data['t'], Lang::$txt['debug_query_which_took_at'])) {
-				echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)]);
+			if (isset($query_data['s'], $query_data['t']) && Lang::txtExists('debug_query_which_took_at', file: 'General')) {
+				echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)], file: 'General');
 			} else {
-				echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)]);
+				echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)], file: 'General');
 			}
 
 			echo '

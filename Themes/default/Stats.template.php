@@ -28,54 +28,54 @@ function template_main()
 		<div class="roundframe">
 			<div class="title_bar">
 				<h4 class="titlebg">
-					<span class="main_icons general"></span> ', Lang::$txt['general_stats'], '
+					<span class="main_icons general"></span> ', Lang::getTxt('general_stats', file: 'Stats'), '
 				</h4>
 			</div>
 			<dl class="stats half_content">
-				<dt>', Lang::$txt['total_members'], '</dt>
+				<dt>', Lang::getTxt('total_members', file: 'General'), '</dt>
 				<dd>', Utils::$context['show_member_list'] ? '<a href="' . Config::$scripturl . '?action=mlist">' . Utils::$context['num_members'] . '</a>' : Utils::$context['num_members'], '</dd>
-				<dt>', Lang::$txt['total_posts'], '</dt>
+				<dt>', Lang::getTxt('total_posts', file: 'General'), '</dt>
 				<dd>', Utils::$context['num_posts'], '</dd>
-				<dt>', Lang::$txt['total_topics'], '</dt>
+				<dt>', Lang::getTxt('total_topics', file: 'General'), '</dt>
 				<dd>', Utils::$context['num_topics'], '</dd>
-				<dt>', Lang::$txt['total_cats'], '</dt>
+				<dt>', Lang::getTxt('total_cats', file: 'General'), '</dt>
 				<dd>', Utils::$context['num_categories'], '</dd>
-				<dt>', Lang::$txt['users_online'], '</dt>
+				<dt>', Lang::getTxt('users_online', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['users_online'], '</dd>
-				<dt>', Lang::$txt['most_online'], '</dt>
-				<dd>', Lang::getTxt('most_online_number_date', Utils::$context['most_members_online']), '</dd>
-				<dt>', Lang::$txt['users_online_today'], '</dt>
+				<dt>', Lang::getTxt('most_online', file: 'Stats'), '</dt>
+				<dd>', Lang::getTxt('most_online_number_date', Utils::$context['most_members_online'], file: 'Stats'), '</dd>
+				<dt>', Lang::getTxt('users_online_today', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['online_today'], '</dd>';
 
 	if (!empty(Config::$modSettings['hitStats']))
 		echo '
-				<dt>', Lang::$txt['num_hits'], '</dt>
+				<dt>', Lang::getTxt('num_hits', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['num_hits'], '</dd>';
 
 	echo '
 			</dl>
 			<dl class="stats half_content">
-				<dt>', Lang::$txt['average_members'], '</dt>
+				<dt>', Lang::getTxt('average_members', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['average_members'], '</dd>
-				<dt>', Lang::$txt['average_posts'], '</dt>
+				<dt>', Lang::getTxt('average_posts', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['average_posts'], '</dd>
-				<dt>', Lang::$txt['average_topics'], '</dt>
+				<dt>', Lang::getTxt('average_topics', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['average_topics'], '</dd>
-				<dt>', Lang::$txt['total_boards'], '</dt>
+				<dt>', Lang::getTxt('total_boards', file: 'General'), '</dt>
 				<dd>', Utils::$context['num_boards'], '</dd>
-				<dt>', Lang::$txt['latest_member'], '</dt>
+				<dt>', Lang::getTxt('latest_member', file: 'General'), '</dt>
 				<dd>', Utils::$context['common_stats']['latest_member']['link'], '</dd>
-				<dt>', Lang::$txt['average_online'], '</dt>
+				<dt>', Lang::getTxt('average_online', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['average_online'], '</dd>';
 
 	if (!empty(Utils::$context['gender']))
 	{
 		echo '
-				<dt>', Lang::$txt['gender_stats'], '</dt>
+				<dt>', Lang::getTxt('gender_stats', file: 'Stats'), '</dt>
 				<dd>';
 
 		foreach (Utils::$context['gender'] as $g => $n)
-			echo Lang::getTxt('gender_stats_number', ['gender' => Lang::tokenTxtReplace($g), 'number' => $n]), '<br>';
+			echo Lang::getTxt('gender_stats_number', ['gender' => Lang::tokenTxtReplace($g), 'number' => $n], file: 'Stats'), '<br>';
 
 		echo '
 				</dd>';
@@ -83,7 +83,7 @@ function template_main()
 
 	if (!empty(Config::$modSettings['hitStats']))
 		echo '
-				<dt>', Lang::$txt['average_hits'], '</dt>
+				<dt>', Lang::getTxt('average_hits', file: 'Stats'), '</dt>
 				<dd>', Utils::$context['average_hits'], '</dd>';
 
 	echo '
@@ -95,7 +95,7 @@ function template_main()
 			<div class="half_content">
 				<div class="title_bar">
 					<h4 class="titlebg">
-						<span class="main_icons ', $name, '"></span> ', Lang::$txt['top_' . $name], '
+						<span class="main_icons ', $name, '"></span> ', Lang::getTxt('top_' . $name, file: 'Stats'), '
 					</h4>
 				</div>
 				<dl class="stats">';
@@ -130,7 +130,7 @@ function template_main()
 		<br class="clear">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="main_icons history"></span>', Lang::$txt['forum_history'], '
+				<span class="main_icons history"></span>', Lang::getTxt('forum_history', file: 'Stats'), '
 			</h3>
 		</div>';
 
@@ -140,15 +140,15 @@ function template_main()
 		<table id="stats" class="table_grid">
 			<thead>
 				<tr class="title_bar">
-					<th class="lefttext">', Lang::$txt['yearly_summary'], '</th>
-					<th>', Lang::$txt['stats_new_topics'], '</th>
-					<th>', Lang::$txt['stats_new_posts'], '</th>
-					<th>', Lang::$txt['stats_new_members'], '</th>
-					<th>', Lang::$txt['most_online'], '</th>';
+					<th class="lefttext">', Lang::getTxt('yearly_summary', file: 'Stats'), '</th>
+					<th>', Lang::getTxt('stats_new_topics', file: 'Stats'), '</th>
+					<th>', Lang::getTxt('stats_new_posts', file: 'Stats'), '</th>
+					<th>', Lang::getTxt('stats_new_members', file: 'Stats'), '</th>
+					<th>', Lang::getTxt('most_online', file: 'Stats'), '</th>';
 
 		if (!empty(Config::$modSettings['hitStats']))
 			echo '
-					<th>', Lang::$txt['page_views'], '</th>';
+					<th>', Lang::getTxt('page_views', file: 'Stats'), '</th>';
 
 		echo '
 				</tr>

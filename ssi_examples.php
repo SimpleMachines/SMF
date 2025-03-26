@@ -606,7 +606,7 @@ function template_homepage_sample1_php()
 
 	foreach ($topics as $topic) {
 		echo '
-			<li><a href="', $topic['href'], '">', $topic['subject'], '</a> ', SMF\Lang::$txt['by'], ' ', $topic['poster']['link'], '</li>';
+			<li><a href="', $topic['href'], '">', $topic['subject'], '</a> ', SMF\Lang::getTxt('by', file: 'General'), ' ', $topic['poster']['link'], '</li>';
 	}
 
 	unset($topics);
@@ -653,7 +653,7 @@ foreach ($topics as $topic)
 	// echo \'<pre>\', print_r($topic), \'</pre>\';
 
 	echo \'
-			<li><a href=\\"\', $topic[\'href\'], \'\\">\', $topic[\'subject\'], \'</a> \', SMF\\Lang::$txt[\'by\'], \' \', $topics[$i][\'poster\'][\'link\'], \'</li>\';
+			<li><a href=\\"\', $topic[\'href\'], \'\\">\', $topic[\'subject\'], \'</a> \', SMF\\Lang::getTxt(\'by\', file: \'General\'), \' \', $topics[$i][\'poster\'][\'link\'], \'</li>\';
 }
 
 unset($topics);

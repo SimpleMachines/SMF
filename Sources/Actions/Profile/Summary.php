@@ -49,7 +49,7 @@ class Summary implements ActionInterface
 	{
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['summary'],
+			'title' => Lang::getTxt('summary', file: 'General'),
 			'icon_class' => 'main_icons profile_hd',
 		];
 
@@ -73,18 +73,18 @@ class Summary implements ActionInterface
 
 		// See if they have broken any warning levels...
 		if (!empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= Profile::$member->formatted['warning']) {
-			Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_muted'];
+			Utils::$context['warning_status'] = Lang::getTxt('profile_warning_is_muted', file: 'Profile');
 		} elseif (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= Profile::$member->formatted['warning']) {
-			Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_moderation'];
+			Utils::$context['warning_status'] = Lang::getTxt('profile_warning_is_moderation', file: 'Profile');
 		} elseif (!empty(Config::$modSettings['warning_watch']) && Config::$modSettings['warning_watch'] <= Profile::$member->formatted['warning']) {
-			Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_watch'];
+			Utils::$context['warning_status'] = Lang::getTxt('profile_warning_is_watch', file: 'Profile');
 		}
 
 		// They haven't even been registered for a full day!?
 		$days_registered = (int) ((time() - Profile::$member->date_registered) / (3600 * 24));
 
 		if (empty(Profile::$member->date_registered) || $days_registered < 1) {
-			Profile::$member->formatted['posts_per_day'] = Lang::$txt['not_applicable'];
+			Profile::$member->formatted['posts_per_day'] = Lang::getTxt('not_applicable', file: 'General');
 		} else {
 			Profile::$member->formatted['posts_per_day'] = Profile::$member->formatted['real_posts'] / $days_registered;
 		}
@@ -92,7 +92,7 @@ class Summary implements ActionInterface
 		// Set the age...
 		if (empty(Profile::$member->formatted['birthdate']) || substr(Profile::$member->formatted['birthdate'], 0, 4) < 1002) {
 			Profile::$member->formatted += [
-				'age' => Lang::$txt['not_applicable'],
+				'age' => Lang::getTxt('not_applicable', file: 'General'),
 				'today_is_birthday' => false,
 			];
 		} else {
@@ -101,7 +101,7 @@ class Summary implements ActionInterface
 			$datearray = getdate(time());
 
 			Profile::$member->formatted += [
-				'age' => $birth_year <= 1004 ? Lang::$txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
+				'age' => $birth_year <= 1004 ? Lang::getTxt('not_applicable', file: 'General') : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
 				'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day && $birth_year > 1004,
 			];
 		}
@@ -147,14 +147,22 @@ class Summary implements ActionInterface
 				)
 			) {
 				$type = 'approve';
-				Utils::$context['activate_link_text'] = Lang::$txt['account_approve'];
+				Utils::$context['activate_link_text'] = Lang::getTxt('account_approve', file: 'Profile');
 			} else {
 				$type = 'activate';
-				Utils::$context['activate_link_text'] = Lang::$txt['account_activate'];
+				Utils::$context['activate_link_text'] = Lang::getTxt('account_activate', file: 'Profile');
 			}
 
 			// Should we show a custom message?
-			Utils::$context['activate_message'] = Lang::$txt['account_activate_method_' . Profile::$member->is_activated % User::BANNED] ?? Lang::$txt['account_not_activated'];
+			Utils::$context['activate_message'] = Lang::getTxt(
+				Lang::txtExists(
+					'account_activate_method_' . Profile::$member->is_activated % User::BANNED,
+					file: 'Profile',
+				)
+				? 'account_activate_method_' . Profile::$member->is_activated % User::BANNED
+				: 'account_not_activated',
+				file: 'Profile',
+			);
 
 			// If they can be approved, we need to set up a token for them.
 			Utils::$context['token_check'] = 'profile-aa' . Profile::$member->id;
@@ -217,7 +225,7 @@ class Summary implements ActionInterface
 
 				foreach (['access', 'login', 'post'] as $type) {
 					if ($row['cannot_' . $type]) {
-						$ban_restrictions[] = Lang::$txt['ban_type_' . $type];
+						$ban_restrictions[] = Lang::getTxt('ban_type_' . $type, file: 'Profile');
 					}
 				}
 
@@ -227,10 +235,10 @@ class Summary implements ActionInterface
 				}
 
 				// Prepare the link for context.
-				$ban_explanation = Lang::getTxt('user_cannot_due_to', ['list' => Lang::sentenceList($ban_restrictions, 'or'), 'ban' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>']);
+				$ban_explanation = Lang::getTxt('user_cannot_due_to', ['list' => Lang::sentenceList($ban_restrictions, 'or'), 'ban' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>'], file: 'Profile');
 
 				Profile::$member->formatted['bans'][$row['id_ban_group']] = [
-					'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . Lang::$txt['ban_reason'] . ':</strong> ' . $row['reason'],
+					'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . Lang::getTxt('ban_reason', file: 'General') . ':</strong> ' . $row['reason'],
 					'cannot' => [
 						'access' => !empty($row['cannot_access']),
 						'post' => !empty($row['cannot_post']),

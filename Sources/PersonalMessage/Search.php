@@ -183,11 +183,11 @@ class Search
 		Utils::$context['start'] = &$this->start;
 		Utils::$context['params'] = &$this->compressed_params;
 
-		Utils::$context['page_title'] = Lang::$txt['pm_search_title'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_search_title', file: 'PersonalMessage');
 		Menu::$loaded['pm']['current_area'] = 'search';
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=search',
-			'name' => Lang::$txt['pm_search_bar_title'],
+			'name' => Lang::getTxt('pm_search_bar_title', file: 'PersonalMessage'),
 		];
 	}
 
@@ -222,8 +222,6 @@ class Search
 
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
-			Lang::load('Errors');
-
 			Utils::$context['search_errors']['messages'] = [];
 
 			foreach (Utils::$context['search_errors'] as $search_error => $dummy) {
@@ -231,7 +229,7 @@ class Search
 					continue;
 				}
 
-				Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
+				Utils::$context['search_errors']['messages'][] = Lang::getTxt('error_' . $search_error, file: 'Errors');
 			}
 		}
 

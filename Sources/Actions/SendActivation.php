@@ -47,10 +47,10 @@ class SendActivation implements ActionInterface, Routable
 		// Send them to the done-with-registration-login screen.
 		Theme::loadTemplate('Register');
 
-		Utils::$context['page_title'] = Lang::$txt['profile'];
+		Utils::$context['page_title'] = Lang::getTxt('profile', file: 'General');
 		Utils::$context['sub_template'] = 'after';
-		Utils::$context['title'] = Lang::$txt['activate_changed_email_title'];
-		Utils::$context['description'] = Lang::$txt['activate_changed_email_desc'];
+		Utils::$context['title'] = Lang::getTxt('activate_changed_email_title', file: 'General');
+		Utils::$context['description'] = Lang::getTxt('activate_changed_email_desc', file: 'General');
 
 		// Aaand we're gone!
 		Utils::obExit();

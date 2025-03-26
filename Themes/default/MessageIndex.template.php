@@ -30,14 +30,14 @@ function template_main()
 
 	if (!empty(Utils::$context['moderators']))
 		echo '
-			<p>', Lang::getTxt('moderators_list', ['num' => count(Utils::$context['link_moderators']), 'list' => Lang::sentenceList(Utils::$context['link_moderators'])]), '.</p>';
+			<p>', Lang::getTxt('moderators_list', ['num' => count(Utils::$context['link_moderators']), 'list' => Lang::sentenceList(Utils::$context['link_moderators'])], file: 'General'), '.</p>';
 
 	if (!empty(Theme::$current->settings['display_who_viewing']))
 	{
 		// Show just numbers...?
 		if (Theme::$current->settings['display_who_viewing'] == 1 || empty(Utils::$context['view_members_list'])) {
 			$list_of_viewers = [
-				Lang::getTxt('number_of_members', [0]),
+				Lang::getTxt('number_of_members', [0], file: 'General'),
 			];
 		}
 		// Or show the actual people viewing the topic?
@@ -46,12 +46,12 @@ function template_main()
 		}
 
 		if (!empty(Utils::$context['view_num_hidden']) && !Utils::$context['can_moderate_forum']) {
-			$list_of_viewers[] = Lang::getTxt('number_of_hidden_members', [Utils::$context['view_num_hidden']]);
+			$list_of_viewers[] = Lang::getTxt('number_of_hidden_members', [Utils::$context['view_num_hidden']], file: 'General');
 		}
 
 		// Now show how many guests are here too.
 		if (!empty(Utils::$context['view_num_guests'])) {
-			$list_of_viewers[] = Lang::getTxt('guest_plural', [Utils::$context['view_num_guests']]);
+			$list_of_viewers[] = Lang::getTxt('guest_plural', [Utils::$context['view_num_guests']], file: 'General');
 		}
 
 		echo '
@@ -62,6 +62,7 @@ function template_main()
 						'list_of_viewers' => Lang::sentenceList(array_values($list_of_viewers)),
 						'num_viewing' => count(Utils::$context['view_members_list'] ?? []) + (int) (Utils::$context['view_num_guests'] ?? 0) + (int) (Utils::$context['view_num_hidden'] ?? 0),
 					],
+					file: 'General',
 				), '
 			</p>';
 	}
@@ -74,7 +75,7 @@ function template_main()
 		echo '
 	<div id="board_', Utils::$context['current_board'], '_childboards" class="boardindex_table main_container">
 		<div class="cat_bar">
-			<h3 class="catbg">', Lang::$txt['sub_boards'], '</h3>
+			<h3 class="catbg">', Lang::getTxt('sub_boards', file: 'General'), '</h3>
 		</div>';
 
 		foreach (Utils::$context['boards'] as $board)
@@ -118,7 +119,7 @@ function template_main()
 	if (Utils::$context['becomesUnapproved'])
 		echo '
 	<div class="noticebox">
-		', Lang::$txt['post_becomes_unapproved'], '
+		', Lang::getTxt('post_becomes_unapproved', file: 'General'), '
 	</div>';
 
 	// If this person can approve items and we have some awaiting approval tell them.
@@ -134,7 +135,7 @@ function template_main()
 	<div class="pagesection">
 		', Utils::$context['menu_separator'], '
 		<div class="pagelinks floatleft">
-			<a href="#bot" class="button">', Lang::$txt['go_down'], '</a>
+			<a href="#bot" class="button">', Lang::getTxt('go_down', file: 'General'), '</a>
 			', Utils::$context['page_index'], '
 		</div>
 		', template_button_strip(Utils::$context['normal_buttons'], 'right');
@@ -143,7 +144,7 @@ function template_main()
 		if (!empty(Utils::$context['normal_buttons']))
 			echo '
 		<div class="mobile_buttons floatright">
-			<a class="button mobile_act">', Lang::$txt['mobile_action'], '</a>
+			<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 		</div>';
 
 		echo '
@@ -185,7 +186,7 @@ function template_main()
 		// No topics... just say, "sorry bub".
 		else
 			echo '
-				<h3 class="titlebg">', Lang::$txt['topic_alert_none'], '</h3>';
+				<h3 class="titlebg">', Lang::getTxt('topic_alert_none', file: 'General'), '</h3>';
 
 		echo '
 			</div><!-- #topic_header -->';
@@ -211,7 +212,7 @@ function template_main()
 
 			if ($topic['is_watched'])
 				echo '
-								<span class="main_icons watch" title="', Lang::$txt['watching_this_topic'], '"></span>';
+								<span class="main_icons watch" title="', Lang::getTxt('watching_this_topic', file: 'General'), '"></span>';
 
 			if ($topic['is_locked'])
 				echo '
@@ -234,22 +235,22 @@ function template_main()
 
 			echo '
 							<div class="message_index_title">
-								', $topic['new'] && User::$me->is_logged ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
+								', $topic['new'] && User::$me->is_logged ? '<a href="' . $topic['new_href'] . '" id="newicon' . $topic['first_post']['id'] . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>' : '', '
 								<span class="preview', $topic['is_sticky'] ? ' bold_text' : '', '" title="', $topic[(empty(Config::$modSettings['message_index_preview_first']) ? 'last_post' : 'first_post')]['preview'], '">
-									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''), '</span>
+									<span id="msg_', $topic['first_post']['id'], '">', $topic['first_post']['link'], (!$topic['approved'] ? '&nbsp;<em>(' . Lang::getTxt('awaiting_approval', file: 'General') . ')</em>' : ''), '</span>
 								</span>
 							</div>
 							<p class="floatleft">
-								', Lang::getTxt('started_by_member', ['member' => $topic['first_post']['member']['link']]), '
+								', Lang::getTxt('started_by_member', ['member' => $topic['first_post']['member']['link']], file: 'General'), '
 							</p>
 							', !empty($topic['pages']) ? '<span id="pages' . $topic['first_post']['id'] . '" class="topic_pages">' . $topic['pages'] . '</span>' : '', '
 						</div><!-- #topic_[first_post][id] -->
 					</div><!-- .info -->
 					<div class="board_stats centertext">
-						<p>', Lang::getTxt('number_of_replies', [$topic['replies']]), '<br>', Lang::getTxt('number_of_views', [$topic['views']]), '</p>
+						<p>', Lang::getTxt('number_of_replies', [$topic['replies']], file: 'General'), '<br>', Lang::getTxt('number_of_views', [$topic['views']], file: 'General'), '</p>
 					</div>
 					<div class="lastpost">
-						<p>', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']]), '</p>
+						<p>', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $topic['last_post']['href'] . '">' . $topic['last_post']['time'] . '</a>', 'member_link' => $topic['last_post']['member']['link']], file: 'General'), '</p>
 					</div>';
 
 			// Show the quick moderation options?
@@ -265,19 +266,19 @@ function template_main()
 				{
 					// Check permissions on each and show only the ones they are allowed to use.
 					if ($topic['quick_mod']['remove'])
-						echo '<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=remove;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', Lang::$txt['remove_topic'], '"></span></a>';
+						echo '<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=remove;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons delete" title="', Lang::getTxt('remove_topic', file: 'General'), '"></span></a>';
 
 					if ($topic['quick_mod']['lock'])
-						echo '<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=lock;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', $topic['is_locked'] ? Lang::$txt['set_unlock'] : Lang::$txt['set_lock'], '"></span></a>';
+						echo '<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=lock;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons lock" title="', Lang::getTxt($topic['is_locked'] ? 'set_unlock' : 'set_lock', file: 'General'), '"></span></a>';
 
 					if ($topic['quick_mod']['lock'] || $topic['quick_mod']['remove'])
 						echo '<br>';
 
 					if ($topic['quick_mod']['sticky'])
-						echo '<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', $topic['is_sticky'] ? Lang::$txt['set_nonsticky'] : Lang::$txt['set_sticky'], '"></span></a>';
+						echo '<a href="', Config::$scripturl, '?action=quickmod;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';actions%5B', $topic['id'], '%5D=sticky;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="you_sure"><span class="main_icons sticky" title="', Lang::getTxt($topic['is_sticky'] ? 'set_nonsticky' : 'set_sticky', file: 'General'), '"></span></a>';
 
 					if ($topic['quick_mod']['move'])
-						echo '<a href="', Config::$scripturl, '?action=movetopic;current_board=', Utils::$context['current_board'], ';board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';topic=', $topic['id'], '.0"><span class="main_icons move" title="', Lang::$txt['move_topic'], '"></span></a>';
+						echo '<a href="', Config::$scripturl, '?action=movetopic;current_board=', Utils::$context['current_board'], ';board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';topic=', $topic['id'], '.0"><span class="main_icons move" title="', Lang::getTxt('move_topic', file: 'General'), '"></span></a>';
 				}
 				echo '
 					</div><!-- .moderation -->';
@@ -298,7 +299,7 @@ function template_main()
 			foreach (Utils::$context['qmod_actions'] as $qmod_action)
 				if (Utils::$context['can_' . $qmod_action])
 					echo '
-					<option value="' . $qmod_action . '">' . Lang::$txt['quick_mod_' . $qmod_action] . '</option>';
+					<option value="' . $qmod_action . '">' . Lang::getTxt('quick_mod_' . $qmod_action, file: 'General') . '</option>';
 
 			echo '
 				</select>';
@@ -309,7 +310,7 @@ function template_main()
 				<span id="quick_mod_jump_to"></span>';
 
 			echo '
-				<input type="submit" value="', Lang::$txt['quick_mod_go'], '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', Lang::$txt['quickmod_confirm'], '\');" class="button qaction">
+				<input type="submit" value="', Lang::getTxt('quick_mod_go', file: 'General'), '" onclick="return document.forms.quickModForm.qaction.value != \'\' &amp;&amp; confirm(\'', Lang::getTxt('quickmod_confirm', file: 'General'), '\');" class="button qaction">
 			</div><!-- #quick_actions -->';
 		}
 
@@ -327,7 +328,7 @@ function template_main()
 		', template_button_strip(Utils::$context['normal_buttons'], 'right'), '
 		', Utils::$context['menu_separator'], '
 		<div class="pagelinks floatleft">
-			<a href="#main_content_section" class="button" id="bot">', Lang::$txt['go_up'], '</a>
+			<a href="#main_content_section" class="button" id="bot">', Lang::getTxt('go_up', file: 'General'), '</a>
 			', Utils::$context['page_index'], '
 		</div>';
 
@@ -335,7 +336,7 @@ function template_main()
 		if (!empty(Utils::$context['normal_buttons']))
 			echo '
 			<div class="mobile_buttons floatright">
-				<a class="button mobile_act">', Lang::$txt['mobile_action'], '</a>
+				<a class="button mobile_act">', Lang::getTxt('mobile_action', file: 'General'), '</a>
 			</div>';
 
 		echo '
@@ -381,7 +382,7 @@ function template_main()
 	echo '
 	<div id="mobile_action" class="popup_container">
 		<div class="popup_window description">
-			<div class="popup_heading">', Lang::$txt['mobile_action'], '
+			<div class="popup_heading">', Lang::getTxt('mobile_action', file: 'General'), '
 				<a href="javascript:void(0);" class="main_icons hide_popup"></a>
 			</div>
 			', template_button_strip(Utils::$context['normal_buttons']), '
@@ -426,7 +427,7 @@ function template_bi_board_info($board)
 	// Has it outstanding posts for approval?
 	if ($board['can_approve_posts'] && ($board['unapproved_posts'] || $board['unapproved_topics']))
 		echo '
-		<a href="', Config::$scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('unapproved_posts', $board), '" class="moderation_link amt">!</a>';
+		<a href="', Config::$scripturl, '?action=moderate;area=postmod;sa=', ($board['unapproved_topics'] > 0 ? 'topics' : 'posts'), ';brd=', $board['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" title="', Lang::getTxt('unapproved_posts', $board, file: 'General'), '" class="moderation_link amt">!</a>';
 
 	echo '
 		<div class="board_description">', $board['description'], '</div>';
@@ -434,7 +435,7 @@ function template_bi_board_info($board)
 	// Show the "Moderators: ". Each has name, href, link, and id. (but we're gonna use link_moderators.)
 	if (!empty($board['moderators']) || !empty($board['moderator_groups']))
 		echo '
-		<p class="moderators">', Lang::getTxt('moderators_list', ['num' => count($board['link_moderators']), 'list' => Lang::sentenceList($board['link_moderators'])]), '</p>';
+		<p class="moderators">', Lang::getTxt('moderators_list', ['num' => count($board['link_moderators']), 'list' => Lang::sentenceList($board['link_moderators'])], file: 'General'), '</p>';
 }
 
 /**
@@ -446,7 +447,7 @@ function template_bi_board_stats($board)
 {
 	echo '
 		<p>
-			', Lang::getTxt('number_of_posts', [$board->posts]), '<br>', Lang::getTxt('number_of_topics', [$board->topics]), '
+			', Lang::getTxt('number_of_posts', [$board->posts], file: 'General'), '<br>', Lang::getTxt('number_of_topics', [$board->topics], file: 'General'), '
 		</p>';
 }
 
@@ -459,7 +460,7 @@ function template_bi_redirect_stats($board)
 {
 	echo '
 		<p>
-			', Lang::getTxt('number_of_redirects', [$board->posts]), '
+			', Lang::getTxt('number_of_redirects', [$board->posts], file: 'General'), '
 		</p>';
 }
 
@@ -493,13 +494,13 @@ function template_bi_board_children($board)
 		foreach ($board['children'] as $child)
 		{
 			if (!$child['is_redirect'])
-				$child['link'] = '' . ($child['new'] ? '<a href="' . Config::$scripturl . '?action=unread;board=' . $child['id'] . '" title="' . Lang::getTxt('new_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']]) . '" class="new_posts">' . Lang::$txt['new'] . '</a> ' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . Lang::getTxt($child['new'] ? 'new_posts_stats' : 'old_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']]) . '">' . $child['name'] . '</a>';
+				$child['link'] = '' . ($child['new'] ? '<a href="' . Config::$scripturl . '?action=unread;board=' . $child['id'] . '" title="' . Lang::getTxt('new_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']], file: 'General') . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a> ' : '') . '<a href="' . $child['href'] . '" ' . ($child['new'] ? 'class="board_new_posts" ' : '') . 'title="' . Lang::getTxt($child['new'] ? 'new_posts_stats' : 'old_posts_stats', ['posts' => $child['posts'], 'topics' => $child['topics']], file: 'General') . '">' . $child['name'] . '</a>';
 			else
-				$child['link'] = '<a href="' . $child['href'] . '" title="' . Lang::getTxt('number_of_redirects', [$child['posts']]) . ' - ' . $child['short_description'] . '">' . $child['name'] . '</a>';
+				$child['link'] = '<a href="' . $child['href'] . '" title="' . Lang::getTxt('number_of_redirects', [$child['posts']], file: 'General') . ' - ' . $child['short_description'] . '">' . $child['name'] . '</a>';
 
 			// Has it posts awaiting approval?
 			if ($child['can_approve_posts'] && ($child['unapproved_posts'] || $child['unapproved_topics']))
-				$child['link'] .= ' <a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=' . ($child['unapproved_topics'] > 0 ? 'topics' : 'posts') . ';brd=' . $child['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" title="' . Lang::getTxt('unapproved_posts', $child) . '" class="moderation_link amt">!</a>';
+				$child['link'] .= ' <a href="' . Config::$scripturl . '?action=moderate;area=postmod;sa=' . ($child['unapproved_topics'] > 0 ? 'topics' : 'posts') . ';brd=' . $child['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" title="' . Lang::getTxt('unapproved_posts', $child, file: 'General') . '" class="moderation_link amt">!</a>';
 
 			$children[] = $child['new'] ? '<span class="strong">' . $child['link'] . '</span>' : '<span>' . $child['link'] . '</span>';
 		}
@@ -514,6 +515,7 @@ function template_bi_board_children($board)
 						'num' => count($children),
 						'list' => implode(' ', $children),
 					],
+					file: 'General',
 				),
 				'</p>
 			</div>';
@@ -533,14 +535,14 @@ function template_topic_legend()
 	if (empty(Utils::$context['no_topic_listing']))
 		echo '
 			<p class="floatleft">', !empty(Config::$modSettings['enableParticipation']) && User::$me->is_logged ? '
-				<span class="main_icons profile_sm"></span> ' . Lang::$txt['participation_caption'] . '<br>' : '', '
-				' . (Config::$modSettings['pollMode'] == '1' ? '<span class="main_icons poll"></span> ' . Lang::$txt['poll'] . '<br>' : '') . '
-				<span class="main_icons move"></span> ' . Lang::$txt['moved_topic'] . '<br>
+				<span class="main_icons profile_sm"></span> ' . Lang::getTxt('participation_caption', file: 'General') . '<br>' : '', '
+				' . (Config::$modSettings['pollMode'] == '1' ? '<span class="main_icons poll"></span> ' . Lang::getTxt('poll', file: 'General') . '<br>' : '') . '
+				<span class="main_icons move"></span> ' . Lang::getTxt('moved_topic', file: 'General') . '<br>
 			</p>
 			<p>
-				<span class="main_icons lock"></span> ' . Lang::$txt['locked_topic'] . '<br>
-				<span class="main_icons sticky"></span> ' . Lang::$txt['sticky_topic'] . '<br>
-				<span class="main_icons watch"></span> ' . Lang::$txt['watching_topic'] . '<br>
+				<span class="main_icons lock"></span> ' . Lang::getTxt('locked_topic', file: 'General') . '<br>
+				<span class="main_icons sticky"></span> ' . Lang::getTxt('sticky_topic', file: 'General') . '<br>
+				<span class="main_icons watch"></span> ' . Lang::getTxt('watching_topic', file: 'General') . '<br>
 			</p>';
 
 	if (!empty(Utils::$context['jump_to']))
@@ -557,7 +559,7 @@ function template_topic_legend()
 						sBoardPrefix: "=> ",
 						sCatSeparator: "-----------------------------",
 						sCatPrefix: "",
-						sGoButtonLabel: "', Lang::$txt['quick_mod_go'], '"
+						sGoButtonLabel: "', Lang::getTxt('quick_mod_go', file: 'General'), '"
 					});
 			</script>';
 

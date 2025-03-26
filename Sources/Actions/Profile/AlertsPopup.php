@@ -19,7 +19,6 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Config;
-use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
 
@@ -39,9 +38,6 @@ class AlertsPopup implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		// Load the Alerts language file.
-		Lang::load('Alerts');
-
 		// We do not want to output debug information here.
 		Config::$db_show_debug = false;
 

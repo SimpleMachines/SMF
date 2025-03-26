@@ -444,9 +444,13 @@ class Attachment implements \ArrayAccess
 		}
 
 		if (($this->prop_aliases[$prop] ?? $prop) === 'size') {
-			Lang::load('General');
-
-			$this->formatted_size = ($this->size < 1024000) ? round($this->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($this->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'];
+			$this->formatted_size = Lang::getTxt(
+				$this->size < 1024000 ? 'size_kilobyte' : 'size_megabyte',
+				[
+					$this->size < 1024000 ? round($this->size / 1024, 2) : round($this->size / 1024 / 1024, 2),
+				],
+				file: 'General',
+			);
 		}
 	}
 
@@ -927,7 +931,7 @@ class Attachment implements \ArrayAccess
 			$initial_error = Utils::$context['dir_creation_error'];
 		} elseif (!is_dir(Utils::$context['attach_dir'])) {
 			$initial_error = 'attach_folder_warning';
-			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', Utils::$context), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', Utils::$context, file: 'Post'), 'critical');
 		}
 
 		if (!isset($initial_error) && !isset(Utils::$context['attachments'])) {
@@ -977,7 +981,7 @@ class Attachment implements \ArrayAccess
 					}
 				}
 
-				Utils::$context['we_are_history'] = Lang::$txt['error_temp_attachments_flushed'];
+				Utils::$context['we_are_history'] = Lang::getTxt('error_temp_attachments_flushed', file: 'Post');
 				$_SESSION['temp_attachments'] = [];
 			}
 		}
@@ -1027,9 +1031,9 @@ class Attachment implements \ArrayAccess
 				if ($_FILES['attachment']['error'][$n] == 2) {
 					$errors[] = ['file_too_big', [Config::$modSettings['attachmentSizeLimit']]];
 				} elseif ($_FILES['attachment']['error'][$n] == 6) {
-					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::getTxt('php_upload_error_6', file: 'Post'), 'critical');
 				} else {
-					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::getTxt('php_upload_error_' . $_FILES['attachment']['error'][$n], file: 'Post'));
 				}
 
 				if (empty($errors)) {
@@ -1400,8 +1404,7 @@ class Attachment implements \ArrayAccess
 
 		// Attachment couldn't be created.
 		if (empty($attachmentOptions['id'])) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::$txt['attachment_not_created'], 'general');
+			ErrorHandler::log(Lang::getTxt('attachment_not_created', file: 'Errors'), 'general');
 
 			return false;
 		}
@@ -2021,8 +2024,14 @@ class Attachment implements \ArrayAccess
 					'id' => $attachment['id_attach'],
 					'name' => Utils::entityFix(Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($attachment['filename']))),
 					'downloads' => $attachment['downloads'],
-					'formatted_size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
 					'byte_size' => $attachment['filesize'],
+					'formatted_size' => Lang::getTxt(
+						$attachment['filesize'] < 1024000 ? 'size_kilobyte' : 'size_megabyte',
+						[
+							$attachment['filesize'] < 1024000 ? round($attachment['filesize'] / 1024, 2) : round($attachment['filesize'] / 1024 / 1024, 2),
+						],
+						file: 'General',
+					),
 					'href' => Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
 					'link' => '<a href="' . Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($attachment['filename'])) . '</a>',
 					'is_image' => !empty($attachment['width']) && !empty($attachment['height']),
@@ -2215,7 +2224,7 @@ class Attachment implements \ArrayAccess
 				// This can happen if an uploaded SVG is missing some key data.
 				foreach (['real_width', 'real_height'] as $key) {
 					if (!isset($attachmentData[$i][$key]) || $attachmentData[$i][$key] === INF) {
-						$attachmentData[$i][$key] = ' (' . Lang::$txt['unknown'] . ') ';
+						$attachmentData[$i][$key] = ' (' . Lang::getTxt('unknown', file: 'General') . ') ';
 					}
 				}
 			}

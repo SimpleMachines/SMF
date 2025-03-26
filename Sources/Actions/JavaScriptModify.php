@@ -265,15 +265,13 @@ class JavaScriptModify implements ActionInterface, Routable
 			// Changing the first subject updates other subjects to 'Re: new_subject'.
 			if (isset($_POST['subject'], $_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (User::$me->allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && User::$me->allowedTo('modify_replies')))) {
 				// Get the proper (default language) response prefix first.
-				if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
+				if (!isset(Utils::$context['response_prefix'])) {
 					if (Lang::$default === User::$me->language) {
-						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-					} else {
-						Lang::load('General', Lang::$default, false);
-						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-						Lang::load('General');
+						Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
+					} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+						Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+						CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 					}
-					CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 				}
 
 				Db::$db->query(
@@ -346,13 +344,11 @@ class JavaScriptModify implements ActionInterface, Routable
 					'error_in_body' => in_array('no_message', $post_errors) || in_array('long_message', $post_errors) || in_array('links_malformed', $post_errors),
 				];
 
-				Lang::load('Errors');
-
 				foreach ($post_errors as $post_error) {
 					if ($post_error == 'long_message') {
-						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, [Config::$modSettings['max_messageLength']]);
+						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, [Config::$modSettings['max_messageLength']], file: 'Errors');
 					} else {
-						Utils::$context['message']['errors'][] = Lang::$txt['error_' . $post_error];
+						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, file: 'Errors');
 					}
 				}
 			}

@@ -68,8 +68,8 @@ class UnreadReplies extends Unread
 
 		parent::init();
 
-		Utils::$context['page_title'] = Lang::$txt['unread_replies'];
-		$this->linktree_name = Lang::$txt['unread_replies'];
+		Utils::$context['page_title'] = Lang::getTxt('unread_replies', file: 'General');
+		$this->linktree_name = Lang::getTxt('unread_replies', file: 'General');
 		$this->action_url = Config::$scripturl . '?action=unreadreplies';
 	}
 

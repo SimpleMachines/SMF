@@ -96,7 +96,6 @@ class Activate implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Login');
 		Theme::loadTemplate('Login');
 
 		if (!isset($this->member)) {
@@ -143,8 +142,8 @@ class Activate implements ActionInterface, Routable
 
 		Mail::send($this->member->email, $emaildata['subject'], $emaildata['body'], null, 'resendact', $emaildata['is_html'], 0);
 
-		Utils::$context['page_title'] = Lang::$txt['invalid_activation_resend'];
-		Utils::$context['error_title'] = Lang::$txt['invalid_activation_resend'];
+		Utils::$context['page_title'] = Lang::getTxt('invalid_activation_resend', file: 'Login');
+		Utils::$context['error_title'] = Lang::getTxt('invalid_activation_resend', file: 'Login');
 
 		// Not actually an error, but we just want to show the message and end execution.
 		ErrorHandler::fatalLang(!empty($this->email_change) ? 'change_email_success' : 'resend_email_success', false);
@@ -177,12 +176,12 @@ class Activate implements ActionInterface, Routable
 		}
 
 		Utils::$context += [
-			'page_title' => Lang::$txt['registration_successful'],
+			'page_title' => Lang::getTxt('registration_successful', file: 'Login'),
 			'sub_template' => 'login',
 			'default_username' => $this->member->username,
 			'default_password' => '',
 			'never_expire' => false,
-			'description' => Lang::$txt['activate_success'],
+			'description' => Lang::getTxt('activate_success', file: 'Login'),
 		];
 	}
 
@@ -302,11 +301,11 @@ class Activate implements ActionInterface, Routable
 			}
 
 			if (!filter_var($_POST['new_email'], FILTER_VALIDATE_EMAIL)) {
-				ErrorHandler::fatal(Lang::getTxt('valid_email_needed', ['email' => Utils::htmlspecialchars($_POST['new_email'])]), false);
+				ErrorHandler::fatal(Lang::getTxt('valid_email_needed', ['email' => Utils::htmlspecialchars($_POST['new_email'])], file: 'Login'), false);
 			}
 
 			// Make sure their email isn't banned.
-			User::isBannedEmail($_POST['new_email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
+			User::isBannedEmail($_POST['new_email'], 'cannot_register', Lang::getTxt('ban_register_prohibited', file: 'Login'));
 
 			// Ummm... don't even dare try to take someone else's email!!
 			$request = Db::$db->query(
@@ -343,7 +342,7 @@ class Activate implements ActionInterface, Routable
 
 		Utils::$context['member_id'] = 0;
 		Utils::$context['sub_template'] = 'resend';
-		Utils::$context['page_title'] = Lang::$txt['invalid_activation_resend'];
+		Utils::$context['page_title'] = Lang::getTxt('invalid_activation_resend', file: 'Login');
 		Utils::$context['can_activate'] = empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] == '1';
 		Utils::$context['default_username'] = $_GET['user'] ?? '';
 	}
@@ -354,7 +353,7 @@ class Activate implements ActionInterface, Routable
 	protected function showRetryInvalidUser(): void
 	{
 		Utils::$context['sub_template'] = 'retry_activate';
-		Utils::$context['page_title'] = Lang::$txt['invalid_userid'];
+		Utils::$context['page_title'] = Lang::getTxt('invalid_userid', file: 'Login');
 		Utils::$context['member_id'] = 0;
 	}
 
@@ -366,12 +365,11 @@ class Activate implements ActionInterface, Routable
 		if (!empty($this->member->is_activated)) {
 			ErrorHandler::fatalLang('already_activated', false);
 		} elseif ($this->member->validation_code == '') {
-			Lang::load('Profile');
-			ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $this->member->username]), false);
+			ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $this->member->username], file: 'Profile'), false);
 		}
 
 		Utils::$context['sub_template'] = 'retry_activate';
-		Utils::$context['page_title'] = Lang::$txt['invalid_activation_code'];
+		Utils::$context['page_title'] = Lang::getTxt('invalid_activation_code', file: 'Login');
 		Utils::$context['member_id'] = $this->member->id;
 	}
 }

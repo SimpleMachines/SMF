@@ -36,7 +36,7 @@ function template_main()
 			pollOptionNum++
 			pollOptionId++
 
-			setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', strtr(Lang::getTxt('option_number', [999]), ['999' => '\' + pollOptionNum + \'']), '</label></dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p>\');
+			setOuterHTML(document.getElementById("pollMoreOptions"), \'<dt><label for="options-\' + pollOptionId + \'" ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', strtr(Lang::getTxt('option_number', [999], file: 'Post'), ['999' => '\' + pollOptionNum + \'']), '</label></dt><dd><input type="text" name="options[\' + (pollOptionId) + \']" id="options-\' + (pollOptionId) + \'" value="" size="80" maxlength="255"></dd><p id="pollMoreOptions"></p>\');
 		}
 	</script>';
 
@@ -45,7 +45,7 @@ function template_main()
 			<div class="errorbox">
 				<dl class="poll_error">
 					<dt>
-						', Utils::$context['is_edit'] ? Lang::$txt['error_while_editing_poll'] : Lang::$txt['error_while_adding_poll'], '
+						', Lang::getTxt(Utils::$context['is_edit'] ? 'error_while_editing_poll' : 'error_while_adding_poll', file: 'Errors'), '
 					</dt>
 					<dt>
 						', empty(Utils::$context['poll_error']['messages']) ? '' : implode('<br>', Utils::$context['poll_error']['messages']), '
@@ -66,23 +66,23 @@ function template_main()
 				<div class="roundframe noup">
 					<input type="hidden" name="poll" value="', Utils::$context['poll']['id'], '">
 					<fieldset id="poll_main">
-						<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::$txt['poll_question'], '</span></legend>
+						<legend><span ', (isset(Utils::$context['poll_error']['no_question']) ? ' class="error"' : ''), '>', Lang::getTxt('poll_question', file: 'General'), '</span></legend>
 						<dl class="settings poll_options">
-							<dt>', Lang::$txt['poll_question'], '</dt>
+							<dt>', Lang::getTxt('poll_question', file: 'General'), '</dt>
 							<dd><input type="text" name="question" size="80" value="', Utils::$context['poll']['question'], '"></dd>';
 
 	foreach (Utils::$context['choices'] as $choice)
 	{
 		echo '
 							<dt>
-								<label for="options-', $choice['id'], '" ', (isset(Utils::$context['poll_error']['poll_few']) ? ' class="error"' : ''), '>', Lang::getTxt('option_number', [$choice['number']]), '</label>
+								<label for="options-', $choice['id'], '" ', (isset(Utils::$context['poll_error']['poll_few']) ? ' class="error"' : ''), '>', Lang::getTxt('option_number', [$choice['number']], file: 'Post'), '</label>
 							</dt>
 							<dd>
 								<input type="text" name="options[', $choice['id'], ']" id="options-', $choice['id'], '" value="', $choice['label'], '" size="80" maxlength="255">';
 
 		// Does this option have a vote count yet, or is it new?
 		if ($choice['votes'] != -1)
-			echo ' (', Lang::getTxt('number_of_votes', [$choice['votes']]), ')';
+			echo ' (', Lang::getTxt('number_of_votes', [$choice['votes']], file: 'Post'), ')';
 
 		echo '
 							</dd>';
@@ -91,30 +91,30 @@ function template_main()
 	echo '
 							<p id="pollMoreOptions"></p>
 						</dl>
-						<strong><a href="javascript:addPollOption(); void(0);">(', Lang::$txt['poll_add_option'], ')</a></strong>
+						<strong><a href="javascript:addPollOption(); void(0);">(', Lang::getTxt('poll_add_option', file: 'Post'), ')</a></strong>
 					</fieldset>
 					<fieldset id="poll_options">
-						<legend>', Lang::$txt['poll_options'], '</legend>
+						<legend>', Lang::getTxt('poll_options', file: 'Post'), '</legend>
 						<dl class="settings poll_options">';
 
 	if (Utils::$context['can_moderate_poll'])
 	{
 		echo '
 							<dt>
-								<label for="poll_max_votes">', Lang::$txt['poll_max_votes'], '</label>
+								<label for="poll_max_votes">', Lang::getTxt('poll_max_votes', file: 'Post'), '</label>
 							</dt>
 							<dd>
 								<input type="number" name="poll_max_votes" id="poll_max_votes" min="1" value="', Utils::$context['poll']['max_votes'], '">
 							</dd>
 							<dt>
-								<label for="poll_expire">', Lang::$txt['poll_run'], '</label><br>
-								<em class="smalltext">', Lang::$txt['poll_run_limit'], '</em>
+								<label for="poll_expire">', Lang::getTxt('poll_run', file: 'Post'), '</label><br>
+								<em class="smalltext">', Lang::getTxt('poll_run_limit', file: 'Post'), '</em>
 							</dt>
 							<dd>
 								<input type="number" name="poll_expire" id="poll_expire" min="0" max="9999" value="', intval(Utils::$context['poll']['expiration']), '" onchange="this.form.poll_hide[2].disabled = isEmptyText(this) || this.value == 0; if (this.form.poll_hide[2].checked) this.form.poll_hide[1].checked = true;">
 							</dd>
 							<dt>
-								<label for="poll_change_vote">', Lang::$txt['poll_do_change_vote'], '</label>
+								<label for="poll_change_vote">', Lang::getTxt('poll_do_change_vote', file: 'Post'), '</label>
 							</dt>
 							<dd>
 								<input type="checkbox" id="poll_change_vote" name="poll_change_vote"', !empty(Utils::$context['poll']['change_vote']) ? ' checked' : '', '>
@@ -123,7 +123,7 @@ function template_main()
 		if (Utils::$context['poll']['guest_vote_allowed'])
 			echo '
 							<dt>
-								<label for="poll_guest_vote">', Lang::$txt['poll_guest_vote'], '</label>
+								<label for="poll_guest_vote">', Lang::getTxt('poll_guest_vote', file: 'Post'), '</label>
 							</dt>
 							<dd>
 								<input type="checkbox" id="poll_guest_vote" name="poll_guest_vote"', !empty(Utils::$context['poll']['guest_vote']) ? ' checked' : '', '>
@@ -132,12 +132,12 @@ function template_main()
 
 	echo '
 							<dt>
-								', Lang::$txt['poll_results_visibility'], '
+								', Lang::getTxt('poll_results_visibility', file: 'Post'), '
 							</dt>
 							<dd>
-								<input type="radio" name="poll_hide" id="poll_results_anyone" value="0"', Utils::$context['poll']['hide_results'] == 0 ? ' checked' : '', '> <label for="poll_results_anyone">', Lang::$txt['poll_results_anyone'], '</label><br>
-								<input type="radio" name="poll_hide" id="poll_results_voted" value="1"', Utils::$context['poll']['hide_results'] == 1 ? ' checked' : '', '> <label for="poll_results_voted">', Lang::$txt['poll_results_voted'], '</label><br>
-								<input type="radio" name="poll_hide" id="poll_results_expire" value="2"', Utils::$context['poll']['hide_results'] == 2 ? ' checked' : '', empty(Utils::$context['poll']['expiration']) ? ' disabled' : '', '> <label for="poll_results_expire">', Lang::$txt['poll_results_after'], '</label>
+								<input type="radio" name="poll_hide" id="poll_results_anyone" value="0"', Utils::$context['poll']['hide_results'] == 0 ? ' checked' : '', '> <label for="poll_results_anyone">', Lang::getTxt('poll_results_anyone', file: 'Post'), '</label><br>
+								<input type="radio" name="poll_hide" id="poll_results_voted" value="1"', Utils::$context['poll']['hide_results'] == 1 ? ' checked' : '', '> <label for="poll_results_voted">', Lang::getTxt('poll_results_voted', file: 'Post'), '</label><br>
+								<input type="radio" name="poll_hide" id="poll_results_expire" value="2"', Utils::$context['poll']['hide_results'] == 2 ? ' checked' : '', empty(Utils::$context['poll']['expiration']) ? ' disabled' : '', '> <label for="poll_results_expire">', Lang::getTxt('poll_results_after', file: 'Post'), '</label>
 							</dd>
 						</dl>
 					</fieldset>';
@@ -146,11 +146,11 @@ function template_main()
 	if (Utils::$context['is_edit'])
 		echo '
 					<fieldset id="poll_reset">
-						<legend>', Lang::$txt['reset_votes'], '</legend>
-						<input type="checkbox" name="resetVoteCount" value="on"> ' . Lang::$txt['reset_votes_check'] . '
+						<legend>', Lang::getTxt('reset_votes', file: 'Post'), '</legend>
+						<input type="checkbox" name="resetVoteCount" value="on"> ' . Lang::getTxt('reset_votes_check', file: 'Post') . '
 					</fieldset>';
 	echo '
-					<input type="submit" name="post" value="', Lang::$txt['save'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
+					<input type="submit" name="post" value="', Lang::getTxt('save', file: 'General'), '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 				</div><!-- .roundframe -->
 			</div>
 			<input type="hidden" name="seqnum" value="', Utils::$context['form_sequence_number'], '">

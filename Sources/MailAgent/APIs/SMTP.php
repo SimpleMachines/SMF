@@ -81,13 +81,13 @@ class SMTP extends MailAgent implements MailAgentInterface
 				}
 
 				if ($this->socket = fsockopen(Config::$modSettings['smtp_host'], 465, $errno, $errstr, 3)) {
-					ErrorHandler::log(Lang::$txt['smtp_port_ssl']);
+					ErrorHandler::log(Lang::getTxt('smtp_port_ssl', file: 'General'));
 				}
 			}
 
 			// Unable to connect!  Don't show any error message, but just log one and try to continue anyway.
 			if (!$this->socket) {
-				ErrorHandler::log(Lang::$txt['smtp_no_connect'] . ': ' . $errno . ' : ' . $errstr);
+				ErrorHandler::log(Lang::getTxt('smtp_no_connect', file: 'General') . ': ' . $errno . ' : ' . $errstr);
 
 				return false;
 			}
@@ -95,7 +95,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 
 		// Wait for a response of 220, without "-" continuer.
 		if (!$this->serverParse(null, '220')) {
-			ErrorHandler::log(Lang::$txt['smtp_no_connect'] . ': No 220 Response');
+			ErrorHandler::log(Lang::getTxt('smtp_no_connect', file: 'General') . ': No 220 Response');
 
 			return false;
 		}
@@ -247,7 +247,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 		while (substr($server_response, 3, 1) != ' ') {
 			if (!($server_response = fgets($this->socket, 256))) {
 				// @todo Change this message to reflect that it may mean bad user/password/server issues/etc.
-				ErrorHandler::log(Lang::$txt['smtp_bad_response']);
+				ErrorHandler::log(Lang::getTxt('smtp_bad_response', file: 'General'));
 
 				return false;
 			}
@@ -269,7 +269,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 			 * 451 - cPanel "Temporary local problem - please try later"
 			 */
 			if ($response_code < 500 && !in_array($response_code, [450, 451])) {
-				ErrorHandler::log(Lang::$txt['smtp_error'] . $server_response);
+				ErrorHandler::log(Lang::getTxt('smtp_error', file: 'General') . $server_response);
 			}
 
 			return false;

@@ -157,8 +157,6 @@ class Security
 		$strength = $zxcvbn->passwordStrength($password, array_merge([$username], $restrict_in));
 
 		if ((int) $strength['score'] < (Config::$modSettings['password_strength'] ?? 0) + 2) {
-			Lang::load('Errors');
-
 			// List of known feedback strings from zxcvbn mapped to Lang::$txt keys.
 			$feedback_strings = [
 				'This is a top-10 common password' => 'top_10',
@@ -193,13 +191,13 @@ class Security
 			$feedback = [];
 
 			if (isset($strength['feedback']['warning'], $feedback_strings[$strength['feedback']['warning']])) {
-				$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$strength['feedback']['warning']]);
+				$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$strength['feedback']['warning']], file: 'Errors');
 			}
 
 			if (!empty($strength['feedback']['suggestions'])) {
 				foreach ($strength['feedback']['suggestions'] as $suggestion) {
 					if (isset($feedback_strings[$suggestion])) {
-						$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$suggestion]);
+						$feedback[] = Lang::getTxt('profile_error_password_' . $feedback_strings[$suggestion], file: 'Errors');
 					}
 				}
 			}
@@ -294,9 +292,7 @@ class Security
 		}
 		// Bail out if $action is unknown.
 		elseif ($action != 'free') {
-			Lang::load('Errors');
-
-			trigger_error(Lang::getTxt('check_submit_once_invalid_action', [$action]), E_USER_WARNING);
+			trigger_error(Lang::getTxt('check_submit_once_invalid_action', [$action], file: 'Errors'), E_USER_WARNING);
 		}
 
 		return null;
