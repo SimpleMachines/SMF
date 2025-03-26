@@ -28,12 +28,7 @@ function template_main()
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="floatleft">', Lang::getTxt('members_list', file: 'General'), '</span>';
-
-	if (!isset(Utils::$context['old_search']))
-		echo '
-				<span class="floatright">', Utils::$context['letter_links'], '</span>';
-	echo '
+				<span class="floatleft">', Lang::getTxt('members_list', file: 'General'), '</span>
 			</h3>
 		</div>';
 
@@ -74,7 +69,7 @@ function template_main()
 		foreach (Utils::$context['members'] as $member)
 		{
 			echo '
-					<tr class="windowbg"', empty($member['sort_letter']) ? '' : ' id="letter' . $member['sort_letter'] . '"', '>
+					<tr class="windowbg">
 						<td class="is_online centertext">
 							', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', '
 						</td>
