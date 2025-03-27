@@ -202,9 +202,9 @@ class Tasks implements ActionInterface
 						'style' => 'width: 40%;',
 					],
 					'data' => [
-						'format_text' => [
+						'sprintf' => [
 							'format' => '
-								<a href="' . Config::$scripturl . '?action=admin;area=scheduledtasks;sa=taskedit;tid={id}">{name}</a><br><span class="smalltext">{desc}</span>',
+								<a href="' . Config::$scripturl . '?action=admin;area=scheduledtasks;sa=taskedit;tid=%1$d">%2$s</a><br><span class="smalltext">%3$s</span>',
 							'params' => [
 								'id' => false,
 								'name' => false,
@@ -238,9 +238,9 @@ class Tasks implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'format_text' => [
+						'sprintf' => [
 							'format' =>
-								'<input type="checkbox" name="run_task[{id}]" id="run_task_{id}">',
+								'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d">',
 							'params' => [
 								'id' => false,
 							],
@@ -255,9 +255,9 @@ class Tasks implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'format_text' => [
+						'sprintf' => [
 							'format' =>
-								'<input type="hidden" name="enable_task[{id}]" id="task_{id}" value="0"><input type="checkbox" name="enable_task[{id}]" id="task_check_{id}" {checked_state}>',
+								'<input type="hidden" name="enable_task[%1$d]" id="task_%1$d" value="0"><input type="checkbox" name="enable_task[%1$d]" id="task_check_%1$d" %2$s>',
 							'params' => [
 								'id' => false,
 								'checked_state' => false,
@@ -590,7 +590,7 @@ class Tasks implements ActionInterface
 			$known_tasks[] = [
 				'id' => $row['id_task'],
 				'function' => $row['task'],
-				'name' => (Lang::txtExists('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') : $row['task']),
+				'name' => Lang::txtExists('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') : $row['task'],
 				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl], file: 'ManageScheduledTasks'),
 				'next_time' => $row['disabled'] ? Lang::getTxt('scheduled_tasks_na', file: 'ManageScheduledTasks') : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
