@@ -20,6 +20,17 @@ namespace SMF;
  */
 class Cookie
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * @var int
+	 *
+	 * The two-factor authentication cookie expires after 30 days.
+	 */
+	public const LENGTH_TFA = 2592000;
+
 	/*******************
 	 * Public properties
 	 *******************/
