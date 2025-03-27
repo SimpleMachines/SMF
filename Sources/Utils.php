@@ -289,14 +289,6 @@ class Utils
 		'restricted_bbc' => [
 			'html',
 		],
-		// Login Cookie times. Format: time => txt
-		'login_cookie_times' => [
-			3153600 => 'always_logged_in',
-			60 => 'one_hour',
-			1440 => 'one_day',
-			10080 => 'one_week',
-			43200 => 'one_month',
-		],
 		'show_spellchecking' => false,
 	];
 
