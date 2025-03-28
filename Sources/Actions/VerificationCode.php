@@ -20,7 +20,6 @@ use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
-use SMF\Lang;
 use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
@@ -82,7 +81,6 @@ class VerificationCode implements ActionInterface, Routable
 
 		// Show a window that will play the verification code.
 		if (isset($_REQUEST['sound'])) {
-			Lang::load('Login');
 			Theme::loadTemplate('Register');
 
 			Utils::$context['verification_sound_href'] = Config::$scripturl . '?action=verificationcode;rand=' . bin2hex(random_bytes(16)) . ($this->verification_id ? ';vid=' . $this->verification_id : '') . ';format=.wav';

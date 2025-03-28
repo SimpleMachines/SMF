@@ -92,8 +92,6 @@ class Groups extends ViewGroups
 		$this->action_url = '?action=moderate;area=' . $_GET['area'];
 
 		// Get the template stuff up and running.
-		Lang::load('ManageMembers');
-		Lang::load('ModerationCenter');
 		Theme::loadTemplate('ManageMembergroups');
 
 		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
@@ -216,7 +214,7 @@ class Groups extends ViewGroups
 	public function requests(): void
 	{
 		// Set up the template stuff...
-		Utils::$context['page_title'] = Lang::$txt['mc_group_requests'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_group_requests', file: 'ModerationCenter');
 		Utils::$context['sub_template'] = 'show_list';
 
 		// Verify we can be here.
@@ -369,7 +367,7 @@ class Groups extends ViewGroups
 			'id' => 'group_request_list',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['mc_groupr_none_found'],
+			'no_items_label' => Lang::getTxt('mc_groupr_none_found', file: 'ModerationCenter'),
 			'base_href' => Config::$scripturl . $this->action_url . ';sa=requests',
 			'default_sort_col' => 'member',
 			'get_items' => [
@@ -389,7 +387,7 @@ class Groups extends ViewGroups
 			'columns' => [
 				'member' => [
 					'header' => [
-						'value' => Lang::$txt['mc_groupr_member'],
+						'value' => Lang::getTxt('mc_groupr_member', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'member_link',
@@ -401,7 +399,7 @@ class Groups extends ViewGroups
 				],
 				'group' => [
 					'header' => [
-						'value' => Lang::$txt['mc_groupr_group'],
+						'value' => Lang::getTxt('mc_groupr_group', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'group_link',
@@ -413,7 +411,7 @@ class Groups extends ViewGroups
 				],
 				'reason' => [
 					'header' => [
-						'value' => Lang::$txt['mc_groupr_reason'],
+						'value' => Lang::getTxt('mc_groupr_reason', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'reason',
@@ -421,7 +419,7 @@ class Groups extends ViewGroups
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 						'style' => 'width: 18%; white-space:nowrap;',
 					],
 					'data' => [
@@ -458,14 +456,14 @@ class Groups extends ViewGroups
 				[
 					'position' => 'bottom_of_list',
 					'value' => '
-						<select id="req_action" name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . Lang::$txt['mc_groupr_warning'] . '\'))) this.form.submit();">
-							<option value="0">' . Lang::$txt['with_selected'] . ':</option>
+						<select id="req_action" name="req_action" onchange="if (this.value != 0 &amp;&amp; (this.value == \'reason\' || confirm(\'' . Lang::getTxt('mc_groupr_warning', file: 'ModerationCenter') . '\'))) this.form.submit();">
+							<option value="0">' . Lang::getTxt('with_selected', file: 'ModerationCenter') . ':</option>
 							<option value="0" disabled>---------------------</option>
-							<option value="approve">' . Lang::$txt['mc_groupr_approve'] . '</option>
-							<option value="reject">' . Lang::$txt['mc_groupr_reject'] . '</option>
-							<option value="reason">' . Lang::$txt['mc_groupr_reject_w_reason'] . '</option>
+							<option value="approve">' . Lang::getTxt('mc_groupr_approve', file: 'ModerationCenter') . '</option>
+							<option value="reject">' . Lang::getTxt('mc_groupr_reject', file: 'ModerationCenter') . '</option>
+							<option value="reason">' . Lang::getTxt('mc_groupr_reject_w_reason', file: 'ModerationCenter') . '</option>
 						</select>
-						<input type="submit" name="go" value="' . Lang::$txt['go'] . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . Lang::$txt['mc_groupr_warning'] . '\')) return false;" class="button">',
+						<input type="submit" name="go" value="' . Lang::getTxt('go', file: 'General') . '" onclick="var sel = document.getElementById(\'req_action\'); if (sel.value != 0 &amp;&amp; sel.value != \'reason\' &amp;&amp; !confirm(\'' . Lang::getTxt('mc_groupr_warning', file: 'ModerationCenter') . '\')) return false;" class="button">',
 					'class' => 'floatright',
 				],
 			],
@@ -483,7 +481,7 @@ class Groups extends ViewGroups
 
 		Utils::$context['default_list'] = 'group_request_list';
 		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_group_requests'],
+			'title' => Lang::getTxt('mc_group_requests', file: 'ModerationCenter'),
 		];
 	}
 
@@ -555,16 +553,16 @@ class Groups extends ViewGroups
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			if (empty($row['reason'])) {
-				$reason = '<em>(' . Lang::$txt['mc_groupr_no_reason'] . ')</em>';
+				$reason = '<em>(' . Lang::getTxt('mc_groupr_no_reason', file: 'ModerationCenter') . ')</em>';
 			} else {
 				$reason = Lang::censorText($row['reason']);
 			}
 
 			if (isset($_GET['closed'])) {
 				if ($row['status'] == 1) {
-					$reason .= '<br><br><strong>' . Lang::$txt['mc_groupr_approved'] . '</strong>';
+					$reason .= '<br><br><strong>' . Lang::getTxt('mc_groupr_approved', file: 'ModerationCenter') . '</strong>';
 				} elseif ($row['status'] == 2) {
-					$reason .= '<br><br><strong>' . Lang::$txt['mc_groupr_rejected'] . '</strong>';
+					$reason .= '<br><br><strong>' . Lang::getTxt('mc_groupr_rejected', file: 'ModerationCenter') . '</strong>';
 				}
 
 				$reason .= ' (' . Time::create('@' . $row['time_acted'])->format() . ')';

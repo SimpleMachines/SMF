@@ -85,8 +85,6 @@ class Calendar implements ActionInterface, Routable
 	 */
 	public function execute(): void
 	{
-		Lang::load('Calendar');
-
 		// Some global template resources.
 		Utils::$context['calendar_resources'] = [
 			'min_year' => Config::$modSettings['cal_minyear'],
@@ -151,7 +149,7 @@ class Calendar implements ActionInterface, Routable
 		}
 
 		// Set the page title to mention the calendar ;).
-		Utils::$context['page_title'] = Lang::$txt['calendar'];
+		Utils::$context['page_title'] = Lang::getTxt('calendar', file: 'Calendar');
 
 		// Ensure a default view is defined
 		if (empty(Theme::$current->options['calendar_default_view'])) {
@@ -303,18 +301,18 @@ class Calendar implements ActionInterface, Routable
 
 		// Set the page title to mention the month or week, too
 		if (Utils::$context['calendar_view'] != 'viewlist') {
-			Utils::$context['page_title'] .= ' - ' . (Utils::$context['calendar_view'] == 'viewweek' ? Utils::$context['calendar_grid_main']['week_title'] : Lang::$txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year']);
+			Utils::$context['page_title'] .= ' - ' . (Utils::$context['calendar_view'] == 'viewweek' ? Utils::$context['calendar_grid_main']['week_title'] : Lang::getTxt(['months_titles', Utils::$context['current_month']], file: 'General') . ' ' . Utils::$context['current_year']);
 		}
 
 		// Load up the linktree!
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=calendar',
-			'name' => Lang::$txt['calendar'],
+			'name' => Lang::getTxt('calendar', file: 'Calendar'),
 		];
 		// Add the current month to the linktree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=calendar;year=' . Utils::$context['current_year'] . ';month=' . Utils::$context['current_month'],
-			'name' => Lang::$txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year'],
+			'name' => Lang::getTxt(['months_titles', Utils::$context['current_month']], file: 'General') . ' ' . Utils::$context['current_year'],
 		];
 
 		// If applicable, add the current week to the linktree.
@@ -341,7 +339,7 @@ class Calendar implements ActionInterface, Routable
 			if (BrowserDetector::isBrowser('safari') || BrowserDetector::isBrowser('iphone')) {
 				$webcal_url = preg_replace('/^https?/', 'webcal', $webcal_url);
 			} else {
-				$webcal_url = 'javascript:navigator.clipboard.writeText(' . Utils::escapeJavaScript($webcal_url) . ');alert(' . Utils::escapeJavaScript(Lang::$txt['calendar_subscribe_url_copied']) . ')';
+				$webcal_url = 'javascript:navigator.clipboard.writeText(' . Utils::escapeJavaScript($webcal_url) . ');alert(' . Utils::escapeJavaScript(Lang::getTxt('calendar_subscribe_url_copied', file: 'Calendar')) . ')';
 			}
 
 			$ics_url = Config::$scripturl . '?action=calendar;sa=ical';
@@ -369,12 +367,12 @@ class Calendar implements ActionInterface, Routable
 					break;
 			}
 
-			Lang::$txt[''] = '';
+			Lang::setTxt('', '');
 
 			Utils::$context['calendar_buttons']['cal_export'] = [
 				'text' => '',
 				'class' => 'main_icons feed',
-				'custom' => 'title="' . Lang::getTxt('calendar_subscribe') . '"',
+				'custom' => 'title="' . Lang::getTxt('calendar_subscribe', file: 'Calendar') . '"',
 				'url' => $ics_url,
 				'sub_buttons' => [
 					'subscribe' => [
@@ -581,7 +579,7 @@ class Calendar implements ActionInterface, Routable
 		Theme::loadTemplate('Calendar');
 		Utils::$context['sub_template'] = 'event_post';
 
-		Utils::$context['page_title'] = isset($_REQUEST['eventid']) ? Lang::$txt['calendar_edit'] : Lang::$txt['calendar_post_event'];
+		Utils::$context['page_title'] = Lang::getTxt(isset($_REQUEST['eventid']) ? 'calendar_edit' : 'calendar_post_event', file: 'Calendar');
 		Utils::$context['linktree'][] = [
 			'name' => Utils::$context['page_title'],
 		];
@@ -728,7 +726,7 @@ class Calendar implements ActionInterface, Routable
 				$file['content'][] = VTimeZone::load($tzid)->export($range['min'], $range['max']);
 			}
 
-			$file['filename'] = implode(' ', [Utils::$context['forum_name'], Lang::$txt['events'], $low_date->format('Y-m-d'), $high_date->format('Y-m-d')]) . '.ics';
+			$file['filename'] = implode(' ', [Utils::$context['forum_name'], Lang::getTxt('events', file: 'Calendar'), $low_date->format('Y-m-d'), $high_date->format('Y-m-d')]) . '.ics';
 		}
 
 		$file['content'][] = 'END:VCALENDAR';
@@ -753,7 +751,7 @@ class Calendar implements ActionInterface, Routable
 		Utils::$context['page_title'] = 'Anyone know what time it is?';
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=calendar',
-			'name' => Lang::$txt['calendar'],
+			'name' => Lang::getTxt('calendar', file: 'Calendar'),
 		];
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=calendar;sa=clock',
@@ -1222,7 +1220,7 @@ class Calendar implements ActionInterface, Routable
 		$events = $calendarOptions['show_events'] ? self::getEventRange($first_day_object->format('Y-m-d'), $last_day_object->format('Y-m-d')) : [];
 		$holidays = $calendarOptions['show_holidays'] ? self::getHolidayRange($first_day_object->format('Y-m-d'), $last_day_object->format('Y-m-d')) : [];
 
-		$calendarGrid['week_title'] = Lang::getTxt('calendar_week_beginning', ['date' => $first_day_object->format(Time::getDateFormat())]);
+		$calendarGrid['week_title'] = Lang::getTxt('calendar_week_beginning', ['date' => $first_day_object->format(Time::getDateFormat())], file: 'Calendar');
 
 		// This holds all the main data - there is at least one month!
 		$calendarGrid['months'] = [];

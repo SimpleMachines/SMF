@@ -368,17 +368,11 @@ class Group implements \ArrayAccess
 		// Some special cases.
 		if (in_array($this->id, [self::GUEST, self::REGULAR])) {
 			if (empty($this->name)) {
-				if ($this->id === self::GUEST || !isset(Lang::$txt['announce_regular_members'])) {
-					Lang::load('Admin');
-				}
-
-				$this->name = $this->id === self::GUEST ? Lang::$txt['membergroups_guests'] : (Lang::$txt['announce_regular_members'] ?? Lang::$txt['membergroups_members']);
+				$this->name = Lang::getTxt($this->id === self::GUEST ? 'membergroups_guests' : 'membergroups_members', file: 'Admin');
 			}
 
 			if ($this->id === self::REGULAR && !isset($this->description)) {
-				Lang::load('Profile');
-
-				$this->description = Lang::$txt['regular_members_desc'];
+				$this->description = Lang::getTxt('regular_members_desc', file: 'Profile');
 			}
 		}
 
@@ -605,8 +599,14 @@ class Group implements \ArrayAccess
 
 		if (!empty($subscriptions)) {
 			// Uh oh. But before we return, we need to update a language string because we want the names of the groups.
-			Lang::load('ManageMembers');
-			Lang::$txt['membergroups_cannot_delete_paid'] = Lang::getTxt('membergroups_cannot_delete_paid', [Lang::sentenceList($subscriptions)]);
+			Lang::setTxt(
+				'membergroups_cannot_delete_paid',
+				Lang::getTxt(
+					'membergroups_cannot_delete_paid',
+					[Lang::sentenceList($subscriptions)],
+					file: 'ManageMembers',
+				),
+			);
 
 			return 'group_cannot_delete_sub';
 		}
@@ -967,7 +967,7 @@ class Group implements \ArrayAccess
 		}
 
 		if (!in_array($type, ['auto', 'only_additional', 'only_primary', 'force_primary'])) {
-			throw new \ValueError(Lang::getTxt('add_members_to_group_invalid_type', [$type]));
+			throw new \ValueError(Lang::getTxt('add_members_to_group_invalid_type', [$type], file: 'Errors'));
 		}
 
 		// Can this group be a primary group?
@@ -2178,12 +2178,12 @@ class Group implements \ArrayAccess
 
 		// A few overrides.
 		if (isset(self::$loaded[self::GUEST])) {
-			self::$loaded[self::GUEST]->num_permissions['denied'] = '(' . Lang::$txt['permissions_none'] . ')';
+			self::$loaded[self::GUEST]->num_permissions['denied'] = '(' . Lang::getTxt('permissions_none', file: 'ManagePermissions') . ')';
 		}
 
 		if (isset(self::$loaded[self::ADMIN])) {
-			self::$loaded[self::ADMIN]->num_permissions['allowed'] = '(' . Lang::$txt['permissions_all'] . ')';
-			self::$loaded[self::ADMIN]->num_permissions['denied'] = '(' . Lang::$txt['permissions_none'] . ')';
+			self::$loaded[self::ADMIN]->num_permissions['allowed'] = '(' . Lang::getTxt('permissions_all', file: 'ManagePermissions') . ')';
+			self::$loaded[self::ADMIN]->num_permissions['denied'] = '(' . Lang::getTxt('permissions_none', file: 'ManagePermissions') . ')';
 		}
 
 		$all_counted_permissions = [];

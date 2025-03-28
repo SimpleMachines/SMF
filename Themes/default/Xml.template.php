@@ -61,14 +61,14 @@ function template_modifydone()
 	if (empty(Utils::$context['message']['errors']))
 	{
 		// Build our string of info about when and why it was modified
-		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : Lang::getTxt('last_edit_by', ['time' => Utils::$context['message']['modified']['time'], 'member' => Utils::$context['message']['modified']['name']]);
-		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => Utils::$context['message']['modified']['reason']]);
+		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : Lang::getTxt('last_edit_by', ['time' => Utils::$context['message']['modified']['time'], 'member' => Utils::$context['message']['modified']['name']], file: 'General');
+		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : ' ' . Lang::getTxt('last_edit_reason', ['reason' => Utils::$context['message']['modified']['reason']], file: 'General');
 
 		echo '
 		<modified><![CDATA[', empty($modified) ? '' : Utils::cleanXml($modified), ']]></modified>
 		<subject is_first="', Utils::$context['message']['first_in_topic'] ? '1' : '0', '"><![CDATA[', Utils::cleanXml(Utils::$context['message']['subject']), ']]></subject>
 		<body><![CDATA[', Utils::$context['message']['body'], ']]></body>
-		<success><![CDATA[', Lang::$txt['quick_modify_message'], ']]></success>';
+		<success><![CDATA[', Lang::getTxt('quick_modify_message', file: 'General'), ']]></success>';
 	}
 	else
 		echo '
@@ -89,8 +89,8 @@ function template_modifytopicdone()
 	if (empty(Utils::$context['message']['errors']))
 	{
 		// Build our string of info about when and why it was modified
-		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : Lang::getTxt('last_edit_by', ['time' => Utils::$context['message']['modified']['time'], 'member' => Utils::$context['message']['modified']['name']]);
-		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : Lang::getTxt('last_edit_reason', ['reason' => Utils::$context['message']['modified']['reason']]);
+		$modified = empty(Utils::$context['message']['modified']['time']) ? '' : Lang::getTxt('last_edit_by', ['time' => Utils::$context['message']['modified']['time'], 'member' => Utils::$context['message']['modified']['name']], file: 'General');
+		$modified .= empty(Utils::$context['message']['modified']['reason']) ? '' : Lang::getTxt('last_edit_reason', ['reason' => Utils::$context['message']['modified']['reason']], file: 'General');
 
 		echo '
 		<modified><![CDATA[', empty($modified) ? '' : Utils::cleanXml('<em>' . $modified . '</em>'), ']]></modified>';
@@ -166,7 +166,7 @@ function template_pm()
 	echo '<', '?xml version="1.0" encoding="UTF-8"?', '>
 <smf>
 	<preview>
-		<subject><![CDATA[', Lang::getTxt('preview_subject', ['subject' => !empty(Utils::$context['preview_subject']) ? Utils::$context['preview_subject'] : Lang::$txt['no_subject']]), ']]></subject>
+		<subject><![CDATA[', Lang::getTxt('preview_subject', ['subject' => !empty(Utils::$context['preview_subject']) ? Utils::$context['preview_subject'] : Lang::getTxt('no_subject', file: 'General')]), ']]></subject>
 		<body><![CDATA[', Utils::$context['preview_message'], ']]></body>
 	</preview>
 	<errors serious="', empty(Utils::$context['error_type']) || Utils::$context['error_type'] != 'serious' ? '0' : '1', '">';
@@ -297,7 +297,7 @@ function template_results()
 
 	if (empty(Utils::$context['topics']))
 		echo '
-		<noresults>', Lang::$txt['search_no_results'], '</noresults>';
+		<noresults>', Lang::getTxt('search_no_results', file: 'General'), '</noresults>';
 	else
 	{
 		echo '

@@ -186,7 +186,7 @@ class Export implements ActionInterface
 			$included_desc = [];
 
 			foreach ($included as $datatype) {
-				$included_desc[] = Lang::$txt[$datatype];
+				$included_desc[] = Lang::getTxt($datatype, file: 'Profile');
 			}
 
 			$dlfilename = array_merge([Utils::$context['forum_name'], Utils::$context['member']['username']], $included_desc);
@@ -275,7 +275,7 @@ class Export implements ActionInterface
 				if ($datatype == 'profile' || !empty($_POST[$datatype])) {
 					$included[$datatype] = $datatype_settings[$format];
 
-					$included_desc[] = Lang::$txt[$datatype];
+					$included_desc[] = Lang::getTxt($datatype, file: 'Profile');
 
 					$start[$datatype] = !empty($start[$datatype]) ? $start[$datatype] : 0;
 
@@ -340,15 +340,22 @@ class Export implements ActionInterface
 
 		SecurityToken::create(Utils::$context['token_check'], 'post');
 
-		Utils::$context['page_title'] = Lang::$txt['export_profile_data'];
+		Utils::$context['page_title'] = Lang::getTxt('export_profile_data', file: 'Profile');
 
 		if (empty(Config::$modSettings['export_expiry'])) {
 			unset(Lang::$txt['export_profile_data_desc_list']['expiry']);
 		} else {
-			Lang::$txt['export_profile_data_desc_list']['expiry'] = Lang::getTxt(['export_profile_data_desc_list', 'expiry'], [Config::$modSettings['export_expiry']]);
+			Lang::setTxt(
+				['export_profile_data_desc_list', 'expiry'],
+				Lang::getTxt(
+					['export_profile_data_desc_list', 'expiry'],
+					[Config::$modSettings['export_expiry']],
+					file: 'Profile',
+				),
+			);
 		}
 
-		Utils::$context['export_profile_data_desc'] = Lang::getTxt('export_profile_data_desc', ['list' => '<li>' . implode('</li><li>', Lang::$txt['export_profile_data_desc_list']) . '</li>']);
+		Utils::$context['export_profile_data_desc'] = Lang::getTxt('export_profile_data_desc', ['list' => '<li>' . implode('</li><li>', Lang::getTxt('export_profile_data_desc_list', file: 'Profile')) . '</li>'], file: 'Profile');
 
 		Theme::addJavaScriptVar('completed_formats', '[\'' . implode('\', \'', array_unique($existing_export_formats)) . '\']', false);
 	}
@@ -385,11 +392,9 @@ class Export implements ActionInterface
 
 		// Make sure the directory has the correct permissions.
 		if (!is_dir(Config::$modSettings['export_dir']) || !Utils::makeWritable(Config::$modSettings['export_dir'])) {
-			Lang::load('Errors');
-
 			// Try again at the fallback location.
 			if (Config::$modSettings['export_dir'] != $fallback) {
-				ErrorHandler::log(Lang::getTxt('export_dir_forced_change', [Config::$modSettings['export_dir'], $fallback]));
+				ErrorHandler::log(Lang::getTxt('export_dir_forced_change', [Config::$modSettings['export_dir'], $fallback], 'Errors', file: 'Errors'));
 
 				Config::updateModSettings(['export_dir' => $fallback]);
 
@@ -398,7 +403,7 @@ class Export implements ActionInterface
 			}
 			// Uh-oh. Even the default location failed.
 			else {
-				ErrorHandler::log(Lang::$txt['export_dir_not_writable']);
+				ErrorHandler::log(Lang::getTxt('export_dir_not_writable', file: 'Errors'));
 
 				return false;
 			}
@@ -422,7 +427,7 @@ class Export implements ActionInterface
 				self::$formats,
 				function (&$value, $key) {
 					if ($key === 'description') {
-						$value = Lang::$txt[$value] ?? $value;
+						$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
 					}
 				},
 			);
@@ -480,7 +485,7 @@ class Export implements ActionInterface
 				// 'JSON' => array(),
 			],
 			'posts' => [
-				'label' => Lang::$txt['export_include_posts'],
+				'label' => Lang::getTxt('export_include_posts', file: 'Profile'),
 				'total' => Utils::$context['member']['real_posts'],
 				'latest' => function ($uid) {
 					static $latest_post;
@@ -527,7 +532,7 @@ class Export implements ActionInterface
 				// 'JSON' => array(),
 			],
 			'personal_messages' => [
-				'label' => Lang::$txt['export_include_personal_messages'],
+				'label' => Lang::getTxt('export_include_personal_messages', file: 'Profile'),
 				'total' => function ($uid) {
 					static $total_pms;
 

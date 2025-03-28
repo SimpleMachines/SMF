@@ -130,7 +130,6 @@ class Register2 extends Register
 
 		// Are they under age, and under age users are banned?
 		if (!empty(Config::$modSettings['coppaAge']) && empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa'])) {
-			Lang::load('Errors');
 			ErrorHandler::fatalLang('under_age_registration_prohibited', false, [Config::$modSettings['coppaAge']]);
 		}
 
@@ -141,8 +140,7 @@ class Register2 extends Register
 
 		// Failing that, check the time on it.
 		if (time() - $_SESSION['register']['timenow'] < $_SESSION['register']['limit']) {
-			Lang::load('Errors');
-			$this->errors[] = Lang::$txt['error_too_quickly'];
+			$this->errors[] = Lang::getTxt('error_too_quickly', file: 'Errors');
 		}
 
 		// Check whether the visual verification code was entered correctly.
@@ -150,10 +148,8 @@ class Register2 extends Register
 			$verifier = new Verifier(['id' => 'register']);
 
 			if (!empty($verifier->errors)) {
-				Lang::load('Errors');
-
 				foreach ($verifier->errors as $error) {
-					$this->errors[] = Lang::$txt['error_' . $error];
+					$this->errors[] = Lang::getTxt('error_' . $error, [], file: 'Errors');
 				}
 			}
 		}
@@ -357,10 +353,8 @@ class Register2 extends Register
 
 		// Process any errors.
 		if (!empty($custom_field_errors)) {
-			Lang::load('Errors');
-
 			foreach ($custom_field_errors as $error) {
-				$this->errors[] = Lang::getTxt('error_' . $error[0], (array) $error[1]);
+				$this->errors[] = Lang::getTxt('error_' . $error[0], (array) $error[1], file: 'Errors');
 			}
 		}
 
@@ -415,10 +409,10 @@ class Register2 extends Register
 			Theme::loadTemplate('Register');
 
 			Utils::$context += [
-				'page_title' => Lang::$txt['register'],
-				'title' => Lang::$txt['registration_successful'],
+				'page_title' => Lang::getTxt('register', file: 'General'),
+				'title' => Lang::getTxt('registration_successful', file: 'Login'),
 				'sub_template' => 'after',
-				'description' => Config::$modSettings['registration_method'] == 2 ? Lang::$txt['approval_after_registration'] : Lang::$txt['activate_after_registration'],
+				'description' => Lang::getTxt(Config::$modSettings['registration_method'] == 2 ? 'approval_after_registration' : 'activate_after_registration', file: 'Login'),
 			];
 		} else {
 			IntegrationHook::call('integrate_activate', [$reg_options['username']]);
@@ -450,8 +444,6 @@ class Register2 extends Register
 	 */
 	public static function registerMember(array &$reg_options, bool $return_errors = false): int|array
 	{
-		Lang::load('Login');
-
 		// Put any errors in here.
 		$reg_errors = [];
 
@@ -518,9 +510,7 @@ class Register2 extends Register
 
 			// Password isn't legal?
 			if ($password_error != null) {
-				Lang::load('Errors');
-
-				if (isset(Lang::$txt['profile_error_password_' . $password_error])) {
+				if (Lang::txtExists('profile_error_password_' . $password_error, file: 'Errors')) {
 					$error_code = ['lang', 'profile_error_password_' . $password_error, false];
 				} else {
 					$error_code = ['done', $password_error, false];
@@ -536,7 +526,7 @@ class Register2 extends Register
 
 		// You may not be allowed to register this email.
 		if (!empty($reg_options['check_email_ban'])) {
-			User::isBannedEmail($reg_options['email'], 'cannot_register', Lang::$txt['ban_register_prohibited']);
+			User::isBannedEmail($reg_options['email'], 'cannot_register', Lang::getTxt('ban_register_prohibited', file: 'Login'));
 		}
 
 		// Check if the email address is in use.
@@ -568,11 +558,7 @@ class Register2 extends Register
 				1 = The text/index.
 				2 = Whether to log.
 				3 = sprintf data if necessary. */
-			if ($error[0] == 'lang') {
-				Lang::load('Errors');
-			}
-
-			$message = $error[0] == 'lang' ? (empty($error[3]) ? Lang::$txt[$error[1]] : Lang::getTxt($error[1], (array) $error[3])) : $error[1];
+			$message = Lang::getTxt($error[1], (array) ($error[3] ?? []), file: 'Errors');
 
 			// What to do, what to do, what to do.
 			if ($return_errors) {

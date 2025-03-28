@@ -126,11 +126,9 @@ class PackageUtils
 	 */
 	public static function readTgzData(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): array|string|bool
 	{
-		// Make sure we have this loaded.
-		Lang::load('Packages');
-
 		// This function sorta needs gzinflate!
 		if (!function_exists('gzinflate')) {
+			Lang::load('Packages');
 			ErrorHandler::fatalLang('package_no_lib', 'critical', ['package_no_zlib', 'package_no_package_manager']);
 		}
 
@@ -610,7 +608,7 @@ class PackageUtils
 		if ($restore_write_status && isset($_SESSION['pack_ftp']) && !empty($_SESSION['pack_ftp']['original_perms'])) {
 			$listOptions = [
 				'id' => 'restore_file_permissions',
-				'title' => Lang::$txt['package_restore_permissions'],
+				'title' => Lang::getTxt('package_restore_permissions', file: 'Packages'),
 				'get_items' => [
 					'function' => __CLASS__ . '::list_restoreFiles',
 					'params' => [
@@ -620,7 +618,7 @@ class PackageUtils
 				'columns' => [
 					'path' => [
 						'header' => [
-							'value' => Lang::$txt['package_restore_permissions_filename'],
+							'value' => Lang::getTxt('package_restore_permissions_filename', file: 'Packages'),
 						],
 						'data' => [
 							'db' => 'path',
@@ -629,7 +627,7 @@ class PackageUtils
 					],
 					'old_perms' => [
 						'header' => [
-							'value' => Lang::$txt['package_restore_permissions_orig_status'],
+							'value' => Lang::getTxt('package_restore_permissions_orig_status', file: 'Packages'),
 						],
 						'data' => [
 							'db' => 'old_perms',
@@ -638,11 +636,11 @@ class PackageUtils
 					],
 					'cur_perms' => [
 						'header' => [
-							'value' => Lang::$txt['package_restore_permissions_cur_status'],
+							'value' => Lang::getTxt('package_restore_permissions_cur_status', file: 'Packages'),
 						],
 						'data' => [
 							'function' => function ($rowData) {
-								$formatTxt = $rowData['result'] == '' || $rowData['result'] == 'skipped' ? Lang::$txt['package_restore_permissions_pre_change'] : Lang::$txt['package_restore_permissions_post_change'];
+								$formatTxt = Lang::getTxt($rowData['result'] == '' || $rowData['result'] == 'skipped' ? 'package_restore_permissions_pre_change' : 'package_restore_permissions_post_change', file: 'Packages');
 
 								return Lang::formatText($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
 							},
@@ -666,11 +664,11 @@ class PackageUtils
 					],
 					'result' => [
 						'header' => [
-							'value' => Lang::$txt['package_restore_permissions_result'],
+							'value' => Lang::getTxt('package_restore_permissions_result', file: 'Packages'),
 						],
 						'data' => [
 							'function' => function ($rowData) {
-								return Lang::$txt['package_restore_permissions_action_' . $rowData['result']];
+								return Lang::getTxt('package_restore_permissions_action_' . $rowData['result'], file: 'Packages');
 							},
 							'class' => 'smalltext',
 						],
@@ -682,12 +680,12 @@ class PackageUtils
 				'additional_rows' => [
 					[
 						'position' => 'below_table_data',
-						'value' => '<input type="submit" name="restore_perms" value="' . Lang::$txt['package_restore_permissions_restore'] . '" class="button">',
+						'value' => '<input type="submit" name="restore_perms" value="' . Lang::getTxt('package_restore_permissions_restore', file: 'Packages') . '" class="button">',
 						'class' => 'titlebg',
 					],
 					[
 						'position' => 'after_title',
-						'value' => '<span class="smalltext">' . Lang::$txt['package_restore_permissions_desc'] . '</span>',
+						'value' => '<span class="smalltext">' . Lang::getTxt('package_restore_permissions_desc', file: 'Packages') . '</span>',
 						'class' => 'windowbg',
 					],
 				],
@@ -695,7 +693,7 @@ class PackageUtils
 
 			// Work out what columns and the like to show.
 			if (!empty($_POST['restore_perms'])) {
-				$listOptions['additional_rows'][1]['value'] = Lang::getTxt('package_restore_permissions_action_done', ['url' => Config::$scripturl . '?action=admin;area=packages;sa=perms;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']]);
+				$listOptions['additional_rows'][1]['value'] = Lang::getTxt('package_restore_permissions_action_done', ['url' => Config::$scripturl . '?action=admin;area=packages;sa=perms;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']], file: 'Packages');
 				unset($listOptions['columns']['check'], $listOptions['form'], $listOptions['additional_rows'][0]);
 
 				Utils::$context['sub_template'] = 'show_list';
@@ -828,7 +826,7 @@ class PackageUtils
 
 			// Sent here to die?
 			if (!empty($chmodOptions['crash_on_error'])) {
-				Utils::$context['page_title'] = Lang::$txt['package_ftp_necessary'];
+				Utils::$context['page_title'] = Lang::getTxt('package_ftp_necessary', file: 'Packages');
 				Utils::$context['sub_template'] = 'ftp_required';
 				Utils::obExit();
 			}
@@ -886,7 +884,7 @@ class PackageUtils
 				'cur_perms' => substr(sprintf('%o', $file_permissions), -4),
 				'new_perms' => isset($new_permissions) ? substr(sprintf('%o', $new_permissions), -4) : '',
 				'result' => $result ?? '',
-				'writable_message' => '<span style="color: ' . (@is_writable($file) ? 'green' : 'red') . '">' . (@is_writable($file) ? Lang::$txt['package_file_perms_writable'] : Lang::$txt['package_file_perms_not_writable']) . '</span>',
+				'writable_message' => '<span style="color: ' . (@is_writable($file) ? 'green' : 'red') . '">' . Lang::getTxt(@is_writable($file) ? 'package_file_perms_writable' : 'package_file_perms_not_writable', file: 'Packages') . '</span>',
 			];
 		}
 
@@ -1039,7 +1037,7 @@ class PackageUtils
 				return $files;
 			}
 
-			Utils::$context['page_title'] = Lang::$txt['package_ftp_necessary'];
+			Utils::$context['page_title'] = Lang::getTxt('package_ftp_necessary', file: 'Packages');
 			Utils::$context['sub_template'] = 'ftp_required';
 			Utils::obExit();
 		} else {
@@ -1967,7 +1965,7 @@ class PackageUtils
 			$actions[] = [
 				'type' => 'error',
 				'filename' => '-',
-				'debug' => Lang::$txt['package_modification_malformed'],
+				'debug' => Lang::getTxt('package_modification_malformed', file: 'Packages'),
 			];
 
 			return $actions;
@@ -2038,8 +2036,7 @@ class PackageUtils
 			// Now, loop through all the files we're changing, and, well, change them ;)
 			foreach ($files_to_change as $theme => $working_file) {
 				if ($working_file[0] != '/' && $working_file[1] != ':') {
-					Lang::load('Errors');
-					trigger_error(Lang::getTxt('parse_modification_filename_not_full_path', [$working_file]), E_USER_WARNING);
+					trigger_error(Lang::getTxt('parse_modification_filename_not_full_path', [$working_file], file: 'Errors'), E_USER_WARNING);
 
 					$working_file = Config::$boarddir . '/' . $working_file;
 				}
@@ -2049,7 +2046,7 @@ class PackageUtils
 					$actions[] = [
 						'type' => 'missing',
 						'filename' => $working_file,
-						'debug' => Lang::$txt['package_modification_missing'],
+						'debug' => Lang::getTxt('package_modification_missing', file: 'Packages'),
 					];
 
 					$everything_found = false;
@@ -2464,8 +2461,7 @@ class PackageUtils
 				$working_file = self::parsePath($code_match[2]);
 
 				if ($working_file[0] != '/' && $working_file[1] != ':') {
-					Lang::load('Errors');
-					trigger_error(Lang::getTxt('parse_boardmod_filename_not_full_path', [$working_file]), E_USER_WARNING);
+					trigger_error(Lang::getTxt('parse_boardmod_filename_not_full_path', [$working_file], file: 'Errors'), E_USER_WARNING);
 
 					$working_file = Config::$boarddir . '/' . $working_file;
 				}
@@ -2744,8 +2740,7 @@ class PackageUtils
 
 				if (!$fp) {
 					// We should have package_chmod()'d them before, no?!
-					Lang::load('Errors');
-					trigger_error(Lang::$txt['package_flush_cache_not_writable'], E_USER_WARNING);
+					trigger_error(Lang::getTxt('package_flush_cache_not_writable', file: 'Errors'), E_USER_WARNING);
 
 					return;
 				}

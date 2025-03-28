@@ -48,7 +48,7 @@ function template_popup()
 	echo '
 			</ul>
 			<br class="clear">
-			<a href="javascript:self.close();">', Lang::$txt['close_window'], '</a>
+			<a href="javascript:self.close();">', Lang::getTxt('close_window', file: 'Help'), '</a>
 		</div><!-- .windowbg -->
 	</body>
 </html>';
@@ -65,7 +65,7 @@ function template_react()
 	if (!empty(Utils::$context['data']['can_react']))
 		echo '
 		<li class="smflikebutton" id="', Utils::$context['data']['type'], '_', Utils::$context['data']['id_content'], '_likes"', '>
-			<a href="', Config::$scripturl, '?action=likes;ltype=', Utils::$context['data']['type'], ';sa=like;like=', Utils::$context['data']['id_content'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="', Utils::$context['data']['type'], '_like"><span class="main_icons ', Utils::$context['data']['already_liked'] ? 'unlike' : 'like', '"></span> ', Utils::$context['data']['already_liked'] ? Lang::$txt['unlike'] : Lang::$txt['like'], '</a>
+			<a href="', Config::$scripturl, '?action=likes;ltype=', Utils::$context['data']['type'], ';sa=like;like=', Utils::$context['data']['id_content'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="', Utils::$context['data']['type'], '_like"><span class="main_icons ', Utils::$context['data']['already_liked'] ? 'unlike' : 'like', '"></span> ', Lang::getTxt(Utils::$context['data']['already_liked'] ? 'unlike' : 'like', file: 'General'), '</a>
 		</li>';
 
 	if (!empty(Utils::$context['data']['count']))
@@ -81,7 +81,7 @@ function template_react()
 		}
 
 		echo '
-		<li class="like_count smalltext">', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=' . Utils::$context['data']['type'] . ';js=1;like=' . Utils::$context['data']['id_content'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count]), '</li>';
+		<li class="like_count smalltext">', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=' . Utils::$context['data']['type'] . ';js=1;like=' . Utils::$context['data']['id_content'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count], file: 'General'), '</li>';
 	}
 
 	echo '

@@ -273,9 +273,9 @@ class Unread implements ActionInterface, Routable
 
 		Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
-		Utils::$context['page_title'] = Utils::$context['showing_all_topics'] ? Lang::$txt['unread_topics_all'] : Lang::$txt['unread_topics_visit'];
+		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['showing_all_topics'] ? 'unread_topics_all' : 'unread_topics_visit', file: 'General');
 
-		$this->linktree_name = Lang::$txt['unread_topics_visit'];
+		$this->linktree_name = Lang::getTxt('unread_topics_visit', file: 'General');
 		$this->action_url = Config::$scripturl . '?action=unread';
 
 		if (Utils::$context['showing_all_topics']) {
@@ -527,10 +527,10 @@ class Unread implements ActionInterface, Routable
 
 		Utils::$context['sort_direction'] = $this->ascending ? 'up' : 'down';
 
-		Lang::$txt['starter'] = Lang::$txt['started_by'];
+		Lang::setTxt('starter', Lang::getTxt('started_by', file: 'General'));
 
 		foreach ($this->sort_methods as $key => $val) {
-			Utils::$context['topics_headers'][$key] = '<a href="' . $this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . ';sort=' . $key . (Utils::$context['sort_by'] == $key && Utils::$context['sort_direction'] == 'up' ? ';desc' : '') . '">' . Lang::$txt[$key] . (Utils::$context['sort_by'] == $key ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '') . '</a>';
+			Utils::$context['topics_headers'][$key] = '<a href="' . $this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . ';sort=' . $key . (Utils::$context['sort_by'] == $key && Utils::$context['sort_direction'] == 'up' ? ';desc' : '') . '">' . Lang::getTxt($key, file: 'General') . (Utils::$context['sort_by'] == $key ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '') . '</a>';
 		}
 	}
 
@@ -564,10 +564,20 @@ class Unread implements ActionInterface, Routable
 		if (Utils::$context['showing_all_topics']) {
 			Utils::$context['linktree'][] = [
 				'url' => $this->action_url . ';all' . $url_limits['first'],
-				'name' => Lang::$txt['unread_topics_all'],
+				'name' => Lang::getTxt('unread_topics_all', file: 'General'),
 			];
 		} else {
-			Lang::$txt['unread_topics_visit_none'] = strtr(Lang::getTxt('unread_topics_visit_none', ['scripturl' => Config::$scripturl]), ['?action=unread;all' => '?action=unread;all' . $url_limits['first']]);
+			Lang::setTxt(
+				'unread_topics_visit_none',
+				strtr(
+					Lang::getTxt(
+						'unread_topics_visit_none',
+						['scripturl' => Config::$scripturl],
+						file: 'General',
+					),
+					['?action=unread;all' => '?action=unread;all' . $url_limits['first']],
+				),
+			);
 		}
 
 		// Make sure the starting place makes sense and construct the page index.
@@ -935,7 +945,7 @@ class Unread implements ActionInterface, Routable
 			Utils::$context['topics'][$row['id_topic']]['last_post']['link'] = '<a href="' . Utils::$context['topics'][$row['id_topic']]['last_post']['href'] . '" rel="nofollow">' . $row['last_subject'] . '</a>';
 
 			// Add "started by" string to first post.
-			Utils::$context['topics'][$row['id_topic']]['first_post']['started_by'] = Lang::getTxt('started_by_member_in', ['member' => Utils::$context['topics'][$row['id_topic']]['first_post']['member']['link'], 'board' => Utils::$context['topics'][$row['id_topic']]['board']['link']]);
+			Utils::$context['topics'][$row['id_topic']]['first_post']['started_by'] = Lang::getTxt('started_by_member_in', ['member' => Utils::$context['topics'][$row['id_topic']]['first_post']['member']['link'], 'board' => Utils::$context['topics'][$row['id_topic']]['board']['link']], file: 'General');
 
 			// This isn't really necessary, but for the sake of consistency
 			// ensure the topic is marked as new.
@@ -983,7 +993,7 @@ class Unread implements ActionInterface, Routable
 				'markread' => [
 					'text' => !empty(Utils::$context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short',
 					'image' => 'markread.png',
-					'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"',
+					'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"',
 					'class' => 'you_sure',
 					'url' => Config::$scripturl . '?action=markasread;sa=' . (!empty(Utils::$context['no_board_limits']) ? 'all' : 'board' . Utils::$context['querystring_board_limits']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				],
@@ -1005,7 +1015,7 @@ class Unread implements ActionInterface, Routable
 				'markread' => [
 					'text' => 'mark_as_read',
 					'image' => 'markread.png',
-					'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"',
+					'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"',
 					'class' => 'you_sure',
 					'url' => Config::$scripturl . '?action=markasread;sa=unreadreplies;topics=' . Utils::$context['topics_to_mark'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				],

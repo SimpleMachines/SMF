@@ -28,12 +28,7 @@ function template_main()
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span class="floatleft">', Lang::$txt['members_list'], '</span>';
-
-	if (!isset(Utils::$context['old_search']))
-		echo '
-				<span class="floatright">', Utils::$context['letter_links'], '</span>';
-	echo '
+				<span class="floatleft">', Lang::getTxt('members_list', file: 'General'), '</span>
 			</h3>
 		</div>';
 
@@ -74,7 +69,7 @@ function template_main()
 		foreach (Utils::$context['members'] as $member)
 		{
 			echo '
-					<tr class="windowbg"', empty($member['sort_letter']) ? '' : ' id="letter' . $member['sort_letter'] . '"', '>
+					<tr class="windowbg">
 						<td class="is_online centertext">
 							', Utils::$context['can_send_pm'] ? '<a href="' . $member['online']['href'] . '" title="' . $member['online']['text'] . '">' : '', Theme::$current->settings['use_image_buttons'] ? '<span class="' . ($member['online']['is_online'] == 1 ? 'on' : 'off') . '" title="' . $member['online']['text'] . '"></span>' : $member['online']['label'], Utils::$context['can_send_pm'] ? '</a>' : '', '
 						</td>
@@ -119,7 +114,7 @@ function template_main()
 	else
 		echo '
 					<tr>
-						<td colspan="', Utils::$context['colspan'], '" class="windowbg">', Lang::$txt['search_no_results'], '</td>
+						<td colspan="', Utils::$context['colspan'], '" class="windowbg">', Lang::getTxt('search_no_results', file: 'General'), '</td>
 					</tr>';
 
 	echo '
@@ -136,7 +131,7 @@ function template_main()
 	if (isset(Utils::$context['old_search']))
 		echo '
 			<div class="buttonlist floatright">
-				<a class="button" href="', Config::$scripturl, '?action=mlist;sa=search;search=', Utils::$context['old_search_value'], '">', Lang::$txt['mlist_search_again'], '</a>
+				<a class="button" href="', Config::$scripturl, '?action=mlist;sa=search;search=', Utils::$context['old_search_value'], '">', Lang::getTxt('mlist_search_again', file: 'General'), '</a>
 			</div>';
 	echo '
 		</div>
@@ -158,19 +153,19 @@ function template_search()
 			</div>
 			<div class="cat_bar">
 				<h3 class="catbg mlist">
-					<span class="main_icons filter"></span>', Lang::$txt['mlist_search'], '
+					<span class="main_icons filter"></span>', Lang::getTxt('mlist_search', file: 'General'), '
 				</h3>
 			</div>
 			<div id="advanced_search" class="roundframe">
 				<dl id="mlist_search" class="settings">
 					<dt>
-						<label><strong>', Lang::$txt['search_for'], '</strong></label>
+						<label><strong>', Lang::getTxt('search_for', file: 'General'), '</strong></label>
 					</dt>
 					<dd>
 						<input type="text" name="search" value="', Utils::$context['old_search'], '" size="40">
 					</dd>
 					<dt>
-						<label><strong>', Lang::$txt['mlist_search_filter'], '</strong></label>
+						<label><strong>', Lang::getTxt('mlist_search_filter', file: 'General'), '</strong></label>
 					</dt>
 					<dd>
 						<ul>';
@@ -186,7 +181,7 @@ function template_search()
 						</ul>
 					</dd>
 				</dl>
-				<input type="submit" name="submit" value="' . Lang::$txt['search'] . '" class="button floatright">
+				<input type="submit" name="submit" value="' . Lang::getTxt('search', file: 'General') . '" class="button floatright">
 			</div><!-- #advanced_search -->
 		</div><!-- #memberlist -->
 	</form>';

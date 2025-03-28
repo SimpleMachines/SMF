@@ -379,7 +379,7 @@ class Poll implements \ArrayAccess
 			'lock' => $this->permissions['allow_lock_poll'],
 			'edit' => $this->permissions['allow_edit_poll'],
 			'remove' => $this->permissions['can_remove_poll'],
-			'allowed_warning' => $this->max_votes > 1 ? Lang::getTxt('poll_options_limit', [min(count($this->choices), $this->max_votes)]) : '',
+			'allowed_warning' => $this->max_votes > 1 ? Lang::getTxt('poll_options_limit', [min(count($this->choices), $this->max_votes)], file: 'General') : '',
 			'is_expired' => !empty($this->expire_time) && $this->expire_time < time(),
 			'expire_time' => !empty($this->expire_time) ? Time::create('@' . $this->expire_time)->format() : 0,
 			'expiration' => empty($this->expire_time) ? '' : ceil($this->expire_time <= time() ? -1 : ($this->expire_time - time()) / (3600 * 24)),
@@ -502,7 +502,7 @@ class Poll implements \ArrayAccess
 			$this->formatted['buttons']['remove_poll'] = [
 				'text' => 'poll_remove',
 				'image' => 'admin_remove_poll.png',
-				'custom' => 'data-confirm="' . Lang::$txt['poll_remove_warn'] . '"',
+				'custom' => 'data-confirm="' . Lang::getTxt('poll_remove_warn', file: 'General') . '"',
 				'class' => 'you_sure',
 				'url' => Config::$scripturl . '?action=removepoll;topic=' . $this->topic . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			];

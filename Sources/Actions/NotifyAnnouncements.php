@@ -93,7 +93,7 @@ class NotifyAnnouncements extends Notify
 
 		// Show a confirmation message.
 		Utils::$context['sub_template'] = 'notify_pref_changed';
-		Utils::$context['notify_success_msg'] = Lang::getTxt('notify_announcements' . (!empty($this->alert_pref) ? '_subscribed' : '_unsubscribed'), self::$member_info);
+		Utils::$context['notify_success_msg'] = Lang::getTxt('notify_announcements' . (!empty($this->alert_pref) ? '_subscribed' : '_unsubscribed'), self::$member_info, file: 'General');
 	}
 
 	/**
@@ -101,7 +101,7 @@ class NotifyAnnouncements extends Notify
 	 */
 	protected function getSuccessMsg(): string
 	{
-		return Lang::getTxt('notify_announcements' . (!empty($this->mode) ? '_subscribed' : '_unsubscribed'), self::$member_info);
+		return Lang::getTxt('notify_announcements' . (!empty($this->mode) ? '_subscribed' : '_unsubscribed'), self::$member_info, file: 'General');
 	}
 }
 

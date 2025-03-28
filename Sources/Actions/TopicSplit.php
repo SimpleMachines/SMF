@@ -194,7 +194,7 @@ class TopicSplit implements ActionInterface, Routable
 			'subject' => $_REQUEST['subname'],
 		];
 		Utils::$context['sub_template'] = 'ask';
-		Utils::$context['page_title'] = Lang::$txt['split'];
+		Utils::$context['page_title'] = Lang::getTxt('split', file: 'General');
 
 		return null;
 	}
@@ -217,7 +217,7 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Clean up the subject.
 		if (!isset($_POST['subname']) || $_POST['subname'] == '') {
-			$_POST['subname'] = Lang::$txt['new_topic'];
+			$_POST['subname'] = Lang::getTxt('new_topic', file: 'General');
 		}
 
 		// Redirect to the selector if they chose selective.
@@ -258,7 +258,7 @@ class TopicSplit implements ActionInterface, Routable
 
 		Utils::$context['old_topic'] = Topic::$topic_id;
 		Utils::$context['new_topic'] = $this->splitTopic(Topic::$topic_id, $messagesToBeSplit, $_POST['subname']);
-		Utils::$context['page_title'] = Lang::$txt['split'];
+		Utils::$context['page_title'] = Lang::getTxt('split', file: 'General');
 	}
 
 	/**
@@ -274,7 +274,7 @@ class TopicSplit implements ActionInterface, Routable
 	 */
 	public function select(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['select_split_posts'];
+		Utils::$context['page_title'] = Lang::getTxt('select_split_posts', file: 'General');
 
 		// Haven't selected anything have we?
 		$_SESSION['split_selection'][Topic::$topic_id] = empty($_SESSION['split_selection'][Topic::$topic_id]) ? [] : $_SESSION['split_selection'][Topic::$topic_id];
@@ -588,7 +588,7 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Default the subject in case it's blank.
 		if (!isset($_POST['subname']) || $_POST['subname'] == '') {
-			$_POST['subname'] = Lang::$txt['new_topic'];
+			$_POST['subname'] = Lang::getTxt('new_topic', file: 'General');
 		}
 
 		// You must've selected some messages!  Can't split out none!
@@ -598,7 +598,7 @@ class TopicSplit implements ActionInterface, Routable
 
 		Utils::$context['old_topic'] = Topic::$topic_id;
 		Utils::$context['new_topic'] = $this->splitTopic(Topic::$topic_id, $_SESSION['split_selection'][Topic::$topic_id], $_POST['subname']);
-		Utils::$context['page_title'] = Lang::$txt['split'];
+		Utils::$context['page_title'] = Lang::getTxt('split', file: 'General');
 	}
 
 	/***********************
@@ -820,7 +820,7 @@ class TopicSplit implements ActionInterface, Routable
 					'id_topic' => $split2_ID_TOPIC,
 					'new_subject' => $new_subject,
 					'split_first_msg' => $split2_first_msg,
-					'new_subject_replies' => Lang::$txt['response_prefix'] . $new_subject,
+					'new_subject_replies' => Lang::getTxt('response_prefix', file: 'General') . $new_subject,
 				],
 			);
 

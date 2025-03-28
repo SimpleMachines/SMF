@@ -1300,8 +1300,7 @@ class Config
 				// Set the last error to now, but only every 15 minutes. Don't need to flood the logs.
 				if (empty(self::$db_last_error) || (self::$db_last_error + 60 * 15) <= time()) {
 					self::updateDbLastError(time());
-					Lang::load('Errors');
-					ErrorHandler::log(Lang::$txt['auth_secret_missing'], 'critical');
+					ErrorHandler::log(Lang::getTxt('auth_secret_missing', file: 'General'), 'critical');
 				}
 			}
 		}
@@ -2803,8 +2802,7 @@ class Config
 
 			// If we have tasks more than a day overdue, cron isn't doing its job.
 			if (!empty($overdue)) {
-				Lang::load('ManageScheduledTasks');
-				ErrorHandler::log(Lang::$txt['cron_not_working']);
+				ErrorHandler::log(Lang::getTxt('cron_not_working', file: 'ManageScheduledTasks'));
 				self::updateModSettings(['cron_is_real_cron' => 0]);
 			} else {
 				self::updateModSettings(['cron_last_checked' => time()]);

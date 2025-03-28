@@ -234,7 +234,7 @@ class SmileyParser extends Parser
 			self::$data[$set][(int) $row['id_smiley']] = [
 				'code' => $row['code'],
 				'filename' => $row['filename'],
-				'description' => !empty(Lang::$txt['icon_' . strtolower($row['description'])]) ? Lang::$txt['icon_' . strtolower($row['description'])] : $row['description'],
+				'description' => Lang::txtExists('icon_' . strtolower($row['description']), file: 'General') ? Lang::getTxt('icon_' . strtolower($row['description']), file: 'General') : $row['description'],
 			];
 		}
 

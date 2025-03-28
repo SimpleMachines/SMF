@@ -375,12 +375,8 @@ class TaskRunner
 	 */
 	public static function handleException(\Throwable $e): void
 	{
-		Lang::load('Errors');
-
-		$message = Lang::$txt[$e->getMessage()] ?? $e->getMessage();
-
 		if (!empty(Config::$modSettings['enableErrorLogging'])) {
-			ErrorHandler::log($message, 'cron', $e->getFile(), $e->getLine());
+			ErrorHandler::log(Lang::getTxt($e->getMessage(), file: 'Errors'), 'cron', $e->getFile(), $e->getLine());
 		}
 	}
 

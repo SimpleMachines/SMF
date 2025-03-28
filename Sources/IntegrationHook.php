@@ -126,8 +126,6 @@ class IntegrationHook
 			}
 			// Whatever it was supposed to call, it failed :(
 			else {
-				Lang::load('Errors');
-
 				// Get a full path to show on error.
 				if (str_contains($func_string, '|')) {
 					list($file, $func) = explode('|', $func_string);
@@ -143,11 +141,11 @@ class IntegrationHook
 						]);
 					}
 
-					ErrorHandler::log(Lang::getTxt('hook_fail_call_to', [$func, $path]), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_call_to', [$func, $path], file: 'Errors'), 'general');
 				}
 				// Assume the file resides on Config::$boarddir somewhere...
 				else {
-					ErrorHandler::log(Lang::getTxt('hook_fail_call_to', [$func_string, Config::$boarddir]), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_call_to', [$func_string, Config::$boarddir], file: 'Errors'), 'general');
 				}
 			}
 		}

@@ -272,7 +272,7 @@ class TopicMerge implements ActionInterface, Routable
 		Utils::$context['origin_topic'] = $_GET['from'];
 		Utils::$context['origin_subject'] = $subject;
 		Utils::$context['origin_js_subject'] = addcslashes(addslashes($subject), '/');
-		Utils::$context['page_title'] = Lang::$txt['merge'];
+		Utils::$context['page_title'] = Lang::getTxt('merge', file: 'General');
 
 		// Check which boards you have merge permissions on.
 		$this->merge_boards = User::$me->boardsAllowedTo('merge_any');
@@ -418,7 +418,7 @@ class TopicMerge implements ActionInterface, Routable
 			Utils::$context['topics'][$id]['selected'] = $topic['id'] == $this->firstTopic;
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['merge'];
+		Utils::$context['page_title'] = Lang::getTxt('merge', file: 'General');
 		Utils::$context['sub_template'] = 'merge_extra_options';
 	}
 
@@ -599,17 +599,12 @@ class TopicMerge implements ActionInterface, Routable
 		if (isset($_POST['postRedirect'])) {
 			// Replace tokens with links in the reason.
 			$reason_replacements = [
-				Lang::$txt['movetopic_auto_topic'] => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
+				Lang::getTxt('movetopic_auto_topic', file: 'General') => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
 			];
 
-			// Should be in the boardwide language.
+			// Make sure we catch both languages in the reason.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('General', Lang::$default);
-
-				// Make sure we catch both languages in the reason.
-				$reason_replacements += [
-					Lang::$txt['movetopic_auto_topic'] => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
-				];
+				$reason_replacements[Lang::getTxt('movetopic_auto_topic', file: 'General', lang: Lang::$default)] = '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]';
 			}
 
 			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
@@ -625,7 +620,7 @@ class TopicMerge implements ActionInterface, Routable
 			$redirect_topic = isset($_POST['redirect_topic']) ? $id_topic : 0;
 
 			foreach ($deleted_topics as $this_old_topic) {
-				$redirect_subject = Lang::getTxt('merged_subject', ['subject' => $this->topic_data[$this_old_topic]['subject']]);
+				$redirect_subject = Lang::getTxt('merged_subject', ['subject' => $this->topic_data[$this_old_topic]['subject']], file: 'General', lang: Lang::$default);
 
 				$msgOptions = [
 					'icon' => 'moved',
@@ -651,24 +646,16 @@ class TopicMerge implements ActionInterface, Routable
 				// Update subject search index
 				Logging::updateStats('subject', $this_old_topic, $redirect_subject);
 			}
-
-			// Restore language strings to normal.
-			if (User::$me->language != Lang::$default) {
-				Lang::load('General');
-			}
 		}
 
 		// Grab the response prefix (like 'Re: ') in the default forum language.
-		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
+		if (!isset(Utils::$context['response_prefix'])) {
 			if (Lang::$default === User::$me->language) {
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-			} else {
-				Lang::load('General', Lang::$default, false);
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('General');
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
+			} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
-
-			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
 
 		// Change the topic IDs of all messages that will be merged.  Also adjust subjects if 'enforce subject' was checked.
@@ -1016,7 +1003,7 @@ class TopicMerge implements ActionInterface, Routable
 		Utils::$context['target_board'] = (int) $_GET['targetboard'];
 		Utils::$context['target_topic'] = (int) $_GET['to'];
 
-		Utils::$context['page_title'] = Lang::$txt['merge'];
+		Utils::$context['page_title'] = Lang::getTxt('merge', file: 'General');
 		Utils::$context['sub_template'] = 'merge_done';
 	}
 

@@ -3130,10 +3130,10 @@ class MarkdownParser extends Parser
 				$this->rendered .= strtr(
 					$before,
 					[
-						'{txt_code}' => Lang::getTxt('code'),
-						'{txt_code_select}' => Lang::getTxt('code_select'),
-						'{txt_code_shrink}' => Lang::getTxt('code_shrink'),
-						'{txt_code_expand}' => Lang::getTxt('quote_expand'),
+						'{txt_code}' => Lang::getTxt('code', file: 'General'),
+						'{txt_code_select}' => Lang::getTxt('code_select', file: 'General'),
+						'{txt_code_shrink}' => Lang::getTxt('code_shrink', file: 'General'),
+						'{txt_code_expand}' => Lang::getTxt('quote_expand', file: 'General'),
 						'$2' => htmlspecialchars($element['properties']['info_string'] ?? ''),
 					],
 				);
@@ -3232,7 +3232,7 @@ class MarkdownParser extends Parser
 				// Add a class to the quote to style nested blockquotes.
 				$code['before'] = strtr($code['before'], ['<blockquote>' => '<blockquote class="bbc_' . ($nesting_level % 2 === 1 ? 'alternate' : 'standard') . '_quote">']);
 
-				$this->rendered .= strtr($code['before'], ['{txt_quote}' => Lang::getTxt('quote')]);
+				$this->rendered .= strtr($code['before'], ['{txt_quote}' => Lang::getTxt('quote', file: 'General')]);
 				break;
 
 			default:

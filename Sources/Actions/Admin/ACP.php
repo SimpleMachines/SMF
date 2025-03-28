@@ -767,7 +767,7 @@ class ACP implements ActionInterface, Routable
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=admin',
-			'name' => Lang::$txt['admin_center'],
+			'name' => Lang::getTxt('admin_center', file: 'General'),
 		];
 
 		if (isset($menu->current_area) && $menu->current_area != 'index') {
@@ -818,8 +818,6 @@ class ACP implements ActionInterface, Routable
 	 */
 	public static function prepareDBSettingContext(array &$config_vars): void
 	{
-		Lang::load('Help');
-
 		if (isset($_SESSION['adm-save'])) {
 			if ($_SESSION['adm-save'] === true) {
 				Utils::$context['saved_successful'] = true;
@@ -901,8 +899,8 @@ class ACP implements ActionInterface, Routable
 				}
 
 				Utils::$context['config_vars'][$config_var[1]] = [
-					'label' => $config_var['text_label'] ?? (Lang::$txt[$config_var[1]] ?? (isset($config_var[3]) && !is_array($config_var[3]) ? $config_var[3] : '')),
-					'help' => isset(Lang::$helptxt[$config_var[1]]) ? $config_var[1] : '',
+					'label' => $config_var['text_label'] ?? (Lang::txtExists($config_var[1], file: 'Admin') ? Lang::getTxt($config_var[1], file: 'Admin') : (isset($config_var[3]) && !is_array($config_var[3]) ? $config_var[3] : '')),
+					'help' => Lang::txtExists($config_var[1], var: 'helptxt') ? $config_var[1] : '',
 					'type' => $config_var[0],
 					'size' => !empty($config_var['size']) ? $config_var['size'] : (!empty($config_var[2]) && !is_array($config_var[2]) ? $config_var[2] : (in_array($config_var[0], ['int', 'float']) ? 6 : 0)),
 					'data' => [],
@@ -911,7 +909,7 @@ class ACP implements ActionInterface, Routable
 					'disabled' => false,
 					'invalid' => !empty($config_var['invalid']),
 					'javascript' => '',
-					'var_message' => !empty($config_var['message']) && isset(Lang::$txt[$config_var['message']]) ? Lang::$txt[$config_var['message']] : '',
+					'var_message' => !empty($config_var['message']) && Lang::txtExists($config_var['message'], file: 'Admin') ? Lang::getTxt($config_var['message'], file: 'Admin') : '',
 					'preinput' => $config_var['preinput'] ?? '',
 					'postinput' => $config_var['postinput'] ?? '',
 				];
@@ -968,10 +966,10 @@ class ACP implements ActionInterface, Routable
 					}
 
 					// See if there are any other labels that might fit?
-					if (isset(Lang::$txt['setting_' . $config_var[1]])) {
-						Utils::$context['config_vars'][$config_var[1]]['label'] = Lang::$txt['setting_' . $config_var[1]];
-					} elseif (isset(Lang::$txt['groups_' . $config_var[1]])) {
-						Utils::$context['config_vars'][$config_var[1]]['label'] = Lang::$txt['groups_' . $config_var[1]];
+					if (Lang::txtExists('setting_' . $config_var[1], file: 'Admin')) {
+						Utils::$context['config_vars'][$config_var[1]]['label'] = Lang::getTxt('setting_' . $config_var[1], file: 'Admin');
+					} elseif (Lang::txtExists('groups_' . $config_var[1], file: 'Admin')) {
+						Utils::$context['config_vars'][$config_var[1]]['label'] = Lang::getTxt('groups_' . $config_var[1], file: 'Admin');
 					}
 				}
 
@@ -1018,7 +1016,7 @@ class ACP implements ActionInterface, Routable
 
 			foreach ($bbcChoice as $bbcSection) {
 				Utils::$context['bbc_sections'][$bbcSection] = [
-					'title' => Lang::$txt['bbc_title_' . $bbcSection] ?? Lang::$txt['enabled_bbc_select'],
+					'title' => Lang::getTxt(Lang::txtExists('bbc_title_' . $bbcSection, file: 'Admin') ? 'bbc_title_' . $bbcSection : 'enabled_bbc_select', file: 'Admin'),
 					'disabled' => empty(Config::$modSettings['bbc_disabled_' . $bbcSection]) ? [] : Config::$modSettings['bbc_disabled_' . $bbcSection],
 					'all_selected' => empty(Config::$modSettings['bbc_disabled_' . $bbcSection]),
 					'columns' => [],
@@ -1043,7 +1041,7 @@ class ACP implements ActionInterface, Routable
 
 					Utils::$context['bbc_sections'][$bbcSection]['columns'][$col][] = [
 						'tag' => $tag,
-						'show_help' => isset(Lang::$helptxt['tag_' . $tag]),
+						'show_help' => Lang::txtExists('tag_' . $tag, var: 'helptxt'),
 					];
 
 					$i++;
@@ -1410,15 +1408,12 @@ class ACP implements ActionInterface, Routable
 	 */
 	public static function getServerVersions(array $checkFor): array
 	{
-		Lang::load('Admin');
-		Lang::load('ManageSettings');
-
 		$versions = [];
 
 		// Is GD available?  If it is, we should show version information for it too.
 		if (in_array('gd', $checkFor) && function_exists('gd_info')) {
 			$temp = gd_info();
-			$versions['gd'] = ['title' => Lang::$txt['support_versions_gd'], 'version' => $temp['GD Version']];
+			$versions['gd'] = ['title' => Lang::getTxt('support_versions_gd', file: 'Admin'), 'version' => $temp['GD Version']];
 		}
 
 		// Why not have a look at ImageMagick? If it's installed, we should show version information for it too.
@@ -1431,22 +1426,21 @@ class ACP implements ActionInterface, Routable
 			// We already know it's ImageMagick and the website isn't needed...
 			$im_version = str_replace(['ImageMagick ', ' https://www.imagemagick.org'], '', $im_version);
 
-			$versions['imagemagick'] = ['title' => Lang::$txt['support_versions_imagemagick'], 'version' => $im_version . ' (' . $extension_version . ')'];
+			$versions['imagemagick'] = ['title' => Lang::getTxt('support_versions_imagemagick', file: 'Admin'), 'version' => $im_version . ' (' . $extension_version . ')'];
 		}
 
 		// Now lets check for the Database.
 		if (in_array('db_server', $checkFor)) {
 			if (!isset(Db::$db_connection) || Db::$db_connection === false) {
-				Lang::load('Errors');
-				trigger_error(Lang::$txt['get_server_versions_no_database'], E_USER_NOTICE);
+				trigger_error(Lang::getTxt('get_server_versions_no_database', file: 'Errors'), E_USER_NOTICE);
 			} else {
 				$versions['db_engine'] = [
-					'title' => Lang::getTxt('support_versions_db_engine', ['db_title' => Db::$db->title]),
+					'title' => Lang::getTxt('support_versions_db_engine', ['db_title' => Db::$db->title], file: 'Admin'),
 					'version' => Db::$db->get_vendor(),
 				];
 
 				$versions['db_server'] = [
-					'title' => Lang::getTxt('support_versions_db', ['db_title' => Db::$db->title]),
+					'title' => Lang::getTxt('support_versions_db', ['db_title' => Db::$db->title], file: 'Admin'),
 					'version' => Db::$db->get_version(),
 				];
 			}
@@ -1458,7 +1452,7 @@ class ACP implements ActionInterface, Routable
 
 			if (in_array($class_name_txt_key, $checkFor)) {
 				$versions[$class_name_txt_key] = [
-					'title' => Lang::$txt[$class_name_txt_key . '_cache'] ?? $class_name,
+					'title' => Lang::txtExists($class_name_txt_key . '_cache', file: 'Admin+ManageSettings') ? Lang::getTxt($class_name_txt_key . '_cache', file: 'Admin+ManageSettings') : $class_name,
 					'version' => $cache_api->getVersion(),
 				];
 			}
@@ -1474,7 +1468,7 @@ class ACP implements ActionInterface, Routable
 
 		if (in_array('server', $checkFor)) {
 			$versions['server'] = [
-				'title' => Lang::$txt['support_versions_server'],
+				'title' => Lang::getTxt('support_versions_server', file: 'Admin'),
 				'version' => $_SERVER['SERVER_SOFTWARE'],
 			];
 		}
@@ -1808,7 +1802,6 @@ class ACP implements ActionInterface, Routable
 	 */
 	public static function adminLogin(string $type = 'admin'): void
 	{
-		Lang::load('Admin');
 		Theme::loadTemplate('Login');
 
 		// Validate what type of session check this is.
@@ -1818,8 +1811,7 @@ class ACP implements ActionInterface, Routable
 
 		// They used a wrong password, log it and unset that.
 		if (isset($_POST[$type . '_hash_pass']) || isset($_POST[$type . '_pass'])) {
-			Lang::$txt['security_wrong'] = Lang::getTxt('security_wrong', ['referrer' => $_SERVER['HTTP_REFERER'] ?? Lang::$txt['unknown'], 'user_agent' => $_SERVER['HTTP_USER_AGENT'], 'ip' => User::$me->ip]);
-			ErrorHandler::log(Lang::$txt['security_wrong'], 'critical');
+			ErrorHandler::log(Lang::getTxt('security_wrong', ['referrer' => $_SERVER['HTTP_REFERER'] ?? Lang::getTxt('unknown', file: 'General'), 'user_agent' => $_SERVER['HTTP_USER_AGENT'], 'ip' => User::$me->ip], file: 'Admin'), 'critical');
 
 			if (isset($_POST[$type . '_hash_pass'])) {
 				unset($_POST[$type . '_hash_pass']);
@@ -1850,7 +1842,7 @@ class ACP implements ActionInterface, Routable
 
 		// And title the page something like "Login".
 		if (!isset(Utils::$context['page_title'])) {
-			Utils::$context['page_title'] = Lang::$txt['login'];
+			Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 		}
 
 		// The type of action.
@@ -1872,7 +1864,6 @@ class ACP implements ActionInterface, Routable
 	protected function init()
 	{
 		// Load the language and templates....
-		Lang::load('Admin');
 		Theme::loadTemplate('Admin');
 		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
 		Theme::loadCSSFile('admin.css', [], 'smf_admin');
@@ -1914,7 +1905,7 @@ class ACP implements ActionInterface, Routable
 			$this->admin_areas,
 			function (&$value, $key) {
 				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::$txt[$value] ?? $value;
+					$value = Lang::txtExists($value, file: 'Admin') ? Lang::getTxt($value, file: 'Admin') : $value;
 				}
 
 				if (is_string($value)) {

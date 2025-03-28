@@ -61,8 +61,6 @@ class Search implements ActionInterface, Routable
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 
-		Lang::load('Search');
-
 		// Don't load this in XML mode.
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Search');
@@ -75,7 +73,7 @@ class Search implements ActionInterface, Routable
 		// Link tree....
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=search',
-			'name' => Lang::$txt['search'],
+			'name' => Lang::getTxt('search', file: 'General'),
 		];
 
 		Utils::$context['robot_no_index'] = true;
@@ -152,7 +150,6 @@ class Search implements ActionInterface, Routable
 
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
-			Lang::load('Errors');
 			Utils::$context['search_errors']['messages'] = [];
 
 			foreach (Utils::$context['search_errors'] as $search_error => $dummy) {
@@ -161,10 +158,13 @@ class Search implements ActionInterface, Routable
 				}
 
 				if ($search_error == 'string_too_long') {
-					Lang::$txt['error_string_too_long'] = Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH]);
+					Lang::setTxt(
+						'error_string_too_long',
+						Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH], file: 'Errors'),
+					);
 				}
 
-				Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
+				Utils::$context['search_errors']['messages'][] = Lang::getTxt('error_' . $search_error, file: 'Errors');
 			}
 		}
 
@@ -292,7 +292,7 @@ class Search implements ActionInterface, Routable
 			Utils::$context['search_topic']['link'] = '<a href="' . Utils::$context['search_topic']['href'] . '">' . Utils::$context['search_topic']['subject'] . '</a>';
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['set_parameters'];
+		Utils::$context['page_title'] = Lang::getTxt('set_parameters', file: 'Search');
 
 		IntegrationHook::call('integrate_search');
 	}

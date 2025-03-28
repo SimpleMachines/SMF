@@ -485,7 +485,7 @@ class Msg implements \ArrayAccess, Routable
 			'topic' => $this->id_topic,
 			'board' => $format_options['load_board'] ? Board::init($this->id_board) : $this->id_board,
 			'href' => Config::$scripturl . '?msg=' . $this->id . (!empty($format_options['url_params']) ? ';' . implode(';', $format_options['url_params']) : ''),
-			'subject' => ($this->subject ?? '') != '' ? $this->subject : Lang::$txt['no_subject'],
+			'subject' => ($this->subject ?? '') != '' ? $this->subject : Lang::getTxt('no_subject', file: 'General'),
 			'time' => Time::create('@' . $this->poster_time)->format(),
 			'timestamp' => $this->poster_time,
 			'raw_timestamp' => $this->poster_time,
@@ -578,7 +578,7 @@ class Msg implements \ArrayAccess, Routable
 					'name' => $this->poster_name,
 					'username' => $this->poster_name,
 					'id' => 0,
-					'group' => Lang::$txt['guest_title'],
+					'group' => Lang::getTxt('guest_title', file: 'General'),
 					'link' => $this->poster_name,
 					'email' => $this->poster_email,
 					'show_email' => User::$me->allowedTo('moderate_forum'),
@@ -619,7 +619,7 @@ class Msg implements \ArrayAccess, Routable
 				'name' => $this->poster_name,
 				'username' => $this->poster_name,
 				'href' => empty($this->id_member) ? '' : Config::$scripturl . '?action=profile;u=' . $this->id_member,
-				'link' => empty($this->id_member) ? $this->poster_name : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id_member . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->poster_name]) . '">' . $this->poster_name . '</a>',
+				'link' => empty($this->id_member) ? $this->poster_name : '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->id_member . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->poster_name], file: 'General') . '">' . $this->poster_name . '</a>',
 			];
 		}
 
@@ -696,11 +696,11 @@ class Msg implements \ArrayAccess, Routable
 
 		// Info about last modification to this message.
 		if (!empty($this->formatted['modified']['name'])) {
-			$this->formatted['modified']['last_edit_text'] = Lang::getTxt('last_edit_by', ['time' => $this->formatted['modified']['time'], 'member' => $this->formatted['modified']['name']]);
+			$this->formatted['modified']['last_edit_text'] = Lang::getTxt('last_edit_by', ['time' => $this->formatted['modified']['time'], 'member' => $this->formatted['modified']['name']], file: 'General');
 
 			// Did they give a reason for editing?
 			if (!empty($this->formatted['modified']['reason'])) {
-				$this->formatted['modified']['last_edit_text'] .= '&nbsp;' . Lang::getTxt('last_edit_reason', ['reason' => $this->formatted['modified']['reason']]);
+				$this->formatted['modified']['last_edit_text'] .= '&nbsp;' . Lang::getTxt('last_edit_reason', ['reason' => $this->formatted['modified']['reason']], file: 'General');
 			}
 		}
 
@@ -1424,7 +1424,7 @@ class Msg implements \ArrayAccess, Routable
 		if (!isset($posterOptions['name']) || $posterOptions['name'] == '' || (empty($posterOptions['email']) && !empty($posterOptions['id']))) {
 			if (empty($posterOptions['id'])) {
 				$posterOptions['id'] = 0;
-				$posterOptions['name'] = Lang::$txt['guest_title'];
+				$posterOptions['name'] = Lang::getTxt('guest_title', file: 'General');
 				$posterOptions['email'] = '';
 			} elseif ($posterOptions['id'] != User::$me->id) {
 				$request = Db::$db->query(
@@ -1440,10 +1440,9 @@ class Msg implements \ArrayAccess, Routable
 
 				// Couldn't find the current poster?
 				if (Db::$db->num_rows($request) == 0) {
-					Lang::load('Errors');
-					trigger_error(Lang::getTxt('create_post_invalid_member_id', [$posterOptions['id']]), E_USER_NOTICE);
+					trigger_error(Lang::getTxt('create_post_invalid_member_id', [$posterOptions['id']], file: 'Errors'), E_USER_NOTICE);
 					$posterOptions['id'] = 0;
-					$posterOptions['name'] = Lang::$txt['guest_title'];
+					$posterOptions['name'] = Lang::getTxt('guest_title', file: 'General');
 					$posterOptions['email'] = '';
 				} else {
 					list($posterOptions['name'], $posterOptions['email']) = Db::$db->fetch_row($request);

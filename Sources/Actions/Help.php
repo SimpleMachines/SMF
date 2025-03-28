@@ -74,7 +74,6 @@ class Help implements ActionInterface, Routable
 	public function execute(): void
 	{
 		Theme::loadTemplate('Help');
-		Lang::load('Manual');
 
 		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
@@ -111,11 +110,11 @@ class Help implements ActionInterface, Routable
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=help',
-			'name' => Lang::$txt['help'],
+			'name' => Lang::getTxt('help', file: 'General'),
 		];
 
 		// Lastly, some minor template stuff.
-		Utils::$context['page_title'] = Lang::$txt['manual_smf_user_help'];
+		Utils::$context['page_title'] = Lang::getTxt('manual_smf_user_help', file: 'Manual');
 		Utils::$context['sub_template'] = 'manual';
 	}
 

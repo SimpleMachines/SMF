@@ -91,7 +91,7 @@ class NotifyBoard extends Notify
 	 */
 	protected function getSuccessMsg(): string
 	{
-		return Lang::getTxt('notify_board' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed'), self::$member_info);
+		return Lang::getTxt('notify_board' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed'), self::$member_info, file: 'General');
 	}
 }
 

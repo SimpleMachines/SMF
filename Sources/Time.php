@@ -520,7 +520,7 @@ class Time extends \DateTime implements \ArrayAccess
 				$relative_day = null;
 			}
 
-			$prefix = Lang::$txt[$relative_day] ?? '';
+			$prefix = isset($relative_day) && Lang::txtExists($relative_day, file: 'General') ? Lang::getTxt($relative_day, file: 'General') : '';
 		}
 
 		$format = !empty($prefix) ? self::getTimeFormat($format) : $format;
@@ -591,17 +591,17 @@ class Time extends \DateTime implements \ArrayAccess
 				$txt_strings_exist = true;
 
 				for ($num = $min; $num <= $max; $num++) {
-					if (!isset(Lang::$txt[$key][$num])) {
+					if (!Lang::txtExists([$key, $num], file: 'General')) {
 						$txt_strings_exist = false;
 						break;
 					}
 
-					$placeholders[str_replace($f, (string) $num, $placeholder)] = Lang::$txt[$key][$num];
+					$placeholders[str_replace($f, (string) $num, $placeholder)] = Lang::getTxt([$key, $num], file: 'General');
 				}
 
 				$parts[$i] = $txt_strings_exist ? $placeholder : self::FORMAT_EQUIVALENTS[$parts[$i]];
 			} elseif (in_array($parts[$i], ['p', 'P'])) {
-				if (!isset(Lang::$txt['time_am']) || !isset(Lang::$txt['time_pm'])) {
+				if (!Lang::txtExists('time_am', file: 'General') || !Lang::txtExists('time_pm', file: 'General')) {
 					continue;
 				}
 
@@ -610,14 +610,14 @@ class Time extends \DateTime implements \ArrayAccess
 				switch ($parts[$i]) {
 					// Upper case.
 					case 'p':
-						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'AM', $placeholder)] = Utils::strtoupper(Lang::$txt['time_am']);
-						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'PM', $placeholder)] = Utils::strtoupper(Lang::$txt['time_pm']);
+						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'AM', $placeholder)] = Utils::strtoupper(Lang::getTxt('time_am', file: 'General'));
+						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'PM', $placeholder)] = Utils::strtoupper(Lang::getTxt('time_pm', file: 'General'));
 						break;
 
 					// Lower case.
 					case 'P':
-						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'am', $placeholder)] = Utils::strtolower(Lang::$txt['time_am']);
-						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'pm', $placeholder)] = Utils::strtolower(Lang::$txt['time_pm']);
+						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'am', $placeholder)] = Utils::strtolower(Lang::getTxt('time_am', file: 'General'));
+						$placeholders[str_replace(self::FORMAT_EQUIVALENTS[$parts[$i]], 'pm', $placeholder)] = Utils::strtolower(Lang::getTxt('time_pm', file: 'General'));
 						break;
 				}
 
@@ -1129,7 +1129,7 @@ class Time extends \DateTime implements \ArrayAccess
 
 		// Build an array of regular expressions to translate the current language strings to English.
 		$replacements = array_combine(
-			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['months_titles']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::getTxt('months_titles', file: 'General')),
 			[
 				'January', 'February', 'March', 'April', 'May', 'June',
 				'July', 'August', 'September', 'October', 'November', 'December',
@@ -1137,23 +1137,23 @@ class Time extends \DateTime implements \ArrayAccess
 		);
 
 		$replacements += array_combine(
-			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['months_short']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::getTxt('months_short', file: 'General')),
 			['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 		);
 
 		$replacements += array_combine(
-			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['days']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::getTxt('days', file: 'General')),
 			['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 		);
 
 		$replacements += array_combine(
-			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::$txt['days_short']),
+			array_map(fn($arg) => '~' . preg_quote($arg, '~') . '~iu', Lang::getTxt('days_short', file: 'General')),
 			['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 		);
 
 		// Find all possible variants of AM and PM for this language.
-		$replacements['~' . preg_quote(Lang::$txt['time_am'], '~') . '~iu'] = 'AM';
-		$replacements['~' . preg_quote(Lang::$txt['time_pm'], '~') . '~iu'] = 'PM';
+		$replacements['~' . preg_quote(Lang::getTxt('time_am', file: 'General'), '~') . '~iu'] = 'AM';
+		$replacements['~' . preg_quote(Lang::getTxt('time_pm', file: 'General'), '~') . '~iu'] = 'PM';
 
 		if (($am = self::strftime('%p', strtotime('01:00:00'))) !== 'p' && $am !== false) {
 			$replacements['~' . preg_quote($am, '~') . '~iu'] = 'AM';
@@ -1169,7 +1169,7 @@ class Time extends \DateTime implements \ArrayAccess
 		// In theory, it would be nice to do the same for other keywords used by
 		// PHP's date parser, but that would get very complicated very quickly.
 		foreach (['today', 'yesterday', 'tomorrow'] as $word) {
-			$translated_word = preg_replace('~\X*<strong>(\X*?)</strong>\X*~u', '$1', Lang::$txt[$word]);
+			$translated_word = preg_replace('~\X*<strong>(\X*?)</strong>\X*~u', '$1', Lang::getTxt($word, file: 'General'));
 			$replacements['~\b' . preg_quote($translated_word, '~') . '\b~iu'] = $word;
 		}
 

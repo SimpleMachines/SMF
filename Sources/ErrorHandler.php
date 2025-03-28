@@ -175,9 +175,7 @@ class ErrorHandler
 	 */
 	public static function catch(\Throwable $e): void
 	{
-		Lang::load('Errors');
-
-		$message = Lang::$txt[$e->getMessage()] ?? $e->getMessage();
+		$message = Lang::txtExists($e->getMessage(), file: 'Errors') ? Lang::getTxt($e->getMessage(), file: 'Errors') : $e->getMessage();
 
 		if (!empty(Config::$modSettings['enableErrorLogging'])) {
 			self::log($message, 'general', $e->getFile(), $e->getLine(), $e->getTrace());
@@ -357,8 +355,10 @@ class ErrorHandler
 	 *    to not log the error. Default: 'general'.
 	 * @param array $sprintf An array of data to be substituted into the specified message.
 	 * @param int $status The HTTP status code associated with this error. Default: 403.
+	 * @param string $file Language file that holds the localized error message string.
+	 *    Default: 'Errors'.
 	 */
-	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403): void
+	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403, string $file = 'Errors'): void
 	{
 		static $fatal_error_called = false;
 
@@ -374,13 +374,7 @@ class ErrorHandler
 		}
 
 		// Attempt to load the text string.
-		Lang::load('Errors');
-
-		if (empty(Lang::$txt[$error])) {
-			$error_message = $error;
-		} else {
-			$error_message = Lang::getTxt($error, $sprintf);
-		}
+		$error_message = Lang::getTxt($error, $sprintf, file: 'Errors');
 
 		// Send a custom header if we have a custom message.
 		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_REQUEST['ajax'])) {
@@ -392,28 +386,15 @@ class ErrorHandler
 			die($error);
 		}
 
-		$reload_lang_file = true;
-
 		// Log the error in the forum's language, but don't waste the time if we aren't logging
 		if ($log) {
-			Lang::load('Errors', Lang::$default);
-
-			$reload_lang_file = Lang::$default != User::$me->language;
-
-			if (empty(Lang::$txt[$error])) {
-				$error_message = $error;
-			} else {
-				$error_message = Lang::getTxt($error, $sprintf);
-			}
-
+			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: Lang::$default);
 			self::log($error_message, $log);
 		}
 
 		// Load the language file, only if it needs to be reloaded
-		if ($reload_lang_file && !empty(Lang::$txt[$error])) {
-			Lang::load('Errors');
-
-			$error_message = Lang::getTxt($error, $sprintf);
+		if (!$log || Lang::$default != User::$me->language) {
+			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: User::$me->language);
 		}
 
 		self::logOnline($error, $sprintf);
@@ -653,7 +634,7 @@ class ErrorHandler
 		Utils::$context['robot_no_index'] = true;
 
 		if (!isset(Utils::$context['error_title'])) {
-			Utils::$context['error_title'] = Lang::$txt['error_occured'];
+			Utils::$context['error_title'] = Lang::getTxt('error_occured', file: 'General');
 		}
 
 		Utils::$context['error_message'] = Utils::$context['error_message'] ?? $error_message;

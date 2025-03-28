@@ -56,17 +56,16 @@ class Agreement implements ActionInterface, Routable
 	{
 		$this->prepareAgreementContext();
 
-		Lang::load('Agreement');
 		Theme::loadTemplate('Agreement');
 
 		$page_title = '';
 
 		if (!empty(Utils::$context['agreement']) && !empty(Utils::$context['privacy_policy'])) {
-			$page_title = Lang::$txt['agreement_and_privacy_policy'];
+			$page_title = Lang::getTxt('agreement_and_privacy_policy', file: 'Agreement');
 		} elseif (!empty(Utils::$context['agreement'])) {
-			$page_title = Lang::$txt['agreement'];
+			$page_title = Lang::getTxt('registration_agreement', file: 'General');
 		} elseif (!empty(Utils::$context['privacy_policy'])) {
-			$page_title = Lang::$txt['privacy_policy'];
+			$page_title = Lang::getTxt('privacy_policy', file: 'General');
 		}
 
 		Utils::$context['page_title'] = $page_title;

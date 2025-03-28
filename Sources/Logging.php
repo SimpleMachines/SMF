@@ -87,9 +87,7 @@ class Logging
 			}
 
 			if (!is_array($log['extra'])) {
-				Lang::load('Errors');
-
-				throw new \TypeError(Lang::getTxt('logActions_not_array', [$log['action']]));
+				throw new \TypeError(Lang::getTxt('logActions_not_array', [$log['action']], file: 'Errors'));
 			}
 
 			// Pull out the parts we want to store separately, but also make sure that the data is proper
@@ -426,9 +424,7 @@ class Logging
 				break;
 
 			default:
-				Lang::load('Errors');
-
-				throw new \ValueError(Lang::getTxt('invalid_statistic_type', [$type]));
+				throw new \ValueError(Lang::getTxt('invalid_statistic_type', [$type], file: 'Errors'));
 		}
 	}
 
@@ -732,7 +728,7 @@ class Logging
 					'id' => 0,
 					'username' => $spiders[$id],
 					'name' => $link,
-					'group' => Lang::$txt['spiders'],
+					'group' => Lang::getTxt('spiders', file: 'General'),
 					'href' => '',
 					'link' => $link,
 					'is_buddy' => false,
@@ -825,6 +821,7 @@ class Logging
 					'browser_body_id' => Utils::$context['browser_body_id'],
 					'additional_info' => '(<em>' . implode('</em>, <em>', array_reverse(array_keys(Utils::$context['browser'], true))) . '</em>)',
 				],
+				file: 'General',
 			),
 			Lang::getTxt(
 				'debug_templates',
@@ -832,6 +829,7 @@ class Logging
 					'num' => count(Utils::$context['debug']['templates']),
 					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['templates']) . '</em>)',
 				],
+				file: 'General',
 			),
 			Lang::getTxt(
 				'debug_subtemplates',
@@ -839,6 +837,7 @@ class Logging
 					'num' => count(Utils::$context['debug']['sub_templates']),
 					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['sub_templates']) . '</em>)',
 				],
+				file: 'General',
 			),
 			Lang::getTxt(
 				'debug_language_files',
@@ -846,6 +845,7 @@ class Logging
 					'num' => count(Utils::$context['debug']['language_files']),
 					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['language_files']) . '</em>)',
 				],
+				file: 'General',
 			),
 			Lang::getTxt(
 				'debug_stylesheets',
@@ -853,31 +853,34 @@ class Logging
 					'num' => count(Utils::$context['debug']['sheets']),
 					'additional_info' => '(<em>' . implode('</em>, <em>', Utils::$context['debug']['sheets']) . '</em>)',
 				],
+				file: 'General',
 			),
 			Lang::getTxt(
 				'debug_hooks',
 				[
 					'num' => count(Utils::$context['debug']['hooks'] ?? []),
-					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']) . '</em></span>)',
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_hooks\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::getTxt('debug_show', file: 'General') . '</a><span id="debug_hooks" style="display: none;"><em>' . implode('</em>, <em>', Utils::$context['debug']['hooks']) . '</em></span>)',
 				],
+				file: 'General',
 			),
 			Lang::getTxt(
 				'debug_files_included',
 				[
 					'num' => count($files),
 					'size' => round($total_size / 1024),
-					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_include_info" style="display: none;"><em>' . implode('</em>, <em>', $files) . '</em></span>)',
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_include_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::getTxt('debug_show', file: 'General') . '</a><span id="debug_include_info" style="display: none;"><em>' . implode('</em>, <em>', $files) . '</em></span>)',
 				],
+				file: 'General',
 			),
 		];
 
 		if (function_exists('memory_get_peak_usage')) {
-			$debug_info[] = Lang::getTxt('debug_memory_use', ['size' => ceil(memory_get_peak_usage() / 1024)]);
+			$debug_info[] = Lang::getTxt('debug_memory_use', ['size' => ceil(memory_get_peak_usage() / 1024)], file: 'General');
 		}
 
 		// What tokens are active?
 		if (isset($_SESSION['token'])) {
-			$debug_info[] = Lang::getTxt('debug_tokens', ['additional_info' => '<em>' . implode('</em>, <em>', array_keys($_SESSION['token'])) . '</em>']);
+			$debug_info[] = Lang::getTxt('debug_tokens', ['additional_info' => '<em>' . implode('</em>, <em>', array_keys($_SESSION['token'])) . '</em>'], file: 'General');
 		}
 
 		if (!empty(CacheApi::$enable) && !empty(CacheApi::$hits)) {
@@ -887,7 +890,7 @@ class Logging
 			$total_s = 0;
 
 			foreach (CacheApi::$hits as $cache_hit) {
-				$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . Lang::getTxt('debug_cache_seconds_bytes', ['seconds' => $cache_hit['t'], 'bytes' => $cache_hit['s']]);
+				$entries[] = $cache_hit['d'] . ' ' . $cache_hit['k'] . ': ' . Lang::getTxt('debug_cache_seconds_bytes', ['seconds' => $cache_hit['t'], 'bytes' => $cache_hit['s']], file: 'General');
 				$total_t += $cache_hit['t'];
 				$total_s += $cache_hit['s'];
 			}
@@ -904,17 +907,19 @@ class Logging
 				'debug_cache_hits',
 				[
 					'num' => CacheApi::$count_hits,
-					'seconds_bytes_total' => Lang::getTxt('debug_cache_seconds_bytes_total', ['seconds' => $total_t, 'bytes' => $total_s]),
-					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_cache_info" style="display: none;"><em>' . implode('</em>, <em>', $entries) . '</em></span>)',
+					'seconds_bytes_total' => Lang::getTxt('debug_cache_seconds_bytes_total', ['seconds' => $total_t, 'bytes' => $total_s], file: 'General'),
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::getTxt('debug_show', file: 'General') . '</a><span id="debug_cache_info" style="display: none;"><em>' . implode('</em>, <em>', $entries) . '</em></span>)',
 				],
+				file: 'General',
 			);
 
 			$debug_info[] = Lang::getTxt(
 				'debug_cache_misses',
 				[
 					'num' => CacheApi::$count_misses,
-					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::$txt['debug_show'] . '</a><span id="debug_cache_misses_info" style="display: none;"><em>' . implode('</em>, <em>', $missed_entries) . '</em></span>)',
+					'additional_info' => '(<a href="javascript:void(0);" onclick="document.getElementById(\'debug_cache_misses_info\').style.display = \'inline\'; this.style.display = \'none\'; return false;">' . Lang::getTxt('debug_show', file: 'General') . '</a><span id="debug_cache_misses_info" style="display: none;"><em>' . implode('</em>, <em>', $missed_entries) . '</em></span>)',
 				],
+				file: 'General',
 			);
 		}
 
@@ -923,7 +928,7 @@ class Logging
 		', implode("<br>\n\t\t", $debug_info), '<br>';
 
 		echo '
-		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', $warnings == 0 ? Lang::getTxt('debug_queries_used', [(int) Db::$count]) : Lang::getTxt('debug_queries_used_and_warnings', [(int) Db::$count, $warnings]), '</a><br>
+		<a href="', Config::$scripturl, '?action=viewquery" target="_blank" rel="noopener">', Lang::getTxt($warnings == 0 ? 'debug_queries_used' : 'debug_queries_used_and_warnings', [(int) Db::$count, $warnings], file: 'General'), '</a><br>
 		<br>';
 
 		if ($_SESSION['view_queries'] == 1 && !empty(Db::$cache)) {
@@ -964,13 +969,13 @@ class Logging
 				}
 
 				if (!empty($query_data['f']) && !empty($query_data['l'])) {
-					echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']]);
+					echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']], file: 'General');
 				}
 
-				if (isset($query_data['s'], $query_data['t'], Lang::$txt['debug_query_which_took_at'])) {
-					echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)]) . '<br>';
+				if (isset($query_data['s'], $query_data['t']) && Lang::txtExists('debug_query_which_took_at', file: 'General')) {
+					echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)], file: 'General') . '<br>';
 				} elseif (isset($query_data['t'])) {
-					echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)]) . '<br>';
+					echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)], file: 'General') . '<br>';
 				}
 
 				echo '
@@ -979,7 +984,7 @@ class Logging
 		}
 
 		echo '
-		<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::$txt['debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries'], '</a>
+		<a href="' . Config::$scripturl . '?action=viewquery;sa=hide">', Lang::getTxt('debug_' . (empty($_SESSION['view_queries']) ? 'show' : 'hide') . '_queries', file: 'General'), '</a>
 	</div></body></html>';
 	}
 }

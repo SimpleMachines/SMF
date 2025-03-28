@@ -102,31 +102,25 @@ class Themes implements ActionInterface
 	{
 		User::$me->isAllowedTo('admin_forum');
 
-		// Load the important language files...
-		Lang::load('Admin');
-		Lang::load('Themes');
-		Lang::load('ThemeStrings');
-		Lang::load('Drafts');
-
 		// Default the page title to Theme Administration by default.
-		Utils::$context['page_title'] = Lang::$txt['themeadmin_title'];
+		Utils::$context['page_title'] = Lang::getTxt('themeadmin_title', file: 'Themes');
 
 		if (!empty(Utils::$context['admin_menu_name'])) {
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['themeadmin_title'],
-				'description' => Lang::$txt['themeadmin_description'],
+				'title' => Lang::getTxt('themeadmin_title', file: 'Themes'),
+				'description' => Lang::getTxt('themeadmin_description', file: 'Themes'),
 				'tabs' => [
 					'admin' => [
-						'description' => Lang::$txt['themeadmin_admin_desc'],
+						'description' => Lang::getTxt('themeadmin_admin_desc', file: 'Themes'),
 					],
 					'list' => [
-						'description' => Lang::$txt['themeadmin_list_desc'],
+						'description' => Lang::getTxt('themeadmin_list_desc', file: 'Themes'),
 					],
 					'reset' => [
-						'description' => Lang::$txt['themeadmin_reset_desc'],
+						'description' => Lang::getTxt('themeadmin_reset_desc', file: 'Themes'),
 					],
 					'edit' => [
-						'description' => Lang::$txt['themeadmin_edit_desc'],
+						'description' => Lang::getTxt('themeadmin_edit_desc', file: 'Themes'),
 					],
 				],
 			];
@@ -608,11 +602,6 @@ class Themes implements ActionInterface
 
 		Theme::load($_GET['th'], false);
 
-		Lang::load('Profile');
-
-		// @todo Should we just move these options so they are no longer theme dependant?
-		Lang::load('PersonalMessage');
-
 		// Let the theme take care of the settings.
 		Theme::loadTemplate('Settings');
 		Theme::loadSubTemplate('options');
@@ -621,7 +610,7 @@ class Themes implements ActionInterface
 		IntegrationHook::call('integrate_theme_options');
 
 		Utils::$context['sub_template'] = 'set_options';
-		Utils::$context['page_title'] = Lang::$txt['theme_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('theme_settings', file: 'Admin');
 
 		Utils::$context['options'] = Utils::$context['theme_options'];
 		Utils::$context['theme_settings'] = Theme::$current->settings;
@@ -716,10 +705,10 @@ class Themes implements ActionInterface
 
 		// Fetch the smiley sets...
 		$sets = explode(',', 'none,' . Config::$modSettings['smiley_sets_known']);
-		$set_names = explode("\n", Lang::$txt['smileys_none'] . "\n" . Config::$modSettings['smiley_sets_names']);
+		$set_names = explode("\n", Lang::getTxt('smileys_none', file: 'General') . "\n" . Config::$modSettings['smiley_sets_names']);
 
 		Utils::$context['smiley_sets'] = [
-			'' => Lang::$txt['smileys_no_default'],
+			'' => Lang::getTxt('smileys_no_default', file: 'Admin'),
 		];
 
 		foreach ($sets as $i => $set) {
@@ -732,9 +721,6 @@ class Themes implements ActionInterface
 
 		// Sadly we really do need to init the template.
 		Theme::loadSubTemplate('init', 'ignore');
-
-		// Also load the actual themes language file - in case of special settings.
-		Lang::load('ThemeStrings', '', false, true);
 
 		// Let the theme take care of the settings.
 		Theme::loadTemplate('Settings');
@@ -822,7 +808,7 @@ class Themes implements ActionInterface
 		}
 
 		Utils::$context['sub_template'] = 'set_settings';
-		Utils::$context['page_title'] = Lang::$txt['theme_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('theme_settings', file: 'Admin');
 
 		foreach (Theme::$current->settings as $setting => $dummy) {
 			if (!in_array($setting, ['theme_url', 'theme_dir', 'images_url', 'template_dirs'])) {
@@ -861,7 +847,7 @@ class Themes implements ActionInterface
 			foreach (Theme::$current->settings['theme_variants'] as $variant) {
 				// Have any text, old chap?
 				Utils::$context['theme_variants'][$variant] = [
-					'label' => Lang::$txt['variant_' . $variant] ?? $variant,
+					'label' => Lang::txtExists('variant_' . $variant, file: 'ThemeStrings') ? Lang::getTxt('variant_' . $variant, file: 'ThemeStrings') : $variant,
 					'thumbnail' => !file_exists(Theme::$current->settings['theme_dir'] . '/images/thumbnail.png') || file_exists(Theme::$current->settings['theme_dir'] . '/images/thumbnail_' . $variant . '.png') ? Theme::$current->settings['images_url'] . '/thumbnail_' . $variant . '.png' : (Theme::$current->settings['images_url'] . '/thumbnail.png'),
 				];
 			}
@@ -992,7 +978,7 @@ class Themes implements ActionInterface
 			// Everything went better than expected!
 			if (!empty($result)) {
 				Utils::$context['sub_template'] = 'installed';
-				Utils::$context['page_title'] = Lang::$txt['theme_installed'];
+				Utils::$context['page_title'] = Lang::getTxt('theme_installed', file: 'Themes');
 				Utils::$context['installed_theme'] = $result;
 			}
 		}
@@ -1043,7 +1029,7 @@ class Themes implements ActionInterface
 		$currentTheme = $this->getSingleTheme($_GET['th']);
 
 		Utils::$context['theme_id'] = $currentTheme['id'];
-		Utils::$context['browse_title'] = Lang::getTxt('themeadmin_browsing_theme', $currentTheme);
+		Utils::$context['browse_title'] = Lang::getTxt('themeadmin_browsing_theme', $currentTheme, file: 'Themes');
 
 		if (!file_exists($currentTheme['theme_dir'] . '/index.template.php') && !file_exists($currentTheme['theme_dir'] . '/css/index.css')) {
 			ErrorHandler::fatalLang('theme_edit_missing', false);
@@ -1143,8 +1129,6 @@ class Themes implements ActionInterface
 			}
 			// Session timed out.
 			else {
-				Lang::load('Errors');
-
 				Utils::$context['session_error'] = true;
 				Utils::$context['sub_template'] = 'edit_file';
 
@@ -1831,13 +1815,20 @@ class Themes implements ActionInterface
 
 		// Perhaps they are trying to install a mod, lets tell them nicely this is the wrong function.
 		if (file_exists($path . '/package-info.xml')) {
-			Lang::load('Errors');
-
 			// We need to delete the dir otherwise the next time you try to install a theme you will get the same error.
 			$this->deltree($path);
 
-			Lang::$txt['package_get_error_is_mod'] = str_replace('{MANAGEMODURL}', Config::$scripturl . '?action=admin;area=packages;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], Lang::$txt['package_get_error_is_mod']);
-			ErrorHandler::fatalLang('package_theme_upload_error_broken', false, Lang::$txt['package_get_error_is_mod']);
+			ErrorHandler::fatalLang(
+				'package_theme_upload_error_broken',
+				false,
+				Lang::getTxt(
+					'package_get_error_is_mod',
+					[
+						'MANAGEMODURL' => Config::$scripturl . '?action=admin;area=packages;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+					],
+					file: 'Errors',
+				),
+			);
 		}
 
 		// Parse theme-info.xml into an XmlArray.
@@ -2210,9 +2201,9 @@ class Themes implements ActionInterface
 				$size = filesize($path . '/' . $entry);
 
 				if ($size > 2048 || $size == 1024) {
-					$size = Lang::numberFormat($size / 1024) . ' ' . Lang::$txt['themeadmin_edit_kilobytes'];
+					$size = Lang::getTxt('size_kilobytes', [Lang::numberFormat($size / 1024)], file: 'General');
 				} else {
-					$size = Lang::numberFormat($size) . ' ' . Lang::$txt['themeadmin_edit_bytes'];
+					$size = Lang::getTxt('size_bytes', [Lang::numberFormat($size)], file: 'General');
 				}
 
 				$list2[] = [

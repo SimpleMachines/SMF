@@ -122,7 +122,6 @@ class Register implements ActionInterface, Routable
 			Utils::redirectexit();
 		}
 
-		Lang::load('Login');
 		Theme::loadTemplate('Register');
 
 		// How many steps have we done so far today?
@@ -147,10 +146,10 @@ class Register implements ActionInterface, Routable
 		// Under age restrictions?
 		if (Utils::$context['show_coppa']) {
 			Utils::$context['skip_coppa'] = false;
-			Utils::$context['coppa_agree_above'] = Lang::getTxt($agree_txt_key . 'agree_coppa_above', [Config::$modSettings['coppaAge']]);
-			Utils::$context['coppa_agree_below'] = Lang::getTxt($agree_txt_key . 'agree_coppa_below', [Config::$modSettings['coppaAge']]);
+			Utils::$context['coppa_agree_above'] = Lang::getTxt($agree_txt_key . 'agree_coppa_above', [Config::$modSettings['coppaAge']], file: 'Login');
+			Utils::$context['coppa_agree_below'] = Lang::getTxt($agree_txt_key . 'agree_coppa_below', [Config::$modSettings['coppaAge']], file: 'Login');
 		} elseif ($agree_txt_key != '') {
-			Utils::$context['agree'] = Lang::$txt[$agree_txt_key . 'agree'];
+			Utils::$context['agree'] = Lang::getTxt($agree_txt_key . 'agree', file: 'Login');
 		}
 
 		// Does this user agree to the registration agreement?
@@ -164,7 +163,6 @@ class Register implements ActionInterface, Routable
 
 				// Are they saying they're under age, while under age registration is disabled?
 				if (empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa'])) {
-					Lang::load('Login');
 					ErrorHandler::fatalLang('under_age_registration_prohibited', false, [Config::$modSettings['coppaAge']]);
 				}
 			}
@@ -176,7 +174,7 @@ class Register implements ActionInterface, Routable
 
 		// Show the user the right form.
 		Utils::$context['sub_template'] = $current_step == 1 ? 'registration_agreement' : 'registration_form';
-		Utils::$context['page_title'] = $current_step == 1 ? Lang::$txt['registration_agreement'] : Lang::$txt['registration_form'];
+		Utils::$context['page_title'] = Lang::getTxt($current_step == 1 ? 'registration_agreement' : 'registration_form', file: 'General+Login');
 
 		// Kinda need this.
 		if (Utils::$context['sub_template'] == 'registration_form') {
@@ -186,7 +184,7 @@ class Register implements ActionInterface, Routable
 		// Add the register chain to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=signup',
-			'name' => Lang::$txt['register'],
+			'name' => Lang::getTxt('register', file: 'General'),
 		];
 
 		// Prepare the time gate! Do it like so, in case later steps want to reset the limit for any reason, but make sure the time is the current one.
@@ -225,7 +223,7 @@ class Register implements ActionInterface, Routable
 			// Nothing to show, lets disable registration and inform the admin of this error
 			if (empty(Utils::$context['agreement'])) {
 				// No file found or a blank file, log the error so the admin knows there is a problem!
-				ErrorHandler::log(Lang::$txt['registration_agreement_missing'], 'critical');
+				ErrorHandler::log(Lang::getTxt('registration_agreement_missing', file: 'Login'), 'critical');
 				ErrorHandler::fatalLang('registration_disabled', false);
 			}
 		}
@@ -267,7 +265,7 @@ class Register implements ActionInterface, Routable
 				);
 			} else {
 				// None was found; log the error so the admin knows there is a problem!
-				ErrorHandler::log(Lang::$txt['registration_policy_missing'], 'critical');
+				ErrorHandler::log(Lang::getTxt('registration_policy_missing', file: 'Login'), 'critical');
 				ErrorHandler::fatalLang('registration_disabled', false);
 			}
 		}
@@ -281,7 +279,6 @@ class Register implements ActionInterface, Routable
 			require_once Config::$sourcedir . '/Profile-Modify.php';
 
 			// Setup some important context.
-			Lang::load('Profile');
 			Theme::loadTemplate('Profile');
 
 			User::$me->is_owner = true;

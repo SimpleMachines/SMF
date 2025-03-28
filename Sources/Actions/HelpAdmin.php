@@ -70,24 +70,18 @@ class HelpAdmin implements ActionInterface, Routable
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		// Load the admin help language file and template.
-		Lang::load('Help');
-
-		// Permission specific help?
-		if (isset($_GET['help']) && str_starts_with($_GET['help'], 'permissionhelp')) {
-			Lang::load('ManagePermissions');
-		}
-
 		Theme::loadTemplate('Help');
 
 		// Allow mods to load their own language file here
 		IntegrationHook::call('integrate_helpadmin');
 
 		// What help string should be used?
-		if (isset(Lang::$helptxt[$_GET['help']])) {
-			Utils::$context['help_text'] = Lang::$helptxt[$_GET['help']];
-		} elseif (isset(Lang::$txt[$_GET['help']])) {
-			Utils::$context['help_text'] = Lang::$txt[$_GET['help']];
+		if (str_starts_with($_GET['help'], 'permissionhelp') && Lang::txtExists($_GET['help'], file: 'ManagePermissions')) {
+			Utils::$context['help_text'] = Lang::getTxt($_GET['help'], file: 'ManagePermissions');
+		} elseif (Lang::txtExists($_GET['help'], var: 'helptxt')) {
+			Utils::$context['help_text'] = Lang::getTxt($_GET['help'], var: 'helptxt');
+		} elseif (Lang::txtExists($_GET['help'])) {
+			Utils::$context['help_text'] = Lang::getTxt($_GET['help']);
 		} else {
 			ErrorHandler::fatalLang('not_found', false, [], 404);
 		}
@@ -97,8 +91,8 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						'short' => Lang::$txt['months_short'][1],
-						'long' => Lang::$txt['months_titles'][1],
+						'short' => Lang::getTxt(['months_short', 1], file: 'General'),
+						'long' => Lang::getTxt(['months_titles', 1], file: 'General'),
 					],
 				);
 				break;
@@ -107,8 +101,8 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						'short' => Lang::$txt['days_short'][1],
-						'long' => Lang::$txt['days'][1],
+						'short' => Lang::getTxt(['days_short', 1], file: 'General'),
+						'long' => Lang::getTxt(['days', 1], file: 'General'),
 					],
 				);
 				break;
@@ -117,7 +111,7 @@ class HelpAdmin implements ActionInterface, Routable
 				Utils::$context['help_text'] = Lang::formatText(
 					Utils::$context['help_text'],
 					[
-						'boarddir' => User::$me->allowedTo('admin_forum') ? Config::$boarddir : '[' . Lang::$txt['hidden'] . ']',
+						'boarddir' => User::$me->allowedTo('admin_forum') ? Config::$boarddir : '[' . Lang::getTxt('hidden', file: 'General') . ']',
 						'boardurl' => Config::$boardurl,
 					],
 				);
@@ -165,7 +159,7 @@ class HelpAdmin implements ActionInterface, Routable
 		}
 
 		// Set the page title to something relevant.
-		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::$txt['help'];
+		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::getTxt('help', file: 'General');
 
 		// Don't show any template layers, just the popup sub template.
 		Utils::$context['template_layers'] = [];
