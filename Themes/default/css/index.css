@@ -3509,6 +3509,15 @@ img.avatar {
 	font-style: italic;
 	padding: 2px 4px 0 4px;
 }
+.bump_notice {
+	display: block;
+	margin-top: 1em;
+	padding: 0.5em 0;
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	text-align: center;
+	font-style: italic;
+}
 /* PMs postinfo */
 #personal_messages .keyinfo .postinfo {
 	flex-direction: column;

@@ -999,6 +999,45 @@ $txt['error_old_topic'] = 'Warning: {0, plural,
 	other {this topic has not been posted in for at least # days.}
 }<br>Unless you are sure you want to reply, please consider starting a new topic.';
 
+$txt['bump_notice'] = '{invert, select,
+	true {{unit, select,
+		year {{num, plural,
+			one {# year earlier...}
+			other {# years earlier...}
+		}}
+		month {{num, plural,
+			one {# month earlier...}
+			other {# months earlier...}
+		}}
+		week {{num, plural,
+			one {# week earlier...}
+			other {# weeks earlier...}
+		}}
+		other {{num, plural,
+			one {# day earlier...}
+			other {# days earlier...}
+		}}
+	}}
+	other {{unit, select,
+		year {{num, plural,
+			one {# year later...}
+			other {# years later...}
+		}}
+		month {{num, plural,
+			one {# month later...}
+			other {# months later...}
+		}}
+		week {{num, plural,
+			one {# week later...}
+			other {# weeks later...}
+		}}
+		other {{num, plural,
+			one {# day later...}
+			other {# days later...}
+		}}
+	}}
+}';
+
 $txt['split_selected_posts'] = 'Selected posts ({reset_link})';
 $txt['split_selected_posts_desc'] = 'The posts below will form a new topic after splitting.';
 $txt['split_reset_selection'] = 'reset selection';
