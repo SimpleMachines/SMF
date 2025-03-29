@@ -367,7 +367,7 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 			var help_content = $('<div id="temp_help">').html(data).find('a[href$="self.close();"]').hide().prev('br').hide().parent().html();
 			oPopup_body.html(help_content);
 
-			if (oPopup_body.text().length > 1200) {
+			if (oPopup_body.find('*:not(:has(*)):visible').text().length > 1200) {
 				$('#' + oContainer.popup_id).find('.popup_window').addClass('large');
 			}
 		},
