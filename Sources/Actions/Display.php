@@ -35,6 +35,7 @@ use SMF\Poll;
 use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
+use SMF\TimeInterval;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -182,6 +183,7 @@ class Display implements ActionInterface, Routable
 	public function prepareDisplayContext(): array|bool
 	{
 		static $counter = null;
+		static $prev_timestamp = null;
 
 		// Remember which message this is.  (ie. reply #83)
 		if ($counter === null) {
@@ -295,6 +297,76 @@ class Display implements ActionInterface, Routable
 				'show' => !empty(Theme::$current->options['display_quick_mod']) && Theme::$current->options['display_quick_mod'] == 1 && $output['can_remove'],
 			],
 		];
+
+		// Should we insert a bump notice?
+		if (
+			!empty(Config::$modSettings['oldTopicDays'])
+			&& (
+				empty(Theme::$current->options['view_newest_first'])
+				? $message->id > Topic::$info->id_first_msg
+				: $message->id < Topic::$info->id_last_msg
+			)
+		) {
+			// On the second and following pages of the topic, we unfortunately
+			// need an extra query for the first post on the page.
+			if (!isset($prev_timestamp)) {
+				$request = Db::$db->query(
+					'',
+					'SELECT poster_time
+					FROM {db_prefix}messages
+					WHERE id_topic = {int:topic}
+						AND poster_time {raw:operator} {int:ts}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
+						AND (approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR id_member = {int:me}') . ')') . '
+					ORDER BY id_msg {raw:order}
+					LIMIT 1',
+					[
+						'ts' => $message->poster_time,
+						'operator' => !empty(Theme::$current->options['view_newest_first']) ? '>' : '<',
+						'topic' => Topic::$info->id,
+						'me' => User::$me->id,
+						'is_approved' => 1,
+						'order' => !empty(Theme::$current->options['view_newest_first']) ? 'ASC' : 'DESC',
+					],
+				);
+
+				$row = current(Db::$db->fetch_all($request));
+				$prev_timestamp = $row['poster_time'];
+
+				Db::$db->free_result($request);
+			}
+
+			$since = date_create('@' . $prev_timestamp)->diff(date_create('@' . $message->poster_time));
+
+			if ($since->format('%a') > Config::$modSettings['oldTopicDays']) {
+				if ($since->format('%y') > 0) {
+					$num = $since->format('%y');
+					$unit = 'year';
+				} elseif ($since->format('%m') > 1) {
+					$num = $since->format('%m');
+					$unit = 'month';
+				} elseif ($since->format('%a') > 14) {
+					$num = strval(intval(floor($since->format('%a') / 7)));
+					$unit = 'week';
+				} else {
+					$num = $since->format('%a');
+					$unit = 'day';
+				}
+
+				$since = TimeInterval::createFromDateInterval($since);
+
+				$output['bump_notice'] = '<time class="bump_notice" datetime="' . (string) $since . '" title="' . $since->localize() . '">' . Lang::getTxt(
+					'bump_notice',
+					[
+						'num' => $num,
+						'unit' => $unit,
+						'invert' => $since->invert ? 'true' : 'false',
+					],
+					file: 'General',
+				) . '</time>';
+			}
+		}
+
+		$prev_timestamp = $message->poster_time;
 
 		if (empty(Theme::$current->options['view_newest_first'])) {
 			$counter++;

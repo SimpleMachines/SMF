@@ -553,8 +553,8 @@ class Members implements ActionInterface
 						'value' => Lang::getTxt('username', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . strtr(Config::$scripturl, ['%' => '%%']) . '?action=profile;u=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . strtr(Config::$scripturl, ['%' => '%%']) . '?action=profile;u={id_member}">{member_name}</a>',
 							'params' => [
 								'id_member' => false,
 								'member_name' => false,
@@ -571,8 +571,8 @@ class Members implements ActionInterface
 						'value' => Lang::getTxt('display_name', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . strtr(Config::$scripturl, ['%' => '%%']) . '?action=profile;u=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . strtr(Config::$scripturl, ['%' => '%%']) . '?action=profile;u={id_member}">{real_name}</a>',
 							'params' => [
 								'id_member' => false,
 								'real_name' => false,
@@ -589,8 +589,8 @@ class Members implements ActionInterface
 						'value' => Lang::getTxt('email_address', file: 'Admin'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="mailto:%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="mailto:{email_address}">{email_address}</a>',
 							'params' => [
 								'email_address' => true,
 							],
@@ -606,8 +606,8 @@ class Members implements ActionInterface
 						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . strtr(Config::$scripturl, ['%' => '%%']) . '?action=trackip;searchip=%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . strtr(Config::$scripturl, ['%' => '%%']) . '?action=trackip;searchip={member_ip}">{member_ip}</a>',
 							'params' => [
 								'member_ip' => false,
 							],
@@ -919,8 +919,8 @@ class Members implements ActionInterface
 						'value' => Lang::getTxt('username', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . strtr(Config::$scripturl, ['%' => '%%']) . '?action=profile;u=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=profile;u={id_member}">{member_name}</a>',
 							'params' => [
 								'id_member' => false,
 								'member_name' => false,
@@ -937,8 +937,8 @@ class Members implements ActionInterface
 						'value' => Lang::getTxt('email_address', file: 'Admin'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="mailto:%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="mailto:{email_address}">{email_address}</a>',
 							'params' => [
 								'email_address' => true,
 							],
@@ -954,8 +954,8 @@ class Members implements ActionInterface
 						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . strtr(Config::$scripturl, ['%' => '%%']) . '?action=trackip;searchip=%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . strtr(Config::$scripturl, ['%' => '%%']) . '?action=trackip;searchip={member_ip}">{member_ip}</a>',
 							'params' => [
 								'member_ip' => false,
 							],
@@ -1022,8 +1022,8 @@ class Members implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="todoAction[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="todoAction[]" value="{id_member}">',
 							'params' => [
 								'id_member' => false,
 							],

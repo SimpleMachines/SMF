@@ -404,8 +404,8 @@ class Attachments implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="remove[%1$d]">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="remove[{id_attach}]">',
 							'params' => [
 								'id_attach' => false,
 							],

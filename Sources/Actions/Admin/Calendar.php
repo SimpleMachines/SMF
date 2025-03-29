@@ -151,8 +151,8 @@ class Calendar implements ActionInterface
 						'value' => Lang::getTxt('holidays_title', file: 'ManageCalendar'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday;holiday=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=managecalendar;sa=editholiday;holiday={id}">{title}</a>',
 							'params' => [
 								'id' => false,
 								'title' => false,
@@ -206,8 +206,8 @@ class Calendar implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="holiday[%1$d]">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="holiday[{id}]">',
 							'params' => [
 								'id' => false,
 							],
@@ -452,8 +452,8 @@ class Calendar implements ActionInterface
 							'value' => Lang::getTxt('url', file: 'General'),
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '%1$s',
+							'format_text' => [
+								'format' => '{url}',
 								'params' => [
 									'url' => true,
 								],
@@ -475,8 +475,8 @@ class Calendar implements ActionInterface
 							),
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '%1$s',
+							'format_text' => [
+								'format' => '{type}',
 								'params' => [
 									'type' => false,
 								],
@@ -493,8 +493,8 @@ class Calendar implements ActionInterface
 							'class' => 'centercol',
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '<input type="checkbox" name="subscribed[%1$s]">',
+							'format_text' => [
+								'format' => '<input type="checkbox" name="subscribed[{hash}]">',
 								'params' => [
 									'hash' => false,
 								],

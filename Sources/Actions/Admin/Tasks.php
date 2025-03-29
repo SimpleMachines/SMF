@@ -590,7 +590,7 @@ class Tasks implements ActionInterface
 			$known_tasks[] = [
 				'id' => $row['id_task'],
 				'function' => $row['task'],
-				'name' => (Lang::txtExists('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') : $row['task']),
+				'name' => Lang::txtExists('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') : $row['task'],
 				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl], file: 'ManageScheduledTasks'),
 				'next_time' => $row['disabled'] ? Lang::getTxt('scheduled_tasks_na', file: 'ManageScheduledTasks') : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],

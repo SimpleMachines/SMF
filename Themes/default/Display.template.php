@@ -435,11 +435,21 @@ function template_single_post($message)
 		Utils::$context['ignoredMsgs'][] = $message['id'];
 	}
 
-	// Show the message anchor and a "new" anchor if this message is new.
+	// Show a "new" anchor if this message is new.
+	if (!empty($message['first_new']) && $message['id'] != Utils::$context['first_message']) {
+		echo '
+				<a id="new"></a>';
+	}
+
+	// Inform the reader if this message bumped an old topic.
+	if (!empty($message['bump_notice'])) {
+		echo '
+				' . $message['bump_notice'];
+	}
+
+	// Show the message.
 	echo '
 				<div class="', $message['css_class'], '" id="msg' . $message['id'] . '">
-					', $message['id'] != Utils::$context['first_message'] ? '
-					' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
 					<div class="post_wrapper">';
 
 	// Show information about the poster of this message.

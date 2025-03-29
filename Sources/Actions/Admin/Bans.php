@@ -246,8 +246,8 @@ class Bans implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">' . Lang::getTxt('modify', file: 'General') . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg={id_ban_group}">' . Lang::getTxt('modify', file: 'General') . '</a>',
 							'params' => [
 								'id_ban_group' => false,
 							],
@@ -261,8 +261,8 @@ class Bans implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="remove[]" value="{id_ban_group}">',
 							'params' => [
 								'id_ban_group' => false,
 							],
@@ -404,8 +404,8 @@ class Bans implements ActionInterface
 								'style' => 'width: 5%; text-align: center;',
 							],
 							'data' => [
-								'sprintf' => [
-									'format' => '<input type="checkbox" name="ban_items[]" value="%1$d">',
+								'format_text' => [
+									'format' => '<input type="checkbox" name="ban_items[]" value="{id}">',
 									'params' => [
 										'id' => false,
 									],
@@ -629,8 +629,8 @@ class Bans implements ActionInterface
 						'value' => Lang::getTxt('ban_name', file: 'Admin'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg={id_ban_group}">{name}</a>',
 							'params' => [
 								'id_ban_group' => false,
 								'name' => false,
@@ -660,8 +660,8 @@ class Bans implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="remove[]" value="{id_ban}">',
 							'params' => [
 								'id_ban' => false,
 							],
@@ -723,8 +723,8 @@ class Bans implements ActionInterface
 			];
 		} elseif (Utils::$context['selected_entity'] === 'member') {
 			$listOptions['columns']['banned_entity']['data'] = [
-				'sprintf' => [
-					'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d">%2$s</a>',
+				'format_text' => [
+					'format' => '<a href="' . Config::$scripturl . '?action=profile;u={id_member}">{real_name}</a>',
 					'params' => [
 						'id_member' => false,
 						'real_name' => false,
@@ -901,8 +901,8 @@ class Bans implements ActionInterface
 						'value' => Lang::getTxt('ban_log_ip', file: 'Admin'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=trackip;searchip=%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=trackip;searchip={ip}">{ip}</a>',
 							'params' => [
 								'ip' => false,
 							],
@@ -930,8 +930,8 @@ class Bans implements ActionInterface
 						'value' => Lang::getTxt('ban_log_member', file: 'Admin'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=profile;u={id_member}">{real_name}</a>',
 							'params' => [
 								'id_member' => false,
 								'real_name' => false,
@@ -963,8 +963,8 @@ class Bans implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="remove[]" value="{id_ban_log}">',
 							'params' => [
 								'id_ban_log' => false,
 							],

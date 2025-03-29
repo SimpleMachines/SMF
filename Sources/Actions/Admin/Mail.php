@@ -175,8 +175,8 @@ class Mail implements ActionInterface
 						'value' => Lang::getTxt('mailqueue_recipient', file: 'ManageMail'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="mailto:%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="mailto:{recipient}">{recipient}</a>',
 							'params' => [
 								'recipient' => true,
 							],

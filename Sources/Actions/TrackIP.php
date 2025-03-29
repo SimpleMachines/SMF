@@ -164,8 +164,8 @@ class TrackIP implements ActionInterface, Routable
 						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip=%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip={ip}">{ip}</a>',
 							'params' => [
 								'ip' => false,
 							],
@@ -189,8 +189,8 @@ class TrackIP implements ActionInterface, Routable
 						'value' => Lang::getTxt('subject', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?topic=%1$s.msg%2$s#msg%2$s" rel="nofollow">%3$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?topic={topic}.msg{id}#msg{id}" rel="nofollow">{subject}</a>',
 							'params' => [
 								'topic' => false,
 								'id' => false,
@@ -252,8 +252,8 @@ class TrackIP implements ActionInterface, Routable
 						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip=%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip={ip}">{ip}</a>',
 							'params' => [
 								'ip' => false,
 							],
@@ -277,8 +277,8 @@ class TrackIP implements ActionInterface, Routable
 						'value' => Lang::getTxt('message', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '%1$s<br><a href="%2$s">%2$s</a>',
+						'format_text' => [
+							'format' => '{message}<br><a href="{url}">{url}</a>',
 							'params' => [
 								'message' => false,
 								'url' => false,

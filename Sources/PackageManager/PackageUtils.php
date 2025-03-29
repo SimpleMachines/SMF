@@ -653,8 +653,8 @@ class PackageUtils
 							'class' => 'centercol',
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '<input type="checkbox" name="restore_files[]" value="%1$s">',
+							'format_text' => [
+								'format' => '<input type="checkbox" name="restore_files[]" value="{path}">',
 								'params' => [
 									'path' => false,
 								],

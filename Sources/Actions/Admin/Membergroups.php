@@ -193,8 +193,8 @@ class Membergroups implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group=%1$d">' . Lang::getTxt('membergroups_modify', file: 'ManageMembers') . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group={id_group}">' . Lang::getTxt('membergroups_modify', file: 'ManageMembers') . '</a>',
 							'params' => [
 								'id_group' => false,
 							],
@@ -296,8 +296,8 @@ class Membergroups implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group=%1$d">' . Lang::getTxt('membergroups_modify', file: 'ManageMembers') . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group={id_group}">' . Lang::getTxt('membergroups_modify', file: 'ManageMembers') . '</a>',
 							'params' => [
 								'id_group' => false,
 							],
