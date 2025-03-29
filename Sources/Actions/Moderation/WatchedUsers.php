@@ -132,8 +132,8 @@ class WatchedUsers implements ActionInterface
 						'value' => Lang::getTxt('mc_watched_users_member', file: 'ModerationCenter'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=profile;u={id}">{name}</a>',
 							'params' => [
 								'id' => false,
 								'name' => false,
@@ -164,8 +164,8 @@ class WatchedUsers implements ActionInterface
 						'value' => Lang::getTxt('posts', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=profile;u=%1$d;area=showposts;sa=messages">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=profile;u={id};area=showposts;sa=messages">{posts}</a>',
 							'params' => [
 								'id' => false,
 								'posts' => false,

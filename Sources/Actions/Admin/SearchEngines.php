@@ -574,8 +574,8 @@ class SearchEngines implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="remove[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="remove[]" value="{id_spider}">',
 							'params' => [
 								'id_spider' => false,
 							],

@@ -599,8 +599,8 @@ class Posts implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="item[]" value="%1$d" checked>',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="item[]" value="{id}" checked>',
 							'params' => [
 								'id' => false,
 							],

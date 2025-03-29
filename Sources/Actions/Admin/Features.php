@@ -897,8 +897,8 @@ class Features implements ActionInterface
 				],
 				'show_on_registration' => [
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid=%1$s">' . Lang::getTxt('modify', file: 'General') . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=featuresettings;sa=profileedit;fid={id_field}">' . Lang::getTxt('modify', file: 'General') . '</a>',
 							'params' => [
 								'id_field' => false,
 							],

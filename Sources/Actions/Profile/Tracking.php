@@ -186,8 +186,8 @@ class Tracking implements ActionInterface
 						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=profile;area=tracking;sa=ip;searchip=%1$s;u=' . Profile::$member->id . '">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=profile;area=tracking;sa=ip;searchip={ip};u=' . Profile::$member->id . '">{ip}</a>',
 							'params' => [
 								'ip' => false,
 							],
@@ -203,8 +203,8 @@ class Tracking implements ActionInterface
 						'value' => Lang::getTxt('message', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '%1$s<br><a href="%2$s">%2$s</a>',
+						'format_text' => [
+							'format' => '{message}<br><a href="{url}">{url}</a>',
 							'params' => [
 								'message' => false,
 								'url' => false,
@@ -591,8 +591,8 @@ class Tracking implements ActionInterface
 						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip=%1$s">%1$s</a> (<a href="' . Utils::$context['base_url'] . ';searchip=%2$s">%2$s</a>) ',
+						'format_text' => [
+							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip={ip}">{ip}</a> (<a href="' . Utils::$context['base_url'] . ';searchip={ip2}">{ip2}</a>) ',
 							'params' => [
 								'ip' => false,
 								'ip2' => false,
