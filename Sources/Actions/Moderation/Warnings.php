@@ -334,8 +334,8 @@ class Warnings implements ActionInterface
 						'value' => Lang::getTxt('mc_warning_templates_name', file: 'ModerationCenter'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=moderate;area=warnings;sa=templateedit;tid=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=moderate;area=warnings;sa=templateedit;tid={id_comment}">{title}</a>',
 							'params' => [
 								'id_comment' => false,
 								'title' => false,

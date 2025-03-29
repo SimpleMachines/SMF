@@ -683,8 +683,8 @@ class Notification implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="notify_topics[]" value="{id}">',
 							'params' => [
 								'id' => false,
 							],
@@ -791,8 +791,8 @@ class Notification implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="notify_boards[]" value="{id}">',
 							'params' => [
 								'id' => false,
 							],

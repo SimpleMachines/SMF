@@ -528,8 +528,8 @@ class Smileys implements ActionInterface
 						'value' => Lang::getTxt('smiley_sets_url', file: 'ManageSmileys'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => Config::$modSettings['smileys_url'] . '/<strong>%1$s</strong>/...',
+						'format_text' => [
+							'format' => Config::$modSettings['smileys_url'] . '/<strong>{path}</strong>/...',
 							'params' => [
 								'path' => true,
 							],
@@ -546,8 +546,8 @@ class Smileys implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset;set=%1$s">' . Lang::getTxt('smiley_set_modify', file: 'ManageSmileys') . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifyset;set={path}">' . Lang::getTxt('smiley_set_modify', file: 'ManageSmileys') . '</a>',
 							'params' => [
 								'path' => true,
 							],
@@ -1214,8 +1214,8 @@ class Smileys implements ActionInterface
 							'class' => 'centercol',
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifysmiley;smiley=%1$d">' . Lang::getTxt('smileys_modify', file: 'ManageSmileys') . '</a>',
+							'format_text' => [
+								'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=modifysmiley;smiley={id_smiley}">' . Lang::getTxt('smileys_modify', file: 'ManageSmileys') . '</a>',
 								'params' => [
 									'id_smiley' => false,
 								],
@@ -1229,8 +1229,8 @@ class Smileys implements ActionInterface
 							'class' => 'centercol',
 						],
 						'data' => [
-							'sprintf' => [
-								'format' => '<input type="checkbox" name="checked_smileys[]" value="%1$d">',
+							'format_text' => [
+								'format' => '<input type="checkbox" name="checked_smileys[]" value="{id_smiley}">',
 								'params' => [
 									'id_smiley' => false,
 								],
@@ -1982,8 +1982,8 @@ class Smileys implements ActionInterface
 						'value' => Lang::getTxt('smileys_filename', file: 'ManageSmileys'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '%1$s.png',
+						'format_text' => [
+							'format' => '{filename}.png',
 							'params' => [
 								'filename' => true,
 							],
@@ -2014,8 +2014,8 @@ class Smileys implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon;icon=%1$s">' . Lang::getTxt('smileys_modify', file: 'ManageSmileys') . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=smileys;sa=editicon;icon={id_icon}">' . Lang::getTxt('smileys_modify', file: 'ManageSmileys') . '</a>',
 							'params' => [
 								'id_icon' => false,
 							],
@@ -2029,8 +2029,8 @@ class Smileys implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="checked_icons[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="checked_icons[]" value="{id_icon}">',
 							'params' => [
 								'id_icon' => false,
 							],

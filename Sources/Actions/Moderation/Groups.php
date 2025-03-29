@@ -433,8 +433,8 @@ class Groups extends ViewGroups
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="groupr[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="groupr[]" value="{id}">',
 							'params' => [
 								'id' => false,
 							],

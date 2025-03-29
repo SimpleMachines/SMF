@@ -180,8 +180,8 @@ class ShowPosts implements ActionInterface
 						'style' => 'width: 30%;',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?topic=%1$d.0">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?topic={id_topic}.0">{subject}</a>',
 							'params' => [
 								'id_topic' => false,
 								'subject' => false,
@@ -305,8 +305,8 @@ class ShowPosts implements ActionInterface
 						'style' => 'width: 25%;',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=dlattach;topic=%1$d.0;attach=%2$d">%3$s</a>%4$s',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=dlattach;topic={topic}.0;attach={id}">{filename}</a>{awaiting_approval}',
 							'params' => [
 								'topic' => true,
 								'id' => true,
@@ -341,8 +341,8 @@ class ShowPosts implements ActionInterface
 						'style' => 'width: 30%;',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?msg=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?msg={msg}">{subject}</a>',
 							'params' => [
 								'msg' => true,
 								'subject' => false,
