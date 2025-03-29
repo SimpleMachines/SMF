@@ -37,6 +37,7 @@ use SMF\Time;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
+use SMF\Uuid;
 
 /**
  * This class contains the code necessary to display XML feeds.
