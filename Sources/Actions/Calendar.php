@@ -1735,7 +1735,7 @@ class Calendar implements ActionInterface, Routable
 		$params['action'] = array_shift($route);
 
 		if (!empty($route)) {
-			if (in_array($route[0], self::$subactions)) {
+			if (isset(self::$subactions[$route[0]])) {
 				$params['sa'] = array_shift($route);
 
 				if ($params['sa'] === 'clock' && in_array($route[0] ?? null, ['bcd', 'rb', 'omfg'])) {
