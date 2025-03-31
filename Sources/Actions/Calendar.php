@@ -1349,7 +1349,13 @@ class Calendar implements ActionInterface, Routable
 				'birthdays' => (!empty($eventOptions['include_birthdays']) ? self::getBirthdayRange($low_date, $high_date) : []),
 				'events' => (!empty($eventOptions['include_events']) ? self::getEventRange($low_date, $high_date, false) : []),
 			],
-			'refresh_eval' => 'return \'' . Time::strftime('%Y%m%d', time()) . '\' != \\SMF\\Time::strftime(\'%Y%m%d\', time()) || (!empty(\\SMF\\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \\SMF\\Config::$modSettings[\'calendar_updated\']);',
+			'check_outdated' => [
+				'callback' => self::class . '::cacheIsOutdated',
+				'args' => [
+					'date' => Time::strftime('%Y%m%d', time()),
+					'time' => time(),
+				],
+			],
 			'expires' => time() + 3600,
 		];
 	}
@@ -1455,33 +1461,71 @@ class Calendar implements ActionInterface, Routable
 		return [
 			'data' => $return_data,
 			'expires' => time() + 3600,
-			'refresh_eval' => 'return \'' . Time::strftime('%Y%m%d', time()) . '\' != \\SMF\\Time::strftime(\'%Y%m%d\', time()) || (!empty(\\SMF\\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \\SMF\\Config::$modSettings[\'calendar_updated\']);',
-			'post_retri_eval' => '
-
-				foreach ($cache_block[\'data\'][\'calendar_events\'] as $k => $event)
-				{
-					// Remove events that the user may not see or wants to ignore.
-					if ((count(array_intersect(\\SMF\\User::$me->groups, $event[\'allowed_groups\'])) === 0 && !\\SMF\\User::$me->allowedTo(\'admin_forum\') && !empty($event[\'id_board\'])) || in_array($event[\'id_board\'], \\SMF\\User::$me->ignoreboards))
-						unset($cache_block[\'data\'][\'calendar_events\'][$k]);
-					else
-					{
-						// Whether the event can be edited depends on the permissions.
-						$cache_block[\'data\'][\'calendar_events\'][$k][\'can_edit\'] = \\SMF\\User::$me->allowedTo(\'calendar_edit_any\') || ($event[\'poster\'] == \\SMF\\User::$me->id && \\SMF\\User::$me->allowedTo(\'calendar_edit_own\'));
-
-						// The added session code makes this URL not cachable.
-						$cache_block[\'data\'][\'calendar_events\'][$k][\'modify_href\'] = \\SMF\\Config::$scripturl . \'?action=\' . ($event[\'topic\'] == 0 ? \'calendar;sa=post;\' : \'post;msg=\' . $event[\'msg\'] . \';topic=\' . $event[\'topic\'] . \'.0;calendar;\') . \'eventid=\' . $event[\'id\'] . \';\' . \\SMF\\Utils::$context[\'session_var\'] . \'=\' . \\SMF\\Utils::$context[\'session_id\'];
-					}
-				}
-
-				if (empty($params[0][\'include_holidays\']))
-					$cache_block[\'data\'][\'calendar_holidays\'] = array();
-				if (empty($params[0][\'include_birthdays\']))
-					$cache_block[\'data\'][\'calendar_birthdays\'] = array();
-				if (empty($params[0][\'include_events\']))
-					$cache_block[\'data\'][\'calendar_events\'] = array();
-
-				$cache_block[\'data\'][\'show_calendar\'] = !empty($cache_block[\'data\'][\'calendar_holidays\']) || !empty($cache_block[\'data\'][\'calendar_birthdays\']) || !empty($cache_block[\'data\'][\'calendar_events\']);',
+			'check_outdated' => [
+				'callback' => self::class . '::cacheIsOutdated',
+				'args' => [
+					'date' => Time::strftime('%Y%m%d', time()),
+					'timestamp' => time(),
+				],
+			],
+			'update_callback' => self::class . '::cacheAdjustData',
 		];
+	}
+
+	/**
+	 * Callback used to check whether the cached data is outdated.
+	 *
+	 * @param string|int $date
+	 * @param string|int $time
+	 * @return bool
+	 */
+	public static function cacheIsOutdated(string|int $date, string|int $time): bool
+	{
+		return $date != Time::strftime('%Y%m%d', time()) || (!empty(Config::$modSettings['calendar_updated']) && $time < Config::$modSettings['calendar_updated']);
+	}
+
+	/**
+	 * Callback used to make adjustments to the cached data.
+	 *
+	 * @param array &$cache_block
+	 * @param array &$params
+	 */
+	public static function cacheAdjustData(array &$cache_block, array &$params): void
+	{
+		foreach ($cache_block['data']['calendar_events'] as $k => $event) {
+			// Remove events that the user may not see or wants to ignore.
+			if (
+				in_array($event->id_board, User::$me->ignoreboards)
+				|| (
+					count(array_intersect(User::$me->groups, $event->allowed_groups)) === 0
+					&& !User::$me->allowedTo('admin_forum')
+					&& !empty($event->id_board)
+				)
+			) {
+				unset($cache_block['data']['calendar_events'][$k], $event);
+				continue;
+			}
+
+			// Whether the event can be edited depends on the permissions.
+			$event->can_edit = User::$me->allowedTo('calendar_edit_any') || ($event->poster == User::$me->id && User::$me->allowedTo('calendar_edit_own'));
+
+			// The added session code makes this URL not cachable.
+			$event->modify_href = Config::$scripturl . '?action=' . ($event->topic == 0 ? 'calendar;sa=post;' : 'post;msg=' . $event->msg . ';topic=' . $event->topic . '.0;calendar;') . 'eventid=' . $event->id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
+		}
+
+		if (empty($params[0]['include_holidays'])) {
+			$cache_block['data']['calendar_holidays'] = [];
+		}
+
+		if (empty($params[0]['include_birthdays'])) {
+			$cache_block['data']['calendar_birthdays'] = [];
+		}
+
+		if (empty($params[0]['include_events'])) {
+			$cache_block['data']['calendar_events'] = [];
+		}
+
+		$cache_block['data']['show_calendar'] = !empty($cache_block['data']['calendar_holidays']) || !empty($cache_block['data']['calendar_birthdays']) || !empty($cache_block['data']['calendar_events']);
 	}
 
 	/**
