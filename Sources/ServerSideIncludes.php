@@ -1919,9 +1919,9 @@ class ServerSideIncludes
 			return (array) $return['calendar_birthdays'];
 		}
 
-		foreach ((array) $return['calendar_birthdays'] as $member) {
+		foreach ((array) $return['calendar_birthdays'] as $bday) {
 			echo '
-				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">' . $member['name'] . '</span>' . (isset($member['age']) ? ' (' . $member['age'] . ')' : '') . '</a>' . (!$member['is_last'] ? ', ' : '');
+				<a href="', Config::$scripturl, '?action=profile;u=', $bday->id, '"><span class="fix_rtl_names">' . $bday->name . '</span>' . (isset($bday->age) ? ' (' . $bday->age . ')' : '') . '</a>' . (!$bday->is_last ? ', ' : '');
 		}
 
 		return null;
@@ -2002,12 +2002,11 @@ class ServerSideIncludes
 		}
 
 		foreach ($return['calendar_events'] as $event) {
-			if ($event['can_edit']) {
-				echo '
-		<a href="' . $event['modify_href'] . '" style="color: #ff0000;">*</a> ';
+			if ($event->can_edit) {
+				echo ' <a href="' . $event->modify_href . '" style="color: #ff0000;">*</a>';
 			}
-			echo '
-		' . $event['link'] . (!$event['is_last'] ? ', ' : '');
+
+			echo ' ' . $event->link . (!$event->is_last ? ', ' : '');
 		}
 
 		return null;
@@ -2050,17 +2049,18 @@ class ServerSideIncludes
 
 		if (!empty($return['calendar_holidays'])) {
 			echo '
-				<span class="holiday">' . Lang::getTxt('calendar_prompt', file: 'Calendar') . ' ' . implode(', ', (array) $return['calendar_holidays']) . '<br></span>';
+				<span class="holiday">' . Lang::getTxt('calendar_prompt', file: 'Calendar') . ' ' . implode(', ', (array) $return['calendar_holidays']) . '</span><br>';
 		}
 
 		if (!empty($return['calendar_birthdays'])) {
 			echo '
 				<span class="birthday">' . Lang::getTxt('birthdays_upcoming', file: 'Calendar') . '</span> ';
 
-			foreach ((array) $return['calendar_birthdays'] as $member) {
+			foreach ((array) $return['calendar_birthdays'] as $bday) {
 				echo '
-				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">', $member['name'], '</span>', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', !$member['is_last'] ? ', ' : '';
+				<a href="', Config::$scripturl, '?action=profile;u=', $bday->id, '"><span class="fix_rtl_names">', $bday->name, '</span>', isset($bday->age) ? ' (' . $bday->age . ')' : '', '</a>', !$bday->is_last ? ', ' : '';
 			}
+
 			echo '
 				<br>';
 		}
@@ -2070,12 +2070,11 @@ class ServerSideIncludes
 				<span class="event">' . Lang::getTxt('events_upcoming', file: 'Calendar') . '</span> ';
 
 			foreach ((array) $return['calendar_events'] as $event) {
-				if ($event['can_edit']) {
-					echo '
-				<a href="' . $event['modify_href'] . '" style="color: #ff0000;">*</a> ';
+				if ($event->can_edit) {
+					echo ' <a href="' . $event->modify_href . '" style="color: #ff0000;">*</a>';
 				}
-				echo '
-				' . $event['link'] . (!$event['is_last'] ? ', ' : '');
+
+				echo ' ' . $event->link . (!$event->is_last ? ', ' : '');
 			}
 		}
 
