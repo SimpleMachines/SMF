@@ -168,7 +168,17 @@ class Calendar implements ActionInterface, Routable
 		}
 
 		// Don't let search engines index the non-default calendar pages
-		if (Utils::$context['calendar_view'] !== Theme::$current->options['calendar_default_view']) {
+		if (
+			Utils::$context['calendar_view'] !== Theme::$current->options['calendar_default_view']
+			|| !empty($_REQUEST['start_date'])
+			|| !empty($_REQUEST['year'])
+			|| !empty($_REQUEST['month'])
+			|| !empty($_REQUEST['day'])
+			|| !empty($_REQUEST['end_date'])
+			|| !empty($_REQUEST['end_year'])
+			|| !empty($_REQUEST['end_month'])
+			|| !empty($_REQUEST['end_day'])
+		) {
 			Utils::$context['robot_no_index'] = true;
 		}
 
