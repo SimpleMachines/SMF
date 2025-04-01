@@ -291,6 +291,21 @@ class Birthday extends Event
 	 */
 	public static function setRequestedStartAndDuration(array &$eventOptions): void {}
 
+	/**
+	 * Not applicable. Birthday info is updated via the user's profile.
+	 *
+	 * @param array $eventOptions An array of optional time and date parameters
+	 *    (span, start_year, end_month, etc., etc.)
+	 */
+	public static function setRequestedRRule(array &$eventOptions): void {}
+
+	/**
+	 * Not applicable. Birthday info is updated via the user's profile.
+	 *
+	 * @param Event $event An event that is being created or modified.
+	 */
+	public static function setRequestedRDatesAndExDates(Event $event): void {}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -347,21 +362,6 @@ class Birthday extends Event
 		}
 		Db::$db->free_result($request);
 	}
-
-	/**
-	 * Not applicable. Birthday info is updated via the user's profile.
-	 *
-	 * @param array $eventOptions An array of optional time and date parameters
-	 *    (span, start_year, end_month, etc., etc.)
-	 */
-	protected static function setRequestedRRule(array &$eventOptions): void {}
-
-	/**
-	 * Not applicable. Birthday info is updated via the user's profile.
-	 *
-	 * @param Event $event An event that is being created or modified.
-	 */
-	protected static function setRequestedRDatesAndExDates(Event $event): void {}
 
 	/**
 	 * Not applicable. Birthday info is updated via the user's profile.

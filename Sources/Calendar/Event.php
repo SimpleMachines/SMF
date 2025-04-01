@@ -460,9 +460,10 @@ class Event implements \ArrayAccess
 			// Loading an existing event.
 			default:
 				$this->id = $id;
-				self::$loaded[$this->id] = $this;
 				break;
 		}
+
+		self::$loaded[$this->id] = $this;
 
 		$props['rdates'] = array_filter($props['rdates'] ?? []);
 		$props['exdates'] = array_filter($props['exdates'] ?? []);
@@ -662,6 +663,10 @@ class Event implements \ArrayAccess
 
 		// Saving a new event.
 		if (!$is_edit) {
+			if (isset($this->id)) {
+				unset(self::$loaded[$this->id]);
+			}
+
 			$columns = [
 				'start_date' => 'date',
 				'end_date' => 'date',

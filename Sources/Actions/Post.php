@@ -777,7 +777,15 @@ class Post implements ActionInterface, Routable
 		}
 
 		if (!isset(Utils::$context['event']) || !(Utils::$context['event'] instanceof Event)) {
-			Utils::$context['event'] = new Event(-1);
+			$props = [
+				'title' => isset($_REQUEST['evtitle']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['evtitle'])) : null,
+				'location' => isset($_REQUEST['event_location']) ? Utils::htmlspecialchars(stripslashes($_REQUEST['event_location'])) : null,
+			];
+
+			Event::setRequestedStartAndDuration($props);
+			Event::setRequestedRRule($props);
+			Utils::$context['event'] = new Event(-1, $props);
+			Event::setRequestedRDatesAndExDates(Utils::$context['event']);
 			Utils::$context['event']->selected_occurrence = Utils::$context['event']->getFirstOccurrence();
 		} else {
 			if (isset($_REQUEST['recurrenceid'])) {
