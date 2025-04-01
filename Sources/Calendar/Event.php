@@ -2146,6 +2146,171 @@ class Event implements \ArrayAccess
 		}
 	}
 
+	/**
+	 * Set the RRule for a posted event for insertion into the database.
+	 *
+	 * @param array $eventOptions An array of optional time and date parameters
+	 *    (span, start_year, end_month, etc., etc.)
+	 */
+	public static function setRequestedRRule(array &$eventOptions): void
+	{
+		if (isset($_REQUEST['COUNT']) && (int) $_REQUEST['COUNT'] <= 1) {
+			$_REQUEST['RRULE'] = 'never';
+		}
+
+		if (!empty($_REQUEST['RRULE']) && $_REQUEST['RRULE'] !== 'custom') {
+			if ($_REQUEST['RRULE'] === 'never') {
+				unset($_REQUEST['RRULE']);
+				$eventOptions['rrule'] = 'FREQ=YEARLY;COUNT=1';
+
+				return;
+			}
+
+			if (!empty($_REQUEST['UNTIL'])) {
+				$_REQUEST['RRULE'] .= ';UNTIL=' . $_REQUEST['UNTIL'];
+			} elseif (!empty($_REQUEST['COUNT'])) {
+				$_REQUEST['RRULE'] .= ';COUNT=' . $_REQUEST['COUNT'];
+			}
+
+			try {
+				$eventOptions['rrule'] = new RRule(Utils::htmlspecialchars($_REQUEST['RRULE']));
+
+				if (
+					$eventOptions['rrule']->freq === 'WEEKLY'
+					|| !empty($eventOptions['rrule']->byday)
+				) {
+					$eventOptions['rrule']->wkst = RRule::WEEKDAYS[((Theme::$current->options['calendar_start_day'] ?? 0) + 6) % 7];
+				}
+
+				$eventOptions['rrule'] = (string) $eventOptions['rrule'];
+			} catch (\Throwable $e) {
+				unset($_REQUEST['RRULE']);
+				$eventOptions['rrule'] = 'FREQ=YEARLY;COUNT=1';
+			}
+		} elseif (in_array($_REQUEST['FREQ'] ?? null, RRule::FREQUENCIES)) {
+			$rrule = [];
+
+			if (isset($_REQUEST['BYDAY_num'], $_REQUEST['BYDAY_name'])) {
+				foreach ($_REQUEST['BYDAY_num'] as $key => $value) {
+					// E.g. "second Tuesday" = "BYDAY=2TU"
+					if (!str_contains($_REQUEST['BYDAY_name'][$key], ',')) {
+						$_REQUEST['BYDAY'][$key] = ((int) $_REQUEST['BYDAY_num'][$key]) . $_REQUEST['BYDAY_name'][$key];
+					}
+					// E.g. "last weekday" = "BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1"
+					else {
+						$_REQUEST['BYDAY'] = [];
+						$_REQUEST['BYDAY'][0] = $_REQUEST['BYDAY_name'][$key];
+						$_REQUEST['BYSETPOS'] = $_REQUEST['BYDAY_num'][$key];
+						break;
+					}
+				}
+
+				$_REQUEST['BYDAY'] = implode(',', array_unique($_REQUEST['BYDAY']));
+				unset($_REQUEST['BYDAY_num'], $_REQUEST['BYDAY_name']);
+			}
+
+			foreach (
+				[
+					'FREQ',
+					'INTERVAL',
+					'UNTIL',
+					'COUNT',
+					'BYMONTH',
+					'BYWEEKNO',
+					'BYYEARDAY',
+					'BYMONTHDAY',
+					'BYDAY',
+					'BYHOUR',
+					'BYMINUTE',
+					'BYSECOND',
+					'BYSETPOS',
+				] as $part
+			) {
+				if (isset($_REQUEST[$part])) {
+					if (is_array($_REQUEST[$part])) {
+						$rrule[] = $part . '=' . Utils::htmlspecialchars(implode(',', $_REQUEST[$part]));
+					} else {
+						$rrule[] = $part . '=' . Utils::htmlspecialchars($_REQUEST[$part]);
+					}
+				}
+			}
+
+			$rrule = implode(';', $rrule);
+
+			try {
+				$eventOptions['rrule'] = new RRule(Utils::htmlspecialchars($rrule));
+
+				if (
+					$eventOptions['rrule']->freq === 'WEEKLY'
+					|| !empty($eventOptions['rrule']->byday)
+				) {
+					$eventOptions['rrule']->wkst = RRule::WEEKDAYS[((Theme::$current->options['calendar_start_day'] ?? 0) + 6) % 7];
+				}
+
+				$eventOptions['rrule'] = (string) $eventOptions['rrule'];
+			} catch (\Throwable $e) {
+				$eventOptions['rrule'] = 'FREQ=YEARLY;COUNT=1';
+			}
+
+			unset($rrule);
+		}
+	}
+
+	/**
+	 * Set the RDates for a posted event for insertion into the database.
+	 *
+	 * @param Event $event An event that is being created or modified.
+	 */
+	public static function setRequestedRDatesAndExDates(Event $event): void
+	{
+		// Clear out all existing RDates and ExDates.
+		$rdates = $event->recurrence_iterator->getRDates();
+		$exdates = $event->recurrence_iterator->getExDates();
+
+		rsort($rdates);
+		rsort($exdates);
+
+		foreach ($rdates as $rdate) {
+			$event->removeOccurrence(new \DateTimeImmutable($rdate));
+		}
+
+		foreach ($exdates as $exdate) {
+			$event->addOccurrence(new \DateTimeImmutable($exdate));
+		}
+
+		// Events with special RRules can't have RDates or ExDates.
+		if (!empty($event->special_rrule)) {
+			return;
+		}
+
+		// Add all the RDates and ExDates.
+		foreach (['RDATE', 'EXDATE'] as $date_type) {
+			if (!isset($_REQUEST[$date_type . '_date'])) {
+				continue;
+			}
+
+			foreach ($_REQUEST[$date_type . '_date'] as $key => $date) {
+				if (empty($date)) {
+					continue;
+				}
+
+				if (empty($event->allday) && isset($_REQUEST[$date_type . '_time'][$key])) {
+					$date = new Time($date . 'T' . $_REQUEST[$date_type . '_time'][$key] . ' ' . $event->start->format('e'));
+				} else {
+					$date = new Time($date . ' ' . $event->start->format('e'));
+				}
+
+				$date->setTimezone(new \DateTimeZone('UTC'));
+
+				if ($date_type === 'RDATE') {
+					$event->addOccurrence($date);
+				} else {
+					$event->removeOccurrence($date);
+				}
+			}
+		}
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -2381,171 +2546,6 @@ class Event implements \ArrayAccess
 			yield $row;
 		}
 		Db::$db->free_result($request);
-	}
-
-	/**
-	 * Set the RRule for a posted event for insertion into the database.
-	 *
-	 * @param array $eventOptions An array of optional time and date parameters
-	 *    (span, start_year, end_month, etc., etc.)
-	 */
-	protected static function setRequestedRRule(array &$eventOptions): void
-	{
-		if (isset($_REQUEST['COUNT']) && (int) $_REQUEST['COUNT'] <= 1) {
-			$_REQUEST['RRULE'] = 'never';
-		}
-
-		if (!empty($_REQUEST['RRULE']) && $_REQUEST['RRULE'] !== 'custom') {
-			if ($_REQUEST['RRULE'] === 'never') {
-				unset($_REQUEST['RRULE']);
-				$eventOptions['rrule'] = 'FREQ=YEARLY;COUNT=1';
-
-				return;
-			}
-
-			if (!empty($_REQUEST['UNTIL'])) {
-				$_REQUEST['RRULE'] .= ';UNTIL=' . $_REQUEST['UNTIL'];
-			} elseif (!empty($_REQUEST['COUNT'])) {
-				$_REQUEST['RRULE'] .= ';COUNT=' . $_REQUEST['COUNT'];
-			}
-
-			try {
-				$eventOptions['rrule'] = new RRule(Utils::htmlspecialchars($_REQUEST['RRULE']));
-
-				if (
-					$eventOptions['rrule']->freq === 'WEEKLY'
-					|| !empty($eventOptions['rrule']->byday)
-				) {
-					$eventOptions['rrule']->wkst = RRule::WEEKDAYS[((Theme::$current->options['calendar_start_day'] ?? 0) + 6) % 7];
-				}
-
-				$eventOptions['rrule'] = (string) $eventOptions['rrule'];
-			} catch (\Throwable $e) {
-				unset($_REQUEST['RRULE']);
-				$eventOptions['rrule'] = 'FREQ=YEARLY;COUNT=1';
-			}
-		} elseif (in_array($_REQUEST['FREQ'] ?? null, RRule::FREQUENCIES)) {
-			$rrule = [];
-
-			if (isset($_REQUEST['BYDAY_num'], $_REQUEST['BYDAY_name'])) {
-				foreach ($_REQUEST['BYDAY_num'] as $key => $value) {
-					// E.g. "second Tuesday" = "BYDAY=2TU"
-					if (!str_contains($_REQUEST['BYDAY_name'][$key], ',')) {
-						$_REQUEST['BYDAY'][$key] = ((int) $_REQUEST['BYDAY_num'][$key]) . $_REQUEST['BYDAY_name'][$key];
-					}
-					// E.g. "last weekday" = "BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1"
-					else {
-						$_REQUEST['BYDAY'] = [];
-						$_REQUEST['BYDAY'][0] = $_REQUEST['BYDAY_name'][$key];
-						$_REQUEST['BYSETPOS'] = $_REQUEST['BYDAY_num'][$key];
-						break;
-					}
-				}
-
-				$_REQUEST['BYDAY'] = implode(',', array_unique($_REQUEST['BYDAY']));
-				unset($_REQUEST['BYDAY_num'], $_REQUEST['BYDAY_name']);
-			}
-
-			foreach (
-				[
-					'FREQ',
-					'INTERVAL',
-					'UNTIL',
-					'COUNT',
-					'BYMONTH',
-					'BYWEEKNO',
-					'BYYEARDAY',
-					'BYMONTHDAY',
-					'BYDAY',
-					'BYHOUR',
-					'BYMINUTE',
-					'BYSECOND',
-					'BYSETPOS',
-				] as $part
-			) {
-				if (isset($_REQUEST[$part])) {
-					if (is_array($_REQUEST[$part])) {
-						$rrule[] = $part . '=' . Utils::htmlspecialchars(implode(',', $_REQUEST[$part]));
-					} else {
-						$rrule[] = $part . '=' . Utils::htmlspecialchars($_REQUEST[$part]);
-					}
-				}
-			}
-
-			$rrule = implode(';', $rrule);
-
-			try {
-				$eventOptions['rrule'] = new RRule(Utils::htmlspecialchars($rrule));
-
-				if (
-					$eventOptions['rrule']->freq === 'WEEKLY'
-					|| !empty($eventOptions['rrule']->byday)
-				) {
-					$eventOptions['rrule']->wkst = RRule::WEEKDAYS[((Theme::$current->options['calendar_start_day'] ?? 0) + 6) % 7];
-				}
-
-				$eventOptions['rrule'] = (string) $eventOptions['rrule'];
-			} catch (\Throwable $e) {
-				$eventOptions['rrule'] = 'FREQ=YEARLY;COUNT=1';
-			}
-
-			unset($rrule);
-		}
-	}
-
-	/**
-	 * Set the RDates for a posted event for insertion into the database.
-	 *
-	 * @param Event $event An event that is being created or modified.
-	 */
-	protected static function setRequestedRDatesAndExDates(Event $event): void
-	{
-		// Clear out all existing RDates and ExDates.
-		$rdates = $event->recurrence_iterator->getRDates();
-		$exdates = $event->recurrence_iterator->getExDates();
-
-		rsort($rdates);
-		rsort($exdates);
-
-		foreach ($rdates as $rdate) {
-			$event->removeOccurrence(new \DateTimeImmutable($rdate));
-		}
-
-		foreach ($exdates as $exdate) {
-			$event->addOccurrence(new \DateTimeImmutable($exdate));
-		}
-
-		// Events with special RRules can't have RDates or ExDates.
-		if (!empty($event->special_rrule)) {
-			return;
-		}
-
-		// Add all the RDates and ExDates.
-		foreach (['RDATE', 'EXDATE'] as $date_type) {
-			if (!isset($_REQUEST[$date_type . '_date'])) {
-				continue;
-			}
-
-			foreach ($_REQUEST[$date_type . '_date'] as $key => $date) {
-				if (empty($date)) {
-					continue;
-				}
-
-				if (empty($event->allday) && isset($_REQUEST[$date_type . '_time'][$key])) {
-					$date = new Time($date . 'T' . $_REQUEST[$date_type . '_time'][$key] . ' ' . $event->start->format('e'));
-				} else {
-					$date = new Time($date . ' ' . $event->start->format('e'));
-				}
-
-				$date->setTimezone(new \DateTimeZone('UTC'));
-
-				if ($date_type === 'RDATE') {
-					$event->addOccurrence($date);
-				} else {
-					$event->removeOccurrence($date);
-				}
-			}
-		}
 	}
 
 	/**
