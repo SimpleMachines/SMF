@@ -2115,6 +2115,7 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 
 			// Handle hooks pointing outside the sources directory.
 			$absPath_clean =  rtrim($hookParsedData['absPath'], '!');
+
 			if ($absPath_clean != '' && !isset($files[$absPath_clean]) && file_exists($absPath_clean))
 				$function_list += get_defined_functions_in_file($absPath_clean);
 
@@ -2228,6 +2229,8 @@ function parse_integration_hook(string $hook, string $rawData)
 
 	else
 		$hookData['call'] = $hookData['pureFunc'] = $modFunc;
+
+	$hookData['call'] = ltrim($hookData['call'], '\\');
 
 	return $hookData;
 }
