@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -2381,75 +2382,57 @@ class ServerSideIncludes
 			return null;
 		}
 
-		// Find all events which are happening in the near future that the member can see.
-		$request = Db::$db->query(
-			'',
-			'SELECT
-				cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, cal.id_topic,
-				cal.start_time, cal.end_time, cal.timezone, cal.location,
-				cal.id_board, t.id_first_msg, t.approved
-			FROM {db_prefix}calendar AS cal
-				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = cal.id_board)
-				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = cal.id_topic)
-			WHERE cal.start_date <= {date:current_date}
-				AND cal.end_date >= {date:current_date}
-				AND (cal.id_board = {int:no_board} OR {query_wanna_see_board})
-			ORDER BY cal.start_date DESC
-			LIMIT ' . $max_events,
-			[
-				'current_date' => Time::strftime('%Y-%m-%d', time()),
-				'no_board' => 0,
-			],
-		);
-		$return = [];
-		$duplicates = [];
+		$low_date = date_create()->format('Y-m-d');
+		$high_date = date_create('now + 1 year')->format('Y-m-d');
+		$query_customizations = [
+			'limit' => $max_events,
+		];
 
-		while ($row = Db::$db->fetch_assoc($request)) {
+		$occurrences = Event::getOccurrencesInRange($low_date, $high_date, true, $query_customizations);
+
+		foreach ($occurrences as $occurrence) {
 			// Check if we've already come by an event linked to this same topic with the same title... and don't display it if we have.
-			if (!empty($duplicates[$row['title'] . $row['id_topic']])) {
+			if (!empty($duplicates[$occurrence->title . $occurrence->topic])) {
 				continue;
 			}
 
 			// Censor the title.
-			Lang::censorText($row['title']);
+			Lang::censorText($occurrence->getParentEvent()->title);
 
-			if ($row['start_date'] < Time::strftime('%Y-%m-%d', time())) {
-				$date = Time::strftime('%Y-%m-%d', time());
+			if ($occurrence->start_date < $low_date) {
+				$date = $low_date;
 			} else {
-				$date = $row['start_date'];
+				$date = $occurrence->start_date;
 			}
 
-			// If the topic it is attached to is not approved then don't link it.
-			if (!empty($row['id_first_msg']) && !$row['approved']) {
-				$row['id_board'] = $row['id_topic'] = $row['id_first_msg'] = 0;
+			if (!empty($occurrence->topic)) {
+				$topic = Topic::load($occurrence->topic);
 			}
-
-			$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) ? true : false;
 
 			$return[$date][] = [
-				'id' => $row['id_event'],
-				'title' => $row['title'],
-				'location' => $row['location'],
-				'can_edit' => User::$me->allowedTo('calendar_edit_any') || ($row['id_member'] == User::$me->id && User::$me->allowedTo('calendar_edit_own')),
-				'modify_href' => Config::$scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'href' => $row['id_board'] == 0 ? '' : Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
-				'start_date' => $row['start_date'],
-				'end_date' => $row['end_date'],
-				'start_time' => !$allday ? $row['start_time'] : null,
-				'end_time' => !$allday ? $row['end_time'] : null,
-				'tz' => !$allday ? $row['timezone'] : null,
-				'allday' => $allday,
+				'id' => $occurrence->id_event,
+				'recurrenceid' => $occurrence->id,
+				'title' => $occurrence->title,
+				'location' => $occurrence->location,
+				'can_edit' => $occurrence->can_edit,
+				'modify_href' => $occurrence->modify_href,
+				'href' => $occurrence->href,
+				'link' => $occurrence->link,
+				'start_date' => $occurrence->start_date,
+				'end_date' => $occurrence->end_date,
+				'start_time' => !$occurrence->allday ? $occurrence->start_time : null,
+				'end_time' => !$occurrence->allday ? $occurrence->end_time : null,
+				'tz' => !$occurrence->allday ? $occurrence->timezone : null,
+				'allday' => $occurrence->allday,
 				'is_last' => false,
 			];
 
-			// Let's not show this one again, huh?
-			$duplicates[$row['title'] . $row['id_topic']] = true;
+			// Let's not show this one again.
+			$duplicates[$occurrence->title . $occurrence->topic] = true;
 		}
-		Db::$db->free_result($request);
 
 		foreach ($return as $mday => $array) {
-			$return[$mday][count($array) - 1]['is_last'] = true;
+			$return[$mday][array_key_last($array)]['is_last'] = true;
 		}
 
 		// If mods want to do something with this list of events, let them do that now.
