@@ -360,8 +360,10 @@ class Theme
 		}
 
 		// For backward compatibility.
-		$GLOBALS['settings'] = &self::$current->settings;
-		$GLOBALS['options']  = &self::$current->options;
+		if (!empty(Config::$backward_compatibility)) {
+			$GLOBALS['settings'] = &self::$current->settings;
+			$GLOBALS['options']  = &self::$current->options;
+		}
 
 		// Assume we want this.
 		Utils::$context['forum_name'] = Config::$mbname;
