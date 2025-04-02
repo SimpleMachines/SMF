@@ -670,56 +670,56 @@ function template_linked_events()
 	foreach (Utils::$context['linked_calendar_events'] as $event) {
 		echo '
 						<li>
-							<strong class="event_title"><a href="', Config::$scripturl, '?action=calendar;event=', $event['id_event'], (!$event->is_first ? ';start_date=' . $event['start_date'] : ''), '">', $event['title'], '</a></strong>';
+							<strong class="event_title"><a href="', Config::$scripturl, '?action=calendar;event=', $event->id, (!$event->is_first ? ';start_date=' . $event->start->date : ''), '">', $event->title, '</a></strong>';
 
-		if ($event['can_edit']) {
-			echo ' <a href="' . $event['modify_href'] . '"><span class="main_icons calendar_modify" title="', Lang::getTxt('calendar_edit', file: 'Calendar'), '"></span></a>';
+		if ($event->can_edit) {
+			echo ' <a href="' . $event->modify_href . '"><span class="main_icons calendar_modify" title="', Lang::getTxt('calendar_edit', file: 'Calendar'), '"></span></a>';
 		}
 
-		if ($event['can_export']) {
-			echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', Lang::getTxt('calendar_export', file: 'Calendar'), '"></span></a>';
+		if ($event->can_export) {
+			echo ' <a href="' . $event->export_href . '"><span class="main_icons calendar_export" title="', Lang::getTxt('calendar_export', file: 'Calendar'), '"></span></a>';
 		}
 
 		echo '
 							<br>';
 
-		if (!empty($event['allday'])) {
-			echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date_local']), '</time>', ($event['start_date'] != $event['end_date']) ? ' &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">' . trim($event['end_date_local']) . '</time>' : '';
+		if (!empty($event->allday)) {
+			echo '<time datetime="' . $event->start->iso_gmdate . '">', trim($event->start->date_local), '</time>', ($event->start->date != $event->end->date) ? ' &ndash; <time datetime="' . $event->end->iso_gmdate . '">' . trim($event->end->date_local) . '</time>' : '';
 		} else {
 			// Display event info relative to user's local timezone
-			echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date_local']), ', ', trim($event['start_time_local']), '</time> &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">';
+			echo '<time datetime="' . $event->start->iso_gmdate . '">', trim($event->start->date_local), ', ', trim($event->start->time_local), '</time> &ndash; <time datetime="' . $event->end->iso_gmdate . '">';
 
-			if ($event['start_date_local'] != $event['end_date_local']) {
-				echo trim($event['end_date_local']) . ', ';
+			if ($event->start->date_local != $event->end->date_local) {
+				echo trim($event->end->date_local) . ', ';
 			}
 
-			echo trim($event['end_time_local']);
+			echo trim($event->end->time_local);
 
 			// Display event info relative to original timezone
-			if ($event['start_date_local'] . $event['start_time_local'] != $event['start_date_orig'] . $event['start_time_orig']) {
-				echo '</time> (<time datetime="' . $event['start_iso_gmdate'] . '">';
+			if ($event->start->date_local . $event->start->time_local != $event->start->date_orig . $event->start->time_orig) {
+				echo '</time> (<time datetime="' . $event->start->iso_gmdate . '">';
 
-				if ($event['start_date_orig'] != $event['start_date_local'] || $event['end_date_orig'] != $event['end_date_local'] || $event['start_date_orig'] != $event['end_date_orig']) {
-					echo trim($event['start_date_orig']), ', ';
+				if ($event->start->date_orig != $event->start->date_local || $event->end->date_orig != $event->end->date_local || $event->start->date_orig != $event->end->date_orig) {
+					echo trim($event->start->date_orig), ', ';
 				}
 
-				echo trim($event['start_time_orig']), '</time> &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">';
+				echo trim($event->start->time_orig), '</time> &ndash; <time datetime="' . $event->end->iso_gmdate . '">';
 
-				if ($event['start_date_orig'] != $event['end_date_orig']) {
-					echo trim($event['end_date_orig']) . ', ';
+				if ($event->start->date_orig != $event->end->date_orig) {
+					echo trim($event->end->date_orig) . ', ';
 				}
 
-				echo trim($event['end_time_orig']), ' ', $event['tz_abbrev'], '</time>)';
+				echo trim($event->end->time_orig), ' ', $event->start->tz_abbrev, '</time>)';
 			}
 			// Event is scheduled in the user's own timezone? Let 'em know, just to avoid confusion
 			else {
-				echo ' ', $event['tz_abbrev'], '</time>';
+				echo ' ', $event->start->tz_abbrev, '</time>';
 			}
 		}
 
-		if (!empty($event['location'])) {
+		if (!empty($event->location)) {
 			echo '
-							<br>', $event['location'];
+							<br>', $event->location;
 		}
 
 		$rrule_description = $event->getParentEvent()->recurrence_iterator->getRRule()->getDescription($event);

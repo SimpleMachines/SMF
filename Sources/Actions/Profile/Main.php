@@ -761,6 +761,8 @@ class Main implements ActionInterface, Routable
 	{
 		$params['u'] = $params['u'] ?? User::$me->id;
 
+		$route = [];
+
 		if (!empty($params['u'])) {
 			$route[] = 'members';
 

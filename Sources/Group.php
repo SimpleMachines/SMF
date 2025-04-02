@@ -2356,8 +2356,24 @@ class Group implements \ArrayAccess
 		return [
 			'data' => $groupCache,
 			'expires' => time() + 3600,
-			'refresh_eval' => 'return \\SMF\\Config::$modSettings[\'settings_updated\'] > ' . time() . ';',
+			'check_outdated' => [
+				'callback' => self::class . '::cacheIsOutdated',
+				'args' => [
+					'time' => time(),
+				],
+			],
 		];
+	}
+
+	/**
+	 * Callback used to check whether the cached value is outdated.
+	 *
+	 * @param string|int $time
+	 * @return bool
+	 */
+	public static function cacheIsOutdated(string|int $time): bool
+	{
+		return $time < Config::$modSettings['calendar_updated'];
 	}
 
 	/*************************
