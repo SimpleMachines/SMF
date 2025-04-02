@@ -347,6 +347,10 @@ class Lang
 
 						setlocale(LC_CTYPE, $locale_variants);
 					}
+
+					if (isset(self::$txt['lang_rtl'])) {
+						Utils::$context['right_to_left'] = !empty(self::$txt['lang_rtl']);
+					}
 				}
 			}
 
@@ -436,7 +440,7 @@ class Lang
 
 			// Make sure we have Theme::$current->settings - if not we're in trouble and need to find it!
 			if (empty(Theme::$current->settings['default_theme_dir'])) {
-				Theme::loadEssential();
+				Theme::loadEssential(false);
 			}
 
 			foreach (['theme_dir', 'base_theme_dir', 'default_theme_dir'] as $var) {
