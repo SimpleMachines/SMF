@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -585,8 +585,7 @@ class UpdateUnicode extends BackgroundTask
 			}
 
 			if (!is_file($file_paths['final']) || !Utils::makeWritable($file_paths['final'])) {
-				Lang::load('Errors');
-				ErrorHandler::log(Lang::getTxt('unicode_update_failed', [$this->unicodedir]));
+				ErrorHandler::log(Lang::getTxt('unicode_update_failed', [$this->unicodedir], file: 'Errors'));
 
 				return true;
 			}
@@ -598,8 +597,7 @@ class UpdateUnicode extends BackgroundTask
 			}
 
 			if (!is_file($file_paths['temp']) || !Utils::makeWritable($file_paths['temp'])) {
-				Lang::load('Errors');
-				ErrorHandler::log(Lang::getTxt('unicode_update_failed', [$this->temp_dir]));
+				ErrorHandler::log(Lang::getTxt('unicode_update_failed', [$this->temp_dir], file: 'Errors'));
 
 				return true;
 			}
@@ -635,9 +633,11 @@ class UpdateUnicode extends BackgroundTask
 							'claimed_time' => 'int',
 						],
 						[
-							'SMF\\Tasks\\Update_Unicode',
-							'',
-							time() - MAX_CLAIM_THRESHOLD,
+							[
+								'SMF\\Tasks\\Update_Unicode',
+								'',
+								time() - MAX_CLAIM_THRESHOLD,
+							],
 						],
 						['id_task'],
 					);
@@ -747,9 +747,11 @@ class UpdateUnicode extends BackgroundTask
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\UpdateSpoofDetectorNames',
-						json_encode(['last_member_id' => 0]),
-						0,
+						[
+							'SMF\\Tasks\\UpdateSpoofDetectorNames',
+							json_encode(['last_member_id' => 0]),
+							0,
+						],
 					],
 					['id_task'],
 				);
@@ -2175,13 +2177,13 @@ class UpdateUnicode extends BackgroundTask
 
 					$rule = preg_replace_callback('/(\d+)\.\.(\d+)/', fn($matches) => implode(',', range($matches[1], $matches[2], $step)), $rule);
 
-					$rule = str_replace('=in_array', 'in_array', preg_replace('/(\$[nivwftc](?: % \d+)?) ([!=])= ((?:\d+,\s*)+\d+)/', '$2in_array($1, [$3])', $rule));
+					$rule = preg_replace_callback('/(\$[nivwftc](?: % \d+)?) ([!=])= ((?:\d+,\s*)+\d+)/', fn($matches) => ($matches[2] === '=' ? '' : $matches[2]) . 'in_array(' . $matches[1] . ', [' . preg_replace('/,\s*/', ', ', $matches[3]) . '])', $rule);
 
 					if ($key === 'other' && $rule === '') {
 						$rule = 'true';
 					}
 
-					$this->funcs['plurals']['data'][$lang][$type][$key] = 'fn ($n, $i, $v, $w, $f, $t, $c) => ' . $rule;
+					$this->funcs['plurals']['data'][$lang][$type][$key] = 'fn($n, $i, $v, $w, $f, $t, $c) => ' . $rule;
 				}
 			}
 		}

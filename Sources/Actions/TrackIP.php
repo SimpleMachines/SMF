@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\Actions\Profile\BackwardCompatibility;
 use SMF\ActionTrait;
 use SMF\Config;
@@ -27,6 +28,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Profile;
 use SMF\Profile\Tracking;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -35,10 +37,10 @@ use SMF\Utils;
 /**
  * Rename here and in the exportStatic call at the end of the file.
  */
-class TrackIP implements ActionInterface
+class TrackIP implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -74,7 +76,6 @@ class TrackIP implements ActionInterface
 
 		if ($this->standalone) {
 			Theme::loadTemplate('Profile');
-			Lang::load('Profile');
 			Utils::$context['base_url'] = Config::$scripturl . '?action=trackip';
 
 			Utils::$context['ip'] = IP::ip2range(User::$me->ip);
@@ -111,7 +112,7 @@ class TrackIP implements ActionInterface
 		}
 
 		if ($this->standalone) {
-			Utils::$context['page_title'] = Lang::getTxt('trackIP_page_title', Utils::$context);
+			Utils::$context['page_title'] = Lang::getTxt('trackIP_page_title', Utils::$context, file: 'Profile');
 		}
 
 		Utils::$context['ips'] = [];
@@ -137,10 +138,10 @@ class TrackIP implements ActionInterface
 		// Start with the user messages.
 		$list_options = [
 			'id' => 'track_message_list',
-			'title' => Lang::getTxt('messages_from_ip', Utils::$context),
+			'title' => Lang::getTxt('messages_from_ip', Utils::$context, file: 'Profile'),
 			'start_var_name' => 'messageStart',
 			'items_per_page' => $max_per_page,
-			'no_items_label' => Lang::$txt['no_messages_from_ip'],
+			'no_items_label' => Lang::getTxt('no_messages_from_ip', file: 'Profile'),
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date',
 			'get_items' => [
@@ -160,11 +161,11 @@ class TrackIP implements ActionInterface
 			'columns' => [
 				'ip_address' => [
 					'header' => [
-						'value' => Lang::$txt['ip_address'],
+						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip=%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip={ip}">{ip}</a>',
 							'params' => [
 								'ip' => false,
 							],
@@ -177,7 +178,7 @@ class TrackIP implements ActionInterface
 				],
 				'poster' => [
 					'header' => [
-						'value' => Lang::$txt['poster'],
+						'value' => Lang::getTxt('poster', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'member_link',
@@ -185,11 +186,11 @@ class TrackIP implements ActionInterface
 				],
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['subject'],
+						'value' => Lang::getTxt('subject', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?topic=%1$s.msg%2$s#msg%2$s" rel="nofollow">%3$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?topic={topic}.msg{id}#msg{id}" rel="nofollow">{subject}</a>',
 							'params' => [
 								'topic' => false,
 								'id' => false,
@@ -200,7 +201,7 @@ class TrackIP implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -214,7 +215,7 @@ class TrackIP implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['messages_from_ip_desc'],
+					'value' => Lang::getTxt('messages_from_ip_desc', file: 'Profile'),
 				],
 			],
 		];
@@ -225,10 +226,10 @@ class TrackIP implements ActionInterface
 		// Set the options for the error lists.
 		$list_options = [
 			'id' => 'track_user_list',
-			'title' => Lang::getTxt('errors_from_ip', Utils::$context),
+			'title' => Lang::getTxt('errors_from_ip', Utils::$context, file: 'Profile'),
 			'start_var_name' => 'errorStart',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['no_errors_from_ip'],
+			'no_items_label' => Lang::getTxt('no_errors_from_ip', file: 'Profile'),
 			'base_href' => Utils::$context['base_url'] . ';searchip=' . Utils::$context['ip'],
 			'default_sort_col' => 'date2',
 			'get_items' => [
@@ -248,11 +249,11 @@ class TrackIP implements ActionInterface
 			'columns' => [
 				'ip_address2' => [
 					'header' => [
-						'value' => Lang::$txt['ip_address'],
+						'value' => Lang::getTxt('ip_address', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip=%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Utils::$context['base_url'] . ';searchip={ip}">{ip}</a>',
 							'params' => [
 								'ip' => false,
 							],
@@ -265,7 +266,7 @@ class TrackIP implements ActionInterface
 				],
 				'display_name' => [
 					'header' => [
-						'value' => Lang::$txt['display_name'],
+						'value' => Lang::getTxt('display_name', file: 'General'),
 					],
 					'data' => [
 						'db' => 'member_link',
@@ -273,11 +274,11 @@ class TrackIP implements ActionInterface
 				],
 				'message' => [
 					'header' => [
-						'value' => Lang::$txt['message'],
+						'value' => Lang::getTxt('message', file: 'General'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '%1$s<br><a href="%2$s">%2$s</a>',
+						'format_text' => [
+							'format' => '{message}<br><a href="{url}">{url}</a>',
 							'params' => [
 								'message' => false,
 								'url' => false,
@@ -288,7 +289,7 @@ class TrackIP implements ActionInterface
 				],
 				'date2' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -302,7 +303,7 @@ class TrackIP implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['errors_from_ip_desc'],
+					'value' => Lang::getTxt('errors_from_ip_desc', file: 'Profile'),
 				],
 			],
 		];
@@ -319,19 +320,19 @@ class TrackIP implements ActionInterface
 		if (Utils::$context['single_ip']) {
 			Utils::$context['whois_servers'] = [
 				'apnic' => [
-					'name' => Lang::$txt['whois_apnic'],
+					'name' => Lang::getTxt('whois_apnic', file: 'Profile'),
 					'url' => 'https://wq.apnic.net/apnic-bin/whois.pl?searchtext=' . Utils::$context['ip'],
 				],
 				'arin' => [
-					'name' => Lang::$txt['whois_arin'],
+					'name' => Lang::getTxt('whois_arin', file: 'Profile'),
 					'url' => 'https://whois.arin.net/rest/ip/' . Utils::$context['ip'],
 				],
 				'lacnic' => [
-					'name' => Lang::$txt['whois_lacnic'],
+					'name' => Lang::getTxt('whois_lacnic', file: 'Profile'),
 					'url' => 'https://query.milacnic.lacnic.net/search?id=' . Utils::$context['ip'],
 				],
 				'ripe' => [
-					'name' => Lang::$txt['whois_ripe'],
+					'name' => Lang::getTxt('whois_ripe', file: 'Profile'),
 					'url' => 'https://apps.db.ripe.net/db-web-ui/query?searchtext=' . Utils::$context['ip'],
 				],
 			];

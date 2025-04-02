@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -119,13 +119,13 @@ class Warnings implements ActionInterface
 
 		Utils::$context['sub_template'] = 'show_settings';
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=warnings;save';
-		Utils::$context['settings_title'] = Lang::$txt['warnings'];
-		Utils::$context['page_title'] = Lang::$txt['warnings'];
+		Utils::$context['settings_title'] = Lang::getTxt('warnings', file: 'Admin');
+		Utils::$context['page_title'] = Lang::getTxt('warnings', file: 'Admin');
 
 		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['warnings'],
+			'title' => Lang::getTxt('warnings', file: 'Admin'),
 			'help' => '',
-			'description' => Lang::$txt['warnings_desc'],
+			'description' => Lang::getTxt('warnings_desc', file: 'Admin'),
 		];
 
 		ACP::prepareDBSettingContext($config_vars);
@@ -142,9 +142,6 @@ class Warnings implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		Lang::load('Help');
-		Lang::load('ManageSettings');
-
 		// We need the existing ones for this
 		list($currently_enabled, Config::$modSettings['user_limit'], Config::$modSettings['warning_decrement']) = explode(',', Config::$modSettings['warning_settings']);
 
@@ -161,27 +158,27 @@ class Warnings implements ActionInterface
 				[
 					'int',
 					'warning_watch',
-					'subtext' => Lang::$txt['setting_warning_watch_note'] . ' ' . Lang::$txt['zero_to_disable'],
+					'subtext' => Lang::getTxt('setting_warning_watch_note', file: 'ManageSettings') . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
 				],
 				'moderate' => [
 					'int',
 					'warning_moderate',
-					'subtext' => Lang::$txt['setting_warning_moderate_note'] . ' ' . Lang::$txt['zero_to_disable'],
+					'subtext' => Lang::getTxt('setting_warning_moderate_note', file: 'ManageSettings') . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
 				],
 				[
 					'int',
 					'warning_mute',
-					'subtext' => Lang::$txt['setting_warning_mute_note'] . ' ' . Lang::$txt['zero_to_disable'],
+					'subtext' => Lang::getTxt('setting_warning_mute_note', file: 'ManageSettings') . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
 				],
 				'rem1' => [
 					'int',
 					'user_limit',
-					'subtext' => Lang::$txt['setting_user_limit_note'],
+					'subtext' => Lang::getTxt('setting_user_limit_note', file: 'ManageSettings'),
 				],
 				'rem2' => [
 					'int',
 					'warning_decrement',
-					'subtext' => Lang::$txt['setting_warning_decrement_note'] . ' ' . Lang::$txt['zero_to_disable'],
+					'subtext' => Lang::getTxt('setting_warning_decrement_note', file: 'ManageSettings') . ' ' . Lang::getTxt('zero_to_disable', file: 'Admin'),
 				],
 				['permissions', 'view_warning_any'],
 				['permissions', 'view_warning_own'],

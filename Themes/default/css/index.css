@@ -1114,6 +1114,10 @@ html[lang="el-GR"] .inline_mod_check {
 	margin: 0;
 	padding: 0;
 }
+.button.smalltext {
+	font-size: 0.6em;
+	padding: 0 5px;
+}
 
 /* Styles for the general looks of the theme.
 ------------------------------------------------------- */
@@ -1487,7 +1491,8 @@ ul li.greeting {
 #display_jump_to_select,
 #message_index_jump_to_select,
 #search_jump_to_select,
-#quick_mod_jump_to_select {
+#quick_mod_jump_to_select,
+#list_integration_hooks select {
 	width: 29ch;
 }
 
@@ -2394,7 +2399,7 @@ dl {
 	float: left;
 	margin: 0 0 3px 0;
 }
-#detailedinfo .noborder {
+#detailedinfo dl.settings:last-of-type {
 	border-bottom: 0;
 }
 #detailedinfo dt.clear {
@@ -2913,6 +2918,10 @@ dl.addrules dt.floatleft {
 	width: 480px;
 	padding: 0 6px 6px 6px;
 }
+.popup_window.large {
+	min-width: 80%;
+	top: 7vh;
+}
 .popup_heading {
 	padding: 10px 8px;
 	color: #bf6900;
@@ -2920,13 +2929,16 @@ dl.addrules dt.floatleft {
 .popup_content {
 	color: #222;
 	line-height: 1.6em;
-	max-height: 30em;
+	max-height: 65vh;
 	overflow: auto;
 	padding: 10px 8px;
 	border: 1px solid #bbb;
 	border-bottom: 1px solid #ddd;
 	border-radius: 6px 6px 2px 2px;
 	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+.popup_window.large .popup_content {
+	max-height: 80vh;
 }
 #main_menu .popup_heading,
 #genericmenu .popup_heading,
@@ -3497,13 +3509,22 @@ img.avatar {
 	font-style: italic;
 	padding: 2px 4px 0 4px;
 }
+.bump_notice {
+	display: block;
+	margin-top: 1em;
+	padding: 0.5em 0;
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	text-align: center;
+	font-style: italic;
+}
 /* PMs postinfo */
 #personal_messages .keyinfo .postinfo {
 	flex-direction: column;
 	align-items: flex-start;
 	font-weight: normal;
 }
-#reason::before {
+.lastedit.reason::before {
 	content: " - ";
 }
 .subject_title a {

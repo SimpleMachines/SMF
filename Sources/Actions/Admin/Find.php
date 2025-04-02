@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -74,6 +74,7 @@ class Find implements ActionInterface
 		[__NAMESPACE__ . '\\Boards::getConfigVars', 'area=manageboards;sa=settings'],
 		[__NAMESPACE__ . '\\Mail::getConfigVars', 'area=mailqueue;sa=settings'],
 		[__NAMESPACE__ . '\\News::getConfigVars', 'area=news;sa=settings'],
+		[__NAMESPACE__ . '\\Members::getConfigVars', 'area=viewmembers;sa=settings'],
 		[__NAMESPACE__ . '\\Membergroups::getConfigVars', 'area=membergroups;sa=settings'],
 		[__NAMESPACE__ . '\\Permissions::getConfigVars', 'area=permissions;sa=settings'],
 		[__NAMESPACE__ . '\\Posts::postConfigVars', 'area=postsettings;sa=posts'],
@@ -159,7 +160,7 @@ class Find implements ActionInterface
 		Utils::$context['search_term'] = isset($_REQUEST['search_term']) ? Utils::htmlspecialchars($_REQUEST['search_term'], ENT_QUOTES) : '';
 
 		Utils::$context['sub_template'] = 'admin_search_results';
-		Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_search_results', file: 'Admin');
 
 		// Keep track of what the admin wants.
 		if (empty(Utils::$context['admin_preferences']['sb']) || Utils::$context['admin_preferences']['sb'] != $this->subaction) {
@@ -172,7 +173,7 @@ class Find implements ActionInterface
 		if (trim(Utils::$context['search_term']) == '') {
 			Utils::$context['search_results'] = [];
 		} else {
-			$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+			$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 			if (!empty($call)) {
 				call_user_func($call);
@@ -189,8 +190,6 @@ class Find implements ActionInterface
 		Sapi::setMemoryLimit('128M');
 
 		IntegrationHook::call('integrate_admin_search', [&$this->language_files, &$this->include_files, &$this->settings_search]);
-
-		Lang::load(implode('+', $this->language_files));
 
 		foreach ($this->include_files as $file) {
 			require_once Config::$sourcedir . '/' . $file . '.php';
@@ -238,7 +237,7 @@ class Find implements ActionInterface
 			}
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['admin_search_results'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_search_results', file: 'Admin');
 		Utils::$context['search_results'] = [];
 
 		$search_term = strtolower(Utils::htmlspecialcharsDecode(Utils::$context['search_term']));
@@ -256,12 +255,12 @@ class Find implements ActionInterface
 					if (
 						stripos($term, $search_term) !== false
 						|| (
-							isset(Lang::$txt[$term])
-							&& stripos(Lang::$txt[$term], $search_term) !== false
+							Lang::txtExists($term, file: implode('+', $this->language_files))
+							&& stripos(Lang::getTxt($term, file: implode('+', $this->language_files)), $search_term) !== false
 						)
 						|| (
-							isset(Lang::$txt['setting_' . $term])
-							&& stripos(Lang::$txt['setting_' . $term], $search_term) !== false
+							Lang::txtExists('setting_' . $term, file: implode('+', $this->language_files))
+							&& stripos(Lang::getTxt('setting_' . $term, file: implode('+', $this->language_files)), $search_term) !== false
 						)
 					) {
 						$found = $term;
@@ -271,7 +270,7 @@ class Find implements ActionInterface
 
 				if ($found) {
 					// Format the name - and remove any descriptions the entry may have.
-					$name = Lang::$txt[$found] ?? (Lang::$txt['setting_' . $found] ?? (!empty($item['alttxt']) ? $item['alttxt'] : $found));
+					$name = Lang::txtExists($found, file: 'Admin') ? Lang::getTxt($found, file: 'Admin') : (Lang::txtExists('setting_' . $found, file: 'Admin') ? Lang::getTxt('setting_' . $found, file: 'Admin') : (!empty($item['alttxt']) ? $item['alttxt'] : $found));
 
 					$name = preg_replace('~<(?:div|span)\sclass="smalltext">.+?</(?:div|span)>~', '', $name);
 
@@ -279,7 +278,16 @@ class Find implements ActionInterface
 						'url' => (str_starts_with($item[1], 'area') ? Config::$scripturl . '?action=admin;' . $item[1] : $item[1]) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ((str_starts_with($item[1], 'area') && $section == 'settings' ? '#' . $item[0][0] : '')),
 						'name' => $name,
 						'type' => $section,
-						'help' => Utils::shorten(isset($item[2]) ? strip_tags(Lang::$helptxt[$item[2]]) : (isset(Lang::$helptxt[$found]) ? strip_tags(Lang::$helptxt[$found]) : ''), 255),
+						'help' => Utils::shorten(
+							isset($item[2])
+							? strip_tags(Lang::getTxt($item[2], var: 'helptxt'))
+							: (
+								Lang::txtExists($found, var: 'helptxt')
+								? strip_tags(Lang::getTxt($found, var: 'helptxt'))
+								: ''
+							),
+							255,
+						),
 					];
 				}
 			}

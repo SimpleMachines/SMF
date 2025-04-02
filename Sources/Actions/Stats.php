@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -23,6 +24,9 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -31,13 +35,24 @@ use SMF\Utils;
 /**
  * Provides a display for forum statistics.
  */
-class Stats implements ActionInterface
+class Stats implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['xml']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
 
 	/**
 	 * Display some useful/interesting board statistics.
@@ -83,6 +98,7 @@ class Stats implements ActionInterface
 				Utils::obExit(false);
 			}
 
+			Theme::loadTemplate('Xml');
 			Utils::$context['sub_template'] = 'stats';
 			Utils::$context['yearly'] = [];
 
@@ -100,16 +116,15 @@ class Stats implements ActionInterface
 			return;
 		}
 
-		Lang::load('Stats');
 		Theme::loadTemplate('Stats');
 		Theme::loadJavaScriptFile('stats.js', ['default_theme' => true, 'defer' => false, 'minimize' => true], 'smf_stats');
 
 		// Build the link tree......
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=stats',
-			'name' => Lang::$txt['stats_center'],
+			'name' => Lang::getTxt('stats_center', file: 'Stats'),
 		];
-		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::$txt['stats_center'];
+		Utils::$context['page_title'] = Utils::$context['forum_name'] . ' - ' . Lang::getTxt('stats_center', file: 'Stats');
 
 		Utils::$context['show_member_list'] = User::$me->allowedTo('view_mlist');
 
@@ -568,21 +583,16 @@ class Stats implements ActionInterface
 				continue;
 			}
 
-			// Figure out the days, hours and minutes.
-			$timeDays = floor($row_members['total_time_logged_in'] / 86400);
-			$timeHours = floor(($row_members['total_time_logged_in'] % 86400) / 3600);
-
 			// Figure out which things to show... (days, hours, minutes, etc.)
-			$timelogged = '';
-
-			if ($timeDays > 0) {
-				$timelogged .= $timeDays . Lang::$txt['total_time_logged_d'];
-			}
-
-			if ($timeHours > 0) {
-				$timelogged .= $timeHours . Lang::$txt['total_time_logged_h'];
-			}
-			$timelogged .= floor(($row_members['total_time_logged_in'] % 3600) / 60) . Lang::$txt['total_time_logged_m'];
+			$timelogged = Lang::getTxt(
+				'total_time_logged',
+				[
+					'days' => max(0, floor($row_members['total_time_logged_in'] / 86400)),
+					'hours' => max(0, floor(($row_members['total_time_logged_in'] % 86400) / 3600)),
+					'minutes' => max(0, floor(($row_members['total_time_logged_in'] % 3600) / 60)),
+				],
+				file: 'General',
+			);
 
 			Utils::$context['stats_blocks']['time_online'][] = [
 				'id' => $row_members['id_member'],
@@ -735,8 +745,8 @@ class Stats implements ActionInterface
 					'year' => $row_months['stats_year'],
 				],
 				'href' => Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH,
-				'link' => '<a href="' . Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH . '">' . Lang::$txt['months_titles'][(int) $row_months['stats_month']] . ' ' . $row_months['stats_year'] . '</a>',
-				'month' => Lang::$txt['months_titles'][(int) $row_months['stats_month']],
+				'link' => '<a href="' . Config::$scripturl . '?action=stats;' . ($expanded ? 'collapse' : 'expand') . '=' . $ID_MONTH . '#m' . $ID_MONTH . '">' . Lang::getTxt(['months_titles', (int) $row_months['stats_month']], file: 'General') . ' ' . $row_months['stats_year'] . '</a>',
+				'month' => Lang::getTxt(['months_titles', (int) $row_months['stats_month']], file: 'General'),
 				'year' => $row_months['stats_year'],
 				'new_topics' => Lang::numberFormat($row_months['topics']),
 				'new_posts' => Lang::numberFormat($row_months['posts']),

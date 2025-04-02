@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -43,8 +43,6 @@ class LoginTFA extends Login2
 		if (!User::$me->is_guest || empty(Utils::$context['tfa_member']) || empty(Config::$modSettings['tfa_mode'])) {
 			ErrorHandler::fatalLang('no_access', false);
 		}
-
-		Lang::load('Profile');
 
 		$member = Utils::$context['tfa_member'];
 
@@ -86,7 +84,12 @@ class LoginTFA extends Login2
 
 			$backup = $_POST['tfa_backup'];
 
-			if (Security::hashVerifyPassword($member['member_name'], $backup, $member['tfa_backup'])) {
+			if (
+				// 3.0
+				Security::hashVerifyPassword($backup, $member['tfa_backup'])
+				// 2.1
+				|| Security::hashVerifyPassword(Utils::strtolower($member['member_name']) . $backup, $member['tfa_backup'])
+			) {
 				// Get rid of their current TFA settings
 				User::updateMemberData($member['id_member'], [
 					'tfa_secret' => '',
@@ -108,7 +111,7 @@ class LoginTFA extends Login2
 
 		Theme::loadTemplate('Login');
 		Utils::$context['sub_template'] = 'login_tfa';
-		Utils::$context['page_title'] = Lang::$txt['login'];
+		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 		Utils::$context['tfa_url'] = Config::$scripturl . '?action=logintfa';
 	}
 }

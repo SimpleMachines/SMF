@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -51,11 +51,10 @@ class RemoveTempAttachments extends ScheduledTask
 
 			if (!$dir) {
 				Theme::loadEssential();
-				Lang::load('Post');
 
-				Utils::$context['scheduled_errors']['remove_temp_attachments'][] = Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir]);
+				Utils::$context['scheduled_errors']['remove_temp_attachments'][] = Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir], file: 'Post');
 
-				ErrorHandler::log(Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir]), 'critical');
+				ErrorHandler::log(Lang::getTxt('cant_access_upload_path', ['path' => $attach_dir], file: 'Post'), 'critical');
 
 				return true;
 			}

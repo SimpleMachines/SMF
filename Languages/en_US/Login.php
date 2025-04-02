@@ -1,10 +1,8 @@
 <?php
 
-// Version: 3.0 Alpha 2; Login
+// Version: 3.0 Alpha 3; Login
 
 // Registration agreement page.
-$txt['registration_agreement'] = 'Registration Agreement';
-$txt['privacy_policy'] = 'Privacy Policy';
 $txt['agreement_agree'] = 'I accept the terms of the agreement.';
 $txt['policy_agree'] = 'I accept the terms of the privacy policy.';
 $txt['agreement_policy_agree'] = 'I accept the terms of the agreement and privacy policy.';

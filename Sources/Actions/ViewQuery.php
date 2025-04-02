@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -23,6 +24,7 @@ use SMF\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -30,13 +32,24 @@ use SMF\Utils;
 /**
  * Provides a way to view database queries. Used for debugging.
  */
-class ViewQuery implements ActionInterface
+class ViewQuery implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
 
 	/**
 	 * Show the database queries for debugging.
@@ -134,13 +147,13 @@ class ViewQuery implements ActionInterface
 			}
 
 			if (!empty($query_data['f']) && !empty($query_data['l'])) {
-				echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']]);
+				echo Lang::getTxt('debug_query_in_line', ['file' => $query_data['f'], 'line' => $query_data['l']], file: 'General');
 			}
 
-			if (isset($query_data['s'], $query_data['t'], Lang::$txt['debug_query_which_took_at'])) {
-				echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)]);
+			if (isset($query_data['s'], $query_data['t']) && Lang::txtExists('debug_query_which_took_at', file: 'General')) {
+				echo Lang::getTxt('debug_query_which_took_at', [round($query_data['t'], 8), round($query_data['s'], 8)], file: 'General');
 			} else {
-				echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)]);
+				echo Lang::getTxt('debug_query_which_took', [round($query_data['t'], 8)], file: 'General');
 			}
 
 			echo '

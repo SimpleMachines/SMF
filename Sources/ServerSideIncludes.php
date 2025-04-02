@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Cache\CacheApi;
+use SMF\Calendar\Event;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -153,7 +154,6 @@ class ServerSideIncludes
 	 * This shuts down the SSI and shows the footer.
 	 *
 	 * Alias: ssi_shutdown()
-	 *
 	 */
 	public static function shutdown(): void
 	{
@@ -279,19 +279,16 @@ class ServerSideIncludes
 					[
 						'forum_name' => Utils::$context['forum_name_html_safe'],
 						'login_url' => Config::$scripturl . '?action=login',
-						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::$txt['login']) . ');',
+						'onclick' => 'return reqOverlayDiv(this.href, ' . Utils::escapeJavaScript(Lang::getTxt('login', file: 'General')) . ');',
 						'register_url' => Config::$scripturl . '?action=signup',
 					],
+					file: 'General',
 				);
 			} else {
-				echo Lang::$txt['hello_member'], ' <strong>', User::$me->name, '</strong>';
+				echo Lang::getTxt('hello_member', file: 'General'), ' <strong>', User::$me->name, '</strong>';
 
 				if (User::$me->allowedTo('pm_read')) {
-					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages]);
-
-					if (!empty(User::$me->messages)) {
-						echo ', ', Lang::getTxt('msg_alert_new', [User::$me->unread_messages]);
-					}
+					echo ', ', Lang::getTxt('msg_alert', ['total' => User::$me->messages, 'unread' => User::$me->unread_messages], file: 'General');
 				}
 			}
 
@@ -350,7 +347,7 @@ class ServerSideIncludes
 			return false;
 		}
 
-		$link = '<a href="' . Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . Lang::$txt['logout'] . '</a>';
+		$link = '<a href="' . Config::$scripturl . '?action=logout;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '">' . Lang::getTxt('logout', file: 'General') . '</a>';
 
 		if ($output_method == 'echo') {
 			echo $link;
@@ -594,9 +591,7 @@ class ServerSideIncludes
 						[', $post['board']['link'], ']
 					</td>
 					<td style="vertical-align: top">
-						<a href="', $post['href'], '">', $post['subject'], '</a>
-						', Lang::$txt['by'], ' ', $post['poster']['link'], '
-						', $post['is_new'] ? '<a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '
+						', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $post['href'] . '">', $post['subject'], '</a>', 'member_link' => $post['poster']['link']], file: 'General')), $post['is_new'] ? ' <a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>' : '', '
 					</td>
 					<td style="text-align: right; white-space: nowrap">
 						', $post['time'], '
@@ -791,9 +786,7 @@ class ServerSideIncludes
 						[', $post['board']['link'], ']
 					</td>
 					<td style="vertical-align: top">
-						<a href="', $post['href'], '">', $post['subject'], '</a>
-						', Lang::$txt['by'], ' ', $post['poster']['link'], '
-						', !$post['is_new'] ? '' : '<a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . Lang::$txt['new'] . '</a>', '
+						', str_replace('<br>', ' ', Lang::getTxt('last_post_topic', ['post_link' => '<a href="' . $post['href'] . '">', $post['subject'], '</a>', 'member_link' => $post['poster']['link']], file: 'General')), !$post['is_new'] ? '' : ' <a href="' . Config::$scripturl . '?topic=' . $post['topic'] . '.msg' . $post['new_from'] . ';topicseen#new" rel="nofollow" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>', '
 					</td>
 					<td style="text-align: right; white-space: nowrap">
 						', $post['time'], '
@@ -922,15 +915,15 @@ class ServerSideIncludes
 		echo '
 			<table class="ssi_table">
 				<tr>
-					<th style="text-align: left">', Lang::$txt['board'], '</th>
-					<th style="text-align: left">', Lang::$txt['board_topics'], '</th>
-					<th style="text-align: left">', Lang::$txt['posts'], '</th>
+					<th style="text-align: left">', Lang::getTxt('board', file: 'General'), '</th>
+					<th style="text-align: left">', Lang::getTxt('board_topics', file: 'General'), '</th>
+					<th style="text-align: left">', Lang::getTxt('posts', file: 'General'), '</th>
 				</tr>';
 
 		foreach ($boards as $sBoard) {
 			echo '
 				<tr>
-					<td>', $sBoard['link'], $sBoard['new'] ? ' <a href="' . $sBoard['href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : '', '</td>
+					<td>', $sBoard['link'], $sBoard['new'] ? ' <a href="' . $sBoard['href'] . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>' : '', '</td>
 					<td style="text-align: right">', Lang::numberFormat($sBoard['num_topics']), '</td>
 					<td style="text-align: right">', Lang::numberFormat($sBoard['num_posts']), '</td>
 				</tr>';
@@ -1028,8 +1021,8 @@ class ServerSideIncludes
 			<table class="ssi_table">
 				<tr>
 					<th style="text-align: left"></th>
-					<th style="text-align: left">', Lang::$txt['views'], '</th>
-					<th style="text-align: left">', Lang::$txt['replies'], '</th>
+					<th style="text-align: left">', Lang::getTxt('views', file: 'General'), '</th>
+					<th style="text-align: left">', Lang::getTxt('replies', file: 'General'), '</th>
 				</tr>';
 
 		foreach ($topics as $sTopic) {
@@ -1100,7 +1093,7 @@ class ServerSideIncludes
 
 		if ($output_method == 'echo') {
 			echo '
-		', Lang::getTxt('welcome_newest_member', ['member_link' => Utils::$context['common_stats']['latest_member']['link']]), '<br>';
+		', Lang::getTxt('welcome_newest_member', ['member_link' => Utils::$context['common_stats']['latest_member']['link']], file: 'General'), '<br>';
 
 			return null;
 		}
@@ -1200,7 +1193,7 @@ class ServerSideIncludes
 	}
 
 	/**
-	 * Get al members in the specified group
+	 * Get all members in the specified group
 	 *
 	 * Alias: ssi_fetchGroupMembers()
 	 *
@@ -1373,11 +1366,11 @@ class ServerSideIncludes
 		}
 
 		echo '
-			', Lang::$txt['total_members'], ': <a href="', Config::$scripturl . '?action=mlist">', Lang::numberFormat($totals['members']), '</a><br>
-			', Lang::$txt['total_posts'], ': ', Lang::numberFormat($totals['posts']), '<br>
-			', Lang::$txt['total_topics'], ': ', Lang::numberFormat($totals['topics']), ' <br>
-			', Lang::$txt['total_cats'], ': ', Lang::numberFormat($totals['categories']), '<br>
-			', Lang::$txt['total_boards'], ': ', Lang::numberFormat($totals['boards']);
+			', Lang::getTxt('total_members', file: 'General'), ': <a href="', Config::$scripturl . '?action=mlist">', Lang::numberFormat($totals['members']), '</a><br>
+			', Lang::getTxt('total_posts', file: 'General'), ': ', Lang::numberFormat($totals['posts']), '<br>
+			', Lang::getTxt('total_topics', file: 'General'), ': ', Lang::numberFormat($totals['topics']), ' <br>
+			', Lang::getTxt('total_cats', file: 'General'), ': ', Lang::numberFormat($totals['categories']), '<br>
+			', Lang::getTxt('total_boards', file: 'General'), ': ', Lang::numberFormat($totals['boards']);
 
 		return null;
 	}
@@ -1417,20 +1410,20 @@ class ServerSideIncludes
 		}
 
 		echo '
-			', Lang::getTxt('number_of_guests', [$return['num_guests']]), ', ', Lang::getTxt('number_of_members', [$return['num_users_online']]);
+			', Lang::getTxt('number_of_guests', [$return['num_guests']], file: 'General'), ', ', Lang::getTxt('number_of_members', [$return['num_users_online']], file: 'General');
 
 		$bracketList = [];
 
 		if (!empty(User::$me->buddies)) {
-			$bracketList[] = Lang::getTxt('number_of_buddies', [$return['num_buddies']]);
+			$bracketList[] = Lang::getTxt('number_of_buddies', [$return['num_buddies']], file: 'General');
 		}
 
 		if (!empty($return['num_spiders'])) {
-			$bracketList[] = Lang::getTxt('number_of_spiders', [$return['num_spiders']]);
+			$bracketList[] = Lang::getTxt('number_of_spiders', [$return['num_spiders']], file: 'General');
 		}
 
 		if (!empty($return['num_users_hidden'])) {
-			$bracketList[] = Lang::getTxt('number_of_hidden_members', [$return['num_users_hidden']]);
+			$bracketList[] = Lang::getTxt('number_of_hidden_members', [$return['num_users_hidden']], file: 'General');
 		}
 
 		if (!empty($bracketList)) {
@@ -1509,13 +1502,13 @@ class ServerSideIncludes
 		SecurityToken::create('login');
 
 		echo '
-			<form action="', Config::$scripturl, '?action=login2" method="post" accept-charset="', Utils::$context['character_set'], '">
+			<form action="', Config::$scripturl, '?action=login2" method="post" accept-charset="UTF-8">
 				<table style="border: none" class="ssi_table">
 					<tr>
-						<td style="text-align: right; border-spacing: 1"><label for="user">', Lang::$txt['username'], ':</label>&nbsp;</td>
+						<td style="text-align: right; border-spacing: 1"><label for="user">', Lang::getTxt('username', file: 'General'), ':</label>&nbsp;</td>
 						<td><input type="text" id="user" name="user" size="9" value="', User::$me->username, '"></td>
 					</tr><tr>
-						<td style="text-align: right; border-spacing: 1"><label for="passwrd">', Lang::$txt['password'], ':</label>&nbsp;</td>
+						<td style="text-align: right; border-spacing: 1"><label for="passwrd">', Lang::getTxt('password', file: 'General'), ':</label>&nbsp;</td>
 						<td><input type="password" name="passwrd" id="passwrd" size="9"></td>
 					</tr>
 					<tr>
@@ -1524,7 +1517,7 @@ class ServerSideIncludes
 							<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '" />
 							<input type="hidden" name="', Utils::$context['login_token_var'], '" value="', Utils::$context['login_token'], '">
 						</td>
-						<td><input type="submit" value="', Lang::$txt['login'], '" class="button"></td>
+						<td><input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button"></td>
 					</tr>
 				</table>
 			</form>';
@@ -1582,7 +1575,7 @@ class ServerSideIncludes
 
 		if ($return['allow_vote']) {
 			echo '
-				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', Utils::$context['character_set'], '">
+				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="UTF-8">
 					<strong>', $return['question'], '</strong><br>
 					', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
 
@@ -1592,7 +1585,7 @@ class ServerSideIncludes
 			}
 
 			echo '
-					<input type="submit" value="', Lang::$txt['poll_vote'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('poll_vote', file: 'General'), '" class="button">
 					<input type="hidden" name="poll" value="', $return['id'], '">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				</form>';
@@ -1622,10 +1615,10 @@ class ServerSideIncludes
 
 			echo '
 					</dl>', ($return['allow_view_results'] ? '
-					' . Lang::getTxt('poll_total_voters', [$return['total_votes']]) : ''), '
+					' . Lang::getTxt('poll_total_voters', [$return['total_votes']], file: 'General') : ''), '
 				</div>';
 		} else {
-			echo Lang::$txt['poll_cannot_see'];
+			echo Lang::getTxt('poll_cannot_see', file: 'General');
 		}
 
 		return null;
@@ -1669,7 +1662,7 @@ class ServerSideIncludes
 
 		if ($return['allow_vote']) {
 			echo '
-				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="', Utils::$context['character_set'], '">
+				<form class="ssi_poll" action="', Config::$boardurl, '/SSI.php?ssi_function=pollVote" method="post" accept-charset="UTF-8">
 					<strong>', $return['question'], '</strong><br>
 					', !empty($return['allowed_warning']) ? $return['allowed_warning'] . '<br>' : '';
 
@@ -1679,7 +1672,7 @@ class ServerSideIncludes
 			}
 
 			echo '
-					<input type="submit" value="', Lang::$txt['poll_vote'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('poll_vote', file: 'General'), '" class="button">
 					<input type="hidden" name="poll" value="', $return['id'], '">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				</form>';
@@ -1709,10 +1702,10 @@ class ServerSideIncludes
 
 			echo '
 					</dl>', ($return['allow_view_results'] ? '
-					' . Lang::getTxt('poll_total_voters', [$return['total_votes']]) : ''), '
+					' . Lang::getTxt('poll_total_voters', [$return['total_votes']], file: 'General') : ''), '
 				</div>';
 		} else {
-			echo Lang::$txt['poll_cannot_see'];
+			echo Lang::getTxt('poll_cannot_see', file: 'General');
 		}
 
 		return null;
@@ -1861,8 +1854,8 @@ class ServerSideIncludes
 		}
 
 		echo '
-			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="', Utils::$context['character_set'], '">
-				<input type="hidden" name="advanced" value="0"><input type="text" name="search" size="30"> <input type="submit" value="', Lang::$txt['search'], '" class="button">
+			<form action="', Config::$scripturl, '?action=search2" method="post" accept-charset="UTF-8">
+				<input type="hidden" name="advanced" value="0"><input type="text" name="search" size="30"> <input type="submit" value="', Lang::getTxt('search', file: 'General'), '" class="button">
 			</form>';
 
 		return null;
@@ -1927,9 +1920,9 @@ class ServerSideIncludes
 			return (array) $return['calendar_birthdays'];
 		}
 
-		foreach ((array) $return['calendar_birthdays'] as $member) {
+		foreach ((array) $return['calendar_birthdays'] as $bday) {
 			echo '
-				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">' . $member['name'] . '</span>' . (isset($member['age']) ? ' (' . $member['age'] . ')' : '') . '</a>' . (!$member['is_last'] ? ', ' : '');
+				<a href="', Config::$scripturl, '?action=profile;u=', $bday->id, '"><span class="fix_rtl_names">' . $bday->name . '</span>' . (isset($bday->age) ? ' (' . $bday->age . ')' : '') . '</a>' . (!$bday->is_last ? ', ' : '');
 		}
 
 		return null;
@@ -2010,12 +2003,11 @@ class ServerSideIncludes
 		}
 
 		foreach ($return['calendar_events'] as $event) {
-			if ($event['can_edit']) {
-				echo '
-		<a href="' . $event['modify_href'] . '" style="color: #ff0000;">*</a> ';
+			if ($event->can_edit) {
+				echo ' <a href="' . $event->modify_href . '" style="color: #ff0000;">*</a>';
 			}
-			echo '
-		' . $event['link'] . (!$event['is_last'] ? ', ' : '');
+
+			echo ' ' . $event->link . (!$event->is_last ? ', ' : '');
 		}
 
 		return null;
@@ -2056,36 +2048,34 @@ class ServerSideIncludes
 			return $return;
 		}
 
-		Lang::load('Calendar');
-
 		if (!empty($return['calendar_holidays'])) {
 			echo '
-				<span class="holiday">' . Lang::$txt['calendar_prompt'] . ' ' . implode(', ', (array) $return['calendar_holidays']) . '<br></span>';
+				<span class="holiday">' . Lang::getTxt('calendar_prompt', file: 'Calendar') . ' ' . implode(', ', (array) $return['calendar_holidays']) . '</span><br>';
 		}
 
 		if (!empty($return['calendar_birthdays'])) {
 			echo '
-				<span class="birthday">' . Lang::$txt['birthdays_upcoming'] . '</span> ';
+				<span class="birthday">' . Lang::getTxt('birthdays_upcoming', file: 'Calendar') . '</span> ';
 
-			foreach ((array) $return['calendar_birthdays'] as $member) {
+			foreach ((array) $return['calendar_birthdays'] as $bday) {
 				echo '
-				<a href="', Config::$scripturl, '?action=profile;u=', $member['id'], '"><span class="fix_rtl_names">', $member['name'], '</span>', isset($member['age']) ? ' (' . $member['age'] . ')' : '', '</a>', !$member['is_last'] ? ', ' : '';
+				<a href="', Config::$scripturl, '?action=profile;u=', $bday->id, '"><span class="fix_rtl_names">', $bday->name, '</span>', isset($bday->age) ? ' (' . $bday->age . ')' : '', '</a>', !$bday->is_last ? ', ' : '';
 			}
+
 			echo '
 				<br>';
 		}
 
 		if (!empty($return['calendar_events'])) {
 			echo '
-				<span class="event">' . Lang::$txt['events_upcoming'] . '</span> ';
+				<span class="event">' . Lang::getTxt('events_upcoming', file: 'Calendar') . '</span> ';
 
 			foreach ((array) $return['calendar_events'] as $event) {
-				if ($event['can_edit']) {
-					echo '
-				<a href="' . $event['modify_href'] . '" style="color: #ff0000;">*</a> ';
+				if ($event->can_edit) {
+					echo ' <a href="' . $event->modify_href . '" style="color: #ff0000;">*</a>';
 				}
-				echo '
-				' . $event['link'] . (!$event['is_last'] ? ', ' : '');
+
+				echo ' ' . $event->link . (!$event->is_last ? ', ' : '');
 			}
 		}
 
@@ -2109,8 +2099,6 @@ class ServerSideIncludes
 		if (!self::$setup_done) {
 			new self();
 		}
-
-		Lang::load('Stats');
 
 		// Must be integers....
 		if ($limit === null) {
@@ -2155,7 +2143,7 @@ class ServerSideIncludes
 
 		if (Db::$db->num_rows($request) == 0) {
 			if ($output_method == 'echo') {
-				die(Lang::$txt['ssi_no_guests']);
+				die(Lang::getTxt('ssi_no_guests', file: 'Stats'));
 			}
 
 			return [];
@@ -2287,11 +2275,11 @@ class ServerSideIncludes
 				'timestamp' => $row['poster_time'],
 				'body' => $row['body'],
 				'href' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['num_replies'] . ' ' . ($row['num_replies'] == 1 ? Lang::$txt['ssi_comment'] : Lang::$txt['ssi_comments']) . '</a>',
+				'link' => '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . Lang::getTxt('ssi_num_comments', [$row['num_replies']], file: 'Stats') . '</a>',
 				'replies' => $row['num_replies'],
 				'comment_href' => !empty($row['locked']) ? '' : Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'],
-				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . Lang::$txt['ssi_write_comment'] . '</a>',
-				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . Lang::$txt['ssi_write_comment'] . '</a>',
+				'comment_link' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . ';last_msg=' . $row['id_last_msg'] . '">' . Lang::getTxt('ssi_write_comment', file: 'Stats') . '</a>',
+				'new_comment' => !empty($row['locked']) ? '' : '<a href="' . Config::$scripturl . '?action=post;topic=' . $row['id_topic'] . '.' . $row['num_replies'] . '">' . Lang::getTxt('ssi_write_comment', file: 'Stats') . '</a>',
 				'poster' => [
 					'id' => $row['id_member'],
 					'name' => $row['poster_name'],
@@ -2330,7 +2318,7 @@ class ServerSideIncludes
 						', $news['icon'], '
 						<a href="', $news['href'], '">', $news['subject'], '</a>
 					</h3>
-					<div class="news_timestamp">', $news['time'], ' ', Lang::$txt['by'], ' ', $news['poster']['link'], '</div>
+					<div class="news_timestamp">', $news['time'], ' ', Lang::getTxt('by', file: 'General'), ' ', $news['poster']['link'], '</div>
 					<div class="news_body" style="padding: 2ex 0;">', Utils::adjustHeadingLevels($news['body'], 3), '</div>
 					', $news['link'], $news['locked'] ? '' : ' | ' . $news['comment_link'], '';
 
@@ -2341,7 +2329,7 @@ class ServerSideIncludes
 
 				if (!empty($news['likes']['can_like'])) {
 					echo '
-							<li class="smflikebutton" id="msg_', $news['message_id'], '_likes"><a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', $news['likes']['you'] ? Lang::$txt['unlike'] : Lang::$txt['like'], '</a></li>';
+							<li class="smflikebutton" id="msg_', $news['message_id'], '_likes"><a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $news['message_id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="', $news['likes']['you'] ? 'unlike' : 'like', '"></span>', Lang::getTxt($news['likes']['you'] ? 'unlike' : 'like', file: 'General'), '</a></li>';
 				}
 
 				if (!empty($news['likes']['count'])) {
@@ -2355,7 +2343,7 @@ class ServerSideIncludes
 					}
 
 					echo '
-							<li class="like_count smalltext">', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count]), '</li>';
+							<li class="like_count smalltext">', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $news['message_id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count], file: 'General'), '</li>';
 				}
 
 				echo '
@@ -2394,75 +2382,57 @@ class ServerSideIncludes
 			return null;
 		}
 
-		// Find all events which are happening in the near future that the member can see.
-		$request = Db::$db->query(
-			'',
-			'SELECT
-				cal.id_event, cal.start_date, cal.end_date, cal.title, cal.id_member, cal.id_topic,
-				cal.start_time, cal.end_time, cal.timezone, cal.location,
-				cal.id_board, t.id_first_msg, t.approved
-			FROM {db_prefix}calendar AS cal
-				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = cal.id_board)
-				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = cal.id_topic)
-			WHERE cal.start_date <= {date:current_date}
-				AND cal.end_date >= {date:current_date}
-				AND (cal.id_board = {int:no_board} OR {query_wanna_see_board})
-			ORDER BY cal.start_date DESC
-			LIMIT ' . $max_events,
-			[
-				'current_date' => Time::strftime('%Y-%m-%d', time()),
-				'no_board' => 0,
-			],
-		);
-		$return = [];
-		$duplicates = [];
+		$low_date = date_create()->format('Y-m-d');
+		$high_date = date_create('now + 1 year')->format('Y-m-d');
+		$query_customizations = [
+			'limit' => $max_events,
+		];
 
-		while ($row = Db::$db->fetch_assoc($request)) {
+		$occurrences = Event::getOccurrencesInRange($low_date, $high_date, true, $query_customizations);
+
+		foreach ($occurrences as $occurrence) {
 			// Check if we've already come by an event linked to this same topic with the same title... and don't display it if we have.
-			if (!empty($duplicates[$row['title'] . $row['id_topic']])) {
+			if (!empty($duplicates[$occurrence->title . $occurrence->topic])) {
 				continue;
 			}
 
 			// Censor the title.
-			Lang::censorText($row['title']);
+			Lang::censorText($occurrence->getParentEvent()->title);
 
-			if ($row['start_date'] < Time::strftime('%Y-%m-%d', time())) {
-				$date = Time::strftime('%Y-%m-%d', time());
+			if ($occurrence->start_date < $low_date) {
+				$date = $low_date;
 			} else {
-				$date = $row['start_date'];
+				$date = $occurrence->start_date;
 			}
 
-			// If the topic it is attached to is not approved then don't link it.
-			if (!empty($row['id_first_msg']) && !$row['approved']) {
-				$row['id_board'] = $row['id_topic'] = $row['id_first_msg'] = 0;
+			if (!empty($occurrence->topic)) {
+				$topic = Topic::load($occurrence->topic);
 			}
-
-			$allday = (empty($row['start_time']) || empty($row['end_time']) || empty($row['timezone']) || !in_array($row['timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) ? true : false;
 
 			$return[$date][] = [
-				'id' => $row['id_event'],
-				'title' => $row['title'],
-				'location' => $row['location'],
-				'can_edit' => User::$me->allowedTo('calendar_edit_any') || ($row['id_member'] == User::$me->id && User::$me->allowedTo('calendar_edit_own')),
-				'modify_href' => Config::$scripturl . '?action=' . ($row['id_board'] == 0 ? 'calendar;sa=post;' : 'post;msg=' . $row['id_first_msg'] . ';topic=' . $row['id_topic'] . '.0;calendar;') . 'eventid=' . $row['id_event'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'href' => $row['id_board'] == 0 ? '' : Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
-				'link' => $row['id_board'] == 0 ? $row['title'] : '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.0">' . $row['title'] . '</a>',
-				'start_date' => $row['start_date'],
-				'end_date' => $row['end_date'],
-				'start_time' => !$allday ? $row['start_time'] : null,
-				'end_time' => !$allday ? $row['end_time'] : null,
-				'tz' => !$allday ? $row['timezone'] : null,
-				'allday' => $allday,
+				'id' => $occurrence->id_event,
+				'recurrenceid' => $occurrence->id,
+				'title' => $occurrence->title,
+				'location' => $occurrence->location,
+				'can_edit' => $occurrence->can_edit,
+				'modify_href' => $occurrence->modify_href,
+				'href' => $occurrence->href,
+				'link' => $occurrence->link,
+				'start_date' => $occurrence->start_date,
+				'end_date' => $occurrence->end_date,
+				'start_time' => !$occurrence->allday ? $occurrence->start_time : null,
+				'end_time' => !$occurrence->allday ? $occurrence->end_time : null,
+				'tz' => !$occurrence->allday ? $occurrence->timezone : null,
+				'allday' => $occurrence->allday,
 				'is_last' => false,
 			];
 
-			// Let's not show this one again, huh?
-			$duplicates[$row['title'] . $row['id_topic']] = true;
+			// Let's not show this one again.
+			$duplicates[$occurrence->title . $occurrence->topic] = true;
 		}
-		Db::$db->free_result($request);
 
 		foreach ($return as $mday => $array) {
-			$return[$mday][count($array) - 1]['is_last'] = true;
+			$return[$mday][array_key_last($array)]['is_last'] = true;
 		}
 
 		// If mods want to do something with this list of events, let them do that now.
@@ -2472,11 +2442,9 @@ class ServerSideIncludes
 			return $return;
 		}
 
-		Lang::load('Calendar');
-
 		// Well the output method is echo.
 		echo '
-				<span class="event">' . Lang::$txt['events'] . '</span> ';
+				<span class="event">' . Lang::getTxt('events', file: 'Calendar') . '</span> ';
 
 		foreach ($return as $mday => $array) {
 			foreach ($array as $event) {
@@ -2531,7 +2499,7 @@ class ServerSideIncludes
 		list($pass, $user, $active) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		return Security::hashVerifyPassword($user, $password, $pass) && $active == User::ACTIVATED;
+		return Security::hashVerifyPassword($password, $pass) && $active == User::ACTIVATED;
 	}
 
 	/**
@@ -2605,7 +2573,7 @@ class ServerSideIncludes
 				],
 				'file' => [
 					'filename' => $filename,
-					'filesize' => round($row['filesize'] / 1024, 2) . Lang::$txt['kilobyte'],
+					'filesize' => Lang::getTxt('size_kilobyte', [round($row['filesize'] / 1024, 2)], file: 'General'),
 					'downloads' => $row['downloads'],
 					'href' => Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'],
 					'link' => '<img src="' . Theme::$current->settings['images_url'] . '/icons/clip.png" alt=""> <a href="' . Config::$scripturl . '?action=dlattach;topic=' . $row['id_topic'] . '.0;attach=' . $row['id_attach'] . '">' . $filename . '</a>',
@@ -2648,10 +2616,10 @@ class ServerSideIncludes
 		echo '
 			<table class="ssi_downloads">
 				<tr>
-					<th style="text-align: left; padding: 2">', Lang::$txt['file'], '</th>
-					<th style="text-align: left; padding: 2">', Lang::$txt['posted_by'], '</th>
-					<th style="text-align: left; padding: 2">', Lang::$txt['downloads'], '</th>
-					<th style="text-align: left; padding: 2">', Lang::$txt['filesize'], '</th>
+					<th style="text-align: left; padding: 2">', Lang::getTxt('file', file: 'General'), '</th>
+					<th style="text-align: left; padding: 2">', Lang::getTxt('posted_by', file: 'General'), '</th>
+					<th style="text-align: left; padding: 2">', Lang::getTxt('downloads', file: 'General'), '</th>
+					<th style="text-align: left; padding: 2">', Lang::getTxt('filesize', file: 'General'), '</th>
 				</tr>';
 
 		foreach ($attachments as $attach) {
@@ -2799,7 +2767,7 @@ class ServerSideIncludes
 
 		// @todo: probably not the best place, but somewhere it should be set...
 		if (!headers_sent()) {
-			header('content-type: text/html; charset=' . (empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set']));
+			header('content-type: text/html; charset=UTF-8');
 		}
 
 		// Take care of any banning that needs to be done.
@@ -2823,7 +2791,7 @@ class ServerSideIncludes
 
 		// Make sure they didn't muss around with the settings... but only if it's not cli.
 		if (isset($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['is_cli']) && session_id() == '') {
-			trigger_error(Lang::$txt['ssi_session_broken'], E_USER_NOTICE);
+			trigger_error(Lang::getTxt('ssi_session_broken', file: 'General'), E_USER_NOTICE);
 		}
 
 		// Without visiting the forum this session variable might not be set on submit.
@@ -2848,7 +2816,7 @@ class ServerSideIncludes
 		if (basename($_SERVER['SCRIPT_FILENAME']) == 'SSI.php') {
 			// You shouldn't just access SSI.php directly by URL!!
 			if (!isset($_GET['ssi_function'])) {
-				die(Lang::getTxt('ssi_not_direct', ['path' => User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\'']));
+				die(Lang::getTxt('ssi_not_direct', ['path' => User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''], file: 'General'));
 			}
 
 			// Call a function passed by GET.

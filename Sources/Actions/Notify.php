@@ -8,18 +8,22 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
 
 namespace SMF\Actions;
 
+use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -32,8 +36,9 @@ use SMF\Utils;
  *
  * Mods can add support for more notification types by extending this class.
  */
-abstract class Notify
+abstract class Notify implements ActionInterface
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/*****************
@@ -109,6 +114,16 @@ abstract class Notify
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['xml']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
 
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
@@ -380,7 +395,7 @@ abstract class Notify
 	protected function ask(): void
 	{
 		Theme::loadTemplate('Notify');
-		Utils::$context['page_title'] = Lang::$txt['notification'];
+		Utils::$context['page_title'] = Lang::getTxt('notification', file: 'General');
 
 		if (self::$member_info['id'] !== User::$me->id) {
 			Utils::$context['notify_info'] = [
@@ -448,8 +463,18 @@ abstract class Notify
 			Db::$db->insert(
 				'ignore',
 				'{db_prefix}log_notify',
-				['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'],
-				[User::$me->id, $id_topic, $id_board],
+				[
+					'id_member' => 'int',
+					'id_topic' => 'int',
+					'id_board' => 'int',
+				],
+				[
+					[
+						User::$me->id,
+						$id_topic,
+						$id_board,
+					],
+				],
 				['id_member', 'id_topic', 'id_board'],
 			);
 		} else {
@@ -481,6 +506,7 @@ abstract class Notify
 			],
 		];
 
+		Theme::loadTemplate('Xml');
 		Utils::$context['sub_template'] = 'generic_xml';
 	}
 
@@ -490,7 +516,7 @@ abstract class Notify
 	protected function showConfirmation(): void
 	{
 		Theme::loadTemplate('Notify');
-		Utils::$context['page_title'] = Lang::$txt['notification'];
+		Utils::$context['page_title'] = Lang::getTxt('notification', file: 'General');
 		Utils::$context['sub_template'] = 'notify_pref_changed';
 
 		Utils::$context['notify_success_msg'] = $this->getSuccessMsg();

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,12 +16,14 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
 use SMF\Topic;
@@ -31,8 +33,9 @@ use SMF\Utils;
 /**
  * This action provides UI to allow topics to be moved from one board to another.
  */
-class TopicMove implements ActionInterface
+class TopicMove implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/****************
@@ -114,7 +117,7 @@ class TopicMove implements ActionInterface
 
 		Utils::$context['categories'] = MessageIndex::getBoardList($options);
 
-		Utils::$context['page_title'] = Lang::$txt['move_topic'];
+		Utils::$context['page_title'] = Lang::getTxt('move_topic', file: 'General');
 
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?topic=' . Topic::$topic_id . '.0',
@@ -122,17 +125,16 @@ class TopicMove implements ActionInterface
 		];
 
 		Utils::$context['linktree'][] = [
-			'name' => Lang::$txt['move_topic'],
+			'name' => Lang::getTxt('move_topic', file: 'General'),
 		];
 
 		Utils::$context['back_to_topic'] = isset($_REQUEST['goback']);
 
 		if (User::$me->language != Lang::$default) {
-			Lang::load('General', Lang::$default);
-			$temp = Lang::$txt['movetopic_default'];
-			Lang::load('General');
-
-			Lang::$txt['movetopic_default'] = $temp;
+			Lang::setTxt(
+				'movetopic_default',
+				Lang::getTxt('movetopic_default', file: 'General', lang: Lang::$default),
+			);
 		}
 
 		Utils::$context['sub_template'] = 'move';

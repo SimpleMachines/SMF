@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -41,6 +41,15 @@ class ShowNotice implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Before we get too excited, is the current user allowed to see this?
+		User::$me->isAllowedTo(['issue_warning', 'view_warning_any']);
+
+		Utils::$context['page_title'] = Lang::getTxt('show_notice', file: 'ModerationCenter');
+		Utils::$context['sub_template'] = 'show_notice';
+		Utils::$context['template_layers'] = [];
+
+		Theme::loadTemplate('ModerationCenter');
+
 		$id_notice = (int) $_GET['nid'];
 
 		$request = Db::$db->query(
@@ -63,25 +72,6 @@ class ShowNotice implements ActionInterface
 			string: Utils::$context['notice_body'],
 			input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
 		);
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Before we get too excited, is the current user allowed to see this?
-		User::$me->isAllowedTo(['issue_warning', 'view_warning_any']);
-
-		Utils::$context['page_title'] = Lang::$txt['show_notice'];
-		Utils::$context['sub_template'] = 'show_notice';
-		Utils::$context['template_layers'] = [];
-
-		Theme::loadTemplate('ModerationCenter');
 	}
 }
 

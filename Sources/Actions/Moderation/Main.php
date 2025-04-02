@@ -10,7 +10,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -18,11 +18,13 @@ declare(strict_types=1);
 namespace SMF\Actions\Moderation;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -30,8 +32,9 @@ use SMF\Utils;
 /**
  * This is the Moderation Center.
  */
-class Main implements ActionInterface
+class Main implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -154,13 +157,13 @@ class Main implements ActionInterface
 			'areas' => [
 				'groups' => [
 					'label' => 'mc_group_requests',
-					'function' => '\\SMF\\Actions\\Groups::call',
+					'function' => __NAMESPACE__ . '\\Groups::call',
 					'icon' => 'members_request',
 					'custom_url' => '{scripturl}?action=moderate;area=groups;sa=requests',
 				],
 				'viewgroups' => [
 					'label' => 'mc_view_groups',
-					'function' => '\\SMF\\Actions\\Groups::call',
+					'function' => __NAMESPACE__ . '\\Groups::call',
 					'icon' => 'membergroups',
 				],
 			],
@@ -221,13 +224,26 @@ class Main implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Don't run this twice... and don't conflict with the admin bar.
+		if (!isset(Utils::$context['admin_area'])) {
+			self::checkAccessPermissions();
+
+			// Load the language, and the template.
+			Theme::loadTemplate(false, 'admin');
+
+			Utils::$context['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : [];
+			Utils::$context['robot_no_index'] = true;
+
+			$this->setModerationAreas();
+		}
+
 		$this->createMenu();
 
 		if (isset(Menu::$loaded['moderate']->include_data['file'])) {
 			require_once Config::$sourcedir . '/' . Menu::$loaded['moderate']->include_data['file'];
 		}
 
-		$call = method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
+		$call = is_string(Menu::$loaded['moderate']->include_data['function']) && method_exists($this, Menu::$loaded['moderate']->include_data['function']) ? [$this, Menu::$loaded['moderate']->include_data['function']] : Utils::getCallable(Menu::$loaded['moderate']->include_data['function']);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -264,12 +280,12 @@ class Main implements ActionInterface
 
 		// @todo: html in here is not good
 		$menu->tab_data = [
-			'title' => Lang::$txt['moderation_center'],
+			'title' => Lang::getTxt('moderation_center', file: 'ModerationCenter'),
 			'help' => '',
 			'description' => '
-				<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name]) . '</strong>
+				<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name], file: 'General') . '</strong>
 				<br><br>
-				' . Lang::$txt['mc_description'],
+				' . Lang::getTxt('mc_description', file: 'ModerationCenter'),
 		];
 
 		// What a pleasant shortcut - even tho we're not *really* on the admin screen who cares...
@@ -278,7 +294,7 @@ class Main implements ActionInterface
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=moderate',
-			'name' => Lang::$txt['moderation_center'],
+			'name' => Lang::getTxt('moderation_center', file: 'ModerationCenter'),
 		];
 
 		if (isset($menu->current_area) && $menu->current_area != 'index') {
@@ -331,46 +347,78 @@ class Main implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper that either calls self::call() or calls
-	 * self::load()->createMenu(), depending on the value of $dont_call.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @param bool $dont_call If true, just creates the menu and doesn't call
-	 *    the function for the appropriate mod area.
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function ModerationMain(bool $dont_call = false): void
+	public static function buildRoute(array $params): array
 	{
-		if ($dont_call) {
-			self::load()->createMenu();
-		} else {
-			self::call();
+		if (isset($params['area'])) {
+			foreach (get_class_vars(self::class)['moderation_areas'] as $mod_area) {
+				if (isset($mod_area['areas'], $mod_area['areas'][$params['area']])) {
+					if (str_contains($mod_area['areas'][$params['area']]['function'] ?? '', '::')) {
+						$class = substr($mod_area['areas'][$params['area']]['function'], 0, strpos($mod_area['areas'][$params['area']]['function'], '::'));
+
+						if (method_exists($class, 'buildRoute')) {
+							extract(call_user_func($class . '::buildRoute', $params));
+						}
+					}
+
+					break;
+				}
+			}
 		}
+
+		if (!isset($route)) {
+			$route = self::buildActionRoute($params);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$called_area = false;
+
+		foreach (get_class_vars(self::class)['moderation_areas'] as $mod_area) {
+			if (!isset($mod_area['areas'])) {
+				continue;
+			}
+
+			if (isset($route[1], $mod_area['areas'][$route[1]])) {
+				if (str_contains($mod_area['areas'][$route[1]]['function'] ?? '', '::')) {
+					$class = substr($mod_area['areas'][$route[1]]['function'], 0, strpos($mod_area['areas'][$route[1]]['function'], '::'));
+
+					if (method_exists($class, 'parseRoute')) {
+						$params = array_merge($params, call_user_func($class . '::parseRoute', $route));
+						$called_area = true;
+					}
+				}
+
+				break;
+			}
+		}
+
+		if (!$called_area) {
+			$params = array_merge($params, self::parseActionRoute($route));
+		}
+
+		return $params;
 	}
 
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Don't run this twice... and don't conflict with the admin bar.
-		if (isset(Utils::$context['admin_area'])) {
-			return;
-		}
-
-		self::checkAccessPermissions();
-
-		// Load the language, and the template.
-		Lang::load('ModerationCenter');
-		Theme::loadTemplate(false, 'admin');
-
-		Utils::$context['admin_preferences'] = !empty(Theme::$current->options['admin_preferences']) ? Utils::jsonDecode(Theme::$current->options['admin_preferences'], true) : [];
-		Utils::$context['robot_no_index'] = true;
-
-		$this->setModerationAreas();
-	}
 
 	/**
 	 * Sets any dynamic values in $this->moderation_areas.
@@ -382,7 +430,7 @@ class Main implements ActionInterface
 			$this->moderation_areas,
 			function (&$value, $key) {
 				if (in_array($key, ['title', 'label'])) {
-					$value = Lang::$txt[$value] ?? $value;
+					$value = Lang::txtExists($value, file: 'ModerationCenter') ? Lang::getTxt($value, file: 'ModerationCenter') : $value;
 				}
 
 				if (is_string($value)) {

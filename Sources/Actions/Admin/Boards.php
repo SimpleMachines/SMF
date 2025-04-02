@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -93,10 +93,31 @@ class Boards implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Special handling for modifycat.
+		if (($_REQUEST['action'] ?? '') === 'modifycat') {
+			self::modifyCat();
+		}
+
+		// Create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::getTxt('boards_and_cats', file: 'ManageBoards'),
+			'help' => 'manage_boards',
+			'description' => Lang::getTxt('boards_and_cats_desc', file: 'ManageBoards'),
+			'tabs' => [
+				'main' => [
+				],
+				'newcat' => [
+				],
+				'settings' => [
+					'description' => Lang::getTxt('mboards_settings_desc', file: 'ManageBoards'),
+				],
+			],
+		];
+
 		// Have you got the proper permissions?
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -167,7 +188,7 @@ class Boards implements ActionInterface
 		if (!empty(Utils::$context['move_board'])) {
 			SecurityToken::create('admin-bm-' . Utils::$context['move_board'], 'request');
 
-			Utils::$context['move_title'] = Lang::getTxt('mboards_select_destination', ['name' => Utils::htmlspecialchars(Board::$loaded[Utils::$context['move_board']]->name)]);
+			Utils::$context['move_title'] = Lang::getTxt('mboards_select_destination', ['name' => Utils::htmlspecialchars(Board::$loaded[Utils::$context['move_board']]->name)], file: 'ManageBoards');
 
 			foreach (Category::$loaded as $catid => $tree) {
 				$prev_child_level = 0;
@@ -181,7 +202,7 @@ class Boards implements ActionInterface
 					if (!isset(Utils::$context['categories'][$catid]['move_link'])) {
 						Utils::$context['categories'][$catid]['move_link'] = [
 							'child_level' => 0,
-							'label' => Lang::getTxt('mboards_order_before', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)]),
+							'label' => Lang::getTxt('mboards_order_before', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)], file: 'ManageBoards'),
 							'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=before;' . $security,
 						];
 					}
@@ -190,13 +211,13 @@ class Boards implements ActionInterface
 						Utils::$context['categories'][$catid]['boards'][$boardid]['move_links'] = [
 							[
 								'child_level' => Board::$loaded[$boardid]->child_level,
-								'label' => Lang::getTxt('mboards_order_after', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)]),
+								'label' => Lang::getTxt('mboards_order_after', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)], file: 'ManageBoards'),
 								'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=after;' . $security,
 								'class' => Board::$loaded[$boardid]->child_level > 0 ? 'above' : 'below',
 							],
 							[
 								'child_level' => Board::$loaded[$boardid]->child_level + 1,
-								'label' => Lang::getTxt('mboards_order_child_of', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)]),
+								'label' => Lang::getTxt('mboards_order_child_of', [Utils::htmlspecialchars(Board::$loaded[$boardid]->name)], file: 'ManageBoards'),
 								'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_board=' . $boardid . ';move_to=child;' . $security,
 								'class' => 'here',
 							],
@@ -232,7 +253,7 @@ class Boards implements ActionInterface
 				if (empty(Category::$boardList[$catid])) {
 					Utils::$context['categories'][$catid]['move_link'] = [
 						'child_level' => 0,
-						'label' => Lang::getTxt('mboards_order_before', [Utils::htmlspecialchars($tree->name)]),
+						'label' => Lang::getTxt('mboards_order_before', [Utils::htmlspecialchars($tree->name)], file: 'ManageBoards'),
 						'href' => Config::$scripturl . '?action=admin;area=manageboards;sa=move;src_board=' . Utils::$context['move_board'] . ';target_cat=' . $catid . ';move_to=top;' . $security,
 					];
 				}
@@ -241,7 +262,7 @@ class Boards implements ActionInterface
 
 		IntegrationHook::call('integrate_boards_main');
 
-		Utils::$context['page_title'] = Lang::$txt['boards_and_cats'];
+		Utils::$context['page_title'] = Lang::getTxt('boards_and_cats', file: 'ManageBoards');
 		Utils::$context['can_manage_permissions'] = User::$me->allowedTo('manage_permissions');
 	}
 
@@ -270,7 +291,7 @@ class Boards implements ActionInterface
 		Utils::$context['category_order'] = [
 			[
 				'id' => 0,
-				'name' => Lang::$txt['mboards_order_first'],
+				'name' => Lang::getTxt('mboards_order_first', file: 'ManageBoards'),
 				'selected' => !empty($_REQUEST['cat']) ? Category::$loaded[$_REQUEST['cat']]->is_first : false,
 				'true_name' => '',
 			],
@@ -280,8 +301,8 @@ class Boards implements ActionInterface
 		if ($_REQUEST['sa'] == 'newcat') {
 			Utils::$context['category'] = [
 				'id' => 0,
-				'name' => Lang::$txt['mboards_new_cat_name'],
-				'editable_name' => Utils::htmlspecialchars(Lang::$txt['mboards_new_cat_name']),
+				'name' => Lang::getTxt('mboards_new_cat_name', file: 'ManageBoards'),
+				'editable_name' => Utils::htmlspecialchars(Lang::getTxt('mboards_new_cat_name', file: 'ManageBoards')),
 				'description' => '',
 				'can_collapse' => true,
 				'is_new' => true,
@@ -315,7 +336,7 @@ class Boards implements ActionInterface
 			} elseif ($catid != $_REQUEST['cat']) {
 				Utils::$context['category_order'][$catid] = [
 					'id' => $catid,
-					'name' => Lang::getTxt('mboards_order_after', [$tree->name]),
+					'name' => Lang::getTxt('mboards_order_after', [$tree->name], file: 'ManageBoards'),
 					'selected' => false,
 					'true_name' => $tree->name,
 				];
@@ -326,10 +347,10 @@ class Boards implements ActionInterface
 
 		if (!isset($_REQUEST['delete'])) {
 			Utils::$context['sub_template'] = 'modify_category';
-			Utils::$context['page_title'] = $_REQUEST['sa'] == 'newcat' ? Lang::$txt['mboards_new_cat_name'] : Lang::$txt['cat_edit'];
+			Utils::$context['page_title'] = Lang::getTxt($_REQUEST['sa'] == 'newcat' ? 'mboards_new_cat_name' : 'cat_edit', file: 'ManageBoards');
 		} else {
 			Utils::$context['sub_template'] = 'confirm_category_delete';
-			Utils::$context['page_title'] = Lang::$txt['mboards_delete_cat'];
+			Utils::$context['page_title'] = Lang::getTxt('mboards_delete_cat', file: 'ManageBoards');
 		}
 
 		// Create a special token.
@@ -413,7 +434,6 @@ class Boards implements ActionInterface
 		Category::getTree();
 
 		// For editing the profile we'll need this.
-		Lang::load('ManagePermissions');
 		Permissions::loadPermissionProfiles();
 
 		// People with manage-boards are special.
@@ -445,7 +465,7 @@ class Boards implements ActionInterface
 
 			Utils::$context['board'] = Board::init(0, [
 				'is_new' => true,
-				'name' => Lang::$txt['mboards_new_board_name'],
+				'name' => Lang::getTxt('mboards_new_board_name', file: 'ManageBoards'),
 				'description' => '',
 				'count_posts' => true,
 				'posts' => 0,
@@ -482,7 +502,7 @@ class Boards implements ActionInterface
 			$group->allow = in_array($group->id, $curBoard['member_groups']);
 			$group->deny = in_array($group->id, $curBoard['deny_groups']);
 
-			$group->name = $group->id === Group::GUEST ? Lang::$txt['parent_guests_only'] : ($group->id === Group::REGULAR ? Lang::$txt['parent_members_only'] : $group->name);
+			$group->name = in_array($group->id, [Group::GUEST, Group::REGULAR]) ? Lang::getTxt($group->id === Group::GUEST ? 'parent_guests_only' : 'parent_members_only', file: 'ManageBoards') : $group->name;
 
 			Utils::$context['groups'][$group->id] = $group;
 		}
@@ -496,7 +516,7 @@ class Boards implements ActionInterface
 			if ($boardid == $_REQUEST['boardid']) {
 				Utils::$context['board_order'][] = [
 					'id' => $boardid,
-					'name' => str_repeat('-', Board::$loaded[$boardid]->child_level) . ' (' . Lang::$txt['mboards_current_position'] . ')',
+					'name' => str_repeat('-', Board::$loaded[$boardid]->child_level) . ' (' . Lang::getTxt('mboards_current_position', file: 'ManageBoards') . ')',
 					'children' => Board::$loaded[$boardid]->children,
 					'no_children' => empty(Board::$loaded[$boardid]->children),
 					'is_child' => false,
@@ -605,11 +625,11 @@ class Boards implements ActionInterface
 
 		if (!isset($_REQUEST['delete'])) {
 			Utils::$context['sub_template'] = 'modify_board';
-			Utils::$context['page_title'] = Lang::$txt['boards_edit'];
+			Utils::$context['page_title'] = Lang::getTxt('boards_edit', file: 'Admin');
 			Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 		} else {
 			Utils::$context['sub_template'] = 'confirm_board_delete';
-			Utils::$context['page_title'] = Lang::$txt['mboards_delete_board'];
+			Utils::$context['page_title'] = Lang::getTxt('mboards_delete_board', file: 'ManageBoards');
 		}
 
 		// Create a special token.
@@ -784,7 +804,7 @@ class Boards implements ActionInterface
 	/**
 	 * Used to retrieve data for modifying a board category.
 	 */
-	public function modifyCat(): void
+	public static function modifyCat(): void
 	{
 		// Get some information about the boards and the cats.
 		Category::getTree();
@@ -793,7 +813,7 @@ class Boards implements ActionInterface
 		$allowed_sa = ['add', 'modify', 'cut'];
 
 		// Check our input.
-		$_POST['id'] = empty($_POST['id']) ? array_keys((array) Board::$info) : (int) $_POST['id'];
+		$_POST['id'] = empty($_POST['id']) ? array_keys((array) current(Board::$loaded)) : (int) $_POST['id'];
 		$_POST['id'] = substr($_POST['id'][1], 0, 3);
 
 		// Select the stuff we need from the DB.
@@ -830,7 +850,7 @@ class Boards implements ActionInterface
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=manageboards;save;sa=settings';
 
-		Utils::$context['page_title'] = Lang::$txt['boards_and_cats'] . ' - ' . Lang::$txt['settings'];
+		Utils::$context['page_title'] = Lang::getTxt('boards_and_cats', file: 'ManageBoards') . ' - ' . Lang::getTxt('settings', file: 'General');
 
 		Theme::loadTemplate('ManageBoards');
 		Utils::$context['sub_template'] = 'show_settings';
@@ -840,7 +860,7 @@ class Boards implements ActionInterface
 		document.getElementById("recycle_board").disabled = !document.getElementById("recycle_enable").checked;', true);
 
 		// Warn the admin against selecting the recycle topic without selecting a board.
-		Utils::$context['force_form_onsubmit'] = 'if(document.getElementById(\'recycle_enable\').checked && document.getElementById(\'recycle_board\').value == 0) { return confirm(\'' . Lang::$txt['recycle_board_unselected_notice'] . '\');} return true;';
+		Utils::$context['force_form_onsubmit'] = 'if(document.getElementById(\'recycle_enable\').checked && document.getElementById(\'recycle_board\').value == 0) { return confirm(\'' . Lang::getTxt('recycle_board_unselected_notice', file: 'ManageBoards') . '\');} return true;';
 
 		// Doing a save?
 		if (isset($_GET['save'])) {
@@ -930,36 +950,11 @@ class Boards implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Everything's gonna need this.
-		Lang::load('ManageBoards');
-
-		// Create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['boards_and_cats'],
-			'help' => 'manage_boards',
-			'description' => Lang::$txt['boards_and_cats_desc'],
-			'tabs' => [
-				'main' => [
-				],
-				'newcat' => [
-				],
-				'settings' => [
-					'description' => Lang::$txt['mboards_settings_desc'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_boards', [&self::$subactions]);
 
 		// Default to sub action 'main' or 'settings' depending on permissions.
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('manage_boards') ? 'main' : 'settings');
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	// code...
 }
 
 ?>

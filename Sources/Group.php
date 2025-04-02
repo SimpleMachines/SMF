@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Actions\Admin\Permissions;
+use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -367,17 +368,11 @@ class Group implements \ArrayAccess
 		// Some special cases.
 		if (in_array($this->id, [self::GUEST, self::REGULAR])) {
 			if (empty($this->name)) {
-				if ($this->id === self::GUEST || !isset(Lang::$txt['announce_regular_members'])) {
-					Lang::load('Admin');
-				}
-
-				$this->name = $this->id === self::GUEST ? Lang::$txt['membergroups_guests'] : (Lang::$txt['announce_regular_members'] ?? Lang::$txt['membergroups_members']);
+				$this->name = Lang::getTxt($this->id === self::GUEST ? 'membergroups_guests' : 'membergroups_members', file: 'Admin');
 			}
 
 			if ($this->id === self::REGULAR && !isset($this->description)) {
-				Lang::load('Profile');
-
-				$this->description = Lang::$txt['regular_members_desc'];
+				$this->description = Lang::getTxt('regular_members_desc', file: 'Profile');
 			}
 		}
 
@@ -388,6 +383,11 @@ class Group implements \ArrayAccess
 		// Set initial value for $this->can_moderate.
 		// This might change when $this->loadModerators() is called.
 		$this->can_moderate = User::$me->allowedTo('manage_membergroups');
+
+		// Create the slug for this group.
+		if (isset($this->name)) {
+			Slug::create($this->name, 'group', $this->id);
+		}
 	}
 
 	/**
@@ -458,7 +458,7 @@ class Group implements \ArrayAccess
 				'',
 				'{db_prefix}membergroups',
 				$columns,
-				$params,
+				[$params],
 				['id_group'],
 				1,
 			);
@@ -552,6 +552,9 @@ class Group implements \ArrayAccess
 			'settings_updated' => time(),
 		]);
 
+		// Remove any cached slug string for the group.
+		CacheApi::put('slug_type-group_id-' . $this->id, null, 0);
+
 		// Log the edit.
 		Logging::logAction('edited_group', ['group' => $this->name], 'admin');
 
@@ -596,8 +599,14 @@ class Group implements \ArrayAccess
 
 		if (!empty($subscriptions)) {
 			// Uh oh. But before we return, we need to update a language string because we want the names of the groups.
-			Lang::load('ManageMembers');
-			Lang::$txt['membergroups_cannot_delete_paid'] = Lang::getTxt('membergroups_cannot_delete_paid', [Lang::sentenceList($subscriptions)]);
+			Lang::setTxt(
+				'membergroups_cannot_delete_paid',
+				Lang::getTxt(
+					'membergroups_cannot_delete_paid',
+					[Lang::sentenceList($subscriptions)],
+					file: 'ManageMembers',
+				),
+			);
 
 			return 'group_cannot_delete_sub';
 		}
@@ -958,8 +967,7 @@ class Group implements \ArrayAccess
 		}
 
 		if (!in_array($type, ['auto', 'only_additional', 'only_primary', 'force_primary'])) {
-			Lang::load('Errors');
-			trigger_error(Lang::getTxt('add_members_to_group_invalid_type', [$type]), E_USER_WARNING);
+			throw new \ValueError(Lang::getTxt('add_members_to_group_invalid_type', [$type], file: 'Errors'));
 		}
 
 		// Can this group be a primary group?
@@ -2170,12 +2178,12 @@ class Group implements \ArrayAccess
 
 		// A few overrides.
 		if (isset(self::$loaded[self::GUEST])) {
-			self::$loaded[self::GUEST]->num_permissions['denied'] = '(' . Lang::$txt['permissions_none'] . ')';
+			self::$loaded[self::GUEST]->num_permissions['denied'] = '(' . Lang::getTxt('permissions_none', file: 'ManagePermissions') . ')';
 		}
 
 		if (isset(self::$loaded[self::ADMIN])) {
-			self::$loaded[self::ADMIN]->num_permissions['allowed'] = '(' . Lang::$txt['permissions_all'] . ')';
-			self::$loaded[self::ADMIN]->num_permissions['denied'] = '(' . Lang::$txt['permissions_none'] . ')';
+			self::$loaded[self::ADMIN]->num_permissions['allowed'] = '(' . Lang::getTxt('permissions_all', file: 'ManagePermissions') . ')';
+			self::$loaded[self::ADMIN]->num_permissions['denied'] = '(' . Lang::getTxt('permissions_none', file: 'ManagePermissions') . ')';
 		}
 
 		$all_counted_permissions = [];
@@ -2348,8 +2356,24 @@ class Group implements \ArrayAccess
 		return [
 			'data' => $groupCache,
 			'expires' => time() + 3600,
-			'refresh_eval' => 'return \\SMF\\Config::$modSettings[\'settings_updated\'] > ' . time() . ';',
+			'check_outdated' => [
+				'callback' => self::class . '::cacheIsOutdated',
+				'args' => [
+					'time' => time(),
+				],
+			],
 		];
+	}
+
+	/**
+	 * Callback used to check whether the cached value is outdated.
+	 *
+	 * @param string|int $time
+	 * @return bool
+	 */
+	public static function cacheIsOutdated(string|int $time): bool
+	{
+		return $time < Config::$modSettings['calendar_updated'];
 	}
 
 	/*************************

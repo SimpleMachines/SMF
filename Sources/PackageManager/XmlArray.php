@@ -10,7 +10,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 namespace SMF\PackageManager;
@@ -174,8 +174,7 @@ class XmlArray
 
 				// Cause an error.
 				if ($this->debug_level & E_NOTICE) {
-					Lang::load('Errors');
-					trigger_error(Lang::getTxt('undefined_xml_attribute', [substr($el, 1) . $debug]), E_USER_NOTICE);
+					trigger_error(Lang::getTxt('undefined_xml_attribute', [substr($el, 1) . $debug], file: 'Errors'), E_USER_NOTICE);
 				}
 
 				return false;
@@ -753,8 +752,7 @@ class XmlArray
 
 			// Cause an error.
 			if ($this->debug_level & E_NOTICE && !$no_error) {
-				Lang::load('Errors');
-				trigger_error(Lang::getTxt('undefined_xml_element', [$path . $debug]), E_USER_NOTICE);
+				trigger_error(Lang::getTxt('undefined_xml_element', [$path . $debug], file: 'Errors'), E_USER_NOTICE);
 			}
 
 			return false;

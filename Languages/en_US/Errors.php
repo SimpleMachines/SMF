@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Errors
+// Version: 3.0 Alpha 3; Errors
 
 $txt['no_access'] = 'You are not allowed to access this section';
 $txt['not_found'] = 'Sorry, this section is not available at this time.';
@@ -373,12 +373,41 @@ $txt['profile_error_bad_avatar_invalid_url'] = 'The URL you specified is invalid
 $txt['profile_error_bad_avatar_url_too_long'] = 'The avatar URL you specified is too long, please use a shorter URL.';
 $txt['profile_error_bad_avatar_too_large'] = 'The image you are trying to use surpasses the max width/height settings, please use a smaller one.';
 $txt['profile_error_bad_avatar_fail_reencode'] = 'The image you uploaded was corrupted and the attempt to recover it failed.';
+
 $txt['profile_error_password_short'] = 'Your password must be {0, plural,
 	one {at least # character long}
 	other {at least # characters long}
 }.';
-$txt['profile_error_password_restricted_words'] = 'Your password must not contain your username, email address or other commonly used words.';
-$txt['profile_error_password_chars'] = 'Your password must contain a mix of upper and lower case letters, as well as digits.';
+$txt['profile_error_password_restricted_words'] = 'Your password must not contain your username, email address, or other commonly used words.';
+$txt['profile_error_password_weak'] = 'This password is too weak.';
+$txt['profile_error_password_top_10'] = 'This is a top-10 common password.';
+$txt['profile_error_password_top_100'] = 'This is a top-100 common password.';
+$txt['profile_error_password_very_common'] = 'This is a very common password.';
+$txt['profile_error_password_similar_to_common'] = 'This is similar to a commonly used password.';
+$txt['profile_error_password_single_word'] = 'A word by itself is easy to guess.';
+$txt['profile_error_password_use_a_few_words'] = 'Use a few words, avoid common phrases.';
+$txt['profile_error_password_simple_is_fine'] = 'No need for symbols, digits, or uppercase letters.';
+$txt['profile_error_password_add_more_words'] = 'Add another word or two. Uncommon words are better.';
+$txt['profile_error_password_recent_years'] = 'Recent years are easy to guess.';
+$txt['profile_error_password_avoid_recent_years'] = 'Avoid recent years.';
+$txt['profile_error_password_avoid_personal_years'] = 'Avoid years that are associated with you.';
+$txt['profile_error_password_dates_are_easy'] = 'Dates are often easy to guess.';
+$txt['profile_error_password_avoid_personal_dates_and_years'] = 'Avoid dates and years that are associated with you.';
+$txt['profile_error_password_straight_rows'] = 'Straight rows of keys are easy to guess.';
+$txt['profile_error_password_short_patterns'] = 'Short keyboard patterns are easy to guess.';
+$txt['profile_error_password_use_longer_pattern'] = 'Use a longer keyboard pattern with more turns.';
+$txt['profile_error_password_sequences'] = 'Sequences like “abc” or “6543” are easy to guess.';
+$txt['profile_error_password_avoid_sequences'] = 'Avoid sequences.';
+$txt['profile_error_password_reversed_words'] = 'Reversed words aren’t much harder to guess.';
+$txt['profile_error_password_repeated_chars'] = 'Repeats like “aaa” are easy to guess.';
+$txt['profile_error_password_repeated_strings'] = 'Repeats like “abcabcabc” are only slightly harder to guess than “abc”.';
+$txt['profile_error_password_avoid_repeated'] = 'Avoid repeated words and characters.';
+$txt['profile_error_password_l33t_useless'] = 'Predictable substitutions like “@” instead of “a” don’t help very much.';
+$txt['profile_error_password_names'] = 'Names and surnames by themselves are easy to guess.';
+$txt['profile_error_password_common_names'] = 'Common names and surnames are easy to guess.';
+$txt['profile_error_password_caps_useless'] = 'Capitalization doesn’t help very much.';
+$txt['profile_error_password_all_caps_useless'] = 'All uppercase is almost as easy to guess as all lowercase.';
+
 $txt['profile_error_already_requested_group'] = 'You already have an outstanding request for this group!';
 $txt['profile_error_signature_not_yet_saved'] = 'The signature has not been saved.';
 $txt['profile_error_personal_text_too_long'] = 'The personal text is too long.';

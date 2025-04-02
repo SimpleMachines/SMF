@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -863,9 +863,6 @@ class BBCodeParser extends Parser
 
 		$this->setDisabled();
 		$this->setBbcCodes();
-
-		// Clean up any cut/paste issues we may have
-		$this->message = self::sanitizeMSCutPaste($this->message);
 
 		// If the load average is too high, don't parse the BBC.
 		if ($this->highLoadAverage()) {
@@ -1761,7 +1758,7 @@ class BBCodeParser extends Parser
 
 		// parseAttachBBC will return a string (Lang::$txt key) rather than dying with a fatal_error. Up to you to decide what to do.
 		if (is_string($current_attachment)) {
-			$data = '<span style="display:inline-block" class="errorbox">' . (!empty(Lang::$txt[$current_attachment]) ? Lang::$txt[$current_attachment] : $current_attachment) . '</span>';
+			$data = '<span style="display:inline-block" class="errorbox">' . (Lang::txtExists($current_attachment, file: 'General') ? Lang::getTxt($current_attachment, file: 'General') : $current_attachment) . '</span>';
 
 			return;
 		}
@@ -2745,8 +2742,8 @@ class BBCodeParser extends Parser
 					return $this->hosturl;
 				}
 
-				if (str_starts_with($matches[1], 'txt_') && isset(Lang::$txt[substr($matches[1], 4)])) {
-					return Lang::$txt[substr($matches[1], 4)];
+				if (str_starts_with($matches[1], 'txt_') && Lang::txtExists(substr($matches[1], 4), file: implode('+', self::$lang_files), lang: self::$locale)) {
+					return Lang::getTxt(substr($matches[1], 4), file: implode('+', self::$lang_files), lang: self::$locale);
 				}
 
 				return $matches[0];
@@ -3994,7 +3991,7 @@ class BBCodeParser extends Parser
 			$temp = [];
 
 			// Reverse order because mods typically append to the array.
-			for ($i = count(self::$codes) - 1; $i >= 0; $i--) {
+			foreach (array_reverse(array_keys(self::$codes)) as $i) {
 				$value = self::$codes[$i];
 
 				// Closures cannot be serialized, but they can be reflected.

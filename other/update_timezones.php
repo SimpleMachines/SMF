@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  *
  * This is an internal development file. It should NOT be included in any SMF
  * distribution packages.
@@ -3007,6 +3007,76 @@ class Lang
 		self::$tztxt = $tztxt;
 
 		return Config::$language;
+	}
+
+	public static function setTxt(string|array $txt_key, string|array $value, string $var = 'txt'): void
+	{
+		$target = &self::${$var};
+
+		$txt_key = (array) $txt_key;
+
+		foreach ($txt_key as $depth => $key) {
+			if (isset($target[(string) $key])) {
+				$target = &$target[(string) $key];
+			} else {
+				$target[(string) $key] = $depth === array_key_last($txt_key) ? '' : [];
+				$target = &$target[(string) $key];
+			}
+		}
+
+		$target = $value;
+	}
+
+	public static function txtExists(string|array $txt_key, string $var = 'txt', ?string $file = null, string $lang = ''): bool
+	{
+		$target = &self::${$var};
+
+		$txt_key = (array) $txt_key;
+
+		foreach ($txt_key as $key) {
+			if (isset($target[$key])) {
+				$target = &$target[$key];
+			} else {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public static function getTxt(string|array $txt_key, array $args = [], string $var = 'txt', ?string $file = null, string $lang = ''): string|array
+	{
+		$target = &self::${$var};
+
+		$txt_key = (array) $txt_key;
+
+		foreach ($txt_key as $key) {
+			if (isset($target[$key])) {
+				$target = &$target[$key];
+			} else {
+				return '';
+			}
+		}
+		return $target;
+	}
+
+	public static function formatText(string $message, array $args = []): string
+	{
+		if ($args === []) {
+			return $message;
+		}
+
+		$final = Localization\MessageFormatter::formatMessage($message, $args);
+
+		if ($final === $message) {
+			try {
+				$final = vsprintf($message, $args);
+			} catch (\Throwable $e) {
+				$final = $message;
+			}
+		}
+
+		return $final;
 	}
 }
 

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -85,9 +85,14 @@ class Birthday_Notify extends ScheduledTask
 			// Send out the greetings!
 			foreach ($birthdays as $lang => $members) {
 				// We need to do some shuffling to make this work properly.
-				Lang::load('EmailTemplates', $lang);
-				Lang::$txt['happy_birthday_subject'] = Lang::$txtBirthdayEmails[$greeting . '_subject'];
-				Lang::$txt['happy_birthday_body'] = Lang::$txtBirthdayEmails[$greeting . '_body'];
+				Lang::setTxt(
+					'happy_birthday_subject',
+					Lang::getTxt($greeting . '_subject', var: 'txtBirthdayEmails', lang: $lang),
+				);
+				Lang::setTxt(
+					'happy_birthday_body',
+					Lang::getTxt($greeting . '_body', var: 'txtBirthdayEmails', lang: $lang),
+				);
 
 				$prefs = Notify::getNotifyPrefs(array_keys($members), ['birthday'], true);
 

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -291,6 +291,21 @@ class Birthday extends Event
 	 */
 	public static function setRequestedStartAndDuration(array &$eventOptions): void {}
 
+	/**
+	 * Not applicable. Birthday info is updated via the user's profile.
+	 *
+	 * @param array $eventOptions An array of optional time and date parameters
+	 *    (span, start_year, end_month, etc., etc.)
+	 */
+	public static function setRequestedRRule(array &$eventOptions): void {}
+
+	/**
+	 * Not applicable. Birthday info is updated via the user's profile.
+	 *
+	 * @param Event $event An event that is being created or modified.
+	 */
+	public static function setRequestedRDatesAndExDates(Event $event): void {}
+
 	/*************************
 	 * Internal static methods
 	 *************************/
@@ -347,21 +362,6 @@ class Birthday extends Event
 		}
 		Db::$db->free_result($request);
 	}
-
-	/**
-	 * Not applicable. Birthday info is updated via the user's profile.
-	 *
-	 * @param array $eventOptions An array of optional time and date parameters
-	 *    (span, start_year, end_month, etc., etc.)
-	 */
-	protected static function setRequestedRRule(array &$eventOptions): void {}
-
-	/**
-	 * Not applicable. Birthday info is updated via the user's profile.
-	 *
-	 * @param Event $event An event that is being created or modified.
-	 */
-	protected static function setRequestedRDatesAndExDates(Event $event): void {}
 
 	/**
 	 * Not applicable. Birthday info is updated via the user's profile.

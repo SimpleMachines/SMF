@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -44,7 +44,7 @@ class ForumProfile implements ActionInterface
 			Profile::$member->loadCustomFields('forumprofile');
 		}
 
-		Utils::$context['page_desc'] = Lang::getTxt('forumProfile_info', ['forum_name' => Utils::$context['forum_name_html_safe']]);
+		Utils::$context['page_desc'] = Lang::getTxt('forumProfile_info', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'Profile');
 
 		Utils::$context['show_preview_button'] = true;
 
@@ -54,7 +54,7 @@ class ForumProfile implements ActionInterface
 				'hr',
 				'personal_text',
 				'hr',
-				'bday1',
+				'birthdate',
 				'usertitle',
 				'signature',
 				'hr',

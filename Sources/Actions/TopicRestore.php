@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,12 +16,14 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -30,8 +32,9 @@ use SMF\Utils;
  * This action handles restoring a topic from the recycle board back to its
  * original board.
  */
-class TopicRestore implements ActionInterface
+class TopicRestore implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
@@ -238,7 +241,7 @@ class TopicRestore implements ActionInterface
 					);
 
 					while ($member = Db::$db->fetch_assoc($request2)) {
-						User::updateMemberData($member['id_member'], ['posts' => 'posts + ' . $member['post_count']]);
+						User::updateMemberData((int) $member['id_member'], ['posts' => 'posts + ' . $member['post_count']]);
 					}
 					Db::$db->free_result($request2);
 				}

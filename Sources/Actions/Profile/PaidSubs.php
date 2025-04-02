@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -45,7 +45,6 @@ class PaidSubs implements ActionInterface
 	{
 		// Load the paid template anyway.
 		Theme::loadTemplate('ManagePaid');
-		Lang::load('ManagePaid');
 
 		// Load all of the subscriptions.
 		Subscriptions::getSubs();
@@ -89,7 +88,7 @@ class PaidSubs implements ActionInterface
 
 		// No gateways yet?
 		if (empty($gateways)) {
-			ErrorHandler::fatal(Lang::$txt['paid_admin_not_setup_gateway']);
+			ErrorHandler::fatal(Lang::getTxt('paid_admin_not_setup_gateway', file: 'ManagePaid'));
 		}
 
 		// Get the current subscriptions.
@@ -117,10 +116,10 @@ class PaidSubs implements ActionInterface
 				'hide' => $row['status'] == 0 && $row['end_time'] == 0 && $row['payments_pending'] == 0,
 				'name' => Subscriptions::$all[$row['id_subscribe']]['name'],
 				'start' => Time::create('@' . $row['start_time'])->format(null, false),
-				'end' => $row['end_time'] == 0 ? Lang::$txt['not_applicable'] : Time::create('@' . $row['end_time'])->format(null, false),
+				'end' => $row['end_time'] == 0 ? Lang::getTxt('not_applicable', file: 'General') : Time::create('@' . $row['end_time'])->format(null, false),
 				'pending_details' => $row['pending_details'],
 				'status' => $row['status'],
-				'status_text' => $row['status'] == 0 ? ($row['payments_pending'] ? Lang::$txt['paid_pending'] : Lang::$txt['paid_finished']) : Lang::$txt['paid_active'],
+				'status_text' => Lang::getTxt($row['status'] == 0 ? ($row['payments_pending'] ? 'paid_pending' : 'paid_finished') : 'paid_active', file: 'ManagePaid'),
 			];
 
 			if ($row['status'] == 1) {
@@ -204,7 +203,7 @@ class PaidSubs implements ActionInterface
 			if (Utils::$context['sub']['flexible']) {
 				// Real cost...
 				Utils::$context['value'] = Utils::$context['sub']['costs'][$_POST['cur'][$id_sub]];
-				Utils::$context['cost'] = sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']) . '/' . Lang::$txt[$_POST['cur'][$id_sub]];
+				Utils::$context['cost'] = sprintf(Config::$modSettings['paid_currency_symbol'], Utils::$context['value']) . '/' . Lang::getTxt($_POST['cur'][$id_sub], file: 'ManagePaid');
 
 				// The period value for paypal.
 				Utils::$context['paypal_period'] = strtoupper(substr($_POST['cur'][$id_sub], 0, 1));
@@ -238,7 +237,7 @@ class PaidSubs implements ActionInterface
 
 			// Bugger?!
 			if (empty(Utils::$context['gateways'])) {
-				ErrorHandler::fatal(Lang::$txt['paid_admin_not_setup_gateway']);
+				ErrorHandler::fatal(Lang::getTxt('paid_admin_not_setup_gateway', file: 'ManagePaid'));
 			}
 
 			// Now we are going to assume they want to take this out ;)
@@ -299,13 +298,15 @@ class PaidSubs implements ActionInterface
 						'vendor_ref' => 'string-255',
 					],
 					[
-						Utils::$context['sub']['id'],
-						Profile::$member->id,
-						0,
-						0,
-						Utils::jsonEncode([$new_data]),
-						time(),
-						'',
+						[
+							Utils::$context['sub']['id'],
+							Profile::$member->id,
+							0,
+							0,
+							Utils::jsonEncode([$new_data]),
+							time(),
+							'',
+						],
 					],
 					['id_sublog'],
 				);

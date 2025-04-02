@@ -75,7 +75,7 @@ foreach (Config::$modSettings as $variable => $value) {
 		$locale = Lang::getLocaleFromLanguageName(substr($variable, 15));
 		$new_variable = isset($locale) ? 'policy_updated_' . $locale : $variable;
 	} else {
-		$locale = 'policy_' . Lang::getLocaleFromLanguageName(substr($variable, 7));
+		$locale = Lang::getLocaleFromLanguageName(substr($variable, 7));
 		$new_variable = isset($locale) ? 'policy_' . $locale : $variable;
 	}
 
@@ -88,6 +88,16 @@ foreach (Config::$modSettings as $variable => $value) {
 		unset($new_variable);
 	}
 }
+---}
+---#
+
+/******************************************************************************/
+--- Updating log_errors table
+/******************************************************************************/
+
+---# Fixing the default for the sessions column
+---{
+Db::$db->change_column('{db_prefix}log_errors', 'session', ['default' => '']);
 ---}
 ---#
 
@@ -921,9 +931,42 @@ if ($exists) {
 	}
 
 	Db::$db->free_result($request);
-
-	Db::$db->drop_table('{db_prefix}calendar_holidays');
 }
+---}
+---#
+
+---# Setting the UID column for calendar events.
+---{
+$calendar_updates = [];
+$request = Db::$db->query(
+	'',
+	'SELECT id_event, uid
+	FROM {db_prefix}calendar',
+	[],
+);
+
+while ($row = Db::$db->fetch_assoc($request)) {
+	if ($row['uid'] === '') {
+		$calendar_updates[] = ['id_event' => $row['id_event'], 'uid' => (string) new Uuid()];
+	}
+}
+Db::$db->free_result($request);
+
+foreach ($calendar_updates as $calendar_update) {
+	Db::$db->query(
+		'',
+		'UPDATE {db_prefix}calendar
+		SET uid = {string:uid}
+		WHERE id_event = {int:id_event}',
+		$calendar_update,
+	);
+}
+---}
+---#
+
+---# Dropping "calendar_holidays"
+---{
+Db::$db->drop_table('{db_prefix}calendar_holidays');
 ---}
 ---#
 
@@ -978,3 +1021,32 @@ INSERT IGNORE INTO {$db_prefix}settings (variable, value) VALUES ('spoofdetector
 ALTER TABLE {$db_prefix}log_packages
 ADD COLUMN smf_version VARCHAR(5) NOT NULL DEFAULT '';
 ---#
+
+/******************************************************************************/
+--- Improving search results storage
+/******************************************************************************/
+
+---# Updating primary key for log_search_results table
+ALTER TABLE {$db_prefix}log_search_results DROP PRIMARY KEY;
+ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
+---#
+
+/******************************************************************************/
+--- Updating Settings
+/******************************************************************************/
+
+---# Update mail_type
+UPDATE {$db_prefix}settings
+SET value =
+	CASE
+		WHEN value = 0
+			THEN 'SendMail'
+		WHEN value = 1
+			THEN 'SMTP'
+		WHEN value = 2
+			THEN 'SMTPTLS'
+		ELSE
+			value
+		END
+WHERE variable = 'mail_type'
+	AND value IN (0,1,2);

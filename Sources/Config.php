@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -150,13 +150,6 @@ class Config
 	 * Send emails on database connection error.
 	 */
 	public static bool $db_error_send;
-	/**
-	 * @var null|bool
-	 *
-	 * Override the default behavior of the database layer for mb4 handling.
-	 * null keep the default behavior untouched.
-	 */
-	public static ?bool $db_mb4;
 
 	########## Cache info ##########
 	/**
@@ -240,12 +233,6 @@ class Config
 	 * @var string
 	 */
 	public static string $languagesdir;
-	/**
-	 * @var string
-	 *
-	 * Path to the tasks directory.
-	 */
-	public static string $tasksdir;
 
 	######### Modification Support #########
 	/**
@@ -258,14 +245,6 @@ class Config
 	 *    no installed modifications require them. This is usually not necessary.
 	 */
 	public static int $backward_compatibility;
-
-	######### Legacy settings #########
-	/**
-	 * @var string
-	 *
-	 * Database character set. Should always be utf8.
-	 */
-	public static string $db_character_set;
 
 	######### Developer settings #########
 	/**
@@ -624,18 +603,6 @@ class Config
 			'default' => false,
 			'type' => 'boolean',
 		],
-		'db_mb4' => [
-			'text' => <<<'END'
-				/**
-				 * @var null|bool
-				 *
-				 * Override the default behavior of the database layer for mb4 handling.
-				 * null keep the default behavior untouched.
-				 */
-				END,
-			'default' => null,
-			'type' => ['NULL', 'boolean'],
-		],
 		'cache_accelerator' => [
 			'text' => <<<'END'
 
@@ -802,19 +769,6 @@ class Config
 			'default' => 0,
 			'type' => 'integer',
 		],
-		'db_character_set' => [
-			'text' => <<<'END'
-
-				######### Legacy Settings #########
-				/**
-				 * @var string
-				 *
-				 * Database character set. Should always be utf8.
-				 */
-				END,
-			'default' => 'utf8',
-			'type' => 'string',
-		],
 		'db_show_debug' => [
 			'text' => <<<'END'
 
@@ -840,6 +794,16 @@ class Config
 			'default' => '',
 			'auto_delete' => 3,
 			'type' => 'string',
+		],
+		'db_character_set' => [
+			'default' => '',
+			'auto_delete' => 3,
+			'type' => 'string',
+		],
+		'db_mb4' => [
+			'default' => null,
+			'auto_delete' => 3,
+			'type' => ['NULL', 'boolean'],
 		],
 		'db_last_error' => [
 			'default' => 0,
@@ -901,8 +865,23 @@ class Config
 	 */
 	public static function set(array $settings): void
 	{
+		self::getSettingsDefs();
+
 		foreach ($settings as $var => $val) {
 			if (property_exists(__CLASS__, $var)) {
+				// Try to ensure the type is correct.
+				if (
+					isset(self::$settings_defs[$var])
+					&& !in_array(gettype($val), (array) self::$settings_defs[$var]['type'])
+				) {
+					foreach (['boolean', 'integer', 'double', 'string', 'array', 'NULL'] as $to_type) {
+						if (in_array($to_type, (array) self::$settings_defs[$var]['type'])) {
+							settype($val, $to_type);
+							break;
+						}
+					}
+				}
+
 				self::${$var} = $val;
 			} else {
 				self::$custom[$var] = $val;
@@ -910,9 +889,7 @@ class Config
 		}
 
 		// Anything missing?
-		$class_vars = get_class_vars(__CLASS__);
-
-		foreach ($class_vars['settings_defs'] as $var => $def) {
+		foreach (self::$settings_defs as $var => $def) {
 			if (is_string($var) && property_exists(__CLASS__, $var) && !isset(self::${$var})) {
 				if (!empty($def['raw_default'])) {
 					$default = strtr($def['default'], [
@@ -945,9 +922,6 @@ class Config
 		if ((empty(self::$sourcedir) || !is_dir(realpath(self::$sourcedir))) && is_dir(self::$boarddir . '/Sources')) {
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
-
-		// As of 3.0, this is no longer changeable.
-		self::$tasksdir = self::$sourcedir . '/Tasks';
 
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {
 			self::$packagesdir = self::$boarddir . '/Packages';
@@ -984,17 +958,8 @@ class Config
 			$GLOBALS['modSettings'] = &self::$modSettings;
 			$GLOBALS['scripturl'] = &self::$scripturl;
 
-			eval('function reloadSettings() { return ' . __CLASS__ . '::reloadModSettings(); }');
-			eval('function updateSettings(...$args) { return ' . __CLASS__ . '::updateModSettings(...$args); }');
-			eval('function get_auth_secret() { return ' . __CLASS__ . '::getAuthSecret(); }');
-			eval('function get_settings_defs() { return ' . __CLASS__ . '::getSettingsDefs(); }');
-			eval('function updateSettingsFile(...$args) { return ' . __CLASS__ . '::updateSettingsFile(...$args); }');
-			eval('function safe_file_write(...$args) { return ' . __CLASS__ . '::safeFileWrite(...$args); }');
-			eval('function smf_var_export(...$args) { return ' . __CLASS__ . '::varExport(...$args); }');
-			eval('function updateDbLastError(...$args) { return ' . __CLASS__ . '::updateDbLastError(...$args); }');
-			eval('function sm_temp_dir() { return ' . __CLASS__ . '::getTempDir(); }');
-			eval('function smf_seed_generator() { return ' . __CLASS__ . '::generateSeed(); }');
-			eval('function check_cron() {return ' . __CLASS__ . '::checkCron(); }');
+			// The path to the tasks dir was a separate setting before 3.0.
+			$GLOBALS['tasksdir'] = self::$sourcedir . '/Tasks';
 
 			self::$exported = true;
 		}
@@ -1160,9 +1125,7 @@ class Config
 			self::updateModSettings(['forum_uuid' => Uuid::getNamespace()]);
 		}
 
-		// Here to justify the name of this function. :P
-		// It should be added to the install and upgrade scripts.
-		// But since the converters need to be updated also. This is easier.
+		// Ensure the attachment upload directory settings are valid.
 		if (empty(self::$modSettings['currentAttachmentUploadDir'])) {
 			self::updateModSettings([
 				'attachmentUploadDir' => Utils::jsonEncode([1 => self::$modSettings['attachmentUploadDir']]),
@@ -1176,6 +1139,11 @@ class Config
 		self::$modSettings['attachmentPostLimit'] = empty(self::$modSettings['attachmentPostLimit']) ? $post_max_kb : min(self::$modSettings['attachmentPostLimit'], $post_max_kb);
 		self::$modSettings['attachmentSizeLimit'] = empty(self::$modSettings['attachmentSizeLimit']) ? $file_max_kb : min(self::$modSettings['attachmentSizeLimit'], $file_max_kb);
 		self::$modSettings['attachmentNumPerPostLimit'] = !isset(self::$modSettings['attachmentNumPerPostLimit']) ? 4 : self::$modSettings['attachmentNumPerPostLimit'];
+
+		// Deprecated, but some old mods might use it.
+		if (!empty(self::$backward_compatibility)) {
+			self::$modSettings['global_character_set'] = 'UTF-8';
+		}
 
 		// Integration is cool.
 		if (defined('SMF_INTEGRATION_SETTINGS')) {
@@ -1332,8 +1300,7 @@ class Config
 				// Set the last error to now, but only every 15 minutes. Don't need to flood the logs.
 				if (empty(self::$db_last_error) || (self::$db_last_error + 60 * 15) <= time()) {
 					self::updateDbLastError(time());
-					Lang::load('Errors');
-					ErrorHandler::log(Lang::$txt['auth_secret_missing'], 'critical');
+					ErrorHandler::log(Lang::getTxt('auth_secret_missing', file: 'General'), 'critical');
 				}
 			}
 		}
@@ -1476,9 +1443,6 @@ class Config
 		// It works best to set everything afresh.
 		$new_settings_vars = array_merge($settings_vars, $config_vars);
 
-		// Are we using UTF-8?
-		$utf8 = class_exists('SMF\\Utils', false) && isset(Utils::$context['utf8']) ? Utils::$context['utf8'] : (isset($settings_vars['db_character_set']) ? $settings_vars['db_character_set'] === 'utf8' : (isset(self::$db_character_set) ? self::$db_character_set === 'utf8' : true));
-
 		// Get our definitions for all known Settings.php variables and other content.
 		$settings_defs = self::getSettingsDefs();
 
@@ -1585,7 +1549,8 @@ class Config
 			$placeholder = md5($prefix . $var);
 			$replacement = '';
 
-			if (($setting_def['auto_delete'] ?? null) === 3) {
+			// Auto-delete, unless installing.
+			if (!defined('SMF_INSTALLING') && ($setting_def['auto_delete'] ?? null) === 3) {
 				$new_settings_vars[$var] = $setting_def['default'];
 			}
 
@@ -1711,7 +1676,7 @@ class Config
 
 					$var_pattern = count($var_pattern) > 1 ? '(?:' . (implode('|', $var_pattern)) . ')' : $var_pattern[0];
 
-					$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
+					$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~u';
 				}
 
 				// Next create the placeholder or replace_pattern.
@@ -1772,7 +1737,7 @@ class Config
 
 			$placeholder = md5($prefix . $var);
 
-			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~' . (!empty($utf8) ? 'u' : '');
+			$substitutions[$var]['search_pattern'] = '~(?<=^|\s)\h*\$' . preg_quote($var, '~') . '\s*=\s*' . $var_pattern . ';~u';
 			$substitutions[$var]['placeholder'] = $placeholder;
 			$substitutions[$var]['replacement'] = '$' . $var . ' = ' . self::varExport($val) . ';';
 		}
@@ -2534,7 +2499,7 @@ class Config
 
 			foreach ($var as $key => $value) {
 				++$depth;
-				$return[] = ($depth > 1 && $is_simple_list ? '' : var_export($key, true) . ' => ') . self::varExport($value);
+				$return[] = ($is_simple_list ? '' : var_export($key, true) . ' => ') . self::varExport($value);
 				--$depth;
 			}
 
@@ -2542,8 +2507,23 @@ class Config
 				return '[]';
 			}
 
-			if ($depth > 0 && $is_simple_list) {
-				return '[' . implode(', ', $return) . ']';
+			if ($is_simple_list) {
+				if (mb_strlen(implode(', ', $return)) <= 74 - $depth * 4) {
+					return '[' . implode(', ', $return) . ']';
+				}
+
+				$temp = [];
+				$row = -1;
+
+				foreach ($return as $element) {
+					if (isset($temp[$row]) && mb_strlen(implode(', ', [$temp[$row], $element])) <= 74 - $depth * 4) {
+						$temp[$row] = implode(', ', [$temp[$row], $element]);
+					} else {
+						$temp[++$row] = $element;
+					}
+				}
+
+				$return = $temp;
 			}
 
 			return "[\n" . str_repeat("\t", $depth + 1) . implode(",\n" . str_repeat("\t", $depth + 1), $return) . ",\n" . str_repeat("\t", $depth) . ']';
@@ -2556,11 +2536,12 @@ class Config
 			return preg_replace(
 				[
 					"/(?<!\\\\)'' \. /",
-					"/ \. ''/"],
+					"/ \. ''/",
+				],
 				'',
 				preg_replace_callback(
 					'/[\r\n\t]+/',
-					fn($m) => '\' . "' . strtr($m[0], ["\r" => '\r', "\n" => '\n', "\t" => '\t']) . '" . \'',
+					fn($m) => '\' . "' . addcslashes($m[0], "\r\n\t") . '" . \'',
 					var_export($var, true),
 				),
 			);
@@ -2785,99 +2766,6 @@ class Config
 	}
 
 	/**
-	 * Locates the most appropriate temporary directory.
-	 *
-	 * Systems using `open_basedir` restrictions may receive errors with
-	 * `sys_get_temp_dir()` due to misconfigurations on servers. Other
-	 * cases sys_temp_dir may not be set to a safe value. Additionally
-	 * `sys_get_temp_dir` may use a readonly directory. This attempts to
-	 * find a working temp directory that is accessible under the
-	 * restrictions and is writable to the web service account.
-	 *
-	 * Directories checked against `open_basedir`:
-	 *
-	 * - `sys_get_temp_dir()`
-	 * - `upload_tmp_dir`
-	 * - `session.save_path`
-	 * - `cachedir`
-	 *
-	 * @return string Path to a temporary directory.
-	 */
-	public static function getTempDir(): string
-	{
-		// Already did this.
-		if (!empty(self::$temp_dir)) {
-			return self::$temp_dir;
-		}
-
-		// Temp Directory options order.
-		$temp_dir_options = [
-			0 => 'sys_get_temp_dir',
-			1 => 'upload_tmp_dir',
-			2 => 'session.save_path',
-			3 => 'cachedir',
-		];
-
-		// Is self::$cachedir a valid option?
-		if (empty(self::$cachedir) || !is_dir(self::$cachedir) || !is_writable(self::$cachedir)) {
-			$temp_dir_options = array_diff($temp_dir_options, ['cachedir']);
-		}
-
-		// Determine if we should detect a restriction and what restrictions that may be.
-		$open_base_dir = ini_get('open_basedir');
-		$restriction = !empty($open_base_dir) ? explode(':', $open_base_dir) : false;
-
-		// Prevent any errors as we search.
-		$old_error_reporting = error_reporting(0);
-
-		// Search for a working temp directory.
-		foreach ($temp_dir_options as $id_temp => $temp_option) {
-			switch ($temp_option) {
-				case 'cachedir':
-					$possible_temp = rtrim(self::$cachedir, '\\/');
-					break;
-
-				case 'session.save_path':
-					$possible_temp = rtrim(ini_get('session.save_path'), '\\/');
-					break;
-
-				case 'upload_tmp_dir':
-					$possible_temp = rtrim(ini_get('upload_tmp_dir'), '\\/');
-					break;
-
-				default:
-					$possible_temp = sys_get_temp_dir();
-					break;
-			}
-
-			// Check if we have a restriction preventing this from working.
-			if ($restriction) {
-				foreach ($restriction as $dir) {
-					if (str_contains($possible_temp, $dir) && is_writable($possible_temp)) {
-						self::$temp_dir = $possible_temp;
-						break;
-					}
-				}
-			}
-			// No restrictions, but need to check for writable status.
-			elseif (is_writable($possible_temp)) {
-				self::$temp_dir = $possible_temp;
-				break;
-			}
-		}
-
-		// Fall back to sys_get_temp_dir even though it won't work, so we have something.
-		if (empty(self::$temp_dir)) {
-			self::$temp_dir = sys_get_temp_dir();
-		}
-
-		// Put things back.
-		error_reporting($old_error_reporting);
-
-		return self::$temp_dir;
-	}
-
-	/**
 	 * Generate a random seed and ensure it's stored in settings.
 	 *
 	 * This only exists for backward compatibility with mods that might use the
@@ -2914,13 +2802,32 @@ class Config
 
 			// If we have tasks more than a day overdue, cron isn't doing its job.
 			if (!empty($overdue)) {
-				Lang::load('ManageScheduledTasks');
-				ErrorHandler::log(Lang::$txt['cron_not_working']);
+				ErrorHandler::log(Lang::getTxt('cron_not_working', file: 'ManageScheduledTasks'));
 				self::updateModSettings(['cron_is_real_cron' => 0]);
 			} else {
 				self::updateModSettings(['cron_last_checked' => time()]);
 			}
 		}
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Wrapper for SMF\Sapi::getTempDir().
+	 *
+	 * Loads the Sapi class if necessary, and then calls Sapi::getTempDir().
+	 */
+	protected static function getTempDir(): string
+	{
+		// Can't rely on autoloading because this method may be
+		// called before the autoloader exists.
+		if (!class_exists('\\SMF\\Sapi', false)) {
+			require_once self::$sourcedir . DIRECTORY_SEPARATOR . 'Sapi.php';
+		}
+
+		return Sapi::getTempDir();
 	}
 }
 

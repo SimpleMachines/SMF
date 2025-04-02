@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -23,6 +24,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Routable;
 use SMF\Search\SearchApi;
 use SMF\Search\SearchResult;
 use SMF\Security;
@@ -34,8 +36,9 @@ use SMF\Verifier;
 /**
  * Shows the search form.
  */
-class Search2 implements ActionInterface
+class Search2 implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -80,6 +83,16 @@ class Search2 implements ActionInterface
 
 		// Are you allowed?
 		User::$me->isAllowedTo('search_posts');
+
+		// Maximum length of the string.
+		Utils::$context['search_string_limit'] = SearchApi::MAX_LENGTH;
+
+		// Number of pages hard maximum - normally not set at all.
+		Config::$modSettings['search_max_results'] = empty(Config::$modSettings['search_max_results']) ? 200 * Config::$modSettings['search_results_per_page'] : (int) Config::$modSettings['search_max_results'];
+
+		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % Config::$modSettings['search_results_per_page']) : 0;
+
+		Utils::$context['robot_no_index'] = true;
 
 		// Load up the search API we are going to use.
 		SearchApi::load();
@@ -189,27 +202,51 @@ class Search2 implements ActionInterface
 		return $output;
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route = self::buildActionRoute($params);
+
+		if (isset($params['start'])) {
+			$route[] = $params['start'];
+			unset($params['start']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params = array_merge($params, self::parseActionRoute($route));
+
+		if (!empty($route)) {
+			$params['start'] = array_shift($route);
+		}
+
+		return $params;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Maximum length of the string.
-		Utils::$context['search_string_limit'] = SearchApi::MAX_LENGTH;
-
-		// Number of pages hard maximum - normally not set at all.
-		Config::$modSettings['search_max_results'] = empty(Config::$modSettings['search_max_results']) ? 200 * Config::$modSettings['search_results_per_page'] : (int) Config::$modSettings['search_max_results'];
-
-		$_REQUEST['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] - ((int) $_REQUEST['start'] % Config::$modSettings['search_results_per_page']) : 0;
-
-		Lang::load('Search');
-
-		Utils::$context['robot_no_index'] = true;
-	}
 
 	/**
 	 * If coming from the quick search box and trying to search on members,
@@ -313,16 +350,21 @@ class Search2 implements ActionInterface
 		// ... and add the links to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=search;params=' . SearchApi::$loadedApi->compressParams(),
-			'name' => Lang::$txt['search'],
+			'name' => Lang::getTxt('search', file: 'General'),
 		];
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(),
-			'name' => Lang::$txt['search_results'],
+			'name' => Lang::getTxt('search_results', file: 'General'),
 		];
 
 		// Now that we know how many results to expect we can start calculating the page numbers.
 		$start = (int) $_REQUEST['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $start, $this->num_results, (int) Config::$modSettings['search_results_per_page'], false);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		Utils::$context['key_words'] = SearchApi::$loadedApi->searchArray;
 
@@ -333,14 +375,14 @@ class Search2 implements ActionInterface
 			Utils::$context['icon_sources'][$icon] = 'images_url';
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['search_results'];
+		Utils::$context['page_title'] = Lang::getTxt('search_results', file: 'General');
 		Utils::$context['get_topics'] = [$this, 'prepareSearchContext'];
 		Utils::$context['can_restore_perm'] = User::$me->allowedTo('move_any') && !empty(Config::$modSettings['recycle_enable']);
 		Utils::$context['can_restore'] = false; // We won't know until we handle the context later whether we can actually restore...
 
 		Utils::$context['jump_to'] = [
-			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
-			'board_name' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['select_destination'])),
+			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('jump_to', file: 'General'))),
+			'board_name' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('select_destination', file: 'General'))),
 		];
 
 		// Define the sort order options.

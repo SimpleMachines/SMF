@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; ManageMembers
+// Version: 3.0 Alpha 3; ManageMembers
 
 $txt['groups'] = 'Groups';
 $txt['viewing_groups'] = 'Viewing Membergroups';
@@ -9,7 +9,6 @@ $txt['membergroups_title'] = 'Manage Membergroups';
 $txt['membergroups_description'] = 'Membergroups are groups of members that have similar permission settings, appearance, or access rights. Some membergroups are based on the amount of posts a user has made. You can assign someone to a membergroup by selecting their profile and changing their account settings.';
 $txt['membergroups_modify'] = 'Modify';
 
-$txt['membergroups_add_group'] = 'Add group';
 $txt['membergroups_regular'] = 'Regular groups';
 $txt['membergroups_post'] = 'Post count based groups';
 $txt['membergroups_guests_na'] = 'n/a';
@@ -128,6 +127,7 @@ $txt['admin_browse_filter_type_2'] = 'Unactivated email changes';
 $txt['admin_browse_filter_type_3'] = 'Unapproved new accounts';
 $txt['admin_browse_filter_type_4'] = 'Unapproved account deletions';
 $txt['admin_browse_filter_type_5'] = 'Unapproved underage accounts';
+$txt['admin_browse_filter_type_6'] = 'Unapproved account deletions with anonymization';
 
 $txt['admin_browse_outstanding'] = 'Outstanding Members';
 $txt['admin_browse_outstanding_days'] = 'With all members who registered longer than {input} {number, plural,
@@ -142,7 +142,5 @@ $txt['admin_browse_outstanding_go'] = 'Perform Action';
 $txt['check_for_duplicate'] = 'Check for duplicates';
 $txt['dont_check_for_duplicate'] = 'Do not check for duplicates';
 $txt['duplicates'] = 'Duplicates';
-
-$txt['not_activated'] = 'Not activated';
 
 ?>

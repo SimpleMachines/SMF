@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,12 +16,16 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Parser;
 use SMF\Profile;
+use SMF\Routable;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -31,8 +35,9 @@ use SMF\Verifier;
 /**
  * Shows the registration form.
  */
-class Register implements ActionInterface
+class Register implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -71,12 +76,27 @@ class Register implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return isset($_GET['sa']) && $_GET['sa'] == 'usernamecheck';
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_GET['sa']) && $_GET['sa'] == 'usernamecheck' ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
+
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -102,7 +122,6 @@ class Register implements ActionInterface
 			Utils::redirectexit();
 		}
 
-		Lang::load('Login');
 		Theme::loadTemplate('Register');
 
 		// How many steps have we done so far today?
@@ -127,10 +146,10 @@ class Register implements ActionInterface
 		// Under age restrictions?
 		if (Utils::$context['show_coppa']) {
 			Utils::$context['skip_coppa'] = false;
-			Utils::$context['coppa_agree_above'] = Lang::getTxt($agree_txt_key . 'agree_coppa_above', [Config::$modSettings['coppaAge']]);
-			Utils::$context['coppa_agree_below'] = Lang::getTxt($agree_txt_key . 'agree_coppa_below', [Config::$modSettings['coppaAge']]);
+			Utils::$context['coppa_agree_above'] = Lang::getTxt($agree_txt_key . 'agree_coppa_above', [Config::$modSettings['coppaAge']], file: 'Login');
+			Utils::$context['coppa_agree_below'] = Lang::getTxt($agree_txt_key . 'agree_coppa_below', [Config::$modSettings['coppaAge']], file: 'Login');
 		} elseif ($agree_txt_key != '') {
-			Utils::$context['agree'] = Lang::$txt[$agree_txt_key . 'agree'];
+			Utils::$context['agree'] = Lang::getTxt($agree_txt_key . 'agree', file: 'Login');
 		}
 
 		// Does this user agree to the registration agreement?
@@ -144,7 +163,6 @@ class Register implements ActionInterface
 
 				// Are they saying they're under age, while under age registration is disabled?
 				if (empty(Config::$modSettings['coppaType']) && empty($_SESSION['skip_coppa'])) {
-					Lang::load('Login');
 					ErrorHandler::fatalLang('under_age_registration_prohibited', false, [Config::$modSettings['coppaAge']]);
 				}
 			}
@@ -156,7 +174,7 @@ class Register implements ActionInterface
 
 		// Show the user the right form.
 		Utils::$context['sub_template'] = $current_step == 1 ? 'registration_agreement' : 'registration_form';
-		Utils::$context['page_title'] = $current_step == 1 ? Lang::$txt['registration_agreement'] : Lang::$txt['registration_form'];
+		Utils::$context['page_title'] = Lang::getTxt($current_step == 1 ? 'registration_agreement' : 'registration_form', file: 'General+Login');
 
 		// Kinda need this.
 		if (Utils::$context['sub_template'] == 'registration_form') {
@@ -166,7 +184,7 @@ class Register implements ActionInterface
 		// Add the register chain to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=signup',
-			'name' => Lang::$txt['register'],
+			'name' => Lang::getTxt('register', file: 'General'),
 		];
 
 		// Prepare the time gate! Do it like so, in case later steps want to reset the limit for any reason, but make sure the time is the current one.
@@ -183,7 +201,7 @@ class Register implements ActionInterface
 		if (!empty(Config::$modSettings['requireAgreement'])) {
 			// Have we got a localized one?
 			if (file_exists(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt')) {
-				Utils::$context['privacy_policy'] = Parser::transform(
+				Utils::$context['agreement'] = Parser::transform(
 					string: file_get_contents(Config::$languagesdir . '/' . User::$me->language . '/agreement.txt'),
 					options: [
 						'cache_id' => 'agreement_' . User::$me->language,
@@ -191,7 +209,7 @@ class Register implements ActionInterface
 					],
 				);
 			} elseif (file_exists(Config::$languagesdir . '/en_US/agreement.txt')) {
-				Utils::$context['privacy_policy'] = Parser::transform(
+				Utils::$context['agreement'] = Parser::transform(
 					string: file_get_contents(Config::$languagesdir . '/en_US/agreement.txt'),
 					options: [
 						'cache_id' => 'agreement',
@@ -205,7 +223,7 @@ class Register implements ActionInterface
 			// Nothing to show, lets disable registration and inform the admin of this error
 			if (empty(Utils::$context['agreement'])) {
 				// No file found or a blank file, log the error so the admin knows there is a problem!
-				ErrorHandler::log(Lang::$txt['registration_agreement_missing'], 'critical');
+				ErrorHandler::log(Lang::getTxt('registration_agreement_missing', file: 'Login'), 'critical');
 				ErrorHandler::fatalLang('registration_disabled', false);
 			}
 		}
@@ -247,7 +265,7 @@ class Register implements ActionInterface
 				);
 			} else {
 				// None was found; log the error so the admin knows there is a problem!
-				ErrorHandler::log(Lang::$txt['registration_policy_missing'], 'critical');
+				ErrorHandler::log(Lang::getTxt('registration_policy_missing', file: 'Login'), 'critical');
 				ErrorHandler::fatalLang('registration_disabled', false);
 			}
 		}
@@ -261,7 +279,6 @@ class Register implements ActionInterface
 			require_once Config::$sourcedir . '/Profile-Modify.php';
 
 			// Setup some important context.
-			Lang::load('Profile');
 			Theme::loadTemplate('Profile');
 
 			User::$me->is_owner = true;
@@ -336,23 +353,6 @@ class Register implements ActionInterface
 		$errors = User::validateUsername(0, Utils::$context['checked_username'], true);
 
 		Utils::$context['valid_username'] = empty($errors);
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Backward compatibility wrapper for show sub-action.
-	 *
-	 * @param array $reg_errors Holds information about any errors that occurred.
-	 */
-	public static function register(array $reg_errors = []): void
-	{
-		self::load();
-		self::$obj->subaction = 'show';
-		self::$obj->errors = (array) $reg_errors;
-		self::$obj->execute();
 	}
 
 	/******************

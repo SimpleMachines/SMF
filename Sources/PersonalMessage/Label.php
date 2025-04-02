@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -133,7 +133,7 @@ class Label implements \ArrayAccess
 			// Inbox "label"
 			$labels[-1] = [
 				'id' => -1,
-				'name' => Lang::$txt['pm_msg_label_inbox'],
+				'name' => Lang::getTxt('pm_msg_label_inbox', file: 'PersonalMessage'),
 				'messages' => 0,
 				'unread_messages' => 0,
 				'pms' => [],
@@ -221,10 +221,10 @@ class Label implements \ArrayAccess
 		// Build the link tree elements...
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=manlabels',
-			'name' => Lang::$txt['pm_manage_labels'],
+			'name' => Lang::getTxt('pm_manage_labels', file: 'PersonalMessage'),
 		];
 
-		Utils::$context['page_title'] = Lang::$txt['pm_manage_labels'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_manage_labels', file: 'PersonalMessage');
 		Utils::$context['sub_template'] = 'labels';
 
 		$the_labels = [];

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -105,7 +105,7 @@ class ItemList implements \ArrayAccess
 	public string $javascript;
 
 	/**
-	 * @var string
+	 * @var PageIndex
 	 *
 	 * The page index for navigating this list.
 	 */
@@ -308,7 +308,7 @@ class ItemList implements \ArrayAccess
 		} else {
 			$this->sort = [
 				'id' => $this->options['default_sort_col'],
-				'desc' => (!empty($this->options['default_sort_dir']) && $this->options['default_sort_dir'] == 'desc') || (!empty($this->options['columns'][$this->options['default_sort_col']]['sort']['default']) && str_ends_with($this->options['columns'][$this->options['default_sort_col']]['sort']['default'], 'desc')) ? true : false,
+				'desc' => (!empty($this->options['default_sort_dir']) && $this->options['default_sort_dir'] == 'desc') || (!empty($this->options['columns'][$this->options['default_sort_col']]['sort']['default']) && str_ends_with($this->options['columns'][$this->options['default_sort_col']]['sort']['default'], 'desc')),
 			];
 		}
 
@@ -356,13 +356,21 @@ class ItemList implements \ArrayAccess
 			return;
 		}
 
+		$start = $this->start;
+
 		$this->page_index = new PageIndex(
 			$this->options['base_href'] . (empty($this->sort) ? '' : ';' . $this->options['request_vars']['sort'] . '=' . $this->sort['id'] . ($this->sort['desc'] ? ';' . $this->options['request_vars']['desc'] : '')) . ($this->start_var_name != 'start' ? ';' . $this->start_var_name . '=%1$d' : ''),
-			$this->start,
+			$start,
 			$this->total_num_items,
 			$this->items_per_page,
 			$this->start_var_name != 'start',
 		);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($this->start != $start) {
+			Utils::redirectexit($this->start_var_name != 'start' ? sprintf($this->page_index->base_url, $start) : $this->page_index->base_url . ';start=' . $start);
+		}
+
 	}
 
 	/**
@@ -394,82 +402,69 @@ class ItemList implements \ArrayAccess
 			$cur_row = [];
 
 			foreach ($this->options['columns'] as $column_id => $column) {
-				$cur_data = [];
+				$data = $column['data'] ?? [];
+				$cur_data = ['value' => $data['value'] ?? ''];
 
 				// A value straight from the database?
-				if (isset($column['data']['db'])) {
-					$cur_data['value'] = $list_item[$column['data']['db']];
+				if (isset($data['db'])) {
+					$cur_data['value'] = $list_item[$data['db']];
 				}
 				// Take the value from the database and make it HTML safe.
-				elseif (isset($column['data']['db_htmlsafe'])) {
-					$cur_data['value'] = Utils::htmlspecialchars((string) $list_item[$column['data']['db_htmlsafe']]);
+				elseif (isset($data['db_htmlsafe'])) {
+					$cur_data['value'] = Utils::htmlspecialchars((string) $list_item[$data['db_htmlsafe']]);
 				}
-				// Using sprintf is probably the most readable way of injecting data.
-				elseif (isset($column['data']['sprintf'])) {
-					$params = [];
+				// These are probably the most readable way of injecting complex data.
+				elseif (isset($data['sprintf']) || isset($data['format_text']) || isset($data['get_txt'])) {
+					$params = isset($data['sprintf']) ? [] : $list_item;
+					$call = 'SMF\Lang::formatText';
+					$format = isset($data['format_text']) ? 'format_text' : 'sprintf';
 
-					foreach ($column['data']['sprintf']['params'] as $sprintf_param => $htmlsafe) {
-						$params[] = $htmlsafe ? Utils::htmlspecialchars((string) $list_item[$sprintf_param]) : $list_item[$sprintf_param];
+					if (isset($data['get_txt'])) {
+						$call = 'SMF\Lang::getTxt';
+						$format = 'get_txt';
 					}
 
-					$cur_data['value'] = vsprintf($column['data']['sprintf']['format'], $params);
-				}
-				// Using getTxt is the most capable way of injecting data.
-				elseif (isset($column['data']['getTxt'])) {
-					$params = [];
+					foreach ($data[$format]['params'] as $key => $info) {
+						$params[$key] = $list_item[$info['column'] ?? (\is_bool($info) ? $key : $info)] ?? $info;
 
-					foreach ($column['data']['getTxt']['params'] as $key => $info) {
-						$params[$key] = $info['htmlspecialchars'] ? Utils::htmlspecialchars((string) $list_item[$info['column']]) : $list_item[$info['column']];
+						if (isset($info['htmlspecialchars']) && $info['htmlspecialchars'] || $info === true) {
+							$params[$key] = Utils::htmlspecialchars((string) $params[$key]);
+						}
 					}
 
-					$cur_data['value'] = Lang::getTxt($column['data']['getTxt']['format'], $params);
+					$cur_data['value'] = $call($data[$format]['format'], (array) $params);
 				}
 				// The most flexible way probably is applying a custom function.
-				elseif (isset($column['data']['function'])) {
-					$cur_data['value'] = call_user_func_array($column['data']['function'], [$list_item]);
+				elseif (isset($data['function'])) {
+					$cur_data['value'] = call_user_func_array($data['function'], [$list_item]);
 				}
 				// A modified value (inject the database values).
-				elseif (isset($column['data']['eval'])) {
-					$cur_data['value'] = eval(preg_replace('~%([a-zA-Z0-9\-_]+)%~', '$list_item[\'$1\']', $column['data']['eval']));
-				}
-				// A literal value.
-				elseif (isset($column['data']['value'])) {
-					$cur_data['value'] = $column['data']['value'];
-				}
-				// Empty value.
-				else {
-					$cur_data['value'] = '';
+				elseif (isset($data['eval'])) {
+					$cur_data['value'] = eval(preg_replace('~%([a-zA-Z0-9\-_]+)%~', '$list_item[\'$1\']', $data['eval']));
 				}
 
 				// Allow for basic formatting.
-				if (!empty($column['data']['comma_format'])) {
+				if (!empty($data['comma_format'])) {
 					$cur_data['value'] = Lang::numberFormat((int) $cur_data['value']);
-				} elseif (!empty($column['data']['timeformat'])) {
+				} elseif (!empty($data['timeformat'])) {
 					$cur_data['value'] = Time::create('@' . $cur_data['value'])->format();
 				}
 
-				// Set a style class for this column?
-				if (isset($column['data']['class'])) {
-					$cur_data['class'] = $column['data']['class'];
-				}
-
-				// Fully customized styling for the cells in this column only.
-				if (isset($column['data']['style'])) {
-					$cur_data['style'] = $column['data']['style'];
+				foreach (['class', 'style'] as $attr) {
+					if (isset($data[$attr])) {
+						$cur_data[$attr] = $data[$attr];
+					}
 				}
 
 				// Add the data cell properties to the current row.
 				$cur_row[$column_id] = $cur_data;
 			}
 
-			// Maybe we wat set a custom class for the row based on the data in the row itself
 			if (isset($this->options['data_check'])) {
-				if (isset($this->options['data_check']['class'])) {
-					$this->rows[$item_id]['class'] = $this->options['data_check']['class']($list_item);
-				}
-
-				if (isset($this->options['data_check']['style'])) {
-					$this->rows[$item_id]['style'] = $this->options['data_check']['style']($list_item);
+				foreach (['class', 'style'] as $attr) {
+					if (isset($this->options['data_check'][$attr])) {
+						$this->rows[$item_id][$attr] = $this->options['data_check'][$attr]($list_item);
+					}
 				}
 			}
 

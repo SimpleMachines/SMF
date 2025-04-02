@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -24,14 +24,14 @@ function template_reported_posts()
 	if (!empty(Utils::$context['report_post_action']))
 		echo '
 	<div class="infobox">
-		', Lang::$txt['report_action_' . Utils::$context['report_post_action']], '
+		', Lang::getTxt('report_action_' . Utils::$context['report_post_action'], file: 'ModerationCenter'), '
 	</div>';
 
 	echo '
-	<form id="reported_posts" action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=show', Utils::$context['view_closed'] ? ';closed' : '', ';start=', Utils::$context['start'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form id="reported_posts" action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=show', Utils::$context['view_closed'] ? ';closed' : '', ';start=', Utils::$context['start'], '" method="post" accept-charset="UTF-8">
 		<div class="cat_bar">
 			<h3 class="catbg">
-				', Utils::$context['view_closed'] ? Lang::$txt['mc_reportedp_closed'] : Lang::$txt['mc_reportedp_active'], '
+				', Lang::getTxt(Utils::$context['view_closed'] ? 'mc_reportedp_closed' : 'mc_reportedp_active', file: 'ModerationCenter'), '
 			</h3>
 		</div>
 		<div class="pagesection">';
@@ -53,10 +53,10 @@ function template_reported_posts()
 		echo '
 		<div class="windowbg">
 			<h5>
-				', !empty($report['topic']['board_name']) ? '<a href="' . Config::$scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / ', Lang::getTxt('mc_reportedp_subject_author', ['subject' => '<a href="' . $report['topic']['href'] . '">' . $report['subject'] . '</a>', 'author' => $report['author']['link']]), '
+				', !empty($report['topic']['board_name']) ? '<a href="' . Config::$scripturl . '?board=' . $report['topic']['id_board'] . '.0">' . $report['topic']['board_name'] . '</a>' : '??', ' / ', Lang::getTxt('mc_reportedp_subject_author', ['subject' => '<a href="' . $report['topic']['href'] . '">' . $report['subject'] . '</a>', 'author' => $report['author']['link']], file: 'ModerationCenter'), '
 			</h5>
 			<div class="smalltext">
-				', Lang::getTxt('mc_reportedp_last_reported', ['date' => $report['last_updated']]), '<br>';
+				', Lang::getTxt('mc_reportedp_last_reported', ['date' => $report['last_updated']], file: 'ModerationCenter'), '<br>';
 
 		// Prepare the comments...
 		$comments = array();
@@ -64,7 +64,7 @@ function template_reported_posts()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)]), '
+				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)], file: 'ModerationCenter'), '
 			</div>
 			<hr>
 			', Utils::adjustHeadingLevels($report['body'], 5), '
@@ -81,7 +81,7 @@ function template_reported_posts()
 	if (empty(Utils::$context['reports']))
 		echo '
 		<div class="windowbg">
-			<div class="centertext">', Lang::$txt['mc_reportedp_none_found'], '</div>
+			<div class="centertext">', Lang::getTxt('mc_reportedp_none_found', file: 'ModerationCenter'), '</div>
 		</div>';
 
 	echo '
@@ -92,7 +92,7 @@ function template_reported_posts()
 		echo '
 			<div class="floatright">
 				<input type="hidden" name="' . Utils::$context['mod-report-close-all_token_var'] . '" value="' . Utils::$context['mod-report-close-all_token'] . '">
-				<input type="submit" name="close_selected" value="' . Lang::$txt['mc_reportedp_close_selected'] . '" class="button">
+				<input type="submit" name="close_selected" value="' . Lang::getTxt('mc_reportedp_close_selected', file: 'ModerationCenter') . '" class="button">
 			</div>';
 
 	echo '
@@ -110,7 +110,7 @@ function template_reported_posts_block()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span id="reported_posts_toggle" class="', !empty(Utils::$context['admin_prefs']['mcrp']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
-				<a href="', Config::$scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', Lang::$txt['mc_recent_reports'], '</a>
+				<a href="', Config::$scripturl, '?action=moderate;area=reportedposts" id="reported_posts_link">', Lang::getTxt('mc_recent_reports', file: 'ModerationCenter'), '</a>
 			</h3>
 		</div>
 		<div class="windowbg" id="reported_posts_panel">
@@ -120,14 +120,14 @@ function template_reported_posts_block()
 	foreach (Utils::$context['reported_posts'] as $report)
 		echo '
 					<li class="smalltext">
-						', Lang::getTxt('mc_reportedp_subject_author', ['subject' => '<a href="' . $report['report_href'] . '">' . $report['subject'] . '</a>', 'author' => $report['author']['link']]), '
+						', Lang::getTxt('mc_reportedp_subject_author', ['subject' => '<a href="' . $report['report_href'] . '">' . $report['subject'] . '</a>', 'author' => $report['author']['link']], file: 'ModerationCenter'), '
 					</li>';
 
 	// Don't have any watched users right now?
 	if (empty(Utils::$context['reported_posts']))
 		echo '
 					<li>
-						<strong class="smalltext">', Lang::$txt['mc_recent_reports_none'], '</strong>
+						<strong class="smalltext">', Lang::getTxt('mc_recent_reports_none', file: 'ModerationCenter'), '</strong>
 					</li>';
 
 	echo '
@@ -145,15 +145,15 @@ function template_reported_posts_block()
 				aSwapImages: [
 					{
 						sId: \'reported_posts_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'reported_posts_link\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_reports']), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_reports']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('mc_recent_reports', file: 'ModerationCenter')), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('mc_recent_reports', file: 'ModerationCenter')), '
 					}
 				],
 				oThemeOptions: {
@@ -177,21 +177,21 @@ function template_viewmodreport()
 	if (!empty(Utils::$context['report_post_action']))
 		echo '
 	<div class="infobox">
-		', Lang::$txt['report_action_' . Utils::$context['report_post_action']], '
+		', Lang::getTxt('report_action_' . Utils::$context['report_post_action'], file: 'ModerationCenter'), '
 	</div>';
 
 	echo '
 	<div id="modcenter">
-		<form action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=moderate;area=reportedposts;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', Lang::getTxt('mc_viewmodreport', ['message_link' => Utils::$context['report']['message_link'], 'author_link' => Utils::$context['report']['author']['link']]), '
+					', Lang::getTxt('mc_viewmodreport', ['message_link' => Utils::$context['report']['message_link'], 'author_link' => Utils::$context['report']['author']['link']], file: 'ModerationCenter'), '
 				</h3>
 			</div>
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<span class="floatleft">
-						', Lang::getTxt('mc_modreport_summary', [Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']]), '
+						', Lang::getTxt('mc_modreport_summary', [Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']], file: 'ModerationCenter'), '
 					</span>';
 
 	$report_buttons = array(
@@ -199,7 +199,7 @@ function template_viewmodreport()
 			'text' => !Utils::$context['report']['ignore'] ? 'mc_reportedp_ignore' : 'mc_reportedp_unignore',
 			'url' => Config::$scripturl.'?action=moderate;area=reportedposts;sa=handle;ignore='.(int) !Utils::$context['report']['ignore'].';rid='.Utils::$context['report']['id'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'].';'.Utils::$context['mod-report-ignore_token_var'].'='.Utils::$context['mod-report-ignore_token'],
 			'class' => !Utils::$context['report']['ignore'] ? ' you_sure' : '',
-			'custom' => !Utils::$context['report']['ignore'] ? ' data-confirm="' . Lang::$txt['mc_reportedp_ignore_confirm'] . '"' : '',
+			'custom' => !Utils::$context['report']['ignore'] ? ' data-confirm="' . Lang::getTxt('mc_reportedp_ignore_confirm', file: 'ModerationCenter') . '"' : '',
 			'icon' => 'ignore'
 		),
 		'close' => array(
@@ -220,7 +220,7 @@ function template_viewmodreport()
 			</div>
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mc_modreport_whoreported_title'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mc_modreport_whoreported_title', file: 'ModerationCenter'), '</h3>
 			</div>';
 
 	foreach (Utils::$context['report']['comments'] as $comment)
@@ -233,6 +233,7 @@ function template_viewmodreport()
 							'member_link' => $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''),
 							'datetime' => $comment['time'],
 						],
+						file: 'ModerationCenter',
 					), '
 				</div>
 				<div>', Utils::adjustHeadingLevels($comment['message'], null), '</div>
@@ -241,14 +242,14 @@ function template_viewmodreport()
 	echo '
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mc_modreport_mod_comments'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mc_modreport_mod_comments', file: 'ModerationCenter'), '</h3>
 			</div>
 			<div>';
 
 	if (empty(Utils::$context['report']['mod_comments']))
 		echo '
 				<div class="information">
-					<div class="centertext">', Lang::$txt['mc_modreport_no_mod_comment'], '</div>
+					<div class="centertext">', Lang::getTxt('mc_modreport_no_mod_comment', file: 'ModerationCenter'), '</div>
 				</div>';
 
 	foreach (Utils::$context['report']['mod_comments'] as $comment)
@@ -256,7 +257,7 @@ function template_viewmodreport()
 		echo '
 				<div class="title_bar">
 					<h3 class="titlebg">
-						', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . Config::$scripturl . '?action=moderate;area=reportedposts;sa=editcomment;rid=' . Utils::$context['report']['id'] . ';mid=' . $comment['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '"  class="button">' . Lang::$txt['mc_reportedp_comment_edit'] . '</a><a href="' . Config::$scripturl . '?action=moderate;area=reportedposts;sa=handlecomment;rid=' . Utils::$context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context['mod-reportC-delete_token_var'] . '=' . Utils::$context['mod-reportC-delete_token'] . '"  class="button">' . Lang::$txt['mc_reportedp_comment_delete'] . '</a></span>' : ''), '
+						', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . Config::$scripturl . '?action=moderate;area=reportedposts;sa=editcomment;rid=' . Utils::$context['report']['id'] . ';mid=' . $comment['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '"  class="button">' . Lang::getTxt('mc_reportedp_comment_edit', file: 'ModerationCenter') . '</a><a href="' . Config::$scripturl . '?action=moderate;area=reportedposts;sa=handlecomment;rid=' . Utils::$context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context['mod-reportC-delete_token_var'] . '=' . Utils::$context['mod-reportC-delete_token'] . '"  class="button">' . Lang::getTxt('mc_reportedp_comment_delete', file: 'ModerationCenter') . '</a></span>' : ''), '
 					</h3>
 				</div>';
 
@@ -270,13 +271,13 @@ function template_viewmodreport()
 				<div class="cat_bar">
 					<h3 class="catbg">
 						<span class="floatleft">
-							', Lang::$txt['mc_reportedp_new_comment'], '
+							', Lang::getTxt('mc_reportedp_new_comment', file: 'ModerationCenter'), '
 						</span>
 					</h3>
 				</div>
 				<textarea rows="2" cols="60" style="width: 60%;" name="mod_comment"></textarea>
 				<div class="padding">
-					<input type="submit" name="add_comment" value="', Lang::$txt['mc_modreport_add_mod_comment'], '" class="button">
+					<input type="submit" name="add_comment" value="', Lang::getTxt('mc_modreport_add_mod_comment', file: 'ModerationCenter'), '" class="button">
 					<input type="hidden" name="', Utils::$context['mod-reportC-add_token_var'], '" value="', Utils::$context['mod-reportC-add_token'], '">
 				</div>
 			</div>
@@ -297,15 +298,15 @@ function template_edit_comment()
 {
 	echo '
 	<div id="modcenter">
-		<form action="', Config::$scripturl, '?action=moderate;area=reported', Utils::$context['report_type'], ';sa=editcomment;mid=', Utils::$context['comment_id'], ';rid=', Utils::$context['report_id'], ';save" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=moderate;area=reported', Utils::$context['report_type'], ';sa=editcomment;mid=', Utils::$context['comment_id'], ';rid=', Utils::$context['report_id'], ';save" method="post" accept-charset="UTF-8">
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mc_modreport_edit_mod_comment'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mc_modreport_edit_mod_comment', file: 'ModerationCenter'), '</h3>
 			</div>
 			<div class="windowbg">
 				<textarea rows="6" cols="60" style="width: 60%;" name="mod_comment">', Utils::$context['comment']['body'], '</textarea>
 				<div>
-					<input type="submit" name="edit_comment" value="', Lang::$txt['mc_modreport_edit_mod_comment'], '" class="button">
+					<input type="submit" name="edit_comment" value="', Lang::getTxt('mc_modreport_edit_mod_comment', file: 'ModerationCenter'), '" class="button">
 				</div>
 			</div>
 			<br>
@@ -324,7 +325,7 @@ function template_reported_members_block()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span id="reported_members_toggle" class="', !empty(Utils::$context['admin_prefs']['mcru']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
-				<a href="', Config::$scripturl, '?action=moderate;area=reportedmembers" id="reported_members_link">', Lang::$txt['mc_recent_member_reports'], '</a>
+				<a href="', Config::$scripturl, '?action=moderate;area=reportedmembers" id="reported_members_link">', Lang::getTxt('mc_recent_member_reports', file: 'ModerationCenter'), '</a>
 			</h3>
 		</div>
 		<div class="windowbg" id="reported_users_panel">
@@ -341,7 +342,7 @@ function template_reported_members_block()
 	if (empty(Utils::$context['reported_members']))
 		echo '
 					<li>
-						<strong class="smalltext">', Lang::$txt['mc_recent_reports_none'], '</strong>
+						<strong class="smalltext">', Lang::getTxt('mc_recent_reports_none', file: 'ModerationCenter'), '</strong>
 					</li>';
 
 	echo '
@@ -359,15 +360,15 @@ function template_reported_members_block()
 				aSwapImages: [
 					{
 						sId: \'reported_members_toggle\',
-						altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-						altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+						altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+						altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 					}
 				],
 				aSwapLinks: [
 					{
 						sId: \'reported_members_link\',
-						msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_member_reports']), ',
-						msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['mc_recent_member_reports']), '
+						msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('mc_recent_member_reports', file: 'ModerationCenter')), ',
+						msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('mc_recent_member_reports', file: 'ModerationCenter')), '
 					}
 				],
 				oThemeOptions: {
@@ -388,17 +389,17 @@ function template_reported_members_block()
 function template_reported_members()
 {
 	// Let them know the action was a success.
-	if (!empty(Utils::$context['report_post_action']) && !empty(Lang::$txt['report_action_' . Utils::$context['report_post_action']]))
+	if (!empty(Utils::$context['report_post_action']) && Lang::txtExists('report_action_' . Utils::$context['report_post_action'], file: 'ModerationCenter'))
 		echo '
 	<div class="infobox">
-		', Lang::$txt['report_action_' . Utils::$context['report_post_action']], '
+		', Lang::getTxt('report_action_' . Utils::$context['report_post_action'], file: 'ModerationCenter'), '
 	</div>';
 
 	echo '
-	<form id="reported_members" action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=show', Utils::$context['view_closed'] ? ';closed' : '', ';start=', Utils::$context['start'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form id="reported_members" action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=show', Utils::$context['view_closed'] ? ';closed' : '', ';start=', Utils::$context['start'], '" method="post" accept-charset="UTF-8">
 		<div class="cat_bar cat_bar_round">
 			<h3 class="catbg">
-				', Utils::$context['view_closed'] ? Lang::$txt['mc_reportedp_closed'] : Lang::$txt['mc_reportedp_active'], '
+				', Lang::getTxt(Utils::$context['view_closed'] ? 'mc_reportedp_closed' : 'mc_reportedp_active', file: 'ModerationCenter'), '
 			</h3>
 		</div>
 		<div class="pagesection">';
@@ -423,7 +424,7 @@ function template_reported_members()
 				<strong><a href="', $report['user']['href'], '">', $report['user']['name'], '</a></strong>
 			</h5>
 			<div class="smalltext">
-				', Lang::getTxt('mc_reportedp_last_reported', ['date' => $report['last_updated']]), '<br>';
+				', Lang::getTxt('mc_reportedp_last_reported', ['date' => $report['last_updated']], file: 'ModerationCenter'), '<br>';
 
 		// Prepare the comments...
 		$comments = array();
@@ -431,7 +432,7 @@ function template_reported_members()
 			$comments[$comment['member']['id']] = $comment['member']['link'];
 
 		echo '
-				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)]), '
+				', Lang::getTxt('mc_reportedp_reported_by', ['list' => Lang::sentenceList($comments)], file: 'ModerationCenter'), '
 			</div>
 			<hr>
 			', template_quickbuttons($report['quickbuttons'], 'reported_members'), '
@@ -442,14 +443,14 @@ function template_reported_members()
 	if (empty(Utils::$context['reports']))
 		echo '
 		<div class="windowbg">
-			<div class="centertext">', Lang::$txt['mc_reportedp_none_found'], '</div>
+			<div class="centertext">', Lang::getTxt('mc_reportedp_none_found', file: 'ModerationCenter'), '</div>
 		</div>';
 
 	echo '
 		<div class="pagesection">
 			<div class="pagelinks floatleft">', Utils::$context['page_index'], '</div>
 			<div class="floatright">
-				', (!Utils::$context['view_closed'] && !empty(Utils::$context['reports'])) ? '<input type="submit" name="close_selected" value="' . Lang::$txt['mc_reportedp_close_selected'] . '" class="button">' : '', '
+				', (!Utils::$context['view_closed'] && !empty(Utils::$context['reports'])) ? '<input type="submit" name="close_selected" value="' . Lang::getTxt('mc_reportedp_close_selected', file: 'ModerationCenter') . '" class="button">' : '', '
 			</div>
 		</div>
 		<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -465,21 +466,21 @@ function template_viewmemberreport()
 	if (!empty(Utils::$context['report_post_action']))
 		echo '
 	<div class="infobox">
-		', Lang::$txt['report_action_' . Utils::$context['report_post_action']], '
+		', Lang::getTxt('report_action_' . Utils::$context['report_post_action'], file: 'ModerationCenter'), '
 	</div>';
 
 	echo '
 	<div id="modcenter">
-		<form action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=moderate;area=reportedmembers;sa=handlecomment;rid=', Utils::$context['report']['id'], '" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
 				<h3 class="catbg">
-					', Lang::getTxt('mc_viewmemberreport', ['member' => Utils::$context['report']['user']['link']]), '
+					', Lang::getTxt('mc_viewmemberreport', ['member' => Utils::$context['report']['user']['link']], file: 'ModerationCenter'), '
 				</h3>
 			</div>
 			<div class="title_bar">
 				<h3 class="titlebg">
 					<span class="floatleft">
-						', Lang::getTxt('mc_memberreport_summary', [Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']]), '
+						', Lang::getTxt('mc_memberreport_summary', [Utils::$context['report']['num_reports'], Utils::$context['report']['last_updated']], file: 'ModerationCenter'), '
 					</span>';
 
 	$report_buttons = array(
@@ -487,7 +488,7 @@ function template_viewmemberreport()
 			'text' => !Utils::$context['report']['ignore'] ? 'mc_reportedp_ignore' : 'mc_reportedp_unignore',
 			'url' => Config::$scripturl.'?action=moderate;area=reportedmembers;sa=handle;ignore='.(int)!Utils::$context['report']['ignore'].';rid='.Utils::$context['report']['id'].';'.Utils::$context['session_var'].'='.Utils::$context['session_id'].';'.Utils::$context['mod-report-ignore_token_var'].'='.Utils::$context['mod-report-ignore_token'],
 			'class' => !Utils::$context['report']['ignore'] ? ' you_sure' : '',
-			'custom' => !Utils::$context['report']['ignore'] ? ' data-confirm="' . Lang::$txt['mc_reportedp_ignore_confirm'] . '"' : '',
+			'custom' => !Utils::$context['report']['ignore'] ? ' data-confirm="' . Lang::getTxt('mc_reportedp_ignore_confirm', file: 'ModerationCenter') . '"' : '',
 			'icon' => 'ignore'
 		),
 		'close' => array(
@@ -505,7 +506,7 @@ function template_viewmemberreport()
 			</div>
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mc_memberreport_whoreported_title'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mc_memberreport_whoreported_title', file: 'ModerationCenter'), '</h3>
 			</div>';
 
 	foreach (Utils::$context['report']['comments'] as $comment)
@@ -518,6 +519,7 @@ function template_viewmemberreport()
 							'member_link' => $comment['member']['link'] . (empty($comment['member']['id']) && !empty($comment['member']['ip']) ? ' (' . $comment['member']['ip'] . ')' : ''),
 							'datetime' => $comment['time'],
 						],
+						file: 'ModerationCenter',
 					), '
 				</div>
 				<div>', Utils::adjustHeadingLevels($comment['message'], null), '</div>
@@ -526,21 +528,21 @@ function template_viewmemberreport()
 	echo '
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['mc_modreport_mod_comments'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('mc_modreport_mod_comments', file: 'ModerationCenter'), '</h3>
 			</div>
 			<div>';
 
 	if (empty(Utils::$context['report']['mod_comments']))
 		echo '
 				<div class="information">
-					<div class="centertext">', Lang::$txt['mc_modreport_no_mod_comment'], '</div>
+					<div class="centertext">', Lang::getTxt('mc_modreport_no_mod_comment', file: 'ModerationCenter'), '</div>
 				</div>';
 
 	foreach (Utils::$context['report']['mod_comments'] as $comment)
 	{
 		echo '
 				<div class="title_bar">
-					<h3 class="titlebg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . Config::$scripturl . '?action=moderate;area=reportedmembers;sa=editcomment;rid=' . Utils::$context['report']['id'] . ';mid=' . $comment['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '"  class="button">' . Lang::$txt['mc_reportedp_comment_edit'] . '</a> <a href="' . Config::$scripturl . '?action=moderate;area=reportedmembers;sa=handlecomment;rid=' . Utils::$context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context['mod-reportC-delete_token_var'] . '=' . Utils::$context['mod-reportC-delete_token'] . '"  class="button you_sure" data-confirm="' . Lang::$txt['mc_reportedp_delete_confirm'] . '">' . Lang::$txt['mc_reportedp_comment_delete'] . '</a></span>' : ''), '</h3>
+					<h3 class="titlebg">', $comment['member']['link'], ':  <em class="smalltext">(', $comment['time'], ')</em>', ($comment['can_edit'] ? '<span class="floatright"><a href="' . Config::$scripturl . '?action=moderate;area=reportedmembers;sa=editcomment;rid=' . Utils::$context['report']['id'] . ';mid=' . $comment['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '"  class="button">' . Lang::getTxt('mc_reportedp_comment_edit', file: 'ModerationCenter') . '</a> <a href="' . Config::$scripturl . '?action=moderate;area=reportedmembers;sa=handlecomment;rid=' . Utils::$context['report']['id'] . ';mid=' . $comment['id'] . ';delete;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context['mod-reportC-delete_token_var'] . '=' . Utils::$context['mod-reportC-delete_token'] . '"  class="button you_sure" data-confirm="' . Lang::getTxt('mc_reportedp_delete_confirm', file: 'ModerationCenter') . '">' . Lang::getTxt('mc_reportedp_comment_delete', file: 'ModerationCenter') . '</a></span>' : ''), '</h3>
 				</div>';
 
 		echo '
@@ -553,13 +555,13 @@ function template_viewmemberreport()
 				<div class="cat_bar">
 					<h3 class="catbg">
 						<span class="floatleft">
-							', Lang::$txt['mc_reportedp_new_comment'], '
+							', Lang::getTxt('mc_reportedp_new_comment', file: 'ModerationCenter'), '
 						</span>
 					</h3>
 				</div>
 				<textarea rows="2" cols="60" style="width: 60%;" name="mod_comment"></textarea>
 				<div class="padding">
-					<input type="submit" name="add_comment" value="', Lang::$txt['mc_modreport_add_mod_comment'], '" class="button">
+					<input type="submit" name="add_comment" value="', Lang::getTxt('mc_modreport_add_mod_comment', file: 'ModerationCenter'), '" class="button">
 					<input type="hidden" name="', Utils::$context['mod-reportC-add_token_var'], '" value="', Utils::$context['mod-reportC-add_token'], '">
 				</div>
 			</div>

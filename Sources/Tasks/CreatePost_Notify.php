@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -110,8 +110,7 @@ class CreatePost_Notify extends BackgroundTask
 
 		// Board id is required; if missing, log an error and return
 		if (!isset($topicOptions['board'])) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::$txt['missing_board_id'], 'general', __FILE__, __LINE__);
+			ErrorHandler::log(Lang::getTxt('missing_board_id', file: 'Errors'), 'general', __FILE__, __LINE__);
 
 			return true;
 		}
@@ -321,9 +320,19 @@ class CreatePost_Notify extends BackgroundTask
 				'',
 				'{db_prefix}log_digest',
 				[
-					'id_topic' => 'int', 'id_msg' => 'int', 'note_type' => 'string', 'exclude' => 'int',
+					'id_topic' => 'int',
+					'id_msg' => 'int',
+					'note_type' => 'string',
+					'exclude' => 'int',
 				],
-				[$topicOptions['id'], $msgOptions['id'], $type, $posterOptions['id']],
+				[
+					[
+						$topicOptions['id'],
+						$msgOptions['id'],
+						$type,
+						$posterOptions['id'],
+					],
+				],
 				[],
 			);
 		}
@@ -351,9 +360,11 @@ class CreatePost_Notify extends BackgroundTask
 						'claimed_time' => 'int',
 					],
 					[
-						'SMF\\Tasks\\CreatePost_Notify',
-						Utils::jsonEncode($new_details),
-						max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),
+						[
+							'SMF\\Tasks\\CreatePost_Notify',
+							Utils::jsonEncode($new_details),
+							max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),
+						],
 					],
 					['id_task'],
 				);
@@ -552,8 +563,6 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			// Censor and parse BBC in the receiver's localization. Don't repeat unnecessarily.
-			Lang::load('General+Modifications+ThemeStrings', $member_data['lngfile'], false);
-
 			$localization = implode('|', [$member_data['lngfile'], $member_data['time_offset'], $member_data['time_format']]);
 
 			if (empty($parsed_message[$localization])) {
@@ -561,7 +570,7 @@ class CreatePost_Notify extends BackgroundTask
 				Parser::$time_offset = $member_data['time_offset'];
 				Parser::$time_format = $member_data['time_format'];
 				Parser::$smiley_set = $member_data['smiley_set'];
-				Parser::$locale = Lang::$txt['lang_locale'];
+				Parser::$locale = Lang::getLocaleFromLanguageName($member_data['lngfile']) ?? Lang::getTxt('lang_locale', file: 'General', lang: $member_data['lngfile']);
 
 				$parsed_message[$localization]['subject'] = $msgOptions['subject'];
 				$parsed_message[$localization]['body'] = $msgOptions['body'];
@@ -599,7 +608,7 @@ class CreatePost_Notify extends BackgroundTask
 				Parser::$time_offset = User::$me->time_offset;
 				Parser::$time_format = User::$me->$time_format;
 				Parser::$smiley_set = (!empty(User::$me->smiley_set) ? User::$me->smiley_set : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none'));
-				Parser::$locale = Lang::getLocaleFromLanguageName(User::$me->$language);
+				Parser::$locale = Lang::getLocaleFromLanguageName(User::$me->$language) ?? Lang::getTxt('lang_locale', file: 'General', lang: '');
 			}
 
 			// Bitwise check: Receiving an alert?

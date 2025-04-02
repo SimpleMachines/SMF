@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -22,6 +22,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -29,7 +30,7 @@ use SMF\Utils;
 /**
  * Displays the COPPA form during registration.
  */
-class CoppaForm implements ActionInterface
+class CoppaForm implements ActionInterface, Routable
 {
 	use ActionTrait;
 
@@ -37,11 +38,23 @@ class CoppaForm implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Display the contact information for the forum, as well a form to fill in.
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('Register');
+
+		// No User ID??
+		if (!isset($_GET['member'])) {
+			ErrorHandler::fatalLang('no_access', false);
+		}
+
 		// Get the user details...
 		$request = Db::$db->query(
 			'',
@@ -73,7 +86,7 @@ class CoppaForm implements ActionInterface
 				Utils::$context['ul'] = '<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>';
 				Utils::$context['template_layers'] = [];
 				Utils::$context['sub_template'] = 'coppa_form';
-				Utils::$context['page_title'] = Lang::getTxt('coppa_form_title', ['forum_name' => Utils::$context['forum_name_html_safe']]);
+				Utils::$context['page_title'] = Lang::getTxt('coppa_form_title', ['forum_name' => Utils::$context['forum_name_html_safe']], file: 'Login');
 				Utils::$context['coppa_body'] = Lang::getTxt(
 					'coppa_form_body',
 					[
@@ -82,6 +95,7 @@ class CoppaForm implements ActionInterface
 						'child_name' => Utils::$context['ul'],
 						'user_name' => $username,
 					],
+					file: 'Login',
 				);
 			}
 			// Downloading.
@@ -89,7 +103,7 @@ class CoppaForm implements ActionInterface
 				// The data.
 				$ul = '________________';
 				$crlf = "\r\n";
-				$data = Utils::$context['forum_contacts'] . $crlf . Lang::$txt['coppa_form_address'] . ':' . $crlf . Lang::$txt['coppa_form_date'] . ':' . $crlf . $crlf . $crlf;
+				$data = Utils::$context['forum_contacts'] . $crlf . Lang::getTxt('coppa_form_address', file: 'Login') . ':' . $crlf . Lang::getTxt('coppa_form_date', file: 'Login') . ':' . $crlf . $crlf . $crlf;
 				$data .= Lang::getTxt(
 					'coppa_form_body',
 					[
@@ -98,6 +112,7 @@ class CoppaForm implements ActionInterface
 						'child_name' => $ul,
 						'user_name' => $username,
 					],
+					file: 'Login',
 				);
 				$data = str_replace('<br>', $crlf, $data);
 
@@ -112,37 +127,72 @@ class CoppaForm implements ActionInterface
 			}
 		} else {
 			Utils::$context += [
-				'page_title' => Lang::$txt['coppa_title'],
+				'page_title' => Lang::getTxt('coppa_title', file: 'Login'),
 				'sub_template' => 'coppa',
 			];
 
 			Utils::$context['coppa'] = [
-				'body' => Lang::getTxt('coppa_after_registration', ['forum_name' => Utils::$context['forum_name_html_safe'], 'minimum_age' => Config::$modSettings['coppaAge']]),
+				'body' => Lang::getTxt('coppa_after_registration', ['forum_name' => Utils::$context['forum_name_html_safe'], 'minimum_age' => Config::$modSettings['coppaAge']], file: 'Login'),
 				'many_options' => !empty(Config::$modSettings['coppaPost']) && !empty(Config::$modSettings['coppaFax']),
 				'post' => empty(Config::$modSettings['coppaPost']) ? '' : Config::$modSettings['coppaPost'],
 				'fax' => empty(Config::$modSettings['coppaFax']) ? '' : Config::$modSettings['coppaFax'],
-				'phone' => empty(Config::$modSettings['coppaPhone']) ? '' : str_replace('{PHONE_NUMBER}', Config::$modSettings['coppaPhone'], Lang::$txt['coppa_send_by_phone']),
+				'phone' => empty(Config::$modSettings['coppaPhone']) ? '' : str_replace('{PHONE_NUMBER}', Config::$modSettings['coppaPhone'], Lang::getTxt('coppa_send_by_phone', file: 'Login')),
 				'id' => $_GET['member'],
 			];
 		}
 	}
 
-	/******************
-	 * Internal methods
-	 ******************/
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	protected function __construct()
+	public static function buildRoute(array $params): array
 	{
-		Lang::load('Login');
-		Theme::loadTemplate('Register');
+		$route[] = $params['action'];
 
-		// No User ID??
-		if (!isset($_GET['member'])) {
-			ErrorHandler::fatalLang('no_access', false);
+		if (isset($params['form'])) {
+			$route[] = 'form';
+			unset($params['form']);
 		}
+
+		if (isset($params['dl'])) {
+			$route[] = 'dl';
+			unset($params['dl']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params['action'] = array_shift($route);
+
+		if (!empty($route)) {
+			$params['form'] = true;
+			array_shift($route);
+		}
+
+		if (!empty($route)) {
+			$params['dl'] = true;
+			array_shift($route);
+		}
+
+		return $params;
 	}
 }
 

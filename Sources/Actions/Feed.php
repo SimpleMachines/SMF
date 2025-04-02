@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\Autolinker;
@@ -29,12 +30,14 @@ use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Url;
 use SMF\User;
 use SMF\Utils;
+use SMF\Uuid;
 
 /**
  * This class contains the code necessary to display XML feeds.
@@ -61,8 +64,9 @@ use SMF\Utils;
  *
  * Uses Stats, Profile, Post, and PersonalMessage language files.
  */
-class Feed implements ActionInterface
+class Feed implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*****************
@@ -251,6 +255,16 @@ class Feed implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isAgreementAction(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Constructor.
 	 *
@@ -274,19 +288,22 @@ class Feed implements ActionInterface
 
 		// Bail out if feeds are disabled.
 		$this->checkEnabled();
+	}
 
-		// The feed metadata and query are a bit more complicated...
-		Lang::load('Stats');
-
+	/**
+	 * Fetches the data based on the sub-action, builds the XML, and emits it.
+	 */
+	public function execute(): void
+	{
 		// Some general metadata for this feed. We'll change some of these values below.
 		$this->metadata = [
 			'title' => '',
-			'desc' => Lang::getTxt('xml_rss_desc', Utils::$context),
+			'desc' => Lang::getTxt('xml_rss_desc', Utils::$context, file: 'Stats'),
 			'author' => Utils::$context['forum_name'],
 			'source' => Config::$scripturl,
 			'rights' => '© ' . date('Y') . ' ' . Utils::$context['forum_name'],
 			'icon' => !empty(Theme::$current->settings['og_image']) ? Theme::$current->settings['og_image'] : Config::$boardurl . '/favicon.ico',
-			'language' => !empty(Lang::$txt['lang_locale']) ? str_replace('_', '-', substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], '.'))) : 'en',
+			'language' => !empty(Lang::getTxt('lang_locale', file: 'General')) ? str_replace('_', '-', substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), '.'))) : 'en',
 			'self' => Config::$scripturl,
 		];
 
@@ -438,13 +455,7 @@ class Feed implements ActionInterface
 		foreach ($this->metadata as $key => $value) {
 			$this->metadata[$key] = strip_tags($value);
 		}
-	}
 
-	/**
-	 * Fetches the data based on the sub-action, builds the XML, and emits it.
-	 */
-	public function execute(): void
-	{
 		$this->getData();
 		$this->xml = self::build($this->format, $this->data, $this->metadata, $this->subaction);
 		$this->emit();
@@ -525,11 +536,11 @@ class Feed implements ActionInterface
 
 		$filename[] = $this->format;
 
-		$filename = preg_replace(Utils::$context['utf8'] ? '/[^\p{L}\p{M}\p{N}\-]+/u' : '/[\s_,.\/\\;:\'<>?|\[\]{}~!@#$%^&*()=+`]+/', '_', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('-', $filename)))));
+		$filename = preg_replace('/[^\p{L}\p{M}\p{N}\-]+/u', '_', str_replace('"', '', Utils::htmlspecialcharsDecode(strip_tags(implode('-', $filename)))));
 
 		$file = [
 			'filename' => $filename . '.xml',
-			'mime_type' => self::MIME_TYPES[$this->format] . '; charset=' . (empty(Utils::$context['character_set']) ? 'UTF-8' : Utils::$context['character_set']),
+			'mime_type' => self::MIME_TYPES[$this->format] . '; charset=UTF-8',
 			'content' => implode('', $this->xml),
 			'disposition' => isset($_GET['download']) ? 'attachment' : 'inline',
 		];
@@ -555,8 +566,6 @@ class Feed implements ActionInterface
 			return [];
 		}
 
-		Lang::load('Profile');
-
 		// Find the most (or least) recent members.
 		$data = [];
 
@@ -576,8 +585,8 @@ class Feed implements ActionInterface
 			// If any control characters slipped in somehow, kill the evil things
 			$row = filter_var($row, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
-			// Create a GUID for each member using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['date_registered']) . ':member=' . $row['id_member'];
+			// Create a UUID for each member
+			$uuid = (string) (new Uuid(5, 'member=' . $row['id_member']));
 
 			// Make the data look rss-ish.
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -603,7 +612,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'guid',
-							'content' => $guid,
+							'content' => $uuid,
 							'attributes' => [
 								'isPermaLink' => 'false',
 							],
@@ -657,7 +666,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'id',
-							'content' => $guid,
+							'content' => $uuid,
 						],
 					],
 				];
@@ -666,17 +675,17 @@ class Feed implements ActionInterface
 			else {
 				$data[] = [
 					'tag' => 'member',
-					'attributes' => ['label' => Lang::$txt['who_member']],
+					'attributes' => ['label' => Lang::getTxt('who_member', file: 'General')],
 					'content' => [
 						[
 							'tag' => 'name',
-							'attributes' => ['label' => Lang::$txt['name']],
+							'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 							'content' => $row['real_name'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['date_registered'])],
+							'attributes' => ['label' => Lang::getTxt('date_registered', file: 'General'), 'UTC' => Time::gmstrftime('%F %T', (int) $row['date_registered'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['date_registered'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -685,7 +694,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'link',
-							'attributes' => ['label' => Lang::$txt['url']],
+							'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 							'content' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
 						],
 					],
@@ -810,8 +819,8 @@ class Feed implements ActionInterface
 				$loaded_attachments = null;
 			}
 
-			// Create a GUID for this topic using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':topic=' . $row['id_topic'];
+			// Create a UUID for this topic
+			$uuid = (string) (new Uuid(5, 'topic=' . $row['id_topic']));
 
 			// Being news, this actually makes sense in rss format.
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -864,7 +873,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'guid',
-							'content' => $guid,
+							'content' => $uuid,
 							'attributes' => [
 								'isPermaLink' => 'false',
 							],
@@ -970,7 +979,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'id',
-							'content' => $guid,
+							'content' => $uuid,
 						],
 						[
 							'tag' => 'link',
@@ -981,15 +990,13 @@ class Feed implements ActionInterface
 			}
 			// The biggest difference here is more information.
 			else {
-				Lang::load('Post');
-
 				$attachments = [];
 
 				if (!empty($loaded_attachments)) {
 					foreach ($loaded_attachments as $attachment) {
 						$attachments[] = [
 							'tag' => 'attachment',
-							'attributes' => ['label' => Lang::$txt['attachment']],
+							'attributes' => ['label' => Lang::getTxt('attachment', file: 'Post')],
 							'content' => [
 								[
 									'tag' => 'id',
@@ -997,27 +1004,27 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'name',
-									'attributes' => ['label' => Lang::$txt['name']],
+									'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 									'content' => preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\1;', $attachment->name),
 								],
 								[
 									'tag' => 'downloads',
-									'attributes' => ['label' => Lang::$txt['downloads']],
+									'attributes' => ['label' => Lang::getTxt('downloads', file: 'General')],
 									'content' => $attachment->downloads,
 								],
 								[
 									'tag' => 'size',
-									'attributes' => ['label' => Lang::$txt['filesize']],
-									'content' => ($attachment->size < 1024000) ? round($attachment->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
+									'attributes' => ['label' => Lang::getTxt('filesize', file: 'General')],
+									'content' => ($attachment->size < 1024000) ? Lang::getTxt('size_kilobyte', [round($attachment->size / 1024, 2)], file: 'General') : Lang::getTxt('size_megabyte', [round($attachment->size / 1024 / 1024, 2)], file: 'General'),
 								],
 								[
 									'tag' => 'byte_size',
-									'attributes' => ['label' => Lang::$txt['filesize']],
+									'attributes' => ['label' => Lang::getTxt('filesize', file: 'General')],
 									'content' => $attachment->size,
 								],
 								[
 									'tag' => 'link',
-									'attributes' => ['label' => Lang::$txt['url']],
+									'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 									'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id,
 								],
 							],
@@ -1029,11 +1036,11 @@ class Feed implements ActionInterface
 
 				$data[] = [
 					'tag' => 'article',
-					'attributes' => ['label' => Lang::$txt['news']],
+					'attributes' => ['label' => Lang::getTxt('news', file: 'General')],
 					'content' => [
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
+							'attributes' => ['label' => Lang::getTxt('date', file: 'General'), 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -1042,23 +1049,23 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'subject',
-							'attributes' => ['label' => Lang::$txt['subject']],
+							'attributes' => ['label' => Lang::getTxt('subject', file: 'General')],
 							'content' => $row['subject'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'body',
-							'attributes' => ['label' => Lang::$txt['message']],
+							'attributes' => ['label' => Lang::getTxt('message', file: 'General')],
 							'content' => $row['body'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'poster',
-							'attributes' => ['label' => Lang::$txt['author']],
+							'attributes' => ['label' => Lang::getTxt('author', file: 'General')],
 							'content' => [
 								[
 									'tag' => 'name',
-									'attributes' => ['label' => Lang::$txt['name']],
+									'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 									'content' => $row['poster_name'],
 									'cdata' => true,
 								],
@@ -1068,23 +1075,23 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'link',
-									'attributes' => !empty($row['id_member']) ? ['label' => Lang::$txt['url']] : null,
+									'attributes' => !empty($row['id_member']) ? ['label' => Lang::getTxt('url', file: 'General')] : null,
 									'content' => !empty($row['id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
 								],
 							],
 						],
 						[
 							'tag' => 'topic',
-							'attributes' => ['label' => Lang::$txt['topic']],
+							'attributes' => ['label' => Lang::getTxt('topic', file: 'General')],
 							'content' => $row['id_topic'],
 						],
 						[
 							'tag' => 'board',
-							'attributes' => ['label' => Lang::$txt['board']],
+							'attributes' => ['label' => Lang::getTxt('board', file: 'General')],
 							'content' => [
 								[
 									'tag' => 'name',
-									'attributes' => ['label' => Lang::$txt['name']],
+									'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 									'content' => $row['bname'],
 									'cdata' => true,
 								],
@@ -1094,19 +1101,19 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'link',
-									'attributes' => ['label' => Lang::$txt['url']],
+									'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 									'content' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
 								],
 							],
 						],
 						[
 							'tag' => 'link',
-							'attributes' => ['label' => Lang::$txt['url']],
+							'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 							'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
 						],
 						[
 							'tag' => 'attachments',
-							'attributes' => ['label' => Lang::$txt['attachments']],
+							'attributes' => ['label' => Lang::getTxt('attachments', file: 'Post')],
 							'content' => $attachments,
 						],
 					],
@@ -1254,8 +1261,8 @@ class Feed implements ActionInterface
 				$loaded_attachments = null;
 			}
 
-			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':msg=' . $row['id_msg'];
+			// Create a UUID for this post
+			$uuid = (string) (new Uuid(5, 'msg=' . $row['id_msg']));
 
 			// Doesn't work as well as news, but it kinda does..
 			if ($this->format == 'rss' || $this->format == 'rss2') {
@@ -1308,7 +1315,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'guid',
-							'content' => $guid,
+							'content' => $uuid,
 							'attributes' => [
 								'isPermaLink' => 'false',
 							],
@@ -1414,7 +1421,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'id',
-							'content' => $guid,
+							'content' => $uuid,
 						],
 						[
 							'tag' => 'link',
@@ -1425,15 +1432,13 @@ class Feed implements ActionInterface
 			}
 			// A lot of information here.  Should be enough to please the rss-ers.
 			else {
-				Lang::load('Post');
-
 				$attachments = [];
 
 				if (!empty($loaded_attachments)) {
 					foreach ($loaded_attachments as $attachment) {
 						$attachments[] = [
 							'tag' => 'attachment',
-							'attributes' => ['label' => Lang::$txt['attachment']],
+							'attributes' => ['label' => Lang::getTxt('attachment', file: 'Post')],
 							'content' => [
 								[
 									'tag' => 'id',
@@ -1441,27 +1446,27 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'name',
-									'attributes' => ['label' => Lang::$txt['name']],
+									'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 									'content' => preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\1;', $attachment->name),
 								],
 								[
 									'tag' => 'downloads',
-									'attributes' => ['label' => Lang::$txt['downloads']],
+									'attributes' => ['label' => Lang::getTxt('downloads', file: 'General')],
 									'content' => $attachment->downloads,
 								],
 								[
 									'tag' => 'size',
-									'attributes' => ['label' => Lang::$txt['filesize']],
-									'content' => ($attachment->size < 1024000) ? round($attachment->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
+									'attributes' => ['label' => Lang::getTxt('filesize', file: 'General')],
+									'content' => ($attachment->size < 1024000) ? Lang::getTxt('size_kilobyte', [round($attachment->size / 1024, 2)], file: 'General') : Lang::getTxt('size_megabyte', [round($attachment->size / 1024 / 1024, 2)], file: 'General'),
 								],
 								[
 									'tag' => 'byte_size',
-									'attributes' => ['label' => Lang::$txt['filesize']],
+									'attributes' => ['label' => Lang::getTxt('filesize', file: 'General')],
 									'content' => $attachment->size,
 								],
 								[
 									'tag' => 'link',
-									'attributes' => ['label' => Lang::$txt['url']],
+									'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 									'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id,
 								],
 							],
@@ -1473,11 +1478,11 @@ class Feed implements ActionInterface
 
 				$data[] = [
 					'tag' => 'recent-post', // Hyphen rather than underscore for backward compatibility reasons
-					'attributes' => ['label' => Lang::$txt['post']],
+					'attributes' => ['label' => Lang::getTxt('post', file: 'General')],
 					'content' => [
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
+							'attributes' => ['label' => Lang::getTxt('date', file: 'General'), 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
@@ -1486,23 +1491,23 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'subject',
-							'attributes' => ['label' => Lang::$txt['subject']],
+							'attributes' => ['label' => Lang::getTxt('subject', file: 'General')],
 							'content' => $row['subject'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'body',
-							'attributes' => ['label' => Lang::$txt['message']],
+							'attributes' => ['label' => Lang::getTxt('message', file: 'General')],
 							'content' => $row['body'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'starter',
-							'attributes' => ['label' => Lang::$txt['topic_started']],
+							'attributes' => ['label' => Lang::getTxt('topic_started', file: 'General')],
 							'content' => [
 								[
 									'tag' => 'name',
-									'attributes' => ['label' => Lang::$txt['name']],
+									'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 									'content' => $row['first_poster_name'],
 									'cdata' => true,
 								],
@@ -1512,18 +1517,18 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'link',
-									'attributes' => !empty($row['id_first_member']) ? ['label' => Lang::$txt['url']] : null,
+									'attributes' => !empty($row['id_first_member']) ? ['label' => Lang::getTxt('url', file: 'General')] : null,
 									'content' => !empty($row['id_first_member']) ? Config::$scripturl . '?action=profile;u=' . $row['id_first_member'] : '',
 								],
 							],
 						],
 						[
 							'tag' => 'poster',
-							'attributes' => ['label' => Lang::$txt['author']],
+							'attributes' => ['label' => Lang::getTxt('author', file: 'General')],
 							'content' => [
 								[
 									'tag' => 'name',
-									'attributes' => ['label' => Lang::$txt['name']],
+									'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 									'content' => $row['poster_name'],
 									'cdata' => true,
 								],
@@ -1533,18 +1538,18 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'link',
-									'attributes' => !empty($row['id_member']) ? ['label' => Lang::$txt['url']] : null,
+									'attributes' => !empty($row['id_member']) ? ['label' => Lang::getTxt('url', file: 'General')] : null,
 									'content' => !empty($row['id_member']) ? Config::$scripturl . '?action=profile;u=' . $row['id_member'] : '',
 								],
 							],
 						],
 						[
 							'tag' => 'topic',
-							'attributes' => ['label' => Lang::$txt['topic']],
+							'attributes' => ['label' => Lang::getTxt('topic', file: 'General')],
 							'content' => [
 								[
 									'tag' => 'subject',
-									'attributes' => ['label' => Lang::$txt['subject']],
+									'attributes' => ['label' => Lang::getTxt('subject', file: 'General')],
 									'content' => $row['first_subject'],
 									'cdata' => true,
 								],
@@ -1554,18 +1559,18 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'link',
-									'attributes' => ['label' => Lang::$txt['url']],
+									'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 									'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.new#new',
 								],
 							],
 						],
 						[
 							'tag' => 'board',
-							'attributes' => ['label' => Lang::$txt['board']],
+							'attributes' => ['label' => Lang::getTxt('board', file: 'General')],
 							'content' => [
 								[
 									'tag' => 'name',
-									'attributes' => ['label' => Lang::$txt['name']],
+									'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 									'content' => $row['bname'],
 									'cdata' => true,
 								],
@@ -1575,19 +1580,19 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'link',
-									'attributes' => ['label' => Lang::$txt['url']],
+									'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 									'content' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
 								],
 							],
 						],
 						[
 							'tag' => 'link',
-							'attributes' => ['label' => Lang::$txt['url']],
+							'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 							'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'],
 						],
 						[
 							'tag' => 'attachments',
-							'attributes' => ['label' => Lang::$txt['attachments']],
+							'attributes' => ['label' => Lang::getTxt('attachments', file: 'Post')],
 							'content' => $attachments,
 						],
 					],
@@ -1618,8 +1623,8 @@ class Feed implements ActionInterface
 		// If any control characters slipped in somehow, kill the evil things
 		$profile = filter_var($profile, FILTER_CALLBACK, ['options' => '\\SMF\\Utils::cleanXml']);
 
-		// Create a GUID for this member using the tag URI scheme
-		$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $profile['registered_timestamp']) . ':member=' . $profile['id'];
+		// Create a UUID for this member
+		$uuid = (string) (new Uuid(5, 'member=' . $profile['id']));
 
 		if ($this->format == 'rss' || $this->format == 'rss2') {
 			$data[] = [
@@ -1649,7 +1654,7 @@ class Feed implements ActionInterface
 					],
 					[
 						'tag' => 'guid',
-						'content' => $guid,
+						'content' => $uuid,
 						'attributes' => [
 							'isPermaLink' => 'false',
 						],
@@ -1734,107 +1739,105 @@ class Feed implements ActionInterface
 					],
 					[
 						'tag' => 'id',
-						'content' => $guid,
+						'content' => $uuid,
 					],
 				],
 			];
 		} else {
-			Lang::load('Profile');
-
 			$data = [
 				[
 					'tag' => 'username',
-					'attributes' => User::$me->is_admin || User::$me->id == $profile['id'] ? ['label' => Lang::$txt['username']] : null,
+					'attributes' => User::$me->is_admin || User::$me->id == $profile['id'] ? ['label' => Lang::getTxt('username', file: 'General')] : null,
 					'content' => User::$me->is_admin || User::$me->id == $profile['id'] ? $profile['username'] : null,
 					'cdata' => true,
 				],
 				[
 					'tag' => 'name',
-					'attributes' => ['label' => Lang::$txt['name']],
+					'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 					'content' => $profile['name'],
 					'cdata' => true,
 				],
 				[
 					'tag' => 'link',
-					'attributes' => ['label' => Lang::$txt['url']],
+					'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 					'content' => Config::$scripturl . '?action=profile;u=' . $profile['id'],
 				],
 				[
 					'tag' => 'posts',
-					'attributes' => ['label' => Lang::$txt['member_postcount']],
+					'attributes' => ['label' => Lang::getTxt('member_postcount', file: 'General')],
 					'content' => $profile['posts'],
 				],
 				[
 					'tag' => 'post-group',
-					'attributes' => ['label' => Lang::$txt['post_based_membergroup']],
+					'attributes' => ['label' => Lang::getTxt('post_based_membergroup', file: 'Profile')],
 					'content' => $profile['post_group'],
 					'cdata' => true,
 				],
 				[
 					'tag' => 'language',
-					'attributes' => ['label' => Lang::$txt['preferred_language']],
+					'attributes' => ['label' => Lang::getTxt('preferred_language', file: 'Profile')],
 					'content' => $profile['language'],
 					'cdata' => true,
 				],
 				[
 					'tag' => 'last-login',
-					'attributes' => ['label' => Lang::$txt['lastLoggedIn'], 'UTC' => Time::gmstrftime('%F %T', (int) $profile['last_login_timestamp'])],
+					'attributes' => ['label' => Lang::getTxt('lastLoggedIn', file: 'Profile'), 'UTC' => Time::gmstrftime('%F %T', (int) $profile['last_login_timestamp'])],
 					'content' => Time::create('@' . $profile['last_login_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'registered',
-					'attributes' => ['label' => Lang::$txt['date_registered'], 'UTC' => Time::gmstrftime('%F %T', (int) $profile['registered_timestamp'])],
+					'attributes' => ['label' => Lang::getTxt('date_registered', file: 'General'), 'UTC' => Time::gmstrftime('%F %T', (int) $profile['registered_timestamp'])],
 					'content' => Time::create('@' . $profile['registered_timestamp'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false),
 				],
 				[
 					'tag' => 'avatar',
-					'attributes' => !empty($profile['avatar']['url']) ? ['label' => Lang::$txt['personal_picture']] : null,
+					'attributes' => !empty($profile['avatar']['url']) ? ['label' => Lang::getTxt('personal_picture', file: 'Profile')] : null,
 					'content' => !empty($profile['avatar']['url']) ? $profile['avatar']['url'] : null,
 					'cdata' => true,
 				],
 				[
 					'tag' => 'signature',
-					'attributes' => !empty($profile['signature']) ? ['label' => Lang::$txt['signature']] : null,
+					'attributes' => !empty($profile['signature']) ? ['label' => Lang::getTxt('signature', file: 'Profile')] : null,
 					'content' => !empty($profile['signature']) ? $profile['signature'] : null,
 					'cdata' => true,
 				],
 				[
 					'tag' => 'blurb',
-					'attributes' => !empty($profile['blurb']) ? ['label' => Lang::$txt['personal_text']] : null,
+					'attributes' => !empty($profile['blurb']) ? ['label' => Lang::getTxt('personal_text', file: 'General')] : null,
 					'content' => !empty($profile['blurb']) ? $profile['blurb'] : null,
 					'cdata' => true,
 				],
 				[
 					'tag' => 'title',
-					'attributes' => !empty($profile['title']) ? ['label' => Lang::$txt['title']] : null,
+					'attributes' => !empty($profile['title']) ? ['label' => Lang::getTxt('title', file: 'General')] : null,
 					'content' => !empty($profile['title']) ? $profile['title'] : null,
 					'cdata' => true,
 				],
 				[
 					'tag' => 'position',
-					'attributes' => !empty($profile['group']) ? ['label' => Lang::$txt['position']] : null,
+					'attributes' => !empty($profile['group']) ? ['label' => Lang::getTxt('position', file: 'General')] : null,
 					'content' => !empty($profile['group']) ? $profile['group'] : null,
 					'cdata' => true,
 				],
 				[
 					'tag' => 'email',
-					'attributes' => !empty($profile['show_email']) || User::$me->is_admin || User::$me->id == $profile['id'] ? ['label' => Lang::$txt['user_email_address']] : null,
+					'attributes' => !empty($profile['show_email']) || User::$me->is_admin || User::$me->id == $profile['id'] ? ['label' => Lang::getTxt('user_email_address', file: 'General')] : null,
 					'content' => !empty($profile['show_email']) || User::$me->is_admin || User::$me->id == $profile['id'] ? $profile['email'] : null,
 					'cdata' => true,
 				],
 				[
 					'tag' => 'website',
-					'attributes' => empty($profile['website']['url']) ? null : ['label' => Lang::$txt['website']],
+					'attributes' => empty($profile['website']['url']) ? null : ['label' => Lang::getTxt('website', file: 'General')],
 					'content' => empty($profile['website']['url']) ? null : [
 						[
 							'tag' => 'title',
-							'attributes' => !empty($profile['website']['title']) ? ['label' => Lang::$txt['website_title']] : null,
+							'attributes' => !empty($profile['website']['title']) ? ['label' => Lang::getTxt('website_title', file: 'Profile')] : null,
 							'content' => !empty($profile['website']['title']) ? $profile['website']['title'] : null,
 							'cdata' => true,
 						],
 						[
 							'tag' => 'link',
-							'attributes' => ['label' => Lang::$txt['website_url']],
+							'attributes' => ['label' => Lang::getTxt('website_url', file: 'Profile')],
 							'content' => $profile['website']['url'],
 							'cdata' => true,
 						],
@@ -1842,16 +1845,16 @@ class Feed implements ActionInterface
 				],
 				[
 					'tag' => 'online',
-					'attributes' => !empty($profile['online']['is_online']) ? ['label' => Lang::$txt['online']] : null,
+					'attributes' => !empty($profile['online']['is_online']) ? ['label' => Lang::getTxt('online', file: 'General')] : null,
 					'content' => !empty($profile['online']['is_online']) ? 'true' : null,
 				],
 				[
 					'tag' => 'ip_addresses',
-					'attributes' => ['label' => Lang::$txt['ip_address']],
+					'attributes' => ['label' => Lang::getTxt('ip_address', file: 'General')],
 					'content' => User::$me->allowedTo('moderate_forum') || User::$me->id == $profile['id'] ? [
 						[
 							'tag' => 'ip',
-							'attributes' => ['label' => Lang::$txt['most_recent_ip']],
+							'attributes' => ['label' => Lang::getTxt('most_recent_ip', file: 'Profile')],
 							'content' => $profile['ip'],
 						],
 						[
@@ -1862,8 +1865,8 @@ class Feed implements ActionInterface
 				],
 			];
 
-			if (!empty($profile['birth_date']) && !str_starts_with($profile['birth_date'], '0000') && !str_starts_with($profile['birth_date'], '1004')) {
-				list($birth_year, $birth_month, $birth_day) = sscanf($profile['birth_date'], '%d-%d-%d');
+			if (!empty($profile['birthdate']) && !str_starts_with($profile['birthdate'], '0000') && !str_starts_with($profile['birthdate'], '1004')) {
+				list($birth_year, $birth_month, $birth_day) = sscanf($profile['birthdate'], '%d-%d-%d');
 
 				$datearray = getdate(time());
 
@@ -1871,13 +1874,13 @@ class Feed implements ActionInterface
 
 				$data[] = [
 					'tag' => 'age',
-					'attributes' => ['label' => Lang::$txt['age']],
+					'attributes' => ['label' => Lang::getTxt('age', file: 'Profile')],
 					'content' => $age,
 				];
 				$data[] = [
 					'tag' => 'birthdate',
-					'attributes' => ['label' => Lang::$txt['dob']],
-					'content' => $profile['birth_date'],
+					'attributes' => ['label' => Lang::getTxt('dob', file: 'Profile')],
+					'content' => $profile['birthdate'],
 				];
 			}
 
@@ -2019,8 +2022,8 @@ class Feed implements ActionInterface
 				$loaded_attachments = null;
 			}
 
-			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['poster_time']) . ':msg=' . $row['id_msg'];
+			// Create a UUID for this post
+			$uuid = (string) (new Uuid(5, 'msg=' . $row['id_msg']));
 
 			if ($this->format == 'rss' || $this->format == 'rss2') {
 				// Only one attachment allowed in RSS.
@@ -2072,7 +2075,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'guid',
-							'content' => $guid,
+							'content' => $uuid,
 							'attributes' => [
 								'isPermaLink' => 'false',
 							],
@@ -2173,7 +2176,7 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'id',
-							'content' => $guid,
+							'content' => $uuid,
 						],
 						[
 							'tag' => 'link',
@@ -2184,15 +2187,13 @@ class Feed implements ActionInterface
 			}
 			// A lot of information here.  Should be enough to please the rss-ers.
 			else {
-				Lang::load('Post');
-
 				$attachments = [];
 
 				if (!empty($loaded_attachments)) {
 					foreach ($loaded_attachments as $attachment) {
 						$attachments[] = [
 							'tag' => 'attachment',
-							'attributes' => ['label' => Lang::$txt['attachment']],
+							'attributes' => ['label' => Lang::getTxt('attachment', file: 'Post')],
 							'content' => [
 								[
 									'tag' => 'id',
@@ -2200,32 +2201,32 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'name',
-									'attributes' => ['label' => Lang::$txt['name']],
+									'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 									'content' => preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\1;', $attachment->name),
 								],
 								[
 									'tag' => 'downloads',
-									'attributes' => ['label' => Lang::$txt['downloads']],
+									'attributes' => ['label' => Lang::getTxt('downloads', file: 'General')],
 									'content' => $attachment->downloads,
 								],
 								[
 									'tag' => 'size',
-									'attributes' => ['label' => Lang::$txt['filesize']],
-									'content' => ($attachment->size < 1024000) ? round($attachment->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
+									'attributes' => ['label' => Lang::getTxt('filesize', file: 'General')],
+									'content' => ($attachment->size < 1024000) ? Lang::getTxt('size_kilobyte', [round($attachment->size / 1024, 2)], file: 'General') : Lang::getTxt('size_megabyte', [round($attachment->size / 1024 / 1024, 2)], file: 'General'),
 								],
 								[
 									'tag' => 'byte_size',
-									'attributes' => ['label' => Lang::$txt['filesize']],
+									'attributes' => ['label' => Lang::getTxt('filesize', file: 'General')],
 									'content' => $attachment->size,
 								],
 								[
 									'tag' => 'link',
-									'attributes' => ['label' => Lang::$txt['url']],
+									'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 									'content' => Config::$scripturl . '?action=dlattach;topic=' . $attachment->topic . '.0;attach=' . $attachment->id,
 								],
 								[
 									'tag' => 'approval_status',
-									'attributes' => $show_all ? ['label' => Lang::$txt['approval_status']] : null,
+									'attributes' => $show_all ? ['label' => Lang::getTxt('approval_status', file: 'Post')] : null,
 									'content' => $show_all ? $attachment->approved : null,
 								],
 							],
@@ -2237,7 +2238,7 @@ class Feed implements ActionInterface
 
 				$data[] = [
 					'tag' => 'member_post',
-					'attributes' => ['label' => Lang::$txt['post']],
+					'attributes' => ['label' => Lang::getTxt('post', file: 'General')],
 					'content' => [
 						[
 							'tag' => 'id',
@@ -2245,29 +2246,29 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'subject',
-							'attributes' => ['label' => Lang::$txt['subject']],
+							'attributes' => ['label' => Lang::getTxt('subject', file: 'General')],
 							'content' => $row['subject'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'body',
-							'attributes' => ['label' => Lang::$txt['message']],
+							'attributes' => ['label' => Lang::getTxt('message', file: 'General')],
 							'content' => $row['body'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'body_html',
-							'attributes' => ['label' => Lang::$txt['html']],
+							'attributes' => ['label' => Lang::getTxt('html', file: 'General')],
 							'content' => $row['body_html'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'poster',
-							'attributes' => ['label' => Lang::$txt['author']],
+							'attributes' => ['label' => Lang::getTxt('author', file: 'General')],
 							'content' => [
 								[
 									'tag' => 'name',
-									'attributes' => ['label' => Lang::$txt['name']],
+									'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 									'content' => $poster_name,
 									'cdata' => true,
 								],
@@ -2277,25 +2278,25 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'link',
-									'attributes' => ['label' => Lang::$txt['url']],
+									'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 									'content' => Config::$scripturl . '?action=profile;u=' . $row['id_member'],
 								],
 								[
 									'tag' => 'email',
-									'attributes' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? ['label' => Lang::$txt['user_email_address']] : null,
+									'attributes' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? ['label' => Lang::getTxt('user_email_address', file: 'General')] : null,
 									'content' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_email'] : null,
 									'cdata' => true,
 								],
 								[
 									'tag' => 'ip',
-									'attributes' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? ['label' => Lang::$txt['ip']] : null,
+									'attributes' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? ['label' => Lang::getTxt('ip', file: 'General')] : null,
 									'content' => (User::$me->allowedTo('moderate_forum') || $row['id_member'] == User::$me->id) ? $row['poster_ip'] : null,
 								],
 							],
 						],
 						[
 							'tag' => 'topic',
-							'attributes' => ['label' => Lang::$txt['topic']],
+							'attributes' => ['label' => Lang::getTxt('topic', file: 'General')],
 							'content' => [
 								[
 									'tag' => 'id',
@@ -2303,14 +2304,14 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'link',
-									'attributes' => ['label' => Lang::$txt['url']],
+									'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 									'content' => Config::$scripturl . '?topic=' . $row['id_topic'] . '.0',
 								],
 							],
 						],
 						[
 							'tag' => 'board',
-							'attributes' => ['label' => Lang::$txt['board']],
+							'attributes' => ['label' => Lang::getTxt('board', file: 'General')],
 							'content' => [
 								[
 									'tag' => 'id',
@@ -2323,51 +2324,51 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'link',
-									'attributes' => ['label' => Lang::$txt['url']],
+									'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 									'content' => Config::$scripturl . '?board=' . $row['id_board'] . '.0',
 								],
 							],
 						],
 						[
 							'tag' => 'link',
-							'attributes' => ['label' => Lang::$txt['url']],
+							'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 							'content' => Config::$scripturl . '?msg=' . $row['id_msg'],
 						],
 						[
 							'tag' => 'time',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
+							'attributes' => ['label' => Lang::getTxt('date', file: 'General'), 'UTC' => Time::gmstrftime('%F %T', (int) $row['poster_time'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['poster_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
 							'tag' => 'modified_time',
-							'attributes' => !empty($row['modified_time']) ? ['label' => Lang::$txt['modified_time'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['modified_time'])] : null,
+							'attributes' => !empty($row['modified_time']) ? ['label' => Lang::getTxt('modified_time', file: 'General'), 'UTC' => Time::gmstrftime('%F %T', (int) $row['modified_time'])] : null,
 							'content' => !empty($row['modified_time']) ? Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['modified_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))) : null,
 						],
 						[
 							'tag' => 'modified_by',
-							'attributes' => !empty($row['modified_name']) ? ['label' => Lang::$txt['modified_by']] : null,
+							'attributes' => !empty($row['modified_name']) ? ['label' => Lang::getTxt('modified_by', file: 'General')] : null,
 							'content' => !empty($row['modified_name']) ? $row['modified_name'] : null,
 							'cdata' => true,
 						],
 						[
 							'tag' => 'modified_reason',
-							'attributes' => !empty($row['modified_reason']) ? ['label' => Lang::$txt['reason_for_edit']] : null,
+							'attributes' => !empty($row['modified_reason']) ? ['label' => Lang::getTxt('reason_for_edit', file: 'General')] : null,
 							'content' => !empty($row['modified_reason']) ? $row['modified_reason'] : null,
 							'cdata' => true,
 						],
 						[
 							'tag' => 'likes',
-							'attributes' => ['label' => Lang::$txt['likes']],
+							'attributes' => ['label' => Lang::getTxt('likes', file: 'General')],
 							'content' => $row['likes'],
 						],
 						[
 							'tag' => 'approval_status',
-							'attributes' => $show_all ? ['label' => Lang::$txt['approval_status']] : null,
+							'attributes' => $show_all ? ['label' => Lang::getTxt('approval_status', file: 'Post')] : null,
 							'content' => $show_all ? $row['approved'] : null,
 						],
 						[
 							'tag' => 'attachments',
-							'attributes' => ['label' => Lang::$txt['attachments']],
+							'attributes' => ['label' => Lang::getTxt('attachments', file: 'Post')],
 							'content' => $attachments,
 						],
 					],
@@ -2449,8 +2450,8 @@ class Feed implements ActionInterface
 
 			$recipients = array_combine(explode(',', $row['id_members_to']), explode($separator, $row['to_names']));
 
-			// Create a GUID for this post using the tag URI scheme
-			$guid = 'tag:' . $this->host . ',' . gmdate('Y-m-d', (int) $row['msgtime']) . ':pm=' . $row['id_pm'];
+			// Create a UUID for this post
+			$uuid = (string) (new Uuid(5, 'pm=' . $row['id_pm']));
 
 			if ($this->format == 'rss' || $this->format == 'rss2') {
 				$item = [
@@ -2458,7 +2459,7 @@ class Feed implements ActionInterface
 					'content' => [
 						[
 							'tag' => 'guid',
-							'content' => $guid,
+							'content' => $uuid,
 							'attributes' => [
 								'isPermaLink' => 'false',
 							],
@@ -2526,7 +2527,7 @@ class Feed implements ActionInterface
 					'content' => [
 						[
 							'tag' => 'id',
-							'content' => $guid,
+							'content' => $uuid,
 						],
 						[
 							'tag' => 'updated',
@@ -2575,11 +2576,9 @@ class Feed implements ActionInterface
 
 				$data[] = $item;
 			} else {
-				Lang::load('PersonalMessage');
-
 				$item = [
 					'tag' => 'personal_message',
-					'attributes' => ['label' => Lang::$txt['pm']],
+					'attributes' => ['label' => Lang::getTxt('pm', file: 'PersonalMessage')],
 					'content' => [
 						[
 							'tag' => 'id',
@@ -2587,34 +2586,34 @@ class Feed implements ActionInterface
 						],
 						[
 							'tag' => 'sent_date',
-							'attributes' => ['label' => Lang::$txt['date'], 'UTC' => Time::gmstrftime('%F %T', (int) $row['msgtime'])],
+							'attributes' => ['label' => Lang::getTxt('date', file: 'General'), 'UTC' => Time::gmstrftime('%F %T', (int) $row['msgtime'])],
 							'content' => Utils::htmlspecialchars(strip_tags(Time::create('@' . $row['msgtime'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false))),
 						],
 						[
 							'tag' => 'subject',
-							'attributes' => ['label' => Lang::$txt['subject']],
+							'attributes' => ['label' => Lang::getTxt('subject', file: 'General')],
 							'content' => $row['subject'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'body',
-							'attributes' => ['label' => Lang::$txt['message']],
+							'attributes' => ['label' => Lang::getTxt('message', file: 'General')],
 							'content' => $row['body'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'body_html',
-							'attributes' => ['label' => Lang::$txt['html']],
+							'attributes' => ['label' => Lang::getTxt('html', file: 'General')],
 							'content' => $row['body_html'],
 							'cdata' => true,
 						],
 						[
 							'tag' => 'sender',
-							'attributes' => ['label' => Lang::$txt['author']],
+							'attributes' => ['label' => Lang::getTxt('author', file: 'General')],
 							'content' => [
 								[
 									'tag' => 'name',
-									'attributes' => ['label' => Lang::$txt['name']],
+									'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 									'content' => $row['from_name'],
 									'cdata' => true,
 								],
@@ -2624,7 +2623,7 @@ class Feed implements ActionInterface
 								],
 								[
 									'tag' => 'link',
-									'attributes' => ['label' => Lang::$txt['url']],
+									'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 									'content' => Config::$scripturl . '?action=profile;u=' . $row['id_member_from'],
 								],
 							],
@@ -2635,11 +2634,11 @@ class Feed implements ActionInterface
 				foreach ($recipients as $recipient_id => $recipient_name) {
 					$item['content'][] = [
 						'tag' => 'recipient',
-						'attributes' => ['label' => Lang::$txt['recipient']],
+						'attributes' => ['label' => Lang::getTxt('recipient', file: 'PersonalMessage')],
 						'content' => [
 							[
 								'tag' => 'name',
-								'attributes' => ['label' => Lang::$txt['name']],
+								'attributes' => ['label' => Lang::getTxt('name', file: 'General')],
 								'content' => $recipient_name,
 								'cdata' => true,
 							],
@@ -2649,7 +2648,7 @@ class Feed implements ActionInterface
 							],
 							[
 								'tag' => 'link',
-								'attributes' => ['label' => Lang::$txt['url']],
+								'attributes' => ['label' => Lang::getTxt('url', file: 'General')],
 								'content' => Config::$scripturl . '?action=profile;u=' . $recipient_id,
 							],
 						],
@@ -2755,7 +2754,7 @@ class Feed implements ActionInterface
 		Utils::$context['feed'] = [];
 
 		// First, output the xml header.
-		Utils::$context['feed']['header'] = '<?xml version="1.0" encoding="' . Utils::$context['character_set'] . '"?' . '>' . ($doctype !== '' ? "\n" . trim($doctype) : '');
+		Utils::$context['feed']['header'] = '<' . '?xml version="1.0" encoding="UTF-8"?' . '>' . ($doctype !== '' ? "\n" . trim($doctype) : '');
 
 		// Are we outputting an rss feed or one with more information?
 		if ($format == 'rss' || $format == 'rss2') {
@@ -2956,6 +2955,79 @@ class Feed implements ActionInterface
 		$cdata .= ']]>';
 
 		return strtr($cdata, ['<![CDATA[]]>' => '']);
+	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		if (!isset($params['sa'])) {
+			$params['sa'] = get_class_vars(self::class)['subaction'];
+		}
+
+		// First do the normal stuff.
+		$route = self::buildActionRoute($params);
+
+		// Now do the custom stuff.
+		$route[] = $params['type'] ?? get_class_vars(self::class)['format'];
+		unset($params['type']);
+
+		if (isset($params['board'])) {
+			$route[] = 'boards';
+			$route[] = $params['board'];
+			unset($params['board']);
+		} elseif (isset($params['boards'])) {
+			$route[] = 'boards';
+			$route[] = $params['boards'];
+			unset($params['boards']);
+		} elseif (isset($params['c'])) {
+			$route[] = 'categories';
+			$route[] = $params['c'];
+			unset($params['c']);
+		} elseif (isset($params['u'])) {
+			$route[] = 'members';
+			$route[] = $params['u'];
+			unset($params['u']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params = array_merge($params, self::parseActionRoute($route));
+		$params['type'] = array_shift($route);
+
+		if (count($route) >= 2) {
+			switch (array_shift($route)) {
+				case 'members':
+					$params['u'] = array_shift($route);
+					break;
+
+				case 'categories':
+					$params['c'] = array_shift($route);
+					break;
+
+				default:
+					$params['board' . (str_contains(current($route), ',') ? 's' : '')] = array_shift($route);
+					break;
+			}
+		}
+
+		return $params;
 	}
 
 	/******************

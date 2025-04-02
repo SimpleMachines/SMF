@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,20 +16,22 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Utils;
 
 /**
  * This class has the important job of taking care of help messages and the help center.
  */
-class Help implements ActionInterface
+class Help implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -61,12 +63,19 @@ class Help implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		Theme::loadTemplate('Help');
+
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -101,27 +110,14 @@ class Help implements ActionInterface
 		// Build the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=help',
-			'name' => Lang::$txt['help'],
+			'name' => Lang::getTxt('help', file: 'General'),
 		];
 
 		// Lastly, some minor template stuff.
-		Utils::$context['page_title'] = Lang::$txt['manual_smf_user_help'];
+		Utils::$context['page_title'] = Lang::getTxt('manual_smf_user_help', file: 'Manual');
 		Utils::$context['sub_template'] = 'manual';
 	}
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Backward compatibility wrapper for the index sub-action.
-	 */
-	public static function HelpIndex(): void
-	{
-		self::load();
-		self::$obj->subaction = 'index';
-		self::$obj->execute();
-	}
 
 	/******************
 	 * Internal methods
@@ -138,10 +134,6 @@ class Help implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Theme::loadTemplate('Help');
-		Lang::load('Manual');
-
-		// CRUD $subactions as needed.
 		IntegrationHook::call('integrate_manage_help', [&self::$subactions]);
 
 		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {

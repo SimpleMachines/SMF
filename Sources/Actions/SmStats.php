@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,21 +16,34 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\Actions\Admin\ACP;
 use SMF\ActionTrait;
 use SMF\Config;
+use SMF\Routable;
 use SMF\User;
 
 /**
  * Lets simplemachines.org gather statistics if, and only if, the admin allows.
  */
-class SmStats implements ActionInterface
+class SmStats implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
 
 	/**
 	 * Sends stats to simplemachines.org when requested, but only if enabled!

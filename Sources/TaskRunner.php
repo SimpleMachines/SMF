@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -169,6 +169,7 @@ class TaskRunner
 
 			// Just in case there's a problem...
 			set_error_handler(__CLASS__ . '::handleError');
+			set_exception_handler(__CLASS__ . '::handleException');
 
 			User::$sc = '';
 
@@ -341,7 +342,7 @@ class TaskRunner
 	 ***********************/
 
 	/**
-	 * The error handling function
+	 * The error handler.
 	 *
 	 * @param int $error_level One of the PHP error level constants (see )
 	 * @param string $error_string The error message
@@ -362,6 +363,20 @@ class TaskRunner
 		// If this is an E_ERROR or E_USER_ERROR.... die.  Violently so.
 		if ($error_level % 255 == E_ERROR) {
 			die('No direct access...');
+		}
+	}
+
+	/**
+	 * The exception handler.
+	 *
+	 * Execution always ends after this is called.
+	 *
+	 * @param \Throwable $e The uncaught exception.
+	 */
+	public static function handleException(\Throwable $e): void
+	{
+		if (!empty(Config::$modSettings['enableErrorLogging'])) {
+			ErrorHandler::log(Lang::getTxt($e->getMessage(), file: 'Errors'), 'cron', $e->getFile(), $e->getLine());
 		}
 	}
 
@@ -664,10 +679,12 @@ class TaskRunner
 						'claimed_time' => 'int',
 					],
 					[
-						'',
-						$task_details['task_class'],
-						json_encode($task_details['task_data']),
-						0,
+						[
+							'',
+							$task_details['task_class'],
+							json_encode($task_details['task_data']),
+							0,
+						],
 					],
 					[],
 				);

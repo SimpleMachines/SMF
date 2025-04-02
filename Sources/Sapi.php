@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -29,6 +29,20 @@ namespace SMF;
  */
 class Sapi
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
+	public const SERVER_IIS = 'iis';
+	public const SERVER_APACHE = 'apache';
+	public const SERVER_LITESPEED = 'litespeed';
+	public const SERVER_LIGHTTPD = 'lighttpd';
+	public const SERVER_NGINX = 'nginx';
+
+	public const OS_WINDOWS = 'Windows';
+	public const OS_MAC = 'Darwin';
+	public const OS_LINUX = 'Linux';
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -46,19 +60,12 @@ class Sapi
 		self::SERVER_NGINX => 'nginx',
 	];
 
-	/*****************
-	 * Class constants
-	 *****************/
-
-	public const SERVER_IIS = 'iis';
-	public const SERVER_APACHE = 'apache';
-	public const SERVER_LITESPEED = 'litespeed';
-	public const SERVER_LIGHTTPD = 'lighttpd';
-	public const SERVER_NGINX = 'nginx';
-
-	public const OS_WINDOWS = 'Windows';
-	public const OS_MAC = 'Darwin';
-	public const OS_LINUX = 'Linux';
+	/**
+	 * @var string
+	 *
+	 * Path to a temporary directory.
+	 */
+	protected static string $temp_dir;
 
 	/***********************
 	 * Public static methods
@@ -72,14 +79,11 @@ class Sapi
 	 */
 	public static function isSoftware(string|array $server): bool
 	{
-		$servers = (array) $server;
-
-		foreach ($servers as $server) {
-			if (
-				isset($_SERVER['SERVER_SOFTWARE'])
-				&& strpos($_SERVER['SERVER_SOFTWARE'], self::$server_software[$server] ?? $server) !== false
-			) {
-				return true;
+		if (isset($_SERVER['SERVER_SOFTWARE'])) {
+			foreach ((array) $server as $serv) {
+				if (preg_match('~' . (self::$server_software[$serv] ?? $serv) . '~i', $_SERVER['SERVER_SOFTWARE'])) {
+					return true;
+				}
 			}
 		}
 
@@ -209,7 +213,76 @@ class Sapi
 	 */
 	public static function getTempDir(): string
 	{
-		return Config::getTempDir();
+		// Already did this.
+		if (!empty(self::$temp_dir)) {
+			return self::$temp_dir;
+		}
+
+		// Temp Directory options order.
+		$temp_dir_options = [
+			0 => 'sys_get_temp_dir',
+			1 => 'upload_tmp_dir',
+			2 => 'session.save_path',
+			3 => 'cachedir',
+		];
+
+		// Is Config::$cachedir a valid option?
+		if (empty(Config::$cachedir) || !is_dir(Config::$cachedir) || !is_writable(Config::$cachedir)) {
+			$temp_dir_options = array_diff($temp_dir_options, ['cachedir']);
+		}
+
+		// Determine if we should detect a restriction and what restrictions that may be.
+		$open_base_dir = ini_get('open_basedir');
+		$restriction = !empty($open_base_dir) ? explode(':', $open_base_dir) : false;
+
+		// Prevent any errors as we search.
+		$old_error_reporting = error_reporting(0);
+
+		// Search for a working temp directory.
+		foreach ($temp_dir_options as $id_temp => $temp_option) {
+			switch ($temp_option) {
+				case 'cachedir':
+					$possible_temp = rtrim(Config::$cachedir, '\\/');
+					break;
+
+				case 'session.save_path':
+					$possible_temp = rtrim(ini_get('session.save_path'), '\\/');
+					break;
+
+				case 'upload_tmp_dir':
+					$possible_temp = rtrim(ini_get('upload_tmp_dir'), '\\/');
+					break;
+
+				default:
+					$possible_temp = sys_get_temp_dir();
+					break;
+			}
+
+			// Check if we have a restriction preventing this from working.
+			if ($restriction) {
+				foreach ($restriction as $dir) {
+					if (str_contains($possible_temp, $dir) && is_writable($possible_temp)) {
+						self::$temp_dir = $possible_temp;
+						break;
+					}
+				}
+			}
+			// No restrictions, but need to check for writable status.
+			elseif (is_writable($possible_temp)) {
+				self::$temp_dir = $possible_temp;
+				break;
+			}
+		}
+
+		// Fall back to sys_get_temp_dir even though it won't work, so we have something.
+		if (empty(self::$temp_dir)) {
+			self::$temp_dir = sys_get_temp_dir();
+		}
+
+		// Put things back.
+		error_reporting($old_error_reporting);
+
+		return self::$temp_dir;
 	}
 
 	/**

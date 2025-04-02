@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -52,8 +52,7 @@ class Login extends Login2
 			}
 		}
 
-		// We need to load the Login template/language file.
-		Lang::load('Login');
+		// We need to load the Login template.
 		Theme::loadTemplate('Login');
 
 		Utils::$context['sub_template'] = 'login';
@@ -61,7 +60,7 @@ class Login extends Login2
 		parent::checkAjax();
 
 		// Get the template ready.... not really much else to do.
-		Utils::$context['page_title'] = Lang::$txt['login'];
+		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 		Utils::$context['default_username'] = &$_REQUEST['u'];
 		Utils::$context['default_password'] = '';
 		Utils::$context['never_expire'] = false;
@@ -69,7 +68,7 @@ class Login extends Login2
 		// Add the login chain to the link tree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=login',
-			'name' => Lang::$txt['login'],
+			'name' => Lang::getTxt('login', file: 'General'),
 		];
 
 		// Set the login URL - will be used when the login process is done (but careful not to send us to an attachment).

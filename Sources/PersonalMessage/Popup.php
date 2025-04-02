@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace SMF\PersonalMessage;
 
 use SMF\Config;
-use SMF\Lang;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -32,8 +31,6 @@ class Popup
 	 */
 	public function __construct()
 	{
-		Lang::load('PersonalMessage');
-
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('PersonalMessage');
 		}

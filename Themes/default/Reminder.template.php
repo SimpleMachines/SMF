@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -21,18 +21,18 @@ function template_main()
 {
 	echo '
 	<br>
-	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="UTF-8">
 		<div class="tborder login">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('authentication_reminder', file: 'Profile'), '</h3>
 			</div>
 			<div class="roundframe">
-				<p class="smalltext centertext">', Lang::$txt['password_reminder_desc'], '</p>
+				<p class="smalltext centertext">', Lang::getTxt('password_reminder_desc', file: 'Profile'), '</p>
 				<dl>
-					<dt>', Lang::$txt['user_email'], '</dt>
+					<dt>', Lang::getTxt('user_email', file: 'Profile'), '</dt>
 					<dd><input type="text" name="user" size="30"></dd>
 				</dl>
-				<input type="submit" value="', Lang::$txt['reminder_continue'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('reminder_continue', file: 'Profile'), '" class="button">
 				<br class="clear">
 			</div>
 		</div>
@@ -48,23 +48,23 @@ function template_reminder_pick()
 {
 	echo '
 	<br>
-	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=reminder;sa=picktype" method="post" accept-charset="UTF-8">
 		<div class="tborder login">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('authentication_reminder', file: 'Profile'), '</h3>
 			</div>
 			<div class="roundframe">
-				<p><strong>', Lang::$txt['authentication_options'], '</strong></p>
+				<p><strong>', Lang::getTxt('authentication_options', file: 'Profile'), '</strong></p>
 				<p>
 					<input type="radio" name="reminder_type" id="reminder_type_email" value="email" checked></dt>
-					<label for="reminder_type_email">', Lang::$txt['authentication_password_email'], '</label></dd>
+					<label for="reminder_type_email">', Lang::getTxt('authentication_password_email', file: 'Profile'), '</label></dd>
 				</p>
 				<p>
 					<input type="radio" name="reminder_type" id="reminder_type_secret" value="secret">
-					<label for="reminder_type_secret">', Lang::$txt['authentication_password_secret'], '</label>
+					<label for="reminder_type_secret">', Lang::getTxt('authentication_password_secret', file: 'Profile'), '</label>
 				</p>
 				<div class="flow_auto">
-					<input type="submit" value="', Lang::$txt['reminder_continue'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('reminder_continue', file: 'Profile'), '" class="button">
 					<input type="hidden" name="uid" value="', Utils::$context['current_member']['id'], '">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="', Utils::$context['remind_token_var'], '" value="', Utils::$context['remind_token'], '">
@@ -96,21 +96,21 @@ function template_set_password()
 {
 	echo '
 	<br>
-	<form action="', Config::$scripturl, '?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="', Utils::$context['character_set'], '">
+	<form action="', Config::$scripturl, '?action=reminder;sa=setpassword2" name="reminder_form" id="reminder_form" method="post" accept-charset="UTF-8">
 		<div class="tborder login">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
 			</div>
 			<div class="roundframe">
 				<dl>
-					<dt>', Lang::$txt['choose_pass'], '</dt>
+					<dt>', Lang::getTxt('choose_pass', file: 'General'), '</dt>
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
 						<span id="smf_autov_pwmain_div" style="display: none;">
 							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
 						</span>
 					</dd>
-					<dt>', Lang::$txt['verify_pass'], '</dt>
+					<dt>', Lang::getTxt('verify_pass', file: 'General'), '</dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
 						<span id="smf_autov_pwverify_div" style="display: none;">
@@ -119,7 +119,7 @@ function template_set_password()
 					</dd>
 				</dl>
 				<p class="align_center">
-					<input type="submit" value="', Lang::$txt['save'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('save', file: 'General'), '" class="button">
 				</p>
 			</div><!-- .roundframe -->
 		</div><!-- .login -->
@@ -130,11 +130,11 @@ function template_set_password()
 	</form>
 	<script>
 		var regTextStrings = {
-			"password_short": "', Lang::$txt['registration_password_short'], '",
-			"password_reserved": "', Lang::$txt['registration_password_reserved'], '",
-			"password_numbercase": "', Lang::$txt['registration_password_numbercase'], '",
-			"password_no_match": "', Lang::$txt['registration_password_no_match'], '",
-			"password_valid": "', Lang::$txt['registration_password_valid'], '"
+			"password_short": "', Lang::getTxt('registration_password_short', file: 'Login'), '",
+			"password_reserved": "', Lang::getTxt('registration_password_reserved', file: 'Login'), '",
+			"password_numbercase": "', Lang::getTxt('registration_password_numbercase', file: 'Login'), '",
+			"password_no_match": "', Lang::getTxt('registration_password_no_match', file: 'Login'), '",
+			"password_valid": "', Lang::getTxt('registration_password_valid', file: 'Login'), '"
 		};
 		var verificationHandle = new smfRegister("reminder_form", ', empty(Config::$modSettings['password_strength']) ? 0 : Config::$modSettings['password_strength'], ', regTextStrings);
 	</script>';
@@ -147,26 +147,26 @@ function template_ask()
 {
 	echo '
 	<br>
-	<form action="', Config::$scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="', Utils::$context['character_set'], '" name="creator" id="creator">
+	<form action="', Config::$scripturl, '?action=reminder;sa=secret2" method="post" accept-charset="UTF-8" name="creator" id="creator">
 		<div class="tborder login">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['authentication_reminder'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('authentication_reminder', file: 'Profile'), '</h3>
 			</div>
 			<div class="roundframe">
-				<p class="smalltext">', Lang::$txt['enter_new_password'], '</p>
+				<p class="smalltext">', Lang::getTxt('enter_new_password', file: 'Profile'), '</p>
 				<dl>
-					<dt>', Lang::$txt['secret_question'], '</dt>
+					<dt>', Lang::getTxt('secret_question', file: 'Profile'), '</dt>
 					<dd>', Utils::$context['secret_question'], '</dd>
-					<dt>', Lang::$txt['secret_answer'], '</dt>
+					<dt>', Lang::getTxt('secret_answer', file: 'Profile'), '</dt>
 					<dd><input type="text" name="secret_answer" size="22"></dd>
-					<dt>', Lang::$txt['choose_pass'], '</dt>
+					<dt>', Lang::getTxt('choose_pass', file: 'General'), '</dt>
 					<dd>
 						<input type="password" name="passwrd1" id="smf_autov_pwmain" size="22">
 						<span id="smf_autov_pwmain_div" style="display: none;">
 							<span id="smf_autov_pwmain_img" class="main_icons invalid"></span>
 						</span>
 					</dd>
-					<dt>', Lang::$txt['verify_pass'], '</dt>
+					<dt>', Lang::getTxt('verify_pass', file: 'General'), '</dt>
 					<dd>
 						<input type="password" name="passwrd2" id="smf_autov_pwverify" size="22">
 						<span id="smf_autov_pwverify_div" style="display: none;">
@@ -175,7 +175,7 @@ function template_ask()
 					</dd>
 				</dl>
 				<div class="auto_flow">
-					<input type="submit" value="', Lang::$txt['save'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('save', file: 'General'), '" class="button">
 					<input type="hidden" name="uid" value="', Utils::$context['remind_user'], '">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="', Utils::$context['remind-sai_token_var'], '" value="', Utils::$context['remind-sai_token'], '">
@@ -185,11 +185,11 @@ function template_ask()
 	</form>
 	<script>
 		var regTextStrings = {
-			"password_short": "', Lang::$txt['registration_password_short'], '",
-			"password_reserved": "', Lang::$txt['registration_password_reserved'], '",
-			"password_numbercase": "', Lang::$txt['registration_password_numbercase'], '",
-			"password_no_match": "', Lang::$txt['registration_password_no_match'], '",
-			"password_valid": "', Lang::$txt['registration_password_valid'], '"
+			"password_short": "', Lang::getTxt('registration_password_short', file: 'Login'), '",
+			"password_reserved": "', Lang::getTxt('registration_password_reserved', file: 'Login'), '",
+			"password_numbercase": "', Lang::getTxt('registration_password_numbercase', file: 'Login'), '",
+			"password_no_match": "', Lang::getTxt('registration_password_no_match', file: 'Login'), '",
+			"password_valid": "', Lang::getTxt('registration_password_valid', file: 'Login'), '"
 		};
 		var verificationHandle = new smfRegister("creator", ', empty(Config::$modSettings['password_strength']) ? 0 : Config::$modSettings['password_strength'], ', regTextStrings);
 	</script>';

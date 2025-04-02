@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Drafts
+// Version: 3.0 Alpha 3; Drafts
 
 // profile
 $txt['drafts_show'] = 'Show drafts';

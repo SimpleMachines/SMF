@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -23,7 +23,7 @@ use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
-use SMF\Lang;
+use SMF\Routable;
 use SMF\User;
 use SMF\Utils;
 
@@ -35,7 +35,7 @@ use SMF\Utils;
  * It is accessed via the query string ?action=dlattach.
  * Views to attachments do not increase hits and are not logged in the "Who's Online" log.
  */
-class AttachmentDownload implements ActionInterface
+class AttachmentDownload implements ActionInterface, Routable
 {
 	use ActionTrait;
 
@@ -60,6 +60,11 @@ class AttachmentDownload implements ActionInterface
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
 
 	/**
 	 * Does the job.
@@ -306,6 +311,56 @@ class AttachmentDownload implements ActionInterface
 		Utils::emitFile($file, $this->showThumb);
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route = [];
+
+		if (isset($params['attach']) || isset($params['id'])) {
+			$route[] = 'dlattach';
+			$route[] = $params['attach'] ?? $params['id'];
+
+			unset($params['action'], $params['attach'], $params['id']);
+
+			if (isset($params['thumb'])) {
+				$route[] = 'thumbnail';
+				unset($params['thumb']);
+			}
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params['action'] = 'dlattach';
+		$params['attach'] = $route[1];
+
+		if (isset($route[2]) && $route[2] === 'thumbnail') {
+			$params['thumb'] = true;
+		}
+
+		return $params;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -315,15 +370,6 @@ class AttachmentDownload implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Some defaults that we need.
-		if (!isset(Utils::$context['character_set'])) {
-			Utils::$context['character_set'] = empty(Config::$modSettings['global_character_set']) ? (empty(Lang::$txt['lang_character_set']) ? 'ISO-8859-1' : Lang::$txt['lang_character_set']) : Config::$modSettings['global_character_set'];
-		}
-
-		if (!isset(Utils::$context['utf8'])) {
-			Utils::$context['utf8'] = Utils::$context['character_set'] === 'UTF-8';
-		}
-
 		// Which attachment was requested?
 		$this->id = $_REQUEST['attach'] = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : (int) (isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : 0);
 

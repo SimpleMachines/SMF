@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -64,9 +64,9 @@ class StatPanel implements ActionInterface
 		$time_minutes = floor((Profile::$member->total_time_logged_in % 3600) / 60);
 
 		Utils::$context['time_logged_in'] = Lang::sentenceList(array_filter([
-			$time_days > 0 ? Lang::getTxt('number_of_days', [$time_days]) : null,
-			$time_hours > 0 ? Lang::getTxt('number_of_hours', [$time_hours]) : null,
-			Lang::getTxt('number_of_minutes', [$time_minutes]),
+			$time_days > 0 ? Lang::getTxt('number_of_days', [$time_days], file: 'General') : null,
+			$time_hours > 0 ? Lang::getTxt('number_of_hours', [$time_hours], file: 'General') : null,
+			Lang::getTxt('number_of_minutes', [$time_minutes], file: 'General'),
 		]));
 
 		Utils::$context['num_posts'] = Lang::numberFormat(Profile::$member->posts);
@@ -248,18 +248,18 @@ class StatPanel implements ActionInterface
 				'text' => Utils::$context['time_logged_in'],
 			],
 			'total_posts' => [
-				'text' => Utils::$context['num_posts'] . ' ' . Lang::$txt['statPanel_posts'],
+				'text' => Utils::$context['num_posts'] . ' ' . Lang::getTxt('statPanel_posts', file: 'Profile'),
 				'url' => Config::$scripturl . '?action=profile;area=showposts;sa=messages;u=' . Profile::$member->id,
 			],
 			'total_topics' => [
-				'text' => Utils::$context['num_topics'] . ' ' . Lang::$txt['statPanel_topics'],
+				'text' => Utils::$context['num_topics'] . ' ' . Lang::getTxt('statPanel_topics', file: 'Profile'),
 				'url' => Config::$scripturl . '?action=profile;area=showposts;sa=topics;u=' . Profile::$member->id,
 			],
 			'users_polls' => [
-				'text' => Utils::$context['num_polls'] . ' ' . Lang::$txt['statPanel_polls'],
+				'text' => Utils::$context['num_polls'] . ' ' . Lang::getTxt('statPanel_polls', file: 'Profile'),
 			],
 			'users_votes' => [
-				'text' => Utils::$context['num_votes'] . ' ' . Lang::$txt['statPanel_votes'],
+				'text' => Utils::$context['num_votes'] . ' ' . Lang::getTxt('statPanel_votes', file: 'Profile'),
 			],
 		];
 

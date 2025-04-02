@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Category;
 use SMF\Config;
@@ -23,6 +24,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\User;
@@ -32,8 +34,9 @@ use SMF\Verifier;
 /**
  * Shows the search form.
  */
-class Search implements ActionInterface
+class Search implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
@@ -58,8 +61,6 @@ class Search implements ActionInterface
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 
-		Lang::load('Search');
-
 		// Don't load this in XML mode.
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('Search');
@@ -72,8 +73,10 @@ class Search implements ActionInterface
 		// Link tree....
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=search',
-			'name' => Lang::$txt['search'],
+			'name' => Lang::getTxt('search', file: 'General'),
 		];
+
+		Utils::$context['robot_no_index'] = true;
 
 		Utils::$context['search_string_limit'] = SearchApi::MAX_LENGTH;
 
@@ -147,7 +150,6 @@ class Search implements ActionInterface
 
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
-			Lang::load('Errors');
 			Utils::$context['search_errors']['messages'] = [];
 
 			foreach (Utils::$context['search_errors'] as $search_error => $dummy) {
@@ -156,10 +158,13 @@ class Search implements ActionInterface
 				}
 
 				if ($search_error == 'string_too_long') {
-					Lang::$txt['error_string_too_long'] = Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH]);
+					Lang::setTxt(
+						'error_string_too_long',
+						Lang::getTxt('error_string_too_long', [SearchApi::MAX_LENGTH], file: 'Errors'),
+					);
 				}
 
-				Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
+				Utils::$context['search_errors']['messages'][] = Lang::getTxt('error_' . $search_error, file: 'Errors');
 			}
 		}
 
@@ -287,7 +292,7 @@ class Search implements ActionInterface
 			Utils::$context['search_topic']['link'] = '<a href="' . Utils::$context['search_topic']['href'] . '">' . Utils::$context['search_topic']['subject'] . '</a>';
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['set_parameters'];
+		Utils::$context['page_title'] = Lang::getTxt('set_parameters', file: 'Search');
 
 		IntegrationHook::call('integrate_search');
 	}

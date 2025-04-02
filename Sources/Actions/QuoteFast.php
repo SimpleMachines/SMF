@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,11 +16,15 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -34,19 +38,29 @@ use SMF\Utils;
  *   internationalization reasons.
  * - accessed with ?action=quotefast.
  */
-class QuoteFast implements ActionInterface
+class QuoteFast implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
 
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
+	}
+
 	/**
 	 * Does the job.
 	 */
 	public function execute(): void
 	{
+		if (!isset($_REQUEST['xml'])) {
+			Theme::loadTemplate('Post');
+		}
+
 		$query_customizations = [
 			'selects' => [
 				'COALESCE(mem.real_name, m.poster_name) AS poster_name',
@@ -93,6 +107,7 @@ class QuoteFast implements ActionInterface
 		$can_view_post = $row['approved'] || ($row['id_member'] != 0 && $row['id_member'] == User::$me->id) || User::$me->allowedTo('approve_posts', $row['id_board']);
 
 		if ($can_view_post) {
+			Theme::loadTemplate('Xml');
 			// Remove special formatting we don't want anymore.
 			$body = Msg::un_preparsecode($row['body']);
 			$subject = $row['subject'];
@@ -156,22 +171,6 @@ class QuoteFast implements ActionInterface
 		}
 
 		IntegrationHook::call('integrate_quotefast', [$row]);
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		Lang::load('Post');
-
-		if (!isset($_REQUEST['xml'])) {
-			Theme::loadTemplate('Post');
-		}
 	}
 }
 

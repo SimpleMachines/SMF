@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -23,13 +23,13 @@ function template_main()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="main_icons mail icon"></span>
-				', Lang::$txt['notify'], '
+				', Lang::getTxt('notify', file: 'General'), '
 			</h3>
 		</div>
 		<div class="roundframe centertext">
-			<p>', Lang::$txt['notify_topic_prompt'], '</p>
+			<p>', Lang::getTxt('notify_topic_prompt', file: 'General'), '</p>
 			<p>
-				<strong><a href="', Config::$scripturl, '?action=notifytopic;sa=on;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::$txt['yes'], '</a> - <a href="', Config::$scripturl, '?action=notifytopic;sa=off;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::$txt['no'], '</a></strong>
+				<strong><a href="', Config::$scripturl, '?action=notifytopic;sa=on;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::getTxt('yes', file: 'General'), '</a> - <a href="', Config::$scripturl, '?action=notifytopic;sa=off;topic=', Utils::$context['current_topic'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::getTxt('no', file: 'General'), '</a></strong>
 			</p>
 		</div>';
 }
@@ -43,13 +43,13 @@ function template_notify_board()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="main_icons mail icon"></span>
-				', Lang::$txt['notify'], '
+				', Lang::getTxt('notify', file: 'General'), '
 			</h3>
 		</div>
 		<div class="roundframe centertext">
-			<p>', Lang::$txt['notify_board_prompt'], '</p>
+			<p>', Lang::getTxt('notify_board_prompt', file: 'General'), '</p>
 			<p>
-				<strong><a href="', Config::$scripturl, '?action=notifyboard;sa=on;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::$txt['yes'], '</a> - <a href="', Config::$scripturl, '?action=notifyboard;sa=off;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::$txt['no'], '</a></strong>
+				<strong><a href="', Config::$scripturl, '?action=notifyboard;sa=on;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::getTxt('yes', file: 'General'), '</a> - <a href="', Config::$scripturl, '?action=notifyboard;sa=off;board=', Utils::$context['current_board'], '.', Utils::$context['start'], ';', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::getTxt('no', file: 'General'), '</a></strong>
 			</p>
 		</div>';
 }
@@ -63,13 +63,13 @@ function template_notify_announcements()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="main_icons mail icon"></span>
-				', Lang::$txt['notify'], '
+				', Lang::getTxt('notify', file: 'General'), '
 			</h3>
 		</div>
 		<div class="roundframe centertext">
-			<p>', Lang::$txt['notify_announcements_prompt'], '</p>
+			<p>', Lang::getTxt('notify_announcements_prompt', file: 'General'), '</p>
 			<p>
-				<strong><a href="', Config::$scripturl, '?action=notifyannouncements;sa=on;', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::$txt['yes'], '</a> - <a href="', Config::$scripturl, '?action=notifyannouncements;sa=off;', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::$txt['no'], '</a></strong>
+				<strong><a href="', Config::$scripturl, '?action=notifyannouncements;sa=on;', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::getTxt('yes', file: 'General'), '</a> - <a href="', Config::$scripturl, '?action=notifyannouncements;sa=off;', (!empty(Utils::$context['notify_info']['token']) ? 'u=' . Utils::$context['notify_info']['u'] . ';token=' . Utils::$context['notify_info']['token'] : Utils::$context['session_var'] . '=' . Utils::$context['session_id']), '">', Lang::getTxt('no', file: 'General'), '</a></strong>
 			</p>
 		</div>';
 }
@@ -83,7 +83,7 @@ function template_notify_pref_changed()
 		<div class="cat_bar">
 			<h3 class="catbg">
 				<span class="main_icons mail icon"></span>
-				', Lang::$txt['notify'], '
+				', Lang::getTxt('notify', file: 'General'), '
 			</h3>
 		</div>
 		<div class="roundframe centertext">

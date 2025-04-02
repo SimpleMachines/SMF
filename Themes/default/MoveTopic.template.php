@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -21,15 +21,15 @@ function template_move()
 {
 	echo '
 	<div id="move_topic" class="lower_padding">
-		<form action="', Config::$scripturl, '?action=movetopic2;current_board=' . Utils::$context['current_board'] . ';topic=', Utils::$context['current_topic'], '.0" method="post" accept-charset="', Utils::$context['character_set'], '" onsubmit="submitonce(this);">
+		<form action="', Config::$scripturl, '?action=movetopic2;current_board=' . Utils::$context['current_board'] . ';topic=', Utils::$context['current_topic'], '.0" method="post" accept-charset="UTF-8" onsubmit="submitonce(this);">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['move_topic'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('move_topic', file: 'General'), '</h3>
 			</div>
 			<div class="windowbg centertext">
 				<div class="move_topic">
 					<dl class="settings">
 						<dt>
-							<strong>', Lang::$txt['move_to'], '</strong>
+							<strong>', Lang::getTxt('move_to', file: 'General'), '</strong>
 						</dt>
 						<dd>
 							<select name="toboard">';
@@ -54,21 +54,21 @@ function template_move()
 	echo '
 					</dl>
 					<label for="reset_subject">
-						<input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').classList.toggle(\'hidden\');"> ', Lang::$txt['movetopic_change_subject'], '
+						<input type="checkbox" name="reset_subject" id="reset_subject" onclick="document.getElementById(\'subjectArea\').classList.toggle(\'hidden\');"> ', Lang::getTxt('movetopic_change_subject', file: 'General'), '
 					</label><br>
 					<fieldset id="subjectArea" class="hidden">
 						<dl class="settings">
-							<dt><strong>', Lang::$txt['movetopic_new_subject'], '</strong></dt>
+							<dt><strong>', Lang::getTxt('movetopic_new_subject', file: 'General'), '</strong></dt>
 							<dd><input type="text" name="custom_subject" size="30" value="', Utils::$context['subject'], '"></dd>
 						</dl>
-						<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject"> ', Lang::$txt['movetopic_change_all_subjects'], '</label>
+						<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject"> ', Lang::getTxt('movetopic_change_all_subjects', file: 'General'), '</label>
 					</fieldset>';
 
 	// Stick our "create a redirection topic" template in here...
 	template_redirect_options('move');
 
 	echo '
-					<input type="submit" value="', Lang::$txt['move_topic'], '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
+					<input type="submit" value="', Lang::getTxt('move_topic', file: 'General'), '" onclick="return submitThisOnce(this);" accesskey="s" class="button">
 				</div><!-- .move_topic -->
 			</div><!-- .windowbg -->';
 
@@ -92,18 +92,18 @@ function template_redirect_options($type)
 {
 	echo '
 					<label for="postRedirect" class="block">
-						<input type="checkbox" name="postRedirect" id="postRedirect"', Utils::$context['is_approved'] ? ' checked' : '', ' onclick="', Utils::$context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . Lang::$txt[$type . '_topic_unapproved_js'] . '\')) return false; ', 'document.getElementById(\'reasonArea\').classList.toggle(\'hidden\');"> ', Lang::$txt['post_redirection'], '
+						<input type="checkbox" name="postRedirect" id="postRedirect"', Utils::$context['is_approved'] ? ' checked' : '', ' onclick="', Utils::$context['is_approved'] ? '' : 'if (this.checked && !confirm(\'' . Lang::getTxt($type . '_topic_unapproved_js', file: 'General') . '\')) return false; ', 'document.getElementById(\'reasonArea\').classList.toggle(\'hidden\');"> ', Lang::getTxt('post_redirection', file: 'General'), '
 					</label>
 					<fieldset id="reasonArea"', Utils::$context['is_approved'] ? '' : 'class="hidden"', '>
 						<dl class="settings">
 							<dt>
-								', Lang::$txt[$type . '_why'], '
+								', Lang::getTxt($type . '_why', file: 'General'), '
 							</dt>
 							<dd>
-								<textarea name="reason">', Lang::getTxt($type . 'topic_default', ['board_link' => Lang::$txt['movetopic_auto_board'], 'topic_link' => Lang::$txt['movetopic_auto_topic']]), '</textarea>
+								<textarea name="reason">', Lang::getTxt($type . 'topic_default', ['board_link' => Lang::getTxt('movetopic_auto_board', file: 'General'), 'topic_link' => Lang::getTxt('movetopic_auto_topic', file: 'General')]), '</textarea>
 							</dd>
 							<dt>
-								<label for="redirect_topic">', Lang::$txt[$type . 'topic_redirect'], '</label>
+								<label for="redirect_topic">', Lang::getTxt($type . 'topic_redirect', file: 'General'), '</label>
 							</dt>
 							<dd>
 								<input type="checkbox" name="redirect_topic" id="redirect_topic" checked>
@@ -113,16 +113,16 @@ function template_redirect_options($type)
 	{
 		echo '
 							<dt>
-								', Lang::$txt['redirect_topic_expires'], '
+								', Lang::getTxt('redirect_topic_expires', file: 'General'), '
 							</dt>
 							<dd>
 								<select name="redirect_expires">
-									<option value="0">', Lang::$txt['never'], '</option>
-									<option value="1440">', Lang::$txt['one_day'], '</option>
-									<option value="10080" selected>', Lang::$txt['one_week'], '</option>
-									<option value="20160">', Lang::$txt['two_weeks'], '</option>
-									<option value="43200">', Lang::$txt['one_month'], '</option>
-									<option value="86400">', Lang::$txt['two_months'], '</option>
+									<option value="0">', Lang::getTxt('never', file: 'General'), '</option>
+									<option value="1440">', Lang::getTxt('one_day', file: 'General'), '</option>
+									<option value="10080" selected>', Lang::getTxt('one_week', file: 'General'), '</option>
+									<option value="20160">', Lang::getTxt('two_weeks', file: 'General'), '</option>
+									<option value="43200">', Lang::getTxt('one_month', file: 'General'), '</option>
+									<option value="86400">', Lang::getTxt('two_months', file: 'General'), '</option>
 								</select>
 							</dd>';
 	}
@@ -143,17 +143,17 @@ function template_merge_done()
 	echo '
 		<div id="merge_topics">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['merge'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('merge', file: 'General'), '</h3>
 			</div>
 			<div class="windowbg">
-				<p>', Lang::$txt['merge_successful'], '</p>
+				<p>', Lang::getTxt('merge_successful', file: 'General'), '</p>
 				<br>
 				<ul>
 					<li>
-						<a href="', Config::$scripturl, '?board=', Utils::$context['target_board'], '.0">', Lang::$txt['message_index'], '</a>
+						<a href="', Config::$scripturl, '?board=', Utils::$context['target_board'], '.0">', Lang::getTxt('message_index', file: 'General'), '</a>
 					</li>
 					<li>
-						<a href="', Config::$scripturl, '?topic=', Utils::$context['target_topic'], '.0">', Lang::$txt['new_merged_topic'], '</a>
+						<a href="', Config::$scripturl, '?topic=', Utils::$context['target_topic'], '.0">', Lang::getTxt('new_merged_topic', file: 'General'), '</a>
 					</li>
 				</ul>
 			</div>
@@ -169,15 +169,15 @@ function template_merge()
 	echo '
 		<div id="merge_topics">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['merge'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('merge', file: 'General'), '</h3>
 			</div>
 			<div class="information">
-				', Lang::$txt['merge_desc'], '
+				', Lang::getTxt('merge_desc', file: 'General'), '
 			</div>
 			<div class="windowbg">
 				<dl class="settings merge_topic">
 					<dt>
-						<strong>', Lang::$txt['topic_to_merge'], '</strong>
+						<strong>', Lang::getTxt('topic_to_merge', file: 'General'), '</strong>
 					</dt>
 					<dd>
 						', Utils::$context['origin_subject'], '
@@ -186,7 +186,7 @@ function template_merge()
 			</div>
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['target_topic'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('target_topic', file: 'General'), '</h3>
 			</div>
 			<div class="title_bar">
 				<h4 class="titlebg">';
@@ -194,8 +194,8 @@ function template_merge()
 	if (isset(Utils::$context['merge_categories']))
 	{
 		echo '
-					<form action="' . Config::$scripturl . '?action=mergetopics;from=' . Utils::$context['origin_topic'] . ';targetboard=' . Utils::$context['target_board'] . ';board=' . Utils::$context['current_board'] . '.0" method="post" accept-charset="', Utils::$context['character_set'], '" id="mergeSelectBoard">
-						', Lang::$txt['target_below'], ' (', Lang::$txt['board'], ':
+					<form action="' . Config::$scripturl . '?action=mergetopics;from=' . Utils::$context['origin_topic'] . ';targetboard=' . Utils::$context['target_board'] . ';board=' . Utils::$context['current_board'] . '.0" method="post" accept-charset="UTF-8" id="mergeSelectBoard">
+						', Lang::getTxt('target_below', file: 'General'), ' (', Lang::getTxt('board', file: 'General'), ':
 						<select name="targetboard" onchange="this.form.submit();">';
 
 		foreach (Utils::$context['merge_categories'] as $cat)
@@ -213,15 +213,15 @@ function template_merge()
 		echo '
 						</select>)
 						<input type="hidden" name="from" value="' . Utils::$context['origin_topic'] . '">
-						<input type="submit" value="', Lang::$txt['go'], '" class="button">
+						<input type="submit" value="', Lang::getTxt('go', file: 'General'), '" class="button">
 					</form>';
 	}
 	else
-		echo Lang::$txt['target_below'];
+		echo Lang::getTxt('target_below', file: 'General');
 
 	echo '		</h4>
 			</div><!-- .title_bar -->
-			<form action="', Config::$scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="', Utils::$context['character_set'], '">';
+			<form action="', Config::$scripturl, '?action=mergetopics;sa=options" method="post" accept-charset="UTF-8">';
 
 	// Don't show this if there aren't any topics...
 	if (!empty(Utils::$context['topics']))
@@ -237,7 +237,7 @@ function template_merge()
 			echo '
 						<li>
 							<a href="', Config::$scripturl, '?action=mergetopics;sa=options;board=', Utils::$context['current_board'], '.0;from=', Utils::$context['origin_topic'], ';to=', $topic['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '"><span class="main_icons merge"></span></a>
-							<a href="', Config::$scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', Lang::getTxt('started_by_member', ['member' => $topic['poster']['link']]), '
+							<a href="', Config::$scripturl, '?topic=', $topic['id'], '.0" target="_blank" rel="noopener">', $topic['subject'], '</a> ', Lang::getTxt('started_by_member', ['member' => $topic['poster']['link']], file: 'General'), '
 						</li>';
 
 		echo '
@@ -250,17 +250,17 @@ function template_merge()
 	// Just a nice "There aren't any topics" message
 	else
 		echo '
-				<div class="windowbg">', Lang::$txt['topic_alert_none'], '</div>';
+				<div class="windowbg">', Lang::getTxt('topic_alert_none', file: 'General'), '</div>';
 
 	echo '
 				<br>
 				<div class="title_bar">
-					<h4 class="titlebg">', Lang::$txt['target_id'], '</h4>
+					<h4 class="titlebg">', Lang::getTxt('target_id', file: 'General'), '</h4>
 				</div>
 				<div class="windowbg">
 					<dl class="settings merge_topic">
 						<dt>
-							<strong>', Lang::$txt['merge_to_topic_id'], '</strong>
+							<strong>', Lang::getTxt('merge_to_topic_id', file: 'General'), '</strong>
 						</dt>
 						<dd>
 							<input type="hidden" name="topics[]" value="', Utils::$context['origin_topic'], '">
@@ -269,7 +269,7 @@ function template_merge()
 
 						</dd>
 					</dl>
-					<input type="submit" value="', Lang::$txt['merge'], '" class="button">
+					<input type="submit" value="', Lang::getTxt('merge', file: 'General'), '" class="button">
 				</div>
 			</form>
 		</div><!-- #merge_topics -->';
@@ -282,18 +282,18 @@ function template_merge_extra_options()
 {
 	echo '
 	<div id="merge_topics">
-		<form action="', Config::$scripturl, '?action=mergetopics;sa=merge;" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=mergetopics;sa=merge;" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['merge_topic_list'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('merge_topic_list', file: 'General'), '</h3>
 			</div>
 			<table class="bordercolor table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th scope="col" style="width:10px;">', Lang::$txt['merge_check'], '</th>
-						<th scope="col" class="lefttext">', Lang::$txt['subject'], '</th>
-						<th scope="col" class="lefttext">', Lang::$txt['started_by'], '</th>
-						<th scope="col" class="lefttext">', Lang::$txt['last_post'], '</th>
-						<th scope="col" style="width:20px;">' . Lang::$txt['merge_include_notifications'] . '</th>
+						<th scope="col" style="width:10px;">', Lang::getTxt('merge_check', file: 'General'), '</th>
+						<th scope="col" class="lefttext">', Lang::getTxt('subject', file: 'General'), '</th>
+						<th scope="col" class="lefttext">', Lang::getTxt('started_by', file: 'General'), '</th>
+						<th scope="col" class="lefttext">', Lang::getTxt('last_post', file: 'General'), '</th>
+						<th scope="col" style="width:20px;">' . Lang::getTxt('merge_include_notifications', file: 'General') . '</th>
 					</tr>
 				</thead>
 				<tbody>';
@@ -325,18 +325,18 @@ function template_merge_extra_options()
 			<br>
 			<div class="windowbg">
 				<fieldset id="merge_subject" class="merge_options">
-					<legend>', Lang::$txt['merge_select_subject'], '</legend>
+					<legend>', Lang::getTxt('merge_select_subject', file: 'General'), '</legend>
 					<select name="subject" onchange="this.form.custom_subject.style.display = (this.options[this.selectedIndex].value != 0) ? \'none\': \'\' ;">';
 
 	foreach (Utils::$context['topics'] as $topic)
 		echo '
 						<option value="', $topic['id'], '"' . ($topic['selected'] ? ' selected' : '') . '>', $topic['subject'], '</option>';
 	echo '
-						<option value="0">', Lang::$txt['merge_custom_subject'], '</option>
+						<option value="0">', Lang::getTxt('merge_custom_subject', file: 'General'), '</option>
 					</select>
 					<br>
 					<input type="text" name="custom_subject" size="60" id="custom_subject" class="custom_subject" style="display: none;"><br>
-					<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject" value="1"> ', Lang::$txt['movetopic_change_all_subjects'], '</label>
+					<label for="enforce_subject"><input type="checkbox" name="enforce_subject" id="enforce_subject" value="1"> ', Lang::getTxt('movetopic_change_all_subjects', file: 'General'), '</label>
 				</fieldset>';
 
 	// Show an option to create a redirection topic as well...
@@ -346,7 +346,7 @@ function template_merge_extra_options()
 	{
 		echo '
 				<fieldset id="merge_board" class="merge_options">
-					<legend>', Lang::$txt['merge_select_target_board'], '</legend>
+					<legend>', Lang::getTxt('merge_select_target_board', file: 'General'), '</legend>
 					<ul>';
 
 		foreach (Utils::$context['boards'] as $board)
@@ -362,17 +362,17 @@ function template_merge_extra_options()
 	{
 		echo '
 				<fieldset id="merge_poll" class="merge_options">
-					<legend>' . Lang::$txt['merge_select_poll'] . '</legend>
+					<legend>' . Lang::getTxt('merge_select_poll', file: 'General') . '</legend>
 					<ul>';
 
 		foreach (Utils::$context['polls'] as $poll)
 			echo '
 						<li>
-							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . Lang::$txt['topic'] . ': <a href="' . Config::$scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" rel="noopener">' . $poll['topic']['subject'] . '</a>)
+							<input type="radio" name="poll" value="' . $poll['id'] . '"' . ($poll['selected'] ? ' checked' : '') . '> ' . $poll['question'] . ' (' . Lang::getTxt('topic', file: 'General') . ': <a href="' . Config::$scripturl . '?topic=' . $poll['topic']['id'] . '.0" target="_blank" rel="noopener">' . $poll['topic']['subject'] . '</a>)
 						</li>';
 		echo '
 						<li>
-							<input type="radio" name="poll" value="-1"> (' . Lang::$txt['merge_no_poll'] . ')
+							<input type="radio" name="poll" value="-1"> (' . Lang::getTxt('merge_no_poll', file: 'General') . ')
 						</li>
 					</ul>
 				</fieldset>';
@@ -380,7 +380,7 @@ function template_merge_extra_options()
 
 	echo '
 				<div class="auto_flow">
-					<input type="submit" value="' . Lang::$txt['merge'] . '" class="button">
+					<input type="submit" value="' . Lang::getTxt('merge', file: 'General') . '" class="button">
 					<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 					<input type="hidden" name="sa" value="execute">
 				</div>

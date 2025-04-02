@@ -235,6 +235,33 @@ class News implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('ManageNews');
+
+		// Create the tabs for the template.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::getTxt('news_title', file: 'Admin'),
+			'help' => 'edit_news',
+			'description' => Lang::getTxt('admin_news_desc', file: 'Admin'),
+			'tabs' => [
+				'editnews' => [
+				],
+				'mailingmembers' => [
+					'description' => Lang::getTxt('news_mailing_desc', file: 'Admin'),
+				],
+				'settings' => [
+					'description' => Lang::getTxt('news_settings_desc', file: 'Admin'),
+				],
+			],
+		];
+
+		// Force the right area...
+		if (str_starts_with($this->subaction, 'mailing')) {
+			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
+		}
+
+		// Insert dynamic values into the list options.
+		$this->setListOptions();
+
 		// Have you got the proper permissions?
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
@@ -297,7 +324,7 @@ class News implements ActionInterface
 			Logging::logAction('news');
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['admin_edit_news'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_edit_news', file: 'Admin');
 
 		// Create the request list.
 		new ItemList($this->list_options);
@@ -321,7 +348,7 @@ class News implements ActionInterface
 		// Is there any confirm message?
 		Utils::$context['newsletter_sent'] = $_SESSION['newsletter_sent'] ?? '';
 
-		Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_newsletters', file: 'Admin');
 
 		Utils::$context['sub_template'] = 'email_members';
 
@@ -377,11 +404,11 @@ class News implements ActionInterface
 	public function compose(): void
 	{
 		// Setup the template!
-		Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_newsletters', file: 'Admin');
 		Utils::$context['sub_template'] = 'email_members_compose';
 
-		Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::$txt['subject']);
-		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::$txt['message'] . "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']]) . "\n\n" . '{$board_url}');
+		Utils::$context['subject'] = !empty($_POST['subject']) ? $_POST['subject'] : Utils::htmlspecialchars(Utils::$context['forum_name'] . ': ' . Lang::getTxt('subject', file: 'General'));
+		Utils::$context['message'] = !empty($_POST['message']) ? $_POST['message'] : Utils::htmlspecialchars(Lang::getTxt('message', file: 'General') . "\n\n" . Lang::getTxt('regards_team', ['forum_name' => Utils::$context['forum_name']], file: 'General') . "\n\n" . '{$board_url}');
 
 		// Now create the editor.
 		new Editor([
@@ -390,7 +417,7 @@ class News implements ActionInterface
 			'height' => '150px',
 			'width' => '100%',
 			'labels' => [
-				'post_button' => Lang::$txt['sendtopic_send'],
+				'post_button' => Lang::getTxt('sendtopic_send', file: 'General'),
 			],
 			'preview_type' => Editor::PREVIEW_XML,
 			'required' => true,
@@ -467,9 +494,6 @@ class News implements ActionInterface
 
 		// Clean the other vars.
 		self::send(true);
-
-		// We need a couple strings from the email template file
-		Lang::load('EmailTemplates');
 
 		// Get a list of all full banned users.  Use their Username and email to find them.  Only get the ones that can't login to turn off notification.
 		$request = Db::$db->query(
@@ -825,7 +849,7 @@ class News implements ActionInterface
 			}
 
 			// Non-members can't unsubscribe via the automated system.
-			$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_manual', ['email' => empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']]);
+			$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_manual', ['email' => empty(Config::$modSettings['mail_from']) ? Config::$webmaster_email : Config::$modSettings['mail_from']], file: 'General');
 
 			$to_member = [
 				$email,
@@ -951,9 +975,9 @@ class News implements ActionInterface
 				$cleanMemberName = empty($_POST['send_html']) || Utils::$context['send_pm'] ? Utils::htmlspecialcharsDecode($row['real_name']) : $row['real_name'];
 
 				if (!empty($include_unsubscribe)) {
-					$token = Notify::createUnsubscribeToken($row['id_member'], $row['email_address'], 'announcements');
+					$token = Notify::createUnsubscribeToken((int) $row['id_member'], $row['email_address'], 'announcements');
 
-					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token]);
+					$unsubscribe_link = Lang::getTxt('unsubscribe_announcements_' . (!empty($_POST['send_html']) ? 'html' : 'plain'), ['url' => Config::$scripturl . '?action=notifyannouncements;u=' . $row['id_member'] . ';token=' . $token], file: 'General');
 				} else {
 					$unsubscribe_link = '';
 				}
@@ -1020,7 +1044,7 @@ class News implements ActionInterface
 
 		Utils::$context['percentage_done'] = round(($percentEmails + $percentMembers) * 100, 2);
 
-		Utils::$context['page_title'] = Lang::$txt['admin_newsletters'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_newsletters', file: 'Admin');
 		Utils::$context['sub_template'] = 'email_members_send';
 	}
 
@@ -1036,7 +1060,7 @@ class News implements ActionInterface
 	{
 		$config_vars = self::getConfigVars();
 
-		Utils::$context['page_title'] = Lang::$txt['admin_edit_news'] . ' - ' . Lang::$txt['settings'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_edit_news', file: 'Admin') . ' - ' . Lang::getTxt('settings', file: 'General');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Wrap it all up nice and warm...
@@ -1083,8 +1107,8 @@ class News implements ActionInterface
 
 			// Just the remaining settings.
 			['check', 'xmlnews_enable', 'onclick' => 'document.getElementById(\'xmlnews_maxlen\').disabled = !this.checked;'],
-			['int', 'xmlnews_maxlen', 'subtext' => Lang::$txt['xmlnews_maxlen_note'], 10],
-			['check', 'xmlnews_attachments', 'subtext' => Lang::$txt['xmlnews_attachments_note']],
+			['int', 'xmlnews_maxlen', 'subtext' => Lang::getTxt('xmlnews_maxlen_note', file: 'Admin'), 10],
+			['check', 'xmlnews_attachments', 'subtext' => Lang::getTxt('xmlnews_attachments_note', file: 'Admin')],
 		];
 
 		IntegrationHook::call('integrate_modify_news_settings', [&$config_vars]);
@@ -1161,8 +1185,6 @@ class News implements ActionInterface
 	 */
 	public static function prepareMailingForPreview(): void
 	{
-		Lang::load('Errors');
-
 		$processing = ['preview_subject' => 'subject', 'preview_message' => 'message'];
 
 		// Use the default time format.
@@ -1183,7 +1205,7 @@ class News implements ActionInterface
 			Utils::$context[$key] = !empty($_REQUEST[$post]) ? $_REQUEST[$post] : '';
 
 			if (empty(Utils::$context[$key]) && empty($_REQUEST['xml'])) {
-				Utils::$context['post_error']['messages'][] = Lang::$txt['error_no_' . $post];
+				Utils::$context['post_error']['messages'][] = Lang::getTxt('error_no_' . $post, file: 'Errors');
 			} elseif (!empty($_REQUEST['xml'])) {
 				continue;
 			}
@@ -1221,37 +1243,10 @@ class News implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Theme::loadTemplate('ManageNews');
-
-		// Create the tabs for the template.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['news_title'],
-			'help' => 'edit_news',
-			'description' => Lang::$txt['admin_news_desc'],
-			'tabs' => [
-				'editnews' => [
-				],
-				'mailingmembers' => [
-					'description' => Lang::$txt['news_mailing_desc'],
-				],
-				'settings' => [
-					'description' => Lang::$txt['news_settings_desc'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_news', [&self::$subactions]);
 
 		// Default to sub action 'main' or 'settings' depending on permissions.
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('edit_news') ? 'editnews' : (User::$me->allowedTo('send_mail') ? 'mailingmembers' : 'settings'));
-
-		// Force the right area...
-		if (str_starts_with($this->subaction, 'mailing')) {
-			Menu::$loaded['admin']['current_subsection'] = 'mailingmembers';
-		}
-
-		// Insert dynamic values into the list options.
-		$this->setListOptions();
 	}
 
 	/**
@@ -1295,7 +1290,7 @@ class News implements ActionInterface
 								break;
 
 							default:
-								$new_value = Lang::$txt[$matches[2]] ?? $matches[0];
+								$new_value = Lang::txtExists($matches[2], file: 'General+Admin') ? Lang::getTxt($matches[2], file: 'General+Admin') : $matches[0];
 								break;
 						}
 

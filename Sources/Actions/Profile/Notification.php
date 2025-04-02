@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -317,13 +317,13 @@ class Notification implements ActionInterface
 
 		if (isset(Menu::$loaded['profile'])) {
 			Menu::$loaded['profile']->tab_data = [
-				'title' => Lang::$txt['notification'],
+				'title' => Lang::getTxt('notification', file: 'Profile'),
 				'help' => '',
-				'description' => Lang::$txt['notification_info'],
+				'description' => Lang::getTxt('notification_info', file: 'Profile'),
 			];
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -410,13 +410,11 @@ class Notification implements ActionInterface
 				}
 
 				foreach ($option['opts'] as &$value) {
-					$value = Lang::$txt[$value] ?? $value;
+					$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
 				}
 			}
 		}
 
-		// Now, now, we could pass this through global but we should really get into the habit of
-		// passing content to hooks, not expecting hooks to splatter everything everywhere.
 		IntegrationHook::call('integrate_alert_types', [&$this->alert_types, &$this->group_options]);
 
 		// Now we have to do some permissions testing - but only if we're not loading this from the admin center
@@ -548,7 +546,7 @@ class Notification implements ActionInterface
 
 			$this->changeNotifications();
 
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		SecurityToken::create(Utils::$context['token_check'], 'post');
@@ -565,8 +563,6 @@ class Notification implements ActionInterface
 		// We only want to output our little layer here.
 		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'alerts_all_read';
-
-		Lang::load('Alerts');
 
 		// Now we're all set up.
 		User::$me->kickIfGuest();
@@ -591,7 +587,7 @@ class Notification implements ActionInterface
 			SecurityToken::validate(str_replace('%u', (string) Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$this->changeNotifications();
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		// Now set up for the token check.
@@ -603,7 +599,7 @@ class Notification implements ActionInterface
 			'id' => 'topic_notification_list',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['notifications_topics_none'] . '<br><br>' . Lang::$txt['notifications_topics_howto'],
+			'no_items_label' => Lang::getTxt('notifications_topics_none', file: 'Profile') . '<br><br>' . Lang::getTxt('notifications_topics_howto', file: 'Profile'),
 			'no_items_align' => 'left',
 			'base_href' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=notification;sa=topics',
 			'default_sort_col' => 'last_post',
@@ -618,7 +614,7 @@ class Notification implements ActionInterface
 			'columns' => [
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['notifications_topics'],
+						'value' => Lang::getTxt('notifications_topics', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -626,9 +622,10 @@ class Notification implements ActionInterface
 							return Lang::getTxt(
 								'topic_in_board',
 								[
-									'topic_link' => $topic['link'] . ($topic['new'] ? ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>' : ''),
+									'topic_link' => $topic['link'] . ($topic['new'] ? ' <a href="' . $topic['new_href'] . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>' : ''),
 									'board_link' => $topic['board_link'],
 								],
+								file: 'General',
 							);
 						},
 					],
@@ -639,7 +636,7 @@ class Notification implements ActionInterface
 				],
 				'started_by' => [
 					'header' => [
-						'value' => Lang::$txt['started_by'],
+						'value' => Lang::getTxt('started_by', file: 'General'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -652,12 +649,12 @@ class Notification implements ActionInterface
 				],
 				'last_post' => [
 					'header' => [
-						'value' => Lang::$txt['last_post'],
+						'value' => Lang::getTxt('last_post', file: 'General'),
 						'class' => 'lefttext',
 					],
 					'data' => [
 						'function' => function ($topic) {
-							return '<span class="smalltext">' . Lang::getTxt('last_post_updated', ['time' => $topic['updated'], 'member_link' => $topic['poster_updated_link']]) . '</span>';
+							return '<span class="smalltext">' . Lang::getTxt('last_post_updated', ['time' => $topic['updated'], 'member_link' => $topic['poster_updated_link']], file: 'General') . '</span>';
 						},
 					],
 					'sort' => [
@@ -667,7 +664,7 @@ class Notification implements ActionInterface
 				],
 				'alert_pref' => [
 					'header' => [
-						'value' => Lang::$txt['notify_what_how'],
+						'value' => Lang::getTxt('notify_what_how', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -675,7 +672,7 @@ class Notification implements ActionInterface
 							$pref = $topic['notify_pref'];
 							$mode = !empty($topic['unwatched']) ? 0 : ($pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1));
 
-							return Lang::$txt['notify_topic_' . $mode];
+							return Lang::getTxt('notify_topic_' . $mode, file: 'General');
 						},
 					],
 				],
@@ -686,8 +683,8 @@ class Notification implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="notify_topics[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="notify_topics[]" value="{id}">',
 							'params' => [
 								'id' => false,
 							],
@@ -710,8 +707,8 @@ class Notification implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="edit_notify_topics" value="' . Lang::$txt['notifications_update'] . '" class="button">
-								<input type="submit" name="remove_notify_topics" value="' . Lang::$txt['notification_remove_pref'] . '" class="button">',
+					'value' => '<input type="submit" name="edit_notify_topics" value="' . Lang::getTxt('notifications_update', file: 'Profile') . '" class="button">
+								<input type="submit" name="remove_notify_topics" value="' . Lang::getTxt('notification_remove_pref', file: 'Profile') . '" class="button">',
 					'class' => 'floatright',
 				],
 			],
@@ -732,7 +729,7 @@ class Notification implements ActionInterface
 			SecurityToken::validate(str_replace('%u', (string) Profile::$member->id, 'profile-nt%u'), 'post');
 
 			$this->changeNotifications();
-			Utils::$context['profile_updated'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['profile_updated'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 		}
 
 		// Now set up for the token check.
@@ -743,7 +740,7 @@ class Notification implements ActionInterface
 		$list_options = [
 			'id' => 'board_notification_list',
 			'width' => '100%',
-			'no_items_label' => Lang::$txt['notifications_boards_none'] . '<br><br>' . Lang::$txt['notifications_boards_howto'],
+			'no_items_label' => Lang::getTxt('notifications_boards_none', file: 'Profile') . '<br><br>' . Lang::getTxt('notifications_boards_howto', file: 'Profile'),
 			'no_items_align' => 'left',
 			'base_href' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=notification;sa=boards',
 			'default_sort_col' => 'board_name',
@@ -754,7 +751,7 @@ class Notification implements ActionInterface
 			'columns' => [
 				'board_name' => [
 					'header' => [
-						'value' => Lang::$txt['notifications_boards'],
+						'value' => Lang::getTxt('notifications_boards', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -762,7 +759,7 @@ class Notification implements ActionInterface
 							$link = $board['link'];
 
 							if ($board['new']) {
-								$link .= ' <a href="' . $board['href'] . '" class="new_posts">' . Lang::$txt['new'] . '</a>';
+								$link .= ' <a href="' . $board['href'] . '" class="new_posts">' . Lang::getTxt('new', file: 'General') . '</a>';
 							}
 
 							return $link;
@@ -775,7 +772,7 @@ class Notification implements ActionInterface
 				],
 				'alert_pref' => [
 					'header' => [
-						'value' => Lang::$txt['notify_what_how'],
+						'value' => Lang::getTxt('notify_what_how', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -783,7 +780,7 @@ class Notification implements ActionInterface
 							$pref = $board['notify_pref'];
 							$mode = $pref & 0x02 ? 3 : ($pref & 0x01 ? 2 : 1);
 
-							return Lang::$txt['notify_board_' . $mode];
+							return Lang::getTxt('notify_board_' . $mode, file: 'General');
 						},
 					],
 				],
@@ -794,8 +791,8 @@ class Notification implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="notify_boards[]" value="%1$d">',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="notify_boards[]" value="{id}">',
 							'params' => [
 								'id' => false,
 							],
@@ -818,8 +815,8 @@ class Notification implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="edit_notify_boards" value="' . Lang::$txt['notifications_update'] . '" class="button">
-								<input type="submit" name="remove_notify_boards" value="' . Lang::$txt['notification_remove_pref'] . '" class="button">',
+					'value' => '<input type="submit" name="edit_notify_boards" value="' . Lang::getTxt('notifications_update', file: 'Profile') . '" class="button">
+								<input type="submit" name="remove_notify_boards" value="' . Lang::getTxt('notification_remove_pref', file: 'Profile') . '" class="button">',
 					'class' => 'floatright',
 				],
 			],
@@ -974,18 +971,6 @@ class Notification implements ActionInterface
 		Db::$db->free_result($request);
 
 		return $notification_boards;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the changeNotifications method.
-	 *
-	 * @param int $memID The ID of the member.
-	 */
-	public static function makeNotificationChanges(int $memID): void
-	{
-		self::load();
-		Profile::load($memID);
-		self::$obj->changeNotifications();
 	}
 
 	/******************

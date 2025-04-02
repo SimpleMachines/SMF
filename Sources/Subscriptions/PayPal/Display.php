@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -38,17 +38,17 @@ class Display
 		$setting_data = [
 			[
 				'email', 'paypal_email',
-				'subtext' => Lang::$txt['paypal_email_desc'],
+				'subtext' => Lang::getTxt('paypal_email_desc', file: 'ManagePaid'),
 				'size' => 60,
 			],
 			[
 				'email', 'paypal_additional_emails',
-				'subtext' => Lang::$txt['paypal_additional_emails_desc'],
+				'subtext' => Lang::getTxt('paypal_additional_emails_desc', file: 'ManagePaid'),
 				'size' => 60,
 			],
 			[
 				'email', 'paypal_sandbox_email',
-				'subtext' => Lang::$txt['paypal_sandbox_email_desc'],
+				'subtext' => Lang::getTxt('paypal_sandbox_email_desc', file: 'ManagePaid'),
 				'size' => 60,
 			],
 		];
@@ -85,15 +85,15 @@ class Display
 			'form' => 'https://www.' . (!empty(Config::$modSettings['paidsubs_test']) ? 'sandbox.' : '') . 'paypal.com/cgi-bin/webscr',
 			'id' => 'paypal',
 			'hidden' => [],
-			'title' => Lang::$txt['paypal'],
-			'desc' => Lang::$txt['paid_confirm_paypal'],
-			'submit' => Lang::$txt['paid_paypal_order'],
+			'title' => Lang::getTxt('paypal', file: 'ManagePaid'),
+			'desc' => Lang::getTxt('paid_confirm_paypal', file: 'ManagePaid'),
+			'submit' => Lang::getTxt('paid_paypal_order', file: 'ManagePaid'),
 			'javascript' => '',
 		];
 
 		// All the standard bits.
 		$return_data['hidden']['business'] = Config::$modSettings['paypal_email'];
-		$return_data['hidden']['item_name'] = $sub_data['name'] . ' ' . Lang::$txt['subscription'];
+		$return_data['hidden']['item_name'] = $sub_data['name'] . ' ' . Lang::getTxt('subscription', file: 'ManagePaid');
 		$return_data['hidden']['item_number'] = $unique_id;
 		$return_data['hidden']['currency_code'] = strtoupper(Config::$modSettings['paid_currency_code']);
 		$return_data['hidden']['no_shipping'] = 1;
@@ -106,7 +106,7 @@ class Display
 		$return_data['hidden']['notify_url'] = Config::$boardurl . '/subscriptions.php';
 
 		// If possible let's use the language we know we need.
-		$return_data['hidden']['lc'] = !empty(Lang::$txt['lang_paypal']) ? Lang::$txt['lang_paypal'] : 'US';
+		$return_data['hidden']['lc'] = !empty(Lang::getTxt('lang_paypal', file: 'ManagePaid')) ? Lang::getTxt('lang_paypal', file: 'ManagePaid') : 'US';
 
 		// Now stuff dependant on what we're doing.
 		if ($sub_data['flexible']) {
@@ -124,7 +124,7 @@ class Display
 		// If it's repeatable do some javascript to respect this idea.
 		if (!empty($sub_data['repeatable'])) {
 			$return_data['javascript'] = '
-				document.write(\'<label for="do_paypal_recur"><input type="checkbox" name="do_paypal_recur" id="do_paypal_recur" checked onclick="switchPaypalRecur();">' . Lang::$txt['paid_make_recurring'] . '</label><br>\');
+				document.write(\'<label for="do_paypal_recur"><input type="checkbox" name="do_paypal_recur" id="do_paypal_recur" checked onclick="switchPaypalRecur();">' . Lang::getTxt('paid_make_recurring', file: 'ManagePaid') . '</label><br>\');
 
 				function switchPaypalRecur()
 				{

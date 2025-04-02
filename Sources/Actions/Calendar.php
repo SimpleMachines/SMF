@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -30,6 +30,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\TimeInterval;
@@ -42,10 +43,9 @@ use SMF\Utils;
  * This class has only one real task, showing the calendar.
  * Original module by Aaron O'Neil - aaron@mud-master.com
  */
-class Calendar implements ActionInterface
+class Calendar implements ActionInterface, Routable
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -85,7 +85,13 @@ class Calendar implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		// Some global template resources.
+		Utils::$context['calendar_resources'] = [
+			'min_year' => Config::$modSettings['cal_minyear'],
+			'max_year' => Config::$modSettings['cal_maxyear'],
+		];
+
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -143,7 +149,7 @@ class Calendar implements ActionInterface
 		}
 
 		// Set the page title to mention the calendar ;).
-		Utils::$context['page_title'] = Lang::$txt['calendar'];
+		Utils::$context['page_title'] = Lang::getTxt('calendar', file: 'Calendar');
 
 		// Ensure a default view is defined
 		if (empty(Theme::$current->options['calendar_default_view'])) {
@@ -162,7 +168,17 @@ class Calendar implements ActionInterface
 		}
 
 		// Don't let search engines index the non-default calendar pages
-		if (Utils::$context['calendar_view'] !== Theme::$current->options['calendar_default_view']) {
+		if (
+			Utils::$context['calendar_view'] !== Theme::$current->options['calendar_default_view']
+			|| !empty($_REQUEST['start_date'])
+			|| !empty($_REQUEST['year'])
+			|| !empty($_REQUEST['month'])
+			|| !empty($_REQUEST['day'])
+			|| !empty($_REQUEST['end_date'])
+			|| !empty($_REQUEST['end_year'])
+			|| !empty($_REQUEST['end_month'])
+			|| !empty($_REQUEST['end_day'])
+		) {
 			Utils::$context['robot_no_index'] = true;
 		}
 
@@ -295,18 +311,18 @@ class Calendar implements ActionInterface
 
 		// Set the page title to mention the month or week, too
 		if (Utils::$context['calendar_view'] != 'viewlist') {
-			Utils::$context['page_title'] .= ' - ' . (Utils::$context['calendar_view'] == 'viewweek' ? Utils::$context['calendar_grid_main']['week_title'] : Lang::$txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year']);
+			Utils::$context['page_title'] .= ' - ' . (Utils::$context['calendar_view'] == 'viewweek' ? Utils::$context['calendar_grid_main']['week_title'] : Lang::getTxt(['months_titles', Utils::$context['current_month']], file: 'General') . ' ' . Utils::$context['current_year']);
 		}
 
 		// Load up the linktree!
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=calendar',
-			'name' => Lang::$txt['calendar'],
+			'name' => Lang::getTxt('calendar', file: 'Calendar'),
 		];
 		// Add the current month to the linktree.
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=calendar;year=' . Utils::$context['current_year'] . ';month=' . Utils::$context['current_month'],
-			'name' => Lang::$txt['months_titles'][Utils::$context['current_month']] . ' ' . Utils::$context['current_year'],
+			'name' => Lang::getTxt(['months_titles', Utils::$context['current_month']], file: 'General') . ' ' . Utils::$context['current_year'],
 		];
 
 		// If applicable, add the current week to the linktree.
@@ -323,7 +339,7 @@ class Calendar implements ActionInterface
 		if (Utils::$context['can_post']) {
 			Utils::$context['calendar_buttons']['post_event'] = [
 				'text' => 'calendar_post_event',
-				'url' => Config::$scripturl . '?action=calendar;sa=post;month=' . Utils::$context['current_month'] . ';year=' . Utils::$context['current_year'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+				'url' => Config::$scripturl . '?action=calendar;sa=post;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 			];
 		}
 
@@ -333,7 +349,7 @@ class Calendar implements ActionInterface
 			if (BrowserDetector::isBrowser('safari') || BrowserDetector::isBrowser('iphone')) {
 				$webcal_url = preg_replace('/^https?/', 'webcal', $webcal_url);
 			} else {
-				$webcal_url = 'javascript:navigator.clipboard.writeText(' . Utils::escapeJavaScript($webcal_url) . ');alert(' . Utils::escapeJavaScript(Lang::$txt['calendar_subscribe_url_copied']) . ')';
+				$webcal_url = 'javascript:navigator.clipboard.writeText(' . Utils::escapeJavaScript($webcal_url) . ');alert(' . Utils::escapeJavaScript(Lang::getTxt('calendar_subscribe_url_copied', file: 'Calendar')) . ')';
 			}
 
 			$ics_url = Config::$scripturl . '?action=calendar;sa=ical';
@@ -361,12 +377,12 @@ class Calendar implements ActionInterface
 					break;
 			}
 
-			Lang::$txt[''] = '';
+			Lang::setTxt('', '');
 
 			Utils::$context['calendar_buttons']['cal_export'] = [
 				'text' => '',
 				'class' => 'main_icons feed',
-				'custom' => 'title="' . Lang::getTxt('calendar_subscribe') . '"',
+				'custom' => 'title="' . Lang::getTxt('calendar_subscribe', file: 'Calendar') . '"',
 				'url' => $ics_url,
 				'sub_buttons' => [
 					'subscribe' => [
@@ -573,7 +589,7 @@ class Calendar implements ActionInterface
 		Theme::loadTemplate('Calendar');
 		Utils::$context['sub_template'] = 'event_post';
 
-		Utils::$context['page_title'] = isset($_REQUEST['eventid']) ? Lang::$txt['calendar_edit'] : Lang::$txt['calendar_post_event'];
+		Utils::$context['page_title'] = Lang::getTxt(isset($_REQUEST['eventid']) ? 'calendar_edit' : 'calendar_post_event', file: 'Calendar');
 		Utils::$context['linktree'][] = [
 			'name' => Utils::$context['page_title'],
 		];
@@ -720,7 +736,7 @@ class Calendar implements ActionInterface
 				$file['content'][] = VTimeZone::load($tzid)->export($range['min'], $range['max']);
 			}
 
-			$file['filename'] = implode(' ', [Utils::$context['forum_name'], Lang::$txt['events'], $low_date->format('Y-m-d'), $high_date->format('Y-m-d')]) . '.ics';
+			$file['filename'] = implode(' ', [Utils::$context['forum_name'], Lang::getTxt('events', file: 'Calendar'), $low_date->format('Y-m-d'), $high_date->format('Y-m-d')]) . '.ics';
 		}
 
 		$file['content'][] = 'END:VCALENDAR';
@@ -745,7 +761,7 @@ class Calendar implements ActionInterface
 		Utils::$context['page_title'] = 'Anyone know what time it is?';
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=calendar',
-			'name' => Lang::$txt['calendar'],
+			'name' => Lang::getTxt('calendar', file: 'Calendar'),
 		];
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=calendar;sa=clock',
@@ -850,7 +866,7 @@ class Calendar implements ActionInterface
 		$high_date = (new \DateTimeImmutable($high_date . ' +1 day'))->format('Y-m-d');
 
 		foreach (Event::getOccurrencesInRange($low_date, $high_date, $use_permissions) as $occurrence) {
-			$cal_date = new Time($occurrence->start_date_local, $tz);
+			$cal_date = new Time($occurrence->start->format('Y-m-d'), $tz);
 
 			while (
 				$cal_date->getTimestamp() < $occurrence->end->getTimestamp()
@@ -1214,7 +1230,7 @@ class Calendar implements ActionInterface
 		$events = $calendarOptions['show_events'] ? self::getEventRange($first_day_object->format('Y-m-d'), $last_day_object->format('Y-m-d')) : [];
 		$holidays = $calendarOptions['show_holidays'] ? self::getHolidayRange($first_day_object->format('Y-m-d'), $last_day_object->format('Y-m-d')) : [];
 
-		$calendarGrid['week_title'] = Lang::getTxt('calendar_week_beginning', ['date' => $first_day_object->format(Time::getDateFormat())]);
+		$calendarGrid['week_title'] = Lang::getTxt('calendar_week_beginning', ['date' => $first_day_object->format(Time::getDateFormat())], file: 'Calendar');
 
 		// This holds all the main data - there is at least one month!
 		$calendarGrid['months'] = [];
@@ -1343,7 +1359,13 @@ class Calendar implements ActionInterface
 				'birthdays' => (!empty($eventOptions['include_birthdays']) ? self::getBirthdayRange($low_date, $high_date) : []),
 				'events' => (!empty($eventOptions['include_events']) ? self::getEventRange($low_date, $high_date, false) : []),
 			],
-			'refresh_eval' => 'return \'' . Time::strftime('%Y%m%d', time()) . '\' != \\SMF\\Time::strftime(\'%Y%m%d\', time()) || (!empty(\\SMF\\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \\SMF\\Config::$modSettings[\'calendar_updated\']);',
+			'check_outdated' => [
+				'callback' => self::class . '::cacheIsOutdated',
+				'args' => [
+					'date' => Time::strftime('%Y%m%d', time()),
+					'time' => time(),
+				],
+			],
 			'expires' => time() + 3600,
 		];
 	}
@@ -1449,33 +1471,71 @@ class Calendar implements ActionInterface
 		return [
 			'data' => $return_data,
 			'expires' => time() + 3600,
-			'refresh_eval' => 'return \'' . Time::strftime('%Y%m%d', time()) . '\' != \\SMF\\Time::strftime(\'%Y%m%d\', time()) || (!empty(\\SMF\\Config::$modSettings[\'calendar_updated\']) && ' . time() . ' < \\SMF\\Config::$modSettings[\'calendar_updated\']);',
-			'post_retri_eval' => '
-
-				foreach ($cache_block[\'data\'][\'calendar_events\'] as $k => $event)
-				{
-					// Remove events that the user may not see or wants to ignore.
-					if ((count(array_intersect(\\SMF\\User::$me->groups, $event[\'allowed_groups\'])) === 0 && !\\SMF\\User::$me->allowedTo(\'admin_forum\') && !empty($event[\'id_board\'])) || in_array($event[\'id_board\'], \\SMF\\User::$me->ignoreboards))
-						unset($cache_block[\'data\'][\'calendar_events\'][$k]);
-					else
-					{
-						// Whether the event can be edited depends on the permissions.
-						$cache_block[\'data\'][\'calendar_events\'][$k][\'can_edit\'] = \\SMF\\User::$me->allowedTo(\'calendar_edit_any\') || ($event[\'poster\'] == \\SMF\\User::$me->id && \\SMF\\User::$me->allowedTo(\'calendar_edit_own\'));
-
-						// The added session code makes this URL not cachable.
-						$cache_block[\'data\'][\'calendar_events\'][$k][\'modify_href\'] = \\SMF\\Config::$scripturl . \'?action=\' . ($event[\'topic\'] == 0 ? \'calendar;sa=post;\' : \'post;msg=\' . $event[\'msg\'] . \';topic=\' . $event[\'topic\'] . \'.0;calendar;\') . \'eventid=\' . $event[\'id\'] . \';\' . \\SMF\\Utils::$context[\'session_var\'] . \'=\' . \\SMF\\Utils::$context[\'session_id\'];
-					}
-				}
-
-				if (empty($params[0][\'include_holidays\']))
-					$cache_block[\'data\'][\'calendar_holidays\'] = array();
-				if (empty($params[0][\'include_birthdays\']))
-					$cache_block[\'data\'][\'calendar_birthdays\'] = array();
-				if (empty($params[0][\'include_events\']))
-					$cache_block[\'data\'][\'calendar_events\'] = array();
-
-				$cache_block[\'data\'][\'show_calendar\'] = !empty($cache_block[\'data\'][\'calendar_holidays\']) || !empty($cache_block[\'data\'][\'calendar_birthdays\']) || !empty($cache_block[\'data\'][\'calendar_events\']);',
+			'check_outdated' => [
+				'callback' => self::class . '::cacheIsOutdated',
+				'args' => [
+					'date' => Time::strftime('%Y%m%d', time()),
+					'timestamp' => time(),
+				],
+			],
+			'update_callback' => self::class . '::cacheAdjustData',
 		];
+	}
+
+	/**
+	 * Callback used to check whether the cached data is outdated.
+	 *
+	 * @param string|int $date
+	 * @param string|int $time
+	 * @return bool
+	 */
+	public static function cacheIsOutdated(string|int $date, string|int $time): bool
+	{
+		return $date != Time::strftime('%Y%m%d', time()) || (!empty(Config::$modSettings['calendar_updated']) && $time < Config::$modSettings['calendar_updated']);
+	}
+
+	/**
+	 * Callback used to make adjustments to the cached data.
+	 *
+	 * @param array &$cache_block
+	 * @param array &$params
+	 */
+	public static function cacheAdjustData(array &$cache_block, array &$params): void
+	{
+		foreach ($cache_block['data']['calendar_events'] as $k => $event) {
+			// Remove events that the user may not see or wants to ignore.
+			if (
+				in_array($event->id_board, User::$me->ignoreboards)
+				|| (
+					count(array_intersect(User::$me->groups, $event->allowed_groups)) === 0
+					&& !User::$me->allowedTo('admin_forum')
+					&& !empty($event->id_board)
+				)
+			) {
+				unset($cache_block['data']['calendar_events'][$k], $event);
+				continue;
+			}
+
+			// Whether the event can be edited depends on the permissions.
+			$event->can_edit = User::$me->allowedTo('calendar_edit_any') || ($event->poster == User::$me->id && User::$me->allowedTo('calendar_edit_own'));
+
+			// The added session code makes this URL not cachable.
+			$event->modify_href = Config::$scripturl . '?action=' . ($event->topic == 0 ? 'calendar;sa=post;' : 'post;msg=' . $event->msg . ';topic=' . $event->topic . '.0;calendar;') . 'eventid=' . $event->id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
+		}
+
+		if (empty($params[0]['include_holidays'])) {
+			$cache_block['data']['calendar_holidays'] = [];
+		}
+
+		if (empty($params[0]['include_birthdays'])) {
+			$cache_block['data']['calendar_birthdays'] = [];
+		}
+
+		if (empty($params[0]['include_events'])) {
+			$cache_block['data']['calendar_events'] = [];
+		}
+
+		$cache_block['data']['show_calendar'] = !empty($cache_block['data']['calendar_holidays']) || !empty($cache_block['data']['calendar_birthdays']) || !empty($cache_block['data']['calendar_events']);
 	}
 
 	/**
@@ -1613,15 +1673,112 @@ class Calendar implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for Holiday::remove().
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @param array $holiday_ids An array of IDs of holidays to delete.
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function removeHolidays(array $holiday_ids): void
+	public static function buildRoute(array $params): array
 	{
-		foreach ($holiday_ids as $holiday_id) {
-			Holiday::remove($holiday_id);
+		$route[] = $params['action'];
+		unset($params['action']);
+
+		if (isset($params['sa'], self::$subactions[$params['sa']])) {
+			if ($params['sa'] === 'post') {
+				if (isset($params['eventid'])) {
+					$route[] = 'events';
+					$route[] = $params['eventid'];
+					unset($params['eventid']);
+
+					if (isset($params['recurrenceid'])) {
+						$route[] = $params['recurrenceid'];
+						unset($params['recurrenceid']);
+					}
+				}
+			}
+
+			$route[] = $params['sa'];
+
+			if ($params['sa'] === 'clock') {
+				if (isset($params['omfg'])) {
+					$route[] = 'omfg';
+					unset($params['omfg']);
+				} elseif (isset($params['rb'])) {
+					$route[] = 'rb';
+					unset($params['rb']);
+				} elseif (isset($params['bcd'])) {
+					$route[] = 'bcd';
+					unset($params['bcd']);
+				}
+			}
+
+			unset($params['sa']);
+		} elseif (isset($params['year'])) {
+			$route[] = sprintf('%04d', $params['year']);
+			$route[] = sprintf('%02d', $params['month'] ?? 1);
+			$route[] = sprintf('%02d', $params['day'] ?? 1);
+			unset($params['year'], $params['month'], $params['day']);
+		} elseif (isset($params['event'])) {
+			$route[] = 'events';
+			$route[] = $params['event'];
+			unset($params['event']);
 		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		if ($route[0] === 'clock') {
+			array_unshift($route, 'calendar');
+		}
+
+		$params['action'] = array_shift($route);
+
+		if (!empty($route)) {
+			if (isset(self::$subactions[$route[0]])) {
+				$params['sa'] = array_shift($route);
+
+				if ($params['sa'] === 'clock' && in_array($route[0] ?? null, ['bcd', 'rb', 'omfg'])) {
+					$params[$route[0]] = true;
+				}
+			} elseif (is_numeric($route[0])) {
+				$params['year'] = array_shift($route);
+
+				if (!empty($route)) {
+					$params['month'] = array_shift($route);
+
+					if (!empty($route)) {
+						$params['day'] = array_shift($route);
+					}
+				}
+			} elseif ($route[0] === 'events') {
+				array_shift($route);
+				$params['event'] = array_shift($route);
+
+				if (!empty($route)) {
+					if (!in_array($route[0], self::$subactions)) {
+						$params['recurrenceid'] = array_shift($route);
+					}
+
+					if (!empty($route) && in_array($route[0], self::$subactions)) {
+						$params['sa'] = array_shift($route);
+						$params['eventid'] = $params['event'];
+					}
+				}
+			}
+		}
+
+		return $params;
 	}
 
 	/******************
@@ -1633,8 +1790,6 @@ class Calendar implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('Calendar');
-
 		if ($_GET['action'] === 'clock') {
 			$this->subaction = 'clock';
 		} elseif (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
@@ -1665,12 +1820,6 @@ class Calendar implements ActionInterface
 		else {
 			User::$me->isAllowedTo('calendar_view');
 		}
-
-		// Some global template resources.
-		Utils::$context['calendar_resources'] = [
-			'min_year' => Config::$modSettings['cal_minyear'],
-			'max_year' => Config::$modSettings['cal_maxyear'],
-		];
 	}
 
 	/**

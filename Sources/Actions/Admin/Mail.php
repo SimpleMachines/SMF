@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -23,6 +23,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\MailAgent\MailAgent;
 use SMF\Menu;
 use SMF\Sapi;
 use SMF\Theme;
@@ -87,7 +88,20 @@ class Mail implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		// You need to be an admin to edit settings!
+		User::$me->isAllowedTo('admin_forum');
+
+		Utils::$context['page_title'] = Lang::getTxt('mailqueue_title', file: 'Admin');
+		Utils::$context['sub_template'] = 'show_settings';
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::getTxt('mailqueue_title', file: 'Admin'),
+			'help' => '',
+			'description' => Lang::getTxt('mailqueue_desc', file: 'ManageMail'),
+		];
+
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -124,16 +138,16 @@ class Mail implements ActionInterface
 		list($mailQueueSize, $mailOldest) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
 
-		Utils::$context['oldest_mail'] = empty($mailOldest) ? Lang::$txt['mailqueue_oldest_not_available'] : self::timeSince(time() - $mailOldest);
+		Utils::$context['oldest_mail'] = empty($mailOldest) ? Lang::getTxt('mailqueue_oldest_not_available', file: 'ManageMail') : self::timeSince(time() - $mailOldest);
 		Utils::$context['mail_queue_size'] = Lang::numberFormat((int) $mailQueueSize);
 
 		$listOptions = [
 			'id' => 'mail_queue',
-			'title' => Lang::$txt['mailqueue_browse'],
+			'title' => Lang::getTxt('mailqueue_browse', file: 'Admin'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
 			'base_href' => Config::$scripturl . '?action=admin;area=mailqueue',
 			'default_sort_col' => 'age',
-			'no_items_label' => Lang::$txt['mailqueue_no_items'],
+			'no_items_label' => Lang::getTxt('mailqueue_no_items', file: 'ManageMail'),
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getMailQueue',
 			],
@@ -143,7 +157,7 @@ class Mail implements ActionInterface
 			'columns' => [
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['mailqueue_subject'],
+						'value' => Lang::getTxt('mailqueue_subject', file: 'ManageMail'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -158,11 +172,11 @@ class Mail implements ActionInterface
 				],
 				'recipient' => [
 					'header' => [
-						'value' => Lang::$txt['mailqueue_recipient'],
+						'value' => Lang::getTxt('mailqueue_recipient', file: 'ManageMail'),
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="mailto:%1$s">%1$s</a>',
+						'format_text' => [
+							'format' => '<a href="mailto:{recipient}">{recipient}</a>',
 							'params' => [
 								'recipient' => true,
 							],
@@ -176,15 +190,19 @@ class Mail implements ActionInterface
 				],
 				'priority' => [
 					'header' => [
-						'value' => Lang::$txt['mailqueue_priority'],
+						'value' => Lang::getTxt('mailqueue_priority', file: 'ManageMail'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
 							// We probably have a text label with your priority.
 							$txtKey = sprintf('mq_mpriority_%1$s', $rowData['priority']);
 
-							// But if not, revert to priority 0.
-							return Lang::$txt[$txtKey] ?? Lang::$txt['mq_mpriority_1'];
+							// But if not, revert to priority 1.
+							if (!Lang::txtExists($txtKey, file: 'ManageMail')) {
+								$txtKey = 'mq_mpriority_1';
+							}
+
+							return Lang::getTxt($txtKey, file: 'ManageMail');
 						},
 						'class' => 'smalltext',
 					],
@@ -195,7 +213,7 @@ class Mail implements ActionInterface
 				],
 				'age' => [
 					'header' => [
-						'value' => Lang::$txt['mailqueue_age'],
+						'value' => Lang::getTxt('mailqueue_age', file: 'ManageMail'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -228,11 +246,11 @@ class Mail implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'top_of_list',
-					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['mailqueue_clear_list_warning'] . '">' . Lang::$txt['mailqueue_clear_list'] . '</a> ',
+					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" data-confirm="' . Lang::getTxt('quickmod_confirm', file: 'General') . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('mailqueue_clear_list_warning', file: 'ManageMail') . '">' . Lang::getTxt('mailqueue_clear_list', file: 'ManageMail') . '</a> ',
 				],
 				[
 					'position' => 'bottom_of_list',
-					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::$txt['quickmod_delete_selected'] . '" data-confirm="' . Lang::$txt['quickmod_confirm'] . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::$txt['mailqueue_clear_list_warning'] . '">' . Lang::$txt['mailqueue_clear_list'] . '</a> ',
+					'value' => '<input type="submit" name="delete_redirects" value="' . Lang::getTxt('quickmod_delete_selected', file: 'General') . '" data-confirm="' . Lang::getTxt('quickmod_confirm', file: 'General') . '" class="button you_sure"><a class="button you_sure" href="' . Config::$scripturl . '?action=admin;area=mailqueue;sa=clear;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . '" data-confirm="' . Lang::getTxt('mailqueue_clear_list_warning', file: 'ManageMail') . '">' . Lang::getTxt('mailqueue_clear_list', file: 'ManageMail') . '</a> ',
 				],
 			],
 		];
@@ -270,7 +288,7 @@ class Mail implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=mailqueue;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['mailqueue_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('mailqueue_settings', file: 'Admin');
 
 		ACP::prepareDBSettingContext($config_vars);
 
@@ -341,7 +359,6 @@ class Mail implements ActionInterface
 	 */
 	public function test(): void
 	{
-		Lang::load('ManageMail');
 		Theme::loadTemplate('ManageMail');
 		Utils::$context['sub_template'] = 'mailtest';
 		Utils::$context['base_url'] = Config::$scripturl . '?action=admin;area=mailqueue;sa=test';
@@ -375,10 +392,10 @@ class Mail implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		Lang::load('EmailTemplates');
+		$txt_key_prefix = empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email'];
 
-		$body = Lang::$txtBirthdayEmails[(empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']) . '_body'];
-		$subject = Lang::$txtBirthdayEmails[(empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']) . '_subject'];
+		$body = Lang::getTxt($txt_key_prefix . '_body', var: 'txtBirthdayEmails');
+		$subject = Lang::getTxt($txt_key_prefix . '_subject', var: 'txtBirthdayEmails');
 
 		$emails = [];
 
@@ -392,24 +409,38 @@ class Mail implements ActionInterface
 			$emails[$index] = $index;
 		}
 
+		$detected_apis = MailAgent::detect();
+		$apis_names = [];
+
+		foreach ($detected_apis as $class_name => $agent) {
+			$class_name_txt_key = strtolower($agent->getImplementationClassKeyName());
+
+			$apis_names[$class_name] = Lang::txtExists($class_name_txt_key . '_mailagent', file: 'EmailTemplates') ? Lang::getTxt($class_name_txt_key . '_mailagent', file: 'EmailTemplates') : $class_name;
+		}
+
+		if (empty(Config::$modSettings['mail_type']) || Config::$modSettings['smtp_host'] == '') {
+			Config::$modSettings['mail_type'] = MailAgent::APIS_DEFAULT;
+		}
+
 		$config_vars = [
 			// Mail queue stuff, this rocks ;)
-			['int', 'mail_limit', 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'mail_limit', 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
 			['int', 'mail_quantity'],
-			'',
-
-			// SMTP stuff.
-			['select', 'mail_type', [Lang::$txt['mail_type_default'], 'SMTP', 'SMTP - STARTTLS']],
-			['text', 'smtp_host'],
-			['text', 'smtp_port'],
-			['text', 'smtp_username'],
-			['password', 'smtp_password'],
 			'',
 
 			['select', 'birthday_email', $emails, 'value' => ['subject' => $subject, 'body' => $body], 'javascript' => 'onchange="fetch_birthday_preview()"'],
 			'birthday_subject' => ['var_message', 'birthday_subject', 'var_message' => self::$processedBirthdayEmails[empty(Config::$modSettings['birthday_email']) ? 'happy_birthday' : Config::$modSettings['birthday_email']]['subject'], 'disabled' => true, 'size' => strlen($subject) + 3],
 			'birthday_body' => ['var_message', 'birthday_body', 'var_message' => nl2br($body), 'disabled' => true, 'size' => ceil(strlen($body) / 25)],
+			'',
+
+			['select', 'mail_type', $apis_names],
 		];
+
+		foreach ($detected_apis as $class_name => $agent) {
+			if (is_callable([$agent, 'agentSettings'])) {
+				$agent->agentSettings($config_vars);
+			}
+		}
 
 		IntegrationHook::call('integrate_modify_mail_settings', [&$config_vars]);
 
@@ -446,7 +477,7 @@ class Mail implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Private PM/email subjects and similar shouldn't be shown in the mailbox area.
 			if (!empty($row['private'])) {
-				$row['subject'] = Lang::$txt['personal_message'];
+				$row['subject'] = Lang::getTxt('personal_message', file: 'ManageMail');
 			} else {
 				$row['subject'] = mb_decode_mimeheader($row['subject']);
 			}
@@ -494,21 +525,21 @@ class Mail implements ActionInterface
 
 		// Just do a bit of an if fest...
 		if ($time_diff > 86400) {
-			return Lang::getTxt('mq_age', ['unit' => 'day', 'age' => round($time_diff / 86400, 1)]);
+			return Lang::getTxt('mq_age', ['unit' => 'day', 'age' => round($time_diff / 86400, 1)], file: 'ManageMail');
 		}
 
 		// Hours?
 		if ($time_diff > 3600) {
-			return Lang::getTxt('mq_age', ['unit' => 'hour', 'age' => round($time_diff / 3600, 1)]);
+			return Lang::getTxt('mq_age', ['unit' => 'hour', 'age' => round($time_diff / 3600, 1)], file: 'ManageMail');
 		}
 
 		// Minutes?
 		if ($time_diff > 60) {
-			return Lang::getTxt('mq_age', ['unit' => 'minute', 'age' => (int) ($time_diff / 60)]);
+			return Lang::getTxt('mq_age', ['unit' => 'minute', 'age' => (int) ($time_diff / 60)], file: 'ManageMail');
 		}
 
 		// Otherwise must be second
-		return Lang::getTxt('mq_age', ['unit' => 'second', 'age' => $time_diff]);
+		return Lang::getTxt('mq_age', ['unit' => 'second', 'age' => $time_diff], file: 'ManageMail');
 	}
 
 	/******************
@@ -520,15 +551,6 @@ class Mail implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// You need to be an admin to edit settings!
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('Help');
-		Lang::load('ManageMail');
-
-		Utils::$context['page_title'] = Lang::$txt['mailqueue_title'];
-		Utils::$context['sub_template'] = 'show_settings';
-
 		IntegrationHook::call('integrate_manage_mail', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -536,13 +558,6 @@ class Mail implements ActionInterface
 		}
 
 		Utils::$context['sub_action'] = $this->subaction;
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['mailqueue_title'],
-			'help' => '',
-			'description' => Lang::$txt['mailqueue_desc'],
-		];
 	}
 
 	/**
@@ -560,7 +575,7 @@ class Mail implements ActionInterface
 		}
 
 		Utils::$context['continue_get_data'] = '?action=admin;area=mailqueue;sa=clear;te=' . $_GET['te'] . ';sent=' . $_GET['sent'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'];
-		Utils::$context['page_title'] = Lang::$txt['not_done_title'];
+		Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
 		Utils::$context['continue_post_data'] = '';
 		Utils::$context['continue_countdown'] = '2';
 		Utils::$context['sub_template'] = 'not_done';

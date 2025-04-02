@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  *
  * Original module by Mach8 - We'll never forget you.
  */
@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Autolinker;
 use SMF\Board;
@@ -29,8 +30,11 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\PageIndex;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\Time;
@@ -41,10 +45,10 @@ use SMF\Utils;
 /**
  * Handles splitting of topics.
  */
-class TopicSplit implements ActionInterface
+class TopicSplit implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -85,6 +89,16 @@ class TopicSplit implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isSimpleAction(): bool
+	{
+		return isset($_REQUEST['xml']);
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_REQUEST['xml']) ? new OutputTypes\Xml() : new OutputTypes\Html();
+	}
+
 	/**
 	 * Splits a topic into two topics.
 	 *
@@ -104,11 +118,9 @@ class TopicSplit implements ActionInterface
 		User::$me->isAllowedTo('split_any');
 
 		// Load up the "dependencies" - the template and getMsgMemberID().
-		if (!isset($_REQUEST['xml'])) {
-			Theme::loadTemplate('SplitTopics');
-		}
+		Theme::loadTemplate(!isset($_REQUEST['xml']) ? 'Xml' : 'SplitTopics');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -182,7 +194,7 @@ class TopicSplit implements ActionInterface
 			'subject' => $_REQUEST['subname'],
 		];
 		Utils::$context['sub_template'] = 'ask';
-		Utils::$context['page_title'] = Lang::$txt['split'];
+		Utils::$context['page_title'] = Lang::getTxt('split', file: 'General');
 
 		return null;
 	}
@@ -205,7 +217,7 @@ class TopicSplit implements ActionInterface
 
 		// Clean up the subject.
 		if (!isset($_POST['subname']) || $_POST['subname'] == '') {
-			$_POST['subname'] = Lang::$txt['new_topic'];
+			$_POST['subname'] = Lang::getTxt('new_topic', file: 'General');
 		}
 
 		// Redirect to the selector if they chose selective.
@@ -246,7 +258,7 @@ class TopicSplit implements ActionInterface
 
 		Utils::$context['old_topic'] = Topic::$topic_id;
 		Utils::$context['new_topic'] = $this->splitTopic(Topic::$topic_id, $messagesToBeSplit, $_POST['subname']);
-		Utils::$context['page_title'] = Lang::$txt['split'];
+		Utils::$context['page_title'] = Lang::getTxt('split', file: 'General');
 	}
 
 	/**
@@ -262,7 +274,7 @@ class TopicSplit implements ActionInterface
 	 */
 	public function select(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['select_split_posts'];
+		Utils::$context['page_title'] = Lang::getTxt('select_split_posts', file: 'General');
 
 		// Haven't selected anything have we?
 		$_SESSION['split_selection'][Topic::$topic_id] = empty($_SESSION['split_selection'][Topic::$topic_id]) ? [] : $_SESSION['split_selection'][Topic::$topic_id];
@@ -576,7 +588,7 @@ class TopicSplit implements ActionInterface
 
 		// Default the subject in case it's blank.
 		if (!isset($_POST['subname']) || $_POST['subname'] == '') {
-			$_POST['subname'] = Lang::$txt['new_topic'];
+			$_POST['subname'] = Lang::getTxt('new_topic', file: 'General');
 		}
 
 		// You must've selected some messages!  Can't split out none!
@@ -586,7 +598,7 @@ class TopicSplit implements ActionInterface
 
 		Utils::$context['old_topic'] = Topic::$topic_id;
 		Utils::$context['new_topic'] = $this->splitTopic(Topic::$topic_id, $_SESSION['split_selection'][Topic::$topic_id], $_POST['subname']);
-		Utils::$context['page_title'] = Lang::$txt['split'];
+		Utils::$context['page_title'] = Lang::getTxt('split', file: 'General');
 	}
 
 	/***********************
@@ -766,15 +778,17 @@ class TopicSplit implements ActionInterface
 				'is_sticky' => 'int',
 			],
 			[
-				(int) $id_board,
-				$split2_firstMem,
-				$split2_lastMem,
-				0,
-				0,
-				$split2_replies,
-				$split2_unapprovedposts,
-				(int) $split2_approved,
-				0,
+				[
+					(int) $id_board,
+					$split2_firstMem,
+					$split2_lastMem,
+					0,
+					0,
+					$split2_replies,
+					$split2_unapprovedposts,
+					(int) $split2_approved,
+					0,
+				],
 			],
 			['id_topic'],
 			1,
@@ -806,7 +820,7 @@ class TopicSplit implements ActionInterface
 					'id_topic' => $split2_ID_TOPIC,
 					'new_subject' => $new_subject,
 					'split_first_msg' => $split2_first_msg,
-					'new_subject_replies' => Lang::$txt['response_prefix'] . $new_subject,
+					'new_subject_replies' => Lang::getTxt('response_prefix', file: 'General') . $new_subject,
 				],
 			);
 

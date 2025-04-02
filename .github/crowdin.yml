@@ -31,6 +31,10 @@ files: [
   translation: "Languages/%locale_with_underscore%/Alerts.php",
  },
  {
+  source: "Languages/en_US/Calendar.php",
+  translation: "Languages/%locale_with_underscore%/Calendar.php",
+ },
+ {
   source: "Languages/en_US/Drafts.php",
   translation: "Languages/%locale_with_underscore%/Drafts.php",
  },

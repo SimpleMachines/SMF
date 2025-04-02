@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -444,9 +444,13 @@ class Attachment implements \ArrayAccess
 		}
 
 		if (($this->prop_aliases[$prop] ?? $prop) === 'size') {
-			Lang::load('General');
-
-			$this->formatted_size = ($this->size < 1024000) ? round($this->size / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($this->size / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'];
+			$this->formatted_size = Lang::getTxt(
+				$this->size < 1024000 ? 'size_kilobyte' : 'size_megabyte',
+				[
+					$this->size < 1024000 ? round($this->size / 1024, 2) : round($this->size / 1024 / 1024, 2),
+				],
+				file: 'General',
+			);
 		}
 	}
 
@@ -927,7 +931,7 @@ class Attachment implements \ArrayAccess
 			$initial_error = Utils::$context['dir_creation_error'];
 		} elseif (!is_dir(Utils::$context['attach_dir'])) {
 			$initial_error = 'attach_folder_warning';
-			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', Utils::$context), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', Utils::$context, file: 'Post'), 'critical');
 		}
 
 		if (!isset($initial_error) && !isset(Utils::$context['attachments'])) {
@@ -977,7 +981,7 @@ class Attachment implements \ArrayAccess
 					}
 				}
 
-				Utils::$context['we_are_history'] = Lang::$txt['error_temp_attachments_flushed'];
+				Utils::$context['we_are_history'] = Lang::getTxt('error_temp_attachments_flushed', file: 'Post');
 				$_SESSION['temp_attachments'] = [];
 			}
 		}
@@ -1027,9 +1031,9 @@ class Attachment implements \ArrayAccess
 				if ($_FILES['attachment']['error'][$n] == 2) {
 					$errors[] = ['file_too_big', [Config::$modSettings['attachmentSizeLimit']]];
 				} elseif ($_FILES['attachment']['error'][$n] == 6) {
-					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_6'], 'critical');
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::getTxt('php_upload_error_6', file: 'Post'), 'critical');
 				} else {
-					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::$txt['php_upload_error_' . $_FILES['attachment']['error'][$n]]);
+					ErrorHandler::log($_FILES['attachment']['name'][$n] . ': ' . Lang::getTxt('php_upload_error_' . $_FILES['attachment']['error'][$n], file: 'Post'));
 				}
 
 				if (empty($errors)) {
@@ -1393,15 +1397,14 @@ class Attachment implements \ArrayAccess
 			'',
 			'{db_prefix}attachments',
 			$attachmentColumns,
-			$attachmentValues,
+			[$attachmentValues],
 			['id_attach'],
 			1,
 		);
 
 		// Attachment couldn't be created.
 		if (empty($attachmentOptions['id'])) {
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::$txt['attachment_not_created'], 'general');
+			ErrorHandler::log(Lang::getTxt('attachment_not_created', file: 'Errors'), 'general');
 
 			return false;
 		}
@@ -1416,10 +1419,14 @@ class Attachment implements \ArrayAccess
 				'',
 				'{db_prefix}approval_queue',
 				[
-					'id_attach' => 'int', 'id_msg' => 'int',
+					'id_attach' => 'int',
+					'id_msg' => 'int',
 				],
 				[
-					$attachmentOptions['id'], (int) $attachmentOptions['post'],
+					[
+						$attachmentOptions['id'],
+						(int) $attachmentOptions['post'],
+					],
 				],
 				[],
 			);
@@ -1434,9 +1441,11 @@ class Attachment implements \ArrayAccess
 					'claimed_time' => 'int',
 				],
 				[
-					'SMF\\Tasks\\CreateAttachment_Notify',
-					Utils::jsonEncode(['id' => $attachmentOptions['id']]),
-					0,
+					[
+						'SMF\\Tasks\\CreateAttachment_Notify',
+						Utils::jsonEncode(['id' => $attachmentOptions['id']]),
+						0,
+					],
 				],
 				[
 					'id_task',
@@ -1501,17 +1510,19 @@ class Attachment implements \ArrayAccess
 						'approved' => 'int',
 					],
 					[
-						Config::$modSettings['currentAttachmentUploadDir'],
-						(int) $attachmentOptions['post'],
-						3,
-						$thumb->pathinfo['basename'],
-						self::createHash($thumb->source),
-						$thumb_ext,
-						$thumb->filesize,
-						$thumb->width,
-						$thumb->height,
-						$thumb->mime_type,
-						(int) $attachmentOptions['approved'],
+						[
+							Config::$modSettings['currentAttachmentUploadDir'],
+							(int) $attachmentOptions['post'],
+							3,
+							$thumb->pathinfo['basename'],
+							self::createHash($thumb->source),
+							$thumb_ext,
+							$thumb->filesize,
+							$thumb->width,
+							$thumb->height,
+							$thumb->mime_type,
+							(int) $attachmentOptions['approved'],
+						],
 					],
 					['id_attach'],
 					1,
@@ -2013,8 +2024,14 @@ class Attachment implements \ArrayAccess
 					'id' => $attachment['id_attach'],
 					'name' => Utils::entityFix(Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($attachment['filename']))),
 					'downloads' => $attachment['downloads'],
-					'formatted_size' => ($attachment['filesize'] < 1024000) ? round($attachment['filesize'] / 1024, 2) . ' ' . Lang::$txt['kilobyte'] : round($attachment['filesize'] / 1024 / 1024, 2) . ' ' . Lang::$txt['megabyte'],
 					'byte_size' => $attachment['filesize'],
+					'formatted_size' => Lang::getTxt(
+						$attachment['filesize'] < 1024000 ? 'size_kilobyte' : 'size_megabyte',
+						[
+							$attachment['filesize'] < 1024000 ? round($attachment['filesize'] / 1024, 2) : round($attachment['filesize'] / 1024 / 1024, 2),
+						],
+						file: 'General',
+					),
 					'href' => Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'],
 					'link' => '<a href="' . Config::$scripturl . '?action=dlattach;attach=' . $attachment['id_attach'] . '" class="bbc_link">' . Utils::htmlspecialchars(Utils::htmlspecialcharsDecode($attachment['filename'])) . '</a>',
 					'is_image' => !empty($attachment['width']) && !empty($attachment['height']),
@@ -2099,16 +2116,18 @@ class Attachment implements \ArrayAccess
 									'mime_type' => 'string',
 								],
 								[
-									$id_folder_thumb,
-									$id_msg,
-									3,
-									$thumb->pathinfo['basename'],
-									self::createHash($thumb->source),
-									$thumb->filesize,
-									$thumb->width,
-									$thumb->height,
-									$thumb_ext,
-									$thumb->mime_type,
+									[
+										$id_folder_thumb,
+										$id_msg,
+										3,
+										$thumb->pathinfo['basename'],
+										self::createHash($thumb->source),
+										$thumb->filesize,
+										$thumb->width,
+										$thumb->height,
+										$thumb_ext,
+										$thumb->mime_type,
+									],
 								],
 								['id_attach'],
 								1,
@@ -2205,7 +2224,7 @@ class Attachment implements \ArrayAccess
 				// This can happen if an uploaded SVG is missing some key data.
 				foreach (['real_width', 'real_height'] as $key) {
 					if (!isset($attachmentData[$i][$key]) || $attachmentData[$i][$key] === INF) {
-						$attachmentData[$i][$key] = ' (' . Lang::$txt['unknown'] . ') ';
+						$attachmentData[$i][$key] = ' (' . Lang::getTxt('unknown', file: 'General') . ') ';
 					}
 				}
 			}
@@ -2302,38 +2321,6 @@ class Attachment implements \ArrayAccess
 		self::load($id, self::APPROVED_ANY, self::TYPE_ANY);
 
 		return self::$loaded[$id]->path;
-	}
-
-	/**
-	 * Backward compatibility only.
-	 *
-	 * New code should use Attachment::getFilePath() or Attachment::createHash()
-	 * to get whichever type of output is desired for a given situation.
-	 *
-	 *
-	 *
-	 * Get an attachment's encrypted filename. If $new is true, won't check for
-	 * file existence.
-	 *
-	 * This currently returns the hash if new, and the full filename otherwise,
-	 * which is very messy. And of course everything that calls this function
-	 * relies on that behavior and works around it. :P
-	 *
-	 * @param string $filename The name of the file. (Ignored.)
-	 * @param int $attachment_id The ID of the attachment.
-	 * @param ?string $dir Which directory it should be in. (Ignored.)
-	 * @param bool $new Whether this is a new attachment.
-	 * @param string $file_hash The file hash.  (Ignored.)
-	 * @return string A hash or the path to the file.
-	 */
-	public static function getAttachmentFilename(string $filename, int $attachment_id, ?string $dir = null, bool $new = false, string $file_hash = ''): string
-	{
-		// Just make up a nice hash...
-		if ($new || empty($attachment_id)) {
-			return self::createHash();
-		}
-
-		return self::getFilePath($attachment_id);
 	}
 
 	/******************

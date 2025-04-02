@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -83,7 +83,9 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		Theme::loadTemplate('ModerationCenter');
+
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -96,7 +98,7 @@ class Posts implements ActionInterface
 	public function posts(): void
 	{
 		Utils::$context['current_view'] = isset($_GET['sa']) && $_GET['sa'] == 'topics' ? 'topics' : 'replies';
-		Utils::$context['page_title'] = Lang::$txt['mc_unapproved_posts'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_unapproved_posts', file: 'ModerationCenter');
 
 		// Work out what boards we can work in!
 		$approve_boards = User::$me->boardsAllowedTo('approve_posts');
@@ -301,12 +303,17 @@ class Posts implements ActionInterface
 
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=postmod;sa=' . Utils::$context['current_view'] . (isset($_REQUEST['brd']) ? ';brd=' . (int) $_REQUEST['brd'] : ''), Utils::$context['start'], Utils::$context['current_view'] == 'topics' ? (int) Utils::$context['total_unapproved_topics'] : (int) Utils::$context['total_unapproved_posts'], $limit);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
+
 		// We have enough to make some pretty tabs!
 		$menu = Menu::$loaded['moderate'];
 		$menu->tab_data = [
-			'title' => Lang::$txt['mc_unapproved_posts'],
+			'title' => Lang::getTxt('mc_unapproved_posts', file: 'ModerationCenter'),
 			'help' => 'postmod',
-			'description' => Lang::$txt['mc_unapproved_posts_desc'],
+			'description' => Lang::getTxt('mc_unapproved_posts_desc', file: 'ModerationCenter'),
 		];
 
 		// Update the tabs with the correct number of posts.
@@ -425,7 +432,7 @@ class Posts implements ActionInterface
 	 */
 	public function attachments(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['mc_unapproved_attachments'];
+		Utils::$context['page_title'] = Lang::getTxt('mc_unapproved_attachments', file: 'General');
 
 		// Once again, permissions are king!
 		$approve_boards = User::$me->boardsAllowedTo('approve_posts');
@@ -500,7 +507,7 @@ class Posts implements ActionInterface
 			'id' => 'mc_unapproved_attach',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['mc_unapproved_attachments_none_found'],
+			'no_items_label' => Lang::getTxt('mc_unapproved_attachments_none_found', file: 'ModerationCenter'),
 			'base_href' => Config::$scripturl . '?action=moderate;area=attachmod;sa=attachments',
 			'default_sort_col' => 'attach_name',
 			'get_items' => [
@@ -518,7 +525,7 @@ class Posts implements ActionInterface
 			'columns' => [
 				'attach_name' => [
 					'header' => [
-						'value' => Lang::$txt['mc_unapproved_attach_name'],
+						'value' => Lang::getTxt('mc_unapproved_attach_name', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'filename',
@@ -530,7 +537,7 @@ class Posts implements ActionInterface
 				],
 				'attach_size' => [
 					'header' => [
-						'value' => Lang::$txt['mc_unapproved_attach_size'],
+						'value' => Lang::getTxt('mc_unapproved_attach_size', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'db' => 'size',
@@ -542,7 +549,7 @@ class Posts implements ActionInterface
 				],
 				'attach_poster' => [
 					'header' => [
-						'value' => Lang::$txt['mc_unapproved_attach_poster'],
+						'value' => Lang::getTxt('mc_unapproved_attach_poster', file: 'ModerationCenter'),
 					],
 					'data' => [
 						'function' => function ($data) {
@@ -556,7 +563,7 @@ class Posts implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['date'],
+						'value' => Lang::getTxt('date', file: 'General'),
 						'style' => 'width: 18%;',
 					],
 					'data' => [
@@ -571,7 +578,7 @@ class Posts implements ActionInterface
 				],
 				'message' => [
 					'header' => [
-						'value' => Lang::$txt['post'],
+						'value' => Lang::getTxt('post', file: 'General'),
 					],
 					'data' => [
 						'function' => function ($data) {
@@ -592,8 +599,8 @@ class Posts implements ActionInterface
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<input type="checkbox" name="item[]" value="%1$d" checked>',
+						'format_text' => [
+							'format' => '<input type="checkbox" name="item[]" value="{id}" checked>',
 							'params' => [
 								'id' => false,
 							],
@@ -615,13 +622,13 @@ class Posts implements ActionInterface
 				[
 					'position' => 'bottom_of_list',
 					'value' => '
-						<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'' . Lang::$txt['mc_unapproved_sure'] . '\')) submit();">
-							<option value="0">' . Lang::$txt['with_selected'] . ':</option>
+						<select name="do" onchange="if (this.value != 0 &amp;&amp; confirm(\'' . Lang::getTxt('mc_unapproved_sure', file: 'ModerationCenter') . '\')) submit();">
+							<option value="0">' . Lang::getTxt('with_selected', file: 'ModerationCenter') . ':</option>
 							<option value="0" disabled>-------------------</option>
-							<option value="approve">&nbsp;--&nbsp;' . Lang::$txt['approve'] . '</option>
-							<option value="delete">&nbsp;--&nbsp;' . Lang::$txt['delete'] . '</option>
+							<option value="approve">&nbsp;--&nbsp;' . Lang::getTxt('approve', file: 'General') . '</option>
+							<option value="delete">&nbsp;--&nbsp;' . Lang::getTxt('delete', file: 'General') . '</option>
 						</select>
-						<noscript><input type="submit" name="ml_go" value="' . Lang::$txt['go'] . '" class="button"></noscript>',
+						<noscript><input type="submit" name="ml_go" value="' . Lang::getTxt('go', file: 'General') . '" class="button"></noscript>',
 					'class' => 'floatright',
 				],
 			],
@@ -635,9 +642,9 @@ class Posts implements ActionInterface
 		Utils::$context['default_list'] = 'mc_unapproved_attach';
 
 		Menu::$loaded['moderate']->tab_data = [
-			'title' => Lang::$txt['mc_unapproved_attachments'],
+			'title' => Lang::getTxt('mc_unapproved_attachments', file: 'General'),
 			'help' => '',
-			'description' => Lang::$txt['mc_unapproved_attachments_desc'],
+			'description' => Lang::getTxt('mc_unapproved_attachments_desc', file: 'ModerationCenter'),
 		];
 	}
 
@@ -860,9 +867,6 @@ class Posts implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('ModerationCenter');
-		Theme::loadTemplate('ModerationCenter');
-
 		IntegrationHook::call('integrate_post_moderation', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {

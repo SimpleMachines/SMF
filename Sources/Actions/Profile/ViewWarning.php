@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -56,9 +56,9 @@ class ViewWarning implements ActionInterface
 		// Let's use a generic list to get all the current warnings, and use the issue warnings grab-a-granny thing.
 		$list_options = [
 			'id' => 'view_warnings',
-			'title' => Lang::$txt['profile_viewwarning_previous_warnings'],
+			'title' => Lang::getTxt('profile_viewwarning_previous_warnings', file: 'Profile'),
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['profile_viewwarning_no_warnings'],
+			'no_items_label' => Lang::getTxt('profile_viewwarning_no_warnings', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=viewwarning;sa=user;u=' . Profile::$member->id,
 			'default_sort_col' => 'log_time',
 			'get_items' => [
@@ -72,7 +72,7 @@ class ViewWarning implements ActionInterface
 			'columns' => [
 				'log_time' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_time'],
+						'value' => Lang::getTxt('profile_warning_previous_time', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'time',
@@ -84,7 +84,7 @@ class ViewWarning implements ActionInterface
 				],
 				'reason' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_reason'],
+						'value' => Lang::getTxt('profile_warning_previous_reason', file: 'Profile'),
 						'style' => 'width: 50%;',
 					],
 					'data' => [
@@ -93,7 +93,7 @@ class ViewWarning implements ActionInterface
 				],
 				'level' => [
 					'header' => [
-						'value' => Lang::$txt['profile_warning_previous_level'],
+						'value' => Lang::getTxt('profile_warning_previous_level', file: 'Profile'),
 					],
 					'data' => [
 						'db' => 'counter',
@@ -107,7 +107,7 @@ class ViewWarning implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['profile_viewwarning_desc'],
+					'value' => Lang::getTxt('profile_viewwarning_desc', file: 'Profile'),
 					'class' => 'smalltext',
 					'style' => 'padding: 2ex;',
 				],
@@ -120,9 +120,9 @@ class ViewWarning implements ActionInterface
 		// Create some common text bits for the template.
 		Utils::$context['level_effects'] = [
 			0 => '',
-			Config::$modSettings['warning_watch'] => Lang::$txt['profile_warning_effect_own_watched'],
-			Config::$modSettings['warning_moderate'] => Lang::$txt['profile_warning_effect_own_moderated'],
-			Config::$modSettings['warning_mute'] => Lang::$txt['profile_warning_effect_own_muted'],
+			Config::$modSettings['warning_watch'] => Lang::getTxt('profile_warning_effect_own_watched', file: 'Profile'),
+			Config::$modSettings['warning_moderate'] => Lang::getTxt('profile_warning_effect_own_moderated', file: 'Profile'),
+			Config::$modSettings['warning_mute'] => Lang::getTxt('profile_warning_effect_own_muted', file: 'Profile'),
 		];
 
 		// Figure out which warning level this member is at.

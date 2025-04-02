@@ -70,7 +70,7 @@ class GroupMembership implements ActionInterface
 		}
 
 		Utils::$context['primary_group'] = Profile::$member->group_id;
-		Utils::$context['update_message'] = Lang::$txt['group_membership_msg_' . ($_GET['msg'] ?? '')] ?? '';
+		Utils::$context['update_message'] = !empty($_GET['msg']) && Lang::txtExists('group_membership_msg_' . $_GET['msg'], file: 'Profile') ? Lang::getTxt('group_membership_msg_' . $_GET['msg'], file: 'Profile') : '';
 
 		// Can they manage groups?
 		Utils::$context['can_edit_primary'] = $this->canEditPrimary();
@@ -127,7 +127,7 @@ class GroupMembership implements ActionInterface
 		// If needed, add "Regular Members" on the end.
 		if (Utils::$context['can_edit_primary'] || Profile::$member->group_id == Group::REGULAR) {
 			Utils::$context['groups']['member'][Group::REGULAR] = Profile::$member->assignable_groups[Group::REGULAR];
-			Utils::$context['groups']['member'][Group::REGULAR]->name = Lang::$txt['regular_members'];
+			Utils::$context['groups']['member'][Group::REGULAR]->name = Lang::getTxt('regular_members', file: 'Profile');
 		}
 
 		// No changing primary group unless you have enough groups!
@@ -249,35 +249,6 @@ class GroupMembership implements ActionInterface
 		// Run the changes through the validation method for group membership.
 		Profile::$member->validateGroups($new_primary, $new_additional_groups ?? []);
 		Profile::$member->new_data['id_group'] = $new_primary;
-	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Backward compatibility wrapper for the save method.
-	 *
-	 * @param int $memID The ID of the user.
-	 * @return string The type of change that was made.
-	 */
-	public static function groupMembership2(int $memID): string
-	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
-
-		self::load();
-
-		$saving = Utils::$context['completed_save'];
-		Utils::$context['completed_save'] = true;
-
-		$_REQUEST['u'] = $u;
-
-		self::$obj->execute();
-
-		Utils::$context['completed_save'] = $saving;
-
-		return self::$obj->change_type;
 	}
 
 	/******************
@@ -404,15 +375,17 @@ class GroupMembership implements ActionInterface
 				'act_reason' => 'string',
 			],
 			[
-				Profile::$member->id,
-				$new_group_id,
-				time(),
-				$_POST['reason'],
-				0,
-				0,
-				'',
-				0,
-				'',
+				[
+					Profile::$member->id,
+					$new_group_id,
+					time(),
+					$_POST['reason'],
+					0,
+					0,
+					'',
+					0,
+					'',
+				],
 			],
 			['id_request'],
 		);
@@ -437,9 +410,11 @@ class GroupMembership implements ActionInterface
 				'claimed_time' => 'int',
 			],
 			[
-				'SMF\\Tasks\\GroupReq_Notify',
-				$data,
-				0,
+				[
+					'SMF\\Tasks\\GroupReq_Notify',
+					$data,
+					0,
+				],
 			],
 			[],
 		);

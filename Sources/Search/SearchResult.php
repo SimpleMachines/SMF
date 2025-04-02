@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -172,17 +172,17 @@ class SearchResult extends \SMF\Msg
 	public function format(int $counter = 0, array $format_options = []): array
 	{
 		// Can't have an empty subject can we?
-		$this->subject = $this->subject != '' ? $this->subject : Lang::$txt['no_subject'];
+		$this->subject = $this->subject != '' ? $this->subject : Lang::getTxt('no_subject', file: 'General');
 
-		$this->first_subject = $this->first_subject != '' ? $this->first_subject : Lang::$txt['no_subject'];
-		$this->last_subject = $this->last_subject != '' ? $this->last_subject : Lang::$txt['no_subject'];
+		$this->first_subject = $this->first_subject != '' ? $this->first_subject : Lang::getTxt('no_subject', file: 'General');
+		$this->last_subject = $this->last_subject != '' ? $this->last_subject : Lang::getTxt('no_subject', file: 'General');
 
 		// If it couldn't load, or the user was a guest.... someday may be done with a guest table.
 		if (empty($this->id_member) || !isset(User::$loaded[$this->id_member])) {
 			// Notice this information isn't used anywhere else.... *cough guest table cough*.
 			$author['name'] = $this->poster_name;
 			$author['id'] = 0;
-			$author['group'] = Lang::$txt['guest_title'];
+			$author['group'] = Lang::getTxt('guest_title', file: 'General');
 			$author['link'] = $this->poster_name;
 			$author['email'] = $this->poster_email;
 		} else {
@@ -240,9 +240,9 @@ class SearchResult extends \SMF\Msg
 					$this->body = Utils::htmlspecialcharsDecode(strtr($this->body, ['&nbsp;' => ' ', '<br>' => "\n", '&#91;' => '[', '&#93;' => ']', '&#58;' => ':', '&#64;' => '@']));
 
 					if (empty(Config::$modSettings['search_method']) || $force_partial_word) {
-						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $this->body, $matches);
+						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?|^)(' . $matchString . ')(.{0,' . $charLimit . '}[\s\W]|[^\s\W]{0,' . $charLimit . '})/isu', $this->body, $matches);
 					} else {
-						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{0,' . $charLimit . '})/is' . (Utils::$context['utf8'] ? 'u' : ''), $this->body, $matches);
+						preg_match_all('/([^\s\W]{' . $charLimit . '}[\s\W]|[\s\W].{0,' . $charLimit . '}?[\s\W]|^)(' . $matchString . ')([\s\W].{0,' . $charLimit . '}[\s\W]|[\s\W][^\s\W]{0,' . $charLimit . '})/isu', $this->body, $matches);
 					}
 
 					$this->body = '';
@@ -346,7 +346,7 @@ class SearchResult extends \SMF\Msg
 					'id' => $this->first_member_id,
 					'name' => $this->first_member_name,
 					'href' => !empty($this->first_member_id) ? Config::$scripturl . '?action=profile;u=' . $this->first_member_id : '',
-					'link' => !empty($this->first_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->first_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->first_member_name]) . '">' . $this->first_member_name . '</a>' : $this->first_member_name,
+					'link' => !empty($this->first_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->first_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->first_member_name], file: 'General') . '">' . $this->first_member_name . '</a>' : $this->first_member_name,
 				],
 			],
 			'last_post' => [
@@ -362,7 +362,7 @@ class SearchResult extends \SMF\Msg
 					'id' => $this->last_member_id,
 					'name' => $this->last_member_name,
 					'href' => !empty($this->last_member_id) ? Config::$scripturl . '?action=profile;u=' . $this->last_member_id : '',
-					'link' => !empty($this->last_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->last_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->last_member_name]) . '">' . $this->last_member_name . '</a>' : $this->last_member_name,
+					'link' => !empty($this->last_member_id) ? '<a href="' . Config::$scripturl . '?action=profile;u=' . $this->last_member_id . '" title="' . Lang::getTxt('view_profile_of_username', ['name' => $this->last_member_name], file: 'General') . '">' . $this->last_member_name . '</a>' : $this->last_member_name,
 				],
 			],
 			'board' => [

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -24,6 +25,7 @@ use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -39,8 +41,9 @@ use SMF\Utils;
  * Uses Who template, main sub-template
  * Uses Who language file.
  */
-class Who implements ActionInterface
+class Who implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -106,6 +109,9 @@ class Who implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Load the 'Who' template.
+		Theme::loadTemplate('Who');
+
 		// Permissions, permissions, permissions.
 		User::$me->isAllowedTo('who_view');
 
@@ -131,14 +137,14 @@ class Who implements ActionInterface
 
 		// Store the sort methods and the show types for use in the template.
 		Utils::$context['sort_methods'] = [
-			'user' => Lang::$txt['who_user'],
-			'time' => Lang::$txt['who_time'],
+			'user' => Lang::getTxt('who_user', file: 'Who'),
+			'time' => Lang::getTxt('who_time', file: 'Who'),
 		];
 
 		Utils::$context['show_methods'] = [
-			'all' => Lang::$txt['who_show_all'],
-			'members' => Lang::$txt['who_show_members_only'],
-			'guests' => Lang::$txt['who_show_guests_only'],
+			'all' => Lang::getTxt('who_show_all', file: 'Who'),
+			'members' => Lang::getTxt('who_show_members_only', file: 'Who'),
+			'guests' => Lang::getTxt('who_show_guests_only', file: 'Who'),
 		];
 
 		// Can they see spiders too?
@@ -152,7 +158,7 @@ class Who implements ActionInterface
 		) {
 			$show_methods['spiders'] = '(lo.id_member = 0 AND lo.id_spider > 0)';
 			$show_methods['guests'] = '(lo.id_member = 0 AND lo.id_spider = 0)';
-			Utils::$context['show_methods']['spiders'] = Lang::$txt['who_show_spiders_only'];
+			Utils::$context['show_methods']['spiders'] = Lang::getTxt('who_show_spiders_only', file: 'Who');
 		} elseif (
 			empty(Config::$modSettings['show_spider_online'])
 			&& isset($_SESSION['who_online_filter'])
@@ -221,6 +227,11 @@ class Who implements ActionInterface
 		Utils::$context['start'] = (int) $_REQUEST['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=who;sort=' . Utils::$context['sort_by'] . (Utils::$context['sort_direction'] == 'up' ? ';asc' : '') . ';show=' . Utils::$context['show_by'], Utils::$context['start'], $totalMembers, (int) Config::$modSettings['defaultMaxMembers']);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
+
 		// Look for people online, provided they don't mind if you see they are.
 		Utils::$context['members'] = [];
 		$member_ids = [];
@@ -259,7 +270,7 @@ class Who implements ActionInterface
 				'id' => $row['id_member'],
 				'ip' => User::$me->allowedTo('moderate_forum') ? new IP($row['ip']) : '',
 				// It is *going* to be today or yesterday, so why keep that information in there?
-				'time' => strtr(Time::create('@' . $row['log_time'])->format(), [Lang::$txt['today'] => '', Lang::$txt['yesterday'] => '']),
+				'time' => strtr(Time::create('@' . $row['log_time'])->format(), [Lang::getTxt('today', file: 'General') => '', Lang::getTxt('yesterday', file: 'General') => '']),
 				'timestamp' => $row['log_time'],
 				'query' => $actions,
 				'is_hidden' => $row['show_online'] == 0,
@@ -289,7 +300,7 @@ class Who implements ActionInterface
 			foreach (Utils::jsonDecode(Config::$modSettings['spider_name_cache'], true) as $id => $name) {
 				$spiderFormatted[$id] = [
 					'name' => $name,
-					'group' => Lang::$txt['spiders'],
+					'group' => Lang::getTxt('spiders', file: 'General'),
 					'link' => $name,
 					'email' => $name,
 				];
@@ -299,10 +310,10 @@ class Who implements ActionInterface
 		$url_data = self::determineActions($url_data);
 
 		// Setup the linktree and page title (do it down here because the language files are now loaded..)
-		Utils::$context['page_title'] = Lang::$txt['who_title'];
+		Utils::$context['page_title'] = Lang::getTxt('who_title', file: 'General');
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=who',
-			'name' => Lang::$txt['who_title'],
+			'name' => Lang::getTxt('who_title', file: 'General'),
 		];
 
 		// Put it in the context variables.
@@ -319,8 +330,8 @@ class Who implements ActionInterface
 					$formatted = array_merge($formatted, $spiderFormatted[$member['id_spider']]);
 				} else {
 					$formatted = array_merge($formatted, [
-						'link' => Lang::$txt['guest_title'],
-						'email' => Lang::$txt['guest_title'],
+						'link' => Lang::getTxt('guest_title', file: 'General'),
+						'email' => Lang::getTxt('guest_title', file: 'General'),
 					]);
 				}
 			}
@@ -367,8 +378,6 @@ class Who implements ActionInterface
 			return [];
 		}
 
-		Lang::load('Who');
-
 		IntegrationHook::call('who_allowed', [&self::$allowedActions]);
 
 		if (!is_array($urls)) {
@@ -403,22 +412,22 @@ class Who implements ActionInterface
 				if (isset($actions['topic'])) {
 					// Assume they can't view it, and queue it up for later.
 					$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
-					$topic_ids[(int) $actions['topic']][$k] = Lang::$txt['who_topic'];
+					$topic_ids[(int) $actions['topic']][$k] = Lang::getTxt('who_topic', file: 'Who');
 				}
 				// It's a board!
 				elseif (isset($actions['board'])) {
 					// Hide first, show later.
 					$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
-					$board_ids[$actions['board']][$k] = Lang::$txt['who_board'];
+					$board_ids[$actions['board']][$k] = Lang::getTxt('who_board', file: 'Who');
 				}
 				// It's the board index!!  It must be!
 				else {
-					$data[$k] = Lang::getTxt('who_index', ['scripturl' => Config::$scripturl, 'forum_name' => Utils::$context['forum_name_html_safe']]);
+					$data[$k] = Lang::getTxt('who_index', ['scripturl' => Config::$scripturl, 'forum_name' => Utils::$context['forum_name_html_safe']], file: 'Who');
 				}
 			}
 			// Probably an error or some goon?
 			elseif ($actions['action'] == '') {
-				$data[$k] = Lang::getTxt('who_index', ['scripturl' => Config::$scripturl, 'forum_name' => Utils::$context['forum_name_html_safe']]);
+				$data[$k] = Lang::getTxt('who_index', ['scripturl' => Config::$scripturl, 'forum_name' => Utils::$context['forum_name_html_safe']], file: 'Who');
 			}
 			// Some other normal action...?
 			else {
@@ -430,27 +439,40 @@ class Who implements ActionInterface
 					}
 
 					$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
-					$profile_ids[(int) $actions['u']][$k] = $actions['u'] == $url[1] ? Lang::$txt['who_viewownprofile'] : Lang::$txt['who_viewprofile'];
-				} elseif (($actions['action'] == 'post' || $actions['action'] == 'post2') && empty($actions['topic']) && isset($actions['board'])) {
+
+					$profile_ids[(int) $actions['u']][$k] = Lang::getTxt($actions['u'] == $url[1] ? 'who_viewownprofile' : 'who_viewprofile', file: 'Who');
+				} elseif (
+					in_array($actions['action'], ['post', 'post2'])
+					&& empty($actions['topic'])
+					&& isset($actions['board'])
+				) {
 					$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
-					$board_ids[(int) $actions['board']][$k] = isset($actions['poll']) ? Lang::$txt['who_poll'] : Lang::$txt['who_post'];
+
+					$board_ids[(int) $actions['board']][$k] = Lang::getTxt(isset($actions['poll']) ? 'who_poll' : 'who_post', file: 'Who');
 				}
 				// A subaction anyone can view... if the language string is there, show it.
-				elseif (isset($actions['sa'], Lang::$txt['whoall_' . $actions['action'] . '_' . $actions['sa']])) {
-					$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']]) ? Lang::$txt[$preferred_prefix . $actions['action'] . '_' . $actions['sa']] : Lang::getTxt('whoall_' . $actions['action'] . '_' . $actions['sa'], ['scripturl' => Config::$scripturl]);
+				elseif (
+					isset($actions['sa'])
+					&& Lang::txtExists('whoall_' . $actions['action'] . '_' . $actions['sa'], file: 'Who')
+				) {
+					$prefix = ($preferred_prefix && Lang::txtExists($preferred_prefix . $actions['action'] . '_' . $actions['sa'], file: 'Who') ? $preferred_prefix : 'whoall_');
+
+					$data[$k] = Lang::getTxt($prefix . $actions['action'] . '_' . $actions['sa'], ['scripturl' => Config::$scripturl], file: 'Who');
 				}
 				// An action any old fellow can look at. (if ['whoall_' . $action] exists, we know everyone can see it.)
-				elseif (isset(Lang::$txt['whoall_' . $actions['action']])) {
-					$data[$k] = $preferred_prefix && isset(Lang::$txt[$preferred_prefix . $actions['action']]) ? Lang::$txt[$preferred_prefix . $actions['action']] : Lang::getTxt('whoall_' . $actions['action'], ['scripturl' => Config::$scripturl]);
+				elseif (Lang::txtExists('whoall_' . $actions['action'], file: 'Who')) {
+					$prefix = ($preferred_prefix && Lang::txtExists($preferred_prefix . $actions['action'], file: 'Who') ? $preferred_prefix : 'whoall_');
+
+					$data[$k] = Lang::getTxt($prefix . $actions['action'], ['scripturl' => Config::$scripturl], file: 'Who');
 				}
 				// Viewable if and only if they can see the board...
-				elseif (isset(Lang::$txt['whotopic_' . $actions['action']])) {
+				elseif (Lang::txtExists('whotopic_' . $actions['action'], file: 'Who')) {
 					// Find out what topic they are accessing.
 					$topic = (int) ($actions['topic'] ?? ($actions['from'] ?? 0));
 
 					$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
-					$topic_ids[$topic][$k] = Lang::$txt['whotopic_' . $actions['action']];
-				} elseif (isset(Lang::$txt['whopost_' . $actions['action']])) {
+					$topic_ids[$topic][$k] = Lang::getTxt('whotopic_' . $actions['action'], file: 'Who');
+				} elseif (Lang::txtExists('whopost_' . $actions['action'], file: 'Who')) {
 					// Find out what message they are accessing.
 					$msgid = (int) ($actions['msg'] ?? ($actions['quote'] ?? 0));
 
@@ -471,44 +493,45 @@ class Who implements ActionInterface
 					list($id_topic, $subject) = Db::$db->fetch_row($result);
 					Db::$db->free_result($result);
 
-					$data[$k] = Lang::getTxt('whopost_' . $actions['action'], ['id_topic' => $id_topic, 'subject' => $subject, 'scripturl' => Config::$scripturl]);
+					$data[$k] = Lang::getTxt('whopost_' . $actions['action'], ['id_topic' => $id_topic, 'subject' => $subject, 'scripturl' => Config::$scripturl], file: 'Who');
 
 					if (empty($id_topic)) {
 						$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
 					}
 				}
 				// Viewable only by administrators.. (if it starts with whoadmin, it's admin only!)
-				elseif (User::$me->allowedTo('moderate_forum') && isset(Lang::$txt['whoadmin_' . $actions['action']])) {
-					$data[$k] = Lang::getTxt('whoadmin_' . $actions['action'], ['scripturl' => Config::$scripturl]);
+				elseif (User::$me->allowedTo('moderate_forum') && Lang::txtExists('whoadmin_' . $actions['action'], file: 'Who')) {
+					$data[$k] = Lang::getTxt('whoadmin_' . $actions['action'], ['scripturl' => Config::$scripturl], file: 'Who');
 				}
 				// Viewable by permission level.
 				elseif (isset(self::$allowedActions[$actions['action']])) {
-					if (User::$me->allowedTo(self::$allowedActions[$actions['action']]) && !empty(Lang::$txt['whoallow_' . $actions['action']])) {
-						$data[$k] = Lang::getTxt('whoallow_' . $actions['action'], ['scripturl' => Config::$scripturl]);
+					if (
+						User::$me->allowedTo(self::$allowedActions[$actions['action']])
+						&& Lang::txtExists('whoallow_' . $actions['action'], file: 'Who')
+					) {
+						$data[$k] = Lang::getTxt('whoallow_' . $actions['action'], ['scripturl' => Config::$scripturl], file: 'Who');
 					} elseif (in_array('moderate_forum', self::$allowedActions[$actions['action']])) {
-						$data[$k] = Lang::$txt['who_moderate'];
+						$data[$k] = Lang::getTxt('who_moderate', file: 'Who');
 					} elseif (in_array('admin_forum', self::$allowedActions[$actions['action']])) {
-						$data[$k] = Lang::$txt['who_admin'];
+						$data[$k] = Lang::getTxt('who_admin', file: 'Who');
 					} else {
 						$data[$k] = ['label' => 'who_hidden', 'class' => 'em'];
 					}
 				} elseif (!empty($actions['action'])) {
-					$data[$k] = Lang::getTxt('who_generic', $actions);
+					$data[$k] = Lang::getTxt('who_generic', $actions, file: 'Who');
 				} else {
 					$data[$k] = ['label' => 'who_unknown', 'class' => 'em'];
 				}
 			}
 
 			if (isset($actions['error'])) {
-				Lang::load('Errors');
+				$error_message = Lang::getTxt(
+					$actions['error'] == 'guest_login' ? 'who_guest_login' : $actions['error'],
+					(array) ($actions['error_params'] ?? []),
+					file: 'Who+Errors',
+				);
 
-				if (isset(Lang::$txt[$actions['error']])) {
-					$error_message = str_replace('"', '&quot;', empty($actions['error_params']) ? Lang::$txt[$actions['error']] : Lang::getTxt($actions['error'], (array) $actions['error_params']));
-				} elseif ($actions['error'] == 'guest_login') {
-					$error_message = str_replace('"', '&quot;', Lang::$txt['who_guest_login']);
-				} else {
-					$error_message = str_replace('"', '&quot;', $actions['error']);
-				}
+				$error_message = str_replace('"', '&quot;', $error_message);
 
 				if (!empty($error_message)) {
 					$error_message = ' <span class="main_icons error" title="' . $error_message . '"></span>';
@@ -632,20 +655,6 @@ class Who implements ActionInterface
 		}
 
 		return $data;
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Load the 'Who' template.
-		Theme::loadTemplate('Who');
-		Lang::load('Who');
 	}
 }
 

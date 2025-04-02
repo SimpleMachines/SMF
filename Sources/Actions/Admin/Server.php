@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -185,10 +185,17 @@ class Server implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::getTxt('admin_server_settings', file: 'Admin'),
+			'help' => 'serversettings',
+			'description' => Lang::getTxt('admin_basic_settings', file: 'Admin'),
+		];
+
 		// This is just to keep the database password more secure.
 		User::$me->isAllowedTo('admin_forum');
 
-		Utils::$context['page_title'] = Lang::$txt['admin_server_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_server_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Warn the user if there's any relevant information regarding Settings.php.
@@ -196,7 +203,7 @@ class Server implements ActionInterface
 
 		if (self::$settings_backup_fail) {
 			Utils::$context['settings_message'] = [
-				'label' => Lang::$txt['admin_backup_fail'],
+				'label' => Lang::getTxt('admin_backup_fail', file: 'Admin'),
 				'tag' => 'div',
 				'class' => 'centertext strong',
 			];
@@ -206,7 +213,7 @@ class Server implements ActionInterface
 		Utils::$context['sub_action'] = $this->subaction;
 
 		// Call the right method for this sub-action.
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -231,7 +238,7 @@ class Server implements ActionInterface
 
 		// Setup the template stuff.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=general;save';
-		Utils::$context['settings_title'] = Lang::$txt['general_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('general_settings', file: 'Admin');
 		Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 		// Saving settings?
@@ -300,7 +307,7 @@ class Server implements ActionInterface
 
 		// Setup the template stuff.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=database;save';
-		Utils::$context['settings_title'] = Lang::$txt['database_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('database_settings', file: 'Admin');
 		Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 		if (!Db::$db->allow_persistent()) {
@@ -353,7 +360,7 @@ class Server implements ActionInterface
 			END, true);
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=cookie;save';
-		Utils::$context['settings_title'] = Lang::$txt['cookies_sessions_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('cookies_sessions_settings', file: 'Admin');
 		Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 		// Saving settings?
@@ -473,7 +480,7 @@ class Server implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;save;sa=security';
-		Utils::$context['settings_title'] = Lang::$txt['security_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('security_settings', file: 'Admin');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -505,19 +512,18 @@ class Server implements ActionInterface
 			Utils::redirectexit('action=admin;area=serversettings;sa=cache;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 		}
 
-		Lang::load('ManageMaintenance');
 		SecurityToken::create('admin-maint');
 		Utils::$context['template_layers'][] = 'clean_cache_button';
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=cache;save';
-		Utils::$context['settings_title'] = Lang::$txt['caching_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('caching_settings', file: 'Admin');
 
 		// Changing cache settings won't have any effect if Settings.php is not writable.
 		Utils::$context['save_disabled'] = Utils::$context['settings_not_writable'];
 
 		// Decide what message to show.
 		if (!Utils::$context['save_disabled']) {
-			Utils::$context['settings_message'] = Lang::$txt['caching_information'];
+			Utils::$context['settings_message'] = Lang::getTxt('caching_information', file: 'ManageSettings');
 		}
 
 		// Prepare the template.
@@ -529,7 +535,7 @@ class Server implements ActionInterface
 	 */
 	public function export(): void
 	{
-		Utils::$context['settings_message'] = Lang::$txt['export_settings_description'];
+		Utils::$context['settings_message'] = Lang::getTxt('export_settings_description', file: 'ManageSettings');
 
 		$config_vars = self::exportConfigVars();
 
@@ -572,7 +578,7 @@ class Server implements ActionInterface
 		}
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=export;save';
-		Utils::$context['settings_title'] = Lang::$txt['export_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('export_settings', file: 'Admin');
 
 		ACP::prepareDBSettingContext($config_vars);
 	}
@@ -585,28 +591,28 @@ class Server implements ActionInterface
 		// Setup a warning message, but disabled by default.
 		self::getLoadAverageDisabled();
 
-		Utils::$context['settings_message'] = ['label' => Lang::$txt['loadavg_disabled_conf'], 'class' => 'error'];
+		Utils::$context['settings_message'] = ['label' => Lang::getTxt('loadavg_disabled_conf', file: 'ManageSettings'), 'class' => 'error'];
 
 		if (self::$loadAverageDisabled && DIRECTORY_SEPARATOR === '\\') {
-			Utils::$context['settings_message']['label'] = Lang::$txt['loadavg_disabled_windows'];
+			Utils::$context['settings_message']['label'] = Lang::getTxt('loadavg_disabled_windows', file: 'ManageSettings');
 
 			if (isset($_GET['save'])) {
 				$_SESSION['adm-save'] = Utils::$context['settings_message']['label'];
 			}
 		} elseif (self::$loadAverageDisabled && stripos(PHP_OS, 'darwin') === 0) {
-			Utils::$context['settings_message']['label'] = Lang::$txt['loadavg_disabled_osx'];
+			Utils::$context['settings_message']['label'] = Lang::getTxt('loadavg_disabled_osx', file: 'ManageSettings');
 
 			if (isset($_GET['save'])) {
 				$_SESSION['adm-save'] = Utils::$context['settings_message']['label'];
 			}
 		} elseif (!self::$loadAverageDisabled) {
-			Utils::$context['settings_message']['label'] = Lang::getTxt('loadavg_warning', [Config::$modSettings['load_average']]);
+			Utils::$context['settings_message']['label'] = Lang::getTxt('loadavg_warning', [Config::$modSettings['load_average']], file: 'ManageSettings');
 		}
 
 		$config_vars = self::loadBalancingConfigVars();
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=serversettings;sa=loads;save';
-		Utils::$context['settings_title'] = Lang::$txt['load_balancing_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('load_balancing_settings', file: 'Admin');
 
 		// Saving?
 		if (isset($_GET['save'])) {
@@ -657,7 +663,7 @@ class Server implements ActionInterface
 	 */
 	public function phpinfo(): void
 	{
-		$category = Lang::$txt['phpinfo_settings'];
+		$category = Lang::getTxt('phpinfo_settings', file: 'Admin');
 
 		// get the data
 		ob_start();
@@ -686,13 +692,16 @@ class Server implements ActionInterface
 			if (preg_match('~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~', $line, $val)) {
 				$pinfo[$category][$val[1]] = $val[2];
 			} elseif (preg_match('~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~', $line, $val)) {
-				$pinfo[$category][$val[1]] = [Lang::$txt['phpinfo_localsettings'] => $val[2], Lang::$txt['phpinfo_defaultsettings'] => $val[3]];
+				$pinfo[$category][$val[1]] = [
+					Lang::getTxt('phpinfo_localsettings', file: 'Admin') => $val[2],
+					Lang::getTxt('phpinfo_defaultsettings', file: 'Admin') => $val[3],
+				];
 			}
 		}
 
 		// load it in to context and display it
 		Utils::$context['pinfo'] = $pinfo;
-		Utils::$context['page_title'] = Lang::$txt['admin_server_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_server_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'php_info';
 	}
 
@@ -716,23 +725,104 @@ class Server implements ActionInterface
 			OR	a string for a titled section.
 		 */
 		$config_vars = [
-			['mbname', Lang::$txt['admin_title'], 'file', 'text', 30],
+			[
+				'mbname',
+				Lang::getTxt('admin_title', file: 'Admin'),
+				'file',
+				'text',
+				30,
+			],
 			'',
-			['maintenance', Lang::$txt['admin_maintain'], 'file', 'check'],
-			['mtitle', Lang::$txt['maintenance_subject'], 'file', 'text', 36],
-			['mmessage', Lang::$txt['maintenance_message'], 'file', 'text', 36],
+			[
+				'maintenance',
+				Lang::getTxt('admin_maintain', file: 'Admin'),
+				'file',
+				'check',
+			],
+			[
+				'mtitle',
+				Lang::getTxt('maintenance_subject', file: 'Admin'),
+				'file',
+				'text',
+				36,
+			],
+			[
+				'mmessage',
+				Lang::getTxt('maintenance_message', file: 'Admin'),
+				'file',
+				'text',
+				36,
+			],
 			'',
-			['webmaster_email', Lang::$txt['admin_webmaster_email'], 'file', 'text', 30],
+			[
+				'webmaster_email',
+				Lang::getTxt('admin_webmaster_email', file: 'Admin'),
+				'file',
+				'text',
+				30,
+			],
 			'',
-			['enableCompressedOutput', Lang::$txt['enableCompressedOutput'], 'db', 'check', null, 'enableCompressedOutput'],
-			['disableHostnameLookup', Lang::$txt['disableHostnameLookup'], 'db', 'check', null, 'disableHostnameLookup'],
+			[
+				'enableCompressedOutput',
+				Lang::getTxt('enableCompressedOutput', file: 'ManageSettings'),
+				'db',
+				'check',
+				null,
+				'enableCompressedOutput',
+			],
+			[
+				'disableHostnameLookup',
+				Lang::getTxt('disableHostnameLookup', file: 'ManageSettings'),
+				'db',
+				'check',
+				null,
+				'disableHostnameLookup',
+			],
 			'',
-			'force_ssl' => ['force_ssl', Lang::$txt['force_ssl'], 'db', 'select', [Lang::$txt['force_ssl_off'], Lang::$txt['force_ssl_complete']], 'force_ssl'],
-			['image_proxy_enabled', Lang::$txt['image_proxy_enabled'], 'file', 'check', null, 'image_proxy_enabled'],
-			['image_proxy_secret', Lang::$txt['image_proxy_secret'], 'file', 'text', 30, 'image_proxy_secret'],
-			['image_proxy_maxsize', Lang::$txt['image_proxy_maxsize'], 'file', 'int', null, 'image_proxy_maxsize'],
+			'force_ssl' => [
+				'force_ssl',
+				Lang::getTxt('force_ssl', file: 'ManageSettings'),
+				'db',
+				'select',
+				[
+					Lang::getTxt('force_ssl_off', file: 'ManageSettings'),
+					Lang::getTxt('force_ssl_complete', file: 'ManageSettings'),
+				],
+				'force_ssl',
+			],
+			[
+				'image_proxy_enabled',
+				Lang::getTxt('image_proxy_enabled', file: 'ManageSettings'),
+				'file',
+				'check',
+				null,
+				'image_proxy_enabled',
+			],
+			[
+				'image_proxy_secret',
+				Lang::getTxt('image_proxy_secret', file: 'ManageSettings'),
+				'file',
+				'text',
+				30,
+				'image_proxy_secret',
+			],
+			[
+				'image_proxy_maxsize',
+				Lang::getTxt('image_proxy_maxsize', file: 'ManageSettings'),
+				'file',
+				'int',
+				null,
+				'image_proxy_maxsize',
+			],
 			'',
-			['enable_sm_stats', Lang::$txt['enable_sm_stats'], 'db', 'check', null, 'enable_sm_stats'],
+			[
+				'enable_sm_stats',
+				Lang::getTxt('enable_sm_stats', file: 'Admin'),
+				'db',
+				'check',
+				null,
+				'enable_sm_stats',
+			],
 		];
 
 		IntegrationHook::call('integrate_general_settings', [&$config_vars]);
@@ -756,12 +846,43 @@ class Server implements ActionInterface
 			OR a string for a titled section.
 		 */
 		$config_vars = [
-			['db_persist', Lang::$txt['db_persist'], 'file', 'check', null, 'db_persist'],
-			['db_error_send', Lang::$txt['db_error_send'], 'file', 'check'],
-			['ssi_db_user', Lang::$txt['ssi_db_user'], 'file', 'text', null, 'ssi_db_user'],
-			['ssi_db_passwd', Lang::$txt['ssi_db_passwd'], 'file', 'password'],
+			[
+				'db_persist',
+				Lang::getTxt('db_persist', file: 'Admin'),
+				'file',
+				'check',
+				null,
+				'db_persist',
+			],
+			[
+				'db_error_send',
+				Lang::getTxt('db_error_send', file: 'Admin'),
+				'file',
+				'check',
+			],
+			[
+				'ssi_db_user',
+				Lang::getTxt('ssi_db_user', file: 'Admin'),
+				'file',
+				'text',
+				null,
+				'ssi_db_user',
+			],
+			[
+				'ssi_db_passwd',
+				Lang::getTxt('ssi_db_passwd', file: 'Admin'),
+				'file',
+				'password',
+			],
 			'',
-			['autoFixDatabase', Lang::$txt['autoFixDatabase'], 'db', 'check', false, 'autoFixDatabase'],
+			[
+				'autoFixDatabase',
+				Lang::getTxt('autoFixDatabase', file: 'ManageSettings'),
+				'db',
+				'check',
+				false,
+				'autoFixDatabase',
+			],
 		];
 
 		// Add PG Stuff
@@ -783,7 +904,14 @@ class Server implements ActionInterface
 				$config_vars,
 				[
 					'',
-					['search_language', Lang::$txt['search_language'], 'db', 'select', $fts_language, 'pgFulltextSearch'],
+					[
+						'search_language',
+						Lang::getTxt('search_language', file: 'ManageSettings'),
+						'db',
+						'select',
+						$fts_language,
+						'pgFulltextSearch',
+					],
 				],
 			);
 		}
@@ -802,42 +930,126 @@ class Server implements ActionInterface
 	{
 		$config_vars = [
 			// Cookies...
-			['cookiename', Lang::$txt['cookie_name'], 'file', 'text', 20],
-			['cookieTime', Lang::$txt['cookieTime'], 'db', 'select', array_filter(array_map(
-				function ($str) {
-					return Lang::$txt[$str] ?? '';
-				},
-				Utils::$context['login_cookie_times'],
-			))],
-			['localCookies', Lang::$txt['localCookies'], 'db', 'check', false, 'localCookies'],
-			['globalCookies', Lang::$txt['globalCookies'], 'db', 'check', false, 'globalCookies'],
-			['globalCookiesDomain', Lang::$txt['globalCookiesDomain'], 'db', 'text', false, 'globalCookiesDomain'],
-			['secureCookies', Lang::$txt['secureCookies'], 'db', 'check', false, 'secureCookies', 'disabled' => !Sapi::httpsOn()],
-			['httponlyCookies', Lang::$txt['httponlyCookies'], 'db', 'check', false, 'httponlyCookies'],
-			['samesiteCookies', Lang::$txt['samesiteCookies'], 'db', 'select', [
-				'none' 		=> Lang::$txt['samesiteNone'],
-				'lax' 		=> Lang::$txt['samesiteLax'],
-				'strict' 	=> Lang::$txt['samesiteStrict'],
+			[
+				'cookiename',
+				Lang::getTxt('cookie_name', file: 'Admin'),
+				'file',
+				'text',
+				20,
 			],
-				'samesiteCookies'],
+			[
+				'cookieTime',
+				Lang::getTxt('cookieTime', file: 'ManageSettings'),
+				'db',
+				'select',
+				array_filter(array_map(
+					fn($str) => Lang::txtExists($str, file: 'General') ? Lang::getTxt($str, file: 'General') : '',
+					Utils::$context['login_cookie_times'],
+				)),
+			],
+			[
+				'localCookies',
+				Lang::getTxt('localCookies', file: 'ManageSettings'),
+				'db',
+				'check',
+				false,
+				'localCookies',
+			],
+			[
+				'globalCookies',
+				Lang::getTxt('globalCookies', file: 'ManageSettings'),
+				'db',
+				'check',
+				false,
+				'globalCookies',
+			],
+			[
+				'globalCookiesDomain',
+				Lang::getTxt('globalCookiesDomain', file: 'ManageSettings'),
+				'db',
+				'text',
+				false,
+				'globalCookiesDomain',
+			],
+			[
+				'secureCookies',
+				Lang::getTxt('secureCookies', file: 'ManageSettings'),
+				'db',
+				'check',
+				false,
+				'secureCookies',
+				'disabled' => !Sapi::httpsOn(),
+			],
+			[
+				'httponlyCookies',
+				Lang::getTxt('httponlyCookies', file: 'ManageSettings'),
+				'db',
+				'check',
+				false,
+				'httponlyCookies',
+			],
+			[
+				'samesiteCookies',
+				Lang::getTxt('samesiteCookies', file: 'ManageSettings'),
+				'db',
+				'select',
+				[
+					'none' 		=> Lang::getTxt('samesiteNone', file: 'ManageSettings'),
+					'lax' 		=> Lang::getTxt('samesiteLax', file: 'ManageSettings'),
+					'strict' 	=> Lang::getTxt('samesiteStrict', file: 'ManageSettings'),
+				],
+				'samesiteCookies',
+			],
 			'',
 
 			// Sessions
-			['databaseSession_enable', Lang::$txt['databaseSession_enable'], 'db', 'check', false, 'databaseSession_enable'],
-			['databaseSession_loose', Lang::$txt['databaseSession_loose'], 'db', 'check', false, 'databaseSession_loose'],
-			['databaseSession_lifetime', Lang::$txt['databaseSession_lifetime'], 'db', 'int', false, 'databaseSession_lifetime', 'postinput' => Lang::$txt['seconds']],
+			[
+				'databaseSession_enable',
+				Lang::getTxt('databaseSession_enable', file: 'ManageSettings'),
+				'db',
+				'check',
+				false,
+				'databaseSession_enable',
+			],
+			[
+				'databaseSession_loose',
+				Lang::getTxt('databaseSession_loose', file: 'ManageSettings'),
+				'db',
+				'check',
+				false,
+				'databaseSession_loose',
+			],
+			[
+				'databaseSession_lifetime',
+				Lang::getTxt('databaseSession_lifetime', file: 'ManageSettings'),
+				'db',
+				'int',
+				false,
+				'databaseSession_lifetime',
+				'postinput' => Lang::getTxt('seconds', file: 'General'),
+			],
 			'',
 
 			// 2FA
-			['tfa_mode', Lang::$txt['tfa_mode'], 'db', 'select', [
-				0 => Lang::$txt['tfa_mode_disabled'],
-				1 => Lang::$txt['tfa_mode_enabled'],
-			] + (empty(User::$me->tfa_secret) ? [] : [
-				2 => Lang::$txt['tfa_mode_forced'],
-			]) + (empty(User::$me->tfa_secret) ? [] : [
-				3 => Lang::$txt['tfa_mode_forcedall'],
-			]), 'subtext' => Lang::$txt['tfa_mode_subtext'] . (empty(User::$me->tfa_secret) ? '<br><strong>' . Lang::$txt['tfa_mode_forced_help'] . '</strong>' : ''), 'tfa_mode'],
+			'tfa_mode' => [
+				'tfa_mode',
+				Lang::getTxt('tfa_mode', file: 'ManageSettings'),
+				'db',
+				'select',
+				[
+					0 => Lang::getTxt('tfa_mode_disabled', file: 'ManageSettings'),
+					1 => Lang::getTxt('tfa_mode_enabled', file: 'ManageSettings'),
+				],
+				'subtext' => Lang::getTxt('tfa_mode_subtext', file: 'ManageSettings'),
+				'tfa_mode',
+			],
 		];
+
+		if (!empty(User::$me->tfa_secret)) {
+			$config_vars['tfa_mode']['select'][2] = Lang::getTxt('tfa_mode_forced', file: 'ManageSettings');
+			$config_vars['tfa_mode']['select'][3] = Lang::getTxt('tfa_mode_forcedall', file: 'ManageSettings');
+			$config_vars['tfa_mode']['subtext'] .= '<br><strong>' . Lang::getTxt('tfa_mode_forced_help', file: 'ManageSettings') . '</strong>';
+		}
 
 		IntegrationHook::call('integrate_cookie_settings', [&$config_vars]);
 
@@ -853,7 +1065,7 @@ class Server implements ActionInterface
 	{
 		$config_vars = [
 			['int', 'failed_login_threshold'],
-			['int', 'loginHistoryDays', 'subtext' => Lang::$txt['zero_to_disable']],
+			['int', 'loginHistoryDays', 'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin')],
 			'',
 
 			['check', 'securityDisable'],
@@ -870,9 +1082,9 @@ class Server implements ActionInterface
 				'select',
 				'password_strength',
 				[
-					Lang::$txt['setting_password_strength_low'],
-					Lang::$txt['setting_password_strength_medium'],
-					Lang::$txt['setting_password_strength_high'],
+					Lang::getTxt('setting_password_strength_low', file: 'ManageSettings'),
+					Lang::getTxt('setting_password_strength_medium', file: 'ManageSettings'),
+					Lang::getTxt('setting_password_strength_high', file: 'ManageSettings'),
 				],
 			],
 			['check', 'enable_password_conversion'],
@@ -892,9 +1104,9 @@ class Server implements ActionInterface
 				'select',
 				'frame_security',
 				[
-					'SAMEORIGIN' => Lang::$txt['setting_frame_security_SAMEORIGIN'],
-					'DENY' => Lang::$txt['setting_frame_security_DENY'],
-					'DISABLE' => Lang::$txt['setting_frame_security_DISABLE'],
+					'SAMEORIGIN' => Lang::getTxt('setting_frame_security_SAMEORIGIN', file: 'ManageSettings'),
+					'DENY' => Lang::getTxt('setting_frame_security_DENY', file: 'ManageSettings'),
+					'DISABLE' => Lang::getTxt('setting_frame_security_DISABLE', file: 'ManageSettings'),
 				],
 			],
 			'',
@@ -903,8 +1115,8 @@ class Server implements ActionInterface
 				'select',
 				'proxy_ip_header',
 				[
-					'disabled' => Lang::$txt['setting_proxy_ip_header_disabled'],
-					'autodetect' => Lang::$txt['setting_proxy_ip_header_autodetect'],
+					'disabled' => Lang::getTxt('setting_proxy_ip_header_disabled', file: 'ManageSettings'),
+					'autodetect' => Lang::getTxt('setting_proxy_ip_header_autodetect', file: 'ManageSettings'),
 					'HTTP_X_FORWARDED_FOR' => 'X-Forwarded-For',
 					'HTTP_CLIENT_IP' => 'Client-IP',
 					'HTTP_X_REAL_IP' => 'X-Real-IP',
@@ -933,26 +1145,53 @@ class Server implements ActionInterface
 		foreach ($detectedCacheApis as $class_name => $cache_api) {
 			$class_name_txt_key = strtolower($cache_api->getImplementationClassKeyName());
 
-			$apis_names[$class_name] = Lang::$txt[$class_name_txt_key . '_cache'] ?? $class_name;
+			$apis_names[$class_name] = Lang::txtExists($class_name_txt_key . '_cache', file: 'ManageSettings') ? Lang::getTxt($class_name_txt_key . '_cache', file: 'ManageSettings') : $class_name;
 		}
 
 		// Set our values to show what, if anything, we found.
 		if (empty($detectedCacheApis)) {
-			Lang::$txt['cache_settings_message'] = '<strong class="alert">' . Lang::$txt['detected_no_caching'] . '</strong>';
+			Lang::setTxt(
+				'cache_settings_message',
+				'<strong class="alert">' . Lang::getTxt('detected_no_caching', file: 'ManageSettings') . '</strong>',
+			);
 
-			$cache_level = [Lang::$txt['cache_off']];
-			$apis_names['none'] = Lang::$txt['cache_off'];
+			$cache_level = [
+				Lang::getTxt('cache_off', file: 'ManageSettings'),
+			];
+
+			$apis_names['none'] = Lang::getTxt('cache_off', file: 'ManageSettings');
 		} else {
-			Lang::$txt['cache_settings_message'] = '<strong class="success">' . Lang::getTxt('detected_accelerators', ['list' => Lang::sentenceList($apis_names)]) . '</strong>';
+			Lang::setTxt(
+				'cache_settings_message',
+				'<strong class="success">' . Lang::getTxt('detected_accelerators', ['list' => Lang::sentenceList($apis_names)], file: 'ManageSettings') . '</strong>',
+			);
 
-			$cache_level = [Lang::$txt['cache_off'], Lang::$txt['cache_level1'], Lang::$txt['cache_level2'], Lang::$txt['cache_level3']];
+			$cache_level = [
+				Lang::getTxt('cache_off', file: 'ManageSettings'),
+				Lang::getTxt('cache_level1', file: 'ManageSettings'),
+				Lang::getTxt('cache_level2', file: 'ManageSettings'),
+				Lang::getTxt('cache_level3', file: 'ManageSettings'),
+			];
 		}
 
 		// Define the variables we want to edit.
 		$config_vars = [
-			['', Lang::$txt['cache_settings_message'], '', 'desc'],
-			['cache_enable', Lang::$txt['cache_enable'], 'file', 'select', $cache_level, 'cache_enable'],
-			['cache_accelerator', Lang::$txt['cache_accelerator'], 'file', 'select', $apis_names],
+			['', Lang::getTxt('cache_settings_message'), '', 'desc'],
+			[
+				'cache_enable',
+				Lang::getTxt('cache_enable', file: 'ManageSettings'),
+				'file',
+				'select',
+				$cache_level,
+				'cache_enable',
+			],
+			[
+				'cache_accelerator',
+				Lang::getTxt('cache_accelerator', file: 'ManageSettings'),
+				'file',
+				'select',
+				$apis_names,
+			],
 		];
 
 		// Some javascript to enable/disable certain settings if the option is not selected.
@@ -1000,10 +1239,33 @@ class Server implements ActionInterface
 		self::$diskspace_disabled = (!function_exists('disk_free_space') || !function_exists('disk_total_space') || intval(@disk_total_space(file_exists(Config::$modSettings['export_dir']) ? Config::$modSettings['export_dir'] : Config::$boarddir)) < 1440);
 
 		$config_vars = [
-			['text', 'export_dir', 40],
-			['int', 'export_expiry', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['days_word']],
-			['int', 'export_min_diskspace_pct', 'postinput' => '%', 'max' => 80, 'disabled' => self::$diskspace_disabled],
-			['int', 'export_rate', 'min' => 5, 'max' => 500, 'step' => 5, 'subtext' => Lang::$txt['export_rate_desc']],
+			[
+				'text',
+				'export_dir',
+				40,
+			],
+			[
+				'int',
+				'export_expiry',
+				'subtext' =>
+				Lang::getTxt('zero_to_disable', file: 'Admin'),
+				'postinput' => Lang::getTxt('days_word', file: 'General'),
+			],
+			[
+				'int',
+				'export_min_diskspace_pct',
+				'postinput' => '%',
+				'max' => 80,
+				'disabled' => self::$diskspace_disabled,
+			],
+			[
+				'int',
+				'export_rate',
+				'min' => 5,
+				'max' => 500,
+				'step' => 5,
+				'subtext' => Lang::getTxt('export_rate_desc', file: 'ManageSettings'),
+			],
 		];
 
 		IntegrationHook::call('integrate_export_settings', [&$config_vars]);
@@ -1104,7 +1366,7 @@ class Server implements ActionInterface
 	{
 		if (!empty(Utils::$context['settings_not_writable'])) {
 			Utils::$context['settings_message'] = [
-				'label' => Lang::$txt['settings_not_writable'],
+				'label' => Lang::getTxt('settings_not_writable', file: 'Admin'),
 				'tag' => 'div',
 				'class' => 'centertext strong',
 			];
@@ -1215,139 +1477,6 @@ class Server implements ActionInterface
 		return !self::$settings_backup_fail;
 	}
 
-	/**
-	 * Backward compatibility wrapper for the general sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyGeneralSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::generalConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'general';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the database sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyDatabaseSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::databaseConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'database';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the cookie sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return void|array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyCookieSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::cookieConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'cookie';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the security sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyGeneralSecuritySettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::securityConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'security';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the cache sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyCacheSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::cacheConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'cache';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the export sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyExportSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::exportConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'export';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the loads sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyLoadBalancingSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::loadBalancingConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'loads';
-		self::$obj->execute();
-
-		return null;
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1357,15 +1486,6 @@ class Server implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('ManageSettings');
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['admin_server_settings'],
-			'help' => 'serversettings',
-			'description' => Lang::$txt['admin_basic_settings'],
-		];
-
 		IntegrationHook::call('integrate_server_settings', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
@@ -1558,8 +1678,16 @@ class Server implements ActionInterface
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}settings',
-					['variable' => 'string', 'value' => 'string'],
-					['sm_stats_key', $ID[1]],
+					[
+						'variable' => 'string',
+						'value' => 'string',
+					],
+					[
+						[
+							'sm_stats_key',
+							$ID[1],
+						],
+					],
 					['variable'],
 				);
 

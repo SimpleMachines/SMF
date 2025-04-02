@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -160,8 +160,23 @@ abstract class Parser
 		'parse_tags' => [],
 		'for_print' => false,
 		'hard_breaks' => null,
+		'no_paragraphs' => false,
 		'str_replace' => [],
 		'preg_replace' => [],
+	];
+
+	/**
+	 * @var array
+	 *
+	 * Language files that should be loaded in order to populate any Lang::$txt
+	 * strings that are used by BBCodes.
+	 *
+	 * Mods implementing custom BBCodes can add values to this array using the
+	 * integrate_parser_static_vars hook.
+	 */
+	public static array $lang_files = [
+		'General',
+		'Modifications',
 	];
 
 	/**
@@ -205,13 +220,6 @@ abstract class Parser
 	 * URL of the base smileys directory.
 	 */
 	public static string $smileys_url;
-
-	/**
-	 * @var string
-	 *
-	 * The character encoding of the strings to be parsed.
-	 */
-	public static string $encoding;
 
 	/**
 	 * @var string
@@ -325,6 +333,11 @@ abstract class Parser
 		// Do the job.
 		self::$results[$cache_key] = $handlers[$output_type]($string, $input_types, $options);
 
+		// Change paragraphs back to breaks if that option was given.
+		if ($options['no_paragraphs']) {
+			self::$results[$cache_key] = preg_replace(['~<p>(.*?)</p>~u', '~<br>$~u'], ['$1<br>', ''], self::$results[$cache_key]);
+		}
+
 		// Cache the output if it took some time...
 		if (!empty(CacheApi::$enable) && microtime(true) - $cache_t > pow(50, -CacheApi::$enable)) {
 			CacheApi::put($cache_key, self::$results[$cache_key], 240);
@@ -389,70 +402,13 @@ abstract class Parser
 			[
 				'~(?:' . Utils::TAB_SUBSTITUTE . ')+~u' => fn($matches) => '<span style="white-space: pre;">' . strtr($matches[0], [Utils::TAB_SUBSTITUTE => "\t"]) . '</span>',
 				'~<span style="color: #[0-9a-fA-F]{6}">(<span style="white-space: pre;">\h*</span>)</span>~' => fn($matches) => $matches[1],
-				'~\R~' => fn($matches) => '<br>',
+				'~\R~' => fn($matches) => '<br />',
 				'/\'/' => fn($matches) => '&#039;',
 				// PHP 8.3 changed the returned HTML.
 				'/^(<pre>)?<code[^>]*>|<\/code>(<\/pre>)?$/' => fn($matches) => '',
 			],
 			$buffer,
 		);
-	}
-
-	/**
-	 * Microsoft uses their own character set Code Page 1252 (CP1252), which is
-	 * a superset of ISO 8859-1, defining several characters between DEC 128 and
-	 * 159 that are not normally displayable. This converts the popular ones
-	 * that appear from a cut and paste from Windows.
-	 *
-	 * @todo In a Unicode-aware world, we probably should not do this any more.
-	 *
-	 * @param string $string The string.
-	 * @return string The sanitized string.
-	 */
-	public static function sanitizeMSCutPaste(string $string): string
-	{
-		if (empty($string)) {
-			return $string;
-		}
-
-		self::setStaticVars();
-
-		// UTF-8 occurrences of MS special characters.
-		$findchars_utf8 = [
-			"\xe2\x80\x9a",	// single low-9 quotation mark, U+201A
-			"\xe2\x80\x9e",	// double low-9 quotation mark, U+201E
-			"\xe2\x80\xa6",	// horizontal ellipsis, U+2026
-			"\xe2\x80\x98",	// left single curly quote, U+2018
-			"\xe2\x80\x99",	// right single curly quote, U+2019
-			"\xe2\x80\x9c",	// left double curly quote, U+201C
-			"\xe2\x80\x9d",	// right double curly quote, U+201D
-		];
-
-		// windows 1252 / iso equivalents
-		$findchars_iso = [
-			chr(130),
-			chr(132),
-			chr(133),
-			chr(145),
-			chr(146),
-			chr(147),
-			chr(148),
-		];
-
-		// safe replacements
-		$replacechars = [
-			',',	// &sbquo;
-			',,',	// &bdquo;
-			'...',	// &hellip;
-			"'",	// &lsquo;
-			"'",	// &rsquo;
-			'"',	// &ldquo;
-			'"',	// &rdquo;
-		];
-
-		$string = str_replace(self::$encoding === 'UTF-8' ? $findchars_utf8 : $findchars_iso, $replacechars, $string);
-
-		return $string;
 	}
 
 	/*******************
@@ -596,13 +552,15 @@ abstract class Parser
 		self::$time_offset = self::$time_offset ?? User::$me->time_offset ?? 0;
 		self::$time_format = self::$time_format ?? User::$me->time_format ?? Time::getTimeFormat();
 
-		self::$locale = self::$locale ?? Lang::$txt['lang_locale'] ?? '';
-		self::$encoding = self::$encoding ?? (!empty(Utils::$context['utf8']) ? 'UTF-8' : (!empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : 'UTF-8')));
+		self::$locale = self::$locale ?? Lang::getTxt('lang_locale', file: 'General') ?? '';
 
 		// Smiley settings.
 		self::$custom_smileys_enabled = self::$custom_smileys_enabled ?? !empty(Config::$modSettings['smiley_enable']);
 		self::$smileys_url = self::$smileys_url ?? Config::$modSettings['smileys_url'];
 		self::$smiley_set = self::$smiley_set ?? (!empty(User::$me->smiley_set) ? User::$me->smiley_set : (!empty(Config::$modSettings['smiley_sets_default']) ? Config::$modSettings['smiley_sets_default'] : 'none'));
+
+		// Give mods a chance to make any changes they need.
+		IntegrationHook::call('integrate_parser_static_vars');
 	}
 
 	/**
@@ -756,7 +714,6 @@ abstract class Parser
 			$output_type,
 			$options,
 			// Localization settings.
-			self::$encoding,
 			self::$locale,
 			self::$time_offset,
 			self::$time_format,

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -176,12 +176,14 @@ class Rule implements \ArrayAccess
 					'is_or' => 'int',
 				],
 				[
-					$this->member,
-					$this->name,
-					Utils::jsonEncode($this->criteria),
-					Utils::jsonEncode($this->actions),
-					(int) $this->delete,
-					(int) $this->logic,
+					[
+						$this->member,
+						$this->name,
+						Utils::jsonEncode($this->criteria),
+						Utils::jsonEncode($this->actions),
+						(int) $this->delete,
+						(int) $this->logic,
+					],
 				],
 				['id_rule'],
 				1,
@@ -445,10 +447,10 @@ class Rule implements \ArrayAccess
 		// The link tree - gotta have this :o
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=manrules',
-			'name' => Lang::$txt['pm_manage_rules'],
+			'name' => Lang::getTxt('pm_manage_rules', file: 'PersonalMessage'),
 		];
 
-		Utils::$context['page_title'] = Lang::$txt['pm_manage_rules'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_manage_rules', file: 'PersonalMessage');
 		Utils::$context['sub_template'] = 'rules';
 
 		// Load them... load them!!
@@ -574,7 +576,6 @@ class Rule implements \ArrayAccess
 					);
 
 					if (Db::$db->num_rows($request) == 0) {
-						Lang::load('Errors');
 						ErrorHandler::fatalLang('invalid_username', false);
 					}
 					list($memID) = Db::$db->fetch_row($request);

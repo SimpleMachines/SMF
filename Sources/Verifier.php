@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -626,7 +626,7 @@ class Verifier implements \ArrayAccess
 
 			$this->questions[] = [
 				'id' => $q,
-				'q' => Utils::adjustHeadingLevels(Parser::transform($row['question']), null),
+				'q' => Utils::adjustHeadingLevels(Parser::transform($row['question'], options: ['no_paragraphs' => true]), null),
 				'is_error' => !empty($incorrectQuestions) && in_array($q, $incorrectQuestions),
 				// Remember a previous submission?
 				'a' => isset($_REQUEST[$this->id . '_vv'], $_REQUEST[$this->id . '_vv']['q'], $_REQUEST[$this->id . '_vv']['q'][$q]) ? Utils::htmlspecialchars($_REQUEST[$this->id . '_vv']['q'][$q]) : '',

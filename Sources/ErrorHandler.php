@@ -12,7 +12,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -30,6 +30,30 @@ use SMF\ServerSideIncludes as SSI;
  */
 class ErrorHandler
 {
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var array
+	 *
+	 * What types of categories do we have for logging errors?
+	 */
+	public static array $known_error_types = [
+		'general',
+		'critical',
+		'database',
+		'undefined_vars',
+		'user',
+		'ban',
+		'template',
+		'debug',
+		'cron',
+		'paidsubs',
+		'backup',
+		'login',
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -131,14 +155,33 @@ class ErrorHandler
 	/**
 	 * Convenience method to create an instance of this class.
 	 *
-	 * @param int $error_level A pre-defined error-handling constant (see {@link https://php.net/errorfunc.constants})
-	 * @param string $error_string The error message
-	 * @param string $file The file where the error occurred
-	 * @param int $line The line where the error occurred
+	 * @param int $error_level A pre-defined error-handling constant.
+	 *    (see {@link https://php.net/errorfunc.constants})
+	 * @param string $error_string The error message.
+	 * @param string $file The file where the error occurred.
+	 * @param int $line The line where the error occurred.
 	 */
 	public static function call(int $error_level, string $error_string, string $file, int $line): void
 	{
 		new self($error_level, $error_string, $file, $line);
+	}
+
+	/**
+	 * Generic handler for uncaught exceptions.
+	 *
+	 * Always ends execution.
+	 *
+	 * @param \Throwable $e The uncaught exception.
+	 */
+	public static function catch(\Throwable $e): void
+	{
+		$message = Lang::txtExists($e->getMessage(), file: 'Errors') ? Lang::getTxt($e->getMessage(), file: 'Errors') : $e->getMessage();
+
+		if (!empty(Config::$modSettings['enableErrorLogging'])) {
+			self::log($message, 'general', $e->getFile(), $e->getLine(), $e->getTrace());
+		}
+
+		self::fatal($message, false);
 	}
 
 	/**
@@ -155,7 +198,7 @@ class ErrorHandler
 	 * @param int $line The line where the error occurred.
 	 * @return string The message that was logged.
 	 */
-	public static function log(string $error_message, string|bool $error_type = 'general', string $file = '', int $line = 0): string
+	public static function log(string $error_message, string|bool $error_type = 'general', string $file = '', int $line = 0, ?array $backtrace = null): string
 	{
 		static $last_error;
 		static $tried_hook = false;
@@ -165,10 +208,10 @@ class ErrorHandler
 
 		// Collect a backtrace
 		if (!isset(Config::$db_show_debug) || Config::$db_show_debug === false) {
-			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		} else {
 			// This is how to keep the args but skip the objects.
-			$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
+			$backtrace = $backtrace ?? debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT);
 		}
 
 		// Are we in a loop?
@@ -194,32 +237,20 @@ class ErrorHandler
 		// Windows style slashes don't play well, lets convert them to the UNIX style.
 		$file = str_replace('\\', '/', $file);
 
-		// Find the best query string we can...
-		$query_string = empty($_SERVER['QUERY_STRING']) ? (empty($_SERVER['REQUEST_URL']) ? '' : str_replace(Config::$scripturl, '', $_SERVER['REQUEST_URL'])) : $_SERVER['QUERY_STRING'];
+		// Find the best path and query string we can...
+		if (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
+			$query_string = substr($_SERVER['REQUEST_URL'], strlen(Config::$boardurl));
+		} else {
+			$query_string = ($_SERVER['REQUEST_URL'] ?? '');
+		}
 
 		// Don't log the session hash in the url twice, it's a waste.
-		$query_string = Utils::htmlspecialchars((SMF == 'SSI' || SMF == 'BACKGROUND' ? '' : '?') . preg_replace(['~;sesc=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], [';sesc', ''], $query_string));
+		$query_string = Utils::htmlspecialchars(preg_replace(['~([?&;]sesc)=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], ['$1', ''], $query_string));
 
 		// Just so we know what board error messages are from.
 		if (isset($_POST['board']) && !isset($_GET['board'])) {
 			$query_string .= ($query_string == '' ? 'board=' : ';board=') . $_POST['board'];
 		}
-
-		// What types of categories do we have?
-		$known_error_types = [
-			'general',
-			'critical',
-			'database',
-			'undefined_vars',
-			'user',
-			'ban',
-			'template',
-			'debug',
-			'cron',
-			'paidsubs',
-			'backup',
-			'login',
-		];
 
 		// This prevents us from infinite looping if the hook or call produces an error.
 		$other_error_types = [];
@@ -230,18 +261,29 @@ class ErrorHandler
 			// Allow the hook to change the error_type and know about the error.
 			IntegrationHook::call('integrate_error_types', [&$other_error_types, &$error_type, $error_message, $file, $line]);
 
-			$known_error_types = array_merge($known_error_types, $other_error_types);
+			self::$known_error_types = array_merge(self::$known_error_types, $other_error_types);
 		}
 
 		// Make sure the category that was specified is a valid one
-		$error_type = in_array($error_type, $known_error_types) && $error_type !== true ? $error_type : 'general';
+		$error_type = in_array($error_type, self::$known_error_types) && $error_type !== true ? $error_type : 'general';
 
 		// Leave out the call to this method.
 		array_splice($backtrace, 0, 1);
 		$backtrace = Utils::jsonEncode($backtrace);
 
 		// Don't log the same error countless times, as we can get in a cycle of depression...
-		$error_info = [User::$me->id ?? User::$my_id ?? 0, time(), User::$me->ip ?? $_SERVER['REMOTE_ADDR'] ?? '', $query_string, $error_message, (string) (User::$sc ?? ''), $error_type, $file, $line, $backtrace];
+		$error_info = [
+			User::$me->id ?? User::$my_id ?? 0,
+			time(),
+			User::$me->ip ?? $_SERVER['REMOTE_ADDR'] ?? '',
+			$query_string,
+			$error_message,
+			(string) (User::$sc ?? ''),
+			$error_type,
+			$file,
+			$line,
+			$backtrace,
+		];
 
 		if (empty($last_error) || $last_error != $error_info) {
 			// Insert the error into the database.
@@ -271,14 +313,16 @@ class ErrorHandler
 	}
 
 	/**
-	 * An irrecoverable error.
+	 * An unrecoverable error.
 	 *
 	 * This function stops execution and displays an error message.
 	 * It logs the error message if $log is specified.
 	 *
 	 * @param string $error The error message
-	 * @param string|bool $log = 'general' What type of error to log this as (false to not log it))
-	 * @param int $status The HTTP status code associated with this error
+	 * @param string|bool $log What type of error to log this as. Set to false
+	 *    to not log the error. Default: 'general'.
+	 * @param int $status The HTTP status code associated with this error.
+	 *    Default: 500.
 	 */
 	public static function fatal(string $error, string|bool $log = 'general', int $status = 500): void
 	{
@@ -307,11 +351,14 @@ class ErrorHandler
 	 *  - the information is logged if log is specified.
 	 *
 	 * @param string $error The error message.
-	 * @param string|false $log The type of error, or false to not log it.
+	 * @param string|bool $log What type of error to log this as. Set to false
+	 *    to not log the error. Default: 'general'.
 	 * @param array $sprintf An array of data to be substituted into the specified message.
 	 * @param int $status The HTTP status code associated with this error. Default: 403.
+	 * @param string $file Language file that holds the localized error message string.
+	 *    Default: 'Errors'.
 	 */
-	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403): void
+	public static function fatalLang(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403, string $file = 'Errors'): void
 	{
 		static $fatal_error_called = false;
 
@@ -327,13 +374,7 @@ class ErrorHandler
 		}
 
 		// Attempt to load the text string.
-		Lang::load('Errors');
-
-		if (empty(Lang::$txt[$error])) {
-			$error_message = $error;
-		} else {
-			$error_message = Lang::getTxt($error, $sprintf);
-		}
+		$error_message = Lang::getTxt($error, $sprintf, file: 'Errors');
 
 		// Send a custom header if we have a custom message.
 		if (isset($_REQUEST['js']) || isset($_REQUEST['xml']) || isset($_REQUEST['ajax'])) {
@@ -345,28 +386,15 @@ class ErrorHandler
 			die($error);
 		}
 
-		$reload_lang_file = true;
-
 		// Log the error in the forum's language, but don't waste the time if we aren't logging
 		if ($log) {
-			Lang::load('Errors', Lang::$default);
-
-			$reload_lang_file = Lang::$default != User::$me->language;
-
-			if (empty(Lang::$txt[$error])) {
-				$error_message = $error;
-			} else {
-				$error_message = Lang::getTxt($error, $sprintf);
-			}
-
+			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: Lang::$default);
 			self::log($error_message, $log);
 		}
 
 		// Load the language file, only if it needs to be reloaded
-		if ($reload_lang_file && !empty(Lang::$txt[$error])) {
-			Lang::load('Errors');
-
-			$error_message = Lang::getTxt($error, $sprintf);
+		if (!$log || Lang::$default != User::$me->language) {
+			$error_message = Lang::getTxt($error, $sprintf, file: $file, lang: User::$me->language);
 		}
 
 		self::logOnline($error, $sprintf);
@@ -606,7 +634,7 @@ class ErrorHandler
 		Utils::$context['robot_no_index'] = true;
 
 		if (!isset(Utils::$context['error_title'])) {
-			Utils::$context['error_title'] = Lang::$txt['error_occured'];
+			Utils::$context['error_title'] = Lang::getTxt('error_occured', file: 'General');
 		}
 
 		Utils::$context['error_message'] = Utils::$context['error_message'] ?? $error_message;
@@ -656,7 +684,7 @@ class ErrorHandler
 			PROGRAM FLOW.  Otherwise, security error messages will not be shown, and
 			your forum will be in a very easily hackable state.
 		*/
-		trigger_error('No direct access...', E_USER_ERROR);
+		die('No direct access...');
 	}
 
 	/**

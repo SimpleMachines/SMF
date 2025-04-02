@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Packages
+// Version: 3.0 Alpha 3; Packages
 
 $txt['package_proceed'] = 'Proceed';
 $txt['php_script'] = 'Modification file was extracted, but this modification also comes with a PHP script which should be executed before it will work';
@@ -57,7 +57,6 @@ $txt['language_package'] = 'Language packages';
 $txt['unknown_package'] = 'Unknown packages';
 $txt['smiley_package'] = 'Smiley packages';
 $txt['list_files'] = 'List Files';
-$txt['remove'] = 'Remove';
 $txt['archiving'] = 'Archiving';
 $txt['extracting'] = 'Extracting';
 $txt['avatars_extracted'] = 'The avatars have been installed. You should now be able to use them.';

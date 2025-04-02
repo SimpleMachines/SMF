@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -19,7 +19,6 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
-use SMF\Lang;
 use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
@@ -33,6 +32,11 @@ class Logout extends Login2
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canShowInMaintenanceMode(): bool
+	{
+		return false;
+	}
 
 	/**
 	 * Logs the current user out of their account.
@@ -55,7 +59,6 @@ class Logout extends Login2
 		}
 		// Prompt to logout?
 		elseif (!$internal && !isset($_GET[Utils::$context['session_var']])) {
-			Lang::load('Login');
 			Theme::loadTemplate('Login');
 			Utils::$context['sub_template'] = 'logout';
 
@@ -150,6 +153,23 @@ class Logout extends Login2
 	{
 		self::load()->execute($internal, $redirect);
 	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route[] = $params['action'];
+		unset($params['action'], $params['u']);
+
+		return ['route' => $route, 'params' => $params];
+	}
+
 }
 
 ?>

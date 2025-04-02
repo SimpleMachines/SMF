@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; ManageSettings
+// Version: 3.0 Alpha 3; ManageSettings
 
 // argument(s): theme_id, session_id, session_var, Config::$scripturl
 $txt['modSettings_desc'] = 'This page allows you to change the settings of features and basic options in your forum. Please see the <a href="{scripturl}?action=admin;area=theme;sa=list;th={theme_id};{session_var}={session_id}">theme settings</a> for more options. Click the help icons for more information about a setting.';
@@ -80,9 +80,13 @@ $txt['jquery_local'] = 'Local';
 $txt['jquery_google_cdn'] = 'Google CDN';
 $txt['jquery_jquery_cdn'] = 'jQuery CDN';
 $txt['jquery_microsoft_cdn'] = 'Microsoft CDN';
-$txt['queryless_urls'] = 'Search engine friendly URLs';
 $txt['minimize_files'] = 'Minimize CSS and JavaScript files';
-$txt['queryless_urls_note'] = 'Apache/Lighttpd only';
+$txt['queryless_urls'] = 'Use friendly URLs';
+$txt['queryless_urls_note'] = 'Supported on Apache, Lighttpd, and LiteSpeed only';
+$txt['hide_index_php'] = 'Hide index.php in URLs';
+$txt['hide_index_php_manual'] = 'You must manually configure your server software to support this option before enabling it.';
+$txt['queryless_hidden_index_htaccess'] = 'In order to enable both the option to use friendly URLs and the option to hide index.php in forum URLs at the same time, SMF needs to make changes to your .htaccess file, but the file is not writable. Please check its file permissions and try again.';
+$txt['use_ascii_slugs'] = 'Transliterate non-ASCII characters in friendly URLs.';
 $txt['enableReportPM'] = 'Enable reporting of personal messages';
 $txt['max_pm_recipients'] = 'Maximum number of recipients allowed in a personal message';
 $txt['max_pm_recipients_note'] = '(0 for no limit, admins are exempt)';
@@ -102,8 +106,6 @@ $txt['defaultMaxMembers'] = 'Members per page in member list';
 $txt['timeLoadPageEnable'] = 'Display time taken to create every page';
 $txt['disableHostnameLookup'] = 'Disable hostname lookups';
 $txt['who_enabled'] = 'Enable who’s online list';
-$txt['meta_keywords'] = 'Meta keywords associated with forum';
-$txt['meta_keywords_note'] = 'For search engines. Leave blank for default.';
 $txt['settings_error'] = 'Warning: Updating of Settings.php failed, the settings cannot be saved.';
 $txt['image_proxy_enabled'] = 'Enable Image Proxy';
 $txt['image_proxy_secret'] = 'Image Proxy Secret';
@@ -166,9 +168,9 @@ $txt['loadavg_disabled_osx'] = 'Load balancing support is not available on OS:X.
 $txt['loadavg_disabled_conf'] = 'Load balancing support is disabled by your host configuration.';
 
 $txt['setting_password_strength'] = 'Required strength for user passwords';
-$txt['setting_password_strength_low'] = 'Low - 4 character minimum';
-$txt['setting_password_strength_medium'] = 'Medium - cannot contain username';
-$txt['setting_password_strength_high'] = 'High - mixture of different characters';
+$txt['setting_password_strength_low'] = 'Low';
+$txt['setting_password_strength_medium'] = 'Medium';
+$txt['setting_password_strength_high'] = 'High';
 $txt['setting_enable_password_conversion'] = 'Allow password hash conversion';
 
 $txt['antispam_Settings'] = 'Anti-Spam Verification';

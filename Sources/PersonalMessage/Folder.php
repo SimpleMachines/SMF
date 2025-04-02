@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -113,8 +113,6 @@ class Folder
 	 */
 	public function __construct(bool $is_inbox = true)
 	{
-		Lang::load('PersonalMessage');
-
 		if (!isset($_REQUEST['xml'])) {
 			Theme::loadTemplate('PersonalMessage');
 		}
@@ -212,7 +210,7 @@ class Folder
 		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
 		Utils::$context['can_send_email'] = User::$me->allowedTo('moderate_forum');
 		Utils::$context['sub_template'] = 'folder';
-		Utils::$context['page_title'] = Lang::$txt['pm_inbox'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_inbox', file: 'PersonalMessage');
 
 		// Finally mark the relevant messages as read.
 		if ($this->is_inbox && !empty(Label::$loaded[(int) $this->current_label_id]['unread_messages'])) {
@@ -376,9 +374,14 @@ class Folder
 		}
 
 		// Set up the page index.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . Utils::$context['sort_by'] . ($this->descending ? ';desc' : ''), $_GET['start'], $max_messages, $this->per_page);
-
 		Utils::$context['start'] = $_GET['start'];
+
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . (isset($_REQUEST['l']) ? ';l=' . (int) $_REQUEST['l'] : '') . ';sort=' . Utils::$context['sort_by'] . ($this->descending ? ';desc' : ''), Utils::$context['start'], $max_messages, $this->per_page);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		// Determine the navigation context.
 		Utils::$context['links'] = [
@@ -398,17 +401,29 @@ class Folder
 		if ($this->current_label_id == -1) {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'],
-				'name' => $this->is_inbox ? Lang::$txt['inbox'] : Lang::$txt['sent_items'],
+				'name' => Lang::getTxt($this->is_inbox ? 'inbox' : 'sent_items', file: 'PersonalMessage'),
 			];
 		} else {
 			Utils::$context['linktree'][] = [
 				'url' => Config::$scripturl . '?action=pm;f=' . Utils::$context['folder'] . ';l=' . $this->current_label_id,
-				'name' => Lang::getTxt('pm_current_label', ['label' => $this->current_label]),
+				'name' => Lang::getTxt('pm_current_label', ['label' => $this->current_label], file: 'PersonalMessage'),
 			];
 		}
 
 		// Set the text to resemble the current folder.
-		Lang::$txt['delete_all'] = str_replace('PMBOX', $this->is_inbox ? Lang::$txt['inbox'] : Lang::$txt['sent_items'], Lang::$txt['delete_all']);
+		Lang::setTxt(
+			'delete_all',
+			Lang::getTxt(
+				'delete_all',
+				[
+					'pmbox' => Lang::getTxt(
+						$this->is_inbox ? 'inbox' : 'sent_items',
+						file: 'PersonalMessage',
+					),
+				],
+				file: 'PersonalMessage',
+			),
+		);
 
 		// Only show the button if there are messages to delete.
 		Utils::$context['show_delete'] = $max_messages > 0;
@@ -513,7 +528,7 @@ class Folder
 				'text' => 'delete_conversation',
 				'image' => 'delete.png',
 				'url' => Config::$scripturl . '?action=pm;sa=pmactions;pm_actions[' . $conversation->latest . ']=delete;conversation;f=' . Utils::$context['folder'] . ';start=' . Utils::$context['start'] . ($this->current_label_id != -1 ? ';l=' . $this->current_label_id : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-				'custom' => 'data-confirm="' . Lang::$txt['remove_conversation'] . '"',
+				'custom' => 'data-confirm="' . Lang::getTxt('remove_conversation', file: 'PersonalMessage') . '"',
 				'class' => 'you_sure',
 			],
 		];

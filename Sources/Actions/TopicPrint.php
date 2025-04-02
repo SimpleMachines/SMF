@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Attachment;
 use SMF\Board;
@@ -25,6 +26,7 @@ use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Parser;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Topic;
@@ -36,13 +38,19 @@ use SMF\Utils;
  *
  * @todo Rewrite to use Msg::get() in order to reduce memory load?
  */
-class TopicPrint implements ActionInterface
+class TopicPrint implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
 
 	/**
 	 * Format a topic to be printer friendly.
@@ -91,7 +99,6 @@ class TopicPrint implements ActionInterface
 		Db::$db->free_result($request);
 
 		if (!empty($row['id_poll'])) {
-			Lang::load('Post');
 			$poll = Poll::load(Topic::$topic_id, Poll::LOAD_BY_TOPIC);
 			Utils::$context['poll'] = $poll->format(['no_buttons' => true]);
 		}

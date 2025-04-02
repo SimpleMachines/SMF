@@ -10,7 +10,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -99,8 +99,22 @@ class Mentions
 			Db::$db->insert(
 				'ignore',
 				'{db_prefix}mentions',
-				['content_id' => 'int', 'content_type' => 'string', 'id_member' => 'int', 'id_mentioned' => 'int', 'time' => 'int'],
-				[(int) $content_id, $content_type, $id_member, $member['id'], time()],
+				[
+					'content_id' => 'int',
+					'content_type' => 'string',
+					'id_member' => 'int',
+					'id_mentioned' => 'int',
+					'time' => 'int',
+				],
+				[
+					[
+						(int) $content_id,
+						$content_type,
+						$id_member,
+						$member['id'],
+						time(),
+					],
+				],
 				['content_id', 'content_type', 'id_mentioned'],
 			);
 		}

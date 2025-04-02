@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -24,6 +25,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -33,10 +35,10 @@ use SMF\Utils;
  * This class contains the methods for displaying and searching in the
  * members list.
  */
-class Memberlist implements ActionInterface
+class Memberlist implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -114,7 +116,11 @@ class Memberlist implements ActionInterface
 		Theme::loadTemplate('Memberlist');
 
 		foreach ($this->sort_links as $sa => &$sort_link) {
-			$sort_link['label'] = Lang::$txt[$sort_link['label']] ?? ($sort_link['label'] ?? ($sort_link['action'] ?? $sa));
+			if (isset($sort_link['label'])) {
+				$sort_link['label'] = Lang::txtExists($sort_link['label'], file: 'General') ? Lang::getTxt($sort_link['label'], file: 'General') : $sort_link['label'];
+			} else {
+				$sort_link['label'] = $sort_link['action'] ?? $sa;
+			}
 
 			$sort_link['selected'] = $this->subaction === ($sort_link['action'] ?? $sa);
 		}
@@ -127,14 +133,14 @@ class Memberlist implements ActionInterface
 		// Set up the columns...
 		Utils::$context['columns'] = [
 			'is_online' => [
-				'label' => Lang::$txt['status'],
+				'label' => Lang::getTxt('status', file: 'General'),
 				'sort' => [
 					'down' => User::$me->allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) ASC, real_name ASC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END ASC, real_name ASC',
 					'up' => User::$me->allowedTo('moderate_forum') ? 'COALESCE(lo.log_time, 1) DESC, real_name DESC' : 'CASE WHEN mem.show_online THEN COALESCE(lo.log_time, 1) ELSE 1 END DESC, real_name DESC',
 				],
 			],
 			'real_name' => [
-				'label' => Lang::$txt['name'],
+				'label' => Lang::getTxt('name', file: 'General'),
 				'class' => 'lefttext',
 				'sort' => [
 					'down' => 'mem.real_name DESC',
@@ -142,7 +148,7 @@ class Memberlist implements ActionInterface
 				],
 			],
 			'website_url' => [
-				'label' => Lang::$txt['website'],
+				'label' => Lang::getTxt('website', file: 'General'),
 				'link_with' => 'website',
 				'sort' => [
 					'down' => User::$me->is_guest ? '1=1' : 'mem.website_url = \'\', mem.website_url is null, mem.website_url DESC',
@@ -150,21 +156,21 @@ class Memberlist implements ActionInterface
 				],
 			],
 			'id_group' => [
-				'label' => Lang::$txt['position'],
+				'label' => Lang::getTxt('position', file: 'General'),
 				'sort' => [
 					'down' => 'mg.group_name is null, mg.group_name DESC',
 					'up' => 'mg.group_name is not null, mg.group_name ASC',
 				],
 			],
 			'registered' => [
-				'label' => Lang::$txt['date_registered'],
+				'label' => Lang::getTxt('date_registered', file: 'General'),
 				'sort' => [
 					'down' => 'mem.date_registered DESC',
 					'up' => 'mem.date_registered ASC',
 				],
 			],
 			'post_count' => [
-				'label' => Lang::$txt['posts'],
+				'label' => Lang::getTxt('posts', file: 'General'),
 				'default_sort_rev' => true,
 				'sort' => [
 					'down' => 'mem.posts DESC',
@@ -197,7 +203,7 @@ class Memberlist implements ActionInterface
 
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=mlist',
-			'name' => Lang::$txt['members_list'],
+			'name' => Lang::getTxt('members_list', file: 'General'),
 		];
 
 		Utils::$context['can_send_pm'] = User::$me->allowedTo('pm_send');
@@ -212,7 +218,7 @@ class Memberlist implements ActionInterface
 		// Allow mods to add additional buttons here
 		IntegrationHook::call('integrate_memberlist_buttons');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -292,30 +298,7 @@ class Memberlist implements ActionInterface
 			$_REQUEST['sort'] = 'real_name';
 		}
 
-		if (!is_numeric($_REQUEST['start'])) {
-			if (preg_match('~^[^\'\\\\/]~' . (Utils::$context['utf8'] ? 'u' : ''), Utils::strtolower($_REQUEST['start']), $match) === 0) {
-				ErrorHandler::fatal('Are you a wannabe hacker?', false);
-			}
-
-			$_REQUEST['start'] = $match[0];
-
-			$request = Db::$db->query(
-				'substring',
-				'SELECT COUNT(*)
-				FROM {db_prefix}members
-				WHERE LOWER(SUBSTRING(real_name, 1, 1)) < {string:first_letter}
-					AND is_activated = {int:is_activated}',
-				[
-					'is_activated' => User::ACTIVATED,
-					'first_letter' => $_REQUEST['start'],
-				],
-			);
-			list($start) = Db::$db->fetch_row($request);
-			$start = (int) $start;
-			Db::$db->free_result($request);
-		} else {
-			$start = (int) $_REQUEST['start'];
-		}
+		$start = (int) $_REQUEST['start'];
 
 		Utils::$context['letter_links'] = '';
 
@@ -348,16 +331,21 @@ class Memberlist implements ActionInterface
 		// Construct the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . (isset($_REQUEST['desc']) ? ';desc' : ''), $start, (int) Utils::$context['num_members'], (int) Config::$modSettings['defaultMaxMembers']);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (is_numeric($_REQUEST['start']) && $_REQUEST['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
+
 		// Send the data to the template.
 		Utils::$context['start'] = $start + 1;
 		Utils::$context['end'] = min($start + Config::$modSettings['defaultMaxMembers'], Utils::$context['num_members']);
 
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
-		Utils::$context['page_title'] = Lang::getTxt('viewing_members', [$start, Utils::$context['end']]);
+		Utils::$context['page_title'] = Lang::getTxt('viewing_members', [$start, Utils::$context['end']], file: 'General');
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=mlist;sort=' . $_REQUEST['sort'] . ';start=' . $start,
 			'name' => &Utils::$context['page_title'],
-			'extra_after' => '(' . Lang::getTxt('of_total_members', [Utils::$context['num_members']]) . ')',
+			'extra_after' => '(' . Lang::getTxt('of_total_members', [Utils::$context['num_members']], file: 'General') . ')',
 		];
 
 		$limit = $start;
@@ -418,20 +406,6 @@ class Memberlist implements ActionInterface
 		);
 		$this->printRows($request);
 		Db::$db->free_result($request);
-
-		// Add anchors at the start of each letter.
-		if ($_REQUEST['sort'] == 'real_name') {
-			$last_letter = '';
-
-			foreach (Utils::$context['members'] as $i => $dummy) {
-				$this_letter = Utils::strtolower(Utils::entitySubstr(Utils::$context['members'][$i]['name'], 0, 1));
-
-				if ($this_letter != $last_letter && preg_match('~[a-z]~', $this_letter) === 1) {
-					Utils::$context['members'][$i]['sort_letter'] = Utils::htmlspecialchars($this_letter);
-					$last_letter = $this_letter;
-				}
-			}
-		}
 	}
 
 	/**
@@ -442,7 +416,7 @@ class Memberlist implements ActionInterface
 	 */
 	public function search(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['mlist_search'];
+		Utils::$context['page_title'] = Lang::getTxt('mlist_search', file: 'General');
 		Utils::$context['can_moderate_forum'] = User::$me->allowedTo('moderate_forum');
 		$start = (int) $_REQUEST['start'];
 
@@ -595,6 +569,11 @@ class Memberlist implements ActionInterface
 
 			Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mlist;sa=search;search=' . urlencode($_POST['search']) . ';fields=' . implode(',', $_POST['fields']), $start, $numResults, (int) Config::$modSettings['defaultMaxMembers']);
 
+			// If the supplied start value was invalid, redirect to the correct one.
+			if ($_REQUEST['start'] != $start) {
+				Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+			}
+
 			$custom_fields_qry = '';
 
 			if (array_search($_REQUEST['sort'], $_POST['fields']) === false && !empty(Utils::$context['custom_profile_fields']['join'][$_REQUEST['sort']])) {
@@ -625,10 +604,10 @@ class Memberlist implements ActionInterface
 		} else {
 			// These are all the possible fields.
 			Utils::$context['search_fields'] = [
-				'name' => Lang::$txt['mlist_search_name'],
-				'email' => Lang::$txt['mlist_search_email'],
-				'website' => Lang::$txt['mlist_search_website'],
-				'group' => Lang::$txt['mlist_search_group'],
+				'name' => Lang::getTxt('mlist_search_name', file: 'General'),
+				'email' => Lang::getTxt('mlist_search_email', file: 'General'),
+				'website' => Lang::getTxt('mlist_search_website', file: 'General'),
+				'group' => Lang::getTxt('mlist_search_group', file: 'General'),
 			];
 
 			// Sorry, but you can't search by email unless you can view emails
@@ -640,7 +619,7 @@ class Memberlist implements ActionInterface
 			}
 
 			foreach (Utils::$context['custom_search_fields'] as $field) {
-				Utils::$context['search_fields'][$field['colname']] = Lang::getTxt('mlist_search_by', ['field' => Lang::tokenTxtReplace($field['name'])]);
+				Utils::$context['search_fields'][$field['colname']] = Lang::getTxt('mlist_search_by', ['field' => Lang::tokenTxtReplace($field['name'])], file: 'General');
 			}
 
 			Utils::$context['sub_template'] = 'search';
@@ -737,7 +716,7 @@ class Memberlist implements ActionInterface
 							output_type: Parser::OUTPUT_TEXT,
 						);
 					} elseif ($column['type'] == 'check') {
-						Utils::$context['members'][$member]['options'][$key] = Utils::$context['members'][$member]['options'][$key] == 0 ? Lang::$txt['no'] : Lang::$txt['yes'];
+						Utils::$context['members'][$member]['options'][$key] = Lang::getTxt(Utils::$context['members'][$member]['options'][$key] == 0 ? 'no' : 'yes', file: 'General');
 					}
 
 					// Enclosing the user input within some other text?
@@ -807,6 +786,51 @@ class Memberlist implements ActionInterface
 		Db::$db->free_result($request);
 
 		return $cpf;
+	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		if (!isset($params['sa'])) {
+			$params['sa'] = 'all';
+		}
+
+		$route = self::buildActionRoute($params);
+
+		if (isset($params['start'])) {
+			if ($params['start'] > 0) {
+				$route[] = $params['start'];
+			}
+
+			unset($params['start']);
+		}
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params = array_merge($params, self::parseActionRoute($route));
+
+		if (!empty($route)) {
+			$params['start'] = array_shift($route);
+		}
+
+		return $params;
 	}
 
 	/******************

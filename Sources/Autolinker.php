@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -155,13 +155,6 @@ class Autolinker
 	 *********************/
 
 	/**
-	 * @var string
-	 *
-	 * The character encoding being used.
-	 */
-	protected string $encoding = 'UTF-8';
-
-	/**
 	 * @var bool
 	 *
 	 * If true, will only link URLs with basic TLDs.
@@ -213,12 +206,6 @@ class Autolinker
 	 */
 	protected string $js_email_regex;
 
-	/**
-	 * @var string
-	 *
-	 * Regular expression to match the named entities in HTML5.
-	 */
-	protected string $entities_regex;
 
 	/****************************
 	 * Internal static properties
@@ -257,20 +244,6 @@ class Autolinker
 	public function __construct(bool $only_basic = false)
 	{
 		$this->only_basic = $only_basic;
-
-		if (!empty(Utils::$context['utf8'])) {
-			$this->encoding = 'UTF-8';
-		} else {
-			$this->encoding = !empty(Config::$modSettings['global_character_set']) ? Config::$modSettings['global_character_set'] : (!empty(Lang::$txt['lang_character_set']) ? Lang::$txt['lang_character_set'] : $this->encoding);
-
-			if (in_array($this->encoding, mb_encoding_aliases('UTF-8'))) {
-				$this->encoding = 'UTF-8';
-			}
-		}
-
-		if ($this->encoding !== 'UTF-8') {
-			self::$domain_label_chars = '0-9A-Za-z\-';
-		}
 
 		// In case a mod wants to control behaviour for a special URI scheme.
 		if (!self::$integrate_autolinker_schemes_done) {
@@ -383,9 +356,8 @@ class Autolinker
 		static $no_autolink_regex;
 
 		// An entity right after the URL can break the autolinker.
-		$this->setEntitiesRegex();
 		$string = preg_replace_callback(
-			'~(' . $this->entities_regex . ')*(?=\s|$)~u',
+			'~(' . Utils::ENT_LIST . ')*(?=\s|$)~u',
 			fn($matches) => str_repeat(' ', strlen($matches[0])),
 			$string,
 		);
@@ -409,14 +381,14 @@ class Autolinker
 					'((?' . '>' . '[^\[]|\[/?(?!' . $no_autolink_regex . ')' . '|(?1))*)' .
 					// 4 = Closing BBC markup element.
 					'(\[/\2\])' .
-				'~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+				'~iu',
 				fn($matches) => $matches[1] . str_repeat('x', strlen($matches[3])) . $matches[4],
 				$string,
 			);
 
 			// Overwrite all BBC markup elements.
 			$string = preg_replace_callback(
-				'~\[/?' . Parser::getBBCodeTagsRegex() . '[^\]]*\]~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+				'~\[/?' . Parser::getBBCodeTagsRegex() . '[^\]]*\]~iu',
 				fn($matches) => str_repeat(' ', strlen($matches[0])),
 				$string,
 			);
@@ -430,21 +402,21 @@ class Autolinker
 					'((?' . '>' . '[^<]|</?(?!a)' . '|(?1))*)' .
 					// 3 = Closing 'a' markup element.
 					'(</a>)' .
-				'~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+				'~iu',
 				fn($matches) => $matches[1] . str_repeat('x', strlen($matches[2])) . $matches[3],
 				$string,
 			);
 
 			// Overwrite all HTML elements.
 			$string = preg_replace_callback(
-				'~</?(\w+)\b([^>]*)>~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+				'~</?(\w+)\b([^>]*)>~iu',
 				fn($matches) => str_repeat(' ', strlen($matches[0])),
 				$string,
 			);
 		}
 
 		preg_match_all(
-			'~' . $this->url_regex . '~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+			'~' . $this->url_regex . '~iu',
 			$string,
 			$matches,
 			PREG_OFFSET_CAPTURE,
@@ -476,13 +448,12 @@ class Autolinker
 	public function detectEmails(string $string, bool $plaintext_only = false): array
 	{
 		// An entity right after the email address can break the autolinker.
-		$this->setEntitiesRegex();
-		$string = preg_replace('~(' . $this->entities_regex . ')*(?=\s|$)~u', ' ', $string);
+		$string = preg_replace('~(' . Utils::ENT_LIST . ')*(?=\s|$)~u', ' ', $string);
 
 		$this->setEmailRegex();
 
 		preg_match_all(
-			'~' . ($plaintext_only ? '(?:^|\s|<br>)\K' : '') . $this->email_regex . '~i' . ($this->encoding === 'UTF-8' ? 'u' : ''),
+			'~' . ($plaintext_only ? '(?:^|\s|<br>)\K' : '') . $this->email_regex . '~iu',
 			$string,
 			$matches,
 			PREG_OFFSET_CAPTURE,
@@ -814,18 +785,6 @@ class Autolinker
 	 *******************/
 
 	/**
-	 * Sets $this->entities_regex.
-	 */
-	protected function setEntitiesRegex(): void
-	{
-		if (isset($this->entities_regex)) {
-			return;
-		}
-
-		$this->entities_regex = '(?' . '>&(?' . '>' . Utils::buildRegex(array_map(fn($ent) => ltrim($ent, '&'), get_html_translation_table(HTML_ENTITIES, ENT_HTML5 | ENT_QUOTES)), '~') . '|(?' . '>#(?' . '>x[0-9a-fA-F]{1,6}|\d{1,7});)))';
-	}
-
-	/**
 	 * Sets $this->tld_regex.
 	 */
 	protected function setTldRegex(): void
@@ -834,7 +793,7 @@ class Autolinker
 			return;
 		}
 
-		if (!$this->only_basic && $this->encoding === 'UTF-8') {
+		if (!$this->only_basic) {
 			Url::setTldRegex();
 			$this->tld_regex = Config::$modSettings['tld_regex'];
 		} else {
@@ -986,15 +945,15 @@ class Autolinker
 		foreach (['path', 'query', 'fragment'] as $part) {
 			switch ($part) {
 				case 'path':
-					$part_excluded_trailing_chars = '[^\P{Po}?/#&]';
+					$part_excluded_trailing_chars = '[^\P{Po}?/#&"]';
 					break;
 
 				case 'query':
-					$part_excluded_trailing_chars = '[^\P{Po}#&]';
+					$part_excluded_trailing_chars = '[^\P{Po}#&"]';
 					break;
 
 				default:
-					$part_excluded_trailing_chars = '[^\P{Po}&]';
+					$part_excluded_trailing_chars = '[^\P{Po}&"]';
 					break;
 			}
 

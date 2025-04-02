@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -19,7 +19,6 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Config;
-use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
 
@@ -56,19 +55,6 @@ class AlertsPopup implements ActionInterface
 			// Now fetch me my unread alerts, pronto!
 			Utils::$context['unread_alerts'] = Alert::fetch(User::$me->id, false, !empty($counter) ? User::$me->alerts - $counter : $limit, 0, !isset($_REQUEST['counter']));
 		}
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Load the Alerts language file.
-		Lang::load('Alerts');
 	}
 }
 

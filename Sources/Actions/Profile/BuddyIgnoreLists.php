@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -96,8 +96,8 @@ class BuddyIgnoreLists implements ActionInterface
 
 		// Create the tabs for the template.
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['editBuddyIgnoreLists'],
-			'description' => Lang::$txt['buddy_ignore_desc'],
+			'title' => Lang::getTxt('editBuddyIgnoreLists', file: 'Profile'),
+			'description' => Lang::getTxt('buddy_ignore_desc', file: 'Profile'),
 			'icon_class' => 'main_icons profile_hd',
 			'tabs' => [
 				'buddies' => [],
@@ -107,7 +107,7 @@ class BuddyIgnoreLists implements ActionInterface
 
 		Theme::loadJavaScriptFile('suggest.js', ['defer' => false, 'minimize' => true], 'smf_suggest');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -134,7 +134,7 @@ class BuddyIgnoreLists implements ActionInterface
 
 			IntegrationHook::call('integrate_remove_buddy', [Profile::$member->id]);
 
-			$_SESSION['prf-save'] = Lang::$txt['could_not_remove_person'];
+			$_SESSION['prf-save'] = Lang::getTxt('could_not_remove_person', file: 'Profile');
 
 			// Heh, I'm lazy, do it the easy way...
 			foreach ($buddiesArray as $key => $buddy) {
@@ -173,7 +173,7 @@ class BuddyIgnoreLists implements ActionInterface
 
 			IntegrationHook::call('integrate_add_buddies', [Profile::$member->id, &$new_buddies]);
 
-			$_SESSION['prf-save'] = Lang::$txt['could_not_add_person'];
+			$_SESSION['prf-save'] = Lang::getTxt('could_not_add_person', file: 'Profile');
 
 			if (!empty($new_buddies)) {
 				// Now find out the id_member of the buddy.
@@ -301,7 +301,7 @@ class BuddyIgnoreLists implements ActionInterface
 							options: ['hard_breaks' => 0],
 						);
 					} elseif ($column['type'] == 'check') {
-						Utils::$context['buddies'][$buddy]['options'][$key] = Utils::$context['buddies'][$buddy]['options'][$key] == 0 ? Lang::$txt['no'] : Lang::$txt['yes'];
+						Utils::$context['buddies'][$buddy]['options'][$key] = Lang::getTxt(Utils::$context['buddies'][$buddy]['options'][$key] == 0 ? 'no' : 'yes', file: 'General');
 					}
 
 					// Enclosing the user input within some other text?
@@ -349,7 +349,7 @@ class BuddyIgnoreLists implements ActionInterface
 		if (isset($_GET['remove'])) {
 			User::$me->checkSession('get');
 
-			$_SESSION['prf-save'] = Lang::$txt['could_not_remove_person'];
+			$_SESSION['prf-save'] = Lang::getTxt('could_not_remove_person', file: 'Profile');
 
 			// Heh, I'm lazy, do it the easy way...
 			foreach ($ignoreArray as $key => $id_remove) {
@@ -386,7 +386,7 @@ class BuddyIgnoreLists implements ActionInterface
 				}
 			}
 
-			$_SESSION['prf-save'] = Lang::$txt['could_not_add_person'];
+			$_SESSION['prf-save'] = Lang::getTxt('could_not_add_person', file: 'Profile');
 
 			if (!empty($new_entries)) {
 				// Now find out the id_member for the members in question.

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -109,6 +109,18 @@ class Popup implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Finalize various string values.
+		array_walk_recursive(
+			$this->profile_items,
+			function (&$value, $key) {
+				if ($key === 'title') {
+					$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
+				}
+
+				$value = Lang::formatText($value, ['scripturl' => Config::$scripturl]);
+			},
+		);
+
 		// We do not want to output debug information here.
 		Config::$db_show_debug = false;
 
@@ -125,28 +137,6 @@ class Popup implements ActionInterface
 				Utils::$context['profile_items'][] = $item;
 			}
 		}
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Finalize various string values.
-		array_walk_recursive(
-			$this->profile_items,
-			function (&$value, $key) {
-				if ($key === 'title') {
-					$value = Lang::$txt[$value] ?? $value;
-				}
-
-				$value = strtr($value, ['{scripturl}' => Config::$scripturl]);
-			},
-		);
 	}
 }
 

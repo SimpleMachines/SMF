@@ -71,13 +71,18 @@ class ShowAlerts implements ActionInterface
 
 		// Prepare the pagination vars.
 		$maxIndex = !empty(Config::$modSettings['alerts_per_page']) && (int) Config::$modSettings['alerts_per_page'] < 1000 ? min((int) Config::$modSettings['alerts_per_page'], 1000) : 25;
-		Utils::$context['start'] = (int) isset($_REQUEST['start']) ? $_REQUEST['start'] : 0;
+		Utils::$context['start'] = (int) ($_REQUEST['start'] ?? 0);
 
 		// Fix invalid 'start' offsets.
 		if (Utils::$context['start'] > User::$me->alerts) {
 			Utils::$context['start'] = User::$me->alerts - (User::$me->alerts % $maxIndex);
 		} else {
 			Utils::$context['start'] = Utils::$context['start'] - (Utils::$context['start'] % $maxIndex);
+		}
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit('action=profile;area=showalerts;u=' . User::$me->id . ';start=' . Utils::$context['start']);
 		}
 
 		// Get the alerts.
@@ -111,18 +116,18 @@ class ShowAlerts implements ActionInterface
 		foreach (Utils::$context['alerts'] as $id => $alert) {
 			Utils::$context['alerts'][$id]['quickbuttons'] = [
 				'delete' => [
-					'label' => Lang::$txt['delete'],
+					'label' => Lang::getTxt('delete', file: 'General'),
 					'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=showalerts;do=remove;aid=' . $id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''),
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 				],
 				'mark' => [
-					'label' => $alert['is_read'] != 0 ? Lang::$txt['mark_unread'] : Lang::$txt['mark_read_short'],
+					'label' => Lang::getTxt($alert['is_read'] != 0 ? 'mark_unread' : 'mark_read_short', file: 'General'),
 					'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['id_member'] . ';area=showalerts;do=' . ($alert['is_read'] != 0 ? 'unread' : 'read') . ';aid=' . $id . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . (!empty(Utils::$context['start']) ? ';start=' . Utils::$context['start'] : ''),
 					'icon' => $alert['is_read'] != 0 ? 'unread_button' : 'read_button',
 				],
 				'view' => [
-					'label' => Lang::$txt['view'],
+					'label' => Lang::getTxt('view', file: 'General'),
 					'href' => Config::$scripturl . '?action=profile;area=showalerts;alert=' . $id . ';',
 					'icon' => 'move',
 				],
@@ -139,7 +144,7 @@ class ShowAlerts implements ActionInterface
 
 		// Set a nice message.
 		if (!empty($_SESSION['update_message'])) {
-			Utils::$context['update_message'] = Lang::$txt['profile_updated_own'];
+			Utils::$context['update_message'] = Lang::getTxt('profile_updated_own', file: 'Profile');
 			unset($_SESSION['update_message']);
 		}
 

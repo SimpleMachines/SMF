@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -59,17 +59,17 @@ class UnreadReplies extends Unread
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial stuff.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// 'all' is never applicable for this action.
 		unset($_GET['all']);
 
-		parent::__construct();
+		parent::init();
 
-		Utils::$context['page_title'] = Lang::$txt['unread_replies'];
-		$this->linktree_name = Lang::$txt['unread_replies'];
+		Utils::$context['page_title'] = Lang::getTxt('unread_replies', file: 'General');
+		$this->linktree_name = Lang::getTxt('unread_replies', file: 'General');
 		$this->action_url = Config::$scripturl . '?action=unreadreplies';
 	}
 

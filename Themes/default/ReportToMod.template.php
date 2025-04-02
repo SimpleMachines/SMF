@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Lang;
@@ -38,7 +38,7 @@ function template_main()
 	<div id="preview_section"', isset(Utils::$context['preview_message']) ? '' : ' class="hidden"', '>
 		<div class="cat_bar">
 			<h3 class="catbg">
-				<span>', Lang::$txt['preview'], '</span>
+				<span>', Lang::getTxt('preview', file: 'General'), '</span>
 			</h3>
 		</div>
 		<div class="windowbg">
@@ -50,7 +50,7 @@ function template_main()
 
 	echo '
 	<div id="report_form">
-		<form action="', Utils::$context['submit_url'], '" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Utils::$context['submit_url'], '" method="post" accept-charset="UTF-8">
 			<input type="hidden" name="', Utils::$context['report_type'], '" value="', Utils::$context['reported_item'], '">
 			<div class="cat_bar">
 				<h3 class="catbg">', Utils::$context['page_title'], '</h3>
@@ -81,14 +81,14 @@ function template_main()
 				<p class="noticebox">', Utils::$context['notice'], '</p>
 				<dl class="settings" id="report_post">
 					<dt>
-						<label for="report_comment">', Lang::$txt['enter_comment'], '</label>
+						<label for="report_comment">', Lang::getTxt('enter_comment', file: 'Post'), '</label>
 					</dt>
 					<dd>
 						<textarea type="text" id="report_comment" name="comment" maxlength="254">', Utils::$context['comment_body'], '</textarea>
 					</dd>
 				</dl>
-				<input type="submit" name="preview" value="', Lang::$txt['preview'], '" class="button">
-				<input type="submit" name="save" value="', Lang::$txt['report_submit'], '" class="button">
+				<input type="submit" name="preview" value="', Lang::getTxt('preview', file: 'General'), '" class="button">
+				<input type="submit" name="save" value="', Lang::getTxt('report_submit', file: 'Post'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</div><!-- .windowbg -->
 		</form>

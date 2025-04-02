@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Themes
+// Version: 3.0 Alpha 3; Themes
 
 $txt['themeadmin_explain'] = 'Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use.';
 
@@ -48,8 +48,10 @@ $txt['theme_install_invalid_id'] = 'This is not a valid theme ID.';
 $txt['theme_pick'] = 'Choose a theme...';
 $txt['theme_preview'] = 'Preview theme';
 $txt['theme_set'] = 'Use this theme';
-$txt['theme_user'] = 'person is using this theme.';
-$txt['theme_users'] = 'people are using this theme.';
+$txt['theme_num_users'] = '{0, plural,
+	one {# person is using this theme.}
+	other {# people are using this theme.}
+}';
 $txt['theme_pick_variant'] = 'Select Variant';
 
 $txt['theme_edit'] = 'Edit Theme';
@@ -153,8 +155,6 @@ $txt['themeadmin_browsing_theme'] = 'Browsing files in theme: {name}';
 $txt['themeadmin_edit_filename'] = 'Filename';
 $txt['themeadmin_edit_modified'] = 'Last Modified';
 $txt['themeadmin_edit_size'] = 'Size';
-$txt['themeadmin_edit_bytes'] = 'B';
-$txt['themeadmin_edit_kilobytes'] = 'KB';
 $txt['themeadmin_edit_error'] = 'The file you tried to save generated the following error:';
 $txt['themeadmin_edit_on_line'] = 'Beginning on line {line, number, integer}';
 $txt['themeadmin_edit_preview'] = 'Preview';

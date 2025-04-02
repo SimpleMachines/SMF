@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -58,7 +58,6 @@ class FetchSMFiles extends ScheduledTask
 
 		// Just in case we run into a problem.
 		Theme::loadEssential();
-		Lang::load('Errors', Lang::$default, false);
 
 		foreach ($js_files as $id_file => $file) {
 			// Create the url
@@ -71,9 +70,9 @@ class FetchSMFiles extends ScheduledTask
 
 			// If we got an error - give up - the site might be down. And if we should happen to be coming from elsewhere, let's also make a note of it.
 			if ($file_data === false) {
-				Utils::$context['scheduled_errors']['fetchSMfiles'][] = Lang::getTxt('st_cannot_retrieve_file', [$url]);
+				Utils::$context['scheduled_errors']['fetchSMfiles'][] = Lang::getTxt('st_cannot_retrieve_file', [$url], file: 'Errors', lang: Lang::$default);
 
-				ErrorHandler::log(Lang::getTxt('st_cannot_retrieve_file', [$url]));
+				ErrorHandler::log(Lang::getTxt('st_cannot_retrieve_file', [$url], file: 'Errors', lang: Lang::$default));
 
 				return true;
 			}

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -27,6 +27,7 @@ use SMF\Parser;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Time;
+use SMF\Url;
 use SMF\User;
 use SMF\Utils;
 
@@ -106,6 +107,13 @@ class ErrorLog implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Templates, etc...
+		Theme::loadTemplate('Errors');
+
+		foreach ($this->filters as &$filter) {
+			$filter['txt'] = Lang::getTxt($filter['txt'], file: 'General+ManageMaintenance');
+		}
+
 		// Check for the administrative permission to do this.
 		User::$me->isAllowedTo('admin_forum');
 
@@ -179,6 +187,11 @@ class ErrorLog implements ActionInterface
 		$start = (int) $_GET['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . (isset($this->filter) ? $this->filter['href'] : ''), $start, (int) $num_errors, (int) Config::$modSettings['defaultMaxListItems']);
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
+
 		Utils::$context['start'] = $_GET['start'];
 
 		// Update the error count
@@ -232,7 +245,7 @@ class ErrorLog implements ActionInterface
 				'time' => Time::create('@' . $row['log_time'])->format(),
 				'timestamp' => $row['log_time'],
 				'url' => [
-					'html' => Utils::htmlspecialchars(!str_contains($row['url'], 'cron.php') ? (str_starts_with($row['url'], '?') ? Config::$scripturl : '') . $row['url'] : $row['url']),
+					'html' => Utils::htmlspecialchars((Url::create($row['url'])->isValid() ? '' : Config::$boardurl) . $row['url']),
 					'href' => base64_encode(Db::$db->escape_wildcard_string($row['url'])),
 				],
 				'message' => [
@@ -242,7 +255,7 @@ class ErrorLog implements ActionInterface
 				'id' => $row['id_error'],
 				'error_type' => [
 					'type' => $row['error_type'],
-					'name' => Lang::$txt['errortype_' . $row['error_type']] ?? $row['error_type'],
+					'name' => Lang::txtExists('errortype_' . $row['error_type'], file: 'ManageMaintenance') ? Lang::getTxt('errortype_' . $row['error_type'], file: 'ManageMaintenance') : $row['error_type'],
 				],
 				'file' => [],
 			];
@@ -290,7 +303,7 @@ class ErrorLog implements ActionInterface
 			$members[0] = [
 				'id_member' => 0,
 				'member_name' => '',
-				'real_name' => Lang::$txt['guest_title'],
+				'real_name' => Lang::getTxt('guest_title', file: 'General'),
 			];
 
 			// Go through each error and tack the data on.
@@ -300,7 +313,7 @@ class ErrorLog implements ActionInterface
 				$error['member']['username'] = $members[$memID]['member_name'];
 				$error['member']['name'] = $members[$memID]['real_name'];
 				$error['member']['href'] = empty($memID) ? '' : Config::$scripturl . '?action=profile;u=' . $memID;
-				$error['member']['link'] = empty($memID) ? Lang::$txt['guest_title'] : '<a href="' . Config::$scripturl . '?action=profile;u=' . $memID . '">' . $error['member']['name'] . '</a>';
+				$error['member']['link'] = empty($memID) ? Lang::getTxt('guest_title', file: 'General') : '<a href="' . Config::$scripturl . '?action=profile;u=' . $memID . '">' . $error['member']['name'] . '</a>';
 			}
 		}
 
@@ -314,7 +327,7 @@ class ErrorLog implements ActionInterface
 
 				User::load($id, User::LOAD_BY_ID, 'minimal');
 
-				Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset(User::$loaded[$id]) ? User::$loaded[$id]->name : Lang::$txt['guest']) . '</a>';
+				Utils::$context['filter']['value']['html'] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $id . '">' . (isset(User::$loaded[$id]) ? User::$loaded[$id]->name : Lang::getTxt('guest', file: 'General')) . '</a>';
 			} elseif ($this->filter['variable'] == 'url') {
 				Utils::$context['filter']['value']['html'] = '\'' . strtr(Utils::htmlspecialchars((str_starts_with($this->filter['value']['sql'], '?') ? Config::$scripturl : '') . $this->filter['value']['sql']), ['\\_' => '_']) . '\'';
 			} elseif ($this->filter['variable'] == 'message') {
@@ -331,9 +344,9 @@ class ErrorLog implements ActionInterface
 		Utils::$context['error_types'] = [];
 
 		Utils::$context['error_types']['all'] = [
-			'label' => Lang::$txt['errortype_all'],
+			'label' => Lang::getTxt('errortype_all', file: 'ManageMaintenance'),
 			'error_type' => 'all',
-			'description' => Lang::$txt['errortype_all_desc'] ?? '',
+			'description' => '',
 			'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : ''),
 			'is_selected' => empty($this->filter),
 		];
@@ -357,9 +370,9 @@ class ErrorLog implements ActionInterface
 			$sum += $row['num_errors'];
 
 			Utils::$context['error_types'][$sum] = [
-				'label' => (Lang::$txt['errortype_' . $row['error_type']] ?? $row['error_type']) . ' (' . $row['num_errors'] . ')',
+				'label' => (Lang::txtExists('errortype_' . $row['error_type'], file: 'ManageMaintenance') ? Lang::getTxt('errortype_' . $row['error_type'], file: 'ManageMaintenance') : $row['error_type']) . ' (' . $row['num_errors'] . ')',
 				'error_type' => $row['error_type'],
-				'description' => Lang::$txt['errortype_' . $row['error_type'] . '_desc'] ?? '',
+				'description' => Lang::txtExists('errortype_' . $row['error_type'] . '_desc', file: 'ManageMaintenance') ? Lang::getTxt('errortype_' . $row['error_type'] . '_desc', file: 'ManageMaintenance') : '',
 				'url' => Config::$scripturl . '?action=admin;area=logs;sa=errorlog' . (Utils::$context['sort_direction'] == 'down' ? ';desc' : '') . ';filter=error_type;value=' . $row['error_type'],
 				'is_selected' => isset($this->filter) && $this->filter['value']['sql'] == Db::$db->escape_wildcard_string($row['error_type']),
 			];
@@ -377,7 +390,7 @@ class ErrorLog implements ActionInterface
 		}
 
 		// And this is pretty basic ;).
-		Utils::$context['page_title'] = Lang::$txt['errorlog'];
+		Utils::$context['page_title'] = Lang::getTxt('errorlog', file: 'General');
 		Utils::$context['has_filter'] = isset($this->filter);
 		Utils::$context['sub_template'] = 'error_log';
 
@@ -430,7 +443,7 @@ class ErrorLog implements ActionInterface
 			ErrorHandler::fatalLang('error_bad_line');
 		}
 
-		$file_data = explode('<br />', Parser::highlightPhpCode(Utils::htmlspecialchars(file_get_contents($file))));
+		$file_data = preg_split('~\R|<br(\s*/)?>~', Parser::highlightPhpCode(Utils::htmlspecialchars(file_get_contents($file))));
 
 		// We don't want to slice off too many so lets make sure we stop at the last one
 		$max = min($max, max(array_keys($file_data)));
@@ -478,7 +491,6 @@ class ErrorLog implements ActionInterface
 
 		Theme::loadCSSFile('admin.css', [], 'smf_admin');
 		Theme::loadTemplate('Errors');
-		Lang::load('ManageMaintenance');
 		Utils::$context['template_layers'] = [];
 		Utils::$context['sub_template'] = 'show_backtrace';
 	}
@@ -486,20 +498,6 @@ class ErrorLog implements ActionInterface
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		// Templates, etc...
-		Lang::load('ManageMaintenance');
-		Theme::loadTemplate('Errors');
-
-		foreach ($this->filters as &$filter) {
-			$filter['txt'] = Lang::$txt[$filter['txt']];
-		}
-	}
 
 	/**
 	 * Delete all or some of the errors in the error log.

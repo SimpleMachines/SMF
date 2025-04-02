@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -228,9 +228,12 @@ class Category implements \ArrayAccess
 
 			if (!isset(self::$parsed_descriptions[$this->id])) {
 				self::$parsed_descriptions[$this->id] = Parser::transform(
-					string: self::$parsed_descriptions[$this->id],
+					string: $this->description,
 					input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
-					options: ['parse_tags' => Utils::$context['description_allowed_tags']],
+					options: [
+						'parse_tags' => Utils::$context['description_allowed_tags'],
+						'no_paragraphs' => true,
+					],
 				);
 
 				CacheApi::put('parsed_category_descriptions', self::$parsed_descriptions, 864000);
@@ -241,7 +244,10 @@ class Category implements \ArrayAccess
 			$this->description = Parser::transform(
 				string: $this->description,
 				input_types: Parser::INPUT_BBC | Parser::INPUT_MARKDOWN,
-				options: ['parse_tags' => Utils::$context['description_allowed_tags']],
+				options: [
+					'parse_tags' => Utils::$context['description_allowed_tags'],
+					'no_paragraphs' => true,
+				],
 			);
 		}
 	}
@@ -459,8 +465,7 @@ class Category implements \ArrayAccess
 	{
 		// Check required values.
 		if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '') {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['create_category_no_name'], E_USER_ERROR);
+			throw new \Exception('create_category_no_name');
 		}
 
 		// Set default values.
@@ -495,7 +500,7 @@ class Category implements \ArrayAccess
 			'',
 			'{db_prefix}categories',
 			$cat_columns,
-			$cat_parameters,
+			[$cat_parameters],
 			['id_cat'],
 			1,
 		);
@@ -551,8 +556,7 @@ class Category implements \ArrayAccess
 		}
 		// Make sure the safe category is really safe.
 		elseif (in_array($moveBoardsTo, $categories)) {
-			Lang::load('Errors');
-			trigger_error(Lang::$txt['cannot_move_to_deleted_category'], E_USER_ERROR);
+			throw new \Exception('cannot_move_to_deleted_category');
 		}
 		// Move the boards inside the categories to a safe category.
 		else {

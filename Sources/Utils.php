@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -244,7 +244,7 @@ class Utils
 	 * SMF's venerable $context variable, now available as Utils::$context.
 	 */
 	public static $context = [
-		// Assume UTF-8 until proven otherwise.
+		// We always use UTF-8, but some old mods might want to check.
 		'utf8' => true,
 		'character_set' => 'UTF-8',
 		// Define a list of icons used across multiple places.
@@ -341,45 +341,25 @@ class Utils
 			self::$context['browser_cache'] = '?' . preg_replace('~\W~', '', strtolower(SMF_FULL_VERSION)) . '_' . Config::$modSettings['browser_cache'];
 		}
 
-		// UTF-8?
-		if (isset(Config::$modSettings['global_character_set'])) {
-			self::$context['character_set'] = Config::$modSettings['global_character_set'];
-			self::$context['utf8'] = self::$context['character_set'] === 'UTF-8';
-		}
-
 		// Load up our $context['server'] data for backwards compatibility
 		Sapi::load();
 	}
 
 	/**
-	 * Decodes and sanitizes HTML entities.
-	 *
-	 * If database does not support 4-byte UTF-8 characters, entities for 4-byte
-	 * characters are left in place, unless the $mb4 argument is set to true.
+	 * Decodes and sanitizes named and numerical character entities.
 	 *
 	 * @param string $string The string in which to decode entities.
-	 * @param bool $mb4 If true, always decode 4-byte UTF-8 characters.
-	 *      Default: false.
 	 * @param int $flags Flags to pass to html_entity_decode.
 	 * 		Default: ENT_QUOTES | ENT_HTML5.
 	 * @param bool $nbsp_to_space If true, decode '&nbsp;' to space character.
 	 * 		Default: false.
 	 * @return string The string with the entities decoded.
 	 */
-	public static function entityDecode(string $string, bool $mb4 = false, int $flags = ENT_QUOTES | ENT_HTML5, bool $nbsp_to_space = false): string
+	public static function entityDecode(string $string, int $flags = ENT_QUOTES | ENT_HTML5, bool $nbsp_to_space = false): string
 	{
 		// Don't waste time on empty strings.
 		if (trim($string) === '') {
 			return $string;
-		}
-
-		// In theory this is always UTF-8, but...
-		if (empty(self::$context['character_set'])) {
-			$charset = is_callable('mb_detect_encoding') ? mb_detect_encoding($string) : 'UTF-8';
-		} elseif (str_contains(self::$context['character_set'], 'ISO-8859-') && !in_array(self::$context['character_set'], ['ISO-8859-5', 'ISO-8859-15'])) {
-			$charset = 'ISO-8859-1';
-		} else {
-			$charset = self::$context['character_set'];
 		}
 
 		// Enables consistency with the behaviour of un_htmlspecialchars.
@@ -388,15 +368,10 @@ class Utils
 		}
 
 		// Do the deed.
-		$string = html_entity_decode($string, $flags, $charset);
+		$string = html_entity_decode($string, $flags, 'UTF-8');
 
 		// Remove any illegal character entities.
 		$string = self::sanitizeEntities($string);
-
-		// Finally, make sure we don't break the database.
-		if (!$mb4) {
-			$string = self::fixUtf8mb4($string);
-		}
 
 		return $string;
 	}
@@ -479,52 +454,30 @@ class Utils
 	 *      2: Disallow all formatting characters. Use for internal comparisons
 	 *         only, such as in the word censor, search contexts, etc.
 	 *      Default: 0.
-	 * @param string|null $substitute Replacement string for the invalid characters.
-	 *      If not set, the Unicode replacement character (U+FFFD) will be used
-	 *      (or a fallback like "?" if necessary).
+	 * @param string $substitute Replacement string for the invalid characters.
+	 *      Default: the Unicode replacement character (U+FFFD).
 	 * @return string|false The sanitized string, or false on failure.
 	 */
-	public static function sanitizeChars(string $string, int $level = 0, ?string $substitute = null): string|false
+	public static function sanitizeChars(string $string, int $level = 0, string $substitute = "\u{FFFD}"): string|false
 	{
 		$string = (string) $string;
 		$level = min(max((int) $level, 0), 2);
 
-		// What substitute character should we use?
-		if (isset($substitute)) {
-			$substitute = strval($substitute);
-		} elseif (!empty(Utils::$context['utf8'])) {
-			// Raw UTF-8 bytes for U+FFFD.
-			$substitute = "\xEF\xBF\xBD";
-		} elseif (!empty(Utils::$context['character_set']) && is_callable('mb_decode_numericentity')) {
-			// Get whatever the default replacement character is for this encoding.
-			$substitute = mb_decode_numericentity('&#xFFFD;', [0xFFFD, 0xFFFD, 0, 0xFFFF], Utils::$context['character_set']);
-		} else {
-			$substitute = '?';
-		}
-
 		// Fix any invalid byte sequences.
-		if (!empty(Utils::$context['character_set'])) {
-			// For UTF-8, this preg_match test is much faster than mb_check_encoding.
-			$malformed = !empty(Utils::$context['utf8']) ? @preg_match('//u', $string) === false && preg_last_error() === PREG_BAD_UTF8_ERROR : (!is_callable('mb_check_encoding') || !mb_check_encoding($string, Utils::$context['character_set']));
+		// For UTF-8, this preg_match test is much faster than mb_check_encoding.
+		if (@preg_match('//u', $string) === false && preg_last_error() === PREG_BAD_UTF8_ERROR) {
+			// mb_convert_encoding will replace invalid byte sequences with our substitute.
+			if (is_callable('mb_convert_encoding')) {
+				$substitute_ord = $substitute === '' ? 'none' : mb_ord($substitute, 'UTF-8');
 
-			if ($malformed) {
-				// mb_convert_encoding will replace invalid byte sequences with our substitute.
-				if (is_callable('mb_convert_encoding')) {
-					if (!is_callable('mb_ord')) {
-						require_once Config::$sourcedir . '/Subs-Compat.php';
-					}
+				$mb_substitute_character = mb_substitute_character();
+				mb_substitute_character($substitute_ord);
 
-					$substitute_ord = $substitute === '' ? 'none' : mb_ord($substitute, Utils::$context['character_set']);
+				$string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
 
-					$mb_substitute_character = mb_substitute_character();
-					mb_substitute_character($substitute_ord);
-
-					$string = mb_convert_encoding($string, Utils::$context['character_set'], Utils::$context['character_set']);
-
-					mb_substitute_character($mb_substitute_character);
-				} else {
-					return false;
-				}
+				mb_substitute_character($mb_substitute_character);
+			} else {
+				return false;
 			}
 		}
 
@@ -532,11 +485,7 @@ class Utils
 		$string = Utils::normalizeSpaces($string, true);
 
 		// Deal with unwanted control characters, invisible formatting characters, and other creepy-crawlies.
-		if (!empty(Utils::$context['utf8'])) {
-			$string = (string) Unicode\Utf8String::create($string)->sanitizeInvisibles($level, $substitute);
-		} else {
-			$string = preg_replace('/[^\P{Cc}\t\r\n]/', $substitute, $string);
-		}
+		$string = (string) Unicode\Utf8String::create($string)->sanitizeInvisibles($level, $substitute);
 
 		return $string;
 	}
@@ -575,13 +524,13 @@ class Utils
 
 		if ($vspace) {
 			// \R is like \v, except it handles "\r\n" as a single unit.
-			$patterns[] = '/\R/' . (Utils::$context['utf8'] ? 'u' : '');
+			$patterns[] = '/\R/u';
 			$replacements[] = $options['no_breaks'] ? ' ' : "\n";
 		}
 
 		if ($hspace) {
 			// Interesting fact: Unicode properties like \p{Zs} work even when not in UTF-8 mode.
-			$patterns[] = '/' . ($options['replace_tabs'] ? '\h' : '\p{Zs}') . ($options['collapse_hspace'] ? '+' : '') . '/' . (Utils::$context['utf8'] ? 'u' : '');
+			$patterns[] = '/' . ($options['replace_tabs'] ? '\h' : '\p{Zs}') . ($options['collapse_hspace'] ? '+' : '') . '/u';
 			$replacements[] = ' ';
 		}
 
@@ -589,8 +538,8 @@ class Utils
 	}
 
 	/**
-	 * Wrapper for standard htmlspecialchars() that ensures the output respects
-	 * the database's support (or lack thereof) for four-byte UTF-8 characters.
+	 * Wrapper for standard htmlspecialchars() that additionally normalizes and
+	 * sanitizes the string.
 	 *
 	 * @param string $string The string being converted.
 	 * @param int $flags Bitmask of flags to pass to standard htmlspecialchars().
@@ -602,7 +551,7 @@ class Utils
 	{
 		$string = self::normalize($string);
 
-		return self::fixUtf8mb4(self::sanitizeEntities(\htmlspecialchars($string, $flags, $encoding)));
+		return self::sanitizeEntities(\htmlspecialchars($string, $flags, $encoding));
 	}
 
 	/**
@@ -902,9 +851,11 @@ class Utils
 	 *    Default: false.
 	 * @param string $form A Unicode normalization form: 'c', 'd', 'kc', 'kd',
 	 *    or 'kc_casefold'.
+	 * @param bool $mb4 If true, always decode 4-byte UTF-8 characters.
+	 *      Default: false.
 	 * @return string The normalized string.
 	 */
-	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c'): string
+	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c', bool $mb4 = false): string
 	{
 		// Convert numeric entities to characters, except special ones.
 		if (str_contains($string, '&#')) {
@@ -922,14 +873,18 @@ class Utils
 
 		// Use optimized function for compatibility casefolding.
 		if ($form === 'kc_casefold') {
-			$string = (string) Unicode\Utf8String::create($string)->normalize('kc_casefold');
+			if ($case === 'fold') {
+				$string = (string) Unicode\Utf8String::create($string)->normalize('kc_casefold');
+			} else {
+				$string = (string) Unicode\Utf8String::create($string)->normalize('kc_casefold')->convertCase($case, $simple);
+			}
 		}
 		// Everything else.
 		else {
 			$string = (string) Unicode\Utf8String::create($string)->convertCase($case, $simple)->normalize($form);
 		}
 
-		return self::fixUtf8mb4($string);
+		return $string;
 	}
 
 	/**
@@ -999,11 +954,27 @@ class Utils
 	}
 
 	/**
+	 * Splits a string into its words, symbols, punctuation, and whitespace.
+	 *
+	 * E.g.: 'A red fox! 🦊' --> ['A', ' ', 'red', ' ', 'fox', '!', ' ', '🦊']
+	 *
+	 * @param string $string The string to split into semantic components.
+	 * @return array An array of strings.
+	 */
+	public static function semanticSplit(string $string): array
+	{
+		return Unicode\Utf8String::create($string)->semanticSplit();
+	}
+
+	/**
 	 * Extracts all the words in a string.
 	 *
-	 * Emoji characters count as words. Punctuation and other symbols do not.
+	 * Emoji characters count as words and are retained in the result.
+	 * Whitespace, punctuation, and other symbols are discarded.
 	 *
-	 * @param string $string The strings to extract words from.
+	 * E.g.: 'A red fox! 🦊' --> ['A', 'red', 'fox', '🦊']
+	 *
+	 * @param string $string The string to extract words from.
 	 * @param int $level See documentation for self:sanitizeChars().
 	 *      Default: 0.
 	 * @return array An array of strings.
@@ -1014,7 +985,7 @@ class Utils
 	}
 
 	/**
-	 * Creates optimized regular expressions from an array of strings.
+	 * Creates optimized regular expressions from arrays of strings.
 	 *
 	 * An optimized regex built using this function will be much faster than a
 	 * simple regex built using `implode('|', $strings)` --- anywhere from
@@ -1057,6 +1028,25 @@ class Utils
 		if (($string_encoding = mb_detect_encoding(implode(' ', $strings))) !== false) {
 			$current_encoding = mb_internal_encoding();
 			mb_internal_encoding($string_encoding);
+		}
+
+		// Optimizing is faster when we sort by length.
+		usort($strings, fn($a, $b) => mb_strlen($a) <=> mb_strlen($b));
+
+		// Can we trim common characters from the end?
+		$trailing = '';
+
+		while (mb_strlen(reset($strings)) > 1) {
+			$last_char = mb_substr(reset($strings), -1);
+
+			foreach ($strings as $string_num => $string) {
+				if (!str_ends_with($string, $last_char)) {
+					break 2;
+				}
+			}
+
+			$strings = array_map(fn($string) => mb_substr($string, 0, -1), $strings);
+			$trailing = $last_char . $trailing;
 		}
 
 		// This recursive closure creates the trie from the strings.
@@ -1174,8 +1164,16 @@ class Utils
 			while (!empty($trie)) {
 				$regex[] = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
 			}
+
+			if ($trailing !== '') {
+				$regex = array_map(fn($r) => '(?' . '>' . $r . $trailing . ')', $regex);
+			}
 		} else {
 			$regex = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
+
+			if ($trailing !== '') {
+				$regex = '(?' . '>' . $regex . $trailing . ')';
+			}
 		}
 
 		// Restore PHP's internal character encoding to whatever it was originally.
@@ -1249,7 +1247,7 @@ class Utils
 			"\x0B", "\x0C", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "\x14",
 			"\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D",
 			"\x1E", "\x1F",
-			// Remove \xFFFE and \xFFFF
+			// Remove U-FFFE and U-FFFF
 			"\xEF\xBF\xBE", "\xEF\xBF\xBF",
 		];
 
@@ -1257,8 +1255,8 @@ class Utils
 
 		// The Unicode surrogate pair code points should never be present in our
 		// strings to begin with, but if any snuck in, they need to be removed.
-		if (!empty(Utils::$context['utf8']) && str_contains($string, "\xED")) {
-			$string = preg_replace('/\xED[\xA0-\xBF][\x80-\xBF]/', '', $string);
+		if (str_contains($string, "\xED")) {
+			$string = preg_replace('/[\x{D800}-\x{DFFF}]/u', '', $string);
 		}
 
 		return $string;
@@ -1523,12 +1521,10 @@ class Utils
 			$json_debug = debug_backtrace();
 			$json_debug = $json_debug[0];
 
-			Lang::load('Errors');
-
 			if (!empty($json_debug)) {
-				ErrorHandler::log(Lang::$txt['json_' . $json_error], 'critical', $json_debug['file'], $json_debug['line']);
+				ErrorHandler::log(Lang::getTxt('json_' . $json_error, file: 'Errors'), 'critical', $json_debug['file'], $json_debug['line']);
 			} else {
-				ErrorHandler::log(Lang::$txt['json_' . $json_error], 'critical');
+				ErrorHandler::log(Lang::getTxt('json_' . $json_error, file: 'Errors'), 'critical');
 			}
 
 			// Null should be returned in all cases where json can not be decoded.
@@ -2021,11 +2017,8 @@ class Utils
 			$file['filename'] = hash_hmac('md5', var_export($file, true), Config::$image_proxy_secret) . '.' . ltrim($file['fileext'] ?? 'dat', '.');
 		}
 
-		// Convert the filename to UTF-8, cuz most browsers dig that.
-		$file['filename'] = !self::$context['utf8'] ? mb_convert_encoding($file['filename'], 'UTF-8', self::$context['character_set']) : $file['filename'];
-
-		// Also provide a plain ASCII name for the sake of old browsers.
-		$file['asciiname'] = preg_replace('/[\x{80}-\x{10FFFF}]+/u', '?', Utils::entityDecode($file['filename'], true));
+		// Provide a plain ASCII name for the sake of old browsers.
+		$file['asciiname'] = preg_replace('/[\x{80}-\x{10FFFF}]+/u', '?', Utils::entityDecode($file['filename']));
 
 		// Replace ASCII names like ??????.jpg with something more unique.
 		if (strspn($file['asciiname'], '?') === strpos($file['asciiname'], '.')) {
@@ -2236,34 +2229,25 @@ class Utils
 			$setLocation = Config::$scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 		}
 
-		// Keep that debug in their for template debugging!
-		if (isset($_GET['debug'])) {
-			$setLocation = preg_replace('/^' . preg_quote(Config::$scripturl, '/') . '\??/', Config::$scripturl . '?debug;', $setLocation);
-		}
+		if (str_contains($setLocation, Config::$scripturl)) {
+			// Keep that debug in there for template debugging!
+			if (isset($_GET['debug']) && !preg_match('/[;?]debug\b/', $setLocation)) {
+				$insert = (str_contains($setLocation, '?') ? ';' : '?') . 'debug';
 
-		if (
-			!empty(Config::$modSettings['queryless_urls'])
-			&& (
-				!Sapi::isCGI()
-				|| ini_get('cgi.fix_pathinfo') == 1
-				|| @get_cfg_var('cgi.fix_pathinfo') == 1
-			)
-			&& (
-				Sapi::isSoftware([Sapi::SERVER_APACHE, Sapi::SERVER_LIGHTTPD, Sapi::SERVER_LITESPEED])
-			)
-		) {
-			$setLocation = preg_replace_callback(
-				'~^' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+?)(#[^"]*?)?$~',
-				function ($m) {
-					return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . (isset($m[2]) ? "{$m[2]}" : '');
-				},
-				$setLocation,
-			);
-		}
+				if (str_contains($setLocation, '#')) {
+					$setLocation = str_replace('#', $insert . '#', $setLocation);
+				} else {
+					$setLocation .= $insert;
+				}
+			}
 
-		// The request was from ajax/xhr/other api call, append ajax ot the url.
-		if (!empty(Utils::$context['from_ajax'])) {
-			$setLocation .= (strpos($setLocation, '?') ? ';' : '?') . 'ajax';
+			// Rewrite as a queryless URL?
+			$setLocation = QueryString::rewriteAsQueryless($setLocation);
+
+			// The request was from ajax/xhr/other api call, append ajax to the url.
+			if (!empty(Utils::$context['from_ajax'])) {
+				$setLocation .= (str_contains($setLocation, '?') ? ';' : '?') . 'ajax';
+			}
 		}
 
 		// Maybe integrations want to change where we are heading?
@@ -2331,12 +2315,16 @@ class Utils
 							'title' => Utils::htmlspecialchars(html_entity_decode(Utils::$context['page_title'])),
 							'pagenum' => Utils::$context['current_page'] + 1,
 						],
+						file: 'General',
 					);
 				}
 			}
 
 			// Start up the session URL fixer.
 			ob_start('SMF\\QueryString::ob_sessrewrite');
+
+			// More work needed if using "queryless" URLS.
+			ob_start('SMF\\QueryString::rewriteAsQueryless');
 
 			// Force the browser not to collapse tabs inside posts, etc.
 			ob_start(fn($buffer) => strtr($buffer, [self::TAB_SUBSTITUTE => '<span style="white-space: pre;">' . "\t" . '</span>']));
@@ -2383,8 +2371,11 @@ class Utils
 				Theme::template_footer();
 
 				// Add $db_show_debug = true; to Settings.php if you want to show the debugging information.
-				// (since this is just debugging... it's okay that it's after </html>.)
-				if (!isset($_REQUEST['xml'])) {
+				if (
+					Forum::getCurrentAction()?->isSimpleAction() === false
+					&& !(Forum::getCurrentAction()?->getOutputType() instanceof OutputTypes\Xml)
+					&& !isset($_REQUEST['xml'])
+				) {
 					Logging::displayDebug();
 				}
 			}
@@ -2392,8 +2383,15 @@ class Utils
 
 		// Remember this URL in case someone doesn't like sending HTTP_REFERER.
 		if (
-			!QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')
-			&& !isset($_REQUEST['xml'])
+			isset($_SERVER['REQUEST_URL'])
+			&& (
+				Forum::getCurrentAction()?->canBeLogged() === true
+				|| (
+					Forum::getCurrentAction() === null
+					&& !QueryString::isFilteredRequest(Forum::$unlogged_actions, 'action')
+					&& !isset($_REQUEST['xml'])
+				)
+			)
 		) {
 			$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 		}
@@ -2411,117 +2409,88 @@ class Utils
 	}
 
 	/**
-	 * Parses $input to find some sort of callable.
+	 * Parses the given input to determine if it represents a callable entity.
 	 *
-	 * If a method is found, it looks for a "#" which indicates SMF should
-	 * create a new instance of the given class.
+	 * This method supports various formats of callables, including closures,
+	 * callable arrays, static methods, and class methods with optional
+	 * instance creation.
 	 *
-	 * ADD MORE HERE.
+	 * - If a class method is specified with a "#", it attempts to create
+	 *   a new instance of the class.
+	 * - If a static method is specified, it validates the method is callable.
+	 * - If input is a closure or callable array, it checks its validity.
+	 * - Plain functions are validated as callable.
+	 * - Objects themselves are not accepted as callables.
 	 *
-	 * @param mixed $input Input to parse to find a callable.
-	 * @return mixed Either a callable, or false on failure.
+	 * @param string|callable $input Input to parse as a callable.
+	 * @param bool|null $ignore_errors Optional. Whether to suppress errors if the callable is invalid. Defaults to the value of `Utils::$context['ignore_hook_errors']`.
+	 *
+	 * @return callable|false Returns the callable if valid, or false on failure.
 	 */
-	public static function getCallable(mixed $input, ?bool $ignore_errors = null): mixed
+	public static function getCallable(string|callable $input, ?bool $ignore_errors = null): callable|false
 	{
 		$ignore_errors = $ignore_errors ?? !empty(Utils::$context['ignore_hook_errors']);
 
-		// Really?
-		if (empty($input)) {
-			return false;
-		}
-
-		// An array? should be a "callable" array IE array(object/class, valid_callable).
-		// A closure? should be a callable one.
-		if (is_array($input) || $input instanceof \Closure) {
+		if (!is_string($input)) {
 			return is_callable($input) ? $input : false;
 		}
 
-		// No full objects, sorry! pass a method or a property instead!
-		if (is_object($input)) {
-			return false;
-		}
-
-		// Stay vitaminized my friends...
+		// Sanitize and trim the input.
 		$input = Utils::htmlspecialchars(Utils::htmlTrim($input));
 
-		// Is there a file to load?
+		// Attempt to load a file, if applicable.
 		$input = self::loadFile($input);
 
-		// Loaded file failed
+		// Abort if file loading fails.
 		if (empty($input)) {
 			return false;
 		}
 
-		// Found a method.
+		// Process static or instance method callables.
 		if (str_contains($input, '::')) {
 			list($class, $method) = explode('::', $input);
 
-			// Check if a new object will be created.
+			// Handle instance creation for methods with "#".
 			if (str_contains($method, '#')) {
 				if (!isset(Utils::$context['instances'])) {
 					Utils::$context['instances'] = [];
 				}
 
-				// Need to remove the # thing.
+				// Remove the "#" and ensure an instance exists.
 				$method = str_replace('#', '', $method);
 
-				// Don't need to create a new instance for every method.
 				if (empty(Utils::$context['instances'][$class]) || !(Utils::$context['instances'][$class] instanceof $class)) {
 					Utils::$context['instances'][$class] = new $class();
 
-					// Add another one to the list.
+					// Optionally track instance creation for debugging.
 					if (!empty(Config::$db_show_debug)) {
-						if (!isset(Utils::$context['debug']['instances'])) {
-							Utils::$context['debug']['instances'] = [];
-						}
-
 						Utils::$context['debug']['instances'][$class] = $class;
 					}
 				}
 
 				$callable = [Utils::$context['instances'][$class], $method];
-			}
-			// Right then. This is a call to a static method.
-			else {
+			} else {
+				// Static method reference.
 				$callable = [$class, $method];
 			}
-		}
-		// Nope! just a plain regular function.
-		else {
+		} else {
+			// Treat as a plain function.
 			$callable = $input;
 		}
 
-		// Right, we got what we need, time to do some checks.
-		if (!is_callable($callable, false, $callable_name) && $ignore_errors) {
-			// We can't call this helper, but we want to silently ignore this.
+		// Validate the callable.
+		if (!is_callable($callable, false, $callable_name)) {
 			if ($ignore_errors) {
 				return false;
 			}
 
-			// Gotta tell everybody.
-			Lang::load('Errors');
-			ErrorHandler::log(Lang::getTxt('sub_action_fail', [$callable_name]), 'general');
+			// Log error for invalid callables.
+			ErrorHandler::log(Lang::getTxt('sub_action_fail', [$callable_name], file: 'Errors'), 'general');
 
 			return false;
 		}
 
 		return $callable;
-	}
-
-	/**
-	 * Converts four-byte Unicode characters to entities, but only if the
-	 * database can't handle four-byte characters natively.
-	 *
-	 * @param string $string A UTF-8 string.
-	 * @return string The string, with four-byte chars encoded as entities.
-	 */
-	final public static function fixUtf8mb4(string $string): string
-	{
-		if (class_exists(Db::class, false) && isset(Db::$db) && Db::$db->mb4) {
-			return $string;
-		}
-
-		return mb_encode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8');
 	}
 
 	/*************************
@@ -2536,7 +2505,7 @@ class Utils
 	 *
 	 * Checks for a '|' symbol and tries to load a file with the info given.
 	 *
-	 * The string should be format as follows: 'path/to/file.php|whatever'.
+	 * The string should be formatted as follows: 'path/to/file.php|whatever'.
 	 *
 	 * You can use the following wildcards in the path:
 	 *  - $boarddir
@@ -2580,8 +2549,7 @@ class Utils
 				}
 				// Sorry, can't do much for you at this point.
 				elseif (empty(Utils::$context['uninstalling'])) {
-					Lang::load('Errors');
-					ErrorHandler::log(Lang::getTxt('hook_fail_loading_file', [$path]), 'general');
+					ErrorHandler::log(Lang::getTxt('hook_fail_loading_file', [$path], file: 'Errors'), 'general');
 
 					// File couldn't be loaded.
 					return false;

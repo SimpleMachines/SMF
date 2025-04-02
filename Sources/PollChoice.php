@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -127,8 +127,18 @@ class PollChoice implements \ArrayAccess
 		Db::$db->insert(
 			'',
 			'{db_prefix}poll_choices',
-			['id_poll' => 'int', 'id_choice' => 'int', 'label' => 'string-255'],
-			[$this->poll, $this->id, $this->label],
+			[
+				'id_poll' => 'int',
+				'id_choice' => 'int',
+				'label' => 'string-255',
+			],
+			[
+				[
+					$this->poll,
+					$this->id,
+					$this->label,
+				],
+			],
 			[],
 		);
 	}

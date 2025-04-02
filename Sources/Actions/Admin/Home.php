@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -94,7 +94,7 @@ class Home implements ActionInterface
 		// Find all of this forum's administrators...
 		if (Groups::listMembergroupMembers_Href(Utils::$context['administrators'], 1, 32) && User::$me->allowedTo('manage_membergroups')) {
 			// Add a 'more'-link if there are more than 32.
-			Utils::$context['more_admins_link'] = '<a href="' . Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . Lang::$txt['more'] . '</a>';
+			Utils::$context['more_admins_link'] = '<a href="' . Config::$scripturl . '?action=moderate;area=viewgroups;sa=members;group=1">' . Lang::getTxt('more', file: 'General') . '</a>';
 		}
 
 		// Load the credits stuff.
@@ -111,19 +111,19 @@ class Home implements ActionInterface
 
 		Utils::$context['sub_template'] = Utils::$context['admin_area'] == 'credits' ? 'credits' : 'admin';
 
-		Utils::$context['page_title'] = Utils::$context['admin_area'] == 'credits' ? Lang::$txt['support_credits_title'] : Lang::$txt['admin_center'];
+		Utils::$context['page_title'] = Utils::$context['admin_area'] == 'credits' ? Lang::getTxt('support_credits_title', file: 'Admin') : Lang::getTxt('admin_center', file: 'General');
 
 		if (Utils::$context['admin_area'] != 'credits') {
 			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['admin_center'],
+				'title' => Lang::getTxt('admin_center', file: 'General'),
 				'help' => '',
-				'description' => '<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name]) . '</strong>
-					' . Lang::getTxt('admin_main_welcome', Lang::$txt),
+				'description' => '<strong>' . Lang::getTxt('hello_user', ['name' => User::$me->name], file: 'General') . '</strong>
+					' . Lang::getTxt('admin_main_welcome', Lang::$txt, file: 'Admin'),
 			];
 		}
 
 		// Lastly, fill in the blanks in the support resources paragraphs.
-		Lang::$txt['support_resources_p1'] = Lang::getTxt(
+		Lang::setTxt('support_resources_p1', Lang::getTxt(
 			'support_resources_p1',
 			[
 				'manual_main_url' => 'https://wiki.simplemachines.org/',
@@ -132,9 +132,10 @@ class Home implements ActionInterface
 				'manual_themes_url' => 'https://wiki.simplemachines.org/smf/themes2',
 				'manual_packages_url' => 'https://wiki.simplemachines.org/smf/packages2',
 			],
-		);
+			file: 'Admin',
+		));
 
-		Lang::$txt['support_resources_p2'] = Lang::getTxt(
+		Lang::setTxt('support_resources_p2', Lang::getTxt(
 			'support_resources_p2',
 			[
 				'support_main_url' => 'https://www.simplemachines.org/community/',
@@ -143,7 +144,8 @@ class Home implements ActionInterface
 				'support_smf_url' => 'https://www.simplemachines.org/redirect/smf_support',
 				'support_customize_url' => 'https://www.simplemachines.org/redirect/customize_support',
 			],
-		);
+			file: 'Admin',
+		));
 
 		if (Utils::$context['admin_area'] == 'admin') {
 			Theme::loadJavaScriptFile('admin.js', ['defer' => false, 'minimize' => true], 'smf_admin');

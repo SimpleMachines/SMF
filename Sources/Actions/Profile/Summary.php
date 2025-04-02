@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -49,12 +49,18 @@ class Summary implements ActionInterface
 	{
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['summary'],
+			'title' => Lang::getTxt('summary', file: 'General'),
 			'icon_class' => 'main_icons profile_hd',
 		];
 
+		// Expand the warning settings.
+		list(Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
+
 		// Set up the stuff and load the user.
 		Utils::$context += [
+			'disabled_fields' => isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : [],
+			'signature_enabled' => substr(Config::$modSettings['signature_settings'], 0, 1) == 1,
+			'can_see_ip' => User::$me->allowedTo('moderate_forum'),
 			'page_title' => Lang::getTxt('profile_of_username', Profile::$member->formatted),
 			'can_send_pm' => User::$me->allowedTo('pm_send'),
 			'can_have_buddy' => User::$me->allowedTo('profile_extra_own') && !empty(Config::$modSettings['enable_buddylist']),
@@ -67,35 +73,35 @@ class Summary implements ActionInterface
 
 		// See if they have broken any warning levels...
 		if (!empty(Config::$modSettings['warning_mute']) && Config::$modSettings['warning_mute'] <= Profile::$member->formatted['warning']) {
-			Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_muted'];
+			Utils::$context['warning_status'] = Lang::getTxt('profile_warning_is_muted', file: 'Profile');
 		} elseif (!empty(Config::$modSettings['warning_moderate']) && Config::$modSettings['warning_moderate'] <= Profile::$member->formatted['warning']) {
-			Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_moderation'];
+			Utils::$context['warning_status'] = Lang::getTxt('profile_warning_is_moderation', file: 'Profile');
 		} elseif (!empty(Config::$modSettings['warning_watch']) && Config::$modSettings['warning_watch'] <= Profile::$member->formatted['warning']) {
-			Utils::$context['warning_status'] = Lang::$txt['profile_warning_is_watch'];
+			Utils::$context['warning_status'] = Lang::getTxt('profile_warning_is_watch', file: 'Profile');
 		}
 
 		// They haven't even been registered for a full day!?
 		$days_registered = (int) ((time() - Profile::$member->date_registered) / (3600 * 24));
 
 		if (empty(Profile::$member->date_registered) || $days_registered < 1) {
-			Profile::$member->formatted['posts_per_day'] = Lang::$txt['not_applicable'];
+			Profile::$member->formatted['posts_per_day'] = Lang::getTxt('not_applicable', file: 'General');
 		} else {
 			Profile::$member->formatted['posts_per_day'] = Profile::$member->formatted['real_posts'] / $days_registered;
 		}
 
 		// Set the age...
-		if (empty(Profile::$member->formatted['birth_date']) || substr(Profile::$member->formatted['birth_date'], 0, 4) < 1002) {
+		if (empty(Profile::$member->formatted['birthdate']) || substr(Profile::$member->formatted['birthdate'], 0, 4) < 1002) {
 			Profile::$member->formatted += [
-				'age' => Lang::$txt['not_applicable'],
+				'age' => Lang::getTxt('not_applicable', file: 'General'),
 				'today_is_birthday' => false,
 			];
 		} else {
-			list($birth_year, $birth_month, $birth_day) = sscanf(Profile::$member->formatted['birth_date'], '%d-%d-%d');
+			list($birth_year, $birth_month, $birth_day) = sscanf(Profile::$member->formatted['birthdate'], '%d-%d-%d');
 
 			$datearray = getdate(time());
 
 			Profile::$member->formatted += [
-				'age' => $birth_year <= 1004 ? Lang::$txt['not_applicable'] : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
+				'age' => $birth_year <= 1004 ? Lang::getTxt('not_applicable', file: 'General') : $datearray['year'] - $birth_year - (($datearray['mon'] > $birth_month || ($datearray['mon'] == $birth_month && $datearray['mday'] >= $birth_day)) ? 0 : 1),
 				'today_is_birthday' => $datearray['mon'] == $birth_month && $datearray['mday'] == $birth_day && $birth_year > 1004,
 			];
 		}
@@ -124,18 +130,43 @@ class Summary implements ActionInterface
 		) {
 			Utils::$context['activate_type'] = Profile::$member->is_activated;
 
-			// What should the link text be?
-			Utils::$context['activate_link_text'] = in_array(Profile::$member->is_activated, [User::UNAPPROVED, User::REQUESTED_DELETE, User::NEED_COPPA, User::UNAPPROVED_BANNED, User::REQUESTED_DELETE_BANNED, User::NEED_COPPA_BANNED]) ? Lang::$txt['account_approve'] : Lang::$txt['account_activate'];
+			// What should the link type and text be?
+			if (
+				in_array(
+					Profile::$member->is_activated,
+					[
+						User::UNAPPROVED,
+						User::REQUESTED_DELETE,
+						User::REQUESTED_DELETE_ANONYMIZE,
+						User::NEED_COPPA,
+						User::UNAPPROVED_BANNED,
+						User::REQUESTED_DELETE_BANNED,
+						User::REQUESTED_DELETE_ANONYMIZE_BANNED,
+						User::NEED_COPPA_BANNED,
+					],
+				)
+			) {
+				$type = 'approve';
+				Utils::$context['activate_link_text'] = Lang::getTxt('account_approve', file: 'Profile');
+			} else {
+				$type = 'activate';
+				Utils::$context['activate_link_text'] = Lang::getTxt('account_activate', file: 'Profile');
+			}
 
 			// Should we show a custom message?
-			Utils::$context['activate_message'] = Lang::$txt['account_activate_method_' . Profile::$member->is_activated % User::BANNED] ?? Lang::$txt['account_not_activated'];
+			Utils::$context['activate_message'] = Lang::getTxt(
+				Lang::txtExists(
+					'account_activate_method_' . Profile::$member->is_activated % User::BANNED,
+					file: 'Profile',
+				)
+				? 'account_activate_method_' . Profile::$member->is_activated % User::BANNED
+				: 'account_not_activated',
+				file: 'Profile',
+			);
 
 			// If they can be approved, we need to set up a token for them.
 			Utils::$context['token_check'] = 'profile-aa' . Profile::$member->id;
 			SecurityToken::create(Utils::$context['token_check'], 'get');
-
-			// Puerile comment
-			$type = in_array(Profile::$member->is_activated, [User::UNAPPROVED, User::REQUESTED_DELETE, User::NEED_COPPA, User::UNAPPROVED_BANNED, User::REQUESTED_DELETE_BANNED, User::NEED_COPPA_BANNED]) ? 'approve' : 'activate';
 
 			Utils::$context['activate_link'] = Config::$scripturl . '?action=admin;area=viewmembers;sa=browse;type=' . $type . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'] . ';' . Utils::$context[Utils::$context['token_check'] . '_token_var'] . '=' . Utils::$context[Utils::$context['token_check'] . '_token'];
 		}
@@ -194,7 +225,7 @@ class Summary implements ActionInterface
 
 				foreach (['access', 'login', 'post'] as $type) {
 					if ($row['cannot_' . $type]) {
-						$ban_restrictions[] = Lang::$txt['ban_type_' . $type];
+						$ban_restrictions[] = Lang::getTxt('ban_type_' . $type, file: 'Profile');
 					}
 				}
 
@@ -204,10 +235,10 @@ class Summary implements ActionInterface
 				}
 
 				// Prepare the link for context.
-				$ban_explanation = Lang::getTxt('user_cannot_due_to', ['list' => Lang::sentenceList($ban_restrictions, 'or'), 'ban' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>']);
+				$ban_explanation = Lang::getTxt('user_cannot_due_to', ['list' => Lang::sentenceList($ban_restrictions, 'or'), 'ban' => '<a href="' . Config::$scripturl . '?action=admin;area=ban;sa=edit;bg=' . $row['id_ban_group'] . '">' . $row['name'] . '</a>'], file: 'Profile');
 
 				Profile::$member->formatted['bans'][$row['id_ban_group']] = [
-					'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . Lang::$txt['ban_reason'] . ':</strong> ' . $row['reason'],
+					'reason' => empty($row['reason']) ? '' : '<br><br><strong>' . Lang::getTxt('ban_reason', file: 'General') . ':</strong> ' . $row['reason'],
 					'cannot' => [
 						'access' => !empty($row['cannot_access']),
 						'post' => !empty($row['cannot_post']),
@@ -243,18 +274,6 @@ class Summary implements ActionInterface
 		if (!isset(Profile::$member)) {
 			Profile::load();
 		}
-
-		// Are there things we don't show?
-		Utils::$context['disabled_fields'] = isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : [];
-
-		// Is the signature even enabled on this forum?
-		Utils::$context['signature_enabled'] = substr(Config::$modSettings['signature_settings'], 0, 1) == 1;
-
-		// Expand the warning settings.
-		list(Config::$modSettings['warning_enable'], Config::$modSettings['user_limit']) = explode(',', Config::$modSettings['warning_settings']);
-
-		// Can the viewer see this member's IP address?
-		Utils::$context['can_see_ip'] = User::$me->allowedTo('moderate_forum');
 	}
 }
 

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -939,7 +939,7 @@ class ExportProfileData extends BackgroundTask
 				'insert',
 				'{db_prefix}background_tasks',
 				['task_file' => 'string-255', 'task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
-				$this->next_task,
+				[$this->next_task],
 				[],
 			);
 		}
@@ -1013,16 +1013,16 @@ class ExportProfileData extends BackgroundTask
 		$progressfile = $export_dir_slash . $idhash_ext . '.progress.json';
 
 		$feed->metadata = [
-			'title' => Lang::getTxt('profile_of_username', ['name' => User::$me->name]),
+			'title' => Lang::getTxt('profile_of_username', ['name' => User::$me->name], file: 'Profile'),
 			'desc' => Lang::sentenceList(array_map(
 				function ($datatype) {
-					return Lang::$txt[$datatype];
+					return Lang::getTxt($datatype, file: 'Profile');
 				},
 				array_keys($included),
 			)),
 			'author' => Config::$mbname,
 			'source' => Config::$scripturl . '?action=profile;u=' . $uid,
-			'language' => !empty(Lang::$txt['lang_locale']) ? str_replace('_', '-', substr(Lang::$txt['lang_locale'], 0, strcspn(Lang::$txt['lang_locale'], '.'))) : 'en',
+			'language' => !empty(Lang::getTxt('lang_locale', file: 'General')) ? str_replace('_', '-', substr(Lang::getTxt('lang_locale', file: 'General'), 0, strcspn(Lang::getTxt('lang_locale', file: 'General'), '.'))) : 'en',
 			'self' => '', // Unused, but can't be null.
 			'page' => &$filenum,
 		];
@@ -1129,9 +1129,7 @@ class ExportProfileData extends BackgroundTask
 
 				// If disk space is insufficient, pause for a day so the admin can fix it.
 				if ($check_diskspace && disk_free_space(Config::$modSettings['export_dir']) - $minspace <= strlen(implode('', Utils::$context['feed']) . ($this->stylesheet ?? ''))) {
-					Lang::load('Errors');
-
-					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']]));
+					ErrorHandler::log(Lang::getTxt('export_low_diskspace', [Config::$modSettings['export_min_diskspace_pct']], file: 'Errors'));
 
 					$delay = 86400;
 				} else {
@@ -1421,8 +1419,6 @@ class ExportProfileData extends BackgroundTask
 			require_once Config::$sourcedir . '/Actions/Profile/Export.php';
 			$export_formats = Export::getFormats();
 
-			Lang::load('Profile');
-
 			/* Notes:
 			 * 1. The 'value' can be one of the following:
 			 *    - an integer or string
@@ -1470,31 +1466,31 @@ class ExportProfileData extends BackgroundTask
 					'value' => Lang::formatText(Lang::$forum_copyright, ['version' => SMF_FULL_VERSION, 'year' => SMF_SOFTWARE_YEAR, 'scripturl' => Config::$scripturl]),
 				],
 				'txt_summary_heading' => [
-					'value' => Lang::$txt['summary'],
+					'value' => Lang::getTxt('summary', file: 'General'),
 				],
 				'txt_posts_heading' => [
-					'value' => Lang::$txt['posts'],
+					'value' => Lang::getTxt('posts', file: 'General'),
 				],
 				'txt_personal_messages_heading' => [
-					'value' => Lang::$txt['personal_messages'],
+					'value' => Lang::getTxt('personal_messages', file: 'General'),
 				],
 				'txt_view_source_button' => [
-					'value' => Lang::$txt['export_view_source_button'],
+					'value' => Lang::getTxt('export_view_source_button', file: 'Profile'),
 				],
 				'txt_download_original' => [
-					'value' => Lang::$txt['export_download_original'],
+					'value' => Lang::getTxt('export_download_original', file: 'Profile'),
 				],
 				'txt_help' => [
-					'value' => Lang::$txt['help'],
+					'value' => Lang::getTxt('help', file: 'General'),
 				],
 				'txt_terms_rules' => [
-					'value' => Lang::$txt['terms_and_rules'],
+					'value' => Lang::getTxt('terms_and_rules', file: 'General'),
 				],
 				'txt_go_up' => [
-					'value' => Lang::$txt['go_up'],
+					'value' => Lang::getTxt('go_up', file: 'General'),
 				],
 				'txt_pages' => [
-					'value' => Lang::$txt['pages'],
+					'value' => Lang::getTxt('pages', file: 'General'),
 				],
 			];
 
@@ -1862,13 +1858,9 @@ class ExportProfileData extends BackgroundTask
 		string $subaction,
 		string &$doctype,
 	): void {
-		if (!isset(Lang::$txt['export_open_in_browser'])) {
-			Lang::load('Profile');
-		}
-
 		$doctype = implode("\n", [
 			'<!--',
-			"\t" . Lang::$txt['export_open_in_browser'],
+			"\t" . Lang::getTxt('export_open_in_browser', file: 'Profile'),
 			'-->',
 			'<?xml-stylesheet type="text/xsl" href="#stylesheet"?>',
 			'<!DOCTYPE smf:xml-feed [',
@@ -1971,9 +1963,9 @@ class ExportProfileData extends BackgroundTask
 	 */
 	public static function attach_bbc_validate(string &$returnContext, array $currentAttachment, array $tag, array|string $data, array $disabled, array $params): void
 	{
-		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::$txt['export_download_original'] . '</a>';
+		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::getTxt('export_download_original', file: 'Profile') . '</a>';
 
-		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . Lang::$txt['export_download_original'] . '</a>';
+		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . Lang::getTxt('export_download_original', file: 'Profile') . '</a>';
 
 		if ($params['{display}'] == 'link') {
 			$returnContext .= ' (' . $orig_link . ')';

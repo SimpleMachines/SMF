@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -25,41 +25,41 @@ function template_permission_index()
 	if (!Utils::$context['can_modify'])
 		echo '
 	<div class="errorbox">
-		', Lang::getTxt('permission_cannot_edit', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles']), '
+		', Lang::getTxt('permission_cannot_edit', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles'], file: 'ManagePermissions'), '
 	</div>';
 
 	echo '
 	<div id="admin_form_wrapper">
-		<form action="', Config::$scripturl, '?action=admin;area=permissions;sa=quick" method="post" accept-charset="', Utils::$context['character_set'], '" name="permissionForm" id="permissionForm">';
+		<form action="', Config::$scripturl, '?action=admin;area=permissions;sa=quick" method="post" accept-charset="UTF-8" name="permissionForm" id="permissionForm">';
 
 	if (!empty(Utils::$context['profile']))
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::getTxt('permissions_for_profile', Utils::$context['profile']), '</h3>
+				<h3 class="catbg">', Lang::getTxt('permissions_for_profile', Utils::$context['profile'], file: 'ManagePermissions'), '</h3>
 			</div>';
 	else
 		echo '
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['permissions_title'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('permissions_title', file: 'ManagePermissions'), '</h3>
 			</div>';
 
 	echo '
 			<table class="table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th>', Lang::$txt['membergroups_name'], '</th>
-						<th class="small_table">', Lang::$txt['membergroups_members_top'], '</th>';
+						<th>', Lang::getTxt('membergroups_name', file: 'ManageMembers'), '</th>
+						<th class="small_table">', Lang::getTxt('membergroups_members_top', file: 'ManageMembers'), '</th>';
 
 	if (empty(Config::$modSettings['permission_enable_deny']))
 		echo '
-						<th class="small_table">', Lang::$txt['membergroups_permissions'], '</th>';
+						<th class="small_table">', Lang::getTxt('membergroups_permissions', file: 'Admin'), '</th>';
 	else
 		echo '
-						<th class="small_table">', Lang::$txt['permissions_allowed'], '</th>
-						<th class="small_table">', Lang::$txt['permissions_denied'], '</th>';
+						<th class="small_table">', Lang::getTxt('permissions_allowed', file: 'ManagePermissions'), '</th>
+						<th class="small_table">', Lang::getTxt('permissions_denied', file: 'ManagePermissions'), '</th>';
 
 	echo '
-						<th class="small_table">', Utils::$context['can_modify'] ? Lang::$txt['permissions_modify'] : Lang::$txt['permissions_view'], '</th>
+						<th class="small_table">', Lang::getTxt(Utils::$context['can_modify'] ? 'permissions_modify' : 'permissions_view', file: 'ManagePermissions'), '</th>
 						<th class="table_icon centercol">
 							', Utils::$context['can_modify'] ? '<input type="checkbox" onclick="invertAll(this, this.form, \'group\');">' : '', '
 						</th>
@@ -72,16 +72,16 @@ function template_permission_index()
 		echo '
 					<tr class="windowbg">
 						<td>
-							', !empty($group['help']) ? ' <a class="help" href="' . Config::$scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="' . Lang::$txt['help'] . '"></span></a> ' : '<img class="icon" src="' . Theme::$current->settings['images_url'] . '/blank.png" alt="' . Lang::$txt['help'] . '">', '<span>', $group['name'], '</span>';
+							', !empty($group['help']) ? ' <a class="help" href="' . Config::$scripturl . '?action=helpadmin;help=' . $group['help'] . '" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="' . Lang::getTxt('help', file: 'General') . '"></span></a> ' : '<img class="icon" src="' . Theme::$current->settings['images_url'] . '/blank.png" alt="' . Lang::getTxt('help', file: 'General') . '">', '<span>', $group['name'], '</span>';
 
 		if (!empty($group['children']))
 			echo '
 							<br>
-							<span class="smalltext">', Lang::getTxt('permissions_includes_inherited', ['list' => Lang::sentenceList(array_map(fn ($grp) => '"' . $grp . '"', $group['children']))]), '</span>';
+							<span class="smalltext">', Lang::getTxt('permissions_includes_inherited', ['list' => Lang::sentenceList(array_map(fn ($grp) => '"' . $grp . '"', $group['children']))], file: 'ManagePermissions'), '</span>';
 
 		echo '
 						</td>
-						<td>', $group['can_search'] ? $group['link'] : $group['num_members'] ?? Lang::$txt['not_applicable'], '</td>';
+						<td>', $group['can_search'] ? $group['link'] : ($group['num_members'] ?? Lang::getTxt('not_applicable', file: 'General')), '</td>';
 
 		if (empty(Config::$modSettings['permission_enable_deny']))
 			echo '
@@ -97,7 +97,7 @@ function template_permission_index()
 
 		echo '
 						<td>
-							', $group['allow_modify'] ? '<a href="' . Config::$scripturl . '?action=admin;area=permissions;sa=modify;group=' . $group['id'] . (empty(Utils::$context['profile']) ? '' : ';pid=' . Utils::$context['profile']['id']) . '">' . (Utils::$context['can_modify'] ? Lang::$txt['permissions_modify'] : Lang::$txt['permissions_view']) . '</a>' : '', '
+							', $group['allow_modify'] ? '<a href="' . Config::$scripturl . '?action=admin;area=permissions;sa=modify;group=' . $group['id'] . (empty(Utils::$context['profile']) ? '' : ';pid=' . Utils::$context['profile']['id']) . '">' . Lang::getTxt(Utils::$context['can_modify'] ? 'permissions_modify' : 'permissions_view', file: 'ManagePermissions') . '</a>' : '', '
 						</td>
 						<td class="centercol">
 							', $group['allow_modify'] && Utils::$context['can_modify'] ? '<input type="checkbox" name="group[]" value="' . $group['id'] . '">' : '', '
@@ -117,32 +117,32 @@ function template_permission_index()
 			<div class="cat_bar">
 				<h3 class="catbg">
 					<span id="permissions_panel_toggle" class="', empty(Utils::$context['show_advanced_options']) ? 'toggle_down' : 'toggle_up', ' floatright" style="display: none;"></span>
-					<a href="#" id="permissions_panel_link">', Lang::$txt['permissions_advanced_options'], '</a>
+					<a href="#" id="permissions_panel_link">', Lang::getTxt('permissions_advanced_options', file: 'ManagePermissions'), '</a>
 				</h3>
 			</div>
 			<div id="permissions_panel_advanced" class="windowbg">
 				<fieldset>
-					<legend>', Lang::$txt['permissions_with_selection'], '</legend>
+					<legend>', Lang::getTxt('permissions_with_selection', file: 'ManagePermissions'), '</legend>
 					<dl class="settings">
 						<dt>
-							<a class="help" href="', Config::$scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::$txt['help'], '"></span></a>
-							', Lang::$txt['permissions_apply_pre_defined'], '
+							<a class="help" href="', Config::$scripturl, '?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"><span class="main_icons help" title="', Lang::getTxt('help', file: 'General'), '"></span></a>
+							', Lang::getTxt('permissions_apply_pre_defined', file: 'ManagePermissions'), '
 						</dt>
 						<dd>
 							<select name="predefined">
-								<option value="">(', Lang::$txt['permissions_select_pre_defined'], ')</option>
-								<option value="restrict">', Lang::$txt['permitgroups_restrict'], '</option>
-								<option value="standard">', Lang::$txt['permitgroups_standard'], '</option>
-								<option value="moderator">', Lang::$txt['permitgroups_moderator'], '</option>
-								<option value="maintenance">', Lang::$txt['permitgroups_maintenance'], '</option>
+								<option value="">(', Lang::getTxt('permissions_select_pre_defined', file: 'ManagePermissions'), ')</option>
+								<option value="restrict">', Lang::getTxt('permitgroups_restrict', file: 'Admin'), '</option>
+								<option value="standard">', Lang::getTxt('permitgroups_standard', file: 'Admin'), '</option>
+								<option value="moderator">', Lang::getTxt('permitgroups_moderator', file: 'Admin'), '</option>
+								<option value="maintenance">', Lang::getTxt('permitgroups_maintenance', file: 'Admin'), '</option>
 							</select>
 						</dd>
 						<dt>
-							', Lang::$txt['permissions_like_group'], '
+							', Lang::getTxt('permissions_like_group', file: 'ManagePermissions'), '
 						</dt>
 						<dd>
 							<select name="copy_from">
-								<option value="empty">(', Lang::$txt['permissions_select_membergroup'], ')</option>';
+								<option value="empty">(', Lang::getTxt('permissions_select_membergroup', file: 'ManagePermissions'), ')</option>';
 
 		foreach (Utils::$context['groups'] as $group)
 			if ($group['id'] != 1)
@@ -154,19 +154,19 @@ function template_permission_index()
 						</dd>
 						<dt>
 							<select name="add_remove">
-								<option value="add">', Lang::$txt['permissions_add'], '</option>
-								<option value="clear">', Lang::$txt['permissions_remove'], '</option>';
+								<option value="add">', Lang::getTxt('permissions_add', file: 'ManagePermissions'), '</option>
+								<option value="clear">', Lang::getTxt('permissions_remove', file: 'ManagePermissions'), '</option>';
 
 		if (!empty(Config::$modSettings['permission_enable_deny']))
 			echo '
-								<option value="deny">', Lang::$txt['permissions_deny'], '</option>';
+								<option value="deny">', Lang::getTxt('permissions_deny', file: 'ManagePermissions'), '</option>';
 
 		echo '
 							</select>
 						</dt>
 						<dd style="overflow:auto;">
 							<select name="permissions">
-								<option value="">(', Lang::$txt['permissions_select_permission'], ')</option>';
+								<option value="">(', Lang::getTxt('permissions_select_permission', file: 'ManagePermissions'), ')</option>';
 
 		foreach (Utils::$context['permissions'] as $permissionType)
 		{
@@ -204,7 +204,7 @@ function template_permission_index()
 						</dd>
 					</dl>
 				</fieldset>
-				<input type="submit" value="', Lang::$txt['permissions_set_permissions'], '" onclick="return checkSubmit();" class="button">
+				<input type="submit" value="', Lang::getTxt('permissions_set_permissions', file: 'ManagePermissions'), '" onclick="return checkSubmit();" class="button">
 			</div><!-- #permissions_panel_advanced -->';
 
 		// Javascript for the advanced stuff.
@@ -219,15 +219,15 @@ function template_permission_index()
 					aSwapImages: [
 						{
 							sId: \'permissions_panel_toggle\',
-							altExpanded: ', Utils::escapeJavaScript(Lang::$txt['hide']), ',
-							altCollapsed: ', Utils::escapeJavaScript(Lang::$txt['show']), '
+							altExpanded: ', Utils::escapeJavaScript(Lang::getTxt('hide', file: 'General')), ',
+							altCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('show', file: 'General')), '
 						}
 					],
 					aSwapLinks: [
 						{
 							sId: \'permissions_panel_link\',
-							msgExpanded: ', Utils::escapeJavaScript(Lang::$txt['permissions_advanced_options']), ',
-							msgCollapsed: ', Utils::escapeJavaScript(Lang::$txt['permissions_advanced_options']), '
+							msgExpanded: ', Utils::escapeJavaScript(Lang::getTxt('permissions_advanced_options', file: 'ManagePermissions')), ',
+							msgCollapsed: ', Utils::escapeJavaScript(Lang::getTxt('permissions_advanced_options', file: 'ManagePermissions')), '
 						}
 					],
 					oThemeOptions: {
@@ -244,16 +244,16 @@ function template_permission_index()
 				{
 					if ((document.forms.permissionForm.predefined.value != "" && (document.forms.permissionForm.copy_from.value != "empty" || document.forms.permissionForm.permissions.value != "")) || (document.forms.permissionForm.copy_from.value != "empty" && document.forms.permissionForm.permissions.value != ""))
 					{
-						alert("', Lang::$txt['permissions_only_one_option'], '");
+						alert("', Lang::getTxt('permissions_only_one_option', file: 'ManagePermissions'), '");
 						return false;
 					}
 					if (document.forms.permissionForm.predefined.value == "" && document.forms.permissionForm.copy_from.value == "" && document.forms.permissionForm.permissions.value == "")
 					{
-						alert("', Lang::$txt['permissions_no_action'], '");
+						alert("', Lang::getTxt('permissions_no_action', file: 'ManagePermissions'), '");
 						return false;
 					}
 					if (document.forms.permissionForm.permissions.value != "" && document.forms.permissionForm.add_remove.value == "deny")
-						return confirm("', Lang::$txt['permissions_deny_dangerous'], '");
+						return confirm("', Lang::getTxt('permissions_deny_dangerous', file: 'ManagePermissions'), '");
 
 					return true;
 				}
@@ -279,18 +279,18 @@ function template_permission_index()
 function template_by_board()
 {
 	echo '
-		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=permissions;sa=board" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form id="admin_form_wrapper" action="', Config::$scripturl, '?action=admin;area=permissions;sa=board" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['permissions_boards'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('permissions_boards', file: 'Admin'), '</h3>
 			</div>
 			<div class="information">
-				', Lang::$txt['permissions_boards_desc'], '
+				', Lang::getTxt('permissions_boards_desc', file: 'ManagePermissions'), '
 			</div>
 
 			<div class="cat_bar">
 				<h3 id="board_permissions" class="catbg flow_hidden">
-					<span class="perm_name floatleft">', Lang::$txt['board_name'], '</span>
-					<span class="perm_profile floatleft">', Lang::$txt['permission_profile'], '</span>';
+					<span class="perm_name floatleft">', Lang::getTxt('board_name', file: 'General'), '</span>
+					<span class="perm_profile floatleft">', Lang::getTxt('permission_profile', file: 'ManagePermissions'), '</span>';
 	echo '
 				</h3>
 			</div>
@@ -344,10 +344,10 @@ function template_by_board()
 
 	if (Utils::$context['edit_all'])
 		echo '
-				<input type="submit" name="save_changes" value="', Lang::$txt['save'], '" class="button">';
+				<input type="submit" name="save_changes" value="', Lang::getTxt('save', file: 'General'), '" class="button">';
 	else
 		echo '
-				<a class="button" href="', Config::$scripturl, '?action=admin;area=permissions;sa=board;edit;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::$txt['permissions_board_all'], '</a>';
+				<a class="button" href="', Config::$scripturl, '?action=admin;area=permissions;sa=board;edit;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '">', Lang::getTxt('permissions_board_all', file: 'ManagePermissions'), '</a>';
 
 	echo '
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
@@ -363,17 +363,17 @@ function template_edit_profiles()
 {
 	echo '
 	<div id="admin_form_wrapper">
-		<form action="', Config::$scripturl, '?action=admin;area=permissions;sa=profiles" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=permissions;sa=profiles" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['permissions_profile_edit'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('permissions_profile_edit', file: 'ManagePermissions'), '</h3>
 			</div>
 
 			<table class="table_grid">
 				<thead>
 					<tr class="title_bar">
-						<th>', Lang::$txt['permissions_profile_name'], '</th>
-						<th>', Lang::$txt['permissions_profile_used_by'], '</th>
-						<th class="table_icon"', !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '', '>', Lang::$txt['delete'], '</th>
+						<th>', Lang::getTxt('permissions_profile_name', file: 'ManagePermissions'), '</th>
+						<th>', Lang::getTxt('permissions_profile_used_by', file: 'ManagePermissions'), '</th>
+						<th class="table_icon"', !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '', '>', Lang::getTxt('delete', file: 'General'), '</th>
 					</tr>
 				</thead>
 				<tbody>';
@@ -394,7 +394,7 @@ function template_edit_profiles()
 		echo '
 						</td>
 						<td>
-							', !empty($profile['boards_text']) ? $profile['boards_text'] : Lang::getTxt('permissions_profile_used_by_count', [0]), '
+							', !empty($profile['boards_text']) ? $profile['boards_text'] : Lang::getTxt('permissions_profile_used_by_count', [0], file: 'ManagePermissions'), '
 						</td>
 						<td', !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '', '>
 							<input type="checkbox" name="delete_profile[]" value="', $profile['id'], '" ', $profile['can_delete'] ? '' : 'disabled', '>
@@ -411,27 +411,27 @@ function template_edit_profiles()
 
 	if (Utils::$context['can_rename_something'])
 		echo '
-				<input type="submit" name="rename" value="', empty(Utils::$context['show_rename_boxes']) ? Lang::$txt['permissions_profile_rename'] : Lang::$txt['permissions_commit'], '" class="button">';
+				<input type="submit" name="rename" value="', Lang::getTxt(empty(Utils::$context['show_rename_boxes']) ? 'permissions_profile_rename' : 'permissions_commit', file: 'ManagePermissions'), '" class="button">';
 
 	echo '
-				<input type="submit" name="delete" value="', Lang::$txt['quickmod_delete_selected'], '" class="button" ', !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '', '>
+				<input type="submit" name="delete" value="', Lang::getTxt('quickmod_delete_selected', file: 'General'), '" class="button" ', !empty(Utils::$context['show_rename_boxes']) ? ' style="display:none"' : '', '>
 			</div>
 		</form>
 		<br>
-		<form action="', Config::$scripturl, '?action=admin;area=permissions;sa=profiles" method="post" accept-charset="', Utils::$context['character_set'], '">
+		<form action="', Config::$scripturl, '?action=admin;area=permissions;sa=profiles" method="post" accept-charset="UTF-8">
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['permissions_profile_new'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('permissions_profile_new', file: 'ManagePermissions'), '</h3>
 			</div>
 			<div class="windowbg">
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::$txt['permissions_profile_name'], '</strong>
+						<strong>', Lang::getTxt('permissions_profile_name', file: 'ManagePermissions'), '</strong>
 					</dt>
 					<dd>
 						<input type="text" name="profile_name" value="">
 					</dd>
 					<dt>
-						<strong>', Lang::$txt['permissions_profile_copy_from'], '</strong>
+						<strong>', Lang::getTxt('permissions_profile_copy_from', file: 'ManagePermissions'), '</strong>
 					</dt>
 					<dd>
 						<select name="copy_from">';
@@ -446,7 +446,7 @@ function template_edit_profiles()
 				</dl>
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-mpp_token_var'], '" value="', Utils::$context['admin-mpp_token'], '">
-				<input type="submit" name="create" value="', Lang::$txt['permissions_profile_new_create'], '" class="button">
+				<input type="submit" name="create" value="', Lang::getTxt('permissions_profile_new_create', file: 'ManagePermissions'), '" class="button">
 			</div><!-- .windowbg -->
 		</form>
 	</div><!-- #admin_form_wrapper -->';
@@ -461,7 +461,7 @@ function template_modify_group()
 	if (!Utils::$context['profile']['can_modify'])
 		echo '
 	<div class="errorbox">
-		', Lang::getTxt('permission_cannot_edit', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles']), '
+		', Lang::getTxt('permission_cannot_edit', ['url' => Config::$scripturl . '?action=admin;area=permissions;sa=profiles'], file: 'ManagePermissions'), '
 	</div>';
 	else
 		echo '
@@ -471,19 +471,19 @@ function template_modify_group()
 		function warnAboutDeny()
 		{
 			if (window.smf_usedDeny)
-				return confirm("', Lang::$txt['permissions_deny_dangerous'], '");
+				return confirm("', Lang::getTxt('permissions_deny_dangerous', file: 'ManagePermissions'), '");
 			else
 				return true;
 		}
 	</script>';
 
 	echo '
-		<form id="permissions" action="', Config::$scripturl, '?action=admin;area=permissions;sa=modify2;group=', Utils::$context['group']['id'], ';pid=', Utils::$context['profile']['id'], '" method="post" accept-charset="', Utils::$context['character_set'], '" name="permissionForm" onsubmit="return warnAboutDeny();">';
+		<form id="permissions" action="', Config::$scripturl, '?action=admin;area=permissions;sa=modify2;group=', Utils::$context['group']['id'], ';pid=', Utils::$context['profile']['id'], '" method="post" accept-charset="UTF-8" name="permissionForm" onsubmit="return warnAboutDeny();">';
 
 	if (!empty(Config::$modSettings['permission_enable_deny']) && Utils::$context['group']['id'] != -1)
 		echo '
 			<div class="noticebox">
-				', Lang::$txt['permissions_option_desc'], '
+				', Lang::getTxt('permissions_option_desc', file: 'ManagePermissions'), '
 			</div>';
 
 	echo '
@@ -492,10 +492,10 @@ function template_modify_group()
 
 	if (Utils::$context['permission_type'] == 'board')
 		echo '
-				', Lang::getTxt('permissions_for_in', ['group' => Utils::$context['group']['name'], 'profile' => Utils::$context['profile']['name']]);
+				', Lang::getTxt('permissions_for_in', ['group' => Utils::$context['group']['name'], 'profile' => Utils::$context['profile']['name']], file: 'ManagePermissions');
 	else
 		echo '
-				', Lang::getTxt(Utils::$context['permission_type'] == 'global' ? 'permissions_general_for' : 'permissions_board_for', ['name' => Utils::$context['group']['name']]);
+				', Lang::getTxt(Utils::$context['permission_type'] == 'global' ? 'permissions_general_for' : 'permissions_board_for', ['name' => Utils::$context['group']['name']], file: 'ManagePermissions');
 
 	echo '
 				</h3>
@@ -510,10 +510,10 @@ function template_modify_group()
 		echo '
 			<br>
 			<div class="cat_bar">
-				<h3 class="catbg">', Lang::$txt['permissions_board'], '</h3>
+				<h3 class="catbg">', Lang::getTxt('permissions_board', file: 'ManagePermissions'), '</h3>
 			</div>
 			<div class="information">
-				', Lang::$txt['permissions_board_desc'], '
+				', Lang::getTxt('permissions_board_desc', file: 'ManagePermissions'), '
 			</div>';
 
 		template_modify_group_display('board');
@@ -522,7 +522,7 @@ function template_modify_group()
 	if (Utils::$context['profile']['can_modify'])
 		echo '
 			<div class="padding">
-				<input type="submit" value="', Lang::$txt['permissions_commit'], '" class="button">
+				<input type="submit" value="', Lang::getTxt('permissions_commit', file: 'ManagePermissions'), '" class="button">
 			</div>';
 
 	foreach (Utils::$context['hidden_perms'] as $hidden_perm)
@@ -573,8 +573,8 @@ function template_modify_group_display($type)
 
 					if (Utils::$context['group']['id'] != -1)
 						echo '
-							<th>', Lang::$txt['permissions_option_own'], '</th>
-							<th>', Lang::$txt['permissions_option_any'], '</th>';
+							<th>', Lang::getTxt('permissions_option_own', file: 'ManagePermissions'), '</th>
+							<th>', Lang::getTxt('permissions_option_any', file: 'ManagePermissions'), '</th>';
 
 					echo '
 						</tr>';
@@ -588,7 +588,7 @@ function template_modify_group_display($type)
 					echo '
 						<tr class="windowbg">
 							<td>
-								', $permission['show_help'] ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . Lang::$txt['help'] . '"></span></a>' : '', '
+								', $permission['show_help'] ? '<a href="' . Config::$scripturl . '?action=helpadmin;help=permissionhelp_' . $permission['id'] . '" onclick="return reqOverlayDiv(this.href);" class="help"><span class="main_icons help" title="' . Lang::getTxt('help', file: 'General') . '"></span></a>' : '', '
 							</td>
 							<td class="lefttext full_width">
 								', $permission['name'], (!empty($permission['note']) ? '<br>
@@ -609,9 +609,11 @@ function template_modify_group_display($type)
 								echo '
 								<select name="perm[', $permission_type['id'], '][', $permission['own']['id'], ']" ', $disable_field, '>';
 
-								foreach (array('on', 'off', 'deny') as $c)
+								foreach (array('on', 'off', 'deny') as $c) {
 									echo '
-									<option ', $permission['own']['select'] == $c ? ' selected' : '', ' value="', $c, '">', Lang::$txt['permissions_option_' . $c], '</option>';
+									<option ', $permission['own']['select'] == $c ? ' selected' : '', ' value="', $c, '">', Lang::getTxt('permissions_option_' . $c, file: 'ManagePermissions'), '</option>';
+								}
+
 								echo '
 								</select>';
 							}
@@ -629,9 +631,11 @@ function template_modify_group_display($type)
 							echo '
 								<select name="perm[', $permission_type['id'], '][', $permission['any']['id'], ']" ', $disable_field, '>';
 
-							foreach (array('on', 'off', 'deny') as $c)
+							foreach (array('on', 'off', 'deny') as $c) {
 								echo '
-									<option ', $permission['any']['select'] == $c ? ' selected' : '', ' value="', $c, '">', Lang::$txt['permissions_option_' . $c], '</option>';
+									<option ', $permission['any']['select'] == $c ? ' selected' : '', ' value="', $c, '">', Lang::getTxt('permissions_option_' . $c, file: 'ManagePermissions'), '</option>';
+							}
+
 							echo '
 								</select>';
 						}
@@ -651,9 +655,11 @@ function template_modify_group_display($type)
 							echo '
 								<select name="perm[', $permission_type['id'], '][', $permission['id'], ']" ', $disable_field, '>';
 
-							foreach (array('on', 'off', 'deny') as $c)
+							foreach (array('on', 'off', 'deny') as $c) {
 								echo '
-									<option ', $permission['select'] == $c ? ' selected' : '', ' value="', $c, '">', Lang::$txt['permissions_option_' . $c], '</option>';
+									<option ', $permission['select'] == $c ? ' selected' : '', ' value="', $c, '">', Lang::getTxt('permissions_option_' . $c, file: 'ManagePermissions'), '</option>';
+							}
+
 							echo '
 								</select>';
 						}
@@ -681,19 +687,19 @@ function template_inline_permissions()
 	// This looks really weird, but it keeps things nested properly...
 	echo '
 											<fieldset id="', Utils::$context['current_permission'], '">
-												<legend><a href="javascript:void(0);" onclick="document.getElementById(\'', Utils::$context['current_permission'], '\').style.display = \'none\';document.getElementById(\'', Utils::$context['current_permission'], '_groups_link\').style.display = \'block\'; return false;" class="toggle_up"> ', Lang::$txt['avatar_select_permission'], '</a></legend>';
+												<legend><a href="javascript:void(0);" onclick="document.getElementById(\'', Utils::$context['current_permission'], '\').style.display = \'none\';document.getElementById(\'', Utils::$context['current_permission'], '_groups_link\').style.display = \'block\'; return false;" class="toggle_up"> ', Lang::getTxt('avatar_select_permission', file: 'Admin'), '</a></legend>';
 
 	if (empty(Config::$modSettings['permission_enable_deny']))
 		echo '
 												<ul>';
 	else
 		echo '
-												<div class="information">', Lang::$txt['permissions_option_desc'], '</div>
+												<div class="information">', Lang::getTxt('permissions_option_desc', file: 'ManagePermissions'), '</div>
 												<dl class="settings">
 													<dt>
-														<span class="perms"><strong>', Lang::$txt['permissions_option_on'], '</strong></span>
-														<span class="perms"><strong>', Lang::$txt['permissions_option_off'], '</strong></span>
-														<span class="perms red"><strong>', Lang::$txt['permissions_option_deny'], '</strong></span>
+														<span class="perms"><strong>', Lang::getTxt('permissions_option_on', file: 'ManagePermissions'), '</strong></span>
+														<span class="perms"><strong>', Lang::getTxt('permissions_option_off', file: 'ManagePermissions'), '</strong></span>
+														<span class="perms red"><strong>', Lang::getTxt('permissions_option_deny', file: 'ManagePermissions'), '</strong></span>
 													</dt>
 													<dd>
 													</dd>';
@@ -732,7 +738,7 @@ function template_inline_permissions()
 		echo '
 													<li>
 														<input type="checkbox" onclick="invertAll(this, this.form, \'' . Utils::$context['current_permission'] . '[\');">
-														<span>', Lang::$txt['check_all'], '</span>
+														<span>', Lang::getTxt('check_all', file: 'General'), '</span>
 													</li>
 												</ul>';
 	else
@@ -742,7 +748,7 @@ function template_inline_permissions()
 	echo '
 											</fieldset>
 
-											<a href="javascript:void(0);" onclick="document.getElementById(\'', Utils::$context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', Utils::$context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', Utils::$context['current_permission'], '_groups_link" style="display: none;" class="toggle_down"> ', Lang::$txt['avatar_select_permission'], '</a>
+											<a href="javascript:void(0);" onclick="document.getElementById(\'', Utils::$context['current_permission'], '\').style.display = \'block\'; document.getElementById(\'', Utils::$context['current_permission'], '_groups_link\').style.display = \'none\'; return false;" id="', Utils::$context['current_permission'], '_groups_link" style="display: none;" class="toggle_down"> ', Lang::getTxt('avatar_select_permission', file: 'Admin'), '</a>
 
 											<script>
 												document.getElementById("', Utils::$context['current_permission'], '").style.display = "none";
@@ -757,16 +763,16 @@ function template_postmod_permissions()
 {
 	echo '
 					<div id="admin_form_wrapper">
-						<form action="', Config::$scripturl, '?action=admin;area=permissions;sa=postmod;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" name="postmodForm" id="postmodForm" accept-charset="', Utils::$context['character_set'], '">
+						<form action="', Config::$scripturl, '?action=admin;area=permissions;sa=postmod;', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" method="post" name="postmodForm" id="postmodForm" accept-charset="UTF-8">
 							<div class="cat_bar">
-								<h3 class="catbg">', Lang::$txt['permissions_post_moderation'], '</h3>
+								<h3 class="catbg">', Lang::getTxt('permissions_post_moderation', file: 'Admin'), '</h3>
 							</div>';
 
 	// First, we have the bit where we can enable or disable this bad boy.
 	echo '
 							<div class="windowbg">
 								<dl class="settings">
-									<dt>', Lang::$txt['permissions_post_moderation_enable'], '</dt>
+									<dt>', Lang::getTxt('permissions_post_moderation_enable', file: 'ManagePermissions'), '</dt>
 									<dd><input type="checkbox" name="postmod_active"', !empty(Config::$modSettings['postmod_active']) ? ' checked' : '', '></dd>
 								</dl>
 							</div>';
@@ -777,19 +783,19 @@ function template_postmod_permissions()
 		// Got advanced permissions - if so warn!
 		if (!empty(Config::$modSettings['permission_enable_deny']))
 			echo '
-							<div class="information">', Lang::$txt['permissions_post_moderation_deny_note'], '</div>';
+							<div class="information">', Lang::getTxt('permissions_post_moderation_deny_note', file: 'ManagePermissions'), '</div>';
 
 		echo '
 							<div class="padding">
-								<strong>', Lang::$txt['permissions_post_moderation_legend'], '</strong>
+								<strong>', Lang::getTxt('permissions_post_moderation_legend', file: 'ManagePermissions'), '</strong>
 								<ul class="floatleft smalltext block">
-									<li><span class="main_icons post_moderation_allow"></span>', Lang::$txt['permissions_post_moderation_allow'], '</li>
-									<li><span class="main_icons post_moderation_moderate"></span>', Lang::$txt['permissions_post_moderation_moderate'], '</li>
-									<li><span class="main_icons post_moderation_deny"></span>', Lang::$txt['permissions_post_moderation_disallow'], '</li>
+									<li><span class="main_icons post_moderation_allow"></span>', Lang::getTxt('permissions_post_moderation_allow', file: 'ManagePermissions'), '</li>
+									<li><span class="main_icons post_moderation_moderate"></span>', Lang::getTxt('permissions_post_moderation_moderate', file: 'ManagePermissions'), '</li>
+									<li><span class="main_icons post_moderation_deny"></span>', Lang::getTxt('permissions_post_moderation_disallow', file: 'ManagePermissions'), '</li>
 								</ul>
 								<br><br><br>
 								<p class="righttext floatright block">
-									', Lang::$txt['permissions_post_moderation_select'], '
+									', Lang::getTxt('permissions_post_moderation_select', file: 'ManagePermissions'), '
 									<select name="pid" onchange="document.forms.postmodForm.submit();">';
 
 		foreach (Utils::$context['profiles'] as $profile)
@@ -799,7 +805,7 @@ function template_postmod_permissions()
 
 		echo '
 									</select>
-									<input type="submit" value="', Lang::$txt['go'], '" class="button">
+									<input type="submit" value="', Lang::getTxt('go', file: 'General'), '" class="button">
 								</p>
 							</div><!-- .padding -->
 							<table class="table_grid" id="postmod">
@@ -807,26 +813,26 @@ function template_postmod_permissions()
 									<tr class="title_bar">
 										<th></th>
 										<th class="centercol" colspan="3">
-											', Lang::$txt['permissions_post_moderation_new_topics'], '
+											', Lang::getTxt('permissions_post_moderation_new_topics', file: 'ManagePermissions'), '
 										</th>
 										<th class="centercol" colspan="3">
-											', Lang::$txt['permissions_post_moderation_replies_own'], '
+											', Lang::getTxt('permissions_post_moderation_replies_own', file: 'ManagePermissions'), '
 										</th>
 										<th class="centercol" colspan="3">
-											', Lang::$txt['permissions_post_moderation_replies_any'], '
+											', Lang::getTxt('permissions_post_moderation_replies_any', file: 'ManagePermissions'), '
 										</th>';
 
 		if (Config::$modSettings['attachmentEnable'] == 1)
 			echo '
 										<th class="centercol" colspan="3">
-											', Lang::$txt['permissions_post_moderation_attachments'], '
+											', Lang::getTxt('permissions_post_moderation_attachments', file: 'ManagePermissions'), '
 										</th>';
 
 		echo '
 									</tr>
 									<tr class="windowbg">
 										<th class="quarter_table">
-											', Lang::$txt['permissions_post_moderation_group'], '
+											', Lang::getTxt('permissions_post_moderation_group', file: 'ManagePermissions'), '
 										</th>
 										<th><span class="main_icons post_moderation_allow"></span></th>
 										<th><span class="main_icons post_moderation_moderate"></span></th>
@@ -859,7 +865,7 @@ function template_postmod_permissions()
 			if (!empty($group['children']))
 				echo '
 											<br>
-											<span class="smalltext">', Lang::getTxt('permissions_includes_inherited', ['list' => Lang::sentenceList(array_map(fn ($grp) => '"' . $grp . '"', $group['children']))]), '</span>';
+											<span class="smalltext">', Lang::getTxt('permissions_includes_inherited', ['list' => Lang::sentenceList(array_map(fn ($grp) => '"' . $grp . '"', $group['children']))], file: 'ManagePermissions'), '</span>';
 
 			echo '
 										</td>
@@ -922,7 +928,7 @@ function template_postmod_permissions()
 	}
 
 	echo '
-								<input type="submit" name="save_changes" value="', Lang::$txt['permissions_commit'], '" class="button">
+								<input type="submit" name="save_changes" value="', Lang::getTxt('permissions_commit', file: 'ManagePermissions'), '" class="button">
 								<input type="hidden" name="', Utils::$context['admin-mppm_token_var'], '" value="', Utils::$context['admin-mppm_token'], '">
 						</form>
 					</div><!-- #admin_form_wrapper -->';

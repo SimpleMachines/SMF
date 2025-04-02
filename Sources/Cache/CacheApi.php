@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -484,14 +484,26 @@ abstract class CacheApi
 			IntegrationHook::call('pre_cache_quick_get', [&$key, &$file, &$function, &$params, &$level]);
 		}
 
-		/* Refresh the cache if either:
-			1. Caching is disabled.
-			2. The cache level isn't high enough.
-			3. The item has not been cached or the cached item expired.
-			4. The cached item has a custom expiration condition evaluating to true.
-			5. The expire time set in the cache item has passed (needed for Zend).
-		*/
-		if (empty(self::$enable) || self::$enable < $level || !is_array($cache_block = self::get($key, 3600)) || (!empty($cache_block['refresh_eval']) && eval($cache_block['refresh_eval'])) || (!empty($cache_block['expires']) && $cache_block['expires'] < time())) {
+		// Call $function to get new data if any of the following are true:
+		if (
+			// Caching is disabled.
+			empty(self::$enable)
+			// The cache level isn't high enough.
+			|| self::$enable < $level
+			// The item has not been cached or the cached item expired.
+			|| !is_array($cache_block = self::get($key, 3600))
+			// The expire time set in the cache item has passed (needed for Zend).
+			|| ($cache_block['expires'] ?? time()) < time()
+			// The cached item has a custom expiration condition evaluating to true.
+			|| (
+				!empty($cache_block['check_outdated'])
+				&& ($cache_block['check_outdated']['callback'] = Utils::getCallable($cache_block['check_outdated']['callback'])) !== false
+				&& call_user_func_array(
+					$cache_block['check_outdated']['callback'],
+					$cache_block['check_outdated']['args'] ?? [],
+				)
+			)
+		) {
 			if (!empty($file) && is_file(Config::$sourcedir . '/' . $file)) {
 				require_once Config::$sourcedir . '/' . $file;
 			}
@@ -504,8 +516,9 @@ abstract class CacheApi
 		}
 
 		// Some cached data may need a freshening up after retrieval.
-		if (!empty($cache_block['post_retri_eval'])) {
-			eval($cache_block['post_retri_eval']);
+		if (!empty($cache_block['update_callback'])) {
+			$callback = Utils::getCallable($cache_block['update_callback']);
+			$callback($cache_block, $params);
 		}
 
 		if (class_exists('SMF\\IntegrationHook', false)) {

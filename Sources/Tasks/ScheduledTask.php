@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -56,9 +56,11 @@ abstract class ScheduledTask extends BackgroundTask
 				'time_taken' => 'float',
 			],
 			[
-				$this->_details['id_scheduled_task'],
-				time(),
-				round(microtime(true) - TIME_START, 3),
+				[
+					$this->_details['id_scheduled_task'],
+					time(),
+					round(microtime(true) - TIME_START, 3),
+				],
 			],
 			[],
 		);

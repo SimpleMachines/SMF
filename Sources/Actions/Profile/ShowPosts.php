@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -88,8 +88,8 @@ class ShowPosts implements ActionInterface
 
 		// Create the tabs for the template.
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['showPosts'],
-			'description' => Lang::$txt['showPosts_help'],
+			'title' => Lang::getTxt('showPosts', file: 'Profile'),
+			'description' => Lang::getTxt('showPosts_help', file: 'Profile'),
 			'icon_class' => 'main_icons profile_hd',
 			'tabs' => [
 				'messages' => [
@@ -114,7 +114,7 @@ class ShowPosts implements ActionInterface
 			ErrorHandler::fatalLang('loadavg_show_posts_disabled', false);
 		}
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -161,7 +161,7 @@ class ShowPosts implements ActionInterface
 			'id' => 'unwatched_topics',
 			'width' => '100%',
 			'items_per_page' => (empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['topics_per_page'])) ? Theme::$current->options['topics_per_page'] : Config::$modSettings['defaultMaxTopics'],
-			'no_items_label' => Lang::$txt['unwatched_topics_none'],
+			'no_items_label' => Lang::getTxt('unwatched_topics_none', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=showposts;sa=unwatchedtopics;u=' . Profile::$member->id,
 			'default_sort_col' => 'started_on',
 			'get_items' => [
@@ -175,13 +175,13 @@ class ShowPosts implements ActionInterface
 			'columns' => [
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['subject'],
+						'value' => Lang::getTxt('subject', file: 'General'),
 						'class' => 'lefttext',
 						'style' => 'width: 30%;',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?topic=%1$d.0">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?topic={id_topic}.0">{subject}</a>',
 							'params' => [
 								'id_topic' => false,
 								'subject' => false,
@@ -195,7 +195,7 @@ class ShowPosts implements ActionInterface
 				],
 				'started_by' => [
 					'header' => [
-						'value' => Lang::$txt['started_by'],
+						'value' => Lang::getTxt('started_by', file: 'General'),
 						'style' => 'width: 15%;',
 					],
 					'data' => [
@@ -208,7 +208,7 @@ class ShowPosts implements ActionInterface
 				],
 				'started_on' => [
 					'header' => [
-						'value' => Lang::$txt['on'],
+						'value' => Lang::getTxt('on', file: 'General'),
 						'class' => 'lefttext',
 						'style' => 'width: 20%;',
 					],
@@ -223,7 +223,7 @@ class ShowPosts implements ActionInterface
 				],
 				'last_post_by' => [
 					'header' => [
-						'value' => Lang::$txt['last_post'],
+						'value' => Lang::getTxt('last_post', file: 'General'),
 						'style' => 'width: 15%;',
 					],
 					'data' => [
@@ -236,7 +236,7 @@ class ShowPosts implements ActionInterface
 				],
 				'last_post_on' => [
 					'header' => [
-						'value' => Lang::$txt['on'],
+						'value' => Lang::getTxt('on', file: 'General'),
 						'class' => 'lefttext',
 						'style' => 'width: 20%;',
 					],
@@ -277,7 +277,7 @@ class ShowPosts implements ActionInterface
 			'id' => 'attachments',
 			'width' => '100%',
 			'items_per_page' => Config::$modSettings['defaultMaxListItems'],
-			'no_items_label' => Lang::$txt['show_attachments_none'],
+			'no_items_label' => Lang::getTxt('show_attachments_none', file: 'Profile'),
 			'base_href' => Config::$scripturl . '?action=profile;area=showposts;sa=attach;u=' . Profile::$member->id,
 			'default_sort_col' => 'filename',
 			'get_items' => [
@@ -300,13 +300,13 @@ class ShowPosts implements ActionInterface
 			'columns' => [
 				'filename' => [
 					'header' => [
-						'value' => Lang::$txt['show_attach_filename'],
+						'value' => Lang::getTxt('show_attach_filename', file: 'Profile'),
 						'class' => 'lefttext',
 						'style' => 'width: 25%;',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=dlattach;topic=%1$d.0;attach=%2$d">%3$s</a>%4$s',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=dlattach;topic={topic}.0;attach={id}">{filename}</a>{awaiting_approval}',
 							'params' => [
 								'topic' => true,
 								'id' => true,
@@ -322,7 +322,7 @@ class ShowPosts implements ActionInterface
 				],
 				'downloads' => [
 					'header' => [
-						'value' => Lang::$txt['show_attach_downloads'],
+						'value' => Lang::getTxt('show_attach_downloads', file: 'Profile'),
 						'style' => 'width: 12%;',
 					],
 					'data' => [
@@ -336,13 +336,13 @@ class ShowPosts implements ActionInterface
 				],
 				'subject' => [
 					'header' => [
-						'value' => Lang::$txt['message'],
+						'value' => Lang::getTxt('message', file: 'General'),
 						'class' => 'lefttext',
 						'style' => 'width: 30%;',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?msg=%1$d">%2$s</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?msg={msg}">{subject}</a>',
 							'params' => [
 								'msg' => true,
 								'subject' => false,
@@ -356,7 +356,7 @@ class ShowPosts implements ActionInterface
 				],
 				'posted' => [
 					'header' => [
-						'value' => Lang::$txt['show_attach_posted'],
+						'value' => Lang::getTxt('show_attach_posted', file: 'Profile'),
 						'class' => 'lefttext',
 					],
 					'data' => [
@@ -524,7 +524,7 @@ class ShowPosts implements ActionInterface
 				'board' => $row['id_board'],
 				'board_name' => $row['name'],
 				'approved' => $row['approved'],
-				'awaiting_approval' => (empty($row['approved']) ? ' <em>(' . Lang::$txt['awaiting_approval'] . ')</em>' : ''),
+				'awaiting_approval' => (empty($row['approved']) ? ' <em>(' . Lang::getTxt('awaiting_approval', file: 'General') . ')</em>' : ''),
 			];
 		}
 		Db::$db->free_result($request);
@@ -602,7 +602,7 @@ class ShowPosts implements ActionInterface
 		];
 
 		// Set the page title
-		Utils::$context['page_title'] = Lang::$txt[$title[$_REQUEST['sa'] ?? 'messages'] ?? $title['messages']] . ' - ' . Profile::$member->name;
+		Utils::$context['page_title'] = Lang::getTxt($title[$_REQUEST['sa'] ?? 'messages'] ?? $title['messages'], file: 'Profile') . ' - ' . Profile::$member->name;
 	}
 
 	/**
@@ -730,6 +730,11 @@ class ShowPosts implements ActionInterface
 
 		// Make sure the starting place makes sense and construct our friend the page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=profile;u=' . Profile::$member->id . ';area=showposts' . ($is_topics ? ';sa=topics' : '') . (!empty(Board::$info->id) ? ';board=' . Board::$info->id : ''), Utils::$context['start'], $msg_count, $max_index);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_REQUEST['start'] ?? 0) != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
 
 		Utils::$context['current_page'] = Utils::$context['start'] / $max_index;
 
@@ -960,21 +965,21 @@ class ShowPosts implements ActionInterface
 		foreach (Utils::$context['posts'] as $key => $post) {
 			Utils::$context['posts'][$key]['quickbuttons'] = [
 				'reply' => [
-					'label' => Lang::$txt['reply'],
+					'label' => Lang::getTxt('reply', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;topic=' . $post['topic'] . '.' . $post['start'],
 					'icon' => 'reply_button',
 					'show' => $post['can_reply'],
 				],
 				'quote' => [
-					'label' => Lang::$txt['quote_action'],
+					'label' => Lang::getTxt('quote_action', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;topic=' . $post['topic'] . '.' . $post['start'] . ';quote=' . $post['id'],
 					'icon' => 'quote',
 					'show' => $post['can_quote'],
 				],
 				'remove' => [
-					'label' => Lang::$txt['remove'],
+					'label' => Lang::getTxt('remove', file: 'General'),
 					'href' => Config::$scripturl . '?action=deletemsg;msg=' . $post['id'] . ';topic=' . $post['topic'] . ';profile;u=' . Utils::$context['member']['id'] . ';start=' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['remove_message'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('remove_message', file: 'General') . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 					'show' => $post['can_delete'],

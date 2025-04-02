@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -47,7 +47,12 @@ class Activate implements ActionInterface
 			&& Profile::$member->is_activated != User::ACTIVATED
 		) {
 			// If we are approving the deletion of an account, we do something special ;)
-			if (Profile::$member->is_activated == User::REQUESTED_DELETE) {
+			if (
+				Profile::$member->is_activated == User::REQUESTED_DELETE
+				|| Profile::$member->is_activated == User::REQUESTED_DELETE_ANONYMIZE
+				|| Profile::$member->is_activated == User::REQUESTED_DELETE_BANNED
+				|| Profile::$member->is_activated == User::REQUESTED_DELETE_ANONYMIZE_BANNED
+			) {
 				User::delete(Utils::$context['id_member']);
 				Utils::redirectexit();
 			}
@@ -76,9 +81,11 @@ class Activate implements ActionInterface
 					[
 						User::UNAPPROVED,
 						User::REQUESTED_DELETE,
+						User::REQUESTED_DELETE_ANONYMIZE,
 						User::NEED_COPPA,
 						User::UNAPPROVED_BANNED,
 						User::REQUESTED_DELETE_BANNED,
+						User::REQUESTED_DELETE_ANONYMIZE_BANNED,
 						User::NEED_COPPA_BANNED,
 					],
 				)
@@ -86,6 +93,20 @@ class Activate implements ActionInterface
 				Config::updateModSettings([
 					'unapprovedMembers' => max(0, Config::$modSettings['unapprovedMembers'] - 1),
 				]);
+			}
+
+			// Inform the user that their account has been approved.
+			if (in_array($prev_is_activated, [User::UNAPPROVED, User::NEED_COPPA])) {
+				$replacements = [
+					'NAME' => Profile::$member->name,
+					'USERNAME' => Profile::$member->username,
+					'PROFILELINK' => Config::$scripturl . '?action=profile;u=' . Profile::$member->id,
+					'FORGOTPASSWORDLINK' => Config::$scripturl . '?action=reminder',
+				];
+
+				$emaildata = Mail::loadEmailTemplate('admin_approve_accept', $replacements, Profile::$member->language);
+
+				Mail::send(Profile::$member->email, $emaildata['subject'], $emaildata['body'], null, 'accapp' . Profile::$member->id, $emaildata['is_html'], 0);
 			}
 
 			// Make sure we update the stats too.

@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Admin
+// Version: 3.0 Alpha 3; Admin
 
 $txt['settings_saved'] = 'The settings were successfully saved';
 $txt['settings_not_saved'] = 'Your changes were not saved because: {reason}';
@@ -48,6 +48,9 @@ $txt['admin_agreement_select_language'] = 'Language to edit';
 $txt['admin_agreement_select_language_change'] = 'Change';
 $txt['admin_agreement_not_saved'] = 'The agreement changes have not been saved. Perhaps the file permissions on the file were not set correctly.';
 $txt['admin_delete_members'] = 'Delete Selected Members';
+$txt['admin_delete_anonymize'] = 'Anonymize when deleting';
+$txt['always_anonymize_deleted_accounts'] = 'Always anonymize personally identifying information when deleting an account';
+$txt['always_anonymize_deleted_accounts_desc'] = 'Anonymization will still be available on a case-by-case basis when this setting is disabled.';
 $txt['admin_repair'] = 'Repair all boards and topics';
 $txt['admin_main_welcome'] = 'This is your &quot;{admin_center}&quot;. From here, you can edit settings, maintain your forum, view logs, install packages, manage themes, and many other things.<br><br>If you have any trouble, please look at the &quot;Support &amp; Credits&quot; page. If the information there does not help you, feel free to <a href="https://www.simplemachines.org/community/index.php" target="_blank" rel="noopener">look to us for help</a> with the problem.<br>You may also find answers to your questions or problems by clicking the <span class="main_icons help" title="{help}"></span> symbols for more information on the related functions.';
 $txt['admin_news_desc'] = 'Please place one news item per box. <abbr title="Bulletin Board Code">BBC</abbr> <span title="Because everyone loves brackets!">tags</span>, such as <span class="monospace">[b]</span>, <span class="monospace">[i]</span> and <span class="monospace">[u]</span>, are allowed in your news, as well as smileys. Clear a news item’s text box to remove it.';
@@ -66,9 +69,7 @@ $txt['dont_show_attach_under_post'] = 'Do not show attachments under the post if
 $txt['dont_show_attach_under_post_sub'] = 'Enable this if you do not want attachments to appear twice. Attachments embedded in the post still count towards attachment limits and can still be treated like normal attachments.';
 
 $txt['admin_backup_fail'] = 'Failed to make backup of Settings.php - make sure Settings_bak.php exists and is writable.';
-$txt['registration_agreement'] = 'Registration Agreement';
 $txt['registration_agreement_desc'] = 'This agreement is shown when a user registers an account on this forum and has to be accepted before users can continue registration.';
-$txt['privacy_policy'] = 'Privacy Policy';
 $txt['privacy_policy_desc'] = 'This privacy policy describes the promises you make to your users regarding how you will use their personal data. It is shown when a user registers an account on this forum and has to be accepted before the user can continue registration.';
 $txt['errors_list'] = 'Listing of forum errors';
 $txt['errors_found'] = 'The following errors are fouling up your forum:';
@@ -102,6 +103,8 @@ $txt['attachment_file_size'] = 'File size';
 $txt['attachmentdir_size_not_set'] = 'No maximum directory size is currently set';
 $txt['attachmentdir_files_not_set'] = 'No directory file limit is currently set';
 $txt['attachment_delete_admin'] = '[attachment deleted by admin]';
+$txt['attachment_date_in_topic'] = '{date}<br>in <a href="{url}">{subject}</a>';
+
 $txt['live'] = 'Live from Simple Machines...';
 $txt['remove_all'] = 'Clear log';
 $txt['agreement_not_writable'] = 'Warning - agreement.txt is not writable, any changes you make will NOT be saved.';
@@ -123,12 +126,8 @@ $txt['viewmembers_today'] = 'Today';
 $txt['viewmembers_day_ago'] = 'day ago';
 $txt['viewmembers_days_ago'] = 'days ago';
 
-$txt['display_name'] = 'Display name';
 $txt['email_address'] = 'Email address';
-$txt['ip_address'] = 'IP address';
 $txt['member_id'] = 'ID';
-
-$txt['unknown'] = 'unknown';
 
 $txt['security_wrong'] = 'Administration login attempt!
 Referrer: {referrer}
@@ -289,8 +288,6 @@ $txt['not_activated'] = 'Not activated';
 $txt['primary'] = 'Primary';
 $txt['additional'] = 'Additional';
 $txt['wild_cards_allowed'] = 'wildcard characters * and ? are allowed';
-$txt['search_for'] = 'Search for';
-$txt['search_match'] = 'Match';
 $txt['member_part_of_these_membergroups'] = 'Member is part of these membergroups';
 $txt['membergroups'] = 'Membergroups';
 $txt['confirm_delete_members'] = 'Are you sure you want to delete the selected members?';
@@ -748,7 +745,6 @@ $txt['themeadmin_edit_title'] = 'Modify Themes';
 $txt['admin_browse_register_new'] = 'Register new member';
 
 $txt['search_engines'] = 'Search Engines';
-$txt['spiders'] = 'Spiders';
 $txt['spider_logs'] = 'Spider Log';
 $txt['spider_stats'] = 'Stats';
 

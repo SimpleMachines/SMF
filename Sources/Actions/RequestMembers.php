@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,8 +16,10 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Routable;
 use SMF\User;
 use SMF\Utils;
 
@@ -29,8 +31,9 @@ use SMF\Utils;
  * @deprecated 3.0 The requestmembers action wasn't used even in SMF 2.0!
  * @todo This is 100% obsolete, but was never officially deprecated. Remove?
  */
-class RequestMembers implements ActionInterface
+class RequestMembers implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -48,6 +51,11 @@ class RequestMembers implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
 	/**
 	 * Does the job.
 	 */
@@ -55,9 +63,7 @@ class RequestMembers implements ActionInterface
 	{
 		User::$me->checkSession('get');
 
-		if (Utils::$context['utf8'] || function_exists('mb_convert_encoding')) {
-			header('content-type: text/plain; charset=UTF-8');
-		}
+		header('content-type: text/plain; charset=UTF-8');
 
 		$request = Db::$db->query(
 			'',
@@ -76,15 +82,9 @@ class RequestMembers implements ActionInterface
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			if (!Utils::$context['utf8']) {
-				if (($temp = @mb_convert_encoding($row['real_name'], 'UTF-8', Utils::$context['character_set'])) !== false) {
-					$row['real_name'] = $temp;
-				}
-			}
-
 			$row['real_name'] = strtr($row['real_name'], ['&amp;' => '&#038;', '&lt;' => '&#060;', '&gt;' => '&#062;', '&quot;' => '&#034;']);
 
-			$row['real_name'] = Utils::entityDecode($row['real_name'], true);
+			$row['real_name'] = Utils::entityDecode($row['real_name']);
 
 			echo $row['real_name'], "\n";
 		}

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -240,8 +240,7 @@ class Uuid implements \Stringable
 		$this->version = $version ?? self::DEFAULT_VERSION;
 
 		if (!in_array($this->version, self::SUPPORTED_VERSIONS)) {
-			Lang::load('Errors', Lang::$default);
-			trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version]), E_USER_WARNING);
+			trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
 			$this->version = self::DEFAULT_VERSION;
 		}
 
@@ -276,8 +275,7 @@ class Uuid implements \Stringable
 		}
 
 		if (in_array($this->version, [3, 5]) && !isset($input)) {
-			Lang::load('Errors', Lang::$default);
-			trigger_error(Lang::getTxt('uuid_requires_string_input', [$this->version]), E_USER_WARNING);
+			trigger_error(Lang::getTxt('uuid_requires_string_input', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
 			$this->version = 0;
 		}
 
@@ -448,8 +446,7 @@ class Uuid implements \Stringable
 		} elseif (strspn(str_replace(['{', '-', '}'], '', $input), '0123456789ABCDEFabcdef') === 32) {
 			$hex = strtolower(str_replace(['{', '-', '}'], '', $input));
 		} else {
-			Lang::load('Errors', $strict ? Lang::$default : '');
-			trigger_error(Lang::getTxt('uuid_invalid_string', [$input]), $strict ? E_USER_ERROR : E_USER_WARNING);
+			trigger_error(Lang::getTxt('uuid_invalid_string', [$input], file: 'Errors', lang: $strict ? Lang::$default : ''), $strict ? E_USER_ERROR : E_USER_WARNING);
 
 			$hex = '00000000000000000000000000000000';
 		}
@@ -465,8 +462,7 @@ class Uuid implements \Stringable
 			// Version can be 15 only in Max UUID.
 			|| ($version === 15 && $hex !== 'ffffffffffffffffffffffffffffffff')
 		) {
-			Lang::load('Errors', $strict ? Lang::$default : '');
-			trigger_error(Lang::getTxt('uuid_invalid_string', [$input]), $strict ? E_USER_ERROR : E_USER_WARNING);
+			trigger_error(Lang::getTxt('uuid_invalid_string', [$input], file: 'Errors', lang: $strict ? Lang::$default : ''), $strict ? E_USER_ERROR : E_USER_WARNING);
 
 			$hex = '00000000000000000000000000000000';
 			$version = 0;
@@ -720,8 +716,7 @@ class Uuid implements \Stringable
 					} else {
 						// On non-POSIX systems, fall back to user ID because
 						// getmygid() returns nothing useful on non-POSIX systems.
-						Lang::load('Errors', Lang::$default);
-						trigger_error(Lang::$txt['uuid_group_non_posix'], E_USER_NOTICE);
+						throw new \ValueError('uuid_group_non_posix');
 
 						$id = getmyuid();
 						$domain = 0;
@@ -736,8 +731,7 @@ class Uuid implements \Stringable
 
 				// Unknown domain.
 				default:
-					Lang::load('Errors');
-					trigger_error(Lang::getTxt('uuid_unknown_domain', [$domain]), E_USER_ERROR);
+					throw new \Exception(Lang::getTxt('uuid_unknown_domain', [$domain], file: 'Errors'));
 					break;
 			}
 		}
@@ -991,8 +985,7 @@ class Uuid implements \Stringable
 				break;
 
 			default:
-				Lang::load('Errors', Lang::$default);
-				trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version]), E_USER_WARNING);
+				trigger_error(Lang::getTxt('uuid_unsupported_version', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
 
 				return (int) $timestamp;
 		}
@@ -1000,8 +993,7 @@ class Uuid implements \Stringable
 		$timestamp = (int) $timestamp;
 
 		if ($timestamp < 0) {
-			Lang::load('Errors', Lang::$default);
-			trigger_error(Lang::getTxt('uuid_timestamp_out_of_range', [$this->version]), E_USER_WARNING);
+			trigger_error(Lang::getTxt('uuid_timestamp_out_of_range', [$this->version], file: 'Errors', lang: Lang::$default), E_USER_WARNING);
 		}
 
 		return $timestamp;

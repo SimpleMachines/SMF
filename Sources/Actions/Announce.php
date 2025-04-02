@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\BrowserDetector;
@@ -27,6 +28,7 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\Topic;
 use SMF\User;
@@ -35,10 +37,10 @@ use SMF\Utils;
 /**
  * This class handles sending announcements about topics.
  */
-class Announce implements ActionInterface
+class Announce implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -76,7 +78,19 @@ class Announce implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		User::$me->isAllowedTo('announce_topic');
+
+		User::$me->validateSession();
+
+		if (empty(Topic::$topic_id)) {
+			ErrorHandler::fatalLang('topic_gone', false);
+		}
+
+		Theme::loadTemplate('Post');
+
+		Utils::$context['page_title'] = Lang::getTxt('announce_topic', file: 'Post');
+
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -267,11 +281,6 @@ class Announce implements ActionInterface
 		Utils::$context['go_back'] = empty($_REQUEST['goback']) ? 0 : 1;
 		Utils::$context['membergroups'] = implode(',', $_POST['who']);
 		Utils::$context['sub_template'] = 'announcement_send';
-
-		// Go back to the correct language for the user ;).
-		if (!empty(Config::$modSettings['userLanguage'])) {
-			Lang::load('Post');
-		}
 	}
 
 	/******************
@@ -283,19 +292,6 @@ class Announce implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('announce_topic');
-
-		User::$me->validateSession();
-
-		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('topic_gone', false);
-		}
-
-		Lang::load('Post');
-		Theme::loadTemplate('Post');
-
-		Utils::$context['page_title'] = Lang::$txt['announce_topic'];
-
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
 			$this->subaction = $_REQUEST['sa'];
 		}

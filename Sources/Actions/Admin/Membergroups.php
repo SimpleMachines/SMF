@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -83,10 +83,20 @@ class Membergroups implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Language and template stuff, the usual.
+		Theme::loadTemplate('ManageMembergroups');
+
+		// Setup the admin tabs.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::getTxt('membergroups_title', file: 'ManageMembers'),
+			'help' => 'membergroups',
+			'description' => Lang::getTxt('membergroups_description', file: 'ManageMembers'),
+		];
+
 		// Do the permission check, you might not be allowed here.
 		User::$me->isAllowedTo(self::$subactions[$this->subaction][1]);
 
-		$call = method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
+		$call = is_string(self::$subactions[$this->subaction][0]) && method_exists($this, self::$subactions[$this->subaction][0]) ? [$this, self::$subactions[$this->subaction][0]] : Utils::getCallable(self::$subactions[$this->subaction][0]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -103,12 +113,12 @@ class Membergroups implements ActionInterface
 	 */
 	public function index(): void
 	{
-		Utils::$context['page_title'] = Lang::$txt['membergroups_title'];
+		Utils::$context['page_title'] = Lang::getTxt('membergroups_title', file: 'ManageMembers');
 
 		// The first list shows the regular membergroups.
 		$listOptions = [
 			'id' => 'regular_membergroups_list',
-			'title' => Lang::$txt['membergroups_regular'],
+			'title' => Lang::getTxt('membergroups_regular', file: 'ManageMembers'),
 			'base_href' => Config::$scripturl . '?action=admin;area=membergroups' . (isset($_REQUEST['sort2']) ? ';sort2=' . urlencode($_REQUEST['sort2']) : ''),
 			'default_sort_col' => 'name',
 			'get_items' => [
@@ -120,7 +130,7 @@ class Membergroups implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_name'],
+						'value' => Lang::getTxt('membergroups_name', file: 'ManageMembers'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -150,7 +160,7 @@ class Membergroups implements ActionInterface
 				],
 				'icons' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_icons'],
+						'value' => Lang::getTxt('membergroups_icons', file: 'ManageMembers'),
 					],
 					'data' => [
 						'db' => 'icons',
@@ -162,13 +172,13 @@ class Membergroups implements ActionInterface
 				],
 				'members' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_members_top'],
+						'value' => Lang::getTxt('membergroups_members_top', file: 'ManageMembers'),
 						'class' => 'centercol',
 					],
 					'data' => [
 						'function' => function ($rowData) {
 							// No explicit members for the moderator group.
-							return $rowData['id_group'] == 3 ? Lang::$txt['membergroups_guests_na'] : Lang::numberFormat($rowData['num_members']);
+							return $rowData['id_group'] == 3 ? Lang::getTxt('membergroups_guests_na', file: 'ManageMembers') : Lang::numberFormat($rowData['num_members']);
 						},
 						'class' => 'centercol',
 					],
@@ -179,12 +189,12 @@ class Membergroups implements ActionInterface
 				],
 				'modify' => [
 					'header' => [
-						'value' => Lang::$txt['modify'],
+						'value' => Lang::getTxt('modify', file: 'General'),
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group=%1$d">' . Lang::$txt['membergroups_modify'] . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group={id_group}">' . Lang::getTxt('membergroups_modify', file: 'ManageMembers') . '</a>',
 							'params' => [
 								'id_group' => false,
 							],
@@ -196,11 +206,11 @@ class Membergroups implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'above_column_headers',
-					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
+					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::getTxt('membergroups_add_group', file: 'Admin') . '</a>',
 				],
 				[
 					'position' => 'below_table_data',
-					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
+					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;generalgroup">' . Lang::getTxt('membergroups_add_group', file: 'Admin') . '</a>',
 				],
 			],
 		];
@@ -210,7 +220,7 @@ class Membergroups implements ActionInterface
 		// The second list shows the post count based groups.
 		$listOptions = [
 			'id' => 'post_count_membergroups_list',
-			'title' => Lang::$txt['membergroups_post'],
+			'title' => Lang::getTxt('membergroups_post', file: 'ManageMembers'),
 			'base_href' => Config::$scripturl . '?action=admin;area=membergroups' . (isset($_REQUEST['sort']) ? ';sort=' . urlencode($_REQUEST['sort']) : ''),
 			'default_sort_col' => 'required_posts',
 			'request_vars' => [
@@ -226,7 +236,7 @@ class Membergroups implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_name'],
+						'value' => Lang::getTxt('membergroups_name', file: 'ManageMembers'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -242,7 +252,7 @@ class Membergroups implements ActionInterface
 				],
 				'icons' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_icons'],
+						'value' => Lang::getTxt('membergroups_icons', file: 'ManageMembers'),
 					],
 					'data' => [
 						'db' => 'icons',
@@ -254,7 +264,7 @@ class Membergroups implements ActionInterface
 				],
 				'members' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_members_top'],
+						'value' => Lang::getTxt('membergroups_members_top', file: 'ManageMembers'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -268,7 +278,7 @@ class Membergroups implements ActionInterface
 				],
 				'required_posts' => [
 					'header' => [
-						'value' => Lang::$txt['membergroups_min_posts'],
+						'value' => Lang::getTxt('membergroups_min_posts', file: 'ManageMembers'),
 						'class' => 'centercol',
 					],
 					'data' => [
@@ -282,12 +292,12 @@ class Membergroups implements ActionInterface
 				],
 				'modify' => [
 					'header' => [
-						'value' => Lang::$txt['modify'],
+						'value' => Lang::getTxt('modify', file: 'General'),
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group=%1$d">' . Lang::$txt['membergroups_modify'] . '</a>',
+						'format_text' => [
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group={id_group}">' . Lang::getTxt('membergroups_modify', file: 'ManageMembers') . '</a>',
 							'params' => [
 								'id_group' => false,
 							],
@@ -299,7 +309,7 @@ class Membergroups implements ActionInterface
 			'additional_rows' => [
 				[
 					'position' => 'below_table_data',
-					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;postgroup">' . Lang::$txt['membergroups_add_group'] . '</a>',
+					'value' => '<a class="button" href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=add;postgroup">' . Lang::getTxt('membergroups_add_group', file: 'Admin') . '</a>',
 				],
 			],
 		];
@@ -332,12 +342,22 @@ class Membergroups implements ActionInterface
 				'',
 				'{db_prefix}membergroups',
 				[
-					'description' => 'string', 'group_name' => 'string-80', 'min_posts' => 'int',
-					'icons' => 'string', 'online_color' => 'string', 'group_type' => 'int',
+					'description' => 'string',
+					'group_name' => 'string-80',
+					'min_posts' => 'int',
+					'icons' => 'string',
+					'online_color' => 'string',
+					'group_type' => 'int',
 				],
 				[
-					'', Utils::htmlspecialchars($_POST['group_name'], ENT_QUOTES), ($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
-					'1#icon.png', '', $_POST['group_type'],
+					[
+						'',
+						Utils::htmlspecialchars($_POST['group_name'], ENT_QUOTES),
+						($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
+						'1#icon.png',
+						'',
+						$_POST['group_type'],
+					],
 				],
 				['id_group'],
 				1,
@@ -540,15 +560,11 @@ class Membergroups implements ActionInterface
 		}
 
 		// Just show the 'add membergroup' screen.
-		Utils::$context['page_title'] = Lang::$txt['membergroups_new_group'];
+		Utils::$context['page_title'] = Lang::getTxt('membergroups_new_group', file: 'Admin');
 		Utils::$context['sub_template'] = 'new_group';
 		Utils::$context['post_group'] = isset($_REQUEST['postgroup']);
 		Utils::$context['undefined_group'] = !isset($_REQUEST['postgroup']) && !isset($_REQUEST['generalgroup']);
 		Utils::$context['allow_protected'] = User::$me->allowedTo('admin_forum');
-
-		if (!empty(Config::$modSettings['deny_boards_access'])) {
-			Lang::load('ManagePermissions');
-		}
 
 		// Load all the relevant member groups. Start with a clean slate.
 		Group::$loaded = [];
@@ -624,10 +640,6 @@ class Membergroups implements ActionInterface
 	public function edit(): void
 	{
 		$_REQUEST['group'] = isset($_REQUEST['group']) && $_REQUEST['group'] > 0 ? (int) $_REQUEST['group'] : 0;
-
-		if (!empty(Config::$modSettings['deny_boards_access'])) {
-			Lang::load('ManagePermissions');
-		}
 
 		if (empty($_REQUEST['group'])) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
@@ -889,7 +901,7 @@ class Membergroups implements ActionInterface
 		IntegrationHook::call('integrate_view_membergroup');
 
 		Utils::$context['sub_template'] = 'edit_group';
-		Utils::$context['page_title'] = Lang::getTxt('membergroups_edit_group', ['name' => Utils::$context['group']->name]);
+		Utils::$context['page_title'] = Lang::getTxt('membergroups_edit_group', ['name' => Utils::$context['group']->name], file: 'ManageMembers');
 
 		SecurityToken::create('admin-mmg');
 	}
@@ -904,7 +916,7 @@ class Membergroups implements ActionInterface
 	public function settings(): void
 	{
 		Utils::$context['sub_template'] = 'show_settings';
-		Utils::$context['page_title'] = Lang::$txt['membergroups_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('membergroups_settings', file: 'ManageMembers');
 
 		$config_vars = self::getConfigVars();
 
@@ -921,7 +933,7 @@ class Membergroups implements ActionInterface
 
 		// Some simple context.
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=membergroups;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['membergroups_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('membergroups_settings', file: 'ManageMembers');
 
 		// We need this for the in-line permissions
 		SecurityToken::create('admin-mp');
@@ -959,17 +971,6 @@ class Membergroups implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Language and template stuff, the usual.
-		Lang::load('ManageMembers');
-		Theme::loadTemplate('ManageMembergroups');
-
-		// Setup the admin tabs.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['membergroups_title'],
-			'help' => 'membergroups',
-			'description' => Lang::$txt['membergroups_description'],
-		];
-
 		IntegrationHook::call('integrate_manage_membergroups', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {

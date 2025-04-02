@@ -1,6 +1,6 @@
 <?php
 
-// Version: 3.0 Alpha 2; Reports
+// Version: 3.0 Alpha 3; Reports
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';
@@ -78,7 +78,6 @@ $txt['member_group_settings'] = 'Settings';
 $txt['member_group_access'] = 'Board Access';
 
 // Board info.
-$txt['none'] = 'None';
 $txt['board_category'] = 'Category';
 $txt['board_parent'] = 'Parent Board';
 $txt['board_redirect'] = 'Redirection Board, redirects to';

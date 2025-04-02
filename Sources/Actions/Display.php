@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Attachment;
@@ -31,8 +32,10 @@ use SMF\Lang;
 use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Poll;
+use SMF\Routable;
 use SMF\Security;
 use SMF\Theme;
+use SMF\TimeInterval;
 use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
@@ -51,8 +54,9 @@ use SMF\Verifier;
  * Although this class is not accessed using an ?action=... URL query, it
  * behaves like an action in every other way.
  */
-class Display implements ActionInterface
+class Display implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -106,6 +110,10 @@ class Display implements ActionInterface
 	/**
 	 * Does the heavy lifting to show the posts in this topic.
 	 *
+	 * - Handles any redirects we might need to do.
+	 * - Loads topic info.
+	 * - Loads permissions.
+	 * - Prepares stuff for the templates.
 	 * - Sets up anti-spam verification and old topic warnings.
 	 * - Gets the list of users viewing the topic.
 	 * - Loads events and polls attached to the topic.
@@ -116,6 +124,33 @@ class Display implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// What are you gonna display if this is empty?!
+		if (empty(Topic::$topic_id)) {
+			ErrorHandler::fatalLang('not_a_topic', false);
+		}
+
+		$this->checkPrevNextRedirect();
+		$this->preventPrefetch();
+
+		// Load the topic info.
+		Topic::load();
+
+		$this->incrementNumViews();
+		$this->checkMovedMergedRedirect();
+
+		$this->setStart();
+		$this->setPaginationAndLinks();
+		$this->setRobotNoIndex();
+
+		$this->setModerators();
+		$this->setUnapprovedPostsMessage();
+
+		// Now set all the wonderful, wonderful permissions... like moderation ones...
+		foreach (Topic::$info->doPermissions() as $perm => $val) {
+			Utils::$context[$perm] = &Topic::$info->permissions[$perm];
+		}
+
+		$this->setupTemplate();
 		$this->setupVerification();
 		$this->setOldTopicWarning();
 		$this->getWhoViewing();
@@ -148,6 +183,7 @@ class Display implements ActionInterface
 	public function prepareDisplayContext(): array|bool
 	{
 		static $counter = null;
+		static $prev_timestamp = null;
 
 		// Remember which message this is.  (ie. reply #83)
 		if ($counter === null) {
@@ -171,14 +207,14 @@ class Display implements ActionInterface
 		// Set up the quick buttons.
 		$output['quickbuttons'] = [
 			'quote' => [
-				'label' => Lang::$txt['quote_action'],
+				'label' => Lang::getTxt('quote_action', file: 'General'),
 				'href' => Config::$scripturl . '?action=post;quote=' . $output['id'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';last_msg=' . Topic::$info->id_last_msg,
 				'javascript' => 'onclick="return oQuickReply.quote(' . $output['id'] . ');"',
 				'icon' => 'quote',
 				'show' => Utils::$context['can_quote'],
 			],
 			'quote_selected' => [
-				'label' => Lang::$txt['quote_selected_action'],
+				'label' => Lang::getTxt('quote_selected_action', file: 'General'),
 				'id' => 'quoteSelected_' . $output['id'],
 				'href' => 'javascript:void(0)',
 				'custom' => 'style="display:none"',
@@ -186,7 +222,7 @@ class Display implements ActionInterface
 				'show' => Utils::$context['can_quote'],
 			],
 			'quick_edit' => [
-				'label' => Lang::$txt['quick_edit'],
+				'label' => Lang::getTxt('quick_edit', file: 'General'),
 				'class' => 'quick_edit',
 				'id' => 'modify_button_' . $output['id'],
 				'custom' => 'onclick="oQuickModify.modifyMsg(\'' . $output['id'] . '\', \'' . !empty(Config::$modSettings['toggle_subject']) . '\')"',
@@ -195,59 +231,59 @@ class Display implements ActionInterface
 			],
 			'more' => [
 				'modify' => [
-					'label' => Lang::$txt['modify'],
+					'label' => Lang::getTxt('modify', file: 'General'),
 					'href' => Config::$scripturl . '?action=post;msg=' . $output['id'] . ';topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'],
 					'icon' => 'modify_button',
 					'show' => $output['can_modify'],
 				],
 				'remove_topic' => [
-					'label' => Lang::$txt['remove_topic'],
+					'label' => Lang::getTxt('remove_topic', file: 'General'),
 					'href' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['are_sure_remove_topic'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('are_sure_remove_topic', file: 'General') . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 					'show' => Utils::$context['can_delete'] && (Topic::$info->id_first_msg == $output['id']),
 				],
 				'remove' => [
-					'label' => Lang::$txt['remove'],
+					'label' => Lang::getTxt('remove', file: 'General'),
 					'href' => Config::$scripturl . '?action=deletemsg;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-					'javascript' => 'data-confirm="' . Lang::$txt['remove_message_question'] . '"',
+					'javascript' => 'data-confirm="' . Lang::getTxt('remove_message_question', file: 'General') . '"',
 					'class' => 'you_sure',
 					'icon' => 'remove_button',
 					'show' => $output['can_remove'] && (Topic::$info->id_first_msg != $output['id']),
 				],
 				'split' => [
-					'label' => Lang::$txt['split'],
+					'label' => Lang::getTxt('split', file: 'General'),
 					'href' => Config::$scripturl . '?action=splittopics;topic=' . Utils::$context['current_topic'] . '.0;at=' . $output['id'],
 					'icon' => 'split_button',
 					'show' => Utils::$context['can_split'] && !empty(Topic::$info->real_num_replies),
 				],
 				'report' => [
-					'label' => Lang::$txt['report_to_mod'],
+					'label' => Lang::getTxt('report_to_mod', file: 'General'),
 					'href' => Config::$scripturl . '?action=reporttm;topic=' . Utils::$context['current_topic'] . '.' . $output['counter'] . ';msg=' . $output['id'],
 					'icon' => 'error',
 					'show' => Utils::$context['can_report_moderator'],
 				],
 				'warn' => [
-					'label' => Lang::$txt['issue_warning'],
+					'label' => Lang::getTxt('issue_warning', file: 'General'),
 					'href' => Config::$scripturl . '?action=profile;area=issuewarning;u=' . $output['member']['id'] . ';msg=' . $output['id'],
 					'icon' => 'warn_button',
 					'show' => Utils::$context['can_issue_warning'] && !$output['is_message_author'] && !$output['member']['is_guest'],
 				],
 				'restore' => [
-					'label' => Lang::$txt['restore_message'],
+					'label' => Lang::getTxt('restore_message', file: 'General'),
 					'href' => Config::$scripturl . '?action=restoretopic;msgs=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'restore_button',
 					'show' => Utils::$context['can_restore_msg'],
 				],
 				'approve' => [
-					'label' => Lang::$txt['approve'],
+					'label' => Lang::getTxt('approve', file: 'General'),
 					'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=approve;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'approve_button',
 					'show' => $output['can_approve'],
 				],
 				'unapprove' => [
-					'label' => Lang::$txt['unapprove'],
+					'label' => Lang::getTxt('unapprove', file: 'General'),
 					'href' => Config::$scripturl . '?action=moderate;area=postmod;sa=approve;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start'] . ';msg=' . $output['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 					'icon' => 'unapprove_button',
 					'show' => $output['can_unapprove'],
@@ -262,6 +298,76 @@ class Display implements ActionInterface
 			],
 		];
 
+		// Should we insert a bump notice?
+		if (
+			!empty(Config::$modSettings['oldTopicDays'])
+			&& (
+				empty(Theme::$current->options['view_newest_first'])
+				? $message->id > Topic::$info->id_first_msg
+				: $message->id < Topic::$info->id_last_msg
+			)
+		) {
+			// On the second and following pages of the topic, we unfortunately
+			// need an extra query for the first post on the page.
+			if (!isset($prev_timestamp)) {
+				$request = Db::$db->query(
+					'',
+					'SELECT poster_time
+					FROM {db_prefix}messages
+					WHERE id_topic = {int:topic}
+						AND poster_time {raw:operator} {int:ts}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
+						AND (approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR id_member = {int:me}') . ')') . '
+					ORDER BY id_msg {raw:order}
+					LIMIT 1',
+					[
+						'ts' => $message->poster_time,
+						'operator' => !empty(Theme::$current->options['view_newest_first']) ? '>' : '<',
+						'topic' => Topic::$info->id,
+						'me' => User::$me->id,
+						'is_approved' => 1,
+						'order' => !empty(Theme::$current->options['view_newest_first']) ? 'ASC' : 'DESC',
+					],
+				);
+
+				$row = current(Db::$db->fetch_all($request));
+				$prev_timestamp = $row['poster_time'];
+
+				Db::$db->free_result($request);
+			}
+
+			$since = date_create('@' . $prev_timestamp)->diff(date_create('@' . $message->poster_time));
+
+			if ($since->format('%a') > Config::$modSettings['oldTopicDays']) {
+				if ($since->format('%y') > 0) {
+					$num = $since->format('%y');
+					$unit = 'year';
+				} elseif ($since->format('%m') > 1) {
+					$num = $since->format('%m');
+					$unit = 'month';
+				} elseif ($since->format('%a') > 14) {
+					$num = strval(intval(floor($since->format('%a') / 7)));
+					$unit = 'week';
+				} else {
+					$num = $since->format('%a');
+					$unit = 'day';
+				}
+
+				$since = TimeInterval::createFromDateInterval($since);
+
+				$output['bump_notice'] = '<time class="bump_notice" datetime="' . (string) $since . '" title="' . $since->localize() . '">' . Lang::getTxt(
+					'bump_notice',
+					[
+						'num' => $num,
+						'unit' => $unit,
+						'invert' => $since->invert ? 'true' : 'false',
+					],
+					file: 'General',
+				) . '</time>';
+			}
+		}
+
+		$prev_timestamp = $message->poster_time;
+
 		if (empty(Theme::$current->options['view_newest_first'])) {
 			$counter++;
 		} else {
@@ -273,48 +379,26 @@ class Display implements ActionInterface
 		return $output;
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		return Topic::buildRoute($params);
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Constructor. Protected to force instantiation via load().
-	 *
-	 * - Handles any redirects we might need to do.
-	 * - Loads topic info.
-	 * - Loads permissions.
-	 * - Prepares most of the stuff for the templates.
-	 */
-	protected function __construct()
-	{
-		// What are you gonna display if this is empty?!
-		if (empty(Topic::$topic_id)) {
-			ErrorHandler::fatalLang('no_board', false);
-		}
-
-		$this->checkPrevNextRedirect();
-		$this->preventPrefetch();
-
-		// Load the topic info.
-		Topic::load();
-
-		$this->incrementNumViews();
-		$this->checkMovedMergedRedirect();
-
-		$this->setStart();
-		$this->setPaginationAndLinks();
-		$this->setRobotNoIndex();
-
-		$this->setModerators();
-		$this->setUnapprovedPostsMessage();
-
-		// Now set all the wonderful, wonderful permissions... like moderation ones...
-		foreach (Topic::$info->doPermissions() as $perm => $val) {
-			Utils::$context[$perm] = &Topic::$info->permissions[$perm];
-		}
-
-		$this->setupTemplate();
-	}
 
 	/**
 	 * Redirect to the previous or next topic, if requested in the URL params.
@@ -476,10 +560,18 @@ class Display implements ActionInterface
 					Topic::$info->new_from == 0 ? 'ignore' : 'replace',
 					'{db_prefix}log_topics',
 					[
-						'id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int',
+						'id_member' => 'int',
+						'id_topic' => 'int',
+						'id_msg' => 'int',
+						'unwatched' => 'int',
 					],
 					[
-						User::$me->id, Topic::$info->id, $mark_at_msg, Topic::$info->unwatched,
+						[
+							User::$me->id,
+							Topic::$info->id,
+							$mark_at_msg,
+							Topic::$info->unwatched,
+						],
 					],
 					['id_member', 'id_topic'],
 				);
@@ -569,8 +661,18 @@ class Display implements ActionInterface
 				Db::$db->insert(
 					'replace',
 					'{db_prefix}log_boards',
-					['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
-					[Config::$modSettings['maxMsgID'], User::$me->id, Board::$info->id],
+					[
+						'id_msg' => 'int',
+						'id_member' => 'int',
+						'id_board' => 'int',
+					],
+					[
+						[
+							Config::$modSettings['maxMsgID'],
+							User::$me->id,
+							Board::$info->id,
+						],
+					],
 					['id_member', 'id_board'],
 				);
 			}
@@ -660,7 +762,7 @@ class Display implements ActionInterface
 			}
 
 			// Start from a certain time index, not a message.
-			if (str_starts_with($_REQUEST['start'], 'from')) {
+			if (str_starts_with((string) $_REQUEST['start'], 'from')) {
 				$timestamp = (int) substr($_REQUEST['start'], 4);
 
 				if ($timestamp === 0) {
@@ -690,7 +792,7 @@ class Display implements ActionInterface
 			}
 
 			// Link to a message...
-			elseif (str_starts_with($_REQUEST['start'], 'msg')) {
+			elseif (str_starts_with((string) $_REQUEST['start'], 'msg')) {
 				$this->virtual_msg = (int) substr($_REQUEST['start'], 3);
 
 				if (!Topic::$info->unapproved_posts && $this->virtual_msg >= Topic::$info->id_last_msg) {
@@ -810,7 +912,7 @@ class Display implements ActionInterface
 		Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
 		// Create a previous next string if the selected theme has it as a selected option.
-		Utils::$context['previous_next'] = Config::$modSettings['enablePreviousNext'] ? '<a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=prev#new">' . Lang::$txt['previous_next_back'] . '</a> - <a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=next#new">' . Lang::$txt['previous_next_forward'] . '</a>' : '';
+		Utils::$context['previous_next'] = Config::$modSettings['enablePreviousNext'] ? '<a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=prev#new">' . Lang::getTxt('previous_next_back', file: 'General') . '</a> - <a href="' . Config::$scripturl . '?topic=' . Topic::$info->id . '.0;prev_next=next#new">' . Lang::getTxt('previous_next_forward', file: 'General') . '</a>' : '';
 
 		// If all is set, but not allowed... just unset it.
 		$this->can_show_all = !empty(Config::$modSettings['enableAllMessages']) && Topic::$info->total_visible_posts > Utils::$context['messages_per_page'] && Topic::$info->total_visible_posts < Config::$modSettings['enableAllMessages'];
@@ -827,9 +929,10 @@ class Display implements ActionInterface
 		Utils::$context['start'] = (int) $_REQUEST['start'];
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?topic=' . Topic::$info->id . '.%1$d', Utils::$context['start'], Topic::$info->total_visible_posts, (int) Utils::$context['messages_per_page'], true);
 
-		// SMF has a logic issue where we don't get the proper start in our query, quick fix.
-		// @ TODO; Properly fix this, remove this and load a topic with ?topic=123.msg456
-		$_REQUEST['start'] = Utils::$context['start'];
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
+		}
 
 		// This is information about which page is current, and which page we're on - in case you don't like the constructed page index. (again, wireless..)
 		Utils::$context['page_info'] = [
@@ -853,14 +956,14 @@ class Display implements ActionInterface
 			if (isset($_REQUEST['all'])) {
 				// No limit! (actually, there is a limit, but...)
 				Utils::$context['messages_per_page'] = -1;
-				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['current_page'], ['%1$d' => '%1$s']), Lang::$txt['all']);
+				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['current_page'], ['%1$d' => '%1$s']), Lang::getTxt('all', file: 'General'));
 
 				// Set start back to 0...
 				$_REQUEST['start'] = 0;
 			}
 			// They aren't using it, but the *option* is there, at least.
 			else {
-				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all']), '', Lang::$txt['all']);
+				Utils::$context['page_index'] .= sprintf(strtr(Theme::$current->settings['page_index']['page'], ['{URL}' => Config::$scripturl . '?topic=' . Topic::$info->id . '.0;all']), '', Lang::getTxt('all', file: 'General'));
 			}
 		}
 	}
@@ -878,20 +981,20 @@ class Display implements ActionInterface
 		if (!empty(Board::$info->moderators)) {
 			// Add a link for each moderator...
 			foreach (Board::$info->moderators as $mod) {
-				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod['name'] . '</a>';
+				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=profile;u=' . $mod['id'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $mod['name'] . '</a>';
 			}
 		}
 
 		if (!empty(Board::$info->moderator_groups)) {
 			// Add a link for each moderator group as well...
 			foreach (Board::$info->moderator_groups as $mod_group) {
-				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=viewmembers;group=' . $mod_group['id'] . '" title="' . Lang::$txt['board_moderator'] . '">' . $mod_group['name'] . '</a>';
+				Utils::$context['link_moderators'][] = '<a href="' . Config::$scripturl . '?action=groups;sa=viewmembers;group=' . $mod_group['id'] . '" title="' . Lang::getTxt('board_moderator', file: 'General') . '">' . $mod_group['name'] . '</a>';
 			}
 		}
 
 		if (!empty(Utils::$context['link_moderators'])) {
 			// And show it after the board's name.
-			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . (count(Utils::$context['link_moderators']) == 1 ? Lang::$txt['moderator'] : Lang::$txt['moderators']) . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
+			Utils::$context['linktree'][count(Utils::$context['linktree']) - 1]['extra_after'] = '<span class="board_moderators">(' . Lang::getTxt('moderators_list', ['num' => count(Utils::$context['link_moderators'])], file: 'General') . ': ' . implode(', ', Utils::$context['link_moderators']) . ')</span>';
 		}
 	}
 
@@ -941,7 +1044,7 @@ class Display implements ActionInterface
 		Utils::$context['topic_starter_id'] = Topic::$info->id_member_started;
 		Utils::$context['subject'] = Topic::$info->subject;
 		Utils::$context['num_views'] = Lang::numberFormat(Topic::$info->num_views);
-		Utils::$context['num_views_text'] = Lang::getTxt('number_of_times_read', [Utils::$context['num_views']]);
+		Utils::$context['num_views_text'] = Lang::getTxt('number_of_times_read', [Utils::$context['num_views']], file: 'General');
 		Utils::$context['mark_unread_time'] = !empty($this->virtual_msg) ? $this->virtual_msg : Topic::$info->new_from;
 
 		// Default this topic to not marked for notifications... of course...
@@ -954,21 +1057,19 @@ class Display implements ActionInterface
 		];
 
 		Utils::$context['jump_to'] = [
-			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::$txt['jump_to'])),
+			'label' => addslashes(Utils::htmlspecialcharsDecode(Lang::getTxt('jump_to', file: 'General'))),
 			'board_name' => strtr(Utils::htmlspecialchars(strip_tags(Board::$info->name)), ['&amp;' => '&']),
 			'child_level' => Board::$info->child_level,
 		];
 
 		// For quick reply we need a response prefix in the default forum language.
-		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+		if (!isset(Utils::$context['response_prefix'])) {
 			if (Lang::$default === User::$me->language) {
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-			} else {
-				Lang::load('General', Lang::$default, false);
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('General');
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
+			} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
-			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
 
 		// Are we showing signatures - or disabled fields?
@@ -988,11 +1089,6 @@ class Display implements ActionInterface
 		// Load the drafts js file.
 		if (!empty(Topic::$info->permissions['drafts_autosave'])) {
 			Theme::loadJavaScriptFile('drafts.js', ['defer' => false, 'minimize' => true], 'smf_drafts');
-		}
-
-		// And the drafts language file.
-		if (!empty(Topic::$info->permissions['drafts_save'])) {
-			Lang::load('Drafts');
 		}
 
 		// Spellcheck
@@ -1031,8 +1127,6 @@ class Display implements ActionInterface
 			&& !empty(Config::$modSettings['cal_showInTopic'])
 			&& !empty(Config::$modSettings['cal_enabled'])
 		) {
-			Lang::load('Calendar');
-
 			foreach (Topic::$info->getLinkedEvents() as $event) {
 				if (($occurrence = $event->getUpcomingOccurrence()) === false) {
 					$occurrence = $event->getLastOccurrence();
@@ -1224,7 +1318,7 @@ class Display implements ActionInterface
 			'id' => 'quickReply',
 			'value' => '',
 			'labels' => [
-				'post_button' => Lang::$txt['post'],
+				'post_button' => Lang::getTxt('post', file: 'General'),
 			],
 			// add height and width for the editor
 			'height' => '150px',
@@ -1263,7 +1357,6 @@ class Display implements ActionInterface
 		}
 
 		if (Calendar::canLinkEvent(false)) {
-			Lang::load('Calendar');
 			Utils::$context['normal_buttons']['calendar'] = ['text' => 'calendar_link', 'url' => Config::$scripturl . '?action=post;calendar;msg=' . Topic::$info->id_first_msg . ';topic=' . Utils::$context['current_topic'] . '.0'];
 		}
 
@@ -1308,7 +1401,7 @@ class Display implements ActionInterface
 		}
 
 		if (Topic::$info->permissions['can_delete']) {
-			Utils::$context['mod_buttons']['delete'] = ['text' => 'remove_topic', 'custom' => 'data-confirm="' . Lang::$txt['are_sure_remove_topic'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
+			Utils::$context['mod_buttons']['delete'] = ['text' => 'remove_topic', 'custom' => 'data-confirm="' . Lang::getTxt('are_sure_remove_topic', file: 'General') . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=removetopic2;topic=' . Utils::$context['current_topic'] . '.0;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']];
 		}
 
 		if (Topic::$info->permissions['can_lock']) {
@@ -1329,10 +1422,14 @@ class Display implements ActionInterface
 		}
 
 		// Allow adding new buttons easily.
-		// Note: Utils::$context['normal_buttons'] and Utils::$context['mod_buttons'] are added for backward compatibility with 2.0, but are deprecated and should not be used
+		// MOD AUTHORS: A future version of SMF will stop passing Utils::$context['normal_buttons'] to this hook.
+		// You should just interact with Utils::$context['normal_buttons'] directly in your hooked code.
 		IntegrationHook::call('integrate_display_buttons', [&Utils::$context['normal_buttons']]);
-		// Note: integrate_mod_buttons is no longer necessary and deprecated, but is kept for backward compatibility with 2.0
-		IntegrationHook::call('integrate_mod_buttons', [&Utils::$context['mod_buttons']]);
+
+		// NOD AUTHORS: integrate_mod_buttons is deprecated. Use integrate_display_buttons instead.
+		if (!empty(Config::$backward_compatibility)) {
+			IntegrationHook::call('integrate_mod_buttons', [&Utils::$context['mod_buttons']]);
+		}
 
 		// If any buttons have a 'test' check, run those tests now to keep things clean.
 		foreach (['normal_buttons', 'mod_buttons'] as $button_strip) {

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -73,7 +73,33 @@ class Posts implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		// Make sure you can be here.
+		User::$me->isAllowedTo('admin_forum');
+
+		Utils::$context['page_title'] = Lang::getTxt('manageposts_title', file: 'Admin');
+
+		// Tabs for browsing the different post functions.
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::getTxt('manageposts_title', file: 'Admin'),
+			'help' => 'posts_and_topics',
+			'description' => Lang::getTxt('manageposts_description', file: 'Admin'),
+			'tabs' => [
+				'posts' => [
+					'description' => Lang::getTxt('manageposts_settings_description', file: 'Admin'),
+				],
+				'censor' => [
+					'description' => Lang::getTxt('admin_censored_desc', file: 'Admin'),
+				],
+				'topics' => [
+					'description' => Lang::getTxt('manageposts_topic_settings_description', file: 'Admin'),
+				],
+				'drafts' => [
+					'description' => Lang::getTxt('managedrafts_settings_description', file: 'Admin'),
+				],
+			],
+		];
+
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -165,11 +191,8 @@ class Posts implements ActionInterface
 
 		IntegrationHook::call('integrate_censors');
 
-		// Since the "Allow users to disable the word censor" stuff was moved from a theme setting to a global one, we need this...
-		Lang::load('Themes');
-
 		Utils::$context['sub_template'] = 'edit_censored';
-		Utils::$context['page_title'] = Lang::$txt['admin_censored_words'];
+		Utils::$context['page_title'] = Lang::getTxt('admin_censored_words', file: 'Admin');
 
 		SecurityToken::create('admin-censor');
 	}
@@ -184,7 +207,7 @@ class Posts implements ActionInterface
 		$config_vars = self::postConfigVars();
 
 		// Setup the template.
-		Utils::$context['page_title'] = Lang::$txt['manageposts_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('manageposts_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Are we saving them - are we??
@@ -220,7 +243,7 @@ class Posts implements ActionInterface
 
 		// Final settings...
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=postsettings;save;sa=posts';
-		Utils::$context['settings_title'] = Lang::$txt['manageposts_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('manageposts_settings', file: 'Admin');
 
 		// Prepare the settings...
 		ACP::prepareDBSettingContext($config_vars);
@@ -236,7 +259,7 @@ class Posts implements ActionInterface
 		$config_vars = self::topicConfigVars();
 
 		// Setup the template.
-		Utils::$context['page_title'] = Lang::$txt['manageposts_topic_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('manageposts_topic_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Are we saving them - are we??
@@ -251,7 +274,7 @@ class Posts implements ActionInterface
 
 		// Final settings...
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=postsettings;save;sa=topics';
-		Utils::$context['settings_title'] = Lang::$txt['manageposts_topic_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('manageposts_topic_settings', file: 'Admin');
 
 		// Prepare the settings...
 		ACP::prepareDBSettingContext($config_vars);
@@ -267,7 +290,7 @@ class Posts implements ActionInterface
 		$config_vars = self::draftConfigVars();
 
 		// Setup the template.
-		Utils::$context['page_title'] = Lang::$txt['managedrafts_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('managedrafts_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		// Saving them ?
@@ -310,7 +333,7 @@ class Posts implements ActionInterface
 
 		// Final settings...
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=postsettings;sa=drafts;save';
-		Utils::$context['settings_title'] = Lang::$txt['managedrafts_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('managedrafts_settings', file: 'Admin');
 
 		// Prepare the settings...
 		ACP::prepareDBSettingContext($config_vars);
@@ -337,26 +360,66 @@ class Posts implements ActionInterface
 			'',
 
 			// Posting limits...
-			['int', 'max_messageLength', 'subtext' => Lang::$txt['max_messageLength_zero'], 'postinput' => Lang::$txt['manageposts_characters']],
-			['int', 'topicSummaryPosts', 'postinput' => Lang::$txt['manageposts_posts']],
+			[
+				'int',
+				'max_messageLength',
+				'subtext' => Lang::getTxt('max_messageLength_zero', file: 'Admin'),
+				'postinput' => Lang::getTxt('manageposts_characters', file: 'Admin'),
+			],
+			[
+				'int',
+				'topicSummaryPosts',
+				'postinput' => Lang::getTxt('manageposts_posts', file: 'Admin'),
+			],
 			'',
 
 			// Posting time limits...
-			['int', 'spamWaitTime', 'postinput' => Lang::$txt['manageposts_seconds']],
-			['int', 'edit_wait_time', 'postinput' => Lang::$txt['manageposts_seconds']],
-			['int', 'edit_disable_time', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['manageposts_minutes']],
+			[
+				'int',
+				'spamWaitTime',
+				'postinput' => Lang::getTxt('manageposts_seconds', file: 'Admin'),
+			],
+			[
+				'int',
+				'edit_wait_time',
+				'postinput' => Lang::getTxt('manageposts_seconds', file: 'Admin'),
+			],
+			[
+				'int',
+				'edit_disable_time',
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+				'postinput' => Lang::getTxt('manageposts_minutes', file: 'Admin'),
+			],
 			'',
 
 			// Automagic image resizing.
-			['int', 'max_image_width', 'subtext' => Lang::$txt['zero_for_no_limit']],
-			['int', 'max_image_height', 'subtext' => Lang::$txt['zero_for_no_limit']],
+			[
+				'int',
+				'max_image_width',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
+			[
+				'int',
+				'max_image_height',
+				'subtext' => Lang::getTxt('zero_for_no_limit', file: 'Admin'),
+			],
 			'',
 
 			// First & Last message preview lengths
-			['int', 'preview_characters', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['preview_characters_units']],
+			[
+				'int',
+				'preview_characters',
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+				'postinput' => Lang::getTxt('preview_characters_units', file: 'Admin'),
+			],
 
 			// Quote expand
-			['int', 'quote_expand', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['quote_expand_pixels_units']],
+			[
+				'int',
+				'quote_expand',
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+				'postinput' => Lang::getTxt('quote_expand_pixels_units', file: 'Admin'),
+			],
 		];
 
 		IntegrationHook::call('integrate_modify_post_settings', [&$config_vars]);
@@ -378,14 +441,32 @@ class Posts implements ActionInterface
 			'',
 
 			// Pagination etc...
-			['int', 'oldTopicDays', 'postinput' => Lang::$txt['manageposts_days'], 'subtext' => Lang::$txt['zero_to_disable']],
-			['int', 'defaultMaxTopics', 'postinput' => Lang::$txt['manageposts_topics']],
-			['int', 'defaultMaxMessages', 'postinput' => Lang::$txt['manageposts_posts']],
+			[
+				'int',
+				'oldTopicDays',
+				'postinput' => Lang::getTxt('manageposts_days', file: 'Admin'),
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+			],
+			[
+				'int',
+				'defaultMaxTopics',
+				'postinput' => Lang::getTxt('manageposts_topics', file: 'Admin'),
+			],
+			[
+				'int',
+				'defaultMaxMessages',
+				'postinput' => Lang::getTxt('manageposts_posts', file: 'Admin'),
+			],
 			['check', 'disable_print_topic'],
 			'',
 
 			// All, next/prev...
-			['int', 'enableAllMessages', 'postinput' => Lang::$txt['manageposts_posts'], 'subtext' => Lang::$txt['enableAllMessages_zero']],
+			[
+				'int',
+				'enableAllMessages',
+				'postinput' => Lang::getTxt('manageposts_posts', file: 'Admin'),
+				'subtext' => Lang::getTxt('enableAllMessages_zero', file: 'Admin'),
+			],
 			['check', 'disableCustomPerPage'],
 			['check', 'enablePreviousNext'],
 			'',
@@ -396,12 +477,25 @@ class Posts implements ActionInterface
 			['check', 'show_profile_buttons'],
 			['check', 'show_user_images'],
 			['check', 'show_blurb'],
-			['check', 'hide_post_group', 'subtext' => Lang::$txt['hide_post_group_desc']],
+			[
+				'check',
+				'hide_post_group',
+				'subtext' => Lang::getTxt('hide_post_group_desc', file: 'Admin'),
+			],
 			'',
 
 			// First & Last message preview lengths
-			['int', 'preview_characters', 'subtext' => Lang::$txt['zero_to_disable'], 'postinput' => Lang::$txt['preview_characters_units']],
-			['check', 'message_index_preview_first', 'subtext' => Lang::$txt['message_index_preview_first_desc']],
+			[
+				'int',
+				'preview_characters',
+				'subtext' => Lang::getTxt('zero_to_disable', file: 'Admin'),
+				'postinput' => Lang::getTxt('preview_characters_units', file: 'Admin'),
+			],
+			[
+				'check',
+				'message_index_preview_first',
+				'subtext' => Lang::getTxt('message_index_preview_first_desc', file: 'Admin'),
+			],
 		];
 
 		IntegrationHook::call('integrate_modify_topic_settings', [&$config_vars]);
@@ -421,73 +515,34 @@ class Posts implements ActionInterface
 			// Draft settings ...
 			['check', 'drafts_post_enabled'],
 			['check', 'drafts_pm_enabled'],
-			['check', 'drafts_show_saved_enabled', 'subtext' => Lang::$txt['drafts_show_saved_enabled_subnote']],
-			['int', 'drafts_keep_days', 'postinput' => Lang::$txt['days_word'], 'subtext' => Lang::$txt['drafts_keep_days_subnote']],
+			[
+				'check',
+				'drafts_show_saved_enabled',
+				'subtext' => Lang::getTxt('drafts_show_saved_enabled_subnote', file: 'Drafts'),
+			],
+			[
+				'int',
+				'drafts_keep_days',
+				'postinput' => Lang::getTxt('days_word', file: 'General'),
+				'subtext' => Lang::getTxt('drafts_keep_days_subnote', file: 'Drafts'),
+			],
 			'',
-			['check', 'drafts_autosave_enabled', 'subtext' => Lang::$txt['drafts_autosave_enabled_subnote']],
-			['int', 'drafts_autosave_frequency', 'postinput' => Lang::$txt['manageposts_seconds'], 'subtext' => Lang::$txt['drafts_autosave_frequency_subnote']],
+			[
+				'check',
+				'drafts_autosave_enabled',
+				'subtext' => Lang::getTxt('drafts_autosave_enabled_subnote', file: 'Drafts'),
+			],
+			[
+				'int',
+				'drafts_autosave_frequency',
+				'postinput' => Lang::getTxt('manageposts_seconds', file: 'Admin'),
+				'subtext' => Lang::getTxt('drafts_autosave_frequency_subnote', file: 'Drafts'),
+			],
 		];
 
 		IntegrationHook::call('integrate_modify_draft_settings', [&$config_vars]);
 
 		return $config_vars;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the posts sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyPostSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::postConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'posts';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the topics sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyTopicSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::topicConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'topics';
-		self::$obj->execute();
-
-		return null;
-	}
-
-	/**
-	 * Backward compatibility wrapper for the drafts sub-action.
-	 *
-	 * @param bool $return_config Whether to return the config_vars array.
-	 * @return ?array Returns nothing or returns the config_vars array.
-	 */
-	public static function modifyDraftSettings(bool $return_config = false): ?array
-	{
-		if (!empty($return_config)) {
-			return self::draftConfigVars();
-		}
-
-		self::load();
-		self::$obj->subaction = 'drafts';
-		self::$obj->execute();
-
-		return null;
 	}
 
 	/******************
@@ -499,33 +554,6 @@ class Posts implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Make sure you can be here.
-		User::$me->isAllowedTo('admin_forum');
-		Lang::load('Drafts');
-
-		Utils::$context['page_title'] = Lang::$txt['manageposts_title'];
-
-		// Tabs for browsing the different post functions.
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['manageposts_title'],
-			'help' => 'posts_and_topics',
-			'description' => Lang::$txt['manageposts_description'],
-			'tabs' => [
-				'posts' => [
-					'description' => Lang::$txt['manageposts_settings_description'],
-				],
-				'censor' => [
-					'description' => Lang::$txt['admin_censored_desc'],
-				],
-				'topics' => [
-					'description' => Lang::$txt['manageposts_topic_settings_description'],
-				],
-				'drafts' => [
-					'description' => Lang::$txt['managedrafts_settings_description'],
-				],
-			],
-		];
-
 		IntegrationHook::call('integrate_manage_posts', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 namespace SMF\Unicode;
@@ -76,7 +76,7 @@ class Utf8String implements \Stringable
 	{
 		$this->string = $string;
 
-		$this->language = substr($language ?? User::$me->language ?? Lang::$default ?? Config::$language ?? Lang::$txt['lang_locale'] ?? '', 0, 2);
+		$this->language = substr($language ?? User::$me->language ?? Lang::$default ?? Config::$language ?? Lang::getTxt('lang_locale', file: 'General') ?? '', 0, 2);
 
 		// Can we use the intl extension's Normalizer class?
 		if (!isset(self::$use_intl_normalizer)) {
@@ -662,7 +662,7 @@ class Utf8String implements \Stringable
 		$this->string = Utils::sanitizeEntities($this->string, ' ');
 
 		// Decode all the entities.
-		$this->string = Utils::entityDecode($this->string, true, ENT_QUOTES | ENT_HTML5, true);
+		$this->string = Utils::entityDecode($this->string, ENT_QUOTES | ENT_HTML5, true);
 
 		// Replace unwanted invisible characters with spaces.
 		$this->sanitizeInvisibles($level, ' ');
@@ -670,11 +670,34 @@ class Utf8String implements \Stringable
 		// Normalize the whitespace.
 		$this->string = Utils::normalizeSpaces($this->string, true, true, ['replace_tabs' => true, 'collapse_hspace' => true]);
 
-		// We'll need these one way or another.
 		require_once __DIR__ . '/RegularExpressions.php';
 		$prop_classes = utf8_regex_properties();
 
 		// Split into words, with Unicode awareness.
+		$words = $this->semanticSplit();
+
+		foreach ($words as $key => $word) {
+			$word = Utils::htmlTrim($word);
+
+			// Filter out punctuation marks, etc.
+			if (preg_replace('/[^\w' . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Emoji_Modifier'] . ']/u', '', $word) === '') {
+				unset($words[$key]);
+			}
+		}
+
+		// Restore the original version of the string.
+		$this->string = $original_string;
+
+		return $words;
+	}
+
+	/**
+	 * Splits the string into parts using the Unicode word break algorithm.
+	 *
+	 * @return array The parts of the string.
+	 */
+	public function semanticSplit(): array
+	{
 		// Prefer IntlBreakIterator if it is available.
 		if (class_exists('IntlBreakIterator')) {
 			$break_iterator = \IntlBreakIterator::createWordInstance(Lang::getLocaleFromLanguageName(Config::$language));
@@ -700,6 +723,9 @@ class Utf8String implements \Stringable
 					'break_after' => false,
 				];
 			}
+
+			require_once __DIR__ . '/RegularExpressions.php';
+			$prop_classes = utf8_regex_properties();
 
 			for ($i = 0; $i < count($chars); $i++) {
 				$substring_before = implode('', array_slice(array_map(fn($char) => $char['char'], $chars), 0, $i));
@@ -952,18 +978,6 @@ class Utf8String implements \Stringable
 				}
 			}
 		}
-
-		foreach ($words as $key => $word) {
-			$word = Utils::htmlTrim($word);
-
-			// Filter out punctuation marks, etc.
-			if (preg_replace('/[^\w' . $prop_classes['Regional_Indicator'] . $prop_classes['Emoji'] . $prop_classes['Emoji_Modifier'] . ']/u', '', $word) === '') {
-				unset($words[$key]);
-			}
-		}
-
-		// Restore the original version of the string.
-		$this->string = $original_string;
 
 		return $words;
 	}

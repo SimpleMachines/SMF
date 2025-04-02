@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Cache\CacheApi;
@@ -25,6 +26,8 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\Routable;
+use SMF\Slug;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -39,8 +42,9 @@ use SMF\Utils;
  * Although this class is not accessed using an ?action=... URL query, it
  * behaves like an action in every other way.
  */
-class BoardIndex implements ActionInterface
+class BoardIndex implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
@@ -52,6 +56,33 @@ class BoardIndex implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('BoardIndex');
+		Utils::$context['template_layers'][] = 'boardindex_outer';
+
+		Utils::$context['page_title'] = Lang::getTxt('forum_index', ['forum_name' => Utils::$context['forum_name']], file: 'General');
+
+		// Set a canonical URL for this page.
+		Utils::$context['canonical_url'] = Config::$scripturl;
+
+		// Do not let search engines index anything if there is a random thing in $_GET.
+		if (!empty($_GET)) {
+			Utils::$context['robot_no_index'] = true;
+		}
+
+		// Replace the collapse and expand default alts.
+		Theme::addJavaScriptVar('smf_expandAlt', Lang::getTxt('show_category', file: 'General'), true);
+		Theme::addJavaScriptVar('smf_collapseAlt', Lang::getTxt('hide_category', file: 'General'), true);
+
+		if (!empty(Theme::$current->settings['show_newsfader'])) {
+			Theme::loadJavaScriptFile('slippry.min.js', [], 'smf_jquery_slippry');
+			Theme::loadCSSFile('slider.min.css', [], 'smf_jquery_slider');
+		}
+
+		// Set a few minor things.
+		Utils::$context['show_stats'] = User::$me->allowedTo('view_stats') && !empty(Config::$modSettings['trackStats']);
+		Utils::$context['show_buddies'] = !empty(User::$me->buddies);
+		Utils::$context['show_who'] = User::$me->allowedTo('who_view') && !empty(Config::$modSettings['who_enabled']);
+
 		// Retrieve the categories and boards.
 		$boardIndexOptions = [
 			'include_categories' => true,
@@ -137,7 +168,13 @@ class BoardIndex implements ActionInterface
 
 		// Mark read button
 		Utils::$context['mark_read_button'] = [
-			'markread' => ['text' => 'mark_as_read', 'image' => 'markread.png', 'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"', 'class' => 'you_sure', 'url' => Config::$scripturl . '?action=markasread;sa=all;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']],
+			'markread' => [
+				'text' => 'mark_as_read',
+				'image' => 'markread.png',
+				'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"',
+				'class' => 'you_sure',
+				'url' => Config::$scripturl . '?action=markasread;sa=all;' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
+			],
 		];
 
 		// Allow mods to add additional buttons here
@@ -284,6 +321,7 @@ class BoardIndex implements ActionInterface
 			'm.id_msg',
 			'm.id_topic',
 			'm.subject',
+			'mf.subject AS topic_subject',
 			'COALESCE(m.poster_time, 0) AS poster_time',
 			'COALESCE(mem.id_member, 0) AS id_member',
 			'COALESCE(mem.member_name, m.poster_name) AS poster_name',
@@ -299,6 +337,8 @@ class BoardIndex implements ActionInterface
 
 		$joins = [
 			'LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = b.id_last_msg)',
+			'LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)',
+			'LEFT JOIN {db_prefix}messages AS mf ON (mf.id_msg = t.id_first_msg)',
 			'LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)',
 		];
 
@@ -361,6 +401,24 @@ class BoardIndex implements ActionInterface
 		foreach (Board::queryData($selects, $params, $joins, $where, $order) as $row_board) {
 			$row_board = array_filter($row_board, fn($prop) => !is_null($prop));
 
+			// Ensure the slug for the topic has been set.
+			if (
+				!empty($row_board['id_topic'])
+				&& ($row_board['topic_subject'] ?? '') !== ''
+				&& !isset(Slug::$known['topic'][(int) $row_board['id_topic']])
+			) {
+				Slug::create($row_board['topic_subject'], 'topic', (int) $row_board['id_topic']);
+			}
+
+			// Ensure the slug for the member has been set.
+			if (
+				!empty($row['id_member'])
+				&& ($row['real_name'] ?? '') !== ''
+				&& !isset(Slug::$known['member'][(int) $row['id_member']])
+			) {
+				Slug::create($row['real_name'], 'member', (int) $row['id_member']);
+			}
+
 			$parent = Board::$loaded[$row_board['id_parent']] ?? null;
 
 			// Perhaps we are ignoring this board?
@@ -381,7 +439,7 @@ class BoardIndex implements ActionInterface
 						'new' => false,
 						'css_class' => '',
 						'link' => '<a id="c' . $row_board['id_cat'] . '"></a>' . (!User::$me->is_guest ?
-							'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . Lang::getTxt('new_posts_in_category', $row_board) . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']),
+							'<a href="' . Config::$scripturl . '?action=unread;c=' . $row_board['id_cat'] . '" title="' . Lang::getTxt('new_posts_in_category', $row_board, file: 'General') . '">' . $row_board['cat_name'] . '</a>' : $row_board['cat_name']),
 					]);
 
 					$category->parseDescription();
@@ -443,13 +501,13 @@ class BoardIndex implements ActionInterface
 					// For certain types of thing we also set up what the tooltip is.
 					if ($board->is_redirect) {
 						$board->board_class = 'redirect';
-						$board->board_tooltip = Lang::$txt['redirect_board'];
+						$board->board_tooltip = Lang::getTxt('redirect_board', file: 'General');
 					} elseif ($board->new || User::$me->is_guest) {
 						// If we're showing to guests, we want to give them the idea that something interesting is going on!
 						$board->board_class = 'on';
-						$board->board_tooltip = Lang::$txt['new_posts'];
+						$board->board_tooltip = Lang::getTxt('new_posts', file: 'General');
 					} else {
-						$board->board_tooltip = Lang::$txt['old_posts'];
+						$board->board_tooltip = Lang::getTxt('old_posts', file: 'General');
 					}
 				}
 				// This is a child board.
@@ -460,7 +518,7 @@ class BoardIndex implements ActionInterface
 					// Update the icon if appropriate
 					if ($parent->children_new && $parent->board_class == 'off') {
 						$parent->board_class = 'on2';
-						$parent->board_tooltip = Lang::$txt['new_posts'];
+						$parent->board_tooltip = Lang::getTxt('new_posts', file: 'General');
 					}
 
 					// This is easier to use in many cases for the theme....
@@ -512,7 +570,7 @@ class BoardIndex implements ActionInterface
 					}
 
 					if (!empty($board->last_post)) {
-						$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']]);
+						$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::getTxt('not_applicable', file: 'General')]);
 					}
 				}
 			}
@@ -538,7 +596,7 @@ class BoardIndex implements ActionInterface
 				}
 
 				if (!empty($board->last_post)) {
-					$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::$txt['not_applicable']]);
+					$board->last_post['last_post_message'] = Lang::getTxt('last_post_message', ['member_link' => $board->last_post['member']['link'], 'post_link' => $board->last_post['link'], 'time' => $board->last_post['timestamp'] > 0 ? $board->last_post['time'] : Lang::getTxt('not_applicable', file: 'General')]);
 				}
 			}
 		}
@@ -565,45 +623,26 @@ class BoardIndex implements ActionInterface
 		return $board_index_options['include_categories'] ? Category::$loaded : $cat_boards;
 	}
 
-	/******************
-	 * Internal methods
-	 ******************/
-
 	/**
-	 * Prepares to show the board index.
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * Protected to force instantiation via self::load().
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	protected function __construct()
+	public static function buildRoute(array $params): array
 	{
-		Lang::load('Calendar');
+		$route = [];
 
-		Theme::loadTemplate('BoardIndex');
-		Utils::$context['template_layers'][] = 'boardindex_outer';
-
-		Utils::$context['page_title'] = Lang::getTxt('forum_index', ['forum_name' => Utils::$context['forum_name']]);
-
-		// Set a canonical URL for this page.
-		Utils::$context['canonical_url'] = Config::$scripturl;
-
-		// Do not let search engines index anything if there is a random thing in $_GET.
-		if (!empty($_GET)) {
-			Utils::$context['robot_no_index'] = true;
+		// No route needed unless the board index is not our default action.
+		if (!empty(Config::$modSettings['integrate_default_action'])) {
+			$route[] = $params['action'];
 		}
 
-		// Replace the collapse and expand default alts.
-		Theme::addJavaScriptVar('smf_expandAlt', Lang::$txt['show_category'], true);
-		Theme::addJavaScriptVar('smf_collapseAlt', Lang::$txt['hide_category'], true);
+		unset($params['action']);
 
-		if (!empty(Theme::$current->settings['show_newsfader'])) {
-			Theme::loadJavaScriptFile('slippry.min.js', [], 'smf_jquery_slippry');
-			Theme::loadCSSFile('slider.min.css', [], 'smf_jquery_slider');
-		}
-
-		// Set a few minor things.
-		Utils::$context['show_stats'] = User::$me->allowedTo('view_stats') && !empty(Config::$modSettings['trackStats']);
-		Utils::$context['show_buddies'] = !empty(User::$me->buddies);
-		Utils::$context['show_who'] = User::$me->allowedTo('who_view') && !empty(Config::$modSettings['who_enabled']);
+		return ['route' => $route, 'params' => $params];
 	}
 
 	/*************************
@@ -676,13 +715,13 @@ class BoardIndex implements ActionInterface
 			return [
 				'timestamp' => 0,
 				'href' => '',
-				'link' => Lang::$txt['not_applicable'],
+				'link' => Lang::getTxt('not_applicable', file: 'General'),
 				'member' => [
 					'id' => 0,
-					'name' => Lang::$txt['not_applicable'],
-					'username' => Lang::$txt['not_applicable'],
+					'name' => Lang::getTxt('not_applicable', file: 'General'),
+					'username' => Lang::getTxt('not_applicable', file: 'General'),
 					'href' => '',
-					'link' => Lang::$txt['not_applicable'],
+					'link' => Lang::getTxt('not_applicable', file: 'General'),
 				],
 			];
 		}

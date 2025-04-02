@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -183,24 +183,39 @@ class Draft
 				foreach ($draft_info as $key => $value) {
 					switch ($key) {
 						case 'id_draft':
-							$this->id = $value;
+							$this->id = (int) $value;
 							break;
 
 						case 'id_topic':
 						case 'id_board':
 						case 'id_member':
+							$this->{substr($key, 3)} = (int) $value;
+							break;
+
 						case 'is_sticky':
-							$this->{substr($key, 3)} = $value;
+							$this->sticky = !empty($value);
 							break;
 
 						case 'id_reply':
-							$this->reply_to = $value;
+							$this->reply_to = (int) $value;
 							break;
 
 						case 'to_list':
 							$recipientsList = Utils::jsonDecode($draft_info['to_list'], true);
 							$this->recipients['to'] = $recipientsList['to'] ?? [];
 							$this->recipients['bcc'] = $recipientsList['bcc'] ?? [];
+							break;
+
+						// These have to be ints
+						case 'type':
+						case 'poster_time':
+							$this->type = (int) $value;
+							break;
+
+						// Boolean values
+						case 'smileys_enabled':
+						case 'locked':
+							$this->$key = !empty($value);
 							break;
 
 						default:
@@ -342,8 +357,6 @@ class Draft
 			return false;
 		}
 
-		Lang::load('Drafts');
-
 		Utils::$context['drafts'] = [];
 
 		// Load the drafts this user has available.
@@ -367,7 +380,7 @@ class Draft
 		// Add them to the drafts array for display.
 		while ($row = Db::$db->fetch_assoc($request)) {
 			if (empty($row['subject'])) {
-				$row['subject'] = Lang::$txt['no_subject'];
+				$row['subject'] = Lang::getTxt('no_subject', file: 'General');
 			}
 
 			$tmp_subject = Utils::shorten(stripslashes($row['subject']), 24);
@@ -393,10 +406,8 @@ class Draft
 	 */
 	public static function showInProfile(int $memID): void
 	{
-		Lang::load('Drafts');
-
 		// Some initial context.
-		Utils::$context['start'] = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
+		Utils::$context['start'] = (int) ($_REQUEST['start'] ?? 0);
 		Utils::$context['current_member'] = $memID;
 
 		// If just deleting a draft, do it and then redirect back.
@@ -452,6 +463,11 @@ class Draft
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=profile;u=' . $memID . ';area=showdrafts', Utils::$context['start'], $msgCount, $maxIndex);
 		Utils::$context['current_page'] = Utils::$context['start'] / $maxIndex;
 
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . Utils::$context['start']);
+		}
+
 		// Reverse the query if we're past 50% of the pages for better performance.
 		$start = Utils::$context['start'];
 		$reverse = $_REQUEST['start'] > $msgCount / 2;
@@ -498,7 +514,7 @@ class Draft
 			$row['subject'] = Utils::htmlTrim($row['subject']);
 
 			if (empty($row['subject'])) {
-				$row['subject'] = Lang::$txt['no_subject'];
+				$row['subject'] = Lang::getTxt('no_subject', file: 'General');
 			}
 
 			Lang::censorText($row['body']);
@@ -532,14 +548,14 @@ class Draft
 				'sticky' => $row['is_sticky'],
 				'quickbuttons' => [
 					'edit' => [
-						'label' => Lang::$txt['draft_edit'],
+						'label' => Lang::getTxt('draft_edit', file: 'Drafts'),
 						'href' => Config::$scripturl . '?action=post;' . (empty($row['id_topic']) ? 'board=' . $row['id_board'] : 'topic=' . $row['id_topic']) . '.0;id_draft=' . $row['id_draft'],
 						'icon' => 'modify_button',
 					],
 					'delete' => [
-						'label' => Lang::$txt['draft_delete'],
+						'label' => Lang::getTxt('draft_delete', file: 'Drafts'),
 						'href' => Config::$scripturl . '?action=profile;u=' . Utils::$context['member']['id'] . ';area=showdrafts;delete=' . $row['id_draft'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
-						'javascript' => 'data-confirm="' . Lang::$txt['draft_remove'] . '"',
+						'javascript' => 'data-confirm="' . Lang::getTxt('draft_remove', file: 'Drafts') . '"',
 						'class' => 'you_sure',
 						'icon' => 'remove_button',
 					],
@@ -555,8 +571,8 @@ class Draft
 
 		// Menu tab
 		Menu::$loaded['profile']->tab_data = [
-			'title' => Lang::$txt['drafts_show'],
-			'description' => Lang::$txt['drafts_show_desc'],
+			'title' => Lang::getTxt('drafts_show', file: 'Drafts'),
+			'description' => Lang::getTxt('drafts_show_desc', file: 'Drafts'),
 			'icon_class' => 'main_icons drafts',
 		];
 		Utils::$context['sub_template'] = 'showDrafts';
@@ -754,19 +770,21 @@ class Draft
 					'to_list' => 'string-255',
 				],
 				[
-					$this->topic,
-					$this->board,
-					$this->reply_to,
-					$this->type,
-					time(),
-					$this->member,
-					$this->subject,
-					(int) $this->smileys_enabled,
-					$this->body,
-					$this->icon,
-					(int) $this->locked,
-					(int) $this->sticky,
-					Utils::jsonEncode($this->recipients),
+					[
+						$this->topic,
+						$this->board,
+						$this->reply_to,
+						$this->type,
+						time(),
+						$this->member,
+						$this->subject,
+						(int) $this->smileys_enabled,
+						$this->body,
+						$this->icon,
+						(int) $this->locked,
+						(int) $this->sticky,
+						Utils::jsonEncode($this->recipients),
+					],
 				],
 				[
 					'id_draft',
@@ -799,13 +817,11 @@ class Draft
 	 */
 	protected static function xml(int $id_draft): void
 	{
-		Lang::load('Drafts');
+		header('content-type: text/xml; charset=UTF-8');
 
-		header('content-type: text/xml; charset=' . (empty(Utils::$context['character_set']) ? 'ISO-8859-1' : Utils::$context['character_set']));
-
-		echo '<?xml version="1.0" encoding="', Utils::$context['character_set'], '"?>
+		echo '<' . '?xml version="1.0" encoding="UTF-8"?' . '>
 		<drafts>
-			<draft id="', $id_draft, '"><![CDATA[', Lang::getTxt('draft_saved_on', ['date' => Time::create('@' . Utils::$context['draft_saved_on'])->format()]), ']]></draft>
+			<draft id="', $id_draft, '"><![CDATA[', Lang::getTxt('draft_saved_on', ['date' => Time::create('@' . Utils::$context['draft_saved_on'])->format()], file: 'Drafts'), ']]></draft>
 		</drafts>';
 
 		Utils::obExit(false);

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -121,11 +121,11 @@ class MessageFormatter
 
 		// Use the intl extension's MessageFormatter class if available.
 		if (class_exists('\MessageFormatter')) {
-			if (!isset(self::$message_formatters[Lang::$txt['lang_locale']][$message])) {
-				self::$message_formatters[Lang::$txt['lang_locale']][$message] = new \MessageFormatter(Lang::$txt['lang_locale'], $message);
+			if (!isset(self::$message_formatters[Lang::getTxt('lang_locale', file: 'General')][$message])) {
+				self::$message_formatters[Lang::getTxt('lang_locale', file: 'General')][$message] = new \MessageFormatter(Lang::getTxt('lang_locale', file: 'General'), $message);
 			}
 
-			$fmt = self::$message_formatters[Lang::$txt['lang_locale']][$message]->format(array_filter($args, 'is_scalar'));
+			$fmt = self::$message_formatters[Lang::getTxt('lang_locale', file: 'General')][$message]->format(array_filter($args, 'is_scalar'));
 
 			return $fmt == false ? '' : strtr($fmt, array_flip($placeholders));
 		}
@@ -191,7 +191,7 @@ class MessageFormatter
 									}
 									// Guess based on the locale.
 									else {
-										[$lang, $cc] = explode('_', Lang::$txt['lang_locale']);
+										[$lang, $cc] = explode('_', Lang::getTxt('lang_locale', file: 'General'));
 
 										if (!isset($country_currencies[$cc])) {
 											switch ($lang) {
@@ -239,7 +239,7 @@ class MessageFormatter
 					break;
 
 				case 'ordinal':
-					$final .= self::formatMessage(Lang::$txt['ordinal'], [$args[$arg_name]]);
+					$final .= self::formatMessage(Lang::getTxt('ordinal', file: 'General'), [$args[$arg_name]]);
 					break;
 
 				case 'date':
@@ -328,7 +328,7 @@ class MessageFormatter
 					$hours = sprintf('%02d', $args[$arg_name] >= 3600 ? (int) ($args[$arg_name] / 3600) : 0);
 
 					if ($hours === '00' && $minutes === '00') {
-						$final .= Lang::getTxt('number_of_seconds', [$seconds]);
+						$final .= Lang::getTxt('number_of_seconds', [$seconds], file: 'General');
 					} else {
 						$final .= ltrim(implode(':', [$hours, $minutes, $seconds]), '0:');
 					}
@@ -467,7 +467,7 @@ class MessageFormatter
 		}
 
 		// Evaluate the pluralization rules to find a match.
-		$lang = substr(Lang::$txt['lang_locale'], 0, strpos(Lang::$txt['lang_locale'], '_'));
+		$lang = substr(Lang::getTxt('lang_locale', file: 'General'), 0, strpos(Lang::getTxt('lang_locale', file: 'General'), '_'));
 
 		foreach (self::$plural_rules[$lang][$type] as $category => $rule) {
 			if ($rule($n, $i, $v, $w, $f, $t, $c)) {
@@ -785,11 +785,11 @@ class MessageFormatter
 						break;
 
 					case 'percent':
-						$post_processing[] = fn($number) => strtr(Lang::$txt['percent_format'], ['{0}' => $number]);
+						$post_processing[] = fn($number) => strtr(Lang::getTxt('percent_format', file: 'General'), ['{0}' => $number]);
 						break;
 
 					case 'permille':
-						$post_processing[] = fn($number) => strtr(Lang::$txt['percent_format'], ['{0}' => $number, '%' => '‰']);
+						$post_processing[] = fn($number) => strtr(Lang::getTxt('percent_format', file: 'General'), ['{0}' => $number, '%' => '‰']);
 						break;
 
 					case 'currency':
@@ -809,7 +809,7 @@ class MessageFormatter
 							$number = sprintf('%0.' . $currency['digits'] . 'F', $number);
 						}
 
-						$post_processing[] = fn($number) => (in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 0, 1) : '') . strtr(Lang::$txt['currency_format'], ['{0}' => in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 1) : $number, '¤' => self::CURRENCY_SYMBOLS[$options[0]] ?? ($options[0] === 'DEFAULT' ? '¤' : $options[0] . "\u{A0}")]);
+						$post_processing[] = fn($number) => (in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 0, 1) : '') . strtr(Lang::getTxt('currency_format', file: 'General'), ['{0}' => in_array(substr($number, 0, 1), ['-', '+']) ? substr($number, 1) : $number, '¤' => self::CURRENCY_SYMBOLS[$options[0]] ?? ($options[0] === 'DEFAULT' ? '¤' : $options[0] . "\u{A0}")]);
 
 						break;
 

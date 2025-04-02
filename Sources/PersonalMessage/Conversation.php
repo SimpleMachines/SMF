@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -125,7 +125,10 @@ class Conversation
 			}
 
 			// If the current user deleted this PM, skip it.
-			if (($from_me && !empty($row['deleted_by_sender'])) || ($to_me && !empty($row['deleted']))) {
+			$visible_in_inbox = $to_me && empty($row['deleted']);
+			$visible_in_sent = $from_me && empty($row['deleted_by_sender']);
+
+			if (!$visible_in_inbox && !$visible_in_sent) {
 				continue;
 			}
 

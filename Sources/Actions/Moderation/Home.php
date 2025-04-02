@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -84,6 +84,12 @@ class Home implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('ModerationCenter');
+		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
+
+		Utils::$context['page_title'] = Lang::getTxt('moderation_center', file: 'ModerationCenter');
+		Utils::$context['sub_template'] = 'moderation_center';
+
 		// Normally this will already have been done, but just in case...
 		Main::checkAccessPermissions();
 
@@ -133,18 +139,6 @@ class Home implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
-	 */
-	protected function __construct()
-	{
-		Theme::loadTemplate('ModerationCenter');
-		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
-
-		Utils::$context['page_title'] = Lang::$txt['moderation_center'];
-		Utils::$context['sub_template'] = 'moderation_center';
-	}
-
-	/**
 	 * Show an area for the moderator to type into.
 	 */
 	protected function notes(): void
@@ -168,11 +162,22 @@ class Home implements ActionInterface
 					'',
 					'{db_prefix}log_comments',
 					[
-						'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'recipient_name' => 'string',
-						'body' => 'string', 'log_time' => 'int',
+						'id_member' => 'int',
+						'member_name' => 'string',
+						'comment_type' => 'string',
+						'recipient_name' => 'string',
+						'body' => 'string',
+						'log_time' => 'int',
 					],
 					[
-						User::$me->id, User::$me->name, 'modnote', '', $_POST['new_note'], time(),
+						[
+							User::$me->id,
+							User::$me->name,
+							'modnote',
+							'',
+							$_POST['new_note'],
+							time(),
+						],
 					],
 					['id_comment'],
 				);
@@ -290,6 +295,12 @@ class Home implements ActionInterface
 
 		// Lets construct a page index.
 		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=moderate;area=index;notes', $start, $moderator_notes_total, 10);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if (($_GET['start'] ?? 0) != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
+
 		Utils::$context['start'] = $start;
 
 		Utils::$context['notes'] = [];
@@ -526,10 +537,14 @@ class Home implements ActionInterface
 	/**
 	 * Provides a home for the deprecated integrate_mod_centre_blocks hook.
 	 *
-	 * MOD AUTHORS: Please use the integrate_moderation_home_blocks instead.
+	 * MOD AUTHORS: Please use integrate_moderation_home_blocks instead.
 	 */
 	protected static function integrateModBlocks(): void
 	{
+		if (empty(Config::$backward_compatibility)) {
+			return;
+		}
+
 		$valid_blocks = [];
 
 		IntegrationHook::call('integrate_mod_centre_blocks', [&$valid_blocks]);

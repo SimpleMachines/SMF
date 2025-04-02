@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
@@ -24,6 +25,7 @@ use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -31,8 +33,9 @@ use SMF\Utils;
 /**
  * Finds and retrieves information about new posts and topics.
  */
-class Unread implements ActionInterface
+class Unread implements ActionInterface, Routable
 {
+	use ActionSuffixRouter;
 	use ActionTrait;
 
 	/*******************
@@ -212,6 +215,8 @@ class Unread implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		$this->init();
+
 		$this->getBoards();
 		$this->setSortMethod();
 		$this->getCatName();
@@ -241,9 +246,9 @@ class Unread implements ActionInterface
 	 ******************/
 
 	/**
-	 * Constructor. Protected to force instantiation via self::load().
+	 * Does some initial stuff.
 	 */
-	protected function __construct()
+	protected function init()
 	{
 		// Guests can't have unread things, we don't know anything about them.
 		User::$me->kickIfGuest();
@@ -268,9 +273,9 @@ class Unread implements ActionInterface
 
 		Utils::$context['messages_per_page'] = empty(Config::$modSettings['disableCustomPerPage']) && !empty(Theme::$current->options['messages_per_page']) ? Theme::$current->options['messages_per_page'] : Config::$modSettings['defaultMaxMessages'];
 
-		Utils::$context['page_title'] = Utils::$context['showing_all_topics'] ? Lang::$txt['unread_topics_all'] : Lang::$txt['unread_topics_visit'];
+		Utils::$context['page_title'] = Lang::getTxt(Utils::$context['showing_all_topics'] ? 'unread_topics_all' : 'unread_topics_visit', file: 'General');
 
-		$this->linktree_name = Lang::$txt['unread_topics_visit'];
+		$this->linktree_name = Lang::getTxt('unread_topics_visit', file: 'General');
 		$this->action_url = Config::$scripturl . '?action=unread';
 
 		if (Utils::$context['showing_all_topics']) {
@@ -522,10 +527,10 @@ class Unread implements ActionInterface
 
 		Utils::$context['sort_direction'] = $this->ascending ? 'up' : 'down';
 
-		Lang::$txt['starter'] = Lang::$txt['started_by'];
+		Lang::setTxt('starter', Lang::getTxt('started_by', file: 'General'));
 
 		foreach ($this->sort_methods as $key => $val) {
-			Utils::$context['topics_headers'][$key] = '<a href="' . $this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . ';sort=' . $key . (Utils::$context['sort_by'] == $key && Utils::$context['sort_direction'] == 'up' ? ';desc' : '') . '">' . Lang::$txt[$key] . (Utils::$context['sort_by'] == $key ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '') . '</a>';
+			Utils::$context['topics_headers'][$key] = '<a href="' . $this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . ';sort=' . $key . (Utils::$context['sort_by'] == $key && Utils::$context['sort_direction'] == 'up' ? ';desc' : '') . '">' . Lang::getTxt($key, file: 'General') . (Utils::$context['sort_by'] == $key ? ' <span class="main_icons sort_' . Utils::$context['sort_direction'] . '"></span>' : '') . '</a>';
 		}
 	}
 
@@ -559,14 +564,29 @@ class Unread implements ActionInterface
 		if (Utils::$context['showing_all_topics']) {
 			Utils::$context['linktree'][] = [
 				'url' => $this->action_url . ';all' . $url_limits['first'],
-				'name' => Lang::$txt['unread_topics_all'],
+				'name' => Lang::getTxt('unread_topics_all', file: 'General'),
 			];
 		} else {
-			Lang::$txt['unread_topics_visit_none'] = strtr(Lang::getTxt('unread_topics_visit_none', ['scripturl' => Config::$scripturl]), ['?action=unread;all' => '?action=unread;all' . $url_limits['first']]);
+			Lang::setTxt(
+				'unread_topics_visit_none',
+				strtr(
+					Lang::getTxt(
+						'unread_topics_visit_none',
+						['scripturl' => Config::$scripturl],
+						file: 'General',
+					),
+					['?action=unread;all' => '?action=unread;all' . $url_limits['first']],
+				),
+			);
 		}
 
 		// Make sure the starting place makes sense and construct the page index.
 		Utils::$context['page_index'] = new PageIndex($this->action_url . (Utils::$context['showing_all_topics'] ? ';all' : '') . Utils::$context['querystring_board_limits'] . Utils::$context['querystring_sort_limits'], Utils::$context['start'], $this->num_topics, (int) Utils::$context['topics_per_page'], true);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+		}
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / Utils::$context['topics_per_page']);
 
@@ -647,7 +667,8 @@ class Unread implements ActionInterface
 					'current_member' => User::$me->id,
 				],
 			);
-			list($this->earliest_msg) = Db::$db->fetch_row($request);
+			list($earliest_msg) = Db::$db->fetch_row($request);
+			$this->earliest_msg = (int) $earliest_msg;
 			Db::$db->free_result($request);
 		} else {
 			$request = Db::$db->query(
@@ -660,7 +681,8 @@ class Unread implements ActionInterface
 					'current_member' => User::$me->id,
 				],
 			);
-			list($this->earliest_msg) = Db::$db->fetch_row($request);
+			list($earliest_msg) = Db::$db->fetch_row($request);
+			$this->earliest_msg = (int) $earliest_msg;
 			Db::$db->free_result($request);
 		}
 
@@ -670,7 +692,7 @@ class Unread implements ActionInterface
 		} else {
 			// Using caching, when possible, to ignore the below slow query.
 			if (isset($_SESSION['cached_log_time']) && $_SESSION['cached_log_time'][0] + 45 > time()) {
-				$earliest_msg2 = $_SESSION['cached_log_time'][1];
+				$earliest_msg2 = (int) $_SESSION['cached_log_time'][1];
 			} else {
 				// This query is pretty slow, but it's needed to ensure nothing crucial is ignored.
 				$request = Db::$db->query(
@@ -683,6 +705,7 @@ class Unread implements ActionInterface
 					],
 				);
 				list($earliest_msg2) = Db::$db->fetch_row($request);
+				$earliest_msg2 = (int) $earliest_msg2;
 				Db::$db->free_result($request);
 
 				// In theory this could be zero, if the first ever post is unread, so fudge it ;)
@@ -922,7 +945,7 @@ class Unread implements ActionInterface
 			Utils::$context['topics'][$row['id_topic']]['last_post']['link'] = '<a href="' . Utils::$context['topics'][$row['id_topic']]['last_post']['href'] . '" rel="nofollow">' . $row['last_subject'] . '</a>';
 
 			// Add "started by" string to first post.
-			Utils::$context['topics'][$row['id_topic']]['first_post']['started_by'] = Lang::getTxt('started_by_member_in', ['member' => Utils::$context['topics'][$row['id_topic']]['first_post']['member']['link'], 'board' => Utils::$context['topics'][$row['id_topic']]['board']['link']]);
+			Utils::$context['topics'][$row['id_topic']]['first_post']['started_by'] = Lang::getTxt('started_by_member_in', ['member' => Utils::$context['topics'][$row['id_topic']]['first_post']['member']['link'], 'board' => Utils::$context['topics'][$row['id_topic']]['board']['link']], file: 'General');
 
 			// This isn't really necessary, but for the sake of consistency
 			// ensure the topic is marked as new.
@@ -970,7 +993,7 @@ class Unread implements ActionInterface
 				'markread' => [
 					'text' => !empty(Utils::$context['no_board_limits']) ? 'mark_as_read' : 'mark_read_short',
 					'image' => 'markread.png',
-					'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"',
+					'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"',
 					'class' => 'you_sure',
 					'url' => Config::$scripturl . '?action=markasread;sa=' . (!empty(Utils::$context['no_board_limits']) ? 'all' : 'board' . Utils::$context['querystring_board_limits']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				],
@@ -992,7 +1015,7 @@ class Unread implements ActionInterface
 				'markread' => [
 					'text' => 'mark_as_read',
 					'image' => 'markread.png',
-					'custom' => 'data-confirm="' . Lang::$txt['are_sure_mark_read'] . '"',
+					'custom' => 'data-confirm="' . Lang::getTxt('are_sure_mark_read', file: 'General') . '"',
 					'class' => 'you_sure',
 					'url' => Config::$scripturl . '?action=markasread;sa=unreadreplies;topics=' . Utils::$context['topics_to_mark'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'],
 				],

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  *
  * Original module by Mach8 - We'll never forget you.
  */
@@ -30,6 +30,7 @@ use SMF\Logging;
 use SMF\Mail;
 use SMF\Msg;
 use SMF\PageIndex;
+use SMF\Routable;
 use SMF\Search\SearchApi;
 use SMF\Theme;
 use SMF\Time;
@@ -40,10 +41,9 @@ use SMF\Utils;
 /**
  * Handles merging of topics.
  */
-class TopicMerge implements ActionInterface
+class TopicMerge implements ActionInterface, Routable
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -186,7 +186,7 @@ class TopicMerge implements ActionInterface
 		// Load the template....
 		Theme::loadTemplate('MoveTopic');
 
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -237,7 +237,13 @@ class TopicMerge implements ActionInterface
 		Db::$db->free_result($request);
 
 		// Make the page list.
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $_REQUEST['start'], (int) $topiccount, (int) Config::$modSettings['defaultMaxTopics'], true);
+		$start = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=mergetopics;from=' . $_GET['from'] . ';targetboard=' . $_REQUEST['targetboard'] . ';board=' . Board::$info->id . '.%1$d', $start, (int) $topiccount, (int) Config::$modSettings['defaultMaxTopics'], true);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != $start) {
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+		}
 
 		// Get the topic's subject.
 		$request = Db::$db->query(
@@ -266,7 +272,7 @@ class TopicMerge implements ActionInterface
 		Utils::$context['origin_topic'] = $_GET['from'];
 		Utils::$context['origin_subject'] = $subject;
 		Utils::$context['origin_js_subject'] = addcslashes(addslashes($subject), '/');
-		Utils::$context['page_title'] = Lang::$txt['merge'];
+		Utils::$context['page_title'] = Lang::getTxt('merge', file: 'General');
 
 		// Check which boards you have merge permissions on.
 		$this->merge_boards = User::$me->boardsAllowedTo('merge_any');
@@ -412,7 +418,7 @@ class TopicMerge implements ActionInterface
 			Utils::$context['topics'][$id]['selected'] = $topic['id'] == $this->firstTopic;
 		}
 
-		Utils::$context['page_title'] = Lang::$txt['merge'];
+		Utils::$context['page_title'] = Lang::getTxt('merge', file: 'General');
 		Utils::$context['sub_template'] = 'merge_extra_options';
 	}
 
@@ -593,17 +599,12 @@ class TopicMerge implements ActionInterface
 		if (isset($_POST['postRedirect'])) {
 			// Replace tokens with links in the reason.
 			$reason_replacements = [
-				Lang::$txt['movetopic_auto_topic'] => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
+				Lang::getTxt('movetopic_auto_topic', file: 'General') => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
 			];
 
-			// Should be in the boardwide language.
+			// Make sure we catch both languages in the reason.
 			if (User::$me->language != Lang::$default) {
-				Lang::load('General', Lang::$default);
-
-				// Make sure we catch both languages in the reason.
-				$reason_replacements += [
-					Lang::$txt['movetopic_auto_topic'] => '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
-				];
+				$reason_replacements[Lang::getTxt('movetopic_auto_topic', file: 'General', lang: Lang::$default)] = '[iurl=$quot' . Config::$scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]';
 			}
 
 			$_POST['reason'] = Utils::htmlspecialchars($_POST['reason'], ENT_QUOTES);
@@ -619,7 +620,7 @@ class TopicMerge implements ActionInterface
 			$redirect_topic = isset($_POST['redirect_topic']) ? $id_topic : 0;
 
 			foreach ($deleted_topics as $this_old_topic) {
-				$redirect_subject = Lang::getTxt('merged_subject', ['subject' => $this->topic_data[$this_old_topic]['subject']]);
+				$redirect_subject = Lang::getTxt('merged_subject', ['subject' => $this->topic_data[$this_old_topic]['subject']], file: 'General', lang: Lang::$default);
 
 				$msgOptions = [
 					'icon' => 'moved',
@@ -645,24 +646,16 @@ class TopicMerge implements ActionInterface
 				// Update subject search index
 				Logging::updateStats('subject', $this_old_topic, $redirect_subject);
 			}
-
-			// Restore language strings to normal.
-			if (User::$me->language != Lang::$default) {
-				Lang::load('General');
-			}
 		}
 
 		// Grab the response prefix (like 'Re: ') in the default forum language.
-		if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
+		if (!isset(Utils::$context['response_prefix'])) {
 			if (Lang::$default === User::$me->language) {
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-			} else {
-				Lang::load('General', Lang::$default, false);
-				Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-				Lang::load('General');
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
+			} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
-
-			CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 		}
 
 		// Change the topic IDs of all messages that will be merged.  Also adjust subjects if 'enforce subject' was checked.
@@ -972,8 +965,7 @@ class TopicMerge implements ActionInterface
 		$searchAPI = SearchApi::load();
 
 		if (is_callable([$searchAPI, 'topicMerge'])) {
-			// todo: undefined method
-			$searchAPI->topicMerge($id_topic, $this->topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : [Utils::$context['response_prefix'], $target_subject]);
+			$searchAPI->topicMerge($id_topic, $this->topics, $affected_msgs, empty($_POST['enforce_subject']) ? null : Utils::$context['response_prefix'] . $target_subject);
 		}
 
 		// Merging is the sort of thing an external CMS might want to know about
@@ -1011,7 +1003,7 @@ class TopicMerge implements ActionInterface
 		Utils::$context['target_board'] = (int) $_GET['targetboard'];
 		Utils::$context['target_topic'] = (int) $_GET['to'];
 
-		Utils::$context['page_title'] = Lang::$txt['merge'];
+		Utils::$context['page_title'] = Lang::getTxt('merge', file: 'General');
 		Utils::$context['sub_template'] = 'merge_done';
 	}
 
@@ -1035,17 +1027,34 @@ class TopicMerge implements ActionInterface
 	}
 
 	/**
-	 * Backward compatibility wrapper for the options and/or merge sub-actions.
-	 * (The old procedural function with this name did both.)
+	 * Builds a routing path based on URL query parameters.
 	 *
-	 * @param array $topics The IDs of the topics to merge
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
 	 */
-	public static function mergeExecute(array $topics = []): void
+	public static function buildRoute(array $params): array
 	{
-		self::load();
-		self::$obj->subaction = !empty($_GET['sa']) && $_GET['sa'] === 'merge' ? 'merge' : 'options';
-		self::$obj->topics = array_map('intval', $topics);
-		self::$obj->execute();
+		// This action gets unhappy with any routing more complex than just this.
+		$route[] = $params['action'];
+		unset($params['action']);
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params['action'] = array_shift($route);
+
+		return $params;
 	}
 
 	/******************

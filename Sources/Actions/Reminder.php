@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,12 +16,14 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Mail;
+use SMF\Routable;
 use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Theme;
@@ -31,8 +33,9 @@ use SMF\Utils;
 /**
  * Handle sending out reminders, and checking the secret answer and question.
  */
-class Reminder implements ActionInterface
+class Reminder implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -79,12 +82,22 @@ class Reminder implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * Dispatcher to whichever sub-action method is necessary.
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		Theme::loadTemplate('Reminder');
+
+		Utils::$context['page_title'] = Lang::getTxt('authentication_reminder', file: 'Profile');
+		Utils::$context['robot_no_index'] = true;
+
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -120,9 +133,9 @@ class Reminder implements ActionInterface
 		if ($this->member->is_activated % User::BANNED != User::ACTIVATED) {
 			// Awaiting approval...
 			if (trim($this->member->validation_code) == '') {
-				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']]), false);
+				ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']], file: 'Profile'), false);
 			} else {
-				ErrorHandler::fatal(Lang::getTxt('registration_not_activated', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']]), false);
+				ErrorHandler::fatal(Lang::getTxt('registration_not_activated', ['url' => Config::$scripturl . '?action=activate;user=' . $_POST['user']], file: 'Profile'), false);
 			}
 		}
 
@@ -130,13 +143,13 @@ class Reminder implements ActionInterface
 		$this->member->email = trim($this->member->email);
 
 		if ($this->member->email == '') {
-			ErrorHandler::fatal(Lang::$txt['no_reminder_email'] . '<br>' . Lang::getTxt('send_email_to_webmaster', ['webmaster_email' => Config::$webmaster_email]));
+			ErrorHandler::fatal(Lang::getTxt('no_reminder_email', file: 'Profile') . '<br>' . Lang::getTxt('send_email_to_webmaster', ['webmaster_email' => Config::$webmaster_email], file: 'Profile'));
 		}
 
 		// If they have no secret question then they can only get emailed the item, or they are requesting the email, send them an email.
 		if (empty($this->member->secret_question) || (isset($_POST['reminder_type']) && $_POST['reminder_type'] == 'email')) {
 			// Randomly generate a validation code with a max length of 10 chars.
-			$code = User::generateValidationCode();
+			$code = Security::generateValidationCode();
 
 			$replacements = [
 				'REALNAME' => $this->member->name,
@@ -153,7 +166,7 @@ class Reminder implements ActionInterface
 			User::updateMemberData($this->member->id, ['validation_code' => $code]);
 
 			// Set up the template.
-			Utils::$context['description'] = Lang::$txt['reminder_sent'];
+			Utils::$context['description'] = Lang::getTxt('reminder_sent', file: 'Profile');
 			Utils::$context['sub_template'] = 'sent';
 
 			// Don't really.
@@ -180,8 +193,6 @@ class Reminder implements ActionInterface
 	 */
 	public function setPassword(): void
 	{
-		Lang::load('Login');
-
 		// You need a code!
 		if (!isset($_REQUEST['code'])) {
 			ErrorHandler::fatalLang('no_access', false);
@@ -189,7 +200,7 @@ class Reminder implements ActionInterface
 
 		// Fill the context array.
 		Utils::$context += [
-			'page_title' => Lang::$txt['reminder_set_password'],
+			'page_title' => Lang::getTxt('reminder_set_password', file: 'Profile'),
 			'sub_template' => 'set_password',
 			'code' => $_REQUEST['code'],
 			'memID' => (int) $_REQUEST['u'],
@@ -223,19 +234,17 @@ class Reminder implements ActionInterface
 			ErrorHandler::fatalLang('no_password', false);
 		}
 
-		Lang::load('Login');
-
 		$this->loadMember();
 
 		// Is the password actually valid?
-		$passwordError = User::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
+		$password_error = Security::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
 
 		// What - it's not?
-		if ($passwordError != null) {
-			if ($passwordError == 'short') {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false, [empty(Config::$modSettings['password_strength']) ? 4 : 8]);
+		if ($password_error != null) {
+			if ($password_error == 'short') {
+				ErrorHandler::fatalLang('profile_error_password_short', false, [Security::minimumPasswordLength()]);
 			} else {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false);
+				ErrorHandler::fatalLang((Lang::txtExists('profile_error_password_' . $password_error, file: 'Errors') ? 'profile_error_password_' : '') . $password_error, false);
 			}
 		}
 
@@ -244,25 +253,25 @@ class Reminder implements ActionInterface
 			// Stop brute force attacks like this.
 			Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, false);
 
-			ErrorHandler::fatal(Lang::$txt['invalid_activation_code'], false);
+			ErrorHandler::fatal(Lang::getTxt('invalid_activation_code', file: 'Login'), false);
 		}
 
 		// Just in case, flood control.
 		Login2::validatePasswordFlood($this->member->id, $this->member->username, $this->member->passwd_flood, true);
 
 		// User validated.  Update the database!
-		User::updateMemberData($this->member->id, ['validation_code' => '', 'passwd' => Security::hashPassword($this->member->username, $_POST['passwrd1'])]);
+		User::updateMemberData($this->member->id, ['validation_code' => '', 'passwd' => Security::hashPassword($_POST['passwrd1'])]);
 
 		IntegrationHook::call('integrate_reset_pass', [$this->member->username, $this->member->username, $_POST['passwrd1']]);
 
 		Theme::loadTemplate('Login');
 		Utils::$context += [
-			'page_title' => Lang::$txt['reminder_password_set'],
+			'page_title' => Lang::getTxt('reminder_password_set', file: 'Profile'),
 			'sub_template' => 'login',
 			'default_username' => $this->member->username,
 			'default_password' => $_POST['passwrd1'],
 			'never_expire' => false,
-			'description' => Lang::$txt['reminder_password_set'],
+			'description' => Lang::getTxt('reminder_password_set', file: 'Profile'),
 		];
 
 		SecurityToken::create('login');
@@ -274,9 +283,6 @@ class Reminder implements ActionInterface
 	public function secretAnswerInput(): void
 	{
 		User::$me->checkSession();
-
-		// Strings for the register auto javascript clever stuffy wuffy.
-		Lang::load('Login');
 
 		// This should never happen, but just in case...
 		if (!isset($this->member)) {
@@ -311,18 +317,19 @@ class Reminder implements ActionInterface
 			ErrorHandler::fatalLang('username_no_exist', false);
 		}
 
-		Lang::load('Login');
-
 		$this->loadMember();
 
 		/*
 		 * Check if the secret answer is correct.
 		 *
+		 * Prior to 2.1 this was a simple md5. The length of the hash is 32
+		 * characters.
+		 *
 		 * In 2.1 this was changed to use hash_(verify_)password, same as the
 		 * password. The length of the hash is 60 characters.
 		 *
-		 * Prior to 2.1 this was a simple md5. The length of the hash is 32
-		 * characters.
+		 * In 3.0 this was changed to not prepend the username to the password
+		 * string in hash_(verify_)password.
 		 *
 		 * For compatibility with older answers, we still check if a match
 		 * occurs on md5. If it does, we automatically upgrade the stored
@@ -332,17 +339,24 @@ class Reminder implements ActionInterface
 			$this->member->secret_question == ''
 			|| $this->member->secret_answer == ''
 			|| (
-				!Security::hashVerifyPassword($this->member->username, $_POST['secret_answer'], $this->member->secret_answer)
+				// 3.0
+				!Security::hashVerifyPassword($_POST['secret_answer'], $this->member->secret_answer)
+				// 2.1
+				&& !Security::hashVerifyPassword(Utils::strtolower($this->member->username) . $_POST['secret_answer'], $this->member->secret_answer)
+				// 2.0 and below.
 				&& md5($_POST['secret_answer']) != $this->member->secret_answer
 			)
 		) {
-			ErrorHandler::log(Lang::getTxt('reminder_error', ['name' => $this->member->username]), 'user');
+			ErrorHandler::log(Lang::getTxt('reminder_error', ['name' => $this->member->username], file: 'Profile'), 'user');
 			ErrorHandler::fatalLang('incorrect_answer', false);
 		}
 
-		// If the secret answer was right, but stored using md5, upgrade it now.
-		if (md5($_POST['secret_answer']) === $this->member->secret_answer) {
-			User::updateMemberData($this->member->id_member, ['secret_answer' => Security::hashPassword($this->member->username, $_POST['secret_answer'])]);
+		// If the secret answer was right, but stored incorrectly, upgrade it now.
+		if (
+			Security::hashVerifyPassword(Utils::strtolower($this->member->username) . $_POST['secret_answer'], $this->member->secret_answer)
+			|| md5($_POST['secret_answer']) === $this->member->secret_answer
+		) {
+			User::updateMemberData($this->member->id_member, ['secret_answer' => Security::hashPassword($_POST['secret_answer'])]);
 		}
 
 		// You can't use a blank one!
@@ -356,31 +370,31 @@ class Reminder implements ActionInterface
 		}
 
 		// Make sure they have a strong enough password.
-		$passwordError = User::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
+		$password_error = Security::validatePassword($_POST['passwrd1'], $this->member->username, [$this->member->email]);
 
 		// Invalid?
-		if ($passwordError != null) {
-			if ($passwordError == 'short') {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false, [empty(Config::$modSettings['password_strength']) ? 4 : 8]);
+		if ($password_error != null) {
+			if ($password_error == 'short') {
+				ErrorHandler::fatalLang('profile_error_password_' . $password_error, false, [Security::minimumPasswordLength()]);
 			} else {
-				ErrorHandler::fatalLang('profile_error_password_' . $passwordError, false);
+				ErrorHandler::fatalLang((Lang::txtExists('profile_error_password_' . $password_error, file: 'Errors') ? 'profile_error_password_' : '') . $password_error, false);
 			}
 		}
 
 		// Alright, so long as 'yer sure.
-		User::updateMemberData($this->member->id_member, ['passwd' => Security::hashPassword($this->member->username, $_POST['passwrd1'])]);
+		User::updateMemberData($this->member->id_member, ['passwd' => Security::hashPassword($_POST['passwrd1'])]);
 
 		IntegrationHook::call('integrate_reset_pass', [$this->member->username, $this->member->username, $_POST['passwrd1']]);
 
 		// Tell them it went fine.
 		Theme::loadTemplate('Login');
 		Utils::$context += [
-			'page_title' => Lang::$txt['reminder_password_set'],
+			'page_title' => Lang::getTxt('reminder_password_set', file: 'Profile'),
 			'sub_template' => 'login',
 			'default_username' => $this->member->username,
 			'default_password' => $_POST['passwrd1'],
 			'never_expire' => false,
-			'description' => Lang::$txt['reminder_password_set'],
+			'description' => Lang::getTxt('reminder_password_set', file: 'Profile'),
 		];
 
 		SecurityToken::create('login');
@@ -395,12 +409,6 @@ class Reminder implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('Profile');
-		Theme::loadTemplate('Reminder');
-
-		Utils::$context['page_title'] = Lang::$txt['authentication_reminder'];
-		Utils::$context['robot_no_index'] = true;
-
 		if (!empty($_GET['sa']) && isset(self::$subactions[$_GET['sa']])) {
 			$this->subaction = $_GET['sa'];
 		}

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -44,10 +44,12 @@ class ShowPermissions implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		Theme::loadTemplate('ManageMembers');
+
 		// Verify if the user has sufficient permissions.
 		User::$me->isAllowedTo('manage_permissions');
 
-		Utils::$context['page_title'] = Lang::$txt['showPermissions'];
+		Utils::$context['page_title'] = Lang::getTxt('showPermissions', file: 'Profile');
 
 		// If they're an admin we know they can do everything, so we might as well leave.
 		Profile::$member->formatted['has_all_permissions'] = Profile::$member->is_admin;
@@ -131,7 +133,7 @@ class ShowPermissions implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($result)) {
 			// We don't know about this permission, it doesn't exist :P.
-			if (!isset(Lang::$txt['permissionname_' . $row['permission']])) {
+			if (!Lang::txtExists('permissionname_' . $row['permission'], file: 'ManagePermissions')) {
 				continue;
 			}
 
@@ -140,17 +142,20 @@ class ShowPermissions implements ActionInterface
 			}
 
 			// Permissions that end with _own or _any consist of two parts.
-			if (in_array(substr($row['permission'], -4), ['_own', '_any']) && isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)])) {
-				$name = Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . Lang::$txt['permissionname_' . $row['permission']];
+			if (
+				in_array(substr($row['permission'], -4), ['_own', '_any'])
+				&& Lang::txtExists('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions')
+			) {
+				$name = Lang::getTxt('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions') . ' - ' . Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			} else {
-				$name = Lang::$txt['permissionname_' . $row['permission']];
+				$name = Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			}
 
 			// Is this group allowed or denied?
 			$denied_allowed = empty($row['add_deny']) ? 'denied' : 'allowed';
 
 			// The name of the group.
-			$group_name = $row['id_group'] == 0 ? Lang::$txt['membergroups_members'] : $row['group_name'];
+			$group_name = $row['id_group'] == 0 ? Lang::getTxt('membergroups_members', file: 'Admin') : $row['group_name'];
 
 			// Add this permission if it doesn't exist yet.
 			if (!isset($general_perms[$row['permission']])) {
@@ -198,25 +203,25 @@ class ShowPermissions implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// We don't know about this permission, it doesn't exist :P.
-			if (!isset(Lang::$txt['permissionname_' . $row['permission']])) {
+			if (!Lang::txtExists('permissionname_' . $row['permission'], file: 'ManagePermissions')) {
 				continue;
 			}
 
 			// The name of the permission using the format 'permission name' - 'own/any topic/event/etc.'.
 			if (
 				in_array(substr($row['permission'], -4), ['_own', '_any'])
-				&& isset(Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)])
+				&& Lang::txtExists('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions')
 			) {
-				$name = Lang::$txt['permissionname_' . substr($row['permission'], 0, -4)] . ' - ' . Lang::$txt['permissionname_' . $row['permission']];
+				$name = Lang::getTxt('permissionname_' . substr($row['permission'], 0, -4), file: 'ManagePermissions') . ' - ' . Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			} else {
-				$name = Lang::$txt['permissionname_' . $row['permission']];
+				$name = Lang::getTxt('permissionname_' . $row['permission'], file: 'ManagePermissions');
 			}
 
 			// Is this group allowed or denied?
 			$denied_allowed = empty($row['add_deny']) ? 'denied' : 'allowed';
 
 			// The name of the group.
-			$group_name = $row['id_group'] == 0 ? Lang::$txt['membergroups_members'] : $row['group_name'];
+			$group_name = $row['id_group'] == 0 ? Lang::getTxt('membergroups_members', file: 'Admin') : $row['group_name'];
 
 			// Create the structure for this permission.
 			if (!isset($board_perms[$row['permission']])) {
@@ -248,10 +253,6 @@ class ShowPermissions implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		Lang::load('ManagePermissions');
-		Lang::load('Admin');
-		Theme::loadTemplate('ManageMembers');
-
 		if (!isset(Profile::$member)) {
 			Profile::load();
 		}

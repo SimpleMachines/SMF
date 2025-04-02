@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,10 +16,11 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
-use SMF\Lang;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -29,8 +30,9 @@ use SMF\Utils;
  *
  * TrueType fonts supplied by www.LarabieFonts.com.
  */
-class VerificationCode implements ActionInterface
+class VerificationCode implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -55,6 +57,16 @@ class VerificationCode implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return true;
+	}
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
 	/**
 	 * Do the job.
 	 */
@@ -69,7 +81,6 @@ class VerificationCode implements ActionInterface
 
 		// Show a window that will play the verification code.
 		if (isset($_REQUEST['sound'])) {
-			Lang::load('Login');
 			Theme::loadTemplate('Register');
 
 			Utils::$context['verification_sound_href'] = Config::$scripturl . '?action=verificationcode;rand=' . bin2hex(random_bytes(16)) . ($this->verification_id ? ';vid=' . $this->verification_id : '') . ';format=.wav';

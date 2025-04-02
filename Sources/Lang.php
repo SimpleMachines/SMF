@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -197,6 +197,23 @@ class Lang
 	/**
 	 * @var array
 	 *
+	 * Tracks which language file each loaded string came from.
+	 *
+	 * Used to ensure that calls to Lang::getTxt() that specified a particular
+	 * file get the version of the string from that file, rather than a string
+	 * from a different file with the same name.
+	 *
+	 * This is necessary for two reasons:
+	 *
+	 *  1. We cannot guarantee that keys are unique across all language files.
+	 *  2. The Modifications language file might intentionally overwrite the
+	 *     default values of language strings, and that needs to be respected.
+	 */
+	private static $loaded_keys = [];
+
+	/**
+	 * @var array
+	 *
 	 * Tracks the value of $forum_copyright for different languages.
 	 */
 	private static array $localized_copyright = [];
@@ -208,15 +225,20 @@ class Lang
 	/**
 	 * Load a language file.
 	 *
-	 * Tries the current and default themes as well as the user and global languages.
+	 * Looks for files the Languages directory and the langauges directories of
+	 * the current and default themes. Within each directory, tries both the
+	 * user's preferred language and the forum's default language, and falls
+	 * back to English as a last resort.
 	 *
-	 * @param string $template_name The name of a template file.
+	 * @param string $filename The name of a language file, without the file
+	 *    extension.
 	 * @param string $lang A specific language to load this file from.
 	 * @param bool $fatal Whether to die with an error if it can't be loaded.
-	 * @param bool $force_reload Whether to load the file again if it's already loaded.
+	 * @param bool $force_reload Whether to load the file again if it's already
+	 *    loaded.
 	 * @return string The language actually loaded.
 	 */
-	public static function load(string $template_name, string $lang = '', bool $fatal = true, bool $force_reload = false): string
+	public static function load(string $filename, string $lang = '', bool $fatal = true, bool $force_reload = false): string
 	{
 		if (!isset(self::$default)) {
 			self::$default = &Config::$language;
@@ -232,28 +254,28 @@ class Lang
 		}
 
 		// For each file open it up and write it out!
-		foreach (explode('+', $template_name) as $template) {
+		foreach (explode('+', $filename) as $name) {
 			// Did we call the old index language file? Redirect.
-			if ($template === 'index') {
-				$template = 'General';
+			if ($name === 'index') {
+				$name = 'General';
 			}
 
 			// Don't repeat this unnecessarily.
-			if (!$force_reload && isset(self::$already_loaded[$template]) && self::$already_loaded[$template] == $lang) {
+			if (!$force_reload && isset(self::$already_loaded[$name]) && self::$already_loaded[$name] == $lang) {
 				continue;
 			}
 
 			$attempts = [];
 
 			foreach (self::$dirs as $dir) {
-				$attempts[] = [$dir, $template, $lang];
-				$attempts[] = [$dir, $template, self::$default];
+				$attempts[] = [$dir, $name, $lang];
+				$attempts[] = [$dir, $name, self::$default];
 			}
 
 			// Fall back to English if none of the preferred languages can be found.
 			if (empty(Config::$modSettings['disable_language_fallback']) && !in_array('en_US', [$lang, self::$default])) {
 				foreach (self::$dirs as $dir) {
-					$attempts[] = [$dir, $template, 'en_US'];
+					$attempts[] = [$dir, $name, 'en_US'];
 				}
 			}
 
@@ -283,7 +305,17 @@ class Lang
 							continue;
 						}
 
+						// Add the strings to the appropriate array.
 						self::${$var} = array_merge(self::${$var}, ${$var});
+
+						// Keep track of where these strings came from.
+						self::$loaded_keys[$var] = array_merge(
+							self::$loaded_keys[$var] ?? [],
+							array_combine(
+								array_keys(${$var}),
+								array_fill(0, count(${$var}), ['file' => $file[1], 'lang' => $file[2]]),
+							),
+						);
 
 						unset(${$var});
 					}
@@ -302,11 +334,15 @@ class Lang
 						if (str_contains(self::$txt['lang_locale'], '.')) {
 							$locale_variants = self::$txt['lang_locale'];
 						} else {
-							$locale_variants = array_unique(array_merge(
-								!empty(Config::$modSettings['global_character_set']) ? [self::$txt['lang_locale'] . '.' . Config::$modSettings['global_character_set']] : [],
-								!empty(Utils::$context['utf8']) ? [self::$txt['lang_locale'] . '.UTF-8', self::$txt['lang_locale'] . '.UTF8', self::$txt['lang_locale'] . '.utf-8', self::$txt['lang_locale'] . '.utf8'] : [],
-								[self::$txt['lang_locale']],
-							));
+							$locale_variants = array_unique(
+								[
+									self::$txt['lang_locale'] . '.UTF-8',
+									self::$txt['lang_locale'] . '.UTF8',
+									self::$txt['lang_locale'] . '.utf-8',
+									self::$txt['lang_locale'] . '.utf8',
+									self::$txt['lang_locale'],
+								],
+							);
 						}
 
 						setlocale(LC_CTYPE, $locale_variants);
@@ -314,19 +350,18 @@ class Lang
 				}
 			}
 
-			// Legacy language calls.
 			/*
 			 * Legacy language calls.
 			 * Under normal conditions, we stop once we find it through the locale lookup.
 			 * Modifications is a special case in which we allow it to be checked everywhere.
 			 */
-			if ((!$found || str_contains($template_name, 'Modifications') || str_contains($template_name, 'ThemeStrings')) && Config::$backward_compatibility) {
+			if ((!$found || str_contains($filename, 'Modifications') || str_contains($filename, 'ThemeStrings')) && Config::$backward_compatibility) {
 				$found = self::loadOld($attempts) || $found;
 			}
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
 			if (!$found && $fatal) {
-				ErrorHandler::log(self::formatText(self::$txt['theme_language_error'] ?? 'Unable to load the {filename} language file.', ['filename' => $lang . '/' . $template_name]), 'template');
+				ErrorHandler::log(self::formatText(self::$txt['theme_language_error'] ?? 'Unable to load the {filename} language file.', ['filename' => $lang . '/' . $filename]), 'template');
 				break;
 			}
 
@@ -359,7 +394,7 @@ class Lang
 			}
 
 			// Remember what we have loaded, and in which language.
-			self::$already_loaded[$template] = $lang;
+			self::$already_loaded[$name] = $lang;
 		}
 
 		// Return the language actually loaded.
@@ -410,7 +445,6 @@ class Lang
 
 	/**
 	 * Attempt to reload our known languages.
-	 * It will try to choose only utf8 or non-utf8 languages.
 	 *
 	 * @param bool $use_cache Whether or not to use the cache
 	 * @return array An array of information about available languages
@@ -505,6 +539,112 @@ class Lang
 	}
 
 	/**
+	 * Checks whether the specified language string exists.
+	 *
+	 * @param string|array $txt_key The key of the Lang::$txt array to check.
+	 *    If this is an array, each item of the array will be used as a sub-key
+	 *    to drill down into deeper levels of the overall array.
+	 * @param string $var Name of the array to search in. Default: 'txt'.
+	 *    Other possible values are 'helptxt', 'editortxt', and 'tztxt'.
+	 * @param ?string $file Name of a language file to load. This is not needed
+	 *    when $var is 'helptxt', 'editortxt', 'tztxt', or 'txtBirthdayEmails'.
+	 *    Default: null.
+	 * @param ?string $lang A specific language to load $file from. If empty,
+	 *    defaults to the current user's preferred language.
+	 * @throws \ValueError if $var is invalid.
+	 * @return string The string to display to the user.
+	 */
+	public static function txtExists(string|array $txt_key, string $var = 'txt', ?string $file = null, string $lang = ''): bool
+	{
+		// Validate $var.
+		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
+			throw new \ValueError();
+		}
+
+		// Can we guess the file based on $var?
+		if (!isset($file)) {
+			switch ($var) {
+				case 'tztxt':
+					$file = 'Timezones';
+					break;
+
+				case 'editortxt':
+					$file = 'Editor';
+					break;
+
+				case 'helptxt':
+					$file = 'Help';
+					break;
+
+				case 'txtBirthdayEmails':
+					$file = 'EmailTemplates';
+					break;
+			}
+		}
+
+		// Load the specified file.
+		if (is_string($file) && !isset(self::$already_loaded[$file])) {
+			self::load($file . (!str_contains($file, 'ThemeStrings') ? '+ThemeStrings' : '') . (!str_contains($file, 'Modifications') ? '+Modifications' : ''), $lang);
+		}
+
+		$target = &self::${$var};
+
+		// Drill down to the specified key.
+		foreach ((array) $txt_key as $key) {
+			if (isset($target[$key])) {
+				$target = &$target[$key];
+			} else {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Sets the value of a Lang::$txt string or an array of strings.
+	 *
+	 * Used for dynamically generated strings.
+	 *
+	 * @param string|array $txt_key The key of the Lang::$txt array that
+	 *    contains the desired string. If this is an array, each item of the
+	 *    array will be used as a sub-key to drill down into deeper levels of
+	 *    the overall array.
+	 * @param string|array $value Either a single string or an array of strings.
+	 * @param string $var Name of the array that will contain the new string.
+	 *    Allowed values are 'txt', 'helptxt', 'editortxt', 'tztxt', and
+	 *    'txtBirthdayEmails'. Default: 'txt'.
+	 * @throws \ValueError if $txt_key is an empty array or $var is invalid.
+	 */
+	public static function setTxt(string|array $txt_key, string|array $value, string $var = 'txt'): void
+	{
+		// Validate $var.
+		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
+			throw new \ValueError();
+		}
+
+		$txt_key = array_values((array) $txt_key);
+
+		if ($txt_key === []) {
+			throw new \ValueError();
+		}
+
+		$target = &self::${$var};
+
+		// Drill down to the specified key.
+		foreach ($txt_key as $depth => $key) {
+			if (isset($target[(string) $key])) {
+				$target = &$target[(string) $key];
+			} else {
+				$target[(string) $key] = $depth === array_key_last($txt_key) ? '' : [];
+				$target = &$target[(string) $key];
+			}
+		}
+
+		$target = $value;
+	}
+
+	/**
 	 * High level method that retrieves language strings, inserts any arguments
 	 * into them, and then returns the resulting finalized string.
 	 *
@@ -520,25 +660,82 @@ class Lang
 	 *    array will be used as a sub-key to drill down into deeper levels of
 	 *    the overall array.
 	 * @param array $args Arguments to substitute into the Lang::$txt string.
-	 * @param array $var Name of the array to search in. Default: 'txt'.
-	 *    Other possible values are 'helptxt', 'editortxt', and 'tztxt'.
-	 * @return string The string to display to the user.
+	 * @param string $var Name of the array to search in. Allowed values are
+	 *    'txt', 'helptxt', 'editortxt', 'tztxt', and 'txtBirthdayEmails'.
+	 *    Default: 'txt'.
+	 * @param ?string $file Name of a language file to load. This is not needed
+	 *    when $var is 'helptxt', 'editortxt', 'tztxt', or 'txtBirthdayEmails'.
+	 *    Default: null.
+	 * @param ?string $lang A specific language to load $file from. If empty,
+	 *    defaults to the current user's preferred language.
+	 * @throws \ValueError if $var is invalid.
+	 * @return string|array The string to display to the user, or an array
+	 *    of strings if $txt_key refers to an array.
 	 */
-	public static function getTxt(string|array $txt_key, array $args = [], string $var = 'txt'): string
+	public static function getTxt(string|array $txt_key, array $args = [], string $var = 'txt', ?string $file = null, string $lang = ''): string|array
 	{
 		// Validate $var.
 		if (!in_array($var, ['txt', 'tztxt', 'editortxt', 'helptxt', 'txtBirthdayEmails'])) {
 			throw new \ValueError();
 		}
 
+		$txt_key = array_values((array) $txt_key);
+
+		if ($lang == '') {
+			$lang = User::$me->language ?? self::$default;
+		}
+
+		// Can we guess the file based on $var?
+		if (!isset($file)) {
+			switch ($var) {
+				case 'tztxt':
+					$file = 'Timezones';
+					break;
+
+				case 'editortxt':
+					$file = 'Editor';
+					break;
+
+				case 'helptxt':
+					$file = 'Help';
+					break;
+
+				case 'txtBirthdayEmails':
+					$file = 'EmailTemplates';
+					break;
+			}
+		}
+
+		// Check whether we need to load the specified file.
+		if (
+			is_string($file)
+			&& (
+				// If we haven't loaded the file yet, do so now.
+				!isset(self::$loaded_keys[$txt_key[0]])
+
+				// If we loaded it for a different language, reload for the right language.
+				|| self::$loaded_keys[$txt_key[0]]['lang'] !== $lang
+
+				// In the event of key conflicts between different files, give
+				// them the string from the requested file. HOWEVER, if the key
+				// was overwritten in the Modifications or ThemeStrings language
+				// files, then keep that version instead.
+				|| (
+					self::$loaded_keys[$txt_key[0]]['file'] !== $file
+					&& self::$loaded_keys[$txt_key[0]]['file'] !== 'ThemeStrings'
+					&& self::$loaded_keys[$txt_key[0]]['file'] !== 'Modifications'
+				)
+			)
+		) {
+			self::load($file . (!empty(Theme::$current->settings['default_theme_dir']) && !str_contains($file, 'ThemeStrings') ? '+ThemeStrings' : '') . (!str_contains($file, 'Modifications') ? '+Modifications' : ''), $lang, force_reload: true);
+		}
+
 		// Don't waste time when getting a simple string.
-		if ($args === [] && is_string($txt_key)) {
-			return self::${$var}[$txt_key] ?? '';
+		if ($args === [] && count($txt_key) === 1) {
+			return self::${$var}[$txt_key[0]] ?? '';
 		}
 
 		// Trying to get something more complex...
-		$txt_key = (array) $txt_key;
-
 		$target = &self::${$var};
 
 		// Drill down to the specified key.
@@ -551,18 +748,18 @@ class Lang
 			}
 		}
 
-		if (!is_scalar($target)) {
-			throw new \ValueError();
+		if (is_array($target) || empty($args)) {
+			return $target;
 		}
 
-		if (empty($args)) {
-			return $target;
+		if (!is_string($target)) {
+			throw new \ValueError();
 		}
 
 		// Workaround for a CrowdIn limitation that won't allow translators to
 		// change offset values in strings.
 		if (
-			count($txt_key) === 0
+			count($txt_key) === 1
 			&& in_array($txt_key[0], ['ordinal_last', 'ordinal_spellout_last'])
 			&& isset(self::$txt['ordinal_last_offset'])
 		) {
@@ -606,8 +803,6 @@ class Lang
 			$censor_vulgar = explode("\n", Config::$modSettings['censor_vulgar']);
 			$censor_proper = explode("\n", Config::$modSettings['censor_proper']);
 
-			$charset = empty(Config::$modSettings['global_character_set']) ? self::$txt['lang_character_set'] : Config::$modSettings['global_character_set'];
-
 			// Quote them for use in regular expressions.
 			for ($i = 0, $n = count($censor_vulgar); $i < $n; $i++) {
 				// If a word is replaced with itself, just leave it as it is.
@@ -624,13 +819,13 @@ class Lang
 
 				if (!empty(Config::$modSettings['censorWholeWord'])) {
 					// Use the faster \b if we can, or something more complex if we can't
-					$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?<![\p{L}\p{M}\p{N}_])' : '(?<!\w)');
-					$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : ($charset === 'UTF-8' ? '(?![\p{L}\p{M}\p{N}_])' : '(?!\w)');
+					$boundary_before = preg_match('/^\w/', $censor_vulgar[$i]) ? '\b' : '(?<![\p{L}\p{M}\p{N}_])';
+					$boundary_after = preg_match('/\w$/', $censor_vulgar[$i]) ? '\b' : '(?![\p{L}\p{M}\p{N}_])';
 				} else {
 					$boundary_before = $boundary_after = '';
 				}
 
-				$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i') . ($charset === 'UTF-8' ? 'u' : '');
+				$censor_vulgar[$i] = '/' . $boundary_before . $censor_vulgar[$i] . $boundary_after . '/u' . (empty(Config::$modSettings['censorIgnoreCase']) ? '' : 'i');
 			}
 		}
 
@@ -742,8 +937,8 @@ class Lang
 	 * current locale to format the number.
 	 *
 	 * @param int|float|string $number A number.
-	 * @param int $decimals If set, will use the specified number of decimal
-	 *    places. Otherwise it's automatically determined.
+	 * @param int|null $decimals If set, will use the specified number of decimal
+	 *    places. Otherwise, it's automatically determined.
 	 * @return string A formatted number
 	 */
 	public static function numberFormat(int|float|string $number, ?int $decimals = null): string
@@ -794,7 +989,11 @@ class Lang
 
 		// If nothing changed, try formatting it as a sprintf string.
 		if ($final === $message) {
-			$final = vsprintf($message, $args);
+			try {
+				$final = vsprintf($message, $args);
+			} catch (\Throwable $e) {
+				$final = $message;
+			}
 		}
 
 		return $final;
@@ -868,7 +1067,17 @@ class Lang
 						continue;
 					}
 
+					// Add the strings to the appropriate array.
 					self::${$var} = array_merge(self::${$var}, ${$var});
+
+					// Keep track of where these strings came from.
+					self::$loaded_keys[$var] = array_merge(
+						self::$loaded_keys[$var] ?? [],
+						array_combine(
+							array_keys(${$var}),
+							array_fill(0, count(${$var}), ['file' => $file[1], 'lang' => $file[2]]),
+						),
+					);
 
 					unset(${$var});
 				}

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,9 +16,13 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -26,8 +30,9 @@ use SMF\Utils;
 /**
  * Suggests members, membergroups, or SMF versions in reply to AJAX requests.
  */
-class AutoSuggest implements ActionInterface
+class AutoSuggest implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/*******************
@@ -76,6 +81,21 @@ class AutoSuggest implements ActionInterface
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function canBeLogged(): bool
+	{
+		return false;
+	}
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
+	}
 
 	/**
 	 * Dispatcher to whichever method is necessary.
@@ -282,18 +302,6 @@ class AutoSuggest implements ActionInterface
 		IntegrationHook::call('integrate_autosuggest', [&self::$suggest_types]);
 
 		return isset(self::$suggest_types[$suggest_type]) && (method_exists(__CLASS__, $suggest_type) || function_exists('AutoSuggest_Search_' . self::$suggest_types[$suggest_type]) || function_exists('AutoSuggest_Search_' . $suggest_type));
-	}
-
-	/**
-	 * Backward compatibility provider
-	 * @param null|string $suggest_type
-	 * @param bool $callHandler
-	 */
-	public static function backCompatProvider(?string $suggest_type = null): void
-	{
-		self::load();
-		self::$obj->suggest_type = $suggest_type;
-		self::$obj->execute();
 	}
 
 	/******************

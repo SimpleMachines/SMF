@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Autolinker;
 use SMF\Board;
@@ -27,7 +28,11 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
 use SMF\Parser;
+use SMF\Routable;
+use SMF\Theme;
 use SMF\Time;
 use SMF\Topic;
 use SMF\User;
@@ -38,13 +43,24 @@ use SMF\Utils;
  *
  * Called via '?action=jsmodify' by script.js and topic.js
  */
-class JavaScriptModify implements ActionInterface
+class JavaScriptModify implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isSimpleAction(): bool
+	{
+		return true;
+	}
+
+	public function getOutputType(): OutputTypeInterface
+	{
+		return new OutputTypes\Xml();
+	}
 
 	/**
 	 * Does the job.
@@ -249,15 +265,13 @@ class JavaScriptModify implements ActionInterface
 			// Changing the first subject updates other subjects to 'Re: new_subject'.
 			if (isset($_POST['subject'], $_REQUEST['change_all_subjects']) && $row['id_first_msg'] == $row['id_msg'] && !empty($row['num_replies']) && (User::$me->allowedTo('modify_any') || ($row['id_member_started'] == User::$me->id && User::$me->allowedTo('modify_replies')))) {
 				// Get the proper (default language) response prefix first.
-				if (!isset(Utils::$context['response_prefix']) && !(Utils::$context['response_prefix'] = CacheApi::get('response_prefix'))) {
+				if (!isset(Utils::$context['response_prefix'])) {
 					if (Lang::$default === User::$me->language) {
-						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-					} else {
-						Lang::load('General', Lang::$default, false);
-						Utils::$context['response_prefix'] = Lang::$txt['response_prefix'];
-						Lang::load('General');
+						Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
+					} elseif (!(Utils::$context['response_prefix'] = CacheApi::get('response_prefix', 600))) {
+						Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General', lang: Lang::$default);
+						CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 					}
-					CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 				}
 
 				Db::$db->query(
@@ -280,6 +294,7 @@ class JavaScriptModify implements ActionInterface
 		}
 
 		if (isset($_REQUEST['xml'])) {
+			Theme::loadTemplate('Xml');
 			Utils::$context['sub_template'] = 'modifydone';
 
 			if (empty($post_errors) && isset($msgOptions['subject'], $msgOptions['body'])) {
@@ -329,13 +344,11 @@ class JavaScriptModify implements ActionInterface
 					'error_in_body' => in_array('no_message', $post_errors) || in_array('long_message', $post_errors) || in_array('links_malformed', $post_errors),
 				];
 
-				Lang::load('Errors');
-
 				foreach ($post_errors as $post_error) {
 					if ($post_error == 'long_message') {
-						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, [Config::$modSettings['max_messageLength']]);
+						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, [Config::$modSettings['max_messageLength']], file: 'Errors');
 					} else {
-						Utils::$context['message']['errors'][] = Lang::$txt['error_' . $post_error];
+						Utils::$context['message']['errors'][] = Lang::getTxt('error_' . $post_error, file: 'Errors');
 					}
 				}
 			}

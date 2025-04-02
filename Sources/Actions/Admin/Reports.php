@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -149,6 +149,42 @@ class Reports implements ActionInterface
 	 */
 	public function execute(): void
 	{
+		// Only admins, only EVER admins!
+		User::$me->isAllowedTo('admin_forum');
+
+		// Let's get our things running...
+		Theme::loadTemplate('Reports');
+		Theme::loadJavaScriptFile('reports.js', ['defer' => true, 'minimize' => true], 'smf_reports');
+
+		Utils::$context['page_title'] = Lang::getTxt('generate_reports', file: 'Admin');
+
+		// Load up all the tabs...
+		Menu::$loaded['admin']->tab_data = [
+			'title' => Lang::getTxt('generate_reports', file: 'Admin'),
+			'help' => '',
+			'description' => Lang::getTxt('generate_reports_desc', file: 'Reports'),
+		];
+
+		$is_first = 0;
+
+		foreach (self::$subactions as $k => $func) {
+			if (!is_string($func)) {
+				continue;
+			}
+
+			$this->report_types[$k] = [
+				'id' => $k,
+				'title' => Lang::txtExists('gr_type_' . $k, file: 'Reports') ? Lang::getTxt('gr_type_' . $k, file: 'Reports') : $k,
+				'description' => Lang::txtExists('gr_type_desc_' . $k, file: 'Reports') ? Lang::getTxt('gr_type_desc_' . $k, file: 'Reports') : null,
+				'function' => $func,
+				'is_first' => $is_first++ == 0,
+			];
+		}
+
+		Utils::$context['report_types'] = &$this->report_types;
+		Utils::$context['sub_template'] = &$this->sub_template;
+		Utils::$context['tables'] = &$this->tables;
+
 		if (empty($this->subaction)) {
 			$this->sub_template = 'report_type';
 
@@ -166,7 +202,7 @@ class Reports implements ActionInterface
 		}
 
 		// Make the page title more descriptive.
-		Utils::$context['page_title'] .= ' - ' . (Lang::$txt['gr_type_' . $this->subaction] ?? $this->subaction);
+		Utils::$context['page_title'] .= ' - ' . (Lang::txtExists('gr_type_' . $this->subaction, file: 'Reports') ? Lang::getTxt('gr_type_' . $this->subaction, file: 'Reports') : $this->subaction);
 
 		// Build the reports button array.
 		Utils::$context['report_buttons'] = [
@@ -178,7 +214,7 @@ class Reports implements ActionInterface
 		IntegrationHook::call('integrate_report_buttons');
 
 		// Now generate the data.
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -197,7 +233,7 @@ class Reports implements ActionInterface
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
 			[Group::ADMIN, Group::MOD],
 		);
-		Lang::load('ManagePermissions');
+
 		Permissions::loadPermissionProfiles();
 
 		// Get all the themes...
@@ -222,22 +258,22 @@ class Reports implements ActionInterface
 
 		// All the fields we'll show.
 		$boardSettings = [
-			'category' => Lang::$txt['board_category'],
-			'parent' => Lang::$txt['board_parent'],
-			'redirect' => Lang::$txt['board_redirect'],
-			'num_topics' => Lang::$txt['board_num_topics'],
-			'num_posts' => Lang::$txt['board_num_posts'],
-			'count_posts' => Lang::$txt['board_count_posts'],
-			'theme' => Lang::$txt['board_theme'],
-			'override_theme' => Lang::$txt['board_override_theme'],
-			'profile' => Lang::$txt['board_profile'],
-			'moderators' => Lang::$txt['board_moderators'],
-			'moderator_groups' => Lang::$txt['board_moderator_groups'],
-			'groups' => Lang::$txt['board_groups'],
+			'category' => Lang::getTxt('board_category', file: 'Reports'),
+			'parent' => Lang::getTxt('board_parent', file: 'Reports'),
+			'redirect' => Lang::getTxt('board_redirect', file: 'Reports'),
+			'num_topics' => Lang::getTxt('board_num_topics', file: 'Reports'),
+			'num_posts' => Lang::getTxt('board_num_posts', file: 'Reports'),
+			'count_posts' => Lang::getTxt('board_count_posts', file: 'Reports'),
+			'theme' => Lang::getTxt('board_theme', file: 'Reports'),
+			'override_theme' => Lang::getTxt('board_override_theme', file: 'Reports'),
+			'profile' => Lang::getTxt('board_profile', file: 'Reports'),
+			'moderators' => Lang::getTxt('board_moderators', file: 'Reports'),
+			'moderator_groups' => Lang::getTxt('board_moderator_groups', file: 'Reports'),
+			'groups' => Lang::getTxt('board_groups', file: 'Reports'),
 		];
 
 		if (!empty(Config::$modSettings['deny_boards_access'])) {
-			$boardSettings['disallowed_groups'] = Lang::$txt['board_disallowed_groups'];
+			$boardSettings['disallowed_groups'] = Lang::getTxt('board_disallowed_groups', file: 'Reports');
 		}
 
 		// Do it in columns, it's just easier.
@@ -264,16 +300,16 @@ class Reports implements ActionInterface
 			// Create the main data array.
 			$boardData = [
 				'category' => $board->cat->name,
-				'parent' => $board->parent == 0 ? Lang::$txt['none'] : Board::$loaded[$board->parent]->name,
+				'parent' => $board->parent == 0 ? Lang::getTxt('none', file: 'General') : Board::$loaded[$board->parent]->name,
 				'redirect' => $board->redirect,
 				'num_posts' => $board->posts,
 				'num_topics' => $board->topics,
-				'count_posts' => empty($board->count_posts) ? Lang::$txt['yes'] : Lang::$txt['no'],
-				'theme' => Utils::$context['themes'][$board->theme] ?? Lang::$txt['none'],
+				'count_posts' => Lang::getTxt(empty($board->count_posts) ? 'yes' : 'no', file: 'General'),
+				'theme' => Utils::$context['themes'][$board->theme] ?? Lang::getTxt('none', file: 'General'),
 				'profile' => Utils::$context['profiles'][$board->profile]['name'],
-				'override_theme' => $board->override_theme ? Lang::$txt['yes'] : Lang::$txt['no'],
-				'moderators' => implode(', ', array_column($board->moderators, 'name')) ?: Lang::$txt['none'],
-				'moderator_groups' => implode(', ', array_column($board->moderator_groups, 'name')) ?: Lang::$txt['none'],
+				'override_theme' => Lang::getTxt($board->override_theme ? 'yes' : 'no', file: 'General'),
+				'moderators' => implode(', ', array_column($board->moderators, 'name')) ?: Lang::getTxt('none', file: 'General'),
+				'moderator_groups' => implode(', ', array_column($board->moderator_groups, 'name')) ?: Lang::getTxt('none', file: 'General'),
 			];
 
 			// Work out the membergroups who can and cannot access it (but only if enabled).
@@ -357,7 +393,7 @@ class Reports implements ActionInterface
 		}
 
 		$this->setKeys('rows', $groups);
-		$this->newTable(Lang::$txt['gr_type_board_access'], '&mdash;', 'all', '100', 'center', '200', 'left');
+		$this->newTable(Lang::getTxt('gr_type_board_access', file: 'Reports'), '&mdash;', 'all', '100', 'center', '200', 'left');
 		$this->addData($groups);
 		uasort($data, fn($a, $b) => $a['col'] <=> $b['col']);
 
@@ -371,7 +407,6 @@ class Reports implements ActionInterface
 	 */
 	public function boardPerms(): void
 	{
-		Lang::load('ManagePermissions');
 		Permissions::loadPermissionProfiles();
 
 		$inc = [];
@@ -419,7 +454,7 @@ class Reports implements ActionInterface
 						}
 
 						if (!isset($data[$id_profile][$permission])) {
-							$data[$id_profile][$permission] = ['col' => Lang::$txt['board_perms_name_' . $permission] ?? $permission];
+							$data[$id_profile][$permission] = ['col' => Lang::txtExists('board_perms_name_' . $permission, file: 'Reports') ? Lang::getTxt('board_perms_name_' . $permission, file: 'Reports') : $permission];
 						}
 
 						$data[$id_profile][$permission][$group->id] = $add_deny ? '&#x2705;' : '&#x1F6AB;';
@@ -449,20 +484,20 @@ class Reports implements ActionInterface
 	{
 		$mgSettings = [
 			'name' => '#sep#',
-			'color' => Lang::$txt['member_group_color'],
-			'min_posts' => Lang::$txt['member_group_min_posts'],
-			'max_messages' => Lang::$txt['member_group_max_messages'],
-			'icons' => Lang::$txt['member_group_icons'],
+			'color' => Lang::getTxt('member_group_color', file: 'Reports'),
+			'min_posts' => Lang::getTxt('member_group_min_posts', file: 'Reports'),
+			'max_messages' => Lang::getTxt('member_group_max_messages', file: 'Reports'),
+			'icons' => Lang::getTxt('member_group_icons', file: 'Reports'),
 		];
 
-		$this->newTable(Lang::$txt['gr_type_member_groups'], '&mdash;', 'all', 'auto', 'left', 'auto', 'left');
+		$this->newTable(Lang::getTxt('gr_type_member_groups', file: 'Reports'), '&mdash;', 'all', 'auto', 'left', 'auto', 'left');
 		$this->addData($mgSettings);
 
 		foreach (Group::loadSimple(Group::LOAD_BOTH, []) as $group) {
 			$group_info = [
 				'name' => $group->name,
 				'color' => empty($group->online_color) ? '&mdash;' : '<span style="color: ' . $group->online_color . ';">' . $group->online_color . '</span>',
-				'min_posts' => $group->min_posts == -1 ? Lang::$txt['not_applicable'] : (string) $group->min_posts,
+				'min_posts' => $group->min_posts == -1 ? Lang::getTxt('not_applicable', file: 'General') : (string) $group->min_posts,
 				'max_messages' => (string) $group->max_messages,
 				'icons' => $group->icons,
 			];
@@ -523,9 +558,9 @@ class Reports implements ActionInterface
 
 					if (!isset($data[$permission])) {
 						if (str_starts_with($permission, 'bbc_')) {
-							$data[$permission] = ['col' => Lang::getTxt('group_perms_name_bbc', ['bbc' => substr($permission, 4)])];
+							$data[$permission] = ['col' => Lang::getTxt('group_perms_name_bbc', ['bbc' => substr($permission, 4)], file: 'Reports')];
 						} else {
-							$data[$permission] = ['col' => Lang::$txt['group_perms_name_' . $permission] ?? $permission];
+							$data[$permission] = ['col' => Lang::txtExists('group_perms_name_' . $permission, file: 'Reports') ? Lang::getTxt('group_perms_name_' . $permission, file: 'Reports') : $permission];
 						}
 					}
 
@@ -535,7 +570,7 @@ class Reports implements ActionInterface
 		}
 
 		$this->setKeys('rows', $groups);
-		$this->newTable(Lang::$txt['gr_type_group_perms'], '&mdash;', 'all', '100', 'center', '200', 'left');
+		$this->newTable(Lang::getTxt('gr_type_group_perms', file: 'Reports'), '&mdash;', 'all', '100', 'center', '200', 'left');
 		$this->addData($groups);
 		uasort($data, fn($a, $b) => $a['col'] <=> $b['col']);
 
@@ -571,13 +606,13 @@ class Reports implements ActionInterface
 
 		$staffSettings = [
 			'name' => '#sep#',
-			'position' => Lang::$txt['report_staff_position'],
-			'posts' => Lang::$txt['report_staff_posts'],
-			'last_login' => Lang::$txt['report_staff_last_login'],
-			'moderates' => Lang::$txt['report_staff_moderates'],
+			'position' => Lang::getTxt('report_staff_position', file: 'Reports'),
+			'posts' => Lang::getTxt('report_staff_posts', file: 'Reports'),
+			'last_login' => Lang::getTxt('report_staff_last_login', file: 'Reports'),
+			'moderates' => Lang::getTxt('report_staff_moderates', file: 'Reports'),
 		];
 
-		$this->newTable(Lang::$txt['gr_type_staff'], '', 'left', 'auto', 'left', '200', 'left');
+		$this->newTable(Lang::getTxt('gr_type_staff', file: 'Reports'), '', 'left', 'auto', 'left', '200', 'left');
 		$this->addData($staffSettings);
 		User::load($allStaff);
 
@@ -599,7 +634,7 @@ class Reports implements ActionInterface
 				'position' => Group::$loaded[$member->group_id]->name,
 				'posts' => $member->posts,
 				'last_login' => Time::create('@' . $member->last_login)->format(),
-				'moderates' => implode(', ', $board_names) ?: '<i>' . Lang::$txt['report_staff_all_boards'] . '</i>',
+				'moderates' => implode(', ', $board_names) ?: '<i>' . Lang::getTxt('report_staff_all_boards', file: 'Reports') . '</i>',
 			];
 
 			$this->addData($staffData);
@@ -641,47 +676,10 @@ class Reports implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		// Only admins, only EVER admins!
-		User::$me->isAllowedTo('admin_forum');
-
-		// Let's get our things running...
-		Theme::loadTemplate('Reports');
-		Lang::load('Reports');
-		Theme::loadJavaScriptFile('reports.js', ['defer' => true, 'minimize' => true], 'smf_reports');
-
-		Utils::$context['page_title'] = Lang::$txt['generate_reports'];
-
 		// For backward compatibility...
 		Utils::$context['report_types'] = &self::$subactions;
 
 		IntegrationHook::call('integrate_report_types', [&self::$subactions]);
-
-		// Load up all the tabs...
-		Menu::$loaded['admin']->tab_data = [
-			'title' => Lang::$txt['generate_reports'],
-			'help' => '',
-			'description' => Lang::$txt['generate_reports_desc'],
-		];
-
-		$is_first = 0;
-
-		foreach (self::$subactions as $k => $func) {
-			if (!is_string($func)) {
-				continue;
-			}
-
-			$this->report_types[$k] = [
-				'id' => $k,
-				'title' => Lang::$txt['gr_type_' . $k] ?? $k,
-				'description' => Lang::$txt['gr_type_desc_' . $k] ?? null,
-				'function' => $func,
-				'is_first' => $is_first++ == 0,
-			];
-		}
-
-		Utils::$context['report_types'] = &$this->report_types;
-		Utils::$context['sub_template'] = &$this->sub_template;
-		Utils::$context['tables'] = &$this->tables;
 
 		if (!empty($_REQUEST['rt']) && isset(self::$subactions[$_REQUEST['rt']])) {
 			$this->subaction = $_REQUEST['rt'];

@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -183,11 +183,11 @@ class Search
 		Utils::$context['start'] = &$this->start;
 		Utils::$context['params'] = &$this->compressed_params;
 
-		Utils::$context['page_title'] = Lang::$txt['pm_search_title'];
+		Utils::$context['page_title'] = Lang::getTxt('pm_search_title', file: 'PersonalMessage');
 		Menu::$loaded['pm']['current_area'] = 'search';
 		Utils::$context['linktree'][] = [
 			'url' => Config::$scripturl . '?action=pm;sa=search',
-			'name' => Lang::$txt['pm_search_bar_title'],
+			'name' => Lang::getTxt('pm_search_bar_title', file: 'PersonalMessage'),
 		];
 	}
 
@@ -222,8 +222,6 @@ class Search
 
 		// Load the error text strings if there were errors in the search.
 		if (!empty(Utils::$context['search_errors'])) {
-			Lang::load('Errors');
-
 			Utils::$context['search_errors']['messages'] = [];
 
 			foreach (Utils::$context['search_errors'] as $search_error => $dummy) {
@@ -231,7 +229,7 @@ class Search
 					continue;
 				}
 
-				Utils::$context['search_errors']['messages'][] = Lang::$txt['error_' . $search_error];
+				Utils::$context['search_errors']['messages'][] = Lang::getTxt('error_' . $search_error, file: 'Errors');
 			}
 		}
 
@@ -329,6 +327,11 @@ class Search
 			$this->per_page,
 			false,
 		);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_GET['start'] != $start) {
+			Utils::redirectexit(Utils::$context['page_index']->base_url . ';start=' . $start);
+		}
 
 		Utils::$context['sub_template'] = 'search_results';
 
@@ -610,12 +613,12 @@ class Search
 	protected function setSearchQuery(): void
 	{
 		// Extract phrase parts first (e.g. some words "this is a phrase" some more words.)
-		preg_match_all('~(?:^|\s)([-]?)"([^"]+)"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), $this->params['search'], $matches, PREG_PATTERN_ORDER);
+		preg_match_all('~(?:^|\s)([-]?)"([^"]+)"(?:$|\s)~u', $this->params['search'], $matches, PREG_PATTERN_ORDER);
 
 		$searchArray = $matches[2];
 
 		// Remove the phrase parts and extract the words.
-		$tempSearch = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~' . (Utils::$context['utf8'] ? 'u' : ''), ' ', $this->params['search']));
+		$tempSearch = explode(' ', preg_replace('~(?:^|\s)(?:[-]?)"(?:[^"]+)"(?:$|\s)~u', ' ', $this->params['search']));
 
 		// A minus sign in front of a word excludes the word.... so...
 		$excludedWords = [];

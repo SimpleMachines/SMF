@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -16,11 +16,13 @@ declare(strict_types=1);
 namespace SMF\Actions;
 
 use SMF\ActionInterface;
+use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Parser;
+use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -30,13 +32,19 @@ use SMF\Utils;
  * and privacy policy, and to ask the user to accept them if they haven't
  * already done so.
  */
-class Agreement implements ActionInterface
+class Agreement implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
 	 * Public methods
 	 ****************/
+
+	public function isAgreementAction(): bool
+	{
+		return true;
+	}
 
 	/**
 	 * Shows the registration agreement and privacy policy.
@@ -48,17 +56,16 @@ class Agreement implements ActionInterface
 	{
 		$this->prepareAgreementContext();
 
-		Lang::load('Agreement');
 		Theme::loadTemplate('Agreement');
 
 		$page_title = '';
 
 		if (!empty(Utils::$context['agreement']) && !empty(Utils::$context['privacy_policy'])) {
-			$page_title = Lang::$txt['agreement_and_privacy_policy'];
+			$page_title = Lang::getTxt('agreement_and_privacy_policy', file: 'Agreement');
 		} elseif (!empty(Utils::$context['agreement'])) {
-			$page_title = Lang::$txt['agreement'];
+			$page_title = Lang::getTxt('registration_agreement', file: 'General');
 		} elseif (!empty(Utils::$context['privacy_policy'])) {
-			$page_title = Lang::$txt['privacy_policy'];
+			$page_title = Lang::getTxt('privacy_policy', file: 'General');
 		}
 
 		Utils::$context['page_title'] = $page_title;
@@ -120,6 +127,41 @@ class Agreement implements ActionInterface
 		Utils::$context['privacy_policy_accepted_date'] = empty(Theme::$current->options['policy_accepted']) ? 0 : Theme::$current->options['policy_accepted'];
 
 		return empty(Theme::$current->options['policy_accepted']) || Config::$modSettings['policy_updated_' . $policy_lang] > Theme::$current->options['policy_accepted'];
+	}
+
+	/**
+	 * Builds a routing path based on URL query parameters.
+	 *
+	 * @param array $params URL query parameters.
+	 * @return array Contains two elements: ['route' => [], 'params' => []].
+	 *    The 'route' element contains the routing path. The 'params' element
+	 *    contains any $params that weren't incorporated into the route.
+	 */
+	public static function buildRoute(array $params): array
+	{
+		$route = self::buildActionRoute($params);
+
+		// Rename the action to avoid a naming conflict with the agreement.txt file.
+		$route[0] = 'termsofservice';
+
+		return ['route' => $route, 'params' => $params];
+	}
+
+	/**
+	 * Parses a route to get URL query parameters.
+	 *
+	 * @param array $route Array of routing path components.
+	 * @param array $params Any existing URL query parameters.
+	 * @return array URL query parameters
+	 */
+	public static function parseRoute(array $route, array $params = []): array
+	{
+		$params = array_merge($params, self::parseActionRoute($route));
+
+		// Change 'termsofservice' back to 'agreement'.
+		$params['action'] = 'agreement';
+
+		return $params;
 	}
 
 	/******************

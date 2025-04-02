@@ -352,7 +352,7 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 
 	// Load the help page content (we just want the text to show)
 	$.ajax({
-		url: desktopURL + ';ajax',
+		url: desktopURL + (desktopURL.includes('?') ? ';' : '?') + 'ajax',
 		headers: {
 			'X-SMF-AJAX': 1
 		},
@@ -366,6 +366,10 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 		success: function (data, textStatus, xhr) {
 			var help_content = $('<div id="temp_help">').html(data).find('a[href$="self.close();"]').hide().prev('br').hide().parent().html();
 			oPopup_body.html(help_content);
+
+			if (oPopup_body.find('*:not(:has(*)):visible').text().length > 1200) {
+				$('#' + oContainer.popup_id).find('.popup_window').addClass('large');
+			}
 		},
 		error: function (xhr, textStatus, errorThrown) {
 			oPopup_body.html(textStatus);
@@ -422,7 +426,7 @@ smc_PopupMenu.prototype.open = function (sItem)
 		this.opt.menus[sItem].menuObj.html('<div class="loading">' + (typeof(ajax_notification_text) != null ? ajax_notification_text : '') + '</div>');
 
 		$.ajax({
-			url: this.opt.menus[sItem].sUrl + ';ajax',
+			url: this.opt.menus[sItem].sUrl + (this.opt.menus[sItem].sUrl.includes('?') ? ';' : '?') + 'ajax',
 			headers: {
 				'X-SMF-AJAX': 1
 			},

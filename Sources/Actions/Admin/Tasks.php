@@ -8,7 +8,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 declare(strict_types=1);
@@ -78,7 +78,32 @@ class Tasks implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$call = method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
+		User::$me->isAllowedTo('admin_forum');
+
+		Theme::loadTemplate('ManageScheduledTasks');
+
+		// Tab data might already be set if this was called from Logs::execute().
+		if (empty(Menu::$loaded['admin']->tab_data)) {
+			// Now for the lovely tabs. That we all love.
+			Menu::$loaded['admin']->tab_data = [
+				'title' => Lang::getTxt('scheduled_tasks_title', file: 'ManageScheduledTasks'),
+				'help' => '',
+				'description' => Lang::getTxt('maintain_info', file: 'Admin'),
+				'tabs' => [
+					'tasks' => [
+						'description' => Lang::getTxt('maintain_tasks_desc', file: 'Admin'),
+					],
+					'tasklog' => [
+						'description' => Lang::getTxt('scheduled_log_desc', file: 'Admin'),
+					],
+					'settings' => [
+						'description' => Lang::getTxt('scheduled_tasks_settings_desc', file: 'Admin'),
+					],
+				],
+			];
+		}
+
+		$call = is_string(self::$subactions[$this->subaction]) && method_exists($this, self::$subactions[$this->subaction]) ? [$this, self::$subactions[$this->subaction]] : Utils::getCallable(self::$subactions[$this->subaction]);
 
 		if (!empty($call)) {
 			call_user_func($call);
@@ -93,7 +118,7 @@ class Tasks implements ActionInterface
 		// Mama, setup the template first - cause it's like the most important bit, like pickle in a sandwich.
 		// ... ironically I don't like pickle. </grudge>
 		Utils::$context['sub_template'] = 'view_scheduled_tasks';
-		Utils::$context['page_title'] = Lang::$txt['maintain_tasks'];
+		Utils::$context['page_title'] = Lang::getTxt('maintain_tasks', file: 'Admin');
 
 		// Saving changes?
 		if (isset($_REQUEST['save'], $_POST['enable_task'])) {
@@ -165,7 +190,7 @@ class Tasks implements ActionInterface
 
 		$listOptions = [
 			'id' => 'scheduled_tasks',
-			'title' => Lang::$txt['maintain_tasks'],
+			'title' => Lang::getTxt('maintain_tasks', file: 'Admin'),
 			'base_href' => Config::$scripturl . '?action=admin;area=scheduledtasks',
 			'get_items' => [
 				'function' => __CLASS__ . '::list_getScheduledTasks',
@@ -173,13 +198,13 @@ class Tasks implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_name'],
+						'value' => Lang::getTxt('scheduled_tasks_name', file: 'ManageScheduledTasks'),
 						'style' => 'width: 40%;',
 					],
 					'data' => [
-						'sprintf' => [
+						'format_text' => [
 							'format' => '
-								<a href="' . Config::$scripturl . '?action=admin;area=scheduledtasks;sa=taskedit;tid=%1$d">%2$s</a><br><span class="smalltext">%3$s</span>',
+								<a href="' . Config::$scripturl . '?action=admin;area=scheduledtasks;sa=taskedit;tid={id}">{name}</a><br><span class="smalltext">{desc}</span>',
 							'params' => [
 								'id' => false,
 								'name' => false,
@@ -190,7 +215,7 @@ class Tasks implements ActionInterface
 				],
 				'next_due' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_next_time'],
+						'value' => Lang::getTxt('scheduled_tasks_next_time', file: 'ManageScheduledTasks'),
 					],
 					'data' => [
 						'db' => 'next_time',
@@ -199,7 +224,7 @@ class Tasks implements ActionInterface
 				],
 				'regularity' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_regularity'],
+						'value' => Lang::getTxt('scheduled_tasks_regularity', file: 'ManageScheduledTasks'),
 					],
 					'data' => [
 						'db' => 'regularity',
@@ -208,14 +233,14 @@ class Tasks implements ActionInterface
 				],
 				'run_now' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_run_now'],
+						'value' => Lang::getTxt('scheduled_tasks_run_now', file: 'ManageScheduledTasks'),
 						'style' => 'width: 12%;',
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
+						'format_text' => [
 							'format' =>
-								'<input type="checkbox" name="run_task[%1$d]" id="run_task_%1$d">',
+								'<input type="checkbox" name="run_task[{id}]" id="run_task_{id}">',
 							'params' => [
 								'id' => false,
 							],
@@ -225,14 +250,14 @@ class Tasks implements ActionInterface
 				],
 				'enabled' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_enabled'],
+						'value' => Lang::getTxt('scheduled_tasks_enabled', file: 'ManageScheduledTasks'),
 						'style' => 'width: 6%;',
 						'class' => 'centercol',
 					],
 					'data' => [
-						'sprintf' => [
+						'format_text' => [
 							'format' =>
-								'<input type="hidden" name="enable_task[%1$d]" id="task_%1$d" value="0"><input type="checkbox" name="enable_task[%1$d]" id="task_check_%1$d" %2$s>',
+								'<input type="hidden" name="enable_task[{id}]" id="task_{id}" value="0"><input type="checkbox" name="enable_task[{id}]" id="task_check_{id}" {checked_state}>',
 							'params' => [
 								'id' => false,
 								'checked_state' => false,
@@ -249,12 +274,12 @@ class Tasks implements ActionInterface
 				[
 					'position' => 'below_table_data',
 					'value' => '
-						<input type="submit" name="save" value="' . Lang::$txt['scheduled_tasks_save_changes'] . '" class="button">
-						<input type="submit" name="run" value="' . Lang::$txt['scheduled_tasks_run_now'] . '" class="button">',
+						<input type="submit" name="save" value="' . Lang::getTxt('scheduled_tasks_save_changes', file: 'ManageScheduledTasks') . '" class="button">
+						<input type="submit" name="run" value="' . Lang::getTxt('scheduled_tasks_run_now', file: 'ManageScheduledTasks') . '" class="button">',
 				],
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['scheduled_tasks_time_offset'],
+					'value' => Lang::getTxt('scheduled_tasks_time_offset', file: 'ManageScheduledTasks'),
 				],
 			],
 		];
@@ -274,7 +299,7 @@ class Tasks implements ActionInterface
 		// Just set up some lovely context stuff.
 		Menu::$loaded['admin']['current_subsection'] = 'tasks';
 		Utils::$context['sub_template'] = 'edit_scheduled_tasks';
-		Utils::$context['page_title'] = Lang::$txt['scheduled_task_edit'];
+		Utils::$context['page_title'] = Lang::getTxt('scheduled_task_edit', file: 'ManageScheduledTasks');
 		Utils::$context['server_time'] = Time::create('now', new \DateTimeZone(Config::$modSettings['default_timezone']))->format(null, false);
 
 		// Cleaning...
@@ -359,9 +384,9 @@ class Tasks implements ActionInterface
 			Utils::$context['task'] = [
 				'id' => $row['id_task'],
 				'function' => $row['task'],
-				'name' => Lang::$txt['scheduled_task_' . $row['task']] ?? $row['task'],
-				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl]),
-				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
+				'name' => Lang::txtExists('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') : $row['task'],
+				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl], file: 'ManageScheduledTasks'),
+				'next_time' => $row['disabled'] ? Lang::getTxt('scheduled_tasks_na', file: 'ManageScheduledTasks') : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
 				'offset' => $row['time_offset'],
 				'regularity' => $row['time_regularity'],
@@ -379,9 +404,6 @@ class Tasks implements ActionInterface
 	 */
 	public function log(): void
 	{
-		// Lets load the language just incase we are outside the Scheduled area.
-		Lang::load('ManageScheduledTasks');
-
 		// Empty the log?
 		if (!empty($_POST['removeAll'])) {
 			User::$me->checkSession();
@@ -399,8 +421,8 @@ class Tasks implements ActionInterface
 		$listOptions = [
 			'id' => 'task_log',
 			'items_per_page' => 30,
-			'title' => Lang::$txt['scheduled_log'],
-			'no_items_label' => Lang::$txt['scheduled_log_empty'],
+			'title' => Lang::getTxt('scheduled_log', file: 'Admin'),
+			'no_items_label' => Lang::getTxt('scheduled_log_empty', file: 'ManageScheduledTasks'),
 			'base_href' => Utils::$context['admin_area'] == 'scheduledtasks' ? Config::$scripturl . '?action=admin;area=scheduledtasks;sa=tasklog' : Config::$scripturl . '?action=admin;area=logs;sa=tasklog',
 			'default_sort_col' => 'date',
 			'get_items' => [
@@ -412,7 +434,7 @@ class Tasks implements ActionInterface
 			'columns' => [
 				'name' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_tasks_name'],
+						'value' => Lang::getTxt('scheduled_tasks_name', file: 'ManageScheduledTasks'),
 					],
 					'data' => [
 						'db' => 'name',
@@ -420,7 +442,7 @@ class Tasks implements ActionInterface
 				],
 				'date' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_log_time_run'],
+						'value' => Lang::getTxt('scheduled_log_time_run', file: 'ManageScheduledTasks'),
 					],
 					'data' => [
 						'function' => function ($rowData) {
@@ -434,10 +456,10 @@ class Tasks implements ActionInterface
 				],
 				'time_taken' => [
 					'header' => [
-						'value' => Lang::$txt['scheduled_log_time_taken'],
+						'value' => Lang::getTxt('scheduled_log_time_taken', file: 'ManageScheduledTasks'),
 					],
 					'data' => [
-						'getTxt' => [
+						'get_txt' => [
 							'format' => 'scheduled_log_time_taken_seconds',
 							'params' => [
 								0 => [
@@ -461,11 +483,11 @@ class Tasks implements ActionInterface
 				[
 					'position' => 'below_table_data',
 					'value' => '
-						<input type="submit" name="removeAll" value="' . Lang::$txt['scheduled_log_empty_log'] . '" data-confirm="' . Lang::$txt['scheduled_log_empty_log_confirm'] . '" class="button you_sure">',
+						<input type="submit" name="removeAll" value="' . Lang::getTxt('scheduled_log_empty_log', file: 'ManageScheduledTasks') . '" data-confirm="' . Lang::getTxt('scheduled_log_empty_log_confirm', file: 'ManageScheduledTasks') . '" class="button you_sure">',
 				],
 				[
 					'position' => 'after_title',
-					'value' => Lang::$txt['scheduled_tasks_time_offset'],
+					'value' => Lang::getTxt('scheduled_tasks_time_offset', file: 'ManageScheduledTasks'),
 				],
 			],
 		];
@@ -479,7 +501,7 @@ class Tasks implements ActionInterface
 
 		// Make it all look spiffy.
 		Menu::$loaded['admin']['current_subsection'] = 'tasklog';
-		Utils::$context['page_title'] = Lang::$txt['scheduled_log'];
+		Utils::$context['page_title'] = Lang::getTxt('scheduled_log', file: 'Admin');
 	}
 
 	/**
@@ -490,11 +512,11 @@ class Tasks implements ActionInterface
 		$config_vars = self::getConfigVars();
 
 		// Set up the template.
-		Utils::$context['page_title'] = Lang::$txt['scheduled_tasks_settings'];
+		Utils::$context['page_title'] = Lang::getTxt('scheduled_tasks_settings', file: 'Admin');
 		Utils::$context['sub_template'] = 'show_settings';
 
 		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=scheduledtasks;save;sa=settings';
-		Utils::$context['settings_title'] = Lang::$txt['scheduled_tasks_settings'];
+		Utils::$context['settings_title'] = Lang::getTxt('scheduled_tasks_settings', file: 'Admin');
 
 		// Saving?
 		if (isset($_GET['save'])) {
@@ -525,10 +547,13 @@ class Tasks implements ActionInterface
 	 */
 	public static function getConfigVars(): array
 	{
-		Lang::load('Help+ManageScheduledTasks');
-
 		$config_vars = [
-			['check', 'cron_is_real_cron', 'subtext' => Lang::$txt['cron_is_real_cron_desc'], 'help' => 'cron_is_real_cron'],
+			[
+				'check',
+				'cron_is_real_cron',
+				'subtext' => Lang::getTxt('cron_is_real_cron_desc', file: 'ManageScheduledTasks'),
+				'help' => 'cron_is_real_cron',
+			],
 		];
 
 		IntegrationHook::call('integrate_scheduled_tasks_settings', [&$config_vars]);
@@ -558,16 +583,16 @@ class Tasks implements ActionInterface
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			// Find the next for regularity - don't offset as it's always server time!
-			$offset = Lang::getTxt('scheduled_task_reg_starting', ['time' => date('H:i', (int) $row['time_offset'])]);
+			$offset = Lang::getTxt('scheduled_task_reg_starting', ['time' => date('H:i', (int) $row['time_offset'])], file: 'ManageScheduledTasks');
 
-			$repeating = Lang::getTxt('scheduled_task_reg_repeating', $row);
+			$repeating = Lang::getTxt('scheduled_task_reg_repeating', $row, file: 'ManageScheduledTasks');
 
 			$known_tasks[] = [
 				'id' => $row['id_task'],
 				'function' => $row['task'],
-				'name' => Lang::$txt['scheduled_task_' . $row['task']] ?? $row['task'],
-				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl]),
-				'next_time' => $row['disabled'] ? Lang::$txt['scheduled_tasks_na'] : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
+				'name' => Lang::txtExists('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') : $row['task'],
+				'desc' => Lang::getTxt('scheduled_task_desc_' . $row['task'], ['scripturl' => Config::$scripturl], file: 'ManageScheduledTasks'),
+				'next_time' => $row['disabled'] ? Lang::getTxt('scheduled_tasks_na', file: 'ManageScheduledTasks') : Time::create($row['next_time'] == 0 ? 'now' : '@' . $row['next_time'], new \DateTimeZone(Config::$modSettings['default_timezone']))->format(),
 				'disabled' => $row['disabled'],
 				'checked_state' => $row['disabled'] ? '' : 'checked',
 				'regularity' => $offset . ', ' . $repeating,
@@ -607,7 +632,7 @@ class Tasks implements ActionInterface
 		while ($row = Db::$db->fetch_assoc($request)) {
 			$log_entries[] = [
 				'id' => $row['id_log'],
-				'name' => Lang::$txt['scheduled_task_' . $row['task']] ?? $row['task'],
+				'name' => Lang::txtExists('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') ? Lang::getTxt('scheduled_task_' . $row['task'], file: 'ManageScheduledTasks') : $row['task'],
 				'time_run' => $row['time_run'],
 				'time_taken' => $row['time_taken'],
 			];
@@ -646,32 +671,6 @@ class Tasks implements ActionInterface
 	 */
 	protected function __construct()
 	{
-		User::$me->isAllowedTo('admin_forum');
-
-		Lang::load('ManageScheduledTasks');
-		Theme::loadTemplate('ManageScheduledTasks');
-
-		// Tab data might already be set if this was called from Logs::execute().
-		if (empty(Menu::$loaded['admin']->tab_data)) {
-			// Now for the lovely tabs. That we all love.
-			Menu::$loaded['admin']->tab_data = [
-				'title' => Lang::$txt['scheduled_tasks_title'],
-				'help' => '',
-				'description' => Lang::$txt['maintain_info'],
-				'tabs' => [
-					'tasks' => [
-						'description' => Lang::$txt['maintain_tasks_desc'],
-					],
-					'tasklog' => [
-						'description' => Lang::$txt['scheduled_log_desc'],
-					],
-					'settings' => [
-						'description' => Lang::$txt['scheduled_tasks_settings_desc'],
-					],
-				],
-			];
-		}
-
 		IntegrationHook::call('integrate_manage_scheduled_tasks', [&self::$subactions]);
 
 		if (!empty($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']])) {
