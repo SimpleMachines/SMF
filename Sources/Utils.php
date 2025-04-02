@@ -1019,6 +1019,12 @@ class Utils
 			return preg_quote(@strval($strings), $delim);
 		}
 
+		$strings = array_filter($strings, 'is_string');
+
+		if (empty($strings)) {
+			return '';
+		}
+
 		$regex_key = md5(json_encode([$strings, $delim, $return_array]));
 
 		if (isset($regexes[$regex_key])) {
