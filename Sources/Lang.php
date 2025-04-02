@@ -711,19 +711,19 @@ class Lang
 			is_string($file)
 			&& (
 				// If we haven't loaded the file yet, do so now.
-				!isset(self::$loaded_keys[$txt_key[0]])
+				!isset(self::$loaded_keys[$var][$txt_key[0]])
 
 				// If we loaded it for a different language, reload for the right language.
-				|| self::$loaded_keys[$txt_key[0]]['lang'] !== $lang
+				|| self::$loaded_keys[$var][$txt_key[0]]['lang'] !== $lang
 
 				// In the event of key conflicts between different files, give
 				// them the string from the requested file. HOWEVER, if the key
 				// was overwritten in the Modifications or ThemeStrings language
 				// files, then keep that version instead.
 				|| (
-					self::$loaded_keys[$txt_key[0]]['file'] !== $file
-					&& self::$loaded_keys[$txt_key[0]]['file'] !== 'ThemeStrings'
-					&& self::$loaded_keys[$txt_key[0]]['file'] !== 'Modifications'
+					self::$loaded_keys[$var][$txt_key[0]]['file'] !== $file
+					&& self::$loaded_keys[$var][$txt_key[0]]['file'] !== 'ThemeStrings'
+					&& self::$loaded_keys[$var][$txt_key[0]]['file'] !== 'Modifications'
 				)
 			)
 		) {
