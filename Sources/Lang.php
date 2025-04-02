@@ -727,7 +727,7 @@ class Lang
 				)
 			)
 		) {
-			self::load($file . (!empty(Theme::$current->settings['default_theme_dir']) && !str_contains($file, 'ThemeStrings') ? '+ThemeStrings' : '') . (!str_contains($file, 'Modifications') ? '+Modifications' : ''), $lang, force_reload: true);
+			self::load($file . (!str_contains($file, 'ThemeStrings') ? '+ThemeStrings' : '') . (!str_contains($file, 'Modifications') ? '+Modifications' : ''), $lang, force_reload: true);
 		}
 
 		// Don't waste time when getting a simple string.
