@@ -361,7 +361,16 @@ class Lang
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
 			if (!$found && $fatal) {
-				ErrorHandler::log(self::formatText(self::$txt['theme_language_error'] ?? 'Unable to load the {filename} language file.', ['filename' => $lang . '/' . $filename]), 'template');
+				ErrorHandler::log(
+					// Don't call self::formatText() here in case the missing
+					// file is one that we would need in self::formatText()
+					str_replace(
+						'{filename}',
+						$lang . '/' . $name,
+						self::$txt['theme_language_error'] ?? 'Unable to load the {filename} language file.',
+					),
+					'template',
+				);
 				break;
 			}
 
