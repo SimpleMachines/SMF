@@ -333,8 +333,11 @@ class Theme
 
 	/**
 	 * This loads the bare minimum data to allow us to load language files!
+	 *
+	 * @param bool $load_lang Whether to load the basic language files.
+	 *    Default: true.
 	 */
-	public static function loadEssential(): void
+	public static function loadEssential(bool $load_lang = true): void
 	{
 		// Load the theme used for guests.
 		$id = !empty(Config::$modSettings['theme_guests']) ? (int) Config::$modSettings['theme_guests'] : 1;
@@ -357,17 +360,18 @@ class Theme
 		}
 
 		// For backward compatibility.
-		$GLOBALS['settings'] = &self::$current->settings;
-		$GLOBALS['options']  = &self::$current->options;
+		if (!empty(Config::$backward_compatibility)) {
+			$GLOBALS['settings'] = &self::$current->settings;
+			$GLOBALS['options']  = &self::$current->options;
+		}
 
 		// Assume we want this.
 		Utils::$context['forum_name'] = Config::$mbname;
 		Utils::$context['forum_name_html_safe'] = Utils::htmlspecialchars(Utils::$context['forum_name']);
 
-		Lang::load('General+Modifications');
-
-		// Just in case it wasn't already set elsewhere.
-		Utils::$context['right_to_left'] = !empty(Lang::getTxt('lang_rtl', file: 'General'));
+		if ($load_lang) {
+			Lang::load('General+Modifications');
+		}
 
 		// Tell ErrorHandler::fatalLang() to not reload the theme.
 		Utils::$context['theme_loaded'] = true;
