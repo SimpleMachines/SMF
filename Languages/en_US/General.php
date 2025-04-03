@@ -525,8 +525,7 @@ $txt['total_members'] = 'Total Members';
 $txt['total_posts'] = 'Total Posts';
 $txt['total_topics'] = 'Total Topics';
 
-$txt['time_logged_in'] = 'Time to stay logged in';
-$txt['always_logged_in'] = 'Forever';
+$txt['remember_me'] = 'Remember me';
 
 $txt['preview'] = 'Preview';
 

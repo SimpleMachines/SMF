@@ -310,6 +310,13 @@ class User implements \ArrayAccess
 	public int $total_time_logged_in = 0;
 
 	/**
+	 * @var bool
+	 *
+	 * Whether the user wants their login cookie not to expire.
+	 */
+	public bool $stay_logged_in;
+
+	/**
 	 * @var int
 	 *
 	 * Unix timestamp when this user registered.
@@ -4538,13 +4545,15 @@ class User implements \ArrayAccess
 				$cookie_data = Utils::safeUnserialize($_COOKIE[Config::$cookiename]);
 			}
 
-			list(self::$my_id, $this->passwd, $login_span, $cookie_domain, $cookie_path) = array_pad((array) $cookie_data, 5, '');
+			list(self::$my_id, $this->passwd, $expires, $cookie_domain, $cookie_path) = array_pad((array) $cookie_data, 5, '');
 
 			self::$my_id = !empty(self::$my_id) && strlen($this->passwd) > 0 ? (int) self::$my_id : 0;
 
+			$this->stay_logged_in = ($expires - time()) > 86400;
+
 			// Make sure the cookie is set to the correct domain and path
 			if ([$cookie_domain, $cookie_path] !== Cookie::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']))) {
-				Cookie::setLoginCookie((int) $login_span - time(), self::$my_id);
+				Cookie::setLoginCookie((int) $expires - time(), self::$my_id);
 			}
 		} elseif (isset($_SESSION['login_' . Config::$cookiename]) && ($_SESSION['USER_AGENT'] == $_SERVER['HTTP_USER_AGENT'] || !empty(Config::$modSettings['disableCheckUA']))) {
 			// @todo Perhaps we can do some more checking on this, such as on the first octet of the IP?
@@ -4554,9 +4563,11 @@ class User implements \ArrayAccess
 				$cookie_data = Utils::safeUnserialize($_SESSION['login_' . Config::$cookiename]);
 			}
 
-			list(self::$my_id, $this->passwd, $login_span) = array_pad((array) $cookie_data, 3, '');
+			list(self::$my_id, $this->passwd, $expires) = array_pad((array) $cookie_data, 3, '');
 
-			self::$my_id = !empty(self::$my_id) && strlen($this->passwd) == 40 && (int) $login_span > time() ? (int) self::$my_id : 0;
+			self::$my_id = !empty(self::$my_id) && strlen($this->passwd) == 40 && (int) $expires > time() ? (int) self::$my_id : 0;
+
+			$this->stay_logged_in = ($expires - time()) > 86400;
 		}
 	}
 

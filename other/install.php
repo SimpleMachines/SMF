@@ -1809,7 +1809,7 @@ function DeleteInstall()
 
 	// Automatically log them in ;)
 	if (isset($incontext['member_id'], $incontext['member_salt'])) {
-		Cookie::setLoginCookie(3153600 * 60, $incontext['member_id'], Cookie::encrypt($_POST['password1'], $incontext['member_salt']));
+		Cookie::setLoginCookie(Cookie::LENGTH_DEFAULT, $incontext['member_id'], Cookie::encrypt($_POST['password1'], $incontext['member_salt']));
 	}
 
 	$result = Db::$db->query(
