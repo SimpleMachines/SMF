@@ -1429,6 +1429,11 @@ function smf_itemPos(itemHandle)
 // This function takes the script URL and prepares it to allow the query string to be appended to it.
 function smf_prepareScriptUrl(sUrl)
 {
+	// Ensure index.php is in the URL even when the option to hide it is enabled.
+	if (sUrl.indexOf('/index.php') == -1) {
+		sUrl = sUrl + '/index.php';
+	}
+
 	return sUrl.indexOf('?') == -1 ? sUrl + '?' : sUrl + (sUrl.charAt(sUrl.length - 1) == '?' || sUrl.charAt(sUrl.length - 1) == '&' || sUrl.charAt(sUrl.length - 1) == ';' ? '' : ';');
 }
 
