@@ -3046,7 +3046,7 @@ class BBCodeParser extends Parser
 					$params_regexes[$regex_key] = '';
 
 					foreach ($possible['parameters'] as $p => $info) {
-						$params_regexes[$regex_key] .= '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '&quot;') . ($info['match'] ?? '(.+?)') . (empty($info['quoted']) ? '' : '&quot;') . '\s*)' . (empty($info['optional']) ? '' : '?');
+						$params_regexes[$regex_key] .= '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '(?:&quot;)' . ($info['quoted'] === 'optional' ? '?' : '')) . ($info['match'] ?? '(.+?)') . (empty($info['quoted']) ? '' : '(?:&quot;)' . ($info['quoted'] === 'optional' ? '?' : '')) . '\s*)' . (empty($info['optional']) ? '' : '?');
 					}
 				}
 
