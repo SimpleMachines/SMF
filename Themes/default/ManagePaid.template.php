@@ -255,7 +255,7 @@ function template_modify_user_subscription()
 				<select name="year" id="year">';
 
 	// Show a list of all the years we allow...
-	for ($year = 2005; $year <= 2030; $year++)
+	for ($cur_year = idate('Y'), $year = min($cur_year - 10, Utils::$context['sub']['start']['year']); $year <= $cur_year + 10; $year++)
 		echo '
 					<option value="', $year, '"', $year == Utils::$context['sub']['start']['year'] ? ' selected' : '', '>', $year, '</option>';
 
@@ -289,7 +289,7 @@ function template_modify_user_subscription()
 				<select name="yearend" id="yearend">';
 
 	// Show a list of all the years we allow...
-	for ($year = 2005; $year <= 2030; $year++)
+	for ($cur_year = idate('Y'), $year = min($cur_year - 10, Utils::$context['sub']['end']['year']); $year <= $cur_year + 10; $year++)
 		echo '
 					<option value="', $year, '"', $year == Utils::$context['sub']['end']['year'] ? ' selected' : '', '>', $year, '</option>';
 
