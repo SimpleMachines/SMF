@@ -375,7 +375,6 @@ function template_list_topics(array $headers, array $topics): void
 		$num_rows = max($num_rows, $row_index + $column['rowspan']);
 		$prev_name = $name;
 	}
-	var_export($row_numbers);
 
 	// Fill empty grid areas.
 	for ($y = 0; $y < $num_rows; $y++) {
