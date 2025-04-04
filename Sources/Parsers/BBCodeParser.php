@@ -69,13 +69,6 @@ class BBCodeParser extends Parser
 	/**
 	 * @var string
 	 *
-	 * URL of this host/domain. Needed for the YouTube BBCode.
-	 */
-	private string $hosturl;
-
-	/**
-	 * @var string
-	 *
 	 * The string in which to parse BBCode.
 	 */
 	private string $message = '';
@@ -798,6 +791,13 @@ class BBCodeParser extends Parser
 		'O' => 'circle',
 		'0' => 'circle',
 	];
+
+	/**
+	 * @var string
+	 *
+	 * URL of this host/domain. Needed for the YouTube BBCode.
+	 */
+	private static string $hosturl;
 
 	/**
 	 * @var bool
@@ -1728,6 +1728,40 @@ class BBCodeParser extends Parser
 		}
 
 		return $allowed_tags;
+	}
+
+	/**
+	 * Replaces {txt_*} tokens with Lang::$txt strings.
+	 *
+	 * @param string $data A string that might contain {txt_*} tokens.
+	 * @return string The string with Lang::$txt string values.
+	 */
+	public static function insertTxt(string $string): string
+	{
+		return preg_replace_callback(
+			'/{(.*?)}/',
+			function ($matches) {
+				if ($matches[0] === '{scripturl}') {
+					return Config::$scripturl;
+				}
+
+				if ($matches[0] === '{hosturl}') {
+					if (!isset(self::$hosturl)) {
+						$our_url = new Url(Config::$scripturl);
+						self::$hosturl = $our_url->scheme . '://' . $our_url->host;
+					}
+
+					return self::$hosturl;
+				}
+
+				if (str_starts_with($matches[1], 'txt_') && Lang::txtExists(substr($matches[1], 4), file: implode('+', self::$lang_files), lang: self::$locale)) {
+					return Lang::getTxt(substr($matches[1], 4), file: implode('+', self::$lang_files), lang: self::$locale);
+				}
+
+				return $matches[0];
+			},
+			$string,
+		);
 	}
 
 	/*
@@ -2719,40 +2753,6 @@ class BBCodeParser extends Parser
 	}
 
 	/**
-	 * Replaces {txt_*} tokens with Lang::$txt strings.
-	 *
-	 * @param string $data A string that might contain {txt_*} tokens.
-	 * @return string The string with Lang::$txt string values.
-	 */
-	protected function insertTxt(string $string): string
-	{
-		return preg_replace_callback(
-			'/{(.*?)}/',
-			function ($matches) {
-				if ($matches[0] === '{scripturl}') {
-					return Config::$scripturl;
-				}
-
-				if ($matches[0] === '{hosturl}') {
-					if (!isset($this->hosturl)) {
-						$our_url = new Url(Config::$scripturl);
-						$this->hosturl = $our_url->scheme . '://' . $our_url->host;
-					}
-
-					return $this->hosturl;
-				}
-
-				if (str_starts_with($matches[1], 'txt_') && Lang::txtExists(substr($matches[1], 4), file: implode('+', self::$lang_files), lang: self::$locale)) {
-					return Lang::getTxt(substr($matches[1], 4), file: implode('+', self::$lang_files), lang: self::$locale);
-				}
-
-				return $matches[0];
-			},
-			$string,
-		);
-	}
-
-	/**
 	 * Fixes up any raw HTML in a BBCode string.
 	 *
 	 * @param string $data A string that might contain HTML.
@@ -3256,11 +3256,11 @@ class BBCodeParser extends Parser
 		// Insert Lang::$txt strings into the HTML output.
 		foreach (['content', 'before', 'after'] as $key) {
 			if (isset($tag[$key])) {
-				$tag[$key] = $this->insertTxt($tag[$key]);
+				$tag[$key] = self::insertTxt($tag[$key]);
 			}
 
 			if (isset($tag['disabled_' . $key])) {
-				$tag['disabled_' . $key] = $this->insertTxt($tag['disabled_' . $key]);
+				$tag['disabled_' . $key] = self::insertTxt($tag['disabled_' . $key]);
 			}
 		}
 
