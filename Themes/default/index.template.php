@@ -536,7 +536,7 @@ function theme_linktree($force_show = false)
 	}
 
 	echo '
-					</ul>
+					</ol>
 				</nav><!-- .navigate_section -->';
 
 	$shown_linktree = true;

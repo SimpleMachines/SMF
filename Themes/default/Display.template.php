@@ -406,6 +406,8 @@ function template_main()
 function template_single_post($message)
 {
 	$ignoring = false;
+	$show_subject = !empty(Config::$modSettings['subject_toggle']);
+	$is_first_post = $message['id'] == Utils::$context['first_message'];
 
 	if ($message['can_remove'])
 		Utils::$context['removableMessageIDs'][] = $message['id'];
@@ -431,14 +433,58 @@ function template_single_post($message)
 
 	// Show the message.
 	echo '
-				<div class="', $message['css_class'], '" id="msg' . $message['id'] . '">
-					', $message['id'] != Utils::$context['first_message'] ? '
-					' . ($message['first_new'] ? '<a id="new"></a>' : '') : '', '
-					<div class="post_container">';
+				<article class="post_wrapper ', $message['css_class'], '" id="msg' . $message['id'] . '" aria-labelledby="msg_num_' . $message['id'] . '">
+					<header class="keyinfo">
+					', !$is_first_post ? '
+					' . ($message['first_new'] ? '<a id="new"></a>' : '') : '';
+
+	echo '
+						<hgroup>';
+
+	echo '
+							<', $show_subject ? 'p' : 'h3', ' class="page_number" id="msg_num_', $message['id'], '">', $is_first_post ? Lang::$txt['first_post'] : (!empty($message['counter']) ? Lang::getTxt('reply_number_sr', [$message['counter']]) : ''), '</', $show_subject ? 'p' : 'h3', '>';
+
+	// Some people don't want subject... The div is still required or quick edit breaks.
+	echo '
+							<div id="subject_', $message['id'], '" class="subject_title', (!$show_subject ? ' subject_hidden' : ''), '">
+								<', $show_subject ? 'h3' : 'p', '><a href="', $message['href'], '" rel="bookmark nofollow">', $message['subject'], '</a></', $show_subject ? 'h3' : 'p', '>
+							</div>
+						</hgroup>';
+
+	echo '
+						<p class="postinfo">
+							<span class="messageicon" aria-hidden="true"', ($message['icon_url'] === Theme::$current->settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
+								<img src="', $message['icon_url'], '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
+							</span>
+							<span class="visually_hidden">', Lang::$txt['posted_on'], '</span>
+							<a href="', $message['href'], '" rel="bookmark nofollow" title="', !empty($message['counter']) ? Lang::getTxt('reply_number', [$message['counter']]) : '', ' - ', $message['subject'], '"><time datetime="', date('Y-m-d\TH:i:s\Z', $message['timestamp']), '">', $message['time'], '</time></a>
+						</p>';
+
+	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
+	// Because we insert into it through AJAX and we don't want to stop themers moving it around if they so wish so they can put it where they want it.
+	echo '
+						<p class="smalltext modified', !empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']) ? ' mvisible' : '', '" id="modified_', $message['id'], '">';
+
+	if (!empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']))
+		echo
+							$message['modified']['last_edit_text'];
+
+	echo '
+						</p>
+						<div id="msg_', $message['id'], '_quick_mod"', $ignoring ? ' style="display:none;"' : '', '></div>';
+
+	if (!$message['approved'] && $message['member']['id'] != 0 && $message['member']['id'] == User::$me->id)
+		echo '
+						<p class="noticebox">
+							', Lang::$txt['post_awaiting_approval'], '
+						</p>';
+
+	echo '
+					</header><!-- .keyinfo -->';
 
 	// Show information about the poster of this message.
 	echo '
-						<div class="poster">';
+						<footer class="poster">';
 
 	// Are there any custom fields above the member name?
 	if (!empty($message['custom_fields']['above_member']))
@@ -455,7 +501,7 @@ function template_single_post($message)
 	}
 
 	echo '
-							<h4>';
+							<strong>';
 
 	// Show online and offline buttons?
 	if (!empty(Config::$modSettings['onlineEnable']) && !$message['member']['is_guest'])
@@ -480,7 +526,8 @@ function template_single_post($message)
 
 	// Begin display of user info
 	echo '
-							</h4>';
+							</strong>
+							<ul class="user_info">';
 
 	// Show the member's custom title, if they have one.
 	if (!empty($message['member']['title']))
@@ -621,58 +668,22 @@ function template_single_post($message)
 
 	// Poster info ends.
 	echo '
-						</div><!-- .poster -->
-						<div class="postarea">
-							<div class="keyinfo">';
-
-	// Some people don't want subject... The div is still required or quick edit breaks.
-	echo '
-								<div id="subject_', $message['id'], '" class="subject_title', (empty(Config::$modSettings['subject_toggle']) ? ' subject_hidden' : ''), '">
-									', $message['link'], '
-								</div>';
-
-	echo '
-								<div class="postinfo">
-									<span class="messageicon" ', ($message['icon_url'] === Theme::$current->settings['images_url'] . '/post/xx.png' && !$message['can_modify']) ? ' style="position: absolute; z-index: -1;"' : '', '>
-										<img src="', $message['icon_url'] . '" alt=""', $message['can_modify'] ? ' id="msg_icon_' . $message['id'] . '"' : '', '>
-									</span>
-									<span class="date smalltext">
-										<a href="', $message['href'], '" rel="nofollow" title="', !empty($message['counter']) ? Lang::getTxt('reply_number', [$message['counter']]) : '', $message['subject'], '">', $message['time'], '</a>
-									</span>';
-
-	// Show "<< Last Edit: Time by Person >>" if this post was edited. But we need the div even if it wasn't modified!
-	// Because we insert into it through AJAX and we don't want to stop themers moving it around if they so wish so they can put it where they want it.
-	echo '
-									<span class="smalltext modified', !empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']) ? ' mvisible' : '', '" id="modified_', $message['id'], '">';
-
-	if (!empty(Config::$modSettings['show_modify']) && !empty($message['modified']['name']))
-		echo
-										$message['modified']['last_edit_text'];
-
-	echo '
-									</span>
-								</div>
-								', !empty($message['counter']) ? '<span class="page_number">#' . $message['counter'] . '</span>' : '', '
-								<div id="msg_', $message['id'], '_quick_mod"', $ignoring ? ' style="display:none;"' : '', '></div>
-							</div><!-- .keyinfo -->';
+							</ul>
+						</footer><!-- .poster -->
+						<div class="postarea">';
 
 	// Ignoring this user? Hide the post.
 	if ($ignoring)
 		echo '
-							<div id="msg_', $message['id'], '_ignored_prompt" class="noticebox">
-								', Lang::getTxt('ignoring_user', file: 'General'), '
-								<a href="#" id="msg_', $message['id'], '_ignored_link" style="display: none;">', Lang::getTxt('show_ignore_user_post', file: 'General'), '</a>
-							</div>';
+							<aside id="msg_', $message['id'], '_ignored_prompt" class="noticebox">
+								', Lang::$txt['ignoring_user'], '
+								<a href="#" id="msg_', $message['id'], '_ignored_link" style="display: none;" role="button">', Lang::$txt['show_ignore_user_post'], '</a>
+							</aside>';
 
 	// Show the post itself, finally!
 	echo '
 							<div class="post">';
 
-	if (!$message['approved'] && $message['member']['id'] != 0 && $message['member']['id'] == User::$me->id)
-		echo '
-								<div class="noticebox">
-									', Lang::getTxt('post_awaiting_approval', file: 'General'), '
-								</div>';
 	echo '
 								<div class="inner" data-msgid="', $message['id'], '" id="msg_', $message['id'], '"', $ignoring ? ' style="display:none;"' : '', '>
 									', Utils::adjustHeadingLevels($message['body'], 4), '
@@ -696,7 +707,7 @@ function template_single_post($message)
 				$div_output = true;
 
 				echo '
-							<div id="msg_', $message['id'], '_footer" class="attachments"', $ignoring ? ' style="display:none;"' : '', '>';
+							<section id="msg_', $message['id'], '_attachments" class="attachments"', $ignoring ? ' style="display:none;"' : '', ' aria-label="', Lang::$txt['attachments'], '">';
 			}
 
 			// Show a special box for unapproved attachments...
@@ -758,24 +769,26 @@ function template_single_post($message)
 		// Only do this if we output a div above - otherwise it'll break things
 		if ($div_output)
 			echo '
-							</div><!-- #msg_[id]_footer -->';
+							</section><!-- #msg_[id]_footer -->';
 	}
 
 	echo '
+						</div><!-- .postarea -->
+						<footer id="msg_', $message['id'], '_footer" class="post_footer">
 							<div class="under_message">';
 
 	// What about likes?
 	if (!empty(Config::$modSettings['enable_likes']))
 	{
 		echo '
-								<ul class="likes">';
+							<ul class="likes">';
 
 		if (!empty($message['likes']['can_like']))
 		{
 			echo '
-									<li class="smflikebutton" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '>
-										<a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="main_icons ', $message['likes']['you'] ? 'unlike' : 'like', '"></span> ', Lang::getTxt($message['likes']['you'] ? 'unlike' : 'like', file: 'General'), '</a>
-									</li>';
+								<li class="smflikebutton" id="msg_', $message['id'], '_likes"', $ignoring ? ' style="display:none;"' : '', '>
+									<a href="', Config::$scripturl, '?action=likes;ltype=msg;sa=like;like=', $message['id'], ';', Utils::$context['session_var'], '=', Utils::$context['session_id'], '" class="msg_like"><span class="main_icons ', $message['likes']['you'] ? 'unlike' : 'like', '"></span> ', $message['likes']['you'] ? Lang::$txt['unlike'] : Lang::$txt['like'], '</a>
+								</li>';
 		}
 
 		if (!empty($message['likes']['count']))
@@ -791,21 +804,20 @@ function template_single_post($message)
 			}
 
 			echo '
-									<li class="like_count smalltext">
-										', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count], file: 'General'), '
-									</li>';
+								<li class="like_count smalltext">
+									', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count]), '
+								</li>';
 		}
 
 		echo '
-								</ul>';
+							</ul>';
 	}
 
 	// Show the quickbuttons, for various operations on posts.
 	template_quickbuttons($message['quickbuttons'], 'post');
 
 	echo '
-							</div><!-- .under_message -->
-						</div><!-- .postarea -->
+						</div><!-- .under_message -->
 						<div class="moderatorbar">';
 
 	// Are there any custom profile fields for above the signature?
@@ -849,8 +861,8 @@ function template_single_post($message)
 
 	echo '
 						</div><!-- .moderatorbar -->
-					</div><!-- .post_container -->
-				</div><!-- $message[css_class] -->
+					</footer><!-- #msg_$message[id]_footer -->
+				</article><!-- .post_wrapper $message[css_class] -->
 				<hr class="post_separator">';
 }
 

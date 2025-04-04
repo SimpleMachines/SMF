@@ -19,14 +19,17 @@
 	white-space: pre;
 }
 /* poster and postarea + moderation area underneath */
-.post_container::after {
-	content: "";
-	display: block;
-	clear: both;
-}
-.post_container {
+.post_wrapper {
 	display: grid;
-	grid: 1fr / var(--poster-width) 1fr;
+	gap: 0 0.5em;
+	grid: min-content 1fr min-content / var(--poster-width) 1fr;
+	grid-template-areas: "poster post_header"
+						 "poster post"
+						 "poster post_footer";
+	padding-inline-end: 0.5em !important;
+}
+.post_wrapper > * {
+	padding: .5em;
 }
 /* poster details and list of items */
 .poster {
@@ -34,23 +37,20 @@
 	background: var(--poster-bg);
 	display: grid;
 	font-size: var(--poster-font-size);
-	gap: .25em 1.5em;
-	grid-row: var(--poster-grid-row);
+	gap: .25em .75em;
+	grid-area: poster;
 	hyphens: auto;
 	overflow-wrap: break-word;
-	padding: .5em;
-	text-align: center;
 	word-wrap: break-word;
-	width: var(--poster-width);
 }
-.poster h4 {
+.poster strong {
 	background: var(--poster-title-bg);
 	font-size: var(--poster-title-font-size);
 	font-weight: var(--poster-title-font-weight);
 	text-align: center;
 }
-.poster h4,
-.poster h4 a {
+.poster strong,
+.poster strong a {
 	color: var(--poster-title-color);
 	text-decoration: var(--poster-title-text-decoration);
 	text-shadow: var(--poster-title-text-shadow);
@@ -86,7 +86,6 @@
 .postarea {
 	display: flex;
 	flex-direction: column;
-	padding: .5em;
 }
 .postarea, .moderatorbar {
 	grid-column: 2/-1;
@@ -100,16 +99,48 @@
 .keyinfo {
 	align-items: center;
 	display: grid;
-	gap: .75em;
-	grid: auto auto / 1fr auto;
+	grid: auto / 1fr auto;
+	grid-template-areas: "heading heading"
+						 "time time";
+}
+.keyinfo:has(.subject_hidden) {
+	grid-template-areas: "time heading";
+}
+.keyinfo hgroup {
+	align-items: center;
+	display: grid;
+	grid-area: heading;
+	grid-template: subgrid / subgrid;
+	grid-template-areas: "subject reply_num";
+}
+.keyinfo > :not(hgroup, .postinfo) {
+	grid-column: span 2;
+}
+.keyinfo hgroup:has(.subject_hidden) {
+	grid-template-areas: "reply_num";
+}
+.keyinfo .page_number {
+	font-size: .9em;
+	font-weight: 700;
+	grid-area: reply_num;
+	line-height: 1.5em;
+}
+.keyinfo .subject_title {
+	grid-area: subject;
+}
+.subject_title a {
+	font-size: 0.9em;
+	font-weight: bold;
+}
+.subject_hidden > * {
+	display: none;
 }
 .keyinfo .postinfo {
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
 	gap: .75em;
-	grid-column: 1/3;
-	grid-row: 2/3;
+	grid-area: time;
 	min-height: 1.5em;
 }
 #pmFolder .keyinfo .postinfo {
@@ -128,39 +159,22 @@
 	font-size: 0.75em;
 	padding-inline: 1em;
 }
-.keyinfo .page_number {
-	font-size: .9em;
-	font-weight: 700;
-	grid-row: 1/4;
-	line-height: 1.5em;
-}
 #reason::before {
 	content: " - ";
 }
-.subject_title {
-	grid-column: 1/3;
-}
-.subject_title a {
-	font-size: 0.9em;
-	font-weight: bold;
-}
-.subject_hidden a {
-	display: none;
-}
-.subject_title input {
-	width: 100%;
-}
 
 /* Post or message */
-.postarea .post {
-	flex-grow: 1;
-}
-.postarea .post .inner {
-	background: var(--post-inner-bg);
+.postarea {
 	border-color: var(--post-inner-border-color);
 	border-radius: var(--post-inner-border-radius);
 	border-style: var(--post-inner-border-style);
 	border-width: var(--post-inner-border-width);
+}
+.postarea .post {
+	flex-grow: 1;
+}
+.post .inner {
+	background: var(--post-inner-bg);
 	box-shadow: var(--post-inner-box-shadow);
 	margin-block: .5em 0;
 	min-height: var(--post-inner-height);
