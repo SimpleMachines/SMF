@@ -1093,7 +1093,7 @@ function ForumSettings()
 			'packagesdir' => $path . '/Packages',
 			'languagesdir' => $path . '/Languages',
 			'mbname' => strtr($_POST['mbname'], ['\"' => '"']),
-			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
+			'language' => $_SESSION['installer_temp_lang'],
 			'image_proxy_secret' => bin2hex(random_bytes(10)),
 			'image_proxy_enabled' => !empty($_POST['force_ssl']),
 			'auth_secret' => bin2hex(random_bytes(32)),
