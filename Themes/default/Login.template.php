@@ -319,7 +319,7 @@ function template_kick_guest()
 					<dd>
 						<label>
 							<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
-							', Lang::getTxt('never_expire', file: 'General'), '
+							', Lang::getTxt('remember_me', file: 'General'), '
 						</label>
 					</dd>
 				</dl>
@@ -371,7 +371,7 @@ function template_maintenance()
 					<dd>
 						<label>
 							<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
-							', Lang::getTxt('never_expire', file: 'General'), '
+							', Lang::getTxt('remember_me', file: 'General'), '
 						</label>
 					</dd>
 				</dl>

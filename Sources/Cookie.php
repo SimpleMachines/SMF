@@ -279,7 +279,7 @@ class Cookie
 		// Special case for the login cookie.
 		if ($name === Config::$cookiename) {
 			// First check for JSON-format cookie
-			if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[$name])) {
+			if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]*","4":"[^"]*"~', $_COOKIE[$name])) {
 				$data = Utils::jsonDecode($_COOKIE[$name], true);
 			}
 			// Legacy format (for recent upgrades from SMF 2.0.x)
