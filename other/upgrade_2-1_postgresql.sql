@@ -4271,6 +4271,6 @@ foreach($files AS $filename)
 /******************************************************************************/
 
 ---# Updating primary key for log_search_results table
-ALTER TABLE {$db_prefix}log_search_results DROP PRIMARY KEY;
+ALTER TABLE {$db_prefix}log_search_results DROP CONSTRAINT {$db_prefix}log_search_results_pkey;
 ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
 ---#
