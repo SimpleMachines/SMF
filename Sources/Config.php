@@ -931,6 +931,15 @@ class Config
 			self::$languagesdir = self::$boarddir . '/Languages';
 		}
 
+		// Make absolutely sure the language is legitimate.
+		if (empty(self::$language) || !is_dir(self::$languagesdir . '/' . self::$language)) {
+			self::$language = self::$settings_defs['language']['default'];
+
+			if (!is_dir(self::$languagesdir . '/' . self::$language)) {
+				die('Language files not found.');
+			}
+		}
+
 		// Make absolutely sure the cache directory is defined and writable.
 		if (empty(self::$cachedir) || !is_dir(self::$cachedir) || !is_writable(self::$cachedir)) {
 			if (is_dir(self::$boarddir . '/cache') && is_writable(self::$boarddir . '/cache')) {
