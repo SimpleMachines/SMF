@@ -3287,14 +3287,14 @@ class BBCodeParser extends Parser
 
 		// No type means 'parsed_content'.
 		if (!isset($tag['type'])) {
-			$this->open_tags[] = $tag;
-
 			// There's no data to change, but maybe do something based on params?
 			$data = [];
 
 			if (isset($tag['validate'])) {
 				call_user_func_array($tag['validate'], [&$tag, &$data, $this->disabled, $params]);
 			}
+
+			$this->open_tags[] = $tag;
 
 			$this->message = substr($this->message, 0, $this->pos) . "\n" . $tag['before'] . "\n" . substr($this->message, $this->pos1);
 
