@@ -1349,7 +1349,7 @@ class User implements \ArrayAccess
 	/**
 	 * Loads the mod cache data.
 	 *
-	 * Stores the information on the current users moderation powers in
+	 * Stores the information on the current user's moderation powers in
 	 * User::$me->mod_cache and $_SESSION['mc'].
 	 */
 	public function loadModCache(): void
@@ -1364,7 +1364,8 @@ class User implements \ArrayAccess
 			$this->rebuildModCache();
 		}
 
-		// Now that we have the mod cache taken care of lets setup a cache for the number of mod reports still open
+		// Now that we have the mod cache taken care of, let's setup a cache
+		// for the number of mod reports still open.
 		if (
 			isset($_SESSION['rc']['reports'], $_SESSION['rc']['member_reports'])
 			&& $_SESSION['rc']['time'] > Config::$modSettings['last_mod_report_action']
