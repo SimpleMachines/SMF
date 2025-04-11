@@ -672,6 +672,23 @@ class Editor implements \ArrayAccess
 			'hr' => 'horizontalrule',
 		];
 
+		// Disable the buttons for any BBC that this user is not allowed to use.
+		foreach (Utils::$context['restricted_bbc'] as $tag) {
+			if (!User::$me->allowedTo('bbc_' . $tag)) {
+				if ($tag === 'list') {
+					$context['disabled_tags']['bulletlist'] = true;
+					$context['disabled_tags']['orderedlist'] = true;
+				} elseif ($tag === 'float') {
+					$context['disabled_tags']['floatleft'] = true;
+					$context['disabled_tags']['floatright'] = true;
+				} elseif (isset($editor_tag_map[$tag])) {
+					Utils::$context['disabled_tags'][$editor_tag_map[$tag]] = true;
+				}
+
+				Utils::$context['disabled_tags'][$tag] = true;
+			}
+		}
+
 		// Allow mods to modify BBC buttons.
 		IntegrationHook::call('integrate_bbc_buttons', [&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags]);
 
@@ -829,7 +846,7 @@ class Editor implements \ArrayAccess
 			'bbcodeTrim' => false,
 		];
 
-		if (!empty(Config::$modSettings['autoLinkUrls'])) {
+		if (!empty(Config::$modSettings['autoLinkUrls']) && User::$me->allowedTo('bbc_url')) {
 			$this->sce_options['plugins'] = 'autolinker';
 			Autolinker::createJavaScriptFile();
 			Theme::loadJavaScriptFile('autolinker.js', ['minimize' => true], 'smf_autolinker');

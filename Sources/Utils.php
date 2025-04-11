@@ -335,6 +335,10 @@ class Utils
 
 		// Load up our $context['server'] data for backwards compatibility
 		Sapi::load();
+
+		if (!empty(Config::$modSettings['restricted_bbc'])) {
+			self::$context['restricted_bbc'] = array_unique(array_merge(self::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc'])));
+		}
 	}
 
 	/**
