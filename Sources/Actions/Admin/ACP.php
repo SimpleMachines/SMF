@@ -1720,7 +1720,7 @@ class ACP implements ActionInterface, Routable
 	public static function emailAdmins(string $template, array $replacements = [], array $additional_recipients = []): void
 	{
 		// Load all members which are effectively admins.
-		$members = User::membersAllowedTo('admin_forum');
+		$members = User::getAllowedTo('admin_forum');
 
 		// Load their alert preferences
 		$prefs = Notify::getNotifyPrefs($members, 'announcements', true);

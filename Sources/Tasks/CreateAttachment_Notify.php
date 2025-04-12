@@ -63,7 +63,7 @@ class CreateAttachment_Notify extends BackgroundTask
 		Db::$db->free_result($request);
 
 		// We need to know who can approve this attachment.
-		$modMembers = User::membersAllowedTo('approve_posts', $id_board);
+		$modMembers = User::getAllowedTo('approve_posts', $id_board);
 
 		$request = Db::$db->query(
 			'',
