@@ -1534,43 +1534,60 @@ class ExportProfileData extends BackgroundTask
 
 			$this->loadCssJs();
 
-			if (!empty(Utils::$context['export_css_files'])) {
-				foreach (Utils::$context['export_css_files'] as $css_file) {
-					$url = $css_file['fileUrl'];
-
-					$this->xslt_stylesheet['css_js'] .= <<<END
-
-								<link rel="stylesheet">
-									<xsl:attribute name="href">
-										<xsl:text>{$url}</xsl:text>
-									</xsl:attribute>
-						END;
-
-					if (!empty($css_file['options']['attributes'])) {
-						foreach ($css_file['options']['attributes'] as $key => $value) {
-							if ($value === false) {
-								continue;
-							}
-
-							$value = $value === true ? $key : $value;
-
-							$this->xslt_stylesheet['css_js'] .= <<<END
-											<xsl:attribute name="{$key}">
-												<xsl:text>{$value}</xsl:text>
-											</xsl:attribute>
-								END;
-						}
+			foreach (['css', 'css_noscript'] as $css_group) {
+				if ($css_group === 'css_noscript') {
+					if (
+						empty(Utils::$context['export_' . $css_group . '_files'])
+						&& empty(Utils::$context['export_' . $css_group . '_header'])
+					) {
+						break;
 					}
 
-					$this->xslt_stylesheet['css_js'] .= <<<END
-
-								</link>
-						END;
+					$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '<noscript>';
 				}
-			}
 
-			if (!empty(Utils::$context['export_css_header'])) {
-				$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '<style><![CDATA[' . "\n" . implode("\n", Utils::$context['export_css_header']) . "\n" . ']]>' . "\n" . '</style>';
+				if (!empty(Utils::$context['export_' . $css_group . '_files'])) {
+					foreach (Utils::$context['export_' . $css_group . '_files'] as $css_file) {
+						$url = $css_file['fileUrl'];
+
+						$this->xslt_stylesheet['css_js'] .= <<<END
+
+									<link rel="stylesheet">
+										<xsl:attribute name="href">
+											<xsl:text>{$url}</xsl:text>
+										</xsl:attribute>
+							END;
+
+						if (!empty($css_file['options']['attributes'])) {
+							foreach ($css_file['options']['attributes'] as $key => $value) {
+								if ($value === false) {
+									continue;
+								}
+
+								$value = $value === true ? $key : $value;
+
+								$this->xslt_stylesheet['css_js'] .= <<<END
+												<xsl:attribute name="{$key}">
+													<xsl:text>{$value}</xsl:text>
+												</xsl:attribute>
+									END;
+							}
+						}
+
+						$this->xslt_stylesheet['css_js'] .= <<<END
+
+									</link>
+							END;
+					}
+				}
+
+				if (!empty(Utils::$context['export_' . $css_group . '_header'])) {
+					$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '<style><![CDATA[' . "\n" . implode("\n", Utils::$context['export_css_header']) . "\n" . ']]>' . "\n" . '</style>';
+				}
+
+				if ($css_group === 'css_noscript') {
+					$this->xslt_stylesheet['css_js'] .= "\n\t\t" . '</noscript>';
+				}
 			}
 
 			if (!empty(Utils::$context['export_javascript_vars'])) {
@@ -1657,7 +1674,7 @@ class ExportProfileData extends BackgroundTask
 	{
 		// If we're not running a background task, we need to preserve any existing CSS and JavaScript.
 		if (SMF != 'BACKGROUND') {
-			foreach (['css_files', 'css_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
+			foreach (['css_files', 'css_header', 'css_noscript_files', 'css_noscript_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
 				if (isset(Utils::$context[$var])) {
 					Utils::$context['real_' . $var] = Utils::$context[$var];
 				}
@@ -1709,38 +1726,40 @@ class ExportProfileData extends BackgroundTask
 		IntegrationHook::call('integrate_pre_css_output');
 
 		// This next chunk mimics some of Theme::template_css()
-		$css_to_minify = [];
-		$normal_css_files = [];
+		foreach (['css', 'css_noscript'] as $css_group) {
+			$css_to_minify = [];
+			$normal_css_files = [];
 
-		usort(
-			Utils::$context['css_files'],
-			function ($a, $b) {
-				return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
-			},
-		);
+			usort(
+				Utils::$context[$css_group . '_files'],
+				function ($a, $b) {
+					return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+				},
+			);
 
-		foreach (Utils::$context['css_files'] as $css_file) {
-			if (!isset($css_file['options']['minimize'])) {
-				$css_file['options']['minimize'] = true;
+			foreach (Utils::$context[$css_group . '_files'] as $css_file) {
+				if (!isset($css_file['options']['minimize'])) {
+					$css_file['options']['minimize'] = true;
+				}
+
+				if (!empty($css_file['options']['minimize']) && !empty(Config::$modSettings['minimize_files'])) {
+					$css_to_minify[] = $css_file;
+				} else {
+					$normal_css_files[] = $css_file;
+				}
 			}
 
-			if (!empty($css_file['options']['minimize']) && !empty(Config::$modSettings['minimize_files'])) {
-				$css_to_minify[] = $css_file;
-			} else {
-				$normal_css_files[] = $css_file;
-			}
-		}
+			$minified_css_files = !empty($css_to_minify) ? Theme::custMinify($css_to_minify, 'css') : [];
 
-		$minified_css_files = !empty($css_to_minify) ? Theme::custMinify($css_to_minify, 'css') : [];
+			Utils::$context[$css_group . '_files'] = [];
 
-		Utils::$context['css_files'] = [];
-
-		foreach (array_merge($minified_css_files, $normal_css_files) as $css_file) {
-			// Embed the CSS in a <style> element if possible, since exports are supposed to be standalone files.
-			if (file_exists($css_file['filePath'])) {
-				Utils::$context['css_header'][] = file_get_contents($css_file['filePath']);
-			} elseif (!empty($css_file['fileUrl'])) {
-				Utils::$context['css_files'][] = $css_file;
+			foreach (array_merge($minified_css_files, $normal_css_files) as $css_file) {
+				// Embed the CSS in a <style> element if possible, since exports are supposed to be standalone files.
+				if (file_exists($css_file['filePath'])) {
+					Utils::$context[$css_group . '_header'][] = file_get_contents($css_file['filePath']);
+				} elseif (!empty($css_file['fileUrl'])) {
+					Utils::$context[$css_group . '_files'][] = $css_file;
+				}
 			}
 		}
 
@@ -1819,7 +1838,7 @@ class ExportProfileData extends BackgroundTask
 		]);
 
 		// Now move everything to the special export version of these arrays.
-		foreach (['css_files', 'css_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
+		foreach (['css_files', 'css_header', 'css_noscript_files', 'css_noscript_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
 			if (isset(Utils::$context[$var])) {
 				Utils::$context['export_' . $var] = Utils::$context[$var];
 			}
@@ -1829,7 +1848,7 @@ class ExportProfileData extends BackgroundTask
 
 		// Finally, restore the real values.
 		if (SMF !== 'BACKGROUND') {
-			foreach (['css_files', 'css_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
+			foreach (['css_files', 'css_header', 'css_noscript_files', 'css_noscript_header', 'javascript_vars', 'javascript_files', 'javascript_inline'] as $var) {
 				if (isset(Utils::$context['real_' . $var])) {
 					Utils::$context[$var] = Utils::$context['real_' . $var];
 				}
