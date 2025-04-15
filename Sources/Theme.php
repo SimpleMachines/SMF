@@ -602,6 +602,7 @@ class Theme
 		$params['external'] = $params['external'] ?? false;
 		$params['validate'] = $params['validate'] ?? true;
 		$params['order_pos'] = isset($params['order_pos']) ? (int) $params['order_pos'] : 3000;
+		$params['noscript'] = !empty($params['noscript']);
 		$params['attributes'] = $params['attributes'] ?? [];
 
 		// Account for shorthand like admin.css?alp21 filenames
@@ -639,16 +640,18 @@ class Theme
 
 		$mtime = empty($mtime) ? 0 : $mtime;
 
+		$css_group = $params['noscript'] ? 'css_noscript_files' : 'css_files';
+
 		// Add it to the array for use in the template
 		if (!empty($fileName) && !empty($fileUrl)) {
 			// Find a free number/position
-			while (isset(Utils::$context['css_files_order'][$params['order_pos']])) {
+			while (isset(Utils::$context[$css_group . '_order'][$params['order_pos']])) {
 				$params['order_pos']++;
 			}
 
-			Utils::$context['css_files_order'][$params['order_pos']] = $id;
+			Utils::$context[$css_group . '_order'][$params['order_pos']] = $id;
 
-			Utils::$context['css_files'][$id] = ['fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime];
+			Utils::$context[$css_group][$id] = ['fileUrl' => $fileUrl, 'filePath' => $filePath, 'fileName' => $fileName, 'options' => $params, 'mtime' => $mtime];
 		}
 
 		if (!empty(Utils::$context['right_to_left']) && !empty($params['rtl'])) {
@@ -670,17 +673,19 @@ class Theme
 	 * - All code added with this function is added to the same <style> tag,
 	 *   so do make sure your css is valid!
 	 *
-	 * @param string $css Some css code
-	 * @return bool Adds the CSS to the Utils::$context['css_header'] array or returns if no CSS is specified
+	 * @param string $css Some CSS code.
+	 * @param bool $noscript Whether to wrap this CSS in <noscript> tags.
+	 *    Default: false.
+	 * @return bool Whether the the CSS was added.
 	 */
-	public static function addInlineCss(string $css): bool
+	public static function addInlineCss(string $css, bool $noscript = false): bool
 	{
 		// Gotta add something...
 		if (empty($css)) {
 			return false;
 		}
 
-		Utils::$context['css_header'][] = $css;
+		Utils::$context[$noscript ? 'css_noscript_header' : 'css_header'][] = $css;
 
 		return true;
 	}
@@ -1603,88 +1608,108 @@ class Theme
 		// Use this hook to minify/optimize CSS files
 		IntegrationHook::call('integrate_pre_css_output');
 
-		$toMinify = [];
-		$normal = [];
-
-		uasort(
-			Utils::$context['css_files'],
-			function ($a, $b) {
-				return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
-			},
-		);
-
-		foreach (Utils::$context['css_files'] as $id => $file) {
-			// Last minute call! allow theme authors to disable single files.
-			if (!empty(self::$current->settings['disable_files']) && in_array($id, self::$current->settings['disable_files'])) {
-				continue;
-			}
-
-			// Files are minimized unless they explicitly opt out.
-			if (!isset($file['options']['minimize'])) {
-				$file['options']['minimize'] = true;
-			}
-
-			if (!empty($file['options']['minimize']) && !empty(Config::$modSettings['minimize_files']) && !isset($_REQUEST['normalcss'])) {
-				$toMinify[] = $file;
-
-				// Grab a random seed.
-				if (!isset($minSeed) && isset($file['options']['seed'])) {
-					$minSeed = $file['options']['seed'];
+		foreach (['css', 'css_noscript'] as $css_group) {
+			if ($css_group === 'css_noscript') {
+				if (
+					empty(Utils::$context[$css_group . '_files'])
+					&& empty(Utils::$context[$css_group . '_header'])
+				) {
+					break;
 				}
-			} else {
-				$normal[] = [
-					'url' => $file['fileUrl'] . ($file['options']['seed'] ?? ''),
-					'attributes' => !empty($file['options']['attributes']) ? $file['options']['attributes'] : [],
-				];
+
+				Utils::$context[$css_group . '_files'] = Utils::$context[$css_group . '_files'] ?? [];
+				Utils::$context[$css_group . '_header'] = Utils::$context[$css_group . '_header'] ?? [];
+
+				echo "\n\t" . '<noscript>';
 			}
-		}
 
-		if (!empty($toMinify)) {
-			$result = self::custMinify($toMinify, 'css');
+			$toMinify = [];
+			$normal = [];
 
-			$minSuccessful = array_keys($result) === ['smf_minified'];
+			uasort(
+				Utils::$context[$css_group . '_files'],
+				function ($a, $b) {
+					return $a['options']['order_pos'] < $b['options']['order_pos'] ? -1 : ($a['options']['order_pos'] > $b['options']['order_pos'] ? 1 : 0);
+				},
+			);
 
-			foreach ($result as $minFile) {
-				echo "\n\t" . '<link rel="stylesheet" href="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '">';
+			foreach (Utils::$context[$css_group . '_files'] as $id => $file) {
+				// Last minute call! allow theme authors to disable single files.
+				if (!empty(self::$current->settings['disable_files']) && in_array($id, self::$current->settings['disable_files'])) {
+					continue;
+				}
+
+				// Files are minimized unless they explicitly opt out.
+				if (!isset($file['options']['minimize'])) {
+					$file['options']['minimize'] = true;
+				}
+
+				if (!empty($file['options']['minimize']) && !empty(Config::$modSettings['minimize_files']) && !isset($_REQUEST['normalcss'])) {
+					$toMinify[] = $file;
+
+					// Grab a random seed.
+					if (!isset($minSeed) && isset($file['options']['seed'])) {
+						$minSeed = $file['options']['seed'];
+					}
+				} else {
+					$normal[] = [
+						'url' => $file['fileUrl'] . ($file['options']['seed'] ?? ''),
+						'attributes' => !empty($file['options']['attributes']) ? $file['options']['attributes'] : [],
+					];
+				}
 			}
-		}
 
-		// Print the rest after the minified files.
-		if (!empty($normal)) {
-			foreach ($normal as $nf) {
-				echo "\n\t" . '<link rel="stylesheet" href="', $nf['url'], '"';
+			if (!empty($toMinify)) {
+				$result = self::custMinify($toMinify, 'css');
 
-				if (!empty($nf['attributes'])) {
-					foreach ($nf['attributes'] as $key => $value) {
-						if (is_bool($value)) {
-							echo !empty($value) ? ' ' . $key : '';
-						} else {
-							echo ' ', $key, '="', $value, '"';
+				$minSuccessful = array_keys($result) === ['smf_minified'];
+
+				foreach ($result as $minFile) {
+					echo "\n\t" . '<link rel="stylesheet" href="', $minFile['fileUrl'], $minSuccessful && isset($minSeed) ? $minSeed : '', '">';
+				}
+			}
+
+			// Print the rest after the minified files.
+			if (!empty($normal)) {
+				foreach ($normal as $nf) {
+					echo "\n\t" . '<link rel="stylesheet" href="', $nf['url'], '"';
+
+					if (!empty($nf['attributes'])) {
+						foreach ($nf['attributes'] as $key => $value) {
+							if (is_bool($value)) {
+								echo !empty($value) ? ' ' . $key : '';
+							} else {
+								echo ' ', $key, '="', $value, '"';
+							}
 						}
 					}
+
+					echo '>';
+				}
+			}
+
+			if (!empty(Config::$db_show_debug)) {
+				// Try to keep only what's useful.
+				$repl = [Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => ''];
+
+				foreach (Utils::$context[$css_group . '_files'] as $file) {
+					Utils::$context['debug']['sheets'][] = strtr($file['fileUrl'], $repl);
+				}
+			}
+
+			if (!empty(Utils::$context[$css_group . '_header'])) {
+				echo "\n\t" . '<style>';
+
+				foreach (Utils::$context[$css_group . '_header'] as $css) {
+					echo "\n\t" . trim($css);
 				}
 
-				echo '>';
-			}
-		}
-
-		if (!empty(Config::$db_show_debug)) {
-			// Try to keep only what's useful.
-			$repl = [Config::$boardurl . '/Themes/' => '', Config::$boardurl . '/' => ''];
-
-			foreach (Utils::$context['css_files'] as $file) {
-				Utils::$context['debug']['sheets'][] = strtr($file['fileUrl'], $repl);
-			}
-		}
-
-		if (!empty(Utils::$context['css_header'])) {
-			echo "\n\t" . '<style>';
-
-			foreach (Utils::$context['css_header'] as $css) {
-				echo "\n\t" . trim($css);
+				echo "\n\t" . '</style>';
 			}
 
-			echo "\n\t" . '</style>';
+			if ($css_group === 'css_noscript') {
+				echo "\n\t" . '</noscript>';
+			}
 		}
 	}
 
