@@ -1075,6 +1075,69 @@ sceditor.command.set(
 	}
 );
 
+sceditor.command.set(
+	'details', {
+		_dropDown: function (editor, caller, callback) {
+			const input_wrapper = document.createElement('div');
+			const label = document.createElement('label');
+			label.innerText = editor._('summaryPrompt');
+			const input = document.createElement('input');
+			input.type = 'text';
+			input.id = 'summary';
+			input.value = editor._('spoiler');
+			input_wrapper.appendChild(label);
+			input_wrapper.appendChild(input);
+
+			const button_wrapper = document.createElement('div');
+			const button = document.createElement('input');
+			button.type = 'button';
+			button.className = 'button';
+			button.value = editor._('Insert');
+			button_wrapper.appendChild(button);
+
+			const content = document.createElement('div');
+			content.appendChild(input_wrapper);
+			content.appendChild(button_wrapper);
+
+			button.addEventListener("click", function (e) {
+				callback(input.value);
+				editor.closeDropDown(true);
+				e.preventDefault();
+			});
+
+			editor.createDropDown(caller, 'details-panel', content);
+		},
+		exec: function(caller) {
+			var editor = this;
+
+			editor.commands.details._dropDown(editor, caller, function (summary) {
+				summary = summary.replace('"', '\\"');
+
+				// If no summary was provided, use a default value.
+				if (summary.length < 1) {
+					summary = editor._('spoiler');
+				}
+
+				editor.insert('[details summary="' + summary + '"]', '[/details]');
+			});
+		},
+		txtExec: function(caller) {
+			var editor = this;
+
+			editor.commands.details._dropDown(editor, caller, function (summary) {
+				summary = summary.replace('"', '\\"');
+
+				if (summary.length < 1) {
+					summary = editor._('spoiler');
+					return;
+				}
+
+				editor.insert('[details summary="' + summary + '"]', '[/details]');
+			});
+		}
+	}
+);
+
 // This pseudo-BBCode exists solely to convince SCEditor not to delete tab characters.
 sceditor.formats.bbcode.set(
 	'tab', {
@@ -1862,5 +1925,39 @@ sceditor.formats.bbcode.set(
 			return '<' + tag + ' class="nobbc">[nobbc]' + content + '[/nobbc]</' + tag + '>';
 		},
 		allowedChildren: ['#']
+	}
+);
+
+sceditor.formats.bbcode.set(
+	'details', {
+		tags: {
+			details: null,
+			summary: null,
+		},
+		format: function (element, content) {
+			const elem = $(element)[0];
+
+			if ($(elem)[0].tagName.toLowerCase() === 'summary') {
+				return '';
+			}
+
+			if ($(elem)[0].tagName.toLowerCase() === 'details') {
+				const summary = $(elem).children('summary') ? $(elem).children('summary').text().replace('"', '\\"') : Object.values(sceditor.locale)[0].details;
+
+				return '[details summary="' + summary + '"]' + content + '[/details]'
+			}
+		},
+		html: function (token, attrs, content) {
+			const summary = typeof attrs.summary === "undefined" ? Object.values(sceditor.locale)[0].details : attrs.summary.replace('"', '\\"');
+
+			content = content.replace(/^<br ?\/?>/, '').replace(/<br ?\/?>$/, '');
+
+			return '<details open class="bbc_details"><summary class="bbc_summary">' + summary + '</summary><div class="bbc_details_content">' + content + '</div></details>';
+		},
+		allowsEmpty: true,
+		isInline: false,
+		breakEnd: true,
+		breakAfter: true,
+		quoteType: $.sceditor.BBCodeParser.QuoteType.always,
 	}
 );

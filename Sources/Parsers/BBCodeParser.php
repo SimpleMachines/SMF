@@ -254,6 +254,7 @@ class BBCodeParser extends Parser
 		['class' => \SMF\BBCode\Code1::class],
 		['class' => \SMF\BBCode\Code2::class],
 		['class' => \SMF\BBCode\Color::class],
+		['class' => \SMF\BBCode\Details::class],
 		['class' => \SMF\BBCode\Email1::class],
 		['class' => \SMF\BBCode\Email2::class],
 		['class' => \SMF\BBCode\Flash::class],
