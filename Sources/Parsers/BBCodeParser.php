@@ -1202,6 +1202,20 @@ class BBCodeParser extends Parser
 		return $this->alltags_regex;
 	}
 
+	/**
+	 * Allows read access to inaccessible properties.
+	 *
+	 * Intended for use by BBCodeInterface::validate() methods that might need
+	 * access to $this->message, etc., in order to validate the BBCode.
+	 *
+	 * @param string $name The property's name.
+	 * @return mixed The property's value.
+	 */
+	public function __get(string $name): mixed
+	{
+		return $this->{$name} ?? null;
+	}
+
 	/************************
 	 * Public static methods.
 	 ************************/
@@ -2085,6 +2099,9 @@ class BBCodeParser extends Parser
 	 */
 	protected function transformToHtml(BBCodeInterface $bbc, array $params): void
 	{
+		// In case the BBCode class wants to know which parser instance called it.
+		$bbc->parser = $this;
+
 		// Insert Lang::$txt strings into the HTML output.
 		foreach (['content', 'before', 'after'] as $key) {
 			if (isset($bbc->{$key})) {

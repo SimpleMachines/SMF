@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\BBCode;
 
 use SMF\ArrayAccessHelper;
+use SMF\Parsers\BBCodeParser;
 use SMF\Utils;
 
 /**
@@ -249,6 +250,13 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	 * validation directly within their validate() methods.
 	 */
 	public mixed $validationCallback = false;
+
+	/**
+	 * @var BBCodeParser
+	 *
+	 * The BBCodeParser instance that owns this object.
+	 */
+	public BBCodeParser $parser;
 
 	/**************************
 	 * Public static properties
