@@ -642,6 +642,7 @@ $txt['fulledit'] = 'Full&nbsp;edit';
 $txt['edit'] = 'Edit';
 $txt['quick_edit'] = 'Quick Edit';
 $txt['post_options'] = 'More...';
+$txt['spoiler_toggle'] = 'Show or hide spoiler content';
 
 $txt['merge_to_topic_id'] = 'ID of target topic';
 $txt['split'] = 'Split Topic';

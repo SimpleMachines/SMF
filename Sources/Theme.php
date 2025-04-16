@@ -2155,6 +2155,8 @@ class Theme
 		if (Utils::$context['right_to_left']) {
 			self::loadCSSFile('rtl.css', ['order_pos' => 4000], 'smf_rtl');
 		}
+
+		self::loadCSSFile('noscript.css', ['minimize' => true, 'order_pos' => 1, 'noscript' => true], 'smf_noscript');
 	}
 
 	/**

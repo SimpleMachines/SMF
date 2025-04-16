@@ -545,6 +545,11 @@ class Editor implements \ArrayAccess
 				'code' => 'tt',
 				'description' => Lang::getTxt('tt', var: 'editortxt'),
 			],
+			[
+				'image' => 'hidden',
+				'code' => 'spoiler',
+				'description' => Lang::getTxt('spoiler', var: 'editortxt'),
+			],
 			[],
 			[
 				'code' => 'pre',

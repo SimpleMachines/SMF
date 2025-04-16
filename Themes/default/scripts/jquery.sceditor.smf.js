@@ -1138,6 +1138,38 @@ sceditor.command.set(
 	}
 );
 
+sceditor.command.set(
+	'spoiler', {
+		state: function (parent, firstBlock) {
+			if (this.inSourceMode()) {
+				return 0;
+			}
+
+			return sceditor.dom.closest(this.currentNode(), '.bbc_inline_spoiler') ? 1 : 0;
+		},
+		exec: function(caller) {
+			// If we are currently inside an inline spoiler span, remove it.
+			const spoilerElement = sceditor.dom.closest(this.currentNode(), '.bbc_inline_spoiler');
+
+			if (spoilerElement) {
+				const rangeHelper = this.getRangeHelper();
+				rangeHelper.insertMarkers();
+				rangeHelper.saveRange();
+				spoilerElement.insertAdjacentHTML('beforebegin', spoilerElement.innerHTML);
+				rangeHelper.restoreRange();
+				spoilerElement.remove();
+				return;
+			}
+
+			// Otherwise, insert it.
+			this.insert('[spoiler]', '[/spoiler]');
+		},
+		txtExec: function(caller) {
+			this.insert('[spoiler]', '[/spoiler]');
+		}
+	}
+);
+
 // This pseudo-BBCode exists solely to convince SCEditor not to delete tab characters.
 sceditor.formats.bbcode.set(
 	'tab', {
@@ -1959,5 +1991,35 @@ sceditor.formats.bbcode.set(
 		breakEnd: true,
 		breakAfter: true,
 		quoteType: $.sceditor.BBCodeParser.QuoteType.always,
+	}
+);
+
+sceditor.formats.bbcode.set(
+	'spoiler', {
+		tags: {
+			span: {
+				class: 'bbc_inline_spoiler',
+			},
+		},
+		format: '[spoiler]{0}[/spoiler]',
+		html: function (token, attrs, content) {
+			// If we find something like `[spoiler="foo"]bar[/spoiler]`, turn
+			// it into a details element.
+			if (
+				typeof attrs.defaultattr !== "undefined"
+				|| /<br ?\/?>/.test(content)
+			) {
+				const summary = typeof attrs.defaultattr !== "undefined" ? attrs.defaultattr.replace('"', '\\"') : Object.values(sceditor.locale)[0].spoiler;
+
+				content = content.replace(/^<br ?\/?>/, '').replace(/<br ?\/?>$/, '');
+
+				return '<details open class="bbc_details"><summary class="bbc_summary">' + summary + '</summary><div class="bbc_details_content">' + content + '</div></details>';
+			}
+
+			return '<span class="bbc_inline_spoiler">' + content + '</span>';
+		},
+		skipLastLineBreak: true,
+		isInline: true,
+		allowsEmpty: true,
 	}
 );

@@ -304,6 +304,8 @@ class BBCodeParser extends Parser
 		['class' => \SMF\BBCode\Shadow::class],
 		['class' => \SMF\BBCode\Size1::class],
 		['class' => \SMF\BBCode\Size2::class],
+		['class' => \SMF\BBCode\Spoiler1::class],
+		['class' => \SMF\BBCode\Spoiler2::class],
 		['class' => \SMF\BBCode\Sub::class],
 		['class' => \SMF\BBCode\Sup::class],
 		['class' => \SMF\BBCode\Table::class],

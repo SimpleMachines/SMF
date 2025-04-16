@@ -1,0 +1,118 @@
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2025 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 3
+ */
+
+declare(strict_types=1);
+
+namespace SMF\BBCode;
+
+use SMF\Lang;
+use SMF\Parsers\BBCodeParser;
+
+/**
+ * Represents the normal version of the spoiler BBCode.
+ *
+ * Note: if the content inside the spoiler tags contains multipe lines,
+ * the validate method will change the 'before' and 'after' so that
+ * it will be rendered like `[details summary="Spoiler"]foo[/details]`
+ */
+class Spoiler1 extends BBCode
+{
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 *
+	 */
+	public string $tag = 'spoiler';
+
+	/**
+	 * @var string
+	 *
+	 * HTML to insert before the BBCode's content.
+	 *
+	 * The button lets us support inline spoiler tags for assistive technologies
+	 * (e.g. screen readers) and keyboard-only navigation. The CSS will render
+	 * it as transparent but it will still be able to be targeted and pressed by
+	 * assistive technologies in order to show or hide the spoiler content.
+	 */
+	public ?string $before = '<span class="bbc_inline_spoiler" title="{txt_spoiler_toggle}"><button type="button" title="{txt_spoiler_toggle}" tabindex="0"></button><span>';
+
+	/**
+	 *
+	 */
+	public ?string $after = '</span></span>';
+
+	/**
+	 *
+	 */
+	public ?string $disabled_before = '';
+
+	/**
+	 *
+	 */
+	public ?string $disabled_after = '';
+
+	/**
+	 *
+	 */
+	public bool $block_level = false;
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Validates a particular occurrence of the BBCode in the text that is
+	 * being parsed.
+	 *
+	 * In particular, if this spoiler tag contains multiple paragraphs, this
+	 * validate method will cause it to be rendered like a details tag.
+	 *
+	 * @param BBCodeInterface|array &$tag This BBCode definition.
+	 *    Passed in as an argument for historical reasons.
+	 * @param array|string &$data The data extracted from the particular
+	 *    occurrence of the BBCode in the text.
+	 * @param array $disabled List of tag names of disabled BBCodes.
+	 * @param array $params Parameters extracted from the particular
+	 *    occurence of the BBCode in the text.
+	 */
+	public function validate(BBCodeInterface|array &$tag, array|string &$data, array $disabled, array $params): void
+	{
+		// If this spoiler tag contains multiple paragraphs, render it as a details tag.
+		$pos2 = stripos($this->parser->message, '[/' . substr($this->parser->message, $this->parser->pos + 1, strlen($tag['tag'])) . ']', $this->parser->pos1);
+
+		if ($pos2 === false) {
+			return;
+		}
+
+		$content = substr($this->parser->message, $this->parser->pos1, $pos2 - $this->parser->pos1);
+
+		if (preg_match('/<br[^>]*>|<\/?p[^>]*>/', $content)) {
+			$details = new Details();
+
+			$tag->before = Lang::formatText(
+				BBCodeParser::insertTxt($details->before),
+				[
+					'summary' => Lang::getTxt('spoiler', var: 'editortxt'),
+				],
+			);
+
+			$tag->after = $details->after;
+			$tag->block_level = $details->block_level;
+			$tag->trim = $details->trim;
+		}
+	}
+}
+
+?>

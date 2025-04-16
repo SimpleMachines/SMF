@@ -184,3 +184,6 @@ img {
     padding-bottom: 5px;
 	border-bottom: 1px dotted #aaa;
 }
+.bbc_inline_spoiler {
+	outline: 2px dashed #aaa;
+}

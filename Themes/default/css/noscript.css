@@ -1,0 +1,9 @@
+/* This file holds CSS that is only used when JavaScript is disabled */
+
+/* Fallback method to show spoiler content */
+.bbc_inline_spoiler:hover {
+	background-color: transparent;
+}
+.bbc_inline_spoiler:hover span {
+	visibility: visible !important;
+}
