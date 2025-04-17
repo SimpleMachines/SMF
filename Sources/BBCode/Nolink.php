@@ -29,7 +29,7 @@ class Nolink extends BBCode
 	/**
 	 *
 	 */
-	public string $tag = 'nobbc';
+	public string $tag = 'nolink';
 
 	/**
 	 *
