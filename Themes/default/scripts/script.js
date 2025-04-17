@@ -108,6 +108,9 @@ function sendXMLDocument(sUrl, sContent, funcCallback)
 				funcCallback.call(oCaller, responseXML);
 			}
 		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log(jqXHR.responseText);
+		}
 	});
 
 	return true;
