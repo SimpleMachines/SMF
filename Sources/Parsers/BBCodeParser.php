@@ -1601,7 +1601,7 @@ class BBCodeParser extends Parser
 			}
 		}
 
-		$this->alltags_regex = '(?' . '>\b' . Utils::buildRegex(array_unique($alltags)) . '\b|' . Utils::buildRegex(array_keys(self::$itemcodes)) . ')';
+		$this->alltags_regex = '(?' . '>\b' . Utils::buildRegex(array_unique($alltags)) . '\b|' . Utils::buildRegex(array_map('strval', array_keys(self::$itemcodes))) . ')';
 	}
 
 	/**
