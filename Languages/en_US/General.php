@@ -1223,7 +1223,7 @@ $txt['mobile_generic_menu'] = '{label} Menu';
 // Punctuation mark that is normally used to separate list items in a sentence.
 $txt['sentence_list_separator'] = ',';
 
-// Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie"). The options "1", "start", "middle", "end", and "other" are required for all languages. Some languages may also need additional numerical options, which allow special handling of a specific number of list items. The "start", "middle", and "end" options are used for constructing any list that is not covered by one of the numerical options. The "other" option is intentionally empty.
+// Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie"). The options "1", "2", start", "middle", "end", and "other" are required for all languages. Some languages may also need additional numerical options, which allow special handling of a specific number of list items. The "start", "middle", and "end" options are used for constructing any list that is not covered by one of the numerical options. The "other" option is intentionally empty.
 $txt['sentence_list_pattern']['and'] = '{list_pattern_part, select,
 	1 {{0}}
 	2 {{0} and {1}}
