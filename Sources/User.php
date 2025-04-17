@@ -2300,17 +2300,20 @@ class User implements \ArrayAccess
 		$permissions = array_filter((array) $permissions, fn($p) => Permission::get($p)->scope === 'board');
 
 		foreach (PermissionProfile::loadAll() as $profile) {
-			if (empty($profile->boards)) {
+			if (empty($profile->boards())) {
 				continue;
 			}
 
-			$set = UserPermissionSet::load($user, reset($profile->boards));
+			// No need to pass all the boards to UserPermissionSet::load(). One will do.
+			$first_board = current($profile->boards());
+
+			$set = current(UserPermissionSet::load($this, [$first_board]));
 
 			foreach ($permissions as $permission) {
 				if ($set->allowedTo($permission)) {
-					$boards[$permission] = array_merge($boards[$permission] ?? [], $profile->boards);
+					$boards[$permission] = array_merge($boards[$permission] ?? [], $profile->boards());
 				} else {
-					$deny_boards[$permission] = array_merge($deny_boards[$permission] ?? [], $profile->boards);
+					$deny_boards[$permission] = array_merge($deny_boards[$permission] ?? [], $profile->boards());
 				}
 			}
 		}
