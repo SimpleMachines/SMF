@@ -806,7 +806,7 @@ class MarkdownParser extends Parser
 				'/<((?>div class="(?>inline-block|justifytext|centertext|bbc_float|righttext|lefttext)|blockquote|\/cite))\b[^>]*>(?!(?:\n\n|\s*(?:<|$)))/uim' => fn($m) => $m[0] . "\n\n",
 
 				// Insert two line breaks after certain other tags, always.
-				'/<((?>marquee|\/h[1-6]|li|t(?>d|h)))\b[^>]*>(?!\n\n)/uim' => fn($m) => $m[0] . "\n\n",
+				'/(<\/(?>picture|section|iframe|main|li|ol|ul|a(?>ddress|rticle|side)|d(?>etails|iv|d|l|t)|f(?>rame(?>set|)|i(?>eldset|gure)|o(?>oter|rm))|h(?>eader|[1-6]))\b[^>]*>)(\n{0,2})/uim' => fn($m) => $m[1] . "\n\n",
 
 				// Insert one line break before certain tags.
 				'/(^|[^>])\h*\K<\/((?>blockquote|marquee|div|h[1-6]|li|t(?>d|h)))>/uim' => fn($m) => "\n" . $m[0],
