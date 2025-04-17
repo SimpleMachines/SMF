@@ -347,6 +347,10 @@ class Lang
 
 						setlocale(LC_CTYPE, $locale_variants);
 					}
+
+					if (isset(self::$txt['lang_rtl'])) {
+						Utils::$context['right_to_left'] = !empty(self::$txt['lang_rtl']);
+					}
 				}
 			}
 
@@ -361,7 +365,16 @@ class Lang
 
 			// That couldn't be found!  Log the error, but *try* to continue normally.
 			if (!$found && $fatal) {
-				ErrorHandler::log(self::formatText(self::$txt['theme_language_error'] ?? 'Unable to load the {filename} language file.', ['filename' => $lang . '/' . $filename]), 'template');
+				ErrorHandler::log(
+					// Don't call self::formatText() here in case the missing
+					// file is one that we would need in self::formatText()
+					str_replace(
+						'{filename}',
+						$lang . '/' . $name,
+						self::$txt['theme_language_error'] ?? 'Unable to load the {filename} language file.',
+					),
+					'template',
+				);
 				break;
 			}
 
@@ -427,7 +440,7 @@ class Lang
 
 			// Make sure we have Theme::$current->settings - if not we're in trouble and need to find it!
 			if (empty(Theme::$current->settings['default_theme_dir'])) {
-				Theme::loadEssential();
+				Theme::loadEssential(false);
 			}
 
 			foreach (['theme_dir', 'base_theme_dir', 'default_theme_dir'] as $var) {
@@ -711,19 +724,19 @@ class Lang
 			is_string($file)
 			&& (
 				// If we haven't loaded the file yet, do so now.
-				!isset(self::$loaded_keys[$txt_key[0]])
+				!isset(self::$loaded_keys[$var][$txt_key[0]])
 
 				// If we loaded it for a different language, reload for the right language.
-				|| self::$loaded_keys[$txt_key[0]]['lang'] !== $lang
+				|| self::$loaded_keys[$var][$txt_key[0]]['lang'] !== $lang
 
 				// In the event of key conflicts between different files, give
 				// them the string from the requested file. HOWEVER, if the key
 				// was overwritten in the Modifications or ThemeStrings language
 				// files, then keep that version instead.
 				|| (
-					self::$loaded_keys[$txt_key[0]]['file'] !== $file
-					&& self::$loaded_keys[$txt_key[0]]['file'] !== 'ThemeStrings'
-					&& self::$loaded_keys[$txt_key[0]]['file'] !== 'Modifications'
+					self::$loaded_keys[$var][$txt_key[0]]['file'] !== $file
+					&& self::$loaded_keys[$var][$txt_key[0]]['file'] !== 'ThemeStrings'
+					&& self::$loaded_keys[$var][$txt_key[0]]['file'] !== 'Modifications'
 				)
 			)
 		) {

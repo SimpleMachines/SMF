@@ -1734,7 +1734,7 @@ class ACP implements ActionInterface, Routable
 	public static function emailAdmins(string $template, array $replacements = [], array $additional_recipients = []): void
 	{
 		// Load all members which are effectively admins.
-		$members = User::membersAllowedTo('admin_forum');
+		$members = User::getAllowedTo('admin_forum');
 
 		// Load their alert preferences
 		$prefs = Notify::getNotifyPrefs($members, 'announcements', true);
@@ -1867,6 +1867,15 @@ class ACP implements ActionInterface, Routable
 		Theme::loadTemplate('Admin');
 		Theme::loadJavaScriptFile('admin.js', ['minimize' => true], 'smf_admin');
 		Theme::loadCSSFile('admin.css', [], 'smf_admin');
+
+		Theme::loadCSSFile('coloris.min.css', [], 'coloris');
+		Theme::loadJavaScriptFile('coloris.min.js', [], 'coloris');
+		Theme::addInlineJavaScript('
+		Coloris({
+			rtl: ' . (Utils::$context['right_to_left'] ? 'true' : 'false') . ',
+			themeMode: "auto",
+			format: "auto",
+		});', true);
 
 		// Set any dynamic values in $this->admin_areas.
 		$this->setAdminAreas();

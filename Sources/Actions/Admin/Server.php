@@ -405,7 +405,7 @@ class Server implements ActionInterface
 				// Set the new one.
 				Config::$cookiename = !empty($_POST['cookiename']) ? $_POST['cookiename'] : Config::$cookiename;
 
-				Cookie::setLoginCookie((int) (60 * Config::$modSettings['cookieTime']), User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
+				Cookie::setLoginCookie(User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT, User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
 				Utils::redirectexit('action=admin;area=serversettings;sa=cookie;' . Utils::$context['session_var'] . '=' . $original_session_id, Sapi::needsLoginFix());
 			}
@@ -936,16 +936,6 @@ class Server implements ActionInterface
 				'file',
 				'text',
 				20,
-			],
-			[
-				'cookieTime',
-				Lang::getTxt('cookieTime', file: 'ManageSettings'),
-				'db',
-				'select',
-				array_filter(array_map(
-					fn($str) => Lang::txtExists($str, file: 'General') ? Lang::getTxt($str, file: 'General') : '',
-					Utils::$context['login_cookie_times'],
-				)),
 			],
 			[
 				'localCookies',

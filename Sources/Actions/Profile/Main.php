@@ -581,7 +581,7 @@ class Main implements ActionInterface, Routable
 		// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
 		// And we care about what the current user can do, not what the user whose profile it is.
 		if (User::$me->mod_cache['gq'] != '0=1') {
-			User::$me->permissions[] = 'approve_group_requests';
+			User::$me->permission_sets[0]->grant('approve_group_requests');
 		}
 
 		// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
@@ -760,6 +760,8 @@ class Main implements ActionInterface, Routable
 	public static function buildRoute(array $params): array
 	{
 		$params['u'] = $params['u'] ?? User::$me->id;
+
+		$route = [];
 
 		if (!empty($params['u'])) {
 			$route[] = 'members';

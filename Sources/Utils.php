@@ -289,14 +289,6 @@ class Utils
 		'restricted_bbc' => [
 			'html',
 		],
-		// Login Cookie times. Format: time => txt
-		'login_cookie_times' => [
-			3153600 => 'always_logged_in',
-			60 => 'one_hour',
-			1440 => 'one_day',
-			10080 => 'one_week',
-			43200 => 'one_month',
-		],
 		'show_spellchecking' => false,
 	];
 
@@ -1019,6 +1011,12 @@ class Utils
 			return preg_quote(@strval($strings), $delim);
 		}
 
+		$strings = array_filter($strings, 'is_string');
+
+		if (empty($strings)) {
+			return '';
+		}
+
 		$regex_key = md5(json_encode([$strings, $delim, $return_array]));
 
 		if (isset($regexes[$regex_key])) {
@@ -1028,6 +1026,25 @@ class Utils
 		if (($string_encoding = mb_detect_encoding(implode(' ', $strings))) !== false) {
 			$current_encoding = mb_internal_encoding();
 			mb_internal_encoding($string_encoding);
+		}
+
+		// Optimizing is faster when we sort by length.
+		usort($strings, fn($a, $b) => mb_strlen($a) <=> mb_strlen($b));
+
+		// Can we trim common characters from the end?
+		$trailing = '';
+
+		while (mb_strlen(reset($strings)) > 1) {
+			$last_char = mb_substr(reset($strings), -1);
+
+			foreach ($strings as $string_num => $string) {
+				if (!str_ends_with($string, $last_char)) {
+					break 2;
+				}
+			}
+
+			$strings = array_map(fn($string) => mb_substr($string, 0, -1), $strings);
+			$trailing = $last_char . $trailing;
 		}
 
 		// This recursive closure creates the trie from the strings.
@@ -1145,8 +1162,16 @@ class Utils
 			while (!empty($trie)) {
 				$regex[] = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
 			}
+
+			if ($trailing !== '') {
+				$regex = array_map(fn($r) => '(?' . '>' . $r . $trailing . ')', $regex);
+			}
 		} else {
 			$regex = '(?' . '>' . $trie_to_regex($trie, $delim) . ')';
+
+			if ($trailing !== '') {
+				$regex = '(?' . '>' . $regex . $trailing . ')';
+			}
 		}
 
 		// Restore PHP's internal character encoding to whatever it was originally.
@@ -2362,7 +2387,7 @@ class Utils
 					&& !(Forum::getCurrentAction()?->getOutputType() instanceof OutputTypes\Xml)
 					&& !isset($_REQUEST['xml'])
 				) {
-					Logging::displayDebug();
+					Debug\DebugUtils::displayDebug();
 				}
 			}
 		}

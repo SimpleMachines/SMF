@@ -525,8 +525,7 @@ $txt['total_members'] = 'Total Members';
 $txt['total_posts'] = 'Total Posts';
 $txt['total_topics'] = 'Total Topics';
 
-$txt['time_logged_in'] = 'Time to stay logged in';
-$txt['always_logged_in'] = 'Forever';
+$txt['remember_me'] = 'Remember me';
 
 $txt['preview'] = 'Preview';
 
@@ -1135,8 +1134,7 @@ $txt['debug_subtemplates'] = 'Sub templates: {num, number, integer} {additional_
 $txt['debug_language_files'] = 'Language files: {num, number, integer} {additional_info}';
 $txt['debug_stylesheets'] = 'Style sheets: {num, number, integer} {additional_info}';
 $txt['debug_files_included'] = 'Files included: {num, number, integer} - {size, number, integer} KB {additional_info}';
-$txt['debug_memory_use'] = 'Memory used: {size, number, integer} KB';
-$txt['debug_show'] = 'show';
+$txt['debug_memory_use'] = 'Memory used: {num, number, integer} KB';
 $txt['debug_cache_hits'] = 'Cache hits: {num, number, integer} - {seconds_bytes_total} {additional_info}';
 $txt['debug_cache_misses'] = 'Cache misses: {num, number, integer} {additional_info}';
 $txt['debug_cache_seconds_bytes'] = '{seconds, number, integer}s - {bytes, plural,
@@ -1169,8 +1167,9 @@ $txt['debug_query_which_took_at'] = '{0, plural,
 } at {1, number} into request.';
 $txt['debug_show_queries'] = '[Show Queries]';
 $txt['debug_hide_queries'] = '[Hide Queries]';
-$txt['debug_tokens'] = 'Tokens: {additional_info}';
-$txt['debug_browser'] = 'Browser ID: {browser_body_id} {additional_info}';
+$txt['debug_tokens'] = 'Tokens: {num, number, integer} {additional_info}';
+$txt['debug_browser'] = 'Browser ID: {browser_body_id} ({additional_info})';
+$txt['debug_action'] = 'Current action: {name} (allow restricted guest access: {restrict_guests}, can be logged: {can_log}, is simple: {is_simple})';
 $txt['debug_hooks'] = 'Hooks called: {num, number, integer} {additional_info}';
 $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
 

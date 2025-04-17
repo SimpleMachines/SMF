@@ -231,25 +231,6 @@ class Login2 implements ActionInterface, Routable
 			ErrorHandler::fatalLang('login_threshold_fail', 'login');
 		}
 
-		// Set up the cookie length.  (if it's invalid, just fall through and use the default.)
-		if (
-			isset($_POST['cookieneverexp'])
-			|| (
-				!empty($_POST['cookielength'])
-				&& $_POST['cookielength'] == -1
-			)
-		) {
-			Config::$modSettings['cookieTime'] = 3153600;
-		} elseif (
-			!empty($_POST['cookielength'])
-			&& (
-				$_POST['cookielength'] >= 1
-				&& $_POST['cookielength'] <= 3153600
-			)
-		) {
-			Config::$modSettings['cookieTime'] = (int) $_POST['cookielength'];
-		}
-
 		// Load the template stuff.
 		Theme::loadTemplate('Login');
 		Utils::$context['sub_template'] = 'login';
@@ -260,7 +241,7 @@ class Login2 implements ActionInterface, Routable
 		// Set up the default/fallback stuff.
 		Utils::$context['default_username'] = isset($_POST['user']) ? preg_replace('~&amp;#(\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#$1;', Utils::htmlspecialchars($_POST['user'])) : '';
 		Utils::$context['default_password'] = '';
-		Utils::$context['never_expire'] = Config::$modSettings['cookieTime'] <= 525600;
+		Utils::$context['never_expire'] = !empty($_POST['cookieneverexp']);
 		Utils::$context['login_errors'] = [Lang::getTxt('error_occured', file: 'General')];
 		Utils::$context['page_title'] = Lang::getTxt('login', file: 'General');
 
@@ -276,7 +257,22 @@ class Login2 implements ActionInterface, Routable
 		}
 
 		// Are we using any sort of integration to validate the login?
-		if (in_array('retry', IntegrationHook::call('integrate_validate_login', [$_POST['user'], $_POST['passwrd'] ?? null, Config::$modSettings['cookieTime']]), true)) {
+		if (
+			in_array(
+				'retry',
+				IntegrationHook::call(
+					'integrate_validate_login',
+					[
+						$_POST['user'],
+						$_POST['passwrd'] ?? null,
+						// This is divided by 60 for compatibility with old mods that
+						// expected a number of minutes rather than a number of seconds.
+						(!empty($_POST['cookieneverexp']) ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT) / 60,
+					],
+				),
+				true,
+			)
+		) {
 			Utils::$context['login_errors'] = [Lang::getTxt('incorrect_password', file: 'Login')];
 
 			return;
@@ -760,13 +756,23 @@ class Login2 implements ActionInterface, Routable
 	protected function DoLogin(): void
 	{
 		// Call login integration functions.
-		IntegrationHook::call('integrate_login', [User::$profiles[User::$my_id]['member_name'], null, Config::$modSettings['cookieTime']]);
+		IntegrationHook::call(
+			'integrate_login',
+			[
+				User::$profiles[User::$my_id]['member_name'],
+				null,
+				// This is divided by 60 for compatibility with old mods that
+				// expected a number of minutes rather than a number of seconds.
+				(!empty(Utils::$context['never_expire']) ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT) / 60,
+			],
+		);
 
 		// Get ready to set the cookie...
 		User::setMe(User::$my_id);
+		User::$me->stay_logged_in = !empty(Utils::$context['never_expire']);
 
 		// Bam!  Cookie set.  A session too, just in case.
-		Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
+		Cookie::setLoginCookie(User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT, User::$me->id, Cookie::encrypt(User::$me->passwd, User::$me->password_salt));
 
 		// Reset the login threshold.
 		if (isset($_SESSION['failed_login'])) {

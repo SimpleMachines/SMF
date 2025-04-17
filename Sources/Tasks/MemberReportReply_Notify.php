@@ -69,9 +69,8 @@ class MemberReportReply_Notify extends BackgroundTask
 			return true;
 		}
 
-		// We need to know who can moderate this board - and therefore who can see this report.
-		// First up, people who have moderate_board in the board this topic was in.
-		$members = User::membersAllowedTo('moderate_forum');
+		// We need to know who can moderate members and therefore who can see this report.
+		$members = User::getAllowedTo('moderate_forum');
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		$prefs = Notify::getNotifyPrefs($members, 'member_report_reply', true);

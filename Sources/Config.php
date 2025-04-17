@@ -931,6 +931,15 @@ class Config
 			self::$languagesdir = self::$boarddir . '/Languages';
 		}
 
+		// Make absolutely sure the language is legitimate.
+		if (empty(self::$language) || !is_dir(self::$languagesdir . '/' . self::$language)) {
+			self::$language = self::$settings_defs['language']['default'];
+
+			if (!is_dir(self::$languagesdir . '/' . self::$language)) {
+				die('Language files not found.');
+			}
+		}
+
 		// Make absolutely sure the cache directory is defined and writable.
 		if (empty(self::$cachedir) || !is_dir(self::$cachedir) || !is_writable(self::$cachedir)) {
 			if (is_dir(self::$boarddir . '/cache') && is_writable(self::$boarddir . '/cache')) {
@@ -1112,9 +1121,7 @@ class Config
 
 		// Ensure we know who can manage boards.
 		if (!isset(self::$modSettings['board_manager_groups'])) {
-			$board_managers = User::groupsAllowedTo('manage_boards', null);
-			$board_managers = implode(',', $board_managers['allowed']);
-			self::updateModSettings(['board_manager_groups' => $board_managers]);
+			self::updateModSettings(['board_manager_groups' => implode(',', Group::getAllowedTo('manage_boards'))]);
 		}
 
 		// Is post moderation alive and well? Everywhere else assumes this has been defined, so let's make sure it is.

@@ -3037,7 +3037,7 @@ class Profile extends User implements \ArrayAccess
 	protected static function reloadUser(int $memID): void
 	{
 		if ($memID == User::$me->id && isset($_POST['passwrd2']) && $_POST['passwrd2'] != '') {
-			Cookie::setLoginCookie(60 * Config::$modSettings['cookieTime'], User::$me->id, Cookie::encrypt($_POST['passwrd1'], User::$me->password_salt));
+			Cookie::setLoginCookie(User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT, User::$me->id, Cookie::encrypt($_POST['passwrd1'], User::$me->password_salt));
 		}
 
 		User::reload($memID, 'profile');

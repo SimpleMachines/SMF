@@ -27,6 +27,7 @@ use SMF\ItemList;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
+use SMF\Permissions\Permission;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\User;
@@ -338,151 +339,33 @@ class Membergroups implements ActionInterface
 
 			IntegrationHook::call('integrate_pre_add_membergroup', []);
 
-			$id_group = Db::$db->insert(
-				'',
-				'{db_prefix}membergroups',
-				[
-					'description' => 'string',
-					'group_name' => 'string-80',
-					'min_posts' => 'int',
-					'icons' => 'string',
-					'online_color' => 'string',
-					'group_type' => 'int',
-				],
-				[
-					[
-						'',
-						Utils::htmlspecialchars($_POST['group_name'], ENT_QUOTES),
-						($postCountBasedGroup ? (int) $_POST['min_posts'] : '-1'),
-						'1#icon.png',
-						'',
-						$_POST['group_type'],
-					],
-				],
-				['id_group'],
-				1,
-			);
+			$group = new Group(null, [
+				'name' => Utils::htmlspecialchars($_POST['group_name'], ENT_QUOTES),
+				'description' => '',
+				'online_color' => '',
+				'min_posts' => ($postCountBasedGroup ? (int) $_POST['min_posts'] : -1),
+				'raw_icons' => '1#icon.png',
+				'type' => $_POST['group_type'],
+			]);
 
-			IntegrationHook::call('integrate_add_membergroup', [$id_group, $postCountBasedGroup]);
-
-			// Update the post groups now, if this is a post group!
-			if (($_POST['min_posts'] ?? -1) != -1) {
-				Logging::updateStats('postgroups');
-			}
-
-			// You cannot set permissions for post groups if they are disabled.
-			if ($postCountBasedGroup && empty(Config::$modSettings['permission_enable_postgroups'])) {
-				$_POST['perm_type'] = '';
-			}
+			// The integrate_add_membergroup hook has been moved into Group::save()
+			$group->save();
 
 			if ($_POST['perm_type'] == 'predefined') {
-				// Set default permission level.
-				Permissions::setPermissionLevel($_POST['level'], $id_group, 'null');
+				try {
+					$level = constant(Permission::class . '::GROUP_LEVEL_' . strtoupper($_POST['level']));
+				} catch (\Throwable $e) {
+					ErrorHandler::fatalLang('no_access', false);
+				}
+
+				$group->setPermissionsByLevel($level);
 			}
 			// Copy or inherit the permissions!
 			elseif ($_POST['perm_type'] == 'copy' || $_POST['perm_type'] == 'inherit') {
-				$copy_id = $_POST['perm_type'] == 'copy' ? (int) $_POST['copyperm'] : (int) $_POST['inheritperm'];
-
-				@list($copy_from) = Group::load($copy_id);
-
-				if (!isset($copy_from)) {
-					ErrorHandler::fatalLang('membergroup_does_not_exist');
-				}
-
-				// Protected groups are... well, protected!
-				if (!User::$me->allowedTo('admin_forum') && $copy_from->type == Group::TYPE_PROTECTED) {
-					ErrorHandler::fatalLang('membergroup_does_not_exist');
-				}
-
-				// Don't allow copying of a real privileged person!
-				$illegal_permissions = Permissions::loadIllegalPermissions();
-
-				$inserts = [];
-				$request = Db::$db->query(
-					'',
-					'SELECT permission, add_deny
-					FROM {db_prefix}permissions
-					WHERE id_group = {int:copy_from}',
-					[
-						'copy_from' => $copy_id,
-					],
+				$group->copyPermissionsFrom(
+					$_POST['perm_type'] == 'copy' ? (int) $_POST['copyperm'] : (int) $_POST['inheritperm'],
+					$_POST['perm_type'] == 'inherit',
 				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					if (empty($illegal_permissions) || !in_array($row['permission'], $illegal_permissions)) {
-						$inserts[] = [$id_group, $row['permission'], $row['add_deny']];
-					}
-				}
-				Db::$db->free_result($request);
-
-				if (!empty($inserts)) {
-					Db::$db->insert(
-						'insert',
-						'{db_prefix}permissions',
-						['id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'],
-						$inserts,
-						['id_group', 'permission'],
-					);
-				}
-
-				$inserts = [];
-				$request = Db::$db->query(
-					'',
-					'SELECT id_profile, permission, add_deny
-					FROM {db_prefix}board_permissions
-					WHERE id_group = {int:copy_from}',
-					[
-						'copy_from' => $copy_id,
-					],
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					$inserts[] = [$id_group, $row['id_profile'], $row['permission'], $row['add_deny']];
-				}
-				Db::$db->free_result($request);
-
-				if (!empty($inserts)) {
-					Db::$db->insert(
-						'insert',
-						'{db_prefix}board_permissions',
-						['id_group' => 'int', 'id_profile' => 'int', 'permission' => 'string', 'add_deny' => 'int'],
-						$inserts,
-						['id_group', 'id_profile', 'permission'],
-					);
-				}
-
-				// Also get some membergroup information if we're copying and not copying from guests...
-				if ($copy_id > 0 && $_POST['perm_type'] == 'copy') {
-					// ...and update the new membergroup with it.
-					Db::$db->query(
-						'',
-						'UPDATE {db_prefix}membergroups
-						SET
-							online_color = {string:online_color},
-							max_messages = {int:max_messages},
-							icons = {string:icons}
-						WHERE id_group = {int:current_group}',
-						[
-							'max_messages' => $copy_from->max_messages,
-							'current_group' => $id_group,
-							'online_color' => $copy_from->online_color,
-							'icons' => $copy_from->icons,
-						],
-					);
-				}
-				// If inheriting say so...
-				elseif ($_POST['perm_type'] == 'inherit') {
-					Db::$db->query(
-						'',
-						'UPDATE {db_prefix}membergroups
-						SET id_parent = {int:copy_from}
-						WHERE id_group = {int:current_group}',
-						[
-							'copy_from' => $copy_id,
-							'current_group' => $id_group,
-						],
-					);
-				}
 			}
 
 			// Make sure all boards selected are stored in a proper array.
@@ -507,8 +390,8 @@ class Membergroups implements ActionInterface
 						[
 							'board_list' => $changed_boards[$board_action],
 							'blank_string' => '',
-							'group_id_string' => (string) $id_group,
-							'comma_group' => ',' . $id_group,
+							'group_id_string' => (string) $group->id,
+							'comma_group' => ',' . $group->id,
 							'column' => $board_action == 'allow' ? 'member_groups' : 'deny_member_groups',
 						],
 					);
@@ -521,7 +404,7 @@ class Membergroups implements ActionInterface
 							AND deny = {int:deny}',
 						[
 							'board_list' => $changed_boards[$board_action],
-							'group_id' => $id_group,
+							'group_id' => $group->id,
 							'deny' => $board_action == 'allow' ? 0 : 1,
 						],
 					);
@@ -529,7 +412,7 @@ class Membergroups implements ActionInterface
 					$insert = [];
 
 					foreach ($changed_boards[$board_action] as $board_id) {
-						$insert[] = [$id_group, $board_id, $board_action == 'allow' ? 0 : 1];
+						$insert[] = [$group->id, $board_id, $board_action == 'allow' ? 0 : 1];
 					}
 
 					Db::$db->insert(
@@ -556,7 +439,7 @@ class Membergroups implements ActionInterface
 			Logging::logAction('add_group', ['group' => Utils::htmlspecialchars($_POST['group_name'])], 'admin');
 
 			// Go change some more settings.
-			Utils::redirectexit('action=admin;area=membergroups;sa=edit;group=' . $id_group);
+			Utils::redirectexit('action=admin;area=membergroups;sa=edit;group=' . $group->id);
 		}
 
 		// Just show the 'add membergroup' screen.
@@ -659,9 +542,7 @@ class Membergroups implements ActionInterface
 		}
 
 		// People who can manage boards are a bit special.
-		$board_managers = User::groupsAllowedTo('manage_boards', null);
-
-		Utils::$context['can_manage_boards'] = in_array($group->id, $board_managers['allowed']);
+		Utils::$context['can_manage_boards'] = in_array($group->id, Group::getAllowedTo('manage_boards'));
 
 		// Can this group moderate any boards?
 		Utils::$context['is_moderator_group'] = $group->is_moderator_group;

@@ -419,49 +419,19 @@ class Notification implements ActionInterface
 
 		// Now we have to do some permissions testing - but only if we're not loading this from the admin center
 		if (!empty(Profile::$member->id)) {
-			$group_permissions = ['manage_membergroups'];
-			$board_permissions = [];
-
-			foreach ($this->alert_types as $group => $items) {
-				foreach ($items as $alert_key => $alert_value) {
-					if (isset($alert_value['permission'])) {
-						if (empty($alert_value['permission']['is_board'])) {
-							$group_permissions[] = $alert_value['permission']['name'];
-						} else {
-							$board_permissions[] = $alert_value['permission']['name'];
-						}
-					}
-				}
+			// Disable membergroup requests if this user can't moderate any groups.
+			if (empty(Profile::$member->groupsCanModerate())) {
+				unset($this->alert_types['members']['request_group']);
 			}
 
-			$member_groups = User::getGroupsWithPermissions($group_permissions, $board_permissions);
-
-			if (empty($member_groups['manage_membergroups']['allowed'])) {
-				$request = Db::$db->query(
-					'',
-					'SELECT COUNT(*)
-					FROM {db_prefix}group_moderators
-					WHERE id_member = {int:memID}',
-					[
-						'memID' => Profile::$member->id,
-					],
-				);
-				list($is_group_moderator) = Db::$db->fetch_row($request);
-				Db::$db->free_result($request);
-
-				if (empty($is_group_moderator)) {
-					unset($this->alert_types['members']['request_group']);
-				}
-			}
-
+			// Disable any types that this user doesn't have the permissions for.
 			foreach ($this->alert_types as $group => $items) {
 				foreach ($items as $alert_key => $alert_value) {
-					if (isset($alert_value['permission'])) {
-						$allowed = count(array_intersect(Profile::$member->groups, $member_groups[$alert_value['permission']['name']]['allowed'])) != 0;
-
-						if (!$allowed) {
-							unset($this->alert_types[$group][$alert_key]);
-						}
+					if (
+						isset($alert_value['permission'])
+						&& !Profile::$member->allowedTo($alert_value['permission']['name'], $alert_value['permission']['is_board'] ? Board::getAll() : null, true)
+					) {
+						unset($this->alert_types[$group][$alert_key]);
 					}
 				}
 

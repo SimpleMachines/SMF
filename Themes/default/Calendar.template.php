@@ -104,53 +104,53 @@ function template_show_upcoming_list($grid_name)
 			{
 				echo '
 					<li class="windowbg">
-						<strong class="event_title">', $event['link'], '</strong>';
+						<strong class="event_title">', $event->link, '</strong>';
 
-				if ($event['can_edit'])
-					echo ' <a href="' . $event['modify_href'] . '"><span class="main_icons calendar_modify" title="', Lang::getTxt('calendar_edit', file: 'Calendar'), '"></span></a>';
+				if ($event->can_edit)
+					echo ' <a href="' . $event->modify_href . '"><span class="main_icons calendar_modify" title="', Lang::getTxt('calendar_edit', file: 'Calendar'), '"></span></a>';
 
-				if ($event['can_export'])
-					echo ' <a href="' . $event['export_href'] . '"><span class="main_icons calendar_export" title="', Lang::getTxt('calendar_export', file: 'Calendar'), '"></span></a>';
+				if ($event->can_export)
+					echo ' <a href="' . $event->export_href . '"><span class="main_icons calendar_export" title="', Lang::getTxt('calendar_export', file: 'Calendar'), '"></span></a>';
 
 				echo '
 						<br>';
 
-				if (!empty($event['allday']))
+				if (!empty($event->allday))
 				{
-					echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date_local']), '</time>', ($event['start_date_local'] < $event['last_date_local']) ? ' &ndash; <time datetime="' . $event['last_iso_gmdate'] . '">' . trim($event['last_date_local']) . '</time>' : '';
+					echo '<time datetime="' . $event->start->iso_gmdate . '">', trim($event->start->date_local), '</time>', ($event->start->date_local < $event->last_date_local) ? ' &ndash; <time datetime="' . $event->last_iso_gmdate . '">' . trim($event->last_date_local) . '</time>' : '';
 				}
 				else
 				{
 					// Display event info relative to user's local timezone
-					echo '<time datetime="' . $event['start_iso_gmdate'] . '">', trim($event['start_date_local']), ', ', trim($event['start_time_local']), '</time> &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">';
+					echo '<time datetime="' . $event->start->iso_gmdate . '">', trim($event->start->date_local), ', ', trim($event->start->time_local), '</time> &ndash; <time datetime="' . $event->end->iso_gmdate . '">';
 
-					if ($event['start_date_local'] != $event['end_date_local'])
-						echo trim($event['end_date_local']) . ', ';
+					if ($event->start->date_local != $event->end->date_local)
+						echo trim($event->end->date_local) . ', ';
 
-					echo trim($event['end_time_local']);
+					echo trim($event->end->time_local);
 
 					// Display event info relative to original timezone
-					if ($event['start_date_local'] . $event['start_time_local'] != $event['start_date_orig'] . $event['start_time_orig'])
+					if ($event->start->date_local . $event->start->time_local != $event->start->date_orig . $event->start->time_orig)
 					{
-						echo '</time> (<time datetime="' . $event['start_iso_gmdate'] . '">';
+						echo '</time> (<time datetime="' . $event->start->iso_gmdate . '">';
 
-						if ($event['start_date_orig'] != $event['start_date_local'] || $event['end_date_orig'] != $event['end_date_local'] || $event['start_date_orig'] != $event['end_date_orig'])
-							echo trim($event['start_date_orig']), ', ';
+						if ($event->start->date_orig != $event->start->date_local || $event->end->date_orig != $event->end->date_local || $event->start->date_orig != $event->end->date_orig)
+							echo trim($event->start->date_orig), ', ';
 
-						echo trim($event['start_time_orig']), '</time> &ndash; <time datetime="' . $event['end_iso_gmdate'] . '">';
+						echo trim($event->start->time_orig), '</time> &ndash; <time datetime="' . $event->end->iso_gmdate . '">';
 
-						if ($event['start_date_orig'] != $event['end_date_orig'])
-							echo trim($event['end_date_orig']) . ', ';
+						if ($event->start->date_orig != $event->end->date_orig)
+							echo trim($event->end->date_orig) . ', ';
 
-						echo trim($event['end_time_orig']), ' ', $event['tz_abbrev'], '</time>)';
+						echo trim($event->end->time_orig), ' ', $event->tz_abbrev, '</time>)';
 					}
 					// Event is scheduled in the user's own timezone? Let 'em know, just to avoid confusion
 					else
-						echo ' ', $event['tz_abbrev'], '</time>';
+						echo ' ', $event->tz_abbrev, '</time>';
 				}
 
-				if (!empty($event['location']))
-					echo '<br>', $event['location'];
+				if (!empty($event->location))
+					echo '<br>', $event->location;
 
 				// If the first occurrence is not visible on the current page,
 				// we mention it in the RRULE description.
@@ -427,7 +427,7 @@ function template_show_month_grid($grid_name, $is_mini = false)
 						$birthday_count = 0;
 						foreach ($day['birthdays'] as $bday)
 						{
-							echo '<a href="', Config::$scripturl, '?action=profile;u=', $bday['member'], '"><span class="fix_rtl_names">', $bday['name'], '</span>', isset($bday['age']) ? ' (' . $bday['age'] . ')' : '', '</a>', $bday['is_last'] || ($count == 10 && $use_js_hide) ? '' : ', ';
+							echo '<a href="', Config::$scripturl, '?action=profile;u=', $bday->member, '"><span class="fix_rtl_names">', $bday->name, '</span>', isset($bday->age) ? ' (' . $bday->age . ')' : '', '</a>', $bday->is_last || ($count == 10 && $use_js_hide) ? '' : ', ';
 
 							// 9...10! Let's stop there.
 							if ($birthday_count == 10 && $use_js_hide)
@@ -467,45 +467,45 @@ function template_show_month_grid($grid_name, $is_mini = false)
 							title, href, is_last, can_edit (are they allowed to?), and modify_href. */
 						foreach ($day['events'] as $event)
 						{
-							$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
+							$event_icons_needed = ($event->can_edit || $event->can_export) ? true : false;
 
 							echo '
-							<div class="event_wrapper', $event['start_date'] == $day['date'] ? ' event_starts_today' : '', $event['end_date'] == $day['date'] ? ' event_ends_today' : '', $event['allday'] == true ? ' allday' : '', $event['is_selected'] ? ' sel_event' : '', '">
-								', $event['link'], '<br>
+							<div class="event_wrapper', $event->start->date == $day['date'] ? ' event_starts_today' : '', $event->end->date == $day['date'] ? ' event_ends_today' : '', $event->allday == true ? ' allday' : '', $event->is_selected ? ' sel_event' : '', '">
+								', $event->link, '<br>
 								<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
-							if (!empty($event['allday'])) {
+							if (!empty($event->allday)) {
 								echo Lang::getTxt('calendar_allday', file: 'Calendar');
-							} elseif (!empty($event['start_time_local']) && $event['start_date'] == $day['date']) {
-								echo trim(str_replace(':00 ', ' ', $event['start_time_local']));
-							} elseif (!empty($event['end_time_local']) && $event['end_date'] == $day['date']) {
-								echo strtolower(Lang::getTxt('ends', file: 'General')), ' ', trim(str_replace(':00 ', ' ', $event['end_time_local']));
+							} elseif (!empty($event->start->time_local) && $event->start->date == $day['date']) {
+								echo trim(str_replace(':00 ', ' ', $event->start->time_local));
+							} elseif (!empty($event->end->time_local) && $event->end->date == $day['date']) {
+								echo strtolower(Lang::getTxt('ends', file: 'General')), ' ', trim(str_replace(':00 ', ' ', $event->end->time_local));
 							}
 
 							echo '
 								</span>';
 
-							if (!empty($event['location']))
+							if (!empty($event->location))
 								echo '
 								<br>
-								<span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
+								<span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event->location . '</span>';
 
-							if ($event['can_edit'] || $event['can_export'])
+							if ($event->can_edit || $event->can_export)
 							{
 								echo '
 								<span class="modify_event_links">';
 
 								// If they can edit the event, show an icon they can click on....
-								if ($event['can_edit'])
+								if ($event->can_edit)
 									echo '
-									<a class="modify_event" href="', $event['modify_href'], '">
+									<a class="modify_event" href="', $event->modify_href, '">
 										<span class="main_icons calendar_modify" title="', Lang::getTxt('calendar_edit', file: 'Calendar'), '"></span>
 									</a>';
 
 								// Exporting!
-								if ($event['can_export'])
+								if ($event->can_export)
 									echo '
-									<a class="modify_event" href="', $event['export_href'], '">
+									<a class="modify_event" href="', $event->export_href, '">
 										<span class="main_icons calendar_export" title="', Lang::getTxt('calendar_export', file: 'Calendar'), '"></span>
 									</a>';
 
@@ -672,38 +672,38 @@ function template_show_week_grid($grid_name)
 						echo '
 								<div class="event_wrapper">';
 
-						$event_icons_needed = ($event['can_edit'] || $event['can_export']) ? true : false;
+						$event_icons_needed = ($event->can_edit || $event->can_export) ? true : false;
 
-						echo $event['link'], '<br>
+						echo $event->link, '<br>
 									<span class="event_time', empty($event_icons_needed) ? ' floatright' : '', '">';
 
-						if (!empty($event['start_time_local']))
-							echo trim($event['start_time_local']), !empty($event['end_time_local']) ? ' &ndash; ' . trim($event['end_time_local']) : '';
+						if (!empty($event->start->time_local))
+							echo trim($event->start->time_local), !empty($event->end->time_local) ? ' &ndash; ' . trim($event->end->time_local) : '';
 						else
 							echo Lang::getTxt('calendar_allday', file: 'Calendar');
 
 						echo '
 									</span>';
 
-						if (!empty($event['location']))
+						if (!empty($event->location))
 							echo '<br>
-									<span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event['location'] . '</span>';
+									<span class="event_location', empty($event_icons_needed) ? ' floatright' : '', '">' . $event->location . '</span>';
 
 						if (!empty($event_icons_needed))
 						{
 							echo ' <span class="modify_event_links">';
 
 							// If they can edit the event, show a star they can click on....
-							if (!empty($event['can_edit']))
+							if (!empty($event->can_edit))
 								echo '
-										<a class="modify_event" href="', $event['modify_href'], '">
+										<a class="modify_event" href="', $event->modify_href, '">
 											<span class="main_icons calendar_modify" title="', Lang::getTxt('calendar_edit', file: 'Calendar'), '"></span>
 										</a>';
 
 							// Can we export? Sweet.
-							if (!empty($event['can_export']))
+							if (!empty($event->can_export))
 								echo '
-										<a class="modify_event" href="', $event['export_href'], '">
+										<a class="modify_event" href="', $event->export_href, '">
 											<span class="main_icons calendar_export" title="', Lang::getTxt('calendar_export', file: 'Calendar'), '"></span>
 										</a>';
 

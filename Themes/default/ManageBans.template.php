@@ -135,7 +135,7 @@ function template_ban_edit()
 							<label for="email_check">', Lang::getTxt('ban_on_email', file: 'Admin'), '</label>
 						</dt>
 						<dd>
-							<input type="email" name="email" value="', Utils::$context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
+							<input type="text" name="email" value="', Utils::$context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
 						</dd>
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', !empty(Utils::$context['ban_suggestions']['user']) || isset(Utils::$context['ban']['from_user']) ? ' checked' : '', '>

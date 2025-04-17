@@ -48,7 +48,6 @@ $txt['pruneBanLog'] = 'Remove ban hit log entries older than';
 $txt['pruneReportLog'] = 'Remove report to moderator log entries older than';
 $txt['pruneScheduledTaskLog'] = 'Remove scheduled task log entries older than';
 $txt['pruneSpiderHitLog'] = 'Remove search engine hit logs older than';
-$txt['cookieTime'] = 'Default login cookies length';
 $txt['localCookies'] = 'Enable local storage of cookies';
 $txt['globalCookies'] = 'Use subdomain independent cookies';
 $txt['globalCookiesDomain'] = 'Main domain used for subdomain independent cookies';

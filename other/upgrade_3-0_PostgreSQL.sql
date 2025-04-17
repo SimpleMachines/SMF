@@ -1004,3 +1004,9 @@ SET value =
 		END
 WHERE variable = 'mail_type'
 	AND value IN ('0','1','2');
+---#
+
+---# Remove cookieTime setting
+DELETE FROM {$db_prefix}settings
+WHERE variable = 'cookieTime';
+---#

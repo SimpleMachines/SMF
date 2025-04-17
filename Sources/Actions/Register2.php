@@ -417,7 +417,7 @@ class Register2 extends Register
 		} else {
 			IntegrationHook::call('integrate_activate', [$reg_options['username']]);
 
-			Cookie::setLoginCookie((int) (60 * Config::$modSettings['cookieTime']), $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
+			Cookie::setLoginCookie(Cookie::LENGTH_DEFAULT, $member_id, Cookie::encrypt($reg_options['register_vars']['passwd'], $reg_options['register_vars']['password_salt']));
 
 			Utils::redirectexit('action=login2;sa=check;member=' . $member_id, Sapi::needsLoginFix());
 		}
