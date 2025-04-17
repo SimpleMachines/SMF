@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\BBCode;
 
+use SMF\Parser;
+
 /**
  * Represents the unparsed_equals_content version of the code BBCode.
  */
@@ -88,7 +90,7 @@ class Code2 extends BBCode
 					$php_parts[$php_i++] = '';
 				}
 
-				$php_parts[$php_i] = self::highlightPhpCode($php_string . $php_parts[$php_i]);
+				$php_parts[$php_i] = Parser::highlightPhpCode($php_string . $php_parts[$php_i]);
 
 				if (is_array($data) && empty($data[1])) {
 					$data[1] = 'PHP';
