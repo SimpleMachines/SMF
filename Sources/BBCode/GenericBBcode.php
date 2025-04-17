@@ -68,8 +68,22 @@ class GenericBBCode extends BBCode
 		$this->tag = strtolower($definition['tag']);
 		$this->block_level = !empty($definition['block_level']);
 
-		if (in_array($definition['type'] ?? null, self::$types)) {
-			$this->type = $definition['type'] ?? null;
+		if (
+			in_array(
+				$definition['type'] ?? BBCode::TYPE_PARSED_CONTENT,
+				[
+					BBCode::TYPE_PARSED_CONTENT,
+					BBCode::TYPE_PARSED_EQUALS,
+					BBCode::TYPE_UNPARSED_EQUALS,
+					BBCode::TYPE_UNPARSED_COMMAS,
+					BBCode::TYPE_CLOSED,
+					BBCode::TYPE_UNPARSED_CONTENT,
+					BBCode::TYPE_UNPARSED_COMMAS_CONTENT,
+					BBCode::TYPE_UNPARSED_EQUALS_CONTENT,
+				],
+			)
+		) {
+			$this->type = $definition['type'] ?? BBCode::TYPE_PARSED_CONTENT;
 		}
 
 		if (is_array($definition['parameters'] ?? null)) {
@@ -98,7 +112,17 @@ class GenericBBCode extends BBCode
 			$this->test = (string) $definition['test'];
 		}
 
-		if (in_array($this->type, ['closed', 'unparsed_content', 'unparsed_commas_content', 'unparsed_equals_content'])) {
+		if (
+			in_array(
+				$this->type,
+				[
+					BBCode::TYPE_CLOSED,
+					BBCode::TYPE_UNPARSED_CONTENT,
+					BBCode::TYPE_UNPARSED_COMMAS_CONTENT,
+					BBCode::TYPE_UNPARSED_EQUALS_CONTENT,
+				],
+			)
+		) {
 			$this->content = (string) ($definition['content'] ?? ($this->block_level ? '<div>$1</div>' : '$1'));
 			$this->disabled_content = (string) ($definition['disabled_content'] ?? ($this->block_level ? '<div>$1</div>' : '$1'));
 		} else {
@@ -108,7 +132,7 @@ class GenericBBCode extends BBCode
 			$this->disabled_after = (string) ($definition['disabled_after'] ?? ($this->block_level ? '</div>' : ''));
 		}
 
-		if (in_array($this->type, ['unparsed_equals', 'parsed_equals'])) {
+		if (in_array($this->type, [BBCode::TYPE_UNPARSED_EQUALS, BBCode::TYPE_PARSED_EQUALS])) {
 			$this->quoted = isset($definition['quoted']) ? (string) $definition['quoted'] : null;
 		}
 

@@ -34,7 +34,7 @@ class Url2 extends BBCode
 	/**
 	 *
 	 */
-	public ?string $type = 'unparsed_equals';
+	public ?string $type = BBCode::TYPE_UNPARSED_EQUALS;
 
 	/**
 	 *

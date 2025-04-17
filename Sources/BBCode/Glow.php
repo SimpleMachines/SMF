@@ -34,7 +34,7 @@ class Glow extends BBCode
 	/**
 	 *
 	 */
-	public ?string $type = 'unparsed_commas';
+	public ?string $type = BBCode::TYPE_UNPARSED_COMMAS;
 
 	/**
 	 *

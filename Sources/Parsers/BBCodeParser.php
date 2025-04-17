@@ -17,6 +17,7 @@ namespace SMF\Parsers;
 
 use SMF\Autolinker;
 use SMF\BBCode\{
+	BBCode,
 	BBCodeInterface,
 	GenericBBCode,
 	Li,
@@ -1837,17 +1838,34 @@ class BBCodeParser extends Parser
 			// No parameters, so does the next character match what we expect?
 			elseif (isset($possible->type)) {
 				// Do we need an equal sign?
-				if (in_array($possible->type, ['unparsed_equals', 'unparsed_commas', 'unparsed_commas_content', 'unparsed_equals_content', 'parsed_equals']) && $next_c != '=') {
+				if (
+					in_array(
+						$possible->type,
+						[
+							BBCode::TYPE_UNPARSED_EQUALS,
+							BBCode::TYPE_UNPARSED_COMMAS,
+							BBCode::TYPE_UNPARSED_COMMAS_CONTENT,
+							BBCode::TYPE_UNPARSED_EQUALS_CONTENT,
+							BBCode::TYPE_PARSED_EQUALS,
+						],
+					)
+					&& $next_c != '='
+				) {
 					continue;
 				}
 
 				// Maybe we just want a /...
-				if ($possible->type == 'closed' && $next_c != ']' && substr($this->message, $this->pos + 1 + $pt_strlen, 2) != '/]' && substr($this->message, $this->pos + 1 + $pt_strlen, 3) != ' /]') {
+				if (
+					$possible->type == BBCode::TYPE_CLOSED
+					&& $next_c != ']'
+					&& substr($this->message, $this->pos + 1 + $pt_strlen, 2) != '/]'
+					&& substr($this->message, $this->pos + 1 + $pt_strlen, 3) != ' /]'
+				) {
 					continue;
 				}
 
 				// An immediate ]?
-				if ($possible->type == 'unparsed_content' && $next_c != ']') {
+				if ($possible->type == BBCode::TYPE_UNPARSED_CONTENT && $next_c != ']') {
 					continue;
 				}
 			}
@@ -2130,7 +2148,7 @@ class BBCodeParser extends Parser
 			$this->pos += strlen($bbc->before) - 1 + 2;
 		}
 		// Don't parse the content, just skip it.
-		elseif ($bbc->type == 'unparsed_content') {
+		elseif ($bbc->type == BBCode::TYPE_UNPARSED_CONTENT) {
 			$pos2 = stripos($this->message, '[/' . substr($this->message, $this->pos + 1, $tag_strlen) . ']', $this->pos1);
 
 			if ($pos2 === false) {
@@ -2153,7 +2171,7 @@ class BBCodeParser extends Parser
 			$this->last_pos = $this->pos + 1;
 		}
 		// Don't parse the content, just skip it.
-		elseif ($bbc->type == 'unparsed_equals_content') {
+		elseif ($bbc->type == BBCode::TYPE_UNPARSED_EQUALS_CONTENT) {
 			// The value may be quoted for some BBCodes - check.
 			if (isset($bbc->quoted)) {
 				// Anything passed through the preparser will use &quot;,
@@ -2204,7 +2222,7 @@ class BBCodeParser extends Parser
 			$this->pos += strlen($html) - 1 + 2;
 		}
 		// A closed BBCode, with no content or value.
-		elseif ($bbc->type == 'closed') {
+		elseif ($bbc->type == BBCode::TYPE_CLOSED) {
 			$pos2 = strpos($this->message, ']', $this->pos);
 
 			// Maybe a custom BBC wants to do something special?
@@ -2217,7 +2235,7 @@ class BBCodeParser extends Parser
 			$this->pos += strlen($bbc->content) - 1 + 2;
 		}
 		// This one is sorta ugly... :/.  Unfortunately, it's needed for flash.
-		elseif ($bbc->type == 'unparsed_commas_content') {
+		elseif ($bbc->type == BBCode::TYPE_UNPARSED_COMMAS_CONTENT) {
 			$pos2 = strpos($this->message, ']', $this->pos1);
 
 			if ($pos2 === false) {
@@ -2247,7 +2265,7 @@ class BBCodeParser extends Parser
 			$this->pos += strlen($html) - 1 + 2;
 		}
 		// This has parsed content, and a csv value which is unparsed.
-		elseif ($bbc->type == 'unparsed_commas') {
+		elseif ($bbc->type == BBCode::TYPE_UNPARSED_COMMAS) {
 			$pos2 = strpos($this->message, ']', $this->pos1);
 
 			if ($pos2 === false) {
@@ -2277,7 +2295,7 @@ class BBCodeParser extends Parser
 			$this->pos += strlen($html) - 1 + 2;
 		}
 		// A BBCode set to a value, parsed or not.
-		elseif ($bbc->type == 'unparsed_equals' || $bbc->type == 'parsed_equals') {
+		elseif ($bbc->type == BBCode::TYPE_UNPARSED_EQUALS || $bbc->type == BBCode::TYPE_PARSED_EQUALS) {
 			// The value may be quoted for some BBCodes - check.
 			if (isset($bbc->quoted)) {
 				// Will normally be '&quot;' but might be '"'.
@@ -2323,7 +2341,7 @@ class BBCodeParser extends Parser
 			$bbc->validate($bbc, $data, $this->disabled, $params);
 
 			// For parsed content, we must recurse to avoid security problems.
-			if ($bbc->type != 'unparsed_equals') {
+			if ($bbc->type != BBCode::TYPE_UNPARSED_EQUALS) {
 				$smileys = $this->smileys;
 				$parse_tags = $this->parse_tags;
 
@@ -2447,7 +2465,7 @@ class BBCodeParser extends Parser
 				$valid_tags[$bbc->tag] = !empty($bbc->block_level);
 			}
 
-			if (isset($bbc->type) && $bbc->type == 'closed') {
+			if (isset($bbc->type) && $bbc->type == BBCode::TYPE_CLOSED) {
 				$self_closing_tags[] = $bbc->tag;
 			}
 		}

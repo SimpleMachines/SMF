@@ -34,7 +34,7 @@ class Img extends BBCode
 	/**
 	 *
 	 */
-	public ?string $type = 'unparsed_content';
+	public ?string $type = BBCode::TYPE_UNPARSED_CONTENT;
 
 	/**
 	 *

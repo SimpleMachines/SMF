@@ -522,7 +522,7 @@ abstract class Parser
 		) {
 			$code->before = !empty($code->block_level) ? '<div>' : '';
 			$code->after = !empty($code->block_level) ? '</div>' : '';
-			$code->content = isset($code->type) && $code->type == 'closed' ? '' : (!empty($code->block_level) ? '<div>$1</div>' : '$1');
+			$code->content = isset($code->type) && $code->type == BBCode::TYPE_CLOSED ? '' : (!empty($code->block_level) ? '<div>$1</div>' : '$1');
 		} elseif (
 			isset($code->disabled_before)
 			|| isset($code->disabled_after)

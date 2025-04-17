@@ -32,7 +32,7 @@ class Br extends BBCode
 	/**
 	 *
 	 */
-	public ?string $type = 'closed';
+	public ?string $type = BBCode::TYPE_CLOSED;
 
 	/**
 	 *

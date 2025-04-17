@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Parsers;
 
 use SMF\Autolinker;
+use SMF\BBCode\BBCode;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -3114,7 +3115,7 @@ class MarkdownParser extends Parser
 					return;
 				}
 
-				$bbc_type = !empty($element['properties']['info_string']) ? 'unparsed_equals_content' : 'unparsed_content';
+				$bbc_type = !empty($element['properties']['info_string']) ? BBCode::TYPE_UNPARSED_EQUALS_CONTENT : BBCode::TYPE_UNPARSED_CONTENT;
 
 				foreach (BBCodeParser::getCodes() as $code) {
 					if ($code['tag'] === 'code' && $code['type'] === $bbc_type) {

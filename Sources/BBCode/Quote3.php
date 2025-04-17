@@ -32,7 +32,7 @@ class Quote3 extends BBCode
 	/**
 	 *
 	 */
-	public ?string $type = 'parsed_equals';
+	public ?string $type = BBCode::TYPE_PARSED_EQUALS;
 
 	/**
 	 *

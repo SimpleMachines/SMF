@@ -36,7 +36,7 @@ class Flash extends BBCode
 	/**
 	 *
 	 */
-	public ?string $type = 'unparsed_commas_content';
+	public ?string $type = BBCode::TYPE_UNPARSED_COMMAS_CONTENT;
 
 	/**
 	 *

@@ -36,7 +36,7 @@ class Time1 extends BBCode
 	/**
 	 *
 	 */
-	public ?string $type = 'unparsed_equals_content';
+	public ?string $type = BBCode::TYPE_UNPARSED_EQUALS_CONTENT;
 
 	/**
 	 *

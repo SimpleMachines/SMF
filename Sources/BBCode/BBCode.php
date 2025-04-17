@@ -26,6 +26,66 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 {
 	use ArrayAccessHelper;
 
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * @var null
+	 *
+	 * Used for the form `[tag]parsed content[/tag]`
+	 */
+	public const TYPE_PARSED_CONTENT = null;
+
+	/**
+	 * @var string
+	 *
+	 * Used for the form `[tag=parsed data]parsed content[/tag]`
+	 */
+	public const TYPE_PARSED_EQUALS = 'parsed_equals';
+
+	/**
+	 * @var string
+	 *
+	 * Used for the form `[tag=...]parsed content[/tag]`
+	 */
+	public const TYPE_UNPARSED_EQUALS = 'unparsed_equals';
+
+	/**
+	 * @var string
+	 *
+	 * Used for the form `[tag=1,2,3]parsed content[/tag]`
+	 */
+	public const TYPE_UNPARSED_COMMAS = 'unparsed_commas';
+
+	/**
+	 * @var string
+	 *
+	 * Used for the forms `[tag]`, `[tag/]`, or `[tag /]`
+	 */
+	public const TYPE_CLOSED = 'closed';
+
+	/**
+	 * @var string
+	 *
+	 * Used for the form `[tag]unparsed content[/tag]`
+	 */
+	public const TYPE_UNPARSED_CONTENT = 'unparsed_content';
+
+	/**
+	 * @var string
+	 *
+	 * Used for the form `[tag=1,2,3]unparsed content[/tag]`
+	 */
+	public const TYPE_UNPARSED_COMMAS_CONTENT = 'unparsed_commas_content';
+
+	/**
+	 * @var string
+	 *
+	 * Used for the form `[tag=...]unparsed content[/tag]`
+	 */
+	public const TYPE_UNPARSED_EQUALS_CONTENT = 'unparsed_equals_content';
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -42,18 +102,9 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	 *
 	 * The BBCode type.
 	 *
-	 * Can be one of the following:
-	 *
-	 *  - (null): [tag]parsed content[/tag]
-	 *  - unparsed_equals: [tag=xyz]parsed content[/tag]
-	 *  - parsed_equals: [tag=parsed data]parsed content[/tag]
-	 *  - unparsed_content: [tag]unparsed content[/tag]
-	 *  - closed: [tag], [tag/], [tag /]
-	 *  - unparsed_commas: [tag=1,2,3]parsed content[/tag]
-	 *  - unparsed_commas_content: [tag=1,2,3]unparsed content[/tag]
-	 *  - unparsed_equals_content: [tag=...]unparsed content[/tag]
+	 * Must be one of this class's TYPE_* constants.
 	 */
-	public ?string $type = null;
+	public ?string $type = self::TYPE_PARSED_CONTENT;
 
 	/**
 	 * @var ?array
@@ -257,26 +308,6 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	 * The BBCodeParser instance that owns this object.
 	 */
 	public BBCodeParser $parser;
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * All known BBCode types.
-	 */
-	public static array $types = [
-		null,
-		'unparsed_equals',
-		'parsed_equals',
-		'unparsed_content',
-		'closed',
-		'unparsed_commas',
-		'unparsed_commas_content',
-		'unparsed_equals_content',
-	];
 
 	/****************
 	 * Public methods
