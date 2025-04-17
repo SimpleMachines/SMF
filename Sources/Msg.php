@@ -1656,6 +1656,10 @@ class Msg implements \ArrayAccess, Routable
 			return false;
 		}
 
+		if (is_numeric($msgOptions['id'])) {
+			$msgOptions['id'] = (int) $msgOptions['id'];
+		}
+
 		$searchAPI = SearchApi::load();
 
 		// This is longer than it has to be, but makes it so we only set/change what we have to.

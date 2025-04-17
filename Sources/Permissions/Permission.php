@@ -306,6 +306,11 @@ class Permission implements \ArrayAccess
 			'never_guests' => true,
 			'heavy' => true,
 		],
+		'is_not_guest' => [
+			'scope' => 'global',
+			'hidden' => true,
+			'never_guests' => true,
+		],
 		'issue_warning' => [
 			'view_group' => 'member_admin',
 			'scope' => 'global',
@@ -875,6 +880,16 @@ class Permission implements \ArrayAccess
 	/**
 	 * @var array
 	 *
+	 * Aliases for a few permissions.
+	 */
+	protected static array $aliases = [
+		'profile_view_own' => 'is_not_guest',
+		'profile_view_any' => 'profile_view',
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Convenience array listing permissions that guests may never have.
 	 */
 	protected static array $non_guest_permissions = [];
@@ -1053,7 +1068,7 @@ class Permission implements \ArrayAccess
 		self::getAll();
 
 		if (!isset(self::$permissions[$name])) {
-			throw new \ValueError();
+			throw new \ValueError('Permission "' . $name . '" does not exist');
 		}
 
 		return self::$permissions[$name];
@@ -1166,6 +1181,12 @@ class Permission implements \ArrayAccess
 		// Now convert everything into instances of this class.
 		foreach (self::$permissions as $name => $props) {
 			(new self($name, $props))->addToKnownPermissions();
+		}
+
+		foreach (self::$aliases as $alias => $name) {
+			$perm = clone self::$permissions[$name];
+			$perm->name = $alias;
+			$perm->addToKnownPermissions();
 		}
 
 		return self::$permissions;

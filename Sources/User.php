@@ -909,6 +909,9 @@ class User implements \ArrayAccess
 
 	/**
 	 * Load this user's permissions.
+	 *
+	 * @param int|array|null $boards Boards to load permissions for.
+	 *    Default: null
 	 */
 	public function loadPermissions(int|array|null $boards = null): void
 	{
@@ -954,19 +957,13 @@ class User implements \ArrayAccess
 				)
 			);
 
+			// This is a useful phantom permission added to the current user,
+			// and only the current user while they are logged in. For example
+			// this drastically simplifies certain changes to the profile area.
 			if (!$this->is_guest && $this === self::$me) {
-				// This is a useful phantom permission added to the current user,
-				// and only the current user while they are logged in. For example
-				// this drastically simplifies certain changes to the profile area.
 				$this->permission_sets[0]->grant('is_not_guest');
-
-				// And now some backwards compatibility stuff for mods and whatnot
-				// that aren't expecting the new permissions.
-				$this->permission_sets[0]->grant('profile_view_own');
-
-				if ($this->permission_sets[0]->allowedTo('profile_view')) {
-					$this->permission_sets[0]->grant('profile_view_any');
-				}
+			} else {
+				$this->permission_sets[0]->deny('is_not_guest');
 			}
 		}
 	}
