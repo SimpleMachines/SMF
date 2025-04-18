@@ -109,7 +109,7 @@ function sendXMLDocument(sUrl, sContent, funcCallback)
 			}
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
-			console.log(jqXHR.responseText);
+			console.error(jqXHR.responseText);
 		}
 	});
 
