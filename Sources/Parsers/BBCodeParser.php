@@ -1595,10 +1595,8 @@ class BBCodeParser extends Parser
 	{
 		$alltags = [];
 
-		foreach ($this->bbc_codes as $section) {
-			foreach ($section as $bbc) {
-				$alltags[] = $bbc->tag;
-			}
+		foreach (self::getCodes() as $bbc) {
+			$alltags[] = $bbc->tag;
 		}
 
 		$this->alltags_regex = '(?' . '>\b' . Utils::buildRegex(array_unique($alltags)) . '\b|' . Utils::buildRegex(array_map('strval', array_keys(self::$itemcodes))) . ')';
