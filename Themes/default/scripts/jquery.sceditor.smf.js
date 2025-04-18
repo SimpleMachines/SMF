@@ -1828,3 +1828,39 @@ sceditor.formats.bbcode.set(
 		html: '<h6>{0}</h6>'
 	}
 );
+
+sceditor.formats.bbcode.set(
+	'nobbc', {
+		tags: {
+			span: {
+				class: 'nobbc',
+			},
+			div: {
+				class: 'nobbc',
+			},
+		},
+		format: function (element, content) {
+			if (!content.includes('[nobbc]')) {
+				content = '[nobbc]' + content;
+			}
+
+			if (!content.includes('[/nobbc]')) {
+				content = content + '[/nobbc]';
+			}
+
+			return content;
+		},
+		html: function (token, attrs, content) {
+			let tag;
+
+			if (content.includes("\n")) {
+				tag = 'div';
+			} else {
+				tag = 'span';
+			}
+
+			return '<' + tag + ' class="nobbc">[nobbc]' + content + '[/nobbc]</' + tag + '>';
+		},
+		allowedChildren: ['#']
+	}
+);

@@ -537,6 +537,11 @@ class Editor implements \ArrayAccess
 				'code' => 'subscript',
 				'description' => Lang::getTxt('subscript', var: 'editortxt'),
 			],
+			[
+				'image' => 'tt',
+				'code' => 'tt',
+				'description' => Lang::getTxt('tt', var: 'editortxt'),
+			],
 			[],
 			[
 				'code' => 'pre',
@@ -620,15 +625,15 @@ class Editor implements \ArrayAccess
 				'description' => Lang::getTxt('code', var: 'editortxt'),
 			],
 			[
-				'image' => 'tt',
-				'code' => 'tt',
-				'description' => Lang::getTxt('tt', var: 'editortxt'),
-			],
-			[
 				'code' => 'quote',
 				'description' => Lang::getTxt('insert_quote', var: 'editortxt'),
 			],
 			[],
+			[
+				'image' => 'heading',
+				'code' => 'heading',
+				'description' => Lang::getTxt('heading', var: 'editortxt'),
+			],
 			[
 				'code' => 'bulletlist',
 				'description' => Lang::getTxt('bullet_list', var: 'editortxt'),
@@ -640,11 +645,6 @@ class Editor implements \ArrayAccess
 			[
 				'code' => 'horizontalrule',
 				'description' => Lang::getTxt('insert_horizontal_rule', var: 'editortxt'),
-			],
-			[
-				'image' => 'heading',
-				'code' => 'heading',
-				'description' => Lang::getTxt('heading', var: 'editortxt'),
 			],
 			[],
 			[
