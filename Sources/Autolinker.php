@@ -611,6 +611,19 @@ class Autolinker
 	{
 		static $tags_to_fix_regex;
 
+		$placeholders = [];
+
+		$string = preg_replace_callback(
+			'~\[(nobbc|nolink)\].*?\[/\1\]~',
+			function ($match) use (&$placeholders) {
+				$placeholder = md5($match[0]);
+				$placeholders[$placeholder] = $match[0];
+
+				return $placeholder;
+			},
+			$string,
+		);
+
 		// In case a mod wants to add tags to the list of BBC to fix URLs in.
 		if (!self::$integrate_autolinker_fix_tags_done) {
 			IntegrationHook::call('integrate_autolinker_fix_tags', [&self::$tags_to_fix]);
@@ -707,7 +720,7 @@ class Autolinker
 			}
 		}
 
-		return implode('', $parts);
+		return strtr(implode('', $parts), $placeholders);
 	}
 
 	/************************
