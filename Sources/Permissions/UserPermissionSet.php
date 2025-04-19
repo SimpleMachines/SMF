@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Permissions;
 
 use SMF\Board;
+use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\User;
 
@@ -408,7 +409,7 @@ class UserPermissionSet
 	 * permissions.
 	 *
 	 * @param bool $allowed Whether the user is allowed based on checks so far.
-	 * @param string $permission_names The names of the permissions to check.
+	 * @param array $permission_names The names of the permissions to check.
 	 * @param bool $any If true, should return true if the user has any of the
 	 *    specified permissions. If false, should return true only if the user
 	 *    has all of the specified permissions. Default: false.

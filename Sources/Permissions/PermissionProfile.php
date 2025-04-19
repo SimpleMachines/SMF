@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Permissions;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Utils;
 
