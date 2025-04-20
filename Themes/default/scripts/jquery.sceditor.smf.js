@@ -2007,9 +2007,10 @@ sceditor.formats.bbcode.set(
 			// it into a details element.
 			if (
 				typeof attrs.defaultattr !== "undefined"
+				|| typeof attrs.text !== "undefined"
 				|| /<br ?\/?>/.test(content)
 			) {
-				const summary = typeof attrs.defaultattr !== "undefined" ? attrs.defaultattr.replace('"', '\\"') : Object.values(sceditor.locale)[0].spoiler;
+				const summary = typeof attrs.defaultattr !== "undefined" ? attrs.defaultattr.replace('"', '\\"') : (typeof attrs.text !== "undefined" ? attrs.text.replace('"', '\\"') : Object.values(sceditor.locale)[0].spoiler);
 
 				content = content.replace(/^<br ?\/?>/, '').replace(/<br ?\/?>$/, '');
 
