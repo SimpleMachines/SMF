@@ -1854,7 +1854,7 @@ class Msg implements \ArrayAccess, Routable
 
 		// Finally, if we are setting the approved state we need to do much more work :(
 		if (Config::$modSettings['postmod_active'] && isset($msgOptions['approved'])) {
-			Msg::approve($msgOptions['id'], $msgOptions['approved']);
+			Msg::approve($msgOptions['id'], !empty($msgOptions['approved']));
 		}
 
 		return true;
