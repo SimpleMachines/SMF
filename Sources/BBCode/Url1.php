@@ -60,7 +60,7 @@ class Url1 extends BBCode
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		$data = new Url(strtr(trim($data), ['<br>' => '', ' ' => '%20']), true);
 

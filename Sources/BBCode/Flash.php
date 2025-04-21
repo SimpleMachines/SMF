@@ -60,7 +60,7 @@ class Flash extends BBCode
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		$data[0] = new Url(strtr(trim($data[0]), ['<br>' => '', ' ' => '%20']), true);
 

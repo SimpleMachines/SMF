@@ -80,7 +80,7 @@ class Url2 extends BBCode
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		if (str_starts_with($data, '#')) {
 			$data = '#post_' . substr($data, 1);

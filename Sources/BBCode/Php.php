@@ -59,7 +59,7 @@ class Php extends BBCode
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		if (!isset($disabled['php'])) {
 			$add_begin = !str_starts_with(trim($data), '&lt;?');

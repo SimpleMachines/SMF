@@ -76,7 +76,7 @@ class FloatDiv extends BBCode
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		$class = 'class="bbc_float float' . (str_starts_with($data, 'left') ? 'left' : 'right') . '"';
 
