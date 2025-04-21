@@ -42,12 +42,12 @@ class Pre extends BBCode
 	/**
 	 *
 	 */
-	public ?string $disabled_before = '';
+	public ?string $disabled_before = '<div>';
 
 	/**
 	 *
 	 */
-	public ?string $disabled_after = '';
+	public ?string $disabled_after = '</div>';
 }
 
 ?>
