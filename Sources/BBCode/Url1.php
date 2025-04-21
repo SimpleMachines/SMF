@@ -46,6 +46,13 @@ class Url1 extends BBCode
 	 */
 	public ?string $disabled_content = '$1';
 
+	/**
+	 * @var string
+	 *
+	 * Default URL scheme.
+	 */
+	public string $default_scheme = '';
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -58,7 +65,7 @@ class Url1 extends BBCode
 		$data = new Url(strtr(trim($data), ['<br>' => '', ' ' => '%20']), true);
 
 		if (empty($data->scheme)) {
-			$data = new Url('//' . ltrim((string) $data, ':/'));
+			$data = new Url((!empty($default_scheme) ? rtrim($default_scheme, ':') . ':' : '') . '//' . ltrim((string) $data, ':/'));
 		}
 
 		$ascii_url = (clone $data)->toAscii();

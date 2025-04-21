@@ -66,6 +66,13 @@ class Url2 extends BBCode
 	 */
 	public ?array $disallow_children = ['email', 'ftp', 'url', 'iurl'];
 
+	/**
+	 * @var string
+	 *
+	 * Default URL scheme.
+	 */
+	public string $default_scheme = '';
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -82,7 +89,7 @@ class Url2 extends BBCode
 			$data->toAscii();
 
 			if (empty($data->scheme)) {
-				$data = '//' . ltrim((string) $data, ':/');
+				$data = (!empty($default_scheme) ? rtrim($default_scheme, ':') . ':' : '') . '//' . ltrim((string) $data, ':/');
 			}
 		}
 	}
