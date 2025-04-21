@@ -66,7 +66,7 @@ class Size2 extends BBCode
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		$sizes = [1 => 0.7, 2 => 1.0, 3 => 1.35, 4 => 1.45, 5 => 2.0, 6 => 2.65, 7 => 3.95];
 		$data = $sizes[$data] . 'em';
