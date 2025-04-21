@@ -505,6 +505,9 @@ blockquote cite::before {
 	background-color: currentcolor;
 	position: relative;
 }
+.bbc_inline_spoiler.revealed {
+	background-color: transparent;
+}
 .bbc_inline_spoiler button {
 	all: unset;
 	display: inline;
@@ -527,6 +530,9 @@ blockquote cite::before {
 	*/
 	visibility: hidden;
 	transition: visibility 0.5s;
+}
+.bbc_inline_spoiler.revealed span {
+	visibility: visible;
 }
 
 /* No image should have a border when linked. */

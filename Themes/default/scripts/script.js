@@ -42,9 +42,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
 // Shows or hides the content of a spoiler tag.
 function toggleSpoiler() {
-	const button = this.firstElementChild;
-	button.nextElementSibling.style.visibility = (button.nextElementSibling.style.visibility === 'visible' ? 'hidden' : 'visible');
-	this.style.backgroundColor = (this.style.backgroundColor === 'transparent' ? 'currentcolor' : 'transparent');
+	this.classList.toggle('revealed');
 }
 
 // Get a response from the server.
