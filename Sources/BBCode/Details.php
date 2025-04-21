@@ -80,10 +80,10 @@ class Details extends BBCode
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$tag, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		if (strlen($params['{summary}'] ?? '') === 0) {
-			$tag['before'] = Lang::formatText($tag['before'], ['summary' => Lang::getTxt('details', var: 'editortxt')]);
+			$bbc['before'] = Lang::formatText($bbc['before'], ['summary' => Lang::getTxt('details', var: 'editortxt')]);
 		}
 	}
 }

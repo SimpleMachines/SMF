@@ -97,7 +97,7 @@ class Spoiler1 extends BBCode
 	 * In particular, if this spoiler tag contains multiple paragraphs, this
 	 * validate method will cause it to be rendered like a details tag.
 	 *
-	 * @param BBCodeInterface|array &$tag This BBCode definition.
+	 * @param BBCodeInterface &$bbc This BBCode definition.
 	 *    Passed in as an argument for historical reasons.
 	 * @param array|string &$data The data extracted from the particular
 	 *    occurrence of the BBCode in the text.
@@ -105,9 +105,9 @@ class Spoiler1 extends BBCode
 	 * @param array $params Parameters extracted from the particular
 	 *    occurence of the BBCode in the text.
 	 */
-	public function validate(BBCodeInterface|array &$tag, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
-		$pos2 = stripos($this->parser->message, '[/' . substr($this->parser->message, $this->parser->pos + 1, strlen($tag['tag'])) . ']', $this->parser->pos1);
+		$pos2 = stripos($this->parser->message, '[/' . substr($this->parser->message, $this->parser->pos + 1, strlen($bbc['tag'])) . ']', $this->parser->pos1);
 
 		if ($pos2 === false) {
 			return;
@@ -120,16 +120,16 @@ class Spoiler1 extends BBCode
 		if (!empty($params['{text}']) || preg_match('/<br[^>]*>|<\/?p[^>]*>/', $content)) {
 			$details = new Details();
 
-			$tag->before = Lang::formatText(
+			$bbc->before = Lang::formatText(
 				BBCodeParser::insertTxt($details->before),
 				[
 					'summary' => $params['{text}'] ?? Lang::getTxt('spoiler', var: 'editortxt'),
 				],
 			);
 
-			$tag->after = $details->after;
-			$tag->block_level = $details->block_level;
-			$tag->trim = $details->trim;
+			$bbc->after = $details->after;
+			$bbc->block_level = $details->block_level;
+			$bbc->trim = $details->trim;
 		}
 	}
 }
