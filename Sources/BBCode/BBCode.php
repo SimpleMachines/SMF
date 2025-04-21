@@ -17,7 +17,6 @@ namespace SMF\BBCode;
 
 use SMF\ArrayAccessHelper;
 use SMF\Parsers\BBCodeParser;
-use SMF\Utils;
 
 /**
  * Base class for BBCodes.
@@ -286,23 +285,6 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	public ?array $parsed_tags_allowed;
 
 	/**
-	 * @var mixed
-	 *
-	 * A callable to call in order to validate the tag and/or content.
-	 *
-	 * This is used by BBCodes that don't have their own class and want to
-	 * specify a callback to use to validate the BBCode data.
-	 *
-	 * When this is set to something callable, it will be called from inside
-	 * the BBCode::validate() method.
-	 *
-	 * Note, however, that extending classes that override BBCode::validate()
-	 * will almost certainly ignore this property and instead perform their
-	 * validation directly within their validate() methods.
-	 */
-	public mixed $validationCallback = false;
-
-	/**
 	 * @var BBCodeParser
 	 *
 	 * The BBCodeParser instance that owns this object.
@@ -316,16 +298,7 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
-	{
-		if (is_string($this->validationCallback)) {
-			$this->validationCallback = Utils::getCallable($this->validationCallback);
-		}
-
-		if (is_callable($this->validationCallback)) {
-			call_user_func_array($this->validationCallback, [&$bbc, &$data, $disabled, $params]);
-		}
-	}
+	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void {}
 }
 
 ?>

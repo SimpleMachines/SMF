@@ -15,11 +15,30 @@ declare(strict_types=1);
 
 namespace SMF\BBCode;
 
+use SMF\Utils;
+
 /**
  * Used for BBCodes that don't have dedicated classes.
  */
 class GenericBBCode extends BBCode
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 * @var mixed
+	 *
+	 * A callable to call in order to validate the tag and/or content.
+	 *
+	 * Will typically be set to the value of $definition['validate'], or to
+	 * false if $definition['validate'] is not set.
+	 *
+	 * When this is set to something callable, it will be called from within
+	 * $this->validate().
+	 */
+	public mixed $validationCallback = false;
+
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -154,6 +173,20 @@ class GenericBBCode extends BBCode
 
 		if (isset($definition['validate'])) {
 			$this->validationCallback = $definition['validate'];
+		}
+	}
+
+	/**
+	 *
+	 */
+	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
+	{
+		if (is_string($this->validationCallback)) {
+			$this->validationCallback = Utils::getCallable($this->validationCallback);
+		}
+
+		if (is_callable($this->validationCallback)) {
+			call_user_func_array($this->validationCallback, [&$bbc, &$data, $disabled, $params]);
 		}
 	}
 }
