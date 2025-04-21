@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\BBCode;
 
 use SMF\Parser;
+use SMF\Parsers\BBCodeParser;
 
 /**
  * Represents the php BBCode.
@@ -58,7 +59,7 @@ class Php extends BBCode
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		if (!isset($disabled['php'])) {
 			$add_begin = !str_starts_with(trim($data), '&lt;?');
@@ -67,6 +68,14 @@ class Php extends BBCode
 
 			if ($add_begin) {
 				$data = preg_replace(['/^(.+?)&lt;\?.{0,40}?php(?:&nbsp;|\s)/', '/\?&gt;((?:\s*<\/(font|span)>)*)$/m'], '$1', $data, 2);
+			}
+
+			// If the content contains multiple lines, format as a code block.
+			if (preg_match('/\n|<br[^>]*>/', $data)) {
+				$code = new Code2();
+				$bbc->content = strtr(BBCodeParser::insertTxt($code->content), ['$2' => 'PHP']);
+				$bbc->disabled_content = $code->disabled_content;
+				$bbc->block_level = $code->block_level;
 			}
 		}
 	}

@@ -20,7 +20,7 @@ namespace SMF\BBCode;
  *
  * Legacy (and just an alias for [abbr] even when enabled).
  */
-class Acronym extends BBCode
+class Acronym extends Abbr
 {
 	/*******************
 	 * Public properties
@@ -30,46 +30,6 @@ class Acronym extends BBCode
 	 *
 	 */
 	public string $tag = 'acronym';
-
-	/**
-	 *
-	 */
-	public ?string $type = BBCode::TYPE_UNPARSED_EQUALS;
-
-	/**
-	 *
-	 */
-	public ?string $before = '<abbr title="$1">';
-
-	/**
-	 *
-	 */
-	public ?string $after = '</abbr>';
-
-	/**
-	 *
-	 */
-	public ?string $disabled_before = '';
-
-	/**
-	 *
-	 */
-	public ?string $disabled_after = ' ($1)';
-
-	/**
-	 *
-	 */
-	public bool $block_level = false;
-
-	/**
-	 *
-	 */
-	public string $trim = 'none';
-
-	/**
-	 *
-	 */
-	public ?string $quoted = 'optional';
 }
 
 ?>

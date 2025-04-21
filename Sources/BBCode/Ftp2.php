@@ -22,7 +22,7 @@ use SMF\Url;
  *
  * Legacy (alias of [url] with an FTP URL)
  */
-class Ftp2 extends BBCode
+class Ftp2 extends Url2
 {
 	/*******************
 	 * Public properties
@@ -36,58 +36,7 @@ class Ftp2 extends BBCode
 	/**
 	 *
 	 */
-	public ?string $type = BBCode::TYPE_UNPARSED_EQUALS;
-
-	/**
-	 *
-	 */
-	public ?string $before = '<a href="$1" class="bbc_link" target="_blank" rel="noopener">';
-
-	/**
-	 *
-	 */
-	public ?string $after = '</a>';
-
-	/**
-	 *
-	 */
-	public ?string $disabled_before = '';
-
-	/**
-	 *
-	 */
-	public ?string $disabled_after = ' ($1)';
-
-	/**
-	 *
-	 */
-	public ?array $disallow_children = ['email', 'ftp', 'url', 'iurl'];
-
-	/****************
-	 * Public methods
-	 ****************/
-
-	/**
-	 *
-	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
-	{
-		$data = new Url(strtr(trim($data), ['<br>' => '', ' ' => '%20']), true);
-
-		if (empty($data->scheme)) {
-			$data = new Url('ftp://' . ltrim((string) $data, ':/'));
-		}
-
-		if (isset($bbc->content)) {
-			$ascii_url = (clone $data)->toAscii();
-
-			if ((string) $ascii_url !== (string) $data) {
-				$bbc->content = str_replace('href="$1"', 'href="' . $ascii_url . '"', $bbc->content);
-			}
-		} else {
-			$data->toAscii();
-		}
-	}
+	public string $default_scheme = 'ftp';
 }
 
 ?>

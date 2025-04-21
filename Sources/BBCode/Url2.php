@@ -66,6 +66,13 @@ class Url2 extends BBCode
 	 */
 	public ?array $disallow_children = ['email', 'ftp', 'url', 'iurl'];
 
+	/**
+	 * @var string
+	 *
+	 * Default URL scheme.
+	 */
+	public string $default_scheme = '';
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -73,7 +80,7 @@ class Url2 extends BBCode
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		if (str_starts_with($data, '#')) {
 			$data = '#post_' . substr($data, 1);
@@ -82,7 +89,7 @@ class Url2 extends BBCode
 			$data->toAscii();
 
 			if (empty($data->scheme)) {
-				$data = '//' . ltrim((string) $data, ':/');
+				$data = (!empty($default_scheme) ? rtrim($default_scheme, ':') . ':' : '') . '//' . ltrim((string) $data, ':/');
 			}
 		}
 	}

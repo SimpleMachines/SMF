@@ -22,7 +22,7 @@ use SMF\Url;
  *
  * Legacy (alias of [url] with an FTP URL)
  */
-class Ftp1 extends BBCode
+class Ftp1 extends Url1
 {
 	/*******************
 	 * Public properties
@@ -36,43 +36,7 @@ class Ftp1 extends BBCode
 	/**
 	 *
 	 */
-	public ?string $type = BBCode::TYPE_UNPARSED_CONTENT;
-
-	/**
-	 *
-	 */
-	public ?string $content = '<a href="$1" class="bbc_link" target="_blank" rel="noopener">$1</a>';
-
-	/**
-	 *
-	 */
-	public ?string $disabled_content = '';
-
-	/****************
-	 * Public methods
-	 ****************/
-
-	/**
-	 *
-	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
-	{
-		$data = new Url(strtr(trim($data), ['<br>' => '', ' ' => '%20']), true);
-
-		if (empty($data->scheme)) {
-			$data = new Url('ftp://' . ltrim((string) $data, ':/'));
-		}
-
-		if (isset($bbc->content)) {
-			$ascii_url = (clone $data)->toAscii();
-
-			if ((string) $ascii_url !== (string) $data) {
-				$bbc->content = str_replace('href="$1"', 'href="' . $ascii_url . '"', $bbc->content);
-			}
-		} else {
-			$data->toAscii();
-		}
-	}
+	public string $default_scheme = 'ftp';
 }
 
 ?>

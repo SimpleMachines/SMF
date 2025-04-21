@@ -68,7 +68,7 @@ class Shadow extends BBCode
 	/**
 	 *
 	 */
-	public function validate(BBCodeInterface|array &$bbc, array|string &$data, array $disabled, array $params): void
+	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
 		if ($data[1] == 'top' || (is_numeric($data[1]) && $data[1] < 50)) {
 			$data[1] = '0 -2px 1px';
