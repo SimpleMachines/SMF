@@ -1563,7 +1563,14 @@ sceditor.formats.bbcode.set(
 		},
 		isInline: true,
 		format: '[php]{0}[/php]',
-		html: '<span class="phpcode">{0}</span>'
+		html: function (element, attrs, content) {
+			// If the content contains multiple lines, format as a code block.
+			if (/\n|<br[^>]*>/.test(content)) {
+				return '<code data-name="' + this.opts.txtVars.code + '" data-title="PHP">' + content.replace('[', '&#91;').replaceAll(/\[tab\]/, '<span style="white-space: pre;" class="tab">\t</span>').replace(/^<br[^>]*>/, '').replace(/<br[^>]*>$/, '') + '</code>';
+			}
+
+			return '<span class="phpcode">' + content + '</span>';
+		}
 	}
 );
 
