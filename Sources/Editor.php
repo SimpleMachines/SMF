@@ -427,7 +427,10 @@ class Editor implements \ArrayAccess
 			"Video URL:": "' . Lang::getTxt('video_url', var: 'editortxt') . '",
 			"More": "' . Lang::getTxt('more', var: 'editortxt') . '",
 			"Close": "' . Lang::getTxt('close', var: 'editortxt') . '",
-			dateFormat: "' . Lang::getTxt('dateformat', var: 'editortxt') . '"
+			dateFormat: "' . Lang::getTxt('dateformat', var: 'editortxt') . '",
+			details: "' . Lang::getTxt('details', var: 'editortxt') . '",
+			spoiler: "' . Lang::getTxt('spoiler', var: 'editortxt') . '",
+			summaryPrompt: "' . Lang::getTxt('summary_prompt', var: 'editortxt') . '",
 		};';
 
 		Theme::addInlineJavaScript($scExtraLangs, true);
@@ -542,6 +545,11 @@ class Editor implements \ArrayAccess
 				'code' => 'tt',
 				'description' => Lang::getTxt('tt', var: 'editortxt'),
 			],
+			[
+				'image' => 'hidden',
+				'code' => 'spoiler',
+				'description' => Lang::getTxt('spoiler', var: 'editortxt'),
+			],
 			[],
 			[
 				'code' => 'pre',
@@ -627,6 +635,11 @@ class Editor implements \ArrayAccess
 			[
 				'code' => 'quote',
 				'description' => Lang::getTxt('insert_quote', var: 'editortxt'),
+			],
+			[
+				'image' => 'details',
+				'code' => 'details',
+				'description' => Lang::getTxt('details', var: 'editortxt'),
 			],
 			[],
 			[

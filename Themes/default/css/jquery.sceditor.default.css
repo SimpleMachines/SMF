@@ -172,3 +172,18 @@ img {
 		margin: 0 0.5em 1em !important;
 	}
 }
+
+.bbc_details {
+	border: 1px dotted #aaa;
+}
+.bbc_summary,
+.bbc_details_content {
+	margin: 5px;
+}
+.bbc_details[open] .bbc_summary {
+    padding-bottom: 5px;
+	border-bottom: 1px dotted #aaa;
+}
+.bbc_inline_spoiler {
+	outline: 2px dashed #aaa;
+}
