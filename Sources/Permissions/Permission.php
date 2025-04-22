@@ -1025,7 +1025,7 @@ class Permission implements \ArrayAccess
 				}
 			} else {
 				foreach (GroupPermissionSet::load(PermissionProfile::DEFAULT, Group::getAll()) as $set) {
-					$this->eligibility[$set->group] = count($this->assignee_prerequisites) === count(array_filter($this->assignee_prerequisites, fn($prereq) => !empty($set->permissions[$prereq])));
+					$this->eligibility[$set->group] = !empty(array_filter($this->assignee_prerequisites, fn($prereq) => !empty($set->permissions[$prereq])));
 				}
 			}
 
@@ -1174,10 +1174,19 @@ class Permission implements \ArrayAccess
 			self::$permissions['profile_gravatar']['hidden'] = true;
 		}
 
+		foreach (self::$permissions as $name => $props) {
+			self::$permissions[$name]['name'] = $name;
+		}
+
 		// Important: do the ones with prerequisites last.
 		uasort(
 			self::$permissions,
-			fn($a, $b) => (!empty($a['assigner_prerequisites']) || !empty($a['assignee_prerequisites'])) <=> (!empty($b['assigner_prerequisites']) || !empty($b['assignee_prerequisites'])),
+			function ($a, $b) {
+				$a_prereqs = array_merge($a['assigner_prerequisites'] ?? [], $a['assignee_prerequisites'] ?? []);
+				$b_prereqs = array_merge($b['assigner_prerequisites'] ?? [], $b['assignee_prerequisites'] ?? []);
+
+				return in_array($b['name'], $a_prereqs) ? 1 : (in_array($a['name'], $b_prereqs) ? -1 : empty($b_prereqs) <=> empty($a_prereqs));
+			},
 		);
 
 		// Now convert everything into instances of this class.
