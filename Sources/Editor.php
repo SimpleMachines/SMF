@@ -256,7 +256,7 @@ class Editor implements \ArrayAccess, \Stringable
 	 * ```php
 	 * [
 	 *     'code' => 'b',
-	 *     'description' => Lang::$editortxt['bold'], // Optional
+	 *     'description' => Lang::getTxt('bold', var: 'editortxt'), // Optional
 	 *     'image' => 'bold', // Optional
 	 *     'before' => '[b]', // Optional
 	 *     'after' => '[/b]', // Optional
@@ -511,7 +511,7 @@ class Editor implements \ArrayAccess, \Stringable
 		/*
 			array(
 				'code' => 'b', // Required
-				'description' => Lang::$editortxt['bold'], // Required
+				'description' => Lang::getTxt('bold', var: 'editortxt'), // Required
 				'image' => 'bold', // Optional
 				'before' => '[b]', // Optional
 				'after' => '[/b]', // Optional
@@ -521,142 +521,142 @@ class Editor implements \ArrayAccess, \Stringable
 			[
 				[
 					'code' => 'bold',
-					'description' => Lang::$editortxt['bold'],
+					'description' => Lang::getTxt('bold', var: 'editortxt'),
 				],
 				[
 					'code' => 'italic',
-					'description' => Lang::$editortxt['italic'],
+					'description' => Lang::getTxt('italic', var: 'editortxt'),
 				],
 				[
 					'code' => 'underline',
-					'description' => Lang::$editortxt['underline'],
+					'description' => Lang::getTxt('underline', var: 'editortxt'),
 				],
 				[
 					'code' => 'strike',
-					'description' => Lang::$editortxt['strikethrough'],
+					'description' => Lang::getTxt('strikethrough', var: 'editortxt'),
 				],
 				[
 					'code' => 'superscript',
-					'description' => Lang::$editortxt['superscript'],
+					'description' => Lang::getTxt('superscript', var: 'editortxt'),
 				],
 				[
 					'code' => 'subscript',
-					'description' => Lang::$editortxt['subscript'],
+					'description' => Lang::getTxt('subscript', var: 'editortxt'),
 				],
 				[],
 				[
 					'code' => 'pre',
-					'description' => Lang::$editortxt['preformatted_text'],
+					'description' => Lang::getTxt('preformatted_text', var: 'editortxt'),
 				],
 				[
 					'code' => 'left',
-					'description' => Lang::$editortxt['align_left'],
+					'description' => Lang::getTxt('align_left', var: 'editortxt'),
 				],
 				[
 					'code' => 'center',
-					'description' => Lang::$editortxt['center'],
+					'description' => Lang::getTxt('center', var: 'editortxt'),
 				],
 				[
 					'code' => 'right',
-					'description' => Lang::$editortxt['align_right'],
+					'description' => Lang::getTxt('align_right', var: 'editortxt'),
 				],
 				[
 					'code' => 'justify',
-					'description' => Lang::$editortxt['justify'],
+					'description' => Lang::getTxt('justify', var: 'editortxt'),
 				],
 				[],
 				[
 					'code' => 'font',
-					'description' => Lang::$editortxt['font_name'],
+					'description' => Lang::getTxt('font_name', var: 'editortxt'),
 				],
 				[
 					'code' => 'size',
-					'description' => Lang::$editortxt['font_size'],
+					'description' => Lang::getTxt('font_size', var: 'editortxt'),
 				],
 				[
 					'code' => 'color',
-					'description' => Lang::$editortxt['font_color'],
+					'description' => Lang::getTxt('font_color', var: 'editortxt'),
 				],
 				[],
 				[
 					'code' => 'removeformat',
-					'description' => Lang::$editortxt['remove_formatting'],
+					'description' => Lang::getTxt('remove_formatting', var: 'editortxt'),
 				],
 			],
 			[
 				[
 					'code' => 'floatleft',
-					'description' => Lang::$editortxt['float_left'],
+					'description' => Lang::getTxt('float_left', var: 'editortxt'),
 				],
 				[
 					'code' => 'floatright',
-					'description' => Lang::$editortxt['float_right'],
+					'description' => Lang::getTxt('float_right', var: 'editortxt'),
 				],
 				[],
 				[
 					'code' => 'youtube',
-					'description' => Lang::$editortxt['insert_youtube_video'],
+					'description' => Lang::getTxt('insert_youtube_video', var: 'editortxt'),
 				],
 				[
 					'code' => 'image',
-					'description' => Lang::$editortxt['insert_image'],
+					'description' => Lang::getTxt('insert_image', var: 'editortxt'),
 				],
 				[
 					'code' => 'email',
-					'description' => Lang::$editortxt['insert_email'],
+					'description' => Lang::getTxt('insert_email', var: 'editortxt'),
 				],
 				[
 					'code' => 'link',
-					'description' => Lang::$editortxt['insert_link'],
+					'description' => Lang::getTxt('insert_link', var: 'editortxt'),
 				],
 				[
 					'code' => 'unlink',
-					'description' => Lang::$editortxt['unlink'],
+					'description' => Lang::getTxt('unlink', var: 'editortxt'),
 				],
 				[],
 				[
 					'code' => 'table',
-					'description' => Lang::$editortxt['insert_table'],
+					'description' => Lang::getTxt('insert_table', var: 'editortxt'),
 				],
 				[
 					'code' => 'code',
-					'description' => Lang::$editortxt['code'],
+					'description' => Lang::getTxt('code', var: 'editortxt'),
 				],
 				[
 					'image' => 'tt',
 					'code' => 'tt',
-					'description' => Lang::$editortxt['tt'],
+					'description' => Lang::getTxt('tt', var: 'editortxt'),
 				],
 				[
 					'code' => 'quote',
-					'description' => Lang::$editortxt['insert_quote'],
+					'description' => Lang::getTxt('insert_quote', var: 'editortxt'),
 				],
 				[],
 				[
 					'code' => 'bulletlist',
-					'description' => Lang::$editortxt['bullet_list'],
+					'description' => Lang::getTxt('bullet_list', var: 'editortxt'),
 				],
 				[
 					'code' => 'orderedlist',
-					'description' => Lang::$editortxt['numbered_list'],
+					'description' => Lang::getTxt('numbered_list', var: 'editortxt'),
 				],
 				[
 					'code' => 'horizontalrule',
-					'description' => Lang::$editortxt['insert_horizontal_rule'],
+					'description' => Lang::getTxt('insert_horizontal_rule', var: 'editortxt'),
 				],
 				[
 					'image' => 'heading',
 					'code' => 'heading',
-					'description' => Lang::$editortxt['heading'],
+					'description' => Lang::getTxt('heading', var: 'editortxt'),
 				],
 				[],
 				[
 					'code' => 'maximize',
-					'description' => Lang::$editortxt['maximize'],
+					'description' => Lang::getTxt('maximize', var: 'editortxt'),
 				],
 				[
 					'code' => 'source',
-					'description' => Lang::$editortxt['view_source'],
+					'description' => Lang::getTxt('view_source', var: 'editortxt'),
 				],
 			],
 		];
@@ -970,21 +970,21 @@ class Editor implements \ArrayAccess, \Stringable
 			'emoticonsEnabled' => !$this->disable_smiley_box,
 			'emoticonsRoot' => Theme::$current->settings['smileys_url'] . '/',
 			'colors' => [
-				['black', Lang::$editortxt['black']],
-				['red', Lang::$editortxt['red']],
-				['yellow', Lang::$editortxt['yellow']],
-				['pink', Lang::$editortxt['pink']],
-				['green', Lang::$editortxt['green']],
-				['orange', Lang::$editortxt['orange']],
-				['purple', Lang::$editortxt['purple']],
-				['blue', Lang::$editortxt['blue']],
-				['beige', Lang::$editortxt['beige']],
-				['brown', Lang::$editortxt['brown']],
-				['teal', Lang::$editortxt['teal']],
-				['navy', Lang::$editortxt['navy']],
-				['maroon', Lang::$editortxt['maroon']],
-				['limegreen', Lang::$editortxt['lime_green']],
-				['white', Lang::$editortxt['white']],
+				['black', Lang::getTxt('black', var: 'editortxt')],
+				['red', Lang::getTxt('red', var: 'editortxt')],
+				['yellow', Lang::getTxt('yellow', var: 'editortxt')],
+				['pink', Lang::getTxt('pink', var: 'editortxt')],
+				['green', Lang::getTxt('green', var: 'editortxt')],
+				['orange', Lang::getTxt('orange', var: 'editortxt')],
+				['purple', Lang::getTxt('purple', var: 'editortxt')],
+				['blue', Lang::getTxt('blue', var: 'editortxt')],
+				['beige', Lang::getTxt('beige', var: 'editortxt')],
+				['brown', Lang::getTxt('brown', var: 'editortxt')],
+				['teal', Lang::getTxt('teal', var: 'editortxt')],
+				['navy', Lang::getTxt('navy', var: 'editortxt')],
+				['maroon', Lang::getTxt('maroon', var: 'editortxt')],
+				['limegreen', Lang::getTxt('lime_green', var: 'editortxt')],
+				['white', Lang::getTxt('white', var: 'editortxt')],
 			],
 			'fonts' => 'Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Impact,Sans-serif,Serif,Times New Roman,Trebuchet MS,Verdana',
 			'icons' => 'monocons',
