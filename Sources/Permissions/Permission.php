@@ -20,6 +20,7 @@ use SMF\Config;
 use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Parser;
 use SMF\User;
 use SMF\Utils;
 
@@ -1099,17 +1100,18 @@ class Permission implements \ArrayAccess
 			Utils::$context['restricted_bbc'][] = 'html';
 		}
 
-		// Add the permissions for the restricted BBCodes
-		foreach (Utils::$context['restricted_bbc'] as $bbc) {
-			if (isset(self::$permissions['bbc_' . $bbc])) {
+		// Add the permissions for the BBCodes.
+		foreach (Parser::getBBCodes() as $bbc) {
+			if (isset(self::$permissions['bbc_' . $bbc->tag])) {
 				continue;
 			}
 
-			self::$permissions['bbc_' . $bbc] = [
+			self::$permissions['bbc_' . $bbc->tag] = [
 				'has_own_any' => false,
 				'view_group' => 'bbc',
 				'scope' => 'global',
-				'vsprintf' => ['permissionname_bbc', [$bbc]],
+				'hidden' => !in_array($bbc->tag, Utils::$context['restricted_bbc']),
+				'vsprintf' => ['permissionname_bbc', [$bbc->tag]],
 			];
 		}
 
