@@ -46,7 +46,7 @@ table, td {
 	padding: .25em;
 }
 
-span.phpcode, font[face=monospace] {
+span.phpcode, .bbc_tt {
 	background-color: rgba(127, 127, 127, 0.25);
 	padding: 0 0.2ch;
 	display: inline;

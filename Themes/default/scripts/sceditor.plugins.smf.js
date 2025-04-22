@@ -1153,20 +1153,7 @@ sceditor.formats.bbcode.set(
 	}
 );
 
-sceditor.formats.bbcode.set(
-	'pre', {
-		tags: {
-			a: {
-				'data-type': ['ftp']
-			}
-		},
-		format({href}, content) {
-			return (href == content ? '[ftp]' : '[ftp=' + href + ']') + content + '[/ftp]';
-		},
-		html(token, {defaultattr}, content) {
-			return '<a data-type="ftp" href="' + (defaultattr || content) + '">' + content + '</a>';
-		}
-	})
+sceditor.formats.bbcode
 	.set('table', {
 		breakStart: true,
 		isHtmlInline: false,
@@ -1178,10 +1165,10 @@ sceditor.formats.bbcode.set(
 	.set('tt', {
 		tags: {
 			tt: null,
-			span: {'class': ['tt']}
+			code: {'class': ['bbc_tt']}
 		},
 		format: '[tt]{0}[/tt]',
-		html: '<span class="tt">{0}</span>'
+		html: '<code class="bbc_tt">{0}</code>'
 	})
 	.set('pre', {
 		tags: {
@@ -1216,21 +1203,8 @@ sceditor.formats.bbcode.set(
 		format: "[php]{0}[/php]",
 		html: '<code class="php">{0}</code>'
 	}
-);
-
-sceditor.formats.bbcode.set(
-	'tt', {
-		tags: {
-			font: {
-				'face': 'monospace'
-			}
-		},
-		format: '[tt]{0}[/tt]',
-		html: '<font face="monospace">{0}</font>'
-	}
-);
-
-sceditor.formats.bbcode.set(
+)
+set(
 	'code', {
 		tags: {
 			code: null,
@@ -1246,7 +1220,7 @@ sceditor.formats.bbcode.set(
 		format: function (element, content) {
 			let title = element.getAttribute('data-title');
 
-			if (element.className === 'php')
+			if (element.className === 'phpcode' || element.className === 'bbc_tt')
 				return content;
 			else if (element.tagName === 'DIV')
 				return '';
