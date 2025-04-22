@@ -1025,7 +1025,7 @@ class Permission implements \ArrayAccess
 				}
 			} else {
 				foreach (GroupPermissionSet::load(PermissionProfile::DEFAULT, Group::getAll()) as $set) {
-					$this->eligibility[$set->group] = count($this->assignee_prerequisites) === count(array_filter($this->assignee_prerequisites, fn($prereq) => !empty($set->permissions[$prereq])));
+					$this->eligibility[$set->group] = !empty(array_filter($this->assignee_prerequisites, fn($prereq) => !empty($set->permissions[$prereq])));
 				}
 			}
 
