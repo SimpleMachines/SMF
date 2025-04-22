@@ -100,7 +100,7 @@ $txt['database_numb_tables'] = '{0, plural,
 $txt['database_optimize_attempt'] = 'Attempting to optimize your database...';
 $txt['database_optimizing'] = 'Optimizing {0}... {1} KB optimized.';
 $txt['database_already_optimized'] = 'All of the tables were already optimized.';
-$txt['database_opimize_unneeded'] = 'It wasn\'t necessary to optimize any tables.';
+$txt['database_opimize_unneeded'] = 'No tables need to be optimized.';
 $txt['database_optimized'] = ' table(s) optimized.';
 $txt['database_no_id'] = 'has a non-existent member ID';
 

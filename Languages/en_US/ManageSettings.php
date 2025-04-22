@@ -83,7 +83,6 @@ $txt['jquery_cdn'] = 'jQuery CDN';
 $txt['microsoft_cdn'] = 'Microsoft CDN';
 $txt['cloudflare_cdn'] = 'Cloudflare CDN';
 $txt['fontawesome_cdn'] = 'FontAwesome CDN';
-$txt['queryless_urls'] = 'Search engine friendly URLs';
 $txt['minimize_files'] = 'Minimize CSS and JavaScript files';
 $txt['queryless_urls'] = 'Use friendly URLs';
 $txt['queryless_urls_note'] = 'Supported on Apache, Lighttpd, and LiteSpeed only';
