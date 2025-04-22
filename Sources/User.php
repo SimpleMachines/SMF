@@ -2349,8 +2349,8 @@ class User implements \ArrayAccess
 
 		$request = Db::$db->query(
 			'',
-			'SELECT id_board
-			FROM {db_prefix}boards
+			'SELECT b.id_board
+			FROM {db_prefix}boards AS b
 			WHERE {raw:can_access}',
 			[
 				'can_access' => $this->query_see_board,
@@ -4529,7 +4529,7 @@ class User implements \ArrayAccess
 			$this->group_id = (int) self::$profiles[$this->id]['id_group'];
 			$this->post_group_id = (int) self::$profiles[$this->id]['id_post_group'];
 			$this->additional_groups = array_map('intval', array_filter(explode(',', self::$profiles[$this->id]['additional_groups'])));
-			$this->groups = array_merge([$this->group_id, $this->post_group_id], $this->additional_groups);
+			$this->groups = array_unique(array_merge([0, $this->group_id, $this->post_group_id], $this->additional_groups));
 		}
 		// Guests are only part of the guest group.
 		else {
