@@ -700,25 +700,27 @@ class Editor implements \ArrayAccess, \Stringable
 		Theme::loadJavaScriptFile('jquery.sceditor.bbcode.min.js', [], 'smf_sceditor_bbcode');
 		Theme::loadJavaScriptFile('sceditor.plugins.smf.js', ['minimize' => true], 'smf_sceditor_smf_plugin');
 
-		Theme::addInlineJavaScript(
-			'
-			sceditor.locale["' . Lang::$txt['lang_dictionary'] . '"] = {
-				"Width (optional):": "' . Lang::$editortxt['width'] . '",
-				"Height (optional):": "' . Lang::$editortxt['height'] . '",
-				"Insert": "' . Lang::$editortxt['insert'] . '",
-				"Description (optional):": "' . Lang::$editortxt['description'] . '",
-				"Rows:": "' . Lang::$editortxt['rows'] . '",
-				"Cols:": "' . Lang::$editortxt['cols'] . '",
-				"URL:": "' . Lang::$editortxt['url'] . '",
-				"E-mail:": "' . Lang::$editortxt['email'] . '",
-				"Video URL:": "' . Lang::$editortxt['video_url'] . '",
-				"More": "' . Lang::$editortxt['more'] . '",
-				"Close": "' . Lang::$editortxt['close'] . '",
-				dateFormat: "' . Lang::$editortxt['dateformat'] . '"
-			};',
-			true,
-		);
+		$locale_key = Lang::getTxt('lang_dictionary', file: 'General');
 
+		$translation_map = [
+			'Width (optional):' => Lang::getTxt('width', var: 'editortxt'),
+			'Height (optional):' => Lang::getTxt('height', var: 'editortxt'),
+			'Insert' => Lang::getTxt('insert', var: 'editortxt'),
+			'Description (optional):' => Lang::getTxt('description', var: 'editortxt'),
+			'Rows:' => Lang::getTxt('rows', var: 'editortxt'),
+			'Cols:' => Lang::getTxt('cols', var: 'editortxt'),
+			'URL:' => Lang::getTxt('url', var: 'editortxt'),
+			'E-mail:' => Lang::getTxt('email', var: 'editortxt'),
+			'Video URL:' => Lang::getTxt('video_url', var: 'editortxt'),
+			'More' => Lang::getTxt('more', var: 'editortxt'),
+			'Close' => Lang::getTxt('close', var: 'editortxt'),
+			'dateFormat' => Lang::getTxt('dateformat', var: 'editortxt'),
+		];
+		IntegrationHook::call('integrate_sceditor_locale', [&$translation_map]);
+
+		$sc_extra_langs = 'sceditor.locale["' . $locale_key . '"] = ' . json_encode($translation_map, JSON_UNESCAPED_UNICODE) . ';';
+
+		Theme::addInlineJavaScript($sc_extra_langs, true);
 		Theme::addInlineJavaScript('
 		var smf_smileys_url = \'' . Theme::$current->settings['smileys_url'] . '\';
 		var bbc_quote_from = \'' . addcslashes(Lang::getTxt('quote_from', file: 'General'), "'") . '\';
