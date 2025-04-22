@@ -501,14 +501,15 @@ blockquote cite::before {
 .bbc_inline_spoiler {
 	cursor: pointer;
 	border-radius: 3px;
-	transition: background 0.5s;
 	background-color: currentcolor;
 	position: relative;
+	transition-property: background-color;
+	transition-duration: 0.5s;
 }
 .bbc_inline_spoiler.revealed {
 	background-color: transparent;
 }
-.bbc_inline_spoiler button {
+.bbc_inline_spoiler > button {
 	all: unset;
 	display: inline;
 	position: absolute;
@@ -519,19 +520,20 @@ blockquote cite::before {
 	border-color: transparent;
 	background-color: transparent;
 }
-.bbc_inline_spoiler button:focus-visible {
+.bbc_inline_spoiler > button:focus-visible {
 	outline: 2px solid #7fb0d8;
 }
-.bbc_inline_spoiler span {
+.bbc_inline_spoiler > span {
 	/*
 		The visibility value is vital to making spoiler tags work correctly with
 		assistive technologies (e.g. screen readers). If you are customizing the
 		CSS for your theme, you should not change this part.
 	*/
 	visibility: hidden;
-	transition: visibility 0.5s;
+	transition-property: visibility;
+	transition-duration: inherit;
 }
-.bbc_inline_spoiler.revealed span {
+.bbc_inline_spoiler.revealed > span {
 	visibility: visible;
 }
 

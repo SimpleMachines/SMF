@@ -4,6 +4,6 @@
 .bbc_inline_spoiler:hover {
 	background-color: transparent;
 }
-.bbc_inline_spoiler:hover span {
+.bbc_inline_spoiler:hover > span {
 	visibility: visible !important;
 }
