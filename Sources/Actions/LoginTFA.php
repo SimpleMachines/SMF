@@ -67,7 +67,7 @@ class LoginTFA extends Login2
 			if (strlen($code) == $totp->getCodeLength() && $totp->validateCode($code)) {
 				User::updateMemberData($member['id_member'], ['last_login' => time()]);
 
-				Cookie::setTFACookie(3153600, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
+				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
 
 				Utils::redirectexit();
 			} else {
@@ -97,7 +97,7 @@ class LoginTFA extends Login2
 					'last_login' => time(),
 				]);
 
-				Cookie::setTFACookie(3153600, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
+				Cookie::setTFACookie(Cookie::LENGTH_TFA, $member['id_member'], Cookie::encrypt($member['tfa_backup'], $member['password_salt']));
 
 				Utils::redirectexit('action=profile;area=tfasetup;backup');
 			} else {

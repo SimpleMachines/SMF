@@ -170,7 +170,7 @@ function template_permission_index()
 
 		foreach (Utils::$context['permissions'] as $permissionType)
 		{
-			if ($permissionType['id'] == 'global' && !empty(Utils::$context['profile']))
+			if (($permissionType['id'] == 'global') == (!empty(Utils::$context['profile'])))
 				continue;
 
 			foreach ($permissionType['columns'] as $column)
@@ -503,21 +503,6 @@ function template_modify_group()
 
 	// Draw out the main bits.
 	template_modify_group_display(Utils::$context['permission_type']);
-
-	// If this is general permissions also show the default profile.
-	if (Utils::$context['permission_type'] == 'global')
-	{
-		echo '
-			<br>
-			<div class="cat_bar">
-				<h3 class="catbg">', Lang::getTxt('permissions_board', file: 'ManagePermissions'), '</h3>
-			</div>
-			<div class="information">
-				', Lang::getTxt('permissions_board_desc', file: 'ManagePermissions'), '
-			</div>';
-
-		template_modify_group_display('board');
-	}
 
 	if (Utils::$context['profile']['can_modify'])
 		echo '

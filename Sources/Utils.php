@@ -289,14 +289,6 @@ class Utils
 		'restricted_bbc' => [
 			'html',
 		],
-		// Login Cookie times. Format: time => txt
-		'login_cookie_times' => [
-			3153600 => 'always_logged_in',
-			60 => 'one_hour',
-			1440 => 'one_day',
-			10080 => 'one_week',
-			43200 => 'one_month',
-		],
 		'show_spellchecking' => false,
 	];
 
@@ -343,6 +335,10 @@ class Utils
 
 		// Load up our $context['server'] data for backwards compatibility
 		Sapi::load();
+
+		if (!empty(Config::$modSettings['restricted_bbc'])) {
+			self::$context['restricted_bbc'] = array_unique(array_merge(self::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc'])));
+		}
 	}
 
 	/**
@@ -1017,6 +1013,12 @@ class Utils
 		// If it's not an array, there's not much to do. ;)
 		if (!is_array($strings)) {
 			return preg_quote(@strval($strings), $delim);
+		}
+
+		$strings = array_filter($strings, 'is_string');
+
+		if (empty($strings)) {
+			return '';
 		}
 
 		$regex_key = md5(json_encode([$strings, $delim, $return_array]));
@@ -2376,7 +2378,7 @@ class Utils
 					&& !(Forum::getCurrentAction()?->getOutputType() instanceof OutputTypes\Xml)
 					&& !isset($_REQUEST['xml'])
 				) {
-					Logging::displayDebug();
+					Debug\DebugUtils::displayDebug();
 				}
 			}
 		}
@@ -2409,23 +2411,40 @@ class Utils
 	}
 
 	/**
-	 * Parses the given input to determine if it represents a callable entity.
+	 * Parses the given input to determine if is a callable entity or can be
+	 * turned into one, and then returns either a callable or false.
 	 *
-	 * This method supports various formats of callables, including closures,
-	 * callable arrays, static methods, and class methods with optional
-	 * instance creation.
+	 * If $input is already a callable entity, it will simply be returned.
+	 * Otherwise, this method will attempt to turn it into one.
 	 *
-	 * - If a class method is specified with a "#", it attempts to create
-	 *   a new instance of the class.
-	 * - If a static method is specified, it validates the method is callable.
-	 * - If input is a closure or callable array, it checks its validity.
-	 * - Plain functions are validated as callable.
-	 * - Objects themselves are not accepted as callables.
+	 * Two special syntaxes can be used with string input, as follows:
+	 *
+	 *  - Instructions to load a specific file can be given by prepending a file
+	 *    path followed by a `|` character to the $input string. This amounts to
+	 *    a form of autoloading for callables that are not class-based. These
+	 *    file paths support the wildcards $boarddir, $sourcedir, and $themedir.
+	 *
+	 *    Example: '$sourcedir/foo.php|func_name' will load ./Sources/foo.php
+	 *    and then return 'func_name'.
+	 *
+	 *  - If a class method is specified with a "#" character appended to it, an
+	 *    instance of that class will be automatically created and added to
+	 *    Utils::$context['instances'], and the returned value from this method
+	 *    will be a callable array that will call the specified method on that
+	 *    instance. Note, however, that there is no way to pass arguments to the
+	 *    class's constructor when using this syntax. For that reason, it is
+	 *    usually better to construct the object directly rather than using this
+	 *    syntax to do the job for you.
+	 *
+	 *    Example: 'SMF\Foo::methodName#' will create an instance of SMF\Foo and
+	 *    then return an array containing the instantiated object and the string
+	 *    'methodName'.
 	 *
 	 * @param string|callable $input Input to parse as a callable.
-	 * @param bool|null $ignore_errors Optional. Whether to suppress errors if the callable is invalid. Defaults to the value of `Utils::$context['ignore_hook_errors']`.
-	 *
-	 * @return callable|false Returns the callable if valid, or false on failure.
+	 * @param ?bool $ignore_errors Optional. Whether to suppress errors if the
+	 *    callable is invalid. If null, falls back to the current value of
+	 *    Utils::$context['ignore_hook_errors']. Default: null.
+	 * @return callable|false Either a valid callable or false on failure.
 	 */
 	public static function getCallable(string|callable $input, ?bool $ignore_errors = null): callable|false
 	{

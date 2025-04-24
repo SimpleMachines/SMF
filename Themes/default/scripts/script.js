@@ -34,6 +34,17 @@ if (!('getElementsByClassName' in document))
 	}
 }
 
+window.addEventListener('DOMContentLoaded', function() {
+	for (const elem of document.querySelectorAll('.bbc_inline_spoiler')) {
+		elem.addEventListener('click', toggleSpoiler);
+	}
+});
+
+// Shows or hides the content of a spoiler tag.
+function toggleSpoiler() {
+	this.classList.toggle('revealed');
+}
+
 // Get a response from the server.
 function getServerResponse(sUrl, funcCallback, sType, sDataType)
 {
@@ -108,6 +119,9 @@ function sendXMLDocument(sUrl, sContent, funcCallback)
 				funcCallback.call(oCaller, responseXML);
 			}
 		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.error(jqXHR.responseText);
+		}
 	});
 
 	return true;
@@ -1429,6 +1443,11 @@ function smf_itemPos(itemHandle)
 // This function takes the script URL and prepares it to allow the query string to be appended to it.
 function smf_prepareScriptUrl(sUrl)
 {
+	// Ensure index.php is in the URL even when the option to hide it is enabled.
+	if (sUrl.indexOf('/index.php') == -1) {
+		sUrl = sUrl + '/index.php';
+	}
+
 	return sUrl.indexOf('?') == -1 ? sUrl + '?' : sUrl + (sUrl.charAt(sUrl.length - 1) == '?' || sUrl.charAt(sUrl.length - 1) == '&' || sUrl.charAt(sUrl.length - 1) == ';' ? '' : ';');
 }
 
@@ -2065,4 +2084,8 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 
 	if (typeof(smf_codeFix) != 'undefined')
 		smf_codeFix();
+
+	for (const elem of document.querySelectorAll('.bbc_inline_spoiler, .bbc_inline_spoiler > button')) {
+		elem.addEventListener('click', toggleSpoiler);
+	}
 }

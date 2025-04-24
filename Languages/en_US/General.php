@@ -525,8 +525,7 @@ $txt['total_members'] = 'Total Members';
 $txt['total_posts'] = 'Total Posts';
 $txt['total_topics'] = 'Total Topics';
 
-$txt['time_logged_in'] = 'Time to stay logged in';
-$txt['always_logged_in'] = 'Forever';
+$txt['remember_me'] = 'Remember me';
 
 $txt['preview'] = 'Preview';
 
@@ -643,6 +642,7 @@ $txt['fulledit'] = 'Full&nbsp;edit';
 $txt['edit'] = 'Edit';
 $txt['quick_edit'] = 'Quick Edit';
 $txt['post_options'] = 'More...';
+$txt['spoiler_toggle'] = 'Show or hide spoiler content';
 
 $txt['merge_to_topic_id'] = 'ID of target topic';
 $txt['split'] = 'Split Topic';
@@ -1131,8 +1131,7 @@ $txt['debug_subtemplates'] = 'Sub templates: {num, number, integer} {additional_
 $txt['debug_language_files'] = 'Language files: {num, number, integer} {additional_info}';
 $txt['debug_stylesheets'] = 'Style sheets: {num, number, integer} {additional_info}';
 $txt['debug_files_included'] = 'Files included: {num, number, integer} - {size, number, integer} KB {additional_info}';
-$txt['debug_memory_use'] = 'Memory used: {size, number, integer} KB';
-$txt['debug_show'] = 'show';
+$txt['debug_memory_use'] = 'Memory used: {num, number, integer} KB';
 $txt['debug_cache_hits'] = 'Cache hits: {num, number, integer} - {seconds_bytes_total} {additional_info}';
 $txt['debug_cache_misses'] = 'Cache misses: {num, number, integer} {additional_info}';
 $txt['debug_cache_seconds_bytes'] = '{seconds, number, integer}s - {bytes, plural,
@@ -1165,8 +1164,9 @@ $txt['debug_query_which_took_at'] = '{0, plural,
 } at {1, number} into request.';
 $txt['debug_show_queries'] = '[Show Queries]';
 $txt['debug_hide_queries'] = '[Hide Queries]';
-$txt['debug_tokens'] = 'Tokens: {additional_info}';
-$txt['debug_browser'] = 'Browser ID: {browser_body_id} {additional_info}';
+$txt['debug_tokens'] = 'Tokens: {num, number, integer} {additional_info}';
+$txt['debug_browser'] = 'Browser ID: {browser_body_id} ({additional_info})';
+$txt['debug_action'] = 'Current action: {name} (allow restricted guest access: {restrict_guests}, can be logged: {can_log}, is simple: {is_simple})';
 $txt['debug_hooks'] = 'Hooks called: {num, number, integer} {additional_info}';
 $txt['are_sure_mark_read'] = 'Are you sure you want to mark messages as read?';
 
@@ -1224,7 +1224,7 @@ $txt['mobile_generic_menu'] = '{label} Menu';
 // Punctuation mark that is normally used to separate list items in a sentence.
 $txt['sentence_list_separator'] = ',';
 
-// Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie"). The options "1", "start", "middle", "end", and "other" are required for all languages. Some languages may also need additional numerical options, which allow special handling of a specific number of list items. The "start", "middle", and "end" options are used for constructing any list that is not covered by one of the numerical options. The "other" option is intentionally empty.
+// Formats for lists in a sentence (e.g. "Alice, Bob, and Charlie"). The options "1", "2", start", "middle", "end", and "other" are required for all languages. Some languages may also need additional numerical options, which allow special handling of a specific number of list items. The "start", "middle", and "end" options are used for constructing any list that is not covered by one of the numerical options. The "other" option is intentionally empty.
 $txt['sentence_list_pattern']['and'] = '{list_pattern_part, select,
 	1 {{0}}
 	2 {{0} and {1}}

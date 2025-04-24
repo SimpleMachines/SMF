@@ -1482,7 +1482,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function loadPermissionProfiles(): void
 	{
-		SMF\Actions\Admin\Permissions::loadPermissionProfiles();
+		SMF\Permissions\PermissionProfile::loadContext();
 	}
 
 	/**
@@ -1494,7 +1494,25 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function updateChildPermissions(int|array|null $parents = null, ?int $profile = null): ?bool
 	{
-		return SMF\Actions\Admin\Permissions::updateChildPermissions($parents, $profile);
+		// All the parent groups to sort out.
+		$parents = array_unique(array_map('intval', (array) $parents));
+
+		// If $profile is null or less than 1, use the default profile.
+		$profile = max((int) $profile, SMF\Permissions\PermissionProfile::DEFAULT);
+
+		// (Re)load the permission sets and save them. This is all we need to do
+		// because GroupPermissionSet::save() updates child groups automatically.
+		$sets = SMF\Permissions\GroupPermissionSet::load($profile, $parents, true);
+
+		if (empty($sets)) {
+			return false;
+		}
+
+		foreach ($sets as $set) {
+			$set->save();
+		}
+
+		return true;
 	}
 
 	/**
@@ -1502,7 +1520,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function loadIllegalPermissions(): array
 	{
-		return SMF\Actions\Admin\Permissions::loadIllegalPermissions();
+		return SMF\Permissions\Permission::getUnassignable();
 	}
 
 	/**
@@ -8097,7 +8115,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function displayDebug(): void
 	{
-		SMF\Logging::displayDebug();
+		SMF\Debug\DebugUtils::displayDebug();
 	}
 
 	/****************
@@ -10473,7 +10491,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function membersAllowedTo(string $permission, ?int $board_id = null): array
 	{
-		return SMF\User::membersAllowedTo($permission, $board_id);
+		return SMF\User::getAllowedTo($permission, $board_id);
 	}
 
 	/**
@@ -10487,30 +10505,66 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param int $board_id = null If set, checks permissions for the specified board
 	 * @return array An array containing two arrays - 'allowed', which has which groups are allowed to do it and 'denied' which has the groups that are denied
 	 */
-	function groupsAllowedTo(
-		string $permission,
-		?int $board_id = null,
-		bool $simple = true,
-		?int $profile_id = null,
-	): array {
-		return SMF\User::groupsAllowedTo((array) $permission, $board_id, $simple, $profile_id);
+	function groupsAllowedTo(string $permission, ?int $board_id = null): array
+	{
+		$return = [];
+
+		$scope = isset($board_id) ? 'board' : 'global';
+
+		foreach (SMF\Group::getAllWithPermissions($permission, $board_id) as $group => $perms) {
+			foreach ($perms as $perm => $value) {
+				if (SMF\Permissions\Permission::get($perm)->scope !== $scope) {
+					continue;
+				}
+
+				switch ($value) {
+					case 1:
+						$result[$perm]['allowed'][] = $group;
+						break;
+
+					case 0:
+						$result[$perm]['denied'][] = $group;
+						break;
+				}
+			}
+		}
+
+		return $return;
 	}
 
 	/**
 	 * Retrieves a list of membergroups with the given permissions.
 	 *
-	 * @param array $general_permissions
-	 * @param array $board_permissions
-	 * @param int   $profile_id
+	 * @param array $general_permissions General permissions to check.
+	 * @param array $board_permissions Board permissions to check.
+	 * @param int   $profile_id ID of a permission profile.
 	 *
-	 * @return array An array containing two arrays - 'allowed', which has which groups are allowed to do it and 'denied' which has the groups that are denied
+	 * @return array An array containing two arrays: 'allowed', which has which
+	 *    groups are allowed to do it and 'denied' which has the groups that are
+	 *    denied.
 	 */
 	function getGroupsWithPermissions(
 		array $general_permissions = [],
 		array $board_permissions = [],
 		int $profile_id = 1,
 	): array {
-		return SMF\User::getGroupsWithPermissions($general_permissions, $board_permissions, $profile_id);
+		$return = [];
+
+		foreach (SMF\Group::getAllWithPermissions($general_permissions + $board_permissions, $profile_id, true) as $group => $perms) {
+			foreach ($perms as $perm => $value) {
+				switch ($value) {
+					case 1:
+						$result[$perm]['allowed'][] = $group;
+						break;
+
+					case 0:
+						$result[$perm]['denied'][] = $group;
+						break;
+				}
+			}
+		}
+
+		return $return;
 	}
 
 	/**
@@ -10617,7 +10671,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function banPermissions(): void
 	{
-		SMF\User::$me->adjustPermissions();
+		if (!isset(SMF\User::$me->permission_set)) {
+			SMF\User::$me->loadPermissions();
+		}
+
+		SMF\User::$me->permission_set->applyBansAndWarnings();
 	}
 
 	/**
@@ -11435,6 +11493,58 @@ if (!function_exists('array_is_list')) {
 	function array_is_list(array $array): bool
 	{
 		return array_keys($array) === range(0, count($array) - 1);
+	}
+}
+
+if (!function_exists('array_all')) {
+	function array_all(array $array, callable $callback): bool
+	{
+		foreach ($array as $key => $value) {
+			if (!$callback($value, $key)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+}
+
+if (!function_exists('array_any')) {
+	function array_any(array $array, callable $callback): bool
+	{
+		foreach ($array as $key => $value) {
+			if ($callback($value, $key)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+}
+
+if (!function_exists('array_find')) {
+	function array_find(array $array, callable $callback): mixed
+	{
+		foreach ($array as $key => $value) {
+			if ($callback($value, $key)) {
+				return $value;
+			}
+		}
+
+		return null;
+	}
+}
+
+if (!function_exists('array_find_key')) {
+	function array_find_key(array $array, callable $callback): mixed
+	{
+		foreach ($array as $key => $value) {
+			if ($callback($value, $key)) {
+				return $key;
+			}
+		}
+
+		return null;
 	}
 }
 

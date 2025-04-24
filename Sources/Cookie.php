@@ -20,6 +20,32 @@ namespace SMF;
  */
 class Cookie
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * @var int
+	 *
+	 * By default, cookies expire after one hour of inactivity.
+	 */
+	public const LENGTH_DEFAULT = 3600;
+
+	/**
+	 * @var int
+	 *
+	 * The two-factor authentication cookie expires after 30 days.
+	 */
+	public const LENGTH_TFA = 2592000;
+
+	/**
+	 * @var int
+	 *
+	 * If the user chooses the "remember me" option, their login cookie won't
+	 * expire for one year.
+	 */
+	public const LENGTH_ONE_YEAR = 31536000;
+
 	/*******************
 	 * Public properties
 	 *******************/
@@ -176,7 +202,7 @@ class Cookie
 			}
 		}
 
-		$this->expires = $expires ?? time() + 60 * Config::$modSettings['cookieTime'];
+		$this->expires = $expires ?? time() + self::LENGTH_DEFAULT;
 		$this->domain = $domain ?? self::$default_domain;
 		$this->path = $path ?? self::$default_path;
 		$this->secure = $secure ?? !empty(Config::$modSettings['secureCookies']);
@@ -253,7 +279,7 @@ class Cookie
 		// Special case for the login cookie.
 		if ($name === Config::$cookiename) {
 			// First check for JSON-format cookie
-			if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]+","4":"[^"]+"~', $_COOKIE[$name])) {
+			if (preg_match('~^{"0":\d+,"1":"[0-9a-f]*","2":\d+,"3":"[^"]*","4":"[^"]*"~', $_COOKIE[$name])) {
 				$data = Utils::jsonDecode($_COOKIE[$name], true);
 			}
 			// Legacy format (for recent upgrades from SMF 2.0.x)
@@ -414,6 +440,47 @@ class Cookie
 
 			$_SESSION['login_' . Config::$cookiename] = $_COOKIE[Config::$cookiename];
 		}
+	}
+
+	/**
+	 * Updates the expiry time of the current user's login cookie.
+	 *
+	 * Unlike Cookie::setLoginCookie(), this method does not destroy and replace
+	 * the current session in the process of setting the new cookie. Instead, it
+	 * just updates the current session with the new cookie expiry time.
+	 */
+	public static function updateLoginCookieExpiry(): void
+	{
+		$cookie = self::getCookie(Config::$cookiename);
+
+		// Verify the data.
+		if (
+			User::$me->is_guest
+			|| $cookie->member !== User::$me->id
+			|| $cookie->hash !== self::encrypt(User::$me->passwd, User::$me->password_salt)
+		) {
+			return;
+		}
+
+		// Update the expiry time.
+		$cookie->expires = time() + (User::$me->stay_logged_in ? self::LENGTH_ONE_YEAR : self::LENGTH_DEFAULT);
+
+		// Send the cookie to the browser.
+		$cookie->set();
+
+		// Update the $_COOKIE and $_SESSION data.
+		$_COOKIE[Config::$cookiename] = Utils::jsonEncode(
+			[
+				$cookie->member,
+				$cookie->hash,
+				$cookie->expires,
+				$cookie->domain,
+				$cookie->path,
+			],
+			JSON_FORCE_OBJECT,
+		);
+
+		$_SESSION['login_' . Config::$cookiename] = $_COOKIE[Config::$cookiename];
 	}
 
 	/**

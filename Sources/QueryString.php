@@ -40,6 +40,7 @@ class QueryString
 	public static array $route_parsers = [
 		'about:unknown'			=> Actions\Like::class,
 		'acceptagreement'		=> Actions\AgreementAccept::class,
+		'accepttermsofservice'	=> Actions\AgreementAccept::class,
 		'activate'				=> Actions\Activate::class,
 		'admin'					=> Actions\Admin\Main::class,
 		'agreement'				=> Actions\Agreement::class,

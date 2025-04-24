@@ -1093,7 +1093,7 @@ function ForumSettings()
 			'packagesdir' => $path . '/Packages',
 			'languagesdir' => $path . '/Languages',
 			'mbname' => strtr($_POST['mbname'], ['\"' => '"']),
-			'language' => substr($_SESSION['installer_temp_lang'], 8, -4),
+			'language' => $_SESSION['installer_temp_lang'],
 			'image_proxy_secret' => bin2hex(random_bytes(10)),
 			'image_proxy_enabled' => !empty($_POST['force_ssl']),
 			'auth_secret' => bin2hex(random_bytes(32)),
@@ -1809,7 +1809,7 @@ function DeleteInstall()
 
 	// Automatically log them in ;)
 	if (isset($incontext['member_id'], $incontext['member_salt'])) {
-		Cookie::setLoginCookie(3153600 * 60, $incontext['member_id'], Cookie::encrypt($_POST['password1'], $incontext['member_salt']));
+		Cookie::setLoginCookie(Cookie::LENGTH_DEFAULT, $incontext['member_id'], Cookie::encrypt($_POST['password1'], $incontext['member_salt']));
 	}
 
 	$result = Db::$db->query(

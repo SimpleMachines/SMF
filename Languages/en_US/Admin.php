@@ -626,6 +626,8 @@ $txt['legacyBBC'] = 'Legacy BBC tags';
 $txt['bbcTagsToUse'] = 'Enabled BBC tags';
 $txt['enabled_bbc_select'] = 'Select the tags which are allowed to be used';
 $txt['enabled_bbc_select_all'] = 'Select all tags';
+$txt['restricted_bbc'] = 'Restricted BBC tags';
+$txt['bbc_title_restricted_bbc'] = 'Select the tags that require permission to use';
 $txt['groups_can_use'] = 'Membergroups allowed to use {0}';
 
 $txt['enableMarkdown'] = 'Enable Markdown';

@@ -715,7 +715,7 @@ class Utf8String implements \Stringable
 			 * It does not adapt to different locales.
 			 * See https://www.unicode.org/reports/tr29/#Word_Boundaries
 			 */
-			$chars = preg_split('/(.)/su', $string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+			$chars = preg_split('/(.)/su', $this->string, 0, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 			foreach ($chars as $i => $char) {
 				$chars[$i] = [

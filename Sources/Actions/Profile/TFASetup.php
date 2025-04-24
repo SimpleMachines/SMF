@@ -119,7 +119,7 @@ class TFASetup implements ActionInterface
 				'tfa_backup' => $backup_encrypted,
 			]);
 
-			Cookie::setTFACookie(3153600, Profile::$member->id, Cookie::encrypt($backup_encrypted, User::$me->password_salt));
+			Cookie::setTFACookie(Cookie::LENGTH_TFA, Profile::$member->id, Cookie::encrypt($backup_encrypted, User::$me->password_salt));
 
 			unset($_SESSION['tfa_secret']);
 

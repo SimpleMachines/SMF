@@ -632,6 +632,14 @@ class Forum
 			if (!empty(Config::$modSettings['hitStats'])) {
 				Logging::trackStats(['hits' => '+']);
 			}
+
+			// Login cookies should only expire after a period of inactivity.
+			// Since doing something worthy of logging means this member is
+			// actively engaged with the forum right now, refresh their login
+			// cookie in order to reset the countdown to it expiry date.
+			if (!User::$me->is_guest) {
+				Cookie::updateLoginCookieExpiry();
+			}
 		}
 
 		// Make sure that our scheduled tasks have been running as intended.

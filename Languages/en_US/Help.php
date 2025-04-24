@@ -677,4 +677,7 @@ $helptxt['requireAgreement'] = 'This setting is recommended to be enabled in ord
 $helptxt['requirePolicyAgreement'] = 'This setting is recommended to be enabled in order to comply with the rules of the <a href="https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en" target="_blank" rel="noopener" class="bbc_link">GDPR</a>.';
 $helptxt['gravatar'] = 'Gravatar is Globally Recognized Avatars. Register an account at <a href="https://www.gravatar.com" target="_blank" rel="noopener">https://www.gravatar.com</a> to select an avatar image. This avatar is then available at every site that supports gravatars. If you do not have a gravatar account, a default image will be used.';
 
+$helptxt['restricted_bbc'] = 'When a BBCode is marked as restricted, you can configure permissions to control who is allowed to use that BBCode in their posts.';
+$helptxt['restricted_bbc_forced'] = 'The restrictions on the {0} BBCode cannot be turned off.';
+
 ?>

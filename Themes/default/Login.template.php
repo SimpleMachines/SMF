@@ -7,7 +7,7 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 3.0 Alpha 2
+ * @version 3.0 Alpha 3
  */
 
 use SMF\Config;
@@ -54,16 +54,12 @@ function template_login()
 						</dd>
 					</dl>
 					<dl>
-						<dt>', Lang::getTxt('time_logged_in', file: 'General'), '</dt>
+						<dt></dt>
 						<dd>
-							<select name="cookielength" id="cookielength">';
-
-	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
-		echo '
-								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::getTxt($cookie_txt, file: 'General'), '</option>';
-
-	echo '
-							</select>
+							<label>
+								<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
+								', Lang::getTxt('remember_me', file: 'General'), '
+							</label>
 						</dd>';
 
 	// If they have deleted their account, give them a chance to change their mind.
@@ -319,16 +315,12 @@ function template_kick_guest()
 					<dd><input type="text" name="user" size="20"></dd>
 					<dt>', Lang::getTxt('password', file: 'General'), '</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', Lang::getTxt('time_logged_in', file: 'General'), '</dt>
+					<dt></dt>
 					<dd>
-							<select name="cookielength" id="cookielength">';
-
-	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
-		echo '
-								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::getTxt($cookie_txt, file: 'General'), '</option>';
-
-	echo '
-							</select>
+						<label>
+							<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
+							', Lang::getTxt('remember_me', file: 'General'), '
+						</label>
 					</dd>
 				</dl>
 				<p class="centertext">
@@ -375,16 +367,12 @@ function template_maintenance()
 					<dd><input type="text" name="user" size="20"></dd>
 					<dt>', Lang::getTxt('password', file: 'General'), '</dt>
 					<dd><input type="password" name="passwrd" size="20"></dd>
-					<dt>', Lang::getTxt('time_logged_in', file: 'General'), '</dt>
+					<dt></dt>
 					<dd>
-							<select name="cookielength" id="cookielength">';
-
-	foreach (Utils::$context['login_cookie_times'] as $cookie_time => $cookie_txt)
-		echo '
-								<option value="', $cookie_time, '"', Config::$modSettings['cookieTime'] == $cookie_time ? ' selected' : '', '>', Lang::getTxt($cookie_txt, file: 'General'), '</option>';
-
-	echo '
-							</select>
+						<label>
+							<input type="checkbox" name="cookieneverexp"', !empty(Utils::$context['never_expire']) ? ' checked' : '', '>
+							', Lang::getTxt('remember_me', file: 'General'), '
+						</label>
 					</dd>
 				</dl>
 				<input type="submit" value="', Lang::getTxt('login', file: 'General'), '" class="button">
