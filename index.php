@@ -32,7 +32,6 @@ declare(strict_types=1);
  */
 
 use SMF\Config;
-use SMF\IntegrationHook;
 
 if (!defined('SMF')) {
 	define('SMF', 1);
@@ -127,6 +126,14 @@ call_user_func(function () {
 
 	// Ensure $db_last_error is set, too.
 	SMF\Config::getDbLastError();
+
+	$loader = require Config::$vendordir . '/autoload.php';
+
+	if (isset(Config::$modSettings['integrate_autoload'])) {
+		foreach (explode(',', Config::$modSettings['integrate_autoload']) as $prefix => $dirname) {
+			$loader->addPsr4($prefix, $dirname);
+		}
+	}
 });
 
 // Devs want all error messages, but others don't.
@@ -137,8 +144,6 @@ if (SMF === 1) {
 /*
  * 3. Load some other essential includes.
  */
-
-require_once SMF\Config::$sourcedir . '/Autoloader.php';
 
 // Ensure we don't trip over disabled internal functions
 require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
