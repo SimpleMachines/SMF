@@ -964,9 +964,6 @@ class Config
 			self::$sourcedir = self::$boarddir . '/Sources';
 		}
 
-		// As of 3.0, this is no longer changeable.
-		self::$tasksdir = self::$sourcedir . '/Tasks';
-
 		self::$vendordir = self::$boarddir . '/vendor';
 
 		if ((empty(self::$packagesdir) || !is_dir(realpath(self::$packagesdir))) && is_dir(self::$boarddir . '/Packages')) {

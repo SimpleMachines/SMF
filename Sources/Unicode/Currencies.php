@@ -1111,8 +1111,8 @@ function country_currencies(): array
 			'LRD',
 		],
 		'LS' => [
-			'LSL',
 			'ZAR',
+			'LSL',
 		],
 		'LT' => [
 			'EUR',

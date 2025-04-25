@@ -31,7 +31,6 @@ declare(strict_types=1);
  * 1. Define some constants we need.
  */
 
-use SMF\Config;
 
 if (!defined('SMF')) {
 	define('SMF', 1);
