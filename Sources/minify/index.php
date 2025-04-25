@@ -6,5 +6,3 @@ if (file_exists(dirname(__DIR__) . '/index.php')) {
 } else {
 	exit;
 }
-
-?>

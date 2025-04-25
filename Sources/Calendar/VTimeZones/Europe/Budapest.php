@@ -287,5 +287,3 @@ class Budapest extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

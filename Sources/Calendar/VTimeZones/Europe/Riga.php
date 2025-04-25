@@ -177,5 +177,3 @@ class Riga extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

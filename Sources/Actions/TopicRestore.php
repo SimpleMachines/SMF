@@ -541,5 +541,3 @@ class TopicRestore implements ActionInterface, Routable
 		Msg::updateLastMessages([$from_board, $target_board]);
 	}
 }
-
-?>

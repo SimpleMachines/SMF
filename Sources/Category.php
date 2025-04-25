@@ -903,5 +903,3 @@ class Category implements \ArrayAccess
 if (is_callable([Category::class, 'exportStatic'])) {
 	Category::exportStatic();
 }
-
-?>

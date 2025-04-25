@@ -49,5 +49,3 @@ class Palau extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

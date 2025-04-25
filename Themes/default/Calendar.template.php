@@ -1223,5 +1223,3 @@ function template_thetime()
 	echo '
 		</table>';
 }
-
-?>

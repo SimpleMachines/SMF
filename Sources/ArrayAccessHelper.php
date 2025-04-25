@@ -116,5 +116,3 @@ trait ArrayAccessHelper
 		$this->__unset($prop);
 	}
 }
-
-?>

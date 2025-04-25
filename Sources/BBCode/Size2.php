@@ -72,5 +72,3 @@ class Size2 extends BBCode
 		$data = $sizes[$data] . 'em';
 	}
 }
-
-?>

@@ -75,5 +75,3 @@ interface CacheApiInterface
 	 */
 	public function getImplementationClassKeyName(): string;
 }
-
-?>

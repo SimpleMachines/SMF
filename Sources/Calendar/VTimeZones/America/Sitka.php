@@ -139,5 +139,3 @@ class Sitka extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

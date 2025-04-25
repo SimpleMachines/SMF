@@ -744,5 +744,3 @@ class Menu implements \ArrayAccess
 		}
 	}
 }
-
-?>

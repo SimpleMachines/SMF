@@ -204,5 +204,3 @@ class Kaliningrad extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

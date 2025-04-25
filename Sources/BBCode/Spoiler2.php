@@ -88,5 +88,3 @@ class Spoiler2 extends BBCode
 		}
 	}
 }
-
-?>

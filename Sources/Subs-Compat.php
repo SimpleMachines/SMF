@@ -11547,5 +11547,3 @@ if (!function_exists('array_find_key')) {
 		return null;
 	}
 }
-
-?>

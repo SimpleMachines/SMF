@@ -155,5 +155,3 @@ class Boise extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

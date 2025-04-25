@@ -134,5 +134,3 @@ class AgreementAccept extends Agreement
 	}
 
 }
-
-?>

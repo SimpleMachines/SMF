@@ -286,5 +286,3 @@ class FileBased extends CacheApi implements CacheApiInterface
 		return false;
 	}
 }
-
-?>

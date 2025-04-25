@@ -124,5 +124,3 @@ class Astrakhan extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

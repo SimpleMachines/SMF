@@ -49,5 +49,3 @@ class Hr extends BBCode
 	 */
 	public bool $block_level = true;
 }
-
-?>

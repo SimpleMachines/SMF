@@ -91,5 +91,3 @@ class Colombo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

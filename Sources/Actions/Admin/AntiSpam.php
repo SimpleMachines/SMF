@@ -453,5 +453,3 @@ class AntiSpam implements ActionInterface
 		return $config_vars;
 	}
 }
-
-?>

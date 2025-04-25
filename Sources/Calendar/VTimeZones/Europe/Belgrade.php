@@ -130,5 +130,3 @@ class Belgrade extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -150,5 +150,3 @@ class PaidSubs extends ScheduledTask
 		return true;
 	}
 }
-
-?>

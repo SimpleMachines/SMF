@@ -1961,5 +1961,3 @@ function utf8_regex_quick_check(): array
 			'\\x{E0000}-\\x{E0FFF}',
 	];
 }
-
-?>

@@ -207,5 +207,3 @@ class Melbourne extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

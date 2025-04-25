@@ -147,5 +147,3 @@ class Fort_Nelson extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -117,5 +117,3 @@ class Yakutsk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -1274,5 +1274,3 @@ $txt['sentence_list_pattern']['xor_alt'] = '{list_pattern_part, select,
 	end {{0}; or {1}}
 	other {}
 }';
-
-?>

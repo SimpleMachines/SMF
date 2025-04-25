@@ -770,5 +770,3 @@ class Forum
 		return self::$actions[$action][1];
 	}
 }
-
-?>

@@ -127,5 +127,3 @@ class Matamoros extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

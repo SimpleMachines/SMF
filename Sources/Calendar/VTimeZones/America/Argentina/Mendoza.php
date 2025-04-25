@@ -310,5 +310,3 @@ class Mendoza extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

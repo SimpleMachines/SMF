@@ -71,5 +71,3 @@ class ImageHeader
 		return true;
 	}
 }
-
-?>

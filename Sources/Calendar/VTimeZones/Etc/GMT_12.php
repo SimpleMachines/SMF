@@ -41,5 +41,3 @@ class GMT_12 extends \SMF\Calendar\VTimeZone
 	 */
 	public array $components = [];
 }
-
-?>

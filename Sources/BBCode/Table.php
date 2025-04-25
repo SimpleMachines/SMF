@@ -64,5 +64,3 @@ class Table extends BBCode
 	 */
 	public ?array $require_children = ['tr'];
 }
-
-?>

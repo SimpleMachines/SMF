@@ -111,5 +111,3 @@ class Rankin_Inlet extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

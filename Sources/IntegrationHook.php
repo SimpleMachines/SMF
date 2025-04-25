@@ -319,5 +319,3 @@ class IntegrationHook
 		Config::$modSettings[$name] = implode(',', $functions);
 	}
 }
-
-?>

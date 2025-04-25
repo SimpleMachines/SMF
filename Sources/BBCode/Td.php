@@ -64,5 +64,3 @@ class Td extends BBCode
 	 */
 	public ?array $require_parents = ['tr'];
 }
-
-?>

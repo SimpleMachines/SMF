@@ -274,5 +274,3 @@ class Maceio extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

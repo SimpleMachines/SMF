@@ -336,5 +336,3 @@ class PaidSubs implements ActionInterface
 		}
 	}
 }
-
-?>

@@ -80,5 +80,3 @@ class Img extends BBCode
 		$data = isset($disabled[$bbc->tag]) ? $url : '<img src="' . $url . '"' . $alt . $title . $params['{width}'] . $params['{height}'] . ' class="bbc_img' . (!empty($params['{width}']) || !empty($params['{height}']) ? ' resized' : '') . '" loading="lazy">';
 	}
 }
-
-?>

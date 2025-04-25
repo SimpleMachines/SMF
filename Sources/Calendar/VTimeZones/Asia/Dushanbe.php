@@ -102,5 +102,3 @@ class Dushanbe extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

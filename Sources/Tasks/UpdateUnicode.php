@@ -717,9 +717,6 @@ class UpdateUnicode extends BackgroundTask
 					continue;
 				}
 
-				// Add closing PHP tag to the temp file.
-				file_put_contents($file_paths['temp'], '?' . '>', FILE_APPEND);
-
 				$done_files[] = $file_paths['temp'];
 
 				// Only move if the file has changed, discounting the license block.
@@ -731,7 +728,7 @@ class UpdateUnicode extends BackgroundTask
 					}
 				}
 
-				if ($file_contents['temp'] !== $file_contents['real']) {
+				if (rtrim($file_contents['temp']) !== rtrim($file_contents['real'])) {
 					rename($file_paths['temp'], $file_paths['real']);
 				}
 			}
@@ -2464,5 +2461,3 @@ class UpdateUnicode extends BackgroundTask
 		return true;
 	}
 }
-
-?>

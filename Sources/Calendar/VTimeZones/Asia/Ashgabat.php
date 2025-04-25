@@ -95,5 +95,3 @@ class Ashgabat extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -663,5 +663,3 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		return (int) $min_word_length;
 	}
 }
-
-?>

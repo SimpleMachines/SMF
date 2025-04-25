@@ -636,5 +636,3 @@ class Verifier implements \ArrayAccess
 		}
 	}
 }
-
-?>

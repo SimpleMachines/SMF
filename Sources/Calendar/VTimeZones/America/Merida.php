@@ -109,5 +109,3 @@ class Merida extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -338,5 +338,3 @@ class TimeInterval extends \DateInterval implements \Stringable
 		return $new;
 	}
 }
-
-?>

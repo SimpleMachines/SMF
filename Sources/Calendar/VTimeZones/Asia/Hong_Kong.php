@@ -181,5 +181,3 @@ class Hong_Kong extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

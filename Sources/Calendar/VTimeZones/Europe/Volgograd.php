@@ -131,5 +131,3 @@ class Volgograd extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

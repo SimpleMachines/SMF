@@ -700,5 +700,3 @@ class Search
 		}
 	}
 }
-
-?>

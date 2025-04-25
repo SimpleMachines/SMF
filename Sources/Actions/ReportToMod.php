@@ -678,5 +678,3 @@ class ReportToMod implements ActionInterface, Routable
 		Utils::redirectexit('reportsent;action=profile;u=' . $id_member);
 	}
 }
-
-?>

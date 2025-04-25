@@ -921,5 +921,3 @@ class QueryString
 		}
 	}
 }
-
-?>

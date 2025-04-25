@@ -206,5 +206,3 @@ class ExportDownload implements ActionInterface
 		return $dlfilename . $suffix . '.' . $this->extension;
 	}
 }
-
-?>

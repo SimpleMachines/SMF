@@ -200,5 +200,3 @@ abstract class WebFetchApi implements WebFetchApiInterface
 		return trim($post_data);
 	}
 }
-
-?>

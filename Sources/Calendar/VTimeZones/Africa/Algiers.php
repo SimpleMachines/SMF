@@ -247,5 +247,3 @@ class Algiers extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -30,5 +30,3 @@ if (SMF == 'PROXY') {
 else {
 	class_exists('SMF\\ProxyServer');
 }
-
-?>

@@ -65,5 +65,3 @@ $editortxt['heading'] = 'Heading';
 $editortxt['details'] = 'Details';
 $editortxt['summary_prompt'] = 'Summary text:';
 $editortxt['spoiler'] = 'Spoiler';
-
-?>

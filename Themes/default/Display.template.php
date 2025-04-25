@@ -1021,5 +1021,3 @@ function template_quickreply()
 			var oJumpAnchor = "quickreply_anchor";
 		</script>';
 }
-
-?>

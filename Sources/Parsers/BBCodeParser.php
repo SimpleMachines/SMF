@@ -2882,5 +2882,3 @@ class BBCodeParser extends Parser
 		}
 	}
 }
-
-?>

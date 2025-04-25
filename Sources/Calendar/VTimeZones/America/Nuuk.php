@@ -103,5 +103,3 @@ class Nuuk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

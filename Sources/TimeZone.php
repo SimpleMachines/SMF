@@ -2242,5 +2242,3 @@ class TimeZone extends \DateTimeZone
 		}
 	}
 }
-
-?>

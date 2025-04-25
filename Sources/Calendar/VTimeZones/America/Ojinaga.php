@@ -160,5 +160,3 @@ class Ojinaga extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

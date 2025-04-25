@@ -601,5 +601,3 @@ class Punycode
 		return 0;
 	}
 }
-
-?>

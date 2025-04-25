@@ -1157,5 +1157,3 @@ function template_edit_file()
 			</div><!-- .windowbg -->
 		</form>';
 }
-
-?>

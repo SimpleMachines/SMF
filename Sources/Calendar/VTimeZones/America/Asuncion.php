@@ -238,5 +238,3 @@ class Asuncion extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

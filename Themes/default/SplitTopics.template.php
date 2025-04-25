@@ -216,5 +216,3 @@ function template_select()
 		}
 	</script>';
 }
-
-?>

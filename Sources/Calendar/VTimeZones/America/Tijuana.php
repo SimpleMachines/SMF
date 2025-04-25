@@ -249,5 +249,3 @@ class Tijuana extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -38,5 +38,3 @@ class GenericScheduledTask extends ScheduledTask
 		return true;
 	}
 }
-
-?>

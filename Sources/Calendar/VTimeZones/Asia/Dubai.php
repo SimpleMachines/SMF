@@ -49,5 +49,3 @@ class Dubai extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -191,5 +191,3 @@ class PollChoice implements \ArrayAccess
 		);
 	}
 }
-
-?>

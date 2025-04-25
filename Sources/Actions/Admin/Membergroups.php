@@ -861,5 +861,3 @@ class Membergroups implements ActionInterface
 		}
 	}
 }
-
-?>

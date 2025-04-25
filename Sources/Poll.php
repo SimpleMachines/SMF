@@ -1423,5 +1423,3 @@ class Poll implements \ArrayAccess
 		$_POST['options'] = Utils::htmlspecialcharsRecursive($_POST['options']);
 	}
 }
-
-?>

@@ -19,5 +19,3 @@ if (!defined('SMF')) {
 
 class_alias('SMF\\PackageManager\\XmlArray', '\\xmlArray');
 class_alias('SMF\\PackageManager\\FtpConnection', '\\ftp_connection');
-
-?>

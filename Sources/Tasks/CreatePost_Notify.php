@@ -799,5 +799,3 @@ class CreatePost_Notify extends BackgroundTask
 		}
 	}
 }
-
-?>

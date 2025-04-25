@@ -34,5 +34,3 @@ class Iurl2 extends Url2
 	 */
 	public ?string $before = '<a href="$1" class="bbc_link">';
 }
-
-?>

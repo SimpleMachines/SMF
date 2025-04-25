@@ -145,5 +145,3 @@ class Lindeman extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

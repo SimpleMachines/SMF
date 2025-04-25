@@ -54,5 +54,3 @@ class Buddy_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

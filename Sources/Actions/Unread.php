@@ -1034,5 +1034,3 @@ class Unread implements ActionInterface, Routable
 		IntegrationHook::call('integrate_recent_buttons');
 	}
 }
-
-?>

@@ -117,5 +117,3 @@ class Atyrau extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

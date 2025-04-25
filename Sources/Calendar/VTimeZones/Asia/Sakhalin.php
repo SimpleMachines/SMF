@@ -124,5 +124,3 @@ class Sakhalin extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

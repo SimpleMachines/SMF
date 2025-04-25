@@ -330,5 +330,3 @@ class Warsaw extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

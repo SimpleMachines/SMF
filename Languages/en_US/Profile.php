@@ -676,5 +676,3 @@ $txt['export_file_desc'] = 'Included data: {list}. File format: {format}.';
 $txt['export_download_original'] = 'Download original';
 $txt['export_view_source_button'] = 'Toggle source view';
 $txt['export_open_in_browser'] = 'Please open this file in a web browser to see a human readable version.';
-
-?>

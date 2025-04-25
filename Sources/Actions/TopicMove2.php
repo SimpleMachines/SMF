@@ -343,5 +343,3 @@ class TopicMove2 implements ActionInterface, Routable
 		ErrorHandler::fatalLang('topic_already_moved', false, [$topic_link, $board_link]);
 	}
 }
-
-?>

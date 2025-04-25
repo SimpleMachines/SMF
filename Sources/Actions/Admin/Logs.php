@@ -414,5 +414,3 @@ class Logs implements ActionInterface
 		$this->subaction = isset($_REQUEST['sa'], self::$subactions[$_REQUEST['sa']])   && empty(self::$subactions[$_REQUEST['sa']]['disabled']) ? $_REQUEST['sa'] : 'errorlog';
 	}
 }
-
-?>

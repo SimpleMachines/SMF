@@ -262,5 +262,3 @@ class Toronto extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

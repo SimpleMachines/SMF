@@ -562,5 +562,3 @@ class Home implements ActionInterface
 		}
 	}
 }
-
-?>

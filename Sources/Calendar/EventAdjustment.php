@@ -158,5 +158,3 @@ class EventAdjustment
 		return $adjustments;
 	}
 }
-
-?>

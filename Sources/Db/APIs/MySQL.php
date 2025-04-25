@@ -2595,5 +2595,3 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		return str_contains($string, '&') ? mb_decode_numericentity($string, [0x010000, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8') : $string;
 	}
 }
-
-?>

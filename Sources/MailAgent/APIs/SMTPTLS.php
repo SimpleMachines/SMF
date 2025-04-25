@@ -27,5 +27,3 @@ class SMTPTLS extends SMTP implements MailAgentInterface
 	 */
 	public bool $useTLS = true;
 }
-
-?>

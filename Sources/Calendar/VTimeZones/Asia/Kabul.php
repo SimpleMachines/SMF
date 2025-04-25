@@ -56,5 +56,3 @@ class Kabul extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

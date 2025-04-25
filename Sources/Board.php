@@ -2478,5 +2478,3 @@ class Board implements \ArrayAccess, Routable
 if (is_callable([Board::class, 'exportStatic'])) {
 	Board::exportStatic();
 }
-
-?>

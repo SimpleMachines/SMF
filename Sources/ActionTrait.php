@@ -139,5 +139,3 @@ trait ActionTrait
 	 */
 	protected function __construct() {}
 }
-
-?>

@@ -139,5 +139,3 @@ class Cambridge_Bay extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

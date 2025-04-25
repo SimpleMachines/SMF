@@ -119,5 +119,3 @@ class PollRemove implements ActionInterface, Routable
 		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . (int) ($_REQUEST['start'] ?? 0));
 	}
 }
-
-?>

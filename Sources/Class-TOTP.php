@@ -18,5 +18,3 @@ if (!defined('SMF')) {
 }
 
 class_alias('SMF\\TOTP\\Auth', '\\TOTP\\Auth');
-
-?>

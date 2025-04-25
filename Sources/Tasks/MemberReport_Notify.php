@@ -139,5 +139,3 @@ class MemberReport_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

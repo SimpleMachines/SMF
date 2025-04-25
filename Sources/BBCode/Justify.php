@@ -54,5 +54,3 @@ class Justify extends BBCode
 	 */
 	public bool $block_level = true;
 }
-
-?>

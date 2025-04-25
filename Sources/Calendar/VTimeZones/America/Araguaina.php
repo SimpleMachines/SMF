@@ -332,5 +332,3 @@ class Araguaina extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

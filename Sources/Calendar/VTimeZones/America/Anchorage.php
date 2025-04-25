@@ -146,5 +146,3 @@ class Anchorage extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

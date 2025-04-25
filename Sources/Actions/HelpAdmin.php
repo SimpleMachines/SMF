@@ -211,5 +211,3 @@ class HelpAdmin implements ActionInterface, Routable
 		return $params;
 	}
 }
-
-?>

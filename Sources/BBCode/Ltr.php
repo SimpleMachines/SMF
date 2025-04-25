@@ -54,5 +54,3 @@ class Ltr extends BBCode
 	 */
 	public bool $block_level = true;
 }
-
-?>

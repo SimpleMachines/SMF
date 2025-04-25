@@ -452,5 +452,3 @@ class Reminder implements ActionInterface, Routable
 		$this->member = reset($loaded);
 	}
 }
-
-?>

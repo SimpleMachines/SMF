@@ -54,5 +54,3 @@ class Member extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

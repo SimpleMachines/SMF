@@ -410,5 +410,3 @@ abstract class VTimeZone
 		return new $class();
 	}
 }
-
-?>

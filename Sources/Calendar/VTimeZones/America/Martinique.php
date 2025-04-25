@@ -63,5 +63,3 @@ class Martinique extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -1155,5 +1155,3 @@ function template_post_header()
 	echo '
 					</dl>';
 }
-
-?>

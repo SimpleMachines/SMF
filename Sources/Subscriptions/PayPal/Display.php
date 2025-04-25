@@ -135,5 +135,3 @@ class Display
 		return $return_data;
 	}
 }
-
-?>

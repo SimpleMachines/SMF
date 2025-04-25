@@ -284,5 +284,3 @@ class WeeklyMaintenance extends ScheduledTask
 		return true;
 	}
 }
-
-?>

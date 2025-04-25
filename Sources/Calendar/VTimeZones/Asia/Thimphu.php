@@ -56,5 +56,3 @@ class Thimphu extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

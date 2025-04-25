@@ -221,5 +221,3 @@ class Sydney extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

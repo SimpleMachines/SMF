@@ -2112,5 +2112,3 @@ class Features implements ActionInterface
 		);
 	}
 }
-
-?>

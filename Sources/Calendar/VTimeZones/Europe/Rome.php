@@ -376,5 +376,3 @@ class Rome extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

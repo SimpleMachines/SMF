@@ -146,5 +146,3 @@ class Monterrey extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

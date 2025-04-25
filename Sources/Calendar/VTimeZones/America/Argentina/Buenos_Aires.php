@@ -268,5 +268,3 @@ class Buenos_Aires extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

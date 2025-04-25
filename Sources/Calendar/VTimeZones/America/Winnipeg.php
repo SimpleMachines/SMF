@@ -248,5 +248,3 @@ class Winnipeg extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

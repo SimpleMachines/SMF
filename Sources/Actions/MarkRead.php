@@ -494,5 +494,3 @@ class MarkRead implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

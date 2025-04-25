@@ -765,5 +765,3 @@ class Logging
 		return $membersOnlineStats;
 	}
 }
-
-?>

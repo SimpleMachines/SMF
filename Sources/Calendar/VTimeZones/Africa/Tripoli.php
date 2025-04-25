@@ -207,5 +207,3 @@ class Tripoli extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

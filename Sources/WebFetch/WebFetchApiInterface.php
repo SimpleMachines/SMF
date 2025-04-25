@@ -55,5 +55,3 @@ interface WebFetchApiInterface
 	 */
 	public function resultRaw(?int $response_number = null): array;
 }
-
-?>

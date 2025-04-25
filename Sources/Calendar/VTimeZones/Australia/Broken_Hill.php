@@ -228,5 +228,3 @@ class Broken_Hill extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -194,5 +194,3 @@ class Belem extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

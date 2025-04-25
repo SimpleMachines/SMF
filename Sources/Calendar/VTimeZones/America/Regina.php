@@ -181,5 +181,3 @@ class Regina extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

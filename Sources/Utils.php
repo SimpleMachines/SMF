@@ -2597,5 +2597,3 @@ class Utils
 if (is_callable([Utils::class, 'exportStatic'])) {
 	Utils::exportStatic();
 }
-
-?>

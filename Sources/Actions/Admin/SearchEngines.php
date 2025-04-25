@@ -1396,5 +1396,3 @@ class SearchEngines implements ActionInterface
 		);
 	}
 }
-
-?>

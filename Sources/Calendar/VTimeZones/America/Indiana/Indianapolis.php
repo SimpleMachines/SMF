@@ -170,5 +170,3 @@ class Indianapolis extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

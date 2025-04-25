@@ -123,5 +123,3 @@ class Cancun extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

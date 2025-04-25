@@ -73,5 +73,3 @@ class Faroe extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

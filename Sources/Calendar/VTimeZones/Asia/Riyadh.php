@@ -49,5 +49,3 @@ class Riyadh extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

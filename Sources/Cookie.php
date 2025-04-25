@@ -592,5 +592,3 @@ class Cookie
 		list(self::$default_domain, self::$default_path) = self::urlParts(!empty(Config::$modSettings['localCookies']), !empty(Config::$modSettings['globalCookies']));
 	}
 }
-
-?>

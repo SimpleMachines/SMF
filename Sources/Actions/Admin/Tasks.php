@@ -678,5 +678,3 @@ class Tasks implements ActionInterface
 		}
 	}
 }
-
-?>

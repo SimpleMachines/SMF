@@ -54,5 +54,3 @@ class Center extends BBCode
 	 */
 	public bool $block_level = true;
 }
-
-?>

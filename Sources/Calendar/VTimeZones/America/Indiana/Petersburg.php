@@ -200,5 +200,3 @@ class Petersburg extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

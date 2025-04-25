@@ -600,5 +600,3 @@ class Holiday extends Event
 		return $return;
 	}
 }
-
-?>

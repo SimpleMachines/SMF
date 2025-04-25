@@ -211,5 +211,3 @@ class Sqlite extends CacheApi implements CacheApiInterface
 		$this->cleanCache('expired');
 	}
 }
-
-?>

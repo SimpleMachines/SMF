@@ -557,5 +557,3 @@ class SearchResult extends \SMF\Msg
 		}
 	}
 }
-
-?>

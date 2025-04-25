@@ -70,5 +70,3 @@ class Galapagos extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

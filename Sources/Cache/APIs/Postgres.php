@@ -228,5 +228,3 @@ class Postgres extends CacheApi implements CacheApiInterface
 		pg_query($this->db_connection, 'INSERT INTO ' . $this->db_prefix . 'cache SELECT * FROM ' . $this->db_prefix . 'cache_tmp ON CONFLICT DO NOTHING');
 	}
 }
-
-?>

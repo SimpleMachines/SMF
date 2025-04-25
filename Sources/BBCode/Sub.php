@@ -49,5 +49,3 @@ class Sub extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

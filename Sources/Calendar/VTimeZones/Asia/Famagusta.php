@@ -146,5 +146,3 @@ class Famagusta extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

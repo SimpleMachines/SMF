@@ -1012,5 +1012,3 @@ class Tracking implements ActionInterface
 		}
 	}
 }
-
-?>

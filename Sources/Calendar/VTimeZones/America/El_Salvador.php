@@ -65,5 +65,3 @@ class El_Salvador extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

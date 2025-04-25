@@ -70,5 +70,3 @@ class Puerto_Rico extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

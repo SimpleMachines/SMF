@@ -49,5 +49,3 @@ class Pago_Pago extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

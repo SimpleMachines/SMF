@@ -18,5 +18,3 @@ if (!defined('SMF')) {
 }
 
 class_alias('SMF\\WebFetch\\APIs\\CurlFetcher', '\\curl_fetch_web_data');
-
-?>

@@ -343,5 +343,3 @@ class Tehran extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

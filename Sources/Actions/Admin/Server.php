@@ -1688,5 +1688,3 @@ class Server implements ActionInterface
 		return false;
 	}
 }
-
-?>

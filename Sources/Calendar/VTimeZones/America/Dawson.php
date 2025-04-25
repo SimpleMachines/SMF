@@ -166,5 +166,3 @@ class Dawson extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

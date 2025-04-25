@@ -5979,5 +5979,3 @@ function upgradeGetColumnInfo($targetTable, $column): array
 
 	return [];
 }
-
-?>

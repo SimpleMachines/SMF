@@ -97,5 +97,3 @@ class Thule extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

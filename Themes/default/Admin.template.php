@@ -1700,5 +1700,3 @@ function template_admin_quick_search()
 									<input type="submit" name="search_go" id="search_go" value="', Lang::getTxt('admin_search_go', file: 'Admin'), '" class="button">
 								</form>';
 }
-
-?>

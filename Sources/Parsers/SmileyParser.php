@@ -245,5 +245,3 @@ class SmileyParser extends Parser
 		return self::$data[$set];
 	}
 }
-
-?>

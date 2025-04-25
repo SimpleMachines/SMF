@@ -351,5 +351,3 @@ class PermissionProfile
 		return $new_profile;
 	}
 }
-
-?>

@@ -136,5 +136,3 @@ class Port_au_Prince extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

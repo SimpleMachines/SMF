@@ -290,5 +290,3 @@ class Conversation
 		return self::$recent[$paramskey];
 	}
 }
-
-?>

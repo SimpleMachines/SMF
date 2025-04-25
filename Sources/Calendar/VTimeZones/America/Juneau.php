@@ -139,5 +139,3 @@ class Juneau extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

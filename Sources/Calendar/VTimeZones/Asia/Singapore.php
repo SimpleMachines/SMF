@@ -91,5 +91,3 @@ class Singapore extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

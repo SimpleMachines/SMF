@@ -142,5 +142,3 @@ $txt['admin_browse_outstanding_go'] = 'Perform Action';
 $txt['check_for_duplicate'] = 'Check for duplicates';
 $txt['dont_check_for_duplicate'] = 'Do not check for duplicates';
 $txt['duplicates'] = 'Duplicates';
-
-?>

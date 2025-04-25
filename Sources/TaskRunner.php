@@ -868,5 +868,3 @@ class TaskRunner
 if (!empty(\SMF\Config::$backward_compatibility)) {
 	class_alias('\\SMF\\Tasks\\BackgroundTask', 'SMF_BackgroundTask');
 }
-
-?>

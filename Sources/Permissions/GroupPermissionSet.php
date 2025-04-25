@@ -497,5 +497,3 @@ class GroupPermissionSet
 		}
 	}
 }
-
-?>

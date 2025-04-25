@@ -56,5 +56,3 @@ class Paramaribo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -664,5 +664,3 @@ class Received implements \ArrayAccess
 		Db::$db->free_result(self::$messages_request);
 	}
 }
-
-?>

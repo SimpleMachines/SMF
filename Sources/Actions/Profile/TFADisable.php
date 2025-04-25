@@ -91,5 +91,3 @@ class TFADisable implements ActionInterface
 		}
 	}
 }
-
-?>

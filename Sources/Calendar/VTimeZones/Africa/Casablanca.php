@@ -1348,5 +1348,3 @@ class Casablanca extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

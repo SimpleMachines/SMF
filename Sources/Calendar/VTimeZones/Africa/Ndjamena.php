@@ -63,5 +63,3 @@ class Ndjamena extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

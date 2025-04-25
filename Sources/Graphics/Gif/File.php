@@ -175,5 +175,3 @@ class File
 if (!function_exists('smf_crc32')) {
 	require_once Config::$sourcedir . '/Subs-Compat.php';
 }
-
-?>

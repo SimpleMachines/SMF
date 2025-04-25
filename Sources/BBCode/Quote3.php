@@ -74,5 +74,3 @@ class Quote3 extends BBCode
 	 */
 	public ?array $parsed_tags_allowed = ['url', 'iurl', 'ftp'];
 }
-
-?>

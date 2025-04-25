@@ -527,5 +527,3 @@ abstract class Notify implements ActionInterface
 	 */
 	abstract protected function getSuccessMsg();
 }
-
-?>

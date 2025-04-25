@@ -51,5 +51,3 @@ class Black extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

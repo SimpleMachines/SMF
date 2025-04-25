@@ -330,5 +330,3 @@ class SMTP extends MailAgent implements MailAgentInterface
 		return $helo;
 	}
 }
-
-?>

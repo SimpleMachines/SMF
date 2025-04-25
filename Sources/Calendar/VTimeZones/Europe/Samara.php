@@ -117,5 +117,3 @@ class Samara extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

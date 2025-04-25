@@ -31,5 +31,3 @@ class Acronym extends Abbr
 	 */
 	public string $tag = 'acronym';
 }
-
-?>

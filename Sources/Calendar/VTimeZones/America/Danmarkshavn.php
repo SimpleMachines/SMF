@@ -79,5 +79,3 @@ class Danmarkshavn extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>
