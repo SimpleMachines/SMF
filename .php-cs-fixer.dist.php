@@ -195,6 +195,7 @@ return (new PhpCsFixer\Config())
 		],
 	])
 	->setIndent("\t")
+	->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
 	->setFinder($finder);
 
 ?>
