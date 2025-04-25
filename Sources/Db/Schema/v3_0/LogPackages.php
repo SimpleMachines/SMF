@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance\Database\Schema\v3_0;
+namespace SMF\Db\Schema\v3_0;
 
-use SMF\Maintenance\Database\Schema\Column;
-use SMF\Maintenance\Database\Schema\DbIndex;
-use SMF\Maintenance\Database\Schema\Table;
+use SMF\Db\Schema\Column;
+use SMF\Db\Schema\DbIndex;
+use SMF\Db\Schema\Table;
 
 /**
  * Defines all the properties for a database table.
@@ -129,7 +129,6 @@ class LogPackages extends Table
 				name: 'failed_steps',
 				type: 'text',
 				not_null: true,
-				default: false,
 			),
 			'themes_installed' => new Column(
 				name: 'themes_installed',
@@ -142,7 +141,6 @@ class LogPackages extends Table
 				name: 'db_changes',
 				type: 'text',
 				not_null: true,
-				default: false,
 			),
 			'credits' => new Column(
 				name: 'credits',
@@ -173,16 +171,16 @@ class LogPackages extends Table
 					'id_install',
 				],
 			),
-			'filename' => new DbIndex(
+			'idx_filename' => new DbIndex(
 				name: 'filename',
 				columns: [
 					'filename',
 				],
 			),
-			'id_hash' => new DbIndex(
-				name: 'id_hash',
+			'idx_hash' => new DbIndex(
+				name: 'idx_hash',
 				columns: [
-					'id_hash',
+					'sha256_hash',
 				],
 			),
 		];

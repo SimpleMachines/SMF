@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance\Database\Schema;
+namespace SMF\Db\Schema;
 
 use SMF\Config;
 

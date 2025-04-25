@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance\Database\Schema\v3_0;
+namespace SMF\Db\Schema\v3_0;
 
-use SMF\Maintenance\Database\Schema\Column;
-use SMF\Maintenance\Database\Schema\DbIndex;
-use SMF\Maintenance\Database\Schema\Table;
+use SMF\Db\Schema\Column;
+use SMF\Db\Schema\DbIndex;
+use SMF\Db\Schema\Table;
 
 /**
  * Defines all the properties for a database table.

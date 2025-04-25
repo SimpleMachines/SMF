@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace SMF\Maintenance\Database\Schema;
+namespace SMF\Db\Schema;
 
 use SMF\Db\DatabaseApi as Db;
 
@@ -36,14 +36,14 @@ class Table
 	/**
 	 * @var array
 	 *
-	 * An array of SMF\Maintenance\Database\Schema\Column objects.
+	 * An array of SMF\Db\Schema\Column objects.
 	 */
 	public array $columns;
 
 	/**
 	 * @var array
 	 *
-	 * An array of SMF\Maintenance\Database\Schema\DbIndex objects.
+	 * An array of SMF\Db\Schema\DbIndex objects.
 	 */
 	public array $indexes = [];
 
