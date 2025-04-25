@@ -126,10 +126,10 @@ call_user_func(function () {
 	// Ensure $db_last_error is set, too.
 	SMF\Config::getDbLastError();
 
-	$loader = require Config::$vendordir . '/autoload.php';
+	$loader = require SMF\Config::$vendordir . '/autoload.php';
 
-	if (isset(Config::$modSettings['integrate_autoload'])) {
-		foreach (explode(',', Config::$modSettings['integrate_autoload']) as $prefix => $dirname) {
+	if (isset(SMF\Config::$modSettings['integrate_autoload'])) {
+		foreach (explode(',', SMF\Config::$modSettings['integrate_autoload']) as $prefix => $dirname) {
 			$loader->addPsr4($prefix, $dirname);
 		}
 	}
