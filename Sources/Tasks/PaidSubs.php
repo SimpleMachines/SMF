@@ -105,12 +105,15 @@ class PaidSubs extends ScheduledTask
 
 			$emaildata = Mail::loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
 
+			// Check notification prefs.
+			$subs_notify = $notifyPrefs[$row['id_member']]['paidsubs_expiring'] ?? 0;
+
 			// Send the actual email.
-			if ($notifyPrefs[$row['id_member']] & self::RECEIVE_NOTIFY_EMAIL) {
+			if ($subs_notify & self::RECEIVE_NOTIFY_EMAIL) {
 				Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', (bool) $emaildata['is_html'], 2);
 			}
 
-			if ($notifyPrefs[$row['id_member']] & self::RECEIVE_NOTIFY_ALERT) {
+			if ($subs_notify & self::RECEIVE_NOTIFY_ALERT) {
 				$alert_rows[] = [
 					'alert_time' => time(),
 					'id_member' => $row['id_member'],
