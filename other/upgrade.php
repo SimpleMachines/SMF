@@ -550,18 +550,18 @@ function load_lang_file()
 	$lang_dir = !empty(Config::$languagesdir) ? Config::$languagesdir : fixRelativePath(Config::$boarddir) . '/Languages';
 
 	// Override the language file?
-	if (isset($upcontext['language']) && file_exists($lang_dir . '/' . $upcontext['language'] . '/Install.php')) {
+	if (isset($upcontext['language']) && file_exists($lang_dir . '/' . $upcontext['language'] . '/Maintenance.php')) {
 		$_SESSION['upgrader_lang'] = $upcontext['language'];
-	} elseif (isset($upcontext['lang']) && file_exists($lang_dir . '/' . $upcontext['lang'] . '/Install.php')) {
+	} elseif (isset($upcontext['lang']) && file_exists($lang_dir . '/' . $upcontext['lang'] . '/Maintenance.php')) {
 		$_SESSION['upgrader_lang'] = $upcontext['lang'];
-	} elseif (isset($current_language) && file_exists($lang_dir . '/' . $current_language . '/Install.php')) {
+	} elseif (isset($current_language) && file_exists($lang_dir . '/' . $current_language . '/Maintenance.php')) {
 		$_SESSION['upgrader_lang'] = $current_language;
 	} else {
 		$_SESSION['upgrader_lang'] = 'en_US';
 	}
 
 	// Avoid pointless repetition
-	if (isset($_SESSION['upgrader_lang']) && $loaded_langfile == $lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Install.php') {
+	if (isset($_SESSION['upgrader_lang']) && $loaded_langfile == $lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Maintenance.php') {
 		return;
 	}
 
@@ -569,7 +569,7 @@ function load_lang_file()
 	if (empty($detected_languages)) {
 		// Make sure the languages directory actually exists.
 		if (file_exists($lang_dir)) {
-			// Find all the "Install" language files in the directory.
+			// Find all the "Maintenance" language files in the directory.
 			$dir = dir($lang_dir);
 
 			while ($entry = $dir->read()) {
@@ -578,7 +578,7 @@ function load_lang_file()
 					continue;
 				}
 
-				if (!is_dir($lang_dir . '/' . $entry) || !file_exists($lang_dir . '/' . $entry . '/' . 'Install.php') || !file_exists($lang_dir . '/' . $entry . '/' . 'General.php')) {
+				if (!is_dir($lang_dir . '/' . $entry) || !file_exists($lang_dir . '/' . $entry . '/' . 'Maintenance.php') || !file_exists($lang_dir . '/' . $entry . '/' . 'General.php')) {
 					continue;
 				}
 
@@ -620,7 +620,7 @@ function load_lang_file()
 			Lang::$txt['error_sourcefile_missing'] = 'Unable to find the Sources/{file} file. Please make sure it was uploaded properly, and then try again.';
 
 			Lang::$txt['warning_lang_old'] = 'The language files for your selected language, {user_language}, have not been updated to the latest version. Upgrade will continue with the forum default, {default_language}.';
-			Lang::$txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Install&quot; language file for your selected language, {user_language}. Upgrade will continue with the forum default, {default_language}.';
+			Lang::$txt['warning_lang_missing'] = 'The upgrader could not find the &quot;Maintenance&quot; language file for your selected language, {user_language}. Upgrade will continue with the forum default, {default_language}.';
 
 			return;
 		}
@@ -697,7 +697,7 @@ function load_lang_file()
 	}
 
 	// Make sure it exists. If it doesn't, reset it.
-	if (!isset($_SESSION['upgrader_lang']) || preg_match('~^[A-Za-z0-9_-]+$~', $_SESSION['upgrader_lang']) === 1 || !file_exists($lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Install.php')) {
+	if (!isset($_SESSION['upgrader_lang']) || preg_match('~^[A-Za-z0-9_-]+$~', $_SESSION['upgrader_lang']) === 1 || !file_exists($lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Maintenance.php')) {
 		// Use the first one...
 		list($_SESSION['upgrader_lang']) = array_keys($detected_languages);
 
@@ -711,10 +711,10 @@ function load_lang_file()
 	Lang::addDirs($lang_dir);
 
 	// And now load the language files.
-	Lang::load('General+Install', $_SESSION['upgrader_lang']);
+	Lang::load('General+Maintenance', $_SESSION['upgrader_lang']);
 
 	// Remember what we've done
-	$loaded_langfile = $lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Install.php';
+	$loaded_langfile = $lang_dir . '/' . $_SESSION['upgrader_lang'] . '/Maintenance.php';
 }
 
 // Used to direct the user to another location.
@@ -1403,7 +1403,7 @@ function checkLogin()
 
 				if (empty($match[1]) || $match[1] != SMF_LANG_VERSION) {
 					$upcontext['upgrade_options_warning'] = Lang::getTxt('warning_lang_old', ['user_language' => $user_language, 'default_language' => $upcontext['language']]);
-				} elseif (!file_exists($lang_dir . '/' . $user_language . '/Install.php')) {
+				} elseif (!file_exists($lang_dir . '/' . $user_language . '/Maintenance.php')) {
 					$upcontext['upgrade_options_warning'] = Lang::getTxt('warning_lang_missing', ['user_language' => $user_language, 'default_language' => $upcontext['language']]);
 				} else {
 					// Set this as the new language.
@@ -3150,12 +3150,12 @@ Usage: /path/to/php -f ' . basename(__FILE__) . ' -- [OPTION]...
 			print_error('Error: Language files out of date.', true);
 		}
 
-		if (!file_exists($lang_dir . '/' . $upcontext['language'] . '/Install.php')) {
-			print_error('Error: Install language is missing for selected language.', true);
+		if (!file_exists($lang_dir . '/' . $upcontext['language'] . '/Maintenance.php')) {
+			print_error('Error: Maintenance language is missing for selected language.', true);
 		}
 
 		// Otherwise include it!
-		require_once $lang_dir . '/' . $upcontext['language'] . '/Install.php';
+		require_once $lang_dir . '/' . $upcontext['language'] . '/Maintenance.php';
 	}
 
 	// Do we need to add this setting?

@@ -323,11 +323,11 @@ function load_lang_file()
 
 	// Make sure the languages directory actually exists.
 	if (file_exists(Config::$languagesdir)) {
-		// Find all the "Install" language files in the directory.
+		// Find all the "Maintenance" language files in the directory.
 		$dir = dir(Config::$languagesdir);
 
 		while ($entry = $dir->read()) {
-			if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Install.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'General.php')) {
+			if (!is_dir(Config::$languagesdir . '/' . $entry) || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'Maintenance.php') || !file_exists(Config::$languagesdir . '/' . $entry . '/' . 'General.php')) {
 				continue;
 			}
 
@@ -413,7 +413,7 @@ function load_lang_file()
 	}
 
 	// Make sure it exists, if it doesn't reset it.
-	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$languagesdir . '/' . $_SESSION['installer_temp_lang'] . '/Install.php')) {
+	if (!isset($_SESSION['installer_temp_lang']) || preg_match('~[^\\w_\\-.]~', $_SESSION['installer_temp_lang']) === 1 || !file_exists(Config::$languagesdir . '/' . $_SESSION['installer_temp_lang'] . '/Maintenance.php')) {
 		// Use the first one...
 		list($_SESSION['installer_temp_lang']) = array_keys($incontext['detected_languages']);
 
@@ -430,7 +430,7 @@ function load_lang_file()
 	Lang::addDirs(Config::$languagesdir);
 
 	// And now load the language file.
-	Lang::load('General+Install');
+	Lang::load('General+Maintenance');
 }
 
 // This handy function loads some settings and the like.
