@@ -1472,11 +1472,14 @@ function scheduled_paid_subscriptions()
 
 		$emaildata = loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty($modSettings['userLanguage']) ? $language : $row['lngfile']);
 
+		// Check notification prefs.
+		$subs_notify = isset($notifyPrefs[$row['id_member']]['paidsubs_expiring']) ? $notifyPrefs[$row['id_member']]['paidsubs_expiring'] : 0;
+
 		// Send the actual email.
-		if ($notifyPrefs[$row['id_member']] & 0x02)
+		if ($subs_notify & 0x02)
 			sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', $emaildata['is_html'], 2);
 
-		if ($notifyPrefs[$row['id_member']] & 0x01)
+		if ($subs_notify & 0x01)
 		{
 			$alert_rows[] = array(
 				'alert_time' => time(),
