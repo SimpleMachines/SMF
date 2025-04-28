@@ -50,7 +50,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	private $servers;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function __construct()
 	{
@@ -72,7 +72,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
@@ -86,7 +86,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -128,7 +128,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
@@ -145,7 +145,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
@@ -155,7 +155,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cleanCache($type = ''): bool
 	{
@@ -166,7 +166,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function quit(): bool
 	{
@@ -174,7 +174,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cacheSettings(array &$config_vars): void
 	{
@@ -204,7 +204,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getVersion(): string|bool
 	{

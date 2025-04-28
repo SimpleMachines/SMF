@@ -34,32 +34,32 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 *******************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public string $title = POSTGRE_TITLE;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public bool $sybase = true;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public bool $mb4 = true;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public bool $case_sensitive = true;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public bool $support_ignore = true;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public bool $supports_pcre = true;
 
@@ -138,7 +138,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 ****************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
 	{
@@ -311,7 +311,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function quote(string $db_string, array $db_values, ?object $connection = null): string
 	{
@@ -331,7 +331,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function fetch_row(object $result): array|false|null
 	{
@@ -339,7 +339,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function fetch_assoc(object $result): array|false|null
 	{
@@ -347,7 +347,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function fetch_all(object $request): array
 	{
@@ -357,7 +357,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null
 	{
@@ -365,7 +365,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function free_result(object $result): bool
 	{
@@ -373,7 +373,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null
 	{
@@ -543,7 +543,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function insert_id(string $table, ?string $field = null, ?object $connection = null): int
 	{
@@ -566,7 +566,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool
 	{
@@ -608,7 +608,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function num_rows(object $result): int
 	{
@@ -616,7 +616,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function data_seek(object $result, int $offset): bool
 	{
@@ -624,7 +624,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function num_fields(object $result): int
 	{
@@ -632,7 +632,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function escape_string(string $string, ?object $connection = null): string
 	{
@@ -640,7 +640,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function unescape_string(string $string): string
 	{
@@ -648,7 +648,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function fix_mb4(string $string): string
 	{
@@ -656,7 +656,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function server_info(?object $connection = null): string
 	{
@@ -666,7 +666,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function affected_rows(?object $connection = null): int
 	{
@@ -682,7 +682,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function transaction(string $type = 'commit', ?object $connection = null): bool
 	{
@@ -705,7 +705,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function error(object $connection): string
 	{
@@ -721,7 +721,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function select(string $database, ?object $connection = null): bool
 	{
@@ -729,7 +729,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function get_engines(): array
 	{
@@ -737,7 +737,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function escape_wildcard_string(string $string, bool $translate_human_wildcards = false): string
 	{
@@ -757,7 +757,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function is_resource(mixed $result): bool
 	{
@@ -765,7 +765,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function ping(?object $connection = null): bool
 	{
@@ -773,7 +773,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function error_insert(array $error_array): void
 	{
@@ -825,7 +825,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function custom_order(string $field, array $array_values, bool $desc = false): string
 	{
@@ -843,7 +843,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function native_replace(): bool
 	{
@@ -851,7 +851,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cte_support(): bool
 	{
@@ -859,7 +859,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect_error(): string
 	{
@@ -871,7 +871,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect_errno(): int
 	{
@@ -879,7 +879,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function detect_charset(?string $table = null, ?string $column = null): string
 	{
@@ -911,7 +911,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 ****************************************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function backup_table(string $table, string $backup_table): object|bool
 	{
@@ -960,7 +960,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function optimize_table(string $table): int|float
 	{
@@ -1022,7 +1022,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function table_sql(string $tableName): string
 	{
@@ -1137,7 +1137,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function list_tables(string|bool $db = false, string|bool $filter = false): array
 	{
@@ -1165,7 +1165,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function get_version(): string
 	{
@@ -1175,7 +1175,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function get_vendor(): string
 	{
@@ -1183,7 +1183,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function allow_persistent(): bool
 	{
@@ -1197,7 +1197,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 *****************************************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function search_query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
 	{
@@ -1266,7 +1266,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function search_support(string $search_type): bool
 	{
@@ -1276,7 +1276,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function create_word_search($size): void
 	{
@@ -1297,7 +1297,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function search_language(): ?string
 	{
@@ -1340,7 +1340,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 *******************************************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function add_column(string $table_name, array $column_info, array $parameters = [], string $if_exists = 'update', string $error = 'fatal'): bool
 	{
@@ -1394,7 +1394,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function add_index(string $table_name, array $index_info, array $parameters = [], string $if_exists = 'update', string $error = 'fatal'): bool
 	{
@@ -1468,7 +1468,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function calculate_type(string $type_name, ?int $type_size = null, bool $reverse = false): array
 	{
@@ -1519,7 +1519,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function change_column(string $table_name, string $old_column, array $column_info): bool
 	{
@@ -1704,7 +1704,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function create_table(string $table_name, array $columns, array $indexes = [], array $parameters = [], string $if_exists = 'ignore', string $error = 'fatal'): bool
 	{
@@ -1899,7 +1899,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function drop_table(string $table_name, array $parameters = [], string $error = 'fatal'): bool
 	{
@@ -1955,7 +1955,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function table_structure(string $table_name): array
 	{
@@ -1970,7 +1970,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function list_columns(string $table_name, bool $detail = false, array $parameters = []): array
 	{
@@ -2029,7 +2029,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function list_indexes(string $table_name, bool $detail = false, array $parameters = []): array
 	{
@@ -2092,7 +2092,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function remove_column(string $table_name, string $column_name, array $parameters = [], string $error = 'fatal'): bool
 	{
@@ -2132,7 +2132,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function remove_index(string $table_name, string $index_name, array $parameters = [], string $error = 'fatal'): bool
 	{

@@ -395,7 +395,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
@@ -415,7 +415,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isValid(): bool
 	{
@@ -423,7 +423,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getSize(): int
 	{
@@ -431,7 +431,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getStatus(): ?string
 	{
@@ -439,7 +439,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function searchSort(string $a, string $b): int
 	{
@@ -447,12 +447,12 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
@@ -460,17 +460,17 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postRemoved(int $id_msg): void
 	{
@@ -523,37 +523,37 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function topicsRemoved(array $topics): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function topicMerge(int $id_topic, array $topics, array $affected_msgs, ?string $subject): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function topicSplit(int $id_topic, array $affected_msgs): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function topicsMoved(array $topics, int $board_to): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function formContext(): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function resultsContext(): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function initializeSearch(): void
 	{
@@ -564,7 +564,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array &$participants, array &$searchArray): void
 	{
@@ -676,7 +676,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function setParticipants(): void
 	{
@@ -705,7 +705,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function compressParams(): string
 	{
@@ -764,7 +764,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getAdminSubactions(): array
 	{
@@ -772,7 +772,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getLabel(): string
 	{
@@ -780,7 +780,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getDescription(): string
 	{
