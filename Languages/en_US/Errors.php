@@ -447,6 +447,7 @@ $txt['loadavg_unread_disabled'] = 'The server’s resources are temporarily unde
 $txt['loadavg_userstats_disabled'] = 'This member’s statistics are not currently available due to high load on the server. Please try again later.';
 
 $txt['cannot_edit_permissions_inherited'] = 'You cannot edit inherited permissions directly, you must either edit the parent group or edit the membergroup inheritance.';
+$txt['unknown_permission'] = 'Tried to check an unknown permission: {0}.';
 
 $txt['mc_no_modreport_specified'] = 'You need to specify which report you wish to view.';
 $txt['mc_no_modreport_found'] = 'The specified report either does not exist or is off limits to you';
