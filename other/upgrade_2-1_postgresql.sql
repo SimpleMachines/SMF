@@ -4265,3 +4265,12 @@ foreach($files AS $filename)
 	unset($_GET['total_fixes']);
 ---}
 ---#
+
+/******************************************************************************/
+--- Improving search results storage
+/******************************************************************************/
+
+---# Updating primary key for log_search_results table
+ALTER TABLE {$db_prefix}log_search_results DROP CONSTRAINT {$db_prefix}log_search_results_pkey;
+ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
+---#

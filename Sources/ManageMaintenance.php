@@ -1867,13 +1867,6 @@ function list_integration_hooks()
 	foreach ($hooks as $hook => $functions)
 		$hooks_filters[] = '<option' . ($current_filter == $hook ? ' selected ' : '') . ' value="' . $hook . '">' . $hook . '</option>';
 
-	if (!empty($hooks_filters))
-		$context['insert_after_template'] .= '
-		<script>
-			var hook_name_header = document.getElementById(\'header_list_integration_hooks_hook_name\');
-			hook_name_header.innerHTML += ' . JavaScriptEscape('<select style="margin-left:15px;" onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));"><option value="">' . $txt['hooks_reset_filter'] . '</option>' . implode('', $hooks_filters) . '</select>') . ';
-		</script>';
-
 	if (!empty($_REQUEST['do']) && isset($_REQUEST['hook']) && isset($_REQUEST['function']))
 	{
 		checkSession('request');
@@ -2019,6 +2012,15 @@ function list_integration_hooks()
 					<li><span class="main_icons error"></span> ' . $txt['hooks_disable_legend_temp_missing'] . '</li>
 				</ul>'
 			),
+			array(
+				'position' => 'above_column_headers',
+				'value' => '
+				<select onchange="window.location=(\'' . $scripturl . '?action=admin;area=maintain;sa=hooks\' + (this.value ? \';filter=\' + this.value : \'\'));">
+					<option value="">' . $txt['hooks_reset_filter'] . '</option>
+					' . implode('', $hooks_filters) . '
+				</select>',
+				'class' => 'floatright',
+			),
 		),
 	);
 
@@ -2113,6 +2115,7 @@ function get_integration_hooks_data($start, $per_page, $sort, $filtered_hooks, $
 
 			// Handle hooks pointing outside the sources directory.
 			$absPath_clean =  rtrim($hookParsedData['absPath'], '!');
+
 			if ($absPath_clean != '' && !isset($files[$absPath_clean]) && file_exists($absPath_clean))
 				$function_list += get_defined_functions_in_file($absPath_clean);
 
@@ -2226,6 +2229,8 @@ function parse_integration_hook(string $hook, string $rawData)
 
 	else
 		$hookData['call'] = $hookData['pureFunc'] = $modFunc;
+
+	$hookData['call'] = ltrim($hookData['call'], '\\');
 
 	return $hookData;
 }

@@ -717,11 +717,40 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		ORDER BY priority ASC, id_mail ASC
 		LIMIT {int:limit}',
 		array(
-			'limit' => $number,
+			'limit' => ceil($number * 0.7),
 		)
 	);
 	$ids = array();
 	$emails = array();
+	while ($row = $smcFunc['db_fetch_assoc']($request))
+	{
+		// We want to delete these from the database ASAP, so just get the data and go.
+		$ids[] = $row['id_mail'];
+		$emails[] = array(
+			'to' => $row['recipient'],
+			'body' => $row['body'],
+			'subject' => $row['subject'],
+			'headers' => $row['headers'],
+			'send_html' => $row['send_html'],
+			'time_sent' => $row['time_sent'],
+			'private' => $row['private'],
+			'priority' => $row['priority'],
+		);
+	}
+	$smcFunc['db_free_result']($request);
+
+	// Random emails from the queue..
+	$request = $smcFunc['db_query']('', '
+		SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
+		FROM {db_prefix}mail_queue
+		WHERE id_mail NOT IN ({array_int:ids})
+		ORDER BY RAND()
+		LIMIT {int:limit}',
+		array(
+			'ids' => $ids,
+			'limit' => ceil($number * 0.3),
+		)
+	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		// We want to delete these from the database ASAP, so just get the data and go.
@@ -775,16 +804,32 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	$failed_emails = array();
 	$max_priority = 127;
 	$smtp_expire = 259200;
-	$priority_offset = 4;
+	$priority_offset = 8;
 	foreach ($emails as $email)
 	{
-		// This seems odd, but check the priority if we should try again so soon. Do this so we don't DOS some poor mail server.
-		if ($email['priority'] > $priority_offset && (time() - $email['time_sent']) % $priority_offset != rand(0, $priority_offset))
-		{
-			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
+		// First, figure out when the next send attempt should happen based on the current priority.
+		$next_send_time = $email['time_sent'];
+		for ($i = 0; $i < $email['priority']; $i++) {
+			$next_send_time += 20 * max(0, $email['priority'] - $priority_offset);
+		}
+
+		// If the email is too old, discard it.
+		if ($next_send_time > $email['time_sent'] + $smtp_expire) {
 			continue;
 		}
 
+		$email['priority'] = max($priority_offset, $email['priority'], min(ceil((time() - $email['time_sent']) / $smtp_expire * ($max_priority - $priority_offset)) + $priority_offset, $max_priority));
+
+		// Don't send if it's too soon. Also, if we've already failed a few times, only send on every fourth attempt so that we don't DOS some poor mail server.
+		if (time() < $next_send_time || ($email['priority'] >= $priority_offset && $email['priority'] % 4 !== 0)) {
+			if ($email['priority'] < $max_priority) {
+				$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
+			}
+
+			continue;
+		}
+
+		// Try to send.
 		if (empty($modSettings['mail_type']) || $modSettings['smtp_host'] == '')
 		{
 			$email['subject'] = strtr($email['subject'], array("\r" => '', "\n" => ''));
@@ -805,20 +850,11 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 		else
 			$result = smtp_mail(array($email['to']), $email['subject'], $email['body'], $email['headers']);
 
-		// Old emails should expire
-		if (!$result && $email['priority'] >= $max_priority)
-			$result = true;
-
-		// Hopefully it sent?
-		if (!$result)
-		{
-			// Determine the "priority" as a way to keep track of SMTP failures.
-			$email['priority'] = max($priority_offset, $email['priority'], min(ceil((time() - $email['time_sent']) / $smtp_expire * ($max_priority - $priority_offset)) + $priority_offset, $max_priority));
-
+		// If we failed, and we haven't already hit the limit, schedule this for another attempt.
+		if (empty($result) && $email['priority'] < $max_priority) {
 			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
 		}
 	}
-
 
 	// Any emails that didn't send?
 	if (!empty($failed_emails))
