@@ -1165,10 +1165,13 @@ sceditor.formats.bbcode
 	.set('tt', {
 		tags: {
 			tt: null,
-			code: {'class': ['bbc_tt']}
+			code: {'class': ['bbc_tt']},
+			font: {
+				'face': 'monospace'
+			}
 		},
 		format: '[tt]{0}[/tt]',
-		html: '<code class="bbc_tt">{0}</code>'
+		html: '<font face="monospace">{0}</font>'
 	})
 	.set('pre', {
 		tags: {
