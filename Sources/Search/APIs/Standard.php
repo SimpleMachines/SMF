@@ -24,7 +24,7 @@ use SMF\Search\SearchApiInterface;
 class Standard extends SearchApi implements SearchApiInterface
 {
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{

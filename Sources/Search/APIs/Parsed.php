@@ -106,7 +106,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	 ****************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getStatus(): ?string
 	{
@@ -121,7 +121,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
@@ -150,7 +150,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isValid(): bool
 	{
@@ -158,7 +158,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function searchSort(string $a, string $b): int
 	{
@@ -166,7 +166,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getSize(): int
 	{
@@ -233,7 +233,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
@@ -261,7 +261,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
@@ -486,7 +486,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
@@ -502,7 +502,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
@@ -526,7 +526,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postRemoved(int $id_msg): void
 	{
@@ -550,7 +550,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function formContext(): void
 	{
@@ -564,7 +564,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function resultsContext(): void
 	{
@@ -572,7 +572,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getAdminSubactions(?string $type = null): array
 	{

@@ -49,7 +49,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	private mixed $socket;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(): bool
 	{
@@ -57,7 +57,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isConfigured(): bool
 	{
@@ -65,7 +65,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -147,7 +147,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function send(string $to, string $subject, string $message, string $headers): bool
 	{
@@ -199,7 +199,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function disconnect(): bool
 	{

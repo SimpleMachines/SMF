@@ -1454,7 +1454,7 @@ class Config
 		$settings_defs = self::getSettingsDefs();
 
 		// If Settings.php is empty or invalid, try to recover using whatever we have now.
-		if ($settings_vars === []) {
+		if (!defined('SMF_INSTALLING') && $settings_vars === []) {
 			foreach ($settings_defs as $var => $setting_def) {
 				if (isset(self::${$var}) || isset(self::$custom[$var])) {
 					$settings_vars[$var] = self::${$var} ?? self::$custom[$var];
@@ -1779,7 +1779,7 @@ class Config
 		$settingsText = trim(strtr(file_get_contents($settingsFile), ["\r\n" => "\n", "\r" => "\n"]));
 
 		// If Settings.php is empty or corrupt for some reason, see if we can recover.
-		if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php') {
+		if (!defined('SMF_INSTALLING') && $settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php') {
 			// Try restoring from the backup.
 			if (file_exists($backupFile)) {
 				$settingsText = strtr(file_get_contents($backupFile), ["\r\n" => "\n", "\r" => "\n"]);
