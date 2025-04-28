@@ -28,7 +28,7 @@ $txt['critical_error'] = 'Critical Error!';
 $txt['warning'] = 'Warning!';
 $txt['error_db_queries'] = 'Some of the queries were not executed properly. This could be caused by an unsupported (development or old) version of your database software.<br><br>Technical information about the queries:';
 $txt['error_php_too_low'] = 'Warning! You do not appear to have a version of PHP installed on your webserver that meets SMF’s minimum installations requirements.<br><br>Please ask your host to upgrade.';
-$txt['error_dir_not_writable'] = 'The directory "{dir}" has to be writable to continue the upgrade. Please make sure permissions are correctly set to allow this.';
+$txt['error_dir_not_writable'] = 'The directory "{dir}" has to be writable to continue. Please make sure the file permissions are correctly set to allow this.';
 $txt['error_unknown'] = 'Unknown Error!';
 $txt['query_unsuccessful'] = 'Unsuccessful!';
 $txt['query_failed'] = 'This query: {QUERY_STRING}
@@ -48,8 +48,8 @@ $txt['maintenance_time_elasped_ms'] = 'Time Elapsed {m, plural,
 }';
 
 // File Permissions.
-$txt['chmod_linux_info'] = 'If you have a shell account, the convenient below command can automatically correct permissions on these files';
-$txt['error_windows_chmod'] = 'You are on a windows server and some crucial files are not writable. Please ask your host to give <strong>write permissions</strong> to the user PHP is running under for the files in your SMF installation. The following files or directories need to be writable:';
+$txt['chmod_linux_info'] = 'If you have a shell account, the following command can automatically correct permissions on these files';
+$txt['error_windows_chmod'] = 'You are on a Windows server and some crucial files are not writable. Please ask your host to give <strong>write permissions</strong> to the user that PHP is running under for the files in your SMF installation. The following files or directories need to be writable:';
 
 // FTP
 $txt['ftp_setup_why_info'] = 'Some files need to be writable for SMF to work properly. This step allows you to let the installer make them writable for you. However, in some cases it will not work. In this case, please make the following files 777 (writable, 755 on some hosts):';
@@ -82,13 +82,14 @@ $txt['install_step_forum'] = 'Forum Settings';
 $txt['install_step_databaseset'] = 'Database Settings';
 $txt['install_step_databasechange'] = 'Database Population';
 $txt['install_step_admin'] = 'Admin account';
-$txt['install_step_delete'] = 'Finalize install';
+$txt['install_step_finalize'] = 'Finalize install';
 
 // Upgrade steps.
 $txt['upgrade_step_login'] = 'Login';
 $txt['upgrade_step_options'] = 'Upgrade Options';
 $txt['upgrade_step_backup'] = 'Backup';
 $txt['upgrade_step_migration'] = 'Migrations';
+$txt['upgrade_step_convertutf'] = 'Convert to UTF-8';
 $txt['upgrade_step_cleanup'] = 'Cleanup';
 $txt['upgrade_step_delete'] = 'Finalize Upgrade';
 
@@ -291,16 +292,16 @@ $txt['upgrade_completedtables_outof'] = 'Completed <span id="tab_done">{cur_tabl
 	other {out of # tables}
 }.';
 
-// Upgrade - Migrations
+// Upgrade - steps and substeps
 $txt['upgrade_steps'] = 'Steps';
-$txt['upgrade_substeps'] = 'Migrations';
+$txt['upgrade_substeps'] = 'Substeps';
 $txt['upgrade_db_changes'] = 'Executing database changes';
 $txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made.';
 $txt['upgrade_current_step'] = 'Current Step:';
 $txt['upgrade_current_substep'] = 'Current Migration:';
 $txt['upgrade_completed'] = 'Completed';
 $txt['upgrade_outof'] = 'out of';
-$txt['upgrade_db_complete'] = '1 Database Updates Complete! Click Continue to Proceed.';
+$txt['upgrade_db_complete'] = 'Database update complete! Click Continue to proceed.';
 $txt['upgrade_completed_migration'] = ' Completed Migration:';
 
 
@@ -374,7 +375,6 @@ $txt['upgrade_step_login'] = 'Login';
 $txt['upgrade_step_options'] = 'Upgrade Options';
 $txt['upgrade_step_backup'] = 'Backup';
 $txt['upgrade_step_database'] = 'Database Changes';
-$txt['upgrade_step_convertutf'] = 'Convert to UTF-8';
 $txt['upgrade_step_convertjson'] = 'Convert serialized strings to JSON';
 $txt['upgrade_step_delete'] = 'Delete Upgrade.php';
 $txt['upgrade_step_cleanup'] = 'Cleanup';
