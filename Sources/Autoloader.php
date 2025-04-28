@@ -30,6 +30,9 @@ spl_autoload_register(function ($class) {
 		'MatthiasMullie\\PathConverter\\' => '{$sourcedir}/minify/path-converter/src/',
 		'ZxcvbnPhp\\' => '{$sourcedir}/ZxcvbnPhp/',
 
+		// The path to the Themes dir is hardcoded.
+		'SMF\\Themes\\' => '{$boarddir}/Themes/',
+
 		// In general, the SMF namespace maps to $sourcedir.
 		'SMF\\' => '{$sourcedir}/',
 	];
