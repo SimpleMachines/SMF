@@ -539,5 +539,3 @@ class FtpConnection
 		return true;
 	}
 }
-
-?>

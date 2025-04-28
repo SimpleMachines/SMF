@@ -461,5 +461,3 @@ class Sao_Paulo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

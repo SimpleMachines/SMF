@@ -810,5 +810,3 @@ class Like implements ActionInterface, Routable
 		die;
 	}
 }
-
-?>

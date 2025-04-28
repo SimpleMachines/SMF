@@ -1535,5 +1535,3 @@ class Utf8String implements \Stringable
 		$this->string = str_replace([$zwj, $zwnj], $substitute, $this->string);
 	}
 }
-
-?>

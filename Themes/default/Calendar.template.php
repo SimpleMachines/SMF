@@ -1023,5 +1023,3 @@ function template_thetime()
 				</ul>
 			</div>';
 }
-
-?>

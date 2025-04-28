@@ -127,5 +127,3 @@ class ThemeSetOption implements ActionInterface, Routable
 		Utils::redirectexit(Theme::$current->settings['images_url'] . '/blank.png');
 	}
 }
-
-?>

@@ -633,5 +633,3 @@ abstract class DatabaseApi
 if (is_callable([DatabaseApi::class, 'exportStatic'])) {
 	DatabaseApi::exportStatic();
 }
-
-?>

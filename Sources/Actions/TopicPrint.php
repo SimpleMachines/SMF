@@ -220,5 +220,3 @@ class TopicPrint implements ActionInterface, Routable
 		Utils::$context['canonical_url'] = Config::$scripturl . '?topic=' . Topic::$topic_id . '.0';
 	}
 }
-
-?>

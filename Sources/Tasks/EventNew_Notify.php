@@ -36,7 +36,7 @@ class EventNew_Notify extends BackgroundTask
 	public function execute(): bool
 	{
 		// Get everyone who could be notified - those are the people who can see the calendar.
-		$members = User::membersAllowedTo('calendar_view');
+		$members = User::getAllowedTo('calendar_view');
 
 		// Don't alert the event creator
 		if (!empty($this->_details['sender_id'])) {
@@ -103,5 +103,3 @@ class EventNew_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

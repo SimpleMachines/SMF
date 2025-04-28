@@ -56,6 +56,11 @@ function getServerResponse(sUrl, funcCallback, sType = 'GET', sDataType = 'json'
 	});
 }
 
+// Shows or hides the content of a spoiler tag.
+function toggleSpoiler() {
+	this.classList.toggle('revealed');
+}
+
 class smc_Request {
 	static fetch(sUrl, oOptions, iMilliseconds) {
 		let timeout;
@@ -1783,6 +1788,10 @@ function attachBbCodeEvents(parent)
 			el.style.setProperty('--height', smf_quote_expand + 'px');
 			el.append(a);
 		}
+
+	for (const elem of document.querySelectorAll('.bbc_inline_spoiler, .bbc_inline_spoiler > button')) {
+		elem.addEventListener('click', toggleSpoiler);
+	}
 }
 
 function avatar_fallback(e) {

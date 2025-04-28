@@ -94,5 +94,3 @@ function template_main()
 		</form>
 	</div><!-- #report_form -->';
 }
-
-?>

@@ -788,6 +788,101 @@ sceditor.command.set(
 	}
 );
 
+sceditor.command.set(
+	'details', {
+		_dropDown: function (editor, caller, callback) {
+			const input_wrapper = document.createElement('div');
+			const label = document.createElement('label');
+			label.innerText = editor._('summaryPrompt');
+			const input = document.createElement('input');
+			input.type = 'text';
+			input.id = 'summary';
+			input.value = editor._('spoiler');
+			input_wrapper.appendChild(label);
+			input_wrapper.appendChild(input);
+
+			const button_wrapper = document.createElement('div');
+			const button = document.createElement('input');
+			button.type = 'button';
+			button.className = 'button';
+			button.value = editor._('Insert');
+			button_wrapper.appendChild(button);
+
+			const content = document.createElement('div');
+			content.appendChild(input_wrapper);
+			content.appendChild(button_wrapper);
+
+			button.addEventListener("click", function (e) {
+				callback(input.value);
+				editor.closeDropDown(true);
+				e.preventDefault();
+			});
+
+			editor.createDropDown(caller, 'details-panel', content);
+		},
+		exec: function(caller) {
+			var editor = this;
+
+			editor.commands.details._dropDown(editor, caller, function (summary) {
+				summary = summary.replace('"', '\\"');
+
+				// If no summary was provided, use a default value.
+				if (summary.length < 1) {
+					summary = editor._('spoiler');
+				}
+
+				editor.insert('[details summary="' + summary + '"]', '[/details]');
+			});
+		},
+		txtExec: function(caller) {
+			var editor = this;
+
+			editor.commands.details._dropDown(editor, caller, function (summary) {
+				summary = summary.replace('"', '\\"');
+
+				if (summary.length < 1) {
+					summary = editor._('spoiler');
+					return;
+				}
+
+				editor.insert('[details summary="' + summary + '"]', '[/details]');
+			});
+		}
+	}
+);
+
+sceditor.command.set(
+	'spoiler', {
+		state: function (parent, firstBlock) {
+			if (this.inSourceMode()) {
+				return 0;
+			}
+
+			return sceditor.dom.closest(this.currentNode(), '.bbc_inline_spoiler') ? 1 : 0;
+		},
+		exec: function(caller) {
+			// If we are currently inside an inline spoiler span, remove it.
+			const spoilerElement = sceditor.dom.closest(this.currentNode(), '.bbc_inline_spoiler');
+
+			if (spoilerElement) {
+				const rangeHelper = this.getRangeHelper();
+				rangeHelper.insertMarkers();
+				rangeHelper.saveRange();
+				spoilerElement.insertAdjacentHTML('beforebegin', spoilerElement.innerHTML);
+				rangeHelper.restoreRange();
+				spoilerElement.remove();
+				return;
+			}
+
+			// Otherwise, insert it.
+			this.insert('[spoiler]', '[/spoiler]');
+		},
+		txtExec: function(caller) {
+			this.insert('[spoiler]', '[/spoiler]');
+		}
+	}
+);
+
 let itemCodes = [
 	['*', 'disc'],
 	['@', 'disc'],
@@ -1391,69 +1486,115 @@ set(
 	}
 );
 
-sceditor.formats.bbcode.set(
-	'h1', {
+for (var i = 1; i <= 6; i++) {
+	sceditor.formats.bbcode.set('h' + i, {
 		tags: {
-			h1: null,
+			['h' + i]: null
 		},
 		isInline: false,
 		skipLastLineBreak: true,
-		format: '[h1]{0}[/h1]',
-		html: '<h1>{0}</h1>'
+		format: '[h' + i + ']{0}[/h' + i + ']',
+		html: '<h' + i + '>{0}</h' + i + '>'
+	});
+}
+
+sceditor.formats.bbcode.set(
+	'nobbc', {
+		tags: {
+			span: {
+				class: 'nobbc',
+			},
+			div: {
+				class: 'nobbc',
+			},
+		},
+		format: function (element, content) {
+			if (!content.includes('[nobbc]')) {
+				content = '[nobbc]' + content;
+			}
+
+			if (!content.includes('[/nobbc]')) {
+				content = content + '[/nobbc]';
+			}
+
+			return content;
+		},
+		html: function (token, attrs, content) {
+			let tag;
+
+			if (content.includes("\n")) {
+				tag = 'div';
+			} else {
+				tag = 'span';
+			}
+
+			return '<' + tag + ' class="nobbc">[nobbc]' + content + '[/nobbc]</' + tag + '>';
+		},
+		allowedChildren: ['#']
 	}
 );
+
 sceditor.formats.bbcode.set(
-	'h2', {
+	'details', {
 		tags: {
-			h2: null,
+			details: null,
+			summary: null,
 		},
+		format: function (element, content) {
+			const elem = $(element)[0];
+
+			if ($(elem)[0].tagName.toLowerCase() === 'summary') {
+				return '';
+			}
+
+			if ($(elem)[0].tagName.toLowerCase() === 'details') {
+				const summary = $(elem).children('summary') ? $(elem).children('summary').text().replace('"', '\\"') : Object.values(sceditor.locale)[0].details;
+
+				return '[details summary="' + summary + '"]' + content + '[/details]'
+			}
+		},
+		html: function (token, attrs, content) {
+			const summary = typeof attrs.summary === "undefined" ? Object.values(sceditor.locale)[0].details : attrs.summary.replace('"', '\\"');
+
+			content = content.replace(/^<br ?\/?>/, '').replace(/<br ?\/?>$/, '');
+
+			return '<details open class="bbc_details"><summary class="bbc_summary">' + summary + '</summary><div class="bbc_details_content">' + content + '</div></details>';
+		},
+		allowsEmpty: true,
 		isInline: false,
-		skipLastLineBreak: true,
-		format: '[h2]{0}[/h2]',
-		html: '<h2>{0}</h2>'
+		breakEnd: true,
+		breakAfter: true,
+		quoteType: $.sceditor.BBCodeParser.QuoteType.always,
 	}
 );
+
 sceditor.formats.bbcode.set(
-	'h3', {
+	'spoiler', {
 		tags: {
-			h3: null,
+			span: {
+				class: 'bbc_inline_spoiler',
+			},
 		},
-		isInline: false,
-		skipLastLineBreak: true,
-		format: '[h3]{0}[/h3]',
-		html: '<h3>{0}</h3>'
-	}
-);
-sceditor.formats.bbcode.set(
-	'h4', {
-		tags: {
-			h4: null,
+		format: '[spoiler]{0}[/spoiler]',
+		html: function (token, attrs, content) {
+			// If we find something like `[spoiler="foo"]bar[/spoiler]`, turn
+			// it into a details element.
+			if (
+				typeof attrs.defaultattr !== "undefined"
+				|| typeof attrs.text !== "undefined"
+				|| /<br ?\/?>/.test(content)
+			) {
+				const summary = typeof attrs.defaultattr !== "undefined" ? attrs.defaultattr.replace('"', '\\"') : (typeof attrs.text !== "undefined" ? attrs.text.replace('"', '\\"') : Object.values(sceditor.locale)[0].spoiler);
+
+				content = content.replace(/^<br ?\/?>/, '').replace(/<br ?\/?>$/, '');
+
+				return '<details open class="bbc_details"><summary class="bbc_summary">' + summary + '</summary><div class="bbc_details_content">' + content + '</div></details>';
+			}
+
+			return '<span class="bbc_inline_spoiler">' + content + '</span>';
 		},
-		isInline: false,
 		skipLastLineBreak: true,
-		format: '[h4]{0}[/h4]',
-		html: '<h4>{0}</h4>'
-	}
-);
-sceditor.formats.bbcode.set(
-	'h5', {
-		tags: {
-			h5: null,
-		},
-		isInline: false,
-		skipLastLineBreak: true,
-		format: '[h5]{0}[/h5]',
-		html: '<h5>{0}</h5>'
-	}
-);
-sceditor.formats.bbcode.set(
-	'h6', {
-		tags: {
-			h6: null,
-		},
-		isInline: false,
-		skipLastLineBreak: true,
-		format: '[h6]{0}[/h6]',
-		html: '<h6>{0}</h6>'
+		isInline: true,
+		allowsEmpty: true,
 	}
 );

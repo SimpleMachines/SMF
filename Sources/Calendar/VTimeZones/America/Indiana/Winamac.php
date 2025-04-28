@@ -165,5 +165,3 @@ class Winamac extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

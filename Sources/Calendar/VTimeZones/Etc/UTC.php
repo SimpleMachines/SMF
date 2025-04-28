@@ -41,5 +41,3 @@ class UTC extends \SMF\Calendar\VTimeZone
 	 */
 	public array $components = [];
 }
-
-?>

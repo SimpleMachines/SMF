@@ -1855,5 +1855,3 @@ function template_showPMDrafts()
 		</div>';
 	}
 }
-
-?>

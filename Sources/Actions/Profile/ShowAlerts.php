@@ -213,5 +213,3 @@ class ShowAlerts implements ActionInterface
 		}
 	}
 }
-
-?>

@@ -56,5 +56,3 @@ class Kathmandu extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

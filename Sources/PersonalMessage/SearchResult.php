@@ -48,5 +48,3 @@ class SearchResult extends PM
 		}
 	}
 }
-
-?>

@@ -282,5 +282,3 @@ class Catamarca extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

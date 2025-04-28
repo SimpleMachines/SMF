@@ -169,5 +169,3 @@ class Kyiv extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

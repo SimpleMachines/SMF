@@ -28,5 +28,3 @@ class Xml implements OutputTypeInterface
 		return 'application/xml';
 	}
 }
-
-?>

@@ -67,5 +67,3 @@ $txt['calendar_import_subscribe'] = 'Subscribe to this calendar';
 $txt['calendar_import_subscribe_desc'] = 'Calendars you subscribe to will be reimported regularly.';
 $txt['calendar_import_manage_subscriptions'] = 'Subscribed calendars';
 $txt['calendar_import_unsubscribe'] = 'Unsubscribe';
-
-?>

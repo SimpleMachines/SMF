@@ -41,5 +41,3 @@ class GMT2 extends \SMF\Calendar\VTimeZone
 	 */
 	public array $components = [];
 }
-
-?>

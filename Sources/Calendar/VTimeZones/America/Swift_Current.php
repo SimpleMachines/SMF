@@ -158,5 +158,3 @@ class Swift_Current extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

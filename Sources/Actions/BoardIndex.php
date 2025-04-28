@@ -770,5 +770,3 @@ class BoardIndex implements ActionInterface, Routable
 		return $last_post;
 	}
 }
-
-?>

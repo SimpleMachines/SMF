@@ -79,5 +79,3 @@ class Tegucigalpa extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

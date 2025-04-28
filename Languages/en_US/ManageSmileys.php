@@ -97,5 +97,3 @@ $txt['icons_location_after'] = 'After "{icon}"';
 // argument(s): the supported file extension
 $txt['icons_extension_must_be'] = 'File extension must be "{extension}"';
 $txt['icons_no_entries'] = 'There are currently no message icons configured.';
-
-?>

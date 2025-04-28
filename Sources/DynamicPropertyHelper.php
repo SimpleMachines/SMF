@@ -295,5 +295,3 @@ trait DynamicPropertyHelper
 		}
 	}
 }
-
-?>

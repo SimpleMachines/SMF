@@ -28,6 +28,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Parser;
+use SMF\Permissions\PermissionProfile;
 use SMF\SecurityToken;
 use SMF\Theme;
 use SMF\Url;
@@ -434,11 +435,10 @@ class Boards implements ActionInterface
 		Category::getTree();
 
 		// For editing the profile we'll need this.
-		Permissions::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		// People with manage-boards are special.
-		$groups = User::groupsAllowedTo('manage_boards', null);
-		Utils::$context['board_managers'] = $groups['allowed'];
+		Utils::$context['board_managers'] = Group::getAllowedTo('manage_boards');
 
 		// id_board must be a number....
 		$_REQUEST['boardid'] = isset($_REQUEST['boardid']) ? (int) $_REQUEST['boardid'] : 0;
@@ -956,5 +956,3 @@ class Boards implements ActionInterface
 		$this->subaction = isset($_REQUEST['sa']) && isset(self::$subactions[$_REQUEST['sa']]) ? $_REQUEST['sa'] : (User::$me->allowedTo('manage_boards') ? 'main' : 'settings');
 	}
 }
-
-?>

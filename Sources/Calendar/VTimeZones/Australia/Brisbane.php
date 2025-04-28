@@ -129,5 +129,3 @@ class Brisbane extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

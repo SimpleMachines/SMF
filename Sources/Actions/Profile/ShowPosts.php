@@ -988,5 +988,3 @@ class ShowPosts implements ActionInterface
 		}
 	}
 }
-
-?>

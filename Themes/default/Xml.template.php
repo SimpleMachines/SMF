@@ -472,5 +472,3 @@ function template_generic_xml_recursive(array $xml_data, string $parent_tag, str
 
 	echo "\n" . $indent . '</' . $parent_tag . '>';
 }
-
-?>

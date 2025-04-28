@@ -1470,5 +1470,3 @@ class Display implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

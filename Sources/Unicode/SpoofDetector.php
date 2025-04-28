@@ -456,5 +456,3 @@ class SpoofDetector
 		return false;
 	}
 }
-
-?>

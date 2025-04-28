@@ -362,5 +362,3 @@ class Auth
 		return $url;
 	}
 }
-
-?>

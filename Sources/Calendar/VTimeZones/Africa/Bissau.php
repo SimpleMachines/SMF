@@ -56,5 +56,3 @@ class Bissau extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

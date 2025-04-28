@@ -689,5 +689,3 @@ function template_edit_privacy_policy()
 			</form>
 		</div>';
 }
-
-?>

@@ -352,5 +352,3 @@ class Malta extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
+use SMF\Permissions\PermissionProfile;
 use SMF\Profile;
 use SMF\Theme;
 use SMF\User;
@@ -59,7 +60,7 @@ class ShowPermissions implements ActionInterface
 		}
 
 		// Load all the permission profiles.
-		Permissions::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		$board = empty(Board::$info->id) ? 0 : (int) Board::$info->id;
 		Utils::$context['board'] = $board;
@@ -258,5 +259,3 @@ class ShowPermissions implements ActionInterface
 		}
 	}
 }
-
-?>

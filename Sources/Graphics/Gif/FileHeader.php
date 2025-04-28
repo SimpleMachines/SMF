@@ -79,5 +79,3 @@ class FileHeader
 		return true;
 	}
 }
-
-?>

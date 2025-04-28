@@ -148,5 +148,3 @@ class Beulah extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

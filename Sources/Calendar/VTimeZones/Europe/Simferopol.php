@@ -213,5 +213,3 @@ class Simferopol extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

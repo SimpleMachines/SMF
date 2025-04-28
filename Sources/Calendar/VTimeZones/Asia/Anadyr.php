@@ -110,5 +110,3 @@ class Anadyr extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

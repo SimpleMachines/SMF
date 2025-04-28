@@ -1800,11 +1800,18 @@ class Board implements \ArrayAccess, Routable
 	 */
 	public static function getModeratorGroups(array $boards): array
 	{
-		if (empty($boards)) {
-			return [];
+		$groups = [];
+
+		foreach ($boards as $key => $board) {
+			if (isset(self::$loaded[$board]->moderator_groups)) {
+				$groups[$board] = self::$loaded[$board]->moderator_groups;
+				unset($boards[$key]);
+			}
 		}
 
-		$groups = [];
+		if (empty($boards)) {
+			return $groups;
+		}
 
 		$request = Db::$db->query(
 			'',
@@ -2524,5 +2531,3 @@ class Board implements \ArrayAccess, Routable
 if (is_callable([Board::class, 'exportStatic'])) {
 	Board::exportStatic();
 }
-
-?>

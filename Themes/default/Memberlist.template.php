@@ -186,5 +186,3 @@ function template_search()
 		</div><!-- #memberlist -->
 	</form>';
 }
-
-?>

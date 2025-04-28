@@ -180,12 +180,7 @@ class Features implements ActionInterface
 		Config::$modSettings['collapse_blank_lines'] = (int) !((Config::$modSettings['markdown_brs'] ?? 0) & MarkdownParser::BR_LINES);
 		Config::$modSettings['collapse_single_breaks'] = (int) !((Config::$modSettings['markdown_brs'] ?? 0) & MarkdownParser::BR_IN_PARAGRAPHS);
 
-		$extra = '';
-
-		if (isset($_REQUEST['cowsay'])) {
-			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'], file: 'Admin')];
-			$extra = ';cowsay';
-		}
+		$extra = isset($_REQUEST['cowsay']) ? ';cowsay' : '';
 
 		// Saving?
 		if (isset($_GET['save'])) {
@@ -253,6 +248,9 @@ class Features implements ActionInterface
 					return !isset($config_var[1]) || $config_var[1] != 'legacyBBC';
 				},
 			);
+
+			// Figure out which BBC are restricted.
+			$_POST['restricted_bbc_enabledTags'] = array_diff($bbcTags, !isset($_POST['restricted_bbc_enabledTags']) ? [] : (array) $_POST['restricted_bbc_enabledTags']);
 
 			// Save the Markdown collapse_* settings as a bitmask.
 			$config_vars[] = ['int', 'markdown_brs'];
@@ -1705,13 +1703,35 @@ class Features implements ActionInterface
 			['check', 'enablePostHTML'],
 			['check', 'autoLinkUrls'],
 			'',
-
 			['bbc', 'disabledBBC'],
-
-			// This one is actually pretend...
 			['bbc', 'legacyBBC', 'help' => 'legacy_bbc'],
+			['bbc', 'restricted_bbc', 'help' => 'restricted_bbc'],
+		];
 
-			// Markdown settings
+		// Permissions for restricted BBC
+		if (!empty(Utils::$context['restricted_bbc'])) {
+			Config::$modSettings['bbc_disabled_restricted_bbc'] = array_diff(
+				array_unique(array_map(fn($code) => $code['tag'], Parser::getBBCodes())),
+				Utils::$context['restricted_bbc'],
+			);
+
+			Utils::$context['bbc_forced_restricted_bbc'] = empty(Config::$modSettings['restricted_bbc']) ? Utils::$context['restricted_bbc'] : array_diff(Utils::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc']));
+
+			foreach (Utils::$context['restricted_bbc'] as $bbc) {
+				$config_vars[] = [
+					'permissions',
+					'bbc_' . $bbc,
+					'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'], file: 'Admin'),
+				];
+			}
+
+			if (isset($_REQUEST['cowsay'])) {
+				$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'], file: 'Admin')];
+			}
+		}
+
+		// Markdown settings
+		$config_vars = array_merge($config_vars, [
 			[
 				'title',
 				'markdown_settings',
@@ -1720,24 +1740,7 @@ class Features implements ActionInterface
 			['check', 'enableMarkdown', 'onchange' => 'document.getElementById(\'collapse_blank_lines\').disabled = !this.checked; document.getElementById(\'collapse_single_breaks\').disabled = !this.checked;'],
 			['check', 'collapse_blank_lines', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
 			['check', 'collapse_single_breaks', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
-		];
-
-		// Permissions for restricted BBC
-		if (!empty(Utils::$context['restricted_bbc'])) {
-			$config_vars[] = '';
-		}
-
-		foreach (Utils::$context['restricted_bbc'] as $bbc) {
-			$config_vars[] = [
-				'permissions',
-				'bbc_' . $bbc,
-				'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'], file: 'Admin'),
-			];
-		}
-
-		Utils::$context['settings_post_javascript'] = '
-			toggleBBCDisabled(\'disabledBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');
-			toggleBBCDisabled(\'legacyBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');';
+		]);
 
 		IntegrationHook::call('integrate_modify_bbc_settings', [&$config_vars]);
 
@@ -2127,5 +2130,3 @@ class Features implements ActionInterface
 		);
 	}
 }
-
-?>

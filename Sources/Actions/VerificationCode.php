@@ -815,5 +815,3 @@ class VerificationCode implements ActionInterface, Routable
 		die();
 	}
 }
-
-?>

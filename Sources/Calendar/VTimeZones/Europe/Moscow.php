@@ -159,5 +159,3 @@ class Moscow extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

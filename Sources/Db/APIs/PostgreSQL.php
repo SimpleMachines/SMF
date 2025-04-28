@@ -2538,5 +2538,3 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		die();
 	}
 }
-
-?>

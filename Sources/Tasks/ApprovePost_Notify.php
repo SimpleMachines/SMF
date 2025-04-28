@@ -48,7 +48,7 @@ class ApprovePost_Notify extends BackgroundTask
 		$alert_rows = [];
 
 		// We need to know who can approve this post.
-		$modMembers = User::membersAllowedTo('approve_posts', $topicOptions['board']);
+		$modMembers = User::getAllowedTo('approve_posts', $topicOptions['board']);
 
 		$request = Db::$db->query(
 			'',
@@ -119,5 +119,3 @@ class ApprovePost_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

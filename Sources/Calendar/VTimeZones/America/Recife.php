@@ -259,5 +259,3 @@ class Recife extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

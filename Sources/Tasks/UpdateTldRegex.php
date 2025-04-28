@@ -36,5 +36,3 @@ class UpdateTldRegex extends BackgroundTask
 		return true;
 	}
 }
-
-?>

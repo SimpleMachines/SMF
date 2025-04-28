@@ -425,5 +425,3 @@ class Istanbul extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

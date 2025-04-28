@@ -1130,5 +1130,3 @@ class Mail
 		return $use_ref ? $ref : $matches[0];
 	}
 }
-
-?>

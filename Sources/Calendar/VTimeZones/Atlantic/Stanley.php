@@ -155,5 +155,3 @@ class Stanley extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

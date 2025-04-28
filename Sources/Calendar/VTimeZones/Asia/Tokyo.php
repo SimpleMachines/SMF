@@ -79,5 +79,3 @@ class Tokyo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

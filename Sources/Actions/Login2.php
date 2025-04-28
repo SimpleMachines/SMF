@@ -846,5 +846,3 @@ class Login2 implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

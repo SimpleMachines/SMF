@@ -157,5 +157,3 @@ class Perth extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

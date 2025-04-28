@@ -215,5 +215,3 @@ class Tallinn extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

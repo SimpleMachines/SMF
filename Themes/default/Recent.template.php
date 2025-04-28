@@ -414,5 +414,3 @@ function template_replies()
 	if (empty(Utils::$context['no_topic_listing']))
 		template_topic_legend();
 }
-
-?>

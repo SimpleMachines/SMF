@@ -412,5 +412,3 @@ function template_logout()
 		</div>
 	</form>';
 }
-
-?>

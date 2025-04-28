@@ -1002,5 +1002,3 @@ class TopicSplit implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

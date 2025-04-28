@@ -298,5 +298,3 @@ function template_choose_boards(array $categories): void
 					}
 			</script>';
 }
-
-?>

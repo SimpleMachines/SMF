@@ -27,6 +27,8 @@ use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
+use SMF\Permissions\Permission;
+use SMF\Permissions\PermissionProfile;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -234,7 +236,7 @@ class Reports implements ActionInterface
 			[Group::ADMIN, Group::MOD],
 		);
 
-		Permissions::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		// Get all the themes...
 		Utils::$context['themes'] = [];
@@ -407,7 +409,7 @@ class Reports implements ActionInterface
 	 */
 	public function boardPerms(): void
 	{
-		Permissions::loadPermissionProfiles();
+		PermissionProfile::loadContext();
 
 		$inc = [];
 
@@ -426,7 +428,10 @@ class Reports implements ActionInterface
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
 			[Group::ADMIN],
 		);
-		Group::loadPermissionsBatch(array_map(fn($group) => $group->id, $group_data), null, true);
+
+		foreach ($groups_data as $group) {
+			$group->loadPermissions();
+		}
 
 		// Certain permissions should not really be shown.
 		$disabled_permissions = [];
@@ -447,9 +452,12 @@ class Reports implements ActionInterface
 			if ($group->parent === Group::NONE && ($inc == [] || in_array($group->id, $inc))) {
 				$groups[$group->id] = $group->name;
 
-				foreach ($group->permissions['board_profiles'] as $id_profile => $board_profile) {
-					foreach ($board_profile as $permission => $add_deny) {
-						if (in_array($permission, $disabled_permissions)) {
+				foreach ($group->permission_sets as $id_profile => $board_profile) {
+					foreach ($board_profile->permissions as $permission => $value) {
+						if (
+							in_array($permission, $disabled_permissions)
+							|| Permission::get($permission)->scope !== 'board'
+						) {
 							continue;
 						}
 
@@ -457,7 +465,19 @@ class Reports implements ActionInterface
 							$data[$id_profile][$permission] = ['col' => Lang::txtExists('board_perms_name_' . $permission, file: 'Reports') ? Lang::getTxt('board_perms_name_' . $permission, file: 'Reports') : $permission];
 						}
 
-						$data[$id_profile][$permission][$group->id] = $add_deny ? '&#x2705;' : '&#x1F6AB;';
+						switch ($value) {
+							case 1:
+								$data[$id_profile][$permission][$group->id] = '&#x2705;';
+								break;
+
+							case 0:
+								$data[$id_profile][$permission][$group->id] = '&#x1F6AB;';
+								break;
+
+							default:
+								$data[$id_profile][$permission][$group->id] = '&mdash;';
+								break;
+						}
 					}
 				}
 			}
@@ -529,7 +549,10 @@ class Reports implements ActionInterface
 			Group::LOAD_NORMAL | (int) !empty(Config::$modSettings['permission_enable_postgroups']),
 			[Group::ADMIN, Group::MOD],
 		);
-		Group::loadPermissionsBatch(array_map(fn($group) => $group->id, $group_data), 0);
+
+		foreach ($groups_data as $group) {
+			$group->loadPermissions();
+		}
 
 		// Certain permissions should not really be shown.
 		$disabled_permissions = [];
@@ -551,8 +574,11 @@ class Reports implements ActionInterface
 			if ($group->parent === Group::NONE && ($inc == [] || in_array($group->id, $inc))) {
 				$groups[$group->id] = $group->name;
 
-				foreach ($group->permissions['general'] as $permission => $add_deny) {
-					if (in_array($permission, $disabled_permissions)) {
+				foreach ($group->permission_sets[PermissionProfile::DEFAULT]->permissions as $permission => $value) {
+					if (
+						in_array($permission, $disabled_permissions)
+						|| Permission::get($permission)->scope !== 'global'
+					) {
 						continue;
 					}
 
@@ -564,7 +590,19 @@ class Reports implements ActionInterface
 						}
 					}
 
-					$data[$permission][$group->id] = $add_deny ? '&#x2705;' : '&#x1F6AB;';
+					switch ($value) {
+						case 1:
+							$data[$permission][$group->id] = '&#x2705;';
+							break;
+
+						case 0:
+							$data[$permission][$group->id] = '&#x1F6AB;';
+							break;
+
+						default:
+							$data[$permission][$group->id] = '&mdash;';
+							break;
+					}
 				}
 			}
 		}
@@ -585,10 +623,10 @@ class Reports implements ActionInterface
 	public function staff(): void
 	{
 		// Get a list of global moderators (i.e. members with moderation powers).
-		$global_mods = array_intersect(User::membersAllowedTo('moderate_board', 0), User::membersAllowedTo('approve_posts', 0), User::membersAllowedTo('remove_any', 0), User::membersAllowedTo('modify_any', 0));
+		$global_mods = array_intersect(User::getAllowedTo('moderate_board', 0), User::getAllowedTo('approve_posts', 0), User::getAllowedTo('remove_any', 0), User::getAllowedTo('modify_any', 0));
 
 		// How about anyone else who is special?
-		$allStaff = array_merge(User::membersAllowedTo('admin_forum'), User::membersAllowedTo('manage_membergroups'), User::membersAllowedTo('manage_permissions'), $global_mods);
+		$allStaff = array_merge(User::getAllowedTo('admin_forum'), User::getAllowedTo('manage_membergroups'), User::getAllowedTo('manage_permissions'), $global_mods);
 
 		// Make sure everyone is there once - no admin less important than any other!
 		$allStaff = array_unique($allStaff);
@@ -900,5 +938,3 @@ class Reports implements ActionInterface
 		$this->key_method = $method == 'rows' ? 'rows' : 'cols';
 	}
 }
-
-?>

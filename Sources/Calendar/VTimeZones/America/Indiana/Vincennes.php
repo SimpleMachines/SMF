@@ -200,5 +200,3 @@ class Vincennes extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

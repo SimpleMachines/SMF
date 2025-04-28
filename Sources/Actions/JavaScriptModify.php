@@ -377,5 +377,3 @@ class JavaScriptModify implements ActionInterface, Routable
 		User::$me->checkSession('get');
 	}
 }
-
-?>

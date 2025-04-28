@@ -2562,5 +2562,3 @@ function template_delete_install()
 		<br>
 		', Lang::$txt['good_luck'];
 }
-
-?>

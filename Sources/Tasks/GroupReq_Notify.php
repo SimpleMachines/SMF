@@ -57,7 +57,7 @@ class GroupReq_Notify extends BackgroundTask
 		Db::$db->free_result($request);
 
 		// Make sure anyone who can moderate_membergroups gets notified as well
-		$moderators = array_unique(array_merge($moderators, User::membersAllowedTo('manage_membergroups')));
+		$moderators = array_unique(array_merge($moderators, User::getAllowedTo('manage_membergroups')));
 
 		if (!empty($moderators)) {
 			// Figure out who wants to be alerted/emailed about this
@@ -130,5 +130,3 @@ class GroupReq_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

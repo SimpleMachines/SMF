@@ -133,5 +133,3 @@ class Manila extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

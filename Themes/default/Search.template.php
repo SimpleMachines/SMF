@@ -391,5 +391,3 @@ function template_results()
 		</script>
 	</div>';
 }
-
-?>

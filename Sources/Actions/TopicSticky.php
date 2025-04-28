@@ -72,5 +72,3 @@ class TopicSticky implements ActionInterface, Routable
 		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
 	}
 }
-
-?>

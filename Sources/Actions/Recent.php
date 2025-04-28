@@ -687,5 +687,3 @@ class Recent implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

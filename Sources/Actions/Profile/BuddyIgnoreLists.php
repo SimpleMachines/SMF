@@ -487,5 +487,3 @@ class BuddyIgnoreLists implements ActionInterface
 		}
 	}
 }
-
-?>

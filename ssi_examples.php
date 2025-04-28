@@ -670,5 +670,3 @@ unset($topics);
 
 	return $result;
 }
-
-?>

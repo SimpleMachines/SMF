@@ -41,7 +41,7 @@ class MsgReport_Notify extends BackgroundTask
 	{
 		// We need to know who can moderate this board - and therefore who can see this report.
 		// First up, people who have moderate_board in the board this topic was in.
-		$members = User::membersAllowedTo('moderate_board', (int) $this->_details['board_id']);
+		$members = User::getAllowedTo('moderate_board', (int) $this->_details['board_id']);
 
 		// Second, anyone assigned to be a moderator of this board directly.
 		$request = Db::$db->query(
@@ -195,5 +195,3 @@ class MsgReport_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

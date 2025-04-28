@@ -93,5 +93,3 @@ class Juba extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

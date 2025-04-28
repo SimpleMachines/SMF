@@ -1168,5 +1168,3 @@ class Image
 		return 0;
 	}
 }
-
-?>

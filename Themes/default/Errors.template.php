@@ -383,5 +383,3 @@ function template_show_backtrace()
 	</body>
 </html>';
 }
-
-?>

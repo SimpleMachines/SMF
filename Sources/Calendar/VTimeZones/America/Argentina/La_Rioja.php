@@ -289,5 +289,3 @@ class La_Rioja extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

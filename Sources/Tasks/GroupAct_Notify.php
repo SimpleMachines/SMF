@@ -139,5 +139,3 @@ class GroupAct_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

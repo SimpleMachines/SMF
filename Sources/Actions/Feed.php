@@ -3242,5 +3242,3 @@ class Feed implements ActionInterface, Routable
 		return $val;
 	}
 }
-
-?>

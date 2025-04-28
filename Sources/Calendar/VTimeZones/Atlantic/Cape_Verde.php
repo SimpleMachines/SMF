@@ -70,5 +70,3 @@ class Cape_Verde extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

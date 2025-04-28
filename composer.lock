@@ -669,12 +669,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/SimpleMachines/BuildTools.git",
-                "reference": "8ca76ba0888bfd51d407901f23413cd1e468f207"
+                "reference": "1a9a3373f953034b3d430613abccae55697751d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/8ca76ba0888bfd51d407901f23413cd1e468f207",
-                "reference": "8ca76ba0888bfd51d407901f23413cd1e468f207",
+                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/1a9a3373f953034b3d430613abccae55697751d8",
+                "reference": "1a9a3373f953034b3d430613abccae55697751d8",
                 "shasum": ""
             },
             "require": {

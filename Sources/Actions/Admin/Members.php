@@ -1670,5 +1670,3 @@ class Members implements ActionInterface
 		}
 	}
 }
-
-?>

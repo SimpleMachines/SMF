@@ -767,5 +767,3 @@ class XmlArray
 		return $results + ['name' => $path . '[]'];
 	}
 }
-
-?>

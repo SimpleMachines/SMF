@@ -87,5 +87,3 @@ class Costa_Rica extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

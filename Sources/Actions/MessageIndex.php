@@ -1126,5 +1126,3 @@ class MessageIndex implements ActionInterface, Routable
 		IntegrationHook::call('integrate_messageindex_buttons', [&Utils::$context['normal_buttons']]);
 	}
 }
-
-?>

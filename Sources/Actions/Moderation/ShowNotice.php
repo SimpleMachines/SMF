@@ -74,5 +74,3 @@ class ShowNotice implements ActionInterface
 		);
 	}
 }
-
-?>

@@ -1384,5 +1384,3 @@ class ReportedContent implements ActionInterface
 		}
 	}
 }
-
-?>

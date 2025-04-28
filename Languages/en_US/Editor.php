@@ -77,5 +77,6 @@ $editortxt['float_right'] = 'Float right';
 $editortxt['maximize'] = 'Maximize';
 $editortxt['dateformat'] = 'month/day/year';
 $editortxt['heading'] = 'Heading';
-
-?>
+$editortxt['details'] = 'Details';
+$editortxt['summary_prompt'] = 'Summary text:';
+$editortxt['spoiler'] = 'Spoiler';

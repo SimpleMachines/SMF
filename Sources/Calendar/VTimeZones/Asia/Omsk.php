@@ -117,5 +117,3 @@ class Omsk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

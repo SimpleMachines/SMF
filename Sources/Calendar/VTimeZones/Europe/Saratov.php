@@ -124,5 +124,3 @@ class Saratov extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -276,5 +276,3 @@ class Summary implements ActionInterface
 		}
 	}
 }
-
-?>

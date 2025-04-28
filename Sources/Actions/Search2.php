@@ -358,8 +358,8 @@ class Search2 implements ActionInterface, Routable
 		];
 
 		// Now that we know how many results to expect we can start calculating the page numbers.
-		$start = (int) $_REQUEST['start'];
-		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), $start, $this->num_results, (int) Config::$modSettings['search_results_per_page'], false);
+		Utils::$context['start'] = (int) $_REQUEST['start'];
+		Utils::$context['page_index'] = new PageIndex(Config::$scripturl . '?action=search2;params=' . SearchApi::$loadedApi->compressParams(), Utils::$context['start'], $this->num_results, (int) Config::$modSettings['search_results_per_page'], false);
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != Utils::$context['start']) {
@@ -518,5 +518,3 @@ class Search2 implements ActionInterface, Routable
 		SearchApi::$loadedApi->setParticipants();
 	}
 }
-
-?>

@@ -177,5 +177,3 @@ class Edmonton extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

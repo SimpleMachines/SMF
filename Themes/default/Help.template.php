@@ -69,5 +69,3 @@ function template_manual()
 				</div><!-- #helpmain -->
 			</div><!-- #help_container -->';
 }
-
-?>

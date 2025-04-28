@@ -160,5 +160,3 @@ function template_ask()
 		var verificationHandle = new smfRegister("creator", ', empty(Config::$modSettings['password_strength']) ? 0 : Config::$modSettings['password_strength'], ', regTextStrings);
 	</script>';
 }
-
-?>

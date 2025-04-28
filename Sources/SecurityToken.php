@@ -237,5 +237,3 @@ class SecurityToken extends \ArrayObject
 		return hash_hmac('sha1', $val . (User::$sc ?? '') . ($_SERVER['HTTP_USER_AGENT'] ?? ''), Config::getAuthSecret());
 	}
 }
-
-?>

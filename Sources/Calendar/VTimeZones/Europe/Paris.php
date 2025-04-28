@@ -385,5 +385,3 @@ class Paris extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

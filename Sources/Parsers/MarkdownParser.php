@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Parsers;
 
 use SMF\Autolinker;
+use SMF\BBCode\BBCode;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -805,7 +806,7 @@ class MarkdownParser extends Parser
 				'/<((?>div class="(?>inline-block|justifytext|centertext|bbc_float|righttext|lefttext)|blockquote|\/cite))\b[^>]*>(?!(?:\n\n|\s*(?:<|$)))/uim' => fn($m) => $m[0] . "\n\n",
 
 				// Insert two line breaks after certain other tags, always.
-				'/<((?>marquee|\/h[1-6]|li|t(?>d|h)))\b[^>]*>(?!\n\n)/uim' => fn($m) => $m[0] . "\n\n",
+				'/(<\/(?>picture|section|iframe|main|li|ol|ul|a(?>ddress|rticle|side)|d(?>etails|iv|d|l|t)|f(?>rame(?>set|)|i(?>eldset|gure)|o(?>oter|rm))|h(?>eader|[1-6]))\b[^>]*>)(\n{0,2})/uim' => fn($m) => $m[1] . "\n\n",
 
 				// Insert one line break before certain tags.
 				'/(^|[^>])\h*\K<\/((?>blockquote|marquee|div|h[1-6]|li|t(?>d|h)))>/uim' => fn($m) => "\n" . $m[0],
@@ -3114,16 +3115,16 @@ class MarkdownParser extends Parser
 					return;
 				}
 
-				$bbc_type = !empty($element['properties']['info_string']) ? 'unparsed_equals_content' : 'unparsed_content';
+				$bbc_type = !empty($element['properties']['info_string']) ? BBCode::TYPE_UNPARSED_EQUALS_CONTENT : BBCode::TYPE_UNPARSED_CONTENT;
 
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === 'code' && $code['type'] === $bbc_type) {
-						list($before, $after) = preg_split('/\$1/', $code['content']);
+					if ($code->tag === 'code' && $code->type === $bbc_type) {
+						list($before, $after) = preg_split('/\$1/', $code->content);
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
@@ -3217,22 +3218,22 @@ class MarkdownParser extends Parser
 
 				foreach (BBCodeParser::getCodes() as $code) {
 					if (
-						$code['tag'] === 'quote'
-						&& !isset($code['type'])
-						&& !isset($code['parameters'])
+						$code->tag === 'quote'
+						&& !isset($code->type)
+						&& !isset($code->parameters)
 					) {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
 				// Add a class to the quote to style nested blockquotes.
-				$code['before'] = strtr($code['before'], ['<blockquote>' => '<blockquote class="bbc_' . ($nesting_level % 2 === 1 ? 'alternate' : 'standard') . '_quote">']);
+				$code->before = strtr($code->before, ['<blockquote>' => '<blockquote class="bbc_' . ($nesting_level % 2 === 1 ? 'alternate' : 'standard') . '_quote">']);
 
-				$this->rendered .= strtr($code['before'], ['{txt_quote}' => Lang::getTxt('quote', file: 'General')]);
+				$this->rendered .= strtr($code->before, ['{txt_quote}' => Lang::getTxt('quote', file: 'General')]);
 				break;
 
 			default:
@@ -3275,7 +3276,7 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= $code['after'];
+				$this->rendered .= $code->after;
 				break;
 
 			default:
@@ -3316,19 +3317,19 @@ class MarkdownParser extends Parser
 
 				foreach (BBCodeParser::getCodes() as $code) {
 					if (
-						$code['tag'] === 'list'
-						&& isset($code['parameters']['type'])
-						&& str_contains($code['parameters']['type']['match'], $style_type)
+						$code->tag === 'list'
+						&& isset($code->parameters['type'])
+						&& str_contains($code->parameters['type']['match'], $style_type)
 					) {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= strtr($code['before'], ['{type}' => $style_type]);
+				$this->rendered .= strtr($code->before, ['{type}' => $style_type]);
 				break;
 
 			default:
@@ -3350,7 +3351,7 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= $code['after'];
+				$this->rendered .= $code->after;
 				break;
 
 			default:
@@ -3383,16 +3384,16 @@ class MarkdownParser extends Parser
 				}
 
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === 'li') {
+					if ($code->tag === 'li') {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= $code['before'];
+				$this->rendered .= $code->before;
 				break;
 
 			default:
@@ -3434,7 +3435,7 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= $code['after'];
+				$this->rendered .= $code->after;
 				break;
 
 			default:
@@ -3459,16 +3460,16 @@ class MarkdownParser extends Parser
 
 			case self::OUTPUT_HTML:
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === 'hr') {
+					if ($code->tag === 'hr') {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= $code['content'];
+				$this->rendered .= $code->content;
 				break;
 
 			default:
@@ -3501,16 +3502,16 @@ class MarkdownParser extends Parser
 				}
 
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === 'h' . $element['properties']['level']) {
+					if ($code->tag === 'h' . $element['properties']['level']) {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= $code['before'];
+				$this->rendered .= $code->before;
 				break;
 
 			default:
@@ -3548,12 +3549,12 @@ class MarkdownParser extends Parser
 
 			case self::OUTPUT_HTML:
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === 'h' . $element['properties']['level']) {
+					if ($code->tag === 'h' . $element['properties']['level']) {
 						break;
 					}
 				}
 
-				$this->rendered .= $code['after'];
+				$this->rendered .= $code->after;
 				$this->rendered .= "\n";
 				break;
 
@@ -3609,17 +3610,17 @@ class MarkdownParser extends Parser
 				}
 
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === 'table') {
+					if ($code->tag === 'table') {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 					$is_disabled = true;
 				}
 
-				$this->rendered .= $code['before'];
+				$this->rendered .= $code->before;
 				break;
 
 			default:
@@ -3664,17 +3665,17 @@ class MarkdownParser extends Parser
 
 		switch ($this->output_type) {
 			case self::OUTPUT_BBC:
-				$this->rendered .= '[table]';
+				$this->rendered .= '[/table]';
 				$this->rendered .= "\n";
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= $code['after'];
+				$this->rendered .= $code->after;
 				$this->rendered .= "\n";
 				break;
 
 			default:
-				$this->rendered .= '<table>';
+				$this->rendered .= '</table>';
 				$this->rendered .= "\n";
 				break;
 		}
@@ -3811,16 +3812,16 @@ class MarkdownParser extends Parser
 				}
 
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === $bbc && $code['type'] === 'unparsed_equals') {
+					if ($code->tag === $bbc && $code->type === 'unparsed_equals') {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= strtr($code['before'], ['$1' => $element['properties']['url']]);
+				$this->rendered .= strtr($code->before, ['$1' => $element['properties']['url']]);
 				break;
 
 			default:
@@ -3838,7 +3839,7 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= strtr($code['after'], ['$1' => $element['properties']['url']]);
+				$this->rendered .= strtr($code->after, ['$1' => $element['properties']['url']]);
 				break;
 
 			default:
@@ -3891,16 +3892,16 @@ class MarkdownParser extends Parser
 
 			case self::OUTPUT_HTML:
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === 'tt') {
+					if ($code->tag === 'tt') {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= $code['before'];
+				$this->rendered .= $code->before;
 				break;
 
 			default:
@@ -3918,7 +3919,7 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= $code['after'];
+				$this->rendered .= $code->after;
 				break;
 
 			default:
@@ -3941,16 +3942,16 @@ class MarkdownParser extends Parser
 
 			case self::OUTPUT_HTML:
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === 'i') {
+					if ($code->tag === 'i') {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= $code['before'];
+				$this->rendered .= $code->before;
 				break;
 
 			default:
@@ -3968,7 +3969,7 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= $code['after'];
+				$this->rendered .= $code->after;
 				break;
 
 			default:
@@ -3991,16 +3992,16 @@ class MarkdownParser extends Parser
 
 			case self::OUTPUT_HTML:
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === 'b') {
+					if ($code->tag === 'b') {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= $code['before'];
+				$this->rendered .= $code->before;
 				break;
 
 			default:
@@ -4018,7 +4019,7 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= $code['after'];
+				$this->rendered .= $code->after;
 				break;
 
 			default:
@@ -4041,16 +4042,16 @@ class MarkdownParser extends Parser
 
 			case self::OUTPUT_HTML:
 				foreach (BBCodeParser::getCodes() as $code) {
-					if ($code['tag'] === 's') {
+					if ($code->tag === 's') {
 						break;
 					}
 				}
 
-				if (isset($this->disabled[$code['tag']])) {
+				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= $code['before'];
+				$this->rendered .= $code->before;
 				break;
 
 			default:
@@ -4068,7 +4069,7 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= $code['after'];
+				$this->rendered .= $code->after;
 				break;
 
 			default:
@@ -4158,5 +4159,3 @@ class MarkdownParser extends Parser
 		}
 	}
 }
-
-?>

@@ -248,5 +248,3 @@ class Tirane extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

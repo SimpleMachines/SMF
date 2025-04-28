@@ -461,5 +461,3 @@ class Campo_Grande extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

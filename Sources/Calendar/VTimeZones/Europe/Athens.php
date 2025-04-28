@@ -221,5 +221,3 @@ class Athens extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

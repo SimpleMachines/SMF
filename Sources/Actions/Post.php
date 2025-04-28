@@ -2207,5 +2207,3 @@ class Post implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

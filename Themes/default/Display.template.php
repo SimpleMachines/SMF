@@ -965,5 +965,3 @@ function template_quickreply()
 			<input type="hidden" name="spellstring" value="">
 		</form>';
 }
-
-?>

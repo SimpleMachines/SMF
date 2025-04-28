@@ -147,5 +147,3 @@ class Vancouver extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -193,5 +193,3 @@ class Bermuda extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

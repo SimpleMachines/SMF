@@ -38,7 +38,7 @@ class Register_Notify extends BackgroundTask
 	public function execute(): bool
 	{
 		// Get everyone who could be notified.
-		$members = User::membersAllowedTo('moderate_forum');
+		$members = User::getAllowedTo('moderate_forum');
 
 		// Having successfully figured this out, now let's get the preferences of everyone.
 		$prefs = Notify::getNotifyPrefs($members, 'member_register', true);
@@ -132,5 +132,3 @@ class Register_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

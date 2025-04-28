@@ -289,5 +289,3 @@ class San_Juan extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

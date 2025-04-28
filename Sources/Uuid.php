@@ -1045,5 +1045,3 @@ class Uuid implements \Stringable
 		return ltrim($hex, '0');
 	}
 }
-
-?>

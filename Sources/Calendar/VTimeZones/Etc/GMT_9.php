@@ -41,5 +41,3 @@ class GMT_9 extends \SMF\Calendar\VTimeZone
 	 */
 	public array $components = [];
 }
-
-?>

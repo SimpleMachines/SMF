@@ -223,5 +223,3 @@ class Boa_Vista extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

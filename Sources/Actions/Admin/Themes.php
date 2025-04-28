@@ -2268,5 +2268,3 @@ class Themes implements ActionInterface
 		return array_merge($list1, $list2);
 	}
 }
-
-?>

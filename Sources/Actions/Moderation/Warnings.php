@@ -747,5 +747,3 @@ class Warnings implements ActionInterface
 		}
 	}
 }
-
-?>

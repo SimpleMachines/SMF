@@ -87,5 +87,3 @@ class Andorra extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

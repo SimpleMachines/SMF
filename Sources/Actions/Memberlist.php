@@ -850,5 +850,3 @@ class Memberlist implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

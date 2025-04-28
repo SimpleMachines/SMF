@@ -904,5 +904,3 @@ function template_banned_warning_below()
 {
 
 }
-
-?>

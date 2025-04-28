@@ -78,5 +78,3 @@ class ForumProfile implements ActionInterface
 		}
 	}
 }
-
-?>

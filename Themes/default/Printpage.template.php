@@ -238,5 +238,3 @@ function template_print_options()
 	echo '
 		</div><!-- .print_options -->';
 }
-
-?>

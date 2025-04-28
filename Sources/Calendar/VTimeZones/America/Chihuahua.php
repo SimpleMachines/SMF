@@ -144,5 +144,3 @@ class Chihuahua extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

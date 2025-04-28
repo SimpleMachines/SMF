@@ -1613,5 +1613,3 @@ class Alert implements \ArrayAccess
 		Db::$db->free_result($request);
 	}
 }
-
-?>

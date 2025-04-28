@@ -205,5 +205,3 @@ class Prague extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

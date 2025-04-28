@@ -941,5 +941,3 @@ class Logs implements ActionInterface
 		}
 	}
 }
-
-?>

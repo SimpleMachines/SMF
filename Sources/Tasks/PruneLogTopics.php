@@ -205,5 +205,3 @@ class PruneLogTopics extends ScheduledTask
 		return true;
 	}
 }
-
-?>

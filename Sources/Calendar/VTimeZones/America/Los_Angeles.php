@@ -186,5 +186,3 @@ class Los_Angeles extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

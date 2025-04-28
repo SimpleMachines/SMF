@@ -160,5 +160,3 @@ class Detroit extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -167,5 +167,3 @@ class Ciudad_Juarez extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

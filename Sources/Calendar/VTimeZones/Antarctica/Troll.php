@@ -65,5 +65,3 @@ class Troll extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

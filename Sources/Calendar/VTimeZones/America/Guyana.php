@@ -70,5 +70,3 @@ class Guyana extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

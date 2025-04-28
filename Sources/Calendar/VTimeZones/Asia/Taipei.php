@@ -176,5 +176,3 @@ class Taipei extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

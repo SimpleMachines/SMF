@@ -84,5 +84,3 @@ class Kwajalein extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -132,5 +132,3 @@ class NotifyTopic extends Notify
 		return Lang::getTxt('notify_topic' . (!empty($this->alert_pref & parent::PREF_EMAIL) ? '_subscribed' : '_unsubscribed'), self::$member_info, file: 'General');
 	}
 }
-
-?>

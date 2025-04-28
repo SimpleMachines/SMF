@@ -224,5 +224,3 @@ interface SearchApiInterface
 	 */
 	public function getDescription(): string;
 }
-
-?>

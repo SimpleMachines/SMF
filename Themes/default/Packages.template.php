@@ -1858,5 +1858,3 @@ function template_action_permissions()
 		doAutoSubmit(', $countDown, ', ', Utils::escapeJavaScript(Lang::$txt['not_done_continue']), '"perm_submit", "go");
 	</script>';
 }
-
-?>

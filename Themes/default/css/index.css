@@ -709,6 +709,61 @@ blockquote cite::before {
 .bbc_h6 {
 	font-size: 1em;
 }
+.bbc_details,
+.bbc_summary,
+.bbc_details_content {
+	margin: 5px;
+}
+.bbc_details {
+	border: 1px dotted #aaa;
+	margin: 5px;
+}
+.bbc_summary {
+	cursor: pointer;
+	margin: 5px;
+}
+.bbc_details[open] > .bbc_summary {
+    padding-bottom: 7px;
+	border-bottom: 1px dotted #aaa;
+}
+.bbc_inline_spoiler {
+	cursor: pointer;
+	border-radius: 3px;
+	background-color: currentcolor;
+	position: relative;
+	transition-property: background-color;
+	transition-duration: 0.5s;
+}
+.bbc_inline_spoiler.revealed {
+	background-color: transparent;
+}
+.bbc_inline_spoiler > button {
+	all: unset;
+	display: inline;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	border-color: transparent;
+	background-color: transparent;
+}
+.bbc_inline_spoiler > button:focus-visible {
+	outline: 2px solid #7fb0d8;
+}
+.bbc_inline_spoiler > span {
+	/*
+		The visibility value is vital to making spoiler tags work correctly with
+		assistive technologies (e.g. screen readers). If you are customizing the
+		CSS for your theme, you should not change this part.
+	*/
+	visibility: hidden;
+	transition-property: visibility;
+	transition-duration: inherit;
+}
+.bbc_inline_spoiler.revealed > span {
+	visibility: visible;
+}
 
 /* No image should have a border when linked. */
 a img {

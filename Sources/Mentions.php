@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace SMF;
 
+use SMF\BBCode\BBCode;
 use SMF\Db\DatabaseApi as Db;
 
 /**
@@ -485,7 +486,16 @@ class Mentions
 
 			// Exclude everything with unparsed content.
 			foreach (Parser::getBBCodes() as $code) {
-				if (!empty($code['type']) && in_array($code['type'], ['unparsed_content', 'unparsed_commas_content', 'unparsed_equals_content'])) {
+				if (
+					in_array(
+						$code['type'] ?? null,
+						[
+							BBCode::TYPE_UNPARSED_CONTENT,
+							BBCode::TYPE_UNPARSED_COMMAS_CONTENT,
+							BBCode::TYPE_UNPARSED_EQUALS_CONTENT,
+						],
+					)
+				) {
 					$excluded_bbc[] = $code['tag'];
 				}
 			}
@@ -494,5 +504,3 @@ class Mentions
 		}
 	}
 }
-
-?>

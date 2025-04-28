@@ -3026,5 +3026,3 @@ class Profile extends User implements \ArrayAccess
 if (is_callable([Profile::class, 'exportStatic'])) {
 	Profile::exportStatic();
 }
-
-?>

@@ -49,5 +49,3 @@ class Bangkok extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

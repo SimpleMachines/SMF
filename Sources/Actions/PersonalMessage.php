@@ -1001,5 +1001,3 @@ class PersonalMessage implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

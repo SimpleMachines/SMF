@@ -543,6 +543,11 @@ class Editor implements \ArrayAccess, \Stringable
 					'code' => 'subscript',
 					'description' => Lang::getTxt('subscript', var: 'editortxt'),
 				],
+				[
+					'image' => 'tt',
+					'code' => 'tt',
+					'description' => Lang::getTxt('tt', var: 'editortxt'),
+				],
 				[],
 				[
 					'code' => 'pre',
@@ -623,13 +628,13 @@ class Editor implements \ArrayAccess, \Stringable
 					'description' => Lang::getTxt('code', var: 'editortxt'),
 				],
 				[
-					'image' => 'tt',
-					'code' => 'tt',
-					'description' => Lang::getTxt('tt', var: 'editortxt'),
-				],
-				[
 					'code' => 'quote',
 					'description' => Lang::getTxt('insert_quote', var: 'editortxt'),
+				],
+				[
+					'image' => 'heading',
+					'code' => 'heading',
+					'description' => Lang::getTxt('heading', var: 'editortxt'),
 				],
 				[],
 				[
@@ -643,11 +648,6 @@ class Editor implements \ArrayAccess, \Stringable
 				[
 					'code' => 'horizontalrule',
 					'description' => Lang::getTxt('insert_horizontal_rule', var: 'editortxt'),
-				],
-				[
-					'image' => 'heading',
-					'code' => 'heading',
-					'description' => Lang::getTxt('heading', var: 'editortxt'),
 				],
 				[],
 				[
@@ -715,6 +715,9 @@ class Editor implements \ArrayAccess, \Stringable
 			'More' => Lang::getTxt('more', var: 'editortxt'),
 			'Close' => Lang::getTxt('close', var: 'editortxt'),
 			'dateFormat' => Lang::getTxt('dateformat', var: 'editortxt'),
+			'details' => Lang::getTxt('details', var: 'editortxt'),
+			'spoiler' => Lang::getTxt('spoiler', var: 'editortxt'),
+			'summaryPrompt' => Lang::getTxt('summary_prompt', var: 'editortxt'),
 		];
 		IntegrationHook::call('integrate_sceditor_locale', [&$translation_map]);
 
@@ -814,6 +817,26 @@ class Editor implements \ArrayAccess, \Stringable
 			'sub' => 'subscript',
 			'hr' => 'horizontalrule',
 		];
+
+		// Disable the buttons for any BBC that this user is not allowed to use.
+		foreach (Utils::$context['restricted_bbc'] as $tag) {
+			if (!User::$me->allowedTo('bbc_' . $tag)) {
+				if ($tag === 'list') {
+					$context['disabled_tags']['bulletlist'] = true;
+					$context['disabled_tags']['orderedlist'] = true;
+				} elseif ($tag === 'float') {
+					$context['disabled_tags']['floatleft'] = true;
+					$context['disabled_tags']['floatright'] = true;
+				} elseif (isset($editor_tag_map[$tag])) {
+					Utils::$context['disabled_tags'][$editor_tag_map[$tag]] = true;
+				}
+
+				Utils::$context['disabled_tags'][$tag] = true;
+			}
+		}
+
+		// Allow mods to modify BBC buttons.
+		IntegrationHook::call('integrate_bbc_buttons', [&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags]);
 
 		// Generate a list of buttons that shouldn't be shown - this should be the fastest way to do this.
 		$disabled_bbc = !empty(Config::$modSettings['disabledBBC']) ? explode(',', Config::$modSettings['disabledBBC']) : [];
@@ -954,7 +977,7 @@ class Editor implements \ArrayAccess, \Stringable
 			Theme::loadJavaScriptFile('sceditor.plugins.xml-preview.js', ['minimize' => true], 'smf_xml_preview');
 		}
 
-		if (!empty(Config::$modSettings['autoLinkUrls']) && empty($editorOptions['disable_url_autolinking'])) {
+		if (!empty(Config::$modSettings['autoLinkUrls']) && empty($editorOptions['disable_url_autolinking']) && User::$me->allowedTo('bbc_url')) {
 			$editorOptions['plugins'][] = 'autolinker';
 			Autolinker::createJavaScriptFile();
 			Theme::loadJavaScriptFile('sceditor.plugins.autolinker.js', ['minimize' => true], 'smf_autolinker');
@@ -1013,6 +1036,7 @@ class Editor implements \ArrayAccess, \Stringable
 			],
 		];
 
+		if (!empty(Config::$modSettings['autoLinkUrls']) && User::$me->allowedTo('bbc_url')) {
 		if (isset($editorOptions['options'])) {
 			$this->sce_options = array_merge_recursive($this->sce_options, $editorOptions['options']);
 		}
@@ -1039,5 +1063,3 @@ class Editor implements \ArrayAccess, \Stringable
 		IntegrationHook::call('integrate_sceditor_options', [&$this->sce_options]);
 	}
 }
-
-?>

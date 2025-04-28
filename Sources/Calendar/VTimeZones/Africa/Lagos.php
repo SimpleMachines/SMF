@@ -70,5 +70,3 @@ class Lagos extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

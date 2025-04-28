@@ -1477,5 +1477,3 @@ function country_currencies(): array
 		],
 	];
 }
-
-?>

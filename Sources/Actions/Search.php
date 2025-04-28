@@ -226,5 +226,3 @@ class Search implements ActionInterface, Routable
 		IntegrationHook::call('integrate_search');
 	}
 }
-
-?>

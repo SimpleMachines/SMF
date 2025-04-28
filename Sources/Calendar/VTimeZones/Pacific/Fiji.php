@@ -139,5 +139,3 @@ class Fiji extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -389,5 +389,3 @@ class Santiago extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

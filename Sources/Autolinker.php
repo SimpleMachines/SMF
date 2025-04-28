@@ -580,25 +580,18 @@ class Autolinker
 		}
 
 		if ($link_emails) {
-			$string = $new_string;
-
 			$detected_emails = $this->detectEmails($string, true);
 
-			if (!empty($detected_emails)) {
-				$new_string = '';
-				$prev_pos = 0;
-				$prev_len = 0;
-
-				foreach ($detected_emails as $pos => $email) {
-					$new_string .= substr($string, $prev_pos + $prev_len, $pos - ($prev_pos + $prev_len));
-					$prev_pos = $pos;
-					$prev_len = strlen($email);
-
-					$new_string .= '[email]' . $email . '[/email]';
-				}
-
-				$new_string .= substr($string, $prev_pos + $prev_len);
-			}
+			$new_string = strtr(
+				$new_string,
+				array_combine(
+					$detected_emails,
+					array_map(
+						fn($email) => '[email]' . $email . '[/email]',
+						$detected_emails,
+					),
+				),
+			);
 		}
 
 		if (!empty($placeholders)) {
@@ -617,6 +610,19 @@ class Autolinker
 	public function fixUrlsInBBC(string $string): string
 	{
 		static $tags_to_fix_regex;
+
+		$placeholders = [];
+
+		$string = preg_replace_callback(
+			'~\[(nobbc|nolink)\].*?\[/\1\]~',
+			function ($match) use (&$placeholders) {
+				$placeholder = md5($match[0]);
+				$placeholders[$placeholder] = $match[0];
+
+				return $placeholder;
+			},
+			$string,
+		);
 
 		// In case a mod wants to add tags to the list of BBC to fix URLs in.
 		if (!self::$integrate_autolinker_fix_tags_done) {
@@ -714,7 +720,7 @@ class Autolinker
 			}
 		}
 
-		return implode('', $parts);
+		return strtr(implode('', $parts), $placeholders);
 	}
 
 	/************************
@@ -1272,5 +1278,3 @@ class Autolinker
 		$this->js_url_regexes['naked_domain'] = $space_lookbehind . '(?:' . $domain . ')(?:(?=\/)' . $path_component . $query_component . $fragment_component . ')?' . $end;
 	}
 }
-
-?>

@@ -1004,6 +1004,7 @@ class ACP implements ActionInterface, Routable
 				Utils::$context['bbc_sections'][$bbcSection] = [
 					'title' => Lang::getTxt(Lang::txtExists('bbc_title_' . $bbcSection, file: 'Admin') ? 'bbc_title_' . $bbcSection : 'enabled_bbc_select', file: 'Admin'),
 					'disabled' => empty(Config::$modSettings['bbc_disabled_' . $bbcSection]) ? [] : Config::$modSettings['bbc_disabled_' . $bbcSection],
+					'forced' => !empty(Utils::$context['bbc_forced_' . $bbcSection]) ? Utils::$context['bbc_forced_' . $bbcSection] : [],
 					'all_selected' => empty(Config::$modSettings['bbc_disabled_' . $bbcSection]),
 					'columns' => [],
 				];
@@ -1027,7 +1028,7 @@ class ACP implements ActionInterface, Routable
 
 					Utils::$context['bbc_sections'][$bbcSection]['columns'][$col][] = [
 						'tag' => $tag,
-						'show_help' => Lang::txtExists('tag_' . $tag, var: 'helptxt'),
+						'show_help' => Lang::txtExists('tag_' . $tag, var: 'helptxt') || in_array($tag, Utils::$context['bbc_sections'][$bbcSection]['forced']),
 					];
 
 					$i++;
@@ -1720,7 +1721,7 @@ class ACP implements ActionInterface, Routable
 	public static function emailAdmins(string $template, array $replacements = [], array $additional_recipients = []): void
 	{
 		// Load all members which are effectively admins.
-		$members = User::membersAllowedTo('admin_forum');
+		$members = User::getAllowedTo('admin_forum');
 
 		// Load their alert preferences
 		$prefs = Notify::getNotifyPrefs($members, 'announcements', true);
@@ -2015,5 +2016,3 @@ class ACP implements ActionInterface, Routable
 		return $query_string;
 	}
 }
-
-?>

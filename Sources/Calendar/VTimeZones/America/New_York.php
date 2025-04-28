@@ -186,5 +186,3 @@ class New_York extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

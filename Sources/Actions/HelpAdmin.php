@@ -82,6 +82,15 @@ class HelpAdmin implements ActionInterface, Routable
 			Utils::$context['help_text'] = Lang::getTxt($_GET['help'], var: 'helptxt');
 		} elseif (Lang::txtExists($_GET['help'])) {
 			Utils::$context['help_text'] = Lang::getTxt($_GET['help']);
+		} elseif (
+			substr($_GET['help'], 0, 4) === 'tag_'
+			&& User::$me->allowedTo('admin_forum')
+			&& in_array(
+				substr($_GET['help'], 4),
+				empty(Config::$modSettings['restricted_bbc']) ? Utils::$context['restricted_bbc'] : array_diff(Utils::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc'])),
+			)
+		) {
+			Utils::$context['help_text'] = Lang::getTxt('restricted_bbc_forced', ['<span class="bbc_tt">[' . substr($_GET['help'], 4) . ']</span>'], var: 'helptxt');
 		} else {
 			ErrorHandler::fatalLang('not_found', false, [], 404);
 		}
@@ -202,5 +211,3 @@ class HelpAdmin implements ActionInterface, Routable
 		return $params;
 	}
 }
-
-?>

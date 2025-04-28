@@ -111,5 +111,3 @@ class Baghdad extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

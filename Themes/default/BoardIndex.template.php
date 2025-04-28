@@ -541,5 +541,3 @@ function template_ic_block_online()
 			</p>
 		</div>';
 }
-
-?>

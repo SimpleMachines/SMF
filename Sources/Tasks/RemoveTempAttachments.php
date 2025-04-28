@@ -78,5 +78,3 @@ class RemoveTempAttachments extends ScheduledTask
 		return true;
 	}
 }
-
-?>

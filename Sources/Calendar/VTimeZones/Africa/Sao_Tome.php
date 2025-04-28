@@ -63,5 +63,3 @@ class Sao_Tome extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

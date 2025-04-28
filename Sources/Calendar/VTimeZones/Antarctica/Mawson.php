@@ -56,5 +56,3 @@ class Mawson extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -1848,5 +1848,3 @@ class Languages implements ActionInterface
 		return $new_string;
 	}
 }
-
-?>

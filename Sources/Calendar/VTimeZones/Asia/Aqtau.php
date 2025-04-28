@@ -117,5 +117,3 @@ class Aqtau extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

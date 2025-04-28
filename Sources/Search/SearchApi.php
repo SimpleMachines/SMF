@@ -2350,5 +2350,3 @@ abstract class SearchApi implements SearchApiInterface
 if (is_callable([SearchApi::class, 'exportStatic'])) {
 	SearchApi::exportStatic();
 }
-
-?>

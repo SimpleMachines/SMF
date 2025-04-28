@@ -865,5 +865,3 @@ class Register2 extends Register
 		return $member_id;
 	}
 }
-
-?>

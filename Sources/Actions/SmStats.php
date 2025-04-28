@@ -134,5 +134,3 @@ class SmStats implements ActionInterface, Routable
 		die('OK');
 	}
 }
-
-?>

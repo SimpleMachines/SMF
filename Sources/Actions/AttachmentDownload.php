@@ -377,5 +377,3 @@ class AttachmentDownload implements ActionInterface, Routable
 		$this->showThumb = isset($_REQUEST['thumb']);
 	}
 }
-
-?>

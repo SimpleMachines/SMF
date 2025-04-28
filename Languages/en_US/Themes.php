@@ -167,7 +167,6 @@ $txt['themeadmin_themelist_link'] = 'Show the list of themes';
 $txt['og_image'] = 'Open Graph image';
 $txt['og_image_desc'] = 'Suggested size: 175x175px. <a href="https://ogp.me/" target="_blank" class="bbc_link">Open Graph</a> is used for social media sharing.';
 
-
 // Theme Mode (dark, light, system, etc)
 $txt['theme_pick_colormode'] = 'Select Color Mode';
 $txt['theme_colormode_default'] = 'Default color mode';
@@ -175,6 +174,3 @@ $txt['theme_colormode_user_disable'] = 'Disable user color mode selection';
 $txt['colormode_light'] = 'Light';
 $txt['colormode_dark'] = 'Dark';
 $txt['colormode_system'] = 'System Default';
-
-
-?>

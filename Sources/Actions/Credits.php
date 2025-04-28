@@ -432,5 +432,3 @@ class Credits implements ActionInterface, Routable
 		self::$obj->execute();
 	}
 }
-
-?>

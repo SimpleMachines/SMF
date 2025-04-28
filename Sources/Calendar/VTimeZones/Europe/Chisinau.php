@@ -201,5 +201,3 @@ class Chisinau extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

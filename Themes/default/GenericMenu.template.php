@@ -253,5 +253,3 @@ function template_generic_menu_tabs($menu_context)
 					</script>';
 	}
 }
-
-?>

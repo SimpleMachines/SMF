@@ -464,5 +464,3 @@ class Gibraltar extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

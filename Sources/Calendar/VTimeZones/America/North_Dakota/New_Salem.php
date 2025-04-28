@@ -148,5 +148,3 @@ class New_Salem extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

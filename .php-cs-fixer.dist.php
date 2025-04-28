@@ -30,20 +30,11 @@ $finder = (new PhpCsFixer\Finder())
 	// Skip anything being ignored in .gitignore.
 	->ignoreVCSIgnored(true);
 
-require_once('.github/phpcs/SMFClosingTag.php');
-
 return (new PhpCsFixer\Config())
-    ->registerCustomFixers([
-        new \SMF\Fixer\Whitespace\closing_tag_fixer(),
-    ])
 	->setRules([
 		'@PER-CS2.0' => true,
 
-		// A custom fixer for us to apply our line endings.
-        'SMF/closing_tag_fixer' => true,
-
 		// PSR12 overrides.
-		'no_closing_tag' => false,
 		'no_break_comment' => false,  // A bit buggy with comments.
 		'statement_indentation' => false, // A bit buggy with comments.
 
@@ -195,6 +186,5 @@ return (new PhpCsFixer\Config())
 		],
 	])
 	->setIndent("\t")
+	->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
 	->setFinder($finder);
-
-?>

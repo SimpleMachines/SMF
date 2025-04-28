@@ -3254,5 +3254,3 @@ function template_export_profile_data()
 			</form>
 		</div><!-- .windowbg -->';
 }
-
-?>
