@@ -1152,7 +1152,7 @@ class Permission implements \ArrayAccess
 		}
 
 		// If post moderation is disabled, disable the related permissions.
-		if (!Config::$modSettings['postmod_active']) {
+		if (empty(Config::$modSettings['postmod_active'])) {
 			self::$permissions['approve_posts']['hidden'] = true;
 			self::$permissions['post_unapproved_topics']['hidden'] = true;
 			self::$permissions['post_unapproved_replies_own']['hidden'] = true;

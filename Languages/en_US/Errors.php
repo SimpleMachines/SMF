@@ -127,7 +127,6 @@ $txt['cannot_report_any'] = 'You are not allowed to report posts in this board.'
 $txt['cannot_search_posts'] = 'You are not allowed to search for posts in this forum.';
 $txt['cannot_send_mail'] = 'You do not have the privilege of sending out emails to everyone.';
 $txt['cannot_issue_warning'] = 'Sorry, you do not have permission to issue warnings to members.';
-$txt['cannot_send_email_to_members'] = 'Sorry, but the administrator has disallowed sending emails on this board.';
 $txt['cannot_split_any'] = 'Splitting topics is not allowed in this board.';
 $txt['cannot_view_attachments'] = 'It seems that you are not allowed to download or view attachments on this board.';
 $txt['cannot_view_mlist'] = 'You cannot view the memberlist because you do not have permission to do so.';
