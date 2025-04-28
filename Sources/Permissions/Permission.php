@@ -17,6 +17,7 @@ namespace SMF\Permissions;
 
 use SMF\ArrayAccessHelper;
 use SMF\Config;
+use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -200,7 +201,8 @@ class Permission implements \ArrayAccess
 	 * @var array
 	 *
 	 * Definitions of all known permissions and their properties.
-	 * Protected to force access via getPermissions().
+	 *
+	 * Protected to force access via Permission::get().
 	 *
 	 * Mods can add to this list using the integrate_permission_list hook.
 	 */
@@ -1018,6 +1020,12 @@ class Permission implements \ArrayAccess
 	 */
 	public function eligibleGroups(bool $refresh = false): array
 	{
+		// No one is eligible for a non-existent permission.
+		if (!isset(self::$permissions[$this->name])) {
+			$this->eligibility = array_fill_keys(Group::getAll(), false);
+			$refresh = false;
+		}
+
 		if (!isset($this->eligibility) || $refresh) {
 			if (empty($this->assignee_prerequisites)) {
 				foreach (Group::getAll() as $group) {
@@ -1060,16 +1068,29 @@ class Permission implements \ArrayAccess
 	/**
 	 * Gets an instance of this class for the specified permission.
 	 *
+	 * If the permission does not exist, logs an error and then returns an
+	 * instance of this class for the non-existent permission with its
+	 * eligibility set so that nobody can have it -- not even admins!
+	 *
 	 * @param string $name The name of the permission.
-	 * @throws \ValueError if the specified permission does not exist.
 	 * @return self An instance of this class.
 	 */
 	public static function get(string $name): self
 	{
 		self::getAll();
 
+		// Asked for a non-existent permission.
 		if (!isset(self::$permissions[$name])) {
-			throw new \ValueError('Permission "' . $name . '" does not exist');
+			// First log this as an error.
+			ErrorHandler::log(Lang::getTxt('unknown_permission', [$name], file: 'Errors'), 'general', __FILE__, __LINE__);
+
+			// Now return a phantom permission that nobody can have.
+			return new self($name, [
+				'hidden' => true,
+				'never_guests' => true,
+				'can_assign' => false,
+				'eligibility' => array_fill_keys(Group::getAll(), false),
+			]);
 		}
 
 		return self::$permissions[$name];
@@ -1131,7 +1152,7 @@ class Permission implements \ArrayAccess
 		}
 
 		// If post moderation is disabled, disable the related permissions.
-		if (!Config::$modSettings['postmod_active']) {
+		if (empty(Config::$modSettings['postmod_active'])) {
 			self::$permissions['approve_posts']['hidden'] = true;
 			self::$permissions['post_unapproved_topics']['hidden'] = true;
 			self::$permissions['post_unapproved_replies_own']['hidden'] = true;
