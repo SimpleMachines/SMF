@@ -1525,7 +1525,8 @@ class Config
 			],
 			$neg_index-- => [
 				'search_pattern' => '~\S\K\s*(\?' . '>)?\s*$~',
-				'placeholder' => "\n" . md5($prefix . '?' . '>'),
+				'placeholder' => '',
+				'replace_pattern' => '~\s*$~',
 				'replacement' => "\n",
 			],
 			// Remove the code that redirects to the installer.
@@ -1779,7 +1780,7 @@ class Config
 		$settingsText = trim(strtr(file_get_contents($settingsFile), ["\r\n" => "\n", "\r" => "\n"]));
 
 		// If Settings.php is empty or corrupt for some reason, see if we can recover.
-		if (!defined('SMF_INSTALLING') && $settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php') {
+		if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php') {
 			// Try restoring from the backup.
 			if (file_exists($backupFile)) {
 				$settingsText = strtr(file_get_contents($backupFile), ["\r\n" => "\n", "\r" => "\n"]);
@@ -1790,7 +1791,12 @@ class Config
 				$settingsText = '<' . "?php\n";
 
 				foreach ($settings_defs as $var => $setting_def) {
-					if (is_string($var) && !empty($setting_def['text']) && !str_contains($substitutions[$var]['replacement'], $setting_def['text'])) {
+					if (
+						is_string($var)
+						&& $substitutions[$var]['replacement'] !== ''
+						&& !empty($setting_def['text'])
+						&& !str_contains($substitutions[$var]['replacement'], $setting_def['text'])
+					) {
 						$substitutions[$var]['replacement'] = $setting_def['text'] . "\n" . $substitutions[$var]['replacement'];
 					}
 
@@ -2080,6 +2086,7 @@ class Config
 					}
 				}
 			}
+
 			$settingsText = $new_settingsText;
 
 			// Restore the leading and trailing placeholders as necessary.
@@ -2111,7 +2118,10 @@ class Config
 					break;
 				}
 
-				if (isset($substitution['replacement'])) {
+				if (
+					isset($substitution['replacement'])
+					&& trim($substitution['replacement']) !== ''
+				) {
 					$bare_settingsText = str_replace($substitution['replacement'], '', $bare_settingsText);
 				}
 			}
@@ -2164,15 +2174,16 @@ class Config
 		foreach ($new_settings_vars as $var => $val) {
 			if (isset($substitutions[$var]) && !preg_match($substitutions[$var]['search_pattern'], $settingsText)) {
 				if (!isset($settings_defs[$var]) && !str_contains($settingsText, '# Custom Settings #')) {
-					$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n\n######### Custom Settings #########\n", $settingsText);
+					$settingsText .= "\n\n######### Custom Settings #########\n";
 				}
 
-				$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', $substitutions[$var]['replacement'] . "\n", $settingsText);
+				$settingsText .= $substitutions[$var]['replacement'] . "\n";
 			}
 		}
 
 		// This is just cosmetic. Get rid of extra lines of whitespace.
 		$settingsText = preg_replace('~\n\s*\n~', "\n\n", $settingsText);
+		$settingsText = rtrim($settingsText) . "\n";
 
 		/**************************************
 		 * PART 4: Check syntax before saving *
