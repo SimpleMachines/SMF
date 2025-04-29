@@ -688,7 +688,7 @@ class QueryString
 	 * @param string $buffer The unmodified output buffer.
 	 * @return string The modified buffer.
 	 */
-	public static function ob_sessrewrite(string $buffer): string
+	public static function obDebug(string $buffer): string
 	{
 		// Debugging templates, are we?
 		if (isset($_GET['debug'])) {

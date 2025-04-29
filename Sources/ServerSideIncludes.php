@@ -2727,7 +2727,7 @@ class ServerSideIncludes
 		}
 
 		// Primarily, this is to fix the URLs...
-		ob_start('SMF\\QueryString::ob_sessrewrite');
+		ob_start('SMF\\QueryString::obDebug');
 
 		// Start the session... known to scramble SSI includes in cases...
 		if (!headers_sent()) {

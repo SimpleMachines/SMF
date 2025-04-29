@@ -2323,7 +2323,7 @@ class Utils
 			}
 
 			// Start up the session URL fixer.
-			ob_start('SMF\\QueryString::ob_sessrewrite');
+			ob_start('SMF\\QueryString::obDebug');
 
 			// More work needed if using "queryless" URLS.
 			ob_start('SMF\\QueryString::rewriteAsQueryless');

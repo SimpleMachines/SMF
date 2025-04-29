@@ -8785,7 +8785,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ob_sessrewrite(string $buffer): string
 	{
-		return SMF\QueryString::ob_sessrewrite($buffer);
+		return SMF\QueryString::obDebug($buffer);
 	}
 
 	/****************
