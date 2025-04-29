@@ -3041,5 +3041,3 @@ function utf8_strtolower_maps(): array
 		"\xEF\xBC\xBA" => "\xEF\xBD\x9A",
 	];
 }
-
-?>

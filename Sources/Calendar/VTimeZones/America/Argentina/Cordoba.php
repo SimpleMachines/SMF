@@ -275,5 +275,3 @@ class Cordoba extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

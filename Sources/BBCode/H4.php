@@ -58,5 +58,3 @@ class H4 extends BBCode
 	 */
 	public bool $block_level = true;
 }
-
-?>

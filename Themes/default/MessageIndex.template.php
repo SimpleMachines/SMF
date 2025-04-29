@@ -567,5 +567,3 @@ function template_topic_legend()
 		</div><!-- .information -->
 	</div><!-- #topic_icons -->';
 }
-
-?>

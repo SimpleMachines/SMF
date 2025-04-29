@@ -122,5 +122,3 @@ class BuddyListToggle implements ActionInterface, Routable
 		$this->userReceiver = (int) !empty($_REQUEST['u']) ? $_REQUEST['u'] : 0;
 	}
 }
-
-?>

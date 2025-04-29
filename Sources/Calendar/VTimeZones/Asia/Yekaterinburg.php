@@ -117,5 +117,3 @@ class Yekaterinburg extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

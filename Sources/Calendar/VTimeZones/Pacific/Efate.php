@@ -94,5 +94,3 @@ class Efate extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

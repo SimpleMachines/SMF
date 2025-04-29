@@ -577,5 +577,3 @@ interface DatabaseApiInterface
 	 */
 	public function remove_index(string $table_name, string $index_name, array $parameters = [], string $error = 'fatal'): bool;
 }
-
-?>

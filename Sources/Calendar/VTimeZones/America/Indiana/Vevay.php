@@ -133,5 +133,3 @@ class Vevay extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

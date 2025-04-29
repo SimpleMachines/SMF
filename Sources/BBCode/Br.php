@@ -44,5 +44,3 @@ class Br extends BBCode
 	 */
 	public ?string $disabled_content = '';
 }
-
-?>

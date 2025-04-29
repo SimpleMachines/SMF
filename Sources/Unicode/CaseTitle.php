@@ -239,5 +239,3 @@ function utf8_titlecase_maps(): array
 		"\xEF\xAC\x97" => "\xD5\x84\xD5\xAD",
 	];
 }
-
-?>

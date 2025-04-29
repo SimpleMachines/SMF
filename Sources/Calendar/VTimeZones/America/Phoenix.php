@@ -109,5 +109,3 @@ class Phoenix extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

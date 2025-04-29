@@ -49,5 +49,3 @@ class Urumqi extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

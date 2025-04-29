@@ -2701,5 +2701,3 @@ class Event implements \ArrayAccess
 		return $input;
 	}
 }
-
-?>

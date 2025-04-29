@@ -389,5 +389,3 @@ class Coyhaique extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

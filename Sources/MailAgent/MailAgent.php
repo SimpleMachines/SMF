@@ -295,5 +295,3 @@ abstract class MailAgent
 		return $loaded_apis;
 	}
 }
-
-?>

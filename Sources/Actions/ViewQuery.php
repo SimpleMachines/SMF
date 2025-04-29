@@ -221,5 +221,3 @@ class ViewQuery implements ActionInterface, Routable
 		Utils::obExit(false);
 	}
 }
-
-?>

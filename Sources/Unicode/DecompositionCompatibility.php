@@ -3880,5 +3880,3 @@ function utf8_normalize_kd_maps(): array
 		"\xF0\x9F\xAF\xB9" => "\x39",
 	];
 }
-
-?>

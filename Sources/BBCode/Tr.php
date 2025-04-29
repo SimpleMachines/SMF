@@ -69,5 +69,3 @@ class Tr extends BBCode
 	 */
 	public ?array $require_children = ['td'];
 }
-
-?>

@@ -669,5 +669,3 @@ class EventOccurrence implements \ArrayAccess
 		}
 	}
 }
-
-?>

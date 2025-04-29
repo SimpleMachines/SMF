@@ -166,5 +166,3 @@ class MsgDelete implements ActionInterface, Routable
 		return $params;
 	}
 }
-
-?>

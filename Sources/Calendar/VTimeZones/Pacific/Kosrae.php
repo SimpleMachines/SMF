@@ -98,5 +98,3 @@ class Kosrae extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

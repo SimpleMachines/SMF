@@ -738,5 +738,3 @@ abstract class Parser
 		]));
 	}
 }
-
-?>

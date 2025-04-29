@@ -34,5 +34,3 @@ class Iurl1 extends Url1
 	 */
 	public ?string $content = '<a href="$1" class="bbc_link">$1</a>';
 }
-
-?>

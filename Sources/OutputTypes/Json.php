@@ -28,5 +28,3 @@ class Json implements OutputTypeInterface
 		return 'application/json';
 	}
 }
-
-?>

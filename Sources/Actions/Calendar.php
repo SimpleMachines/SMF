@@ -1880,5 +1880,3 @@ class Calendar implements ActionInterface, Routable
 		return $board_ids;
 	}
 }
-
-?>

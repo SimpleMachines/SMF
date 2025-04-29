@@ -668,5 +668,3 @@ function template_warn_template()
 		}
 	</script>';
 }
-
-?>

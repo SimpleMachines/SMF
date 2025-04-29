@@ -18,5 +18,3 @@ if (!defined('SMF')) {
 }
 
 require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
-
-?>

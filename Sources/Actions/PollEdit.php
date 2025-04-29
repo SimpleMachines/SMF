@@ -123,5 +123,3 @@ class PollEdit implements ActionInterface, Routable
 		Security::checkSubmitOnce('register');
 	}
 }
-
-?>

@@ -131,5 +131,3 @@ class Qostanay extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

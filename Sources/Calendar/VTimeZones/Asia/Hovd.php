@@ -126,5 +126,3 @@ class Hovd extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -126,7 +126,6 @@ $txt['group_perms_name_profile_title_any'] = 'Edit any custom title';
 $txt['group_perms_name_profile_title_own'] = 'Edit own custom title';
 $txt['group_perms_name_profile_view'] = 'View any user’s profile';
 $txt['group_perms_name_search_posts'] = 'Search for posts';
-$txt['group_perms_name_send_email_to_members'] = 'Send a forum email to members';
 $txt['group_perms_name_view_mlist'] = 'View the memberlist';
 $txt['group_perms_name_view_stats'] = 'View forum stats';
 $txt['group_perms_name_view_warning_any'] = 'View anyone’s warning status';
@@ -157,5 +156,3 @@ $txt['report_staff_posts'] = 'Posts';
 $txt['report_staff_last_login'] = 'Last Login';
 $txt['report_staff_all_boards'] = 'All boards';
 $txt['report_staff_no_boards'] = 'No boards';
-
-?>

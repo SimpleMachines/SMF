@@ -134,5 +134,3 @@ class IgnoreBoards implements ActionInterface
 		}
 	}
 }
-
-?>

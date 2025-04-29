@@ -420,5 +420,3 @@ class GroupMembership implements ActionInterface
 		);
 	}
 }
-
-?>

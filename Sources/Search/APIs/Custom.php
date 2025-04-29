@@ -107,7 +107,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getStatus(): ?string
 	{
@@ -123,7 +123,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
@@ -155,7 +155,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isValid(): bool
 	{
@@ -163,7 +163,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getSize(): int
 	{
@@ -221,7 +221,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function searchSort(string $a, string $b): int
 	{
@@ -232,7 +232,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
@@ -259,7 +259,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
@@ -375,7 +375,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
@@ -399,7 +399,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
@@ -458,7 +458,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postRemoved(int $id_msg): void
 	{
@@ -483,7 +483,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function topicsRemoved(array $topics): void
 	{
@@ -525,7 +525,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getAdminSubactions(): array
 	{
@@ -926,5 +926,3 @@ class Custom extends SearchApi implements SearchApiInterface
 		return array_unique(array_values($returned_ints));
 	}
 }
-
-?>

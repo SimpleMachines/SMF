@@ -1036,5 +1036,3 @@ class Notification implements ActionInterface
 		}
 	}
 }
-
-?>

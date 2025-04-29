@@ -99,12 +99,12 @@ call_user_func(function () {
 	require_once SMF_SETTINGS_FILE;
 
 	// Ensure $sourcedir is valid.
-	$sourcedir = rtrim($sourcedir, '\\/');
+	$sourcedir = rtrim($sourcedir ?? '', '\\/');
 
-	if ((empty($sourcedir) || !is_dir(realpath($sourcedir)))) {
-		$boarddir = rtrim($boarddir, '\\/');
+	if (empty($sourcedir) || !is_dir($sourcedir)) {
+		$boarddir = rtrim($boarddir ?? '', '\\/');
 
-		if (empty($boarddir) || !is_dir(realpath($boarddir))) {
+		if (empty($boarddir) || !is_dir($boarddir)) {
 			$boarddir = __DIR__;
 		}
 
@@ -148,5 +148,3 @@ require_once SMF\Config::$sourcedir . '/Subs-Compat.php';
 if (SMF === 1) {
 	(new SMF\Forum())->execute();
 }
-
-?>

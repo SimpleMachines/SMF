@@ -52,7 +52,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -69,7 +69,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
@@ -83,7 +83,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
@@ -100,7 +100,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
@@ -117,7 +117,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cleanCache(string $type = ''): bool
 	{
@@ -138,7 +138,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cacheSettings(array &$config_vars): void
 	{
@@ -192,7 +192,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getVersion(): string|bool
 	{
@@ -204,12 +204,10 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function housekeeping(): void
 	{
 		$this->cleanCache('expired');
 	}
 }
-
-?>

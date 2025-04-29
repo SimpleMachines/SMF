@@ -188,5 +188,3 @@ $txt['robots_txt_not_writable'] = 'The robots.txt file is not writable.';
 
 $txt['meta_keywords'] = 'Meta keywords associated with forum';
 $txt['meta_keywords_note'] = 'In most situations, this should be left blank.';
-
-?>

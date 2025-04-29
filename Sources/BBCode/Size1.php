@@ -59,5 +59,3 @@ class Size1 extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

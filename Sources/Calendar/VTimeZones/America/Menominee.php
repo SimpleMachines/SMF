@@ -183,5 +183,3 @@ class Menominee extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

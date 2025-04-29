@@ -629,5 +629,3 @@ abstract class CacheApi
 if (is_callable([CacheApi::class, 'exportStatic'])) {
 	CacheApi::exportStatic();
 }
-
-?>

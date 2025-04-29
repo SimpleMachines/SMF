@@ -49,5 +49,3 @@ class Tarawa extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

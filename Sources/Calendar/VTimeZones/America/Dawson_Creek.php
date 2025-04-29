@@ -115,5 +115,3 @@ class Dawson_Creek extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -372,5 +372,3 @@ class Time1 extends BBCode
 		}
 	}
 }
-
-?>

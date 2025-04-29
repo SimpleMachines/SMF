@@ -468,5 +468,3 @@ class Dublin extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

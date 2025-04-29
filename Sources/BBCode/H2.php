@@ -58,5 +58,3 @@ class H2 extends BBCode
 	 */
 	public bool $block_level = true;
 }
-
-?>

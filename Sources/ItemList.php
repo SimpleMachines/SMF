@@ -556,5 +556,3 @@ class ItemList implements \ArrayAccess
 		}
 	}
 }
-
-?>

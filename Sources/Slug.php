@@ -408,5 +408,3 @@ class Slug implements \Stringable
 		}
 	}
 }
-
-?>

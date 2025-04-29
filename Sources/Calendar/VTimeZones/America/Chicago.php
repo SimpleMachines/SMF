@@ -208,5 +208,3 @@ class Chicago extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

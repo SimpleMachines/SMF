@@ -49,5 +49,3 @@ class Monrovia extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

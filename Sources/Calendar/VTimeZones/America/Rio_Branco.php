@@ -208,5 +208,3 @@ class Rio_Branco extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

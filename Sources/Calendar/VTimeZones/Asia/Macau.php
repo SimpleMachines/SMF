@@ -264,5 +264,3 @@ class Macau extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

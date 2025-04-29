@@ -568,5 +568,3 @@ class AttachmentUpload implements ActionInterface, Routable
 		die;
 	}
 }
-
-?>

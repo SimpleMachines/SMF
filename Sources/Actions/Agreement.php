@@ -219,5 +219,3 @@ class Agreement implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

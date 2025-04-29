@@ -2835,5 +2835,3 @@ class ServerSideIncludes
 		return true;
 	}
 }
-
-?>

@@ -49,5 +49,3 @@ class Gambier extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

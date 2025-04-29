@@ -115,5 +115,3 @@ class Santo_Domingo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

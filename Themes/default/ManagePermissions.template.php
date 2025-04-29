@@ -918,5 +918,3 @@ function template_postmod_permissions()
 						</form>
 					</div><!-- #admin_form_wrapper -->';
 }
-
-?>

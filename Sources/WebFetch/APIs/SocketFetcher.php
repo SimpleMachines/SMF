@@ -415,5 +415,3 @@ class SocketFetcher extends WebFetchApi
 		unset($this->fp);
 	}
 }
-
-?>

@@ -462,5 +462,3 @@ $txt['database_changes'] = 'Database Changes';
 $txt['upgrade_complete'] = 'Upgrade Complete';
 $txt['converting_utf8'] = 'Converting to UTF-8';
 $txt['converting_json'] = 'Converting to JSON';
-
-?>

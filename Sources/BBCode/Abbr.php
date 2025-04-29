@@ -69,5 +69,3 @@ class Abbr extends BBCode
 	 */
 	public ?string $quoted = 'optional';
 }
-
-?>

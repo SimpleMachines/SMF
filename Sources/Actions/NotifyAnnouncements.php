@@ -104,5 +104,3 @@ class NotifyAnnouncements extends Notify
 		return Lang::getTxt('notify_announcements' . (!empty($this->mode) ? '_subscribed' : '_unsubscribed'), self::$member_info, file: 'General');
 	}
 }
-
-?>

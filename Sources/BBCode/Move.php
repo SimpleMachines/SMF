@@ -61,5 +61,3 @@ class Move extends BBCode
 	 */
 	public ?array $disallow_children = ['move'];
 }
-
-?>

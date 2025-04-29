@@ -651,5 +651,3 @@ class Jerusalem extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

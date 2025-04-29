@@ -261,5 +261,3 @@ class Delete implements ActionInterface
 		}
 	}
 }
-
-?>

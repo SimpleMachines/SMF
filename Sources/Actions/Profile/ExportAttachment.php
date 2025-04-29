@@ -131,5 +131,3 @@ class ExportAttachment implements ActionInterface
 		$this->attach = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 	}
 }
-
-?>

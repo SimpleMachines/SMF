@@ -95,5 +95,3 @@ abstract class ScheduledTask extends BackgroundTask
 		Config::updateModSettings(['next_task_time' => $next_task_time]);
 	}
 }
-
-?>

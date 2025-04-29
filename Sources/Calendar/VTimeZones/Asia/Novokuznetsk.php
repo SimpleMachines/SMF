@@ -110,5 +110,3 @@ class Novokuznetsk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

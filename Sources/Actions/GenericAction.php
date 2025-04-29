@@ -63,5 +63,3 @@ class GenericAction implements ActionInterface
 		call_user_func($this->current_action);
 	}
 }
-
-?>

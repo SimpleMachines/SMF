@@ -405,5 +405,3 @@ class ThemeChooser implements ActionInterface, Routable
 		);
 	}
 }
-
-?>

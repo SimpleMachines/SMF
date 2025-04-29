@@ -49,5 +49,3 @@ class Port_Moresby extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

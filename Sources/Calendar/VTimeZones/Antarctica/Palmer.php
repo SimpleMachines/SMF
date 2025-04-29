@@ -296,5 +296,3 @@ class Palmer extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -49,5 +49,3 @@ class La_Paz extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

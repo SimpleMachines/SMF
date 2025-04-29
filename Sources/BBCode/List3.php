@@ -76,5 +76,3 @@ class List3 extends BBCode
 	 */
 	public ?array $require_children = ['li'];
 }
-
-?>

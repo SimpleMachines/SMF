@@ -70,5 +70,3 @@ class Dili extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

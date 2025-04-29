@@ -79,5 +79,3 @@ class Noumea extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

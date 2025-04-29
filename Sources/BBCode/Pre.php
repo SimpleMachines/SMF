@@ -49,5 +49,3 @@ class Pre extends BBCode
 	 */
 	public ?string $disabled_after = '</div>';
 }
-
-?>

@@ -2797,5 +2797,3 @@ class Group implements \ArrayAccess
 		}
 	}
 }
-
-?>

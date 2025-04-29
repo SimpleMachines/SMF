@@ -259,5 +259,3 @@ class Fortaleza extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

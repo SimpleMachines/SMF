@@ -56,5 +56,3 @@ class Chagos extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

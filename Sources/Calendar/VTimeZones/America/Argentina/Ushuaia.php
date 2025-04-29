@@ -275,5 +275,3 @@ class Ushuaia extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -63,5 +63,3 @@ class Kanton extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

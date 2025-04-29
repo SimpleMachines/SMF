@@ -373,5 +373,3 @@ class Madeira extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

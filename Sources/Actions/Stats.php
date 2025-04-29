@@ -851,5 +851,3 @@ class Stats implements ActionInterface, Routable
 		Db::$db->free_result($days_result);
 	}
 }
-
-?>

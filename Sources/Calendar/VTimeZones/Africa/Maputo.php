@@ -49,5 +49,3 @@ class Maputo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

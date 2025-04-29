@@ -100,5 +100,3 @@ class Windhoek extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

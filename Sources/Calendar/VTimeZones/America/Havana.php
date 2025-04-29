@@ -344,5 +344,3 @@ class Havana extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

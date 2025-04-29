@@ -232,5 +232,3 @@ class Berlin extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

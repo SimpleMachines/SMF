@@ -2485,5 +2485,3 @@ class Attachment implements \ArrayAccess
 		Db::$db->free_result($request);
 	}
 }
-
-?>

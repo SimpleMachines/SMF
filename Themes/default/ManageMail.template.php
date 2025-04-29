@@ -76,5 +76,3 @@ function template_mailtest()
 		</div>
 	</form>';
 }
-
-?>

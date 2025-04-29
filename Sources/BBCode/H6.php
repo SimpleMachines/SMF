@@ -58,5 +58,3 @@ class H6 extends BBCode
 	 */
 	public bool $block_level = true;
 }
-
-?>

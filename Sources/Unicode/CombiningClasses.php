@@ -966,5 +966,3 @@ function utf8_combining_classes(): array
 		"\xF0\x9E\xA5\x8A" => 7,
 	];
 }
-
-?>

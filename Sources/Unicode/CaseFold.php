@@ -3087,5 +3087,3 @@ function utf8_casefold_maps(): array
 		"\xF0\x9E\xA4\xA1" => "\xF0\x9E\xA5\x83",
 	];
 }
-
-?>

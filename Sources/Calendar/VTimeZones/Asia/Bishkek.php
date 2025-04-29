@@ -134,5 +134,3 @@ class Bishkek extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

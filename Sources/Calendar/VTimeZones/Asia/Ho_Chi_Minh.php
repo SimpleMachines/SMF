@@ -98,5 +98,3 @@ class Ho_Chi_Minh extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

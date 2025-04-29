@@ -143,5 +143,3 @@ class Likes_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

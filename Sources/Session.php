@@ -264,5 +264,3 @@ class Session implements \SessionHandlerInterface
 		User::$sc = $_SESSION['session_value'];
 	}
 }
-
-?>

@@ -50,7 +50,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -116,7 +116,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
@@ -135,7 +135,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
@@ -151,7 +151,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
@@ -167,7 +167,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cleanCache(string $type = ''): bool
 	{
@@ -183,7 +183,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getVersion(): string|bool
 	{
@@ -191,7 +191,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function housekeeping(): void
 	{
@@ -228,5 +228,3 @@ class Postgres extends CacheApi implements CacheApiInterface
 		pg_query($this->db_connection, 'INSERT INTO ' . $this->db_prefix . 'cache SELECT * FROM ' . $this->db_prefix . 'cache_tmp ON CONFLICT DO NOTHING');
 	}
 }
-
-?>

@@ -827,5 +827,3 @@ class Draft
 		Utils::obExit(false);
 	}
 }
-
-?>

@@ -92,7 +92,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
@@ -120,7 +120,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getSize(): int
 	{
@@ -188,7 +188,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getStatus(): ?string
 	{
@@ -200,7 +200,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function searchSort(string $a, string $b): int
 	{
@@ -211,7 +211,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
@@ -242,7 +242,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
@@ -387,7 +387,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getAdminSubactions(): array
 	{
@@ -418,7 +418,7 @@ class Fulltext extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getDescription(): string
 	{
@@ -663,5 +663,3 @@ class Fulltext extends SearchApi implements SearchApiInterface
 		return (int) $min_word_length;
 	}
 }
-
-?>

@@ -228,5 +228,3 @@ class Tunis extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

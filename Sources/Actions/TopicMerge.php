@@ -1294,5 +1294,3 @@ class TopicMerge implements ActionInterface, Routable
 		Db::$db->free_result($request);
 	}
 }
-
-?>

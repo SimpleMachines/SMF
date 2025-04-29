@@ -88,5 +88,3 @@ class Tashkent extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

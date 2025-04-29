@@ -133,5 +133,3 @@ class Spoiler1 extends BBCode
 		}
 	}
 }
-
-?>

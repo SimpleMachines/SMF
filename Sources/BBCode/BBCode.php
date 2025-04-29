@@ -300,5 +300,3 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	 */
 	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void {}
 }
-
-?>

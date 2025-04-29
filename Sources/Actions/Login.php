@@ -86,5 +86,3 @@ class Login extends Login2
 		SecurityToken::create('login');
 	}
 }
-
-?>

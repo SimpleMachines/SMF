@@ -374,5 +374,3 @@ class Birthday extends Event
 		return $input;
 	}
 }
-
-?>

@@ -657,5 +657,3 @@ class Who implements ActionInterface, Routable
 		return $data;
 	}
 }
-
-?>

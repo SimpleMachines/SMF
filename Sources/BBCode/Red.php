@@ -51,5 +51,3 @@ class Red extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

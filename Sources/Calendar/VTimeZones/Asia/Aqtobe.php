@@ -124,5 +124,3 @@ class Aqtobe extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -127,5 +127,3 @@ class AttachmentApprove implements ActionInterface, Routable
 		Utils::redirectexit($redirect);
 	}
 }
-
-?>

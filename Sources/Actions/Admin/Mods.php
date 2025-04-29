@@ -175,5 +175,3 @@ class Mods implements ActionInterface
 		}
 	}
 }
-
-?>

@@ -555,5 +555,3 @@ class ErrorLog implements ActionInterface
 		Utils::redirectexit('action=admin;area=logs;sa=errorlog' . (isset($_REQUEST['desc']) ? ';desc' : ''));
 	}
 }
-
-?>

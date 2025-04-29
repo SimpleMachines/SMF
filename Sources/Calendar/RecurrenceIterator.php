@@ -1709,5 +1709,3 @@ class RecurrenceIterator implements \Iterator
 		return $weekdays;
 	}
 }
-
-?>

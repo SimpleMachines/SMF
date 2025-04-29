@@ -2811,5 +2811,3 @@ class Smileys implements ActionInterface
 		}
 	}
 }
-
-?>

@@ -943,5 +943,3 @@ class Editor implements \ArrayAccess
 		IntegrationHook::call('integrate_sceditor_options', [&$this->sce_options]);
 	}
 }
-
-?>

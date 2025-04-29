@@ -224,5 +224,3 @@ class Vienna extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

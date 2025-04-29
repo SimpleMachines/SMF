@@ -62,5 +62,3 @@ class RemoveTopicRedirects extends ScheduledTask
 		return true;
 	}
 }
-
-?>

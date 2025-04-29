@@ -1148,5 +1148,3 @@ class Gaza extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

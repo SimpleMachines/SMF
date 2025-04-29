@@ -409,5 +409,3 @@ class Brussels extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

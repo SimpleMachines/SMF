@@ -170,5 +170,3 @@ class Guam extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

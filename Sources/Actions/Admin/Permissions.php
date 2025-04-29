@@ -1802,5 +1802,3 @@ class Permissions implements ActionInterface
 		}
 	}
 }
-
-?>

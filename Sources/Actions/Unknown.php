@@ -95,5 +95,3 @@ class Unknown implements ActionInterface
 		Utils::obExit(false);
 	}
 }
-
-?>

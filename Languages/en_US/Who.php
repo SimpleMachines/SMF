@@ -211,5 +211,3 @@ $txt['credits_in_memoriam'] = 'In loving memory of';
 
 // Comma separated list of people who have made more than a token contribution to this translation. Example: 'Alice "The Hammer" Smith, Bob Cratchit, Gandalf the Grey'. (Note: English version contains a single comma so that the string will be shown in CrowdIn.)
 $txt['translation_credits'] = ',';
-
-?>

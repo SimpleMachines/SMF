@@ -59,5 +59,3 @@ class Font extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

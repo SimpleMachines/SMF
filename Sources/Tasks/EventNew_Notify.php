@@ -103,5 +103,3 @@ class EventNew_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

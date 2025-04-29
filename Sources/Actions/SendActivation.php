@@ -56,5 +56,3 @@ class SendActivation implements ActionInterface, Routable
 		Utils::obExit();
 	}
 }
-
-?>

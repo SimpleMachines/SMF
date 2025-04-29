@@ -84,5 +84,3 @@ class Jakarta extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

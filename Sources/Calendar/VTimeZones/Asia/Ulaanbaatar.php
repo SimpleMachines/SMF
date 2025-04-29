@@ -126,5 +126,3 @@ class Ulaanbaatar extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

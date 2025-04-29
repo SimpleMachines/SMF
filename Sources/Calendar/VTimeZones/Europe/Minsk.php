@@ -146,5 +146,3 @@ class Minsk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

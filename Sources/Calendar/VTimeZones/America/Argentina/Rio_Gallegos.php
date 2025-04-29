@@ -275,5 +275,3 @@ class Rio_Gallegos extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

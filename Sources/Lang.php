@@ -1110,5 +1110,3 @@ class Lang
 if (is_callable([Lang::class, 'exportStatic'])) {
 	Lang::exportStatic();
 }
-
-?>

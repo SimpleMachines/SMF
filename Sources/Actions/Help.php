@@ -141,5 +141,3 @@ class Help implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

@@ -567,5 +567,3 @@ class IssueWarning implements ActionInterface
 		];
 	}
 }
-
-?>

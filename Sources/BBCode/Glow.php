@@ -61,5 +61,3 @@ class Glow extends BBCode
 	 */
 	public ?string $disabled_after = '';
 }
-
-?>

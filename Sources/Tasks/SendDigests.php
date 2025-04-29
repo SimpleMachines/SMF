@@ -370,5 +370,3 @@ class SendDigests extends ScheduledTask
 		return true;
 	}
 }
-
-?>

@@ -30,5 +30,3 @@ require_once __DIR__ . '/index.php';
 
 $task_runner = new SMF\TaskRunner();
 $task_runner->execute();
-
-?>

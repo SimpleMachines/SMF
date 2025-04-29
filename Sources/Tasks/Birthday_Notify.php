@@ -142,5 +142,3 @@ class Birthday_Notify extends ScheduledTask
 		return true;
 	}
 }
-
-?>

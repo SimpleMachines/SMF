@@ -163,5 +163,3 @@ class Lord_Howe extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

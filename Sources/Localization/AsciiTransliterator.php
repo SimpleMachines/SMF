@@ -152,5 +152,3 @@ class AsciiTransliterator
 		return implode('', $new_chars);
 	}
 }
-
-?>

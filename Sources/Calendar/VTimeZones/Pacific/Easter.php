@@ -319,5 +319,3 @@ class Easter extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

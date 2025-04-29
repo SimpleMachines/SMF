@@ -504,5 +504,3 @@ class Mentions
 		}
 	}
 }
-
-?>

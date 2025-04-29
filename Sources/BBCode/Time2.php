@@ -374,5 +374,3 @@ class Time2 extends BBCode
 		}
 	}
 }
-
-?>

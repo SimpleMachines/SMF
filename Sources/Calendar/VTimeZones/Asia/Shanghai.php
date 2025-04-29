@@ -179,5 +179,3 @@ class Shanghai extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

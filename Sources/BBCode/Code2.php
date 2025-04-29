@@ -114,5 +114,3 @@ class Code2 extends BBCode
 		}
 	}
 }
-
-?>

@@ -441,5 +441,3 @@ class TrackIP implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

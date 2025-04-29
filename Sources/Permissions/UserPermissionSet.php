@@ -271,7 +271,10 @@ class UserPermissionSet
 	public function grant(string|array $permission_names): void
 	{
 		foreach ((array) $permission_names as $permission_name) {
-			if (is_string($permission_name)) {
+			if (
+				is_string($permission_name)
+				&& array_key_exists($permission_name, Permission::getAll())
+			) {
 				$this->permissions[$permission_name] = 1;
 			}
 		}
@@ -427,5 +430,3 @@ class UserPermissionSet
 		return $allowed;
 	}
 }
-
-?>

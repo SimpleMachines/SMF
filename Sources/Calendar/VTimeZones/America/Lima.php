@@ -123,5 +123,3 @@ class Lima extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

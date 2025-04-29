@@ -88,5 +88,3 @@ class Miquelon extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

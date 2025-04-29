@@ -1480,5 +1480,3 @@ class Time extends \DateTime implements \ArrayAccess
 		);
 	}
 }
-
-?>

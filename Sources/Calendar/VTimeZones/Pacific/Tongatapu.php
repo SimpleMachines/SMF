@@ -93,5 +93,3 @@ class Tongatapu extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

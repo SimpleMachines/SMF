@@ -74,5 +74,3 @@ interface MailAgentInterface
 	 */
 	public function agentSettings(array &$config_vars): void;
 }
-
-?>

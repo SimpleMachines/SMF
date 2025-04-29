@@ -2539,5 +2539,3 @@ class Bans implements ActionInterface
 		}
 	}
 }
-
-?>

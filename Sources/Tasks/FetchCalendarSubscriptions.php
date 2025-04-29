@@ -58,5 +58,3 @@ class FetchCalendarSubscriptions extends ScheduledTask
 		return true;
 	}
 }
-
-?>

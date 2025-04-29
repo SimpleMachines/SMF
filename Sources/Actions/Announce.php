@@ -297,5 +297,3 @@ class Announce implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

@@ -938,5 +938,3 @@ class Reports implements ActionInterface
 		$this->key_method = $method == 'rows' ? 'rows' : 'cols';
 	}
 }
-
-?>
