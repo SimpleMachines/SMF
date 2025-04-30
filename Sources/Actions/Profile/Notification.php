@@ -694,7 +694,7 @@ class Notification implements ActionInterface
 	public function boards(): void
 	{
 		// Because of the way this stuff works, we want to do this ourselves.
-		if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards'])) {
+		if (isset($_POST['edit_notify_boards']) || isset($_POST['remove_notify_boards'])) {
 			User::$me->checkSession();
 			SecurityToken::validate(str_replace('%u', (string) Profile::$member->id, 'profile-nt%u'), 'post');
 
@@ -1025,7 +1025,7 @@ class Notification implements ActionInterface
 		}
 
 		// Are we removing board preferences?
-		if (isset($_POST['remove_notify_board']) && !empty($_POST['notify_boards'])) {
+		if (isset($_POST['remove_notify_boards']) && !empty($_POST['notify_boards'])) {
 			$prefs = [];
 
 			foreach ($_POST['notify_boards'] as $board) {
