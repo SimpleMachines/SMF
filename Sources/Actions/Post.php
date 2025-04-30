@@ -233,6 +233,11 @@ class Post implements ActionInterface, Routable
 			unset($_REQUEST['poll']);
 		}
 
+		// You cannot post at all, even with guest posts allowed, with cookies disabled
+		if (empty($_COOKIE)) {
+			ErrorHandler::fatalLang('func_cookie_error', false);
+		}
+
 		// Posting an event?
 		Utils::$context['make_event'] = isset($_REQUEST['calendar']);
 		Utils::$context['robot_no_index'] = true;
