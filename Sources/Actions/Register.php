@@ -113,6 +113,11 @@ class Register implements ActionInterface, Routable
 			ErrorHandler::fatalLang('registration_disabled', false);
 		}
 
+		// You cannot register with cookies disabled
+		if (empty($_COOKIE)) {
+			ErrorHandler::fatalLang('func_cookie_error', false);
+		}
+
 		// If this user is an admin - redirect them to the admin registration page.
 		if (User::$me->allowedTo('moderate_forum') && !User::$me->is_guest) {
 			Utils::redirectexit('action=admin;area=regcenter;sa=register');
