@@ -8785,7 +8785,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ob_sessrewrite(string $buffer): string
 	{
-		return SMF\QueryString::obDebug($buffer);
+		$buffer = SMF\QueryString::rewriteAsQueryless($buffer);
+		$buffer = SMF\QueryString::obDebug($buffer);
+
+		return $buffer;
 	}
 
 	/****************
