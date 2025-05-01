@@ -106,6 +106,13 @@ class Permission implements \ArrayAccess
 	public bool $never_guests = false;
 
 	/**
+	 * @var bool
+	 *
+	 * If true, this permission can never be granted to banned members.
+	 */
+	public bool $never_banned = false;
+
+	/**
 	 * @var array
 	 *
 	 * Permissions that someone must already have at least one of before they
@@ -143,6 +150,14 @@ class Permission implements \ArrayAccess
 	 * that requires this permission.
 	 */
 	public bool $heavy = false;
+
+	/**
+	 * @var ?string
+	 *
+	 * The name of an alternative permission to grant instead of this one for
+	 * members with high warning levels.
+	 */
+	public ?string $when_warned = null;
 
 	/**
 	 * @var string
@@ -218,6 +233,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 			'assigner_prerequisites' => ['admin_forum'],
 			'heavy' => true,
 		],
@@ -259,6 +275,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'calendar_edit_any' => [
 			'generic_name' => 'calendar_edit',
@@ -267,11 +284,13 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'calendar_post' => [
 			'view_group' => 'calendar',
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
+			'never_banned' => true,
 		],
 		'calendar_view' => [
 			'view_group' => 'calendar',
@@ -286,6 +305,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_RESTRICT,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'delete_any' => [
 			'generic_name' => 'delete',
@@ -295,18 +315,21 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'delete_replies' => [
 			'view_group' => 'topic',
 			'scope' => 'board',
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'edit_news' => [
 			'view_group' => 'maintenance',
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 			'heavy' => true,
 		],
 		'is_not_guest' => [
@@ -334,6 +357,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_STANDARD,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'lock_any' => [
 			'generic_name' => 'lock',
@@ -343,6 +367,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'make_sticky' => [
 			'view_group' => 'topic',
@@ -350,12 +375,14 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'manage_attachments' => [
 			'view_group' => 'maintenance',
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 			'heavy' => true,
 		],
 		'manage_bans' => [
@@ -363,6 +390,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 			'heavy' => true,
 		],
 		'manage_boards' => [
@@ -370,6 +398,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 			'heavy' => true,
 		],
 		'manage_membergroups' => [
@@ -377,6 +406,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 			'assigner_prerequisites' => ['manage_membergroups'],
 			'heavy' => true,
 		],
@@ -385,6 +415,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 			'heavy' => true,
 		],
 		'manage_smileys' => [
@@ -392,6 +423,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 			'heavy' => true,
 		],
 		'mention' => [
@@ -405,6 +437,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'moderate_board' => [
 			'view_group' => 'general_board',
@@ -416,6 +449,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 			'heavy' => true,
 		],
 		'modify_own' => [
@@ -426,6 +460,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_RESTRICT,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'modify_any' => [
 			'generic_name' => 'modify',
@@ -435,12 +470,14 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'modify_replies' => [
 			'view_group' => 'topic',
 			'scope' => 'board',
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'move_own' => [
 			'generic_name' => 'move',
@@ -448,6 +485,7 @@ class Permission implements \ArrayAccess
 			'view_group' => 'topic',
 			'scope' => 'board',
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'move_any' => [
 			'generic_name' => 'move',
@@ -456,11 +494,13 @@ class Permission implements \ArrayAccess
 			'scope' => 'board',
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'pm_draft' => [
 			'view_group' => 'pm',
 			'scope' => 'global',
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'pm_read' => [
 			'view_group' => 'pm',
@@ -473,6 +513,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_STANDARD,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'poll_add_own' => [
 			'generic_name' => 'poll_add',
@@ -482,6 +523,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_STANDARD,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'poll_add_any' => [
 			'generic_name' => 'poll_add',
@@ -491,6 +533,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'poll_edit_own' => [
 			'generic_name' => 'poll_edit',
@@ -500,6 +543,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_STANDARD,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'poll_edit_any' => [
 			'generic_name' => 'poll_edit',
@@ -509,6 +553,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'poll_lock_own' => [
 			'generic_name' => 'poll_lock',
@@ -516,6 +561,7 @@ class Permission implements \ArrayAccess
 			'view_group' => 'poll',
 			'scope' => 'board',
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'poll_lock_any' => [
 			'generic_name' => 'poll_lock',
@@ -525,12 +571,14 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'poll_post' => [
 			'view_group' => 'poll',
 			'scope' => 'board',
 			'group_level' => self::GROUP_LEVEL_STANDARD,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
+			'never_banned' => true,
 		],
 		'poll_remove_own' => [
 			'generic_name' => 'poll_remove',
@@ -539,6 +587,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'board',
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'poll_remove_any' => [
 			'generic_name' => 'poll_remove',
@@ -548,6 +597,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'poll_view' => [
 			'view_group' => 'poll',
@@ -566,6 +616,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'board',
 			'group_level' => self::GROUP_LEVEL_STANDARD,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
+			'when_warned' => 'post_unapproved_attachments',
 		],
 		'post_draft' => [
 			'view_group' => 'topic',
@@ -577,6 +628,8 @@ class Permission implements \ArrayAccess
 			'scope' => 'board',
 			'group_level' => self::GROUP_LEVEL_RESTRICT,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
+			'never_banned' => true,
+			'when_warned' => 'post_unapproved_topics',
 		],
 		'post_reply_own' => [
 			'generic_name' => 'post_reply',
@@ -585,6 +638,8 @@ class Permission implements \ArrayAccess
 			'scope' => 'board',
 			'group_level' => self::GROUP_LEVEL_RESTRICT,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
+			'never_banned' => true,
+			'when_warned' => 'post_unapproved_replies_own',
 		],
 		'post_reply_any' => [
 			'generic_name' => 'post_reply',
@@ -593,6 +648,8 @@ class Permission implements \ArrayAccess
 			'scope' => 'board',
 			'group_level' => self::GROUP_LEVEL_RESTRICT,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
+			'never_banned' => true,
+			'when_warned' => 'post_unapproved_replies_any',
 		],
 		'post_unapproved_attachments' => [
 			'view_group' => 'attachment',
@@ -603,16 +660,19 @@ class Permission implements \ArrayAccess
 			'own_any' => 'own',
 			'view_group' => 'topic',
 			'scope' => 'board',
+			'never_banned' => true,
 		],
 		'post_unapproved_replies_any' => [
 			'generic_name' => 'post_unapproved_replies',
 			'own_any' => 'any',
 			'view_group' => 'topic',
 			'scope' => 'board',
+			'never_banned' => true,
 		],
 		'post_unapproved_topics' => [
 			'view_group' => 'topic',
 			'scope' => 'board',
+			'never_banned' => true,
 		],
 		'profile_blurb_own' => [
 			'generic_name' => 'profile_blurb',
@@ -658,6 +718,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'profile_forum_own' => [
 			'generic_name' => 'profile_forum',
@@ -673,6 +734,7 @@ class Permission implements \ArrayAccess
 			'view_group' => 'profile',
 			'scope' => 'global',
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'profile_gravatar' => [
 			'view_group' => 'profile',
@@ -695,6 +757,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'profile_password_own' => [
 			'generic_name' => 'profile_password',
@@ -754,6 +817,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'profile_title_own' => [
 			'generic_name' => 'profile_title',
@@ -769,6 +833,7 @@ class Permission implements \ArrayAccess
 			'scope' => 'global',
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'profile_upload_avatar' => [
 			'view_group' => 'profile',
@@ -805,6 +870,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_STANDARD,
 			'board_level' => self::BOARD_LEVEL_PUBLISH,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'remove_any' => [
 			'generic_name' => 'remove',
@@ -814,6 +880,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'report_any' => [
 			'view_group' => 'post',
@@ -837,6 +904,7 @@ class Permission implements \ArrayAccess
 			'view_group' => 'member_admin',
 			'scope' => 'global',
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'split_any' => [
 			'view_group' => 'topic',
@@ -844,6 +912,7 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MODERATOR,
 			'board_level' => self::BOARD_LEVEL_FREE,
 			'never_guests' => true,
+			'never_banned' => true,
 		],
 		'view_attachments' => [
 			'view_group' => 'attachment',
