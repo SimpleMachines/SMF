@@ -128,23 +128,6 @@ class UserPermissionSet
 		'post_attachment' => 'post_unapproved_attachments',
 	];
 
-	/**
-	 * @var array
-	 *
-	 * Permissions that should only be given to highly trusted members.
-	 */
-	public static array $heavy_permissions = [
-		'admin_forum',
-		'manage_attachments',
-		'manage_smileys',
-		'manage_boards',
-		'edit_news',
-		'moderate_forum',
-		'manage_bans',
-		'manage_membergroups',
-		'manage_permissions',
-	];
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -231,8 +214,6 @@ class UserPermissionSet
 	 */
 	public function allowedTo(string|array $permission_names, bool $any = false): bool
 	{
-		IntegrationHook::call('integrate_heavy_permissions_session', [&self::$heavy_permissions]);
-
 		$permission_names = (array) $permission_names;
 
 		$this->integrateAllowedToGeneral($permission_names);
