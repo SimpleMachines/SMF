@@ -429,7 +429,7 @@ class Reports implements ActionInterface
 			[Group::ADMIN],
 		);
 
-		foreach ($groups_data as $group) {
+		foreach ($group_data as $group) {
 			$group->loadPermissions();
 		}
 

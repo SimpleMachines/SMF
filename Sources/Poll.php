@@ -1362,14 +1362,10 @@ class Poll implements \ArrayAccess
 		return (int) $most_active;
 	}
 
-	/*************************
-	 * Internal static methods
-	 *************************/
-
 	/**
 	 * Validates and sanitizes $_POST input for creating or editing a poll.
 	 */
-	protected static function sanitizeInput(array &$errors): void
+	public static function sanitizeInput(array &$errors): void
 	{
 		if (!isset($_POST['question']) || trim($_POST['question']) == '') {
 			$errors[] = 'no_question';
