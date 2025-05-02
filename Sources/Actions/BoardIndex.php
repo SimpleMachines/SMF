@@ -412,11 +412,11 @@ class BoardIndex implements ActionInterface, Routable
 
 			// Ensure the slug for the member has been set.
 			if (
-				!empty($row['id_member'])
-				&& ($row['real_name'] ?? '') !== ''
-				&& !isset(Slug::$known['member'][(int) $row['id_member']])
+				!empty($row_board['id_member'])
+				&& ($row_board['real_name'] ?? '') !== ''
+				&& !isset(Slug::$known['member'][(int) $row_board['id_member']])
 			) {
-				Slug::create($row['real_name'], 'member', (int) $row['id_member']);
+				Slug::create($row_board['real_name'], 'member', (int) $row_board['id_member']);
 			}
 
 			$parent = Board::$loaded[$row_board['id_parent']] ?? null;
