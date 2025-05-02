@@ -464,6 +464,16 @@ class Custom extends SearchApi implements SearchApiInterface
 	{
 		$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
 
+		$row = Db::$db->query(
+			'',
+			'SELECT body
+			FROM {db_prefix}messages
+			WHERE id_msg = {int:id_msg}',
+			[
+				'id_msg' => $id_msg,
+			],
+		)->fetch_assoc();
+
 		$words = self::getWordNumbers($row['body'], $customIndexSettings['bytes_per_word']);
 
 		if (!empty($words)) {
@@ -474,7 +484,7 @@ class Custom extends SearchApi implements SearchApiInterface
 					AND id_msg = {int:id_msg}',
 				[
 					'word_list' => $words,
-					'id_msg' => $message,
+					'id_msg' => $id_msg,
 				],
 			);
 		}
