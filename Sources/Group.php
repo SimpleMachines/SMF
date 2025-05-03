@@ -1563,7 +1563,7 @@ class Group implements \ArrayAccess
 		// Reset all cached permissions.
 		Config::updateModSettings(['settings_updated' => time()]);
 
-		$set = current(GroupPermissionSet::load($profile, (int) $group));
+		$set = current(GroupPermissionSet::load($profile, (int) $this->id));
 
 		foreach ($set->permissions as $permission_name => $value) {
 			$permission = Permission::get($permission_name);
@@ -2240,10 +2240,10 @@ class Group implements \ArrayAccess
 		}
 
 		// Maybe a mod needs to tweak the list of allowed groups on the fly?
-		IntegrationHook::call('integrate_groups_with_permissions', [&$groups, $permissions, $board]);
+		IntegrationHook::call('integrate_groups_with_permissions', [&$groups, $permissions, $board_or_profile]);
 
 		// Call the deprecated integrate_groups_allowed_to hook.
-		self::integrateGroupsAllowedTo($groups, $permissions, $board);
+		self::integrateGroupsAllowedTo($groups, $permissions, $board_or_profile);
 
 		return $groups;
 	}
@@ -2786,9 +2786,9 @@ class Group implements \ArrayAccess
 			IntegrationHook::call('integrate_groups_allowed_to', [&$allowed_denied, $permission, $board]);
 
 			foreach ($groups as $group => $group_permissions) {
-				if (in_array($allowed_denied['allowed'])) {
+				if (in_array($group, $allowed_denied['allowed'])) {
 					$groups[$group][$permission] = 1;
-				} elseif (in_array($allowed_denied['denied'])) {
+				} elseif (in_array($group, $allowed_denied['denied'])) {
 					$groups[$group][$permission] = 0;
 				} else {
 					$groups[$group][$permission] = null;
