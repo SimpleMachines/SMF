@@ -461,7 +461,9 @@ class PackageManager
 						'failed' => true,
 					];
 				} else {
-					if ($action['boardmod']) {
+					if ($action['diff']) {
+						$mod_actions = PackageUtils::parseDiff(@file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']), true, $action['reverse'], $theme_paths);
+					} elseif ($action['boardmod']) {
 						$mod_actions = PackageUtils::parseBoardMod(@file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']), true, $action['reverse'], $theme_paths);
 					} else {
 						$mod_actions = PackageUtils::parseModification(@file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']), true, $action['reverse'], $theme_paths);
@@ -540,6 +542,27 @@ class PackageManager
 								'description' => Lang::getTxt('package_action_error', file: 'Packages'),
 								'failed' => true,
 							];
+						} elseif ($mod_action['type'] == 'create-file') {
+							Utils::$context['actions'][$actual_filename] = [
+								'type' => Lang::$txt['package_create_file'],
+								'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], [Config::$boarddir => '.'])),
+								'description' => $failed ? Lang::$txt['package_action_failure'] : '',
+								'failed' => $failed,
+							];
+						} elseif ($mod_action['type'] == 'move-file') {
+							Utils::$context['actions'][$actual_filename] = [
+								'type' => Lang::$txt['package_move_file'],
+								'action' => Utils::htmlspecialchars(strtr($mod_action['source'], [Config::$boarddir => '.'])) . ' => ' . Utils::htmlspecialchars(strtr($mod_action['destination'], [Config::$boarddir => '.'])),
+								'description' => $failed ? Lang::$txt['package_action_missing'] : '',
+								'failed' => $failed,
+							];
+						} elseif ($mod_action['type'] == 'remove-file') {
+							Utils::$context['actions'][$actual_filename] = [
+								'type' => Lang::$txt['package_delete_file'],
+								'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], [Config::$boarddir => '.'])),
+								'description' => $failed ? Lang::$txt['package_action_missing'] : '',
+								'failed' => $failed,
+							];
 						}
 					}
 
@@ -555,7 +578,16 @@ class PackageManager
 						}
 
 						// We just need it for actual parse changes.
-						if (!in_array($mod_action['type'], ['error', 'result', 'opened', 'saved', 'end', 'missing', 'skipping', 'chmod'])) {
+						if (!in_array($mod_action['type'], ['error', 'result', 'opened', 'saved', 'end', 'missing', 'skipping', 'chmod', 'create-file', 'move-file', 'remove-file'])) {
+							if (!isset(Utils::$context['actions'][$actual_filename])) {
+								Utils::$context['actions'][$actual_filename] = [
+									'type' => Lang::$txt['execute_modification'],
+									'action' => Utils::htmlspecialchars(strtr($mod_action['filename'], [Config::$boarddir => '.'])),
+									'description' => $failed ? Lang::$txt['package_action_failure'] : Lang::$txt['package_action_success'],
+									'failed' => $failed,
+								];
+							}
+
 							if (empty($mod_action['is_custom'])) {
 								Utils::$context['actions'][$actual_filename]['operations'][] = [
 									'type' => Lang::getTxt('execute_modification', file: 'Packages'),
@@ -565,6 +597,7 @@ class PackageManager
 									'operation_key' => $operation_key,
 									'filename' => $action['filename'],
 									'is_boardmod' => $action['boardmod'],
+									'is_diff' => $action['diff'],
 									'failed' => $mod_action['failed'],
 									'ignore_failure' => !empty($mod_action['ignore_failure']),
 								];
@@ -580,6 +613,7 @@ class PackageManager
 									'operation_key' => $operation_key,
 									'filename' => $action['filename'],
 									'is_boardmod' => $action['boardmod'],
+									'is_diff' => $action['diff'],
 									'failed' => $mod_action['failed'],
 									'ignore_failure' => !empty($mod_action['ignore_failure']),
 								];
@@ -1081,7 +1115,9 @@ class PackageManager
 				$failed_count++;
 
 				if ($action['type'] == 'modification' && !empty($action['filename'])) {
-					if ($action['boardmod']) {
+					if ($action['diff']) {
+						$mod_actions = PackageUtils::parseDiff(file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']), false, $action['reverse'], $theme_paths);
+					} elseif ($action['boardmod']) {
 						$mod_actions = PackageUtils::parseBoardMod(file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']), false, $action['reverse'], $theme_paths);
 					} else {
 						$mod_actions = PackageUtils::parseModification(file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $action['filename']), false, $action['reverse'], $theme_paths);
@@ -1850,8 +1886,9 @@ class PackageManager
 			}
 		}
 
-		// Boardmod?
-		if (isset($_REQUEST['boardmod'])) {
+		if (isset($_REQUEST['diff'])) {
+			$mod_actions = PackageUtils::parseDiff(@file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $_REQUEST['filename']), true, $reverse, $theme_paths);
+		} elseif (isset($_REQUEST['boardmod'])) {
 			$mod_actions = PackageUtils::parseBoardMod(@file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $_REQUEST['filename']), true, $reverse, $theme_paths);
 		} else {
 			$mod_actions = PackageUtils::parseModification(@file_get_contents(Config::$packagesdir . '/temp/' . Utils::$context['base_path'] . $_REQUEST['filename']), true, $reverse, $theme_paths);
@@ -1866,7 +1903,7 @@ class PackageManager
 
 		// Let's do some formatting...
 		$operation_text = Utils::$context['operations']['position'] == 'replace' ? 'operation_replace' : (Utils::$context['operations']['position'] == 'before' ? 'operation_after' : 'operation_before');
-		Utils::$context['operations']['search'] = Parser::transform('[code=' . Lang::getTxt(Utils::$context['operations']['position'] == 'end' || Utils::$context['operations']['is_reg_exp'] ? 'operation_find_regex' : 'operation_find') . ']' . (Utils::$context['operations']['position'] == 'end' ? '(\\n\\?&gt;)?$' : Utils::$context['operations']['search']) . '[/code]');
+		Utils::$context['operations']['search'] = Parser::transform('[code=' . Lang::getTxt(Utils::$context['operations']['position'] == 'end' || !empty(Utils::$context['operations']['is_reg_exp']) ? 'operation_find_regex' : 'operation_find') . ']' . (Utils::$context['operations']['position'] == 'end' ? '(\\n\\?&gt;)?$' : Utils::$context['operations']['search']) . '[/code]');
 		Utils::$context['operations']['replace'] = Parser::transform('[code=' . Lang::getTxt($operation_text, file: 'Packages') . ']' . Utils::$context['operations']['replace'] . '[/code]');
 
 		// No layers
@@ -2635,7 +2672,7 @@ class PackageManager
 		}
 
 		// Might take some time.
-		@set_time_limit(600);
+		Sapi::setTimeLimit();
 
 		// Read packages.xml and parse into XmlArray. (the true tells it to trim things ;).)
 		$listing = new XmlArray(WebFetchApi::fetch($_GET['package']), true);

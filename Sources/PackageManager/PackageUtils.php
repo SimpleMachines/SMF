@@ -15,6 +15,7 @@ namespace SMF\PackageManager;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Diff\FullDiff;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
@@ -1208,6 +1209,7 @@ class PackageUtils
 					'description' => '',
 					'reverse' => $action->exists('@reverse') && $action->fetch('@reverse') == 'true',
 					'boardmod' => $action->exists('@format') && $action->fetch('@format') == 'boardmod',
+					'diff' => $action->exists('@format') && $action->fetch('@format') == 'diff',
 					'redirect_url' => $action->exists('@url') ? $action->fetch('@url') : '',
 					'redirect_timeout' => $action->exists('@timeout') ? (int) $action->fetch('@timeout') : '',
 					'parse_bbc' => $action->exists('@parsebbc') && $action->fetch('@parsebbc') == 'true',
@@ -1946,6 +1948,507 @@ class PackageUtils
 	}
 
 	/**
+	 * Parses a diff-based modification.
+	 *
+	 * Supports diffs in unified format and context format, although unified
+	 * format is recommended.
+	 *
+	 * Diffs can be generated using the standard Unix `diff` tool or by common
+	 * version control software such as Subversion or Git.
+	 *
+	 * Recommended `diff` command to generate diffs for SMF's package manager:
+	 *
+	 *    diff -urN /path/to/unmodified/SMF /path/to/modified/SMF
+	 *
+	 * This will create a unified diff by comparing an unmodified copy of SMF
+	 * to a copy with modified files. Note that standard `diff` never generates
+	 * the extended "rename" and "copy" headers, so mod authors may wish to
+	 * insert them manually.
+	 *
+	 * Recommended Git command to generate diffs for SMF's package manager:
+	 *
+	 *    git diff -p -M -C -C -B --default-prefix --no-relative <ref1>...<ref2>
+	 *
+	 * This creates a unified diff by comparing two commits in a Git repository.
+	 * The diff will include "rename" and "copy" headers wherever appropriate.
+	 * (Note: the `-C` option is intentionally included twice.)
+	 *
+	 * In order to support the package manager's ability to mark certain changes
+	 * as optional, one or more extended "optional" headers can be manually
+	 * inserted into a diff at appropriate locations in order to indicate to the
+	 * package manager that the changes to one or more particular files can
+	 * safely be ignored if they cannot be applied.
+	 *
+	 * @see \SMF\Diff\FullDiff::createFromRaw() for more info on the extended
+	 *    "optional", "rename", and "copy" headers and how to use them.
+	 *
+	 * @param string $raw_diff The content of a diff file.
+	 * @param bool $testing Whether we're just doing a test.
+	 * @param bool $undo If true, specifies that the modifications should be
+	 *    undone. Used when uninstalling.
+	 * @param array $theme_paths An array of information about custom themes
+	 *    to apply the changes to.
+	 * @return array An array of those changes made.
+	 */
+	public static function parseDiff(string $raw_diff, bool $testing = true, bool $undo = false, array $theme_paths = []): array
+	{
+		Sapi::setTimeLimit();
+
+		try {
+			$diffs = FullDiff::createFromRaw($raw_diff);
+		} catch (\ValueError $e) {
+			return [[
+				'type' => 'error',
+				'filename' => '-',
+				'debug' => Lang::$txt['package_modification_malformed'],
+			]];
+		}
+
+		$actions = [];
+		$everything_found = true;
+
+		// Figure out the local paths for each diff.
+		for ($d = 0; $d < count($diffs); $d++) {
+			// Default paths for various directories, relative to $boarddir,
+			// with trailing slash, and ordered by depth with the deepest first.
+			$standard_paths = [
+				'$imagesdir'   => '/Themes/default/images/',
+				'$themedir'    => '/Themes/default/',
+				'$themes_dir'  => '/Themes/',
+				'$sourcedir'   => '/Sources/',
+				'$smileysdir'  => '/Smileys/',
+				'$languagedir' => '/Languages/',
+				'$avatardir'   => '/avatars/',
+				'$boarddir'    => '/',
+			];
+
+			// Insert tokens into the paths in the diff header so that they can
+			// be resolved to the correct paths on the local machine.
+			foreach (['label1', 'label2'] as $label) {
+				// Deal with Windows paths.
+				$diffs[$d]->$label = strtr(
+					preg_replace(
+						[
+							// UNC paths.
+							'/^\\\\{2}.+?\\\\[A-Za-z]\\$/',
+							// Device paths.
+							'/^\\\\{2}[.?]\\\\/',
+							// Traditional DOS paths.
+							'/^[A-Za-z]:/',
+						],
+						'',
+						$diffs[$d]->$label,
+					),
+					['\\' => '/'],
+				);
+
+				foreach ($standard_paths as $token => $dir_path) {
+					if (str_contains('./' . $diffs[$d]->$label, $token)) {
+						continue 2;
+					}
+				}
+
+				foreach ($standard_paths as $token => $dir_path) {
+					if ($token === '$boarddir') {
+						$label_parts = array_filter(explode('/', $diffs[$d]->$label), 'strlen');
+						$basename = array_pop($label_parts);
+
+						do {
+							$relative_path = ltrim(implode('/', $label_parts), '/');
+
+							if (file_exists(Config::$boarddir . '/' . $relative_path)) {
+								$diffs[$d]->$label = $token . '/' . $relative_path . (isset($basename) ? '/' . $basename : '');
+								break 2;
+							}
+
+							array_shift($label_parts);
+
+							if (empty($label_parts) && isset($basename)) {
+								$label_parts[] = $basename;
+								unset($basename);
+							}
+						} while (!empty($label_parts));
+
+						// If we get here, the path couldn't be found. Make it
+						// relative to $boarddir to force an error below.
+						$diffs[$d]->$label = $token . '/' . ltrim(preg_replace('~/+~', '/', $diffs[$d]->$label), '/');
+
+					} elseif (str_contains('./' . $diffs[$d]->$label, $dir_path)) {
+						$relative_path = substr(
+							'./' . $diffs[$d]->$label,
+							strrpos('./' . $diffs[$d]->$label, $dir_path) + strlen($dir_path),
+						);
+
+						$diffs[$d]->$label = $token . '/' . ltrim($relative_path, '/');
+						break;
+					}
+				}
+			}
+
+			// Mods must never mess with the settings backup file.
+			if (
+				basename($diffs[$d]->label1) === basename(SMF_SETTINGS_BACKUP_FILE)
+				|| basename($diffs[$d]->label2) === basename(SMF_SETTINGS_BACKUP_FILE)
+			) {
+				unset($diffs[$d]);
+				continue;
+			}
+
+			// If this modification should be applied to custom themes, then
+			// create extra FullDiff instances to target those custom themes.
+			foreach (['$imagesdir', '$themedir'] as $token) {
+				foreach ($theme_paths as $id => $theme) {
+					if ($id === 1) {
+						continue;
+					}
+
+					$new_diff = clone $diffs[$d];
+					$should_add = false;
+
+					foreach (['label1', 'label2'] as $label) {
+						if (str_starts_with($diffs[$d]->$label, $token)) {
+							$new_diff->$label = strtr(self::parsePath($new_diff->$label), [$theme_paths[1]['theme_dir'] => $theme['theme_dir']]);
+							$should_add = true;
+						}
+					}
+
+					if ($should_add) {
+						$diffs[] = $new_diff;
+					}
+				}
+			}
+
+			// Resolve the paths.
+			foreach (['label1', 'label2'] as $label) {
+				$diffs[$d]->$label = self::parsePath($diffs[$d]->$label);
+			}
+		}
+
+		// Apply the changes.
+		foreach ($diffs as $d => $diff) {
+			// Is this being applied to a custom theme?
+			$is_custom = false;
+
+			foreach ($theme_paths as $id => $theme) {
+				if ($id > 1 && (str_starts_with($diff->label1, $theme['theme_dir']) || str_starts_with($diff->label2, $theme['theme_dir']))) {
+					$is_custom = true;
+					break;
+				}
+			}
+
+			// Get the existing file content.
+			$original = !$undo && is_file($diff->label1) ? self::packageGetContents($diff->label1) : null;
+			$modified =  $undo && is_file($diff->label2) ? self::packageGetContents($diff->label2) : null;
+
+			// For convenience...
+			$source_path = $undo ? $diff->label2 : $diff->label1;
+			$target_path = $undo ? $diff->label1 : $diff->label2;
+			$source_content = $undo ? $modified : $original;
+			$target_content = $undo ? $original : $modified;
+
+			// No content found?
+			if ($source_content === null) {
+				// Is that because $diff->label2 is supposed to be a new file?
+				if (
+					count($diff->changes) === 1
+					&& $diff->changes[0]['l1'] === 0
+					&& $diff->changes[0]['l2'] === 0
+				) {
+					$original = $diff->changes[0]['old'];
+					$modified = $diff->changes[0]['new'];
+
+					$source_content = $undo ? $modified : $original;
+					$target_content = $undo ? $original : $modified;
+				}
+				// Uh-oh.
+				else {
+					$actions[] = [
+						'type' => $diff->optional ? 'skipping' : 'missing',
+						'filename' => $source_path,
+					];
+
+					$everything_found = false;
+					continue;
+				}
+			}
+
+			$actions[] = [
+				'type' => 'opened',
+				'filename' => $target_path,
+			];
+
+			// Apply the changes to the file content.
+			try {
+				if ($undo) {
+					$target_content = $original = $diff->revert($modified);
+				} else {
+					$target_content = $modified = $diff->apply($original);
+				}
+			} catch (\ValueError $e) {
+				$failed_changes = Utils::jsonDecode($e->getMessage(), true);
+
+				// Warn the admin about the failures.
+				foreach ($diff->changes as $c => $change) {
+					$search = $change[$undo ? 'new' : 'old'];
+					$replace = $change[$undo ? 'old' : 'new'];
+					$position = 'replace';
+
+					if ($search == '') {
+						if (!empty($change['before'])) {
+							$search = $change['before'];
+							$position = 'before';
+						} elseif (!empty($change['after'])) {
+							$search = $change['after'];
+							$position = 'after';
+						}
+					} elseif (substr_count($source_content, $search) > 1) {
+						$search = $change['before'] . $search . $change['after'];
+						$replace = $change['before'] . $replace . $change['after'];
+					}
+
+					$actions[] = [
+						'type' => isset($failed_changes[$c]) && !$diff->optional ? 'failure' : 'replace',
+						'filename' => $target_path,
+						'search_original' => $search,
+						'replace_original' => $replace,
+						'position' => $position,
+						'is_custom' => $is_custom,
+						'failed' => isset($failed_changes[$c]),
+						'ignore_failure' => $diff->optional,
+					];
+				}
+
+				$everything_found = false;
+
+				if ($testing) {
+					// Nothing has actually been saved, but this is necessary for
+					// the logic in PackageManager::installTest() to work.
+					$actions[] = [
+						'type' => 'saved',
+						'filename' => $target_path,
+						'is_custom' => $is_custom,
+					];
+
+					continue;
+				}
+
+				// If we're not testing, skip the failed changes and apply the rest.
+				$real_changes = $diff->changes;
+
+				foreach ($failed_changes as $c => $change) {
+					unset($diff->changes[$c]);
+				}
+
+				try {
+					if ($undo) {
+						$target_content = $original = $diff->revert($modified);
+					} else {
+						$target_content = $modified = $diff->apply($original);
+					}
+
+					$diff->changes = $real_changes;
+				} catch (\Throwable $e) {
+					$diff->changes = $real_changes;
+					continue;
+				}
+			}
+
+			// We need the target file to be writable.
+			self::chmod($target_path);
+
+			// If the target still isn't writable, add it to the list so that we
+			// can try again using FTP access.
+			if (
+				(
+					file_exists($target_path)
+					&& !is_writable($target_path)
+				)
+				|| (
+					!file_exists($target_path)
+					&& !is_writable(dirname($target_path))
+				)
+			) {
+				$actions[] = [
+					'type' => 'chmod',
+					'filename' => $target_path,
+				];
+			}
+
+			// Backups are good.
+			if (
+				!$testing
+				&& !empty(Config::$modSettings['package_make_backups'])
+				&& file_exists($target_path)
+			) {
+				// No, no, not Settings.php!
+				if (basename($target_path) === basename(SMF_SETTINGS_FILE)) {
+					@copy($target_path, dirname($target_path) . '/' . basename(SMF_SETTINGS_BACKUP_FILE));
+				} else {
+					@copy($target_path, $target_path . '~');
+				}
+			}
+
+			if (!$undo) {
+				// Creating the new file.
+				if ($original === '') {
+					if (!$testing) {
+						$success = (self::packagePutContents($diff->label2, $modified, $testing) === strlen($modified));
+					} else {
+						$success = Utils::makeWritable(dirname($diff->label2));
+					}
+
+					$actions[] = [
+						'type' => !$success ? 'failure' : 'create-file',
+						'filename' => $diff->label2,
+						'is_custom' => $is_custom,
+						'failed' => !$success,
+					];
+
+					continue;
+				}
+
+				// Removing the old file.
+				if ($modified === '') {
+					if (!is_file($diff->label2)) {
+						$success = true;
+					} elseif (!$testing) {
+						$success = unlink($diff->label2);
+					} else {
+						$success = Utils::makeWritable(dirname($diff->label2)) && Utils::makeWritable($diff->label2);
+					}
+
+					$actions[] = [
+						'type' => !$success ? 'failure' : 'remove-file',
+						'filename' => $diff->label2,
+						'is_custom' => $is_custom,
+						'failed' => !$success,
+					];
+
+					continue;
+				}
+			} else {
+				// Removing the new file.
+				if ($original === '') {
+					if (!is_file($diff->label2)) {
+						$success = true;
+					} elseif (!$testing) {
+						$success = unlink($diff->label2);
+					} else {
+						$success = Utils::makeWritable(dirname($diff->label2)) && Utils::makeWritable($diff->label2);
+					}
+
+					$actions[] = [
+						'type' => !$success ? 'failure' : 'remove-file',
+						'filename' => $diff->label2,
+						'is_custom' => $is_custom,
+						'failed' => !$success,
+					];
+
+					continue;
+				}
+
+				// Creating the old file.
+				if ($modified === '') {
+					if (!$testing) {
+						$success = (self::packagePutContents($diff->label1, $original, $testing) === strlen($original));
+					} else {
+						$success = Utils::makeWritable(dirname($diff->label1));
+					}
+
+					$actions[] = [
+						'type' => !$success ? 'failure' : 'create-file',
+						'filename' => $diff->label1,
+						'is_custom' => $is_custom,
+						'failed' => !$success,
+					];
+
+					continue;
+				}
+			}
+
+			// Renaming the file.
+			if ($diff->label1 !== $diff->label2 && $diff->rename) {
+				if ($testing) {
+					$target_dir = dirname($target_path);
+
+					while (!file_exists($target_dir)) {
+						$target_dir = dirname($target_dir);
+					}
+
+					$success = Utils::makeWritable($target_dir);
+				} else {
+					if (
+						!self::mktree(dirname($target_path), 0755)
+						|| !is_writable(dirname($target_path))
+					) {
+						self::mktree(dirname($target_path), 0777);
+					}
+
+					$success = rename($source_path, $target_path);
+				}
+
+				$actions[] = [
+					'type' => !$success ? 'failure' : 'move-file',
+					'filename' => $source_path,
+					'source' => $source_path,
+					'destination' => $target_path,
+					'is_custom' => $is_custom,
+					'failed' => !$success,
+				];
+			}
+
+			// There are changes to the file content.
+			if ($source_content !== $target_content) {
+				// Loop over the diff's changes to build an $actions entry for each one.
+				foreach ($diff->changes as $change) {
+					$search = $change[$undo ? 'new' : 'old'];
+					$replace = $change[$undo ? 'old' : 'new'];
+					$position = 'replace';
+
+					if ($search == '') {
+						if (!empty($change['before'])) {
+							$search = $change['before'];
+							$position = 'before';
+						} elseif (!empty($change['after'])) {
+							$search = $change['after'];
+							$position = 'after';
+						}
+					} elseif (substr_count($source_content, $search) > 1) {
+						$search = $change['before'] . $search . $change['after'];
+						$replace = $change['before'] . $replace . $change['after'];
+					}
+
+					$actions[] = [
+						'type' => 'replace',
+						'filename' => $target_path,
+						'search_original' => $search,
+						'replace_original' => $replace,
+						'position' => $position,
+						'is_custom' => $is_custom,
+						'failed' => false,
+					];
+				}
+
+				// Always call this, even if in testing, because it won't really be written in testing mode.
+				self::packagePutContents($target_path, $target_content, $testing);
+			}
+
+			$actions[] = [
+				'type' => 'saved',
+				'filename' => $target_path,
+				'is_custom' => $is_custom,
+			];
+		}
+
+		$actions[] = [
+			'type' => 'result',
+			'status' => $everything_found,
+		];
+
+		return $actions;
+	}
+
+	/**
 	 * Parses a xml-style modification file (file).
 	 *
 	 * @param string $file The modification file to parse
@@ -1956,7 +2459,7 @@ class PackageUtils
 	 */
 	public static function parseModification(string $file, bool $testing = true, bool $undo = false, array $theme_paths = []): array
 	{
-		@set_time_limit(600);
+		Sapi::setTimeLimit();
 		$xml = new XmlArray(strtr($file, ["\r" => '']));
 		$actions = [];
 		$everything_found = true;
@@ -2325,7 +2828,7 @@ class PackageUtils
 	 */
 	public static function parseBoardMod(string $file, bool $testing = true, bool $undo = false, array $theme_paths = []): array
 	{
-		@set_time_limit(600);
+		Sapi::setTimeLimit();
 		$file = strtr($file, ["\r" => '']);
 
 		$working_file = null;
