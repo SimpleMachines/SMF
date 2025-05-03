@@ -10539,18 +10539,33 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param array $board_permissions Board permissions to check.
 	 * @param int   $profile_id ID of a permission profile.
 	 *
-	 * @return array An array containing two arrays: 'allowed', which has which
-	 *    groups are allowed to do it and 'denied' which has the groups that are
-	 *    denied.
+	 * @return array A multidimensional array where each element's key is the
+	 *    name of a permission, and each value is a sub-array containing two
+	 *    elements: 'allowed', which lists the IDs of groups that have been
+	 *    granted that permission, and 'denied' which lists the groups that
+	 *    have been denied that permission.
 	 */
 	function getGroupsWithPermissions(
 		array $general_permissions = [],
 		array $board_permissions = [],
-		int $profile_id = 1,
+		int $profile_id = SMF\Permissions\PermissionProfile::DEFAULT,
 	): array {
 		$return = [];
 
-		foreach (SMF\Group::getAllWithPermissions($general_permissions + $board_permissions, $profile_id, true) as $group => $perms) {
+		$profile = current(SMF\Permissions\PermissionProfile::load($profile_id));
+
+		if (!($profile instanceof SMF\Permissions\PermissionProfile)) {
+			return $return;
+		}
+
+		$board = current($profile->boards()) !== false ? current($profile->boards()) : null;
+
+		foreach (
+			SMF\Group::getAllWithPermissions(
+				$general_permissions + $board_permissions,
+				$board,
+			) as $group => $perms
+		) {
 			foreach ($perms as $perm => $value) {
 				switch ($value) {
 					case 1:

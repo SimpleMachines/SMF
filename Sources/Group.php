@@ -2209,24 +2209,19 @@ class Group implements \ArrayAccess
 	 * allowed, disallowed, or denied for each group.
 	 *
 	 * @param string|array $permissions One or more permissions to check.
-	 * @param ?int $board_or_profile ID of either a board or of a permission
-	 *    profile. If null, the default permission profile will be used.
+	 * @param ?int $board ID of a board whose permission profile should be used.
+	 *    If null, the default permission profile will be used.
 	 *    Default: null.
-	 * @param bool $is_profile Set this to true if $board_or_profile is a
-	 *    permission profile ID. Means nothing if $board_or_profile is null.
-	 *    Default: false.
 	 * @return array
 	 */
-	public static function getAllWithPermissions(string|array $permissions, ?int $board_or_profile = null, bool $is_profile = false): array
+	public static function getAllWithPermissions(string|array $permissions, ?int $board): array
 	{
-		if (!isset($board_or_profile)) {
-			$profile = PermissionProfile::DEFAULT;
-		} elseif ($is_profile) {
-			$profile = current(PermissionProfile::load($board_or_profile));
-			$profile = $profile instanceof PermissionProfile ? $profile->id : PermissionProfile::DEFAULT;
-		} else {
-			$profile = current(PermissionProfile::loadByBoard($board_or_profile));
-			$profile = $profile instanceof PermissionProfile ? $profile->id : PermissionProfile::DEFAULT;
+		if (isset($board)) {
+			$profile = current(PermissionProfile::loadByBoard($board));
+		}
+
+		if (!isset($profile) || !($profile instanceof PermissionProfile)) {
+			$profile = current(PermissionProfile::load(PermissionProfile::DEFAULT));
 		}
 
 		$permissions = (array) $permissions;
@@ -2240,10 +2235,10 @@ class Group implements \ArrayAccess
 		}
 
 		// Maybe a mod needs to tweak the list of allowed groups on the fly?
-		IntegrationHook::call('integrate_groups_with_permissions', [&$groups, $permissions, $board_or_profile]);
+		IntegrationHook::call('integrate_groups_with_permissions', [&$groups, $permissions, $profile]);
 
 		// Call the deprecated integrate_groups_allowed_to hook.
-		self::integrateGroupsAllowedTo($groups, $permissions, $board_or_profile);
+		self::integrateGroupsAllowedTo($groups, $permissions, $board);
 
 		return $groups;
 	}
