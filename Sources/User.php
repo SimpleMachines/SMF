@@ -2158,11 +2158,6 @@ class User implements \ArrayAccess
 			return true;
 		}
 
-		// Administrators are supermen :P.
-		if ($this->is_admin) {
-			return true;
-		}
-
 		// Let's ensure these are arrays.
 		$permissions = (array) $permissions;
 		$boards = array_filter(
@@ -2183,9 +2178,6 @@ class User implements \ArrayAccess
 		$board_permissions = array_filter($permissions, fn($p) => Permission::get($p)->scope === 'board');
 		$global_permissions = array_diff($permissions, $board_permissions);
 
-		// Assume false until proven otherwise.
-		$allowed = false;
-
 		// Check any requested global permissions.
 		if (!empty($global_permissions)) {
 			$this->loadPermissions(0);
@@ -2194,6 +2186,10 @@ class User implements \ArrayAccess
 
 		// Check any requested board permissions.
 		if (!empty($board_permissions) && !empty($boards)) {
+			if (!isset($allowed)) {
+				$allowed = !$any;
+			}
+
 			$this->loadPermissions($boards);
 
 			foreach ($boards as $board) {
@@ -2202,9 +2198,9 @@ class User implements \ArrayAccess
 			}
 		}
 
-		$this->perm_cache[$cache_key] = $allowed;
+		$this->perm_cache[$cache_key] = !empty($allowed);
 
-		return $allowed;
+		return !empty($allowed);
 	}
 
 	/**
