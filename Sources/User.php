@@ -2141,14 +2141,13 @@ class User implements \ArrayAccess
 	 * If $any is true, will return true if the user has any of the specified
 	 * permissions on any of the specified boards.
 	 *
-	 * Always returns true if the user is an administrator.
-	 *
 	 * @param string|array $permissions One or more permissions to check.
 	 * @param int|array|null $boards The IDs of one or more boards, or null for
 	 *    the current board. Default: null.
 	 * @param bool $any If true, will return true if the user has any of the
-	 *    specified permissions. If false, will return true only if the user
-	 *    has all of the specified permissions. Default: false.
+	 *    specified permissions on any of the specified boards. If false, will
+	 *    return true only if the user has all of the specified permissions on
+	 *    all of the specified boards. Default: false.
 	 * @return bool Whether the user has the specified permission.
 	 */
 	public function allowedTo(string|array $permissions, int|array|null $boards = null, bool $any = false): bool
@@ -2207,12 +2206,12 @@ class User implements \ArrayAccess
 	 * Checks whether the user has the given permissions, and exits with a
 	 * fatal error if not.
 	 *
-	 * Uses allowedTo() to check if the user is allowed to do permission.
+	 * Uses allowedTo() to check if the user has the permissions.
 	 *
-	 * Checks the passed boards or current board for the permission.
+	 * Checks the passed boards or current board for the permissions.
 	 *
-	 * If $any is true, the user only needs permission on at least one of the
-	 * boards to pass.
+	 * If $any is true, the user will pass if they have any of the specified
+	 * permissions on any of the specified boards.
 	 *
 	 * If the user is not allowed, loads the Errors language file and shows an
 	 * error using Lang::$txt['cannot_' . $permission].
@@ -2220,10 +2219,10 @@ class User implements \ArrayAccess
 	 * If the user is a guest and cannot do it, calls $this->kickIfGuest().
 	 *
 	 * @param string|array $permissions One or more permissions to check.
-	 * @param int|array $boards The ID of a board or an array of board IDs if we
-	 *    want to check board-level permissions
-	 * @param bool $any Whether to check for permission on at least one board
-	 *    instead of all the passed boards.
+	 * @param int|array|null $boards The IDs of one or more boards, or null for
+	 *    the current board. Default: null.
+	 * @param bool $any If true, the user will pass if they have any of the
+	 *    specified permissions on any of the specified boards. Default: false.
 	 */
 	public function isAllowedTo(string|array $permissions, int|array|null $boards = null, bool $any = false): void
 	{
