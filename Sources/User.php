@@ -2197,7 +2197,7 @@ class User implements \ArrayAccess
 			$this->loadPermissions($boards);
 
 			foreach ($boards as $board) {
-				$allowed_here = $this->permission_sets[$board]->allowedTo($board_permissions, $any);
+				$allowed_here = isset($this->permission_sets[$board]) && $this->permission_sets[$board]->allowedTo($board_permissions, $any);
 				$allowed = $any ? ($allowed || $allowed_here) : ($allowed && $allowed_here);
 			}
 		}
