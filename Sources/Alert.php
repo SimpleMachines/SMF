@@ -209,7 +209,7 @@ class Alert implements \ArrayAccess
 	protected static array $qb = [];
 
 	/**
-	 * @var bool $formats_finalized
+	 * @var bool
 	 *
 	 * Whether self::$link_formats has been finalized.
 	 */
