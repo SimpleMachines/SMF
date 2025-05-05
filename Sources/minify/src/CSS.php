@@ -292,12 +292,12 @@ class CSS extends Minify
      * Minify the data.
      * Perform CSS optimizations.
      *
-     * @param string[optional] $path    Path to write the data to
-     * @param string[] $parents Parent paths, for circular reference checks
+     * @param string|null $path    Path to write the data to
+     * @param array $parents Parent paths, for circular reference checks
      *
      * @return string The minified data
      */
-    public function execute($path = null, $parents = array())
+    public function execute(?string $path = null, array $parents = array()) : string
     {
         $content = '';
 

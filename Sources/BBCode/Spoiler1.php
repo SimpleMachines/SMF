@@ -55,7 +55,7 @@ class Spoiler1 extends BBCode
 	];
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * HTML to insert before the BBCode's content.
 	 *
@@ -67,7 +67,9 @@ class Spoiler1 extends BBCode
 	public ?string $before = '<span class="bbc_inline_spoiler" title="{txt_spoiler_toggle}"><button type="button" title="{txt_spoiler_toggle}" tabindex="0"></button><span>';
 
 	/**
+	 * @var string|null
 	 *
+	 * HTML to insert after the BBCode's content
 	 */
 	public ?string $after = '</span></span>';
 

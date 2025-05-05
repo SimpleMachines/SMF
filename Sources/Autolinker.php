@@ -348,7 +348,7 @@ class Autolinker
 	 * detected URLs in the string, and the values are the URLs themselves.
 	 *
 	 * @param string $string The string to examine.
-	 * @param bool bool $plaintext_only If true, only look for plain text URLs.
+	 * @param bool $plaintext_only If true, only look for plain text URLs.
 	 * @return array Positional info about any detected URLs.
 	 */
 	public function detectUrls(string $string, bool $plaintext_only = false): array
@@ -441,7 +441,7 @@ class Autolinker
 	 * addresses themselves.
 	 *
 	 * @param string $string The string to examine.
-	 * @param bool bool $plaintext_only If true, only look for plain text email
+	 * @param bool $plaintext_only If true, only look for plain text email
 	 *    addresses.
 	 * @return array Positional info about any detected email addresses.
 	 */

@@ -15,7 +15,7 @@
 
 ########## Maintenance ##########
 /**
- * @var int 0, 1, 2
+ * @var int
  *
  * The maintenance "mode":
  * 0: Disable maintenance mode. This is the default.

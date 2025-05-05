@@ -41,7 +41,7 @@ class EditDiff extends Diff
 	 *******************/
 
 	/**
-	 * @var string
+	 * @var int
 	 *
 	 * The ID of the member who made the edit.
 	 */
@@ -91,8 +91,9 @@ class EditDiff extends Diff
 	 * @param ?string $str1 The original string.
 	 * @param ?string $str2 The modified string.
 	 * @param ?string $time1 Timestamp to use for the original string.
-	 * @param ?string $name The name of the member who made the edit.
-	 * @param ?string $reason The reason for the edit, if any.
+	 * @param int $id The ID of the person who made the edit
+	 * @param string $name The name of the member who made the edit.
+	 * @param string $reason The reason for the edit, if any.
 	 */
 	public function __construct(
 		?string $str1 = null,

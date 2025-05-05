@@ -157,19 +157,19 @@ class Cookie
 	/**
 	 * Constructor.
 	 *
-	 * @param string $name Name of the cookie.
+	 * @param null|string $name Name of the cookie.
 	 * @param mixed $custom_data Data to include in the cookie.
-	 * @param int $expires When the cookie expires.
+	 * @param null|int $expires When the cookie expires.
 	 *    If not set, determined automatically.
-	 * @param string $domain The domain of the site where the cookie is used.
+	 * @param null|string $domain The domain of the site where the cookie is used.
 	 *    If not set, determined automatically.
-	 * @param string $path The part of the site where the cookie is used.
+	 * @param null|string $path The part of the site where the cookie is used.
 	 *    If not set, determined automatically.
 	 * @param bool $secure Whether cookie must be secure.
 	 *    If not set, determined by Config::$modSettings['secureCookies'].
 	 * @param bool $httponly Whether cookie can only be used for HTTP requests.
 	 *    If not set, determined by Config::$modSettings['httponlyCookies'].
-	 * @param string $samesite Value for the cookie's 'SameSite' attribute.
+	 * @param null|string $samesite Value for the cookie's 'SameSite' attribute.
 	 *    If not set, determined by Config::$modSettings['samesiteCookies'].
 	 */
 	public function __construct(

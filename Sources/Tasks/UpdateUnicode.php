@@ -840,7 +840,7 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * Deletes a directory and its contents.
 	 *
-	 * @param string Path to directory
+	 * @param string $dir_path Path to directory
 	 */
 	private function deltree(string $dir_path): void
 	{

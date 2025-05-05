@@ -796,7 +796,7 @@ class Poll implements \ArrayAccess
 	 * Checks permissions and sanitizes input before doing anything.
 	 *
 	 * @param array &$errors Will hold errors encountered while creating the poll.
-	 * @return self An instance of this class, or null on failure.
+	 * @return self|null An instance of this class, or null on failure.
 	 */
 	public static function create(array &$errors = []): ?self
 	{
@@ -1052,8 +1052,6 @@ class Poll implements \ArrayAccess
 
 	/**
 	 * Sets object properties based on retrieved database rows.
-	 *
-	 * @param array $row A row from the database.
 	 */
 	protected function initNewPoll(): void
 	{

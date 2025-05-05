@@ -48,7 +48,7 @@ class XmlArray
 	 *
 	 * @param string|array $data The xml data or an array of, unless is_clone is true.
 	 * @param bool $auto_trim Used to automatically trim textual data.
-	 * @param int $level The debug level. Specifies whether notices should be generated for missing elements and attributes.
+	 * @param int|null $level The debug level. Specifies whether notices should be generated for missing elements and attributes.
 	 * @param bool $is_clone default false. If is_clone is true, the  XmlArray is cloned from another - used internally only.
 	 */
 	public function __construct(string|array $data, bool $auto_trim = false, ?int $level = null, bool $is_clone = false)
@@ -100,7 +100,7 @@ class XmlArray
 	 *
 	 * @param string $path The path to the element to fetch
 	 * @param bool $get_elements Whether to include elements
-	 * @return string The value or attribute of the specified element
+	 * @return string|bool The value or attribute of the specified element
 	 */
 	public function fetch(string $path, bool $get_elements = false): string|bool
 	{
@@ -302,7 +302,7 @@ class XmlArray
 	 * Example use:
 	 *  echo $this->create_xml();
 	 *
-	 * @param string $path The path to the element. (optional)
+	 * @param string|null $path The path to the element. (optional)
 	 * @return string Xml-formatted string.
 	 */
 	public function create_xml(?string $path = null): string
@@ -332,7 +332,7 @@ class XmlArray
 	 * Example use:
 	 *  print_r($xml->to_array());
 	 *
-	 * @param string $path The path to output.
+	 * @param string|null $path The path to output.
 	 * @return array An array of XML data
 	 */
 	public function to_array(?string $path = null): array

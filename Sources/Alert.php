@@ -209,7 +209,7 @@ class Alert implements \ArrayAccess
 	protected static array $qb = [];
 
 	/**
-	 * @var array
+	 * @var bool $formats_finalized
 	 *
 	 * Whether self::$link_formats has been finalized.
 	 */
@@ -812,8 +812,8 @@ class Alert implements \ArrayAccess
 	 * @param int $memID The ID of the member.
 	 * @param bool|array $to_fetch Alerts to fetch: true/false for all/unread,
 	 *    or a list of one or more alert IDs.
-	 * @param array $limit Maximum number of alerts to fetch (0 for no limit).
-	 * @param array $offset Number of alerts to skip for pagination.
+	 * @param int $limit Maximum number of alerts to fetch (0 for no limit).
+	 * @param int $offset Number of alerts to skip for pagination.
 	 *    Ignored if $to_fetch is a list of IDs.
 	 * @return array An array of instances of this class.
 	 */
@@ -888,8 +888,8 @@ class Alert implements \ArrayAccess
 	 * @param int $memID The ID of the member.
 	 * @param bool|array $to_fetch Alerts to fetch: true/false for all/unread,
 	 *    or a list of one or more IDs.
-	 * @param array $limit Maximum number of alerts to fetch (0 for no limit).
-	 * @param array $offset Number of alerts to skip for pagination. Ignored if
+	 * @param int $limit Maximum number of alerts to fetch (0 for no limit).
+	 * @param int $offset Number of alerts to skip for pagination. Ignored if
 	 *    $to_fetch is a list of IDs.
 	 * @param bool $with_avatar Whether to load the avatar of the alert sender.
 	 * @param bool $show_links Whether to show links in the constituent parts of
@@ -1440,11 +1440,11 @@ class Alert implements \ArrayAccess
 	/**
 	 * Checks whether a member can see the topics that some alerts refer to.
 	 *
+	 * @param array $possible_topics Key-value pairs of alert IDs and topic IDs.
 	 * @param int $memID ID of the member.
 	 * @param bool $simple If true, do nothing beyond checking the access.
 	 *    If false, also get some info about the topic in question.
 	 *    Default: false.
-	 * @param array $possible_msgs Key-value pairs of alert IDs and topic IDs.
 	 * @return array Key-value pairs of alert IDs and visibility status.
 	 */
 	protected static function checkTopicAccess(array $possible_topics, int $memID, bool $simple = false): array

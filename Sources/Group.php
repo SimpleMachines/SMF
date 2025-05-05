@@ -1168,8 +1168,6 @@ class Group implements \ArrayAccess
 	 * @param bool $perms_checked Whether we've already checked permissions.
 	 * @param bool $ignore_protected Whether to ignore the protected status of
 	 *    protected groups.
-	 * @param mixed The groups to remove the member(s) from. If null, the
-	 *    specified members are stripped from all their membergroups.
 	 * @return bool Whether the operation was successful.
 	 */
 	public function removeMembers(int|array $members, bool $perms_checked = false, bool $ignore_protected = false): bool
@@ -1472,7 +1470,7 @@ class Group implements \ArrayAccess
 	 *
 	 * Results are saved in $this->num_permissions and also returned.
 	 *
-	 * @param int $profile Which permission profile to count permissions for.
+	 * @param int|null $profile Which permission profile to count permissions for.
 	 *    If set to 1 or higher, count board permissions for that profile.
 	 *    If set to 0, count general permissions only.
 	 *    If null, count general permissions and board permissions for the
@@ -2622,7 +2620,7 @@ class Group implements \ArrayAccess
 	 * Returns the icons formatted for display.
 	 *
 	 * @param self $group An instance of this class.
-	 * @return bool Whether the group is a post-count based group.
+	 * @return string The formatted icon or an empty string if the group doesn't have one
 	 */
 	protected static function formatIcons(self $group): string
 	{

@@ -102,7 +102,7 @@ class Event implements \ArrayAccess
 	public Time $start;
 
 	/**
-	 * @var SMF\TimeInterval
+	 * @var TimeInterval
 	 *
 	 * A TimeInterval object representing the duration of each occurrence of
 	 * the event.

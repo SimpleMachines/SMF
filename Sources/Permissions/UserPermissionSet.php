@@ -223,7 +223,7 @@ class UserPermissionSet
 	/**
 	 * Checks whether the user has been granted the specified permissions.
 	 *
-	 * @param string $permission_names The names of the permissions to check.
+	 * @param string|array $permission_names The names of the permissions to check.
 	 * @param bool $any If true, will return true if the user has any of the
 	 *    specified permissions. If false, will return true only if the user
 	 *    has all of the specified permissions. Default: false.
@@ -266,7 +266,7 @@ class UserPermissionSet
 	 *
 	 * These changes do not survive beyond the current script execution run.
 	 *
-	 * @param string|array $permission_name The name of the permission to grant.
+	 * @param string|array $permission_names The name of the permission to grant.
 	 */
 	public function grant(string|array $permission_names): void
 	{
@@ -285,7 +285,7 @@ class UserPermissionSet
 	 *
 	 * These changes do not survive beyond the current script execution run.
 	 *
-	 * @param string $permission_name The name of the permission to deny.
+	 * @param string $permission_names The name of the permission to deny.
 	 */
 	public function deny(string|array $permission_names): void
 	{
@@ -383,7 +383,7 @@ class UserPermissionSet
 	 * Calls the integrate_allowed_to_general hook so that mods can grant custom
 	 * permissions.
 	 *
-	 * @param string $permission_names The names of the permissions to check.
+	 * @param array $permission_names The names of the permissions to check.
 	 */
 	protected function integrateAllowedToGeneral(array $permission_names): void
 	{

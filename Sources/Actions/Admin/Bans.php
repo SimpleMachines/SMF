@@ -2388,7 +2388,7 @@ class Bans implements ActionInterface
 	 * Doesn't clean the inputs.
 	 *
 	 * @param array|int $items_ids The triggers to remove.
-	 * @param int $group_id The ID of the group these triggers are associated with.
+	 * @param null|int $group_id The ID of the group these triggers are associated with.
 	 *    If null, the triggers will be deleted from all groups.
 	 * @return bool Whether the operation was successful.
 	 */

@@ -202,7 +202,7 @@ class Uuid implements \Stringable
 	protected static string $node;
 
 	/**
-	 * @var object
+	 * @var \DateTimeZone
 	 *
 	 * A \DateTimeZone object for UTC.
 	 */
@@ -231,7 +231,7 @@ class Uuid implements \Stringable
 	 * preserve or enforce a particular position in a sorting sequence, so the
 	 * ability to do so is available.
 	 *
-	 * @param int $version The UUID version to create.
+	 * @param int|null $version The UUID version to create.
 	 * @param mixed $input Input for the UUID generator, if applicable.
 	 */
 	public function __construct(?int $version = null, mixed $input = null)
@@ -404,7 +404,7 @@ class Uuid implements \Stringable
 	 * This is just syntactical sugar to simplify method chaining and procedural
 	 * coding styles, much like `date_create()` does for `new \DateTime()`.
 	 *
-	 * @param int $version The UUID version to create.
+	 * @param int|null $version The UUID version to create.
 	 * @param mixed $input Input for the UUID generator, if applicable.
 	 * @return Uuid A new Uuid object.
 	 */
@@ -932,7 +932,7 @@ class Uuid implements \Stringable
 	/**
 	 * Sets $this->timestamp to a microsecond-precision Unix timestamp.
 	 *
-	 * @param \Stringable|string|int|float $input A timestamp or date string.
+	 * @param \Stringable|string|int|float|null $input A timestamp or date string.
 	 *    Default: 'now'.
 	 */
 	protected function setTimestamp(\Stringable|string|int|float|null $input = 'now'): void

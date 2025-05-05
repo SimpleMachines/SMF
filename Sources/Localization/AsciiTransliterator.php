@@ -35,7 +35,7 @@ class AsciiTransliterator
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var \Transliterator $transliterator
 	 *
 	 * An instance of \Transliterator to be used by self::intl().
 	 */

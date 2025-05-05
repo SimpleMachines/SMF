@@ -50,7 +50,7 @@ interface SearchApiInterface
 	/**
 	 * Gets whether the index for this API exists.
 	 *
-	 * @return string Either 'exists', 'partial', 'none', or null for APIs that
+	 * @return string|null Either 'exists', 'partial', 'none', or null for APIs that
 	 *    don't use an index.
 	 */
 	public function getStatus(): ?string;
@@ -126,8 +126,8 @@ interface SearchApiInterface
 	 *
 	 * @param int $id_topic The ID of the topic that messages where merged into
 	 * @param array $topics The ID(s) of the merged topic(s)
-	 * @param array $msgs The ID(s) of the merged messages(s)
-	 * @param ?string Optional rename all subjects for all messages.
+	 * @param array $affected_msgs The ID(s) of the merged messages(s)
+	 * @param ?string $subject Optional rename all subjects for all messages.
 	 */
 	public function topicMerge(int $id_topic, array $topics, array $affected_msgs, ?string $subject): void;
 
@@ -135,7 +135,7 @@ interface SearchApiInterface
 	 * Callback when a topic is merged.
 	 *
 	 * @param int $id_topic The ID of the topic that messages where merged into
-	 * @param array $msgs The ID(s) of the merged messages(s)
+	 * @param array $affected_msgs The ID(s) of the merged messages(s)
 	 */
 	public function topicSplit(int $id_topic, array $affected_msgs): void;
 
@@ -177,7 +177,6 @@ interface SearchApiInterface
 	 * @param array $excludedIndexWords Indexed words that should be excluded
 	 * @param array $participants
 	 * @param array $searchArray
-	 * @return mixed
 	 */
 	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array &$participants, array &$searchArray): void;
 
