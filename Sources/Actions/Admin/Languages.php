@@ -778,7 +778,7 @@ class Languages implements ActionInterface
 
 				Utils::$context['possible_files'][$theme]['files'][] = [
 					'id' => $matches[1],
-					'name' => Lang::getString('lang_file_desc_' . $matches[1], file: 'ManageSettings') ? Lang::getTxt('lang_file_desc_' . $matches[1], file: 'ManageSettings') : $matches[1],
+					'name' => Lang::getTxt('lang_file_desc_' . $matches[1], file: 'ManageSettings') ? Lang::getTxt('lang_file_desc_' . $matches[1], file: 'ManageSettings') : $matches[1],
 					'selected' => $theme_id == $theme && $file_id == $matches[1],
 				];
 			}
