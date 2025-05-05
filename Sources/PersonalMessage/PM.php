@@ -412,7 +412,7 @@ class PM implements \ArrayAccess
 
 	/**
 	 * Checks whether the current user can see this personal message.
-	 * @param string $folders The folders to check
+	 * @param string $folders The folders to check: 'inbox', 'sent', or 'both'.
 	 * @return bool
 	 */
 	public function canAccess(string $folders = 'both'): bool
