@@ -2813,6 +2813,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Handles the account section of the profile
+	 *
+	 * @param int $memID The ID of the member
 	 */
 	function account(): void
 	{
@@ -2825,6 +2827,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Activate an account.
+	 *
+	 * @param int $memID The ID of the member whose account we're activating
 	 */
 	function activateAccount(): void
 	{
@@ -2837,6 +2841,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Set up the requirements for the alerts popup - the area that shows all the alerts just quickly for the current user.
+	 *
+	 * @param int $memID The ID of the member'
 	 */
 	function alerts_popup(): void
 	{
@@ -2849,6 +2855,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Show all the users buddies, as well as a add/delete interface.
+	 *
+	 * @param int $memID The ID of the member
 	 */
 	function editBuddyIgnoreLists(): void
 	{
@@ -2883,6 +2891,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Present a screen to make sure the user wants to be deleted
+	 *
+	 * @param int $memID The member ID
 	 */
 	function deleteAccount(): void
 	{
@@ -2972,6 +2982,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Downloads exported profile data file.
+	 *
+	 * @param int $uid The ID of the member whose data we're exporting.
 	 */
 	function download_export_file(): void
 	{
@@ -2984,6 +2996,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Handles the main "Forum Profile" section of the profile
+	 *
+	 * @param int $memID The ID of the member
 	 */
 	function forumProfile(): void
 	{
@@ -2996,6 +3010,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Function to allow the user to choose group membership etc...
+	 *
+	 * @param int $memID The ID of the member
 	 */
 	function groupMembership(): void
 	{
@@ -3089,6 +3105,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Display the notifications and settings for changes.
+	 *
+	 * @param int $memID The ID of the member
 	 */
 	function notification(): void
 	{
@@ -3166,6 +3184,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Function for doing all the paid subscription stuff - kinda.
+	 *
+	 * @param int $memID The ID of the member whose subscription we're viewing
 	 */
 	function subscriptions(): void
 	{
@@ -3178,6 +3198,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Set up the requirements for the profile popup - the area that is shown as the popup menu for the current user.
+	 *
+	 * @param int $memID The ID of the member
 	 */
 	function profile_popup(): void
 	{
@@ -3333,6 +3355,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Provides interface to disable two-factor authentication in SMF
+	 *
+	 * @param int $memID The ID of the member
 	 */
 	function tfadisable(): void
 	{
@@ -3357,6 +3381,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Handles the "Look and Layout" section of the profile
+	 *
+	 * @param int $memID The ID of the member
 	 */
 	function theme(): void
 	{
@@ -3588,8 +3614,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * This keeps track of all registered handling functions for auto suggest functionality and passes execution to them.
 	 *
-	 * @param ?string $suggest_type
-	 * @return ?bool Returns whether the callback function is registered if $suggest_type isn't null
+	 * @param bool $checkRegistered If set to something other than null, checks whether the callback function is registered
+	 * @return ?bool Returns whether the callback function is registered if $checkRegistereds isn't null
 	 */
 	function AutoSuggestHandler(?string $suggest_type = null): ?bool
 	{
@@ -3622,6 +3648,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Provides a list of possible SMF versions to use in emulation
+	 *
+	 * @return array An array of data for displaying the suggestionss
 	 */
 	function AutoSuggest_Search_SMFVersions(): void
 	{
@@ -4276,7 +4304,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * It requires that the session hash is sent as well, to prevent automatic logouts by images or javascript.
 	 * It redirects back to $_SESSION['logout_url'], if it exists.
 	 * It is accessed via ?action=logout;session_var=...
-     */
+	 *
+	 * @param bool $internal If true, it doesn't check the session
+	 * @param bool $redirect Whether or not to redirect the user after they log out
+	 */
 	function Logout(): void
 	{
 		SMF\Actions\Logout::call();
@@ -5593,7 +5624,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param int $time The timestamp of the last DB error
 	 * @return bool True If we could succesfully put the file or not.
 	 */
-	function updateDbLastError(int $time) : bool
+	function updateDbLastError(int $time): bool
 	{
 		return SMF\Config::updateDbLastError($time);
 	}
@@ -6345,7 +6376,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Check if the PM is available to the current user.
 	 *
 	 * @param int $pmID The ID of the PM
-	 * @param string $folders Which folders this is valued for - can be 'inbox', 'outbox' or 'in_or_outbox'
+	 * @param string $folders Which folders this is valid for. Can be 'inbox', 'sent', or 'both'.
 	 * @return bool Whether the PM is accessible in that folder for the current user
 	 */
 	function isAccessiblePM(int $pmID, string $folders = 'both'): bool
@@ -7301,7 +7332,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Recursively get a list of boards.
 	 * Used by getBoardTree
 	 *
-	 * @param array &$ist The board list
+	 * @param array &$list The board list
 	 * @param array &$tree The board tree
 	 */
 	function recursiveBoards(&$list, &$tree): void
@@ -8284,6 +8315,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Delete a menu.
 	 *
 	 * @param int|string $id The ID of the menu to destroy or 'last' for the most recent one
+	 * @return bool|void False if the menu doesn't exist, nothing otherwise
 	 */
 	function destroyMenu(int|string $id = 'last'): void
 	{
@@ -8711,14 +8743,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Compares existance request variables against an array.
 	 *
 	 * The input array is associative, where keys denote accepted values
-	 * in a request variable denoted by `$req_val`. Values can be:
+	 * in a request variable denoted by `$value_list`. Values can be:
 	 *
 	 * - another associative array where at least one key must be found
 	 *   in the request and their values are accepted request values.
 	 * - A scalar value, in which case no furthur checks are done.
 	 *
-	 * @param array $value_list
-	 * @param string $var
+	 * @param array $value_list Accepted values
+	 * @param string $var Name of the $_REQUEST variable to check.
 	 *
 	 * @return bool whether any of the criteria was satisfied
 	 */
@@ -10554,7 +10586,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Loads an array of users' data by ID or member_name.
 	 *
 	 * @param array|string $users An array of users by id or name or a single username/id
-	 * @param int $type
+	 * @param bool $is_name Whether $users contains names
 	 * @param string|null $dataset What kind of data to load (normal, profile, minimal)
 	 * @return array The ids of the members loaded
 	 */
@@ -10823,7 +10855,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * - calls itself recursively if necessary.
 	 *
 	 * @param array|string $var The string or array of strings to add entites to
-	 * @param int $flags Bitmask of flags to pass to htmlspecialchars()
+	 * @param int $level Which level we're at within the array (if called recursively)
 	 * @param string $encoding Character encoding
 	 * @return array|string The string or array of strings with entities added
 	 */
@@ -10854,6 +10886,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * - may call itself recursively if needed.
 	 *
 	 * @param array|string $var The string or array of strings to trim
+	 * @param int $level = 0 How we're at within the array (if called recursively)'
 	 * @return array|string The trimmed string or array of trimmed strings
 	 */
 	function htmltrim__recursive(array|string $var): array|string
@@ -11024,6 +11057,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param array $array The array to truncate
 	 * @param int $max_length The upperbound on the length.
+	 * @param int $deep How many levels in a multidimensional array should the function take into account.
 	 * @return array The truncated array
 	 */
 	function truncate_array(array $array, int $max_length = 1900): array
@@ -11034,6 +11068,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * array_length Recursive
 	 * @param array $array
+	 * @param int $deep How many levels should the function go
 	 * @return int
 	 */
 	function array_length(array $array): int
@@ -11350,7 +11385,7 @@ if (!function_exists('smf_crc32')) {
 	 * @param string $number
 	 * @return int The crc32 polynomial of $number
 	 */
-	function smf_crc32($number)
+	function smf_crc32($number): int
 	{
 		$crc = crc32($number);
 
