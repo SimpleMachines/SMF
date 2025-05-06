@@ -143,11 +143,11 @@ abstract class Minify
     /**
      * Minify the data & (optionally) saves it to a file.
      *
-     * @param string|null $path Path to write the data to
+     * @param string[optional] $path Path to write the data to
      *
      * @return string The minified data
      */
-    public function minify(?string $path = null) : string
+    public function minify($path = null) : string
     {
         $content = $this->execute($path);
 
@@ -165,12 +165,12 @@ abstract class Minify
     /**
      * Minify & gzip the data & (optionally) saves it to a file.
      *
-     * @param string|null $path  Path to write the data to
-     * @param int         $level Compression level, from 0 to 9
+     * @param string[optionl] $path  Path to write the data to
+     * @param int[optional] $level Compression level, from 0 to 9
      *
      * @return string The minified & gzipped data
      */
-    public function gzip(?string $path = null, int $level = 9) : string
+    public function gzip($path = null, $level = 9) : string
     {
         $content = $this->execute($path);
         $content = gzencode($content, $level, FORCE_GZIP);
@@ -201,7 +201,7 @@ abstract class Minify
     /**
      * Minify the data.
      *
-     * @param string|null $path Path to write the data to
+     * @param string[optional] $path Path to write the data to
      *
      * @return string The minified data
      */
@@ -214,7 +214,7 @@ abstract class Minify
      *
      * @return string
      */
-    protected function load(string $data) : string
+    protected function load($data) : string
     {
         // check if the data is a file
         if ($this->canImportFile($data)) {
@@ -421,10 +421,10 @@ abstract class Minify
      * and after doing all other minifying, we can restore the original content
      * via restoreStrings().
      *
-     * @param string $chars
-     * @param string $placeholderPrefix
+     * @param string[optional] $chars
+     * @param string[optional] $placeholderPrefix
      */
-    protected function extractStrings(string $chars = '\'"', string $placeholderPrefix = '')
+    protected function extractStrings($chars = '\'"', $placeholderPrefix = '')
     {
         // PHP only supports $this inside anonymous functions since 5.4
         $minifier = $this;

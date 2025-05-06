@@ -14,7 +14,7 @@ class ReverseDictionaryMatch extends DictionaryMatch
     /**
      * Match occurences of reversed dictionary words in password.
      *
-     * @param string $password
+     * @param $password
      * @param array $userInputs
      * @param array $rankedDictionaries
      * @return ReverseDictionaryMatch[]

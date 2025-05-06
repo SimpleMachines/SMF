@@ -13,7 +13,7 @@ namespace ZxcvbnPhp;
 class TimeEstimator
 {
     /**
-     * @param float $guesses
+     * @param $guesses
      * @return array
      */
     public function estimateAttackTimes(float $guesses): array
