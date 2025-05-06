@@ -932,10 +932,10 @@ class Uuid implements \Stringable
 	/**
 	 * Sets $this->timestamp to a microsecond-precision Unix timestamp.
 	 *
-	 * @param \Stringable|string|int|float|null $input A timestamp or date string.
+	 * @param \Stringable|string|int|float $input A timestamp or date string.
 	 *    Default: 'now'.
 	 */
-	protected function setTimestamp(\Stringable|string|int|float|null $input = 'now'): void
+	protected function setTimestamp(\Stringable|string|int|float $input = 'now'): void
 	{
 		$input = (string) $input;
 

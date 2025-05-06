@@ -763,7 +763,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 * Convert a \DateTimeInterface object to a Time object.
 	 *
 	 * @param \DateTimeInterface $object A \DateTimeInterface object.
-	 * @return static
+	 * @return static An instance of this class
 	 */
 	public static function createFromInterface(\DateTimeInterface $object): static
 	{
@@ -774,6 +774,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 * Convert a \DateTime object to a Time object.
 	 *
 	 * @param \DateTime $object A \DateTime object.
+	 * @return static An instance of this class
 	 */
 	public static function createFromMutable(\DateTime $object): static
 	{
@@ -784,6 +785,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 * Convert a \DateTimeImmutable object to a Time object.
 	 *
 	 * @param \DateTimeImmutable $object A \DateTimeImmutable object.
+	 * @return static An instance of this class
 	 */
 	public static function createFromImmutable(\DateTimeImmutable $object): static
 	{
