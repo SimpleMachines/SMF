@@ -893,7 +893,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	 * returned integer array.
 	 *
 	 * @param string $string A string.
-	 * @param int $bytes_per_word Byte-length of the returned integers.
+	 * @param int|null $bytes_per_word Byte-length of the returned integers.
 	 *    Defaults to custom search index's 'bytes_per_word' value, or 4 if that
 	 *    is not set. Allowed values range between 1 and PHP_INT_SIZE.
 	 * @return array Unique integers for each word in $string.

@@ -120,7 +120,7 @@ class Image
 	public int|float $width;
 
 	/**
-	 * @var int
+	 * @var int|float
 	 *
 	 * Height of the image in pixels.
 	 *
@@ -200,8 +200,8 @@ class Image
 	 * If $source contains raw image data, it will be validated and then saved
 	 * to a temporary local file.
 	 *
-	 * @param $source Either the path or URL of an image, or raw image data.
-	 * @param $strict If true, die with error if $source is not a valid image.
+	 * @param string $source Either the path or URL of an image, or raw image data.
+	 * @param bool $strict If true, die with error if $source is not a valid image.
 	 *    If false, silently set properties to empty values. Default: false.
 	 */
 	public function __construct(string $source, bool $strict = false)

@@ -315,7 +315,7 @@ class Board implements \ArrayAccess, Routable
 	 **************************/
 
 	/**
-	 * @var int
+	 * @var int|null
 	 *
 	 * ID number of the board being viewed.
 	 *
@@ -326,7 +326,7 @@ class Board implements \ArrayAccess, Routable
 	public static ?int $board_id;
 
 	/**
-	 * @var self
+	 * @var self|null
 	 *
 	 * Instance of this class for board we are currently in.
 	 */
@@ -1414,7 +1414,7 @@ class Board implements \ArrayAccess, Routable
 	 * updates the statistics to reflect the new situation.
 	 *
 	 * @param array $boards_to_remove The boards to remove
-	 * @param int $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
+	 * @param null|int $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
 	 */
 	public static function delete(array $boards_to_remove, ?int $moveChildrenTo = null): void
 	{

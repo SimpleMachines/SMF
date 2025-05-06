@@ -1637,7 +1637,7 @@ abstract class Diff
 	 * @param array $matching Pairs of substring numbers that do indeed match.
 	 * @param int $i The current key in $possible matches.
 	 * @param int $match A value from $possible matches[$i].
-	 * @return Whether this combination of $i and $match can be inserted in the
+	 * @return bool Whether this combination of $i and $match can be inserted in the
 	 *    correct order for the overall $matching list.
 	 */
 	protected function checkMatchOrder(
@@ -2278,7 +2278,7 @@ abstract class Diff
 	 * @param array $change The change that didn't match.
 	 * @param array $lines Lines of the original string.
 	 * @param array $disallowed Lines numbers that cannot be chosen.
-	 * @return array An altered version of $change, or false on error.
+	 * @return array|false An altered version of $change, or false on error.
 	 */
 	protected function fixL1(array $change, array $lines, array $disallowed): array|false
 	{
@@ -2463,8 +2463,7 @@ abstract class Diff
 	/**
 	 * Helper for $this->formatHtml() that fixes any mangled markup changes.
 	 *
-	 * @param array $del Deletions.
-	 * @param array $ins Insertions.
+	 * @param string $formatted A formatted string
 	 * @return string The formatted changes.
 	 */
 	protected function formatMarkup(string $formatted): string

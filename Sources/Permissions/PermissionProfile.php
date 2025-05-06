@@ -333,7 +333,7 @@ class PermissionProfile
 	 *
 	 * @param int $copy_from ID of the profile to duplicate.
 	 * @param string $name Name for the new profile.
-	 * @return self A new instance of this class, or null on error.
+	 * @return self|null A new instance of this class, or null on error.
 	 */
 	public static function copy(int $copy_from, string $name): ?self
 	{

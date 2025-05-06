@@ -610,7 +610,7 @@ class ErrorHandler
 	 * @uses template_fatal_error()
 	 *
 	 * @param string $error_message The error message
-	 * @param string $error_code An error code
+	 * @param null|string $error_code An error code
 	 */
 	protected static function setupFatalContext(string $error_message, ?string $error_code = null): void
 	{

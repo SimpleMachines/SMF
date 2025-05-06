@@ -2220,7 +2220,7 @@ class Config
 	 * and it performs safety checks before acting. The result is an array of
 	 * the values as recorded in the settings file.
 	 *
-	 * @param int|float $mtime Timestamp of last known good configuration.
+	 * @param int|float|null $mtime Timestamp of last known good configuration.
 	 *    Defaults to time SMF started.
 	 * @param string $settingsFile The settings file.
 	 *    Defaults to SMF's standard Settings.php.

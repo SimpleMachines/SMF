@@ -1368,7 +1368,7 @@ class Themes implements ActionInterface
 	 * the new theme's name.
 	 * Ends execution with ErrorHandler::fatalLang() on any error.
 	 *
-	 * @return array The newly created theme's info.
+	 * @return array|null The newly created theme's info.
 	 */
 	protected function installFile(): ?array
 	{

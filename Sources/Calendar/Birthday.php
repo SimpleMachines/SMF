@@ -116,7 +116,7 @@ class Birthday extends Event
 	/**
 	 * Loads a member's birthday.
 	 *
-	 * @param int|array $id ID number of the member.
+	 * @param int $id ID number of the member.
 	 * @param bool $is_topic Ignored.
 	 * @param bool $use_permissions Ignored.
 	 * @return array Instances of this class for the loaded events.

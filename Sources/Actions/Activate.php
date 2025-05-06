@@ -76,7 +76,7 @@ class Activate implements ActionInterface, Routable
 	private User $member;
 
 	/**
-	 * @var User
+	 * @var bool $email_change
 	 *
 	 * Whether the member's email address was changed.
 	 */

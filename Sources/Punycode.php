@@ -68,7 +68,7 @@ class Punycode
 	/**
 	 * Encode table
 	 *
-	 * @param array
+	 * @var array
 	 */
 	protected static $encodeTable = [
 		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
@@ -79,7 +79,7 @@ class Punycode
 	/**
 	 * Decode table
 	 *
-	 * @param array
+	 * @var array
 	 */
 	protected static $decodeTable = [
 		'a' => 0, 'b' => 1, 'c' => 2, 'd' => 3, 'e' => 4, 'f' => 5,
@@ -93,7 +93,7 @@ class Punycode
 	/**
 	 * Character encoding
 	 *
-	 * @param string
+	 * @var string
 	 */
 	protected $encoding;
 
@@ -101,21 +101,21 @@ class Punycode
 	 * Whether to use Non-Transitional Processing.
 	 * Setting this to true breaks backward compatibility with IDNA2003.
 	 *
-	 * @param bool
+	 * @var bool
 	 */
 	protected $nonTransitional = false;
 
 	/**
 	 * Whether to use STD3 ASCII rules.
 	 *
-	 * @param bool
+	 * @var bool
 	 */
 	protected $std3 = false;
 
 	/**
 	 * Constructor
 	 *
-	 * @param string $encoding Character encoding
+	 * @var string $encoding Character encoding
 	 */
 	public function __construct(string $encoding = 'UTF-8')
 	{

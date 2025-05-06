@@ -86,8 +86,8 @@ class FtpFetcher extends WebFetchApi
 	/**
 	 * Constructor.
 	 *
-	 * @param string $user User name to connect with. If null, uses 'anonymous'.
-	 * @param string $email Email address to connect with. Defaults to
+	 * @param null|string $user User name to connect with. If null, uses 'anonymous'.
+	 * @param null|string $email Email address to connect with. Defaults to
 	 *    Config::$webmaster_email, or 'nobody@example.com' if that is not set.
 	 */
 	public function __construct(?string $user = null, ?string $email = null)
@@ -188,7 +188,7 @@ class FtpFetcher extends WebFetchApi
 	 *  - Called as ->result() will return the full final array.
 	 *  - Called as ->result('body') to return the page source of the result.
 	 *
-	 * @param string $area Used to return an area such as body, header, error.
+	 * @param null|string $area Used to return an area such as body, header, error.
 	 * @return mixed The response
 	 */
 	public function result(?string $area = null): mixed
@@ -205,7 +205,7 @@ class FtpFetcher extends WebFetchApi
 	 * Since this class doesn't support redirects, this method is practically
 	 * useless, but it's required to comply with FetcherApiInterface.
 	 *
-	 * @param int $response_number Which response to get, or null for all.
+	 * @param null|int $response_number Which response to get, or null for all.
 	 * @return array The specified response or all the responses.
 	 */
 	public function resultRaw(?int $response_number = null): array

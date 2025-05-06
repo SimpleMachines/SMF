@@ -744,7 +744,7 @@ class MarkdownParser extends Parser
 	 * the string was already processed by the SMF\Parsers\BBCodeParser class.
 	 *
 	 * @param string $string The string to parse.
-	 * @param string $from_bbcode_parser Whether the string was the output from
+	 * @param bool $from_bbcode_parser Whether the string was the output from
 	 *    the SMF\Parsers\BBCodeParser class.
 	 * @param array $options Parser options. Recognized options are:
 	 *    - 'hard_breaks':
@@ -889,8 +889,7 @@ class MarkdownParser extends Parser
 	 *    Value should be bitmask of this class's BR_* constants.
 	 *    If null, uses the value of Config::$modSettings['markdown_brs'].
 	 *    Ignored when output is BBCode. Default: null.
-	 * @throws \ValueError if $output_type is invalid.
-	 * @return object An instance of this class.
+	 * @return MarkdownParser An instance of this class.
 	 */
 	public static function load(int $output_type = self::OUTPUT_HTML, ?int $hard_breaks = null): self
 	{
@@ -1218,7 +1217,6 @@ class MarkdownParser extends Parser
 	 * Tests whether a line is part of an indented code block.
 	 *
 	 * @param array $line_info Info about the current line.
-	 * @param int $o Key of the current block in $this->open.
 	 * @return bool Whether this line is part of an indented code block.
 	 */
 	protected function testIsIndentedCode(array $line_info): bool

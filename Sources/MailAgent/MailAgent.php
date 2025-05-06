@@ -114,7 +114,8 @@ abstract class MailAgent
 	 * @param string $to
 	 * @param string $subject
 	 * @param string $message Message should be formatted with html/plain text.
-	 * @param array $headers Any additional headers.
+	 * @param string $headers Any additional headers
+	 * @return bool Always returns false
 	 */
 	public function send(string $to, string $subject, string $message, string $headers): bool
 	{
@@ -142,7 +143,7 @@ abstract class MailAgent
 	 * Is our SMF version supported with this Agent.
 	 *
 	 * @param string $smfVersion
-	 * @return string the value of $key.
+	 * @return bool Whether the specified version is compatible
 	 */
 	public function isCompatible(string $smfVersion): bool
 	{

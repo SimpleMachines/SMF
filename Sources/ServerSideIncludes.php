@@ -455,7 +455,7 @@ class ServerSideIncludes
 	 *
 	 * @param string $query_where The WHERE clause for the query
 	 * @param array $query_where_params An array of parameters for the WHERE clause
-	 * @param int $query_limit The maximum number of rows to return
+	 * @param int|string $query_limit The maximum number of rows to return
 	 * @param string $query_order The ORDER BY clause for the query
 	 * @param string $output_method The output method. If 'echo', displays the posts, otherwise returns an array of info about them.
 	 * @param bool $limit_body If true, will only show the first 384 characters of the post rather than all of it
@@ -1197,7 +1197,7 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_fetchGroupMembers()
 	 *
-	 * @param int $group_id The ID of the group to get members from
+	 * @param int|null $group_id The ID of the group to get members from
 	 * @param string $output_method The output method. If 'echo', returns a list of group members, otherwise returns an array of info about them.
 	 * @return ?array Displays a list of group members or returns an array of info about them, depending on output_method.
 	 */
@@ -1229,7 +1229,7 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_queryMembers()
 	 *
-	 * @param string $query_where The info for the WHERE clause of the query
+	 * @param string|null $query_where The info for the WHERE clause of the query
 	 * @param array $query_where_params The parameters for the WHERE clause
 	 * @param string|int $query_limit The number of rows to return or an empty string to return all
 	 * @param string $query_order The info for the ORDER BY clause of the query
@@ -2466,8 +2466,8 @@ class ServerSideIncludes
 	 *
 	 * Alias: ssi_checkPassword()
 	 *
-	 * @param int|string $id The ID or username of a user
-	 * @param string $password The password to check
+	 * @param int|string|null $id The ID or username of a user
+	 * @param string|null $password The password to check
 	 * @param bool $is_username If true, treats $id as a username rather than a user ID
 	 * @return bool Whether or not the password is correct.
 	 */

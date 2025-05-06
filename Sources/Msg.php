@@ -1863,7 +1863,7 @@ class Msg implements \ArrayAccess, Routable
 	/**
 	 * Approve (or not) some posts... without permission checks...
 	 *
-	 * @param array $msgs Array of message ids
+	 * @param array|int $msgs Array of message ids or the ID of a single message
 	 * @param bool $approve Whether to approve the posts (if false, posts are unapproved)
 	 * @param bool $notify Whether to notify users
 	 * @return bool Whether the operation was successful

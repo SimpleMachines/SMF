@@ -25,8 +25,9 @@ trait BackwardCompatibility
 	 * Called by Subs-Compat.php BackwardCompatibility wrapper functions to provide subaction
 	 * execution for existing mods
 	 *
-	 * @param null|string $sa
-	 * @param bool $return_config
+	 * @param null|string $sa The subaction
+	 * @param bool $return_config Whether to return the config info
+	 * @param null|string $activity
 	 * @return null|array
 	 */
 	public static function subActionProvider(?string $sa = null, bool $return_config = false, ?string $activity = null): ?array
