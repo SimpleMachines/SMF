@@ -1666,7 +1666,7 @@ class Permissions implements ActionInterface
 
 			if (isset($permission->own_any)) {
 				$view_group_perms[$permission->generic_name][$permission->own_any] = [
-					'id' => $permission->id,
+					'id' => $permission->name,
 					'name' => Lang::getTxt('permissionname_' . $permission->name, file: 'ManagePermissions'),
 				];
 			}

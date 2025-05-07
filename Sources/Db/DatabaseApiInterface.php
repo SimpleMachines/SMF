@@ -146,8 +146,8 @@ interface DatabaseApiInterface
 	/**
 	 * Adjusts the result pointer to an arbitrary row in a query result.
 	 *
-	 * @param int $offset The row offset.
 	 * @param object $result A query result resource.
+	 * @param int $offset The row offset.
 	 * @return bool True on success, or false on failure.
 	 */
 	public function data_seek(object $result, int $offset): bool;

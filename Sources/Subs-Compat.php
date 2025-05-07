@@ -6709,8 +6709,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Marks a group of alerts as un/read
 	 *
 	 * @param array|int $members The user IDs.
-	 * @param bool|int $read To mark as read or unread, 1 for read, 0 or any other value different than 1 for unread.
-	 * @param array|int $to_mark The ID of a single alert or an array of IDs. The function will convert single integers to arrays for better handling.
+	 * @param array|int $to_mark The ID of a single alert or an array of IDs.
+	 * @param bool|int $read To mark as read or unread. 1 for read, 0 or any
+	 *    other value different than 1 for unread.
 	 * @return int How many alerts remain unread
 	 */
 	function alert_mark(array|int $members, array|int $to_mark, bool|int $read): int
@@ -10586,8 +10587,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Loads an array of users' data by ID or member_name.
 	 *
 	 * @param array|string $users An array of users by id or name or a single username/id
-	 * @param bool $is_name Whether $users contains names
 	 * @param string|null $dataset What kind of data to load (normal, profile, minimal)
+	 * @param bool $is_name Whether $users contains names
 	 * @return array The ids of the members loaded
 	 */
 	function loadMemberData(array|string $users = [], int $type = SMF\User::LOAD_BY_ID, ?string $dataset = null): array
@@ -10855,8 +10856,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * - calls itself recursively if necessary.
 	 *
 	 * @param array|string $var The string or array of strings to add entites to
-	 * @param int $level Which level we're at within the array (if called recursively)
 	 * @param string $encoding Character encoding
+	 * @param int $level Which level we're at within the array (if called recursively)
 	 * @return array|string The string or array of strings with entities added
 	 */
 	function htmlspecialchars__recursive(array|string $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string

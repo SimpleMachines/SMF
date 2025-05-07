@@ -115,7 +115,7 @@ class Punycode
 	/**
 	 * Constructor
 	 *
-	 * @var string $encoding Character encoding
+	 * @param string $encoding Character encoding
 	 */
 	public function __construct(string $encoding = 'UTF-8')
 	{
