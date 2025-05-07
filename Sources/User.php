@@ -1178,6 +1178,12 @@ class User implements \ArrayAccess
 	 */
 	public function logOnline(bool $force = false): void
 	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
+			return;
+		}
+
 		// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
 		if (!empty(Theme::$current->settings['display_who_viewing']) && (!empty(Topic::$topic_id) || !empty(Board::$info->id))) {
 			// Take the opposite approach!
@@ -1356,6 +1362,12 @@ class User implements \ArrayAccess
 	 */
 	public function loadModCache(): void
 	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
+			return;
+		}
+
 		if (
 			isset($_SESSION['mc'])
 			&& $_SESSION['mc']['time'] > Config::$modSettings['settings_updated']
@@ -1394,7 +1406,9 @@ class User implements \ArrayAccess
 	 */
 	public function rebuildModCache(): void
 	{
+		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1514,6 +1528,7 @@ class User implements \ArrayAccess
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1582,6 +1597,7 @@ class User implements \ArrayAccess
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1859,6 +1875,7 @@ class User implements \ArrayAccess
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1919,7 +1936,8 @@ class User implements \ArrayAccess
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
-			return null;
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
 
 		// We don't care if the option is off, because guests should NEVER get past here.
@@ -2012,6 +2030,12 @@ class User implements \ArrayAccess
 	 */
 	public function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): ?string
 	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
 		// Is it in as $_POST['sc']?
 		if ($type == 'post') {
 			$check = $_POST[$_SESSION['session_var']] ?? (empty(Config::$modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null);
@@ -2233,7 +2257,8 @@ class User implements \ArrayAccess
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
-			return;
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
 
 		// Make it an array, even if a string was passed.
