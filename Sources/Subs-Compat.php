@@ -173,7 +173,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyAntispamSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\AntiSpam::subActionProvider(return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Attachments::getConfigVars();
+		}
+
+		return SMF\Actions\Admin\AntiSpam::call();
 	}
 
 	/*************************************
@@ -221,7 +225,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ManageAttachmentSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Attachments::subActionProvider(sa: 'attachments', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Attachments::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'attachments';
+		$obj->execute();
 	}
 
 	/**
@@ -235,7 +245,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ManageAvatarSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Attachments::subActionProvider(sa: 'avatars', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Attachments::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'avatars';
+		$obj->execute();
 	}
 
 	/**
@@ -247,7 +263,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function BrowseFiles(): void
 	{
-		SMF\Actions\Admin\Attachments::subActionProvider(sa: 'browse');
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'browse';
+		$obj->execute();
 	}
 
 	/**
@@ -260,7 +278,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainFiles(): void
 	{
-		SMF\Actions\Admin\Attachments::subActionProvider(sa: 'maintenance');
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'maintenance';
+		$obj->execute();
 	}
 
 	/**
@@ -270,7 +290,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function RemoveAttachment(): void
 	{
-		SMF\Actions\Admin\Attachments::subActionProvider(sa: 'remove');
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'remove';
+		$obj->execute();
 	}
 
 	/**
@@ -284,7 +306,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function RemoveAttachmentByAge(): void
 	{
-		SMF\Actions\Admin\Attachments::subActionProvider(sa: 'byage');
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'byage';
+		$obj->execute();
 	}
 
 	/**
@@ -296,7 +320,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function RemoveAttachmentBySize(): void
 	{
-		SMF\Actions\Admin\Attachments::subActionProvider(sa: 'bysize');
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'bysize';
+		$obj->execute();
 	}
 
 	/**
@@ -306,7 +332,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function RemoveAllAttachments(): void
 	{
-		SMF\Actions\Admin\Attachments::subActionProvider(sa: 'removeall');
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'removeall';
+		$obj->execute();
 	}
 
 	/**
@@ -314,7 +342,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function RepairAttachments(): void
 	{
-		SMF\Actions\Admin\Attachments::subActionProvider(sa: 'repair');
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'repair';
+		$obj->execute();
 	}
 
 	/**
@@ -322,7 +352,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ManageAttachmentPaths(): void
 	{
-		SMF\Actions\Admin\Attachments::subActionProvider(sa: 'attachpaths');
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'attachpaths';
+		$obj->execute();
 	}
 
 	/**
@@ -330,7 +362,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function TransferAttachments(): void
 	{
-		SMF\Actions\Admin\Attachments::subActionProvider(sa: 'transfer');
+		$obj = SMF\Actions\Admin\Attachments::load();
+		$obj->subaction = 'transfer';
+		$obj->execute();
 	}
 
 	/******************************
@@ -372,7 +406,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function BanList(): void
 	{
-		SMF\Actions\Admin\Bans::subActionProvider(sa: 'list');
+		$obj = SMF\Actions\Admin\Bans::load();
+		$obj->subaction = 'list';
+		$obj->execute();
 	}
 
 	/**
@@ -387,7 +423,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function BanEdit(): void
 	{
-		SMF\Actions\Admin\Bans::subActionProvider(sa: 'edit');
+		$obj = SMF\Actions\Admin\Bans::load();
+		$obj->subaction = 'edit';
+		$obj->execute();
 	}
 
 	/**
@@ -399,7 +437,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function BanBrowseTriggers(): void
 	{
-		SMF\Actions\Admin\Bans::subActionProvider(sa: 'browse');
+		$obj = SMF\Actions\Admin\Bans::load();
+		$obj->subaction = 'browse';
+		$obj->execute();
 	}
 
 	/**
@@ -414,7 +454,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function BanEditTrigger(): void
 	{
-		SMF\Actions\Admin\Bans::subActionProvider(sa: 'edittrigger');
+		$obj = SMF\Actions\Admin\Bans::load();
+		$obj->subaction = 'edittrigger';
+		$obj->execute();
 	}
 
 	/**
@@ -427,7 +469,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function BanLog(): void
 	{
-		SMF\Actions\Admin\Bans::subActionProvider(sa: 'log');
+		$obj = SMF\Actions\Admin\Bans::load();
+		$obj->subaction = 'log';
+		$obj->execute();
 	}
 
 	/********************************
@@ -456,7 +500,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditBoardSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Boards::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Boards::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Boards::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/**********************************
@@ -479,7 +529,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyHolidays(): void
 	{
-		SMF\Actions\Admin\Calendar::subActionProvider(sa: 'holidays');
+		$obj = SMF\Actions\Admin\Calendar::load();
+		$obj->subaction = 'holidays';
+		$obj->execute();
 	}
 
 	/**
@@ -487,7 +539,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditHoliday(): void
 	{
-		SMF\Actions\Admin\Calendar::subActionProvider(sa: 'editholiday');
+		$obj = SMF\Actions\Admin\Calendar::load();
+		$obj->subaction = 'editholiday';
+		$obj->execute();
 	}
 
 	/**
@@ -498,7 +552,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyCalendarSettings(bool $return_config = false): ?array
 	{
-		SMF\Actions\Admin\Calendar::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Attachments::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Calendar::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/************************************
@@ -555,12 +615,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Features::basicConfigVars();
 		}
 
-		SMF\Actions\Admin\Features::load();
-		SMF\Actions\Admin\Features::$obj->subaction = 'basic';
-		SMF\Actions\Admin\Features::$obj->execute();
-
-		return null;
-
+		$obj = SMF\Actions\Admin\Features::load();
+		$obj->subaction = 'basic';
+		$obj->execute();
 	}
 
 	/**
@@ -578,11 +635,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Features::bbcConfigVars();
 		}
 
-		SMF\Actions\Admin\Features::load();
-		SMF\Actions\Admin\Features::$obj->subaction = 'bbc';
-		SMF\Actions\Admin\Features::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Features::load();
+		$obj->subaction = 'bbc';
+		$obj->execute();
 	}
 
 	/**
@@ -598,11 +653,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Features::layoutConfigVars();
 		}
 
-		SMF\Actions\Admin\Features::load();
-		SMF\Actions\Admin\Features::$obj->subaction = 'layout';
-		SMF\Actions\Admin\Features::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Features::load();
+		$obj->subaction = 'layout';
+		$obj->execute();
 	}
 
 	/**
@@ -617,11 +670,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Features::sigConfigVars();
 		}
 
-		SMF\Actions\Admin\Features::load();
-		SMF\Actions\Admin\Features::$obj->subaction = 'sig';
-		SMF\Actions\Admin\Features::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Features::load();
+		$obj->subaction = 'sig';
+		$obj->execute();
 	}
 
 	/**
@@ -629,7 +680,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ShowCustomProfiles(): void
 	{
-		SMF\Actions\Admin\Features::subActionProvider(sa: 'profile');
+		$obj = SMF\Actions\Admin\Features::load();
+		$obj->subaction = 'profile';
+		$obj->execute();
 	}
 
 	/**
@@ -637,7 +690,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditCustomProfiles(): void
 	{
-		SMF\Actions\Admin\Features::subActionProvider(sa: 'profileedit');
+		$obj = SMF\Actions\Admin\Features::load();
+		$obj->subaction = 'profileedit';
+		$obj->execute();
 	}
 
 	/**
@@ -653,11 +708,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Features::likesConfigVars();
 		}
 
-		SMF\Actions\Admin\Features::load();
-		SMF\Actions\Admin\Features::$obj->subaction = 'likes';
-		SMF\Actions\Admin\Features::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Features::load();
+		$obj->subaction = 'likes';
+		$obj->execute();
 	}
 
 	/**
@@ -673,11 +726,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Features::mentionsConfigVars();
 		}
 
-		SMF\Actions\Admin\Features::load();
-		SMF\Actions\Admin\Features::$obj->subaction = 'mentions';
-		SMF\Actions\Admin\Features::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Features::load();
+		$obj->subaction = 'mentions';
+		$obj->execute();
 	}
 
 	/**
@@ -685,7 +736,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyAlertsSettings(): void
 	{
-		SMF\Actions\Admin\Features::subActionProvider(sa: 'alerts');
+		$obj = SMF\Actions\Admin\Features::load();
+		$obj->subaction = 'alerts';
+		$obj->execute();
 	}
 
 	/******************************
@@ -742,7 +795,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyLanguages(): void
 	{
-		SMF\Actions\Admin\Languages::subActionProvider(sa: 'edit');
+		$obj = SMF\Actions\Admin\Languages::load();
+		$obj->subaction = 'edit';
+		$obj->execute();
 	}
 
 	/**
@@ -752,7 +807,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AddLanguage(): void
 	{
-		SMF\Actions\Admin\Languages::subActionProvider(sa: 'add');
+		$obj = SMF\Actions\Admin\Languages::load();
+		$obj->subaction = 'add';
+		$obj->execute();
 	}
 
 	/**
@@ -763,7 +820,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyLanguageSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Languages::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Languages::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Languages::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/**
@@ -778,7 +841,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function DownloadLanguage(): void
 	{
-		SMF\Actions\Admin\Languages::subActionProvider(sa: 'download');
+		$obj = SMF\Actions\Admin\Languages::load();
+		$obj->subaction = 'download';
+		$obj->execute();
 	}
 
 	/**
@@ -786,7 +851,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyLanguage(): void
 	{
-		SMF\Actions\Admin\Languages::subActionProvider(sa: 'editlang');
+		$obj = SMF\Actions\Admin\Languages::load();
+		$obj->subaction = 'editlang';
+		$obj->execute();
 	}
 
 	/******************************
@@ -798,7 +865,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AdminLogs(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Logs::subActionProvider(return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Attachments::getConfigVars();
+		}
+
+		return SMF\Actions\Admin\Logs::call();
 	}
 
 	/******************************
@@ -818,7 +889,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function BrowseMailQueue(): void
 	{
-		SMF\Actions\Admin\Mail::subActionProvider(sa: 'browse');
+		$obj = SMF\Actions\Admin\Mail::load();
+		$obj->subaction = 'browse';
+		$obj->execute();
 	}
 
 	/**
@@ -826,7 +899,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ClearMailQueue(): void
 	{
-		SMF\Actions\Admin\Mail::subActionProvider(sa: 'clear');
+		$obj = SMF\Actions\Admin\Mail::load();
+		$obj->subaction = 'clear';
+		$obj->execute();
 	}
 
 	/**
@@ -837,7 +912,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyMailSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Mail::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Mail::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Mail::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/**
@@ -846,7 +927,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function TestMailSend(): void
 	{
-		SMF\Actions\Admin\Mail::subActionProvider(sa: 'test');
+		$obj = SMF\Actions\Admin\Mail::load();
+		$obj->subaction = 'test';
+		$obj->execute();
 	}
 
 	/*************************************
@@ -915,7 +998,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainRoutine(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'routine');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'routine';
+		$obj->execute();
 	}
 
 	/**
@@ -923,7 +1008,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainDatabase(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'database');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'database';
+		$obj->execute();
 	}
 
 	/**
@@ -931,7 +1018,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainMembers(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'members');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'members';
+		$obj->execute();
 	}
 
 	/**
@@ -939,7 +1028,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainTopics(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'topics');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'topics';
+		$obj->execute();
 	}
 
 	/**
@@ -949,7 +1040,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function list_integration_hooks(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'hooks');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'hooks';
+		$obj->execute();
 	}
 
 	/**
@@ -966,7 +1059,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function VersionDetail(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'version');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'routine';
+		$obj->activity = 'version';
+		$obj->execute();
 	}
 
 	/**
@@ -974,7 +1070,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainFindFixErrors(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'repair');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'routine';
+		$obj->activity = 'repair';
+		$obj->execute();
 	}
 
 	/**
@@ -995,7 +1094,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AdminBoardRecount(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'recount');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'routine';
+		$obj->activity = 'recount';
+		$obj->execute();
 	}
 
 	/**
@@ -1003,7 +1105,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function RebuildSettingsFile(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'rebuild_settings');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'routine';
+		$obj->activity = 'rebuild_settings';
+		$obj->execute();
 	}
 
 	/**
@@ -1011,7 +1116,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainEmptyUnimportantLogs(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'logs');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'routine';
+		$obj->activity = 'logs';
+		$obj->execute();
 	}
 
 	/**
@@ -1019,7 +1127,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainCleanCache(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'routine', activity: 'cleancache');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'routine';
+		$obj->activity = 'cleancache';
+		$obj->execute();
 	}
 
 	/**
@@ -1033,7 +1144,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function OptimizeTables(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'database', activity: 'optimize');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'database';
+		$obj->activity = 'optimize';
+		$obj->execute();
 	}
 
 	/**
@@ -1049,7 +1163,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ConvertEntities(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'database', activity: 'convertentities');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'database';
+		$obj->activity = 'convertentities';
+		$obj->execute();
 	}
 
 	/**
@@ -1064,7 +1181,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ConvertMsgBody(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'database', activity: 'convertmsgbody');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'database';
+		$obj->activity = 'convertmsgbody';
+		$obj->execute();
 	}
 
 	/**
@@ -1072,7 +1192,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainReattributePosts(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'members', activity: 'reattribute');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'members';
+		$obj->activity = 'reattribute';
+		$obj->execute();
 	}
 
 	/**
@@ -1082,7 +1205,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainPurgeInactiveMembers(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'members', activity: 'purgeinactive');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'members';
+		$obj->activity = 'purgeinactive';
+		$obj->execute();
 	}
 
 	/**
@@ -1102,7 +1228,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainRecountPosts(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'members', activity: 'recountposts');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'members';
+		$obj->activity = 'recountposts';
+		$obj->execute();
 	}
 
 	/**
@@ -1112,7 +1241,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainMassMoveTopics(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'topics', activity: 'massmove');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'topics';
+		$obj->activity = 'massmove';
+		$obj->execute();
 	}
 
 	/**
@@ -1120,7 +1252,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainRemoveOldPosts(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'topics', activity: 'pruneold');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'topics';
+		$obj->activity = 'pruneold';
+		$obj->execute();
 	}
 
 	/**
@@ -1128,7 +1263,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MaintainRemoveOldDrafts(): void
 	{
-		SMF\Actions\Admin\Maintenance::subActionProvider(sa: 'topics', activity: 'olddrafts');
+		$obj = SMF\Actions\Admin\Maintenance::load();
+		$obj->subaction = 'topics';
+		$obj->activity = 'olddrafts';
+		$obj->execute();
 	}
 
 	/**************************************
@@ -1161,7 +1299,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AddMemberGroup(): void
 	{
-		SMF\Actions\Admin\Membergroups::subActionProvider(sa: 'add');
+		$obj = SMF\Actions\Admin\Membergroups::load();
+		$obj->subaction = 'add';
+		$obj->execute();
 	}
 
 	/**
@@ -1174,7 +1314,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function DeleteMembergroup(): void
 	{
-		SMF\Actions\Admin\Membergroups::subActionProvider(sa: 'delete');
+		$obj = SMF\Actions\Admin\Membergroups::load();
+		$obj->subaction = 'delete';
+		$obj->execute();
 	}
 
 	/**
@@ -1189,7 +1331,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditMembergroup(): void
 	{
-		SMF\Actions\Admin\Membergroups::subActionProvider(sa: 'edit');
+		$obj = SMF\Actions\Admin\Membergroups::load();
+		$obj->subaction = 'edit';
+		$obj->execute();
 	}
 
 	/**
@@ -1203,7 +1347,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MembergroupIndex(): void
 	{
-		SMF\Actions\Admin\Membergroups::subActionProvider(sa: 'index');
+		$obj = SMF\Actions\Admin\Membergroups::load();
+		$obj->subaction = 'index';
+		$obj->execute();
 	}
 
 	/**
@@ -1216,7 +1362,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyMembergroupsettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Membergroups::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Membergroups::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Membergroups::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/*********************************
@@ -1248,7 +1400,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ViewMemberlist(): void
 	{
-		SMF\Actions\Admin\Members::subActionProvider(sa: 'all');
+		$obj = SMF\Actions\Admin\Members::load();
+		$obj->subaction = 'all';
+		$obj->execute();
 	}
 
 	/**
@@ -1260,7 +1414,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AdminApprove(): void
 	{
-		SMF\Actions\Admin\Members::subActionProvider(sa: 'approve');
+		$obj = SMF\Actions\Admin\Members::load();
+		$obj->subaction = 'approve';
+		$obj->execute();
 	}
 
 	/**
@@ -1275,7 +1431,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MembersAwaitingActivation(): void
 	{
-		SMF\Actions\Admin\Members::subActionProvider(sa: 'browse');
+		$obj = SMF\Actions\Admin\Members::load();
+		$obj->subaction = 'browse';
+		$obj->execute();
 	}
 
 	/**
@@ -1288,7 +1446,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SearchMembers(): void
 	{
-		SMF\Actions\Admin\Members::subActionProvider(sa: 'search');
+		$obj = SMF\Actions\Admin\Members::load();
+		$obj->subaction = 'search';
+		$obj->execute();
 	}
 
 	/******************************
@@ -1300,7 +1460,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyModSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Mods::subActionProvider(sa: 'general', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Mods::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Mods::load();
+		$obj->subaction = 'general';
+		$obj->execute();
 	}
 
 	/******************************
@@ -1340,7 +1506,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditNews(): void
 	{
-		SMF\Actions\Admin\News::subActionProvider(sa: 'edit');
+		$obj = SMF\Actions\Admin\News::load();
+		$obj->subaction = 'edit';
+		$obj->execute();
 	}
 
 	/**
@@ -1354,7 +1522,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SelectMailingMembers(): void
 	{
-		SMF\Actions\Admin\News::subActionProvider(sa: 'mailingmembers');
+		$obj = SMF\Actions\Admin\News::load();
+		$obj->subaction = 'mailingmembers';
+		$obj->execute();
 	}
 
 	/**
@@ -1367,7 +1537,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ComposeMailing(): void
 	{
-		SMF\Actions\Admin\News::subActionProvider(sa: 'mailingcompose');
+		$obj = SMF\Actions\Admin\News::load();
+		$obj->subaction = 'mailingcompose';
+		$obj->execute();
 	}
 
 	/**
@@ -1381,7 +1553,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SendMailing(): void
 	{
-		SMF\Actions\Admin\News::subActionProvider(sa: 'mailingsend');
+		$obj = SMF\Actions\Admin\News::load();
+		$obj->subaction = 'mailingsend';
+		$obj->execute();
 	}
 
 	/**
@@ -1395,7 +1569,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyNewsSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\News::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\News::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\News::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/*************************************
@@ -1533,7 +1713,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function PermissionIndex(): void
 	{
-		SMF\Actions\Admin\Permissions::subActionProvider(sa: 'index');
+		$obj = SMF\Actions\Admin\Permissions::load();
+		$obj->subaction = 'index';
+		$obj->execute();
 	}
 
 	/**
@@ -1541,7 +1723,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function PermissionsByBoard(): void
 	{
-		SMF\Actions\Admin\Permissions::subActionProvider(sa: 'board');
+		$obj = SMF\Actions\Admin\Permissions::load();
+		$obj->subaction = 'board';
+		$obj->execute();
 	}
 
 	/**
@@ -1549,7 +1733,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyMembergroup(): void
 	{
-		SMF\Actions\Admin\Permissions::subActionProvider(sa: 'modify');
+		$obj = SMF\Actions\Admin\Permissions::load();
+		$obj->subaction = 'modify';
+		$obj->execute();
 	}
 
 	/**
@@ -1557,7 +1743,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyMembergroup2(): void
 	{
-		SMF\Actions\Admin\Permissions::subActionProvider(sa: 'modify2');
+		$obj = SMF\Actions\Admin\Permissions::load();
+		$obj->subaction = 'modify2';
+		$obj->execute();
 	}
 
 	/**
@@ -1566,7 +1754,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SetQuickGroups(): void
 	{
-		SMF\Actions\Admin\Permissions::subActionProvider(sa: 'quick');
+		$obj = SMF\Actions\Admin\Permissions::load();
+		$obj->subaction = 'quick';
+		$obj->execute();
 	}
 
 	/**
@@ -1574,7 +1764,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyPostModeration(): void
 	{
-		SMF\Actions\Admin\Permissions::subActionProvider(sa: 'postmod');
+		$obj = SMF\Actions\Admin\Permissions::load();
+		$obj->subaction = 'postmod';
+		$obj->execute();
 	}
 
 	/**
@@ -1582,7 +1774,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditPermissionProfiles(): void
 	{
-		SMF\Actions\Admin\Permissions::subActionProvider(sa: 'profiles');
+		$obj = SMF\Actions\Admin\Permissions::load();
+		$obj->subaction = 'profiles';
+		$obj->execute();
 	}
 
 	/**
@@ -1593,7 +1787,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function GeneralPermissionSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Permissions::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Permissions::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Permissions::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/******************************
@@ -1624,7 +1824,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyPostSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Posts::subActionProvider(sa: 'posts', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Posts::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Posts::load();
+		$obj->subaction = 'posts';
+		$obj->execute();
 	}
 
 	/**
@@ -1638,7 +1844,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyTopicSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Posts::subActionProvider(sa: 'topics', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Posts::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Posts::load();
+		$obj->subaction = 'topics';
+		$obj->execute();
 	}
 
 	/**
@@ -1652,7 +1864,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyDraftSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Posts::subActionProvider(sa: 'drafts', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Posts::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Posts::load();
+		$obj->subaction = 'drafts';
+		$obj->execute();
 	}
 
 	/**************************************
@@ -1683,7 +1901,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AdminRegister(): void
 	{
-		SMF\Actions\Admin\Registration::subActionProvider(sa: 'register');
+		$obj = SMF\Actions\Admin\Registration::load();
+		$obj->subaction = 'register';
+		$obj->execute();
 	}
 
 	/**
@@ -1697,7 +1917,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditAgreement(): void
 	{
-		SMF\Actions\Admin\Registration::subActionProvider(sa: 'agreement');
+		$obj = SMF\Actions\Admin\Registration::load();
+		$obj->subaction = 'agreement';
+		$obj->execute();
 	}
 
 	/**
@@ -1705,7 +1927,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditPrivacyPolicy(): void
 	{
-		SMF\Actions\Admin\Registration::subActionProvider(sa: 'policy');
+		$obj = SMF\Actions\Admin\Registration::load();
+		$obj->subaction = 'policy';
+		$obj->execute();
 	}
 
 	/**
@@ -1717,7 +1941,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SetReserved(): void
 	{
-		SMF\Actions\Admin\Registration::subActionProvider(sa: 'reservednames');
+		$obj = SMF\Actions\Admin\Registration::load();
+		$obj->subaction = 'reservednames';
+		$obj->execute();
 	}
 
 	/**
@@ -1731,7 +1957,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyRegistrationSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Registration::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Registration::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Registration::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/**************************************
@@ -1784,7 +2016,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function BoardReport(): void
 	{
-		SMF\Actions\Admin\Reports::subActionProvider(sa: 'boards');
+		$obj = SMF\Actions\Admin\Reports::load();
+		$obj->subaction = 'boards';
+		$obj->execute();
 	}
 
 	/**
@@ -1797,7 +2031,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function BoardPermissionsReport(): void
 	{
-		SMF\Actions\Admin\Reports::subActionProvider(sa: 'board_perms');
+		$obj = SMF\Actions\Admin\Reports::load();
+		$obj->subaction = 'board_perms';
+		$obj->execute();
 	}
 
 	/**
@@ -1810,7 +2046,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MemberGroupsReport(): void
 	{
-		SMF\Actions\Admin\Reports::subActionProvider(sa: 'member_groups');
+		$obj = SMF\Actions\Admin\Reports::load();
+		$obj->subaction = 'member_groups';
+		$obj->execute();
 	}
 
 	/**
@@ -1823,7 +2061,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function GroupPermissionsReport(): void
 	{
-		SMF\Actions\Admin\Reports::subActionProvider(sa: 'group_perms');
+		$obj = SMF\Actions\Admin\Reports::load();
+		$obj->subaction = 'group_perms';
+		$obj->execute();
 	}
 
 	/**
@@ -1836,7 +2076,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function StaffReport(): void
 	{
-		SMF\Actions\Admin\Reports::subActionProvider(sa: 'staff');
+		$obj = SMF\Actions\Admin\Reports::load();
+		$obj->subaction = 'staff';
+		$obj->execute();
 	}
 
 	/********************************
@@ -1870,7 +2112,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditSearchSettings(bool $return_config = false): ?array
 	{
-		SMF\Actions\Admin\Search::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Attachments::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Search::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/**
@@ -1882,7 +2130,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditWeights(): void
 	{
-		SMF\Actions\Admin\Search::subActionProvider(sa: 'weights');
+		$obj = SMF\Actions\Admin\Search::load();
+		$obj->subaction = 'weights';
+		$obj->execute();
 	}
 
 	/**
@@ -1897,7 +2147,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditSearchMethod(): void
 	{
-		SMF\Actions\Admin\Search::subActionProvider(sa: 'method');
+		$obj = SMF\Actions\Admin\Search::load();
+		$obj->subaction = 'method';
+		$obj->execute();
 	}
 
 	/**
@@ -1913,7 +2165,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function CreateMessageIndex(): void
 	{
-		SMF\Actions\Admin\Search::subActionProvider(sa: 'createmsgindex');
+		$obj = SMF\Actions\Admin\Search::load();
+		$obj->subaction = 'createmsgindex';
+		$obj->execute();
 	}
 
 	/***************************************
@@ -1949,7 +2203,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SpiderStats(): void
 	{
-		SMF\Actions\Admin\SearchEngines::subActionProvider(sa: 'stats');
+		$obj = SMF\Actions\Admin\SearchEngines::load();
+		$obj->subaction = 'stats';
+		$obj->execute();
 	}
 
 	/**
@@ -1957,7 +2213,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SpiderLogs(): void
 	{
-		SMF\Actions\Admin\SearchEngines::subActionProvider(sa: 'logs');
+		$obj = SMF\Actions\Admin\SearchEngines::load();
+		$obj->subaction = 'logs';
+		$obj->execute();
 	}
 
 	/**
@@ -1965,7 +2223,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ViewSpiders(): void
 	{
-		SMF\Actions\Admin\SearchEngines::subActionProvider(sa: 'spiders');
+		$obj = SMF\Actions\Admin\SearchEngines::load();
+		$obj->subaction = 'spiders';
+		$obj->execute();
 	}
 
 	/**
@@ -1976,7 +2236,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ManageSearchEngineSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\SearchEngines::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\SearchEngines::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\SearchEngines::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/**
@@ -1984,7 +2250,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditSpider(): void
 	{
-		SMF\Actions\Admin\SearchEngines::subActionProvider(sa: 'editspiders');
+		$obj = SMF\Actions\Admin\SearchEngines::load();
+		$obj->subaction = 'editspiders';
+		$obj->execute();
 	}
 
 	/********************************
@@ -2051,11 +2319,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Server::generalConfigVars();
 		}
 
-		SMF\Actions\Admin\Server::load();
-		SMF\Actions\Admin\Server::$obj->subaction = 'general';
-		SMF\Actions\Admin\Server::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Server::load();
+		$obj->subaction = 'general';
+		$obj->execute();
 	}
 
 	/**
@@ -2076,11 +2342,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Server::databaseConfigVars();
 		}
 
-		SMF\Actions\Admin\Server::load();
-		SMF\Actions\Admin\Server::$obj->subaction = 'database';
-		SMF\Actions\Admin\Server::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Server::load();
+		$obj->subaction = 'database';
+		$obj->execute();
 	}
 
 	/**
@@ -2095,11 +2359,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Server::cookieConfigVars();
 		}
 
-		SMF\Actions\Admin\Server::load();
-		SMF\Actions\Admin\Server::$obj->subaction = 'cookie';
-		SMF\Actions\Admin\Server::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Server::load();
+		$obj->subaction = 'cookie';
+		$obj->execute();
 	}
 
 	/**
@@ -2114,11 +2376,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Server::securityConfigVars();
 		}
 
-		SMF\Actions\Admin\Server::load();
-		SMF\Actions\Admin\Server::$obj->subaction = 'security';
-		SMF\Actions\Admin\Server::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Server::load();
+		$obj->subaction = 'security';
+		$obj->execute();
 	}
 
 	/**
@@ -2133,11 +2393,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Server::cacheConfigVars();
 		}
 
-		SMF\Actions\Admin\Server::load();
-		SMF\Actions\Admin\Server::$obj->subaction = 'cache';
-		SMF\Actions\Admin\Server::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Server::load();
+		$obj->subaction = 'cache';
+		$obj->execute();
 	}
 
 	/**
@@ -2152,11 +2410,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Server::exportConfigVars();
 		}
 
-		SMF\Actions\Admin\Server::load();
-		SMF\Actions\Admin\Server::$obj->subaction = 'export';
-		SMF\Actions\Admin\Server::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Server::load();
+		$obj->subaction = 'export';
+		$obj->execute();
 	}
 
 	/**
@@ -2171,11 +2427,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			return SMF\Actions\Admin\Server::loadBalancingConfigVars();
 		}
 
-		SMF\Actions\Admin\Server::load();
-		SMF\Actions\Admin\Server::$obj->subaction = 'loads';
-		SMF\Actions\Admin\Server::$obj->execute();
-
-		return null;
+		$obj = SMF\Actions\Admin\Server::load();
+		$obj->subaction = 'loads';
+		$obj->execute();
 	}
 
 	/**
@@ -2186,7 +2440,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ShowPHPinfoSettings(): void
 	{
-		SMF\Actions\Admin\Server::subActionProvider(sa: 'phpinfo');
+		$obj = SMF\Actions\Admin\Server::load();
+		$obj->subaction = 'phpinfo';
+		$obj->execute();
 	}
 
 	/*********************************
@@ -2209,7 +2465,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditSmileySettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Smileys::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Smileys::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Smileys::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/**
@@ -2217,7 +2479,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AddSmiley(): void
 	{
-		SMF\Actions\Admin\Smileys::subActionProvider(sa: 'addsmiley');
+		$obj = SMF\Actions\Admin\Smileys::load();
+		$obj->subaction = 'addsmiley';
+		$obj->execute();
 	}
 
 	/**
@@ -2225,7 +2489,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditSmileys(): void
 	{
-		SMF\Actions\Admin\Smileys::subActionProvider(sa: 'editsmileys');
+		$obj = SMF\Actions\Admin\Smileys::load();
+		$obj->subaction = 'editsmileys';
+		$obj->execute();
 	}
 
 	/**
@@ -2233,7 +2499,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditSmileyOrder(): void
 	{
-		SMF\Actions\Admin\Smileys::subActionProvider(sa: 'setorder');
+		$obj = SMF\Actions\Admin\Smileys::load();
+		$obj->subaction = 'setorder';
+		$obj->execute();
 	}
 
 	/**
@@ -2241,7 +2509,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function InstallSmileySet(): void
 	{
-		SMF\Actions\Admin\Smileys::subActionProvider(sa: 'install');
+		$obj = SMF\Actions\Admin\Smileys::load();
+		$obj->subaction = 'install';
+		$obj->execute();
 	}
 
 	/**
@@ -2249,7 +2519,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditMessageIcons(): void
 	{
-		SMF\Actions\Admin\Smileys::subActionProvider(sa: 'editsets');
+		$obj = SMF\Actions\Admin\Smileys::load();
+		$obj->subaction = 'editsets';
+		$obj->execute();
 	}
 
 	/***************************************
@@ -2337,7 +2609,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ViewSubscriptions(): void
 	{
-		SMF\Actions\Admin\Subscriptions::subActionProvider(sa: 'view');
+		$obj = SMF\Actions\Admin\Subscriptions::load();
+		$obj->subaction = 'view';
+		$obj->execute();
 	}
 
 	/**
@@ -2349,7 +2623,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ViewSubscribedUsers(): void
 	{
-		SMF\Actions\Admin\Subscriptions::subActionProvider(sa: 'viewsub');
+		$obj = SMF\Actions\Admin\Subscriptions::load();
+		$obj->subaction = 'viewsub';
+		$obj->execute();
 	}
 
 	/**
@@ -2358,7 +2634,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifySubscription(): void
 	{
-		SMF\Actions\Admin\Subscriptions::subActionProvider(sa: 'modify');
+		$obj = SMF\Actions\Admin\Subscriptions::load();
+		$obj->subaction = 'modify';
+		$obj->execute();
 	}
 
 	/**
@@ -2367,7 +2645,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyUserSubscription(): void
 	{
-		SMF\Actions\Admin\Subscriptions::subActionProvider(sa: 'modifyuser');
+		$obj = SMF\Actions\Admin\Subscriptions::load();
+		$obj->subaction = 'modifyuser';
+		$obj->execute();
 	}
 
 	/**
@@ -2381,7 +2661,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifySubscriptionSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Subscriptions::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Subscriptions::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Subscriptions::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/******************************
@@ -2408,7 +2694,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ScheduledTasks(): void
 	{
-		SMF\Actions\Admin\Tasks::subActionProvider(sa: 'tasks');
+		$obj = SMF\Actions\Admin\Tasks::load();
+		$obj->subaction = 'tasks';
+		$obj->execute();
 	}
 
 	/**
@@ -2418,7 +2706,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditTask(): void
 	{
-		SMF\Actions\Admin\Tasks::subActionProvider(sa: 'taskedit');
+		$obj = SMF\Actions\Admin\Tasks::load();
+		$obj->subaction = 'taskedit';
+		$obj->execute();
 	}
 
 	/**
@@ -2428,7 +2718,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function TaskLog(): void
 	{
-		SMF\Actions\Admin\Tasks::subActionProvider(sa: 'tasklog');
+		$obj = SMF\Actions\Admin\Tasks::load();
+		$obj->subaction = 'tasklog';
+		$obj->execute();
 	}
 
 	/**
@@ -2439,7 +2731,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function TaskSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Tasks::subActionProvider(sa: 'settings', return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Tasks::getConfigVars();
+		}
+
+		$obj = SMF\Actions\Admin\Tasks::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/********************************
@@ -2471,7 +2769,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ThemeAdmin(): void
 	{
-		SMF\Actions\Admin\Themes::subActionProvider(sa: 'admin');
+		$obj = SMF\Actions\Admin\Themes::load();
+		$obj->subaction = 'admin';
+		$obj->execute();
 	}
 
 	/**
@@ -2480,7 +2780,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ThemeList(): void
 	{
-		SMF\Actions\Admin\Themes::subActionProvider(sa: 'list');
+		$obj = SMF\Actions\Admin\Themes::load();
+		$obj->subaction = 'list';
+		$obj->execute();
 	}
 
 	/**
@@ -2488,7 +2790,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SetThemeOptions(): void
 	{
-		SMF\Actions\Admin\Themes::subActionProvider(sa: 'options');
+		$obj = SMF\Actions\Admin\Themes::load();
+		$obj->subaction = 'options';
+		$obj->execute();
 	}
 
 	/**
@@ -2499,7 +2803,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function RemoveTheme(): void
 	{
-		SMF\Actions\Admin\Themes::subActionProvider(sa: 'remove');
+		$obj = SMF\Actions\Admin\Themes::load();
+		$obj->subaction = 'remove';
+		$obj->execute();
 	}
 
 	/**
@@ -2507,7 +2813,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EnableTheme(): void
 	{
-		SMF\Actions\Admin\Themes::subActionProvider(sa: 'enable');
+		$obj = SMF\Actions\Admin\Themes::load();
+		$obj->subaction = 'enable';
+		$obj->execute();
 	}
 
 	/**
@@ -2519,7 +2827,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ThemeInstall(): void
 	{
-		SMF\Actions\Admin\Themes::subActionProvider(sa: 'install');
+		$obj = SMF\Actions\Admin\Themes::load();
+		$obj->subaction = 'install';
+		$obj->execute();
 	}
 
 	/**
@@ -2529,7 +2839,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditTheme(): void
 	{
-		SMF\Actions\Admin\Themes::subActionProvider(sa: 'edit');
+		$obj = SMF\Actions\Admin\Themes::load();
+		$obj->subaction = 'edit';
+		$obj->execute();
 	}
 
 	/**
@@ -2539,7 +2851,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function CopyTemplate(): void
 	{
-		SMF\Actions\Admin\Themes::subActionProvider(sa: 'copy');
+		$obj = SMF\Actions\Admin\Themes::load();
+		$obj->subaction = 'copy';
+		$obj->execute();
 	}
 
 	/**********************************
@@ -2554,7 +2868,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyWarningSettings(bool $return_config = false): ?array
 	{
-		return SMF\Actions\Admin\Warnings::subActionProvider(return_config: $return_config);
+		if (!empty($return_config)) {
+			return SMF\Actions\Admin\Attachments::getConfigVars();
+		}
+
+		return SMF\Actions\Admin\Warnings::call();
 	}
 
 	/*****************************************
@@ -2643,7 +2961,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function UnapprovedPosts(): void
 	{
-		SMF\Actions\Moderation\Posts::subActionProvider(sa: 'replies');
+		$obj = SMF\Actions\Moderation\Posts::load();
+		$obj->subaction = 'replies';
+		$obj->execute();
 	}
 
 	/**
@@ -2651,7 +2971,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function UnapprovedAttachments(): void
 	{
-		SMF\Actions\Moderation\Posts::subActionProvider(sa: 'attachments');
+		$obj = SMF\Actions\Moderation\Posts::load();
+		$obj->subaction = 'attachments';
+		$obj->execute();
 	}
 
 	/**
@@ -2659,7 +2981,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ApproveMessage(): void
 	{
-		SMF\Actions\Moderation\Posts::subActionProvider(sa: 'approve');
+		$obj = SMF\Actions\Moderation\Posts::load();
+		$obj->subaction = 'approve';
+		$obj->execute();
 	}
 
 	/**********************************************
@@ -2697,7 +3021,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ShowReports(): void
 	{
-		SMF\Actions\Moderation\ReportedContent::subActionProvider(sa: 'show');
+		$obj = SMF\Actions\Moderation\ReportedContent::load();
+		$obj->subaction = 'show';
+		$obj->execute();
 	}
 
 	/**
@@ -2706,7 +3032,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ShowClosedReports(): void
 	{
-		SMF\Actions\Moderation\ReportedContent::subActionProvider(sa: 'closed');
+		$obj = SMF\Actions\Moderation\ReportedContent::load();
+		$obj->subaction = 'closed';
+		$obj->execute();
 	}
 
 	/**
@@ -2716,7 +3044,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ReportDetails(): void
 	{
-		SMF\Actions\Moderation\ReportedContent::subActionProvider(sa: 'details');
+		$obj = SMF\Actions\Moderation\ReportedContent::load();
+		$obj->subaction = 'details';
+		$obj->execute();
 	}
 
 	/**
@@ -2725,7 +3055,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function HandleReport(): void
 	{
-		SMF\Actions\Moderation\ReportedContent::subActionProvider(sa: 'handle');
+		$obj = SMF\Actions\Moderation\ReportedContent::load();
+		$obj->subaction = 'handle';
+		$obj->execute();
 	}
 
 	/**
@@ -2734,7 +3066,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function HandleComment(): void
 	{
-		SMF\Actions\Moderation\ReportedContent::subActionProvider(sa: 'handlecomment');
+		$obj = SMF\Actions\Moderation\ReportedContent::load();
+		$obj->subaction = 'handlecomment';
+		$obj->execute();
 	}
 
 	/**
@@ -2744,7 +3078,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function EditComment(): void
 	{
-		SMF\Actions\Moderation\ReportedContent::subActionProvider(sa: 'editcomment');
+		$obj = SMF\Actions\Moderation\ReportedContent::load();
+		$obj->subaction = 'editcomment';
+		$obj->execute();
 	}
 
 	/*****************************************
@@ -2776,7 +3112,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ViewWarningLog(): void
 	{
-		SMF\Actions\Moderation\Warnings::subActionProvider(sa: 'log');
+		$obj = SMF\Actions\Moderation\Warnings::load();
+		$obj->subaction = 'log';
+		$obj->execute();
 	}
 
 	/**
@@ -2784,7 +3122,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ViewWarningTemplates(): void
 	{
-		SMF\Actions\Moderation\Warnings::subActionProvider(sa: 'templates');
+		$obj = SMF\Actions\Moderation\Warnings::load();
+		$obj->subaction = 'templates';
+		$obj->execute();
 	}
 
 	/**
@@ -2792,7 +3132,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyWarningTemplate(): void
 	{
-		SMF\Actions\Moderation\Warnings::subActionProvider(sa: 'templateedit');
+		$obj = SMF\Actions\Moderation\Warnings::load();
+		$obj->subaction = 'templateedit';
+		$obj->execute();
 	}
 
 	/*******************************************
@@ -2895,7 +3237,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\BuddyIgnoreLists::subActionProvider(sa: 'buddies');
+		$obj = SMF\Actions\Profile\BuddyIgnoreLists::load();
+		$obj->subaction = 'buddies';
+		$obj->execute();
 	}
 
 	/**
@@ -2910,7 +3254,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\BuddyIgnoreLists::subActionProvider(sa: 'ignore');
+		$obj = SMF\Actions\Profile\BuddyIgnoreLists::load();
+		$obj->subaction = 'ignore';
+		$obj->execute();
 	}
 
 	/**********************************
@@ -2944,12 +3290,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\Delete::load();
-
-		$saving = SMF\Utils::$context['completed_save'];
+		$saving = SMF\Utils::$context['completed_save'] ?? null;
 		SMF\Utils::$context['completed_save'] = true;
 
-		SMF\Actions\Profile\Delete::$obj->execute();
+		SMF\Actions\Profile\Delete::call();
 
 		SMF\Utils::$context['completed_save'] = $saving;
 	}
@@ -3093,16 +3437,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\GroupMembership::load();
+		$obj = SMF\Actions\Profile\GroupMembership::load();
+		$obj->save();
 
-		$saving = SMF\Utils::$context['completed_save'];
-		SMF\Utils::$context['completed_save'] = true;
-
-		SMF\Actions\Profile\GroupMembership::$obj->execute();
-
-		SMF\Utils::$context['completed_save'] = $saving;
-
-		return SMF\Actions\Profile\GroupMembership::$obj->change_type;
+		return $obj->change_type;
 	}
 
 	/****************************************
@@ -3154,9 +3492,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ModifyProfile(array $post_errors = []): void
 	{
-		SMF\Actions\Profile\Main::load();
-		SMF\Profile::$member->save_errors = $post_errors;
-		SMF\Actions\Profile\Main::$obj->execute();
+		$obj = SMF\Actions\Profile\Main::load();
+		$obj->save_errors = $post_errors;
+		$obj->execute();
 	}
 
 	/****************************************
@@ -3191,7 +3529,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\Notification::subActionProvider(sa: 'alerts');
+		$obj = SMF\Actions\Profile\Notification::load();
+		$obj->subaction = 'alerts';
+		$obj->execute();
 	}
 
 	/**
@@ -3206,7 +3546,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\Notification::subActionProvider(sa: 'markread');
+		$obj = SMF\Actions\Profile\Notification::load();
+		$obj->subaction = 'markread';
+		$obj->execute();
 	}
 
 	/**
@@ -3221,7 +3563,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\Notification::subActionProvider(sa: 'topics');
+		$obj = SMF\Actions\Profile\Notification::load();
+		$obj->subaction = 'topics';
+		$obj->execute();
 	}
 
 	/**
@@ -3236,7 +3580,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\Notification::subActionProvider(sa: 'boards');
+		$obj = SMF\Actions\Profile\Notification::load();
+		$obj->subaction = 'boards';
+		$obj->execute();
 	}
 
 	/**
@@ -3251,8 +3597,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\Notification::load();
-		SMF\Actions\Profile\Notification::$obj->changeNotifications();
+		SMF\Actions\Profile\Notification::load()->changeNotifications();
 	}
 
 	/************************************
@@ -3364,7 +3709,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\ShowPosts::subActionProvider(sa: 'unwatchedtopics');
+		$obj = SMF\Actions\Profile\ShowPosts::load();
+		$obj->subaction = 'unwatchedtopics';
+		$obj->execute();
 	}
 
 	/**
@@ -3379,7 +3726,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\ShowPosts::subActionProvider(sa: 'attach');
+		$obj = SMF\Actions\Profile\ShowPosts::load();
+		$obj->subaction = 'attach';
+		$obj->execute();
 	}
 
 	/*************************************
@@ -3494,7 +3843,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\Tracking::subActionProvider(sa: 'activity');
+		$obj = SMF\Actions\Profile\Tracking::load();
+		$obj->subaction = 'activity';
+		$obj->execute();
 	}
 
 	/**
@@ -3509,7 +3860,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\Tracking::subActionProvider(sa: 'edits');
+		$obj = SMF\Actions\Profile\Tracking::load();
+		$obj->subaction = 'edits';
+		$obj->execute();
 	}
 
 	/**
@@ -3524,7 +3877,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\Tracking::subActionProvider(sa: 'groupreq');
+		$obj = SMF\Actions\Profile\Tracking::load();
+		$obj->subaction = 'groupreq';
+		$obj->execute();
 	}
 
 	/**
@@ -3539,7 +3894,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			SMF\Profile::load($memID);
 		}
 
-		SMF\Actions\Profile\Tracking::subActionProvider(sa: 'logins');
+		$obj = SMF\Actions\Profile\Tracking::load();
+		$obj->subaction = 'logins';
+		$obj->execute();
 	}
 
 	/***************************************
@@ -3629,7 +3986,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AnnouncementSelectMembergroup(): void
 	{
-		SMF\Actions\Announce::subActionProvider(sa: 'selectgroup');
+		$obj = SMF\Actions\Announce::load();
+		$obj->subaction = 'selectgroup';
+		$obj->execute();
 	}
 
 	/**
@@ -3642,7 +4001,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AnnouncementSend(): void
 	{
-		SMF\Actions\Announce::subActionProvider(sa: 'send');
+		$obj = SMF\Actions\Announce::load();
+		$obj->subaction = 'send';
+		$obj->execute();
 	}
 
 	/*************************************
@@ -3698,9 +4059,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AutoSuggest_Search_Member(): void
 	{
-		SMF\Actions\AutoSuggest::load();
-		SMF\Actions\AutoSuggest::$obj->suggest_type = 'member';
-		SMF\Actions\AutoSuggest::$obj->execute();
+		$obj = SMF\Actions\AutoSuggest::load();
+		$obj->suggest_type = 'member';
+		$obj->execute();
 	}
 
 	/**
@@ -3708,9 +4069,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AutoSuggest_Search_MemberGroups(): void
 	{
-		SMF\Actions\AutoSuggest::load();
-		SMF\Actions\AutoSuggest::$obj->suggest_type = 'membergroups';
-		SMF\Actions\AutoSuggest::$obj->execute();
+		$obj = SMF\Actions\AutoSuggest::load();
+		$obj->suggest_type = 'membergroups';
+		$obj->execute();
 	}
 
 	/**
@@ -3720,9 +4081,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function AutoSuggest_Search_SMFVersions(): void
 	{
-		SMF\Actions\AutoSuggest::load();
-		SMF\Actions\AutoSuggest::$obj->suggest_type = 'versions';
-		SMF\Actions\AutoSuggest::$obj->execute();
+		$obj = SMF\Actions\AutoSuggest::load();
+		$obj->suggest_type = 'versions';
+		$obj->execute();
 	}
 
 	/******************************
@@ -3803,7 +4164,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function iCalDownload(): void
 	{
-		SMF\Actions\Calendar::subActionProvider(sa: 'ical');
+		$obj = SMF\Actions\Calendar::load();
+		$obj->subaction = 'ical';
+		$obj->execute();
 	}
 
 	/**
@@ -3818,7 +4181,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function CalendarPost(): void
 	{
-		SMF\Actions\Calendar::subActionProvider(sa: 'post');
+		$obj = SMF\Actions\Calendar::load();
+		$obj->subaction = 'post';
+		$obj->execute();
 	}
 
 	/**
@@ -4202,7 +4567,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function GroupList(): void
 	{
-		SMF\Actions\Groups::subActionProvider(sa: 'index');
+		$obj = SMF\Actions\Groups::load();
+		$obj->subaction = 'index';
+		$obj->execute();
 	}
 
 	/**
@@ -4220,7 +4587,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MembergroupMembers(): void
 	{
-		SMF\Actions\Groups::subActionProvider(sa: 'members');
+		$obj = SMF\Actions\Groups::load();
+		$obj->subaction = 'members';
+		$obj->execute();
 	}
 
 	/**
@@ -4228,7 +4597,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function GroupRequests(): void
 	{
-		SMF\Actions\Groups::subActionProvider(sa: 'requests');
+		$obj = SMF\Actions\Groups::load();
+		$obj->subaction = 'requests';
+		$obj->execute();
 	}
 
 	/************************
@@ -4252,7 +4623,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function HelpIndex(): void
 	{
-		SMF\Actions\Help::subActionProvider(sa: 'index');
+		$obj = SMF\Actions\Help::load();
+		$obj->subaction = 'index';
+		$obj->execute();
 	}
 
 	/*****************************
@@ -4419,7 +4792,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MLAll(): void
 	{
-		SMF\Actions\Memberlist::subActionProvider(sa: 'all');
+		$obj = SMF\Actions\Memberlist::load();
+		$obj->subaction = 'all';
+		$obj->execute();
 	}
 
 	/**
@@ -4430,7 +4805,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MLSearch(): void
 	{
-		SMF\Actions\Memberlist::subActionProvider(sa: 'search');
+		$obj = SMF\Actions\Memberlist::load();
+		$obj->subaction = 'search';
+		$obj->execute();
 	}
 
 	/**
@@ -4624,7 +5001,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessageFolder(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'show');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'show';
+		$obj->execute();
 	}
 
 	/**
@@ -4632,7 +5011,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessagePopup(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'popup');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'popup';
+		$obj->execute();
 	}
 
 	/**
@@ -4640,7 +5021,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ManageLabels(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'manlabels');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'manlabels';
+		$obj->execute();
 	}
 
 	/**
@@ -4648,7 +5031,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ManageRules(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'manrules');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'manrules';
+		$obj->execute();
 	}
 
 	/**
@@ -4656,7 +5041,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessageActionsApply(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'pmactions');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'pmactions';
+		$obj->execute();
 	}
 
 	/**
@@ -4664,7 +5051,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessagePrune()
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'prune');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'prune';
+		$obj->execute();
 	}
 
 	/**
@@ -4672,7 +5061,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessageKillAll(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'removalall2');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'removalall2';
+		$obj->execute();
 	}
 
 	/**
@@ -4686,7 +5077,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ReportMessage(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'report');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'report';
+		$obj->execute();
 	}
 
 	/**
@@ -4694,7 +5087,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessageSearch(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'search');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'search';
+		$obj->execute();
 	}
 
 	/**
@@ -4702,7 +5097,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessageSearch2(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'search2');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'search2';
+		$obj->execute();
 	}
 
 	/**
@@ -4710,7 +5107,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessagePost(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'send');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'send';
+		$obj->execute();
 	}
 
 	/**
@@ -4718,7 +5117,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessagePost2(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'send2');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'send2';
+		$obj->execute();
 	}
 
 	/**
@@ -4731,7 +5132,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessageSettings(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'settings');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'settings';
+		$obj->execute();
 	}
 
 	/**
@@ -4739,7 +5142,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MessageDrafts(): void
 	{
-		SMF\Actions\PersonalMessage::subActionProvider(sa: 'showpmdrafts');
+		$obj = SMF\Actions\PersonalMessage::load();
+		$obj->subaction = 'showpmdrafts';
+		$obj->execute();
 	}
 
 	/************************
@@ -4759,9 +5164,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function Post(array $post_errors = []): void
 	{
-		SMF\Actions\Post::load();
-		SMF\Actions\Post::$obj->errors = (array) $post_errors;
-		SMF\Actions\Post::$obj->execute();
+		$obj = SMF\Actions\Post::load();
+		$obj->subaction = 'show';
+		$obj->errors = $post_errors;
+		$obj->execute();
 	}
 
 	/*************************
@@ -4857,10 +5263,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function Register(array $reg_errors = []): void
 	{
-		SMF\Actions\Register::load();
-		SMF\Actions\Register::$obj->subaction = 'show';
-		SMF\Actions\Register::$obj->errors = (array) $reg_errors;
-		SMF\Actions\Register::$obj->execute();
+		$obj = SMF\Actions\Register::load();
+		$obj->subaction = 'show';
+		$obj->errors = $reg_errors;
+		$obj->execute();
 	}
 
 	/*****************************
@@ -4934,7 +5340,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ReportToModerator2(): void
 	{
-		SMF\Actions\ReportToMod::subActionProvider(sa: 'submit');
+		$obj = SMF\Actions\ReportToMod::load();
+		$obj->subaction = 'submit';
+		$obj->execute();
 	}
 
 	/**
@@ -4948,9 +5356,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$_POST['msg'] = (int) $msg;
 		$_POST['comment'] = SMF\Utils::htmlspecialcharsDecode((string) $reason);
 
-		SMF\Actions\ReportToMod::load();
-		SMF\Actions\ReportToMod::$obj->subaction = 'submit';
-		SMF\Actions\ReportToMod::$obj->execute();
+		$obj = SMF\Actions\ReportToMod::load();
+		$obj->subaction = 'submit';
+		$obj->execute();
 	}
 
 	/**
@@ -4964,9 +5372,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		$_POST['u'] = (int) $id_member;
 		$_POST['comment'] = SMF\Utils::htmlspecialcharsDecode((string) $reason);
 
-		SMF\Actions\ReportToMod::load();
-		SMF\Actions\ReportToMod::$obj->subaction = 'submit';
-		SMF\Actions\ReportToMod::$obj->execute();
+		$obj = SMF\Actions\ReportToMod::load();
+		$obj->subaction = 'submit';
+		$obj->execute();
 	}
 
 	/**********************************
@@ -5092,7 +5500,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MergeIndex(): void
 	{
-		SMF\Actions\TopicMerge::subActionProvider(sa: 'index');
+		$obj = SMF\Actions\TopicMerge::load();
+		$obj->subaction = 'index';
+		$obj->execute();
 	}
 
 	/**
@@ -5114,10 +5524,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MergeExecute(array $topics = []): void
 	{
-		SMF\Actions\TopicMerge::load();
-		SMF\Actions\TopicMerge::$obj->subaction = !empty($_GET['sa']) && $_GET['sa'] === 'merge' ? 'merge' : 'options';
-		SMF\Actions\TopicMerge::$obj->topics = array_map('intval', $topics);
-		SMF\Actions\TopicMerge::$obj->execute();
+		$obj = SMF\Actions\TopicMerge::load();
+		$obj->subaction = !empty($_GET['sa']) && $_GET['sa'] === 'merge' ? 'merge' : 'options';
+		$obj->topics = array_map('intval', $topics);
+		$obj->execute();
 	}
 
 	/**
@@ -5127,7 +5537,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function MergeDone(): void
 	{
-		SMF\Actions\TopicMerge::subActionProvider(sa: 'done');
+		$obj = SMF\Actions\TopicMerge::load();
+		$obj->subaction = 'done';
+		$obj->execute();
 	}
 
 	/*****************************
@@ -5286,7 +5698,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SplitIndex(): void
 	{
-		SMF\Actions\TopicSplit::subActionProvider(sa: 'index');
+		$obj = SMF\Actions\TopicSplit::load();
+		$obj->subaction = 'index';
+		$obj->execute();
 	}
 
 	/**
@@ -5301,7 +5715,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SplitExecute(): void
 	{
-		SMF\Actions\TopicSplit::subActionProvider(sa: 'split');
+		$obj = SMF\Actions\TopicSplit::load();
+		$obj->subaction = 'split';
+		$obj->execute();
 	}
 
 	/**
@@ -5316,7 +5732,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SplitSelectTopics(): void
 	{
-		SMF\Actions\TopicSplit::subActionProvider(sa: 'selectTopics');
+		$obj = SMF\Actions\TopicSplit::load();
+		$obj->subaction = 'selectTopics';
+		$obj->execute();
 	}
 
 	/**
@@ -5327,7 +5745,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function SplitSelectionExecute(): void
 	{
-		SMF\Actions\TopicSplit::subActionProvider(sa: 'splitSelection');
+		$obj = SMF\Actions\TopicSplit::load();
+		$obj->subaction = 'splitSelection';
+		$obj->execute();
 	}
 
 	/***************************
@@ -5455,7 +5875,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function GetJumpTo(): void
 	{
-		SMF\Actions\XmlHttp::subActionProvider(sa: 'jumpto');
+		$obj = SMF\Actions\XmlHttp::load();
+		$obj->subaction = 'jumpto';
+		$obj->execute();
 	}
 
 	/**
@@ -5463,7 +5885,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ListMessageIcons(): void
 	{
-		SMF\Actions\XmlHttp::subActionProvider(sa: 'messageicons');
+		$obj = SMF\Actions\XmlHttp::load();
+		$obj->subaction = 'messageicons';
+		$obj->execute();
 	}
 
 	/**
@@ -5474,7 +5898,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function RetrievePreview(): ?bool
 	{
-		SMF\Actions\XmlHttp::subActionProvider(sa: 'previews');
+		$obj = SMF\Actions\XmlHttp::load();
+		$obj->subaction = 'previews';
+		$obj->execute();
 	}
 
 	/**************************
