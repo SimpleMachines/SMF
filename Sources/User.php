@@ -945,6 +945,11 @@ class User implements \ArrayAccess
 		if (!isset($boards)) {
 			$this->loadModCache();
 
+			// Can this user approve group requests?
+			if (($this->mod_cache['gq'] ?? '0=1') != '0=1') {
+				$this->permission_sets[0]->grant('approve_group_requests');
+			}
+
 			// A user can mod if they have permission to see the mod center, or they are a board/group/approval moderator.
 			$this->can_mod = (
 				$this->is_admin

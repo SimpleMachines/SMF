@@ -242,6 +242,14 @@ class Permission implements \ArrayAccess
 			'scope' => 'board',
 			'never_guests' => true,
 		],
+		'approve_group_requests' => [
+			'scope' => 'global',
+			'hidden' => true,
+			'never_guests' => true,
+			// This permission isn't permanently assignable.
+			// It is granted to group moderators only while they are logged in.
+			'can_assign' => false,
+		],
 		'approve_posts' => [
 			'view_group' => 'general_board',
 			'scope' => 'board',
