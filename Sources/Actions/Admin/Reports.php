@@ -41,7 +41,6 @@ use SMF\Utils;
 class Reports implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

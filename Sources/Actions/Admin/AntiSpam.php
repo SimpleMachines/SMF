@@ -34,7 +34,6 @@ use SMF\Utils;
 class AntiSpam implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/****************

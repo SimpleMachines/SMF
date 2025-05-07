@@ -26,6 +26,7 @@ namespace SMF\Graphics\Gif;
 class ColorTable
 {
 	public $m_nColors;
+
 	public $m_arColors;
 
 	public function __construct()

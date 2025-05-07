@@ -41,7 +41,6 @@ use SMF\Utils;
 class Boards implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

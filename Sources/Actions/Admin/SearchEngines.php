@@ -40,7 +40,6 @@ use SMF\Utils;
 class SearchEngines implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

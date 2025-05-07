@@ -85,7 +85,6 @@ use SMF\Utils;
 class Server implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*****************

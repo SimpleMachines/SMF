@@ -43,7 +43,6 @@ use SMF\Utils;
 class Posts implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

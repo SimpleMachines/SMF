@@ -46,7 +46,6 @@ use SMF\WebFetch\WebFetchApi;
 class Calendar implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

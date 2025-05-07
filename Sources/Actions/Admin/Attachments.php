@@ -44,7 +44,6 @@ use const DIRECTORY_SEPARATOR;
 class Attachments implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

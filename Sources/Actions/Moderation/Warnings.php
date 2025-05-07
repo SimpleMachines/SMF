@@ -38,7 +38,6 @@ use SMF\Utils;
 class Warnings implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

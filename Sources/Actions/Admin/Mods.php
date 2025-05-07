@@ -31,7 +31,6 @@ use SMF\Utils;
 class Mods implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

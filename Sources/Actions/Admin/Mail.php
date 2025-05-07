@@ -36,7 +36,6 @@ use SMF\Utils;
 class Mail implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

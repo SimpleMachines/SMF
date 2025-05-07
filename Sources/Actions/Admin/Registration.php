@@ -40,7 +40,6 @@ use SMF\Utils;
 class Registration implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 	/*******************
 	 * Public properties

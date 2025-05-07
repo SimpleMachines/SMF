@@ -132,5 +132,4 @@ class AgreementAccept extends Agreement
 
 		return $params;
 	}
-
 }

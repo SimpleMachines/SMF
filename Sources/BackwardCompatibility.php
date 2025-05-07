@@ -68,5 +68,4 @@ trait BackwardCompatibility
 		}
 
 	}
-
 }

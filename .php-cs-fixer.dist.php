@@ -53,6 +53,15 @@ return (new PhpCsFixer\Config())
 		'cast_spaces' => ['space' => 'single'],
 
 		// Class notation.
+		'class_attributes_separation' => [
+			'elements' => [
+				'trait_import' => 'none',
+				'case' => 'none',
+				'const' => 'only_if_meta',
+				'property' => 'one',
+				'method' => 'one',
+			],
+		],
 		'ordered_class_elements' => [
 			'order' => [
 				'use_trait',

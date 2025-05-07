@@ -31,23 +31,41 @@ namespace SMF\Graphics\Gif;
 class LzwCompression
 {
 	public $MAX_LZW_BITS;
+
 	public $Fresh;
+
 	public $CodeSize;
+
 	public $SetCodeSize;
+
 	public $MaxCode;
+
 	public $MaxCodeSize;
+
 	public $FirstCode;
+
 	public $OldCode;
+
 	public $ClearCode;
+
 	public $EndCode;
+
 	public $Next;
+
 	public $Vals;
+
 	public $Stack;
+
 	public $sp;
+
 	public $Buf;
+
 	public $CurBit;
+
 	public $LastBit;
+
 	public $Done;
+
 	public $LastByte;
 
 	public function __construct()

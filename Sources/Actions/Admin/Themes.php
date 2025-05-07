@@ -55,7 +55,6 @@ use SMF\Utils;
 class Themes implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

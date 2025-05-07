@@ -28,8 +28,11 @@ use SMF\Config;
 class File
 {
 	public $header;
+
 	public $image;
+
 	public $data;
+
 	public $loaded;
 
 	public function __construct()

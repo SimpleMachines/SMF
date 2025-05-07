@@ -835,6 +835,7 @@ class PackageUtils
 
 		return $return_data;
 	}
+
 	/**
 	 * Get a listing of files that will need to be set back to the original state
 	 *

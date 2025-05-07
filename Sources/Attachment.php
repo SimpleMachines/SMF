@@ -33,10 +33,16 @@ class Attachment implements \ArrayAccess
 	 * Class constants
 	 *****************/
 
+	/**
+	 * Constants for approval states.
+	 */
 	public const APPROVED_ANY = -1;
 	public const APPROVED_FALSE = 0;
 	public const APPROVED_TRUE = 1;
 
+	/**
+	 * Constants for attachment types.
+	 */
 	public const TYPE_ANY = -1;
 	public const TYPE_STANDARD = 0;
 	public const TYPE_AVATAR = 1;

@@ -45,7 +45,6 @@ use SMF\WebFetch\WebFetchApi;
 class Smileys implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

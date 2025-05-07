@@ -26,13 +26,21 @@ namespace SMF\Graphics\Gif;
 class ImageHeader
 {
 	public $m_nLeft;
+
 	public $m_nTop;
+
 	public $m_nWidth;
+
 	public $m_nHeight;
+
 	public $m_bLocalClr;
+
 	public $m_bInterlace;
+
 	public $m_bSorted;
+
 	public $m_nTableSize;
+
 	public $m_colorTable;
 
 	public function __construct()

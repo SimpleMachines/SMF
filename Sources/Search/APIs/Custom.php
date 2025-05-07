@@ -849,6 +849,7 @@ class Custom extends SearchApi implements SearchApiInterface
 		SecurityToken::create('admin-msmpost');
 		SecurityToken::create('admin-msm', 'get');
 	}
+
 	/**
 	 * Removes the custom index.
 	 *

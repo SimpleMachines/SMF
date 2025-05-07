@@ -169,5 +169,4 @@ class Logout extends Login2
 
 		return ['route' => $route, 'params' => $params];
 	}
-
 }

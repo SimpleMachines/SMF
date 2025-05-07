@@ -42,7 +42,6 @@ use SMF\Utils;
 class Permissions implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

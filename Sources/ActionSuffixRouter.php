@@ -55,5 +55,4 @@ trait ActionSuffixRouter
 
 		return ['route' => $route, 'params' => $params];
 	}
-
 }
