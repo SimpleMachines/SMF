@@ -412,7 +412,7 @@ class PM implements \ArrayAccess
 
 	/**
 	 * Checks whether the current user can see this personal message.
-	 *
+	 * @param string $folders The folders to check: 'inbox', 'sent', or 'both'.
 	 * @return bool
 	 */
 	public function canAccess(string $folders = 'both'): bool
@@ -1619,7 +1619,7 @@ class PM implements \ArrayAccess
 	/**
 	 * Delete the specified personal messages.
 	 *
-	 * @param array|null $personal_messages An array containing the IDs of PMs to delete or null to delete all of them
+	 * @param int|array|null $personal_messages An array containing the IDs of PMs to delete or null to delete all of them
 	 * @param string|null $folder Which "folder" to delete PMs from - 'sent' to delete them from the outbox, null or anything else to delete from the inbox
 	 * @param array|int|null $owner An array of IDs of users whose PMs are being deleted, the ID of a single user or null to use the current user's ID
 	 */

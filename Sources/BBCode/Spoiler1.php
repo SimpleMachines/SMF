@@ -55,7 +55,7 @@ class Spoiler1 extends BBCode
 	];
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * HTML to insert before the BBCode's content.
 	 *

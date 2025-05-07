@@ -203,8 +203,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * Sets the $cachedir or uses the SMF default $cachedir..
 	 *
-	 * @param string $dir A valid path
-	 * @return bool If this was successful or not.
+	 * @param null|string $dir A valid path
 	 */
 	public function setCachedir(?string $dir = null): void
 	{

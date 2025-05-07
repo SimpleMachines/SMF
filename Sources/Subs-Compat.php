@@ -896,8 +896,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * If add_to_post_count is set, the member's post count is increased.
 	 *
 	 * @param int $memID The ID of the original poster
-	 * @param bool|string $email If set, should be the email of the poster
-	 * @param bool|string $membername If set, the membername of the poster
+	 * @param string|null $email If set, should be the email of the poster
+	 * @param string|null $membername If set, the membername of the poster
 	 * @param bool $post_count Whether to adjust post counts
 	 * @return array An array containing the number of messages, topics and reports updated
 	 */
@@ -1378,7 +1378,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Redirects to ?action=admin;area=news;sa=mailingmembers after everything has been sent.
 	 * @uses template_email_members_send()
 	 *
-	 * @param bool $clean_only If set, it will only clean the variables, put them in context, then return.
 	 */
 	function SendMailing(): void
 	{
@@ -1488,7 +1487,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * This function updates the permissions of any groups based off this group.
 	 *
-	 * @param null|array $parents The parent groups
+	 * @param int|null|array $parents The parent groups
 	 * @param null|int $profile the ID of a permissions profile to update
 	 * @return ?bool Returns nothing if successful or false if there are no child groups to update
 	 */
@@ -2843,7 +2842,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Set up the requirements for the alerts popup - the area that shows all the alerts just quickly for the current user.
 	 *
-	 * @param int $memID The ID of the member
+	 * @param int $memID The ID of the member'
 	 */
 	function alerts_popup(): void
 	{
@@ -3186,7 +3185,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Function for doing all the paid subscription stuff - kinda.
 	 *
-	 * @param int $memID The ID of the user whose subscriptions we're viewing
+	 * @param int $memID The ID of the member whose subscription we're viewing
 	 */
 	function subscriptions(): void
 	{
@@ -3370,8 +3369,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Provides interface to setup Two Factor Auth in SMF
-	 *
-	 * @param int $memID The ID of the member
 	 */
 	function tfasetup(): void
 	{
@@ -3398,8 +3395,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Loads up the information for the "track user" section of the profile
-	 *
-	 * @param int $memID The ID of the member
 	 */
 	function tracking(): void
 	{
@@ -3620,7 +3615,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * This keeps track of all registered handling functions for auto suggest functionality and passes execution to them.
 	 *
 	 * @param bool $checkRegistered If set to something other than null, checks whether the callback function is registered
-	 * @return ?bool Returns whether the callback function is registered if $checkRegistered isn't null
+	 * @return ?bool Returns whether the callback function is registered if $checkRegistereds isn't null
 	 */
 	function AutoSuggestHandler(?string $suggest_type = null): ?bool
 	{
@@ -3633,8 +3628,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Search for a member - by real_name or member_name by default.
-	 *
-	 * @return array An array of information for displaying the suggestions
 	 */
 	function AutoSuggest_Search_Member(): void
 	{
@@ -3645,8 +3638,6 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Search for a membergroup by name
-	 *
-	 * @return array An array of information for displaying the suggestions
 	 */
 	function AutoSuggest_Search_MemberGroups(): void
 	{
@@ -3658,7 +3649,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Provides a list of possible SMF versions to use in emulation
 	 *
-	 * @return array An array of data for displaying the suggestions
+	 * @return array An array of data for displaying the suggestionss
 	 */
 	function AutoSuggest_Search_SMFVersions(): void
 	{
@@ -4131,7 +4122,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param array &$members The IDs of the members
 	 * @param int $membergroup The ID of the group
-	 * @param int $limit How many members to show (null for no limit)
+	 * @param int|null $limit How many members to show (null for no limit)
 	 * @return bool True if there are more members to display, false otherwise
 	 */
 	function listMembergroupMembers_Href(array &$members, int $membergroup, ?int $limit = null): bool
@@ -4443,7 +4434,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int|array $members A user id or an array of (integer) user ids to load preferences for
 	 * @param string|array $prefs An empty string to load all preferences, or a string (or array) of preference name(s) to load
-	 * @param bool $process_default Whether to apply the default values to the members' values or not.
+	 * @param bool $process_defaults Whether to apply the default values to the members' values or not.
 	 * @return array An array of user ids => array (pref name -> value), with user id 0 representing the defaults
 	 */
 	function getNotifyPrefs(int|array $members, string|array $prefs = '', bool $process_defaults = false): array
@@ -5601,8 +5592,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param string $file The filepath of the file where the data should be written.
 	 * @param string $data The data to be written to $file.
-	 * @param string $backup_file The filepath where the backup should be saved. Default null.
-	 * @param int $mtime If modification time of $file is more recent than this Unix timestamp, the write operation will abort. Defaults to time that the script started execution.
+	 * @param string|null $backup_file The filepath where the backup should be saved. Default null.
+	 * @param int|null $mtime If modification time of $file is more recent than this Unix timestamp, the write operation will abort. Defaults to time that the script started execution.
 	 * @param bool $append If true, the data will be appended instead of overwriting the existing content of the file. Default false.
 	 * @return bool Whether the write operation succeeded or not.
 	 */
@@ -5617,7 +5608,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @todo Add special handling for objects?
 	 *
 	 * @param mixed $var The variable to export
-	 * @return mixed A PHP-parseable representation of the variable's value
+	 * @return string A PHP-parseable representation of the variable's value
 	 */
 	function smf_var_export(mixed $var)
 	{
@@ -5631,10 +5622,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * - If it fails Settings.php will assume 0
 	 *
 	 * @param int $time The timestamp of the last DB error
-	 * @param bool True If we should update the current db_last_error context as well.  This may be useful in cases where the current context needs to know a error was logged since the last check.
 	 * @return bool True If we could succesfully put the file or not.
 	 */
-	function updateDbLastError(int $time)
+	function updateDbLastError(int $time): bool
 	{
 		return SMF\Config::updateDbLastError($time);
 	}
@@ -5767,8 +5757,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * - the file would have the format preferred_format if possible, otherwise the default format is jpeg.
 	 * - the function makes sure that all non-essential image contents are disposed.
 	 *
-	 * @param string $fileName The path to the file
-	 * @param int $preferred_format The preferred format - 0 to automatically determine, 1 for gif, 2 for jpg, 3 for png, 6 for bmp and 15 for wbmp
+	 * @param string $source The path to the file
+	 * @param int $preferred_type The preferred format - 0 to automatically determine, 1 for gif, 2 for jpg, 3 for png, 6 for bmp and 15 for wbmp
 	 * @return bool Whether the reencoding was successful
 	 */
 	function reencodeImage(string $source, int $preferred_type = 0): bool
@@ -5780,8 +5770,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Searches through the file to see if there's potentially harmful non-binary content.
 	 * - if extensiveCheck is true, searches for asp/php short tags as well.
 	 *
-	 * @param string $fileName The path to the file
-	 * @param bool $extensiveCheck Whether to perform extensive checks
+	 * @param string $source The path to the file
+	 * @param bool $extensive Whether to perform extensive checks
 	 * @return bool Whether the image appears to be safe
 	 */
 	function checkImageContents(string $source, bool $extensive = false): bool
@@ -5792,7 +5782,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Searches through an SVG file to see if there's potentially harmful content.
 	 *
-	 * @param string $fileName The path to the file.
+	 * @param string $source The path to the file.
 	 * @return bool Whether the image appears to be safe.
 	 */
 	function checkSvgContents(string $source): bool
@@ -5810,7 +5800,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param string $destination The path to the destination image
 	 * @param int $max_width The maximum allowed width
 	 * @param int $max_height The maximum allowed height
-	 * @param int $preferred_format - The preferred format (0 to use jpeg, 1 for gif, 2 to force jpeg, 3 for png, 6 for bmp and 15 for wbmp)
+	 * @param int $preferred_type - The preferred format (0 to use jpeg, 1 for gif, 2 to force jpeg, 3 for png, 6 for bmp and 15 for wbmp)
 	 * @return bool Whether it succeeded.
 	 */
 	function resizeImageFile(
@@ -5832,7 +5822,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * Uses Imagemagick (IMagick or MagickWand extension) or GD
 	 *
-	 * @param resource $source The source image
+	 * @param string $source The source image
 	 * @param string $destination The path to the destination image
 	 * @param int $src_width The width of the source image
 	 * @param int $src_height The height of the source image
@@ -5863,7 +5853,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Reads an archive from either a remote location or from the local filesystem.
 	 *
 	 * @param string $gzfilename The path to the tar.gz file
-	 * @param string $destination The path to the desitnation directory
+	 * @param string|null $destination The path to the desitnation directory
 	 * @param bool $single_file If true returns the contents of the file specified by destination if it exists
 	 * @param bool $overwrite Whether to overwrite existing files
 	 * @param null|array $files_to_extract Specific files to extract
@@ -5937,7 +5927,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param string $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
 	 * @param bool $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
 	 * @param bool $overwrite If true, will overwrite files with newer modication times. Default is false.
-	 * @param array $files_to_extract
+	 * @param array|null $files_to_extract
 	 * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
 	 */
 	function read_zip_data(
@@ -6331,7 +6321,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param string $subject Should have no slashes and no html entities
 	 * @param string $message Should have no slashes and no html entities
 	 * @param bool $store_outbox Whether to store it in the sender's outbox
-	 * @param array $from An array with the id, name, and username of the member.
+	 * @param array|null $from An array with the id, name, and username of the member.
 	 * @param int $pm_head The ID of the chain being replied to - if any.
 	 * @return array An array with log entries telling how many recipients were successful and which recipients it failed to send to.
 	 */
@@ -6375,7 +6365,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param array $error_types An array of strings indicating which type of errors occurred
 	 * @param array $named_recipients
-	 * @param $recipient_ids
+	 * @param array $recipient_ids
 	 */
 	function messagePostError(array $error_types, array $named_recipients, array $recipient_ids = []): void
 	{
@@ -6386,7 +6376,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Check if the PM is available to the current user.
 	 *
 	 * @param int $pmID The ID of the PM
-	 * @param string $validFor Which folders this is valud for - can be 'inbox', 'outbox' or 'in_or_outbox'
+	 * @param string $folders Which folders this is valid for. Can be 'inbox', 'sent', or 'both'.
 	 * @return bool Whether the PM is accessible in that folder for the current user
 	 */
 	function isAccessiblePM(int $pmID, string $folders = 'both'): bool
@@ -6616,7 +6606,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Checks whether a string is already normalized to a given form.
 	 *
-	 * @param string|array $string A string of UTF-8 characters.
+	 * @param string $string A string of UTF-8 characters.
 	 * @param string $form One of 'd', 'c', 'kd', 'kc', or 'kc_casefold'
 	 * @return bool Whether the string is already normalized to the given form.
 	 */
@@ -6662,9 +6652,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * - URL must be supplied in lowercase
 	 *
 	 * @param string $url The URL
-	 * @param string $post_data The data to post to the given URL
+	 * @param string|array $post_data The data to post to the given URL
 	 * @param bool $keep_alive Whether to send keepalive info
-	 * @param int $redirection_level How many levels of redirection
 	 * @return string|false The fetched data or false on failure
 	 */
 	function fetch_web_data(string $url, string|array $post_data = [], bool $keep_alive = false): string|false
@@ -6680,9 +6669,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Fetch the alerts a member currently has.
 	 *
 	 * @param int $memID The ID of the member.
-	 * @param mixed $to_fetch Alerts to fetch: true/false for all/unread, or a list of one or more IDs.
-	 * @param array $limit Maximum number of alerts to fetch (0 for no limit).
-	 * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
+	 * @param int|bool|array $to_fetch Alerts to fetch: true/false for all/unread, or a list of one or more IDs.
+	 * @param int $limit Maximum number of alerts to fetch (0 for no limit).
+	 * @param int $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
 	 * @param bool $with_avatar Whether to load the avatar of the alert sender.
 	 * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
 	 * @return array An array of information about the fetched alerts.
@@ -6720,8 +6709,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Marks a group of alerts as un/read
 	 *
 	 * @param array|int $members The user IDs.
-	 * @param bool|int $read To mark as read or unread, 1 for read, 0 or any other value different than 1 for unread.
-	 * @param array|int $toMark The ID of a single alert or an array of IDs. The function will convert single integers to arrays for better handling.
+	 * @param array|int $to_mark The ID of a single alert or an array of IDs.
+	 * @param bool|int $read To mark as read or unread. 1 for read, 0 or any
+	 *    other value different than 1 for unread.
 	 * @return int How many alerts remain unread
 	 */
 	function alert_mark(array|int $members, array|int $to_mark, bool|int $read): int
@@ -6734,9 +6724,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Deletes a single or a group of alerts by ID
 	 *
-	 * @param int|array The ID of a single alert to delete or an array containing the IDs of multiple alerts. The function will convert integers into an array for better handling.
-	 * @param bool|int $memID The user ID. Used to update the user unread alerts count.
-	 * @return ?int If the $memID param is set, returns the new amount of unread alerts.
+	 * @param int|array $ids The ID of a single alert to delete or an array containing the IDs of multiple alerts. The function will convert integers into an array for better handling.
+	 * @param int|array $members The user ID. Used to update the user unread alerts count.
+	 * @return ?int If the $members param is set, returns the new amount of unread alerts.
 	 */
 	function alert_delete(int|array $ids, int|array $members = []): ?int
 	{
@@ -6884,7 +6874,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $attachID the attachment ID to load info from.
 	 *
-	 * @return mixed If succesful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
+	 * @return array|string If succesful, it will return an array of loaded data. String, most likely a $txt key if there was some error.
 	 */
 	function parseAttachBBC(int $attachID = 0): array|string
 	{
@@ -6896,7 +6886,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $attachID the attachment ID to load info from.
 	 *
-	 * @return array
+	 * @return SMF\Attachment|array
 	 */
 	function getAttachMsgInfo(int $attachID): SMF\Attachment|array
 	{
@@ -6921,7 +6911,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * prepare the Attachment api for all messages
 	 *
-	 * @param int array $msgIDs the message ID to load info from.
+	 * @param array $msgIDs the message ID to load info from.
 	 */
 	function prepareAttachsByMsg(array $msgIDs): void
 	{
@@ -7010,7 +7000,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param bool $smileys Whether to parse smileys as well
 	 * @param string $cache_id The cache ID
 	 * @param array $parse_tags If set, only parses these tags rather than all of them
-	 * @return string The parsed message
+	 * @return string|array If $message is false, an array of available bbcodes, otherwise the parsed message
 	 */
 	function parse_bbc(
 		string|bool $message,
@@ -7056,7 +7046,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Converts HTML to BBC
 	 * As of SMF 2.1, only used by ManageBoards.php (and possibly mods)
 	 *
-	 * @param string $text Text containing HTML
+	 * @param string $string Text containing HTML
 	 * @return string The text with html converted to bbc
 	 */
 	function html_to_bbc(string $string): string
@@ -7147,7 +7137,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * updates the statistics to reflect the new situation.
 	 *
 	 * @param array $boards_to_remove The boards to remove
-	 * @param int $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
+	 * @param int|null $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
 	 */
 	function deleteBoards(array $boards_to_remove, ?int $moveChildrenTo = null): void
 	{
@@ -7299,7 +7289,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * updates the statistics to reflect the new situation.
 	 *
 	 * @param array $categories The IDs of the categories to delete
-	 * @param int $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
+	 * @param int|null $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
 	 */
 	function deleteCategories(array $categories, ?int $moveBoardsTo = null): void
 	{
@@ -7343,8 +7333,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Recursively get a list of boards.
 	 * Used by getBoardTree
 	 *
-	 * @param array &$_boardList The board list
-	 * @param array &$_tree The board tree
+	 * @param array &$list The board list
+	 * @param array &$tree The board tree
 	 */
 	function recursiveBoards(&$list, &$tree): void
 	{
@@ -7464,7 +7454,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Will load a draft if selected is supplied via post
 	 *
 	 * @param int $member_id ID of the member to show drafts for.
-	 * @param bool|inr $reply_to ID of the topic or PM being replied to.
+	 * @param int $reply_to ID of the topic or PM being replied to.
 	 * @param int $draft_type The type of drafts to show: 0 = post, 1 = PM.
 	 * @return bool False if the drafts couldn't be loaded, nothing otherwise
 	 */
@@ -7501,7 +7491,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Creates a box that can be used for richedit stuff like BBC, Smileys etc.
 	 *
-	 * @param array $editorOptions Various options for the editor
+	 * @param array $options Various options for the editor
 	 */
 	function create_control_richedit(array $options): SMF\Editor
 	{
@@ -7771,7 +7761,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Convert a single IP to a ranged IP.
 	 * internal function used to convert a user-readable format to a format suitable for the database.
 	 *
-	 * @param string $fullip The full IP
+	 * @param string $addr The full IP
 	 * @return array An array of IP parts
 	 */
 	function ip2range(string $addr): array
@@ -7786,8 +7776,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @example
 	 * range2ip(array(10, 10, 10, 0), array(10, 10, 20, 255)) returns '10.10.10-20.*
 	 *
-	 * @param array $low The low end of the range in IPv4 format
-	 * @param array $high The high end of the range in IPv4 format
+	 * @param string $low The low end of the range in IPv4 format
+	 * @param string $high The high end of the range in IPv4 format
 	 * @return string A string indicating the range
 	 */
 	function range2ip(string $low, string $high): string
@@ -7799,7 +7789,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Check the given String if he is a valid IPv4 or IPv6
 	 * return true or false
 	 *
-	 * @param string $IPString
+	 * @param string $ip
 	 *
 	 * @return bool
 	 */
@@ -7833,7 +7823,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Converts an IP address into binary
 	 *
-	 * @param string $ip_address An IP address in IPv4, IPv6 or decimal notation
+	 * @param string $ip An IP address in IPv4, IPv6 or decimal notation
 	 * @return string|false The IP address in binary or false
 	 */
 	function inet_ptod(string $ip): string|bool
@@ -7844,8 +7834,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Converts a binary version of an IP address into a readable format
 	 *
-	 * @param string $bin An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
-	 * @return string|false The IP address in presentation format or false on error
+	 * @param string $ip An IP address in IPv4, IPv6 (Either string (postgresql) or binary (other databases))
+	 * @return string The IP address in presentation format or false on error
 	 */
 	function inet_dtop(string $ip): string
 	{
@@ -7855,9 +7845,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Expands a IPv6 address to its full form.
 	 *
-	 * @param string $addr The IPv6 address
-	 * @param bool $strict_check Whether to check the length of the expanded address for compliance
-	 * @return string|bool The expanded IPv6 address or false if $strict_check is true and the result isn't valid
+	 * @param string $ip The IPv6 address
+	 * @param bool $return_bool_if_invalid Whether to check the length of the expanded address for compliance
+	 * @return string|bool The expanded IPv6 address or false if $return_bool_if_invalid is true and the result isn't valid
 	 */
 	function expandIPv6(string $ip, bool $return_bool_if_invalid = true): string|bool
 	{
@@ -7890,7 +7880,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Create a new list
 	 *
-	 * @param array $listOptions An array of options for the list - 'id', 'columns', 'items_per_page', 'get_count', etc.
+	 * @param array $options An array of options for the list - 'id', 'columns', 'items_per_page', 'get_count', etc.
+	 * @return SMF\ItemList
 	 */
 	function createList(array $options): SMF\ItemList
 	{
@@ -7973,8 +7964,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *   for example, it might display "1 234,50".
 	 * - caches the formatting data from the setting for optimization.
 	 *
-	 * @param float $number A number
-	 * @param bool|int $override_decimal_count If set, will use the specified number of decimal places. Otherwise it's automatically determined
+	 * @param int|float $number A number
+	 * @param null|int $decimals If set, will use the specified number of decimal places. Otherwise it's automatically determined
 	 * @return string A formatted number
 	 */
 	function comma_format(int|float $number, ?int $decimals = null): string
@@ -8129,8 +8120,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param array $to The email(s) to send to
 	 * @param string $subject Email subject, expected to have entities, and slashes, but not be parsed
 	 * @param string $message Email body, expected to have slashes, no htmlentities
-	 * @param string $from The address to use for replies
-	 * @param string $message_id If specified, it will be used as local part of the Message-ID header.
+	 * @param string|null $from The address to use for replies
+	 * @param string|null $message_id If specified, it will be used as local part of the Message-ID header.
 	 * @param bool $send_html Whether or not the message is HTML vs. plain text
 	 * @param int $priority The priority of the message
 	 * @param bool $hotmail_fix Whether to apply the "hotmail fix"
@@ -8211,7 +8202,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param bool $with_charset Whether we're specifying a charset ($custom_charset must be set here)
 	 * @param bool $hotmail_fix Whether to apply the hotmail fix  (all higher ASCII characters are converted to HTML entities to assure proper display of the mail)
 	 * @param string $line_break The linebreak
-	 * @param string $custom_charset If set, it uses this character set
+	 * @param string|null $custom_charset If set, it uses this character set
 	 * @return array An array containing the character set, the converted string and the transport method.
 	 */
 	function mimespecialchars(
@@ -8280,7 +8271,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param string $type The type. Types supported are 'approval', 'activation', and 'standard'.
 	 * @param int $memberID The ID of the member
-	 * @param string $member_name The name of the member (if null, it is pulled from the database)
+	 * @param string|null $member_name The name of the member (if null, it is pulled from the database)
 	 */
 	function adminNotify(string $type, int $memberID, ?string $member_name = null): void
 	{
@@ -8312,8 +8303,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Create a menu.
 	 *
-	 * @param array $menuData An array of menu data
-	 * @param array $menuOptions An array of menu options
+	 * @param array $data An array of menu data
+	 * @param array $options An array of menu options
 	 * @return bool|array False if nothing to show or an array of info about the selected menu item
 	 */
 	function createMenu(array $data, array $options = []): array|false
@@ -8324,7 +8315,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Delete a menu.
 	 *
-	 * @param string $menu_id The ID of the menu to destroy or 'last' for the most recent one
+	 * @param int|string $id The ID of the menu to destroy or 'last' for the most recent one
 	 * @return bool|void False if the menu doesn't exist, nothing otherwise
 	 */
 	function destroyMenu(int|string $id = 'last'): void
@@ -8376,7 +8367,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param string $message The message
 	 * @param string $myTag The tag
-	 * @param string $protocols The protocols
+	 * @param array $protocols The protocols
 	 * @param bool $embeddedUrl Whether it *can* be set to something
 	 * @param bool $hasEqualSign Whether it *is* set to something
 	 * @param bool $hasExtra Whether it can have extra cruft after the begin tag.
@@ -8704,7 +8695,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param int $id The ID of the member
 	 * @param string $area The area of the profile these fields are in
 	 * @param bool $sanitize = true Whether or not to sanitize the data
-	 * @param bool $returnErrors Whether or not to return any error information
+	 * @param bool $return_errors Whether or not to return any error information
 	 * @return ?array Returns nothing or returns an array of error info if $returnErrors is true
 	 */
 	function makeCustomFieldChanges(int $id, string $area, bool $sanitize = true, bool $return_errors = false): ?array
@@ -8753,14 +8744,14 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Compares existance request variables against an array.
 	 *
 	 * The input array is associative, where keys denote accepted values
-	 * in a request variable denoted by `$req_val`. Values can be:
+	 * in a request variable denoted by `$value_list`. Values can be:
 	 *
 	 * - another associative array where at least one key must be found
 	 *   in the request and their values are accepted request values.
 	 * - A scalar value, in which case no furthur checks are done.
 	 *
-	 * @param array $array
-	 * @param string $req_var request variable
+	 * @param array $value_list Accepted values
+	 * @param string $var Name of the $_REQUEST variable to check.
 	 *
 	 * @return bool whether any of the criteria was satisfied
 	 */
@@ -8876,7 +8867,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param string $username The username. Ignored since 3.0.
 	 * @param string $password The unhashed password
-	 * @param int $cost The cost
+	 * @param int|null $cost The cost
 	 * @return string The hashed password
 	 */
 	function hash_password(string $username, string $password, ?int $cost = null): string
@@ -8964,7 +8955,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * This sets the X-Frame-Options header.
 	 *
-	 * @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
+	 * @param string|null $override An option to override (either 'SAMEORIGIN' or 'DENY')
 	 * @since 2.1
 	 */
 	function frameOptionsHeader(?string $override = null)
@@ -9052,7 +9043,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Show the SMF version.
 	 *
 	 * @param string $output_method If 'echo', displays the version, otherwise returns it
-	 * @return void|string Returns nothing if output_method is 'echo', otherwise returns the version
+	 * @return null|string Returns nothing if output_method is 'echo', otherwise returns the version
 	 */
 	function ssi_version($output_method = 'echo')
 	{
@@ -9063,7 +9054,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Show the full SMF version string.
 	 *
 	 * @param string $output_method If 'echo', displays the full version string, otherwise returns it
-	 * @return void|string Returns nothing if output_method is 'echo', otherwise returns the version string
+	 * @return null|string Returns nothing if output_method is 'echo', otherwise returns the version string
 	 */
 	function ssi_full_version($output_method = 'echo')
 	{
@@ -9074,7 +9065,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Show the SMF software year.
 	 *
 	 * @param string $output_method If 'echo', displays the software year, otherwise returns it
-	 * @return void|string Returns nothing if output_method is 'echo', otherwise returns the software year
+	 * @return null|string Returns nothing if output_method is 'echo', otherwise returns the software year
 	 */
 	function ssi_software_year($output_method = 'echo')
 	{
@@ -9085,7 +9076,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Show the forum copyright. Only used in our ssi_examples files.
 	 *
 	 * @param string $output_method If 'echo', displays the forum copyright, otherwise returns it
-	 * @return void|string Returns nothing if output_method is 'echo', otherwise returns the copyright string
+	 * @return null|string Returns nothing if output_method is 'echo', otherwise returns the copyright string
 	 */
 	function ssi_copyright($output_method = 'echo')
 	{
@@ -9096,7 +9087,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Display a welcome message, like: Hey, User, you have 0 messages, 0 are new.
 	 *
 	 * @param string $output_method The output method. If 'echo', will display everything. Otherwise returns an array of user info.
-	 * @return void|array Displays a welcome message or returns an array of user data depending on output_method.
+	 * @return null|\SMF\User Displays a welcome message or returns a User object depending on output_method.
 	 */
 	function ssi_welcome($output_method = 'echo')
 	{
@@ -9317,7 +9308,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Get all members in the specified group
 	 *
-	 * @param int $group_id The ID of the group to get members from
+	 * @param int|null $group_id The ID of the group to get members from
 	 * @param string $output_method The output method. If 'echo', returns a list of group members, otherwise returns an array of info about them.
 	 * @return ?array Displays a list of group members or returns an array of info about them, depending on output_method.
 	 */
@@ -9330,7 +9321,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Pulls info about members based on the specified parameters. Used by other
 	 * functions to eliminate duplication.
 	 *
-	 * @param string $query_where The info for the WHERE clause of the query
+	 * @param string|null $query_where The info for the WHERE clause of the query
 	 * @param array $query_where_params The parameters for the WHERE clause
 	 * @param string|int $query_limit The number of rows to return or an empty string to return all
 	 * @param string $query_order The info for the ORDER BY clause of the query
@@ -9500,9 +9491,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Shows today's calendar items (events, birthdays and holidays)
 	 *
 	 * @param string $output_method The output method. If 'echo', displays a list of calendar items, otherwise returns an array of info about them.
-	 * @return array|string|null Displays a list of calendar items or returns an array of info about them depending on output_method
+	 * @return array|null|string Displays a list of calendar items or returns an array of info about them depending on output_method
 	 */
-	function ssi_todaysCalendar(string $output_method = 'echo'): ?array
+	function ssi_todaysCalendar(string $output_method = 'echo'): array|null|string
 	{
 		return SMF\ServerSideIncludes::todaysCalendar($output_method);
 	}
@@ -9548,8 +9539,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Checks whether the specified password is correct for the specified user.
 	 *
-	 * @param int|string $id The ID or username of a user
-	 * @param string $password The password to check
+	 * @param int|null $id The ID of a user
+	 * @param string|null $password The password to check
 	 * @param bool $is_username If true, treats $id as a username rather than a user ID
 	 * @return bool Whether or not the password is correct.
 	 */
@@ -9591,7 +9582,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Calculate the next time the passed tasks should be triggered.
 	 *
 	 * @param string|array $tasks The ID of a single task or an array of tasks
-	 * @param bool $forceUpdate Whether to force the tasks to run now
+	 * @param bool $force_update Whether to force the tasks to run now
 	 */
 	function CalculateNextTrigger(string|array $tasks = [], bool $force_update = false): void
 	{
@@ -9631,7 +9622,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param string $template_name The name of the template to load
 	 * @param array|string $style_sheets The name of a single stylesheet or an array of names of stylesheets to load
 	 * @param bool $fatal If true, dies with an error message if the template cannot be found
-	 * @return bool Whether or not the template was loaded
+	 * @return bool|null Whether or not the template was loaded
 	 */
 	function loadTemplate(string $template_name, string|array $style_sheets = [], bool $fatal = true): ?bool
 	{
@@ -9971,7 +9962,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @deprecated since 2.1
 	 * @param bool $use_user_offset This parameter is deprecated and nonfunctional
-	 * @param int $timestamp A timestamp (null to use current time)
+	 * @param int|null $timestamp A timestamp (null to use current time)
 	 * @return int Seconds since the Unix epoch
 	 */
 	function forum_time(bool $use_user_offset = true, ?int $timestamp = null): int
@@ -9986,7 +9977,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Get a list of time zones.
 	 *
-	 * @param string $when The date/time for which to calculate the time zone values.
+	 * @param int|string $when The date/time for which to calculate the time zone values.
 	 *		May be a Unix timestamp or any string that strtotime() can understand.
 	 *		Defaults to 'now'.
 	 * @return array An array of time zone identifiers and label text.
@@ -10001,7 +9992,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * (e.g. "America/Denver") onto the user-friendly "meta-zone" labels that
 	 * most people think of as time zones (e.g. "Mountain Time").
 	 *
-	 * @param string $when The date/time used to determine fallback values.
+	 * @param int|string $when The date/time used to determine fallback values.
 	 *		May be a Unix timestamp or any string that strtotime() can understand.
 	 *		Defaults to 'now'.
 	 * @return array An array relating time zones to "meta-zones"
@@ -10016,7 +10007,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * to population and/or political significance.
 	 *
 	 * @param string $country_code The two-character ISO-3166 code for a country.
-	 * @param string $when The date/time used to determine fallback values.
+	 * @param int|string $when The date/time used to determine fallback values.
 	 *		May be a Unix timestamp or any string that strtotime() can understand.
 	 *		Defaults to 'now'.
 	 * @return array An array relating time zones to "meta-zones"
@@ -10043,7 +10034,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * the TZDB changelog at https://data.iana.org/time-zones/tzdb/NEWS
 	 *
 	 * @param array $tzids The time zone identifiers to check.
-	 * @param string $when The date/time used to determine substitute values.
+	 * @param int|string $when The date/time used to determine substitute values.
 	 *		May be a Unix timestamp or any string that strtotime() can understand.
 	 *		Defaults to 'now'.
 	 * @return array Substitute values for any missing time zone identifiers.
@@ -10328,7 +10319,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * Returns array with keys query_wanna_see_board and query_see_board
 	 *
-	 * @param int $userid of the user
+	 * @param int $id of the user
 	 */
 	function build_query_board(int $id): array
 	{
@@ -10378,7 +10369,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Gets a member's selected time zone identifier
 	 *
-	 * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
+	 * @param int|null $id_member The member id to look up. If not provided, the current user's id will be used.
 	 * @return string The time zone identifier string for the user's time zone.
 	 */
 	function getUserTimezone(?int $id_member = null): string
@@ -10437,7 +10428,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param int $current_id_member The ID of the current member (to avoid false positives with the current member)
 	 * @param bool $is_name Whether we're checking against reserved names or just usernames
 	 * @param bool $fatal Whether to die with a fatal error if the name is reserved
-	 * @return bool|void False if name is not reserved, otherwise true if $fatal is false or dies with a fatal_lang_error if $fatal is true
+	 * @return bool False if name is not reserved, otherwise true if $fatal is false or dies with a fatal_lang_error if $fatal is true
 	 */
 	function isReservedName(string $name, int $current_id_member = 0, bool $is_name = true, bool $fatal = true): bool
 	{
@@ -10486,7 +10477,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Takes possible moderators (on board 'board_id') into account.
 	 *
 	 * @param string $permission The permission to check
-	 * @param int $board_id If set, checks permission for that specific board
+	 * @param int|null $board_id If set, checks permission for that specific board
 	 * @return array An array containing the IDs of the members having that permission
 	 */
 	function membersAllowedTo(string $permission, ?int $board_id = null): array
@@ -10502,7 +10493,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * The function takes different permission settings into account.
 	 *
 	 * @param string $permission The permission to check
-	 * @param int $board_id = null If set, checks permissions for the specified board
+	 * @param int|null $board_id = null If set, checks permissions for the specified board
 	 * @return array An array containing two arrays - 'allowed', which has which groups are allowed to do it and 'denied' which has the groups that are denied
 	 */
 	function groupsAllowedTo(string $permission, ?int $board_id = null): array
@@ -10596,11 +10587,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Loads an array of users' data by ID or member_name.
 	 *
 	 * @param array|string $users An array of users by id or name or a single username/id
+	 * @param string|null $dataset What kind of data to load (normal, profile, minimal)
 	 * @param bool $is_name Whether $users contains names
-	 * @param string $set What kind of data to load (normal, profile, minimal)
 	 * @return array The ids of the members loaded
 	 */
-	function loadMemberData($users = [], int $type = SMF\User::LOAD_BY_ID, ?string $dataset = null): array
+	function loadMemberData(array|string $users = [], int $type = SMF\User::LOAD_BY_ID, ?string $dataset = null): array
 	{
 		$loaded = SMF\User::load($users, $type, $dataset);
 
@@ -10673,7 +10664,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Checks if the user is banned, and if so dies with an error.
 	 * Caches this information for optimization purposes.
 	 *
-	 * @param bool $forceCheck Whether to force a recheck
+	 * @param bool $force_check Whether to force a recheck
 	 */
 	function is_not_banned(bool $force_check = false): void
 	{
@@ -10699,7 +10690,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Increment the hit counters for the specified ban ID's (if any.)
 	 *
 	 * @param array $ban_ids The IDs of the bans
-	 * @param string $email The email address associated with the user that triggered this hit
+	 * @param string|null $email The email address associated with the user that triggered this hit
 	 */
 	function log_ban(array $ban_ids = [], ?string $email = null): void
 	{
@@ -10713,7 +10704,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Uses the adminLogin() function of Subs-Auth.php if they need to login, which saves all request (post and get) data.
 	 *
 	 * @param string $type What type of session this is
-	 * @param string $force When true, require a password even if we normally wouldn't
+	 * @param bool $force When true, require a password even if we normally wouldn't
 	 * @return ?string Returns 'session_verify_fail' if verification failed
 	 */
 	function validateSession(string $type = 'admin', bool $force = false): ?string
@@ -10747,7 +10738,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Always returns true if the user is an administrator.
 	 *
 	 * @param string|array $permission A single permission to check or an array of permissions to check
-	 * @param int|array $boards The ID of a board or an array of board IDs if we want to check board-level permissions
+	 * @param int|array|null $boards The ID of a board or an array of board IDs if we want to check board-level permissions
 	 * @param bool $any Whether to check for permission on at least one board instead of all boards
 	 * @return bool Whether the user has the specified permission
 	 */
@@ -10770,7 +10761,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * If they are a guest and cannot do it, this calls is_not_guest().
 	 *
 	 * @param string|array $permission A single permission to check or an array of permissions to check
-	 * @param int|array $boards The ID of a single board or an array of board IDs if we're checking board-level permissions (null otherwise)
+	 * @param int|array|null $boards The ID of a single board or an array of board IDs if we're checking board-level permissions (null otherwise)
 	 * @param bool $any Whether to check for permission on at least one board instead of all boards
 	 */
 	function isAllowedTo(string|array $permission, int|array|null $boards = null, bool $any = false): bool
@@ -10865,10 +10856,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * - calls itself recursively if necessary.
 	 *
 	 * @param array|string $var The string or array of strings to add entites to
+	 * @param string $encoding Character encoding
 	 * @param int $level Which level we're at within the array (if called recursively)
 	 * @return array|string The string or array of strings with entities added
 	 */
-	function htmlspecialchars__recursive(array|string $var, int $flags = ENT_COMPAT, $encoding = 'UTF-8'): array|string
+	function htmlspecialchars__recursive(array|string $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
 	{
 		return SMF\Utils::htmlspecialcharsRecursive($var, $flags, $encoding);
 	}
@@ -10895,7 +10887,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * - may call itself recursively if needed.
 	 *
 	 * @param array|string $var The string or array of strings to trim
-	 * @param int $level = 0 How deep we're at within the array (if called recursively)
+	 * @param int $level = 0 How we're at within the array (if called recursively)'
 	 * @return array|string The trimmed string or array of trimmed strings
 	 */
 	function htmltrim__recursive(array|string $var): array|string
@@ -10924,7 +10916,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Chops a string into words and prepares them to be inserted into (or searched from) the database.
 	 *
 	 * @param string $string The text to split into words
-	 * @param int $max_length The maximum number of characters per word
+	 * @param int|null $max_length The maximum number of characters per word
 	 * @param bool $encrypt Whether to encrypt the results
 	 * @return array An array of ints or words depending on $encrypt
 	 */
@@ -10965,8 +10957,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * matches.
 	 *
 	 * @param array $strings An array of strings to make a regex for.
-	 * @param string $delim An optional delimiter character to pass to preg_quote().
-	 * @param bool $returnArray If true, returns an array of regexes.
+	 * @param string|null $delim An optional delimiter character to pass to preg_quote().
+	 * @param bool $return_array If true, returns an array of regexes.
 	 * @return string|array One or more regular expressions to match any of the input strings.
 	 */
 	function build_regex(array $strings, ?string $delim = null, bool $return_array = false): string|array
@@ -11065,8 +11057,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Truncate an array to a specified length
 	 *
 	 * @param array $array The array to truncate
-	 * @param int $max_length The upperbound on the length
-	 * @param int $deep How levels in an multidimensional array should the function take into account.
+	 * @param int $max_length The upperbound on the length.
+	 * @param int $deep How many levels in a multidimensional array should the function take into account.
 	 * @return array The truncated array
 	 */
 	function truncate_array(array $array, int $max_length = 1900): array
@@ -11077,7 +11069,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * array_length Recursive
 	 * @param array $array
-	 * @param int $deep How many levels should the function
+	 * @param int $deep How many levels should the function go
 	 * @return int
 	 */
 	function array_length(array $array): int
@@ -11089,8 +11081,8 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Wrapper function for json_decode() with error handling.
 	 *
 	 * @param string $json The string to decode.
-	 * @param bool $returnAsArray To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
-	 * @param bool $logIt To specify if the error will be logged if theres any.
+	 * @param bool $associative To return the decoded string as an array or an object, SMF only uses Arrays but to keep on compatibility with json_decode its set to false as default.
+	 * @param bool $should_log To specify if the error will be logged if theres any.
 	 * @return array Either an empty array or the decoded data as an array.
 	 */
 	function smf_json_decode(string $json, bool $associative = false, bool $should_log = true): mixed
@@ -11124,7 +11116,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Attempts to determine the MIME type of some data or a file.
 	 *
 	 * @param string $data The data to check, or the path or URL of a file to check.
-	 * @param string $is_path If true, $data is a path or URL to a file.
+	 * @param bool $is_path If true, $data is a path or URL to a file.
 	 * @return string|bool A MIME type, or false if we cannot determine it.
 	 */
 	function get_mime_type(string $data, bool $is_path = false): string|bool
@@ -11137,7 +11129,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param string $data The data to check, or the path or URL of a file to check.
 	 * @param string $type_pattern A regex pattern to match the acceptable MIME types.
-	 * @param string $is_path If true, $data is a path or URL to a file.
+	 * @param bool $is_path If true, $data is a path or URL to a file.
 	 * @return int 1 if the detected MIME type matches the pattern, 0 if it doesn't, or 2 if we can't check.
 	 */
 	function check_mime_type(string $data, string $type_pattern, bool $is_path = false): int
@@ -11148,8 +11140,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Tries different modes to make file/dirs writable. Wrapper function for chmod()
 	 *
-	 * @param string $file The file/dir full path.
-	 * @param int $value Not needed, added for legacy reasons.
+	 * @param string $path The file/dir full path.
 	 * @return bool  true if the file/dir is already writable or the function was able to make it writable, false if the function couldn't make the file/dir writable.
 	 */
 	function smf_chmod(string $path): bool
@@ -11393,9 +11384,9 @@ if (!function_exists('smf_crc32')) {
 	 * https://php.net/crc32#79567
 	 *
 	 * @param string $number
-	 * @return string The crc32 polynomial of $number
+	 * @return int The crc32 polynomial of $number
 	 */
-	function smf_crc32($number)
+	function smf_crc32($number): int
 	{
 		$crc = crc32($number);
 

@@ -269,7 +269,7 @@ abstract class CacheApi
 	/**
 	 * Gets the latest version of SMF this is compatible with.
 	 *
-	 * @return string the value of $key.
+	 * @return string|bool the compatible version or false if it's not compatible.
 	 */
 	public function getCompatibleVersion(): string|bool
 	{
@@ -279,7 +279,7 @@ abstract class CacheApi
 	/**
 	 * Gets the min version that we support.
 	 *
-	 * @return string the value of $key.
+	 * @return string|int the minimum supported version.
 	 */
 	public function getMinimumVersion(): string|int
 	{
@@ -289,7 +289,7 @@ abstract class CacheApi
 	/**
 	 * Gets the Version of the Caching API.
 	 *
-	 * @return string the value of $key.
+	 * @return string|bool the version of the caching API
 	 */
 	public function getVersion(): string|bool
 	{

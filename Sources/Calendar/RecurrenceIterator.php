@@ -310,12 +310,12 @@ class RecurrenceIterator implements \Iterator
 	 *    it automatically based on the UNTIL value of the RRule. If this is
 	 *    null and the RRule's UNTIL value is null, default is TYPE_ABSOLUTE.
 	 *
-	 * @param ?array $rdates Arbitrary dates to add to the recurrence set.
+	 * @param array $rdates Arbitrary dates to add to the recurrence set.
 	 *    Elements must be arrays containing an instance of \DateTimeInterface
 	 *    and an optional \DateInterval.
 	 *    Used to make exceptions to the general recurrence rule.
 	 *
-	 * @param ?array $exdates Dates to exclude from the recurrence set.
+	 * @param array $exdates Dates to exclude from the recurrence set.
 	 *    Elements must be instances of \DateTimeInterface.
 	 *    Used to make exceptions to the general recurrence rule.
 	 */
@@ -1188,7 +1188,7 @@ class RecurrenceIterator implements \Iterator
 	 * recurs at minute 0 and minute 30 of every hour.
 	 *
 	 * @param \DateTime $current An occurrence of the event to expand.
-	 * @param string $break_after Name of a $this->by element. Used during
+	 * @param string|null $break_after Name of a $this->by element. Used during
 	 *    recursive calls to this method.
 	 * @return Generator<\DateTimeImmutable>
 	 */
@@ -1416,7 +1416,7 @@ class RecurrenceIterator implements \Iterator
 	 *
 	 * @param \DateTime $current An occurrence of the event to expand.
 	 * @param array $expansion_values Values from the byday rule.
-	 * @param string The abbreviated name of the $current occurrence's weekday.
+	 * @param string $current_value The abbreviated name of the $current occurrence's weekday.
 	 * @return Generator<\DateTimeImmutable>
 	 */
 	private function expandMonthByDay(\DateTime $current, array $expansion_values, string $current_value): \Generator
@@ -1563,7 +1563,7 @@ class RecurrenceIterator implements \Iterator
 	 *
 	 * @param \DateTime $current An occurrence of the event to expand.
 	 * @param array $expansion_values Values from the byday rule.
-	 * @param string The abbreviated name of the $current occurrence's weekday.
+	 * @param string $current_value The abbreviated name of the $current occurrence's weekday.
 	 * @return Generator<\DateTimeImmutable>
 	 */
 	private function expandYearByDay(\DateTime $current, array $expansion_values, string $current_value): \Generator

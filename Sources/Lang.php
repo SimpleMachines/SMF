@@ -562,10 +562,10 @@ class Lang
 	 * @param ?string $file Name of a language file to load. This is not needed
 	 *    when $var is 'helptxt', 'editortxt', 'tztxt', or 'txtBirthdayEmails'.
 	 *    Default: null.
-	 * @param ?string $lang A specific language to load $file from. If empty,
+	 * @param string $lang A specific language to load $file from. If empty,
 	 *    defaults to the current user's preferred language.
 	 * @throws \ValueError if $var is invalid.
-	 * @return string The string to display to the user.
+	 * @return bool Whether or not the specified language string exists
 	 */
 	public static function txtExists(string|array $txt_key, string $var = 'txt', ?string $file = null, string $lang = ''): bool
 	{
@@ -679,7 +679,7 @@ class Lang
 	 * @param ?string $file Name of a language file to load. This is not needed
 	 *    when $var is 'helptxt', 'editortxt', 'tztxt', or 'txtBirthdayEmails'.
 	 *    Default: null.
-	 * @param ?string $lang A specific language to load $file from. If empty,
+	 * @param string $lang A specific language to load $file from. If empty,
 	 *    defaults to the current user's preferred language.
 	 * @throws \ValueError if $var is invalid.
 	 * @return string|array The string to display to the user, or an array

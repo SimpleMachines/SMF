@@ -275,7 +275,7 @@ class Payment
 	/**
 	 * A private function to find out the subscription details.
 	 *
-	 * @return bool|void False on failure, otherwise just sets $_POST['item_number']
+	 * @return bool False on failure, otherwise just sets $_POST['item_number'] and returns true
 	 */
 	private function _findSubscription(): bool
 	{

@@ -724,7 +724,7 @@ class Utils
 	 *
 	 * @param string $string The input string.
 	 * @param int $offset Offset where substring will start.
-	 * @param int $length Maximum length, in characters, of the substring.
+	 * @param int|null $length Maximum length, in characters, of the substring.
 	 * @return string The substring.
 	 */
 	public static function entitySubstr(string $string, int $offset, ?int $length = null): string
@@ -1001,7 +1001,7 @@ class Utils
 	 * array in order to test all possible matches.
 	 *
 	 * @param array $strings An array of strings to make a regex for.
-	 * @param string $delim Optional delimiter character to pass to preg_quote().
+	 * @param string|null $delim Optional delimiter character to pass to preg_quote().
 	 * @param bool $return_array If true, returns an array of regexes.
 	 * @return string|array One or more regular expressions to match any of the
 	 *    input strings.
@@ -1830,7 +1830,7 @@ class Utils
 	 * Attempts to determine the MIME type of some data or a file.
 	 *
 	 * @param string $data The data to check, or the path or URL of a file to check.
-	 * @param string $is_path If true, $data is a path or URL to a file.
+	 * @param bool $is_path If true, $data is a path or URL to a file.
 	 * @return string|false A MIME type, or false if we cannot determine it.
 	 */
 	public static function getMimeType(string $data, bool $is_path = false): string|false
@@ -2178,7 +2178,7 @@ class Utils
 	 *
 	 * @param string $data The data to print
 	 * @param string $type The content type. Defaults to JSON.
-	 * @return bool|void If $data is empty, false is returned, otherwise the response is sent and execution stopped.
+	 * @return bool|null If $data is empty, false is returned, otherwise the response is sent and execution stopped.
 	 */
 	public static function serverResponse(string $data = '', string $type = 'Content-Type: application/json'): ?bool
 	{

@@ -1167,7 +1167,7 @@ class Themes implements ActionInterface
 			if (!isset($error_file)) {
 				$file_data = file($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
 			} else {
-				if (preg_match('~(<b>.+?</b>:.+?<b>).+?(</b>.+?<b>\d+</b>)<br( /)?' . '>$~i', $error, $match) != 0) {
+				if (preg_match('~(<b>.+?</b>:.+?<b>).+?(</b>.+?<b>\d+</b>)<br( /)?' . '>$~i', $error_file, $match) != 0) {
 					Utils::$context['parse_error'] = $match[1] . $_REQUEST['filename'] . $match[2];
 				}
 
@@ -1325,6 +1325,7 @@ class Themes implements ActionInterface
 
 				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo) {
 					if ($fileInfo->getExtension() == 'php'  && isset(Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()])) {
+						$entry = Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()];
 						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['already_exists'] = true;
 						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
 					}
@@ -1367,7 +1368,7 @@ class Themes implements ActionInterface
 	 * the new theme's name.
 	 * Ends execution with ErrorHandler::fatalLang() on any error.
 	 *
-	 * @return array The newly created theme's info.
+	 * @return array|null The newly created theme's info.
 	 */
 	protected function installFile(): ?array
 	{

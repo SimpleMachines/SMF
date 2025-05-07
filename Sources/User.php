@@ -1502,7 +1502,7 @@ class User implements \ArrayAccess
 	 * with a message telling them why. If $message is empty, a default message
 	 * will be used.
 	 *
-	 * @param string $message The message to display to the guest.
+	 * @param string|null $message The message to display to the guest.
 	 * @param bool $log Whether to log what they were trying to do.
 	 */
 	public function kickIfGuest(?string $message = null, bool $log = true): void
@@ -1847,7 +1847,7 @@ class User implements \ArrayAccess
 	 * Increments the hit counters for the specified ban ID's (if any).
 	 *
 	 * @param array $ban_ids The IDs of the bans.
-	 * @param string $email The email address associated with the user that
+	 * @param string|null $email The email address associated with the user that
 	 *    triggered this hit. If not set, uses the current user's email address.
 	 */
 	public function logBan(array $ban_ids = [], ?string $email = null): void
@@ -2429,7 +2429,7 @@ class User implements \ArrayAccess
 	 * @param mixed $users Users specified by ID, name, or email address.
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param string $dataset What kind of data to load: 'profile', 'normal',
+	 * @param string|null $dataset What kind of data to load: 'profile', 'normal',
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array Instances of this class for the loaded users.
 	 */
@@ -2469,7 +2469,7 @@ class User implements \ArrayAccess
 	 * Reloads an array of users, specified by ID number.
 	 *
 	 * @param int|array $users One or more users specified by ID.
-	 * @param string $dataset What kind of data to load: 'profile', 'normal',
+	 * @param string|null $dataset What kind of data to load: 'profile', 'normal',
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array The ids of the loaded members.
 	 */
@@ -2973,7 +2973,7 @@ class User implements \ArrayAccess
 	/**
 	 * Gets a member's selected time zone identifier
 	 *
-	 * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
+	 * @param int|null $id_member The member id to look up. If not provided, the current user's id will be used.
 	 * @return string The time zone identifier string for the user's time zone.
 	 */
 	public static function getTimezone(?int $id_member = null): string
@@ -3790,7 +3790,7 @@ class User implements \ArrayAccess
 	 * Pass in 0 as a special case to fetch moderators on all boards.
 	 *
 	 * @param string $permission The permission to check.
-	 * @param int $board_id If set, checks permission for that specific board.
+	 * @param int|null $board_id If set, checks permission for that specific board.
 	 * @return array IDs of the members who have that permission.
 	 */
 	public static function getAllowedTo(string $permission, ?int $board_id = null): array
@@ -3924,7 +3924,7 @@ class User implements \ArrayAccess
 	/**
 	 * Constructor. Protected in order to force instantiation via User::load().
 	 *
-	 * @param int $id The ID number of the user, or null for current user.
+	 * @param int|null $id The ID number of the user, or null for current user.
 	 * @param string|null $dataset What kind of data to load.
 	 *    Can be one of 'profile', 'normal', 'basic', or 'minimal'.
 	 *    If left null, the default depends on the value of $id:

@@ -268,9 +268,9 @@ class Feed implements ActionInterface, Routable
 	/**
 	 * Constructor.
 	 *
-	 * @param string $subaction Sets the sub-action to call.
+	 * @param null|string $subaction Sets the sub-action to call.
 	 *     If null, will try $_GET['sa'] and then the default sub-action.
-	 * @param int $member The member whose data is being requested.
+	 * @param null|int $member The member whose data is being requested.
 	 *     If null, will try $_GET['u'] and then User::$me->id.
 	 */
 	public function __construct(?string $subaction = null, ?int $member = null)
@@ -3053,7 +3053,7 @@ class Feed implements ActionInterface, Routable
 	/**
 	 * Sets the member property. This is the ID of the person viewing it or the person whose profile feed we're viewing
 	 *
-	 * @param ?int The member ID
+	 * @param null|int $member The member ID
 	 */
 	protected function setMember(?int $member = 0): void
 	{

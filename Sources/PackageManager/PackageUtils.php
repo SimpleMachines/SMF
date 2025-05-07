@@ -296,7 +296,7 @@ class PackageUtils
 	 * @param ?string $destination Null to display a listing of files in the archive, the destination for the files in the archive or the name of a single file to display (if $single_file is true)
 	 * @param bool $single_file If true, returns the contents of the file specified by destination or false if the file can't be found (default value is false).
 	 * @param bool $overwrite If true, will overwrite files with newer modification times. Default is false.
-	 * @param array $files_to_extract
+	 * @param null|array $files_to_extract
 	 * @return mixed If destination is null, return a short array of a few file details optionally delimited by $files_to_extract. If $single_file is true, return contents of a file as a string; false otherwise
 	 */
 	public static function readZipData(string $data, ?string $destination, bool $single_file = false, bool $overwrite = false, ?array $files_to_extract = null): mixed

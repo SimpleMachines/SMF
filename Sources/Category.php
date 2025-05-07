@@ -523,7 +523,7 @@ class Category implements \ArrayAccess
 	 * updates the statistics to reflect the new situation.
 	 *
 	 * @param array $categories The IDs of the categories to delete
-	 * @param int $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
+	 * @param null|int $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
 	 */
 	public static function delete(array $categories, ?int $moveBoardsTo = null): void
 	{

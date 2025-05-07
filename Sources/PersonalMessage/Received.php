@@ -181,8 +181,6 @@ class Received implements \ArrayAccess
 
 	/**
 	 * Applies a label to this PM.
-	 *
-	 * @return array The label IDs.
 	 */
 	public function addLabel(int $label_id): void
 	{
@@ -207,8 +205,6 @@ class Received implements \ArrayAccess
 
 	/**
 	 * Removes a label from this PM.
-	 *
-	 * @return array The label IDs.
 	 */
 	public function removeLabel(int $label_id): void
 	{

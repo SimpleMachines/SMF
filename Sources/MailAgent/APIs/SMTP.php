@@ -232,7 +232,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 *
 	 * @param ?string $message The message to send
 	 * @param ?string $code The expected response code
-	 * @param string $response The response from the SMTP server
+	 * @param string|null $response The response from the SMTP server
 	 * @return bool|string Whether it responded as such.
 	 */
 	private function serverParse(?string $message, ?string $code, ?string &$response = null): bool|string

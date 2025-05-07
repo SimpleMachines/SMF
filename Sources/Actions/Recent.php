@@ -90,7 +90,7 @@ class Recent implements ActionInterface, Routable
 	protected int $total_posts = 0;
 
 	/**
-	 * @var array
+	 * @var array|null
 	 *
 	 * IDs of some recent messages.
 	 */

@@ -108,7 +108,7 @@ class BBCodeParser extends Parser
 	private ?int $pos1 = null;
 
 	/**
-	 * @var int
+	 * @var int|null
 	 *
 	 * Previous value of $this->pos.
 	 */
@@ -384,7 +384,7 @@ class BBCodeParser extends Parser
 	/**
 	 * Parse bulletin board code in a string.
 	 *
-	 * @param string|bool $message The string to parse.
+	 * @param string $message The string to parse.
 	 * @param bool $smileys Whether to parse smileys. Default: true.
 	 * @param string|int $cache_id The cache ID.
 	 *    If $cache_id is left empty, an ID will be generated automatically.
@@ -1296,7 +1296,7 @@ class BBCodeParser extends Parser
 	/**
 	 * Replaces {txt_*} tokens with Lang::$txt strings.
 	 *
-	 * @param string $data A string that might contain {txt_*} tokens.
+	 * @param string $string A string that might contain {txt_*} tokens.
 	 * @return string The string with Lang::$txt string values.
 	 */
 	public static function insertTxt(string $string): string

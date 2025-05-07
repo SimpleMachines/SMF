@@ -168,7 +168,7 @@ class Profile extends User implements \ArrayAccess
 	public static int $memID;
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for the member whose profile is being viewed.
 	 */
@@ -1811,7 +1811,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
 	 *    If $users is not set, this will be ignored.
-	 * @param string $dataset Ignored.
+	 * @param string|null $dataset Ignored.
 	 * @return array The IDs of the loaded members.
 	 */
 	public static function load(mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
@@ -2992,7 +2992,7 @@ class Profile extends User implements \ArrayAccess
 	 * - mails the new password to the email address of the user.
 	 * - if username is not set, only a new password is generated and sent.
 	 *
-	 * @param string $username The new username. If set, also checks the validity of the username
+	 * @param string|null $username The new username. If set, also checks the validity of the username
 	 */
 	protected function resetPassword(?string $username = null): void
 	{
