@@ -30,64 +30,9 @@ use SMF\Db\DatabaseApi as Db;
  */
 class ServerSideIncludes
 {
-	/******************************
-	 * Properties for internal use.
-	 ******************************/
-
-	/**
-	 * @var int
-	 *
-	 * Remembers the error_reporting level prior to SSI starting, so that we can
-	 * restore it once we are done.
-	 */
-	protected $error_reporting;
-
-	/**
-	 * @var bool
-	 *
-	 * Whether SSI setup has been completed.
-	 */
-	protected static $setup_done = false;
-
-	/******************************************************************
-	 * Properties that allow external scripts to control SSI behaviour.
-	 ******************************************************************/
-
-	/**
-	 * @var array
-	 *
-	 * Names of various global variables that external scripts can declare in
-	 * order to influence the behaviour of SSI.
-	 */
-	protected $ssi_globals = [
-		'ssi_on_error_method',
-		'ssi_maintenance_off',
-		'ssi_theme',
-		'ssi_layers',
-		'ssi_gzip',
-		'ssi_ban',
-		'ssi_guest_access',
-	];
-
-	/**
-	 * @var bool|string
-	 *
-	 * Local copy of the global $ssi_on_error_method variable.
-	 *
-	 * Set this to one of three values depending on what you want to happen in
-	 * the case of a fatal error:
-	 *
-	 *  false:   Default. Will just load the error sub template and die without
-	 *           putting any theme layers around it.
-	 *
-	 *  true:    Will load the error sub template AND put the SMF layers around
-	 *           it. (Not useful if on total custom pages.)
-	 *
-	 *  string:  Name of a callback function to call in the event of an error to
-	 *           allow you to define your own methods. Will die after function
-	 *           returns.
-	 */
-	public static $on_error_method = false;
+	/*******************
+	 * Public properties
+	 *******************/
 
 	/**
 	 * @var bool
@@ -145,10 +90,271 @@ class ServerSideIncludes
 	 */
 	public $gzip;
 
-	/****************************************************************
-	 * Static methods that allow external scripts to access SMF data.
-	 * These are the interesting parts of this class.
-	 ****************************************************************/
+	/**************************
+	 * Public static properties
+	 **************************/
+
+	/**
+	 * @var bool|string
+	 *
+	 * Local copy of the global $ssi_on_error_method variable.
+	 *
+	 * Set this to one of three values depending on what you want to happen in
+	 * the case of a fatal error:
+	 *
+	 *  false:   Default. Will just load the error sub template and die without
+	 *           putting any theme layers around it.
+	 *
+	 *  true:    Will load the error sub template AND put the SMF layers around
+	 *           it. (Not useful if on total custom pages.)
+	 *
+	 *  string:  Name of a callback function to call in the event of an error to
+	 *           allow you to define your own methods. Will die after function
+	 *           returns.
+	 */
+	public static $on_error_method = false;
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var int
+	 *
+	 * Remembers the error_reporting level prior to SSI starting, so that we can
+	 * restore it once we are done.
+	 */
+	protected $error_reporting;
+
+	/**
+	 * @var array
+	 *
+	 * Names of various global variables that external scripts can declare in
+	 * order to influence the behaviour of SSI.
+	 */
+	protected $ssi_globals = [
+		'ssi_on_error_method',
+		'ssi_maintenance_off',
+		'ssi_theme',
+		'ssi_layers',
+		'ssi_gzip',
+		'ssi_ban',
+		'ssi_guest_access',
+	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var bool
+	 *
+	 * Whether SSI setup has been completed.
+	 */
+	protected static $setup_done = false;
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Constructor.
+	 *
+	 * Sets up stuff we need for safe use of SSI.
+	 */
+	public function __construct()
+	{
+		// SSI isn't meant to be used from within the forum,
+		// but apparently someone is doing so anyway...
+		if (defined('SMF') && SMF !== 'SSI') {
+			if (!self::$setup_done) {
+				IntegrationHook::call('integrate_SSI');
+			}
+
+			self::$setup_done = true;
+		}
+
+		// Don't do the setup steps more than once.
+		if (self::$setup_done) {
+			return;
+		}
+
+		foreach ($this->ssi_globals as $var) {
+			if (isset($GLOBALS[$var])) {
+				if ($var === 'ssi_on_error_method') {
+					self::$on_error_method = $GLOBALS[$var];
+				} else {
+					$this->{substr($var, 4)} = $GLOBALS[$var];
+				}
+			}
+		}
+
+		$this->error_reporting = error_reporting(!empty(Config::$db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
+
+		if (!isset($this->gzip)) {
+			$this->gzip = !empty(Config::$modSettings['enableCompressedOutput']);
+		}
+
+		// Don't do john didley if the forum's been shut down completely.
+		if (Config::$maintenance == 2 && $this->maintenance_off !== true) {
+			ErrorHandler::displayMaintenanceMessage();
+		}
+
+		// Initiate the database connection and define some database functions to use.
+		Db::load();
+
+		// Load installed 'Mods' settings.
+		Config::reloadModSettings();
+
+		// Clean the request variables.
+		QueryString::cleanRequest();
+
+		// Seed the random generator?
+		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69) {
+			// @TODO: Calls a deprecated function.
+			Config::generateSeed();
+		}
+
+		// Check on any hacking attempts.
+		if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
+			die('No direct access...');
+		}
+
+		if (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $this->theme) {
+			die('No direct access...');
+		}
+
+		if (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $this->theme) {
+			die('No direct access...');
+		}
+
+		if (isset($_REQUEST['ssi_layers'], $this->layers) && $_REQUEST['ssi_layers'] == $this->layers) {
+			die('No direct access...');
+		}
+
+		if (isset($_REQUEST['context'])) {
+			die('No direct access...');
+		}
+
+		// Gzip output? (because it must be boolean and true, this can't be hacked.)
+		if ($this->gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>=')) {
+			ob_start('ob_gzhandler');
+		} else {
+			Config::$modSettings['enableCompressedOutput'] = '0';
+		}
+
+		// Primarily, this is to fix the URLs...
+		ob_start('SMF\\QueryString::ob_sessrewrite');
+
+		// Start the session... known to scramble SSI includes in cases...
+		if (!headers_sent()) {
+			Session::load();
+		} else {
+			if (isset($_COOKIE[session_name()]) || isset($_REQUEST[session_name()])) {
+				// Make a stab at it, but ignore the E_WARNINGs generated because we can't send headers.
+				$temp = error_reporting(error_reporting() & !E_WARNING);
+				Session::load();
+				error_reporting($temp);
+			}
+
+			if (!isset($_SESSION['session_value'])) {
+				// Ensure session_var always starts with a letter.
+				$_SESSION['session_var'] = dechex(random_int(0xA000000000, 0xFFFFFFFFFF));
+				$_SESSION['session_value'] = bin2hex(random_bytes(16));
+			}
+			User::$sc = $_SESSION['session_value'];
+		}
+
+		// Get rid of Board::$board_id and Topic::$topic_id... do stuff loadBoard would do.
+		Board::$board_id = null;
+		Topic::$topic_id = null;
+		Utils::$context['linktree'] = [];
+
+		// Load the user and their cookie, as well as their settings.
+		User::load();
+
+		// No one is a moderator outside the forum.
+		User::$me->is_mod = false;
+
+		// Load the current user's permissions....
+		User::$me->loadPermissions();
+
+		// Load the current or SSI theme. (just use $this->theme = id_theme;)
+		Theme::load((int) $this->theme);
+
+		// @todo: probably not the best place, but somewhere it should be set...
+		if (!headers_sent()) {
+			header('content-type: text/html; charset=UTF-8');
+		}
+
+		// Take care of any banning that needs to be done.
+		if (isset($_REQUEST['ssi_ban']) || $this->ban === true) {
+			User::$me->kickIfBanned();
+		}
+
+		// Do we allow guests in here?
+		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && basename($_SERVER['PHP_SELF']) != 'SSI.php') {
+			User::$me->kickIfGuest();
+			Utils::obExit(null, true);
+		}
+
+		// Load the stuff like the menu bar, etc.
+		if (isset($this->layers)) {
+			Utils::$context['template_layers'] = $this->layers;
+			Theme::template_header();
+		} else {
+			Theme::setupContext();
+		}
+
+		// Make sure they didn't muss around with the settings... but only if it's not cli.
+		if (isset($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['is_cli']) && session_id() == '') {
+			trigger_error(Lang::getTxt('ssi_session_broken', file: 'General'), E_USER_NOTICE);
+		}
+
+		// Without visiting the forum this session variable might not be set on submit.
+		if (!isset($_SESSION['USER_AGENT']) && (!isset($_GET['ssi_function']) || $_GET['ssi_function'] !== 'pollVote')) {
+			$_SESSION['USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
+		}
+
+		// Have the ability to easily add functions to SSI.
+		IntegrationHook::call('integrate_SSI');
+
+		self::$setup_done = true;
+	}
+
+	/**
+	 * Allows accessing an SSI function via URL parameters.
+	 *
+	 * @return true
+	 */
+	public function execute(): bool
+	{
+		// Ignore a call to ssi_* functions if we are not accessing SSI.php directly.
+		if (basename($_SERVER['SCRIPT_FILENAME']) == 'SSI.php') {
+			// You shouldn't just access SSI.php directly by URL!!
+			if (!isset($_GET['ssi_function'])) {
+				die(Lang::getTxt('ssi_not_direct', ['path' => User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''], file: 'General'));
+			}
+
+			// Call a function passed by GET.
+			if (method_exists(__CLASS__, $_GET['ssi_function']) && (!empty(Config::$modSettings['allow_guestAccess']) || !User::$me->is_guest)) {
+				call_user_func([__CLASS__, $_GET['ssi_function']]);
+			}
+
+			exit;
+		}
+
+		// To avoid side effects later on.
+		unset($_GET['ssi_function']);
+
+		error_reporting($this->error_reporting);
+
+		return true;
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * This shuts down the SSI and shows the footer.
@@ -2635,203 +2841,5 @@ class ServerSideIncludes
 			</table>';
 
 		return null;
-	}
-
-	/******************
-	 * Primary methods.
-	 ******************/
-
-	/**
-	 * Constructor. Sets up stuff we need for safe use of SSI.
-	 *
-	 */
-	public function __construct()
-	{
-		// SSI isn't meant to be used from within the forum,
-		// but apparently someone is doing so anyway...
-		if (defined('SMF') && SMF !== 'SSI') {
-			if (!self::$setup_done) {
-				IntegrationHook::call('integrate_SSI');
-			}
-
-			self::$setup_done = true;
-		}
-
-		// Don't do the setup steps more than once.
-		if (self::$setup_done) {
-			return;
-		}
-
-		foreach ($this->ssi_globals as $var) {
-			if (isset($GLOBALS[$var])) {
-				if ($var === 'ssi_on_error_method') {
-					self::$on_error_method = $GLOBALS[$var];
-				} else {
-					$this->{substr($var, 4)} = $GLOBALS[$var];
-				}
-			}
-		}
-
-		$this->error_reporting = error_reporting(!empty(Config::$db_show_debug) ? E_ALL : E_ALL & ~E_DEPRECATED);
-
-		if (!isset($this->gzip)) {
-			$this->gzip = !empty(Config::$modSettings['enableCompressedOutput']);
-		}
-
-		// Don't do john didley if the forum's been shut down completely.
-		if (Config::$maintenance == 2 && $this->maintenance_off !== true) {
-			ErrorHandler::displayMaintenanceMessage();
-		}
-
-		// Initiate the database connection and define some database functions to use.
-		Db::load();
-
-		// Load installed 'Mods' settings.
-		Config::reloadModSettings();
-
-		// Clean the request variables.
-		QueryString::cleanRequest();
-
-		// Seed the random generator?
-		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69) {
-			// @TODO: Calls a deprecated function.
-			Config::generateSeed();
-		}
-
-		// Check on any hacking attempts.
-		if (isset($_REQUEST['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
-			die('No direct access...');
-		}
-
-		if (isset($_REQUEST['ssi_theme']) && (int) $_REQUEST['ssi_theme'] == (int) $this->theme) {
-			die('No direct access...');
-		}
-
-		if (isset($_COOKIE['ssi_theme']) && (int) $_COOKIE['ssi_theme'] == (int) $this->theme) {
-			die('No direct access...');
-		}
-
-		if (isset($_REQUEST['ssi_layers'], $this->layers) && $_REQUEST['ssi_layers'] == $this->layers) {
-			die('No direct access...');
-		}
-
-		if (isset($_REQUEST['context'])) {
-			die('No direct access...');
-		}
-
-		// Gzip output? (because it must be boolean and true, this can't be hacked.)
-		if ($this->gzip === true && ini_get('zlib.output_compression') != '1' && ini_get('output_handler') != 'ob_gzhandler' && version_compare(PHP_VERSION, '4.2.0', '>=')) {
-			ob_start('ob_gzhandler');
-		} else {
-			Config::$modSettings['enableCompressedOutput'] = '0';
-		}
-
-		// Primarily, this is to fix the URLs...
-		ob_start('SMF\\QueryString::ob_sessrewrite');
-
-		// Start the session... known to scramble SSI includes in cases...
-		if (!headers_sent()) {
-			Session::load();
-		} else {
-			if (isset($_COOKIE[session_name()]) || isset($_REQUEST[session_name()])) {
-				// Make a stab at it, but ignore the E_WARNINGs generated because we can't send headers.
-				$temp = error_reporting(error_reporting() & !E_WARNING);
-				Session::load();
-				error_reporting($temp);
-			}
-
-			if (!isset($_SESSION['session_value'])) {
-				// Ensure session_var always starts with a letter.
-				$_SESSION['session_var'] = dechex(random_int(0xA000000000, 0xFFFFFFFFFF));
-				$_SESSION['session_value'] = bin2hex(random_bytes(16));
-			}
-			User::$sc = $_SESSION['session_value'];
-		}
-
-		// Get rid of Board::$board_id and Topic::$topic_id... do stuff loadBoard would do.
-		Board::$board_id = null;
-		Topic::$topic_id = null;
-		Utils::$context['linktree'] = [];
-
-		// Load the user and their cookie, as well as their settings.
-		User::load();
-
-		// No one is a moderator outside the forum.
-		User::$me->is_mod = false;
-
-		// Load the current user's permissions....
-		User::$me->loadPermissions();
-
-		// Load the current or SSI theme. (just use $this->theme = id_theme;)
-		Theme::load((int) $this->theme);
-
-		// @todo: probably not the best place, but somewhere it should be set...
-		if (!headers_sent()) {
-			header('content-type: text/html; charset=UTF-8');
-		}
-
-		// Take care of any banning that needs to be done.
-		if (isset($_REQUEST['ssi_ban']) || $this->ban === true) {
-			User::$me->kickIfBanned();
-		}
-
-		// Do we allow guests in here?
-		if (empty($this->guest_access) && empty(Config::$modSettings['allow_guestAccess']) && User::$me->is_guest && basename($_SERVER['PHP_SELF']) != 'SSI.php') {
-			User::$me->kickIfGuest();
-			Utils::obExit(null, true);
-		}
-
-		// Load the stuff like the menu bar, etc.
-		if (isset($this->layers)) {
-			Utils::$context['template_layers'] = $this->layers;
-			Theme::template_header();
-		} else {
-			Theme::setupContext();
-		}
-
-		// Make sure they didn't muss around with the settings... but only if it's not cli.
-		if (isset($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['is_cli']) && session_id() == '') {
-			trigger_error(Lang::getTxt('ssi_session_broken', file: 'General'), E_USER_NOTICE);
-		}
-
-		// Without visiting the forum this session variable might not be set on submit.
-		if (!isset($_SESSION['USER_AGENT']) && (!isset($_GET['ssi_function']) || $_GET['ssi_function'] !== 'pollVote')) {
-			$_SESSION['USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
-		}
-
-		// Have the ability to easily add functions to SSI.
-		IntegrationHook::call('integrate_SSI');
-
-		self::$setup_done = true;
-	}
-
-	/**
-	 * Allows accessing an SSI function via URL parameters.
-	 *
-	 * @return true
-	 */
-	public function execute(): bool
-	{
-		// Ignore a call to ssi_* functions if we are not accessing SSI.php directly.
-		if (basename($_SERVER['SCRIPT_FILENAME']) == 'SSI.php') {
-			// You shouldn't just access SSI.php directly by URL!!
-			if (!isset($_GET['ssi_function'])) {
-				die(Lang::getTxt('ssi_not_direct', ['path' => User::$me->is_admin ? '\'' . addslashes(__FILE__) . '\'' : '\'SSI.php\''], file: 'General'));
-			}
-
-			// Call a function passed by GET.
-			if (method_exists(__CLASS__, $_GET['ssi_function']) && (!empty(Config::$modSettings['allow_guestAccess']) || !User::$me->is_guest)) {
-				call_user_func([__CLASS__, $_GET['ssi_function']]);
-			}
-
-			exit;
-		}
-
-		// To avoid side effects later on.
-		unset($_GET['ssi_function']);
-
-		error_reporting($this->error_reporting);
-
-		return true;
 	}
 }

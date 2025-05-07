@@ -379,7 +379,7 @@ class CreatePost_Notify extends BackgroundTask
 	 *
 	 * @param int $msg_id Message ID to update
 	 */
-	private function updateAlerts(int $msg_id): void
+	protected function updateAlerts(int $msg_id): void
 	{
 		// We send alerts only on the first iteration of this task.
 		if (!empty($this->_details['respawns'])) {

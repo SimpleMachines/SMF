@@ -29,20 +29,6 @@ abstract class DatabaseApi
 {
 	use BackwardCompatibility;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'count' => 'db_count',
-			'cache' => 'db_cache',
-			'package_log' => 'db_package_log',
-			'db_connection' => 'db_connection',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -220,9 +206,9 @@ abstract class DatabaseApi
 	 */
 	public static bool $unbuffered = false;
 
-	/**********************
-	 * Protected properties
-	 **********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array
@@ -302,6 +288,24 @@ abstract class DatabaseApi
 		'user_alerts_prefs',
 		'user_drafts',
 		'user_likes',
+	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'count' => 'db_count',
+			'cache' => 'db_cache',
+			'package_log' => 'db_package_log',
+			'db_connection' => 'db_connection',
+		],
 	];
 
 	/****************

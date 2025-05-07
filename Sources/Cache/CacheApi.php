@@ -24,24 +24,13 @@ abstract class CacheApi
 {
 	use BackwardCompatibility;
 
+	/*****************
+	 * Class constants
+	 *****************/
+
 	public const APIS_FOLDER = __DIR__ . '/APIs';
 	public const APIS_NAMESPACE = __NAMESPACE__ . '\\APIs\\';
 	public const APIS_DEFAULT = 'FileBased';
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'loadedApi' => 'cacheAPI',
-			'hits' => 'cache_hits',
-			'count_hits' => 'cache_count',
-			'misses' => 'cache_misses',
-			'count_misses' => 'cache_count_misses',
-		],
-	];
 
 	/**************************
 	 * Public static properties
@@ -110,9 +99,9 @@ abstract class CacheApi
 	 */
 	public static int $count_misses = 0;
 
-	/**********************
-	 * Protected properties
-	 **********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var string The maximum SMF version that this will work with.
@@ -133,6 +122,25 @@ abstract class CacheApi
 	 * @var int The default TTL.
 	 */
 	protected $ttl = 120;
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'loadedApi' => 'cacheAPI',
+			'hits' => 'cache_hits',
+			'count_hits' => 'cache_count',
+			'misses' => 'cache_misses',
+			'count_misses' => 'cache_count_misses',
+		],
+	];
 
 	/****************
 	 * Public methods

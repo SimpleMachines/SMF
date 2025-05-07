@@ -30,20 +30,8 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Category implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'loaded' => 'cat_tree',
-			'boardList' => 'boardList',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -202,6 +190,18 @@ class Category implements \ArrayAccess
 	 * Holds parsed versions of category descriptions.
 	 */
 	protected static array $parsed_descriptions = [];
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'loaded' => 'cat_tree',
+			'boardList' => 'boardList',
+		],
+	];
 
 	/****************
 	 * Public methods

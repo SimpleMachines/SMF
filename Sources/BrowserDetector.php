@@ -54,38 +54,6 @@ class BrowserDetector
 	 */
 	protected static $obj;
 
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Convenience method.
-	 */
-	public static function call()
-	{
-		if (!isset(self::$obj)) {
-			self::$obj = new self();
-		}
-
-		self::$obj->detectBrowser();
-	}
-
-	/**
-	 * Are we using this browser?
-	 *
-	 * @param string $browser The browser we are checking for.
-	 * @return bool Whether or not the current browser is what we're looking for.
-	 */
-	public static function isBrowser(string $browser): bool
-	{
-		// Don't know any browser!
-		if (!isset(self::$obj) || empty(self::$obj->_browsers)) {
-			self::call();
-		}
-
-		return !empty(self::$obj->_browsers[$browser]) || !empty(self::$obj->_browsers['is_' . $browser]);
-	}
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -316,6 +284,38 @@ class BrowserDetector
 		}
 
 		return $this->_browsers['is_opera_mini'];
+	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Convenience method.
+	 */
+	public static function call()
+	{
+		if (!isset(self::$obj)) {
+			self::$obj = new self();
+		}
+
+		self::$obj->detectBrowser();
+	}
+
+	/**
+	 * Are we using this browser?
+	 *
+	 * @param string $browser The browser we are checking for.
+	 * @return bool Whether or not the current browser is what we're looking for.
+	 */
+	public static function isBrowser(string $browser): bool
+	{
+		// Don't know any browser!
+		if (!isset(self::$obj) || empty(self::$obj->_browsers)) {
+			self::call();
+		}
+
+		return !empty(self::$obj->_browsers[$browser]) || !empty(self::$obj->_browsers['is_' . $browser]);
 	}
 
 	/******************

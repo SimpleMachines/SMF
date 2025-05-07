@@ -52,6 +52,29 @@ return (new PhpCsFixer\Config())
 		// Cast notation.
 		'cast_spaces' => ['space' => 'single'],
 
+		// Class notation.
+		'ordered_class_elements' => [
+			'order' => [
+				'use_trait',
+				'constant_public',
+				'constant_protected',
+				'constant_private',
+				'property_public',
+				'property_public_static',
+				'property_protected',
+				'property_private',
+				'property_protected_static',
+				'property_private_static',
+				'method_public',
+				'method_public_static',
+				'method_protected',
+				'method_private',
+				'method_protected_static',
+				'method_private_static'
+			],
+			'sort_algorithm' => 'none',
+		],
+
 		// Control structure.
 		'include' => true,
 		'no_superfluous_elseif' => true,

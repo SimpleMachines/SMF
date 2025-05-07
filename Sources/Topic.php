@@ -30,19 +30,8 @@ use SMF\Search\SearchApi;
  */
 class Topic implements \ArrayAccess, Routable
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'topic_id' => 'topic',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -372,6 +361,17 @@ class Topic implements \ArrayAccess, Routable
 		'can_remove_poll' => 'poll_remove',
 		'can_reply' => 'post_reply',
 		'can_reply_unapproved' => 'post_unapproved_replies',
+	];
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'topic_id' => 'topic',
+		],
 	];
 
 	/****************

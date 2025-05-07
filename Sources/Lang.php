@@ -25,22 +25,6 @@ class Lang
 {
 	use BackwardCompatibility;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'txt' => 'txt',
-			'tztxt' => 'tztxt',
-			'editortxt' => 'editortxt',
-			'helptxt' => 'helptxt',
-			'txtBirthdayEmails' => 'txtBirthdayEmails',
-			'forum_copyright' => 'forum_copyright',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -186,6 +170,22 @@ class Lang
 	/****************************
 	 * Internal static properties
 	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'txt' => 'txt',
+			'tztxt' => 'tztxt',
+			'editortxt' => 'editortxt',
+			'helptxt' => 'helptxt',
+			'txtBirthdayEmails' => 'txtBirthdayEmails',
+			'forum_copyright' => 'forum_copyright',
+		],
+	];
 
 	/**
 	 * @var array

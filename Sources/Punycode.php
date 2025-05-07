@@ -34,9 +34,12 @@ use function SMF\Unicode\idna_maps_not_std3;
  */
 class Punycode
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
 	 * Bootstring parameter values
-	 *
 	 */
 	public const BASE = 36;
 	public const TMIN = 1;
@@ -65,6 +68,36 @@ class Punycode
 	public const IDNA_ERROR_BIDI = 2048;
 	public const IDNA_ERROR_CONTEXTJ = 4096;
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * Character encoding
+	 *
+	 * @var string
+	 */
+	protected $encoding;
+
+	/**
+	 * Whether to use Non-Transitional Processing.
+	 * Setting this to true breaks backward compatibility with IDNA2003.
+	 *
+	 * @var bool
+	 */
+	protected $nonTransitional = false;
+
+	/**
+	 * Whether to use STD3 ASCII rules.
+	 *
+	 * @var bool
+	 */
+	protected $std3 = false;
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * Encode table
 	 *
@@ -90,27 +123,9 @@ class Punycode
 		'4' => 30, '5' => 31, '6' => 32, '7' => 33, '8' => 34, '9' => 35,
 	];
 
-	/**
-	 * Character encoding
-	 *
-	 * @var string
-	 */
-	protected $encoding;
-
-	/**
-	 * Whether to use Non-Transitional Processing.
-	 * Setting this to true breaks backward compatibility with IDNA2003.
-	 *
-	 * @var bool
-	 */
-	protected $nonTransitional = false;
-
-	/**
-	 * Whether to use STD3 ASCII rules.
-	 *
-	 * @var bool
-	 */
-	protected $std3 = false;
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor
@@ -210,6 +225,54 @@ class Punycode
 	}
 
 	/**
+	 * Decode a Punycode domain name to its Unicode counterpart
+	 *
+	 * @param string $input Domain name in Punycode
+	 * @return string|bool Unicode domain name
+	 */
+	public function decode(string $input): string|bool
+	{
+		$errors = [];
+		$preprocessed = $this->preprocess($input, $errors);
+
+		if (!empty($errors)) {
+			return false;
+		}
+
+		$parts = explode('.', $preprocessed);
+
+		foreach ($parts as $p => &$part) {
+			if (str_starts_with($part, static::PREFIX)) {
+				$part = substr($part, strlen(static::PREFIX));
+				$part = $this->decodePart($part);
+
+				if ($part === false) {
+					return false;
+				}
+			}
+
+			if ($this->validateLabel($part, false) !== 0) {
+				if ($part === '') {
+					$parts_count = count($parts);
+
+					if ($parts_count === 1 || $p !== $parts_count - 1) {
+						return false;
+					}
+				} else {
+					return false;
+				}
+			}
+		}
+		$output = implode('.', $parts);
+
+		return $output;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
 	 * Encode a part of a domain name, such as tld, to its Punycode version
 	 *
 	 * @param string $input Part of a domain name
@@ -283,50 +346,6 @@ class Punycode
 		$out = static::PREFIX . $output;
 
 		return $out;
-	}
-
-	/**
-	 * Decode a Punycode domain name to its Unicode counterpart
-	 *
-	 * @param string $input Domain name in Punycode
-	 * @return string|bool Unicode domain name
-	 */
-	public function decode(string $input): string|bool
-	{
-		$errors = [];
-		$preprocessed = $this->preprocess($input, $errors);
-
-		if (!empty($errors)) {
-			return false;
-		}
-
-		$parts = explode('.', $preprocessed);
-
-		foreach ($parts as $p => &$part) {
-			if (str_starts_with($part, static::PREFIX)) {
-				$part = substr($part, strlen(static::PREFIX));
-				$part = $this->decodePart($part);
-
-				if ($part === false) {
-					return false;
-				}
-			}
-
-			if ($this->validateLabel($part, false) !== 0) {
-				if ($part === '') {
-					$parts_count = count($parts);
-
-					if ($parts_count === 1 || $p !== $parts_count - 1) {
-						return false;
-					}
-				} else {
-					return false;
-				}
-			}
-		}
-		$output = implode('.', $parts);
-
-		return $output;
 	}
 
 	/**
