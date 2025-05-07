@@ -1691,7 +1691,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 			$set->save();
 		}
 
-		return true;
+		return null;
 	}
 
 	/**
@@ -4040,10 +4040,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *******************************/
 
 	/**
-	 * This keeps track of all registered handling functions for auto suggest functionality and passes execution to them.
+	 * This keeps track of all registered handling functions for auto suggest
+	 * functionality and passes execution to them.
 	 *
-	 * @param bool $checkRegistered If set to something other than null, checks whether the callback function is registered
-	 * @return ?bool Returns whether the callback function is registered if $checkRegistereds isn't null
+	 * @param bool $suggest_type If set to something other than null, checks
+	 *    whether the callback function is registered.
+	 * @return ?bool Returns whether the callback function is registered if
+	 *    $suggest_type isn't null.
 	 */
 	function AutoSuggestHandler(?string $suggest_type = null): ?bool
 	{
@@ -4056,22 +4059,30 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 
 	/**
 	 * Search for a member - by real_name or member_name by default.
+	 *
+	 * @return array An array of information for displaying the suggestions
 	 */
-	function AutoSuggest_Search_Member(): void
+	function AutoSuggest_Search_Member(): array
 	{
 		$obj = SMF\Actions\AutoSuggest::load();
 		$obj->suggest_type = 'member';
 		$obj->execute();
+
+		return Utils::$context['xml_data'];
 	}
 
 	/**
 	 * Search for a membergroup by name
+	 *
+	 * @return array An array of information for displaying the suggestions
 	 */
-	function AutoSuggest_Search_MemberGroups(): void
+	function AutoSuggest_Search_MemberGroups(): array
 	{
 		$obj = SMF\Actions\AutoSuggest::load();
 		$obj->suggest_type = 'membergroups';
 		$obj->execute();
+
+		return Utils::$context['xml_data'];
 	}
 
 	/**
@@ -4079,11 +4090,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @return array An array of data for displaying the suggestionss
 	 */
-	function AutoSuggest_Search_SMFVersions(): void
+	function AutoSuggest_Search_SMFVersions(): array
 	{
 		$obj = SMF\Actions\AutoSuggest::load();
 		$obj->suggest_type = 'versions';
 		$obj->execute();
+
+		return Utils::$context['xml_data'];
 	}
 
 	/******************************
@@ -5987,7 +6000,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param string $key The key for the value to retrieve
 	 * @param int $ttl The maximum age of the cached data
-	 * @return array|null The cached data or null if nothing was loaded
+	 * @return mixed The cached data or null if nothing was loaded
 	 */
 	function cache_get_data(string $key, int $ttl = 120): mixed
 	{
@@ -6082,7 +6095,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param bool $rebuild If true, attempts to rebuild with standard format. Default false.
 	 * @return bool True on success, false on failure.
 	 */
-	function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false)
+	function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false): bool
 	{
 		return SMF\Config::updateSettingsFile($config_vars, $keep_quotes, $rebuild);
 	}
@@ -6097,7 +6110,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param bool $append If true, the data will be appended instead of overwriting the existing content of the file. Default false.
 	 * @return bool Whether the write operation succeeded or not.
 	 */
-	function safe_file_write(string $file, string $data, ?string $backup_file = null, ?int $mtime = null, bool $append = false)
+	function safe_file_write(string $file, string $data, ?string $backup_file = null, ?int $mtime = null, bool $append = false): bool
 	{
 		return SMF\Config::safeFileWrite($file, $data, $backup_file, $mtime, $append);
 	}
@@ -6110,7 +6123,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param mixed $var The variable to export
 	 * @return string A PHP-parseable representation of the variable's value
 	 */
-	function smf_var_export(mixed $var)
+	function smf_var_export(mixed $var): string
 	{
 		return SMF\Config::varExport($var);
 	}
@@ -6132,9 +6145,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Generate a random seed and ensure it's stored in settings.
 	 */
-	function smf_seed_generator()
+	function smf_seed_generator(): void
 	{
-		return SMF\Config::generateSeed();
+		SMF\Config::generateSeed();
 	}
 
 	/**
@@ -6144,9 +6157,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * not running things at least once per day, we need to go back to SMF's default
 	 * behaviour using "web cron" JavaScript calls.
 	 */
-	function check_cron()
+	function check_cron(): void
 	{
-		return SMF\Config::checkCron();
+		SMF\Config::checkCron();
 	}
 
 	/**************************
@@ -6365,7 +6378,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 		bool $single_file = false,
 		bool $overwrite = false,
 		?array $files_to_extract = null,
-	): array|bool {
+	): array|false {
 		return SMF\PackageManager\PackageUtils::readTgzFile(
 			$gzfilename,
 			isset($destination) ? (string) $destination : null,
@@ -8816,11 +8829,27 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Delete a menu.
 	 *
 	 * @param int|string $id The ID of the menu to destroy or 'last' for the most recent one
-	 * @return bool|void False if the menu doesn't exist, nothing otherwise
+	 * @return ?bool False if the menu doesn't exist, otherwise null.
 	 */
-	function destroyMenu(int|string $id = 'last'): void
+	function destroyMenu(int|string $id = 'last'): ?bool
 	{
-		SMF\Menu::destroy($id);
+		if (empty(SMF\Menu::$loaded)) {
+			return false;
+		}
+
+		foreach (SMF\Menu::$loaded as $action => $menu) {
+			if ($menu->id == $id) {
+				$to_delete = $action;
+			}
+		}
+
+		if (empty($to_delete)) {
+			return false;
+		}
+
+		SMF\Menu::destroy($to_delete);
+
+		return null;
 	}
 
 	/***************
