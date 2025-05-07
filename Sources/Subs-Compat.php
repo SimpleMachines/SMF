@@ -2816,8 +2816,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member
 	 */
-	function account(): void
+	function account(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\Account::call();
 	}
 
@@ -2830,8 +2835,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member whose account we're activating
 	 */
-	function activateAccount(): void
+	function activateAccount(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\Activate::call();
 	}
 
@@ -2844,8 +2854,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member'
 	 */
-	function alerts_popup(): void
+	function alerts_popup(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\AlertsPopup::call();
 	}
 
@@ -2858,8 +2873,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member
 	 */
-	function editBuddyIgnoreLists(): void
+	function editBuddyIgnoreLists(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\BuddyIgnoreLists::call();
 	}
 
@@ -2870,7 +2890,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function editBuddies(int $memID): void
 	{
-		SMF\Profile::load($memID);
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\BuddyIgnoreLists::subActionProvider(sa: 'buddies');
 	}
 
@@ -2881,7 +2905,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function editIgnoreList(int $memID): void
 	{
-		SMF\Profile::load($memID);
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\BuddyIgnoreLists::subActionProvider(sa: 'ignore');
 	}
 
@@ -2894,8 +2922,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The member ID
 	 */
-	function deleteAccount(): void
+	function deleteAccount(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\Delete::call();
 	}
 
@@ -2906,15 +2939,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function deleteAccount2(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
 		SMF\Actions\Profile\Delete::load();
 
 		$saving = SMF\Utils::$context['completed_save'];
 		SMF\Utils::$context['completed_save'] = true;
-
-		$_REQUEST['u'] = $u;
 
 		SMF\Actions\Profile\Delete::$obj->execute();
 
@@ -2930,10 +2963,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @todo Add CSV, JSON as other possible export formats besides XML and HTML?
 	 *
-	 * @param int $uid The ID of the member whose data we're exporting.
+	 * @param int $memID The ID of the member whose data we're exporting.
 	 */
-	function export_profile_data(): void
+	function export_profile_data(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\Export::call();
 	}
 
@@ -2969,10 +3007,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Allows a member to export their attachments.
 	 * Mostly just a wrapper for showAttachment() but with a few tweaks.
 	 *
-	 * @param int $uid The ID of the member whose data we're exporting.
+	 * @param int $memID The ID of the member whose data we're exporting.
 	 */
-	function export_attachment(): void
+	function export_attachment(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\ExportAttachment::call();
 	}
 
@@ -2983,10 +3026,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Downloads exported profile data file.
 	 *
-	 * @param int $uid The ID of the member whose data we're exporting.
+	 * @param int $memID The ID of the member whose data we're exporting.
 	 */
-	function download_export_file(): void
+	function download_export_file(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\ExportDownload::call();
 	}
 
@@ -2999,8 +3047,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member
 	 */
-	function forumProfile(): void
+	function forumProfile(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\ForumProfile::call();
 	}
 
@@ -3013,8 +3066,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member
 	 */
-	function groupMembership(): void
+	function groupMembership(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\GroupMembership::call();
 	}
 
@@ -3030,15 +3088,15 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function groupMembership2(array $profile_vars, array $post_errors, int $memID): string
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
 		SMF\Actions\Profile\GroupMembership::load();
 
 		$saving = SMF\Utils::$context['completed_save'];
 		SMF\Utils::$context['completed_save'] = true;
-
-		$_REQUEST['u'] = $u;
 
 		SMF\Actions\Profile\GroupMembership::$obj->execute();
 
@@ -3058,7 +3116,11 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function ignoreboards(int $memID): void
 	{
-		SMF\Profile::load($memID);
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\IgnoreBoards::call();
 	}
 
@@ -3073,14 +3135,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function issueWarning(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\IssueWarning::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\IssueWarning::$obj->execute();
+		SMF\Actions\Profile\IssueWarning::call();
 	}
 
 	/********************************
@@ -3108,8 +3168,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member
 	 */
-	function notification(): void
+	function notification(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\Notification::call();
 	}
 
@@ -3121,10 +3186,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function alert_configuration(int $memID, bool $defaultSettings = false): void
 	{
-		SMF\Actions\Profile\Notification::load();
-		SMF\Profile::load($memID);
-		SMF\Actions\Profile\Notification::$obj->subaction = 'alerts';
-		SMF\Actions\Profile\Notification::$obj->execute();
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
+		SMF\Actions\Profile\Notification::subActionProvider(sa: 'alerts');
 	}
 
 	/**
@@ -3134,10 +3201,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function alert_markread(int $memID): void
 	{
-		SMF\Actions\Profile\Notification::load();
-		SMF\Profile::load($memID);
-		SMF\Actions\Profile\Notification::$obj->subaction = 'markread';
-		SMF\Actions\Profile\Notification::$obj->execute();
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
+		SMF\Actions\Profile\Notification::subActionProvider(sa: 'markread');
 	}
 
 	/**
@@ -3147,10 +3216,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function alert_notifications_topics(int $memID): void
 	{
-		SMF\Actions\Profile\Notification::load();
-		SMF\Profile::load($memID);
-		SMF\Actions\Profile\Notification::$obj->subaction = 'topics';
-		SMF\Actions\Profile\Notification::$obj->execute();
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
+		SMF\Actions\Profile\Notification::subActionProvider(sa: 'topics');
 	}
 
 	/**
@@ -3160,10 +3231,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function alert_notifications_boards(int $memID): void
 	{
-		SMF\Actions\Profile\Notification::load();
-		SMF\Profile::load($memID);
-		SMF\Actions\Profile\Notification::$obj->subaction = 'boards';
-		SMF\Actions\Profile\Notification::$obj->execute();
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
+		SMF\Actions\Profile\Notification::subActionProvider(sa: 'boards');
 	}
 
 	/**
@@ -3173,8 +3246,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function makeNotificationChanges(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\Notification::load();
-		SMF\Profile::load($memID);
 		SMF\Actions\Profile\Notification::$obj->changeNotifications();
 	}
 
@@ -3187,8 +3264,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member whose subscription we're viewing
 	 */
-	function subscriptions(): void
+	function subscriptions(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\PaidSubs::call();
 	}
 
@@ -3201,8 +3283,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member
 	 */
-	function profile_popup(): void
+	function profile_popup(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\Popup::call();
 	}
 
@@ -3217,14 +3304,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showAlerts(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\ShowAlerts::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\ShowAlerts::$obj->execute();
+		SMF\Actions\Profile\ShowAlerts::call();
 	}
 
 	/*******************************************
@@ -3238,14 +3323,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showPermissions(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\ShowPermissions::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\ShowPermissions::$obj->execute();
+		SMF\Actions\Profile\ShowPermissions::call();
 	}
 
 	/************************************
@@ -3261,14 +3344,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showPosts(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\ShowPosts::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\ShowPosts::$obj->execute();
+		SMF\Actions\Profile\ShowPosts::call();
 	}
 
 	/**
@@ -3278,15 +3359,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showUnwatched(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\ShowPosts::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\ShowPosts::$obj->subaction = 'unwatchedtopics';
-		SMF\Actions\Profile\ShowPosts::$obj->execute();
+		SMF\Actions\Profile\ShowPosts::subActionProvider(sa: 'unwatchedtopics');
 	}
 
 	/**
@@ -3296,15 +3374,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function showAttachments(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\ShowPosts::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\ShowPosts::$obj->subaction = 'attach';
-		SMF\Actions\Profile\ShowPosts::$obj->execute();
+		SMF\Actions\Profile\ShowPosts::subActionProvider(sa: 'attach');
 	}
 
 	/*************************************
@@ -3318,14 +3393,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function statPanel(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\StatPanel::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\StatPanel::$obj->execute();
+		SMF\Actions\Profile\StatPanel::call();
 	}
 
 	/***********************************
@@ -3339,14 +3412,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function summary(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\Summary::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\Summary::$obj->execute();
+		SMF\Actions\Profile\Summary::call();
 	}
 
 	/**************************************
@@ -3358,8 +3429,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member
 	 */
-	function tfadisable(): void
+	function tfadisable(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\TFADisable::call();
 	}
 
@@ -3384,8 +3460,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 *
 	 * @param int $memID The ID of the member
 	 */
-	function theme(): void
+	function theme(int $memID): void
 	{
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
 		SMF\Actions\Profile\ThemeOptions::call();
 	}
 
@@ -3408,15 +3489,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function trackActivity(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\Tracking::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\Tracking::$obj->subaction = 'activity';
-		SMF\Actions\Profile\Tracking::$obj->execute();
+		SMF\Actions\Profile\Tracking::subActionProvider(sa: 'activity');
 	}
 
 	/**
@@ -3426,15 +3504,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function trackEdits(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\Tracking::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\Tracking::$obj->subaction = 'edits';
-		SMF\Actions\Profile\Tracking::$obj->execute();
+		SMF\Actions\Profile\Tracking::subActionProvider(sa: 'edits');
 	}
 
 	/**
@@ -3444,15 +3519,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function trackGroupReq(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\Tracking::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\Tracking::$obj->subaction = 'groupreq';
-		SMF\Actions\Profile\Tracking::$obj->execute();
+		SMF\Actions\Profile\Tracking::subActionProvider(sa: 'groupreq');
 	}
 
 	/**
@@ -3462,15 +3534,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function TrackLogins(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\Tracking::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\Tracking::$obj->subaction = 'logins';
-		SMF\Actions\Profile\Tracking::$obj->execute();
+		SMF\Actions\Profile\Tracking::subActionProvider(sa: 'logins');
 	}
 
 	/***************************************
@@ -3484,14 +3553,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function viewWarning(int $memID): void
 	{
-		$u = $_REQUEST['u'] ?? null;
-		$_REQUEST['u'] = $memID;
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
 
-		SMF\Actions\Profile\ViewWarning::load();
-
-		$_REQUEST['u'] = $u;
-
-		SMF\Actions\Profile\ViewWarning::$obj->execute();
+		SMF\Actions\Profile\ViewWarning::call();
 	}
 
 	/*****************************
@@ -5274,9 +5341,16 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 */
 	function TrackIP(int $memID = 0): void
 	{
-		SMF\Actions\TrackIP::load();
-		SMF\Actions\TrackIP::$obj->memID = $memID;
-		SMF\Actions\TrackIP::$obj->execute();
+		if ($memID === 0) {
+			$memID = User::$me->id;
+		}
+
+		if ((SMF\Profile::$member->id ?? NAN) !== $memID) {
+			unset(SMF\Profile::$member);
+			SMF\Profile::load($memID);
+		}
+
+		SMF\Actions\TrackIP::call();
 	}
 
 	/**************************
