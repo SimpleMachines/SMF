@@ -4761,9 +4761,9 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param bool $internal If true, it doesn't check the session
 	 * @param bool $redirect Whether or not to redirect the user after they log out
 	 */
-	function Logout(): void
+	function Logout(bool $internal = false, bool $redirect = true): void
 	{
-		SMF\Actions\Logout::call();
+		SMF\Actions\Logout::call($internal, $redirect);
 	}
 
 	/****************************
@@ -7847,11 +7847,22 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Used by getBoardTree
 	 *
 	 * @param array &$list The board list
-	 * @param array &$tree The board tree
+	 * @param SMF\Category|SMF\Board|array &$tree The board tree
 	 */
-	function recursiveBoards(&$list, &$tree): void
+	function recursiveBoards(array &$list, SMF\Category|SMF\Board|array &$tree): void
 	{
-		SMF\Category::recursiveBoards($list, $tree);
+		// Ensure we have all the data we need.
+		SMF\Category::getTree();
+
+		if ($tree instanceof SMF\Category) {
+			$list = SMF\Category::$boardList[$tree->id];
+		} elseif ($tree instanceof SMF\Board) {
+			SMF\Category::recursiveBoards($list, $tree);
+		} elseif (isset($tree['node']['id'])) {
+			$list = SMF\Category::$boardList[(int) $tree['node']['id']];
+		} elseif (isset($tree['category'])) {
+			SMF\Category::recursiveBoards($list, SMF\Board::load((int) $tree['id']));
+		}
 	}
 
 	/******************
@@ -11116,13 +11127,13 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * Loads an array of users' data by ID or member_name.
 	 *
 	 * @param array|string $users An array of users by id or name or a single username/id
-	 * @param string|null $dataset What kind of data to load (normal, profile, minimal)
 	 * @param bool $is_name Whether $users contains names
+	 * @param ?string $dataset What kind of data to load (normal, profile, minimal)
 	 * @return array The ids of the members loaded
 	 */
-	function loadMemberData(array|string $users = [], int $type = SMF\User::LOAD_BY_ID, ?string $dataset = null): array
+	function loadMemberData(array|string $users, bool $is_name = false, ?string $dataset = null)
 	{
-		$loaded = SMF\User::load($users, $type, $dataset);
+		$loaded = SMF\User::load($users, $is_name ? SMF\User::LOAD_BY_NAME : SMF\User::LOAD_BY_ID, $dataset);
 
 		return array_map(fn($user) => $user->id, $loaded);
 	}
@@ -11385,13 +11396,12 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * - calls itself recursively if necessary.
 	 *
 	 * @param array|string $var The string or array of strings to add entites to
-	 * @param string $encoding Character encoding
-	 * @param int $level Which level we're at within the array (if called recursively)
+	 * @param int $level Which level we're at within the array (ignored in SMF 3.0+)
 	 * @return array|string The string or array of strings with entities added
 	 */
-	function htmlspecialchars__recursive(array|string $var, int $flags = ENT_COMPAT, string $encoding = 'UTF-8'): array|string
+	function htmlspecialchars__recursive(array|string $var, int $level = 0): array|string
 	{
-		return SMF\Utils::htmlspecialcharsRecursive($var, $flags, $encoding);
+		return SMF\Utils::htmlspecialcharsRecursive($var);
 	}
 
 	/**
@@ -11416,10 +11426,10 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * - may call itself recursively if needed.
 	 *
 	 * @param array|string $var The string or array of strings to trim
-	 * @param int $level = 0 How we're at within the array (if called recursively)'
+	 * @param int $level Which level we're at within the array (ignored in SMF 3.0+)
 	 * @return array|string The trimmed string or array of trimmed strings
 	 */
-	function htmltrim__recursive(array|string $var): array|string
+	function htmltrim__recursive(array|string $var, int $level = 0): array|string
 	{
 		return SMF\Utils::htmlTrimRecursive($var);
 	}
@@ -11585,23 +11595,24 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	/**
 	 * Truncate an array to a specified length
 	 *
-	 * @param array $array The array to truncate
-	 * @param int $max_length The upperbound on the length.
-	 * @param int $deep How many levels in a multidimensional array should the function take into account.
-	 * @return array The truncated array
+	 * @param array $array The array to truncate.
+	 * @param int $max_length The upper bound on the length.
+	 * @param int $deep (Ignored in SMF 3.0+)
+	 * @return array The truncated array.
 	 */
-	function truncate_array(array $array, int $max_length = 1900): array
+	function truncate_array(array $array, int $max_length = 1900, int $deep = 3): array
 	{
 		return SMF\Utils::truncateArray($array, $max_length);
 	}
 
 	/**
-	 * array_length Recursive
-	 * @param array $array
-	 * @param int $deep How many levels should the function go
-	 * @return int
+	 * Gets the total byte length of all leaf nodes in an array.
+	 *
+	 * @param array $array The array.
+	 * @param int $deep (Ignored in SMF 3.0+)
+	 * @return int Total byte length of all leaf nodes in an array.
 	 */
-	function array_length(array $array): int
+	function array_length(array $array, int $deep = 3): int
 	{
 		return SMF\Utils::arrayLength($array);
 	}
