@@ -680,7 +680,7 @@ class XmlArray
 	 * @param null|array|string $array An array of data
 	 * @return string The text from the array
 	 */
-	protected function _fetch(null|array|string $array): string
+	protected function _fetch(array|string|null $array): string
 	{
 		// Don't return anything if this is just a string.
 		if (is_string($array)) {

@@ -74,6 +74,10 @@ return (new PhpCsFixer\Config())
 			],
 			'sort_algorithm' => 'none',
 		],
+		'ordered_types' => [
+			'null_adjustment' => 'always_last',
+			'sort_algorithm' => 'none',
+		],
 
 		// Control structure.
 		'include' => true,

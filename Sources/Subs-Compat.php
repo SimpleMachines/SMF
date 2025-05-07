@@ -10033,7 +10033,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param string $output_method The output method. If 'echo', displays a list of calendar items, otherwise returns an array of info about them.
 	 * @return array|null|string Displays a list of calendar items or returns an array of info about them depending on output_method
 	 */
-	function ssi_todaysCalendar(string $output_method = 'echo'): array|null|string
+	function ssi_todaysCalendar(string $output_method = 'echo'): array|string|null
 	{
 		return SMF\ServerSideIncludes::todaysCalendar($output_method);
 	}
@@ -10719,7 +10719,7 @@ if (!empty(SMF\Config::$backward_compatibility)) {
 	 * @param int $component Optional flag for parse_url's second parameter.
 	 * @return string|int|array|null|bool Same as parse_url(), but with unmangled Unicode.
 	 */
-	function parse_iri(string $iri, int $component = -1): string|int|array|null|bool
+	function parse_iri(string $iri, int $component = -1): string|int|array|bool|null
 	{
 		return SMF\Url::create($iri)->parse($component);
 	}
