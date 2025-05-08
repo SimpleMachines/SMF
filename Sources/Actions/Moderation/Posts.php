@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Moderation;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
 use SMF\Attachment;
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
