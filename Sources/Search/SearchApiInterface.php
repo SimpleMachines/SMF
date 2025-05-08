@@ -22,6 +22,10 @@ use SMF\Msg;
  */
 interface SearchApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Check whether the specific search operation can be performed by this API.
 	 * The operations are the functions listed in the interface, if not supported

@@ -28,21 +28,8 @@ use SMF\Graphics\Image;
  */
 class Profile extends User implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'profile_fields' => 'profile_fields',
-			'profile_vars' => 'profile_vars',
-			'cur_profile' => 'cur_profile',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -261,6 +248,23 @@ class Profile extends User implements \ArrayAccess
 	 * in some places to be able to distinguish these from the others.
 	 */
 	protected array $cf_save_errors = [];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'profile_fields' => 'profile_fields',
+			'profile_vars' => 'profile_vars',
+			'cur_profile' => 'cur_profile',
+		],
+	];
 
 	/****************
 	 * Public methods

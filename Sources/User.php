@@ -71,23 +71,8 @@ use SMF\PersonalMessage\PM;
  */
 class User implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'profiles' => 'user_profile',
-			'settings' => 'user_settings',
-			'info' => 'user_info',
-			'sc' => 'sc',
-			'memberContext' => 'memberContext',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -795,6 +780,41 @@ class User implements \ArrayAccess
 	 *********************/
 
 	/**
+	 * @var array
+	 *
+	 * Alternate names for some object properties.
+	 */
+	protected array $prop_aliases = [
+		'id_member' => 'id',
+		'member_name' => 'username',
+		'real_name' => 'name',
+		'display_name' => 'name',
+		'email_address' => 'email',
+		'lngfile' => 'language',
+		'member_group' => 'group_name',
+		'primary_group' => 'primary_group_name',
+		'member_group_color' => 'group_color',
+		'member_ip' => 'ip',
+		'member_ip2' => 'ip2',
+		'usertitle' => 'title',
+		'blurb' => 'title',
+		'id_theme' => 'theme',
+		'ignore_boards' => 'ignoreboards',
+		'pm_ignore_list' => 'ignoreusers',
+		'buddy_list' => 'buddies',
+		'instant_messages' => 'messages',
+		'birth_date' => 'birthdate',
+		'last_login_timestamp' => 'last_login',
+
+		// Square brackets are parsed to find array elements.
+		'website_url' => 'website[url]',
+		'website_title' => 'website[title]',
+
+		// Initial exclamation mark means inverse of the property.
+		'is_logged' => '!is_guest',
+	];
+
+	/**
 	 * @var bool
 	 *
 	 * Whether the integrate_verify_user hook verified this user for us.
@@ -836,41 +856,6 @@ class User implements \ArrayAccess
 	 */
 	private array $groups_can_moderate;
 
-	/**
-	 * @var array
-	 *
-	 * Alternate names for some object properties.
-	 */
-	protected array $prop_aliases = [
-		'id_member' => 'id',
-		'member_name' => 'username',
-		'real_name' => 'name',
-		'display_name' => 'name',
-		'email_address' => 'email',
-		'lngfile' => 'language',
-		'member_group' => 'group_name',
-		'primary_group' => 'primary_group_name',
-		'member_group_color' => 'group_color',
-		'member_ip' => 'ip',
-		'member_ip2' => 'ip2',
-		'usertitle' => 'title',
-		'blurb' => 'title',
-		'id_theme' => 'theme',
-		'ignore_boards' => 'ignoreboards',
-		'pm_ignore_list' => 'ignoreusers',
-		'buddy_list' => 'buddies',
-		'instant_messages' => 'messages',
-		'birth_date' => 'birthdate',
-		'last_login_timestamp' => 'last_login',
-
-		// Square brackets are parsed to find array elements.
-		'website_url' => 'website[url]',
-		'website_title' => 'website[title]',
-
-		// Initial exclamation mark means inverse of the property.
-		'is_logged' => '!is_guest',
-	];
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -885,6 +870,21 @@ class User implements \ArrayAccess
 		'basic' => 1,
 		'normal' => 2,
 		'profile' => 3,
+	];
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'profiles' => 'user_profile',
+			'settings' => 'user_settings',
+			'info' => 'user_info',
+			'sc' => 'sc',
+			'memberContext' => 'memberContext',
+		],
 	];
 
 	/****************

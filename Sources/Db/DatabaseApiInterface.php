@@ -20,6 +20,10 @@ namespace SMF\Db;
  */
 interface DatabaseApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Performs a query. Takes care of errors too.
 	 *

@@ -44,7 +44,6 @@ use SMF\Utils;
 class News implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

@@ -36,6 +36,10 @@ use SMF\Utils;
  */
 class CreatePost_Notify extends BackgroundTask
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
 	 * Constants for reply types.
 	 */
@@ -58,6 +62,10 @@ class CreatePost_Notify extends BackgroundTask
 	 * and quotes in unwatched and/or edited posts.
 	 */
 	public const MENTION_DELAY = 5;
+
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array Info about members to be notified.
@@ -90,6 +98,10 @@ class CreatePost_Notify extends BackgroundTask
 	 *			mentions and quotes in unwatched and/or edited posts.
 	 */
 	private $mention_mail_time = 0;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
@@ -374,12 +386,16 @@ class CreatePost_Notify extends BackgroundTask
 		return true;
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Update an alert if a message was updated since the alert was created.
 	 *
 	 * @param int $msg_id Message ID to update
 	 */
-	private function updateAlerts(int $msg_id): void
+	protected function updateAlerts(int $msg_id): void
 	{
 		// We send alerts only on the first iteration of this task.
 		if (!empty($this->_details['respawns'])) {

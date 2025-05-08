@@ -38,7 +38,6 @@ use SMF\Utils;
 class Tasks implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

@@ -39,7 +39,6 @@ use SMF\Utils;
 class Membergroups implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

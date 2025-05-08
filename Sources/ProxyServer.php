@@ -23,6 +23,10 @@ use SMF\WebFetch\WebFetchApi;
  */
 class ProxyServer
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var bool
 	 *
@@ -85,6 +89,10 @@ class ProxyServer
 	 * Body of object cached.
 	 */
 	protected $cachedbody;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor. Loads up the settings for the proxy.
@@ -213,6 +221,28 @@ class ProxyServer
 	}
 
 	/**
+	 * Delete all old entries
+	 */
+	public function housekeeping(): void
+	{
+		$path = $this->cache . '/';
+
+		if ($handle = opendir($path)) {
+			while (false !== ($file = readdir($handle))) {
+				if (is_file($path . $file) && !in_array($file, ['index.php', '.htaccess']) && time() - filemtime($path . $file) > $this->maxDays * 86400) {
+					unlink($path . $file);
+				}
+			}
+
+			closedir($handle);
+		}
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
 	 * Returns the request's hashed filepath
 	 *
 	 * @param \SMF\Url|string $request The request to get the path for
@@ -305,23 +335,5 @@ class ProxyServer
 		header('Location: ' . Utils::htmlspecialcharsDecode($request), false, 301);
 
 		exit;
-	}
-
-	/**
-	 * Delete all old entries
-	 */
-	public function housekeeping(): void
-	{
-		$path = $this->cache . '/';
-
-		if ($handle = opendir($path)) {
-			while (false !== ($file = readdir($handle))) {
-				if (is_file($path . $file) && !in_array($file, ['index.php', '.htaccess']) && time() - filemtime($path . $file) > $this->maxDays * 86400) {
-					unlink($path . $file);
-				}
-			}
-
-			closedir($handle);
-		}
 	}
 }

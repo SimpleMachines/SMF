@@ -39,7 +39,6 @@ use SMF\Utils;
 class Subscriptions implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

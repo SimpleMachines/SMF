@@ -23,6 +23,10 @@ namespace SMF\PackageManager;
  */
 class FtpConnection
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * @var resource Holds the connection response
 	 */
@@ -42,6 +46,10 @@ class FtpConnection
 	 * @var array{ip: string, port: int} Contains information about passive mode if used.
 	 */
 	public array $pasv = [];
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Create a new FTP connection...

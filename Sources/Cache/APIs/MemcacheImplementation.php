@@ -33,7 +33,15 @@ if (!defined('SMF')) {
  */
 class MemcacheImplementation extends CacheApi implements CacheApiInterface
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	public const CLASS_KEY = 'cache_memcached';
+
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var object
@@ -48,6 +56,10 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 * Known Memcache servers.
 	 */
 	private $servers;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 *

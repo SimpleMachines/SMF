@@ -31,6 +31,10 @@ use SMF\Utils;
  */
 class PaidSubs extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *

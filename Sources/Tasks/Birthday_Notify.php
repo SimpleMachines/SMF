@@ -30,6 +30,10 @@ use SMF\Utils;
  */
 class Birthday_Notify extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.

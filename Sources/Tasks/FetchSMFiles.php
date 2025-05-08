@@ -28,6 +28,10 @@ use SMF\WebFetch\WebFetchApi;
  */
 class FetchSMFiles extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *

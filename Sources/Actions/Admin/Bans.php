@@ -43,7 +43,6 @@ use SMF\Utils;
 class Bans implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

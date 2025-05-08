@@ -20,6 +20,10 @@ use SMF\MailAgent\MailAgentInterface;
  */
 class SMTPTLS extends SMTP implements MailAgentInterface
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * @var bool
 	 *

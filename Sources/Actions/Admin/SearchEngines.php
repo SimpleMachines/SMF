@@ -40,7 +40,6 @@ use SMF\Utils;
 class SearchEngines implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -1159,6 +1158,10 @@ class SearchEngines implements ActionInterface
 
 		Utils::$context['sub_action'] = &$this->subaction;
 	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
 
 	/**
 	 * Finds and returns the file path to robots.txt, or else the file path

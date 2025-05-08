@@ -185,9 +185,9 @@ class Editor implements \ArrayAccess
 		'popup' => [],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array

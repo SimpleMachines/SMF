@@ -24,6 +24,10 @@ use SMF\Sapi;
  */
 class XmlArray
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * @var array Holds parsed XML results
 	 */
@@ -40,6 +44,10 @@ class XmlArray
 	 * @var bool Holds trim level textual data
 	 */
 	public $trim;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor for the xml parser.
@@ -357,6 +365,53 @@ class XmlArray
 	}
 
 	/**
+	 * Parse out CDATA tags. (htmlspecialchars them...)
+	 *
+	 * @param string $data The data with CDATA tags included
+	 * @return string The data contained within CDATA tags
+	 */
+	public function _to_cdata(string $data): string
+	{
+		$inCdata = $inComment = false;
+		$output = '';
+
+		$parts = preg_split('~(<!\[CDATA\[|\]\]>|<!--|-->)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+		foreach ($parts as $part) {
+			// Handle XML comments.
+			if (!$inCdata && $part === '<!--') {
+				$inComment = true;
+			}
+
+			if ($inComment && $part === '-->') {
+				$inComment = false;
+			} elseif ($inComment) {
+				continue;
+			}
+
+			// Handle Cdata blocks.
+			elseif (!$inComment && $part === '<![CDATA[') {
+				$inCdata = true;
+			} elseif ($inCdata && $part === ']]>') {
+				$inCdata = false;
+			} elseif ($inCdata) {
+				$output .= htmlentities($part, ENT_QUOTES);
+			}
+
+			// Everything else is kept as is.
+			else {
+				$output .= $part;
+			}
+		}
+
+		return $output;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
 	 * Parse data into an array. (privately used...)
 	 *
 	 * @param string $data The data to parse
@@ -594,49 +649,6 @@ class XmlArray
 	}
 
 	/**
-	 * Parse out CDATA tags. (htmlspecialchars them...)
-	 *
-	 * @param string $data The data with CDATA tags included
-	 * @return string The data contained within CDATA tags
-	 */
-	public function _to_cdata(string $data): string
-	{
-		$inCdata = $inComment = false;
-		$output = '';
-
-		$parts = preg_split('~(<!\[CDATA\[|\]\]>|<!--|-->)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-		foreach ($parts as $part) {
-			// Handle XML comments.
-			if (!$inCdata && $part === '<!--') {
-				$inComment = true;
-			}
-
-			if ($inComment && $part === '-->') {
-				$inComment = false;
-			} elseif ($inComment) {
-				continue;
-			}
-
-			// Handle Cdata blocks.
-			elseif (!$inComment && $part === '<![CDATA[') {
-				$inCdata = true;
-			} elseif ($inCdata && $part === ']]>') {
-				$inCdata = false;
-			} elseif ($inCdata) {
-				$output .= htmlentities($part, ENT_QUOTES);
-			}
-
-			// Everything else is kept as is.
-			else {
-				$output .= $part;
-			}
-		}
-
-		return $output;
-	}
-
-	/**
 	 * Turn the CDATAs back to normal text.
 	 *
 	 * @param string $data The data with CDATA tags
@@ -668,7 +680,7 @@ class XmlArray
 	 * @param null|array|string $array An array of data
 	 * @return string The text from the array
 	 */
-	protected function _fetch(null|array|string $array): string
+	protected function _fetch(array|string|null $array): string
 	{
 		// Don't return anything if this is just a string.
 		if (is_string($array)) {

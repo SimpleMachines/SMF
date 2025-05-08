@@ -28,6 +28,10 @@ use SMF\ProxyServer;
  */
 class DailyMaintenance extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *

@@ -43,7 +43,6 @@ use SMF\Utils;
 class Features implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

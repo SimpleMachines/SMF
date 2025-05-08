@@ -24,18 +24,6 @@ class Utils
 {
 	use BackwardCompatibility;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'context' => 'context',
-			'smcFunc' => 'smcFunc',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -317,6 +305,22 @@ class Utils
 		'json_decode' => 'smf_json_decode',
 		'random_int' => __CLASS__ . '::randomInt',
 		'random_bytes' => __CLASS__ . '::randomBytes',
+	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'context' => 'context',
+			'smcFunc' => 'smcFunc',
+		],
 	];
 
 	/***********************

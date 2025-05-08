@@ -28,21 +28,8 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Board implements \ArrayAccess, Routable
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'board_id' => 'board',
-			'info' => 'board_info',
-			'loaded' => 'boards',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -442,6 +429,19 @@ class Board implements \ArrayAccess, Routable
 	 * Holds parsed versions of board descriptions.
 	 */
 	protected static array $parsed_descriptions = [];
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'board_id' => 'board',
+			'info' => 'board_info',
+			'loaded' => 'boards',
+		],
+	];
 
 	/****************
 	 * Public methods

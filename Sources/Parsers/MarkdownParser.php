@@ -872,9 +872,9 @@ class MarkdownParser extends Parser
 		return $this->rendered;
 	}
 
-	/************************
-	 * Public static methods.
-	 ************************/
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Returns a reusable instance of this class.

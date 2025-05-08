@@ -24,10 +24,18 @@ use SMF\Lang;
  */
 class Payment
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var string The data to return
 	 */
 	private $return_data;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * This function returns true/false for whether this gateway thinks the data is intended for it.
@@ -271,6 +279,10 @@ class Payment
 			);
 		}
 	}
+
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * A private function to find out the subscription details.

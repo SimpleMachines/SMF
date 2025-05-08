@@ -29,6 +29,10 @@ if (!defined('SMF')) {
  */
 class Zend extends CacheApi implements CacheApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 *
 	 */

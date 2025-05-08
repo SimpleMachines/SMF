@@ -33,7 +33,15 @@ if (!defined('SMF')) {
  */
 class MemcachedImplementation extends CacheApi implements CacheApiInterface
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	public const CLASS_KEY = 'cache_memcached';
+
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var object
@@ -48,6 +56,10 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 * Known Memcache servers.
 	 */
 	private $servers;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 *
@@ -93,38 +105,6 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 		$this->memcached = Config::$db_persist ? new Memcached($this->prefix) : new Memcached();
 
 		return $this->addServers();
-	}
-
-	/**
-	 * Add memcached servers.
-	 *
-	 * Don't add servers if they already exist. Ideal for persistent connections.
-	 *
-	 * @return bool True if there are servers in the daemon, false if not.
-	 */
-	protected function addServers(): bool
-	{
-		$currentServers = $this->memcached->getServerList();
-		$retVal = !empty($currentServers);
-
-		foreach ($this->servers as $server) {
-			// Figure out if we have this server or not
-			$foundServer = false;
-
-			foreach ($currentServers as $currentServer) {
-				if ($server[0] == $currentServer['host'] && $server[1] == $currentServer['port']) {
-					$foundServer = true;
-					break;
-				}
-			}
-
-			// Found it?
-			if (empty($foundServer)) {
-				$retVal |= $this->memcached->addServer($server[0], $server[1]);
-			}
-		}
-
-		return $retVal;
 	}
 
 	/**
@@ -220,5 +200,41 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 		}
 
 		return false;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Add memcached servers.
+	 *
+	 * Don't add servers if they already exist. Ideal for persistent connections.
+	 *
+	 * @return bool True if there are servers in the daemon, false if not.
+	 */
+	protected function addServers(): bool
+	{
+		$currentServers = $this->memcached->getServerList();
+		$retVal = !empty($currentServers);
+
+		foreach ($this->servers as $server) {
+			// Figure out if we have this server or not
+			$foundServer = false;
+
+			foreach ($currentServers as $currentServer) {
+				if ($server[0] == $currentServer['host'] && $server[1] == $currentServer['port']) {
+					$foundServer = true;
+					break;
+				}
+			}
+
+			// Found it?
+			if (empty($foundServer)) {
+				$retVal |= $this->memcached->addServer($server[0], $server[1]);
+			}
+		}
+
+		return $retVal;
 	}
 }

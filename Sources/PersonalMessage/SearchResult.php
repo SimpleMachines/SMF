@@ -23,6 +23,10 @@ use SMF\Search\SearchResult as SR;
  */
 class SearchResult extends PM
 {
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Generator that yields formatted PMs for use in a search results list.
 	 *

@@ -40,7 +40,6 @@ use SMF\Utils;
 class Members implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

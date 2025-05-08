@@ -35,12 +35,14 @@ class Config
 	 * 2: Make the forum untouchable. You'll need to make it 0 again manually!
 	 */
 	public static int $maintenance;
+
 	/**
 	 * @var string
 	 *
 	 * Title for the maintenance mode message.
 	 */
 	public static string $mtitle;
+
 	/**
 	 * Description of why the forum is in maintenance mode.
 	 *
@@ -55,24 +57,28 @@ class Config
 	 * The name of your forum.
 	 */
 	public static string $mbname;
+
 	/**
 	 * @var string
 	 *
 	 * The default language file set for the forum.
 	 */
 	public static string $language;
+
 	/**
 	 * @var string
 	 *
 	 * URL to your forum's folder. (without the trailing /!)
 	 */
 	public static string $boardurl;
+
 	/**
 	 * @var string
 	 *
 	 * Email address to send emails from. (like noreply@yourdomain.com.)
 	 */
 	public static string $webmaster_email;
+
 	/**
 	 * @var string
 	 *
@@ -88,6 +94,7 @@ class Config
 	 * Default options: mysql, postgresql
 	 */
 	public static string $db_type;
+
 	/**
 	 * @var int
 	 *
@@ -95,42 +102,49 @@ class Config
 	 * 0 to use default port for the database type.
 	 */
 	public static int $db_port;
+
 	/**
 	 * @var string
 	 *
 	 * The server to connect to (or a Unix socket)
 	 */
 	public static string $db_server;
+
 	/**
 	 * @var string
 	 *
 	 * The database name.
 	 */
 	public static string $db_name;
+
 	/**
 	 * @var string
 	 *
 	 * Database username.
 	 */
 	public static string $db_user;
+
 	/**
 	 * @var string
 	 *
 	 * Database password.
 	 */
 	public static string $db_passwd;
+
 	/**
 	 * @var string
 	 *
 	 * Database user for when connecting with SSI.
 	 */
 	public static string $ssi_db_user;
+
 	/**
 	 * @var string
 	 *
 	 * Database password for when connecting with SSI.
 	 */
 	public static string $ssi_db_passwd;
+
 	/**
 	 * @var string
 	 *
@@ -138,12 +152,14 @@ class Config
 	 * This helps to prevent conflicts.
 	 */
 	public static string $db_prefix;
+
 	/**
 	 * @var bool
 	 *
 	 * Use a persistent database connection.
 	 */
 	public static bool $db_persist;
+
 	/**
 	 * @var bool
 	 *
@@ -159,6 +175,7 @@ class Config
 	 * admin panel for proper detection of the available options.
 	 */
 	public static string $cache_accelerator;
+
 	/**
 	 * @var int
 	 *
@@ -166,6 +183,7 @@ class Config
 	 * Between 0 (off) through 3 (cache a lot).
 	 */
 	public static int $cache_enable;
+
 	/**
 	 * @var string
 	 *
@@ -173,12 +191,14 @@ class Config
 	 * Should be a string of 'server:port,server:port'
 	 */
 	public static string $cache_memcached;
+
 	/**
 	 * @var string
 	 *
 	 * Path to the cache directory for the file-based cache system.
 	 */
 	public static string $cachedir;
+
 	/**
 	 * @var string
 	 *
@@ -194,12 +214,14 @@ class Config
 	 * Whether the proxy is enabled or not.
 	 */
 	public static bool $image_proxy_enabled;
+
 	/**
 	 * @var string
 	 *
 	 * Secret key to be used by the proxy.
 	 */
 	public static string $image_proxy_secret;
+
 	/**
 	 * @var int
 	 *
@@ -215,18 +237,21 @@ class Config
 	 * The absolute path to the forum's folder. (not just '.'!)
 	 */
 	public static string $boarddir;
+
 	/**
 	 * @var string
 	 *
 	 * Path to the Sources directory.
 	 */
 	public static string $sourcedir;
+
 	/**
 	 * Path to the Packages directory.
 	 *
 	 * @var string
 	 */
 	public static string $packagesdir;
+
 	/**
 	 * Path to the Packages directory.
 	 *

@@ -36,7 +36,6 @@ use SMF\Utils;
 class Mail implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -67,9 +66,9 @@ class Mail implements ActionInterface
 		'test' => 'test',
 	];
 
-	/*********************
-	 * Internal properties
-	 *********************/
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var array

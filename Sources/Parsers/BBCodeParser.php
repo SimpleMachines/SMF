@@ -358,9 +358,9 @@ class BBCodeParser extends Parser
 	 */
 	private static array $parsers = [];
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -1220,9 +1220,9 @@ class BBCodeParser extends Parser
 		return $this->{$name} ?? null;
 	}
 
-	/************************
-	 * Public static methods.
-	 ************************/
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Returns a reusable instance of this class.
@@ -1340,9 +1340,9 @@ class BBCodeParser extends Parser
 		);
 	}
 
-	/*******************
-	 * Internal methods.
-	 *******************/
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * The method that actually parses the BBCode in $this->message.

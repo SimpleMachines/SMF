@@ -40,7 +40,6 @@ use SMF\WebFetch\WebFetchApi;
 class Languages implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

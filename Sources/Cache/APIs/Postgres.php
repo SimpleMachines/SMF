@@ -31,6 +31,10 @@ if (!defined('SMF')) {
  */
 class Postgres extends CacheApi implements CacheApiInterface
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var string
 	 */
@@ -41,6 +45,13 @@ class Postgres extends CacheApi implements CacheApiInterface
 	 */
 	private $db_connection;
 
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		$this->db_prefix = Config::$db_prefix;
@@ -85,34 +96,6 @@ class Postgres extends CacheApi implements CacheApiInterface
 		);
 
 		return true;
-	}
-
-	/**
-	 * Stores a prepared SQL statement, ensuring that it's not done twice.
-	 *
-	 * @param array $stmtnames
-	 * @param array $queries
-	 */
-	private function prepareQueries(array $stmtnames, array $queries)
-	{
-		$result = pg_query_params(
-			$this->db_connection,
-			'SELECT name FROM pg_prepared_statements WHERE name = ANY ($1)',
-			['{' . implode(', ', $stmtnames) . '}'],
-		);
-
-		$arr = pg_num_rows($result) == 0 ? [] : array_map(
-			function ($el) {
-				return $el['name'];
-			},
-			pg_fetch_all($result),
-		);
-
-		foreach ($stmtnames as $idx => $stmtname) {
-			if (!in_array($stmtname, $arr)) {
-				pg_prepare($this->db_connection, $stmtname, $queries[$idx]);
-			}
-		}
 	}
 
 	/**
@@ -201,9 +184,40 @@ class Postgres extends CacheApi implements CacheApiInterface
 		$this->deleteTempTable();
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Stores a prepared SQL statement, ensuring that it's not done twice.
+	 *
+	 * @param array $stmtnames
+	 * @param array $queries
+	 */
+	private function prepareQueries(array $stmtnames, array $queries)
+	{
+		$result = pg_query_params(
+			$this->db_connection,
+			'SELECT name FROM pg_prepared_statements WHERE name = ANY ($1)',
+			['{' . implode(', ', $stmtnames) . '}'],
+		);
+
+		$arr = pg_num_rows($result) == 0 ? [] : array_map(
+			function ($el) {
+				return $el['name'];
+			},
+			pg_fetch_all($result),
+		);
+
+		foreach ($stmtnames as $idx => $stmtname) {
+			if (!in_array($stmtname, $arr)) {
+				pg_prepare($this->db_connection, $stmtname, $queries[$idx]);
+			}
+		}
+	}
+
 	/**
 	 * Create the temp table of valid data.
-	 *
 	 */
 	private function createTempTable(): void
 	{
@@ -212,7 +226,6 @@ class Postgres extends CacheApi implements CacheApiInterface
 
 	/**
 	 * Delete the temp table.
-	 *
 	 */
 	private function deleteTempTable(): void
 	{
@@ -221,7 +234,6 @@ class Postgres extends CacheApi implements CacheApiInterface
 
 	/**
 	 * Retrieve the valid data from temp table.
-	 *
 	 */
 	private function retrieveData(): void
 	{

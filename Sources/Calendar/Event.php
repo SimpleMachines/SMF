@@ -1050,6 +1050,7 @@ class Event implements \ArrayAccess
 
 		$this->createRecurrenceIterator();
 	}
+
 	/**
 	 * Gets the date after which no more occurrences happen.
 	 *

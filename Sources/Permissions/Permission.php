@@ -36,11 +36,17 @@ class Permission implements \ArrayAccess
 	 * Class constants
 	 *****************/
 
+	/**
+	 * Constants for group levels
+	 */
 	public const GROUP_LEVEL_RESTRICT = 0;
 	public const GROUP_LEVEL_STANDARD = 1;
 	public const GROUP_LEVEL_MODERATOR = 2;
 	public const GROUP_LEVEL_MAINTENANCE = 3;
 
+	/**
+	 * Constants for board levels
+	 */
 	public const BOARD_LEVEL_STANDARD = 0;
 	public const BOARD_LEVEL_LOCKED = 1;
 	public const BOARD_LEVEL_PUBLISH = 2;

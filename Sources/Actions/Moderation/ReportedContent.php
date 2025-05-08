@@ -42,7 +42,6 @@ use SMF\Utils;
 class ReportedContent implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

@@ -8,6 +8,10 @@ namespace SMF\Debug;
  */
 class DebugContextEntry
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * @param string|null $extra_before A string that is rendered before any other content.
 	 *    Defaults to `null`.

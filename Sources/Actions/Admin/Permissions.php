@@ -42,7 +42,6 @@ use SMF\Utils;
 class Permissions implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -158,6 +157,10 @@ class Permissions implements ActionInterface
 			'denied' => [],
 		],
 	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var array

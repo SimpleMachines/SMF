@@ -45,7 +45,6 @@ use SMF\Utils;
 class Maintenance implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

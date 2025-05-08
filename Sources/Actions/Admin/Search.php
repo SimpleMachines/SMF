@@ -36,7 +36,6 @@ use SMF\Utils;
 class Search implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
