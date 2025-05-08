@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Actions\Moderation;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
+use SMF\BackwardCompatibility;
 use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Config;
