@@ -43,8 +43,6 @@ class ShowPosts implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/*******************
 	 * Public properties
 	 *******************/

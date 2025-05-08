@@ -49,7 +49,6 @@ class Post implements ActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants

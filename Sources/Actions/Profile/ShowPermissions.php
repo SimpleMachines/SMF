@@ -34,8 +34,6 @@ class ShowPermissions implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/****************
 	 * Public methods
 	 ****************/

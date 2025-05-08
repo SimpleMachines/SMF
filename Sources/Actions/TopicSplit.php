@@ -49,7 +49,6 @@ class TopicSplit implements ActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties

@@ -46,7 +46,6 @@ use SMF\Utils;
 class Calendar implements ActionInterface, Routable
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
