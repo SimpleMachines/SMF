@@ -38,12 +38,6 @@ class ReportToMod implements ActionInterface, Routable
 	use ActionRouter;
 	use ActionTrait;
 
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
-
 	/*******************
 	 * Public properties
 	 *******************/

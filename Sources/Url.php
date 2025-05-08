@@ -35,9 +35,9 @@ class Url implements \Stringable
 	 * Class constants
 	 *****************/
 
-	 public const SCHEME_HTTPS = 'https';
-	 public const SCHEME_HTTP = 'http';
-	 public const SCHEME_GRAVATAR = 'gravatar';
+	public const SCHEME_HTTPS = 'https';
+	public const SCHEME_HTTP = 'http';
+	public const SCHEME_GRAVATAR = 'gravatar';
 
 	/*******************
 	 * Public properties

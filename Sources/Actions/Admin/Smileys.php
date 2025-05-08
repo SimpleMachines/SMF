@@ -150,12 +150,6 @@ class Smileys implements ActionInterface
 	 */
 	public static bool $smileys_dir_found;
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
-
 	/****************
 	 * Public methods
 	 ****************/

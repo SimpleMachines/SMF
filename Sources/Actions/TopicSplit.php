@@ -78,12 +78,6 @@ class TopicSplit implements ActionInterface, Routable
 		'splitSelection' => 'splitSelection',
 	];
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
-
 	/****************
 	 * Public methods
 	 ****************/
