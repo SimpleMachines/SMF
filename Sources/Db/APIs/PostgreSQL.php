@@ -63,9 +63,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public bool $supports_pcre = true;
 
-	/********************
-	 * Runtime properties
-	 ********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var object

@@ -158,6 +158,10 @@ class Permissions implements ActionInterface
 		],
 	];
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * @var array
 	 *

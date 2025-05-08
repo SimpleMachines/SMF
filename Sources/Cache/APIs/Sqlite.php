@@ -33,6 +33,10 @@ if (!defined('SMF')) {
  */
 class Sqlite extends CacheApi implements CacheApiInterface
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var string The path to the current directory.
 	 */
@@ -42,6 +46,10 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 * @var SQLite3
 	 */
 	private $cacheDB = null;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{

@@ -66,9 +66,9 @@ class Mail implements ActionInterface
 		'test' => 'test',
 	];
 
-	/*********************
-	 * Internal properties
-	 *********************/
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var array

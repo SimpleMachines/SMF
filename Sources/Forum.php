@@ -347,6 +347,10 @@ class Forum
 	 */
 	public static array $guest_access_actions = [];
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * @var ActionInterface|null
 	 *

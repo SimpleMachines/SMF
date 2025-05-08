@@ -26,6 +26,10 @@ use SMF\Theme;
  */
 class WeeklyMaintenance extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *

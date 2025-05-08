@@ -20,6 +20,10 @@ namespace SMF\WebFetch;
  */
 interface WebFetchApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Main calling function.
 	 *

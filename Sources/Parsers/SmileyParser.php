@@ -63,9 +63,9 @@ class SmileyParser extends Parser
 	 */
 	private static self $parser;
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -166,9 +166,9 @@ class SmileyParser extends Parser
 		);
 	}
 
-	/************************
-	 * Public static methods.
-	 ************************/
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Returns a reusable instance of this class.

@@ -1159,6 +1159,10 @@ class SearchEngines implements ActionInterface
 		Utils::$context['sub_action'] = &$this->subaction;
 	}
 
+	/*************************
+	 * Internal static methods
+	 *************************/
+
 	/**
 	 * Finds and returns the file path to robots.txt, or else the file path
 	 * where it should be created if it doesn't already exist.

@@ -32,6 +32,10 @@ namespace SMF\TOTP;
  */
 class Auth
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var array Internal lookup table
 	 */
@@ -56,6 +60,10 @@ class Auth
 	 * @var int Range plus/minus for "window of opportunity" on allowed codes
 	 */
 	private int $range = 2;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Initialize the object and set up the lookup table

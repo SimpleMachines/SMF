@@ -30,7 +30,12 @@ $finder = (new PhpCsFixer\Finder())
 	// Skip anything being ignored in .gitignore.
 	->ignoreVCSIgnored(true);
 
+require_once('.github/phpcs/SectionComments.php');
+
 return (new PhpCsFixer\Config())
+    ->registerCustomFixers([
+        new SMF\Fixer\ClassNotation\SectionComments(),
+    ])
 	->setRules([
 		'@PER-CS2.0' => true,
 
@@ -87,6 +92,7 @@ return (new PhpCsFixer\Config())
 			'null_adjustment' => 'always_last',
 			'sort_algorithm' => 'none',
 		],
+        'SMF/section_comments' => true,
 
 		// Control structure.
 		'include' => true,

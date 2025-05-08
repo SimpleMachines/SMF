@@ -66,6 +66,10 @@ namespace SMF;
  */
 class Uuid implements \Stringable
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
 	 * Default UUID version to create.
 	 */

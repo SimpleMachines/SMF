@@ -232,9 +232,9 @@ class Autolinker
 	 */
 	private static self $instance;
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -723,9 +723,9 @@ class Autolinker
 		return strtr(implode('', $parts), $placeholders);
 	}
 
-	/************************
-	 * Public static methods.
-	 ************************/
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Returns a reusable instance of this class.
@@ -786,9 +786,9 @@ class Autolinker
 		file_put_contents(Theme::$current->settings['default_theme_dir'] . '/scripts/autolinker.js', implode("\n", $js));
 	}
 
-	/*******************
-	 * Internal methods.
-	 *******************/
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Sets $this->tld_regex.

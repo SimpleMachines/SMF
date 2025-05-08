@@ -49,6 +49,10 @@ class BrowserDetector
 	 */
 	private bool $_is_mobile = false;
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * An instance of this class.
 	 */

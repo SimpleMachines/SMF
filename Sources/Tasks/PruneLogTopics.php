@@ -28,6 +28,10 @@ use SMF\Sapi;
  */
 class PruneLogTopics extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *

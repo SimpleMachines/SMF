@@ -19,6 +19,10 @@ use SMF\Utils;
 
 abstract class MailAgent
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
 	 * @var string
 	 *
@@ -60,9 +64,9 @@ abstract class MailAgent
 	 */
 	public static MailAgentInterface|bool|null $loaded_api = null;
 
-	/**********************
-	 * Protected properties
-	 **********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var string The maximum SMF version that this will work with.

@@ -70,9 +70,9 @@ class PackageManager
 		'serverbrowse' => 'serverBrowse',
 	];
 
-	/**********************
-	 * Protected properties
-	 **********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array
@@ -88,6 +88,10 @@ class PackageManager
 		'remove' => 'serverremove',
 		'browse' => 'serverbrowse',
 	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * An instance of this class.

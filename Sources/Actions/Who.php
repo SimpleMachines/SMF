@@ -46,9 +46,9 @@ class Who implements ActionInterface, Routable
 	use ActionRouter;
 	use ActionTrait;
 
-	/*******************
+	/**************************
 	 * Public static properties
-	 *******************/
+	 **************************/
 
 	/**
 	 * @var array

@@ -34,9 +34,9 @@ abstract class ScheduledTask extends BackgroundTask
 	 */
 	public bool $should_log = true;
 
-	/***********************
-	 * Public static methods
-	 ***********************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Records the start time and duration of this task.
@@ -65,6 +65,10 @@ abstract class ScheduledTask extends BackgroundTask
 			[],
 		);
 	}
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Updates Config::$modSettings['next_task_time'].

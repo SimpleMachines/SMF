@@ -25,6 +25,10 @@ namespace SMF\Graphics\Gif;
 
 class ImageHeader
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	public $m_nLeft;
 
 	public $m_nTop;
@@ -42,6 +46,10 @@ class ImageHeader
 	public $m_nTableSize;
 
 	public $m_colorTable;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{

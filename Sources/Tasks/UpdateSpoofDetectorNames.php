@@ -27,6 +27,10 @@ use SMF\Utils;
  */
 class UpdateSpoofDetectorNames extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -116,6 +120,10 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 
 		return true;
 	}
+
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Adds a new instance of this task to the task list.

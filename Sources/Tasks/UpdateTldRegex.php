@@ -23,6 +23,10 @@ use SMF\Url;
  */
 class UpdateTldRegex extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task. It just calls Url::setTldRegex()
 	 *

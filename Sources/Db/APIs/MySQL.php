@@ -64,9 +64,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public bool $supports_pcre = false;
 
-	/********************
-	 * Runtime properties
-	 ********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var object

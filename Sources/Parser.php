@@ -254,9 +254,9 @@ abstract class Parser
 	 */
 	private static array $results = [];
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -412,9 +412,9 @@ abstract class Parser
 		);
 	}
 
-	/*******************
-	 * Internal methods.
-	 *******************/
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Checks whether the server's load average is too high to parse BBCode.

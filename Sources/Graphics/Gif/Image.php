@@ -25,6 +25,10 @@ namespace SMF\Graphics\Gif;
 
 class Image
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	public $m_disp;
 
 	public $m_bUser;
@@ -42,6 +46,10 @@ class Image
 	public $m_data;
 
 	public $m_lzw;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{

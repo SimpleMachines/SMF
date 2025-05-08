@@ -66,6 +66,10 @@ class Sapi
 		self::SERVER_NGINX => 'nginx',
 	];
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * @var string
 	 *

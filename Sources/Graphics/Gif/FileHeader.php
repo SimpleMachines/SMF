@@ -25,6 +25,10 @@ namespace SMF\Graphics\Gif;
 
 class FileHeader
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	public $m_lpVer;
 
 	public $m_nWidth;
@@ -44,6 +48,10 @@ class FileHeader
 	public $m_nPixelRatio;
 
 	public $m_colorTable;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{

@@ -30,6 +30,10 @@ namespace SMF\Graphics\Gif;
  */
 class LzwCompression
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	public $MAX_LZW_BITS;
 
 	public $Fresh;
@@ -67,6 +71,10 @@ class LzwCompression
 	public $Done;
 
 	public $LastByte;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{

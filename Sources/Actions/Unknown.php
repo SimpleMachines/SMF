@@ -27,14 +27,18 @@ class Unknown implements ActionInterface
 {
 	use ActionTrait;
 
-	/********************
-	 * Mysterious methods
-	 ********************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function canBeLogged(): bool
 	{
 		return false;
 	}
+
+	/********************
+	 * Mysterious methods
+	 ********************/
 
 	/**
 	 * What's this? I dunno, what are you talking about? Never seen this before, nope. No sir.

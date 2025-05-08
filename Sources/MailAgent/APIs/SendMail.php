@@ -25,6 +25,10 @@ use SMF\Sapi;
  */
 class SendMail extends MailAgent implements MailAgentInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 *
 	 */

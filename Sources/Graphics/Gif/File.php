@@ -27,6 +27,10 @@ use SMF\Config;
 
 class File
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	public $header;
 
 	public $image;
@@ -34,6 +38,10 @@ class File
 	public $data;
 
 	public $loaded;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{
