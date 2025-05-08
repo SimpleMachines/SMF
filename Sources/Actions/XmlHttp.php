@@ -19,7 +19,6 @@ use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\Actions\Admin\News;
 use SMF\ActionTrait;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -44,7 +43,6 @@ class XmlHttp implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties

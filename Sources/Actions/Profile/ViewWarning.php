@@ -32,8 +32,6 @@ class ViewWarning implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/****************
 	 * Public methods
 	 ****************/

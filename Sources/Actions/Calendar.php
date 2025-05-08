@@ -17,7 +17,6 @@ namespace SMF\Actions;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
@@ -47,7 +46,6 @@ use SMF\Utils;
 class Calendar implements ActionInterface, Routable
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties

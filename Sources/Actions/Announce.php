@@ -18,7 +18,6 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\BrowserDetector;
 use SMF\Config;
@@ -42,7 +41,6 @@ class Announce implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties

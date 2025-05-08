@@ -19,7 +19,6 @@ use SMF\ActionInterface;
 use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Attachment;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Calendar\Event;
@@ -50,7 +49,6 @@ class Post implements ActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants

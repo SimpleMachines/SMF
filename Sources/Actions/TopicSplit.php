@@ -21,7 +21,6 @@ use SMF\ActionInterface;
 use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Autolinker;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -50,7 +49,6 @@ class TopicSplit implements ActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties

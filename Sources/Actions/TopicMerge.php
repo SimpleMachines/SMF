@@ -19,7 +19,6 @@ namespace SMF\Actions;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
-use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -45,7 +44,6 @@ use SMF\Utils;
 class TopicMerge implements ActionInterface, Routable
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties

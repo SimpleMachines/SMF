@@ -18,7 +18,6 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
-use SMF\BackwardCompatibility;
 use SMF\BrowserDetector;
 use SMF\Cache\CacheApi;
 use SMF\Config;
@@ -55,7 +54,6 @@ class PersonalMessage implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants

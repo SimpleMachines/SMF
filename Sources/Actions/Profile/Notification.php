@@ -40,8 +40,6 @@ class Notification implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/*******************
 	 * Public properties
 	 *******************/
