@@ -1,8 +1,6 @@
 <?php
 
 /**
- * This file is modified from original CS fixer source code.
- *
  * Simple Machines Forum (SMF)
  *
  * @package SMF
@@ -12,26 +10,88 @@
  *
  * @version 3.0 Alpha 2
  */
+
 declare(strict_types=1);
 
 namespace SMF\Fixer\ClassNotation;
 
 use PhpCsFixer\AbstractFixer;
-use PhpCsFixer\Fixer\WhitespacesAwareFixerInterface;
-use PhpCsFixer\Fixer\Whitespace;
 use PhpCsFixer\FixerDefinition\CodeSample;
 use PhpCsFixer\FixerDefinition\FixerDefinition;
 use PhpCsFixer\FixerDefinition\FixerDefinitionInterface;
-use PhpCsFixer\Tokenizer\Tokens;
 use PhpCsFixer\Tokenizer\Token;
+use PhpCsFixer\Tokenizer\Tokens;
 
 /**
- * Ensure line endings match SMF standards.
+ * Inserts sectioning comments.
  *
  * @author Jon Stovell
  */
-final class SectionComments extends AbstractFixer implements WhitespacesAwareFixerInterface
+final class SectionComments extends AbstractFixer
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
+	public array $comments;
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	public function __construct()
+	{
+		parent::__construct();
+
+		$this->comments = [
+			'const' => implode("\n\t", [
+				'/*****************',
+				' * Class constants',
+				' *****************/',
+			]),
+			'public_property' => implode("\n\t", [
+				'/*******************',
+				' * Public properties',
+				' *******************/',
+			]),
+			'public_static_property' => implode("\n\t", [
+				'/**************************',
+				' * Public static properties',
+				' **************************/',
+			]),
+			'internal_property' => implode("\n\t", [
+				'/*********************',
+				' * Internal properties',
+				' *********************/',
+			]),
+			'internal_static_property' => implode("\n\t", [
+				'/****************************',
+				' * Internal static properties',
+				' ****************************/',
+			]),
+			'public_method' => implode("\n\t", [
+				'/****************',
+				' * Public methods',
+				' ****************/',
+			]),
+			'public_static_method' => implode("\n\t", [
+				'/***********************',
+				' * Public static methods',
+				' ***********************/',
+			]),
+			'internal_method' => implode("\n\t", [
+				'/******************',
+				' * Internal methods',
+				' ******************/',
+			]),
+			'internal_static_method' => implode("\n\t", [
+				'/*************************',
+				' * Internal static methods',
+				' *************************/',
+			]),
+		];
+	}
+
 	public function getName(): string
 	{
 		return 'SMF/section_comments';
@@ -114,7 +174,7 @@ final class SectionComments extends AbstractFixer implements WhitespacesAwareFix
 					}
 
 					END),
-			]
+			],
 		);
 	}
 
@@ -134,9 +194,46 @@ final class SectionComments extends AbstractFixer implements WhitespacesAwareFix
 		return false;
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	protected function applyFix(\SplFileInfo $file, Tokens $tokens): void
 	{
-		$found = [
+		// First remove any existing section comments.
+		foreach ($this->comments as $type => $string) {
+			$regexes[$type] = preg_replace('/\s+/', '\s+', preg_quote($string, '/'));
+		}
+
+		foreach ($tokens as $key => $token) {
+			if ($token->getName() === 'T_COMMENT') {
+				foreach ($regexes as $type => $regex) {
+					if (preg_match('/^' . $regex . '$/', $token->getContent())) {
+						$tokens->clearAt($key);
+
+						if ($tokens[$key + 1]->isWhitespace()) {
+							$tokens[$key + 1] = new Token([
+								T_WHITESPACE,
+								"\n\n\t",
+							]);
+						} else {
+							$tokens->insertAt(
+								$key + 1,
+								new Token([
+									T_WHITESPACE,
+									"\n\n\t",
+								]),
+							);
+						}
+					}
+				}
+			}
+		}
+
+		$tokens->clearEmptyTokens();
+
+		// Now insert fresh copies of the section comments.
+		$exists = [
 			'const' => false,
 			'public_property' => false,
 			'public_static_property' => false,
@@ -148,66 +245,11 @@ final class SectionComments extends AbstractFixer implements WhitespacesAwareFix
 			'internal_static_method' => false,
 		];
 
-		$comments = [
-			'const' => implode($this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent(), [
-				'/*****************',
-				' * Class constants',
-				' *****************/',
-			]),
-			'public_property' => implode($this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent(), [
-				'/*******************',
-				' * Public properties',
-				' *******************/',
-			]),
-			'public_static_property' => implode($this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent(), [
-				'/**************************',
-				' * Public static properties',
-				' **************************/',
-			]),
-			'internal_property' => implode($this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent(), [
-				'/*********************',
-				' * Internal properties',
-				' *********************/',
-			]),
-			'internal_static_property' => implode($this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent(), [
-				'/****************************',
-				' * Internal static properties',
-				' ****************************/',
-			]),
-			'public_method' => implode($this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent(), [
-				'/****************',
-				' * Public methods',
-				' ****************/',
-			]),
-			'public_static_method' => implode($this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent(), [
-				'/***********************',
-				' * Public static methods',
-				' ***********************/',
-			]),
-			'internal_method' => implode($this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent(), [
-				'/******************',
-				' * Internal methods',
-				' ******************/',
-			]),
-			'internal_static_method' => implode($this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent(), [
-				'/*************************',
-				' * Internal static methods',
-				' *************************/',
-			]),
-		];
-
 		$in = [];
 
 		foreach ($tokens as $key => $token) {
-			if (
-				$token->getName() === 'T_COMMENT'
-				&& ($comment_type = array_search($token->getContent(), $comments)) !== false
-			) {
-				$found[$comment_type] = true;
-				$in = [];
-				continue;
-			}
-
+			// Build up the list of token types so that we can figure out
+			// which comment type we will want.
 			if (in_array(
 				$token->getName(),
 				empty($in) ? [
@@ -219,11 +261,12 @@ final class SectionComments extends AbstractFixer implements WhitespacesAwareFix
 					'T_STATIC',
 					'T_VARIABLE',
 					'T_FUNCTION',
-				]
+				],
 			)) {
 				$in[$key] = $token->getName();
 			}
 
+			// Which comment type do we want to insert?
 			if (in_array('T_CONST', $in)) {
 				$insert_type = 'const';
 			} elseif (in_array('T_VARIABLE', $in)) {
@@ -257,33 +300,51 @@ final class SectionComments extends AbstractFixer implements WhitespacesAwareFix
 			}
 
 			if (isset($insert_type)) {
-				if (!$found[$insert_type]) {
-					$prepend_to = array_key_first($in);
+				if (!$exists[$insert_type]) {
+					// Start by assuming we want to insert right before the
+					// 'public', 'protected', or 'private' keyword.
+					$insert_at = array_key_first($in);
 
+					// Walk back to include any preceding 'final' or 'readonly'
+					// keywords, as well as any comments or whitespace.
 					while (
-						isset($tokens[$prepend_to - 1])
+						isset($tokens[$insert_at - 1])
 						&& (
-							$tokens[$prepend_to - 1]->isWhitespace()
-							|| $tokens[$prepend_to - 1]->isComment()
+							$tokens[$insert_at - 1]->isGivenKind([T_FINAL, T_READONLY])
+							|| $tokens[$insert_at - 1]->isWhitespace()
+							|| $tokens[$insert_at - 1]->isComment()
 						)
 					) {
-						$prepend_to--;
-					};
-
-					$previous = $prepend_to - 1;
-
-					// Special case for stuff right after the class's opening brace.
-					if ($tokens[$previous]->getContent() === '{') {
-						$comment = $this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent() . $comments[$insert_type] . $this->whitespacesConfig->getLineEnding();
-					} else {
-						$comment = $this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getLineEnding() . $this->whitespacesConfig->getIndent() . $comments[$insert_type];
+						$insert_at--;
 					}
 
-					$tokens[$prepend_to] = new Token(
-						$comment . $tokens[$prepend_to]->getContent(),
+					// Now we need to take one step forward again.
+					$insert_at++;
+
+					// Create the comment to insert.
+					$to_insert = [
+						new Token([
+							T_COMMENT,
+							$this->comments[$insert_type],
+						]),
+					];
+
+					// If necessary, also insert some whitespace.
+					if (!$tokens[$insert_at]->isWhitespace()) {
+						$to_insert[] = new Token([
+							T_WHITESPACE,
+							"\n\n\t",
+						]);
+					}
+
+					// Insert our comment.
+					$tokens->insertAt(
+						$insert_at,
+						$to_insert,
 					);
 
-					$found[$insert_type] = true;
+					// This comment type has now been done.
+					$exists[$insert_type] = true;
 				}
 
 				$in = [];

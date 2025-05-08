@@ -37,12 +37,6 @@ class QuickModeration implements ActionInterface, Routable
 	use ActionRouter;
 	use ActionTrait;
 
-	/*******************
-	 * Public properties
-	 *******************/
-
-	// code...
-
 	/**************************
 	 * Public static properties
 	 **************************/

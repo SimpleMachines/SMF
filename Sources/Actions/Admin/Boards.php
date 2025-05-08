@@ -78,12 +78,6 @@ class Boards implements ActionInterface
 		'settings' => ['settings', 'admin_forum'],
 	];
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
-
 	/****************
 	 * Public methods
 	 ****************/

@@ -225,8 +225,4 @@ class TopicRemove implements ActionInterface, Routable
 
 		Utils::redirectexit('action=admin;area=maintain;sa=topics;done=purgeold');
 	}
-
-	/*************************
-	 * Internal static methods
-	 *************************/
 }

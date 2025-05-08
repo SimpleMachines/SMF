@@ -79,12 +79,6 @@ class Subscriptions implements ActionInterface
 	 */
 	public static array $all = [];
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
-
 	/****************
 	 * Public methods
 	 ****************/
