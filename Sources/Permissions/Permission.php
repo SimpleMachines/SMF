@@ -1211,7 +1211,7 @@ class Permission implements \ArrayAccess
 			}
 
 			self::$permissions['bbc_' . $bbc->tag] = [
-				'has_own_any' => false,
+				'own_any' => null,
 				'view_group' => 'bbc',
 				'scope' => 'global',
 				'hidden' => !in_array($bbc->tag, Utils::$context['restricted_bbc']),
