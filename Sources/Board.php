@@ -433,6 +433,13 @@ class Board implements \ArrayAccess, Routable
 	/**
 	 * @var array
 	 *
+	 * Cache for Board::getAll().
+	 */
+	protected static array $ids = [];
+
+	/**
+	 * @var array
+	 *
 	 * BackwardCompatibility settings for this class.
 	 */
 	private static $backcompat = [
@@ -562,6 +569,10 @@ class Board implements \ArrayAccess, Routable
 			);
 
 			self::$loaded[$this->id] = $this;
+
+			if (!empty(self::$ids)) {
+				self::$ids[] = $this->id;
+			}
 		}
 		// Updating an existing board.
 		else {
@@ -965,6 +976,30 @@ class Board implements \ArrayAccess, Routable
 
 		// Return the instances we just loaded.
 		return $loaded;
+	}
+
+	/**
+	 * Gets the IDs of all boards.
+	 *
+	 * @return array IDs of all boards.
+	 */
+	public static function getAll(): array
+	{
+		if (!empty(self::$ids)) {
+			return self::$ids;
+		}
+
+		$selects = ['b.id_board'];
+		$params = [];
+		$joins = [];
+		$where = [];
+		$order = ['b.id_board'];
+
+		foreach (self::queryData($selects, $params, $joins, $where, $order) as $row) {
+			self::$ids[] = (int) $row['id_board'];
+		}
+
+		return self::$ids;
 	}
 
 	/**
@@ -1580,6 +1615,8 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		self::reorder();
+
+		self::$ids = array_diff(self::$ids, $boards_to_remove);
 	}
 
 	/**
