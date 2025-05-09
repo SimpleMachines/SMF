@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Graphics\Image;
+use SMF\Permissions\Permission;
 
 /**
  * Represents a member's profile as shown by ?action=profile.
@@ -959,8 +960,18 @@ class Profile extends User implements \ArrayAccess
 		// For each of the above let's take out the bits which don't apply - to save memory and security!
 		foreach ($this->standard_fields as $key => $field) {
 			// Do we have permission to do this?
-			if (isset($field['permission']) && !User::$me->allowedTo((User::$me->is_owner ? [$field['permission'] . '_own', $field['permission'] . '_any'] : $field['permission'] . '_any')) && !User::$me->allowedTo($field['permission'])) {
-				unset($this->standard_fields[$key]);
+			if (isset($field['permission'])) {
+				$permissions = array_map(
+					fn($p) => $p->name,
+					array_filter(
+						Permission::getByGenericName($field['permission']),
+						fn($p) => $p->own_any !== 'own' || User::$me->is_owner,
+					),
+				);
+
+				if (empty($permissions) || !User::$me->allowedTo($permissions, any: true)) {
+					unset($this->standard_fields[$key]);
+				}
 			}
 
 			// Is it enabled?
