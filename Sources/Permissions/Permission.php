@@ -1188,6 +1188,25 @@ class Permission implements \ArrayAccess
 	}
 
 	/**
+	 * Gets instances of this class that have the specified generic name.
+	 *
+	 * Typically, the returned array will contain one instance for permissions
+	 * that do not have own/any variants, two instances for permissions that
+	 * do have own/any variants, or zero instances for permissions that do not
+	 * exist.
+	 *
+	 * @param string $generic_name The generic name of the permissions.
+	 * @return array Zero or more instances of this class.
+	 */
+	public static function getByGenericName(string $generic_name): array
+	{
+		return array_filter(
+			self::getAll(),
+			fn($permission) => $permission->generic_name === $generic_name,
+		);
+	}
+
+	/**
 	 * Gets the list of all known permissions.
 	 *
 	 * This method contains the integrate_permissions_list hook, which is the
