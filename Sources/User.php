@@ -2195,6 +2195,17 @@ class User implements \ArrayAccess
 			),
 		);
 
+		// If a permission doesn't exist, it can't be done.
+		foreach ($permissions as $key => $permission) {
+			if (!Permission::exists($permission)) {
+				unset($permissions[$key]);
+
+				if (!$any || empty($permissions)) {
+					return false;
+				}
+			}
+		}
+
 		// Avoid unnecessary repetition.
 		$cache_key = implode(',', $permissions) . '-' . implode(',', $boards) . '-' . (int) $any;
 

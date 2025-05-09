@@ -181,7 +181,7 @@ class UserPermissionSet
 		foreach ((array) $permission_names as $permission_name) {
 			if (
 				is_string($permission_name)
-				&& array_key_exists($permission_name, Permission::getAll())
+				&& Permission::exists($permission_name)
 			) {
 				$this->permissions[$permission_name] = 1;
 			}

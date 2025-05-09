@@ -1149,6 +1149,17 @@ class Permission implements \ArrayAccess
 	 ***********************/
 
 	/**
+	 * Checks whether the specified permission exists.
+	 *
+	 * @param string $name The name of the permission.
+	 * @return bool Whether that permission exists.
+	 */
+	public static function exists(string $name): bool
+	{
+		return array_key_exists($name, self::getAll());
+	}
+
+	/**
 	 * Gets an instance of this class for the specified permission.
 	 *
 	 * If the permission does not exist, logs an error and then returns an
@@ -1160,23 +1171,20 @@ class Permission implements \ArrayAccess
 	 */
 	public static function get(string $name): self
 	{
-		self::getAll();
-
-		// Asked for a non-existent permission.
-		if (!isset(self::$permissions[$name])) {
-			// First log this as an error.
-			ErrorHandler::log(Lang::getTxt('unknown_permission', [$name], file: 'Errors'), 'general', __FILE__, __LINE__);
-
-			// Now return a phantom permission that nobody can have.
-			return new self($name, [
-				'hidden' => true,
-				'never_guests' => true,
-				'can_assign' => false,
-				'eligibility' => array_fill_keys(Group::getAll(), false),
-			]);
+		// If the permission exists, return it.
+		if (self::exists($name)) {
+			return self::$permissions[$name];
 		}
 
-		return self::$permissions[$name];
+		// Otherwise, log an error and return a phantom permission that nobody can have.
+		ErrorHandler::log(Lang::getTxt('unknown_permission', [$name], file: 'Errors'), 'general', __FILE__, __LINE__);
+
+		return new self($name, [
+			'hidden' => true,
+			'never_guests' => true,
+			'can_assign' => false,
+			'eligibility' => array_fill_keys(Group::getAll(), false),
+		]);
 	}
 
 	/**
