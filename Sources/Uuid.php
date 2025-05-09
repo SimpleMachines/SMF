@@ -694,7 +694,7 @@ class Uuid implements \Stringable
 			return str_replace('-', '', self::NIL_UUID);
 		}
 
-		$this->setTimestamp($timestamp ?? 'now');
+		$this->setTimestamp($timestamp);
 		$parts = $this->getGregTimeParts();
 
 		// Date out of range? Bail out.
@@ -936,12 +936,11 @@ class Uuid implements \Stringable
 	/**
 	 * Sets $this->timestamp to a microsecond-precision Unix timestamp.
 	 *
-	 * @param \Stringable|string|int|float $input A timestamp or date string.
-	 *    Default: 'now'.
+	 * @param \Stringable|string|int|float|null $input A timestamp or date string.
 	 */
-	protected function setTimestamp(\Stringable|string|int|float $input = 'now'): void
+	protected function setTimestamp(\Stringable|string|int|float|null $input): void
 	{
-		$input = (string) $input;
+		$input = (string) ($input ?? 'now');
 
 		if ($input === 'now') {
 			$this->timestamp = (float) microtime(true);
