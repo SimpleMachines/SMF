@@ -1202,7 +1202,7 @@ function makeNotificationChanges($memID)
 	}
 
 	// We are removing board preferences
-	elseif (isset($_POST['remove_notify_board']) && !empty($_POST['notify_boards']))
+	elseif (isset($_POST['remove_notify_boards']) && !empty($_POST['notify_boards']))
 	{
 		$prefs = array();
 		foreach ($_POST['notify_boards'] as $board)
@@ -2728,7 +2728,7 @@ function alert_notifications_boards($memID)
 	global $txt, $scripturl, $context, $sourcedir;
 
 	// Because of the way this stuff works, we want to do this ourselves.
-	if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards']))
+	if (isset($_POST['edit_notify_boards']) || isset($_POST['remove_notify_boards']))
 	{
 		checkSession();
 		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');

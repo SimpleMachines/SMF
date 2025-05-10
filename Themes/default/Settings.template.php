@@ -83,11 +83,6 @@ function template_options()
 			'default' => true,
 		),
 		array(
-			'id' => 'auto_notify',
-			'label' => $txt['auto_notify'],
-			'default' => true,
-		),
-		array(
 			'id' => 'wysiwyg_default',
 			'label' => $txt['wysiwyg_default'],
 			'default' => false,
