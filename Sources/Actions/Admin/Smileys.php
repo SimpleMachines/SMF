@@ -18,9 +18,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\MessageIndex;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -45,7 +45,6 @@ use SMF\WebFetch\WebFetchApi;
 class Smileys implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -150,12 +149,6 @@ class Smileys implements ActionInterface
 	 * Whether the base smileys directory exists in the file system.
 	 */
 	public static bool $smileys_dir_found;
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
 
 	/****************
 	 * Public methods

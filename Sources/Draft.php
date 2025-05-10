@@ -808,6 +808,10 @@ class Draft
 		return Utils::$context['draft_saved'];
 	}
 
+	/*************************
+	 * Internal static methods
+	 *************************/
+
 	/**
 	 * Returns an XML response to an autosave AJAX request.
 	 *

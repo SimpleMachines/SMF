@@ -723,6 +723,7 @@ class Display implements ActionInterface, Routable
 		// 0 => unwatched, 1 => normal, 2 => receive alerts, 3 => receive emails
 		Utils::$context['topic_notification_mode'] = !User::$me->is_guest ? (Topic::$info->unwatched ? 0 : (Topic::$info->notify_prefs['pref'] & 0x02 ? 3 : (Topic::$info->notify_prefs['pref'] & 0x01 ? 2 : 1))) : 0;
 	}
+
 	/**
 	 * If $_REQUEST['start'] is not a number, figures out the correct numerical
 	 * value and sets $_REQUEST['start'] to that value.

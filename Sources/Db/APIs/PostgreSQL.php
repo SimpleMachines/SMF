@@ -63,9 +63,9 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public bool $supports_pcre = true;
 
-	/********************
-	 * Runtime properties
-	 ********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var object
@@ -2498,8 +2498,8 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 * @param string $error_message The error message
 	 * @param string $log_message The message to log
 	 * @param string|int|bool $error_type What type of error this is
-	 * @param string $file The file the error occurred in
-	 * @param int $line What line of $file the code which generated the error is on
+	 * @param string|null $file The file the error occurred in
+	 * @param int|null $line What line of $file the code which generated the error is on
 	 * @return array Returns an array with the file and line if $error_type is
 	 *    'return'. Otherwise, just dies.
 	 */

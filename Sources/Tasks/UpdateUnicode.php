@@ -29,6 +29,10 @@ use SMF\WebFetch\WebFetchApi;
  */
 class UpdateUnicode extends BackgroundTask
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
 	 * URLs where we can fetch the Unicode data files.
 	 */
@@ -36,6 +40,10 @@ class UpdateUnicode extends BackgroundTask
 	public const DATA_URL_IDNA = 'https://www.unicode.org/Public/idna/latest';
 	public const DATA_URL_CLDR = 'https://raw.githubusercontent.com/unicode-org/cldr-json/main/cldr-json';
 	public const DATA_URL_SECURITY = 'https://www.unicode.org/Public/security/latest';
+
+	/*******************
+	 * Public properties
+	 *******************/
 
 	/**
 	 * @var string The latest official release of the Unicode Character Database.
@@ -51,6 +59,10 @@ class UpdateUnicode extends BackgroundTask
 	 * @var string Convenience alias of Config::$sourcedir . '/Unicode'.
 	 */
 	public $unicodedir = '';
+
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var int Used to ensure we exit long running tasks cleanly.
@@ -546,6 +558,10 @@ class UpdateUnicode extends BackgroundTask
 		],
 	];
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -763,6 +779,39 @@ class UpdateUnicode extends BackgroundTask
 	}
 
 	/**
+	 * Updates Unicode data functions in their designated files.
+	 */
+	public function export_funcs_to_file(): void
+	{
+		foreach ($this->funcs as $func_name => $func_info) {
+			if (empty($func_info['data'])) {
+				continue;
+			}
+
+			$temp_file_path = $this->temp_dir . '/' . $func_info['file'];
+
+			list($func_code, $func_regex) = $this->get_function_code_and_regex($func_name);
+
+			$file_contents = file_get_contents($temp_file_path);
+
+			if (preg_match($func_regex, $file_contents)) {
+				file_put_contents($temp_file_path, preg_replace($func_regex, $func_code, $file_contents));
+			} else {
+				file_put_contents($temp_file_path, $func_code . "\n\n", FILE_APPEND);
+			}
+
+			// Free up some memory.
+			if ($func_name != 'utf8_combining_classes') {
+				unset($this->funcs[$func_name]['data']);
+			}
+		}
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
 	 * Makes a temporary directory to hold our working files, and sets
 	 * $this->temp_dir to the path of the created directory.
 	 */
@@ -840,7 +889,7 @@ class UpdateUnicode extends BackgroundTask
 	/**
 	 * Deletes a directory and its contents.
 	 *
-	 * @param string Path to directory
+	 * @param string $dir_path Path to directory
 	 */
 	private function deltree(string $dir_path): void
 	{
@@ -915,35 +964,6 @@ class UpdateUnicode extends BackgroundTask
 		]);
 
 		return $file_template;
-	}
-
-	/**
-	 * Updates Unicode data functions in their designated files.
-	 */
-	public function export_funcs_to_file(): void
-	{
-		foreach ($this->funcs as $func_name => $func_info) {
-			if (empty($func_info['data'])) {
-				continue;
-			}
-
-			$temp_file_path = $this->temp_dir . '/' . $func_info['file'];
-
-			list($func_code, $func_regex) = $this->get_function_code_and_regex($func_name);
-
-			$file_contents = file_get_contents($temp_file_path);
-
-			if (preg_match($func_regex, $file_contents)) {
-				file_put_contents($temp_file_path, preg_replace($func_regex, $func_code, $file_contents));
-			} else {
-				file_put_contents($temp_file_path, $func_code . "\n\n", FILE_APPEND);
-			}
-
-			// Free up some memory.
-			if ($func_name != 'utf8_combining_classes') {
-				unset($this->funcs[$func_name]['data']);
-			}
-		}
 	}
 
 	/**

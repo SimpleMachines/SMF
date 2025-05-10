@@ -33,12 +33,18 @@ class Sapi
 	 * Class constants
 	 *****************/
 
+	/**
+	 * Constants for webserver software names.
+	 */
 	public const SERVER_IIS = 'iis';
 	public const SERVER_APACHE = 'apache';
 	public const SERVER_LITESPEED = 'litespeed';
 	public const SERVER_LIGHTTPD = 'lighttpd';
 	public const SERVER_NGINX = 'nginx';
 
+	/**
+	 * Constants for operating system names.
+	 */
 	public const OS_WINDOWS = 'Windows';
 	public const OS_MAC = 'Darwin';
 	public const OS_LINUX = 'Linux';
@@ -59,6 +65,10 @@ class Sapi
 		self::SERVER_LIGHTTPD => 'lighttpd',
 		self::SERVER_NGINX => 'nginx',
 	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var string

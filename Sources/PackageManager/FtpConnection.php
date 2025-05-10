@@ -23,6 +23,10 @@ namespace SMF\PackageManager;
  */
 class FtpConnection
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * @var resource Holds the connection response
 	 */
@@ -42,6 +46,10 @@ class FtpConnection
 	 * @var array{ip: string, port: int} Contains information about passive mode if used.
 	 */
 	public array $pasv = [];
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Create a new FTP connection...
@@ -395,7 +403,7 @@ class FtpConnection
 	 * Determines the current directory we are in
 	 *
 	 * @param string $file The name of a file
-	 * @param string $listing A directory listing or null to generate one
+	 * @param null|string $listing A directory listing or null to generate one
 	 * @return string|bool The name of the file or false if it wasn't found
 	 */
 	public function locate(string $file, ?string $listing = null): string|bool
@@ -473,7 +481,7 @@ class FtpConnection
 	 * Detects the current path
 	 *
 	 * @param string $filesystem_path The full path from the filesystem
-	 * @param string $lookup_file The name of a file in the specified path
+	 * @param null|string $lookup_file The name of a file in the specified path
 	 * @return array An array of detected info - username, path from FTP root and whether or not the current path was found
 	 */
 	public function detect_path(string $filesystem_path, ?string $lookup_file = null): array

@@ -87,7 +87,7 @@ class Like implements ActionInterface, Routable
 	protected bool $js = false;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * If filled, its value will contain a string matching a key
 	 * on a language var Lang::$txt[$this->error]

@@ -34,17 +34,6 @@ abstract class SearchApi implements SearchApiInterface
 {
 	use BackwardCompatibility;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'loadedApi' => 'searchAPI',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -381,6 +370,21 @@ abstract class SearchApi implements SearchApiInterface
 	 * If 'LIKE', search will be performed using simple string matching.
 	 */
 	protected string $query_match_type = 'LIKE';
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'loadedApi' => 'searchAPI',
+		],
+	];
 
 	/****************
 	 * Public methods

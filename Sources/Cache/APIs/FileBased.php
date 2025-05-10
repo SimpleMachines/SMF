@@ -34,10 +34,18 @@ if (!defined('SMF')) {
  */
 class FileBased extends CacheApi implements CacheApiInterface
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var string The path to the current directory.
 	 */
 	private $cachedir = null;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 *
@@ -203,8 +211,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * Sets the $cachedir or uses the SMF default $cachedir..
 	 *
-	 * @param string $dir A valid path
-	 * @return bool If this was successful or not.
+	 * @param null|string $dir A valid path
 	 */
 	public function setCachedir(?string $dir = null): void
 	{
@@ -233,6 +240,10 @@ class FileBased extends CacheApi implements CacheApiInterface
 	{
 		return SMF_VERSION;
 	}
+
+	/******************
+	 * Internal methods
+	 ******************/
 
 	private function readFile(string $file): mixed
 	{

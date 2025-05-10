@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Graphics\Image;
+use SMF\Permissions\Permission;
 
 /**
  * Represents a member's profile as shown by ?action=profile.
@@ -28,21 +29,8 @@ use SMF\Graphics\Image;
  */
 class Profile extends User implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'profile_fields' => 'profile_fields',
-			'profile_vars' => 'profile_vars',
-			'cur_profile' => 'cur_profile',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -168,7 +156,7 @@ class Profile extends User implements \ArrayAccess
 	public static int $memID;
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for the member whose profile is being viewed.
 	 */
@@ -261,6 +249,23 @@ class Profile extends User implements \ArrayAccess
 	 * in some places to be able to distinguish these from the others.
 	 */
 	protected array $cf_save_errors = [];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'profile_fields' => 'profile_fields',
+			'profile_vars' => 'profile_vars',
+			'cur_profile' => 'cur_profile',
+		],
+	];
 
 	/****************
 	 * Public methods
@@ -955,8 +960,18 @@ class Profile extends User implements \ArrayAccess
 		// For each of the above let's take out the bits which don't apply - to save memory and security!
 		foreach ($this->standard_fields as $key => $field) {
 			// Do we have permission to do this?
-			if (isset($field['permission']) && !User::$me->allowedTo((User::$me->is_owner ? [$field['permission'] . '_own', $field['permission'] . '_any'] : $field['permission'] . '_any')) && !User::$me->allowedTo($field['permission'])) {
-				unset($this->standard_fields[$key]);
+			if (isset($field['permission'])) {
+				$permissions = array_map(
+					fn($p) => $p->name,
+					array_filter(
+						Permission::getByGenericName($field['permission']),
+						fn($p) => $p->own_any !== 'own' || User::$me->is_owner,
+					),
+				);
+
+				if (empty($permissions) || !User::$me->allowedTo($permissions, any: true)) {
+					unset($this->standard_fields[$key]);
+				}
 			}
 
 			// Is it enabled?
@@ -1811,7 +1826,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
 	 *    If $users is not set, this will be ignored.
-	 * @param string $dataset Ignored.
+	 * @param string|null $dataset Ignored.
 	 * @return array The IDs of the loaded members.
 	 */
 	public static function load(mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
@@ -2992,7 +3007,7 @@ class Profile extends User implements \ArrayAccess
 	 * - mails the new password to the email address of the user.
 	 * - if username is not set, only a new password is generated and sent.
 	 *
-	 * @param string $username The new username. If set, also checks the validity of the username
+	 * @param string|null $username The new username. If set, also checks the validity of the username
 	 */
 	protected function resetPassword(?string $username = null): void
 	{

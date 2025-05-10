@@ -103,6 +103,10 @@ abstract class Notify implements ActionInterface
 	 */
 	protected string $token;
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * @var array
 	 *

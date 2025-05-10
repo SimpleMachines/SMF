@@ -35,9 +35,9 @@ class Url implements \Stringable
 	 * Class constants
 	 *****************/
 
-	 public const SCHEME_HTTPS = 'https';
-	 public const SCHEME_HTTP = 'http';
-	 public const SCHEME_GRAVATAR = 'gravatar';
+	public const SCHEME_HTTPS = 'https';
+	public const SCHEME_HTTP = 'http';
+	public const SCHEME_GRAVATAR = 'gravatar';
 
 	/*******************
 	 * Public properties
@@ -419,7 +419,7 @@ class Url implements \Stringable
 	 * @param int $component Optional flag for parse_url's second parameter.
 	 * @return string|int|array|null|bool Same as parse_url(), but with unmangled Unicode.
 	 */
-	public function parse(int $component = -1): string|int|array|null|bool
+	public function parse(int $component = -1): string|int|array|bool|null
 	{
 		$url = preg_replace_callback(
 			'~[^\x00-\x7F\pZ\pC]|%~u',

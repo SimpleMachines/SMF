@@ -22,16 +22,28 @@ use SMF\User;
  */
 abstract class BackgroundTask
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
 	 * Constants for notification types.
 	 */
 	public const RECEIVE_NOTIFY_EMAIL = 0x02;
 	public const RECEIVE_NOTIFY_ALERT = 0x01;
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var array Holds the details for the task
 	 */
 	protected $_details;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * The constructor.

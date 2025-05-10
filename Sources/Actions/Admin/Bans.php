@@ -20,8 +20,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -43,7 +43,6 @@ use SMF\Utils;
 class Bans implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -2388,7 +2387,7 @@ class Bans implements ActionInterface
 	 * Doesn't clean the inputs.
 	 *
 	 * @param array|int $items_ids The triggers to remove.
-	 * @param int $group_id The ID of the group these triggers are associated with.
+	 * @param null|int $group_id The ID of the group these triggers are associated with.
 	 *    If null, the triggers will be deleted from all groups.
 	 * @return bool Whether the operation was successful.
 	 */

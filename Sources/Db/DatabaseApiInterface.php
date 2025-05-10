@@ -20,13 +20,17 @@ namespace SMF\Db;
  */
 interface DatabaseApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Performs a query. Takes care of errors too.
 	 *
 	 * @param string $identifier An identifier. Only used in PostgreSQL.
 	 * @param string $db_string The database string
 	 * @param array $db_values = array() The values to be inserted into the string
-	 * @param object $connection = null The connection to use (null to use $db_connection)
+	 * @param null|object $connection = null The connection to use (null to use $db_connection)
 	 * @return object|bool Returns a query result resource (for SELECT queries), true (for UPDATE queries) or false if the query failed.
 	 */
 	public function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool;
@@ -36,7 +40,7 @@ interface DatabaseApiInterface
 	 *
 	 * @param string $db_string The database string.
 	 * @param array $db_values An array of values to be injected into the string.
-	 * @param object $connection = null The connection to use (null to use $db_connection).
+	 * @param null|object $connection = null The connection to use (null to use $db_connection).
 	 * @return string The string with the values inserted.
 	 */
 	public function quote(string $db_string, array $db_values, ?object $connection = null): string;
@@ -44,16 +48,16 @@ interface DatabaseApiInterface
 	/**
 	 * Fetch the next row of a result set as an enumerated array.
 	 *
-	 * @param object $request A query result resource.
-	 * @return array|false One row of data, with numeric keys.
+	 * @param object $result A query result resource.
+	 * @return array|false|null One row of data, with numeric keys.
 	 */
 	public function fetch_row(object $result): array|false|null;
 
 	/**
 	 * Fetch the next row of a result set as an associative array.
 	 *
-	 * @param object $request A query result resource.
-	 * @return array One row of data, with string keys.
+	 * @param object $result A query result resource.
+	 * @return array|false|null One row of data, with string keys.
 	 */
 	public function fetch_assoc(object $result): array|false|null;
 
@@ -93,7 +97,7 @@ interface DatabaseApiInterface
 	 * @param array $keys The keys for the table. Must not empty in replace mode.
 	 * @param int $returnmode 0 = nothing, 1 = last row ID, 2 = all row IDs.
 	 *    Default: 0.
-	 * @param object $connection The connection to use.
+	 * @param null|object $connection The connection to use.
 	 *    If null, $db_connection is used.
 	 * @return int|array|null Null if $returnmode is 0, the ID of the most
 	 *    recently inserted row if $returnmode is 1, or the IDS of all the
@@ -105,8 +109,8 @@ interface DatabaseApiInterface
 	 * Gets the ID of the most recently inserted row.
 	 *
 	 * @param string $table The table (only used for Postgres)
-	 * @param string $field = null The specific field (not used here)
-	 * @param object $connection = null The connection (if null, $db_connection is used)
+	 * @param null|string $field = null The specific field (not used here)
+	 * @param null|object $connection = null The connection (if null, $db_connection is used)
 	 * @return int The ID of the most recently inserted row
 	 */
 	public function insert_id(string $table, ?string $field = null, ?object $connection = null): int;
@@ -130,7 +134,7 @@ interface DatabaseApiInterface
 	 * @param string $set A string containing the SET instructions for the update query.
 	 * @param string $where A string containing any WHERE conditions for the update query.
 	 * @param array $db_values The values to be inserted into the compiled query string.
-	 * @param object $connection The connection to use (if null, $db_connection will be used).
+	 * @param null|object $connection The connection to use (if null, $db_connection will be used).
 	 * @return bool True if the update was successful, otherwise false.
 	 */
 	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool;
@@ -138,7 +142,7 @@ interface DatabaseApiInterface
 	/**
 	 * Gets the number of rows in a result set.
 	 *
-	 * @param object $request A query result resource.
+	 * @param object $result A query result resource.
 	 * @return int The number of rows in the result.
 	 */
 	public function num_rows(object $result): int;
@@ -146,8 +150,8 @@ interface DatabaseApiInterface
 	/**
 	 * Adjusts the result pointer to an arbitrary row in a query result.
 	 *
+	 * @param object $result A query result resource.
 	 * @param int $offset The row offset.
-	 * @param object $request A query result resource.
 	 * @return bool True on success, or false on failure.
 	 */
 	public function data_seek(object $result, int $offset): bool;
@@ -155,7 +159,7 @@ interface DatabaseApiInterface
 	/**
 	 * Gets the number of fields in a result set.
 	 *
-	 * @param object $request A query result resource.
+	 * @param object $result A query result resource.
 	 * @return int The number of fields (columns) in the result.
 	 */
 	public function num_fields(object $result): int;
@@ -164,8 +168,8 @@ interface DatabaseApiInterface
 	 * Escapes special characters in a string for use in an SQL statement,
 	 * taking into account the current character set of the connection.
 	 *
-	 * @param object $connection = null The connection to use (null to use $db_connection).
-	 * @param string The unescaped string.
+	 * @param string $string The string to escape
+	 * @param null|object $connection The connection to use (null to use $db_connection).
 	 * @return string The escaped string.
 	 */
 	public function escape_string(string $string, ?object $connection = null): string;
@@ -173,7 +177,7 @@ interface DatabaseApiInterface
 	/**
 	 * Reverses the escape_string function.
 	 *
-	 * @param string The escaped string.
+	 * @param string $string The escaped string.
 	 * @return string The unescaped string.
 	 */
 	public function unescape_string(string $string): string;
@@ -190,7 +194,7 @@ interface DatabaseApiInterface
 	/**
 	 * Gets information, such as the version, about the database server.
 	 *
-	 * @param object $connection The connection to use (if null, $db_connection is used)
+	 * @param null|object $connection The connection to use (if null, $db_connection is used)
 	 * @return string The server info.
 	 */
 	public function server_info(?object $connection = null): string;
@@ -200,7 +204,7 @@ interface DatabaseApiInterface
 	 *
 	 * @todo PostgreSQL requires a $result param, not a $connection.
 	 *
-	 * @param object $connection A connection to use (if null, $db_connection is used)
+	 * @param null|object $connection A connection to use (if null, $db_connection is used)
 	 * @return int The number of affected rows.
 	 */
 	public function affected_rows(?object $connection = null): int;
@@ -209,7 +213,7 @@ interface DatabaseApiInterface
 	 * Do a transaction.
 	 *
 	 * @param string $type The step to perform (i.e. 'begin', 'commit', 'rollback')
-	 * @param object $connection The connection to use (if null, $db_connection is used)
+	 * @param null|object $connection The connection to use (if null, $db_connection is used)
 	 * @return bool True if successful, false otherwise
 	 */
 	public function transaction(string $type = 'commit', ?object $connection = null): bool;
@@ -228,7 +232,7 @@ interface DatabaseApiInterface
 	 * Does nothing on PostgreSQL.
 	 *
 	 * @param string &$database The database
-	 * @param object $connection The connection object (if null, $db_connection is used)
+	 * @param null|object $connection The connection object (if null, $db_connection is used)
 	 * @return bool Whether the database was selected
 	 */
 	public function select(string $database, ?object $connection = null): bool;
@@ -263,7 +267,7 @@ interface DatabaseApiInterface
 	/**
 	 * Pings a server connection, and tries to reconnect if necessary.
 	 *
-	 * @param object $connection The connection object (if null, $db_connection is used)
+	 * @param null|object $connection The connection object (if null, $db_connection is used)
 	 * @return bool True on success, or false on failure.
 	 */
 	public function ping(?object $connection = null): bool;
@@ -274,7 +278,7 @@ interface DatabaseApiInterface
 	 * $error_array must have the following keys in order:
 	 * id_member, log_time, ip, url, message, session, error_type, file, line, backtrace
 	 *
-	 * @param array Information about the error.
+	 * @param array $error_array Information about the error.
 	 */
 	public function error_insert(array $error_array): void;
 
@@ -351,7 +355,7 @@ interface DatabaseApiInterface
 	 * This function optimizes a table.
 	 *
 	 * @param string $table The table to be optimized
-	 * @return int How much space was gained
+	 * @return int|float How much space was gained
 	 */
 	public function optimize_table(string $table): int|float;
 
@@ -405,7 +409,7 @@ interface DatabaseApiInterface
 	 * @param string $identifier A query identifier
 	 * @param string $db_string The query text
 	 * @param array $db_values An array of values to pass to $this->query()
-	 * @param object $connection The current DB connection resource
+	 * @param null|object $connection The current DB connection resource
 	 * @return resource The query result resource from $this->query()
 	 */
 	public function search_query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool;
@@ -464,7 +468,7 @@ interface DatabaseApiInterface
 	 * Get the schema formatted name for a type.
 	 *
 	 * @param string $type_name The data type (int, varchar, smallint, etc.)
-	 * @param int $type_size The size (8, 255, etc.)
+	 * @param null|int $type_size The size (8, 255, etc.)
 	 * @param bool $reverse
 	 * @return array An array containing the appropriate type and size for this DB type
 	 */

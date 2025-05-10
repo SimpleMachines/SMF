@@ -46,7 +46,6 @@ use SMF\Utils;
 class Calendar implements ActionInterface, Routable
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -1840,7 +1839,7 @@ class Calendar implements ActionInterface, Routable
 	 * and returns the requested user if the token is valid. Otherwise, returns
 	 * the current user.
 	 *
-	 * @return SMF\User whose permissions should be used for exporting events.
+	 * @return User whose permissions should be used for exporting events.
 	 */
 	protected function authenticateForExport(): User
 	{

@@ -26,12 +26,9 @@ use SMF\Url;
  */
 class SMTP extends MailAgent implements MailAgentInterface
 {
-	/**
-	 * @var bool
-	 *
-	 * This is used to determine if we have sent any mail previosuly and issue a reset prior to sending another message.
-	 */
-	private bool $sentAny = false;
+	/*******************
+	 * Public properties
+	 *******************/
 
 	/**
 	 * @var bool
@@ -40,6 +37,17 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 */
 	public bool $useTLS = false;
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var bool
+	 *
+	 * This is used to determine if we have sent any mail previosuly and issue a reset prior to sending another message.
+	 */
+	private bool $sentAny = false;
+
 	/**
 	 * @var resource|false
 	 *
@@ -47,6 +55,10 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 * PHP does not have a type hint for resource of type Stream.  So we just use mixed.
 	 */
 	private mixed $socket;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 *
@@ -223,6 +235,10 @@ class SMTP extends MailAgent implements MailAgentInterface
 		$config_vars[] = ['password', 'smtp_password'];
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Parse a message to the SMTP server.
 	 * Sends the specified message to the server, and checks for the
@@ -232,7 +248,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 *
 	 * @param ?string $message The message to send
 	 * @param ?string $code The expected response code
-	 * @param string $response The response from the SMTP server
+	 * @param string|null $response The response from the SMTP server
 	 * @return bool|string Whether it responded as such.
 	 */
 	private function serverParse(?string $message, ?string $code, ?string &$response = null): bool|string

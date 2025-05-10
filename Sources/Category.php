@@ -30,20 +30,8 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Category implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'loaded' => 'cat_tree',
-			'boardList' => 'boardList',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -202,6 +190,18 @@ class Category implements \ArrayAccess
 	 * Holds parsed versions of category descriptions.
 	 */
 	protected static array $parsed_descriptions = [];
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'loaded' => 'cat_tree',
+			'boardList' => 'boardList',
+		],
+	];
 
 	/****************
 	 * Public methods
@@ -523,7 +523,7 @@ class Category implements \ArrayAccess
 	 * updates the statistics to reflect the new situation.
 	 *
 	 * @param array $categories The IDs of the categories to delete
-	 * @param int $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
+	 * @param null|int $moveBoardsTo The ID of the category to move any boards to or null to delete the boards
 	 */
 	public static function delete(array $categories, ?int $moveBoardsTo = null): void
 	{

@@ -116,6 +116,10 @@ class Rule implements \ArrayAccess
 	 */
 	public static array $loaded = [];
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var array
 	 *

@@ -464,6 +464,16 @@ class Custom extends SearchApi implements SearchApiInterface
 	{
 		$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
 
+		$row = Db::$db->query(
+			'',
+			'SELECT body
+			FROM {db_prefix}messages
+			WHERE id_msg = {int:id_msg}',
+			[
+				'id_msg' => $id_msg,
+			],
+		)->fetch_assoc();
+
 		$words = self::getWordNumbers($row['body'], $customIndexSettings['bytes_per_word']);
 
 		if (!empty($words)) {
@@ -474,7 +484,7 @@ class Custom extends SearchApi implements SearchApiInterface
 					AND id_msg = {int:id_msg}',
 				[
 					'word_list' => $words,
-					'id_msg' => $message,
+					'id_msg' => $id_msg,
 				],
 			);
 		}
@@ -839,6 +849,7 @@ class Custom extends SearchApi implements SearchApiInterface
 		SecurityToken::create('admin-msmpost');
 		SecurityToken::create('admin-msm', 'get');
 	}
+
 	/**
 	 * Removes the custom index.
 	 *
@@ -883,7 +894,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	 * returned integer array.
 	 *
 	 * @param string $string A string.
-	 * @param int $bytes_per_word Byte-length of the returned integers.
+	 * @param int|null $bytes_per_word Byte-length of the returned integers.
 	 *    Defaults to custom search index's 'bytes_per_word' value, or 4 if that
 	 *    is not set. Allowed values range between 1 and PHP_INT_SIZE.
 	 * @return array Unique integers for each word in $string.

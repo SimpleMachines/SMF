@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\TopicRemove;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Category;
 use SMF\Config;
@@ -45,7 +45,6 @@ use SMF\Utils;
 class Maintenance implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************

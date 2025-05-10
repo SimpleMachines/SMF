@@ -54,7 +54,6 @@ class PersonalMessage implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants

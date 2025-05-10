@@ -26,6 +26,10 @@ use SMF\Utils;
  */
 class Popup
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Constructor.
 	 */

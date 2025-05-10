@@ -29,6 +29,10 @@ if (!defined('SMF')) {
  */
 class Apcu extends CacheApi implements CacheApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 *
 	 */

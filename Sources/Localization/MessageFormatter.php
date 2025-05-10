@@ -496,7 +496,7 @@ class MessageFormatter
 	 * support SMF on servers that do not have the intl extension installed.
 	 *
 	 * @param int|float|string $number A number.
-	 * @param istring $skeleton The ICU number skeleton.
+	 * @param string $skeleton The ICU number skeleton.
 	 * @return string A formatted number.
 	 */
 	protected static function applyNumberSkeleton(int|float|string $number, string $skeleton): string

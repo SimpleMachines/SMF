@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -39,7 +39,6 @@ use SMF\Utils;
 class Subscriptions implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -79,12 +78,6 @@ class Subscriptions implements ActionInterface
 	 * Data about all the subscriptions the admin has created.
 	 */
 	public static array $all = [];
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
 
 	/****************
 	 * Public methods

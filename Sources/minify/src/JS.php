@@ -147,7 +147,7 @@ class JS extends Minify
      *
      * @return string The minified data
      */
-    public function execute($path = null)
+    public function execute($path = null) : string
     {
         $content = '';
 

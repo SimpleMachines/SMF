@@ -40,9 +40,9 @@ use SMF\Db\DatabaseApi as Db;
  */
 class TaskRunner
 {
-	/***********
-	 * Constants
-	 ***********/
+	/*****************
+	 * Class constants
+	 *****************/
 
 	/**
 	 * This setting is worth bearing in mind. If you are running this from

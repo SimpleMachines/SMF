@@ -23,6 +23,10 @@ use SMF\Search\SearchApiInterface;
  */
 class Standard extends SearchApi implements SearchApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 *
 	 */

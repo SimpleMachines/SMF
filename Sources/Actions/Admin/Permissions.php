@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Moderation\Posts as PostMod;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
@@ -42,7 +42,6 @@ use SMF\Utils;
 class Permissions implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -158,6 +157,10 @@ class Permissions implements ActionInterface
 			'denied' => [],
 		],
 	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var array
@@ -1666,7 +1669,7 @@ class Permissions implements ActionInterface
 
 			if (isset($permission->own_any)) {
 				$view_group_perms[$permission->generic_name][$permission->own_any] = [
-					'id' => $permission->id,
+					'id' => $permission->name,
 					'name' => Lang::getTxt('permissionname_' . $permission->name, file: 'ManagePermissions'),
 				];
 			}

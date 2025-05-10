@@ -28,21 +28,8 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Board implements \ArrayAccess, Routable
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'board_id' => 'board',
-			'info' => 'board_info',
-			'loaded' => 'boards',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -315,7 +302,7 @@ class Board implements \ArrayAccess, Routable
 	 **************************/
 
 	/**
-	 * @var int
+	 * @var int|null
 	 *
 	 * ID number of the board being viewed.
 	 *
@@ -326,7 +313,7 @@ class Board implements \ArrayAccess, Routable
 	public static ?int $board_id;
 
 	/**
-	 * @var self
+	 * @var self|null
 	 *
 	 * Instance of this class for board we are currently in.
 	 */
@@ -442,6 +429,26 @@ class Board implements \ArrayAccess, Routable
 	 * Holds parsed versions of board descriptions.
 	 */
 	protected static array $parsed_descriptions = [];
+
+	/**
+	 * @var array
+	 *
+	 * Cache for Board::getAll().
+	 */
+	protected static array $ids = [];
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'board_id' => 'board',
+			'info' => 'board_info',
+			'loaded' => 'boards',
+		],
+	];
 
 	/****************
 	 * Public methods
@@ -562,6 +569,10 @@ class Board implements \ArrayAccess, Routable
 			);
 
 			self::$loaded[$this->id] = $this;
+
+			if (!empty(self::$ids)) {
+				self::$ids[] = $this->id;
+			}
 		}
 		// Updating an existing board.
 		else {
@@ -965,6 +976,30 @@ class Board implements \ArrayAccess, Routable
 
 		// Return the instances we just loaded.
 		return $loaded;
+	}
+
+	/**
+	 * Gets the IDs of all boards.
+	 *
+	 * @return array IDs of all boards.
+	 */
+	public static function getAll(): array
+	{
+		if (!empty(self::$ids)) {
+			return self::$ids;
+		}
+
+		$selects = ['b.id_board'];
+		$params = [];
+		$joins = [];
+		$where = [];
+		$order = ['b.id_board'];
+
+		foreach (self::queryData($selects, $params, $joins, $where, $order) as $row) {
+			self::$ids[] = (int) $row['id_board'];
+		}
+
+		return self::$ids;
 	}
 
 	/**
@@ -1414,7 +1449,7 @@ class Board implements \ArrayAccess, Routable
 	 * updates the statistics to reflect the new situation.
 	 *
 	 * @param array $boards_to_remove The boards to remove
-	 * @param int $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
+	 * @param null|int $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
 	 */
 	public static function delete(array $boards_to_remove, ?int $moveChildrenTo = null): void
 	{
@@ -1580,6 +1615,8 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		self::reorder();
+
+		self::$ids = array_diff(self::$ids, $boards_to_remove);
 	}
 
 	/**

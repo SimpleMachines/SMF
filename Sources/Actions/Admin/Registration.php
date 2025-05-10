@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Register2;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -40,7 +40,6 @@ use SMF\Utils;
 class Registration implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 	/*******************
 	 * Public properties

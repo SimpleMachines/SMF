@@ -51,28 +51,28 @@ class Editor implements \ArrayAccess
 	public string $value;
 
 	/**
-	 * @var string
+	 * @var bool
 	 *
 	 * Whether WYSIWYG mode is initially on or off.
 	 */
 	public bool $rich_active;
 
 	/**
-	 * @var string
+	 * @var bool
 	 *
 	 * Whether to show the smiley box.
 	 */
 	public bool $disable_smiley_box;
 
 	/**
-	 * @var string
+	 * @var int
 	 *
 	 * Column width of the editor's input area.
 	 */
 	public int $columns;
 
 	/**
-	 * @var string
+	 * @var int
 	 *
 	 * Row height of the editor's input area.
 	 */
@@ -185,9 +185,9 @@ class Editor implements \ArrayAccess
 		'popup' => [],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array

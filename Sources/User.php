@@ -71,23 +71,8 @@ use SMF\PersonalMessage\PM;
  */
 class User implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'profiles' => 'user_profile',
-			'settings' => 'user_settings',
-			'info' => 'user_info',
-			'sc' => 'sc',
-			'memberContext' => 'memberContext',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -795,6 +780,41 @@ class User implements \ArrayAccess
 	 *********************/
 
 	/**
+	 * @var array
+	 *
+	 * Alternate names for some object properties.
+	 */
+	protected array $prop_aliases = [
+		'id_member' => 'id',
+		'member_name' => 'username',
+		'real_name' => 'name',
+		'display_name' => 'name',
+		'email_address' => 'email',
+		'lngfile' => 'language',
+		'member_group' => 'group_name',
+		'primary_group' => 'primary_group_name',
+		'member_group_color' => 'group_color',
+		'member_ip' => 'ip',
+		'member_ip2' => 'ip2',
+		'usertitle' => 'title',
+		'blurb' => 'title',
+		'id_theme' => 'theme',
+		'ignore_boards' => 'ignoreboards',
+		'pm_ignore_list' => 'ignoreusers',
+		'buddy_list' => 'buddies',
+		'instant_messages' => 'messages',
+		'birth_date' => 'birthdate',
+		'last_login_timestamp' => 'last_login',
+
+		// Square brackets are parsed to find array elements.
+		'website_url' => 'website[url]',
+		'website_title' => 'website[title]',
+
+		// Initial exclamation mark means inverse of the property.
+		'is_logged' => '!is_guest',
+	];
+
+	/**
 	 * @var bool
 	 *
 	 * Whether the integrate_verify_user hook verified this user for us.
@@ -836,41 +856,6 @@ class User implements \ArrayAccess
 	 */
 	private array $groups_can_moderate;
 
-	/**
-	 * @var array
-	 *
-	 * Alternate names for some object properties.
-	 */
-	protected array $prop_aliases = [
-		'id_member' => 'id',
-		'member_name' => 'username',
-		'real_name' => 'name',
-		'display_name' => 'name',
-		'email_address' => 'email',
-		'lngfile' => 'language',
-		'member_group' => 'group_name',
-		'primary_group' => 'primary_group_name',
-		'member_group_color' => 'group_color',
-		'member_ip' => 'ip',
-		'member_ip2' => 'ip2',
-		'usertitle' => 'title',
-		'blurb' => 'title',
-		'id_theme' => 'theme',
-		'ignore_boards' => 'ignoreboards',
-		'pm_ignore_list' => 'ignoreusers',
-		'buddy_list' => 'buddies',
-		'instant_messages' => 'messages',
-		'birth_date' => 'birthdate',
-		'last_login_timestamp' => 'last_login',
-
-		// Square brackets are parsed to find array elements.
-		'website_url' => 'website[url]',
-		'website_title' => 'website[title]',
-
-		// Initial exclamation mark means inverse of the property.
-		'is_logged' => '!is_guest',
-	];
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -885,6 +870,21 @@ class User implements \ArrayAccess
 		'basic' => 1,
 		'normal' => 2,
 		'profile' => 3,
+	];
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'profiles' => 'user_profile',
+			'settings' => 'user_settings',
+			'info' => 'user_info',
+			'sc' => 'sc',
+			'memberContext' => 'memberContext',
+		],
 	];
 
 	/****************
@@ -944,6 +944,11 @@ class User implements \ArrayAccess
 
 		if (!isset($boards)) {
 			$this->loadModCache();
+
+			// Can this user approve group requests?
+			if (($this->mod_cache['gq'] ?? '0=1') != '0=1') {
+				$this->permission_sets[0]->grant('approve_group_requests');
+			}
 
 			// A user can mod if they have permission to see the mod center, or they are a board/group/approval moderator.
 			$this->can_mod = (
@@ -1173,6 +1178,12 @@ class User implements \ArrayAccess
 	 */
 	public function logOnline(bool $force = false): void
 	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
+			return;
+		}
+
 		// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
 		if (!empty(Theme::$current->settings['display_who_viewing']) && (!empty(Topic::$topic_id) || !empty(Board::$info->id))) {
 			// Take the opposite approach!
@@ -1351,6 +1362,12 @@ class User implements \ArrayAccess
 	 */
 	public function loadModCache(): void
 	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
+			return;
+		}
+
 		if (
 			isset($_SESSION['mc'])
 			&& $_SESSION['mc']['time'] > Config::$modSettings['settings_updated']
@@ -1389,7 +1406,9 @@ class User implements \ArrayAccess
 	 */
 	public function rebuildModCache(): void
 	{
+		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1502,13 +1521,14 @@ class User implements \ArrayAccess
 	 * with a message telling them why. If $message is empty, a default message
 	 * will be used.
 	 *
-	 * @param string $message The message to display to the guest.
+	 * @param string|null $message The message to display to the guest.
 	 * @param bool $log Whether to log what they were trying to do.
 	 */
 	public function kickIfGuest(?string $message = null, bool $log = true): void
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1577,6 +1597,7 @@ class User implements \ArrayAccess
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1847,13 +1868,14 @@ class User implements \ArrayAccess
 	 * Increments the hit counters for the specified ban ID's (if any).
 	 *
 	 * @param array $ban_ids The IDs of the bans.
-	 * @param string $email The email address associated with the user that
+	 * @param string|null $email The email address associated with the user that
 	 *    triggered this hit. If not set, uses the current user's email address.
 	 */
 	public function logBan(array $ban_ids = [], ?string $email = null): void
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1914,7 +1936,8 @@ class User implements \ArrayAccess
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
-			return null;
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
 
 		// We don't care if the option is off, because guests should NEVER get past here.
@@ -2007,6 +2030,12 @@ class User implements \ArrayAccess
 	 */
 	public function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): ?string
 	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
 		// Is it in as $_POST['sc']?
 		if ($type == 'post') {
 			$check = $_POST[$_SESSION['session_var']] ?? (empty(Config::$modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null);
@@ -2141,25 +2170,19 @@ class User implements \ArrayAccess
 	 * If $any is true, will return true if the user has any of the specified
 	 * permissions on any of the specified boards.
 	 *
-	 * Always returns true if the user is an administrator.
-	 *
 	 * @param string|array $permissions One or more permissions to check.
 	 * @param int|array|null $boards The IDs of one or more boards, or null for
 	 *    the current board. Default: null.
 	 * @param bool $any If true, will return true if the user has any of the
-	 *    specified permissions. If false, will return true only if the user
-	 *    has all of the specified permissions. Default: false.
+	 *    specified permissions on any of the specified boards. If false, will
+	 *    return true only if the user has all of the specified permissions on
+	 *    all of the specified boards. Default: false.
 	 * @return bool Whether the user has the specified permission.
 	 */
 	public function allowedTo(string|array $permissions, int|array|null $boards = null, bool $any = false): bool
 	{
 		// You're always allowed to do nothing. (Unless you're a working man, MR. LAZY :P!)
 		if (empty($permissions)) {
-			return true;
-		}
-
-		// Administrators are supermen :P.
-		if ($this->is_admin) {
 			return true;
 		}
 
@@ -2172,6 +2195,17 @@ class User implements \ArrayAccess
 			),
 		);
 
+		// If a permission doesn't exist, it can't be done.
+		foreach ($permissions as $key => $permission) {
+			if (!Permission::exists($permission)) {
+				unset($permissions[$key]);
+
+				if (!$any || empty($permissions)) {
+					return false;
+				}
+			}
+		}
+
 		// Avoid unnecessary repetition.
 		$cache_key = implode(',', $permissions) . '-' . implode(',', $boards) . '-' . (int) $any;
 
@@ -2183,9 +2217,6 @@ class User implements \ArrayAccess
 		$board_permissions = array_filter($permissions, fn($p) => Permission::get($p)->scope === 'board');
 		$global_permissions = array_diff($permissions, $board_permissions);
 
-		// Assume false until proven otherwise.
-		$allowed = false;
-
 		// Check any requested global permissions.
 		if (!empty($global_permissions)) {
 			$this->loadPermissions(0);
@@ -2194,29 +2225,33 @@ class User implements \ArrayAccess
 
 		// Check any requested board permissions.
 		if (!empty($board_permissions) && !empty($boards)) {
+			if (!isset($allowed)) {
+				$allowed = !$any;
+			}
+
 			$this->loadPermissions($boards);
 
 			foreach ($boards as $board) {
-				$allowed_here = $this->permission_sets[$board]->allowedTo($board_permissions, $any);
+				$allowed_here = isset($this->permission_sets[$board]) && $this->permission_sets[$board]->allowedTo($board_permissions, $any);
 				$allowed = $any ? ($allowed || $allowed_here) : ($allowed && $allowed_here);
 			}
 		}
 
-		$this->perm_cache[$cache_key] = $allowed;
+		$this->perm_cache[$cache_key] = !empty($allowed);
 
-		return $allowed;
+		return !empty($allowed);
 	}
 
 	/**
 	 * Checks whether the user has the given permissions, and exits with a
 	 * fatal error if not.
 	 *
-	 * Uses allowedTo() to check if the user is allowed to do permission.
+	 * Uses allowedTo() to check if the user has the permissions.
 	 *
-	 * Checks the passed boards or current board for the permission.
+	 * Checks the passed boards or current board for the permissions.
 	 *
-	 * If $any is true, the user only needs permission on at least one of the
-	 * boards to pass.
+	 * If $any is true, the user will pass if they have any of the specified
+	 * permissions on any of the specified boards.
 	 *
 	 * If the user is not allowed, loads the Errors language file and shows an
 	 * error using Lang::$txt['cannot_' . $permission].
@@ -2224,16 +2259,17 @@ class User implements \ArrayAccess
 	 * If the user is a guest and cannot do it, calls $this->kickIfGuest().
 	 *
 	 * @param string|array $permissions One or more permissions to check.
-	 * @param int|array $boards The ID of a board or an array of board IDs if we
-	 *    want to check board-level permissions
-	 * @param bool $any Whether to check for permission on at least one board
-	 *    instead of all the passed boards.
+	 * @param int|array|null $boards The IDs of one or more boards, or null for
+	 *    the current board. Default: null.
+	 * @param bool $any If true, the user will pass if they have any of the
+	 *    specified permissions on any of the specified boards. Default: false.
 	 */
 	public function isAllowedTo(string|array $permissions, int|array|null $boards = null, bool $any = false): void
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
-			return;
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
 
 		// Make it an array, even if a string was passed.
@@ -2434,7 +2470,7 @@ class User implements \ArrayAccess
 	 * @param mixed $users Users specified by ID, name, or email address.
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param string $dataset What kind of data to load: 'profile', 'normal',
+	 * @param string|null $dataset What kind of data to load: 'profile', 'normal',
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array Instances of this class for the loaded users.
 	 */
@@ -2474,7 +2510,7 @@ class User implements \ArrayAccess
 	 * Reloads an array of users, specified by ID number.
 	 *
 	 * @param int|array $users One or more users specified by ID.
-	 * @param string $dataset What kind of data to load: 'profile', 'normal',
+	 * @param string|null $dataset What kind of data to load: 'profile', 'normal',
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array The ids of the loaded members.
 	 */
@@ -2978,7 +3014,7 @@ class User implements \ArrayAccess
 	/**
 	 * Gets a member's selected time zone identifier
 	 *
-	 * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
+	 * @param int|null $id_member The member id to look up. If not provided, the current user's id will be used.
 	 * @return string The time zone identifier string for the user's time zone.
 	 */
 	public static function getTimezone(?int $id_member = null): string
@@ -3795,7 +3831,7 @@ class User implements \ArrayAccess
 	 * Pass in 0 as a special case to fetch moderators on all boards.
 	 *
 	 * @param string $permission The permission to check.
-	 * @param int $board_id If set, checks permission for that specific board.
+	 * @param int|null $board_id If set, checks permission for that specific board.
 	 * @return array IDs of the members who have that permission.
 	 */
 	public static function getAllowedTo(string $permission, ?int $board_id = null): array
@@ -3929,7 +3965,7 @@ class User implements \ArrayAccess
 	/**
 	 * Constructor. Protected in order to force instantiation via User::load().
 	 *
-	 * @param int $id The ID number of the user, or null for current user.
+	 * @param int|null $id The ID number of the user, or null for current user.
 	 * @param string|null $dataset What kind of data to load.
 	 *    Can be one of 'profile', 'normal', 'basic', or 'minimal'.
 	 *    If left null, the default depends on the value of $id:

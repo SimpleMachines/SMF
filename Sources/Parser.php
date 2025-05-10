@@ -254,9 +254,9 @@ abstract class Parser
 	 */
 	private static array $results = [];
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -412,9 +412,9 @@ abstract class Parser
 		);
 	}
 
-	/*******************
-	 * Internal methods.
-	 *******************/
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Checks whether the server's load average is too high to parse BBCode.
@@ -508,7 +508,7 @@ abstract class Parser
 	/**
 	 * Adjusts a BBCode definition so that it outputs its disabled version.
 	 *
-	 * @param BBCode $code A BBCode definition.
+	 * @param BBCode $code_def A BBCode definition.
 	 * @return BBCode The disabled version of the BBCode definition.
 	 */
 	protected function disableCode(BBCode $code_def): BBCode

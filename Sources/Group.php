@@ -1168,8 +1168,6 @@ class Group implements \ArrayAccess
 	 * @param bool $perms_checked Whether we've already checked permissions.
 	 * @param bool $ignore_protected Whether to ignore the protected status of
 	 *    protected groups.
-	 * @param mixed The groups to remove the member(s) from. If null, the
-	 *    specified members are stripped from all their membergroups.
 	 * @return bool Whether the operation was successful.
 	 */
 	public function removeMembers(int|array $members, bool $perms_checked = false, bool $ignore_protected = false): bool
@@ -1472,7 +1470,7 @@ class Group implements \ArrayAccess
 	 *
 	 * Results are saved in $this->num_permissions and also returned.
 	 *
-	 * @param int $profile Which permission profile to count permissions for.
+	 * @param int|null $profile Which permission profile to count permissions for.
 	 *    If set to 1 or higher, count board permissions for that profile.
 	 *    If set to 0, count general permissions only.
 	 *    If null, count general permissions and board permissions for the
@@ -1563,7 +1561,7 @@ class Group implements \ArrayAccess
 		// Reset all cached permissions.
 		Config::updateModSettings(['settings_updated' => time()]);
 
-		$set = current(GroupPermissionSet::load($profile, (int) $group));
+		$set = current(GroupPermissionSet::load($profile, (int) $this->id));
 
 		foreach ($set->permissions as $permission_name => $value) {
 			$permission = Permission::get($permission_name);
@@ -2209,24 +2207,19 @@ class Group implements \ArrayAccess
 	 * allowed, disallowed, or denied for each group.
 	 *
 	 * @param string|array $permissions One or more permissions to check.
-	 * @param ?int $board_or_profile ID of either a board or of a permission
-	 *    profile. If null, the default permission profile will be used.
+	 * @param ?int $board ID of a board whose permission profile should be used.
+	 *    If null, the default permission profile will be used.
 	 *    Default: null.
-	 * @param bool $is_profile Set this to true if $board_or_profile is a
-	 *    permission profile ID. Means nothing if $board_or_profile is null.
-	 *    Default: false.
 	 * @return array
 	 */
-	public static function getAllWithPermissions(string|array $permissions, ?int $board_or_profile = null, bool $is_profile = false): array
+	public static function getAllWithPermissions(string|array $permissions, ?int $board): array
 	{
-		if (!isset($board_or_profile)) {
-			$profile = PermissionProfile::DEFAULT;
-		} elseif ($is_profile) {
-			$profile = current(PermissionProfile::load($board_or_profile));
-			$profile = $profile instanceof PermissionProfile ? $profile->id : PermissionProfile::DEFAULT;
-		} else {
-			$profile = current(PermissionProfile::loadByBoard($board_or_profile));
-			$profile = $profile instanceof PermissionProfile ? $profile->id : PermissionProfile::DEFAULT;
+		if (isset($board)) {
+			$profile = current(PermissionProfile::loadByBoard($board));
+		}
+
+		if (!isset($profile) || !($profile instanceof PermissionProfile)) {
+			$profile = current(PermissionProfile::load(PermissionProfile::DEFAULT));
 		}
 
 		$permissions = (array) $permissions;
@@ -2240,7 +2233,7 @@ class Group implements \ArrayAccess
 		}
 
 		// Maybe a mod needs to tweak the list of allowed groups on the fly?
-		IntegrationHook::call('integrate_groups_with_permissions', [&$groups, $permissions, $board]);
+		IntegrationHook::call('integrate_groups_with_permissions', [&$groups, $permissions, $profile]);
 
 		// Call the deprecated integrate_groups_allowed_to hook.
 		self::integrateGroupsAllowedTo($groups, $permissions, $board);
@@ -2627,7 +2620,7 @@ class Group implements \ArrayAccess
 	 * Returns the icons formatted for display.
 	 *
 	 * @param self $group An instance of this class.
-	 * @return bool Whether the group is a post-count based group.
+	 * @return string The formatted icon or an empty string if the group doesn't have one
 	 */
 	protected static function formatIcons(self $group): string
 	{
@@ -2786,9 +2779,9 @@ class Group implements \ArrayAccess
 			IntegrationHook::call('integrate_groups_allowed_to', [&$allowed_denied, $permission, $board]);
 
 			foreach ($groups as $group => $group_permissions) {
-				if (in_array($allowed_denied['allowed'])) {
+				if (in_array($group, $allowed_denied['allowed'])) {
 					$groups[$group][$permission] = 1;
-				} elseif (in_array($allowed_denied['denied'])) {
+				} elseif (in_array($group, $allowed_denied['denied'])) {
 					$groups[$group][$permission] = 0;
 				} else {
 					$groups[$group][$permission] = null;

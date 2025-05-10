@@ -33,10 +33,16 @@ class Attachment implements \ArrayAccess
 	 * Class constants
 	 *****************/
 
+	/**
+	 * Constants for approval states.
+	 */
 	public const APPROVED_ANY = -1;
 	public const APPROVED_FALSE = 0;
 	public const APPROVED_TRUE = 1;
 
+	/**
+	 * Constants for attachment types.
+	 */
 	public const TYPE_ANY = -1;
 	public const TYPE_STANDARD = 0;
 	public const TYPE_AVATAR = 1;
@@ -614,11 +620,11 @@ class Attachment implements \ArrayAccess
 	/**
 	 * Loads existing attachments by member ID.
 	 *
+	 * @param array|int $members The ID numbers of one or more members.
 	 * @param int $approval_status One of this class's APPROVED_* constants.
 	 *     Default: self::APPROVED_TRUE.
 	 * @param bool $get_thumbs Whether to get the thumbnail image dimensions.
 	 *     Default: true.
-	 * @param array|int $ids The ID numbers of one or more members.
 	 * @return array Instances of this class for the loaded attachments.
 	 */
 	public static function loadByMember(array|int $members, int $approval_status = self::APPROVED_TRUE, bool $get_thumbs = true): array

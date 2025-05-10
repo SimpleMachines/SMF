@@ -49,7 +49,6 @@ class Post implements ActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -385,9 +384,6 @@ class Post implements ActionInterface, Routable
 	 * Builds a routing path based on URL query parameters.
 	 *
 	 * @param array $params URL query parameters.
-	 * @param bool $append If true, the action route will be appended to the
-	 *    topic or board route indicated by the topic or board params.
-	 *    Default: false.
 	 * @return array Contains two elements: ['route' => [], 'params' => []].
 	 *    The 'route' element contains the routing path. The 'params' element
 	 *    contains any $params that weren't incorporated into the route.

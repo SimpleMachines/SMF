@@ -30,19 +30,8 @@ use SMF\Search\SearchApi;
  */
 class Topic implements \ArrayAccess, Routable
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'topic_id' => 'topic',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -374,6 +363,17 @@ class Topic implements \ArrayAccess, Routable
 		'can_reply_unapproved' => 'post_unapproved_replies',
 	];
 
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'topic_id' => 'topic',
+		],
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -383,7 +383,6 @@ class Topic implements \ArrayAccess, Routable
 	 *
 	 * @param int $id The ID number of the topic.
 	 * @param array $props Properties to set for this topic.
-	 * @return object An instance of this class.
 	 */
 	public function __construct(int $id, array $props = [])
 	{
@@ -671,7 +670,6 @@ class Topic implements \ArrayAccess, Routable
 	/**
 	 * Gets the IDs of messages in this topic that the current user likes.
 	 *
-	 * @param int $topic The topic ID to fetch the info from.
 	 * @return array IDs of messages in this topic that the current user likes.
 	 */
 	public function getLikedMsgs(): array

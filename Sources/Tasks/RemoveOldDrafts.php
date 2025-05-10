@@ -25,6 +25,10 @@ use SMF\Theme;
  */
 class RemoveOldDrafts extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *

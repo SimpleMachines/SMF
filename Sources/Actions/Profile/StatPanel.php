@@ -34,8 +34,6 @@ class StatPanel implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/****************
 	 * Public methods
 	 ****************/

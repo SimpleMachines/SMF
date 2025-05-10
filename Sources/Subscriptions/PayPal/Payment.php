@@ -24,10 +24,18 @@ use SMF\Lang;
  */
 class Payment
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var string The data to return
 	 */
 	private $return_data;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * This function returns true/false for whether this gateway thinks the data is intended for it.
@@ -272,10 +280,14 @@ class Payment
 		}
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * A private function to find out the subscription details.
 	 *
-	 * @return bool|void False on failure, otherwise just sets $_POST['item_number']
+	 * @return bool False on failure, otherwise just sets $_POST['item_number'] and returns true
 	 */
 	private function _findSubscription(): bool
 	{

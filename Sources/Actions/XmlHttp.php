@@ -43,7 +43,6 @@ class XmlHttp implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -151,7 +150,7 @@ class XmlHttp implements ActionInterface, Routable
 	 * Handles retrieving previews of news items, newsletters, signatures and warnings.
 	 * Calls the appropriate function based on $_POST['item']
 	 *
-	 * @return void|bool Returns false if $_POST['item'] isn't set or isn't valid
+	 * @return null|bool Returns false if $_POST['item'] isn't set or isn't valid
 	 */
 	public function previews(): ?bool
 	{

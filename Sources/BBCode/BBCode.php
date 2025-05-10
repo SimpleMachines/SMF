@@ -125,7 +125,7 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	public ?array $parameters;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * A regular expression to test immediately after the tag's '=', ' ' or ']'.
 	 *
@@ -134,7 +134,7 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	public ?string $test;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * Content to be inserted for this BBCode.
 	 *
@@ -154,7 +154,7 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	public ?string $content;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * HTML (or whatever) to insert before the BBCode's content.
 	 *
@@ -173,7 +173,7 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	public ?string $before;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * Similar to $before in every way, except that it is used when the tag is
 	 * closed.
@@ -181,7 +181,7 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	public ?string $after;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * Used in place of $content when the tag is disabled.
 	 *
@@ -191,7 +191,7 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	public ?string $disabled_content;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * Used in place of $before when the tag is disabled.
 	 *
@@ -201,7 +201,7 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	public ?string $disabled_before;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * Used in place of $after when the tag is disabled.
 	 *

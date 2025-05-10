@@ -34,8 +34,8 @@ class Mail
 	 * @param array|string $to The email(s) to send to
 	 * @param string $subject Email subject, expected to have entities, and slashes, but not be parsed
 	 * @param string $message Email body, expected to have slashes, no htmlentities
-	 * @param string $from The address to use for replies
-	 * @param string $message_id If specified, it will be used as local part of the Message-ID header.
+	 * @param null|string $from The address to use for replies
+	 * @param null|string $message_id If specified, it will be used as local part of the Message-ID header.
 	 * @param bool $send_html Whether or not the message is HTML vs. plain text
 	 * @param int $priority The priority of the message
 	 * @param bool $hotmail_fix Whether to apply the "hotmail fix"
@@ -999,7 +999,7 @@ class Mail
 	 *
 	 * @param string $type The type. Types supported are 'approval', 'activation', and 'standard'.
 	 * @param int $memberID The ID of the member
-	 * @param string $member_name The name of the member (if null, it is pulled from the database)
+	 * @param null|string $member_name The name of the member (if null, it is pulled from the database)
 	 */
 	public static function adminNotify(string $type, int $memberID, ?string $member_name = null): void
 	{

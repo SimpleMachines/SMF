@@ -44,7 +44,6 @@ use SMF\Utils;
 class TopicMerge implements ActionInterface, Routable
 {
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
