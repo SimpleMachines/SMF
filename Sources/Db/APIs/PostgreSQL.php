@@ -881,9 +881,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function detect_charset(?string $table = null, ?string $column = null): string
+	public function detect_charset(?string $table = null, ?string $column = null, bool $reset = false): string
 	{
 		static $detected;
+
+		if ($reset) {
+			$detected = null;
+		}
 
 		// PostgreSQL uses one character set per database. So sane and simple.
 		if (!isset($detected)) {

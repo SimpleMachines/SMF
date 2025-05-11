@@ -886,9 +886,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function detect_charset(?string $table = null, ?string $column = null): string
+	public function detect_charset(?string $table = null, ?string $column = null, bool $reset = false): string
 	{
 		static $detected;
+
+		if ($reset) {
+			$detected = null;
+		}
 
 		// MySQL has a default character set for the database, but tables can
 		// use different character sets, and even columns within those tables
