@@ -377,12 +377,14 @@ class Sapi
 	 * Makes call to the Server API (SAPI) to increase the time limit.
 	 *
 	 * @param int $limit Requested amount of time, defaults to 600 seconds.
+	 * @return bool True on success, or false on failure.
 	 */
-	public static function setTimeLimit(int $limit = 600)
+	public static function setTimeLimit(int $limit = 600): bool
 	{
 		try {
-			set_time_limit($limit);
+			return set_time_limit($limit);
 		} catch (\Exception $e) {
+			return false;
 		}
 	}
 
