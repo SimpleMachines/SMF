@@ -427,6 +427,8 @@ class Event implements \ArrayAccess
 
 			// Creating a new event.
 			case 0:
+				$this->id = $id;
+
 				if (!isset($props['start']) || !($props['start'] instanceof \DateTimeInterface)) {
 					ErrorHandler::fatalLang('invalid_date', false);
 				} elseif (!($props['start'] instanceof Time)) {
