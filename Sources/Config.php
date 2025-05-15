@@ -1420,11 +1420,6 @@ class Config
 			$config_vars['db_last_error'] = 0;
 		}
 
-		// Rebuilding should not be undertaken lightly, so we're picky about the parameter.
-		if (!is_bool($rebuild)) {
-			$rebuild = false;
-		}
-
 		$mtime = isset($mtime) ? (int) $mtime : (defined('TIME_START') ? TIME_START : $_SERVER['REQUEST_TIME']);
 
 		/*****************
@@ -1457,6 +1452,7 @@ class Config
 		}
 
 		// When was Settings.php last changed?
+		clearstatcache();
 		$last_settings_change = filemtime($settingsFile);
 
 		// Get the current values of everything in Settings.php.
@@ -2233,7 +2229,7 @@ class Config
 		$success = self::safeFileWrite($settingsFile, $settingsText, $backupFile, $last_settings_change);
 
 		// Remember this in case updateSettingsFile is called twice.
-		$mtime = filemtime($settingsFile);
+		$mtime = microtime(true);
 
 		return $success;
 	}
