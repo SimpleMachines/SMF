@@ -1826,6 +1826,29 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
+		// Which row format (if any) should be specified?
+		switch ($parameters['engine']) {
+			case 'InnoDB':
+				if (!in_array(strtoupper($parameters['row_format'] ?? ''), ['REDUNDANT', 'COMPACT', 'DYNAMIC', 'COMPRESSED'])) {
+					$parameters['row_format'] = 'DYNAMIC';
+				}
+				break;
+
+			case 'MyISAM':
+				if (!in_array(strtoupper($parameters['row_format'] ?? ''), ['FIXED', 'DYNAMIC', 'COMPRESSED'])) {
+					unset($parameters['row_format']);
+				}
+				break;
+
+			default:
+				unset($parameters['row_format']);
+				break;
+		}
+
+		if (isset($parameters['row_format'])) {
+			$table_query .= ' ROW_FORMAT=' . $parameters['row_format'];
+		}
+
 		// Create the table!
 		$this->query(
 			'',
