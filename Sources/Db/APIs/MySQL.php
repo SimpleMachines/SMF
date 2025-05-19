@@ -1247,7 +1247,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$this->free_result($result);
 
 		// Probably InnoDB.... and it might have a comment.
-		$schema_create .= $crlf . ') ENGINE=' . $row['Engine'] . ($row['Comment'] != '' ? ' COMMENT="' . $row['Comment'] . '"' : '');
+		$schema_create .= $crlf . ') ENGINE=' . $row['Engine'] . ' ROW_FORMAT=' . $row['Row_format'] . ' COLLATE=' . $row['Collation'] . ($row['Comment'] != '' ? ' COMMENT="' . $row['Comment'] . '"' : '');
 
 		return $schema_create;
 	}
