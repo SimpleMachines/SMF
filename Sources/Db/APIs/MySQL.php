@@ -908,11 +908,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					INNER JOIN information_schema.COLUMNS AS c ON (c.TABLE_SCHEMA = t.TABLE_SCHEMA AND c.TABLE_NAME = t.TABLE_NAME)
 					INNER JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY AS a ON (t.TABLE_COLLATION = a.COLLATION_NAME)
 				WHERE t.TABLE_SCHEMA = {string:db_name}
-					AND c.DATA_TYPE IN ({array_string:types})
 				ORDER BY t.TABLE_SCHEMA, t.TABLE_NAME, c.COLUMN_NAME',
 				[
 					'db_name' => $this->name,
-					'types' => ['enum', 'varchar', 'char', 'tinytext', 'text', 'mediumtext', 'longtext'],
 				],
 			);
 
