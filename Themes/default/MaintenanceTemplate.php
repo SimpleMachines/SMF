@@ -263,4 +263,123 @@ abstract class MaintenanceTemplate
 
 		die;
 	}
+
+	/**
+	 * Shows the template for the Utf8ConverterStep.
+	 *
+	 * This template is here rather than in UpgradeTemplate because it might
+	 * also be needed for converters and other tools.
+	 */
+	public static function convertUtf8(): void
+	{
+		MaintenanceTemplate::warningsAndErrors();
+
+		if (!empty(Maintenance::$fatal_error)) {
+			return;
+		}
+
+		// Show the continue button.
+		Maintenance::$context['continue'] = true;
+
+		echo '
+			<h3>', Lang::getTxt('upgrade_wait2', file: 'Maintenance'), '</h3>
+			<input type="hidden" name="utf8_done" id="utf8_done" value="0">
+			<strong>', Lang::getTxt('upgrade_completedtables_outof', Maintenance::$context), '</strong>
+			<div id="debug_section">
+				<span id="debuginfo"></span>
+			</div>
+			<h3 id="current_tab">
+				', Lang::getTxt('upgrade_current_table', file: 'Maintenance'), ' &quot;<span id="current_table">', Maintenance::$context['cur_table_name'], '</span>&quot;
+			</h3>';
+
+		// If we dropped their index, let's let them know.
+		if (!empty(Maintenance::$context['dropping_index'])) {
+			echo '
+			<p id="indexmsg" class="', Maintenance::$context['cur_table_num'] == Maintenance::$context['table_count'] ? 'inline_block' : 'hidden', '>', Lang::getTxt('upgrade_fulltext', file: 'Maintenance'), '</p>';
+		}
+
+		// Completion notification.
+		echo '
+			<p id="commess" class="', Maintenance::$context['cur_table_num'] == Maintenance::$context['table_count'] ? 'inline_block' : 'hidden', '">', Lang::getTxt('upgrade_conversion_proceed', file: 'Maintenance'), '</p>';
+
+		echo '
+			<div class="errorbox" id="errorbox" style="display: none;">
+				<h3>', Lang::getTxt('critical_error', file: 'Maintenance'), '</h3>
+				<span>', Lang::getTxt('error_unknown', file: 'Maintenance'), '</span>
+			</div>';
+
+		// Pour me a cup of javascript.
+		echo '
+			<script>
+				const iTotalTables = ', Maintenance::$context['table_count'], ';
+				const iStepWeight = ', Maintenance::$context['step_weight'], ';
+				let iLastTableIndex = ', Maintenance::$context['cur_table_num'], ';
+				let iStepProgress = 0;
+				let sCurrentTableName = "";
+
+				function getNextTables()
+				{
+					const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json".replace(/substep=\d+/, "substep=" + iLastTableIndex);
+
+					fetch(url, {
+						method: "GET",
+						credentials: "include",
+					}).then(function(response){
+						response.json().then(function(json) {
+							if (json.success != true) {
+								document.getElementById("errorbox").style.display = "";
+								document.getElementById("contbutt").disabled = 0;
+								document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iLastTableIndex);
+								return;
+							}
+
+							sCurrentTableName = json.data.current_table_name;
+							iLastTableIndex = parseInt(json.data.current_table_index);
+							iStepProgress = parseInt(json.data.substep_progress);
+
+							// Update the page.
+							document.getElementById("current_table").innerHTML = sCurrentTableName;
+
+							updateProgress(iLastTableIndex, iTotalTables, iStepWeight, iStepProgress);
+
+							if (isDebug) {
+								setOuterHTML(document.getElementById("debuginfo"), "<br>', Lang::getTxt('upgrade_completed_table', file: 'Maintenance'), ' &quot;" + sCurrentTableName + "&quot;.<span id=\'debuginfo\'><" + "/span>");
+
+								if (document.getElementById("debug_section").scrollHeight) {
+									document.getElementById("debug_section").scrollTop = document.getElementById("debug_section").scrollHeight
+								}
+							}
+
+							// Are we done yet?
+							if (iLastTableIndex == iTotalTables) {
+								document.getElementById("commess").classList.remove("hidden");
+								document.getElementById("current_tab").classList.add("hidden");
+								document.getElementById("contbutt").disabled = 0;
+								document.getElementById("utf8_done").value = 1;
+
+								setTimeout("doAutoSubmit();", 1000);
+							}
+							else {
+								getNextTables();
+							}
+						});
+					}).catch(function(error) {
+						console.log("Fetch Error:", error);
+
+						document.getElementById("errorbox").style.display = "";
+						if (isDebug) {
+							document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
+							document.getElementById("contbutt").disabled = 0;
+							document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iLastTableIndex);
+						}
+					});
+				}
+
+				// Lets try to let the browser handle this.
+				window.addEventListener("load", (event) => {
+					document.getElementById("contbutt").disabled = 1;
+					getNextTables();
+				});
+			</script>';
+	}
 }

@@ -131,7 +131,7 @@ ul.steps_list .stepcurrent ~ li {
 	max-height: 8.4em; /* 6 lines of text */
 	line-height: 1.4em;
 }
-dl.settings dt, dl.settings dd {
+dl.settings.adminlogin dt, dl.settings.adminlogin dd {
 	width: 50%;
 }
 dl.settings.adminlogin dt {

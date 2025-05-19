@@ -91,7 +91,7 @@ $txt['upgrade_step_backup'] = 'Backup';
 $txt['upgrade_step_migration'] = 'Migrations';
 $txt['upgrade_step_convertutf'] = 'Convert to UTF-8';
 $txt['upgrade_step_cleanup'] = 'Cleanup';
-$txt['upgrade_step_delete'] = 'Finalize Upgrade';
+$txt['upgrade_step_finalize'] = 'Finalize Upgrade';
 
 // Installer - Welcome.
 $txt['install_welcome'] = 'Welcome';
@@ -295,14 +295,21 @@ $txt['upgrade_completedtables_outof'] = 'Completed <span id="tab_done">{cur_tabl
 // Upgrade - steps and substeps
 $txt['upgrade_steps'] = 'Steps';
 $txt['upgrade_substeps'] = 'Substeps';
-$txt['upgrade_db_changes'] = 'Executing database changes';
-$txt['upgrade_db_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made.';
+$txt['upgrade_executing_substeps'] = 'Executing {type, select,
+	migration {database changes}
+	cleanup {cleanup steps}
+	other {substeps}
+}';
+$txt['upgrade_please_be_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made.';
 $txt['upgrade_current_step'] = 'Current Step:';
-$txt['upgrade_current_substep'] = 'Current Migration:';
-$txt['upgrade_completed'] = 'Completed';
-$txt['upgrade_outof'] = 'out of';
-$txt['upgrade_db_complete'] = 'Database update complete! Click Continue to proceed.';
-$txt['upgrade_completed_migration'] = ' Completed Migration:';
+$txt['upgrade_current_substep'] = 'Current Substep: {substep}';
+$txt['upgrade_substep_progress'] = 'Completed {substep_done} out of {total_substeps} {type, select,
+	migration {database changes}
+	cleanup {cleanup steps}
+	other {substeps}
+}.';
+$txt['upgrade_completed_substep'] = ' Completed Substep:';
+$txt['upgrade_step_complete'] = 'The "{step}" step is complete! Click Continue to proceed.';
 
 
 
@@ -414,9 +421,10 @@ $txt['upgrade_paused_overload'] = 'This upgrade has been paused to avoid overloa
 $txt['upgrade_continue_step'] = 'Continue from step reached during last execution of upgrade script.';
 $txt['upgrade_bypass'] = '<strong>Note:</strong> If necessary, the above security check can be bypassed for users who may administrate a server, but may not have admin rights on the forum. In order to bypass the above check, simply open &quot;upgrade.php&quot; in a text editor and replace &quot;$disable_security = false;&quot; with &quot;$disable_security = true;&quot; and refresh this page.';
 $txt['upgrade_areyouready'] = 'Before the upgrade gets underway, please review the options below and press &quot;Continue&quot; when you are ready to begin.';
-$txt['upgrade_backup_table'] = 'Perform a tables backup in your database with the prefix';
+$txt['upgrade_backup_table'] = 'Backup SMF tables in your database using the prefix <span class="bbc_tt">{0}</span>';
 $txt['upgrade_backup_complete'] = 'Backup Complete! Click Continue to Proceed.';
-$txt['upgrade_recommended'] = 'recommended!';
+$txt['upgrade_recommended'] = 'Strongly recommended!';
+$txt['upgrade_backup_already_exists'] = 'Backup already exists. If you enable this option, the existing backup will be replaced with a new one.';
 $txt['upgrade_maintenance'] = 'Put the forum into maintenance mode during upgrade.';
 $txt['upgrade_maintenance_title'] = 'Maintenance Title:';
 $txt['upgrade_maintenance_message'] = 'Maintenance Message:';
@@ -474,7 +482,7 @@ $txt['upgrade_cachedir'] = 'Cache Directory: {0}';
 $txt['upgrade_incorrect_settings'] = 'If these seem incorrect please open Settings.php in a text editor before proceeding with this upgrade. If they are incorrect due to you moving your forum to a new location please download and execute the <a href="https://download.simplemachines.org/?tools">Repair Settings</a> tool from the Simple Machines website before continuing.';
 
 $txt['upgrade_fulltext_error'] = 'Your fulltext search index was dropped to facilitate the conversion. You will need to recreate it.';
-$txt['upgrade_writable_files'] = 'The following files need to be writable to continue the upgrade. Please ensure the Windows permissions are correctly set to allow this:';
+$txt['upgrade_writable_files'] = 'The following files need to be writable to continue the upgrade. Please ensure the file permissions are correctly set to allow this:';
 $txt['upgrade_time_user'] = '&quot;{name}&quot; is running the upgrade script.';
 
 $txt['upgrade_completed_time_hms'] = 'Upgrade completed in {h, plural,
@@ -547,3 +555,5 @@ $txt['database_changes'] = 'Database Changes';
 $txt['upgrade_complete'] = 'Upgrade Complete';
 $txt['converting_utf8'] = 'Converting to UTF-8';
 $txt['converting_json'] = 'Converting to JSON';
+
+$txt['converting_table_to_utf8mb4'] = 'Converting table {0} to utf8mb4';
