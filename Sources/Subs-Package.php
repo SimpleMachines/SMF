@@ -1224,7 +1224,8 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 			$this_action = array(
 				'type' => $actionType,
 				'filename' => $action->fetch('@name'),
-				'description' => $action->fetch('.')
+				'description' => $action->fetch('.'),
+				'error' => $action->exists('@error') ? $action->fetch('@error') : 'fail'
 			);
 
 			// If there is a destination, make sure it makes sense.
@@ -1458,7 +1459,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 			}
 			// The file that was supposed to be deleted couldn't be found.
 			else
-				$failure = true;
+				$failure = $action['error'] != 'ignore';
 
 			// Any other theme folders?
 			if (!empty($context['theme_copies']) && !empty($context['theme_copies'][$action['type']][$action['filename']]))
