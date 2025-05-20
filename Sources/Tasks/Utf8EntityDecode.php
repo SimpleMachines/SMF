@@ -149,7 +149,7 @@ class Utf8EntityDecode extends BackgroundTask
 				$this->_details['offset']++;
 
 				if ($update_directly) {
-					$this->updateDirectly($row, $order_by, $where, $string_columns);
+					$this->updateDirectly($row, $where, $string_columns);
 				} else {
 					$this->recordInTempTable($row, $string_columns);
 				}
@@ -199,11 +199,10 @@ class Utf8EntityDecode extends BackgroundTask
 	 * each string column in a row and then updates the table with the new data.
 	 *
 	 * @param array $row A row of data that was retrieved from the table.
-	 * @param array $order_by The columns used to order the rows during retrieval.
 	 * @param array $where Conditions used to find the correct row to update.
 	 * @param array $string_columns The columns whose data needs to be updated.
 	 */
-	private function updateDirectly(array $row, array $order_by, array $where, array $string_columns): void
+	private function updateDirectly(array $row, array $where, array $string_columns): void
 	{
 		$params = [
 			'table' => $this->_details['table'],
@@ -212,12 +211,7 @@ class Utf8EntityDecode extends BackgroundTask
 		$set = [];
 
 		foreach ($row as $col => $value) {
-			if (!is_string($value)) {
-				unset($where[$col]);
-				continue;
-			}
-
-			if (in_array($col, $order_by)) {
+			if (isset($where[$col])) {
 				$params[$col] = $value;
 			}
 
@@ -378,21 +372,21 @@ class Utf8EntityDecode extends BackgroundTask
 	private function respawn(): void
 	{
 		Db::$db->insert(
-			'insert',
-			'{db_prefix}background_tasks',
-			[
+			method: 'insert',
+			table: '{db_prefix}background_tasks',
+			columns: [
 				'task_class' => 'string-255',
 				'task_data' => 'string',
 				'claimed_time' => 'int',
 			],
-			[
+			data: [
 				[
 					get_class($this),
 					json_encode($this->_details),
 					0,
 				],
 			],
-			[],
+			keys: [],
 		);
 	}
 }
