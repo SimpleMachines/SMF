@@ -749,7 +749,7 @@ class PackageManager
 			}
 
 			// Don't fail if a file/directory we're trying to create doesn't exist...
-			if (isset($action['filename']) && !file_exists($file) && !in_array($action['type'], ['create-dir', 'create-file'])) {
+			if (isset($action['filename']) && !file_exists($file) && !in_array($action['type'], ['create-dir', 'create-file']) && $action['error'] != 'ignore') {
 				Utils::$context['has_failure'] = true;
 
 				$thisAction += [
