@@ -222,7 +222,9 @@ class Table
 	public function alterIndex(DbIndex $index): bool
 	{
 		// This method is really just a convenient way to replace an existing index.
-		$this->dropIndex($index);
+		if (!$this->dropIndex($index)) {
+			return false;
+		}
 
 		return $this->addIndex($index);
 	}
