@@ -45,7 +45,7 @@ class Utf8EntityDecode extends BackgroundTask
 		// Avoid leaving data in an inconsistent state.
 		ignore_user_abort(true);
 
-		$time_limit = (int) (((ini_get('safe_mode') === false && Sapi::setTimeLimit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false) ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time')) / 2);
+		$time_limit = (int) ((Sapi::setTimeLimit(Taskrunner::MAX_CLAIM_THRESHOLD) !== false ? Taskrunner::MAX_CLAIM_THRESHOLD : (int) ini_get('max_execution_time')) / 2);
 
 		// Check that the table actually exists.
 		if (
