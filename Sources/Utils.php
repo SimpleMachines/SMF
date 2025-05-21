@@ -851,11 +851,9 @@ class Utils
 	 *    Default: false.
 	 * @param string $form A Unicode normalization form: 'c', 'd', 'kc', 'kd',
 	 *    or 'kc_casefold'.
-	 * @param bool $mb4 If true, always decode 4-byte UTF-8 characters.
-	 *      Default: false.
 	 * @return string The normalized string.
 	 */
-	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c', bool $mb4 = false): string
+	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c'): string
 	{
 		// Convert numeric entities to characters, except special ones.
 		if (str_contains($string, '&#')) {
