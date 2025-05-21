@@ -928,7 +928,7 @@ class Utils
 	 */
 	public static function strtotitle(string $string): string
 	{
-		return self::convertCase($string, 'upper');
+		return self::convertCase($string, 'title');
 	}
 
 	/**
