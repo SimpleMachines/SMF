@@ -100,7 +100,14 @@ interface ToolsInterface
 	public function preExit(): void;
 
 	/**
-	 * Delete the tool.
+	 * Checks whether we can the tool's script file.
+	 *
+	 * @return bool
+	 */
+	public function canDeleteTool(): bool;
+
+	/**
+	 * Delete the tool's script file.
 	 *
 	 * This is typically called with a ?delete.
 	 *

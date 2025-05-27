@@ -196,9 +196,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/**
 	 * @var string
 	 *
-	 * The name of the script this tool uses. This is used by various actions and links.
+	 * The name of the script this tool uses.
+	 *
+	 * This is used by various actions and links.
 	 */
-	public string $script_name = 'upgrade.php';
+	public string $script_file = 'upgrade.php';
 
 	/**
 	 * @var int
@@ -1213,7 +1215,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Can we delete the file?
-		Maintenance::$context['can_delete_script'] = is_writable(Config::$boarddir) || is_writable(Config::$boarddir . '/' . $this->script_name);
+		Maintenance::$context['can_delete_script'] = $this->canDeleteTool();
 
 		// Show Upgrade time in debug mode when we completed the upgrade process totally
 		if ($this->debug) {

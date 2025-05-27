@@ -23,7 +23,6 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Step;
-use SMF\PackageManager\FtpConnection;
 use SMF\Sapi;
 use SMF\Security;
 use SMF\TaskRunner;
@@ -63,9 +62,11 @@ class Install extends ToolsBase implements ToolsInterface
 	/**
 	 * @var string
 	 *
-	 * The name of the script this tool uses. This is used by various actions and links.
+	 * The name of the script this tool uses.
+	 *
+	 * This is used by various actions and links.
 	 */
-	public string $script_name = 'install.php';
+	public string $script_file = 'install.php';
 
 	/*********************
 	 * Internal properties
@@ -316,199 +317,29 @@ class Install extends ToolsBase implements ToolsInterface
 	public function checkFilesWritable(): bool
 	{
 		$writable_files = [
-			'attachments',
-			'avatars',
-			'custom_avatar',
-			'cache',
-			'Packages',
-			'Smileys',
-			'Themes',
-			'Languages/en_US/agreement.txt',
-			'Settings.php',
-			'Settings_bak.php',
-			'cache/db_last_error.php',
+			Config::$boarddir . '/attachments',
+			Config::$boarddir . '/avatars',
+			Config::$boarddir . '/custom_avatar',
+			Config::$boarddir . '/cache',
+			Config::$boarddir . '/Packages',
+			Config::$boarddir . '/Smileys',
+			Config::$boarddir . '/Themes',
+			Config::$boarddir . '/Languages/en_US/agreement.txt',
+			Config::$boarddir . '/Settings.php',
+			Config::$boarddir . '/Settings_bak.php',
+			Config::$boarddir . '/cache/db_last_error.php',
 		];
 
 		foreach ($this->detectLanguages() as $lang => $temp) {
-			$extra_files[] = 'Languages/' . $lang;
+			$writable_files[] = Config::$boarddir . '/Languages/' . $lang;
 		}
 
 		// With mod_security installed, we could attempt to fix it with .htaccess.
 		if (function_exists('apache_get_modules') && in_array('mod_security', apache_get_modules())) {
-			$writable_files[] = file_exists(Config::$boarddir . '/.htaccess') ? '.htaccess' : '.';
+			$writable_files[] = file_exists(Config::$boarddir . '/.htaccess') ? Config::$boarddir . '/.htaccess' : Config::$boarddir;
 		}
 
-		$failed_files = [];
-
-		// Windows is trickier.  Let's try opening for r+...
-		if (Sapi::isOS(Sapi::OS_WINDOWS)) {
-			foreach ($writable_files as $file) {
-				// Folders can't be opened for write... but the index.php in them can ;)
-				if (is_dir(Config::$boarddir . '/' . $file)) {
-					$file .= '/index.php';
-				}
-
-				// Funny enough, chmod actually does do something on windows - it removes the read only attribute.
-				@chmod(Config::$boarddir . '/' . $file, 0777);
-				$fp = @fopen(Config::$boarddir . '/' . $file, 'r+');
-
-				// Hmm, okay, try just for write in that case...
-				if (!is_resource($fp)) {
-					$fp = @fopen(Config::$boarddir . '/' . $file, 'w');
-				}
-
-				if (!is_resource($fp)) {
-					$failed_files[] = $file;
-				}
-
-				@fclose($fp);
-			}
-
-			foreach ($extra_files as $file) {
-				@chmod(Config::$boarddir . (empty($file) ? '' : '/' . $file), 0777);
-			}
-		} else {
-			// On linux, it's easy - just use is_writable!
-			foreach ($writable_files as $file) {
-				// Some files won't exist, try to address up front
-				if (!file_exists(Config::$boarddir . '/' . $file)) {
-					@touch(Config::$boarddir . '/' . $file);
-				}
-
-				// NOW do the writable check...
-				if (!is_writable(Config::$boarddir . '/' . $file)) {
-					@chmod(Config::$boarddir . '/' . $file, 0755);
-
-					// Well, 755 hopefully worked... if not, try 777.
-					if (!is_writable(Config::$boarddir . '/' . $file) && !@chmod(Config::$boarddir . '/' . $file, 0777)) {
-						$failed_files[] = $file;
-					}
-				}
-			}
-
-			foreach ($extra_files as $file) {
-				@chmod(Config::$boarddir . (empty($file) ? '' : '/' . $file), 0777);
-			}
-		}
-
-		$failure = count($failed_files) >= 1;
-
-		if (!isset($_SERVER)) {
-			return !$failure;
-		}
-
-		// Put the list into context.
-		Maintenance::$context['failed_files'] = $failed_files;
-
-		// It's not going to be possible to use FTP on windows to solve the problem...
-		if ($failure && Sapi::isOS(Sapi::OS_WINDOWS)) {
-			Maintenance::$fatal_error = Lang::getTxt('error_windows_chmod', file: 'Maintenance') . '
-						<ul class="error_content">
-							<li>' . implode('</li>
-							<li>', $failed_files) . '</li>
-						</ul>';
-
-			return false;
-		}
-
-		// We're going to have to use... FTP!
-		if ($failure) {
-			// Load any session data we might have...
-			if (!isset($_POST['ftp']['username']) && isset($_SESSION['ftp'])) {
-				$_POST['ftp']['server'] = $_SESSION['ftp']['server'];
-				$_POST['ftp']['port'] = $_SESSION['ftp']['port'];
-				$_POST['ftp']['username'] = $_SESSION['ftp']['username'];
-				$_POST['ftp']['password'] = $_SESSION['ftp']['password'];
-				$_POST['ftp']['path'] = $_SESSION['ftp']['path'];
-			}
-
-			Maintenance::$context['ftp_errors'] = [];
-
-			if (isset($_POST['ftp_username'])) {
-				$ftp = new FtpConnection($_POST['ftp']['server'], $_POST['ftp']['port'], $_POST['ftp']['username'], $_POST['ftp']['password']);
-
-				if ($ftp->error === false) {
-					// Try it without /home/abc just in case they messed up.
-					if (!$ftp->chdir($_POST['ftp']['path'])) {
-						Maintenance::$context['ftp_errors'][] = $ftp->last_message;
-						$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['ftp']['path']));
-					}
-				}
-			}
-
-			if (!isset($ftp) || $ftp->error !== false) {
-				if (!isset($ftp)) {
-					$ftp = new FtpConnection(null);
-				}
-				// Save the error so we can mess with listing...
-				elseif ($ftp->error !== false && empty(Maintenance::$context['ftp_errors']) && !empty($ftp->last_message)) {
-					Maintenance::$context['ftp_errors'][] = $ftp->last_message;
-				}
-
-				list($username, $detect_path, $found_path) = $ftp->detect_path(Config::$boarddir);
-
-				if (empty($_POST['ftp']['path']) && $found_path) {
-					$_POST['ftp']['path'] = $detect_path;
-				}
-
-				if (!isset($_POST['ftp']['username'])) {
-					$_POST['ftp']['username'] = $username;
-				}
-
-				// Set the username etc, into context.
-				Maintenance::$context['ftp'] = [
-					'server' => $_POST['ftp']['server'] ?? 'localhost',
-					'port' => $_POST['ftp']['port'] ?? '21',
-					'username' => $_POST['ftp']['username'] ?? '',
-					'path' => $_POST['ftp']['path'] ?? '/',
-					'path_msg' => !empty($found_path) ? Lang::getTxt('ftp_path_found_info', file: 'Maintenance') : Lang::getTxt('ftp_path_info', file: 'Maintenance'),
-				];
-
-				return false;
-			}
-
-			$_SESSION['ftp'] = [
-				'server' => $_POST['ftp']['server'],
-				'port' => $_POST['ftp']['port'],
-				'username' => $_POST['ftp']['username'],
-				'password' => $_POST['ftp']['password'],
-				'path' => $_POST['ftp']['path'],
-			];
-
-			$failed_files_updated = [];
-
-			foreach ($failed_files as $file) {
-				if (!is_writable(Config::$boarddir . '/' . $file)) {
-					$ftp->chmod($file, 0755);
-				}
-
-				if (!is_writable(Config::$boarddir . '/' . $file)) {
-					$ftp->chmod($file, 0777);
-				}
-
-				if (!is_writable(Config::$boarddir . '/' . $file)) {
-					$failed_files_updated[] = $file;
-					Maintenance::$context['ftp_errors'][] = rtrim($ftp->last_message) . ' -> ' . $file . "\n";
-				}
-			}
-
-			$ftp->close();
-
-			// Are there any errors left?
-			if (count($failed_files_updated) >= 1) {
-				// Guess there are...
-				Maintenance::$context['failed_files'] = $failed_files_updated;
-
-				// Set the username etc, into context.
-				Maintenance::$context['ftp'] = $_SESSION['ftp'] += [
-					'path_msg' => Lang::getTxt('ftp_path_info', file: 'Maintenance'),
-				];
-
-				return false;
-			}
-		}
-
-		return true;
+		return $this->makeFilesWritable($writable_files);
 	}
 
 	/**
@@ -1396,7 +1227,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// Some final context for the template.
 		Maintenance::$context['dir_still_writable'] = is_writable(Config::$boarddir);
-		Maintenance::$context['probably_delete_install'] = isset($_SESSION['installer_temp_ftp']) || is_writable(Config::$boarddir) || is_writable(Config::$boarddir . '/' . $this->script_name);
+		Maintenance::$context['can_delete_script'] = $this->canDeleteTool();
 
 		// Update hash's cost to an appropriate setting
 		Config::updateModSettings([

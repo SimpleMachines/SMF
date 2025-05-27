@@ -123,14 +123,14 @@ class InstallTemplate extends MaintenanceTemplate
 			<p>', Lang::$txt['ftp_setup_why_info'], '</p>
 			<ul class="error_content">
 				<li>', implode('</li>
-				<li>', Maintenance::$context['failed_files']), '</li>
+				<li>', Maintenance::$context['chmod_files']), '</li>
 			</ul>';
 
 		if (isset(Maintenance::$context['systemos'], Maintenance::$context['detected_path']) && Maintenance::$context['systemos'] == 'linux') {
 			echo '
 			<hr>
 			<p>', Lang::$txt['chmod_linux_info'], '</p>
-			<samp># chmod a+w ', implode(' ' . Maintenance::$context['detected_path'] . '/', Maintenance::$context['failed_files']), '</samp>';
+			<samp># chmod a+w ', implode(' ' . Maintenance::$context['detected_path'] . '/', Maintenance::$context['chmod_files']), '</samp>';
 		}
 
 		// This is serious!
@@ -479,7 +479,7 @@ class InstallTemplate extends MaintenanceTemplate
 		}
 
 		// Don't show the box if it's like 99% sure it won't work :P.
-		if (Maintenance::$context['probably_delete_install']) {
+		if (Maintenance::$context['can_delete_script']) {
 			echo '
 			<label>
 				<input type="checkbox" id="delete_self" onclick="doTheDelete();">

@@ -23,6 +23,7 @@ use SMF\Maintenance\Step;
 use SMF\PackageManager\FtpConnection;
 use SMF\Sapi;
 use SMF\SecurityToken;
+use SMF\Utils;
 
 /**
  * Base class for all our tools. Includes commonly needed logic among all tools.
@@ -38,7 +39,7 @@ abstract class ToolsBase
 	 *
 	 * Script name of the tool we are running.
 	 */
-	public string $script_name;
+	public string $script_file;
 
 	/**
 	 * @var bool
@@ -164,6 +165,24 @@ abstract class ToolsBase
 	}
 
 	/**
+	 * Checks whether we can the tool's script file.
+	 *
+	 * @return bool
+	 */
+	public function canDeleteTool(): bool
+	{
+		return (
+			!empty($this->script_file)
+			&& file_exists(Config::$boarddir . '/' . $this->script_file)
+			&& (
+				!empty($_SESSION['ftp'])
+				|| is_writable(Config::$boarddir)
+				|| is_writable(Config::$boarddir . '/' . $this->script_file)
+			)
+		);
+	}
+
+	/**
 	 * Delete the tool.
 	 *
 	 * This is typically called with a ?delete.
@@ -173,19 +192,16 @@ abstract class ToolsBase
 	 */
 	public function deleteTool(): void
 	{
-		if (
-			!empty($this->script_name)
-			&& file_exists(Config::$boarddir . '/' . $this->script_name)
-		) {
+		if ($this->canDeleteTool()) {
 			if (!empty($_SESSION['ftp'])) {
 				$ftp = new FtpConnection($_SESSION['ftp']['server'], $_SESSION['ftp']['port'], $_SESSION['ftp']['username'], $_SESSION['ftp']['password']);
 				$ftp->chdir($_SESSION['ftp']['path']);
-				$ftp->unlink($this->script_name);
+				$ftp->unlink($this->script_file);
 				$ftp->close();
 
 				unset($_SESSION['ftp']);
 			} else {
-				@unlink(Config::$boarddir . '/' . $this->script_name);
+				@unlink(Config::$boarddir . '/' . $this->script_file);
 			}
 
 			// Now just redirect to a blank.png...
@@ -218,78 +234,43 @@ abstract class ToolsBase
 			return true;
 		}
 
-		$failure = false;
-
-		// On linux, it's easy - just use is_writable!
-		// Windows is trickier.  Let's try opening for r+...
-		if (Sapi::isOS(Sapi::OS_WINDOWS)) {
-			foreach ($files as $k => $file) {
-				// Folders can't be opened for write... but the index.php in them can ;).
-				if (is_dir($file)) {
-					$file .= '/index.php';
-				}
-
-				// Funny enough, chmod actually does do something on windows - it removes the read only attribute.
-				@chmod($file, 0777);
-				$fp = @fopen($file, 'r+');
-
-				// Hmm, okay, try just for write in that case...
-				if (!$fp) {
-					$fp = @fopen($file, 'w');
-				}
-
-				if (!$fp) {
-					$failure = true;
-				} else {
-					unset($files[$k]);
-				}
-				@fclose($fp);
+		foreach ($files as $k => $file) {
+			// Folders can't be opened for write on Windows... but the index.php in them can ;)
+			if (Sapi::isOS(Sapi::OS_WINDOWS) && is_dir($file)) {
+				$file .= '/index.php';
 			}
-		} else {
-			foreach ($files as $k => $file) {
-				// Some files won't exist, try to address up front
-				if (!file_exists($file)) {
-					@touch($file);
-				}
 
-				// NOW do the writable check...
-				if (!is_writable($file)) {
-					@chmod($file, 0755);
+			// Some files won't exist, try to address up front
+			if (!file_exists($file)) {
+				@touch($file);
+			}
 
-					// Well, 755 hopefully worked... if not, try 777.
-					if (!is_writable($file) && !@chmod($file, 0777)) {
-						$failure = true;
-					}
-					// Otherwise remove it as it's good!
-					else {
-						unset($files[$k]);
-					}
-				} else {
-					unset($files[$k]);
-				}
+			// NOW do the writable check...
+			if (Utils::makeWritable($file)) {
+				unset($files[$k]);
 			}
 		}
 
-		if (empty($files)) {
-			return true;
-		}
-
-		if (!isset($_SERVER)) {
-			return !$failure;
+		if (Sapi::isCLI()) {
+			return empty($files);
 		}
 
 		// What still needs to be done?
 		Maintenance::$context['chmod_files'] = $files;
 
 		// If it's windows it's a mess...
-		if ($failure && Sapi::isOS(Sapi::OS_WINDOWS)) {
-			Maintenance::$context['chmod']['ftp_error'] = 'total_mess';
+		if (!empty($files) && Sapi::isOS(Sapi::OS_WINDOWS)) {
+			Maintenance::$fatal_error = Lang::getTxt('error_windows_chmod', file: 'Maintenance') . '
+				<ul class="error_content">
+					<li>' . implode('</li>
+					<li>', $files) . '</li>
+				</ul>';
 
 			return false;
 		}
 
 		// We're going to have to use... FTP!
-		if ($failure) {
+		if (!empty($files)) {
 			// Load any session data we might have...
 			if (!isset($_POST['ftp_username']) && isset($_SESSION['temp_ftp'])) {
 				Maintenance::$context['chmod']['server'] = $_SESSION['temp_ftp']['server'];
