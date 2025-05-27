@@ -634,11 +634,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$new_locale = Lang::getLocaleFromLanguageName($current_language);
 
 		if ($new_locale !== null && $new_locale != Config::$language) {
-			Config::updateSettingsFile(['language' => $new_locale]);
+			$this->updateSettingsFile(['language' => $new_locale]);
 		}
 
 		if (empty(Config::$languagesdir)) {
-			Config::updateSettingsFile(['languagesdir' => Config::$boarddir . '/Languages']);
+			$this->updateSettingsFile(['languagesdir' => Config::$boarddir . '/Languages']);
 		}
 
 		// Check agreement.txt. It may not exist, in which case $boarddir must be writable.
@@ -913,11 +913,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Config::updateModSettings($db_settings);
 
 		// Update Settings.php with the new settings, and rebuild if they selected that option.
-		$res = Config::updateSettingsFile($file_settings, false, !empty($_POST['migrateSettings']));
-
-		if (Sapi::isCLI() && !$res) {
-			die('FAILURE: Could not update ' . basename(SMF_SETTINGS_FILE) . "\n");
-		}
+		$this->updateSettingsFile($file_settings, false, !empty($_POST['migrateSettings']));
 
 		// Empty our error log.
 		if (!empty($_POST['empty_error'])) {
@@ -1094,24 +1090,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	{
 		Maintenance::$context['form_action'] = Config::$boardurl . '/index.php';
 
-		// Finalize some settings in the settings file.
-		$file_settings = [
-			'maintenance' => $this->user['maint'] ?? 0,
-		];
-
-		// Delete all the obsolete settings.
-		foreach (Config::getSettingsDefs() as $var => $setting_def) {
-			if (is_string($var) && ($setting_def['auto_delete'] ?? null) === 3) {
-				$file_settings[$var] = $setting_def['default'];
-			}
-		}
-
-		$res = Config::updateSettingsFile($file_settings);
-
-		if (Sapi::isCLI() && !$res) {
-			die('FAILURE: Could not update ' . basename(SMF_SETTINGS_FILE) . "\n");
-		}
-
 		// Update the database with the new SMF version.
 		Config::updateModSettings(['smfVersion' => SMF_VERSION]);
 
@@ -1200,6 +1178,21 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		User::setMe(0);
 
+		// Finalize some settings in the settings file.
+		$file_settings = [
+			'maintenance' => $this->user['maint'] ?? 0,
+		];
+
+		// Delete all the obsolete settings.
+		foreach (Config::getSettingsDefs() as $var => $setting_def) {
+			if (is_string($var) && ($setting_def['auto_delete'] ?? null) === 3) {
+				$file_settings[$var] = $setting_def['default'];
+			}
+		}
+
+		$this->updateSettingsFile($file_settings);
+
+		// We're done!
 		if (Sapi::isCLI()) {
 			echo "\n";
 			echo 'Upgrade Complete!', "\n";
@@ -1316,7 +1309,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		if (empty(Config::$db_type) || Config::$db_type == 'mysqli') {
 			Config::$db_type = 'mysql';
 			// If overriding Config::$db_type, need to set its Settings.php entry, too.
-			Config::updateSettingsFile(['db_type' => 'mysql']);
+			$this->updateSettingsFile(['db_type' => 'mysql']);
 		}
 
 		try {
@@ -1379,8 +1372,29 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			$data = '';
 		}
 
-		if (!Config::updateSettingsFile(['upgradeData' => $data])) {
+		return $this->updateSettingsFile(['upgradeData' => $data]);
+	}
+
+	/**
+	 * Wrapper for Config::updateSettingsFile() with special error handling.
+	 *
+	 * @param array $config_vars An array of one or more variables to update.
+	 * @param bool|null $keep_quotes Whether to strip slashes and trim quotes
+	 *     from string values. Defaults to auto-detection.
+	 * @param bool $rebuild If true, attempts to rebuild with standard format.
+	 *     Default false.
+	 * @return bool True on success, false on failure.
+	 */
+	private function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false): bool
+	{
+		if (!Config::updateSettingsFile($config_vars, $keep_quotes, $rebuild)) {
+			if (Sapi::isCLI()) {
+				die('FAILURE: Could not update ' . basename(SMF_SETTINGS_FILE) . "\n");
+			}
+
 			Maintenance::$fatal_error = Lang::getTxt('upgrade_writable_files', file: 'Maintenance') . ': ' . basename(SMF_SETTINGS_FILE);
+
+			return false;
 		}
 
 		return true;
