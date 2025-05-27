@@ -467,10 +467,12 @@ class InstallTemplate extends MaintenanceTemplate
 	 */
 	public static function finalize(): void
 	{
+		MaintenanceTemplate::warningsAndErrors();
+
 		echo '
 		<p>', Lang::$txt['congratulations_help'], '</p>';
 
-		MaintenanceTemplate::warningsAndErrors();
+		MaintenanceTemplate::showLog();
 
 		// Install directory still writable?
 		if (Maintenance::$context['dir_still_writable']) {

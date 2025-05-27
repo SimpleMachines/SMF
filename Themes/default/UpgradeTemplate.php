@@ -442,96 +442,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 		// Show the continue button.
 		Maintenance::$context['continue'] = true;
 
-		echo '
-			<h3>', Lang::getTxt('upgrade_wait', file: 'Maintenance'), '</h3>
-			<input type="hidden" name="backup_done" id="backup_done" value="0">
-			<strong>', Lang::getTxt('upgrade_completedtables_outof', Maintenance::$context), '</strong>
-			<div id="debug_section">
-				<span id="debuginfo"></span>
-			</div>
-			<h3 id="current_tab">
-				', Lang::getTxt('upgrade_current_table', file: 'Maintenance'), ' &quot;<span id="current_table">', Maintenance::$context['cur_table_name'], '</span>&quot;
-			</h3>
-			<p id="commess" class="', Maintenance::$context['cur_table_num'] == Maintenance::$context['table_count'] ? 'inline_block' : 'hidden', '">', Lang::getTxt('upgrade_backup_complete', file: 'Maintenance'), '</p>
-			<div class="errorbox" id="errorbox" style="display: none;">
-				<h3>', Lang::getTxt('critical_error', file: 'Maintenance'), '</h3>
-				<span>', Lang::getTxt('error_unknown', file: 'Maintenance'), '</span>
-			</div>';
-
-		// Pour me a cup of javascript.
-		echo '
-			<script>
-				const iTotalTables = ', Maintenance::$context['table_count'], ';
-				const iStepWeight = ', Maintenance::$context['step_weight'], ';
-				let iLastTableIndex = ', Maintenance::$context['cur_table_num'], ';
-				let iStepProgress = 0;
-				let sCurrentTableName = "";
-
-				function getNextTables()
-				{
-					const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json".replace(/substep=\d+/, "substep=" + iLastTableIndex);
-
-					fetch(url, {
-						method: "GET",
-						credentials: "include",
-					}).then(function(response){
-						response.json().then(function(json) {
-							if (json.success != true) {
-								document.getElementById("errorbox").style.display = "";
-								document.getElementById("contbutt").disabled = 0;
-								document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iLastTableIndex);
-								return;
-							}
-
-							sCurrentTableName = json.data.current_table_name;
-							iLastTableIndex = parseInt(json.data.current_table_index);
-							iStepProgress = parseInt(json.data.substep_progress);
-
-							// Update the page.
-							//document.getElementById("tab_done").innerHTML = iLastTableIndex;
-							document.getElementById("current_table").innerHTML = sCurrentTableName;
-
-							updateProgress(iLastTableIndex, iTotalTables, iStepWeight, iStepProgress);
-
-							if (isDebug) {
-								setOuterHTML(document.getElementById("debuginfo"), "<br>', Lang::getTxt('upgrade_completed_table', file: 'Maintenance'), ' &quot;" + sCurrentTableName + "&quot;.<span id=\'debuginfo\'><" + "/span>");
-
-								if (document.getElementById("debug_section").scrollHeight) {
-									document.getElementById("debug_section").scrollTop = document.getElementById("debug_section").scrollHeight
-								}
-							}
-
-							// Are we done yet?
-							if (iLastTableIndex == iTotalTables) {
-								document.getElementById("commess").classList.remove("hidden");
-								document.getElementById("current_tab").classList.add("hidden");
-								document.getElementById("contbutt").disabled = 0;
-								document.getElementById("backup_done").value = 1;
-
-								setTimeout("doAutoSubmit();", 1000);
-							}
-							else {
-								getNextTables();
-							}
-						});
-					}).catch(function(error) {
-						console.log("Fetch Error:", error);
-
-						document.getElementById("errorbox").style.display = "";
-						if (isDebug) {
-							document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
-							document.getElementById("contbutt").disabled = 0;
-							document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iLastTableIndex);
-						}
-					});
-				}
-
-				// Lets try to let the browser handle this.
-				window.addEventListener("load", (event) => {
-					document.getElementById("contbutt").disabled = 1;
-					getNextTables();
-				});
-			</script>';
+		self::showStepWithSubSteps('backup', 'backup_done');
 	}
 
 	/**
@@ -585,6 +496,14 @@ class UpgradeTemplate extends MaintenanceTemplate
 		echo '
 				<h3>', Lang::getTxt('upgrade_done', ['boardurl' => Config::$boardurl]), '</h3>';
 
+		// Show Upgrade time in debug mode when we completed the upgrade process totally
+		if (isset(Maintenance::$context['upgrade_completed_time'])) {
+			echo '
+				<p>' . Maintenance::$context['upgrade_completed_time'] . '</p>';
+		}
+
+		MaintenanceTemplate::showLog();
+
 		if (!empty(Maintenance::$context['can_delete_script'])) {
 			echo '
 				<p>
@@ -606,12 +525,6 @@ class UpgradeTemplate extends MaintenanceTemplate
 				</script>';
 		}
 
-		// Show Upgrade time in debug mode when we completed the upgrade process totally
-		if (isset(Maintenance::$context['upgrade_completed_time'])) {
-			echo '
-				<p>' . Maintenance::$context['upgrade_completed_time'] . '</p>';
-		}
-
 		echo '
 				<p>
 					', Lang::getTxt('upgrade_problems', ['url' => 'https://www.simplemachines.org'], file: 'Maintenance'), '
@@ -624,216 +537,6 @@ class UpgradeTemplate extends MaintenanceTemplate
 	/*************************
 	 * Internal static methods
 	 *************************/
-
-	/**
-	 * Shows the HTML for a step that has substeps.
-	 */
-	protected static function showStepWithSubSteps(string $type, string $done_param): void
-	{
-		echo '
-			<h3>', Lang::getTxt('upgrade_executing_substeps', ['type' => $type], file: 'Maintenance'), '</h3>
-			<h4><em>', Lang::getTxt('upgrade_please_be_patient', file: 'Maintenance'), '</em></h4>
-			<input type="hidden" name="', $done_param, '" id="', $done_param, '" value="0">
-			<div id="debug_section">
-				<span id="debuginfo"></span>
-			</div>';
-
-		echo '
-			<h3 id="current_tab">',
-			Lang::getTxt(
-				'upgrade_current_substep',
-				[
-					'substep' => '<span id="current_substep">' . (Maintenance::$context['current_substep'] ?? '') . '</span>',
-				],
-				file: 'Maintenance',
-			),
-			'</h3>';
-
-		echo '
-			<strong>',
-			Lang::getTxt(
-				'upgrade_substep_progress',
-				[
-					'substep_done' => '<span id="substep_done">' . Maintenance::getCurrentSubStep() . '</span>',
-					'total_substeps' => Maintenance::$total_substeps,
-					'type' => $type,
-				],
-				file: 'Maintenance',
-			),
-			'</strong>';
-
-		echo '
-			<p id="commess" class="', Maintenance::getCurrentSubStep() == Maintenance::$total_substeps ? 'inline_block' : 'hidden', '">', Lang::getTxt('upgrade_step_complete', ['step' => Lang::getTxt('upgrade_step_' . $type, file: 'Maintenance')], file: 'Maintenance'), '</p>';
-
-		echo '
-			<div class="errorbox" id="errorbox" style="display: none;">
-				<h3>', Lang::getTxt('critical_error', file: 'Maintenance'), '</h3>
-				<span>', Lang::getTxt('error_unknown', file: 'Maintenance'), '</span>
-			</div>';
-
-		// Pour me a cup of javascript.
-		echo '
-			<script>
-				const iTotalSubSteps = ', Maintenance::$total_substeps, ';
-				const iStepWeight = ', Maintenance::$context['step_weight'], ';
-				let iCurrentSubStep  = ', Maintenance::getCurrentSubStep(), ';
-				let iCurrentStart  = ', Maintenance::getCurrentStart(), ';
-				let iSubStepProgress = 0;
-				let sCurrentSubStepName = "";
-				let sNextSubStepName = "";
-
-				function getNextSubstep()
-				{
-					const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json"
-						.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
-						.replace(/start=\d+/, "start=" + iCurrentStart);
-
-					fetch(url, {
-						method: "GET",
-						credentials: "include",
-					}).then(function(response){
-						if (response.headers.get("content-type").includes("json")) {
-							response.json().then(function(json) {
-								if (json.success != true) {
-									document.getElementById("errorbox").style.display = "";
-
-									if (document.getElementById("try_again")) {
-										document.getElementById("try_again").style.display = "";
-									}
-
-									document.getElementById("upform").action = document.getElementById("upform").action
-										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
-										.replace(/start=\d+/, "start=" + iCurrentStart);
-
-									return;
-								}
-
-								sCurrentSubStepName = json.data.name;
-								sNextSubStepName = json.data.next ?? "";
-								iCurrentSubStep = parseInt(json.data.substep);
-								iCurrentStart = parseInt(json.data.start);
-								iSubStepProgress = iCurrentSubStep / iTotalSubSteps;
-
-								// Update the page.
-								document.getElementById("substep_done").innerHTML = iCurrentSubStep;
-								document.getElementById("current_substep").innerHTML = sCurrentSubStepName;
-
-								// Hold up, we caught a error.
-								if (true == json.data.failed) {
-									document.getElementById("errorbox").style.display = "";
-
-									if (document.getElementById("try_again")) {
-										document.getElementById("try_again").style.display = "";
-									}
-
-									document.getElementById("upform").action = document.getElementById("upform").action
-										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
-										.replace(/start=\d+/, "start=" + iCurrentStart);
-
-									if (isDebug) {
-										document.getElementById("errorbox").getElementsByTagName("span")[0].innerHTML = json.debug.msg + "<br>" + json.debug.file + ":" + json.debug.line;
-									}
-
-									return;
-								}
-
-								updateProgress(iCurrentSubStep, iTotalSubSteps, iStepWeight, iSubStepProgress);
-
-								if (isDebug) {
-									setOuterHTML(document.getElementById("debuginfo"), "<br>', Lang::getTxt('upgrade_completed_substep', file: 'Maintenance'), ' &quot;" + sCurrentSubStepName + "&quot;.<span id=\'debuginfo\'><" + "/span>");
-
-									if (document.getElementById("debug_section").scrollHeight) {
-										document.getElementById("debug_section").scrollTop = document.getElementById("debug_section").scrollHeight
-									}
-								}
-
-								// Are we done yet?
-								if (iCurrentSubStep == iTotalSubSteps) {
-									document.getElementById("commess").classList.remove("hidden");
-									document.getElementById("current_substep").classList.add("hidden");
-									document.getElementById("contbutt").disabled = 0;
-									document.getElementById("' . $done_param . '").value = 1;
-
-									setTimeout("doAutoSubmit();", 1000);
-								} else {
-									getNextSubstep();
-								}
-							}).catch(function(error) {
-								console.error("Parse Error:", error);
-
-								document.getElementById("errorbox").style.display = "";
-								if (isDebug) {
-									if (sNextSubStepName.length > 0) {
-										document.getElementById("current_substep").innerHTML = sNextSubStepName;
-									}
-
-									document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
-
-									if (document.getElementById("try_again")) {
-										document.getElementById("try_again").style.display = "";
-									}
-
-									document.getElementById("upform").action = document.getElementById("upform").action
-										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
-										.replace(/start=\d+/, "start=" + iCurrentStart);
-								}
-							})
-						}
-						else {
-							response.text().then(function(msg) {
-								console.error("Response Error");
-
-								document.getElementById("errorbox").style.display = "";
-								if (isDebug) {
-									if (sNextSubStepName.length > 0) {
-										document.getElementById("current_substep").innerHTML = sNextSubStepName;
-									}
-									document.getElementById("errorbox").getElementsByTagName("span")[0].outerHTML = msg;
-
-									if (document.getElementById("try_again")) {
-										document.getElementById("try_again").style.display = "";
-									}
-
-									document.getElementById("upform").action = document.getElementById("upform").action
-										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
-										.replace(/start=\d+/, "start=" + iCurrentStart);
-								}
-							});
-						}
-					}).catch(function(error) {
-						console.error("Fetch Error:", error);
-
-						document.getElementById("errorbox").style.display = "";
-						if (isDebug) {
-							if (sNextSubStepName.length > 0) {
-								document.getElementById("current_substep").innerHTML = sNextSubStepName;
-							}
-
-							document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
-
-							if (document.getElementById("try_again")) {
-								document.getElementById("try_again").style.display = "";
-							}
-
-							document.getElementById("upform").action = document.getElementById("upform").action
-								.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
-								.replace(/start=\d+/, "start=" + iCurrentStart);
-						}
-					});
-				}
-
-				// Lets try to let the browser handle this.
-				window.addEventListener("load", (event) => {
-					if (document.getElementById("try_again")) {
-						document.getElementById("try_again").style.display = "none";
-					}
-
-					document.getElementById("contbutt").disabled = 1;
-
-					getNextSubstep();
-				});
-			</script>';
-	}
 
 	/**
 	 * Template for CHMOD.
@@ -862,7 +565,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 		) {
 			echo '
 			<div class="error">
-				<p>', Lang::getTxt('upgrade_writable_files', file: 'Maintenance'), '</p>
+				<p>', Lang::getTxt('error_files_not_writable', file: 'Maintenance'), '</p>
 				<ul class="error_content">
 					<li>' . implode('</li>
 					<li>', Maintenance::$context['chmod']['files']) . '</li>

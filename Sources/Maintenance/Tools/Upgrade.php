@@ -20,15 +20,16 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance\Cleanup;
+use SMF\Maintenance\GenericSubStep;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration;
 use SMF\Maintenance\Step;
-use SMF\Maintenance\Template\Template;
 use SMF\Maintenance\Utf8ConverterStep;
 use SMF\QueryString;
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Session;
+use SMF\Themes\default\MaintenanceTemplate;
 use SMF\Time;
 use SMF\User;
 use SMF\Utils;
@@ -329,7 +330,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		if (empty(Maintenance::$languages)) {
 			if (!Sapi::isCLI()) {
-				Template::missingLanguages();
+				MaintenanceTemplate::missingLanguages();
 			}
 
 			throw new \Exception('This script was unable to find this tools\'s language file or files.');
@@ -464,7 +465,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			new Utf8ConverterStep(
 				// Note: Utf8ConverterStep does not take a function argument.
 				id: 5,
-				name: Lang::getTxt('upgrade_step_convertutf', file: 'Maintenance'),
+				name: Lang::getTxt('upgrade_step_convertutf8', file: 'Maintenance'),
 				template: 'convertUtf8',
 				progress: 30,
 			),
@@ -502,6 +503,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function welcomeLogin(): bool
 	{
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
+		}
+
 		if (!empty($_SESSION['is_logged'])) {
 			return true;
 		}
@@ -509,6 +514,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Needs to at least meet our minium version.
 		if (version_compare(Maintenance::PHP_MIN_VERSION, PHP_VERSION, '>=')) {
 			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -516,6 +522,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Form submitted, but no javascript support.
 		if (isset($_POST['contbutt']) && !isset($_POST['js_support'])) {
 			Maintenance::$fatal_error = Lang::getTxt('error_no_javascript', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -543,6 +550,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		if (!$check) {
 			// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
 			Maintenance::$fatal_error = Lang::getTxt('error_upgrade_files_missing', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -557,6 +565,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			)
 		) {
 			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->getTitle()]);
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -574,6 +583,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Sorry... we need CREATE, ALTER and DROP
 		if (!$create || !$alter || !$drop) {
 			Maintenance::$fatal_error = Lang::getTxt('error_db_privileges', ['name' => Config::$db_type]);
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -584,6 +594,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		if (empty($match[1]) || (trim($match[1]) != SMF_VERSION)) {
 			Maintenance::$fatal_error = Lang::getTxt('error_upgrade_old_files', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -612,6 +623,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Are we good now?
 		if (!is_writable($custom_av_dir)) {
 			Maintenance::$fatal_error = Lang::getTxt('error_dir_not_writable', ['dir' => $custom_av_dir]);
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -630,6 +642,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		if (!file_exists($cache_dir_temp)) {
 			Maintenance::$fatal_error = Lang::getTxt('error_cache_not_found', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -638,6 +651,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		if (!is_writable($cache_dir_temp . '/db_last_error.php')) {
 			Maintenance::$fatal_error = Lang::getTxt('error_dir_not_writable', ['dir' => $cache_dir_temp]);
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -664,6 +678,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			&& !is_writable(Config::$languagesdir . '/' . $this->default_language . '/agreement.txt')
 		) {
 			Maintenance::$fatal_error = Lang::getTxt('error_agreement_not_writable', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -671,11 +686,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Confirm mbstring is loaded...
 		if (!extension_loaded('mbstring')) {
 			Maintenance::$errors[] = Lang::getTxt('install_no_mbstring', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('install_no_mbstring', file: 'Maintenance'));
 		}
 
 		// Confirm fileinfo is loaded...
 		if (!extension_loaded('fileinfo')) {
 			Maintenance::$errors[] = Lang::getTxt('install_no_fileinfo', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('install_no_fileinfo', file: 'Maintenance'));
 		}
 
 		// Check for https stream support.
@@ -683,22 +700,26 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		if (!in_array('https', $supported_streams)) {
 			Maintenance::$warnings[] = Lang::getTxt('install_no_https', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('install_no_https', file: 'Maintenance'));
 		}
 
 		// First, check the avatar directory...
 		// Note it wasn't specified in YabbSE, but there was no smfVersion either.
 		if (!empty(Config::$modSettings['smfVersion']) && !is_dir(Config::$modSettings['avatar_directory'])) {
 			Maintenance::$warnings[] = Lang::getTxt('warning_av_missing', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('warning_av_missing', file: 'Maintenance'));
 		}
 
 		// Next, check the custom avatar directory...  Note this is optional in 2.0.
 		if (!empty(Config::$modSettings['custom_avatar_dir']) && !is_dir(Config::$modSettings['custom_avatar_dir'])) {
 				Maintenance::$warnings[] = Lang::getTxt('warning_custom_av_missing', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('warning_custom_av_missing', file: 'Maintenance'));
 		}
 
 		// Ensure we have a valid attachment directory.
 		if ($this->attachmentDirectoryIsValid()) {
 			Maintenance::$warnings[] = Lang::getTxt('warning_att_dir_missing', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('warning_att_dir_missing', file: 'Maintenance'));
 		}
 
 		if (Sapi::isCLI()) {
@@ -802,6 +823,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Maintenance::$context['continue'] = true;
 
 			return false;
+		}
+
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
 		}
 
 		Db::load();
@@ -982,44 +1007,30 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Maintenance::$total_substeps = count($table_names);
 
 		// Template things.
-		Maintenance::$context['table_count'] = Maintenance::$total_substeps;
-		Maintenance::$context['cur_table_num'] = Maintenance::getCurrentSubStep();
-		Maintenance::$context['cur_table_name'] = str_replace(Config::$db_prefix, '', $table_names[Maintenance::getCurrentSubStep()]);
+		Maintenance::$context['cur_table_name'] = $table_names[Maintenance::getCurrentSubStep()];
 		Maintenance::$context['continue'] = true;
-
-		if (Sapi::isCLI()) {
-			echo 'Backing Up Tables.';
-		}
 
 		// We are set up for backing up.
 		if (!Sapi::isCLI() && !Maintenance::isJson()) {
 			return false;
 		}
 
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
+		}
+
 		// Back up each table!
-		while (Maintenance::getCurrentSubStep() < Maintenance::$total_substeps) {
-			$current_table = $table_names[Maintenance::getCurrentSubStep()];
-			$this->doBackupTable($current_table);
+		$substeps = [];
 
-			// Increase our current substep by 1.
-			Maintenance::setCurrentSubStep();
-
-			// If this is JSON to keep it nice for the user do one table at a time anyway!
-			if (Maintenance::isJson()) {
-				Maintenance::jsonResponse(
-					[
-						'current_table_name' => str_replace(Config::$db_prefix, '', $current_table),
-						'current_table_index' => Maintenance::getCurrentSubStep(),
-						'substep_progress' => Maintenance::getSubStepProgress(),
-					],
-				);
-			}
+		foreach ($table_names as $table_name) {
+			$substeps[] = new GenericSubStep(
+				name: Lang::getTxt('log_table_backup', ['table' => $table_name], file: 'Maintenance'),
+				exec: [$this, 'doBackupTable'],
+				exec_args: [$table_name],
+			);
 		}
 
-		if (Sapi::isCLI()) {
-			echo "\n" . ' Successful.\'' . "\n";
-			flush();
-		}
+		$this->performSubsteps($substeps);
 
 		// Make sure we move on!
 		return true;
@@ -1051,7 +1062,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				continue;
 			}
 
-			$substeps = array_merge($substeps, self::MIGRATIONS[$ns]);
+			foreach (self::MIGRATIONS[$ns] as $class) {
+				$substeps[] = new $class();
+			}
 		}
 
 		$this->performSubsteps($substeps);
@@ -1085,7 +1098,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				continue;
 			}
 
-			$substeps = array_merge($substeps, self::CLEANUPS[$ns]);
+			foreach (self::CLEANUPS[$ns] as $class) {
+				$substeps[] = new $class();
+			}
 		}
 
 		$this->performSubsteps($substeps);
@@ -1101,6 +1116,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function finalize(): bool
 	{
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
+		}
+
 		Maintenance::$context['form_action'] = Config::$boardurl . '/index.php';
 
 		// Update the database with the new SMF version.
@@ -1206,39 +1225,38 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$this->updateSettingsFile($file_settings);
 
 		// We're done!
-		if (Sapi::isCLI()) {
-			echo "\n";
-			echo 'Upgrade Complete!', "\n";
-			echo 'Please delete this file as soon as possible for security reasons.', "\n";
-
-			exit;
-		}
-
-		// Can we delete the file?
-		Maintenance::$context['can_delete_script'] = $this->canDeleteTool();
-
-		// Show Upgrade time in debug mode when we completed the upgrade process totally
-		if ($this->debug) {
-			$active = time() - (int) $this->time_started;
-
-			Maintenance::$context['upgrade_completed_time'] = Lang::getTxt(
-				$active >= 3600 ? 'upgrade_completed_time_hms' : ($active >= 60 ? 'upgrade_completed_time_ms' : 'upgrade_completed_time_s'),
-				[
-					'h' => (int) ($active / 3600),
-					'm' => (int) ((int) ($active / 60) % 60),
-					's' => (int) ($active % 60),
-				],
-				file: 'Maintenance',
-			);
-		}
-
-		// Make sure it says we're done.
+		$this->logProgress(Lang::getTxt('log_upgrade_complete', file: 'Maintenance'));
 		Maintenance::$overall_percent = 100;
+		Maintenance::setCurrentSubStep(0);
 
 		// Wipe this out...
 		$this->user = [];
 
-		Maintenance::setCurrentSubStep(0);
+		if (!Sapi::isCLI()) {
+			// Can we delete the file?
+			Maintenance::$context['can_delete_script'] = $this->canDeleteTool();
+
+			// Show Upgrade time in debug mode when we completed the upgrade process totally
+			if ($this->isDebug()) {
+				$active = time() - (int) $this->time_started;
+
+				Maintenance::$context['upgrade_completed_time'] = Lang::getTxt(
+					$active >= 3600 ? 'upgrade_completed_time_hms' : ($active >= 60 ? 'upgrade_completed_time_ms' : 'upgrade_completed_time_s'),
+					[
+						'h' => (int) ($active / 3600),
+						'm' => (int) ((int) ($active / 60) % 60),
+						's' => (int) ($active % 60),
+					],
+					file: 'Maintenance',
+				);
+
+				Maintenance::$context['log_contents'] = file_get_contents($this->log_file);
+			}
+		}
+
+		if (isset($this->log_file)) {
+			@unlink($this->log_file);
+		}
 
 		return Sapi::isCLI();
 	}
@@ -1283,24 +1301,12 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/**
 	 * Actually backup a table.
 	 *
-	 * @param mixed $table_name Name of the table to be backed up
-	 * @return bool True if succesfull, false otherwise.
+	 * @param mixed $table_name Name of the table to be backed up.
+	 * @return bool True if successful, false otherwise.
 	 */
 	public function doBackupTable($table): bool
 	{
-		if (Sapi::isCLI()) {
-			echo "\n" . ' +++ Backing up \"' . str_replace(Config::$db_prefix, '', $table) . '"...';
-			flush();
-		}
-
-		// @@TODO: Check result? Should be a object, false if it failed.
-		Db::$db->backup_table($table, 'backup_' . $table);
-
-		if (Sapi::isCLI()) {
-			echo ' done.';
-		}
-
-		return true;
+		return Db::$db->backup_table($table, 'backup_' . $table);
 	}
 
 	/******************
@@ -1401,11 +1407,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	private function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false): bool
 	{
 		if (!Config::updateSettingsFile($config_vars, $keep_quotes, $rebuild)) {
+			$this->logProgress(Lang::getTxt('settings_error', file: 'Maintenance'));
+
 			if (Sapi::isCLI()) {
-				die('FAILURE: Could not update ' . basename(SMF_SETTINGS_FILE) . "\n");
+				die();
 			}
 
-			Maintenance::$fatal_error = Lang::getTxt('upgrade_writable_files', file: 'Maintenance') . ': ' . basename(SMF_SETTINGS_FILE);
+			Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
 
 			return false;
 		}
@@ -1570,10 +1578,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				return '';
 			}
 
-			$class = $substeps[$num];
-			$obj = new $class();
-
-			return $obj->name;
+			return $substeps[$num]->name;
 		} catch (\Throwable $e) {
 			return '';
 		}
@@ -1582,7 +1587,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/**
 	 * Performs a series of substeps.
 	 *
-	 * @param array $substeps All substep classes that we are running.
+	 * @param array $substeps All substep objects that we are running.
 	 */
 	private function performSubsteps(array $substeps): void
 	{
@@ -1620,23 +1625,26 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return;
 		}
 
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
+		}
+
 		/*
 		 * When SKIP occurs, note it in JS and continue to next step.
 		 * When success occurs, ensure it moves to next stesp.
 		 * When error occurs, ensure we properly show the error.
 		 */
 		while (Maintenance::getCurrentSubStep() < Maintenance::$total_substeps) {
-			$substep_class = $substeps[Maintenance::getCurrentSubStep()];
-			$substep = new $substep_class();
+			$substep = $substeps[Maintenance::getCurrentSubStep()];
 
-			if (Sapi::isCLI()) {
-				echo "\n" . ' +++ ' . $substep->name . '... ';
-			}
+			$this->logProgress(' +++ ' . $substep->name, true);
 
 			// If this is not a canidate for us to execute, skip it.
 			try {
 				if (!$substep->isCandidate()) {
 					Maintenance::setCurrentSubStep();
+
+					$this->logProgress(Lang::getTxt('log_skipped', file: 'Maintenance'));
 
 					Maintenance::jsonResponse([
 						'name' => $substep->name,
@@ -1646,17 +1654,15 @@ class Upgrade extends ToolsBase implements ToolsInterface
 						'start' => Maintenance::getCurrentStart(),
 						'total' => Maintenance::$total_substeps,
 						'debug' => [
-							'call' => basename($substep_class),
+							'call' => $substep::class,
 						],
 					]);
-
-					if (Sapi::isCLI()) {
-						echo 'skipped.';
-					}
 
 					continue;
 				}
 			} catch (\Throwable $e) {
+				$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
+
 				Maintenance::jsonResponse([
 					'name' => $substep->name,
 					'failed' => true,
@@ -1664,7 +1670,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					'start' => Maintenance::getCurrentStart(),
 					'total' => Maintenance::$total_substeps,
 					'debug' => [
-						'call' => basename($substep_class),
+						'call' => $substep::class,
 						'msg' => $e->getMessage(),
 						'file' => $e->getFile(),
 						'line' => $e->getLine(),
@@ -1673,12 +1679,27 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 				return;
 			}
-
-			$res = false;
 
 			try {
-				$res = $substep->execute();
+				if (!$substep->execute()) {
+					$this->logProgress(Lang::getTxt('log_failed', file: 'Maintenance'));
+
+					Maintenance::jsonResponse([
+						'name' => $substep->name,
+						'completed' => false,
+						'substep' => Maintenance::getCurrentSubStep(),
+						'start' => Maintenance::getCurrentStart(),
+						'total' => Maintenance::$total_substeps,
+						'debug' => [
+							'call' => $substep::class,
+						],
+					]);
+
+					return;
+				}
 			} catch (\Throwable $e) {
+				$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
+
 				Maintenance::jsonResponse([
 					'name' => $substep->name,
 					'failed' => true,
@@ -1686,43 +1707,17 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					'start' => Maintenance::getCurrentStart(),
 					'total' => Maintenance::$total_substeps,
 					'debug' => [
-						'call' => basename($substep_class),
+						'call' => $substep::class,
 						'msg' => $e->getMessage(),
 						'file' => $e->getFile(),
 						'line' => $e->getLine(),
 					],
 				]);
 
-				if (Sapi::isCLI()) {
-					echo 'failed with error: "' . $e->getMessage() . '"' . "\n";
-				}
-
 				return;
 			}
 
-			// If not ready yet, fail.
-			if (!$res) {
-				Maintenance::jsonResponse([
-					'name' => $substep->name,
-					'completed' => false,
-					'substep' => Maintenance::getCurrentSubStep(),
-					'start' => Maintenance::getCurrentStart(),
-					'total' => Maintenance::$total_substeps,
-					'debug' => [
-						'call' => basename($substep_class),
-					],
-				]);
-
-				if (Sapi::isCLI()) {
-					echo 'failed.';
-				}
-
-				return;
-			}
-
-			if (Sapi::isCLI()) {
-				echo 'done.';
-			}
+			$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
 
 			// Increase our current substep by 1.
 			Maintenance::setCurrentSubStep();
@@ -1738,7 +1733,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 					'start' => Maintenance::getCurrentStart(),
 					'total' => Maintenance::$total_substeps,
 					'debug' => [
-						'call' => basename($substep_class),
+						'call' => $substep::class,
 					],
 				]);
 			}

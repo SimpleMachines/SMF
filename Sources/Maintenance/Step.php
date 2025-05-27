@@ -46,7 +46,7 @@ class Step
 	 * The page title to display for this step.
 	 * If null, we will fall back to the value of $name.
 	 */
-	private ?string $title = null;
+	private string $title;
 
 	/**
 	 * @var array|string
@@ -93,7 +93,7 @@ class Step
 	{
 		$this->id = $id;
 		$this->name = $name;
-		$this->title = $title;
+		$this->title = $title ?? $name;
 		$this->function = $function;
 		$this->progress = $progress;
 
@@ -136,7 +136,7 @@ class Step
 	 */
 	public function getTitle(): string
 	{
-		return $this->title ?? $this->name;
+		return $this->title;
 	}
 
 	/**

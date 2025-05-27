@@ -272,6 +272,10 @@ class Maintenance
 				continue;
 			}
 
+			if ($num === 0) {
+				self::$tool->logProgress(date_create()->format('c'), reset: true);
+			}
+
 			// Inform the tool about which step we are performing.
 			self::$tool->setStep($step);
 
@@ -312,6 +316,14 @@ class Maintenance
 
 		// Make a final call before we are done..
 		self::$tool->preExit();
+
+		if (
+			Sapi::isCLI()
+			&& !empty(self::$tool->script_file)
+			&& self::getCurrentStep() > count(self::$tool->getSteps())
+		) {
+			echo Lang::getTxt('cli_please_delete_file', ['file' => self::$tool->script_file], file: 'Maintenance') . PHP_EOL;
+		}
 
 		self::exit(Sapi::isCLI());
 	}

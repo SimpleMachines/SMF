@@ -539,7 +539,7 @@ class Utf8ConverterStep extends Step
 			}
 
 			$substeps[] = new GenericSubStep(
-				name: Lang::getTxt('converting_table_to_utf8mb4', [$table_name], file: 'Maintenance'),
+				name: Lang::getTxt('log_table_convertutf8', ['table' => $table_name], file: 'Maintenance'),
 				test: [$this, 'isCandidateTable'],
 				test_args: [$table_name],
 				exec: [$this, 'convertTable'],
@@ -630,6 +630,10 @@ class Utf8ConverterStep extends Step
 			return false;
 		}
 
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			Maintenance::$tool->logProgress(Lang::getTxt('log_starting_step', ['num' => Maintenance::$tool->getStep()->getId(), 'step' => Maintenance::$tool->getStep()->getName()]));
+		}
+
 		if (Maintenance::$total_substeps === 0) {
 			if (Maintenance::isJson()) {
 				Maintenance::jsonResponse([
@@ -650,34 +654,104 @@ class Utf8ConverterStep extends Step
 		while (Maintenance::getCurrentSubStep() < Maintenance::$total_substeps) {
 			$substep = $substeps[Maintenance::getCurrentSubStep()];
 
-			if (Sapi::isCLI()) {
-				echo "\n" . ' +++ ' . $substep->name . '... ';
-			}
+			Maintenance::$tool->logProgress(' +++ ' . $substep->name, true);
 
-			Maintenance::$context['cur_table_num'] = Maintenance::getCurrentSubStep();
-			Maintenance::$context['cur_table_name'] = $substep->test_args[0];
+			try {
+				if (!$substep->isCandidate()) {
+					Maintenance::setCurrentSubStep();
 
-			if ($substep->isCandidate()) {
-				$table_success = $substep->execute();
+					Maintenance::$tool->logProgress(Lang::getTxt('log_skipped', file: 'Maintenance'));
 
-				if (Sapi::isCLI()) {
-					echo $table_success ? 'done.' : 'failed.';
+					Maintenance::jsonResponse([
+						'name' => $substep->name,
+						'next' => $substeps[Maintenance::getCurrentSubStep()]->name,
+						'skipped' => true,
+						'substep' => Maintenance::getCurrentSubStep(),
+						'start' => Maintenance::getCurrentStart(),
+						'total' => Maintenance::$total_substeps,
+						'debug' => [
+							'call' => $substep::class,
+						],
+					]);
+
+					continue;
 				}
-			} elseif (Sapi::isCLI()) {
-				echo 'skipped.';
+			} catch (\Throwable $e) {
+				Maintenance::$tool->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
+
+				Maintenance::jsonResponse([
+					'name' => $substep->name,
+					'failed' => true,
+					'substep' => Maintenance::getCurrentSubStep(),
+					'start' => Maintenance::getCurrentStart(),
+					'total' => Maintenance::$total_substeps,
+					'debug' => [
+						'call' => $substep::class,
+						'msg' => $e->getMessage(),
+						'file' => $e->getFile(),
+						'line' => $e->getLine(),
+					],
+				]);
+
+				return false;
 			}
+
+			try {
+				if (!$substep->execute()) {
+					Maintenance::$tool->logProgress(Lang::getTxt('log_failed', file: 'Maintenance'));
+
+					Maintenance::jsonResponse([
+						'name' => $substep->name,
+						'completed' => false,
+						'substep' => Maintenance::getCurrentSubStep(),
+						'start' => Maintenance::getCurrentStart(),
+						'total' => Maintenance::$total_substeps,
+						'debug' => [
+							'call' => $substep::class,
+						],
+					]);
+
+					return false;
+				}
+			} catch (\Throwable $e) {
+				Maintenance::$tool->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
+
+				Maintenance::jsonResponse([
+					'name' => $substep->name,
+					'failed' => true,
+					'substep' => Maintenance::getCurrentSubStep(),
+					'start' => Maintenance::getCurrentStart(),
+					'total' => Maintenance::$total_substeps,
+					'debug' => [
+						'call' => $substep::class,
+						'msg' => $e->getMessage(),
+						'file' => $e->getFile(),
+						'line' => $e->getLine(),
+					],
+				]);
+
+				return false;
+			}
+
+			Maintenance::$tool->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
 
 			// Increase our current substep by 1.
 			Maintenance::setCurrentSubStep();
+			Maintenance::setCurrentStart(0);
 
+			// If this is JSON to keep it nice for the user do one table at a time anyway!
 			if (Maintenance::isJson()) {
-				Maintenance::jsonResponse(
-					[
-						'current_table_name' => str_replace(Config::$db_prefix, '', Maintenance::$context['cur_table_name']),
-						'current_table_index' => Maintenance::getCurrentSubStep(),
-						'substep_progress' => Maintenance::getSubStepProgress(),
+				Maintenance::jsonResponse([
+					'name' => $substep->name,
+					'next' => $substeps[Maintenance::getCurrentSubStep()]->name,
+					'completed' => true,
+					'substep' => Maintenance::getCurrentSubStep(),
+					'start' => Maintenance::getCurrentStart(),
+					'total' => Maintenance::$total_substeps,
+					'debug' => [
+						'call' => $substep::class,
 					],
-				);
+				]);
 			}
 		}
 

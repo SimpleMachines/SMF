@@ -245,8 +245,13 @@ class Install extends ToolsBase implements ToolsInterface
 			return true;
 		}
 
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
+		}
+
 		if (Maintenance::isInstalled()) {
 			Maintenance::$context['warning'] = Lang::getTxt('error_already_installed', file: 'Maintenance');
+			$this->logProgress(Maintenance::$context['warning']);
 		}
 
 		Maintenance::$context['supported_databases'] = $this->supportedDatabases();
@@ -254,6 +259,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Needs to at least meet our miniumn version.
 		if ((version_compare(Maintenance::PHP_MIN_VERSION, PHP_VERSION, '>'))) {
 			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -261,6 +267,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Make sure we have a supported database
 		if (empty(Maintenance::$context['supported_databases'])) {
 			Maintenance::$fatal_error = Lang::getTxt('error_db_missing', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -268,31 +275,37 @@ class Install extends ToolsBase implements ToolsInterface
 		// How about session support?  Some crazy sysadmin remove it?
 		if (!function_exists('session_start')) {
 			Maintenance::$errors[] = Lang::getTxt('error_session_missing', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('error_session_missing', file: 'Maintenance'));
 		}
 
 		// Make sure they uploaded all the files.
 		if (!file_exists(Config::$boarddir . '/index.php')) {
 			Maintenance::$errors[] = Lang::getTxt('error_missing_files', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('error_missing_files', file: 'Maintenance'));
 		}
 		// Very simple check on the session.save_path for Windows.
 		// @todo Move this down later if they don't use database-driven sessions?
 		elseif (@ini_get('session.save_path') == '/tmp' && Sapi::isOS(Sapi::OS_WINDOWS)) {
 			Maintenance::$errors[] = Lang::getTxt('error_session_save_path', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('error_session_save_path', file: 'Maintenance'));
 		}
 
 		// Mod_security blocks everything that smells funny. Let SMF handle security.
 		if (!$this->checkAndTryToFixModSecurity() && !isset($_GET['overmodsecurity'])) {
 			Maintenance::$fatal_error = Lang::getTxt('error_mod_security', file: 'Maintenance') . '<br><br><a href="' . Maintenance::getSelf() . '?overmodsecurity=true">' . Lang::getTxt('error_message_click', file: 'Maintenance') . '</a> ' . Lang::getTxt('error_message_bad_try_again', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('error_mod_security', file: 'Maintenance'));
 		}
 
 		// Confirm mbstring is loaded...
 		if (!extension_loaded('mbstring')) {
 			Maintenance::$errors[] = Lang::getTxt('install_no_mbstring', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('install_no_mbstring', file: 'Maintenance'));
 		}
 
 		// Confirm fileinfo is loaded...
 		if (!extension_loaded('fileinfo')) {
 			Maintenance::$errors[] = Lang::getTxt('install_no_fileinfo', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('install_no_fileinfo', file: 'Maintenance'));
 		}
 
 		// Check for https stream support.
@@ -300,6 +313,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		if (!in_array('https', $supported_streams)) {
 			Maintenance::$warnings[] = Lang::getTxt('install_no_https', file: 'Maintenance');
+			$this->logProgress(Lang::getTxt('install_no_https', file: 'Maintenance'));
 		}
 
 		if (empty(Maintenance::$errors)) {
@@ -316,6 +330,10 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	public function checkFilesWritable(): bool
 	{
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
+		}
+
 		$writable_files = [
 			Config::$boarddir . '/attachments',
 			Config::$boarddir . '/avatars',
@@ -393,12 +411,17 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
+		}
+
 		// What type are they trying?
 		$db_type = preg_replace('~[^A-Za-z0-9]~', '', $_POST['db_type']);
 		$db_prefix = $_POST['db_prefix'];
 
 		if (!isset(Maintenance::$context['databases'][$db_type])) {
 			Maintenance::$fatal_error = Lang::getTxt('upgrade_unknown_error', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -410,11 +433,13 @@ class Install extends ToolsBase implements ToolsInterface
 		try {
 			if (!$db->validatePrefix($db_prefix)) {
 				Maintenance::$fatal_error = Lang::getTxt('upgrade_unknown_error', file: 'Maintenance');
+				$this->logProgress(Maintenance::$fatal_error);
 
 				return false;
 			}
 		} catch (\Throwable $e) {
 			Maintenance::$fatal_error = $e->getMessage();
+			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => Maintenance::$fatal_error], file: 'Maintenance'));
 
 			return false;
 		}
@@ -440,11 +465,13 @@ class Install extends ToolsBase implements ToolsInterface
 		try {
 			if (!Config::updateSettingsFile($vars)) {
 				Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
+				$this->logProgress(Maintenance::$fatal_error);
 
 				return false;
 			}
 		} catch (\Throwable $e) {
 			Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -455,6 +482,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Better find the database file!
 		if (!file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')) {
 			Maintenance::$fatal_error = Lang::getTxt('error_db_file', ['Db/APIs/' . Db::getClass(Config::$db_type) . '.php']);
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -484,6 +512,7 @@ class Install extends ToolsBase implements ToolsInterface
 			$db_error = (!empty($error_number) ? $error_number . ': ' : '') . $error_message;
 
 			Maintenance::$fatal_error = Lang::getTxt('error_db_connect', file: 'Maintenance') . '<div class="error_content"><strong>' . $db_error . '</strong></div>';
+			$this->logProgress(Lang::getTxt('error_db_connect', file: 'Maintenance') . ': ' . $db_error);
 
 			return false;
 		}
@@ -498,6 +527,7 @@ class Install extends ToolsBase implements ToolsInterface
 			)
 		) {
 			Maintenance::$fatal_error = Lang::getTxt('error_db_too_low', ['name' => Db::$db->title]);
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -537,6 +567,7 @@ class Install extends ToolsBase implements ToolsInterface
 			// Okay, now let's try to connect...
 			if (!Db::$db->select(Db::$db->name, Db::$db->connection)) {
 				Maintenance::$fatal_error = Lang::getTxt('error_db_database', ['db_name' => Db::$db->name]);
+				$this->logProgress(Maintenance::$fatal_error);
 
 				return false;
 			}
@@ -563,6 +594,7 @@ class Install extends ToolsBase implements ToolsInterface
 				}
 			} catch (\Throwable $e) {
 				Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
+				$this->logProgress(Maintenance::$fatal_error);
 
 				return false;
 			}
@@ -585,11 +617,13 @@ class Install extends ToolsBase implements ToolsInterface
 		try {
 			if (!Db::$db->checkConfiguration()) {
 				Maintenance::$fatal_error = Lang::getTxt('upgrade_unknown_error', file: 'Maintenance');
+				$this->logProgress(Maintenance::$fatal_error);
 
 				return false;
 			}
 		} catch (\Throwable $e) {
 			Maintenance::$fatal_error = $e->getMessage();
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -618,6 +652,10 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
+		}
+
 		// Deal with different operating systems' directory structure...
 		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', Maintenance::getBaseDir()), '/');
 
@@ -642,6 +680,7 @@ class Install extends ToolsBase implements ToolsInterface
 			}
 		} catch (\Throwable $e) {
 			Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -665,6 +704,10 @@ class Install extends ToolsBase implements ToolsInterface
 		// Already done?
 		if (isset($_POST['pop_done'])) {
 			return true;
+		}
+
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
 		}
 
 		// Reload settings.
@@ -693,6 +736,7 @@ class Install extends ToolsBase implements ToolsInterface
 			// Do they match?  If so, this is just a refresh so charge on!
 			if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] != SMF_VERSION) {
 				Maintenance::$fatal_error = Lang::getTxt('error_versions_do_not_match', file: 'Maintenance');
+				$this->logProgress(Maintenance::$fatal_error);
 
 				return false;
 			}
@@ -842,6 +886,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// @@ TODO: This was at this location in the original code, it should come earlier.
 		if (!Db::$db->hasPermissions()) {
 			Maintenance::$fatal_error = Lang::getTxt('error_db_alter_priv', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 		}
 
 		// Was this a refresh?
@@ -865,6 +910,10 @@ class Install extends ToolsBase implements ToolsInterface
 		// Skipping?
 		if (!empty($_POST['skip'])) {
 			return true;
+		}
+
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
 		}
 
 		// Need this to check whether we need the database password.
@@ -915,6 +964,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Wrong password?
 		if (Maintenance::$context['require_db_confirm'] && $_POST['password3'] != Config::$db_passwd) {
 			Maintenance::$fatal_error = Lang::getTxt('error_db_connect', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -922,6 +972,7 @@ class Install extends ToolsBase implements ToolsInterface
 		// Not matching passwords?
 		if ($_POST['password1'] != $_POST['password2']) {
 			Maintenance::$fatal_error = Lang::getTxt('error_user_settings_again_match', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -929,12 +980,14 @@ class Install extends ToolsBase implements ToolsInterface
 		// No password?
 		if (strlen($_POST['password1']) < 4) {
 			Maintenance::$fatal_error = Lang::getTxt('error_user_settings_no_password', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
 
 		if (!file_exists(Config::$sourcedir . '/Utils.php')) {
 			Maintenance::$fatal_error = Lang::getTxt('error_sourcefile_missing', ['file' => 'Utils.php']);
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		}
@@ -969,21 +1022,25 @@ class Install extends ToolsBase implements ToolsInterface
 		} elseif ($_POST['username'] == '' || strlen($_POST['username']) > 25) {
 			// Try the previous step again.
 			Maintenance::$fatal_error = $_POST['username'] == '' ? Lang::getTxt('error_username_left_empty', file: 'Maintenance') : Lang::getTxt('error_username_too_long', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		} elseif ($invalid_characters || $_POST['username'] == '_' || $_POST['username'] == '|' || strpos($_POST['username'], '[code') !== false || strpos($_POST['username'], '[/code') !== false) {
 			// Try the previous step again.
 			Maintenance::$fatal_error = Lang::getTxt('error_invalid_characters_username', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		} elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
 			Maintenance::$fatal_error = Lang::getTxt('error_valid_admin_email_needed', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		} elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
 			Maintenance::$fatal_error = Lang::getTxt('error_valid_server_email_needed', file: 'Maintenance');
+			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
 		} elseif ($_POST['username'] != '') {
@@ -1058,12 +1115,13 @@ class Install extends ToolsBase implements ToolsInterface
 				}
 
 				Maintenance::$fatal_error = trim(Db::$db->error(Db::$db->connection));
+				$this->logProgress(Maintenance::$fatal_error);
 
 				return false;
 
 			} catch (\Throwable $e) {
 				Maintenance::$fatal_error = $e->getMessage();
-				var_dump(Maintenance::$fatal_error);
+				$this->logProgress(Maintenance::$fatal_error);
 			}
 		}
 
@@ -1077,6 +1135,10 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	public function finalize(): bool
 	{
+		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
+			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
+		}
+
 		Maintenance::$context['continue'] = false;
 
 		// Rebuild the settings file.
@@ -1233,6 +1295,16 @@ class Install extends ToolsBase implements ToolsInterface
 		Config::updateModSettings([
 			'bcrypt_hash_cost' => Security::hashBenchmark(),
 		]);
+
+		$this->logProgress(Lang::getTxt('log_install_complete', file: 'Maintenance'));
+
+		if (!Sapi::isCLI() && $this->isDebug()) {
+			Maintenance::$context['log_contents'] = file_get_contents($this->log_file);
+		}
+
+		if (isset($this->log_file)) {
+			@unlink($this->log_file);
+		}
 
 		return false;
 	}

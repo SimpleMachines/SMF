@@ -22,13 +22,32 @@ $txt['delete_tool'] = 'Click here to delete this {SCRIPT} file now.';
 $txt['delete_tool_maybe'] = '<em>(does not work on all servers.)</em>';
 $txt['error_message_click'] = 'Click here';
 $txt['error_message_try_again'] = 'Try again.';
+$txt['cli_please_delete_file'] = 'Please delete {file} as soon as possible for security reasons.';
+
+// Log entries.
+$txt['show_log'] = 'Show log';
+$txt['log_done'] = 'done.';
+$txt['log_skipped'] = 'skipped.';
+$txt['log_failed'] = 'failed.';
+$txt['log_failed_with_error'] = 'failed with error: "{error}"';
+$txt['log_starting_step'] = 'Step {num}: {step}';
+$txt['log_paused_step'] = 'Paused step {num}';
+$txt['log_ensuring_file_writable'] = 'Making sure SMF can write to "{file}"';
+$txt['log_ensuring_file_writable_ftp'] = 'Using FTP to make "{file}" writable';
+$txt['log_table_backup'] = 'Backing up "{table}"';
+$txt['log_table_convertutf8'] = 'Converting "{table}" to utf8mb4';
+$txt['log_install_complete'] = 'Installation complete!';
+$txt['log_upgrade_complete'] = 'Upgrade complete!';
 
 // Errors and warnings.
 $txt['critical_error'] = 'Critical Error!';
 $txt['warning'] = 'Warning!';
+$txt['error_db_connect'] = 'Cannot connect to the database server with the supplied data.<br><br>If you are not sure about what to type in, please contact your host.';
 $txt['error_db_queries'] = 'Some of the queries were not executed properly. This could be caused by an unsupported (development or old) version of your database software.<br><br>Technical information about the queries:';
 $txt['error_php_too_low'] = 'Warning! You do not appear to have a version of PHP installed on your webserver that meets SMF’s minimum installations requirements.<br><br>Please ask your host to upgrade.';
-$txt['error_dir_not_writable'] = 'The directory "{dir}" has to be writable to continue. Please make sure the file permissions are correctly set to allow this.';
+$txt['error_files_not_writable'] = 'The following files must be writable to continue. Please ensure the file permissions are correctly set to allow this:';
+$txt['error_dir_not_writable'] = 'The directory "{dir}" must to be writable to continue. Please make sure the file permissions are correctly set to allow this.';
+$txt['settings_error'] = 'Your settings could not be saved to Settings.php.';
 $txt['error_unknown'] = 'Unknown Error!';
 $txt['query_unsuccessful'] = 'Unsuccessful!';
 $txt['query_failed'] = 'This query: {QUERY_STRING}
@@ -89,7 +108,7 @@ $txt['upgrade_step_login'] = 'Login';
 $txt['upgrade_step_options'] = 'Upgrade Options';
 $txt['upgrade_step_backup'] = 'Backup';
 $txt['upgrade_step_migration'] = 'Migrations';
-$txt['upgrade_step_convertutf'] = 'Convert to UTF-8';
+$txt['upgrade_step_convertutf8'] = 'Convert to UTF-8';
 $txt['upgrade_step_cleanup'] = 'Cleanup';
 $txt['upgrade_step_finalize'] = 'Finalize Upgrade';
 
@@ -286,27 +305,40 @@ $txt['upgrade_time_updated_s'] = 'The upgrade script was last updated {s, plural
 	other {# seconds}
 } ago.';
 
-// Upgrade - Backup database.
-$txt['upgrade_completedtables_outof'] = 'Completed <span id="tab_done">{cur_table_num}</span> {table_count, plural,
-	one {out of # table}
-	other {out of # tables}
-}.';
-
 // Upgrade - steps and substeps
 $txt['upgrade_steps'] = 'Steps';
 $txt['upgrade_substeps'] = 'Substeps';
-$txt['upgrade_executing_substeps'] = 'Executing {type, select,
-	migration {database changes}
-	cleanup {cleanup steps}
-	other {substeps}
-}';
 $txt['upgrade_please_be_patient'] = 'Please be patient - this may take some time on large forums. The time elapsed increments from the server to show progress is being made.';
 $txt['upgrade_current_step'] = 'Current Step:';
 $txt['upgrade_current_substep'] = 'Current Substep: {substep}';
-$txt['upgrade_substep_progress'] = 'Completed {substep_done} out of {total_substeps} {type, select,
-	migration {database changes}
-	cleanup {cleanup steps}
-	other {substeps}
+$txt['upgrade_performing_substeps'] = '{type, select,
+	backup {Backing up database}
+	migration {Performing database changes}
+	convertutf8 {Converting database to UTF-8}
+	cleanup {Performing cleanup steps}
+	other {Performing substeps}
+}';
+$txt['upgrade_substep_progress'] = 'Completed {substep_num} {type, select,
+	backup {{total_substeps, plural,
+		one {out of # table}
+		other {out of # tables}
+	}}
+	migration {{total_substeps, plural,
+		one {out of # database change}
+		other {out of # database changes}
+	}}
+	convertutf8 {{total_substeps, plural,
+		one {out of # table}
+		other {out of # tables}
+	}}
+	cleanup {{total_substeps, plural,
+		one {out of # cleanup step}
+		other {out of # cleanup steps}
+	}}
+	other {{total_substeps, plural,
+		one {out of # substep}
+		other {out of # substeps}
+	}}
 }.';
 $txt['upgrade_completed_substep'] = ' Completed Substep:';
 $txt['upgrade_step_complete'] = 'The "{step}" step is complete! Click Continue to proceed.';
@@ -333,9 +365,7 @@ $txt['user_settings_skip'] = 'Skip';
 $txt['user_settings_skip_sure'] = 'Are you sure you wish to skip admin account creation?';
 $txt['user_settings_proceed'] = 'Finish';
 
-$txt['settings_error'] = 'Your settings could not be saved to Settings.php.';
 $txt['error_db_file'] = 'Cannot find database source script! Please check file {0} is within your forum source directory.';
-$txt['error_db_connect'] = 'Cannot connect to the database server with the supplied data.<br><br>If you are not sure about what to type in, please contact your host.';
 $txt['error_db_connect_settings'] = 'Cannot connect to the database server.<br><br>Please check that the database info variables are correct in Settings.php.';
 $txt['error_db_database'] = 'The installer was unable to access the &quot;<em>{db_name}</em>&quot; database. With some hosts, you have to create the database in your administration panel before SMF can use it. Some also add prefixes, such as your username, to your database names.';
 $txt['error_db_queries_line'] = 'Line #';
@@ -482,7 +512,6 @@ $txt['upgrade_cachedir'] = 'Cache Directory: {0}';
 $txt['upgrade_incorrect_settings'] = 'If these seem incorrect please open Settings.php in a text editor before proceeding with this upgrade. If they are incorrect due to you moving your forum to a new location please download and execute the <a href="https://download.simplemachines.org/?tools">Repair Settings</a> tool from the Simple Machines website before continuing.';
 
 $txt['upgrade_fulltext_error'] = 'Your fulltext search index was dropped to facilitate the conversion. You will need to recreate it.';
-$txt['upgrade_writable_files'] = 'The following files need to be writable to continue the upgrade. Please ensure the file permissions are correctly set to allow this:';
 $txt['upgrade_time_user'] = '&quot;{name}&quot; is running the upgrade script.';
 
 $txt['upgrade_completed_time_hms'] = 'Upgrade completed in {h, plural,
@@ -555,5 +584,3 @@ $txt['database_changes'] = 'Database Changes';
 $txt['upgrade_complete'] = 'Upgrade Complete';
 $txt['converting_utf8'] = 'Converting to UTF-8';
 $txt['converting_json'] = 'Converting to JSON';
-
-$txt['converting_table_to_utf8mb4'] = 'Converting table {0} to utf8mb4';

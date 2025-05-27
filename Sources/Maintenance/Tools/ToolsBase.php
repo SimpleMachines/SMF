@@ -48,6 +48,13 @@ abstract class ToolsBase
 	 */
 	public bool $debug = false;
 
+	/**
+	 * @var string
+	 *
+	 * Path to a log file.
+	 */
+	public string $log_file;
+
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -90,6 +97,44 @@ abstract class ToolsBase
 	public function getStep(): ?Step
 	{
 		return $this->current_step ?? null;
+	}
+
+	/**
+	 * Updates the tool's log with new info.
+	 *
+	 * If using the CLI interface, the message is printed to STDOUT rather than
+	 * appended to a log file.
+	 *
+	 * @param mixed $message The message to append to the log.
+	 *    If not a string, will be converted into one using print_r().
+	 * @param bool $ongoing Whether this message indicates an incomplete action.
+	 *    Default: false.
+	 * @param bool $reset If true, wipes out the old contents of the log file.
+	 *    Default: false.
+	 */
+	public function logProgress(mixed $message, bool $ongoing = false, bool $reset = false): void
+	{
+		if (!is_string($message)) {
+			$message = print_r($message, true);
+		}
+
+		$message = preg_replace('/(<br\b[^>]*>)+|\R/', PHP_EOL, $message);
+
+		$message .= $ongoing ? '... ' : PHP_EOL;
+
+		if (Sapi::isCLI()) {
+			echo $message;
+
+			return;
+		}
+
+		if (!isset($this->log_file)) {
+			$name = isset($this->script_file) ? pathinfo($this->script_file, PATHINFO_FILENAME) : substr($this::class, strrpos($this::class, '\\') + 1);
+
+			$this->log_file = Sapi::getTempDir() . DIRECTORY_SEPARATOR . $name . '.log';
+		}
+
+		file_put_contents($this->log_file, $message, $reset ? 0 : FILE_APPEND);
 	}
 
 	/**
@@ -235,6 +280,8 @@ abstract class ToolsBase
 		}
 
 		foreach ($files as $k => $file) {
+			$this->logProgress(Lang::getTxt('log_ensuring_file_writable', ['file' => $file], file: 'Maintenance'), true);
+
 			// Folders can't be opened for write on Windows... but the index.php in them can ;)
 			if (Sapi::isOS(Sapi::OS_WINDOWS) && is_dir($file)) {
 				$file .= '/index.php';
@@ -247,7 +294,10 @@ abstract class ToolsBase
 
 			// NOW do the writable check...
 			if (Utils::makeWritable($file)) {
+				$this->logProgress(Lang::getTxt('done', file: 'Maintenance'));
 				unset($files[$k]);
+			} else {
+				$this->logProgress(Lang::getTxt('failed', file: 'Maintenance'));
 			}
 		}
 
@@ -265,6 +315,8 @@ abstract class ToolsBase
 					<li>' . implode('</li>
 					<li>', $files) . '</li>
 				</ul>';
+
+			$this->logProgress(Lang::getTxt('error_windows_chmod', file: 'Maintenance') . "\n\t" . implode("\n\t", $files));
 
 			return false;
 		}
@@ -350,6 +402,8 @@ abstract class ToolsBase
 			];
 
 			foreach ($files as $k => $file) {
+				$this->logProgress(Lang::getTxt('log_ensuring_file_writable_ftp', ['file' => $file], file: 'Maintenance'), true);
+
 				if (!is_writable($file)) {
 					$ftp->chmod($file, 0755);
 				}
@@ -382,6 +436,9 @@ abstract class ToolsBase
 
 				if (is_writable($file)) {
 					unset($files[$k]);
+					$this->logProgress(Lang::getTxt('done', file: 'Maintenance'));
+				} else {
+					$this->logProgress(Lang::getTxt('failed', file: 'Maintenance'));
 				}
 			}
 

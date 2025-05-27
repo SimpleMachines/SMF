@@ -93,6 +93,14 @@ interface ToolsInterface
 	public function isDebug(): bool;
 
 	/**
+	 * Updates the tool's log file with new info.
+	 *
+	 * @param mixed $message The message to append to the log.
+	 *    If not a string, will be converted into one using print_r().
+	 */
+	public function logProgress(mixed $message): void;
+
+	/**
 	 * Last chance to do anything before we exit.
 	 *
 	 * Some tools may call this to save their progress, etc.

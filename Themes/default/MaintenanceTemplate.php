@@ -281,26 +281,64 @@ abstract class MaintenanceTemplate
 		// Show the continue button.
 		Maintenance::$context['continue'] = true;
 
-		echo '
-			<h3>', Lang::getTxt('upgrade_wait2', file: 'Maintenance'), '</h3>
-			<input type="hidden" name="utf8_done" id="utf8_done" value="0">
-			<strong>', Lang::getTxt('upgrade_completedtables_outof', Maintenance::$context), '</strong>
-			<div id="debug_section">
-				<span id="debuginfo"></span>
-			</div>
-			<h3 id="current_tab">
-				', Lang::getTxt('upgrade_current_table', file: 'Maintenance'), ' &quot;<span id="current_table">', Maintenance::$context['cur_table_name'], '</span>&quot;
-			</h3>';
+		self::showStepWithSubSteps('convertutf8', 'utf8_done');
+	}
 
-		// If we dropped their index, let's let them know.
-		if (!empty(Maintenance::$context['dropping_index'])) {
+	/**
+	 * Show the contents of the log, if available.
+	 */
+	public static function showLog(): void
+	{
+		if (!empty(Maintenance::$context['log_contents'])) {
 			echo '
-			<p id="indexmsg" class="', Maintenance::$context['cur_table_num'] == Maintenance::$context['table_count'] ? 'inline_block' : 'hidden', '>', Lang::getTxt('upgrade_fulltext', file: 'Maintenance'), '</p>';
+				<h3>
+					<a class="bbc_link" onclick="document.getElementById(\'log\').style.display = \'\';">', Lang::getTxt('show_log', file: 'Maintenance'), '</a>
+				</h3>
+				<pre id="log" class="bbc_code" style="display:none">' . Maintenance::$context['log_contents'] . '</pre>';
 		}
+	}
 
-		// Completion notification.
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Shows the HTML for a step that has substeps.
+	 */
+	protected static function showStepWithSubSteps(string $type, string $done_param): void
+	{
 		echo '
-			<p id="commess" class="', Maintenance::$context['cur_table_num'] == Maintenance::$context['table_count'] ? 'inline_block' : 'hidden', '">', Lang::getTxt('upgrade_conversion_proceed', file: 'Maintenance'), '</p>';
+			<h3>', Lang::getTxt('upgrade_performing_substeps', ['type' => $type], file: 'Maintenance'), '</h3>
+			<h4><em>', Lang::getTxt('upgrade_please_be_patient', file: 'Maintenance'), '</em></h4>
+			<input type="hidden" name="', $done_param, '" id="', $done_param, '" value="0">
+			<div id="debug_section" class="bbc_code"><span id="debuginfo"></span></div>';
+
+		echo '
+			<h3 id="current_tab">',
+			Lang::getTxt(
+				'upgrade_current_substep',
+				[
+					'substep' => '<span id="current_substep">' . (Maintenance::$context['current_substep'] ?? '') . '</span>',
+				],
+				file: 'Maintenance',
+			),
+			'</h3>';
+
+		echo '
+			<strong>',
+			Lang::getTxt(
+				'upgrade_substep_progress',
+				[
+					'substep_num' => '<span id="substep_num">' . Maintenance::getCurrentSubStep() . '</span>',
+					'total_substeps' => Maintenance::$total_substeps,
+					'type' => $type,
+				],
+				file: 'Maintenance',
+			),
+			'</strong>';
+
+		echo '
+			<p id="commess" class="', Maintenance::getCurrentSubStep() == Maintenance::$total_substeps ? 'inline_block' : 'hidden', '">', Lang::getTxt('upgrade_step_complete', ['step' => Lang::getTxt('upgrade_step_' . $type, file: 'Maintenance')], file: 'Maintenance'), '</p>';
 
 		echo '
 			<div class="errorbox" id="errorbox" style="display: none;">
@@ -311,74 +349,165 @@ abstract class MaintenanceTemplate
 		// Pour me a cup of javascript.
 		echo '
 			<script>
-				const iTotalTables = ', Maintenance::$context['table_count'], ';
+				const iTotalSubSteps = ', Maintenance::$total_substeps, ';
 				const iStepWeight = ', Maintenance::$context['step_weight'], ';
-				let iLastTableIndex = ', Maintenance::$context['cur_table_num'], ';
-				let iStepProgress = 0;
-				let sCurrentTableName = "";
+				let iCurrentSubStep = ', Maintenance::getCurrentSubStep(), ';
+				let iCurrentStart = ', Maintenance::getCurrentStart(), ';
+				let iSubStepProgress = 0;
+				let sCurrentSubStepName = "";
+				let sCurrentSubStepStatus = "";
+				let sNextSubStepName = "";
 
-				function getNextTables()
+				function getNextSubstep()
 				{
-					const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json".replace(/substep=\d+/, "substep=" + iLastTableIndex);
+					const url = "' . Maintenance::getSelf() . '?' . Maintenance::setQueryString() . '&json"
+						.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+						.replace(/start=\d+/, "start=" + iCurrentStart);
 
 					fetch(url, {
 						method: "GET",
 						credentials: "include",
 					}).then(function(response){
-						response.json().then(function(json) {
-							if (json.success != true) {
-								document.getElementById("errorbox").style.display = "";
-								document.getElementById("contbutt").disabled = 0;
-								document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iLastTableIndex);
-								return;
-							}
+						if (response.headers.get("content-type").includes("json")) {
+							response.json().then(function(json) {
+								if (json.success != true) {
+									document.getElementById("errorbox").style.display = "";
 
-							sCurrentTableName = json.data.current_table_name;
-							iLastTableIndex = parseInt(json.data.current_table_index);
-							iStepProgress = parseInt(json.data.substep_progress);
+									if (document.getElementById("try_again")) {
+										document.getElementById("try_again").style.display = "";
+									}
 
-							// Update the page.
-							document.getElementById("current_table").innerHTML = sCurrentTableName;
+									document.getElementById("upform").action = document.getElementById("upform").action
+										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+										.replace(/start=\d+/, "start=" + iCurrentStart);
 
-							updateProgress(iLastTableIndex, iTotalTables, iStepWeight, iStepProgress);
-
-							if (isDebug) {
-								setOuterHTML(document.getElementById("debuginfo"), "<br>', Lang::getTxt('upgrade_completed_table', file: 'Maintenance'), ' &quot;" + sCurrentTableName + "&quot;.<span id=\'debuginfo\'><" + "/span>");
-
-								if (document.getElementById("debug_section").scrollHeight) {
-									document.getElementById("debug_section").scrollTop = document.getElementById("debug_section").scrollHeight
+									return;
 								}
-							}
 
-							// Are we done yet?
-							if (iLastTableIndex == iTotalTables) {
-								document.getElementById("commess").classList.remove("hidden");
-								document.getElementById("current_tab").classList.add("hidden");
-								document.getElementById("contbutt").disabled = 0;
-								document.getElementById("utf8_done").value = 1;
+								sCurrentSubStepName = json.data.name;
+								sNextSubStepName = json.data.next ?? "";
+								iCurrentSubStep = parseInt(json.data.substep);
+								iCurrentStart = parseInt(json.data.start);
+								iSubStepProgress = iCurrentSubStep / iTotalSubSteps;
+								sCurrentSubStepStatus = json.data.skipped ? "', Lang::getTxt('log_skipped', file: 'Maintenance'), '" : (json.data.failed ? "', Lang::getTxt('log_failed', file: 'Maintenance'), '" : (json.data.completed ? "', Lang::getTxt('log_done', file: 'Maintenance'), '" : ""))
 
-								setTimeout("doAutoSubmit();", 1000);
-							}
-							else {
-								getNextTables();
-							}
-						});
+								// Update the page.
+								document.getElementById("substep_num").innerHTML = iCurrentSubStep;
+								document.getElementById("current_substep").innerHTML = sCurrentSubStepName;
+
+								// Hold up, we caught a error.
+								if (true == json.data.failed) {
+									document.getElementById("errorbox").style.display = "";
+
+									if (document.getElementById("try_again")) {
+										document.getElementById("try_again").style.display = "";
+									}
+
+									document.getElementById("upform").action = document.getElementById("upform").action
+										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+										.replace(/start=\d+/, "start=" + iCurrentStart);
+
+									if (isDebug) {
+										document.getElementById("errorbox").getElementsByTagName("span")[0].innerHTML = json.debug.msg + "<br>" + json.debug.file + ":" + json.debug.line;
+									}
+
+									return;
+								}
+
+								updateProgress(iCurrentSubStep, iTotalSubSteps, iStepWeight, iSubStepProgress);
+
+								if (isDebug) {
+									document.getElementById("debug_section").append(sCurrentSubStepName + "... " + sCurrentSubStepStatus + "\n");
+
+									if (document.getElementById("debug_section").scrollHeight) {
+										document.getElementById("debug_section").scrollTop = document.getElementById("debug_section").scrollHeight
+									}
+								}
+
+								// Are we done yet?
+								if (iCurrentSubStep == iTotalSubSteps) {
+									document.getElementById("commess").classList.remove("hidden");
+									document.getElementById("current_tab").classList.add("hidden");
+									document.getElementById("contbutt").disabled = 0;
+									document.getElementById("' . $done_param . '").value = 1;
+
+									setTimeout("doAutoSubmit();", 1000);
+								} else {
+									getNextSubstep();
+								}
+							}).catch(function(error) {
+								console.error("Parse Error:", error);
+
+								document.getElementById("errorbox").style.display = "";
+								if (isDebug) {
+									if (sNextSubStepName.length > 0) {
+										document.getElementById("current_substep").innerHTML = sNextSubStepName;
+									}
+
+									document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
+
+									if (document.getElementById("try_again")) {
+										document.getElementById("try_again").style.display = "";
+									}
+
+									document.getElementById("upform").action = document.getElementById("upform").action
+										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+										.replace(/start=\d+/, "start=" + iCurrentStart);
+								}
+							})
+						}
+						else {
+							response.text().then(function(msg) {
+								console.error("Response Error");
+
+								document.getElementById("errorbox").style.display = "";
+								if (isDebug) {
+									if (sNextSubStepName.length > 0) {
+										document.getElementById("current_substep").innerHTML = sNextSubStepName;
+									}
+									document.getElementById("errorbox").getElementsByTagName("span")[0].outerHTML = msg;
+
+									if (document.getElementById("try_again")) {
+										document.getElementById("try_again").style.display = "";
+									}
+
+									document.getElementById("upform").action = document.getElementById("upform").action
+										.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+										.replace(/start=\d+/, "start=" + iCurrentStart);
+								}
+							});
+						}
 					}).catch(function(error) {
-						console.log("Fetch Error:", error);
+						console.error("Fetch Error:", error);
 
 						document.getElementById("errorbox").style.display = "";
 						if (isDebug) {
+							if (sNextSubStepName.length > 0) {
+								document.getElementById("current_substep").innerHTML = sNextSubStepName;
+							}
+
 							document.getElementById("errorbox").getElementsByTagName("span")[0].innerText = error;
-							document.getElementById("contbutt").disabled = 0;
-							document.getElementById("upform").src = document.getElementById("upform").src.replace(/substep=\d+/, "substep=" + iLastTableIndex);
+
+							if (document.getElementById("try_again")) {
+								document.getElementById("try_again").style.display = "";
+							}
+
+							document.getElementById("upform").action = document.getElementById("upform").action
+								.replace(/substep=\d+/, "substep=" + iCurrentSubStep)
+								.replace(/start=\d+/, "start=" + iCurrentStart);
 						}
 					});
 				}
 
 				// Lets try to let the browser handle this.
 				window.addEventListener("load", (event) => {
+					if (document.getElementById("try_again")) {
+						document.getElementById("try_again").style.display = "none";
+					}
+
 					document.getElementById("contbutt").disabled = 1;
-					getNextTables();
+
+					getNextSubstep();
 				});
 			</script>';
 	}
