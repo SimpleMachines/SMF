@@ -384,7 +384,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function getScriptName(): string
 	{
-		return Lang::$txt['smf_upgrade'];
+		return Lang::getTxt('smf_upgrade', file: 'Maintenance');
 	}
 
 	/**
@@ -422,28 +422,28 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		return [
 			new Step(
 				id: 1,
-				name: Lang::$txt['upgrade_step_login'],
+				name: Lang::getTxt('upgrade_step_login', file: 'Maintenance'),
 				function: 'welcomeLogin',
 				template: 'welcomeLogin',
 				progress: 2,
 			),
 			new Step(
 				id: 2,
-				name: Lang::$txt['upgrade_step_options'],
+				name: Lang::getTxt('upgrade_step_options', file: 'Maintenance'),
 				function: 'upgradeOptions',
 				template: 'upgradeOptions',
 				progress: 3,
 			),
 			new Step(
 				id: 3,
-				name: Lang::$txt['upgrade_step_backup'],
+				name: Lang::getTxt('upgrade_step_backup', file: 'Maintenance'),
 				function: 'backupDatabase',
 				template: 'backupDatabase',
 				progress: 10,
 			),
 			new Step(
 				id: 4,
-				name: Lang::$txt['upgrade_step_migration'],
+				name: Lang::getTxt('upgrade_step_migration', file: 'Maintenance'),
 				function: 'migrations',
 				template: 'migrations',
 				progress: 45,
@@ -451,20 +451,20 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			new Utf8ConverterStep(
 				// Note: Utf8ConverterStep does not take a function argument.
 				id: 5,
-				name: Lang::$txt['upgrade_step_convertutf'],
+				name: Lang::getTxt('upgrade_step_convertutf', file: 'Maintenance'),
 				template: 'convertUtf8',
 				progress: 30,
 			),
 			new Step(
 				id: 6,
-				name: Lang::$txt['upgrade_step_cleanup'],
+				name: Lang::getTxt('upgrade_step_cleanup', file: 'Maintenance'),
 				function: 'cleanup',
 				template: 'cleanup',
 				progress: 10,
 			),
 			new Step(
 				id: 7,
-				name: Lang::$txt['upgrade_step_finalize'],
+				name: Lang::getTxt('upgrade_step_finalize', file: 'Maintenance'),
 				function: 'finalize',
 				template: 'finalize',
 				progress: 0,
@@ -495,14 +495,14 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Needs to at least meet our minium version.
 		if (version_compare(Maintenance::PHP_MIN_VERSION, PHP_VERSION, '>=')) {
-			Maintenance::$fatal_error = Lang::$txt['error_php_too_low'];
+			Maintenance::$fatal_error = Lang::getTxt('error_php_too_low', file: 'Maintenance');
 
 			return false;
 		}
 
 		// Form submitted, but no javascript support.
 		if (isset($_POST['contbutt']) && !isset($_POST['js_support'])) {
-			Maintenance::$fatal_error = Lang::$txt['error_no_javascript'];
+			Maintenance::$fatal_error = Lang::getTxt('error_no_javascript', file: 'Maintenance');
 
 			return false;
 		}
@@ -529,7 +529,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		if (!$check) {
 			// Don't tell them what files exactly because it's a spot check - just like teachers don't tell which problems they are spot checking, that's dumb.
-			Maintenance::$fatal_error = Lang::$txt['error_upgrade_files_missing'];
+			Maintenance::$fatal_error = Lang::getTxt('error_upgrade_files_missing', file: 'Maintenance');
 
 			return false;
 		}
@@ -570,7 +570,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		preg_match('~\*\s@version\s+(.+)[\s]{2}~i', $temp, $match);
 
 		if (empty($match[1]) || (trim($match[1]) != SMF_VERSION)) {
-			Maintenance::$fatal_error = Lang::$txt['error_upgrade_old_files'];
+			Maintenance::$fatal_error = Lang::getTxt('error_upgrade_old_files', file: 'Maintenance');
 
 			return false;
 		}
@@ -616,7 +616,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		if (!file_exists($cache_dir_temp)) {
-			Maintenance::$fatal_error = Lang::$txt['error_cache_not_found'];
+			Maintenance::$fatal_error = Lang::getTxt('error_cache_not_found', file: 'Maintenance');
 
 			return false;
 		}
@@ -650,42 +650,42 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			)
 			&& !is_writable(Config::$languagesdir . '/' . $this->default_language . '/agreement.txt')
 		) {
-			Maintenance::$fatal_error = Lang::$txt['error_agreement_not_writable'];
+			Maintenance::$fatal_error = Lang::getTxt('error_agreement_not_writable', file: 'Maintenance');
 
 			return false;
 		}
 
 		// Confirm mbstring is loaded...
 		if (!extension_loaded('mbstring')) {
-			Maintenance::$errors[] = Lang::$txt['install_no_mbstring'];
+			Maintenance::$errors[] = Lang::getTxt('install_no_mbstring', file: 'Maintenance');
 		}
 
 		// Confirm fileinfo is loaded...
 		if (!extension_loaded('fileinfo')) {
-			Maintenance::$errors[] = Lang::$txt['install_no_fileinfo'];
+			Maintenance::$errors[] = Lang::getTxt('install_no_fileinfo', file: 'Maintenance');
 		}
 
 		// Check for https stream support.
 		$supported_streams = stream_get_wrappers();
 
 		if (!in_array('https', $supported_streams)) {
-			Maintenance::$warnings[] = Lang::$txt['install_no_https'];
+			Maintenance::$warnings[] = Lang::getTxt('install_no_https', file: 'Maintenance');
 		}
 
 		// First, check the avatar directory...
 		// Note it wasn't specified in YabbSE, but there was no smfVersion either.
 		if (!empty(Config::$modSettings['smfVersion']) && !is_dir(Config::$modSettings['avatar_directory'])) {
-			Maintenance::$warnings[] = Lang::$txt['warning_av_missing'];
+			Maintenance::$warnings[] = Lang::getTxt('warning_av_missing', file: 'Maintenance');
 		}
 
 		// Next, check the custom avatar directory...  Note this is optional in 2.0.
 		if (!empty(Config::$modSettings['custom_avatar_dir']) && !is_dir(Config::$modSettings['custom_avatar_dir'])) {
-				Maintenance::$warnings[] = Lang::$txt['warning_custom_av_missing'];
+				Maintenance::$warnings[] = Lang::getTxt('warning_custom_av_missing', file: 'Maintenance');
 		}
 
 		// Ensure we have a valid attachment directory.
 		if ($this->attachmentDirectoryIsValid()) {
-			Maintenance::$warnings[] = Lang::$txt['warning_att_dir_missing'];
+			Maintenance::$warnings[] = Lang::getTxt('warning_att_dir_missing', file: 'Maintenance');
 		}
 
 		if (Sapi::isCLI()) {
@@ -705,7 +705,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			)
 		) {
 			if (!SecurityToken::validate('login', 'post', false)) {
-				Maintenance::$errors[] = Lang::$txt['token_verify_fail'];
+				Maintenance::$errors[] = Lang::getTxt('token_verify_fail', file: 'Maintenance');
 				Maintenance::$context += SecurityToken::create('login');
 
 				return false;
@@ -843,8 +843,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				$file_settings['mtitle'] = $_POST['maintitle'];
 				$file_settings['mmessage'] = $_POST['mainmessage'];
 			} else {
-				$file_settings['mtitle'] = Lang::$txt['mtitle'];
-				$file_settings['mmessage'] = Lang::$txt['mmessage'];
+				$file_settings['mtitle'] = Lang::getTxt('mtitle', file: 'Maintenance');
+				$file_settings['mmessage'] = Lang::getTxt('mmessage', file: 'Maintenance');
 			}
 		}
 
