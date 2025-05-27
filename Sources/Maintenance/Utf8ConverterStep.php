@@ -647,7 +647,7 @@ class Utf8ConverterStep extends Step
 			return true;
 		}
 
-		while (Maintenance::getCurrentSubStep() <= Maintenance::$total_substeps) {
+		while (Maintenance::getCurrentSubStep() < Maintenance::$total_substeps) {
 			$substep = $substeps[Maintenance::getCurrentSubStep()];
 
 			if (Sapi::isCLI()) {
