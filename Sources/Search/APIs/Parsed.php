@@ -1220,7 +1220,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		$string = preg_replace_callback(
 			'/[\p{Mn}]/u',
-			fn($matches) => mb_encode_numericentity($matches[0], [0, 0xFFFFFF, 0, 0x10FFFF], 'UTF-8'),
+			fn($matches) => mb_encode_numericentity($matches[0], [0, 0x10FFFF, 0, 0xFFFFFF], 'UTF-8'),
 			$string,
 		);
 
