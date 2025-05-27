@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance\Maintenance;
+use SMF\Maintenance\Step;
 use SMF\PackageManager\FtpConnection;
 use SMF\Sapi;
 use SMF\SecurityToken;
@@ -51,6 +52,15 @@ abstract class ToolsBase
 	 *********************/
 
 	/**
+	 * @var ?Step
+	 *
+	 * Which step is currently being performed.
+	 *
+	 * This is set by $this->setStep() and retrieved by $this->getStep().
+	 */
+	private ?Step $current_step;
+
+	/**
 	 * @var FtpConnection
 	 *
 	 * Object container for the FTP session.
@@ -60,6 +70,26 @@ abstract class ToolsBase
 	/****************
 	 * Public methods
 	 ****************/
+
+	/**
+	 * Sets $this->current_step.
+	 *
+	 * @return ?Step The current step or null if no step is being performed.
+	 */
+	public function setStep(?Step $step = null): void
+	{
+		$this->current_step = $step;
+	}
+
+	/**
+	 * Gets $this->current_step.
+	 *
+	 * @return ?Step The value of $this->current_step.
+	 */
+	public function getStep(): ?Step
+	{
+		return $this->current_step ?? null;
+	}
 
 	/**
 	 * Find all databases that are supported on this system.

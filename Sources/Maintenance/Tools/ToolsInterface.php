@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Tools;
 
+use SMF\Maintenance\Step;
+
 /**
  * Tools Interface, all tools have these methods.
  */
@@ -25,9 +27,11 @@ interface ToolsInterface
 	 ****************/
 
 	/**
-	 * Get the script name
+	 * Get the localized script name.
 	 *
-	 * @return string Page Title
+	 * Example: "SMF Upgrade Utility"
+	 *
+	 * @return string Localized name of the script.
 	 */
 	public function getScriptName(): string;
 
@@ -36,7 +40,7 @@ interface ToolsInterface
 	 *
 	 * The tool may override and just change.
 	 *
-	 * @return string
+	 * @return string The title for the page.
 	 */
 	public function getPageTitle(): string;
 
@@ -57,9 +61,51 @@ interface ToolsInterface
 	public function getSteps(): array;
 
 	/**
-	 * Gets the title for the step we are performing
+	 * Sets $this->current_step.
 	 *
-	 * @return string
+	 * Used to keep track of which step is being performed.
+	 *
+	 * @return ?Step The current step or null if no step is being performed.
 	 */
-	public function getStepTitle(): string;
+	public function setStep(?Step $step = null): void;
+
+	/**
+	 * Gets $this->current_step.
+	 *
+	 * Used to keep track of which step is being performed.
+	 *
+	 * @return ?Step The value of $this->current_step.
+	 */
+	public function getStep(): ?Step;
+
+	/**
+	 * Gets the title for the step we are performing.
+	 *
+	 * @return ?string
+	 */
+	public function getStepTitle(): ?string;
+
+	/**
+	 * Used by various places to determine if the tool is in debug mode or not.
+	 *
+	 * @return bool
+	 */
+	public function isDebug(): bool;
+
+	/**
+	 * Last chance to do anything before we exit.
+	 *
+	 * Some tools may call this to save their progress, etc.
+	 */
+	public function preExit(): void;
+
+	/**
+	 * Delete the tool.
+	 *
+	 * This is typically called with a ?delete.
+	 *
+	 * No output is returned. Upon successful deletion, the browser is
+	 * redirected to a blank file.
+	 */
+	public function deleteTool(): void;
 }

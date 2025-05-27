@@ -178,14 +178,18 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/**
 	 * @var bool
 	 *
-	 * When true, we can continue, when false the continue button is removed.
+	 * Whether we can continue.
+	 *
+	 * When false the continue button is removed.
 	 */
 	public bool $continue = true;
 
 	/**
 	 * @var bool
 	 *
-	 * When true, we can skip this step, otherwise false and no skip option.
+	 * Whether we can skip the current step.
+	 *
+	 * If false, no skip option will be shown.
 	 */
 	public bool $skip = false;
 
@@ -301,6 +305,15 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	private bool $is_large_forum = false;
 
+	/**
+	 * @var ?Step
+	 *
+	 * Which step is currently being performed.
+	 *
+	 * This is set by $this->setStep() and retrieved by $this->getStep().
+	 */
+	private ?Step $current_step;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -378,9 +391,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	}
 
 	/**
-	 * Get the script name
 	 *
-	 * @return string Page Title
 	 */
 	public function getScriptName(): string
 	{
@@ -393,13 +404,13 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * Selection is in the following order:
 	 *  1. A custom page title.
 	 *  2. Step has provided a title.
-	 *  3. Default for the installer tool.
+	 *  3. The value of $this->getScriptName().
 	 *
-	 * @return string Page Title
+	 * @return string The title for the page.
 	 */
 	public function getPageTitle(): string
 	{
-		return $this->page_title ?? $this->getSteps()[Maintenance::getCurrentStep()]->getTitle() ?? $this->getScriptName();
+		return $this->page_title ?? $this->getStep()->getTitle() ?? $this->getScriptName();
 	}
 
 	/**
@@ -479,7 +490,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function getStepTitle(): string
 	{
-		return $this->getSteps()[Maintenance::getCurrentStep()]->getName();
+		return $this->getStep()->getName();
 	}
 
 	/**

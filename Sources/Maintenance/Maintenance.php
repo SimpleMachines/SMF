@@ -272,6 +272,9 @@ class Maintenance
 				continue;
 			}
 
+			// Inform the tool about which step we are performing.
+			self::$tool->setStep($step);
+
 			// The current weight of this step in terms of overall progress.
 			self::$context['step_weight'] = $step->getProgress();
 

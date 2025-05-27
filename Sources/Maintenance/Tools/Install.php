@@ -45,14 +45,18 @@ class Install extends ToolsBase implements ToolsInterface
 	/**
 	 * @var bool
 	 *
-	 * When true, we can continue, when false the continue button is removed.
+	 * Whether we can continue.
+	 *
+	 * When false the continue button is removed.
 	 */
 	public bool $continue = true;
 
 	/**
 	 * @var bool
 	 *
-	 * When true, we can skip this step, otherwise false and no skip option.
+	 * Whether we can skip the current step.
+	 *
+	 * If false, no skip option will be shown.
 	 */
 	public bool $skip = false;
 
@@ -127,9 +131,7 @@ class Install extends ToolsBase implements ToolsInterface
 	}
 
 	/**
-	 * Get the script name
 	 *
-	 * @return string Page Title
 	 */
 	public function getScriptName(): string
 	{
@@ -142,19 +144,17 @@ class Install extends ToolsBase implements ToolsInterface
 	 * Selection is in the following order:
 	 *  1. A custom page title.
 	 *  2. Step has provided a title.
-	 *  3. Default for the installer tool.
+	 *  3. The value of $this->getScriptName().
 	 *
-	 * @return string Page Title
+	 * @return string The title for the page.
 	 */
 	public function getPageTitle(): string
 	{
-		return $this->page_title ?? $this->getSteps()[Maintenance::getCurrentStep()]->getTitle() ?? $this->getScriptName();
+		return $this->page_title ?? $this->getStep()->getTitle() ?? $this->getScriptName();
 	}
 
 	/**
-	 * If a tool does not contain steps, this should be false, true otherwise.
 	 *
-	 * @return bool Whether or not a tool has steps.
 	 */
 	public function hasSteps(): bool
 	{
@@ -162,9 +162,7 @@ class Install extends ToolsBase implements ToolsInterface
 	}
 
 	/**
-	 * Installer Steps
 	 *
-	 * @return \SMF\Maintenance\Step[]
 	 */
 	public function getSteps(): array
 	{
@@ -227,13 +225,11 @@ class Install extends ToolsBase implements ToolsInterface
 	}
 
 	/**
-	 * Gets the title for the step we are performing
 	 *
-	 * @return string
 	 */
 	public function getStepTitle(): string
 	{
-		return $this->getSteps()[Maintenance::getCurrentStep()]->getName();
+		return $this->getStep()->getName();
 	}
 
 	/**
