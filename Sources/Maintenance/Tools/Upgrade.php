@@ -155,6 +155,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\MailType::class,
 			Migration\v3_0\RemoveCookieTime::class,
 			Migration\v3_0\PermissionChanges::class,
+			Migration\v3_0\IndexUpdates::class,
 		],
 	];
 
