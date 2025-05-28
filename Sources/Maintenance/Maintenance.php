@@ -874,8 +874,8 @@ class Maintenance
 
 		if (!empty($_SERVER['argv']) && Sapi::isCLI()) {
 			for ($i = 1; $i < count($_SERVER['argv']); $i++) {
-				if (preg_match('/^--([^=]+)=(.*)/', $_SERVER['argv'][$i], $match)) {
-					$_REQUEST[$match[1]] = $match[2];
+				if (preg_match('/^--([^=\s]+)(?:=(.*))?/', $_SERVER['argv'][$i], $match)) {
+					$_POST[$match[1]] = $match[2] ?? true;
 				}
 			}
 		}
