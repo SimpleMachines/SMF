@@ -988,7 +988,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Back up each table!
-		while (Maintenance::getCurrentSubStep() <= Maintenance::$total_substeps) {
+		while (Maintenance::getCurrentSubStep() < Maintenance::$total_substeps) {
 			$current_table = $table_names[Maintenance::getCurrentSubStep()];
 			$this->doBackupTable($current_table);
 
