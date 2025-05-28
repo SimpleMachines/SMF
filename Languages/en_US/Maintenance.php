@@ -380,7 +380,7 @@ $txt['error_versions_do_not_match'] = 'The installer has detected another versio
 $txt['error_valid_admin_email_needed'] = 'You have not entered a valid email address for your administrator account.';
 $txt['error_valid_server_email_needed'] = 'You have not entered a valid webmaster email address.';
 
-$txt['error_invalid_characters_username'] = 'Invalid character used in Username.';
+$txt['error_invalid_characters_username'] = 'Invalid character used in username.';
 $txt['error_username_too_long'] = 'Username may only be up to 25 characters long.';
 $txt['error_username_left_empty'] = 'Username field was left empty.';
 $txt['error_utf8_support'] = 'The database you are trying to use is not using UTF-8 charset';

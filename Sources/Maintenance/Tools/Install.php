@@ -997,9 +997,39 @@ class Install extends ToolsBase implements ToolsInterface
 			Config::updateSettingsFile(['webmaster_email' => (string) $_POST['server_email']]);
 		}
 
-		// Work out whether we're going to have dodgy characters and remove them.
-		$invalid_characters = preg_match('~[<>&"\'=\\\]~', $_POST['username']) != 0;
-		$_POST['username'] = preg_replace('~[<>&"\'=\\\]~', '', $_POST['username']);
+		// Normalize Unicode characters.
+		$_POST['username'] = Utils::normalize($_POST['username']);
+
+		// Replace any kind of space or illegal character with a normal space, and then trim.
+		$_POST['username'] = Utils::htmlTrim(Utils::normalizeSpaces(Utils::sanitizeChars($_POST['username'], 1, ' '), true, true, ['no_breaks' => true, 'replace_tabs' => true, 'collapse_hspace' => true]));
+
+		$username_errors = User::validateUsername(0, $_POST['username'], true, false);
+
+		if (!empty($username_errors)) {
+			foreach ($username_errors as $error) {
+				switch ($error[1]) {
+					case 'error_long_name':
+						Maintenance::$fatal_error = Lang::getTxt('error_username_too_long', file: 'Maintenance');
+						break;
+
+					case 'need_username':
+						Maintenance::$fatal_error = Lang::getTxt('error_username_left_empty', file: 'Maintenance');
+						break;
+
+					case 'username_reserved':
+						Maintenance::$fatal_error = Lang::getTxt('username_reserved', $error[3], file: 'Errors');
+						break;
+
+					default:
+						Maintenance::$fatal_error = Lang::getTxt('error_invalid_characters_username', file: 'Maintenance');
+						break;
+				}
+			}
+
+			$this->logProgress(Maintenance::$fatal_error);
+
+			return false;
+		}
 
 		$result = Db::$db->query(
 			'',
@@ -1015,36 +1045,32 @@ class Install extends ToolsBase implements ToolsInterface
 		);
 
 		if (Db::$db->num_rows($result) != 0) {
-			list(Maintenance::$context['member_id'], Maintenance::$context['member_salt']) = Db::$db->fetch_row($result);
+			Maintenance::$context += Db::$db->fetch_row($result);
 			Db::$db->free_result($result);
 
 			Maintenance::$context['account_existed'] = Lang::getTxt('error_user_settings_taken', file: 'Maintenance');
-		} elseif ($_POST['username'] == '' || strlen($_POST['username']) > 25) {
-			// Try the previous step again.
-			Maintenance::$fatal_error = $_POST['username'] == '' ? Lang::getTxt('error_username_left_empty', file: 'Maintenance') : Lang::getTxt('error_username_too_long', file: 'Maintenance');
-			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
-		} elseif ($invalid_characters || $_POST['username'] == '_' || $_POST['username'] == '|' || strpos($_POST['username'], '[code') !== false || strpos($_POST['username'], '[/code') !== false) {
-			// Try the previous step again.
-			Maintenance::$fatal_error = Lang::getTxt('error_invalid_characters_username', file: 'Maintenance');
-			$this->logProgress(Maintenance::$fatal_error);
+		}
 
-			return false;
-		} elseif (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255) {
+		if (empty($_POST['email']) || !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
 			Maintenance::$fatal_error = Lang::getTxt('error_valid_admin_email_needed', file: 'Maintenance');
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
-		} elseif (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255) {
+		}
+
+		if (empty($_POST['server_email']) || !filter_var($_POST['server_email'], FILTER_VALIDATE_EMAIL) || strlen($_POST['server_email']) > 255) {
 			// One step back, this time fill out a proper admin email address.
 			Maintenance::$fatal_error = Lang::getTxt('error_valid_server_email_needed', file: 'Maintenance');
 			$this->logProgress(Maintenance::$fatal_error);
 
 			return false;
-		} elseif ($_POST['username'] != '') {
-			Maintenance::$context['member_salt'] = bin2hex(random_bytes(16));
+		}
+
+		if ($_POST['username'] != '') {
+			Maintenance::$context['password_salt'] = bin2hex(random_bytes(16));
 
 			// Format the username properly.
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
@@ -1053,7 +1079,7 @@ class Install extends ToolsBase implements ToolsInterface
 			$_POST['password1'] = Security::hashPassword($_POST['password1']);
 
 			try {
-				Maintenance::$context['member_id'] = Db::$db->insert(
+				Maintenance::$context['id_member'] = Db::$db->insert(
 					'',
 					Db::$db->prefix . 'members',
 					[
@@ -1089,7 +1115,7 @@ class Install extends ToolsBase implements ToolsInterface
 							1,
 							0,
 							time(),
-							Maintenance::$context['member_salt'],
+							Maintenance::$context['password_salt'],
 							'',
 							'',
 							'',
@@ -1110,7 +1136,7 @@ class Install extends ToolsBase implements ToolsInterface
 					1,
 				);
 
-				if ((int) Maintenance::$context['member_id'] > 0) {
+				if ((int) Maintenance::$context['id_member'] > 0) {
 					return true;
 				}
 
@@ -1172,7 +1198,7 @@ class Install extends ToolsBase implements ToolsInterface
 					Time::strftime('%Y-%m-%d', time()),
 					1,
 					1,
-					!empty(Maintenance::$context['member_id']) ? 1 : 0,
+					!empty(Maintenance::$context['id_member']) ? 1 : 0,
 				],
 			],
 			['date'],
@@ -1197,8 +1223,8 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// Automatically log them in ;)
-		if (isset(Maintenance::$context['member_id'], Maintenance::$context['member_salt'])) {
-			Cookie::setLoginCookie(3153600 * 60, Maintenance::$context['member_id'], Cookie::encrypt($_POST['password1'], Maintenance::$context['member_salt']));
+		if (isset(Maintenance::$context['id_member'], Maintenance::$context['password_salt'])) {
+			Cookie::setLoginCookie(3153600 * 60, Maintenance::$context['id_member'], Cookie::encrypt($_POST['password1'], Maintenance::$context['password_salt']));
 		}
 
 		$result = Db::$db->query(
@@ -1271,8 +1297,8 @@ class Install extends ToolsBase implements ToolsInterface
 			// We've just installed!
 			$_SERVER['BAN_CHECK_IP'] = $_SERVER['REMOTE_ADDR'];
 
-			if (isset(Maintenance::$context['member_id'])) {
-				User::setMe(Maintenance::$context['member_id']);
+			if (isset(Maintenance::$context['id_member'])) {
+				User::setMe((int) Maintenance::$context['id_member']);
 			} else {
 				User::load();
 			}
