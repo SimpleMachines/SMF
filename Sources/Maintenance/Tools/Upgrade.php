@@ -147,6 +147,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\LanguageDirectory::class,
 			Migration\v3_0\ErrorLogSession::class,
 			Migration\v3_0\MessageVersion::class,
+			Migration\v3_0\PackageVersion::class,
 			Migration\v3_0\RecurringEvents::class,
 			Migration\v3_0\HolidaysToEvents::class,
 			Migration\v3_0\EventUids::class,
