@@ -22,6 +22,7 @@ use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Step;
 use SMF\PackageManager\FtpConnection;
 use SMF\Sapi;
+use SMF\Security;
 use SMF\SecurityToken;
 use SMF\Utils;
 
@@ -102,8 +103,7 @@ abstract class ToolsBase
 	/**
 	 * Updates the tool's log with new info.
 	 *
-	 * If using the CLI interface, the message is printed to STDOUT rather than
-	 * appended to a log file.
+	 * If using the CLI interface, the message is also printed to STDOUT.
 	 *
 	 * @param mixed $message The message to append to the log.
 	 *    If not a string, will be converted into one using print_r().
@@ -124,17 +124,69 @@ abstract class ToolsBase
 
 		if (Sapi::isCLI()) {
 			echo $message;
-
-			return;
 		}
 
 		if (!isset($this->log_file)) {
 			$name = isset($this->script_file) ? pathinfo($this->script_file, PATHINFO_FILENAME) : substr($this::class, strrpos($this::class, '\\') + 1);
 
-			$this->log_file = Sapi::getTempDir() . DIRECTORY_SEPARATOR . $name . '.log';
+			foreach (
+				[
+					Config::$boarddir . DIRECTORY_SEPARATOR . 'logs',
+					Config::$boarddir,
+					Sapi::getTempDir(),
+				] as $dir
+			) {
+				if (!file_exists($dir)) {
+					Utils::makeWritable(dirname($dir));
+					@mkdir($dir, 0750);
+				}
+
+				if (is_dir($dir) && Utils::makeWritable($dir)) {
+					break;
+				}
+			}
+
+			$this->log_file = $dir . DIRECTORY_SEPARATOR . $name . '.log';
 		}
 
 		file_put_contents($this->log_file, $message, $reset ? 0 : FILE_APPEND);
+	}
+
+	/**
+	 * Stores the log in a secure directory, or deletes it on failure.
+	 *
+	 * The saved log file is named after the tool plus a UTC timestamp, with a
+	 * '.log' file extension.
+	 *
+	 * @return string Path to the saved log file, or null if log was deleted.
+	 */
+	public function finalizeLog(): ?string
+	{
+		if (!isset($this->log_file) || !file_exists($this->log_file)) {
+			return null;
+		}
+
+		$dir = Config::$boarddir . DIRECTORY_SEPARATOR . 'logs';
+
+		$new_name = $dir . DIRECTORY_SEPARATOR . pathinfo($this->log_file, PATHINFO_FILENAME) . '_' . date_create('now UTC')->format('YmdHis') . '.log';
+
+		if (!file_exists($dir)) {
+			Utils::makeWritable(Config::$boarddir);
+			@mkdir($dir, 0750);
+		}
+
+		if (
+			!is_dir($dir)
+			|| !Utils::makeWritable($dir)
+			|| Security::secureDirectory($dir) !== true
+			|| !@rename($this->log_file, $new_name)
+		) {
+			@unlink($this->log_file);
+
+			return null;
+		}
+
+		return $new_name;
 	}
 
 	/**

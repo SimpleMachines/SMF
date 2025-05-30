@@ -1257,9 +1257,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			}
 		}
 
-		if (isset($this->log_file)) {
-			@unlink($this->log_file);
-		}
+		$this->finalizeLog();
 
 		return Sapi::isCLI();
 	}

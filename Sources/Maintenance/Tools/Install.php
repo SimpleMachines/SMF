@@ -1328,9 +1328,7 @@ class Install extends ToolsBase implements ToolsInterface
 			Maintenance::$context['log_contents'] = file_get_contents($this->log_file);
 		}
 
-		if (isset($this->log_file)) {
-			@unlink($this->log_file);
-		}
+		$this->finalizeLog();
 
 		return false;
 	}
