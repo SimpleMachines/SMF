@@ -215,7 +215,7 @@ class Utf8EntityDecode extends BackgroundTask
 				$params[$col] = $value;
 			}
 
-			if (in_array($col, $string_columns)) {
+			if (in_array($col, $string_columns) && is_string($value)) {
 				$set[] = $col . ' = {string:decoded_' . $col . '}';
 				$params['decoded_' . $col] = $this->decode($value);
 			}
