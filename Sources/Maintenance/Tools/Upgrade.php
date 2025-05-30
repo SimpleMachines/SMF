@@ -1567,25 +1567,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	}
 
 	/**
-	 * Get the name of the next substep, if any.
-	 *
-	 * @param int $num Number of the substep we are looking for
-	 * @param array $substeps All substep classes that we are running.
-	 */
-	private function getSubstepName(int $num, array $substeps): string
-	{
-		try {
-			if (!isset($substeps[$num])) {
-				return '';
-			}
-
-			return $substeps[$num]->name;
-		} catch (\Throwable $e) {
-			return '';
-		}
-	}
-
-	/**
 	 * Performs a series of substeps.
 	 *
 	 * @param array $substeps All substep objects that we are running.
@@ -1597,7 +1578,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// We are preparing for templating.
 		if (!Sapi::isCLI() && !Maintenance::isJson()) {
 			Maintenance::$context['continue'] = true;
-			Maintenance::$context['current_substep'] = $this->getSubstepName(Maintenance::getCurrentSubStep(), $substeps);
+			Maintenance::$context['current_substep'] = $substeps[Maintenance::getCurrentSubStep()]->name ?? '';
 
 			return;
 		}
@@ -1649,7 +1630,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 					Maintenance::jsonResponse([
 						'name' => $substep->name,
-						'next' => $this->getSubstepName(Maintenance::getCurrentSubStep(), $substeps),
+						'next' => $substeps[Maintenance::getCurrentSubStep()]->name ?? '',
 						'skipped' => true,
 						'substep' => Maintenance::getCurrentSubStep(),
 						'start' => Maintenance::getCurrentStart(),
@@ -1728,7 +1709,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			if (Maintenance::isJson()) {
 				Maintenance::jsonResponse([
 					'name' => $substep->name,
-					'next' => $this->getSubstepName(Maintenance::getCurrentSubStep(), $substeps),
+					'next' => $substeps[Maintenance::getCurrentSubStep()]->name ?? '',
 					'completed' => true,
 					'substep' => Maintenance::getCurrentSubStep(),
 					'start' => Maintenance::getCurrentStart(),
