@@ -2657,6 +2657,9 @@ class MarkdownParser extends Parser
 		// Process the emphasis and strikethrough delimiters.
 		$this->parseEmphasis($new_content);
 
+		// Amalgamate contiguous strings again.
+		$this->amalgamateStrings($new_content);
+
 		// Clean up the keys again.
 		$new_content = array_values($new_content);
 
