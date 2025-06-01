@@ -858,7 +858,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// Setting a timezone is required.
-		$newSettings['default_timezone'] = $this->determineTimezone() ?? 'UTC';
+		$newSettings['default_timezone'] = $this->determineTimezone();
 
 		if (!empty($newSettings)) {
 			Config::updateModSettings($newSettings);
@@ -1550,14 +1550,14 @@ class Install extends ToolsBase implements ToolsInterface
 	}
 
 	/**
-	 * Attempt to determine what our time zone is.  If this can't be determined we return nothing.
+	 * Attempt to determine what our time zone is.
 	 *
-	 * @return null|string A valid time zone or nothing.
+	 * @return string A valid time zone identifier.
 	 */
-	private function determineTimezone(): ?string
+	private function determineTimezone(): string
 	{
-		if (isset(Config::$modSettings['default_timezone']) || !function_exists('date_default_timezone_set')) {
-			return null;
+		if (isset(Config::$modSettings['default_timezone']) && in_array(Config::$modSettings['default_timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
+			return Config::$modSettings['default_timezone'];
 		}
 
 		// Get PHP's default timezone, if set
@@ -1570,7 +1570,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// If date.timezone is unset, invalid, or just plain weird, make a best guess
-		if (!in_array($timezone_id, timezone_identifiers_list())) {
+		if (!in_array($timezone_id, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
 			$server_offset = @mktime(0, 0, 0, 1, 1, 1970) * -1;
 			$timezone_id = timezone_name_from_abbr('', $server_offset, 0);
 
@@ -1583,7 +1583,9 @@ class Install extends ToolsBase implements ToolsInterface
 			return $timezone_id;
 		}
 
-		return null;
+		date_default_timezone_set('UTC');
+
+		return 'UTC';
 	}
 
 	/**
