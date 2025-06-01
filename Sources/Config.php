@@ -1918,7 +1918,7 @@ class Config
 						}
 						// Admin is explicitly trying to set this one, so we'll handle
 						// it as if it were a new custom setting being added.
-						elseif ($in_c) {
+						elseif ($in_c && !isset($settings_defs[$var])) {
 							$new_settings_vars[$var] = $config_vars[$var];
 						}
 
