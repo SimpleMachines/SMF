@@ -495,11 +495,8 @@ class Security
 		foreach ($paths as $path) {
 			if (!is_writable($path)) {
 				$errors[] = 'path_not_writable';
-
 				continue;
 			}
-
-			$directory_name = basename($path);
 
 			// First, create the .htaccess file.
 			$contents = <<<END
@@ -520,28 +517,16 @@ class Security
 					END;
 			}
 
-			if (file_exists($path . '/.htaccess')) {
+			if (!file_exists($path . '/.htaccess')) {
+				if (@file_put_contents($path . '/.htaccess', $contents) !== strlen($contents)) {
+					$errors[] = 'htaccess_cannot_create_file';
+				}
+			} elseif (file_get_contents($path . '/.htaccess') !== $contents) {
 				$errors[] = 'htaccess_exists';
-
 				continue;
-			}
-
-			$fh = @fopen($path . '/.htaccess', 'w');
-
-			if ($fh) {
-				fwrite($fh, $contents);
-				fclose($fh);
-			} else {
-				$errors[] = 'htaccess_cannot_create_file';
 			}
 
 			// Next, the index.php file
-			if (file_exists($path . '/index.php')) {
-				$errors[] = 'index-php_exists';
-
-				continue;
-			}
-
 			$contents = <<<END
 				<?php
 
@@ -554,13 +539,13 @@ class Security
 
 				END;
 
-			$fh = @fopen($path . '/index.php', 'w');
-
-			if ($fh) {
-				fwrite($fh, $contents);
-				fclose($fh);
-			} else {
-				$errors[] = 'index-php_cannot_create_file';
+			if (!file_exists($path . '/index.php')) {
+				if (@file_put_contents($path . '/index.php', $contents) !== strlen($contents)) {
+					$errors[] = 'index-php_cannot_create_file';
+				}
+			} elseif (file_get_contents($path . '/index.php') !== $contents) {
+				$errors[] = 'index-php_exists';
+				continue;
 			}
 		}
 
