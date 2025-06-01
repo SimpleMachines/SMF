@@ -256,7 +256,7 @@ class Table
 	{
 		$tables = [];
 
-		$file_list = new \GlobIterator(__DIR__ . '/*.php', \FilesystemIterator::NEW_CURRENT_AND_KEY);
+		$file_list = new \GlobIterator(__DIR__ . '/' . $schema_version . '/*.php', \FilesystemIterator::NEW_CURRENT_AND_KEY);
 
 		foreach ($file_list as $file_path => $file_info) {
 			$class_name = $file_info->getBasename('.php');
