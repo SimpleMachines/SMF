@@ -321,22 +321,30 @@ abstract class ToolsBase
 		foreach ($files as $k => $file) {
 			$this->logProgress(Lang::getTxt('log_ensuring_file_writable', ['file' => $file], file: 'Maintenance'), true);
 
+			// Some files won't exist, try to address up front
+			if (!file_exists($file)) {
+				if (pathinfo($file, PATHINFO_EXTENSION) !== '') {
+					@touch($file);
+				} else {
+					mkdir($file, recursive: true);
+				}
+			}
+
 			// Folders can't be opened for write on Windows... but the index.php in them can ;)
 			if (Sapi::isOS(Sapi::OS_WINDOWS) && is_dir($file)) {
 				$file .= '/index.php';
-			}
 
-			// Some files won't exist, try to address up front
-			if (!file_exists($file)) {
-				@touch($file);
+				if (!file_exists($file)) {
+					@touch($file);
+				}
 			}
 
 			// NOW do the writable check...
 			if (Utils::makeWritable($file)) {
-				$this->logProgress(Lang::getTxt('done', file: 'Maintenance'));
+				$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
 				unset($files[$k]);
 			} else {
-				$this->logProgress(Lang::getTxt('failed', file: 'Maintenance'));
+				$this->logProgress(Lang::getTxt('log_failed', file: 'Maintenance'));
 			}
 		}
 
