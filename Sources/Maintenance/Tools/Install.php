@@ -245,9 +245,7 @@ class Install extends ToolsBase implements ToolsInterface
 			return true;
 		}
 
-		if (Maintenance::getCurrentSubStep() === 0 && Maintenance::getCurrentStart() === 0) {
-			$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
-		}
+		$this->logProgress(Lang::getTxt('log_starting_step', ['num' => $this->getStep()->getId(), 'step' => $this->getStep()->getName()]));
 
 		if (Maintenance::isInstalled()) {
 			Maintenance::$context['warning'] = Lang::getTxt('error_already_installed', file: 'Maintenance');
