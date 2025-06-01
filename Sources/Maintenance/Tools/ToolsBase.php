@@ -307,19 +307,6 @@ abstract class ToolsBase
 	}
 
 	/**
-	 * Make file writable. First try to use regular chmod, but if that fails, try to use FTP.
-	 *
-	 * @param string $file file to make writable.
-	 * @return bool True if succesfull, false otherwise.
-	 */
-	final public function quickFileWritable(string $file): bool
-	{
-		$files = [$file];
-
-		return $this->makeFilesWritable($files);
-	}
-
-	/**
 	 * Make files writable. First try to use regular chmod, but if that fails, try to use FTP.
 	 *
 	 * @param array $files List of files to make writable.

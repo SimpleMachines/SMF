@@ -621,7 +621,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$custom_av_dir = !empty(Config::$modSettings['custom_avatar_dir']) ? Config::$modSettings['custom_avatar_dir'] : Config::$boarddir . '/custom_avatar';
 		$custom_av_url = !empty(Config::$modSettings['custom_avatar_url']) ? Config::$modSettings['custom_avatar_url'] : Config::$boardurl . '/custom_avatar';
 
-		$this->quickFileWritable($custom_av_dir);
+		$writable_files = [$custom_av_dir];
+		$this->makeFilesWritable($writable_files);
 
 		// Are we good now?
 		if (!is_writable($custom_av_dir)) {
@@ -650,7 +651,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
-		$this->quickFileWritable($cache_dir_temp . '/db_last_error.php');
+		$writable_files = [$cache_dir_temp . '/db_last_error.php'];
+		$this->makeFilesWritable($writable_files);
 
 		if (!is_writable($cache_dir_temp . '/db_last_error.php')) {
 			Maintenance::$fatal_error = Lang::getTxt('error_dir_not_writable', ['dir' => $cache_dir_temp]);
