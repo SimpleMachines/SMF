@@ -864,9 +864,6 @@ class Install extends ToolsBase implements ToolsInterface
 			Config::updateModSettings($newSettings);
 		}
 
-		// Setup smileys.
-		$this->populateSmileys();
-
 		// Let's optimize those new tables, but not on InnoDB, ok? (SMF will check this)
 		foreach ($install_tables as $tbl) {
 			$tbl->name = Config::$db_prefix . $tbl->name;
@@ -1586,63 +1583,5 @@ class Install extends ToolsBase implements ToolsInterface
 		date_default_timezone_set('UTC');
 
 		return 'UTC';
-	}
-
-	/**
-	 * Populating smileys are a bit complicated, so its performed here rather than inline.
-	 *
-	 */
-	private function populateSmileys(): void
-	{
-		// Populate the smiley_files table.
-		// Can't just dump this data in the SQL file because we need to know the id for each smiley.
-		$smiley_filenames = [
-			':)' => 'smiley',
-			';)' => 'wink',
-			':D' => 'cheesy',
-			';D' => 'grin',
-			'>:(' => 'angry',
-			':(' => 'sad',
-			':o' => 'shocked',
-			'8)' => 'cool',
-			'???' => 'huh',
-			'::)' => 'rolleyes',
-			':P' => 'tongue',
-			':-[' => 'embarrassed',
-			':-X' => 'lipsrsealed',
-			':-\\' => 'undecided',
-			':-*' => 'kiss',
-			':\'(' => 'cry',
-			'>:D' => 'evil',
-			'^-^' => 'azn',
-			'O0' => 'afro',
-			':))' => 'laugh',
-			'C:-)' => 'police',
-			'O:-)' => 'angel',
-		];
-		$smiley_set_extensions = ['fugue' => '.png', 'alienine' => '.png'];
-
-		$smiley_inserts = [];
-		$request = Db::$db->query(
-			'',
-			'SELECT id_smiley, code
-			FROM {db_prefix}smileys',
-			[],
-		);
-
-		while ($row = Db::$db->fetch_assoc($request)) {
-			foreach ($smiley_set_extensions as $set => $ext) {
-				$smiley_inserts[] = [$row['id_smiley'], $set, $smiley_filenames[$row['code']] . $ext];
-			}
-		}
-		Db::$db->free_result($request);
-
-		Db::$db->insert(
-			'ignore',
-			'{db_prefix}smiley_files',
-			['id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'],
-			$smiley_inserts,
-			['id_smiley', 'smiley_set'],
-		);
 	}
 }
