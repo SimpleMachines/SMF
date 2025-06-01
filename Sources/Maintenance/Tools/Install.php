@@ -318,6 +318,11 @@ class Install extends ToolsBase implements ToolsInterface
 			Maintenance::$context['continue'] = true;
 		}
 
+		// Are we doing debug?
+		if (isset($_REQUEST['debug'])) {
+			$this->debug = true;
+		}
+
 		return false;
 	}
 
@@ -1459,7 +1464,8 @@ class Install extends ToolsBase implements ToolsInterface
 
 		$data = isset($defined_vars['upgradeData']) ? Utils::jsonDecode($defined_vars['upgradeData'], true) : [];
 
-		$this->time_started = isset($data['started']) ? (int) $data['started'] : time();
+		$this->time_started = (int) ($data['started'] ?? time());
+		$this->debug = !empty($data['debug']);
 	}
 
 	/**
@@ -1471,6 +1477,7 @@ class Install extends ToolsBase implements ToolsInterface
 	{
 		return Config::updateSettingsFile(['upgradeData' => json_encode([
 			'started' => $this->time_started,
+			'debug' => $this->debug,
 		])]);
 	}
 
