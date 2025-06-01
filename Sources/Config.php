@@ -1552,7 +1552,7 @@ class Config
 			],
 			// Remove the code that redirects to the installer.
 			$neg_index-- => [
-				'search_pattern' => '~^if\s*\(file_exists\(dirname\(__FILE__\)\s*\.\s*\'/install\.php\'\)\)\s*(?:({(?' . '>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
+				'search_pattern' => '~^if\s*\(file_exists\((?:dirname\(__FILE__\)|__DIR__)\s*\.\s*\'/install\.php\'\)(?:\s+&&\s+basename\(\$_SERVER\[\'PHP_SELF\'\]\) != \'install.php\')?\)\s*(?:({(?' . '>[^{}]|(?1))*})\h*|header(\((?' . '>[^()]|(?2))*\));\n)~m',
 				'placeholder' => '',
 			],
 			// Remove the old path correction code. Config::set() now handles that.
