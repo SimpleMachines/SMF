@@ -712,41 +712,12 @@ class Install extends ToolsBase implements ToolsInterface
 		Config::load();
 		Db::load();
 		$newSettings = [];
-		$path = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', Maintenance::getBaseDir()), '/');
-
-		// Before running any of the queries, let's make sure another version isn't already installed.
-		$result = Db::$db->query(
-			'',
-			'SELECT variable, value
-			FROM {db_prefix}settings',
-			[
-				'db_error_skip' => true,
-			],
-		);
-
-		if ($result !== false) {
-			while ($row = Db::$db->fetch_assoc($result)) {
-				Config::$modSettings[$row['variable']] = $row['value'];
-			}
-
-			Db::$db->free_result($result);
-
-			// Do they match?  If so, this is just a refresh so charge on!
-			if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] != SMF_VERSION) {
-				Maintenance::$fatal_error = Lang::getTxt('error_versions_do_not_match', file: 'Maintenance');
-				$this->logProgress(Maintenance::$fatal_error);
-
-				return false;
-			}
-		}
 
 		Config::$modSettings['disableQueryCheck'] = true;
 
-		$attachdir = $path . '/attachments';
-
 		$replaces = [
 			'{$db_prefix}' => Db::$db->prefix,
-			'{$attachdir}' => json_encode([1 => Db::$db->escape_string($attachdir)]),
+			'{$attachdir}' => json_encode([1 => Db::$db->escape_string(Config::$boarddir . '/attachments')]),
 			'{$boarddir}' => Db::$db->escape_string(Config::$boarddir),
 			'{$boardurl}' => Config::$boardurl,
 			'{$enableCompressedOutput}' => isset($_POST['compress']) ? '1' : '0',
@@ -765,9 +736,37 @@ class Install extends ToolsBase implements ToolsInterface
 
 		$replaces['{$default_reserved_names}'] = strtr($replaces['{$default_reserved_names}'], ['\\\\n' => '\\n']);
 
-		$existing_tables = Db::$db->list_tables(Config::$db_name, Config::$db_prefix);
+		$existing_tables = Db::$db->list_tables();
 
 		$install_tables = Table::getAll($this->schema_version);
+
+		// Before running any of the queries, let's make sure another version isn't already installed.
+		if (in_array(Config::$db_prefix . 'settings', $existing_tables)) {
+			$result = Db::$db->query(
+				'',
+				'SELECT variable, value
+				FROM {db_prefix}settings',
+				[
+					'db_error_skip' => true,
+				],
+			);
+
+			if ($result !== false) {
+				while ($row = Db::$db->fetch_assoc($result)) {
+					Config::$modSettings[$row['variable']] = $row['value'];
+				}
+
+				Db::$db->free_result($result);
+
+				// Do they match?  If so, this is just a refresh so charge on!
+				if (!isset(Config::$modSettings['smfVersion']) || Config::$modSettings['smfVersion'] != SMF_VERSION) {
+					Maintenance::$fatal_error = Lang::getTxt('error_versions_do_not_match', file: 'Maintenance');
+					$this->logProgress(Maintenance::$fatal_error);
+
+					return false;
+				}
+			}
+		}
 
 		Maintenance::$context['sql_results'] = [
 			'tables' => 0,
@@ -776,65 +775,88 @@ class Install extends ToolsBase implements ToolsInterface
 			'insert_dups' => 0,
 		];
 
-		// $tables->seek(Maintenance::getCurrentSubStep());
-		foreach ($install_tables as $tbl) {
-			if (in_array(Config::$db_prefix . $tbl->name, $existing_tables)) {
-				continue;
-			}
-
-			$original_table = $tbl->name;
-
-			try {
-				$result = $tbl->create();
-
-				if ($result) {
-					Maintenance::$context['sql_results']['tables']++;
-				} else {
-					Maintenance::$context['failures'][] = trim(Db::$db->error(Db::$db->connection));
-				}
-			} catch (\Throwable $e) {
-				Maintenance::$context['failures'][] = trim($e->getMessage());
-			}
-
-			try {
-				if (!empty($tbl->initial_data)) {
-					$casts = [];
-					$insert_columns = [];
-
-					foreach ($tbl->columns as $column) {
-						$casts[$column->name] = in_array($column->type, ['tinyint', 'smallint', 'mediumint', 'bigint', 'int', 'integer']) ? 'int' : 'string';
+		foreach ($install_tables as $table) {
+			// Create the table, unless it already exists.
+			if (!in_array(Config::$db_prefix . $table->name, $existing_tables)) {
+				try {
+					if (!$table->create()) {
+						throw new \Exception(Db::$db->error());
 					}
 
-					foreach ($tbl->initial_data as &$row) {
-						foreach ($row as $column => &$value) {
-							if (!isset($insert_columns[$column])) {
-								$insert_columns[$column] = $casts[$column];
-							}
+					Maintenance::$context['sql_results']['tables']++;
+				} catch (\Throwable $e) {
+					Maintenance::$context['failures'][] = trim($e->getMessage());
+					continue;
+				}
+			} else {
+				Maintenance::$context['sql_results']['table_dups']++;
+			}
 
-							settype($value, $casts[$column]);
+			// If this table has some initial data to insert, do so.
+			if (!empty($table->initial_data)) {
+				// Does this table auto-increment?
+				$is_auto = false;
 
-							if (is_string($value)) {
-								$value = strtr($value, $replaces);
-							}
+				foreach ($table->columns as $column) {
+					if (!empty($column->auto)) {
+						$is_auto = true;
+						break;
+					}
+				}
+
+				// Prepare the data for insertion.
+				$casts = [];
+				$insert_columns = [];
+
+				foreach ($table->columns as $column) {
+					$casts[$column->name] = in_array($column->type, ['tinyint', 'smallint', 'mediumint', 'bigint', 'int', 'integer']) ? 'int' : 'string';
+				}
+
+				foreach ($table->initial_data as &$row) {
+					foreach ($row as $column => &$value) {
+						if (!isset($insert_columns[$column])) {
+							$insert_columns[$column] = $casts[$column];
+						}
+
+						settype($value, $casts[$column]);
+
+						if (is_string($value)) {
+							$value = strtr($value, $replaces);
 						}
 					}
-
-					$result = Db::$db->insert(
-						'replace',
-						'{db_prefix}' . $tbl->name,
-						$insert_columns,
-						$tbl->initial_data,
-						array_keys($insert_columns),
-					);
-
-					if ($result || $result === null) {
-						Maintenance::$context['sql_results']['tables']++;
-					} else {
-						Maintenance::$context['failures'][] = $tbl->name . ':' . trim(Db::$db->error(Db::$db->connection));
-					}
 				}
-			} catch (\Throwable $e) {
-				Maintenance::$context['failures'][] = trim($e->getMessage());
+
+				// Insert the data
+				try {
+					if ($is_auto) {
+						$ids = Db::$db->insert(
+							method: 'ignore',
+							table: '{db_prefix}' . $table->name,
+							columns: $insert_columns,
+							data: $table->initial_data,
+							keys: array_keys($insert_columns),
+							returnmode: 2,
+						);
+
+						Maintenance::$context['sql_results']['inserts'] += count($ids);
+						Maintenance::$context['sql_results']['insert_dups'] += (count($table->initial_data) - count($ids));
+					} else {
+						foreach ($table->initial_data as $row) {
+							Db::$db->insert(
+								method: 'replace',
+								table: '{db_prefix}' . $table->name,
+								columns: $insert_columns,
+								data: [$row],
+								keys: array_keys($insert_columns),
+								returnmode: 0,
+							);
+
+							Maintenance::$context['sql_results']['inserts']++;
+						}
+					}
+				} catch (\Throwable $e) {
+					Maintenance::$context['failures'][] = $table->name . ':' . trim(Db::$db->error());
+				}
 			}
 
 			// Wait, wait, I'm still working here!
@@ -865,12 +887,12 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// Let's optimize those new tables, but not on InnoDB, ok? (SMF will check this)
-		foreach ($install_tables as $tbl) {
-			$tbl->name = Config::$db_prefix . $tbl->name;
+		foreach ($install_tables as $table) {
+			$table->name = Config::$db_prefix . $table->name;
 
 			try {
-				if (!(Db::$db->optimize_table($tbl->name) > -1)) {
-					Maintenance::$context['failures'][] = Db::$db->error(Db::$db->connection);
+				if (!(Db::$db->optimize_table($table->name) > -1)) {
+					Maintenance::$context['failures'][] = Db::$db->error();
 				}
 			} catch (\Throwable $e) {
 				Maintenance::$context['failures'][] = $e->getMessage();
@@ -1135,7 +1157,7 @@ class Install extends ToolsBase implements ToolsInterface
 					return true;
 				}
 
-				Maintenance::$fatal_error = trim(Db::$db->error(Db::$db->connection));
+				Maintenance::$fatal_error = trim(Db::$db->error());
 				$this->logProgress(Maintenance::$fatal_error);
 
 				return false;
