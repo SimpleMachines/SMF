@@ -118,7 +118,6 @@ class LogPackages extends Table
 				name: 'failed_steps',
 				type: 'text',
 				not_null: true,
-				default: false,
 			),
 			'themes_installed' => new Column(
 				name: 'themes_installed',
@@ -131,7 +130,6 @@ class LogPackages extends Table
 				name: 'db_changes',
 				type: 'text',
 				not_null: true,
-				default: false,
 			),
 			'credits' => new Column(
 				name: 'credits',
@@ -155,16 +153,10 @@ class LogPackages extends Table
 					'id_install',
 				],
 			),
-			'filename' => new DbIndex(
-				name: 'filename',
+			'idx_filename' => new DbIndex(
+				name: 'idx_filename',
 				columns: [
-					'filename',
-				],
-			),
-			'id_hash' => new DbIndex(
-				name: 'id_hash',
-				columns: [
-					'id_hash',
+					'filename(15)',
 				],
 			),
 		];
