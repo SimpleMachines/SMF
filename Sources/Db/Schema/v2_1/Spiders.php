@@ -185,5 +185,14 @@ class Spiders extends Table
 				default: '',
 			),
 		];
+
+		$this->indexes = [
+			'primary' => new DbIndex(
+				type: 'primary',
+				columns: [
+					'id_spider',
+				],
+			),
+		];
 	}
 }
