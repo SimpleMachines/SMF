@@ -24,17 +24,6 @@ use SMF\Db\Schema\Table;
  */
 class Sessions extends Table
 {
-	/*******************
-	 * Public properties
-	 *******************/
-
-	/**
-	 * @var array
-	 *
-	 * Data used to populate the table during install.
-	 */
-	public array $initial_data = [];
-
 	/****************
 	 * Public methods
 	 ****************/
