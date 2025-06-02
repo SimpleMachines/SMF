@@ -550,4 +550,59 @@ abstract class ToolsBase
 
 		throw new \Exception('Zombies!');
 	}
+
+	/**
+	 * Wrapper for Config::updateSettingsFile() with special error handling.
+	 *
+	 * @param array $config_vars An array of one or more variables to update.
+	 * @param bool|null $keep_quotes Whether to strip slashes and trim quotes
+	 *     from string values. Defaults to auto-detection.
+	 * @param bool $rebuild If true, attempts to rebuild with standard format.
+	 *     Default false.
+	 * @return bool True on success, false on failure.
+	 */
+	public function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false): bool
+	{
+		$this->logProgress(Lang::getTxt('log_settings_file_save', ['setting_names' => Lang::sentenceList(array_keys($config_vars))], file: 'Maintenance'), true);
+
+		if (!Config::updateSettingsFile($config_vars, $keep_quotes, $rebuild)) {
+			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => Lang::getTxt('settings_error', file: 'Maintenance')], file: 'Maintenance'));
+
+			if (Sapi::isCLI()) {
+				die();
+			}
+
+			Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
+
+			return false;
+		}
+
+		$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
+
+		return true;
+	}
+
+	/**
+	 * Wrapper for Config::updateSettingsFile() with special error handling.
+	 *
+	 * @param array $change_array An array of info about what we're changing
+	 *    in 'setting' => 'value' format.
+	 * @param bool $update Whether to use an UPDATE query instead of a REPLACE
+	 *    query.
+	 * @return bool True on success, false on failure.
+	 */
+	public function updateModSettings(array $change_array, bool $update = false): bool
+	{
+		$this->logProgress(Lang::getTxt('log_modsettings_save', ['setting_names' => Lang::sentenceList(array_keys($change_array))], file: 'Maintenance'), true);
+
+		try {
+			Config::updateModSettings($change_array, $update);
+		} catch (\Thowable $e) {
+			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
+		}
+
+		$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
+
+		return true;
+	}
 }

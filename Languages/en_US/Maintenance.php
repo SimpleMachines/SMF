@@ -34,6 +34,10 @@ $txt['log_starting_step'] = 'Step {num}: {step}';
 $txt['log_paused_step'] = 'Paused step {num}';
 $txt['log_ensuring_file_writable'] = 'Making sure SMF can write to "{file}"';
 $txt['log_ensuring_file_writable_ftp'] = 'Using FTP to make "{file}" writable';
+$txt['log_settings_file_save'] = 'Saving the following settings in Settings.php: {setting_names}';
+$txt['log_modsettings_save'] = 'Saving the following settings in the settings table: {setting_names}';
+$txt['log_table_create'] = 'Creating "{table}"';
+$txt['log_table_populate'] = 'Populating "{table}"';
 $txt['log_table_backup'] = 'Backing up "{table}"';
 $txt['log_table_convertutf8'] = 'Converting "{table}" to utf8mb4';
 $txt['log_install_complete'] = 'Installation complete!';
@@ -150,6 +154,7 @@ $txt['db_settings_prefix'] = 'Table prefix';
 $txt['db_settings_prefix_info'] = 'The prefix for every table in the database. <strong>Do not install two forums with the same prefix!</strong><br>This key allows for multiple installations in one database.';
 $txt['error_db_prefix_reserved'] = 'The prefix that you entered is a reserved prefix. Please enter another prefix.';
 $txt['error_db_prefix_numeric'] = 'The selected database type does not support the use of numeric prefixes.';
+$txt['error_db_prefix_invalid'] = 'The prefix "{prefix}" is invalid. Please try another using only lower case Latin letters with an underscore at the end, such as "smf_".';
 
 // Installer - Forum Settings.
 $txt['install_settings'] = 'Forum Settings';
@@ -185,9 +190,13 @@ $txt['error_utf8_version'] = 'The current version of your database does not supp
 
 // Installer - Database Population.
 $txt['db_populate'] = 'Populated Database';
-$txt['user_refresh_install_desc'] = 'While installing, the installer found that (with the details you provided) one or more of the tables this installer might create already existed.<br>Any missing tables in your installation have been recreated with the default data, but no data was deleted from existing tables.';
+$txt['user_refresh_install_desc'] = 'Some of the tables this installer would create already existed in your database.<br>Any missing tables in your installation have been recreated with the default data, but no data was deleted from existing tables.';
 $txt['db_populate_info'] = 'Your settings have now been saved and the database has been populated with all the data required to get your forum up and running. Summary of population:';
 $txt['db_populate_info2'] = 'Click &quot;Continue&quot; to progress to the admin account creation page.';
+$txt['db_populate_inserts'] = 'Inserted {0, number, integer} rows.';
+$txt['db_populate_tables'] = 'Created {0, number, integer} tables.';
+$txt['db_populate_insert_dups'] = 'Ignored {0, number, integer} duplicated inserts.';
+$txt['db_populate_table_dups'] = 'Ignored {0, number, integer} duplicated tables.';
 
 // Installer - Admin Account.
 $txt['user_settings'] = 'Create your account';
@@ -355,10 +364,6 @@ $txt['upgrade_step_complete'] = 'The "{step}" step is complete! Click Continue t
 $txt['install_all_lovely'] = 'We have completed some initial tests on your server and everything appears to be in order. Simply click the &quot;Continue&quot; button below to get started.';
 $txt['user_refresh_install'] = 'Forum Refreshed';
 $txt['install_settings_proceed'] = 'Proceed';
-$txt['db_populate_inserts'] = 'Inserted {0, number, integer} rows.';
-$txt['db_populate_tables'] = 'Created {0, number, integer} tables.';
-$txt['db_populate_insert_dups'] = 'Ignored {0, number, integer} duplicated inserts.';
-$txt['db_populate_table_dups'] = 'Ignored {0, number, integer} duplicated tables.';
 $txt['congratulations'] = 'Congratulations, the installation process is complete!';
 $txt['error_message_bad_try_again'] = 'to try installing anyway, but note that this is <em>strongly</em> discouraged.';
 $txt['user_settings_skip'] = 'Skip';

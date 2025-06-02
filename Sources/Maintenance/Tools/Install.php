@@ -432,16 +432,8 @@ class Install extends ToolsBase implements ToolsInterface
 		// Validate the prefix.
 		$db = Maintenance::$context['databases'][$db_type];
 
-		// Use a try/catch here, so we can send specific details about the validation error.
-		try {
-			if (!$db->validatePrefix($db_prefix)) {
-				Maintenance::$fatal_error = Lang::getTxt('upgrade_unknown_error', file: 'Maintenance');
-				$this->logProgress(Maintenance::$fatal_error);
-
-				return false;
-			}
-		} catch (\Throwable $e) {
-			Maintenance::$fatal_error = $e->getMessage();
+		if (!$db->validatePrefix($db_prefix)) {
+			Maintenance::$fatal_error = Lang::getTxt('error_db_prefix_invalid', ['prefix' => $db_prefix], file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => Maintenance::$fatal_error], file: 'Maintenance'));
 
 			return false;
@@ -464,18 +456,8 @@ class Install extends ToolsBase implements ToolsInterface
 			$vars['db_port'] = (int) $_POST['db_port'];
 		}
 
-		// God I hope it saved!
-		try {
-			if (!Config::updateSettingsFile($vars)) {
-				Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
-				$this->logProgress(Maintenance::$fatal_error);
-
-				return false;
-			}
-		} catch (\Throwable $e) {
-			Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
-			$this->logProgress(Maintenance::$fatal_error);
-
+		// Save the settings.
+		if (!$this->updateSettingsFile($vars)) {
 			return false;
 		}
 
@@ -490,7 +472,7 @@ class Install extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
-		// We need to make some queries, that would trip up our normal security checks.
+		// We need to make some queries that would trigger up our normal security checks.
 		Config::$modSettings['disableQueryCheck'] = true;
 
 		// Attempt a connection.
@@ -563,7 +545,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 				if (Db::$db->select(Db::$db->prefix . Db::$db->name, Db::$db->connection)) {
 					Db::$db->name = Db::$db->prefix . Db::$db->name;
-					Config::updateSettingsFile(['db_name' => Db::$db->name]);
+					$this->updateSettingsFile(['db_name' => Db::$db->name]);
 				}
 			}
 
@@ -591,14 +573,7 @@ class Install extends ToolsBase implements ToolsInterface
 		if (isset($_POST['db_type'], $this->supportedDatabases()[$_POST['db_type']])) {
 			Config::$db_type = $_POST['db_type'];
 
-			try {
-				if (!Config::updateSettingsFile(['db_type' => Config::$db_type])) {
-					throw new \Exception();
-				}
-			} catch (\Throwable $e) {
-				Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
-				$this->logProgress(Maintenance::$fatal_error);
-
+			if (!$this->updateSettingsFile(['db_type' => Config::$db_type])) {
 				return false;
 			}
 
@@ -616,14 +591,9 @@ class Install extends ToolsBase implements ToolsInterface
 
 		Maintenance::$context['continue'] = true;
 
-		// We have a failure of database configuration.
+		// Do we have a failure of database configuration?
 		try {
-			if (!Db::$db->checkConfiguration()) {
-				Maintenance::$fatal_error = Lang::getTxt('upgrade_unknown_error', file: 'Maintenance');
-				$this->logProgress(Maintenance::$fatal_error);
-
-				return false;
-			}
+			Db::$db->checkConfiguration();
 		} catch (\Throwable $e) {
 			Maintenance::$fatal_error = $e->getMessage();
 			$this->logProgress(Maintenance::$fatal_error);
@@ -677,14 +647,7 @@ class Install extends ToolsBase implements ToolsInterface
 			'auth_secret' => $this->createAuthSecret(),
 		];
 
-		try {
-			if (!Config::updateSettingsFile($vars)) {
-				throw new \Exception();
-			}
-		} catch (\Throwable $e) {
-			Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
-			$this->logProgress(Maintenance::$fatal_error);
-
+		if (!$this->updateSettingsFile($vars)) {
 			return false;
 		}
 
@@ -781,6 +744,8 @@ class Install extends ToolsBase implements ToolsInterface
 		];
 
 		foreach ($install_tables as $table) {
+			$this->logProgress(Lang::getTxt('log_table_create', ['table' => Config::$db_prefix . $table->name], file: 'Maintenance'), true);
+
 			// Create the table, unless it already exists.
 			if (!in_array(Config::$db_prefix . $table->name, $existing_tables)) {
 				try {
@@ -789,16 +754,22 @@ class Install extends ToolsBase implements ToolsInterface
 					}
 
 					Maintenance::$context['sql_results']['tables']++;
+					$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
 				} catch (\Throwable $e) {
 					Maintenance::$context['failures'][] = trim($e->getMessage());
+					$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => trim($e->getMessage())], file: 'Maintenance'));
+
 					continue;
 				}
 			} else {
 				Maintenance::$context['sql_results']['table_dups']++;
+				$this->logProgress(Lang::getTxt('log_skipped', file: 'Maintenance'));
 			}
 
 			// If this table has some initial data to insert, do so.
 			if (!empty($table->initial_data)) {
+				$this->logProgress(Lang::getTxt('log_table_populate', ['table' => Config::$db_prefix . $table->name], file: 'Maintenance'), true);
+
 				// Does this table auto-increment?
 				$is_auto = false;
 
@@ -817,18 +788,25 @@ class Install extends ToolsBase implements ToolsInterface
 					$casts[$column->name] = in_array($column->type, ['tinyint', 'smallint', 'mediumint', 'bigint', 'int', 'integer']) ? 'int' : 'string';
 				}
 
-				foreach ($table->initial_data as &$row) {
-					foreach ($row as $column => &$value) {
-						if (!isset($insert_columns[$column])) {
-							$insert_columns[$column] = $casts[$column];
-						}
+				try {
+					foreach ($table->initial_data as &$row) {
+						foreach ($row as $column => &$value) {
+							if (!isset($insert_columns[$column])) {
+								$insert_columns[$column] = $casts[$column];
+							}
 
-						settype($value, $casts[$column]);
+							settype($value, $casts[$column]);
 
-						if (is_string($value)) {
-							$value = strtr($value, $replaces);
+							if (is_string($value)) {
+								$value = strtr($value, $replaces);
+							}
 						}
 					}
+				} catch (\Throwable $e) {
+					Maintenance::$context['failures'][] = $table->name . ':' . $e->getMessage();
+					$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
+
+					continue;
 				}
 
 				// Insert the data
@@ -859,8 +837,12 @@ class Install extends ToolsBase implements ToolsInterface
 							Maintenance::$context['sql_results']['inserts']++;
 						}
 					}
+
+					$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
 				} catch (\Throwable $e) {
 					Maintenance::$context['failures'][] = $table->name . ':' . trim(Db::$db->error());
+
+					$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => trim(Db::$db->error())], file: 'Maintenance'));
 				}
 			}
 
@@ -873,7 +855,9 @@ class Install extends ToolsBase implements ToolsInterface
 			if ($number === 0) {
 				unset(Maintenance::$context['sql_results'][$key]);
 			} else {
-				Maintenance::$context['sql_results'][$key] = Lang::getTxt('db_populate_' . $key, [$number]);
+				Maintenance::$context['sql_results'][$key] = Lang::getTxt('db_populate_' . $key, [$number], file: 'Maintenance');
+
+				$this->logProgress(Maintenance::$context['sql_results'][$key]);
 			}
 		}
 
@@ -888,19 +872,19 @@ class Install extends ToolsBase implements ToolsInterface
 		$newSettings['default_timezone'] = $this->determineTimezone();
 
 		if (!empty($newSettings)) {
-			Config::updateModSettings($newSettings);
+			$this->updateModSettings($newSettings);
 		}
 
 		// Let's optimize those new tables, but not on InnoDB, ok? (SMF will check this)
 		foreach ($install_tables as $table) {
-			$table->name = Config::$db_prefix . $table->name;
-
 			try {
-				if (!(Db::$db->optimize_table($table->name) > -1)) {
+				if (!(Db::$db->optimize_table(Config::$db_prefix . $table->name) > -1)) {
 					Maintenance::$context['failures'][] = Db::$db->error();
+					$this->logProgress(Db::$db->error());
 				}
 			} catch (\Throwable $e) {
 				Maintenance::$context['failures'][] = $e->getMessage();
+				$this->logProgress($e->getMessage());
 			}
 		}
 
@@ -1016,7 +1000,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// Update the webmaster's email?
 		if (!empty($_POST['server_email']) && (empty(Config::$webmaster_email) || Config::$webmaster_email == $settingsDefs['webmaster_email']['default'])) {
-			Config::updateSettingsFile(['webmaster_email' => (string) $_POST['server_email']]);
+			$this->updateSettingsFile(['webmaster_email' => (string) $_POST['server_email']]);
 		}
 
 		// Normalize Unicode characters.
@@ -1094,8 +1078,6 @@ class Install extends ToolsBase implements ToolsInterface
 		if ($_POST['username'] != '') {
 			Maintenance::$context['password_salt'] = bin2hex(random_bytes(16));
 
-			// Format the username properly.
-			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
 			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
 
 			$_POST['password1'] = Security::hashPassword($_POST['password1']);
@@ -1190,7 +1172,7 @@ class Install extends ToolsBase implements ToolsInterface
 		Maintenance::$context['continue'] = false;
 
 		// Rebuild the settings file.
-		Config::updateSettingsFile(['upgradeData' => ''], false, true);
+		$this->updateSettingsFile(['upgradeData' => ''], false, true);
 
 		Config::load();
 		Db::load();
@@ -1331,7 +1313,7 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		// Disable the legacy BBC by default for new installs
-		Config::updateModSettings([
+		$this->updateModSettings([
 			'disabledBBC' => implode(',', Utils::$context['legacy_bbc']),
 		]);
 
@@ -1340,7 +1322,7 @@ class Install extends ToolsBase implements ToolsInterface
 		Maintenance::$context['can_delete_script'] = $this->canDeleteTool();
 
 		// Update hash's cost to an appropriate setting
-		Config::updateModSettings([
+		$this->updateModSettings([
 			'bcrypt_hash_cost' => Security::hashBenchmark(),
 		]);
 
@@ -1475,7 +1457,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	private function saveUpgradeData(): bool
 	{
-		return Config::updateSettingsFile(['upgradeData' => json_encode([
+		return $this->updateSettingsFile(['upgradeData' => json_encode([
 			'started' => $this->time_started,
 			'debug' => $this->debug,
 		])]);

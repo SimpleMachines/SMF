@@ -633,8 +633,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		if ($need_settings_update) {
-			Config::updateModSettings(['custom_avatar_dir' => $custom_av_dir]);
-			Config::updateModSettings(['custom_avatar_url' => $custom_av_url]);
+			$this->updateModSettings(['custom_avatar_dir' => $custom_av_dir]);
+			$this->updateModSettings(['custom_avatar_url' => $custom_av_url]);
 		}
 
 		// Check the cache directory.
@@ -953,7 +953,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		// Update the database with new settings.
-		Config::updateModSettings($db_settings);
+		$this->updateModSettings($db_settings);
 
 		// Update Settings.php with the new settings, and rebuild if they selected that option.
 		$this->updateSettingsFile($file_settings, false, !empty($_POST['migrateSettings']));
@@ -1128,7 +1128,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		Maintenance::$context['form_action'] = Config::$boardurl . '/index.php';
 
 		// Update the database with the new SMF version.
-		Config::updateModSettings(['smfVersion' => SMF_VERSION]);
+		$this->updateModSettings(['smfVersion' => SMF_VERSION]);
 
 		// Clean any old cache files away.
 		CacheApi::load();
@@ -1395,33 +1395,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 		return $this->updateSettingsFile(['upgradeData' => $data]);
-	}
-
-	/**
-	 * Wrapper for Config::updateSettingsFile() with special error handling.
-	 *
-	 * @param array $config_vars An array of one or more variables to update.
-	 * @param bool|null $keep_quotes Whether to strip slashes and trim quotes
-	 *     from string values. Defaults to auto-detection.
-	 * @param bool $rebuild If true, attempts to rebuild with standard format.
-	 *     Default false.
-	 * @return bool True on success, false on failure.
-	 */
-	private function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false): bool
-	{
-		if (!Config::updateSettingsFile($config_vars, $keep_quotes, $rebuild)) {
-			$this->logProgress(Lang::getTxt('settings_error', file: 'Maintenance'));
-
-			if (Sapi::isCLI()) {
-				die();
-			}
-
-			Maintenance::$fatal_error = Lang::getTxt('settings_error', file: 'Maintenance');
-
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
