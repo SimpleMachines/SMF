@@ -112,6 +112,14 @@ class LogSubscribed extends Table
 					'id_sublog',
 				],
 			),
+			'id_subscribe' => new DbIndex(
+				name: 'id_subscribe',
+				type: 'unique',
+				columns: [
+					'id_subscribe',
+					'id_member',
+				],
+			),
 			'idx_end_time' => new DbIndex(
 				name: 'idx_end_time',
 				columns: [
