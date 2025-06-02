@@ -125,7 +125,7 @@ class Install extends ToolsBase implements ToolsInterface
 			}
 		}
 
-		$this->getUpgradeData();
+		$this->getProgress();
 
 		// Template needs to know about this.
 		Maintenance::$context['started'] = $this->time_started;
@@ -1172,7 +1172,7 @@ class Install extends ToolsBase implements ToolsInterface
 		Maintenance::$context['continue'] = false;
 
 		// Rebuild the settings file.
-		$this->updateSettingsFile(['upgradeData' => ''], false, true);
+		$this->updateSettingsFile(['maintenance_tool_progress' => ''], false, true);
 
 		Config::load();
 		Db::load();
@@ -1342,7 +1342,7 @@ class Install extends ToolsBase implements ToolsInterface
 	 */
 	public function preExit(): void
 	{
-		$this->saveUpgradeData();
+		$this->saveProgress();
 	}
 
 	/******************
@@ -1440,11 +1440,11 @@ class Install extends ToolsBase implements ToolsInterface
 	/**
 	 * Get our upgrade data.
 	 */
-	private function getUpgradeData(): void
+	private function getProgress(): void
 	{
 		$defined_vars = Config::getCurrentSettings();
 
-		$data = isset($defined_vars['upgradeData']) ? Utils::jsonDecode($defined_vars['upgradeData'], true) : [];
+		$data = isset($defined_vars['maintenance_tool_progress']) ? Utils::jsonDecode($defined_vars['maintenance_tool_progress'], true) : [];
 
 		$this->time_started = (int) ($data['started'] ?? time());
 		$this->debug = !empty($data['debug']);
@@ -1455,9 +1455,9 @@ class Install extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we could update our settings file, false otherwise.
 	 */
-	private function saveUpgradeData(): bool
+	private function saveProgress(): bool
 	{
-		return $this->updateSettingsFile(['upgradeData' => json_encode([
+		return $this->updateSettingsFile(['maintenance_tool_progress' => json_encode([
 			'started' => $this->time_started,
 			'debug' => $this->debug,
 		])]);

@@ -563,7 +563,9 @@ abstract class ToolsBase
 	 */
 	public function updateSettingsFile(array $config_vars, ?bool $keep_quotes = null, bool $rebuild = false): bool
 	{
-		$this->logProgress(Lang::getTxt('log_settings_file_save', ['setting_names' => Lang::sentenceList(array_keys($config_vars))], file: 'Maintenance'), true);
+		if (array_keys($config_vars) !== ['maintenance_tool_progress']) {
+			$this->logProgress(Lang::getTxt('log_settings_file_save', ['setting_names' => Lang::sentenceList(array_keys($config_vars))], file: 'Maintenance'), true);
+		}
 
 		if (!Config::updateSettingsFile($config_vars, $keep_quotes, $rebuild)) {
 			$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => Lang::getTxt('settings_error', file: 'Maintenance')], file: 'Maintenance'));
@@ -577,7 +579,9 @@ abstract class ToolsBase
 			return false;
 		}
 
-		$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
+		if (array_keys($config_vars) !== ['maintenance_tool_progress']) {
+			$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
+		}
 
 		return true;
 	}

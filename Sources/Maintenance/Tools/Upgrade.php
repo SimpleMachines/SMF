@@ -257,7 +257,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 *
 	 * Upgrade data stored in our Settings.php as we progress through the upgrade.
 	 */
-	protected array $upgradeData = [];
+	protected array $maintenance_tool_progress = [];
 
 	/**
 	 * @var int
@@ -1270,7 +1270,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function preExit(): void
 	{
-		$this->saveUpgradeData();
+		$this->saveProgress();
 	}
 
 	/**
@@ -1343,7 +1343,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		}
 
 
-		$this->getUpgradeData();
+		$this->getProgress();
 
 		// Template needs to know about this.
 		Maintenance::$context['started'] = &$this->time_started;
@@ -1354,10 +1354,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/**
 	 * Get our upgrade data.
 	 */
-	private function getUpgradeData(): void
+	private function getProgress(): void
 	{
 		try {
-			$data = isset(Config::$custom['upgradeData']) ? Utils::jsonDecode(base64_decode(Config::$custom['upgradeData']), true) : [];
+			$data = isset(Config::$custom['maintenance_tool_progress']) ? Utils::jsonDecode(base64_decode(Config::$custom['maintenance_tool_progress']), true) : [];
 		} catch (\Throwable $e) {
 			$data = [];
 		}
@@ -1377,7 +1377,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 *
 	 * @return bool True if we could update our settings file, false otherwise.
 	 */
-	private function saveUpgradeData(): bool
+	private function saveProgress(): bool
 	{
 		if (Maintenance::$overall_percent < 100) {
 			$data = base64_encode(json_encode([
@@ -1394,7 +1394,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			$data = '';
 		}
 
-		return $this->updateSettingsFile(['upgradeData' => $data]);
+		return $this->updateSettingsFile(['maintenance_tool_progress' => $data]);
 	}
 
 	/**

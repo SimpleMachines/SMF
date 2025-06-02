@@ -808,8 +808,8 @@ class Config
 			'auto_delete' => 2,
 			'type' => 'boolean',
 		],
-		// Temporary variable used during the upgrade process.
-		'upgradeData' => [
+		// Temporary variable used during install, upgrade, etc.
+		'maintenance_tool_progress' => [
 			'default' => '',
 			'auto_delete' => 1,
 			'type' => 'string',
@@ -834,6 +834,11 @@ class Config
 			'default' => 0,
 			'auto_delete' => 3,
 			'type' => 'integer',
+		],
+		'upgradeData' => [
+			'default' => '',
+			'auto_delete' => 3,
+			'type' => 'string',
 		],
 	];
 
