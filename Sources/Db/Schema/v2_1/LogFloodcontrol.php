@@ -64,19 +64,6 @@ class LogFloodcontrol extends Table
 					'log_type',
 				],
 			),
-			'primary' => new DbIndex(
-				type: 'primary',
-				columns: [
-					'id_request',
-				],
-			),
-			'idx_id_member' => new DbIndex(
-				name: 'idx_id_member',
-				columns: [
-					'id_member',
-					'id_group',
-				],
-			),
 		];
 	}
 }
