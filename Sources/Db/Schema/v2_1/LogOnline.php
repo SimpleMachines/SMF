@@ -95,18 +95,6 @@ class LogOnline extends Table
 					'id_member',
 				],
 			),
-			'primary' => new DbIndex(
-				type: 'primary',
-				columns: [
-					'id_install',
-				],
-			),
-			'idx_filename' => new DbIndex(
-				name: 'idx_filename',
-				columns: [
-					'filename(15)',
-				],
-			),
 		];
 	}
 }
