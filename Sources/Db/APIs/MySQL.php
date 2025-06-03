@@ -2002,13 +2002,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$auto = str_contains($row['Extra'], 'auto_increment') ? true : false;
 
 				// Can we split out the size?
-				if (preg_match('~(.+?)\s*\((\d+)\)(?:(?:\s*)?(unsigned))?~i', $row['Type'], $matches) === 1) {
+				if (preg_match('~^(.+?)\s*\((\d+)\)$~', $row['Type'], $matches)) {
 					$type = $matches[1];
 					$size = $matches[2];
-
-					if (!empty($matches[3]) && $matches[3] == 'unsigned') {
-						$unsigned = true;
-					}
+				} elseif (preg_match('~^(.+?)\s+unsigned$~', $row['Type'], $matches)) {
+					$type = $matches[1];
+					$size = null;
+					$unsigned = true;
 				} else {
 					$type = $row['Type'];
 					$size = null;
