@@ -1490,21 +1490,38 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		// Log that we are going to want to remove this!
+		// Log that we are going to want to remove this on uninstall!
 		self::$package_log[] = ['remove_index', $short_table_name, $index_info['name']];
 
-		// Let's get all our indexes.
-		$indexes = $this->list_indexes($table_name, true);
+		// Let's get all our existing indexes.
+		$existing_indexes = $this->list_indexes($table_name, true);
 
-		// Do we already have it?
-		foreach ($indexes as $index) {
-			if ($index['name'] == $index_info['name'] || ($index['type'] == 'primary' && isset($index_info['type']) && $index_info['type'] == 'primary')) {
-				// If we want to overwrite simply remove the current one then continue.
-				if ($if_exists != 'update' || $index['type'] == 'primary') {
-					return false;
+		// Special handling is needed if we are trying to replace the primary
+		// key on a table where the current primary key refers to an
+		// auto-increment column.
+		if (
+			($index_info['type'] ?? null) == 'primary'
+			&& array_filter($existing_indexes, fn($idx) => $idx['type'] === 'primary') !== []
+			&& array_filter($cols, fn($col) => !empty($col['auto'])) !== []
+		) {
+			$auto_col = current(array_filter($cols, fn($col) => !empty($col['auto'])));
+			$auto_col['auto'] = false;
+			$this->change_column($table_name, $auto_col['name'], $auto_col);
+		}
+
+		// If we want to overwrite simply remove the current one then continue.
+		if ($if_exists == 'update') {
+			// Do we already have it?
+			foreach ($existing_indexes as $existing_index) {
+				if (
+					$existing_index['name'] == $index_info['name']
+					|| (
+						$existing_index['type'] == 'primary'
+						&& ($index_info['type'] ?? null) == 'primary'
+					)
+				) {
+					$this->remove_index($table_name, $index_info['name']);
 				}
-
-				$this->remove_index($table_name, $index_info['name']);
 			}
 		}
 
@@ -1527,6 +1544,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					'security_override' => true,
 				],
 			);
+		}
+
+		// If necessary, restore the auto_increment status to the PK column.
+		if (isset($auto_col)) {
+			$auto_col['auto'] = true;
+			$this->change_column($table_name, $auto_col['name'], $auto_col);
 		}
 
 		// Query returns a result or true if successful, false otherwise.

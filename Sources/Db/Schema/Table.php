@@ -195,6 +195,8 @@ class Table
 	/**
 	 * Adds an index to this table in the database.
 	 *
+	 * If the index already exists in the table, it will be updated.
+	 *
 	 * @see SMF\Db\DatabaseApi::add_index
 	 *
 	 * @param DbIndex $index The index to add to this table.
@@ -204,27 +206,21 @@ class Table
 	 */
 	public function addIndex(DbIndex $index, string $if_exists = 'update'): bool
 	{
+		$index_info = get_object_vars($index);
+
+		// The column size values are used by Db::$db->create_table,
+		// but not by Db::$db->add_index.
+		$index_info['columns'] = array_map(
+			fn($col) => preg_replace('/\(\d+\)$/', '', $col),
+			$index_info['columns'],
+		);
+
 		return Db::$db->add_index(
 			'{db_prefix}' . $this->name,
-			get_object_vars($index),
+			$index_info,
 			[],
 			$if_exists,
 		);
-	}
-
-	/**
-	 * Updates an index in the database to match the definition given by the
-	 * supplied object's properties.
-	 *
-	 * @param DbIndex $index The index to update.
-	 * @return bool Whether or not the operation was successful.
-	 */
-	public function alterIndex(DbIndex $index): bool
-	{
-		// This method is really just a convenient way to replace an existing index.
-		$this->dropIndex($index);
-
-		return $this->addIndex($index);
 	}
 
 	/**

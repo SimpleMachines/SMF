@@ -44,11 +44,11 @@ class DbIndex
 	public ?string $type = null;
 
 	/**
-	 * @var ?string
+	 * @var string
 	 *
 	 * The name of the index.
 	 */
-	public ?string $name;
+	public string $name;
 
 	/****************
 	 * Public methods
@@ -72,7 +72,7 @@ class DbIndex
 
 		$this->type = isset($type) ? strtolower((string) $type) : null;
 
-		if (($this->type ?? null) !== 'primary') {
+		if ($this->type !== 'primary') {
 			$this->name = $name ?? 'idx_' . trim(implode('_', preg_replace(['/\s*/', '/\(\d+\)/'], ['', ''], $this->columns)));
 		} else {
 			$this->name = $name ?? 'primary';
