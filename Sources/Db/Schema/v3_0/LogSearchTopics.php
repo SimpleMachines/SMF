@@ -40,12 +40,14 @@ class LogSearchTopics extends Table
 				name: 'id_search',
 				type: 'tinyint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 		];

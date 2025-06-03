@@ -40,12 +40,14 @@ class PmLabeledMessages extends Table
 				name: 'id_label',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_pm' => new Column(
 				name: 'id_pm',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 		];

@@ -106,18 +106,21 @@ class Themes extends Table
 			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
+				not_null: true,
 				default: 0,
 			),
 			'id_theme' => new Column(
 				name: 'id_theme',
 				type: 'tinyint',
 				unsigned: true,
+				not_null: true,
 				default: 1,
 			),
 			'variable' => new Column(
 				name: 'variable',
 				type: 'varchar',
 				size: 255,
+				not_null: true,
 				default: '',
 			),
 			'value' => new Column(

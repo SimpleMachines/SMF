@@ -40,12 +40,14 @@ class LogTopics extends Table
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_msg' => new Column(

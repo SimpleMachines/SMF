@@ -40,18 +40,21 @@ class UserLikes extends Table
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'content_type' => new Column(
 				name: 'content_type',
 				type: 'char',
 				size: 6,
+				not_null: true,
 				default: '',
 			),
 			'content_id' => new Column(
 				name: 'content_id',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'like_time' => new Column(

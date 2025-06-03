@@ -40,6 +40,7 @@ class LogFloodcontrol extends Table
 				name: 'ip',
 				type: 'inet',
 				size: 16,
+				not_null: true,
 			),
 			'log_time' => new Column(
 				name: 'log_time',
@@ -52,6 +53,7 @@ class LogFloodcontrol extends Table
 				name: 'log_type',
 				type: 'varchar',
 				size: 30,
+				not_null: true,
 				default: 'post',
 			),
 		];

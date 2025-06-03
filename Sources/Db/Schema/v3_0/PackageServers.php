@@ -89,6 +89,7 @@ class PackageServers extends Table
 			'extra' => new Column(
 				name: 'extra',
 				type: 'text',
+				not_null: true,
 			),
 		];
 

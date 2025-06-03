@@ -39,17 +39,20 @@ class Mentions extends Table
 			'content_id' => new Column(
 				name: 'content_id',
 				type: 'int',
+				not_null: true,
 				default: 0,
 			),
 			'content_type' => new Column(
 				name: 'content_type',
 				type: 'varchar',
 				size: 10,
+				not_null: true,
 				default: '',
 			),
 			'id_mentioned' => new Column(
 				name: 'id_mentioned',
 				type: 'int',
+				not_null: true,
 			),
 			'id_member' => new Column(
 				name: 'id_member',

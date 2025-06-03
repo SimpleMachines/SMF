@@ -197,12 +197,14 @@ class UserAlertsPrefs extends Table
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'alert_pref' => new Column(
 				name: 'alert_pref',
 				type: 'varchar',
 				size: 32,
+				not_null: true,
 				default: '',
 			),
 			'alert_value' => new Column(

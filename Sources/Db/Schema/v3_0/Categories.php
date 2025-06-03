@@ -83,6 +83,7 @@ class Categories extends Table
 			'can_collapse' => new Column(
 				name: 'can_collapse',
 				type: 'tinyint',
+				size: 1,
 				not_null: true,
 				default: 1,
 			),

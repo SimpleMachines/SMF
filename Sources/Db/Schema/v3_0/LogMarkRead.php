@@ -40,12 +40,14 @@ class LogMarkRead extends Table
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_board' => new Column(
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_msg' => new Column(

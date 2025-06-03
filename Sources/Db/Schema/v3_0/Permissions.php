@@ -247,12 +247,14 @@ class Permissions extends Table
 			'id_group' => new Column(
 				name: 'id_group',
 				type: 'smallint',
+				not_null: true,
 				default: 0,
 			),
 			'permission' => new Column(
 				name: 'permission',
 				type: 'varchar',
 				size: 30,
+				not_null: true,
 				default: '',
 			),
 			'add_deny' => new Column(

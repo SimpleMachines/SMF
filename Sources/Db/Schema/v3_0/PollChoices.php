@@ -40,12 +40,14 @@ class PollChoices extends Table
 				name: 'id_poll',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_choice' => new Column(
 				name: 'id_choice',
 				type: 'tinyint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'label' => new Column(

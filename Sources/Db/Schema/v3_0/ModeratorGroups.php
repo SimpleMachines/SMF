@@ -40,12 +40,14 @@ class ModeratorGroups extends Table
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_group' => new Column(
 				name: 'id_group',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 		];

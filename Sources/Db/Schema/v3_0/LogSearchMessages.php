@@ -40,12 +40,14 @@ class LogSearchMessages extends Table
 				name: 'id_search',
 				type: 'tinyint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_msg' => new Column(
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 		];

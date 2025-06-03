@@ -40,6 +40,7 @@ class LogSpiderStats extends Table
 				name: 'id_spider',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'page_hits' => new Column(
@@ -58,6 +59,7 @@ class LogSpiderStats extends Table
 			'stat_date' => new Column(
 				name: 'stat_date',
 				type: 'date',
+				not_null: true,
 				default: '1004-01-01',
 			),
 		];

@@ -40,12 +40,14 @@ class GroupModerators extends Table
 				name: 'id_group',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 		];

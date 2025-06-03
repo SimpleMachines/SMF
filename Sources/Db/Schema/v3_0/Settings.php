@@ -868,6 +868,7 @@ class Settings extends Table
 				name: 'variable',
 				type: 'varchar',
 				size: 255,
+				not_null: true,
 				default: '',
 			),
 			'value' => new Column(

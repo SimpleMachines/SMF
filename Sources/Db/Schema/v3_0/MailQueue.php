@@ -88,6 +88,7 @@ class MailQueue extends Table
 			'private' => new Column(
 				name: 'private',
 				type: 'tinyint',
+				size: 1,
 				not_null: true,
 				default: 0,
 			),

@@ -1591,18 +1591,21 @@ class BoardPermissions extends Table
 			'id_group' => new Column(
 				name: 'id_group',
 				type: 'smallint',
+				not_null: true,
 				default: 0,
 			),
 			'id_profile' => new Column(
 				name: 'id_profile',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'permission' => new Column(
 				name: 'permission',
 				type: 'varchar',
 				size: 30,
+				not_null: true,
 				default: '',
 			),
 			'add_deny' => new Column(

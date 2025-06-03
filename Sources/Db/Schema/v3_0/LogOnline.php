@@ -40,6 +40,7 @@ class LogOnline extends Table
 				name: 'session',
 				type: 'varchar',
 				size: 128,
+				not_null: true,
 				default: '',
 			),
 			'log_time' => new Column(

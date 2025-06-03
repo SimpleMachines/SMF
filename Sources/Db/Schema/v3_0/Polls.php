@@ -53,6 +53,7 @@ class Polls extends Table
 			'voting_locked' => new Column(
 				name: 'voting_locked',
 				type: 'tinyint',
+				size: 1,
 				not_null: true,
 				default: 0,
 			),

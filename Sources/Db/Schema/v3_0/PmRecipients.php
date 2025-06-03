@@ -40,12 +40,14 @@ class PmRecipients extends Table
 				name: 'id_pm',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 			'bcc' => new Column(
@@ -79,6 +81,7 @@ class PmRecipients extends Table
 			'in_inbox' => new Column(
 				name: 'in_inbox',
 				type: 'tinyint',
+				unsigned: true,
 				not_null: true,
 				default: 1,
 			),

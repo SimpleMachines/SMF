@@ -40,12 +40,14 @@ class LogSearchSubjects extends Table
 				name: 'word',
 				type: 'varchar',
 				size: 20,
+				not_null: true,
 				default: '',
 			),
 			'id_topic' => new Column(
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				default: 0,
 			),
 		];
