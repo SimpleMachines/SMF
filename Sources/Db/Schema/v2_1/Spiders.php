@@ -161,6 +161,7 @@ class Spiders extends Table
 				name: 'id_spider',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'spider_name' => new Column(

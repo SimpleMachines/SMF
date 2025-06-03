@@ -124,6 +124,7 @@ class Membergroups extends Table
 				name: 'id_group',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'group_name' => new Column(

@@ -40,6 +40,7 @@ class Calendar extends Table
 				name: 'id_event',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'start_date' => new Column(

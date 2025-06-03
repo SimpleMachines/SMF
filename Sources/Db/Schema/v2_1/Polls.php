@@ -40,6 +40,7 @@ class Polls extends Table
 				name: 'id_poll',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'question' => new Column(

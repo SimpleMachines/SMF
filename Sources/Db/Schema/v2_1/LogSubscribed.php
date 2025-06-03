@@ -40,6 +40,7 @@ class LogSubscribed extends Table
 				name: 'id_sublog',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_subscribe' => new Column(

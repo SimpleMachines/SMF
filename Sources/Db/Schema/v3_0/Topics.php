@@ -60,6 +60,7 @@ class Topics extends Table
 				name: 'id_topic',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'is_sticky' => new Column(

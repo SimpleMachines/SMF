@@ -40,6 +40,7 @@ class LogBanned extends Table
 				name: 'id_ban_log',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_member' => new Column(

@@ -40,6 +40,7 @@ class LogPackages extends Table
 				name: 'id_install',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'filename' => new Column(

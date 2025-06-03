@@ -65,6 +65,7 @@ class Messages extends Table
 				name: 'id_msg',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_topic' => new Column(

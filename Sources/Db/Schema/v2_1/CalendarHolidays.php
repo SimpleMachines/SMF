@@ -588,6 +588,7 @@ class CalendarHolidays extends Table
 				name: 'id_holiday',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'event_date' => new Column(

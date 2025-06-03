@@ -40,6 +40,7 @@ class Smileys extends Table
 				name: 'id_smiley',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'code' => new Column(

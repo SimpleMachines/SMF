@@ -40,6 +40,7 @@ class LogReportedComments extends Table
 				name: 'id_comment',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_report' => new Column(

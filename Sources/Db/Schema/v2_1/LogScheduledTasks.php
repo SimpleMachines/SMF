@@ -39,6 +39,7 @@ class LogScheduledTasks extends Table
 			'id_log' => new Column(
 				name: 'id_log',
 				type: 'mediumint',
+				not_null: true,
 				auto: true,
 			),
 			'id_task' => new Column(

@@ -40,6 +40,7 @@ class BackgroundTasks extends Table
 				name: 'id_task',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'task_file' => new Column(

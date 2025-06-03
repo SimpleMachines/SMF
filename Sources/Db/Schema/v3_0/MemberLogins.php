@@ -39,6 +39,7 @@ class MemberLogins extends Table
 			'id_login' => new Column(
 				name: 'id_login',
 				type: 'int',
+				not_null: true,
 				auto: true,
 			),
 			'id_member' => new Column(

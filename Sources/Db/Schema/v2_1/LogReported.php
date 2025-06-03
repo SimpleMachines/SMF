@@ -40,6 +40,7 @@ class LogReported extends Table
 				name: 'id_report',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_msg' => new Column(

@@ -40,6 +40,7 @@ class BanItems extends Table
 				name: 'id_ban',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_ban_group' => new Column(

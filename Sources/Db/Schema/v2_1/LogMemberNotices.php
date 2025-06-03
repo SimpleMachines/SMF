@@ -40,6 +40,7 @@ class LogMemberNotices extends Table
 				name: 'id_notice',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'subject' => new Column(

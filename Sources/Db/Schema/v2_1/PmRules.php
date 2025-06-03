@@ -40,6 +40,7 @@ class PmRules extends Table
 				name: 'id_rule',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_member' => new Column(

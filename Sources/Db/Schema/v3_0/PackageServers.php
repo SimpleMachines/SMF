@@ -62,6 +62,7 @@ class PackageServers extends Table
 				name: 'id_server',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'name' => new Column(

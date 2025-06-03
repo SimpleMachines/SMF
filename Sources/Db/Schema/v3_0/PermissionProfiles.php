@@ -67,6 +67,7 @@ class PermissionProfiles extends Table
 			'id_profile' => new Column(
 				name: 'id_profile',
 				type: 'smallint',
+				not_null: true,
 				auto: true,
 			),
 			'profile_name' => new Column(

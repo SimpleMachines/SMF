@@ -117,6 +117,7 @@ class MessageIcons extends Table
 				name: 'id_icon',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'title' => new Column(

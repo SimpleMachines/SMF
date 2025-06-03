@@ -84,6 +84,7 @@ class AdminInfoFiles extends Table
 				name: 'id_file',
 				type: 'tinyint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'filename' => new Column(

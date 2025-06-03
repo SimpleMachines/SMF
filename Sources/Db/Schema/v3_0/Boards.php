@@ -64,6 +64,7 @@ class Boards extends Table
 				name: 'id_board',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_cat' => new Column(

@@ -40,6 +40,7 @@ class LogSpiderHits extends Table
 				name: 'id_hit',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_spider' => new Column(

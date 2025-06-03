@@ -59,6 +59,7 @@ class Categories extends Table
 				name: 'id_cat',
 				type: 'tinyint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'cat_order' => new Column(

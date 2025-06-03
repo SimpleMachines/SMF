@@ -40,6 +40,7 @@ class LogErrors extends Table
 				name: 'id_error',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'log_time' => new Column(

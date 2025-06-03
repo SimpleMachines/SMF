@@ -40,6 +40,7 @@ class Attachments extends Table
 				name: 'id_attach',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_thumb' => new Column(

@@ -40,6 +40,7 @@ class PersonalMessages extends Table
 				name: 'id_pm',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_pm_head' => new Column(

@@ -40,6 +40,7 @@ class LogActions extends Table
 				name: 'id_action',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_log' => new Column(

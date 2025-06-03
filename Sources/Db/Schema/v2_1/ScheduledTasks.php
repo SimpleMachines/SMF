@@ -161,6 +161,7 @@ class ScheduledTasks extends Table
 			'id_task' => new Column(
 				name: 'id_task',
 				type: 'smallint',
+				not_null: true,
 				auto: true,
 			),
 			'next_time' => new Column(

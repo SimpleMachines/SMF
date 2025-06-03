@@ -40,6 +40,7 @@ class UserAlerts extends Table
 				name: 'id_alert',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'alert_time' => new Column(

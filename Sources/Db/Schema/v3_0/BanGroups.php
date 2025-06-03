@@ -40,6 +40,7 @@ class BanGroups extends Table
 				name: 'id_ban_group',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'name' => new Column(

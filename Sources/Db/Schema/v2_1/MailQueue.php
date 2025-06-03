@@ -40,6 +40,7 @@ class MailQueue extends Table
 				name: 'id_mail',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'time_sent' => new Column(

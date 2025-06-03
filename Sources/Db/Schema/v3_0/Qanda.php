@@ -40,6 +40,7 @@ class Qanda extends Table
 				name: 'id_question',
 				type: 'smallint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'lngfile' => new Column(

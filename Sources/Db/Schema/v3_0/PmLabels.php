@@ -40,6 +40,7 @@ class PmLabels extends Table
 				name: 'id_label',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_member' => new Column(

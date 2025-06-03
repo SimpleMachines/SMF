@@ -40,6 +40,7 @@ class Members extends Table
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'member_name' => new Column(

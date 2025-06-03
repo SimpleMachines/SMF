@@ -40,6 +40,7 @@ class LogGroupRequests extends Table
 				name: 'id_request',
 				type: 'mediumint',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_member' => new Column(

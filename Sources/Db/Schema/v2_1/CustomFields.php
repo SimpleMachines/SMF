@@ -135,6 +135,7 @@ class CustomFields extends Table
 			'id_field' => new Column(
 				name: 'id_field',
 				type: 'smallint',
+				not_null: true,
 				auto: true,
 			),
 			'col_name' => new Column(

@@ -40,6 +40,7 @@ class UserDrafts extends Table
 				name: 'id_draft',
 				type: 'int',
 				unsigned: true,
+				not_null: true,
 				auto: true,
 			),
 			'id_topic' => new Column(
