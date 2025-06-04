@@ -18,6 +18,7 @@ namespace SMF\Maintenance\Tools;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema\Table;
 use SMF\Lang;
 use SMF\Maintenance\Cleanup;
 use SMF\Maintenance\GenericSubStep;
@@ -53,6 +54,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 	/**
 	 * Migration substeps to perform, listed in order.
+	 *
+	 * Note that additional substeps will be automatically appended to the list
+	 * to ensure that all tables are structured correctly.
 	 */
 	public const MIGRATIONS = [
 		// Migration steps for 2.0 -> 2.1
@@ -156,7 +160,6 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\MailType::class,
 			Migration\v3_0\RemoveCookieTime::class,
 			Migration\v3_0\PermissionChanges::class,
-			Migration\v3_0\IndexUpdates::class,
 		],
 	];
 
@@ -1069,6 +1072,14 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 			foreach (self::MIGRATIONS[$ns] as $class) {
 				$substeps[] = new $class();
+			}
+
+			// Ensure the tables are structured correctly.
+			foreach (Table::getAll($ns) as $table) {
+				$substeps[] = new GenericSubStep(
+					name: Lang::getTxt('upgrade_normalizing_table', ['table' => Config::$db_prefix . $table->name], file: 'Maintenance'),
+					exec: [$table, 'normalize'],
+				);
 			}
 		}
 

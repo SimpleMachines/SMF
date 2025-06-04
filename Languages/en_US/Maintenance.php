@@ -351,6 +351,7 @@ $txt['upgrade_substep_progress'] = 'Completed {substep_num} {type, select,
 }.';
 $txt['upgrade_completed_substep'] = ' Completed Substep:';
 $txt['upgrade_step_complete'] = 'The "{step}" step is complete! Click Continue to proceed.';
+$txt['upgrade_normalizing_table'] = 'Ensuring "{table}" is structured correctly';
 
 
 
