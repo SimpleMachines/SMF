@@ -93,7 +93,7 @@ class UpgradeTemplate extends MaintenanceTemplate
 
 		echo '
 			<script>
-				let countdown = 3;
+				let countdown = ' . (Maintenance::$tool->isDebug() ? '-1' : '3') . ';
 				let dontSubmit = false;
 
 				function doAutoSubmit()
