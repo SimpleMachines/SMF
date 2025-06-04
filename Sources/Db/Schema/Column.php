@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema;
 
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 
 /**
  * Represents a column in a database table.
@@ -139,12 +140,18 @@ class Column
 			}
 		}
 
+		// Adjust the type and size to match the database's supported types.
+		list($this->type, $this->size) = Db::$db->calculate_type($this->type, $this->size);
+
+		// String columns need a character set.
 		if (isset($charset)) {
 			$this->charset = strtolower($charset);
 		} elseif (
 			in_array(
 				$this->type,
 				[
+					'character varying',
+					'character',
 					'varchar',
 					'char',
 					'tinytext',
