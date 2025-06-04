@@ -38,7 +38,7 @@ class Table
 	 *
 	 * An array of SMF\Db\Schema\Column objects.
 	 */
-	public array $columns;
+	public array $columns = [];
 
 	/**
 	 * @var array
@@ -87,6 +87,171 @@ class Table
 	}
 
 	/**
+	 * Checks all the columns and indexes in this table to make sure they
+	 * are defined the way they should be, and fixes any that aren't.
+	 *
+	 * @return bool Whether or not the operation was successful.
+	 */
+	public function normalize(): bool
+	{
+		if (count($this->columns) === 0) {
+			return false;
+		}
+
+		if (empty(Db::$db->list_tables(false, Db::$db->prefix . $this->name))) {
+			return $this->create();
+		}
+
+		$structure = $this->getCurrentStructure();
+
+		$structure['columns'] = array_change_key_case($structure['columns'], CASE_LOWER);
+		$structure['indexes'] = array_change_key_case($structure['indexes'], CASE_LOWER);
+
+		// Adjust the values as needed.
+		foreach ($structure['columns'] as $name => $column) {
+			foreach ($column as $prop => $value) {
+				// Easy way to cast numeric strings to int or float.
+				if (is_numeric($value)) {
+					$structure['columns'][$name][$prop] = $value + 0;
+				}
+
+				// Adjust the type if needed.
+				if ($prop === 'type') {
+					// Find the corresponding Column object.
+					foreach ($this->columns as $col) {
+						if ($col->name === $name) {
+							break;
+						}
+					}
+
+					// Just in case there was no matching Column object.
+					if ($col->name !== $name) {
+						continue;
+					}
+
+					$int_types = ['tinyint', 'smallint', 'mediumint', 'int', 'bigint'];
+					$text_types = ['tinytext', 'text', 'mediumtext', 'longtext'];
+					$blob_types = ['tinyblob', 'blob', 'mediumblob', 'longblob'];
+
+					if (
+						// If an existing integer column upgraded its type to a
+						// larger one, we want to keep that larger type.
+						(
+							in_array($value, $int_types)
+							&& in_array($col->type, $int_types)
+							&& array_search($value, $int_types) > array_search($col->type, $int_types)
+						)
+						// If an existing string column upgraded its type to a
+						// larger one, we want to keep that larger type.
+						// This is only applicable to MySQL.
+						|| (
+							Db::$db->title === MYSQL_TITLE
+							&& (
+								in_array($value, $text_types)
+								&& in_array($col->type, $text_types)
+								&& array_search($value, $text_types) > array_search($col->type, $text_types)
+							) || (
+								in_array($value, $blob_types)
+								&& in_array($col->type, $blob_types)
+								&& array_search($value, $blob_types) > array_search($col->type, $blob_types)
+							)
+						)
+					) {
+						$col->type = $value;
+					}
+				}
+			}
+		}
+
+		// Do we need to change the engine or row format?
+		// This is only applicable to MySQL.
+		if (Db::$db->title === MYSQL_TITLE) {
+			if ($structure['engine'] !== 'InnoDB') {
+				Db::$db->query(
+					'',
+					'ALTER TABLE {raw:table}
+					ENGINE {literal:InnoDB}
+					ROW_FORMAT=DYNAMIC',
+					[
+						'table' => Db::$db->prefix . $this->name,
+					],
+				);
+			} elseif ($structure['row_format'] !== 'Dynamic') {
+				Db::$db->query(
+					'',
+					'ALTER TABLE {raw:table}
+					ROW_FORMAT=DYNAMIC',
+					[
+						'table' => Db::$db->prefix . $this->name,
+					],
+				);
+			}
+		}
+
+		// Do we need to change any columns or indexes?
+		$columns_to_change = [];
+		$indexes_to_change = [];
+
+		foreach ($this->columns as $col) {
+			if (!isset($structure['columns'][$col->name])) {
+				$columns_to_change[$col->name] = $col;
+				continue;
+			}
+
+			list($expected_type) = Db::$db->calculate_type($col->type);
+			list($existing_type) = Db::$db->calculate_type($structure['columns'][$col->name]['type']);
+
+			if ($expected_type != $existing_type) {
+				$columns_to_change[$col->name] = $col;
+				continue;
+			}
+
+			foreach (['name', 'size', 'unsigned', 'not_null', 'default', 'auto'] as $prop) {
+				if (($structure['columns'][$col->name][$prop] ?? null) != ($col->{$prop} ?? null)) {
+					$columns_to_change[$col->name] = $col;
+					continue 2;
+				}
+			}
+		}
+
+		foreach ($this->indexes as $index) {
+			if (!isset($structure['indexes'][$index->name])) {
+				$indexes_to_change[$index->name] = $index;
+				continue;
+			}
+
+			if (($index->type ?? 'index') != $structure['indexes'][$index->name]['type']) {
+				$columns_to_change[$col->name] = $col;
+				continue;
+			}
+
+			// If we need to change any columns in this index, rebuild the index too.
+			foreach ([$index->columns, $structure['indexes'][$index->name]['columns']] as $cols) {
+				if (array_intersect($cols, array_keys($columns_to_change)) !== []) {
+					$indexes_to_change[$index->name] = $index;
+					continue 2;
+				}
+			}
+		}
+
+		// Change the columns.
+		foreach ($columns_to_change as $col) {
+			if (!isset($structure['columns'][$col->name])) {
+				$this->addColumn($col);
+			} else {
+				$this->alterColumn($col, $structure['columns'][$col->name]['name']);
+			}
+		}
+
+		// Rebuild the indexes.
+		foreach ($indexes_to_change as $index) {
+			$this->addIndex($index);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Creates the table in the database.
 	 *
 	 * @see SMF\Db\DatabaseApi::create_table
@@ -98,7 +263,7 @@ class Table
 	 */
 	public function create(array $parameters = [], string $if_exists = 'ignore'): bool
 	{
-		if (!isset($this->columns) || count($this->columns) === 0) {
+		if (count($this->columns) === 0) {
 			return false;
 		}
 
