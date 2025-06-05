@@ -740,33 +740,35 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	$smcFunc['db_free_result']($request);
 
 	// Random emails from the queue..
-	$request = $smcFunc['db_query']('', '
-		SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
-		FROM {db_prefix}mail_queue
-		WHERE id_mail NOT IN ({array_int:ids})
-		ORDER BY RAND()
-		LIMIT {int:limit}',
-		array(
-			'ids' => $ids,
-			'limit' => ceil($number * 0.3),
-		)
-	);
-	while ($row = $smcFunc['db_fetch_assoc']($request))
-	{
-		// We want to delete these from the database ASAP, so just get the data and go.
-		$ids[] = $row['id_mail'];
-		$emails[] = array(
-			'to' => $row['recipient'],
-			'body' => $row['body'],
-			'subject' => $row['subject'],
-			'headers' => $row['headers'],
-			'send_html' => $row['send_html'],
-			'time_sent' => $row['time_sent'],
-			'private' => $row['private'],
-			'priority' => $row['priority'],
+	if (!empty($ids)) {
+		$request = $smcFunc['db_query']('', '
+			SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
+			FROM {db_prefix}mail_queue
+			WHERE id_mail NOT IN ({array_int:ids})
+			ORDER BY RAND()
+			LIMIT {int:limit}',
+			array(
+				'ids' => $ids,
+				'limit' => ceil($number * 0.3),
+			)
 		);
+		while ($row = $smcFunc['db_fetch_assoc']($request))
+		{
+			// We want to delete these from the database ASAP, so just get the data and go.
+			$ids[] = $row['id_mail'];
+			$emails[] = array(
+				'to' => $row['recipient'],
+				'body' => $row['body'],
+				'subject' => $row['subject'],
+				'headers' => $row['headers'],
+				'send_html' => $row['send_html'],
+				'time_sent' => $row['time_sent'],
+				'private' => $row['private'],
+				'priority' => $row['priority'],
+			);
+		}
+		$smcFunc['db_free_result']($request);
 	}
-	$smcFunc['db_free_result']($request);
 
 	// Delete, delete, delete!!!
 	if (!empty($ids))
