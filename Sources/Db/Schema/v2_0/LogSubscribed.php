@@ -1,0 +1,174 @@
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2023 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 3
+ */
+
+declare(strict_types=1);
+
+namespace SMF\Db\Schema\v2_0;
+
+use SMF\Db\Schema\Column;
+use SMF\Db\Schema\DbIndex;
+use SMF\Db\Schema\Table;
+
+/**
+ * Defines all the properties for a database table.
+ */
+class LogSubscribed extends Table
+{
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct()
+	{
+		$this->name = 'log_subscribed';
+
+		$this->columns = [
+			'id_sublog' => new Column(
+				name: 'id_sublog',
+				type: 'int',
+				unsigned: true,
+				not_null: true,
+				auto: true,
+			),
+			'id_subscribe' => new Column(
+				name: 'id_subscribe',
+				type: 'mediumint',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+			),
+			'id_member' => new Column(
+				name: 'id_member',
+				type: 'int',
+				not_null: true,
+				default: 0,
+			),
+			'old_id_group' => new Column(
+				name: 'old_id_group',
+				type: 'smallint',
+				not_null: true,
+				default: 0,
+			),
+			'start_time' => new Column(
+				name: 'start_time',
+				type: 'int',
+				not_null: true,
+				default: 0,
+			),
+			'end_time' => new Column(
+				name: 'end_time',
+				type: 'int',
+				not_null: true,
+				default: 0,
+			),
+			'status' => new Column(
+				name: 'status',
+				type: 'tinyint',
+				not_null: true,
+				default: 0,
+			),
+			'payments_pending' => new Column(
+				name: 'payments_pending',
+				type: 'tinyint',
+				not_null: true,
+				default: 0,
+			),
+			'pending_details' => new Column(
+				name: 'pending_details',
+				type: 'text',
+				not_null: true,
+			),
+			'reminder_sent' => new Column(
+				name: 'reminder_sent',
+				type: 'tinyint',
+				not_null: true,
+				default: 0,
+			),
+			'vendor_ref' => new Column(
+				name: 'vendor_ref',
+				type: 'varchar',
+				size: 255,
+				not_null: true,
+				default: '',
+			),
+		];
+
+		$this->indexes = [
+			'primary' => new DbIndex(
+				type: 'primary',
+				columns: [
+					[
+						'name' => 'id_sublog',
+					],
+				],
+			),
+			'id_subscribe' => new DbIndex(
+				type: 'unique',
+				name: 'id_subscribe',
+				columns: [
+					[
+						'name' => 'id_subscribe',
+					],
+					[
+						'name' => 'id_member',
+					],
+				],
+			),
+			'end_time' => new DbIndex(
+				name: 'end_time',
+				columns: [
+					[
+						'name' => 'end_time',
+					],
+				],
+			),
+			'reminder_sent' => new DbIndex(
+				name: 'reminder_sent',
+				columns: [
+					[
+						'name' => 'reminder_sent',
+					],
+				],
+			),
+			'payments_pending' => new DbIndex(
+				name: 'payments_pending',
+				columns: [
+					[
+						'name' => 'payments_pending',
+					],
+				],
+			),
+			'status' => new DbIndex(
+				name: 'status',
+				columns: [
+					[
+						'name' => 'status',
+					],
+				],
+			),
+			'id_member' => new DbIndex(
+				name: 'id_member',
+				columns: [
+					[
+						'name' => 'id_member',
+					],
+				],
+			),
+		];
+
+		parent::__construct();
+	}
+}
