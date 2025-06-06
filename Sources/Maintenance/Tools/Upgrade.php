@@ -63,6 +63,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * be the highest version that the steps could apply to, not the lowest.
 	 */
 	public const VERSION_MAP = [
+		'2.0.99' => 'v2_0',
 		'2.1.99' => 'v2_1',
 		'3.0.99' => 'v3_0',
 	];
@@ -76,6 +77,38 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * to ensure that all tables are structured correctly.
 	 */
 	public const MIGRATIONS = [
+		// Migration steps for 1.1 -> 2.0
+		'v2_0' => [
+			Migration\v2_0\PostgreSQLFunctions::class,
+			Migration\v2_0\RenameColumns::class,
+			Migration\v2_0\SpiderTracking::class,
+			Migration\v2_0\NewSettings::class,
+			Migration\v2_0\CustomFields::class,
+			Migration\v2_0\EmailDigests::class,
+			Migration\v2_0\PackageManager::class,
+			Migration\v2_0\MailQueue::class,
+			Migration\v2_0\ModCenter::class,
+			Migration\v2_0\Warnings::class,
+			Migration\v2_0\Attachments1::class,
+			Migration\v2_0\Attachments2::class,
+			Migration\v2_0\PostModeration::class,
+			Migration\v2_0\ErrorLog::class,
+			Migration\v2_0\ScheduledTasks::class,
+			Migration\v2_0\PermissionProfiles1::class,
+			Migration\v2_0\PermissionProfiles2::class,
+			Migration\v2_0\PermissionProfiles3::class,
+			Migration\v2_0\PurgeFloodcontrol::class,
+			Migration\v2_0\GuestVoting::class,
+			Migration\v2_0\AdminFeatureToggles::class,
+			Migration\v2_0\ModLog::class,
+			Migration\v2_0\AdminInfoFiles::class,
+			Migration\v2_0\PersonalMessages1::class,
+			Migration\v2_0\PersonalMessages2::class,
+			Migration\v2_0\PaidSubs::class,
+			Migration\v2_0\OldThemes::class,
+			Migration\v2_0\LogActivity::class,
+			Migration\v2_0\MembergroupTypes::class,
+		],
 		// Migration steps for 2.0 -> 2.1
 		'v2_1' => [
 			Migration\v2_1\PostgreSqlSequences::class,
@@ -186,6 +219,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * Cleanups that do not require database maintenance tasks.
 	 */
 	public const CLEANUPS = [
+		// Cleanup steps for 1.1 -> 2.0
+		'v2_0' => [
+			Cleanup\v2_0\OldFiles::class,
+		],
 		// Cleanup steps for 2.0 -> 2.1
 		'v2_1' => [
 			Cleanup\v2_1\OldFiles::class,
