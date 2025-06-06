@@ -546,7 +546,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			!isset(Config::$modSettings['smfVersion'])
 			|| version_compare(
 				str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'])),
-				substr(SMF_VERSION, 0, strpos(SMF_VERSION, '.') + 1 + strspn(SMF_VERSION, '1234567890', strpos(SMF_VERSION, '.') + 1)) . '.dev.0',
+				preg_replace('/^(\d+\.\d+).*/', '$1.dev.0', SMF_VERSION),
 				'<',
 			)
 		) {
@@ -768,7 +768,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 				return true;
 			}
 
-			$use_old_hashing = version_compare(str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'])), '2.1.dev.0', '<');
+			$use_old_hashing = version_compare(str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'] ?? '0.0.dev.0')), '2.1.dev.0', '<');
 
 			if (($id = Maintenance::loginAdmin((string) $_POST['user'], (string) $_POST['passwrd'], $use_old_hashing)) > 0) {
 				$this->user = [

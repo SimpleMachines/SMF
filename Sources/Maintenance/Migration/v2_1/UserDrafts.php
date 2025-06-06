@@ -64,7 +64,14 @@ class UserDrafts extends MigrationBase
 		}
 
 		// Adding draft permissions.
-		if ($start <= 1 && version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.foo', '<')) {
+		if (
+			$start <= 1
+			&& version_compare(
+				str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'] ?? '0.0.dev.0')),
+				'2.1.dev.0',
+				'<',
+			)
+		) {
 			// Anyone who can currently post unapproved topics we assume can create drafts as well ...
 			$request = Db::$db->query(
 				'',
