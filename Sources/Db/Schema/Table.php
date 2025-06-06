@@ -243,6 +243,18 @@ class Table
 			}
 		}
 
+		// Special case if the table has a primary key index, but shouldn't.
+		if (isset($structure['indexes']['primary']) && !isset($this->indexes['primary'])) {
+			Db::$db->query(
+				'',
+				'ALTER TABLE {raw:table}
+				DROP PRIMARY KEY',
+				[
+					'table' => Db::$db->prefix . $this->name,
+				],
+			);
+		}
+
 		// Rebuild the indexes.
 		foreach ($indexes_to_change as $index) {
 			$this->addIndex($index);
