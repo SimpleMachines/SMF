@@ -246,7 +246,6 @@ class Smileys implements ActionInterface
 
 					// Delete this set's entries from the smiley_files table
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}smiley_files
 						WHERE smiley_set = {string:smiley_set}',
 						[
@@ -406,7 +405,6 @@ class Smileys implements ActionInterface
 
 					// Exclude the smileys that are already in the database.
 					$request = Db::$db->query(
-						'',
 						'SELECT filename
 						FROM {db_prefix}smiley_files
 						WHERE filename IN ({array_string:smiley_list})
@@ -609,7 +607,6 @@ class Smileys implements ActionInterface
 
 			// Check whether the new code has duplicates. It should be unique.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_smiley
 				FROM {db_prefix}smileys
 				WHERE code = {raw:mysql_binary_statement} {string:smiley_code}',
@@ -726,7 +723,6 @@ class Smileys implements ActionInterface
 
 			if ($_POST['smiley_location'] != 1) {
 				$request = Db::$db->query(
-					'',
 					'SELECT MAX(smiley_order) + 1
 					FROM {db_prefix}smileys
 					WHERE hidden = {int:smiley_location}
@@ -856,7 +852,6 @@ class Smileys implements ActionInterface
 
 				if ($_POST['smiley_action'] == 'delete') {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}smileys
 						WHERE id_smiley IN ({array_int:checked_smileys})',
 						[
@@ -865,7 +860,6 @@ class Smileys implements ActionInterface
 					);
 
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}smiley_files
 						WHERE id_smiley IN ({array_int:checked_smileys})',
 						[
@@ -884,7 +878,6 @@ class Smileys implements ActionInterface
 
 					if (isset($displayTypes[$_POST['smiley_action']])) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}smileys
 							SET hidden = {int:display_type}
 							WHERE id_smiley IN ({array_int:checked_smileys})',
@@ -901,7 +894,6 @@ class Smileys implements ActionInterface
 				// Is it a delete?
 				if (!empty($_POST['deletesmiley']) && $_POST['smiley'] == (int) $_POST['smiley']) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}smileys
 						WHERE id_smiley = {int:current_smiley}',
 						[
@@ -910,7 +902,6 @@ class Smileys implements ActionInterface
 					);
 
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}smiley_files
 						WHERE id_smiley = {int:current_smiley}',
 						[
@@ -994,7 +985,6 @@ class Smileys implements ActionInterface
 
 					// Check whether the new code has duplicates. It should be unique.
 					$request = Db::$db->query(
-						'',
 						'SELECT id_smiley
 						FROM {db_prefix}smileys
 						WHERE code = {raw:mysql_binary_type} {string:smiley_code}' . (empty($_POST['smiley']) ? '' : '
@@ -1012,7 +1002,6 @@ class Smileys implements ActionInterface
 					Db::$db->free_result($request);
 
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}smileys
 						SET
 							code = {string:smiley_code},
@@ -1293,7 +1282,6 @@ class Smileys implements ActionInterface
 			Utils::$context['selected_set'] = Config::$modSettings['smiley_sets_default'];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT s.id_smiley AS id, s.code, f.filename, f.smiley_set, s.description, s.hidden AS location
 				FROM {db_prefix}smileys AS s
 					LEFT JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
@@ -1389,7 +1377,6 @@ class Smileys implements ActionInterface
 				$_GET['after'] = (int) $_GET['after'];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT smiley_row, smiley_order, hidden
 					FROM {db_prefix}smileys
 					WHERE hidden = {int:location}
@@ -1412,7 +1399,6 @@ class Smileys implements ActionInterface
 			}
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}smileys
 				SET smiley_order = smiley_order + 1
 				WHERE hidden = {int:new_location}
@@ -1426,7 +1412,6 @@ class Smileys implements ActionInterface
 			);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}smileys
 				SET
 					smiley_order = {int:smiley_order} + 1,
@@ -1445,7 +1430,6 @@ class Smileys implements ActionInterface
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT s.id_smiley, s.code, f.filename, s.description, s.smiley_row, s.smiley_order, s.hidden
 			FROM {db_prefix}smileys AS s
 				LEFT JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley AND f.smiley_set = {string:smiley_set})
@@ -1499,7 +1483,6 @@ class Smileys implements ActionInterface
 				// Fix empty rows if any.
 				if ($id != $smiley_row[0]['row']) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}smileys
 						SET smiley_row = {int:new_row}
 						WHERE smiley_row = {int:current_row}
@@ -1519,7 +1502,6 @@ class Smileys implements ActionInterface
 				foreach ($smiley_row as $order_id => $smiley) {
 					if ($order_id != $smiley['order']) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}smileys
 							SET smiley_order = {int:new_order}
 							WHERE id_smiley = {int:current_smiley}',
@@ -1635,7 +1617,6 @@ class Smileys implements ActionInterface
 
 		// See if it is installed?
 		$request = Db::$db->query(
-			'',
 			'SELECT version, themes_installed, db_changes
 			FROM {db_prefix}log_packages
 			WHERE package_id = {string:current_package}
@@ -1803,7 +1784,6 @@ class Smileys implements ActionInterface
 		$trueOrder = 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_icon, m.title, m.filename, m.icon_order, m.id_board, b.name AS board_name
 			FROM {db_prefix}message_icons AS m
 				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -1844,7 +1824,6 @@ class Smileys implements ActionInterface
 
 				// Do the actual delete!
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}message_icons
 					WHERE id_icon IN ({array_int:icon_list})',
 					[
@@ -2236,7 +2215,6 @@ class Smileys implements ActionInterface
 		$smileys = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT s.id_smiley, s.code, f.filename, f.smiley_set, s.description, s.smiley_row, s.smiley_order, s.hidden
 			FROM {db_prefix}smileys AS s
 				LEFT JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
@@ -2277,7 +2255,6 @@ class Smileys implements ActionInterface
 	public static function list_getNumSmileys(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}smileys',
 			[],
@@ -2301,7 +2278,6 @@ class Smileys implements ActionInterface
 		$message_icons = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_icon, m.title, m.filename, m.icon_order, m.id_board, b.name AS board_name
 			FROM {db_prefix}message_icons AS m
 				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -2380,7 +2356,6 @@ class Smileys implements ActionInterface
 		$existing_smileys = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_smiley, smiley_set, filename
 			FROM {db_prefix}smiley_files',
 			[],
@@ -2492,7 +2467,6 @@ class Smileys implements ActionInterface
 
 		// New smileys go at the end of the list
 		$request = Db::$db->query(
-			'',
 			'SELECT MAX(smiley_order)
 			FROM {db_prefix}smileys
 			WHERE hidden = {int:postform}

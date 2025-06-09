@@ -74,7 +74,6 @@ class UserDrafts extends MigrationBase
 		) {
 			// Anyone who can currently post unapproved topics we assume can create drafts as well ...
 			$request = Db::$db->query(
-				'',
 				'SELECT id_group, id_board, add_deny, permission
 				FROM {db_prefix}board_permissions
 				WHERE permission = {literal:post_unapproved_topics}',

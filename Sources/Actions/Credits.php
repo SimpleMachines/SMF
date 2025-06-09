@@ -357,7 +357,6 @@ class Credits implements ActionInterface, Routable
 			$mods = [];
 
 			$request = Db::$db->query(
-				'substring',
 				'SELECT version, name, credits
 				FROM {db_prefix}log_packages
 				WHERE install_state = {int:installed_mods}
@@ -368,6 +367,7 @@ class Credits implements ActionInterface, Routable
 					'patch_name' => 'smf_patch',
 					'empty' => '',
 				],
+				identifier: 'substring',
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {

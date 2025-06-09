@@ -520,7 +520,6 @@ class Install extends ToolsBase implements ToolsInterface
 		// Let's try that database on for size... assuming we haven't already lost the opportunity.
 		if (Db::$db->name != '' && !Maintenance::$context['databases'][$db_type]->alwaysHasDb()) {
 			Db::$db->query(
-				'',
 				'CREATE DATABASE IF NOT EXISTS {identifier:name}',
 				[
 					'security_override' => true,
@@ -533,7 +532,6 @@ class Install extends ToolsBase implements ToolsInterface
 			// Okay, let's try the prefix if it didn't work...
 			if (!Db::$db->select(Db::$db->name, Db::$db->connection) && Db::$db->name != '') {
 				Db::$db->query(
-					'',
 					'CREATE DATABASE IF NOT EXISTS {identifier:name}',
 					[
 						'security_override' => true,
@@ -711,7 +709,6 @@ class Install extends ToolsBase implements ToolsInterface
 		// Before running any of the queries, let's make sure another version isn't already installed.
 		if (in_array(Config::$db_prefix . 'settings', $existing_tables)) {
 			$result = Db::$db->query(
-				'',
 				'SELECT variable, value
 				FROM {db_prefix}settings',
 				[
@@ -939,7 +936,6 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// Only allow skipping if we think they already have an account setup.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0
@@ -1038,7 +1034,6 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		$result = Db::$db->query(
-			'',
 			'SELECT id_member, password_salt
 			FROM {db_prefix}members
 			WHERE member_name = {string:username} OR email_address = {string:email}
@@ -1210,7 +1205,6 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// We're going to want our lovely Config::$modSettings now.
 		$request = Db::$db->query(
-			'',
 			'SELECT variable, value
 			FROM {db_prefix}settings',
 			[
@@ -1232,7 +1226,6 @@ class Install extends ToolsBase implements ToolsInterface
 		}
 
 		$result = Db::$db->query(
-			'',
 			'SELECT value
 			FROM {db_prefix}settings
 			WHERE variable = {string:db_sessions}',
@@ -1276,7 +1269,6 @@ class Install extends ToolsBase implements ToolsInterface
 		Logging::updateStats('topic');
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_msg
 			FROM {db_prefix}messages
 			WHERE id_msg = 1

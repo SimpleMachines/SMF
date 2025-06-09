@@ -69,7 +69,6 @@ class PollRemove implements ActionInterface, Routable
 
 		// Remove all user logs for this poll.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}',
 			[
@@ -79,7 +78,6 @@ class PollRemove implements ActionInterface, Routable
 
 		// Remove all poll choices.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}poll_choices
 			WHERE id_poll = {int:id_poll}',
 			[
@@ -89,7 +87,6 @@ class PollRemove implements ActionInterface, Routable
 
 		// Remove the poll itself.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}polls
 			WHERE id_poll = {int:id_poll}',
 			[
@@ -99,7 +96,6 @@ class PollRemove implements ActionInterface, Routable
 
 		// Finally set the topic's poll ID back to 0.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_poll = {int:no_poll}
 			WHERE id_topic = {int:current_topic}',

@@ -52,7 +52,6 @@ class SendDigests extends ScheduledTask
 		$notify = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
 				mem.lngfile, mem.id_member
 			FROM {db_prefix}log_notify AS ln
@@ -94,7 +93,6 @@ class SendDigests extends ScheduledTask
 
 		// Just get the board names.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board, name
 			FROM {db_prefix}boards
 			WHERE id_board IN ({array_int:board_list})',
@@ -116,7 +114,6 @@ class SendDigests extends ScheduledTask
 		// Get the actual topics...
 		$types = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT ld.note_type, t.id_topic, t.id_board, t.id_member_started, m.id_msg, m.subject,
 				b.name AS board_name
 			FROM {db_prefix}log_digest AS ld
@@ -316,7 +313,6 @@ class SendDigests extends ScheduledTask
 		// Clean up...
 		if ($is_weekly) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_digest
 				WHERE daily != {int:not_daily}',
 				[
@@ -325,7 +321,6 @@ class SendDigests extends ScheduledTask
 			);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_digest
 				SET daily = {int:daily_value}
 				WHERE daily = {int:not_daily}',
@@ -337,7 +332,6 @@ class SendDigests extends ScheduledTask
 		} else {
 			// Clear any only weekly ones, and stop us from sending daily again.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_digest
 				WHERE daily = {int:daily_value}',
 				[
@@ -346,7 +340,6 @@ class SendDigests extends ScheduledTask
 			);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_digest
 				SET daily = {int:both_value}
 				WHERE daily = {int:no_value}',
@@ -360,7 +353,6 @@ class SendDigests extends ScheduledTask
 		// Just in case the member changes their settings mark this as sent.
 		if (!empty($members_sent)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
 				WHERE id_member IN ({array_int:member_list})',

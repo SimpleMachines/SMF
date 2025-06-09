@@ -1352,7 +1352,6 @@ class Theme
 			// Get an error count, if necessary
 			if (!isset(Utils::$context['num_errors'])) {
 				$query = Db::$db->query(
-					'',
 					'SELECT COUNT(*)
 					FROM {db_prefix}log_errors',
 					[],
@@ -1829,7 +1828,6 @@ class Theme
 
 		// Kinda sucks that we need to do another query to get all the theme dirs, but c'est la vie.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme AS id, value AS dir
 			FROM {db_prefix}themes
 			WHERE variable = {string:var}',
@@ -1947,7 +1945,6 @@ class Theme
 		if (empty($flag)) {
 			// Load variables from the current or default theme, global or this user's.
 			$result = Db::$db->query(
-				'',
 				'SELECT variable, value, id_member, id_theme
 				FROM {db_prefix}themes
 				WHERE id_member' . (empty($themeData[0]) ? ' IN ({array_int:members})' : ' = {int:id_member}') . '

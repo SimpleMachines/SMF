@@ -39,7 +39,6 @@ class MailType extends MigrationBase
 	public function execute(): bool
 	{
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}settings
 			SET value =
 				CASE

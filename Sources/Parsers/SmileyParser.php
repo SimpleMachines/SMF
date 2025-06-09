@@ -217,7 +217,6 @@ class SmileyParser extends Parser
 		self::$data[$set] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT s.id_smiley, s.code, f.filename, s.description
 			FROM {db_prefix}smileys AS s
 				JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)

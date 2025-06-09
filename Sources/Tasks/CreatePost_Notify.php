@@ -150,7 +150,6 @@ class CreatePost_Notify extends BackgroundTask
 		];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, deny
 			FROM {db_prefix}board_permissions_view
 			WHERE id_board = {int:current_board}',
@@ -167,7 +166,6 @@ class CreatePost_Notify extends BackgroundTask
 
 		// Find the people interested in receiving notifications for this topic
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
 				mem.email_address, mem.lngfile, mem.pm_ignore_list,
@@ -246,7 +244,6 @@ class CreatePost_Notify extends BackgroundTask
 			else {
 				if (!empty($this->_details['respawns'])) {
 					$request = Db::$db->query(
-						'',
 						'SELECT modified_time
 						FROM {db_prefix}messages
 						WHERE id_msg = {int:msg}
@@ -311,7 +308,6 @@ class CreatePost_Notify extends BackgroundTask
 
 		if (!empty($members_to_log)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
 				WHERE ' . ($type == 'topic' ? 'id_board = {int:board}' : 'id_topic = {int:topic}') . '
@@ -407,7 +403,6 @@ class CreatePost_Notify extends BackgroundTask
 			$old_alerts = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT content_action, id_member
 				FROM {db_prefix}user_alerts
 				WHERE content_id = {int:msg_id}
@@ -427,7 +422,6 @@ class CreatePost_Notify extends BackgroundTask
 
 			if (!empty($old_alerts)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT content_type, id_mentioned
 					FROM {db_prefix}mentions
 					WHERE content_id = {int:msg_id}

@@ -116,7 +116,6 @@ class Ipv6Base extends MigrationBase
 			if ((($i + 1) == $count) || (($i + 1) % $setSize === 0)) {
 				$updates['whereSet'] = array_values($updates);
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}' . $targetTable . '
 					SET ' . $newCol . ' = CASE ' .
 					implode('

@@ -168,7 +168,6 @@ class Table
 		if (Db::$db->title === MYSQL_TITLE) {
 			if ($structure['engine'] !== 'InnoDB') {
 				Db::$db->query(
-					'',
 					'ALTER TABLE {raw:table}
 					ENGINE {literal:InnoDB}
 					ROW_FORMAT=DYNAMIC',
@@ -178,7 +177,6 @@ class Table
 				);
 			} elseif ($structure['row_format'] !== 'Dynamic') {
 				Db::$db->query(
-					'',
 					'ALTER TABLE {raw:table}
 					ROW_FORMAT=DYNAMIC',
 					[
@@ -246,7 +244,6 @@ class Table
 		// Special case if the table has a primary key index, but shouldn't.
 		if (isset($structure['indexes']['primary']) && !isset($this->indexes['primary'])) {
 			Db::$db->query(
-				'',
 				'ALTER TABLE {raw:table}
 				DROP PRIMARY KEY',
 				[

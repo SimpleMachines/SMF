@@ -39,7 +39,6 @@ class PermissionChanges extends MigrationBase
 	public function execute(): bool
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}permissions
 			WHERE permission IN ({array_string:perms})',
 			[

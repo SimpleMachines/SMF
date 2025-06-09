@@ -128,7 +128,6 @@ class Utf8EntityDecode extends BackgroundTask
 		while (microtime(true) < TIME_START + $time_limit) {
 			// Fetch the rows.
 			$request = Db::$db->query(
-				'',
 				'SELECT {raw:columns}
 				FROM {identifier:table}
 				ORDER BY {raw:order_by}
@@ -226,7 +225,6 @@ class Utf8EntityDecode extends BackgroundTask
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {identifier:table}
 			SET ' . implode(', ', $set) . '
 			WHERE (' . implode(') AND (', $where) . ')',
@@ -272,7 +270,6 @@ class Utf8EntityDecode extends BackgroundTask
 
 			if ($added) {
 				Db::$db->query(
-					'',
 					'UPDATE {identifier:table}
 					SET {identifier:hash_col} = SHA1({identifier:col})',
 					[

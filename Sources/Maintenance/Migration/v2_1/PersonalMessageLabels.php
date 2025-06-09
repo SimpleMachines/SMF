@@ -119,7 +119,6 @@ class PersonalMessageLabels extends MigrationBase
 
 				// Pull the label info
 				$get_labels = Db::$db->query(
-					'',
 					'SELECT id_member, message_labels
 					FROM {db_prefix}members
 					WHERE message_labels != {string:blank}
@@ -173,7 +172,6 @@ class PersonalMessageLabels extends MigrationBase
 
 				// This is the easy part - update the inbox stuff
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}pm_recipients
 					SET in_inbox = {int:in_inbox}
 					WHERE FIND_IN_SET({int:minusone}, labels)
@@ -187,7 +185,6 @@ class PersonalMessageLabels extends MigrationBase
 
 				// Now we go pull the new IDs for each label
 				$get_new_label_ids = Db::$db->query(
-					'',
 					'SELECT *
 					FROM {db_prefix}pm_labels
 					WHERE id_member IN ({array_int:member_list})',
@@ -209,7 +206,6 @@ class PersonalMessageLabels extends MigrationBase
 				// Pull label info from pm_recipients
 				// Ignore any that are only in the inbox
 				$get_pm_labels = Db::$db->query(
-					'',
 					'SELECT id_pm, id_member, labels
 					FROM {db_prefix}pm_recipients
 					WHERE deleted = {int:not_deleted}
@@ -253,7 +249,6 @@ class PersonalMessageLabels extends MigrationBase
 
 				// Final step of this ridiculously massive process
 				$get_pm_rules = Db::$db->query(
-					'',
 					'SELECT id_member, id_rule, actions
 					FROM {db_prefix}pm_rules
 					WHERE id_member IN ({array_int:member_list})',
@@ -283,7 +278,6 @@ class PersonalMessageLabels extends MigrationBase
 						$actions = serialize($actions);
 
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}pm_rules
 							SET actions = {string:actions}
 							WHERE id_rule = {int:id_rule}',
@@ -297,7 +291,6 @@ class PersonalMessageLabels extends MigrationBase
 
 				// Remove processed pm labels, to avoid duplicated data if upgrader is restarted.
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}members
 					SET message_labels = {string:blank}
 					WHERE id_member IN ({array_int:member_list})',

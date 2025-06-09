@@ -382,7 +382,6 @@ class Membergroups implements ActionInterface
 				// Only do this if they have special access requirements.
 				if (!empty($changed_boards[$board_action])) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}boards
 						SET {raw:column} = CASE WHEN {raw:column} = {string:blank_string} THEN {string:group_id_string} ELSE CONCAT({raw:column}, {string:comma_group}) END
 						WHERE id_board IN ({array_int:board_list})',
@@ -396,7 +395,6 @@ class Membergroups implements ActionInterface
 					);
 
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}board_permissions_view
 						WHERE id_board IN ({array_int:board_list})
 							AND id_group = {int:group_id}
@@ -460,7 +458,6 @@ class Membergroups implements ActionInterface
 		Utils::$context['categories'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -649,7 +646,6 @@ class Membergroups implements ActionInterface
 
 			// Let's check whether our "show group membership" setting is correct.
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}membergroups
 				WHERE group_type > {int:non_joinable}',
@@ -700,7 +696,6 @@ class Membergroups implements ActionInterface
 		if ($group->id == Group::GLOBAL_MOD || $group->id >= Group::NEWBIE) {
 			Utils::$context['categories'] = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_cat, c.name as cat_name, b.id_board, b.name, b.child_level,
 				FIND_IN_SET({string:current_group}, b.member_groups) != 0 AS can_access, FIND_IN_SET({string:current_group}, b.deny_member_groups) != 0 AS cannot_access
 				FROM {db_prefix}boards AS b

@@ -39,13 +39,11 @@ class SearchResultsPrimaryKey extends MigrationBase
 	public function execute(): bool
 	{
 		Db::$db->query(
-			'',
 			'ALTER TABLE {db_prefix}log_search_results DROP PRIMARY KEY',
 			[],
 		);
 
 		Db::$db->query(
-			'',
 			'ALTER TABLE {db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg)',
 			[],
 		);

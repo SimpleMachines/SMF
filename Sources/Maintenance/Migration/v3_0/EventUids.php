@@ -42,7 +42,6 @@ class EventUids extends MigrationBase
 		$calendar_updates = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_event, uid
 			FROM {db_prefix}calendar',
 			[],
@@ -58,7 +57,6 @@ class EventUids extends MigrationBase
 
 		foreach ($calendar_updates as $calendar_update) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}calendar
 				SET uid = {string:uid}
 				WHERE id_event = {int:id_event}',

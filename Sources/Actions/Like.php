@@ -330,7 +330,6 @@ class Like implements ActionInterface, Routable
 			// is quite easy to do for messages - and we'll get the topic ID
 			// while we're at it, because we need it later for other things.
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_topic, m.id_member
 				FROM {db_prefix}messages AS m
 				WHERE {query_see_message_board}
@@ -427,7 +426,6 @@ class Like implements ActionInterface, Routable
 	protected function delete(): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
 				AND content_type = {string:like_type}
@@ -546,7 +544,6 @@ class Like implements ActionInterface, Routable
 	protected function count(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
@@ -582,7 +579,6 @@ class Like implements ActionInterface, Routable
 
 		// Do we already like this?
 		$request = Db::$db->query(
-			'',
 			'SELECT content_id, content_type, id_member
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}
@@ -610,7 +606,6 @@ class Like implements ActionInterface, Routable
 		// Update the likes count for messages.
 		if ($this->type == 'msg') {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET likes = {int:num_likes}
 				WHERE id_msg = {int:id_msg}',
@@ -666,7 +661,6 @@ class Like implements ActionInterface, Routable
 		Utils::$context['likers'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, like_time
 			FROM {db_prefix}user_likes
 			WHERE content_id = {int:like_content}

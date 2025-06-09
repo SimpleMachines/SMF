@@ -27,13 +27,13 @@ interface DatabaseApiInterface
 	/**
 	 * Performs a query. Takes care of errors too.
 	 *
-	 * @param string $identifier An identifier. Only used in PostgreSQL.
 	 * @param string $db_string The database string
 	 * @param array $db_values = array() The values to be inserted into the string
 	 * @param null|object $connection = null The connection to use (null to use $db_connection)
+	 * @param null|string $identifier An identifier. Only used in PostgreSQL.
 	 * @return object|bool Returns a query result resource (for SELECT queries), true (for UPDATE queries) or false if the query failed.
 	 */
-	public function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool;
+	public function query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool;
 
 	/**
 	 * Prepares a query string for execution, but does not perform the query.
@@ -406,13 +406,13 @@ interface DatabaseApiInterface
 	/**
 	 * Returns the correct query for this search type.
 	 *
-	 * @param string $identifier A query identifier
 	 * @param string $db_string The query text
 	 * @param array $db_values An array of values to pass to $this->query()
 	 * @param null|object $connection The current DB connection resource
+	 * @param null|string $identifier A query identifier
 	 * @return resource The query result resource from $this->query()
 	 */
-	public function search_query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool;
+	public function search_query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool;
 
 	/**
 	 * This function will tell you whether this database type supports this search type.

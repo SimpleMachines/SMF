@@ -69,7 +69,6 @@ class JavaScriptModify implements ActionInterface, Routable
 	{
 		// Assume the first message if no message ID was given.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				t.locked, t.num_replies, t.id_member_started, t.id_first_msg,
 				m.id_msg, m.id_member, m.poster_time, m.subject, m.smileys_enabled, m.body, m.icon,
@@ -275,7 +274,6 @@ class JavaScriptModify implements ActionInterface, Routable
 				}
 
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}messages
 					SET subject = {string:subject}
 					WHERE id_topic = {int:current_topic}

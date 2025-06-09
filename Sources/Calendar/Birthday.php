@@ -333,7 +333,6 @@ class Birthday extends Event
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}members AS m' . (empty($joins) ? '' : '

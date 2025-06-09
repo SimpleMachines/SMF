@@ -196,7 +196,6 @@ class Rule implements \ArrayAccess
 			self::$loaded[$this->id] = $this;
 		} else {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}pm_rules
 				SET
 					rule_name = {string:rule_name},
@@ -238,7 +237,6 @@ class Rule implements \ArrayAccess
 		Utils::$context['rules'] = &self::$loaded;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				id_rule, rule_name, criteria, actions, delete_pm, is_or
 			FROM {db_prefix}pm_rules
@@ -292,7 +290,6 @@ class Rule implements \ArrayAccess
 		$actions = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				pmr.id_pm, pm.id_member_from, pm.subject, pm.body, mem.id_group
 			FROM {db_prefix}pm_recipients AS pmr
@@ -380,7 +377,6 @@ class Rule implements \ArrayAccess
 
 				if (!empty(Theme::$current->options['pm_remove_inbox_label'])) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}pm_recipients
 						SET in_inbox = {int:in_inbox}
 						WHERE id_pm = {int:id_pm}
@@ -425,7 +421,6 @@ class Rule implements \ArrayAccess
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}pm_rules
 			WHERE id_rule IN ({array_int:delete_list})
 				AND id_member = {int:me}',
@@ -505,7 +500,6 @@ class Rule implements \ArrayAccess
 
 				if (!empty($members)) {
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member, member_name
 						FROM {db_prefix}members
 						WHERE id_member IN ({array_int:member_list})',
@@ -569,7 +563,6 @@ class Rule implements \ArrayAccess
 					$name = trim($_POST['ruledef'][$ind]);
 
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member
 						FROM {db_prefix}members
 						WHERE real_name = {string:member_name}

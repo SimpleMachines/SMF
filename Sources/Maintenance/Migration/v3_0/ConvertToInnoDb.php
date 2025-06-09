@@ -49,7 +49,6 @@ class ConvertToInnoDb extends MigrationBase
 
 			if ($structure['engine'] !== 'InnoDB') {
 				Db::$db->query(
-					'',
 					'ALTER TABLE {identifier:table}
 					ENGINE {literal:InnoDB}
 					ROW_FORMAT=DYNAMIC',
@@ -59,7 +58,6 @@ class ConvertToInnoDb extends MigrationBase
 				);
 			} elseif ($structure['row_format'] !== 'Dynamic') {
 				Db::$db->query(
-					'',
 					'ALTER TABLE {identifier:table}
 					ROW_FORMAT=DYNAMIC',
 					[
@@ -71,7 +69,6 @@ class ConvertToInnoDb extends MigrationBase
 
 		// Try to ensure all future tables use dynamic row format.
 		Db::$db->query(
-			'',
 			'SET GLOBAL innodb_default_row_format=DYNAMIC',
 			[
 				'db_error_skip' => true,

@@ -578,7 +578,6 @@ class Maintenance
 	{
 		// Load the modSettings data...
 		$request = Db::$db->query(
-			'',
 			'SELECT variable, value
 			FROM {db_prefix}settings',
 			[
@@ -608,7 +607,6 @@ class Maintenance
 		// This only exists if we're on SMF ;)
 		if (isset(Config::$modSettings['smfVersion'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT variable, value
 				FROM {db_prefix}themes
 				WHERE id_theme = {int:id_theme}
@@ -664,7 +662,6 @@ class Maintenance
 		$id = 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, member_name, passwd, id_group, additional_groups, lngfile
 			FROM {db_prefix}members
 			WHERE member_name = {string:member_name}',
@@ -704,7 +701,6 @@ class Maintenance
 			// We have a valid login.
 			if ($id > 0 && !in_array(1, $groups)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT permission
 					FROM {db_prefix}permissions
 					WHERE id_group IN ({array_int:groups})

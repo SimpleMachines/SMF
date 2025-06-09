@@ -140,7 +140,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
+	public function query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool
 	{
 		// Decide which connection to use.
 		$connection = $connection ?? $this->connection;
@@ -162,7 +162,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			],
 		];
 
-		if (isset($replacements[$identifier])) {
+		if ($identifier !== null && isset($replacements[$identifier])) {
 			$db_string = preg_replace(array_keys($replacements[$identifier]), array_values($replacements[$identifier]), $db_string);
 		}
 
@@ -267,7 +267,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Set optimize stuff
-		if (isset($query_opt[$identifier])) {
+		if ($identifier !== null && isset($query_opt[$identifier])) {
 			$query_hints = $query_opt[$identifier];
 			$query_hints_set = '';
 
@@ -498,7 +498,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			// Do the insert.
 			$request = $this->query(
-				'',
 				'INSERT INTO ' . $table . '("' . implode('", "', $indexed_columns) . '")
 				VALUES
 					' . implode(',
@@ -551,7 +550,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Try get the last ID for the auto increment field.
 		$request = $this->query(
-			'',
 			'SELECT CURRVAL(\'' . $table . '_seq\') AS insertID',
 			[],
 		);
@@ -597,7 +595,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$set = preg_replace('~\b' . $table['alias'] . '\.\b~', '', $set);
 
 		return $this->query(
-			'',
 			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
 			SET ' . $set . '
 			FROM ' . implode(', ', $from) . (!empty($where) ? '
@@ -892,7 +889,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// PostgreSQL uses one character set per database. So sane and simple.
 		if (!isset($detected)) {
 			$request = $this->query(
-				'',
 				'SHOW SERVER_ENCODING;',
 				[],
 			);
@@ -926,7 +922,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		if (!empty($tables)) {
 			$this->query(
-				'',
 				'DROP TABLE {raw:backup_table}',
 				[
 					'backup_table' => $backup_table,
@@ -938,7 +933,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		 * @todo Should we create backups of sequences as well?
 		 */
 		$result = $this->query(
-			'',
 			'CREATE TABLE {raw:backup_table}
 			(
 				LIKE {raw:table}
@@ -951,7 +945,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		);
 
 		$this->query(
-			'',
 			'INSERT INTO {raw:backup_table}
 			SELECT * FROM {raw:table}',
 			[
@@ -973,7 +966,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$pg_tables = ['pg_catalog', 'information_schema'];
 
 		$request = $this->query(
-			'',
 			'SELECT pg_relation_size(C.oid) AS "size"
 			FROM pg_class C
 				LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
@@ -991,7 +983,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$old_size = $row['size'];
 
 		$request = $this->query(
-			'',
 			'VACUUM FULL ANALYZE {raw:table}',
 			[
 				'table' => $table,
@@ -1003,7 +994,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		$request = $this->query(
-			'',
 			'SELECT pg_relation_size(C.oid) AS "size"
 			FROM pg_class C
 				LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
@@ -1045,7 +1035,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Find all the fields.
 		$result = $this->query(
-			'',
 			'SELECT column_name, column_default, is_nullable, data_type, character_maximum_length
 			FROM information_schema.columns
 			WHERE table_name = {string:table}
@@ -1077,7 +1066,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				if (preg_match('~nextval\(\'(.+?)\'(.+?)*\)~i', $row['column_default'], $matches) != 0) {
 					// Get to find the next variable first!
 					$count_req = $this->query(
-						'',
 						'SELECT MAX("{raw:column}")
 						FROM {raw:table}',
 						[
@@ -1100,7 +1088,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$schema_create = substr($schema_create, 0, -strlen($crlf) - 1);
 
 		$result = $this->query(
-			'',
 			'SELECT pg_get_indexdef(i.indexrelid) AS inddef
 			FROM pg_class AS c
 				INNER JOIN pg_index AS i ON (i.indrelid = c.oid)
@@ -1118,7 +1105,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$this->free_result($result);
 
 		$result = $this->query(
-			'',
 			'SELECT pg_get_constraintdef(c.oid) as pkdef
 			FROM pg_constraint as c
 			WHERE c.conrelid::regclass::text = {string:table} AND
@@ -1148,7 +1134,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$tables = [];
 
 		$request = $this->query(
-			'',
 			'SELECT tablename
 			FROM pg_tables
 			WHERE schemaname = {string:schema_public}' . ($filter == false ? '' : '
@@ -1203,7 +1188,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function search_query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
+	public function search_query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool
 	{
 		$replacements = [
 			'create_tmp_log_search_topics' => [
@@ -1238,7 +1223,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			],
 		];
 
-		if (isset($replacements[$identifier])) {
+		if ($identifier !== null && isset($replacements[$identifier])) {
 			$db_string = preg_replace(array_keys($replacements[$identifier]), array_values($replacements[$identifier]), $db_string);
 		}
 
@@ -1260,7 +1245,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		$return = $this->query(
-			'',
 			$db_string,
 			$db_values,
 			$this->connection,
@@ -1287,7 +1271,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$size = 'int';
 
 		$this->query(
-			'',
 			'CREATE TABLE {db_prefix}log_search_words (
 				id_word {raw:size} NOT NULL default {string:string_zero},
 				id_msg int NOT NULL default {string:string_zero},
@@ -1311,7 +1294,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		if (empty($this->language_ftx)) {
 			$request = $this->query(
-				'',
 				'SELECT cfgname FROM pg_ts_config WHERE oid = current_setting({string:default_language})::regconfig',
 				[
 					'default_language' => 'default_text_search_config',
@@ -1379,7 +1361,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Now add the thing!
 		$this->query(
-			'',
 			'ALTER TABLE ' . $short_table_name . '
 			ADD COLUMN ' . $column_info['name'] . ' ' . $type,
 			[
@@ -1450,7 +1431,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// If we're here we know we don't have the index - so just add it.
 		if (!empty($index_info['type']) && $index_info['type'] == 'primary') {
 			$result = $this->query(
-				'',
 				'ALTER TABLE ' . $real_table_name . '
 				ADD PRIMARY KEY (' . $columns . ')',
 				[
@@ -1459,7 +1439,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		} else {
 			$result = $this->query(
-				'',
 				'CREATE ' . (isset($index_info['type']) && $index_info['type'] == 'unique' ? 'UNIQUE' : '') . ' INDEX ' . $real_table_name . '_' . $index_info['name'] . ' ON ' . $real_table_name . ' (' . $columns . ')',
 				[
 					'security_override' => true,
@@ -1595,7 +1574,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Must be done first, in case the default type is inconsistent with the other changes.
 		if ($column_info['drop_default']) {
 			$this->query(
-				'',
 				'ALTER TABLE ' . $short_table_name . '
 				ALTER COLUMN ' . $old_column . ' DROP DEFAULT',
 				[
@@ -1607,7 +1585,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// Now we check each bit individually and ALTER as required.
 		if (isset($column_info['name']) && $column_info['name'] != $old_column) {
 			$this->query(
-				'',
 				'ALTER TABLE ' . $short_table_name . '
 				RENAME COLUMN ' . $old_column . ' TO ' . $column_info['name'],
 				[
@@ -1628,7 +1605,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			// The alter is a pain.
 			$this->transaction('begin');
 			$this->query(
-				'',
 				'ALTER TABLE ' . $short_table_name . '
 				ADD COLUMN ' . $column_info['name'] . '_tempxx ' . $type,
 				[
@@ -1636,7 +1612,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				],
 			);
 			$this->query(
-				'',
 				'UPDATE ' . $short_table_name . '
 				SET ' . $column_info['name'] . '_tempxx = CAST(' . $column_info['name'] . ' AS ' . $type . ')',
 				[
@@ -1644,7 +1619,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				],
 			);
 			$this->query(
-				'',
 				'ALTER TABLE ' . $short_table_name . '
 				DROP COLUMN ' . $column_info['name'],
 				[
@@ -1652,7 +1626,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				],
 			);
 			$this->query(
-				'',
 				'ALTER TABLE ' . $short_table_name . '
 				RENAME COLUMN ' . $column_info['name'] . '_tempxx TO ' . $column_info['name'],
 				[
@@ -1678,7 +1651,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			$action = 'SET DEFAULT ' . $default;
 			$this->query(
-				'',
 				'ALTER TABLE ' . $short_table_name . '
 				ALTER COLUMN ' . $column_info['name'] . ' ' . $action,
 				[
@@ -1696,7 +1668,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		$this->query(
-			'',
 			'ALTER TABLE ' . $short_table_name . '
 			ALTER COLUMN ' . $column_info['name'] . ' ' . $action,
 			[
@@ -1743,7 +1714,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$this->transaction('begin');
 				$db_trans = true;
 				$this->query(
-					'',
 					'ALTER TABLE ' . $short_table_name . ' RENAME TO ' . $short_table_name . '_old',
 					[
 						'security_override' => true,
@@ -1768,7 +1738,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			if (!empty($column['auto'])) {
 				if (!$old_table_exists) {
 					$this->query(
-						'',
 						'DROP SEQUENCE IF EXISTS ' . $short_table_name . '_seq',
 						[
 							'security_override' => true,
@@ -1778,7 +1747,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 				if (!$old_table_exists) {
 					$this->query(
-						'',
 						'CREATE SEQUENCE ' . $short_table_name . '_seq',
 						[
 							'security_override' => true,
@@ -1841,7 +1809,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Create the table!
 		$this->query(
-			'',
 			$table_query,
 			[
 				'security_override' => true,
@@ -1853,7 +1820,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$same_col = [];
 
 			$request = $this->query(
-				'',
 				'SELECT count(*), column_name
 				FROM information_schema.columns
 				WHERE table_name in ({string:table1},{string:table2}) AND table_schema = {string:schema}
@@ -1871,7 +1837,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			$this->query(
-				'',
 				'INSERT INTO ' . $short_table_name . '('
 				. implode(',', $same_col) .
 				')
@@ -1884,7 +1849,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		// And the indexes...
 		foreach ($index_queries as $query) {
 			$this->query(
-				'',
 				$query,
 				[
 					'security_override' => true,
@@ -1935,14 +1899,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			// drop them
 			$this->query(
-				'',
 				$table_query,
 				[
 					'security_override' => true,
 				],
 			);
 			$this->query(
-				'',
 				$sequence_query,
 				[
 					'security_override' => true,
@@ -1983,7 +1945,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		$result = $this->query(
-			'',
 			'SELECT column_name, column_default, is_nullable, data_type, character_maximum_length
 			FROM information_schema.columns
 			WHERE table_schema = {string:schema_public}
@@ -2042,7 +2003,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		$result = $this->query(
-			'',
 			'SELECT CASE WHEN i.indisprimary THEN 1 ELSE 0 END AS is_primary,
 				CASE WHEN i.indisunique THEN 1 ELSE 0 END AS is_unique,
 				c2.relname AS name,
@@ -2110,7 +2070,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				// If there is an auto we need remove it!
 				if ($column['auto']) {
 					$this->query(
-						'',
 						'DROP SEQUENCE IF EXISTS ' . $short_table_name . '_seq',
 						[
 							'security_override' => true,
@@ -2119,7 +2078,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				}
 
 				$this->query(
-					'',
 					'ALTER TABLE ' . $short_table_name . '
 					DROP COLUMN ' . $column_name,
 					[
@@ -2156,7 +2114,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			if ($index['type'] == 'primary' && $index_name == 'primary') {
 				// Dropping primary key?
 				$this->query(
-					'',
 					'ALTER TABLE ' . $real_table_name . '
 					DROP CONSTRAINT ' . $index['name'],
 					[
@@ -2170,7 +2127,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			if ($index['name'] == $index_name) {
 				// Drop the bugger...
 				$this->query(
-					'',
 					'DROP INDEX ' . $real_table_name . '_' . $index_name,
 					[
 						'security_override' => true,
@@ -2256,7 +2212,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	public function checkConfiguration(): bool
 	{
 		$result = Db::$db->query(
-			'',
 			'show standard_conforming_strings',
 			[
 				'db_error_skip' => true,
@@ -2395,7 +2350,6 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Ensure database has UTF-8 as its default input charset.
 		$this->query(
-			'',
 			'SET NAMES {string:db_character_set}',
 			[
 				'db_character_set' => $this->character_set,

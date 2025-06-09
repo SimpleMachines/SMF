@@ -112,9 +112,7 @@ class AgreementUpdate extends MigrationBase
 
 			$extras = [];
 			$request = Db::$db->query(
-				'',
-				'
-				SELECT id_action, extra
+				'SELECT id_action, extra
 					FROM {db_prefix}log_actions
 					WHERE id_member = {int:blank_id}
 					AND action IN ({array_string:target_actions})
@@ -149,9 +147,7 @@ class AgreementUpdate extends MigrationBase
 
 				if (!empty($extra['applicator'])) {
 					$request = Db::$db->query(
-						'',
-						'
-						UPDATE {db_prefix}log_actions
+						'UPDATE {db_prefix}log_actions
 							SET id_member = {int:id_member}
 							WHERE id_action = {int:id_action}',
 						[

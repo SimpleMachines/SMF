@@ -44,7 +44,6 @@ class Likes_Notify extends BackgroundTask
 		// We need to figure out who the owner of this is.
 		if ($this->_details['content_type'] == 'msg') {
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.id_member, mem.id_group, mem.id_post_group, mem.additional_groups, b.member_groups,
 					mem.pm_ignore_list
 				FROM {db_prefix}messages AS m
@@ -110,7 +109,6 @@ class Likes_Notify extends BackgroundTask
 		// Don't spam the alerts: if there is an existing unread alert of the
 		// requested type for the target user from the sender, don't make a new one.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_alert
 			FROM {db_prefix}user_alerts
 			WHERE id_member = {int:id_member}

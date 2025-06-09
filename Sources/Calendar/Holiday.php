@@ -292,7 +292,6 @@ class Holiday extends Event
 	public static function count(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}calendar
 			WHERE type = {int:type}',

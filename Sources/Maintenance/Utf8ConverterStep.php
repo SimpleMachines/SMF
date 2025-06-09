@@ -491,7 +491,7 @@ class Utf8ConverterStep extends Step
 		}
 
 		// Get all the characters sets that are supported by this MySQL server.
-		$request = Db::$db->query('', 'SHOW CHARACTER SET');
+		$request = Db::$db->query('SHOW CHARACTER SET');
 		$this->supported_charsets = array_map(fn($row) => $row['Charset'], Db::$db->fetch_all($request));
 		Db::$db->free_result($request);
 
@@ -857,7 +857,6 @@ class Utf8ConverterStep extends Step
 
 		// Change the table's character set to utf8mb4.
 		$result = Db::$db->query(
-			'',
 			'ALTER TABLE {identifier:table_name}
 			CONVERT TO CHARACTER SET utf8mb4',
 			[
@@ -988,7 +987,6 @@ class Utf8ConverterStep extends Step
 
 			// Convert the characters to UTF-8, using raw bytes.
 			$result = Db::$db->query(
-				'',
 				'UPDATE {identifier:table}
 				SET {identifier:column} = ' . $replace,
 				[

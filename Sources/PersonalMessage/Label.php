@@ -147,7 +147,6 @@ class Label implements \ArrayAccess
 
 			// First get the inbox counts
 			$result = Db::$db->query(
-				'',
 				'SELECT ' . implode(', ', $selects) . '
 				FROM {db_prefix}pm_recipients
 				WHERE id_member = {int:me}
@@ -177,7 +176,6 @@ class Label implements \ArrayAccess
 
 			// Now load info about all the other labels
 			$result = Db::$db->query(
-				'',
 				'SELECT ' . implode(', ', $selects) . '
 				FROM {db_prefix}pm_labels AS l
 					LEFT JOIN {db_prefix}pm_labeled_messages AS pl ON (pl.id_label = l.id_label)
@@ -316,7 +314,6 @@ class Label implements \ArrayAccess
 			if (!empty($label_updates)) {
 				foreach ($label_updates as $id => $name) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}pm_labels
 						SET name = {string:name}
 						WHERE id_label = {int:id_label}
@@ -334,7 +331,6 @@ class Label implements \ArrayAccess
 			if (!empty($labels_to_remove)) {
 				// First delete the labels
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}pm_labels
 					WHERE id_label IN ({array_int:labels_to_delete})
 					AND id_member = {int:me}',
@@ -346,7 +342,6 @@ class Label implements \ArrayAccess
 
 				// Now remove the now-deleted labels from any PMs...
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}pm_labeled_messages
 					WHERE id_label IN ({array_int:labels_to_delete})',
 					[
@@ -358,7 +353,6 @@ class Label implements \ArrayAccess
 				$stranded_messages = [];
 
 				$get_stranded_pms = Db::$db->query(
-					'',
 					'SELECT pmr.id_pm
 					FROM {db_prefix}pm_recipients AS pmr
 						LEFT JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_pm = pmr.id_pm)
@@ -383,7 +377,6 @@ class Label implements \ArrayAccess
 					// We now have more messages in the inbox.
 					Label::$loaded[-1]['messages'] += count($stranded_messages);
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}pm_recipients
 						SET in_inbox = {int:in_inbox}
 						WHERE id_pm IN ({array_int:stranded_messages})
@@ -420,7 +413,6 @@ class Label implements \ArrayAccess
 				foreach ($rule_changes as $k => $id) {
 					if (!empty(Rule::$loaded[$id]->actions)) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}pm_rules
 							SET actions = {string:actions}
 							WHERE id_rule = {int:id_rule}
@@ -438,7 +430,6 @@ class Label implements \ArrayAccess
 				// Anything left here means it's lost all actions...
 				if (!empty($rule_changes)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}pm_rules
 						WHERE id_rule IN ({array_int:rule_list})
 							AND id_member = {int:me}',
