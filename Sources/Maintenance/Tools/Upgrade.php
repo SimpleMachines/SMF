@@ -45,14 +45,30 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 *****************/
 
 	/**
-	 * SMF Version to namespace
+	 * @var array
+	 *
+	 * Indicates which migration steps need to be performed in order to get the
+	 * current version of SMF fully up to date.
+	 *
+	 * Keys are *upper* bounds on the version, and values are step namespaces.
+	 *
+	 * For example, '3.0.99' => 'v3_0' means that if the current version of SMF
+	 * is less than or equal to 3.0.99, run the v3_0 steps.
+	 *
+	 * This is a bit counter-intuitive, since one might think that the steps for
+	 * upgrading to SMF 3.0 should only be run if the current version is less
+	 * that 3.0. However, the upgrader also needs to work for upgrading between
+	 * patch releases (e.g. 3.0.1 --> 3.0.5), so the boundary actually needs to
+	 * be the highest version that the steps could apply to, not the lowest.
 	 */
 	public const VERSION_MAP = [
-		'2.0.99' => 'v2_1',
-		'2.1.99' => 'v3_0',
+		'2.1.99' => 'v2_1',
+		'3.0.99' => 'v3_0',
 	];
 
 	/**
+	 * @var array
+	 *
 	 * Migration substeps to perform, listed in order.
 	 *
 	 * Note that additional substeps will be automatically appended to the list
@@ -164,6 +180,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	];
 
 	/**
+	 * @var array
+	 *
 	 * Cleanups that do not require database maintenance tasks.
 	 */
 	public const CLEANUPS = [
