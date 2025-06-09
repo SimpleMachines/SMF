@@ -877,23 +877,35 @@ class Maintenance implements ActionInterface
 		SecurityToken::validate('admin-maint');
 
 		// No one's online now.... MUHAHAHAHA :P.
-		Db::$db->query('', 'DELETE FROM {db_prefix}log_online');
+		Db::$db->query('DELETE FROM {db_prefix}log_online');
 
 		// Dump the banning logs.
-		Db::$db->query('', 'DELETE FROM {db_prefix}log_banned');
+		Db::$db->query('DELETE FROM {db_prefix}log_banned');
 
 		// Start id_error back at 0 and dump the error log.
-		Db::$db->query('truncate_table', 'TRUNCATE {db_prefix}log_errors');
+		Db::$db->query(
+			'TRUNCATE {db_prefix}log_errors',
+			identifier: 'truncate_table',
+		);
 
 		// Clear out the spam log.
-		Db::$db->query('', 'DELETE FROM {db_prefix}log_floodcontrol');
+		Db::$db->query('DELETE FROM {db_prefix}log_floodcontrol');
 
 		// Last but not least, the search logs!
-		Db::$db->query('truncate_table', 'TRUNCATE {db_prefix}log_search_topics');
+		Db::$db->query(
+			'TRUNCATE {db_prefix}log_search_topics',
+			identifier: 'truncate_table',
+		);
 
-		Db::$db->query('truncate_table', 'TRUNCATE {db_prefix}log_search_messages');
+		Db::$db->query(
+			'TRUNCATE {db_prefix}log_search_messages',
+			identifier: 'truncate_table',
+		);
 
-		Db::$db->query('truncate_table', 'TRUNCATE {db_prefix}log_search_results');
+		Db::$db->query(
+			'TRUNCATE {db_prefix}log_search_results',
+			identifier: 'truncate_table',
+		);
 
 		Config::updateModSettings(['search_pointer' => 0]);
 

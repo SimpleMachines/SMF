@@ -2550,7 +2550,7 @@ function parse_sql($filename)
 
 				// @todo This will be how it kinda does it once mysql all stripped out - needed for postgre (etc).
 				/*
-				$result = Db::$db->query('', $current_data, false, false);
+				$result = Db::$db->query($current_data, false, false);
 				// Went wrong?
 				if (!$result)
 				{
@@ -2599,7 +2599,7 @@ function upgrade_query($string, $unbuffered = false)
 	Db::$unbuffered = $unbuffered;
 	$ignore_insert_error = false;
 
-	$result = Db::$db->query('', $string, ['security_override' => true, 'db_error_skip' => true]);
+	$result = Db::$db->query($string, ['security_override' => true, 'db_error_skip' => true]);
 	Db::$unbuffered = false;
 
 	// Failure?!
@@ -3192,7 +3192,7 @@ function ConvertUtf8(): bool
 	$upcontext['dropping_index'] = $upcontext['dropping_index'] ?? false;
 
 	// Get all the characters sets that are supported by this MySQL server.
-	$request = Db::$db->query('', 'SHOW CHARACTER SET');
+	$request = Db::$db->query('SHOW CHARACTER SET');
 	$supported_charsets = array_map(fn ($row) => $row['Charset'], Db::$db->fetch_all($request));
 	Db::$db->free_result($request);
 
