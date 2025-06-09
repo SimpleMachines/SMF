@@ -2351,11 +2351,11 @@ ADD COLUMN in_inbox TINYINT NOT NULL DEFAULT '1';
 				if ($step_progress['current'] >= $maxMembers)
 					$is_done = true;
 			}
-
-			// Lastly, we drop the old columns
-			$smcFunc['db_remove_column']('{db_prefix}members', 'message_labels');
-			$smcFunc['db_remove_column']('{db_prefix}pm_recipients', 'labels');
 		}
+
+		// Lastly, we drop the old columns
+		$smcFunc['db_remove_column']('{db_prefix}members', 'message_labels');
+		$smcFunc['db_remove_column']('{db_prefix}pm_recipients', 'labels');
 	}
 	unset($_GET['a']);
 ---}
