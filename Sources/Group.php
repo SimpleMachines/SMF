@@ -346,7 +346,6 @@ class Group implements \ArrayAccess
 	{
 		if (isset($id) && $id > self::REGULAR && empty($props)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT *
 				FROM {db_prefix}membergroups
 				WHERE id_group = {int:id}
@@ -503,7 +502,6 @@ class Group implements \ArrayAccess
 			];
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}membergroups
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_group = {int:id}',
@@ -522,7 +520,6 @@ class Group implements \ArrayAccess
 			sort($this->moderator_ids);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}group_moderators
 				WHERE id_group = {int:current_group}',
 				[
@@ -600,7 +597,6 @@ class Group implements \ArrayAccess
 		$subscriptions = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT name
 			FROM {db_prefix}subscriptions
 			WHERE id_group = {int:this_group}
@@ -634,7 +630,6 @@ class Group implements \ArrayAccess
 
 		// Remove the group itself.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}membergroups
 			WHERE id_group = {int:this_group}',
 			[
@@ -644,7 +639,6 @@ class Group implements \ArrayAccess
 
 		// Remove the permissions of the groups.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}permissions
 			WHERE id_group = {int:this_group}',
 			[
@@ -653,7 +647,6 @@ class Group implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}board_permissions
 			WHERE id_group = {int:this_group}',
 			[
@@ -662,7 +655,6 @@ class Group implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}group_moderators
 			WHERE id_group = {int:this_group}',
 			[
@@ -671,7 +663,6 @@ class Group implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}moderator_groups
 			WHERE id_group = {int:this_group}',
 			[
@@ -681,7 +672,6 @@ class Group implements \ArrayAccess
 
 		// Delete any outstanding requests.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_group_requests
 			WHERE id_group = {int:this_group}',
 			[
@@ -691,7 +681,6 @@ class Group implements \ArrayAccess
 
 		// Update the primary groups of members.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}members
 			SET id_group = {int:regular_group}
 			WHERE id_group = {int:this_group}',
@@ -703,7 +692,6 @@ class Group implements \ArrayAccess
 
 		// Update any inherited groups (Lose inheritance).
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}membergroups
 			SET id_parent = {int:uninherited}
 			WHERE id_parent = {int:this_group}',
@@ -717,7 +705,6 @@ class Group implements \ArrayAccess
 		$updates = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, additional_groups
 			FROM {db_prefix}members
 			WHERE FIND_IN_SET({int:this_group}, additional_groups) != 0',
@@ -739,7 +726,6 @@ class Group implements \ArrayAccess
 		$updates = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board, member_groups
 			FROM {db_prefix}boards
 			WHERE FIND_IN_SET({int:this_group}, member_groups) != 0',
@@ -755,7 +741,6 @@ class Group implements \ArrayAccess
 
 		foreach ($updates as $member_groups => $board_array) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET member_groups = {string:member_groups}
 				WHERE id_board IN ({array_int:board_lists})',
@@ -801,7 +786,6 @@ class Group implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board
 			FROM {db_prefix}moderator_groups
 			WHERE id_group = {int:current_group}',
@@ -867,7 +851,6 @@ class Group implements \ArrayAccess
 			// Outside a board, get the moderators for all boards.
 			else {
 				$request = Db::$db->query(
-					'',
 					'SELECT DISTINCT id_member
 					FROM {db_prefix}moderators',
 					[],
@@ -882,7 +865,6 @@ class Group implements \ArrayAccess
 		// Post-count based groups.
 		elseif ($this->min_posts > -1) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE id_post_group = {int:group}',
@@ -902,7 +884,6 @@ class Group implements \ArrayAccess
 
 			if ($this->can_moderate) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE id_group = {int:group}
@@ -922,7 +903,6 @@ class Group implements \ArrayAccess
 				Db::$db->free_result($request);
 			} else {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE id_group = {int:group}',
@@ -1248,7 +1228,6 @@ class Group implements \ArrayAccess
 		if (!empty($remove_primary)) {
 			// Remove in database.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET id_group = {int:regular_member}
 				WHERE id_group = {int:group}
@@ -1274,7 +1253,6 @@ class Group implements \ArrayAccess
 			foreach ($remove_additional as $member) {
 				// Remove in database.
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}members
 					SET additional_groups = {string:additional_groups}
 					WHERE id_member = {int:member}',
@@ -1320,7 +1298,6 @@ class Group implements \ArrayAccess
 		if ($this->min_posts > -1 || $this->id === self::MOD) {
 			// Can't be primary groups.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET id_group = {int:regular_member}
 				WHERE id_group = {int:current_group}',
@@ -1334,7 +1311,6 @@ class Group implements \ArrayAccess
 			$updates = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, additional_groups
 				FROM {db_prefix}members
 				WHERE FIND_IN_SET({string:current_group}, additional_groups) != 0',
@@ -1354,7 +1330,6 @@ class Group implements \ArrayAccess
 
 			// Post-count based groups can't be moderator groups, and the main moderator group already is one.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}moderator_groups
 				WHERE id_group = {int:current_group}',
 				[
@@ -1367,7 +1342,6 @@ class Group implements \ArrayAccess
 			$updates = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, additional_groups
 				FROM {db_prefix}members
 				WHERE id_group = {int:current_group}
@@ -1389,7 +1363,6 @@ class Group implements \ArrayAccess
 			}
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET id_group = {int:regular_member}
 				WHERE id_group = {int:current_group}',
@@ -1401,7 +1374,6 @@ class Group implements \ArrayAccess
 
 			// Hidden groups can't moderate boards
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}moderator_groups
 				WHERE id_group = {int:current_group}',
 				[
@@ -1433,7 +1405,6 @@ class Group implements \ArrayAccess
 		$params = ['this_group' => $this->id];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE id_parent = {int:this_group}',
@@ -1615,7 +1586,6 @@ class Group implements \ArrayAccess
 		$inserts = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT permission, add_deny
 			FROM {db_prefix}permissions
 			WHERE id_group = {int:copy_from}',
@@ -1646,7 +1616,6 @@ class Group implements \ArrayAccess
 		$inserts = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_profile, permission, add_deny
 			FROM {db_prefix}board_permissions
 			WHERE id_group = {int:copy_from}',
@@ -1726,7 +1695,6 @@ class Group implements \ArrayAccess
 
 		// Reset the group's existing access permissions.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}board_permissions_view
 			WHERE id_group = {int:this_group}',
 			[
@@ -1985,7 +1953,6 @@ class Group implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, id_member
 			FROM {db_prefix}group_moderators
 			WHERE id_group IN ({array_int:groups})',
@@ -2070,7 +2037,6 @@ class Group implements \ArrayAccess
 			// Outside a board, count the moderators for all boards.
 			else {
 				$request = Db::$db->query(
-					'',
 					'SELECT COUNT(DISTINCT id_member)
 					FROM {db_prefix}moderators
 					LIMIT 1',
@@ -2085,7 +2051,6 @@ class Group implements \ArrayAccess
 		// Post-count based groups.
 		if (!empty($post_groups)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_post_group, COUNT(*) AS num_members
 				FROM {db_prefix}members
 				WHERE id_post_group IN ({array_int:group_list})
@@ -2104,7 +2069,6 @@ class Group implements \ArrayAccess
 		// Regular groups.
 		if (!empty($regular_groups)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_group, COUNT(*) AS num_members
 				FROM {db_prefix}members
 				WHERE id_group IN ({array_int:group_list})
@@ -2132,7 +2096,6 @@ class Group implements \ArrayAccess
 
 			if (!empty($groups_can_moderate)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT mg.id_group, COUNT(*) AS num_members
 					FROM {db_prefix}membergroups AS mg
 						INNER JOIN {db_prefix}members AS mem ON (
@@ -2186,7 +2149,6 @@ class Group implements \ArrayAccess
 			];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_group
 				FROM {db_prefix}membergroups',
 				[],
@@ -2299,7 +2261,6 @@ class Group implements \ArrayAccess
 
 		// Now query the database to find any that haven't been loaded.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, min_posts
 			FROM {db_prefix}membergroups
 			WHERE id_group NOT IN ({array_int:known_post_groups})
@@ -2338,7 +2299,6 @@ class Group implements \ArrayAccess
 			self::$unassignable = [self::GUEST];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_group
 				FROM {db_prefix}membergroups
 				WHERE min_posts > -1',
@@ -2358,7 +2318,6 @@ class Group implements \ArrayAccess
 
 		// Find any other groups that are designated as protected.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group
 			FROM {db_prefix}membergroups
 			WHERE group_type IN ({array_int:is_protected})
@@ -2383,7 +2342,6 @@ class Group implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group
 			FROM {db_prefix}permissions
 			WHERE permission IN ({array_string:protected})
@@ -2721,7 +2679,6 @@ class Group implements \ArrayAccess
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}membergroups AS mg' . (empty($joins) ? '' : '

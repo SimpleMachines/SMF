@@ -241,7 +241,6 @@ class Reports implements ActionInterface
 		Utils::$context['themes'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'
 			SELECT id_theme, value
 			FROM {db_prefix}themes

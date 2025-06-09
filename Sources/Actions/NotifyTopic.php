@@ -84,7 +84,6 @@ class NotifyTopic extends Notify
 		$this->setAlertPref();
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, id_topic, id_msg, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_member = {int:member}

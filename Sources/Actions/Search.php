@@ -170,7 +170,6 @@ class Search implements ActionInterface, Routable
 
 		// Find all the boards this user is allowed to see.
 		$request = Db::$db->query(
-			'order_by_board_order',
 			'SELECT b.id_cat, c.name AS cat_name, b.id_board, b.name, b.child_level
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -179,6 +178,7 @@ class Search implements ActionInterface, Routable
 			[
 				'empty_string' => '',
 			],
+			identifier: 'order_by_board_order',
 		);
 		Utils::$context['num_boards'] = Db::$db->num_rows($request);
 		Utils::$context['boards_check_all'] = true;
@@ -268,7 +268,6 @@ class Search implements ActionInterface, Routable
 			];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT subject
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)

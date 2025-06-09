@@ -149,7 +149,6 @@ class Export implements ActionInterface
 			// If requested by the user, delete any existing export files and background tasks.
 			if (isset($_POST['delete'], $_POST['format'])   && $_POST['format'] === $format && isset($_POST['t']) && $_POST['t'] === $dltoken) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}background_tasks
 					WHERE task_class = {string:class}
 						AND task_data LIKE {string:details}',
@@ -497,7 +496,6 @@ class Export implements ActionInterface
 					$query_this_board = !empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? 'b.id_board != ' . Config::$modSettings['recycle_board'] : '1=1';
 
 					$request = Db::$db->query(
-						'',
 						'SELECT m.id_msg
 						FROM {db_prefix}messages as m
 							INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board)
@@ -541,7 +539,6 @@ class Export implements ActionInterface
 					}
 
 					$request = Db::$db->query(
-						'',
 						'SELECT COUNT(*)
 						FROM {db_prefix}personal_messages AS pm
 							INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)
@@ -565,7 +562,6 @@ class Export implements ActionInterface
 					}
 
 					$request = Db::$db->query(
-						'',
 						'SELECT pm.id_pm
 						FROM {db_prefix}personal_messages AS pm
 							INNER JOIN {db_prefix}pm_recipients AS pmr ON (pm.id_pm = pmr.id_pm)

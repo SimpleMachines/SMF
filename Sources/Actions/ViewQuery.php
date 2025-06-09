@@ -161,7 +161,7 @@ class ViewQuery implements ActionInterface, Routable
 
 			// Explain the query.
 			if ($query_id == $q && $is_select_query) {
-				$result = Db::$db->query('', 'EXPLAIN ' . $select);
+				$result = Db::$db->query('EXPLAIN ' . $select);
 
 				if ($result === false) {
 					echo '
@@ -200,10 +200,9 @@ class ViewQuery implements ActionInterface, Routable
 			$vendor = Db::$db->get_vendor();
 
 			if ($vendor == 'MariaDB') {
-				$result = Db::$db->query('', 'ANALYZE FORMAT=JSON ' . $select);
+				$result = Db::$db->query('ANALYZE FORMAT=JSON ' . $select);
 			} else {
 				$result = Db::$db->query(
-					'',
 					'EXPLAIN ' . ($vendor == 'PostgreSQL' ? '(ANALYZE, FORMAT JSON) ' : 'ANALYZE FORMAT=JSON ') . $select,
 				);
 			}

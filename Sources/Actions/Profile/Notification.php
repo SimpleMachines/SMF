@@ -815,7 +815,6 @@ class Notification implements ActionInterface
 			$_POST['notify_boards'] = array_diff($_POST['notify_boards'], [0]);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_notify
 				WHERE id_board IN ({array_int:board_list})
 					AND id_member = {int:selected_member}',
@@ -836,7 +835,6 @@ class Notification implements ActionInterface
 			$_POST['notify_topics'] = array_filter($_POST['notify_topics']);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_notify
 				WHERE id_topic IN ({array_int:topic_list})
 					AND id_member = {int:selected_member}',
@@ -886,7 +884,6 @@ class Notification implements ActionInterface
 	public static function list_getTopicNotificationCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_notify AS ln' . (!Config::$modSettings['postmod_active'] && User::$me->query_see_board === '1=1' ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . '
@@ -921,7 +918,6 @@ class Notification implements ActionInterface
 		$notification_topics = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, b.id_board, b.name,
 				t.id_topic, ms.subject, ms.id_member, COALESCE(mem.real_name, ms.poster_name) AS real_name_col,
@@ -991,7 +987,6 @@ class Notification implements ActionInterface
 		$notification_boards = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_board, b.name, COALESCE(lb.id_msg, 0) AS board_read, b.id_msg_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board)

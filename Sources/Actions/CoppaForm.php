@@ -57,7 +57,6 @@ class CoppaForm implements ActionInterface, Routable
 
 		// Get the user details...
 		$request = Db::$db->query(
-			'',
 			'SELECT member_name
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}

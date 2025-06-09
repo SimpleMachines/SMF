@@ -275,7 +275,6 @@ class Permissions implements ActionInterface
 			if (!empty($changes)) {
 				foreach ($changes as $profile => $boards) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}boards
 						SET id_profile = {int:current_profile}
 						WHERE id_board IN ({array_int:board_list})',
@@ -509,7 +508,6 @@ class Permissions implements ActionInterface
 			// Clear all deny permissions... if we want that.
 			if (empty(Config::$modSettings['permission_enable_deny'])) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}permissions
 					WHERE add_deny = {int:denied}',
 					[
@@ -517,7 +515,6 @@ class Permissions implements ActionInterface
 					],
 				);
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}board_permissions
 					WHERE add_deny = {int:denied}',
 					[
@@ -532,7 +529,6 @@ class Permissions implements ActionInterface
 				$post_groups = [];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT id_group
 					FROM {db_prefix}membergroups
 					WHERE min_posts != {int:min_posts}',
@@ -548,7 +544,6 @@ class Permissions implements ActionInterface
 
 				// Remove'em.
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}permissions
 					WHERE id_group IN ({array_int:post_group_list})',
 					[
@@ -557,7 +552,6 @@ class Permissions implements ActionInterface
 				);
 
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}board_permissions
 					WHERE id_group IN ({array_int:post_group_list})',
 					[
@@ -566,7 +560,6 @@ class Permissions implements ActionInterface
 				);
 
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}membergroups
 					SET id_parent = {int:not_inherited}
 					WHERE id_parent IN ({array_int:post_group_list})',
@@ -1367,7 +1360,6 @@ class Permissions implements ActionInterface
 
 			default:
 				$result = Db::$db->query(
-					'',
 					'SELECT group_name, id_parent
 					FROM {db_prefix}membergroups
 					WHERE id_group = {int:current_group}
@@ -1402,7 +1394,6 @@ class Permissions implements ActionInterface
 		if (Utils::$context['group']['id'] == Group::MOD && empty(Utils::$context['profile']['id'])) {
 			// For sanity just check they have no general permissions.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}permissions
 				WHERE id_group = {int:moderator_group}',
 				[

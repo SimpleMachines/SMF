@@ -78,7 +78,6 @@ class TopicPrint implements ActionInterface, Routable
 
 		// Get the topic starter information.
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member, m.poster_time, COALESCE(mem.real_name, m.poster_name) AS poster_name, t.id_poll
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -118,7 +117,6 @@ class TopicPrint implements ActionInterface, Routable
 
 		// Split the topics up so we can print them.
 		$request = Db::$db->query(
-			'',
 			'SELECT subject, poster_time, body, COALESCE(mem.real_name, poster_name) AS poster_name, id_msg
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -165,7 +163,6 @@ class TopicPrint implements ActionInterface, Routable
 
 			// build the request
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					a.id_attach, a.id_msg, a.approved, a.width, a.height, a.file_hash, a.filename, a.id_folder, a.mime_type
 				FROM {db_prefix}attachments AS a

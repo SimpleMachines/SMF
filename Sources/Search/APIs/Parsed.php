@@ -190,7 +190,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT (
 					pg_total_relation_size({string:dictionary})
 					+ pg_total_relation_size({string:parsed})
@@ -208,7 +207,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 			Db::$db->free_result($request);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT (data_length + index_length) AS size
 				FROM information_schema.TABLES
 				WHERE table_schema = {string:db_name}
@@ -313,7 +311,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT sd.word, si.id_msg, si.wordnums
 			FROM {db_prefix}log_search_dictionary AS sd
 				INNER JOIN {db_prefix}log_search_parsed AS si ON (sd.id_word = si.id_word)
@@ -473,7 +470,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 		// Returning this query is the purpose of the method.
 		return Db::$db->search_query(
-			'insert_into_log_messages_parsed',
 			'INSERT IGNORE INTO {db_prefix}' . $search_data['insert_into'] . '
 				(' . implode(', ', array_keys($query_select)) . ')' . '
 			SELECT ' . implode(', ', $query_select) . '
@@ -482,6 +478,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				AND ', $query_where) . (empty($search_data['max_results']) ? '' : '
 			LIMIT ' . ($search_data['max_results'] - $search_data['indexed_results'])),
 			$query_params,
+			identifier: 'insert_into_log_messages_parsed',
 		);
 	}
 
@@ -758,7 +755,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT d.word
 			FROM {db_prefix}log_search_parsed AS p
 				INNER JOIN {db_prefix}log_search_dictionary AS d ON (p.id_word = d.id_word)
@@ -951,7 +947,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 			foreach ($msg_data as $msg => $wordnums) {
 				if (!is_array($wordnums)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}log_search_parsed
 						WHERE id_word = {int:word} AND id_msg = {int:msg}',
 						[
@@ -967,7 +962,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 
 				// If this word + message combo already exists, update it.
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}log_search_parsed
 					SET wordnums = {string:wordnums}
 					WHERE id_word = {int:word} AND id_msg = {int:msg}',
@@ -1259,7 +1253,6 @@ class Parsed extends SearchApi implements SearchApiInterface
 		} else {
 			// MySQL needs more work...
 			$request = Db::$db->query(
-				'',
 				'SELECT COLLATION_NAME
 				FROM information_schema.columns
 				WHERE TABLE_SCHEMA = {string:db_name}

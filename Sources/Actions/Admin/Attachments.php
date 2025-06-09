@@ -481,7 +481,6 @@ class Attachments implements ActionInterface
 
 		// Get the number of attachments....
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}attachments
 			WHERE attachment_type = {int:attachment_type}
@@ -497,7 +496,6 @@ class Attachments implements ActionInterface
 
 		// Also get the avatar amount....
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}attachments
 			WHERE id_member != {int:guest_id_member}',
@@ -511,7 +509,6 @@ class Attachments implements ActionInterface
 
 		// Check the size of all the directories.
 		$request = Db::$db->query(
-			'',
 			'SELECT SUM(size)
 			FROM {db_prefix}attachments
 			WHERE attachment_type != {int:type}',
@@ -527,7 +524,6 @@ class Attachments implements ActionInterface
 		Utils::$context['attachment_total_size'] = Lang::numberFormat((int) $attachmentDirSize, 2);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*), SUM(size)
 			FROM {db_prefix}attachments
 			WHERE id_folder = {int:folder_id}
@@ -598,7 +594,6 @@ class Attachments implements ActionInterface
 				// And change the message to reflect this.
 				if (!empty($messages)) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}messages
 						SET body = CONCAT(body, {string:deleted_message})
 						WHERE id_msg IN ({array_int:messages_affected})',
@@ -637,7 +632,6 @@ class Attachments implements ActionInterface
 			// Update the messages to reflect the change.
 			if (!empty($messages) && !empty($_POST['notice'])) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}messages
 					SET body = CONCAT(body, {string:notice})
 					WHERE id_msg IN ({array_int:messages})',
@@ -672,7 +666,6 @@ class Attachments implements ActionInterface
 		// And make a note on the post.
 		if (!empty($messages) && !empty($_POST['notice'])) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET body = CONCAT(body, {string:notice})
 				WHERE id_msg IN ({array_int:messages})',
@@ -704,7 +697,6 @@ class Attachments implements ActionInterface
 		// Add the notice on the end of the changed messages.
 		if (!empty($messages)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET body = CONCAT(body, {string:deleted_message})
 				WHERE id_msg IN ({array_int:messages})',
@@ -779,7 +771,6 @@ class Attachments implements ActionInterface
 		// Get stranded thumbnails.
 		if ($_GET['step'] <= 0) {
 			$result = Db::$db->query(
-				'',
 				'SELECT MAX(id_attach)
 				FROM {db_prefix}attachments
 				WHERE attachment_type = {int:thumbnail}',
@@ -795,7 +786,6 @@ class Attachments implements ActionInterface
 				$to_remove = [];
 
 				$result = Db::$db->query(
-					'',
 					'SELECT thumb.id_attach, thumb.id_folder, thumb.filename, thumb.file_hash
 					FROM {db_prefix}attachments AS thumb
 						LEFT JOIN {db_prefix}attachments AS tparent ON (tparent.id_thumb = thumb.id_attach)
@@ -830,7 +820,6 @@ class Attachments implements ActionInterface
 				// Do we need to delete what we have?
 				if ($fix_errors && !empty($to_remove) && in_array('missing_thumbnail_parent', $to_fix)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}attachments
 						WHERE id_attach IN ({array_int:to_remove})
 							AND attachment_type = {int:attachment_type}',
@@ -852,7 +841,6 @@ class Attachments implements ActionInterface
 		// Find parents which think they have thumbnails, but actually, don't.
 		if ($_GET['step'] <= 1) {
 			$result = Db::$db->query(
-				'',
 				'SELECT MAX(id_attach)
 				FROM {db_prefix}attachments
 				WHERE id_thumb != {int:no_thumb}',
@@ -868,7 +856,6 @@ class Attachments implements ActionInterface
 				$to_update = [];
 
 				$result = Db::$db->query(
-					'',
 					'SELECT a.id_attach
 					FROM {db_prefix}attachments AS a
 						LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = a.id_thumb)
@@ -894,7 +881,6 @@ class Attachments implements ActionInterface
 				// Do we need to delete what we have?
 				if ($fix_errors && !empty($to_update) && in_array('parent_missing_thumbnail', $to_fix)) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}attachments
 						SET id_thumb = {int:no_thumb}
 						WHERE id_attach IN ({array_int:to_update})',
@@ -916,7 +902,6 @@ class Attachments implements ActionInterface
 		// This may take forever I'm afraid, but life sucks... recount EVERY attachments!
 		if ($_GET['step'] <= 2) {
 			$result = Db::$db->query(
-				'',
 				'SELECT MAX(id_attach)
 				FROM {db_prefix}attachments',
 				[
@@ -931,7 +916,6 @@ class Attachments implements ActionInterface
 				$errors_found = [];
 
 				$result = Db::$db->query(
-					'',
 					'SELECT id_attach, id_folder, filename, file_hash, size, attachment_type
 					FROM {db_prefix}attachments
 					WHERE id_attach BETWEEN {int:substep} AND {int:substep} + 249',
@@ -964,7 +948,6 @@ class Attachments implements ActionInterface
 									// Are we going to fix this now?
 									if ($fix_errors && in_array('wrong_folder', $to_fix)) {
 										Db::$db->query(
-											'',
 											'UPDATE {db_prefix}attachments
 											SET id_folder = {int:new_folder}
 											WHERE id_attach = {int:id_attach}',
@@ -999,7 +982,6 @@ class Attachments implements ActionInterface
 						// Fix it here?
 						if ($fix_errors && in_array('file_wrong_size', $to_fix)) {
 							Db::$db->query(
-								'',
 								'UPDATE {db_prefix}attachments
 								SET size = {int:filesize}
 								WHERE id_attach = {int:id_attach}',
@@ -1033,7 +1015,6 @@ class Attachments implements ActionInterface
 				// Do we need to delete what we have?
 				if ($fix_errors && !empty($to_remove)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}attachments
 						WHERE id_attach IN ({array_int:to_remove})',
 						[
@@ -1042,7 +1023,6 @@ class Attachments implements ActionInterface
 					);
 
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}attachments
 						SET id_thumb = {int:no_thumb}
 						WHERE id_thumb IN ({array_int:to_remove})',
@@ -1064,7 +1044,6 @@ class Attachments implements ActionInterface
 		// Get avatars with no members associated with them.
 		if ($_GET['step'] <= 3) {
 			$result = Db::$db->query(
-				'',
 				'SELECT MAX(id_attach)
 				FROM {db_prefix}attachments',
 				[
@@ -1078,7 +1057,6 @@ class Attachments implements ActionInterface
 				$to_remove = [];
 
 				$result = Db::$db->query(
-					'',
 					'SELECT a.id_attach, a.id_folder, a.filename, a.file_hash, a.attachment_type
 					FROM {db_prefix}attachments AS a
 						LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = a.id_member)
@@ -1117,7 +1095,6 @@ class Attachments implements ActionInterface
 				// Do we need to delete what we have?
 				if ($fix_errors && !empty($to_remove) && in_array('avatar_no_member', $to_fix)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}attachments
 						WHERE id_attach IN ({array_int:to_remove})
 							AND id_member != {int:no_member}
@@ -1141,7 +1118,6 @@ class Attachments implements ActionInterface
 		// What about attachments, who are missing a message :'(
 		if ($_GET['step'] <= 4) {
 			$result = Db::$db->query(
-				'',
 				'SELECT MAX(id_attach)
 				FROM {db_prefix}attachments',
 				[
@@ -1159,7 +1135,6 @@ class Attachments implements ActionInterface
 				IntegrationHook::call('integrate_repair_attachments_nomsg', [&$ignore_ids, $_GET['substep'], $_GET['substep'] + 500]);
 
 				$result = Db::$db->query(
-					'',
 					'SELECT a.id_attach, a.id_folder, a.filename, a.file_hash
 					FROM {db_prefix}attachments AS a
 						LEFT JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -1196,7 +1171,6 @@ class Attachments implements ActionInterface
 				// Do we need to delete what we have?
 				if ($fix_errors && !empty($to_remove) && in_array('attachment_no_msg', $to_fix)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}attachments
 						WHERE id_attach IN ({array_int:to_remove})
 							AND id_member = {int:no_member}
@@ -1246,7 +1220,6 @@ class Attachments implements ActionInterface
 
 								if (!empty($attachID)) {
 									$request = Db::$db->query(
-										'',
 										'SELECT  id_attach
 										FROM {db_prefix}attachments
 										WHERE id_attach = {int:attachment_id}
@@ -1404,7 +1377,6 @@ class Attachments implements ActionInterface
 					} else {
 						// Let's not try to delete a path with files in it.
 						$request = Db::$db->query(
-							'',
 							'SELECT COUNT(id_attach) AS num_attach
 							FROM {db_prefix}attachments
 							WHERE id_folder = {int:id_folder}',
@@ -1533,7 +1505,6 @@ class Attachments implements ActionInterface
 				foreach ($new_dirs as $id => $dir) {
 					if ($id != 1) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}attachments
 							SET id_folder = {int:default_folder}
 							WHERE id_folder = {int:current_folder}',
@@ -1879,7 +1850,6 @@ class Attachments implements ActionInterface
 		if (empty($results)) {
 			// Get the total file count for the progress bar.
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}attachments
 				WHERE id_folder = {int:folder_id}
@@ -1929,7 +1899,6 @@ class Attachments implements ActionInterface
 					)
 				) {
 					$request = Db::$db->query(
-						'',
 						'SELECT COUNT(*), SUM(size)
 						FROM {db_prefix}attachments
 						WHERE id_folder = {int:folder_id}
@@ -1945,7 +1914,6 @@ class Attachments implements ActionInterface
 
 				// Find some attachments to move
 				$request = Db::$db->query(
-					'',
 					'SELECT id_attach, filename, id_folder, file_hash, size
 					FROM {db_prefix}attachments
 					WHERE id_folder = {int:folder}
@@ -2031,7 +1999,6 @@ class Attachments implements ActionInterface
 				if (!empty($moved)) {
 					// Update the database
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}attachments
 						SET id_folder = {int:new}
 						WHERE id_attach IN ({array_int:attachments})',
@@ -2418,7 +2385,6 @@ class Attachments implements ActionInterface
 		// Choose a query depending on what we are viewing.
 		if ($browse_type === 'avatars') {
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					{string:blank_text} AS id_msg, COALESCE(mem.real_name, {string:not_applicable_text}) AS poster_name,
 					mem.last_login AS poster_time, 0 AS id_topic, a.id_member, a.id_attach, a.filename, a.file_hash, a.attachment_type,
@@ -2439,7 +2405,6 @@ class Attachments implements ActionInterface
 			);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					m.id_msg, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.id_topic, m.id_member,
 					a.id_attach, a.filename, a.file_hash, a.attachment_type, a.size, a.width, a.height, a.downloads, mf.subject, t.id_board
@@ -2482,7 +2447,6 @@ class Attachments implements ActionInterface
 		// Depending on the type of file, different queries are used.
 		if ($browse_type === 'avatars') {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}attachments
 				WHERE id_member != {int:guest_id_member}',
@@ -2492,7 +2456,6 @@ class Attachments implements ActionInterface
 			);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*) AS num_attach
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -2523,7 +2486,6 @@ class Attachments implements ActionInterface
 		$expected_size = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_folder, COUNT(id_attach) AS num_attach, SUM(size) AS size_attach
 			FROM {db_prefix}attachments
 			WHERE attachment_type != {int:type}

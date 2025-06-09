@@ -100,7 +100,6 @@ class Delete implements ActionInterface
 			User::$me->isAllowedTo('admin_forum');
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
@@ -126,7 +125,6 @@ class Delete implements ActionInterface
 				// First we find any polls that this user has voted in...
 				$polls_to_update = [];
 				$get_voted_polls = Db::$db->query(
-					'',
 					'SELECT DISTINCT id_poll
 					FROM {db_prefix}log_polls
 					WHERE id_member = {int:selected_member}',
@@ -143,7 +141,6 @@ class Delete implements ActionInterface
 				// Now we delete the votes and update the polls
 				if (!empty($polls_to_update)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}log_polls
 						WHERE id_member = {int:selected_member}',
 						[
@@ -152,7 +149,6 @@ class Delete implements ActionInterface
 					);
 
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}polls
 						SET votes = votes - 1
 						WHERE id_poll IN ({array_int:polls_to_update})',
@@ -177,7 +173,6 @@ class Delete implements ActionInterface
 				if ($_POST['remove_type'] == 'topics') {
 					// Fetch all topics started by this user.
 					$request = Db::$db->query(
-						'',
 						'SELECT t.id_topic
 						FROM {db_prefix}topics AS t
 						WHERE t.id_member_started = {int:selected_member}' . $extra,
@@ -198,7 +193,6 @@ class Delete implements ActionInterface
 
 				// Now delete the remaining messages.
 				$request = Db::$db->query(
-					'',
 					'SELECT m.id_msg
 					FROM {db_prefix}messages AS m
 						INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic

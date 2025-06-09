@@ -103,7 +103,6 @@ class MemberReport_Notify extends BackgroundTask
 			// First, get everyone's language and details.
 			$emails = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, lngfile, email_address
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})',

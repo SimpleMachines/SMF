@@ -127,7 +127,6 @@ class Calendar implements ActionInterface, Routable
 
 			if ($evid > 0) {
 				$request = Db::$db->query(
-					'',
 					'SELECT start_date
 					FROM {db_prefix}calendar
 					WHERE id_event = {int:event_id}',
@@ -1649,7 +1648,6 @@ class Calendar implements ActionInterface, Routable
 	{
 		// A simple database query, how hard can that be?
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}calendar
 			WHERE id_event = {int:id_event}
@@ -1863,7 +1861,6 @@ class Calendar implements ActionInterface, Routable
 	protected function getBoardsForExport(User $user): array
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_board
 			FROM {db_prefix}boards as b
 			WHERE ' . $user->query_wanna_see_board,

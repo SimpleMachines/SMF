@@ -57,7 +57,6 @@ class DisplayAdminFile implements ActionInterface, Routable
 		$_REQUEST['filename'] = str_replace(Utils::$context['browser_cache'], '', $_REQUEST['filename']);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT data, filetype
 			FROM {db_prefix}admin_info_files
 			WHERE filename = {string:current_filename}

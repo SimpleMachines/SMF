@@ -597,7 +597,6 @@ class Poll implements \ArrayAccess
 
 			if (!empty($this->topic)) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}topics
 					SET id_poll = {int:id_poll}
 					WHERE id_topic = {int:id_topic}',
@@ -644,7 +643,6 @@ class Poll implements \ArrayAccess
 			}
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}polls
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_poll = {int:id_poll}',
@@ -682,7 +680,6 @@ class Poll implements \ArrayAccess
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}polls
 			SET num_guest_voters = {int:no_votes}, reset_poll = {int:time}
 			WHERE id_poll = {int:id_poll}',
@@ -694,7 +691,6 @@ class Poll implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}poll_choices
 			SET votes = {int:no_votes}
 			WHERE id_poll = {int:id_poll}',
@@ -705,7 +701,6 @@ class Poll implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}',
 			[
@@ -1144,7 +1139,6 @@ class Poll implements \ArrayAccess
 		$this->checkExpiry($options);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ' . (implode(', ', $this->selects)) . '
 			FROM {db_prefix}polls AS p
 				' . (implode("\n\t\t\t\t", $this->joins)) . '
@@ -1201,7 +1195,6 @@ class Poll implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, id_choice
 			FROM {db_prefix}log_polls
 			WHERE id_poll = {int:id_poll}
@@ -1364,7 +1357,6 @@ class Poll implements \ArrayAccess
 		$this->checkExpiry($options);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT MAX(p.id_poll)
 			FROM {db_prefix}polls AS p
 				' . (implode("\n\t\t\t\t", $this->joins)) . '
@@ -1399,7 +1391,6 @@ class Poll implements \ArrayAccess
 		$this->checkExpiry($options);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT lp.id_poll, COUNT(*) AS num_votes
 			FROM {db_prefix}log_polls AS lp
 				' . (implode("\n\t\t\t\t", $this->joins)) . '

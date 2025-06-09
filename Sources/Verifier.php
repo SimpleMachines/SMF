@@ -396,7 +396,6 @@ class Verifier implements \ArrayAccess
 			];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_question, lngfile, question, answers
 				FROM {db_prefix}qanda',
 				[],

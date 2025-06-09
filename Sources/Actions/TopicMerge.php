@@ -222,7 +222,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// How many topics are on this board?  (used for paging.)
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}topics AS t
 			WHERE t.id_board = {int:id_board}' . ($onlyApproved ? '
@@ -246,7 +245,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Get the topic's subject.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -300,7 +298,6 @@ class TopicMerge implements ActionInterface, Routable
 		Utils::$context['topics'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_topic, m.subject, m.id_member, COALESCE(mem.real_name, m.poster_name) AS poster_name
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -360,7 +357,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		if (count($this->polls) > 1) {
 			$request = Db::$db->query(
-				'',
 				'SELECT t.id_topic, t.id_poll, m.subject, p.question
 				FROM {db_prefix}polls AS p
 					INNER JOIN {db_prefix}topics AS t ON (t.id_poll = p.id_poll)
@@ -389,7 +385,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		if (count($this->boards) > 1) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board, name
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:boards})
@@ -478,7 +473,6 @@ class TopicMerge implements ActionInterface, Routable
 		$first_msg = 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT approved, MIN(id_msg) AS first_msg, MAX(id_msg) AS last_msg, COUNT(*) AS message_count
 			FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topics})
@@ -537,7 +531,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Get the member ID of the first and last message.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({int:first_msg}, {int:last_msg})
@@ -559,7 +552,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Obtain all the message ids we are going to affect.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_msg
 			FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topic_list})',
@@ -580,7 +572,6 @@ class TopicMerge implements ActionInterface, Routable
 		// We don't want the search index data though (For non-redirect merges).
 		if (!isset($_POST['postRedirect'])) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_search_subjects
 				WHERE id_topic IN ({array_int:deleted_topics})',
 				[
@@ -659,7 +650,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Change the topic IDs of all messages that will be merged.  Also adjust subjects if 'enforce subject' was checked.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET
 				id_topic = {int:id_topic},
@@ -678,7 +668,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Any reported posts should reflect the new board.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_reported
 			SET
 				id_topic = {int:id_topic},
@@ -693,7 +682,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Change the subject of the first message...
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET subject = {string:target_subject}
 			WHERE id_msg = {int:first_msg}',
@@ -705,7 +693,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Adjust all calendar events to point to the new topic.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}calendar
 			SET
 				id_topic = {int:id_topic},
@@ -721,7 +708,6 @@ class TopicMerge implements ActionInterface, Routable
 		// Merge log topic entries.
 		// The unwatch setting comes from the oldest topic
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, MIN(id_msg) AS new_id_msg, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})
@@ -750,7 +736,6 @@ class TopicMerge implements ActionInterface, Routable
 
 			// Get rid of the old log entries.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_topics
 				WHERE id_topic IN ({array_int:deleted_topics})',
 				[
@@ -765,7 +750,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		if (!empty($notifications)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, MAX(sent) AS sent
 				FROM {db_prefix}log_notify
 				WHERE id_topic IN ({array_int:topics_list})
@@ -793,7 +777,6 @@ class TopicMerge implements ActionInterface, Routable
 				unset($replaceEntries);
 
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_topics
 					WHERE id_topic IN ({array_int:deleted_topics})',
 					[
@@ -807,7 +790,6 @@ class TopicMerge implements ActionInterface, Routable
 		// Get rid of the redundant polls.
 		if (!empty($deleted_polls)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}polls
 				WHERE id_poll IN ({array_int:deleted_polls})',
 				[
@@ -816,7 +798,6 @@ class TopicMerge implements ActionInterface, Routable
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}poll_choices
 				WHERE id_poll IN ({array_int:deleted_polls})',
 				[
@@ -825,7 +806,6 @@ class TopicMerge implements ActionInterface, Routable
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_polls
 				WHERE id_poll IN ({array_int:deleted_polls})',
 				[
@@ -837,7 +817,6 @@ class TopicMerge implements ActionInterface, Routable
 		// Cycle through each board...
 		foreach ($this->boardTotals as $id_board => $stats) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET
 					num_topics = CASE WHEN {int:topics} > num_topics THEN 0 ELSE num_topics - {int:topics} END,
@@ -857,7 +836,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Determine the board the final topic resides in
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:id_topic}
@@ -876,7 +854,6 @@ class TopicMerge implements ActionInterface, Routable
 			// and last posts are the same and so on and so forth.
 			foreach ($updated_topics as $old_topic => $id_msg) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}topics
 					SET id_first_msg = id_last_msg,
 						id_member_started = {int:current_user},
@@ -900,7 +877,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Ensure we don't accidentally delete the poll we want to keep...
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_poll = 0
 			WHERE id_topic IN ({array_int:deleted_topics})',
@@ -918,7 +894,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Assign the properties of the newly merged topic.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET
 				id_board = {int:id_board},
@@ -1152,7 +1127,6 @@ class TopicMerge implements ActionInterface, Routable
 	protected function getTopicData(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				t.id_topic, t.id_board, t.id_poll, t.num_views, t.is_sticky, t.approved, t.num_replies, t.unapproved_posts, t.id_redirect_topic,
 				m1.subject, m1.poster_time AS time_started, COALESCE(mem1.id_member, 0) AS id_member_started, COALESCE(mem1.real_name, m1.poster_name) AS name_started,
@@ -1271,7 +1245,6 @@ class TopicMerge implements ActionInterface, Routable
 
 		// Make sure they can see all boards....
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_board
 			FROM {db_prefix}boards AS b
 			WHERE b.id_board IN ({array_int:boards})

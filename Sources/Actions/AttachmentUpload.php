@@ -296,7 +296,6 @@ class AttachmentUpload implements ActionInterface, Routable
 			Utils::$context['attachments'] = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*), SUM(size)
 				FROM {db_prefix}attachments
 				WHERE id_msg = {int:id_msg}
