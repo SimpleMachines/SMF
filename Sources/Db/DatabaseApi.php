@@ -631,8 +631,8 @@ abstract class DatabaseApi
 		}
 
 		// Parameters reorded.
-		Utils::$smcFunc['db_query'] = fn(string $identifier = null, string $db_string, array $db_values = [], ?object $connection = null) => $this->db_query($db_string, $db_values, $connection, $identifier);
-		Utils::$smcFunc['db_search_query'] = fn(string $identifier = null, string $db_string, array $db_values = [], ?object $connection = null) => $this->db_search_query($db_string, $db_values, $connection, $identifier);
+		Utils::$smcFunc['db_query'] = fn(?string $identifier = null, string $db_string, array $db_values = [], ?object $connection = null) => $this->db_query($db_string, $db_values, $connection, $identifier);
+		Utils::$smcFunc['db_search_query'] = fn(?string $identifier = null, string $db_string, array $db_values = [], ?object $connection = null) => $this->db_search_query($db_string, $db_values, $connection, $identifier);
 
 	}
 }
