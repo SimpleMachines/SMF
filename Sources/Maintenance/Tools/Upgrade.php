@@ -964,10 +964,9 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		// Empty our error log.
 		if (!empty($_POST['empty_error'])) {
 			Db::$db->query(
-				'truncate_table',
-				'
-				TRUNCATE {db_prefix}log_errors',
+				'TRUNCATE {db_prefix}log_errors',
 				[],
+				identifier: 'truncate_table',
 			);
 		}
 
