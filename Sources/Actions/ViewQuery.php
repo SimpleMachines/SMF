@@ -203,7 +203,6 @@ class ViewQuery implements ActionInterface, Routable
 				$result = Db::$db->query('', 'ANALYZE FORMAT=JSON ' . $select);
 			} else {
 				$result = Db::$db->query(
-					'',
 					'EXPLAIN ' . ($vendor == 'PostgreSQL' ? '(ANALYZE, FORMAT JSON) ' : 'ANALYZE FORMAT=JSON ') . $select,
 				);
 			}

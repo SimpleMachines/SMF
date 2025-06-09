@@ -497,7 +497,6 @@ class Bans implements ActionInterface
 				// Overwrite some of the default form values if a user ID was given.
 				if (!empty($_REQUEST['u'])) {
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member, real_name, member_ip, email_address
 						FROM {db_prefix}members
 						WHERE id_member = {int:current_user}
@@ -541,7 +540,6 @@ class Bans implements ActionInterface
 				// We came from the mod center.
 				elseif (isset($_GET['msg']) && !empty($_GET['msg'])) {
 					$request = Db::$db->query(
-						'',
 						'SELECT poster_name, poster_ip, poster_email
 						FROM {db_prefix}messages
 						WHERE id_msg = {int:message}
@@ -808,7 +806,6 @@ class Bans implements ActionInterface
 			];
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					bi.id_ban, bi.id_ban_group, bi.hostname, bi.email_address, bi.id_member,
 					bi.ip_low, bi.ip_high,
@@ -1024,7 +1021,6 @@ class Bans implements ActionInterface
 		$memberEmailWild = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT bi.id_member, bi.email_address
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
@@ -1079,7 +1075,6 @@ class Bans implements ActionInterface
 		// Find all banned members.
 		if (!empty($queryPart)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.id_member, mem.is_activated
 				FROM {db_prefix}members AS mem
 				WHERE ' . implode(' OR ', $queryPart),
@@ -1103,7 +1098,6 @@ class Bans implements ActionInterface
 		// We welcome our new members in the realm of the banned.
 		if (!empty($newMembers)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_online
 				WHERE id_member IN ({array_int:new_banned_members})',
 				[
@@ -1114,7 +1108,6 @@ class Bans implements ActionInterface
 
 		// Find members that are wrongfully marked as banned.
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member, mem.is_activated - {int:ban_flag} AS new_value
 			FROM {db_prefix}members AS mem
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_member = mem.id_member OR mem.email_address LIKE bi.email_address)
@@ -1160,7 +1153,6 @@ class Bans implements ActionInterface
 		$bans = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT bg.id_ban_group, bg.name, bg.ban_time, bg.expire_time, bg.reason, bg.notes, COUNT(bi.id_ban) AS num_triggers
 			FROM {db_prefix}ban_groups AS bg
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
@@ -1190,7 +1182,6 @@ class Bans implements ActionInterface
 	public static function list_getNumBans(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS num_bans
 			FROM {db_prefix}ban_groups',
 			[
@@ -1216,7 +1207,6 @@ class Bans implements ActionInterface
 		$ban_items = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
 				bi.ip_low, bi.ip_high,
@@ -1309,7 +1299,6 @@ class Bans implements ActionInterface
 		$ban_group_id = Utils::$context['ban_group_id'] ?? 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(bi.id_ban)
 			FROM {db_prefix}ban_groups AS bg
 				LEFT JOIN {db_prefix}ban_items AS bi ON (bi.id_ban_group = bg.id_ban_group)
@@ -1347,7 +1336,6 @@ class Bans implements ActionInterface
 		];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				bi.id_ban, bi.ip_low, bi.ip_high, bi.hostname, bi.email_address, bi.hits,
 				bg.id_ban_group, bg.name' . ($trigger_type === 'member' ? ',
@@ -1391,7 +1379,6 @@ class Bans implements ActionInterface
 		];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}ban_items AS bi' . ($trigger_type === 'member' ? '
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = bi.id_member)' : '
@@ -1420,7 +1407,6 @@ class Bans implements ActionInterface
 		$log_entries = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT lb.id_ban_log, lb.id_member, lb.ip AS ip, COALESCE(lb.email, {string:dash}) AS email, lb.log_time, COALESCE(mem.real_name, {string:blank_string}) AS real_name
 			FROM {db_prefix}log_banned AS lb
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lb.id_member)
@@ -1452,7 +1438,6 @@ class Bans implements ActionInterface
 	public static function list_getNumBanLogEntries(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_banned AS lb',
 			[
@@ -1657,7 +1642,6 @@ class Bans implements ActionInterface
 		$message_ips = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT DISTINCT poster_ip
 			FROM {db_prefix}messages
 			WHERE id_member = {int:current_user}
@@ -1687,7 +1671,6 @@ class Bans implements ActionInterface
 		$error_ips = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT DISTINCT ip
 			FROM {db_prefix}log_errors
 			WHERE id_member = {int:current_user}
@@ -1777,7 +1760,6 @@ class Bans implements ActionInterface
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}ban_groups
 			WHERE id_ban_group IN ({array_int:ban_list})',
 			[
@@ -1787,7 +1769,6 @@ class Bans implements ActionInterface
 
 		// Remove all ban triggers for these bans groups
 		$request = Db::$db->query(
-			'',
 			'SELECT id_ban
 			FROM {db_prefix}ban_items
 			WHERE id_ban_group IN ({array_int:ban_list})',
@@ -1820,10 +1801,10 @@ class Bans implements ActionInterface
 	{
 		if (empty($ids)) {
 			Db::$db->query(
-				'truncate_table',
 				'TRUNCATE {db_prefix}log_banned',
 				[
 				],
+				identifier: 'truncate_table',
 			);
 		} else {
 			$ids = array_filter(array_unique(array_map('intval', (array) $ids)));
@@ -1833,7 +1814,6 @@ class Bans implements ActionInterface
 			}
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_banned
 				WHERE id_ban_log IN ({array_int:ban_list})',
 				[
@@ -1896,7 +1876,6 @@ class Bans implements ActionInterface
 
 					// Check the user is not banning an admin.
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member
 						FROM {db_prefix}members
 						WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
@@ -1920,7 +1899,6 @@ class Bans implements ActionInterface
 					$user = preg_replace('~&amp;#(\d{4,5}|[2-9]\d{2,4}|1[2-9]\d);~', '&#$1;', Utils::htmlspecialchars($value, ENT_QUOTES));
 
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member, (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0) AS isAdmin
 						FROM {db_prefix}members
 						WHERE member_name = {string:username} OR real_name = {string:username}
@@ -2004,7 +1982,6 @@ class Bans implements ActionInterface
 		$is_valid = true;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT bg.id_ban_group, bg.name
 			FROM {db_prefix}ban_groups AS bg
 			INNER JOIN {db_prefix}ban_items AS bi ON
@@ -2141,7 +2118,6 @@ class Bans implements ActionInterface
 		$trigger = array_merge($values, $trigger);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}ban_items
 			SET
 				hostname = {string:hostname}, email_address = {string:email_address}, id_member = {int:id_member},
@@ -2188,7 +2164,6 @@ class Bans implements ActionInterface
 		if (!empty($ban_info['id'])) {
 			// Verify the ban group exists.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_ban_group
 				FROM {db_prefix}ban_groups
 				WHERE id_ban_group = {int:ban_group}
@@ -2207,7 +2182,6 @@ class Bans implements ActionInterface
 		if (!empty($ban_info['name'])) {
 			// Make sure the name does not already exist (Of course, if it exists in the ban group we are editing, proceed.)
 			$request = Db::$db->query(
-				'',
 				'SELECT id_ban_group
 				FROM {db_prefix}ban_groups
 				WHERE name = {string:new_ban_name}
@@ -2227,7 +2201,6 @@ class Bans implements ActionInterface
 
 		if (empty(Utils::$context['ban_errors'])) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}ban_groups
 				SET
 					name = {string:ban_name},
@@ -2285,7 +2258,6 @@ class Bans implements ActionInterface
 		if (!empty($ban_info['name'])) {
 			// Check whether a ban with this name already exists.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_ban_group
 				FROM {db_prefix}ban_groups
 				WHERE name = {string:new_ban_name}' . '
@@ -2357,7 +2329,6 @@ class Bans implements ActionInterface
 		$suggestions = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, member_ip, email_address
 			FROM {db_prefix}members
 			WHERE id_member = {int:current_user}
@@ -2412,7 +2383,6 @@ class Bans implements ActionInterface
 
 		// First order of business: Load up the info so we can log this...
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				bi.id_ban, bi.hostname, bi.email_address, bi.id_member, bi.hits,
 				bi.ip_low, bi.ip_high,
@@ -2481,7 +2451,6 @@ class Bans implements ActionInterface
 
 		if (isset($group_id)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}ban_items
 				WHERE id_ban IN ({array_int:ban_list})
 					AND id_ban_group = {int:ban_group}',
@@ -2492,7 +2461,6 @@ class Bans implements ActionInterface
 			);
 		} elseif (!empty($items_ids)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}ban_items
 				WHERE id_ban IN ({array_int:ban_list})',
 				[

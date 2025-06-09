@@ -588,7 +588,6 @@ abstract class DatabaseApi
 			'db_num_fields' => 'num_fields',
 			'db_num_rows' => 'num_rows',
 			'db_ping' => 'ping',
-			'db_query' => 'query',
 			'db_quote' => 'quote',
 			'db_select_db' => 'select',
 			'db_server_info' => 'server_info',
@@ -630,6 +629,11 @@ abstract class DatabaseApi
 				return $this->$method(...$args);
 			};
 		}
+
+		// Parameters reorded.
+		Utils::$smcFunc['db_query'] = fn(string $identifier = null, string $db_string, array $db_values = [], ?object $connection = null) => $this->db_query($db_string, $db_values, $connection, $identifier);
+		Utils::$smcFunc['db_search_query'] = fn(string $identifier = null, string $db_string, array $db_values = [], ?object $connection = null) => $this->db_search_query($db_string, $db_values, $connection, $identifier);
+
 	}
 }
 

@@ -51,7 +51,6 @@ class DailyMaintenance extends ScheduledTask
 
 			// Find every member who has a warning level...
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, warning
 				FROM {db_prefix}members
 				WHERE warning > {int:no_warning}',
@@ -71,7 +70,6 @@ class DailyMaintenance extends ScheduledTask
 
 				// Find out when they were last warned.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_recipient, MAX(log_time) AS last_warning
 					FROM {db_prefix}log_comments
 					WHERE id_recipient IN ({array_int:member_list})
@@ -98,7 +96,6 @@ class DailyMaintenance extends ScheduledTask
 				if (!empty($member_changes)) {
 					foreach ($member_changes as $change) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}members
 							SET warning = {int:warning}
 							WHERE id_member = {int:id_member}',
@@ -119,7 +116,6 @@ class DailyMaintenance extends ScheduledTask
 
 		// Clean up some old login history information.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}member_logins
 			WHERE time < {int:oldLogins}',
 			[

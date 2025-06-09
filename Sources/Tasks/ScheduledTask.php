@@ -77,7 +77,6 @@ abstract class ScheduledTask extends BackgroundTask
 	{
 		// Get the next timestamp right.
 		$request = Db::$db->query(
-			'',
 			'SELECT next_time
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}

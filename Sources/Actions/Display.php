@@ -311,7 +311,6 @@ class Display implements ActionInterface, Routable
 			// need an extra query for the first post on the page.
 			if (!isset($prev_timestamp)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT poster_time
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:topic}
@@ -414,7 +413,6 @@ class Display implements ActionInterface, Routable
 			$order = $prev ? '' : ' DESC';
 
 			$request = Db::$db->query(
-				'',
 				'SELECT t2.id_topic
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}topics AS t2 ON (
@@ -439,7 +437,6 @@ class Display implements ActionInterface, Routable
 
 				// Roll over - if we're going prev, get the last - otherwise the first.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_topic
 					FROM {db_prefix}topics
 					WHERE id_board = {int:current_board}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -529,7 +526,6 @@ class Display implements ActionInterface, Routable
 	{
 		if (!User::$me->possibly_robot && (empty($_SESSION['last_read_topic']) || $_SESSION['last_read_topic'] != Topic::$info->id)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics
 				SET num_views = num_views + 1
 				WHERE id_topic = {int:current_topic}',
@@ -579,7 +575,6 @@ class Display implements ActionInterface, Routable
 
 			// Check for notifications on this topic OR board.
 			$request = Db::$db->query(
-				'',
 				'SELECT sent, id_topic
 				FROM {db_prefix}log_notify
 				WHERE (id_topic = {int:current_topic} OR id_board = {int:current_board})
@@ -602,7 +597,6 @@ class Display implements ActionInterface, Routable
 				// Only do this once, but mark the notifications as "not sent yet" for next time.
 				if (!empty($row['sent']) && $do_once) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}log_notify
 						SET sent = {int:is_not_sent}
 						WHERE (id_topic = {int:current_topic} OR id_board = {int:current_board})
@@ -626,7 +620,6 @@ class Display implements ActionInterface, Routable
 			elseif (isset($_REQUEST['topicseen'])) {
 				// Use the mark read tables... and the last visit to figure out if this should be read or not.
 				$request = Db::$db->query(
-					'',
 					'SELECT COUNT(*)
 					FROM {db_prefix}topics AS t
 						LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = {int:current_board} AND lb.id_member = {int:current_member})
@@ -741,7 +734,6 @@ class Display implements ActionInterface, Routable
 				} else {
 					// Find the earliest unread message in the topic. (the use of topics here is just for both tables.)
 					$request = Db::$db->query(
-						'',
 						'SELECT COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from
 						FROM {db_prefix}topics AS t
 							LEFT JOIN {db_prefix}log_topics AS lt ON (lt.id_topic = {int:current_topic} AND lt.id_member = {int:current_member})
@@ -771,7 +763,6 @@ class Display implements ActionInterface, Routable
 				} else {
 					// Find the number of messages posted before said time...
 					$request = Db::$db->query(
-						'',
 						'SELECT COUNT(*)
 						FROM {db_prefix}messages
 						WHERE poster_time < {int:timestamp}
@@ -803,7 +794,6 @@ class Display implements ActionInterface, Routable
 				} else {
 					// Find the start value for that message......
 					$request = Db::$db->query(
-						'',
 						'SELECT COUNT(*)
 						FROM {db_prefix}messages
 						WHERE id_msg < {int:virtual_msg}
@@ -840,7 +830,6 @@ class Display implements ActionInterface, Routable
 
 			// Search for members who have this topic set in their GET data.
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					lo.id_member, lo.log_time, mem.real_name, mem.member_name, mem.show_online,
 					mg.online_color, mg.id_group, mg.group_name
@@ -1200,7 +1189,6 @@ class Display implements ActionInterface, Routable
 
 		// Get each post and poster in this topic.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_msg, id_member, approved
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -1292,7 +1280,6 @@ class Display implements ActionInterface, Routable
 		// When was the last time this topic was replied to?  Should we warn them about it?
 		if (!empty(Config::$modSettings['oldTopicDays']) && (Topic::$info->permissions['can_reply'] || Topic::$info->permissions['can_reply_unapproved']) && empty(Topic::$info->is_sticky)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT poster_time
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_last_msg}

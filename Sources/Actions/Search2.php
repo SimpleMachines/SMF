@@ -461,7 +461,6 @@ class Search2 implements ActionInterface, Routable
 	protected function getPosters(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}messages
 			WHERE id_member != {int:no_member}

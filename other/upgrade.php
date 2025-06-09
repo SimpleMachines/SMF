@@ -255,7 +255,6 @@ if (!isset(Config::$modSettings['smfVersion'])) {
 // This only exists if we're on SMF ;)
 if (isset(Config::$modSettings['smfVersion'])) {
 	$request = Db::$db->query(
-		'',
 		'SELECT variable, value
 		FROM {db_prefix}themes
 		WHERE id_theme = {int:id_theme}
@@ -811,7 +810,6 @@ function loadEssentialData()
 
 		// Load the modSettings data...
 		$request = Db::$db->query(
-			'',
 			'SELECT variable, value
 			FROM {db_prefix}settings',
 			[
@@ -1252,7 +1250,6 @@ function checkLogin()
 
 		if (empty(Config::$db_type) || Config::$db_type == 'mysql') {
 			$request = Db::$db->query(
-				'',
 				'SHOW COLUMNS
 				FROM {db_prefix}members
 				LIKE {string:member_name}',
@@ -1272,7 +1269,6 @@ function checkLogin()
 		if (!$disable_security) {
 			if ($oldDB) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, memberName AS member_name, passwd, id_group,
 						additionalGroups AS additional_groups, lngfile
 					FROM {db_prefix}members
@@ -1284,7 +1280,6 @@ function checkLogin()
 				);
 			} else {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, member_name, passwd, id_group, additional_groups, lngfile
 					FROM {db_prefix}members
 					WHERE member_name = {string:member_name}',
@@ -1364,7 +1359,6 @@ function checkLogin()
 				// Do we actually have permission?
 				if (!in_array(1, $groups)) {
 					$request = Db::$db->query(
-						'',
 						'SELECT permission
 						FROM {db_prefix}permissions
 						WHERE id_group IN ({array_int:groups})
@@ -1513,7 +1507,6 @@ function UpgradeOptions()
 	// Don't remove stat collection unless we unchecked the box for real, not from the loop.
 	elseif (empty($_POST['stats']) && empty($upcontext['allow_sm_stats'])) {
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}settings
 			WHERE variable = {string:enable_sm_stats}',
 			[
@@ -1838,7 +1831,6 @@ function DatabaseChanges()
 
 				// Reload modSettings to capture any adds/updates made along the way
 				$request = Db::$db->query(
-					'',
 					'SELECT variable, value
 					FROM {db_prefix}settings',
 					[
@@ -1858,7 +1850,6 @@ function DatabaseChanges()
 				// Note we still might be doing yabbse (no smf ver)
 				if (isset(Config::$modSettings['smfVersion'])) {
 					$request = Db::$db->query(
-						'',
 						'SELECT variable, value
 						FROM {db_prefix}themes
 						WHERE id_theme = {int:id_theme}
@@ -1969,7 +1960,6 @@ function convertToInnoDb()
 
 		if ($structure['engine'] !== 'InnoDB') {
 			Db::$db->query(
-				'',
 				'ALTER TABLE {identifier:table}
 				ENGINE {literal:InnoDB}
 				ROW_FORMAT=DYNAMIC',
@@ -1979,7 +1969,6 @@ function convertToInnoDb()
 			);
 		} elseif ($structure['row_format'] !== 'Dynamic') {
 			Db::$db->query(
-				'',
 				'ALTER TABLE {identifier:table}
 				ROW_FORMAT=DYNAMIC',
 				[
@@ -1991,7 +1980,6 @@ function convertToInnoDb()
 
 	// Ensure all future tables use dynamic row format.
 	Db::$db->query(
-		'',
 		'SET GLOBAL innodb_default_row_format=DYNAMIC',
 		[],
 	);
@@ -2184,7 +2172,6 @@ function cli_scheduled_fetchSMfiles()
 
 	// What files do we want to get
 	$request = Db::$db->query(
-		'',
 		'SELECT id_file, filename, path, parameters
 		FROM {db_prefix}admin_info_files',
 		[
@@ -2217,7 +2204,6 @@ function cli_scheduled_fetchSMfiles()
 
 		// Save the file to the database.
 		Db::$db->query(
-			'substring',
 			'UPDATE {db_prefix}admin_info_files
 			SET data = SUBSTRING({string:file_data}, 1, 65534)
 			WHERE id_file = {int:id_file}',
@@ -2225,6 +2211,7 @@ function cli_scheduled_fetchSMfiles()
 				'id_file' => $ID_FILE,
 				'file_data' => $file_data,
 			],
+			identifier: 'substring',
 		);
 	}
 
@@ -2291,7 +2278,6 @@ function convertSettingstoOptions()
 		}
 
 		Db::$db->query(
-			'',
 			'INSERT IGNORE INTO {db_prefix}themes
 				(id_member, id_theme, variable, value)
 			SELECT id_member, 1, {string:variable}, {string:value}
@@ -2304,7 +2290,6 @@ function convertSettingstoOptions()
 		);
 
 		Db::$db->query(
-			'',
 			'INSERT IGNORE INTO {db_prefix}themes
 				(id_member, id_theme, variable, value)
 			VALUES (-1, 1, {string:variable}, {string:value})',
@@ -2860,7 +2845,6 @@ function protected_alter($change, $substep, $is_test = false)
 function textfield_alter($change, $substep)
 {
 	$request = Db::$db->query(
-		'',
 		'SHOW FULL COLUMNS
 		FROM {db_prefix}' . $change['table'] . '
 		LIKE {string:column}',
@@ -2885,7 +2869,6 @@ function textfield_alter($change, $substep)
 	// Get the character set that goes with the collation of the column.
 	if ($column_fix && !empty($table_row['Collation'])) {
 		$request = Db::$db->query(
-			'',
 			'SHOW COLLATION
 			LIKE {string:collation}',
 			[
@@ -2907,7 +2890,6 @@ function textfield_alter($change, $substep)
 		// Make sure there are no NULL's left.
 		if ($null_fix) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}' . $change['table'] . '
 				SET ' . $change['column'] . ' = {string:default}
 				WHERE ' . $change['column'] . ' IS NULL',
@@ -2920,7 +2902,6 @@ function textfield_alter($change, $substep)
 
 		// Do the actual alteration.
 		Db::$db->query(
-			'',
 			'ALTER TABLE {db_prefix}' . $change['table'] . '
 			CHANGE COLUMN ' . $change['column'] . ' ' . $change['column'] . ' ' . $change['type'] . (isset($collation_info['Charset']) ? ' CHARACTER SET ' . $collation_info['Charset'] . ' COLLATE ' . $collation_info['Collation'] : '') . ($change['null_allowed'] ? '' : ' NOT NULL') . (isset($change['default']) ? ' default {string:default}' : ''),
 			[
@@ -3622,7 +3603,6 @@ function ConvertUtf8(): bool
 	// Create a MySQL function to decode entities.
 	Db::$db->disableQueryCheck = true;
 	Db::$db->query(
-		'',
 		'CREATE FUNCTION IF NOT EXISTS {identifier:db_name}.smf_entity_decode(txt TEXT CHARSET utf8mb4) RETURNS TEXT CHARSET utf8mb4
 			NO SQL
 			DETERMINISTIC
@@ -3820,7 +3800,6 @@ function ConvertUtf8(): bool
 
 						// Convert the characters to UTF-8, using raw bytes.
 						Db::$db->query(
-							'',
 							'UPDATE {identifier:table}
 							SET {identifier:column} = ' . $replace,
 							[
@@ -3834,7 +3813,6 @@ function ConvertUtf8(): bool
 
 			// Change the table's character set to utf8mb4.
 			Db::$db->query(
-				'',
 				'ALTER TABLE {identifier:table_name}
 				CONVERT TO CHARACTER SET utf8mb4',
 				[
@@ -3855,7 +3833,6 @@ function ConvertUtf8(): bool
 		} else {
 			// Change the table's character set to utf8mb4.
 			Db::$db->query(
-				'',
 				'ALTER TABLE {identifier:table_name}
 				CONVERT TO CHARACTER SET utf8mb4',
 				[
@@ -3874,7 +3851,6 @@ function ConvertUtf8(): bool
 			}
 
 			Db::$db->query(
-				'',
 				'UPDATE {identifier:table_name}
 				SET {raw:col_ent_decode}',
 				[
@@ -3891,7 +3867,6 @@ function ConvertUtf8(): bool
 
 	// Set the default character set for the database as a whole to utf8mb4.
 	Db::$db->query(
-		'',
 		'ALTER DATABASE {identifier:db_name}
 		CHARACTER SET utf8mb4',
 		[
@@ -3900,7 +3875,6 @@ function ConvertUtf8(): bool
 	);
 
 	Db::$db->query(
-		'',
 		'DROP FUNCTION IF EXISTS {identifier:db_name}.smf_entity_decode',
 		[
 			'db_name' => Db::$db->name,
@@ -4105,7 +4079,6 @@ function serialize_to_json()
 		} elseif ($table == 'themes') {
 			// Finally, fix the admin prefs. Unfortunately this is stored per theme, but hopefully they only have one theme installed at this point...
 			$query = Db::$db->query(
-				'',
 				'SELECT id_member, id_theme, value FROM {db_prefix}themes
 				WHERE variable = {string:admin_prefs}',
 				[
@@ -4130,7 +4103,6 @@ function serialize_to_json()
 
 						// Even though we have all values from the table, UPDATE is still faster than REPLACE
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}themes
 							SET value = {string:prefs}
 							WHERE id_theme = {int:theme}
@@ -4166,7 +4138,6 @@ function serialize_to_json()
 			}
 
 			$query = Db::$db->query(
-				'',
 				'SELECT ' . $key . ', ' . $col_select . '
 				FROM {db_prefix}' . $table . $where,
 				[],
@@ -4208,7 +4179,6 @@ function serialize_to_json()
 					// In a few cases, we might have empty data, so don't try to update in those situations...
 					if (!empty($update)) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}' . $table . '
 							SET ' . $update . '
 							WHERE ' . $key . ' = {' . ($key == 'session' ? 'string' : 'int') . ':' . $key . '}',
@@ -5840,7 +5810,6 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 
 	// Skip this if we don't have the column
 	$request = Db::$db->query(
-		'',
 		'SHOW FIELDS
 		FROM {db_prefix}{raw:table}
 		WHERE Field = {string:name}',
@@ -5860,7 +5829,6 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 	// Setup progress bar
 	if (!isset($_GET['total_fixes']) || !isset($_GET['a'])) {
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(DISTINCT {raw:old_col})
 			FROM {db_prefix}{raw:table_name}',
 			[
@@ -5890,7 +5858,6 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 		$arIp = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT DISTINCT {raw:old_col}
 			FROM {db_prefix}{raw:table_name}
 			WHERE {raw:new_col} = {string:empty}
@@ -5936,7 +5903,6 @@ function MySQLConvertOldIp($targetTable, $oldCol, $newCol, $limit = 50000, $setS
 			if ((($i + 1) == $count) || (($i + 1) % $setSize === 0)) {
 				$updates['whereSet'] = array_values($updates);
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}' . $targetTable . '
 					SET ' . $newCol . ' = CASE ' .
 					implode('

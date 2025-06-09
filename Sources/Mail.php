@@ -276,7 +276,6 @@ class Mail
 			$nextSendTime = time() + 10;
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:nextSendTime}
 				WHERE variable = {literal:mail_next_send}
@@ -366,7 +365,6 @@ class Mail
 			$delay = max(TaskRunner::MAX_CRON_TIME, (int) (Config::$modSettings['mail_queue_delay'] ?? 10));
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:next_mail_send}
 				WHERE variable = {literal:mail_next_send}
@@ -411,7 +409,6 @@ class Mail
 		$emails = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
 			FROM {db_prefix}mail_queue
 			ORDER BY priority ASC, id_mail ASC
@@ -441,7 +438,6 @@ class Mail
 		// Delete, delete, delete!!!
 		if (!empty($ids)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}mail_queue
 				WHERE id_mail IN ({array_int:mail_list})',
 				[
@@ -454,7 +450,6 @@ class Mail
 		if (count($ids) < $number) {
 			// Only update the setting if no-one else has beaten us to it.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:no_send}
 				WHERE variable = {literal:mail_next_send}
@@ -547,7 +542,6 @@ class Mail
 			// If we have failed too many times, tell mail to wait a bit and try again.
 			if (Config::$modSettings['mail_failed_attempts'] > 5) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}settings
 					SET value = {string:next_mail_send}
 					WHERE variable = {literal:mail_next_send}
@@ -583,7 +577,6 @@ class Mail
 		// We where unable to send the email, clear our failed attempts.
 		if (!empty(Config::$modSettings['mail_failed_attempts'])) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:zero}
 				WHERE variable = {string:mail_failed_attempts}',
@@ -933,7 +926,6 @@ class Mail
 
 		// Get the subject and body...
 		$result = Db::$db->query(
-			'',
 			'SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic, t.id_board,
 				COALESCE(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
 			FROM {db_prefix}topics AS t
@@ -1006,7 +998,6 @@ class Mail
 		if ($member_name == null) {
 			// Get the new user's name....
 			$request = Db::$db->query(
-				'',
 				'SELECT real_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}

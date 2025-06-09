@@ -123,7 +123,6 @@ class PermissionProfile
 			self::$loaded[$this->id] = $this;
 		} else {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}permission_profiles
 				SET profile_name = {string:profile_name}
 				WHERE id_profile = {int:current_profile}',
@@ -159,7 +158,6 @@ class PermissionProfile
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}permission_profiles
 			WHERE id_profile = {int:profile}',
 			[
@@ -201,7 +199,6 @@ class PermissionProfile
 	{
 		if (!isset($this->boards)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board
 				FROM {db_prefix}boards
 				WHERE id_profile = {int:profile}',
@@ -253,7 +250,6 @@ class PermissionProfile
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT p.id_profile, p.profile_name, b.id_board
 			FROM {db_prefix}permission_profiles AS p
 			LEFT JOIN {db_prefix}boards AS b ON (p.id_profile = b.id_profile)',

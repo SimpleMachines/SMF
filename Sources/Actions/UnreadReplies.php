@@ -113,14 +113,12 @@ class UnreadReplies extends Unread
 	protected function makeTempTable(): void
 	{
 		Db::$db->query(
-			'',
 			'DROP TABLE IF EXISTS {db_prefix}topics_posted_in',
 			[
 			],
 		);
 
 		Db::$db->query(
-			'',
 			'DROP TABLE IF EXISTS {db_prefix}log_topics_posted_in',
 			[
 			],
@@ -136,7 +134,6 @@ class UnreadReplies extends Unread
 
 		// The main benefit of this temporary table is not that it's faster; it's that it avoids locks later.
 		$this->have_temp_table = false !== Db::$db->query(
-			'',
 			'CREATE TEMPORARY TABLE {db_prefix}topics_posted_in (
 				id_topic mediumint(8) unsigned NOT NULL default {string:string_zero},
 				id_board smallint(5) unsigned NOT NULL default {string:string_zero},
@@ -166,7 +163,6 @@ class UnreadReplies extends Unread
 		// If that worked, create a sample of the log_topics table too.
 		if ($this->have_temp_table) {
 			$this->have_temp_table = false !== Db::$db->query(
-				'',
 				'CREATE TEMPORARY TABLE {db_prefix}log_topics_posted_in (
 					PRIMARY KEY (id_topic)
 				)
@@ -188,7 +184,6 @@ class UnreadReplies extends Unread
 	protected function getTopicRequestWithTempTable(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}topics_posted_in AS pi
 				LEFT JOIN {db_prefix}log_topics_posted_in AS lt ON (lt.id_topic = pi.id_topic)
@@ -208,7 +203,6 @@ class UnreadReplies extends Unread
 
 		$topics = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_topic
 			FROM {db_prefix}topics_posted_in AS t
 				LEFT JOIN {db_prefix}log_topics_posted_in AS lt ON (lt.id_topic = t.id_topic)
@@ -236,7 +230,6 @@ class UnreadReplies extends Unread
 		}
 
 		$this->topic_request = Db::$db->query(
-			'substring',
 			'SELECT ' . implode(', ', $this->selects) . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_topic = t.id_topic AND ms.id_msg = t.id_first_msg)
@@ -257,6 +250,7 @@ class UnreadReplies extends Unread
 				'sort' => $_REQUEST['sort'],
 				'limit' => count($topics),
 			],
+			identifier: 'substring',
 		);
 	}
 
@@ -266,7 +260,6 @@ class UnreadReplies extends Unread
 	protected function getTopicRequestWithoutTempTable(): void
 	{
 		$request = Db::$db->query(
-			'unread_fetch_topic_count',
 			'SELECT COUNT(DISTINCT t.id_topic), MIN(t.id_last_msg)
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic)
@@ -281,6 +274,7 @@ class UnreadReplies extends Unread
 				'current_member' => User::$me->id,
 				'is_approved' => 1,
 			]),
+			identifier: 'unread_fetch_topic_count',
 		);
 		list($num_topics, $min_message) = Db::$db->fetch_row($request);
 		Db::$db->free_result($request);
@@ -297,7 +291,6 @@ class UnreadReplies extends Unread
 		$topics = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT DISTINCT t.id_topic,' . $_REQUEST['sort'] . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_topic = t.id_topic AND m.id_member = {int:current_member})' . (!str_contains($_REQUEST['sort'], 'ms.') ? '' : '
@@ -336,7 +329,6 @@ class UnreadReplies extends Unread
 		}
 
 		$this->topic_request = Db::$db->query(
-			'substring',
 			'SELECT ' . implode(', ', $this->selects) . '
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS ms ON (ms.id_topic = t.id_topic AND ms.id_msg = t.id_first_msg)
@@ -357,6 +349,7 @@ class UnreadReplies extends Unread
 				'sort' => $_REQUEST['sort'],
 				'limit' => count($topics),
 			],
+			identifier: 'substring',
 		);
 	}
 }

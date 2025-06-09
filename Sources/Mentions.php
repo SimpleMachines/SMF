@@ -56,7 +56,6 @@ class Mentions
 	public static function getMentionsByContent(string $content_type, int $content_id, array $members = []): array
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member, mem.real_name, mem.email_address, mem.id_group, mem.id_post_group, mem.additional_groups,
 				mem.lngfile, ment.id_member AS id_mentioned_by, ment.real_name AS mentioned_by_name
 			FROM {db_prefix}mentions AS m
@@ -152,7 +151,6 @@ class Mentions
 		// Delete mentions from the table that have been deleted in the content.
 		if (!empty($members_to_remove)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}mentions
 				WHERE content_type = {string:type}
 					AND content_id = {int:id}
@@ -228,7 +226,6 @@ class Mentions
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:ids})
@@ -371,7 +368,6 @@ class Mentions
 
 		// Get the messages
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_member AS id, mem.email_address, mem.lngfile, mem.real_name
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)

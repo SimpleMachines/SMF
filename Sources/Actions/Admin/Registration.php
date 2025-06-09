@@ -183,7 +183,6 @@ class Registration implements ActionInterface
 			Utils::$context['member_groups'][] = Lang::getTxt('admin_register_group_none', file: 'Login');
 
 			$request = Db::$db->query(
-				'',
 				'SELECT group_name, id_group
 				FROM {db_prefix}membergroups
 				WHERE id_group != {int:moderator_group}

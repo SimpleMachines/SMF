@@ -55,7 +55,6 @@ class ApprovePost_Notify extends BackgroundTask
 		$modMembers = User::getAllowedTo('approve_posts', $topicOptions['board']);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, email_address, lngfile
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:members})',

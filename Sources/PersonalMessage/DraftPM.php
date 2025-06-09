@@ -110,7 +110,6 @@ class DraftPM extends Draft
 
 		// Load the drafts this user has available.
 		$request = Db::$db->query(
-			'',
 			'SELECT subject, poster_time, id_draft
 			FROM {db_prefix}user_drafts
 			WHERE id_member = {int:id_member}' . (!empty($reply_to) ? '
@@ -165,7 +164,6 @@ class DraftPM extends Draft
 			$start = isset($_REQUEST['start']) ? (int) $_REQUEST['start'] : 0;
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}user_drafts
 				WHERE id_draft = {int:id_draft}
 					AND id_member = {int:id_member}
@@ -195,7 +193,6 @@ class DraftPM extends Draft
 
 		// Get the count of applicable drafts
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}user_drafts
 			WHERE id_member = {int:id_member}
@@ -235,7 +232,6 @@ class DraftPM extends Draft
 
 		// Load in this user's PM drafts
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				ud.id_member, ud.id_draft, ud.body, ud.subject, ud.poster_time, ud.id_reply, ud.to_list
 			FROM {db_prefix}user_drafts AS ud
@@ -294,7 +290,6 @@ class DraftPM extends Draft
 				$allRecipients = array_merge($recipient_ids['to'], $recipient_ids['bcc']);
 
 				$request_2 = Db::$db->query(
-					'',
 					'SELECT id_member, real_name
 					FROM {db_prefix}members
 					WHERE id_member IN ({array_int:member_list})',

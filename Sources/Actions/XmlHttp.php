@@ -243,7 +243,6 @@ class XmlHttp implements ActionInterface, Routable
 
 		if (!empty($user) && $can_change) {
 			$request = Db::$db->query(
-				'',
 				'SELECT signature
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}

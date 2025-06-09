@@ -366,7 +366,6 @@ class Category implements \ArrayAccess
 
 			// Grab the categories sorted by cat_order.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_cat, cat_order
 				FROM {db_prefix}categories
 				ORDER BY cat_order',
@@ -391,7 +390,6 @@ class Category implements \ArrayAccess
 			foreach ($cats as $index => $cat) {
 				if ($index != $cat_order[$cat]) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}categories
 						SET cat_order = {int:new_order}
 						WHERE id_cat = {int:current_category}',
@@ -433,7 +431,6 @@ class Category implements \ArrayAccess
 		// Do the updates (if any).
 		if (!empty($catUpdates)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}categories
 				SET
 					' . implode(',
@@ -536,7 +533,6 @@ class Category implements \ArrayAccess
 			$boards_inside = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board
 				FROM {db_prefix}boards
 				WHERE id_cat IN ({array_int:category_list})',
@@ -561,7 +557,6 @@ class Category implements \ArrayAccess
 		// Move the boards inside the categories to a safe category.
 		else {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET id_cat = {int:new_parent_cat}
 				WHERE id_cat IN ({array_int:category_list})',
@@ -574,7 +569,6 @@ class Category implements \ArrayAccess
 
 		// Do the deletion of the category itself
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}categories
 			WHERE id_cat IN ({array_int:category_list})',
 			[
@@ -636,7 +630,6 @@ class Category implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_board, b.id_cat
 			FROM {db_prefix}categories AS c
 				JOIN {db_prefix}boards AS b ON (b.id_cat = c.id_cat)
@@ -741,7 +734,6 @@ class Category implements \ArrayAccess
 					// Wrong childlevel...we can silently fix this...
 					if (Board::$loaded[$row['id_parent']]->child_level != $row['child_level'] - 1) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}boards
 							SET child_level = {int:new_child_level}
 							WHERE id_board = {int:selected_board}',
@@ -814,7 +806,6 @@ class Category implements \ArrayAccess
 		// No props provided, so get the standard ones.
 		if (empty($props)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT *
 				FROM {db_prefix}categories
 				WHERE id_cat = {int:id}
@@ -879,7 +870,6 @@ class Category implements \ArrayAccess
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}categories AS c' . (empty($joins) ? '' : '

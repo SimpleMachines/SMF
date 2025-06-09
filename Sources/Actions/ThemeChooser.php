@@ -144,7 +144,6 @@ class ThemeChooser implements ActionInterface, Routable
 			Utils::$context['current_theme'] = User::$me->theme;
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_theme
 				FROM {db_prefix}members
 				WHERE id_member = {int:current_member}
@@ -162,7 +161,6 @@ class ThemeChooser implements ActionInterface, Routable
 
 		if (!empty(Config::$modSettings['knownThemes'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_theme, variable, value
 				FROM {db_prefix}themes
 				WHERE variable IN ({literal:name}, {literal:theme_url}, {literal:theme_dir}, {literal:images_url}, {literal:disable_user_variant})' . (!User::$me->allowedTo('admin_forum') ? '
@@ -202,7 +200,6 @@ class ThemeChooser implements ActionInterface, Routable
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme, COUNT(*) AS the_count
 			FROM {db_prefix}members
 			GROUP BY id_theme
@@ -231,7 +228,6 @@ class ThemeChooser implements ActionInterface, Routable
 
 		if (Utils::$context['current_member'] > 0) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_theme, value
 				FROM {db_prefix}themes
 				WHERE variable = {string:theme_variant}

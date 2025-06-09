@@ -487,7 +487,6 @@ class PackageUtils
 	{
 		// Load the packages from the database - note this is ordered by install time to ensure latest package uninstalled first.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_install, package_id, filename, name, version, time_installed
 			FROM {db_prefix}log_packages
 			WHERE install_state != {int:not_installed}
@@ -3461,7 +3460,6 @@ class PackageUtils
 		];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT value
 			FROM {db_prefix}themes
 			WHERE id_member = {int:no_member}
@@ -3632,7 +3630,6 @@ class PackageUtils
 		if (empty(Utils::$context['package_servers'])) {
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_server, name, validation_url, extra
 				FROM {db_prefix}package_servers
 				WHERE validation_url != {string:empty}',

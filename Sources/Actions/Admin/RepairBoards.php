@@ -918,7 +918,6 @@ class RepairBoards implements ActionInterface
 				$step_size = $test['substeps']['step_size'] ?? 100;
 
 				$request = Db::$db->query(
-					'',
 					$test['substeps']['step_max'],
 					[
 					],
@@ -943,7 +942,6 @@ class RepairBoards implements ActionInterface
 
 				// Do the test...
 				$request = Db::$db->query(
-					'',
 					isset($test['substeps']) ? strtr($test[$test_query], ['{STEP_LOW}' => $_GET['substep'], '{STEP_HIGH}' => $_GET['substep'] + $step_size - 1]) : $test[$test_query],
 					[
 					],
@@ -1021,7 +1019,6 @@ class RepairBoards implements ActionInterface
 						// Simply executing a fix it query?
 						elseif (isset($test['fix_it_query'])) {
 							Db::$db->query(
-								'',
 								$test['fix_it_query'],
 								[
 								],
@@ -1200,7 +1197,6 @@ class RepairBoards implements ActionInterface
 
 		// Check to see if a 'Salvage Category' exists, if not => insert one.
 		$result = Db::$db->query(
-			'',
 			'SELECT id_cat
 			FROM {db_prefix}categories
 			WHERE name = {string:cat_name}
@@ -1242,7 +1238,6 @@ class RepairBoards implements ActionInterface
 
 		// Check to see if a 'Salvage Board' exists. If not, insert one.
 		$result = Db::$db->query(
-			'',
 			'SELECT id_board
 			FROM {db_prefix}boards
 			WHERE id_cat = {int:id_cat}
@@ -1306,7 +1301,6 @@ class RepairBoards implements ActionInterface
 
 		// Make sure that no topics claim the first/last message as theirs.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_first_msg = 0
 			WHERE id_first_msg = {int:id_first_msg}',
@@ -1315,7 +1309,6 @@ class RepairBoards implements ActionInterface
 			],
 		);
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_last_msg = 0
 			WHERE id_last_msg = {int:id_last_msg}',
@@ -1353,7 +1346,6 @@ class RepairBoards implements ActionInterface
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET id_topic = {int:newTopicID}, id_board = {int:board_id}
 			WHERE id_topic = {int:topic_id}',
@@ -1373,7 +1365,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingMessages(array $topics): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1382,7 +1373,6 @@ class RepairBoards implements ActionInterface
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1473,7 +1463,6 @@ class RepairBoards implements ActionInterface
 			);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET id_topic = {int:newTopicID}, id_board = {int:id_board}
 				WHERE id_msg = {int:newMessageID}',
@@ -1604,7 +1593,6 @@ class RepairBoards implements ActionInterface
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET id_topic = {int:newTopicID}, id_board = {int:id_board}
 			WHERE id_msg = {int:newMessageID}',
@@ -1638,7 +1626,6 @@ class RepairBoards implements ActionInterface
 		$memberUpdatedID = (int) Board::getMsgMemberID($row['myid_last_msg']);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_first_msg = {int:myid_first_msg},
 				id_member_started = {int:memberStartedID}, id_last_msg = {int:myid_last_msg},
@@ -1700,7 +1687,6 @@ class RepairBoards implements ActionInterface
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET num_replies = {int:my_num_replies}
 			WHERE id_topic = {int:topic_id}',
@@ -1743,7 +1729,6 @@ class RepairBoards implements ActionInterface
 		$row['my_unapproved_posts'] = (int) $row['my_unapproved_posts'];
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET unapproved_posts = {int:my_unapproved_posts}
 			WHERE id_topic = {int:topic_id}',
@@ -1792,7 +1777,6 @@ class RepairBoards implements ActionInterface
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_board = {int:newBoardID}
 			WHERE id_board = {int:board_id}',
@@ -1802,7 +1786,6 @@ class RepairBoards implements ActionInterface
 			],
 		);
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET id_board = {int:newBoardID}
 			WHERE id_board = {int:board_id}',
@@ -1823,7 +1806,6 @@ class RepairBoards implements ActionInterface
 		$this->createSalvageArea();
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}boards
 			SET id_cat = {int:salvage_category}
 			WHERE id_cat IN ({array_int:categories})',
@@ -1842,7 +1824,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingPosters(array $msgs): void
 	{
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET id_member = {int:guest_id}
 			WHERE id_msg IN ({array_int:msgs})',
@@ -1864,7 +1845,6 @@ class RepairBoards implements ActionInterface
 		$_SESSION['salvageBoardID'] = $this->salvage_board;
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}boards
 			SET id_parent = {int:salvage_board}, id_cat = {int:salvage_category}, child_level = 1
 			WHERE id_parent IN ({array_int:parents})',
@@ -1884,7 +1864,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingPolls(array $polls): void
 	{
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_poll = 0
 			WHERE id_poll IN ({array_int:polls})',
@@ -1902,7 +1881,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingCaledarTopics(array $events): void
 	{
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}calendar
 			SET id_topic = 0, id_board = 0
 			WHERE id_topic IN ({array_int:events})',
@@ -1920,7 +1898,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingLogTopics(array $topics): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:topics})',
 			[
@@ -1937,7 +1914,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingLogTopicsMembers(array $members): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_topics
 			WHERE id_member IN ({array_int:members})',
 			[
@@ -1954,7 +1930,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingLogBoards(array $boards): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_boards
 			WHERE id_board IN ({array_int:boards})',
 			[
@@ -1971,7 +1946,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingLogBoardsMembers(array $members): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_boards
 			WHERE id_member IN ({array_int:members})',
 			[
@@ -1988,7 +1962,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingLogMarkRead(array $boards): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_board IN ({array_int:boards})',
 			[
@@ -2005,7 +1978,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingLogMarkReadMembers(array $members): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_member IN ({array_int:members})',
 			[
@@ -2023,7 +1995,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingPMs(array $pms): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}pm_recipients
 			WHERE id_pm IN ({array_int:pms})',
 			[
@@ -2040,7 +2011,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingRecipients(array $members): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}pm_recipients
 			WHERE id_member IN ({array_int:members})',
 			[
@@ -2058,7 +2028,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingSenders(array $guestMessages): void
 	{
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}personal_messages
 			SET id_member_from = 0
 			WHERE id_pm IN ({array_int:guestMessages})',
@@ -2076,7 +2045,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingNotifyMembers(array $members): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_notify
 			WHERE id_member IN ({array_int:members})',
 			[
@@ -2148,7 +2116,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingTopicForCache(array $deleteTopics): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_search_subjects
 			WHERE id_topic IN ({array_int:deleteTopics})',
 			[
@@ -2165,7 +2132,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingMemberVote(array $members): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_polls
 			WHERE id_member IN ({array_int:members})',
 			[
@@ -2182,7 +2148,6 @@ class RepairBoards implements ActionInterface
 	protected function fixMissingLogPollVote(array $polls): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_polls
 			WHERE id_poll IN ({array_int:polls})',
 			[
@@ -2199,7 +2164,6 @@ class RepairBoards implements ActionInterface
 	protected function fixReportMissingComments(array $reports): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_reported
 			WHERE id_report IN ({array_int:reports})',
 			[
@@ -2216,7 +2180,6 @@ class RepairBoards implements ActionInterface
 	protected function fixCommentMissingReport(array $reports): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_reported_comments
 			WHERE id_report IN ({array_int:reports})',
 			[
@@ -2233,7 +2196,6 @@ class RepairBoards implements ActionInterface
 	protected function fixGroupRequestMissingMember(array $members): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_group_requests
 			WHERE id_member IN ({array_int:members})',
 			[
@@ -2250,7 +2212,6 @@ class RepairBoards implements ActionInterface
 	protected function fixGroupRequestMissingGroup(array $groups): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_group_requests
 			WHERE id_group IN ({array_int:groups})',
 			[

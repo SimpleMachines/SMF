@@ -412,7 +412,6 @@ class Groups implements ActionInterface, Routable
 		$members = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_group = {int:id_group} OR FIND_IN_SET({int:id_group}, additional_groups) != 0' . ($limit === null ? '' : '

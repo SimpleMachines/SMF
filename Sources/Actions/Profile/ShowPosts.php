@@ -391,7 +391,6 @@ class ShowPosts implements ActionInterface
 		$topics = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT lt.id_topic
 			FROM {db_prefix}log_topics as lt
 				LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
@@ -420,7 +419,6 @@ class ShowPosts implements ActionInterface
 
 		if (!empty($topics)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT mf.subject, mf.poster_time as started_on, COALESCE(memf.real_name, mf.poster_name) as started_by, ml.poster_time as last_post_on, COALESCE(meml.real_name, ml.poster_name) as last_post_by, t.id_topic
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS ml ON (ml.id_msg = t.id_last_msg)
@@ -451,7 +449,6 @@ class ShowPosts implements ActionInterface
 	{
 		// Get the total number of attachments they have posted.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_topics as lt
 			LEFT JOIN {db_prefix}topics as t ON (lt.id_topic = t.id_topic)
@@ -483,7 +480,6 @@ class ShowPosts implements ActionInterface
 		$attachments = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT a.id_attach, a.id_msg, a.filename, a.downloads, a.approved, m.id_msg, m.id_topic,
 				m.id_board, m.poster_time, m.subject, b.name
 			FROM {db_prefix}attachments AS a
@@ -540,7 +536,6 @@ class ShowPosts implements ActionInterface
 	{
 		// Get the total number of attachments they have posted.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -617,7 +612,6 @@ class ShowPosts implements ActionInterface
 
 		// We need msg info for logging.
 		$request = Db::$db->query(
-			'',
 			'SELECT subject, id_member, id_topic, id_board
 			FROM {db_prefix}messages
 			WHERE id_msg = {int:id_msg}',
@@ -664,7 +658,6 @@ class ShowPosts implements ActionInterface
 
 		if ($is_topics) {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}topics AS t' . '
 				WHERE {query_see_topic_board}
@@ -679,7 +672,6 @@ class ShowPosts implements ActionInterface
 			);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
@@ -699,7 +691,6 @@ class ShowPosts implements ActionInterface
 		Db::$db->free_result($request);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT MIN(id_msg), MAX(id_msg)
 			FROM {db_prefix}messages AS m' . (!Config::$modSettings['postmod_active'] || User::$me->is_owner ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)') . '
@@ -768,7 +759,6 @@ class ShowPosts implements ActionInterface
 		while (true) {
 			if ($is_topics) {
 				$request = Db::$db->query(
-					'',
 					'SELECT
 						b.id_board, b.name AS bname, c.id_cat, c.name AS cname, t.id_member_started, t.id_first_msg, t.id_last_msg,
 						t.approved, m.body, m.smileys_enabled, m.subject, m.poster_time, m.id_topic, m.id_msg, m.version
@@ -793,7 +783,6 @@ class ShowPosts implements ActionInterface
 				);
 			} else {
 				$request = Db::$db->query(
-					'',
 					'SELECT
 						b.id_board, b.name AS bname, c.id_cat, c.name AS cname, m.id_topic, m.id_msg,
 						t.id_member_started, t.id_first_msg, t.id_last_msg, m.body, m.smileys_enabled,

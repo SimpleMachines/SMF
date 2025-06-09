@@ -46,7 +46,6 @@ class MemberReportReply_Notify extends BackgroundTask
 		// Let's see. Let us, first of all, establish the list of possible people.
 		$possible_members = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}log_comments
 			WHERE id_notice = {int:report}
@@ -129,7 +128,6 @@ class MemberReportReply_Notify extends BackgroundTask
 			// First, get everyone's language and details.
 			$emails = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, lngfile, email_address
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})',
