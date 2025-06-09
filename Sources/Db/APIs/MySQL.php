@@ -2237,7 +2237,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// Find database user privileges.
 		$privs = [];
-		$get_privs = self::$db->query('', 'SHOW PRIVILEGES', []);
+		$get_privs = self::$db->query('SHOW PRIVILEGES', []);
 
 		while ($row = self::$db->fetch_assoc($get_privs)) {
 			if ($row['Privilege'] == 'Alter') {
@@ -2279,7 +2279,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION,PIPES_AS_CONCAT';
 		}
 
-		$this->query('', 'SET SESSION sql_mode = {string:sql_mode}', [
+		$this->query('SET SESSION sql_mode = {string:sql_mode}', [
 			'sql_mode' => $sql_mode,
 		]);
 
