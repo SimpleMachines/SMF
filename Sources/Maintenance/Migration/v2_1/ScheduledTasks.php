@@ -66,7 +66,6 @@ class ScheduledTasks extends MigrationBase
 
 		foreach ($this->newTasks as $task) {
 			$request = $this->query(
-				'',
 				'SELECT id_task
 				FROM {db_prefix}scheduled_tasks
 				WHERE task = {string:task}',
@@ -99,7 +98,6 @@ class ScheduledTasks extends MigrationBase
 
 		// Remove the old 'Auto Optimize' task.
 		$this->query(
-			'',
 			'
 			DELETE FROM {db_prefix}scheduled_tasks
 			WHERE id_task = {int:AutoOptimizeTaskID}',
@@ -109,7 +107,6 @@ class ScheduledTasks extends MigrationBase
 		);
 
 		$this->query(
-			'',
 			'
 			DELETE FROM {db_prefix}log_scheduled_tasks
 			WHERE id_task = {int:AutoOptimizeTaskID}',

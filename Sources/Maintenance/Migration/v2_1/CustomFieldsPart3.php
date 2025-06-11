@@ -69,7 +69,6 @@ class CustomFieldsPart3 extends MigrationBase
 
 		if ($start <= 1 && empty(Config::$modSettings['displayFields'])) {
 			$request = $this->query(
-				'',
 				'SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
 				FROM {db_prefix}custom_fields',
 				[],

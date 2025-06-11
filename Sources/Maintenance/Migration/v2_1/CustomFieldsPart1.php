@@ -187,10 +187,11 @@ class CustomFieldsPart1 extends MigrationBase
 
 		if ($start <= 2) {
 			// Add an order value to each existing cust profile field.
-			$ocf = $this->query('', '
-				SELECT id_field
+			$ocf = $this->query(
+				'SELECT id_field
 				FROM {db_prefix}custom_fields
-				WHERE field_order = 0');
+				WHERE field_order = 0',
+			);
 
 			// We start counting from 5 because we already have the first 5 fields.
 			$fields_count = 5;
@@ -199,7 +200,6 @@ class CustomFieldsPart1 extends MigrationBase
 				++$fields_count;
 
 				$this->query(
-					'',
 					'UPDATE {db_prefix}custom_fields
 					SET field_order = {int:field_count}
 					WHERE id_field = {int:id_field}',

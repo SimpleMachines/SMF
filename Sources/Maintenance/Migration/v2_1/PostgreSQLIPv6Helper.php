@@ -46,8 +46,8 @@ class PostgreSQLIPv6Helper extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$this->query('', '
-			CREATE OR REPLACE FUNCTION migrate_inet(val IN anyelement) RETURNS inet
+		$this->query(
+			'CREATE OR REPLACE FUNCTION migrate_inet(val IN anyelement) RETURNS inet
 				AS
 				$$
 				BEGIN
@@ -55,7 +55,8 @@ class PostgreSQLIPv6Helper extends MigrationBase
 				EXCEPTION
 				WHEN OTHERS THEN RETURN NULL;
 				END;
-				$$ LANGUAGE plpgsql');
+				$$ LANGUAGE plpgsql',
+		);
 
 		return true;
 	}

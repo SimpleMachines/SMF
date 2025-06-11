@@ -207,7 +207,6 @@ class PostgreSQLSequences extends MigrationBase
 			$value = $this->sequences[$key];
 
 			$this->query(
-				'',
 				"SELECT setval('{raw:key}', (SELECT COALESCE(MAX({raw:field}),1) FROM {raw:table}))",
 				[
 					'key' => Config::$db_prefix . $key,

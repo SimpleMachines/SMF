@@ -132,7 +132,6 @@ class CreateAlerts extends MigrationBase
 		);
 
 		$request = $this->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}members',
 			[],
@@ -155,7 +154,6 @@ class CreateAlerts extends MigrationBase
 
 				// Skip errors here so we don't croak if the columns don't exist...
 				$request = $this->query(
-					'',
 					'SELECT id_member, notify_regularity, notify_send_body, notify_types, notify_announcements
 					FROM {db_prefix}members
 					ORDER BY id_member

@@ -61,7 +61,6 @@ class CustomFieldsPart2 extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		$request = $this->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}members',
 			[],
@@ -83,7 +82,6 @@ class CustomFieldsPart2 extends MigrationBase
 			$inserts = [];
 
 			$request = $this->query(
-				'',
 				'SELECT id_member, ' . implode(',', $select_columns) . '
 				FROM {db_prefix}members
 				ORDER BY id_member

@@ -81,7 +81,7 @@ class MigrationBase implements SubStepInterface
 	 *
 	 * Ensures the query runs without handling errors, as we do not have that luxury.
 	 */
-	protected function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
+	protected function query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool
 	{
 		if (!empty(Config::$modSettings['disableQueryCheck'])) {
 			Config::$modSettings['disableQueryCheck'] = true;
@@ -95,7 +95,7 @@ class MigrationBase implements SubStepInterface
 			'db_error_skip' => true,
 		];
 
-		$result = Db::$db->query($identifier, $db_string, $db_values, $connection);
+		$result = Db::$db->query($db_string, $db_values, $connection, $identifier);
 		Db::$unbuffered = false;
 
 		// Did it work?

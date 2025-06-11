@@ -63,7 +63,7 @@ class BoardPermissionsView extends MigrationBase
 		}
 
 		if ($start <= 1) {
-			$this->query('', 'TRUNCATE {db_prefix}board_permissions_view');
+			$this->query('TRUNCATE {db_prefix}board_permissions_view');
 
 			$this->handleTimeout(++$start);
 		}
@@ -72,10 +72,11 @@ class BoardPermissionsView extends MigrationBase
 		if ($start <= 2) {
 			$inserts = [];
 
-			$request = $this->query('', '
-				SELECT id_board, mg.id_group, 0
+			$request = $this->query(
+				'SELECT id_board, mg.id_group, 0
 				FROM {db_prefix}boards b
-				JOIN {db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.member_groups) != 0)');
+				JOIN {db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.member_groups) != 0)',
+			);
 
 			while ($row = Db::$db->fetch_row($request)) {
 				$inserts[] = $row;
@@ -101,10 +102,11 @@ class BoardPermissionsView extends MigrationBase
 		if ($start <= 3) {
 			$inserts = [];
 
-			$request = $this->query('', '
-				SELECT id_board, -1, 0
+			$request = $this->query(
+				'SELECT id_board, -1, 0
 				FROM {db_prefix}boards b
-				WHERE (FIND_IN_SET(-1, b.member_groups) != 0)');
+				WHERE (FIND_IN_SET(-1, b.member_groups) != 0)',
+			);
 
 			while ($row = Db::$db->fetch_row($request)) {
 				$inserts[] = $row;
@@ -130,10 +132,11 @@ class BoardPermissionsView extends MigrationBase
 		if ($start <= 4) {
 			$inserts = [];
 
-			$request = $this->query('', '
-				SELECT id_board, 0, 0
+			$request = $this->query(
+				'SELECT id_board, 0, 0
 				FROM {db_prefix}boards b
-				WHERE (FIND_IN_SET(0, b.member_groups) != 0)');
+				WHERE (FIND_IN_SET(0, b.member_groups) != 0)',
+			);
 
 			while ($row = Db::$db->fetch_row($request)) {
 				$inserts[] = $row;
@@ -159,10 +162,11 @@ class BoardPermissionsView extends MigrationBase
 		if ($start <= 5) {
 			$inserts = [];
 
-			$request = $this->query('', '
-				SELECT id_board, mg.id_group, 1
+			$request = $this->query(
+				'SELECT id_board, mg.id_group, 1
 				FROM {db_prefix}boards b
-				JOIN {db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.deny_member_groups) != 0)');
+				JOIN {db_prefix}membergroups mg ON (FIND_IN_SET(mg.id_group, b.deny_member_groups) != 0)',
+			);
 
 			while ($row = Db::$db->fetch_row($request)) {
 				$inserts[] = $row;
@@ -188,10 +192,11 @@ class BoardPermissionsView extends MigrationBase
 		if ($start <= 5) {
 			$inserts = [];
 
-			$request = $this->query('', '
-				SELECT id_board, -1, 1
+			$request = $this->query(
+				'SELECT id_board, -1, 1
 				FROM {db_prefix}boards b
-				WHERE (FIND_IN_SET(-1, b.deny_member_groups) != 0)');
+				WHERE (FIND_IN_SET(-1, b.deny_member_groups) != 0)',
+			);
 
 			while ($row = Db::$db->fetch_row($request)) {
 				$inserts[] = $row;
@@ -217,10 +222,11 @@ class BoardPermissionsView extends MigrationBase
 		if ($start <= 6) {
 			$inserts = [];
 
-			$request = $this->query('', '
-				SELECT id_board, 0, 1
+			$request = $this->query(
+				'SELECT id_board, 0, 1
 				FROM {db_prefix}boards b
-				WHERE (FIND_IN_SET(0, b.deny_member_groups) != 0)');
+				WHERE (FIND_IN_SET(0, b.deny_member_groups) != 0)',
+			);
 
 			while ($row = Db::$db->fetch_row($request)) {
 				$inserts[] = $row;

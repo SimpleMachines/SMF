@@ -48,7 +48,6 @@ class RemoveKarma extends MigrationBase
 	{
 		// Delete old settings vars.
 		$this->query(
-			'',
 			'DELETE FROM {db_prefix}settings
 			WHERE variable IN ({array_string:karma_vars})',
 			[
@@ -70,7 +69,6 @@ class RemoveKarma extends MigrationBase
 
 		// Cleaning up old karma permissions.
 		$this->query(
-			'',
 			'DELETE FROM {db_prefix}permissions
 			WHERE permission = {string:karma_vars}',
 			[

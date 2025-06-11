@@ -38,7 +38,6 @@ class Ipv6LogBanned extends MigrationBase
 	 */
 	public function __construct()
 	{
-
 		if (Config::$db_type !== POSTGRE_TITLE) {
 			$this->name .= ' without converting';
 		}
@@ -68,12 +67,12 @@ class Ipv6LogBanned extends MigrationBase
 		$existing_structure = $table->getCurrentStructure();
 
 		if (Config::$db_type === POSTGRE_TITLE) {
-			$this->query('', '
-			ALTER TABLE {db_prefix}log_banned
-				ALTER ip DROP not null,
-				ALTER ip DROP default,
-				ALTER ip TYPE inet USING migrate_inet(ip);
-			');
+			$this->query(
+				'ALTER TABLE {db_prefix}log_banned
+					ALTER ip DROP not null,
+					ALTER ip DROP default,
+					ALTER ip TYPE inet USING migrate_inet(ip)',
+			);
 		} else {
 			foreach ($table->columns as $column) {
 				if ($column->name === 'ip' && $existing_structure['columns'][$column->name]['type'] !== 'varbinary') {

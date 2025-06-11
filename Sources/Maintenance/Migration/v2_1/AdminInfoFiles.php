@@ -39,7 +39,6 @@ class AdminInfoFiles extends MigrationBase
 	public function execute(): bool
 	{
 		$this->query(
-			'',
 			'DELETE FROM {db_prefix}admin_info_files
 			WHERE filename IN ({array_string:old_files})
 				AND path = {string:old_path}',
@@ -58,7 +57,6 @@ class AdminInfoFiles extends MigrationBase
 
 		// Don't insert the info if it's already there...
 		$file_check = $this->query(
-			'',
 			'SELECT id_file
 			FROM {db_prefix}admin_info_files
 			WHERE filename = {string:latest-versions}',

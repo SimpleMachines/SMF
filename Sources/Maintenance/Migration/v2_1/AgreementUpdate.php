@@ -89,7 +89,6 @@ class AgreementUpdate extends MigrationBase
 
 		// Setup progress bar
 		$request = $this->query(
-			'',
 			'
 			SELECT COUNT(*)
 			FROM {db_prefix}log_actions

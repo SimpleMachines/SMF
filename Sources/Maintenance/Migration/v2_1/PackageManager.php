@@ -59,7 +59,6 @@ class PackageManager extends MigrationBase
 		}
 
 		$this->query(
-			'',
 			'UPDATE {db_prefix}log_packages
 			SET install_state = 0',
 			[],

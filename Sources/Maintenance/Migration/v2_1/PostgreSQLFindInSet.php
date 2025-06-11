@@ -47,7 +47,6 @@ class PostgreSQLFindInSet extends MigrationBase
 	public function execute(): bool
 	{
 		$this->query(
-			'',
 			"CREATE OR REPLACE FUNCTION FIND_IN_SET(needle text, haystack text) RETURNS integer AS '
 				SELECT i AS result
 				FROM generate_series(1, array_upper(string_to_array($2,'',''), 1)) AS g(i)

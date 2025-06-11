@@ -37,7 +37,7 @@ class MembersLangUTF8 extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$this->query('', '
+		$this->query('
 			UPDATE {db_prefix}members
 			SET lngfile = REPLACE(lngfile, {literal:-utf8}, {empty}');
 

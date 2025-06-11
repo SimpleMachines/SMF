@@ -77,15 +77,15 @@ class Ipv6BanItem extends MigrationBase
 		if ($start <= 1) {
 			// This query is performed differently for PostgreSQL
 			if (Config::$db_type == POSTGRE_TITLE) {
-				$this->query('', '
-					UPDATE {db_prefix}ban_items
+				$this->query(
+					'UPDATE {db_prefix}ban_items
 					SET ip_low = (ip_low1||{literal:.}||ip_low2||{literal:.}||ip_low3||{literal:.}||ip_low4)::inet,
 						ip_high = (ip_high1||{literal:.}||ip_high2||{literal:.}||ip_high3||{literal:.}||ip_high4)::inet
-					WHERE ip_low1 > 0;
-				');
+					WHERE ip_low1 > 0',
+				);
 			} else {
-				$this->quote('
-					UPDATE IGNORE {db_prefix}ban_items
+				$this->quote(
+					'UPDATE IGNORE {db_prefix}ban_items
 					SET ip_low =
 						UNHEX(
 							hex(
@@ -98,13 +98,11 @@ class Ipv6BanItem extends MigrationBase
 								INET_ATON(concat(ip_high1,{literal:.},ip_high2,{literal:.},ip_high3,{literal:.},ip_high4))
 							)
 						)
-					where ip_low1 > 0;
-				');
+					WHERE ip_low1 > 0',
+				);
 
-die;
-
-				$this->query('', '
-					UPDATE IGNORE {db_prefix}ban_items
+				$this->query(
+					'UPDATE IGNORE {db_prefix}ban_items
 					SET ip_low =
 						UNHEX(
 							hex(
@@ -117,8 +115,8 @@ die;
 								INET_ATON(concat(ip_high1,{literal:.},ip_high2,{literal:.},ip_high3,{literal:.},ip_high4))
 							)
 						)
-					where ip_low1 > 0;
-				');
+					WHERE ip_low1 > 0',
+				);
 
 			}
 

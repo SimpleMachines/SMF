@@ -52,13 +52,15 @@ class PostgreSqlTime extends MigrationBase
 		// FROM_UNIXTIME fix
 		if ($start <= 0) {
 			// Drop the old int version
-			$this->query('', '
-				DROP FUNCTION IF EXISTS FROM_UNIXTIME(int)');
+			$this->query(
+				'DROP FUNCTION IF EXISTS FROM_UNIXTIME(int)',
+			);
 
-			$this->query('', '
-				CREATE OR REPLACE FUNCTION FROM_UNIXTIME(bigint) RETURNS timestamp AS
+			$this->query(
+				'CREATE OR REPLACE FUNCTION FROM_UNIXTIME(bigint) RETURNS timestamp AS
 				\'SELECT timestamp \'\'epoch\'\' + $1 * interval \'\'1 second\'\' AS result\'
-				LANGUAGE \'sql\'');
+				LANGUAGE \'sql\'',
+			);
 
 			$this->handleTimeout(++$start);
 		}
@@ -66,16 +68,18 @@ class PostgreSqlTime extends MigrationBase
 		// bigint versions of date functions
 		if ($start <= 1) {
 			// MONTH(bigint)
-			$this->query('', '
-				CREATE OR REPLACE FUNCTION MONTH (bigint) RETURNS integer AS
+			$this->query(
+				'CREATE OR REPLACE FUNCTION MONTH (bigint) RETURNS integer AS
 				\'SELECT CAST (EXTRACT(MONTH FROM TO_TIMESTAMP($1)) AS integer) AS result\'
-				LANGUAGE \'sql\'');
+				LANGUAGE \'sql\'',
+			);
 
 			// DAYOFMONTH(bigint)
-			$this->query('', '
-				CREATE OR REPLACE FUNCTION DAYOFMONTH (bigint) RETURNS integer AS
+			$this->query(
+				'CREATE OR REPLACE FUNCTION DAYOFMONTH (bigint) RETURNS integer AS
 				\'SELECT CAST (EXTRACT(DAY FROM TO_TIMESTAMP($1)) AS integer) AS result\'
-				LANGUAGE \'sql\'');
+				LANGUAGE \'sql\'',
+			);
 
 			$this->handleTimeout(++$start);
 		}

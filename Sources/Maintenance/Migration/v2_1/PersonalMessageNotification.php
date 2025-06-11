@@ -65,7 +65,6 @@ class PersonalMessageNotification extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		$request = $this->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}members',
 			[],
@@ -85,7 +84,6 @@ class PersonalMessageNotification extends MigrationBase
 
 			// Skip errors here so we don't croak if the columns don't exist...
 			$request = $this->query(
-				'',
 				'
 				SELECT id_member, pm_email_notify
 				FROM {db_prefix}members

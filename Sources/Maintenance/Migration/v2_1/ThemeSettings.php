@@ -75,7 +75,6 @@ class ThemeSettings extends MigrationBase
 		if ($start === 0) {
 
 			$this->query(
-				'',
 				'UPDATE {db_prefix}themes
 				SET value = {string:new_theme_name}
 				WHERE value LIKE {string:old_theme_name}',
@@ -91,7 +90,6 @@ class ThemeSettings extends MigrationBase
 		if ($start <= 1) {
 			foreach ($this->updatedThemeSettings as $key => $value) {
 				$this->query(
-					'',
 					'UPDATE {db_prefix}themes
 					SET value = {string:value}
 					WHERE value = {string:key}',
@@ -107,7 +105,6 @@ class ThemeSettings extends MigrationBase
 
 		if ($start <= 2) {
 			$this->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET id_theme = 0',
 			);
@@ -117,7 +114,6 @@ class ThemeSettings extends MigrationBase
 
 		if ($start <= 3) {
 			$this->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET id_theme = 0',
 			);
@@ -128,7 +124,6 @@ class ThemeSettings extends MigrationBase
 		if ($start <= 4) {
 			// Fetch list of theme directories
 			$request = $this->query(
-				'',
 				'SELECT id_theme, variable, value
 				FROM {db_prefix}themes
 				WHERE variable = {string:theme_dir}
@@ -152,7 +147,6 @@ class ThemeSettings extends MigrationBase
 
 			// Cleanup unused theme settings
 			$this->query(
-				'',
 				'DELETE FROM {db_prefix}themes
 				WHERE id_theme NOT IN ({array_int:known_themes});',
 				[
@@ -163,7 +157,6 @@ class ThemeSettings extends MigrationBase
 			// Set knownThemes
 			$known_themes = implode(',', $known_themes);
 			$this->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:known_themes}
 				WHERE variable = {string:known_theme_str};',
@@ -178,7 +171,6 @@ class ThemeSettings extends MigrationBase
 
 		if ($start <= 5) {
 			$this->query(
-				'',
 				'DELETE FROM {db_prefix}themes
 				WHERE variable IN ({array_string:removed_settings})',
 				[

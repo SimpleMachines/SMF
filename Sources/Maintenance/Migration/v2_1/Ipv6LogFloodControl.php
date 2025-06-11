@@ -59,7 +59,7 @@ class Ipv6LogFloodControl extends Ipv6Base
 
 		// Prep floodcontrol
 		if ($start <= 0) {
-			$this->query('', 'TRUNCATE TABLE {db_prefix}log_floodcontrol');
+			$this->query('TRUNCATE TABLE {db_prefix}log_floodcontrol');
 
 			$this->handleTimeout(++$start);
 		}

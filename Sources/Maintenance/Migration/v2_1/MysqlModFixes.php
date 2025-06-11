@@ -53,7 +53,6 @@ class MysqlModFixes extends MigrationBase
 		// make members mod col nullable
 		if ($start <= 0) {
 			$request = $this->query(
-				'',
 				'SELECT COLUMN_NAME, COLUMN_TYPE
 				FROM INFORMATION_SCHEMA.COLUMNS
 				WHERE TABLE_SCHEMA = {string:db_name}
@@ -71,7 +70,6 @@ class MysqlModFixes extends MigrationBase
 
 			while ($row = Db::$db->fetch_assoc($request)) {
 					$this->query(
-						'',
 						'ALTER TABLE {db_prefix}members
 						MODIFY {raw:col_name} {raw:col_type} NULL',
 						[
@@ -87,7 +85,6 @@ class MysqlModFixes extends MigrationBase
 		// make boards mod col nullable
 		if ($start <= 1) {
 			$request = $this->query(
-				'',
 				'SELECT COLUMN_NAME, COLUMN_TYPE
 				FROM INFORMATION_SCHEMA.COLUMNS
 				WHERE TABLE_SCHEMA = {string:db_name}
@@ -105,7 +102,6 @@ class MysqlModFixes extends MigrationBase
 
 			while ($row = Db::$db->fetch_assoc($request)) {
 					$this->query(
-						'',
 						'ALTER TABLE {db_prefix}boards
 						MODIFY {raw:col_name} {raw:col_type} NULL',
 						[
@@ -121,7 +117,6 @@ class MysqlModFixes extends MigrationBase
 		// make topics mod col nullable
 		if ($start <= 1) {
 			$request = $this->query(
-				'',
 				'SELECT COLUMN_NAME, COLUMN_TYPE
 				FROM INFORMATION_SCHEMA.COLUMNS
 				WHERE TABLE_SCHEMA = {string:db_name}
@@ -137,7 +132,6 @@ class MysqlModFixes extends MigrationBase
 
 			while ($row = Db::$db->fetch_assoc($request)) {
 					$this->query(
-						'',
 						'ALTER TABLE {db_prefix}topics
 						MODIFY {raw:col_name} {raw:col_type} NULL',
 						[

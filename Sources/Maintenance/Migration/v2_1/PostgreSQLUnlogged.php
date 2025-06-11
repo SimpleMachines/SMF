@@ -59,7 +59,7 @@ class PostgreSQLUnlogged extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$result = $this->query('', 'SHOW server_version_num');
+		$result = $this->query('SHOW server_version_num');
 
 		if ($result !== false) {
 			while ($row = Db::$db->fetch_assoc($result)) {
@@ -75,7 +75,6 @@ class PostgreSQLUnlogged extends MigrationBase
 		foreach ($this->tables as $table) {
 			if ($pg_version >= 90500) {
 				$this->query(
-					'',
 					'
 				ALTER TABLE {db_prefix}{raw:table} SET UNLOGGED;',
 					[
@@ -84,7 +83,6 @@ class PostgreSQLUnlogged extends MigrationBase
 				);
 			} else {
 				$this->query(
-					'',
 					'
 				ALTER TABLE {db_prefix}{raw:table} rename to old_{db_prefix}{raw:table};
 	

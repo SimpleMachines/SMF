@@ -56,7 +56,6 @@ class AutoNotify extends MigrationBase
 	public function execute(): bool
 	{
 		$request = $this->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}themes
 			WHERE variable = {string:auto_notify}',
@@ -77,7 +76,6 @@ class AutoNotify extends MigrationBase
 
 			// This setting is stored over in the themes table in 2.0...
 			$request = $this->query(
-				'',
 				'SELECT id_member, value
 				FROM {db_prefix}themes
 				WHERE variable = {string:auto_notify}
@@ -115,7 +113,6 @@ class AutoNotify extends MigrationBase
 		} while (Maintenance::getCurrentStart() < Maintenance::$total_items);
 
 		$this->query(
-			'',
 			'DELETE FROM {db_prefix}themes
 			WHERE variable = {literal:auto_notify}',
 			[],

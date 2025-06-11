@@ -66,7 +66,6 @@ class VerificationQuestions extends MigrationBase
 		$questions = [];
 
 		$get_questions = $this->query(
-			'',
 			'SELECT body AS question, recipient_name AS answer
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {literal:ver_test}',
@@ -98,7 +97,6 @@ class VerificationQuestions extends MigrationBase
 
 			// Delete the questions from log_comments now
 			$this->query(
-				'',
 				'DELETE FROM {db_prefix}log_comments
 				WHERE comment_type = {literal:ver_test}',
 			);

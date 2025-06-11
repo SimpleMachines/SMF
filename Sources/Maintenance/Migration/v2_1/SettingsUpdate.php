@@ -117,7 +117,6 @@ class SettingsUpdate extends MigrationBase
 		// Copying the current "allow users to disable word censor" setting.
 		if (!isset(Config::$modSettings['allow_no_censored'])) {
 			$request = $this->query(
-				'',
 				'SELECT value
 				FROM {db_prefix}themes
 				WHERE variable={string:allow_no_censored}
@@ -150,7 +149,6 @@ class SettingsUpdate extends MigrationBase
 		$ripped_settings = ['show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group'];
 
 		$request = $this->query(
-			'',
 			'SELECT variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN({array_string:ripped_settings})

@@ -80,7 +80,6 @@ class LegacyAttachments extends MigrationBase
 			$this->handleTimeout($start);
 
 			$request = $this->query(
-				'',
 				'SELECT id_attach, id_member, id_folder, filename, file_hash, mime_type
 				FROM {db_prefix}attachments
 				WHERE attachment_type != 1
@@ -156,7 +155,6 @@ class LegacyAttachments extends MigrationBase
 				if ($row['id_member'] != 0) {
 					if (rename($oldFile, $custom_av_dir . '/' . $row['filename'])) {
 						$this->query(
-							'',
 							'UPDATE {db_prefix}attachments
 							SET file_hash = {empty}, attachment_type = 1
 							WHERE id_attach = {int:attach_id}',
@@ -175,7 +173,6 @@ class LegacyAttachments extends MigrationBase
 				// Only update this if it was successful and the file was using the old system.
 				if (empty($row['file_hash']) && !empty($fileHash) && file_exists($newFile) && !file_exists($oldFile)) {
 					$this->query(
-						'',
 						'UPDATE {db_prefix}attachments
 						SET file_hash = {string:file_hash}
 						WHERE id_attach = {int:atach_id}',
@@ -192,7 +189,6 @@ class LegacyAttachments extends MigrationBase
 
 					if (!empty($size['mime'])) {
 						$this->query(
-							'',
 							'UPDATE {db_prefix}attachments
 							SET mime_type = {string:mime_type}
 							WHERE id_attach = {int:id_attach}',
@@ -270,11 +266,14 @@ class LegacyAttachments extends MigrationBase
 	 */
 	protected function getTotalAttachments(): int
 	{
-		$request = $this->query('', '
-			SELECT COUNT(*)
+		$request = $this->query(
+			'SELECT COUNT(*)
 			FROM {db_prefix}attachments
-			WHERE attachment_type != 1');
+			WHERE attachment_type != 1',
+		);
+
 		list($total_attachments) = Db::$db->fetch_row($request);
+
 		Db::$db->free_result($request);
 
 		return (int) $total_attachments;

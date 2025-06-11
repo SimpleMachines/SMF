@@ -85,7 +85,6 @@ class IdxMembers extends MigrationBase
 		if ($start <= 3) {
 			if (Db::$db->title === POSTGRE_TITLE) {
 				$this->query(
-					'',
 					'CREATE INDEX {db_prefix}members_member_name_low ON {db_prefix}members (LOWER(member_name) varchar_pattern_ops)',
 					[
 						'security_override' => true,
@@ -99,7 +98,6 @@ class IdxMembers extends MigrationBase
 		if ($start <= 4) {
 			if (Db::$db->title === POSTGRE_TITLE) {
 				$this->query(
-					'',
 					'CREATE INDEX {db_prefix}members_real_name_low ON {db_prefix}members (LOWER(real_name) varchar_pattern_ops)',
 					[
 						'security_override' => true,
@@ -176,11 +174,11 @@ class IdxMembers extends MigrationBase
 
 		// Create help function for index
 		if ($start <= 12 && Config::$db_type === POSTGRE_TITLE) {
-			$this->query('', '
-				CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as \'
+			$this->query(
+				'CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as \'
 				SELECT to_char($1, \'\'MM-DD\'\');\'
-				LANGUAGE \'sql\' IMMUTABLE STRICT
-			');
+				LANGUAGE \'sql\' IMMUTABLE STRICT',
+			);
 
 			$this->handleTimeout(++$start);
 		}

@@ -109,7 +109,6 @@ class UserDrafts extends MigrationBase
 
 			// Next we find people who can send PMs, and assume they can save pm_drafts as well
 			$request = $this->query(
-				'',
 				'SELECT id_group, add_deny, permission
 				FROM {db_prefix}permissions
 				WHERE permission = {literal:pm_send}',

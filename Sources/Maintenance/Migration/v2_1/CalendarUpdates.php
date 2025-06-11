@@ -249,7 +249,6 @@ class CalendarUpdates extends MigrationBase
 	public function execute(): bool
 	{
 		$this->query(
-			'',
 			'DELETE FROM {db_prefix}calendar_holidays
 			WHERE title in ({array_string:titles})',
 			[

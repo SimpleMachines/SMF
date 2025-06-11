@@ -132,18 +132,21 @@ class PostgresqlSchemaDiff extends MigrationBase
 		while (Maintenance::getCurrentSubStep() <= Maintenance::$total_substeps) {
 			$fix = $this->schemaFixes[Maintenance::getCurrentSubStep()];
 
-			$this->query('', '
-				ALTER TABLE {db_prefix}' . $fix[0] . '
-				' . $fix[1]);
+			$this->query(
+				'ALTER TABLE {db_prefix}' . $fix[0] . '
+				' . $fix[1],
+			);
 
 			Maintenance::setCurrentSubStep();
 			$this->handleTimeout();
 		}
 
-		$this->query('', '
-			DROP INDEX IF EXISTS {db_prefix}log_actions_id_topic_id_log');
-		$this->query('', '
-			CREATE INDEX {db_prefix}log_actions_id_topic_id_log ON {db_prefix}log_actions (id_topic, id_log)');
+		$this->query(
+			'DROP INDEX IF EXISTS {db_prefix}log_actions_id_topic_id_log',
+		);
+		$this->query(
+			'CREATE INDEX {db_prefix}log_actions_id_topic_id_log ON {db_prefix}log_actions (id_topic, id_log)',
+		);
 
 		return true;
 	}

@@ -106,7 +106,6 @@ class Permissions extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		$this->query(
-			'',
 			'DELETE FROM {db_prefix}permissions
 			WHERE permission IN ({array_string:removedPermissions})',
 			[
@@ -117,7 +116,6 @@ class Permissions extends MigrationBase
 		$this->handleTimeout(++$start);
 
 		$this->query(
-			'',
 			'DELETE FROM {db_prefix}board_permissions
 			WHERE permission IN ({array_string:removedBoardPermissions})',
 			[
@@ -129,7 +127,6 @@ class Permissions extends MigrationBase
 
 		foreach ($this->renamedPermissions as $old => $new) {
 			$this->query(
-				'',
 				'UPDATE {db_prefix}permissions
 				SET permission = {string:new}
 				WHERE permission = {string:old}',
@@ -146,7 +143,6 @@ class Permissions extends MigrationBase
 
 		// Adding "profile_password_own"
 		$request = $this->query(
-			'',
 			'SELECT id_group, add_deny
 			FROM {db_prefix}permissions
 			WHERE permission = {literal:profile_identity_own}',
@@ -188,7 +184,6 @@ class Permissions extends MigrationBase
 				$can_view_warning_own[] = 0;
 
 				$request = $this->query(
-					'',
 					'SELECT id_group
 					FROM {db_prefix}membergroups
 					WHERE min_posts = {int:not_post_based}',
@@ -211,7 +206,6 @@ class Permissions extends MigrationBase
 				$can_view_warning_any = $can_view_warning_own;
 			} else {
 				$request = $this->query(
-					'',
 					'SELECT id_group, add_deny
 					FROM {db_prefix}permissions
 					WHERE permission = {string:perm}',
@@ -268,7 +262,6 @@ class Permissions extends MigrationBase
 		$inserts = [];
 
 		$request = $this->query(
-			'',
 			'SELECT id_group, add_deny
 			FROM {db_prefix}permissions
 			WHERE permission = {literal:profile_extra_own}',
@@ -302,7 +295,6 @@ class Permissions extends MigrationBase
 		$this->handleTimeout(++$start);
 
 		$this->query(
-			'',
 			'DELETE FROM {db_prefix}board_permissions
 			WHERE id_group = {int:guests}
 				AND permission IN ({array_string:illegal_board_perms})',

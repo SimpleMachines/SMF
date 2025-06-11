@@ -53,7 +53,6 @@ class MembergroupIcon extends MigrationBase
 
 		// !! @@TODO Move this to the cleanup section.
 		$request = $this->query(
-			'',
 			'SELECT icons
 			FROM {db_prefix}membergroups
 			WHERE icons != {string:blank}',
@@ -100,7 +99,6 @@ class MembergroupIcon extends MigrationBase
 
 		foreach ($toChange as $change) {
 			$this->query(
-				'',
 				'UPDATE {db_prefix}membergroups
 				SET icons = {string:new}
 				WHERE icons = {string:old}',

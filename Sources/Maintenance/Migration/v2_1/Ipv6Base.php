@@ -30,7 +30,6 @@ class Ipv6Base extends MigrationBase
 	public function getTotalItems(string $table, string $col): int
 	{
 		$request = $this->query(
-			'',
 			'
 			SELECT COUNT(DISTINCT {raw:col})
 			FROM {db_prefix}{raw:table}',
@@ -43,7 +42,6 @@ class Ipv6Base extends MigrationBase
 		// failed? We may have not renamed yet.
 		if ($request === false) {
 			$request = $this->query(
-				'',
 				'
 			SELECT COUNT(DISTINCT {raw:col})
 			FROM {db_prefix}{raw:table}',
@@ -69,7 +67,6 @@ class Ipv6Base extends MigrationBase
 		$arIp = [];
 
 		$request = $this->query(
-			'',
 			'
 			SELECT DISTINCT {raw:old_col}
 			FROM {db_prefix}{raw:table_name}
@@ -146,15 +143,16 @@ class Ipv6Base extends MigrationBase
 
 		// PostgreSQL we use a migration function.
 		if (Config::$db_type === POSTGRE_TITLE) {
-			$this->query('', '
-			ALTER TABLE {db_prefix}{raw:table}
-				ALTER {raw:col} DROP not null,
-				ALTER {raw:col} DROP default,
-				ALTER {raw:col} TYPE inet USING migrate_inet({raw:col});
-			', [
-				'table' => $table->name,
-				'col' => $col,
-			]);
+			$this->query(
+				'ALTER TABLE {db_prefix}{raw:table}
+					ALTER {raw:col} DROP not null,
+					ALTER {raw:col} DROP default,
+					ALTER {raw:col} TYPE inet USING migrate_inet({raw:col})',
+				[
+					'table' => $table->name,
+					'col' => $col,
+				],
+			);
 
 			return true;
 		}
@@ -163,15 +161,18 @@ class Ipv6Base extends MigrationBase
 		if ($start >= 0) {
 			// Does the old IP exist?
 			foreach ($table->columns as $column) {
-				if ($column->name === $col && !isset($existing_structure['columns'][$col . '_old'])
+				if (
+					$column->name === $col
+					&& !isset($existing_structure['columns'][$col . '_old'])
 				) {
-					$this->query('', '
-						ALTER TABLE {db_prefix}{raw:table}
-							CHANGE {raw:col} {raw:col}_old varchar(200)
-					', [
-						'table' => $table->name,
-						'col' => $col,
-					]);
+					$this->query(
+						'ALTER TABLE {db_prefix}{raw:table}
+							CHANGE {raw:col} {raw:col}_old varchar(200)',
+						[
+							'table' => $table->name,
+							'col' => $col,
+						],
+					);
 				}
 			}
 
@@ -189,12 +190,13 @@ class Ipv6Base extends MigrationBase
 		// Make sure our temp index exists.
 		if ($start >= 2) {
 			if (!isset($existing_structure['indexes']['temp_old_' . $col])) {
-				$this->query('', '
-					CREATE INDEX {db_prefix}temp_old_{raw:col} ON {db_prefix}{raw:table} ({raw:col}_old)
-				', [
-					'table' => $table->name,
-					'col' => $col,
-				]);
+				$this->query(
+					'CREATE INDEX {db_prefix}temp_old_{raw:col} ON {db_prefix}{raw:table} ({raw:col}_old)',
+					[
+						'table' => $table->name,
+						'col' => $col,
+					],
+				);
 			}
 
 			$this->handleTimeout(++$start);
@@ -202,13 +204,14 @@ class Ipv6Base extends MigrationBase
 
 		// Initialize new ip column.
 		if ($start >= 3) {
-				$this->query('', '
-					UPDATE {db_prefix}{raw:table}
-					SET {raw:col} = {empty}
-				', [
+			$this->query(
+				'UPDATE {db_prefix}{raw:table}
+				SET {raw:col} = {empty}',
+				[
 					'table' => $table->name,
 					'col' => $col,
-				]);
+				],
+			);
 
 			$this->handleTimeout(++$start);
 		}
@@ -227,12 +230,13 @@ class Ipv6Base extends MigrationBase
 		// Remove the temporary ip indexes.
 		if ($start >= 5) {
 			if (isset($existing_structure['indexes']['temp_old_' . $col])) {
-				$this->query('', '
-					DROP INDEX {db_prefix}temp_old_{raw:col} ON {db_prefix}{raw:table}
-				', [
-					'table' => $table->name,
-					'col' => $col,
-				]);
+				$this->query(
+					'DROP INDEX {db_prefix}temp_old_{raw:col} ON {db_prefix}{raw:table}',
+					[
+						'table' => $table->name,
+						'col' => $col,
+					],
+				);
 			}
 
 			$this->handleTimeout(++$start);
@@ -241,13 +245,14 @@ class Ipv6Base extends MigrationBase
 		// Remove the old member columns.
 		if ($start >= 6) {
 			if (isset($existing_structure['columns'][$col . '_old'])) {
-				$this->query('', '
-					ALTER TABLE {db_prefix}{raw:table}
-						DROP COLUMN {raw:col}_old
-				', [
-					'table' => $table->name,
-					'col' => $col,
-				]);
+				$this->query(
+					'ALTER TABLE {db_prefix}{raw:table}
+						DROP COLUMN {raw:col}_old',
+					[
+						'table' => $table->name,
+						'col' => $col,
+					],
+				);
 			}
 
 			$this->handleTimeout(++$start);
@@ -266,7 +271,12 @@ class Ipv6Base extends MigrationBase
 		}
 
 		if ($start <= 0) {
-			$this->query('', 'TRUNCATE TABLE {db_prefix}{raw:table}', ['table' => $table->name]);
+			$this->query(
+				'TRUNCATE TABLE {db_prefix}{raw:table}',
+				[
+					'table' => $table->name,
+				],
+			);
 
 			$this->handleTimeout(++$start);
 		}
@@ -317,15 +327,16 @@ class Ipv6Base extends MigrationBase
 	private function postgreSQLmigrate(Table $table, string|array $columns)
 	{
 		foreach ($columns as $column) {
-			$this->query('', '
-			ALTER TABLE {db_prefix}{raw:table}
-				ALTER {raw:col} DROP not null,
-				ALTER {raw:col} DROP default,
-				ALTER {raw:col} TYPE inet USING migrate_inet({raw:col});
-			', [
-				'table' => $table->name,
-				'col' => $column,
-			]);
+			$this->query(
+				'ALTER TABLE {db_prefix}{raw:table}
+					ALTER {raw:col} DROP not null,
+					ALTER {raw:col} DROP default,
+					ALTER {raw:col} TYPE inet USING migrate_inet({raw:col})',
+				[
+					'table' => $table->name,
+					'col' => $column,
+				],
+			);
 		}
 
 		return true;

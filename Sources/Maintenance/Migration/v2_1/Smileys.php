@@ -99,9 +99,10 @@ class Smileys extends MigrationBase
 			if (in_array('filename', $smileys_columns)) {
 				$inserts = [];
 
-				$request = $this->query('', '
-					SELECT id_smiley, filename
-					FROM {db_prefix}smileys');
+				$request = $this->query(
+					'SELECT id_smiley, filename
+					FROM {db_prefix}smileys',
+				);
 
 				while ($row = Db::$db->fetch_assoc($request)) {
 					$pathinfo = pathinfo($row['filename']);

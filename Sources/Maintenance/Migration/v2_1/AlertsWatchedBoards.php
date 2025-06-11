@@ -51,7 +51,6 @@ class AlertsWatchedBoards extends MigrationBase
 	public function execute(): bool
 	{
 		$request = $this->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_notify
 			WHERE id_member <> 0 AND id_board <> 0',
@@ -70,7 +69,6 @@ class AlertsWatchedBoards extends MigrationBase
 
 			// This setting is stored over in the themes table in 2.0...
 			$request = $this->query(
-				'',
 				'SELECT id_member, ({literal:board_notify_} || id_topic) as alert_pref, 1 as alert_value
 				FROM {db_prefix}log_notify
 				WHERE id_member <> 0 AND id_board <> 0
