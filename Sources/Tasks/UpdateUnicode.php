@@ -745,7 +745,24 @@ class UpdateUnicode extends BackgroundTask
 				}
 
 				if (rtrim($file_contents['temp']) !== rtrim($file_contents['real'])) {
-					rename($file_paths['temp'], $file_paths['real']);
+					$success &= Config::safeFileWrite(
+						$file_paths['real'],
+						file_get_contents($file_paths['temp']),
+						$file_paths['real'] . '.bak',
+						time() + 1,
+					);
+				}
+			}
+
+			// If we wrote all the files successfully, remove the backup files.
+			// Otherwise, revert all of them.
+			if ($success) {
+				foreach (glob($this->unicodedir . DIRECTORY_SEPARATOR . '*.bak') as $path) {
+					unlink($path);
+				}
+			} else {
+				foreach (glob($this->unicodedir . DIRECTORY_SEPARATOR . '*.bak') as $path) {
+					rename($path, substr($path, -4));
 				}
 			}
 
