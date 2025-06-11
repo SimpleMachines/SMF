@@ -63,6 +63,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * be the highest version that the steps could apply to, not the lowest.
 	 */
 	public const VERSION_MAP = [
+		'1.1.99' => 'v1_1',
 		'2.0.99' => 'v2_0',
 		'2.1.99' => 'v2_1',
 		'3.0.99' => 'v3_0',
@@ -77,6 +78,43 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * to ensure that all tables are structured correctly.
 	 */
 	public const MIGRATIONS = [
+		// Migration steps for 1.0 -> 1.1
+		'v1_1' => [
+			Migration\v1_1\RemoveIndexes::class,
+			Migration\v1_1\ReorderCategories::class,
+			Migration\v1_1\ReorderBoards::class,
+			Migration\v1_1\SmileyFix::class,
+			Migration\v1_1\NewSettings::class,
+			Migration\v1_1\OldThemes::class,
+			Migration\v1_1\PersonalMessages::class,
+			Migration\v1_1\MemberApproval::class,
+			Migration\v1_1\Calendar::class,
+			Migration\v1_1\Dates::class,
+			Migration\v1_1\MessageIcons::class,
+			Migration\v1_1\PackageServers::class,
+			Migration\v1_1\Logs1::class,
+			Migration\v1_1\RecountPMs1::class,
+			Migration\v1_1\RecountPMs2::class,
+			Migration\v1_1\AvatarPermissions::class,
+			Migration\v1_1\Thumbnails::class,
+			Migration\v1_1\ImageAttachments::class,
+			Migration\v1_1\Bans::class,
+			Migration\v1_1\BanStats::class,
+			Migration\v1_1\OldBoardPermissions::class,
+			Migration\v1_1\BoardPermissions::class,
+			Migration\v1_1\DenyPermissions::class,
+			Migration\v1_1\PostGroupPermissions::class,
+			Migration\v1_1\LocalPermissions::class,
+			Migration\v1_1\GuestPermissions::class,
+			Migration\v1_1\SearchCache::class,
+			Migration\v1_1\SearchFullText::class,
+			Migration\v1_1\SearchSubjects::class,
+			Migration\v1_1\Logs2::class,
+			Migration\v1_1\Logs3::class,
+			Migration\v1_1\Logs4::class,
+			Migration\v1_1\Logs5::class,
+			Migration\v1_1\Logs6::class,
+		],
 		// Migration steps for 1.1 -> 2.0
 		'v2_0' => [
 			Migration\v2_0\PostgreSQLFunctions::class,
@@ -219,6 +257,11 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * Cleanups that do not require database maintenance tasks.
 	 */
 	public const CLEANUPS = [
+		// Cleanup steps for 1.0 -> 1.1
+		'v1_1' => [
+			Cleanup\v1_1\RemoveTempSettings::class,
+			Cleanup\v1_1\OldFiles::class,
+		],
 		// Cleanup steps for 1.1 -> 2.0
 		'v2_0' => [
 			Cleanup\v2_0\OldFiles::class,
