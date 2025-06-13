@@ -767,79 +767,17 @@ class Install extends ToolsBase implements ToolsInterface
 			if (!empty($table->initial_data)) {
 				$this->logProgress(Lang::getTxt('log_table_populate', ['table' => Config::$db_prefix . $table->name], file: 'Maintenance'), true);
 
-				// Does this table auto-increment?
-				$is_auto = false;
-
-				foreach ($table->columns as $column) {
-					if (!empty($column->auto)) {
-						$is_auto = true;
-						break;
-					}
-				}
-
-				// Prepare the data for insertion.
-				$casts = [];
-				$insert_columns = [];
-
-				foreach ($table->columns as $column) {
-					$casts[$column->name] = in_array($column->type, ['tinyint', 'smallint', 'mediumint', 'bigint', 'int', 'integer']) ? 'int' : 'string';
-				}
-
 				try {
-					foreach ($table->initial_data as &$row) {
-						foreach ($row as $column => &$value) {
-							if (!isset($insert_columns[$column])) {
-								$insert_columns[$column] = $casts[$column];
-							}
+					$num_inserts = $table->populate();
 
-							settype($value, $casts[$column]);
-
-							if (is_string($value)) {
-								$value = strtr($value, $replaces);
-							}
-						}
-					}
-				} catch (\Throwable $e) {
-					Maintenance::$context['failures'][] = $table->name . ':' . $e->getMessage();
-					$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
-
-					continue;
-				}
-
-				// Insert the data
-				try {
-					if ($is_auto) {
-						$ids = Db::$db->insert(
-							method: 'ignore',
-							table: '{db_prefix}' . $table->name,
-							columns: $insert_columns,
-							data: $table->initial_data,
-							keys: array_keys($insert_columns),
-							returnmode: 2,
-						);
-
-						Maintenance::$context['sql_results']['inserts'] += count($ids);
-						Maintenance::$context['sql_results']['insert_dups'] += (count($table->initial_data) - count($ids));
-					} else {
-						foreach ($table->initial_data as $row) {
-							Db::$db->insert(
-								method: 'replace',
-								table: '{db_prefix}' . $table->name,
-								columns: $insert_columns,
-								data: [$row],
-								keys: array_keys($insert_columns),
-								returnmode: 0,
-							);
-
-							Maintenance::$context['sql_results']['inserts']++;
-						}
-					}
+					Maintenance::$context['sql_results']['inserts'] += $num_inserts;
+					Maintenance::$context['sql_results']['insert_dups'] += (count($table->initial_data) - $num_inserts);
 
 					$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
 				} catch (\Throwable $e) {
-					Maintenance::$context['failures'][] = $table->name . ':' . trim(Db::$db->error());
+					Maintenance::$context['failures'][] = $table->name . ':' . $e->getMessage();
 
-					$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => trim(Db::$db->error())], file: 'Maintenance'));
+					$this->logProgress(Lang::getTxt('log_failed_with_error', ['error' => $e->getMessage()], file: 'Maintenance'));
 				}
 			}
 

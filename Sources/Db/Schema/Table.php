@@ -421,6 +421,96 @@ class Table
 		);
 	}
 
+	/**
+	 * Inserts initial data into the table.
+	 *
+	 * @param bool $replace Whether to replace rows that have ID conflicts.
+	 *    Default: false.
+	 * @return int Number of inserted rows.
+	 */
+	public function populate(bool $replace = false): int
+	{
+		if (empty($this->initial_data)) {
+			return 0;
+		}
+
+		// Does this table auto-increment?
+		$auto_col = null;
+
+		foreach ($this->columns as $column) {
+			if (!empty($column->auto)) {
+				$auto_col = $column->name;
+				break;
+			}
+		}
+
+		$method = $replace ? 'replace' : 'ignore';
+		$returnmode = isset($auto_col) ? 2 : 0;
+
+		// Only do this if we are replacing data or the table is empty.
+		if ($method !== 'replace') {
+			$request = Db::$db->query(
+				'SELECT COUNT(*)
+				FROM {db_prefix}{raw:table}',
+				[
+					'table' => $this->name,
+				],
+			);
+			list($num_rows) = Db::$db->fetch_row($request);
+			Db::$db->free_result($request);
+
+			if ($num_rows > 0) {
+				return 0;
+			}
+		}
+
+		// Get the correct values for any placeholders.
+		Lang::load('General+Maintenance', Config::$language);
+
+		$replacements = [
+			'{$db_prefix}' => Db::$db->prefix,
+			'{$attachdir}' => Config::$modSettings['attachmentUploadDir'] ?? json_encode([1 => Db::$db->escape_string(Config::$boarddir . '/attachments')]),
+			'{$boarddir}' => Db::$db->escape_string(Config::$boarddir),
+			'{$boardurl}' => Config::$boardurl,
+			'{$enableCompressedOutput}' => defined('SMF_INSTALLING') ? ((int) !empty($_POST['compress'])) : (Config::$modSettings['enableCompressedOutput'] ?? 0),
+			'{$databaseSession_enable}' => defined('SMF_INSTALLING') ? ((int) !empty($_POST['dbsession'])) : (Config::$modSettings['databaseSession_enable'] ?? 0),
+			'{$smf_version}' => SMF_VERSION,
+			'{$current_time}' => time(),
+			'{$sched_task_offset}' => 82800 + mt_rand(0, 86399),
+			'{$registration_method}' => defined('SMF_INSTALLING') ? ((int) !empty($_POST['reg_mode'])) : (Config::$modSettings['registration_method'] ?? 0),
+		];
+
+		foreach (Lang::$txt as $key => $value) {
+			if (substr($key, 0, 8) == 'default_') {
+				$replacements['{$' . $key . '}'] = Db::$db->escape_string($value);
+			}
+		}
+
+		$replacements['{$default_reserved_names}'] = strtr($replacements['{$default_reserved_names}'], ['\\\\n' => '\\n']);
+
+		// Replace any placeholders in the initial data.
+		foreach ($this->initial_data as $row_num => $row) {
+			$this->initial_data[$row_num] = array_map(
+				fn($v) => $replacements[$v] ?? $v,
+				$row,
+			);
+		}
+
+		// Insert the initial data.
+		$ids = Db::$db->insert(
+			method: $method,
+			table: '{db_prefix}' . $this->name,
+			columns: Db::$db->getTypeIndicators('{db_prefix}' . $this->name, reset($this->initial_data)),
+			data: array_map(fn($row) => array_values($row), $this->initial_data),
+			keys: isset($auto_col) ? [$auto_col] : [],
+			returnmode: $returnmode,
+		);
+
+		$num_inserts = count($ids ?? $this->initial_data);
+
+		return $num_inserts;
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/

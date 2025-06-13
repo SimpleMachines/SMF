@@ -40,41 +40,6 @@ class CreateAlerts extends MigrationBase
 	private bool $is_done = false;
 
 	/**
-	 *
-	 */
-	private array $default_alert_perms = [
-		[0, 'alert_timeout', 10],
-		[0, 'announcements', 0],
-		[0, 'birthday', 2],
-		[0, 'board_notify', 1],
-		[0, 'buddy_request', 1],
-		[0, 'groupr_approved', 3],
-		[0, 'groupr_rejected', 3],
-		[0, 'member_group_request', 1],
-		[0, 'member_register', 1],
-		[0, 'member_report', 3],
-		[0, 'member_report_reply', 3],
-		[0, 'msg_auto_notify', 0],
-		[0, 'msg_like', 1],
-		[0, 'msg_mention', 1],
-		[0, 'msg_notify_pref', 1],
-		[0, 'msg_notify_type', 1],
-		[0, 'msg_quote', 1],
-		[0, 'msg_receive_body', 0],
-		[0, 'msg_report', 1],
-		[0, 'msg_report_reply', 1],
-		[0, 'pm_new', 1],
-		[0, 'pm_notify', 1],
-		[0, 'pm_reply', 1],
-		[0, 'request_group', 1],
-		[0, 'topic_notify', 1],
-		[0, 'unapproved_attachment', 1],
-		[0, 'unapproved_reply', 3],
-		[0, 'unapproved_post', 1],
-		[0, 'warn_any', 1],
-	];
-
-	/**
 	 * @var int
 	 *
 	 * Maximum number of items to process at once.
@@ -119,17 +84,7 @@ class CreateAlerts extends MigrationBase
 		$this->handleTimeout(0);
 
 		// Add our default permissions.
-		Db::$db->insert(
-			'ignore',
-			'{db_prefix}' . $user_alert_prefs_table->name,
-			[
-				'id_member' => 'int',
-				'alert_pref' => 'string',
-				'alert_value' => 'int',
-			],
-			$this->default_alert_perms,
-			['id_theme', 'alert_pref'],
-		);
+		$user_alert_prefs_table->populate();
 
 		$request = $this->query(
 			'SELECT COUNT(*)

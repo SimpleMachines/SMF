@@ -30,97 +30,6 @@ class CustomFieldsPart1 extends MigrationBase
 	 */
 	public string $name = 'Upgrade Custom Fields (Preparing)';
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	private array $default_fields = [
-		[
-			'cust_icq',
-			'{icq}',
-			'{icq_desc}',
-			'text',
-			12,
-			'',
-			1,
-			'regex~[1-9][0-9]{4,9}~i',
-			0,
-			1,
-			0,
-			1,
-			0,
-			1,
-			0,
-			0,
-			'',
-			'<a class="icq" href="//www.icq.com/people/{INPUT}" target="_blank" rel="noopener" title="ICQ - {INPUT}"><img src="{DEFAULT_IMAGES_URL}/icq.png" alt="ICQ - {INPUT}"></a>',
-			1,
-		],
-		[
-			'cust_skype',
-			'{skype}',
-			'{skype_desc}',
-			'text',
-			32,
-			'',
-			2,
-			'nohtml',
-			0,
-			1,
-			0,
-			1,
-			0,
-			1,
-			0,
-			0,
-			'',
-			'<a href="skype:{INPUT}?call"><img src="{DEFAULT_IMAGES_URL}/skype.png" alt="{INPUT}" title="{INPUT}" /></a> ',
-			1,
-		],
-		[
-			'cust_loca',
-			'{location}',
-			'{location_desc}',
-			'text',
-			50,
-			'',
-			4,
-			'nohtml',
-			0,
-			1,
-			0,
-			1,
-			0,
-			1,
-			0,
-			0,
-			'',
-			'',
-			0,
-		],
-		[
-			'cust_gender',
-			'{gender}',
-			'{gender_desc}',
-			'radio',
-			255,
-			'{gender_0},{gender_1},{gender_2}',
-			5,
-			'nohtml',
-			1,
-			1,
-			0,
-			1,
-			0,
-			1,
-			0,
-			0,
-			'{gender_0}',
-			'<span class=" main_icons gender_{KEY}" title="{INPUT}"></span>',
-			1,
-		],
-	];
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -134,54 +43,12 @@ class CustomFieldsPart1 extends MigrationBase
 
 		if ($start <= 0) {
 			$table = new \SMF\Db\Schema\v2_1\CustomFields();
-			$existing_structure = $table->getCurrentStructure();
-
-			foreach ($table->columns as $column) {
-				// Add the columns.
-				if (
-					(
-						$column->name === 'field_order'
-						|| $column->name === 'show_mlist'
-					)
-					&& !isset($existing_structure['columns'][$column->name])
-				) {
-					$table->addColumn($column);
-					continue;
-				}
-			}
-
+			$table->normalize();
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 1) {
-			Db::$db->insert(
-				'ignore',
-				'{db_prefix}' . $table->name,
-				[
-					'col_name' => 'string',
-					'field_name' => 'string',
-					'field_desc' => 'string',
-					'field_type' => 'string',
-					'field_length' => 'int',
-					'field_options' => 'string',
-					'field_order' => 'int',
-					'mask' => 'string',
-					'show_reg' => 'int',
-					'show_display' => 'int',
-					'show_mlist' => 'int',
-					'show_profile' => 'int',
-					'private' => 'int',
-					'active' => 'int',
-					'bbc' => 'int',
-					'can_search' => 'int',
-					'default_value' => 'string',
-					'enclose' => 'string',
-					'placement' => 'int',
-				],
-				$this->default_fields,
-				['id_theme', 'alert_pref'],
-			);
-
+			$table->populate();
 			$this->handleTimeout(++$start);
 		}
 
