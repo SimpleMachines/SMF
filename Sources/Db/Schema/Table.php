@@ -361,14 +361,15 @@ class Table
 	 *
 	 * @see SMF\Db\DatabaseApi::remove_column
 	 *
-	 * @param Column $col The column to drop.
+	 * @param string|Column $col The column to drop. May be either an instance
+	 *    of the Column class, or just the name of the column.
 	 * @return bool Whether or not the operation was successful.
 	 */
-	public function dropColumn(Column $col): bool
+	public function dropColumn(string|Column $col): bool
 	{
 		return Db::$db->remove_column(
 			'{db_prefix}' . $this->name,
-			$col->name,
+			$col instanceof Column ? $col->name : $col,
 		);
 	}
 
@@ -408,14 +409,15 @@ class Table
 	 *
 	 * @see SMF\Db\DatabaseApi::remove_index
 	 *
-	 * @param DbIndex $index The index to drop.
+	 * @param string|DbIndex $index The index to drop. May be either an instance
+	 *    of the DbIndex class, or just the name of the index.
 	 * @return bool Whether or not the operation was successful.
 	 */
-	public function dropIndex(DbIndex $index): bool
+	public function dropIndex(string|DbIndex $index): bool
 	{
 		return Db::$db->remove_index(
 			'{db_prefix}' . $this->name,
-			$index->name,
+			$index instanceof DbIndex ? $index->name : $index,
 		);
 	}
 
