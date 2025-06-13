@@ -59,5 +59,7 @@ class LogSearchTopics extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

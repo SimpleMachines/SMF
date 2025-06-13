@@ -69,5 +69,7 @@ class LogPolls extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

@@ -87,5 +87,7 @@ class PermissionProfiles extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

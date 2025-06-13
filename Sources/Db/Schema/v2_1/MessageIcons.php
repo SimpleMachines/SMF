@@ -164,5 +164,7 @@ class MessageIcons extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

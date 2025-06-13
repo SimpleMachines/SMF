@@ -206,5 +206,7 @@ class Membergroups extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

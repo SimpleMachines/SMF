@@ -896,5 +896,7 @@ class CalendarHolidays extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

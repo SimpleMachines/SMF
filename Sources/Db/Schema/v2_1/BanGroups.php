@@ -112,5 +112,7 @@ class BanGroups extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

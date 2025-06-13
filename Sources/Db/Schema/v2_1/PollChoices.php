@@ -73,5 +73,7 @@ class PollChoices extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

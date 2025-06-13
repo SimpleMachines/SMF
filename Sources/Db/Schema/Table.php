@@ -83,7 +83,13 @@ class Table
 	 */
 	public function __construct()
 	{
-		$this->default_charset = Db::$db->title === MYSQL_TITLE ? 'utf8mb4' : 'utf8';
+		// As of SMF 3.0, all tables always use four-byte UTF-8.
+		if (
+			preg_match('/\\\\v(\d+_\d+)\\\\/', $this::class, $matches)
+			&& version_compare(strtr($matches[1], '_', '.'), '3.0', '>=')
+		) {
+			$this->default_charset = Db::$db->title === MYSQL_TITLE ? 'utf8mb4' : 'utf8';
+		}
 	}
 
 	/**

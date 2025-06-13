@@ -1623,5 +1623,7 @@ class BoardPermissions extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

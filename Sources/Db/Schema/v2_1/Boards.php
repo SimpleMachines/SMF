@@ -230,5 +230,7 @@ class Boards extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

@@ -222,5 +222,7 @@ class UserAlertsPrefs extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

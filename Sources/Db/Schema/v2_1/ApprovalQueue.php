@@ -57,5 +57,7 @@ class ApprovalQueue extends Table
 				default: 0,
 			),
 		];
+
+		parent::__construct();
 	}
 }

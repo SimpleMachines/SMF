@@ -280,5 +280,7 @@ class Permissions extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

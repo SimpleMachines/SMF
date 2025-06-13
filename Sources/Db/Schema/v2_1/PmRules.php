@@ -102,5 +102,7 @@ class PmRules extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

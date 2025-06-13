@@ -160,5 +160,7 @@ class LogReported extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

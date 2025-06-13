@@ -81,5 +81,7 @@ class LogSearchResults extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

@@ -59,5 +59,7 @@ class GroupModerators extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

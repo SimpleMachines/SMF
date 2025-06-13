@@ -136,5 +136,7 @@ class AdminInfoFiles extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

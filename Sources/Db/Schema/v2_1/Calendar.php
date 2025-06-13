@@ -132,5 +132,7 @@ class Calendar extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

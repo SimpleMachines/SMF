@@ -196,5 +196,7 @@ class Spiders extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

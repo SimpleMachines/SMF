@@ -447,5 +447,7 @@ class Members extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

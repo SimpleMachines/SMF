@@ -71,5 +71,7 @@ class LogDigest extends Table
 				default: 0,
 			),
 		];
+
+		parent::__construct();
 	}
 }

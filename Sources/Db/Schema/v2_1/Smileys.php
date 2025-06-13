@@ -232,5 +232,7 @@ class Smileys extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

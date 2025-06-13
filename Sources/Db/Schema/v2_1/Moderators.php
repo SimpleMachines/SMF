@@ -59,5 +59,7 @@ class Moderators extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

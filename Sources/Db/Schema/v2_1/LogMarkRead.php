@@ -66,5 +66,7 @@ class LogMarkRead extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

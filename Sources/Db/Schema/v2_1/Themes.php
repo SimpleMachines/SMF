@@ -161,5 +161,7 @@ class Themes extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

@@ -175,5 +175,7 @@ class Attachments extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }

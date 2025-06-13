@@ -100,5 +100,7 @@ class PackageServers extends Table
 				],
 			),
 		];
+
+		parent::__construct();
 	}
 }
