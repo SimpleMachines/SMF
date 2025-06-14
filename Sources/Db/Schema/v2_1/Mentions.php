@@ -50,17 +50,20 @@ class Mentions extends Table
 			'id_mentioned' => new Column(
 				name: 'id_mentioned',
 				type: 'int',
+				default: 0,
 			),
 			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
 				unsigned: true,
 				not_null: true,
+				default: 0,
 			),
 			'time' => new Column(
 				name: 'time',
 				type: 'int',
 				not_null: true,
+				default: 0,
 			),
 		];
 

@@ -79,6 +79,12 @@ class LogNotify extends Table
 					'id_member',
 				],
 			),
+			'id_board' => new DbIndex(
+				name: 'id_board',
+				columns: [
+					'id_board',
+				],
+			),
 		];
 	}
 }

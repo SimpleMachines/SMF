@@ -69,13 +69,6 @@ class LogGroupRequests extends Table
 				type: 'text',
 				not_null: true,
 			),
-			'comment_type' => new Column(
-				name: 'comment_type',
-				type: 'varchar',
-				size: 8,
-				not_null: true,
-				default: 'warning',
-			),
 			'status' => new Column(
 				name: 'status',
 				type: 'tinyint',
@@ -95,7 +88,7 @@ class LogGroupRequests extends Table
 				type: 'varchar',
 				size: 255,
 				not_null: true,
-				default: 0,
+				default: '',
 			),
 			'time_acted' => new Column(
 				name: 'time_acted',

@@ -24,6 +24,150 @@ use SMF\Db\Schema\Table;
  */
 class Smileys extends Table
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 * @var array
+	 *
+	 * Data used to populate the table during install.
+	 */
+	public array $initial_data = [
+		[
+			'code' => ':)',
+			'description' => '{$default_smiley_smiley}',
+			'smiley_order' => 0,
+			'hidden' => 0,
+		],
+		[
+			'code' => ';)',
+			'description' => '{$default_wink_smiley}',
+			'smiley_order' => 1,
+			'hidden' => 0,
+		],
+		[
+			'code' => ':D',
+			'description' => '{$default_cheesy_smiley}',
+			'smiley_order' => 2,
+			'hidden' => 0,
+		],
+		[
+			'code' => ';D',
+			'description' => '{$default_grin_smiley}',
+			'smiley_order' => 3,
+			'hidden' => 0,
+		],
+		[
+			'code' => '>:(',
+			'description' => '{$default_angry_smiley}',
+			'smiley_order' => 4,
+			'hidden' => 0,
+		],
+		[
+			'code' => ':(',
+			'description' => '{$default_sad_smiley}',
+			'smiley_order' => 5,
+			'hidden' => 0,
+		],
+		[
+			'code' => ':o',
+			'description' => '{$default_shocked_smiley}',
+			'smiley_order' => 6,
+			'hidden' => 0,
+		],
+		[
+			'code' => '8)',
+			'description' => '{$default_cool_smiley}',
+			'smiley_order' => 7,
+			'hidden' => 0,
+		],
+		[
+			'code' => '???',
+			'description' => '{$default_huh_smiley}',
+			'smiley_order' => 8,
+			'hidden' => 0,
+		],
+		[
+			'code' => '::)',
+			'description' => '{$default_roll_eyes_smiley}',
+			'smiley_order' => 9,
+			'hidden' => 0,
+		],
+		[
+			'code' => ':P',
+			'description' => '{$default_tongue_smiley}',
+			'smiley_order' => 10,
+			'hidden' => 0,
+		],
+		[
+			'code' => ':-[',
+			'description' => '{$default_embarrassed_smiley}',
+			'smiley_order' => 11,
+			'hidden' => 0,
+		],
+		[
+			'code' => ':-X',
+			'description' => '{$default_lips_sealed_smiley}',
+			'smiley_order' => 12,
+			'hidden' => 0,
+		],
+		[
+			'code' => ':-\\',
+			'description' => '{$default_undecided_smiley}',
+			'smiley_order' => 13,
+			'hidden' => 0,
+		],
+		[
+			'code' => ':-*',
+			'description' => '{$default_kiss_smiley}',
+			'smiley_order' => 14,
+			'hidden' => 0,
+		],
+		[
+			'code' => ':\'(',
+			'description' => '{$default_cry_smiley}',
+			'smiley_order' => 15,
+			'hidden' => 0,
+		],
+		[
+			'code' => '>:D',
+			'description' => '{$default_evil_smiley}',
+			'smiley_order' => 16,
+			'hidden' => 1,
+		],
+		[
+			'code' => '^-^',
+			'description' => '{$default_azn_smiley}',
+			'smiley_order' => 17,
+			'hidden' => 1,
+		],
+		[
+			'code' => 'O0',
+			'description' => '{$default_afro_smiley}',
+			'smiley_order' => 18,
+			'hidden' => 1,
+		],
+		[
+			'code' => ':))',
+			'description' => '{$default_laugh_smiley}',
+			'smiley_order' => 19,
+			'hidden' => 1,
+		],
+		[
+			'code' => 'C:-)',
+			'description' => '{$default_police_smiley}',
+			'smiley_order' => 20,
+			'hidden' => 1,
+		],
+		[
+			'code' => 'O:-)',
+			'description' => '{$default_angel_smiley}',
+			'smiley_order' => 21,
+			'hidden' => 1,
+		],
+	];
+
 	/****************
 	 * Public methods
 	 ****************/

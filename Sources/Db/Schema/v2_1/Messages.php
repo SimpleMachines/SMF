@@ -191,8 +191,8 @@ class Messages extends Table
 				],
 			),
 			'idx_id_board' => new DbIndex(
-				name: 'idx_id_board',
 				type: 'unique',
+				name: 'idx_id_board',
 				columns: [
 					'id_board',
 					'id_msg',
@@ -200,8 +200,8 @@ class Messages extends Table
 				],
 			),
 			'idx_id_member' => new DbIndex(
-				name: 'idx_id_member',
 				type: 'unique',
+				name: 'idx_id_member',
 				columns: [
 					'id_member',
 					'id_msg',

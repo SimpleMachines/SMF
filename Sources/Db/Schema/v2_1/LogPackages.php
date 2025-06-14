@@ -39,7 +39,6 @@ class LogPackages extends Table
 			'id_install' => new Column(
 				name: 'id_install',
 				type: 'int',
-				unsigned: true,
 				not_null: true,
 				auto: true,
 			),
@@ -86,7 +85,7 @@ class LogPackages extends Table
 			),
 			'time_installed' => new Column(
 				name: 'time_installed',
-				type: 'mediumint',
+				type: 'int',
 				not_null: true,
 				default: 0,
 			),
@@ -105,13 +104,13 @@ class LogPackages extends Table
 			),
 			'time_removed' => new Column(
 				name: 'time_removed',
-				type: 'mediumint',
+				type: 'int',
 				not_null: true,
 				default: 0,
 			),
 			'install_state' => new Column(
 				name: 'install_state',
-				type: 'mediumint',
+				type: 'tinyint',
 				not_null: true,
 				default: 1,
 			),
@@ -134,16 +133,12 @@ class LogPackages extends Table
 			),
 			'credits' => new Column(
 				name: 'credits',
-				type: 'varchar',
-				size: 255,
+				type: 'text',
 				not_null: true,
-				default: '',
 			),
 			'sha256_hash' => new Column(
 				name: 'sha256_hash',
 				type: 'text',
-				not_null: false,
-				default: null,
 			),
 		];
 

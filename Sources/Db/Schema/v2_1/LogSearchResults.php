@@ -77,6 +77,7 @@ class LogSearchResults extends Table
 				columns: [
 					'id_search',
 					'id_topic',
+					'id_msg',
 				],
 			),
 		];

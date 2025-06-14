@@ -149,8 +149,8 @@ class Attachments extends Table
 				],
 			),
 			'idx_id_member' => new DbIndex(
-				name: 'idx_id_member',
 				type: 'unique',
+				name: 'idx_id_member',
 				columns: [
 					'id_member',
 					'id_attach',

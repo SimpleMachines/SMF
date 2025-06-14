@@ -204,8 +204,8 @@ class Boards extends Table
 				],
 			),
 			'idx_categories' => new DbIndex(
-				name: 'idx_categories',
 				type: 'unique',
+				name: 'idx_categories',
 				columns: [
 					'id_cat',
 					'id_board',

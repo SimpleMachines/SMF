@@ -231,8 +231,8 @@ class ScheduledTasks extends Table
 				],
 			),
 			'idx_task' => new DbIndex(
-				name: 'idx_task',
 				type: 'unique',
+				name: 'idx_task',
 				columns: [
 					'task',
 				],

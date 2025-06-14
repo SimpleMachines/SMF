@@ -89,6 +89,24 @@ class Themes extends Table
 			'variable' => 'enable_news',
 			'value' => '1',
 		],
+		[
+			'id_member' => -1,
+			'id_theme' => 1,
+			'variable' => 'posts_apply_ignore_list',
+			'value' => '1',
+		],
+		[
+			'id_member' => -1,
+			'id_theme' => 1,
+			'variable' => 'drafts_show_saved_enabled',
+			'value' => '1',
+		],
+		[
+			'id_member' => -1,
+			'id_theme' => 1,
+			'variable' => 'return_to_post',
+			'value' => '1',
+		],
 	];
 
 	/****************

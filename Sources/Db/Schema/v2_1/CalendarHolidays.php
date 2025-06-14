@@ -570,6 +570,282 @@ class CalendarHolidays extends Table
 			'title' => 'Autumnal Equinox',
 			'event_date' => '2030-09-22',
 		],
+		[
+			'title' => 'Independence Day',
+			'event_date' => '1004-07-04',
+		],
+		[
+			'title' => 'Cinco de Mayo',
+			'event_date' => '1004-05-05',
+		],
+		[
+			'title' => 'Flag Day',
+			'event_date' => '1004-06-14',
+		],
+		[
+			'title' => 'Veterans Day',
+			'event_date' => '1004-11-11',
+		],
+		[
+			'title' => 'Groundhog Day',
+			'event_date' => '1004-02-02',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2010-11-25',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2011-11-24',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2012-11-22',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2013-11-28',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2014-11-27',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2015-11-26',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2016-11-24',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2017-11-23',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2018-11-22',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2019-11-28',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2020-11-26',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2021-11-25',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2022-11-24',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2023-11-23',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2024-11-28',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2025-11-27',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2026-11-26',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2027-11-25',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2028-11-23',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2029-11-22',
+		],
+		[
+			'title' => 'Thanksgiving',
+			'event_date' => '2030-11-28',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2010-05-31',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2011-05-30',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2012-05-28',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2013-05-27',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2014-05-26',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2015-05-25',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2016-05-30',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2017-05-29',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2018-05-28',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2019-05-27',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2020-05-25',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2021-05-31',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2022-05-30',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2023-05-29',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2024-05-27',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2025-05-26',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2026-05-25',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2027-05-31',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2028-05-29',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2029-05-28',
+		],
+		[
+			'title' => 'Memorial Day',
+			'event_date' => '2030-05-27',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2010-09-06',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2011-09-05',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2012-09-03',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2013-09-02',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2014-09-01',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2015-09-07',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2016-09-05',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2017-09-04',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2018-09-03',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2019-09-02',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2020-09-07',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2021-09-06',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2022-09-05',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2023-09-04',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2024-09-02',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2025-09-01',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2026-09-07',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2027-09-06',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2028-09-04',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2029-09-03',
+		],
+		[
+			'title' => 'Labor Day',
+			'event_date' => '2030-09-02',
+		],
+		[
+			'title' => 'D-Day',
+			'event_date' => '1004-06-06',
+		],
 	];
 
 	/****************

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Db\Schema\v2_1;
 
 use SMF\Db\Schema\Column;
+use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;
 
 /**

@@ -96,11 +96,13 @@ class Members extends Table
 				name: 'instant_messages',
 				type: 'smallint',
 				not_null: true,
+				default: 0,
 			),
 			'unread_messages' => new Column(
 				name: 'unread_messages',
 				type: 'smallint',
 				not_null: true,
+				default: 0,
 			),
 			'new_pm' => new Column(
 				name: 'new_pm',

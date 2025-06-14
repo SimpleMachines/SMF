@@ -179,24 +179,24 @@ class Topics extends Table
 				],
 			),
 			'idx_last_message' => new DbIndex(
-				name: 'idx_last_message',
 				type: 'unique',
+				name: 'idx_last_message',
 				columns: [
 					'id_last_msg',
 					'id_board',
 				],
 			),
 			'idx_first_message' => new DbIndex(
-				name: 'idx_first_message',
 				type: 'unique',
+				name: 'idx_first_message',
 				columns: [
 					'id_first_msg',
 					'id_board',
 				],
 			),
 			'idx_poll' => new DbIndex(
-				name: 'idx_poll',
 				type: 'unique',
+				name: 'idx_poll',
 				columns: [
 					'id_poll',
 					'id_topic',

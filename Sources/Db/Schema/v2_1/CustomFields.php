@@ -267,8 +267,8 @@ class CustomFields extends Table
 				],
 			),
 			'idx_col_name' => new DbIndex(
-				name: 'idx_col_name',
 				type: 'unique',
+				name: 'idx_col_name',
 				columns: [
 					'col_name',
 				],

@@ -114,8 +114,8 @@ class LogSubscribed extends Table
 				],
 			),
 			'id_subscribe' => new DbIndex(
-				name: 'id_subscribe',
 				type: 'unique',
+				name: 'id_subscribe',
 				columns: [
 					'id_subscribe',
 					'id_member',
