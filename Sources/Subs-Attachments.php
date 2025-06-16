@@ -563,7 +563,7 @@ function attachmentChecks($attachID)
 	elseif ($_SESSION['temp_attachments'][$attachID]['type'] === 'image/svg+xml')
 	{
 		require_once($sourcedir . '/Subs-Graphics.php');
-		if (!checkSVGContents($_SESSION['temp_attachments'][$attachID]['tmp_name']))
+		if (!checkSvgContents($_SESSION['temp_attachments'][$attachID]['tmp_name']))
 		{
 			$_SESSION['temp_attachments'][$attachID]['errors'][] = 'bad_attachment';
 			return false;
