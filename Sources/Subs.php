@@ -902,7 +902,7 @@ function get_date_or_time_format($type = '', $format = '')
  *     If null, uses default time zone.
  * @return string The formatted datetime string.
  */
-function smf_strftime(string $format, int $timestamp = null, string $tzid = null)
+function smf_strftime(string $format, $timestamp = null, $tzid = null)
 {
 	global $txt, $smcFunc, $sourcedir;
 
@@ -1227,7 +1227,7 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
  *     If null, defaults to the current time.
  * @return string The formatted datetime string.
  */
-function smf_gmstrftime(string $format, int $timestamp = null)
+function smf_gmstrftime(string $format, $timestamp = null)
 {
 	return smf_strftime($format, $timestamp, 'UTC');
 }
