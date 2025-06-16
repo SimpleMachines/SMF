@@ -277,7 +277,7 @@ function checkSvgContents($fileName)
 		// No embedded PHP tags allowed.
 		// Harmless if the SVG is just the src of an img element, but very bad
 		// if the SVG is embedded inline into the HTML document.
-		'/<(php)?[?]|[?]>/i',
+		'/<[?](php|=|\s)|[?]>/i',
 	);
 
 	$prev_chunk = '';
