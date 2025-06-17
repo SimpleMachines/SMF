@@ -65,10 +65,13 @@ class FullDiff extends Diff
 	 * Given the modified string, reconstructs the original string.
 	 *
 	 * @param string $str2 The modified string.
+	 * @param bool $dynamic_context Whether to allow the matching algorithm to
+	 *    dynamically adjust the number of context lines it considers when
+	 *    attempting to find a match for each change. Default: false.
 	 * @throws \ValueError if given a string it cannot work with.
 	 * @return string The original string.
 	 */
-	public function revert(string $str2): string
+	public function revert(string $str2, bool $dynamic_context = false): string
 	{
 		$real_changes = $this->changes;
 
@@ -81,7 +84,7 @@ class FullDiff extends Diff
 		}
 
 		try {
-			$str1 = $this->apply($str2);
+			$str1 = $this->apply($str2, $dynamic_context);
 		} catch (\ValueError $e) {
 			$this->changes = $real_changes;
 
