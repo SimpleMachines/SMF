@@ -2181,9 +2181,9 @@ class PackageUtils
 			// Apply the changes to the file content.
 			try {
 				if ($undo) {
-					$target_content = $original = $diff->revert($modified);
+					$target_content = $original = $diff->revert($modified, true);
 				} else {
-					$target_content = $modified = $diff->apply($original);
+					$target_content = $modified = $diff->apply($original, true);
 				}
 			} catch (\ValueError $e) {
 				$failed_changes = Utils::jsonDecode($e->getMessage(), true);
@@ -2242,9 +2242,9 @@ class PackageUtils
 
 				try {
 					if ($undo) {
-						$target_content = $original = $diff->revert($modified);
+						$target_content = $original = $diff->revert($modified, true);
 					} else {
-						$target_content = $modified = $diff->apply($original);
+						$target_content = $modified = $diff->apply($original, true);
 					}
 
 					$diff->changes = $real_changes;
