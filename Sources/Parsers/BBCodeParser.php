@@ -2862,11 +2862,14 @@ class BBCodeParser extends Parser
 
 			// Reverse order because mods typically append to the array.
 			foreach (array_reverse(array_keys(self::$codes)) as $i) {
-				$value = self::$codes[$i];
+				$value = clone self::$codes[$i];
 
 				// Closures cannot be serialized, but they can be reflected.
-				if (($value->validate ?? null) instanceof \Closure) {
-					$value->validate = (string) new \ReflectionFunction($value->validate);
+				if (
+					$value instanceof GenericBBCode
+					&& ($value->validation_callback ?? null) instanceof \Closure
+				) {
+					$value->validation_callback = (string) new \ReflectionFunction($value->validation_callback);
 				}
 
 				$serialized = serialize($value);
