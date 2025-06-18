@@ -1,4 +1,4 @@
-# SMF Miniumn Requirements
+# SMF Minimum Requirements
 
 ## PHP
 ### PHP Version Support
@@ -8,7 +8,7 @@
 
 ### Undocumented Version Support
 - Versions below miniumn listed above are not supported.
-- Versions above the maxiumn listed above:
+- Versions above the maximum listed above:
 	- Will be supported in a future date unless this version has reached End of Life.
 	- Support is limited until then and provided as best effort.
 	- Git repository may contain code that tests support for higher PHP versions.
@@ -45,7 +45,7 @@
 ## PHP
 ### PHP INI
 - max_input_time set to a value of at least 30.
-- post_max_size and upload_max_filesize set to the size of the largest attachments you wish to be able to - upload.
+- post_max_size and upload_max_filesize set to the size of the largest attachments you wish to be able to upload.
 - memory_limit set to at least 512M.
 - max_execution_time set to at least 15.
 - session.use_trans_sid set to Off.
