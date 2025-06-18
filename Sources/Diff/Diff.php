@@ -450,54 +450,59 @@ abstract class Diff
 			$lines = [];
 		}
 
-		$broken_changes = [];
-		$affected_line_numbers = [];
-
 		// Find the correct place to apply the change.
-		foreach (array_reverse($changes, true) as $c => $change) {
-			$change = $this->fixL1($change, $lines, $affected_line_numbers, $dynamic_context);
+		// This is not applicable to EditDiffs.
+		if (is_string($this->changes[0]['old'])) {
+			$broken_changes = [];
+			$affected_line_numbers = [];
 
-			if ($change === false) {
-				$broken_changes[$c] = $changes[$c];
-				continue;
+			foreach (array_reverse($changes, true) as $c => $change) {
+				$change = $this->fixL1($change, $lines, $affected_line_numbers, $dynamic_context);
+
+				if ($change === false) {
+					$broken_changes[$c] = $changes[$c];
+					continue;
+				}
+
+				$changes[$c] = $change;
+
+				$affected_line_numbers = array_merge(
+					$affected_line_numbers,
+					range(
+						$change['l1'] ?? 0,
+						($change['l1'] ?? 0) + count($this->splitLines($change['old'], PREG_SPLIT_NO_EMPTY)),
+					),
+				);
 			}
 
-			$changes[$c] = $change;
+			if (!empty($broken_changes)) {
+				ksort($broken_changes);
 
-			$affected_line_numbers = array_merge(
-				$affected_line_numbers,
-				range(
-					$change['l1'] ?? 0,
-					($change['l1'] ?? 0) + count($this->splitLines($change['old'], PREG_SPLIT_NO_EMPTY)),
-				),
-			);
-		}
-
-		if (!empty($broken_changes)) {
-			ksort($broken_changes);
-
-			// Include info about the changes that couldn't be applied
-			// so that the caller knows exactly what went wrong.
-			throw new \ValueError(json_encode($broken_changes));
+				// Include info about the changes that couldn't be applied
+				// so that the caller knows exactly what went wrong.
+				throw new \ValueError(json_encode($broken_changes));
+			}
 		}
 
 		// Do the job.
 		$str2 = '';
 
 		foreach (array_reverse($changes) as $change) {
+			$old_length = is_int($change['old']) ? $change['old'] : mb_strlen($change['old']);
+
 			if (isset($lines[$change['l1']])) {
 				$substring = implode('', array_splice($lines, $change['l1']));
 
 				$str2 =
 					mb_substr($substring, 0, $change['offset']) .
 					$change['new'] .
-					mb_substr($substring, $change['offset'] + mb_strlen($change['old'])) .
+					mb_substr($substring, $change['offset'] + $old_length) .
 					$str2;
 			} else {
 				$str2 =
 					mb_substr($str2, 0, $change['offset']) .
 					$change['new'] .
-					mb_substr($str2, $change['offset'] + mb_strlen($change['old']));
+					mb_substr($str2, $change['offset'] + $old_length);
 			}
 		}
 
