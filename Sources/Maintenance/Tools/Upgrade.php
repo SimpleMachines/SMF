@@ -63,6 +63,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * be the highest version that the steps could apply to, not the lowest.
 	 */
 	public const VERSION_MAP = [
+		'1.0.99' => 'v1_0',
 		'1.1.99' => 'v1_1',
 		'2.0.99' => 'v2_0',
 		'2.1.99' => 'v2_1',
@@ -78,6 +79,71 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * to ensure that all tables are structured correctly.
 	 */
 	public const MIGRATIONS = [
+		// Migration steps for YaBB SE -> SMF 1.0
+		'v1_0' => [
+			Migration\v1_0\NewTables::class,
+			Migration\v1_0\Logs::class,
+			Migration\v1_0\BoardsAndCategories::class,
+			Migration\v1_0\AnnouncementPermissions::class,
+			Migration\v1_0\BoardStats::class,
+			Migration\v1_0\Moderators::class,
+			Migration\v1_0\BoardOrder::class,
+			Migration\v1_0\BoardAccess1::class,
+			Migration\v1_0\BoardAccess2::class,
+			Migration\v1_0\Attachments::class,
+			Migration\v1_0\Messages1::class,
+			Migration\v1_0\Messages2::class,
+			Migration\v1_0\Messages3::class,
+			Migration\v1_0\Messages4::class,
+			Migration\v1_0\Messages5::class,
+			Migration\v1_0\Messages6::class,
+			Migration\v1_0\Messages7::class,
+			Migration\v1_0\Topics1::class,
+			Migration\v1_0\Topics2::class,
+			Migration\v1_0\Topics3::class,
+			Migration\v1_0\Topics4::class,
+			Migration\v1_0\Topics5::class,
+			Migration\v1_0\Topics6::class,
+			Migration\v1_0\Members1::class,
+			Migration\v1_0\Members2::class,
+			Migration\v1_0\Members3::class,
+			Migration\v1_0\Members4::class,
+			Migration\v1_0\Members5::class,
+			Migration\v1_0\Members6::class,
+			Migration\v1_0\Members7::class,
+			Migration\v1_0\Members8::class,
+			Migration\v1_0\Members9::class,
+			Migration\v1_0\Members10::class,
+			Migration\v1_0\Members11::class,
+			Migration\v1_0\Members12::class,
+			Migration\v1_0\Members13::class,
+			Migration\v1_0\MemberStats::class,
+			Migration\v1_0\InstantMessages1::class,
+			Migration\v1_0\InstantMessages2::class,
+			Migration\v1_0\InstantMessages3::class,
+			Migration\v1_0\InstantMessages4::class,
+			Migration\v1_0\InstantMessages5::class,
+			Migration\v1_0\InstantMessages6::class,
+			Migration\v1_0\InstantMessages7::class,
+			Migration\v1_0\InstantMessages8::class,
+			Migration\v1_0\InstantMessages9::class,
+			Migration\v1_0\Membergroups1::class,
+			Migration\v1_0\Membergroups2::class,
+			Migration\v1_0\ReservedNames::class,
+			Migration\v1_0\CensoredWords::class,
+			Migration\v1_0\TopicNotifications::class,
+			Migration\v1_0\Banned::class,
+			Migration\v1_0\Calendar::class,
+			Migration\v1_0\Holidays::class,
+			Migration\v1_0\PollChoices::class,
+			Migration\v1_0\LogPolls::class,
+			Migration\v1_0\Polls::class,
+			Migration\v1_0\News::class,
+			Migration\v1_0\Themes::class,
+			Migration\v1_0\NewSettings::class,
+			Migration\v1_0\Options::class,
+			Migration\v1_0\Statistics::class,
+		],
 		// Migration steps for 1.0 -> 1.1
 		'v1_1' => [
 			Migration\v1_1\RemoveIndexes::class,
@@ -257,6 +323,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 * Cleanups that do not require database maintenance tasks.
 	 */
 	public const CLEANUPS = [
+		// Cleanup steps for YaBB SE -> SMF 1.0
+		'v1_0' => [],
 		// Cleanup steps for 1.0 -> 1.1
 		'v1_1' => [
 			Cleanup\v1_1\RemoveTempSettings::class,
