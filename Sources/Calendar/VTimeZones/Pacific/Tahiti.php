@@ -49,5 +49,3 @@ class Tahiti extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

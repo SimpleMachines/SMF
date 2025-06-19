@@ -82,7 +82,7 @@ $databases = [
 		'default_host' => 'mysql.default_host',
 		'default_port' => 'mysql.default_port',
 		'utf8_support' => function () {
-			$request = Db::$db->query('', 'SHOW CHARACTER SET');
+			$request = Db::$db->query('SHOW CHARACTER SET');
 			$db_charsets = array_map(fn ($row) => $row['Charset'], Db::$db->fetch_all($request));
 			Db::$db->free_result($request);
 			return in_array('utf8mb4', $db_charsets);
@@ -934,7 +934,6 @@ function DatabaseSettings()
 		// Let's try that database on for size... assuming we haven't already lost the opportunity.
 		if (Db::$db->name != '' && !$needsDB) {
 			Db::$db->query(
-				'',
 				'CREATE DATABASE IF NOT EXISTS {identifier:db_name} {raw:extra}',
 				[
 					'security_override' => true,
@@ -948,7 +947,6 @@ function DatabaseSettings()
 			// Okay, let's try the prefix if it didn't work...
 			if (!Db::$db->select(Db::$db->name, Db::$db->connection) && Db::$db->name != '') {
 				Db::$db->query(
-					'',
 					'CREATE DATABASE IF NOT EXISTS {identifier:db_name} {raw:extra}',
 					[
 						'security_override' => true,
@@ -1022,7 +1020,6 @@ function ForumSettings()
 	if (Config::$db_type === 'postgresql') {
 		load_database();
 		$result = Db::$db->query(
-			'',
 			'show standard_conforming_strings',
 			[
 				'db_error_skip' => true,
@@ -1149,7 +1146,6 @@ function DatabasePopulation()
 
 	// Before running any of the queries, let's make sure another version isn't already installed.
 	$result = Db::$db->query(
-		'',
 		'SELECT variable, value
 		FROM {db_prefix}settings',
 		[
@@ -1207,7 +1203,7 @@ function DatabasePopulation()
 		$engines = [];
 
 		// Figure out storage engines - what do we have, etc.
-		$get_engines = Db::$db->query('', 'SHOW ENGINES', []);
+		$get_engines = Db::$db->query('SHOW ENGINES', []);
 
 		while ($row = Db::$db->fetch_assoc($get_engines)) {
 			if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT') {
@@ -1277,7 +1273,7 @@ function DatabasePopulation()
 			continue;
 		}
 
-		if (Db::$db->query('', $current_statement, ['security_override' => true, 'db_error_skip' => true], Db::$db->connection) === false) {
+		if (Db::$db->query($current_statement, ['security_override' => true, 'db_error_skip' => true], Db::$db->connection) === false) {
 			// Error 1050: Table already exists!
 			// @todo Needs to be made better!
 			if (((Config::$db_type != 'mysql' && Config::$db_type != 'mysqli') || mysqli_errno(Db::$db->connection) == 1050) && preg_match('~^\s*CREATE TABLE ([^\s\n\r]+?)~', $current_statement, $match) == 1) {
@@ -1363,7 +1359,6 @@ function DatabasePopulation()
 	// Don't remove stat collection unless we unchecked the box for real, not from the loop.
 	elseif (empty($_POST['stats']) && empty($incontext['allow_sm_stats'])) {
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}settings
 			WHERE variable = {string:enable_sm_stats}',
 			[
@@ -1444,7 +1439,6 @@ function DatabasePopulation()
 
 	$smiley_inserts = [];
 	$request = Db::$db->query(
-		'',
 		'SELECT id_smiley, code
 		FROM {db_prefix}smileys',
 		[],
@@ -1468,7 +1462,6 @@ function DatabasePopulation()
 	// Set the UID column for calendar events.
 	$calendar_updates = [];
 	$request = Db::$db->query(
-		'',
 		'SELECT id_event, uid
 		FROM {db_prefix}calendar',
 		[],
@@ -1483,7 +1476,6 @@ function DatabasePopulation()
 
 	foreach ($calendar_updates as $calendar_update) {
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}calendar
 			SET uid = {string:uid}
 			WHERE id_event = {int:id_event}',
@@ -1512,7 +1504,7 @@ function DatabasePopulation()
 
 	// Find database user privileges.
 	$privs = [];
-	$get_privs = Db::$db->query('', 'SHOW PRIVILEGES', []);
+	$get_privs = Db::$db->query('SHOW PRIVILEGES', []);
 
 	while ($row = Db::$db->fetch_assoc($get_privs)) {
 		if ($row['Privilege'] == 'Alter') {
@@ -1579,7 +1571,6 @@ function AdminAccount()
 
 	// Only allow skipping if we think they already have an account setup.
 	$request = Db::$db->query(
-		'',
 		'SELECT id_member
 		FROM {db_prefix}members
 		WHERE id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0
@@ -1634,7 +1625,6 @@ function AdminAccount()
 		$_POST['username'] = preg_replace('~[<>&"\'=\\\]~', '', $_POST['username']);
 
 		$result = Db::$db->query(
-			'',
 			'SELECT id_member, password_salt
 			FROM {db_prefix}members
 			WHERE member_name = {string:username} OR email_address = {string:email}
@@ -1791,7 +1781,6 @@ function DeleteInstall()
 
 	// We're going to want our lovely Config::$modSettings now.
 	$request = Db::$db->query(
-		'',
 		'SELECT variable, value
 		FROM {db_prefix}settings',
 		[
@@ -1813,7 +1802,6 @@ function DeleteInstall()
 	}
 
 	$result = Db::$db->query(
-		'',
 		'SELECT value
 		FROM {db_prefix}settings
 		WHERE variable = {string:db_sessions}',
@@ -1857,7 +1845,6 @@ function DeleteInstall()
 	Logging::updateStats('topic');
 
 	$request = Db::$db->query(
-		'',
 		'SELECT id_msg
 		FROM {db_prefix}messages
 		WHERE id_msg = 1
@@ -2561,5 +2548,3 @@ function template_delete_install()
 		<br>
 		', Lang::$txt['good_luck'];
 }
-
-?>

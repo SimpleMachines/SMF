@@ -181,8 +181,6 @@ class Received implements \ArrayAccess
 
 	/**
 	 * Applies a label to this PM.
-	 *
-	 * @return array The label IDs.
 	 */
 	public function addLabel(int $label_id): void
 	{
@@ -207,8 +205,6 @@ class Received implements \ArrayAccess
 
 	/**
 	 * Removes a label from this PM.
-	 *
-	 * @return array The label IDs.
 	 */
 	public function removeLabel(int $label_id): void
 	{
@@ -241,7 +237,6 @@ class Received implements \ArrayAccess
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}pm_recipients
 			SET
 				id_member = {int:member},
@@ -265,7 +260,6 @@ class Received implements \ArrayAccess
 		$labels = array_diff($this->labels, [-1]);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}pm_labeled_messages
 			WHERE id_pm = {int:current_pm}' . (empty($labels) ? '' : '
 				AND id_label NOT IN ({array_int:labels})'),
@@ -555,7 +549,6 @@ class Received implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT pmr.id_pm
 			FROM {db_prefix}pm_recipients AS pmr' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . '
@@ -581,7 +574,6 @@ class Received implements \ArrayAccess
 		User::updateMemberData(User::$me->id, ['new_pm' => 0]);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}pm_recipients
 			SET is_new = {int:not_new}
 			WHERE id_member = {int:me}',
@@ -647,7 +639,6 @@ class Received implements \ArrayAccess
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		self::$messages_request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}pm_recipients AS pmr' . (empty($joins) ? '' : '
@@ -664,5 +655,3 @@ class Received implements \ArrayAccess
 		Db::$db->free_result(self::$messages_request);
 	}
 }
-
-?>

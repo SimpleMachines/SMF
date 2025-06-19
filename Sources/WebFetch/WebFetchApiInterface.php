@@ -20,6 +20,10 @@ namespace SMF\WebFetch;
  */
 interface WebFetchApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Main calling function.
 	 *
@@ -28,8 +32,8 @@ interface WebFetchApiInterface
 	 *    Passed arrays will be converted to a POST string joined with &'s.
 	 *
 	 * @param string $url the site we are going to fetch
-	 * @param array|string $post_data any post data as form name => value
-	 * @return object A reference to the object for method chaining.
+	 * @param array $post_data any post data as form name => value
+	 * @return object|null A reference to the object for method chaining.
 	 */
 	public function request(string $url, array $post_data = []): ?object;
 
@@ -39,7 +43,7 @@ interface WebFetchApiInterface
 	 *  - called as ->result() will return the full final array.
 	 *  - called as ->result('body') to return the page source of the result.
 	 *
-	 * @param string $area Used to return an area such as body, header, error.
+	 * @param string|null $area Used to return an area such as body, header, error.
 	 * @return mixed The response.
 	 */
 	public function result(?string $area = null): mixed;
@@ -50,10 +54,8 @@ interface WebFetchApiInterface
 	 *  - Can be called as ->result_raw(x) where x is a specific loop's result.
 	 *  - Call as ->result_raw() for everything.
 	 *
-	 * @param int $response_number Which response to get, or null for all.
+	 * @param int|null $response_number Which response to get, or null for all.
 	 * @return array The specified response or all the responses.
 	 */
 	public function resultRaw(?int $response_number = null): array;
 }
-
-?>

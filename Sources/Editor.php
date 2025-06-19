@@ -51,28 +51,28 @@ class Editor implements \ArrayAccess
 	public string $value;
 
 	/**
-	 * @var string
+	 * @var bool
 	 *
 	 * Whether WYSIWYG mode is initially on or off.
 	 */
 	public bool $rich_active;
 
 	/**
-	 * @var string
+	 * @var bool
 	 *
 	 * Whether to show the smiley box.
 	 */
 	public bool $disable_smiley_box;
 
 	/**
-	 * @var string
+	 * @var int
 	 *
 	 * Column width of the editor's input area.
 	 */
 	public int $columns;
 
 	/**
-	 * @var string
+	 * @var int
 	 *
 	 * Row height of the editor's input area.
 	 */
@@ -185,9 +185,9 @@ class Editor implements \ArrayAccess
 		'popup' => [],
 	];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array
@@ -345,7 +345,6 @@ class Editor implements \ArrayAccess
 				$icons = [];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT title, filename
 					FROM {db_prefix}message_icons
 					WHERE id_board IN (0, {int:board_id})
@@ -427,7 +426,10 @@ class Editor implements \ArrayAccess
 			"Video URL:": "' . Lang::getTxt('video_url', var: 'editortxt') . '",
 			"More": "' . Lang::getTxt('more', var: 'editortxt') . '",
 			"Close": "' . Lang::getTxt('close', var: 'editortxt') . '",
-			dateFormat: "' . Lang::getTxt('dateformat', var: 'editortxt') . '"
+			dateFormat: "' . Lang::getTxt('dateformat', var: 'editortxt') . '",
+			details: "' . Lang::getTxt('details', var: 'editortxt') . '",
+			spoiler: "' . Lang::getTxt('spoiler', var: 'editortxt') . '",
+			summaryPrompt: "' . Lang::getTxt('summary_prompt', var: 'editortxt') . '",
 		};';
 
 		Theme::addInlineJavaScript($scExtraLangs, true);
@@ -537,6 +539,16 @@ class Editor implements \ArrayAccess
 				'code' => 'subscript',
 				'description' => Lang::getTxt('subscript', var: 'editortxt'),
 			],
+			[
+				'image' => 'tt',
+				'code' => 'tt',
+				'description' => Lang::getTxt('tt', var: 'editortxt'),
+			],
+			[
+				'image' => 'hidden',
+				'code' => 'spoiler',
+				'description' => Lang::getTxt('spoiler', var: 'editortxt'),
+			],
 			[],
 			[
 				'code' => 'pre',
@@ -620,15 +632,20 @@ class Editor implements \ArrayAccess
 				'description' => Lang::getTxt('code', var: 'editortxt'),
 			],
 			[
-				'image' => 'tt',
-				'code' => 'tt',
-				'description' => Lang::getTxt('tt', var: 'editortxt'),
-			],
-			[
 				'code' => 'quote',
 				'description' => Lang::getTxt('insert_quote', var: 'editortxt'),
 			],
+			[
+				'image' => 'details',
+				'code' => 'details',
+				'description' => Lang::getTxt('details', var: 'editortxt'),
+			],
 			[],
+			[
+				'image' => 'heading',
+				'code' => 'heading',
+				'description' => Lang::getTxt('heading', var: 'editortxt'),
+			],
 			[
 				'code' => 'bulletlist',
 				'description' => Lang::getTxt('bullet_list', var: 'editortxt'),
@@ -640,11 +657,6 @@ class Editor implements \ArrayAccess
 			[
 				'code' => 'horizontalrule',
 				'description' => Lang::getTxt('insert_horizontal_rule', var: 'editortxt'),
-			],
-			[
-				'image' => 'heading',
-				'code' => 'heading',
-				'description' => Lang::getTxt('heading', var: 'editortxt'),
 			],
 			[],
 			[
@@ -671,6 +683,23 @@ class Editor implements \ArrayAccess
 			'sub' => 'subscript',
 			'hr' => 'horizontalrule',
 		];
+
+		// Disable the buttons for any BBC that this user is not allowed to use.
+		foreach (Utils::$context['restricted_bbc'] as $tag) {
+			if (!User::$me->allowedTo('bbc_' . $tag)) {
+				if ($tag === 'list') {
+					$context['disabled_tags']['bulletlist'] = true;
+					$context['disabled_tags']['orderedlist'] = true;
+				} elseif ($tag === 'float') {
+					$context['disabled_tags']['floatleft'] = true;
+					$context['disabled_tags']['floatright'] = true;
+				} elseif (isset($editor_tag_map[$tag])) {
+					Utils::$context['disabled_tags'][$editor_tag_map[$tag]] = true;
+				}
+
+				Utils::$context['disabled_tags'][$tag] = true;
+			}
+		}
 
 		// Allow mods to modify BBC buttons.
 		IntegrationHook::call('integrate_bbc_buttons', [&self::$bbc_tags, &$editor_tag_map, &self::$disabled_tags]);
@@ -770,7 +799,6 @@ class Editor implements \ArrayAccess
 
 			if (($temp = CacheApi::get('posting_smileys_' . User::$me->smiley_set, $cache_time)) == null) {
 				$request = Db::$db->query(
-					'',
 					'SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
 					FROM {db_prefix}smileys AS s
 						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
@@ -829,7 +857,7 @@ class Editor implements \ArrayAccess
 			'bbcodeTrim' => false,
 		];
 
-		if (!empty(Config::$modSettings['autoLinkUrls'])) {
+		if (!empty(Config::$modSettings['autoLinkUrls']) && User::$me->allowedTo('bbc_url')) {
 			$this->sce_options['plugins'] = 'autolinker';
 			Autolinker::createJavaScriptFile();
 			Theme::loadJavaScriptFile('autolinker.js', ['minimize' => true], 'smf_autolinker');
@@ -913,5 +941,3 @@ class Editor implements \ArrayAccess
 		IntegrationHook::call('integrate_sceditor_options', [&$this->sce_options]);
 	}
 }
-
-?>

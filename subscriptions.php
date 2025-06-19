@@ -98,7 +98,6 @@ if (empty($member_id)) {
 
 // Verify the member.
 $request = Db::$db->query(
-	'',
 	'SELECT id_member, member_name, real_name, email_address
 	FROM {db_prefix}members
 	WHERE id_member = {int:current_member}',
@@ -116,7 +115,6 @@ Db::$db->free_result($request);
 
 // Get the subscription details.
 $request = Db::$db->query(
-	'',
 	'SELECT cost, length, name
 	FROM {db_prefix}subscriptions
 	WHERE id_subscribe = {int:current_subscription}',
@@ -135,7 +133,6 @@ Db::$db->free_result($request);
 
 // We wish to check the pending payments to make sure we are expecting this.
 $request = Db::$db->query(
-	'',
 	'SELECT id_sublog, payments_pending, pending_details, end_time
 	FROM {db_prefix}log_subscribed
 	WHERE id_subscribe = {int:current_subscription}
@@ -170,7 +167,6 @@ if ($gatewayClass->isRefund()) {
 
 	// Mark it as complete so we have a record.
 	Db::$db->query(
-		'',
 		'UPDATE {db_prefix}log_subscribed
 		SET end_time = {int:current_time}
 		WHERE id_subscribe = {int:current_subscription}
@@ -226,7 +222,6 @@ elseif ($gatewayClass->isPayment() || $gatewayClass->isSubscription()) {
 		$subscription_info['pending_details'] = empty($real_details) ? '' : Utils::jsonEncode($real_details);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_subscribed
 			SET payments_pending = {int:payments_pending}, pending_details = {string:pending_details}
 			WHERE id_sublog = {int:current_subscription_item}',
@@ -338,5 +333,3 @@ function generateSubscriptionError($text, $debug = false)
 
 	exit;
 }
-
-?>

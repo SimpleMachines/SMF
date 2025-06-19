@@ -1666,7 +1666,7 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Returns this time zone's abbreviations (if any).
 	 *
-	 * @param string $when The date/time we are interested in.
+	 * @param int|string $when The date/time we are interested in.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
 	 * @return array The time zone's abbreviations.
@@ -1687,7 +1687,7 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Returns the "meta-zone" for this time zone at the given timestamp.
 	 *
-	 * @param string $when The date/time we are interested in.
+	 * @param int|string $when The date/time we are interested in.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
 	 * @return string The $tztxt variable for this time zone's "meta-zone".
@@ -1729,7 +1729,7 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Returns the "meta-zone" label for this time zone at the given timestamp.
 	 *
-	 * @param string $when The date/time we are interested in.
+	 * @param int|string $when The date/time we are interested in.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
 	 * @return string The $tztxt value for this time zone's "meta-zone".
@@ -2153,7 +2153,7 @@ class TimeZone extends \DateTimeZone
 	 * Given a start time in any format that strtotime can understand, gets the
 	 * Unix timestamps for a date range starting then and ending one year later.
 	 *
-	 * @param string $when The date/time used to determine substitute values.
+	 * @param int|string $when The date/time used to determine substitute values.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
 	 * @return array The start and end timestamps, in that order.
@@ -2221,7 +2221,7 @@ class TimeZone extends \DateTimeZone
 	 * Builds a list of time zone transitions for all "meta-zones" starting from
 	 * $when until one year later.
 	 *
-	 * @param string $when The date/time used to determine substitute values.
+	 * @param int|string $when The date/time used to determine substitute values.
 	 *    May be a Unix timestamp or any string that strtotime() can understand.
 	 *    Defaults to 'now'.
 	 */
@@ -2242,5 +2242,3 @@ class TimeZone extends \DateTimeZone
 		}
 	}
 }
-
-?>

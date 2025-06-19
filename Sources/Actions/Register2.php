@@ -193,7 +193,6 @@ class Register2 extends Register
 			// If you are a guest, will you be allowed to once you register?
 			else {
 				$request = Db::$db->query(
-					'',
 					'SELECT add_deny
 					FROM {db_prefix}permissions
 					WHERE id_group = {int:id_group} AND permission = {string:permission}',
@@ -300,7 +299,6 @@ class Register2 extends Register
 
 		// Check whether we have fields that simply MUST be displayed?
 		$request = Db::$db->query(
-			'',
 			'SELECT col_name, field_name, field_type, field_length, mask, show_reg
 			FROM {db_prefix}custom_fields
 			WHERE active = {int:is_active}
@@ -531,7 +529,6 @@ class Register2 extends Register
 
 		// Check if the email address is in use.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE email_address = {string:email_address}
@@ -865,5 +862,3 @@ class Register2 extends Register
 		return $member_id;
 	}
 }
-
-?>

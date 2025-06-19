@@ -176,7 +176,6 @@ class Groups extends ViewGroups
 
 			if (!empty($member_query)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE (' . implode(' OR ', $member_query) . ')
@@ -267,7 +266,6 @@ class Groups extends ViewGroups
 				$members_to_add = [];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT lgr.id_request, lgr.id_group, lgr.id_member
 					FROM {db_prefix}log_group_requests AS lgr
 					WHERE ' . $where . '
@@ -347,7 +345,6 @@ class Groups extends ViewGroups
 				if (!empty($log_changes)) {
 					foreach ($log_changes as $id_request => $details) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}log_group_requests
 							SET status = {int:status},
 								id_member_acted = {int:id_member_acted},
@@ -499,7 +496,6 @@ class Groups extends ViewGroups
 	public static function list_getGroupRequestCount($where, $where_parameters): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_group_requests AS lgr
 			WHERE ' . $where,
@@ -533,7 +529,6 @@ class Groups extends ViewGroups
 		$group_requests = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, lgr.reason,
 				lgr.status, lgr.id_member_acted, lgr.member_name_acted, lgr.time_acted, lgr.act_reason,
@@ -652,5 +647,3 @@ class Groups extends ViewGroups
 		}
 	}
 }
-
-?>

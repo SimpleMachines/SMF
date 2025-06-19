@@ -134,5 +134,3 @@ class Tbilisi extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

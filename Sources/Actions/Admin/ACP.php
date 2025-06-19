@@ -1018,6 +1018,7 @@ class ACP implements ActionInterface, Routable
 				Utils::$context['bbc_sections'][$bbcSection] = [
 					'title' => Lang::getTxt(Lang::txtExists('bbc_title_' . $bbcSection, file: 'Admin') ? 'bbc_title_' . $bbcSection : 'enabled_bbc_select', file: 'Admin'),
 					'disabled' => empty(Config::$modSettings['bbc_disabled_' . $bbcSection]) ? [] : Config::$modSettings['bbc_disabled_' . $bbcSection],
+					'forced' => !empty(Utils::$context['bbc_forced_' . $bbcSection]) ? Utils::$context['bbc_forced_' . $bbcSection] : [],
 					'all_selected' => empty(Config::$modSettings['bbc_disabled_' . $bbcSection]),
 					'columns' => [],
 				];
@@ -1041,7 +1042,7 @@ class ACP implements ActionInterface, Routable
 
 					Utils::$context['bbc_sections'][$bbcSection]['columns'][$col][] = [
 						'tag' => $tag,
-						'show_help' => Lang::txtExists('tag_' . $tag, var: 'helptxt'),
+						'show_help' => Lang::txtExists('tag_' . $tag, var: 'helptxt') || in_array($tag, Utils::$context['bbc_sections'][$bbcSection]['forced']),
 					];
 
 					$i++;
@@ -1309,7 +1310,6 @@ class ACP implements ActionInterface, Routable
 				if ($board_list === null) {
 					$board_list = [];
 					$request = Db::$db->query(
-						'',
 						'SELECT id_board
 						FROM {db_prefix}boards',
 					);
@@ -1686,7 +1686,6 @@ class ACP implements ActionInterface, Routable
 
 		// Just check we haven't ended up with something theme exclusive somehow.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}themes
 			WHERE id_theme != {int:default_theme}
 				AND variable = {string:admin_preferences}',
@@ -1742,7 +1741,6 @@ class ACP implements ActionInterface, Routable
 		$emails_sent = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, member_name, real_name, lngfile, email_address
 			FROM {db_prefix}members
 			WHERE id_member IN({array_int:members})',
@@ -2029,5 +2027,3 @@ class ACP implements ActionInterface, Routable
 		return $query_string;
 	}
 }
-
-?>

@@ -227,5 +227,3 @@ class Beirut extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

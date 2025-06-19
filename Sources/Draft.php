@@ -328,7 +328,6 @@ class Draft
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_drafts
 			WHERE id_draft IN ({array_int:drafts})' . ($check ? '
 				AND id_member = {int:id_member}' : ''),
@@ -361,7 +360,6 @@ class Draft
 
 		// Load the drafts this user has available.
 		$request = Db::$db->query(
-			'',
 			'SELECT subject, poster_time, id_board, id_topic, id_draft
 			FROM {db_prefix}user_drafts
 			WHERE id_member = {int:id_member}' . (!empty($topic) ? '
@@ -416,7 +414,6 @@ class Draft
 			$id_delete = (int) $_REQUEST['delete'];
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}user_drafts
 				WHERE id_draft = {int:id_draft}
 					AND id_member = {int:id_member}
@@ -439,7 +436,6 @@ class Draft
 		// Get the count of applicable drafts on the boards they can (still) see ...
 		// @todo .. should we just let them see their drafts even if they have lost board access ?
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}user_drafts AS ud
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = ud.id_board AND {query_see_board})
@@ -481,7 +477,6 @@ class Draft
 		// @todo ... do we want to do this?  If they were able to create a draft, do we remove their access to said draft if they loose
 		//           access to the board or if the topic moves to a board they can not see?
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				b.id_board, b.name AS bname,
 				ud.id_member, ud.id_draft, ud.body, ud.smileys_enabled, ud.subject, ud.poster_time, ud.icon, ud.id_topic, ud.locked, ud.is_sticky
@@ -600,7 +595,6 @@ class Draft
 
 		// Fetch this draft's info from the database.
 		$request = Db::$db->query(
-			'',
 			'SELECT *
 			FROM {db_prefix}user_drafts
 			WHERE id_draft = {int:id_draft}' . ($check ? '
@@ -710,7 +704,6 @@ class Draft
 		// Updating an existing draft.
 		if (!empty($this->id)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}user_drafts
 				SET
 					id_topic = {int:id_topic},
@@ -808,6 +801,10 @@ class Draft
 		return Utils::$context['draft_saved'];
 	}
 
+	/*************************
+	 * Internal static methods
+	 *************************/
+
 	/**
 	 * Returns an XML response to an autosave AJAX request.
 	 *
@@ -827,5 +824,3 @@ class Draft
 		Utils::obExit(false);
 	}
 }
-
-?>

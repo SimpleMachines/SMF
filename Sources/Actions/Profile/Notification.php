@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\Actions\Notify;
 use SMF\ActionTrait;
 use SMF\Alert;
+use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -39,8 +40,6 @@ use SMF\Utils;
 class Notification implements ActionInterface
 {
 	use ActionTrait;
-
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -694,7 +693,7 @@ class Notification implements ActionInterface
 	public function boards(): void
 	{
 		// Because of the way this stuff works, we want to do this ourselves.
-		if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards'])) {
+		if (isset($_POST['edit_notify_boards']) || isset($_POST['remove_notify_boards'])) {
 			User::$me->checkSession();
 			SecurityToken::validate(str_replace('%u', (string) Profile::$member->id, 'profile-nt%u'), 'post');
 
@@ -796,6 +795,83 @@ class Notification implements ActionInterface
 		new ItemList($list_options);
 	}
 
+	/**
+	 * Make any notification changes that need to be made.
+	 *
+	 * This is only public for backward compatibility purposes. In future
+	 * versions of SMF it will be protected. Nothing outside of this class
+	 * should ever call this method.
+	 */
+	public function changeNotifications(): void
+	{
+		// Update the boards they are being notified about.
+		if (isset($_POST['edit_notify_boards']) && !empty($_POST['notify_boards'])) {
+			// Make sure only integers are deleted.
+			foreach ($_POST['notify_boards'] as $index => $id) {
+				$_POST['notify_boards'][$index] = (int) $id;
+			}
+
+			// id_board = 0 is reserved for topic notifications.
+			$_POST['notify_boards'] = array_diff($_POST['notify_boards'], [0]);
+
+			Db::$db->query(
+				'DELETE FROM {db_prefix}log_notify
+				WHERE id_board IN ({array_int:board_list})
+					AND id_member = {int:selected_member}',
+				[
+					'board_list' => $_POST['notify_boards'],
+					'selected_member' => Profile::$member->id,
+				],
+			);
+		}
+
+		// Update the topics they are being notified about.
+		if (isset($_POST['edit_notify_topics']) && !empty($_POST['notify_topics'])) {
+			foreach ($_POST['notify_topics'] as $index => $id) {
+				$_POST['notify_topics'][$index] = (int) $id;
+			}
+
+			// Make sure there are no zeros left.
+			$_POST['notify_topics'] = array_filter($_POST['notify_topics']);
+
+			Db::$db->query(
+				'DELETE FROM {db_prefix}log_notify
+				WHERE id_topic IN ({array_int:topic_list})
+					AND id_member = {int:selected_member}',
+				[
+					'topic_list' => $_POST['notify_topics'],
+					'selected_member' => Profile::$member->id,
+				],
+			);
+
+			foreach ($_POST['notify_topics'] as $topic) {
+				Notify::setNotifyPrefs(Profile::$member->id, ['topic_notify_' . $topic => 0]);
+			}
+		}
+
+		// Are we removing topic preferences?
+		if (isset($_POST['remove_notify_topics']) && !empty($_POST['notify_topics'])) {
+			$prefs = [];
+
+			foreach ($_POST['notify_topics'] as $topic) {
+				$prefs[] = 'topic_notify_' . $topic;
+			}
+
+			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
+		}
+
+		// Are we removing board preferences?
+		if (isset($_POST['remove_notify_boards']) && !empty($_POST['notify_boards'])) {
+			$prefs = [];
+
+			foreach ($_POST['notify_boards'] as $board) {
+				$prefs[] = 'board_notify_' . $board;
+			}
+
+			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
+		}
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -808,7 +884,6 @@ class Notification implements ActionInterface
 	public static function list_getTopicNotificationCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_notify AS ln' . (!Config::$modSettings['postmod_active'] && User::$me->query_see_board === '1=1' ? '' : '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)') . '
@@ -843,7 +918,6 @@ class Notification implements ActionInterface
 		$notification_topics = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				COALESCE(lt.id_msg, lmr.id_msg, -1) + 1 AS new_from, b.id_board, b.name,
 				t.id_topic, ms.subject, ms.id_member, COALESCE(mem.real_name, ms.poster_name) AS real_name_col,
@@ -913,7 +987,6 @@ class Notification implements ActionInterface
 		$notification_boards = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_board, b.name, COALESCE(lb.id_msg, 0) AS board_read, b.id_msg_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board)
@@ -960,81 +1033,4 @@ class Notification implements ActionInterface
 			$this->subaction = $_REQUEST['sa'];
 		}
 	}
-
-	/**
-	 * Make any notification changes that need to be made.
-	 */
-	protected function changeNotifications(): void
-	{
-		// Update the boards they are being notified about.
-		if (isset($_POST['edit_notify_boards']) && !empty($_POST['notify_boards'])) {
-			// Make sure only integers are deleted.
-			foreach ($_POST['notify_boards'] as $index => $id) {
-				$_POST['notify_boards'][$index] = (int) $id;
-			}
-
-			// id_board = 0 is reserved for topic notifications.
-			$_POST['notify_boards'] = array_diff($_POST['notify_boards'], [0]);
-
-			Db::$db->query(
-				'',
-				'DELETE FROM {db_prefix}log_notify
-				WHERE id_board IN ({array_int:board_list})
-					AND id_member = {int:selected_member}',
-				[
-					'board_list' => $_POST['notify_boards'],
-					'selected_member' => Profile::$member->id,
-				],
-			);
-		}
-
-		// Update the topics they are being notified about.
-		if (isset($_POST['edit_notify_topics']) && !empty($_POST['notify_topics'])) {
-			foreach ($_POST['notify_topics'] as $index => $id) {
-				$_POST['notify_topics'][$index] = (int) $id;
-			}
-
-			// Make sure there are no zeros left.
-			$_POST['notify_topics'] = array_filter($_POST['notify_topics']);
-
-			Db::$db->query(
-				'',
-				'DELETE FROM {db_prefix}log_notify
-				WHERE id_topic IN ({array_int:topic_list})
-					AND id_member = {int:selected_member}',
-				[
-					'topic_list' => $_POST['notify_topics'],
-					'selected_member' => Profile::$member->id,
-				],
-			);
-
-			foreach ($_POST['notify_topics'] as $topic) {
-				Notify::setNotifyPrefs(Profile::$member->id, ['topic_notify_' . $topic => 0]);
-			}
-		}
-
-		// Are we removing topic preferences?
-		if (isset($_POST['remove_notify_topics']) && !empty($_POST['notify_topics'])) {
-			$prefs = [];
-
-			foreach ($_POST['notify_topics'] as $topic) {
-				$prefs[] = 'topic_notify_' . $topic;
-			}
-
-			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
-		}
-
-		// Are we removing board preferences?
-		if (isset($_POST['remove_notify_board']) && !empty($_POST['notify_boards'])) {
-			$prefs = [];
-
-			foreach ($_POST['notify_boards'] as $board) {
-				$prefs[] = 'board_notify_' . $board;
-			}
-
-			Notify::deleteNotifyPrefs(Profile::$member->id, $prefs);
-		}
-	}
 }
-
-?>

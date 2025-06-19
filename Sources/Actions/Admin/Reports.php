@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Category;
 use SMF\Config;
@@ -41,7 +41,6 @@ use SMF\Utils;
 class Reports implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -242,7 +241,6 @@ class Reports implements ActionInterface
 		Utils::$context['themes'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'
 			SELECT id_theme, value
 			FROM {db_prefix}themes
@@ -429,7 +427,7 @@ class Reports implements ActionInterface
 			[Group::ADMIN],
 		);
 
-		foreach ($groups_data as $group) {
+		foreach ($group_data as $group) {
 			$group->loadPermissions();
 		}
 
@@ -550,7 +548,7 @@ class Reports implements ActionInterface
 			[Group::ADMIN, Group::MOD],
 		);
 
-		foreach ($groups_data as $group) {
+		foreach ($group_data as $group) {
 			$group->loadPermissions();
 		}
 
@@ -938,5 +936,3 @@ class Reports implements ActionInterface
 		$this->key_method = $method == 'rows' ? 'rows' : 'cols';
 	}
 }
-
-?>

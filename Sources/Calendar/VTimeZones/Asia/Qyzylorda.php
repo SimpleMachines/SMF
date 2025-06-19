@@ -131,5 +131,3 @@ class Qyzylorda extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

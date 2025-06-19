@@ -45,5 +45,3 @@ $txt['ssi_write_comment'] = 'Write Comment';
 $txt['ssi_no_guests'] = 'You cannot specify a board that does not allow guests. Please check the board ID before trying again.';
 // argument(s): forum name
 $txt['xml_rss_desc'] = 'Live information from {forum_name}';
-
-?>

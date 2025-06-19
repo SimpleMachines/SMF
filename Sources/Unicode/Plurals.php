@@ -1785,5 +1785,3 @@ function plurals(): array
 		],
 	];
 }
-
-?>

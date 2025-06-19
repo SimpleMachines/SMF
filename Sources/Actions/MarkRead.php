@@ -87,7 +87,6 @@ class MarkRead implements ActionInterface, Routable
 		$boards = [];
 
 		$result = Db::$db->query(
-			'',
 			'SELECT b.id_board
 			FROM {db_prefix}boards AS b
 			WHERE {query_see_board}',
@@ -128,7 +127,6 @@ class MarkRead implements ActionInterface, Routable
 		$logged_topics = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:selected_topics})
@@ -188,7 +186,6 @@ class MarkRead implements ActionInterface, Routable
 	{
 		// First, let's figure out what the latest message is.
 		$result = Db::$db->query(
-			'',
 			'SELECT t.id_first_msg, t.id_last_msg, COALESCE(lt.unwatched, 0) as unwatched
 			FROM {db_prefix}topics as t
 				LEFT JOIN {db_prefix}log_topics as lt ON (lt.id_topic = t.id_topic AND lt.id_member = {int:current_member})
@@ -213,7 +210,6 @@ class MarkRead implements ActionInterface, Routable
 			// Otherwise, get the latest message before the named one.
 			else {
 				$result = Db::$db->query(
-					'',
 					'SELECT MAX(id_msg)
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:current_topic}
@@ -234,7 +230,6 @@ class MarkRead implements ActionInterface, Routable
 			$earlyMsg = 0;
 		} else {
 			$result = Db::$db->query(
-				'',
 				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
@@ -310,7 +305,6 @@ class MarkRead implements ActionInterface, Routable
 			// They want to mark the entire tree starting with the boards specified
 			// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.id_parent
 				FROM {db_prefix}boards AS b
 				WHERE {query_see_board}
@@ -351,7 +345,6 @@ class MarkRead implements ActionInterface, Routable
 		$boards = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_board
 			FROM {db_prefix}boards AS b
 			WHERE {query_see_board}
@@ -380,7 +373,6 @@ class MarkRead implements ActionInterface, Routable
 		if (!isset($_REQUEST['unread'])) {
 			// Find all the boards this user can see.
 			$result = Db::$db->query(
-				'',
 				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE b.id_parent IN ({array_int:parent_list})
@@ -494,5 +486,3 @@ class MarkRead implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

@@ -447,5 +447,3 @@ class PageIndex implements \Stringable
 		]);
 	}
 }
-
-?>

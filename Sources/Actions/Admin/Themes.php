@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -55,7 +55,6 @@ use SMF\Utils;
 class Themes implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -283,7 +282,6 @@ class Themes implements ActionInterface
 			Utils::$context['themes'] = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_theme, variable, value
 				FROM {db_prefix}themes
 				WHERE variable IN ({string:name}, {string:theme_dir})
@@ -309,7 +307,6 @@ class Themes implements ActionInterface
 			Db::$db->free_result($request);
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_theme, COUNT(*) AS value
 				FROM {db_prefix}themes
 				WHERE id_member = {int:guest_member}
@@ -328,7 +325,6 @@ class Themes implements ActionInterface
 			$customFields = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT col_name
 				FROM {db_prefix}custom_fields',
 				[
@@ -343,7 +339,6 @@ class Themes implements ActionInterface
 			$customFieldsQuery = empty($customFields) ? '' : ('AND variable NOT IN ({array_string:custom_fields})');
 
 			$request = Db::$db->query(
-				'themes_count',
 				'SELECT COUNT(DISTINCT id_member) AS value, id_theme
 				FROM {db_prefix}themes
 				WHERE id_member > {int:no_member}
@@ -353,6 +348,7 @@ class Themes implements ActionInterface
 					'no_member' => 0,
 					'custom_fields' => empty($customFields) ? [] : $customFields,
 				],
+				identifier: 'themes_count',
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
@@ -408,7 +404,6 @@ class Themes implements ActionInterface
 				// Are there options in non-default themes set that should be cleared?
 				if (!empty($old_settings)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE id_theme != {int:default_theme}
 							AND id_member = {int:guest_member}
@@ -453,7 +448,6 @@ class Themes implements ActionInterface
 				if ($_POST['default_options_master'][$opt] == 1) {
 					// Delete then insert for ease of database compatibility!
 					Db::$db->query(
-						'substring',
 						'DELETE FROM {db_prefix}themes
 						WHERE id_theme = {int:default_theme}
 							AND id_member > {int:no_member}
@@ -463,10 +457,10 @@ class Themes implements ActionInterface
 							'no_member' => 0,
 							'option' => $opt,
 						],
+						identifier: 'substring',
 					);
 
 					Db::$db->query(
-						'substring',
 						'INSERT INTO {db_prefix}themes
 							(id_member, id_theme, variable, value)
 						SELECT id_member, 1, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
@@ -475,12 +469,12 @@ class Themes implements ActionInterface
 							'option' => $opt,
 							'value' => (is_array($val) ? implode(',', $val) : $val),
 						],
+						identifier: 'substring',
 					);
 
 					$old_settings[] = $opt;
 				} elseif ($_POST['default_options_master'][$opt] == 2) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:option_name}
 							AND id_member > {int:no_member}',
@@ -495,7 +489,6 @@ class Themes implements ActionInterface
 			// Delete options from other themes.
 			if (!empty($old_settings)) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}themes
 					WHERE id_theme != {int:default_theme}
 						AND id_member > {int:no_member}
@@ -516,7 +509,6 @@ class Themes implements ActionInterface
 				if ($_POST['options_master'][$opt] == 1) {
 					// Delete then insert for ease of database compatibility - again!
 					Db::$db->query(
-						'substring',
 						'DELETE FROM {db_prefix}themes
 						WHERE id_theme = {int:current_theme}
 							AND id_member > {int:no_member}
@@ -526,10 +518,10 @@ class Themes implements ActionInterface
 							'no_member' => 0,
 							'option' => $opt,
 						],
+						identifier: 'substring',
 					);
 
 					Db::$db->query(
-						'substring',
 						'INSERT INTO {db_prefix}themes
 							(id_member, id_theme, variable, value)
 						SELECT id_member, {int:current_theme}, SUBSTRING({string:option}, 1, 255), SUBSTRING({string:value}, 1, 65534)
@@ -539,10 +531,10 @@ class Themes implements ActionInterface
 							'option' => $opt,
 							'value' => (is_array($val) ? implode(',', $val) : $val),
 						],
+						identifier: 'substring',
 					);
 				} elseif ($_POST['options_master'][$opt] == 2) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:option}
 							AND id_member > {int:no_member}
@@ -566,7 +558,6 @@ class Themes implements ActionInterface
 				$customFields = [];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT col_name
 					FROM {db_prefix}custom_fields',
 					[
@@ -582,7 +573,6 @@ class Themes implements ActionInterface
 			$customFieldsQuery = empty($customFields) ? '' : ('AND variable NOT IN ({array_string:custom_fields})');
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}themes
 				WHERE id_member > {int:no_member}
 					AND id_theme = {int:current_theme}
@@ -619,7 +609,6 @@ class Themes implements ActionInterface
 			Utils::$context['theme_options'] = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT variable, value
 				FROM {db_prefix}themes
 				WHERE id_theme IN (1, {int:current_theme})
@@ -1167,7 +1156,7 @@ class Themes implements ActionInterface
 			if (!isset($error_file)) {
 				$file_data = file($currentTheme['theme_dir'] . '/' . $_REQUEST['filename']);
 			} else {
-				if (preg_match('~(<b>.+?</b>:.+?<b>).+?(</b>.+?<b>\d+</b>)<br( /)?' . '>$~i', $error, $match) != 0) {
+				if (preg_match('~(<b>.+?</b>:.+?<b>).+?(</b>.+?<b>\d+</b>)<br( /)?' . '>$~i', $error_file, $match) != 0) {
 					Utils::$context['parse_error'] = $match[1] . $_REQUEST['filename'] . $match[2];
 				}
 
@@ -1325,6 +1314,7 @@ class Themes implements ActionInterface
 
 				foreach (new \DirectoryIterator($langDir->getPathname()) as $fileInfo) {
 					if ($fileInfo->getExtension() == 'php'  && isset(Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()])) {
+						$entry = Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()];
 						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['already_exists'] = true;
 						Utils::$context['available_language_files'][$langDir->getFilename() . '/' . $fileInfo->getFilename()]['can_copy'] = is_writable($theme['theme_dir'] . '/languages/' . $entry);
 					}
@@ -1367,7 +1357,7 @@ class Themes implements ActionInterface
 	 * the new theme's name.
 	 * Ends execution with ErrorHandler::fatalLang() on any error.
 	 *
-	 * @return array The newly created theme's info.
+	 * @return array|null The newly created theme's info.
 	 */
 	protected function installFile(): ?array
 	{
@@ -1631,7 +1621,6 @@ class Themes implements ActionInterface
 		$enableThemes = !empty(Config::$modSettings['enableThemes']) ? explode(',', Config::$modSettings['enableThemes']) : [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_theme = ({int:id_theme})
@@ -1698,7 +1687,6 @@ class Themes implements ActionInterface
 
 		// Perform the query as requested.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN ({array_string:theme_values})
@@ -1764,7 +1752,6 @@ class Themes implements ActionInterface
 
 		// Perform the query as requested.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable IN ({array_string:theme_values})
@@ -1913,7 +1900,6 @@ class Themes implements ActionInterface
 		// OK, is this a newer version of an already installed theme?
 		if (!empty(Utils::$context['to_install']['version'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_theme
 				FROM {db_prefix}themes
 				WHERE id_member = {int:no_member}
@@ -1935,7 +1921,6 @@ class Themes implements ActionInterface
 				switch (PackageUtils::compareVersions(Utils::$context['to_install']['version'], $to_update['version'])) {
 					case 1: // Got a newer version, update the old entry.
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}themes
 							SET value = {string:new_value}
 							WHERE variable = {literal:version}
@@ -1972,7 +1957,6 @@ class Themes implements ActionInterface
 
 				// Get the theme info first.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_theme
 					FROM {db_prefix}themes
 					WHERE id_member = {int:no_member}
@@ -2009,7 +1993,6 @@ class Themes implements ActionInterface
 
 		// Find the newest id_theme.
 		$result = Db::$db->query(
-			'',
 			'SELECT MAX(id_theme)
 			FROM {db_prefix}themes',
 			[
@@ -2066,7 +2049,6 @@ class Themes implements ActionInterface
 
 		// Remove it from the themes table.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}themes
 			WHERE id_theme = {int:current_theme}',
 			[
@@ -2076,7 +2058,6 @@ class Themes implements ActionInterface
 
 		// Update users preferences.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}members
 			SET id_theme = {int:default_theme}
 			WHERE id_theme = {int:current_theme}',
@@ -2088,7 +2069,6 @@ class Themes implements ActionInterface
 
 		// Some boards may have it as preferred theme.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}boards
 			SET id_theme = {int:default_theme}
 			WHERE id_theme = {int:current_theme}',
@@ -2223,5 +2203,3 @@ class Themes implements ActionInterface
 		return array_merge($list1, $list2);
 	}
 }
-
-?>

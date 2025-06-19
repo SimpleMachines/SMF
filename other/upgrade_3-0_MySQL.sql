@@ -25,18 +25,18 @@ while (!$is_done)
 {
 	nextSubStep($substep);
 
-	// Skip errors here so we don't croak if the columns don't exist...
-	$request = Db::$db->query('', '
-		SELECT id_member
-		FROM {db_prefix}members
-		WHERE lngfile IN ({array_string:possible_languages})
-		ORDER BY id_member
-		LIMIT {int:limit}',
-		[
-			'limit' => $limit,
-			'possible_languages' => $langs
-		]
-	);
+    // Skip errors here so we don't croak if the columns don't exist...
+    $request = Db::$db->query(
+        'SELECT id_member
+        FROM {db_prefix}members
+        WHERE lngfile IN ({array_string:possible_languages})
+        ORDER BY id_member
+        LIMIT {int:limit}',
+        [
+            'limit' => $limit,
+            'possible_languages' => $langs
+        ]
+    );
 	if (Db::$db->num_rows($request) == 0) {
 		$is_done = true;
 		break;
@@ -55,13 +55,13 @@ while (!$is_done)
 		$args['search_members'] = $members;
 	}
 
-	Db::$db->query('', '
-		UPDATE {db_prefix}members
-		SET lngfile = CASE
-			' . implode(' ', $statements) . '
-			ELSE {string:defaultLang} END
-		WHERE id_member IN ({array_int:search_members})',
-		$args
+    Db::$db->query(
+        'UPDATE {db_prefix}members
+        SET lngfile = CASE
+            ' . implode(' ', $statements) . '
+            ELSE {string:defaultLang} END
+        WHERE id_member IN ({array_int:search_members})',
+        $args
 	);
 }
 
@@ -152,9 +152,7 @@ if (!in_array('version', $cols)) {
 $cols = Db::$db->list_columns('{db_prefix}calendar');
 
 if (in_array('end_time', $cols)) {
-	Db::$db->query(
-		'',
-		'ALTER TABLE {db_prefix}calendar
+	Db::$db->query('ALTER TABLE {db_prefix}calendar
 		MODIFY COLUMN start_date DATE AFTER id_member',
 		[],
 	);
@@ -245,9 +243,7 @@ if (in_array('end_time', $cols)) {
 
 	$updates = [];
 
-	$request = Db::$db->query(
-		'',
-		'SELECT id_event, start_date, end_date, start_time, end_time, timezone
+	$request = Db::$db->query('SELECT id_event, start_date, end_date, start_time, end_time, timezone
 		FROM {db_prefix}calendar',
 		[]
 	);
@@ -288,9 +284,7 @@ if (in_array('end_time', $cols)) {
 	Db::$db->free_result($request);
 
 	foreach ($updates as $id_event => $changes) {
-		Db::$db->query(
-			'',
-			'UPDATE {db_prefix}calendar
+		Db::$db->query('UPDATE {db_prefix}calendar
 			SET duration = {string:duration}, end_date = {date:end_date}, rrule = {string:rrule}
 			WHERE id_event = {int:id_event}',
 			$changes
@@ -886,9 +880,7 @@ if ($exists) {
 		],
 	];
 
-	$request = Db::$db->query(
-		'',
-		'SELECT title, GROUP_CONCAT(event_date) as rdates
+	$request = Db::$db->query('SELECT title, GROUP_CONCAT(event_date) as rdates
 		FROM {db_prefix}calendar_holidays
 		GROUP BY title',
 		[]
@@ -938,9 +930,7 @@ if ($exists) {
 ---# Setting the UID column for calendar events.
 ---{
 $calendar_updates = [];
-$request = Db::$db->query(
-	'',
-	'SELECT id_event, uid
+$request = Db::$db->query('SELECT id_event, uid
 	FROM {db_prefix}calendar',
 	[],
 );
@@ -953,9 +943,7 @@ while ($row = Db::$db->fetch_assoc($request)) {
 Db::$db->free_result($request);
 
 foreach ($calendar_updates as $calendar_update) {
-	Db::$db->query(
-		'',
-		'UPDATE {db_prefix}calendar
+	Db::$db->query('UPDATE {db_prefix}calendar
 		SET uid = {string:uid}
 		WHERE id_event = {int:id_event}',
 		$calendar_update,

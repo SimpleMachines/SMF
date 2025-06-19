@@ -49,5 +49,3 @@ class Niue extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

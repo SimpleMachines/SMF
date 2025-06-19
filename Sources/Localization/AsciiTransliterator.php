@@ -35,7 +35,7 @@ class AsciiTransliterator
 	 ****************************/
 
 	/**
-	 * @var object
+	 * @var \Transliterator
 	 *
 	 * An instance of \Transliterator to be used by self::intl().
 	 */
@@ -152,5 +152,3 @@ class AsciiTransliterator
 		return implode('', $new_chars);
 	}
 }
-
-?>

@@ -49,5 +49,3 @@ class Maldives extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

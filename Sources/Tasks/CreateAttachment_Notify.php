@@ -30,6 +30,10 @@ use SMF\Utils;
  */
 class CreateAttachment_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -41,7 +45,6 @@ class CreateAttachment_Notify extends BackgroundTask
 	{
 		// Validate the attachment does exist and is the right approval state.
 		$request = Db::$db->query(
-			'',
 			'SELECT a.id_attach, m.id_board, m.id_msg, m.id_topic, m.id_member, m.subject
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -66,7 +69,6 @@ class CreateAttachment_Notify extends BackgroundTask
 		$modMembers = User::getAllowedTo('approve_posts', $id_board);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, email_address, lngfile, real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:members})',
@@ -151,5 +153,3 @@ class CreateAttachment_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

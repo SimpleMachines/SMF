@@ -587,6 +587,7 @@ class RRule implements \Stringable
 	 * Gets the description without any BYSETPOS considerations.
 	 *
 	 * @param \DateTimeInterface $start
+	 * @return string A comma-separated list of descriptions
 	 */
 	protected function getDescriptionNormal(\DateTimeInterface $start): string
 	{
@@ -609,6 +610,7 @@ class RRule implements \Stringable
 	 * Gets the description with BYSETPOS considerations.
 	 *
 	 * @param \DateTimeInterface $start
+	 * @return string
 	 */
 	protected function getDescriptionBySetPos(\DateTimeInterface $start): string
 	{
@@ -1075,5 +1077,3 @@ class RRule implements \Stringable
 		}
 	}
 }
-
-?>

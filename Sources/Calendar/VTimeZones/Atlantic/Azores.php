@@ -388,5 +388,3 @@ class Azores extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

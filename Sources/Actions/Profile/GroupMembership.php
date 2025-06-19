@@ -86,7 +86,6 @@ class GroupMembership implements ActionInterface
 
 		// Get any pending join requests.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group
 			FROM {db_prefix}log_group_requests
 			WHERE id_member = {int:selected_member}
@@ -340,7 +339,6 @@ class GroupMembership implements ActionInterface
 	protected function sendJoinRequest(int $new_group_id): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}log_group_requests
 			WHERE id_member = {int:selected_member}
@@ -420,5 +418,3 @@ class GroupMembership implements ActionInterface
 		);
 	}
 }
-
-?>

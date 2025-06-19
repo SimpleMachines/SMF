@@ -584,5 +584,3 @@ function template_paid_done()
 		</div>
 	</div>';
 }
-
-?>

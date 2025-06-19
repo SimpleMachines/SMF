@@ -89,7 +89,7 @@ class React implements ActionInterface, Routable
 	protected bool $js = false;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 * If filled, its value will contain a string matching a key
 	 * on a language var Lang::$txt[$this->error]
@@ -352,7 +352,6 @@ class React implements ActionInterface, Routable
 			// is quite easy to do for messages - and we'll get the topic ID
 			// while we're at it, because we need it later for other things.
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_topic, m.id_member
 				FROM {db_prefix}messages AS m
 				WHERE {query_see_message_board}
@@ -570,7 +569,6 @@ class React implements ActionInterface, Routable
 	protected function count(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}user_reacts
 			WHERE content_id = {int:react_content}
@@ -606,7 +604,6 @@ class React implements ActionInterface, Routable
 
 		// Did we already react to this?
 		$request = Db::$db->query(
-			'',
 			'SELECT content_id, content_type, id_member
 			FROM {db_prefix}user_reacts
 			WHERE content_id = {int:react_content}
@@ -634,7 +631,6 @@ class React implements ActionInterface, Routable
 		// Update the likes count for messages.
 		if ($this->type == 'msg') {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET reacts = {int:num_reacts}
 				WHERE id_msg = {int:id_msg}',
@@ -836,5 +832,3 @@ class React implements ActionInterface, Routable
 		die;
 	}
 }
-
-?>

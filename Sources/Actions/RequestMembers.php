@@ -66,7 +66,6 @@ class RequestMembers implements ActionInterface, Routable
 		header('content-type: text/plain; charset=UTF-8');
 
 		$request = Db::$db->query(
-			'',
 			'SELECT real_name
 			FROM {db_prefix}members
 			WHERE {raw:real_name} LIKE {string:search}' . (isset($_REQUEST['buddies']) ? '
@@ -109,5 +108,3 @@ class RequestMembers implements ActionInterface, Routable
 		$this->search = strtr($this->search, ['%' => '\\%', '_' => '\\_', '*' => '%', '?' => '_', '&#038;' => '&amp;']);
 	}
 }
-
-?>

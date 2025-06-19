@@ -137,5 +137,3 @@ class Bahia_Banderas extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

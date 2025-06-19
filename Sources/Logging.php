@@ -115,7 +115,6 @@ class Logging
 			// Is there an associated report on this?
 			if (in_array($log['action'], ['move', 'remove', 'split', 'merge'])) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_report
 					FROM {db_prefix}log_reported
 					WHERE {raw:column_name} = {int:reported}
@@ -236,7 +235,6 @@ class Logging
 				else {
 					// Update the latest activated member (highest id_member) and count.
 					$result = Db::$db->query(
-						'',
 						'SELECT COUNT(*), MAX(id_member)
 						FROM {db_prefix}members
 						WHERE is_activated = {int:is_activated}',
@@ -249,7 +247,6 @@ class Logging
 
 					// Get the latest activated member's display name.
 					$result = Db::$db->query(
-						'',
 						'SELECT real_name
 						FROM {db_prefix}members
 						WHERE id_member = {int:id_member}
@@ -263,7 +260,6 @@ class Logging
 
 					// Update the amount of members awaiting approval
 					$result = Db::$db->query(
-						'',
 						'SELECT COUNT(*)
 						FROM {db_prefix}members
 						WHERE is_activated IN ({array_int:activation_status})',
@@ -285,7 +281,6 @@ class Logging
 				} else {
 					// SUM and MAX on a smaller table is better for InnoDB tables.
 					$result = Db::$db->query(
-						'',
 						'SELECT SUM(num_posts + unapproved_posts) AS total_messages, MAX(id_last_msg) AS max_msg_id
 						FROM {db_prefix}boards
 						WHERE redirect = {string:blank_redirect}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
@@ -309,7 +304,6 @@ class Logging
 			case 'subject':
 				// Remove the previous subject (if any).
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_search_subjects
 					WHERE id_topic = {int:id_topic}',
 					[
@@ -351,7 +345,6 @@ class Logging
 					// Get the number of topics - a SUM is better for InnoDB tables.
 					// We also ignore the recycle bin here because there will probably be a bunch of one-post topics there.
 					$result = Db::$db->query(
-						'',
 						'SELECT SUM(num_topics + unapproved_topics) AS total_topics
 						FROM {db_prefix}boards' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
 						WHERE id_board != {int:recycle_board}' : ''),
@@ -410,7 +403,6 @@ class Logging
 
 				// A big fat CASE WHEN... END is faster than a zillion UPDATE's ;).
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}members
 					SET id_post_group = CASE ' . $conditions . '
 					ELSE 0
@@ -478,7 +470,6 @@ class Logging
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_activity
 			SET' . substr($setStringUpdate, 0, -1) . '
 			WHERE date = {date:current_date}',
@@ -523,7 +514,6 @@ class Logging
 		// No entry exists for today yet?
 		if (!isset(Config::$modSettings['mostOnlineUpdated']) || Config::$modSettings['mostOnlineUpdated'] != $date) {
 			$request = Db::$db->query(
-				'',
 				'SELECT most_on
 				FROM {db_prefix}log_activity
 				WHERE date = {date:date}
@@ -638,7 +628,6 @@ class Logging
 
 		// Load the users online right now.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				lo.id_member, lo.log_time, lo.id_spider, mem.real_name, mem.member_name, mem.show_online,
 				mg.online_color, mg.id_group, mg.group_name, mg.hidden, mg.group_type, mg.id_parent
@@ -765,5 +754,3 @@ class Logging
 		return $membersOnlineStats;
 	}
 }
-
-?>

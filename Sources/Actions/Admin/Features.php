@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Profile\Notification;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -43,7 +43,6 @@ use SMF\Utils;
 class Features implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -179,12 +178,7 @@ class Features implements ActionInterface
 		Config::$modSettings['collapse_blank_lines'] = (int) !((Config::$modSettings['markdown_brs'] ?? 0) & MarkdownParser::BR_LINES);
 		Config::$modSettings['collapse_single_breaks'] = (int) !((Config::$modSettings['markdown_brs'] ?? 0) & MarkdownParser::BR_IN_PARAGRAPHS);
 
-		$extra = '';
-
-		if (isset($_REQUEST['cowsay'])) {
-			$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'], file: 'Admin')];
-			$extra = ';cowsay';
-		}
+		$extra = isset($_REQUEST['cowsay']) ? ';cowsay' : '';
 
 		// Saving?
 		if (isset($_GET['save'])) {
@@ -252,6 +246,9 @@ class Features implements ActionInterface
 					return !isset($config_var[1]) || $config_var[1] != 'legacyBBC';
 				},
 			);
+
+			// Figure out which BBC are restricted.
+			$_POST['restricted_bbc_enabledTags'] = array_diff($bbcTags, !isset($_POST['restricted_bbc_enabledTags']) ? [] : (array) $_POST['restricted_bbc_enabledTags']);
 
 			// Save the Markdown collapse_* settings as a bitmask.
 			$config_vars[] = ['int', 'markdown_brs'];
@@ -332,7 +329,6 @@ class Features implements ActionInterface
 			$done = false;
 
 			$request = Db::$db->query(
-				'',
 				'SELECT MAX(id_member)
 				FROM {db_prefix}members',
 				[
@@ -345,7 +341,6 @@ class Features implements ActionInterface
 				$changes = [];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, signature
 					FROM {db_prefix}members
 					WHERE id_member BETWEEN {int:step} AND {int:step} + 49
@@ -552,7 +547,6 @@ class Features implements ActionInterface
 				if (!empty($changes)) {
 					foreach ($changes as $id => $sig) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}members
 							SET signature = {string:signature}
 							WHERE id_member = {int:id_member}',
@@ -947,7 +941,6 @@ class Features implements ActionInterface
 		if (Utils::$context['fid'] && !isset($_GET['move'])) {
 			Utils::$context['field'] = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					id_field, col_name, field_name, field_desc, field_type, field_order, field_length, field_options,
 					show_reg, show_display, show_mlist, show_profile, private, active, default_value, can_search,
@@ -1031,7 +1024,6 @@ class Features implements ActionInterface
 			$new_sort = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					id_field, field_order
 				FROM {db_prefix}custom_fields
@@ -1069,7 +1061,6 @@ class Features implements ActionInterface
 			$sql_update .= 'END';
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}custom_fields
 				SET field_order = ' . $sql_update,
 				[],
@@ -1169,7 +1160,6 @@ class Features implements ActionInterface
 				// Make sure this is unique.
 				$current_fields = [];
 				$request = Db::$db->query(
-					'',
 					'SELECT id_field, col_name
 					FROM {db_prefix}custom_fields',
 				);
@@ -1219,7 +1209,6 @@ class Features implements ActionInterface
 					)
 				) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:current_column}
 							AND id_member > {int:no_member}',
@@ -1251,7 +1240,6 @@ class Features implements ActionInterface
 						// Just been renamed?
 						if (!in_array($k, $takenKeys) && !empty($newOptions[$k])) {
 							Db::$db->query(
-								'',
 								'UPDATE {db_prefix}themes
 								SET value = {string:new_value}
 								WHERE variable = {string:current_column}
@@ -1273,7 +1261,6 @@ class Features implements ActionInterface
 			// Do the insertion/updates.
 			if (Utils::$context['fid']) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}custom_fields
 					SET
 						field_name = {string:field_name}, field_desc = {string:field_desc},
@@ -1309,7 +1296,6 @@ class Features implements ActionInterface
 				// Just clean up any old selects - these are a pain!
 				if (($_POST['field_type'] == 'select' || $_POST['field_type'] == 'radio') && !empty($newOptions)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:current_column}
 							AND value NOT IN ({array_string:new_option_values})
@@ -1383,7 +1369,6 @@ class Features implements ActionInterface
 
 			// Delete the user data first.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}themes
 				WHERE variable = {string:current_column}
 					AND id_member > {int:no_member}',
@@ -1395,7 +1380,6 @@ class Features implements ActionInterface
 
 			// Finally - the field itself is gone!
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}custom_fields
 				WHERE id_field = {int:current_field}',
 				[
@@ -1405,7 +1389,6 @@ class Features implements ActionInterface
 
 			// Re-arrange the order.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}custom_fields
 				SET field_order = field_order - 1
 				WHERE field_order > {int:current_order}',
@@ -1421,7 +1404,6 @@ class Features implements ActionInterface
 
 			$fields = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist, field_options
 				FROM {db_prefix}custom_fields
 				WHERE show_display = {int:is_displayed}
@@ -1660,13 +1642,35 @@ class Features implements ActionInterface
 			['check', 'enablePostHTML'],
 			['check', 'autoLinkUrls'],
 			'',
-
 			['bbc', 'disabledBBC'],
-
-			// This one is actually pretend...
 			['bbc', 'legacyBBC', 'help' => 'legacy_bbc'],
+			['bbc', 'restricted_bbc', 'help' => 'restricted_bbc'],
+		];
 
-			// Markdown settings
+		// Permissions for restricted BBC
+		if (!empty(Utils::$context['restricted_bbc'])) {
+			Config::$modSettings['bbc_disabled_restricted_bbc'] = array_diff(
+				array_unique(array_map(fn($code) => $code['tag'], Parser::getBBCodes())),
+				Utils::$context['restricted_bbc'],
+			);
+
+			Utils::$context['bbc_forced_restricted_bbc'] = empty(Config::$modSettings['restricted_bbc']) ? Utils::$context['restricted_bbc'] : array_diff(Utils::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc']));
+
+			foreach (Utils::$context['restricted_bbc'] as $bbc) {
+				$config_vars[] = [
+					'permissions',
+					'bbc_' . $bbc,
+					'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'], file: 'Admin'),
+				];
+			}
+
+			if (isset($_REQUEST['cowsay'])) {
+				$config_vars[] = ['permissions', 'bbc_cowsay', 'text_label' => Lang::getTxt('groups_can_use', ['[cowsay]'], file: 'Admin')];
+			}
+		}
+
+		// Markdown settings
+		$config_vars = array_merge($config_vars, [
 			[
 				'title',
 				'markdown_settings',
@@ -1675,24 +1679,7 @@ class Features implements ActionInterface
 			['check', 'enableMarkdown', 'onchange' => 'document.getElementById(\'collapse_blank_lines\').disabled = !this.checked; document.getElementById(\'collapse_single_breaks\').disabled = !this.checked;'],
 			['check', 'collapse_blank_lines', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
 			['check', 'collapse_single_breaks', 'disabled' => empty(Config::$modSettings['enableMarkdown'])],
-		];
-
-		// Permissions for restricted BBC
-		if (!empty(Utils::$context['restricted_bbc'])) {
-			$config_vars[] = '';
-		}
-
-		foreach (Utils::$context['restricted_bbc'] as $bbc) {
-			$config_vars[] = [
-				'permissions',
-				'bbc_' . $bbc,
-				'text_label' => Lang::getTxt('groups_can_use', ['[' . $bbc . ']'], file: 'Admin'),
-			];
-		}
-
-		Utils::$context['settings_post_javascript'] = '
-			toggleBBCDisabled(\'disabledBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');
-			toggleBBCDisabled(\'legacyBBC\', ' . (empty(Config::$modSettings['enableBBC']) ? 'true' : 'false') . ');';
+		]);
 
 		IntegrationHook::call('integrate_modify_bbc_settings', [&$config_vars]);
 
@@ -1854,7 +1841,6 @@ class Features implements ActionInterface
 		} else {
 			// Load all the fields.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_field, col_name, field_name, field_desc, field_type, field_order, active, placement
 				FROM {db_prefix}custom_fields
 				ORDER BY {raw:sort}
@@ -1883,7 +1869,6 @@ class Features implements ActionInterface
 	public static function list_getProfileFieldSize(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}custom_fields',
 			[
@@ -1989,7 +1974,6 @@ class Features implements ActionInterface
 	{
 		// Gotta know the order limit
 		$result = Db::$db->query(
-			'',
 			'SELECT MAX(field_order)
 			FROM {db_prefix}custom_fields',
 			[],
@@ -2063,5 +2047,3 @@ class Features implements ActionInterface
 		);
 	}
 }
-
-?>

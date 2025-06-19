@@ -33,10 +33,16 @@ class Attachment implements \ArrayAccess
 	 * Class constants
 	 *****************/
 
+	/**
+	 * Constants for approval states.
+	 */
 	public const APPROVED_ANY = -1;
 	public const APPROVED_FALSE = 0;
 	public const APPROVED_TRUE = 1;
 
+	/**
+	 * Constants for attachment types.
+	 */
 	public const TYPE_ANY = -1;
 	public const TYPE_STANDARD = 0;
 	public const TYPE_AVATAR = 1;
@@ -327,7 +333,6 @@ class Attachment implements \ArrayAccess
 		// Given an ID but no properties, so query for the data.
 		if (!empty($id) && empty($props)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT *
 				FROM {db_prefix}attachments
 				WHERE id_attach = {int:id}
@@ -614,11 +619,11 @@ class Attachment implements \ArrayAccess
 	/**
 	 * Loads existing attachments by member ID.
 	 *
+	 * @param array|int $members The ID numbers of one or more members.
 	 * @param int $approval_status One of this class's APPROVED_* constants.
 	 *     Default: self::APPROVED_TRUE.
 	 * @param bool $get_thumbs Whether to get the thumbnail image dimensions.
 	 *     Default: true.
-	 * @param array|int $ids The ID numbers of one or more members.
 	 * @return array Instances of this class for the loaded attachments.
 	 */
 	public static function loadByMember(array|int $members, int $approval_status = self::APPROVED_TRUE, bool $get_thumbs = true): array
@@ -938,7 +943,6 @@ class Attachment implements \ArrayAccess
 			// If this isn't a new post, check the current attachments.
 			if (isset($_REQUEST['msg'])) {
 				$request = Db::$db->query(
-					'',
 					'SELECT COUNT(*), SUM(size)
 					FROM {db_prefix}attachments
 					WHERE id_msg = {int:id_msg}
@@ -1159,7 +1163,6 @@ class Attachment implements \ArrayAccess
 			// Check the folder size and count. If it hasn't been done already.
 			if (empty(Utils::$context['dir_size']) || empty(Utils::$context['dir_files'])) {
 				$request = Db::$db->query(
-					'',
 					'SELECT COUNT(*), SUM(size)
 					FROM {db_prefix}attachments
 					WHERE id_folder = {int:folder_id}
@@ -1530,7 +1533,6 @@ class Attachment implements \ArrayAccess
 
 				if (!empty($attachmentOptions['thumb'])) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}attachments
 						SET id_thumb = {int:id_thumb}
 						WHERE id_attach = {int:id_attach}',
@@ -1573,7 +1575,6 @@ class Attachment implements \ArrayAccess
 
 		// Perform.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}attachments
 			SET id_msg = {int:id_msg}
 			WHERE id_attach IN ({array_int:attach_ids})',
@@ -1600,7 +1601,6 @@ class Attachment implements \ArrayAccess
 
 		// For safety, check for thumbnails...
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				a.id_attach, a.id_member, COALESCE(thumb.id_attach, 0) AS id_thumb
 			FROM {db_prefix}attachments AS a
@@ -1630,7 +1630,6 @@ class Attachment implements \ArrayAccess
 
 		// Approving an attachment is not hard - it's easy.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}attachments
 			SET approved = {int:is_approved}
 			WHERE id_attach IN ({array_int:attachments})',
@@ -1642,7 +1641,6 @@ class Attachment implements \ArrayAccess
 
 		// In order to log the attachments, we really need their message and filename
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_msg, a.filename
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
@@ -1667,7 +1665,6 @@ class Attachment implements \ArrayAccess
 
 		// Remove from the approval queue.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}approval_queue
 			WHERE id_attach IN ({array_int:attachments})',
 			[
@@ -1740,7 +1737,6 @@ class Attachment implements \ArrayAccess
 
 		// Get all the attachment names and id_msg's.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				a.id_folder, a.filename, a.file_hash, a.attachment_type, a.id_attach, a.id_member' . ($query_type == 'messages' ? ', m.id_msg' : ', a.id_msg') . ',
 				thumb.id_folder AS thumb_folder, COALESCE(thumb.id_attach, 0) AS id_thumb, thumb.filename AS thumb_filename, thumb.file_hash AS thumb_file_hash, thumb_parent.id_attach AS id_parent
@@ -1791,7 +1787,6 @@ class Attachment implements \ArrayAccess
 
 		if (!empty($parents)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}attachments
 				SET id_thumb = {int:no_thumb}
 				WHERE id_attach IN ({array_int:parent_attachments})',
@@ -1805,7 +1800,6 @@ class Attachment implements \ArrayAccess
 		if (!empty($do_logging)) {
 			// In order to log the attachments, we really need their message and filename
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_msg, a.filename
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (a.id_msg = m.id_msg)
@@ -1831,7 +1825,6 @@ class Attachment implements \ArrayAccess
 
 		if (!empty($attach)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}attachments
 				WHERE id_attach IN ({array_int:attachment_list})',
 				[
@@ -2135,7 +2128,6 @@ class Attachment implements \ArrayAccess
 
 							if (!empty($attachment['id_thumb'])) {
 								Db::$db->query(
-									'',
 									'UPDATE {db_prefix}attachments
 									SET id_thumb = {int:id_thumb}
 									WHERE id_attach = {int:id_attach}',
@@ -2470,7 +2462,6 @@ class Attachment implements \ArrayAccess
 	protected static function queryData(array $selects, array $params = [], string $from = '{db_prefix}attachments AS a', array $joins = [], array $where = [], array $order = [], int $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT ' . implode(', ', $selects) . '
 			FROM ' . implode("\n\t\t\t\t\t", array_merge([$from], $joins)) . (empty($where) ? '' : '
 			WHERE (' . implode(') AND (', $where) . ')') . (empty($order) ? '' : '
@@ -2485,5 +2476,3 @@ class Attachment implements \ArrayAccess
 		Db::$db->free_result($request);
 	}
 }
-
-?>

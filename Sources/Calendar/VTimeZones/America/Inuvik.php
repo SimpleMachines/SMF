@@ -105,5 +105,3 @@ class Inuvik extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

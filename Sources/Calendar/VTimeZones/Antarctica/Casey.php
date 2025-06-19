@@ -161,5 +161,3 @@ class Casey extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

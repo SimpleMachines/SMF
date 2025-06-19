@@ -297,7 +297,7 @@ class CSS extends Minify
      *
      * @return string The minified data
      */
-    public function execute($path = null, $parents = array())
+    public function execute($path = null, array $parents = array()) : string
     {
         $content = '';
 

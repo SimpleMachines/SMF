@@ -22,6 +22,10 @@ use SMF\Utils;
  */
 class GenericScheduledTask extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -38,5 +42,3 @@ class GenericScheduledTask extends ScheduledTask
 		return true;
 	}
 }
-
-?>

@@ -26,6 +26,10 @@ use SMF\Utils;
  */
 class RemoveTempAttachments extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -78,5 +82,3 @@ class RemoveTempAttachments extends ScheduledTask
 		return true;
 	}
 }
-
-?>

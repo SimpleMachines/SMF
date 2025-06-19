@@ -29,20 +29,6 @@ abstract class DatabaseApi
 {
 	use BackwardCompatibility;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'count' => 'db_count',
-			'cache' => 'db_cache',
-			'package_log' => 'db_package_log',
-			'db_connection' => 'db_connection',
-		],
-	];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -220,9 +206,9 @@ abstract class DatabaseApi
 	 */
 	public static bool $unbuffered = false;
 
-	/**********************
-	 * Protected properties
-	 **********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array
@@ -302,6 +288,24 @@ abstract class DatabaseApi
 		'user_alerts_prefs',
 		'user_drafts',
 		'user_likes',
+	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'count' => 'db_count',
+			'cache' => 'db_cache',
+			'package_log' => 'db_package_log',
+			'db_connection' => 'db_connection',
+		],
 	];
 
 	/****************
@@ -584,7 +588,6 @@ abstract class DatabaseApi
 			'db_num_fields' => 'num_fields',
 			'db_num_rows' => 'num_rows',
 			'db_ping' => 'ping',
-			'db_query' => 'query',
 			'db_quote' => 'quote',
 			'db_select_db' => 'select',
 			'db_server_info' => 'server_info',
@@ -626,6 +629,11 @@ abstract class DatabaseApi
 				return $this->$method(...$args);
 			};
 		}
+
+		// Parameters reorded.
+		Utils::$smcFunc['db_query'] = fn(string $identifier, string $db_string, array $db_values = [], ?object $connection = null) => $this->query($db_string, $db_values, $connection, $identifier);
+		Utils::$smcFunc['db_search_query'] = fn(string $identifier, string $db_string, array $db_values = [], ?object $connection = null) => $this->search_query($db_string, $db_values, $connection, $identifier);
+
 	}
 }
 
@@ -633,5 +641,3 @@ abstract class DatabaseApi
 if (is_callable([DatabaseApi::class, 'exportStatic'])) {
 	DatabaseApi::exportStatic();
 }
-
-?>

@@ -360,5 +360,3 @@ class Damascus extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

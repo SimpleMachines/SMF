@@ -91,5 +91,3 @@ class Davis extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

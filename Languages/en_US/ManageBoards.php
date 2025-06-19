@@ -98,5 +98,3 @@ $txt['mboards_cancel_moving'] = 'Cancel moving';
 $txt['mboards_move'] = 'move';
 
 $txt['mboards_no_cats'] = 'There are currently no categories or boards configured.';
-
-?>

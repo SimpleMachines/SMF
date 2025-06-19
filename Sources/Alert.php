@@ -209,7 +209,7 @@ class Alert implements \ArrayAccess
 	protected static array $qb = [];
 
 	/**
-	 * @var array
+	 * @var bool
 	 *
 	 * Whether self::$link_formats has been finalized.
 	 */
@@ -536,7 +536,6 @@ class Alert implements \ArrayAccess
 		// Updating an existing alert.
 		else {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}user_alerts
 				SET
 					alert_time = {int:timestamp},
@@ -812,8 +811,8 @@ class Alert implements \ArrayAccess
 	 * @param int $memID The ID of the member.
 	 * @param bool|array $to_fetch Alerts to fetch: true/false for all/unread,
 	 *    or a list of one or more alert IDs.
-	 * @param array $limit Maximum number of alerts to fetch (0 for no limit).
-	 * @param array $offset Number of alerts to skip for pagination.
+	 * @param int $limit Maximum number of alerts to fetch (0 for no limit).
+	 * @param int $offset Number of alerts to skip for pagination.
 	 *    Ignored if $to_fetch is a list of IDs.
 	 * @return array An array of instances of this class.
 	 */
@@ -888,8 +887,8 @@ class Alert implements \ArrayAccess
 	 * @param int $memID The ID of the member.
 	 * @param bool|array $to_fetch Alerts to fetch: true/false for all/unread,
 	 *    or a list of one or more IDs.
-	 * @param array $limit Maximum number of alerts to fetch (0 for no limit).
-	 * @param array $offset Number of alerts to skip for pagination. Ignored if
+	 * @param int $limit Maximum number of alerts to fetch (0 for no limit).
+	 * @param int $offset Number of alerts to skip for pagination. Ignored if
 	 *    $to_fetch is a list of IDs.
 	 * @param bool $with_avatar Whether to load the avatar of the alert sender.
 	 * @param bool $show_links Whether to show links in the constituent parts of
@@ -977,7 +976,6 @@ class Alert implements \ArrayAccess
 		$time = $read ? time() : 0;
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}user_alerts
 			SET is_read = {int:read}
 			WHERE id_alert IN ({array_int:to_mark})
@@ -1017,7 +1015,6 @@ class Alert implements \ArrayAccess
 		$time = $read ? time() : 0;
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}user_alerts
 			SET is_read = {int:read}
 			WHERE id_member IN ({array_int:members})
@@ -1096,7 +1093,6 @@ class Alert implements \ArrayAccess
 		$members = (array) $members;
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_alerts
 			WHERE id_alert IN ({array_int:ids})
 				AND id_member IN ({array_int:members}',
@@ -1128,7 +1124,6 @@ class Alert implements \ArrayAccess
 		$before = $before > 0 ? $before : time();
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_alerts
 			WHERE is_read > 0
 				AND is_read < {int:before}' . ($memID > 0 ? '
@@ -1395,7 +1390,6 @@ class Alert implements \ArrayAccess
 
 		if ($simple) {
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_msg
 				FROM {db_prefix}messages AS m
 				WHERE ' . self::$qb[$memID]['query_see_message_board'] . '
@@ -1406,7 +1400,6 @@ class Alert implements \ArrayAccess
 			);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_msg, m.id_topic, m.subject, b.id_board, b.name AS board_name
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
@@ -1440,11 +1433,11 @@ class Alert implements \ArrayAccess
 	/**
 	 * Checks whether a member can see the topics that some alerts refer to.
 	 *
+	 * @param array $possible_topics Key-value pairs of alert IDs and topic IDs.
 	 * @param int $memID ID of the member.
 	 * @param bool $simple If true, do nothing beyond checking the access.
 	 *    If false, also get some info about the topic in question.
 	 *    Default: false.
-	 * @param array $possible_msgs Key-value pairs of alert IDs and topic IDs.
 	 * @return array Key-value pairs of alert IDs and visibility status.
 	 */
 	protected static function checkTopicAccess(array $possible_topics, int $memID, bool $simple = false): array
@@ -1470,7 +1463,6 @@ class Alert implements \ArrayAccess
 
 		if ($simple) {
 			$request = Db::$db->query(
-				'',
 				'SELECT t.id_topic
 				FROM {db_prefix}topics AS t
 				WHERE ' . self::$qb[$memID]['query_see_topic_board'] . '
@@ -1481,7 +1473,6 @@ class Alert implements \ArrayAccess
 			);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_msg, t.id_topic, m.subject, b.id_board, b.name AS board_name
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (t.id_first_msg = m.id_msg)
@@ -1545,7 +1536,6 @@ class Alert implements \ArrayAccess
 		// Note that unread alerts are never purged.
 		if (!empty($deletes)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}user_alerts
 				WHERE id_alert IN ({array_int:alerts})
 					AND id_member = {int:member}',
@@ -1560,7 +1550,6 @@ class Alert implements \ArrayAccess
 		// Do it directly to avoid creating a loop in User::updateMemberData().
 		if ($num_unread_deletes > 0) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET alerts = GREATEST({int:unread_deletes}, alerts) - {int:unread_deletes}
 				WHERE id_member = {int:member}',
@@ -1595,7 +1584,6 @@ class Alert implements \ArrayAccess
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0)
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}user_alerts AS a' . (empty($joins) ? '' : '
@@ -1613,5 +1601,3 @@ class Alert implements \ArrayAccess
 		Db::$db->free_result($request);
 	}
 }
-
-?>

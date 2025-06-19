@@ -125,5 +125,3 @@ class Chatham extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

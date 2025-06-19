@@ -209,5 +209,3 @@ class Knox extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

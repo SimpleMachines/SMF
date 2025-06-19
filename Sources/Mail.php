@@ -34,8 +34,8 @@ class Mail
 	 * @param array|string $to The email(s) to send to
 	 * @param string $subject Email subject, expected to have entities, and slashes, but not be parsed
 	 * @param string $message Email body, expected to have slashes, no htmlentities
-	 * @param string $from The address to use for replies
-	 * @param string $message_id If specified, it will be used as local part of the Message-ID header.
+	 * @param null|string $from The address to use for replies
+	 * @param null|string $message_id If specified, it will be used as local part of the Message-ID header.
 	 * @param bool $send_html Whether or not the message is HTML vs. plain text
 	 * @param int $priority The priority of the message
 	 * @param bool $hotmail_fix Whether to apply the "hotmail fix"
@@ -276,7 +276,6 @@ class Mail
 			$nextSendTime = time() + 10;
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:nextSendTime}
 				WHERE variable = {literal:mail_next_send}
@@ -366,7 +365,6 @@ class Mail
 			$delay = max(TaskRunner::MAX_CRON_TIME, (int) (Config::$modSettings['mail_queue_delay'] ?? 10));
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:next_mail_send}
 				WHERE variable = {literal:mail_next_send}
@@ -411,7 +409,6 @@ class Mail
 		$emails = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
 			FROM {db_prefix}mail_queue
 			ORDER BY priority ASC, id_mail ASC
@@ -441,7 +438,6 @@ class Mail
 		// Delete, delete, delete!!!
 		if (!empty($ids)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}mail_queue
 				WHERE id_mail IN ({array_int:mail_list})',
 				[
@@ -454,7 +450,6 @@ class Mail
 		if (count($ids) < $number) {
 			// Only update the setting if no-one else has beaten us to it.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:no_send}
 				WHERE variable = {literal:mail_next_send}
@@ -547,7 +542,6 @@ class Mail
 			// If we have failed too many times, tell mail to wait a bit and try again.
 			if (Config::$modSettings['mail_failed_attempts'] > 5) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}settings
 					SET value = {string:next_mail_send}
 					WHERE variable = {literal:mail_next_send}
@@ -583,7 +577,6 @@ class Mail
 		// We where unable to send the email, clear our failed attempts.
 		if (!empty(Config::$modSettings['mail_failed_attempts'])) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}settings
 				SET value = {string:zero}
 				WHERE variable = {string:mail_failed_attempts}',
@@ -933,7 +926,6 @@ class Mail
 
 		// Get the subject and body...
 		$result = Db::$db->query(
-			'',
 			'SELECT mf.subject, ml.body, ml.id_member, t.id_last_msg, t.id_topic, t.id_board,
 				COALESCE(mem.real_name, ml.poster_name) AS poster_name, mf.id_msg
 			FROM {db_prefix}topics AS t
@@ -999,14 +991,13 @@ class Mail
 	 *
 	 * @param string $type The type. Types supported are 'approval', 'activation', and 'standard'.
 	 * @param int $memberID The ID of the member
-	 * @param string $member_name The name of the member (if null, it is pulled from the database)
+	 * @param null|string $member_name The name of the member (if null, it is pulled from the database)
 	 */
 	public static function adminNotify(string $type, int $memberID, ?string $member_name = null): void
 	{
 		if ($member_name == null) {
 			// Get the new user's name....
 			$request = Db::$db->query(
-				'',
 				'SELECT real_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}
@@ -1130,5 +1121,3 @@ class Mail
 		return $use_ref ? $ref : $matches[0];
 	}
 }
-
-?>

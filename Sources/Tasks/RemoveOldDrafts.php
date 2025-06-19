@@ -25,6 +25,10 @@ use SMF\Theme;
  */
 class RemoveOldDrafts extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -46,7 +50,6 @@ class RemoveOldDrafts extends ScheduledTask
 
 		// Find all of the old drafts.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_draft
 			FROM {db_prefix}user_drafts
 			WHERE poster_time <= {int:poster_time_old}',
@@ -68,5 +71,3 @@ class RemoveOldDrafts extends ScheduledTask
 		return true;
 	}
 }
-
-?>

@@ -364,7 +364,7 @@ class SocketFetcher extends WebFetchApi
 	 *  - Called as ->result() will return the full final array.
 	 *  - Called as ->result('body') to return the page source of the result.
 	 *
-	 * @param string $area Used to return an area such as body, header, error.
+	 * @param string|null $area Used to return an area such as body, header, error.
 	 * @return mixed The response.
 	 */
 	public function result(?string $area = null): mixed
@@ -385,7 +385,7 @@ class SocketFetcher extends WebFetchApi
 	 *  - Can be called as ->result_raw(x) where x is a specific loop's result.
 	 *  - Call as ->result_raw() for everything.
 	 *
-	 * @param int $response_number Which response to get, or null for all.
+	 * @param int|null $response_number Which response to get, or null for all.
 	 * @return array The specified response or all the responses.
 	 */
 	public function resultRaw(?int $response_number = null): array
@@ -415,5 +415,3 @@ class SocketFetcher extends WebFetchApi
 		unset($this->fp);
 	}
 }
-
-?>

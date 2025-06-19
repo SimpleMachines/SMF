@@ -25,6 +25,10 @@ use SMF\User;
  */
 class Buddy_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -54,5 +58,3 @@ class Buddy_Notify extends BackgroundTask
 		return true;
 	}
 }
-
-?>

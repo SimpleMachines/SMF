@@ -102,5 +102,3 @@ class Samarkand extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

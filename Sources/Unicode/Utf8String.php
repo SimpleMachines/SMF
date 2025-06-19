@@ -68,7 +68,7 @@ class Utf8String implements \Stringable
 	 * Constructor.
 	 *
 	 * @param string $string The string.
-	 * @param string $language Two-character locale code for the language of
+	 * @param string|null $language Two-character locale code for the language of
 	 *    this string. If null, assumes the language currently in use by SMF
 	 *    (meaning the user's language, falling back to the forum's default).
 	 */
@@ -992,7 +992,7 @@ class Utf8String implements \Stringable
 	 * This is just syntactical sugar to ease method chaining.
 	 *
 	 * @param string $string The string.
-	 * @param string $language Two-character locale code for the language of
+	 * @param string|null $language Two-character locale code for the language of
 	 *    this string.
 	 * @return object An instance of this class.
 	 */
@@ -1535,5 +1535,3 @@ class Utf8String implements \Stringable
 		$this->string = str_replace([$zwj, $zwnj], $substitute, $this->string);
 	}
 }
-
-?>

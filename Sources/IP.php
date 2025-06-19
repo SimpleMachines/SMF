@@ -636,5 +636,3 @@ class IP implements \Stringable
 		return $query;
 	}
 }
-
-?>

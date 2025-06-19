@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Permissions;
 
 use SMF\Board;
+use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\User;
 
@@ -53,96 +54,6 @@ class UserPermissionSet
 	 * Values can be 1 for allowed, null for not allowed, or 0 for denied.
 	 */
 	public array $permissions = [];
-
-	/**************************
-	 * Public static properties
-	 **************************/
-
-	/**
-	 * @var array
-	 *
-	 * Permissions to deny to users who are banned from posting.
-	 */
-	public static array $post_ban_permissions = [
-		'admin_forum',
-		'calendar_edit_any',
-		'calendar_edit_own',
-		'calendar_post',
-		'delete_any',
-		'delete_own',
-		'delete_replies',
-		'edit_news',
-		'lock_any',
-		'lock_own',
-		'make_sticky',
-		'manage_attachments',
-		'manage_bans',
-		'manage_boards',
-		'manage_membergroups',
-		'manage_permissions',
-		'manage_smileys',
-		'merge_any',
-		'moderate_forum',
-		'modify_any',
-		'modify_own',
-		'modify_replies',
-		'move_any',
-		'pm_send',
-		'poll_add_any',
-		'poll_add_own',
-		'poll_edit_any',
-		'poll_edit_own',
-		'poll_lock_any',
-		'poll_lock_own',
-		'poll_post',
-		'poll_remove_any',
-		'poll_remove_own',
-		'post_new',
-		'post_reply_any',
-		'post_reply_own',
-		'post_unapproved_replies_any',
-		'post_unapproved_replies_own',
-		'post_unapproved_topics',
-		'profile_extra_any',
-		'profile_forum_any',
-		'profile_identity_any',
-		'profile_other_any',
-		'profile_signature_any',
-		'profile_title_any',
-		'remove_any',
-		'remove_own',
-		'send_mail',
-		'split_any',
-	];
-
-	/**
-	 * @var array
-	 *
-	 * Permissions to change for users with a high warning level.
-	 */
-	public static array $warn_permissions = [
-		'post_new' => 'post_unapproved_topics',
-		'post_reply_own' => 'post_unapproved_replies_own',
-		'post_reply_any' => 'post_unapproved_replies_any',
-		'post_attachment' => 'post_unapproved_attachments',
-	];
-
-	/**
-	 * @var array
-	 *
-	 * Permissions that should only be given to highly trusted members.
-	 */
-	public static array $heavy_permissions = [
-		'admin_forum',
-		'manage_attachments',
-		'manage_smileys',
-		'manage_boards',
-		'edit_news',
-		'moderate_forum',
-		'manage_bans',
-		'manage_membergroups',
-		'manage_permissions',
-	];
 
 	/****************************
 	 * Internal static properties
@@ -222,7 +133,7 @@ class UserPermissionSet
 	/**
 	 * Checks whether the user has been granted the specified permissions.
 	 *
-	 * @param string $permission_names The names of the permissions to check.
+	 * @param string|array $permission_names The names of the permissions to check.
 	 * @param bool $any If true, will return true if the user has any of the
 	 *    specified permissions. If false, will return true only if the user
 	 *    has all of the specified permissions. Default: false.
@@ -230,8 +141,6 @@ class UserPermissionSet
 	 */
 	public function allowedTo(string|array $permission_names, bool $any = false): bool
 	{
-		IntegrationHook::call('integrate_heavy_permissions_session', [&self::$heavy_permissions]);
-
 		$permission_names = (array) $permission_names;
 
 		$this->integrateAllowedToGeneral($permission_names);
@@ -265,12 +174,15 @@ class UserPermissionSet
 	 *
 	 * These changes do not survive beyond the current script execution run.
 	 *
-	 * @param string|array $permission_name The name of the permission to grant.
+	 * @param string|array $permission_names The name of the permission to grant.
 	 */
 	public function grant(string|array $permission_names): void
 	{
 		foreach ((array) $permission_names as $permission_name) {
-			if (is_string($permission_name)) {
+			if (
+				is_string($permission_name)
+				&& Permission::exists($permission_name)
+			) {
 				$this->permissions[$permission_name] = 1;
 			}
 		}
@@ -281,12 +193,12 @@ class UserPermissionSet
 	 *
 	 * These changes do not survive beyond the current script execution run.
 	 *
-	 * @param string $permission_name The name of the permission to deny.
+	 * @param string $permission_names The name of the permission to deny.
 	 */
 	public function deny(string|array $permission_names): void
 	{
 		foreach ((array) $permission_names as $permission_name) {
-			if (array_key_exists($permission_name, $this->permissions)) {
+			if (!empty($this->permissions[$permission_name])) {
 				$this->permissions[$permission_name] = null;
 			}
 		}
@@ -319,6 +231,12 @@ class UserPermissionSet
 				&& Config::$modSettings['warning_mute'] <= $this->user->warning
 			)
 		) {
+			foreach (Permission::getAll() as $permission) {
+				if (!empty($permission->never_banned)) {
+					$post_ban_permissions[] = $permission->name;
+				}
+			}
+
 			IntegrationHook::call('integrate_post_ban_permissions', [&self::$post_ban_permissions]);
 
 			foreach (self::$post_ban_permissions as $permission) {
@@ -328,17 +246,25 @@ class UserPermissionSet
 			return;
 		}
 
-		// Are they absolutely under moderation?
+		// If user has a high warning level, some permissions should change...
 		if (
 			!empty(Config::$modSettings['warning_moderate'])
 			&& Config::$modSettings['warning_moderate'] <= $this->user->warning
 		) {
-			// Work out what permissions should change...
-			IntegrationHook::call('integrate_warn_permissions', [&self::$warn_permissions]);
+			foreach (Permission::getAll() as $permission) {
+				if (isset($permission->when_warned)) {
+					$warn_permissions[$permission->name] = $permission->when_warned;
+				}
+			}
 
-			foreach (self::$warn_permissions as $old => $new) {
+			IntegrationHook::call('integrate_warn_permissions', [&$warn_permissions]);
+
+			foreach ($warn_permissions as $old => $new) {
+				if (!empty($this->permissions[$old])) {
+					$this->grant($new);
+				}
+
 				$this->deny($old);
-				$this->grant($new);
 			}
 		}
 	}
@@ -379,7 +305,7 @@ class UserPermissionSet
 	 * Calls the integrate_allowed_to_general hook so that mods can grant custom
 	 * permissions.
 	 *
-	 * @param string $permission_names The names of the permissions to check.
+	 * @param array $permission_names The names of the permissions to check.
 	 */
 	protected function integrateAllowedToGeneral(array $permission_names): void
 	{
@@ -408,7 +334,7 @@ class UserPermissionSet
 	 * permissions.
 	 *
 	 * @param bool $allowed Whether the user is allowed based on checks so far.
-	 * @param string $permission_names The names of the permissions to check.
+	 * @param array $permission_names The names of the permissions to check.
 	 * @param bool $any If true, should return true if the user has any of the
 	 *    specified permissions. If false, should return true only if the user
 	 *    has all of the specified permissions. Default: false.
@@ -426,5 +352,3 @@ class UserPermissionSet
 		return $allowed;
 	}
 }
-
-?>

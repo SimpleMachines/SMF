@@ -124,5 +124,3 @@ class Chita extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

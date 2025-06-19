@@ -158,5 +158,3 @@ function template_main()
 		</form>
 	</div><!-- #edit_poll -->';
 }
-
-?>

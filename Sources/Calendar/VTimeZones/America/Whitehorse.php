@@ -166,5 +166,3 @@ class Whitehorse extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

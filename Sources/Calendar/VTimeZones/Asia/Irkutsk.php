@@ -117,5 +117,3 @@ class Irkutsk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

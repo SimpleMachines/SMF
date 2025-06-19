@@ -24,24 +24,13 @@ abstract class CacheApi
 {
 	use BackwardCompatibility;
 
+	/*****************
+	 * Class constants
+	 *****************/
+
 	public const APIS_FOLDER = __DIR__ . '/APIs';
 	public const APIS_NAMESPACE = __NAMESPACE__ . '\\APIs\\';
 	public const APIS_DEFAULT = 'FileBased';
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'loadedApi' => 'cacheAPI',
-			'hits' => 'cache_hits',
-			'count_hits' => 'cache_count',
-			'misses' => 'cache_misses',
-			'count_misses' => 'cache_count_misses',
-		],
-	];
 
 	/**************************
 	 * Public static properties
@@ -110,9 +99,9 @@ abstract class CacheApi
 	 */
 	public static int $count_misses = 0;
 
-	/**********************
-	 * Protected properties
-	 **********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var string The maximum SMF version that this will work with.
@@ -133,6 +122,25 @@ abstract class CacheApi
 	 * @var int The default TTL.
 	 */
 	protected $ttl = 120;
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'loadedApi' => 'cacheAPI',
+			'hits' => 'cache_hits',
+			'count_hits' => 'cache_count',
+			'misses' => 'cache_misses',
+			'count_misses' => 'cache_count_misses',
+		],
+	];
 
 	/****************
 	 * Public methods
@@ -269,7 +277,7 @@ abstract class CacheApi
 	/**
 	 * Gets the latest version of SMF this is compatible with.
 	 *
-	 * @return string the value of $key.
+	 * @return string|bool the compatible version or false if it's not compatible.
 	 */
 	public function getCompatibleVersion(): string|bool
 	{
@@ -279,7 +287,7 @@ abstract class CacheApi
 	/**
 	 * Gets the min version that we support.
 	 *
-	 * @return string the value of $key.
+	 * @return string|int the minimum supported version.
 	 */
 	public function getMinimumVersion(): string|int
 	{
@@ -289,7 +297,7 @@ abstract class CacheApi
 	/**
 	 * Gets the Version of the Caching API.
 	 *
-	 * @return string the value of $key.
+	 * @return string|bool the version of the caching API
 	 */
 	public function getVersion(): string|bool
 	{
@@ -629,5 +637,3 @@ abstract class CacheApi
 if (is_callable([CacheApi::class, 'exportStatic'])) {
 	CacheApi::exportStatic();
 }
-
-?>

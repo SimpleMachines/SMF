@@ -259,5 +259,3 @@ class Noronha extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

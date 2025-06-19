@@ -183,5 +183,3 @@ function template_additional_rows($row_position, $cur_list)
 				', $row['value'], '
 			</div>';
 }
-
-?>

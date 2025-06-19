@@ -90,7 +90,7 @@ class Recent implements ActionInterface, Routable
 	protected int $total_posts = 0;
 
 	/**
-	 * @var array
+	 * @var array|null
 	 *
 	 * IDs of some recent messages.
 	 */
@@ -179,7 +179,6 @@ class Recent implements ActionInterface, Routable
 	{
 		// Find it by the board - better to order by board than sort the entire messages table.
 		$request = Db::$db->query(
-			'substring',
 			'SELECT m.poster_time, m.subject, m.id_topic, m.poster_name, SUBSTRING(m.body, 1, 385) AS body,
 				m.smileys_enabled
 			FROM {db_prefix}messages AS m' . (!empty(Config::$modSettings['postmod_active']) ? '
@@ -194,6 +193,7 @@ class Recent implements ActionInterface, Routable
 				'recycle_board' => Config::$modSettings['recycle_board'],
 				'is_approved' => 1,
 			],
+			identifier: 'substring',
 		);
 
 		if (Db::$db->num_rows($request) == 0) {
@@ -254,7 +254,6 @@ class Recent implements ActionInterface, Routable
 		if (!empty($_REQUEST['c'])) {
 			$boards = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_cat IN ({array_int:category_list})
@@ -303,7 +302,6 @@ class Recent implements ActionInterface, Routable
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_board IN ({array_int:board_list})
@@ -347,7 +345,6 @@ class Recent implements ActionInterface, Routable
 		// Requested a single board.
 		elseif (!empty(Board::$info->id)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT num_posts, redirect
 				FROM {db_prefix}boards
 				WHERE id_board = {int:current_board}
@@ -393,7 +390,6 @@ class Recent implements ActionInterface, Routable
 			$this->total_posts = 0;
 
 			$get_num_posts = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.name, b.num_posts
 				FROM {db_prefix}boards AS b
 				WHERE ' . $query_these_boards . '
@@ -420,7 +416,6 @@ class Recent implements ActionInterface, Routable
 	{
 		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
-				'',
 				'SELECT name
 				FROM {db_prefix}categories
 				WHERE id_cat = {int:id_cat}
@@ -453,7 +448,6 @@ class Recent implements ActionInterface, Routable
 				// Find the most recent messages they can *view*.
 				// @todo SLOW This query is really slow still, probably?
 				$request = Db::$db->query(
-					'',
 					'SELECT m.id_msg
 					FROM {db_prefix}messages AS m ' . (!empty(Config::$modSettings['postmod_active']) ? '
 						INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)' : '') . '
@@ -687,5 +681,3 @@ class Recent implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

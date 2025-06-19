@@ -56,5 +56,3 @@ class Pitcairn extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

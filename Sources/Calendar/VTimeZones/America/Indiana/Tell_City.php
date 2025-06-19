@@ -164,5 +164,3 @@ class Tell_City extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

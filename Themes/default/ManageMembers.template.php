@@ -295,5 +295,3 @@ function template_admin_browse()
 		</form>';
 	}
 }
-
-?>

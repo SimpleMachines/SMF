@@ -293,7 +293,6 @@ class ErrorHandler
 			// Get an error count, if necessary
 			if (!isset(Utils::$context['num_errors'])) {
 				$query = Db::$db->query(
-					'',
 					'SELECT COUNT(*)
 					FROM {db_prefix}log_errors',
 					[],
@@ -543,7 +542,6 @@ class ErrorHandler
 
 		// First, we have to get the online log, because we need to break apart the serialized string.
 		$request = Db::$db->query(
-			'',
 			'SELECT url
 			FROM {db_prefix}log_online
 			WHERE session = {string:session}',
@@ -568,7 +566,6 @@ class ErrorHandler
 			}
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_online
 				SET url = {string:url}
 				WHERE session = {string:session}',
@@ -610,7 +607,7 @@ class ErrorHandler
 	 * @uses template_fatal_error()
 	 *
 	 * @param string $error_message The error message
-	 * @param string $error_code An error code
+	 * @param null|string $error_code An error code
 	 */
 	protected static function setupFatalContext(string $error_message, ?string $error_code = null): void
 	{
@@ -708,7 +705,7 @@ class ErrorHandler
 
 		if (filemtime(Config::$cachedir . '/db_last_error.php') === $last_db_error_change) {
 			// Write the change
-			$write_db_change = '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n" . '?' . '>';
+			$write_db_change = '<' . '?' . "php\n" . '$db_last_error = ' . time() . ';' . "\n";
 			$written_bytes = file_put_contents(Config::$cachedir . '/db_last_error.php', $write_db_change, LOCK_EX);
 
 			// survey says ...
@@ -724,5 +721,3 @@ class ErrorHandler
 		return false;
 	}
 }
-
-?>

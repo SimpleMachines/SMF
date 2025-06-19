@@ -49,5 +49,3 @@ class South_Georgia extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

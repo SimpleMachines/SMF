@@ -221,5 +221,3 @@ class Louisville extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

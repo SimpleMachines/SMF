@@ -165,7 +165,6 @@ class GroupPermissionSet
 
 			// First, delete all the existing permissions for this group and its children.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}permissions
 				WHERE id_group IN ({array_int:groups})
 					AND permission NOT IN ({array_string:illegal})',
@@ -219,7 +218,6 @@ class GroupPermissionSet
 
 		// Again, we start by clearing all the permissions for this group and its children.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}board_permissions
 			WHERE id_group IN ({array_int:groups})
 				AND id_profile = {int:profile}
@@ -349,7 +347,6 @@ class GroupPermissionSet
 
 		// Look up the permissions for each group.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, permission, add_deny
 			FROM {db_prefix}permissions
 			WHERE id_group IN ({array_int:groups})',
@@ -437,7 +434,6 @@ class GroupPermissionSet
 
 		// Look up the permissions for each group.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, id_profile, permission, add_deny
 			FROM {db_prefix}board_permissions
 			WHERE id_group IN ({array_int:groups})
@@ -497,5 +493,3 @@ class GroupPermissionSet
 		}
 	}
 }
-
-?>

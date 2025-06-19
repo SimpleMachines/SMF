@@ -736,7 +736,6 @@ class QueryString
 		// Looking through the message table can be slow, so try using the cache first.
 		if (($topic = Cache\CacheApi::get('msg_topic-' . $_REQUEST['msg'], 120)) === null) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}
@@ -921,5 +920,3 @@ class QueryString
 		}
 	}
 }
-
-?>

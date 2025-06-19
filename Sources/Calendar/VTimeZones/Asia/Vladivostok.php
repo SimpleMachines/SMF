@@ -117,5 +117,3 @@ class Vladivostok extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -8016,5 +8016,3 @@ function utf8_regex_identifier_status(): array
 			'\\x{31350}-\\x{323AF}',
 	];
 }
-
-?>

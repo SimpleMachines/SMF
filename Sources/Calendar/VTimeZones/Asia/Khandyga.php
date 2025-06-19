@@ -131,5 +131,3 @@ class Khandyga extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

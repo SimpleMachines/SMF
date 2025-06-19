@@ -2113,5 +2113,3 @@ function utf8_normalize_d_maps(): array
 		"\xF0\xAF\xA8\x9D" => "\xF0\xAA\x98\x80",
 	];
 }
-
-?>

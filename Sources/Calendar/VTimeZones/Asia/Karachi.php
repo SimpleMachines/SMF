@@ -113,5 +113,3 @@ class Karachi extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

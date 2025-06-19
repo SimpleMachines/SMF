@@ -28,21 +28,8 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Board implements \ArrayAccess, Routable
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'board_id' => 'board',
-			'info' => 'board_info',
-			'loaded' => 'boards',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -315,7 +302,7 @@ class Board implements \ArrayAccess, Routable
 	 **************************/
 
 	/**
-	 * @var int
+	 * @var int|null
 	 *
 	 * ID number of the board being viewed.
 	 *
@@ -326,7 +313,7 @@ class Board implements \ArrayAccess, Routable
 	public static ?int $board_id;
 
 	/**
-	 * @var self
+	 * @var self|null
 	 *
 	 * Instance of this class for board we are currently in.
 	 */
@@ -442,6 +429,26 @@ class Board implements \ArrayAccess, Routable
 	 * Holds parsed versions of board descriptions.
 	 */
 	protected static array $parsed_descriptions = [];
+
+	/**
+	 * @var array
+	 *
+	 * Cache for Board::getAll().
+	 */
+	protected static array $ids = [];
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'board_id' => 'board',
+			'info' => 'board_info',
+			'loaded' => 'boards',
+		],
+	];
 
 	/****************
 	 * Public methods
@@ -562,6 +569,10 @@ class Board implements \ArrayAccess, Routable
 			);
 
 			self::$loaded[$this->id] = $this;
+
+			if (!empty(self::$ids)) {
+				self::$ids[] = $this->id;
+			}
 		}
 		// Updating an existing board.
 		else {
@@ -614,7 +625,6 @@ class Board implements \ArrayAccess, Routable
 			IntegrationHook::call('integrate_modify_board', [$this->id, $boardOptions, &$set, &$params]);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_board = {int:id}',
@@ -624,7 +634,6 @@ class Board implements \ArrayAccess, Routable
 
 		// Before we add new access_groups or deny_groups, remove all of the old entries.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}board_permissions_view
 			WHERE id_board = {int:this_board}',
 			[
@@ -654,7 +663,6 @@ class Board implements \ArrayAccess, Routable
 
 		// Reset current moderators for this board - if there are any!
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}moderators
 			WHERE id_board = {int:this_board}',
 			[
@@ -674,7 +682,6 @@ class Board implements \ArrayAccess, Routable
 
 		// Reset current moderator groups for this board - if there are any!
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}moderator_groups
 			WHERE id_board = {int:this_board}',
 			[
@@ -968,6 +975,30 @@ class Board implements \ArrayAccess, Routable
 	}
 
 	/**
+	 * Gets the IDs of all boards.
+	 *
+	 * @return array IDs of all boards.
+	 */
+	public static function getAll(): array
+	{
+		if (!empty(self::$ids)) {
+			return self::$ids;
+		}
+
+		$selects = ['b.id_board'];
+		$params = [];
+		$joins = [];
+		$where = [];
+		$order = ['b.id_board'];
+
+		foreach (self::queryData($selects, $params, $joins, $where, $order) as $row) {
+			self::$ids[] = (int) $row['id_board'];
+		}
+
+		return self::$ids;
+	}
+
+	/**
 	 * Creates a new instance of this class if necessary, or updates an existing
 	 * instance if one already exists for the given ID number. In either case,
 	 * the instance will be returned.
@@ -1030,7 +1061,6 @@ class Board implements \ArrayAccess, Routable
 			// Clear out all the places where this lovely info is stored.
 			// @todo Maybe not log_mark_read?
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_mark_read
 				WHERE id_board IN ({array_int:board_list})
 					AND id_member = {int:current_member}',
@@ -1041,7 +1071,6 @@ class Board implements \ArrayAccess, Routable
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_boards
 				WHERE id_board IN ({array_int:board_list})
 					AND id_member = {int:current_member}',
@@ -1082,7 +1111,6 @@ class Board implements \ArrayAccess, Routable
 		// The call to markBoardsRead() in Display() used to be simply
 		// marking log_boards (the previous query only)
 		$result = Db::$db->query(
-			'',
 			'SELECT MIN(id_topic)
 			FROM {db_prefix}log_topics
 			WHERE id_member = {int:current_member}',
@@ -1100,7 +1128,6 @@ class Board implements \ArrayAccess, Routable
 		// @todo SLOW This query seems to eat it sometimes.
 		$topics = [];
 		$result = Db::$db->query(
-			'',
 			'SELECT lt.id_topic
 			FROM {db_prefix}log_topics AS lt
 				INNER JOIN {db_prefix}topics AS t /*!40000 USE INDEX (PRIMARY) */ ON (t.id_topic = lt.id_topic
@@ -1122,7 +1149,6 @@ class Board implements \ArrayAccess, Routable
 
 		if (!empty($topics)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_topics
 				WHERE id_member = {int:current_member}
 					AND id_topic IN ({array_int:topic_list})',
@@ -1146,7 +1172,6 @@ class Board implements \ArrayAccess, Routable
 	{
 		// Find the topic and make sure the member still exists.
 		$result = Db::$db->query(
-			'',
 			'SELECT COALESCE(mem.id_member, 0)
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -1414,7 +1439,7 @@ class Board implements \ArrayAccess, Routable
 	 * updates the statistics to reflect the new situation.
 	 *
 	 * @param array $boards_to_remove The boards to remove
-	 * @param int $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
+	 * @param null|int $moveChildrenTo The ID of the board to move the child boards to (null to remove the child boards, 0 to make them a top-level board)
 	 */
 	public static function delete(array $boards_to_remove, ?int $moveChildrenTo = null): void
 	{
@@ -1457,7 +1482,6 @@ class Board implements \ArrayAccess, Routable
 		$topics = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic
 			FROM {db_prefix}topics
 			WHERE id_board IN ({array_int:boards_to_remove})',
@@ -1475,7 +1499,6 @@ class Board implements \ArrayAccess, Routable
 
 		// Delete the board's logs.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
@@ -1484,7 +1507,6 @@ class Board implements \ArrayAccess, Routable
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_boards
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
@@ -1493,7 +1515,6 @@ class Board implements \ArrayAccess, Routable
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_notify
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
@@ -1503,7 +1524,6 @@ class Board implements \ArrayAccess, Routable
 
 		// Delete this board's moderators.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}moderators
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
@@ -1513,7 +1533,6 @@ class Board implements \ArrayAccess, Routable
 
 		// Delete this board's moderator groups.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}moderator_groups
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
@@ -1523,7 +1542,6 @@ class Board implements \ArrayAccess, Routable
 
 		// Delete any extra events in the calendar.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}calendar
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
@@ -1533,7 +1551,6 @@ class Board implements \ArrayAccess, Routable
 
 		// Delete any message icons that only appear on these boards.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}message_icons
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
@@ -1543,7 +1560,6 @@ class Board implements \ArrayAccess, Routable
 
 		// Delete the boards.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}boards
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
@@ -1553,7 +1569,6 @@ class Board implements \ArrayAccess, Routable
 
 		// Delete permissions
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}board_permissions_view
 			WHERE id_board IN ({array_int:boards_to_remove})',
 			[
@@ -1580,6 +1595,8 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		self::reorder();
+
+		self::$ids = array_diff(self::$ids, $boards_to_remove);
 	}
 
 	/**
@@ -1597,7 +1614,6 @@ class Board implements \ArrayAccess, Routable
 			foreach (Category::$boardList[$cat_id] as $board_id) {
 				if (self::$loaded[$board_id]->order != ++$board_order) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}boards
 						SET board_order = {int:new_order}
 						WHERE id_board = {int:selected_board}',
@@ -1628,7 +1644,6 @@ class Board implements \ArrayAccess, Routable
 		$children = [];
 
 		$result = Db::$db->query(
-			'',
 			'SELECT id_board
 			FROM {db_prefix}boards
 			WHERE id_parent = {int:parent_board}',
@@ -1644,7 +1659,6 @@ class Board implements \ArrayAccess, Routable
 
 		// ...and set it to a new parent and child_level.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}boards
 			SET id_parent = {int:new_parent}, child_level = {int:new_child_level}
 			WHERE id_parent = {int:parent_board}',
@@ -1702,7 +1716,6 @@ class Board implements \ArrayAccess, Routable
 		$moderators = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member, mem.real_name, mo.id_board
 			FROM {db_prefix}moderators AS mo
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = mo.id_member)
@@ -1761,7 +1774,6 @@ class Board implements \ArrayAccess, Routable
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT mg.id_group, mg.group_name, bg.id_board
 			FROM {db_prefix}moderator_groups AS bg
 				INNER JOIN {db_prefix}membergroups AS mg ON (mg.id_group = bg.id_group)
@@ -2034,7 +2046,6 @@ class Board implements \ArrayAccess, Routable
 			}
 
 			$request = Db::$db->query(
-				'',
 				'WITH RECURSIVE
 					boards_cte (' . implode(', ', $cte_fields) . ')
 				AS
@@ -2059,7 +2070,6 @@ class Board implements \ArrayAccess, Routable
 			);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					' . implode(', ', $selects) . '
 				FROM {db_prefix}boards AS b' . (empty($joins) ? '' : '
@@ -2165,7 +2175,6 @@ class Board implements \ArrayAccess, Routable
 			// No props provided, so get the standard ones.
 			if ($id > 0 && empty($props)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT *
 					FROM {db_prefix}boards
 					WHERE id_board = {int:id}
@@ -2379,7 +2388,6 @@ class Board implements \ArrayAccess, Routable
 			&& !User::$me->allowedTo('approve_posts')
 		) {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}topics
 				WHERE id_member_started = {int:id_member}
@@ -2478,5 +2486,3 @@ class Board implements \ArrayAccess, Routable
 if (is_callable([Board::class, 'exportStatic'])) {
 	Board::exportStatic();
 }
-
-?>

@@ -27,6 +27,10 @@ use SMF\WebFetch\WebFetchApi;
  */
 class FetchCalendarSubscriptions extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -58,5 +62,3 @@ class FetchCalendarSubscriptions extends ScheduledTask
 		return true;
 	}
 }
-
-?>

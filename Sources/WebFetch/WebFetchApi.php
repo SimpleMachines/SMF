@@ -77,7 +77,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 ****************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function request(string $url, array|string $post_data = []): ?object
 	{
@@ -85,7 +85,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function result(?string $area = null): mixed
 	{
@@ -93,7 +93,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function resultRaw(?int $response_number = null): array
 	{
@@ -200,5 +200,3 @@ abstract class WebFetchApi implements WebFetchApiInterface
 		return trim($post_data);
 	}
 }
-
-?>

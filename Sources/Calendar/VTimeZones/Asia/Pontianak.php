@@ -91,5 +91,3 @@ class Pontianak extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

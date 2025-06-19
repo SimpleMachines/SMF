@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Graphics\Image;
+use SMF\Permissions\Permission;
 
 /**
  * Represents a member's profile as shown by ?action=profile.
@@ -28,21 +29,8 @@ use SMF\Graphics\Image;
  */
 class Profile extends User implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'profile_fields' => 'profile_fields',
-			'profile_vars' => 'profile_vars',
-			'cur_profile' => 'cur_profile',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -168,7 +156,7 @@ class Profile extends User implements \ArrayAccess
 	public static int $memID;
 
 	/**
-	 * @var object
+	 * @var self
 	 *
 	 * Instance of this class for the member whose profile is being viewed.
 	 */
@@ -261,6 +249,23 @@ class Profile extends User implements \ArrayAccess
 	 * in some places to be able to distinguish these from the others.
 	 */
 	protected array $cf_save_errors = [];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'profile_fields' => 'profile_fields',
+			'profile_vars' => 'profile_vars',
+			'cur_profile' => 'cur_profile',
+		],
+	];
 
 	/****************
 	 * Public methods
@@ -463,7 +468,6 @@ class Profile extends User implements \ArrayAccess
 				'enabled' => Config::$modSettings['theme_allow'] || User::$me->allowedTo('admin_forum'),
 				'preload' => function () {
 					$request = Db::$db->query(
-						'',
 						'SELECT value
 						FROM {db_prefix}themes
 						WHERE id_theme = {int:id_theme}
@@ -732,7 +736,6 @@ class Profile extends User implements \ArrayAccess
 					$filenames = [];
 
 					$result = Db::$db->query(
-						'',
 						'SELECT f.filename, f.smiley_set
 						FROM {db_prefix}smiley_files AS f
 							JOIN {db_prefix}smileys AS s ON (s.id_smiley = f.id_smiley)
@@ -955,8 +958,18 @@ class Profile extends User implements \ArrayAccess
 		// For each of the above let's take out the bits which don't apply - to save memory and security!
 		foreach ($this->standard_fields as $key => $field) {
 			// Do we have permission to do this?
-			if (isset($field['permission']) && !User::$me->allowedTo((User::$me->is_owner ? [$field['permission'] . '_own', $field['permission'] . '_any'] : $field['permission'] . '_any')) && !User::$me->allowedTo($field['permission'])) {
-				unset($this->standard_fields[$key]);
+			if (isset($field['permission'])) {
+				$permissions = array_map(
+					fn($p) => $p->name,
+					array_filter(
+						Permission::getByGenericName($field['permission']),
+						fn($p) => $p->own_any !== 'own' || User::$me->is_owner,
+					),
+				);
+
+				if (empty($permissions) || !User::$me->allowedTo($permissions, any: true)) {
+					unset($this->standard_fields[$key]);
+				}
 			}
 
 			// Is it enabled?
@@ -1566,7 +1579,6 @@ class Profile extends User implements \ArrayAccess
 		// Delete any removed custom fields or theme options.
 		if (!empty($this->new_cf_data['deletes']) || !empty($this->new_options['deletes'])) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}themes
 				WHERE id_member = {int:id_member}
 					AND (
@@ -1647,7 +1659,6 @@ class Profile extends User implements \ArrayAccess
 
 		// Email addresses should be and stay unique.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}members
 			WHERE id_member != {int:selected_member}
@@ -1706,7 +1717,6 @@ class Profile extends User implements \ArrayAccess
 			// If they would no longer be an admin, look for another...
 			if (!$stillAdmin) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE (id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0)
@@ -1811,7 +1821,7 @@ class Profile extends User implements \ArrayAccess
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
 	 *    If $users is not set, this will be ignored.
-	 * @param string $dataset Ignored.
+	 * @param string|null $dataset Ignored.
 	 * @return array The IDs of the loaded members.
 	 */
 	public static function load(mixed $users = [], int $type = self::LOAD_BY_ID, ?string $dataset = null): array
@@ -1855,7 +1865,6 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT *
 			FROM {db_prefix}custom_fields
 			ORDER BY field_order',
@@ -2964,7 +2973,6 @@ class Profile extends User implements \ArrayAccess
 
 		// Log the user out.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_online
 			WHERE id_member = {int:selected_member}',
 			[
@@ -2992,7 +3000,7 @@ class Profile extends User implements \ArrayAccess
 	 * - mails the new password to the email address of the user.
 	 * - if username is not set, only a new password is generated and sent.
 	 *
-	 * @param string $username The new username. If set, also checks the validity of the username
+	 * @param string|null $username The new username. If set, also checks the validity of the username
 	 */
 	protected function resetPassword(?string $username = null): void
 	{
@@ -3050,5 +3058,3 @@ class Profile extends User implements \ArrayAccess
 if (is_callable([Profile::class, 'exportStatic'])) {
 	Profile::exportStatic();
 }
-
-?>

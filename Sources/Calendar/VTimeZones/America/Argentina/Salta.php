@@ -268,5 +268,3 @@ class Salta extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

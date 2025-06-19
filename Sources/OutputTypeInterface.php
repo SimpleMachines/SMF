@@ -31,5 +31,3 @@ interface OutputTypeInterface
 	 */
 	public function getMimeType(): string;
 }
-
-?>

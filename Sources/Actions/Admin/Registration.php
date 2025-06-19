@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Register2;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -40,7 +40,6 @@ use SMF\Utils;
 class Registration implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 	/*******************
 	 * Public properties
@@ -184,7 +183,6 @@ class Registration implements ActionInterface
 			Utils::$context['member_groups'][] = Lang::getTxt('admin_register_group_none', file: 'Login');
 
 			$request = Db::$db->query(
-				'',
 				'SELECT group_name, id_group
 				FROM {db_prefix}membergroups
 				WHERE id_group != {int:moderator_group}
@@ -590,5 +588,3 @@ class Registration implements ActionInterface
 		Utils::$context['sub_action'] = $this->subaction;
 	}
 }
-
-?>

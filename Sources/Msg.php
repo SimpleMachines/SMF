@@ -351,7 +351,6 @@ class Msg implements \ArrayAccess, Routable
 
 			// Can't set id_msg_modified until we know id_msg.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET id_msg_modified = {int:id_msg}
 				WHERE id_msg = {int:id_msg}',
@@ -449,7 +448,6 @@ class Msg implements \ArrayAccess, Routable
 			IntegrationHook::call('integrate_msg_update', [&$set, &$params, &$this->custom['msgOptions'], &$this->custom['topicOptions'], &$this->custom['posterOptions']]);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_msg = {int:id_msg}',
@@ -1407,7 +1405,6 @@ class Msg implements \ArrayAccess, Routable
 			$topicOptions['is_approved'] = true;
 		} elseif (!empty($topicOptions['id']) && !isset($topicOptions['is_approved'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT approved
 				FROM {db_prefix}topics
 				WHERE id_topic = {int:id_topic}
@@ -1428,7 +1425,6 @@ class Msg implements \ArrayAccess, Routable
 				$posterOptions['email'] = '';
 			} elseif ($posterOptions['id'] != User::$me->id) {
 				$request = Db::$db->query(
-					'',
 					'SELECT member_name, email_address
 					FROM {db_prefix}members
 					WHERE id_member = {int:id_member}
@@ -1513,7 +1509,6 @@ class Msg implements \ArrayAccess, Routable
 			if (!Topic::create($msgOptions, $topicOptions, $posterOptions)) {
 				// Don't leave an orphan post behind.
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}messages
 					WHERE id_msg = {int:id_msg}',
 					[
@@ -1718,7 +1713,6 @@ class Msg implements \ArrayAccess, Routable
 			// using a custom search index, then lets get the old message so we can update our index as needed
 			if ($searchAPI->supportsMethod('postModified')) {
 				$request = Db::$db->query(
-					'',
 					'SELECT body
 					FROM {db_prefix}messages
 					WHERE id_msg = {int:id_msg}',
@@ -1867,7 +1861,6 @@ class Msg implements \ArrayAccess, Routable
 		if (isset($msgOptions['subject'])) {
 			// Only update the subject if this was the first message in the topic.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}topics
 				WHERE id_first_msg = {int:id_first_msg}
@@ -1885,7 +1878,7 @@ class Msg implements \ArrayAccess, Routable
 
 		// Finally, if we are setting the approved state we need to do much more work :(
 		if (Config::$modSettings['postmod_active'] && isset($msgOptions['approved'])) {
-			Msg::approve($msgOptions['id'], $msgOptions['approved']);
+			Msg::approve($msgOptions['id'], !empty($msgOptions['approved']));
 		}
 
 		return true;
@@ -1894,7 +1887,7 @@ class Msg implements \ArrayAccess, Routable
 	/**
 	 * Approve (or not) some posts... without permission checks...
 	 *
-	 * @param array $msgs Array of message ids
+	 * @param array|int $msgs Array of message ids or the ID of a single message
 	 * @param bool $approve Whether to approve the posts (if false, posts are unapproved)
 	 * @param bool $notify Whether to notify users
 	 * @return bool Whether the operation was successful
@@ -1922,7 +1915,6 @@ class Msg implements \ArrayAccess, Routable
 		$member_post_changes = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_msg, m.approved, m.id_topic, m.id_board, t.id_first_msg, t.id_last_msg,
 				m.body, m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.id_member,
 				t.approved AS topic_approved, b.count_posts
@@ -2026,7 +2018,6 @@ class Msg implements \ArrayAccess, Routable
 
 		// Now we have the differences make the changes, first the easy one.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET approved = {int:approved_state}
 			WHERE id_msg IN ({array_int:message_list})',
@@ -2039,7 +2030,6 @@ class Msg implements \ArrayAccess, Routable
 		// If we were unapproving find the last msg in the topics...
 		if (!$approve) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic, MAX(id_msg) AS id_last_msg
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topic_list})
@@ -2060,7 +2050,6 @@ class Msg implements \ArrayAccess, Routable
 		// ... next the topics...
 		foreach ($topic_changes as $id => $changes) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics
 				SET approved = {int:approved}, unapproved_posts = unapproved_posts + {int:unapproved_posts},
 					num_replies = num_replies + {int:num_replies}, id_last_msg = {int:id_last_msg}
@@ -2078,7 +2067,6 @@ class Msg implements \ArrayAccess, Routable
 		// ... finally the boards...
 		foreach ($board_changes as $id => $changes) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET num_posts = num_posts + {int:num_posts}, unapproved_posts = unapproved_posts + {int:unapproved_posts},
 					num_topics = num_topics + {int:num_topics}, unapproved_topics = unapproved_topics + {int:unapproved_topics}
@@ -2135,7 +2123,6 @@ class Msg implements \ArrayAccess, Routable
 			}
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}approval_queue
 				WHERE id_msg IN ({array_int:message_list})
 					AND id_attach = {int:id_attach}',
@@ -2259,7 +2246,6 @@ class Msg implements \ArrayAccess, Routable
 		if (!$id_msg) {
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board, MAX(id_last_msg) AS id_msg
 				FROM {db_prefix}topics
 				WHERE id_board IN ({array_int:board_list})
@@ -2344,7 +2330,6 @@ class Msg implements \ArrayAccess, Routable
 		// Now commit the changes!
 		foreach ($parent_updates as $id_msg => $boards) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET id_msg_updated = {int:id_msg_updated}
 				WHERE id_board IN ({array_int:board_list})
@@ -2358,7 +2343,6 @@ class Msg implements \ArrayAccess, Routable
 
 		foreach ($board_updates as $board_data) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}boards
 				SET id_last_msg = {int:id_last_msg}, id_msg_updated = {int:id_msg_updated}
 				WHERE id_board IN ({array_int:board_list})',
@@ -2389,7 +2373,6 @@ class Msg implements \ArrayAccess, Routable
 		$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				m.id_member, m.icon, m.poster_time, m.subject, m.body,
 				m.approved, t.id_topic, t.id_first_msg, t.id_last_msg, t.num_replies, t.id_board,
@@ -2521,7 +2504,6 @@ class Msg implements \ArrayAccess, Routable
 		if ($row['id_last_msg'] == $message) {
 			// Find the last message, set it, and decrease the post count.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg, id_member
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:id_topic}
@@ -2537,7 +2519,6 @@ class Msg implements \ArrayAccess, Routable
 			Db::$db->free_result($request);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics
 				SET
 					id_last_msg = {int:id_last_msg},
@@ -2557,7 +2538,6 @@ class Msg implements \ArrayAccess, Routable
 		// Only decrease post counts.
 		else {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics
 				SET ' . ($row['approved'] ? '
 					num_replies = CASE WHEN num_replies = {int:no_replies} THEN 0 ELSE num_replies - 1 END' : '
@@ -2579,7 +2559,6 @@ class Msg implements \ArrayAccess, Routable
 		if (!empty(Config::$modSettings['recycle_enable']) && $row['id_board'] != Config::$modSettings['recycle_board'] && $row['icon'] != 'recycled') {
 			// Check if the recycle board exists and if so get the read status.
 			$request = Db::$db->query(
-				'',
 				'SELECT (COALESCE(lb.id_msg, 0) >= b.id_msg_updated) AS is_seen, id_last_msg
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}log_boards AS lb ON (lb.id_board = b.id_board AND lb.id_member = {int:current_member})
@@ -2598,7 +2577,6 @@ class Msg implements \ArrayAccess, Routable
 
 			// Is there an existing topic in the recycle board to group this post with?
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic, id_first_msg, id_last_msg
 				FROM {db_prefix}topics
 				WHERE id_previous_topic = {int:id_previous_topic}
@@ -2649,7 +2627,6 @@ class Msg implements \ArrayAccess, Routable
 			// If the topic creation went successful, move the message.
 			if ($topicID > 0) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}messages
 					SET
 						id_topic = {int:id_topic},
@@ -2666,7 +2643,6 @@ class Msg implements \ArrayAccess, Routable
 
 				// Take any reported posts with us...
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}log_reported
 					SET
 						id_topic = {int:id_topic},
@@ -2725,7 +2701,6 @@ class Msg implements \ArrayAccess, Routable
 
 				// Add one topic and post to the recycle bin board.
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}boards
 					SET
 						num_topics = num_topics + {int:num_topics_inc},
@@ -2742,7 +2717,6 @@ class Msg implements \ArrayAccess, Routable
 				// Lets increase the num_replies, and the first/last message ID as appropriate.
 				if (!empty($id_recycle_topic)) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}topics
 						SET num_replies = num_replies + 1' .
 							($message > $last_topic_msg ? ', id_last_msg = {int:id_merged_msg}' : '') .
@@ -2765,7 +2739,6 @@ class Msg implements \ArrayAccess, Routable
 			// If it wasn't approved don't keep it in the queue.
 			if (!$row['approved']) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}approval_queue
 					WHERE id_msg = {int:id_msg}
 						AND id_attach = {int:id_attach}',
@@ -2778,7 +2751,6 @@ class Msg implements \ArrayAccess, Routable
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}boards
 			SET ' . ($row['approved'] ? '
 				num_posts = CASE WHEN num_posts = {int:no_posts} THEN 0 ELSE num_posts - 1 END' : '
@@ -2808,7 +2780,6 @@ class Msg implements \ArrayAccess, Routable
 
 			// Remove the message!
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}',
 				[
@@ -2855,7 +2826,6 @@ class Msg implements \ArrayAccess, Routable
 
 		// Close any moderation reports for this message.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_reported
 			SET closed = {int:is_closed}
 			WHERE id_msg = {int:id_msg}',
@@ -2938,7 +2908,6 @@ class Msg implements \ArrayAccess, Routable
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		self::$messages_request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}messages AS m' . (empty($joins) ? '' : '
@@ -2956,5 +2925,3 @@ class Msg implements \ArrayAccess, Routable
 		Db::$db->free_result(self::$messages_request);
 	}
 }
-
-?>

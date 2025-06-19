@@ -203,7 +203,6 @@ class Home implements ActionInterface
 			if (!User::$me->allowedTo('admin_forum')) {
 				// Is this your note?
 				$get_owner = Db::$db->query(
-					'',
 					'SELECT id_member
 					FROM {db_prefix}log_comments
 					WHERE id_comment = {int:note}
@@ -225,7 +224,6 @@ class Home implements ActionInterface
 
 			// Lets delete it.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_comments
 				WHERE id_comment = {int:note}
 					AND comment_type = {literal:modnote}',
@@ -247,7 +245,6 @@ class Home implements ActionInterface
 		// How many notes in total?
 		if (($moderator_notes_total = CacheApi::get('moderator_notes_total', 240)) === null) {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}log_comments AS lc
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = lc.id_member)
@@ -270,7 +267,6 @@ class Home implements ActionInterface
 			$moderator_notes = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
 					lc.log_time, lc.body, lc.id_comment AS id_note
 				FROM {db_prefix}log_comments AS lc
@@ -337,7 +333,6 @@ class Home implements ActionInterface
 
 		// What requests are outstanding?
 		$request = Db::$db->query(
-			'',
 			'SELECT lgr.id_request, lgr.id_member, lgr.id_group, lgr.time_applied, mem.member_name, mg.group_name, mem.real_name
 			FROM {db_prefix}log_group_requests AS lgr
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = lgr.id_member)
@@ -382,7 +377,6 @@ class Home implements ActionInterface
 			$watched_users = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, real_name, last_login
 				FROM {db_prefix}members
 				WHERE warning >= {int:warning_watch}
@@ -429,7 +423,6 @@ class Home implements ActionInterface
 			$reported_posts = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT lr.id_report, lr.id_msg, lr.id_topic, lr.id_board, lr.id_member, lr.subject,
 					lr.num_reports, COALESCE(mem.real_name, lr.membername) AS author_name,
 					COALESCE(mem.id_member, 0) AS id_author
@@ -489,7 +482,6 @@ class Home implements ActionInterface
 			$reported_users = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT lr.id_report, lr.id_member,
 					lr.num_reports, COALESCE(mem.real_name, lr.membername) AS user_name,
 					COALESCE(mem.id_member, 0) AS id_user
@@ -562,5 +554,3 @@ class Home implements ActionInterface
 		}
 	}
 }
-
-?>

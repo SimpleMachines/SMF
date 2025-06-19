@@ -32,8 +32,6 @@ class ViewWarning implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -156,5 +154,3 @@ class ViewWarning implements ActionInterface
 		Config::$modSettings['warning_mute'] = !empty(Config::$modSettings['warning_mute']) ? Config::$modSettings['warning_mute'] : 110;
 	}
 }
-
-?>

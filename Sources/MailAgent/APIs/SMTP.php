@@ -26,12 +26,9 @@ use SMF\Url;
  */
 class SMTP extends MailAgent implements MailAgentInterface
 {
-	/**
-	 * @var bool
-	 *
-	 * This is used to determine if we have sent any mail previosuly and issue a reset prior to sending another message.
-	 */
-	private bool $sentAny = false;
+	/*******************
+	 * Public properties
+	 *******************/
 
 	/**
 	 * @var bool
@@ -39,6 +36,17 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 * When enabled, sends mail using TLS.  This is set in another class that inherits this class.
 	 */
 	public bool $useTLS = false;
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 * @var bool
+	 *
+	 * This is used to determine if we have sent any mail previosuly and issue a reset prior to sending another message.
+	 */
+	private bool $sentAny = false;
 
 	/**
 	 * @var resource|false
@@ -48,8 +56,12 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 */
 	private mixed $socket;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(): bool
 	{
@@ -57,7 +69,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isConfigured(): bool
 	{
@@ -65,7 +77,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -147,7 +159,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function send(string $to, string $subject, string $message, string $headers): bool
 	{
@@ -199,7 +211,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function disconnect(): bool
 	{
@@ -223,6 +235,10 @@ class SMTP extends MailAgent implements MailAgentInterface
 		$config_vars[] = ['password', 'smtp_password'];
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Parse a message to the SMTP server.
 	 * Sends the specified message to the server, and checks for the
@@ -232,7 +248,7 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 *
 	 * @param ?string $message The message to send
 	 * @param ?string $code The expected response code
-	 * @param string $response The response from the SMTP server
+	 * @param string|null $response The response from the SMTP server
 	 * @return bool|string Whether it responded as such.
 	 */
 	private function serverParse(?string $message, ?string $code, ?string &$response = null): bool|string
@@ -330,5 +346,3 @@ class SMTP extends MailAgent implements MailAgentInterface
 		return $helo;
 	}
 }
-
-?>

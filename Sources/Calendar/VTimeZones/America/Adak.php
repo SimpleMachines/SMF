@@ -146,5 +146,3 @@ class Adak extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

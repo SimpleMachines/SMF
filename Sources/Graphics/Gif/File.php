@@ -27,10 +27,21 @@ use SMF\Config;
 
 class File
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	public $header;
+
 	public $image;
+
 	public $data;
+
 	public $loaded;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{
@@ -175,5 +186,3 @@ class File
 if (!function_exists('smf_crc32')) {
 	require_once Config::$sourcedir . '/Subs-Compat.php';
 }
-
-?>

@@ -28,7 +28,7 @@ class Slug implements \Stringable
 	 **************************/
 
 	/**
-	 * @var array
+	 * @var self
 	 *
 	 * The slug in the requested URL, if any.
 	 *
@@ -408,5 +408,3 @@ class Slug implements \Stringable
 		}
 	}
 }
-
-?>

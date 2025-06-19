@@ -25,8 +25,17 @@ namespace SMF\Graphics\Gif;
 
 class ColorTable
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	public $m_nColors;
+
 	public $m_arColors;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function __construct()
 	{
@@ -90,5 +99,3 @@ class ColorTable
 		return $idx;
 	}
 }
-
-?>

@@ -124,5 +124,3 @@ class Ulyanovsk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

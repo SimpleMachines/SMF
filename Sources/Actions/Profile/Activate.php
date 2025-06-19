@@ -20,6 +20,7 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\IntegrationHook;
 use SMF\Logging;
+use SMF\Mail;
 use SMF\Profile;
 use SMF\User;
 use SMF\Utils;
@@ -128,5 +129,3 @@ class Activate implements ActionInterface
 		}
 	}
 }
-
-?>

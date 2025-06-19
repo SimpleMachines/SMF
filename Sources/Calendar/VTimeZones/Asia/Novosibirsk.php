@@ -131,5 +131,3 @@ class Novosibirsk extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

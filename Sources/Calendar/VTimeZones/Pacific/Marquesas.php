@@ -49,5 +49,3 @@ class Marquesas extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

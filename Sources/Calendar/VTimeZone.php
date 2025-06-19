@@ -395,7 +395,7 @@ abstract class VTimeZone
 	 *
 	 * @param string $tzid A time zone identifier string.
 	 * @throws \ValueError if $tzid is not a valid time zone identifier.
-	 * @return array An instance of this class.
+	 * @return self An instance of this class.
 	 */
 	public static function load(string $tzid): self
 	{
@@ -410,5 +410,3 @@ abstract class VTimeZone
 		return new $class();
 	}
 }
-
-?>

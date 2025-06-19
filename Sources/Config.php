@@ -35,12 +35,14 @@ class Config
 	 * 2: Make the forum untouchable. You'll need to make it 0 again manually!
 	 */
 	public static int $maintenance;
+
 	/**
 	 * @var string
 	 *
 	 * Title for the maintenance mode message.
 	 */
 	public static string $mtitle;
+
 	/**
 	 * Description of why the forum is in maintenance mode.
 	 *
@@ -55,24 +57,28 @@ class Config
 	 * The name of your forum.
 	 */
 	public static string $mbname;
+
 	/**
 	 * @var string
 	 *
 	 * The default language file set for the forum.
 	 */
 	public static string $language;
+
 	/**
 	 * @var string
 	 *
 	 * URL to your forum's folder. (without the trailing /!)
 	 */
 	public static string $boardurl;
+
 	/**
 	 * @var string
 	 *
 	 * Email address to send emails from. (like noreply@yourdomain.com.)
 	 */
 	public static string $webmaster_email;
+
 	/**
 	 * @var string
 	 *
@@ -88,6 +94,7 @@ class Config
 	 * Default options: mysql, postgresql
 	 */
 	public static string $db_type;
+
 	/**
 	 * @var int
 	 *
@@ -95,42 +102,49 @@ class Config
 	 * 0 to use default port for the database type.
 	 */
 	public static int $db_port;
+
 	/**
 	 * @var string
 	 *
 	 * The server to connect to (or a Unix socket)
 	 */
 	public static string $db_server;
+
 	/**
 	 * @var string
 	 *
 	 * The database name.
 	 */
 	public static string $db_name;
+
 	/**
 	 * @var string
 	 *
 	 * Database username.
 	 */
 	public static string $db_user;
+
 	/**
 	 * @var string
 	 *
 	 * Database password.
 	 */
 	public static string $db_passwd;
+
 	/**
 	 * @var string
 	 *
 	 * Database user for when connecting with SSI.
 	 */
 	public static string $ssi_db_user;
+
 	/**
 	 * @var string
 	 *
 	 * Database password for when connecting with SSI.
 	 */
 	public static string $ssi_db_passwd;
+
 	/**
 	 * @var string
 	 *
@@ -138,12 +152,14 @@ class Config
 	 * This helps to prevent conflicts.
 	 */
 	public static string $db_prefix;
+
 	/**
 	 * @var bool
 	 *
 	 * Use a persistent database connection.
 	 */
 	public static bool $db_persist;
+
 	/**
 	 * @var bool
 	 *
@@ -159,6 +175,7 @@ class Config
 	 * admin panel for proper detection of the available options.
 	 */
 	public static string $cache_accelerator;
+
 	/**
 	 * @var int
 	 *
@@ -166,6 +183,7 @@ class Config
 	 * Between 0 (off) through 3 (cache a lot).
 	 */
 	public static int $cache_enable;
+
 	/**
 	 * @var string
 	 *
@@ -173,12 +191,14 @@ class Config
 	 * Should be a string of 'server:port,server:port'
 	 */
 	public static string $cache_memcached;
+
 	/**
 	 * @var string
 	 *
 	 * Path to the cache directory for the file-based cache system.
 	 */
 	public static string $cachedir;
+
 	/**
 	 * @var string
 	 *
@@ -194,12 +214,14 @@ class Config
 	 * Whether the proxy is enabled or not.
 	 */
 	public static bool $image_proxy_enabled;
+
 	/**
 	 * @var string
 	 *
 	 * Secret key to be used by the proxy.
 	 */
 	public static string $image_proxy_secret;
+
 	/**
 	 * @var int
 	 *
@@ -215,18 +237,21 @@ class Config
 	 * The absolute path to the forum's folder. (not just '.'!)
 	 */
 	public static string $boarddir;
+
 	/**
 	 * @var string
 	 *
 	 * Path to the Sources directory.
 	 */
 	public static string $sourcedir;
+
 	/**
 	 * Path to the Packages directory.
 	 *
 	 * @var string
 	 */
 	public static string $packagesdir;
+
 	/**
 	 * Path to the Packages directory.
 	 *
@@ -989,7 +1014,6 @@ class Config
 			self::$modSettings = [];
 
 			$request = Db\DatabaseApi::$db->query(
-				'',
 				'SELECT variable, value
 				FROM {db_prefix}settings',
 				[
@@ -1218,7 +1242,6 @@ class Config
 		// Proceed with the deletion.
 		if (!empty($to_remove)) {
 			Db\DatabaseApi::$db->query(
-				'',
 				'DELETE FROM {db_prefix}settings
 				WHERE variable IN ({array_string:remove})',
 				[
@@ -1231,7 +1254,6 @@ class Config
 		if ($update) {
 			foreach ($change_array as $variable => $value) {
 				Db\DatabaseApi::$db->query(
-					'',
 					'UPDATE {db_prefix}settings
 					SET value = {' . ($value === false || $value === true ? 'raw' : 'string') . ':value}
 					WHERE variable = {string:variable}',
@@ -1454,7 +1476,7 @@ class Config
 		$settings_defs = self::getSettingsDefs();
 
 		// If Settings.php is empty or invalid, try to recover using whatever we have now.
-		if ($settings_vars === []) {
+		if (!defined('SMF_INSTALLING') && $settings_vars === []) {
 			foreach ($settings_defs as $var => $setting_def) {
 				if (isset(self::${$var}) || isset(self::$custom[$var])) {
 					$settings_vars[$var] = self::${$var} ?? self::$custom[$var];
@@ -1525,8 +1547,9 @@ class Config
 			],
 			$neg_index-- => [
 				'search_pattern' => '~\S\K\s*(\?' . '>)?\s*$~',
-				'placeholder' => "\n" . md5($prefix . '?' . '>'),
-				'replacement' => "\n\n?" . '>',
+				'placeholder' => '',
+				'replace_pattern' => '~\s*$~',
+				'replacement' => "\n",
 			],
 			// Remove the code that redirects to the installer.
 			$neg_index-- => [
@@ -1786,18 +1809,22 @@ class Config
 			}
 
 			// Backup is bad too? Our only option is to create one from scratch.
-			if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php' || substr($settingsText, -2) !== '?' . '>') {
+			if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php') {
 				$settingsText = '<' . "?php\n";
 
 				foreach ($settings_defs as $var => $setting_def) {
-					if (is_string($var) && !empty($setting_def['text']) && !str_contains($substitutions[$var]['replacement'], $setting_def['text'])) {
+					if (
+						is_string($var)
+						&& $substitutions[$var]['replacement'] !== ''
+						&& !empty($setting_def['text'])
+						&& !str_contains($substitutions[$var]['replacement'], $setting_def['text'])
+					) {
 						$substitutions[$var]['replacement'] = $setting_def['text'] . "\n" . $substitutions[$var]['replacement'];
 					}
 
 					$settingsText .= $substitutions[$var]['replacement'] . "\n";
 				}
 
-				$settingsText .= "\n\n?" . '>';
 				$rebuild = true;
 			}
 		}
@@ -2081,6 +2108,7 @@ class Config
 					}
 				}
 			}
+
 			$settingsText = $new_settingsText;
 
 			// Restore the leading and trailing placeholders as necessary.
@@ -2112,7 +2140,10 @@ class Config
 					break;
 				}
 
-				if (isset($substitution['replacement'])) {
+				if (
+					isset($substitution['replacement'])
+					&& trim($substitution['replacement']) !== ''
+				) {
 					$bare_settingsText = str_replace($substitution['replacement'], '', $bare_settingsText);
 				}
 			}
@@ -2165,15 +2196,16 @@ class Config
 		foreach ($new_settings_vars as $var => $val) {
 			if (isset($substitutions[$var]) && !preg_match($substitutions[$var]['search_pattern'], $settingsText)) {
 				if (!isset($settings_defs[$var]) && !str_contains($settingsText, '# Custom Settings #')) {
-					$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', "\n\n######### Custom Settings #########\n", $settingsText);
+					$settingsText .= "\n\n######### Custom Settings #########\n";
 				}
 
-				$settingsText = preg_replace('~(?=\n#+ Error.Catching #+)~', $substitutions[$var]['replacement'] . "\n", $settingsText);
+				$settingsText .= $substitutions[$var]['replacement'] . "\n";
 			}
 		}
 
 		// This is just cosmetic. Get rid of extra lines of whitespace.
 		$settingsText = preg_replace('~\n\s*\n~', "\n\n", $settingsText);
+		$settingsText = rtrim($settingsText) . "\n";
 
 		/**************************************
 		 * PART 4: Check syntax before saving *
@@ -2210,7 +2242,7 @@ class Config
 	 * and it performs safety checks before acting. The result is an array of
 	 * the values as recorded in the settings file.
 	 *
-	 * @param int|float $mtime Timestamp of last known good configuration.
+	 * @param int|float|null $mtime Timestamp of last known good configuration.
 	 *    Defaults to time SMF started.
 	 * @param string $settingsFile The settings file.
 	 *    Defaults to SMF's standard Settings.php.
@@ -2764,7 +2796,7 @@ class Config
 			$errorfile = self::$boarddir . '/db_last_error.php';
 		}
 
-		$result = file_put_contents($errorfile, '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n" . '?' . '>', LOCK_EX);
+		$result = file_put_contents($errorfile, '<' . '?' . "php\n" . '$db_last_error = ' . $time . ';' . "\n", LOCK_EX);
 
 		self::$db_last_error = $time;
 
@@ -2794,7 +2826,6 @@ class Config
 	{
 		if (!empty(self::$modSettings['cron_is_real_cron']) && time() - @intval(self::$modSettings['cron_last_checked']) > 86400) {
 			$request = Db\DatabaseApi::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}scheduled_tasks
 				WHERE disabled = {int:not_disabled}
@@ -2837,5 +2868,3 @@ class Config
 		return Sapi::getTempDir();
 	}
 }
-
-?>

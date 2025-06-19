@@ -22,6 +22,10 @@ use SMF\Utils;
  */
 class GenericTask extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -43,5 +47,3 @@ class GenericTask extends BackgroundTask
 		return true;
 	}
 }
-
-?>

@@ -195,5 +195,3 @@ class Goose_Bay extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

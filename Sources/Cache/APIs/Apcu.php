@@ -29,8 +29,12 @@ if (!defined('SMF')) {
  */
 class Apcu extends CacheApi implements CacheApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
@@ -44,7 +48,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -52,7 +56,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
@@ -64,7 +68,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
@@ -79,7 +83,7 @@ class Apcu extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cleanCache($type = ''): bool
 	{
@@ -89,12 +93,10 @@ class Apcu extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getVersion(): string|bool
 	{
 		return phpversion('apcu');
 	}
 }
-
-?>

@@ -124,5 +124,3 @@ class Ust_Nera extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

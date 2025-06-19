@@ -78,7 +78,6 @@ class ExportAttachment implements ActionInterface
 
 		// Does this attachment belong to this member?
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_topic
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}attachments AS a ON (m.id_msg = a.id_msg)
@@ -131,5 +130,3 @@ class ExportAttachment implements ActionInterface
 		$this->attach = isset($_REQUEST['attach']) ? (int) $_REQUEST['attach'] : 0;
 	}
 }
-
-?>

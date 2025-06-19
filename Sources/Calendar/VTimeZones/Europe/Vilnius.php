@@ -208,5 +208,3 @@ class Vilnius extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

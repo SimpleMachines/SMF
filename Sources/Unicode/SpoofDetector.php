@@ -321,7 +321,6 @@ class SpoofDetector
 
 		// Find any similar names that belong to other members.
 		$request = Db::$db->query(
-			'',
 			'SELECT real_name
 			FROM {db_prefix}members
 			WHERE spoofdetector_name = {string:skeleton}' . (empty($id_member) ? '' : '
@@ -363,7 +362,6 @@ class SpoofDetector
 
 		// Get all the membergroup names.
 		$request = Db::$db->query(
-			'',
 			'SELECT group_name AS name
 			FROM {db_prefix}membergroups',
 			[],
@@ -456,5 +454,3 @@ class SpoofDetector
 		return false;
 	}
 }
-
-?>

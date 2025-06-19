@@ -49,5 +49,3 @@ class Rothera extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

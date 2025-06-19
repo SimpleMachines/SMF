@@ -200,7 +200,6 @@ class AttachmentDownload implements ActionInterface, Routable
 		// If attachment is unapproved, see if user is allowed to approve
 		if (!$file->approved && Config::$modSettings['postmod_active'] && !User::$me->allowedTo('approve_posts')) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}
@@ -273,7 +272,6 @@ class AttachmentDownload implements ActionInterface, Routable
 		// Update the download counter (unless it's a thumbnail or resuming an incomplete download).
 		if ($file->type != 3 && empty($this->showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty(Utils::$context['skip_downloads_increment'])) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}attachments
 				SET downloads = downloads + 1
 				WHERE id_attach = {int:id_attach}',
@@ -377,5 +375,3 @@ class AttachmentDownload implements ActionInterface, Routable
 		$this->showThumb = isset($_REQUEST['thumb']);
 	}
 }
-
-?>

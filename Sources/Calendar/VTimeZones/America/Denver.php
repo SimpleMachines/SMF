@@ -186,5 +186,3 @@ class Denver extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

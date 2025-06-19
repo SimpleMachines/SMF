@@ -27,6 +27,10 @@ use SMF\Utils;
  */
 class UpdateSpoofDetectorNames extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -80,7 +84,6 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 		$updates = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, spoofdetector_name
 			FROM {db_prefix}members
 			WHERE id_member > {int:id_member}
@@ -117,6 +120,10 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 		return true;
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Adds a new instance of this task to the task list.
 	 */
@@ -141,5 +148,3 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 		);
 	}
 }
-
-?>

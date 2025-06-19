@@ -63,5 +63,3 @@ class Bogota extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

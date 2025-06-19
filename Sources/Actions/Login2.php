@@ -803,7 +803,6 @@ class Login2 implements ActionInterface, Routable
 
 		// Get rid of the online entry for that old guest....
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_online
 			WHERE session = {string:session}',
 			[
@@ -845,5 +844,3 @@ class Login2 implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

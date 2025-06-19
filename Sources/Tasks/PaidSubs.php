@@ -31,6 +31,10 @@ use SMF\Utils;
  */
 class PaidSubs extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -41,7 +45,6 @@ class PaidSubs extends ScheduledTask
 	{
 		// Start off by checking for removed subscriptions.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_subscribe, id_member
 			FROM {db_prefix}log_subscribed
 			WHERE status = {int:is_active}
@@ -62,7 +65,6 @@ class PaidSubs extends ScheduledTask
 		$members = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ls.id_sublog, m.id_member, m.member_name, m.email_address, m.lngfile, s.name, ls.end_time
 			FROM {db_prefix}log_subscribed AS ls
 				JOIN {db_prefix}subscriptions AS s ON (s.id_subscribe = ls.id_subscribe)
@@ -105,12 +107,15 @@ class PaidSubs extends ScheduledTask
 
 			$emaildata = Mail::loadEmailTemplate('paid_subscription_reminder', $replacements, empty($row['lngfile']) || empty(Config::$modSettings['userLanguage']) ? Lang::$default : $row['lngfile']);
 
+			// Check notification prefs.
+			$subs_notify = $notifyPrefs[$row['id_member']]['paidsubs_expiring'] ?? 0;
+
 			// Send the actual email.
-			if ($notifyPrefs[$row['id_member']] & self::RECEIVE_NOTIFY_EMAIL) {
+			if ($subs_notify & self::RECEIVE_NOTIFY_EMAIL) {
 				Mail::send($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'paid_sub_remind', (bool) $emaildata['is_html'], 2);
 			}
 
-			if ($notifyPrefs[$row['id_member']] & self::RECEIVE_NOTIFY_ALERT) {
+			if ($subs_notify & self::RECEIVE_NOTIFY_ALERT) {
 				$alert_rows[] = [
 					'alert_time' => time(),
 					'id_member' => $row['id_member'],
@@ -136,7 +141,6 @@ class PaidSubs extends ScheduledTask
 		// Mark the reminder as sent.
 		if (!empty($subs_reminded)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_subscribed
 				SET reminder_sent = {int:reminder_sent}
 				WHERE id_sublog IN ({array_int:subscription_list})',
@@ -150,5 +154,3 @@ class PaidSubs extends ScheduledTask
 		return true;
 	}
 }
-
-?>

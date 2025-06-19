@@ -148,5 +148,3 @@ class Center extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

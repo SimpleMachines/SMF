@@ -102,7 +102,7 @@ class Event implements \ArrayAccess
 	public Time $start;
 
 	/**
-	 * @var SMF\TimeInterval
+	 * @var TimeInterval
 	 *
 	 * A TimeInterval object representing the duration of each occurrence of
 	 * the event.
@@ -427,6 +427,8 @@ class Event implements \ArrayAccess
 
 			// Creating a new event.
 			case 0:
+				$this->id = $id;
+
 				if (!isset($props['start']) || !($props['start'] instanceof \DateTimeInterface)) {
 					ErrorHandler::fatalLang('invalid_date', false);
 				} elseif (!($props['start'] instanceof Time)) {
@@ -784,7 +786,6 @@ class Event implements \ArrayAccess
 			IntegrationHook::call('integrate_modify_event', [$this->id, $this, &$set, &$params]);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}calendar
 				SET ' . (implode(', ', $set)) . '
 				WHERE id_event = {int:id}',
@@ -1050,6 +1051,7 @@ class Event implements \ArrayAccess
 
 		$this->createRecurrenceIterator();
 	}
+
 	/**
 	 * Gets the date after which no more occurrences happen.
 	 *
@@ -1873,7 +1875,6 @@ class Event implements \ArrayAccess
 	public static function remove(int $id): void
 	{
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}calendar
 			WHERE id_event = {int:id_event}',
 			[
@@ -2512,7 +2513,6 @@ class Event implements \ArrayAccess
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}calendar AS cal' . (empty($joins) ? '' : '
@@ -2701,5 +2701,3 @@ class Event implements \ArrayAccess
 		return $input;
 	}
 }
-
-?>

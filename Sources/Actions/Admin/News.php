@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Notify;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Editor;
@@ -44,7 +44,6 @@ use SMF\Utils;
 class News implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -497,7 +496,6 @@ class News implements ActionInterface
 
 		// Get a list of all full banned users.  Use their Username and email to find them.  Only get the ones that can't login to turn off notification.
 		$request = Db::$db->query(
-			'',
 			'SELECT DISTINCT mem.id_member
 			FROM {db_prefix}ban_groups AS bg
 				INNER JOIN {db_prefix}ban_items AS bi ON (bg.id_ban_group = bi.id_ban_group)
@@ -521,7 +519,6 @@ class News implements ActionInterface
 		$count = 0;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT DISTINCT bi.email_address
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
@@ -544,7 +541,6 @@ class News implements ActionInterface
 
 		if (!empty($condition_array)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE email_address IN (' . implode(', ', $condition_array) . ')',
@@ -569,7 +565,6 @@ class News implements ActionInterface
 			)
 		) {
 			$request = Db::$db->query(
-				'',
 				'SELECT DISTINCT mem.id_member AS identifier
 				FROM {db_prefix}members AS mem
 					INNER JOIN {db_prefix}moderators AS mods ON (mods.id_member = mem.id_member)
@@ -593,7 +588,6 @@ class News implements ActionInterface
 		Utils::$context['total_emails'] = count(Utils::$context['recipients']['emails']);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}members',
 			[
@@ -650,7 +644,6 @@ class News implements ActionInterface
 		// One can't simply nullify things around
 		if (empty($_REQUEST['total_members'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}members',
 				[
@@ -927,7 +920,6 @@ class News implements ActionInterface
 			$rows = [];
 
 			$result = Db::$db->query(
-				'',
 				'SELECT mem.id_member, mem.email_address, mem.real_name, mem.id_group, mem.additional_groups, mem.id_post_group
 				FROM {db_prefix}members AS mem
 				WHERE ' . $sendQuery . '
@@ -1302,5 +1294,3 @@ class News implements ActionInterface
 		);
 	}
 }
-
-?>

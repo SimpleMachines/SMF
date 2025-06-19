@@ -2772,8 +2772,8 @@ if (!isset(Config::$modSettings['attachment_thumb_png']))
 if (file_exists($GLOBALS['boarddir'] . '/Themes/babylon'))
 {
 	$babylon_dir = $GLOBALS['boarddir'] . '/Themes/babylon';
-	$theme_request = Db::$db->query('', '
-		SELECT id_theme
+	$theme_request = Db::$db->query(
+		'SELECT id_theme
 		FROM {db_prefix}themes
 		WHERE variable = {string:themedir}
 			AND value = {string:babylondir}',

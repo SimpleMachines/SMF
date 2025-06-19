@@ -103,5 +103,3 @@ interface ActionInterface
 	 */
 	public static function call(): void;
 }
-
-?>

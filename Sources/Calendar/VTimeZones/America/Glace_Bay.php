@@ -156,5 +156,3 @@ class Glace_Bay extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

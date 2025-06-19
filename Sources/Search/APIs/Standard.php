@@ -23,8 +23,12 @@ use SMF\Search\SearchApiInterface;
  */
 class Standard extends SearchApi implements SearchApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
@@ -46,5 +50,3 @@ class Standard extends SearchApi implements SearchApiInterface
 		parent::__construct();
 	}
 }
-
-?>

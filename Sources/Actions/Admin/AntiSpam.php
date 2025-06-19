@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -34,7 +34,6 @@ use SMF\Utils;
 class AntiSpam implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/****************
@@ -68,7 +67,6 @@ class AntiSpam implements ActionInterface
 		Utils::$context['question_answers'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_question, lngfile, question, answers
 			FROM {db_prefix}qanda',
 		);
@@ -237,7 +235,6 @@ class AntiSpam implements ActionInterface
 			// OK, so changes?
 			if (!empty($changes['delete'])) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}qanda
 					WHERE id_question IN ({array_int:questions})',
 					[
@@ -249,7 +246,6 @@ class AntiSpam implements ActionInterface
 			if (!empty($changes['replace'])) {
 				foreach ($changes['replace'] as $q_id => $question) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}qanda
 						SET lngfile = {string:lngfile},
 							question = {string:question},
@@ -453,5 +449,3 @@ class AntiSpam implements ActionInterface
 		return $config_vars;
 	}
 }
-
-?>

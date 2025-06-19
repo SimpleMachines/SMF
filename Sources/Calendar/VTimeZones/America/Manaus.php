@@ -210,5 +210,3 @@ class Manaus extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

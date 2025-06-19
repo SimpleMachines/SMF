@@ -21,6 +21,10 @@ if (!defined('SMF')) {
 
 interface CacheApiInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Checks whether we can use the cache method performed by this API.
 	 *
@@ -75,5 +79,3 @@ interface CacheApiInterface
 	 */
 	public function getImplementationClassKeyName(): string;
 }
-
-?>

@@ -125,5 +125,3 @@ class Resolute extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

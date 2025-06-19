@@ -23,10 +23,18 @@ use SMF\Lang;
  */
 class Display
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * @var string Name of this payment gateway
 	 */
 	public $title = 'PayPal';
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Return the admin settings for this gateway
@@ -135,5 +143,3 @@ class Display
 		return $return_data;
 	}
 }
-
-?>

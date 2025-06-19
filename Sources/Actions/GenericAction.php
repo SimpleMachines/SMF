@@ -55,13 +55,9 @@ class GenericAction implements ActionInterface
 
 	/**
 	 * Executes the indicated callable.
-	 *
-	 * @param callable $current_action A callable.
 	 */
 	public function execute(): void
 	{
 		call_user_func($this->current_action);
 	}
 }
-
-?>

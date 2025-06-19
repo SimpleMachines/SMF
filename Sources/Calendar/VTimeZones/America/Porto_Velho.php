@@ -194,5 +194,3 @@ class Porto_Velho extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

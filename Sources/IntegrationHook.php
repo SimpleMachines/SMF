@@ -207,7 +207,6 @@ class IntegrationHook
 		// Is it going to be permanent?
 		if ($permanent) {
 			$request = Db::$db->query(
-				'',
 				'SELECT value
 				FROM {db_prefix}settings
 				WHERE variable = {string:variable}',
@@ -290,7 +289,6 @@ class IntegrationHook
 
 		// Get the permanent functions.
 		$request = Db::$db->query(
-			'',
 			'SELECT value
 			FROM {db_prefix}settings
 			WHERE variable = {string:variable}',
@@ -319,5 +317,3 @@ class IntegrationHook
 		Config::$modSettings[$name] = implode(',', $functions);
 	}
 }
-
-?>

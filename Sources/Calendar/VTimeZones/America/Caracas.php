@@ -70,5 +70,3 @@ class Caracas extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

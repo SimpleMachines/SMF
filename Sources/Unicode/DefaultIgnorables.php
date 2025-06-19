@@ -4206,5 +4206,3 @@ function utf8_default_ignorables(): array
 		"\xF3\xA0\xBF\xBF",
 	];
 }
-
-?>

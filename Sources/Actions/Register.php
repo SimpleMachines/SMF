@@ -369,5 +369,3 @@ class Register implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

@@ -148,5 +148,3 @@ class Monticello extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

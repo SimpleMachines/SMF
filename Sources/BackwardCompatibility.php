@@ -19,6 +19,10 @@ namespace SMF;
  */
 trait BackwardCompatibility
 {
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Provides a way to export a class's public static properties and methods
 	 * to global namespace.
@@ -68,7 +72,4 @@ trait BackwardCompatibility
 		}
 
 	}
-
 }
-
-?>

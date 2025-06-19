@@ -117,5 +117,3 @@ class Almaty extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -77,5 +77,3 @@ class Pyongyang extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

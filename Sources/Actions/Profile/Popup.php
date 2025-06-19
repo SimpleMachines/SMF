@@ -139,5 +139,3 @@ class Popup implements ActionInterface
 		}
 	}
 }
-
-?>

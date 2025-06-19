@@ -60,7 +60,6 @@ class TopicLock implements ActionInterface, Routable
 
 		// Find out who started the topic - in case User Topic Locking is enabled.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member_started, locked
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
@@ -115,5 +114,3 @@ class TopicLock implements ActionInterface, Routable
 		Utils::redirectexit('topic=' . Topic::$topic_id . '.' . $_REQUEST['start'] . ';moderate');
 	}
 }
-
-?>

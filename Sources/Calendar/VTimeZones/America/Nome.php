@@ -146,5 +146,3 @@ class Nome extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -258,6 +258,7 @@ class DebugUtils
 
 		return $warnings;
 	}
+
 	/**
 	 * Creates the debug context array using the DebugContextEntry class.
 	 *
@@ -514,5 +515,3 @@ class DebugUtils
 		}
 	}
 }
-
-?>

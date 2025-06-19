@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -40,7 +40,6 @@ use SMF\WebFetch\WebFetchApi;
 class Languages implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -682,7 +681,6 @@ class Languages implements ActionInterface
 		];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_theme != {int:default_theme}
@@ -778,7 +776,7 @@ class Languages implements ActionInterface
 
 				Utils::$context['possible_files'][$theme]['files'][] = [
 					'id' => $matches[1],
-					'name' => Lang::getString('lang_file_desc_' . $matches[1], file: 'ManageSettings') ? Lang::getTxt('lang_file_desc_' . $matches[1], file: 'ManageSettings') : $matches[1],
+					'name' => Lang::getTxt('lang_file_desc_' . $matches[1], file: 'ManageSettings') ? Lang::getTxt('lang_file_desc_' . $matches[1], file: 'ManageSettings') : $matches[1],
 					'selected' => $theme_id == $theme && $file_id == $matches[1],
 				];
 			}
@@ -840,7 +838,6 @@ class Languages implements ActionInterface
 
 			// Members can no longer use this language.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET lngfile = {empty}
 				WHERE lngfile = {string:current_language}',
@@ -1586,7 +1583,6 @@ class Languages implements ActionInterface
 
 		// Work out how many people are using each language.
 		$request = Db::$db->query(
-			'',
 			'SELECT lngfile, COUNT(*) AS num_users
 			FROM {db_prefix}members
 			GROUP BY lngfile',
@@ -1848,5 +1844,3 @@ class Languages implements ActionInterface
 		return $new_string;
 	}
 }
-
-?>

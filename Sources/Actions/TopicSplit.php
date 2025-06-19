@@ -49,7 +49,6 @@ class TopicSplit implements ActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -78,12 +77,6 @@ class TopicSplit implements ActionInterface, Routable
 		'selectTopics' => 'select',
 		'splitSelection' => 'splitSelection',
 	];
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
 
 	/****************
 	 * Public methods
@@ -148,7 +141,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Retrieve the subject and stuff of the specific topic/message.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject, t.num_replies, t.unapproved_posts, t.id_first_msg, t.approved
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
@@ -231,7 +223,6 @@ class TopicSplit implements ActionInterface, Routable
 		if ($_POST['step2'] == 'afterthis') {
 			// Fetch the message IDs of the topic that are at or after the message.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
@@ -318,7 +309,6 @@ class TopicSplit implements ActionInterface, Routable
 			];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '' : '
@@ -347,7 +337,6 @@ class TopicSplit implements ActionInterface, Routable
 
 			if (!empty($_SESSION['split_selection'][Topic::$topic_id])) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_msg
 					FROM {db_prefix}messages
 					WHERE id_topic = {int:current_topic}
@@ -390,7 +379,6 @@ class TopicSplit implements ActionInterface, Routable
 			$_SESSION['split_selection'][Topic::$topic_id] = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
@@ -411,7 +399,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Get the number of messages (not) selected to be split.
 		$request = Db::$db->query(
-			'',
 			'SELECT ' . (empty($_SESSION['split_selection'][Topic::$topic_id]) ? '0' : 'm.id_msg IN ({array_int:split_msgs})') . ' AS is_selected, COUNT(*) AS num_messages
 			FROM {db_prefix}messages AS m
 			WHERE m.id_topic = {int:current_topic}' . (!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -442,7 +429,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Get the messages and stick them into an array.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name, m.poster_time, m.body, m.id_msg, m.smileys_enabled, m.version
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -491,7 +477,6 @@ class TopicSplit implements ActionInterface, Routable
 		if (!empty($_SESSION['split_selection'][Topic::$topic_id])) {
 			// Get the messages and stick them into an array.
 			$request = Db::$db->query(
-				'',
 				'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS real_name,  m.poster_time, m.body, m.id_msg, m.smileys_enabled, m.version
 				FROM {db_prefix}messages AS m
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -630,7 +615,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Get some board info.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board, approved
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:id_topic}
@@ -644,7 +628,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Find the new first and last not in the list. (old topic)
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				MIN(m.id_msg) AS myid_first_msg, MAX(m.id_msg) AS myid_last_msg, COUNT(*) AS message_count, m.approved
 			FROM {db_prefix}messages AS m
@@ -701,7 +684,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Find the first and last in the list. (new topic)
 		$request = Db::$db->query(
-			'',
 			'SELECT MIN(id_msg) AS myid_first_msg, MAX(id_msg) AS myid_last_msg, COUNT(*) AS message_count, approved
 			FROM {db_prefix}messages
 			WHERE id_msg IN ({array_int:msg_list})
@@ -809,7 +791,6 @@ class TopicSplit implements ActionInterface, Routable
 		// Valid subject?
 		if ($new_subject != '') {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET
 					id_topic = {int:id_topic},
@@ -830,7 +811,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Any associated reported posts better follow...
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_reported
 			SET id_topic = {int:id_topic}
 			WHERE id_msg IN ({array_int:split_msgs})',
@@ -842,7 +822,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Mess with the old topic's first, last, and number of messages.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET
 				num_replies = {int:num_replies},
@@ -865,7 +844,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// Now, put the first/last message back to what they should be.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET
 				id_first_msg = {int:id_first_msg},
@@ -881,7 +859,6 @@ class TopicSplit implements ActionInterface, Routable
 		// If the new topic isn't approved ensure the first message flags this just in case.
 		if (!$split2_approved) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}messages
 				SET approved = {int:approved}
 				WHERE id_msg = {int:id_msg}
@@ -896,7 +873,6 @@ class TopicSplit implements ActionInterface, Routable
 
 		// The board has more topics now (Or more unapproved ones!).
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}boards
 			SET ' . ($split2_approved ? '
 				num_topics = num_topics + 1' : '
@@ -910,7 +886,6 @@ class TopicSplit implements ActionInterface, Routable
 		// Copy log topic entries.
 		// @todo This should really be chunked.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, id_msg, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic = {int:id_topic}',
@@ -1002,5 +977,3 @@ class TopicSplit implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

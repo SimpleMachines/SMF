@@ -28,6 +28,10 @@ use SMF\WebFetch\WebFetchApi;
  */
 class FetchSMFiles extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -40,7 +44,6 @@ class FetchSMFiles extends ScheduledTask
 		$js_files = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_file, filename, path, parameters
 			FROM {db_prefix}admin_info_files',
 			[
@@ -79,7 +82,6 @@ class FetchSMFiles extends ScheduledTask
 
 			// Save the file to the database.
 			Db::$db->query(
-				'substring',
 				'UPDATE {db_prefix}admin_info_files
 				SET data = SUBSTRING({string:file_data}, 1, 65534)
 				WHERE id_file = {int:id_file}',
@@ -87,11 +89,10 @@ class FetchSMFiles extends ScheduledTask
 					'id_file' => $id_file,
 					'file_data' => $file_data,
 				],
+				identifier: 'substring',
 			);
 		}
 
 		return true;
 	}
 }
-
-?>

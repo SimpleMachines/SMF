@@ -608,5 +608,3 @@ class Folder
 		return $pms;
 	}
 }
-
-?>

@@ -107,5 +107,3 @@ class Hermosillo extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

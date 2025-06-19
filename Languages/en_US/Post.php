@@ -217,5 +217,3 @@ $txt['attachments_limit_per_post']['one'] = '{0, plural,
 $txt['approval_status'] = 'Approval status';
 $txt['approval_status_1'] = 'Approved';
 $txt['approval_status_0'] = 'Awaiting approval';
-
-?>

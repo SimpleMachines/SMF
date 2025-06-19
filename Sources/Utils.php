@@ -24,18 +24,6 @@ class Utils
 {
 	use BackwardCompatibility;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'context' => 'context',
-			'smcFunc' => 'smcFunc',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -319,6 +307,22 @@ class Utils
 		'random_bytes' => __CLASS__ . '::randomBytes',
 	];
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'context' => 'context',
+			'smcFunc' => 'smcFunc',
+		],
+	];
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -335,6 +339,10 @@ class Utils
 
 		// Load up our $context['server'] data for backwards compatibility
 		Sapi::load();
+
+		if (!empty(Config::$modSettings['restricted_bbc'])) {
+			self::$context['restricted_bbc'] = array_unique(array_merge(self::$context['restricted_bbc'], explode(',', Config::$modSettings['restricted_bbc'])));
+		}
 	}
 
 	/**
@@ -720,7 +728,7 @@ class Utils
 	 *
 	 * @param string $string The input string.
 	 * @param int $offset Offset where substring will start.
-	 * @param int $length Maximum length, in characters, of the substring.
+	 * @param int|null $length Maximum length, in characters, of the substring.
 	 * @return string The substring.
 	 */
 	public static function entitySubstr(string $string, int $offset, ?int $length = null): string
@@ -843,11 +851,9 @@ class Utils
 	 *    Default: false.
 	 * @param string $form A Unicode normalization form: 'c', 'd', 'kc', 'kd',
 	 *    or 'kc_casefold'.
-	 * @param bool $mb4 If true, always decode 4-byte UTF-8 characters.
-	 *      Default: false.
 	 * @return string The normalized string.
 	 */
-	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c', bool $mb4 = false): string
+	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c'): string
 	{
 		// Convert numeric entities to characters, except special ones.
 		if (str_contains($string, '&#')) {
@@ -920,7 +926,7 @@ class Utils
 	 */
 	public static function strtotitle(string $string): string
 	{
-		return self::convertCase($string, 'upper');
+		return self::convertCase($string, 'title');
 	}
 
 	/**
@@ -997,7 +1003,7 @@ class Utils
 	 * array in order to test all possible matches.
 	 *
 	 * @param array $strings An array of strings to make a regex for.
-	 * @param string $delim Optional delimiter character to pass to preg_quote().
+	 * @param string|null $delim Optional delimiter character to pass to preg_quote().
 	 * @param bool $return_array If true, returns an array of regexes.
 	 * @return string|array One or more regular expressions to match any of the
 	 *    input strings.
@@ -1826,7 +1832,7 @@ class Utils
 	 * Attempts to determine the MIME type of some data or a file.
 	 *
 	 * @param string $data The data to check, or the path or URL of a file to check.
-	 * @param string $is_path If true, $data is a path or URL to a file.
+	 * @param bool $is_path If true, $data is a path or URL to a file.
 	 * @return string|false A MIME type, or false if we cannot determine it.
 	 */
 	public static function getMimeType(string $data, bool $is_path = false): string|false
@@ -2174,7 +2180,7 @@ class Utils
 	 *
 	 * @param string $data The data to print
 	 * @param string $type The content type. Defaults to JSON.
-	 * @return bool|void If $data is empty, false is returned, otherwise the response is sent and execution stopped.
+	 * @return bool|null If $data is empty, false is returned, otherwise the response is sent and execution stopped.
 	 */
 	public static function serverResponse(string $data = '', string $type = 'Content-Type: application/json'): ?bool
 	{
@@ -2420,23 +2426,40 @@ class Utils
 	}
 
 	/**
-	 * Parses the given input to determine if it represents a callable entity.
+	 * Parses the given input to determine if is a callable entity or can be
+	 * turned into one, and then returns either a callable or false.
 	 *
-	 * This method supports various formats of callables, including closures,
-	 * callable arrays, static methods, and class methods with optional
-	 * instance creation.
+	 * If $input is already a callable entity, it will simply be returned.
+	 * Otherwise, this method will attempt to turn it into one.
 	 *
-	 * - If a class method is specified with a "#", it attempts to create
-	 *   a new instance of the class.
-	 * - If a static method is specified, it validates the method is callable.
-	 * - If input is a closure or callable array, it checks its validity.
-	 * - Plain functions are validated as callable.
-	 * - Objects themselves are not accepted as callables.
+	 * Two special syntaxes can be used with string input, as follows:
+	 *
+	 *  - Instructions to load a specific file can be given by prepending a file
+	 *    path followed by a `|` character to the $input string. This amounts to
+	 *    a form of autoloading for callables that are not class-based. These
+	 *    file paths support the wildcards $boarddir, $sourcedir, and $themedir.
+	 *
+	 *    Example: '$sourcedir/foo.php|func_name' will load ./Sources/foo.php
+	 *    and then return 'func_name'.
+	 *
+	 *  - If a class method is specified with a "#" character appended to it, an
+	 *    instance of that class will be automatically created and added to
+	 *    Utils::$context['instances'], and the returned value from this method
+	 *    will be a callable array that will call the specified method on that
+	 *    instance. Note, however, that there is no way to pass arguments to the
+	 *    class's constructor when using this syntax. For that reason, it is
+	 *    usually better to construct the object directly rather than using this
+	 *    syntax to do the job for you.
+	 *
+	 *    Example: 'SMF\Foo::methodName#' will create an instance of SMF\Foo and
+	 *    then return an array containing the instantiated object and the string
+	 *    'methodName'.
 	 *
 	 * @param string|callable $input Input to parse as a callable.
-	 * @param bool|null $ignore_errors Optional. Whether to suppress errors if the callable is invalid. Defaults to the value of `Utils::$context['ignore_hook_errors']`.
-	 *
-	 * @return callable|false Returns the callable if valid, or false on failure.
+	 * @param ?bool $ignore_errors Optional. Whether to suppress errors if the
+	 *    callable is invalid. If null, falls back to the current value of
+	 *    Utils::$context['ignore_hook_errors']. Default: null.
+	 * @return callable|false Either a valid callable or false on failure.
 	 */
 	public static function getCallable(string|callable $input, ?bool $ignore_errors = null): callable|false
 	{
@@ -2576,5 +2599,3 @@ class Utils
 if (is_callable([Utils::class, 'exportStatic'])) {
 	Utils::exportStatic();
 }
-
-?>

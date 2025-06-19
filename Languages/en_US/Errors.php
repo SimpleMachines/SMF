@@ -127,7 +127,6 @@ $txt['cannot_report_any'] = 'You are not allowed to report posts in this board.'
 $txt['cannot_search_posts'] = 'You are not allowed to search for posts in this forum.';
 $txt['cannot_send_mail'] = 'You do not have the privilege of sending out emails to everyone.';
 $txt['cannot_issue_warning'] = 'Sorry, you do not have permission to issue warnings to members.';
-$txt['cannot_send_email_to_members'] = 'Sorry, but the administrator has disallowed sending emails on this board.';
 $txt['cannot_split_any'] = 'Splitting topics is not allowed in this board.';
 $txt['cannot_view_attachments'] = 'It seems that you are not allowed to download or view attachments on this board.';
 $txt['cannot_view_mlist'] = 'You cannot view the memberlist because you do not have permission to do so.';
@@ -447,6 +446,7 @@ $txt['loadavg_unread_disabled'] = 'The server’s resources are temporarily unde
 $txt['loadavg_userstats_disabled'] = 'This member’s statistics are not currently available due to high load on the server. Please try again later.';
 
 $txt['cannot_edit_permissions_inherited'] = 'You cannot edit inherited permissions directly, you must either edit the parent group or edit the membergroup inheritance.';
+$txt['unknown_permission'] = 'Tried to check an unknown permission: {0}.';
 
 $txt['mc_no_modreport_specified'] = 'You need to specify which report you wish to view.';
 $txt['mc_no_modreport_found'] = 'The specified report either does not exist or is off limits to you';
@@ -595,5 +595,3 @@ $txt['uuid_invalid_string'] = 'Invalid UUID string supplied: {0}';
 $txt['uuid_group_non_posix'] = 'Automatic group domain is unsupported for UUIDv2 on non-POSIX systems. Falling back to user domain.';
 $txt['uuid_unknown_domain'] = 'Cannot generate automatic UUIDv2 for unknown domain: {0}';
 $txt['uuid_timestamp_out_of_range'] = 'Timestamp out of range for UUIDv{0}';
-
-?>

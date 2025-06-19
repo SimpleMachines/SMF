@@ -759,5 +759,3 @@ function template_confirm_board_delete()
 		</form>
 	</div><!-- #manage_boards -->';
 }
-
-?>

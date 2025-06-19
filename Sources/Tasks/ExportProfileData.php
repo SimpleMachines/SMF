@@ -949,6 +949,187 @@ class ExportProfileData extends BackgroundTask
 		return true;
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
+	/**
+	 * Adds a custom DOCTYPE definition and an XSLT processing instruction to
+	 * the main XML file's header. Only used for the XML_XSLT format.
+	 */
+	public static function add_dtd(
+		array &$xml_data,
+		array &$metadata,
+		array &$namespaces,
+		array &$extraFeedTags,
+		array &$forceCdataKeys,
+		array &$nsKeys,
+		string $xml_format,
+		string $subaction,
+		string &$doctype,
+	): void {
+		$doctype = implode("\n", [
+			'<!--',
+			"\t" . Lang::getTxt('export_open_in_browser', file: 'Profile'),
+			'-->',
+			'<?xml-stylesheet type="text/xsl" href="#stylesheet"?>',
+			'<!DOCTYPE smf:xml-feed [',
+			'<!ATTLIST xsl:stylesheet',
+			'id ID #REQUIRED>',
+			']>',
+		]);
+	}
+
+	/**
+	 * Adds data to the cache key to distinguish parsing for exports from normal
+	 * parsing.
+	 */
+	public static function parser_cache(array &$cache_key_extras): void
+	{
+		$cache_key_extras[__CLASS__] = 1;
+	}
+
+	/**
+	 * Adjusts some parse_bbc() parameters for the special case of HTML and
+	 * XML_XSLT exports.
+	 */
+	public static function pre_parsebbc_html(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags): void
+	{
+		$cache_id = '';
+
+		foreach (['smileys_url', 'attachmentThumbnails'] as $var) {
+			if (isset(Config::$modSettings[$var])) {
+				self::$real_modSettings[$var] = Config::$modSettings[$var];
+			}
+		}
+
+		Config::$modSettings['smileys_url'] = '.';
+		Config::$modSettings['attachmentThumbnails'] = false;
+	}
+
+	/**
+	 * Adjusts some parse_bbc() parameters for the special case of XML exports.
+	 */
+	public static function pre_parsebbc_xml(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags): void
+	{
+		$cache_id = '';
+
+		$smileys = false;
+
+		if (!isset(Config::$modSettings['disabledBBC'])) {
+			Config::$modSettings['disabledBBC'] = 'attach';
+		} else {
+			self::$real_modSettings['disabledBBC'] = Config::$modSettings['disabledBBC'];
+
+			Config::$modSettings['disabledBBC'] = implode(',', array_unique(array_merge(array_filter(explode(',', Config::$modSettings['disabledBBC'])), ['attach'])));
+		}
+	}
+
+	/**
+	 * Reverses changes made by pre_parsebbc()
+	 */
+	public static function post_parsebbc(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags): void
+	{
+		foreach (['disabledBBC', 'smileys_url', 'attachmentThumbnails'] as $var) {
+			if (isset(self::$real_modSettings[$var])) {
+				Config::$modSettings[$var] = self::$real_modSettings[$var];
+			}
+		}
+	}
+
+	/**
+	 * Adjusts certain BBCodes for the special case of exports.
+	 */
+	public static function bbc_codes(array &$codes, array &$no_autolink_tags): void
+	{
+		foreach ($codes as &$code) {
+			// To make the "Select" link work we'd need to embed a bunch more JS. Not worth it.
+			if ($code['tag'] === 'code') {
+				$code['content'] = preg_replace('~<a class="codeoperation\b.*?</a>~', '', $code['content']);
+			}
+		}
+	}
+
+	/**
+	 * Adjusts the attachment download URL for the special case of exports.
+	 */
+	public static function post_parseAttachBBC(array &$attachContext): void
+	{
+		static $dltokens;
+
+		if (empty($dltokens[Utils::$context['xmlnews_uid']])) {
+			$idhash = hash_hmac('sha1', (string) Utils::$context['xmlnews_uid'], Config::getAuthSecret());
+
+			$dltokens[Utils::$context['xmlnews_uid']] = hash_hmac('sha1', $idhash, Config::getAuthSecret());
+		}
+
+		$attachContext['orig_href'] = Config::$scripturl . '?action=profile;area=dlattach;u=' . Utils::$context['xmlnews_uid'] . ';attach=' . $attachContext['id'] . ';t=' . $dltokens[Utils::$context['xmlnews_uid']];
+
+		$attachContext['href'] = rawurlencode($attachContext['id'] . ' - ' . html_entity_decode($attachContext['name']));
+	}
+
+	/**
+	 * Adjusts the format of the HTML produced by the attach BBCode.
+	 */
+	public static function attach_bbc_validate(string &$returnContext, array $currentAttachment, array $tag, array|string $data, array $disabled, array $params): void
+	{
+		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::getTxt('export_download_original', file: 'Profile') . '</a>';
+
+		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . Lang::getTxt('export_download_original', file: 'Profile') . '</a>';
+
+		if ($params['{display}'] == 'link') {
+			$returnContext .= ' (' . $orig_link . ')';
+		} elseif (!empty($currentAttachment['is_image'])) {
+			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
+				[
+					'thumbnail_toggle' => '~</?a\b[^>]*>~',
+					'src' => '~src="' . preg_quote($currentAttachment['href'], '~') . ';image"~',
+				],
+				[
+					'thumbnail_toggle' => '',
+					'src' => 'src="' . $currentAttachment['href'] . '" onerror="$(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"',
+				],
+				$returnContext,
+			) . $hidden_orig_link . '</span>';
+		} elseif (str_starts_with($currentAttachment['mime_type'], 'video/')) {
+			$returnContext = preg_replace(
+				[
+					'src' => '~src="' . preg_quote($currentAttachment['href'], '~') . '"~',
+					'opening_tag' => '~^<div class="videocontainer"~',
+					'closing_tag' => '~</div>$~',
+				],
+				[
+					'src' => '$0 onerror="$(this).fadeTo(0, 0.2); $(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"',
+					'opening_tag' => '<div class="videocontainer" style="display: flex; justify-content: center; align-items: center; position: relative;"',
+					'closing_tag' =>  $hidden_orig_link . '</div>',
+				],
+				$returnContext,
+			);
+		} elseif (str_starts_with($currentAttachment['mime_type'], 'audio/')) {
+			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
+				[
+					'opening_tag' => '~^<audio\b~',
+				],
+				[
+					'opening_tag' => '<audio onerror="$(this).fadeTo(0, 0); $(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"',
+				],
+				$returnContext,
+			) . $hidden_orig_link . '</span>';
+		} else {
+			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
+				[
+					'obj_opening' => '~^<object\b~',
+					'link' => '~<a href="' . preg_quote($currentAttachment['href'], '~') . '" class="bbc_link">([^<]*)</a>~',
+				],
+				[
+					'obj_opening' => '<object onerror="$(this).fadeTo(0, 0.2); $(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"~',
+					'link' => '$0 (' . $orig_link . ')',
+				],
+				$returnContext,
+			) . $hidden_orig_link . '</span>';
+		}
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
@@ -1857,187 +2038,4 @@ class ExportProfileData extends BackgroundTask
 			}
 		}
 	}
-
-	/***********************
-	 * Public static methods
-	 ***********************/
-
-	/**
-	 * Adds a custom DOCTYPE definition and an XSLT processing instruction to
-	 * the main XML file's header. Only used for the XML_XSLT format.
-	 */
-	public static function add_dtd(
-		array &$xml_data,
-		array &$metadata,
-		array &$namespaces,
-		array &$extraFeedTags,
-		array &$forceCdataKeys,
-		array &$nsKeys,
-		string $xml_format,
-		string $subaction,
-		string &$doctype,
-	): void {
-		$doctype = implode("\n", [
-			'<!--',
-			"\t" . Lang::getTxt('export_open_in_browser', file: 'Profile'),
-			'-->',
-			'<?xml-stylesheet type="text/xsl" href="#stylesheet"?>',
-			'<!DOCTYPE smf:xml-feed [',
-			'<!ATTLIST xsl:stylesheet',
-			'id ID #REQUIRED>',
-			']>',
-		]);
-	}
-
-	/**
-	 * Adds data to the cache key to distinguish parsing for exports from normal
-	 * parsing.
-	 */
-	public static function parser_cache(array &$cache_key_extras): void
-	{
-		$cache_key_extras[__CLASS__] = 1;
-	}
-
-	/**
-	 * Adjusts some parse_bbc() parameters for the special case of HTML and
-	 * XML_XSLT exports.
-	 */
-	public static function pre_parsebbc_html(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags): void
-	{
-		$cache_id = '';
-
-		foreach (['smileys_url', 'attachmentThumbnails'] as $var) {
-			if (isset(Config::$modSettings[$var])) {
-				self::$real_modSettings[$var] = Config::$modSettings[$var];
-			}
-		}
-
-		Config::$modSettings['smileys_url'] = '.';
-		Config::$modSettings['attachmentThumbnails'] = false;
-	}
-
-	/**
-	 * Adjusts some parse_bbc() parameters for the special case of XML exports.
-	 */
-	public static function pre_parsebbc_xml(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags): void
-	{
-		$cache_id = '';
-
-		$smileys = false;
-
-		if (!isset(Config::$modSettings['disabledBBC'])) {
-			Config::$modSettings['disabledBBC'] = 'attach';
-		} else {
-			self::$real_modSettings['disabledBBC'] = Config::$modSettings['disabledBBC'];
-
-			Config::$modSettings['disabledBBC'] = implode(',', array_unique(array_merge(array_filter(explode(',', Config::$modSettings['disabledBBC'])), ['attach'])));
-		}
-	}
-
-	/**
-	 * Reverses changes made by pre_parsebbc()
-	 */
-	public static function post_parsebbc(string &$message, bool &$smileys, string &$cache_id, array &$parse_tags): void
-	{
-		foreach (['disabledBBC', 'smileys_url', 'attachmentThumbnails'] as $var) {
-			if (isset(self::$real_modSettings[$var])) {
-				Config::$modSettings[$var] = self::$real_modSettings[$var];
-			}
-		}
-	}
-
-	/**
-	 * Adjusts certain BBCodes for the special case of exports.
-	 */
-	public static function bbc_codes(array &$codes, array &$no_autolink_tags): void
-	{
-		foreach ($codes as &$code) {
-			// To make the "Select" link work we'd need to embed a bunch more JS. Not worth it.
-			if ($code['tag'] === 'code') {
-				$code['content'] = preg_replace('~<a class="codeoperation\b.*?</a>~', '', $code['content']);
-			}
-		}
-	}
-
-	/**
-	 * Adjusts the attachment download URL for the special case of exports.
-	 */
-	public static function post_parseAttachBBC(array &$attachContext): void
-	{
-		static $dltokens;
-
-		if (empty($dltokens[Utils::$context['xmlnews_uid']])) {
-			$idhash = hash_hmac('sha1', (string) Utils::$context['xmlnews_uid'], Config::getAuthSecret());
-
-			$dltokens[Utils::$context['xmlnews_uid']] = hash_hmac('sha1', $idhash, Config::getAuthSecret());
-		}
-
-		$attachContext['orig_href'] = Config::$scripturl . '?action=profile;area=dlattach;u=' . Utils::$context['xmlnews_uid'] . ';attach=' . $attachContext['id'] . ';t=' . $dltokens[Utils::$context['xmlnews_uid']];
-
-		$attachContext['href'] = rawurlencode($attachContext['id'] . ' - ' . html_entity_decode($attachContext['name']));
-	}
-
-	/**
-	 * Adjusts the format of the HTML produced by the attach BBCode.
-	 */
-	public static function attach_bbc_validate(string &$returnContext, array $currentAttachment, array $tag, array|string $data, array $disabled, array $params): void
-	{
-		$orig_link = '<a href="' . $currentAttachment['orig_href'] . '" class="bbc_link">' . Lang::getTxt('export_download_original', file: 'Profile') . '</a>';
-
-		$hidden_orig_link = ' <a href="' . $currentAttachment['orig_href'] . '" class="bbc_link dlattach_' . $currentAttachment['id'] . '" style="display:none; flex: 1 0 auto; margin: auto;">' . Lang::getTxt('export_download_original', file: 'Profile') . '</a>';
-
-		if ($params['{display}'] == 'link') {
-			$returnContext .= ' (' . $orig_link . ')';
-		} elseif (!empty($currentAttachment['is_image'])) {
-			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
-				[
-					'thumbnail_toggle' => '~</?a\b[^>]*>~',
-					'src' => '~src="' . preg_quote($currentAttachment['href'], '~') . ';image"~',
-				],
-				[
-					'thumbnail_toggle' => '',
-					'src' => 'src="' . $currentAttachment['href'] . '" onerror="$(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"',
-				],
-				$returnContext,
-			) . $hidden_orig_link . '</span>';
-		} elseif (str_starts_with($currentAttachment['mime_type'], 'video/')) {
-			$returnContext = preg_replace(
-				[
-					'src' => '~src="' . preg_quote($currentAttachment['href'], '~') . '"~',
-					'opening_tag' => '~^<div class="videocontainer"~',
-					'closing_tag' => '~</div>$~',
-				],
-				[
-					'src' => '$0 onerror="$(this).fadeTo(0, 0.2); $(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"',
-					'opening_tag' => '<div class="videocontainer" style="display: flex; justify-content: center; align-items: center; position: relative;"',
-					'closing_tag' =>  $hidden_orig_link . '</div>',
-				],
-				$returnContext,
-			);
-		} elseif (str_starts_with($currentAttachment['mime_type'], 'audio/')) {
-			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
-				[
-					'opening_tag' => '~^<audio\b~',
-				],
-				[
-					'opening_tag' => '<audio onerror="$(this).fadeTo(0, 0); $(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"',
-				],
-				$returnContext,
-			) . $hidden_orig_link . '</span>';
-		} else {
-			$returnContext = '<span style="display: inline-flex; justify-content: center; align-items: center; position: relative;">' . preg_replace(
-				[
-					'obj_opening' => '~^<object\b~',
-					'link' => '~<a href="' . preg_quote($currentAttachment['href'], '~') . '" class="bbc_link">([^<]*)</a>~',
-				],
-				[
-					'obj_opening' => '<object onerror="$(this).fadeTo(0, 0.2); $(\'.dlattach_' . $currentAttachment['id'] . '\').show(); $(\'.dlattach_' . $currentAttachment['id'] . '\').css({\'position\': \'absolute\'});"~',
-					'link' => '$0 (' . $orig_link . ')',
-				],
-				$returnContext,
-			) . $hidden_orig_link . '</span>';
-		}
-	}
 }
-
-?>

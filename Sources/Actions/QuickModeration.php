@@ -37,12 +37,6 @@ class QuickModeration implements ActionInterface, Routable
 	use ActionRouter;
 	use ActionTrait;
 
-	/*******************
-	 * Public properties
-	 *******************/
-
-	// code...
-
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -386,7 +380,6 @@ class QuickModeration implements ActionInterface, Routable
 		if (!empty($_REQUEST['actions'])) {
 			// Find all topics...
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic, id_member_started, id_board, locked, approved, unapproved_posts
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:action_topic_ids})
@@ -457,7 +450,6 @@ class QuickModeration implements ActionInterface, Routable
 					// Never move topics to redirect boards
 					$redirect_boards = [];
 					$request = Db::$db->query(
-						'',
 						'SELECT id_board
 						FROM {db_prefix}boards
 						WHERE redirect != {string:blank_redirect}',
@@ -497,7 +489,6 @@ class QuickModeration implements ActionInterface, Routable
 		$logged_topics = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic, unwatched
 			FROM {db_prefix}log_topics
 			WHERE id_topic IN ({array_int:selected_topics})
@@ -538,7 +529,6 @@ class QuickModeration implements ActionInterface, Routable
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET is_sticky = CASE WHEN is_sticky = {int:is_sticky} THEN 0 ELSE 1 END
 			WHERE id_topic IN ({array_int:sticky_topic_ids})',
@@ -553,7 +543,6 @@ class QuickModeration implements ActionInterface, Routable
 		$sticky_cache_status = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic, id_board, is_sticky
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:sticky_topic_ids})
@@ -595,7 +584,6 @@ class QuickModeration implements ActionInterface, Routable
 			$lock_cache_boards = [];
 
 			$result = Db::$db->query(
-				'',
 				'SELECT id_topic, locked, id_board
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:locked_topic_ids})
@@ -621,7 +609,6 @@ class QuickModeration implements ActionInterface, Routable
 			$lock_cache_boards = [];
 
 			$result = Db::$db->query(
-				'',
 				'SELECT id_topic, locked, id_board
 				FROM {db_prefix}topics
 				WHERE id_topic IN ({array_int:locked_topic_ids})
@@ -643,7 +630,6 @@ class QuickModeration implements ActionInterface, Routable
 		if (!empty($this->topic_actions['lock'])) {
 			// Alternate the locked value.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics
 				SET locked = CASE WHEN locked = {int:is_locked} THEN ' . (User::$me->allowedTo('lock_any') ? '1' : '2') . ' ELSE 0 END
 				WHERE id_topic IN ({array_int:locked_topic_ids})',
@@ -684,7 +670,6 @@ class QuickModeration implements ActionInterface, Routable
 		$countPosts = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_topic, t.id_board, b.count_posts
 			FROM {db_prefix}topics AS t
 				LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
@@ -730,7 +715,6 @@ class QuickModeration implements ActionInterface, Routable
 		if (!empty($moveTos)) {
 			$topicRecounts = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board, count_posts
 				FROM {db_prefix}boards
 				WHERE id_board IN ({array_int:move_boards})',
@@ -759,7 +743,6 @@ class QuickModeration implements ActionInterface, Routable
 
 				// Get all the members who have posted in the moved topics.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, id_topic
 					FROM {db_prefix}messages
 					WHERE id_topic IN ({array_int:moved_topic_ids})',
@@ -819,7 +802,6 @@ class QuickModeration implements ActionInterface, Routable
 		$remove_cache_boards = [];
 
 		$result = Db::$db->query(
-			'',
 			'SELECT id_topic, id_board
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:removed_topic_ids})' . (!empty(Board::$info->id) && !User::$me->allowedTo('remove_any') ? '
@@ -871,7 +853,6 @@ class QuickModeration implements ActionInterface, Routable
 		$approve_cache_members = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_topic, id_member_started
 			FROM {db_prefix}topics
 			WHERE id_topic IN ({array_int:approve_topic_ids})
@@ -938,5 +919,3 @@ class QuickModeration implements ActionInterface, Routable
 		Utils::redirectexit('action=restoretopic;topics=' . implode(',', $this->topic_actions['restore']) . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id']);
 	}
 }
-
-?>

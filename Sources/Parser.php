@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF;
 
+use SMF\BBCode\BBCode;
 use SMF\Cache\CacheApi;
 use SMF\Parsers\BBCodeParser;
 use SMF\Parsers\MarkdownParser;
@@ -253,9 +254,9 @@ abstract class Parser
 	 */
 	private static array $results = [];
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -411,9 +412,9 @@ abstract class Parser
 		);
 	}
 
-	/*******************
-	 * Internal methods.
-	 *******************/
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Checks whether the server's load average is too high to parse BBCode.
@@ -507,20 +508,29 @@ abstract class Parser
 	/**
 	 * Adjusts a BBCode definition so that it outputs its disabled version.
 	 *
-	 * @param array $code A BBCode definition.
-	 * @return array The disabled version of the BBCode definition.
+	 * @param BBCode $code_def A BBCode definition.
+	 * @return BBCode The disabled version of the BBCode definition.
 	 */
-	protected function disableCode(array $code): array
+	protected function disableCode(BBCode $code_def): BBCode
 	{
-		if (!isset($code['disabled_before']) && !isset($code['disabled_after']) && !isset($code['disabled_content'])) {
-			$code['before'] = !empty($code['block_level']) ? '<div>' : '';
-			$code['after'] = !empty($code['block_level']) ? '</div>' : '';
-			$code['content'] = isset($code['type']) && $code['type'] == 'closed' ? '' : (!empty($code['block_level']) ? '<div>$1</div>' : '$1');
-		} elseif (isset($code['disabled_before']) || isset($code['disabled_after'])) {
-			$code['before'] = $code['disabled_before'] ?? (!empty($code['block_level']) ? '<div>' : '');
-			$code['after'] = $code['disabled_after'] ?? (!empty($code['block_level']) ? '</div>' : '');
+		$code = clone $code_def;
+
+		if (
+			!isset($code->disabled_before)
+			&& !isset($code->disabled_after)
+			&& !isset($code->disabled_content)
+		) {
+			$code->before = !empty($code->block_level) ? '<div>' : '';
+			$code->after = !empty($code->block_level) ? '</div>' : '';
+			$code->content = isset($code->type) && $code->type == BBCode::TYPE_CLOSED ? '' : (!empty($code->block_level) ? '<div>$1</div>' : '$1');
+		} elseif (
+			isset($code->disabled_before)
+			|| isset($code->disabled_after)
+		) {
+			$code->before = $code->disabled_before ?? (!empty($code->block_level) ? '<div>' : '');
+			$code->after = $code->disabled_after ?? (!empty($code->block_level) ? '</div>' : '');
 		} else {
-			$code['content'] = $code['disabled_content'];
+			$code->content = $code->disabled_content;
 		}
 
 		return $code;
@@ -728,5 +738,3 @@ abstract class Parser
 		]));
 	}
 }
-
-?>

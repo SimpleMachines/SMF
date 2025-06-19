@@ -34,6 +34,17 @@ if (!('getElementsByClassName' in document))
 	}
 }
 
+window.addEventListener('DOMContentLoaded', function() {
+	for (const elem of document.querySelectorAll('.bbc_inline_spoiler')) {
+		elem.addEventListener('click', toggleSpoiler);
+	}
+});
+
+// Shows or hides the content of a spoiler tag.
+function toggleSpoiler() {
+	this.classList.toggle('revealed');
+}
+
 // Get a response from the server.
 function getServerResponse(sUrl, funcCallback, sType, sDataType)
 {
@@ -108,6 +119,9 @@ function sendXMLDocument(sUrl, sContent, funcCallback)
 				funcCallback.call(oCaller, responseXML);
 			}
 		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.error(jqXHR.responseText);
+		}
 	});
 
 	return true;
@@ -2070,4 +2084,8 @@ smc_preview_post.prototype.onDocSent = function (XMLDoc)
 
 	if (typeof(smf_codeFix) != 'undefined')
 		smf_codeFix();
+
+	for (const elem of document.querySelectorAll('.bbc_inline_spoiler, .bbc_inline_spoiler > button')) {
+		elem.addEventListener('click', toggleSpoiler);
+	}
 }

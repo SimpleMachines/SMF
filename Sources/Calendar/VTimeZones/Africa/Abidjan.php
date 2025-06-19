@@ -49,5 +49,3 @@ class Abidjan extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

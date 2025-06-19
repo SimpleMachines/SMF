@@ -63,5 +63,3 @@ class Jayapura extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -62,5 +62,3 @@ SMF\Config::$language = 'en_US';
 // 5. Do the job.
 $unicode_updater = new SMF\Tasks\UpdateUnicode(['files_only' => true]);
 $unicode_updater->execute();
-
-?>

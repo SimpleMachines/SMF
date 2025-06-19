@@ -173,5 +173,3 @@ class QuoteFast implements ActionInterface, Routable
 		IntegrationHook::call('integrate_quotefast', [$row]);
 	}
 }
-
-?>

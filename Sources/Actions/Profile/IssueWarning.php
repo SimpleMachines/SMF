@@ -40,8 +40,6 @@ class IssueWarning implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -89,7 +87,6 @@ class IssueWarning implements ActionInterface
 		if (Utils::$context['warning_limit'] > 0) {
 			// Make sure we cannot go outside of our limit for the day.
 			$request = Db::$db->query(
-				'',
 				'SELECT SUM(counter)
 				FROM {db_prefix}log_comments
 				WHERE id_recipient = {int:selected_member}
@@ -243,7 +240,6 @@ class IssueWarning implements ActionInterface
 		// Are they warning because of a message?
 		if (isset($_REQUEST['msg']) && 0 < (int) $_REQUEST['msg']) {
 			$request = Db::$db->query(
-				'',
 				'SELECT m.subject
 				FROM {db_prefix}messages AS m
 				WHERE m.id_msg = {int:message}
@@ -271,7 +267,6 @@ class IssueWarning implements ActionInterface
 		Utils::$context['notification_templates'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT recipient_name AS template_title, body
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {literal:warntpl}
@@ -336,7 +331,6 @@ class IssueWarning implements ActionInterface
 		$previous_warnings = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name,
 				lc.log_time, lc.body, lc.counter, lc.id_notice
 			FROM {db_prefix}log_comments AS lc
@@ -378,7 +372,6 @@ class IssueWarning implements ActionInterface
 	public static function list_getUserWarningCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_comments
 			WHERE id_recipient = {int:selected_member}
@@ -567,5 +560,3 @@ class IssueWarning implements ActionInterface
 		];
 	}
 }
-
-?>

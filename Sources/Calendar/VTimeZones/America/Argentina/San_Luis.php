@@ -325,5 +325,3 @@ class San_Luis extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -50,10 +50,6 @@ class Reminder implements ActionInterface, Routable
 	 */
 	public string $subaction = 'main';
 
-	/*********************
-	 * Internal properties
-	 *********************/
-
 	/**
 	 * @var \SMF\User
 	 *
@@ -452,5 +448,3 @@ class Reminder implements ActionInterface, Routable
 		$this->member = reset($loaded);
 	}
 }
-
-?>

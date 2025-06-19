@@ -40,5 +40,3 @@ require_once __DIR__ . '/index.php';
 
 $ssi = new SMF\ServerSideIncludes();
 $ssi->execute();
-
-?>

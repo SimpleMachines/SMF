@@ -33,8 +33,6 @@ class ShowAlerts implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -213,5 +211,3 @@ class ShowAlerts implements ActionInterface
 		}
 	}
 }
-
-?>

@@ -289,5 +289,3 @@ class Jujuy extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

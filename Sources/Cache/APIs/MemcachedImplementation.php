@@ -33,7 +33,15 @@ if (!defined('SMF')) {
  */
 class MemcachedImplementation extends CacheApi implements CacheApiInterface
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	public const CLASS_KEY = 'cache_memcached';
+
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var object
@@ -49,8 +57,12 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	 */
 	private $servers;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function __construct()
 	{
@@ -72,7 +84,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
@@ -86,7 +98,7 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -94,6 +106,105 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 
 		return $this->addServers();
 	}
+
+	/**
+	 *
+	 */
+	public function getData(string $key, ?int $ttl = null): mixed
+	{
+		$key = $this->prefix . strtr($key, ':/', '-_');
+
+		$value = $this->memcached->get($key);
+
+		// $value should return either data or false (from failure, key not found or empty array).
+		if ($value === false) {
+			return null;
+		}
+
+		return $value;
+	}
+
+	/**
+	 *
+	 */
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
+	{
+		$key = $this->prefix . strtr($key, ':/', '-_');
+
+		return $this->memcached->set($key, $value, $ttl !== null ? $ttl : $this->ttl);
+	}
+
+	/**
+	 *
+	 */
+	public function cleanCache($type = ''): bool
+	{
+		$this->invalidateCache();
+
+		// Memcached accepts a delay parameter, always use 0 (instant).
+		return $this->memcached->flush(0);
+	}
+
+	/**
+	 *
+	 */
+	public function quit(): bool
+	{
+		return $this->memcached->quit();
+	}
+
+	/**
+	 *
+	 */
+	public function cacheSettings(array &$config_vars): void
+	{
+		if (!in_array(Lang::getTxt(self::CLASS_KEY . '_settings', file: 'ManageSettings'), $config_vars)) {
+			$config_vars[] = Lang::getTxt(self::CLASS_KEY . '_settings', file: 'ManageSettings');
+			$config_vars[] = [
+				self::CLASS_KEY,
+				Lang::getTxt(self::CLASS_KEY . '_servers', file: 'ManageSettings'),
+				'file',
+				'text',
+				0,
+				'subtext' => Lang::getTxt(self::CLASS_KEY . '_servers_subtext', file: 'ManageSettings'),
+			];
+		}
+
+		if (!isset(Utils::$context['settings_post_javascript'])) {
+			Utils::$context['settings_post_javascript'] = '';
+		}
+
+		if (empty(Utils::$context['settings_not_writable'])) {
+			Utils::$context['settings_post_javascript'] .= '
+			$("#cache_accelerator").change(function (e) {
+				var cache_type = e.currentTarget.value;
+				$("#' . self::CLASS_KEY . '").prop("disabled", cache_type != "MemcacheImplementation" && cache_type != "MemcachedImplementation");
+			});';
+		}
+	}
+
+	/**
+	 *
+	 */
+	public function getVersion(): string|bool
+	{
+		if (!is_object($this->memcached)) {
+			return false;
+		}
+
+		// This gets called in Subs-Admin getServerVersions when loading up support information.  If we can't get a connection, return nothing.
+		$result = $this->memcached->getVersion();
+
+		if (!empty($result)) {
+			return current($result);
+		}
+
+		return false;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Add memcached servers.
@@ -126,101 +237,4 @@ class MemcachedImplementation extends CacheApi implements CacheApiInterface
 
 		return $retVal;
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getData(string $key, ?int $ttl = null): mixed
-	{
-		$key = $this->prefix . strtr($key, ':/', '-_');
-
-		$value = $this->memcached->get($key);
-
-		// $value should return either data or false (from failure, key not found or empty array).
-		if ($value === false) {
-			return null;
-		}
-
-		return $value;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
-	{
-		$key = $this->prefix . strtr($key, ':/', '-_');
-
-		return $this->memcached->set($key, $value, $ttl !== null ? $ttl : $this->ttl);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function cleanCache($type = ''): bool
-	{
-		$this->invalidateCache();
-
-		// Memcached accepts a delay parameter, always use 0 (instant).
-		return $this->memcached->flush(0);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function quit(): bool
-	{
-		return $this->memcached->quit();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function cacheSettings(array &$config_vars): void
-	{
-		if (!in_array(Lang::getTxt(self::CLASS_KEY . '_settings', file: 'ManageSettings'), $config_vars)) {
-			$config_vars[] = Lang::getTxt(self::CLASS_KEY . '_settings', file: 'ManageSettings');
-			$config_vars[] = [
-				self::CLASS_KEY,
-				Lang::getTxt(self::CLASS_KEY . '_servers', file: 'ManageSettings'),
-				'file',
-				'text',
-				0,
-				'subtext' => Lang::getTxt(self::CLASS_KEY . '_servers_subtext', file: 'ManageSettings'),
-			];
-		}
-
-		if (!isset(Utils::$context['settings_post_javascript'])) {
-			Utils::$context['settings_post_javascript'] = '';
-		}
-
-		if (empty(Utils::$context['settings_not_writable'])) {
-			Utils::$context['settings_post_javascript'] .= '
-			$("#cache_accelerator").change(function (e) {
-				var cache_type = e.currentTarget.value;
-				$("#' . self::CLASS_KEY . '").prop("disabled", cache_type != "MemcacheImplementation" && cache_type != "MemcachedImplementation");
-			});';
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getVersion(): string|bool
-	{
-		if (!is_object($this->memcached)) {
-			return false;
-		}
-
-		// This gets called in Subs-Admin getServerVersions when loading up support information.  If we can't get a connection, return nothing.
-		$result = $this->memcached->getVersion();
-
-		if (!empty($result)) {
-			return current($result);
-		}
-
-		return false;
-	}
 }
-
-?>

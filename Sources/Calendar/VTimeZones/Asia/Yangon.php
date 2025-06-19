@@ -63,5 +63,3 @@ class Yangon extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

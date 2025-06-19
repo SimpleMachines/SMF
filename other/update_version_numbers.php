@@ -187,5 +187,3 @@ function getFiles(string $dir): array
 
 	return $files;
 }
-
-?>

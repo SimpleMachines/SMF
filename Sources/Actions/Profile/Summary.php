@@ -36,8 +36,6 @@ class Summary implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -210,7 +208,6 @@ class Summary implements ActionInterface
 
 			// So... are they banned?  Dying to know!
 			$request = Db::$db->query(
-				'',
 				'SELECT bg.id_ban_group, bg.name, bg.cannot_access, bg.cannot_post,
 					bg.cannot_login, bg.reason
 				FROM {db_prefix}ban_items AS bi
@@ -276,5 +273,3 @@ class Summary implements ActionInterface
 		}
 	}
 }
-
-?>

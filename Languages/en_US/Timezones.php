@@ -849,5 +849,3 @@ $txt['iso3166']['YT'] = 'Mayotte';
 $txt['iso3166']['ZA'] = 'South Africa';
 $txt['iso3166']['ZM'] = 'Zambia';
 $txt['iso3166']['ZW'] = 'Zimbabwe';
-
-?>

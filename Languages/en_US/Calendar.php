@@ -220,5 +220,3 @@ $txt['calendar_rrule_desc_bysetpos'] = '{count, plural,
 	one {on each {ordinal_list} occurrence}
 	other {on each {ordinal_list} occurrences}
 } of {rrule_description}';
-
-?>

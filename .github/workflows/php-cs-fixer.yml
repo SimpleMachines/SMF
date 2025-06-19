@@ -16,9 +16,9 @@ jobs:
         id: changed-files
         run: |
           if ${{ github.event_name == 'pull_request' }}; then
-            echo "all_changed_files_count=$(git diff --name-only -r HEAD^1 HEAD | xargs | grep '\.php$')" >> $GITHUB_OUTPUT
+            echo "all_changed_files_count=$(git diff HEAD --name-only | xargs | grep '\.php$')" >> $GITHUB_OUTPUT
           else
-            echo "all_changed_files_count=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs | grep '\.php$')" >> $GITHUB_OUTPUT
+            echo "all_changed_files_count=$(git diff ${{ github.event.before }}...${{ github.event.after }} --name-only | xargs | grep '\.php$')" >> $GITHUB_OUTPUT
           fi
 
       - name: Get extra arguments for PHP-CS-Fixer

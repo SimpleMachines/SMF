@@ -289,5 +289,3 @@ class Tucuman extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

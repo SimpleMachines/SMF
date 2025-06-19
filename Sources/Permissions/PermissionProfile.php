@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Permissions;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Group;
 use SMF\Lang;
 use SMF\Utils;
 
@@ -122,7 +123,6 @@ class PermissionProfile
 			self::$loaded[$this->id] = $this;
 		} else {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}permission_profiles
 				SET profile_name = {string:profile_name}
 				WHERE id_profile = {int:current_profile}',
@@ -158,7 +158,6 @@ class PermissionProfile
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}permission_profiles
 			WHERE id_profile = {int:profile}',
 			[
@@ -200,7 +199,6 @@ class PermissionProfile
 	{
 		if (!isset($this->boards)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board
 				FROM {db_prefix}boards
 				WHERE id_profile = {int:profile}',
@@ -252,7 +250,6 @@ class PermissionProfile
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT p.id_profile, p.profile_name, b.id_board
 			FROM {db_prefix}permission_profiles AS p
 			LEFT JOIN {db_prefix}boards AS b ON (p.id_profile = b.id_profile)',
@@ -332,7 +329,7 @@ class PermissionProfile
 	 *
 	 * @param int $copy_from ID of the profile to duplicate.
 	 * @param string $name Name for the new profile.
-	 * @return self A new instance of this class, or null on error.
+	 * @return self|null A new instance of this class, or null on error.
 	 */
 	public static function copy(int $copy_from, string $name): ?self
 	{
@@ -350,5 +347,3 @@ class PermissionProfile
 		return $new_profile;
 	}
 }
-
-?>

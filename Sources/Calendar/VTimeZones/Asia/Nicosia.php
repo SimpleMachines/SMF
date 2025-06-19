@@ -131,5 +131,3 @@ class Nicosia extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -613,7 +613,6 @@ class Post2 extends Post
 		// Mark all the parents read.  (since you just posted and they will be unread.)
 		if (!User::$me->is_guest && !empty(Board::$info->parent_boards)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_boards
 				SET id_msg = {int:id_msg}
 				WHERE id_member = {int:current_member}
@@ -647,7 +646,6 @@ class Post2 extends Post
 			);
 		} elseif (!$newTopic) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_notify
 				WHERE id_member = {int:current_member}
 					AND id_topic = {int:current_topic}',
@@ -675,7 +673,6 @@ class Post2 extends Post
 		if (!empty($_REQUEST['goback'])) {
 			// Mark the board as read.... because it might get confusing otherwise.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_boards
 				SET id_msg = {int:maxMsgID}
 				WHERE id_member = {int:current_member}
@@ -1073,5 +1070,3 @@ class Post2 extends Post
 		}
 	}
 }
-
-?>

@@ -418,5 +418,3 @@ class Lisbon extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

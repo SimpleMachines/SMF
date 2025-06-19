@@ -49,7 +49,6 @@ class Post implements ActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -380,9 +379,6 @@ class Post implements ActionInterface, Routable
 	 * Builds a routing path based on URL query parameters.
 	 *
 	 * @param array $params URL query parameters.
-	 * @param bool $append If true, the action route will be appended to the
-	 *    topic or board route indicated by the topic or board params.
-	 *    Default: false.
 	 * @return array Contains two elements: ['route' => [], 'params' => []].
 	 *    The 'route' element contains the routing path. The 'params' element
 	 *    contains any $params that weren't incorporated into the route.
@@ -499,7 +495,6 @@ class Post implements ActionInterface, Routable
 		// If you're modifying, get only those posts before the current one. (otherwise get all.)
 		Utils::$context['previous_posts'] = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
 				m.body, m.smileys_enabled, m.id_msg, m.id_member
@@ -611,7 +606,6 @@ class Post implements ActionInterface, Routable
 	{
 		if (empty(Topic::$topic_id) && !empty($_REQUEST['msg'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:msg}
@@ -884,7 +878,6 @@ class Post implements ActionInterface, Routable
 
 		// Figure out how many new replies were made while the user was writing.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}messages
 			WHERE id_topic = {int:current_topic}
@@ -1068,7 +1061,6 @@ class Post implements ActionInterface, Routable
 		if (isset($_REQUEST['msg']) && !empty(Topic::$info->id)) {
 			// Get the existing message. Previewing.
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					m.id_member, m.modified_time, m.smileys_enabled, m.body,
 					m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
@@ -1120,7 +1112,6 @@ class Post implements ActionInterface, Routable
 			// Allow moderators to change names....
 			if (User::$me->allowedTo('moderate_forum') && !empty(Topic::$info->id)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, poster_name, poster_email
 					FROM {db_prefix}messages
 					WHERE id_msg = {int:id_msg}
@@ -1156,7 +1147,6 @@ class Post implements ActionInterface, Routable
 
 		// Get the existing message. Editing.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				m.id_member, m.modified_time, m.modified_name, m.modified_reason, m.smileys_enabled, m.body,
 				m.poster_name, m.poster_email, m.subject, m.icon, m.approved,
@@ -1262,7 +1252,6 @@ class Post implements ActionInterface, Routable
 		if (!empty(Topic::$info->id) && !empty($_REQUEST['quote'])) {
 			// Make sure they _can_ quote this post, and if so get it.
 			$request = Db::$db->query(
-				'',
 				'SELECT m.subject, COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.body
 				FROM {db_prefix}messages AS m
 					LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (!Config::$modSettings['postmod_active'] || $this->can_approve ? '' : '
@@ -2083,5 +2072,3 @@ class Post implements ActionInterface, Routable
 		}
 	}
 }
-
-?>

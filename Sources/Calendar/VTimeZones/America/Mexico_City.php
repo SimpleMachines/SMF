@@ -186,5 +186,3 @@ class Mexico_City extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

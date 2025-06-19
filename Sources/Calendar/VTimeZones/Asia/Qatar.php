@@ -56,5 +56,3 @@ class Qatar extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

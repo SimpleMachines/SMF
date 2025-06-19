@@ -110,7 +110,6 @@ $txt['watched_boards_desc'] = 'This page lets you review which boards you are wa
 $txt['notification_general'] = 'General Settings';
 $txt['notify_save'] = 'Save settings';
 $txt['notify_important_email'] = 'Receive forum newsletters, announcements and important notifications by email.';
-$txt['auto_notify'] = 'Turn notification on when you post or reply to a topic';
 $txt['notify_send_types'] = 'For topics and boards I’ve requested notification on, notify me of';
 $txt['notify_send_type_everything'] = 'Replies and moderation';
 $txt['notify_send_type_everything_own'] = 'Moderation only if I started the topic and am following it';
@@ -676,5 +675,3 @@ $txt['export_file_desc'] = 'Included data: {list}. File format: {format}.';
 $txt['export_download_original'] = 'Download original';
 $txt['export_view_source_button'] = 'Toggle source view';
 $txt['export_open_in_browser'] = 'Please open this file in a web browser to see a human readable version.';
-
-?>

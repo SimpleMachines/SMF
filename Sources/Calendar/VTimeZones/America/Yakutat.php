@@ -139,5 +139,3 @@ class Yakutat extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

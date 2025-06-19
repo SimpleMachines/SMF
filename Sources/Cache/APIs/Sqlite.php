@@ -33,6 +33,10 @@ if (!defined('SMF')) {
  */
 class Sqlite extends CacheApi implements CacheApiInterface
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var string The path to the current directory.
 	 */
@@ -43,6 +47,10 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	 */
 	private $cacheDB = null;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -52,7 +60,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -69,7 +77,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
@@ -83,7 +91,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
@@ -100,7 +108,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
@@ -117,7 +125,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cleanCache(string $type = ''): bool
 	{
@@ -138,7 +146,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cacheSettings(array &$config_vars): void
 	{
@@ -171,9 +179,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	/**
 	 * Sets the $cachedir or uses the SMF default $cachedir..
 	 *
-	 * @param string $dir A valid path
-	 *
-	 * @return bool If this was successful or not.
+	 * @param string|null $dir A valid path
 	 */
 	public function setCachedir(?string $dir = null): void
 	{
@@ -192,7 +198,7 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getVersion(): string|bool
 	{
@@ -204,12 +210,10 @@ class Sqlite extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function housekeeping(): void
 	{
 		$this->cleanCache('expired');
 	}
 }
-
-?>

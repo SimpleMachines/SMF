@@ -1162,5 +1162,3 @@ class Hebron extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

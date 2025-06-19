@@ -224,5 +224,3 @@ class Eirunepe extends \SMF\Calendar\VTimeZone
 		],
 	];
 }
-
-?>

@@ -72,7 +72,6 @@ class TopicMove2 implements ActionInterface, Routable
 		Security::checkSubmitOnce('check');
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member_started, id_first_msg, approved
 			FROM {db_prefix}topics
 			WHERE id_topic = {int:current_topic}
@@ -105,7 +104,6 @@ class TopicMove2 implements ActionInterface, Routable
 
 		// Make sure they can see the board they are trying to move to (and get whether posts count in the target board).
 		$request = Db::$db->query(
-			'',
 			'SELECT b.count_posts, b.name, m.subject
 			FROM {db_prefix}boards AS b
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
@@ -153,7 +151,6 @@ class TopicMove2 implements ActionInterface, Routable
 					}
 
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}messages
 						SET subject = {string:subject}
 						WHERE id_topic = {int:current_topic}',
@@ -165,7 +162,6 @@ class TopicMove2 implements ActionInterface, Routable
 				}
 
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}messages
 					SET subject = {string:custom_subject}
 					WHERE id_msg = {int:id_first_msg}',
@@ -231,7 +227,6 @@ class TopicMove2 implements ActionInterface, Routable
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT count_posts
 			FROM {db_prefix}boards
 			WHERE id_board = {int:current_board}
@@ -247,7 +242,6 @@ class TopicMove2 implements ActionInterface, Routable
 			$posters = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}messages
 				WHERE id_topic = {int:current_topic}
@@ -322,7 +316,6 @@ class TopicMove2 implements ActionInterface, Routable
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject, b.name
 				FROM {db_prefix}topics as t
 					LEFT JOIN {db_prefix}boards AS b ON (t.id_board = b.id_board)
@@ -343,5 +336,3 @@ class TopicMove2 implements ActionInterface, Routable
 		ErrorHandler::fatalLang('topic_already_moved', false, [$topic_link, $board_link]);
 	}
 }
-
-?>

@@ -268,9 +268,9 @@ class Feed implements ActionInterface, Routable
 	/**
 	 * Constructor.
 	 *
-	 * @param string $subaction Sets the sub-action to call.
+	 * @param null|string $subaction Sets the sub-action to call.
 	 *     If null, will try $_GET['sa'] and then the default sub-action.
-	 * @param int $member The member whose data is being requested.
+	 * @param null|int $member The member whose data is being requested.
 	 *     If null, will try $_GET['u'] and then User::$me->id.
 	 */
 	public function __construct(?string $subaction = null, ?int $member = null)
@@ -324,7 +324,6 @@ class Feed implements ActionInterface, Routable
 
 			if (count($_GET['c']) == 1) {
 				$request = Db::$db->query(
-					'',
 					'SELECT name
 					FROM {db_prefix}categories
 					WHERE id_cat = {int:current_category}',
@@ -339,7 +338,6 @@ class Feed implements ActionInterface, Routable
 			$total_cat_posts = 0;
 			$this->boards = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.num_posts
 				FROM {db_prefix}boards AS b
 				WHERE b.id_cat IN ({array_int:current_category_list})
@@ -377,7 +375,6 @@ class Feed implements ActionInterface, Routable
 			$num_boards = 0;
 
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.num_posts, b.name
 				FROM {db_prefix}boards AS b
 				WHERE b.id_board IN ({array_int:board_list})
@@ -413,7 +410,6 @@ class Feed implements ActionInterface, Routable
 			}
 		} elseif (!empty(Board::$info->id)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT num_posts
 				FROM {db_prefix}boards AS b
 				WHERE id_board = {int:current_board}
@@ -570,7 +566,6 @@ class Feed implements ActionInterface, Routable
 		$data = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, member_name, real_name, date_registered, last_login
 			FROM {db_prefix}members
 			ORDER BY id_member {raw:ascdesc}
@@ -728,7 +723,6 @@ class Feed implements ActionInterface, Routable
 		while (!$done) {
 			$optimize_msg = implode(' AND ', $this->optimize_msg);
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.modified_time,
 					m.icon, m.version, t.id_topic, t.id_board, t.num_replies,
@@ -1143,7 +1137,6 @@ class Feed implements ActionInterface, Routable
 		while (!$done) {
 			$optimize_msg = implode(' AND ', $this->optimize_msg);
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_msg
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (m.id_board = b.id_board)
@@ -1189,7 +1182,6 @@ class Feed implements ActionInterface, Routable
 
 		// Find the most recent posts this user can see.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				m.smileys_enabled, m.poster_time, m.id_msg, m.subject, m.body, m.id_topic, t.id_board,
 				b.name AS bname, t.num_replies, m.id_member, m.icon, mf.id_member AS id_first_member,
@@ -1926,7 +1918,6 @@ class Feed implements ActionInterface, Routable
 		 */
 		$boardnames = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board, name
 			FROM {db_prefix}boards',
 			[],
@@ -1941,7 +1932,6 @@ class Feed implements ActionInterface, Routable
 			$poster_name = User::$me->name;
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT COALESCE(real_name, member_name) AS poster_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:uid}',
@@ -1954,7 +1944,6 @@ class Feed implements ActionInterface, Routable
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				m.id_msg, m.id_topic, m.id_board, m.id_member, m.poster_email, m.poster_ip,
 				m.poster_time, m.subject, m.modified_time, m.modified_name, m.modified_reason, m.body,
@@ -2404,7 +2393,6 @@ class Feed implements ActionInterface, Routable
 		$select_to_names = Db::$db->title === POSTGRE_TITLE ? "string_agg(COALESCE(mem.real_name, mem.member_name), '{$separator}')" : "GROUP_CONCAT(COALESCE(mem.real_name, mem.member_name) SEPARATOR '{$separator}')";
 
 		$request = Db::$db->query(
-			'',
 			'SELECT pm.id_pm, pm.msgtime, pm.subject, pm.body, pm.id_member_from, nis.from_name, nis.id_members_to, nis.to_names, pm.version
 			FROM {db_prefix}personal_messages AS pm
 			INNER JOIN
@@ -3053,7 +3041,7 @@ class Feed implements ActionInterface, Routable
 	/**
 	 * Sets the member property. This is the ID of the person viewing it or the person whose profile feed we're viewing
 	 *
-	 * @param ?int The member ID
+	 * @param null|int $member The member ID
 	 */
 	protected function setMember(?int $member = 0): void
 	{
@@ -3242,5 +3230,3 @@ class Feed implements ActionInterface, Routable
 		return $val;
 	}
 }
-
-?>
