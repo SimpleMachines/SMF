@@ -396,7 +396,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		$this->prepareUpgrade();
 
 		// If they don't have the file, they're going to get a warning anyway so we won't need to clean request vars.
-		if (class_exists('SMF\\QueryString')) {
+		if (class_exists(QueryString::class)) {
 			QueryString::cleanRequest();
 		}
 
@@ -551,24 +551,27 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			return false;
 		}
 
-		// Check for some key files - one template, one language, and a new and an old source file.
+		// Check for some key files.
 		$check = (
 			@file_exists(Maintenance::$theme_dir . '/index.template.php')
+			&& @file_exists(Config::$sourcedir . '/Forum.php')
 			&& @file_exists(Config::$sourcedir . '/QueryString.php')
 			&& @file_exists(Config::$sourcedir . '/Db/APIs/' . Db::getClass(Config::$db_type) . '.php')
-			&& @file_exists(Config::$sourcedir . '/Maintenance/Migration/v3_0/MessageVersion.php')
 		);
 
 		// Need legacy scripts?
-		if (
-			!isset(Config::$modSettings['smfVersion'])
-			|| version_compare(
-				str_replace(' ', '.', strtolower(Config::$modSettings['smfVersion'])),
-				preg_replace('/^(\d+\.\d+).*/', '$1.dev.0', SMF_VERSION),
-				'<',
-			)
-		) {
-			$check &= @file_exists(Config::$sourcedir . '/Maintenance/Migration/v2_1/SettingsUpdate.php');
+		foreach (self::VERSION_MAP as $search => $ns) {
+			if (version_compare($this->start_smf_version, $search, '>')) {
+				continue;
+			}
+
+			foreach (self::MIGRATIONS[$ns] as $class) {
+				$check &= class_exists($class);
+			}
+
+			foreach (self::CLEANUPS[$ns] as $class) {
+				$check &= class_exists($class);
+			}
 		}
 
 		if (!$check) {
