@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Db\Schema\Column;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -52,7 +53,7 @@ class PersonalMessageLabels extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\Members();
+		$table = new Schema\v2_1\Members();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -71,32 +72,32 @@ class PersonalMessageLabels extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$PmLabelsTable = new \SMF\Db\Schema\v2_1\PmLabels();
-		$PmLabeledMessagesTable = new \SMF\Db\Schema\v2_1\PmLabeledMessages();
+		$pm_labels_table = new Schema\v2_1\PmLabels();
+		$pm_labeled_messages_table = new Schema\v2_1\PmLabeledMessages();
 
 		$tables = Db::$db->list_tables();
 
 		if ($start <= 0) {
 			if (!in_array(Config::$db_prefix . 'pm_labels', $tables)) {
-				$PmLabelsTable->create();
+				$pm_labels_table->create();
 				$this->handleTimeout(0);
 			}
 
 			if (!in_array(Config::$db_prefix . 'pm_labeled_messages', $tables)) {
-				$PmLabeledMessagesTable->create();
+				$pm_labeled_messages_table->create();
 				$this->handleTimeout(0);
 			}
 
-			$PmRecipientsTable = new \SMF\Db\Schema\v2_1\PmRecipients();
-			$existing_structure = $PmRecipientsTable->getCurrentStructure();
+			$pm_recipients_table = new Schema\v2_1\PmRecipients();
+			$existing_structure = $pm_recipients_table->getCurrentStructure();
 
-			foreach ($PmRecipientsTable->columns as $column) {
+			foreach ($pm_recipients_table->columns as $column) {
 				// Column exists, don't need to do this.
 				if (isset($existing_structure['columns'][$column->name])) {
 					continue;
 				}
 
-				$PmRecipientsTable->addColumn($column);
+				$pm_recipients_table->addColumn($column);
 			}
 
 			$this->handleTimeout(++$start);
@@ -309,8 +310,8 @@ class PersonalMessageLabels extends MigrationBase
 			}
 		}
 
-		$PmRecipientsTable = new \SMF\Db\Schema\v2_1\PmRecipients();
-		$existing_structure = $PmRecipientsTable->getCurrentStructure();
+		$pm_recipients_table = new Schema\v2_1\PmRecipients();
+		$existing_structure = $pm_recipients_table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
 			if ($column['name'] == 'labels') {
@@ -319,12 +320,12 @@ class PersonalMessageLabels extends MigrationBase
 					type: 'varchar',
 				);
 
-				$PmRecipientsTable->dropColumn($col);
+				$pm_recipients_table->dropColumn($col);
 			}
 		}
 
-		$MembersTable = new \SMF\Db\Schema\v2_1\Members();
-		$existing_structure = $MembersTable->getCurrentStructure();
+		$members_table = new Schema\v2_1\Members();
+		$existing_structure = $members_table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
 			if ($column['name'] == 'message_labels') {
@@ -333,7 +334,7 @@ class PersonalMessageLabels extends MigrationBase
 					type: 'varchar',
 				);
 
-				$MembersTable->dropColumn($col);
+				$members_table->dropColumn($col);
 			}
 		}
 

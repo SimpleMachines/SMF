@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -39,7 +39,7 @@ class MysqlLegacyData extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		return Config::$db_type === MYSQL_TITLE;
+		return Db::$db->title === MYSQL_TITLE;
 	}
 
 	/**

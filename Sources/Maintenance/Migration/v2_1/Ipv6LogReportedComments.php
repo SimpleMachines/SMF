@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 
 class Ipv6LogReportedComments extends Ipv6Base
 {
@@ -37,8 +38,7 @@ class Ipv6LogReportedComments extends Ipv6Base
 	 */
 	public function __construct()
 	{
-
-		if (Config::$db_type !== POSTGRE_TITLE) {
+		if (Db::$db->title !== POSTGRE_TITLE) {
 			$this->name .= ' without converting';
 		}
 	}
@@ -48,10 +48,10 @@ class Ipv6LogReportedComments extends Ipv6Base
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\LogFloodcontrol();
+		$table = new Schema\v2_1\LogFloodcontrol();
 		$existing_structure = $table->getCurrentStructure();
 
-		if (Config::$db_type === POSTGRE_TITLE) {
+		if (Db::$db->title === POSTGRE_TITLE) {
 			return $existing_structure['columns']['ip']['type'] !== 'inet';
 		}
 
@@ -63,7 +63,7 @@ class Ipv6LogReportedComments extends Ipv6Base
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\LogFloodcontrol();
+		$table = new Schema\v2_1\LogFloodcontrol();
 
 		return $this->convertWithNoDataPreservation($table, 'ip');
 	}

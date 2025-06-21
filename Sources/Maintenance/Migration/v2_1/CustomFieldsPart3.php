@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Db\Schema\Column;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -50,7 +51,7 @@ class CustomFieldsPart3 extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		if ($start <= 0) {
-			$table = new \SMF\Db\Schema\v2_1\CustomFields();
+			$table = new Schema\v2_1\CustomFields();
 			$existing_structure = $table->getCurrentStructure();
 
 			foreach ($existing_structure['columns'] as $column) {

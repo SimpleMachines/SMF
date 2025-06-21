@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class ScheduledTasks extends MigrationBase
@@ -52,7 +53,7 @@ class ScheduledTasks extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\ScheduledTasks();
+		$table = new Schema\v2_1\ScheduledTasks();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($table->columns as $column) {
@@ -64,6 +65,8 @@ class ScheduledTasks extends MigrationBase
 			$table->addColumn($column);
 		}
 
+		$inserts = [];
+
 		foreach ($this->newTasks as $task) {
 			$request = $this->query(
 				'SELECT id_task
@@ -74,32 +77,43 @@ class ScheduledTasks extends MigrationBase
 				],
 			);
 
-				//next_time, time_offset, time_regularity, time_unit, disabled, task, callable
 			if (Db::$db->num_rows($request) === 0) {
-				$result = Db::$db->insert(
-					'replace',
-					'{db_prefix}scheduled_tasks',
-					[
-						'next_time' => 'int',
-						'time_offset' => 'int',
-						'time_regularity' => 'int',
-						'time_unit' => 'string',
-						'disabled' => 'int',
-						'task' => 'string',
-						'callable' => 'string',
-					],
-					[$task],
-					['next_time', 'time_offset', 'time_regularity', 'time_unit', 'disabled', 'task', 'callable'],
-				);
+				$inserts[] = $task;
 			}
 
 			Db::$db->free_result($request);
 		}
 
+		if (!empty($inserts)) {
+			Db::$db->insert(
+				method: 'replace',
+				table: '{db_prefix}scheduled_tasks',
+				columns: [
+					'next_time' => 'int',
+					'time_offset' => 'int',
+					'time_regularity' => 'int',
+					'time_unit' => 'string',
+					'disabled' => 'int',
+					'task' => 'string',
+					'callable' => 'string',
+				],
+				data: $inserts,
+				keys: [
+					'next_time',
+					'time_offset',
+					'time_regularity',
+					'time_unit',
+					'disabled',
+					'task',
+					'callable',
+				],
+			);
+
+		}
+
 		// Remove the old 'Auto Optimize' task.
 		$this->query(
-			'
-			DELETE FROM {db_prefix}scheduled_tasks
+			'DELETE FROM {db_prefix}scheduled_tasks
 			WHERE id_task = {int:AutoOptimizeTaskID}',
 			[
 				'AutoOptimizeTaskID' => 2,
@@ -107,8 +121,7 @@ class ScheduledTasks extends MigrationBase
 		);
 
 		$this->query(
-			'
-			DELETE FROM {db_prefix}log_scheduled_tasks
+			'DELETE FROM {db_prefix}log_scheduled_tasks
 			WHERE id_task = {int:AutoOptimizeTaskID}',
 			[
 				'AutoOptimizeTaskID' => 2,

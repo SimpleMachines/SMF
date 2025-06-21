@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Maintenance\Maintenance;
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class MessagesModifiedReason extends MigrationBase
@@ -38,7 +38,7 @@ class MessagesModifiedReason extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\Messages();
+		$table = new Schema\v2_1\Messages();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -55,9 +55,7 @@ class MessagesModifiedReason extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$start = Maintenance::getCurrentStart();
-
-		$table = new \SMF\Db\Schema\v2_1\Messages();
+		$table = new Schema\v2_1\Messages();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($table->columns as $column) {

@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -52,13 +53,13 @@ class VerificationQuestions extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$QandaTable = new \SMF\Db\Schema\v2_1\Qanda();
+		$table = new Schema\v2_1\Qanda();
 
 		$tables = Db::$db->list_tables();
 
 		// Creating draft table.
 		if ($start <= 0 && !in_array(Config::$db_prefix . 'qanda', $tables)) {
-			$QandaTable->create();
+			$table->create();
 
 			$this->handleTimeout(++$start);
 		}

@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use DateTimeZone;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -235,7 +234,7 @@ class SettingsUpdate extends MigrationBase
 
 		// TimeZone support.
 		if (!empty(Config::$modSettings['time_offset'])) {
-			Config::$modSettings['default_timezone'] = empty(Config::$modSettings['default_timezone']) || !in_array(Config::$modSettings['default_timezone'], timezone_identifiers_list(DateTimeZone::ALL_WITH_BC)) ? 'UTC' : Config::$modSettings['default_timezone'];
+			Config::$modSettings['default_timezone'] = empty(Config::$modSettings['default_timezone']) || !in_array(Config::$modSettings['default_timezone'], timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)) ? 'UTC' : Config::$modSettings['default_timezone'];
 
 			$now = date_create('now', timezone_open(Config::$modSettings['default_timezone']));
 

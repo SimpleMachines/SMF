@@ -17,7 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Maintenance;
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class Mentions extends MigrationBase
@@ -50,16 +50,8 @@ class Mentions extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$start = Maintenance::getCurrentStart();
-
-		$MentionsTable = new \SMF\Db\Schema\v2_1\Mentions();
-
-		$tables = Db::$db->list_tables();
-
-		// Creating draft table.
-		if (!in_array(Config::$db_prefix . 'mentions', $tables)) {
-			$MentionsTable->create();
-		}
+		$table = new Schema\v2_1\Mentions();
+		$table->create();
 
 		return true;
 	}

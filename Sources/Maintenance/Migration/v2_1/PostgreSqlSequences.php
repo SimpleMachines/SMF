@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -193,7 +194,7 @@ class PostgreSqlSequences extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		return Config::$db_type == POSTGRE_TITLE;
+		return Db::$db->title === POSTGRE_TITLE;
 	}
 
 	/**

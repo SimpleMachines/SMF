@@ -40,7 +40,7 @@ class MysqlModFixes extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		return Config::$db_type === MYSQL_TITLE;
+		return Db::$db->title === MYSQL_TITLE;
 	}
 
 	/**

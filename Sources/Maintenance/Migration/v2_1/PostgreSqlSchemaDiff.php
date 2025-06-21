@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -38,7 +37,7 @@ class PostgreSqlSchemaDiff extends MigrationBase
 	 * Schmea fixes we will peform, these are not cross database safe as we intend to run this only on PostgreSQL.
 	 * @var array
 	 */
-	private array $schemaFixes = [
+	private array $schema_fixes = [
 		['log_subscribed', 'ALTER pending_details DROP DEFAULT'],
 		['mail_queue', 'ALTER recipient SET DEFAULT {empty}'],
 		['mail_queue', 'ALTER subject SET DEFAULT {empty}'],
@@ -118,7 +117,7 @@ class PostgreSqlSchemaDiff extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		return Config::$db_type === POSTGRE_TITLE;
+		return Db::$db->title === POSTGRE_TITLE;
 	}
 
 	/**
@@ -126,18 +125,15 @@ class PostgreSqlSchemaDiff extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$start = Maintenance::getCurrentStart();
-		$step = 0;
-
-		while (Maintenance::getCurrentSubStep() <= Maintenance::$total_substeps) {
-			$fix = $this->schemaFixes[Maintenance::getCurrentSubStep()];
+		while (Maintenance::getCurrentStart() < count($this->schema_fixes)) {
+			$fix = $this->schemaFixes[Maintenance::getCurrentStart()];
 
 			$this->query(
 				'ALTER TABLE {db_prefix}' . $fix[0] . '
 				' . $fix[1],
 			);
 
-			Maintenance::setCurrentSubStep();
+			Maintenance::setCurrentStart();
 			$this->handleTimeout();
 		}
 

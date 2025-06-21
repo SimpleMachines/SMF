@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v3_0;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class RecurringEvents extends MigrationBase
@@ -38,7 +39,7 @@ class RecurringEvents extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v3_0\Calendar();
+		$table = new Schema\v3_0\Calendar();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($table->columns as $column) {

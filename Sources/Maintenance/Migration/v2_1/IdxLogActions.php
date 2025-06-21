@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -40,7 +41,7 @@ class IdxLogActions extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Db\Schema\v2_1\LogActions();
+		$table = new Schema\v2_1\LogActions();
 		$existing_structure = $table->getCurrentStructure();
 
 		// Updating log_actions

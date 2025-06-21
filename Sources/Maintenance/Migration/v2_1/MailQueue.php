@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class MailQueue extends MigrationBase
@@ -37,11 +38,11 @@ class MailQueue extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$MailQueueTable = new \SMF\Db\Schema\v2_1\MailQueue();
+		$table = new Schema\v2_1\MailQueue();
 
-		foreach ($MailQueueTable->columns as $column) {
+		foreach ($table->columns as $column) {
 			if ($column->name === 'body') {
-				$MailQueueTable->alterColumn($column);
+				$table->alterColumn($column);
 			}
 		}
 

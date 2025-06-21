@@ -75,35 +75,33 @@ class PostgreSqlUnlogged extends MigrationBase
 		foreach ($this->tables as $table) {
 			if ($pg_version >= 90500) {
 				$this->query(
-					'
-				ALTER TABLE {db_prefix}{raw:table} SET UNLOGGED;',
+					'ALTER TABLE {db_prefix}{raw:table} SET UNLOGGED;',
 					[
 						'table' => $table,
 					],
 				);
 			} else {
 				$this->query(
-					'
-				ALTER TABLE {db_prefix}{raw:table} rename to old_{db_prefix}{raw:table};
-	
-				do
-				$$
-				declare r record;
-				begin
-					for r in select * from pg_constraint where conrelid={string:old_table_conrelid}::regclass loop
-						execute format({raw:alter_table}, r.conname, {literal:old_} || r.conname);
-					end loop;
-					for r in select * from pg_indexes where tablename={string:old_table_name} and indexname !~ {string:regex_old} loop
-						execute format({string:alter_inex}, r.indexname, {literal:old_} || r.indexname);
-					end loop;
-				end;
-				$$;
-	
-				create unlogged table {db_prefix}{raw:table} (like old_{db_prefix}{raw:table} including all);
-	
-				insert into {db_prefix}{raw:table} select * from old_{db_prefix}{raw:table};
-	
-				drop table old_{db_prefix}{raw:table};',
+					'ALTER TABLE {db_prefix}{raw:table} rename to old_{db_prefix}{raw:table};
+
+					do
+					$$
+					declare r record;
+					begin
+						for r in select * from pg_constraint where conrelid={string:old_table_conrelid}::regclass loop
+							execute format({raw:alter_table}, r.conname, {literal:old_} || r.conname);
+						end loop;
+						for r in select * from pg_indexes where tablename={string:old_table_name} and indexname !~ {string:regex_old} loop
+							execute format({string:alter_inex}, r.indexname, {literal:old_} || r.indexname);
+						end loop;
+					end;
+					$$;
+
+					create unlogged table {db_prefix}{raw:table} (like old_{db_prefix}{raw:table} including all);
+
+					insert into {db_prefix}{raw:table} select * from old_{db_prefix}{raw:table};
+
+					drop table old_{db_prefix}{raw:table};',
 					[
 						'table' => $table,
 						'old_table_conrelid' => 'old_' . Db::$db->prefix . $table,

@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 
 class Ipv6Messages extends Ipv6Base
@@ -38,10 +39,10 @@ class Ipv6Messages extends Ipv6Base
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\Messages();
+		$table = new Schema\v2_1\Messages();
 		$existing_structure = $table->getCurrentStructure();
 
-		if (Config::$db_type === POSTGRE_TITLE) {
+		if (Db::$db->title === POSTGRE_TITLE) {
 			return $existing_structure['columns']['poster_ip']['type'] !== 'inet';
 		}
 
@@ -54,7 +55,7 @@ class Ipv6Messages extends Ipv6Base
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\Messages();
+		$table = new Schema\v2_1\Messages();
 
 		// This will return true once its done, but we need to do a few more things.
 		$this->migrateData($table, 'poster_ip');

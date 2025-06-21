@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Db\Schema\Column;
 use SMF\Lang;
 use SMF\Maintenance\Maintenance;
@@ -46,7 +47,7 @@ class Smileys extends MigrationBase
 
 		// Adding the new `smiley_files` table
 		if ($start <= 0) {
-			$table = new \SMF\Db\Schema\v2_1\SmileyFiles();
+			$table = new Schema\v2_1\SmileyFiles();
 			$existing_tables = Db::$db->list_tables();
 
 			if (!in_array(Config::$db_prefix . $table->name, $existing_tables)) {
@@ -72,13 +73,31 @@ class Smileys extends MigrationBase
 			}
 
 			// Add our lovely new 2.1 smiley sets if not already there
-			$combined['fugue'] = [Lang::$txt['default_fugue_smileyset_name'], 'png'];
-			$combined['alienine'] = [Lang::$txt['default_alienine_smileyset_name'], 'png'];
+			$combined['fugue'] = [
+				Lang::getTxt('default_fugue_smileyset_name', file: 'Maintenance'),
+				'png',
+			];
+
+			$combined['alienine'] = [
+				Lang::getTxt('default_alienine_smileyset_name', file: 'Maintenance'),
+				'png',
+			];
 
 			// Add/fix our 2.0 sets (to correct past problems where these got corrupted)
-			$combined['default'] = [Lang::$txt['default_legacy_smileyset_name'], 'gif'];
-			$combined['aaron'] = [Lang::$txt['default_aaron_smileyset_name'], 'gif'];
-			$combined['akyhne'] = [Lang::$txt['default_akyhne_smileyset_name'], 'gif'];
+			$combined['default'] = [
+				Lang::getTxt('default_legacy_smileyset_name', file: 'Maintenance'),
+				'gif',
+			];
+
+			$combined['aaron'] = [
+				Lang::getTxt('default_aaron_smileyset_name', file: 'Maintenance'),
+				'gif',
+			];
+
+			$combined['akyhne'] = [
+				Lang::getTxt('default_akyhne_smileyset_name', file: 'Maintenance'),
+				'gif',
+			];
 
 			// Confirm they exist in the filesystem
 			$filtered = [];
@@ -139,7 +158,7 @@ class Smileys extends MigrationBase
 
 					// Unless something went horrifically wrong, drop the defunct column
 					if (count($inserts) == Db::$db->affected_rows()) {
-						$table = new \SMF\Db\Schema\v2_1\Smileys();
+						$table = new Schema\v2_1\Smileys();
 						$existing_structure = $table->getCurrentStructure();
 
 						if (isset($existing_structure['columns']['filename'])) {

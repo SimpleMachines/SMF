@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -39,7 +39,7 @@ class IdxAdminInfo extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		return Config::$db_type === POSTGRE_TITLE;
+		return Db::$db->title === POSTGRE_TITLE;
 	}
 
 	/**
@@ -49,7 +49,7 @@ class IdxAdminInfo extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Db\Schema\v2_1\AdminInfoFiles();
+		$table = new Schema\v2_1\AdminInfoFiles();
 		$existing_structure = $table->getCurrentStructure();
 
 		// Change index for table scheduled_tasks
@@ -64,7 +64,7 @@ class IdxAdminInfo extends MigrationBase
 		if ($start <= 1) {
 			if (!isset($existing_structure['indexes']['idx_filename'])) {
 				$idx = $table->indexes['idx_filename'];
-				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
+				$table->addIndex($idx, Db::$db->title === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
 			}
 
 			$this->handleTimeout(++$start);

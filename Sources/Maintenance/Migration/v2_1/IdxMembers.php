@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Db\Schema\DbIndex;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -43,7 +43,7 @@ class IdxMembers extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Db\Schema\v2_1\Members();
+		$table = new Schema\v2_1\Members();
 		$existing_structure = $table->getCurrentStructure();
 
 		if ($start <= 0) {
@@ -126,9 +126,9 @@ class IdxMembers extends MigrationBase
 
 		// Updating members email_address
 		if ($start <= 7) {
-			if (Config::$db_type === POSTGRE_TITLE) {
+			if (Db::$db->title === POSTGRE_TITLE) {
 				$idx = $table->indexes['idx_email_address'];
-				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
+				$table->addIndex($idx);
 			}
 
 			$this->handleTimeout(++$start);
@@ -144,9 +144,9 @@ class IdxMembers extends MigrationBase
 
 		// Change index for table members
 		if ($start <= 9) {
-			if (Config::$db_type === POSTGRE_TITLE) {
+			if (Db::$db->title === POSTGRE_TITLE) {
 				$idx = $table->indexes['idx_lngfile'];
-				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
+				$table->addIndex($idx);
 			}
 
 			$this->handleTimeout(++$start);
@@ -154,9 +154,9 @@ class IdxMembers extends MigrationBase
 
 		// Change index for table members
 		if ($start <= 10) {
-			if (Config::$db_type === POSTGRE_TITLE) {
+			if (Db::$db->title === POSTGRE_TITLE) {
 				$idx = $table->indexes['idx_member_name'];
-				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
+				$table->addIndex($idx);
 			}
 
 			$this->handleTimeout(++$start);
@@ -164,16 +164,16 @@ class IdxMembers extends MigrationBase
 
 		// Change index for table members
 		if ($start <= 11) {
-			if (Config::$db_type === POSTGRE_TITLE) {
+			if (Db::$db->title === POSTGRE_TITLE) {
 				$idx = $table->indexes['idx_real_name'];
-				$table->addIndex($idx, Config::$db_type === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
+				$table->addIndex($idx);
 			}
 
 			$this->handleTimeout(++$start);
 		}
 
 		// Create help function for index
-		if ($start <= 12 && Config::$db_type === POSTGRE_TITLE) {
+		if ($start <= 12 && Db::$db->title === POSTGRE_TITLE) {
 			$this->query(
 				'CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as \'
 				SELECT to_char($1, \'\'MM-DD\'\');\'
@@ -184,7 +184,7 @@ class IdxMembers extends MigrationBase
 		}
 
 		// Change index for table members
-		if ($start <= 13 && Config::$db_type === POSTGRE_TITLE) {
+		if ($start <= 13 && Db::$db->title === POSTGRE_TITLE) {
 			$idx = new DbIndex(
 				['indexable_month_day(birthdate)'],
 				'index',

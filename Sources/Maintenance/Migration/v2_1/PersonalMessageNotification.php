@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Db\Schema\Column;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -125,7 +126,7 @@ class PersonalMessageNotification extends MigrationBase
 		if ($is_done) {
 			$this->handleTimeout($start);
 
-			$table = new \SMF\Db\Schema\v2_1\Members();
+			$table = new Schema\v2_1\Members();
 			$existing_structure = $table->getCurrentStructure();
 
 			if (isset($existing_structure['columns']['pm_email_notify'])) {

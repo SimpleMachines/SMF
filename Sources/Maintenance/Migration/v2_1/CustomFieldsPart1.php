@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -42,7 +43,7 @@ class CustomFieldsPart1 extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		if ($start <= 0) {
-			$table = new \SMF\Db\Schema\v2_1\CustomFields();
+			$table = new Schema\v2_1\CustomFields();
 			$table->normalize();
 			$this->handleTimeout(++$start);
 		}

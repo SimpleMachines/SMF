@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 
 class Ipv6LogFloodControl extends Ipv6Base
@@ -38,10 +39,10 @@ class Ipv6LogFloodControl extends Ipv6Base
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\LogFloodcontrol();
+		$table = new Schema\v2_1\LogFloodcontrol();
 		$existing_structure = $table->getCurrentStructure();
 
-		if (Config::$db_type === POSTGRE_TITLE) {
+		if (Db::$db->title === POSTGRE_TITLE) {
 			return $existing_structure['columns']['ip']['type'] !== 'inet';
 		}
 
@@ -53,7 +54,7 @@ class Ipv6LogFloodControl extends Ipv6Base
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\LogFloodcontrol();
+		$table = new Schema\v2_1\LogFloodcontrol();
 
 		$start = Maintenance::getCurrentStart();
 

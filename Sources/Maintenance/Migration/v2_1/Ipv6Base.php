@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\Table;
 use SMF\Maintenance\Maintenance;
@@ -142,7 +141,7 @@ class Ipv6Base extends MigrationBase
 		$existing_structure = $table->getCurrentStructure();
 
 		// PostgreSQL we use a migration function.
-		if (Config::$db_type === POSTGRE_TITLE) {
+		if (Db::$db->title === POSTGRE_TITLE) {
 			$this->query(
 				'ALTER TABLE {db_prefix}{raw:table}
 					ALTER {raw:col} DROP not null,
@@ -266,7 +265,7 @@ class Ipv6Base extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		// PostgreSQL we use a migration function.
-		if (Config::$db_type !== POSTGRE_TITLE && !$force) {
+		if (Db::$db->title !== POSTGRE_TITLE && !$force) {
 			return $this->postgreSQLmigrate($table, $columns);
 		}
 
@@ -300,7 +299,7 @@ class Ipv6Base extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		// PostgreSQL we use a migration function.
-		if (Config::$db_type !== POSTGRE_TITLE && !$force) {
+		if (Db::$db->title !== POSTGRE_TITLE && !$force) {
 			return $this->postgreSQLmigrate($table, $columns);
 		}
 
@@ -308,7 +307,7 @@ class Ipv6Base extends MigrationBase
 
 		foreach ($columns as $column) {
 			foreach ($table->columns as $col) {
-				if ($col->name == $column && $existing_structure['columns'][$col->name]['type'] !== (Config::$db_type === POSTGRE_TITLE ? 'inet' : 'varbinary')) {
+				if ($col->name == $column && $existing_structure['columns'][$col->name]['type'] !== (Db::$db->title === POSTGRE_TITLE ? 'inet' : 'varbinary')) {
 					$table->dropColumn($col);
 					$table->addColumn($col);
 

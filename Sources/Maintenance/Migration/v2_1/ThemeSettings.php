@@ -38,11 +38,11 @@ class ThemeSettings extends MigrationBase
 	/**
 	 *
 	 */
-	protected array $updatedThemeSettings = [
+	protected array $updated_theme_settings = [
 		'newsfader_time' => '3000',
 	];
 
-	protected array $removedThemeSettings = [
+	protected array $removed_theme_settings = [
 		'show_board_desc',
 		'display_quick_reply',
 		'show_mark_read',
@@ -73,7 +73,6 @@ class ThemeSettings extends MigrationBase
 		$start = Maintenance::getCurrentStart();
 
 		if ($start === 0) {
-
 			$this->query(
 				'UPDATE {db_prefix}themes
 				SET value = {string:new_theme_name}
@@ -88,7 +87,7 @@ class ThemeSettings extends MigrationBase
 		}
 
 		if ($start <= 1) {
-			foreach ($this->updatedThemeSettings as $key => $value) {
+			foreach ($this->updated_theme_settings as $key => $value) {
 				$this->query(
 					'UPDATE {db_prefix}themes
 					SET value = {string:value}
@@ -174,7 +173,7 @@ class ThemeSettings extends MigrationBase
 				'DELETE FROM {db_prefix}themes
 				WHERE variable IN ({array_string:removed_settings})',
 				[
-					'removed_settings' => $this->removedThemeSettings,
+					'removed_settings' => $this->removed_theme_settings,
 				],
 			);
 

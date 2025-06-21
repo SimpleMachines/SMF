@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class MemberGroupsTfaRequired extends MigrationBase
@@ -37,7 +38,7 @@ class MemberGroupsTfaRequired extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\Membergroups();
+		$table = new Schema\v2_1\Membergroups();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -54,7 +55,7 @@ class MemberGroupsTfaRequired extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\Membergroups();
+		$table = new Schema\v2_1\Membergroups();
 		$table->addColumn($table->columns['tfa_required']);
 
 		return true;

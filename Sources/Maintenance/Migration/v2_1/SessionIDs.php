@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class SessionIDs extends MigrationBase
@@ -37,32 +38,32 @@ class SessionIDs extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$LogOnlineTable = new \SMF\Db\Schema\v2_1\LogOnline();
-		$LogErrorsTable = new \SMF\Db\Schema\v2_1\LogErrors();
-		$SessionsTable = new \SMF\Db\Schema\v2_1\Sessions();
+		$log_online_table = new Schema\v2_1\LogOnline();
+		$log_errors_table = new Schema\v2_1\LogErrors();
+		$sessions_table = new Schema\v2_1\Sessions();
 
-		foreach ($LogOnlineTable->columns as $column) {
+		foreach ($log_online_table->columns as $column) {
 			if ($column->name !== 'session') {
 				continue;
 			}
 
-			$LogOnlineTable->alterColumn($column);
+			$log_online_table->alterColumn($column);
 		}
 
-		foreach ($LogErrorsTable->columns as $column) {
+		foreach ($log_errors_table->columns as $column) {
 			if ($column->name !== 'session') {
 				continue;
 			}
 
-			$LogErrorsTable->alterColumn($column);
+			$log_errors_table->alterColumn($column);
 		}
 
-		foreach ($SessionsTable->columns as $column) {
+		foreach ($sessions_table->columns as $column) {
 			if ($column->name !== 'session_id') {
 				continue;
 			}
 
-			$SessionsTable->alterColumn($column);
+			$sessions_table->alterColumn($column);
 		}
 
 		return true;

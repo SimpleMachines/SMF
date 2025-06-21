@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -44,7 +43,7 @@ class FixDates extends MigrationBase
 		// PostgreSQL does not have DATEFROMPARTS, but does have make_date (9.4>), which would be similar the more standard DATEFROMPARTS.
 
 		// PostgreSQL does the query a bit different.
-		$is_pgsql = Config::$db_type == POSTGRE_TITLE;
+		$is_pgsql = Db::$db->title === POSTGRE_TITLE;
 
 		if (Maintenance::getCurrentStart() < 1 && $is_pgsql) {
 			$this->query(

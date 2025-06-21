@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -52,13 +53,13 @@ class UserDrafts extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$DraftsTable = new \SMF\Db\Schema\v2_1\UserDrafts();
+		$drafts_table = new Schema\v2_1\UserDrafts();
 
 		$tables = Db::$db->list_tables();
 
 		// Creating draft table.
 		if ($start <= 0 && !in_array(Config::$db_prefix . 'user_drafts', $tables)) {
-			$DraftsTable->create();
+			$drafts_table->create();
 
 			$this->handleTimeout(++$start);
 		}

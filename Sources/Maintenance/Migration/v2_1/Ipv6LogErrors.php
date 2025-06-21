@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class Ipv6LogErrors extends MigrationBase
@@ -38,8 +38,7 @@ class Ipv6LogErrors extends MigrationBase
 	 */
 	public function __construct()
 	{
-
-		if (Config::$db_type !== POSTGRE_TITLE) {
+		if (Db::$db->title !== POSTGRE_TITLE) {
 			$this->name .= ' without converting';
 		}
 	}
@@ -52,7 +51,7 @@ class Ipv6LogErrors extends MigrationBase
 		$table = new \SMF\Db\Schema\v2_1\LogErrors();
 		$existing_structure = $table->getCurrentStructure();
 
-		if (Config::$db_type === POSTGRE_TITLE) {
+		if (Db::$db->title === POSTGRE_TITLE) {
 			return $existing_structure['columns']['ip']['type'] !== 'inet';
 		}
 
@@ -67,7 +66,7 @@ class Ipv6LogErrors extends MigrationBase
 		$table = new \SMF\Db\Schema\v2_1\LogErrors();
 		$existing_structure = $table->getCurrentStructure();
 
-		if (Config::$db_type === POSTGRE_TITLE) {
+		if (Db::$db->title === POSTGRE_TITLE) {
 			$this->query(
 				'ALTER TABLE {db_prefix}log_errors
 					ALTER ip DROP not null,
@@ -86,7 +85,7 @@ class Ipv6LogErrors extends MigrationBase
 
 		foreach ($table->indexes as $idx) {
 			if (
-					$idx->name === 'idx_ip'
+				$idx->name === 'idx_ip'
 				&& !isset($existing_structure['indexes'][$column->name])
 			) {
 				$table->addIndex($idx);

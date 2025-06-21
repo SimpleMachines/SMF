@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
-use SMF\Db\Schema\v2_1\LogGroupRequests;
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class CreateLogGroupRequests extends MigrationBase
@@ -48,7 +48,7 @@ class CreateLogGroupRequests extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new LogGroupRequests();
+		$table = new Schema\v2_1\LogGroupRequests();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($table->columns as $column) {

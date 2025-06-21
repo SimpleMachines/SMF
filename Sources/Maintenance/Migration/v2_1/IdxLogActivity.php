@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Db\Schema;
 use SMF\Db\Schema\DbIndex;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -41,7 +42,7 @@ class IdxLogActivity extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Db\Schema\v2_1\LogActivity();
+		$table = new Schema\v2_1\LogActivity();
 
 		// Updating log_activity mostOn
 		if ($start <= 0) {

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -55,9 +56,9 @@ class CreateAlerts extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$members_table = new \SMF\Db\Schema\v2_1\Members();
-		$user_alert_table = new \SMF\Db\Schema\v2_1\UserAlerts();
-		$user_alert_prefs_table = new \SMF\Db\Schema\v2_1\UserAlertsPrefs();
+		$members_table = new Schema\v2_1\Members();
+		$user_alert_table = new Schema\v2_1\UserAlerts();
+		$user_alert_prefs_table = new Schema\v2_1\UserAlertsPrefs();
 
 		$tables = Db::$db->list_tables();
 

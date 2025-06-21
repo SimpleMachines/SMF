@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class TopicUnwatch extends MigrationBase
@@ -37,7 +38,7 @@ class TopicUnwatch extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\LogTopics();
+		$table = new Schema\v2_1\LogTopics();
 
 		$existing_structure = $table->getCurrentStructure();
 
@@ -49,10 +50,7 @@ class TopicUnwatch extends MigrationBase
 			}
 
 			// Remove the disregarded column
-			if ($column->name === 'disregarded' && isset($existing_structure['columns'][$column->name])) {
-				$table->dropColumn($column);
-				continue;
-			}
+			$table->dropColumn('disregarded');
 		}
 
 		return true;

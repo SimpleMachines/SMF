@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -44,7 +45,7 @@ class BoardPermissionsView extends MigrationBase
 
 		// Create table board_permissions_view
 		if ($start <= 0) {
-			$table = new \SMF\Db\Schema\v2_1\BoardPermissionsView();
+			$table = new Schema\v2_1\BoardPermissionsView();
 			$existing_tables = Db::$db->list_tables();
 
 			if (!in_array(Config::$db_prefix . $table->name, $existing_tables)) {

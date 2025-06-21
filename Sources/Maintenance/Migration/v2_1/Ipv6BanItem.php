@@ -15,7 +15,8 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
+use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -39,7 +40,7 @@ class Ipv6BanItem extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\BanItems();
+		$table = new Schema\v2_1\BanItems();
 		$existing_structure = $table->getCurrentStructure();
 
 		return !isset($existing_structure['columns']['ip_low']) || !isset($existing_structure['columns']['ip_high']);
@@ -52,7 +53,7 @@ class Ipv6BanItem extends MigrationBase
 	{
 		$start = Maintenance::getCurrentStart();
 
-		$table = new \SMF\Db\Schema\v2_1\BanItems();
+		$table = new Schema\v2_1\BanItems();
 		$existing_structure = $table->getCurrentStructure();
 
 		// Add columns to ban_items
@@ -76,7 +77,7 @@ class Ipv6BanItem extends MigrationBase
 		// Convert data for ban_items
 		if ($start <= 1) {
 			// This query is performed differently for PostgreSQL
-			if (Config::$db_type == POSTGRE_TITLE) {
+			if (Db::$db->title == POSTGRE_TITLE) {
 				$this->query(
 					'UPDATE {db_prefix}ban_items
 					SET ip_low = (ip_low1||{literal:.}||ip_low2||{literal:.}||ip_low3||{literal:.}||ip_low4)::inet,

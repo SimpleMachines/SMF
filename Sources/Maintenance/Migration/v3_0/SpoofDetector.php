@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v3_0;
 
 use SMF\Config;
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class SpoofDetector extends MigrationBase
@@ -38,7 +39,7 @@ class SpoofDetector extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v3_0\Members();
+		$table = new Schema\v3_0\Members();
 		$existing_structure = $table->getCurrentStructure();
 
 		// Add the spoofdetector_name column.

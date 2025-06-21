@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v3_0;
 
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class PackageVersion extends MigrationBase
@@ -37,7 +38,7 @@ class PackageVersion extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v3_0\LogPackages();
+		$table = new Schema\v3_0\LogPackages();
 		$existing_structure = $table->getCurrentStructure();
 
 		if (!isset($existing_structure['columns']['smf_version'])) {

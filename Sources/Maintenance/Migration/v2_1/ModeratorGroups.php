@@ -17,7 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\Maintenance\Maintenance;
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class ModeratorGroups extends MigrationBase
@@ -50,16 +50,8 @@ class ModeratorGroups extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$start = Maintenance::getCurrentStart();
-
-		$ModeratorGroupsTable = new \SMF\Db\Schema\v2_1\ModeratorGroups();
-
-		$tables = Db::$db->list_tables();
-
-		// Creating draft table.
-		if (!in_array(Config::$db_prefix . 'moderator_groups', $tables)) {
-			$ModeratorGroupsTable->create();
-		}
+		$table = new Schema\v2_1\ModeratorGroups();
+		$table->create();
 
 		return true;
 	}

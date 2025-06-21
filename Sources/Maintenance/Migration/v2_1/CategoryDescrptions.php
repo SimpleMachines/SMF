@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class CategoryDescrptions extends MigrationBase
@@ -37,7 +38,7 @@ class CategoryDescrptions extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\Categories();
+		$table = new Schema\v2_1\Categories();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($table->columns as $column) {

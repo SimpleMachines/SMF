@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
+use SMF\Db\Schema;
 use SMF\Db\Schema\Column;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -38,7 +39,7 @@ class MembersOpenID extends MigrationBase
 	 */
 	public function isCandidate(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\Members();
+		$table = new Schema\v2_1\Members();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -55,7 +56,7 @@ class MembersOpenID extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v2_1\Members();
+		$table = new Schema\v2_1\Members();
 		$existing_structure = $table->getCurrentStructure();
 
 		foreach ($existing_structure['columns'] as $column) {
@@ -64,7 +65,6 @@ class MembersOpenID extends MigrationBase
 				$table->dropColumn($old_col);
 			}
 		}
-
 
 		return true;
 	}

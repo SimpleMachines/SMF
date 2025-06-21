@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v3_0;
 
+use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class MessageVersion extends MigrationBase
@@ -37,7 +38,7 @@ class MessageVersion extends MigrationBase
 	 */
 	public function execute(): bool
 	{
-		$table = new \SMF\Db\Schema\v3_0\Messages();
+		$table = new Schema\v3_0\Messages();
 		$existing_structure = $table->getCurrentStructure();
 
 		if (!isset($existing_structure['columns']['version'])) {
@@ -51,7 +52,7 @@ class MessageVersion extends MigrationBase
 
 		$this->handleTimeout();
 
-		$table = new \SMF\Db\Schema\v3_0\PersonalMessages();
+		$table = new Schema\v3_0\PersonalMessages();
 		$existing_structure = $table->getCurrentStructure();
 
 		if (!isset($existing_structure['columns']['version'])) {
