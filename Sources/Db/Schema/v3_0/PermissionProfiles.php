@@ -83,7 +83,9 @@ class PermissionProfiles extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_profile',
+					[
+						'name' => 'id_profile',
+					],
 				],
 			),
 		];

@@ -91,17 +91,27 @@ class PmRecipients extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_pm',
-					'id_member',
+					[
+						'name' => 'id_pm',
+					],
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				type: 'unique',
 				columns: [
-					'id_member',
-					'deleted',
-					'id_pm',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'deleted',
+					],
+					[
+						'name' => 'id_pm',
+					],
 				],
 			),
 		];

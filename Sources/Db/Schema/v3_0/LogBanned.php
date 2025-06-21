@@ -75,13 +75,17 @@ class LogBanned extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_ban_log',
+					[
+						'name' => 'id_ban_log',
+					],
 				],
 			),
 			'idx_log_time' => new DbIndex(
 				name: 'idx_log_time',
 				columns: [
-					'log_time',
+					[
+						'name' => 'log_time',
+					],
 				],
 			),
 		];

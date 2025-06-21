@@ -84,25 +84,33 @@ class LogReportedComments extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_comment',
+					[
+						'name' => 'id_comment',
+					],
 				],
 			),
 			'idx_id_report' => new DbIndex(
 				name: 'idx_id_report',
 				columns: [
-					'id_report',
+					[
+						'name' => 'id_report',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'idx_time_sent' => new DbIndex(
 				name: 'idx_time_sent',
 				columns: [
-					'time_sent',
+					[
+						'name' => 'time_sent',
+					],
 				],
 			),
 		];

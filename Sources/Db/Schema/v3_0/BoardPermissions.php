@@ -1620,9 +1620,15 @@ class BoardPermissions extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_group',
-					'id_profile',
-					'permission',
+					[
+						'name' => 'id_group',
+					],
+					[
+						'name' => 'id_profile',
+					],
+					[
+						'name' => 'permission',
+					],
 				],
 			),
 		];

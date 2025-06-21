@@ -108,7 +108,9 @@ class BanGroups extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_ban_group',
+					[
+						'name' => 'id_ban_group',
+					],
 				],
 			),
 		];

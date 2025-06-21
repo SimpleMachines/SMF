@@ -82,7 +82,9 @@ class LogActivity extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'date',
+					[
+						'name' => 'date',
+					],
 				],
 			),
 		];

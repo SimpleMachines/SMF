@@ -1438,6 +1438,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$cols = $this->list_columns($table_name, true);
 
 		foreach ($index_info['columns'] as &$c) {
+			if (is_array($c)) {
+				$c = $c['name'] . (isset($c['size']) ? '(' . $c['size'] . ')' : '');
+			}
+
 			$c = trim($c);
 			$cols[$c]['size'] = isset($cols[$c]['size']) && is_numeric($cols[$c]['size']) ? $cols[$c]['size'] : null;
 			list($type, $size) = $this->calculate_type($cols[$c]['type'], (int) $cols[$c]['size']);
@@ -1763,6 +1767,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		foreach ($indexes as $index) {
 			// MySQL If it's a text column, we need to add a size.
 			foreach ($index['columns'] as &$c) {
+				if (is_array($c)) {
+					$c = $c['name'] . (isset($c['size']) ? '(' . $c['size'] . ')' : '');
+				}
+
 				$c = trim($c);
 
 				// If a size was already specified, we won't be able to match it anyways.

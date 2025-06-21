@@ -75,9 +75,15 @@ class LogSearchResults extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_search',
-					'id_topic',
-					'id_msg',
+					[
+						'name' => 'id_search',
+					],
+					[
+						'name' => 'id_topic',
+					],
+					[
+						'name' => 'id_msg',
+					],
 				],
 			),
 		];

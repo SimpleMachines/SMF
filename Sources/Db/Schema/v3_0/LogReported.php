@@ -126,37 +126,49 @@ class LogReported extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_report',
+					[
+						'name' => 'id_report',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'idx_id_topic' => new DbIndex(
 				name: 'idx_id_topic',
 				columns: [
-					'id_topic',
+					[
+						'name' => 'id_topic',
+					],
 				],
 			),
 			'idx_closed' => new DbIndex(
 				name: 'idx_closed',
 				columns: [
-					'closed',
+					[
+						'name' => 'closed',
+					],
 				],
 			),
 			'idx_time_started' => new DbIndex(
 				name: 'idx_time_started',
 				columns: [
-					'time_started',
+					[
+						'name' => 'time_started',
+					],
 				],
 			),
 			'idx_id_msg' => new DbIndex(
 				name: 'idx_id_msg',
 				columns: [
-					'id_msg',
+					[
+						'name' => 'id_msg',
+					],
 				],
 			),
 		];

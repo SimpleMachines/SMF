@@ -145,33 +145,45 @@ class Attachments extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_attach',
+					[
+						'name' => 'id_attach',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				type: 'unique',
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
-					'id_attach',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'id_attach',
+					],
 				],
 			),
 			'idx_id_msg' => new DbIndex(
 				name: 'idx_id_msg',
 				columns: [
-					'id_msg',
+					[
+						'name' => 'id_msg',
+					],
 				],
 			),
 			'idx_attachment_type' => new DbIndex(
 				name: 'idx_attachment_type',
 				columns: [
-					'attachment_type',
+					[
+						'name' => 'attachment_type',
+					],
 				],
 			),
 			'idx_id_thumb' => new DbIndex(
 				name: 'idx_id_thumb',
 				columns: [
-					'id_thumb',
+					[
+						'name' => 'id_thumb',
+					],
 				],
 			),
 		];

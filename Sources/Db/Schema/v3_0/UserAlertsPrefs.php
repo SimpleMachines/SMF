@@ -219,8 +219,12 @@ class UserAlertsPrefs extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_member',
-					'alert_pref',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'alert_pref',
+					],
 				],
 			),
 		];

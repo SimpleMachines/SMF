@@ -68,8 +68,12 @@ class LogSpiderStats extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'stat_date',
-					'id_spider',
+					[
+						'name' => 'stat_date',
+					],
+					[
+						'name' => 'id_spider',
+					],
 				],
 			),
 		];

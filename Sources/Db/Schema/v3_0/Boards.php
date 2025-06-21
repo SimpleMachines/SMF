@@ -200,33 +200,47 @@ class Boards extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_board',
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 			'idx_categories' => new DbIndex(
 				name: 'idx_categories',
 				type: 'unique',
 				columns: [
-					'id_cat',
-					'id_board',
+					[
+						'name' => 'id_cat',
+					],
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 			'idx_id_parent' => new DbIndex(
 				name: 'idx_id_parent',
 				columns: [
-					'id_parent',
+					[
+						'name' => 'id_parent',
+					],
 				],
 			),
 			'idx_id_msg_updated' => new DbIndex(
 				name: 'idx_id_msg_updated',
 				columns: [
-					'id_msg_updated',
+					[
+						'name' => 'id_msg_updated',
+					],
 				],
 			),
 			'idx_member_groups' => new DbIndex(
 				name: 'idx_member_groups',
 				columns: [
-					'member_groups(48)',
+					[
+						'name' => 'member_groups',
+						'size' => 48,
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 		];

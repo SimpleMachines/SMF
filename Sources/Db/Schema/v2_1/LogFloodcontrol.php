@@ -60,8 +60,12 @@ class LogFloodcontrol extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'ip',
-					'log_type',
+					[
+						'name' => 'ip',
+					],
+					[
+						'name' => 'log_type',
+					],
 				],
 			),
 		];

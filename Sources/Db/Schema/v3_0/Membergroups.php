@@ -196,13 +196,17 @@ class Membergroups extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_group',
+					[
+						'name' => 'id_group',
+					],
 				],
 			),
 			'idx_min_posts' => new DbIndex(
 				name: 'idx_min_posts',
 				columns: [
-					'min_posts',
+					[
+						'name' => 'min_posts',
+					],
 				],
 			),
 		];

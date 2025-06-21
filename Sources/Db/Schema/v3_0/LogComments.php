@@ -108,25 +108,35 @@ class LogComments extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_comment',
+					[
+						'name' => 'id_comment',
+					],
 				],
 			),
 			'idx_id_recipient' => new DbIndex(
 				name: 'idx_id_recipient',
 				columns: [
-					'id_recipient',
+					[
+						'name' => 'id_recipient',
+					],
 				],
 			),
 			'idx_log_time' => new DbIndex(
 				name: 'idx_log_time',
 				columns: [
-					'log_time',
+					[
+						'name' => 'log_time',
+					],
 				],
 			),
 			'idx_comment_type' => new DbIndex(
 				name: 'idx_comment_type',
 				columns: [
-					'comment_type(8)',
+					[
+						'name' => 'comment_type',
+						'size' => 8,
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 		];

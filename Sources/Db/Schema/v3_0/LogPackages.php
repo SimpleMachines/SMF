@@ -158,19 +158,27 @@ class LogPackages extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_install',
+					[
+						'name' => 'id_install',
+					],
 				],
 			),
 			'idx_filename' => new DbIndex(
 				name: 'filename',
 				columns: [
-					'filename',
+					[
+						'name' => 'filename',
+						'size' => 15,
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 			'idx_hash' => new DbIndex(
 				name: 'idx_hash',
 				columns: [
-					'sha256_hash',
+					[
+						'name' => 'sha256_hash',
+					],
 				],
 			),
 		];

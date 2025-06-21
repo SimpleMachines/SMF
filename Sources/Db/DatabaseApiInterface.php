@@ -444,7 +444,7 @@ interface DatabaseApiInterface
 	 * This function adds a column.
 	 *
 	 * @param string $table_name The name of the table to add the column to
-	 * @param array $column_info An array of column info ({@see smf_db_create_table})
+	 * @param array $column_info An array of column info ({@see create_table})
 	 * @param array $parameters Not used?
 	 * @param string $if_exists What to do if the column exists. If 'update', column is updated.
 	 * @param string $error
@@ -456,7 +456,7 @@ interface DatabaseApiInterface
 	 * Add an index.
 	 *
 	 * @param string $table_name The name of the table to add the index to
-	 * @param array $index_info An array of index info (see {@link smf_db_create_table()})
+	 * @param array $index_info An array of index info (see {@link create_table()})
 	 * @param array $parameters Not used?
 	 * @param string $if_exists What to do if the index exists. If 'update', the definition will be updated.
 	 * @param string $error
@@ -488,33 +488,67 @@ interface DatabaseApiInterface
 
 	/**
 	 * This function can be used to create a table without worrying about schema
-	 *  compatibilities across supported database systems.
-	 *  - If the table exists will, by default, do nothing.
-	 *  - Builds table with columns as passed to it - at least one column must be sent.
-	 *  The columns array should have one sub-array for each column - these sub arrays contain:
-	 *  	'name' = Column name
-	 *  	'type' = Type of column - values from (smallint, mediumint, int, text, varchar, char, tinytext, mediumtext, largetext)
-	 *  	'size' => Size of column (If applicable) - for example 255 for a large varchar, 10 for an int etc.
-	 *  		If not set SMF will pick a size.
-	 *  	- 'default' = Default value - do not set if no default required.
-	 *  	- 'not_null' => Can it be null (true or false) - if not set default will be false.
-	 *  	- 'auto' => Set to true to make it an auto incrementing column. Set to a numerical value to set from what
-	 *  		 it should begin counting.
-	 *  - Adds indexes as specified within indexes parameter. Each index should be a member of $indexes. Values are:
-	 *  	- 'name' => Index name (If left empty SMF will generate).
-	 *  	- 'type' => Type of index. Choose from 'primary', 'unique' or 'index'. If not set will default to 'index'.
-	 *  	- 'columns' => Array containing columns that form part of key - in the order the index is to be created.
-	 *  - parameters: (None yet)
-	 *  - if_exists values:
-	 *  	- 'ignore' will do nothing if the table exists. (And will return true)
-	 *  	- 'overwrite' will drop any existing table of the same name.
-	 *  	- 'error' will return false if the table already exists.
-	 *  	- 'update' will update the table if the table already exists (no change of ai field and only columns with the same name keep the data)
+	 * compatibilities across supported database systems.
+	 *
+	 * If the table exists will, by default, do nothing.
+	 *
+	 * Builds table with columns as passed to it.
+	 * At least one column must be sent.
+	 *
+	 * The columns array should have one sub-array for each column.
+	 * These sub arrays contain:
+	 *  	'name':
+	 *                Column name
+	 *  	'type':
+	 *                Type of column: smallint, mediumint, int, text, varchar,
+	 *                char, tinytext, mediumtext, or largetext.
+	 *  	'size':
+	 *                Size of column, if applicable.
+	 *                For example 255 for a large varchar, 10 for an int etc.
+	 *  		      If not set SMF will pick a size.
+	 *  	'default':
+	 *                Default value. Do not set if no default required.
+	 *  	'not_null':
+	 *                Whether the column can have a null value.
+	 *                If not set default will be false.
+	 *  	'auto':
+	 *                Set to true to make it an auto incrementing column.
+	 *                Set to a numerical value to set the value it should begin
+	 *                counting from.
+	 *
+	 * Adds indexes as specified within $indexes parameter.
+	 * Each index should be a member of $indexes. Values are:
+	 *  	'name':
+	 *                Index name (If left empty SMF will generate).
+	 *  	'type':
+	 *                Type of index. Choose from 'primary', 'unique' or 'index'.
+	 *                If not set will default to 'index'.
+	 *  	'columns':
+	 *                Array containing columns that form part of key, in the
+	 *                order the index is to be created.
+	 *                Values of 'columns' can either be simple strings or arrays
+	 *                containing a 'name' element and optional 'size' or
+	 *                'opclass' elements. The 'size' element is used by MySQL,
+	 *                and the 'opclass' element is used by PostgreSQL.
+	 *
+	 * $if_exists values:
+	 *  	'ignore':
+	 *                Do nothing if the table exists and return true.
+	 *  	'overwrite':
+	 *                Drop any existing table of the same name and then create
+	 *                a new table.
+	 *  	'error':
+	 *                Return false if the table already exists.
+	 *  	'update':
+	 *                Update the table if the table already exists. This will
+	 *                not change the auto-increment value and only columns with
+	 *                the same name keep the data.
 	 *
 	 * @param string $table_name The name of the table to create
 	 * @param array $columns An array of column info in the specified format
 	 * @param array $indexes An array of index info in the specified format
-	 * @param array $parameters Extra parameters. Currently only 'engine', the desired MySQL storage engine, is used.
+	 * @param array $parameters Extra parameters. Currently only 'engine', the
+	 *    desired MySQL storage engine, is used.
 	 * @param string $if_exists What to do if the table exists.
 	 * @param string $error
 	 * @return bool Whether or not the operation was successful

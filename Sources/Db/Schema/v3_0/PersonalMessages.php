@@ -103,26 +103,36 @@ class PersonalMessages extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_pm',
+					[
+						'name' => 'id_pm',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member_from',
-					'deleted_by_sender',
+					[
+						'name' => 'id_member_from',
+					],
+					[
+						'name' => 'deleted_by_sender',
+					],
 				],
 			),
 			'idx_msgtime' => new DbIndex(
 				name: 'idx_msgtime',
 				columns: [
-					'msgtime',
+					[
+						'name' => 'msgtime',
+					],
 				],
 			),
 			'idx_id_pm_head' => new DbIndex(
 				name: 'idx_id_pm_head',
 				columns: [
-					'id_pm_head',
+					[
+						'name' => 'id_pm_head',
+					],
 				],
 			),
 		];

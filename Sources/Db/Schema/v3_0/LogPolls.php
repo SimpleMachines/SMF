@@ -63,9 +63,15 @@ class LogPolls extends Table
 			'idx_id_poll' => new DbIndex(
 				name: 'idx_id_poll',
 				columns: [
-					'id_poll',
-					'id_member',
-					'id_choice',
+					[
+						'name' => 'id_poll',
+					],
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'id_choice',
+					],
 				],
 			),
 		];

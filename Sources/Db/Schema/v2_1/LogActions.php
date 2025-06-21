@@ -108,44 +108,60 @@ class LogActions extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_action',
+					[
+						'name' => 'id_action',
+					],
 				],
 			),
 			'idx_id_log' => new DbIndex(
 				name: 'idx_id_log',
 				columns: [
-					'id_log',
+					[
+						'name' => 'id_log',
+					],
 				],
 			),
 			'idx_log_time' => new DbIndex(
 				name: 'idx_log_time',
 				columns: [
-					'log_time',
+					[
+						'name' => 'log_time',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'idx_id_board' => new DbIndex(
 				name: 'idx_id_board',
 				columns: [
-					'id_board',
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 			'idx_id_msg' => new DbIndex(
 				name: 'idx_id_msg',
 				columns: [
-					'id_msg',
+					[
+						'name' => 'id_msg',
+					],
 				],
 			),
 			'idx_id_topic_id_log' => new DbIndex(
 				name: 'idx_id_topic_id_log',
 				columns: [
-					'id_topic',
-					'id_log',
+					[
+						'name' => 'id_topic',
+					],
+					[
+						'name' => 'id_log',
+					],
 				],
 			),
 		];

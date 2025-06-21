@@ -365,108 +365,182 @@ class Members extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'idx_member_name' => new DbIndex(
 				name: 'idx_member_name',
 				columns: [
-					'member_name',
+					[
+						'name' => 'member_name',
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 			'idx_real_name' => new DbIndex(
 				name: 'idx_real_name',
 				columns: [
-					'real_name',
+					[
+						'name' => 'real_name',
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 			'idx_email_address' => new DbIndex(
 				name: 'idx_email_address',
 				columns: [
-					'email_address',
+					[
+						'name' => 'email_address',
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 			'idx_date_registered' => new DbIndex(
 				name: 'idx_date_registered',
 				columns: [
-					'date_registered',
+					[
+						'name' => 'date_registered',
+					],
 				],
 			),
 			'idx_id_group' => new DbIndex(
 				name: 'idx_id_group',
 				columns: [
-					'id_group',
+					[
+						'name' => 'id_group',
+					],
 				],
 			),
 			'idx_birthdate' => new DbIndex(
 				name: 'idx_birthdate',
 				columns: [
-					'birthdate',
+					[
+						'name' => 'birthdate',
+					],
 				],
 			),
 			'idx_posts' => new DbIndex(
 				name: 'idx_posts',
 				columns: [
-					'posts',
+					[
+						'name' => 'posts',
+					],
 				],
 			),
 			'idx_last_login' => new DbIndex(
 				name: 'idx_last_login',
 				columns: [
-					'last_login',
+					[
+						'name' => 'last_login',
+					],
 				],
 			),
 			'idx_lngfile' => new DbIndex(
 				name: 'idx_lngfile',
 				columns: [
-					'lngfile(30)',
+					[
+						'name' => 'lngfile',
+						'size' => 30,
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 			'idx_id_post_group' => new DbIndex(
 				name: 'idx_id_post_group',
 				columns: [
-					'id_post_group',
+					[
+						'name' => 'id_post_group',
+					],
 				],
 			),
 			'idx_warning' => new DbIndex(
 				name: 'idx_warning',
 				columns: [
-					'warning',
+					[
+						'name' => 'warning',
+					],
 				],
 			),
 			'idx_total_time_logged_in' => new DbIndex(
 				name: 'idx_total_time_logged_in',
 				columns: [
-					'total_time_logged_in',
+					[
+						'name' => 'total_time_logged_in',
+					],
 				],
 			),
 			'idx_id_theme' => new DbIndex(
 				name: 'idx_id_theme',
 				columns: [
-					'id_theme',
+					[
+						'name' => 'id_theme',
+					],
 				],
 			),
 			'idx_active_real_name' => new DbIndex(
 				name: 'idx_active_real_name',
 				columns: [
-					'is_activated',
-					'real_name',
+					[
+						'name' => 'is_activated',
+					],
+					[
+						'name' => 'real_name',
+					],
 				],
 			),
 			'idx_spoofdetector_name' => new DbIndex(
 				name: 'idx_spoofdetector_name',
 				columns: [
-					'spoofdetector_name',
+					[
+						'name' => 'spoofdetector_name',
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 			'idx_spoofdetector_name_id' => new DbIndex(
 				name: 'idx_spoofdetector_name_id',
 				columns: [
-					'spoofdetector_name',
-					'id_member',
+					[
+						'name' => 'spoofdetector_name',
+						'opclass' => 'varchar_pattern_ops',
+					],
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 		];
+
+		if (Db::$db->title === POSTGRE_TITLE) {
+			$this->indexes['idx_birthdate2'] = new DbIndex(
+				name: 'idx_birthdate2',
+				columns: [
+					[
+						'name' => 'indexable_month_day(birthdate)',
+					],
+				],
+			);
+			$this->indexes['idx_member_name_low'] = new DbIndex(
+				name: 'idx_member_name_low',
+				columns: [
+					[
+						'name' => 'LOWER(member_name)',
+						'opclass' => 'varchar_pattern_ops',
+					],
+				],
+			);
+			$this->indexes['idx_real_name_low'] = new DbIndex(
+				name: 'idx_real_name_low',
+				columns: [
+					[
+						'name' => 'LOWER(real_name)',
+						'opclass' => 'varchar_pattern_ops',
+					],
+				],
+			);
+		}
 
 		parent::__construct();
 	}

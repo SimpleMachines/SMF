@@ -108,14 +108,20 @@ class LogGroupRequests extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_request',
+					[
+						'name' => 'id_request',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
-					'id_group',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'id_group',
+					],
 				],
 			),
 		];

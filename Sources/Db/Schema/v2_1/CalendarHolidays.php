@@ -886,13 +886,17 @@ class CalendarHolidays extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_holiday',
+					[
+						'name' => 'id_holiday',
+					],
 				],
 			),
 			'idx_event_date' => new DbIndex(
 				name: 'idx_event_date',
 				columns: [
-					'event_date',
+					[
+						'name' => 'event_date',
+					],
 				],
 			),
 		];

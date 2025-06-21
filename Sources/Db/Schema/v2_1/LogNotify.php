@@ -67,22 +67,34 @@ class LogNotify extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_member',
-					'id_topic',
-					'id_board',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'id_topic',
+					],
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 			'idx_id_topic' => new DbIndex(
 				name: 'idx_id_topic',
 				columns: [
-					'id_topic',
-					'id_member',
+					[
+						'name' => 'id_topic',
+					],
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'id_board' => new DbIndex(
 				name: 'id_board',
 				columns: [
-					'id_board',
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 		];

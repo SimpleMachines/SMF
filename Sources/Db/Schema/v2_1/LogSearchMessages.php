@@ -54,8 +54,12 @@ class LogSearchMessages extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_search',
-					'id_msg',
+					[
+						'name' => 'id_search',
+					],
+					[
+						'name' => 'id_msg',
+					],
 				],
 			),
 		];

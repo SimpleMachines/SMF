@@ -75,7 +75,9 @@ class BackgroundTasks extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_task',
+					[
+						'name' => 'id_task',
+					],
 				],
 			),
 		];

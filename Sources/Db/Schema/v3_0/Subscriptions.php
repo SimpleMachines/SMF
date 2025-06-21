@@ -117,13 +117,17 @@ class Subscriptions extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_subscribe',
+					[
+						'name' => 'id_subscribe',
+					],
 				],
 			),
 			'idx_active' => new DbIndex(
 				name: 'idx_active',
 				columns: [
-					'active',
+					[
+						'name' => 'active',
+					],
 				],
 			),
 		];

@@ -66,7 +66,9 @@ class LogScheduledTasks extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_log',
+					[
+						'name' => 'id_log',
+					],
 				],
 			),
 		];

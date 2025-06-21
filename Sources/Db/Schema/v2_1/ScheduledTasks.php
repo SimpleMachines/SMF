@@ -215,26 +215,35 @@ class ScheduledTasks extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_task',
+					[
+						'name' => 'id_task',
+					],
 				],
 			),
 			'idx_next_time' => new DbIndex(
 				name: 'idx_next_time',
 				columns: [
-					'next_time',
+					[
+						'name' => 'next_time',
+					],
 				],
 			),
 			'idx_disabled' => new DbIndex(
 				name: 'idx_disabled',
 				columns: [
-					'disabled',
+					[
+						'name' => 'disabled',
+					],
 				],
 			),
 			'idx_task' => new DbIndex(
 				type: 'unique',
 				name: 'idx_task',
 				columns: [
-					'task',
+					[
+						'name' => 'task',
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 		];

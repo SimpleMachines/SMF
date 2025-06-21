@@ -149,15 +149,24 @@ class Themes extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_theme',
-					'id_member',
-					'variable(30)',
+					[
+						'name' => 'id_theme',
+					],
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'variable',
+						'size' => 30,
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 		];

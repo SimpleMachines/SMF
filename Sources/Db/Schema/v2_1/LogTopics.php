@@ -67,14 +67,20 @@ class LogTopics extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_member',
-					'id_topic',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'id_topic',
+					],
 				],
 			),
 			'idx_id_topic' => new DbIndex(
 				name: 'idx_id_topic',
 				columns: [
-					'id_topic',
+					[
+						'name' => 'id_topic',
+					],
 				],
 			),
 		];

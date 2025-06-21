@@ -71,22 +71,34 @@ class Mentions extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'content_id',
-					'content_type',
-					'id_mentioned',
+					[
+						'name' => 'content_id',
+					],
+					[
+						'name' => 'content_type',
+					],
+					[
+						'name' => 'id_mentioned',
+					],
 				],
 			),
 			'content' => new DbIndex(
 				name: 'content',
 				columns: [
-					'content_id',
-					'content_type',
+					[
+						'name' => 'content_id',
+					],
+					[
+						'name' => 'content_type',
+					],
 				],
 			),
 			'mentionee' => new DbIndex(
 				name: 'mentionee',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 		];

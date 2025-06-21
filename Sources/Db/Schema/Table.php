@@ -389,18 +389,9 @@ class Table
 	 */
 	public function addIndex(DbIndex $index, string $if_exists = 'update'): bool
 	{
-		$index_info = get_object_vars($index);
-
-		// The column size values are used by Db::$db->create_table,
-		// but not by Db::$db->add_index.
-		$index_info['columns'] = array_map(
-			fn($col) => preg_replace('/\(\d+\)$/', '', $col),
-			$index_info['columns'],
-		);
-
 		return Db::$db->add_index(
 			'{db_prefix}' . $this->name,
-			$index_info,
+			get_object_vars($index),
 			[],
 			$if_exists,
 		);

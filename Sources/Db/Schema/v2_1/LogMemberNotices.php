@@ -61,7 +61,9 @@ class LogMemberNotices extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_notice',
+					[
+						'name' => 'id_notice',
+					],
 				],
 			),
 		];

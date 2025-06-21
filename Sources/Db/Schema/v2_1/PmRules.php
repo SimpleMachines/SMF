@@ -86,19 +86,25 @@ class PmRules extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_rule',
+					[
+						'name' => 'id_rule',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'idx_delete_pm' => new DbIndex(
 				name: 'idx_delete_pm',
 				columns: [
-					'delete_pm',
+					[
+						'name' => 'delete_pm',
+					],
 				],
 			),
 		];

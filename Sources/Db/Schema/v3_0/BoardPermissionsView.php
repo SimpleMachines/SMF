@@ -86,9 +86,15 @@ class BoardPermissionsView extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_group',
-					'id_board',
-					'deny',
+					[
+						'name' => 'id_group',
+					],
+					[
+						'name' => 'id_board',
+					],
+					[
+						'name' => 'deny',
+					],
 				],
 			),
 		];

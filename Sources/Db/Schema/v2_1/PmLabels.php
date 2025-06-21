@@ -63,7 +63,9 @@ class PmLabels extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_label',
+					[
+						'name' => 'id_label',
+					],
 				],
 			),
 		];

@@ -54,14 +54,20 @@ class LogSearchSubjects extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'word',
-					'id_topic',
+					[
+						'name' => 'word',
+					],
+					[
+						'name' => 'id_topic',
+					],
 				],
 			),
 			'idx_id_topic' => new DbIndex(
 				name: 'idx_id_topic',
 				columns: [
-					'id_topic',
+					[
+						'name' => 'id_topic',
+					],
 				],
 			),
 		];

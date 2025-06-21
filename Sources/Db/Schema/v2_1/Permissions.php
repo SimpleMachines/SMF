@@ -275,8 +275,12 @@ class Permissions extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_group',
-					'permission',
+					[
+						'name' => 'id_group',
+					],
+					[
+						'name' => 'permission',
+					],
 				],
 			),
 		];

@@ -61,8 +61,12 @@ class LogMarkRead extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_member',
-					'id_board',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 		];

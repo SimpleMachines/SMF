@@ -62,8 +62,12 @@ class SmileyFiles extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_smiley',
-					'smiley_set',
+					[
+						'name' => 'id_smiley',
+					],
+					[
+						'name' => 'smiley_set',
+					],
 				],
 			),
 		];

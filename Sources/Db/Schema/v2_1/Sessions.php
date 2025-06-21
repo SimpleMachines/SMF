@@ -61,7 +61,9 @@ class Sessions extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'session_id',
+					[
+						'name' => 'session_id',
+					],
 				],
 			),
 		];

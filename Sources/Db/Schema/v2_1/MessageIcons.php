@@ -154,13 +154,17 @@ class MessageIcons extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_icon',
+					[
+						'name' => 'id_icon',
+					],
 				],
 			),
 			'idx_id_board' => new DbIndex(
 				name: 'idx_id_board',
 				columns: [
-					'id_board',
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 		];

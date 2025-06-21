@@ -80,19 +80,25 @@ class LogOnline extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'session',
+					[
+						'name' => 'session',
+					],
 				],
 			),
 			'idx_log_time' => new DbIndex(
 				name: 'idx_log_time',
 				columns: [
-					'log_time',
+					[
+						'name' => 'log_time',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 		];

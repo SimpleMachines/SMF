@@ -56,8 +56,12 @@ class GroupModerators extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_group',
-					'id_member',
+					[
+						'name' => 'id_group',
+					],
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 		];

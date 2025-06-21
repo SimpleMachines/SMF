@@ -110,19 +110,25 @@ class UserAlerts extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_alert',
+					[
+						'name' => 'id_alert',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'idx_alert_time' => new DbIndex(
 				name: 'idx_alert_time',
 				columns: [
-					'alert_time',
+					[
+						'name' => 'alert_time',
+					],
 				],
 			),
 		];

@@ -68,13 +68,18 @@ class Qanda extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_question',
+					[
+						'name' => 'id_question',
+					],
 				],
 			),
 			'idx_lngfile' => new DbIndex(
 				name: 'idx_lngfile',
 				columns: [
-					'lngfile',
+					[
+						'name' => 'lngfile',
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 		];

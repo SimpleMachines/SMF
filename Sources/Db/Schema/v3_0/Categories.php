@@ -93,7 +93,9 @@ class Categories extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_cat',
+					[
+						'name' => 'id_cat',
+					],
 				],
 			),
 		];

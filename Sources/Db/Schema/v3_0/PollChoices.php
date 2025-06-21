@@ -70,8 +70,12 @@ class PollChoices extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_poll',
-					'id_choice',
+					[
+						'name' => 'id_poll',
+					],
+					[
+						'name' => 'id_choice',
+					],
 				],
 			),
 		];

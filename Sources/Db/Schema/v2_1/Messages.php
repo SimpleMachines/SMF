@@ -187,76 +187,122 @@ class Messages extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_msg',
+					[
+						'name' => 'id_msg',
+					],
 				],
 			),
 			'idx_id_board' => new DbIndex(
 				type: 'unique',
 				name: 'idx_id_board',
 				columns: [
-					'id_board',
-					'id_msg',
-					'approved',
+					[
+						'name' => 'id_board',
+					],
+					[
+						'name' => 'id_msg',
+					],
+					[
+						'name' => 'approved',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				type: 'unique',
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
-					'id_msg',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'id_msg',
+					],
 				],
 			),
 			'idx_ip_index' => new DbIndex(
 				name: 'idx_ip_index',
 				columns: [
-					'poster_ip',
-					'id_topic',
+					[
+						'name' => 'poster_ip',
+					],
+					[
+						'name' => 'id_topic',
+					],
 				],
 			),
 			'idx_participation' => new DbIndex(
 				name: 'idx_participation',
 				columns: [
-					'id_member',
-					'id_topic',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'id_topic',
+					],
 				],
 			),
 			'idx_show_posts' => new DbIndex(
 				name: 'idx_show_posts',
 				columns: [
-					'id_member',
-					'id_board',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 			'idx_id_member_msg' => new DbIndex(
 				name: 'idx_id_member_msg',
 				columns: [
-					'id_member',
-					'approved',
-					'id_msg',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'approved',
+					],
+					[
+						'name' => 'id_msg',
+					],
 				],
 			),
 			'idx_current_topic' => new DbIndex(
 				name: 'idx_current_topic',
 				columns: [
-					'id_topic',
-					'id_msg',
-					'id_member',
-					'approved',
+					[
+						'name' => 'id_topic',
+					],
+					[
+						'name' => 'id_msg',
+					],
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'approved',
+					],
 				],
 			),
 			'idx_related_ip' => new DbIndex(
 				name: 'idx_related_ip',
 				columns: [
-					'id_member',
-					'poster_ip',
-					'id_msg',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'poster_ip',
+					],
+					[
+						'name' => 'id_msg',
+					],
 				],
 			),
 			'idx_likes' => new DbIndex(
 				name: 'idx_likes',
 				columns: [
-					'likes',
+					[
+						'name' => 'likes',
+					],
 				],
 			),
 		];

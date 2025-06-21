@@ -192,7 +192,9 @@ class Spiders extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_spider',
+					[
+						'name' => 'id_spider',
+					],
 				],
 			),
 		];

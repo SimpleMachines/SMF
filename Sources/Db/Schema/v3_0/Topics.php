@@ -175,65 +175,97 @@ class Topics extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_topic',
+					[
+						'name' => 'id_topic',
+					],
 				],
 			),
 			'idx_last_message' => new DbIndex(
 				name: 'idx_last_message',
 				type: 'unique',
 				columns: [
-					'id_last_msg',
-					'id_board',
+					[
+						'name' => 'id_last_msg',
+					],
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 			'idx_first_message' => new DbIndex(
 				name: 'idx_first_message',
 				type: 'unique',
 				columns: [
-					'id_first_msg',
-					'id_board',
+					[
+						'name' => 'id_first_msg',
+					],
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 			'idx_poll' => new DbIndex(
 				name: 'idx_poll',
 				type: 'unique',
 				columns: [
-					'id_poll',
-					'id_topic',
+					[
+						'name' => 'id_poll',
+					],
+					[
+						'name' => 'id_topic',
+					],
 				],
 			),
 			'idx_is_sticky' => new DbIndex(
 				name: 'idx_is_sticky',
 				columns: [
-					'is_sticky',
+					[
+						'name' => 'is_sticky',
+					],
 				],
 			),
 			'idx_approved' => new DbIndex(
 				name: 'idx_approved',
 				columns: [
-					'approved',
+					[
+						'name' => 'approved',
+					],
 				],
 			),
 			'idx_member_started' => new DbIndex(
 				name: 'idx_member_started',
 				columns: [
-					'id_member_started',
-					'id_board',
+					[
+						'name' => 'id_member_started',
+					],
+					[
+						'name' => 'id_board',
+					],
 				],
 			),
 			'idx_last_message_sticky' => new DbIndex(
 				name: 'idx_last_message_sticky',
 				columns: [
-					'id_board',
-					'is_sticky',
-					'id_last_msg',
+					[
+						'name' => 'id_board',
+					],
+					[
+						'name' => 'is_sticky',
+					],
+					[
+						'name' => 'id_last_msg',
+					],
 				],
 			),
 			'idx_board_news' => new DbIndex(
 				name: 'idx_board_news',
 				columns: [
-					'id_board',
-					'id_first_msg',
+					[
+						'name' => 'id_board',
+					],
+					[
+						'name' => 'id_first_msg',
+					],
 				],
 			),
 		];

@@ -1395,7 +1395,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$cols = $this->list_columns($table_name, true);
 
 		foreach ($index_info['columns'] as &$c) {
-			$c = preg_replace('~\s+(\(\d+\))~', '', $c);
+			if (is_array($c)) {
+				$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
+			}
+
+			$c = preg_replace('~\s*\(\d+\)~', '', $c);
 		}
 
 		$columns = implode(',', $index_info['columns']);
@@ -1781,6 +1785,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$index_queries = [];
 
 		foreach ($indexes as $index) {
+			if (is_array($c)) {
+				$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
+			}
+
 			// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
 			foreach ($index['columns'] as &$c) {
 				$c = preg_replace('~\s+(\(\d+\))~', '', $c);

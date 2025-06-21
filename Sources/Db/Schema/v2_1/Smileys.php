@@ -228,7 +228,9 @@ class Smileys extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_smiley',
+					[
+						'name' => 'id_smiley',
+					],
 				],
 			),
 		];

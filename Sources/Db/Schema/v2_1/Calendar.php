@@ -109,26 +109,36 @@ class Calendar extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_event',
+					[
+						'name' => 'id_event',
+					],
 				],
 			),
 			'idx_start_date' => new DbIndex(
 				name: 'idx_start_date',
 				columns: [
-					'start_date',
+					[
+						'name' => 'start_date',
+					],
 				],
 			),
 			'idx_end_date' => new DbIndex(
 				name: 'idx_end_date',
 				columns: [
-					'end_date',
+					[
+						'name' => 'end_date',
+					],
 				],
 			),
 			'idx_topic' => new DbIndex(
 				name: 'idx_topic',
 				columns: [
-					'id_topic',
-					'id_member',
+					[
+						'name' => 'id_topic',
+					],
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 		];

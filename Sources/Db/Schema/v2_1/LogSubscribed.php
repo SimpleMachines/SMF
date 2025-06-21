@@ -110,45 +110,61 @@ class LogSubscribed extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_sublog',
+					[
+						'name' => 'id_sublog',
+					],
 				],
 			),
 			'id_subscribe' => new DbIndex(
 				type: 'unique',
 				name: 'id_subscribe',
 				columns: [
-					'id_subscribe',
-					'id_member',
+					[
+						'name' => 'id_subscribe',
+					],
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'idx_end_time' => new DbIndex(
 				name: 'idx_end_time',
 				columns: [
-					'end_time',
+					[
+						'name' => 'end_time',
+					],
 				],
 			),
 			'idx_reminder_sent' => new DbIndex(
 				name: 'idx_reminder_sent',
 				columns: [
-					'reminder_sent',
+					[
+						'name' => 'reminder_sent',
+					],
 				],
 			),
 			'idx_payments_pending' => new DbIndex(
 				name: 'idx_payments_pending',
 				columns: [
-					'payments_pending',
+					[
+						'name' => 'payments_pending',
+					],
 				],
 			),
 			'idx_status' => new DbIndex(
 				name: 'idx_status',
 				columns: [
-					'status',
+					[
+						'name' => 'status',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 		];

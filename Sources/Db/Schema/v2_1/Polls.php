@@ -125,7 +125,9 @@ class Polls extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_poll',
+					[
+						'name' => 'id_poll',
+					],
 				],
 			),
 		];

@@ -94,20 +94,28 @@ class BanItems extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_ban',
+					[
+						'name' => 'id_ban',
+					],
 				],
 			),
 			'idx_id_ban_group' => new DbIndex(
 				name: 'idx_id_ban_group',
 				columns: [
-					'id_ban_group',
+					[
+						'name' => 'id_ban_group',
+					],
 				],
 			),
 			'idx_id_ban_ip' => new DbIndex(
 				name: 'idx_id_ban_ip',
 				columns: [
-					'ip_low',
-					'ip_high',
+					[
+						'name' => 'ip_low',
+					],
+					[
+						'name' => 'ip_high',
+					],
 				],
 			),
 		];

@@ -98,20 +98,28 @@ class MailQueue extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_mail',
+					[
+						'name' => 'id_mail',
+					],
 				],
 			),
 			'idx_time_sent' => new DbIndex(
 				name: 'idx_time_sent',
 				columns: [
-					'time_sent',
+					[
+						'name' => 'time_sent',
+					],
 				],
 			),
 			'idx_mail_priority' => new DbIndex(
 				name: 'idx_mail_priority',
 				columns: [
-					'priority',
-					'id_mail',
+					[
+						'name' => 'priority',
+					],
+					[
+						'name' => 'id_mail',
+					],
 				],
 			),
 		];

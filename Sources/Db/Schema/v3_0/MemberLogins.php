@@ -70,19 +70,25 @@ class MemberLogins extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_login',
+					[
+						'name' => 'id_login',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'idx_time' => new DbIndex(
 				name: 'idx_time',
 				columns: [
-					'time',
+					[
+						'name' => 'time',
+					],
 				],
 			),
 		];

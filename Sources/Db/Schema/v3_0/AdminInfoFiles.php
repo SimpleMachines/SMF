@@ -126,13 +126,19 @@ class AdminInfoFiles extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_file',
+					[
+						'name' => 'id_file',
+					],
 				],
 			),
 			'idx_filename' => new DbIndex(
 				name: 'idx_filename',
 				columns: [
-					'filename(30)',
+					[
+						'name' => 'filename',
+						'size' => 30,
+						'opclass' => 'varchar_pattern_ops',
+					],
 				],
 			),
 		];

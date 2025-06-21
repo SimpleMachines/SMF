@@ -70,22 +70,34 @@ class UserLikes extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'content_id',
-					'content_type',
-					'id_member',
+					[
+						'name' => 'content_id',
+					],
+					[
+						'name' => 'content_type',
+					],
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 			'content' => new DbIndex(
 				name: 'content',
 				columns: [
-					'content_id',
-					'content_type',
+					[
+						'name' => 'content_id',
+					],
+					[
+						'name' => 'content_type',
+					],
 				],
 			),
 			'liker' => new DbIndex(
 				name: 'liker',
 				columns: [
-					'id_member',
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 		];

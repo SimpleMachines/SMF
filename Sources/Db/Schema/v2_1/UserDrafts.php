@@ -134,16 +134,24 @@ class UserDrafts extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_draft',
+					[
+						'name' => 'id_draft',
+					],
 				],
 			),
 			'idx_id_member' => new DbIndex(
 				type: 'unique',
 				name: 'idx_id_member',
 				columns: [
-					'id_member',
-					'id_draft',
-					'type',
+					[
+						'name' => 'id_member',
+					],
+					[
+						'name' => 'id_draft',
+					],
+					[
+						'name' => 'type',
+					],
 				],
 			),
 		];

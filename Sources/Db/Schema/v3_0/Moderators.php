@@ -54,8 +54,12 @@ class Moderators extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_board',
-					'id_member',
+					[
+						'name' => 'id_board',
+					],
+					[
+						'name' => 'id_member',
+					],
 				],
 			),
 		];

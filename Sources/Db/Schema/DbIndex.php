@@ -29,10 +29,14 @@ class DbIndex
 	 *
 	 * Columns to include in the index.
 	 *
-	 * Values should be the names of columns, optionally with an index length
-	 * appended in parentheses.
+	 * Values are sub-arrays containing 'name' elements and optional 'size'
+	 * and/or 'opclass' elements. The 'size' element is used by MySQL, and the
+	 * 'opclass' element is used by PostgreSQL.
 	 *
-	 * Example: ['id_msg', 'member_groups(48)']
+	 * Example: [
+	 * 		['name' => 'id_msg'],
+	 * 		['name' => 'member_groups', 'size' => 48],
+	 * ]
 	 */
 	public array $columns = [];
 
@@ -58,6 +62,9 @@ class DbIndex
 	 * Constructor.
 	 *
 	 * @param array $columns Columns to include in the index.
+	 *    Values can be simple strings or arrays containing a 'name' element and
+	 *    optional 'size' or 'opclass' elements. The 'size' element is used by
+	 *    MySQL, and the 'opclass' element is used by PostgreSQL.
 	 * @param ?string $type The type of index. Either 'primary' for the PRIMARY
 	 *    KEY index, 'unique' for a UNIQUE index, or null for a normal index.
 	 * @param ?string $name The name of the index. If this is left null, a name
@@ -68,7 +75,14 @@ class DbIndex
 		?string $type = null,
 		?string $name = null,
 	) {
-		$this->columns = array_map('strtolower', $columns);
+		foreach ($columns as $key => $column) {
+			if (is_string($column)) {
+				$this->columns[$key]['name'] = strtolower($column);
+			} elseif (is_array($column) && isset($column['name'])) {
+				$column['name'] = strtolower($column['name']);
+				$this->columns[$key] = $column;
+			}
+		}
 
 		$this->type = isset($type) ? strtolower((string) $type) : null;
 

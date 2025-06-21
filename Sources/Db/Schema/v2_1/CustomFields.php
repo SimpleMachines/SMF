@@ -263,14 +263,18 @@ class CustomFields extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_field',
+					[
+						'name' => 'id_field',
+					],
 				],
 			),
 			'idx_col_name' => new DbIndex(
 				type: 'unique',
 				name: 'idx_col_name',
 				columns: [
-					'col_name',
+					[
+						'name' => 'col_name',
+					],
 				],
 			),
 		];

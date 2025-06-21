@@ -76,13 +76,17 @@ class LogSpiderHits extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_hit',
+					[
+						'name' => 'id_hit',
+					],
 				],
 			),
 			'idx_processed' => new DbIndex(
 				name: 'idx_processed',
 				columns: [
-					'processed',
+					[
+						'name' => 'processed',
+					],
 				],
 			),
 		];

@@ -882,7 +882,10 @@ class Settings extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'variable(30)',
+					[
+						'name' => 'variable',
+						'size' => 30,
+					],
 				],
 			),
 		];

@@ -96,7 +96,9 @@ class PackageServers extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_server',
+					[
+						'name' => 'id_server',
+					],
 				],
 			),
 		];

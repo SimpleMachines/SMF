@@ -54,8 +54,12 @@ class PmLabeledMessages extends Table
 			'primary' => new DbIndex(
 				type: 'primary',
 				columns: [
-					'id_label',
-					'id_pm',
+					[
+						'name' => 'id_label',
+					],
+					[
+						'name' => 'id_pm',
+					],
 				],
 			),
 		];
