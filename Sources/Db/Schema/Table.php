@@ -227,7 +227,7 @@ class Table
 			}
 
 			if (($index->type ?? 'index') != $structure['indexes'][$index->name]['type']) {
-				$columns_to_change[$col->name] = $col;
+				$indexes_to_change[$index->name] = $index;
 				continue;
 			}
 
