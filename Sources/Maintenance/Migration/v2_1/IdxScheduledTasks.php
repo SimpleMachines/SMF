@@ -37,33 +37,22 @@ class IdxScheduledTasks extends MigrationBase
 	/**
 	 *
 	 */
-	public function isCandidate(): bool
-	{
-		return Db::$db->title === POSTGRE_TITLE;
-	}
-
-	/**
-	 *
-	 */
 	public function execute(): bool
 	{
 		$start = Maintenance::getCurrentStart();
 
 		$table = new Schema\v2_1\ScheduledTasks();
-		$existing_structure = $table->getCurrentStructure();
 
-		// Change index for table scheduled_tasks
+		// Drop various indexes that we want to ditch or change.
+		// Some will be added again in a later step.
 		if ($start <= 0) {
-			if (isset($existing_structure['indexes']['idx_task'])) {
-				$table->dropIndex($table->indexes['idx_task']);
-			}
+			$table->dropIndex('task');
 
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 1) {
-			$idx = $table->indexes['idx_task'];
-			$table->addIndex($idx);
+			$table->dropIndex('idx_task');
 
 			$this->handleTimeout(++$start);
 		}

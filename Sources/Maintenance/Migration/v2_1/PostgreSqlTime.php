@@ -83,6 +83,17 @@ class PostgreSqlTime extends MigrationBase
 			$this->handleTimeout(++$start);
 		}
 
+		// Indexable month and day. Used for birthdays.
+		if ($start <= 2) {
+			$this->query(
+				'CREATE OR REPLACE FUNCTION indexable_month_day(date) RETURNS TEXT as \'
+				SELECT to_char($1, \'\'MM-DD\'\');\'
+				LANGUAGE \'sql\' IMMUTABLE STRICT',
+			);
+
+			$this->handleTimeout(++$start);
+		}
+
 		return true;
 	}
 }

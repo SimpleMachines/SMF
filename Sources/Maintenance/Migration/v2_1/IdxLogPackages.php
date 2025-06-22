@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace SMF\Maintenance\Migration\v2_1;
 
-use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -38,36 +37,22 @@ class IdxLogPackages extends MigrationBase
 	/**
 	 *
 	 */
-	public function isCandidate(): bool
-	{
-		return Db::$db->title === POSTGRE_TITLE;
-	}
-
-	/**
-	 *
-	 */
 	public function execute(): bool
 	{
 		$start = Maintenance::getCurrentStart();
 
 		$table = new Schema\v2_1\LogActions();
-		$existing_structure = $table->getCurrentStructure();
 
-		// Change index for table log_packages
+		// Drop various indexes that we want to ditch or change.
+		// Some will be added again in a later step.
 		if ($start <= 0) {
-			if (isset($existing_structure['indexes']['log_packages_filename'])) {
-				$table->dropIndex($table->indexes['log_packages_filename']);
-			}
+			$table->dropIndex('filename');
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Change index for table log_packages
-		if ($start <= 1) {
-			if (!isset($existing_structure['indexes']['log_packages_filename'])) {
-				$idx = $table->indexes['log_packages_filename'];
-				$table->addIndex($idx);
-			}
+		if ($start <= 0) {
+			$table->dropIndex('idx_filename');
 
 			$this->handleTimeout(++$start);
 		}

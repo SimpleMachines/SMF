@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\Schema;
-use SMF\Db\Schema\DbIndex;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -44,22 +43,16 @@ class IdxTopics extends MigrationBase
 
 		$table = new Schema\v2_1\Topics();
 
+		// Drop various indexes that we want to ditch or change.
+		// Some will be added again in a later step.
 		if ($start <= 0) {
-			$oldIdx = new DbIndex(
-				['id_topic'],
-				'index',
-				'idx_id_board',
-			);
-
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('id_board');
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Updating topics drop old id_board ix
-		if ($start <= 0) {
-			$oldIdx = new DbIndex(['id_board'], 'index', 'id_board');
-			$table->dropIndex($oldIdx);
+		if ($start <= 1) {
+			$table->dropIndex('idx_id_board');
 
 			$this->handleTimeout(++$start);
 		}

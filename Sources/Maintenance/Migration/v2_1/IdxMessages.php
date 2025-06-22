@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\Schema;
-use SMF\Db\Schema\DbIndex;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -45,117 +44,76 @@ class IdxMessages extends MigrationBase
 		$table = new Schema\v2_1\Messages();
 		$existing_structure = $table->getCurrentStructure();
 
+		// Drop various indexes that we want to ditch or change.
+		// Some will be added again in a later step.
 		if ($start <= 0) {
-			$oldIdx = new DbIndex(
-				['id_topic'],
-				'index',
-				'idx_id_topic',
-			);
-
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('idx_id_topic');
 
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 1) {
-			$oldIdx = new DbIndex(
-				['id_topic'],
-				'index',
-				'idx_topic',
-			);
-
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('idx_topic');
 
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 2) {
-			$table->dropIndex($table->indexes['idx_likes']);
+			$table->dropIndex('idx_likes');
 
 			$this->handleTimeout(++$start);
 		}
 
-		if ($start <= 3) {
-			$table->addIndex($table->indexes['idx_likes']);
-
-			$this->handleTimeout(++$start);
-		}
-
-		// Updating messages drop old ipIndex
 		if ($start <= 4) {
-			$oldIdx = new DbIndex(['member_ip'], 'index', 'ipIndex');
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('ipIndex');
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Updating messages drop old ip_index
 		if ($start <= 5) {
-			$oldIdx = new DbIndex(['member_ip'], 'index', 'ip_index');
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('ip_index');
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Updating messages drop old related_ip
 		if ($start <= 6) {
-			$oldIdx = new DbIndex(['member_ip'], 'index', 'related_ip');
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('related_ip');
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Updating messages drop old topic ix
 		if ($start <= 7) {
-			$oldIdx = new DbIndex(['id_topic'], 'index', 'topic');
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('topic');
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Updating messages drop another old topic ix
 		if ($start <= 8) {
-			$oldIdx = new DbIndex(['id_topic'], 'index', 'id_topic');
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('id_topic');
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Updating messages drop another old topic ix
 		if ($start <= 9) {
-			$oldIdx = new DbIndex(['approved'], 'index', 'approved');
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('approved');
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Updating messages drop another old topic ix
 		if ($start <= 10) {
-			$oldIdx = new DbIndex(['approved'], 'index', 'idx_approved');
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('idx_approved');
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Updating messages drop id_board ix
 		if ($start <= 11) {
-			$oldIdx = new DbIndex(['id_board'], 'index', 'id_board');
-			$table->dropIndex($oldIdx);
+			$table->dropIndex('id_board');
 
 			$this->handleTimeout(++$start);
 		}
 
-		// Updating messages drop id_board ix alt name
 		if ($start <= 12) {
-			$oldIdx = new DbIndex(['id_board'], 'index', 'idx_id_board');
-			$table->dropIndex($oldIdx);
-
-			$this->handleTimeout(++$start);
-		}
-
-		// Updating messages add new id_board ix
-		if ($start <= 12) {
-			$table->addIndex($table->indexes['idx_id_board']);
+			$table->dropIndex('idx_id_board');
 
 			$this->handleTimeout(++$start);
 		}

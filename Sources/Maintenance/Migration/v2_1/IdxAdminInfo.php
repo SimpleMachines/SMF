@@ -37,35 +37,22 @@ class IdxAdminInfo extends MigrationBase
 	/**
 	 *
 	 */
-	public function isCandidate(): bool
-	{
-		return Db::$db->title === POSTGRE_TITLE;
-	}
-
-	/**
-	 *
-	 */
 	public function execute(): bool
 	{
 		$start = Maintenance::getCurrentStart();
 
 		$table = new Schema\v2_1\AdminInfoFiles();
-		$existing_structure = $table->getCurrentStructure();
 
-		// Change index for table scheduled_tasks
+		// Drop various indexes that we want to ditch or change.
+		// Some will be added again in a later step.
 		if ($start <= 0) {
-			if (isset($existing_structure['indexes']['idx_filename'])) {
-				$table->dropIndex($table->indexes['idx_filename']);
-			}
+			$table->dropIndex('filename');
 
 			$this->handleTimeout(++$start);
 		}
 
 		if ($start <= 1) {
-			if (!isset($existing_structure['indexes']['idx_filename'])) {
-				$idx = $table->indexes['idx_filename'];
-				$table->addIndex($idx, Db::$db->title === POSTGRE_TITLE ? 'replace' : 'ignore', ['varchar_pattern_ops' => $idx->columns[0]]);
-			}
+			$table->dropIndex('idx_filename');
 
 			$this->handleTimeout(++$start);
 		}
