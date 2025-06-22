@@ -19,7 +19,7 @@ use SMF\Config;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class PostgresqlSchemaDiff extends MigrationBase
+class PostgreSqlSchemaDiff extends MigrationBase
 {
 	/*******************
 	 * Public properties

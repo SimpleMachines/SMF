@@ -77,8 +77,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	public const MIGRATIONS = [
 		// Migration steps for 2.0 -> 2.1
 		'v2_1' => [
-			Migration\v2_1\PostgreSQLSequences::class,
-			Migration\v2_1\PostgreSQLFindInSet::class,
+			Migration\v2_1\PostgreSqlSequences::class,
+			Migration\v2_1\PostgreSqlFindInSet::class,
 			Migration\v2_1\SettingsUpdate::class,
 			Migration\v2_1\RemoveKarma::class,
 			Migration\v2_1\FixDates::class,
@@ -126,8 +126,8 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v2_1\LogOnlineURL::class,
 			Migration\v2_1\MembersTfaSecret::class,
 			Migration\v2_1\MembersTfaBackup::class,
-			Migration\v2_1\PostgreSQLUnlogged::class,
-			Migration\v2_1\PostgreSQLIPv6Helper::class,
+			Migration\v2_1\PostgreSqlUnlogged::class,
+			Migration\v2_1\PostgreSqlIPv6Helper::class,
 			Migration\v2_1\Ipv6BanItem::class,
 			Migration\v2_1\Ipv6LogAction::class,
 			Migration\v2_1\Ipv6LogBanned::class,
@@ -156,7 +156,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v2_1\Smileys::class,
 			Migration\v2_1\LogErrorsBacktrace::class,
 			Migration\v2_1\BoardPermissionsView::class,
-			Migration\v2_1\PostgresqlSchemaDiff::class,
+			Migration\v2_1\PostgreSqlSchemaDiff::class,
 			Migration\v2_1\PostgreSqlTime::class,
 			Migration\v2_1\CalendarUpdates::class,
 			Migration\v2_1\MysqlModFixes::class,

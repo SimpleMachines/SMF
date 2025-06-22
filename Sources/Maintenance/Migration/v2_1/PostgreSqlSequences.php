@@ -19,7 +19,7 @@ use SMF\Config;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class PostgreSQLSequences extends MigrationBase
+class PostgreSqlSequences extends MigrationBase
 {
 	/*******************
 	 * Public properties

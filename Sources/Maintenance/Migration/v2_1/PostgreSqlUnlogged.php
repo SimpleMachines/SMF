@@ -19,7 +19,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
-class PostgreSQLUnlogged extends MigrationBase
+class PostgreSqlUnlogged extends MigrationBase
 {
 	/*******************
 	 * Public properties
