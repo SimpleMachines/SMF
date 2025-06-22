@@ -479,7 +479,7 @@ interface DatabaseApiInterface
 	 *
 	 * @param string $table_name The name of the table this column is in
 	 * @param string $old_column The name of the column we want to change
-	 * @param array $column_info An array of info about the "new" column definition (see {@link smf_db_create_table()})
+	 * @param array $column_info An array of info about the "new" column definition (see {@link create_table()})
 	 * Note that $column_info also supports two additional parameters that only make sense when changing columns:
 	 * - drop_default - to drop a default that was previously specified
 	 * @return bool
@@ -583,7 +583,7 @@ interface DatabaseApiInterface
 	 * Get table structure.
 	 *
 	 * @param string $table_name The name of the table
-	 * @return array An array of table structure - the name, the column info from {@link smf_db_list_columns()} and the index info from {@link smf_db_list_indexes()}
+	 * @return array An array of table structure - the name, the column info from {@link list_columns()} and the index info from {@link list_indexes()}
 	 */
 	public function table_structure(string $table_name): array;
 
