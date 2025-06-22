@@ -15,7 +15,9 @@ declare(strict_types=1);
 
 namespace SMF\Db\Schema;
 
+use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Lang;
 
 /**
  * Represents a database table.
