@@ -1712,6 +1712,28 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
+	public function rename_index(string $table_name, string $old_name, string $new_name): bool
+	{
+		$result = false;
+
+		$indexes = $this->list_indexes($table_name, false);
+
+		if (in_array($old_name, $indexes) && !in_array($new_name, $indexes)) {
+			$result = $this->query(
+				'ALTER TABLE ' . str_replace('{db_prefix}', $this->prefix, $table_name) . '
+				RENAME INDEX `' . $old_name . '` TO `' . $new_name . '`',
+				[
+					'security_override' => true,
+				],
+			);
+		}
+
+		return $result !== false;
+	}
+
+	/**
+	 *
+	 */
 	public function create_table(string $table_name, array $columns, array $indexes = [], array $parameters = [], string $if_exists = 'ignore', string $error = 'fatal'): bool
 	{
 		$old_table_exists = false;

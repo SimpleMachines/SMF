@@ -1685,6 +1685,30 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
+	public function rename_index(string $table_name, string $old_name, string $new_name): bool
+	{
+		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
+		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
+
+		$result = false;
+
+		$indexes = $this->list_indexes($table_name, false);
+
+		if (in_array($old_name, $indexes) && !in_array($new_name, $indexes)) {
+			$result = $this->query(
+				'ALTER INDEX ' . $real_table_name . '_' . $old_name . ' RENAME TO ' . $real_table_name . '_' . $new_name,
+				[
+					'security_override' => true,
+				],
+			);
+		}
+
+		return $result !== false;
+	}
+
+	/**
+	 *
+	 */
 	public function create_table(string $table_name, array $columns, array $indexes = [], array $parameters = [], string $if_exists = 'ignore', string $error = 'fatal'): bool
 	{
 		$db_trans = false;

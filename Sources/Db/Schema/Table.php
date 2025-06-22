@@ -221,7 +221,10 @@ class Table
 		}
 
 		foreach ($this->indexes as $index) {
-			if (!isset($structure['indexes'][$index->name])) {
+			if (
+				!isset($structure['indexes'][$index->name])
+				&& !$this->fixIndexName($index)
+			) {
 				$indexes_to_change[$index->name] = $index;
 				continue;
 			}
@@ -395,6 +398,43 @@ class Table
 			[],
 			$if_exists,
 		);
+	}
+
+	/**
+	 * Ensures an existing index in the database is using the correct name.
+	 *
+	 * Searches all the existing indexes for this table for the one that has the
+	 * same type and columns as the passed DbIndex object. If no matching index
+	 * is found, returns false. Otherwise, if the matching index is not using
+	 * the name defined in the DbIndex object, renames the matching index.
+	 *
+	 * @param DbIndex $index The index to set the name of.
+	 * @return bool Whether the existing index now has the correct name.
+	 */
+	public function fixIndexName(DbIndex $index): bool
+	{
+		foreach ($this->list_indexes($this->name, true) as $existing_index) {
+			// Must be the same type.
+			if ($index->type !== $existing_index['type']) {
+				continue;
+			}
+
+			// Must index the same columns.
+			if (array_map(fn($col) => $col['name'], $index->columns) !== $existing_index['columns']) {
+				continue;
+			}
+
+			// If the name is already the same, there's nothing to do.
+			if ($index->name === $existing_index['name']) {
+				return true;
+			}
+
+			// Do the rename.
+			return Db::$db->rename_index($this->name, $existing_index['name'], $index->name);
+		}
+
+		// No matching index was found.
+		return false;
 	}
 
 	/**

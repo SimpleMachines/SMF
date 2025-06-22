@@ -487,6 +487,20 @@ interface DatabaseApiInterface
 	public function change_column(string $table_name, string $old_column, array $column_info): bool;
 
 	/**
+	 * Renames an index.
+	 *
+	 * If an index named $old_name does not exist, will return false.
+	 * If an index named $new_name already exists, will return false.
+	 * Otherwise, returns whether the index was renamed successfully.
+	 *
+	 * @param string $table_name The name of the table the index is in.
+	 * @param string $old_name The current name of the index.
+	 * @param string $old_name The new name to set for the index.
+	 * @return bool Whether the operation was successful.
+	 */
+	public function rename_index(string $table_name, string $old_name, string $new_name): bool;
+
+	/**
 	 * This function can be used to create a table without worrying about schema
 	 * compatibilities across supported database systems.
 	 *
