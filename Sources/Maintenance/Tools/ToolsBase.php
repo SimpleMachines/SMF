@@ -293,12 +293,19 @@ abstract class ToolsBase
 			if (!empty($_SESSION['ftp'])) {
 				$ftp = new FtpConnection($_SESSION['ftp']['server'], $_SESSION['ftp']['port'], $_SESSION['ftp']['username'], $_SESSION['ftp']['password']);
 				$ftp->chdir($_SESSION['ftp']['path']);
-				$ftp->unlink($this->script_file);
-				$ftp->close();
+			}
 
-				unset($_SESSION['ftp']);
+			if (isset($ftp)) {
+				$ftp->unlink($this->script_file);
 			} else {
 				@unlink(Config::$boarddir . '/' . $this->script_file);
+			}
+
+			$this->deleteOldSchemaAndMaintenanceFiles($ftp ?? null);
+
+			if (isset($ftp)) {
+				unset($_SESSION['ftp']);
+				$ftp->close();
 			}
 
 			// Now just redirect to a blank.png...
@@ -608,5 +615,62 @@ abstract class ToolsBase
 		$this->logProgress(Lang::getTxt('log_done', file: 'Maintenance'));
 
 		return true;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Attempts to delete SMF\Maintenance\Migration, SMF\Maintenance\Cleanup,
+	 * and SMF\Db\Schema files that will not be needed again.
+	 *
+	 * This should be done only when the install or upgrade process is complete.
+	 */
+	protected function deleteOldSchemaAndMaintenanceFiles(?FtpConnection $ftp): void
+	{
+		if (!isset(Config::$modSettings['smf_version'])) {
+			Config::reloadModSettings();
+		}
+
+		$this_ns = preg_replace('/^(\d+)\.(\d+).*/', 'v$1_$2', Config::$modSettings['smf_version'] ?? '0.0');
+
+		$base_dirs = [
+			Config::$sourcedir . '/Maintenance/Migration',
+			Config::$sourcedir . '/Maintenance/Cleanup',
+			Config::$sourcedir . '/Db/Schema',
+		];
+
+		foreach ($base_dirs as $base_dir) {
+			$dir_list = new \GlobIterator($base_dir . '/v*', \FilesystemIterator::NEW_CURRENT_AND_KEY);
+
+			foreach ($dir_list as $dir) {
+				// Just in case...
+				if (!$dir->isDir()) {
+					continue;
+				}
+
+				if ($dir->getBasename() < $this_ns) {
+					Utils::makeWritable($dir->getPathname());
+
+					$file_list = new \GlobIterator($dir->getPathname() . '/*', \FilesystemIterator::NEW_CURRENT_AND_KEY);
+
+					foreach ($file_list as $file) {
+						if (isset($ftp)) {
+							$ftp->unlink(str_replace(Config::$boarddir . '/', '', $file->getPathname()));
+						} else {
+							Utils::makeWritable($file->getPathname());
+							@unlink($file->getPathname());
+						}
+					}
+
+					if (isset($ftp)) {
+						$ftp->unlink(str_replace(Config::$boarddir . '/', '', $dir->getPathname()));
+					} else {
+						@rmdir($dir->getPathname());
+					}
+				}
+			}
+		}
 	}
 }
