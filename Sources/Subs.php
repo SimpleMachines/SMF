@@ -4084,7 +4084,7 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 		if (isset($sid) && $sid != '')
 			$setLocation = preg_replace_callback(
 				'~^' . preg_quote($scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
-				function($m) use ($scripturl)
+				function($m) use ($scripturl, $sid)
 				{
 					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . $sid . (isset($m[2]) ? "$m[2]" : "");
 				},

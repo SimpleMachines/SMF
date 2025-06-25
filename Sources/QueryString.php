@@ -670,10 +670,8 @@ function ob_sessrewrite($buffer)
 		if (isset($sid) && $sid != '')
 			$buffer = preg_replace_callback(
 				'~"' . preg_quote($scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
-				function($m)
+				function($m) use ($scripturl, $sid)
 				{
-					global $scripturl;
-
 					return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . $sid . (isset($m[2]) ? $m[2] : "") . '"';
 				},
 				$buffer
