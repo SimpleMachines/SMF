@@ -1334,7 +1334,7 @@ function PlushSearch2()
 						$main_query['parameters']['topic'] = $search_params['topic'];
 					}
 					if (!empty($search_params['show_complete']))
-						$main_query['group_by'][] = 'm.id_msg, t.id_first_msg, t.id_last_msg';
+						$main_query['group_by'][] = 't.id_topic, m.id_msg, t.id_first_msg, t.id_last_msg';
 				}
 
 				// *** Get the subject results.
