@@ -3789,7 +3789,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$nested_tag = false;
 				if ($nested_tag && $nested_tag < $end_of_value)
 					// Nested tag with quoted value detected, use next end tag
-					$nested_tag_pos = strpos($message, $quoted == false ? ']' : $quot . ']', $pos1) + strlen($quot);
+					$nested_tag_pos = strpos($message, $quoted == false ? ']' : $quot, $pos1) + strlen($quot);
 			}
 
 			$pos2 = strpos($message, $quoted == false ? ']' : $quot . ']', isset($nested_tag_pos) ? $nested_tag_pos : $pos1);
