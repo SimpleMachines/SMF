@@ -9,8 +9,8 @@
 if (!empty($upcontext['delete_karma']))
 {
 	// Delete old settings vars.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}settings
+	Db::$db->query(
+		'DELETE FROM {db_prefix}settings
 		WHERE variable IN ({array_string:karma_vars})',
 		array(
 			'karma_vars' => array('karmaMode', 'karmaTimeRestrictAdmins', 'karmaWaitTime', 'karmaMinPosts', 'karmaLabel', 'karmaSmiteLabel', 'karmaApplaudLabel'),
@@ -21,23 +21,23 @@ if (!empty($upcontext['delete_karma']))
 
 	// Cleaning up old karma member settings.
 	if (in_array('karma_good', $member_columns))
-		Db::$db->query('', '
-			ALTER TABLE {db_prefix}members
+		Db::$db->query(
+			'ALTER TABLE {db_prefix}members
 			DROP karma_good',
 			array()
 		);
 
 	// Does karma bad was enable?
 	if (in_array('karma_bad', $member_columns))
-		Db::$db->query('', '
-			ALTER TABLE {db_prefix}members
+		Db::$db->query(
+			'ALTER TABLE {db_prefix}members
 			DROP karma_bad',
 			array()
 		);
 
 	// Cleaning up old karma permissions.
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}permissions
+	Db::$db->query(
+		'DELETE FROM {db_prefix}permissions
 		WHERE permission = {string:karma_vars}',
 		array(
 			'karma_vars' => 'karma_edit',
@@ -45,8 +45,8 @@ if (!empty($upcontext['delete_karma']))
 	);
 
 	// Cleaning up old log_karma table
-	Db::$db->query('', '
-		DROP TABLE IF EXISTS {db_prefix}log_karma',
+	Db::$db->query(
+		'DROP TABLE IF EXISTS {db_prefix}log_karma',
 		array()
 	);
 }
@@ -61,10 +61,11 @@ if (!empty($upcontext['delete_karma']))
 ---{
 if (!empty($upcontext['empty_error']))
 {
-	Db::$db->query('truncate_table', '
-		TRUNCATE {db_prefix}log_errors',
+	Db::$db->query(
+		'TRUNCATE {db_prefix}log_errors',
 		array(
-		)
+		),
+		identifier: 'truncate_table',
 	);
 }
 ---}
@@ -357,8 +358,8 @@ if (!isset(Config::$modSettings['allow_no_censored']))
 // We cannot do this twice
 if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
-	$request = Db::$db->query('', '
-		SELECT id_member, id_cat
+	$request = Db::$db->query(
+		'SELECT id_member, id_cat
 		FROM {db_prefix}collapsed_categories');
 
 	$inserts = array();
@@ -381,8 +382,8 @@ if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.
 ---{
 if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.foo', '<'))
 {
-    $request = Db::$db->query('', '
-        SELECT name, description, id_board
+    $request = Db::$db->query(
+        'SELECT name, description, id_board
         FROM {db_prefix}boards');
 
     $inserts = array();
@@ -402,8 +403,8 @@ if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.
     {
         foreach ($inserts as $insert)
         {
-            Db::$db->query('', '
-                UPDATE {db_prefix}boards
+            Db::$db->query(
+                'UPDATE {db_prefix}boards
                 SET name = {string:name}, description = {string:description}
                 WHERE id = {int:id}',
                 $insert
@@ -458,8 +459,8 @@ INSERT INTO {$db_prefix}settings (variable, value) VALUES ('defaultMaxListItems'
 ---{
 	$ripped_settings = array('show_modify', 'show_user_images', 'show_blurb', 'show_profile_buttons', 'subject_toggle', 'hide_post_group');
 
-	$request = Db::$db->query('', '
-		SELECT variable, value
+	$request = Db::$db->query(
+		'SELECT variable, value
 		FROM {db_prefix}themes
 		WHERE variable IN({array_string:ripped_settings})
 			AND id_member = 0
@@ -700,8 +701,8 @@ while (!$is_done)
 		{
 			$size = @getimagesize($newFile);
 			if (!empty($size['mime']))
-				Db::$db->query('', '
-					UPDATE {db_prefix}attachments
+				Db::$db->query(
+					'UPDATE {db_prefix}attachments
 					SET mime_type = {string:mime_type}
 					WHERE id_attach = {int:id_attach}',
 					array(
@@ -731,8 +732,8 @@ $attachs = array();
 // If id_member = 0, then it's not an avatar
 // If attachment_type = 0, then it's also not a thumbnail
 // Theory says there shouldn't be *that* many of these
-$request = Db::$db->query('', '
-	SELECT id_attach, mime_type, width, height
+$request = Db::$db->query(
+	'SELECT id_attach, mime_type, width, height
 	FROM {db_prefix}attachments
 	WHERE id_member = 0
 		AND attachment_type = 0'
@@ -745,8 +746,8 @@ while ($row = Db::$db->fetch_assoc($request))
 Db::$db->free_result($request);
 
 if (!empty($attachs))
-	Db::$db->query('', '
-		UPDATE {db_prefix}attachments
+	Db::$db->query(
+		'UPDATE {db_prefix}attachments
 		SET width = 0,
 			height = 0
 		WHERE id_attach IN ({array_int:attachs})',
@@ -767,8 +768,8 @@ if (empty(Config::$modSettings['json_done']))
 	if (!is_array(Config::$modSettings['attachmentUploadDir']) && is_dir(Config::$modSettings['attachmentUploadDir']))
 	{
 		Config::$modSettings['attachmentUploadDir'] = serialize(array(1 => Config::$modSettings['attachmentUploadDir']));
-		Db::$db->query('', '
-			UPDATE {db_prefix}settings
+		Db::$db->query(
+			'UPDATE {db_prefix}settings
 			SET value = {string:attach_dir}
 			WHERE variable = {string:uploadDir}',
 			array(
@@ -786,8 +787,8 @@ if (empty(Config::$modSettings['json_done']))
 	elseif (is_array(Config::$modSettings['attachmentUploadDir']))
 	{
 		Config::$modSettings['attachmentUploadDir'] = serialize(Config::$modSettings['attachmentUploadDir']);
-		Db::$db->query('', '
-			UPDATE {db_prefix}settings
+		Db::$db->query(
+			'UPDATE {db_prefix}settings
 			SET value = {string:attach_dir}
 			WHERE variable = {string:uploadDir}',
 			array(
@@ -850,8 +851,8 @@ ADD COLUMN IF NOT EXISTS extra TEXT;
 
 ---# Add Package Validation to Downloads Site
 ---{
-	$request = Db::$db->query('', '
-		SELECT id_server
+	$request = Db::$db->query(
+		'SELECT id_server
 		FROM {db_prefix}package_servers
 		WHERE url LIKE {string:downloads_site}',
 		array(
@@ -960,8 +961,8 @@ VALUES
 ---{
 	if (!isset(Config::$modSettings['allow_expire_redirect']))
 	{
-		$get_info = Db::$db->query('', '
-			SELECT disabled
+		$get_info = Db::$db->query(
+			'SELECT disabled
 			FROM {db_prefix}scheduled_tasks
 			WHERE task = {string:remove_redirect}',
 			array(
@@ -997,8 +998,8 @@ VALUES
 		'weekly_digest',
 		'weekly_maintenance');
 
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}scheduled_tasks
+	Db::$db->query(
+		'DELETE FROM {db_prefix}scheduled_tasks
 		WHERE task NOT IN ({array_string:keep_tasks});',
 		array(
 			'keep_tasks' => $vanilla_tasks
@@ -1052,8 +1053,8 @@ if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.
 {
 	$board_managers = array();
 
-	$request = Db::$db->query('', '
-		SELECT id_group
+	$request = Db::$db->query(
+		'SELECT id_group
 		FROM {db_prefix}permissions
 		WHERE permission = {string:permission}',
 		array(
@@ -1067,8 +1068,8 @@ if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.
 	}
 	Db::$db->free_result($request);
 
-	$request = Db::$db->query('', '
-		SELECT member_groups
+	$request = Db::$db->query(
+		'SELECT member_groups
 		FROM {db_prefix}boards',
 		array()
 	);
@@ -1089,8 +1090,8 @@ if (version_compare(trim(strtolower(@Config::$modSettings['smfVersion'])), '2.1.
 
 	if (!empty($ex_board_managers))
 	{
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}permissions
+		Db::$db->query(
+			'DELETE FROM {db_prefix}permissions
 			WHERE permission = {string:permission}
 				AND id_group IN ({array_int:ex_board_managers})',
 			array(
@@ -1203,7 +1204,7 @@ if (in_array('notify_regularity', $results))
 	$limit = 10000;
 	$is_done = false;
 
-	$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	$request = Db::$db->query('SELECT COUNT(*) FROM {db_prefix}members');
 	list($maxMembers) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
@@ -1213,8 +1214,8 @@ if (in_array('notify_regularity', $results))
 		$inserts = array();
 
 		// Skip errors here so we don't croak if the columns don't exist...
-		$request = Db::$db->query('', '
-			SELECT id_member, notify_regularity, notify_send_body, notify_types, notify_announcements
+		$request = Db::$db->query(
+			'SELECT id_member, notify_regularity, notify_send_body, notify_types, notify_announcements
 			FROM {db_prefix}members
 			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
@@ -1271,8 +1272,8 @@ $step_progress['current'] = $_GET['a'];
 $limit = 10000;
 $is_done = false;
 
-$request = Db::$db->query('', '
-	SELECT COUNT(*)
+$request = Db::$db->query(
+	'SELECT COUNT(*)
 	FROM {db_prefix}themes
 	WHERE variable = {string:auto_notify}',
 	array(
@@ -1288,8 +1289,8 @@ while (!$is_done)
 	$inserts = array();
 
 	// This setting is stored over in the themes table in 2.0...
-	$request = Db::$db->query('', '
-		SELECT id_member, value
+	$request = Db::$db->query(
+		'SELECT id_member, value
 		FROM {db_prefix}themes
 		WHERE variable = {string:auto_notify}
 		ORDER BY id_member
@@ -1340,7 +1341,7 @@ DELETE FROM {$db_prefix}themes
 	$limit = 10000;
 	$is_done = false;
 
-	$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_topic <> 0');
+	$request = Db::$db->query('SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_topic <> 0');
 	list($maxTopics) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
@@ -1349,8 +1350,8 @@ DELETE FROM {$db_prefix}themes
 		nextSubStep($substep);
 		$inserts = array();
 
-		$request = Db::$db->query('', '
-			SELECT id_member, (\'topic_notify_\' || id_topic) as alert_pref, 1 as alert_value
+		$request = Db::$db->query(
+			'SELECT id_member, (\'topic_notify_\' || id_topic) as alert_pref, 1 as alert_value
 			FROM {db_prefix}log_notify
 			WHERE id_member <> 0 AND id_topic <> 0
 			LIMIT {int:start}, {int:limit}',
@@ -1392,7 +1393,7 @@ DELETE FROM {$db_prefix}themes
 	$limit = 10000;
 	$is_done = false;
 
-	$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
+	$request = Db::$db->query('SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
 	list($maxBoards) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
@@ -1401,8 +1402,8 @@ DELETE FROM {$db_prefix}themes
 		nextSubStep($substep);
 		$inserts = array();
 
-		$request = Db::$db->query('', '
-			SELECT id_member, (\'board_notify_\' || id_board) as alert_pref, 1 as alert_value
+		$request = Db::$db->query(
+			'SELECT id_member, (\'board_notify_\' || id_board) as alert_pref, 1 as alert_value
 			FROM {db_prefix}log_notify
 			WHERE id_member <> 0 AND id_board <> 0
 			LIMIT {int:start}, {int:limit}',
@@ -1532,8 +1533,8 @@ SET id_theme = 0;
 /******************************************************************************/
 ---# Check the current saved names for icons and change them to the new name.
 ---{
-$request = Db::$db->query('', '
-	SELECT icons
+$request = Db::$db->query(
+	'SELECT icons
 	FROM {db_prefix}membergroups
 	WHERE icons != {string:blank}',
 	array(
@@ -1574,8 +1575,8 @@ while ($row = Db::$db->fetch_assoc($request))
 Db::$db->free_result($request);
 
 foreach ($toChange as $change)
-	Db::$db->query('', '
-		UPDATE {db_prefix}membergroups
+	Db::$db->query(
+		'UPDATE {db_prefix}membergroups
 		SET icons = {string:new}
 		WHERE icons = {string:old}',
 		array(
@@ -1604,8 +1605,8 @@ foreach ($toMove as $move)
 ---# Clean up settings for unused themes
 ---{
 // Fetch list of theme directories
-$request = Db::$db->query('', '
-	SELECT id_theme, variable, value
+$request = Db::$db->query(
+	'SELECT id_theme, variable, value
 	FROM {db_prefix}themes
 	WHERE variable = {string:theme_dir}
 		AND id_theme != {int:default_theme};',
@@ -1624,8 +1625,8 @@ while ($row = Db::$db->fetch_assoc($request))	{
 	}
 }
 // Cleanup unused theme settings
-Db::$db->query('', '
-	DELETE FROM {db_prefix}themes
+Db::$db->query(
+	'DELETE FROM {db_prefix}themes
 	WHERE id_theme NOT IN ({array_int:known_themes});',
 	array(
 		'known_themes' => $known_themes,
@@ -1633,8 +1634,8 @@ Db::$db->query('', '
 );
 // Set knownThemes
 $known_themes = implode(',', $known_themes);
-Db::$db->query('', '
-	UPDATE {db_prefix}settings
+Db::$db->query(
+	'UPDATE {db_prefix}settings
 	SET value = {string:known_themes}
 	WHERE variable = {string:known_theme_str};',
 	array(
@@ -1669,8 +1670,8 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 
 ---# Add an order value to each existing cust profile field.
 ---{
-	$ocf = Db::$db->query('', '
-		SELECT id_field
+	$ocf = Db::$db->query(
+		'SELECT id_field
 		FROM {db_prefix}custom_fields
 		WHERE field_order = 0');
 
@@ -1681,8 +1682,8 @@ INSERT INTO {$db_prefix}custom_fields (col_name, field_name, field_desc, field_t
 		{
 			++$fields_count;
 
-			Db::$db->query('', '
-				UPDATE {db_prefix}custom_fields
+			Db::$db->query(
+				'UPDATE {db_prefix}custom_fields
 				SET field_order = {int:field_count}
 				WHERE id_field = {int:id_field}',
 				array(
@@ -1711,7 +1712,7 @@ if (!empty($select_columns))
 	$step_progress['name'] = 'Converting member values';
 	$step_progress['current'] = $_GET['a'];
 
-	$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	$request = Db::$db->query('SELECT COUNT(*) FROM {db_prefix}members');
 	list($maxMembers) = Db::$db->fetch_row($request);
 
 	$limit = 10000;
@@ -1722,8 +1723,8 @@ if (!empty($select_columns))
 		nextSubStep($substep);
 		$inserts = array();
 
-		$request = Db::$db->query('', '
-			SELECT id_member, '. implode(',', $select_columns) .'
+		$request = Db::$db->query(
+			'SELECT id_member, '. implode(',', $select_columns) .'
 			FROM {db_prefix}members
 			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
@@ -1778,8 +1779,8 @@ ALTER TABLE {$db_prefix}members
 ---{
 	if (empty(Config::$modSettings['displayFields']))
 	{
-		$request = Db::$db->query('', '
-			SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
+		$request = Db::$db->query(
+			'SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist
 			FROM {db_prefix}custom_fields',
 			array()
 		);
@@ -1970,8 +1971,8 @@ WHERE variable = 'avatar_action_too_large'
 ---# Cleaning up the old Core Features page.
 ---{
 	// First get the original value
-	$request = Db::$db->query('', '
-		SELECT value
+	$request = Db::$db->query(
+		'SELECT value
 		FROM {db_prefix}settings
 		WHERE variable = {literal:admin_features}'
 	);
@@ -2031,8 +2032,8 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 ---# Update the SM Stat collection.
 ---{
 	// First get the original value
-	$request = Db::$db->query('', '
-		SELECT value
+	$request = Db::$db->query(
+		'SELECT value
 		FROM {db_prefix}settings
 		WHERE variable = {literal:allow_sm_stats}'
 	);
@@ -2050,8 +2051,8 @@ WHERE variable IN ('show_board_desc', 'display_quick_reply', 'show_mark_read', '
 				array('variable')
 			);
 
-			Db::$db->query('', '
-				DELETE FROM {db_prefix}settings
+			Db::$db->query(
+				'DELETE FROM {db_prefix}settings
 				WHERE variable = {literal:allow_sm_stats}');
 		}
 	}
@@ -2105,8 +2106,8 @@ WHERE filename IN ('latest-packages.js', 'latest-smileys.js', 'latest-support.js
 ---# But we do need new files.
 ---{
 // Don't insert the info if it's already there...
-$file_check = Db::$db->query('', '
-	SELECT id_file
+$file_check = Db::$db->query(
+	'SELECT id_file
 	FROM {db_prefix}admin_info_files
 	WHERE filename = {string:latest-versions}',
 	array(
@@ -2259,8 +2260,8 @@ if (isset(Config::$modSettings['warning_show']))
 	{
 		$can_view_warning_own[] = 0;
 
-		$request = Db::$db->query('', '
-			SELECT id_group
+		$request = Db::$db->query(
+			'SELECT id_group
 			FROM {db_prefix}membergroups
 			WHERE min_posts = {int:not_post_based}',
 			array(
@@ -2281,8 +2282,8 @@ if (isset(Config::$modSettings['warning_show']))
 		$can_view_warning_any = $can_view_warning_own;
 	else
 	{
-		$request = Db::$db->query('', '
-			SELECT id_group, add_deny
+		$request = Db::$db->query(
+			'SELECT id_group, add_deny
 			FROM {db_prefix}permissions
 			WHERE permission = {string:perm}',
 			array(
@@ -2317,8 +2318,8 @@ if (isset(Config::$modSettings['warning_show']))
 		);
 	}
 
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}settings
+	Db::$db->query(
+		'DELETE FROM {db_prefix}settings
 		WHERE variable = {string:warning_show}',
 		array(
 			'warning_show' => 'warning_show',
@@ -2399,8 +2400,8 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 		$step_progress['name'] = 'Moving pm labels';
 		$step_progress['current'] = $_GET['a'];
 
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
+		$request = Db::$db->query(
+			'SELECT COUNT(*)
 			FROM {db_prefix}members
 			WHERE message_labels != {string:blank}',
 			array(
@@ -2421,8 +2422,8 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				$inserts = array();
 
 				// Pull the label info
-				$get_labels = Db::$db->query('', '
-					SELECT id_member, message_labels
+				$get_labels = Db::$db->query(
+					'SELECT id_member, message_labels
 					FROM {db_prefix}members
 					WHERE message_labels != {string:blank}
 					ORDER BY id_member
@@ -2470,8 +2471,8 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				}
 
 				// This is the easy part - update the inbox stuff
-				Db::$db->query('', '
-					UPDATE {db_prefix}pm_recipients
+				Db::$db->query(
+					'UPDATE {db_prefix}pm_recipients
 					SET in_inbox = {int:in_inbox}
 					WHERE FIND_IN_SET({int:minusone}, labels) > 0
 						AND id_member IN ({array_int:member_list})',
@@ -2483,8 +2484,8 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				);
 
 				// Now we go pull the new IDs for each label
-				$get_new_label_ids = Db::$db->query('', '
-					SELECT *
+				$get_new_label_ids = Db::$db->query(
+					'SELECT *
 					FROM {db_prefix}pm_labels
 					WHERE id_member IN ({array_int:member_list})',
 					array(
@@ -2504,8 +2505,8 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 
 				// Pull label info from pm_recipients
 				// Ignore any that are only in the inbox
-				$get_pm_labels = Db::$db->query('', '
-					SELECT id_pm, id_member, labels
+				$get_pm_labels = Db::$db->query(
+					'SELECT id_pm, id_member, labels
 					FROM {db_prefix}pm_recipients
 					WHERE deleted = {int:not_deleted}
 						AND labels != {string:minus_one}
@@ -2540,8 +2541,8 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				}
 
 				// Final step of this ridiculously massive process
-				$get_pm_rules = Db::$db->query('', '
-					SELECT id_member, id_rule, actions
+				$get_pm_rules = Db::$db->query(
+					'SELECT id_member, id_rule, actions
 					FROM {db_prefix}pm_rules
 					WHERE id_member IN ({array_int:member_list})',
 					array(
@@ -2573,8 +2574,8 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 						// Put this back into a string
 						$actions = serialize($actions);
 
-						Db::$db->query('', '
-							UPDATE {db_prefix}pm_rules
+						Db::$db->query(
+							'UPDATE {db_prefix}pm_rules
 							SET actions = {string:actions}
 							WHERE id_rule = {int:id_rule}',
 							array(
@@ -2586,8 +2587,8 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				}
 
 				// Remove processed pm labels, to avoid duplicated data if upgrader is restarted.
-				Db::$db->query('', '
-					UPDATE {db_prefix}members
+				Db::$db->query(
+					'UPDATE {db_prefix}members
 					SET message_labels = {string:blank}
 					WHERE id_member IN ({array_int:member_list})',
 					array(
@@ -2647,8 +2648,8 @@ ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 
 	$illegal_permissions = array('calendar_edit_any', 'moderate_board', 'moderate_forum', 'send_email_to_members');
 
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}board_permissions
+	Db::$db->query(
+		'DELETE FROM {db_prefix}board_permissions
 		WHERE id_group = {int:guests}
 			AND permission IN ({array_string:illegal_board_perms})',
 		array(
@@ -2657,8 +2658,8 @@ ADD COLUMN IF NOT EXISTS modified_reason varchar(255) NOT NULL default '';
 		)
 	);
 
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}permissions
+	Db::$db->query(
+		'DELETE FROM {db_prefix}permissions
 		WHERE id_group = {int:guests}
 			AND permission IN ({array_string:illegal_perms})',
 		array(
@@ -2720,8 +2721,8 @@ ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL 
 			Config::$modSettings['default_timezone'] = $new_tzid;
 		}
 
-		Db::$db->query('', '
-			DELETE FROM {db_prefix}settings
+		Db::$db->query(
+			'DELETE FROM {db_prefix}settings
 			WHERE variable = {literal:time_offset}',
 			array()
 		);
@@ -2754,8 +2755,8 @@ ALTER TABLE {$db_prefix}members ADD IF NOT EXISTS timezone VARCHAR(80) NOT NULL 
 /******************************************************************************/
 ---# Removing the "send_email_to_members" permission
 ---{
-	Db::$db->query('', '
-		DELETE FROM {db_prefix}permissions
+	Db::$db->query(
+		'DELETE FROM {db_prefix}permissions
 		WHERE permission = {literal:send_email_to_members}',
 		array()
 	);
@@ -2869,8 +2870,8 @@ CREATE INDEX {$db_prefix}members_active_real_name ON {$db_prefix}members (is_act
 /******************************************************************************/
 ---# update table
 ---{
-$result = Db::$db->query('', '
-	SHOW server_version_num'
+$result = Db::$db->query(
+	'SHOW server_version_num'
 );
 if ($result !== false)
 {
@@ -3291,7 +3292,7 @@ if (in_array('pm_email_notify', $results))
 	$limit = 10000;
 	$is_done = false;
 
-	$request = Db::$db->query('', 'SELECT COUNT(*) FROM {db_prefix}members');
+	$request = Db::$db->query('SELECT COUNT(*) FROM {db_prefix}members');
 	list($maxMembers) = Db::$db->fetch_row($request);
 	Db::$db->free_result($request);
 
@@ -3301,8 +3302,8 @@ if (in_array('pm_email_notify', $results))
 		$inserts = array();
 
 		// Skip errors here so we don't croak if the columns don't exist...
-		$request = Db::$db->query('', '
-			SELECT id_member, pm_email_notify
+		$request = Db::$db->query(
+			'SELECT id_member, pm_email_notify
 			FROM {db_prefix}members
 			ORDER BY id_member
 			LIMIT {int:start}, {int:limit}',
@@ -4176,8 +4177,8 @@ foreach($files AS $filename)
 	// Setup progress bar
 	if (!isset($_GET['total_fixes']) || !isset($_GET['a']) || !isset($_GET['last_action_id']))
 	{
-		$request = Db::$db->query('', '
-			SELECT COUNT(*)
+		$request = Db::$db->query(
+			'SELECT COUNT(*)
 				FROM {db_prefix}log_actions
 				WHERE id_member = {int:blank_id}
 				AND action IN ({array_string:target_actions})',
@@ -4207,8 +4208,8 @@ foreach($files AS $filename)
 		nextSubstep($current_substep);
 
 		$extras = array();
-		$request = Db::$db->query('', '
-			SELECT id_action, extra
+		$request = Db::$db->query(
+			'SELECT id_action, extra
 				FROM {db_prefix}log_actions
 				WHERE id_member = {int:blank_id}
 				AND action IN ({array_string:target_actions})
@@ -4239,8 +4240,8 @@ foreach($files AS $filename)
 
 			if (!empty($extra['applicator']))
 			{
-				$request = Db::$db->query('', '
-					UPDATE {db_prefix}log_actions
+				$request = Db::$db->query(
+					'UPDATE {db_prefix}log_actions
 						SET id_member = {int:id_member}
 						WHERE id_action = {int:id_action}',
 					array(

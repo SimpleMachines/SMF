@@ -38,8 +38,6 @@ class Tracking implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -240,7 +238,6 @@ class Tracking implements ActionInterface
 		// If this is a big forum, or a large posting user, let's limit the search.
 		if (Config::$modSettings['totalMessages'] > 50000 && Profile::$member->posts > 500) {
 			$request = Db::$db->query(
-				'',
 				'SELECT MAX(id_msg)
 				FROM {db_prefix}messages AS m
 				WHERE m.id_member = {int:current_member}',
@@ -266,7 +263,6 @@ class Tracking implements ActionInterface
 		Utils::$context['ips'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT poster_ip
 			FROM {db_prefix}messages
 			WHERE id_member = {int:current_member}
@@ -293,7 +289,6 @@ class Tracking implements ActionInterface
 		Utils::$context['error_ips'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS error_count, ip
 			FROM {db_prefix}log_errors
 			WHERE id_member = {int:current_member}
@@ -323,7 +318,6 @@ class Tracking implements ActionInterface
 			// Get member ID's which are in messages...
 			$message_members = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT DISTINCT mem.id_member
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -343,7 +337,6 @@ class Tracking implements ActionInterface
 			// Fetch their names, cause of the GROUP BY doesn't like giving us that normally.
 			if (!empty($message_members)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, real_name
 					FROM {db_prefix}members
 					WHERE id_member IN ({array_int:message_members})',
@@ -360,7 +353,6 @@ class Tracking implements ActionInterface
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_member != {int:current_member}
@@ -395,7 +387,6 @@ class Tracking implements ActionInterface
 		Utils::$context['custom_field_titles'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT col_name, field_name, bbc
 			FROM {db_prefix}custom_fields',
 			[
@@ -636,7 +627,6 @@ class Tracking implements ActionInterface
 		$error_messages = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				le.log_time, le.ip, le.url, le.message, COALESCE(mem.id_member, 0) AS id_member,
 				COALESCE(mem.real_name, {string:guest_title}) AS display_name, mem.member_name
@@ -678,7 +668,6 @@ class Tracking implements ActionInterface
 	public static function list_getUserErrorCount(string $where, array $where_vars = []): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_errors
 			WHERE ' . $where,
@@ -705,7 +694,6 @@ class Tracking implements ActionInterface
 
 		// Get a list of error messages from this ip (range).
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				id_action, id_member, ip, log_time, action, extra
 			FROM {db_prefix}log_actions
@@ -764,7 +752,6 @@ class Tracking implements ActionInterface
 			$members = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					id_member, real_name
 				FROM {db_prefix}members
@@ -797,7 +784,6 @@ class Tracking implements ActionInterface
 	public static function list_getProfileEditCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS edit_count
 			FROM {db_prefix}log_actions
 			WHERE id_log = {int:log_type}
@@ -826,7 +812,6 @@ class Tracking implements ActionInterface
 		$groupreq = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				lgr.id_group, mg.group_name, mg.online_color, lgr.time_applied, lgr.reason, lgr.status,
 				ma.id_member AS id_member_acted, COALESCE(ma.member_name, lgr.member_name_acted) AS act_name, lgr.time_acted, lgr.act_reason
@@ -898,7 +883,6 @@ class Tracking implements ActionInterface
 	public static function list_getGroupRequestsCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS req_count
 			FROM {db_prefix}log_group_requests AS lgr
 			WHERE id_member = {int:memID}
@@ -926,7 +910,6 @@ class Tracking implements ActionInterface
 	public static function list_getLogins(int $start, int $items_per_page, string $sort, string $where, array $where_vars = []): array
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT time, ip, ip2
 			FROM {db_prefix}member_logins
 			WHERE id_member = {int:id_member}
@@ -959,7 +942,6 @@ class Tracking implements ActionInterface
 	public static function list_getLoginCount(string $where, array $where_vars = []): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS message_count
 			FROM {db_prefix}member_logins
 			WHERE id_member = {int:id_member}',

@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Who;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -40,7 +40,6 @@ use SMF\Utils;
 class SearchEngines implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -134,7 +133,6 @@ class SearchEngines implements ActionInterface
 
 			// Delete the entries.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_spider_stats
 				WHERE last_seen < {int:delete_period}',
 				[
@@ -145,7 +143,6 @@ class SearchEngines implements ActionInterface
 
 		// Get the earliest and latest dates.
 		$request = Db::$db->query(
-			'',
 			'SELECT MIN(stat_date) AS first_date, MAX(stat_date) AS last_date
 			FROM {db_prefix}log_spider_stats',
 			[
@@ -207,7 +204,6 @@ class SearchEngines implements ActionInterface
 			$date_query = sprintf('%04d-%02d-01', substr($current_date, 0, 4), substr($current_date, 4));
 
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}log_spider_stats
 				WHERE stat_date < {date:date_being_viewed}',
@@ -308,7 +304,6 @@ class SearchEngines implements ActionInterface
 
 				// Delete the entries.
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_spider_hits
 					WHERE log_time < {int:delete_period}',
 					[
@@ -318,7 +313,6 @@ class SearchEngines implements ActionInterface
 			} else {
 				// Deleting all of them
 				Db::$db->query(
-					'',
 					'TRUNCATE TABLE {db_prefix}log_spider_hits',
 					[],
 				);
@@ -457,7 +451,6 @@ class SearchEngines implements ActionInterface
 
 			// Delete them all!
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}spiders
 				WHERE id_spider IN ({array_int:remove_list})',
 				[
@@ -466,7 +459,6 @@ class SearchEngines implements ActionInterface
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_spider_hits
 				WHERE id_spider IN ({array_int:remove_list})',
 				[
@@ -475,7 +467,6 @@ class SearchEngines implements ActionInterface
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_spider_stats
 				WHERE id_spider IN ({array_int:remove_list})',
 				[
@@ -491,7 +482,6 @@ class SearchEngines implements ActionInterface
 		Utils::$context['spider_last_seen'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_spider, MAX(last_seen) AS last_seen_time
 			FROM {db_prefix}log_spider_stats
 			GROUP BY id_spider',
@@ -617,7 +607,6 @@ class SearchEngines implements ActionInterface
 
 		// We need to load the groups for the spider group thingy.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE id_group != {int:admin_group}
@@ -707,7 +696,6 @@ class SearchEngines implements ActionInterface
 			// Goes in as it is...
 			if (Utils::$context['id_spider']) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}spiders
 					SET spider_name = {string:spider_name}, user_agent = {string:spider_agent},
 						ip_info = {string:ip_info}
@@ -756,7 +744,6 @@ class SearchEngines implements ActionInterface
 		// An edit?
 		if (Utils::$context['id_spider']) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_spider, spider_name, user_agent, ip_info
 				FROM {db_prefix}spiders
 				WHERE id_spider = {int:current_spider}',
@@ -882,7 +869,6 @@ class SearchEngines implements ActionInterface
 		$spider_hits = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_spider, MAX(log_time) AS last_seen, COUNT(*) AS num_hits
 			FROM {db_prefix}log_spider_hits
 			WHERE processed = {int:not_processed}
@@ -909,7 +895,6 @@ class SearchEngines implements ActionInterface
 			$date = Time::strftime('%Y-%m-%d', $stat['last_seen']);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_spider_stats
 				SET page_hits = page_hits + {int:hits},
 					last_seen = CASE WHEN last_seen > {int:last_seen} THEN last_seen ELSE {int:last_seen} END
@@ -941,7 +926,6 @@ class SearchEngines implements ActionInterface
 
 		// All processed.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_spider_hits
 			SET processed = {int:is_processed}
 			WHERE processed = {int:not_processed}',
@@ -965,7 +949,6 @@ class SearchEngines implements ActionInterface
 		$spiders = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_spider, spider_name, user_agent, ip_info
 			FROM {db_prefix}spiders
 			ORDER BY {raw:sort}
@@ -993,7 +976,6 @@ class SearchEngines implements ActionInterface
 	public static function list_getNumSpiders(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS num_spiders
 			FROM {db_prefix}spiders',
 			[
@@ -1018,7 +1000,6 @@ class SearchEngines implements ActionInterface
 		$spider_logs = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT sl.id_spider, sl.url, sl.log_time, s.spider_name
 			FROM {db_prefix}log_spider_hits AS sl
 				INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = sl.id_spider)
@@ -1047,7 +1028,6 @@ class SearchEngines implements ActionInterface
 	public static function list_getNumSpiderLogs(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS num_logs
 			FROM {db_prefix}log_spider_hits',
 			[
@@ -1073,7 +1053,6 @@ class SearchEngines implements ActionInterface
 		$spider_stats = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ss.id_spider, ss.stat_date, ss.page_hits, s.spider_name
 			FROM {db_prefix}log_spider_stats AS ss
 				INNER JOIN {db_prefix}spiders AS s ON (s.id_spider = ss.id_spider)
@@ -1103,7 +1082,6 @@ class SearchEngines implements ActionInterface
 	public static function list_getNumSpiderStats(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS num_stats
 			FROM {db_prefix}log_spider_stats',
 			[
@@ -1123,7 +1101,6 @@ class SearchEngines implements ActionInterface
 		$spiders = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_spider, spider_name
 			FROM {db_prefix}spiders',
 			[],
@@ -1159,6 +1136,10 @@ class SearchEngines implements ActionInterface
 
 		Utils::$context['sub_action'] = &$this->subaction;
 	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
 
 	/**
 	 * Finds and returns the file path to robots.txt, or else the file path

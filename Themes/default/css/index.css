@@ -4617,3 +4617,38 @@ input:checked + .slider:before {
 .fade-out {
     animation: fadeOut 0.3s ease forwards;
 }
+
+/* Diff output styling */
+del.diff {
+	background: rgba(255, 0, 0, 0.35);
+}
+ins.diff {
+	background: rgba(0, 255, 0, 0.35);
+}
+.diff:has(
+	address, article, aside, blockquote, caption, center, col, colgroup, dd,
+	details, dialog, dir, div, dl, dt, fieldset, figcaption, figure, footer,
+	form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, legend, listing, main,
+	menu, nav, ol, p, plaintext, pre, search, section, summary, table, tbody,
+	td, tfoot, thead, tr, ul, xmp
+) {
+	display: block;
+}
+del.diff + ins.diff {
+	margin-left: 0.15ch;
+}
+del.diff:has(+ ins.diff) > ol,
+del.diff:has(+ ins.diff) > ul,
+del.diff:has(+ ins.diff) > menu {
+	margin-bottom: 0;
+}
+del.diff + ins.diff > ol,
+del.diff + ins.diff > ul,
+del.diff + ins.diff > menu {
+	margin-top: 0;
+}
+.diff_blank_line::before {
+	content: "↩︎";
+	padding: 0 1px;
+	color: color-mix(in srgb, currentColor 35%, transparent);
+}

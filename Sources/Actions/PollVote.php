@@ -94,7 +94,6 @@ class PollVote implements ActionInterface, Routable
 
 				// Delete off the log.
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_polls
 					WHERE id_member = {int:current_member}
 						AND id_poll = {int:id_poll}',

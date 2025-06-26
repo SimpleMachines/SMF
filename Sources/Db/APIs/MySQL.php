@@ -35,38 +35,38 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 *******************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public string $title = MYSQL_TITLE;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public bool $sybase = false;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public bool $mb4 = true;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public bool $case_sensitive = false;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public bool $support_ignore = true;
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public bool $supports_pcre = false;
 
-	/********************
-	 * Runtime properties
-	 ********************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var object
@@ -124,9 +124,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 ****************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
-	public function query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
+	public function query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool
 	{
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
@@ -276,7 +276,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function quote(string $db_string, array $db_values, ?object $connection = null): string
 	{
@@ -296,7 +296,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function fetch_row(object $result): array|false|null
 	{
@@ -312,7 +312,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function fetch_assoc(object $result): array|false|null
 	{
@@ -329,7 +329,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function fetch_all(object $request): array
 	{
@@ -351,7 +351,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function fetch_object(object $result, string $class = 'stdClass', array $args = []): object|false|null
 	{
@@ -359,7 +359,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function free_result(object $result): bool
 	{
@@ -369,7 +369,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null
 	{
@@ -478,7 +478,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		if (!$with_returning || $method != 'ignore') {
 			// Do the insert.
 			$this->query(
-				'',
 				$queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
 				VALUES
 					' . implode(',
@@ -499,7 +498,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$old_id = $this->insert_id($table);
 
 				$this->query(
-					'',
 					$queryTitle . ' INTO ' . $table . '(`' . implode('`, `', $indexed_columns) . '`)
 					VALUES
 						' . $insertRows[$i],
@@ -530,7 +528,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					$where_string = implode(' AND ', $where_string);
 
 					$request = $this->query(
-						'',
 						'SELECT ' . $keys[0] . '
 						FROM ' . $table . '
 						WHERE ' . $where_string . '
@@ -578,7 +575,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function insert_id(string $table, ?string $field = null, ?object $connection = null): int
 	{
@@ -587,7 +584,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function update_from(array $table, array $from_tables, string $set, string $where, array $db_values, ?object $connection = null): bool
 	{
@@ -610,7 +607,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		return $this->query(
-			'',
 			'UPDATE ' . $table['name'] . ' AS ' . $table['alias'] . '
 				' . implode('
 				', $joins) . '
@@ -622,7 +618,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function num_rows(object $result): int
 	{
@@ -630,7 +626,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function data_seek(object $result, int $offset): bool
 	{
@@ -638,7 +634,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function num_fields(object $result): int
 	{
@@ -646,7 +642,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function escape_string(string $string, ?object $connection = null): string
 	{
@@ -654,7 +650,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function unescape_string(string $string): string
 	{
@@ -662,7 +658,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function fix_mb4(string $string): string
 	{
@@ -670,7 +666,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function server_info(?object $connection = null): string
 	{
@@ -678,7 +674,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function affected_rows(?object $connection = null): int
 	{
@@ -686,7 +682,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function transaction(string $type = 'commit', ?object $connection = null): bool
 	{
@@ -700,7 +696,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function error(?object $connection = null): string
 	{
@@ -712,7 +708,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function select(string $database, ?object $connection = null): bool
 	{
@@ -720,12 +716,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function get_engines(): array
 	{
 		if (empty($this->engines)) {
-			$request = $this->query('', 'SHOW ENGINES', []);
+			$request = $this->query('SHOW ENGINES', []);
 
 			while ($row = $this->fetch_assoc($request)) {
 				if ($row['Support'] == 'YES' || $row['Support'] == 'DEFAULT') {
@@ -740,7 +736,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function escape_wildcard_string(string $string, bool $translate_human_wildcards = false): string
 	{
@@ -760,7 +756,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function is_resource(mixed $result): bool
 	{
@@ -768,7 +764,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function ping(?object $connection = null): bool
 	{
@@ -776,7 +772,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function error_insert(array $error_array): void
 	{
@@ -824,7 +820,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function custom_order(string $field, array $array_values, bool $desc = false): string
 	{
@@ -842,7 +838,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function native_replace(): bool
 	{
@@ -850,7 +846,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cte_support(): bool
 	{
@@ -868,7 +864,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect_error(): string
 	{
@@ -876,7 +872,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect_errno(): int
 	{
@@ -884,7 +880,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function detect_charset(?string $table = null, ?string $column = null): string
 	{
@@ -896,7 +892,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// character set used by any given table or column is complicated.
 		if (!isset($detected)) {
 			$request = $this->query(
-				'',
 				'SELECT
 					s.DEFAULT_CHARACTER_SET_NAME,
 					t.TABLE_NAME,
@@ -953,7 +948,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 ****************************************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function backup_table(string $table, string $backup_table): object|bool
 	{
@@ -961,7 +956,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// First, get rid of the old table.
 		$this->query(
-			'',
 			'DROP TABLE IF EXISTS {raw:backup_table}',
 			[
 				'backup_table' => $backup_table,
@@ -970,7 +964,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Can we do this the quick way?
 		$result = $this->query(
-			'',
 			'CREATE TABLE {raw:backup_table} LIKE {raw:table}',
 			[
 				'backup_table' => $backup_table,
@@ -981,7 +974,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// If this failed, we go old school.
 		if ($result) {
 			$request = $this->query(
-				'',
 				'INSERT INTO {raw:backup_table}
 				SELECT *
 				FROM {raw:table}',
@@ -999,7 +991,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// At this point, the quick method failed.
 		$result = $this->query(
-			'',
 			'SHOW CREATE TABLE {raw:table}',
 			[
 				'table' => $table,
@@ -1059,7 +1050,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		$request = $this->query(
-			'',
 			'CREATE TABLE {raw:backup_table} {raw:create}
 			ENGINE={raw:engine}' . (empty($charset) ? '' : ' CHARACTER SET {raw:charset}' . (empty($collate) ? '' : ' COLLATE {raw:collate}')) . '
 			SELECT *
@@ -1080,7 +1070,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			$this->query(
-				'',
 				'ALTER TABLE {raw:backup_table}
 				CHANGE COLUMN {raw:column_detail} {raw:auto_inc}',
 				[
@@ -1095,7 +1084,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function optimize_table(string $table): int|float
 	{
@@ -1103,7 +1092,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Get how much overhead there is.
 		$request = $this->query(
-			'',
 			'SHOW TABLE STATUS LIKE {string:table_name}',
 			[
 				'table_name' => str_replace('_', '\\_', $table),
@@ -1114,7 +1102,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$data_before = $row['Data_free'] ?? 0;
 		$request = $this->query(
-			'',
 			'OPTIMIZE TABLE `{raw:table}`',
 			[
 				'table' => $table,
@@ -1127,7 +1114,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// How much left?
 		$request = $this->query(
-			'',
 			'SHOW TABLE STATUS LIKE {string:table}',
 			[
 				'table' => str_replace('_', '\\_', $table),
@@ -1142,7 +1128,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function table_sql(string $tableName): string
 	{
@@ -1159,7 +1145,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Find all the fields.
 		$result = $this->query(
-			'',
 			'SHOW FIELDS
 			FROM `{raw:table}`',
 			[
@@ -1197,7 +1182,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Find the keys.
 		$result = $this->query(
-			'',
 			'SHOW KEYS
 			FROM `{raw:table}`',
 			[
@@ -1234,7 +1218,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Now just get the comment and engine... (InnoDB, etc.)
 		$result = $this->query(
-			'',
 			'SHOW TABLE STATUS
 			LIKE {string:table}',
 			[
@@ -1251,7 +1234,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function list_tables(string|bool $db = false, string|bool $filter = false): array
 	{
@@ -1260,7 +1243,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$filter = $filter == false ? '' : ' LIKE \'' . $filter . '\'';
 
 		$request = $this->query(
-			'',
 			'SHOW TABLES
 			FROM `{raw:db}`
 			{raw:filter}',
@@ -1280,7 +1262,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function get_version(): string
 	{
@@ -1289,7 +1271,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		$request = $this->query(
-			'',
 			'SELECT VERSION()',
 			[
 			],
@@ -1301,7 +1282,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function get_vendor(): string
 	{
@@ -1309,7 +1290,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return $this->vendor;
 		}
 
-		$request = $this->query('', 'SELECT @@version_comment');
+		$request = $this->query('SELECT @@version_comment');
 		list($comment) = $this->fetch_row($request);
 		$this->free_result($request);
 
@@ -1330,7 +1311,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function allow_persistent(): bool
 	{
@@ -1344,15 +1325,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 *****************************************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
-	public function search_query(string $identifier, string $db_string, array $db_values = [], ?object $connection = null): object|bool
+	public function search_query(string $db_string, array $db_values = [], ?object $connection = null, ?string $identifier = null): object|bool
 	{
-		return $this->query($identifier, $db_string, $db_values, $connection);
+		return $this->query($db_string, $db_values, $connection, $identifier);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function search_support(string $search_type): bool
 	{
@@ -1362,7 +1343,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function create_word_search(string $size): void
 	{
@@ -1375,7 +1356,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		$this->query(
-			'',
 			'CREATE TABLE {db_prefix}log_search_words (
 				id_word {raw:size} unsigned NOT NULL default {string:string_zero},
 				id_msg int(10) unsigned NOT NULL default {string:string_zero},
@@ -1389,7 +1369,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function search_language(): ?string
 	{
@@ -1401,7 +1381,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 *******************************************/
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function add_column(string $table_name, array $column_info, array $parameters = [], string $if_exists = 'update', string $error = 'fatal'): bool
 	{
@@ -1430,7 +1410,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Now add the thing!
 		$this->query(
-			'',
 			'ALTER TABLE ' . $short_table_name . '
 			ADD ' . $this->create_query_column($column_info) . (empty($column_info['auto']) ? '' : ' primary key'),
 			[
@@ -1442,7 +1421,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function add_index(string $table_name, array $index_info, array $parameters = [], string $if_exists = 'update', string $error = 'fatal'): bool
 	{
@@ -1509,7 +1488,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// If we're here we know we don't have the index - so just add it.
 		if (!empty($index_info['type']) && $index_info['type'] == 'primary') {
 			$result = $this->query(
-				'',
 				'ALTER TABLE ' . $short_table_name . '
 				ADD PRIMARY KEY (' . $columns . ')',
 				[
@@ -1518,7 +1496,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		} else {
 			$result = $this->query(
-				'',
 				'ALTER TABLE ' . $short_table_name . '
 				ADD ' . (isset($index_info['type']) && $index_info['type'] == 'unique' ? 'UNIQUE' : 'INDEX') . ' ' . $index_info['name'] . ' (' . $columns . ')',
 				[
@@ -1532,7 +1509,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function calculate_type(string $type_name, ?int $type_size = null, bool $reverse = false): array
 	{
@@ -1587,7 +1564,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function change_column(string $table_name, string $old_column, array $column_info): bool
 	{
@@ -1664,7 +1641,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// Must be done first, in case the default type is inconsistent with the other changes.
 		if ($column_info['drop_default']) {
 			$this->query(
-				'',
 				'ALTER TABLE ' . $short_table_name . '
 				ALTER COLUMN `' . $old_column . '` DROP DEFAULT',
 				[
@@ -1691,7 +1667,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		$result = $this->query(
-			'',
 			'ALTER TABLE ' . $short_table_name . '
 			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' .
 				(!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
@@ -1706,7 +1681,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function create_table(string $table_name, array $columns, array $indexes = [], array $parameters = [], string $if_exists = 'ignore', string $error = 'fatal'): bool
 	{
@@ -1741,7 +1716,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				$db_trans = true;
 				$this->drop_table($short_table_name . '_old');
 				$this->query(
-					'',
 					'RENAME TABLE ' . $short_table_name . ' TO ' . $short_table_name . '_old',
 					[
 						'security_override' => true,
@@ -1826,7 +1800,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Create the table!
 		$this->query(
-			'',
 			$table_query,
 			[
 				'security_override' => true,
@@ -1838,7 +1811,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$same_col = [];
 
 			$request = $this->query(
-				'',
 				'SELECT count(*), column_name
 				FROM information_schema.columns
 				WHERE table_name in ({string:table1},{string:table2}) AND table_schema = {string:schema}
@@ -1857,7 +1829,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			$this->query(
-				'',
 				'INSERT INTO ' . $short_table_name . '('
 				. implode(',', $same_col) .
 				')
@@ -1873,7 +1844,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function drop_table(string $table_name, array $parameters = [], string $error = 'fatal'): bool
 	{
@@ -1897,7 +1868,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		if (in_array($full_table_name, $tables)) {
 			$query = 'DROP TABLE ' . $short_table_name;
 			$this->query(
-				'',
 				$query,
 				[
 					'security_override' => true,
@@ -1912,7 +1882,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function table_structure(string $table_name): array
 	{
@@ -1922,7 +1892,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Find the table engine and add that to the info as well
 		$table_status = $this->query(
-			'',
 			'SHOW TABLE STATUS
 			IN {raw:db}
 			LIKE {string:table}',
@@ -1947,7 +1916,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function list_columns(string $table_name, bool $detail = false, array $parameters = []): array
 	{
@@ -1956,7 +1925,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		$result = $this->query(
-			'',
 			'SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra"
 			FROM information_schema.columns
 			WHERE table_name = {string:table_name}
@@ -2011,7 +1979,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function list_indexes(string $table_name, bool $detail = false, array $parameters = []): array
 	{
@@ -2020,7 +1988,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		$result = $this->query(
-			'',
 			'SHOW KEYS
 			FROM {raw:table_name}
 			IN {raw:db}',
@@ -2069,7 +2036,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function remove_column(string $table_name, string $column_name, array $parameters = [], string $error = 'fatal'): bool
 	{
@@ -2081,7 +2048,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		foreach ($columns as $column) {
 			if ($column['name'] == $column_name) {
 				$this->query(
-					'',
 					'ALTER TABLE ' . $short_table_name . '
 					DROP COLUMN ' . $column_name,
 					[
@@ -2098,7 +2064,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function remove_index(string $table_name, string $index_name, array $parameters = [], string $error = 'fatal'): bool
 	{
@@ -2112,7 +2078,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if ($index['type'] == 'primary' && $index_name == 'primary') {
 				// Dropping primary key?
 				$this->query(
-					'',
 					'ALTER TABLE ' . $short_table_name . '
 					DROP PRIMARY KEY',
 					[
@@ -2126,7 +2091,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			if ($index['name'] == $index_name) {
 				// Drop the bugger...
 				$this->query(
-					'',
 					'ALTER TABLE ' . $short_table_name . '
 					DROP INDEX ' . $index_name,
 					[
@@ -2212,7 +2176,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		// and that it should reply in UTF-8. This is an independent matter from
 		// whatever charset MySQL uses to store the data.
 		$this->query(
-			'',
 			'SET NAMES {string:db_character_set}',
 			[
 				'db_character_set' => 'utf8mb4',
@@ -2495,8 +2458,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 * @param string $error_message The error message
 	 * @param string $log_message The message to log
 	 * @param string|int|bool $error_type What type of error this is
-	 * @param string $file The file the error occurred in
-	 * @param int $line What line of $file the code which generated the error is on
+	 * @param null|string $file The file the error occurred in
+	 * @param null|int $line What line of $file the code which generated the error is on
 	 * @return array Returns an array with the file and line if $error_type is
 	 *    'return'. Otherwise, just dies.
 	 */

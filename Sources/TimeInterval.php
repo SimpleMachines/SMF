@@ -324,7 +324,7 @@ class TimeInterval extends \DateInterval implements \Stringable
 	/**
 	 * Convert a \DateInterval object into a TimeInterval object.
 	 *
-	 * @param string $object A \DateInterval object.
+	 * @param \DateInterval $object A \DateInterval object.
 	 * @return TimeInterval A TimeInterval object.
 	 */
 	public static function createFromDateInterval(\DateInterval $object): static

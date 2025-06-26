@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\TopicRemove;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Category;
 use SMF\Config;
@@ -45,7 +45,6 @@ use SMF\Utils;
 class Maintenance implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -250,7 +249,6 @@ class Maintenance implements ActionInterface
 		Utils::$context['categories'] = [];
 
 		$result = Db::$db->query(
-			'order_by_board_order',
 			'SELECT b.id_board, b.name, b.child_level, c.name AS cat_name, c.id_cat
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)
@@ -259,6 +257,7 @@ class Maintenance implements ActionInterface
 			[
 				'blank_redirect' => '',
 			],
+			identifier: 'order_by_board_order',
 		);
 
 		while ($row = Db::$db->fetch_assoc($result)) {
@@ -388,7 +387,6 @@ class Maintenance implements ActionInterface
 
 		// Step the number of topics at a time so things don't time out...
 		$request = Db::$db->query(
-			'',
 			'SELECT MAX(id_topic)
 			FROM {db_prefix}topics',
 			[
@@ -412,7 +410,6 @@ class Maintenance implements ActionInterface
 			while ($_REQUEST['start'] < $max_topics) {
 				// Recount approved messages
 				$request = Db::$db->query(
-					'',
 					'SELECT t.id_topic, MAX(t.num_replies) AS num_replies,
 						GREATEST(COUNT(ma.id_msg) - 1, 0) AS real_num_replies
 					FROM {db_prefix}topics AS t
@@ -430,7 +427,6 @@ class Maintenance implements ActionInterface
 
 				while ($row = Db::$db->fetch_assoc($request)) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}topics
 						SET num_replies = {int:num_replies}
 						WHERE id_topic = {int:id_topic}',
@@ -444,7 +440,6 @@ class Maintenance implements ActionInterface
 
 				// Recount unapproved messages
 				$request = Db::$db->query(
-					'',
 					'SELECT t.id_topic, MAX(t.unapproved_posts) AS unapproved_posts,
 						COUNT(mu.id_msg) AS real_unapproved_posts
 					FROM {db_prefix}topics AS t
@@ -462,7 +457,6 @@ class Maintenance implements ActionInterface
 
 				while ($row = Db::$db->fetch_assoc($request)) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}topics
 						SET unapproved_posts = {int:unapproved_posts}
 						WHERE id_topic = {int:id_topic}',
@@ -491,7 +485,6 @@ class Maintenance implements ActionInterface
 		if ($_REQUEST['step'] <= 1) {
 			if (empty($_REQUEST['start'])) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}boards
 					SET num_posts = {int:num_posts}
 					WHERE redirect = {string:redirect}',
@@ -504,7 +497,6 @@ class Maintenance implements ActionInterface
 
 			while ($_REQUEST['start'] < $max_topics) {
 				$request = Db::$db->query(
-					'',
 					'SELECT m.id_board, COUNT(*) AS real_num_posts
 					FROM {db_prefix}messages AS m
 					WHERE m.id_topic > {int:id_topic_min}
@@ -520,7 +512,6 @@ class Maintenance implements ActionInterface
 
 				while ($row = Db::$db->fetch_assoc($request)) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}boards
 						SET num_posts = num_posts + {int:real_num_posts}
 						WHERE id_board = {int:id_board}',
@@ -549,7 +540,6 @@ class Maintenance implements ActionInterface
 		if ($_REQUEST['step'] <= 2) {
 			if (empty($_REQUEST['start'])) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}boards
 					SET num_topics = {int:num_topics}',
 					[
@@ -560,7 +550,6 @@ class Maintenance implements ActionInterface
 
 			while ($_REQUEST['start'] < $max_topics) {
 				$request = Db::$db->query(
-					'',
 					'SELECT t.id_board, COUNT(*) AS real_num_topics
 					FROM {db_prefix}topics AS t
 					WHERE t.approved = {int:is_approved}
@@ -576,7 +565,6 @@ class Maintenance implements ActionInterface
 
 				while ($row = Db::$db->fetch_assoc($request)) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}boards
 						SET num_topics = num_topics + {int:real_num_topics}
 						WHERE id_board = {int:id_board}',
@@ -605,7 +593,6 @@ class Maintenance implements ActionInterface
 		if ($_REQUEST['step'] <= 3) {
 			if (empty($_REQUEST['start'])) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}boards
 					SET unapproved_posts = {int:unapproved_posts}',
 					[
@@ -616,7 +603,6 @@ class Maintenance implements ActionInterface
 
 			while ($_REQUEST['start'] < $max_topics) {
 				$request = Db::$db->query(
-					'',
 					'SELECT m.id_board, COUNT(*) AS real_unapproved_posts
 					FROM {db_prefix}messages AS m
 					WHERE m.id_topic > {int:id_topic_min}
@@ -632,7 +618,6 @@ class Maintenance implements ActionInterface
 
 				while ($row = Db::$db->fetch_assoc($request)) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}boards
 						SET unapproved_posts = unapproved_posts + {int:unapproved_posts}
 						WHERE id_board = {int:id_board}',
@@ -661,7 +646,6 @@ class Maintenance implements ActionInterface
 		if ($_REQUEST['step'] <= 4) {
 			if (empty($_REQUEST['start'])) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}boards
 					SET unapproved_topics = {int:unapproved_topics}',
 					[
@@ -672,7 +656,6 @@ class Maintenance implements ActionInterface
 
 			while ($_REQUEST['start'] < $max_topics) {
 				$request = Db::$db->query(
-					'',
 					'SELECT t.id_board, COUNT(*) AS real_unapproved_topics
 					FROM {db_prefix}topics AS t
 					WHERE t.approved = {int:is_approved}
@@ -688,7 +671,6 @@ class Maintenance implements ActionInterface
 
 				while ($row = Db::$db->fetch_assoc($request)) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}boards
 						SET unapproved_topics = unapproved_topics + {int:real_unapproved_topics}
 						WHERE id_board = {int:id_board}',
@@ -716,7 +698,6 @@ class Maintenance implements ActionInterface
 		// Get all members with wrong number of personal messages.
 		if ($_REQUEST['step'] <= 5) {
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.id_member, COUNT(pmr.id_pm) AS real_num,
 					MAX(mem.instant_messages) AS instant_messages
 				FROM {db_prefix}members AS mem
@@ -734,7 +715,6 @@ class Maintenance implements ActionInterface
 			Db::$db->free_result($request);
 
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.id_member, COUNT(pmr.id_pm) AS real_num,
 					MAX(mem.unread_messages) AS unread_messages
 				FROM {db_prefix}members AS mem
@@ -764,7 +744,6 @@ class Maintenance implements ActionInterface
 		if ($_REQUEST['step'] <= 6) {
 			while ($_REQUEST['start'] < Config::$modSettings['maxMsgID']) {
 				$request = Db::$db->query(
-					'',
 					'SELECT t.id_board, m.id_msg
 					FROM {db_prefix}messages AS m
 						INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic AND t.id_board != m.id_board)
@@ -785,7 +764,6 @@ class Maintenance implements ActionInterface
 
 				foreach ($boards as $board_id => $messages) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}messages
 						SET id_board = {int:id_board}
 						WHERE id_msg IN ({array_int:id_msg_array})',
@@ -811,7 +789,6 @@ class Maintenance implements ActionInterface
 
 		// Update the latest message of each board.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_board, MAX(m.id_msg) AS local_last_msg
 			FROM {db_prefix}messages AS m
 			WHERE m.approved = {int:is_approved}
@@ -828,7 +805,6 @@ class Maintenance implements ActionInterface
 		Db::$db->free_result($request);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_board, id_parent, id_last_msg, child_level, id_msg_updated
 			FROM {db_prefix}boards',
 			[
@@ -858,7 +834,6 @@ class Maintenance implements ActionInterface
 				// If what is and what should be the latest message differ, an update is necessary.
 				if ($row['local_last_msg'] != $row['id_last_msg'] || $curLastModifiedMsg != $row['id_msg_updated']) {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}boards
 						SET id_last_msg = {int:id_last_msg}, id_msg_updated = {int:id_msg_updated}
 						WHERE id_board = {int:id_board}',
@@ -911,23 +886,35 @@ class Maintenance implements ActionInterface
 		SecurityToken::validate('admin-maint');
 
 		// No one's online now.... MUHAHAHAHA :P.
-		Db::$db->query('', 'DELETE FROM {db_prefix}log_online');
+		Db::$db->query('DELETE FROM {db_prefix}log_online');
 
 		// Dump the banning logs.
-		Db::$db->query('', 'DELETE FROM {db_prefix}log_banned');
+		Db::$db->query('DELETE FROM {db_prefix}log_banned');
 
 		// Start id_error back at 0 and dump the error log.
-		Db::$db->query('truncate_table', 'TRUNCATE {db_prefix}log_errors');
+		Db::$db->query(
+			'TRUNCATE {db_prefix}log_errors',
+			identifier: 'truncate_table',
+		);
 
 		// Clear out the spam log.
-		Db::$db->query('', 'DELETE FROM {db_prefix}log_floodcontrol');
+		Db::$db->query('DELETE FROM {db_prefix}log_floodcontrol');
 
 		// Last but not least, the search logs!
-		Db::$db->query('truncate_table', 'TRUNCATE {db_prefix}log_search_topics');
+		Db::$db->query(
+			'TRUNCATE {db_prefix}log_search_topics',
+			identifier: 'truncate_table',
+		);
 
-		Db::$db->query('truncate_table', 'TRUNCATE {db_prefix}log_search_messages');
+		Db::$db->query(
+			'TRUNCATE {db_prefix}log_search_messages',
+			identifier: 'truncate_table',
+		);
 
-		Db::$db->query('truncate_table', 'TRUNCATE {db_prefix}log_search_results');
+		Db::$db->query(
+			'TRUNCATE {db_prefix}log_search_results',
+			identifier: 'truncate_table',
+		);
 
 		Config::updateModSettings(['search_pointer' => 0]);
 
@@ -1123,7 +1110,6 @@ class Maintenance implements ActionInterface
 
 			if (Config::$db_type == 'postgresql') {
 				$request = Db::$db->query(
-					'',
 					'SELECT column_name "Field", data_type "Type"
 					FROM information_schema.columns
 					WHERE table_name = {string:cur_table}
@@ -1134,7 +1120,6 @@ class Maintenance implements ActionInterface
 				);
 			} else {
 				$request = Db::$db->query(
-					'',
 					'SHOW FULL COLUMNS
 					FROM {db_prefix}{raw:cur_table}',
 					[
@@ -1152,7 +1137,6 @@ class Maintenance implements ActionInterface
 			// Get the column with the (first) primary key.
 			if (Config::$db_type == 'postgresql') {
 				$request = Db::$db->query(
-					'',
 					'SELECT a.attname "Column_name", \'PRIMARY\' "Key_name", attnum "Seq_in_index"
 					FROM   pg_index i
 					JOIN   pg_attribute a ON a.attrelid = i.indrelid
@@ -1165,7 +1149,6 @@ class Maintenance implements ActionInterface
 				);
 			} else {
 				$request = Db::$db->query(
-					'',
 					'SHOW KEYS
 					FROM {db_prefix}{raw:cur_table}',
 					[
@@ -1193,7 +1176,6 @@ class Maintenance implements ActionInterface
 
 			// Get the maximum value for the primary key.
 			$request = Db::$db->query(
-				'',
 				'SELECT MAX({identifier:key})
 				FROM {db_prefix}{raw:cur_table}',
 				[
@@ -1211,7 +1193,6 @@ class Maintenance implements ActionInterface
 			while (Utils::$context['start'] <= $max_value) {
 				// Retrieve a list of rows that has at least one entity to convert.
 				$request = Db::$db->query(
-					'',
 					'SELECT {raw:primary_keys}, {raw:columns}
 					FROM {db_prefix}{raw:cur_table}
 					WHERE {raw:primary_key} BETWEEN {int:start} AND {int:start} + 499
@@ -1248,7 +1229,6 @@ class Maintenance implements ActionInterface
 					// Update the row.
 					if (!empty($changes)) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}' . $cur_table . '
 							SET
 								' . implode(',
@@ -1357,7 +1337,6 @@ class Maintenance implements ActionInterface
 			$id_msg_exceeding = isset($_POST['id_msg_exceeding']) ? explode(',', $_POST['id_msg_exceeding']) : [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*) as count
 				FROM {db_prefix}messages',
 				[],
@@ -1370,7 +1349,6 @@ class Maintenance implements ActionInterface
 
 			while ($_REQUEST['start'] < $max_msgs) {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_msg
 					FROM {db_prefix}messages
 					WHERE id_msg BETWEEN {int:start} AND {int:start} + {int:increment}
@@ -1415,7 +1393,6 @@ class Maintenance implements ActionInterface
 
 				Utils::$context['exceeding_messages'] = [];
 				$request = Db::$db->query(
-					'',
 					'SELECT id_msg, id_topic, subject
 					FROM {db_prefix}messages
 					WHERE id_msg IN ({array_int:messages})',
@@ -1511,7 +1488,6 @@ class Maintenance implements ActionInterface
 
 			// Select all the members we're about to murder/remove...
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.id_member, COALESCE(m.id_member, 0) AS is_mod
 				FROM {db_prefix}members AS mem
 					LEFT JOIN {db_prefix}moderators AS m ON (m.id_member = mem.id_member)
@@ -1573,7 +1549,6 @@ class Maintenance implements ActionInterface
 			SecurityToken::validate('admin-maint');
 
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(DISTINCT m.id_member)
 				FROM {db_prefix}messages AS m
 				JOIN {db_prefix}boards AS b on m.id_board = b.id_board
@@ -1592,7 +1567,6 @@ class Maintenance implements ActionInterface
 
 		// Lets get a group of members and determine their post count (from the boards that have post count enabled of course).
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_member, COUNT(*) AS posts
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}boards AS b ON m.id_board = b.id_board
@@ -1613,7 +1587,6 @@ class Maintenance implements ActionInterface
 		// Update the post count for this group
 		while ($row = Db::$db->fetch_assoc($request)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET posts = {int:posts}
 				WHERE id_member = {int:row}',
@@ -1642,7 +1615,6 @@ class Maintenance implements ActionInterface
 		// final steps ... made more difficult since we don't yet support sub-selects on joins
 		// place all members who have posts in the message table in a temp table
 		$createTemporary = Db::$db->query(
-			'',
 			'CREATE TEMPORARY TABLE {db_prefix}tmp_maint_recountposts (
 				id_member mediumint(8) unsigned NOT NULL default {string:string_zero},
 				PRIMARY KEY (id_member)
@@ -1665,7 +1637,6 @@ class Maintenance implements ActionInterface
 		if ($createTemporary) {
 			// outer join the members table on the temporary table finding the members that have a post count but no posts in the message table
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.id_member, mem.posts
 				FROM {db_prefix}members AS mem
 					LEFT OUTER JOIN {db_prefix}tmp_maint_recountposts AS res
@@ -1680,7 +1651,6 @@ class Maintenance implements ActionInterface
 			// set the post count to zero for any delinquents we may have found
 			while ($row = Db::$db->fetch_assoc($request)) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}members
 					SET posts = {int:zero}
 					WHERE id_member = {int:row}',
@@ -1767,7 +1737,6 @@ class Maintenance implements ActionInterface
 		// How many topics are we converting?
 		if (!isset($_REQUEST['totaltopics'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}topics AS t
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_last_msg)' .
@@ -1798,7 +1767,6 @@ class Maintenance implements ActionInterface
 			while (Utils::$context['start'] <= $total_topics) {
 				// Lets get the topics.
 				$request = Db::$db->query(
-					'',
 					'SELECT t.id_topic
 					FROM {db_prefix}topics AS t
 						INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_last_msg)
@@ -1868,7 +1836,6 @@ class Maintenance implements ActionInterface
 
 		// Find all of the old drafts
 		$request = Db::$db->query(
-			'',
 			'SELECT id_draft
 			FROM {db_prefix}user_drafts
 			WHERE poster_time <= {int:poster_time_old}',
@@ -2188,7 +2155,6 @@ class Maintenance implements ActionInterface
 		// Firstly, if email and username aren't passed find out the members email address and name.
 		if ($email === null && $membername === null) {
 			$request = Db::$db->query(
-				'',
 				'SELECT email_address, member_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:memID}
@@ -2206,7 +2172,6 @@ class Maintenance implements ActionInterface
 			$recycle_board = !empty(Config::$modSettings['recycle_enable']) && !empty(Config::$modSettings['recycle_board']) ? (int) Config::$modSettings['recycle_board'] : 0;
 
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}boards AS b ON (b.id_board = m.id_board AND b.count_posts = {int:count_posts})
@@ -2244,7 +2209,6 @@ class Maintenance implements ActionInterface
 
 		// Finally, update the posts themselves!
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET id_member = {int:memID}
 			WHERE ' . $query,
@@ -2260,7 +2224,6 @@ class Maintenance implements ActionInterface
 		if ($updated['messages'] > 0) {
 			// First, check for updated topics.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}topics AS t
 				SET id_member_started = {int:memID}
 				WHERE t.id_first_msg = (
@@ -2280,7 +2243,6 @@ class Maintenance implements ActionInterface
 
 			// Second, check for updated reports.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_reported AS lr
 				SET id_member = {int:memID}
 				WHERE lr.id_msg = (

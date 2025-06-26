@@ -26,6 +26,10 @@ use SMF\Db\DatabaseApi as Db;
  */
 class Mentions
 {
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * @var string The character used for mentioning users
 	 */
@@ -35,6 +39,10 @@ class Mentions
 	 * @var string Regular expression matching BBC that can't contain mentions
 	 */
 	protected static $excluded_bbc_regex = '';
+
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Returns mentions for a specific content
@@ -48,7 +56,6 @@ class Mentions
 	public static function getMentionsByContent(string $content_type, int $content_id, array $members = []): array
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member, mem.real_name, mem.email_address, mem.id_group, mem.id_post_group, mem.additional_groups,
 				mem.lngfile, ment.id_member AS id_mentioned_by, ment.real_name AS mentioned_by_name
 			FROM {db_prefix}mentions AS m
@@ -144,7 +151,6 @@ class Mentions
 		// Delete mentions from the table that have been deleted in the content.
 		if (!empty($members_to_remove)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}mentions
 				WHERE content_type = {string:type}
 					AND content_id = {int:id}
@@ -220,7 +226,6 @@ class Mentions
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:ids})
@@ -248,91 +253,6 @@ class Mentions
 		Db::$db->free_result($request);
 
 		return $members;
-	}
-
-	/**
-	 * Parses a body in order to see if there are any mentions, returns possible mention names
-	 *
-	 * Names are tagged by "@<username>" format in post, but they can contain
-	 * any type of character up to 60 characters length. So we extract, starting from @
-	 * up to 60 characters in length (or if we encounter a line break) and make
-	 * several combination of strings after splitting it by anything that's not a word and join
-	 * by having the first word, first and second word, first, second and third word and so on and
-	 * search every name.
-	 *
-	 * One potential problem with this is something like "@Admin Space" can match
-	 * "Admin Space" as well as "Admin", so we sort by length in descending order.
-	 * One disadvantage of this is that we can only match by one column, hence I've chosen
-	 * real_name since it's the most obvious.
-	 *
-	 * If there's an @ symbol within the name, it is counted in the ongoing string and a new
-	 * combination string is started from it as well in order to account for all the possibilities.
-	 * This makes the @ symbol to not be required to be escaped
-	 *
-	 * @static
-	 * @param string $body The text to look for mentions in
-	 * @return array An array of names of members who have been mentioned
-	 */
-	protected static function getPossibleMentions(string $body): array
-	{
-		if (empty($body)) {
-			return [];
-		}
-
-		// preparse code does a few things which might mess with our parsing
-		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?' . '>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
-
-		if (empty(self::$excluded_bbc_regex)) {
-			self::setExcludedBbcRegex();
-		}
-
-		// Exclude the content of various BBCodes.
-		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
-
-		$matches = [];
-		// Split before every Unicode character.
-		$string = preg_split('/(?=\X)/u', $body, -1, PREG_SPLIT_NO_EMPTY);
-		$depth = 0;
-
-		foreach ($string as $k => $char) {
-			if ($char == static::$char && ($k == 0 || trim($string[$k - 1]) == '')) {
-				$depth++;
-				$matches[] = [];
-			} elseif ($char == "\n") {
-				$depth = 0;
-			}
-
-			for ($i = $depth; $i > 0; $i--) {
-				if (count($matches[count($matches) - $i]) > 60) {
-					$depth--;
-
-					continue;
-				}
-				$matches[count($matches) - $i][] = $char;
-			}
-		}
-
-		foreach ($matches as $k => $match) {
-			$matches[$k] = substr(implode('', $match), 1);
-		}
-
-		// Names can have spaces, other breaks, or they can't...we try to match every possible
-		// combination.
-		$names = [];
-
-		foreach ($matches as $match) {
-			// '[^\p{L}\p{M}\p{N}_]' is the Unicode equivalent of '[^\w]'
-			$match = preg_split('/([^\p{L}\p{M}\p{N}_])/u', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
-			$count = count($match);
-
-			for ($i = 1; $i <= $count; $i++) {
-				$names[] = Utils::htmlspecialchars(Utils::htmlTrim(implode('', array_slice($match, 0, $i))));
-			}
-		}
-
-		$names = array_unique($names);
-
-		return $names;
 	}
 
 	/**
@@ -448,7 +368,6 @@ class Mentions
 
 		// Get the messages
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_member AS id, mem.email_address, mem.lngfile, mem.real_name
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
@@ -471,6 +390,95 @@ class Mentions
 		}
 
 		return $members;
+	}
+
+	/*************************
+	 * Internal static methods
+	 *************************/
+
+	/**
+	 * Parses a body in order to see if there are any mentions, returns possible mention names
+	 *
+	 * Names are tagged by "@<username>" format in post, but they can contain
+	 * any type of character up to 60 characters length. So we extract, starting from @
+	 * up to 60 characters in length (or if we encounter a line break) and make
+	 * several combination of strings after splitting it by anything that's not a word and join
+	 * by having the first word, first and second word, first, second and third word and so on and
+	 * search every name.
+	 *
+	 * One potential problem with this is something like "@Admin Space" can match
+	 * "Admin Space" as well as "Admin", so we sort by length in descending order.
+	 * One disadvantage of this is that we can only match by one column, hence I've chosen
+	 * real_name since it's the most obvious.
+	 *
+	 * If there's an @ symbol within the name, it is counted in the ongoing string and a new
+	 * combination string is started from it as well in order to account for all the possibilities.
+	 * This makes the @ symbol to not be required to be escaped
+	 *
+	 * @static
+	 * @param string $body The text to look for mentions in
+	 * @return array An array of names of members who have been mentioned
+	 */
+	protected static function getPossibleMentions(string $body): array
+	{
+		if (empty($body)) {
+			return [];
+		}
+
+		// preparse code does a few things which might mess with our parsing
+		$body = htmlspecialchars_decode(preg_replace('~<br\s*/?' . '>~', "\n", str_replace('&nbsp;', ' ', $body)), ENT_QUOTES);
+
+		if (empty(self::$excluded_bbc_regex)) {
+			self::setExcludedBbcRegex();
+		}
+
+		// Exclude the content of various BBCodes.
+		$body = preg_replace('~\[(' . self::$excluded_bbc_regex . ')[^\]]*\](?' . '>(?' . '>[^\[]|\[(?!/?\1[^\]]*\]))|(?0))*\[/\1\]~', '', $body);
+
+		$matches = [];
+		// Split before every Unicode character.
+		$string = preg_split('/(?=\X)/u', $body, -1, PREG_SPLIT_NO_EMPTY);
+		$depth = 0;
+
+		foreach ($string as $k => $char) {
+			if ($char == static::$char && ($k == 0 || trim($string[$k - 1]) == '')) {
+				$depth++;
+				$matches[] = [];
+			} elseif ($char == "\n") {
+				$depth = 0;
+			}
+
+			for ($i = $depth; $i > 0; $i--) {
+				if (count($matches[count($matches) - $i]) > 60) {
+					$depth--;
+
+					continue;
+				}
+				$matches[count($matches) - $i][] = $char;
+			}
+		}
+
+		foreach ($matches as $k => $match) {
+			$matches[$k] = substr(implode('', $match), 1);
+		}
+
+		// Names can have spaces, other breaks, or they can't...we try to match every possible
+		// combination.
+		$names = [];
+
+		foreach ($matches as $match) {
+			// '[^\p{L}\p{M}\p{N}_]' is the Unicode equivalent of '[^\w]'
+			$match = preg_split('/([^\p{L}\p{M}\p{N}_])/u', $match, -1, PREG_SPLIT_DELIM_CAPTURE);
+			$count = count($match);
+
+			for ($i = 1; $i <= $count; $i++) {
+				$names[] = Utils::htmlspecialchars(Utils::htmlTrim(implode('', array_slice($match, 0, $i))));
+			}
+		}
+
+		$names = array_unique($names);
+
+		return $names;
 	}
 
 	/**

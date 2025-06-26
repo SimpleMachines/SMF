@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Moderation;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -38,7 +38,6 @@ use SMF\Utils;
 class Warnings implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -275,7 +274,6 @@ class Warnings implements ActionInterface
 
 			// Log the actions.
 			$request = Db::$db->query(
-				'',
 				'SELECT recipient_name
 				FROM {db_prefix}log_comments
 				WHERE id_comment IN ({array_int:delete_ids})
@@ -296,7 +294,6 @@ class Warnings implements ActionInterface
 
 			// Do the deletes.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_comments
 				WHERE id_comment IN ({array_int:delete_ids})
 					AND comment_type = {string:warntpl}
@@ -434,7 +431,6 @@ class Warnings implements ActionInterface
 		// If it's an edit load it.
 		if (Utils::$context['is_edit']) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, id_recipient, recipient_name AS template_title, body
 				FROM {db_prefix}log_comments
 				WHERE id_comment = {int:id}
@@ -488,7 +484,6 @@ class Warnings implements ActionInterface
 				if (Utils::$context['is_edit']) {
 					// Simple update...
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}log_comments
 						SET id_recipient = {int:personal}, recipient_name = {string:title}, body = {string:body}
 						WHERE id_comment = {int:id}
@@ -581,7 +576,6 @@ class Warnings implements ActionInterface
 	public static function list_getWarningCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {string:warning}',
@@ -608,7 +602,6 @@ class Warnings implements ActionInterface
 		$warnings = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, lc.member_name) AS member_name_col,
 				COALESCE(mem2.id_member, 0) AS id_recipient, COALESCE(mem2.real_name, lc.recipient_name) AS recipient_name,
 				lc.log_time, lc.body, lc.id_notice, lc.counter
@@ -649,7 +642,6 @@ class Warnings implements ActionInterface
 	public static function list_getWarningTemplateCount(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_comments
 			WHERE comment_type = {string:warntpl}
@@ -679,7 +671,6 @@ class Warnings implements ActionInterface
 		$templates = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT lc.id_comment, COALESCE(mem.id_member, 0) AS id_member,
 				COALESCE(mem.real_name, lc.member_name) AS creator_name, recipient_name AS template_title,
 				lc.log_time, lc.body

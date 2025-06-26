@@ -29,6 +29,10 @@ use SMF\Utils;
  */
 class GroupAct_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -40,7 +44,6 @@ class GroupAct_Notify extends BackgroundTask
 	{
 		// Get the details of all the members concerned...
 		$request = Db::$db->query(
-			'',
 			'SELECT lgr.id_request, lgr.id_member, lgr.id_group, mem.email_address,
 				mem.lngfile, mem.member_name,  mg.group_name, mg.hidden
 			FROM {db_prefix}log_group_requests AS lgr

@@ -578,18 +578,11 @@ class Main implements ActionInterface, Routable
 			ErrorHandler::fatalLang('no_access', false);
 		}
 
-		// Group management isn't actually a permission. But we need it to be for this, so we need a phantom permission.
-		// And we care about what the current user can do, not what the user whose profile it is.
-		if (User::$me->mod_cache['gq'] != '0=1') {
-			User::$me->permission_sets[0]->grant('approve_group_requests');
-		}
-
 		// If paid subscriptions are enabled, make sure we actually have at least one subscription available...
 		Utils::$context['subs_available'] = false;
 
 		if (!empty(Config::$modSettings['paid_enabled'])) {
 			$get_active_subs = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}subscriptions
 				WHERE active = {int:active}',

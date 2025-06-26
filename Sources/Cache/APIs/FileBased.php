@@ -34,13 +34,21 @@ if (!defined('SMF')) {
  */
 class FileBased extends CacheApi implements CacheApiInterface
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var string The path to the current directory.
 	 */
 	private $cachedir = null;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function __construct()
 	{
@@ -51,7 +59,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
@@ -65,7 +73,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -73,7 +81,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
@@ -96,7 +104,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
@@ -133,7 +141,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cleanCache($type = ''): bool
 	{
@@ -156,7 +164,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function invalidateCache(): bool
 	{
@@ -170,7 +178,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cacheSettings(array &$config_vars): void
 	{
@@ -203,8 +211,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 	/**
 	 * Sets the $cachedir or uses the SMF default $cachedir..
 	 *
-	 * @param string $dir A valid path
-	 * @return bool If this was successful or not.
+	 * @param null|string $dir A valid path
 	 */
 	public function setCachedir(?string $dir = null): void
 	{
@@ -227,12 +234,16 @@ class FileBased extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getVersion(): string|bool
 	{
 		return SMF_VERSION;
 	}
+
+	/******************
+	 * Internal methods
+	 ******************/
 
 	private function readFile(string $file): mixed
 	{

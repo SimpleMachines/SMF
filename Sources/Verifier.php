@@ -139,7 +139,7 @@ class Verifier implements \ArrayAccess
 	public int $tracking = 0;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 *
 	 *
 	 */
@@ -187,7 +187,6 @@ class Verifier implements \ArrayAccess
 	 *
 	 * @param array $options Options for the verification control.
 	 * @param bool $do_test Whether to check to see if the user entered the code correctly.
-	 * @return bool|array False if there's nothing to show, true if everything went well or an array containing error indicators if the test failed.
 	 */
 	public function __construct(array $options, bool $do_test = false)
 	{
@@ -397,7 +396,6 @@ class Verifier implements \ArrayAccess
 			];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_question, lngfile, question, answers
 				FROM {db_prefix}qanda',
 				[],

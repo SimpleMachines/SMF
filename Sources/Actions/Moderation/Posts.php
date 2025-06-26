@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Moderation;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
 use SMF\Attachment;
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -43,7 +43,6 @@ use SMF\Utils;
 class Posts implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -167,7 +166,6 @@ class Posts implements ActionInterface
 
 			// Now for each message work out whether it's actually a topic, and what board it's on.
 			$request = Db::$db->query(
-				'',
 				'SELECT m.id_msg, m.id_member, m.id_board, m.subject, t.id_topic, t.id_first_msg, t.id_member_started
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
@@ -265,7 +263,6 @@ class Posts implements ActionInterface
 
 		// How many unapproved posts are there?
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic AND t.id_first_msg != m.id_msg)
@@ -282,7 +279,6 @@ class Posts implements ActionInterface
 
 		// What about topics?  Normally we'd use the table alias t for topics but lets use m so we don't have to redo our approve query.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}topics AS m
 			WHERE m.approved = {int:not_approved}
@@ -330,7 +326,6 @@ class Posts implements ActionInterface
 		Utils::$context['unapproved_items'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_msg, m.id_topic, m.id_board, m.subject, m.body, m.id_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time, m.smileys_enabled,
 				t.id_member_started, t.id_first_msg, b.name AS board_name, c.id_cat, c.name AS cat_name
@@ -471,7 +466,6 @@ class Posts implements ActionInterface
 
 			// Confirm the attachments are eligible for changing!
 			$request = Db::$db->query(
-				'',
 				'SELECT a.id_attach
 				FROM {db_prefix}attachments AS a
 					INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
@@ -660,7 +654,6 @@ class Posts implements ActionInterface
 		User::$me->isAllowedTo('approve_posts');
 
 		$request = Db::$db->query(
-			'',
 			'SELECT t.id_member_started, t.id_first_msg, m.id_member, m.subject, m.approved
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
@@ -706,7 +699,6 @@ class Posts implements ActionInterface
 		$msgs = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_msg
 			FROM {db_prefix}messages
 			WHERE approved = {int:not_approved}',
@@ -728,7 +720,6 @@ class Posts implements ActionInterface
 		$attachments = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_attach
 			FROM {db_prefix}attachments
 			WHERE approved = {int:not_approved}',
@@ -763,7 +754,6 @@ class Posts implements ActionInterface
 		$unapproved_items = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT a.id_attach, a.filename, a.size, m.id_msg, m.id_topic, m.id_board, m.subject, m.body, m.id_member,
 				COALESCE(mem.real_name, m.poster_name) AS poster_name, m.poster_time,
 				t.id_member_started, t.id_first_msg, b.name AS board_name, c.id_cat, c.name AS cat_name
@@ -839,7 +829,6 @@ class Posts implements ActionInterface
 	{
 		// How many unapproved attachments in total?
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}attachments AS a
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)

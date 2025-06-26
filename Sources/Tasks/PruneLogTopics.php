@@ -28,6 +28,10 @@ use SMF\Sapi;
  */
 class PruneLogTopics extends ScheduledTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task.
 	 *
@@ -62,7 +66,6 @@ class PruneLogTopics extends ScheduledTask
 		// Start off by finding the records in log_boards, log_topics & log_mark_read
 		// for users who haven't been around the longest...
 		$request = Db::$db->query(
-			'',
 			'SELECT lb.id_member, m.last_login
 				FROM {db_prefix}members m
 				INNER JOIN
@@ -122,7 +125,6 @@ class PruneLogTopics extends ScheduledTask
 		if (!empty($purge_members) && !empty(Config::$modSettings['mark_read_delete_beyond'])) {
 			// Delete rows from log_boards.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_boards
 				WHERE id_member IN ({array_int:members})',
 				[
@@ -131,7 +133,6 @@ class PruneLogTopics extends ScheduledTask
 			);
 			// Delete rows from log_mark_read.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_mark_read
 				WHERE id_member IN ({array_int:members})',
 				[
@@ -141,7 +142,6 @@ class PruneLogTopics extends ScheduledTask
 
 			// Delete rows from log_topics.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_topics
 				WHERE id_member IN ({array_int:members})
 					AND unwatched = {int:unwatched}',
@@ -162,7 +162,6 @@ class PruneLogTopics extends ScheduledTask
 		// Note this user may have read many topics on that board, but we just
 		// want one row each, and the ID of the last message read in each board.
 		$result = Db::$db->query(
-			'',
 			'SELECT lt.id_member, t.id_board, MAX(lt.id_msg) AS id_last_message
 			FROM {db_prefix}topics t
 			INNER JOIN
@@ -192,7 +191,6 @@ class PruneLogTopics extends ScheduledTask
 
 		// Finally, delete this set's rows from log_topics.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_topics
 			WHERE id_member IN ({array_int:members})
 				AND unwatched = {int:unwatched}',

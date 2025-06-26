@@ -187,9 +187,9 @@ class Editor implements \ArrayAccess, \Stringable
 	 */
 	public static array $smileys_toolbar = [];
 
-	/****************************
-	 * Internal static properties
-	 ****************************/
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array
@@ -470,7 +470,6 @@ class Editor implements \ArrayAccess, \Stringable
 				$icons = [];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT title, filename
 					FROM {db_prefix}message_icons
 					WHERE id_board IN (0, {int:board_id})
@@ -924,7 +923,6 @@ class Editor implements \ArrayAccess, \Stringable
 
 			if (($temp = CacheApi::get('posting_smileys_' . User::$me->smiley_set, $cache_time)) == null) {
 				$request = Db::$db->query(
-					'',
 					'SELECT s.code, f.filename, s.description, s.smiley_row, s.hidden
 					FROM {db_prefix}smileys AS s
 						JOIN {db_prefix}smiley_files AS f ON (s.id_smiley = f.id_smiley)
@@ -1036,7 +1034,6 @@ class Editor implements \ArrayAccess, \Stringable
 			],
 		];
 
-		if (!empty(Config::$modSettings['autoLinkUrls']) && User::$me->allowedTo('bbc_url')) {
 		if (isset($editorOptions['options'])) {
 			$this->sce_options = array_merge_recursive($this->sce_options, $editorOptions['options']);
 		}

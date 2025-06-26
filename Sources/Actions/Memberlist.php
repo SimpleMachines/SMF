@@ -39,7 +39,6 @@ class Memberlist implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -248,7 +247,6 @@ class Memberlist implements ActionInterface, Routable
 			// Only update the cache if something changed or no cache existed yet.
 			if (empty($memberlist_cache) || empty(Config::$modSettings['memberlist_updated']) || $memberlist_cache['last_update'] < Config::$modSettings['memberlist_updated']) {
 				$request = Db::$db->query(
-					'',
 					'SELECT real_name
 					FROM {db_prefix}members
 					WHERE is_activated = {int:is_activated}
@@ -281,7 +279,6 @@ class Memberlist implements ActionInterface, Routable
 		// Without cache we need an extra query to get the amount of members.
 		else {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}members
 				WHERE is_activated = {int:is_activated}',
@@ -388,7 +385,6 @@ class Memberlist implements ActionInterface, Routable
 
 		// Select the members from the database.
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member
 			FROM {db_prefix}members AS mem' . ($_REQUEST['sort'] === 'is_online' ? '
 				LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)' : '') . ($_REQUEST['sort'] === 'id_group' ? '
@@ -422,7 +418,6 @@ class Memberlist implements ActionInterface, Routable
 
 		// Can they search custom fields?
 		$request = Db::$db->query(
-			'',
 			'SELECT col_name, field_name, field_desc
 			FROM {db_prefix}custom_fields
 			WHERE active = {int:active}
@@ -553,7 +548,6 @@ class Memberlist implements ActionInterface, Routable
 			$query = $_POST['search'] == '' ? '= {string:blank_string}' : (Db::$db->case_sensitive ? 'LIKE LOWER({string:search})' : 'LIKE {string:search}');
 
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}members AS mem
 					LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)
@@ -582,7 +576,6 @@ class Memberlist implements ActionInterface, Routable
 
 			// Find the members from the database.
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.id_member
 				FROM {db_prefix}members AS mem
 					LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)
@@ -653,7 +646,6 @@ class Memberlist implements ActionInterface, Routable
 	{
 		// Get the most posts.
 		$result = Db::$db->query(
-			'',
 			'SELECT MAX(posts)
 			FROM {db_prefix}members',
 			[
@@ -744,7 +736,6 @@ class Memberlist implements ActionInterface, Routable
 		$cpf = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT col_name, field_name, field_desc, field_type, field_options, bbc, enclose, default_value
 			FROM {db_prefix}custom_fields
 			WHERE active = {int:active}

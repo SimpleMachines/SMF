@@ -17,7 +17,6 @@ namespace SMF\Actions;
 
 use SMF\ActionInterface;
 use SMF\ActionRouter;
-use SMF\Actions\Profile\BackwardCompatibility;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -41,7 +40,6 @@ class TrackIP implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -118,7 +116,6 @@ class TrackIP implements ActionInterface, Routable
 		Utils::$context['ips'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name AS display_name, member_ip
 			FROM {db_prefix}members
 			WHERE member_ip >= ' . $ip_string[0] . ' and member_ip <= ' . $ip_string[1],
@@ -359,7 +356,6 @@ class TrackIP implements ActionInterface, Routable
 
 		// Get all the messages fitting this where clause.
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				m.id_msg, m.poster_ip, COALESCE(mem.real_name, m.poster_name) AS display_name, mem.id_member,
 				m.subject, m.poster_time, m.id_topic, m.id_board
@@ -405,7 +401,6 @@ class TrackIP implements ActionInterface, Routable
 	public static function list_getIPMessageCount(string $where, array $where_vars = []): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}messages AS m
 			WHERE {query_see_message_board} AND ' . $where,

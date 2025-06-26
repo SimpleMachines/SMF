@@ -40,9 +40,9 @@ use SMF\Db\DatabaseApi as Db;
  */
 class TaskRunner
 {
-	/***********
-	 * Constants
-	 ***********/
+	/*****************
+	 * Class constants
+	 *****************/
 
 	/**
 	 * This setting is worth bearing in mind. If you are running this from
@@ -203,7 +203,6 @@ class TaskRunner
 
 			if ($result) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}background_tasks
 					WHERE id_task = {int:task}',
 					[
@@ -238,7 +237,6 @@ class TaskRunner
 
 			if ($result) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}background_tasks
 					WHERE id_task = {int:task}',
 					[
@@ -295,7 +293,6 @@ class TaskRunner
 		ignore_user_abort(true);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_task, next_time, task, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE ' . $task_query . '
@@ -426,7 +423,6 @@ class TaskRunner
 		// Get the critical info for the tasks.
 		$tasks = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT id_task, next_time, time_offset, time_regularity, time_unit
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
@@ -458,7 +454,6 @@ class TaskRunner
 		// Now make the changes!
 		foreach ($tasks as $id => $time) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}scheduled_tasks
 				SET next_time = {int:next_time}
 				WHERE id_task = {int:id_task}',
@@ -498,7 +493,6 @@ class TaskRunner
 		// care what task it is, merely that it is one in the queue; the order
 		// is irrelevant.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_task, task_file, task_class, task_data, claimed_time
 			FROM {db_prefix}background_tasks
 			WHERE claimed_time < {int:claim_limit}
@@ -512,7 +506,6 @@ class TaskRunner
 			// We found one. Let's try to claim it immediately.
 			Db::$db->free_result($request);
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}background_tasks
 				SET claimed_time = {int:new_claimed}
 				WHERE id_task = {int:task}
@@ -614,7 +607,6 @@ class TaskRunner
 	{
 		// Select the next task to do.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_task, task, next_time, time_offset, time_regularity, time_unit, callable
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}
@@ -691,7 +683,6 @@ class TaskRunner
 
 				// Updates next_time for this task so that no parallel processes run it.
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}scheduled_tasks
 					SET next_time = {int:next_time}
 					WHERE id_task = {int:id_task}',

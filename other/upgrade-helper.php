@@ -42,7 +42,6 @@ function getMemberGroups()
 	}
 
 	$request = SMF\Db\DatabaseApi::$db->query(
-		'',
 		'SELECT groupName, id_group
 		FROM {db_prefix}membergroups
 		WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',
@@ -55,7 +54,6 @@ function getMemberGroups()
 
 	if ($request === false) {
 		$request = SMF\Db\DatabaseApi::$db->query(
-			'',
 			'SELECT membergroup, id_group
 			FROM {db_prefix}membergroups
 			WHERE id_group = {int:admin_group} OR id_group > {int:old_group}',

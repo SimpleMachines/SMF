@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -36,7 +36,6 @@ use SMF\Utils;
 class Search implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -242,7 +241,6 @@ class Search implements ActionInterface
 		// Get some info about the messages table, to show its size and index size.
 		if (Db::$db->title === POSTGRE_TITLE) {
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					pg_table_size({string:tablename}) AS table_size,
 					pg_indexes_size({string:tablename}) AS index_size',
@@ -261,7 +259,6 @@ class Search implements ActionInterface
 		} else {
 			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
-					'',
 					'SHOW TABLE STATUS
 					FROM {string:database_name}
 					LIKE {string:table_name}',
@@ -272,7 +269,6 @@ class Search implements ActionInterface
 				);
 			} else {
 				$request = Db::$db->query(
-					'',
 					'SHOW TABLE STATUS
 					LIKE {string:table_name}',
 					[

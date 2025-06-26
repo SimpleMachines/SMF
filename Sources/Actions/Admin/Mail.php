@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\IntegrationHook;
@@ -36,7 +36,6 @@ use SMF\Utils;
 class Mail implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -67,9 +66,9 @@ class Mail implements ActionInterface
 		'test' => 'test',
 	];
 
-	/*********************
-	 * Internal properties
-	 *********************/
+	/****************************
+	 * Internal static properties
+	 ****************************/
 
 	/**
 	 * @var array
@@ -118,7 +117,6 @@ class Mail implements ActionInterface
 			User::$me->checkSession();
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}mail_queue
 				WHERE id_mail IN ({array_int:mail_ids})',
 				[
@@ -129,7 +127,6 @@ class Mail implements ActionInterface
 
 		// How many items do we have?
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS queue_size, MIN(time_sent) AS oldest
 			FROM {db_prefix}mail_queue',
 			[
@@ -330,7 +327,6 @@ class Mail implements ActionInterface
 		if (!isset($_GET['te'])) {
 			// How many items do we have?
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*) AS queue_size
 				FROM {db_prefix}mail_queue',
 				[
@@ -461,7 +457,6 @@ class Mail implements ActionInterface
 		$mails = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				id_mail, time_sent, recipient, priority, private, subject
 			FROM {db_prefix}mail_queue
@@ -499,7 +494,6 @@ class Mail implements ActionInterface
 	{
 		// How many items do we have?
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS queue_size
 			FROM {db_prefix}mail_queue',
 			[

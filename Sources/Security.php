@@ -32,7 +32,7 @@ class Security
 	 * Hashes the user's password
 	 *
 	 * @param string $password The unhashed password
-	 * @param int $cost The cost
+	 * @param int|null $cost The cost
 	 * @return string The hashed password
 	 */
 	public static function hashPassword(string $password, ?int $cost = null): string
@@ -333,7 +333,6 @@ class Security
 
 		// Delete old entries...
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_floodcontrol
 			WHERE log_time < {int:log_time}
 				AND log_type = {string:log_type}',
@@ -570,7 +569,7 @@ class Security
 	/**
 	 * This sets the X-Frame-Options header.
 	 *
-	 * @param string $override An option to override (either 'SAMEORIGIN' or 'DENY')
+	 * @param string|null $override An option to override (either 'SAMEORIGIN' or 'DENY')
 	 * @since 2.1
 	 */
 	public static function frameOptionsHeader(?string $override = null): void

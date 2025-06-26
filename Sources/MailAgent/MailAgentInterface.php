@@ -15,6 +15,10 @@ namespace SMF\MailAgent;
 
 interface MailAgentInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Checks if the requirements for the agent are available.
 	 *

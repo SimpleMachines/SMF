@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -38,7 +38,6 @@ use SMF\Utils;
 class Tasks implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -135,7 +134,6 @@ class Tasks implements ActionInterface
 
 			// Do the update!
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}scheduled_tasks
 				SET disabled = CASE WHEN id_task IN ({array_int:id_task_enable}) THEN 0 ELSE 1 END',
 				[
@@ -145,7 +143,6 @@ class Tasks implements ActionInterface
 
 			// Update the "allow_expire_redirect" setting...
 			$request = Db::$db->query(
-				'',
 				'SELECT disabled
 				FROM {db_prefix}scheduled_tasks
 				WHERE task = {string:remove_redirect}',
@@ -343,7 +340,6 @@ class Tasks implements ActionInterface
 
 			// Do the update!
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}scheduled_tasks
 				SET disabled = {int:disabled}, time_offset = {int:time_offset}, time_unit = {string:time_unit},
 					time_regularity = {int:time_regularity}
@@ -366,7 +362,6 @@ class Tasks implements ActionInterface
 
 		// Load the task, understand? Que? Que?
 		$request = Db::$db->query(
-			'',
 			'SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
 			FROM {db_prefix}scheduled_tasks
 			WHERE id_task = {int:id_task}',
@@ -410,10 +405,10 @@ class Tasks implements ActionInterface
 			SecurityToken::validate('admin-tl');
 
 			Db::$db->query(
-				'truncate_table',
 				'TRUNCATE {db_prefix}log_scheduled_tasks',
 				[
 				],
+				identifier: 'truncate_table',
 			);
 		}
 
@@ -574,7 +569,6 @@ class Tasks implements ActionInterface
 		$known_tasks = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_task, next_time, time_offset, time_regularity, time_unit, disabled, task
 			FROM {db_prefix}scheduled_tasks',
 			[
@@ -616,7 +610,6 @@ class Tasks implements ActionInterface
 		$log_entries = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT lst.id_log, lst.id_task, lst.time_run, lst.time_taken, st.task
 			FROM {db_prefix}log_scheduled_tasks AS lst
 				INNER JOIN {db_prefix}scheduled_tasks AS st ON (st.id_task = lst.id_task)
@@ -650,7 +643,6 @@ class Tasks implements ActionInterface
 	public static function list_getNumTaskLogEntries(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}log_scheduled_tasks',
 			[

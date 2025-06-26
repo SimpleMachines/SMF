@@ -232,9 +232,9 @@ class Autolinker
 	 */
 	private static self $instance;
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -348,7 +348,7 @@ class Autolinker
 	 * detected URLs in the string, and the values are the URLs themselves.
 	 *
 	 * @param string $string The string to examine.
-	 * @param bool bool $plaintext_only If true, only look for plain text URLs.
+	 * @param bool $plaintext_only If true, only look for plain text URLs.
 	 * @return array Positional info about any detected URLs.
 	 */
 	public function detectUrls(string $string, bool $plaintext_only = false): array
@@ -441,7 +441,7 @@ class Autolinker
 	 * addresses themselves.
 	 *
 	 * @param string $string The string to examine.
-	 * @param bool bool $plaintext_only If true, only look for plain text email
+	 * @param bool $plaintext_only If true, only look for plain text email
 	 *    addresses.
 	 * @return array Positional info about any detected email addresses.
 	 */
@@ -723,9 +723,9 @@ class Autolinker
 		return strtr(implode('', $parts), $placeholders);
 	}
 
-	/************************
-	 * Public static methods.
-	 ************************/
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Returns a reusable instance of this class.
@@ -786,9 +786,9 @@ class Autolinker
 		file_put_contents(Theme::$current->settings['default_theme_dir'] . '/scripts/autolinker.js', implode("\n", $js));
 	}
 
-	/*******************
-	 * Internal methods.
-	 *******************/
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Sets $this->tld_regex.

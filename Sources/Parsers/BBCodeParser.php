@@ -108,7 +108,7 @@ class BBCodeParser extends Parser
 	private ?int $pos1 = null;
 
 	/**
-	 * @var int
+	 * @var int|null
 	 *
 	 * Previous value of $this->pos.
 	 */
@@ -358,9 +358,9 @@ class BBCodeParser extends Parser
 	 */
 	private static array $parsers = [];
 
-	/*****************
-	 * Public methods.
-	 *****************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Constructor.
@@ -384,7 +384,7 @@ class BBCodeParser extends Parser
 	/**
 	 * Parse bulletin board code in a string.
 	 *
-	 * @param string|bool $message The string to parse.
+	 * @param string $message The string to parse.
 	 * @param bool $smileys Whether to parse smileys. Default: true.
 	 * @param string|int $cache_id The cache ID.
 	 *    If $cache_id is left empty, an ID will be generated automatically.
@@ -1220,9 +1220,9 @@ class BBCodeParser extends Parser
 		return $this->{$name} ?? null;
 	}
 
-	/************************
-	 * Public static methods.
-	 ************************/
+	/***********************
+	 * Public static methods
+	 ***********************/
 
 	/**
 	 * Returns a reusable instance of this class.
@@ -1296,7 +1296,7 @@ class BBCodeParser extends Parser
 	/**
 	 * Replaces {txt_*} tokens with Lang::$txt strings.
 	 *
-	 * @param string $data A string that might contain {txt_*} tokens.
+	 * @param string $string A string that might contain {txt_*} tokens.
 	 * @return string The string with Lang::$txt string values.
 	 */
 	public static function insertTxt(string $string): string
@@ -1340,9 +1340,9 @@ class BBCodeParser extends Parser
 		);
 	}
 
-	/*******************
-	 * Internal methods.
-	 *******************/
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * The method that actually parses the BBCode in $this->message.
@@ -2862,11 +2862,14 @@ class BBCodeParser extends Parser
 
 			// Reverse order because mods typically append to the array.
 			foreach (array_reverse(array_keys(self::$codes)) as $i) {
-				$value = self::$codes[$i];
+				$value = clone self::$codes[$i];
 
 				// Closures cannot be serialized, but they can be reflected.
-				if (($value->validate ?? null) instanceof \Closure) {
-					$value->validate = (string) new \ReflectionFunction($value->validate);
+				if (
+					$value instanceof GenericBBCode
+					&& ($value->validation_callback ?? null) instanceof \Closure
+				) {
+					$value->validation_callback = (string) new \ReflectionFunction($value->validation_callback);
 				}
 
 				$serialized = serialize($value);

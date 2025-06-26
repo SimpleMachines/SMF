@@ -347,6 +347,10 @@ class Forum
 	 */
 	public static array $guest_access_actions = [];
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
 	/**
 	 * @var ActionInterface|null
 	 *
@@ -524,30 +528,6 @@ class Forum
 		return self::$current_action;
 	}
 
-	/*************************
-	 * Internal static methods
-	 *************************/
-
-	/**
-	 * Display a message about the forum being in maintenance mode.
-	 * - Display a login screen with sub template 'maintenance'.
-	 * - Sends a 503 header, so search engines don't bother indexing while we're in maintenance mode.
-	 */
-	protected static function inMaintenance(): void
-	{
-		Theme::loadTemplate('Login');
-		SecurityToken::create('login');
-
-		// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
-		Utils::sendHttpStatus(503, 'Service Temporarily Unavailable');
-
-		// Basic template stuff..
-		Utils::$context['sub_template'] = 'maintenance';
-		Utils::$context['title'] = Utils::htmlspecialchars(Config::$mtitle);
-		Utils::$context['description'] = &Config::$mmessage;
-		Utils::$context['page_title'] = Lang::getTxt('maintain_mode', file: 'Login');
-	}
-
 	/******************
 	 * Internal methods
 	 ******************/
@@ -704,6 +684,26 @@ class Forum
 	/*************************
 	 * Internal static methods
 	 *************************/
+
+	/**
+	 * Display a message about the forum being in maintenance mode.
+	 * - Display a login screen with sub template 'maintenance'.
+	 * - Sends a 503 header, so search engines don't bother indexing while we're in maintenance mode.
+	 */
+	protected static function inMaintenance(): void
+	{
+		Theme::loadTemplate('Login');
+		SecurityToken::create('login');
+
+		// Send a 503 header, so search engines don't bother indexing while we're in maintenance mode.
+		Utils::sendHttpStatus(503, 'Service Temporarily Unavailable');
+
+		// Basic template stuff..
+		Utils::$context['sub_template'] = 'maintenance';
+		Utils::$context['title'] = Utils::htmlspecialchars(Config::$mtitle);
+		Utils::$context['description'] = &Config::$mmessage;
+		Utils::$context['page_title'] = Lang::getTxt('maintain_mode', file: 'Login');
+	}
 
 	/**
 	 * Resolves the appropriate action to execute based on the current request context.

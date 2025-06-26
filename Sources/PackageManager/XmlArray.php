@@ -24,6 +24,10 @@ use SMF\Sapi;
  */
 class XmlArray
 {
+	/*******************
+	 * Public properties
+	 *******************/
+
 	/**
 	 * @var array Holds parsed XML results
 	 */
@@ -41,6 +45,10 @@ class XmlArray
 	 */
 	public $trim;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Constructor for the xml parser.
 	 * Example use:
@@ -48,7 +56,7 @@ class XmlArray
 	 *
 	 * @param string|array $data The xml data or an array of, unless is_clone is true.
 	 * @param bool $auto_trim Used to automatically trim textual data.
-	 * @param int $level The debug level. Specifies whether notices should be generated for missing elements and attributes.
+	 * @param int|null $level The debug level. Specifies whether notices should be generated for missing elements and attributes.
 	 * @param bool $is_clone default false. If is_clone is true, the  XmlArray is cloned from another - used internally only.
 	 */
 	public function __construct(string|array $data, bool $auto_trim = false, ?int $level = null, bool $is_clone = false)
@@ -100,7 +108,7 @@ class XmlArray
 	 *
 	 * @param string $path The path to the element to fetch
 	 * @param bool $get_elements Whether to include elements
-	 * @return string The value or attribute of the specified element
+	 * @return string|bool The value or attribute of the specified element
 	 */
 	public function fetch(string $path, bool $get_elements = false): string|bool
 	{
@@ -302,7 +310,7 @@ class XmlArray
 	 * Example use:
 	 *  echo $this->create_xml();
 	 *
-	 * @param string $path The path to the element. (optional)
+	 * @param string|null $path The path to the element. (optional)
 	 * @return string Xml-formatted string.
 	 */
 	public function create_xml(?string $path = null): string
@@ -332,7 +340,7 @@ class XmlArray
 	 * Example use:
 	 *  print_r($xml->to_array());
 	 *
-	 * @param string $path The path to output.
+	 * @param string|null $path The path to output.
 	 * @return array An array of XML data
 	 */
 	public function to_array(?string $path = null): array
@@ -355,6 +363,53 @@ class XmlArray
 
 		return $this->_array($path);
 	}
+
+	/**
+	 * Parse out CDATA tags. (htmlspecialchars them...)
+	 *
+	 * @param string $data The data with CDATA tags included
+	 * @return string The data contained within CDATA tags
+	 */
+	public function _to_cdata(string $data): string
+	{
+		$inCdata = $inComment = false;
+		$output = '';
+
+		$parts = preg_split('~(<!\[CDATA\[|\]\]>|<!--|-->)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+		foreach ($parts as $part) {
+			// Handle XML comments.
+			if (!$inCdata && $part === '<!--') {
+				$inComment = true;
+			}
+
+			if ($inComment && $part === '-->') {
+				$inComment = false;
+			} elseif ($inComment) {
+				continue;
+			}
+
+			// Handle Cdata blocks.
+			elseif (!$inComment && $part === '<![CDATA[') {
+				$inCdata = true;
+			} elseif ($inCdata && $part === ']]>') {
+				$inCdata = false;
+			} elseif ($inCdata) {
+				$output .= htmlentities($part, ENT_QUOTES);
+			}
+
+			// Everything else is kept as is.
+			else {
+				$output .= $part;
+			}
+		}
+
+		return $output;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
 
 	/**
 	 * Parse data into an array. (privately used...)
@@ -594,49 +649,6 @@ class XmlArray
 	}
 
 	/**
-	 * Parse out CDATA tags. (htmlspecialchars them...)
-	 *
-	 * @param string $data The data with CDATA tags included
-	 * @return string The data contained within CDATA tags
-	 */
-	public function _to_cdata(string $data): string
-	{
-		$inCdata = $inComment = false;
-		$output = '';
-
-		$parts = preg_split('~(<!\[CDATA\[|\]\]>|<!--|-->)~', $data, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-		foreach ($parts as $part) {
-			// Handle XML comments.
-			if (!$inCdata && $part === '<!--') {
-				$inComment = true;
-			}
-
-			if ($inComment && $part === '-->') {
-				$inComment = false;
-			} elseif ($inComment) {
-				continue;
-			}
-
-			// Handle Cdata blocks.
-			elseif (!$inComment && $part === '<![CDATA[') {
-				$inCdata = true;
-			} elseif ($inCdata && $part === ']]>') {
-				$inCdata = false;
-			} elseif ($inCdata) {
-				$output .= htmlentities($part, ENT_QUOTES);
-			}
-
-			// Everything else is kept as is.
-			else {
-				$output .= $part;
-			}
-		}
-
-		return $output;
-	}
-
-	/**
 	 * Turn the CDATAs back to normal text.
 	 *
 	 * @param string $data The data with CDATA tags
@@ -668,7 +680,7 @@ class XmlArray
 	 * @param null|array|string $array An array of data
 	 * @return string The text from the array
 	 */
-	protected function _fetch(null|array|string $array): string
+	protected function _fetch(array|string|null $array): string
 	{
 		// Don't return anything if this is just a string.
 		if (is_string($array)) {

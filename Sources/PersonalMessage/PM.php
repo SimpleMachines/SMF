@@ -412,7 +412,7 @@ class PM implements \ArrayAccess
 
 	/**
 	 * Checks whether the current user can see this personal message.
-	 *
+	 * @param string $folders The folders to check: 'inbox', 'sent', or 'both'.
 	 * @return bool
 	 */
 	public function canAccess(string $folders = 'both'): bool
@@ -612,7 +612,6 @@ class PM implements \ArrayAccess
 		if (!empty(Config::$modSettings['pm_posts_per_hour']) && !User::$me->allowedTo(['admin_forum', 'moderate_forum', 'send_mail']) && User::$me->mod_cache['bq'] == '0=1' && User::$me->mod_cache['gq'] == '0=1') {
 			// How many messages have they sent this last hour?
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(pr.id_pm) AS post_count
 				FROM {db_prefix}personal_messages AS pm
 					INNER JOIN {db_prefix}pm_recipients AS pr ON (pr.id_pm = pm.id_pm)
@@ -733,7 +732,6 @@ class PM implements \ArrayAccess
 
 				if (!empty($_REQUEST['u'])) {
 					$request = Db::$db->query(
-						'',
 						'SELECT id_member, real_name
 						FROM {db_prefix}members
 						WHERE id_member IN ({array_int:member_list})
@@ -878,7 +876,6 @@ class PM implements \ArrayAccess
 		if (!empty(Config::$modSettings['pm_posts_per_hour']) && !User::$me->allowedTo(['admin_forum', 'moderate_forum', 'send_mail']) && User::$me->mod_cache['bq'] == '0=1' && User::$me->mod_cache['gq'] == '0=1') {
 			// How many have they sent this last hour?
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(pr.id_pm) AS post_count
 				FROM {db_prefix}personal_messages AS pm
 					INNER JOIN {db_prefix}pm_recipients AS pr ON (pr.id_pm = pm.id_pm)
@@ -1134,7 +1131,6 @@ class PM implements \ArrayAccess
 		// Mark the message as "replied to".
 		if (!empty(Utils::$context['send_log']['sent']) && !empty($_REQUEST['replied_to']) && isset($_REQUEST['f']) && $_REQUEST['f'] == 'inbox') {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}pm_recipients
 				SET is_read = is_read | 2
 				WHERE id_pm = {int:replied_to}
@@ -1226,13 +1222,13 @@ class PM implements \ArrayAccess
 
 		if (!empty($usernames)) {
 			$request = Db::$db->query(
-				'pm_find_username',
 				'SELECT id_member, member_name
 				FROM {db_prefix}members
 				WHERE ' . (Db::$db->case_sensitive ? 'LOWER(member_name)' : 'member_name') . ' IN ({array_string:usernames})',
 				[
 					'usernames' => array_keys($usernames),
 				],
+				identifier: 'pm_find_username',
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {
@@ -1272,7 +1268,6 @@ class PM implements \ArrayAccess
 		// Check no-one will want it deleted right away!
 		$deletes = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				id_member, criteria, is_or
 			FROM {db_prefix}pm_rules
@@ -1343,7 +1338,6 @@ class PM implements \ArrayAccess
 
 		$notifications = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				member_name, real_name, id_member, email_address, lngfile,
 				instant_messages,' . (User::$me->allowedTo('moderate_forum') ? ' 0' : '
@@ -1509,7 +1503,6 @@ class PM implements \ArrayAccess
 			// If this is new we need to set it part of its own conversation.
 			if (empty($pm_head)) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}personal_messages
 					SET id_pm_head = {int:id_pm_head}
 					WHERE id_pm = {int:id_pm_head}',
@@ -1521,7 +1514,6 @@ class PM implements \ArrayAccess
 
 			// Some people think manually deleting personal_messages is fun... it's not. We protect against it though :)
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}pm_recipients
 				WHERE id_pm = {int:id_pm}',
 				[
@@ -1555,7 +1547,6 @@ class PM implements \ArrayAccess
 
 		if (count($to_list) > 1) {
 			$request = Db::$db->query(
-				'',
 				'SELECT real_name
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:to_members})
@@ -1651,7 +1642,7 @@ class PM implements \ArrayAccess
 	/**
 	 * Delete the specified personal messages.
 	 *
-	 * @param array|null $personal_messages An array containing the IDs of PMs to delete or null to delete all of them
+	 * @param int|array|null $personal_messages An array containing the IDs of PMs to delete or null to delete all of them
 	 * @param string|null $folder Which "folder" to delete PMs from - 'sent' to delete them from the outbox, null or anything else to delete from the inbox
 	 * @param array|int|null $owner An array of IDs of users whose PMs are being deleted, the ID of a single user or null to use the current user's ID
 	 */
@@ -1682,7 +1673,6 @@ class PM implements \ArrayAccess
 
 		if ($folder == 'sent' || $folder === null) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}personal_messages
 				SET deleted_by_sender = {int:is_deleted}
 				WHERE id_member_from IN ({array_int:member_list})
@@ -1699,7 +1689,6 @@ class PM implements \ArrayAccess
 		if ($folder != 'sent' || $folder === null) {
 			// Calculate the number of messages each member's gonna lose...
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, COUNT(*) AS num_deleted_messages, CASE WHEN is_read & 1 >= 1 THEN 1 ELSE 0 END AS is_read
 				FROM {db_prefix}pm_recipients
 				WHERE id_member IN ({array_int:member_list})
@@ -1733,7 +1722,6 @@ class PM implements \ArrayAccess
 
 			// Do the actual deletion.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}pm_recipients
 				SET deleted = {int:is_deleted}
 				WHERE id_member IN ({array_int:member_list})
@@ -1751,7 +1739,6 @@ class PM implements \ArrayAccess
 			// Get any labels that the owner may have applied to this PM
 			// The join is here to ensure we only get labels applied by the specified member(s)
 			$get_labels = Db::$db->query(
-				'',
 				'SELECT pml.id_label
 				FROM {db_prefix}pm_labels AS l
 					INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
@@ -1770,7 +1757,6 @@ class PM implements \ArrayAccess
 
 			if (!empty($labels)) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}pm_labeled_messages
 					WHERE id_label IN ({array_int:labels})' . $where,
 					[
@@ -1784,7 +1770,6 @@ class PM implements \ArrayAccess
 		// If sender and recipients all have deleted their message, it can be removed.
 		$remove_pms = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT pm.id_pm AS sender, pmr.id_pm
 			FROM {db_prefix}personal_messages AS pm
 				LEFT JOIN {db_prefix}pm_recipients AS pmr ON (pmr.id_pm = pm.id_pm AND pmr.deleted = {int:not_deleted})
@@ -1804,7 +1789,6 @@ class PM implements \ArrayAccess
 
 		if (!empty($remove_pms)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}personal_messages
 				WHERE id_pm IN ({array_int:pm_list})',
 				[
@@ -1813,7 +1797,6 @@ class PM implements \ArrayAccess
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}pm_recipients
 				WHERE id_pm IN ({array_int:pm_list})',
 				[
@@ -1822,7 +1805,6 @@ class PM implements \ArrayAccess
 			);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}pm_labeled_messages
 				WHERE id_pm IN ({array_int:pm_list})',
 				[
@@ -1856,7 +1838,6 @@ class PM implements \ArrayAccess
 			$personal_messages = [];
 
 			$get_messages = Db::$db->query(
-				'',
 				'SELECT id_pm
 				FROM {db_prefix}pm_labeled_messages
 				WHERE id_label = {int:current_label}',
@@ -1876,7 +1857,6 @@ class PM implements \ArrayAccess
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}pm_recipients
 			SET is_read = is_read | 1
 			WHERE id_member = {int:id_member}
@@ -1899,7 +1879,6 @@ class PM implements \ArrayAccess
 
 			$total_unread = 0;
 			$result = Db::$db->query(
-				'',
 				'SELECT id_pm, in_inbox, COUNT(*) AS num
 				FROM {db_prefix}pm_recipients
 				WHERE id_member = {int:id_member}
@@ -1923,7 +1902,6 @@ class PM implements \ArrayAccess
 
 				// Get all the labels
 				$result2 = Db::$db->query(
-					'',
 					'SELECT pml.id_label
 					FROM {db_prefix}pm_labels AS l
 						INNER JOIN {db_prefix}pm_labeled_messages AS pml ON (pml.id_label = l.id_label)
@@ -2002,7 +1980,6 @@ class PM implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT pm.id_pm
 			FROM {db_prefix}personal_messages AS pm' . (empty($joins) ? '' : '
 				' . implode("\n\t\t\t\t", $joins)) . '
@@ -2088,7 +2065,6 @@ class PM implements \ArrayAccess
 			$allRecipients = array_merge($recipient_ids['to'], $recipient_ids['bcc']);
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, real_name
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:member_list})',
@@ -2119,7 +2095,6 @@ class PM implements \ArrayAccess
 			$_REQUEST['replied_to'] = (int) $_REQUEST['replied_to'];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					pm.id_pm, CASE WHEN pm.id_pm_head = {int:no_id_pm_head} THEN pm.id_pm ELSE pm.id_pm_head END AS pm_head,
 					pm.body, pm.subject, pm.msgtime, mem.member_name, COALESCE(mem.id_member, 0) AS id_member,
@@ -2303,7 +2278,6 @@ class PM implements \ArrayAccess
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		self::$messages_request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}personal_messages AS pm' . (empty($joins) ? '' : '

@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -39,7 +39,6 @@ use SMF\Utils;
 class Subscriptions implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -79,12 +78,6 @@ class Subscriptions implements ActionInterface
 	 * Data about all the subscriptions the admin has created.
 	 */
 	public static array $all = [];
-
-	/*********************
-	 * Internal properties
-	 *********************/
-
-	// code...
 
 	/****************
 	 * Public methods
@@ -296,7 +289,6 @@ class Subscriptions implements ActionInterface
 
 		// Load the subscription information.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_subscribe, name, description, cost, length, id_group, add_groups, active
 			FROM {db_prefix}subscriptions
 			WHERE id_subscribe = {int:current_subscription}',
@@ -496,7 +488,6 @@ class Subscriptions implements ActionInterface
 			$members = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT ls.id_member, ls.old_id_group, mem.id_group, mem.additional_groups
 				FROM {db_prefix}log_subscribed AS ls
 					INNER JOIN {db_prefix}members AS mem ON (ls.id_member = mem.id_member)
@@ -520,7 +511,6 @@ class Subscriptions implements ActionInterface
 				$add_groups = '';
 
 				$request = Db::$db->query(
-					'',
 					'SELECT id_group, add_groups
 					FROM {db_prefix}subscriptions
 					WHERE id_subscribe = {int:current_subscription}',
@@ -573,7 +563,6 @@ class Subscriptions implements ActionInterface
 
 			// Delete the subscription
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}subscriptions
 				WHERE id_subscribe = {int:current_subscription}',
 				[
@@ -583,7 +572,6 @@ class Subscriptions implements ActionInterface
 
 			// And delete any subscriptions to it to clear the phantom data too.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_subscribed
 				WHERE id_subscribe = {int:current_subscription}',
 				[
@@ -717,7 +705,6 @@ class Subscriptions implements ActionInterface
 			else {
 				// Don't do groups if there are active members
 				$request = Db::$db->query(
-					'',
 					'SELECT COUNT(*)
 					FROM {db_prefix}log_subscribed
 					WHERE id_subscribe = {int:current_subscription}
@@ -731,7 +718,6 @@ class Subscriptions implements ActionInterface
 				Db::$db->free_result($request);
 
 				Db::$db->query(
-					'substring',
 					'UPDATE {db_prefix}subscriptions
 						SET name = SUBSTRING({string:name}, 1, 60), description = SUBSTRING({string:description}, 1, 255), active = {int:is_active},
 						length = SUBSTRING({string:length}, 1, 4), cost = {string:cost}' . ($disableGroups ? '' : ', id_group = {int:id_group},
@@ -752,6 +738,7 @@ class Subscriptions implements ActionInterface
 						'additional_groups' => !empty($addgroups) ? $addgroups : '',
 						'email_complete' => $emailComplete,
 					],
+					identifier: 'substring',
 				);
 			}
 
@@ -785,7 +772,6 @@ class Subscriptions implements ActionInterface
 		// Otherwise load up all the details.
 		else {
 			$request = Db::$db->query(
-				'',
 				'SELECT name, description, cost, length, id_group, add_groups, active, repeatable, allow_partial, email_complete, reminder
 				FROM {db_prefix}subscriptions
 				WHERE id_subscribe = {int:current_subscription}
@@ -832,7 +818,6 @@ class Subscriptions implements ActionInterface
 
 			// Does this have members who are active?
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}log_subscribed
 				WHERE id_subscribe = {int:current_subscription}
@@ -850,7 +835,6 @@ class Subscriptions implements ActionInterface
 		Utils::$context['groups'] = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE id_group != {int:moderator_group}
@@ -891,7 +875,6 @@ class Subscriptions implements ActionInterface
 		// If we haven't been passed the subscription ID get it.
 		if (Utils::$context['log_id'] && !Utils::$context['sub_id']) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_subscribe
 				FROM {db_prefix}log_subscribed
 				WHERE id_sublog = {int:current_log_item}',
@@ -950,7 +933,6 @@ class Subscriptions implements ActionInterface
 			if (empty(Utils::$context['log_id'])) {
 				// Find the user...
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, id_group
 					FROM {db_prefix}members
 					WHERE real_name = {string:name}
@@ -970,7 +952,6 @@ class Subscriptions implements ActionInterface
 
 				// Ensure the member doesn't already have a subscription!
 				$request = Db::$db->query(
-					'',
 					'SELECT id_subscribe
 					FROM {db_prefix}log_subscribed
 					WHERE id_subscribe = {int:current_subscription}
@@ -1020,7 +1001,6 @@ class Subscriptions implements ActionInterface
 			// Updating.
 			else {
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, status
 					FROM {db_prefix}log_subscribed
 					WHERE id_sublog = {int:current_log_item}',
@@ -1042,7 +1022,6 @@ class Subscriptions implements ActionInterface
 					self::add(Utils::$context['sub_id'], $id_member, 0, $starttime, $endtime);
 				} else {
 					Db::$db->query(
-						'',
 						'UPDATE {db_prefix}log_subscribed
 						SET start_time = {int:start_time}, end_time = {int:end_time}, status = {int:status}
 						WHERE id_sublog = {int:current_log_item}',
@@ -1072,7 +1051,6 @@ class Subscriptions implements ActionInterface
 				}
 
 				$request = Db::$db->query(
-					'',
 					'SELECT id_subscribe, id_member
 					FROM {db_prefix}log_subscribed
 					WHERE id_sublog IN ({array_int:subscription_list})',
@@ -1118,7 +1096,6 @@ class Subscriptions implements ActionInterface
 
 			if (isset($_GET['uid'])) {
 				$request = Db::$db->query(
-					'',
 					'SELECT real_name
 					FROM {db_prefix}members
 					WHERE id_member = {int:current_member}',
@@ -1135,7 +1112,6 @@ class Subscriptions implements ActionInterface
 		// Otherwise load the existing info.
 		else {
 			$request = Db::$db->query(
-				'',
 				'SELECT ls.id_sublog, ls.id_subscribe, ls.id_member, start_time, end_time, status, payments_pending, pending_details,
 					COALESCE(mem.real_name, {string:blank_string}) AS username
 				FROM {db_prefix}log_subscribed AS ls
@@ -1198,7 +1174,6 @@ class Subscriptions implements ActionInterface
 
 							// Update the entry.
 							Db::$db->query(
-								'',
 								'UPDATE {db_prefix}log_subscribed
 								SET payments_pending = payments_pending - 1, pending_details = {string:pending_details}
 								WHERE id_sublog = {int:current_subscription_item}',
@@ -1316,7 +1291,6 @@ class Subscriptions implements ActionInterface
 			if ($old != $new) {
 				// So we're changing this fundamental status. Great.
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}scheduled_tasks
 					SET disabled = {int:disabled}
 					WHERE task = {string:task}',
@@ -1488,7 +1462,6 @@ class Subscriptions implements ActionInterface
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_subscribe, name, description, cost, length, id_group, add_groups, active, repeatable
 			FROM {db_prefix}subscriptions',
 			[
@@ -1560,7 +1533,6 @@ class Subscriptions implements ActionInterface
 
 		// Do the counts.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS member_count, id_subscribe, status
 			FROM {db_prefix}log_subscribed
 			GROUP BY id_subscribe, status',
@@ -1579,7 +1551,6 @@ class Subscriptions implements ActionInterface
 
 		// How many payments are we waiting on?
 		$request = Db::$db->query(
-			'',
 			'SELECT SUM(payments_pending) AS total_pending, id_subscribe
 			FROM {db_prefix}log_subscribed
 			GROUP BY id_subscribe',
@@ -1647,7 +1618,6 @@ class Subscriptions implements ActionInterface
 
 		// Firstly, see whether it exists, and is active. If so then this is merely an extension.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_sublog, end_time, start_time
 			FROM {db_prefix}log_subscribed
 			WHERE id_subscribe = {int:current_subscription}
@@ -1681,7 +1651,6 @@ class Subscriptions implements ActionInterface
 
 			// As everything else should be good, just update!
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_subscribed
 				SET end_time = {int:end_time}, start_time = {int:start_time}, reminder_sent = {int:no_reminder_sent}
 				WHERE id_sublog = {int:current_subscription_item}',
@@ -1699,7 +1668,6 @@ class Subscriptions implements ActionInterface
 
 		// If we're here, that means we don't have an active subscription - that means we need to do some work!
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_group, m.additional_groups
 			FROM {db_prefix}members AS m
 			WHERE m.id_member = {int:current_member}',
@@ -1744,7 +1712,6 @@ class Subscriptions implements ActionInterface
 
 		// Store the new settings.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}members
 			SET id_group = {int:primary_group}, additional_groups = {string:additional_groups}
 			WHERE id_member = {int:current_member}',
@@ -1757,7 +1724,6 @@ class Subscriptions implements ActionInterface
 
 		// Now log the subscription - maybe we have a dormant subscription we can restore?
 		$request = Db::$db->query(
-			'',
 			'SELECT id_sublog, end_time, start_time
 			FROM {db_prefix}log_subscribed
 			WHERE id_subscribe = {int:current_subscription}
@@ -1790,7 +1756,6 @@ class Subscriptions implements ActionInterface
 
 			// As everything else should be good, just update!
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_subscribed
 				SET start_time = {int:start_time}, end_time = {int:end_time}, old_id_group = {int:old_id_group}, status = {int:is_active}, reminder_sent = {int:no_reminder_sent}
 				WHERE id_sublog = {int:current_subscription_item}',
@@ -1852,7 +1817,6 @@ class Subscriptions implements ActionInterface
 
 		// Load the user core bits.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_group, m.additional_groups
 			FROM {db_prefix}members AS m
 			WHERE m.id_member = {int:current_member}',
@@ -1865,7 +1829,6 @@ class Subscriptions implements ActionInterface
 			Db::$db->free_result($request);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_subscribed
 				WHERE id_member = {int:current_member}',
 				[
@@ -1885,7 +1848,6 @@ class Subscriptions implements ActionInterface
 		$new_id_group = -1;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_subscribe, old_id_group
 			FROM {db_prefix}log_subscribed
 			WHERE id_member = {int:current_member}
@@ -1962,7 +1924,6 @@ class Subscriptions implements ActionInterface
 
 		// Update the member
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}members
 			SET id_group = {int:primary_group}, additional_groups = {string:existing_groups}
 			WHERE id_member = {int:current_member}',
@@ -1976,7 +1937,6 @@ class Subscriptions implements ActionInterface
 		// Disable the subscription.
 		if (!$delete) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_subscribed
 				SET status = {int:not_active}
 				WHERE id_member = {int:current_member}
@@ -1991,7 +1951,6 @@ class Subscriptions implements ActionInterface
 		// Otherwise delete it!
 		else {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_subscribed
 				WHERE id_member = {int:current_member}
 					AND id_subscribe = {int:current_subscription}',
@@ -2021,7 +1980,6 @@ class Subscriptions implements ActionInterface
 		$groups = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, id_group, additional_groups
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:user_list})',
@@ -2039,7 +1997,6 @@ class Subscriptions implements ActionInterface
 		Db::$db->free_result($request);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ls.id_member, ls.old_id_group, s.id_group, s.add_groups
 			FROM {db_prefix}log_subscribed AS ls
 				INNER JOIN {db_prefix}subscriptions AS s ON (s.id_subscribe = ls.id_subscribe)
@@ -2082,7 +2039,6 @@ class Subscriptions implements ActionInterface
 			$addgroups = implode(',', $group['additional']);
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET id_group = {int:primary_group}, additional_groups = {string:additional_groups}
 				WHERE id_member = {int:current_member}
@@ -2175,7 +2131,6 @@ class Subscriptions implements ActionInterface
 	{
 		// Get the total amount of users.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS total_subs
 			FROM {db_prefix}log_subscribed AS ls
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = ls.id_member)
@@ -2211,7 +2166,6 @@ class Subscriptions implements ActionInterface
 		$subscribers = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT ls.id_sublog, COALESCE(mem.id_member, 0) AS id_member, COALESCE(mem.real_name, {string:guest}) AS name, ls.start_time, ls.end_time,
 				ls.status, ls.payments_pending
 			FROM {db_prefix}log_subscribed AS ls

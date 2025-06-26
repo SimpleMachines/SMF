@@ -36,6 +36,10 @@ use SMF\Utils;
  */
 class CreatePost_Notify extends BackgroundTask
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	/**
 	 * Constants for reply types.
 	 */
@@ -58,6 +62,10 @@ class CreatePost_Notify extends BackgroundTask
 	 * and quotes in unwatched and/or edited posts.
 	 */
 	public const MENTION_DELAY = 5;
+
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var array Info about members to be notified.
@@ -90,6 +98,10 @@ class CreatePost_Notify extends BackgroundTask
 	 *			mentions and quotes in unwatched and/or edited posts.
 	 */
 	private $mention_mail_time = 0;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
@@ -138,7 +150,6 @@ class CreatePost_Notify extends BackgroundTask
 		];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_group, deny
 			FROM {db_prefix}board_permissions_view
 			WHERE id_board = {int:current_board}',
@@ -155,7 +166,6 @@ class CreatePost_Notify extends BackgroundTask
 
 		// Find the people interested in receiving notifications for this topic
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
 				mem.email_address, mem.lngfile, mem.pm_ignore_list,
@@ -234,7 +244,6 @@ class CreatePost_Notify extends BackgroundTask
 			else {
 				if (!empty($this->_details['respawns'])) {
 					$request = Db::$db->query(
-						'',
 						'SELECT modified_time
 						FROM {db_prefix}messages
 						WHERE id_msg = {int:msg}
@@ -299,7 +308,6 @@ class CreatePost_Notify extends BackgroundTask
 
 		if (!empty($members_to_log)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
 				WHERE ' . ($type == 'topic' ? 'id_board = {int:board}' : 'id_topic = {int:topic}') . '
@@ -374,12 +382,16 @@ class CreatePost_Notify extends BackgroundTask
 		return true;
 	}
 
+	/******************
+	 * Internal methods
+	 ******************/
+
 	/**
 	 * Update an alert if a message was updated since the alert was created.
 	 *
 	 * @param int $msg_id Message ID to update
 	 */
-	private function updateAlerts(int $msg_id): void
+	protected function updateAlerts(int $msg_id): void
 	{
 		// We send alerts only on the first iteration of this task.
 		if (!empty($this->_details['respawns'])) {
@@ -391,7 +403,6 @@ class CreatePost_Notify extends BackgroundTask
 			$old_alerts = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT content_action, id_member
 				FROM {db_prefix}user_alerts
 				WHERE content_id = {int:msg_id}
@@ -411,7 +422,6 @@ class CreatePost_Notify extends BackgroundTask
 
 			if (!empty($old_alerts)) {
 				$request = Db::$db->query(
-					'',
 					'SELECT content_type, id_mentioned
 					FROM {db_prefix}mentions
 					WHERE content_id = {int:msg_id}

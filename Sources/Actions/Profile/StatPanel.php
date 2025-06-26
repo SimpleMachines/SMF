@@ -34,8 +34,6 @@ class StatPanel implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -73,7 +71,6 @@ class StatPanel implements ActionInterface
 
 		// Number of topics started and Number polls started
 		$result = Db::$db->query(
-			'',
 			'SELECT COUNT(*), COUNT( CASE WHEN id_poll != {int:no_poll} THEN 1 ELSE NULL END )
 			FROM {db_prefix}topics
 			WHERE id_member_started = {int:current_member}' . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
@@ -89,13 +86,13 @@ class StatPanel implements ActionInterface
 
 		// Number polls voted in.
 		$result = Db::$db->query(
-			'distinct_poll_votes',
 			'SELECT COUNT(DISTINCT id_poll)
 			FROM {db_prefix}log_polls
 			WHERE id_member = {int:current_member}',
 			[
 				'current_member' => Profile::$member->id,
 			],
+			identifier: 'distinct_poll_votes',
 		);
 		list(Utils::$context['num_votes']) = Db::$db->fetch_row($result);
 		Db::$db->free_result($result);
@@ -109,7 +106,6 @@ class StatPanel implements ActionInterface
 		Utils::$context['popular_boards'] = [];
 
 		$result = Db::$db->query(
-			'',
 			'SELECT
 				b.id_board, MAX(b.name) AS name, MAX(b.num_posts) AS num_posts, COUNT(*) AS message_count
 			FROM {db_prefix}messages AS m
@@ -143,7 +139,6 @@ class StatPanel implements ActionInterface
 		Utils::$context['board_activity'] = [];
 
 		$result = Db::$db->query(
-			'profile_board_stats',
 			'SELECT
 				b.id_board, MAX(b.name) AS name, b.num_posts, COUNT(*) AS message_count,
 				CASE WHEN COUNT(*) > MAX(b.num_posts) THEN 1 ELSE COUNT(*) / MAX(b.num_posts) END * 100 AS percentage
@@ -157,6 +152,7 @@ class StatPanel implements ActionInterface
 			[
 				'current_member' => Profile::$member->id,
 			],
+			identifier: 'profile_board_stats',
 		);
 
 		while ($row = Db::$db->fetch_assoc($result)) {
@@ -177,7 +173,6 @@ class StatPanel implements ActionInterface
 		Utils::$context['posts_by_time'] = [];
 
 		$result = Db::$db->query(
-			'user_activity_by_time',
 			'SELECT
 				HOUR(FROM_UNIXTIME(poster_time + {int:time_offset})) AS hour,
 				COUNT(*) AS post_count
@@ -193,6 +188,7 @@ class StatPanel implements ActionInterface
 				'time_offset' => User::$me->time_offset * 3600,
 				'max_messages' => 1001,
 			],
+			identifier: 'user_activity_by_time',
 		);
 
 		while ($row = Db::$db->fetch_assoc($result)) {

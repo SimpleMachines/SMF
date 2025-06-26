@@ -24,18 +24,6 @@ class Utils
 {
 	use BackwardCompatibility;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'context' => 'context',
-			'smcFunc' => 'smcFunc',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -317,6 +305,22 @@ class Utils
 		'json_decode' => 'smf_json_decode',
 		'random_int' => __CLASS__ . '::randomInt',
 		'random_bytes' => __CLASS__ . '::randomBytes',
+	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'context' => 'context',
+			'smcFunc' => 'smcFunc',
+		],
 	];
 
 	/***********************
@@ -724,7 +728,7 @@ class Utils
 	 *
 	 * @param string $string The input string.
 	 * @param int $offset Offset where substring will start.
-	 * @param int $length Maximum length, in characters, of the substring.
+	 * @param int|null $length Maximum length, in characters, of the substring.
 	 * @return string The substring.
 	 */
 	public static function entitySubstr(string $string, int $offset, ?int $length = null): string
@@ -847,11 +851,9 @@ class Utils
 	 *    Default: false.
 	 * @param string $form A Unicode normalization form: 'c', 'd', 'kc', 'kd',
 	 *    or 'kc_casefold'.
-	 * @param bool $mb4 If true, always decode 4-byte UTF-8 characters.
-	 *      Default: false.
 	 * @return string The normalized string.
 	 */
-	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c', bool $mb4 = false): string
+	public static function convertCase(string $string, string $case, bool $simple = false, string $form = 'c'): string
 	{
 		// Convert numeric entities to characters, except special ones.
 		if (str_contains($string, '&#')) {
@@ -924,7 +926,7 @@ class Utils
 	 */
 	public static function strtotitle(string $string): string
 	{
-		return self::convertCase($string, 'upper');
+		return self::convertCase($string, 'title');
 	}
 
 	/**
@@ -1001,7 +1003,7 @@ class Utils
 	 * array in order to test all possible matches.
 	 *
 	 * @param array $strings An array of strings to make a regex for.
-	 * @param string $delim Optional delimiter character to pass to preg_quote().
+	 * @param string|null $delim Optional delimiter character to pass to preg_quote().
 	 * @param bool $return_array If true, returns an array of regexes.
 	 * @return string|array One or more regular expressions to match any of the
 	 *    input strings.
@@ -1830,7 +1832,7 @@ class Utils
 	 * Attempts to determine the MIME type of some data or a file.
 	 *
 	 * @param string $data The data to check, or the path or URL of a file to check.
-	 * @param string $is_path If true, $data is a path or URL to a file.
+	 * @param bool $is_path If true, $data is a path or URL to a file.
 	 * @return string|false A MIME type, or false if we cannot determine it.
 	 */
 	public static function getMimeType(string $data, bool $is_path = false): string|false
@@ -2178,7 +2180,7 @@ class Utils
 	 *
 	 * @param string $data The data to print
 	 * @param string $type The content type. Defaults to JSON.
-	 * @return bool|void If $data is empty, false is returned, otherwise the response is sent and execution stopped.
+	 * @return bool|null If $data is empty, false is returned, otherwise the response is sent and execution stopped.
 	 */
 	public static function serverResponse(string $data = '', string $type = 'Content-Type: application/json'): ?bool
 	{

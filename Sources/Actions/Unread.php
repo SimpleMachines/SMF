@@ -357,7 +357,6 @@ class Unread implements ActionInterface, Routable
 
 			// The easiest thing is to just get all the boards they can see, but since we've specified the top of tree we ignore some of them
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board, b.id_parent
 				FROM {db_prefix}boards AS b
 				WHERE {query_wanna_see_board}
@@ -396,7 +395,6 @@ class Unread implements ActionInterface, Routable
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE {query_see_board}
@@ -426,7 +424,6 @@ class Unread implements ActionInterface, Routable
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE ' . User::$me->{$this->see_board} . '
@@ -451,7 +448,6 @@ class Unread implements ActionInterface, Routable
 		} else {
 			// Don't bother to show deleted posts!
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE ' . User::$me->{$this->see_board} . (!empty(Config::$modSettings['recycle_enable']) && Config::$modSettings['recycle_board'] > 0 ? '
@@ -484,7 +480,6 @@ class Unread implements ActionInterface, Routable
 	{
 		if (!empty($_REQUEST['c']) && is_array($_REQUEST['c']) && count($_REQUEST['c']) == 1) {
 			$request = Db::$db->query(
-				'',
 				'SELECT name
 				FROM {db_prefix}categories
 				WHERE id_cat = {int:id_cat}
@@ -657,7 +652,6 @@ class Unread implements ActionInterface, Routable
 
 		if (!empty(Board::$info->id)) {
 			$request = Db::$db->query(
-				'',
 				'SELECT MIN(id_msg)
 				FROM {db_prefix}log_mark_read
 				WHERE id_member = {int:current_member}
@@ -672,7 +666,6 @@ class Unread implements ActionInterface, Routable
 			Db::$db->free_result($request);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT MIN(lmr.id_msg)
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}log_mark_read AS lmr ON (lmr.id_board = b.id_board AND lmr.id_member = {int:current_member})
@@ -696,7 +689,6 @@ class Unread implements ActionInterface, Routable
 			} else {
 				// This query is pretty slow, but it's needed to ensure nothing crucial is ignored.
 				$request = Db::$db->query(
-					'',
 					'SELECT MIN(id_msg)
 					FROM {db_prefix}log_topics
 					WHERE id_member = {int:current_member}',
@@ -742,7 +734,6 @@ class Unread implements ActionInterface, Routable
 	protected function makeTempTable(): void
 	{
 		Db::$db->query(
-			'',
 			'DROP TABLE IF EXISTS {db_prefix}log_topics_unread',
 			[
 			],
@@ -750,7 +741,6 @@ class Unread implements ActionInterface, Routable
 
 		// Let's copy things out of the log_topics table, to reduce searching.
 		$this->have_temp_table = Db::$db->query(
-			'',
 			'CREATE TEMPORARY TABLE {db_prefix}log_topics_unread (
 				PRIMARY KEY (id_topic)
 			)
@@ -776,7 +766,6 @@ class Unread implements ActionInterface, Routable
 	protected function getTopicRequestWithTempTable(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*), MIN(t.id_last_msg)
 			FROM {db_prefix}topics AS t
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)
@@ -805,7 +794,6 @@ class Unread implements ActionInterface, Routable
 		}
 
 		$this->topic_request = Db::$db->query(
-			'substring',
 			'SELECT ' . implode(', ', $this->selects) . '
 			FROM {db_prefix}messages AS ms
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ms.id_topic AND t.id_first_msg = ms.id_msg)
@@ -832,6 +820,7 @@ class Unread implements ActionInterface, Routable
 				'offset' => Utils::$context['start'],
 				'limit' => Utils::$context['topics_per_page'],
 			]),
+			identifier: 'substring',
 		);
 	}
 
@@ -841,7 +830,6 @@ class Unread implements ActionInterface, Routable
 	protected function getTopicRequestWithoutTempTable(): void
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*), MIN(t.id_last_msg)
 			FROM {db_prefix}topics AS t' . (!empty($this->have_temp_table) ? '
 				LEFT JOIN {db_prefix}log_topics_unread AS lt ON (lt.id_topic = t.id_topic)' : '
@@ -873,7 +861,6 @@ class Unread implements ActionInterface, Routable
 		}
 
 		$this->topic_request = Db::$db->query(
-			'substring',
 			'SELECT ' . implode(', ', $this->selects) . '
 			FROM {db_prefix}messages AS ms
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = ms.id_topic AND t.id_first_msg = ms.id_msg)
@@ -901,6 +888,7 @@ class Unread implements ActionInterface, Routable
 				'offset' => Utils::$context['start'],
 				'limit' => Utils::$context['topics_per_page'],
 			]),
+			identifier: 'substring',
 		);
 	}
 
@@ -955,7 +943,6 @@ class Unread implements ActionInterface, Routable
 
 		if (!empty(Config::$modSettings['enableParticipation']) && !empty($topic_ids)) {
 			$result = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topic_list})

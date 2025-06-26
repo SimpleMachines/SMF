@@ -71,23 +71,8 @@ use SMF\PersonalMessage\PM;
  */
 class User implements \ArrayAccess
 {
-	use BackwardCompatibility;
 	use ArrayAccessHelper;
-
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'profiles' => 'user_profile',
-			'settings' => 'user_settings',
-			'info' => 'user_info',
-			'sc' => 'sc',
-			'memberContext' => 'memberContext',
-		],
-	];
+	use BackwardCompatibility;
 
 	/*****************
 	 * Class constants
@@ -795,6 +780,41 @@ class User implements \ArrayAccess
 	 *********************/
 
 	/**
+	 * @var array
+	 *
+	 * Alternate names for some object properties.
+	 */
+	protected array $prop_aliases = [
+		'id_member' => 'id',
+		'member_name' => 'username',
+		'real_name' => 'name',
+		'display_name' => 'name',
+		'email_address' => 'email',
+		'lngfile' => 'language',
+		'member_group' => 'group_name',
+		'primary_group' => 'primary_group_name',
+		'member_group_color' => 'group_color',
+		'member_ip' => 'ip',
+		'member_ip2' => 'ip2',
+		'usertitle' => 'title',
+		'blurb' => 'title',
+		'id_theme' => 'theme',
+		'ignore_boards' => 'ignoreboards',
+		'pm_ignore_list' => 'ignoreusers',
+		'buddy_list' => 'buddies',
+		'instant_messages' => 'messages',
+		'birth_date' => 'birthdate',
+		'last_login_timestamp' => 'last_login',
+
+		// Square brackets are parsed to find array elements.
+		'website_url' => 'website[url]',
+		'website_title' => 'website[title]',
+
+		// Initial exclamation mark means inverse of the property.
+		'is_logged' => '!is_guest',
+	];
+
+	/**
 	 * @var bool
 	 *
 	 * Whether the integrate_verify_user hook verified this user for us.
@@ -836,41 +856,6 @@ class User implements \ArrayAccess
 	 */
 	private array $groups_can_moderate;
 
-	/**
-	 * @var array
-	 *
-	 * Alternate names for some object properties.
-	 */
-	protected array $prop_aliases = [
-		'id_member' => 'id',
-		'member_name' => 'username',
-		'real_name' => 'name',
-		'display_name' => 'name',
-		'email_address' => 'email',
-		'lngfile' => 'language',
-		'member_group' => 'group_name',
-		'primary_group' => 'primary_group_name',
-		'member_group_color' => 'group_color',
-		'member_ip' => 'ip',
-		'member_ip2' => 'ip2',
-		'usertitle' => 'title',
-		'blurb' => 'title',
-		'id_theme' => 'theme',
-		'ignore_boards' => 'ignoreboards',
-		'pm_ignore_list' => 'ignoreusers',
-		'buddy_list' => 'buddies',
-		'instant_messages' => 'messages',
-		'birth_date' => 'birthdate',
-		'last_login_timestamp' => 'last_login',
-
-		// Square brackets are parsed to find array elements.
-		'website_url' => 'website[url]',
-		'website_title' => 'website[title]',
-
-		// Initial exclamation mark means inverse of the property.
-		'is_logged' => '!is_guest',
-	];
-
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -885,6 +870,21 @@ class User implements \ArrayAccess
 		'basic' => 1,
 		'normal' => 2,
 		'profile' => 3,
+	];
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'profiles' => 'user_profile',
+			'settings' => 'user_settings',
+			'info' => 'user_info',
+			'sc' => 'sc',
+			'memberContext' => 'memberContext',
+		],
 	];
 
 	/****************
@@ -944,6 +944,11 @@ class User implements \ArrayAccess
 
 		if (!isset($boards)) {
 			$this->loadModCache();
+
+			// Can this user approve group requests?
+			if (($this->mod_cache['gq'] ?? '0=1') != '0=1') {
+				$this->permission_sets[0]->grant('approve_group_requests');
+			}
 
 			// A user can mod if they have permission to see the mod center, or they are a board/group/approval moderator.
 			$this->can_mod = (
@@ -1173,6 +1178,12 @@ class User implements \ArrayAccess
 	 */
 	public function logOnline(bool $force = false): void
 	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
+			return;
+		}
+
 		// If we are showing who is viewing a topic, let's see if we are, and force an update if so - to make it accurate.
 		if (!empty(Theme::$current->settings['display_who_viewing']) && (!empty(Topic::$topic_id) || !empty(Board::$info->id))) {
 			// Take the opposite approach!
@@ -1234,7 +1245,6 @@ class User implements \ArrayAccess
 		if (!empty($_SESSION['log_time']) && $_SESSION['log_time'] >= time() - Config::$modSettings['lastActive'] * 20) {
 			if ($do_delete) {
 				Db::$db->query(
-					'delete_log_online_interval',
 					'DELETE FROM {db_prefix}log_online
 					WHERE log_time < {int:log_time}
 						AND session != {string:session}',
@@ -1242,6 +1252,7 @@ class User implements \ArrayAccess
 						'log_time' => time() - Config::$modSettings['lastActive'] * 60,
 						'session' => $session_id,
 					],
+					identifier: 'delete_log_online_interval',
 				);
 
 				// Cache when we did it last.
@@ -1249,7 +1260,6 @@ class User implements \ArrayAccess
 			}
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_online
 				SET log_time = {int:log_time}, ip = {inet:ip}, url = {string:url}
 				WHERE session = {string:session}',
@@ -1273,7 +1283,6 @@ class User implements \ArrayAccess
 		if (empty($_SESSION['log_time'])) {
 			if ($do_delete || !empty($this->id)) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_online
 					WHERE ' . ($do_delete ? 'log_time < {int:log_time}' : '') . ($do_delete && !empty($this->id) ? ' OR ' : '') . (empty($this->id) ? '' : 'id_member = {int:current_member}'),
 					[
@@ -1351,6 +1360,12 @@ class User implements \ArrayAccess
 	 */
 	public function loadModCache(): void
 	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
+			return;
+		}
+
 		if (
 			isset($_SESSION['mc'])
 			&& $_SESSION['mc']['time'] > Config::$modSettings['settings_updated']
@@ -1389,7 +1404,9 @@ class User implements \ArrayAccess
 	 */
 	public function rebuildModCache(): void
 	{
+		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1400,7 +1417,6 @@ class User implements \ArrayAccess
 			$groups = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_group
 				FROM {db_prefix}group_moderators
 				WHERE id_member = {int:current_member}',
@@ -1439,7 +1455,6 @@ class User implements \ArrayAccess
 
 		if (!$this->is_guest) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board
 				FROM {db_prefix}moderators
 				WHERE id_member = {int:current_member}',
@@ -1455,7 +1470,6 @@ class User implements \ArrayAccess
 
 			// Can any of the groups they're in moderate any of the boards?
 			$request = Db::$db->query(
-				'',
 				'SELECT id_board
 				FROM {db_prefix}moderator_groups
 				WHERE id_group IN({array_int:groups})',
@@ -1502,13 +1516,14 @@ class User implements \ArrayAccess
 	 * with a message telling them why. If $message is empty, a default message
 	 * will be used.
 	 *
-	 * @param string $message The message to display to the guest.
+	 * @param string|null $message The message to display to the guest.
 	 * @param bool $log Whether to log what they were trying to do.
 	 */
 	public function kickIfGuest(?string $message = null, bool $log = true): void
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1577,6 +1592,7 @@ class User implements \ArrayAccess
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1656,7 +1672,6 @@ class User implements \ArrayAccess
 
 				// Store every type of ban that applies to you in your session.
 				$request = Db::$db->query(
-					'',
 					'SELECT bi.id_ban, bi.email_address, bi.id_member, bg.cannot_access, bg.cannot_register,
 						bg.cannot_post, bg.cannot_login, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
 					FROM {db_prefix}ban_items AS bi
@@ -1737,7 +1752,6 @@ class User implements \ArrayAccess
 			}
 
 			$request = Db::$db->query(
-				'',
 				'SELECT bi.id_ban, bg.reason, COALESCE(bg.expire_time, 0) AS expire_time
 				FROM {db_prefix}ban_items AS bi
 					INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
@@ -1772,7 +1786,6 @@ class User implements \ArrayAccess
 			// We don't wanna see you!
 			if (!$this->is_guest) {
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_online
 					WHERE id_member = {int:current_member}',
 					[
@@ -1812,7 +1825,6 @@ class User implements \ArrayAccess
 		if (isset($_SESSION['ban']['cannot_login']) && !$this->is_guest) {
 			// We don't wanna see you!
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_online
 				WHERE id_member = {int:current_member}',
 				[
@@ -1847,13 +1859,14 @@ class User implements \ArrayAccess
 	 * Increments the hit counters for the specified ban ID's (if any).
 	 *
 	 * @param array $ban_ids The IDs of the bans.
-	 * @param string $email The email address associated with the user that
+	 * @param string|null $email The email address associated with the user that
 	 *    triggered this hit. If not set, uses the current user's email address.
 	 */
 	public function logBan(array $ban_ids = [], ?string $email = null): void
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
+			// Quietly ignore this.
 			return;
 		}
 
@@ -1883,7 +1896,6 @@ class User implements \ArrayAccess
 		// One extra point for these bans.
 		if (!empty($ban_ids)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}ban_items
 				SET hits = hits + 1
 				WHERE id_ban IN ({array_int:ban_ids})',
@@ -1914,7 +1926,8 @@ class User implements \ArrayAccess
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
-			return null;
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
 
 		// We don't care if the option is off, because guests should NEVER get past here.
@@ -2007,6 +2020,12 @@ class User implements \ArrayAccess
 	 */
 	public function checkSession(string $type = 'post', string $from_action = '', bool $is_fatal = true): ?string
 	{
+		// This only applies to the current user.
+		if ($this->id !== User::$my_id) {
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
+		}
+
 		// Is it in as $_POST['sc']?
 		if ($type == 'post') {
 			$check = $_POST[$_SESSION['session_var']] ?? (empty(Config::$modSettings['strictSessionCheck']) && isset($_POST['sc']) ? $_POST['sc'] : null);
@@ -2141,25 +2160,19 @@ class User implements \ArrayAccess
 	 * If $any is true, will return true if the user has any of the specified
 	 * permissions on any of the specified boards.
 	 *
-	 * Always returns true if the user is an administrator.
-	 *
 	 * @param string|array $permissions One or more permissions to check.
 	 * @param int|array|null $boards The IDs of one or more boards, or null for
 	 *    the current board. Default: null.
 	 * @param bool $any If true, will return true if the user has any of the
-	 *    specified permissions. If false, will return true only if the user
-	 *    has all of the specified permissions. Default: false.
+	 *    specified permissions on any of the specified boards. If false, will
+	 *    return true only if the user has all of the specified permissions on
+	 *    all of the specified boards. Default: false.
 	 * @return bool Whether the user has the specified permission.
 	 */
 	public function allowedTo(string|array $permissions, int|array|null $boards = null, bool $any = false): bool
 	{
 		// You're always allowed to do nothing. (Unless you're a working man, MR. LAZY :P!)
 		if (empty($permissions)) {
-			return true;
-		}
-
-		// Administrators are supermen :P.
-		if ($this->is_admin) {
 			return true;
 		}
 
@@ -2172,6 +2185,17 @@ class User implements \ArrayAccess
 			),
 		);
 
+		// If a permission doesn't exist, it can't be done.
+		foreach ($permissions as $key => $permission) {
+			if (!Permission::exists($permission)) {
+				unset($permissions[$key]);
+
+				if (!$any || empty($permissions)) {
+					return false;
+				}
+			}
+		}
+
 		// Avoid unnecessary repetition.
 		$cache_key = implode(',', $permissions) . '-' . implode(',', $boards) . '-' . (int) $any;
 
@@ -2183,9 +2207,6 @@ class User implements \ArrayAccess
 		$board_permissions = array_filter($permissions, fn($p) => Permission::get($p)->scope === 'board');
 		$global_permissions = array_diff($permissions, $board_permissions);
 
-		// Assume false until proven otherwise.
-		$allowed = false;
-
 		// Check any requested global permissions.
 		if (!empty($global_permissions)) {
 			$this->loadPermissions(0);
@@ -2194,29 +2215,33 @@ class User implements \ArrayAccess
 
 		// Check any requested board permissions.
 		if (!empty($board_permissions) && !empty($boards)) {
+			if (!isset($allowed)) {
+				$allowed = !$any;
+			}
+
 			$this->loadPermissions($boards);
 
 			foreach ($boards as $board) {
-				$allowed_here = $this->permission_sets[$board]->allowedTo($board_permissions, $any);
+				$allowed_here = isset($this->permission_sets[$board]) && $this->permission_sets[$board]->allowedTo($board_permissions, $any);
 				$allowed = $any ? ($allowed || $allowed_here) : ($allowed && $allowed_here);
 			}
 		}
 
-		$this->perm_cache[$cache_key] = $allowed;
+		$this->perm_cache[$cache_key] = !empty($allowed);
 
-		return $allowed;
+		return !empty($allowed);
 	}
 
 	/**
 	 * Checks whether the user has the given permissions, and exits with a
 	 * fatal error if not.
 	 *
-	 * Uses allowedTo() to check if the user is allowed to do permission.
+	 * Uses allowedTo() to check if the user has the permissions.
 	 *
-	 * Checks the passed boards or current board for the permission.
+	 * Checks the passed boards or current board for the permissions.
 	 *
-	 * If $any is true, the user only needs permission on at least one of the
-	 * boards to pass.
+	 * If $any is true, the user will pass if they have any of the specified
+	 * permissions on any of the specified boards.
 	 *
 	 * If the user is not allowed, loads the Errors language file and shows an
 	 * error using Lang::$txt['cannot_' . $permission].
@@ -2224,16 +2249,17 @@ class User implements \ArrayAccess
 	 * If the user is a guest and cannot do it, calls $this->kickIfGuest().
 	 *
 	 * @param string|array $permissions One or more permissions to check.
-	 * @param int|array $boards The ID of a board or an array of board IDs if we
-	 *    want to check board-level permissions
-	 * @param bool $any Whether to check for permission on at least one board
-	 *    instead of all the passed boards.
+	 * @param int|array|null $boards The IDs of one or more boards, or null for
+	 *    the current board. Default: null.
+	 * @param bool $any If true, the user will pass if they have any of the
+	 *    specified permissions on any of the specified boards. Default: false.
 	 */
 	public function isAllowedTo(string|array $permissions, int|array|null $boards = null, bool $any = false): void
 	{
 		// This only applies to the current user.
 		if ($this->id !== User::$my_id) {
-			return;
+			// Complain loudly about this programmer error.
+			throw new \LogicException('Called ' . __METHOD__ . ' for a user that is not ' . __CLASS__ . '::$me');
 		}
 
 		// Make it an array, even if a string was passed.
@@ -2348,7 +2374,6 @@ class User implements \ArrayAccess
 		}
 
 		$request = Db::$db->query(
-			'',
 			'SELECT b.id_board
 			FROM {db_prefix}boards AS b
 			WHERE {raw:can_access}',
@@ -2393,7 +2418,6 @@ class User implements \ArrayAccess
 			$this->groups_can_moderate = Group::getAll();
 		} elseif ($this->allowedTo('manage_membergroups')) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_group
 				FROM {db_prefix}groups
 				WHERE group_type != {int:protected}',
@@ -2407,7 +2431,6 @@ class User implements \ArrayAccess
 			Db::$db->free_result($request);
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_group
 				FROM {db_prefix}group_moderators
 				WHERE id_member = {int:member}',
@@ -2434,7 +2457,7 @@ class User implements \ArrayAccess
 	 * @param mixed $users Users specified by ID, name, or email address.
 	 * @param int $type Whether $users contains IDs, names, or email addresses.
 	 *    Possible values are this class's LOAD_BY_* constants.
-	 * @param string $dataset What kind of data to load: 'profile', 'normal',
+	 * @param string|null $dataset What kind of data to load: 'profile', 'normal',
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array Instances of this class for the loaded users.
 	 */
@@ -2474,7 +2497,7 @@ class User implements \ArrayAccess
 	 * Reloads an array of users, specified by ID number.
 	 *
 	 * @param int|array $users One or more users specified by ID.
-	 * @param string $dataset What kind of data to load: 'profile', 'normal',
+	 * @param string|null $dataset What kind of data to load: 'profile', 'normal',
 	 *    'basic', 'minimal'. Leave null for a dynamically determined default.
 	 * @return array The ids of the loaded members.
 	 */
@@ -2514,7 +2537,6 @@ class User implements \ArrayAccess
 	{
 		if (isset(Board::$info) && ($moderator_group_info = CacheApi::get('moderator_group_info', 480)) == null) {
 			$request = Db::$db->query(
-				'',
 				'SELECT group_name, online_color, icons
 				FROM {db_prefix}membergroups
 				WHERE id_group = {int:moderator_group}
@@ -2609,7 +2631,6 @@ class User implements \ArrayAccess
 			$ignoreboards = [];
 		} else {
 			$request = Db::$db->query(
-				'',
 				'SELECT mem.ignore_boards, mem.id_group, mem.additional_groups, mem.id_post_group
 				FROM {db_prefix}members AS mem
 				WHERE mem.id_member = {int:id_member}
@@ -2859,7 +2880,6 @@ class User implements \ArrayAccess
 					$member_names = [];
 
 					$request = Db::$db->query(
-						'',
 						'SELECT member_name
 						FROM {db_prefix}members
 						WHERE ' . $condition,
@@ -2947,7 +2967,6 @@ class User implements \ArrayAccess
 		}
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}members
 			SET' . substr($setString, 0, -1) . '
 			WHERE ' . $condition,
@@ -2978,7 +2997,7 @@ class User implements \ArrayAccess
 	/**
 	 * Gets a member's selected time zone identifier
 	 *
-	 * @param int $id_member The member id to look up. If not provided, the current user's id will be used.
+	 * @param int|null $id_member The member id to look up. If not provided, the current user's id will be used.
 	 * @return string The time zone identifier string for the user's time zone.
 	 */
 	public static function getTimezone(?int $id_member = null): string
@@ -3004,7 +3023,6 @@ class User implements \ArrayAccess
 		if (!empty($id_member)) {
 			// Look it up in the database.
 			$request = Db::$db->query(
-				'',
 				'SELECT timezone
 				FROM {db_prefix}members
 				WHERE id_member = {int:id_member}',
@@ -3090,7 +3108,6 @@ class User implements \ArrayAccess
 		$user_log_details = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				id_member, member_name, is_activated,
 				CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
@@ -3167,7 +3184,6 @@ class User implements \ArrayAccess
 
 		// Make these peoples' posts guest posts.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
@@ -3178,7 +3194,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}polls
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
@@ -3190,7 +3205,6 @@ class User implements \ArrayAccess
 
 		// Make these peoples' posts guest first posts and last posts.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_member_started = {int:guest_id}
 			WHERE id_member_started IN ({array_int:users})',
@@ -3201,7 +3215,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}topics
 			SET id_member_updated = {int:guest_id}
 			WHERE id_member_updated IN ({array_int:users})',
@@ -3212,7 +3225,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_actions
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
@@ -3223,7 +3235,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_banned
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
@@ -3234,7 +3245,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_errors
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
@@ -3246,7 +3256,6 @@ class User implements \ArrayAccess
 
 		// Delete the member.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}members
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3256,7 +3265,6 @@ class User implements \ArrayAccess
 
 		// Delete any drafts...
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_drafts
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3266,7 +3274,6 @@ class User implements \ArrayAccess
 
 		// Delete anything they liked.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}user_likes
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3276,7 +3283,6 @@ class User implements \ArrayAccess
 
 		// Delete their mentions
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}mentions
 			WHERE id_member IN ({array_int:members})',
 			[
@@ -3286,7 +3292,6 @@ class User implements \ArrayAccess
 
 		// Delete the logs...
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_actions
 			WHERE id_log = {int:log_type}
 				AND id_member IN ({array_int:users})',
@@ -3297,7 +3302,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_boards
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3306,7 +3310,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_comments
 			WHERE id_recipient IN ({array_int:users})
 				AND comment_type = {string:warntpl}',
@@ -3317,7 +3320,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_group_requests
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3326,7 +3328,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_mark_read
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3335,7 +3336,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_notify
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3344,7 +3344,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_online
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3353,7 +3352,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_subscribed
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3362,7 +3360,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_topics
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3373,7 +3370,6 @@ class User implements \ArrayAccess
 		// Make their votes appear as guest votes - at least it keeps the totals right.
 		// @todo Consider adding back in cookie protection.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_polls
 			SET id_member = {int:guest_id}
 			WHERE id_member IN ({array_int:users})',
@@ -3387,7 +3383,6 @@ class User implements \ArrayAccess
 		PM::delete(null, null, $users);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}personal_messages
 			SET id_member_from = {int:guest_id}
 			WHERE id_member_from IN ({array_int:users})',
@@ -3399,7 +3394,6 @@ class User implements \ArrayAccess
 
 		// They no longer exist, so we don't know who it was sent to.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}pm_recipients
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3412,7 +3406,6 @@ class User implements \ArrayAccess
 
 		// It's over, no more moderation for you.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}moderators
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3421,7 +3414,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}group_moderators
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3431,7 +3423,6 @@ class User implements \ArrayAccess
 
 		// If you don't exist we can't ban you.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}ban_items
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3441,7 +3432,6 @@ class User implements \ArrayAccess
 
 		// Remove individual theme settings.
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}themes
 			WHERE id_member IN ({array_int:users})',
 			[
@@ -3451,7 +3441,6 @@ class User implements \ArrayAccess
 
 		// These users are nobody's buddy nomore.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, pm_ignore_list, buddy_list
 			FROM {db_prefix}members
 			WHERE FIND_IN_SET({raw:pm_ignore_list}, pm_ignore_list) != 0 OR FIND_IN_SET({raw:buddy_list}, buddy_list) != 0',
@@ -3463,7 +3452,6 @@ class User implements \ArrayAccess
 
 		while ($row = Db::$db->fetch_assoc($request)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET
 					pm_ignore_list = {string:pm_ignore_list},
@@ -3644,7 +3632,6 @@ class User implements \ArrayAccess
 
 		// ...and add to that the email address you're trying to register.
 		$request = Db::$db->query(
-			'',
 			'SELECT bi.id_ban, bg.' . $restriction . ', bg.cannot_access, bg.reason
 			FROM {db_prefix}ban_items AS bi
 				INNER JOIN {db_prefix}ban_groups AS bg ON (bg.id_ban_group = bi.id_ban_group)
@@ -3755,7 +3742,6 @@ class User implements \ArrayAccess
 
 		// Search by username, display name, and email address.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, member_name, real_name, email_address
 			FROM {db_prefix}members
 			WHERE (' . $member_name_search . '
@@ -3795,7 +3781,7 @@ class User implements \ArrayAccess
 	 * Pass in 0 as a special case to fetch moderators on all boards.
 	 *
 	 * @param string $permission The permission to check.
-	 * @param int $board_id If set, checks permission for that specific board.
+	 * @param int|null $board_id If set, checks permission for that specific board.
 	 * @return array IDs of the members who have that permission.
 	 */
 	public static function getAllowedTo(string $permission, ?int $board_id = null): array
@@ -3815,7 +3801,6 @@ class User implements \ArrayAccess
 		));
 
 		$request = Db::$db->query(
-			'',
 			($include_moderators && !$exclude_moderators && $board_id !== null ? '
 			SELECT id_member
 			FROM {db_prefix}moderators' . ($board_id !== 0 ? '
@@ -3865,7 +3850,6 @@ class User implements \ArrayAccess
 		if (Config::$modSettings['spider_mode'] == 1) {
 			$date = Time::strftime('%Y-%m-%d', time());
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_spider_stats
 				SET last_seen = {int:current_time}, page_hits = page_hits + 1
 				WHERE id_spider = {int:current_spider}
@@ -3929,7 +3913,7 @@ class User implements \ArrayAccess
 	/**
 	 * Constructor. Protected in order to force instantiation via User::load().
 	 *
-	 * @param int $id The ID number of the user, or null for current user.
+	 * @param int|null $id The ID number of the user, or null for current user.
 	 * @param string|null $dataset What kind of data to load.
 	 *    Can be one of 'profile', 'normal', 'basic', or 'minimal'.
 	 *    If left null, the default depends on the value of $id:
@@ -4351,7 +4335,6 @@ class User implements \ArrayAccess
 
 				// Find out if any group requires 2FA
 				$request = Db::$db->query(
-					'',
 					'SELECT COUNT(id_group) AS total
 					FROM {db_prefix}membergroups
 					WHERE tfa_required = {int:tfa_required}
@@ -4415,7 +4398,6 @@ class User implements \ArrayAccess
 			// @todo can this be cached?
 			// Do a quick query to make sure this isn't a mistake.
 			$result = Db::$db->query(
-				'',
 				'SELECT poster_time
 				FROM {db_prefix}messages
 				WHERE id_msg = {int:id_msg}
@@ -4564,7 +4546,6 @@ class User implements \ArrayAccess
 					$spider_data = [];
 
 					$request = Db::$db->query(
-						'',
 						'SELECT id_spider, user_agent, ip_info
 						FROM {db_prefix}spiders
 						ORDER BY LENGTH(user_agent) DESC',
@@ -4852,7 +4833,6 @@ class User implements \ArrayAccess
 
 			// Load the members' data.
 			$request = Db::$db->query(
-				'',
 				'SELECT ' . implode(",\n\t\t\t\t\t", $select_columns) . '
 				FROM ' . implode("\n\t\t\t\t\t", $select_tables) . '
 				WHERE ' . $where . (count($users) > 1 ? '' : '
@@ -4953,7 +4933,6 @@ class User implements \ArrayAccess
 		$ids = (array) $ids;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE id_member IN ({array_int:ids})',
@@ -5031,7 +5010,6 @@ class User implements \ArrayAccess
 
 		// Anonymize the member's posts.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET poster_name = {string:anonymous_name},
 				poster_email = {string:anonymous_email},
@@ -5068,7 +5046,6 @@ class User implements \ArrayAccess
 
 		// Anonymize their name in mentions within posts.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}messages
 			SET body = REGEXP_REPLACE(body, {string:regex}, {string:anonymous_name})
 			WHERE id_msg IN (
@@ -5087,7 +5064,6 @@ class User implements \ArrayAccess
 
 		// Anonymize their log comments, whether sent or received.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_comments
 			SET member_name = {string:anonymous_name},
 				id_member = {int:guest_id}
@@ -5100,7 +5076,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_comments
 			SET recipient_name = {string:anonymous_name},
 				id_recipient = {int:guest_id}
@@ -5116,7 +5091,6 @@ class User implements \ArrayAccess
 
 		// Anonymize their logged group request actions.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_group_requests
 			SET member_name_acted = {string:anonymous_name},
 				id_member_acted = {int:guest_id}
@@ -5130,7 +5104,6 @@ class User implements \ArrayAccess
 
 		// Anonymize their logged package actions.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_packages
 			SET member_installed = {string:anonymous_name},
 				id_member_installed = {int:guest_id}
@@ -5143,7 +5116,6 @@ class User implements \ArrayAccess
 		);
 
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_packages
 			SET member_removed = {string:anonymous_name},
 				id_member_removed = {int:guest_id}
@@ -5157,7 +5129,6 @@ class User implements \ArrayAccess
 
 		// Anonymize reports about them.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_reported
 			SET membername = {string:anonymous_name},
 				id_member = {int:guest_id}
@@ -5171,7 +5142,6 @@ class User implements \ArrayAccess
 
 		// Anonymize their comments on reports.
 		Db::$db->query(
-			'',
 			'UPDATE {db_prefix}log_reported_comments
 			SET membername = {string:anonymous_name},
 				id_member = {int:guest_id}

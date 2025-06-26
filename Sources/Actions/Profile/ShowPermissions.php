@@ -34,8 +34,6 @@ class ShowPermissions implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/****************
 	 * Public methods
 	 ****************/
@@ -70,7 +68,6 @@ class ShowPermissions implements ActionInterface
 		Utils::$context['no_access_boards'] = [];
 
 		$request = Db::$db->query(
-			'order_by_board_order',
 			'SELECT b.id_board, b.name, b.id_profile, b.member_groups, COALESCE(mods.id_member, modgs.id_group, 0) AS is_mod
 			FROM {db_prefix}boards AS b
 				LEFT JOIN {db_prefix}moderators AS mods ON (mods.id_board = b.id_board AND mods.id_member = {int:current_member})
@@ -80,6 +77,7 @@ class ShowPermissions implements ActionInterface
 				'current_member' => Profile::$member->id,
 				'current_groups' => Profile::$member->groups,
 			],
+			identifier: 'order_by_board_order',
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
@@ -120,7 +118,6 @@ class ShowPermissions implements ActionInterface
 
 		// Get all general permissions.
 		$result = Db::$db->query(
-			'',
 			'SELECT p.permission, p.add_deny, mg.group_name, p.id_group
 			FROM {db_prefix}permissions AS p
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = p.id_group)
@@ -181,7 +178,6 @@ class ShowPermissions implements ActionInterface
 		Db::$db->free_result($result);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				bp.add_deny, bp.permission, bp.id_group, mg.group_name' . (empty($board) ? '' : ',
 				b.id_profile, CASE WHEN (mods.id_member IS NULL AND modgs.id_group IS NULL) THEN 0 ELSE 1 END AS is_moderator') . '

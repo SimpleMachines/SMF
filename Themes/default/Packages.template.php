@@ -241,7 +241,7 @@ function template_view_package()
 					echo '
 								<tr class="windowbg">
 									<td class="righttext">
-										<a href="', Config::$scripturl, '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty(Utils::$context['install_id']) ? ';install_id=' . Utils::$context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);">
+										<a href="', Config::$scripturl, '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty(Utils::$context['install_id']) ? ';install_id=' . Utils::$context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_diff'] ? ';diff' : ''), ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);">
 											<span class="main_icons package_ops"></span>
 										</a>
 									</td>
@@ -332,7 +332,7 @@ function template_view_package()
 							echo '
 								<tr class="bg ', $operation_num % 2 == 0 ? 'even' : 'odd', '">
 									<td class="righttext">
-										<a href="', Config::$scripturl, '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty(Utils::$context['install_id']) ? ';install_id=' . Utils::$context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);">
+										<a href="', Config::$scripturl, '?action=admin;area=packages;sa=showoperations;operation_key=', $operation['operation_key'], !empty(Utils::$context['install_id']) ? ';install_id=' . Utils::$context['install_id'] : '', ';package=', $_REQUEST['package'], ';filename=', $operation['filename'], ($operation['is_diff'] ? ';diff' : ''), ($operation['is_boardmod'] ? ';boardmod' : ''), (isset($_REQUEST['sa']) && $_REQUEST['sa'] == 'uninstall' ? ';reverse' : ''), '" onclick="return reqWin(this.href, 600, 400, false);">
 											<span class="main_icons package_ops"></span>
 										</a>
 									</td>

@@ -25,8 +25,12 @@ use SMF\Sapi;
  */
 class SendMail extends MailAgent implements MailAgentInterface
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(): bool
 	{
@@ -35,7 +39,7 @@ class SendMail extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isConfigured(): bool
 	{
@@ -44,7 +48,7 @@ class SendMail extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -52,7 +56,7 @@ class SendMail extends MailAgent implements MailAgentInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function send(string $to, string $subject, string $message, string $headers): bool
 	{

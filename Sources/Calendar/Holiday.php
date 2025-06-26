@@ -54,7 +54,6 @@ class Holiday extends Event
 	 *
 	 * @param int $id The ID number of the event.
 	 * @param array $props Properties to set for this event.
-	 * @return object An instance of this class.
 	 */
 	public function __construct(int $id = 0, array $props = [])
 	{
@@ -138,7 +137,7 @@ class Holiday extends Event
 	/**
 	 * Loads holidays by ID number.
 	 *
-	 * @param int|array $id ID number of the holiday event.
+	 * @param int $id ID number of the holiday event.
 	 * @param bool $is_topic Ignored.
 	 * @param bool $use_permissions Ignored.
 	 * @return array Instances of this class for the loaded events.
@@ -293,7 +292,6 @@ class Holiday extends Event
 	public static function count(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}calendar
 			WHERE type = {int:type}',

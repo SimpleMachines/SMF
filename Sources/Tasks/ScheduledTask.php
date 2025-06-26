@@ -34,9 +34,9 @@ abstract class ScheduledTask extends BackgroundTask
 	 */
 	public bool $should_log = true;
 
-	/***********************
-	 * Public static methods
-	 ***********************/
+	/****************
+	 * Public methods
+	 ****************/
 
 	/**
 	 * Records the start time and duration of this task.
@@ -66,6 +66,10 @@ abstract class ScheduledTask extends BackgroundTask
 		);
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Updates Config::$modSettings['next_task_time'].
 	 */
@@ -73,7 +77,6 @@ abstract class ScheduledTask extends BackgroundTask
 	{
 		// Get the next timestamp right.
 		$request = Db::$db->query(
-			'',
 			'SELECT next_time
 			FROM {db_prefix}scheduled_tasks
 			WHERE disabled = {int:not_disabled}

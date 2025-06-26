@@ -180,7 +180,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 * @param string $datetime A date/time string that PHP can understand, or a
 	 *    Unix timestamp.
-	 * @param \DateTimeZone|string $timezone The time zone of $datetime, either
+	 * @param \DateTimeZone|string|null $timezone The time zone of $datetime, either
 	 *    as a \DateTimeZone object or as a time zone identifier string.
 	 *    Defaults to the current user's time zone.
 	 */
@@ -457,11 +457,11 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 *  - %c, %x, %X: Output will always use ISO 8601 format.
 	 *
-	 * @param string $format The format string to use. Defaults to the current
+	 * @param string|null $format The format string to use. Defaults to the current
 	 *    user's preferred time format.
-	 * @param bool $relative Whether to show "yesterday" and "today" for recent
+	 * @param bool|null $relative Whether to show "yesterday" and "today" for recent
 	 *    dates. Defaults to true if $format is empty, or false otherwise.
-	 * @param bool $strftime True if $format uses strftime format specifiers,
+	 * @param bool|null $strftime True if $format uses strftime format specifiers,
 	 *    false if it uses DateTime format specifiers. If null, attempts to
 	 *    detect the format type automatically.
 	 * @return string The formatted date and time.
@@ -722,7 +722,8 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 * @param \DateTimeZone|string $timezone The desired time zone. Can be a
 	 *    \DateTimeZone object or a valid time zone identifier string.
-	 * @return staitc An reference to this object.
+	 * @throws \ValueError if $timezone is invalid
+	 * @return static reference to this object.
 	 */
 	public function setTimezone(\DateTimeZone|string $timezone): static
 	{
@@ -748,7 +749,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 *
 	 * @param string $datetime A date/time string that PHP can understand, or a
 	 *    Unix timestamp.
-	 * @param \DateTimeZone|string $timezone The time zone of $datetime, either
+	 * @param \DateTimeZone|string|null $timezone The time zone of $datetime, either
 	 *    as a \DateTimeZone object or as a time zone identifier string.
 	 *    Defaults to the current user's time zone.
 	 * @return self An instance of this class.
@@ -761,8 +762,8 @@ class Time extends \DateTime implements \ArrayAccess
 	/**
 	 * Convert a \DateTimeInterface object to a Time object.
 	 *
-	 * @param string $object A \DateTimeInterface object.
-	 * @param Time A Time object.
+	 * @param \DateTimeInterface $object A \DateTimeInterface object.
+	 * @return static An instance of this class
 	 */
 	public static function createFromInterface(\DateTimeInterface $object): static
 	{
@@ -772,8 +773,8 @@ class Time extends \DateTime implements \ArrayAccess
 	/**
 	 * Convert a \DateTime object to a Time object.
 	 *
-	 * @param string $object A \DateTime object.
-	 * @param Time A Time object.
+	 * @param \DateTime $object A \DateTime object.
+	 * @return static An instance of this class
 	 */
 	public static function createFromMutable(\DateTime $object): static
 	{
@@ -783,8 +784,8 @@ class Time extends \DateTime implements \ArrayAccess
 	/**
 	 * Convert a \DateTimeImmutable object to a Time object.
 	 *
-	 * @param string $object A \DateTimeImmutable object.
-	 * @param Time A Time object.
+	 * @param \DateTimeImmutable $object A \DateTimeImmutable object.
+	 * @return static An instance of this class
 	 */
 	public static function createFromImmutable(\DateTimeImmutable $object): static
 	{

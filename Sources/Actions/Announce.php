@@ -41,7 +41,6 @@ class Announce implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
 
 	/*******************
 	 * Public properties
@@ -120,7 +119,6 @@ class Announce implements ActionInterface, Routable
 
 		// Get the subject of the topic we're about to announce.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.subject
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -166,7 +164,6 @@ class Announce implements ActionInterface, Routable
 
 		// Get the topic subject and censor it.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_msg, m.subject, m.body
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}messages AS m ON (m.id_msg = t.id_first_msg)
@@ -190,7 +187,6 @@ class Announce implements ActionInterface, Routable
 		$rows = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member, mem.email_address, mem.lngfile
 			FROM {db_prefix}members AS mem
 			WHERE (mem.id_group IN ({array_int:group_list}) OR mem.id_post_group IN ({array_int:group_list}) OR FIND_IN_SET({raw:additional_group_list}, mem.additional_groups) != 0)

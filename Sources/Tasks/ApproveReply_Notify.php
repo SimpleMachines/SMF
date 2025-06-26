@@ -29,6 +29,10 @@ use SMF\Utils;
  */
 class ApproveReply_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -46,7 +50,6 @@ class ApproveReply_Notify extends BackgroundTask
 		$alert_rows = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, email_address, lngfile
 			FROM {db_prefix}topics AS t
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = t.id_member_started)

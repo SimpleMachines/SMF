@@ -32,6 +32,10 @@ namespace SMF\TOTP;
  */
 class Auth
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var array Internal lookup table
 	 */
@@ -57,11 +61,15 @@ class Auth
 	 */
 	private int $range = 2;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * Initialize the object and set up the lookup table
 	 *     Optionally the Initialization key
 	 *
-	 * @param string $initKey Initialization key
+	 * @param null|string $initKey Initialization key
 	 */
 	public function __construct(?string $initKey = null)
 	{
@@ -218,9 +226,9 @@ class Auth
 	 * Validate the given code
 	 *
 	 * @param string $code Code entered by user
-	 * @param string $initKey Initialization key
-	 * @param string $timestamp Timestamp for calculation
-	 * @param int $range Seconds before/after to validate hash against
+	 * @param null|string $initKey Initialization key
+	 * @param null|string $timestamp Timestamp for calculation
+	 * @param null|string $range Seconds before/after to validate hash against
 	 * @throws \InvalidArgumentException If incorrect code length
 	 * @return bool Pass/fail of validation
 	 */
@@ -248,8 +256,8 @@ class Auth
 	/**
 	 * Generate a one-time code
 	 *
-	 * @param string $initKey Initialization key [optional]
-	 * @param string $timestamp Timestamp for calculation [optional]
+	 * @param null|string $initKey Initialization key [optional]
+	 * @param null|string $timestamp Timestamp for calculation [optional]
 	 * @return string Generated code/hash
 	 */
 	public function generateOneTime(?string $initKey = null, ?string $timestamp = null): string

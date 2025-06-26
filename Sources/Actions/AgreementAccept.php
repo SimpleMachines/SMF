@@ -98,6 +98,10 @@ class AgreementAccept extends Agreement
 		Utils::redirectexit(!empty($_SESSION['redirect_url']) ? $_SESSION['redirect_url'] : '');
 	}
 
+	/***********************
+	 * Public static methods
+	 ***********************/
+
 	/**
 	 * Builds a routing path based on URL query parameters.
 	 *
@@ -132,5 +136,4 @@ class AgreementAccept extends Agreement
 
 		return $params;
 	}
-
 }

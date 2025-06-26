@@ -37,13 +37,6 @@ class ReportToMod implements ActionInterface, Routable
 {
 	use ActionRouter;
 	use ActionTrait;
-	use BackwardCompatibility;
-
-	/*****************
-	 * Class constants
-	 *****************/
-
-	// code...
 
 	/*******************
 	 * Public properties
@@ -168,7 +161,6 @@ class ReportToMod implements ActionInterface, Routable
 		if (isset($_REQUEST['msg'])) {
 			// Check the message's ID - don't want anyone reporting a post they can't even see!
 			$result = Db::$db->query(
-				'',
 				'SELECT m.id_msg, m.id_member, t.id_member_started
 				FROM {db_prefix}messages AS m
 					INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
@@ -197,7 +189,6 @@ class ReportToMod implements ActionInterface, Routable
 		} else {
 			// Check the user's ID
 			$result = Db::$db->query(
-				'',
 				'SELECT id_member, real_name, member_name
 				FROM {db_prefix}members
 				WHERE id_member = {int:current_user}',
@@ -349,7 +340,6 @@ class ReportToMod implements ActionInterface, Routable
 	{
 		// Get the basic topic information, and make sure they can see it.
 		$request = Db::$db->query(
-			'',
 			'SELECT m.id_topic, m.id_board, m.subject, m.body, m.id_member AS id_poster, m.poster_name, mem.real_name
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (m.id_member = mem.id_member)
@@ -369,7 +359,6 @@ class ReportToMod implements ActionInterface, Routable
 		Db::$db->free_result($request);
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_report, ignore_all
 			FROM {db_prefix}log_reported
 			WHERE id_msg = {int:id_msg}
@@ -396,7 +385,6 @@ class ReportToMod implements ActionInterface, Routable
 		// Already reported? My god, we could be dealing with a real rogue here...
 		if (!empty($id_report)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_reported
 				SET num_reports = num_reports + 1, time_updated = {int:current_time}
 				WHERE id_report = {int:id_report}',
@@ -522,7 +510,6 @@ class ReportToMod implements ActionInterface, Routable
 		$_POST['u'] = (int) $id_member;
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, real_name, member_name
 			FROM {db_prefix}members
 			WHERE id_member = {int:id_member}',
@@ -540,7 +527,6 @@ class ReportToMod implements ActionInterface, Routable
 		$user_name = Utils::htmlspecialcharsDecode($user['real_name']) . ($user['real_name'] != $user['member_name'] ? ' (' . $user['member_name'] . ')' : '');
 
 		$request = Db::$db->query(
-			'',
 			'SELECT id_report, ignore_all
 			FROM {db_prefix}log_reported
 			WHERE id_member = {int:id_member}
@@ -569,7 +555,6 @@ class ReportToMod implements ActionInterface, Routable
 		// Already reported? My god, we could be dealing with a real rogue here...
 		if (!empty($id_report)) {
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}log_reported
 				SET num_reports = num_reports + 1, time_updated = {int:current_time}
 				WHERE id_report = {int:id_report}',

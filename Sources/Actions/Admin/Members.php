@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Group;
@@ -40,7 +40,6 @@ use SMF\Utils;
 class Members implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -1164,7 +1163,6 @@ class Members implements ActionInterface
 
 		// Get information on each of the members, things that are important to us, like email address...
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member, member_name, real_name, email_address, validation_code, lngfile
 			FROM {db_prefix}members
 			WHERE is_activated = {int:activated_status}' . $condition . '
@@ -1204,7 +1202,6 @@ class Members implements ActionInterface
 		if ($_POST['todo'] == 'ok' || $_POST['todo'] == 'okemail') {
 			// Approve/activate this member.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}members
 				SET validation_code = {string:blank_string}, is_activated = {int:is_activated}
 				WHERE is_activated = {int:activated_status}' . $condition,
@@ -1249,7 +1246,6 @@ class Members implements ActionInterface
 
 				// Set these members for activation - I know this includes two id_member checks but it's safer than bodging $condition ;).
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}members
 					SET validation_code = {string:validation_code}, is_activated = {int:not_activated}
 					WHERE is_activated = {int:activated_status}
@@ -1418,7 +1414,6 @@ class Members implements ActionInterface
 		$members = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				mem.id_member, mem.member_name, mem.real_name, mem.email_address, mem.member_ip, mem.member_ip2, mem.last_login,
 				mem.posts, mem.is_activated, mem.date_registered, mem.id_group, mem.additional_groups, mg.group_name
@@ -1465,7 +1460,6 @@ class Members implements ActionInterface
 		// The database knows the amount when there are extra conditions.
 		else {
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}members AS mem
 				WHERE ' . $where,
@@ -1506,7 +1500,6 @@ class Members implements ActionInterface
 	{
 		// Get counts on every type of activation - for sections and filtering alike.
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*) AS total_members, is_activated
 			FROM {db_prefix}members
 			WHERE is_activated != {int:is_activated}
@@ -1569,7 +1562,6 @@ class Members implements ActionInterface
 		$duplicate_ids = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				id_member, member_name, email_address, member_ip, member_ip2, is_activated
 			FROM {db_prefix}members
@@ -1608,7 +1600,6 @@ class Members implements ActionInterface
 		$had_ips = [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				m.poster_ip, mem.id_member, mem.member_name, mem.email_address, mem.is_activated
 			FROM {db_prefix}messages AS m

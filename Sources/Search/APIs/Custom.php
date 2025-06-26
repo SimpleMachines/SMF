@@ -107,7 +107,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getStatus(): ?string
 	{
@@ -123,7 +123,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
@@ -155,7 +155,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isValid(): bool
 	{
@@ -163,7 +163,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getSize(): int
 	{
@@ -175,7 +175,6 @@ class Custom extends SearchApi implements SearchApiInterface
 
 		if (Db::$db->title === POSTGRE_TITLE) {
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					pg_total_relation_size({string:tablename}) AS total_size',
 				[
@@ -190,7 +189,6 @@ class Custom extends SearchApi implements SearchApiInterface
 		} else {
 			if (preg_match('~^`(.+?)`\.(.+?)$~', Db::$db->prefix, $match) !== 0) {
 				$request = Db::$db->query(
-					'',
 					'SHOW TABLE STATUS
 					FROM {string:database_name}
 					LIKE {string:table_name}',
@@ -201,7 +199,6 @@ class Custom extends SearchApi implements SearchApiInterface
 				);
 			} else {
 				$request = Db::$db->query(
-					'',
 					'SHOW TABLE STATUS
 					LIKE {string:table_name}',
 					[
@@ -221,7 +218,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function searchSort(string $a, string $b): int
 	{
@@ -232,7 +229,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void
 	{
@@ -259,7 +256,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
@@ -355,7 +352,6 @@ class Custom extends SearchApi implements SearchApiInterface
 		}
 
 		$ignoreRequest = Db::$db->search_query(
-			'insert_into_log_messages_fulltext',
 			(Db::$db->support_ignore ? ('
 			INSERT IGNORE INTO {db_prefix}' . $search_data['insert_into'] . '
 				(' . implode(', ', array_keys($query_select)) . ')') : '') . '
@@ -369,13 +365,14 @@ class Custom extends SearchApi implements SearchApiInterface
 				AND ', $query_where) . (empty($search_data['max_results']) ? '' : '
 			LIMIT ' . ($search_data['max_results'] - $search_data['indexed_results'])),
 			$query_params,
+			identifier: 'insert_into_log_messages_fulltext',
 		);
 
 		return $ignoreRequest;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
@@ -399,7 +396,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void
 	{
@@ -428,7 +425,6 @@ class Custom extends SearchApi implements SearchApiInterface
 			if (!empty($removed_words)) {
 				$removed_words = array_merge($removed_words, $inserted_words);
 				Db::$db->query(
-					'',
 					'DELETE FROM {db_prefix}log_search_words
 					WHERE id_msg = {int:id_msg}
 						AND id_word IN ({array_int:removed_words})',
@@ -458,23 +454,31 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postRemoved(int $id_msg): void
 	{
 		$customIndexSettings = Utils::jsonDecode(Config::$modSettings['search_custom_index_config'], true);
 
+		$row = Db::$db->query(
+			'SELECT body
+			FROM {db_prefix}messages
+			WHERE id_msg = {int:id_msg}',
+			[
+				'id_msg' => $id_msg,
+			],
+		)->fetch_assoc();
+
 		$words = self::getWordNumbers($row['body'], $customIndexSettings['bytes_per_word']);
 
 		if (!empty($words)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_search_words
 				WHERE id_word IN ({array_int:word_list})
 					AND id_msg = {int:id_msg}',
 				[
 					'word_list' => $words,
-					'id_msg' => $message,
+					'id_msg' => $id_msg,
 				],
 			);
 		}
@@ -483,7 +487,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function topicsRemoved(array $topics): void
 	{
@@ -492,7 +496,6 @@ class Custom extends SearchApi implements SearchApiInterface
 		$words = [];
 		$messages = [];
 		$request = Db::$db->query(
-			'',
 			'SELECT id_msg, body
 			FROM {db_prefix}messages
 			WHERE id_topic IN ({array_int:topics})',
@@ -512,7 +515,6 @@ class Custom extends SearchApi implements SearchApiInterface
 
 		if (!empty($words) && !empty($messages)) {
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}log_search_words
 				WHERE id_word IN ({array_int:word_list})
 					AND id_msg IN ({array_int:message_list})',
@@ -525,7 +527,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getAdminSubactions(): array
 	{
@@ -639,11 +641,11 @@ class Custom extends SearchApi implements SearchApiInterface
 
 				if (!empty($tables)) {
 					Db::$db->search_query(
-						'drop_words_table',
 						'
 						DROP TABLE {db_prefix}log_search_words',
 						[
 						],
+						identifier: 'drop_words_table',
 					);
 				}
 
@@ -666,7 +668,6 @@ class Custom extends SearchApi implements SearchApiInterface
 			];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT id_msg >= {int:starting_id} AS todo, COUNT(*) AS num_messages
 				FROM {db_prefix}messages
 				GROUP BY todo',
@@ -694,7 +695,6 @@ class Custom extends SearchApi implements SearchApiInterface
 					$number_processed = 0;
 
 					$request = Db::$db->query(
-						'',
 						'SELECT id_msg, body
 						FROM {db_prefix}messages
 						WHERE id_msg BETWEEN {int:starting_id} AND {int:ending_id}
@@ -777,7 +777,6 @@ class Custom extends SearchApi implements SearchApiInterface
 
 				while (time() < $stop) {
 					$request = Db::$db->query(
-						'',
 						'SELECT id_word, COUNT(id_word) AS num_words
 						FROM {db_prefix}log_search_words
 						WHERE id_word BETWEEN {int:starting_id} AND {int:ending_id}
@@ -799,7 +798,6 @@ class Custom extends SearchApi implements SearchApiInterface
 
 					if (!empty($stop_words)) {
 						Db::$db->query(
-							'',
 							'DELETE FROM {db_prefix}log_search_words
 							WHERE id_word in ({array_int:stop_words})',
 							[
@@ -827,7 +825,6 @@ class Custom extends SearchApi implements SearchApiInterface
 			Config::updateModSettings(['search_index' => 'custom', 'search_custom_index_config' => Utils::jsonEncode(Utils::$context['index_settings'])]);
 
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}settings
 				WHERE variable = {string:search_custom_index_resume}',
 				[
@@ -839,6 +836,7 @@ class Custom extends SearchApi implements SearchApiInterface
 		SecurityToken::create('admin-msmpost');
 		SecurityToken::create('admin-msm', 'get');
 	}
+
 	/**
 	 * Removes the custom index.
 	 *
@@ -853,11 +851,11 @@ class Custom extends SearchApi implements SearchApiInterface
 
 		if (!empty($tables)) {
 			Db::$db->search_query(
-				'drop_words_table',
 				'
 				DROP TABLE {db_prefix}log_search_words',
 				[
 				],
+				identifier: 'drop_words_table',
 			);
 		}
 
@@ -883,7 +881,7 @@ class Custom extends SearchApi implements SearchApiInterface
 	 * returned integer array.
 	 *
 	 * @param string $string A string.
-	 * @param int $bytes_per_word Byte-length of the returned integers.
+	 * @param int|null $bytes_per_word Byte-length of the returned integers.
 	 *    Defaults to custom search index's 'bytes_per_word' value, or 4 if that
 	 *    is not set. Allowed values range between 1 and PHP_INT_SIZE.
 	 * @return array Unique integers for each word in $string.

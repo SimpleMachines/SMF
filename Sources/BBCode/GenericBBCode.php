@@ -37,7 +37,7 @@ class GenericBBCode extends BBCode
 	 * When this is set to something callable, it will be called from within
 	 * $this->validate().
 	 */
-	public mixed $validationCallback = false;
+	public mixed $validation_callback = false;
 
 	/**************************
 	 * Public static properties
@@ -172,7 +172,7 @@ class GenericBBCode extends BBCode
 		}
 
 		if (isset($definition['validate'])) {
-			$this->validationCallback = $definition['validate'];
+			$this->validation_callback = $definition['validate'];
 		}
 	}
 
@@ -181,12 +181,12 @@ class GenericBBCode extends BBCode
 	 */
 	public function validate(BBCodeInterface &$bbc, array|string &$data, array $disabled, array $params): void
 	{
-		if (is_string($this->validationCallback)) {
-			$this->validationCallback = Utils::getCallable($this->validationCallback);
+		if (is_string($this->validation_callback)) {
+			$this->validation_callback = Utils::getCallable($this->validation_callback);
 		}
 
-		if (is_callable($this->validationCallback)) {
-			call_user_func_array($this->validationCallback, [&$bbc, &$data, $disabled, $params]);
+		if (is_callable($this->validation_callback)) {
+			call_user_func_array($this->validation_callback, [&$bbc, &$data, $disabled, $params]);
 		}
 	}
 }

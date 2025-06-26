@@ -36,8 +36,6 @@ class BuddyIgnoreLists implements ActionInterface
 {
 	use ActionTrait;
 
-	use BackwardCompatibility;
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -178,7 +176,6 @@ class BuddyIgnoreLists implements ActionInterface
 			if (!empty($new_buddies)) {
 				// Now find out the id_member of the buddy.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE member_name IN ({array_string:new_buddies}) OR real_name IN ({array_string:new_buddies})
@@ -219,7 +216,6 @@ class BuddyIgnoreLists implements ActionInterface
 		$disabled_fields = isset(Config::$modSettings['disabled_profile_fields']) ? array_flip(explode(',', Config::$modSettings['disabled_profile_fields'])) : [];
 
 		$request = Db::$db->query(
-			'',
 			'SELECT col_name, field_name, field_desc, field_type, field_options, show_mlist, bbc, enclose
 			FROM {db_prefix}custom_fields
 			WHERE active = {int:active}
@@ -245,7 +241,6 @@ class BuddyIgnoreLists implements ActionInterface
 
 		if (!empty($buddiesArray)) {
 			$result = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:buddy_list})
@@ -391,7 +386,6 @@ class BuddyIgnoreLists implements ActionInterface
 			if (!empty($new_entries)) {
 				// Now find out the id_member for the members in question.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE member_name IN ({array_string:new_entries}) OR real_name IN ({array_string:new_entries})
@@ -428,7 +422,6 @@ class BuddyIgnoreLists implements ActionInterface
 
 		if (!empty($ignoreArray)) {
 			$result = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:ignore_list})

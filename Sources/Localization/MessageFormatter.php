@@ -445,20 +445,62 @@ class MessageFormatter
 			throw new \ValueError();
 		}
 
-		// CLDR pluralization rules use the operands 'n', 'i', 'v', 'w', 'f', 't', and 'c'.
+		/*
+		 * CLDR pluralization rules use the following operands:
+		 *
+		 * n: the absolute value of $num.
+		 * i: the integer digits of $num.
+		 * v: the number of visible fraction digits in $num, with trailing zeros.
+		 * w: the number of visible fraction digits in $num, without trailing zeros.
+		 * f: the visible fraction digits in $num, with trailing zeros, as an integer.
+		 * t: the visible fraction digits in $num, without trailing zeros, as an integer.
+		 * c: for scientific notation, the exponent value after the 'e', as an integer.
+		 *
+		 * There are a few intricacies to be aware of:
+		 *  - n prefers an integer if possible (e.g. for '1.0', n = 1).
+		 *  - f and t always trim the leading zeros of the fractional digits
+		 *    (e.g. for '2.0350', f = 350 and t = 35).
+		 *  - v and w, on the other hand, count the leading zeros of the fractional
+		 *    digits (e.g. for '2.0350', v = 4 and w = 3).
+		 *  - When given a number in scientific notation, it is converted into a
+		 *    normal integer or float before any other operands are calculated.
+		 */
 		if (is_string($num) && (str_contains($num, 'e') || str_contains($num, 'E'))) {
-			$c = substr(strtolower($num), strpos($num, 'e') + 1);
-			$num = (float) $num;
+			list($num, $c) = explode('e', strtolower($num));
+
+			$c = (int) $c;
+
+			if (!str_contains($num, '.')) {
+				$num = str_pad($num, $c, '0');
+			} else {
+				$num = explode('.', $num);
+
+				$num[1] = str_pad($num[1], $c, '0');
+
+				$num[0] .= substr($num[1], 0, $c);
+				$num[1] = substr($num[1], $c);
+
+				$num = rtrim(implode('.', $num), '.');
+			}
 		} else {
 			$c = 0;
 		}
 
 		$n = abs($num + 0);
 		$i = (int) $num;
-		$f = substr((string) $num, strpos((string) $num, '.') + 1);
-		$t = rtrim($f, '0');
-		$w = strlen($t);
-		$v = strlen($f);
+
+		if (!is_float($n)) {
+			$f = $t = $w = $v = 0;
+		} else {
+			$f = (int) substr((string) $num, strpos((string) $num, '.') + 1);
+			$t = (int) rtrim(substr((string) $num, strpos((string) $num, '.') + 1), '0');
+			$v = strlen((string) $num) - strpos((string) $num, '.') - 1;
+			$w = strlen(rtrim(substr((string) $num, strpos((string) $num, '.') + 1), '0'));
+		}
+
+		if ($w === 0) {
+			$n = (int) $n;
+		}
 
 		// Ensure we have our pluralization rules.
 		if (empty(self::$plural_rules)) {
@@ -496,7 +538,7 @@ class MessageFormatter
 	 * support SMF on servers that do not have the intl extension installed.
 	 *
 	 * @param int|float|string $number A number.
-	 * @param istring $skeleton The ICU number skeleton.
+	 * @param string $skeleton The ICU number skeleton.
 	 * @return string A formatted number.
 	 */
 	protected static function applyNumberSkeleton(int|float|string $number, string $skeleton): string

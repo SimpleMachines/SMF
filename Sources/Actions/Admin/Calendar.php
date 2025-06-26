@@ -18,8 +18,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Board;
 use SMF\Calendar\Event;
 use SMF\Calendar\Holiday;
@@ -46,7 +46,6 @@ use SMF\WebFetch\WebFetchApi;
 class Calendar implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -361,7 +360,6 @@ class Calendar implements ActionInterface
 					Config::updateModSettings(['calendar_subscriptions' => Utils::jsonEncode($subscribed)]);
 
 					$request = Db::$db->query(
-						'',
 						'SELECT id_task
 						FROM {db_prefix}scheduled_tasks
 						WHERE task = {string:task}',
@@ -574,12 +572,12 @@ class Calendar implements ActionInterface
 			$boards = [''];
 
 			$request = Db::$db->query(
-				'order_by_board_order',
 				'SELECT b.id_board, b.name AS board_name, c.name AS cat_name
 				FROM {db_prefix}boards AS b
 					LEFT JOIN {db_prefix}categories AS c ON (c.id_cat = b.id_cat)',
 				[
 				],
+				identifier: 'order_by_board_order',
 			);
 
 			while ($row = Db::$db->fetch_assoc($request)) {

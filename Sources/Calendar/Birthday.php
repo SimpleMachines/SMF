@@ -116,7 +116,7 @@ class Birthday extends Event
 	/**
 	 * Loads a member's birthday.
 	 *
-	 * @param int|array $id ID number of the member.
+	 * @param int $id ID number of the member.
 	 * @param bool $is_topic Ignored.
 	 * @param bool $use_permissions Ignored.
 	 * @return array Instances of this class for the loaded events.
@@ -333,7 +333,6 @@ class Birthday extends Event
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT
 				' . implode(', ', $selects) . '
 			FROM {db_prefix}members AS m' . (empty($joins) ? '' : '

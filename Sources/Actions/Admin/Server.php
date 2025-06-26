@@ -16,8 +16,8 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Cookie;
@@ -85,7 +85,6 @@ use SMF\Utils;
 class Server implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*****************
@@ -413,7 +412,6 @@ class Server implements ActionInterface
 			// If we disabled 2FA, reset all members and membergroups settings.
 			if (isset($_POST['tfa_mode']) && empty($_POST['tfa_mode'])) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}membergroups
 					SET tfa_required = {int:zero}',
 					[
@@ -422,7 +420,6 @@ class Server implements ActionInterface
 				);
 
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}members
 					SET tfa_secret = {string:empty}, tfa_backup = {string:empty}',
 					[
@@ -890,7 +887,6 @@ class Server implements ActionInterface
 			$fts_language = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT cfgname FROM pg_ts_config',
 				[],
 			);
@@ -1562,7 +1558,6 @@ class Server implements ActionInterface
 		// Now we move onto the themes.
 		// First, get a list of theme URLs...
 		$request = Db::$db->query(
-			'',
 			'SELECT id_theme, variable, value
 			FROM {db_prefix}themes
 			WHERE variable in ({string:themeurl}, {string:imagesurl})
@@ -1584,7 +1579,6 @@ class Server implements ActionInterface
 				}
 
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}themes
 					SET value = {string:theme_val}
 					WHERE variable = {string:theme_var}

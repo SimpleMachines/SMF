@@ -62,9 +62,9 @@ trait ActionRouter
 		return array_merge($params, self::parseActionRoute($route));
 	}
 
-	/************************
+	/*************************
 	 * Internal static methods
-	 ************************/
+	 *************************/
 
 	/**
 	 * Builds a routing path for an action based on URL query parameters.

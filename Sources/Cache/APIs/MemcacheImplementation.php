@@ -33,7 +33,15 @@ if (!defined('SMF')) {
  */
 class MemcacheImplementation extends CacheApi implements CacheApiInterface
 {
+	/*****************
+	 * Class constants
+	 *****************/
+
 	public const CLASS_KEY = 'cache_memcached';
+
+	/*********************
+	 * Internal properties
+	 *********************/
 
 	/**
 	 * @var object
@@ -49,8 +57,12 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	 */
 	private $servers;
 
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function __construct()
 	{
@@ -72,7 +84,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isSupported(bool $test = false): bool
 	{
@@ -86,7 +98,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -122,7 +134,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getData(string $key, ?int $ttl = null): mixed
 	{
@@ -139,7 +151,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
 	{
@@ -149,7 +161,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function quit(): bool
 	{
@@ -157,7 +169,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cleanCache($type = ''): bool
 	{
@@ -167,7 +179,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function cacheSettings(array &$config_vars): void
 	{
@@ -197,7 +209,7 @@ class MemcacheImplementation extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getVersion(): string|bool
 	{

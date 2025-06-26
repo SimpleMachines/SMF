@@ -53,14 +53,14 @@ class EventOccurrence implements \ArrayAccess
 	public int $id_event;
 
 	/**
-	 * @var SMF\Time
+	 * @var Time
 	 *
 	 * A Time object representing the start of this occurrence of the event.
 	 */
 	public Time $start;
 
 	/**
-	 * @var SMF\Time
+	 * @var EventAdjustment
 	 *
 	 * An EventAdjustment object representing changes made to this occurrence of
 	 * the event, if any.
@@ -93,7 +93,7 @@ class EventOccurrence implements \ArrayAccess
 	];
 
 	/**
-	 * @var SMF\Time
+	 * @var Time
 	 *
 	 * A Time object representing the unadjusted start of this occurrence.
 	 */
@@ -108,7 +108,6 @@ class EventOccurrence implements \ArrayAccess
 	 *
 	 * @param int $id_event The ID number of the parent event.
 	 * @param array $props Properties to set for this occurrence.
-	 * @return EventOccurrence An instance of this class.
 	 */
 	public function __construct(int $id_event = 0, array $props = [])
 	{

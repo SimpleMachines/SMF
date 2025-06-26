@@ -31,6 +31,10 @@ if (!defined('SMF')) {
  */
 class Postgres extends CacheApi implements CacheApiInterface
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var string
 	 */
@@ -41,6 +45,13 @@ class Postgres extends CacheApi implements CacheApiInterface
 	 */
 	private $db_connection;
 
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		$this->db_prefix = Config::$db_prefix;
@@ -50,7 +61,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function connect(): bool
 	{
@@ -88,6 +99,96 @@ class Postgres extends CacheApi implements CacheApiInterface
 	}
 
 	/**
+	 *
+	 */
+	public function isSupported(bool $test = false): bool
+	{
+		if (Db::$db->title !== POSTGRE_TITLE) {
+			return false;
+		}
+
+		$result = pg_query($this->db_connection, 'SHOW server_version_num');
+		$res = pg_fetch_assoc($result);
+
+		if ($res['server_version_num'] < 90500) {
+			return false;
+		}
+
+		return $test ? true : parent::isSupported();
+	}
+
+	/**
+	 *
+	 */
+	public function getData(string $key, ?int $ttl = null): mixed
+	{
+		$result = pg_execute($this->db_connection, 'smf_cache_get_data', [$key, time()]);
+
+		if (pg_affected_rows($result) === 0) {
+			return null;
+		}
+
+		$res = pg_fetch_assoc($result);
+
+		return $res['value'];
+	}
+
+	/**
+	 *
+	 */
+	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
+	{
+		$ttl = time() + (int) ($ttl !== null ? $ttl : $this->ttl);
+
+		if ($value === null) {
+			$result = pg_execute($this->db_connection, 'smf_cache_delete_data', [$key]);
+		} else {
+			$result = pg_execute($this->db_connection, 'smf_cache_put_data', [$key, $value, $ttl]);
+		}
+
+		return pg_affected_rows($result) > 0;
+	}
+
+	/**
+	 *
+	 */
+	public function cleanCache(string $type = ''): bool
+	{
+		if ($type == 'expired') {
+			pg_query($this->db_connection, 'DELETE FROM ' . $this->db_prefix . 'cache WHERE ttl < ' . time() . ';');
+		} else {
+			pg_query($this->db_connection, 'TRUNCATE ' . $this->db_prefix . 'cache');
+		}
+
+		$this->invalidateCache();
+
+		return true;
+	}
+
+	/**
+	 *
+	 */
+	public function getVersion(): string|bool
+	{
+		return pg_version($this->db_connection)['server'];
+	}
+
+	/**
+	 *
+	 */
+	public function housekeeping(): void
+	{
+		$this->createTempTable();
+		$this->cleanCache();
+		$this->retrieveData();
+		$this->deleteTempTable();
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
 	 * Stores a prepared SQL statement, ensuring that it's not done twice.
 	 *
 	 * @param array $stmtnames
@@ -116,94 +217,7 @@ class Postgres extends CacheApi implements CacheApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public function isSupported(bool $test = false): bool
-	{
-		if (Db::$db->title !== POSTGRE_TITLE) {
-			return false;
-		}
-
-		$result = pg_query($this->db_connection, 'SHOW server_version_num');
-		$res = pg_fetch_assoc($result);
-
-		if ($res['server_version_num'] < 90500) {
-			return false;
-		}
-
-		return $test ? true : parent::isSupported();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getData(string $key, ?int $ttl = null): mixed
-	{
-		$result = pg_execute($this->db_connection, 'smf_cache_get_data', [$key, time()]);
-
-		if (pg_affected_rows($result) === 0) {
-			return null;
-		}
-
-		$res = pg_fetch_assoc($result);
-
-		return $res['value'];
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function putData(string $key, mixed $value, ?int $ttl = null): mixed
-	{
-		$ttl = time() + (int) ($ttl !== null ? $ttl : $this->ttl);
-
-		if ($value === null) {
-			$result = pg_execute($this->db_connection, 'smf_cache_delete_data', [$key]);
-		} else {
-			$result = pg_execute($this->db_connection, 'smf_cache_put_data', [$key, $value, $ttl]);
-		}
-
-		return pg_affected_rows($result) > 0;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function cleanCache(string $type = ''): bool
-	{
-		if ($type == 'expired') {
-			pg_query($this->db_connection, 'DELETE FROM ' . $this->db_prefix . 'cache WHERE ttl < ' . time() . ';');
-		} else {
-			pg_query($this->db_connection, 'TRUNCATE ' . $this->db_prefix . 'cache');
-		}
-
-		$this->invalidateCache();
-
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function getVersion(): string|bool
-	{
-		return pg_version($this->db_connection)['server'];
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function housekeeping(): void
-	{
-		$this->createTempTable();
-		$this->cleanCache();
-		$this->retrieveData();
-		$this->deleteTempTable();
-	}
-
-	/**
 	 * Create the temp table of valid data.
-	 *
 	 */
 	private function createTempTable(): void
 	{
@@ -212,7 +226,6 @@ class Postgres extends CacheApi implements CacheApiInterface
 
 	/**
 	 * Delete the temp table.
-	 *
 	 */
 	private function deleteTempTable(): void
 	{
@@ -221,7 +234,6 @@ class Postgres extends CacheApi implements CacheApiInterface
 
 	/**
 	 * Retrieve the valid data from temp table.
-	 *
 	 */
 	private function retrieveData(): void
 	{

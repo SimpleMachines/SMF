@@ -36,65 +36,69 @@ class AttachmentUpload implements ActionInterface, Routable
 	use ActionRouter;
 	use ActionTrait;
 
+	/*********************
+	 * Internal properties
+	 *********************/
+
 	/**
 	 * @var int The ID of the message this attachment is associated with
 	 */
-	protected $_msg = 0;
+	protected $msg = 0;
 
 	/**
 	 * @var int|null The ID of the board this attachment's post is in or null if it's not set
 	 */
-	protected $_board = null;
+	protected $board = null;
 
 	/**
 	 * @var string|bool An array of info about attachment upload directories or false
 	 */
-	protected $_attachmentUploadDir = false;
+	protected $attachmentUploadDir = false;
 
 	/**
 	 * @var string The path to the current attachment directory
 	 */
-	protected $_attchDir = '';
+	protected $attchDir = '';
 
 	/**
 	 * @var int ID of the current attachment directory
 	 */
-	protected $_currentAttachmentUploadDir;
+	protected $currentAttachmentUploadDir;
 
 	/**
 	 * @var bool Whether or not an attachment can be posted
 	 */
-	protected $_canPostAttachment;
+	protected $canPostAttachment;
 
 	/**
 	 * @var array An array of information about any errors that occurred
 	 */
-	protected $_generalErrors = [];
+	protected $generalErrors = [];
 
 	/**
 	 * @var mixed Not used?
 	 */
-	protected $_initialError;
+	protected $initialError;
 
 	/**
 	 * @var array Not used?
 	 */
-	protected $_attachments = [];
+	protected $attachments = [];
 
 	/**
 	 * @var array An array of information about the results of each file
 	 */
-	protected $_attachResults = [];
+	protected $attachResults = [];
 
 	/**
 	 * @var array An array of information about successful attachments
 	 */
-	protected $_attachSuccess = [];
+	protected $attachSuccess = [];
 
 	/**
 	 * @var array An array of response information. @used-by \sendResponse() when adding attachments
 	 */
-	protected $_response = [
+	protected $response = [
 		'error' => true,
 		'data' => [],
 		'extra' => '',
@@ -103,7 +107,7 @@ class AttachmentUpload implements ActionInterface, Routable
 	/**
 	 * @var array An array of all valid sub-actions
 	 */
-	protected $_subActions = [
+	protected $subActions = [
 		'add',
 		'delete',
 	];
@@ -111,7 +115,11 @@ class AttachmentUpload implements ActionInterface, Routable
 	/**
 	 * @var string|bool The current sub-action, or false if there isn't one
 	 */
-	protected $_sa = false;
+	protected $sa = false;
+
+	/****************
+	 * Public methods
+	 ****************/
 
 	public function canBeLogged(): bool
 	{
@@ -129,39 +137,19 @@ class AttachmentUpload implements ActionInterface, Routable
 	}
 
 	/**
-	 * Attachments constructor.
-	 *
-	 * Sets up some initial information - the message ID, board, current attachment upload dir, etc.
-	 * Protected to force instantiation via load().
-	 */
-	protected function __construct()
-	{
-		$this->_msg = (int) !empty($_REQUEST['msg']) ? $_REQUEST['msg'] : 0;
-		$this->_board = (int) !empty($_REQUEST['board']) ? $_REQUEST['board'] : null;
-
-		$this->_currentAttachmentUploadDir = Config::$modSettings['currentAttachmentUploadDir'];
-
-		$this->_attachmentUploadDir = Config::$modSettings['attachmentUploadDir'];
-
-		$this->_attchDir = Utils::$context['attach_dir'] = $this->_attachmentUploadDir[Config::$modSettings['currentAttachmentUploadDir']];
-
-		$this->_canPostAttachment = Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (User::$me->allowedTo('post_attachment', $this->_board) || (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_attachments', $this->_board)));
-	}
-
-	/**
 	 * Handles calling the appropriate function based on the sub-action
 	 */
 	public function execute(): void
 	{
-		$this->_sa = !empty($_REQUEST['sa']) ? Utils::htmlspecialchars(Utils::htmlTrim($_REQUEST['sa'])) : false;
+		$this->sa = !empty($_REQUEST['sa']) ? Utils::htmlspecialchars(Utils::htmlTrim($_REQUEST['sa'])) : false;
 
-		if ($this->_canPostAttachment && $this->_sa && in_array($this->_sa, $this->_subActions)) {
-			$this->{$this->_sa}();
+		if ($this->canPostAttachment && $this->sa && in_array($this->sa, $this->subActions)) {
+			$this->{$this->sa}();
 		}
 		// Just send a generic message.
 		else {
 			$this->setResponse([
-				'text' => $this->_sa == 'add' ? 'attach_error_title' : 'attached_file_deleted_error',
+				'text' => $this->sa == 'add' ? 'attach_error_title' : 'attached_file_deleted_error',
 				'type' => 'error',
 				'data' => false,
 			]);
@@ -209,7 +197,7 @@ class AttachmentUpload implements ActionInterface, Routable
 	public function add(): void
 	{
 		// You gotta be able to post attachments.
-		if (!$this->_canPostAttachment) {
+		if (!$this->canPostAttachment) {
 			$this->setResponse([
 				'text' => 'attached_file_cannot',
 				'type' => 'error',
@@ -229,6 +217,30 @@ class AttachmentUpload implements ActionInterface, Routable
 
 		// Set the response.
 		$this->setResponse();
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Attachments constructor.
+	 *
+	 * Sets up some initial information - the message ID, board, current attachment upload dir, etc.
+	 * Protected to force instantiation via load().
+	 */
+	protected function __construct()
+	{
+		$this->msg = (int) !empty($_REQUEST['msg']) ? $_REQUEST['msg'] : 0;
+		$this->board = (int) !empty($_REQUEST['board']) ? $_REQUEST['board'] : null;
+
+		$this->currentAttachmentUploadDir = Config::$modSettings['currentAttachmentUploadDir'];
+
+		$this->attachmentUploadDir = Config::$modSettings['attachmentUploadDir'];
+
+		$this->attchDir = Utils::$context['attach_dir'] = $this->attachmentUploadDir[Config::$modSettings['currentAttachmentUploadDir']];
+
+		$this->canPostAttachment = Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (User::$me->allowedTo('post_attachment', $this->board) || (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_attachments', $this->board)));
 	}
 
 	/**
@@ -270,27 +282,26 @@ class AttachmentUpload implements ActionInterface, Routable
 
 		// Is the attachments folder actually there?
 		if (!empty(Utils::$context['dir_creation_error'])) {
-			$this->_generalErrors[] = Utils::$context['dir_creation_error'];
+			$this->generalErrors[] = Utils::$context['dir_creation_error'];
 		}
 		// The current attach folder has some issues...
-		elseif (!is_dir($this->_attchDir)) {
-			$this->_generalErrors[] = 'attach_folder_warning';
+		elseif (!is_dir($this->attchDir)) {
+			$this->generalErrors[] = 'attach_folder_warning';
 
-			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', ['attach_dir' => $this->_attchDir], file: 'Post'), 'critical');
+			ErrorHandler::log(Lang::getTxt('attach_folder_admin_warning', ['attach_dir' => $this->attchDir], file: 'Post'), 'critical');
 		}
 
 		// If this isn't a new post, check the current attachments.
-		if (empty($this->_generalErrors) && $this->_msg) {
+		if (empty($this->generalErrors) && $this->msg) {
 			Utils::$context['attachments'] = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*), SUM(size)
 				FROM {db_prefix}attachments
 				WHERE id_msg = {int:id_msg}
 					AND attachment_type = {int:attachment_type}',
 				[
-					'id_msg' => (int) $this->_msg,
+					'id_msg' => (int) $this->msg,
 					'attachment_type' => 0,
 				],
 			);
@@ -306,7 +317,7 @@ class AttachmentUpload implements ActionInterface, Routable
 		// Check for other general errors here.
 
 		// If we have an initial error, delete the files.
-		if (!empty($this->_generalErrors)) {
+		if (!empty($this->generalErrors)) {
 			// And delete the files 'cos they ain't going nowhere.
 			foreach ($_FILES['attachment']['tmp_name'] as $n => $dummy) {
 				if (file_exists($_FILES['attachment']['tmp_name'][$n])) {
@@ -349,7 +360,7 @@ class AttachmentUpload implements ActionInterface, Routable
 
 			// Try to move and rename the file before doing any more checks on it.
 			$attachID = 'post_tmp_' . User::$me->id . '_' . bin2hex(random_bytes(16));
-			$destName = $this->_attchDir . '/' . $attachID;
+			$destName = $this->attchDir . '/' . $attachID;
 
 			// No errors, YAY!
 			if (empty($errors)) {
@@ -406,7 +417,7 @@ class AttachmentUpload implements ActionInterface, Routable
 		// Upload to the current attachment folder with the file name $attachID or 'post_tmp_' . User::$me->id . '_' . bin2hex(random_bytes(16))
 		// Populate $_SESSION['temp_attachments'][$attachID] with the following:
 		//   name => The file name
-		//   tmp_name => Path to the temp file ($this->_attchDir . '/' . $attachID).
+		//   tmp_name => Path to the temp file ($this->attchDir . '/' . $attachID).
 		//   size => File size (required).
 		//   type => MIME type (optional if not available on upload).
 		//   id_folder => Config::$modSettings['currentAttachmentUploadDir']
@@ -427,7 +438,7 @@ class AttachmentUpload implements ActionInterface, Routable
 
 		foreach ($_SESSION['temp_attachments'] as $attachID => $attachment) {
 			$attachmentOptions = [
-				'post' => $this->_msg,
+				'post' => $this->msg,
 				'poster' => User::$me->id,
 				'name' => $attachment['name'],
 				'tmp_name' => $attachment['tmp_name'],
@@ -450,8 +461,8 @@ class AttachmentUpload implements ActionInterface, Routable
 						$_SESSION['already_attached'][$attachmentOptions['thumb']] = $attachmentOptions['thumb'];
 					}
 
-					if ($this->_msg) {
-						Attachment::assign($_SESSION['already_attached'], $this->_msg);
+					if ($this->msg) {
+						Attachment::assign($_SESSION['already_attached'], $this->msg);
 					}
 				}
 			} else {
@@ -465,7 +476,7 @@ class AttachmentUpload implements ActionInterface, Routable
 						$attachmentOptions['errors'][] = Lang::getTxt($error, file: 'Post');
 
 						if (in_array($error, $log_these)) {
-							ErrorHandler::log($attachment['name'] . ': ' . Lang::getTxt($error, ['path' => User::$me->is_admin ? $this->_attchDir : Lang::getTxt('hidden', file: 'General')], file: 'Post'), 'critical');
+							ErrorHandler::log($attachment['name'] . ': ' . Lang::getTxt($error, ['path' => User::$me->is_admin ? $this->attchDir : Lang::getTxt('hidden', file: 'General')], file: 'Post'), 'critical');
 						}
 					} else {
 						$attachmentOptions['errors'][] = Lang::getTxt($error[0], (array) $error[1], file: 'Post');
@@ -481,12 +492,12 @@ class AttachmentUpload implements ActionInterface, Routable
 			unset($attachmentOptions['tmp_name'], $attachmentOptions['destination']);
 
 			// Regardless of errors, pass the results.
-			$this->_attachResults[] = $attachmentOptions;
+			$this->attachResults[] = $attachmentOptions;
 		}
 
 		// Temp save this on the db.
 		if (!empty($_SESSION['already_attached'])) {
-			$this->_attachSuccess = $_SESSION['already_attached'];
+			$this->attachSuccess = $_SESSION['already_attached'];
 		}
 
 		unset($_SESSION['temp_attachments']);
@@ -509,37 +520,37 @@ class AttachmentUpload implements ActionInterface, Routable
 	protected function setResponse(array $data = []): void
 	{
 		// Some default values in case something is missed or neglected :P
-		$this->_response = [
+		$this->response = [
 			'text' => 'attach_php_error',
 			'type' => 'error',
 			'data' => false,
 		];
 
 		// Adding needs some VIP treatment.
-		if ($this->_sa == 'add') {
+		if ($this->sa == 'add') {
 			// Is there any generic errors? made some sense out of them!
-			if ($this->_generalErrors) {
-				foreach ($this->_generalErrors as $k => $v) {
-					$this->_generalErrors[$k] = is_array($v) ? Lang::getTxt($v[0], (array) $v[1], file: 'Post') : Lang::getTxt($v, file: 'Post');
+			if ($this->generalErrors) {
+				foreach ($this->generalErrors as $k => $v) {
+					$this->generalErrors[$k] = is_array($v) ? Lang::getTxt($v[0], (array) $v[1], file: 'Post') : Lang::getTxt($v, file: 'Post');
 				}
 			}
 
 			// Gotta urlencode the filename.
-			if ($this->_attachResults) {
-				foreach ($this->_attachResults as $k => $v) {
-					$this->_attachResults[$k]['name'] = urlencode($this->_attachResults[$k]['name']);
+			if ($this->attachResults) {
+				foreach ($this->attachResults as $k => $v) {
+					$this->attachResults[$k]['name'] = urlencode($this->attachResults[$k]['name']);
 				}
 			}
 
-			$this->_response = [
-				'files' => $this->_attachResults ? $this->_attachResults : false,
-				'generalErrors' => $this->_generalErrors ? $this->_generalErrors : false,
+			$this->response = [
+				'files' => $this->attachResults ? $this->attachResults : false,
+				'generalErrors' => $this->generalErrors ? $this->generalErrors : false,
 			];
 		}
 		// Rest of us mere mortals gets no special treatment...
 		elseif (!empty($data)) {
 			if (!empty($data['text']) && Lang::txtExists($data['text'], file: 'Post')) {
-				$this->_response['text'] = Lang::getTxt($data['text'], file: 'Post');
+				$this->response['text'] = Lang::getTxt($data['text'], file: 'Post');
 			}
 		}
 	}
@@ -560,7 +571,7 @@ class AttachmentUpload implements ActionInterface, Routable
 		// Set the header.
 		header('content-type: application/json; charset=UTF-8');
 
-		echo Utils::jsonEncode($this->_response ? $this->_response : []);
+		echo Utils::jsonEncode($this->response ? $this->response : []);
 
 		// Done.
 		Utils::obExit(false);

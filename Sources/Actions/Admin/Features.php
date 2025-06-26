@@ -16,9 +16,9 @@ declare(strict_types=1);
 namespace SMF\Actions\Admin;
 
 use SMF\ActionInterface;
-use SMF\Actions\BackwardCompatibility;
 use SMF\Actions\Profile\Notification;
 use SMF\ActionTrait;
+use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -43,7 +43,6 @@ use SMF\Utils;
 class Features implements ActionInterface
 {
 	use ActionTrait;
-
 	use BackwardCompatibility;
 
 	/*******************
@@ -331,7 +330,6 @@ class Features implements ActionInterface
 			$done = false;
 
 			$request = Db::$db->query(
-				'',
 				'SELECT MAX(id_member)
 				FROM {db_prefix}members',
 				[
@@ -344,7 +342,6 @@ class Features implements ActionInterface
 				$changes = [];
 
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member, signature
 					FROM {db_prefix}members
 					WHERE id_member BETWEEN {int:step} AND {int:step} + 49
@@ -551,7 +548,6 @@ class Features implements ActionInterface
 				if (!empty($changes)) {
 					foreach ($changes as $id => $sig) {
 						Db::$db->query(
-							'',
 							'UPDATE {db_prefix}members
 							SET signature = {string:signature}
 							WHERE id_member = {int:id_member}',
@@ -946,7 +942,6 @@ class Features implements ActionInterface
 		if (Utils::$context['fid'] && !isset($_GET['move'])) {
 			Utils::$context['field'] = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					id_field, col_name, field_name, field_desc, field_type, field_order, field_length, field_options,
 					show_reg, show_display, show_mlist, show_profile, private, active, default_value, can_search,
@@ -1030,7 +1025,6 @@ class Features implements ActionInterface
 			$new_sort = [];
 
 			$request = Db::$db->query(
-				'',
 				'SELECT
 					id_field, field_order
 				FROM {db_prefix}custom_fields
@@ -1068,7 +1062,6 @@ class Features implements ActionInterface
 			$sql_update .= 'END';
 
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}custom_fields
 				SET field_order = ' . $sql_update,
 				[],
@@ -1168,7 +1161,6 @@ class Features implements ActionInterface
 				// Make sure this is unique.
 				$current_fields = [];
 				$request = Db::$db->query(
-					'',
 					'SELECT id_field, col_name
 					FROM {db_prefix}custom_fields',
 				);
@@ -1218,7 +1210,6 @@ class Features implements ActionInterface
 					)
 				) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:current_column}
 							AND id_member > {int:no_member}',
@@ -1250,7 +1241,6 @@ class Features implements ActionInterface
 						// Just been renamed?
 						if (!in_array($k, $takenKeys) && !empty($newOptions[$k])) {
 							Db::$db->query(
-								'',
 								'UPDATE {db_prefix}themes
 								SET value = {string:new_value}
 								WHERE variable = {string:current_column}
@@ -1272,7 +1262,6 @@ class Features implements ActionInterface
 			// Do the insertion/updates.
 			if (Utils::$context['fid']) {
 				Db::$db->query(
-					'',
 					'UPDATE {db_prefix}custom_fields
 					SET
 						field_name = {string:field_name}, field_desc = {string:field_desc},
@@ -1308,7 +1297,6 @@ class Features implements ActionInterface
 				// Just clean up any old selects - these are a pain!
 				if (($_POST['field_type'] == 'select' || $_POST['field_type'] == 'radio') && !empty($newOptions)) {
 					Db::$db->query(
-						'',
 						'DELETE FROM {db_prefix}themes
 						WHERE variable = {string:current_column}
 							AND value NOT IN ({array_string:new_option_values})
@@ -1382,7 +1370,6 @@ class Features implements ActionInterface
 
 			// Delete the user data first.
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}themes
 				WHERE variable = {string:current_column}
 					AND id_member > {int:no_member}',
@@ -1394,7 +1381,6 @@ class Features implements ActionInterface
 
 			// Finally - the field itself is gone!
 			Db::$db->query(
-				'',
 				'DELETE FROM {db_prefix}custom_fields
 				WHERE id_field = {int:current_field}',
 				[
@@ -1404,7 +1390,6 @@ class Features implements ActionInterface
 
 			// Re-arrange the order.
 			Db::$db->query(
-				'',
 				'UPDATE {db_prefix}custom_fields
 				SET field_order = field_order - 1
 				WHERE field_order > {int:current_order}',
@@ -1420,7 +1405,6 @@ class Features implements ActionInterface
 
 			$fields = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist, field_options
 				FROM {db_prefix}custom_fields
 				WHERE show_display = {int:is_displayed}
@@ -1589,7 +1573,7 @@ class Features implements ActionInterface
 				'jquery_source',
 				[
 					'cdn' => Lang::getTxt('google_cdn', file: 'ManageSettings'),
-					'jquery_cdn' => Lang::getTxt('jquery_cdn', file: 'ManageSettings',
+					'jquery_cdn' => Lang::getTxt('jquery_cdn', file: 'ManageSettings'),
 					'microsoft_cdn' => Lang::getTxt('microsoft_cdn', file: 'ManageSettings'),
 					'local' => Lang::getTxt('local_cdn', file: 'ManageSettings'),
 					'custom' => Lang::getTxt('jquery_custom', file: 'ManageSettings'),
@@ -1919,7 +1903,6 @@ class Features implements ActionInterface
 		} else {
 			// Load all the fields.
 			$request = Db::$db->query(
-				'',
 				'SELECT id_field, col_name, field_name, field_desc, field_type, field_order, active, placement
 				FROM {db_prefix}custom_fields
 				ORDER BY {raw:sort}
@@ -1948,7 +1931,6 @@ class Features implements ActionInterface
 	public static function list_getProfileFieldSize(): int
 	{
 		$request = Db::$db->query(
-			'',
 			'SELECT COUNT(*)
 			FROM {db_prefix}custom_fields',
 			[
@@ -2056,7 +2038,6 @@ class Features implements ActionInterface
 	{
 		// Gotta know the order limit
 		$result = Db::$db->query(
-			'',
 			'SELECT MAX(field_order)
 			FROM {db_prefix}custom_fields',
 			[],

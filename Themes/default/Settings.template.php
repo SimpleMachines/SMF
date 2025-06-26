@@ -85,11 +85,6 @@ function template_options()
 			'default' => true,
 		],
 		[
-			'id' => 'auto_notify',
-			'label' => Lang::getTxt('auto_notify', file: 'Profile'),
-			'default' => true,
-		],
-		[
 			'id' => 'wysiwyg_default',
 			'label' => Lang::getTxt('wysiwyg_default', file: 'Profile'),
 			'default' => false,

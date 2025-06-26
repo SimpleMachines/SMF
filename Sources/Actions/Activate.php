@@ -76,7 +76,7 @@ class Activate implements ActionInterface, Routable
 	private User $member;
 
 	/**
-	 * @var User
+	 * @var bool
 	 *
 	 * Whether the member's email address was changed.
 	 */
@@ -309,7 +309,6 @@ class Activate implements ActionInterface, Routable
 
 			// Ummm... don't even dare try to take someone else's email!!
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member
 				FROM {db_prefix}members
 				WHERE email_address = {string:email_address}

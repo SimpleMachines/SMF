@@ -42,10 +42,10 @@ class Curl
 
     /**
      * @see http://php.net/curl_init
-     * @param string $url
-     * @return resource cURL handle
+     * @param ?string $url
+     * @return \CurlHandle|false cURL handle
      */
-    public function init($url = null)
+    public function init(?string $url = null)
     {
         return curl_init($url);
     }
@@ -64,7 +64,7 @@ class Curl
     /**
      * @see http://php.net/curl_exec
      * @param resource $ch
-     * @return mixed
+     * @return bool|string
      */
     public function exec($ch)
     {

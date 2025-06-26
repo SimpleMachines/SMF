@@ -34,17 +34,6 @@ abstract class SearchApi implements SearchApiInterface
 {
 	use BackwardCompatibility;
 
-	/**
-	 * @var array
-	 *
-	 * BackwardCompatibility settings for this class.
-	 */
-	private static $backcompat = [
-		'prop_names' => [
-			'loadedApi' => 'searchAPI',
-		],
-	];
-
 	/*****************
 	 * Class constants
 	 *****************/
@@ -382,6 +371,21 @@ abstract class SearchApi implements SearchApiInterface
 	 */
 	protected string $query_match_type = 'LIKE';
 
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * @var array
+	 *
+	 * BackwardCompatibility settings for this class.
+	 */
+	private static $backcompat = [
+		'prop_names' => [
+			'loadedApi' => 'searchAPI',
+		],
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -395,7 +399,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function supportsMethod(string $methodName, array $query_params = []): bool
 	{
@@ -415,7 +419,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function isValid(): bool
 	{
@@ -423,7 +427,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getSize(): int
 	{
@@ -431,7 +435,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getStatus(): ?string
 	{
@@ -439,7 +443,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function searchSort(string $a, string $b): int
 	{
@@ -447,12 +451,12 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function prepareIndexes(string $word, array &$wordsSearch, array &$wordsExclude, bool $isExcluded): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function indexedWordQuery(array $words, array $search_data): mixed
 	{
@@ -460,22 +464,21 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postCreated(array &$msgOptions, array &$topicOptions, array &$posterOptions): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postModified(array &$msgOptions, array &$topicOptions, array &$posterOptions): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function postRemoved(int $id_msg): void
 	{
 		$result = Db::$db->query(
-			'',
 			'SELECT DISTINCT id_search
 			FROM {db_prefix}log_search_results
 			WHERE id_msg = {int:id_msg}',
@@ -495,7 +498,6 @@ abstract class SearchApi implements SearchApiInterface
 		}
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_search_results
 			WHERE id_search in ({array_int:id_searchs})',
 			[
@@ -504,7 +506,6 @@ abstract class SearchApi implements SearchApiInterface
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_search_topics
 			WHERE id_search in ({array_int:id_searchs})',
 			[
@@ -513,7 +514,6 @@ abstract class SearchApi implements SearchApiInterface
 		);
 
 		Db::$db->query(
-			'',
 			'DELETE FROM {db_prefix}log_search_messages
 			WHERE id_search in ({array_int:id_searchs})',
 			[
@@ -523,37 +523,37 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function topicsRemoved(array $topics): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function topicMerge(int $id_topic, array $topics, array $affected_msgs, ?string $subject): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function topicSplit(int $id_topic, array $affected_msgs): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function topicsMoved(array $topics, int $board_to): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function formContext(): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function resultsContext(): void {}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function initializeSearch(): void
 	{
@@ -564,7 +564,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function searchQuery(array $query_params, array $searchWords, array $excludedIndexWords, array &$participants, array &$searchArray): void
 	{
@@ -573,7 +573,6 @@ abstract class SearchApi implements SearchApiInterface
 		// Are the results fresh?
 		if (!$update_cache && !empty($_SESSION['search_cache']['id_search'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT id_search
 				FROM {db_prefix}log_search_results
 				WHERE id_search = {int:search_id}
@@ -604,13 +603,13 @@ abstract class SearchApi implements SearchApiInterface
 
 			// Clear the previous cache of the final results cache.
 			Db::$db->search_query(
-				'delete_log_search_results',
 				'
 				DELETE FROM {db_prefix}log_search_results
 				WHERE id_search = {int:search_id}',
 				[
 					'search_id' => $_SESSION['search_cache']['id_search'],
 				],
+				identifier: 'delete_log_search_results',
 			);
 
 			if ($this->params['subject_only']) {
@@ -638,7 +637,6 @@ abstract class SearchApi implements SearchApiInterface
 
 		// *** Retrieve the results to be shown on the page
 		$request = Db::$db->search_query(
-			'',
 			'
 			SELECT lsr.id_topic, lsr.id_msg, lsr.relevance, lsr.num_matches
 			FROM {db_prefix}log_search_results AS lsr' . ($this->params['sort'] == 'num_replies' || !empty($approve_query) ? '
@@ -676,14 +674,13 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function setParticipants(): void
 	{
 		// If we want to know who participated in what then load this now.
 		if (!empty(Config::$modSettings['enableParticipation']) && !User::$me->is_guest) {
 			$result = Db::$db->query(
-				'',
 				'SELECT id_topic
 				FROM {db_prefix}messages
 				WHERE id_topic IN ({array_int:topic_list})
@@ -705,7 +702,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function compressParams(): string
 	{
@@ -764,7 +761,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getAdminSubactions(): array
 	{
@@ -772,7 +769,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getLabel(): string
 	{
@@ -780,7 +777,7 @@ abstract class SearchApi implements SearchApiInterface
 	}
 
 	/**
-	 * {@inheritDoc}
+	 *
 	 */
 	public function getDescription(): string
 	{
@@ -1321,7 +1318,6 @@ abstract class SearchApi implements SearchApiInterface
 	{
 		if (!empty($this->params['minage']) || !empty($this->params['maxage'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT ' . (empty($this->params['maxage']) ? '0, ' : 'COALESCE(MIN(id_msg), -1), ') . (empty($this->params['minage']) ? '0' : 'COALESCE(MAX(id_msg), -1)') . '
 				FROM {db_prefix}messages
 				WHERE 1=1' . (Config::$modSettings['postmod_active'] ? '
@@ -1382,7 +1378,6 @@ abstract class SearchApi implements SearchApiInterface
 
 				// Retrieve a list of possible members.
 				$request = Db::$db->query(
-					'',
 					'SELECT id_member
 					FROM {db_prefix}members
 					WHERE {raw:match_possible_users}',
@@ -1452,7 +1447,6 @@ abstract class SearchApi implements SearchApiInterface
 		// Special case for boards: searching just one topic?
 		if (!empty($this->params['topic'])) {
 			$request = Db::$db->query(
-				'',
 				'SELECT t.id_board
 				FROM {db_prefix}topics AS t
 				WHERE t.id_topic = {int:search_topic_id}
@@ -1480,7 +1474,6 @@ abstract class SearchApi implements SearchApiInterface
 			$see_board = empty($this->params['advanced']) ? 'query_wanna_see_board' : 'query_see_board';
 
 			$request = Db::$db->query(
-				'',
 				'SELECT b.id_board
 				FROM {db_prefix}boards AS b
 				WHERE {raw:boards_allowed_to_see}
@@ -1516,7 +1509,6 @@ abstract class SearchApi implements SearchApiInterface
 
 			// If we've selected all boards, this parameter can be left empty.
 			$request = Db::$db->query(
-				'',
 				'SELECT COUNT(*)
 				FROM {db_prefix}boards
 				WHERE redirect = {string:empty_string}',
@@ -1675,7 +1667,6 @@ abstract class SearchApi implements SearchApiInterface
 					(id_search, id_topic, relevance, id_msg, num_matches)';
 
 			$ignoreRequest = Db::$db->search_query(
-				'insert_log_search_results_subject',
 				$ignore_clause . '
 				SELECT
 					{int:id_search},
@@ -1698,6 +1689,7 @@ abstract class SearchApi implements SearchApiInterface
 					'huge_topic_posts' => $this->humungousTopicPosts,
 					'is_approved' => 1,
 				]),
+				identifier: 'insert_log_search_results_subject',
 			);
 
 			// If the database doesn't support IGNORE to make this fast we need to do some tracking.
@@ -1807,15 +1799,14 @@ abstract class SearchApi implements SearchApiInterface
 
 			// Create a temporary table to store some preliminary results in.
 			Db::$db->search_query(
-				'drop_tmp_log_search_topics',
 				'
 				DROP TABLE IF EXISTS {db_prefix}tmp_log_search_topics',
 				[
 				],
+				identifier: 'drop_tmp_log_search_topics',
 			);
 
 			$createTemporary = Db::$db->search_query(
-				'create_tmp_log_search_topics',
 				'
 				CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_topics (
 					id_topic int NOT NULL default {string:string_zero},
@@ -1824,18 +1815,19 @@ abstract class SearchApi implements SearchApiInterface
 				[
 					'string_zero' => '0',
 				],
+				identifier: 'create_tmp_log_search_topics',
 			) !== false;
 
 			// Clean up some previous cache.
 			if (!$createTemporary) {
 				Db::$db->search_query(
-					'delete_log_search_topics',
 					'
 					DELETE FROM {db_prefix}log_search_topics
 					WHERE id_search = {int:search_id}',
 					[
 						'search_id' => $_SESSION['search_cache']['id_search'],
 					],
+					identifier: 'delete_log_search_topics',
 				);
 			}
 
@@ -1953,7 +1945,6 @@ abstract class SearchApi implements SearchApiInterface
 						(' . ($createTemporary ? '' : 'id_search, ') . 'id_topic)';
 
 				$ignoreRequest = Db::$db->search_query(
-					'insert_log_search_topics',
 					$ignore_clause . '
 					SELECT ' . ($createTemporary ? '' : $_SESSION['search_cache']['id_search'] . ', ') . 't.id_topic
 					FROM ' . $subject_query['from'] . (empty($subject_query['inner_join']) ? '' : '
@@ -1965,6 +1956,7 @@ abstract class SearchApi implements SearchApiInterface
 						AND ', $subject_query['where']) . (empty(Config::$modSettings['search_max_results']) ? '' : '
 					LIMIT ' . (Config::$modSettings['search_max_results'] - $numSubjectResults)),
 					$subject_query['params'],
+					identifier: 'insert_log_search_topics',
 				);
 
 				// Don't do INSERT IGNORE? Manually fix this up!
@@ -2020,15 +2012,14 @@ abstract class SearchApi implements SearchApiInterface
 			$inserts = [];
 
 			Db::$db->search_query(
-				'drop_tmp_log_search_messages',
 				'
 				DROP TABLE IF EXISTS {db_prefix}tmp_log_search_messages',
 				[
 				],
+				identifier: 'drop_tmp_log_search_messages',
 			);
 
 			$createTemporary = Db::$db->search_query(
-				'create_tmp_log_search_messages',
 				'
 				CREATE TEMPORARY TABLE {db_prefix}tmp_log_search_messages (
 					id_msg int NOT NULL default {string:string_zero},
@@ -2037,18 +2028,19 @@ abstract class SearchApi implements SearchApiInterface
 				[
 					'string_zero' => '0',
 				],
+				identifier: 'create_tmp_log_search_messages',
 			) !== false;
 
 			// Clear, all clear!
 			if (!$createTemporary) {
 				Db::$db->search_query(
-					'delete_log_search_messages',
 					'
 					DELETE FROM {db_prefix}log_search_messages
 					WHERE id_search = {int:id_search}',
 					[
 						'id_search' => $_SESSION['search_cache']['id_search'],
 					],
+					identifier: 'delete_log_search_messages',
 				);
 			}
 
@@ -2209,7 +2201,6 @@ abstract class SearchApi implements SearchApiInterface
 					(' . implode(', ', array_keys($main_query['select'])) . ')') : '';
 
 			$ignoreRequest = Db::$db->search_query(
-				'insert_log_search_results_no_index',
 				$ignore_clause . '
 				SELECT
 					' . implode(',
@@ -2224,6 +2215,7 @@ abstract class SearchApi implements SearchApiInterface
 				GROUP BY ' . implode(', ', $main_query['group_by'])) . (empty(Config::$modSettings['search_max_results']) ? '' : '
 				LIMIT ' . Config::$modSettings['search_max_results']),
 				$main_query['parameters'],
+				identifier: 'insert_log_search_results_no_index',
 			);
 
 			// We love to handle non-good databases that don't support our ignore!
@@ -2289,7 +2281,6 @@ abstract class SearchApi implements SearchApiInterface
 					(id_search, id_topic, relevance, id_msg, num_matches)') : '';
 
 			$ignoreRequest = Db::$db->search_query(
-				'insert_log_search_results_sub_only',
 				$ignore_clause . '
 				SELECT
 					{int:id_search},
@@ -2308,6 +2299,7 @@ abstract class SearchApi implements SearchApiInterface
 					'recent_message' => $this->ageRecentMsg,
 					'huge_topic_posts' => $this->humungousTopicPosts,
 				],
+				identifier: 'insert_log_search_results_sub_only',
 			);
 
 			// Once again need to do the inserts if the database don't support ignore!

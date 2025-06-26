@@ -30,6 +30,10 @@ use SMF\Utils;
  */
 class MsgReport_Notify extends BackgroundTask
 {
+	/****************
+	 * Public methods
+	 ****************/
+
 	/**
 	 * This executes the task: loads up the info, puts the email in the queue
 	 * and inserts any alerts as needed.
@@ -45,7 +49,6 @@ class MsgReport_Notify extends BackgroundTask
 
 		// Second, anyone assigned to be a moderator of this board directly.
 		$request = Db::$db->query(
-			'',
 			'SELECT id_member
 			FROM {db_prefix}moderators
 			WHERE id_board = {int:current_board}',
@@ -61,7 +64,6 @@ class MsgReport_Notify extends BackgroundTask
 
 		// Thirdly, anyone assigned to be a moderator of this group as a group->board moderator.
 		$request = Db::$db->query(
-			'',
 			'SELECT mem.id_member
 			FROM {db_prefix}members AS mem, {db_prefix}moderator_groups AS bm
 			WHERE bm.id_board = {int:current_board}
@@ -137,7 +139,6 @@ class MsgReport_Notify extends BackgroundTask
 			// First, get everyone's language and details.
 			$emails = [];
 			$request = Db::$db->query(
-				'',
 				'SELECT id_member, lngfile, email_address
 				FROM {db_prefix}members
 				WHERE id_member IN ({array_int:members})',
@@ -157,7 +158,6 @@ class MsgReport_Notify extends BackgroundTask
 			// Second, get some details that might be nice for the report email.
 			// We don't bother cluttering up the tasks data for this, when it's really no bother to fetch it.
 			$request = Db::$db->query(
-				'',
 				'SELECT lr.subject, lr.membername, lrc.comment
 				FROM {db_prefix}log_reported AS lr
 					INNER JOIN {db_prefix}log_reported_comments AS lrc ON (lr.id_report = lrc.id_report)
