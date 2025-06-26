@@ -814,6 +814,12 @@ class Config
 			'auto_delete' => 1,
 			'type' => 'string',
 		],
+		// Temporary variable used while installing or uninstalling packages.
+		'package_installing' => [
+			'default' => false,
+			'auto_delete' => 1,
+			'type' => 'boolean',
+		],
 		// These should be removed if found.
 		'tasksdir' => [
 			'default' => '',

@@ -136,9 +136,8 @@ class TaskRunner
 				ErrorHandler::displayMaintenanceMessage();
 			}
 
-			// Have we already turned this off? If so, exist gracefully.
-			// @todo Remove this? It's a bad idea to ever disable background tasks.
-			if (file_exists(Config::$cachedir . '/cron.lock')) {
+			// Do nothing if we are in the middle of an install or upgrade.
+			if (!empty(Config::$package_installing) || !empty(Config::$upgradeData)) {
 				$this->obExit();
 			}
 
