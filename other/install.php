@@ -17,6 +17,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Logging;
 use SMF\PackageManager\FtpConnection;
+use SMF\QueryString;
 use SMF\Security;
 use SMF\TaskRunner;
 use SMF\Time;
@@ -1666,7 +1667,7 @@ function AdminAccount()
 
 			// Format the username properly.
 			$_POST['username'] = preg_replace('~[\t\n\r\x0B\0\xA0]+~', ' ', $_POST['username']);
-			$ip = isset($_SERVER['REMOTE_ADDR']) ? substr($_SERVER['REMOTE_ADDR'], 0, 255) : '';
+			$ip = QueryString::getUserIP();
 
 			$_POST['password1'] = Security::hashPassword($_POST['password1']);
 
@@ -1872,7 +1873,7 @@ function DeleteInstall()
 			User::load();
 		}
 
-		User::$me->ip = $_SERVER['REMOTE_ADDR'];
+		User::$me->ip = QueryString::getUserIP();
 
 		Logging::logAction('install', ['version' => SMF_FULL_VERSION], 'admin');
 	}

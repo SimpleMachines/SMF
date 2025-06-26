@@ -22,6 +22,21 @@ use SMF\Db\DatabaseApi as Db;
  */
 class QueryString
 {
+	/**
+	 * IP of the current user. Typically filled with $_SERVER['REMOTE_ADDR']
+	 * or a IP supplied by a reverse proxy.
+	 * @var IP|string|null
+	 */
+	private static ?string $user_ip = null;
+
+	/**
+	 * The alternative IP of a user. Typically filled with $_SERVER['REMOTE_ADDR']
+	 * Used to check the IP in cases where a reverse proxy supplied us the main ip.
+	 * @var IP|string|null
+	 */
+	private static ?string $user_ip_alternative = null;
+
+
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -330,20 +345,55 @@ class QueryString
 			exit;
 		}
 
-		// Make sure we have a valid REMOTE_ADDR.
-		if (!isset($_SERVER['REMOTE_ADDR'])) {
-			$_SERVER['REMOTE_ADDR'] = '';
-
-			// A new magic variable to indicate we think this is command line.
-			$_SERVER['is_cli'] = true;
-		}
-		// Perhaps we have a IPv6 address.
-		elseif (IP::create($_SERVER['REMOTE_ADDR'])->isValid()) {
-			$_SERVER['REMOTE_ADDR'] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER['REMOTE_ADDR']);
-		}
-
 		// Try to calculate their most likely IP for those people behind proxies (And the like).
-		$_SERVER['BAN_CHECK_IP'] = $_SERVER['REMOTE_ADDR'];
+		self::setUserIPAlternative();
+		if (!empty(Config::$backward_compatibility)) {
+			$_SERVER['BAN_CHECK_IP'] = self::getUserIPAlternative();
+			$_SERVER['REMOTE_ADDR'] = self::getUserIP();
+			$_SERVER['is_cli'] = Sapi::isCLI();
+		}
+
+		// Make sure we know the URL of the current request.
+		if (empty($_SERVER['REQUEST_URI'])) {
+			$_SERVER['REQUEST_URL'] = Config::$scripturl . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+		} elseif (preg_match('~^([^/]+//[^/]+)~', Config::$scripturl, $match) == 1) {
+			$_SERVER['REQUEST_URL'] = $match[1] . $_SERVER['REQUEST_URI'];
+		} else {
+			$_SERVER['REQUEST_URL'] = $_SERVER['REQUEST_URI'];
+		}
+
+		// Should we redirect to HTTPS?
+		self::sslRedirect();
+
+		// Should we redirect because of an incorrectly added/removed 'www.'?
+		self::wwwRedirect();
+
+		// If the user got here using an unexpected but valid URL, fix it.
+		self::fixUrl();
+
+		// Make sure HTTP_USER_AGENT is set.
+		$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? Utils::htmlspecialchars(Db::$db->unescape_string($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : '';
+	}
+
+	/**
+	 * Determines the IP of the current user.
+	 *
+	 * What it does:
+	 * - Checks REMOTE_ADDR exists
+	 * - If proxy detection is enabled, parses headers to find a valid header.
+	 * - If proxy IP filtering is setup, validates IP is in acceptable ranges
+	 * 		- Single IP or CIDR notation allowed.
+	 * - If a valid match is found return.
+	 */
+	public static function getUserIP(): string
+	{
+		// We already figured it out once.
+		if (static::$user_ip !== null) {
+			return static::$user_ip;
+		}
+		else if (empty($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] == 'unknown') {
+			return '';
+		}
 
 		// If we haven't specified how to handle Reverse Proxy IP headers, lets do what we always used to do.
 		if (!isset(Config::$modSettings['proxy_ip_header'])) {
@@ -406,14 +456,12 @@ class QueryString
 					}
 
 					// Otherwise, we've got an IP!
-					$_SERVER['BAN_CHECK_IP'] = trim($ip);
-
-					break;
+					return static::$user_ip = trim($ip);
 				}
 			}
 			// Otherwise just use the only one.
 			elseif (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER[$proxyIPheader]) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0) {
-				$_SERVER['BAN_CHECK_IP'] = $_SERVER[$proxyIPheader];
+				return $_SERVER[$proxyIPheader];
 			} elseif (!IP::create($_SERVER[$proxyIPheader])->isValid(FILTER_FLAG_IPV6) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0) {
 				$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '$1', $_SERVER[$proxyIPheader]);
 
@@ -425,35 +473,28 @@ class QueryString
 			}
 		}
 
-		// Make sure we know the URL of the current request.
-		if (empty($_SERVER['REQUEST_URI'])) {
-			$_SERVER['REQUEST_URL'] = Config::$scripturl . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
-		} elseif (preg_match('~^([^/]+//[^/]+)~', Config::$scripturl, $match) == 1) {
-			$_SERVER['REQUEST_URL'] = $match[1] . $_SERVER['REQUEST_URI'];
-		} else {
-			$_SERVER['REQUEST_URL'] = $_SERVER['REQUEST_URI'];
-		}
+		return static::$user_ip = $_SERVER['REMOTE_ADDR'];
+	}
 
-		// Should we redirect to HTTPS?
-		self::sslRedirect();
+	/**
+	 * Determines the Alternative IP of the current user.
+	 *
+	 * Returns BAN_CHECK_IP if set, otherwise REMOTE_ADDR.
+	 */
+	public static function getUserIPAlternative(): string
+	{
+		return static::$user_ip_alternative ?? $_SERVER['REMOTE_ADDR'];
+	}
 
-		// Should we redirect because of an incorrectly added/removed 'www.'?
-		self::wwwRedirect();
-
-		// If the user got here using an unexpected but valid URL, fix it.
-		self::fixUrl();
-
-		// Make sure HTTP_USER_AGENT is set.
-		$_SERVER['HTTP_USER_AGENT'] = isset($_SERVER['HTTP_USER_AGENT']) ? Utils::htmlspecialchars(Db::$db->unescape_string($_SERVER['HTTP_USER_AGENT']), ENT_QUOTES) : '';
-
-		// Some final checking.
-		if (!IP::create($_SERVER['BAN_CHECK_IP'])->isValid()) {
-			$_SERVER['BAN_CHECK_IP'] = '';
-		}
-
-		if ($_SERVER['REMOTE_ADDR'] == 'unknown') {
-			$_SERVER['REMOTE_ADDR'] = '';
-		}
+	/**
+	 * Set's the alternative IP for the current user.
+	 * If nothing is provided, we use $_SERVER['REMOTE_ADDR']
+	 * @param ?string $ip
+	 * @return void
+	 */
+	public static function setUserIPAlternative(?string $ip = null): void
+	{
+		static::$user_ip_alternative = $ip ?? $_SERVER['REMOTE_ADDR'];
 	}
 
 	/**

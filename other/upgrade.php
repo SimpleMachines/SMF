@@ -136,7 +136,7 @@ $upcontext['database_step'] = 3;
 @ini_set('memory_limit', '512M');
 
 // Clean the upgrade path if this is from the client.
-if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && empty($_SERVER['REMOTE_ADDR'])) {
+if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && QueryString::getUserIP() === '') {
 	for ($i = 1; $i < $_SERVER['argc']; $i++) {
 		// Provide the help without possible errors if the environment isn't sane.
 		if (in_array($_SERVER['argv'][$i], ['-h', '--help'])) {
@@ -161,7 +161,7 @@ if (!empty($_SERVER['argv']) && php_sapi_name() == 'cli' && empty($_SERVER['REMO
 }
 
 // Are we from the client?
-if (php_sapi_name() == 'cli' && empty($_SERVER['REMOTE_ADDR'])) {
+if (php_sapi_name() == 'cli' && QueryString::getUserIP() === '') {
 	$command_line = true;
 	$disable_security = true;
 } else {
@@ -2087,7 +2087,7 @@ function DeleteUpgrade()
 		User::setMe($upcontext['user']['id']);
 	}
 
-	User::$me->ip = $command_line || empty($_SERVER['REMOTE_ADDR']) ? '127.0.0.1' : $_SERVER['REMOTE_ADDR'];
+	User::$me->ip = $command_line || QueryString::getUserIP() === '' ? '127.0.0.1' : QueryString::getUserIP();
 
 	// Log the action manually, so CLI still works.
 	Db::$db->insert(

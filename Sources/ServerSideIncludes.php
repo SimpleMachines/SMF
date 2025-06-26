@@ -307,7 +307,7 @@ class ServerSideIncludes
 		}
 
 		// Make sure they didn't muss around with the settings... but only if it's not cli.
-		if (isset($_SERVER['REMOTE_ADDR']) && !isset($_SERVER['is_cli']) && session_id() == '') {
+		if (QueryString::getUserIP() !== '' && !Sapi::isCLI() && session_id() == '') {
 			trigger_error(Lang::getTxt('ssi_session_broken', file: 'General'), E_USER_NOTICE);
 		}
 
