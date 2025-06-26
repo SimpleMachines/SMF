@@ -22,21 +22,6 @@ use SMF\Db\DatabaseApi as Db;
  */
 class QueryString
 {
-	/**
-	 * IP of the current user. Typically filled with $_SERVER['REMOTE_ADDR']
-	 * or a IP supplied by a reverse proxy.
-	 * @var IP|string|null
-	 */
-	private static ?string $user_ip = null;
-
-	/**
-	 * The alternative IP of a user. Typically filled with $_SERVER['REMOTE_ADDR']
-	 * Used to check the IP in cases where a reverse proxy supplied us the main ip.
-	 * @var IP|string|null
-	 */
-	private static ?string $user_ip_alternative = null;
-
-
 	/**************************
 	 * Public static properties
 	 **************************/
@@ -144,6 +129,24 @@ class QueryString
 		'who'					=> Actions\Who::class,
 		'xmlhttp'				=> Actions\XmlHttp::class,
 	];
+
+	/****************************
+	 * Internal static properties
+	 ****************************/
+
+	/**
+	 * IP of the current user. Typically filled with $_SERVER['REMOTE_ADDR']
+	 * or a IP supplied by a reverse proxy.
+	 * @var IP|string|null
+	 */
+	private static ?string $user_ip = null;
+
+	/**
+	 * The alternative IP of a user. Typically filled with $_SERVER['REMOTE_ADDR']
+	 * Used to check the IP in cases where a reverse proxy supplied us the main ip.
+	 * @var IP|string|null
+	 */
+	private static ?string $user_ip_alternative = null;
 
 	/***********************
 	 * Public static methods
@@ -347,6 +350,7 @@ class QueryString
 
 		// Try to calculate their most likely IP for those people behind proxies (And the like).
 		self::setUserIPAlternative();
+
 		if (!empty(Config::$backward_compatibility)) {
 			$_SERVER['BAN_CHECK_IP'] = self::getUserIPAlternative();
 			$_SERVER['REMOTE_ADDR'] = self::getUserIP();
@@ -391,7 +395,8 @@ class QueryString
 		if (static::$user_ip !== null) {
 			return static::$user_ip;
 		}
-		else if (empty($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] == 'unknown') {
+
+		if (empty($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] == 'unknown') {
 			return '';
 		}
 
@@ -490,7 +495,6 @@ class QueryString
 	 * Set's the alternative IP for the current user.
 	 * If nothing is provided, we use $_SERVER['REMOTE_ADDR']
 	 * @param ?string $ip
-	 * @return void
 	 */
 	public static function setUserIPAlternative(?string $ip = null): void
 	{
