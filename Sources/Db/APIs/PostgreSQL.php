@@ -317,14 +317,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// Only bother if there's something to replace.
 		if (str_contains($db_string, '{')) {
-			// This is needed by the callback function.
-			$this->temp_values = $db_values;
-			$this->temp_connection = $connection ?? $this->connection;
-
 			// Do the quoting and escaping
-			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', [$this, 'replacement__callback'], $db_string);
-
-			unset($this->temp_values, $this->temp_connection);
+			$db_string = preg_replace_callback('~{([a-z_]+)(?::([a-zA-Z0-9_-]+))?}~', function($matches) use ($db_values, $connection) {
+				return $this->replacement__callback($matches, $db_values, $connection);
+			}, $db_string);
 		}
 
 		return $db_string;
@@ -2258,11 +2254,15 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 * the database.
 	 *
 	 * @param array $matches The matches from preg_replace_callback
+	 * @param array $db_values = array() The values to be inserted into the string
+	 * @param null|object $connection = null The connection to use (null to use $db_connection)
 	 * @return string The appropriate string depending on $matches[1]
 	 */
-	protected function replacement__callback(array $matches): string
+	protected function replacement__callback(array $matches, array $db_values, ?object $connection = null): string
 	{
-		if (!is_object($this->temp_connection)) {
+		$connection ??= $this->connection;
+
+		if (!is_object($connection)) {
 			ErrorHandler::displayDbError();
 		}
 
@@ -2286,11 +2286,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return '\'' . pg_escape_string($this->connection, $matches[2]) . '\'';
 		}
 
-		if (!isset($this->temp_values[$matches[2]])) {
+		if (!isset($db_values[$matches[2]])) {
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 		}
 
-		$replacement = $this->temp_values[$matches[2]];
+		$replacement = $db_values[$matches[2]];
 
 		switch ($matches[1]) {
 			case 'int':
