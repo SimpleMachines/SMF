@@ -227,7 +227,7 @@ class Session implements \SessionHandlerInterface
 
 				@ini_set('session.gc_probability', '1');
 			}
-			@ini_set('session.gc_maxlifetime', max($modSettings['databaseSession_lifetime'], 60));
+			@ini_set('session.gc_maxlifetime', max(Config::$modSettings['databaseSession_lifetime'], 60));
 
 			// Use cache setting sessions?
 			if (empty(Config::$modSettings['databaseSession_enable']) && !empty(CacheApi::$enable) && php_sapi_name() != 'cli') {
