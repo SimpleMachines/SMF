@@ -3793,12 +3793,14 @@ class User implements \ArrayAccess
 		$include_groups = array_keys(array_filter(
 			$member_groups,
 			fn($permissions, $group) => $permissions[$permission] === 1 && $group !== Group::MOD,
+			ARRAY_FILTER_USE_BOTH,
 		));
 
 		$exclude_moderators = $member_groups[Group::MOD][$permission] === 0 && $board_id !== null;
 		$exclude_groups = array_keys(array_filter(
 			$member_groups,
 			fn($permissions, $group) => $permissions[$permission] === 0 && $group !== Group::MOD,
+			ARRAY_FILTER_USE_BOTH,
 		));
 
 		$request = Db::$db->query(

@@ -314,7 +314,7 @@ class Post2 extends Post
 		}
 		// If the user isn't a guest, get his or her name and email.
 		elseif (!isset($_REQUEST['msg'])) {
-			$_POST['guestname'] = User::$me->username;
+			$_POST['guestname'] = User::$me->name;
 			$_POST['email'] = User::$me->email;
 		}
 
