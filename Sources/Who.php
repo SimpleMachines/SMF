@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1.5
@@ -614,7 +614,6 @@ function Credits($in_admin = false)
 						'Jon "Sesquipedalian" Stovell',
 						// Developers
 						'John "live627" Rayes',
-						'Oscar "Ozp" Rydhé',
 
 						// Former Developers
 						'Aaron van Geffen',
@@ -633,6 +632,7 @@ function Credits($in_admin = false)
 						'Michael "Oldiesmann" Eshom',
 						'Michael "Thantos" Miller',
 						'Norv',
+						'Oscar "Ozp" Rydhé',
 						'Peter "Arantor" Spicer',
 						'Selman "[SiNaN]" Eser',
 						'Shawn Bulen',
@@ -652,7 +652,6 @@ function Credits($in_admin = false)
 						// Support Specialists
 						'Doug Heffernan',
 						'lurkalot',
-						'Steve',
 
 						// Former Support Specialists
 						'Aleksi "Lex" Kilpinen',
@@ -677,6 +676,7 @@ function Credits($in_admin = false)
 						'Old Fossil',
 						'S-Ace',
 						'shadav',
+						'Steve',
 						'Storman™',
 						'Wade "sησω" Poulsen',
 						'xenovanis',

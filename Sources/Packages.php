@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1.5
@@ -663,7 +663,7 @@ function PackageInstallTest()
 		}
 
 		// Don't fail if a file/directory we're trying to create doesn't exist...
-		if (isset($action['filename']) && !file_exists($file) && !in_array($action['type'], array('create-dir', 'create-file')))
+		if (isset($action['filename']) && !file_exists($file) && !in_array($action['type'], array('create-dir', 'create-file')) && $action['error'] != 'ignore')
 		{
 			$context['has_failure'] = true;
 

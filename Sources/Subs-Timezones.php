@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1.5
@@ -836,6 +836,7 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 		'CL' => array(
 			'America/Santiago',
 			'America/Punta_Arenas',
+			'America/Coyhaique',
 			'Pacific/Easter',
 		),
 		'CM' => array(
@@ -2064,6 +2065,33 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			array(
 				'ts' => strtotime('2022-11-30T06:00:00+0000'),
 				'tzid' => 'America/Denver',
+			),
+		),
+
+		// Diverged from America/Santiago in version 2025b.
+		// From 2025-03-20 onward, becomes the same as America/Punta_Arenas.
+		'America/Coyhaique' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1890-01-01T04:48:16+0000'),
+				// Chile/Continental is an otherwise unused link to America/Santiago.
+				'tzid' => 'Chile/Continental',
+			),
+			array(
+				'ts' => strtotime('1942-08-01T05:00:00+0000'),
+				'tzid' => 'Etc/GMT+4',
+			),
+			array(
+				'ts' => strtotime('1946-08-29T04:00:00+0000'),
+				'tzid' => 'Chile/Continental',
+			),
+			array(
+				'ts' => strtotime('2025-03-20T03:00:00+0000'),
+				// America/Mendoza is an otherwise unused link to America/Argentina/Mendoza.
+				'tzid' => 'America/Mendoza',
 			),
 		),
 	);

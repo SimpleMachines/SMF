@@ -8,10 +8,10 @@
  * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.5
+ * @version 2.1.6
  */
 
-define('SMF_VERSION', '2.1.5');
+define('SMF_VERSION', '2.1.6');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
 define('SMF_SOFTWARE_YEAR', '2025');
 define('DB_SCRIPT_VERSION', '2-1');
@@ -24,7 +24,7 @@ define('SMF_USER_AGENT', 'Mozilla/5.0 (' . php_uname('s') . ' ' . php_uname('m')
 if (!defined('TIME_START'))
 	define('TIME_START', microtime(true));
 
-$GLOBALS['required_php_version'] = '7.0.0';
+$GLOBALS['required_php_version'] = '7.1.0';
 
 // Don't have PHP support, do you?
 // ><html dir="ltr"><head><title>Error!</title></head><body>Sorry, this installer requires PHP!<div style="display: none;">

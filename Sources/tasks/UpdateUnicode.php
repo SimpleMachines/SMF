@@ -7,7 +7,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1.5
@@ -551,6 +551,8 @@ class Update_Unicode extends SMF_BackgroundTask
 		 *******************/
 		if ($success)
 		{
+			require_once($sourcedir . '/Subs-Admin.php');
+
 			$done_files = array();
 
 			foreach ($this->funcs as $func_name => $func_info)
@@ -578,7 +580,20 @@ class Update_Unicode extends SMF_BackgroundTask
 				}
 
 				if ($file_contents['temp'] !== $file_contents['real'])
-					rename($file_paths['temp'], $file_paths['real']);
+					$success &= safe_file_write($file_paths['real'], file_get_contents($file_paths['temp']), $file_paths['real'] . '.bak', time() + 1);
+			}
+
+			// If we wrote all the files successfully, remove the backup files.
+			if ($success)
+			{
+				foreach (glob($this->unicodedir . DIRECTORY_SEPARATOR . '*.bak') as $path)
+					unlink($path);
+			}
+			// If any file failed to write, revert all of them.
+			else
+			{
+				foreach (glob($this->unicodedir . DIRECTORY_SEPARATOR . '*.bak') as $path)
+					rename($path, substr($path, -4));
 			}
 		}
 

@@ -8,7 +8,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1.5
@@ -2156,7 +2156,7 @@ function Post2()
 	// If the user isn't a guest, get his or her name and email.
 	elseif (!isset($_REQUEST['msg']))
 	{
-		$_POST['guestname'] = $user_info['username'];
+		$_POST['guestname'] = $user_info['name'];
 		$_POST['email'] = $user_info['email'];
 	}
 

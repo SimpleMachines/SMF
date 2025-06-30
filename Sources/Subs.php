@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.5
+ * @version 2.1.6
  */
 
 if (!defined('SMF'))
@@ -902,7 +902,7 @@ function get_date_or_time_format($type = '', $format = '')
  *     If null, uses default time zone.
  * @return string The formatted datetime string.
  */
-function smf_strftime(string $format, int $timestamp = null, string $tzid = null)
+function smf_strftime(string $format, $timestamp = null, $tzid = null)
 {
 	global $txt, $smcFunc, $sourcedir;
 
@@ -1227,7 +1227,7 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
  *     If null, defaults to the current time.
  * @return string The formatted datetime string.
  */
-function smf_gmstrftime(string $format, int $timestamp = null)
+function smf_gmstrftime(string $format, $timestamp = null)
 {
 	return smf_strftime($format, $timestamp, 'UTC');
 }
@@ -3789,7 +3789,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					$nested_tag = false;
 				if ($nested_tag && $nested_tag < $end_of_value)
 					// Nested tag with quoted value detected, use next end tag
-					$nested_tag_pos = strpos($message, $quoted == false ? ']' : $quot . ']', $pos1) + strlen($quot);
+					$nested_tag_pos = strpos($message, $quoted == false ? ']' : $quot, $pos1) + strlen($quot);
 			}
 
 			$pos2 = strpos($message, $quoted == false ? ']' : $quot . ']', isset($nested_tag_pos) ? $nested_tag_pos : $pos1);

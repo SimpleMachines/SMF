@@ -10,7 +10,7 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2024 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
  * @version 2.1.5
@@ -1224,7 +1224,8 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 			$this_action = array(
 				'type' => $actionType,
 				'filename' => $action->fetch('@name'),
-				'description' => $action->fetch('.')
+				'description' => $action->fetch('.'),
+				'error' => $action->exists('@error') ? $action->fetch('@error') : 'fail'
 			);
 
 			// If there is a destination, make sure it makes sense.
@@ -1458,7 +1459,7 @@ function parsePackageInfo(&$packageXML, $testing_only = true, $method = 'install
 			}
 			// The file that was supposed to be deleted couldn't be found.
 			else
-				$failure = true;
+				$failure = $action['error'] != 'ignore';
 
 			// Any other theme folders?
 			if (!empty($context['theme_copies']) && !empty($context['theme_copies'][$action['type']][$action['filename']]))

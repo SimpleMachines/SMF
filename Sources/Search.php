@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.6
  */
 
 if (!defined('SMF'))
@@ -1338,7 +1338,7 @@ function PlushSearch2()
 						$main_query['parameters']['topic'] = $search_params['topic'];
 					}
 					if (!empty($search_params['show_complete']))
-						$main_query['group_by'][] = 'm.id_msg, t.id_first_msg, t.id_last_msg';
+						$main_query['group_by'][] = 't.id_topic, m.id_msg, t.id_first_msg, t.id_last_msg';
 				}
 
 				// *** Get the subject results.
