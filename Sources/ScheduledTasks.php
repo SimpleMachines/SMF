@@ -811,10 +811,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	{
 		// First, figure out when the next send attempt should happen based on the current priority.
 		$next_send_time = $email['time_sent'];
-		if ($email['priority'] >= $priority_offset) {
-			for ($i = 0; $i < $email['priority']; $i++) {
-				$next_send_time += 20 * max(0, $email['priority'] - $priority_offset);
-			}
+		for ($i = 0; $i < $email['priority']; $i++) {
+			$next_send_time += 20 * max(0, $email['priority'] - $priority_offset);
 		}
 
 		// If the email is too old, discard it.
@@ -822,10 +820,10 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			continue;
 		}
 
-		++$email['priority'];
+		$email['priority'] = max($priority_offset, $email['priority'], min(ceil((time() - $email['time_sent']) / $smtp_expire * ($max_priority - $priority_offset)) + $priority_offset, $max_priority));
 
-		// Don't send if it's too soon.
-		if (time() < $next_send_time) {
+		// Don't send if it's too soon. Also, if we've already failed a few times, only send on every fourth attempt so that we don't DOS some poor mail server.
+		if (time() < $next_send_time || ($email['priority'] >= $priority_offset && $email['priority'] % 4 !== 0)) {
 			if ($email['priority'] < $max_priority) {
 				$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
 			}
