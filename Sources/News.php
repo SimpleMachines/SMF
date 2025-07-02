@@ -1074,6 +1074,7 @@ function getXmlNews($xml_format, $ascending = false)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'attributes' => array('type' => 'html'),
 						'cdata' => true,
 					),
 					array(
@@ -1534,6 +1535,7 @@ function getXmlRecent($xml_format)
 					array(
 						'tag' => 'title',
 						'content' => $row['subject'],
+						'attributes' => array('type' => 'html'),
 						'cdata' => true,
 					),
 					array(
