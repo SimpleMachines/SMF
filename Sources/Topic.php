@@ -1434,6 +1434,7 @@ class Topic implements \ArrayAccess, Routable
 				CacheApi::put('topic_board-' . $topic_id, null, 120);
 			}
 			CacheApi::put('board-' . $toBoard, null, 120);
+
 			foreach ($fromBoards as $b => $junk) {
 				CacheApi::put('board-' . $b, null, 120);
 			}
@@ -1750,6 +1751,7 @@ class Topic implements \ArrayAccess, Routable
 		Config::updateModSettings([
 			'calendar_updated' => time(),
 		]);
+
 		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3 && !empty($recycle_board) && !$ignoreRecycling) {
 			CacheApi::put('board-' . $recycle_board, null);
 		}
