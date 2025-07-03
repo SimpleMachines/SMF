@@ -387,17 +387,6 @@ class UpdateUnicode extends BackgroundTask
 			],
 			'data' => [],
 		],
-		'idna_maps_not_std3' => [
-			'file' => 'Idna.php',
-			'key_type' => 'hexchar',
-			'val_type' => 'hexchar',
-			'desc' => ['Helper function for idn_to_* polyfills.'],
-			'return' => [
-				'type' => 'array',
-				'desc' => 'Non-STD3 character maps for IDNA processing.',
-			],
-			'data' => [],
-		],
 		'idna_regex' => [
 			'file' => 'Idna.php',
 			'key_type' => 'string',
@@ -2143,10 +2132,6 @@ class UpdateUnicode extends BackgroundTask
 
 				$this->funcs['idna_regex']['data']['disallowed'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
 			} elseif ($fields[1] === 'disallowed_STD3_mapped') {
-				foreach ($entities as $entity) {
-					$this->funcs['idna_maps_not_std3']['data'][$entity] = $fields[2] === '' ? '' : '&#x' . str_replace(' ', '; &#x', $fields[2]) . ';';
-				}
-
 				$this->funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';
 			} elseif ($fields[1] === 'disallowed_STD3_valid') {
 				$this->funcs['idna_regex']['data']['disallowed_std3'][] = '\\x{' . str_replace('..', '}-\\x{', $fields[0]) . '}';

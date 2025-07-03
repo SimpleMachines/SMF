@@ -25,7 +25,6 @@ namespace SMF;
 
 use function SMF\Unicode\idna_maps;
 use function SMF\Unicode\idna_maps_deviation;
-use function SMF\Unicode\idna_maps_not_std3;
 
 /**
  * Punycode implementation as described in RFC 3492
@@ -555,10 +554,6 @@ class Punycode
 
 		if (!$this->nonTransitional) {
 			$maps = array_merge($maps, idna_maps_deviation());
-		}
-
-		if (!$this->std3) {
-			$maps = array_merge($maps, idna_maps_not_std3());
 		}
 
 		return Utils::normalize(strtr($domain, $maps));
