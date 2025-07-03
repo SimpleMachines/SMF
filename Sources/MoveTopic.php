@@ -708,6 +708,12 @@ function moveTopics($topics, $toBoard)
 	updateSettings(array(
 		'calendar_updated' => time(),
 	));
+	if (!empty($cache_enable) && $cache_enable >= 3) {
+		cache_put_data('board-' . $toBoard, null);
+		foreach ($fromBoards as $stats) {
+			cache_put_data('board-' . $stats['id_board'], null);
+		}
+	}
 }
 
 /**
