@@ -558,7 +558,7 @@ class Update_Unicode extends SMF_BackgroundTask
 				$file_paths['temp'] = $this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'];
 
 				// If the temp file went missing, bail out immediately.
-				if (!file_exists($file_paths['temp']))
+				if (!is_readable($file_paths['temp']) || !is_writable($file_paths['temp']))
 					return true;
 
 				// Add closing PHP tag to the temp file.
