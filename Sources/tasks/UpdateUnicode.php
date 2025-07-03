@@ -759,7 +759,7 @@ class Update_Unicode extends SMF_BackgroundTask
 	{
 		foreach ($this->funcs as $func_name => $func_info)
 		{
-			if (empty($func_info['data']))
+			if (!isset($func_info['data']))
 				continue;
 
 			$temp_file_path = $this->temp_dir . '/' . $func_info['file'];
