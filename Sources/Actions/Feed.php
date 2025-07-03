@@ -974,7 +974,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'id',
-							'content' => Config::$scripturl . '?msg=' . $row['id_msg'],
+							'content' => 'urn:uuid:' . $uuid,
 						],
 						[
 							'tag' => 'link',
@@ -1415,7 +1415,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'id',
-							'content' => Config::$scripturl . '?msg=' . $row['id_msg'],
+							'content' => 'urn:uuid:' . $uuid,
 						],
 						[
 							'tag' => 'link',
