@@ -801,7 +801,7 @@ class UpdateUnicode extends BackgroundTask
 	public function export_funcs_to_file(): void
 	{
 		foreach ($this->funcs as $func_name => $func_info) {
-			if (empty($func_info['data'])) {
+			if (!isset($func_info['data'])) {
 				continue;
 			}
 
