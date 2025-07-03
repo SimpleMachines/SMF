@@ -1045,6 +1045,10 @@ class Topic implements \ArrayAccess, Routable
 			if ($sticky_state) {
 				Mail::sendNotifications((int) $row['topic'], 'sticky');
 			}
+
+			if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
+				CacheApi::put('board-' . $row['board'], null, 120);
+			}
 		}
 
 		return array_map(fn($row) => (int) $row['topic'], $rows);
@@ -1429,6 +1433,11 @@ class Topic implements \ArrayAccess, Routable
 			foreach ($topics as $topic_id) {
 				CacheApi::put('topic_board-' . $topic_id, null, 120);
 			}
+			CacheApi::put('board-' . $toBoard, null, 120);
+
+			foreach ($fromBoards as $b => $junk) {
+				CacheApi::put('board-' . $b, null, 120);
+			}
 		}
 
 		$updates = array_keys($fromBoards);
@@ -1632,6 +1641,10 @@ class Topic implements \ArrayAccess, Routable
 						'unapproved_topics' => $stats['unapproved_topics'],
 					],
 				);
+
+				if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
+					CacheApi::put('board-' . $stats['id_board'], null, 120);
+				}
 			}
 		}
 		// Remove Polls.
@@ -1738,6 +1751,10 @@ class Topic implements \ArrayAccess, Routable
 		Config::updateModSettings([
 			'calendar_updated' => time(),
 		]);
+
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3 && !empty($recycle_board) && !$ignoreRecycling) {
+			CacheApi::put('board-' . $recycle_board, null);
+		}
 
 		$updates = [];
 
