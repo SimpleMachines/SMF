@@ -533,9 +533,6 @@ class Punycode
 		if (!$this->nonTransitional)
 			$maps = array_merge($maps, idna_maps_deviation());
 
-		if (!$this->std3)
-			$maps = array_merge($maps, idna_maps_not_std3());
-
 		return utf8_normalize_c(strtr($domain, $maps));
 	}
 
