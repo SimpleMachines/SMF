@@ -1930,10 +1930,13 @@ function safe_file_write($file, $data, $backup_file = null, $mtime = null, $appe
 		}
 	}
 
-	// We're done with these.
-	@unlink($temp_sfile);
+	clearstatcache();
 
-	if (!empty($temp_bfile))
+	// We're done with these.
+	if (is_file($temp_sfile))
+		@unlink($temp_sfile);
+
+	if (!empty($temp_bfile) && is_file($temp_bfile))
 		@unlink($temp_bfile);
 
 	if ($failed)
