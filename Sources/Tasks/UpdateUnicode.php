@@ -725,7 +725,10 @@ class UpdateUnicode extends BackgroundTask
 		if ($success) {
 			// If any of the temp files went missing, bail out immediately.
 			foreach ($this->funcs as $func_name => $func_info) {
-				if (!file_exists($this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'])) {
+				if (
+					!is_readable($this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'])
+					|| !is_writable($this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'])
+				) {
 					return true;
 				}
 			}
