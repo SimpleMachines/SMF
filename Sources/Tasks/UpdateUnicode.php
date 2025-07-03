@@ -723,17 +723,16 @@ class UpdateUnicode extends BackgroundTask
 		 * Wrapup *
 		 **********/
 		if ($success) {
-			$done_files = [];
+			// If any of the temp files went missing, bail out immediately.
+			foreach ($this->funcs as $func_name => $func_info) {
+				if (!file_exists($this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'])) {
+					return true;
+				}
+			}
 
 			foreach ($this->funcs as $func_name => $func_info) {
 				$file_paths['temp'] = $this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'];
 				$file_paths['real'] = $this->unicodedir . DIRECTORY_SEPARATOR . $func_info['file'];
-
-				if (in_array($file_paths['temp'], $done_files)) {
-					continue;
-				}
-
-				$done_files[] = $file_paths['temp'];
 
 				// Only move if the file has changed, discounting the license block.
 				foreach (['temp', 'real'] as $f) {
@@ -744,7 +743,9 @@ class UpdateUnicode extends BackgroundTask
 					}
 				}
 
-				if (rtrim($file_contents['temp']) !== rtrim($file_contents['real'])) {
+				if ($file_contents['temp'] === '') {
+					$success = false;
+				} elseif (rtrim($file_contents['temp']) !== rtrim($file_contents['real'])) {
 					$success &= Config::safeFileWrite(
 						$file_paths['real'],
 						file_get_contents($file_paths['temp']),
