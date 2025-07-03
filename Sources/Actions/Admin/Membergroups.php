@@ -194,9 +194,9 @@ class Membergroups implements ActionInterface
 					],
 					'data' => [
 						'format_text' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group={id_group}">' . Lang::getTxt('membergroups_modify', file: 'ManageMembers') . '</a>',
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group={id}">' . Lang::getTxt('membergroups_modify', file: 'ManageMembers') . '</a>',
 							'params' => [
-								'id_group' => false,
+								'id' => false,
 							],
 						],
 						'class' => 'centercol',
@@ -297,9 +297,9 @@ class Membergroups implements ActionInterface
 					],
 					'data' => [
 						'format_text' => [
-							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group={id_group}">' . Lang::getTxt('membergroups_modify', file: 'ManageMembers') . '</a>',
+							'format' => '<a href="' . Config::$scripturl . '?action=admin;area=membergroups;sa=edit;group={id}">' . Lang::getTxt('membergroups_modify', file: 'ManageMembers') . '</a>',
 							'params' => [
-								'id_group' => false,
+								'id' => false,
 							],
 						],
 						'class' => 'centercol',
@@ -591,7 +591,7 @@ class Membergroups implements ActionInterface
 			// Set variables to their proper value.
 			$group->set([
 				'max_messages' => isset($_POST['max_messages']) ? (int) $_POST['max_messages'] : 0,
-				'min_posts' => isset($_POST['min_posts']) && isset($_POST['group_type']) && $_POST['group_type'] == -1 && $group->id > Group::MOD ? abs($_POST['min_posts']) : ($group->id == Group::NEWBIE ? 0 : -1),
+				'min_posts' => isset($_POST['min_posts']) && isset($_POST['group_type']) && $_POST['group_type'] == -1 && $group->id > Group::MOD ? abs((int) $_POST['min_posts']) : ($group->id == Group::NEWBIE ? 0 : -1),
 				'icons' => (empty($_POST['icon_count']) || $_POST['icon_count'] < 0 || !in_array($_POST['icon_image'], Utils::$context['possible_icons'])) ? '' : min((int) $_POST['icon_count'], 99) . '#' . $_POST['icon_image'],
 				'name' => Utils::htmlspecialchars($_POST['group_name']),
 				'description' => isset($_POST['group_desc']) && ($group->id == Group::ADMIN || (isset($_POST['group_type']) && $_POST['group_type'] != -1)) ? Utils::htmlTrim(Utils::sanitizeChars(Utils::normalize($_POST['group_desc']))) : '',
