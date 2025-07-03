@@ -2073,7 +2073,7 @@ class Attachment implements \ArrayAccess
 
 						$image = new Image($filename, true);
 
-						if (!empty($image->source) && ($thumb = $image->createThumbnail(Config::$modSettings['attachmentThumbWidth'], Config::$modSettings['attachmentThumbHeight'])) !== false) {
+						if (!empty($image->source) && ($thumb = $image->createThumbnail((int) Config::$modSettings['attachmentThumbWidth'], (int) Config::$modSettings['attachmentThumbHeight'])) !== false) {
 							// So what folder are we putting this image in?
 							if (!empty(Config::$modSettings['currentAttachmentUploadDir'])) {
 								if (!is_array(Config::$modSettings['attachmentUploadDir'])) {
