@@ -77,6 +77,10 @@ if ($maintenance == 2)
 if (substr($sourcedir, 0, 1) == '.' && substr($sourcedir, 1, 1) != '.')
 	$sourcedir = dirname(__FILE__) . substr($sourcedir, 1);
 
+// Do nothing if we are in the middle of an install or upgrade.
+if (!empty($upgradeData) || !empty($package_installing))
+	obExit_cron();
+
 // Have we already turned this off? If so, exist gracefully.
 if (file_exists($cachedir . '/cron.lock'))
 	obExit_cron();

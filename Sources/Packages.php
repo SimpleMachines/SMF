@@ -982,6 +982,10 @@ function PackageInstall()
 	if (!isset($old_version) || $context['is_installed'])
 		$install_log = parsePackageInfo($packageInfo['xml'], false, 'install');
 
+	// Disable background tasks while the code is in flux.
+	require_once($sourcedir . '/Subs-Admin.php');
+	updateSettingsFile(['package_installing' => true]);
+
 	$context['install_finished'] = false;
 
 	// @todo Make a log of any errors that occurred and output them?
@@ -1269,6 +1273,9 @@ function PackageInstall()
 
 	// Restore file permissions?
 	create_chmod_control(array(), array(), true);
+
+	// Resume background tasks.
+	updateSettingsFile(['package_installing' => null]);
 }
 
 /**
