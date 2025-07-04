@@ -32,12 +32,12 @@ class Center extends BBCode
 	/**
 	 *
 	 */
-	public ?string $before = '<div class="centertext"><div class="inline-block">';
+	public ?string $before = '<div class="centertext">';
 
 	/**
 	 *
 	 */
-	public ?string $after = '</div></div>';
+	public ?string $after = '</div>';
 
 	/**
 	 *
