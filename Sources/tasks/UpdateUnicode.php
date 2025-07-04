@@ -409,6 +409,18 @@ class Update_Unicode extends SMF_BackgroundTask
 		if (empty($this->temp_dir))
 			return true;
 
+		// Prevent race conditions.
+		if (is_file($this->temp_dir . DIRECTORY_SEPARATOR . 'lock'))
+			return true;
+
+		if (!@touch($this->temp_dir . DIRECTORY_SEPARATOR . 'lock'))
+			return true;
+
+		register_shutdown_function(function () {
+			if (file_exists($this->temp_dir . DIRECTORY_SEPARATOR . 'lock'))
+				unlink($this->temp_dir . DIRECTORY_SEPARATOR . 'lock');
+		});
+
 		// Do we even need to update?
 		if (!$this->should_update())
 		{
@@ -542,20 +554,23 @@ class Update_Unicode extends SMF_BackgroundTask
 		{
 			require_once($sourcedir . '/Subs-Admin.php');
 
-			$done_files = array();
+			foreach ($this->funcs as $func_name => $func_info)
+			{
+				$file_paths['temp'] = $this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'];
+
+				// If the temp file went missing, bail out immediately.
+				if (!is_readable($file_paths['temp']) || !is_writable($file_paths['temp']))
+					return true;
+
+				// Add closing PHP tag to the temp file.
+				if (!preg_match('/[?]>$/', file_get_contents($file_paths['temp'])))
+					file_put_contents($file_paths['temp'], '?' . '>', FILE_APPEND);
+			}
 
 			foreach ($this->funcs as $func_name => $func_info)
 			{
 				$file_paths['temp'] = $this->temp_dir . DIRECTORY_SEPARATOR . $func_info['file'];
 				$file_paths['real'] = $this->unicodedir . DIRECTORY_SEPARATOR . $func_info['file'];
-
-				if (in_array($file_paths['temp'], $done_files))
-					continue;
-
-				// Add closing PHP tag to the temp file.
-				file_put_contents($file_paths['temp'], '?' . '>', FILE_APPEND);
-
-				$done_files[] = $file_paths['temp'];
 
 				// Only move if the file has changed, discounting the license block.
 				foreach (array('temp', 'real') as $f)
@@ -568,8 +583,14 @@ class Update_Unicode extends SMF_BackgroundTask
 						$file_contents[$f] = '';
 				}
 
-				if ($file_contents['temp'] !== $file_contents['real'])
+				if ($file_contents['temp'] === '')
+				{
+					$success = false;
+				}
+				elseif ($file_contents['temp'] !== $file_contents['real'])
+				{
 					$success &= safe_file_write($file_paths['real'], file_get_contents($file_paths['temp']), $file_paths['real'] . '.bak', time() + 1);
+				}
 			}
 
 			// If we wrote all the files successfully, remove the backup files.
