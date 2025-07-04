@@ -80,7 +80,7 @@ function log_error($error_message, $error_type = 'general', $file = null, $line 
 
 	// Find the best query string we can...
 	if (SMF === 'SSI')
-		$query_string = $_SERVER['REQUEST_URL'] ?? (($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['SERVER_NAME'] ?? 'unknown') . '/' . ($_SERVER['REQUEST_URI'] ?? (($_SERVER['DOCUMENT_URI'] ?? $_SERVER['SCRIPT_NAME']	?? 'unknown.php') . !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')));
+		$query_string = (($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['SERVER_NAME'] ?? 'unknown') . '/' . ($_SERVER['REQUEST_URI'] ?? (($_SERVER['DOCUMENT_URI'] ?? $_SERVER['SCRIPT_NAME']	?? 'unknown.php') . !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')));
 	else
 		$query_string = empty($_SERVER['QUERY_STRING']) ? (empty($_SERVER['REQUEST_URL']) ? '' : str_replace($scripturl, '', $_SERVER['REQUEST_URL'])) : $_SERVER['QUERY_STRING'];
 
