@@ -520,23 +520,33 @@ class Punycode
 		require_once($sourcedir . '/Subs-Charset.php');
 
 		$regexes = idna_regex();
-
-		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $domain))
-			$errors[] = 'disallowed';
-
-		$domain = preg_replace('/[' . $regexes['ignored'] . ']/u', '', $domain);
-
-		unset($regexes);
-
 		$maps = idna_maps();
 
-		if (!$this->nonTransitional)
+		if (!$this->nonTransitional && function_exists('idna_maps_deviation'))
 			$maps = array_merge($maps, idna_maps_deviation());
 
-		if (!$this->std3)
+		if (!$this->std3 && function_exists('idna_maps_not_std3'))
 			$maps = array_merge($maps, idna_maps_not_std3());
 
-		return utf8_normalize_c(strtr($domain, $maps));
+		$labels = explode('.', $domain);
+
+		foreach ($labels as $l => $label) {
+			$label = preg_replace('/[' . $regexes['ignored'] . ']/u', '', $label);
+
+			$label = utf8_normalize_c(strtr($label, $maps));
+
+			if ($this->std3)
+				$label = strtolower($label);
+
+			if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] ?? '\x{0}-\x{2C}\x{2E}-\x{2F}\x{3A}-\x{60}\x{7B}-\x{7F}' : '') . ']/u', $label))
+				$errors[] = 'disallowed';
+
+			$labels[$l] = $label;
+		}
+
+		$errors = array_unique($errors);
+
+		return implode('.', $labels);
 	}
 
 	/**
@@ -594,7 +604,7 @@ class Punycode
 
 		$regexes = idna_regex();
 
-		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] : '') . ']/u', $label))
+		if (preg_match('/[' . $regexes['disallowed'] . ($this->std3 ? $regexes['disallowed_std3'] ?? '\x{0}-\x{2C}\x{2E}-\x{2F}\x{3A}-\x{60}\x{7B}-\x{7F}' : '') . ']/u', $label))
 		{
 			return self::IDNA_ERROR_INVALID_ACE_LABEL;
 		}
