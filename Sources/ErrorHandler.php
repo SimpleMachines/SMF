@@ -238,18 +238,21 @@ class ErrorHandler
 		$file = str_replace('\\', '/', $file);
 
 		// Find the best path and query string we can...
-		if (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
-			$query_string = substr($_SERVER['REQUEST_URL'], strlen(Config::$boardurl));
+		if (SMF === 'SSI') {
+			$request_url = (($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['SERVER_NAME'] ?? 'unknown') . '/' . ($_SERVER['REQUEST_URI'] ?? (($_SERVER['DOCUMENT_URI'] ?? $_SERVER['SCRIPT_NAME']	?? 'unknown.php') . !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')));
+		}
+		else if (str_starts_with(($_SERVER['REQUEST_URL'] ?? ''), Config::$boardurl)) {
+			$request_url = substr($_SERVER['REQUEST_URL'], strlen(Config::$boardurl));
 		} else {
-			$query_string = ($_SERVER['REQUEST_URL'] ?? '');
+			$request_url = ($_SERVER['REQUEST_URL'] ?? '');
 		}
 
 		// Don't log the session hash in the url twice, it's a waste.
-		$query_string = Utils::htmlspecialchars(preg_replace(['~([?&;]sesc)=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], ['$1', ''], $query_string));
+		$request_url = Utils::htmlspecialchars(preg_replace(['~([?&;]sesc)=[^&;]+~', '~' . session_name() . '=' . session_id() . '[&;]~'], ['$1', ''], $request_url));
 
 		// Just so we know what board error messages are from.
-		if (isset($_POST['board']) && !isset($_GET['board'])) {
-			$query_string .= ($query_string == '' ? 'board=' : ';board=') . $_POST['board'];
+		if (isset($_POST['board']) && !isset($_GET['board']) && SMF !== 'SSI') {
+			$request_url .= ($request_url == '' ? 'board=' : ';board=') . $_POST['board'];
 		}
 
 		// This prevents us from infinite looping if the hook or call produces an error.
@@ -276,7 +279,7 @@ class ErrorHandler
 			User::$me->id ?? User::$my_id ?? 0,
 			time(),
 			User::$me->ip ?? $_SERVER['REMOTE_ADDR'] ?? '',
-			$query_string,
+			$request_url,
 			$error_message,
 			(string) (User::$sc ?? ''),
 			$error_type,
