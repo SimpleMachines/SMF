@@ -3237,7 +3237,7 @@ class User implements \ArrayAccess
 			['themes', 'id_member'],
 		];
 
-		foreach($set_tables as $d) {
+		foreach ($set_tables as $d) {
 			Db::$db->query(
 				'UPDATE {db_prefix}{raw:table}
 				SET {raw:col} = {int:guest_id}
@@ -3254,7 +3254,7 @@ class User implements \ArrayAccess
 		// Delete personal messages.
 		PM::delete(null, null, $users);
 
-		foreach($delete_tables as $d) {
+		foreach ($delete_tables as $d) {
 			Db::$db->query(
 				'DELETE FROM {db_prefix}{raw:table}
 				WHERE {raw:col} IN ({array_int:users})' . ($d[2] ?? ''),
