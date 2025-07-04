@@ -582,6 +582,21 @@ class UpdateUnicode extends BackgroundTask
 			return true;
 		}
 
+		// Prevent race conditions.
+		if (is_file($this->temp_dir . DIRECTORY_SEPARATOR . 'lock')) {
+			return true;
+		}
+
+		if (!@touch($this->temp_dir . DIRECTORY_SEPARATOR . 'lock')) {
+			return true;
+		}
+
+		register_shutdown_function(function () {
+			if (file_exists($this->temp_dir . DIRECTORY_SEPARATOR . 'lock')) {
+				unlink($this->temp_dir . DIRECTORY_SEPARATOR . 'lock');
+			}
+		});
+
 		// Do we even need to update?
 		if (!$this->should_update()) {
 			$this->deltree($this->temp_dir);
