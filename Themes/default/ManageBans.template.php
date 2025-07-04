@@ -184,7 +184,7 @@ function template_ban_edit()
 			</div><!-- .windowbg -->
 		</form>';
 
-	if (!$context['ban']['is_new'] && empty($context['ban_suggestions']) && !empty($context['ban_list']))
+	if (!$context['ban']['is_new'] && empty($context['ban_suggestions']))
 	{
 		echo '
 		<br>';
