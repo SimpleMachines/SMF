@@ -150,8 +150,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 				// Make the request, if it fails, move on.
 				try {
 					$fetcher->request($url, $post_data);
-				}
-				catch (\Exception $ex) {
+				} catch (\Exception $ex) {
 					continue;
 				}
 
