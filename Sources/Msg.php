@@ -2764,7 +2764,7 @@ class Msg implements \ArrayAccess, Routable
 
 			// Delete attachment(s) if they exist.
 			$attachmentQuery = [
-				'attachment_type' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'id_msg' => $message,
 			];
 
