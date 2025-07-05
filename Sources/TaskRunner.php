@@ -573,7 +573,7 @@ class TaskRunner
 		}
 
 		// Normally, the class should be specified using its fully qualified name.
-		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], SMF_BackgroundTask::class)) {
+		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], BackgroundTask::class)) {
 			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
 
 			$bgtask = new $task_details['task_class']($details);
