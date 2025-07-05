@@ -1215,6 +1215,10 @@ class ReportedContent implements ActionInterface
 
 		$report = $this->getReportDetails($report_id);
 
+		if (empty($report)) {
+			return;
+		}
+
 		if ($this->type == 'members') {
 			$prefix = 'Member';
 			$data = [
