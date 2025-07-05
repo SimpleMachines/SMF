@@ -2289,7 +2289,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return '\'' . mysqli_real_escape_string($this->temp_connection, $matches[2]) . '\'';
 		}
 
-		if (!isset($this->temp_values[$matches[2]])) {
+		if (!array_key_exists($matches[2], $this->temp_values)) {
 			$this->error_backtrace('The database value you\'re trying to insert does not exist: ' . Utils::htmlspecialchars($matches[2]), '', E_USER_ERROR, __FILE__, __LINE__);
 		}
 
