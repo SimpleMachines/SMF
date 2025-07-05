@@ -616,7 +616,7 @@ class TaskRunner
 	 * Checks if a task is locked into a single instance.
 	 * While checking, we obtain a exclusive lock to run this task.
 	 *
-	 * @param \SMF_BackgroundTask $task
+	 * @param SMF\Tasks\BackgroundTask $task
 	 * @return bool True if we obtained a lock, false otherwse.
 	 */
 	protected function tryTaskLock(SMF_BackgroundTask $task): bool
