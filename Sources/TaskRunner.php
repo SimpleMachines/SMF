@@ -579,7 +579,7 @@ class TaskRunner
 			$bgtask = new $task_details['task_class']($details);
 		}
 		// Just in case a mod or something specified a task without giving the namespace.
-		elseif (class_exists('SMF\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], SMF_BackgroundTask::class)) {
+		elseif (class_exists('SMF\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], BackgroundTask::class)) {
 			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
 
 			$task_class = 'SMF\\Tasks\\' . $task_details['task_class'];
