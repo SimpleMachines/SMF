@@ -32,12 +32,12 @@ class Right extends BBCode
 	/**
 	 *
 	 */
-	public ?string $before = '<div class="righttext"><div class="inline-block">';
+	public ?string $before = '<div class="righttext">';
 
 	/**
 	 *
 	 */
-	public ?string $after = '</div></div>';
+	public ?string $after = '</div>';
 
 	/**
 	 *
