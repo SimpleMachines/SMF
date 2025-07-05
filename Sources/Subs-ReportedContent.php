@@ -655,6 +655,9 @@ function saveModComment($report_id, $data)
 
 	$report = getReportDetails($report_id);
 
+	if (empty($report))
+		return false;
+
 	if ($context['report_type'] == 'members')
 	{
 		$prefix = 'Member';
