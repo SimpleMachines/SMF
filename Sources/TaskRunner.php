@@ -619,7 +619,7 @@ class TaskRunner
 	 * @param SMF\Tasks\BackgroundTask $task
 	 * @return bool True if we obtained a lock, false otherwse.
 	 */
-	protected function tryTaskLock(SMF_BackgroundTask $task): bool
+	protected function tryTaskLock(BackgroundTask $task): bool
 	{
 		// If this task allows multiple instances, its never locked.
 		if (empty($task->allow_only_single_instance)) {
