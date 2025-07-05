@@ -16,6 +16,8 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Tasks\ScheduledTask;
+use SMF_BackgroundTask;
 
 /**
  * Runs background tasks (a.k.a. cron jobs), including scheduled tasks.
@@ -108,6 +110,12 @@ class TaskRunner
 			'class' => 'SMF\\Tasks\\PruneLogTopics',
 		],
 	];
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	protected $fp = null;
 
 	/****************
 	 * Public methods
@@ -565,22 +573,18 @@ class TaskRunner
 		}
 
 		// Normally, the class should be specified using its fully qualified name.
-		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
+		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], SMF_BackgroundTask::class)) {
 			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
 
 			$bgtask = new $task_details['task_class']($details);
-
-			$success = $bgtask->execute();
 		}
 		// Just in case a mod or something specified a task without giving the namespace.
-		elseif (class_exists('SMF\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
+		elseif (class_exists('SMF\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], SMF_BackgroundTask::class)) {
 			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
 
 			$task_class = 'SMF\\Tasks\\' . $task_details['task_class'];
 
 			$bgtask = new $task_class($details);
-
-			$success = $bgtask->execute();
 		}
 		// Uh-oh...
 		else {
@@ -590,13 +594,71 @@ class TaskRunner
 			return true;
 		}
 
+		// The task may only allow a single instance, stop it.
+		if (!$this->tryTaskLock($bgtask)) {
+			return false;
+		}
+
+		$success = $bgtask->execute();
+
+		$this->unlockTask($bgtask);
+
 		// For scheduled tasks, log it and update our next scheduled task time.
-		if (is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
+		if (is_subclass_of($bgtask, ScheduledTask::class)) {
 			$bgtask->log();
 			Tasks\ScheduledTask::updateNextTaskTime();
 		}
 
 		return $success;
+	}
+
+	/**
+	 * Checks if a task is locked into a single instance.
+	 * While checking, we obtain a exclusive lock to run this task.
+	 *
+	 * @param \SMF_BackgroundTask $task
+	 * @return bool True if we obtained a lock, false otherwse.
+	 */
+	protected function tryTaskLock(SMF_BackgroundTask $task): bool
+	{
+		// If this task allows multiple instances, its never locked.
+		if (empty($task->allow_only_single_instance)) {
+			return true;
+		}
+
+		$token_file = Config::$cachedir . DIRECTORY_SEPARATOR . md5($task::class) . '.lock';
+
+		// File exists, but its old.
+		if (file_exists($token_file) && (filectime($token_file) + MAX_CLAIM_THRESHOLD) <= time()) {
+			@unlink($token_file);
+		}
+
+		// Try to obtain a exclusive lock.
+		return (bool) (
+			!file_exists($token_file)
+			&& ($this->fp = fopen($token_file, 'c'))
+			&& flock($this->fp, LOCK_EX)
+		);
+	}
+
+	/**
+	 * Releases a lock on a task.
+	 * Does not check if the task allows mulitple instances, checks if we have any resource or file in use.
+	 *
+	 * @param \SMF_BackgroundTask $task
+	 */
+	protected function unlockTask(SMF_BackgroundTask $task): void
+	{
+		$token_file = Config::$cachedir . DIRECTORY_SEPARATOR . md5($task::class) . '.lock';
+
+		if (is_resource($this->fp)) {
+			flock($this->fp, LOCK_UN);
+			fclose($this->fp);
+		}
+
+		if (file_exists($token_file)) {
+			unlink($token_file);
+		}
 	}
 
 	/**

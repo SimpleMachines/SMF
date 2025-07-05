@@ -60,6 +60,11 @@ class UpdateUnicode extends BackgroundTask
 	 */
 	public $unicodedir = '';
 
+	/**
+	 * @var bool Only allow a single insstance to run.
+	 */
+	public bool $allow_only_single_instance = true;
+
 	/*********************
 	 * Internal properties
 	 *********************/

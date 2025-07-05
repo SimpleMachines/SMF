@@ -32,6 +32,19 @@ abstract class BackgroundTask
 	public const RECEIVE_NOTIFY_EMAIL = 0x02;
 	public const RECEIVE_NOTIFY_ALERT = 0x01;
 
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 * If this is true, we only allow a single instance of this task to ever run at once.
+	 * If another is found, we will not run the task yet.
+	 * This does not delete the task, as it will be marked as failed to run.
+	 *
+	 * @var bool
+	 */
+	public bool $allow_only_single_instance = false;
+
 	/*********************
 	 * Internal properties
 	 *********************/
