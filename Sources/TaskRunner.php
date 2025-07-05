@@ -647,7 +647,7 @@ class TaskRunner
 	 *
 	 * @param \SMF_BackgroundTask $task
 	 */
-	protected function unlockTask(SMF_BackgroundTask $task): void
+	protected function unlockTask(BackgroundTask $task): void
 	{
 		$token_file = Config::$cachedir . DIRECTORY_SEPARATOR . md5($task::class) . '.lock';
 
