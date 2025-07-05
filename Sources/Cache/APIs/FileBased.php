@@ -252,6 +252,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 			if (!$fp->flock(LOCK_SH)) {
 				$fp = null;
+
 				return false;
 			}
 
@@ -265,8 +266,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 			$fp = null;
 
 			return $string;
-		}
-		catch (\Exception $ex) {
+		} catch (\Exception $ex) {
 			if ($fp !== null) {
 				$fp->flock(LOCK_UN);
 				$fp = null;
@@ -283,6 +283,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 
 			if (!$fp->flock(LOCK_EX)) {
 				$fp = null;
+
 				return false;
 			}
 
@@ -302,8 +303,7 @@ class FileBased extends CacheApi implements CacheApiInterface
 			$fp = null;
 
 			return $bytes;
-		}
-		catch (\Exception $ex) {
+		} catch (\Exception $ex) {
 			if ($fp !== null) {
 				$fp->flock(LOCK_UN);
 				$fp = null;
