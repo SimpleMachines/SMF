@@ -17,7 +17,7 @@ namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\Tasks\ScheduledTask;
-use SMF_BackgroundTask;
+use SMF\Tasks\BackgroundTask;
 
 /**
  * Runs background tasks (a.k.a. cron jobs), including scheduled tasks.
