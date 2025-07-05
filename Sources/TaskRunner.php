@@ -606,7 +606,7 @@ class TaskRunner
 		// For scheduled tasks, log it and update our next scheduled task time.
 		if (is_subclass_of($bgtask, ScheduledTask::class)) {
 			$bgtask->log();
-			Tasks\ScheduledTask::updateNextTaskTime();
+			ScheduledTask::updateNextTaskTime();
 		}
 
 		return $success;
