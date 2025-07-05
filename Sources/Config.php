@@ -2772,7 +2772,7 @@ class Config
 		}
 
 		if (!isset($db_last_error)) {
-			self::updateDbLastError(0);
+			self::updateDbLastError(0, true);
 		} else {
 			self::$db_last_error = (int) $db_last_error;
 		}
