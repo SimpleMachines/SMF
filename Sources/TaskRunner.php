@@ -645,7 +645,7 @@ class TaskRunner
 	 * Releases a lock on a task.
 	 * Does not check if the task allows mulitple instances, checks if we have any resource or file in use.
 	 *
-	 * @param \SMF_BackgroundTask $task
+	 * @param SMF\Tasks\BackgroundTask $task
 	 */
 	protected function unlockTask(BackgroundTask $task): void
 	{
