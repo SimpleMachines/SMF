@@ -640,6 +640,11 @@ function saveModComment($report_id, $data)
 	if (empty($data))
 		return false;
 
+	$report = getReportDetails($report_id);
+
+	if (empty($report))
+		return false;
+
 	$data = array_merge(array($user_info['id'], $user_info['name'], 'reportc', ''), $data);
 
 	$last_comment = $smcFunc['db_insert']('',
@@ -652,11 +657,6 @@ function saveModComment($report_id, $data)
 		array('id_comment'),
 		1
 	);
-
-	$report = getReportDetails($report_id);
-
-	if (empty($report))
-		return false;
 
 	if ($context['report_type'] == 'members')
 	{
