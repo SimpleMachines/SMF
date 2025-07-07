@@ -16,6 +16,8 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Tasks\BackgroundTask;
+use SMF\Tasks\ScheduledTask;
 
 /**
  * Runs background tasks (a.k.a. cron jobs), including scheduled tasks.
@@ -323,7 +325,7 @@ class TaskRunner
 			$bgtask = new $task_details['task_class']($task_details['task_data']);
 
 			// If the instance isn't actually a scheduled task, skip it.
-			if (!is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
+			if (!is_subclass_of($bgtask, ScheduledTask::class)) {
 				continue;
 			}
 
@@ -565,7 +567,10 @@ class TaskRunner
 		}
 
 		// Normally, the class should be specified using its fully qualified name.
-		if (class_exists($task_details['task_class']) && is_subclass_of($task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
+		if (
+			class_exists($task_details['task_class'])
+			&& is_subclass_of($task_details['task_class'], BackgroundTask::class)
+		) {
 			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
 
 			$bgtask = new $task_details['task_class']($details);
@@ -573,7 +578,10 @@ class TaskRunner
 			$success = $bgtask->execute();
 		}
 		// Just in case a mod or something specified a task without giving the namespace.
-		elseif (class_exists('SMF\\Tasks\\' . $task_details['task_class']) && is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], 'SMF\\Tasks\\BackgroundTask')) {
+		elseif (
+			class_exists('SMF\\Tasks\\' . $task_details['task_class'])
+			&& is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], BackgroundTask::class)
+		) {
 			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
 
 			$task_class = 'SMF\\Tasks\\' . $task_details['task_class'];
@@ -591,7 +599,7 @@ class TaskRunner
 		}
 
 		// For scheduled tasks, log it and update our next scheduled task time.
-		if (is_subclass_of($bgtask, 'SMF\\Tasks\\ScheduledTask')) {
+		if (is_subclass_of($bgtask, ScheduledTask::class)) {
 			$bgtask->log();
 			Tasks\ScheduledTask::updateNextTaskTime();
 		}

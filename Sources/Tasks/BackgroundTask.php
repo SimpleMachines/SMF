@@ -37,9 +37,11 @@ abstract class BackgroundTask
 	 *********************/
 
 	/**
-	 * @var array Holds the details for the task
+	 * @var array
+	 *
+	 * Holds the details for the task
 	 */
-	protected $_details;
+	protected array $_details;
 
 	/****************
 	 * Public methods
@@ -56,14 +58,14 @@ abstract class BackgroundTask
 	}
 
 	/**
-	 * The function to actually execute a task
+	 * The function to actually execute a task.
 	 *
 	 * @return mixed
 	 */
 	abstract public function execute();
 
 	/**
-	 * Loads minimal info for the previously loaded user ids
+	 * Loads minimal info for the previously loaded user ids.
 	 *
 	 * @param array $user_ids
 	 * @throws \Exception

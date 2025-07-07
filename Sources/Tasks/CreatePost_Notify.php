@@ -68,7 +68,9 @@ class CreatePost_Notify extends BackgroundTask
 	 *********************/
 
 	/**
-	 * @var array Info about members to be notified.
+	 * @var array
+	 *
+	 * Info about members to be notified.
 	 */
 	private $members = [
 		// These three contain nested arrays of member info.
@@ -84,18 +86,24 @@ class CreatePost_Notify extends BackgroundTask
 	];
 
 	/**
-	 * @var array Alerts to be inserted into the alerts table.
+	 * @var array
+	 *
+	 * Alerts to be inserted into the alerts table.
 	 */
 	private $alert_rows = [];
 
 	/**
-	 * @var array Members' notification and alert preferences.
+	 * @var array
+	 *
+	 * Members' notification and alert preferences.
 	 */
 	private $prefs = [];
 
 	/**
-	 * @var int Timestamp after which email notifications should be sent about
-	 *			mentions and quotes in unwatched and/or edited posts.
+	 * @var int
+	 *
+	 * Timestamp after which email notifications should be sent about mentions
+	 * and quotes in unwatched and/or edited posts.
 	 */
 	private $mention_mail_time = 0;
 

@@ -76,17 +76,23 @@ class ExportProfileData extends BackgroundTask
 	 *********************/
 
 	/**
-	 * @var array Info to create a follow-up background task, if necessary.
+	 * @var array
+	 *
+	 * Info to create a follow-up background task, if necessary.
 	 */
 	private array $next_task = [];
 
 	/**
-	 * @var int Used to ensure we exit long running tasks cleanly.
+	 * @var int
+	 *
+	 * Used to ensure we exit long running tasks cleanly.
 	 */
 	private int $time_limit = 30;
 
 	/**
-	 * @var array The XSLT stylesheet, broken up into logical parts.
+	 * @var array
+	 *
+	 * The XSLT stylesheet, broken up into logical parts.
 	 */
 	private array $xslt_stylesheet = [
 		// Header for the stylesheet. Default value assumes that the stylesheet
@@ -853,7 +859,9 @@ class ExportProfileData extends BackgroundTask
 	];
 
 	/**
-	 * @var string The XSLT stylesheet as a single string.
+	 * @var string
+	 *
+	 * The XSLT stylesheet as a single string.
 	 */
 	private string $stylesheet;
 
