@@ -665,24 +665,11 @@ class UpdateUnicode extends BackgroundTask
 				$max_fetch_time = max($max_fetch_time, microtime(true) - $fetch_start);
 
 				// If prefetch is taking a really long time, pause and try again later.
-				if ($local_file === false || microtime(true) - TIME_START >= $this->time_limit - $max_fetch_time) {
-					Db::$db->insert(
-						'',
-						'{db_prefix}background_tasks',
-						[
-							'task_class' => 'string',
-							'task_data' => 'string',
-							'claimed_time' => 'int',
-						],
-						[
-							[
-								'SMF\\Tasks\\Update_Unicode',
-								'',
-								time() - MAX_CLAIM_THRESHOLD,
-							],
-						],
-						['id_task'],
-					);
+				if (
+					$local_file === false
+					|| microtime(true) - TIME_START >= $this->time_limit - $max_fetch_time
+				) {
+					$this->respawn($this->_details);
 
 					return true;
 				}

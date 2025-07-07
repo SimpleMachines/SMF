@@ -24,7 +24,6 @@ use SMF\Lang;
 use SMF\Mail;
 use SMF\Mentions;
 use SMF\Parser;
-use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -367,23 +366,7 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			if ($new_details['respawns']++ < 10) {
-				Db::$db->insert(
-					'',
-					'{db_prefix}background_tasks',
-					[
-						'task_class' => 'string',
-						'task_data' => 'string',
-						'claimed_time' => 'int',
-					],
-					[
-						[
-							'SMF\\Tasks\\CreatePost_Notify',
-							Utils::jsonEncode($new_details),
-							max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),
-						],
-					],
-					['id_task'],
-				);
+				$this->respawn($new_details, $this->mention_mail_time);
 			}
 		}
 

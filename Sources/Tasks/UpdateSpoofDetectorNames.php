@@ -114,37 +114,9 @@ class UpdateSpoofDetectorNames extends BackgroundTask
 		}
 
 		if ($this->_details['last_member_id'] < Config::$modSettings['latestMember']) {
-			$this->respawn();
+			$this->respawn($this->_details);
 		}
 
 		return true;
-	}
-
-	/******************
-	 * Internal methods
-	 ******************/
-
-	/**
-	 * Adds a new instance of this task to the task list.
-	 */
-	private function respawn(): void
-	{
-		Db::$db->insert(
-			'insert',
-			'{db_prefix}background_tasks',
-			[
-				'task_class' => 'string-255',
-				'task_data' => 'string',
-				'claimed_time' => 'int',
-			],
-			[
-				[
-					get_class($this),
-					json_encode($this->_details),
-					0,
-				],
-			],
-			[],
-		);
 	}
 }
