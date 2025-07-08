@@ -138,12 +138,6 @@ class TaskRunner
 				ErrorHandler::displayMaintenanceMessage();
 			}
 
-			// Have we already turned this off? If so, exist gracefully.
-			// @todo Remove this? It's a bad idea to ever disable background tasks.
-			if (file_exists(Config::$cachedir . '/cron.lock')) {
-				$this->obExit();
-			}
-
 			Security::frameOptionsHeader();
 
 			// Before we go any further, if this is not a CLI request, we need to do some checking.
@@ -575,6 +569,10 @@ class TaskRunner
 
 			$bgtask = new $task_details['task_class']($details);
 
+			if (!$bgtask->canExecute()) {
+				return true;
+			}
+
 			$success = $bgtask->execute();
 		}
 		// Just in case a mod or something specified a task without giving the namespace.
@@ -587,6 +585,10 @@ class TaskRunner
 			$task_class = 'SMF\\Tasks\\' . $task_details['task_class'];
 
 			$bgtask = new $task_class($details);
+
+			if (!$bgtask->canExecute()) {
+				return true;
+			}
 
 			$success = $bgtask->execute();
 		}
@@ -603,6 +605,9 @@ class TaskRunner
 			$bgtask->log();
 			Tasks\ScheduledTask::updateNextTaskTime();
 		}
+
+		// Trigger the destructor now.
+		unset($bgtask);
 
 		return $success;
 	}

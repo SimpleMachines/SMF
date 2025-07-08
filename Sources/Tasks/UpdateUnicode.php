@@ -71,6 +71,11 @@ class UpdateUnicode extends BackgroundTask
 	 *********************/
 
 	/**
+	 *
+	 */
+	protected bool $allow_concurrent = false;
+
+	/**
 	 * @var int
 	 *
 	 * Used to ensure we exit long running tasks cleanly.
@@ -592,21 +597,6 @@ class UpdateUnicode extends BackgroundTask
 		if (empty($this->temp_dir)) {
 			return true;
 		}
-
-		// Prevent race conditions.
-		if (is_file($this->temp_dir . DIRECTORY_SEPARATOR . 'lock')) {
-			return true;
-		}
-
-		if (!@touch($this->temp_dir . DIRECTORY_SEPARATOR . 'lock')) {
-			return true;
-		}
-
-		register_shutdown_function(function () {
-			if (file_exists($this->temp_dir . DIRECTORY_SEPARATOR . 'lock')) {
-				unlink($this->temp_dir . DIRECTORY_SEPARATOR . 'lock');
-			}
-		});
 
 		// Do we even need to update?
 		if (!$this->should_update()) {

@@ -27,6 +27,15 @@ use SMF\Utils;
  */
 class UpdateSpoofDetectorNames extends BackgroundTask
 {
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	/**
+	 *
+	 */
+	protected bool $allow_concurrent = false;
+
 	/****************
 	 * Public methods
 	 ****************/

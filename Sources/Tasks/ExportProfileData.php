@@ -75,6 +75,11 @@ class ExportProfileData extends BackgroundTask
 	 *********************/
 
 	/**
+	 *
+	 */
+	protected bool $allow_concurrent = false;
+
+	/**
 	 * @var array
 	 *
 	 * Info to create a follow-up background task, if necessary.
@@ -883,6 +888,21 @@ class ExportProfileData extends BackgroundTask
 	/****************
 	 * Public methods
 	 ****************/
+
+	/**
+	 * The constructor.
+	 *
+	 * @param array $details The details for the task
+	 */
+	public function __construct(array $details)
+	{
+		parent::__construct($details);
+
+		// Include the user ID in the md5 hash because we only want to prevent
+		// concurrent tasks from working on the same user's data simultaneously.
+		// It's fine to have concurrent tasks working on different users' data.
+		$this->lockfile = Sapi::getTempDir() . DIRECTORY_SEPARATOR . Config::$modSettings['forum_uuid'] . '-' . md5(get_class($this) . $this->_details['uid']) . '.lock';
+	}
 
 	/**
 	 * This is the main dispatcher for the class.
