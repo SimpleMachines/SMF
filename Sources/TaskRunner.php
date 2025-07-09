@@ -565,32 +565,14 @@ class TaskRunner
 			class_exists($task_details['task_class'])
 			&& is_subclass_of($task_details['task_class'], BackgroundTask::class)
 		) {
-			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
-
-			$bgtask = new $task_details['task_class']($details);
-
-			if (!$bgtask->canExecute()) {
-				return true;
-			}
-
-			$success = $bgtask->execute();
+			$task_class = $task_details['task_class'];
 		}
 		// Just in case a mod or something specified a task without giving the namespace.
 		elseif (
 			class_exists('SMF\\Tasks\\' . $task_details['task_class'])
 			&& is_subclass_of('SMF\\Tasks\\' . $task_details['task_class'], BackgroundTask::class)
 		) {
-			$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
-
 			$task_class = 'SMF\\Tasks\\' . $task_details['task_class'];
-
-			$bgtask = new $task_class($details);
-
-			if (!$bgtask->canExecute()) {
-				return true;
-			}
-
-			$success = $bgtask->execute();
 		}
 		// Uh-oh...
 		else {
@@ -599,6 +581,16 @@ class TaskRunner
 			// So we clear it from the queue.
 			return true;
 		}
+
+		$details = empty($task_details['task_data']) ? [] : Utils::jsonDecode($task_details['task_data'], true);
+
+		$bgtask = new $task_class($details);
+
+		if (!$bgtask->canExecute()) {
+			return true;
+		}
+
+		$success = $bgtask->execute();
 
 		// For scheduled tasks, log it and update our next scheduled task time.
 		if (is_subclass_of($bgtask, ScheduledTask::class)) {
