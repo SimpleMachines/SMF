@@ -2168,6 +2168,12 @@ class Msg implements \ArrayAccess, Routable
 			}
 		}
 
+		if (!empty(CacheApi::$enable) && CacheApi::$enable >= 3) {
+			foreach ($board_changes as $b => $junk) {
+				CacheApi::put('board-' . $b, null, 120);
+			}
+		}
+
 		// In case an external CMS needs to know about this approval/unapproval.
 		IntegrationHook::call('integrate_after_approve_posts', [$approve, $msgs, $topic_changes, $member_post_changes]);
 
@@ -2800,7 +2806,7 @@ class Msg implements \ArrayAccess, Routable
 
 			// Delete attachment(s) if they exist.
 			$attachmentQuery = [
-				'attachment_type' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'id_msg' => $message,
 			];
 

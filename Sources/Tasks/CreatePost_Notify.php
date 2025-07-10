@@ -24,7 +24,6 @@ use SMF\Lang;
 use SMF\Mail;
 use SMF\Mentions;
 use SMF\Parser;
-use SMF\TaskRunner;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -68,7 +67,9 @@ class CreatePost_Notify extends BackgroundTask
 	 *********************/
 
 	/**
-	 * @var array Info about members to be notified.
+	 * @var array
+	 *
+	 * Info about members to be notified.
 	 */
 	private $members = [
 		// These three contain nested arrays of member info.
@@ -84,18 +85,24 @@ class CreatePost_Notify extends BackgroundTask
 	];
 
 	/**
-	 * @var array Alerts to be inserted into the alerts table.
+	 * @var array
+	 *
+	 * Alerts to be inserted into the alerts table.
 	 */
 	private $alert_rows = [];
 
 	/**
-	 * @var array Members' notification and alert preferences.
+	 * @var array
+	 *
+	 * Members' notification and alert preferences.
 	 */
 	private $prefs = [];
 
 	/**
-	 * @var int Timestamp after which email notifications should be sent about
-	 *			mentions and quotes in unwatched and/or edited posts.
+	 * @var int
+	 *
+	 * Timestamp after which email notifications should be sent about mentions
+	 * and quotes in unwatched and/or edited posts.
 	 */
 	private $mention_mail_time = 0;
 
@@ -359,23 +366,7 @@ class CreatePost_Notify extends BackgroundTask
 			}
 
 			if ($new_details['respawns']++ < 10) {
-				Db::$db->insert(
-					'',
-					'{db_prefix}background_tasks',
-					[
-						'task_class' => 'string',
-						'task_data' => 'string',
-						'claimed_time' => 'int',
-					],
-					[
-						[
-							'SMF\\Tasks\\CreatePost_Notify',
-							Utils::jsonEncode($new_details),
-							max(0, $this->mention_mail_time - TaskRunner::MAX_CLAIM_THRESHOLD),
-						],
-					],
-					['id_task'],
-				);
+				$this->respawn($new_details, $this->mention_mail_time);
 			}
 		}
 

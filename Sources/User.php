@@ -4104,7 +4104,7 @@ class User implements \ArrayAccess
 				'original_url' => $profile['avatar_original'] ?? '',
 				'url' => (string) ($profile['avatar'] ?? ''),
 				'filename' => $profile['filename'] ?? '',
-				'custom_dir' => !empty($profile['attachment_type']) && $profile['attachment_type'] == 1,
+				'custom_dir' => !empty($profile['attachment_type']) && $profile['attachment_type'] == Attachment::TYPE_AVATAR,
 				'id_attach' => $profile['id_attach'] ?? 0,
 				'width' => $profile['attachment_width'] ?? null,
 				'height' => $profile['attachment_height'] ?? null,

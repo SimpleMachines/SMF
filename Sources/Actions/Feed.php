@@ -923,6 +923,7 @@ class Feed implements ActionInterface, Routable
 						[
 							'tag' => 'title',
 							'content' => $row['subject'],
+							'attributes' => ['type' => 'html'],
 							'cdata' => true,
 						],
 						[
@@ -973,7 +974,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'id',
-							'content' => $uuid,
+							'content' => 'urn:uuid:' . $uuid,
 						],
 						[
 							'tag' => 'link',
@@ -1363,6 +1364,7 @@ class Feed implements ActionInterface, Routable
 						[
 							'tag' => 'title',
 							'content' => $row['subject'],
+							'attributes' => ['type' => 'html'],
 							'cdata' => true,
 						],
 						[
@@ -1413,7 +1415,7 @@ class Feed implements ActionInterface, Routable
 						],
 						[
 							'tag' => 'id',
-							'content' => $uuid,
+							'content' => 'urn:uuid:' . $uuid,
 						],
 						[
 							'tag' => 'link',
