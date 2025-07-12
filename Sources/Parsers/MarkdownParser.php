@@ -893,10 +893,8 @@ class MarkdownParser extends Parser
 	 */
 	public static function load(int $output_type = self::OUTPUT_HTML, ?int $hard_breaks = null): self
 	{
-		$hard_breaks = $hard_breaks ?? (int) (Config::$modSettings['markdown_brs'] ?? 0);
-
 		if (!isset(self::$parsers[$output_type][$hard_breaks])) {
-			self::$parsers[$output_type][$hard_breaks] = new self($output_type, $hard_breaks);
+			self::$parsers[$output_type][$hard_breaks] = new self($output_type);
 		}
 
 		return self::$parsers[$output_type][$hard_breaks];
