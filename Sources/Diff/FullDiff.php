@@ -1344,7 +1344,7 @@ class FullDiff extends Diff
 		// Do all the cleanup the constructor normally would.
 		$diff->changes = $diff->consolidate($diff->changes);
 		$diff->changes = $diff->wordsToStrings($diff->changes);
-		$diff->changes = array_filter($diff->changes, fn($c) => !empty($c['old']) || !empty($c['new']));
+		$diff->changes = array_filter(array: $diff->changes, callback: fn($c) => !empty($c['old']) || !empty($c['new']));
 		$diff->changes = array_values($diff->changes);
 
 		return [$diff];
