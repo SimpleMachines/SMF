@@ -195,8 +195,8 @@ class Theme
 		Utils::$context['current_subaction'] = $_REQUEST['sa'] ?? null;
 		Utils::$context['can_register'] = empty(Config::$modSettings['registration_method']) || Config::$modSettings['registration_method'] != 3;
 
-		if (isset(Config::$modSettings['load_average'])) {
-			Utils::$context['load_average'] = Config::$modSettings['load_average'];
+		if (Sapi::getLoadAverage() >= 0.00) {
+			Utils::$context['load_average'] = Sapi::getLoadAverage();
 		}
 
 		$this->loadTemplatesAndLangFiles();

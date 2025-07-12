@@ -603,7 +603,7 @@ class Server implements ActionInterface
 				$_SESSION['adm-save'] = Utils::$context['settings_message']['label'];
 			}
 		} elseif (!self::$loadAverageDisabled) {
-			Utils::$context['settings_message']['label'] = Lang::getTxt('loadavg_warning', [Config::$modSettings['load_average']], file: 'ManageSettings');
+			Utils::$context['settings_message']['label'] = Lang::getTxt('loadavg_warning', [Sapi::getLoadAverage()], file: 'ManageSettings');
 		}
 
 		$config_vars = self::loadBalancingConfigVars();
@@ -1298,27 +1298,7 @@ class Server implements ActionInterface
 		// Assume we can't until proven otherwise.
 		self::$loadAverageDisabled = true;
 
-		// Windows, so we can't.
-		if (DIRECTORY_SEPARATOR === '\\') {
-			return self::$loadAverageDisabled;
-		}
-
-		// Most Linux distros offer a nice file that we can read.
-		Config::$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
-
-		if (!empty(Config::$modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', Config::$modSettings['load_average'], $matches) !== 0) {
-			Config::$modSettings['load_average'] = (float) $matches[1];
-		}
-		// On both Linux and Unix (e.g. macOS), we can we can check shell_exec('uptime').
-		elseif ((Config::$modSettings['load_average'] = @shell_exec('uptime')) !== null && preg_match('~load averages?: (\d+\.\d+)~i', Config::$modSettings['load_average'], $matches) !== 0) {
-			Config::$modSettings['load_average'] = (float) $matches[1];
-		}
-		// No shell_exec('uptime') and no /proc/loadavg, so we can't check.
-		else {
-			unset(Config::$modSettings['load_average']);
-		}
-
-		if (!empty(Config::$modSettings['load_average']) || (isset(Config::$modSettings['load_average']) && Config::$modSettings['load_average'] === 0.0)) {
+		if (!Sapi::isOS(Sapi::OS_WINDOWS) && Sapi::getLoadAverage() >= 0.0) {
 			self::$loadAverageDisabled = false;
 		}
 

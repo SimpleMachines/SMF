@@ -18,7 +18,6 @@ namespace SMF\Actions;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
-use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
@@ -71,24 +70,6 @@ class UnreadReplies extends Unread
 		Utils::$context['page_title'] = Lang::getTxt('unread_replies', file: 'General');
 		$this->linktree_name = Lang::getTxt('unread_replies', file: 'General');
 		$this->action_url = Config::$scripturl . '?action=unreadreplies';
-	}
-
-	/**
-	 * Checks that the load averages aren't too high to show unread replies.
-	 */
-	protected function checkLoadAverage(): void
-	{
-		if (empty(Utils::$context['load_average'])) {
-			return;
-		}
-
-		if (empty(Config::$modSettings['loadavg_unreadreplies'])) {
-			return;
-		}
-
-		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_unreadreplies']) {
-			ErrorHandler::fatalLang('loadavg_unreadreplies_disabled', false);
-		}
 	}
 
 	/**

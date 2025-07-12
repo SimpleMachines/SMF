@@ -26,6 +26,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -278,10 +279,8 @@ class Unread implements ActionInterface, Routable
 		$this->linktree_name = Lang::getTxt('unread_topics_visit', file: 'General');
 		$this->action_url = Config::$scripturl . '?action=unread';
 
-		if (Utils::$context['showing_all_topics']) {
-			$this->checkLoadAverageAll();
-		} else {
-			$this->checkLoadAverage();
+		if (Sapi::isOverloaded(Utils::$context['showing_all_topics'] ? Config::$modSettings['loadavg_allunread'] ?? null : Config::$modSettings['loadavg_unread'] ?? null)) {
+			ErrorHandler::fatalLang(Utils::$context['showing_all_topics'] ? 'loadavg_allunread_disabled' : 'loadavg_unread_disabled', false);
 		}
 
 		Theme::loadTemplate('Recent');
@@ -293,42 +292,6 @@ class Unread implements ActionInterface, Routable
 
 		foreach (Utils::$context['stable_icons'] as $icon) {
 			Utils::$context['icon_sources'][$icon] = 'images_url';
-		}
-	}
-
-	/**
-	 * Checks that the load averages aren't too high to show unread posts.
-	 */
-	protected function checkLoadAverage(): void
-	{
-		if (empty(Utils::$context['load_average'])) {
-			return;
-		}
-
-		if (empty(Config::$modSettings['loadavg_unread'])) {
-			return;
-		}
-
-		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_unread']) {
-			ErrorHandler::fatalLang('loadavg_unread_disabled', false);
-		}
-	}
-
-	/**
-	 * Checks that the load averages aren't too high to show all unread posts.
-	 */
-	protected function checkLoadAverageAll(): void
-	{
-		if (empty(Utils::$context['load_average'])) {
-			return;
-		}
-
-		if (empty(Config::$modSettings['loadavg_allunread'])) {
-			return;
-		}
-
-		if (Utils::$context['load_average'] >= Config::$modSettings['loadavg_allunread']) {
-			ErrorHandler::fatalLang('loadavg_allunread_disabled', false);
 		}
 	}
 

@@ -32,6 +32,7 @@ use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Parser;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -105,11 +106,7 @@ class ShowPosts implements ActionInterface
 		$this->setPageTitle();
 
 		// Is the load average too high to allow searching just now?
-		if (
-			!empty(Utils::$context['load_average'])
-			&& !empty(Config::$modSettings['loadavg_show_posts'])
-			&& Utils::$context['load_average'] >= Config::$modSettings['loadavg_show_posts']
-		) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_show_posts'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_show_posts_disabled', false);
 		}
 
