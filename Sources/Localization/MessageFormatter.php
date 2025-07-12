@@ -183,7 +183,7 @@ class MessageFormatter
 								// Try to guess the currency based on country.
 								else {
 									require_once Config::$sourcedir . '/Unicode/Currencies.php';
-									$country_currencies = country_currencies();
+									$country_currencies = function_exists('country_currencies') ? country_currencies() : [];
 
 									// If the admin wants to prioritize a certain country, use that.
 									if (!empty(Config::$modSettings['timezone_priority_countries'])) {
