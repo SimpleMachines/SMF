@@ -768,7 +768,7 @@ class MarkdownParser extends Parser
 
 		// If the load average is too high, don't parse the Markdown.
 		if ($this->highLoadAverage()) {
-			return $this->message;
+			return $string;
 		}
 
 		if ($from_bbcode_parser) {
