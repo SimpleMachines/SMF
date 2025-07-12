@@ -4090,9 +4090,12 @@ class MarkdownParser extends Parser
 	 * @param string|bool|null $method Either (a) a boolean to return, (b) null
 	 *     to do nothing, or (c) the name of a method, possibly prepended by '!'
 	 *     if the boolean inverse of the method's results are desired.
-	 * @return A callable, a boolean, or null.
+	 * @return callable|false|null
+	 * 		- Null - Invalid method provided.
+	 * 		- False - Method can not be located.
+	 * 		- Callable - All other conditions.
 	 */
-	protected function getMethod(string|bool|null $method): mixed
+	protected function getMethod(string|bool|null $method): callable|bool|null
 	{
 		if (is_null($method)) {
 			return null;
