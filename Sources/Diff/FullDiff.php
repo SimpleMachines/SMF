@@ -379,7 +379,7 @@ class FullDiff extends Diff
 				array_unshift($output, 'optional' . "\n");
 			}
 
-			array_unshift($output, 'diff --smf ' . $path1 . ' ' . $path2 . "\n");
+			array_unshift($output, 'diff --smf ' . $this->label1 . ' ' . $this->label2 . "\n");
 		}
 
 		if (empty($this->changes)) {
