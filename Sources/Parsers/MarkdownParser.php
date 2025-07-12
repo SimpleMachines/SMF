@@ -1349,13 +1349,15 @@ class MarkdownParser extends Parser
 	 * Tests whether a line closes a blockquote.
 	 *
 	 * @param array $line_info Info about the current line.
+	 * @param int $last_container
+	 * @param int $o
 	 * @return bool Whether this line closes a blockquote.
 	 */
 	protected function testClosesQuote(array $line_info, int $last_container, int $o): bool
 	{
 		return (
 			$line_info['string'] === $this->line_info[$line_info['linenum']]['string']
-			&& !$this->testOpensQuote($line_info, $last_container, $o)
+			&& !$this->testOpensQuote($line_info)
 			&& !in_array('p', $line_info['possible_types'])
 		);
 	}
