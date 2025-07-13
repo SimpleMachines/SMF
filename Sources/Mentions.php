@@ -68,7 +68,8 @@ class Mentions
 				'mentioned_by' => array(
 					'id' => $row['id_mentioned_by'],
 					'name' => $row['mentioned_by_name'],
-					'ignored' => !empty($row['mentioned_by_ignored']),
+					// Note that PostgreSQL can return a lowercase t/f for FIND_IN_SET
+					'ignored' => !empty($row['mentioned_by_ignored']) && $row['mentioned_by_ignored'] != 'f',
 				),
 				'lngfile' => $row['lngfile'],
 			);
