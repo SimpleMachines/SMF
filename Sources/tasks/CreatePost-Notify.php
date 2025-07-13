@@ -191,7 +191,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				foreach ($this->members[$member_type] as $member_id => $member_data)
 				{
 					// The member receiving the alert has ignored the member mentioning them.
-					if (!empty($member_data['ignored'])) {
+					if (!empty($member_data['mentioned_by']['ignored'])) {
 						unset($this->members[$member_type][$member_id], $msgOptions[$member_type . '_members'][$member_id]);
 					}
 
