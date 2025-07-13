@@ -213,6 +213,11 @@ class CreatePost_Notify extends BackgroundTask
 		if (!empty($this->members['mentioned']) || !empty($this->members['quoted'])) {
 			foreach (['mentioned', 'quoted'] as $member_type) {
 				foreach ($this->members[$member_type] as $member_id => $member_data) {
+					// The member receiving the alert has ignored the member mentioning them.
+					if (!empty($member_data['ignored'])) {
+						unset($this->members[$member_type][$member_id], $msgOptions[$member_type . '_members'][$member_id]);
+					}
+
 					$is_denied = array_intersect($group_permissions['denied'], $member_data['groups']) != [];
 
 					if (!in_array(1, $member_data['groups']) && ($is_denied || array_intersect($member_data['groups'], $group_permissions['allowed']) == [])) {
