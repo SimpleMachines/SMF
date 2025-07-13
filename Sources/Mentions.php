@@ -44,7 +44,8 @@ class Mentions
 
 		$request = $smcFunc['db_query']('', '
 			SELECT mem.id_member, mem.real_name, mem.email_address, mem.id_group, mem.id_post_group, mem.additional_groups,
-				mem.lngfile, ment.id_member AS id_mentioned_by, ment.real_name AS mentioned_by_name
+				mem.lngfile, ment.id_member AS id_mentioned_by, ment.real_name AS mentioned_by_name,
+				FIND_IN_SET(ment.id_member, mem.pm_ignore_list) AS mentioned_by_ignored
 			FROM {db_prefix}mentions AS m
 				INNER JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_mentioned)
 				INNER JOIN {db_prefix}members AS ment ON (ment.id_member = m.id_member)
@@ -67,6 +68,7 @@ class Mentions
 				'mentioned_by' => array(
 					'id' => $row['id_mentioned_by'],
 					'name' => $row['mentioned_by_name'],
+					'ignored' => !empty($row['mentioned_by_ignored']),
 				),
 				'lngfile' => $row['lngfile'],
 			);
