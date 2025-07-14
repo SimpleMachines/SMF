@@ -317,15 +317,6 @@ class MarkdownParser extends Parser
 	 */
 	public int $output_type = self::OUTPUT_HTML;
 
-	/**
-	 * @var int
-	 *
-	 * How to render line breaks.
-	 *
-	 * Value should be a bitmask of this class's BR_* constants.
-	 */
-	public int $hard_breaks = 0;
-
 	/*********************
 	 * Internal properties
 	 *********************/
@@ -885,19 +876,15 @@ class MarkdownParser extends Parser
 	 * @param int $output_type The type of output to generate.
 	 *    Value must be one of this class's OUTPUT_* constants.
 	 *    Default: self::OUTPUT_HTML.
-	 * @param ?int $hard_breaks How to handle line breaks in HTML output.
-	 *    Value should be bitmask of this class's BR_* constants.
-	 *    If null, uses the value of Config::$modSettings['markdown_brs'].
-	 *    Ignored when output is BBCode. Default: null.
 	 * @return MarkdownParser An instance of this class.
 	 */
-	public static function load(int $output_type = self::OUTPUT_HTML, ?int $hard_breaks = null): self
+	public static function load(int $output_type = self::OUTPUT_HTML): self
 	{
-		if (!isset(self::$parsers[$output_type][$hard_breaks])) {
-			self::$parsers[$output_type][$hard_breaks] = new self($output_type);
+		if (!isset(self::$parsers[$output_type])) {
+			self::$parsers[$output_type] = new self($output_type);
 		}
 
-		return self::$parsers[$output_type][$hard_breaks];
+		return self::$parsers[$output_type];
 	}
 
 	/******************
