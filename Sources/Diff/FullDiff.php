@@ -1192,7 +1192,7 @@ class FullDiff extends Diff
 		$diff->changes = self::redistributeContextLines($diff->changes);
 
 		// Deal with '\ No newline at end of file'
-		$diff->changes = self::fixFinalLineEndings($no_newline_at_end, $diff->changes, $section);
+		$diff->changes = self::fixFinalLineEndings($no_newline_at_end, $diff->changes);
 
 		// Do all the cleanup the constructor normally would.
 		$diff->changes = $diff->consolidate($diff->changes);
@@ -1339,7 +1339,7 @@ class FullDiff extends Diff
 		$diff->changes = self::redistributeContextLines($diff->changes);
 
 		// Deal with '\ No newline at end of file'
-		$diff->changes = self::fixFinalLineEndings($no_newline_at_end, $diff->changes, $section);
+		$diff->changes = self::fixFinalLineEndings($no_newline_at_end, $diff->changes);
 
 		// Do all the cleanup the constructor normally would.
 		$diff->changes = $diff->consolidate($diff->changes);
@@ -1518,22 +1518,21 @@ class FullDiff extends Diff
 	 *
 	 * @param array $where Info about which change parts have no final newline.
 	 * @param array $changes The diff's complete set of changes.
-	 * @param string $section Which section
 	 * @return array Updated $changes.
 	 */
-	protected static function fixFinalLineEndings(array $where, array $changes, string $section): array
+	protected static function fixFinalLineEndings(array $where, array $changes): array
 	{
 		foreach ($where as $part => $should_trim) {
 			if ($should_trim) {
 				$last_c = array_key_last($changes);
 
-				$temp = array_pop($changes[$last_c][$section]);
+				$temp = array_pop($changes[$last_c][$part]);
 
 				if (str_ends_with($temp, "\n")) {
 					$temp = substr($temp, 0, -1);
 				}
 
-				array_push($changes[$last_c][$section], $temp);
+				array_push($changes[$last_c][$part], $temp);
 			}
 		}
 
