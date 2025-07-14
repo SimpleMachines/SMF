@@ -813,9 +813,19 @@ function template_single_post($message)
 				$count--;
 			}
 
+
+			// Remove link if no cookies; session reference won't work
+			if (empty($_COOKIE)) {
+				$like_text = Lang::getTxt($base, ['url' => '', 'num' => $count], file: 'General');
+				$like_text = strtr($like_text, ['<a href="">' => '', '</a>' => '']);
+			}
+			else {
+				$like_text = Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count], file: 'General');
+			}
+
 			echo '
 									<li class="like_count smalltext">
-										', Lang::getTxt($base, ['url' => Config::$scripturl . '?action=likes;sa=view;ltype=msg;like=' . $message['id'] . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'num' => $count], file: 'General'), '
+										', $like_text, '
 									</li>';
 		}
 
