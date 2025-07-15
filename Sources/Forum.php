@@ -122,6 +122,9 @@ class Forum
 		'editpoll2' => [
 			'', Actions\PollEdit2::class,
 		],
+		'feed' => [
+			'', Actions\Feed::class,
+		],
 		'groups' => [
 			'', Actions\Groups::class,
 		],
@@ -307,9 +310,6 @@ class Forum
 		'who' => [
 			'', Actions\Who::class,
 		],
-		'.xml' => [
-			'', Actions\Feed::class,
-		],
 		'xmlhttp' => [
 			'', Actions\XmlHttp::class,
 		],
@@ -323,6 +323,7 @@ class Forum
 	 * Keys are the old action names. Values are the new action names.
 	 */
 	public static array $renamed_actions = [
+		'.xml' => 'feed',
 	];
 
 	/**

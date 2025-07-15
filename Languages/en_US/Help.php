@@ -345,7 +345,7 @@ $helptxt['collapse_single_breaks'] = 'Enabling this setting will remove single l
 
 $helptxt['themes_manage'] = 'Here you can install new themes and select which themes your users can choose from, the default theme that new users and guests will use, as well as other theme selection settings.';
 $helptxt['theme_install'] = 'This allows you to install new themes. You can do this from an existing directory, by uploading an archive for the theme, or by copying the default theme.<br><br>Note that the archive or directory must have a <pre>theme_info.xml</pre> definition file.';
-$helptxt['xmlnews_enable'] = 'Allows people to link to <a href="{scripturl}?action=.xml;sa=news" target="_blank" rel="noopener">Recent news</a>
+$helptxt['xmlnews_enable'] = 'Allows people to link to <a href="{scripturl}?action=feed;sa=news" target="_blank" rel="noopener">Recent news</a>
 	and similar data. It is also recommended that you limit the size of recent posts/news because some clients expect the RSS data to be truncated for display.';
 $helptxt['xmlnews_attachments'] = 'Allows links to attachments to be enclosed within your XML/RSS feeds. Turn this on if you want to use your forum as a podcasting, broadcatching, or similar content distribution platform.
 	<br><br>
