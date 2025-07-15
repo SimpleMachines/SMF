@@ -38,7 +38,7 @@ class QueryString
 	 * or content type, use the integrate_route_parsers hook.
 	 */
 	public static array $route_parsers = [
-		'about:unknown'			=> Actions\Like::class,
+		'about:unknown'			=> Actions\Unknown::class,
 		'acceptagreement'		=> Actions\AgreementAccept::class,
 		'accepttermsofservice'	=> Actions\AgreementAccept::class,
 		'activate'				=> Actions\Activate::class,

@@ -23,8 +23,9 @@ use SMF\Utils;
 /**
  * Class Unknown
  */
-class Unknown implements ActionInterface
+class Unknown implements ActionInterface, Routable
 {
+	use ActionRouter;
 	use ActionTrait;
 
 	/****************
