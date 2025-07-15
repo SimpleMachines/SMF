@@ -636,7 +636,7 @@ class Who implements ActionInterface, Routable
 
 				// Set their action on each - session/text to sprintf.
 				foreach ($profile_ids[$row['id_member']] as $k => $session_text) {
-					$data[$k] = sprintf($session_text, ['id_member' => $row['id_member'], 'name' => $row['real_name'], 'scripturl' => Config::$scripturl]);
+					$data[$k] = vsprintf($session_text, ['id_member' => $row['id_member'], 'name' => $row['real_name'], 'scripturl' => Config::$scripturl]);
 				}
 			}
 			Db::$db->free_result($result);
