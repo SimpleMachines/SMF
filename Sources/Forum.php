@@ -318,6 +318,16 @@ class Forum
 	/**
 	 * @var array
 	 *
+	 * Actions that had different names in old versions of SMF.
+	 *
+	 * Keys are the old action names. Values are the new action names.
+	 */
+	public static array $renamed_actions = [
+	];
+
+	/**
+	 * @var array
+	 *
 	 * This array defines actions, sub-actions, and/or areas where user activity
 	 * should not be logged. For example, if the user downloads an attachment
 	 * via the dlattach action, that's not something we want to log.
@@ -370,6 +380,11 @@ class Forum
 	 */
 	public function __construct()
 	{
+		// Ensure any renamed actions will still work using the old name.
+		foreach (self::$renamed_actions as $old => $new) {
+			self::$actions[$old] = self::$actions[$new];
+		}
+
 		// If Config::$maintenance is set specifically to 2, then we're upgrading or something.
 		if (!empty(Config::$maintenance) &&  2 === Config::$maintenance) {
 			ErrorHandler::displayMaintenanceMessage();

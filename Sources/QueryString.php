@@ -220,6 +220,11 @@ class QueryString
 		// Are we using routing (a.k.a. queryless/friendly/pretty URLs)?
 		$_GET = self::parseRoute($_SERVER['PATH_INFO'] ?? '', $_GET);
 
+		// If the action has been renamed, update it to the correct name.
+		if (isset($_GET['action'], Forum::$renamed_actions[$_GET['action']])) {
+			$_GET['action'] = Forum::$renamed_actions[$_GET['action']];
+		}
+
 		// Add entities to GET.  This is kinda like the slashes on everything else.
 		$_GET = Utils::htmlspecialcharsRecursive($_GET);
 
@@ -664,6 +669,14 @@ class QueryString
 		$new_params = [];
 
 		$route = explode('/', trim($path, '/'));
+
+		// If the action has been renamed, update it to the correct name.
+		if (
+			isset(Forum::$renamed_actions[$route[0]])
+			&& !isset(self::$route_parsers[$route[0]])
+		) {
+			$route[0] = Forum::$renamed_actions[$route[0]];
+		}
 
 		if (isset(self::$route_parsers[$route[0]])) {
 			$new_params = call_user_func(self::$route_parsers[$route[0]] . '::parseRoute', $route);
