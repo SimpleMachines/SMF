@@ -363,11 +363,10 @@ interface DatabaseApiInterface
 	/**
 	 * Dumps the schema (CREATE) for a table.
 	 *
-	 * @todo why is this needed for?
-	 * @param string $tableName The name of the table
-	 * @return string The "CREATE TABLE" SQL string for this table
+	 * @param string $table_name The name of the table.
+	 * @return string The "CREATE TABLE" SQL string for this table.
 	 */
-	public function table_sql(string $tableName): string;
+	public function table_sql(string $table_name): string;
 
 	/**
 	 * This function lists all tables in the database.

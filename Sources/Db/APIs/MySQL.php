@@ -1132,105 +1132,110 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function table_sql(string $tableName): string
+	public function table_sql(string $table_name): string
 	{
-		$tableName = str_replace('{db_prefix}', $this->prefix, $tableName);
-
-		// This will be needed...
-		$crlf = "\r\n";
+		$structure = $this->table_structure($table_name);
 
 		// Drop it if it exists.
-		$schema_create = 'DROP TABLE IF EXISTS `' . $tableName . '`;' . $crlf . $crlf;
+		$schema_create = 'DROP TABLE IF EXISTS ' . '`' . $structure['name'] . '`;';
+		$schema_create .= "\n\n";
 
 		// Start the create table...
-		$schema_create .= 'CREATE TABLE ' . '`' . $tableName . '` (' . $crlf;
+		$schema_create .= 'CREATE TABLE ' . '`' . $structure['name'] . '` (';
+		$schema_create .= "\n";
 
-		// Find all the fields.
-		$result = $this->query(
-			'SHOW FIELDS
-			FROM `{raw:table}`',
-			[
-				'table' => $tableName,
-			],
-		);
+		$inner_lines = [];
 
-		while ($row = $this->fetch_assoc($result)) {
-			// Make the CREATE for this column.
-			$schema_create .= ' `' . $row['Field'] . '` ' . $row['Type'] . ($row['Null'] != 'YES' ? ' NOT NULL' : '');
+		foreach ($structure['columns'] as $column) {
+			$line = '  `' . $column['name'] . '` ' . $column['type'];
 
-			// Add a default...?
-			if (!empty($row['Default']) || $row['Null'] !== 'YES') {
-				// Make a special case of auto-timestamp.
-				if ($row['Default'] == 'CURRENT_TIMESTAMP') {
-					$schema_create .= ' /*!40102 NOT NULL default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP */';
+			if (is_numeric($column['size'])) {
+				$line .= '(' . $column['size'] . ')';
+			}
+
+			if (!empty($column['unsigned'])) {
+				$line .= ' unsigned';
+			}
+
+			if (!empty($column['generation_expression'])) {
+				$line .= ' GENERATED ALWAYS AS (' . $this->unescape_string($column['generation_expression']) . ') ' . (!empty($column['stored']) ? 'STORED' : 'VIRTUAL');
+			}
+
+			if (!empty($column['not_null'])) {
+				$line .= ' NOT NULL';
+			}
+
+			if (
+				empty($column['generation_expression'])
+				&& (
+					!is_null($column['default'])
+					|| empty($column['not_null'])
+				)
+			) {
+				$line .= ' DEFAULT';
+
+				if (is_null($column['default'])) {
+					$line .= ' NULL';
+				} elseif (is_numeric($column['default'])) {
+					$line .= ' ' . $column['default'];
+				} else {
+					$line .= ' \'' . $column['default'] . '\'';
 				}
-				// Text shouldn't have a default.
-				elseif ($row['Default'] !== null) {
-					// If this field is numeric the default needs no escaping.
-					$type = strtolower($row['Type']);
-					$isNumericColumn = str_contains($type, 'int') || str_contains($type, 'bool') || str_contains($type, 'bit') || str_contains($type, 'float') || str_contains($type, 'double') || str_contains($type, 'decimal');
-
-					$schema_create .= ' default ' . ($isNumericColumn ? $row['Default'] : '\'' . $this->escape_string($row['Default']) . '\'');
-				}
 			}
 
-			// And now any extra information. (such as auto_increment.)
-			$schema_create .= ($row['Extra'] != '' ? ' ' . $row['Extra'] : '') . ',' . $crlf;
-		}
-		$this->free_result($result);
-
-		// Take off the last comma.
-		$schema_create = substr($schema_create, 0, -strlen($crlf) - 1);
-
-		// Find the keys.
-		$result = $this->query(
-			'SHOW KEYS
-			FROM `{raw:table}`',
-			[
-				'table' => $tableName,
-			],
-		);
-		$indexes = [];
-
-		while ($row = $this->fetch_assoc($result)) {
-			// IS this a primary key, unique index, or regular index?
-			$row['Key_name'] = $row['Key_name'] == 'PRIMARY' ? 'PRIMARY KEY' : (empty($row['Non_unique']) ? 'UNIQUE ' : ($row['Comment'] == 'FULLTEXT' || (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT') ? 'FULLTEXT ' : 'KEY ')) . '`' . $row['Key_name'] . '`';
-
-			// Is this the first column in the index?
-			if (empty($indexes[$row['Key_name']])) {
-				$indexes[$row['Key_name']] = [];
+			if (!empty($column['auto'])) {
+				$line .= ' AUTO_INCREMENT';
 			}
 
-			// A sub part, like only indexing 15 characters of a varchar.
-			if (!empty($row['Sub_part'])) {
-				$indexes[$row['Key_name']][$row['Seq_in_index']] = '`' . $row['Column_name'] . '`(' . $row['Sub_part'] . ')';
-			} else {
-				$indexes[$row['Key_name']][$row['Seq_in_index']] = '`' . $row['Column_name'] . '`';
-			}
-		}
-		$this->free_result($result);
-
-		// Build the CREATEs for the keys.
-		foreach ($indexes as $keyname => $columns) {
-			// Ensure the columns are in proper order.
-			ksort($columns);
-
-			$schema_create .= ',' . $crlf . ' ' . $keyname . ' (' . implode(', ', $columns) . ')';
+			$inner_lines[] = $line;
 		}
 
-		// Now just get the comment and engine... (InnoDB, etc.)
-		$result = $this->query(
-			'SHOW TABLE STATUS
-			LIKE {string:table}',
-			[
-				'table' => strtr($tableName, ['_' => '\\_', '%' => '\\%']),
-			],
-		);
-		$row = $this->fetch_assoc($result);
-		$this->free_result($result);
+		foreach ($structure['indexes'] as $index) {
+			$line = '  ';
 
-		// Probably InnoDB.... and it might have a comment.
-		$schema_create .= $crlf . ') ENGINE=' . $row['Engine'] . ' ROW_FORMAT=' . $row['Row_format'] . ' COLLATE=' . $row['Collation'] . ($row['Comment'] != '' ? ' COMMENT="' . $row['Comment'] . '"' : '');
+			switch ($index['type']) {
+				case 'primary':
+					$line .= 'PRIMARY KEY';
+					break;
+
+				case 'unique':
+					$line .= 'UNIQUE KEY `' . $index['name'] . '`';
+					break;
+
+				case 'fulltext':
+					$line .= 'FULLTEXT KEY `' . $index['name'] . '`';
+					break;
+
+				default:
+					$line .= 'KEY `' . $index['name'] . '`';
+					break;
+			 }
+
+			 $line .= ' (`' . implode('`, `', $index['columns']) . '`)';
+
+			 $inner_lines[] = $line;
+		}
+
+		$schema_create .= implode(",\n", $inner_lines) . "\n";
+		$schema_create .= ')';
+
+		if (!empty($structure['engine'])) {
+			$schema_create .= ' ENGINE=' . $structure['engine'];
+		}
+
+		if (!empty($structure['row_format'])) {
+			$schema_create .= ' ROW_FORMAT=' . $structure['row_format'];
+		}
+
+		if (!empty($structure['collation'])) {
+			$schema_create .= ' COLLATE=' . $structure['collation'];
+		}
+
+		if (!empty($structure['comment'])) {
+			$schema_create .= ' COMMENT="' . $structure['comment'] . '"';
+		}
+
+		$schema_create .= "\n";
 
 		return $schema_create;
 	}
@@ -2012,11 +2017,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$this->free_result($table_status);
 
 		return [
-			'name' => $parsed_table_name,
+			'name' => $real_table_name,
 			'columns' => is_null($row) ? [] : $this->list_columns($table_name, true),
 			'indexes' => is_null($row) ? [] : $this->list_indexes($table_name, true),
 			'engine' => is_null($row) ? '' : $row['Engine'],
 			'row_format' => is_null($row) ? '' : $row['Row_format'],
+			'collation' => is_null($row) ? '' : $row['Collation'],
+			'comment' => is_null($row) ? '' : $row['Comment'],
 		];
 	}
 
@@ -2137,11 +2144,6 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					$indexes[$row['Key_name']]['columns'][] = $row['Column_name'] . '(' . $row['Sub_part'] . ')';
 				} else {
 					$indexes[$row['Key_name']]['columns'][] = $row['Column_name'];
-				}
-
-				if (str_contains($row['Extra'], 'GENERATED')) {
-					$columns[$row['Field']]['generation_expression'] = $row['generation_expression'];
-					$columns[$row['Field']]['stored'] = str_contains($row['Extra'], 'STORED');
 				}
 			}
 		}

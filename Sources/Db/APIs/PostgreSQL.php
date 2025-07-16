@@ -1018,18 +1018,15 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function table_sql(string $tableName): string
+	public function table_sql(string $table_name): string
 	{
-		$tableName = str_replace('{db_prefix}', $this->prefix, $tableName);
-
-		// This will be needed...
-		$crlf = "\r\n";
+		$table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// Drop it if it exists.
-		$schema_create = 'DROP TABLE IF EXISTS ' . $tableName . ';' . $crlf . $crlf;
+		$schema_create = 'DROP TABLE IF EXISTS ' . $table_name . ';' . "\n\n";
 
 		// Start the create table...
-		$schema_create .= 'CREATE TABLE ' . $tableName . ' (' . $crlf;
+		$schema_create .= 'CREATE TABLE ' . $table_name . ' (' . "\n";
 		$index_create = '';
 		$seq_create = '';
 
@@ -1040,7 +1037,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			WHERE table_name = {string:table}
 			ORDER BY ordinal_position',
 			[
-				'table' => $tableName,
+				'table' => $table_name,
 			],
 		);
 
@@ -1070,23 +1067,28 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 						FROM {raw:table}',
 						[
 							'column' => $row['column_name'],
-							'table' => $tableName,
+							'table' => $table_name,
 						],
 					);
 					list($max_ind) = $this->fetch_row($count_req);
 					$this->free_result($count_req);
+
 					// Get the right bloody start!
-					$seq_create .= 'CREATE SEQUENCE ' . $matches[1] . ' START WITH ' . ($max_ind + 1) . ';' . $crlf . $crlf;
+					$seq_create .= 'CREATE SEQUENCE ' . $matches[1] . ' START WITH ' . ($max_ind + 1) . ';' . "\n\n";
 				}
 			}
 
-			$schema_create .= ',' . $crlf;
+			$schema_create .= ',' . "\n";
 		}
 		$this->free_result($result);
 
 		// Take off the last comma.
-		$schema_create = substr($schema_create, 0, -strlen($crlf) - 1);
+		$schema_create = substr($schema_create, 0, -2);
 
+		// Finish it off!
+		$schema_create .= "\n" . ');';
+
+		// Now the indexes.
 		$result = $this->query(
 			'SELECT pg_get_indexdef(i.indexrelid) AS inddef
 			FROM pg_class AS c
@@ -1094,13 +1096,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				INNER JOIN pg_class AS c2 ON (c2.oid = i.indexrelid)
 			WHERE c.relname = {string:table} AND i.indisprimary is {raw:pk}',
 			[
-				'table' => $tableName,
+				'table' => $table_name,
 				'pk'	=> 'false',
 			],
 		);
 
 		while ($row = $this->fetch_assoc($result)) {
-			$index_create .= $crlf . $row['inddef'] . ';';
+			$index_create .= "\n" . $row['inddef'] . ';';
 		}
 		$this->free_result($result);
 
@@ -1108,20 +1110,17 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			'SELECT pg_get_constraintdef(c.oid) as pkdef
 			FROM pg_constraint as c
 			WHERE c.conrelid::regclass::text = {string:table} AND
-				c.contype = {string:constraintType}',
+				c.contype = {string:constraint_type}',
 			[
-				'table' 			=> $tableName,
-				'constraintType'	=> 'p',
+				'table' 			=> $table_name,
+				'constraint_type'	=> 'p',
 			],
 		);
 
 		while ($row = $this->fetch_assoc($result)) {
-			$index_create .= $crlf . 'ALTER TABLE ' . $tableName . ' ADD ' . $row['pkdef'] . ';';
+			$index_create .= "\n" . 'ALTER TABLE ' . $table_name . ' ADD ' . $row['pkdef'] . ';';
 		}
 		$this->free_result($result);
-
-		// Finish it off!
-		$schema_create .= $crlf . ');';
 
 		return $seq_create . $schema_create . $index_create;
 	}
