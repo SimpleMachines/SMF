@@ -878,9 +878,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function detect_charset(?string $table = null, ?string $column = null): string
+	public function detect_charset(?string $table = null, ?string $column = null, bool $reset = false): string
 	{
 		static $detected;
+
+		if ($reset) {
+			$detected = null;
+		}
 
 		// PostgreSQL uses one character set per database. So sane and simple.
 		if (!isset($detected)) {
@@ -1391,7 +1395,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$cols = $this->list_columns($table_name, true);
 
 		foreach ($index_info['columns'] as &$c) {
-			$c = preg_replace('~\s+(\(\d+\))~', '', $c);
+			if (is_array($c)) {
+				$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
+			}
+
+			$c = preg_replace('~\s*\(\d+\)~', '', $c);
 		}
 
 		$columns = implode(',', $index_info['columns']);
@@ -1677,6 +1685,30 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
+	public function rename_index(string $table_name, string $old_name, string $new_name): bool
+	{
+		$parsed_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
+		$real_table_name = preg_match('~^(`?)(.+?)\\1\\.(.*?)$~', $parsed_table_name, $match) === 1 ? $match[3] : $parsed_table_name;
+
+		$result = false;
+
+		$indexes = $this->list_indexes($table_name, false);
+
+		if (in_array($old_name, $indexes) && !in_array($new_name, $indexes)) {
+			$result = $this->query(
+				'ALTER INDEX ' . $real_table_name . '_' . $old_name . ' RENAME TO ' . $real_table_name . '_' . $new_name,
+				[
+					'security_override' => true,
+				],
+			);
+		}
+
+		return $result !== false;
+	}
+
+	/**
+	 *
+	 */
 	public function create_table(string $table_name, array $columns, array $indexes = [], array $parameters = [], string $if_exists = 'ignore', string $error = 'fatal'): bool
 	{
 		$db_trans = false;
@@ -1691,7 +1723,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$short_table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// First - no way do we touch SMF tables.
-		if (in_array(strtolower($short_table_name), $this->reservedTables)) {
+		if (!defined('SMF_INSTALLING') && in_array(strtolower($short_table_name), $this->reservedTables)) {
 			return false;
 		}
 
@@ -1777,6 +1809,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$index_queries = [];
 
 		foreach ($indexes as $index) {
+			if (is_array($c)) {
+				$c = $c['name'] . (isset($c['opclass']) ? ' ' . $c['opclass'] : '');
+			}
+
 			// MySQL you can do a "column_name (length)", postgresql does not allow this.  Strip it.
 			foreach ($index['columns'] as &$c) {
 				$c = preg_replace('~\s+(\(\d+\))~', '', $c);
@@ -2137,20 +2173,173 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		return false;
 	}
 
+	/**************************************
+	 * Methods used during installion, etc.
+	 **************************************/
+
+	/**
+	 *
+	 */
+	public function getMinimumVersion(): string
+	{
+		return '12.17';
+	}
+
+	/**
+	 *
+	 */
+	public function isSupported(): bool
+	{
+		return function_exists('pg_connect');
+	}
+
+	/**
+	 *
+	 */
+	public function skipSelectDatabase(): bool
+	{
+		return true;
+	}
+
+	/**
+	 *
+	 */
+	public function getDefaultUser(): string
+	{
+		return '';
+	}
+
+	/**
+	 *
+	 */
+	public function getDefaultPassword(): string
+	{
+		return '';
+	}
+
+	/**
+	 *
+	 */
+	public function getDefaultHost(): string
+	{
+		return '';
+	}
+
+	/**
+	 *
+	 */
+	public function getDefaultPort(): int
+	{
+		return 5432;
+	}
+
+	/**
+	 *
+	 */
+	public function getDefaultName(): string
+	{
+		return 'smf';
+	}
+
+	public function checkConfiguration(): bool
+	{
+		$result = Db::$db->query(
+			'show standard_conforming_strings',
+			[
+				'db_error_skip' => true,
+			],
+		);
+
+		if ($result !== false) {
+			$row = Db::$db->fetch_assoc($result);
+
+			if ($row['standard_conforming_strings'] !== 'on') {
+				throw new \Exception(Lang::$txt['error_pg_scs']);
+			}
+			Db::$db->free_result($result);
+		}
+
+		return true;
+	}
+
+	/**
+	 *
+	 */
+	public function hasPermissions(): bool
+	{
+		return true;
+	}
+
+	/**
+	 *
+	 */
+	public function validatePrefix(&$value): bool
+	{
+		$value = preg_replace('~[^A-Za-z0-9_\$]~', '', $value);
+
+		// Is it reserved?
+		if ($value == 'pg_') {
+			throw new \Exception(Lang::getTxt('error_db_prefix_reserved', file: 'Maintenance'));
+		}
+
+		// Is the prefix numeric?
+		if (preg_match('~^\d~', $value)) {
+			throw new \Exception(Lang::getTxt('error_db_prefix_numeric', file: 'Maintenance'));
+		}
+
+		return true;
+	}
+
+	/**
+	 *
+	 */
+	public function alwaysHasDb(): bool
+	{
+		return true;
+	}
+
+	/**
+	 *
+	 */
+	public function setSqlMode(string $mode = 'default'): bool
+	{
+		return true;
+	}
+
+	/**
+	 *
+	 */
+	public function processError(string $error_msg, string $query): mixed
+	{
+		if (in_array(substr(trim($query), 0, 8), ['CREATE T', 'CREATE S', 'DROP TABL', 'ALTER TA', 'CREATE I', 'CREATE U'])) {
+			if (strpos($error_msg, 'exist') !== false) {
+				return false;
+			}
+		} elseif (strpos(trim($query), 'INSERT ') !== false) {
+			if (strpos($error_msg, 'duplicate') !== false) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	/******************
 	 * Internal methods
 	 ******************/
 
 	/**
-	 * Constructor.
+	 * Prepares this instance for use.
 	 *
 	 * If $options is empty, correct settings will be determined automatically.
 	 *
 	 * @param array $options An array of database options.
 	 */
-	protected function __construct(array $options = [])
+	protected function initialize(array $options = []): void
 	{
-		parent::__construct();
+		if ($this !== DatabaseApi::$db) {
+			return;
+		}
 
 		// If caller was explicit about non_fatal, respect that.
 		$non_fatal = !empty($options['non_fatal']);
@@ -2161,7 +2350,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$options = ['non_fatal' => true, 'dont_select_db' => true];
 			}
 
-			$this->initiate(Config::$ssi_db_user, Config::$ssi_db_passwd, $options);
+			$this->connect(Config::$ssi_db_user, Config::$ssi_db_passwd, $options);
 		}
 
 		// Either we aren't in SSI mode, or it failed.
@@ -2170,7 +2359,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				$options = ['dont_select_db' => SMF == 'SSI'];
 			}
 
-			$this->initiate(Config::$db_user, Config::$db_passwd, $options);
+			$this->connect(Config::$db_user, Config::$db_passwd, $options);
 		}
 
 		// Safe guard here, if there isn't a valid connection let's put a stop to it.
@@ -2209,7 +2398,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 * @param string $passwd The database password
 	 * @param array $options An array of database options
 	 */
-	protected function initiate(string $user, string $passwd, array $options = []): void
+	protected function connect(string $user, string $passwd, array $options = []): void
 	{
 		// We are not going to make it very far without this.
 		if (!function_exists('pg_pconnect')) {

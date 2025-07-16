@@ -444,7 +444,7 @@ interface DatabaseApiInterface
 	 * This function adds a column.
 	 *
 	 * @param string $table_name The name of the table to add the column to
-	 * @param array $column_info An array of column info ({@see smf_db_create_table})
+	 * @param array $column_info An array of column info ({@see create_table})
 	 * @param array $parameters Not used?
 	 * @param string $if_exists What to do if the column exists. If 'update', column is updated.
 	 * @param string $error
@@ -456,7 +456,7 @@ interface DatabaseApiInterface
 	 * Add an index.
 	 *
 	 * @param string $table_name The name of the table to add the index to
-	 * @param array $index_info An array of index info (see {@link smf_db_create_table()})
+	 * @param array $index_info An array of index info (see {@link create_table()})
 	 * @param array $parameters Not used?
 	 * @param string $if_exists What to do if the index exists. If 'update', the definition will be updated.
 	 * @param string $error
@@ -479,7 +479,7 @@ interface DatabaseApiInterface
 	 *
 	 * @param string $table_name The name of the table this column is in
 	 * @param string $old_column The name of the column we want to change
-	 * @param array $column_info An array of info about the "new" column definition (see {@link smf_db_create_table()})
+	 * @param array $column_info An array of info about the "new" column definition (see {@link create_table()})
 	 * Note that $column_info also supports two additional parameters that only make sense when changing columns:
 	 * - drop_default - to drop a default that was previously specified
 	 * @return bool
@@ -487,34 +487,82 @@ interface DatabaseApiInterface
 	public function change_column(string $table_name, string $old_column, array $column_info): bool;
 
 	/**
+	 * Renames an index.
+	 *
+	 * If an index named $old_name does not exist, will return false.
+	 * If an index named $new_name already exists, will return false.
+	 * Otherwise, returns whether the index was renamed successfully.
+	 *
+	 * @param string $table_name The name of the table the index is in.
+	 * @param string $old_name The current name of the index.
+	 * @param string $old_name The new name to set for the index.
+	 * @return bool Whether the operation was successful.
+	 */
+	public function rename_index(string $table_name, string $old_name, string $new_name): bool;
+
+	/**
 	 * This function can be used to create a table without worrying about schema
-	 *  compatibilities across supported database systems.
-	 *  - If the table exists will, by default, do nothing.
-	 *  - Builds table with columns as passed to it - at least one column must be sent.
-	 *  The columns array should have one sub-array for each column - these sub arrays contain:
-	 *  	'name' = Column name
-	 *  	'type' = Type of column - values from (smallint, mediumint, int, text, varchar, char, tinytext, mediumtext, largetext)
-	 *  	'size' => Size of column (If applicable) - for example 255 for a large varchar, 10 for an int etc.
-	 *  		If not set SMF will pick a size.
-	 *  	- 'default' = Default value - do not set if no default required.
-	 *  	- 'not_null' => Can it be null (true or false) - if not set default will be false.
-	 *  	- 'auto' => Set to true to make it an auto incrementing column. Set to a numerical value to set from what
-	 *  		 it should begin counting.
-	 *  - Adds indexes as specified within indexes parameter. Each index should be a member of $indexes. Values are:
-	 *  	- 'name' => Index name (If left empty SMF will generate).
-	 *  	- 'type' => Type of index. Choose from 'primary', 'unique' or 'index'. If not set will default to 'index'.
-	 *  	- 'columns' => Array containing columns that form part of key - in the order the index is to be created.
-	 *  - parameters: (None yet)
-	 *  - if_exists values:
-	 *  	- 'ignore' will do nothing if the table exists. (And will return true)
-	 *  	- 'overwrite' will drop any existing table of the same name.
-	 *  	- 'error' will return false if the table already exists.
-	 *  	- 'update' will update the table if the table already exists (no change of ai field and only columns with the same name keep the data)
+	 * compatibilities across supported database systems.
+	 *
+	 * If the table exists will, by default, do nothing.
+	 *
+	 * Builds table with columns as passed to it.
+	 * At least one column must be sent.
+	 *
+	 * The columns array should have one sub-array for each column.
+	 * These sub arrays contain:
+	 *  	'name':
+	 *                Column name
+	 *  	'type':
+	 *                Type of column: smallint, mediumint, int, text, varchar,
+	 *                char, tinytext, mediumtext, or largetext.
+	 *  	'size':
+	 *                Size of column, if applicable.
+	 *                For example 255 for a large varchar, 10 for an int etc.
+	 *  		      If not set SMF will pick a size.
+	 *  	'default':
+	 *                Default value. Do not set if no default required.
+	 *  	'not_null':
+	 *                Whether the column can have a null value.
+	 *                If not set default will be false.
+	 *  	'auto':
+	 *                Set to true to make it an auto incrementing column.
+	 *                Set to a numerical value to set the value it should begin
+	 *                counting from.
+	 *
+	 * Adds indexes as specified within $indexes parameter.
+	 * Each index should be a member of $indexes. Values are:
+	 *  	'name':
+	 *                Index name (If left empty SMF will generate).
+	 *  	'type':
+	 *                Type of index. Choose from 'primary', 'unique' or 'index'.
+	 *                If not set will default to 'index'.
+	 *  	'columns':
+	 *                Array containing columns that form part of key, in the
+	 *                order the index is to be created.
+	 *                Values of 'columns' can either be simple strings or arrays
+	 *                containing a 'name' element and optional 'size' or
+	 *                'opclass' elements. The 'size' element is used by MySQL,
+	 *                and the 'opclass' element is used by PostgreSQL.
+	 *
+	 * $if_exists values:
+	 *  	'ignore':
+	 *                Do nothing if the table exists and return true.
+	 *  	'overwrite':
+	 *                Drop any existing table of the same name and then create
+	 *                a new table.
+	 *  	'error':
+	 *                Return false if the table already exists.
+	 *  	'update':
+	 *                Update the table if the table already exists. This will
+	 *                not change the auto-increment value and only columns with
+	 *                the same name keep the data.
 	 *
 	 * @param string $table_name The name of the table to create
 	 * @param array $columns An array of column info in the specified format
 	 * @param array $indexes An array of index info in the specified format
-	 * @param array $parameters Extra parameters. Currently only 'engine', the desired MySQL storage engine, is used.
+	 * @param array $parameters Extra parameters. Currently only 'engine', the
+	 *    desired MySQL storage engine, is used.
 	 * @param string $if_exists What to do if the table exists.
 	 * @param string $error
 	 * @return bool Whether or not the operation was successful
@@ -535,7 +583,7 @@ interface DatabaseApiInterface
 	 * Get table structure.
 	 *
 	 * @param string $table_name The name of the table
-	 * @return array An array of table structure - the name, the column info from {@link smf_db_list_columns()} and the index info from {@link smf_db_list_indexes()}
+	 * @return array An array of table structure - the name, the column info from {@link list_columns()} and the index info from {@link list_indexes()}
 	 */
 	public function table_structure(string $table_name): array;
 
@@ -580,4 +628,111 @@ interface DatabaseApiInterface
 	 * @return bool Whether or not the operation was successful
 	 */
 	public function remove_index(string $table_name, string $index_name, array $parameters = [], string $error = 'fatal'): bool;
+
+	/**
+	 * The minimum version that SMF supports for the database.
+	 *
+	 * @return string
+	 */
+	public function getMinimumVersion(): string;
+
+	/**
+	 * Is this database supported.
+	 *
+	 * @return bool True if we can use this database, false otherwise.
+	 */
+	public function isSupported(): bool;
+
+	/**
+	 * Skip issuing a select database command.
+	 *
+	 * @return bool When true, we do not select a database.
+	 */
+	public function skipSelectDatabase(): bool;
+
+	/**
+	 * Default username for a database connection.
+	 *
+	 * @return string
+	 */
+	public function getDefaultUser(): string;
+
+	/**
+	 * Default password for a database connection.
+	 *
+	 * @return string
+	 */
+	public function getDefaultPassword(): string;
+
+	/**
+	 * Default host for a database connection.
+	 *
+	 * @return string
+	 */
+	public function getDefaultHost(): string;
+
+	/**
+	 * Default port for a database connection.
+	 *
+	 * @return int
+	 */
+	public function getDefaultPort(): int;
+
+	/**
+	 * Default database name for a database connection.
+	 *
+	 * @return string
+	 */
+	public function getDefaultName(): string;
+
+	/**
+	 * Performs checks to ensure the server is in a sane configuration.
+	 *
+	 * @return bool
+	 */
+	public function checkConfiguration(): bool;
+
+	/**
+	 * Performs checks to ensure we have proper permissions to the database
+	 * in order to perform operations.
+	 *
+	 * @return bool
+	 */
+	public function hasPermissions(): bool;
+
+	/**
+	 * Validate a database prefix.
+	 * When an error occurs, use throw new exception, this will be captured.
+	 *
+	 * @return bool
+	 */
+	public function validatePrefix(&$string): bool;
+
+	/**
+	 * Returns whether it is necessary to select the database by name or not.
+	 *
+	 * @return bool False if we must select the database, true if not.
+	 */
+	public function alwaysHasDb(): bool;
+
+	/**
+	 * Perform additional changes to our SQL connection in order to perform
+	 * commands that are not strict SQL.
+	 *
+	 * @param string $mode The SQL mode we wish to be in, either 'default' or 'strict'.
+	 * @return bool
+	 */
+	public function setSqlMode(string $mode = 'default'): bool;
+
+	/**
+	 * When an error occurs with a query run through a wrapper, we send errors here.
+	 *
+	 * @param string $error_msg as returend by the database interfaces call.
+	 * @param string $query Query we ran
+	 * @return mixed
+	 *    False if we should not do anything,
+	 *    True if we should stop for error.
+	 *    Result from a query can also be returned, if we are able to correct the query.
+	 */
+	public function processError(string $error_msg, string $query): mixed;
 }

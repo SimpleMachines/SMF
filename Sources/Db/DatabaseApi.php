@@ -313,6 +313,42 @@ abstract class DatabaseApi
 	 ****************/
 
 	/**
+	 * Protected constructor to prevent multiple instances.
+	 */
+	public function __construct()
+	{
+		if (!isset($this->server)) {
+			$this->server = (string) Config::$db_server;
+		}
+
+		if (!isset($this->name)) {
+			$this->name = (string) Config::$db_name;
+		}
+
+		if (!isset($this->prefix)) {
+			$this->prefix = (string) Config::$db_prefix;
+		}
+
+		if (!isset($this->port)) {
+			$this->port = !empty(Config::$db_port) ? (int) Config::$db_port : 0;
+		}
+
+		if (!isset($this->persist)) {
+			$this->persist = !empty(Config::$db_persist);
+		}
+
+		if (!isset($this->show_debug)) {
+			$this->show_debug = !empty(Config::$db_show_debug);
+		}
+
+		if (!isset($this->disableQueryCheck)) {
+			$this->disableQueryCheck = !empty(Config::$modSettings['disableQueryCheck']);
+		}
+
+		$this->prefixReservedTables();
+	}
+
+	/**
 	 * Figures out the best type indicators to use in SMF's query placeholder
 	 * strings and/or insert column type definitions for a given set of columns.
 	 *
@@ -449,6 +485,11 @@ abstract class DatabaseApi
 			ErrorHandler::displayDbError();
 		}
 
+		self::$db->initialize($options);
+
+		// For backward compatibility.
+		self::$db->mapToSmcFunc();
+
 		return self::$db;
 	}
 
@@ -488,45 +529,6 @@ abstract class DatabaseApi
 	/******************
 	 * Internal methods
 	 ******************/
-
-	/**
-	 * Protected constructor to prevent multiple instances.
-	 */
-	protected function __construct()
-	{
-		if (!isset($this->server)) {
-			$this->server = (string) Config::$db_server;
-		}
-
-		if (!isset($this->name)) {
-			$this->name = (string) Config::$db_name;
-		}
-
-		if (!isset($this->prefix)) {
-			$this->prefix = (string) Config::$db_prefix;
-		}
-
-		if (!isset($this->port)) {
-			$this->port = !empty(Config::$db_port) ? (int) Config::$db_port : 0;
-		}
-
-		if (!isset($this->persist)) {
-			$this->persist = !empty(Config::$db_persist);
-		}
-
-		if (!isset($this->show_debug)) {
-			$this->show_debug = !empty(Config::$db_show_debug);
-		}
-
-		if (!isset($this->disableQueryCheck)) {
-			$this->disableQueryCheck = !empty(Config::$modSettings['disableQueryCheck']);
-		}
-
-		$this->prefixReservedTables();
-
-		// For backward compatibility.
-		$this->mapToSmcFunc();
-	}
 
 	/**
 	 * Appends the correct prefix to the reserved tables' names.
