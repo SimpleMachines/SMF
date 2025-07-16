@@ -1129,27 +1129,13 @@ class Config
 
 		// Check the load averages?
 		if (!empty(self::$modSettings['loadavg_enable'])) {
-			if ((self::$modSettings['load_average'] = Cache\CacheApi::get('loadavg', 90)) == null) {
-				self::$modSettings['load_average'] = @file_get_contents('/proc/loadavg');
+			self::$modSettings['load_average'] = Sapi::getLoadAverage();
 
-				if (!empty(self::$modSettings['load_average']) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', self::$modSettings['load_average'], $matches) != 0) {
-					self::$modSettings['load_average'] = (float) $matches[1];
-				} elseif ((self::$modSettings['load_average'] = @shell_exec('uptime')) != null && preg_match('~load averages?: (\d+\.\d+)~i', self::$modSettings['load_average'], $matches) != 0) {
-					self::$modSettings['load_average'] = (float) $matches[1];
-				} else {
-					unset(self::$modSettings['load_average']);
-				}
-
-				if (!empty(self::$modSettings['load_average']) || self::$modSettings['load_average'] === 0.0) {
-					Cache\CacheApi::put('loadavg', self::$modSettings['load_average'], 90);
-				}
-			}
-
-			if (!empty(self::$modSettings['load_average']) || self::$modSettings['load_average'] === 0.0) {
+			if (self::$modSettings['load_average'] >= 0.00) {
 				IntegrationHook::call('integrate_load_average', [self::$modSettings['load_average']]);
 			}
 
-			if (!empty(self::$modSettings['loadavg_forum']) && !empty(self::$modSettings['load_average']) && self::$modSettings['load_average'] >= self::$modSettings['loadavg_forum']) {
+			if (Sapi::isOverloaded(self::$modSettings['loadavg_forum'])) {
 				ErrorHandler::displayLoadAvgError();
 			}
 		}
