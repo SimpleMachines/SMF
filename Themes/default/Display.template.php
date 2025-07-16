@@ -848,7 +848,7 @@ function template_single_post($message)
 
 			// Remove link if no cookies; session reference won't work
 			if (empty($_COOKIE))
-				$txt[$base] = strtr($txt[$base], array('<a href="%1$s">' => '', '</a>' => ''));
+				$txt[$base] = preg_replace('~</?a\b[^>]*>~', '', $txt[$base]);
 
 			echo '
 									<li class="like_count smalltext">
