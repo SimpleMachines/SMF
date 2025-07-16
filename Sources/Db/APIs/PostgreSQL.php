@@ -1536,17 +1536,17 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Get the right bits.
-		if (isset($column_info['drop_default']) && !empty($column_info['drop_default'])) {
-			$column_info['drop_default'] = true;
-		} else {
-			$column_info['drop_default'] = false;
-		}
+		$column_info['drop_default'] = !empty($column_info['drop_default']);
 
 		if (!isset($column_info['name'])) {
 			$column_info['name'] = $old_column;
 		}
 
-		if (!array_key_exists('default', $column_info) && array_key_exists('default', $old_info) && empty($column_info['drop_default'])) {
+		if (
+			!array_key_exists('default', $column_info)
+			&& array_key_exists('default', $old_info)
+			&& !$column_info['drop_default']
+		) {
 			$column_info['default'] = $old_info['default'];
 		}
 
@@ -1570,9 +1570,26 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$column_info['unsigned'] = '';
 		}
 
+		foreach (['generation_expression', 'stored'] as $key) {
+			if (!array_key_exists($key, $column_info) && array_key_exists($key, $old_info)) {
+				$column_info[$key] = $old_info[$key];
+			}
+		}
+
+		// Default values and such are inapplicable to generated columns.
+		if (isset($column_info['generation_expression'])) {
+			$column_info['drop_default'] = true;
+			unset($column_info['default'], $column_info['not_null'], $column_info['auto']);
+		}
+
 		// If truly unspecified, make that clear, otherwise, might be confused with NULL...
 		// (Unspecified = no default whatsoever = column is not nullable with a value of null...)
-		if (($column_info['not_null'] === true) && !$column_info['drop_default'] && array_key_exists('default', $column_info) && is_null($column_info['default'])) {
+		if (
+			!empty($column_info['not_null'])
+			&& empty($column_info['drop_default'])
+			&& array_key_exists('default', $column_info)
+			&& is_null($column_info['default'])
+		) {
 			unset($column_info['default']);
 		}
 
@@ -1599,31 +1616,51 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
-		// What about a change in type?
-		if (isset($column_info['type']) && ($column_info['type'] != $old_info['type'] || (isset($column_info['size']) && $column_info['size'] != $old_info['size']))) {
+		// What about a change in type, or a change to/from a generated column?
+		if (
+			(
+				isset($column_info['type'])
+				&& (
+					$column_info['type'] != $old_info['type']
+					|| (
+						isset($column_info['size'])
+						&& $column_info['size'] != $old_info['size']
+					)
+				)
+			)
+			|| $column_info['generation_expression'] ?? '' !== $old_info['generation_expression'] ?? ''
+		) {
 			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
+
 			list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
 
 			if ($size !== null) {
-				$type = $type . '(' . $size . ')';
+				$type .= '(' . $size . ')';
 			}
+
+			$generated = !isset($column_info['generation_expression']) ? '' : ' GENERATED ALWAYS AS (' . $column_info['generation_expression'] . ') STORED';
 
 			// The alter is a pain.
 			$this->transaction('begin');
+
 			$this->query(
 				'ALTER TABLE ' . $short_table_name . '
-				ADD COLUMN ' . $column_info['name'] . '_tempxx ' . $type,
+				ADD COLUMN ' . $column_info['name'] . '_tempxx ' . $type . $generated,
 				[
 					'security_override' => true,
 				],
 			);
-			$this->query(
-				'UPDATE ' . $short_table_name . '
-				SET ' . $column_info['name'] . '_tempxx = CAST(' . $column_info['name'] . ' AS ' . $type . ')',
-				[
-					'security_override' => true,
-				],
-			);
+
+			if (empty($generated)) {
+				$this->query(
+					'UPDATE ' . $short_table_name . '
+					SET ' . $column_info['name'] . '_tempxx = CAST(' . $column_info['name'] . ' AS ' . $type . ')',
+					[
+						'security_override' => true,
+					],
+				);
+			}
+
 			$this->query(
 				'ALTER TABLE ' . $short_table_name . '
 				DROP COLUMN ' . $column_info['name'],
@@ -1631,6 +1668,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					'security_override' => true,
 				],
 			);
+
 			$this->query(
 				'ALTER TABLE ' . $short_table_name . '
 				RENAME COLUMN ' . $column_info['name'] . '_tempxx TO ' . $column_info['name'],
@@ -1638,6 +1676,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					'security_override' => true,
 				],
 			);
+
 			$this->transaction('commit');
 		}
 

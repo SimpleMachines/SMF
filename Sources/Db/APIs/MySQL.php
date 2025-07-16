@@ -1623,17 +1623,17 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Get the right bits.
-		if (isset($column_info['drop_default']) && !empty($column_info['drop_default'])) {
-			$column_info['drop_default'] = true;
-		} else {
-			$column_info['drop_default'] = false;
-		}
+		$column_info['drop_default'] = !empty($column_info['drop_default']);
 
 		if (!isset($column_info['name'])) {
 			$column_info['name'] = $old_column;
 		}
 
-		if (!array_key_exists('default', $column_info) && array_key_exists('default', $old_info) && empty($column_info['drop_default'])) {
+		if (
+			!array_key_exists('default', $column_info)
+			&& array_key_exists('default', $old_info)
+			&& !$column_info['drop_default']
+		) {
 			$column_info['default'] = $old_info['default'];
 		}
 
@@ -1657,16 +1657,43 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$column_info['unsigned'] = '';
 		}
 
+		foreach (['generation_expression', 'stored'] as $key) {
+			if (!array_key_exists($key, $column_info) && array_key_exists($key, $old_info)) {
+				$column_info[$key] = $old_info[$key];
+			}
+		}
+
+		// Default values and such are inapplicable to generated columns.
+		if (isset($column_info['generation_expression'])) {
+			$column_info['drop_default'] = true;
+			unset($column_info['default'], $column_info['not_null'], $column_info['auto']);
+		}
+
 		// If truly unspecified, make that clear, otherwise, might be confused with NULL...
 		// (Unspecified = no default whatsoever = column is not nullable with a value of null...)
-		if (($column_info['not_null'] === true) && !$column_info['drop_default'] && array_key_exists('default', $column_info) && is_null($column_info['default'])) {
+		if (
+			!empty($column_info['not_null'])
+			&& empty($column_info['drop_default'])
+			&& array_key_exists('default', $column_info)
+			&& is_null($column_info['default'])
+		) {
+			unset($column_info['default']);
+		}
+
+		// These types cannot have a default value.
+		if (in_array($column_info['type'], ['blob', 'text', 'json', 'geometry'])) {
+			$column_info['drop_default'] = true;
 			unset($column_info['default']);
 		}
 
 		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
 
+		if ($size !== null) {
+			$type .= '(' . $size . ')';
+		}
+
 		// Allow for unsigned integers (mysql only)
-		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
+		$type .= in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column_info['unsigned']) ? ' unsigned' : '';
 
 		// If you need to drop the default, that needs its own thing...
 		// Must be done first, in case the default type is inconsistent with the other changes.
@@ -1693,14 +1720,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		if ($size !== null) {
-			$type = $type . '(' . $size . ')';
-		}
+		// Is this a generated column?
+		$generated = !isset($column_info['generation_expression']) ? '' : ' GENERATED ALWAYS AS (' . $column_info['generation_expression'] . ') ' . (!empty($column_info['stored']) ? 'STORED' : 'VIRTUAL');
 
 		$result = $this->query(
 			'ALTER TABLE ' . $short_table_name . '
-			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' .
-				(!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
+			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . $generated . (!empty($column_info['not_null']) ? ' NOT NULL' : '') . ' ' .
 				$default_clause . ' ' .
 				(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
 			[
