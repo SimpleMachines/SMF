@@ -317,6 +317,15 @@ class MarkdownParser extends Parser
 	 */
 	public int $output_type = self::OUTPUT_HTML;
 
+	/**
+	 * @var int
+	 *
+	 * How to render line breaks.
+	 *
+	 * Value should be a bitmask of this class's BR_* constants.
+	 */
+	public int $hard_breaks = 0;
+
 	/*********************
 	 * Internal properties
 	 *********************/
