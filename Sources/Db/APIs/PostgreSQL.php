@@ -1979,7 +1979,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		$result = $this->query(
-			'SELECT column_name, column_default, is_nullable, data_type, character_maximum_length
+			'SELECT column_name, column_default, is_nullable, data_type, character_maximum_length, is_generated, generation_expression
 			FROM information_schema.columns
 			WHERE table_schema = {string:schema_public}
 				AND table_name = {string:table_name}
@@ -2020,6 +2020,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					'size' => $size,
 					'auto' => $auto,
 				];
+
+				if ($row['is_generated'] !== 'NEVER') {
+					$columns[$row['column_name']]['generation_expression'] = $row['generation_expression'];
+					// Generated columns are always stored in PostgreSQL.
+					$columns[$row['column_name']]['stored'] = true;
+				}
 			}
 		}
 		$this->free_result($result);

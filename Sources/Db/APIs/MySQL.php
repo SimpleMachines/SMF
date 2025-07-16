@@ -2005,7 +2005,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		$result = $this->query(
-			'SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra"
+			'SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra", generation_expression "generation_expression"
 			FROM information_schema.columns
 			WHERE table_name = {string:table_name}
 				AND table_schema = {string:db_name}
@@ -2050,6 +2050,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				if (isset($unsigned)) {
 					$columns[$row['Field']]['unsigned'] = $unsigned;
 					unset($unsigned);
+				}
+
+				if (str_contains($row['Extra'], 'GENERATED')) {
+					$columns[$row['Field']]['generation_expression'] = $row['generation_expression'];
+					$columns[$row['Field']]['stored'] = str_contains($row['Extra'], 'STORED');
 				}
 			}
 		}
@@ -2107,6 +2112,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 					$indexes[$row['Key_name']]['columns'][] = $row['Column_name'] . '(' . $row['Sub_part'] . ')';
 				} else {
 					$indexes[$row['Key_name']]['columns'][] = $row['Column_name'];
+				}
+
+				if (str_contains($row['Extra'], 'GENERATED')) {
+					$columns[$row['Field']]['generation_expression'] = $row['generation_expression'];
+					$columns[$row['Field']]['stored'] = str_contains($row['Extra'], 'STORED');
 				}
 			}
 		}
