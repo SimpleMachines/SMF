@@ -2833,6 +2833,16 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$column = array_change_key_case($column);
 
+		// Is this a generated column?
+		if (isset($column['generation_expression'])) {
+			$generated = ' GENERATED ALWAYS AS (' . $column['generation_expression'] . ') ' . (!empty($column['stored']) ? 'STORED' : 'VIRTUAL');
+
+			// These are never used for generated columns.
+			unset($column['not_null'], $column['default'], $column['auto']);
+		} else {
+			$generated = '';
+		}
+
 		// Auto increment is easy here!
 		if (!empty($column['auto'])) {
 			$default = 'auto_increment';
@@ -2861,15 +2871,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
 		list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
 
-		// Allow unsigned integers (mysql only)
-		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column['unsigned']) ? 'unsigned ' : '';
-
 		if ($size > 0) {
-			$type = $type . '(' . $size . ')';
+			$type .= '(' . $size . ')';
 		}
 
+		// Allow unsigned integers (mysql only)
+		$type .= in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column['unsigned']) ? ' unsigned' : '';
+
 		// Now just put it together!
-		return '`' . $column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['not_null']) ? 'NOT NULL' : '') . ' ' . $default;
+		return '`' . $column['name'] . '` ' . $type . ' ' . $generated . (!empty($column['not_null']) ? ' NOT NULL' : '') . ' ' . $default;
 	}
 
 	/**

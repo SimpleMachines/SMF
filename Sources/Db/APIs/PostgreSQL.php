@@ -1359,17 +1359,33 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$type = $type . '(' . $size . ')';
 		}
 
+		// Is this a generated column?
+		if (isset($column['generation_expression'])) {
+			// PostgreSQL only supports stored generated columns, not virtual ones.
+			$generated = ' GENERATED ALWAYS AS (' . $column['generation_expression'] . ') STORED';
+
+			// These are never used for generated columns.
+			unset($column['not_null'], $column['default'], $column['auto']);
+		} else {
+			$generated = '';
+		}
+
 		// Now add the thing!
 		$this->query(
 			'ALTER TABLE ' . $short_table_name . '
-			ADD COLUMN ' . $column_info['name'] . ' ' . $type,
+			ADD COLUMN ' . $column_info['name'] . ' ' . $type . $generated,
 			[
 				'security_override' => true,
 			],
 		);
 
 		// If there's more attributes they need to be done via a change on PostgreSQL.
-		unset($column_info['type'], $column_info['size']);
+		unset(
+			$column_info['type'],
+			$column_info['size'],
+			$column_info['generation_expression'],
+			$column_info['stored'],
+		);
 
 		if (count($column_info) != 1) {
 			return $this->change_column($table_name, $column_info['name'], $column_info);
@@ -1803,6 +1819,17 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		foreach ($columns as $column) {
 			$column = array_change_key_case($column);
 
+			// Is this a generated column?
+			if (isset($column['generation_expression'])) {
+				// PostgreSQL only supports stored generated columns, not virtual ones.
+				$generated = ' GENERATED ALWAYS AS (' . $column['generation_expression'] . ') STORED';
+
+				// These are never used for generated columns.
+				unset($column['not_null'], $column['default'], $column['auto']);
+			} else {
+				$generated = '';
+			}
+
 			// If we have an auto increment do it!
 			if (!empty($column['auto'])) {
 				if (!$old_table_exists) {
@@ -1843,7 +1870,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// Now just put it together!
-			$table_query .= "\n\t\"" . $column['name'] . '" ' . $type . ' ' . (!empty($column['not_null']) ? 'NOT NULL' : '') . ' ' . $default . ',';
+			$table_query .= "\n\t\"" . $column['name'] . '" ' . $type . $generated . (!empty($column['not_null']) ? ' NOT NULL' : '') . ' ' . $default . ',';
 		}
 
 		// Loop through the indexes next...
