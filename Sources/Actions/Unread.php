@@ -580,7 +580,7 @@ class Unread implements ActionInterface, Routable
 
 		// If the supplied start value was invalid, redirect to the correct one.
 		if ($_REQUEST['start'] != Utils::$context['start']) {
-			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, $start));
+			Utils::redirectexit(sprintf(Utils::$context['page_index']->base_url, Utils::$context['start']));
 		}
 
 		Utils::$context['current_page'] = floor(Utils::$context['start'] / Utils::$context['topics_per_page']);
