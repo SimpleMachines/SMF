@@ -212,20 +212,20 @@ class SocketFetcher extends WebFetchApi
 
 		// I want this, from there, and I may or may not bother you for more later.
 		if (empty($post_data)) {
-			fwrite($this->fp, 'GET ' . $path_and_query . ' HTTP/1.1' . $this->line_break);
-			fwrite($this->fp, 'Host: ' . $url->host . $this->line_break);
-			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . $this->line_break);
-			fwrite($this->fp, 'Connection: ' . ($this->keep_alive ? 'keep-alive' : 'close') . $this->line_break);
-			fwrite($this->fp, $this->line_break);
+			fwrite($this->fp, 'GET ' . $path_and_query . ' HTTP/1.1' . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, 'Host: ' . $url->host . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, 'Connection: ' . ($this->keep_alive ? 'keep-alive' : 'close') . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, $this->line_break) || throw new \Exception('Failed to write to socket');
 		} else {
-			fwrite($this->fp, 'POST ' . $path_and_query . ' HTTP/1.1' . $this->line_break);
-			fwrite($this->fp, 'Host: ' . $url->host . $this->line_break);
-			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . $this->line_break);
-			fwrite($this->fp, 'Connection: ' . ($this->keep_alive ? 'keep-alive' : 'close') . $this->line_break);
-			fwrite($this->fp, 'Content-Type: application/x-www-form-urlencoded' . $this->line_break);
-			fwrite($this->fp, 'Content-Length: ' . strlen($post_data) . $this->line_break);
-			fwrite($this->fp, $this->line_break);
-			fwrite($this->fp, $post_data);
+			fwrite($this->fp, 'POST ' . $path_and_query . ' HTTP/1.1' . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, 'Host: ' . $url->host . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, 'User-Agent: ' . SMF_USER_AGENT . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, 'Connection: ' . ($this->keep_alive ? 'keep-alive' : 'close') . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, 'Content-Type: application/x-www-form-urlencoded' . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, 'Content-Length: ' . strlen($post_data) . $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, $this->line_break) || throw new \Exception('Failed to write to socket');
+			fwrite($this->fp, $post_data) || throw new \Exception('Failed to write to socket');
 		}
 
 		$response = fgets($this->fp, 768);

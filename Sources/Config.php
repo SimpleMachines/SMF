@@ -2444,10 +2444,14 @@ class Config
 			}
 		}
 
-		// We're done with these.
-		@unlink($temp_sfile);
+		clearstatcache();
 
-		if (!empty($temp_bfile)) {
+		// We're done with these.
+		if (is_file($temp_sfile)) {
+			@unlink($temp_sfile);
+		}
+
+		if (!empty($temp_bfile) && is_file($temp_bfile)) {
 			@unlink($temp_bfile);
 		}
 
@@ -2775,7 +2779,7 @@ class Config
 		}
 
 		if (!isset($db_last_error)) {
-			self::updateDbLastError(0, true);
+			self::updateDbLastError(0);
 		} else {
 			self::$db_last_error = (int) $db_last_error;
 		}

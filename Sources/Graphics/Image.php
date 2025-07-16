@@ -450,6 +450,7 @@ class Image
 
 		$max_width = (int) round($max_width);
 		$max_height = (int) round($max_height);
+		$success = false;
 
 		// Do the job using ImageMagick.
 		if (extension_loaded('imagick') && isset(self::IMAGETYPE_TO_IMAGICK[$preferred_type])) {
@@ -458,6 +459,10 @@ class Image
 		// Do the job using GD.
 		elseif (extension_loaded('gd')) {
 			$success = $this->resizeUsingGD($destination, $max_width, $max_height, $preferred_type);
+		}
+
+		if (!$success) {
+			return false;
 		}
 
 		// Update properties to refer to the new image.
