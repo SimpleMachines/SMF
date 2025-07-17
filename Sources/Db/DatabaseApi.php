@@ -426,6 +426,7 @@ abstract class DatabaseApi
 					break;
 
 				case 'json':
+				case 'jsonb':
 				case 'enum':
 				case 'set':
 					$type = 'string';

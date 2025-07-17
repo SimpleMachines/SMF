@@ -1476,6 +1476,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'time' => 'time without time zone',
 				'datetime' => 'timestamp without time zone',
 				'timestamp' => 'timestamp without time zone',
+				'json' => 'jsonb',
 			];
 		} else {
 			$types = [
@@ -1486,6 +1487,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'time without time zone' => 'time',
 				'timestamp without time zone' => 'datetime',
 				'numeric' => 'decimal',
+				'jsonb' => 'json',
 			];
 		}
 

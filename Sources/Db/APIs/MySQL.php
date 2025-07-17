@@ -1582,6 +1582,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		} elseif ($type_name == 'boolean') {
 			$type_size = null;
+		} elseif ($type_name === 'jsonb') {
+			$type_name === 'json';
 		}
 
 		// We can't have a zero size, remove it.
