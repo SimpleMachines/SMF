@@ -1132,105 +1132,110 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function table_sql(string $tableName): string
+	public function table_sql(string $table_name): string
 	{
-		$tableName = str_replace('{db_prefix}', $this->prefix, $tableName);
-
-		// This will be needed...
-		$crlf = "\r\n";
+		$structure = $this->table_structure($table_name);
 
 		// Drop it if it exists.
-		$schema_create = 'DROP TABLE IF EXISTS `' . $tableName . '`;' . $crlf . $crlf;
+		$schema_create = 'DROP TABLE IF EXISTS ' . '`' . $structure['name'] . '`;';
+		$schema_create .= "\n\n";
 
 		// Start the create table...
-		$schema_create .= 'CREATE TABLE ' . '`' . $tableName . '` (' . $crlf;
+		$schema_create .= 'CREATE TABLE ' . '`' . $structure['name'] . '` (';
+		$schema_create .= "\n";
 
-		// Find all the fields.
-		$result = $this->query(
-			'SHOW FIELDS
-			FROM `{raw:table}`',
-			[
-				'table' => $tableName,
-			],
-		);
+		$inner_lines = [];
 
-		while ($row = $this->fetch_assoc($result)) {
-			// Make the CREATE for this column.
-			$schema_create .= ' `' . $row['Field'] . '` ' . $row['Type'] . ($row['Null'] != 'YES' ? ' NOT NULL' : '');
+		foreach ($structure['columns'] as $column) {
+			$line = '  `' . $column['name'] . '` ' . $column['type'];
 
-			// Add a default...?
-			if (!empty($row['Default']) || $row['Null'] !== 'YES') {
-				// Make a special case of auto-timestamp.
-				if ($row['Default'] == 'CURRENT_TIMESTAMP') {
-					$schema_create .= ' /*!40102 NOT NULL default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP */';
+			if (is_numeric($column['size'])) {
+				$line .= '(' . $column['size'] . ')';
+			}
+
+			if (!empty($column['unsigned'])) {
+				$line .= ' unsigned';
+			}
+
+			if (!empty($column['generation_expression'])) {
+				$line .= ' GENERATED ALWAYS AS (' . $this->unescape_string($column['generation_expression']) . ') ' . (!empty($column['stored']) ? 'STORED' : 'VIRTUAL');
+			}
+
+			if (!empty($column['not_null'])) {
+				$line .= ' NOT NULL';
+			}
+
+			if (
+				empty($column['generation_expression'])
+				&& (
+					!is_null($column['default'])
+					|| empty($column['not_null'])
+				)
+			) {
+				$line .= ' DEFAULT';
+
+				if (is_null($column['default'])) {
+					$line .= ' NULL';
+				} elseif (is_numeric($column['default'])) {
+					$line .= ' ' . $column['default'];
+				} else {
+					$line .= ' \'' . $column['default'] . '\'';
 				}
-				// Text shouldn't have a default.
-				elseif ($row['Default'] !== null) {
-					// If this field is numeric the default needs no escaping.
-					$type = strtolower($row['Type']);
-					$isNumericColumn = str_contains($type, 'int') || str_contains($type, 'bool') || str_contains($type, 'bit') || str_contains($type, 'float') || str_contains($type, 'double') || str_contains($type, 'decimal');
-
-					$schema_create .= ' default ' . ($isNumericColumn ? $row['Default'] : '\'' . $this->escape_string($row['Default']) . '\'');
-				}
 			}
 
-			// And now any extra information. (such as auto_increment.)
-			$schema_create .= ($row['Extra'] != '' ? ' ' . $row['Extra'] : '') . ',' . $crlf;
-		}
-		$this->free_result($result);
-
-		// Take off the last comma.
-		$schema_create = substr($schema_create, 0, -strlen($crlf) - 1);
-
-		// Find the keys.
-		$result = $this->query(
-			'SHOW KEYS
-			FROM `{raw:table}`',
-			[
-				'table' => $tableName,
-			],
-		);
-		$indexes = [];
-
-		while ($row = $this->fetch_assoc($result)) {
-			// IS this a primary key, unique index, or regular index?
-			$row['Key_name'] = $row['Key_name'] == 'PRIMARY' ? 'PRIMARY KEY' : (empty($row['Non_unique']) ? 'UNIQUE ' : ($row['Comment'] == 'FULLTEXT' || (isset($row['Index_type']) && $row['Index_type'] == 'FULLTEXT') ? 'FULLTEXT ' : 'KEY ')) . '`' . $row['Key_name'] . '`';
-
-			// Is this the first column in the index?
-			if (empty($indexes[$row['Key_name']])) {
-				$indexes[$row['Key_name']] = [];
+			if (!empty($column['auto'])) {
+				$line .= ' AUTO_INCREMENT';
 			}
 
-			// A sub part, like only indexing 15 characters of a varchar.
-			if (!empty($row['Sub_part'])) {
-				$indexes[$row['Key_name']][$row['Seq_in_index']] = '`' . $row['Column_name'] . '`(' . $row['Sub_part'] . ')';
-			} else {
-				$indexes[$row['Key_name']][$row['Seq_in_index']] = '`' . $row['Column_name'] . '`';
-			}
-		}
-		$this->free_result($result);
-
-		// Build the CREATEs for the keys.
-		foreach ($indexes as $keyname => $columns) {
-			// Ensure the columns are in proper order.
-			ksort($columns);
-
-			$schema_create .= ',' . $crlf . ' ' . $keyname . ' (' . implode(', ', $columns) . ')';
+			$inner_lines[] = $line;
 		}
 
-		// Now just get the comment and engine... (InnoDB, etc.)
-		$result = $this->query(
-			'SHOW TABLE STATUS
-			LIKE {string:table}',
-			[
-				'table' => strtr($tableName, ['_' => '\\_', '%' => '\\%']),
-			],
-		);
-		$row = $this->fetch_assoc($result);
-		$this->free_result($result);
+		foreach ($structure['indexes'] as $index) {
+			$line = '  ';
 
-		// Probably InnoDB.... and it might have a comment.
-		$schema_create .= $crlf . ') ENGINE=' . $row['Engine'] . ' ROW_FORMAT=' . $row['Row_format'] . ' COLLATE=' . $row['Collation'] . ($row['Comment'] != '' ? ' COMMENT="' . $row['Comment'] . '"' : '');
+			switch ($index['type']) {
+				case 'primary':
+					$line .= 'PRIMARY KEY';
+					break;
+
+				case 'unique':
+					$line .= 'UNIQUE KEY `' . $index['name'] . '`';
+					break;
+
+				case 'fulltext':
+					$line .= 'FULLTEXT KEY `' . $index['name'] . '`';
+					break;
+
+				default:
+					$line .= 'KEY `' . $index['name'] . '`';
+					break;
+			 }
+
+			 $line .= ' (`' . implode('`, `', $index['columns']) . '`)';
+
+			 $inner_lines[] = $line;
+		}
+
+		$schema_create .= implode(",\n", $inner_lines) . "\n";
+		$schema_create .= ')';
+
+		if (!empty($structure['engine'])) {
+			$schema_create .= ' ENGINE=' . $structure['engine'];
+		}
+
+		if (!empty($structure['row_format'])) {
+			$schema_create .= ' ROW_FORMAT=' . $structure['row_format'];
+		}
+
+		if (!empty($structure['collation'])) {
+			$schema_create .= ' COLLATE=' . $structure['collation'];
+		}
+
+		if (!empty($structure['comment'])) {
+			$schema_create .= ' COMMENT="' . $structure['comment'] . '"';
+		}
+
+		$schema_create .= "\n";
 
 		return $schema_create;
 	}
@@ -1623,17 +1628,17 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Get the right bits.
-		if (isset($column_info['drop_default']) && !empty($column_info['drop_default'])) {
-			$column_info['drop_default'] = true;
-		} else {
-			$column_info['drop_default'] = false;
-		}
+		$column_info['drop_default'] = !empty($column_info['drop_default']);
 
 		if (!isset($column_info['name'])) {
 			$column_info['name'] = $old_column;
 		}
 
-		if (!array_key_exists('default', $column_info) && array_key_exists('default', $old_info) && empty($column_info['drop_default'])) {
+		if (
+			!array_key_exists('default', $column_info)
+			&& array_key_exists('default', $old_info)
+			&& !$column_info['drop_default']
+		) {
 			$column_info['default'] = $old_info['default'];
 		}
 
@@ -1657,16 +1662,43 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$column_info['unsigned'] = '';
 		}
 
+		foreach (['generation_expression', 'stored'] as $key) {
+			if (!array_key_exists($key, $column_info) && array_key_exists($key, $old_info)) {
+				$column_info[$key] = $old_info[$key];
+			}
+		}
+
+		// Default values and such are inapplicable to generated columns.
+		if (isset($column_info['generation_expression'])) {
+			$column_info['drop_default'] = true;
+			unset($column_info['default'], $column_info['not_null'], $column_info['auto']);
+		}
+
 		// If truly unspecified, make that clear, otherwise, might be confused with NULL...
 		// (Unspecified = no default whatsoever = column is not nullable with a value of null...)
-		if (($column_info['not_null'] === true) && !$column_info['drop_default'] && array_key_exists('default', $column_info) && is_null($column_info['default'])) {
+		if (
+			!empty($column_info['not_null'])
+			&& empty($column_info['drop_default'])
+			&& array_key_exists('default', $column_info)
+			&& is_null($column_info['default'])
+		) {
+			unset($column_info['default']);
+		}
+
+		// These types cannot have a default value.
+		if (in_array($column_info['type'], ['blob', 'text', 'json', 'geometry'])) {
+			$column_info['drop_default'] = true;
 			unset($column_info['default']);
 		}
 
 		list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
 
+		if ($size !== null) {
+			$type .= '(' . $size . ')';
+		}
+
 		// Allow for unsigned integers (mysql only)
-		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column_info['unsigned']) ? 'unsigned ' : '';
+		$type .= in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column_info['unsigned']) ? ' unsigned' : '';
 
 		// If you need to drop the default, that needs its own thing...
 		// Must be done first, in case the default type is inconsistent with the other changes.
@@ -1693,14 +1725,12 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		}
 
-		if ($size !== null) {
-			$type = $type . '(' . $size . ')';
-		}
+		// Is this a generated column?
+		$generated = !isset($column_info['generation_expression']) ? '' : ' GENERATED ALWAYS AS (' . $column_info['generation_expression'] . ') ' . (!empty($column_info['stored']) ? 'STORED' : 'VIRTUAL');
 
 		$result = $this->query(
 			'ALTER TABLE ' . $short_table_name . '
-			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . ' ' .
-				(!empty($unsigned) ? $unsigned : '') . (!empty($column_info['not_null']) ? 'NOT NULL' : '') . ' ' .
+			CHANGE COLUMN `' . $old_column . '` `' . $column_info['name'] . '` ' . $type . $generated . (!empty($column_info['not_null']) ? ' NOT NULL' : '') . ' ' .
 				$default_clause . ' ' .
 				(empty($column_info['auto']) ? '' : 'auto_increment') . ' ',
 			[
@@ -1987,11 +2017,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$this->free_result($table_status);
 
 		return [
-			'name' => $parsed_table_name,
+			'name' => $real_table_name,
 			'columns' => is_null($row) ? [] : $this->list_columns($table_name, true),
 			'indexes' => is_null($row) ? [] : $this->list_indexes($table_name, true),
 			'engine' => is_null($row) ? '' : $row['Engine'],
 			'row_format' => is_null($row) ? '' : $row['Row_format'],
+			'collation' => is_null($row) ? '' : $row['Collation'],
+			'comment' => is_null($row) ? '' : $row['Comment'],
 		];
 	}
 
@@ -2005,7 +2037,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		$result = $this->query(
-			'SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra"
+			'SELECT column_name "Field", COLUMN_TYPE "Type", is_nullable "Null", COLUMN_KEY "Key" , column_default "Default", extra "Extra", generation_expression "generation_expression"
 			FROM information_schema.columns
 			WHERE table_name = {string:table_name}
 				AND table_schema = {string:db_name}
@@ -2050,6 +2082,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				if (isset($unsigned)) {
 					$columns[$row['Field']]['unsigned'] = $unsigned;
 					unset($unsigned);
+				}
+
+				if (str_contains($row['Extra'], 'GENERATED')) {
+					$columns[$row['Field']]['generation_expression'] = $row['generation_expression'];
+					$columns[$row['Field']]['stored'] = str_contains($row['Extra'], 'STORED');
 				}
 			}
 		}
@@ -2798,6 +2835,16 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		$column = array_change_key_case($column);
 
+		// Is this a generated column?
+		if (isset($column['generation_expression'])) {
+			$generated = ' GENERATED ALWAYS AS (' . $column['generation_expression'] . ') ' . (!empty($column['stored']) ? 'STORED' : 'VIRTUAL');
+
+			// These are never used for generated columns.
+			unset($column['not_null'], $column['default'], $column['auto']);
+		} else {
+			$generated = '';
+		}
+
 		// Auto increment is easy here!
 		if (!empty($column['auto'])) {
 			$default = 'auto_increment';
@@ -2826,15 +2873,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		$column['size'] = isset($column['size']) && is_numeric($column['size']) ? $column['size'] : null;
 		list($type, $size) = $this->calculate_type($column['type'], (int) $column['size']);
 
-		// Allow unsigned integers (mysql only)
-		$unsigned = in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column['unsigned']) ? 'unsigned ' : '';
-
 		if ($size > 0) {
-			$type = $type . '(' . $size . ')';
+			$type .= '(' . $size . ')';
 		}
 
+		// Allow unsigned integers (mysql only)
+		$type .= in_array($type, ['int', 'tinyint', 'smallint', 'mediumint', 'bigint']) && !empty($column['unsigned']) ? ' unsigned' : '';
+
 		// Now just put it together!
-		return '`' . $column['name'] . '` ' . $type . ' ' . (!empty($unsigned) ? $unsigned : '') . (!empty($column['not_null']) ? 'NOT NULL' : '') . ' ' . $default;
+		return '`' . $column['name'] . '` ' . $type . ' ' . $generated . (!empty($column['not_null']) ? ' NOT NULL' : '') . ' ' . $default;
 	}
 
 	/**
