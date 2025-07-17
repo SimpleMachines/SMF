@@ -1748,6 +1748,24 @@ $(function() {
 		});
 	});
 
+	$('.edit_history_list').each(function(index, item) {
+		$(item).prev().click(function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+
+			if ($(item).is(':visible')) {
+				$(item).css('display', 'none');
+
+				return true;
+			}
+
+			$(item).css('display', 'block');
+		});
+		$(document).click(function() {
+			$(item).css('display', 'none');
+		});
+	});
+
 	// Generic confirmation message.
 	$(document).on('click', '.you_sure', function() {
 		if (this.getAttribute('type') === 'checkbox' && !this.checked) {

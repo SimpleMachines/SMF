@@ -57,6 +57,7 @@ class QueryString
 		'deletemsg'				=> Actions\MsgDelete::class,
 		'display'				=> Actions\Display::class,
 		'dlattach'				=> Actions\AttachmentDownload::class,
+		'edithistory'			=> Actions\ShowMsgHistory::class,
 		'editpoll'				=> Actions\PollEdit::class,
 		'editpoll2'				=> Actions\PollEdit2::class,
 		'feed'					=> Actions\Feed::class,

@@ -21,17 +21,6 @@ namespace SMF\Diff;
  *
  * One-way diffs require less storage space than two-way diffs, but they can
  * only be used to transform $str1 into $str2 and not vice versa.
- *
- * @todo Add a column to the messages table to store the JSON. For each revision
- *       of a post, create an EditDiff using the new text for $str1, the old text
- *       for $str2, and the post's new modification time for $time1. Then use
- *       EditDiff::export() to get a diff of the revision and add it to the edit
- *       history list. During retrieval, the timestamp of each revision will be
- *       available in the first value of the exported JSON, and the crc32c hash
- *       of the string that it applies to will be the second value. The reason
- *       to include the crc32c is to detect and protect against cases where the
- *       text was changed by external processes (e.g. the admin using SQL to
- *       alter message content).
  */
 class EditDiff extends Diff
 {

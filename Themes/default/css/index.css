@@ -3554,6 +3554,7 @@ img.avatar {
 	flex-flow: row wrap;
 	justify-content: space-between;
 	align-items: center;
+	position: relative;
 }
 .keyinfo .postinfo::after, .under_message::after {
 	content: "";
@@ -3571,6 +3572,25 @@ img.avatar {
 	font-weight: normal;
 	font-style: italic;
 	padding: 2px 4px 0 4px;
+}
+.edit_history_list {
+	/* Start with it hidden until toggled on */
+	display: none;
+	z-index: 90;
+	position: absolute;
+	right: 0;
+	top: 2em;
+	background: #fdfdfd;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 1em;
+	min-width: 18.2em;
+	font-weight: normal;
+}
+.edit_history_list li {
+	margin-top: 0.5em;
+	padding-top: 0.5em;
+	border-top: 1px solid #ddd;
 }
 .bump_notice {
 	display: block;
