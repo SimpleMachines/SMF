@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Db\Schema\v3_0;
 
+use SMF\Db\DatabaseApi as Db;
 use SMF\Db\Schema\Column;
 use SMF\Db\Schema\DbIndex;
 use SMF\Db\Schema\Table;

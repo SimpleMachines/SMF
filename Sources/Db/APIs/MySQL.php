@@ -1439,7 +1439,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach ($index_info['columns'] as &$c) {
 			if (is_array($c)) {
-				$c = $c['name'] . (isset($c['size']) ? '(' . $c['size'] . ')' : '');
+				$c = $c['name'];
 			}
 
 			$c = trim($c);
@@ -1582,6 +1582,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			}
 		} elseif ($type_name == 'boolean') {
 			$type_size = null;
+		} elseif ($type_name === 'jsonb') {
+			$type_name === 'json';
 		}
 
 		// We can't have a zero size, remove it.
