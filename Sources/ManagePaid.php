@@ -1943,7 +1943,7 @@ function loadSubscriptions()
 		$context['subscriptions'][$row['id_subscribe']] = array(
 			'id' => $row['id_subscribe'],
 			'name' => $row['name'],
-			'desc' => $row['description'],
+			'desc' => parse_bbc($row['description']),
 			'cost' => $cost,
 			'real_cost' => $row['cost'],
 			'length' => $length,
