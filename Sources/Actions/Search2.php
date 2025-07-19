@@ -25,6 +25,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\PageIndex;
 use SMF\Routable;
+use SMF\Sapi;
 use SMF\Search\SearchApi;
 use SMF\Search\SearchResult;
 use SMF\Security;
@@ -264,7 +265,7 @@ class Search2 implements ActionInterface, Routable
 	 */
 	protected function checkLoadAverage(): void
 	{
-		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_search']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_search']) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_search'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_search_disabled', false);
 		}
 	}

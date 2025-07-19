@@ -77,6 +77,13 @@ class Sapi
 	 */
 	protected static string $temp_dir;
 
+	/**
+	 * @var float
+	 *
+	 * Current system load
+	 */
+	protected static ?float $current_load = null;
+
 	/***********************
 	 * Public static methods
 	 ***********************/
@@ -377,12 +384,14 @@ class Sapi
 	 * Makes call to the Server API (SAPI) to increase the time limit.
 	 *
 	 * @param int $limit Requested amount of time, defaults to 600 seconds.
+	 * @return bool True on success, or false on failure.
 	 */
-	public static function setTimeLimit(int $limit = 600)
+	public static function setTimeLimit(int $limit = 600): bool
 	{
 		try {
-			set_time_limit($limit);
+			return set_time_limit($limit);
 		} catch (\Exception $e) {
+			return false;
 		}
 	}
 
@@ -399,5 +408,73 @@ class Sapi
 			} catch (\Exception $e) {
 			}
 		}
+	}
+
+	/**
+	 * Determiens the load average.
+	 * On windows we return -0.01.
+	 * On Linux we attempt to use sys_getloadavg, fall back to traditional reading of /proc/loadavg.
+	 * If we can't load the load average, we return -0.01
+	 * Linux Note: The returned value is a percent represented as a float. However, the percent
+	 * 	can exceed 1.00 (100%) if more than 1 cpu is present. In a 4 cpu system, the max would
+	 * 	be 400% or 4.00.
+	 *
+	 * @return float
+	 */
+	public static function getLoadAverage(): float
+	{
+		if (self::$current_load !== null) {
+			return self::$current_load;
+		}
+
+		/*
+		 * It is possible to get Windows load average using a method such as:
+		 * 		wmic cpu get loadpercentage /all /format:value
+		 * 		typeperf -sc 1 "\Processor(_Total)\% Processor Time"
+		 * However this is slow to respond
+		 */
+		if (self::isOS(self::OS_WINDOWS)) {
+			return self::$current_load = -0.01;
+		}
+
+		try {
+			// False | array[0 => 1 minute, 1 => 5 minute, 2 => 15 minute].
+			$current_load = sys_getloadavg();
+
+			// sys_getloadavg returns false on failure.
+			if ($current_load !== false) {
+				return self::$current_load = (float) $current_load[0];
+			}
+
+			// Most Linux distros offer a nice file that we can read.
+			$current_load = @file_get_contents('/proc/loadavg');
+
+			if (!empty($current_load) && preg_match('~^([^ ]+?) ([^ ]+?) ([^ ]+)~', $current_load, $matches) !== 0) {
+				return self::$current_load = (float) $matches[1];
+			}
+
+			// On both Linux and Unix (e.g. macOS), we can we can check shell_exec('uptime').
+			if (($current_load = @shell_exec('uptime')) !== null && preg_match('~load averages?: (\d+\.\d+)~i', $current_load, $matches) !== 0) {
+				return self::$current_load = (float) $matches[1];
+			}
+		} catch (\Exception $ex) {
+		}
+
+		// No sys_getloadavg, shell_exec('uptime') and no /proc/loadavg, so we can't check.
+		return self::$current_load = -0.01;
+	}
+
+	/**
+	 * Checks if the server load meets a threshold.
+	 *
+	 * @param null|int|float|string $threshold
+	 */
+	public static function isOverloaded(int|float|string|null $threshold): bool
+	{
+		if (empty($threshold)) {
+			return false;
+		}
+
+		return self::getLoadAverage() >= (float) $threshold;
 	}
 }

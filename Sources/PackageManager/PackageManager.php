@@ -1074,6 +1074,9 @@ class PackageManager
 			$install_log = PackageUtils::parsePackageInfo($packageInfo['xml'], false, 'install');
 		}
 
+		// Disable background tasks while the code is in flux.
+		Config::updateSettingsFile(['package_installing' => true]);
+
 		Utils::$context['install_finished'] = false;
 
 		// @todo Make a log of any errors that occurred and output them?
@@ -1416,6 +1419,9 @@ class PackageManager
 
 		// Does Config::$backward_compatibility need to be updated?
 		$this->updateBackwardCompatibility();
+
+		// Resume background tasks.
+		Config::updateSettingsFile(['package_installing' => null]);
 	}
 
 	/**

@@ -138,6 +138,11 @@ class TaskRunner
 				ErrorHandler::displayMaintenanceMessage();
 			}
 
+			// Do nothing if we are in the middle of an install or upgrade.
+			if (!empty(Config::$package_installing) || !empty(Config::$upgradeData)) {
+				$this->obExit();
+			}
+
 			Security::frameOptionsHeader();
 
 			// Before we go any further, if this is not a CLI request, we need to do some checking.
