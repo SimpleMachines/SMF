@@ -521,6 +521,7 @@ class Calendar extends Table
 			),
 			'adjustments' => new Column(
 				name: 'adjustments',
+				// Type will automatically be changed to jsonb for PostrgreSQL.
 				type: 'json',
 				not_null: false,
 				default: null,

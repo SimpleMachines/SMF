@@ -51,53 +51,53 @@ class Url implements \Stringable
 	public ?string $scheme = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The host component of the URL.
 	 */
-	public string $host;
+	public ?string $host = null;
 
 	/**
-	 * @var int
+	 * @var ?int
 	 *
 	 * The port component of the URL.
 	 */
-	public int $port;
+	public ?int $port = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The user component of the URL.
 	 */
-	public string $user;
+	public ?string $user = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The password component of the URL.
 	 */
-	public string $pass;
+	public ?string $pass = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The path component of the URL.
 	 */
-	public string $path;
+	public ?string $path = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The query component of the URL.
 	 */
-	public string $query;
+	public ?string $query = null;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * The fragment component of the URL.
 	 */
-	public string $fragment;
+	public ?string $fragment = null;
 
 	/**************************
 	 * Public static properties

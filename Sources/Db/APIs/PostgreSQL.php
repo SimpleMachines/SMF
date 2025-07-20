@@ -1018,18 +1018,15 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function table_sql(string $tableName): string
+	public function table_sql(string $table_name): string
 	{
-		$tableName = str_replace('{db_prefix}', $this->prefix, $tableName);
-
-		// This will be needed...
-		$crlf = "\r\n";
+		$table_name = str_replace('{db_prefix}', $this->prefix, $table_name);
 
 		// Drop it if it exists.
-		$schema_create = 'DROP TABLE IF EXISTS ' . $tableName . ';' . $crlf . $crlf;
+		$schema_create = 'DROP TABLE IF EXISTS ' . $table_name . ';' . "\n\n";
 
 		// Start the create table...
-		$schema_create .= 'CREATE TABLE ' . $tableName . ' (' . $crlf;
+		$schema_create .= 'CREATE TABLE ' . $table_name . ' (' . "\n";
 		$index_create = '';
 		$seq_create = '';
 
@@ -1040,7 +1037,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			WHERE table_name = {string:table}
 			ORDER BY ordinal_position',
 			[
-				'table' => $tableName,
+				'table' => $table_name,
 			],
 		);
 
@@ -1070,23 +1067,28 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 						FROM {raw:table}',
 						[
 							'column' => $row['column_name'],
-							'table' => $tableName,
+							'table' => $table_name,
 						],
 					);
 					list($max_ind) = $this->fetch_row($count_req);
 					$this->free_result($count_req);
+
 					// Get the right bloody start!
-					$seq_create .= 'CREATE SEQUENCE ' . $matches[1] . ' START WITH ' . ($max_ind + 1) . ';' . $crlf . $crlf;
+					$seq_create .= 'CREATE SEQUENCE ' . $matches[1] . ' START WITH ' . ($max_ind + 1) . ';' . "\n\n";
 				}
 			}
 
-			$schema_create .= ',' . $crlf;
+			$schema_create .= ',' . "\n";
 		}
 		$this->free_result($result);
 
 		// Take off the last comma.
-		$schema_create = substr($schema_create, 0, -strlen($crlf) - 1);
+		$schema_create = substr($schema_create, 0, -2);
 
+		// Finish it off!
+		$schema_create .= "\n" . ');';
+
+		// Now the indexes.
 		$result = $this->query(
 			'SELECT pg_get_indexdef(i.indexrelid) AS inddef
 			FROM pg_class AS c
@@ -1094,13 +1096,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				INNER JOIN pg_class AS c2 ON (c2.oid = i.indexrelid)
 			WHERE c.relname = {string:table} AND i.indisprimary is {raw:pk}',
 			[
-				'table' => $tableName,
+				'table' => $table_name,
 				'pk'	=> 'false',
 			],
 		);
 
 		while ($row = $this->fetch_assoc($result)) {
-			$index_create .= $crlf . $row['inddef'] . ';';
+			$index_create .= "\n" . $row['inddef'] . ';';
 		}
 		$this->free_result($result);
 
@@ -1108,20 +1110,17 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			'SELECT pg_get_constraintdef(c.oid) as pkdef
 			FROM pg_constraint as c
 			WHERE c.conrelid::regclass::text = {string:table} AND
-				c.contype = {string:constraintType}',
+				c.contype = {string:constraint_type}',
 			[
-				'table' 			=> $tableName,
-				'constraintType'	=> 'p',
+				'table' 			=> $table_name,
+				'constraint_type'	=> 'p',
 			],
 		);
 
 		while ($row = $this->fetch_assoc($result)) {
-			$index_create .= $crlf . 'ALTER TABLE ' . $tableName . ' ADD ' . $row['pkdef'] . ';';
+			$index_create .= "\n" . 'ALTER TABLE ' . $table_name . ' ADD ' . $row['pkdef'] . ';';
 		}
 		$this->free_result($result);
-
-		// Finish it off!
-		$schema_create .= $crlf . ');';
 
 		return $seq_create . $schema_create . $index_create;
 	}
@@ -1359,17 +1358,33 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$type = $type . '(' . $size . ')';
 		}
 
+		// Is this a generated column?
+		if (isset($column['generation_expression'])) {
+			// PostgreSQL only supports stored generated columns, not virtual ones.
+			$generated = ' GENERATED ALWAYS AS (' . $column['generation_expression'] . ') STORED';
+
+			// These are never used for generated columns.
+			unset($column['not_null'], $column['default'], $column['auto']);
+		} else {
+			$generated = '';
+		}
+
 		// Now add the thing!
 		$this->query(
 			'ALTER TABLE ' . $short_table_name . '
-			ADD COLUMN ' . $column_info['name'] . ' ' . $type,
+			ADD COLUMN ' . $column_info['name'] . ' ' . $type . $generated,
 			[
 				'security_override' => true,
 			],
 		);
 
 		// If there's more attributes they need to be done via a change on PostgreSQL.
-		unset($column_info['type'], $column_info['size']);
+		unset(
+			$column_info['type'],
+			$column_info['size'],
+			$column_info['generation_expression'],
+			$column_info['stored'],
+		);
 
 		if (count($column_info) != 1) {
 			return $this->change_column($table_name, $column_info['name'], $column_info);
@@ -1476,6 +1491,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'time' => 'time without time zone',
 				'datetime' => 'timestamp without time zone',
 				'timestamp' => 'timestamp without time zone',
+				'json' => 'jsonb',
 			];
 		} else {
 			$types = [
@@ -1486,6 +1502,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				'time without time zone' => 'time',
 				'timestamp without time zone' => 'datetime',
 				'numeric' => 'decimal',
+				'jsonb' => 'json',
 			];
 		}
 
@@ -1534,17 +1551,17 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// Get the right bits.
-		if (isset($column_info['drop_default']) && !empty($column_info['drop_default'])) {
-			$column_info['drop_default'] = true;
-		} else {
-			$column_info['drop_default'] = false;
-		}
+		$column_info['drop_default'] = !empty($column_info['drop_default']);
 
 		if (!isset($column_info['name'])) {
 			$column_info['name'] = $old_column;
 		}
 
-		if (!array_key_exists('default', $column_info) && array_key_exists('default', $old_info) && empty($column_info['drop_default'])) {
+		if (
+			!array_key_exists('default', $column_info)
+			&& array_key_exists('default', $old_info)
+			&& !$column_info['drop_default']
+		) {
 			$column_info['default'] = $old_info['default'];
 		}
 
@@ -1568,9 +1585,26 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$column_info['unsigned'] = '';
 		}
 
+		foreach (['generation_expression', 'stored'] as $key) {
+			if (!array_key_exists($key, $column_info) && array_key_exists($key, $old_info)) {
+				$column_info[$key] = $old_info[$key];
+			}
+		}
+
+		// Default values and such are inapplicable to generated columns.
+		if (isset($column_info['generation_expression'])) {
+			$column_info['drop_default'] = true;
+			unset($column_info['default'], $column_info['not_null'], $column_info['auto']);
+		}
+
 		// If truly unspecified, make that clear, otherwise, might be confused with NULL...
 		// (Unspecified = no default whatsoever = column is not nullable with a value of null...)
-		if (($column_info['not_null'] === true) && !$column_info['drop_default'] && array_key_exists('default', $column_info) && is_null($column_info['default'])) {
+		if (
+			!empty($column_info['not_null'])
+			&& empty($column_info['drop_default'])
+			&& array_key_exists('default', $column_info)
+			&& is_null($column_info['default'])
+		) {
 			unset($column_info['default']);
 		}
 
@@ -1597,31 +1631,51 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 		}
 
-		// What about a change in type?
-		if (isset($column_info['type']) && ($column_info['type'] != $old_info['type'] || (isset($column_info['size']) && $column_info['size'] != $old_info['size']))) {
+		// What about a change in type, or a change to/from a generated column?
+		if (
+			(
+				isset($column_info['type'])
+				&& (
+					$column_info['type'] != $old_info['type']
+					|| (
+						isset($column_info['size'])
+						&& $column_info['size'] != $old_info['size']
+					)
+				)
+			)
+			|| $column_info['generation_expression'] ?? '' !== $old_info['generation_expression'] ?? ''
+		) {
 			$column_info['size'] = isset($column_info['size']) && is_numeric($column_info['size']) ? $column_info['size'] : null;
+
 			list($type, $size) = $this->calculate_type($column_info['type'], (int) $column_info['size']);
 
 			if ($size !== null) {
-				$type = $type . '(' . $size . ')';
+				$type .= '(' . $size . ')';
 			}
+
+			$generated = !isset($column_info['generation_expression']) ? '' : ' GENERATED ALWAYS AS (' . $column_info['generation_expression'] . ') STORED';
 
 			// The alter is a pain.
 			$this->transaction('begin');
+
 			$this->query(
 				'ALTER TABLE ' . $short_table_name . '
-				ADD COLUMN ' . $column_info['name'] . '_tempxx ' . $type,
+				ADD COLUMN ' . $column_info['name'] . '_tempxx ' . $type . $generated,
 				[
 					'security_override' => true,
 				],
 			);
-			$this->query(
-				'UPDATE ' . $short_table_name . '
-				SET ' . $column_info['name'] . '_tempxx = CAST(' . $column_info['name'] . ' AS ' . $type . ')',
-				[
-					'security_override' => true,
-				],
-			);
+
+			if (empty($generated)) {
+				$this->query(
+					'UPDATE ' . $short_table_name . '
+					SET ' . $column_info['name'] . '_tempxx = CAST(' . $column_info['name'] . ' AS ' . $type . ')',
+					[
+						'security_override' => true,
+					],
+				);
+			}
+
 			$this->query(
 				'ALTER TABLE ' . $short_table_name . '
 				DROP COLUMN ' . $column_info['name'],
@@ -1629,6 +1683,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					'security_override' => true,
 				],
 			);
+
 			$this->query(
 				'ALTER TABLE ' . $short_table_name . '
 				RENAME COLUMN ' . $column_info['name'] . '_tempxx TO ' . $column_info['name'],
@@ -1636,6 +1691,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					'security_override' => true,
 				],
 			);
+
 			$this->transaction('commit');
 		}
 
@@ -1762,6 +1818,17 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		foreach ($columns as $column) {
 			$column = array_change_key_case($column);
 
+			// Is this a generated column?
+			if (isset($column['generation_expression'])) {
+				// PostgreSQL only supports stored generated columns, not virtual ones.
+				$generated = ' GENERATED ALWAYS AS (' . $column['generation_expression'] . ') STORED';
+
+				// These are never used for generated columns.
+				unset($column['not_null'], $column['default'], $column['auto']);
+			} else {
+				$generated = '';
+			}
+
 			// If we have an auto increment do it!
 			if (!empty($column['auto'])) {
 				if (!$old_table_exists) {
@@ -1802,7 +1869,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			}
 
 			// Now just put it together!
-			$table_query .= "\n\t\"" . $column['name'] . '" ' . $type . ' ' . (!empty($column['not_null']) ? 'NOT NULL' : '') . ' ' . $default . ',';
+			$table_query .= "\n\t\"" . $column['name'] . '" ' . $type . $generated . (!empty($column['not_null']) ? ' NOT NULL' : '') . ' ' . $default . ',';
 		}
 
 		// Loop through the indexes next...
@@ -1977,7 +2044,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$database = !empty($match[2]) ? $match[2] : $this->name;
 
 		$result = $this->query(
-			'SELECT column_name, column_default, is_nullable, data_type, character_maximum_length
+			'SELECT column_name, column_default, is_nullable, data_type, character_maximum_length, is_generated, generation_expression
 			FROM information_schema.columns
 			WHERE table_schema = {string:schema_public}
 				AND table_name = {string:table_name}
@@ -2018,6 +2085,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					'size' => $size,
 					'auto' => $auto,
 				];
+
+				if ($row['is_generated'] !== 'NEVER') {
+					$columns[$row['column_name']]['generation_expression'] = $row['generation_expression'];
+					// Generated columns are always stored in PostgreSQL.
+					$columns[$row['column_name']]['stored'] = true;
+				}
 			}
 		}
 		$this->free_result($result);

@@ -212,7 +212,7 @@ class Table
 				continue;
 			}
 
-			foreach (['name', 'size', 'unsigned', 'not_null', 'default', 'auto'] as $prop) {
+			foreach (['name', 'size', 'unsigned', 'generated_expression', 'stored', 'not_null', 'default', 'auto'] as $prop) {
 				if (($structure['columns'][$col->name][$prop] ?? null) != ($col->{$prop} ?? null)) {
 					$columns_to_change[$col->name] = $col;
 					continue 2;
@@ -236,7 +236,7 @@ class Table
 
 			// If we need to change any columns in this index, rebuild the index too.
 			foreach ([$index->columns, $structure['indexes'][$index->name]['columns']] as $cols) {
-				if (array_intersect($cols, array_keys($columns_to_change)) !== []) {
+				if (array_intersect(array_keys($cols), array_keys($columns_to_change)) !== []) {
 					$indexes_to_change[$index->name] = $index;
 					continue 2;
 				}
@@ -413,7 +413,7 @@ class Table
 	 */
 	public function fixIndexName(DbIndex $index): bool
 	{
-		foreach ($this->list_indexes($this->name, true) as $existing_index) {
+		foreach (Db::$db->list_indexes('{db_prefix}' . $this->name, true) as $existing_index) {
 			// Must be the same type.
 			if ($index->type !== $existing_index['type']) {
 				continue;
@@ -430,7 +430,7 @@ class Table
 			}
 
 			// Do the rename.
-			return Db::$db->rename_index($this->name, $existing_index['name'], $index->name);
+			return Db::$db->rename_index('{db_prefix}' . $this->name, $existing_index['name'], $index->name);
 		}
 
 		// No matching index was found.

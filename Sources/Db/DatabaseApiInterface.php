@@ -347,7 +347,8 @@ interface DatabaseApiInterface
 	 *
 	 * @param string $table The name of the table to backup
 	 * @param string $backup_table The name of the backup table for this table
-	 * @return resource|false -the request handle to the table creation query, false if it failed.
+	 * @return object|false The request handle to the table creation query, or
+	 *    false if it failed.
 	 */
 	public function backup_table(string $table, string $backup_table): object|bool;
 
@@ -362,19 +363,19 @@ interface DatabaseApiInterface
 	/**
 	 * Dumps the schema (CREATE) for a table.
 	 *
-	 * @todo why is this needed for?
-	 * @param string $tableName The name of the table
-	 * @return string The "CREATE TABLE" SQL string for this table
+	 * @param string $table_name The name of the table.
+	 * @return string The "CREATE TABLE" SQL string for this table.
 	 */
-	public function table_sql(string $tableName): string;
+	public function table_sql(string $table_name): string;
 
 	/**
 	 * This function lists all tables in the database.
-	 * The listing could be filtered according to $filter.
 	 *
-	 * @param string|bool $db string The database name or false to use the current DB
-	 * @param string|bool $filter String to filter by or false to list all tables
-	 * @return array An array of table names
+	 * The listing can be filtered according to $filter.
+	 *
+	 * @param string|bool $db The database name or false to use the current DB.
+	 * @param string|bool $filter String to filter by or false to list all.
+	 * @return array An array of table names.
 	 */
 	public function list_tables(string|bool $db = false, string|bool $filter = false): array;
 
