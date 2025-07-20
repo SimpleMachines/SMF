@@ -1423,7 +1423,7 @@ function corsPolicyHeader($set_header = true)
 		foreach ($allowed_origins as $allowed_origin)
 		{
 			// If a specific scheme is required, it must match.
-			if (!empty($allowed_origin['scheme']) && $allowed_origin['scheme'] !== $origin['scheme'])
+			if (!empty($allowed_origin['scheme']) && (empty($origin['scheme']) || $allowed_origin['scheme'] !== $origin['scheme']))
 				continue;
 
 			// If a specific port is required, it must match.
@@ -1431,7 +1431,7 @@ function corsPolicyHeader($set_header = true)
 			{
 				// Automatically supply the default port for the "special" schemes.
 				// See https://url.spec.whatwg.org/#special-scheme
-				if (empty($origin['port']))
+				if (empty($origin['port']) && !empty($origin['scheme']))
 				{
 					switch ($origin['scheme'])
 					{
