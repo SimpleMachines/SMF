@@ -2733,7 +2733,7 @@ class ServerSideIncludes
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = m.id_topic)
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)' . (empty(Config::$modSettings['attachmentShowImages']) || empty(Config::$modSettings['attachmentThumbnails']) ? '' : '
 				LEFT JOIN {db_prefix}attachments AS thumb ON (thumb.id_attach = att.id_thumb)') . '
-			WHERE att.attachment_type = 0' . ($attachments_boards === [0] ? '' : '
+			WHERE att.attachment_type = {int:attachment_type}' . ($attachments_boards === [0] ? '' : '
 				AND m.id_board IN ({array_int:boards_can_see})') . (!empty($attachment_ext) ? '
 				AND att.fileext IN ({array_string:attachment_ext})' : '') .
 				(!Config::$modSettings['postmod_active'] || User::$me->allowedTo('approve_posts') ? '' : '
@@ -2743,6 +2743,7 @@ class ServerSideIncludes
 			ORDER BY att.id_attach DESC
 			LIMIT {int:num_attachments}',
 			[
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'boards_can_see' => $attachments_boards,
 				'attachment_ext' => $attachment_ext,
 				'num_attachments' => $num_attachments,

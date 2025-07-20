@@ -24,6 +24,7 @@ use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\User;
 use SMF\Utils;
 
@@ -52,7 +53,7 @@ class StatPanel implements ActionInterface
 		];
 
 		// Is the load average too high to allow searching just now?
-		if (!empty(Utils::$context['load_average']) && !empty(Config::$modSettings['loadavg_userstats']) && Utils::$context['load_average'] >= Config::$modSettings['loadavg_userstats']) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_userstats'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_userstats_disabled', false);
 		}
 

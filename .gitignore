@@ -7,6 +7,7 @@
 Settings.php
 Settings_bak.php
 Settings_org.php
+!Sources/Db/Schema/*/Settings.php
 db_last_error.php
 cache/*
 Packages/backups/*
@@ -21,6 +22,7 @@ attachments/
 Themes/default/css/minified*.css
 Themes/default/scripts/minified*.js
 Themes/default/scripts/minified_deferred*.js
+Themes/default/scripts/autolinker.js
 custom_avatar/
 !custom_avatar/index.php
 !custom_avatar/blank.png

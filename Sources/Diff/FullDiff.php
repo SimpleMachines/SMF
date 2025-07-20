@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Diff;
 
+use SMF\Time;
 use SMF\Utils;
 
 /**
@@ -65,10 +66,13 @@ class FullDiff extends Diff
 	 * Given the modified string, reconstructs the original string.
 	 *
 	 * @param string $str2 The modified string.
+	 * @param bool $dynamic_context Whether to allow the matching algorithm to
+	 *    dynamically adjust the number of context lines it considers when
+	 *    attempting to find a match for each change. Default: false.
 	 * @throws \ValueError if given a string it cannot work with.
 	 * @return string The original string.
 	 */
-	public function revert(string $str2): string
+	public function revert(string $str2, bool $dynamic_context = false): string
 	{
 		$real_changes = $this->changes;
 
@@ -81,7 +85,7 @@ class FullDiff extends Diff
 		}
 
 		try {
-			$str1 = $this->apply($str2);
+			$str1 = $this->apply($str2, $dynamic_context);
 		} catch (\ValueError $e) {
 			$this->changes = $real_changes;
 
@@ -375,7 +379,7 @@ class FullDiff extends Diff
 				array_unshift($output, 'optional' . "\n");
 			}
 
-			array_unshift($output, 'diff --smf ' . $path1 . ' ' . $path2 . "\n");
+			array_unshift($output, 'diff --smf ' . $this->label1 . ' ' . $this->label2 . "\n");
 		}
 
 		if (empty($this->changes)) {
@@ -1340,7 +1344,7 @@ class FullDiff extends Diff
 		// Do all the cleanup the constructor normally would.
 		$diff->changes = $diff->consolidate($diff->changes);
 		$diff->changes = $diff->wordsToStrings($diff->changes);
-		$diff->changes = array_filter($diff->changes, fn($c) => !empty($c['old']) || !empty($c['new']));
+		$diff->changes = array_filter(array: $diff->changes, callback: fn($c) => !empty($c['old']) || !empty($c['new']));
 		$diff->changes = array_values($diff->changes);
 
 		return [$diff];
@@ -1522,13 +1526,13 @@ class FullDiff extends Diff
 			if ($should_trim) {
 				$last_c = array_key_last($changes);
 
-				$temp = array_pop($changes[$last_c][$section]);
+				$temp = array_pop($changes[$last_c][$part]);
 
 				if (str_ends_with($temp, "\n")) {
 					$temp = substr($temp, 0, -1);
 				}
 
-				array_push($changes[$last_c][$section], $temp);
+				array_push($changes[$last_c][$part], $temp);
 			}
 		}
 

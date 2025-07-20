@@ -127,8 +127,8 @@ class GenericBBCode extends BBCode
 			 }
 		}
 
-		if (isset($definition['test'])) {
-			$this->test = (string) $definition['test'];
+		if (is_string($definition['test'] ?? null)) {
+			$this->test = $definition['test'];
 		}
 
 		if (
@@ -156,7 +156,7 @@ class GenericBBCode extends BBCode
 		}
 
 		if (in_array($definition['trim'] ?? null, ['inside', 'outside', 'both'])) {
-			$this->test = $definition['trim'];
+			$this->trim = $definition['trim'];
 		}
 
 		if (isset($definition['require_parents'])) {

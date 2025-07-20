@@ -2181,16 +2181,16 @@ class Group implements \ArrayAccess
 		}
 
 		if (!isset($profile) || !($profile instanceof PermissionProfile)) {
-			$profile = current(PermissionProfile::load(PermissionProfile::DEFAULT));
+			$profile = PermissionProfile::load(PermissionProfile::DEFAULT);
 		}
 
 		$permissions = (array) $permissions;
 
 		$groups = [];
 
-		foreach (GroupPermissionSet::load($profile, self::getAll()) as $set) {
+		foreach (GroupPermissionSet::load($profile->id, self::getAll()) as $set) {
 			foreach ($permissions as $permission) {
-				$groups[$set->group][$permission] = $set->permissions[$permission];
+				$groups[$set->group][$permission] = $set->permissions[$permission] ?? null;
 			}
 		}
 

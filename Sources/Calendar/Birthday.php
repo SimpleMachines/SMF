@@ -161,7 +161,7 @@ class Birthday extends Event
 	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
 	 * @param bool $use_permissions Ignored.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<Event> Iterating over result gives Event instances.
+	 * @return \Generator<Event> Iterating over result gives Event instances.
 	 */
 	public static function get(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator
 	{
@@ -245,7 +245,7 @@ class Birthday extends Event
 	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
 	 * @param bool $use_permissions Whether to use permissions. Default: true.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<EventOccurrence> Iterating over result gives
+	 * @return \Generator<EventOccurrence> Iterating over result gives
 	 *    EventOccurrence instances.
 	 */
 	public static function getOccurrencesInRange(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator
@@ -328,7 +328,7 @@ class Birthday extends Event
 	 * @param int|string $limit Maximum number of results to retrieve.
 	 *    If this is left empty, all results will be retrieved.
 	 *
-	 * @return Generator<array> Iterating over the result gives database rows.
+	 * @return \Generator<array> Iterating over the result gives database rows.
 	 */
 	protected static function queryData(array $selects, array $params = [], array $joins = [], array $where = [], array $order = [], array $group = [], int|string $limit = 0): \Generator
 	{

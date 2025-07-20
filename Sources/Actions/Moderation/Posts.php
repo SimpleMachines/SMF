@@ -476,8 +476,8 @@ class Posts implements ActionInterface
 					' . $approve_query,
 				[
 					'attachments' => $attachments,
-					'not_approved' => 0,
-					'attachment_type' => 0,
+					'not_approved' => Attachment::APPROVED_FALSE,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 				],
 			);
 			$attachments = [];
@@ -770,8 +770,8 @@ class Posts implements ActionInterface
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:items_per_page}',
 			[
-				'not_approved' => 0,
-				'attachment_type' => 0,
+				'not_approved' => Attachment::APPROVED_FALSE,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'start' => $start,
 				'sort' => $sort,
 				'items_per_page' => $items_per_page,
@@ -837,8 +837,8 @@ class Posts implements ActionInterface
 				AND {query_see_message_board}
 				' . $approve_query,
 			[
-				'not_approved' => 0,
-				'attachment_type' => 0,
+				'not_approved' => Attachment::APPROVED_FALSE,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 			],
 		);
 		list($total_unapproved_attachments) = Db::$db->fetch_row($request);

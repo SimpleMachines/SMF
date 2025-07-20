@@ -768,7 +768,7 @@ class MarkdownParser extends Parser
 
 		// If the load average is too high, don't parse the Markdown.
 		if ($this->highLoadAverage()) {
-			return $this->message;
+			return $string;
 		}
 
 		if ($from_bbcode_parser) {
@@ -885,21 +885,15 @@ class MarkdownParser extends Parser
 	 * @param int $output_type The type of output to generate.
 	 *    Value must be one of this class's OUTPUT_* constants.
 	 *    Default: self::OUTPUT_HTML.
-	 * @param ?int $hard_breaks How to handle line breaks in HTML output.
-	 *    Value should be bitmask of this class's BR_* constants.
-	 *    If null, uses the value of Config::$modSettings['markdown_brs'].
-	 *    Ignored when output is BBCode. Default: null.
 	 * @return MarkdownParser An instance of this class.
 	 */
-	public static function load(int $output_type = self::OUTPUT_HTML, ?int $hard_breaks = null): self
+	public static function load(int $output_type = self::OUTPUT_HTML): self
 	{
-		$hard_breaks = $hard_breaks ?? (int) (Config::$modSettings['markdown_brs'] ?? 0);
-
-		if (!isset(self::$parsers[$output_type][$hard_breaks])) {
-			self::$parsers[$output_type][$hard_breaks] = new self($output_type, $hard_breaks);
+		if (!isset(self::$parsers[$output_type])) {
+			self::$parsers[$output_type] = new self($output_type);
 		}
 
-		return self::$parsers[$output_type][$hard_breaks];
+		return self::$parsers[$output_type];
 	}
 
 	/******************
@@ -1351,13 +1345,15 @@ class MarkdownParser extends Parser
 	 * Tests whether a line closes a blockquote.
 	 *
 	 * @param array $line_info Info about the current line.
+	 * @param int $last_container
+	 * @param int $o
 	 * @return bool Whether this line closes a blockquote.
 	 */
 	protected function testClosesQuote(array $line_info, int $last_container, int $o): bool
 	{
 		return (
 			$line_info['string'] === $this->line_info[$line_info['linenum']]['string']
-			&& !$this->testOpensQuote($line_info, $last_container, $o)
+			&& !$this->testOpensQuote($line_info)
 			&& !in_array('p', $line_info['possible_types'])
 		);
 	}
@@ -4092,9 +4088,12 @@ class MarkdownParser extends Parser
 	 * @param string|bool|null $method Either (a) a boolean to return, (b) null
 	 *     to do nothing, or (c) the name of a method, possibly prepended by '!'
 	 *     if the boolean inverse of the method's results are desired.
-	 * @return A callable, a boolean, or null.
+	 * @return callable|false|null
+	 * 		- Null - Invalid method provided.
+	 * 		- False - Method can not be located.
+	 * 		- Callable - All other conditions.
 	 */
-	protected function getMethod(string|bool|null $method): mixed
+	protected function getMethod(string|bool|null $method): callable|bool|null
 	{
 		if (is_null($method)) {
 			return null;

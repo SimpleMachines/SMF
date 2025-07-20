@@ -17,6 +17,7 @@ namespace SMF\Actions\Profile;
 
 use SMF\ActionInterface;
 use SMF\ActionTrait;
+use SMF\Attachment;
 use SMF\Autolinker;
 use SMF\Board;
 use SMF\Config;
@@ -31,6 +32,7 @@ use SMF\Msg;
 use SMF\PageIndex;
 use SMF\Parser;
 use SMF\Profile;
+use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\User;
@@ -104,11 +106,7 @@ class ShowPosts implements ActionInterface
 		$this->setPageTitle();
 
 		// Is the load average too high to allow searching just now?
-		if (
-			!empty(Utils::$context['load_average'])
-			&& !empty(Config::$modSettings['loadavg_show_posts'])
-			&& Utils::$context['load_average'] >= Config::$modSettings['loadavg_show_posts']
-		) {
+		if (Sapi::isOverloaded(Config::$modSettings['loadavg_show_posts'] ?? null)) {
 			ErrorHandler::fatalLang('loadavg_show_posts_disabled', false);
 		}
 
@@ -495,10 +493,10 @@ class ShowPosts implements ActionInterface
 			LIMIT {int:offset}, {int:limit}',
 			[
 				'boards_list' => $boards_allowed,
-				'attachment_type' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'no_message' => 0,
 				'current_member' => Profile::$member->id,
-				'is_approved' => 1,
+				'is_approved' => Attachment::APPROVED_TRUE,
 				'board' => Board::$info->id ?? 0,
 				'sort' => $sort,
 				'offset' => $start,
@@ -550,10 +548,10 @@ class ShowPosts implements ActionInterface
 				AND t.approved = {int:is_approved}'),
 			[
 				'boards_list' => $boards_allowed,
-				'attachment_type' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
 				'no_message' => 0,
 				'current_member' => Profile::$member->id,
-				'is_approved' => 1,
+				'is_approved' => Attachment::APPROVED_TRUE,
 				'board' => Board::$info->id ?? 0,
 			],
 		);
