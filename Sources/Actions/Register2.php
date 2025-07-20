@@ -25,7 +25,6 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Mail;
 use SMF\Profile;
-use SMF\QueryString;
 use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
@@ -608,7 +607,7 @@ class Register2 extends Register
 			'posts' => 0,
 			'date_registered' => time(),
 			'member_ip' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : User::$me->ip,
-			'member_ip2' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : QueryString::getUserIPAlternative(),
+			'member_ip2' => $reg_options['interface'] == 'admin' ? '127.0.0.1' : IP::getUserIPAlternative(),
 			'validation_code' => $validation_code,
 			'real_name' => $reg_options['username'],
 			'personal_text' => Config::$modSettings['default_personal_text'],
