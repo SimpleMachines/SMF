@@ -30,8 +30,8 @@ use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\Lang;
 use SMF\Parser;
+use SMF\QueryString;
 use SMF\Routable;
-use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
 use SMF\Url;
@@ -42,7 +42,7 @@ use SMF\Uuid;
 /**
  * This class contains the code necessary to display XML feeds.
  *
- * Outputs xml data representing recent information or a profile.
+ * Outputs XML data representing recent information or a profile.
  *
  * Can be passed subactions which decide what is output:
  *  'recent' for recent posts,
@@ -52,11 +52,14 @@ use SMF\Uuid;
  *  'posts' for a member's posts.
  *  'personal_messages' for a member's personal messages.
  *
- * When displaying a member's profile or posts, the u parameter identifies which member. Defaults
- * to the current user's id.
- * To display a member's personal messages, the u parameter must match the id of the current user.
+ * When displaying a member's profile or posts, the u parameter identifies which
+ * member. Defaults to the current user's ID.
  *
- * Outputs can be in RSS 0.92, RSS 2, Atom, RDF, or our own custom XML format. Default is RSS 2.
+ * To display a member's personal messages, the u parameter must match the ID of
+ * the current user. This prevents anyone else from reading them.
+ *
+ * Outputs can be in RSS 0.92, RSS 2, Atom, RDF, or our own custom XML format.
+ * Default is RSS 2.
  *
  * Accessed via ?action=.xml.
  *
@@ -3206,29 +3209,6 @@ class Feed implements ActionInterface, Routable
 
 		IntegrationHook::call('integrate_fix_url', [&$val]);
 
-		if (
-			empty(Config::$modSettings['queryless_urls'])
-			|| (
-				Sapi::isCGI()
-				&& ini_get('cgi.fix_pathinfo') == 0
-				&& @get_cfg_var('cgi.fix_pathinfo') == 0
-			)
-			|| (
-				!Sapi::isSoftware(Sapi::SERVER_APACHE)
-				&& !Sapi::isSoftware(Sapi::SERVER_LIGHTTPD)
-			)
-		) {
-			return $val;
-		}
-
-		$val = preg_replace_callback(
-			'~\b' . preg_quote(Config::$scripturl, '~') . '\?((?:board|topic)=[^#"]+)(#[^"]*)?$~',
-			function ($m) {
-				return Config::$scripturl . '/' . strtr("{$m[1]}", '&;=', '//,') . '.html' . ($m[2] ?? '');
-			},
-			$val,
-		);
-
-		return $val;
+		return QueryString::rewriteAsQueryless($val);
 	}
 }

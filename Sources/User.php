@@ -1104,7 +1104,7 @@ class User implements \ArrayAccess
 			$this->formatted['custom_fields'] = [];
 
 			if (!isset(Utils::$context['display_fields'])) {
-				Utils::$context['display_fields'] = Utils::jsonDecode(Config::$modSettings['displayFields'], true);
+				Utils::$context['display_fields'] = Utils::jsonDecode(Config::$modSettings['displayFields'] ?? '[]', true);
 			}
 
 			foreach (Utils::$context['display_fields'] as $custom) {
@@ -1332,7 +1332,7 @@ class User implements \ArrayAccess
 			&& $this->last_login < time() - 60
 			&& (
 				!isset($_REQUEST['action'])
-				|| !in_array($_REQUEST['action'], ['.xml', 'login2', 'logintfa'])
+				|| !in_array($_REQUEST['action'], ['feed', 'login2', 'logintfa'])
 			)
 		) {
 			// Don't count longer than 15 minutes.
@@ -4283,7 +4283,7 @@ class User implements \ArrayAccess
 		}
 
 		// Check if we are forcing TFA
-		$force_tfasetup = Config::$modSettings['tfa_mode'] >= 2 && empty(self::$profiles[self::$my_id]['tfa_secret']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != '.xml');
+		$force_tfasetup = Config::$modSettings['tfa_mode'] >= 2 && empty(self::$profiles[self::$my_id]['tfa_secret']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'feed');
 
 		// Don't force TFA on popups
 		if ($force_tfasetup) {
@@ -4389,7 +4389,7 @@ class User implements \ArrayAccess
 			&& !isset($_REQUEST['xml'])
 			&& (
 				!isset($_REQUEST['action'])
-				|| !in_array($_REQUEST['action'], ['.xml', 'login2', 'logintfa'])
+				|| !in_array($_REQUEST['action'], ['feed', 'login2', 'logintfa'])
 			)
 			&& empty($_SESSION['id_msg_last_visit'])
 			&& (

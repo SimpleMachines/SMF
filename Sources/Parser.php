@@ -417,13 +417,13 @@ abstract class Parser
 	 ******************/
 
 	/**
-	 * Checks whether the server's load average is too high to parse BBCode.
+	 * Checks whether the server's load average is too high to parse BBCode/Markdown.
 	 *
 	 * @return bool Whether the load average is too high.
 	 */
 	protected function highLoadAverage(): bool
 	{
-		return !empty(Utils::$context['load_average']) && !empty(Config::$modSettings['bbc']) && Utils::$context['load_average'] >= Config::$modSettings['bbc'];
+		return Sapi::isOverloaded(Config::$modSettings['bbc'] ?? null);
 	}
 
 	/**
