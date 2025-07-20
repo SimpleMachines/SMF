@@ -53,9 +53,10 @@ $databases = array(
 		'name' => 'PostgreSQL',
 		'version' => '9.6',
 		'version_check' => function() {
+			global $db_connection;
 			if (!function_exists('pg_version'))
 				return false;
-			$version = pg_version();
+			$version = pg_version($db_connection);
 			return $version['client'];
 		},
 		'always_has_db' => true,
