@@ -49,8 +49,7 @@ function template_maintain_database()
 		</div>
 		<div class="windowbg">
 			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="UTF-8">
-				<p>', Lang::getTxt('mediumtext_introduction', file: 'ManageMaintenance'), '</p>',
-				Utils::$context['convert_to_suggest'] ? '<p class="infobox">' . Lang::getTxt('convert_to_suggest_text', file: 'ManageMaintenance') . '</p>' : '', '
+				<p>', Lang::getTxt('mediumtext_introduction', file: 'ManageMaintenance'), '</p>
 				<input type="submit" name="evaluate_conversion" value="', Lang::getTxt('maintain_run_now', file: 'ManageMaintenance'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 				<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
@@ -574,46 +573,4 @@ function template_convert_entities()
 			</form>
 		</div>
 	</div>';
-}
-
-/**
- * Template for converting posts to UTF-8.
- */
-function template_convert_msgbody()
-{
-	echo '
-	<div id="manage_maintenance">
-		<div class="cat_bar">
-			<h3 class="catbg">', Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance'), '</h3>
-		</div>
-		<div class="windowbg">
-			<p>', Lang::getTxt('body_checking_introduction', file: 'ManageMaintenance'), '</p>';
-
-	if (!empty(Utils::$context['exceeding_messages']))
-	{
-		echo '
-			<p class="noticebox">', Lang::getTxt('exceeding_messages', file: 'ManageMaintenance'), '</p>
-			<ul>
-				<li>
-				', implode('</li><li>', Utils::$context['exceeding_messages']), '
-				</li>
-			</ul>';
-
-		if (!empty(Utils::$context['exceeding_messages_morethan']))
-			echo '
-			<p>', Utils::$context['exceeding_messages_morethan'], '</p>';
-	}
-	else
-		echo '
-			<p class="infobox">', Lang::getTxt('convert_to_text', file: 'ManageMaintenance'), '</p>';
-
-	echo '
-			<form action="', Config::$scripturl, '?action=admin;area=maintain;sa=database;activity=convertmsgbody" method="post" accept-charset="UTF-8">
-			<hr>
-			<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
-			<input type="hidden" name="', Utils::$context['admin-maint_token_var'], '" value="', Utils::$context['admin-maint_token'], '">
-			<input type="submit" name="do_conversion" value="', Lang::getTxt('entity_convert_proceed', file: 'ManageMaintenance'), '" class="button">
-			</form>
-		</div><!-- .windowbg -->
-	</div><!-- #manage_maintenance -->';
 }
