@@ -1302,7 +1302,7 @@ class Maintenance implements ActionInterface
 		Utils::$context['maintenance_finished'] = Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance');
 		Utils::$context['convert_to'] = null;
 
-		return;
+
 	}
 
 	/**
