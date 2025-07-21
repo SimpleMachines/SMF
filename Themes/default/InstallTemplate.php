@@ -192,7 +192,7 @@ class InstallTemplate extends MaintenanceTemplate
 					<input type="submit" value="', Lang::$txt['ftp_connect'], '" onclick="return submitThisOnce(this);" class="button">
 				</div>
 			</form>
-			<a href="', Maintenance::$context['form_url'], '">', Lang::$txt['error_message_click'], '</a> ', Lang::$txt['ftp_setup_again'];
+			', Lang::getTxt('ftp_setup_again', ['url' => Maintenance::$context['form_url']], file: 'Maintenance');
 	}
 
 	/**
