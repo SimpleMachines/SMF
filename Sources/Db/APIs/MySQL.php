@@ -130,12 +130,14 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	{
 		// Comments that are allowed in a query are preg_removed.
 		$allowed_comments_from = [
+			'~(?<![\'\\\\])\'\X*?(?<![\'\\\\])\'~',
 			'~\s+~s',
 			'~/\*!40001 SQL_NO_CACHE \*/~',
 			'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
 			'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 		];
 		$allowed_comments_to = [
+			' %s ',
 			' ',
 			'',
 			'',
@@ -170,41 +172,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 		if (!$this->disableQueryCheck) {
-			$clean = '';
-			$old_pos = 0;
-			$pos = -1;
-			// Remove the string escape for better runtime
-			$db_string_1 = str_replace('\\\'', '', $db_string);
-
-			while (true) {
-				$pos = strpos($db_string_1, '\'', $pos + 1);
-
-				if ($pos === false) {
-					break;
-				}
-				$clean .= substr($db_string_1, $old_pos, $pos - $old_pos);
-
-				while (true) {
-					$pos1 = strpos($db_string_1, '\'', $pos + 1);
-					$pos2 = strpos($db_string_1, '\\', $pos + 1);
-
-					if ($pos1 === false) {
-						break;
-					}
-
-					if ($pos2 === false || $pos2 > $pos1) {
-						$pos = $pos1;
-						break;
-					}
-
-					$pos = $pos2 + 1;
-				}
-				$clean .= ' %s ';
-
-				$old_pos = $pos + 1;
-			}
-			$clean .= substr($db_string_1, $old_pos);
-			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
+			$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $db_string)));
 
 			// Comments?  We don't use comments in our queries, we leave 'em outside!
 			if (strpos($clean, '/*') > 2 || str_contains($clean, '--') || str_contains($clean, ';')) {
