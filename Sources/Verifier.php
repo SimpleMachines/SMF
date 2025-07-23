@@ -622,6 +622,10 @@ class Verifier implements \ArrayAccess
 			// Bit of a shortcut this.
 			$row = &Config::$modSettings['question_id_cache']['questions'][$q];
 
+			if (empty($row['question'])) {
+				continue;
+			}
+
 			$this->questions[] = [
 				'id' => $q,
 				'q' => Utils::adjustHeadingLevels(Parser::transform($row['question'], options: ['no_paragraphs' => true]), null),
