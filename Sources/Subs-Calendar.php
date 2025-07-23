@@ -527,7 +527,6 @@ function getCalendarGrid($selected_date, $calendarOptions, $is_previous = false,
 
 	if ($has_picker)
 	{
-		loadDatePicker('#calendar_navigation .date_input');
 		loadDatePair('#calendar_navigation', 'date_input');
 	}
 
@@ -640,7 +639,6 @@ function getCalendarWeek($selected_date, $calendarOptions)
 	$calendarGrid['previous_week']['href'] = $scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['previous_week']['year'] . ';month=' . $calendarGrid['previous_week']['month'] . ';day=' . $calendarGrid['previous_week']['day'];
 	$calendarGrid['next_week']['href'] = $scripturl . '?action=calendar;viewweek;year=' . $calendarGrid['next_week']['year'] . ';month=' . $calendarGrid['next_week']['month'] . ';day=' . $calendarGrid['next_week']['day'];
 
-	loadDatePicker('#calendar_navigation .date_input');
 	loadDatePair('#calendar_navigation', 'date_input', '');
 
 	return $calendarGrid;
@@ -705,114 +703,9 @@ function getCalendarList($start_date, $end_date, $calendarOptions)
 		}
 	}
 
-	loadDatePicker('#calendar_range .date_input');
 	loadDatePair('#calendar_range', 'date_input', '');
 
 	return $calendarGrid;
-}
-
-/**
- * Loads the necessary JavaScript and CSS to create a datepicker.
- *
- * @param string $selector A CSS selector for the input field(s) that the datepicker should be attached to.
- * @param string $date_format The date format to use, in strftime() format.
- */
-function loadDatePicker($selector = 'input.date_input', $date_format = '')
-{
-	global $modSettings, $txt, $context, $user_info, $options;
-
-	if (empty($date_format))
-		$date_format = get_date_or_time_format('date');
-
-	// Convert to format used by datepicker
-	$date_format = strtr($date_format, array(
-		// Day
-		'%a' => 'D', '%A' => 'DD', '%e' => 'd', '%d' => 'dd', '%j' => 'oo', '%u' => '', '%w' => '',
-		// Week
-		'%U' => '', '%V' => '', '%W' => '',
-		// Month
-		'%b' => 'M', '%B' => 'MM', '%h' => 'M', '%m' => 'mm',
-		// Year
-		'%C' => '', '%g' => 'y', '%G' => 'yy', '%y' => 'y', '%Y' => 'yy',
-		// Time (we remove all of these)
-		'%H' => '', '%k' => '', '%I' => '', '%l' => '', '%M' => '', '%p' => '', '%P' => '',
-		'%r' => '', '%R' => '', '%S' => '', '%T' => '', '%X' => '', '%z' => '', '%Z' => '',
-		// Time and Date Stamps
-		'%c' => 'D, d M yy', '%D' => 'mm/dd/y', '%F' => 'yy-mm-dd', '%s' => '@', '%x' => 'D, d M yy',
-		// Miscellaneous
-		'%n' => ' ', '%t' => ' ', '%%' => '%',
-	));
-
-	loadCSSFile('jquery-ui.datepicker.css', array(), 'smf_datepicker');
-	loadJavaScriptFile('jquery-ui.datepicker.min.js', array('defer' => true), 'smf_datepicker');
-	addInlineJavaScript('
-	$("' . $selector . '").datepicker({
-		dateFormat: "' . $date_format . '",
-		autoSize: true,
-		isRTL: ' . ($context['right_to_left'] ? 'true' : 'false') . ',
-		constrainInput: true,
-		showAnim: "",
-		showButtonPanel: false,
-		yearRange: "' . $modSettings['cal_minyear'] . ':' . $modSettings['cal_maxyear'] . '",
-		hideIfNoPrevNext: true,
-		monthNames: ["' . implode('", "', $txt['months_titles']) . '"],
-		monthNamesShort: ["' . implode('", "', $txt['months_short']) . '"],
-		dayNames: ["' . implode('", "', $txt['days']) . '"],
-		dayNamesShort: ["' . implode('", "', $txt['days_short']) . '"],
-		dayNamesMin: ["' . implode('", "', $txt['days_short']) . '"],
-		prevText: "' . $txt['prev_month'] . '",
-		nextText: "' . $txt['next_month'] . '",
-		firstDay: ' . (!empty($options['calendar_start_day']) ? $options['calendar_start_day'] : 0) . ',
-	});', true);
-}
-
-/**
- * Loads the necessary JavaScript and CSS to create a timepicker.
- *
- * @param string $selector A CSS selector for the input field(s) that the timepicker should be attached to.
- * @param string $time_format A time format in strftime format
- */
-function loadTimePicker($selector = 'input.time_input', $time_format = '')
-{
-	global $modSettings, $txt, $context;
-
-	if (empty($time_format))
-		$time_format = get_date_or_time_format('time');
-
-	// Format used for timepicker
-	$time_format = strtr($time_format, array(
-		'%H' => 'H',
-		'%k' => 'G',
-		'%I' => 'h',
-		'%l' => 'g',
-		'%M' => 'i',
-		'%p' => 'A',
-		'%P' => 'a',
-		'%r' => 'h:i:s A',
-		'%R' => 'H:i',
-		'%S' => 's',
-		'%T' => 'H:i:s',
-		'%X' => 'H:i:s',
-	));
-
-	loadCSSFile('jquery.timepicker.css', array(), 'smf_timepicker');
-	loadJavaScriptFile('jquery.timepicker.min.js', array('defer' => true), 'smf_timepicker');
-	addInlineJavaScript('
-	$("' . $selector . '").timepicker({
-		timeFormat: "' . $time_format . '",
-		showDuration: true,
-		maxTime: "23:59:59",
-		lang: {
-			am: "' . strtolower($txt['time_am']) . '",
-			pm: "' . strtolower($txt['time_pm']) . '",
-			AM: "' . strtoupper($txt['time_am']) . '",
-			PM: "' . strtoupper($txt['time_pm']) . '",
-			decimal: "' . $txt['decimal_sign'] . '",
-			mins: "' . $txt['minutes_short'] . '",
-			hr: "' . $txt['hour_short'] . '",
-			hrs: "' . $txt['hours_short'] . '",
-		}
-	});', true);
 }
 
 /**
@@ -854,7 +747,7 @@ function loadDatePair($container, $date_class = '', $time_class = '')
 		// Customize Datepair to work with jQuery UI's datepicker.
 		$datepair_options .= '
 		parseDate: function (el) {
-			var val = $(el).datepicker("getDate");
+			var val = el.value;
 			if (!val) {
 				return null;
 			}
@@ -862,7 +755,7 @@ function loadDatePair($container, $date_class = '', $time_class = '')
 			return utc && new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
 		},
 		updateDate: function (el, v) {
-			$(el).datepicker("setDate", new Date(v.getTime() - (v.getTimezoneOffset() * 60000)));
+			el.value = new Date(v.getTime() - (v.getTimezoneOffset() * 60000)).toISOString().substring(0, 10);
 		},';
 	}
 
@@ -877,7 +770,22 @@ function loadDatePair($container, $date_class = '', $time_class = '')
 	else
 	{
 		$datepair_options .= '
-		timeClass: "' . $time_class . '",';
+		timeClass: "' . $time_class . '",
+		parseTime: function(input){
+			let dateObj = new Date();
+			dateObj.setHours(Number(input.value.substring(0, 2)), Number(input.value.substring(3, 5)), 0);
+			return dateObj;
+		},
+		updateTime: function(input, dateObj){
+			input.value = dateObj.toTimeString().substring(0, 5);
+		},
+		setMinTime: function(input, dateObj){
+			if (dateObj !== null) {
+				input.min = dateObj.toTimeString().substring(0, 5);
+			} else {
+				input.min = "00:00";
+			}
+		},';
 	}
 
 	addInlineJavaScript('
