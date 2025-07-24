@@ -211,7 +211,7 @@ $txt['maintain_members_choose'] = 'Selected Groups';
 $txt['maintain_members_confirm'] = 'Are you sure you really want to delete these member accounts?-n-This cannot be undone!';
 
 $txt['mediumtext_title'] = 'Convert to MEDIUMTEXT';
-$txt['mediumtext_introduction'] = 'The default messages table can contain posts up to a size of 65535 characters, in order be able to store bigger texts the column must be converted to "MEDIUMTEXT". This operation is not reversible and manually attempting to do so may result in data loss.';
+$txt['mediumtext_introduction'] = 'The default messages table can contain posts up to a size of 65535 characters, in order be able to store bigger texts the column must be converted to "MEDIUMTEXT". This operation is not reversible.';
 $txt['body_checking_introduction'] = 'This function will convert the column of your database that contains the text of the messages into a "TEXT" format (currently is "MEDIUMTEXT"). This operation will allow to slightly reduce the amount of space occupied by each message (1 byte per message). If any message stored into the database is longer than 65535 characters it will be truncated and part of the text will be lost.';
 
 $txt['entity_convert_title'] = 'Convert HTML-entities to UTF-8 characters';
