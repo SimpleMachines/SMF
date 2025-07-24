@@ -2264,6 +2264,10 @@ function create_control_verification(&$verificationOptions, $do_test = false)
 		{
 			// Bit of a shortcut this.
 			$row = &$modSettings['question_id_cache']['questions'][$q];
+
+			if (empty($row['question']))
+				continue;
+
 			$thisVerification['questions'][] = array(
 				'id' => $q,
 				'q' => parse_bbc($row['question']),
