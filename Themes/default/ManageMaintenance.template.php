@@ -574,3 +574,4 @@ function template_convert_entities()
 		</div>
 	</div>';
 }
+
