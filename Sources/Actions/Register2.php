@@ -20,6 +20,7 @@ use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Group;
+use SMF\IP;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Logging;
