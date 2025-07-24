@@ -24,7 +24,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
-use SMF\QueryString;
+use SMF\IP;
 use SMF\Routable;
 use SMF\Sapi;
 use SMF\Security;
