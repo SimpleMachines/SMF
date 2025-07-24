@@ -16,18 +16,10 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v3_0;
 
 use SMF\Config;
-use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class FileSystemHandler extends MigrationBase
 {
-	private array $renames = [
-			'package_server' => 'filesystem_server',
-			'package_port' => 'filesystem_port',
-			'package_username' => 'filesystem_username',
-			'package_path' => 'filesystem_path'
-		];
-
 	/*******************
 	 * Public properties
 	 *******************/
@@ -36,6 +28,17 @@ class FileSystemHandler extends MigrationBase
 	 *
 	 */
 	public string $name = 'Updating settings for File System Handler';
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	private array $renames = [
+		'package_server' => 'filesystem_server',
+		'package_port' => 'filesystem_port',
+		'package_username' => 'filesystem_username',
+		'package_path' => 'filesystem_path',
+	];
 
 	/****************
 	 * Public methods
