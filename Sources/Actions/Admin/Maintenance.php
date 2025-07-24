@@ -1253,7 +1253,7 @@ class Maintenance implements ActionInterface
 	 * Convert the column "body" of the table {db_prefix}messages from TEXT to MEDIUMTEXT.
 	 * It requires the admin_forum permission.
 	 * This is needed only for MySQL.
-	 * No longer do we support TEXT To MEDIUMTEXT.
+	 * We no longer support reverting from MEDIUMTEXT back to TEXT.
 	 * This action is linked from the maintenance screen (if it's applicable).
 	 * Accessed by ?action=admin;area=maintain;sa=database;activity=convertmsgbody.
 	 *
