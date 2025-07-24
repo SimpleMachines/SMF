@@ -18,8 +18,6 @@
 	}
 */
 
-
-
 // Handle the JavaScript surrounding the admin and moderation center.
 function smf_AdminIndex(oOptions)
 {
@@ -514,27 +512,6 @@ function updatePreview(filename, filepath)
 		currentImage.src = smf_smileys_url + relative_url;
 }
 
-function testFTP()
-{
-	ajax_indicator(true);
-
-	// What we need to post.
-	var oPostData = {
-		0: "ftp_server",
-		1: "ftp_port",
-		2: "ftp_username",
-		3: "ftp_password",
-		4: "ftp_path"
-	}
-
-	var sPostData = "";
-	for (i = 0; i < 5; i++)
-		sPostData = sPostData + (sPostData.length == 0 ? "" : "&") + oPostData[i] + "=" + escape(document.getElementById(oPostData[i]).value);
-
-	// Post the data out.
-	sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=admin;area=packages;sa=ftptest;xml;' + smf_session_var + '=' + smf_session_id, sPostData, testFTPResults);
-}
-
 function expandFolder(folderIdent, folderReal)
 {
 	// See if it already exists.
@@ -629,4 +606,82 @@ function toggleBaseDir ()
 	}
 	else
 		dir_elem.disabled = !sub_dir.checked;
+}
+
+// Build a test File System button.
+function smf_fsTest(oOptions)
+{
+	this.generatedButton = false;
+	this.opt = oOptions;
+	this.init();
+}
+
+smf_fsTest.prototype.init = function ()
+{
+	// No XML?
+	if (!window.XMLHttpRequest || !document.getElementById(this.opt.placeholder) || !document.getElementById(this.opt.inputContainer))
+		return false;
+
+	const fsTest = document.createElement("input");
+	fsTest.type = "button";
+	fsTest.onclick = () => { this.performTest(); }
+
+	fsTest.value = this.opt.label;
+	document.getElementById(this.opt.placeholder).appendChild(fsTest);
+}
+
+smf_fsTest.prototype.performTest = async function ()
+{
+	ajax_indicator(true);
+
+	// What we need to post.
+	const oPostData = new URLSearchParams();
+	document.getElementById(this.opt.inputContainer).querySelectorAll('input').forEach((input) => {
+		oPostData.append(input.name, input.value);
+  	});
+	aSelectEls = document.getElementById(this.opt.inputContainer).querySelectorAll('select').forEach((input) => {
+		oPostData.append(input.name, input.value);
+  	});
+
+	try {
+		const response = await fetch(smf_prepareScriptUrl(smf_scripturl) + 'action=admin;area=packages;sa=fstest;xml;' + smf_session_var + '=' + smf_session_id, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			body: oPostData.toString()
+		});
+		if (!response.ok) {
+			throw new Error(`Response status: ${response.status}`);
+		}
+
+		const json = await response.json();
+		this.testResults(json);
+	} catch (error) {
+		this.testResults({
+			success: 0,
+			message: error.message
+		});
+	}
+}
+
+smf_fsTest.prototype.testResults = function (data)
+{
+	console.log(data);
+	ajax_indicator(false);
+
+	// This assumes it went wrong!
+	const wasSuccess = data.success ?? 0;
+	const error = data.error ?? (wasSuccess ? this.opt.successMsg : this.opt.failedMsg);
+	const message = data.message ?? '';
+
+	if (!document.getElementById(this.opt.errorContainer)) {
+		return;
+	}
+
+	document.getElementById(this.opt.errorContainer).style.display = "";
+	document.getElementById(this.opt.errorContainer).getElementsByTagName('div')[0].className = wasSuccess ? "infobox" : "errorbox";
+	
+	setInnerHTML(document.getElementById(this.opt.errorContainer).getElementsByTagName('div')[0].getElementsByTagName('div')[0], error);
+	setInnerHTML(document.getElementById(this.opt.errorContainer).getElementsByTagName('div')[0].getElementsByTagName('div')[1], message);
 }

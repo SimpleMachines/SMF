@@ -19,6 +19,8 @@ use SMF\Diff\FullDiff;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
+use SMF\PackageManager\FileSystem\FileSystem;
+use SMF\PackageManager\FileSystem\FileSystemInterface;
 use SMF\Sapi;
 use SMF\Theme;
 use SMF\Time;
@@ -38,11 +40,10 @@ class PackageUtils
 	 **************************/
 
 	/**
-	 * @var mixed
+	 * @var null|FileSystemInterface&FileSystem
 	 *
-	 * An instance of SMF\PackageManger\FtpConnection.
 	 */
-	public static $package_ftp;
+	public static $package_fs;
 
 	/**
 	 * @var mixed
@@ -605,7 +606,7 @@ class PackageUtils
 	public static function createChmodControl(array $chmodFiles = [], array $chmodOptions = [], bool $restore_write_status = false): array
 	{
 		// If we're restoring the status of existing files prepare the data.
-		if ($restore_write_status && isset($_SESSION['pack_ftp']) && !empty($_SESSION['pack_ftp']['original_perms'])) {
+		if ($restore_write_status && isset($_SESSION['pack_fs']) && !empty($_SESSION['pack_fs']['original_perms'])) {
 			$listOptions = [
 				'id' => 'restore_file_permissions',
 				'title' => Lang::getTxt('package_restore_permissions', file: 'Packages'),
@@ -642,7 +643,7 @@ class PackageUtils
 							'function' => function ($rowData) {
 								$formatTxt = Lang::getTxt($rowData['result'] == '' || $rowData['result'] == 'skipped' ? 'package_restore_permissions_pre_change' : 'package_restore_permissions_post_change', file: 'Packages');
 
-								return Lang::formatText($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
+								return Lang::formatText($formatTxt, [$rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']]);
 							},
 							'class' => 'smalltext',
 						],
@@ -724,50 +725,61 @@ class PackageUtils
 			return $return_data;
 		}
 
-		// If we have some FTP information already, then let's assume it was required and try to get ourselves connected.
-		if (!empty($_SESSION['pack_ftp']['connected'])) {
-			self::$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], self::crypt($_SESSION['pack_ftp']['password']));
+		// If we have some File system information already, then let's assume it was required and try to get ourselves connected.
+		if (!empty($_SESSION['pack_fs']['connected']) && isset($_SESSION['pack_fs']['type'])) {
+			self::$package_fs = FileSystem::load($_SESSION['pack_fs']['type']);
+
+			if (self::$package_fs->connect($_SESSION['pack_fs']['server'], $_SESSION['pack_fs']['username'], $_SESSION['pack_fs']['password'], $_SESSION['pack_fs']['port'], $_SESSION['pack_fs']['path'])) {
+				self::$package_fs->changeDirectory($_SESSION['pack_fs']['path']);
+			} else {
+				// Login failed, ensure we can try to login again.
+				$_SESSION['pack_fs'] = null;
+			}
 		}
 
 		// Just got a submission did we?
-		if (empty(self::$package_ftp) && isset($_POST['ftp_username'])) {
-			$ftp = new FtpConnection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
+		if ((empty(self::$package_fs) || !self::$package_fs->isConnected()) && isset($_POST['filesystem']['username'])) {
+			self::$package_fs = FileSystem::load($_POST['filesystem']['type']);
+			self::$package_fs->connect(
+				server: $_POST['filesystem']['server'],
+				username: $_POST['filesystem']['username'],
+				password: $_POST['filesystem']['password'],
+				port: $_POST['filesystem']['port'],
+			);
 
 			// We're connected, jolly good!
-			if ($ftp->error === false) {
+			if (self::$package_fs->isConnected()) {
+				$_POST['filesystem']['path'] = rtrim($_POST['filesystem']['path'], '/') . '/';
+
 				// Common mistake, so let's try to remedy it...
-				if (!$ftp->chdir($_POST['ftp_path'])) {
-					$ftp_error = $ftp->last_message;
-					$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['ftp_path']));
-				}
+				if (!self::$package_fs->changeDirectory($_POST['filesystem']['path'])) {
+					$fs_error = self::$package_fs->getLastError();
 
-				if (!in_array($_POST['ftp_path'], ['', '/'])) {
-					$ftp_root = strtr(Config::$boarddir, [$_POST['ftp_path'] => '']);
+					$test_path = preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['filesystem']['path']);
 
-					if (str_ends_with($ftp_root, '/') && ($_POST['ftp_path'] == '' || str_starts_with($_POST['ftp_path'], '/'))) {
-						$ftp_root = substr($ftp_root, 0, -1);
+					if (self::$package_fs->changeDirectory($test_path)) {
+						$_POST['filesystem']['path'] = $test_path;
 					}
-				} else {
-					$ftp_root = Config::$boarddir;
 				}
 
-				$_SESSION['pack_ftp'] = [
-					'server' => $_POST['ftp_server'],
-					'port' => $_POST['ftp_port'],
-					'username' => $_POST['ftp_username'],
-					'password' => self::crypt($_POST['ftp_password']),
-					'path' => $_POST['ftp_path'],
-					'root' => $ftp_root,
+				$_SESSION['pack_fs'] = [
+					'type' => $_POST['filesystem']['type'],
+					'server' => $_POST['filesystem']['server'],
+					'port' => $_POST['filesystem']['port'],
+					'username' => $_POST['filesystem']['username'],
+					'password' => $_POST['filesystem']['password'],
+					'path' => $_POST['filesystem']['path'],
 					'connected' => true,
 				];
 
-				if (!isset(Config::$modSettings['package_path']) || Config::$modSettings['package_path'] != $_POST['ftp_path']) {
-					Config::updateModSettings(['package_path' => $_POST['ftp_path']]);
+				if (!isset(Config::$modSettings['filesystem_path']) || Config::$modSettings['filesystem_path'] != $_POST['filesystem']['path']) {
+					Config::updateModSettings(['filesystem_path' => $_POST['filesystem']['path']]);
 				}
 
-				// This is now the primary connection.
-				self::$package_ftp = $ftp;
+				self::$package_fs->setForumRoot($_POST['filesystem']['path']);
 			}
+		} else {
+			Utils::$context['filesystem_types'] = FileSystem::getSelectOptions();
 		}
 
 		// Now try to simply make the files writable, with whatever we might have.
@@ -787,34 +799,33 @@ class PackageUtils
 			}
 		}
 
-		// Have we still got nasty files which ain't writable? Dear me we need more FTP good sir.
-		if (empty(self::$package_ftp) && (!empty($return_data['files']['notwritable']) || !empty($chmodOptions['force_find_error']))) {
-			if (!isset($ftp) || $ftp->error !== false) {
-				if (!isset($ftp)) {
-					$ftp = new FtpConnection(null);
-				} elseif ($ftp->error !== false && !isset($ftp_error)) {
-					$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
+		// Have we still got nasty files which ain't writable? Dear me we need more File System good sir.
+		if (empty(self::$package_fs) && (!empty($return_data['files']['notwritable']) || !empty($chmodOptions['force_find_error']))) {
+			if (!isset(self::$package_fs) || !self::$package_fs instanceof FileSystemInterface || !self::$package_fs instanceof FileSystem || self::$package_fs->getLastError() !== false) {
+				if (!isset(self::$package_fs) || !self::$package_fs instanceof FileSystemInterface) {
+					self::$package_fs = FileSystem::load();
+				} elseif (self::$package_fs->getLastError() !== false && !isset($fs_error)) {
+					$fs_error = self::$package_fs->getLastMessage() === null ? '' : self::$package_fs->getLastMessage();
 				}
 
-				list($username, $detect_path, $found_path) = $ftp->detect_path(Config::$boarddir);
+				list($username, $detect_path, $found_path) = self::$package_fs->detectForumPath(Config::$boarddir);
 
-				if ($found_path) {
-					$_POST['ftp_path'] = $detect_path;
-				} elseif (!isset($_POST['ftp_path'])) {
-					$_POST['ftp_path'] = Config::$modSettings['package_path'] ?? $detect_path;
+				if (empty(Config::$modSettings['filesystem_path']) && $found_path) {
+					$_POST['filesystem']['path'] = $detect_path;
+				} else {
+					$_POST['filesystem']['path'] ??= Config::$modSettings['filesystem_path'] ?? $detect_path;
 				}
 
-				if (!isset($_POST['ftp_username'])) {
-					$_POST['ftp_username'] = $username;
-				}
+				$_POST['filesystem']['username'] ??= $username;
 			}
 
-			Utils::$context['package_ftp'] = [
-				'server' => $_POST['ftp_server'] ?? (Config::$modSettings['package_server'] ?? 'localhost'),
-				'port' => $_POST['ftp_port'] ?? (Config::$modSettings['package_port'] ?? '21'),
-				'username' => $_POST['ftp_username'] ?? (Config::$modSettings['package_username'] ?? ''),
-				'path' => $_POST['ftp_path'],
-				'error' => empty($ftp_error) ? null : $ftp_error,
+			Utils::$context['package_fs'] = [
+				'type' => $_POST['filesystem']['type'] ?? (Config::$modSettings['package_type'] ?? FileSystem::APIS_DEFAULT),
+				'server' => $_POST['filesystem']['server'] ?? (Config::$modSettings['package_server'] ?? 'localhost'),
+				'port' => $_POST['filesystem']['port'] ?? (Config::$modSettings['package_port'] ?? '21'),
+				'username' => $_POST['filesystem']['username'] ?? (Config::$modSettings['package_username'] ?? ''),
+				'path' => $_POST['filesystem']['path'] ?? Config::$modSettings['filesystem_path'] ?? '',
+				'error' => empty($fs_error) ? null : $fs_error,
 				'destination' => !empty($chmodOptions['destination_url']) ? $chmodOptions['destination_url'] : '',
 			];
 
@@ -826,8 +837,8 @@ class PackageUtils
 
 			// Sent here to die?
 			if (!empty($chmodOptions['crash_on_error'])) {
-				Utils::$context['page_title'] = Lang::getTxt('package_ftp_necessary', file: 'Packages');
-				Utils::$context['sub_template'] = 'ftp_required';
+				Utils::$context['page_title'] = Lang::getTxt('package_fs_necessary', file: 'Packages');
+				Utils::$context['sub_template'] = 'fs_required';
 				Utils::obExit();
 			}
 		}
@@ -848,33 +859,32 @@ class PackageUtils
 	{
 		$restore_files = [];
 
-		foreach ($_SESSION['pack_ftp']['original_perms'] as $file => $perms) {
+		foreach ($_SESSION['pack_fs']['original_perms'] as $file => $perms) {
 			// Check the file still exists, and the permissions were indeed different than now.
 			$file_permissions = @fileperms($file);
 
 			if (!file_exists($file) || $file_permissions == $perms) {
-				unset($_SESSION['pack_ftp']['original_perms'][$file]);
+				unset($_SESSION['pack_fs']['original_perms'][$file]);
 
 				continue;
 			}
 
 			// Are we wanting to change the permission?
 			if ($do_change && isset($_POST['restore_files']) && in_array($file, $_POST['restore_files'])) {
-				// Use FTP if we have it.
-				if (!empty(self::$package_ftp)) {
-					$ftp_file = strtr($file, [$_SESSION['pack_ftp']['root'] => '']);
-					self::$package_ftp->chmod($ftp_file, $perms);
+				// Use File System if we have it.
+				if (self::$package_fs instanceof FileSystemInterface) {
+					self::$package_fs->changePermissions($file, $perms);
 				} else {
 					Utils::makeWritable($file, $perms);
 				}
 
 				$new_permissions = @fileperms($file);
 				$result = $new_permissions == $perms ? 'success' : 'failure';
-				unset($_SESSION['pack_ftp']['original_perms'][$file]);
+				unset($_SESSION['pack_fs']['original_perms'][$file]);
 			} elseif ($do_change) {
 				$new_permissions = '';
 				$result = 'skipped';
-				unset($_SESSION['pack_ftp']['original_perms'][$file]);
+				unset($_SESSION['pack_fs']['original_perms'][$file]);
 			}
 
 			// Record the results!
@@ -893,14 +903,14 @@ class PackageUtils
 	}
 
 	/**
-	 * Use FTP functions to work with a package download/install
+	 * Use File System functions to work with a package download/install
 	 *
 	 * @param string $destination_url The destination URL
 	 * @param null|array $files The files to CHMOD
 	 * @param bool $return Whether to return an array of file info if there's an error
 	 * @return array An array of file info
 	 */
-	public static function packageRequireFTP(string $destination_url, ?array $files = null, bool $return = false): array
+	public static function packageRequireFileSystem(string $destination_url, ?array $files = null, bool $return = false): array
 	{
 		// Try to make them writable the manual way.
 		if ($files !== null) {
@@ -925,14 +935,14 @@ class PackageUtils
 				}
 			}
 
-			// No FTP required!
+			// No File System required!
 			if (empty($files)) {
 				return [];
 			}
 		}
 
-		// They've opted to not use FTP, and try anyway.
-		if (isset($_SESSION['pack_ftp']) && $_SESSION['pack_ftp'] == false) {
+		// They've opted to not use File System, and try anyway.
+		if (isset($_SESSION['pack_fs']) && $_SESSION['pack_fs'] == false) {
 			if ($files === null) {
 				return [];
 			}
@@ -952,29 +962,28 @@ class PackageUtils
 			return $files;
 		}
 
-		if (isset($_SESSION['pack_ftp'])) {
-			self::$package_ftp = new FtpConnection($_SESSION['pack_ftp']['server'], $_SESSION['pack_ftp']['port'], $_SESSION['pack_ftp']['username'], self::crypt($_SESSION['pack_ftp']['password']));
+		if (isset($_SESSION['pack_fs'], $_SESSION['pack_fs']['type'])) {
+			self::$package_fs = FileSystem::load($_SESSION['pack_fs']['type']);
+			self::$package_fs->connect($_SESSION['pack_fs']['server'], $_SESSION['pack_fs']['username'], $_SESSION['pack_fs']['password'], $_SESSION['pack_ftp']['port']);
 
 			if ($files === null) {
 				return [];
 			}
 
 			foreach ($files as $k => $file) {
-				$ftp_file = strtr($file, [$_SESSION['pack_ftp']['root'] => '']);
-
 				// This looks odd, but it's an attempt to work around PHP suExec.
 				if (!file_exists($file)) {
 					self::mktree(dirname($file), 0755);
-					self::$package_ftp->create_file($ftp_file);
-					self::$package_ftp->chmod($ftp_file, 0755);
+					self::$package_fs->createFile($file);
+					self::$package_fs->changePermissions($file, 0755);
 				}
 
 				if (!@is_writable($file)) {
-					self::$package_ftp->chmod($ftp_file, 0777);
+					self::$package_fs->changePermissions($file, 0777);
 				}
 
 				if (!@is_writable(dirname($file))) {
-					self::$package_ftp->chmod(dirname($ftp_file), 0777);
+					self::$package_fs->changePermissions(dirname($file), 0777);
 				}
 
 				if (@is_writable($file)) {
@@ -985,51 +994,53 @@ class PackageUtils
 			return $files;
 		}
 
-		if (isset($_POST['ftp_none'])) {
-			$_SESSION['pack_ftp'] = false;
+		if (isset($_POST['filesystem_none'])) {
+			$_SESSION['pack_fs'] = [];
 
-			$files = self::packageRequireFTP($destination_url, $files, $return);
+			$files = self::packageRequireFileSystem($destination_url, $files, $return);
 
 			return $files;
 		}
 
-		if (isset($_POST['ftp_username'])) {
-			$ftp = new FtpConnection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
+		if (isset($_POST['filesystem']['username'])) {
+			$fs = FileSystem::load($_POST['filesystem']['type']);
+			$fs->connect($_POST['filesystem']['server'], $_POST['filesystem']['username'], $_POST['filesystem']['password'], $_POST['filesystem']['port']);
 
-			if ($ftp->error === false) {
+			if ($fs->getLastError() === false) {
 				// Common mistake, so let's try to remedy it...
-				if (!$ftp->chdir($_POST['ftp_path'])) {
-					$ftp_error = $ftp->last_message;
-					$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['ftp_path']));
+				if (!$fs->changeDirectory($_POST['filesystem']['path'])) {
+					$fs_error = $fs->getLastMessage();
+					$fs->changeDirectory(preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['filesystem']['path']));
+					$fs->setForumRoot(preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['filesystem']['path']));
+				} else {
+					$fs->setForumRoot($_POST['filesystem']['path']);
 				}
 			}
 		}
 
-		if (!isset($ftp) || $ftp->error !== false) {
-			if (!isset($ftp)) {
-				$ftp = new FtpConnection(null);
-			} elseif ($ftp->error !== false && !isset($ftp_error)) {
-				$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
+		if (!isset($fs) || $fs->getLastError() !== false) {
+			if (!isset($fs)) {
+				$fs = FileSystem::load();
+			} elseif ($fs->getLastError() !== false && !isset($fs_error)) {
+				$fs_error = $fs->getLastMessage() === null ? '' : $fs->getLastMessage();
 			}
 
-			list($username, $detect_path, $found_path) = $ftp->detect_path(Config::$boarddir);
+			list($username, $detect_path, $found_path) = $fs->detectForumPath(Config::$boarddir);
 
-			if ($found_path) {
-				$_POST['ftp_path'] = $detect_path;
-			} elseif (!isset($_POST['ftp_path'])) {
-				$_POST['ftp_path'] = Config::$modSettings['package_path'] ?? $detect_path;
+			if (empty(Config::$modSettings['filesystem_path']) && $found_path) {
+				$_POST['filesystem']['path'] = $detect_path;
+			} else {
+				$_POST['filesystem']['path'] ??= Config::$modSettings['filesystem_path'] ?? $detect_path;
 			}
 
-			if (!isset($_POST['ftp_username'])) {
-				$_POST['ftp_username'] = $username;
-			}
+			$_POST['filesystem']['username'] ??= $username;
 
-			Utils::$context['package_ftp'] = [
-				'server' => $_POST['ftp_server'] ?? (Config::$modSettings['package_server'] ?? 'localhost'),
-				'port' => $_POST['ftp_port'] ?? (Config::$modSettings['package_port'] ?? '21'),
-				'username' => $_POST['ftp_username'] ?? (Config::$modSettings['package_username'] ?? ''),
-				'path' => $_POST['ftp_path'],
-				'error' => empty($ftp_error) ? null : $ftp_error,
+			Utils::$context['package_fs'] = [
+				'server' => $_POST['filesystem']['server'] ?? (Config::$modSettings['package_server'] ?? 'localhost'),
+				'port' => $_POST['filesystem']['port'] ?? (Config::$modSettings['package_port'] ?? '21'),
+				'username' => $_POST['filesystem']['username'] ?? (Config::$modSettings['package_username'] ?? ''),
+				'path' => $_POST['filesystem']['path'] ?? Config::$modSettings['filesystem_path'] ?? '',
+				'error' => empty($fs_error) ? null : $fs_error,
 				'destination' => $destination_url,
 			];
 
@@ -1038,34 +1049,24 @@ class PackageUtils
 				return $files;
 			}
 
-			Utils::$context['page_title'] = Lang::getTxt('package_ftp_necessary', file: 'Packages');
-			Utils::$context['sub_template'] = 'ftp_required';
+			Utils::$context['page_title'] = Lang::getTxt('package_fs_necessary', file: 'Packages');
+			Utils::$context['sub_template'] = 'fs_required';
 			Utils::obExit();
 		} else {
-			if (!in_array($_POST['ftp_path'], ['', '/'])) {
-				$ftp_root = strtr(Config::$boarddir, [$_POST['ftp_path'] => '']);
-
-				if (str_ends_with($ftp_root, '/') && ($_POST['ftp_path'] == '' || $_POST['ftp_path'][0] == '/')) {
-					$ftp_root = substr($ftp_root, 0, -1);
-				}
-			} else {
-				$ftp_root = Config::$boarddir;
-			}
-
-			$_SESSION['pack_ftp'] = [
-				'server' => $_POST['ftp_server'],
-				'port' => $_POST['ftp_port'],
-				'username' => $_POST['ftp_username'],
-				'password' => self::crypt($_POST['ftp_password']),
-				'path' => $_POST['ftp_path'],
-				'root' => $ftp_root,
+			$_SESSION['pack_fs'] = [
+				'type' => $_POST['filesystem']['type'],
+				'server' => $_POST['filesystem']['server'],
+				'port' => $_POST['filesystem']['port'],
+				'username' => $_POST['filesystem']['username'],
+				'password' => $_POST['filesystem']['password'],
+				'path' => $_POST['filesystem']['path'],
 			];
 
-			if (!isset(Config::$modSettings['package_path']) || Config::$modSettings['package_path'] != $_POST['ftp_path']) {
-				Config::updateModSettings(['package_path' => $_POST['ftp_path']]);
+			if (!isset(Config::$modSettings['filesystem_path']) || Config::$modSettings['filesystem_path'] != $_POST['filesystem']['path']) {
+				Config::updateModSettings(['filesystem_path' => $_POST['filesystem']['path']]);
 			}
 
-			$files = self::packageRequireFTP($destination_url, $files, $return);
+			$files = self::packageRequireFileSystem($destination_url, $files, $return);
 		}
 
 		return $files;
@@ -1733,13 +1734,11 @@ class PackageUtils
 		$current_dir = @opendir($dir);
 
 		if ($current_dir == false) {
-			if ($delete_dir && isset(self::$package_ftp)) {
-				$ftp_file = strtr($dir, [$_SESSION['pack_ftp']['root'] => '']);
-
+			if ($delete_dir && isset(self::$package_fs)) {
 				if (!is_dir($dir)) {
-					self::$package_ftp->chmod($ftp_file, 0777);
+					self::$package_fs->changePermissions($dir, 0777);
 				}
-				self::$package_ftp->unlink($ftp_file);
+				self::$package_fs->deleteFile($dir);
 			}
 
 			return;
@@ -1754,13 +1753,11 @@ class PackageUtils
 				self::deltree($dir . '/' . $entryname);
 			} else {
 				// Here, 755 doesn't really matter since we're deleting it anyway.
-				if (isset(self::$package_ftp)) {
-					$ftp_file = strtr($dir . '/' . $entryname, [$_SESSION['pack_ftp']['root'] => '']);
-
+				if (isset(self::$package_fs)) {
 					if (!is_writable($dir . '/' . $entryname)) {
-						self::$package_ftp->chmod($ftp_file, 0777);
+						self::$package_fs->changePermissions($dir . '/' . $entryname, 0777);
 					}
-					self::$package_ftp->unlink($ftp_file);
+					self::$package_fs->deleteFile($dir . '/' . $entryname);
 				} else {
 					Utils::makeWritable($dir . '/' . $entryname);
 					unlink($dir . '/' . $entryname);
@@ -1771,14 +1768,12 @@ class PackageUtils
 		closedir($current_dir);
 
 		if ($delete_dir) {
-			if (isset(self::$package_ftp)) {
-				$ftp_file = strtr($dir, [$_SESSION['pack_ftp']['root'] => '']);
-
+			if (isset(self::$package_fs)) {
 				if (!is_writable($dir . '/' . $entryname)) {
-					self::$package_ftp->chmod($ftp_file, 0777);
+					self::$package_fs->changePermissions($dir, 0777);
 				}
 
-				self::$package_ftp->unlink($ftp_file);
+				self::$package_fs->deleteDirectory($dir . '/' . $entryname);
 			} else {
 				Utils::makeWritable($dir);
 				@rmdir($dir);
@@ -1798,8 +1793,8 @@ class PackageUtils
 	{
 		if (is_dir($strPath)) {
 			if (!is_writable($strPath) && $mode !== false) {
-				if (isset(self::$package_ftp)) {
-					self::$package_ftp->chmod(strtr($strPath, [$_SESSION['pack_ftp']['root'] => '']), $mode);
+				if (isset(self::$package_fs)) {
+					self::$package_fs->changePermissions($strPath, $mode);
 				} else {
 					Utils::makeWritable($strPath, $mode);
 				}
@@ -1822,15 +1817,15 @@ class PackageUtils
 		}
 
 		if (!is_writable(dirname($strPath)) && $mode !== false) {
-			if (isset(self::$package_ftp)) {
-				self::$package_ftp->chmod(dirname(strtr($strPath, [$_SESSION['pack_ftp']['root'] => ''])), $mode);
+			if (isset(self::$package_fs)) {
+				self::$package_fs->changePermissions(dirname($strPath), $mode);
 			} else {
 				Utils::makeWritable(dirname($strPath), $mode);
 			}
 		}
 
-		if ($mode !== false && isset(self::$package_ftp)) {
-			return self::$package_ftp->create_dir(strtr($strPath, [$_SESSION['pack_ftp']['root'] => '']));
+		if ($mode !== false && isset(self::$package_fs)) {
+			return self::$package_fs->createDirectory($strPath);
 		}
 
 		if ($mode === false) {
@@ -1885,13 +1880,9 @@ class PackageUtils
 				continue;
 			}
 
-			if (isset(self::$package_ftp)) {
-				$ftp_file = strtr($destination . '/' . $entryname, [$_SESSION['pack_ftp']['root'] => '']);
-			}
-
 			if (is_file($source . '/' . $entryname)) {
-				if (isset(self::$package_ftp) && !file_exists($destination . '/' . $entryname)) {
-					self::$package_ftp->create_file($ftp_file);
+				if (isset(self::$package_fs) && !file_exists($destination . '/' . $entryname)) {
+					self::$package_fs->createFile($destination . '/' . $entryname);
 				} elseif (!file_exists($destination . '/' . $entryname)) {
 					@touch($destination . '/' . $entryname);
 				}
@@ -2258,7 +2249,7 @@ class PackageUtils
 			self::chmod($target_path);
 
 			// If the target still isn't writable, add it to the list so that we
-			// can try again using FTP access.
+			// can try again using File System access.
 			if (
 				(
 					file_exists($target_path)
@@ -2614,7 +2605,7 @@ class PackageUtils
 						$actions[] = [
 							'type' => 'failure',
 							'filename' => $working_file,
-							'search' => $search['search'],
+							'search' => $actual_operation['searches'][0]['search'],
 							'is_custom' => $theme > 1 ? $theme : 0,
 						];
 
@@ -3146,7 +3137,7 @@ class PackageUtils
 
 	/**
 	 * Writes data to a file, almost exactly like the file_put_contents() function.
-	 * uses FTP to create/chmod the file when necessary and available.
+	 * uses File System to create/chmod the file when necessary and available.
 	 * uses text mode for text mode file extensions.
 	 * returns the number of bytes written.
 	 *
@@ -3170,12 +3161,8 @@ class PackageUtils
 			}
 		}
 
-		if (isset(self::$package_ftp)) {
-			$ftp_file = strtr($filename, [$_SESSION['pack_ftp']['root'] => '']);
-		}
-
-		if (!file_exists($filename) && isset(self::$package_ftp)) {
-			self::$package_ftp->create_file($ftp_file);
+		if (!file_exists($filename) && isset(self::$package_fs)) {
+			self::$package_fs->createFile($filename);
 		} elseif (!file_exists($filename)) {
 			@touch($filename);
 		}
@@ -3224,12 +3211,8 @@ class PackageUtils
 
 		// First, let's check permissions!
 		foreach (self::$package_cache as $filename => $data) {
-			if (isset(self::$package_ftp)) {
-				$ftp_file = strtr($filename, [$_SESSION['pack_ftp']['root'] => '']);
-			}
-
-			if (!file_exists($filename) && isset(self::$package_ftp)) {
-				self::$package_ftp->create_file($ftp_file);
+			if (!file_exists($filename) && self::$package_fs instanceof FileSystemInterface) {
+				self::$package_fs->createFile($filename);
 			} elseif (!file_exists($filename)) {
 				@touch($filename);
 			}
@@ -3285,8 +3268,8 @@ class PackageUtils
 			return true;
 		}
 
-		// Start off checking without FTP.
-		if (!isset(self::$package_ftp) || self::$package_ftp === false) {
+		// Start off checking without File System.
+		if (!isset(self::$package_fs) || self::$package_fs === false) {
 			for ($i = 0; $i < 2; $i++) {
 				$chmod_file = $filename;
 
@@ -3330,13 +3313,13 @@ class PackageUtils
 
 						// It worked!
 						if ($track_change) {
-							$_SESSION['pack_ftp']['original_perms'][$chmod_file] = $file_permissions;
+							$_SESSION['pack_fs']['original_perms'][$chmod_file] = $file_permissions;
 						}
 
 						return true;
 					}
-				} elseif ($perm_state != 'writable' && isset($_SESSION['pack_ftp']['original_perms'][$chmod_file])) {
-					unset($_SESSION['pack_ftp']['original_perms'][$chmod_file]);
+				} elseif ($perm_state != 'writable' && isset($_SESSION['pack_fs']['original_perms'][$chmod_file])) {
+					unset($_SESSION['pack_fs']['original_perms'][$chmod_file]);
 				}
 			}
 
@@ -3344,73 +3327,53 @@ class PackageUtils
 			return false;
 		}
 
-		// Otherwise we do have FTP?
-		if (self::$package_ftp !== false && !empty($_SESSION['pack_ftp'])) {
-			$ftp_file = strtr($filename, [$_SESSION['pack_ftp']['root'] => '']);
-
+		// Otherwise we do have File System handler?
+		if (self::$package_fs !== false && !empty($_SESSION['pack_fs'])) {
 			// This looks odd, but it's an attempt to work around PHP suExec.
 			if (!file_exists($filename) && $perm_state == 'writable') {
 				$file_permissions = @fileperms(dirname($filename));
 
 				self::mktree(dirname($filename), 0755);
-				self::$package_ftp->create_file($ftp_file);
-				self::$package_ftp->chmod($ftp_file, 0755);
+				self::$package_fs->createFile($filename);
+
+				foreach (FileSystem::CHMOD_DIR as $chmod) {
+					self::$package_fs->changePermissions($filename, $chmod);
+
+					if (is_writable($filename)) {
+						break;
+					}
+				}
 			} else {
 				$file_permissions = @fileperms($filename);
 			}
 
 			if ($perm_state != 'writable') {
-				self::$package_ftp->chmod($ftp_file, $perm_state == 'execute' ? 0755 : 0644);
+				self::$package_fs->changePermissions($filename, $perm_state == 'execute' ? 0755 : 0644);
 			} else {
-				if (!@is_writable($filename)) {
-					self::$package_ftp->chmod($ftp_file, 0777);
-				}
+				foreach (FileSystem::CHMOD_FILE as $chmod) {
+					self::$package_fs->changePermissions($filename, $chmod);
 
-				if (!@is_writable(dirname($filename))) {
-					self::$package_ftp->chmod(dirname($ftp_file), 0777);
+					if (is_writable($filename)) {
+						break;
+					}
 				}
 			}
 
 			if (@is_writable($filename)) {
 				if ($track_change) {
-					$_SESSION['pack_ftp']['original_perms'][$filename] = $file_permissions;
+					$_SESSION['pack_fs']['original_perms'][$filename] = $file_permissions;
 				}
 
 				return true;
 			}
 
-			if ($perm_state != 'writable' && isset($_SESSION['pack_ftp']['original_perms'][$filename])) {
-				unset($_SESSION['pack_ftp']['original_perms'][$filename]);
+			if ($perm_state != 'writable' && isset($_SESSION['pack_fs']['original_perms'][$filename])) {
+				unset($_SESSION['pack_fs']['original_perms'][$filename]);
 			}
 		}
 
 		// Oh dear, we failed if we get here.
 		return false;
-	}
-
-	/**
-	 * Used to crypt the supplied ftp password in this session
-	 *
-	 * @param string $pass The password
-	 * @return string The encrypted password
-	 */
-	public static function crypt(
-		#[\SensitiveParameter]
-		string $pass,
-	): string {
-		$n = strlen($pass);
-
-		$salt = session_id();
-
-		while (strlen($salt) < $n) {
-			$salt .= session_id();
-		}
-
-		for ($i = 0; $i < $n; $i++) {
-			$pass[$i] = chr(ord($pass[$i]) ^ (ord($salt[$i]) - 32));
-		}
-
-		return $pass;
 	}
 
 	/**

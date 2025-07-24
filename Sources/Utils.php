@@ -1965,7 +1965,7 @@ class Utils
 				return true;
 			}
 
-			@chmod($path, $val);
+			@chmod($path, (int) $val);
 		}
 
 		// Didn't work.

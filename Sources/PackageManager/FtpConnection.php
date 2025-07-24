@@ -15,17 +15,25 @@ declare(strict_types=1);
 
 namespace SMF\PackageManager;
 
+use SMF\PackageManager\FileSystem\APIs\Ftp;
+use SMF\PackageManager\FileSystem\APIs\FtpSSL;
+
 /**
  * Class FtpConnection
  * Simple FTP protocol implementation.
  *
  * @see https://tools.ietf.org/html/rfc959
+ * @deprecated Use Ftp File system handler.
  */
 class FtpConnection
 {
 	/*******************
 	 * Public properties
 	 *******************/
+
+	// /*******************
+	//  * Public properties
+	//  *******************/
 
 	/**
 	 * @var resource Holds the connection response
@@ -46,6 +54,12 @@ class FtpConnection
 	 * @var array{ip: string, port: int} Contains information about passive mode if used.
 	 */
 	public array $pasv = [];
+
+	/*********************
+	 * Internal properties
+	 *********************/
+
+	private Ftp|FtpSSL $ftp;
 
 	/****************
 	 * Public methods
@@ -72,8 +86,13 @@ class FtpConnection
 		$this->pasv = [];
 
 		if ($ftp_server !== null) {
+			$this->ftp = new Ftp();
 			$this->connect($ftp_server, $ftp_port, $ftp_user, $ftp_pass);
 		}
+
+		$this->error = &$this->ftp->legacy_error;
+		$this->last_message = &$this->ftp->legacy_last_message;
+		$this->pasv = &$this->ftp->legacy_pasv;
 	}
 
 	/**
@@ -91,57 +110,12 @@ class FtpConnection
 		#[\SensitiveParameter]
 		string $ftp_pass = 'ftpclient@simplemachines.org',
 	): void {
-		if (str_starts_with($ftp_server, 'ftp://')) {
-			$ftp_server = substr($ftp_server, 6);
-		} elseif (str_starts_with($ftp_server, 'ftps://')) {
-			$ftp_server = 'ssl://' . substr($ftp_server, 7);
+		if (str_starts_with($ftp_server, 'ftps://') || str_starts_with($ftp_server, 'ssl://')) {
+			$this->ftp = new FtpSSL();
 		}
 
-		if (str_starts_with($ftp_server, 'http://')) {
-			$ftp_server = substr($ftp_server, 7);
-		} elseif (str_starts_with($ftp_server, 'https://')) {
-			$ftp_server = substr($ftp_server, 8);
-		}
-		$ftp_server = strtr($ftp_server, ['/' => '', ':' => '', '@' => '']);
-
-		// Connect to the FTP server.
-		$this->connection = @fsockopen($ftp_server, $ftp_port, $err, $err, 5);
-
-		if (!$this->connection) {
-			$this->error = 'bad_server';
-			$this->last_message = 'Invalid Server';
-
-			return;
-		}
-
-		// Get the welcome message...
-		if (!$this->check_response(220)) {
-			$this->error = 'bad_response';
-			$this->last_message = 'Bad Response';
-
-			return;
-		}
-
-		// Send the username, it should ask for a password.
-		fwrite($this->connection, 'USER ' . $ftp_user . "\r\n");
-
-		if (!$this->check_response(331)) {
-			$this->error = 'bad_username';
-			$this->last_message = 'Invalid Username';
-
-			return;
-		}
-
-		// Now send the password... and hope it goes okay.
-
-		fwrite($this->connection, 'PASS ' . $ftp_pass . "\r\n");
-
-		if (!$this->check_response(230)) {
-			$this->error = 'bad_password';
-			$this->last_message = 'Invalid Password';
-
-			return;
-		}
+		// Simply connect, ignore the response.
+		$this->ftp->connect($ftp_server, $ftp_user, $ftp_pass, $ftp_port);
 	}
 
 	/**
@@ -152,28 +126,16 @@ class FtpConnection
 	 */
 	public function chdir(string $ftp_path): bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!is_resource($this->ftp)) {
 			return false;
 		}
 
-		// No slash on the end, please...
-		if ($ftp_path !== '/' && str_ends_with($ftp_path, '/')) {
-			$ftp_path = substr($ftp_path, 0, -1);
-		}
-
-		fwrite($this->connection, 'CWD ' . $ftp_path . "\r\n");
-
-		if (!$this->check_response(250)) {
-			$this->error = 'bad_path';
-
-			return false;
-		}
-
-		return true;
+		return $this->ftp->changeDirectory($ftp_path);
 	}
 
 	/**
 	 * Changes a files attributes (chmod)
+	 * Do not attempt to check is_dir, is_writable, etc.  $ftp_file contains the local FTP path.
 	 *
 	 * @param string $ftp_file The file to CHMOD
 	 * @param int|string $chmod The value for the CHMOD operation
@@ -181,38 +143,11 @@ class FtpConnection
 	 */
 	public function chmod(string $ftp_file, int|string $chmod): bool
 	{
-		if (!is_resource($this->connection)) {
+		if (!is_resource($this->ftp)) {
 			return false;
 		}
 
-		if ($ftp_file == '') {
-			$ftp_file = '.';
-		}
-
-		// Do we have a file or a dir?
-		$is_dir = is_dir($ftp_file);
-		$is_writable = false;
-
-		// Set different modes.
-		$chmod_values = $is_dir ? [0750, 0755, 0775, 0777] : [0644, 0664, 0666];
-
-		foreach ($chmod_values as $val) {
-			// If it's writable, break out of the loop.
-			if (is_writable($ftp_file)) {
-				$is_writable = true;
-				break;
-			}
-
-			// Convert the chmod value from octal (0777) to text ("777").
-			fwrite($this->connection, 'SITE CHMOD ' . decoct($val) . ' ' . $ftp_file . "\r\n");
-
-			if (!$this->check_response(200)) {
-				$this->error = 'bad_file';
-				break;
-			}
-		}
-
-		return $is_writable;
+		return $this->ftp->changePermissions($ftp_file, $chmod);
 	}
 
 	/**
@@ -224,25 +159,12 @@ class FtpConnection
 	public function unlink(string $ftp_file): bool
 	{
 		// We are actually connected, right?
-		if (!is_resource($this->connection)) {
+		if (!is_resource($this->ftp)) {
 			return false;
 		}
 
-		// Delete file X.
-		fwrite($this->connection, 'DELE ' . $ftp_file . "\r\n");
-
-		if (!$this->check_response(250)) {
-			fwrite($this->connection, 'RMD ' . $ftp_file . "\r\n");
-
-			// Still no love?
-			if (!$this->check_response(250)) {
-				$this->error = 'bad_file';
-
-				return false;
-			}
-		}
-
-		return true;
+		// The old way just deleted a file and when failed, deleted as a directory.
+		return $this->ftp->deleteFile($ftp_file);
 	}
 
 	/**
@@ -253,12 +175,9 @@ class FtpConnection
 	 */
 	public function check_response(int|string|array $desired): bool
 	{
-		// Wait for a response that isn't continued with -, but don't wait too long.
-		$time = time();
-
-		do {
-			$this->last_message = fgets($this->connection, 1024);
-		} while ((strlen($this->last_message) < 4 || str_starts_with($this->last_message, ' ') || strpos($this->last_message, ' ', 3) !== 3) && time() - $time < 5);
+		if (!is_resource($this->ftp)) {
+			return false;
+		}
 
 		// Was the desired response returned?
 		return is_array($desired) ? in_array(substr($this->last_message, 0, 3), $desired) : substr($this->last_message, 0, 3) == $desired;
@@ -271,39 +190,11 @@ class FtpConnection
 	 */
 	public function passive(): bool
 	{
-		// We can't create a passive data connection without a primary one first being there.
-		if (!is_resource($this->connection)) {
-			$this->error = 'no_connection';
-
+		if (!is_resource($this->ftp)) {
 			return false;
 		}
 
-		// Request a passive connection - this means, we'll talk to you, you don't talk to us.
-		@fwrite($this->connection, 'PASV' . "\r\n");
-		$time = time();
-
-		do {
-			$response = fgets($this->connection, 1024);
-		} while (strpos($response, ' ', 3) !== 3 && time() - $time < 5);
-
-		// If it's not 227, we weren't given an IP and port, which means it failed.
-		if (!str_starts_with($response, '227 ')) {
-			$this->error = 'bad_response';
-
-			return false;
-		}
-
-		// Snatch the IP and port information, or die horribly trying...
-		if (preg_match('~\((\d+),\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))\)~', $response, $match) == 0) {
-			$this->error = 'bad_response';
-
-			return false;
-		}
-
-		// This is pretty simple - store it for later use ;).
-		$this->pasv = ['ip' => $match[1] . '.' . $match[2] . '.' . $match[3] . '.' . $match[4], 'port' => $match[5] * 256 + $match[6]];
-
-		return true;
+		return $this->ftp->enterPassiveMode();
 	}
 
 	/**
@@ -315,38 +206,11 @@ class FtpConnection
 	public function create_file(string $ftp_file): bool
 	{
 		// First, we have to be connected... very important.
-		if (!is_resource($this->connection)) {
+		if (!is_resource($this->ftp)) {
 			return false;
 		}
 
-		// I'd like one passive mode, please!
-		if (!$this->passive()) {
-			return false;
-		}
-
-		// Seems logical enough, so far...
-		fwrite($this->connection, 'STOR ' . $ftp_file . "\r\n");
-
-		// Okay, now we connect to the data port.  If it doesn't work out, it's probably "file already exists", etc.
-		$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $err, 5);
-
-		if (!$fp || !$this->check_response(150)) {
-			$this->error = 'bad_file';
-			@fclose($fp);
-
-			return false;
-		}
-
-		// This may look strange, but we're just closing it to indicate a zero-byte upload.
-		fclose($fp);
-
-		if (!$this->check_response(226)) {
-			$this->error = 'bad_response';
-
-			return false;
-		}
-
-		return true;
+		return $this->ftp->createFile($ftp_file);
 	}
 
 	/**
@@ -359,44 +223,11 @@ class FtpConnection
 	public function list_dir(string $ftp_path = '', bool $search = false): string|bool
 	{
 		// Are we even connected...?
-		if (!is_resource($this->connection)) {
+		if (!is_resource($this->ftp)) {
 			return false;
 		}
 
-		// Passive... non-aggressive...
-		if (!$this->passive()) {
-			return false;
-		}
-
-		// Get the listing!
-		fwrite($this->connection, 'LIST -1' . ($search ? 'R' : '') . ($ftp_path == '' ? '' : ' ' . $ftp_path) . "\r\n");
-
-		// Connect, assuming we've got a connection.
-		$fp = @fsockopen($this->pasv['ip'], $this->pasv['port'], $err, $err, 5);
-
-		if (!$fp || !$this->check_response([150, 125])) {
-			$this->error = 'bad_response';
-			@fclose($fp);
-
-			return false;
-		}
-
-		// Read in the file listing.
-		$data = '';
-
-		while (!feof($fp)) {
-			$data .= fread($fp, 4096);
-		}
-		fclose($fp);
-
-		// Everything go okay?
-		if (!$this->check_response(226)) {
-			$this->error = 'bad_response';
-
-			return false;
-		}
-
-		return $data;
+		return $this->ftp->listDirectory($ftp_path, $search);
 	}
 
 	/**
@@ -408,48 +239,11 @@ class FtpConnection
 	 */
 	public function locate(string $file, ?string $listing = null): string|bool
 	{
-		if ($listing === null) {
-			$listing = $this->list_dir('', true);
-		}
-		$listing = explode("\n", $listing);
-
-		@fwrite($this->connection, 'PWD' . "\r\n");
-		$time = time();
-
-		do {
-			$response = fgets($this->connection, 1024);
-		} while ($response[3] != ' ' && time() - $time < 5);
-
-		// Check for 257!
-		if (preg_match('~^257 "(.+?)" ~', $response, $match) != 0) {
-			$current_dir = strtr($match[1], ['""' => '"']);
-		} else {
-			$current_dir = '';
+		if (!is_resource($this->ftp)) {
+			return false;
 		}
 
-		for ($i = 0, $n = count($listing); $i < $n; $i++) {
-			if (trim($listing[$i]) == '' && isset($listing[$i + 1])) {
-				$current_dir = substr(trim($listing[++$i]), 0, -1);
-				$i++;
-			}
-
-			// Okay, this file's name is:
-			$listing[$i] = $current_dir . '/' . trim(strlen($listing[$i]) > 30 ? strrchr($listing[$i], ' ') : $listing[$i]);
-
-			if ($file[0] == '*' && substr($listing[$i], -(strlen($file) - 1)) == substr($file, 1)) {
-				return $listing[$i];
-			}
-
-			if (str_ends_with($file, '*') && substr($listing[$i], 0, strlen($file) - 1) == substr($file, 0, -1)) {
-				return $listing[$i];
-			}
-
-			if (basename($listing[$i]) == $file || $listing[$i] == $file) {
-				return $listing[$i];
-			}
-		}
-
-		return false;
+		return $this->ftp->locate($file, $listing);
 	}
 
 	/**
@@ -461,76 +255,11 @@ class FtpConnection
 	public function create_dir(string $ftp_dir): bool
 	{
 		// We must be connected to the server to do something.
-		if (!is_resource($this->connection)) {
+		if (!is_resource($this->ftp)) {
 			return false;
 		}
 
-		// Make this new beautiful directory!
-		fwrite($this->connection, 'MKD ' . $ftp_dir . "\r\n");
-
-		if (!$this->check_response(257)) {
-			$this->error = 'bad_file';
-
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Detects the current path
-	 *
-	 * @param string $filesystem_path The full path from the filesystem
-	 * @param null|string $lookup_file The name of a file in the specified path
-	 * @return array An array of detected info - username, path from FTP root and whether or not the current path was found
-	 */
-	public function detect_path(string $filesystem_path, ?string $lookup_file = null): array
-	{
-		$username = '';
-
-		if (isset($_SERVER['DOCUMENT_ROOT'])) {
-			if (preg_match('~^/home[2]?/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match)) {
-				$username = $match[1];
-
-				$path = strtr($_SERVER['DOCUMENT_ROOT'], ['/home/' . $match[1] . '/' => '', '/home2/' . $match[1] . '/' => '']);
-
-				if (str_ends_with($path, '/')) {
-					$path = substr($path, 0, -1);
-				}
-
-				if (strlen(dirname($_SERVER['PHP_SELF'])) > 1) {
-					$path .= dirname($_SERVER['PHP_SELF']);
-				}
-			} elseif (str_starts_with($filesystem_path, '/var/www/')) {
-				$path = substr($filesystem_path, 8);
-			} else {
-				$path = strtr(strtr($filesystem_path, ['\\' => '/']), [$_SERVER['DOCUMENT_ROOT'] => '']);
-			}
-		} else {
-			$path = '';
-		}
-
-		if (is_resource($this->connection) && $this->list_dir($path) == '') {
-			$data = $this->list_dir('', true);
-
-			if ($lookup_file === null) {
-				$lookup_file = $_SERVER['PHP_SELF'];
-			}
-
-			$found_path = dirname($this->locate('*' . basename(dirname($lookup_file)) . '/' . basename($lookup_file), $data));
-
-			if ($found_path == false) {
-				$found_path = dirname($this->locate(basename($lookup_file)));
-			}
-
-			if ($found_path != false) {
-				$path = $found_path;
-			}
-		} elseif (is_resource($this->connection)) {
-			$found_path = true;
-		}
-
-		return [$username, $path, isset($found_path)];
+		return $this->ftp->createDirectory($ftp_dir);
 	}
 
 	/**
@@ -540,10 +269,10 @@ class FtpConnection
 	 */
 	public function close(): bool
 	{
-		// Goodbye!
-		fwrite($this->connection, 'QUIT' . "\r\n");
-		fclose($this->connection);
+		if (!is_resource($this->ftp)) {
+			return false;
+		}
 
-		return true;
+		return $this->ftp->disconnect();
 	}
 }

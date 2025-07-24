@@ -13,6 +13,7 @@
 
 namespace SMF\PackageManager;
 
+use SMF\Actions\Admin\ACP;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
@@ -23,6 +24,9 @@ use SMF\Lang;
 use SMF\Logging;
 use SMF\Menu;
 use SMF\Msg;
+use SMF\OutputTypeInterface;
+use SMF\OutputTypes;
+use SMF\PackageManager\FileSystem\FileSystem;
 use SMF\Parser;
 use SMF\Sapi;
 use SMF\Security;
@@ -51,7 +55,7 @@ class PackageManager
 		'browse' => 'browse',
 		'remove' => 'remove',
 		'list' => 'list',
-		'ftptest' => 'ftpTest',
+		'fstest' => 'fsTest',
 		'install' => 'installTest',
 		'install2' => 'install',
 		'uninstall' => 'installTest',
@@ -174,7 +178,7 @@ class PackageManager
 		// Do we have an existing id, for uninstalls and the like.
 		Utils::$context['install_id'] = isset($_REQUEST['pid']) ? (int) $_REQUEST['pid'] : 0;
 
-		// Load up the package FTP information?
+		// Load up the package File System information?
 		PackageUtils::createChmodControl();
 
 		// Make sure temp directory exists and is empty.
@@ -366,7 +370,7 @@ class PackageManager
 		}
 
 		Utils::$context['actions'] = [];
-		Utils::$context['ftp_needed'] = false;
+		Utils::$context['fs_needed'] = false;
 		Utils::$context['has_failure'] = false;
 		$chmod_files = [];
 
@@ -844,11 +848,15 @@ class PackageManager
 		}
 
 		if (!empty($chmod_files)) {
-			$ftp_status = PackageUtils::createChmodControl($chmod_files);
-			Utils::$context['ftp_needed'] = !empty($ftp_status['files']['notwritable']) && !empty(Utils::$context['package_ftp']);
+			$fs_status = PackageUtils::createChmodControl($chmod_files);
+			Utils::$context['fs_needed'] = !empty($fs_status['files']['notwritable']) && !empty(Utils::$context['package_fs']);
+
+			if (Utils::$context['fs_needed']) {
+				Utils::$context['filesystem_types'] = FileSystem::getSelectOptions();
+			}
 		}
 
-		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=packages;sa=' . (Utils::$context['uninstalling'] ? 'uninstall' : 'install') . (Utils::$context['ftp_needed'] ? '' : '2') . ';package=' . Utils::$context['filename'] . ';pid=' . Utils::$context['install_id'];
+		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=packages;sa=' . (Utils::$context['uninstalling'] ? 'uninstall' : 'install') . (Utils::$context['fs_needed'] ? '' : '2') . ';package=' . Utils::$context['filename'] . ';pid=' . Utils::$context['install_id'];
 		Security::checkSubmitOnce('register');
 	}
 
@@ -887,7 +895,7 @@ class PackageManager
 			ErrorHandler::fatalLang('package_no_file', false);
 		}
 
-		// Load up the package FTP information?
+		// Load up the package File System information?
 		PackageUtils::createChmodControl([], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;sa=' . $_REQUEST['sa'] . ';package=' . $_REQUEST['package']]);
 
 		// Make sure temp directory exists and is empty!
@@ -1725,44 +1733,32 @@ class PackageManager
 	}
 
 	/**
-	 * Used when a temp FTP access is needed to package functions
+	 * Used when a temp File System access is needed to package functions
 	 */
 	public function options(): void
 	{
-		if (isset($_POST['save'])) {
+		$config_vars = self::getConfigVars();
+
+		if (isset($_GET['save'])) {
 			User::$me->checkSession();
 
-			Config::updateModSettings([
-				'package_server' => trim(Utils::htmlspecialchars($_POST['pack_server'])),
-				'package_port' => trim(Utils::htmlspecialchars($_POST['pack_port'])),
-				'package_username' => trim(Utils::htmlspecialchars($_POST['pack_user'])),
-				'package_make_backups' => !empty($_POST['package_make_backups']),
-				'package_make_full_backups' => !empty($_POST['package_make_full_backups']),
-			]);
-			$_SESSION['adm-save'] = true;
+			IntegrationHook::call('integrate_save_package_settings');
+
+			$_POST['filesystem_path'] = rtrim($_POST['filesystem_path'], '/') . '/';
+
+			// If we changed settings, destory any session we have.
+			$_SESSION['pack_fs'] = null;
+
+			ACP::saveDBSettings($config_vars);
 
 			Utils::redirectexit('action=admin;area=packages;sa=options');
 		}
 
-		if (preg_match('~^/home\d*/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match)) {
-			$default_username = $match[1];
-		} else {
-			$default_username = '';
-		}
+		Utils::$context['settings_title'] = Lang::getTxt('package_settings', file: 'Admin');
+		Utils::$context['post_url'] = Config::$scripturl . '?action=admin;area=packages;sa=options;save';
+		Utils::$context['sub_template'] = 'show_settings';
 
-		Utils::$context['page_title'] = Lang::getTxt('package_settings', file: 'Admin');
-		Utils::$context['sub_template'] = 'install_options';
-
-		Utils::$context['package_ftp_server'] = Config::$modSettings['package_server'] ?? 'localhost';
-		Utils::$context['package_ftp_port'] = Config::$modSettings['package_port'] ?? '21';
-		Utils::$context['package_ftp_username'] = Config::$modSettings['package_username'] ?? $default_username;
-		Utils::$context['package_make_backups'] = !empty(Config::$modSettings['package_make_backups']);
-		Utils::$context['package_make_full_backups'] = !empty(Config::$modSettings['package_make_full_backups']);
-
-		if (!empty($_SESSION['adm-save'])) {
-			Utils::$context['saved_successful'] = true;
-			unset($_SESSION['adm-save']);
-		}
+		ACP::prepareDBSettingContext($config_vars);
 	}
 
 	/**
@@ -1911,22 +1907,29 @@ class PackageManager
 		Sapi::setMemoryLimit('128M');
 		Sapi::setTimeLimit();
 
-		// Load up some FTP stuff.
+		// Load up some File System stuff.
 		PackageUtils::createChmodControl();
 
-		if (empty(PackageUtils::$package_ftp) && !isset($_POST['skip_ftp'])) {
-			$ftp = new FtpConnection(null);
-			list($username, $detect_path, $found_path) = $ftp->detect_path(Config::$boarddir);
+		if (!isset($_POST['skip_fs']) && (empty(PackageUtils::$package_fs) || !PackageUtils::$package_fs->isConnected())) {
+			PackageUtils::$package_fs ??= FileSystem::load();
+			list($username, $detect_path, $found_path) = PackageUtils::$package_fs->detectForumPath(Config::$boarddir);
 
-			Utils::$context['package_ftp'] = [
-				'server' => Config::$modSettings['package_server'] ?? 'localhost',
-				'port' => Config::$modSettings['package_port'] ?? '21',
-				'username' => empty($username) ? (Config::$modSettings['package_username'] ?? '') : $username,
-				'path' => $detect_path,
+			Utils::$context['package_fs'] = [
+				'type' => Config::$modSettings['filesystem_type'] ?? FileSystem::APIS_DEFAULT,
+				'server' => Config::$modSettings['filesystem_server'] ?? 'localhost',
+				'port' => Config::$modSettings['filesystem_port'] ?? 0,
+				'username' => empty($username) ? (Config::$modSettings['filesystem_username'] ?? '') : $username,
+				'path' => empty(Config::$modSettings['filesystem_path']) && $found_path ? $detect_path : Config::$modSettings['filesystem_path'] ?? '',
+				'error' => Lang::txtExists('filesystem_error_' . PackageUtils::$package_fs->getLastError()) ? Lang::getTxt('filesystem_error_' . PackageUtils::$package_fs->getLastError()) : PackageUtils::$package_fs->getLastMessage(),
+				'message' => PackageUtils::$package_fs->getLastMessage(),
 				'form_elements_only' => true,
 			];
+
+			Utils::$context['filesystem_types'] = FileSystem::getSelectOptions();
 		} else {
-			Utils::$context['ftp_connected'] = true;
+			Utils::$context['package_fs']['error'] = Lang::txtExists('filesystem_error_' . PackageUtils::$package_fs->getLastError()) ? Lang::getTxt('filesystem_error_' . PackageUtils::$package_fs->getLastError()) : PackageUtils::$package_fs->getLastMessage();
+			Utils::$context['package_fs']['message'] = PackageUtils::$package_fs->getLastMessage();
+			Utils::$context['fs_connected'] = PackageUtils::$package_fs->isConnected();
 		}
 
 		// Define the template.
@@ -2123,7 +2126,7 @@ class PackageManager
 		Db::$db->free_result($request);
 
 		// If we're submitting then let's move on to another function to keep things cleaner..
-		if (isset($_POST['action_changes'])) {
+		if (isset($_POST['action_changes']) && (isset($_POST['skip_fs']) || (!empty(PackageUtils::$package_fs) && PackageUtils::$package_fs->isConnected()))) {
 			$this->PackagePermissionsAction();
 
 			return;
@@ -2218,9 +2221,9 @@ class PackageManager
 		Utils::$context['page_title'] = Lang::getTxt('package_file_perms_applying', file: 'Packages');
 		Utils::$context['back_look_data'] = $_POST['back_look'] ?? [];
 
-		// Skipping use of FTP?
-		if (empty(PackageUtils::$package_ftp)) {
-			Utils::$context['skip_ftp'] = true;
+		// Skipping use of FileSystem Handler?
+		if (empty(PackageUtils::$package_fs)) {
+			Utils::$context['skip_fs'] = true;
 		}
 
 		// We'll start off in a good place, security. Make sure that if we're dealing with individual files that they seem in the right place.
@@ -2294,10 +2297,9 @@ class PackageManager
 				if (in_array($status, ['execute', 'writable', 'read'])) {
 					PackageUtils::chmod($path, $status);
 				} elseif ($status == 'custom' && !empty($custom_value)) {
-					// Use FTP if we have it.
-					if (!empty(PackageUtils::$package_ftp) && !empty($_SESSION['pack_ftp'])) {
-						$ftp_file = strtr($path, [$_SESSION['pack_ftp']['root'] => '']);
-						PackageUtils::$package_ftp->chmod($ftp_file, $custom_value);
+					// Use the File System Handler if we have it.
+					if (!empty(PackageUtils::$package_fs) && !empty($_SESSION['pack_fs'])) {
+						PackageUtils::$package_fs->changePermissions($path, $custom_value);
 					} else {
 						Utils::makeWritable($path, $custom_value);
 					}
@@ -2420,34 +2422,27 @@ class PackageManager
 	}
 
 	/**
-	 * Test an FTP connection.
+	 * Test an File System connection.
 	 */
-	public function ftpTest(): void
+	public function fsTest(): void
 	{
 		User::$me->checkSession('get');
 
-		// Try to make the FTP connection.
-		PackageUtils::createChmodControl([], ['force_find_error' => true]);
+		// Try to make the File System connection.
+		PackageUtils::$package_fs = FileSystem::load($_POST['filesystem']['type']);
+		PackageUtils::$package_fs->connect(
+			server: $_POST['filesystem']['server'],
+			username: $_POST['filesystem']['username'],
+			password: $_POST['filesystem']['password'],
+			port: $_POST['filesystem']['port'],
+			root: $_POST['filesystem']['path'],
+		);
 
-		// Deal with the template stuff.
-		Theme::loadTemplate('Xml');
-		Utils::$context['sub_template'] = 'generic_xml';
-		Utils::$context['template_layers'] = [];
-
-		// Define the return data, this is simple.
-		Utils::$context['xml_data'] = [
-			'results' => [
-				'identifier' => 'result',
-				'children' => [
-					[
-						'attributes' => [
-							'success' => !empty(PackageUtils::$package_ftp) ? 1 : 0,
-						],
-						'value' => !empty(PackageUtils::$package_ftp) ? Lang::getTxt('package_ftp_test_success', file: 'Packages') : (isset(Utils::$context['package_ftp'], Utils::$context['package_ftp']['error']) ? Utils::$context['package_ftp']['error'] : Lang::getTxt('package_ftp_test_failed', file: 'Packages')),
-					],
-				],
-			],
-		];
+		Utils::serverResponse(Utils::jsonEncode([
+			'success' => PackageUtils::$package_fs->isConnected() && empty(PackageUtils::$package_fs->getLastError()) ? 1 : 0,
+			'error' => Lang::txtExists('filesystem_error_' . PackageUtils::$package_fs->getLastError()) ? Lang::getTxt('filesystem_error_' . PackageUtils::$package_fs->getLastError()) : PackageUtils::$package_fs->getLastError(),
+			'message' => PackageUtils::$package_fs->getLastMessage(),
+		]));
 	}
 
 	/**
@@ -2486,47 +2481,52 @@ class PackageManager
 		Utils::$context['package_download_broken'] = !is_writable(Config::$packagesdir);
 
 		if (Utils::$context['package_download_broken']) {
-			if (isset($_POST['ftp_username'])) {
-				$ftp = new FtpConnection($_POST['ftp_server'], $_POST['ftp_port'], $_POST['ftp_username'], $_POST['ftp_password']);
+			if (isset($_POST['filesystem']['username'])) {
+				$fs = FileSystem::load($_POST['filesystem']['type']);
+				$fs->connect($_POST['filesystem']['server'], $_POST['filesystem']['username'], $_POST['filesystem']['password'], $_POST['filesystem']['port']);
 
-				if ($ftp->error === false) {
+				if ($fs->getLastError() === false) {
 					// I know, I know... but a lot of people want to type /home/xyz/... which is wrong, but logical.
-					if (!$ftp->chdir($_POST['ftp_path'])) {
-						$ftp_error = $ftp->error;
-						$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['ftp_path']));
-					}
+					if (!$fs->changeDirectory($_POST['filesystem']['path'])) {
+						$fs_error = $fs->getLastError();
+						$fs->changeDirectory(preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['filesystem']['path']));
+						$fs->setForumRoot(preg_replace('~^/home[2]?/[^/]+?~', '', $_POST['filesystem']['path']));
+					} else {
+					$fs->setForumRoot($_POST['filesystem']['path']);
+				}
 				}
 			}
 
-			if (!isset($ftp) || $ftp->error !== false) {
-				if (!isset($ftp)) {
-					$ftp = new FtpConnection(null);
-				} elseif ($ftp->error !== false && !isset($ftp_error)) {
-					$ftp_error = $ftp->last_message === null ? '' : $ftp->last_message;
+			if (!isset($fs) || $fs->getLastError() !== false) {
+				if (!isset($fs)) {
+					$fs = FileSystem::load();
+				} elseif ($fs->getLastMessage() !== false && !isset($fs_error)) {
+					$fs_error = $fs->getLastError() === null ? $fs->getLastMessage() : $fs->getLastError();
 				}
 
-				list($username, $detect_path, $found_path) = $ftp->detect_path(Config::$packagesdir);
+				list($username, $detect_path, $found_path) = $fs->detectForumPath(Config::$packagesdir);
 
-				if ($found_path || !isset($_POST['ftp_path'])) {
-					$_POST['ftp_path'] = $detect_path;
+				if (!isset($_POST['filesystem']['path']) && empty(Config::$modSettings['filesystem_path']) && $found_path) {
+					$_POST['filesystem']['path'] = $detect_path;
 				}
 
-				if (!isset($_POST['ftp_username'])) {
-					$_POST['ftp_username'] = $username;
+				if (!isset($_POST['filesystem']['username'])) {
+					$_POST['filesystem']['username'] = $username;
 				}
 
-				Utils::$context['package_ftp'] = [
-					'server' => $_POST['ftp_server'] ?? (Config::$modSettings['package_server'] ?? 'localhost'),
-					'port' => $_POST['ftp_port'] ?? (Config::$modSettings['package_port'] ?? '21'),
-					'username' => $_POST['ftp_username'] ?? (Config::$modSettings['package_username'] ?? ''),
-					'path' => $_POST['ftp_path'],
-					'error' => empty($ftp_error) ? null : $ftp_error,
+				Utils::$context['package_fs'] = [
+					'type' => $_POST['filesystem']['type'] ?? Config::$modSettings['filesystem_type'] ?? FileSystem::APIS_DEFAULT,
+					'server' => $_POST['filesystem']['server'] ?? Config::$modSettings['filesystem_server'] ?? 'localhost',
+					'port' => $_POST['filesystem']['port'] ?? Config::$modSettings['filesystem_port'] ?? 0,
+					'username' => $_POST['filesystem']['username'] ?? Config::$modSettings['filesystem_username'] ?? '',
+					'path' => $_POST['filesystem']['path'] ?? Config::$modSettings['filesystem_path'] ?? '',
+					'error' => empty($fs_error) ? null : $fs_error,
 				];
 			} else {
 				Utils::$context['package_download_broken'] = false;
 
-				$ftp->chmod('.', 0777);
-				$ftp->close();
+				$fs->changePermissions('.', 0777);
+				$fs->disconnect();
 			}
 		}
 
@@ -2986,7 +2986,7 @@ class PackageManager
 			$package_name = $package_name . $i . $ext;
 		}
 
-		// Use FTP if necessary.
+		// Use File System if necessary.
 		PackageUtils::createChmodControl([Config::$packagesdir . '/' . $package_name], ['destination_url' => Config::$scripturl . '?action=admin;area=packages;get;sa=download' . (isset($_GET['server']) ? ';server=' . $_GET['server'] : '') . (isset($_REQUEST['auto']) ? ';auto' : '') . ';package=' . $_REQUEST['package'] . (isset($_REQUEST['conflict']) ? ';conflict' : '') . ';' . Utils::$context['session_var'] . '=' . Utils::$context['session_id'], 'crash_on_error' => true]);
 		PackageUtils::packagePutContents(Config::$packagesdir . '/' . $package_name, WebFetchApi::fetch($url . $_REQUEST['package']));
 
@@ -3030,7 +3030,7 @@ class PackageManager
 		// Setup the correct template, even though I'll admit we ain't downloading ;)
 		Utils::$context['sub_template'] = 'downloaded';
 
-		// @todo Use FTP if the Packages directory is not writable.
+		// @todo Use File System if the Packages directory is not writable.
 
 		// Check the file was even sent!
 		if (!isset($_FILES['package']['name']) || $_FILES['package']['name'] == '') {
@@ -3403,9 +3403,42 @@ class PackageManager
 		return $packages;
 	}
 
+	public function getOutputType(): OutputTypeInterface
+	{
+		return isset($_GET['sa']) && in_array($_GET['sa'], ['fstest']) ? new OutputTypes\Json() : new OutputTypes\Html();
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
+
+	/**
+	 * Gets the configuration variables for this admin area.
+	 *
+	 * @return array $config_vars for the news area.
+	 */
+	public static function getConfigVars(): array
+	{
+		if (preg_match('~^/home\d*/([^/]+?)/public_html~', $_SERVER['DOCUMENT_ROOT'], $match)) {
+			$default_username = $match[1];
+		} else {
+			$default_username = '';
+		}
+
+		$config_vars = [
+			['select', 'filesystem_type', FileSystem::getSelectOptions()],
+			['text', 'filesystem_server'],
+			['int', 'filesystem_port', 'subtext' => Lang::getTxt('filesystem_port_desc', file: 'Packages')],
+			['text', 'filesystem_username', 'default' => $default_username],
+			['text', 'filesystem_path'],
+			['check', 'package_make_backups'],
+			['check', 'package_make_full_backups'],
+		];
+
+		IntegrationHook::call('integrate_modify_package_settings', [&$config_vars]);
+
+		return $config_vars;
+	}
 
 	/**
 	 * Instantiates this class, but never more than once.

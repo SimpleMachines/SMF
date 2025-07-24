@@ -25,6 +25,7 @@ spl_autoload_register(function ($class) {
 
 	static $class_map = [
 		// Some special cases.
+		'phpseclib3\\' => '{$sourcedir}/Phpseclib/',
 		'ReCaptcha\\' => '{$sourcedir}/ReCaptcha/',
 		'MatthiasMullie\\Minify\\' => '{$sourcedir}/minify/src/',
 		'MatthiasMullie\\PathConverter\\' => '{$sourcedir}/minify/path-converter/src/',

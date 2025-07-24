@@ -20,7 +20,8 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Step;
-use SMF\PackageManager\FtpConnection;
+use SMF\PackageManager\FileSystem\FileSystem;
+use SMF\PackageManager\FileSystem\FileSystemInterface;
 use SMF\Sapi;
 use SMF\Security;
 use SMF\SecurityToken;
@@ -70,11 +71,11 @@ abstract class ToolsBase
 	private ?Step $current_step;
 
 	/**
-	 * @var FtpConnection
+	 * @var \SMF\PackageManager\FileSystem\FileSystemInterface
 	 *
-	 * Object container for the FTP session.
+	 * Object container for the File System Handler.
 	 */
-	private FtpConnection $ftp;
+	private FileSystemInterface $fs;
 
 	/****************
 	 * Public methods
@@ -272,7 +273,7 @@ abstract class ToolsBase
 			!empty($this->script_file)
 			&& file_exists(Config::$boarddir . '/' . $this->script_file)
 			&& (
-				!empty($_SESSION['ftp'])
+				!empty($_SESSION['fs'])
 				|| is_writable(Config::$boarddir)
 				|| is_writable(Config::$boarddir . '/' . $this->script_file)
 			)
@@ -290,22 +291,23 @@ abstract class ToolsBase
 	public function deleteTool(): void
 	{
 		if ($this->canDeleteTool()) {
-			if (!empty($_SESSION['ftp'])) {
-				$ftp = new FtpConnection($_SESSION['ftp']['server'], $_SESSION['ftp']['port'], $_SESSION['ftp']['username'], $_SESSION['ftp']['password']);
-				$ftp->chdir($_SESSION['ftp']['path']);
+			if (!empty($_SESSION['fs'])) {
+				$fs = FileSystem::load($_SESSION['fs']['type']);
+				$fs->connect($_SESSION['fs']['server'], $_SESSION['fs']['username'], $_SESSION['fs']['password'], $_SESSION['fs']['port'], $_SESSION['fs']['path']);
+				$fs->changeDirectory($_SESSION['fs']['path']);
 			}
 
-			if (isset($ftp)) {
-				$ftp->unlink($this->script_file);
+			if (isset($fs) && $fs->isConnected()) {
+				$fs->deleteFile($this->script_file);
 			} else {
 				@unlink(Config::$boarddir . '/' . $this->script_file);
 			}
 
-			$this->deleteOldSchemaAndMaintenanceFiles($ftp ?? null);
+			$this->deleteOldSchemaAndMaintenanceFiles($fs ?? null);
 
-			if (isset($ftp)) {
-				unset($_SESSION['ftp']);
-				$ftp->close();
+			if (isset($fs)) {
+				unset($_SESSION['fs']);
+				$fs->disconnect();
 			}
 
 			// Now just redirect to a blank.png...
@@ -314,7 +316,7 @@ abstract class ToolsBase
 	}
 
 	/**
-	 * Make files writable. First try to use regular chmod, but if that fails, try to use FTP.
+	 * Make files writable. First try to use regular chmod, but if that fails, try to use a File System handler.
 	 *
 	 * @param array $files List of files to make writable.
 	 * @return bool True if succesfull, false otherwise.
@@ -375,50 +377,53 @@ abstract class ToolsBase
 			return false;
 		}
 
-		// We're going to have to use... FTP!
+		// We're going to have to use... File Systems!
 		if (!empty($files)) {
 			// Load any session data we might have...
-			if (!isset($_POST['ftp_username']) && isset($_SESSION['temp_ftp'])) {
-				Maintenance::$context['chmod']['server'] = $_SESSION['temp_ftp']['server'];
-				Maintenance::$context['chmod']['port'] = $_SESSION['temp_ftp']['port'];
-				Maintenance::$context['chmod']['username'] = $_SESSION['temp_ftp']['username'];
-				Maintenance::$context['chmod']['password'] = $_SESSION['temp_ftp']['password'];
-				Maintenance::$context['chmod']['path'] = $_SESSION['temp_ftp']['path'];
+			if (!isset($_POST['fs']['username']) && isset($_SESSION['temp_fs'])) {
+				Maintenance::$context['chmod']['type'] = $_SESSION['temp_fs']['type'];
+				Maintenance::$context['chmod']['server'] = $_SESSION['temp_fs']['server'];
+				Maintenance::$context['chmod']['port'] = $_SESSION['temp_fs']['port'];
+				Maintenance::$context['chmod']['username'] = $_SESSION['temp_fs']['username'];
+				Maintenance::$context['chmod']['password'] = $_SESSION['temp_fs']['password'];
+				Maintenance::$context['chmod']['path'] = $_SESSION['temp_fs']['path'];
 			}
 			// Or have we submitted?
-			elseif (isset($_POST['ftp_username'])) {
-				Maintenance::$context['chmod']['server'] = $_POST['ftp_server'];
-				Maintenance::$context['chmod']['port'] = $_POST['ftp_port'];
-				Maintenance::$context['chmod']['username'] = $_POST['ftp_username'];
-				Maintenance::$context['chmod']['password'] = $_POST['ftp_password'];
-				Maintenance::$context['chmod']['path'] = $_POST['ftp_path'];
+			elseif (isset($_POST['fs']['username'])) {
+				Maintenance::$context['chmod']['type'] = $_POST['filesystem']['type'];
+				Maintenance::$context['chmod']['server'] = $_POST['filesystem']['server'];
+				Maintenance::$context['chmod']['port'] = $_POST['filesystem']['port'];
+				Maintenance::$context['chmod']['username'] = $_POST['filesystem']['username'];
+				Maintenance::$context['chmod']['password'] = $_POST['filesystem']['password'];
+				Maintenance::$context['chmod']['path'] = $_POST['filesystem']['path'];
 			}
 
 			if (isset(Maintenance::$context['chmod']['username'])) {
-				$ftp = new FtpConnection(Maintenance::$context['chmod']['server'], Maintenance::$context['chmod']['port'], Maintenance::$context['chmod']['username'], Maintenance::$context['chmod']['password']);
+				$fs = FileSystem::load(Maintenance::$context['chmod']['type']);
+				$fs->connect(Maintenance::$context['chmod']['server'], Maintenance::$context['chmod']['username'], Maintenance::$context['chmod']['password'], Maintenance::$context['chmod']['port'], Maintenance::$context['chmod']['path']);
 
-				if ($ftp->error === false) {
+				if ($fs->isConnected() && $fs->getLastError() === false) {
 					// Try it without /home/abc just in case they messed up.
-					if (!$ftp->chdir(Maintenance::$context['chmod']['path'])) {
-					Maintenance::$context['chmod']['ftp_error'] = $ftp->last_message;
-						$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', Maintenance::$context['chmod']['path']));
+					if (!$fs->changeDirectory(Maintenance::$context['chmod']['path'])) {
+					Maintenance::$context['chmod']['fs_error'] = $fs->getLastMessage();
+						$fs->changeDirectory(preg_replace('~^/home[2]?/[^/]+?~', '', Maintenance::$context['chmod']['path']));
 					}
 				}
 			}
 
-			if (!isset($ftp) || $ftp->error !== false) {
-				if (!isset($ftp)) {
-					$ftp = new FtpConnection(null);
+			if (!isset($fs) || $fs->getLastError() !== false) {
+				if (!isset($fs)) {
+					$fs = FileSystem::load();
 				}
 				// Save the error so we can mess with listing...
 				elseif (
-					$ftp->error !== false
-					&& !isset(Maintenance::$context['chmod']['ftp_error'])
+					$fs->getLastError() !== false
+					&& !isset(Maintenance::$context['chmod']['fs_error'])
 				) {
-					Maintenance::$context['chmod']['ftp_error'] = $ftp->last_message === null ? '' : $ftp->last_message;
+					Maintenance::$context['chmod']['fs_error'] = $fs->getLastMessage() === null ? '' : $fs->getLastMessage();
 				}
 
-				list($username, $detect_path, $found_path) = $ftp->detect_path(dirname(__FILE__));
+				list($username, $detect_path, $found_path) = $fs->detectForumPath(dirname(__FILE__));
 
 				if ($found_path || !isset(Maintenance::$context['chmod']['path'])) {
 					Maintenance::$context['chmod']['path'] = $detect_path;
@@ -434,56 +439,34 @@ abstract class ToolsBase
 				return false;
 			}
 
-			// We want to do a relative path for FTP.
-			if (!in_array(Maintenance::$context['chmod']['path'], ['', '/'])) {
-				$ftp_root = strtr(Config::$boarddir, [Maintenance::$context['chmod']['path'] => '']);
-
-				if (substr($ftp_root, -1) == '/' && (Maintenance::$context['chmod']['path'] == '' || Maintenance::$context['chmod']['path'][0] === '/')) {
-					$ftp_root = substr($ftp_root, 0, -1);
-				}
-			} else {
-				$ftp_root = Config::$boarddir;
-			}
-
 			// Save the info for next time!
-			$_SESSION['temp_ftp'] = [
+			$_SESSION['temp_fs'] = [
+				'type' => Maintenance::$context['chmod']['type'],
 				'server' => Maintenance::$context['chmod']['server'],
 				'port' => Maintenance::$context['chmod']['port'],
 				'username' => Maintenance::$context['chmod']['username'],
 				'password' => Maintenance::$context['chmod']['password'],
 				'path' => Maintenance::$context['chmod']['path'],
-				'root' => $ftp_root,
 			];
 
 			foreach ($files as $k => $file) {
-				$this->logProgress(Lang::getTxt('log_ensuring_file_writable_ftp', ['file' => $file], file: 'Maintenance'), true);
+				$this->logProgress(Lang::getTxt('log_ensuring_file_writable_fs', ['file' => $file], file: 'Maintenance'), true);
 
 				if (!is_writable($file)) {
-					$ftp->chmod($file, 0755);
+					$fs->changePermissions($file, '0755');
 				}
 
 				if (!is_writable($file)) {
-					$ftp->chmod($file, 0777);
+					$fs->changePermissions($file, '0777');
 				}
 
 				// Assuming that didn't work calculate the path without the boarddir.
 				if (!is_writable($file)) {
 					if (strpos($file, Config::$boarddir) === 0) {
-						$ftp_file = strtr($file, [$_SESSION['installer_temp_ftp']['root'] => '']);
-						$ftp->chmod($ftp_file, 0755);
+						$fs->changePermissions($file, '0755');
 
 						if (!is_writable($file)) {
-							$ftp->chmod($ftp_file, 0777);
-						}
-						// Sometimes an extra slash can help...
-						$ftp_file = '/' . $ftp_file;
-
-						if (!is_writable($file)) {
-							$ftp->chmod($ftp_file, 0755);
-						}
-
-						if (!is_writable($file)) {
-							$ftp->chmod($ftp_file, 0777);
+							$fs->changePermissions($file, '0777');
 						}
 					}
 				}
@@ -496,7 +479,7 @@ abstract class ToolsBase
 				}
 			}
 
-			$ftp->close();
+			$fs->disconnect();
 		}
 
 		// What remains?
@@ -627,7 +610,7 @@ abstract class ToolsBase
 	 *
 	 * This should be done only when the install or upgrade process is complete.
 	 */
-	protected function deleteOldSchemaAndMaintenanceFiles(?FtpConnection $ftp): void
+	protected function deleteOldSchemaAndMaintenanceFiles(?FileSystemInterface $fs): void
 	{
 		if (!isset(Config::$modSettings['smf_version'])) {
 			Config::reloadModSettings();
@@ -656,16 +639,16 @@ abstract class ToolsBase
 					$file_list = new \GlobIterator($dir->getPathname() . '/*', \FilesystemIterator::NEW_CURRENT_AND_KEY);
 
 					foreach ($file_list as $file) {
-						if (isset($ftp)) {
-							$ftp->unlink(str_replace(Config::$boarddir . '/', '', $file->getPathname()));
+						if (isset($fs)) {
+							$fs->deleteFile($file->getPathname());
 						} else {
 							Utils::makeWritable($file->getPathname());
 							@unlink($file->getPathname());
 						}
 					}
 
-					if (isset($ftp)) {
-						$ftp->unlink(str_replace(Config::$boarddir . '/', '', $dir->getPathname()));
+					if (isset($fs)) {
+						$fs->deleteDirectory($dir->getPathname());
 					} else {
 						@rmdir($dir->getPathname());
 					}
