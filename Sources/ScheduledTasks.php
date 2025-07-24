@@ -741,7 +741,7 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 
 	// Random emails from the queue..
 	if (!empty($ids)) {
-		$request = $smcFunc['db_query']('', '
+		$request = $smcFunc['db_query']('random_mail', '
 			SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
 			FROM {db_prefix}mail_queue
 			WHERE id_mail NOT IN ({array_int:ids})
