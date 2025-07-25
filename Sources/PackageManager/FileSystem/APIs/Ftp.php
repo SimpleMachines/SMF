@@ -231,7 +231,7 @@ class Ftp extends FileSystem implements FileSystemInterface
 	/**
 	 * Changes a files attributes (chmod)
 	 *
-	 * @param string $$filename The file to CHMOD
+	 * @param string $filename The file to CHMOD
 	 * @param int|string $chmod The value for the CHMOD operation
 	 * @return bool Whether or not the operation was successful
 	 */
