@@ -161,6 +161,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		],
 		// Migration steps for 2.1 -> 3.0
 		'v3_0' => [
+			Migration\CleanHooks::class,
 			Migration\v3_0\ConvertToInnoDb::class,
 			Migration\v3_0\LanguageDirectory::class,
 			Migration\v3_0\ErrorLogSession::class,
@@ -174,6 +175,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\MailType::class,
 			Migration\v3_0\RemoveCookieTime::class,
 			Migration\v3_0\PermissionChanges::class,
+			Migration\v3_0\Hooks::class,
 		],
 	];
 

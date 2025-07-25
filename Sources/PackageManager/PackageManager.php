@@ -1147,15 +1147,22 @@ class PackageManager
 						'title' => $action['title'],
 					];
 				} elseif ($action['type'] == 'hook' && isset($action['hook'], $action['function'])) {
+					$action['is_enabled'] ??= str_starts_with($action['function'], '!');
+					$action['class'] ??= '';
+
+					if (empty($action['class']) && str_contains($action['function'], '::')) {
+						[$action['class'], $action['function']] = explode('::', $action['function']);
+					}
+
 					// Set the system to ignore hooks, but only if it wasn't changed before.
 					if (!isset(Utils::$context['ignore_hook_errors'])) {
 						Utils::$context['ignore_hook_errors'] = true;
 					}
 
 					if ($action['reverse']) {
-						IntegrationHook::remove($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
+						IntegrationHook::unregister($action['hook'], 0, $action['function'], true, $action['include_file'], $action['object']);
 					} else {
-						IntegrationHook::add($action['hook'], $action['function'], true, $action['include_file'], $action['object']);
+						IntegrationHook::register($action['hook'], $action['function'], $action['include_file'], $action['class'], !empty($action['obect']), !empty($action['is_enabled']), $packageInfo['id']);
 					}
 				}
 				// Only do the database changes on uninstall if requested.
@@ -1375,6 +1382,9 @@ class PackageManager
 					],
 					['id_install'],
 				);
+			} else {
+				// When uninstalling, ensure that we removed all hooks related to this.
+				IntegrationHook::uninstallPackage($packageInfo['id']);
 			}
 			Db::$db->free_result($request);
 

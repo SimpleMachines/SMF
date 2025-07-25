@@ -1095,6 +1095,9 @@ class Config
 			die('SMF file version (' . SMF_VERSION . ') does not match SMF database version (' . self::$modSettings['smfVersion'] . ').<br>Run the SMF upgrader to fix this.<br><a href="https://wiki.simplemachines.org/smf/Upgrading">More information</a>.');
 		}
 
+		// Load up any hooks.
+		IntegrationHook::load();
+
 		self::$modSettings['cache_enable'] = Cache\CacheApi::$enable;
 
 		// Used to force browsers to download fresh CSS and JavaScript when necessary
@@ -1178,22 +1181,24 @@ class Config
 			$integration_settings = Utils::jsonDecode(SMF_INTEGRATION_SETTINGS, true);
 
 			foreach ($integration_settings as $hook => $function) {
-				IntegrationHook::add($hook, $function, false);
+				if (is_string($function)) {
+					IntegrationHook::add($hook, $function, false);
+				} else {
+					IntegrationHook::register(
+						name: $hook,
+						function: $function['function'],
+						file: $function['file'],
+						class: $function['class'],
+						is_object: !empty($function['is_object']),
+						is_enabled: true,
+						permanent: false,
+					);
+				}
 			}
 		}
 
 		// Any files to pre include?
-		if (!empty(self::$modSettings['integrate_pre_include'])) {
-			$pre_includes = explode(',', self::$modSettings['integrate_pre_include']);
-
-			foreach ($pre_includes as $include) {
-				$include = strtr(trim($include), ['$boarddir' => self::$boarddir, '$sourcedir' => self::$sourcedir]);
-
-				if (file_exists($include)) {
-					require_once $include;
-				}
-			}
-		}
+		IntegrationHook::call('integrate_pre_include');
 
 		Utils::load();
 
@@ -1250,6 +1255,12 @@ class Config
 		// In some cases, this may be better and faster, but for large sets we don't want so many UPDATEs.
 		if ($update) {
 			foreach ($change_array as $variable => $value) {
+				// If this is a integration setting, we need to step in.
+				if (Config::$backward_compatibility && str_starts_with($variable, 'integrate_')) {
+					IntegrationHook::processUpdateModSettings($variable, $value);
+					continue;
+				}
+
 				Db\DatabaseApi::$db->query(
 					'UPDATE {db_prefix}settings
 					SET value = {' . ($value === false || $value === true ? 'raw' : 'string') . ':value}
