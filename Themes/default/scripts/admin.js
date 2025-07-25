@@ -667,7 +667,6 @@ smf_fsTest.prototype.performTest = async function ()
 
 smf_fsTest.prototype.testResults = function (data)
 {
-	console.log(data);
 	ajax_indicator(false);
 
 	// This assumes it went wrong!
