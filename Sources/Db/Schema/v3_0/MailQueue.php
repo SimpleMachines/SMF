@@ -92,6 +92,24 @@ class MailQueue extends Table
 				not_null: true,
 				default: 0,
 			),
+			'next_try' => new Column(
+				name: 'next_try',
+				type: 'int',
+				not_null: true,
+				default: 0,
+			),
+			'tries' => new Column(
+				name: 'tries',
+				type: 'tinyint',
+				not_null: true,
+				default: 0,
+			),
+			'extra' => new Column(
+				name: 'extra',
+				type: 'varchar',
+				size: 255,
+				not_null: false,
+			),
 		];
 
 		$this->indexes = [
