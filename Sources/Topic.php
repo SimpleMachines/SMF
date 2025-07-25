@@ -472,7 +472,7 @@ class Topic implements \ArrayAccess, Routable
 				$columns,
 				[$params],
 				['id_topic'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			self::$loaded[$this->id] = $this;

@@ -478,7 +478,7 @@ class Table
 		}
 
 		$method = $replace ? 'replace' : 'ignore';
-		$returnmode = isset($auto_col) ? 2 : 0;
+		$returnmode = isset($auto_col) ? Db::INSERT_RETURN_MODE_MULTI : Db::INSERT_RETURN_MODE_OFF;
 
 		// Only do this if we are replacing data or the table is empty.
 		if ($method !== 'replace') {

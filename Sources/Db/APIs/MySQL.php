@@ -339,7 +339,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = 0, ?object $connection = null): int|array|null
+	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null
 	{
 		$connection = $connection ?? $this->connection;
 
@@ -358,10 +358,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		$with_returning = false;
 
-		if (!empty($keys) && (count($keys) > 0) && $returnmode > 0) {
+		if (!empty($keys) && (count($keys) > 0) && $returnmode > DatabaseApi::INSERT_RETURN_MODE_OFF) {
 			$with_returning = true;
 
-			if ($returnmode == 2) {
+			if ($returnmode == DatabaseApi::INSERT_RETURN_MODE_MULTI) {
 				$return_var = [];
 			}
 		}
@@ -510,7 +510,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				}
 
 				switch ($returnmode) {
-					case 2:
+					case DatabaseApi::INSERT_RETURN_MODE_MULTI:
 						$return_var[] = $ai;
 						break;
 
@@ -522,9 +522,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		if ($with_returning) {
-			if ($returnmode == 1 && empty($return_var)) {
+			if ($returnmode == DatabaseApi::INSERT_RETURN_MODE_SINGLE && empty($return_var)) {
 				$return_var = $this->insert_id($table, $keys[0]) + count($insertRows) - 1;
-			} elseif ($returnmode == 2 && empty($return_var)) {
+			} elseif ($returnmode == DatabaseApi::INSERT_RETURN_MODE_MULTI && empty($return_var)) {
 				$return_var = [];
 
 				$count = count($insertRows);

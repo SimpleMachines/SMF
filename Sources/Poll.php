@@ -586,7 +586,7 @@ class Poll implements \ArrayAccess
 					],
 				],
 				['id_poll'],
-				1,
+				Db::INSERT_RETURN_MODE_SINGLE,
 			);
 
 			// Create each answer choice.
