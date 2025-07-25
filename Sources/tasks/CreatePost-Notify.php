@@ -146,7 +146,10 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
 				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)
-			WHERE ' . ($type == 'topic' ? 'ln.id_board = {int:board}' : 'ln.id_topic = {int:topic}') . '
+			WHERE
+				(' . (!empty($topicOptions['board']) ? 'ln.id_board = {int:board}' : '')
+				 . (!empty($topicOptions['board']) && !empty($topicOptions['id']) ? ' or ' : '')
+				 . (!empty($topicOptions['id']) ? 'ln.id_topic = {int:topic}' : '') . ')
 				AND ln.id_member != {int:member}',
 			array(
 				'member' => $posterOptions['id'],
@@ -295,7 +298,9 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			$smcFunc['db_query']('', '
 				UPDATE {db_prefix}log_notify
 				SET sent = {int:is_sent}
-				WHERE ' . ($type == 'topic' ? 'id_board = {int:board}' : 'id_topic = {int:topic}') . '
+				WHERE (' . (!empty($topicOptions['board']) ? 'ln.id_board = {int:board}' : '')
+				 . (!empty($topicOptions['board']) && !empty($topicOptions['id']) ? ' or ' : '')
+				 . (!empty($topicOptions['id']) ? 'ln.id_topic = {int:topic}' : '') . ')
 					AND id_member IN ({array_int:members})',
 				array(
 					'topic' => $topicOptions['id'],
