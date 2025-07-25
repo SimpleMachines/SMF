@@ -203,9 +203,7 @@ class Maintenance implements ActionInterface
 				}
 			}
 
-			Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
-
-			Utils::$context['convert_to_suggest'] = ($body_type != 'text' && !empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] < 65536);
+			Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : null;
 		}
 
 		if (isset($_GET['done']) && $_GET['done'] == 'convertentities') {
@@ -1252,10 +1250,10 @@ class Maintenance implements ActionInterface
 	}
 
 	/**
-	 * Convert the column "body" of the table {db_prefix}messages from TEXT to MEDIUMTEXT and vice versa.
+	 * Convert the column "body" of the table {db_prefix}messages from TEXT to MEDIUMTEXT.
 	 * It requires the admin_forum permission.
 	 * This is needed only for MySQL.
-	 * During the conversion from MEDIUMTEXT to TEXT it check if any of the posts exceed the TEXT length and if so it aborts.
+	 * We no longer support reverting from MEDIUMTEXT back to TEXT.
 	 * This action is linked from the maintenance screen (if it's applicable).
 	 * Accessed by ?action=admin;area=maintain;sa=database;activity=convertmsgbody.
 	 *
@@ -1278,126 +1276,33 @@ class Maintenance implements ActionInterface
 			}
 		}
 
-		Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
-
-		if ($body_type == 'text' || ($body_type != 'text' && isset($_POST['do_conversion']))) {
-			User::$me->checkSession();
-			SecurityToken::validate('admin-maint');
-
-			// Make it longer so we can do their limit.
-			if ($body_type == 'text') {
-				Db::$db->change_column('{db_prefix}messages', 'body', ['type' => 'mediumtext']);
-			}
-			// Shorten the column so we can have a bit (literally per record) less space occupied
-			else {
-				Db::$db->change_column('{db_prefix}messages', 'body', ['type' => 'text']);
-			}
-
-			// 3rd party integrations may be interested in knowing about this.
-			IntegrationHook::call('integrate_convert_msgbody', [$body_type]);
-
-			$colData = Db::$db->list_columns('{db_prefix}messages', true);
-
-			foreach ($colData as $column) {
-				if ($column['name'] == 'body') {
-					$body_type = $column['type'];
-				}
-			}
-
-			Utils::$context['maintenance_finished'] = Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance');
-			Utils::$context['convert_to'] = $body_type == 'text' ? 'mediumtext' : 'text';
-			Utils::$context['convert_to_suggest'] = ($body_type != 'text' && !empty(Config::$modSettings['max_messageLength']) && Config::$modSettings['max_messageLength'] < 65536);
-
+		if ($body_type === 'mediumtext') {
 			return;
 		}
 
-		if ($body_type != 'text' && (!isset($_POST['do_conversion']) || isset($_POST['cont']))) {
-			User::$me->checkSession();
+		Utils::$context['convert_to'] = 'mediumtext';
 
-			if (empty($_REQUEST['start'])) {
-				SecurityToken::validate('admin-maint');
-			} else {
-				SecurityToken::validate('admin-convertMsg');
-			}
+		User::$me->checkSession();
+		SecurityToken::validate('admin-maint');
 
-			Utils::$context['page_title'] = Lang::getTxt('not_done_title', file: 'Admin');
-			Utils::$context['continue_post_data'] = '';
-			Utils::$context['continue_countdown'] = 3;
-			Utils::$context['sub_template'] = 'not_done';
-			$increment = 500;
-			$id_msg_exceeding = isset($_POST['id_msg_exceeding']) ? explode(',', $_POST['id_msg_exceeding']) : [];
+		// Make it longer so we can do their limit.
+		Db::$db->change_column('{db_prefix}messages', 'body', ['type' => 'mediumtext']);
 
-			$request = Db::$db->query(
-				'SELECT COUNT(*) as count
-				FROM {db_prefix}messages',
-				[],
-			);
-			list($max_msgs) = Db::$db->fetch_row($request);
-			Db::$db->free_result($request);
+		// 3rd party integrations may be interested in knowing about this.
+		IntegrationHook::call('integrate_convert_msgbody', [$body_type]);
 
-			// Try for as much time as possible.
-			Sapi::setTimeLimit(600);
+		$colData = Db::$db->list_columns('{db_prefix}messages', true);
 
-			while ($_REQUEST['start'] < $max_msgs) {
-				$request = Db::$db->query(
-					'SELECT id_msg
-					FROM {db_prefix}messages
-					WHERE id_msg BETWEEN {int:start} AND {int:start} + {int:increment}
-						AND LENGTH(body) > 65535',
-					[
-						'start' => $_REQUEST['start'],
-						'increment' => $increment - 1,
-					],
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					$id_msg_exceeding[] = $row['id_msg'];
-				}
-				Db::$db->free_result($request);
-
-				$_REQUEST['start'] += $increment;
-
-				if (microtime(true) - TIME_START > 3) {
-					SecurityToken::create('admin-convertMsg');
-					Utils::$context['continue_post_data'] = '
-						<input type="hidden" name="' . Utils::$context['admin-convertMsg_token_var'] . '" value="' . Utils::$context['admin-convertMsg_token'] . '">
-						<input type="hidden" name="' . Utils::$context['session_var'] . '" value="' . Utils::$context['session_id'] . '">
-						<input type="hidden" name="id_msg_exceeding" value="' . implode(',', $id_msg_exceeding) . '">';
-
-					Utils::$context['continue_get_data'] = '?action=admin;area=maintain;sa=database;activity=convertmsgbody;start=' . $_REQUEST['start'];
-					Utils::$context['continue_percent'] = round(100 * $_REQUEST['start'] / $max_msgs);
-
-					return;
-				}
-			}
-			SecurityToken::create('admin-maint');
-			Utils::$context['page_title'] = Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance');
-			Utils::$context['sub_template'] = 'convert_msgbody';
-
-			if (!empty($id_msg_exceeding)) {
-				if (count($id_msg_exceeding) > 100) {
-					$query_msg = array_slice($id_msg_exceeding, 0, 100);
-					Utils::$context['exceeding_messages_morethan'] = Lang::getTxt('exceeding_messages_morethan', [count($id_msg_exceeding) - 100], file: 'ManageMaintenance');
-				} else {
-					$query_msg = $id_msg_exceeding;
-				}
-
-				Utils::$context['exceeding_messages'] = [];
-				$request = Db::$db->query(
-					'SELECT id_msg, id_topic, subject
-					FROM {db_prefix}messages
-					WHERE id_msg IN ({array_int:messages})',
-					[
-						'messages' => $query_msg,
-					],
-				);
-
-				while ($row = Db::$db->fetch_assoc($request)) {
-					Utils::$context['exceeding_messages'][] = '<a href="' . Config::$scripturl . '?topic=' . $row['id_topic'] . '.msg' . $row['id_msg'] . '#msg' . $row['id_msg'] . '">' . $row['subject'] . '</a>';
-				}
-				Db::$db->free_result($request);
+		foreach ($colData as $column) {
+			if ($column['name'] == 'body') {
+				$body_type = $column['type'];
 			}
 		}
+
+		Utils::$context['maintenance_finished'] = Lang::getTxt(Utils::$context['convert_to'] . '_title', file: 'ManageMaintenance');
+		Utils::$context['convert_to'] = null;
+
+
 	}
 
 	/**

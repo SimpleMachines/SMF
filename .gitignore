@@ -18,6 +18,8 @@ Packages/*.tar.gz
 Packages/*.zip
 Packages/*/
 attachments/
+!/attachments/.htaccess
+!/attachments/index.php
 /upgrade.php
 Themes/default/css/minified*.css
 Themes/default/scripts/minified*.js
@@ -29,6 +31,7 @@ custom_avatar/
 Sources/Unicode/*.php
 !Sources/Unicode/index.php
 !Sources/Unicode/Utf8String.php
+logs
 
 # Compiled source #
 ###################
