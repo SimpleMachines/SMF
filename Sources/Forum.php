@@ -795,16 +795,11 @@ class Forum
 			if (!empty(Config::$modSettings['integrate_fallback_action'])) {
 				$fallback_action = explode(',', Config::$modSettings['integrate_fallback_action'])[0];
 
-				if (is_a($fallback_action, ActionInterface::class, true)) {
-					return $fallback_action;
-				}
-
-				if (($fallback_action = Utils::getCallable($fallback_action)) !== false) {
-					return $fallback_action;
-				}
+				return is_a($fallback_action, ActionInterface::class, true) ? $fallback_action : Utils::getCallable($fallback_action);
 			}
 
-			ErrorHandler::fatalLang('not_found', false, [], 404);
+			// If we get here, we have nothing.
+			return false;
 		}
 
 		// Otherwise, it was set - so let's go to that action.
