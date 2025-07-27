@@ -381,6 +381,13 @@ class Forum
 	 */
 	public function __construct()
 	{
+		// If a Preflight is occurring, lets stop now.
+		if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			Utils::sendHttpStatus(204);
+
+			die();
+		}
+
 		// Ensure any renamed actions will still work using the old name.
 		foreach (self::$renamed_actions as $old => $new) {
 			self::$actions[$old] = self::$actions[$new];
@@ -403,13 +410,6 @@ class Forum
 		// Seed the random generator.
 		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69) {
 			Config::generateSeed();
-		}
-
-		// If a Preflight is occurring, lets stop now.
-		if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			Utils::sendHttpStatus(204);
-
-			die;
 		}
 
 		// Check if compressed output is enabled, supported, and not already being done.
