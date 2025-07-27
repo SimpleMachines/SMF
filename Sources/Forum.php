@@ -402,7 +402,6 @@ class Forum
 
 		// Seed the random generator.
 		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69) {
-			// @TODO: Calls a deprecated function.
 			Config::generateSeed();
 		}
 
@@ -450,23 +449,6 @@ class Forum
 
 	/**
 	 * Executes the main forum action.
-	 *
-	 * This method serves as the main dispatcher for determining the appropriate action
-	 * in various scenarios, ensuring proper handling of the following cases:
-	 *
-	 * - **Maintenance Mode**: If the forum is in maintenance mode, only login and logout actions
-	 *   are allowed for non-administrators. All other actions are redirected to a maintenance page.
-	 *
-	 * - **Guest Access Restrictions**: If guest access is disabled, guests are redirected to the login page
-	 *   unless the requested action explicitly allows guest access.
-	 *
-	 * - **Default Actions**: When no specific action is requested, a default or fallback action is determined:
-	 *   - If both the board and topic are empty, the default action (e.g., BoardIndex) is executed.
-	 *   - If only the topic is empty, the MessageIndex action is executed.
-	 *   - Otherwise, the Display action is executed.
-	 *
-	 * - **Custom Actions**: Resolves user-requested actions using the defined `$actions` array or
-	 *   fallback logic, including support for theme-level catch actions or configured fallback actions.
 	 */
 	public function execute(): void
 	{
@@ -501,9 +483,13 @@ class Forum
 	 * This method allows you to add a new action to the forum's action
 	 * array, which maps URL actions to their corresponding handlers.
 	 *
-	 * @param string $action The action name as it appears in the URL (e.g., 'newaction').
-	 * @param string $file The file that contains the action's handler class. If using an autoloading class, this can be an empty string.
-	 * @param string|callable $handler The class name that implements ActionInterface or a callable handler.
+	 * @param string $action The action name as it appears in the URL.
+	 *    For example, if the URL query string is `?action=newaction`, this must
+	 *    be `newaction`.
+	 * @param string $file The file that contains the action's handler class.
+	 *    If using an autoloading class, this can be an empty string.
+	 * @param string|callable $handler Either the name of a class that
+	 *    implements ActionInterface or else a callable handler.
 	 */
 	public static function addAction(string $action, string $file, string|callable $handler): void
 	{
@@ -582,7 +568,8 @@ class Forum
 		// Analyze the user agent string.
 		BrowserDetector::call();
 
-		// Load the current theme.  (note that ?theme=1 will also work, may be used for guest theming.)
+		// Load the current theme.
+		// Note that ?theme=1 will also work. This can used for guest theming.
 		// Attachments don't require the entire theme to be loaded.
 		if (($_REQUEST['action'] ?? '') !== 'dlattach' || !empty(Config::$maintenance)) {
 			Theme::load();
@@ -594,6 +581,30 @@ class Forum
 
 	/**
 	 * Runs various checks that are required before calling the action.
+	 *
+	 * - Registration agreement or privacy policy has changed:
+	 *   Calls $this->requireAgreement() in order to check whether we need to
+	 *   redirect to a page where the user can see and accept the latest version
+	 *   of these documents.
+	 *
+	 * - Trying to view an unapproved topic:
+	 *   Unless user has permission to see the unapproved topic, die with error.
+	 *
+	 * - Logging and cookie refresh:
+	 *   Logs the user's current action, unless the action is not loggable.
+	 *   If the action is loggable, also refreshes the user's login cookie.
+	 *
+	 * - Cron job status:
+	 *   Calls Config::checkCron() to check whether cron jobs are working.
+	 *
+	 * - Maintenance mode:
+	 *   If the forum is in maintenance mode, only login and logout actions are
+	 *   allowed for non-administrators. All other actions are redirected to a
+	 *   maintenance page.
+	 *
+	 * - Guest access restrictions:
+	 *   If guest access is disabled, guests are redirected to the login page
+	 *   unless the requested action explicitly allows guest access.
 	 */
 	protected function preflight(): void
 	{
@@ -613,7 +624,8 @@ class Forum
 			ErrorHandler::fatalLang('not_a_topic', false);
 		}
 
-		// Don't log if this is an attachment, avatar, toggle of editor buttons, theme option, XML feed, popup, etc.
+		// Don't log if this is an attachment, avatar, toggle of editor buttons,
+		// theme option, XML feed, popup, etc.
 		if (
 			self::$current_action?->canBeLogged() === true
 			|| (
@@ -632,7 +644,7 @@ class Forum
 			// Login cookies should only expire after a period of inactivity.
 			// Since doing something worthy of logging means this member is
 			// actively engaged with the forum right now, refresh their login
-			// cookie in order to reset the countdown to it expiry date.
+			// cookie in order to reset the countdown to its expiry date.
 			if (!User::$me->is_guest) {
 				Cookie::updateLoginCookieExpiry();
 			}
@@ -703,8 +715,10 @@ class Forum
 
 	/**
 	 * Display a message about the forum being in maintenance mode.
+	 *
 	 * - Display a login screen with sub template 'maintenance'.
-	 * - Sends a 503 header, so search engines don't bother indexing while we're in maintenance mode.
+	 * - Sends a 503 header, so search engines don't bother indexing while we're
+	 *   in maintenance mode.
 	 */
 	protected static function inMaintenance(): void
 	{
@@ -722,11 +736,27 @@ class Forum
 	}
 
 	/**
-	 * Resolves the appropriate action to execute based on the current request context.
+	 * Resolves the appropriate action to execute based on the current request
+	 * context.
+	 *
+	 * - Default Actions:
+	 *   When no specific action is requested, a default or fallback action is
+	 *   determined:
+	 *   - If the topic is not empty, the Display action is executed.
+	 *   - If the topic is empty but the board is not, the MessageIndex action
+	 *     is executed.
+	 *   - If both the topic and board are empty, the default action (usually
+	 *     BoardIndex, unless a mod has changed it) is executed.
+	 *
+	 * - Requested Actions:
+	 *   Resolves user-requested actions using the Forum::$actions array or
+	 *   fallback logic, including support for theme-level catch actions or
+	 *   configured fallback actions.
 	 *
 	 * @return string|callable|false Returns one of the following:
-	 *  - A string representing a class implementing ActionInterface.
-	 *  - A callable string representing a static method (e.g., `'Class::method'`).
+	 *  - The name of a class that implements ActionInterface.
+	 *  - A callable that can be passed to SMF\GenericAction::setCallable().
+	 *  - false if no valid class or callable was found.
 	 */
 	protected static function findAction(?string $action): string|callable|false
 	{

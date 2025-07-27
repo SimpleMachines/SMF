@@ -211,7 +211,6 @@ class ServerSideIncludes
 
 		// Seed the random generator?
 		if (empty(Config::$modSettings['rand_seed']) || mt_rand(1, 250) == 69) {
-			// @TODO: Calls a deprecated function.
 			Config::generateSeed();
 		}
 
