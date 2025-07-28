@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 /**
@@ -155,13 +155,13 @@ function template_main()
 								<div class="event_options_left" id="event_time_input">
 									<div>
 										<span class="label">', $txt['start'], '</span>
-										<input type="text" name="start_date" id="start_date" value="', trim($context['event']['start_date_orig']), '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
-										<input type="text" name="start_time" id="start_time" maxlength="11" value="', $context['event']['start_time_orig'], '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+										<input type="date" name="start_date" id="start_date" value="', substr($context['event']['start_datetime'], 0, 10), '" tabindex="', $context['tabindex']++, '" class="date_input start" data-type="date">
+										<input type="time" name="start_time" id="start_time" maxlength="11" value="', substr($context['event']['start_datetime'], 11, 5), '" tabindex="', $context['tabindex']++, '" class="time_input start" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 									</div>
 									<div>
 										<span class="label">', $txt['end'], '</span>
-										<input type="text" name="end_date" id="end_date" value="', trim($context['event']['end_date_orig']), '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
-										<input type="text" name="end_time" id="end_time" maxlength="11" value="', $context['event']['end_time_orig'], '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
+										<input type="date" name="end_date" id="end_date" value="', substr($context['event']['end_datetime'], 0, 10), '" tabindex="', $context['tabindex']++, '" class="date_input end" data-type="date"', $modSettings['cal_maxspan'] == 1 ? ' disabled' : '', '>
+										<input type="time" name="end_time" id="end_time" maxlength="11" value="', substr($context['event']['end_datetime'], 11, 5), '" tabindex="', $context['tabindex']++, '" class="time_input end" data-type="time"', !empty($context['event']['allday']) ? ' disabled' : '', '>
 									</div>
 								</div>
 								<div class="event_options_right" id="event_time_options">

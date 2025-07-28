@@ -1329,6 +1329,12 @@ function QuickModeration()
 	updateSettings(array(
 		'calendar_updated' => time(),
 	));
+	
+	if (!empty($cache_enable) && $cache_enable >= 3) {
+		foreach ($affectedBoards as $b => $junk) {
+			cache_put_data('board-' . $b, null);
+		}
+	}
 
 	if (!empty($affectedBoards))
 		updateLastMessages(array_keys($affectedBoards));

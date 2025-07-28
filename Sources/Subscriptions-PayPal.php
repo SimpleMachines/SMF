@@ -113,7 +113,7 @@ class paypal_display
 		// If possible let's use the language we know we need.
 		$return_data['hidden']['lc'] = !empty($txt['lang_paypal']) ? $txt['lang_paypal'] : 'US';
 
-		// Now stuff dependent on what we're doing.
+		// Now stuff dependant on what we're doing.
 		if ($sub_data['flexible'])
 		{
 			$return_data['hidden']['p3'] = 1;

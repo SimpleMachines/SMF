@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -98,7 +98,7 @@ function summary($memID)
 
 	// Are they hidden?
 	$context['member']['is_hidden'] = empty($user_profile[$memID]['show_online']);
-	$context['member']['show_last_login'] = allowedTo('admin_forum') || !$context['member']['is_hidden'];
+	$context['member']['show_last_login'] = allowedTo('moderate_forum') || !$context['member']['is_hidden'];
 
 	if (!empty($modSettings['who_enabled']) && $context['member']['show_last_login'])
 	{
@@ -224,7 +224,7 @@ function summary($memID)
  * @param array $limit Maximum number of alerts to fetch (0 for no limit).
  * @param array $offset Number of alerts to skip for pagination. Ignored if $to_fetch is a list of IDs.
  * @param bool $with_avatar Whether to load the avatar of the alert sender.
- * @param bool $show_links Whether to show links in the constituent parts of the alert message.
+ * @param bool $show_links Whether to show links in the constituent parts of the alert meessage.
  * @return array An array of information about the fetched alerts.
  */
 function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_avatar = false, $show_links = false)
@@ -237,7 +237,7 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 	// Basic sanitation.
 	$memID = (int) $memID;
 	$unread = $to_fetch === false;
-	
+
 	if (empty($limit) || $limit > 1000)
 		$limit = min(!empty($modSettings['alerts_per_page']) && (int) $modSettings['alerts_per_page'] < 1000 ? (int) $modSettings['alerts_per_page'] : 1000, 1000);
 
@@ -459,12 +459,21 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 		else
 			unset($alerts[$id_alert]['visible']);
 
+		// For developer convenience.
+		$alert = &$alerts[$id_alert];
+
+		// If we loaded the sender's profile, we may as well use it.
+		$sender_id = !empty($alert['sender_id']) ? $alert['sender_id'] : 0;
+		if (isset($user_profile[$sender_id]))
+			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
+
+		// If requested, include the sender's avatar data.
+		if ($with_avatar && !empty($senders[$sender_id]))
+			$alert['sender'] = $senders[$sender_id];
+
 		// Did a mod already take care of this one?
 		if (!empty($alerts[$id_alert]['text']))
 			continue;
-
-		// For developer convenience.
-		$alert = &$alerts[$id_alert];
 
 		// The info in extra might outdated if the topic was moved, the message's subject was changed, etc.
 		if (!empty($alert['content_data']))
@@ -518,15 +527,6 @@ function fetch_alerts($memID, $to_fetch = false, $limit = 0, $offset = 0, $with_
 			if (isset($user_profile[$alert['extra']['user_id']]))
 				$alert['extra']['user_name'] = $user_profile[$alert['extra']['user_id']]['real_name'];
 		}
-
-		// If we loaded the sender's profile, we may as well use it.
-		$sender_id = !empty($alert['sender_id']) ? $alert['sender_id'] : 0;
-		if (isset($user_profile[$sender_id]))
-			$alert['sender_name'] = $user_profile[$sender_id]['real_name'];
-
-		// If requested, include the sender's avatar data.
-		if ($with_avatar && !empty($senders[$sender_id]))
-			$alert['sender'] = $senders[$sender_id];
 
 		// Next, build the message strings.
 		foreach ($formats as $msg_type => $format_info)
@@ -2545,11 +2545,11 @@ function TrackIP($memID = 0)
 			),
 			'lacnic' => array(
 				'name' => $txt['whois_lacnic'],
-				'url' => 'https://lacnic.net/cgi-bin/lacnic/whois?query=' . $context['ip'],
+				'url' => 'https://query.milacnic.lacnic.net/search?id=' . $context['ip'],
 			),
 			'ripe' => array(
 				'name' => $txt['whois_ripe'],
-				'url' => 'https://apps.db.ripe.net/search/query.html?searchtext=' . $context['ip'],
+				'url' => 'https://apps.db.ripe.net/db-web-ui/query?searchtext=' . $context['ip'],
 			),
 		);
 	}

@@ -685,6 +685,7 @@ CREATE TABLE {$db_prefix}log_notify (
 #
 
 CREATE INDEX {$db_prefix}log_notify_id_topic ON {$db_prefix}log_notify (id_topic, id_member);
+CREATE INDEX {$db_prefix}log_notify_id_board ON {$db_prefix}log_notify (id_board);
 
 #
 # Table structure for table `log_online`
@@ -864,7 +865,7 @@ CREATE TABLE {$db_prefix}log_search_results (
 	id_msg bigint NOT NULL DEFAULT '0',
 	relevance smallint NOT NULL DEFAULT '0',
 	num_matches smallint NOT NULL DEFAULT '0',
-	PRIMARY KEY (id_search, id_topic)
+	PRIMARY KEY (id_search, id_topic, id_msg)
 );
 
 #

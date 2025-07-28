@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 /**
@@ -119,6 +119,22 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		if (!empty($msgOptions['mentioned_members']))
 			$this->members['mentioned'] = Mentions::getMentionsByContent('msg', $msgOptions['id'], array_keys($msgOptions['mentioned_members']));
 
+		$group_permissions = array(
+			'allowed' => array(),
+			'denied' => array(),
+		);
+		$request = $smcFunc['db_query']('', '
+			SELECT id_group, deny
+			FROM {db_prefix}board_permissions_view
+			WHERE id_board = {int:current_board}',
+			array(
+				'current_board' => $topicOptions['board'],
+			)
+		);
+		while (list ($id_group, $deny) = $smcFunc['db_fetch_row']($request))
+			$group_permissions[$deny === '0' ? 'allowed' : 'denied'][] = $id_group;
+		$smcFunc['db_free_result']($request);
+
 		// Find the people interested in receiving notifications for this topic
 		$request = $smcFunc['db_query']('', '
 			SELECT
@@ -126,13 +142,12 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				mem.email_address, mem.lngfile, mem.pm_ignore_list,
 				mem.id_group, mem.id_post_group, mem.additional_groups,
 				mem.time_format, mem.time_offset, mem.timezone,
-				b.member_groups, t.id_member_started, t.id_member_updated
+				t.id_member_started, t.id_member_updated
 			FROM {db_prefix}log_notify AS ln
 				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
 				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)
-				LEFT JOIN {db_prefix}boards AS b ON (b.id_board = ln.id_board OR b.id_board = t.id_board)
-			WHERE ln.id_member != {int:member}
-				AND (ln.id_topic = {int:topic} OR ln.id_board = {int:board})',
+			WHERE ' . ($type == 'topic' ? 'ln.id_board = {int:board}' : 'ln.id_topic = {int:topic}') . '
+				AND ln.id_member != {int:member}',
 			array(
 				'member' => $posterOptions['id'],
 				'topic' => $topicOptions['id'],
@@ -144,14 +159,24 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			// Skip members who aren't allowed to see this board
 			$groups = array_merge(array($row['id_group'], $row['id_post_group']), (empty($row['additional_groups']) ? array() : explode(',', $row['additional_groups'])));
 
-			$allowed_groups = explode(',', $row['member_groups']);
-
-			if (!in_array(1, $groups) && count(array_intersect($groups, $allowed_groups)) == 0)
+			$is_denied = array_intersect($group_permissions['denied'], $groups) != array();
+			if (!in_array(1, $groups) && ($is_denied || array_intersect($groups, $group_permissions['allowed']) == array()))
 				continue;
 			else
 			{
 				$row['groups'] = $groups;
 				unset($row['id_group'], $row['id_post_group'], $row['additional_groups']);
+			}
+
+			// If this user subscribes both to the topic and the board there will be two records returned.
+			// Copy board/topic data to the new record or it will be lost.
+			if (!empty($this->members['watching'][$row['id_member']])) {
+				if ($this->members['watching'][$row['id_member']]['id_board'] > 0) {
+					$row['id_board'] = $this->members['watching'][$row['id_member']]['id_board'];
+				}
+				if ($this->members['watching'][$row['id_member']]['id_topic'] > 0) {
+					$row['id_topic'] = $this->members['watching'][$row['id_member']]['id_topic'];
+				}
 			}
 
 			$this->members['watching'][$row['id_member']] = $row;
@@ -161,27 +186,17 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 		// Filter out mentioned and quoted members who can't see this board.
 		if (!empty($this->members['mentioned']) || !empty($this->members['quoted']))
 		{
-			// This won't be set yet if no one is watching this board or topic.
-			if (!isset($allowed_groups))
-			{
-				$request = $smcFunc['db_query']('', '
-					SELECT member_groups
-					FROM {db_prefix}boards
-					WHERE id_board = {int:board}',
-					array(
-						'board' => $topicOptions['board'],
-					)
-				);
-				list($allowed_groups) = $smcFunc['db_fetch_row']($request);
-				$smcFunc['db_free_result']($request);
-				$allowed_groups = explode(',', $allowed_groups);
-			}
-
 			foreach (array('mentioned', 'quoted') as $member_type)
 			{
 				foreach ($this->members[$member_type] as $member_id => $member_data)
 				{
-					if (!in_array(1, $member_data['groups']) && count(array_intersect($member_data['groups'], $allowed_groups)) == 0)
+					// The member receiving the alert has ignored the member mentioning them.
+					if (!empty($member_data['mentioned_by']['ignored'])) {
+						unset($this->members[$member_type][$member_id], $msgOptions[$member_type . '_members'][$member_id]);
+					}
+
+					$is_denied = array_intersect($group_permissions['denied'], $member_data['groups']) != array();
+					if (!in_array(1, $member_data['groups']) && ($is_denied || array_intersect($member_data['groups'], $group_permissions['allowed']) == array()))
 						unset($this->members[$member_type][$member_id], $msgOptions[$member_type . '_members'][$member_id]);
 				}
 			}
@@ -529,15 +544,11 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 				$content_type = 'board';
 
-				$message_type = !empty($frequency) ? 'notify_boards_once' : 'notify_boards';
+				$message_type = !empty($frequency) && $frequency == 2 ? 'notify_boards_once' : 'notify_boards';
 
 				if (empty($modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body']))
 					$message_type .= '_body';
 			}
-
-			// If neither of the above, this might be a redundant row due to the OR clause in our SQL query, skip
-			else
-				continue;
 
 			// We need to fake some of $user_info to make BBC parsing work correctly.
 			if (isset($user_info))

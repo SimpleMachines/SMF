@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.3; Timezones
+// Version: 2.1.5; Timezones
 
 global $tztxt;
 
@@ -259,7 +259,9 @@ $txt['America/Cayenne'] = 'Cayenne';
 $txt['America/Cayman'] = 'George Town';
 $txt['America/Chicago'] = 'Chicago';
 $txt['America/Chihuahua'] = 'Chihuahua';
+$txt['America/Ciudad_Juarez'] = 'Ciudad Juárez';
 $txt['America/Costa_Rica'] = 'San José';
+$txt['America/Coyhaique'] = 'Coyhaique';
 $txt['America/Creston'] = 'Creston';
 $txt['America/Cuiaba'] = 'Cuiabá';
 $txt['America/Curacao'] = 'Curaçao';

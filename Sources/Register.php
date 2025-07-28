@@ -74,7 +74,7 @@ function Register($reg_errors = array())
 	elseif ($agree_txt_key != '')
 		$context['agree'] = $txt[$agree_txt_key . 'agree'];
 
-	// Does this user agree to the registration agreement?
+	// Does this user agree to the registation agreement?
 	if ($current_step == 1 && (isset($_POST['accept_agreement']) || isset($_POST['accept_agreement_coppa'])))
 	{
 		$context['registration_passed_agreement'] = $_SESSION['registration_agreed'] = true;
@@ -835,7 +835,7 @@ function VerificationCode()
 	global $sourcedir, $context, $scripturl;
 
 	$verification_id = isset($_GET['vid']) ? $_GET['vid'] : '';
-	$code = $verification_id && isset($_SESSION[$verification_id . '_vv']) ? $_SESSION[$verification_id . '_vv']['code'] : (isset($_SESSION['visual_verification_code']) ? $_SESSION['visual_verification_code'] : '');
+	$code = $verification_id && isset($_SESSION[$verification_id . '_vv'], $_SESSION[$verification_id . '_vv']['code']) ? $_SESSION[$verification_id . '_vv']['code'] : (isset($_SESSION['visual_verification_code']) ? $_SESSION['visual_verification_code'] : '');
 
 	// Somehow no code was generated or the session was lost.
 	if (empty($code))

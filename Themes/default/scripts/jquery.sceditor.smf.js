@@ -3,10 +3,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2024 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 (function ($) {
@@ -56,6 +56,7 @@
 			return current_value;
 		},
 		appendEmoticon: function (code, emoticon, description) {
+			var base = this;
 			if (emoticon == '')
 				line.append($('<br>'));
 			else
@@ -95,7 +96,7 @@
 			var popup_exists = false;
 			content = $('<div class="sceditor-insertemoticon">');
 			line = $('<div>');
-			base = this;
+			var base = this;
 
 			for (smiley_popup in this.opts.emoticons.popup)
 			{
@@ -106,9 +107,10 @@
 			{
 				base.opts.emoticons.more = base.opts.emoticons.popup;
 				moreButton = $('<div class="sceditor-more-button sceditor-more button">').text(this._('More')).click(function () {
-					if ($(".sceditor-smileyPopup").length > 0)
+					var smileyPopup = base.editorMainWrapper.querySelector(".sceditor-smileyPopup");
+					if (smileyPopup)
 					{
-						$(".sceditor-smileyPopup").fadeIn('fast');
+						$(smileyPopup).fadeIn('fast');
 					}
 					else
 					{
@@ -122,7 +124,14 @@
 
 						popupContent.append(titlebar);
 						closeButton = $('<span class="button">').text(base._('Close')).click(function () {
-							$(".sceditor-smileyPopup").fadeOut('fast');
+							$(base.editorMainWrapper.querySelector(".sceditor-smileyPopup")).fadeOut('fast');
+						});
+						$(document).mouseup(function (e) {
+							if (allowHide && !popupContent.is(e.target) && popupContent.has(e.target).length === 0)
+								$(smileyPopup).fadeOut('fast');
+						}).keyup(function (e) {
+							if (e.keyCode === 27)
+								$(smileyPopup).fadeOut('fast');
 						});
 
 						$.each(emoticons, function( code, emoticon ) {
@@ -145,9 +154,9 @@
 						adjheight = closeButton.height() + titlebar.height();
 						$dropdown = $('<div class="centerbox sceditor-smileyPopup">')
 							.append(popupContent)
-							.appendTo($('.sceditor-container'));
+							.appendTo(base.editorMainWrapper);
 
-						$('.sceditor-smileyPopup').animaDrag({
+						$(base.editorMainWrapper.querySelector('.sceditor-smileyPopup')).animaDrag({
 							speed: 150,
 							interval: 120,
 							during: function (e) {
@@ -172,14 +181,13 @@
 			});
 			if (line.children().length > 0)
 				content.append(line);
-			$(".sceditor-toolbar").append(content);
+			$(base.editorMainWrapper.querySelector(".sceditor-toolbar")).append(content);
 			if (typeof moreButton !== "undefined")
 				content.append($('<center/>').append(moreButton));
 		}
 	};
 
 	var createFn = sceditor.create;
-	var isPatched = false;
 
 	sceditor.create = function (textarea, options) {
 		// Call the original create function
@@ -188,8 +196,9 @@
 		// Constructor isn't exposed so get reference to it when
 		// creating the first instance and extend it then
 		var instance = sceditor.instance(textarea);
-		if (!isPatched && instance) {
+		if (instance && typeof instance.isPatched == 'undefined') {
 			sceditor.utils.extend(instance.constructor.prototype, extensionMethods);
+			instance.editorMainWrapper = instance.getContentAreaContainer().closest('.sceditor-container');
 			window.addEventListener('beforeunload', instance.updateOriginal, false);
 
 			/*
@@ -197,11 +206,11 @@
 			 * toolbars and tons of smilies play havoc with this.
 			 * Only resize the text areas instead.
 			 */
-			document.querySelector(".sceditor-container").removeAttribute("style");
-			document.querySelector(".sceditor-container textarea").style.height = options.height;
-			document.querySelector(".sceditor-container textarea").style.flexBasis = options.height;
+			instance.editorMainWrapper.removeAttribute("style");
+			instance.editorMainWrapper.querySelector("textarea").style.height = options.height;
+			instance.editorMainWrapper.querySelector("textarea").style.flexBasis = options.height;
 
-			isPatched = true;
+			instance.isPatched = true;
 		}
 	};
 })(jQuery);
@@ -728,14 +737,14 @@ sceditor.formats.bbcode.set(
 				if (typeof attrs.height !== "undefined")
 					attribs += ' height="' + attrs.height + '"';
 
-				var contentUrl = smf_scripturl +'?action=dlattach;attach='+ id + ';type=preview;thumb';
+				var contentUrl = smf_scripturl +'?action=dlattach;attach='+ id + ';preview;image';
 				contentIMG = new Image();
 					contentIMG.src = contentUrl;
 			}
 
 			// If not an image, show a boring ol' link
 			if (typeof contentUrl === "undefined" || contentIMG.getAttribute('width') == 0)
-				return '<a href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';type=preview;file"' + attribs + '>' + content + '</a>';
+				return '<a href="' + smf_scripturl + '?action=dlattach;attach=' + id + ';file"' + attribs + '>' + content + '</a>';
 			// Show our purdy li'l picture
 			else
 				return '<img' + attribs + ' src="' + contentUrl + '">';

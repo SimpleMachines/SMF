@@ -36,7 +36,7 @@
 
 /* Stuff unique to Post.template.php */
 div#post_attachments_area.roundframe {
-	overflow: auto;
+	overflow: visible;
 	border-top: none;
 	padding: 0;
 }
@@ -102,7 +102,6 @@ div#post_attachments_area.roundframe {
 	align-items: center;
 	justify-content: center;
 	width: 200px;
-	overflow: hidden;
 	padding: 5px;
 }
 #post_attachments_area .dz-image-preview:not(.errorbox) .attachment_preview_wrapper {
@@ -156,6 +155,7 @@ div#post_attachments_area.roundframe {
 	min-height: initial;
 	margin: 0;
 	box-shadow: none;
+	z-index: 2;
 }
 #post_attachments_area .attached_BBC_width_height {
 	display: none;
@@ -186,7 +186,7 @@ div#post_attachments_area.roundframe {
 }
 #post_attachments_area #max_files_progress {
 	display: none;
-	border-radius: 0;
+	border-radius: 0 0 7px 7px;
 	border-left: none;
 	border-right: none;
 	border-bottom: none;

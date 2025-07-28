@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 use SMF\Cache\CacheApi;
@@ -115,10 +115,12 @@ function reloadSettings()
 		{
 			return (string) $string;
 		};
-	$fix_utf8mb4 = function($string) use ($utf8, $smcFunc)
+	$smcFunc['fix_utf8mb4'] = function($string) use ($utf8, $smcFunc)
 	{
 		if (!$utf8 || $smcFunc['db_mb4'])
 			return $string;
+
+		$string = (string) $string;
 
 		$i = 0;
 		$len = strlen($string);
@@ -162,11 +164,11 @@ function reloadSettings()
 			$num = $string[0] === 'x' ? hexdec(substr($string, 1)) : (int) $string;
 			return $num < 0x20 || $num > 0x10FFFF || ($num >= 0xD800 && $num <= 0xDFFF) || $num === 0x202E || $num === 0x202D ? '' : '&#' . $num . ';';
 		},
-		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8, $fix_utf8mb4, &$smcFunc)
+		'htmlspecialchars' => function($string, $quote_style = ENT_COMPAT, $charset = 'ISO-8859-1') use ($ent_check, $utf8, &$smcFunc)
 		{
 			$string = $smcFunc['normalize']($string);
 
-			return $fix_utf8mb4($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
+			return $smcFunc['fix_utf8mb4']($ent_check(htmlspecialchars($string, $quote_style, $utf8 ? 'UTF-8' : $charset)));
 		},
 		'htmltrim' => function($string) use ($utf8, $ent_check)
 		{
@@ -234,7 +236,7 @@ function reloadSettings()
 		{
 			return $smcFunc['convert_case']($string, 'ucwords');
 		},
-		'convert_case' => function($string, $case, $simple = false, $form = 'c') use (&$smcFunc, $utf8, $ent_check, $fix_utf8mb4, $sourcedir)
+		'convert_case' => function($string, $case, $simple = false, $form = 'c') use (&$smcFunc, $utf8, $ent_check, $sourcedir)
 		{
 			if (!$utf8)
 			{
@@ -282,7 +284,7 @@ function reloadSettings()
 					$string = mb_decode_numericentity($string, array(0, 0x10FFFF, 0, 0xFFFFFF), 'UTF-8');
 				}
 
-				// Use optimized function for compatibility casefolding.
+				// Use optmized function for compatibility casefolding.
 				if ($form === 'kc_casefold' || ($case === 'fold' && $form === 'kc'))
 				{
 					$string = $smcFunc['normalize']($string, 'kc_casefold');
@@ -295,7 +297,7 @@ function reloadSettings()
 				}
 			}
 
-			return $fix_utf8mb4($string);
+			return $smcFunc['fix_utf8mb4']($string);
 		},
 		'json_decode' => 'smf_json_decode',
 		'json_encode' => 'json_encode',
@@ -489,7 +491,8 @@ function reloadSettings()
 		IMAGETYPE_BMP => 'bmp',
 		IMAGETYPE_TIFF_II => 'tiff',
 		IMAGETYPE_TIFF_MM => 'tiff',
-		IMAGETYPE_IFF => 'iff'
+		IMAGETYPE_IFF => 'iff',
+		IMAGETYPE_WEBP => 'webp'
 	);
 
 	// Define a list of allowed tags for descriptions.

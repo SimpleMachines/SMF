@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -899,7 +899,7 @@ function MessageFolder()
 			foreach (array_reverse($pms) as $pm)
 				$orderBy[] = 'pm.id_pm = ' . $pm;
 
-			// Separate query for these bits!
+			// Seperate query for these bits!
 			$subjects_request = $smcFunc['db_query']('', '
 				SELECT pm.id_pm, pm.subject, COALESCE(pm.id_member_from, 0) AS id_member_from, pm.msgtime, COALESCE(mem.real_name, pm.from_name) AS from_name,
 					mem.id_member
@@ -4207,7 +4207,7 @@ function isAccessiblePM($pmID, $validFor = 'in_or_outbox')
 
 		default:
 			loadLanguage('Errors');
-			trigger_error($txt['pm_invalid_validation_type'], E_USER_ERROR);
+			throw new \Exception('pm_invalid_validation_type');
 			break;
 	}
 }

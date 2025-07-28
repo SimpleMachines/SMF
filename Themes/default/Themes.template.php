@@ -432,7 +432,7 @@ function template_set_options()
 			echo ' name="', !empty($setting['default']) ? 'default_' : '', 'options[', $setting['id'], ']" id="options_', $setting['id'], '" value="', $setting['value'], '"', $setting['type'] == 'number' ? ' size="5"' : '', $context['theme_options_reset'] ? ' disabled' : '', '>';
 		}
 
-		// End of this definition, close open dds
+		// End of this defintion, close open dds
 		echo '
 					</dd>';
 	}

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -452,7 +452,7 @@ function logActions(array $logs)
 		if (!is_array($log['extra']))
 		{
 			loadLanguage('Errors');
-			trigger_error(sprintf($txt['logActions_not_array'], $log['action']), E_USER_NOTICE);
+			throw new \TypeError(sprintf($txt['logActions_not_array'], $log['action']));
 		}
 
 		// Pull out the parts we want to store separately, but also make sure that the data is proper
@@ -461,7 +461,7 @@ function logActions(array $logs)
 			if (!is_numeric($log['extra']['topic']))
 			{
 				loadLanguage('Errors');
-				trigger_error($txt['logActions_topic_not_numeric'], E_USER_NOTICE);
+				throw new \TypeError($txt['logActions_topic_not_numeric']);
 			}
 			$topic_id = empty($log['extra']['topic']) ? 0 : (int) $log['extra']['topic'];
 			unset($log['extra']['topic']);
@@ -474,7 +474,7 @@ function logActions(array $logs)
 			if (!is_numeric($log['extra']['message']))
 			{
 				loadLanguage('Errors');
-				trigger_error($txt['logActions_message_not_numeric'], E_USER_NOTICE);
+				throw new \TypeError($txt['logActions_message_not_numeric']);
 			}
 			$msg_id = empty($log['extra']['message']) ? 0 : (int) $log['extra']['message'];
 			unset($log['extra']['message']);
@@ -510,7 +510,7 @@ function logActions(array $logs)
 		if (isset($log['extra']['member']) && !is_numeric($log['extra']['member']))
 		{
 			loadLanguage('Errors');
-			trigger_error($txt['logActions_member_not_numeric'], E_USER_NOTICE);
+			throw new \TypeError($txt['logActions_member_not_numeric']);
 		}
 
 		if (isset($log['extra']['board']))
@@ -518,7 +518,7 @@ function logActions(array $logs)
 			if (!is_numeric($log['extra']['board']))
 			{
 				loadLanguage('Errors');
-				trigger_error($txt['logActions_board_not_numeric'], E_USER_NOTICE);
+				throw new \TypeError($txt['logActions_board_not_numeric']);
 			}
 			$board_id = empty($log['extra']['board']) ? 0 : (int) $log['extra']['board'];
 			unset($log['extra']['board']);
@@ -531,7 +531,7 @@ function logActions(array $logs)
 			if (!is_numeric($log['extra']['board_to']))
 			{
 				loadLanguage('Errors');
-				trigger_error($txt['logActions_board_to_not_numeric'], E_USER_NOTICE);
+				throw new \TypeError($txt['logActions_board_to_not_numeric']);
 			}
 			if (empty($board_id))
 			{

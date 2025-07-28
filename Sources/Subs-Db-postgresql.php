@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -52,7 +52,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, &$db_prefix
 			'db_server_info'            => 'smf_db_version',
 			'db_affected_rows'          => 'smf_db_affected_rows',
 			'db_transaction'            => 'smf_db_transaction',
-			'db_error'                  => 'pg_last_error',
+			'db_error'                  => 'smf_db_errormsg',
 			'db_select_db'              => 'smf_db_select_db',
 			'db_title'                  => POSTGRE_TITLE,
 			'db_sybase'                 => true,
@@ -353,6 +353,9 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 		'profile_board_stats' => array(
 			'~COUNT\(\*\) \/ MAX\(b.num_posts\)~' => 'CAST(COUNT(*) AS DECIMAL) / CAST(b.num_posts AS DECIMAL)',
 		),
+		'random_mail' => array(
+			'~ORDER BY RAND\(\)~' => 'ORDER BY RANDOM()',
+		),
 	);
 
 	// Special optimizer Hints
@@ -376,12 +379,14 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Comments that are allowed in a query are preg_removed.
 	static $allowed_comments_from = array(
+		'~(?<![\'\\\\])\'\X*?(?<![\'\\\\])\'~',
 		'~\s+~s',
 		'~/\*!40001 SQL_NO_CACHE \*/~',
 		'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
 		'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 	);
 	static $allowed_comments_to = array(
+		' %s ',
 		' ',
 		'',
 		'',
@@ -410,38 +415,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 	if (empty($modSettings['disableQueryCheck']))
 	{
-		$clean = '';
-		$old_pos = 0;
-		$pos = -1;
-		// Remove the string escape for better runtime
-		$db_string_1 = str_replace('\'\'', '', $db_string);
-		while (true)
-		{
-			$pos = strpos($db_string_1, '\'', $pos + 1);
-			if ($pos === false)
-				break;
-			$clean .= substr($db_string_1, $old_pos, $pos - $old_pos);
-
-			while (true)
-			{
-				$pos1 = strpos($db_string_1, '\'', $pos + 1);
-				$pos2 = strpos($db_string_1, '\\', $pos + 1);
-				if ($pos1 === false)
-					break;
-				elseif ($pos2 === false || $pos2 > $pos1)
-				{
-					$pos = $pos1;
-					break;
-				}
-
-				$pos = $pos2 + 1;
-			}
-			$clean .= ' %s ';
-
-			$old_pos = $pos + 1;
-		}
-		$clean .= substr($db_string_1, $old_pos);
-		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
+		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $db_string)));
 
 		// Comments?  We don't use comments in our queries, we leave 'em outside!
 		if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false)
@@ -773,7 +747,7 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 				{
 					$with_returning = false;
 					loadLanguage('Errors');
-					trigger_error($txt['postgres_id_not_int'], E_USER_ERROR);
+					throw new \TypeError('postgres_id_not_int');
 				}
 			}
 		}
@@ -1031,6 +1005,22 @@ function smf_db_connect_errno()
 		$pg_connect_errno = '';
 
 	return $pg_connect_errno;
+}
+
+/**
+ * Wrapper to handle null errors
+ *
+ * @param null|PgSql\Connection $connection = null The connection to use (null to use $db_connection)
+ * @return string escaped string
+ */
+function smf_db_errormsg($connection = null)
+{
+	global $db_connection;
+
+	if ($connection === null && $db_connection === null)
+		return '';
+
+	return pg_last_error($connection === null ? $db_connection : $connection);
 }
 
 ?>

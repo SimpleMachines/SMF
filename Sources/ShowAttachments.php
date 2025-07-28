@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -126,6 +126,7 @@ function showAttachment()
 		$file['mtime'] = $file['exists'] ? filemtime($file['filePath']) : 0;
 		$file['size'] = $file['exists'] ? filesize($file['filePath']) : 0;
 		$file['etag'] = $file['exists'] ? sha1_file($file['filePath']) : '';
+		$file['filename'] = un_htmlspecialchars($file['filename']);
 
 		// now get the thumbfile!
 		$thumbFile = array();
@@ -289,7 +290,7 @@ function showAttachment()
 	}
 
 	// Update the download counter (unless it's a thumbnail or resuming an incomplete download).
-	if ($file['attachment_type'] != 3 && empty($showThumb) && $range === 0 && empty($context['skip_downloads_increment']))
+	if ($file['attachment_type'] != 3 && empty($showThumb) && empty($_REQUEST['preview']) && $range === 0 && empty($context['skip_downloads_increment']))
 		$smcFunc['db_query']('', '
 			UPDATE {db_prefix}attachments
 			SET downloads = downloads + 1
@@ -316,7 +317,7 @@ function showAttachment()
 		unset($_REQUEST['image']);
 
 	// Does this have a mime type?
-	elseif (!empty($file['mime_type']) && (isset($_REQUEST['image']) || !in_array($file['fileext'], array('jpg', 'gif', 'jpeg', 'x-ms-bmp', 'png', 'psd', 'tiff', 'iff'))))
+	elseif (!empty($file['mime_type']) && (isset($_REQUEST['image']) || !in_array($file['fileext'], array('jpg', 'gif', 'jpeg', 'x-ms-bmp', 'png', 'psd', 'tiff', 'iff', 'webp'))))
 		header('content-type: ' . strtr($file['mime_type'], array('image/bmp' => 'image/x-ms-bmp')));
 
 	else
@@ -333,7 +334,7 @@ function showAttachment()
 		$utf8name = $_REQUEST['attach'] . ' - ' . $utf8name;
 
 	// On mobile devices, audio and video should be served inline so the browser can play them.
-	if (isset($_REQUEST['image']) || (isBrowser('is_mobile') && (strpos($file['mime_type'], 'audio/') !== 0 || strpos($file['mime_type'], 'video/') !== 0)))
+	if (isset($_REQUEST['image']) || (isBrowser('is_mobile') && (strpos($file['mime_type'], 'audio/') === 0 || strpos($file['mime_type'], 'video/') === 0)))
 		$disposition = 'inline';
 	else
 		$disposition = 'attachment';
@@ -352,7 +353,7 @@ function showAttachment()
 		header('content-disposition: ' . $disposition . '; filename="' . $utf8name . '"');
 
 	// If this has an "image extension" - but isn't actually an image - then ensure it isn't cached cause of silly IE.
-	if (!isset($_REQUEST['image']) && in_array($file['fileext'], array('gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff')))
+	if (!isset($_REQUEST['image']) && in_array($file['fileext'], array('gif', 'jpg', 'bmp', 'png', 'jpeg', 'tiff', 'webp')))
 		header('cache-control: no-cache');
 
 	else

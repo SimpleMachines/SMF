@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -2609,7 +2609,7 @@ function attachDirStatus($dir, $expected_files)
 }
 
 /**
- * Maintenance function to move attachments from one directory to another
+ * Maintance function to move attachments from one directory to another
  */
 function TransferAttachments()
 {
@@ -2642,7 +2642,7 @@ function TransferAttachments()
 
 	if (empty($results))
 	{
-		// Get the total file count for the progress bar.
+		// Get the total file count for the progess bar.
 		$request = $smcFunc['db_query']('', '
 			SELECT COUNT(*)
 			FROM {db_prefix}attachments

@@ -134,7 +134,7 @@ if (!is_callable('random_bytes')) {
      * - the mcrypt extensions is loaded
      * - One of these two conditions is true:
      *   - We're on Windows (DIRECTORY_SEPARATOR !== '/')
-     *   - We're not on Windows and /dev/urandom is readable
+     *   - We're not on Windows and /dev/urandom is readabale
      *     (i.e. we're not in a chroot jail)
      * - Special case:
      *   - If we're not on Windows, but the PHP version is between

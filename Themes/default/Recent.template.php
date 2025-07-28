@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.5
  */
 
 /**
@@ -214,7 +214,7 @@ function template_unread()
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 				', $context['menu_separator'], '
 				<div class="pagelinks floatleft">
-					<a href="#recent" class="button">', $txt['go_up'], '</a>
+					<a href="#recent" class="button" id="bot">', $txt['go_up'], '</a>
 					', $context['page_index'], '
 				</div>';
 
@@ -395,7 +395,7 @@ function template_replies()
 				', !empty($context['recent_buttons']) ? template_button_strip($context['recent_buttons'], 'right') : '', '
 				', $context['menu_separator'], '
 				<div class="pagelinks floatleft">
-					<a href="#recent" class="button">', $txt['go_up'], '</a>
+					<a href="#recent" class="button" id="bot">', $txt['go_up'], '</a>
 					', $context['page_index'], '
 				</div>';
 

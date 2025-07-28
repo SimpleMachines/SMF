@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -95,7 +95,7 @@ function ViewErrorLog()
 			'value' => array(
 				'sql' => in_array($_GET['filter'], array('message', 'url', 'file')) ? base64_decode(strtr($_GET['value'], array(' ' => '+'))) : $smcFunc['db_escape_wildcard_string']($_GET['value']),
 			),
-			'href' => ';filter=' . $_GET['filter'] . ';value=' . $_GET['value'],
+			'href' => ';filter=' . $_GET['filter'] . ';value=' . urlencode($_GET['value']),
 			'entity' => $filters[$_GET['filter']]['txt']
 		);
 

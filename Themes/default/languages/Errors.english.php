@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.4; Errors
+// Version: 2.1.5; Errors
 
 global $scripturl, $modSettings;
 
@@ -188,6 +188,7 @@ $txt['no_bantype_selected'] = 'No ban type was selected';
 $txt['ban_not_found'] = 'Ban not found';
 $txt['ban_unknown_restriction_type'] = 'Restriction type unknown';
 $txt['ban_name_empty'] = 'The name of the ban was left empty';
+$txt['ban_name_is_too_long'] = 'The selected name is too long. Use no more than 20 characters.';
 $txt['ban_id_empty'] = 'Ban id not found';
 $txt['ban_no_triggers'] = 'No ban triggers specified';
 $txt['ban_ban_item_empty'] = 'Ban trigger not found';
@@ -521,5 +522,7 @@ $txt['create_post_invalid_member_id'] = 'createPost(): invalid member id \'%d\''
 $txt['invalid_statistic_type'] = 'updateStats(): invalid statistic type \'%s\'';
 
 $txt['fetch_web_data_bad_url'] = 'fetch_web_data(): Bad URL';
+
+$txt['unicode_update_failed'] = 'A new version of Unicode is available, but SMF could not update to it. Please make sure %1$s and all the files in it are writable. SMF will try to update its Unicode data files again automatically.';
 
 ?>

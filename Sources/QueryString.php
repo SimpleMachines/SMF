@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.6
  */
 
 if (!defined('SMF'))
@@ -157,7 +157,7 @@ function cleanRequest()
 	// Make sure $board and $topic are numbers.
 	if (isset($_REQUEST['board']))
 	{
-		// Make sure it's a string and not something else like an array
+		// Make sure its a string and not something else like an array
 		$_REQUEST['board'] = (string) $_REQUEST['board'];
 
 		// If there's a slash in it, we've got a start value! (old, compatible links.)
@@ -184,7 +184,7 @@ function cleanRequest()
 	// We've got topic!
 	if (isset($_REQUEST['topic']))
 	{
-		// Make sure it's a string and not something else like an array
+		// Make sure its a string and not something else like an array
 		$_REQUEST['topic'] = (string) $_REQUEST['topic'];
 
 		// Slash means old, beta style, formatting.  That's okay though, the link should still work.
@@ -326,13 +326,15 @@ function cleanRequest()
 				}
 
 				// Otherwise, we've got an IP!
-				$_SERVER['BAN_CHECK_IP'] = trim($ip);
+				$_SERVER['REMOTE_ADDR'] = trim($ip);
 				break;
 			}
 		}
 		// Otherwise just use the only one.
 		elseif (preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER[$proxyIPheader]) == 0 || preg_match('~^((0|10|172\.(1[6-9]|2[0-9]|3[01])|192\.168|255|127)\.|unknown|::1|fe80::|fc00::)~', $_SERVER['REMOTE_ADDR']) != 0)
-			$_SERVER['BAN_CHECK_IP'] = $_SERVER[$proxyIPheader];
+		{
+			$_SERVER['REMOTE_ADDR'] = $_SERVER[$proxyIPheader];
+		}
 		elseif (!isValidIPv6($_SERVER[$proxyIPheader]) || preg_match('~::ffff:\d+\.\d+\.\d+\.\d+~', $_SERVER[$proxyIPheader]) !== 0)
 		{
 			$_SERVER[$proxyIPheader] = preg_replace('~^::ffff:(\d+\.\d+\.\d+\.\d+)~', '\1', $_SERVER[$proxyIPheader]);
@@ -507,7 +509,7 @@ function escapestring__recursive($var)
  * - importantly, does not effect keys, only values.
  * - calls itself recursively if necessary.
  *
- * @param array|string $var The string or array of strings to add entities to
+ * @param array|string $var The string or array of strings to add entites to
  * @param int $level Which level we're at within the array (if called recursively)
  * @return array|string The string or array of strings with entities added
  */
@@ -648,14 +650,17 @@ function ob_sessrewrite($buffer)
 {
 	global $scripturl, $modSettings, $context;
 
+	// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
+	$sid = defined('SID') ? @constant('SID') : null;
+
 	// If $scripturl is set to nothing, or the SID is not defined (SSI?) just quit.
-	if ($scripturl == '' || !defined('SID'))
+	if ($scripturl == '' || !isset($sid))
 		return $buffer;
 
 	// Do nothing if the session is cookied, or they are a crawler - guests are caught by redirectexit().  This doesn't work below PHP 4.3.0, because it makes the output buffer bigger.
 	// @todo smflib
-	if (empty($_COOKIE) && SID != '' && !isBrowser('possibly_robot'))
-		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', '"' . $scripturl . '?' . SID . '&amp;', $buffer);
+	if (empty($_COOKIE) && $sid != '' && !isBrowser('possibly_robot'))
+		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote($sid, '/') . ')\\??/', '"' . $scripturl . '?' . $sid . '&amp;', $buffer);
 	// Debugging templates, are we?
 	elseif (isset($_GET['debug']))
 		$buffer = preg_replace('/(?<!<link rel="canonical" href=)"' . preg_quote($scripturl, '/') . '\\??/', '"' . $scripturl . '?debug;', $buffer);
@@ -664,14 +669,12 @@ function ob_sessrewrite($buffer)
 	if (!empty($modSettings['queryless_urls']) && (!$context['server']['is_cgi'] || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && ($context['server']['is_apache'] || $context['server']['is_lighttpd'] || $context['server']['is_litespeed']))
 	{
 		// Let's do something special for session ids!
-		if (defined('SID') && SID != '')
+		if (isset($sid) && $sid != '')
 			$buffer = preg_replace_callback(
-				'~"' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
-				function($m)
+				'~"' . preg_quote($scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#"]+?)(#[^"]*?)?"~',
+				function($m) use ($scripturl, $sid)
 				{
-					global $scripturl;
-
-					return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . SID . (isset($m[2]) ? $m[2] : "") . '"';
+					return '"' . $scripturl . "/" . strtr("$m[1]", '&;=', '//,') . ".html?" . $sid . (isset($m[2]) ? $m[2] : "") . '"';
 				},
 				$buffer
 			);

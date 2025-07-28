@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.6
  */
 
 if (!defined('SMF'))
@@ -246,7 +246,7 @@ function PlushSearch2()
 	global $user_info, $context, $options, $messages_request, $boards_can;
 	global $excludedWords, $participants, $smcFunc, $cache_enable;
 
-	// if coming from the quick search box, and we want to search on members, well we need to do that ;)
+	// if comming from the quick search box, and we want to search on members, well we need to do that ;)
 	if (isset($_REQUEST['search_selection']) && $_REQUEST['search_selection'] === 'members')
 		redirectexit($scripturl . '?action=mlist;sa=search;fields=name,email;search=' . urlencode($_REQUEST['search']));
 
@@ -1282,6 +1282,7 @@ function PlushSearch2()
 					'select' => array(
 						'id_search' => $_SESSION['search_cache']['id_search'],
 						'relevance' => '0',
+						'id_topic' => 't.id_topic',
 					),
 					'weights' => array(),
 					'from' => '{db_prefix}topics AS t',
@@ -1306,7 +1307,6 @@ function PlushSearch2()
 
 				if (empty($search_params['topic']) && empty($search_params['show_complete']))
 				{
-					$main_query['select']['id_topic'] = 't.id_topic';
 					$main_query['select']['id_msg'] = 'MAX(m.id_msg) AS id_msg';
 					$main_query['select']['num_matches'] = 'COUNT(*) AS num_matches';
 
@@ -1316,8 +1316,6 @@ function PlushSearch2()
 				}
 				else
 				{
-					// This is outrageous!
-					$main_query['select']['id_topic'] = 'm.id_msg AS id_topic';
 					$main_query['select']['id_msg'] = 'm.id_msg';
 					$main_query['select']['num_matches'] = '1 AS num_matches';
 
@@ -1336,7 +1334,7 @@ function PlushSearch2()
 						$main_query['parameters']['topic'] = $search_params['topic'];
 					}
 					if (!empty($search_params['show_complete']))
-						$main_query['group_by'][] = 'm.id_msg, t.id_first_msg, t.id_last_msg';
+						$main_query['group_by'][] = 't.id_topic, m.id_msg, t.id_first_msg, t.id_last_msg';
 				}
 
 				// *** Get the subject results.
@@ -1849,7 +1847,7 @@ function PlushSearch2()
 		// *** Retrieve the results to be shown on the page
 		$participants = array();
 		$request = $smcFunc['db_search_query']('', '
-			SELECT ' . (empty($search_params['topic']) ? 'lsr.id_topic' : $search_params['topic'] . ' AS id_topic') . ', lsr.id_msg, lsr.relevance, lsr.num_matches
+			SELECT lsr.id_topic, lsr.id_msg, lsr.relevance, lsr.num_matches
 			FROM {db_prefix}log_search_results AS lsr' . ($search_params['sort'] == 'num_replies' || !empty($approve_query) ? '
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = lsr.id_topic)' : '') . '
 			WHERE lsr.id_search = {int:id_search}' . $approve_query . '

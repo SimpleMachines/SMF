@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -143,7 +143,7 @@ function is_not_guest($message = '')
 	obExit();
 
 	// We should never get to this point, but if we did we wouldn't know the user isn't a guest.
-	trigger_error('No direct access...', E_USER_ERROR);
+	die('No direct access...');
 }
 
 /**
@@ -351,7 +351,7 @@ function is_not_banned($forceCheck = false)
 		fatal_error(sprintf($txt['your_ban'], $old_name) . (empty($_SESSION['ban']['cannot_access']['reason']) ? '' : '<br>' . $_SESSION['ban']['cannot_access']['reason']) . '<br>' . (!empty($_SESSION['ban']['expire_time']) ? sprintf($txt['your_ban_expires'], timeformat($_SESSION['ban']['expire_time'], false)) : $txt['your_ban_expires_never']), false, 403);
 
 		// If we get here, something's gone wrong.... but let's try anyway.
-		trigger_error('No direct access...', E_USER_ERROR);
+		die('No direct access...');
 	}
 	// You're not allowed to log in but yet you are. Let's fix that.
 	elseif (isset($_SESSION['ban']['cannot_login']) && !$user_info['is_guest'])
@@ -714,7 +714,7 @@ function checkSession($type = 'post', $from_action = '', $is_fatal = true)
 		return $error;
 
 	// We really should never fall through here, for very important reasons.  Let's make sure.
-	trigger_error('No direct access...', E_USER_ERROR);
+	die('No direct access...');
 }
 
 /**
@@ -1044,7 +1044,7 @@ function isAllowedTo($permission, $boards = null, $any = false)
 		fatal_lang_error('cannot_' . $error_permission, false);
 
 		// Getting this far is a really big problem, but let's try our best to prevent any cases...
-		trigger_error('No direct access...', E_USER_ERROR);
+		die('No direct access...');
 	}
 
 	// If you're doing something on behalf of some "heavy" permissions, validate your session.
@@ -1106,7 +1106,8 @@ function boardsAllowedTo($permissions, $check_access = true, $simple = true)
 		WHERE bp.id_group IN ({array_int:group_list}, {int:moderator_group})
 			AND bp.permission IN ({array_string:permissions})
 			AND (mods.id_member IS NOT NULL OR modgs.id_group IS NOT NULL OR bp.id_group != {int:moderator_group})' .
-			($check_access ? ' AND {query_see_board}' : ''),
+			($check_access ? ' AND {query_see_board}' : '') . '
+		ORDER BY b.board_order',
 		array(
 			'current_member' => $user_info['id'],
 			'group_list' => $groups,
@@ -1374,7 +1375,7 @@ function corsPolicyHeader($set_header = true)
 
 	foreach (array('origin' => $_SERVER['HTTP_ORIGIN'], 'boardurl_parts' => $boardurl) as $var => $url)
 	{
-		// Convert any Punycode to Unicode for the sake of comparison, then parse.
+		// Convert any Punycode to Unicode for the sake of comparision, then parse.
 		$$var = parse_iri(url_to_iri((string) validate_iri(normalize_iri(trim($url)))));
 	}
 
@@ -1422,7 +1423,7 @@ function corsPolicyHeader($set_header = true)
 		foreach ($allowed_origins as $allowed_origin)
 		{
 			// If a specific scheme is required, it must match.
-			if (!empty($allowed_origin['scheme']) && $allowed_origin['scheme'] !== $origin['scheme'])
+			if (!empty($allowed_origin['scheme']) && (empty($origin['scheme']) || $allowed_origin['scheme'] !== $origin['scheme']))
 				continue;
 
 			// If a specific port is required, it must match.
@@ -1430,7 +1431,7 @@ function corsPolicyHeader($set_header = true)
 			{
 				// Automatically supply the default port for the "special" schemes.
 				// See https://url.spec.whatwg.org/#special-scheme
-				if (empty($origin['port']))
+				if (empty($origin['port']) && !empty($origin['scheme']))
 				{
 					switch ($origin['scheme'])
 					{

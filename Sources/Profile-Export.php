@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.2
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -666,7 +666,7 @@ function export_attachment($uid)
 	// This doesn't count as a normal download.
 	$context['skip_downloads_increment'] = true;
 
-	// Try to avoid collisions when attachment names are not unique.
+	// Try to avoid collisons when attachment names are not unique.
 	$context['prepend_attachment_id'] = true;
 
 	// Allow access to their attachments even if they can't see the board.
@@ -1815,6 +1815,8 @@ function export_load_css_js()
 			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'Exceptions', 'IOException.php')));
 
 			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'Minify.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'path-converter', 'src', 'ConverterInterface.php')));
+			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'path-converter', 'src', 'NoConverter.php')));
 			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'path-converter', 'src', 'Converter.php')));
 
 			include_once(implode(DIRECTORY_SEPARATOR, array($sourcedir, 'minify', 'src', 'CSS.php')));
@@ -1926,6 +1928,7 @@ function export_load_css_js()
 		'jpeg' => 'image/jpeg',
 		'tiff' => 'image/tiff',
 		'svg' => 'image/svg+xml',
+		'webp' => 'image/webp',
 	);
 
 	foreach (glob(implode(DIRECTORY_SEPARATOR, array($modSettings['smileys_dir'], $user_info['smiley_set'], '*.*'))) as $smiley_file)

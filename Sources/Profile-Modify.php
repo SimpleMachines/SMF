@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -56,13 +56,13 @@ function loadProfileFields($force_reload = false)
 								Return types:
 					- true:			Element can be stored.
 					- false:		Skip this element.
-					- a text string:	An error occurred - this is the error message.
+					- a text string:	An error occured - this is the error message.
 
 				function $preload:		A function that is used to load data required for this element to be displayed. Must return
 								true to be displayed at all.
 
 				string $cast_type:		If set casts the element to a certain type. Valid types (bool, int, float).
-				string $save_key:		If the index of this element isn't the database column name it can be overridden
+				string $save_key:		If the index of this element isn't the database column name it can be overriden
 								with this string.
 				bool $is_dummy:			If set then nothing is acted upon for this element.
 				bool $enabled:			A test to determine whether this is even available - if not is unset.
@@ -491,7 +491,7 @@ function loadProfileFields($force_reload = false)
 				$no_smiley_sets = array_diff(explode(',', $modSettings['smiley_sets_known']), array_keys($filenames));
 				foreach ($no_smiley_sets as $set)
 				{
-					$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg');
+					$allowedTypes = array('gif', 'png', 'jpg', 'jpeg', 'tiff', 'svg', 'webp');
 					$images = glob(implode('/', array($modSettings['smileys_dir'], $set, '*.{' . (implode(',', $allowedTypes) . '}'))), GLOB_BRACE);
 
 					// Just use some image or other
@@ -1202,7 +1202,7 @@ function makeNotificationChanges($memID)
 	}
 
 	// We are removing board preferences
-	elseif (isset($_POST['remove_notify_board']) && !empty($_POST['notify_boards']))
+	elseif (isset($_POST['remove_notify_boards']) && !empty($_POST['notify_boards']))
 	{
 		$prefs = array();
 		foreach ($_POST['notify_boards'] as $board)
@@ -1279,13 +1279,13 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
 				$value = $smcFunc['htmltrim']($value);
-				$valueReference = un_htmlspecialchars($value);
+				$valueReference = html_entity_decode($value);
 
 				// Try and avoid some checks. '0' could be a valid non-empty value.
 				if (empty($value) && !is_numeric($value))
 					$value = '';
 
-				if ($row['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $value != $smcFunc['htmlspecialchars']($value, ENT_NOQUOTES) || preg_match('/<(.+?)[\s]*\/?[\s]*>/si', $valueReference)))
+				if ($row['mask'] == 'nohtml' && ($valueReference != strip_tags($valueReference) || $valueReference != htmlspecialchars($valueReference, ENT_NOQUOTES) || preg_match('/<(.+?)[\s]*\/?[\s]*>/si', $valueReference)))
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_nohtml_fail';
@@ -1900,7 +1900,7 @@ function getAvatars($directory, $level)
 		$extension = substr(strrchr($line, '.'), 1);
 
 		// Make sure it is an image.
-		if (strcasecmp($extension, 'gif') != 0 && strcasecmp($extension, 'jpg') != 0 && strcasecmp($extension, 'jpeg') != 0 && strcasecmp($extension, 'png') != 0 && strcasecmp($extension, 'bmp') != 0)
+		if (strcasecmp($extension, 'gif') != 0 && strcasecmp($extension, 'jpg') != 0 && strcasecmp($extension, 'jpeg') != 0 && strcasecmp($extension, 'png') != 0 && strcasecmp($extension, 'bmp') != 0 && strcasecmp($extension, 'webp') != 0)
 			continue;
 
 		$result[] = array(
@@ -2309,8 +2309,10 @@ function alert_mark($memID, $toMark, $read = 0)
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}user_alerts
 		SET is_read = {int:read}
-		WHERE id_alert IN({array_int:toMark})',
+		WHERE id_alert IN({array_int:toMark})
+			AND id_member = {int:memID}',
 		array(
+			'memID' => $memID,
 			'read' => $read == 1 ? time() : 0,
 			'toMark' => $toMark,
 		)
@@ -2343,8 +2345,10 @@ function alert_delete($toDelete, $memID = false)
 
 	$smcFunc['db_query']('', '
 		DELETE FROM {db_prefix}user_alerts
-		WHERE id_alert IN({array_int:toDelete})',
+		WHERE id_alert IN({array_int:toDelete})
+			AND id_member = {int:memID}',
 		array(
+			'memID' => $memID,
 			'toDelete' => $toDelete,
 		)
 	);
@@ -2523,8 +2527,10 @@ function alert_count($memID, $unread = false)
 	{
 		$smcFunc['db_query']('', '
 			DELETE FROM {db_prefix}user_alerts
-			WHERE id_alert IN ({array_int:alerts})',
+			WHERE id_alert IN ({array_int:alerts})
+				AND id_member = {int:member}',
 			array(
+				'member' => $memID,
 				'alerts' => $deletes,
 			)
 		);
@@ -2722,7 +2728,7 @@ function alert_notifications_boards($memID)
 	global $txt, $scripturl, $context, $sourcedir;
 
 	// Because of the way this stuff works, we want to do this ourselves.
-	if (isset($_POST['edit_notify_boards']) || isset($_POSt['remove_notify_boards']))
+	if (isset($_POST['edit_notify_boards']) || isset($_POST['remove_notify_boards']))
 	{
 		checkSession();
 		validateToken(str_replace('%u', $memID, 'profile-nt%u'), 'post');
@@ -2831,7 +2837,7 @@ function alert_notifications_boards($memID)
 }
 
 /**
- * Determines how many topics a user has requested notifications for
+ * Determins how many topics a user has requested notifications for
  *
  * @param int $memID The ID of the member
  * @return int The number of topic notifications for this user
@@ -3278,7 +3284,7 @@ function profileLoadAvatarData()
 		'allow_server_stored' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_server_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
 		'allow_upload' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_upload_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
 		'allow_external' => (empty($modSettings['gravatarEnabled']) || empty($modSettings['gravatarOverride'])) && (allowedTo('profile_remote_avatar') || (!$context['user']['is_owner'] && allowedTo('profile_extra_any'))),
-		'allow_gravatar' => !empty($modSettings['gravatarEnabled']),
+		'allow_gravatar' => !empty($modSettings['gravatarEnabled']) && allowedTo('profile_gravatar'),
 	);
 
 	if ($context['member']['avatar']['allow_gravatar'] && (stristr($cur_profile['avatar'], 'gravatar://') || !empty($modSettings['gravatarOverride'])))
@@ -3536,7 +3542,8 @@ function profileSaveAvatarData(&$value)
 		removeAttachments(array('id_member' => $memID));
 
 		$profile_vars['avatar'] = str_replace(' ', '%20', preg_replace('~action(?:=|%3d)(?!dlattach)~i', 'action-', $_POST['userpicpersonal']));
-		$mime_valid = check_mime_type($profile_vars['avatar'], 'image/', true);
+		$mime_type = get_mime_type($profile_vars['avatar'], true);
+		$mime_valid = strpos($mime_type, 'image/') === 0;
 
 		if ($profile_vars['avatar'] == 'http://' || $profile_vars['avatar'] == 'http:///')
 			$profile_vars['avatar'] = '';
@@ -3545,6 +3552,20 @@ function profileSaveAvatarData(&$value)
 			return 'bad_avatar_invalid_url';
 		elseif (empty($mime_valid))
 			return 'bad_avatar';
+		// SVGs are special.
+		elseif ($mime_type === 'image/svg+xml')
+		{
+			$safe = false;
+
+			if (($tempfile = @tempnam($uploadDir, 'tmp_')) !== false && ($svg_content = @fetch_web_data($profile_vars['avatar'])) !== false && (file_put_contents($tempfile, $svg_content)) !== false)
+			{
+				$safe = checkSvgContents($tempfile);
+				@unlink($tempfile);
+			}
+
+			if (!$safe)
+				return 'bad_avatar';
+		}
 		// Should we check dimensions?
 		elseif (!empty($modSettings['avatar_max_height_external']) || !empty($modSettings['avatar_max_width_external']))
 		{
@@ -3593,11 +3614,54 @@ function profileSaveAvatarData(&$value)
 				$_FILES['attachment']['tmp_name'] = $new_filename;
 			}
 
-			$mime_valid = check_mime_type($_FILES['attachment']['tmp_name'], 'image/', true);
+			$mime_type = get_mime_type($_FILES['attachment']['tmp_name'], true);
+			$mime_valid = strpos($mime_type, 'image/') === 0;
 			$sizes = empty($mime_valid) ? false : @getimagesize($_FILES['attachment']['tmp_name']);
 
+			// SVGs are special.
+			if ($mime_type === 'image/svg+xml')
+			{
+				if ((checkSvgContents($_FILES['attachment']['tmp_name'])) === false)
+				{
+					@unlink($_FILES['attachment']['tmp_name']);
+					return 'bad_avatar';
+				}
+
+				$extension = 'svg';
+				$destName = 'avatar_' . $memID . '_' . time() . '.' . $extension;
+				extract(getSvgSize($_FILES['attachment']['tmp_name']));
+				$file_hash = '';
+
+				removeAttachments(array('id_member' => $memID));
+
+				$cur_profile['id_attach'] = $smcFunc['db_insert']('',
+					'{db_prefix}attachments',
+					array(
+						'id_member' => 'int', 'attachment_type' => 'int', 'filename' => 'string', 'file_hash' => 'string', 'fileext' => 'string', 'size' => 'int',
+						'width' => 'int', 'height' => 'int', 'mime_type' => 'string', 'id_folder' => 'int',
+					),
+					array(
+						$memID, 1, $destName, $file_hash, $extension, filesize($_FILES['attachment']['tmp_name']),
+						(int) $width, (int) $height, $mime_type, $id_folder,
+					),
+					array('id_attach'),
+					1
+				);
+
+				$cur_profile['filename'] = $destName;
+				$cur_profile['attachment_type'] = 1;
+
+				$destinationPath = $uploadDir . '/' . $destName;
+				if (!rename($_FILES['attachment']['tmp_name'], $destinationPath))
+				{
+					removeAttachments(array('id_member' => $memID));
+					fatal_lang_error('attach_timeout', 'critical');
+				}
+
+				smf_chmod($destinationPath, 0644);
+			}
 			// No size, then it's probably not a valid pic.
-			if ($sizes === false)
+			elseif ($sizes === false)
 			{
 				@unlink($_FILES['attachment']['tmp_name']);
 				return 'bad_avatar';
@@ -3660,11 +3724,12 @@ function profileSaveAvatarData(&$value)
 					'1' => 'gif',
 					'2' => 'jpg',
 					'3' => 'png',
-					'6' => 'bmp'
+					'6' => 'bmp',
+					'18' => 'webp'
 				);
 
 				$extension = isset($extensions[$sizes[2]]) ? $extensions[$sizes[2]] : 'bmp';
-				$mime_type = 'image/' . ($extension === 'jpg' ? 'jpeg' : ($extension === 'bmp' ? 'x-ms-bmp' : $extension));
+				$mime_type = str_replace('image/bmp', 'image/x-ms-bmp', $mime_type);
 				$destName = 'avatar_' . $memID . '_' . time() . '.' . $extension;
 				list ($width, $height) = getimagesize($_FILES['attachment']['tmp_name']);
 				$file_hash = '';
@@ -3698,7 +3763,7 @@ function profileSaveAvatarData(&$value)
 				}
 
 				// Attempt to chmod it.
-				smf_chmod($uploadDir . '/' . $destinationPath, 0644);
+				smf_chmod($destinationPath, 0644);
 			}
 			$profile_vars['avatar'] = '';
 
@@ -4066,7 +4131,7 @@ function groupMembership($memID)
 		if (($row['id_group'] == $context['primary_group'] && $row['group_type'] > 1) || ($row['hidden'] != 2 && $context['primary_group'] == 0 && in_array($row['id_group'], $groups)))
 			$context['can_edit_primary'] = true;
 
-		// If they can't manage (protected) groups, and it's not publicly joinable or already assigned, they can't see it.
+		// If they can't manage (protected) groups, and it's not publically joinable or already assigned, they can't see it.
 		if (((!$context['can_manage_protected'] && $row['group_type'] == 1) || (!$context['can_manage_membergroups'] && $row['group_type'] == 0)) && $row['id_group'] != $context['primary_group'])
 			continue;
 

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -544,7 +544,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 		if ($is_protected == 1)
 			return false;
 	}
-	
+
 	// Do the actual updates.
 	if ($type == 'only_additional')
 		$smcFunc['db_query']('', '
@@ -598,7 +598,7 @@ function addMembersToGroup($members, $group, $type = 'auto', $permissionCheckDon
 	else
 	{
 		loadLanguage('Errors');
-		trigger_error(sprintf($txt['add_members_to_group_invalid_type'], $type), E_USER_WARNING);
+		throw new \TypeError(sprintf($txt['add_members_to_group_invalid_type'], $type));
 	}
 
 	call_integration_hook('integrate_add_members_to_group', array($members, $group, &$group_names));

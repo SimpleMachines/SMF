@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -306,7 +306,7 @@ function adminLogin($type = 'admin')
 	obExit();
 
 	// We MUST exit at this point, because otherwise we CANNOT KNOW that the user is privileged.
-	trigger_error('No direct access...', E_USER_ERROR);
+	die('No direct access...');
 }
 
 /**
@@ -880,7 +880,7 @@ function smf_setcookie($name, $value = '', $expire = 0, $path = '', $domain = ''
 			'path'		=> $path,
 			'domain' 	=> $domain,
 			'secure'	=> $secure,
-			'httponly'	=> $httponly,    
+			'httponly'	=> $httponly,
 			'samesite'	=> $samesite
 		));
 }

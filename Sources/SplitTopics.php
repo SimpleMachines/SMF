@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.5
  *
  * Original module by Mach8 - We'll never forget you.
  */
@@ -543,7 +543,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		// Get the right first and last message dependent on approved state...
+		// Get the right first and last message dependant on approved state...
 		if (empty($split1_first_msg) || $row['myid_first_msg'] < $split1_first_msg)
 			$split1_first_msg = $row['myid_first_msg'];
 		if (empty($split1_last_msg) || $row['approved'])
@@ -586,7 +586,7 @@ function splitTopic($split1_ID_TOPIC, $splitMessages, $new_subject)
 	);
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
-		// As before get the right first and last message dependent on approved state...
+		// As before get the right first and last message dependant on approved state...
 		if (empty($split2_first_msg) || $row['myid_first_msg'] < $split2_first_msg)
 			$split2_first_msg = $row['myid_first_msg'];
 		if (empty($split2_last_msg) || $row['approved'])
@@ -1401,7 +1401,7 @@ function MergeExecute($topics = array())
 	{
 		// Replace tokens with links in the reason.
 		$reason_replacements = array(
-			$txt['movetopic_auto_topic'] => '[iurl="' . $scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+			$txt['movetopic_auto_topic'] => '[iurl=&quot;' . $scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
 		);
 
 		// Should be in the boardwide language.
@@ -1411,7 +1411,7 @@ function MergeExecute($topics = array())
 
 			// Make sure we catch both languages in the reason.
 			$reason_replacements += array(
-				$txt['movetopic_auto_topic'] => '[iurl="' . $scripturl . '?topic=' . $id_topic . '.0"]' . $target_subject . '[/iurl]',
+				$txt['movetopic_auto_topic'] => '[iurl=&quot;' . $scripturl . '?topic=' . $id_topic . '.0&quot;]' . $target_subject . '[/iurl]',
 			);
 		}
 
@@ -1715,7 +1715,7 @@ function MergeExecute($topics = array())
 		removeTopics($deleted_topics, false, true, false);
 	}
 
-	// Assign the properties of the newly merged topic.
+	// Asssign the properties of the newly merged topic.
 	$smcFunc['db_query']('', '
 		UPDATE {db_prefix}topics
 		SET

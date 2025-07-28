@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.2
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -311,7 +311,7 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 
 	$message = log_error($error_level . ': ' . $error_string, $error_type, $file, $line);
 
-	// Let's give integrations a chance to output a bit differently
+	// Let's give integrations a chance to ouput a bit differently
 	call_integration_hook('integrate_output_error', array($message, $error_type, $error_level, $file, $line));
 
 	// Dying on these errors only causes MORE problems (blank pages!)
@@ -331,6 +331,28 @@ function smf_error_handler($error_level, $error_string, $file, $line)
 	// We should NEVER get to this point.  Any fatal error MUST quit, or very bad things can happen.
 	if ($error_level % 255 == E_ERROR)
 		die('No direct access...');
+}
+
+/**
+ * Generic handler for uncaught exceptions.
+ *
+ * Always ends execution.
+ *
+ * @param \Throwable $e The uncaught exception.
+ */
+function smf_exception_handler(\Throwable $e)
+{
+	global $modSettings, $txt;
+
+	loadLanguage('Errors');
+
+	$message = $txt[$e->getMessage()] ?? $e->getMessage();
+
+	if (!empty($modSettings['enableErrorLogging'])) {
+		log_error($message, 'general', $e->getFile(), $e->getLine());
+	}
+
+	fatal_error($message, false);
 }
 
 /**
@@ -405,7 +427,7 @@ function setup_fatal_error_context($error_message, $error_code = null)
 		PROGRAM FLOW.  Otherwise, security error messages will not be shown, and
 		your forum will be in a very easily hackable state.
 	*/
-	trigger_error('No direct access...', E_USER_ERROR);
+	die('No direct access...');
 }
 
 /**

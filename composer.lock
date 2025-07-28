@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "459367aef15bf2177bfed3beaacbe838",
+    "content-hash": "a6cf7683b30825232487baece317f142",
     "packages": [],
     "packages-dev": [
         {
@@ -169,28 +169,27 @@
         },
         {
             "name": "simplemachines/build-tools",
-            "version": "dev-master",
+            "version": "dev-release-2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/SimpleMachines/BuildTools.git",
-                "reference": "85df0e7936420cad226b84fde89297f3d944fa72"
+                "reference": "572b50419eec2e3171252e79792b76c84494d3eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/85df0e7936420cad226b84fde89297f3d944fa72",
-                "reference": "85df0e7936420cad226b84fde89297f3d944fa72",
+                "url": "https://api.github.com/repos/SimpleMachines/BuildTools/zipball/572b50419eec2e3171252e79792b76c84494d3eb",
+                "reference": "572b50419eec2e3171252e79792b76c84494d3eb",
                 "shasum": ""
             },
             "require": {
                 "overtrue/phplint": "3.0"
             },
-            "default-branch": true,
             "type": "library",
             "support": {
-                "source": "https://github.com/SimpleMachines/BuildTools/tree/master",
+                "source": "https://github.com/SimpleMachines/BuildTools/tree/release-2.1",
                 "issues": "https://github.com/SimpleMachines/BuildTools/issues"
             },
-            "time": "2022-11-14T03:06:14+00:00"
+            "time": "2023-11-15T04:12:13+00:00"
         },
         {
             "name": "symfony/console",
@@ -579,5 +578,5 @@
     "platform-overrides": {
         "php": "7.0.2"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.6.0"
 }

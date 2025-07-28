@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -1627,7 +1627,7 @@ function list_getWarningTemplateCount()
  * @param int $start The item to start with (for pagination purposes)
  * @param int $items_per_page The number of items to show per page
  * @param string $sort A string indicating how to sort the results
- * @return array An array of info about the available warning templates
+ * @return array An arrray of info about the available warning templates
  */
 function list_getWarningTemplates($start, $items_per_page, $sort)
 {
@@ -1708,7 +1708,8 @@ function ModifyWarningTemplate()
 		{
 			$context['template_data'] = array(
 				'title' => $row['template_title'],
-				'body' => $smcFunc['htmlspecialchars']($row['body']),
+				// Redo htmlspecialchars for the sake of old data that might have incorrectly encoded entities.
+				'body' => $smcFunc['htmlspecialchars'](un_htmlspecialchars($row['body'])),
 				'personal' => $row['id_recipient'],
 				'can_edit_personal' => $row['id_member'] == $user_info['id'],
 			);
@@ -1734,6 +1735,7 @@ function ModifyWarningTemplate()
 		{
 			// Safety first.
 			$_POST['template_title'] = $smcFunc['htmlspecialchars']($_POST['template_title']);
+			$_POST['template_body'] = $smcFunc['htmlspecialchars']($_POST['template_body']);
 
 			// Clean up BBC.
 			preparsecode($_POST['template_body']);

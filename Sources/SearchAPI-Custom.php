@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -207,9 +207,9 @@ class custom_search extends search_api
 				$query_where[] = 'subject NOT ' . $query_match_type . ' {string:exclude_subject_words_' . $count . '}';
 
 				if ($is_search_regex)
-					$query_params['exclude_subject_words_' . $count++] = $word_boundary_wrapper($escape_sql_regex($excludedWord));
+					$query_params['exclude_subject_words_' . $count++] = $word_boundary_wrapper($escape_sql_regex($phrase));
 				else
-					$query_params['exclude_subject_words_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($excludedWord) . '%';
+					$query_params['exclude_subject_words_' . $count++] = '%' . $smcFunc['db_escape_wildcard_string']($phrase) . '%';
 			}
 		$count = 0;
 		if (!empty($query_params['excluded_subject_words']) && empty($modSettings['search_force_index']))

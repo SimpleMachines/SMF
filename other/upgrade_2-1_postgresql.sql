@@ -1200,7 +1200,7 @@ if (in_array('notify_regularity', $results))
 	$step_progress['name'] = 'Upgrading post notification settings';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
@@ -1268,7 +1268,7 @@ $_GET['a'] = isset($_GET['a']) ? (int) $_GET['a'] : 0;
 $step_progress['name'] = 'Upgrading auto notify setting';
 $step_progress['current'] = $_GET['a'];
 
-$limit = 100000;
+$limit = 10000;
 $is_done = false;
 
 $request = $smcFunc['db_query']('', '
@@ -1337,7 +1337,7 @@ DELETE FROM {$db_prefix}themes
 	$step_progress['name'] = 'Creating alert preferences for watched topics';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_topic <> 0');
@@ -1389,7 +1389,7 @@ DELETE FROM {$db_prefix}themes
 	$step_progress['name'] = 'Creating alert preferences for watched boards';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}log_notify WHERE id_member <> 0 AND id_board <> 0');
@@ -1464,6 +1464,10 @@ UPDATE {$db_prefix}user_alerts
 SET content_type = 'msg', content_action = 'unapproved_attachment', content_id = f.id_msg
 FROM {$db_prefix}attachments AS f
 WHERE content_type = 'unapproved' AND content_action = 'attachment' AND f.id_attach = content_id;
+---#
+
+---# Adding index on id_board to log_notify table
+CREATE INDEX {$db_prefix}log_notify_id_board ON {$db_prefix}log_notify (id_board);
 ---#
 
 /******************************************************************************/
@@ -2605,11 +2609,11 @@ ADD COLUMN IF NOT EXISTS in_inbox smallint NOT NULL default '1';
 				if ($step_progress['current'] >= $maxMembers)
 					$is_done = true;
 			}
-
-			// Lastly, we drop the old columns
-			$smcFunc['db_remove_column']('{db_prefix}members', 'message_labels');
-			$smcFunc['db_remove_column']('{db_prefix}pm_recipients', 'labels');
 		}
+
+		// Lastly, we drop the old columns
+		$smcFunc['db_remove_column']('{db_prefix}members', 'message_labels');
+		$smcFunc['db_remove_column']('{db_prefix}pm_recipients', 'labels');
 	}
 	unset($_GET['a']);
 ---}
@@ -3289,7 +3293,7 @@ if (in_array('pm_email_notify', $results))
 	$step_progress['name'] = 'Upgrading pm notification settings';
 	$step_progress['current'] = $_GET['a'];
 
-	$limit = 100000;
+	$limit = 10000;
 	$is_done = false;
 
 	$request = $smcFunc['db_query']('', 'SELECT COUNT(*) FROM {db_prefix}members');
@@ -4260,4 +4264,13 @@ foreach($files AS $filename)
 	unset($_GET['last_action_id']);
 	unset($_GET['total_fixes']);
 ---}
+---#
+
+/******************************************************************************/
+--- Improving search results storage
+/******************************************************************************/
+
+---# Updating primary key for log_search_results table
+ALTER TABLE {$db_prefix}log_search_results DROP CONSTRAINT {$db_prefix}log_search_results_pkey;
+ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
 ---#

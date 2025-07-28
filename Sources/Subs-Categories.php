@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -145,7 +145,7 @@ function createCategory($catOptions)
 	if (!isset($catOptions['cat_name']) || trim($catOptions['cat_name']) == '')
 	{
 		loadLanguage('Errors');
-		trigger_error($txt['create_category_no_name'], E_USER_ERROR);
+		throw new \Exception('create_category_no_name');
 	}
 
 	// Set default values.
@@ -235,7 +235,7 @@ function deleteCategories($categories, $moveBoardsTo = null)
 	elseif (in_array($moveBoardsTo, $categories))
 	{
 		loadLanguage('Errors');
-		trigger_error($txt['cannot_move_to_deleted_category'], E_USER_ERROR);
+		throw new \Exception('cannot_move_to_deleted_category');
 	}
 
 	// Move the boards inside the categories to a safe category.

@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.5
  */
 
 /**
@@ -83,11 +83,6 @@ function template_options()
 			'default' => true,
 		),
 		array(
-			'id' => 'auto_notify',
-			'label' => $txt['auto_notify'],
-			'default' => true,
-		),
-		array(
 			'id' => 'wysiwyg_default',
 			'label' => $txt['wysiwyg_default'],
 			'default' => false,
@@ -132,7 +127,7 @@ function template_options()
 			'label' => $txt['pm_remove_inbox_label'],
 			'default' => true,
 		),
-		$txt['theme_opt_calendar'],
+		!empty($modSettings['cal_enabled']) ? $txt['theme_opt_calendar'] : '',
 		array(
 			'id' => 'calendar_default_view',
 			'label' => $txt['calendar_default_view'],

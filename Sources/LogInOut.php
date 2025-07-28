@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -164,7 +164,7 @@ function Login2()
 		else
 		{
 			loadLanguage('Errors');
-			trigger_error($txt['login_no_session_cookie'], E_USER_ERROR);
+			throw new \Exception('login_no_session_cookie');
 		}
 
 		$user_settings['password_salt'] = bin2hex($smcFunc['random_bytes'](16));

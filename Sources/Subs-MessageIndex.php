@@ -5,10 +5,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.2
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -28,7 +28,7 @@ function getBoardList($boardListOptions = array())
 	if (isset($boardListOptions['excluded_boards']) && isset($boardListOptions['included_boards']))
 	{
 		loadLanguage('Errors');
-		trigger_error($txt['get_board_list_cannot_include_and_exclude'], E_USER_ERROR);
+		throw new \Exception('get_board_list_cannot_include_and_exclude');
 	}
 
 	$where = array();

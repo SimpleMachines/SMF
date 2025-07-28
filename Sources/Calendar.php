@@ -500,8 +500,6 @@ function CalendarPost()
 		'name' => $context['page_title'],
 	);
 
-	loadDatePicker('#event_time_input .date_input');
-	loadTimePicker('#event_time_input .time_input', $time_string);
 	loadDatePair('#event_time_input', 'date_input', 'time_input');
 	addInlineJavaScript('
 	$("#allday").click(function(){

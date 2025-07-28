@@ -4,10 +4,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.5
  */
 
 /**
@@ -56,7 +56,7 @@ function template_ban_edit()
 						<strong>', $txt['ban_name'], ':</strong>
 					</dt>
 					<dd>
-						<input type="text" id="ban_name" name="ban_name" value="', $context['ban']['name'], '" size="45" maxlength="60">
+						<input type="text" id="ban_name" name="ban_name" value="', $context['ban']['name'], '" size="20" maxlength="20">
 					</dd>';
 
 	if (isset($context['ban']['reason']))
@@ -133,7 +133,7 @@ function template_ban_edit()
 							<label for="email_check">', $txt['ban_on_email'], '</label>
 						</dt>
 						<dd>
-							<input type="email" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
+							<input type="text" name="email" value="', $context['ban_suggestions']['email'], '" size="44" onfocus="document.getElementById(\'email_check\').checked = true;">
 						</dd>
 						<dt>
 							<input type="checkbox" name="ban_suggestions[]" id="user_check" value="user"', !empty($context['ban_suggestions']['user']) || isset($context['ban']['from_user']) ? ' checked' : '', '>

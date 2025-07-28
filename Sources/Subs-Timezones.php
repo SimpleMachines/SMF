@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -836,6 +836,7 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 		'CL' => array(
 			'America/Santiago',
 			'America/Punta_Arenas',
+			'America/Coyhaique',
 			'Pacific/Easter',
 		),
 		'CM' => array(
@@ -1195,6 +1196,7 @@ function get_sorted_tzids_for_country($country_code, $when = 'now')
 			'America/Mexico_City',
 			'America/Tijuana',
 			'America/Monterrey',
+			'America/Ciudad_Juarez',
 			'America/Chihuahua',
 			'America/Merida',
 			'America/Hermosillo',
@@ -1883,7 +1885,7 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => 'Asia/Novokuznetsk',
 			),
 			array(
-				'ts' => strtotime('1995-05-27T17:00:00+0000'),
+				'ts' => strtotime('1995-05-27T16:00:00+0000'),
 				'tzid' => 'Asia/Novosibirsk',
 			),
 			array(
@@ -1907,7 +1909,7 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 				'tzid' => 'Asia/Novokuznetsk',
 			),
 			array(
-				'ts' => strtotime('2002-04-30T20:00:00+0000'),
+				'ts' => strtotime('2002-04-30T19:00:00+0000'),
 				'tzid' => 'Asia/Novosibirsk',
 			),
 			array(
@@ -1980,7 +1982,7 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			),
 			array(
 				'tz' => strtotime('1999-03-27T21:00:00+0000'),
-				'tzid' => 'Etc/GMT-5'
+				'tzid' => 'Asia/Aqtau'
 			),
 		),
 
@@ -2047,6 +2049,49 @@ function get_tzid_fallbacks($tzids, $when = 'now')
 			array(
 				'ts' => strtotime('2004-10-30T21:00:00+0000'),
 				'tzid' => 'Asia/Almaty',
+			),
+		),
+
+		// Diverged from America/Ojinaga in version 2022g.
+		'America/Ciudad_Juarez' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1922-01-01T07:00:00+0000'),
+				'tzid' => 'America/Ojinaga',
+			),
+			array(
+				'ts' => strtotime('2022-11-30T06:00:00+0000'),
+				'tzid' => 'America/Denver',
+			),
+		),
+
+		// Diverged from America/Santiago in version 2025b.
+		// From 2025-03-20 onward, becomes the same as America/Punta_Arenas.
+		'America/Coyhaique' => array(
+			array(
+				'ts' => PHP_INT_MIN,
+				'tzid' => '',
+			),
+			array(
+				'ts' => strtotime('1890-01-01T04:48:16+0000'),
+				// Chile/Continental is an otherwise unused link to America/Santiago.
+				'tzid' => 'Chile/Continental',
+			),
+			array(
+				'ts' => strtotime('1942-08-01T05:00:00+0000'),
+				'tzid' => 'Etc/GMT+4',
+			),
+			array(
+				'ts' => strtotime('1946-08-29T04:00:00+0000'),
+				'tzid' => 'Chile/Continental',
+			),
+			array(
+				'ts' => strtotime('2025-03-20T03:00:00+0000'),
+				// America/Mendoza is an otherwise unused link to America/Argentina/Mendoza.
+				'tzid' => 'America/Mendoza',
 			),
 		),
 	);

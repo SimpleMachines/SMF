@@ -5,17 +5,17 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.6
  */
 
 // Version information...
-define('SMF_VERSION', '2.1.4');
+define('SMF_VERSION', '2.1.6');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2023');
-define('SMF_LANG_VERSION', '2.1.3');
+define('SMF_SOFTWARE_YEAR', '2025');
+define('SMF_LANG_VERSION', '2.1.5');
 define('SMF_INSTALLING', 1);
 
 define('JQUERY_VERSION', '3.6.3');
@@ -30,7 +30,7 @@ if (!defined('TIME_START'))
  *
  * @var string
  */
-$GLOBALS['required_php_version'] = '7.0.0';
+$GLOBALS['required_php_version'] = '7.1.0';
 
 /**
  * A list of supported database systems.
@@ -53,9 +53,10 @@ $databases = array(
 		'name' => 'PostgreSQL',
 		'version' => '9.6',
 		'version_check' => function() {
+			global $db_connection;
 			if (!function_exists('pg_version'))
 				return false;
-			$version = pg_version();
+			$version = pg_version($db_connection);
 			return $version['client'];
 		},
 		'always_has_db' => true,
@@ -715,6 +716,22 @@ function loadEssentialData()
 		return random_bytes($bytes);
 	};
 
+	// This is used in text2words() for old 1.0.x conversions; restoring old logic
+	$smcFunc['truncate'] = function($word, $max_chars)
+	{
+		$new_string = '';
+
+		foreach (preg_split('/((?>&.*?;|[\S\s]))/', $word, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $char)
+		{
+			if (strlen($new_string . $char) > $max_chars)
+				break;
+
+			$new_string .= $char;
+		}
+
+		return $new_string;
+	};
+
 	// We need this for authentication and some upgrade code
 	require_once($sourcedir . '/Subs-Auth.php');
 	require_once($sourcedir . '/Class-Package.php');
@@ -1134,7 +1151,7 @@ function checkFolders()
 			{
 				if (!empty($dir) && !is_dir($dir))
 					$attdr_problem_found = true;
-			}	
+			}
 		}
 		else
 		{
@@ -1151,7 +1168,7 @@ function checkFolders()
 			{
 				if (!is_dir($dir))
 					$attdr_problem_found = true;
-			}	
+			}
 		}
 		else
 		{
@@ -2594,7 +2611,7 @@ function protected_alter($change, $substep, $is_test = false)
 			SHOW FULL PROCESSLIST');
 		while ($row = $smcFunc['db_fetch_assoc']($request))
 		{
-			if (strpos($row['Info'], 'ALTER TABLE ' . $db_prefix . $change['table']) !== false && strpos($row['Info'], $change['text']) !== false)
+			if ($row['Info'] !== null && (strpos($row['Info'], 'ALTER TABLE ' . $db_prefix . $change['table']) !== false && strpos($row['Info'], $change['text']) !== false))
 				$found = true;
 		}
 
@@ -3251,6 +3268,10 @@ function ConvertUtf8()
 		// Get a list of table names ahead of time... This makes it easier to set our substep and such
 		db_extend();
 		$queryTables = $smcFunc['db_list_tables'](false, $db_prefix . '%');
+
+		$queryTables = array_values(array_filter($queryTables, function($v){
+			return stripos($v, 'backup_') !== 0;
+		}));
 
 		$upcontext['table_count'] = count($queryTables);
 

@@ -19,7 +19,7 @@ if (!defined('SMF'))
 	die('No direct access...');
 
 /**
- * The main designating function for modifying profiles. Loads up info, determines what to do, etc.
+ * The main designating function for modifying profiles. Loads up info, determins what to do, etc.
  *
  * @param array $post_errors Any errors that occurred
  */

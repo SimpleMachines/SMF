@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -611,10 +611,9 @@ function Credits($in_admin = false)
 					'title' => $txt['credits_groups_dev'],
 					'members' => array(
 						// Lead Developer
-						'Shawn Bulen',
+						'Jon "Sesquipedalian" Stovell',
 						// Developers
 						'John "live627" Rayes',
-						'Oscar "Ozp" Rydhé',
 
 						// Former Developers
 						'Aaron van Geffen',
@@ -633,8 +632,10 @@ function Credits($in_admin = false)
 						'Michael "Oldiesmann" Eshom',
 						'Michael "Thantos" Miller',
 						'Norv',
+						'Oscar "Ozp" Rydhé',
 						'Peter "Arantor" Spicer',
 						'Selman "[SiNaN]" Eser',
+						'Shawn Bulen',
 						'Shitiz "Dragooon" Garg',
 						// 'Spuds', // Doesn't want to be listed here
 						// 'Steven "Fustrate" Hoffman',
@@ -651,7 +652,6 @@ function Credits($in_admin = false)
 						// Support Specialists
 						'Doug Heffernan',
 						'lurkalot',
-						'Steve',
 
 						// Former Support Specialists
 						'Aleksi "Lex" Kilpinen',
@@ -676,6 +676,7 @@ function Credits($in_admin = false)
 						'Old Fossil',
 						'S-Ace',
 						'shadav',
+						'Steve',
 						'Storman™',
 						'Wade "sησω" Poulsen',
 						'xenovanis',
@@ -829,6 +830,7 @@ function Credits($in_admin = false)
 					'K@',
 					'metallica48423',
 					'Paul_Pauline',
+					'Rock Lee',
 				),
 			),
 		),

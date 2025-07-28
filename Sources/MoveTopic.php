@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -266,7 +266,7 @@ function MoveTopic2()
 	{
 		// Replace tokens with links in the reason.
 		$reason_replacements = array(
-			$txt['movetopic_auto_board'] => '[url="' . $scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
+			$txt['movetopic_auto_board'] => '[url=&quot;' . $scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]',
 			$txt['movetopic_auto_topic'] => '[iurl]' . $scripturl . '?topic=' . $topic . '.0[/iurl]',
 		);
 
@@ -277,7 +277,7 @@ function MoveTopic2()
 
 			// Make sure we catch both languages in the reason.
 			$reason_replacements += array(
-				$txt['movetopic_auto_board'] => '[url="' . $scripturl . '?board=' . $_POST['toboard'] . '.0"]' . $board_name . '[/url]',
+				$txt['movetopic_auto_board'] => '[url=&quot;' . $scripturl . '?board=' . $_POST['toboard'] . '.0&quot;]' . $board_name . '[/url]',
 				$txt['movetopic_auto_topic'] => '[iurl]' . $scripturl . '?topic=' . $topic . '.0[/iurl]',
 			);
 		}
@@ -708,6 +708,12 @@ function moveTopics($topics, $toBoard)
 	updateSettings(array(
 		'calendar_updated' => time(),
 	));
+	if (!empty($cache_enable) && $cache_enable >= 3) {
+		cache_put_data('board-' . $toBoard, null);
+		foreach ($fromBoards as $stats) {
+			cache_put_data('board-' . $stats['id_board'], null);
+		}
+	}
 }
 
 /**

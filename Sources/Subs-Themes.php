@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -62,7 +62,7 @@ function get_single_theme($id, array $variables = array())
 	{
 		$single[$row['variable']] = $row['value'];
 
-		// Fix the path and tell if it's a valid one.
+		// Fix the path and tell if its a valid one.
 		if ($row['variable'] == 'theme_dir')
 		{
 			$single['theme_dir'] = realpath($row['value']);
@@ -139,7 +139,7 @@ function get_all_themes($enable_only = false)
 				'enable' => in_array($row['id_theme'], $enableThemes)
 			);
 
-		// Fix the path and tell if it's a valid one.
+		// Fix the path and tell if its a valid one.
 		if ($row['variable'] == 'theme_dir')
 		{
 			$row['value'] = realpath($row['value']);
@@ -205,7 +205,7 @@ function get_installed_themes()
 				'enable' => in_array($row['id_theme'], $enableThemes)
 			);
 
-		// Fix the path and tell if it's a valid one.
+		// Fix the path and tell if its a valid one.
 		if ($row['variable'] == 'theme_dir')
 		{
 			$row['value'] = realpath($row['value']);
@@ -487,12 +487,12 @@ function remove_dir($path)
 					remove_dir($path . '/' . $object);
 
 				else
-					unlink($path . '/' . $object);
+					@unlink($path . '/' . $object);
 			}
 	}
 
 	reset($objects);
-	rmdir($path);
+	@rmdir($path);
 }
 
 /**
@@ -619,7 +619,7 @@ function get_file_listing($path, $relative)
 				'is_writable' => is_writable($path . '/' . $entry),
 				'is_directory' => false,
 				'is_template' => preg_match('~\.template\.php$~', $entry) != 0,
-				'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png)$~', $entry) != 0,
+				'is_image' => preg_match('~\.(jpg|jpeg|gif|bmp|png|webp)$~', $entry) != 0,
 				'is_editable' => is_writable($path . '/' . $entry) && preg_match('~\.(php|pl|css|js|vbs|xml|xslt|txt|xsl|html|htm|shtm|shtml|asp|aspx|cgi|py)$~', $entry) != 0,
 				'href' => $scripturl . '?action=admin;area=theme;th=' . $_GET['th'] . ';' . $context['session_var'] . '=' . $context['session_id'] . ';sa=edit;filename=' . $relative . $entry,
 				'size' => $size,

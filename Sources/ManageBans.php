@@ -9,10 +9,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -20,7 +20,7 @@ if (!defined('SMF'))
 
 /**
  * Ban center. The main entrance point for all ban center functions.
- * It is accessed by ?action=admin;area=ban.
+ * It is accesssed by ?action=admin;area=ban.
  * It choses a function based on the 'sa' parameter, like many others.
  * The default sub-action is BanList().
  * It requires the ban_members permission.
@@ -1474,7 +1474,7 @@ function logTriggersUpdates($logs, $new = true, $removal = false)
 		'ip_range' => 'ip_range',
 	);
 
-	// Log the addition of the ban entries into the moderation log.
+	// Log the addion of the ban entries into the moderation log.
 	foreach ($logs as $log)
 		logAction('ban' . ($removal == true ? 'remove' : ''), array(
 			$log_name_map[$log['bantype']] => $log['value'],
@@ -1498,6 +1498,8 @@ function updateBanGroup($ban_info = array())
 
 	if (empty($ban_info['name']))
 		$context['ban_errors'][] = 'ban_name_empty';
+	if ($smcFunc['strlen']($ban_info['name']) > 20)
+		$context['ban_errors'][] = 'ban_name_is_too_long';
 	if (empty($ban_info['id']))
 		$context['ban_errors'][] = 'ban_id_empty';
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
@@ -1587,6 +1589,8 @@ function insertBanGroup($ban_info = array())
 
 	if (empty($ban_info['name']))
 		$context['ban_errors'][] = 'ban_name_empty';
+	if ($smcFunc['strlen']($ban_info['name']) > 20)
+		$context['ban_errors'][] = 'ban_name_is_too_long';
 	if (empty($ban_info['cannot']['access']) && empty($ban_info['cannot']['register']) && empty($ban_info['cannot']['post']) && empty($ban_info['cannot']['login']))
 		$context['ban_errors'][] = 'ban_unknown_restriction_type';
 

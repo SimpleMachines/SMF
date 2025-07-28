@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -527,7 +527,7 @@ function modifyBoard($board_id, &$boardOptions)
 		else
 		{
 			loadLanguage('Errors');
-			trigger_error(sprintf($txt['modify_board_incorrect_move_to'], $boardOptions['move_to']), E_USER_ERROR);
+			throw new \Exception(sprintf($txt['modify_board_incorrect_move_to'], $boardOptions['move_to']));
 		}
 
 		// Get a list of children of this board.
@@ -672,13 +672,14 @@ function modifyBoard($board_id, &$boardOptions)
 		);
 
 	// Before we add new access_groups or deny_groups, remove all of the old entries
-	$smcFunc['db_query']('', '
-		DELETE FROM {db_prefix}board_permissions_view
-		WHERE id_board = {int:selected_board}',
-		array(
-			'selected_board' => $board_id,
-		)
-	);
+	if (isset($boardOptions['access_groups']) || isset($boardOptions['deny_groups']))
+		$smcFunc['db_query']('', '
+			DELETE FROM {db_prefix}board_permissions_view
+			WHERE id_board = {int:selected_board}',
+			array(
+				'selected_board' => $board_id,
+			)
+		);
 
 	if ($board_permissions_inserts != array())
 		$smcFunc['db_insert']('insert',
@@ -863,13 +864,13 @@ function createBoard($boardOptions)
 	if (!isset($boardOptions['board_name']) || trim($boardOptions['board_name']) == '' || !isset($boardOptions['move_to']) || !isset($boardOptions['target_category']))
 	{
 		loadLanguage('Errors');
-		trigger_error($txt['create_board_missing_options'], E_USER_ERROR);
+		throw new \Exception('create_board_missing_options');
 	}
 
 	if (in_array($boardOptions['move_to'], array('child', 'before', 'after')) && !isset($boardOptions['target_board']))
 	{
 		loadLanguage('Errors');
-		trigger_error($txt['move_board_no_target'], E_USER_ERROR);
+		throw new \Exception('move_board_no_target');
 	}
 
 	// Set every optional value to its default value.

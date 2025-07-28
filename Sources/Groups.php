@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file currently just shows group info, and allows certain privileged members to add/remove members.
+ * This file currently just shows group info, and allows certain priviledged members to add/remove members.
  *
  * Simple Machines Forum (SMF)
  *

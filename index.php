@@ -14,17 +14,17 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.6
  */
 
 // Get everything started up...
 define('SMF', 1);
-define('SMF_VERSION', '2.1.4');
+define('SMF_VERSION', '2.1.6');
 define('SMF_FULL_VERSION', 'SMF ' . SMF_VERSION);
-define('SMF_SOFTWARE_YEAR', '2023');
+define('SMF_SOFTWARE_YEAR', '2025');
 
 define('JQUERY_VERSION', '3.6.3');
 define('POSTGRE_TITLE', 'PostgreSQL');
@@ -176,6 +176,7 @@ if (!empty($modSettings['enableCompressedOutput']) && !headers_sent())
 
 // Register an error handler.
 set_error_handler('smf_error_handler');
+set_exception_handler('smf_exception_handler');
 
 // Start the session. (assuming it hasn't already been.)
 loadSession();
@@ -248,6 +249,7 @@ function smf_main()
 		'requestmembers' => true,
 		'smstats' => true,
 		'suggest' => true,
+		'uploadAttach' => true,
 		'verificationcode' => true,
 		'viewquery' => true,
 		'viewsmfile' => true,

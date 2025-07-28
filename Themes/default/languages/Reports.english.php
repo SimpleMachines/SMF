@@ -1,5 +1,5 @@
 <?php
-// Version: 2.1.0; Reports
+// Version: 2.1.5; Reports
 
 $txt['generate_reports_desc'] = 'From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice.';
 $txt['generate_reports_continue'] = 'Continue';
@@ -119,6 +119,7 @@ $txt['group_perms_name_profile_identity_own'] = 'Edit own account settings';
 $txt['group_perms_name_profile_server_avatar'] = 'Select a server avatar';
 $txt['group_perms_name_profile_upload_avatar'] = 'Upload an avatar';
 $txt['group_perms_name_profile_remote_avatar'] = 'Choose a remote avatar';
+$txt['group_perms_name_profile_gravatar'] = 'Use a Gravatar';
 $txt['group_perms_name_profile_remove_any'] = 'Delete any account';
 $txt['group_perms_name_profile_remove_own'] = 'Delete own account';
 $txt['group_perms_name_profile_title_any'] = 'Edit any custom title';

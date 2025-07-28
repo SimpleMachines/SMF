@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.6
  */
 
 if (!defined('SMF'))
@@ -716,6 +716,8 @@ function timeformat($log_time, $show_today = true, $tzid = null)
 	global $context, $user_info, $txt, $modSettings;
 	static $today;
 
+	$log_time = min(max($log_time, PHP_INT_MIN), PHP_INT_MAX);
+
 	// Ensure required values are set
 	$user_info['time_format'] = !empty($user_info['time_format']) ? $user_info['time_format'] : (!empty($modSettings['time_format']) ? $modSettings['time_format'] : '%F %H:%M');
 
@@ -900,7 +902,7 @@ function get_date_or_time_format($type = '', $format = '')
  *     If null, uses default time zone.
  * @return string The formatted datetime string.
  */
-function smf_strftime(string $format, int $timestamp = null, string $tzid = null)
+function smf_strftime(string $format, $timestamp = null, $tzid = null)
 {
 	global $txt, $smcFunc, $sourcedir;
 
@@ -912,6 +914,8 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
 
 	if (!isset($tzid))
 		$tzid = date_default_timezone_get();
+
+	$timestamp = min(max($timestamp, PHP_INT_MIN), PHP_INT_MAX);
 
 	// A few substitutions to make life easier.
 	$format = strtr($format, array(
@@ -1223,7 +1227,7 @@ function smf_strftime(string $format, int $timestamp = null, string $tzid = null
  *     If null, defaults to the current time.
  * @return string The formatted datetime string.
  */
-function smf_gmstrftime(string $format, int $timestamp = null)
+function smf_gmstrftime(string $format, $timestamp = null)
 {
 	return smf_strftime($format, $timestamp, 'UTC');
 }
@@ -1269,7 +1273,7 @@ function un_htmlspecialchars($string)
  * @param int $level Controls filtering of invisible formatting characters.
  *      0: Allow valid formatting characters. Use for sanitizing text in posts.
  *      1: Allow necessary formatting characters. Use for sanitizing usernames.
- *      2: Disallow all formatting characters. Use for internal comparisons
+ *      2: Disallow all formatting characters. Use for internal comparisions
  *         only, such as in the word censor, search contexts, etc.
  *      Default: 0.
  * @param string|null $substitute Replacement string for the invalid characters.
@@ -1769,6 +1773,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						// Image.
 						if (!empty($currentAttachment['is_image']))
 						{
+							// Just viewing the page shouldn't increase the download count for embedded images.
+							$currentAttachment['href'] .= ';preview';
+
 							if (empty($params['{width}']) && empty($params['{height}']))
 								$returnContext .= '<img src="' . $currentAttachment['href'] . '"' . $alt . $title . ' class="bbc_img">';
 							else
@@ -3069,7 +3076,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 										')' .
 										// Initial "/"
 										'/' .
-										// Then a run of allowed path segment characters
+										// Then a run of allowed path segement characters
 										'(?P>path_segment)*+' .
 									')*+' .
 								')' .
@@ -3482,7 +3489,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 		}
 
 		// Item codes are complicated buggers... they are implicit [li]s and can make [list]s!
-		if ($smileys !== false && $tag === null && isset($itemcodes[$message[$pos + 1]]) && $message[$pos + 2] == ']' && !isset($disabled['list']) && !isset($disabled['li']))
+		if ($smileys !== false && $tag === null && isset($itemcodes[$message[$pos + 1]], $message[$pos + 2]) && $message[$pos + 2] == ']' && !isset($disabled['list']) && !isset($disabled['li']))
 		{
 			if ($message[$pos + 1] == '0' && !in_array($message[$pos - 1], array(';', ' ', "\t", "\n", '>')))
 				continue;
@@ -3654,17 +3661,21 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted']))
 			{
-				$quoted = substr($message, $pos1, 6) == '&quot;';
+				// Anything passed through the preparser will use &quot;,
+				// but we need to handle raw quotation marks too.
+				$quot = substr($message, $pos1, 1) === '"' ? '"' : '&quot;';
+
+				$quoted = substr($message, $pos1, strlen($quot)) == $quot;
 				if ($tag['quoted'] != 'optional' && !$quoted)
 					continue;
 
 				if ($quoted)
-					$pos1 += 6;
+					$pos1 += strlen($quot);
 			}
 			else
 				$quoted = false;
 
-			$pos2 = strpos($message, $quoted == false ? ']' : '&quot;]', $pos1);
+			$pos2 = strpos($message, $quoted == false ? ']' : $quot . ']', $pos1);
 			if ($pos2 === false)
 				continue;
 
@@ -3673,7 +3684,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 				continue;
 
 			$data = array(
-				substr($message, $pos2 + ($quoted == false ? 1 : 7), $pos3 - ($pos2 + ($quoted == false ? 1 : 7))),
+				substr($message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)), $pos3 - ($pos2 + ($quoted == false ? 1 : 1 + strlen($quot)))),
 				substr($message, $pos1, $pos2 - $pos1)
 			);
 
@@ -3756,29 +3767,32 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			// The value may be quoted for some tags - check.
 			if (isset($tag['quoted']))
 			{
-				$quoted = substr($message, $pos1, 6) == '&quot;';
+				// Will normally be '&quot;' but might be '"'.
+				$quot = substr($message, $pos1, 1) === '"' ? '"' : '&quot;';
+
+				$quoted = substr($message, $pos1, strlen($quot)) == $quot;
 				if ($tag['quoted'] != 'optional' && !$quoted)
 					continue;
 
 				if ($quoted)
-					$pos1 += 6;
+					$pos1 += strlen($quot);
 			}
 			else
 				$quoted = false;
 
 			if ($quoted)
 			{
-				$end_of_value = strpos($message, '&quot;]', $pos1);
-				$nested_tag = strpos($message, '=&quot;', $pos1);
+				$end_of_value = strpos($message, $quot . ']', $pos1);
+				$nested_tag = strpos($message, '=' . $quot, $pos1);
 				// Check so this is not just an quoted url ending with a =
-				if ($nested_tag && substr($message, $nested_tag, 8) == '=&quot;]')
+				if ($nested_tag && substr($message, $nested_tag, 2 + strlen($quot)) == '=' . $quot . ']')
 					$nested_tag = false;
 				if ($nested_tag && $nested_tag < $end_of_value)
 					// Nested tag with quoted value detected, use next end tag
-					$nested_tag_pos = strpos($message, $quoted == false ? ']' : '&quot;]', $pos1) + 6;
+					$nested_tag_pos = strpos($message, $quoted == false ? ']' : $quot, $pos1) + strlen($quot);
 			}
 
-			$pos2 = strpos($message, $quoted == false ? ']' : '&quot;]', isset($nested_tag_pos) ? $nested_tag_pos : $pos1);
+			$pos2 = strpos($message, $quoted == false ? ']' : $quot . ']', isset($nested_tag_pos) ? $nested_tag_pos : $pos1);
 			if ($pos2 === false)
 				continue;
 
@@ -3797,7 +3811,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			$open_tags[] = $tag;
 
 			$code = strtr($tag['before'], array('$1' => $data));
-			$message = substr($message, 0, $pos) . "\n" . $code . "\n" . substr($message, $pos2 + ($quoted == false ? 1 : 7));
+			$message = substr($message, 0, $pos) . "\n" . $code . "\n" . substr($message, $pos2 + ($quoted == false ? 1 : 1 + strlen($quot)));
 			$pos += strlen($code) - 1 + 2;
 		}
 
@@ -3979,14 +3993,21 @@ function highlight_php_code($code)
 
 	$oldlevel = error_reporting(0);
 
-	$buffer = str_replace(array("\n", "\r"), '', @highlight_string($code, true));
+	$buffer = str_replace(array("\n", "\r"), array('<br />', ''), @highlight_string($code, true));
 
 	error_reporting($oldlevel);
 
 	// Yes, I know this is kludging it, but this is the best way to preserve tabs from PHP :P.
-	$buffer = preg_replace('~SMF_TAB(?:</(?:font|span)><(?:font color|span style)="[^"]*?">)?\\(\\);~', '<pre style="display: inline;">' . "\t" . '</pre>', $buffer);
+	$buffer = preg_replace('~SMF_TAB(?:</(?:font|span)><(?:font color|span style)="[^"]*?">)?\(\);~', '<span style="white-space: pre-wrap;">' . "\t" . '</span>', $buffer);
 
-	return strtr($buffer, array('\'' => '&#039;', '<code>' => '', '</code>' => ''));
+	// PHP 8.3 changed the returned HTML.
+	$buffer = preg_replace('/^(<pre>)?<code[^>]*>|<\/code>(<\/pre>)?$/', '', $buffer);
+
+	// Remove line breaks inserted before & after the actual code in php < 8.3
+	$buffer = preg_replace('/^(<span\s[^>]*>)<br \/>/', '$1', $buffer);
+	$buffer = preg_replace('/<br \/>(<\/span[^>]*>)<br \/>$/', '$1', $buffer);
+
+	return strtr($buffer, ['\'' => '&#039;']);
 }
 
 /**
@@ -4048,21 +4069,24 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 	if ($add)
 		$setLocation = $scripturl . ($setLocation != '' ? '?' . $setLocation : '');
 
+	// PHP 8.4 deprecated SID. A better long-term solution is needed, but this works for now.
+	$sid = defined('SID') ? @constant('SID') : null;
+
 	// Put the session ID in.
-	if (defined('SID') && SID != '')
-		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote(SID, '/') . ')\\??/', $scripturl . '?' . SID . ';', $setLocation);
+	if (isset($sid) && $sid != '')
+		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '(?!\?' . preg_quote($sid, '/') . ')\\??/', $scripturl . '?' . $sid . ';', $setLocation);
 	// Keep that debug in their for template debugging!
 	elseif (isset($_GET['debug']))
 		$setLocation = preg_replace('/^' . preg_quote($scripturl, '/') . '\\??/', $scripturl . '?debug;', $setLocation);
 
 	if (!empty($modSettings['queryless_urls']) && (empty($context['server']['is_cgi']) || ini_get('cgi.fix_pathinfo') == 1 || @get_cfg_var('cgi.fix_pathinfo') == 1) && (!empty($context['server']['is_apache']) || !empty($context['server']['is_lighttpd']) || !empty($context['server']['is_litespeed'])))
 	{
-		if (defined('SID') && SID != '')
+		if (isset($sid) && $sid != '')
 			$setLocation = preg_replace_callback(
-				'~^' . preg_quote($scripturl, '~') . '\?(?:' . SID . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
-				function($m) use ($scripturl)
+				'~^' . preg_quote($scripturl, '~') . '\?(?:' . $sid . '(?:;|&|&amp;))((?:board|topic)=[^#]+?)(#[^"]*?)?$~',
+				function($m) use ($scripturl, $sid)
 				{
-					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . SID . (isset($m[2]) ? "$m[2]" : "");
+					return $scripturl . '/' . strtr("$m[1]", '&;=', '//,') . '.html?' . $sid . (isset($m[2]) ? "$m[2]" : "");
 				},
 				$setLocation
 			);
@@ -4076,6 +4100,10 @@ function redirectexit($setLocation = '', $refresh = false, $permanent = false)
 				$setLocation
 			);
 	}
+
+	// The request was from ajax/xhr/other api call, append ajax ot the url.
+	if (!empty($context['from_ajax']))
+		$setLocation .= (strpos($setLocation, '?') ? ';' : '?') . 'ajax';
 
 	// Maybe integrations want to change where we are heading?
 	call_integration_hook('integrate_redirect', array(&$setLocation, &$refresh, &$permanent));
@@ -4178,7 +4206,7 @@ function obExit($header = null, $do_footer = null, $from_index = false, $from_fa
 	}
 
 	// Remember this URL in case someone doesn't like sending HTTP_REFERER.
-	if ($should_log)
+	if ($should_log && !isset($_REQUEST['xml']))
 		$_SESSION['old_url'] = $_SERVER['REQUEST_URL'];
 
 	// For session check verification.... don't switch browsers...
@@ -4703,7 +4731,7 @@ function template_javascript($do_deferred = false)
 		'async' => array(),
 	);
 
-	// Output the declared Javascript variables.
+	// Ouput the declared Javascript variables.
 	if (!empty($context['javascript_vars']) && !$do_deferred)
 	{
 		echo '
@@ -5322,7 +5350,7 @@ function text2words($text, $max_chars = 20, $encrypt = false)
 		$returned_words = array();
 		foreach ($words as $word)
 			if (($word = trim($word, '-_\'')) !== '')
-				$returned_words[] = $max_chars === null ? $word : substr($word, 0, $max_chars);
+				$returned_words[] = $max_chars === null ? $word : $smcFunc['truncate']($word, $max_chars);
 
 		// Filter out all words that occur more than once.
 		return array_unique($returned_words);
@@ -5836,7 +5864,7 @@ function add_integration_function($hook, $function, $permanent = true, $file = '
 
 			// Cleanup enabled/disabled variants before taking action.
 			$current_functions = array_diff($current_functions, array($enabled_call, $disabled_call));
-	
+
 			$permanent_functions = array_unique(array_merge($current_functions, array($integration_call)));
 		}
 		else
@@ -5925,7 +5953,7 @@ function remove_integration_function($hook, $function, $permanent = true, $file 
 }
 
 /**
- * Receives a string and tries to figure it out if it's a method or a function.
+ * Receives a string and tries to figure it out if its a method or a function.
  * If a method is found, it looks for a "#" which indicates SMF should create a new instance of the given class.
  * Checks the string/array for is_callable() and return false/fatal_lang_error is the given value results in a non callable string/array.
  * Prepare and returns a callable depending on the type of method/function found.
@@ -6423,7 +6451,7 @@ function sanitizeMSCutPaste($string)
 	if (empty($string))
 		return $string;
 
-	// UTF-8 occurrences of MS special characters
+	// UTF-8 occurences of MS special characters
 	$findchars_utf8 = array(
 		"\xe2\x80\x9a",	// single low-9 quotation mark
 		"\xe2\x80\x9e",	// double low-9 quotation mark
@@ -7039,10 +7067,10 @@ function _safe_unserialize($str)
 	if (empty($str) || !is_string($str))
 		return false;
 
-	// The substring 'O:' is used to serialize objects.
-	// If it is not present, then there are none in the serialized data.
-	if (strpos($str, 'O:') === false)
-		return unserialize($str);
+	// The substrings 'O' and 'C' are used to serialize objects.
+	// If they are not present, then there are none in the serialized data.
+	if (strpos($str, 'O:') === false && strpos($str, 'C:') === false)
+		return unserialize($str, ['allowed_classes' => false]);
 
 	$stack = array();
 	$expected = array();
@@ -8170,7 +8198,7 @@ function send_http_status($code, $status = '')
 		503 => 'Service Unavailable',
 	);
 
-	$protocol = preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
+	$protocol = !empty($_SERVER['SERVER_PROTOCOL']) && preg_match('~^\s*(HTTP/[12]\.\d)\s*$~i', $_SERVER['SERVER_PROTOCOL'], $matches) ? $matches[1] : 'HTTP/1.0';
 
 	// Typically during these requests, we have cleaned the response (ob_*clean), ensure these headers exist.
 	require_once($sourcedir . '/Security.php');
@@ -8186,7 +8214,7 @@ function send_http_status($code, $status = '')
 /**
  * Concatenates an array of strings into a grammatically correct sentence list
  *
- * Uses formats defined in the language files to build the list appropriately
+ * Uses formats defined in the language files to build the list appropropriately
  * for the currently loaded language.
  *
  * @param array $list An array of strings to concatenate.

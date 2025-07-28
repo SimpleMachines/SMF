@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -1157,6 +1157,7 @@ function setPermissionLevel($level, $group, $profile = 'null')
 		'profile_displayed_name',
 		'profile_upload_avatar',
 		'profile_remote_avatar',
+		'profile_gravatar',
 		'profile_remove_own',
 		'report_user',
 	));
@@ -1440,7 +1441,7 @@ function loadAllPermissions()
 {
 	global $context, $txt, $modSettings;
 
-	// List of all the groups dependent on the currently selected view - for the order so it looks pretty, yea?
+	// List of all the groups dependant on the currently selected view - for the order so it looks pretty, yea?
 	// Note to Mod authors - you don't need to stick your permission group here if you don't mind SMF sticking it the last group of the page.
 	$permissionGroups = array(
 		'membergroup' => array(
@@ -1506,6 +1507,7 @@ function loadAllPermissions()
 			'profile_server_avatar' => array(false, 'profile'),
 			'profile_upload_avatar' => array(false, 'profile'),
 			'profile_remote_avatar' => array(false, 'profile'),
+			'profile_gravatar' => array(false, 'profile'),
 			'report_user' => array(false, 'profile'),
 			'profile_identity' => array(true, 'profile_account'),
 			'profile_displayed_name' => array(true, 'profile_account'),
@@ -1620,7 +1622,7 @@ function loadAllPermissions()
 		$hiddenPermissions[] = 'post_attachment';
 	}
 
-	// Hide Likes/Mentions permissions...
+	// Hide Likes/Mentions/Gravatar permissions...
 	if (empty($modSettings['enable_likes']))
 	{
 		$hiddenPermissions[] = 'likes_like';
@@ -1628,6 +1630,10 @@ function loadAllPermissions()
 	if (empty($modSettings['enable_mentions']))
 	{
 		$hiddenPermissions[] = 'mention';
+	}
+	if (empty($modSettings['gravatarEnabled']))
+	{
+		$hiddenPermissions[] = 'profile_gravatar';
 	}
 
 	// Provide a practical way to modify permissions.
@@ -2348,6 +2354,7 @@ function loadIllegalGuestPermissions()
 		'profile_remove',
 		'profile_remote_avatar',
 		'profile_server_avatar',
+		'profile_gravatar',
 		'profile_signature',
 		'profile_title',
 		'profile_upload_avatar',

@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -50,7 +50,7 @@ function smf_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix,
 			'db_server_info'            => 'smf_db_get_server_info',
 			'db_affected_rows'          => 'smf_db_affected_rows',
 			'db_transaction'            => 'smf_db_transaction',
-			'db_error'                  => 'mysqli_error',
+			'db_error'                  => 'smf_db_errormsg',
 			'db_select_db'              => 'smf_db_select',
 			'db_title'                  => MYSQL_TITLE,
 			'db_sybase'                 => false,
@@ -212,7 +212,7 @@ function smf_db_replacement__callback($matches)
 
 		case 'string':
 		case 'text':
-			return sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $replacement));
+			return sprintf('\'%1$s\'', mysqli_real_escape_string($connection, isset($smcFunc['fix_utf8mb4']) ? $smcFunc['fix_utf8mb4']($replacement) : $replacement));
 			break;
 
 		case 'array_int':
@@ -243,7 +243,7 @@ function smf_db_replacement__callback($matches)
 					smf_db_error_backtrace('Database error, given array of string values is empty. (' . $matches[2] . ')', '', E_USER_ERROR, __FILE__, __LINE__);
 
 				foreach ($replacement as $key => $value)
-					$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $value));
+					$replacement[$key] = sprintf('\'%1$s\'', mysqli_real_escape_string($connection, isset($smcFunc['fix_utf8mb4']) ? $smcFunc['fix_utf8mb4']($value) : $value));
 
 				return implode(', ', $replacement);
 			}
@@ -368,12 +368,14 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 
 	// Comments that are allowed in a query are preg_removed.
 	static $allowed_comments_from = array(
+		'~(?<![\'\\\\])\'\X*?(?<![\'\\\\])\'~',
 		'~\s+~s',
 		'~/\*!40001 SQL_NO_CACHE \*/~',
 		'~/\*!40000 USE INDEX \([A-Za-z\_]+?\) \*/~',
 		'~/\*!40100 ON DUPLICATE KEY UPDATE id_msg = \d+ \*/~',
 	);
 	static $allowed_comments_to = array(
+		' %s ',
 		' ',
 		'',
 		'',
@@ -415,38 +417,7 @@ function smf_db_query($identifier, $db_string, $db_values = array(), $connection
 	// First, we clean strings out of the query, reduce whitespace, lowercase, and trim - so we can check it over.
 	if (empty($modSettings['disableQueryCheck']))
 	{
-		$clean = '';
-		$old_pos = 0;
-		$pos = -1;
-		// Remove the string escape for better runtime
-		$db_string_1 = str_replace('\\\'', '', $db_string);
-		while (true)
-		{
-			$pos = strpos($db_string_1, '\'', $pos + 1);
-			if ($pos === false)
-				break;
-			$clean .= substr($db_string_1, $old_pos, $pos - $old_pos);
-
-			while (true)
-			{
-				$pos1 = strpos($db_string_1, '\'', $pos + 1);
-				$pos2 = strpos($db_string_1, '\\', $pos + 1);
-				if ($pos1 === false)
-					break;
-				elseif ($pos2 === false || $pos2 > $pos1)
-				{
-					$pos = $pos1;
-					break;
-				}
-
-				$pos = $pos2 + 1;
-			}
-			$clean .= ' %s ';
-
-			$old_pos = $pos + 1;
-		}
-		$clean .= substr($db_string_1, $old_pos);
-		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $clean)));
+		$clean = trim(strtolower(preg_replace($allowed_comments_from, $allowed_comments_to, $db_string)));
 
 		// Comments?  We don't use comments in our queries, we leave 'em outside!
 		if (strpos($clean, '/*') > 2 || strpos($clean, '--') !== false || strpos($clean, ';') !== false)
@@ -840,26 +811,30 @@ function smf_db_insert($method, $table, $columns, $data, $keys, $returnmode = 0,
 			// the inserted value already exists we need to find the pk
 			else
 			{
-				$where_string = '';
-				$count2 = count($keys);
-				for ($x = 0; $x < $count2; $x++)
+				$where_string = [];
+
+				foreach ($columns as $column_name => $type)
 				{
-					$keyPos = array_search($keys[$x], array_keys($columns));
-					$where_string .= $keys[$x] . ' = ' . $data[$i][$keyPos];
-					if (($x + 1) < $count2)
-						$where_string .= ' AND ';
+					if (strpos($type, 'string-') !== false)
+						$where_string[] = $column_name . ' = ' . sprintf('SUBSTRING({string:%1$s}, 1, ' . substr($type, 7) . ')', $column_name);
+					else
+						$where_string[] = $column_name . ' = ' . sprintf('{%1$s:%2$s}', $type, $column_name);
 				}
 
+				$where_string = implode(' AND ', $where_string);
+
 				$request = $smcFunc['db_query']('', '
-					SELECT `' . $keys[0] . '` FROM ' . $table . '
-					WHERE ' . $where_string . ' LIMIT 1',
-					array()
+					SELECT ' . $keys[0] . '
+					FROM ' . $table . '
+					WHERE ' . $where_string . '
+					LIMIT 1',
+					array_combine($indexed_columns, $data[$i])
 				);
 
 				if ($request !== false && $smcFunc['db_num_rows']($request) == 1)
 				{
 					$row = $smcFunc['db_fetch_assoc']($request);
-					$ai = $row[$keys[0]];
+					$ai = (int) $row[$keys[0]];
 				}
 			}
 
@@ -1097,6 +1072,22 @@ function smf_db_escape_string($string, $connection = null)
 	global $db_connection;
 
 	return mysqli_real_escape_string($connection === null ? $db_connection : $connection, $string);
+}
+
+/**
+ * Wrapper to handle null errors
+ *
+ * @param null|mysqli $connection = null The connection to use (null to use $db_connection)
+ * @return string escaped string
+ */
+function smf_db_errormsg($connection = null)
+{
+	global $db_connection;
+
+	if ($connection === null && $db_connection === null)
+		return '';
+
+	return mysqli_error($connection === null ? $db_connection : $connection);
 }
 
 ?>

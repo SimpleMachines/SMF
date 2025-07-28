@@ -8,10 +8,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2023 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.4
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -1555,7 +1555,7 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 		}
 	}
 
-	// Firstly, see whether it exists, and is active. If so then this is merely an extension.
+	// Firstly, see whether it exists, and is active. If so then this is meerly an extension.
 	$request = $smcFunc['db_query']('', '
 		SELECT id_sublog, end_time, start_time
 		FROM {db_prefix}log_subscribed
@@ -1656,7 +1656,7 @@ function addSubscription($id_subscribe, $id_member, $renewal = 0, $forceStartTim
 		)
 	);
 
-	// Now log the subscription - maybe we have a dormant subscription we can restore?
+	// Now log the subscription - maybe we have a dorment subscription we can restore?
 	$request = $smcFunc['db_query']('', '
 		SELECT id_sublog, end_time, start_time
 		FROM {db_prefix}log_subscribed
@@ -1943,7 +1943,7 @@ function loadSubscriptions()
 		$context['subscriptions'][$row['id_subscribe']] = array(
 			'id' => $row['id_subscribe'],
 			'name' => $row['name'],
-			'desc' => $row['description'],
+			'desc' => parse_bbc($row['description']),
 			'cost' => $cost,
 			'real_cost' => $row['cost'],
 			'length' => $length,

@@ -92,7 +92,7 @@ function smf_fileUpload(oOptions) {
 			myDropzone.options.currentUsedSize = myDropzone.options.currentUsedSize + file.size;
 
 			// This file has reached the max total size per post.
-			if (totalKB > 0 && currentlyUsedKB > totalKB) {
+			if (totalKB > 0 && (currentlyUsedKB + uploadedFileKB) > totalKB) {
 				done(myDropzone.options.text_totalMaxSize.replace('{currentTotal}', totalKB).replace('{currentRemain}', currentlyUsedKB));
 
 				// Remove the file size from the total
@@ -173,7 +173,7 @@ function smf_fileUpload(oOptions) {
 
 		// If the file is too small, it won't have a thumbnail, show the regular file.
 		else if (typeof file.isMock !== "undefined" && typeof file.attachID !== "undefined") {
-			myDropzone.emit('thumbnail', file, smf_prepareScriptUrl(smf_scripturl) + 'action=dlattach;attach=' + (file.thumbID > 0 ? file.thumbID : file.attachID) + ';type=preview');
+			myDropzone.emit('thumbnail', file, smf_prepareScriptUrl(smf_scripturl) + 'action=dlattach;attach=' + (file.thumbID > 0 ? file.thumbID : file.attachID) + ';preview');
 		}
 
 		file.name = file.name.php_to8bit().php_urlencode();

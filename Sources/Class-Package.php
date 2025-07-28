@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.0
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -363,10 +363,10 @@ class xmlArray
 		);
 
 		// Loop until we're out of data.
-		while ($data != '')
+		while ($data !== '')
 		{
 			// Find and remove the next tag.
-			preg_match('/\A<([\w\-:]+)((?:\s+.+?)?)([\s]?\/)?' . '>/', $data, $match);
+			preg_match('/\A<([\w\-:]+)((?:\s+[\s\S]+?)?)([\s]?\/)?' . '>/', $data, $match);
 			if (isset($match[0]))
 				$data = preg_replace('/' . preg_quote($match[0], '/') . '/s', '', $data, 1);
 
@@ -424,7 +424,7 @@ class xmlArray
 					}
 				}
 
-				// Wait for an actual occurrence of an element.
+				// Wait for an actual occurance of an element.
 				continue;
 			}
 
@@ -532,7 +532,7 @@ class xmlArray
 		$inside_elements = false;
 		$output_el = '';
 
-		// Run through and recursively output all the elements or attributes inside this.
+		// Run through and recursively output all the elements or attrbutes inside this.
 		foreach ($array as $k => $v)
 		{
 			if (substr($k, 0, 1) == '@')
@@ -876,7 +876,7 @@ class ftp_connection
 	}
 
 	/**
-	 * Changes a files attributes (chmod)
+	 * Changes a files atrributes (chmod)
 	 *
 	 * @param string $ftp_file The file to CHMOD
 	 * @param int|string $chmod The value for the CHMOD operation
@@ -1057,7 +1057,7 @@ class ftp_connection
 		if (!is_resource($this->connection))
 			return false;
 
-		// Passive... non-aggressive...
+		// Passive... non-agressive...
 		if (!$this->passive())
 			return false;
 

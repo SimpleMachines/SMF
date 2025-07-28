@@ -7,10 +7,10 @@
  *
  * @package SMF
  * @author Simple Machines https://www.simplemachines.org
- * @copyright 2022 Simple Machines and individual contributors
+ * @copyright 2025 Simple Machines and individual contributors
  * @license https://www.simplemachines.org/about/smf/license.php BSD
  *
- * @version 2.1.3
+ * @version 2.1.5
  */
 
 if (!defined('SMF'))
@@ -135,7 +135,7 @@ function AddLanguage()
 
 /**
  * Gets a list of available languages from the mother ship
- * Will return a subset if searching, otherwise all available
+ * Will return a subset if searching, otherwise all avaialble
  *
  * @return array An array containing information about each available language
  */
@@ -269,7 +269,7 @@ function DownloadLanguage()
 		$extension = $pathinfo['extension'];
 
 		// Don't do anything with files we don't understand.
-		if (!in_array($extension, array('php', 'jpg', 'gif', 'jpeg', 'png', 'txt')))
+		if (!in_array($extension, array('php', 'jpg', 'gif', 'jpeg', 'png', 'txt', 'webp')))
 			continue;
 
 		// Basic data.

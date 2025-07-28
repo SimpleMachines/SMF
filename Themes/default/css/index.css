@@ -410,8 +410,13 @@ blockquote cite::before {
 	font: inherit;
 	color: inherit;
 }
+.lefttext .bbc_table,
 .centertext .bbc_table {
-	margin: auto;
+	margin-right: auto;
+}
+.righttext .bbc_table,
+.centertext .bbc_table {
+	margin-left: auto;
 }
 .bbc_table td {
 	font: inherit;
@@ -1444,8 +1449,10 @@ ul li.greeting {
 #display_jump_to_select,
 #message_index_jump_to_select,
 #search_jump_to_select,
-#quick_mod_jump_to_select {
+#quick_mod_jump_to_select,
+#list_integration_hooks select {
 	width: 29ch;
+	overflow: hidden;
 }
 
 .quickModifyMargin {
