@@ -77,7 +77,7 @@ class Code2 extends BBCode
 					$string .= $parts[$i];
 					$parts[$i++] = '';
 				}
-				$parts[$i] = self::highlightPhpCode($string . $parts[$i]);
+				$parts[$i] = Parser::highlightPhpCode($string . $parts[$i]);
 			}
 
 			if (is_array($data)) {
