@@ -280,6 +280,39 @@
 			editor.setSourceEditorValue = function (value) {
 				setSourceVal(value.replaceAll(/\[tab\]/, '\t'));
 			};
+
+			// Override these functions in order to convince SCEditor not to
+			// delete tabs.  Supporting Markdown means we need to keep them.
+			const sourceEditorInsertText = editor.sourceEditorInsertText;
+			const sourceEditorInsertHtml = editor.sourceEditorInsertHtml;
+			const wysiwygEditorInsertHtml = editor.wysiwygEditorInsertHtml;
+
+			editor.sourceEditorInsertText = function (text, endText) {
+				let selectionStart = sourceEditor.selectionStart;
+				let selectionEnd = sourceEditor.selectionEnd;
+
+				sourceEditorInsertText(text, endText);
+
+				sourceEditor.setSelectionRange(selectionStart + text.length, selectionEnd + text.length);
+			};
+
+			editor.sourceEditorInsertHtml = function (text, endText) {
+				let selectionStart = sourceEditor.selectionStart;
+				let selectionEnd = sourceEditor.selectionEnd;
+
+				sourceEditorInsertHtml(text, endText);
+
+				sourceEditor.setSelectionRange(selectionStart + text.length, selectionEnd + text.length);
+			};
+
+			editor.wysiwygEditorInsertHtml = function (text, endText) {
+				var rangeHelper = editor.getRangeHelper();
+				var range = rangeHelper.selectedRange();
+
+				wysiwygEditorInsertHtml(text, endText);
+
+				rangeHelper.selectRange(range);
+			};
 		};
 	};
 
@@ -1302,7 +1335,7 @@ sceditor.formats.bbcode
 		html: '<code class="php">{0}</code>'
 	}
 )
-set(
+.set(
 	'code', {
 		tags: {
 			code: null,
