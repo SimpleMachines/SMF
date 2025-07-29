@@ -3414,22 +3414,30 @@ class PackageUtils
 	}
 
 	/**
-	 * Generates a unique filename for the specified file in the specified directory
+	 * Generates a unique filename by appending a numeric suffix if a file already exists in the specified directory.
 	 *
-	 * @param string $dir The directory
-	 * @param string $filename The filename without an extension
-	 * @param string $ext The extension
-	 * @return string The filename with a number appended but no extension
+	 * This method checks for the existence of a file in the given directory and, if necessary, appends a number
+	 * to the base filename to ensure uniqueness.
+	 *
+	 * @param string $dir The directory where the file will be located. Must be a valid directory.
+	 * @param string $filename The base filename (without extension).
+	 * @param string $ext The file extension (without leading dot).
+	 *
+	 * @return string A unique filename **without** the extension. The caller should append it if needed.
+	 *
 	 * @since 2.1
 	 */
 	public static function generateUniqueFilename(string $dir, string $filename, string $ext): string
 	{
-		if (file_exists($dir . '/' . $filename . '.' . $ext)) {
+		$filepath = $dir . '/' . $filename;
+
+		if (file_exists($filepath . '.' . $ext)) {
 			$i = 1;
 
-			while (file_exists($dir . '/' . $filename . '_' . $i . '.' . $ext)) {
+			while (file_exists($filepath . '_' . $i . '.' . $ext)) {
 				$i++;
 			}
+
 			$filename .= '_' . $i;
 		}
 
@@ -3437,33 +3445,211 @@ class PackageUtils
 	}
 
 	/**
-	 * Creates a backup of forum files prior to modifying them
+	 * Creates a backup of critical forum files and directories in a compressed archive.
 	 *
-	 * @param string $id The name of the backup
-	 * @return bool True if it worked, false if it didn't
+	 * This method collects files from specific directories and creates a `.tar` or `.tar.gz` archive, depending on
+	 * the availability of the gzip library. The archive is stored in the `backups` directory under the packages folder.
+	 *
+	 * @param string $id A custom identifier for the backup file name (default: 'backup').
+	 *
+	 * @return bool Returns `true` on successful backup creation, or `false` on failure.
 	 */
 	public static function createBackup(string $id = 'backup'): bool
 	{
-		$files = [];
-
 		$base_files = ['index.php', 'SSI.php', 'cron.php', 'proxy.php', 'ssi_examples.php', 'ssi_examples.shtml', 'subscriptions.php'];
+		$files = [];
+		$root = self::normalizePath(Config::$boarddir . '/');
+		$dirs = [
+			self::normalizePath(Config::$sourcedir . '/'),
+			self::normalizePath(Config::$languagesdir . '/'),
+		];
+		$output_ext = function_exists('gzopen') ? 'tgz' : 'tar';
+		$dirname = Config::$packagesdir . '/backups';
+		$output_file = self::package_unique_filename(
+			$dirname,
+			date('Y-m-d_') . preg_replace('/[$\\/:<>|?*"\']/', '', $id),
+			$output_ext,
+		);
 
 		foreach ($base_files as $file) {
-			if (file_exists(Config::$boarddir . '/' . $file)) {
-				$files[empty($_REQUEST['use_full_paths']) ? $file : Config::$boarddir . '/' . $file] = Config::$boarddir . '/' . $file;
+			if (file_exists($root . $file)) {
+				$files[] = new \SplFileInfo($root . $file);
 			}
 		}
 
-		$dirs = [
-			Config::$sourcedir => empty($_REQUEST['use_full_paths']) ? 'Sources/' : strtr(Config::$sourcedir . '/', '\\', '/'),
-			Config::$languagesdir => empty($_REQUEST['use_full_paths']) ? 'Languages/' : strtr(Config::$languagesdir . '/', '\\', '/'),
-		];
+		$theme_dirs = self::fetchThemeDirectories();
 
+		foreach ($theme_dirs as $dir) {
+			$dirs[] = self::normalizePath($dir . '/');
+		}
+
+		if (!file_exists($dirname)) {
+			self::mktree($dirname, 0777);
+		}
+
+		if (!is_writable($dirname)) {
+			self::package_chmod($dirname);
+		}
+
+		try {
+			$callback = fn($file_info) =>
+				!preg_match('/images|fonts|minified_[a-z0-9]{32}\.[jc]s/', $file_info->getPathname())
+				&& $file_info->getExtension() !== 'php~';
+
+			foreach ($dirs as $dir) {
+				$iterator = new \RecursiveIteratorIterator(
+					new \RecursiveCallbackFilterIterator(
+						new \RecursiveDirectoryIterator(
+							$dir,
+							\FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS,
+						),
+						$callback,
+					),
+					\RecursiveIteratorIterator::SELF_FIRST, // Include directories before their contents
+					\RecursiveIteratorIterator::CATCH_GET_CHILD, // Ignore "Permission denied"
+				);
+
+				foreach ($iterator as $file_info) {
+					$files[] = $file_info;
+				}
+			}
+		} catch (\Exception $e) {
+			ErrorHandler::log($e->getMessage(), 'backup');
+
+			return false;
+		}
+
+		return self::writeTgzFile($dirname, $output_file, $output_ext, $files, $root);
+	}
+
+	/**
+	 * Writes a collection of files to a `.tar` or `.tar.gz` archive.
+	 *
+	 * This method creates a tarball of the specified files, optionally compressing it with gzip if available.
+	 * It processes each file's metadata, writes the appropriate tar header information, and ensures the archive
+	 * maintains block alignment.
+	 *
+	 * @param string $dirname The directory path where the archive will be created.
+	 * @param string $output_file The name of the output file (without extension).
+	 * @param string $output_ext The extension of the archive file (`tar` or `tgz`).
+	 * @param array $files An array of `SplFileInfo` objects representing the files to include in the archive.
+	 * @param string $root The root directory path to remove from file paths in the archive.
+	 *
+	 * @return bool Returns `true` if the archive was successfully created, or `false` if an error occurred.
+	 *
+	 * @since 3.0
+	 */
+	private static function writeTgzFile(
+		string $dirname,
+		string $output_file,
+		string $output_ext,
+		array $files,
+		string $root,
+	): bool {
+		$stream_prefix = function_exists('gzopen') ? 'compress.zlib://' : '';
+		$output = fopen($stream_prefix . $dirname . '/' . $output_file . '.' . $output_ext, 'w');
+
+		// Iterate through each file and write its data to the archive.
+		foreach ($files as $file_info) {
+			$fp = @fopen($file_info->getPathname(), 'r');
+
+			if (!$fp) {
+				continue;
+			}
+
+			$stat = fstat($fp);
+			$is_dir = $stat['mode'] & 040000;
+
+			// Create the tar header data.
+			$data_first = pack(
+				'a100a8a8a8a12a12',
+				str_replace($root, '', $file_info->getPathname()),// Relative path
+				sprintf('%6o ', $stat['mode']),                   // File permissions
+				sprintf('%6o ', $stat['uid']),                    // Owner ID
+				sprintf('%6o ', $stat['gid']),                    // Group ID
+				sprintf('%11o ', $is_dir ? 0 : $stat['size']),    // File size
+				sprintf('%11o ', $stat['mtime']),                  // Last modification time
+			);
+
+			$data_last = pack(
+				'a1a100a6a2a32a32a8a8a155a12',
+				$is_dir ? '5' : '0',                              // File type ('0' = file, '5' = directory)
+				'',                                               // Link name
+				'ustar',                                          // UStar indicator
+				'',                                               // Version
+				function_exists('posix_getpwuid') ? posix_getpwuid($stat['uid'])['name'] : '', // Owner name
+				function_exists('posix_getgrgid') ? posix_getgrgid($stat['gid'])['name'] : '', // Group name
+				'',                                               // Device major number
+				'',                                               // Device minor number
+				'',                                               // Root directory for paths
+				'',                                                // Padding
+			);
+
+			// Calculate checksum for the tar header.
+			$checksum = 256;
+
+			for ($i = 0; $i < 148; $i++) {
+				if ($data_first[$i] !== "\0") {
+					$checksum += ord($data_first[$i]);
+				}
+			}
+
+			for ($i = 0; $i < 356; $i++) {
+				if ($data_last[$i] !== "\0") {
+					$checksum += ord($data_last[$i]);
+				}
+			}
+
+			// Write the header to the archive.
+			fwrite($output, $data_first . pack('a8', decoct($checksum)) . $data_last);
+
+			// If the file is a directory, skip writing file contents.
+			if ($is_dir) {
+				continue;
+			}
+
+			// Write the file contents to the archive.
+			stream_copy_to_stream($fp, $output);
+
+			// Zerofill the rest of this block so that the archive stays block aligned.
+			if ($stat['size'] % 512 !== 0) {
+				fwrite($output, str_repeat("\0", 512 - $stat['size'] % 512));
+			}
+		}
+
+		// End of file marker: Two blocks of zeros (NUL bytes)
+		fwrite($output, str_repeat("\0", 1024));
+		fclose($output);
+
+		return true;
+	}
+
+	/**
+	 * Normalizes a given filesystem path by replacing backslashes with forward slashes.
+	 *
+	 * This method ensures consistency in path representation across different operating systems.
+	 *
+	 * @param string $path The path to normalize.
+	 *
+	 * @return string The normalized path with forward slashes.
+	 */
+	private static function normalizePath(string $path): string
+	{
+		return strtr($path, '\\', '/');
+	}
+
+	/**
+	 * Fetches the directories of all installed themes from the database.
+	 *
+	 * Retrieves the paths of theme directories stored in the `themes` table for the default member context.
+	 *
+	 * @return array An array of theme directory paths.
+	 */
+	private static function fetchThemeDirectories(): array
+	{
+		$dirs = [];
 		$request = Db::$db->query(
-			'SELECT value
-			FROM {db_prefix}themes
-			WHERE id_member = {int:no_member}
-				AND variable = {string:theme_dir}',
+			'SELECT value FROM {db_prefix}themes WHERE id_member = {int:no_member} AND variable = {string:theme_dir}',
 			[
 				'no_member' => 0,
 				'theme_dir' => 'theme_dir',
@@ -3471,91 +3657,12 @@ class PackageUtils
 		);
 
 		while ($row = Db::$db->fetch_assoc($request)) {
-			$dirs[$row['value']] = empty($_REQUEST['use_full_paths']) ? 'Themes/' . basename($row['value']) . '/' : strtr($row['value'] . '/', '\\', '/');
+			$dirs[] = $row['value'];
 		}
+
 		Db::$db->free_result($request);
 
-		try {
-			foreach ($dirs as $dir => $dest) {
-				$iter = new \RecursiveIteratorIterator(
-					new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-					\RecursiveIteratorIterator::CHILD_FIRST,
-					\RecursiveIteratorIterator::CATCH_GET_CHILD, // Ignore "Permission denied"
-				);
-
-				foreach ($iter as $entry => $dir) {
-					if ($dir->isDir()) {
-						continue;
-					}
-
-					if (preg_match('~^(\.{1,2}|CVS|backup.*|help|images|.*\~|.*minified_[a-z0-9]{32}\.(js|css))$~', $entry) != 0) {
-						continue;
-					}
-
-					$files[empty($_REQUEST['use_full_paths']) ? str_replace(realpath(Config::$boarddir), '', $entry) : $entry] = $entry;
-				}
-			}
-			$obj = new \ArrayObject($files);
-			$iterator = $obj->getIterator();
-
-			if (!file_exists(Config::$packagesdir . '/backups')) {
-				self::mktree(Config::$packagesdir . '/backups', 0777);
-			}
-
-			if (!is_writable(Config::$packagesdir . '/backups')) {
-				self::chmod(Config::$packagesdir . '/backups');
-			}
-			$output_file = Config::$packagesdir . '/backups/' . Time::strftime('%Y-%m-%d_') . preg_replace('~[$\\\\/:<>|?*"\']~', '', $id);
-			$output_ext = '.tar';
-			$output_ext_target = '.tar.gz';
-
-			if (file_exists($output_file . $output_ext_target)) {
-				$i = 2;
-
-				while (file_exists($output_file . '_' . $i . $output_ext_target)) {
-					$i++;
-				}
-				$output_file = $output_file . '_' . $i . $output_ext;
-			} else {
-				$output_file .= $output_ext;
-			}
-
-			Sapi::setTimeLimit(300);
-			Sapi::resetTimeout();
-
-			// Phar doesn't handle open_basedir restrictions very well and throws a PHP Warning. Ignore that.
-			set_error_handler(
-				function ($errno, $errstr, $errfile, $errline) {
-					// error was suppressed with the @-operator
-					if (0 === error_reporting()) {
-						return false;
-					}
-
-					if (!str_contains($errstr, 'PharData::__construct(): open_basedir') && !str_contains($errstr, 'PharData::compress(): open_basedir')) {
-						ErrorHandler::log($errstr, 'general', $errfile, $errline);
-					}
-
-					return true;
-				},
-			);
-			$a = new \PharData($output_file);
-			$a->buildFromIterator($iterator);
-			$a->compress(\Phar::GZ);
-			restore_error_handler();
-
-			/*
-			 * Destroying the local var tells PharData to close its internal
-			 * file pointer, enabling us to delete the uncompressed tarball.
-			 */
-			unset($a);
-			unlink($output_file);
-		} catch (\Exception $e) {
-			ErrorHandler::log($e->getMessage(), 'backup');
-
-			return false;
-		}
-
-		return true;
+		return $dirs;
 	}
 
 	/**

@@ -227,17 +227,7 @@ $languagesdir = __DIR__ . '/Languages';
  */
 $backward_compatibility = 0;
 
-if (file_exists(__DIR__ . '/install.php'))
-{
-	$secure = false;
-	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-		$secure = true;
-	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
-		$secure = true;
-
-	if (basename($_SERVER['PHP_SELF']) != 'install.php')
-	{
-		header('location: http' . ($secure ? 's' : '') . '://' . (empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST']) . (strtr(dirname($_SERVER['PHP_SELF']), '\\', '/') == '/' ? '' : strtr(dirname($_SERVER['PHP_SELF']), '\\', '/')) . '/install.php');
-		exit;
-	}
+if (file_exists(__DIR__ . '/install.php') && basename($_SERVER['PHP_SELF']) != 'install.php') {
+	header('location: install.php');
+	exit;
 }

@@ -1104,7 +1104,7 @@ class User implements \ArrayAccess
 			$this->formatted['custom_fields'] = [];
 
 			if (!isset(Utils::$context['display_fields'])) {
-				Utils::$context['display_fields'] = Utils::jsonDecode(Config::$modSettings['displayFields'], true);
+				Utils::$context['display_fields'] = Utils::jsonDecode(Config::$modSettings['displayFields'] ?? '[]', true);
 			}
 
 			foreach (Utils::$context['display_fields'] as $custom) {
@@ -1332,7 +1332,7 @@ class User implements \ArrayAccess
 			&& $this->last_login < time() - 60
 			&& (
 				!isset($_REQUEST['action'])
-				|| !in_array($_REQUEST['action'], ['.xml', 'login2', 'logintfa'])
+				|| !in_array($_REQUEST['action'], ['feed', 'login2', 'logintfa'])
 			)
 		) {
 			// Don't count longer than 15 minutes.
@@ -3106,10 +3106,11 @@ class User implements \ArrayAccess
 		// Get their names for logging purposes.
 		$admins = [];
 		$user_log_details = [];
+		$emails = [];
 
 		$request = Db::$db->query(
 			'SELECT
-				id_member, member_name, is_activated,
+				id_member, member_name, is_activated, email_address,
 				CASE WHEN id_group = {int:admin_group} OR FIND_IN_SET({int:admin_group}, additional_groups) != 0 THEN 1 ELSE 0 END AS is_admin
 			FROM {db_prefix}members
 			WHERE id_member IN ({array_int:user_list})
@@ -3127,6 +3128,7 @@ class User implements \ArrayAccess
 			}
 
 			$user_log_details[$row['id_member']] = $row;
+			$emails[] = $row['email_address'];
 		}
 		Db::$db->free_result($request);
 
@@ -3182,262 +3184,90 @@ class User implements \ArrayAccess
 			}
 		}
 
-		// Make these peoples' posts guest posts.
-		Db::$db->query(
-			'UPDATE {db_prefix}messages
-			SET id_member = {int:guest_id}
-			WHERE id_member IN ({array_int:users})',
-			[
-				'guest_id' => 0,
-				'users' => $users,
-			],
-		);
+		$set_tables = [
+			// Make these peoples' posts guest posts.
+			['messages', 'id_member'],
+			['polls', 'id_member'],
+			// Make these peoples' posts guest first posts and last posts.
+			['topics', 'id_member_started'],
+			['topics', 'id_member_updated'],
+			['log_actions', 'id_member'],
+			['log_banned', 'id_member'],
+			['log_errors', 'id_member'],
+			['log_reported', 'id_member'],
+			['log_reported_comments', 'id_member'],
+			// Make their votes appear as guest votes - at least it keeps the totals right.
+			// @todo Consider adding back in cookie protection.
+			['log_polls', 'id_member'],
+		];
 
-		Db::$db->query(
-			'UPDATE {db_prefix}polls
-			SET id_member = {int:guest_id}
-			WHERE id_member IN ({array_int:users})',
-			[
-				'guest_id' => 0,
-				'users' => $users,
-			],
-		);
+		$delete_tables = [
+			// Delete the member.
+			['members', 'id_member'],
+			['member_logins', 'id_member'],
+			['user_alerts', 'id_member'],
+			['user_alerts', 'id_member_started'],
+			['user_alerts_prefs', 'id_member'],
+			// Delete any drafts...
+			['user_drafts', 'id_member'],
+			// Delete anything they liked.
+			['user_likes', 'id_member'],
+			// Delete their mentions
+			['mentions', 'id_member'],
+			// Delete the logs...
+			['log_actions', 'id_member', ' AND id_log = {int:log_type}', ['log_type' => 2]],
+			['log_boards', 'id_member'],
+			['log_comments', 'id_recipient', ' AND comment_type = {string:warntpl}', ['warntpl' => 'warntpl']],
+			['log_group_requests', 'id_member'],
+			['log_mark_read', 'id_member'],
+			['log_notify', 'id_member'],
+			['log_online', 'id_member'],
+			['log_subscribed', 'id_member'],
+			['log_topics', 'id_member'],
+			['personal_messages', 'id_member_from'],
+			['pm_rules', 'id_member'],
+			// They no longer exist, so we don't know who it was sent to.
+			['pm_recipients', 'id_member'],
+			// It's over, no more moderation for you.
+			['moderators', 'id_member'],
+			['group_moderators', 'id_member'],
+			// If you don't exist we can't ban you.
+			['ban_items', 'id_member'],
+			// Remove individual theme settings.
+			['themes', 'id_member'],
+		];
 
-		// Make these peoples' posts guest first posts and last posts.
-		Db::$db->query(
-			'UPDATE {db_prefix}topics
-			SET id_member_started = {int:guest_id}
-			WHERE id_member_started IN ({array_int:users})',
-			[
-				'guest_id' => 0,
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'UPDATE {db_prefix}topics
-			SET id_member_updated = {int:guest_id}
-			WHERE id_member_updated IN ({array_int:users})',
-			[
-				'guest_id' => 0,
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'UPDATE {db_prefix}log_actions
-			SET id_member = {int:guest_id}
-			WHERE id_member IN ({array_int:users})',
-			[
-				'guest_id' => 0,
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'UPDATE {db_prefix}log_banned
-			SET id_member = {int:guest_id}
-			WHERE id_member IN ({array_int:users})',
-			[
-				'guest_id' => 0,
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'UPDATE {db_prefix}log_errors
-			SET id_member = {int:guest_id}
-			WHERE id_member IN ({array_int:users})',
-			[
-				'guest_id' => 0,
-				'users' => $users,
-			],
-		);
-
-		// Delete the member.
-		Db::$db->query(
-			'DELETE FROM {db_prefix}members
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		// Delete any drafts...
-		Db::$db->query(
-			'DELETE FROM {db_prefix}user_drafts
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		// Delete anything they liked.
-		Db::$db->query(
-			'DELETE FROM {db_prefix}user_likes
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		// Delete their mentions
-		Db::$db->query(
-			'DELETE FROM {db_prefix}mentions
-			WHERE id_member IN ({array_int:members})',
-			[
-				'members' => $users,
-			],
-		);
-
-		// Delete the logs...
-		Db::$db->query(
-			'DELETE FROM {db_prefix}log_actions
-			WHERE id_log = {int:log_type}
-				AND id_member IN ({array_int:users})',
-			[
-				'log_type' => 2,
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'DELETE FROM {db_prefix}log_boards
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'DELETE FROM {db_prefix}log_comments
-			WHERE id_recipient IN ({array_int:users})
-				AND comment_type = {string:warntpl}',
-			[
-				'users' => $users,
-				'warntpl' => 'warntpl',
-			],
-		);
-
-		Db::$db->query(
-			'DELETE FROM {db_prefix}log_group_requests
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'DELETE FROM {db_prefix}log_mark_read
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'DELETE FROM {db_prefix}log_notify
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'DELETE FROM {db_prefix}log_online
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'DELETE FROM {db_prefix}log_subscribed
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'DELETE FROM {db_prefix}log_topics
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		// Make their votes appear as guest votes - at least it keeps the totals right.
-		// @todo Consider adding back in cookie protection.
-		Db::$db->query(
-			'UPDATE {db_prefix}log_polls
-			SET id_member = {int:guest_id}
-			WHERE id_member IN ({array_int:users})',
-			[
-				'guest_id' => 0,
-				'users' => $users,
-			],
-		);
+		foreach ($set_tables as $d) {
+			Db::$db->query(
+				'UPDATE {db_prefix}{raw:table}
+				SET {raw:col} = {int:guest_id}
+				WHERE {raw:col} IN ({array_int:users})',
+				[
+					'table' => $d[0],
+					'col' => $d[1],
+					'guest_id' => 0,
+					'users' => $users,
+				],
+			);
+		}
 
 		// Delete personal messages.
 		PM::delete(null, null, $users);
 
-		Db::$db->query(
-			'UPDATE {db_prefix}personal_messages
-			SET id_member_from = {int:guest_id}
-			WHERE id_member_from IN ({array_int:users})',
-			[
-				'guest_id' => 0,
-				'users' => $users,
-			],
-		);
-
-		// They no longer exist, so we don't know who it was sent to.
-		Db::$db->query(
-			'DELETE FROM {db_prefix}pm_recipients
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
+		foreach ($delete_tables as $d) {
+			Db::$db->query(
+				'DELETE FROM {db_prefix}{raw:table}
+				WHERE {raw:col} IN ({array_int:users})' . ($d[2] ?? ''),
+				array_merge($d[3] ?? [], [
+					'table' => $d[0],
+					'col' => $d[1],
+					'users' => $users,
+				]),
+			);
+		}
 
 		// Delete avatar.
 		Attachment::remove(['id_member' => $users]);
-
-		// It's over, no more moderation for you.
-		Db::$db->query(
-			'DELETE FROM {db_prefix}moderators
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		Db::$db->query(
-			'DELETE FROM {db_prefix}group_moderators
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		// If you don't exist we can't ban you.
-		Db::$db->query(
-			'DELETE FROM {db_prefix}ban_items
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
-
-		// Remove individual theme settings.
-		Db::$db->query(
-			'DELETE FROM {db_prefix}themes
-			WHERE id_member IN ({array_int:users})',
-			[
-				'users' => $users,
-			],
-		);
 
 		// These users are nobody's buddy nomore.
 		$request = Db::$db->query(
@@ -3465,6 +3295,15 @@ class User implements \ArrayAccess
 			);
 		}
 		Db::$db->free_result($request);
+
+		// Remove any emails we may have queued to send.
+		Db::$db->query(
+			'DELETE FROM {db_prefix}mail_queue
+			WHERE recipient IN ({array_string:emails})',
+			[
+				'emails' => $emails,
+			],
+		);
 
 		// Make sure no member's birthday is still sticking in the calendar...
 		Config::updateModSettings([
@@ -4103,7 +3942,7 @@ class User implements \ArrayAccess
 				'original_url' => $profile['avatar_original'] ?? '',
 				'url' => (string) ($profile['avatar'] ?? ''),
 				'filename' => $profile['filename'] ?? '',
-				'custom_dir' => !empty($profile['attachment_type']) && $profile['attachment_type'] == 1,
+				'custom_dir' => !empty($profile['attachment_type']) && $profile['attachment_type'] == Attachment::TYPE_AVATAR,
 				'id_attach' => $profile['id_attach'] ?? 0,
 				'width' => $profile['attachment_width'] ?? null,
 				'height' => $profile['attachment_height'] ?? null,
@@ -4283,7 +4122,7 @@ class User implements \ArrayAccess
 		}
 
 		// Check if we are forcing TFA
-		$force_tfasetup = Config::$modSettings['tfa_mode'] >= 2 && empty(self::$profiles[self::$my_id]['tfa_secret']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != '.xml');
+		$force_tfasetup = Config::$modSettings['tfa_mode'] >= 2 && empty(self::$profiles[self::$my_id]['tfa_secret']) && SMF != 'SSI' && !isset($_REQUEST['xml']) && (!isset($_REQUEST['action']) || $_REQUEST['action'] != 'feed');
 
 		// Don't force TFA on popups
 		if ($force_tfasetup) {
@@ -4389,7 +4228,7 @@ class User implements \ArrayAccess
 			&& !isset($_REQUEST['xml'])
 			&& (
 				!isset($_REQUEST['action'])
-				|| !in_array($_REQUEST['action'], ['.xml', 'login2', 'logintfa'])
+				|| !in_array($_REQUEST['action'], ['feed', 'login2', 'logintfa'])
 			)
 			&& empty($_SESSION['id_msg_last_visit'])
 			&& (

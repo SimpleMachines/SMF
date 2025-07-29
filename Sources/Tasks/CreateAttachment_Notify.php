@@ -17,6 +17,7 @@ namespace SMF\Tasks;
 
 use SMF\Actions\Notify;
 use SMF\Alert;
+use SMF\Attachment;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Mail;
@@ -53,8 +54,8 @@ class CreateAttachment_Notify extends BackgroundTask
 				AND a.approved = {int:is_approved}',
 			[
 				'attachment' => $this->_details['id'],
-				'attachment_type' => 0,
-				'is_approved' => 0,
+				'attachment_type' => Attachment::TYPE_STANDARD,
+				'is_approved' => Attachment::APPROVED_FALSE,
 			],
 		);
 

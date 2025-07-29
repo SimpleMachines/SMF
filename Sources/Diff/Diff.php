@@ -586,7 +586,7 @@ abstract class Diff
 				array_splice(
 					$lines,
 					$change['l1'],
-					$change['l2'] - $change['l1'] + 1,
+					(int) $change['l2'] - $change['l1'] + 1,
 					$this->formatDelIns(
 						$change[$reverse ? 'new' : 'old'],
 						$change[$reverse ? 'old' : 'new'],
@@ -1081,7 +1081,7 @@ abstract class Diff
 		$word_offsets = array_map('intval', array_keys($changes));
 
 		foreach ($changes as $c => $change) {
-			$this_end = $c + count($change['old']);
+			$this_end = (int) $c + count($change['old']);
 			$next_start = next($word_offsets);
 
 			if ($next_start <= $this_end) {
@@ -1758,7 +1758,7 @@ abstract class Diff
 				implode('', $bifurcated['suffix2']),
 			);
 
-			return $lcs;
+			return (int) $lcs;
 		}
 
 		// Once we reach the point where bifurcating doesn't help any further,
@@ -2198,7 +2198,7 @@ abstract class Diff
 			);
 
 			// Initially assume we want $context number of following lines.
-			$after_start = $changes[$c]['l1'] + count($this->splitLines($changes[$c]['old'])) - 1;
+			$after_start = (int) $changes[$c]['l1'] + count($this->splitLines($changes[$c]['old'])) - 1;
 			$after_length = $context;
 
 			if (isset($lines1[$after_start + 1])) {

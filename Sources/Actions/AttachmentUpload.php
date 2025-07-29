@@ -302,7 +302,7 @@ class AttachmentUpload implements ActionInterface, Routable
 					AND attachment_type = {int:attachment_type}',
 				[
 					'id_msg' => (int) $this->msg,
-					'attachment_type' => 0,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 				],
 			);
 			list(Utils::$context['attachments']['quantity'], Utils::$context['attachments']['total_size']) = Db::$db->fetch_row($request);

@@ -783,7 +783,7 @@ class Post2 extends Post
 
 			if (!empty($_REQUEST['msg'])) {
 				$attachmentQuery = [
-					'attachment_type' => 0,
+					'attachment_type' => Attachment::TYPE_STANDARD,
 					'id_msg' => (int) $_REQUEST['msg'],
 					'not_id_attach' => $keep_ids,
 				];
