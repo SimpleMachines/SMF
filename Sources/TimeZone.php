@@ -1696,6 +1696,13 @@ class TimeZone extends \DateTimeZone
 	{
 		list($when, $later) = self::getTimeRange($when);
 
+		if (
+			isset(self::$metazones[$this->getName()])
+			&& Lang::txtExists(self::$metazones[$this->getName()], var: 'tztxt')
+		) {
+			return self::$metazones[$this->getName()];
+		}
+
 		if (empty(self::$metazone_transitions[$when])) {
 			self::buildMetaZoneTransitions($when);
 		}
