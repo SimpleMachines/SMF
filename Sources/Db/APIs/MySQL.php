@@ -2496,8 +2496,8 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			ErrorHandler::displayDbError();
 		}
 
-		// This was the default prior to PHP 8.1, and all our code assumes it.
-		mysqli_report(MYSQLI_REPORT_OFF);
+		// Ignore some errors and strict mode warnings when we are not debugging.
+		mysqli_report(Config::$db_show_debug ? MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT : MYSQLI_REPORT_OFF);
 
 		$success = false;
 
