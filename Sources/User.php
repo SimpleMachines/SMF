@@ -2320,10 +2320,16 @@ class User implements \ArrayAccess
 	 */
 	public function boardsAllowedTo(string|array $permissions, bool $check_access = true, bool $simple = true): array
 	{
-		$boards = [];
-		$deny_boards = [];
+		$permissions = (array) $permissions;
 
-		$permissions = array_filter((array) $permissions, fn($p) => Permission::get($p)->scope === 'board');
+		foreach ($permissions as $permission) {
+			if (Permission::get($permission)->scope !== 'board') {
+				// Not translated because it will only happen if a developer screwed up.
+				throw new \ValueError('Global permission "' . $permission . '" passed to $permissions parameter of ' . __METHOD__);
+			}
+		}
+
+		$boards = $deny_boards = array_fill_keys($permissions, []);
 
 		foreach (PermissionProfile::loadAll() as $profile) {
 			if (empty($profile->boards())) {
@@ -2337,9 +2343,9 @@ class User implements \ArrayAccess
 
 			foreach ($permissions as $permission) {
 				if ($set->allowedTo($permission)) {
-					$boards[$permission] = array_merge($boards[$permission] ?? [], $profile->boards());
+					$boards[$permission] = array_merge($boards[$permission], $profile->boards());
 				} else {
-					$deny_boards[$permission] = array_merge($deny_boards[$permission] ?? [], $profile->boards());
+					$deny_boards[$permission] = array_merge($deny_boards[$permission], $profile->boards());
 				}
 			}
 		}
